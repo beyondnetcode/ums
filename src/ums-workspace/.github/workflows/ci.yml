@@ -1,0 +1,59 @@
+name: UMS Monorepo CI
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+  push:
+    branches: [ main, develop ]
+
+jobs:
+  # 1. Total Quality Control and Build Validation
+  ci:
+    name: Build, Lint and Test (CI)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required for SonarCloud analysis
+
+      - name: Setup Node.js v18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Security Vulnerability Audit
+        run: npm audit --audit-level=high
+
+      - name: Run Global Linter
+        run: npx nx run-many --target=lint
+
+      - name: Run Unit Tests with Coverage
+        run: npx nx run-many --target=test --code-coverage
+
+      - name: Build Applications (Vite & NestJS)
+        run: npx nx run-many --target=build
+
+  # 2. Advanced Security Analysis (CodeQL)
+  codeql:
+    name: CodeQL Static Security Scan
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: 'javascript-typescript'
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
