@@ -28,7 +28,8 @@ All commands must be run from within the `./src/ums-workspace/` directory:
 - Before updating dependencies, verify strict dependency pinning.
 - If modifying core logic, ensure architectural traceability to approved ADRs.
 - Keep formatting clean, adhering to ESLint and Prettier configs in the workspace.
-- **Context Retrieval:** Always use **Context7** (`npx ctx7`) to fetch updated, version-specific documentation for third-party libraries before implementing complex external integrations to eliminate API hallucinations.
+- **Context Retrieval:** Always use **Context7** (`npx ctx7`) to fetch updated, version-specific documentation for third-party libraries before implementing complex external integrations.
+- **Corporate Standards Alignment:** Any agent making architectural design decisions MUST query the **Corporate Reference** via Context7 (`use context7 for beyondnetcode/arc32_progresive_monolith`) to ensure absolute compliance with baseline polyglot standards and authoritative patterns.
 
 ## Out of Bounds
 - DO NOT modify CI/CD GitHub workflows.

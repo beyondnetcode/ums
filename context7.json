@@ -1,0 +1,27 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "projectTitle": "User Management System (UMS) - Enterprise Monorepo",
+  "description": "Enterprise-grade User Management System implementing Clean Architecture (Hexagonal) and SOLID principles in NestJS and React following the corporate bMAD Method.",
+  "folders": [
+    "src/ums-workspace/docs",
+    "src/ums-workspace/apps",
+    "src/ums-workspace/libs"
+  ],
+  "excludeFolders": [
+    "**/node_modules",
+    "**/dist",
+    "**/.nx",
+    "**/coverage"
+  ],
+  "excludeFiles": [
+    "package-lock.json",
+    "LICENSE"
+  ],
+  "rules": [
+    "Always protect the Domain Kernel by keeping it free of framework, DB, or external library dependencies.",
+    "Ensure every architectural change aligns with approved ADRs (Architectural Decision Records) in docs/03-adrs.",
+    "Adhere strictly to explicit TypeScript interfaces and SonarJS static code thresholds.",
+    "Prefer the functional Result Pattern over throwing application exceptions for domain errors.",
+    "Consult the corporate authoritative tech stack prior to introducing new third-party packages."
+  ]
+}
