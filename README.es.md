@@ -1,4 +1,4 @@
-<img src="./governance/assets/header-banner.png" height="50" alt="Software Architecture Banner" />
+<img src="./governance/assets/header-banner.png" height="100" width="100%" alt="Software Architecture Banner" />
 
 # UMS — Sistema de Gestión de Usuarios Empresarial
 
