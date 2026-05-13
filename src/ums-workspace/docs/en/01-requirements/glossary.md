@@ -1,4 +1,4 @@
-# 📖 Glossary of Terms
+﻿# 📖 Glossary of Terms
 
 This document establishes the standardized, non-ambiguous glossary of terms for the **User Management System (UMS)** under the **spec-driven AI strategy BMAD-METHOD**.
 

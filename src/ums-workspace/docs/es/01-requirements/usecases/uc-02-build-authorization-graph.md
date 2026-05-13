@@ -1,4 +1,4 @@
-# 🧪 Caso de Uso 2: Compilar Grafo de Autorización
+﻿# 🧪 Caso de Uso 2: Compilar Grafo de Autorización
 
 Este documento especifica el flujo de transacciones, los actores y las estrategias de caché para compilar el grafo dinámico de acciones y recursos permitidos para una sesión autenticada bajo la **estrategia spec-driven AI BMAD-METHOD**.
 
@@ -20,7 +20,7 @@ Este documento especifica el flujo de transacciones, los actores y las estrategi
 ```mermaid
 sequenceDiagram
     autonumber
-    participant Guard as Guard NestJS
+    participant Guard as Middleware ASP.NET Core
     participant Engine as Motor Auth (Core)
     participant DB as PostgreSQL
     participant Cache as Caché Redis
@@ -39,7 +39,7 @@ sequenceDiagram
 ```
 
 ### A. Flujo Principal
-1.  El interceptor/guard de NestJS recibe una solicitud API entrante.
+1.  El interceptor/guard de .NET 8 recibe una solicitud API entrante.
 2.  El guard consulta el clúster de caché Redis de alto rendimiento utilizando el `user_id` único como clave.
 3.  **Caso de Acierto en Caché:** Redis devuelve el grafo jerárquico de permisos JSON precompilado. El guard resuelve el permiso instantáneamente (Objetivo p95 < 5ms).
 4.  **Caso de Fallo en Caché:** El guard envía un comando de compilación al Motor de Autorización principal.

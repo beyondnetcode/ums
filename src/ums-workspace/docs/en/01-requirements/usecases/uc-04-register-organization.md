@@ -1,4 +1,4 @@
-# 🧪 Use Case 4: Register Organization and Configure IdP Strategy
+﻿# 🧪 Use Case 4: Register Organization and Configure IdP Strategy
 
 This use case specifies the flow for onboarding a new corporate tenant (Organization) into the UMS and configuring its identity authentication strategy.
 
@@ -22,7 +22,7 @@ sequenceDiagram
     autonumber
     actor Admin as Global Security Administrator
     participant Console as UMS Admin Console
-    participant API as UMS NestJS API
+    participant API as UMS .NET 8 API
     participant DB as PostgreSQL
     participant Audit as Audit Ledger
 

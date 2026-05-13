@@ -1,4 +1,4 @@
-# 🧪 Use Case 6: Create Profile and Manually Assign Authorization Template
+﻿# 🧪 Use Case 6: Create Profile and Manually Assign Authorization Template
 
 This use case specifies the flow for creating a user Profile within an Organization/Branch context and **manually assigning** one or more Authorization Templates to it via the Admin Console.
 
@@ -22,7 +22,7 @@ sequenceDiagram
     autonumber
     actor Admin as Security Administrator
     participant Console as UMS Admin Console
-    participant API as UMS NestJS API
+    participant API as UMS .NET 8 API
     participant DB as PostgreSQL
     participant Cache as Redis Cache
     participant Audit as Audit Ledger

@@ -1,4 +1,4 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
+ï»¿> ğŸš§ **Nota de Arquitectura:** Este documento se encuentra actualmente en su versiÃ³n original (InglÃ©s) y estÃ¡ programado para traducciÃ³n oficial en la hoja de ruta.
 
 # ğŸ§ª Use Case 6: Create Profile and Manually Assign Authorization Template
 
@@ -24,7 +24,7 @@ sequenceDiagram
     autonumber
     actor Admin as Security Administrator
     participant Console as UMS Admin Console
-    participant API as UMS NestJS API
+    participant API as UMS .NET 8 API
     participant DB as PostgreSQL
     participant Cache as Redis Cache
     participant Audit as Audit Ledger

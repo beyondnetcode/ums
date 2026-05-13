@@ -1,4 +1,4 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
+ï»¿> ğŸš§ **Nota de Arquitectura:** Este documento se encuentra actualmente en su versiÃ³n original (InglÃ©s) y estÃ¡ programado para traducciÃ³n oficial en la hoja de ruta.
 
 # ğŸ§ª Use Case 8: Diagnose User Permissions via Visual Graph Resolver
 
@@ -24,7 +24,7 @@ sequenceDiagram
     autonumber
     actor SRE as SRE / Support Engineer
     participant Console as UMS Admin Console
-    participant API as UMS NestJS API
+    participant API as UMS .NET 8 API
     participant Engine as Auth Engine (PDP)
     participant Cache as Redis Cache
     participant DB as PostgreSQL

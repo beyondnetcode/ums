@@ -1,4 +1,4 @@
-# 🧪 Use Case 10: Authenticate via Customizable Hosted Login Page
+﻿# 🧪 Use Case 10: Authenticate via Customizable Hosted Login Page
 
 This use case details the flow for centralizing user authentication through a secure, UMS-hosted login page that dynamically adapts its branding and layouts per tenant and system.
 

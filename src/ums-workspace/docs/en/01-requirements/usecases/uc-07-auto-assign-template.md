@@ -1,4 +1,4 @@
-# 🧪 Use Case 7: Auto-Assign Authorization Template on Profile Creation
+﻿# 🧪 Use Case 7: Auto-Assign Authorization Template on Profile Creation
 
 This use case specifies the flow of the **Automatic Rule-Based Template Assignment Engine**, which triggers upon profile creation to automatically attach the appropriate Authorization Template based on configurable matching rules.
 
@@ -23,7 +23,7 @@ sequenceDiagram
     autonumber
     actor Admin as Global Security Administrator
     participant Console as UMS Admin Console
-    participant API as UMS NestJS API
+    participant API as UMS .NET 8 API
     participant DB as PostgreSQL
 
     Admin->>Console: Navigate to Templates > Assignment Rules > Create Rule

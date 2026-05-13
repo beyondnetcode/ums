@@ -1,4 +1,4 @@
-# 📂 Directorio de Casos de Uso Atómicos
+﻿# 📂 Directorio de Casos de Uso Atómicos
 
 Bienvenido al índice maestro de **Casos de Uso Atómicos** para el Sistema de Gestión de Usuarios (UMS). Este directorio contiene todos los flujos transaccionales y reglas de negocio, modelados de forma agnóstica a la tecnología bajo la **estrategia spec-driven AI BMAD-METHOD**.
 

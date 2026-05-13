@@ -20,7 +20,7 @@ This document specifies the transaction flow, actors, and caching strategies for
 ```mermaid
 sequenceDiagram
     autonumber
-    participant Guard as NestJS Guard
+    participant Guard as ASP.NET Core Middleware
     participant Engine as Auth Engine (Core)
     participant DB as PostgreSQL
     participant Cache as Redis Cache
@@ -39,7 +39,7 @@ sequenceDiagram
 ```
 
 ### A. Main Flow
-1.  The NestJS request interceptor/guard receives an incoming API request.
+1.  The .NET 8 request interceptor/guard receives an incoming API request.
 2.  The guard queries the high-performance Redis cache cluster using the unique `user_id` as the key.
 3.  **Cache Hit Case**: Redis returns the pre-compiled hierarchical JSON permission graph. The guard instantly resolves the permission (Target p95 < 5ms).
 4.  **Cache Miss Case**: The guard dispatches a compile command to the core Authorization Engine.

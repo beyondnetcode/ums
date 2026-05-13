@@ -23,7 +23,7 @@ sequenceDiagram
     actor User as SCM Corporate User
     participant Web as React Web App
     participant IdP as Identity Provider (OIDC)
-    participant API as NestJS API Gateway
+    participant API as .NET 8 API Gateway
 
     User->>Web: Click Login
     Web->>IdP: Redirect with PKCE Auth Code Flow

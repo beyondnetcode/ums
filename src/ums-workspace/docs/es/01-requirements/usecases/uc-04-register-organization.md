@@ -1,4 +1,4 @@
-# 🏢 Caso de Uso 4: Registrar Organización y Configurar Estrategia de IdP
+﻿# 🏢 Caso de Uso 4: Registrar Organización y Configurar Estrategia de IdP
 
 Este caso de uso especifica el flujo para integrar a un nuevo inquilino corporativo (Organización) en el UMS y configurar su estrategia de autenticación de identidad.
 
@@ -22,7 +22,7 @@ sequenceDiagram
     autonumber
     actor Admin as Administrador de Seguridad
     participant Console as Consola Admin UMS
-    participant API as API NestJS UMS
+    participant API as API .NET 8 UMS
     participant DB as PostgreSQL
     participant Audit as Registro de Auditoría
 

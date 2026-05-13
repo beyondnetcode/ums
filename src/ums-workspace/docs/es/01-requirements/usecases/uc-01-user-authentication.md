@@ -1,4 +1,4 @@
-# 🧪 Caso de Uso 1: Autenticación de Usuario vía IdP Externo
+﻿# 🧪 Caso de Uso 1: Autenticación de Usuario vía IdP Externo
 
 Este documento especifica el flujo de transacciones, los actores y las estrategias de respaldo para autenticar a un usuario corporativo mediante un proveedor de identidad externo (IdP) bajo la **estrategia spec-driven AI BMAD-METHOD**.
 
@@ -23,7 +23,7 @@ sequenceDiagram
     actor User as Usuario Corporativo SCM
     participant Web as App Web React
     participant IdP as Proveedor de Identidad (OIDC)
-    participant API as API Gateway NestJS
+    participant API as API Gateway .NET 8
 
     User->>Web: Clic en Iniciar Sesión
     Web->>IdP: Redirigir con Flujo Auth Code PKCE

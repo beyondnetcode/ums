@@ -1,4 +1,4 @@
-# 🧪 Use Case 5: Register System and Define Menu Topology
+﻿# 🧪 Use Case 5: Register System and Define Menu Topology
 
 This use case specifies the flow for registering a new client application (System) into the UMS and defining its navigational resource hierarchy (Menus, Submenus, Options, and Actions).
 
@@ -22,7 +22,7 @@ sequenceDiagram
     autonumber
     actor Admin as Global Security Administrator
     participant Console as UMS Admin Console
-    participant API as UMS NestJS API
+    participant API as UMS .NET 8 API
     participant DB as PostgreSQL
     participant Audit as Audit Ledger
 

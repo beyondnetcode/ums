@@ -22,7 +22,7 @@ sequenceDiagram
     autonumber
     actor Admin as IT Administrator
     participant Web as React Web App
-    participant API as NestJS Backend
+    participant API as .NET 8 Backend
     participant DB as PostgreSQL
     participant Audit as Audit Ledger
 

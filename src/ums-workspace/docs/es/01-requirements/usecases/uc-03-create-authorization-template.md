@@ -1,4 +1,4 @@
-# 🧪 Caso de Uso 3: Crear e Instanciar Plantilla de Autorización
+﻿# 🧪 Caso de Uso 3: Crear e Instanciar Plantilla de Autorización
 
 Este documento especifica el flujo de transacciones, los actores y las reglas de control de versiones para crear una plantilla de políticas reutilizable y vincularla a espacios de trabajo de perfiles bajo la **estrategia spec-driven AI BMAD-METHOD**.
 
@@ -22,7 +22,7 @@ sequenceDiagram
     autonumber
     actor Admin as Administrador TI
     participant Web as App Web React
-    participant API as Backend NestJS
+    participant API as Backend .NET 8
     participant DB as PostgreSQL
     participant Audit as Registro de Auditoría
 

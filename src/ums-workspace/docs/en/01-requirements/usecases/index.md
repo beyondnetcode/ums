@@ -1,4 +1,4 @@
-# 📂 Atomic Use Cases Directory
+﻿# 🧪 Use Cases Directory
 
 Welcome to the master index of **Atomic Use Cases** for the User Management System (UMS). This directory contains all transactional flows and business rules, modeled in a technology-agnostic manner under the **spec-driven AI strategy BMAD-METHOD**.
 

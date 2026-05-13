@@ -1,4 +1,4 @@
-# 🧪 Use Case 8: Diagnose User Permissions via Visual Graph Resolver
+﻿# 🧪 Use Case 8: Diagnose User Permissions via Visual Graph Resolver
 
 This use case specifies the flow for SRE engineers and security administrators to diagnose and visualize the compiled authorization graph for a specific user within a target organization, branch, and system context.
 
@@ -22,7 +22,7 @@ sequenceDiagram
     autonumber
     actor SRE as SRE / Support Engineer
     participant Console as UMS Admin Console
-    participant API as UMS NestJS API
+    participant API as UMS .NET 8 API
     participant Engine as Auth Engine (PDP)
     participant Cache as Redis Cache
     participant DB as PostgreSQL
