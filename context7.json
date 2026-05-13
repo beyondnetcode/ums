@@ -20,7 +20,7 @@
   ],
   "rules": [
     "Always protect the Domain Kernel by keeping it free of framework, DB, or external NuGet dependencies (pure POCOs).",
-    "Ensure every architectural change aligns with approved ADRs (Architectural Decision Records) in docs/03-adrs.",
+    "Ensure every architectural change aligns with approved ADRs (Architectural Decision Records) in docs/en/03-adrs.",
     "Adhere strictly to explicit C# interfaces, MediatR command CQRS, and SonarJS static code thresholds.",
     "Prefer the functional Result Pattern over throwing application exceptions for domain errors.",
     "Consult the corporate authoritative tech stack prior to introducing new third-party packages."

@@ -23,8 +23,8 @@ Esta solución es una implementación en .NET 8 LTS que sirve como una instancia
 🚀 **No explores los directorios al azar.** Todas las rutas técnicas y de cumplimiento están organizadas explícitamente por rol de usuario:
 
 1.  👉 **[Índice Maestro Global (ES)](./MASTER_INDEX.es.md)**: La puerta de entrada canónica. Encuentra tu ruta de lectura obligatoria según tu perfil (Proveedor, Desarrollador, Arquitecto, Project Manager).
-2.  🏛️ **[Documentación Maestra bMAD](./src/ums-workspace/docs/index.es.md)**: Índice unificado central que mapea desde la Fase 00 hasta la Fase 05.
-3.  📜 **[Hub de Registro ADR](./src/ums-workspace/docs/index.es.md#📜-phase-03---registros-de-decisión-arquitectónica-adrs)**: Acceso directo a los 29 Registros de Decisiones Arquitectónicas (ADR) activas.
+2.  🏛️ **[Documentación Maestra bMAD](./src/ums-workspace/docs/es/es/index.md)**: Índice unificado central que mapea desde la Fase 00 hasta la Fase 05.
+3.  📜 **[Hub de Registro ADR](./src/ums-workspace/docs/es/es/index.md#📜-phase-03---registros-de-decisión-arquitectónica-adrs)**: Acceso directo a los 29 Registros de Decisiones Arquitectónicas (ADR) activas.
 
 ---
 
@@ -57,11 +57,12 @@ Para interactuar de forma segura con el código base de UMS, todos los desarroll
 
 ### 🛠️ Directorio de Accesos Rápidos
 *   🏛️ **[Blueprint de Referencia Corporativa](https://github.com/beyondnetcode/arc32_progresive_monolith)**: Especificaciones corporativas oficiales para sistemas políglotas.
-*   📊 **[Análisis de Brecha y Estrategia de Deuda](./src/ums-workspace/docs/04-artifacts/gap-analysis-and-optimization-plan.md)**: Evaluación de arquitectura frente a 16 criterios empresariales.
-*   ⚙️ **[Estrategia de Observabilidad](./src/ums-workspace/docs/04-artifacts/observability-strategy.md)**: Telemetría de costo cero usando OpenTelemetry y Grafana Loki.
-*   📈 **[Hoja de Ruta de Lanzamientos](./src/ums-workspace/docs/05-roadmap/versioning-and-audit-strategy.md)**: Estrategia automatizada de versionado semántico.
+*   📊 **[Análisis de Brecha y Estrategia de Deuda](./src/ums-workspace/docs/es/04-artifacts/gap-analysis-and-optimization-plan.md)**: Evaluación de arquitectura frente a 16 criterios empresariales.
+*   ⚙️ **[Estrategia de Observabilidad](./src/ums-workspace/docs/es/04-artifacts/observability-strategy.md)**: Telemetría de costo cero usando OpenTelemetry y Grafana Loki.
+*   📈 **[Hoja de Ruta de Lanzamientos](./src/ums-workspace/docs/es/05-roadmap/versioning-and-audit-strategy.md)**: Estrategia automatizada de versionado semántico.
 
 ---
 
 🤖 **Habilitación Aumentada por IA:** Este repositorio soporta nativamente agentes autónomos e IA asistida en el desarrollo, siguiendo el estándar de ingeniería BMAD Harness.
 👉 **[Explorar Developer Harness en AGENTS.md](./AGENTS.md)**
+

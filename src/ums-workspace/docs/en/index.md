@@ -1,6 +1,6 @@
 # 🗺️ Master Navigation Map - UMS Knowledge Base
 
-> 🌍 **Language Selector:** [🇪🇸 Español](./index.es.md) | [🇺🇸 English](./index.md)
+> 🌍 **Language Selector:** [🇪🇸 Español](../es/index.md) | [🇺🇸 English](./index.md)
 
 Welcome to the master technical documentation for the **User Management System (UMS)**. This knowledge base is structured under the **bMAD Method (numerical sequential phases)** to guarantee maximum discoverability, traceability, and seamless support for both human developers and autonomous AI copilots.
 
@@ -43,8 +43,9 @@ Contains the system's architectural specification based on the C4 Model standard
 *   📄 **[Bounded Context Map](./02-architecture/bounded-context-map.md)**: DDD context boundaries, integration patterns, and Anti-Corruption Layers.
 *   📄 **[C4 Architecture Spec & Technical Inventory](./02-architecture/architecture-spec.md)**: Level 1 (Context), Level 2 (Container), and Level 3 (Component) technical diagrams.
 *   📄 **[Authoritative Technology Stack Definition](./02-architecture/stack.md)**: 100% cloud-agnostic and on-premise capable technology stack definitions and risk registers.
+*   📄 **[.NET Core Migration & Tech Stack Plan](./02-architecture/dotnet-migration-and-tech-stack-plan.md)**: Active architectural roadmap detailing the transition to .NET 8.
 *   📄 **[Technology Stack Cheat Sheet](./02-architecture/stack-summary.md)**: High-density quick-reference sheet of all selected tools and layers.
-*   📄 **[NestJS Latam DDD Evaluation](./02-architecture/nestjslatam-ddd-evaluation.md)**: Architectural evaluation of `@nestjslatam/ddd` for the Domain Core and tactical DDD primitives.
+*   📄 **[Tactical DDD Evaluation](./02-architecture/nestjslatam-ddd-evaluation.md)**: Architectural evaluation of tactical DDD primitives for the Domain Core.
 
 
 ---

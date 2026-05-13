@@ -23,8 +23,8 @@ This solution is a .NET 8 LTS implementation that serves as a concrete instance 
 🚀 **Do not explore the directories randomly.** All technical and compliance paths are organized explicitly by persona:
 
 1.  👉 **[Global Master Index](./MASTER_INDEX.md)**: The canonical entry point. Find your exact compulsory reading path according to your role (Vendor, Dev, Architect, PM).
-2.  🏛️ **[bMAD Master Documentation](./src/ums-workspace/docs/index.md)**: The unified central index mapping Phase 00 through Phase 05.
-3.  📜 **[ADR Registry Hub](./src/ums-workspace/docs/index.md#📜-phase-03---architectural-decision-records-adrs)**: Direct access to the 29 active Architectural Decision Records (ADRs).
+2.  🏛️ **[bMAD Master Documentation](./src/ums-workspace/docs/en/index.md)**: The unified central index mapping Phase 00 through Phase 05.
+3.  📜 **[ADR Registry Hub](./src/ums-workspace/docs/en/index.md#📜-phase-03---architectural-decision-records-adrs)**: Direct access to the 29 active Architectural Decision Records (ADRs).
 
 ---
 
@@ -57,11 +57,12 @@ To interact safely with the UMS codebase, all developers MUST respect the follow
 
 ### 🛠️ Fast Shortcuts Directory
 *   🏛️ **[Corporate Reference Blueprint](https://github.com/beyondnetcode/arc32_progresive_monolith)**: Official corporate specifications for polyglot systems.
-*   📊 **[Gap Analysis & Debt Strategy](./src/ums-workspace/docs/04-artifacts/gap-analysis-and-optimization-plan.md)**: Architecture assessment against 16 Enterprise Criteria.
-*   ⚙️ **[Observability Strategy](./src/ums-workspace/docs/04-artifacts/observability-strategy.md)**: Zero-cost telemetry using OpenTelemetry and Grafana Loki.
-*   📈 **[Release Roadmap](./src/ums-workspace/docs/05-roadmap/versioning-and-audit-strategy.md)**: Automated Semantic Versioning strategy.
+*   📊 **[Gap Analysis & Debt Strategy](./src/ums-workspace/docs/en/04-artifacts/gap-analysis-and-optimization-plan.md)**: Architecture assessment against 16 Enterprise Criteria.
+*   ⚙️ **[Observability Strategy](./src/ums-workspace/docs/en/04-artifacts/observability-strategy.md)**: Zero-cost telemetry using OpenTelemetry and Grafana Loki.
+*   📈 **[Release Roadmap](./src/ums-workspace/docs/en/05-roadmap/versioning-and-audit-strategy.md)**: Automated Semantic Versioning strategy.
 
 ---
 
 🤖 **AI-Augmented Enablement:** This repository natively supports autonomous AI agents and LLM-assisted development following the BMAD Harness engineering standard.
 👉 **[Explore AGENTS.md Developer Harness](./AGENTS.md)**
+
