@@ -12,7 +12,7 @@ Identifica tu relación actual con el proyecto para desbloquear la jerarquía de
 
 | Rol Empresarial | Ruta de Lectura Recomendada | Cumplimiento Esperado |
 | :--- | :--- | :--- |
-| **Proveedor de Software Externo** | 1. [Documentación Maestra bMAD](./src/ums-workspace/docs/es/es/index.md)<br>2. [Estándares Globales de Ingeniería](./src/ums-workspace/docs/es/04-artifacts/engineering-standards.md)<br>3. [Especificación C4 Maestra](./src/ums-workspace/docs/es/02-architecture/architecture-spec.md) | Validar el stack técnico base, aislamiento de entornos y fronteras lógicas antes de iniciar cualquier trabajo. |
+| **Proveedor de Software Externo** | 1. [Documentación Maestra bMAD](./src/ums-workspace/docs/es/index.md)<br>2. [Estándares Globales de Ingeniería](./src/ums-workspace/docs/es/04-artifacts/engineering-standards.md)<br>3. [Especificación C4 Maestra](./src/ums-workspace/docs/es/02-architecture/architecture-spec.md) | Validar el stack técnico base, aislamiento de entornos y fronteras lógicas antes de iniciar cualquier trabajo. |
 | **Desarrollador Backend / QA** | 1. [Plan de Migración .NET & Límites Hexagonales](./src/ums-workspace/docs/es/02-architecture/dotnet-migration-and-tech-stack-plan.md)<br>2. [Plan de Pruebas de Contrato](./src/ums-workspace/docs/es/04-artifacts/contract-testing-plan.md)<br>3. [Pirámide de Pruebas y Puertas de Calidad (ADR-0018)](./src/ums-workspace/docs/es/03-adrs/0018-testing-pyramid-quality-gates.md) | Garantizar umbrales de cobertura, patrones DDD y validación estática de código (linting), evitando fugas de lógica hacia el core. |
 | **Arquitecto de Soluciones** | 1. [Mapa de Contextos Delimitados](./src/ums-workspace/docs/es/02-architecture/bounded-context-map.md)<br>2. [Registro Histórico ADR](./src/ums-workspace/docs/es/03-adrs/)<br>3. [Estrategia de Observabilidad Distribuida](./src/ums-workspace/docs/es/04-artifacts/observability-strategy.md) | Evaluar la integridad general de los patrones, los índices de riesgo técnico y aprobar los criterios de extracción de microservicios. |
 | **Product Owner / PM** | 1. [Visión de Producto](./src/ums-workspace/docs/es/00-product/product-vision.md)<br>2. [Directorio de Casos de Uso Atómicos](./src/ums-workspace/docs/es/01-requirements/usecases/)<br>3. [Estrategia de Deuda y Análisis de Brechas](./src/ums-workspace/docs/es/04-artifacts/gap-analysis-and-optimization-plan.md) | Sincronizar hitos de lanzamientos con la madurez técnica de las ADRs y gobernar las definiciones de negocio de los casos de uso. |
@@ -55,4 +55,5 @@ La documentación de este repositorio sigue el **Método bMAD** (fases secuencia
 ---
 
 👉 **[Volver al README Principal](./README.es.md)**
+
 
