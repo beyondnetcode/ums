@@ -16,7 +16,7 @@ Previously, the system ran the risk of permitting ambiguous couplings where:
 2.  **Systems** and Applications were treated as a universal agnostic catalog, lacking a clear definition of Ownership.
 3.  Permission hierarchies assumed a menu option or action belonged solely to the system role, regardless of the organizational context consuming or operating the resource.
 
-This lack of unified containment compromises the **Zero Trust** principle and introduces operational risks of data bleeding between different B2B tenants sharing the SCM suite ecosystem.
+This lack of unified containment compromises the **Zero Trust** principle and introduces operational risks of data bleeding between different B2B tenants sharing the client ecosystem.
 
 ---
 
@@ -28,7 +28,7 @@ The mandatory directives of this hierarchical containment are:
 
 1.  **Mandatory Dual Containment:** An Organization is the absolute logical container that simultaneously holds:
     *   **Subjects/Persons:** Human references and bots operating under its tutelage.
-    *   **Systems/Resources:** Applications, configurations, menus, and permissions assigned or contracted under its control.
+    *   **Systems/Resources:** Applications, modules, configurations, menus, and permissions assigned or contracted under its control.
 2.  **Hierarchy and Authorization Flow:** The permission compilation and dynamic rendering graph must read hierarchically as:
     `Organization ➔ Subject ➔ Role ➔ System ➔ Module/Menu ➔ Action`.
 3.  **Isolation of Owned and Delegated Resources:**
@@ -102,7 +102,7 @@ To transition smoothly without breaking existing code:
     {
       "sub_ref": "S-12345",
       "org_id": "ORG-XYZ-789",
-      "allowed_systems": ["SCM", "WMS"]
+      "allowed_systems": ["ERP", "CRM"]
     }
     ```
-    This ensures that, at the frontend and microservices level, there is no latency for filtering local menus.
+    This ensures that, at the frontend and microservices level, there is no latency for filtering local modules and menus.

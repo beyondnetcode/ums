@@ -1,27 +1,15 @@
-﻿# ADR 0003: Strict TypeScript Standards and SonarJS Static Analysis
+# ADR 0003: Strict TypeScript Standards and SonarJS Static Analysis
 
-## Status
-Accepted
+* **Status:** Accepted
+* **Based on:** [arc32-3](https://github.com/beyondnetcode/arc32_progresive_monolith/blob/main/arc-corporate-ws/corporate-standards/02-adrs/nodejs/0003-strict-typescript-standards.md)
+* **Date:** 2026-05-08
 
-## Date
-2026-05-08
+## Adaptation Summary
 
-## Context
-Code quality, security (OWASP Top 10), and type safety are critical pillars for UMS. Permitting the `any` type leads to runtime exceptions, makes code reviews difficult, and degrades our compiler's safety nets. Additionally, we need a way to detect cognitive complexity, bugs, and security hotspots early, without incurring external license costs (such as SonarCloud's paid tier for private repositories).
+The corporate standard is adopted with the following project-specific modifications:
+1. Scope limited to frontend (React/TS) only. Backend is C# with Roslyn/SonarAnalyzer.CSharp equivalents.
+2. Frontend follows verbatim: no `any`, `interface` over `type`, SonarJS in ESLint. C# follows corporate ADR-0041 standards.
 
-## Decision
-We decided to enforce strict TypeScript and static analysis rules:
-1. Ban the use of `any` across all workspaces by enforcing `@typescript-eslint/no-explicit-any` and its safety sub-rules.
-2. Force the use of `interface` over `type` aliases for object contracts via `@typescript-eslint/consistent-type-definitions`, optimizing compiler execution speed and enabling declaration merging.
-3. Integrate **`eslint-plugin-sonarjs`** directly into the root `.eslintrc.js` to run Sonar's official code quality, security hotspot, and cognitive complexity analysis rules at $0 cost, both locally and in CI, without requiring cloud secrets or paid accounts.
+## Full Standard Reference
 
-## Consequences
-
-### Positive (Pros)
-* **Robust Type Safety**: Eliminating `any` prevents silent runtime crashes and guarantees reliable data shapes across layers.
-* **$0 Cost Sonar Analysis**: Developers receive real-time feedback on code complexity, duplicate code blocks, and bugs directly inside VS Code and pre-commit hooks, with zero infrastructure costs.
-* **Better Performance**: Interfaces are indexed and cached more efficiently by the TypeScript compiler (`tsc`) compared to intersections of `type` aliases.
-
-### Negative (Cons)
-* Developers must write explicit type casts (e.g., using `unknown` and custom typings) for external libraries or catch blocks, slightly increasing initial development time.
-* Minor execution overhead during `eslint` commands (fully neutralized by using `lint-staged`).
+See the corporate source for the complete decision context and rationale.

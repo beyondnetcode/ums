@@ -27,10 +27,13 @@ erDiagram
     PROFILE ||--o{ AUTHORIZATION : declares
     AUTH_TEMPLATE ||--o{ AUTHORIZATION : templates
 
-    SYSTEM ||--o{ MENU : contains
-    MENU ||--o{ SUBMENU : contains
-    SUBMENU ||--o{ OPTION : contains
+    SYSTEM ||--o{ MODULE : contains
+    MODULE ||--o{ MENU : contains
+    MENU ||--o{ OPTION : contains
     OPTION ||--o{ ACTION : contains
+    SYSTEM ||--o{ ACTION : declares
+    MODULE ||--o{ ACTION : declares
+    MENU ||--o{ ACTION : declares
 
     AUTHORIZATION }o--|| ACTION : targets
     NETWORK ||--o{ PROFILE : restricts
@@ -97,7 +100,7 @@ erDiagram
 
 ### F. Auth Template Entity
 - `id` (UUID, PK): Unique identifier for the template.
-- `name` (string): Human-readable template name (e.g., `SCM_Analyst_Baseline_v1`).
+- `name` (string): Human-readable template name (e.g., `Analyst_Baseline_v1`).
 - `version` (string): Semantic version (e.g., `1.0.0`).
 - `system_id` (UUID, FK): The target client system this template is designed for.
 - `created_by` (UUID, FK): Admin user who created the template.
@@ -105,20 +108,20 @@ erDiagram
 
 ### G. System Entity
 - `id` (UUID, PK): Unique identifier for the application/sub-portal.
-- `name` (string, Unique): Application name (e.g., `SCM Route Planner`).
-- `system_code` (string, Unique): Machine-readable slug (e.g., `scm_route_planner`).
+- `name` (string, Unique): Application name (e.g., `Route Planner`).
+- `system_code` (string, Unique): Machine-readable slug (e.g., `route_planner`).
 - `base_url` (string): Base physical URL for routing.
 - `api_credential_hash` (string): Hashed M2M credential for gateway validation.
 
-### H. Menu / Submenu / Option / Action Entities
+### H. Module / Menu / Option / Action Entities
 > [!NOTE]
 > These form the hierarchical navigation topology compiled into the Authorization Graph.
-> `System → Menu → Submenu → Option → Action`
+> The resource hierarchy is: `System → Module → Menu → Option`. Actions can be attached at any level (System, Module, Menu, or Option).
 
-- `Menu`: `id`, `system_id (FK)`, `label`, `order`, `icon_code`
-- `Submenu`: `id`, `menu_id (FK)`, `label`, `order`
-- `Option`: `id`, `submenu_id (FK)`, `label`, `route_path`
-- `Action`: `id`, `option_id (FK)`, `code` (`create`, `read`, `update`, `delete`, `export`, `approve`), `api_endpoint`
+- `Module`: `module_id` (UUID, PK), `system_id` (UUID, FK → System), `name` (string, unique per system), `code` (string, machine-readable), `description` (text, optional), `is_active` (boolean)
+- `Menu`: `id`, `module_id (FK)`, `label`, `order`, `icon_code`
+- `Option`: `id`, `menu_id (FK)`, `label`, `route_path`
+- `Actions`: `action_id` (UUID, PK), `action_name` (string), `action_code` (string), `level` (enum: system, module, menu, option), `level_id` (UUID - FK to the respective level entity), `is_active` (boolean)
 
 ### I. IDP_CONFIGURATION Entity *(NEW — Configuration Context)*
 - `id` (UUID, PK)

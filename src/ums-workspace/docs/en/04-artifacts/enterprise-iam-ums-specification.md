@@ -5,33 +5,33 @@ This document details the enterprise-grade functional specification, architectur
 ---
 
 ## 🧭 1. Business Context Narrative
-The modern enterprise software landscape demands a unified, highly scalable, and context-aware Identity and Access Management (IAM) posture. The **User Management System (UMS)** acts as a centralized, extensible authorization core (or "authorization kernel") shared across all enterprise platforms (SCM, ERP, HCM, etc.). Rather than siloing access control logic inside individual applications, the UMS decouples identity verification (Authentication) from granular permission resolution (Authorization). This allows the system to enforce centralized technical governance, support multi-tenant SaaS isolation, and dynamically adapt to different B2B customer identity directories.
+The modern enterprise software landscape demands a unified, highly scalable, and context-aware Identity and Access Management (IAM) posture. The **User Management System (UMS)** acts as a centralized, extensible authorization core (or "authorization kernel") shared across all enterprise platforms (ERP, CRM, HCM, etc.). Rather than siloing access control logic inside individual applications, the UMS decouples identity verification (Authentication) from granular permission resolution (Authorization). This allows the system to enforce centralized technical governance, support multi-tenant SaaS isolation, and dynamically adapt to different B2B customer identity directories.
 
-In this reference scenario, a **SCM Transportation Analyst** initiates a session via the centralized **SCM Suite Portal**. The authentication request carries not only credentials but also explicit organization (tenant) and branch/site context (e.g., *Callao Port Terminal*). By separating authentication concerns (delegated to federated Identity Providers like Zitadel, Okta, or Azure AD) from authorization compilation, the UMS can resolve and deliver a high-performance, cached **Hierarchical Authorization Graph** that shapes the analyst's entire workspace (menus, options, fleet dispatch actions) in under **5 milliseconds**, preventing vendor lock-in and guaranteeing absolute horizontal scalability.
+In this reference scenario, a **Business Analyst** initiates a session via the centralized **Client Portal**. The authentication request carries not only credentials but also explicit organization (tenant) and branch/site context (e.g., *Callao Port Terminal*). By separating authentication concerns (delegated to federated Identity Providers like Zitadel, Okta, or Azure AD) from authorization compilation, the UMS can resolve and deliver a high-performance, cached **Hierarchical Authorization Graph** that shapes the analyst's entire workspace (menus, options, fleet dispatch actions) in under **5 milliseconds**, preventing vendor lock-in and guaranteeing absolute horizontal scalability.
 
 ---
 
 ## 📋 2. Functional User Flow
-*   **Step 1: Portal Ingress**: SCM Transportation Analyst opens the SCM Suite Login Portal.
+*   **Step 1: Portal Ingress**: Business Analyst opens the Client Login Portal.
 *   **Step 2: Context Input**: Analyst provides email, selects corporate organization (tenant), branch/site context (Callao Terminal), and preferred authentication method.
 *   **Step 3: Identity Handshake**: Portal forwards details to the pluggable Authentication Gateway, which routes to either the local directory or a federated corporate IdP (SAML2/OIDC).
 *   **Step 4: MFA Execution**: If enforced by tenant policy, the analyst completes Multi-Factor Authentication (WebAuthn/TOTP).
 *   **Step 5: Authorization Call**: Gateway receives the confirmed identity and invokes the UMS Core (`GET /v1/authorization/graph`) passing user, tenant, branch, and target system IDs.
 *   **Step 6: Graph Compilation**: UMS evaluates active profiles, resolves Explicit-Deny Precedence, caches the resulting JSON Authorization Graph in Redis, and returns the payload.
-*   **Step 7: Dashboard Assembly**: SCM Portal sets secure, HTTP-Only session cookies and uses the hierarchical JSON to dynamically construct and render SCM menus on-the-fly.
+*   **Step 7: Dashboard Assembly**: Client Portal sets secure, HTTP-Only session cookies and uses the hierarchical JSON to dynamically construct and render application menus on-the-fly.
 
 ---
 
 ## 📋 3. Enterprise Use Case Description
 
 ### Use Case: Contextual Authentication & Multi-Tenant Graph Synthesis
-*   **Primary Actor**: SCM Transportation Analyst.
-*   **Target System**: SCM Route Planner.
-*   **Preconditions**: User is registered in UMS and holds a valid identity reference; SCM Route Planner and Callao Terminal are registered in the UMS.
+* **Primary Actor**: Business Analyst.
+* **Target System**: Route Planner Application.
+*   **Preconditions**: User is registered in UMS and holds a valid identity reference; Route Planner Application and Callao Terminal are registered in the UMS.
 *   **Postconditions**: Session established with dual cryptographically rotated tokens and a contextual, branch-restricted JSON authorization graph.
 
 ### Variations and Exception Paths
-*   **Variation A: Federated Identity Provider (Azure AD/Okta)**: Gateway delegates credential verification to the external corporate IdP via SAML2/OIDC. SCM local database is bypassed for credential verification, and user is mapped using `identity_reference` claims.
+*   **Variation A: Federated Identity Provider (Azure AD/Okta)**: Gateway delegates credential verification to the external corporate IdP via SAML2/OIDC. local database is bypassed for credential verification, and user is mapped using `identity_reference` claims.
 *   **Variation B: Multi-Factor Authentication (MFA)**: If the tenant enforces adaptive MFA based on IP range, the analyst is prompted for WebAuthn (Passkeys) verification before the UMS authorization graph call is triggered.
 *   **Exception 1: Missing Tenant Context**: If the request lacks `tenant_id` or `branch_id`, the API returns a `400 Bad Request` with error code `ERR_MISSING_CONTEXT`, aborting graph resolution.
 *   **Exception 2: Authorization Graph Not Found**: If the user authenticates successfully but holds no active profile assignments for the Callao branch, the API returns a `403 Forbidden` with error code `ERR_ZERO_PERMISSIONS`.
@@ -40,13 +40,13 @@ In this reference scenario, a **SCM Transportation Analyst** initiates a session
 ---
 
 ## 🔄 4. Sequence Flow Description
-The following sequence flow illustrates the end-to-end, decoupled transaction path between SCM portal clients, federated directories, and the centralized UMS authorization core:
+The following sequence flow illustrates the end-to-end, decoupled transaction path between portal clients, federated directories, and the centralized UMS authorization core:
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Analyst as SCM Transportation Analyst
-    participant Portal as SCM Login Portal
+    actor Analyst as Business Analyst
+    participant Portal as Client Login Portal
     participant Gateway as Authentication Gateway
     participant IdP as Federated Identity Provider
     participant UMS as Centralized UMS Service
@@ -71,7 +71,7 @@ sequenceDiagram
     end
     UMS-->>Gateway: Return Contextual Authorization Graph
     Gateway-->>Portal: Deliver Tokens and Authorization Graph
-    Portal-->>Analyst: Render Dashboard and Dynamic SCM Menus
+    Portal-->>Analyst: Render Dashboard and Dynamic Application Menus
 ```
 
 ---
@@ -131,7 +131,7 @@ Authorization: Bearer m2m_token_gateway_abc123
     "branch_id": "branch_callao_terminal"
   },
   "resource": {
-    "system_id": "scm_route_planner"
+    "system_id": "route_planner"
   },
   "projection_format": "hierarchical_json"
 }
@@ -164,19 +164,16 @@ Authorization: Bearer m2m_token_gateway_abc123
     "branch_context_id": "branch_callao_terminal"
   },
   "authorization_graph": {
-    "system_id": "scm_route_planner",
+    "system_id": "route_planner",
     "active_roles": ["TransportationAnalyst"],
     "permissions": {
-      "menus": [
+      "modules": [
         {
-          "id": "menu_fleet_dispatch",
-          "label": "Fleet Dispatch Management",
-          "order": 1,
-          "submenus": [
+          "module_name": "Fleet Management",
+          "module_code": "fleet_mgmt",
+          "menus": [
             {
-              "id": "submenu_routes",
-              "label": "Route Coordination",
-              "order": 1,
+              "menu_name": "Fleet Dispatch Management",
               "options": [
                 {
                   "id": "opt_view_routes",
@@ -194,14 +191,16 @@ Authorization: Bearer m2m_token_gateway_abc123
                     "max_route_cost_authorization": 5000.00
                   }
                 }
-              ]
+              ],
+              "actions": ["view_dispatch", "assign_route"]
             }
-          ]
+          ],
+          "actions": ["access_module"]
         }
       ]
     },
     "policy_metadata": {
-      "policy_id": "pol_scm_baseline_v1",
+      "policy_id": "pol_baseline_v1",
       "compiled_at": "2026-05-08T20:43:44Z",
       "precedence_applied": "explicit_deny_precedence",
       "cache_ttl_seconds": 3600
@@ -215,7 +214,7 @@ Authorization: Bearer m2m_token_gateway_abc123
 ## 📈 8. Extensibility Considerations
 *   **Pluggable Output Formatters**: Output adapters use the **Strategy Pattern** to project compiled authorization graphs into custom targets, such as signed, context-aware JWT claims, GraphQL nodes, or minimal flat arrays optimized for legacy resource servers.
 *   **Pluggable Policy Engines**: The UMS is engine-agnostic. The Policy Decision Point can interface with external engines (such as Open Policy Agent - OPA utilizing Rego policies) or custom rules engines without modifying core database models.
-*   **Dynamic Resource Expansion**: Adding a new SCM subsystem or action requires zero database schema evolution; resource types, action taxonomies, and hierarchical menus are registered as polymorphic dynamic data nodes.
+*   **Dynamic Resource Expansion**: Adding a new client module or action requires zero database schema evolution; resource types, action taxonomies, and hierarchical menus are registered as polymorphic dynamic data nodes.
 
 ---
 
@@ -247,7 +246,7 @@ Authorization: Bearer m2m_token_gateway_abc123
 *   **Deciders**: Enterprise IAM Architect, Lead Designer, Product Owner
 
 #### Context
-SaaS enterprise platforms (SCM, ERP, etc.) suffer from fragmented identity directories and siloed access control logic. Hardcoding roles and permission checks inside individual applications leads to severe security vulnerabilities, administrative overhead, and poor auditability.
+SaaS enterprise platforms (ERP, CRM, etc.) suffer from fragmented identity directories and siloed access control logic. Hardcoding roles and permission checks inside individual applications leads to severe security vulnerabilities, administrative overhead, and poor auditability.
 
 #### Decision
 We will establish a **Centralized User Management System (UMS) Core** to act as a shared, highly extensible "authorization kernel" across all enterprise portals. The system will decouple identity verification (delegated to external federated IdPs via the Strategy Pattern) from fine-grained authorization graph compilation. UMS will resolve context-aware branch permissions and return a cached, hierarchical JSON authorization graph in under **5ms**, utilizing pluggable output formatters to cater to frontends and microservices alike.
@@ -264,4 +263,4 @@ We will establish a **Centralized User Management System (UMS) Core** to act as 
 
 ## 🏷️ 12. Concise Executive Summary
 
-> **Centralized IAM Authorization Core**: The UMS acts as the shared, extensible access governance core for the entire SCM Suite. Using a **Transportation Analyst** at the **Callao Branch (Sedes)** as the reference model, the architecture cleanly decouples identity verification (supporting pluggable internal credentials, Okta, Zitadel, and SAML) from authorization graph resolution. Upon successful login, the system utilizes the Strategy Pattern to deliver a dynamic, Redis-cached hierarchical **JSON Authorization Graph** in under **5ms**, mapping contextual menus, submenus, options, and actions while enforcing strict Explicit-Deny precedence—delivering enterprise-grade performance, total vendor-neutrality, and absolute SaaS multi-tenant scalability.
+> **Centralized IAM Authorization Core**: The UMS acts as the shared, extensible access governance core for all client systems. Using a **Corporate User** at the **Callao Branch (Sedes)** as the reference model, the architecture cleanly decouples identity verification (supporting pluggable internal credentials, Okta, Zitadel, and SAML) from authorization graph resolution. Upon successful login, the system utilizes the Strategy Pattern to deliver a dynamic, Redis-cached hierarchical **JSON Authorization Graph** in under **5ms**, mapping contextual modules, menus, options, and actions while enforcing strict Explicit-Deny precedence—delivering enterprise-grade performance, total vendor-neutrality, and absolute SaaS multi-tenant scalability.

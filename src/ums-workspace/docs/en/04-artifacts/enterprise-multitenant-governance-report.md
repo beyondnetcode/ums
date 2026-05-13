@@ -12,7 +12,7 @@ After an exhaustive analysis of the UMS ecosystem, we have identified a **rigid 
 
 ### Key Architectural Findings
 1.  **Identity Coupling (Employee vs. Subject):** The dependence on `identity_reference` as a mandatory field assumes an internal employment relationship. This blocks B2B scenarios where the user is an external supplier, a third-party driver, or an integration bot (M2M) lacking a record in the corporate HR database.
-2.  **Orphaned Software Assets:** Systems (SCM, WMS, ERP) and their components (Menus, APIs) currently operate in a "flat" global catalog. There is no explicit definition of who is the logical owner of the resource and under what conditions a third party (Tenant) can consume it.
+2.  **Orphaned Software Assets:** Systems (ERP, CRM, HCM) and their components (Menus, APIs) currently operate in a "flat" global catalog. There is no explicit definition of who is the logical owner of the resource and under what conditions a third party (Tenant) can consume it.
 3.  **Ambiguous Security Boundaries:** The permission model focuses on the "What" (action) but not on "Who owns the object." This violates **Zero Trust** principles where the Organization should be the physical and logical frontier for every bit of information.
 
 ---

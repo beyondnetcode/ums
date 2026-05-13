@@ -50,10 +50,10 @@ sequenceDiagram
 2. Types the user's email or `user_id` in the search input. The system returns matching user records.
 3. Selects the **Organization**, **Branch**, and **System** context from cascading dropdowns.
 4. Clicks **Resolve Graph**. The API calls the Authorization Engine's **diagnostic endpoint**, which **always bypasses the Redis cache** and recompiles directly from PostgreSQL to show the current ground-truth state.
-5. The engine returns an annotated graph that includes, for each Menu/Submenu/Option/Action node:
+5. The engine returns an annotated graph that includes, for each Module/Menu/Option/Action node:
     - The `effect` (`ALLOW`, `DENY`, or `NOT_ASSIGNED`)
     - The `source_rule` (template_id or profile_id that produced the effect)
-    - The `reason` (e.g., `Granted by Template_SCM_Analyst_Baseline_v1`, `Blocked by Explicit DENY in profile PortSupervisor_Callao`)
+    - The `reason` (e.g., `Granted by Analyst_Baseline_v1`, `Blocked by Explicit DENY in profile PortSupervisor_Callao`)
 6. The Console renders the tree interactively: **green nodes** for ALLOW, **red nodes** for DENY, **grey nodes** for NOT_ASSIGNED.
 7. SRE can click any node to expand its decision rationale panel.
 

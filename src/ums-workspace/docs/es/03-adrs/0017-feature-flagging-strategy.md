@@ -1,24 +1,12 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versiÛn original (InglÈs) y est· programado para traducciÛn oficial en la hoja de ruta.
+# ADR 0017: Estrategia de Feature Flags para Entrega Progresiva
 
-# ADR 0017: Feature Flagging Strategy for Progressive Delivery
+* **Estado:** Aceptado (Incorporado por Referencia)
+* **Fuente Corporativa:** [arc32-17](https://github.com/beyondnetcode/arc32_progresive_monolith/blob/main/arc-corporate-ws/corporate-standards/02-adrs/core/0017-feature-flagging-strategy.md)
 
-## Status
-Approved
+## Decisi√≥n
 
-## Date
-2026-05-09
+Este proyecto adopta el est√°ndar corporativo textualmente seg√∫n lo definido en la fuente anterior. No se requiere adaptaci√≥n espec√≠fica del proyecto.
 
-## Context
-Deploying new, complex, or risky features often requires halting the system or risking production stability. We need a mechanism to deploy code to production in a dormant state and enable it for specific users, tenants, or globally at runtime without recompiling or redeploying the application.
+## Notas Espec√≠ficas del Proyecto
 
-## Decision
-We will treat Feature Flag management as a **first-class system feature**, handled strictly via **Infrastructure Layer logic** injected into the Core, completely decoupled from our own database infrastructure.
-
-1. **Strict Infrastructure Adapters**: We will NEVER rely on custom database tables (like a Postgres module) to control feature flags. Instead, we will use dedicated, enterprise-grade Feature Management platforms (e.g., Unleash, LaunchDarkly, ConfigCat).
-2. **Dependency Inversion**: The Domain and Application layers will solely depend on a logical interface (`IFeatureTogglePort`). The specific SDK (e.g., `unleash-client`) will be confined to an Infrastructure Adapter that evaluates the flags in memory based on the provider's API.
-3. **Progressive Rollouts**: Code branches for new features within Use Cases will evaluate the injected port. This enables A/B testing, Canary releases, and instant "kill switches" without touching the main database or triggering database migrations.
-
-## Consequences
-* **Pros**: Zero database overhead. Full decoupling of deployment from release. Enables trunk-based development and delegates the complex flag evaluation rules (user segments, percentages) to specialized infrastructure providers.
-* **Cons**: Introduces "Toggle Debt" (old feature flags left in the code base must be manually cleaned up after successful rollouts). Requires managing external provider connections.
-
+- Detalles de implementaci√≥n: ver `docs/es/04-artifacts/corporate-standards-baseline.md`

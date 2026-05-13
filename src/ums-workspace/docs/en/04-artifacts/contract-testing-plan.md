@@ -1,6 +1,6 @@
 ﻿# 🧪 Integration Contract Testing Plan (Pact Specification)
 
-This document establishes the strategic plan and continuous integration guidelines for **Consumer-Driven Contract Testing** across SCM/UMS domains under the **spec-driven AI strategy BMAD-METHOD**.
+This document establishes the strategic plan and continuous integration guidelines for **Consumer-Driven Contract Testing** across UMS domains under the **spec-driven AI strategy BMAD-METHOD**.
 
 ---
 

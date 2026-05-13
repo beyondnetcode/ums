@@ -2,7 +2,7 @@
 
 # 📈 End-to-End Distributed Observability & Telemetry Strategy
 
-This document details the telemetry architecture, trace propagation, logging standards, and cost-effective monitoring stack for the SCM/UMS platform under the **spec-driven AI strategy BMAD-METHOD**.
+This document details the telemetry architecture, trace propagation, logging standards, and cost-effective monitoring stack for the UMS platform under the **spec-driven AI strategy BMAD-METHOD**.
 
 ---
 
@@ -19,7 +19,7 @@ graph TD
         Mimir["Grafana Mimir (Scalable Metrics Storage)"]
     end
 
-    App["NestJS SCM Application"] -.->|Structured JSON Logs| Loki
+    App["NestJS Application"] -.->|Structured JSON Logs| Loki
     App -.->|OpenTelemetry Tracing| Tempo
     App -.->|Prometheus RED Metrics| Mimir
 

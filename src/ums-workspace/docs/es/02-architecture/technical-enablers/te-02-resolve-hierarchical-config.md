@@ -47,7 +47,7 @@ sequenceDiagram
 ```
 
 ### A. Flujo Principal
-1. Un sistema cliente (ej., Portal SCM) se inicia y solicita su configuración desde la API de UMS, proporcionando su `system_id`, `tenant_id` y su contexto de ejecución (ej., `branch_id`, `environment`).
+1. Un sistema cliente (ej., Portal Cliente) se inicia y solicita su configuración desde la API de UMS, proporcionando su `system_id`, `tenant_id` y su contexto de ejecución (ej., `branch_id`, `environment`).
 2. La API de Configuración verifica en Redis si existe una configuración efectiva pre-calculada que coincida exactamente con este hash de contexto.
 3. En caso de fallo de caché, se invoca la Estrategia de Resolución. Esta consulta la base de datos por todas las capas de configuración disponibles para dicho contexto.
 4. El Motor realiza una **Fusión Profunda (Deep Merge)** comenzando desde la capa de menor prioridad (Global) y aplicando las sobrescrituras secuencialmente hasta llegar a la capa de mayor prioridad (Entorno).

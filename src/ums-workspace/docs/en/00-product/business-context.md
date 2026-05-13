@@ -32,7 +32,7 @@ graph TD
 
 UMS separates **Authentication**, **Authorization**, and **Dynamic Configuration**:
 1.  **Authentication (Identity)**: Treated as an abstract, pluggable service layer. UMS validates "who" the user is using secure, federated Single Sign-On (SSO), SAML, OIDC, WebAuthn (Passkeys), or an internal credentials database, dynamically routing to external Identity Providers (such as Zitadel, AWS Cognito, Microsoft Entra ID, Okta, or Keycloak) on a per-tenant basis without impacting business logic.
-2.  **Authorization (Permissions)**: Controlled centrally by UMS. UMS stores the definitions of client systems, menus, permission graphs, roles, and profiles, injecting authorization tokens and dynamic menus into downstream applications on demand.
+2.  **Authorization (Permissions)**: Controlled centrally by UMS. UMS stores the definitions of client systems, modules, menus, permission graphs, roles, and profiles, injecting authorization tokens and dynamic modules and menus into downstream applications on demand.
 3.  **Dynamic Configuration & Feature Flags**: UMS governs the runtime behavior of downstream systems via a hierarchical multi-tenant configuration model and an extensible feature flag framework (LaunchDarkly, Unleash, Internal), enabling zero-deployment behavioral shifts and progressive rollouts.
 
 ---
@@ -47,7 +47,7 @@ Standardizing access under UMS provides three massive business benefits:
 ---
 
 ## 4. Reference Operational Model
-To illustrate the real-world operational execution of UMS, our specifications utilize the **SCM Transportation Analyst** scenario as the primary reference model. This role represents high-concurrency B2B access to the *SCM Route Planner* under the context of specific tenants (e.g., *Logistics Corp*) and localized branches (e.g., *Callao Terminal, Peru*). 
+To illustrate the real-world operational execution of UMS, our specifications utilize the **Business Analyst** scenario as the primary reference model. This role represents high-concurrency B2B access to the *Route Planner* under the context of specific tenants (e.g., *Logistics Corp*) and localized branches (e.g., *Callao Terminal, Peru*). 
 
 The detailed architectural specs, sequence diagrams, and dynamic API contracts for this reference model are fully detailed in **[enterprise-iam-ums-specification.md](../04-artifacts/enterprise-iam-ums-specification.md)**.
 

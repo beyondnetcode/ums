@@ -64,4 +64,4 @@ sequenceDiagram
 ---
 
 ## 📋 4. Referencia del Modelo Operativo Principal
-El flujo de transacciones completo, la estrategia de caché Redis y las reglas de compilación de Denegación Explícita para este caso de uso están modelados en torno al rol de **Analista de Transporte SCM** en el Terminal del Callao (bajo *Logistics Corp*). Para conocer los esquemas técnicos detallados, estructuras de parámetros y ejemplos de OpenAPI, consulte **[enterprise-iam-ums-specification.md](../../04-artifacts/enterprise-iam-ums-specification.md)**.
+El flujo de transacciones completo, la estrategia de caché Redis y las reglas de compilación de Denegación Explícita para este caso de uso están modelados en torno al rol de **Analista de Negocio** en el Terminal del Callao (bajo *Logistics Corp*). Para conocer los esquemas técnicos detallados, estructuras de parámetros y ejemplos de OpenAPI, consulte **[enterprise-iam-ums-specification.md](../../04-artifacts/enterprise-iam-ums-specification.md)**.

@@ -50,7 +50,7 @@ sequenceDiagram
 ```
 
 ### A. Main Flow
-1. An End User visits a registered downstream application (e.g., SCM Portal) and clicks the "Login" button.
+1. An End User visits a registered downstream application (e.g., client portal) and clicks the "Login" button.
 2. The downstream application redirects the user's browser to the secure, centralized UMS Hosted Login page, passing its `client_id` (System ID), `tenant_id`, and a verified `redirect_uri` as query parameters.
 3. The UMS Hosted Login Portal queries the Configuration Service for the active branding configuration (logo, colors, custom CSS classes) associated with the specified Tenant and System.
 4. The Configuration Service resolves the configuration using the hierarchical resolution engine (applying Tenant and System-level branding overrides).

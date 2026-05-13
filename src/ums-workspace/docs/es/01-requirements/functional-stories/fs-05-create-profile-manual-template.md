@@ -34,7 +34,7 @@ sequenceDiagram
     API->>Audit: Registrar Evento ProfileCreatedEvent
     API-->>Console: 201 Created { profileId }
     Admin->>Console: Navegar a Perfil > Plantillas > Asignar Plantilla
-    Admin->>Console: Seleccionar plantilla de la lista (ej. SCM_Analyst_Baseline_v1)
+    Admin->>Console: Seleccionar plantilla de la lista (ej. Analyst_Baseline_v1)
     Console->>API: POST /api/v1/profiles/{profileId}/templates { template_id }
     API->>DB: Vincular TEMPLATE a PROFILE
     API->>Cache: Desalojar todas las claves de caché del grafo para usuarios en este perfil

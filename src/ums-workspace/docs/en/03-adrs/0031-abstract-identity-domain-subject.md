@@ -8,7 +8,7 @@
 
 ## 🏛️ 1. Context and Problem
 
-Currently, the User Management System (UMS) and the extended SCM domain implicitly use the "Employee" concept as the fundamental unit that holds permissions, interacts with systems, and authenticates against the Identity Provider (IdP).
+Currently, the User Management System (UMS) and the client domain implicitly use the "Employee" concept as the fundamental unit that holds permissions, interacts with systems, and authenticates against the Identity Provider (IdP).
 
 This approach shows critical technical and functional coupling:
 *   **Database and APIs:** The use of the `identity_reference` property as mandatory backend validation after OAuth (JWT) token exchange.
@@ -23,7 +23,7 @@ Forcing these individuals to have an "Organization Member Reference" forces "pol
 
 ## 🎯 2. Architectural Decision
 
-We have decided to **refactor the central identity entity in the UMS and SCM core, transitioning from the coupled concept of "Employee" to an agnostic abstraction of "Subject" (Subject / Identity)** mandatorily linked to an **"Organization"**.
+We have decided to **refactor the central identity entity in the UMS and system core, transitioning from the coupled concept of "Employee" to an agnostic abstraction of "Subject" (Subject / Identity)** mandatorily linked to an **"Organization"**.
 
 The technical and functional implementation guidelines are:
 
@@ -81,7 +81,7 @@ classDiagram
 *   **Scalability and Reusability:** Native and unlimited support for any actor (suppliers, clients, M2M integration bots, IoT, contractors).
 *   **Real Multitenant Isolation:** Using the isolation by `organization_id`, external users are logically separated at the Row-Level Security (RLS) level without altering the core.
 *   **DDD Compliance:** The Ubiquitous Language now reflects the operational reality of the global business, not just the internal HR hierarchy.
-*   **API Decoupling:** Backend client applications (SCM, WMS, TMS) no longer assume that "whoever logs in works for me."
+*   **API Decoupling:** Backend client applications (ERP, CRM, HCM) no longer assume that "whoever logs in works for me."
 
 ### Negative Consequences / Challenges
 *   **Migration Effort:** Requires a deprecation and interoperability strategy so as not to break production databases or active JWT token exchange flows.

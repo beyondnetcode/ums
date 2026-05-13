@@ -14,7 +14,7 @@ By serving as a secure, web-based visual interface, the console guarantees **Zer
 ## 👥 2. User Roles & Personas
 
 ### 🧑‍💼 Global Security Administrator (SuperAdmin)
-*   **Mission**: Configures global parameters, registers new Client Systems (SCM, ERP, etc.), onboard new Organizations (Tenants), and audits system-wide access attempts.
+*   **Mission**: Configures global parameters, registers new Client Systems (ERP, CRM, etc.), onboard new Organizations (Tenants), and audits system-wide access attempts.
 *   **Pain Point**: Administrative overhead from manual B2B tenant onboarding and lack of centralized observability.
 
 ### 🧑‍💻 Tenant Operations Manager (LocalAdmin)
@@ -52,17 +52,17 @@ By serving as a secure, web-based visual interface, the console guarantees **Zer
 ### 🏗️ Module B: Systems & Resources (Systems & Resource Registry)
 *   **Description**: Registers client systems and defines their dynamic UI/UX navigation topologies.
 *   **Functional Criteria**:
-    *   **System Registration**: Define systems (SCM Route Planner, HCM Portal, etc.) and generate secure API credentials for gateway validation.
-    *   **UI Layout Topology CRUD**: Define the nested hierarchy of **Menus ➔ Submenus ➔ Options ➔ Actions** available in the client system.
+    *   **System Registration**: Define systems, their associated modules (e.g., Fleet Management, HR), and generate secure API credentials for gateway validation.
+    *   **UI Layout Topology CRUD**: Define the nested hierarchy of **Modules ➔ Menus ➔ Options ➔ Actions** available in the client system, with **Modules** as the top-level grouping entity (first-class CRUD).
     *   **Action Taxonomy Manager**: Configure granular action scopes (`create`, `read`, `update`, `delete`, `export`, `approve_dispatch`).
 
 ### 🔑 Module C: Profiles, Templates & Advanced Assignment Engine
 *   **Description**: Constructs reusable authorization schemas (Templates) and maps them to active user Profiles both manually and automatically.
 *   **Functional Criteria**:
-    *   **Policy Template Builder**: Build reusable access blocks (e.g., *Baseline Analyst Permissions*) containing allowed menus, options, and contextual ABAC rules.
+    *   **Policy Template Builder**: Build reusable access blocks (e.g., *Baseline Analyst Permissions*) containing allowed modules, menus, options, actions, and contextual ABAC rules.
     *   **Manual Assignment Workflow**: Direct visual interface where administrators can select a user Profile and manually attach or detach active Authorization Templates.
     *   **Automatic Rule-Based Assignment Engine**: Trigger-based automated mapping when a profile is created (via automated B2B customer registration, tenant onboarding, or HR sync).
-        *   *Rule Configuration*: Define matching rules (e.g., *if role equals 'TransportationAnalyst' and tenant equals 'LogisticsCorp', automatically assign 'Template_SCM_Analyst_Baseline'*).
+        *   *Rule Configuration*: Define matching rules (e.g., *if role equals 'TransportationAnalyst' and tenant equals 'LogisticsCorp', automatically assign 'Template_Analyst_Baseline'*).
         *   *Instant Activation*: Applies baseline templates instantly upon profile generation, ensuring zero administrative latency for new users.
     *   **Precedence Controller**: Toggle explicit authorization precedence overrides (e.g., enforcing `Explicit-Deny` to instantly block suspended branches).
 

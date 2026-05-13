@@ -1,6 +1,6 @@
 # 📘 Functional Story 4: Register System and Define Menu Topology
 
-This use case specifies the flow for registering a new client application (System) into the UMS and defining its navigational resource hierarchy (Menus, Submenus, Options, and Actions).
+This use case specifies the flow for registering a new client application (System) into the UMS and defining its navigational resource hierarchy (Modules, Menus, Options, and Actions).
 
 ---
 
@@ -33,20 +33,20 @@ sequenceDiagram
     API->>Audit: Log SystemRegisteredEvent
     API-->>Console: 201 Created { systemId, apiCredential }
     Console-->>Admin: Show system credential (once only, copy prompt)
-    Admin->>Console: Navigate to Systems > Topology > Add Menu
-    loop Build Menu Tree
-        Admin->>Console: Add Menu → Submenus → Options → Actions
-        Console->>API: POST /api/v1/systems/{id}/menus (recursive batch)
-        API->>DB: Insert MENU / SUBMENU / OPTION / ACTION records
+    Admin->>Console: Navigate to Systems > Topology > Add Module
+    loop Build Topology Tree
+        Admin->>Console: Add Module → Add Menu → Add Options → Attach Actions
+        Console->>API: POST /api/v1/systems/{id}/modules (recursive batch)
+        API->>DB: Insert MODULE / MENU / OPTION / ACTION records
     end
     API-->>Console: Topology saved confirmation
 ```
 
 ### A. Main Flow
 1. SuperAdmin navigates to **Systems** and clicks **Register New System**.
-2. Fills in system name (`SCM Route Planner`), machine code (`scm_route_planner`), and base URL.
+2. Fills in system name (`Route Planner`), machine code (`route_planner`), and base URL.
 3. The API generates a unique, hashed M2M API credential that client applications use in `Authorization: Bearer` headers when calling `POST /v1/authorization/graph`. This credential is shown **once** and must be saved.
-4. Admin navigates to the **Topology Builder** for the registered system and constructs the navigation tree: `Menus → Submenus → Options → Actions`.
+4. Admin navigates to the **Topology Builder** for the registered system and constructs the navigation tree: `Modules → Menus → Options → Actions`.
 5. Each node specifies a label, order index, and (for Actions) an API endpoint mapping and action code (`create`, `read`, `update`, `delete`, `export`, `approve`).
 
 ---

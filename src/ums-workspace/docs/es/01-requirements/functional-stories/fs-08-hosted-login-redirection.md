@@ -50,7 +50,7 @@ sequenceDiagram
 ```
 
 ### A. Flujo Principal
-1. Un Usuario Final visita una aplicación registrada (ej. Portal SCM) y hace clic en "Iniciar Sesión".
+1. Un Usuario Final visita una aplicación registrada (ej. portal cliente) y hace clic en "Iniciar Sesión".
 2. La aplicación redirige el navegador del usuario hacia el Portal Centralizado de Login (Hosted) de UMS, enviando su `client_id` (ID Sistema), `tenant_id` y un `redirect_uri` verificado en los parámetros de consulta.
 3. El Portal de Login UMS consulta el Servicio de Configuración para obtener el diseño de marca activo (logo, colores, clases CSS personalizadas) asociado con dicho Inquilino y Sistema.
 4. El Servicio de Configuración resuelve la estructura utilizando el motor de resolución jerárquico (aplicando sobreescrituras a nivel Tenant y Sistema).

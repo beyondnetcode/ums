@@ -10,7 +10,7 @@ This specification defines the enterprise-grade design, API contracts, security 
 ### 🚀 High-Performance Access Gatekeeper
 In a federated B2B SaaS ecosystem, user login is the highest-concurrency entry point. To ensure a seamless user experience, the UMS exposes a highly resilient, low-latency, and scalable authentication endpoint. This gateway abstracts both internal credentials and federated Identity Providers (IdPs)—such as Zitadel, Okta, Microsoft Entra ID, or OAuth2/Passport social logins (Google, etc.)—delegating identity verification while maintaining strict central authority over the multi-tenant context.
 
-Upon successful authentication, rather than returning a simple user profile, the API dynamically compiles and injects a unified, cached **Hierarchical Authorization Graph**. This graph maps precisely which Systems, Menus, Submenus, Options, Actions, and Contextual Scopes the authenticated user is allowed to access within their specific corporate organization, ensuring dynamic UI rendering and robust downstream microservices authorization enforcement at runtime.
+Upon successful authentication, rather than returning a simple user profile, the API dynamically compiles and injects a unified, cached **Hierarchical Authorization Graph**. This graph maps precisely which Systems, Modules, Menus, Options, Actions, and Contextual Scopes the authenticated user is allowed to access within their specific corporate organization, ensuring dynamic UI rendering and robust downstream microservices authorization enforcement at runtime.
 
 ---
 
@@ -18,7 +18,7 @@ Upon successful authentication, rather than returning a simple user profile, the
 *(Suitable for: `product-scope.md` / `requirements.md` / Backlog)*
 
 ### 📝 Product Feature: High-Performance Multi-Tenant Authenticator
-*   **Actor**: SCM Portal Users, External API Clients.
+*   **Actor**: Portal Users, External API Clients.
 *   **User Story**:
     > *As a* B2B multi-tenant user,
     > *I want to* authenticate securely via my preferred corporate or social identity provider,
@@ -28,7 +28,7 @@ Upon successful authentication, rather than returning a simple user profile, the
 1.  **Agnostic Intake Schema**: The API must accept an agnostic payload containing authentication credentials (e.g., username/password or an external JWT/OAuth2 code), the `target_system_id` being accessed, and the `organization_id` (tenant context).
 2.  **Pluggable Identity Resolvers**: The system must support internal UMS-managed credentials (Bcrypt storage) and external IdPs (SAML, OIDC, OAuth2, WebAuthn, generic Social Identity Providers) without modifying business logic.
 3.  **Token Lifecycle Management**: Enforce secure session handshakes by issuing a short-lived **JSON Web Token (JWT) Access Token** coupled with a cryptographically secure, rotated **Refresh Token** (sliding expiration window).
-4.  **Hierarchical Authorization Compilation**: After credentials verification, compile a complete hierarchical JSON authorization tree mapping: `Organization ➔ System ➔ Role ➔ Menu ➔ Submenu ➔ Option ➔ Action`.
+4.  **Hierarchical Authorization Compilation**: After credentials verification, compile a complete hierarchical JSON authorization tree mapping: `Organization ➔ System ➔ Role ➔ Module ➔ Menu ➔ Option ➔ Action`.
 5.  **Dynamic Precedence Rule**: Apply the **Explicit-Deny Precedence** rule on compiled permissions before returning the payload to the client.
 
 ---
@@ -135,14 +135,13 @@ X-Tenant-ID: org_enterprise_001
     "system_id": "sys_scm_portal",
     "roles": ["WarehouseManager", "Auditor"],
     "permissions": {
-      "menus": [
+      "modules": [
         {
-          "id": "menu_inventory",
-          "label": "Inventory Control",
-          "submenus": [
+          "module_name": "Inventory Management",
+          "module_code": "inventory_mgmt",
+          "menus": [
             {
-              "id": "submenu_stock",
-              "label": "Stock Levels",
+              "menu_name": "Stock Levels",
               "options": [
                 {
                   "id": "opt_view_stock",
@@ -151,9 +150,11 @@ X-Tenant-ID: org_enterprise_001
                     "abac_max_export_count": 1000
                   }
                 }
-              ]
+              ],
+              "actions": ["view_stock", "export_stock"]
             }
-          ]
+          ],
+          "actions": ["access_module"]
         }
       ]
     }
@@ -187,4 +188,4 @@ X-Tenant-ID: org_enterprise_001
 ## 🏷️ 8. Concise Executive Summary
 *(Suitable for: High-level presentations)*
 
-> **Unified High-Concurrency IAM Core**: The UMS exposes a stateless, high-concurrency API (`/api/v1/auth/login`) that abstracts internal and external identity providers (Zitadel, Okta, Azure AD, Social logins) via a pluggable adapter pattern. Upon successful authentication, the API delivers dual cryptographically rotated tokens alongside a pre-compiled, Redis-cached **Hierarchical Authorization Graph** mapping multi-tenant permissions down to menus, submenus, options, and actions in under **5ms**, combining outstanding high-throughput performance with robust, enterprise-grade access governance.
+> **Unified High-Concurrency IAM Core**: The UMS exposes a stateless, high-concurrency API (`/api/v1/auth/login`) that abstracts internal and external identity providers (Zitadel, Okta, Azure AD, Social logins) via a pluggable adapter pattern. Upon successful authentication, the API delivers dual cryptographically rotated tokens alongside a pre-compiled, Redis-cached **Hierarchical Authorization Graph** mapping multi-tenant permissions down to modules, menus, options, and actions in under **5ms**, combining outstanding high-throughput performance with robust, enterprise-grade access governance.

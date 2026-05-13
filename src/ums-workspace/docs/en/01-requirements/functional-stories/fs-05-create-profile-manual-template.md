@@ -34,7 +34,7 @@ sequenceDiagram
     API->>Audit: Log ProfileCreatedEvent
     API-->>Console: 201 Created { profileId }
     Admin->>Console: Navigate to Profile > Templates > Assign Template
-    Admin->>Console: Select template from list (e.g., SCM_Analyst_Baseline_v1)
+    Admin->>Console: Select template from list (e.g., Analyst_Baseline_v1)
     Console->>API: POST /api/v1/profiles/{profileId}/templates { template_id }
     API->>DB: Link TEMPLATE to PROFILE
     API->>Cache: Evict all graph cache keys for users in this profile

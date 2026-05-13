@@ -70,10 +70,10 @@ A rule matches when **all** of its conditions are satisfied:
 | `role_code` | Exact match | `TransportationAnalyst` |
 | `organization_id` | Exact match or wildcard `*` | `tenant_logistics_corp` |
 | `branch_id` | Exact match or wildcard `*` | `branch_callao_terminal` |
-| `system_id` | Exact match or wildcard `*` | `scm_route_planner` |
+| `system_id` | Exact match or wildcard `*` | `route_planner` |
 
 **Example Rule:**
-> *If `role_code = "TransportationAnalyst"` AND `organization_id = "tenant_logistics_corp"` THEN assign `Template_SCM_Analyst_Baseline_v1`*
+> *If `role_code = "TransportationAnalyst"` AND `organization_id = "tenant_logistics_corp"` THEN assign `Analyst_Baseline_v1`*
 
 ---
 

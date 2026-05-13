@@ -17,12 +17,12 @@ This document establishes the standardized, non-ambiguous glossary of terms for 
 | **Sponsor User (Patrocinador)** | An internal corporate user who requests and justifies system access for an external third-party user. | `Identity.Users` |
 | **External Access Request (Petición de Acceso Externo)** | An auditable business ticket routing an external B2B access request through the PAP approval workflow. | `Identity.AccessRequests` |
 | **Branch (Sedes)** | A physical or logical sub-unit of an Organization (e.g., *Callao Port Terminal*, *Lurin Warehouse*). Acts as the branch context for hierarchical authorization routing. | `Identity.Branches` |
-| **Network (Red)** | A logical network boundary (Private SCM, Public, Shared) governing access policies. | `Identity.Networks` |
-| **System (Sistema)** | An independent application or sub-portal registered in the platform (e.g., SCM Route Planner, Billing). | `Auth.Systems` |
-| **Menu (Menú)** | A structured navigation tree of sidebars and views belonging to a System. | `Auth.Menus` |
-| **Submenu** | A secondary grouping within a Menu, containing one or more Options. | `Auth.Submenus` |
-| **Option (Opción)** | A specific web page or UI view within a Submenu. | `Auth.Options` |
-| **Action (Acción)** | A granular operation (e.g., `create`, `read`, `export`) mapped to an API endpoint. | `Auth.Actions` |
+| **Network (Red)** | A logical network boundary (Private Network, Public, Shared) governing access policies. | `Identity.Networks` |
+| **System (Sistema)** | An independent application or sub-portal registered in the platform (e.g., Route Planner, Billing). Contains one or more Modules. | `Auth.Systems` |
+| **Menu (Menú)** | A structured navigation tree of sidebars and views within a Module. | `Auth.Menus` |
+| **Module (Módulo)** | A logical grouping of Menus and Options within a System. Modules organize functional areas and can have Actions attached at the module level. | `Auth.Modules` |
+| **Option (Opción)** | A specific web page or UI view within a Menu. | `Auth.Options` |
+| **Action (Acción)** | An executable operation or permission that can be attached at System, Module, Menu, or Option level. | `Auth.Actions` |
 | **Profile (Perfil)** | A physical collection of authorizations assigned to Users, scoped to an Organization and optionally a Branch. | `Auth.Profiles` |
 | **Authorization (Autorización)**| The mapping of an Allow/Deny policy to a specific Resource + Action. | `Auth.Authorizations` |
 | **Auth Template (Plantilla)** | A reusable versioned blueprint of authorizations used to instantiate Profiles. | `Auth.Templates` |

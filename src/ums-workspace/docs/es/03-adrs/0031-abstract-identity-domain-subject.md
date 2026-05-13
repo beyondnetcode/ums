@@ -8,7 +8,7 @@
 
 ## 🏛️ 1. Contexto y Problema
 
-Actualmente, el Sistema de Gestión de Usuarios (UMS) y el dominio extendido de SCM utilizan de forma implícita el concepto de "Empleado" como la unidad fundamental que posee permisos, interactúa con los sistemas y se autentica contra el proveedor de identidad (IdP). 
+Actualmente, el Sistema de Gestión de Usuarios (UMS) y el dominio del cliente utilizan de forma implícita el concepto de "Empleado" como la unidad fundamental que posee permisos, interactúa con los sistemas y se autentica contra el proveedor de identidad (IdP). 
 
 Este enfoque se evidencia en acoplamientos técnicos y funcionales críticos:
 *   **Base de Datos y APIs:** Uso de la propiedad `identity_reference` como validación obligatoria del backend tras el intercambio del Token OAuth (JWT).
@@ -23,7 +23,7 @@ Exigir que estas personas tengan una "Referencia de Miembro de Organización" ob
 
 ## 🎯 2. Decisión Arquitectónica
 
-Hemos decidido **refactorizar la entidad central de identidad en el UMS y el core de SCM, transitando del concepto acoplado de "Empleado" hacia una abstracción agnóstica de "Sujeto" (Subject / Identity)** vinculada obligatoriamente a una **"Organización" (Organization)**.
+Hemos decidido **refactorizar la entidad central de identidad en el UMS y el core del sistema, transitando del concepto acoplado de "Empleado" hacia una abstracción agnóstica de "Sujeto" (Subject / Identity)** vinculada obligatoriamente a una **"Organización" (Organization)**.
 
 Las directrices de implementación técnica y funcional son:
 
@@ -81,7 +81,7 @@ classDiagram
 *   **Escalabilidad y Reutilización:** Soporte nativo e ilimitado para cualquier actor (proveedores, clientes, bots de integración M2M, IoT, contratistas).
 *   **Aislamiento Multitenant Real:** Utilizando el aislamiento por `organization_id`, los usuarios externos quedan lógicamente separados a nivel de Row-Level Security (RLS) sin alterar el core.
 *   **Cumplimiento DDD:** El Ubiquitous Language ahora refleja la realidad operativa del negocio global, no solo la jerarquía interna de RRHH.
-*   **Desacoplamiento de APIs:** Los backends de aplicaciones clientes (SCM, WMS, TMS) ya no asumen que "quien inicia sesión trabaja para mí".
+*   **Desacoplamiento de APIs:** Los backends de aplicaciones clientes (ERP, CRM, HCM) ya no asumen que "quien inicia sesión trabaja para mí".
 
 ### Consecuencias Negativas / Desafíos
 *   **Esfuerzo de Migración:** Requiere una estrategia de deprecación e interoperabilidad para no romper las bases de datos productivas ni los flujos de intercambio de tokens JWT activos.

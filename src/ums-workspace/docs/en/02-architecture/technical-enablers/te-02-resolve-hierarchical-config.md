@@ -47,7 +47,7 @@ sequenceDiagram
 ```
 
 ### A. Main Flow
-1. A client system (e.g., SCM Portal) boots up and requests its configuration from the UMS API, providing its `system_id`, `tenant_id`, and runtime context (e.g., `branch_id`, `environment`).
+1. A client system (e.g., Client Portal) boots up and requests its configuration from the UMS API, providing its `system_id`, `tenant_id`, and runtime context (e.g., `branch_id`, `environment`).
 2. The Config API checks Redis for a pre-calculated effective configuration matching this exact context hash.
 3. If a cache miss occurs, the Resolution Strategy is invoked. It queries the database for all available configuration layers applicable to the context.
 4. The Engine performs a **Deep Merge** starting from the lowest priority layer (Global) and sequentially applying overrides up to the highest priority layer (Environment).

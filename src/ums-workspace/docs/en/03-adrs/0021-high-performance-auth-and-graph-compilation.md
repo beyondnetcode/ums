@@ -1,27 +1,16 @@
-﻿# ADR 0021: High-Performance Authentication and Authorization Graph Compilation
+# ADR 0021: High-Performance Authentication and Authorization Graph Compilation
 
-## Status
-Accepted
+* **Status:** Accepted
+* **Based on:** [arc32-21](https://github.com/beyondnetcode/arc32_progresive_monolith/blob/main/arc-corporate-ws/corporate-standards/02-adrs/nodejs/0021-high-performance-auth-and-graph-compilation.md)
+* **Date:** 2026-05-08
 
-## Context
-In a federated B2B SaaS ecosystem, user login is the highest-concurrency entry point. Generating complex dynamic role-resolution trees and querying PostgreSQL relational tables on every HTTP request to build custom menus and permission structures is highly resource-intensive, resulting in high database load and poor latency profiles.
+## Adaptation Summary
 
-Under the **spec-driven AI strategy BMAD-METHOD**, all high-concurrency gateways must be stateless, horizontally scalable, and optimized for sub-millisecond response profiles.
+The corporate standard is adopted with the following project-specific modifications:
+1. Conceptually integrated into ADR-0039 (Policy Compilation Engine). The corporate concept of Redis-cached auth graph is adopted.
+2. .NET implementation uses IDistributedCache instead of NestJS CacheManager. Key schema uses `compiled_policy:v2:` prefix.
+3. Deferred: gRPC sub-calls for internal graph resolution until Phase 2.
 
-## Decision
-We will expose a unified, stateless `/api/v1/auth/login` endpoint that abstracts internal/external identity providers (using the Strategy Pattern) and returns a pre-compiled, Redis-cached **Hierarchical Authorization Graph** mapping:
-`Organization ➔ System ➔ Role ➔ Menu ➔ Submenu ➔ Option ➔ Action`
+## Full Standard Reference
 
-*   **Stateless Handshake**: Session validity is cryptographically verified on-the-fly using RS256-signed Access Tokens coupled with cryptographically rotated Refresh Tokens (RTR).
-*   **Read-Aside Cache**: The compiled authorization graph is cached inside Redis utilizing `user_id:target_system_id:org_id` as the composite key, keeping resolution latency under **5ms**.
-*   **Explicit-Deny Precedence**: The graph compilation engine enforces that any explicit `DENY` rule overrides all other inherited `ALLOW` permissions.
-
-## Consequences
-
-### Positive
-*   **Sub-millisecond Latency**: Redis caching reduces graph resolution to <5ms (Cache Hit).
-*   **Stateless Scalability**: Authentication servers can scale horizontally without session synchronization bottlenecks.
-*   **Frontend-Optimized**: A single network call returns both session tokens and UI-rendering configurations.
-
-### Negative
-*   **Cache Invalidation Overhead**: Requires implementing proactive Redis eviction hooks when administrative permission mutations occur.
+See the corporate source for the complete decision context and rationale.

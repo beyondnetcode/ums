@@ -1,4 +1,4 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
+> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versiï¿½n original (Inglï¿½s) y estï¿½ programado para traducciï¿½n oficial en la hoja de ruta.
 
 # ðŸ”¬ Product Scope & Boundaries - User Management System (UMS)
 
@@ -30,7 +30,7 @@ The UMS manages the following key functional capabilities:
 - Secure, isolated, and immutable audit logs.
 
 ### E. Administrative UMS Web Portal (Policy Administration Point - PAP)
-- **Central Control Panel**: Dynamic maintenance (CRUDs) of Organizations (Tenants), Systems, Menus, Submenus, Options, Profiles, and Roles.
+- **Central Control Panel**: Dynamic maintenance (CRUDs) of Organizations (Tenants), Systems, Modules, Menus, Options, Actions, Profiles, and Roles.
 - **Active Session & Telemetry Monitors**: Real-time auditing of authentication attempts, cache hit ratios, and Redis-cache evictions.
 - **Visual Graph Resolver**: Interactive visualization of the compiled authorization graph for specific user/tenant contexts (e.g., debugging Transportation Analyst permissions).
 

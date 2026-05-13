@@ -1,31 +1,14 @@
-﻿> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versi�n original (Ingl�s) y est� programado para traducci�n oficial en la hoja de ruta.
+# ADR 0022: Autenticación Contextual y Proyecciones de Salida Enchufables
 
-# ADR 0022: Contextual Authentication and Pluggable Output Projections
+* **Status:** Accepted
+* **Basado en:** [arc32-22](https://github.com/beyondnetcode/arc32_progresive_monolith/blob/main/arc-corporate-ws/corporate-standards/02-adrs/nodejs/0022-contextual-auth-and-pluggable-projections.md)
+* **Date:** 2026-05-08
 
-## Status
-Accepted
+## Resumen de Adaptación
 
-## Context
-SaaS platforms require both robust external/internal identity verification and fine-grained, context-aware authorization (incorporating corporate branch contexts). Hardcoding permission models or forcing a single token output format limits integration with diverse microservices and high-fidelity frontends.
+The corporate standard is adopted with the following modificaciones específicas del proyecto:
+1. Mismo concepto de proyección enchufable. Implementado con Strategy Pattern de .NET. Mismos formatos de salida.
 
-Under the **spec-driven AI strategy BMAD-METHOD**, all high-concurrency systems must remain decoupled, highly extensible, and future-proof.
+## Referencia Completa del Estándar
 
-## Decision
-We will establish a centralized UMS Core capable of decoupling identity validation from hierarchical authorization graph compilation. 
-
-The system will:
-*   **Decouple Concerns**: Swap identity verification strategies dynamically using the Strategy Pattern wrapped behind a Hexagonal Port (`IAuthenticationPort`).
-*   **Support Pluggable Projections**: Project compiled authorizations into multiple formats (Hierarchical JSON, JWT compressed claims, Graph structures) using pluggable output adapters.
-*   **Resolve Contextual Access**: Support hierarchical, tenant-level, and branch-level (sedes) multi-tenant authorization routing.
-*   **Optimize Resolution**: Utilize a high-performance Read-Aside Redis Cache to resolve contextual permission graphs in under **5ms**.
-
-## Consequences
-
-### Positive
-*   **Total Decoupling**: Swapping identity providers is a zero-impact configuration change on core SCM business logic.
-*   **Extensible Projections**: Simultaneously supports frontend-optimized dynamic menu generation and downstream microservices lightweight JWT validation.
-*   **Context-Aware**: Flawless support for branch-specific (sedes) multi-tenant authorization routing.
-
-### Negative
-*   **Cache Management Overhead**: Requires implementing proactive Redis eviction hooks when administrative permission mutations occur.
-
+Ver la fuente corporativa para el contexto completo y la justificación de la decisión.

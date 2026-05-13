@@ -49,7 +49,7 @@ graph TD
     ExternalAuth["External Identity Service (OAuth / Tenant IdP)"]
     InternalAuth["Internal Credential DB (Native Login)"]
     ExternalFlags["Feature Flag Providers (LaunchDarkly/Unleash)"]
-    Downstream["Downstream SaaS Services (SCM, TMS, WMS, etc.)"]
+    Downstream["Downstream SaaS Services"]
 
     User -->|Logs in via Auth Gateway| UMS
     ExternalUser -->|Submits Access Request| UMS
@@ -72,7 +72,7 @@ Maps the physical subsystems (React Frontend, NestJS API, PostgreSQL Database) t
 ```mermaid
 graph TD
     subgraph Clients["Client Applications"]
-        ReactApp["Frontend React Web App (SCM Portal)"]
+        ReactApp["Frontend React Web App (Client Portal)"]
         AdminApp["UMS Admin Console (PAP React App)"]
         MobileApp["Future Mobile App (iOS/Android)"]
     end
@@ -250,12 +250,12 @@ An exhaustive evaluation of **"Build vs. Buy"** decisions, licensing implication
 
 To support secure, context-aware, and highly scalable access control across all corporate applications, the system adopts a centralized **User Management System (UMS)** serving as a shared "authorization kernel". This architecture decouples identity validation from dynamic permission resolution by implementing standard **XACML Architectural Reference Model** layers:
 
-1.  **Policy Enforcement Point (PEP)**: Intercepts incoming client requests at the API Gateway or individual SCM/NestJS Guards, enforcing access rules by reading the returned authorization graph.
+1.  **Policy Enforcement Point (PEP)**: Intercepts incoming client requests at the API Gateway or individual NestJS Guards, enforcing access rules by reading the returned authorization graph.
 2.  **Policy Decision Point (PDP)**: The core UMS Engine. It compiles and resolves fine-grained permissions into a cached, hierarchical graph under 5ms using Redis.
 3.  **Policy Administration Point (PAP)**: The UMS administrative portal where security teams manage baseline templates, tenant profiles, and explicit permission rules.
 4.  **Policy Information Point (PIP)**: Relational PostgreSQL registries supplying active tenant, branch (sedes), and user attributes during graph evaluation.
 
-By utilizing the **Strategy Pattern** for dynamic output projections, the UMS can format the compiled graph into a variety of target structures on-the-fly (including frontend-optimized JSON, cryptographically signed JWT scopes, or Claims-based lists), ensuring high adaptability and complete zero-lock-in longevity. For a complete analysis of the SCM Transportation Analyst reference model and API contracts, consult **[enterprise-iam-ums-specification.md](../04-artifacts/enterprise-iam-ums-specification.md)**.
+By utilizing the **Strategy Pattern** for dynamic output projections, the UMS can format the compiled graph into a variety of target structures on-the-fly (including frontend-optimized JSON, cryptographically signed JWT scopes, or Claims-based lists), ensuring high adaptability and complete zero-lock-in longevity. For a complete analysis of the Business Analyst reference model and API contracts, consult **[enterprise-iam-ums-specification.md](../04-artifacts/enterprise-iam-ums-specification.md)**.
 
 
 

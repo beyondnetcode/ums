@@ -1,26 +1,16 @@
 # ADR 0007: Observability Telemetry with Grafana Loki and OpenTelemetry
 
-## Status
-Approved
+* **Status:** Accepted
+* **Based on:** [arc32-7](https://github.com/beyondnetcode/arc32_progresive_monolith/blob/main/arc-corporate-ws/corporate-standards/02-adrs/nodejs/0007-observability-telemetry-loki-opentelemetry.md)
+* **Date:** 2026-05-08
 
-## Date
-2026-05-08
+## Adaptation Summary
 
-## Context
-As the UMS applications move to production, we need an advanced observability system to monitor performance, log errors, and trace database executions in real-time. Traditional enterprise stacks like Elastic (ELK) consume massive RAM and CPU, which violates our zero-cost and lightweight architecture goals.
+The corporate standard is adopted with the following project-specific modifications:
+1. UMS uses .NET OpenTelemetry SDK (OpenTelemetry.Instrumentation.AspNetCore) instead of NestJS @opentelemetry/instrumentation-http.
+2. Same protocol (OTLP), same backend (Loki + Tempo + Grafana). Configuration differs per SDK.
+3. Logging: .NET ILogger with OpenTelemetry exporter vs NestJS Logger with OTel transport.
 
-## Proposed Decision
-We propose to adopt the **Grafana LGTM Stack (Loki + Grafana + Tempo)** combined with **OpenTelemetry (OTel)**:
-1. Instrument our NestJS API natively using **OpenTelemetry SDKs** to emit standard logs, metrics, and traces without coupling to any specific APM vendor.
-2. Ship logs to **Grafana Loki** due to its lightweight, metadata-only indexing model that uses 10x less RAM than Elasticsearch.
-3. Use **Grafana Tempo** for distributed tracing, allowing developers to see exact database execution paths and pinpoint latencies across use cases.
+## Full Standard Reference
 
-## Consequences
-
-### Positive (Pros)
-* **Lightweight and Free**: The complete LGTM stack can run easily with under 500MB of RAM, making it extremely cost-effective.
-* **Aspect-Oriented Logs**: Real-time logging is handled transparently via our shared `libs-aop` library without polluting core use cases.
-* **Unified Dashboard**: Grafana combines metrics, logs, and traces into a single glass-morphic pane of glass.
-
-### Negative (Cons)
-* Requires running a local or cloud Grafana Loki collector daemon.
+See the corporate source for the complete decision context and rationale.

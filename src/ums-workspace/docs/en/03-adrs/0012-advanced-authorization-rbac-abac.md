@@ -1,21 +1,16 @@
 # ADR 0012: Advanced Authorization (RBAC/ABAC) and Security Auditing Strategy
 
-## Status
-Approved
+* **Status:** Accepted
+* **Based on:** [arc32-12](https://github.com/beyondnetcode/arc32_progresive_monolith/blob/main/arc-corporate-ws/corporate-standards/02-adrs/nodejs/0012-advanced-authorization-rbac-abac.md)
+* **Date:** 2026-05-08
 
-## Date
-2026-05-08
+## Adaptation Summary
 
-## Context
-While the system currently relies on JWT for authentication, enterprise SaaS applications require robust access control matrices. Users within a specific tenant must have restricted access based on their operational roles (e.g., Admin, Operator, Auditor) and the state of the attributes they are trying to modify.
+The corporate standard is adopted with the following project-specific modifications:
+1. UMS implements RBAC/ABAC via .NET middleware pipeline (ADR-0036, ADR-0039) instead of NestJS Guards + Decorators.
+2. Policy compilation engine (ADR-0039) replaces NestJS @Roles()/@Permissions() decorators with a compiled policy graph.
+3. Anti-privilege escalation (ADR-0036) is UMS-specific addition not covered by the corporate standard.
 
-## Decision
-We will implement a hybrid Role-Based Access Control (RBAC) and Attribute-Based Access Control (ABAC) architecture:
+## Full Standard Reference
 
-1. **NestJS Guards & Decorators**: Implement custom `@Roles()` and `@Permissions()` decorators at the controller/resolver level. A global `RolesGuard` will intercept requests and validate the JWT claims against the required endpoint permissions.
-2. **Tenant-Aware Scoping**: Roles are not global; they are strictly bound to a `tenant_id`. A user might be an 'Admin' in Tenant A, but only a 'Viewer' in Tenant B.
-3. **Proactive Security Auditing**: Security-critical actions (e.g., elevating privileges, modifying roles) will be automatically flagged and logged into a dedicated security audit stream, preparing the ground for future AI anomaly detection models.
-
-## Consequences
-* **Pros**: Highly granular, secure, and compliant access control mechanism suitable for strict enterprise and government audits.
-* **Cons**: Role and permission matrices can become complex to manage and test. Requires careful design of the JWT payload to avoid token bloat.
+See the corporate source for the complete decision context and rationale.

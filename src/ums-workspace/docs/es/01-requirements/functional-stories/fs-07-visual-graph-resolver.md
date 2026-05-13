@@ -50,10 +50,10 @@ sequenceDiagram
 2. Escribe el correo del usuario o `user_id` en el buscador. El sistema devuelve los registros de usuarios coincidentes.
 3. Selecciona la **Organización**, **Sede** y **Sistema** a través de listas desplegables en cascada.
 4. Hace clic en **Resolver Grafo**. La API llama al **endpoint de diagnóstico** del Motor de Autorización, el cual **siempre ignora la caché de Redis** y recompila directamente desde PostgreSQL para mostrar el estado actual real (ground-truth).
-5. El motor devuelve un grafo anotado que incluye, para cada nodo de Menú/Submenú/Opción/Acción:
+5. El motor devuelve un grafo anotado que incluye, para cada nodo de Módulo/Menú/Opción/Acción:
     - El `efecto` (`ALLOW`, `DENY` o `NOT_ASSIGNED`).
     - La `fuente de regla` (`template_id` o `profile_id` que produjo el efecto).
-    - La `razón` (ej., `Concedido por Template_SCM_Analyst_Baseline_v1`, `Bloqueado por DENY explícito en perfil PortSupervisor_Callao`).
+    - La `razón` (ej., `Concedido por Analyst_Baseline_v1`, `Bloqueado por DENY explícito en perfil PortSupervisor_Callao`).
 6. La Consola renderiza el árbol interactivamente: **nodos verdes** para PERMITIR (ALLOW), **nodos rojos** para DENEGAR (DENY), **nodos grises** para NO ASIGNADO.
 7. El SRE puede hacer clic en cualquier nodo para expandir su panel de justificación de decisión.
 

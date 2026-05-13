@@ -28,7 +28,7 @@ The UMS manages the following key functional capabilities:
 - Secure, isolated, and immutable audit logs.
 
 ### E. Administrative UMS Web Portal (Policy Administration Point - PAP)
-- **Central Control Panel**: Dynamic maintenance (CRUDs) of Organizations (Tenants), Systems, Menus, Submenus, Options, Profiles, and Roles.
+- **Central Control Panel**: Dynamic maintenance (CRUDs) of Organizations (Tenants), Systems, Modules, Menus, Options, Actions, Profiles, and Roles.
 - **Active Session & Telemetry Monitors**: Real-time auditing of authentication attempts, cache hit ratios, and Redis-cache evictions.
 - **Visual Graph Resolver**: Interactive visualization of the compiled authorization graph for specific user/tenant contexts (e.g., debugging Transportation Analyst permissions).
 

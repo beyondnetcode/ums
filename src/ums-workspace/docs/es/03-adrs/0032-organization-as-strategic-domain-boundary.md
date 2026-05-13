@@ -16,7 +16,7 @@ Anteriormente, el sistema corría el riesgo de permitir acoplamientos ambiguos d
 2.  Los **Sistemas** y Aplicaciones eran tratados como un catálogo agnóstico universal, careciendo de una clara definición de "Propiedad" (*Ownership*).
 3.  Las jerarquías de permisos asumían que una opción de menú o una acción pertenecía únicamente al rol de sistema, sin importar el contexto organizacional que consume u opera el recurso.
 
-Esta falta de contención unificada compromete el principio de **Zero Trust** (Confianza Cero) e introduce riesgos operacionales de "fuga de datos" (*data bleeding*) entre diferentes inquilinos B2B que comparten el ecosistema de la suite de SCM.
+Esta falta de contención unificada compromete el principio de **Zero Trust** (Confianza Cero) e introduce riesgos operacionales de "fuga de datos" (*data bleeding*) entre diferentes inquilinos B2B que comparten el ecosistema del cliente.
 
 ---
 
@@ -28,7 +28,7 @@ Las directrices obligatorias de esta contención jerárquica son:
 
 1.  **Contención Dual Obligatoria:** Una Organización es el contenedor lógico absoluto que contiene simultáneamente:
     *   **Sujetos/Personas:** Los referentes humanos y bots que actúan bajo su tutela.
-    *   **Sistemas/Recursos:** Los aplicativos, configuraciones, menús y permisos asignados o contratados bajo su control.
+    *   **Sistemas/Recursos:** Los aplicativos, módulos, configuraciones, menús y permisos asignados o contratados bajo su control.
 2.  **Jerarquía y Flujo de Autorización:** El grafo de compilación de permisos y renderizado dinámico debe leerse jerárquicamente como:
     `Organización ➔ Sujeto ➔ Rol ➔ Sistema ➔ Módulo/Menú ➔ Acción`.
 3.  **Aislamiento de Recursos Propios y Delegados:** 
@@ -102,7 +102,7 @@ Para transicionar de forma fluida sin romper el código existente:
     {
       "sub_ref": "S-12345",
       "org_id": "ORG-XYZ-789",
-      "allowed_systems": ["SCM", "WMS"]
+      "allowed_systems": ["ERP", "CRM"]
     }
     ```
-    Esto garantiza que a nivel de frontend y microservicios no exista latencia para filtrar los menús locales.
+    Esto garantiza que a nivel de frontend y microservicios no exista latencia para filtrar los módulos y menús locales.

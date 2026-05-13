@@ -70,10 +70,10 @@ Una regla es coincidente cuando **todas** sus condiciones son satisfechas:
 | `role_code` | Coincidencia exacta | `TransportationAnalyst` |
 | `organization_id` | Coincidencia exacta o comodín `*` | `tenant_logistics_corp` |
 | `branch_id` | Coincidencia exacta o comodín `*` | `branch_callao_terminal` |
-| `system_id` | Coincidencia exacta o comodín `*` | `scm_route_planner` |
+| `system_id` | Coincidencia exacta o comodín `*` | `route_planner` |
 
 **Ejemplo de Regla:**
-> *Si `role_code = "TransportationAnalyst"` Y `organization_id = "tenant_logistics_corp"` ENTONCES asignar `Template_SCM_Analyst_Baseline_v1`*
+> *Si `role_code = "TransportationAnalyst"` Y `organization_id = "tenant_logistics_corp"` ENTONCES asignar `Analyst_Baseline_v1`*
 
 ---
 

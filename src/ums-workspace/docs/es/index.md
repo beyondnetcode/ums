@@ -1,139 +1,73 @@
-# 🛠️€”ÂºÃ¯Â¸Â Mapa de Navegación Maestro - Base de Conocimiento de UMS
+# Mapa de Navegacion Maestro -- Base de Conocimiento UMS
 
-> Ã°Å¸Å’Â **Selector de Idioma:** [🛠️€¡Âª🛠️€¡Â¸ Español](./index.md) | [🛠️€¡Âº🛠️€¡Â¸ English](../en/index.md)
+> **Idioma:** [Espanol](./index.md) | [English](../en/index.md)
 
-Bienvenido a la documentación técnica maestra del **Sistema de Gestión de Usuarios (UMS)**. Esta base de conocimiento está estructurada bajo el **estrategia spec-driven AI BMAD-METHOD (fases secuenciales numéricas)** para garantizar la máxima descubribilidad, trazabilidad y soporte continuo tanto para desarrolladores humanos como para copilotos de IA autónomos.
-
----
-
-## Ã°Å¸Â§Â­ ándice de Navegación Basado en Fases
-
-### Ã°Å¸Å½Â¯ [Fase 00 - Visión de Producto](./00-product/)
-Define el contexto de negocio, los pilares estratégicos del producto y el mapa de interesados.
-*   📄 **[Visión del Producto](./00-product/product-vision.md)**: Pilares de identidad soberana, delegación de autenticación y multi-tenancy dinámico.
-*   📄 **[Contexto de Negocio](./00-product/business-context.md)**: Declaración del problema, solución propuesta y diagramas conceptuales de integración.
-*   📄 **[Alcance y Límites](./00-product/scope.md)**: Detalle de capacidades dentro y fuera del alcance.
-*   📄 **[Objetivos Estratégicos (OKRs)](./00-product/objectives.md)**: Métricas cuantificables y KRs para seguridad, latencia y autoservicio.
-*   📄 **[Mapa de Interesados (Stakeholders)](./00-product/stakeholders.md)**: Matriz de responsabilidades y mapeo de expectativas para roles técnicos y de negocio.
+Documentacion estructurada del Sistema de Gestion de Usuarios (UMS) siguiendo las fases BMAD-METHOD.
 
 ---
 
-### 📜”¹ [Fase 01 - Requisitos de Dominio](./01-requirements/)
-Detalla reglas de negocio, secuencias interactivas, diagramas conceptuales de bases de datos y la definición formal del Lenguaje Ubicuo.
-*   📄 **[Glosario de Términos (Lenguaje Ubicuo)](./01-requirements/glossary.md)**: Diccionario formal DDD del dominio central.
-*   📄 **[Modelo de Datos Conceptual](./01-requirements/conceptual-data-model.md)**: Lógica relacional de PostgreSQL y políticas de Seguridad a Nivel de Fila (RLS).
-*   📄 **[Matriz de Permisos Granulares](./01-requirements/permission-matrix-example.md)**: Lógica de acceso detallada (RBAC/ABAC) y regla de precedencia de denegación explícita.
-*   📜”š **[Casos de Uso Atómicos](./01-requirements/functional-stories/)**:
-    *   [FS-01: Autenticación de Usuario vía IdP Externo](./01-requirements/functional-stories/fs-01-user-authentication.md)
-    *   [TE-01: Compilación de Grafo de Autorización](./01-requirements/../02-architecture/technical-enablers/te-01-build-authorization-graph.md)
-    *   [FS-02: Crear e Instanciar Plantilla de Autorización](./01-requirements/functional-stories/fs-02-create-authorization-template.md)
-    *   [FS-03: Registrar Organización y Configurar Estrategia de IdP](./01-requirements/functional-stories/fs-03-register-organization.md)
-    *   [FS-04: Registrar Sistema y Definir Topología de Menú](./01-requirements/functional-stories/fs-04-register-system-topology.md)
-    *   [FS-05: Crear Perfil y Asignar Plantilla Manualmente](./01-requirements/functional-stories/fs-05-create-profile-manual-template.md)
-    *   [FS-06: Auto-Asignar Plantilla al Crear Perfil](./01-requirements/functional-stories/fs-06-auto-assign-template.md)
-    *   [FS-07: Diagnosticar Permisos vía Visualizador de Grafos](./01-requirements/functional-stories/fs-07-visual-graph-resolver.md)
-    *   [TE-02: Resolver Configuración Jerárquica del Sistema](./01-requirements/../02-architecture/technical-enablers/te-02-resolve-hierarchical-config.md)
-    *   [FS-08: Autenticar vía Página de Inicio Personalizable](./01-requirements/functional-stories/fs-08-hosted-login-redirection.md)
-    *   [FS-09: Autenticación Adaptativa Multifactor y Sin Contraseña](./01-requirements/functional-stories/fs-09-mfa-passwordless-adaptive-auth.md)
-    *   [FS-10: Flujo de Aprobación y Petición de Acceso Externo B2B](./01-requirements/functional-stories/fs-10-external-b2b-access-request-approval.md)
+### Fase 00 -- Vision de Producto
 
----
+- [Vision del Producto](./00-product/product-vision.md)
+- [Contexto de Negocio](./00-product/business-context.md)
+- [Alcance y Limites](./00-product/scope.md)
+- [Objetivos Estrategicos (OKRs)](./00-product/objectives.md)
+- [Mapa de Interesados](./00-product/stakeholders.md)
 
-### Ã°Å¸Â””Ã¯Â¸Â [Fase 02 - Arquitectura de Software](./02-architecture/)
-Contiene la especificación arquitectónica del sistema basada en el estándar C4 Model y el stack tecnológico autorizado.
-*   📄 **[Plan de Migración .NET & Stack Tecnológico](./02-architecture/dotnet-migration-and-tech-stack-plan.md)**: Roadmap para la migración a la línea base corporativa .NET 8 LTS.
-*   📄 **[Mapa de Contextos Delimitados](./02-architecture/bounded-context-map.md)**: Límites de contexto DDD, patrones de integración y Capas Anti-Corrupción (ACL).
-*   📄 **[Especificación de Arquitectura C4 e Inventario Técnico](./02-architecture/architecture-spec.md)**: Diagramas técnicos de Nivel 1 (Contexto), Nivel 2 (Contenedor) y Nivel 3 (Componente).
-*   📄 **[Definición de Stack Tecnológico Autorizado](./02-architecture/stack.md)**: Definiciones de stack técnico 100% agnóstico a la nube y con capacidad local, y registro de riesgos.
-*   📄 **[Hoja de Referencia del Stack Tecnológico](./02-architecture/stack-summary.md)**: Referencia rápida de alta densidad de todas las herramientas y capas seleccionadas.
-*   📄 **[Evaluación de Primitivas DDD](./02-architecture/nestjslatam-ddd-evaluation.md)**: Evaluación técnica de capacidades de dominio para el Núcleo Central.
+### Fase 01 -- Requisitos de Dominio
 
----
+- [Glosario (Lenguaje Ubicuo)](./01-requirements/glossary.md)
+- [Modelo de Datos Conceptual](./01-requirements/conceptual-data-model.md)
+- [Matriz de Permisos Granulares](./01-requirements/permission-matrix-example.md)
+- Historias Funcionales:
+  - [FS-01: Autenticacion via IdP Externo](./01-requirements/functional-stories/fs-01-user-authentication.md)
+  - [FS-02: Crear Plantilla de Autorizacion](./01-requirements/functional-stories/fs-02-create-authorization-template.md)
+  - [FS-03: Registrar Organizacion y Configurar IdP](./01-requirements/functional-stories/fs-03-register-organization.md)
+  - [FS-04: Registrar Sistema y Topologia de Menu](./01-requirements/functional-stories/fs-04-register-system-topology.md)
+  - [FS-05: Crear Perfil y Asignar Plantilla](./01-requirements/functional-stories/fs-05-create-profile-manual-template.md)
+  - [FS-06: Auto-Asignar Plantilla](./01-requirements/functional-stories/fs-06-auto-assign-template.md)
+  - [FS-07: Visualizador de Grafos](./01-requirements/functional-stories/fs-07-visual-graph-resolver.md)
+  - [FS-08: Pagina de Inicio Personalizable](./01-requirements/functional-stories/fs-08-hosted-login-redirection.md)
+  - [FS-09: Autenticacion Adaptativa MFA](./01-requirements/functional-stories/fs-09-mfa-passwordless-adaptive-auth.md)
+  - [FS-10: Acceso Externo B2B](./01-requirements/functional-stories/fs-10-external-b2b-access-request-approval.md)
+- Habilitadores Tecnicos:
+  - [TE-01: Compilar Grafo de Autorizacion](./02-architecture/technical-enablers/te-01-build-authorization-graph.md)
+  - [TE-02: Resolver Configuracion Jerarquica](./02-architecture/technical-enablers/te-02-resolve-hierarchical-config.md)
+  - [TE-03: Aplicar RLS por Organizacion](./02-architecture/technical-enablers/te-03-enforce-organization-rls-postgresql.md)
 
-### 📜 [Phase 03 - Registros de Decisión Arquitectónica (ADRs)](./03-adrs/)
-El libro de contabilidad cronológico e inmutable de las decisiones críticas de diseño en formato MADR.
-*   📄 **[Libro Mayor ADR](./03-adrs/)**: Acceso al índice completo de **29 decisiones arquitectónicas activas** (que abarcan desde Nx Monorepo, Arquitectura Limpia, RLS, hasta Abstracción de Proveedor de Identidad, Compilación de Grafos de Alto Rendimiento, Proyecciones de Salida Intercambiables, Núcleo de Autorización Centralizado, Plataforma de Configuración, Abstracción de Proveedor de Feature Flags, MFA/Sin Contraseña Adaptativo, APIs de Doble Protocolo, Infraestructura Autohospedada y Primitivas DDD Tácticas).
-*   📄 **[ADR-0024: Plataforma de Gestión de Configuración y Features](./03-adrs/0024-configuration-feature-management-platform.md)**: Establece config Multi-IdP, Configuración de Comportamiento del Sistema y framework de Feature Flags.
-*   📄 **[ADR-0025: Abstracción de Proveedor de Feature Flags](./03-adrs/0025-feature-flag-provider-abstraction.md)**: Define el patrón enchufable `IFeatureFlagPort`: compatible con motor interno, LaunchDarkly, Unleash, ConfigCat, Azure App Config.
-*   📄 **[ADR-0026: MFA Adaptativo Multi-Tenancy y Autenticación Sin Contraseña](./03-adrs/0026-mfa-passwordless-adaptive-authentication.md)**: Establece MFA adaptativo dinámico, WebAuthn/Passkeys, dispositivos criptográficos de confianza y recuperación de autoservicio.
-*   📄 **[ADR-0027: Estructura de API REST y gRPC de Doble Protocolo con Kong Gateway](./03-adrs/0027-dual-protocol-rest-grpc-api-gateway.md)**: Establece interfaces duales REST para acceso público y gRPC de alto rendimiento para consumo interno.
-*   📄 **[ADR-0028: Infraestructura de Código Abierto Autohospedada para Despliegues Híbridos y Locales](./03-adrs/0028-self-hosted-hybrid-infrastructure-on-premise.md)**: Garantiza capacidad agnóstica a la nube y despliegues localizados sin bloqueo de nube vía MinIO, RabbitMQ y HashiCorp Vault.
-*   📄 **[ADR-0029: Biblioteca de Primitivas DDD Tácticas](./03-adrs/0029-tactical-ddd-primitives-library.md)**: Estandariza el uso de bibliotecas autorizadas para soporte táctico de diseño conducido por dominio.
+### Fase 02 -- Arquitectura de Software
 
-#### 🛡️ Gestión de Riesgos Operativos
-*   📄 **[Evaluación de Riesgo Financiero y Bloqueo de Proveedor](./02-architecture/vendor-risk-assessment.md)**: Documentación de base que analiza Proveedores de Identidad, licenciamiento de Redis, plataformas de Feature Flags y caché de Nx Cloud para prevenir cargos financieros inesperados.
+- [Plan de Migracion .NET y Stack Tecnologico](./02-architecture/dotnet-migration-and-tech-stack-plan.md)
+- [Mapa de Contextos Delimitados](./02-architecture/bounded-context-map.md)
+- [Especificacion de Arquitectura C4](./02-architecture/architecture-spec.md)
+- [Stack Tecnologico Autorizado](./02-architecture/stack.md)
+- [Hoja de Referencia del Stack](./02-architecture/stack-summary.md)
+- [Evaluacion de Riesgo de Bloqueo](./02-architecture/vendor-risk-assessment.md)
 
-#### Ã°Å¸Â”ºÃ¯Â¸Â Gobernanza Arquitectónica y Matriz de Estado ADR
+### Fase 03 -- Registros de Decision Arquitectonica (ADRs)
 
-Antes de comenzar la fase de codificación, el Product Owner (PO) tiene autoridad absoluta para aprobar, diferir o vetar cualquier Registro de Decisión Arquitectónica (ADR). A continuación se presenta la clasificación exhaustiva de las 29 decisiones activas que coinciden con sus estados de archivo:
+- [Registro Completo de ADRs](./03-adrs/) -- 29 decisiones activas
+- ADRs Clave:
+  - [ADR-0010: Estrategia SaaS Multi-Tenancy](./03-adrs/0010-multi-tenancy-architecture-strategy.md)
+  - [ADR-0020: Abstraccion de Proveedor de Identidad](./03-adrs/0020-identity-provider-abstraction-strategy.md)
+  - [ADR-0024: Gestion de Configuracion y Features](./03-adrs/0024-configuration-feature-management-platform.md)
+  - [ADR-0034: Multi-Inquilino Jerarquico](./03-adrs/0034-hierarchical-multi-tenancy-domain-model.md)
 
-### 🟢 1. APROBADO Y ACEPTADO (Línea Base Autorizada Ã¢â‚¬” Listo para Codificación)
-Estas decisiones están oficialmente **Aprobadas** y forman la arquitectura base del sistema. El desarrollo debe adherirse estrictamente a estos patrones:
+### Fase 04 -- Estandares de Ingenieria y Artefactos
 
-| ID ADR | Título de la Decisión | Estado | Impacto / Alcance | Siguientes Pasos / Acción |
-| :--- | :--- | :--- | :--- | :--- |
-| **ADR-0001** | [Orquestación de Monorepo con Nx](./03-adrs/0001-monorepo-orchestration-nx.md) | 🟢 **Aceptado** | Organización central del monorepo y optimización de velocidad. | Línea base aprobada. |
-| **ADR-0002** | [Arquitectura Limpia y Límites Hexagonales](./03-adrs/0002-clean-architecture-nestjs.md) | 🟢 **Aceptado** | Desacoplamiento de reglas de negocio del dominio central de la base de datos y frameworks. | Línea base aprobada. |
-| **ADR-0003** | [Estándares Estrictos de TypeScript](./03-adrs/0003-strict-typescript-standards.md) | 🟢 **Aceptado** | Puerta de calidad de análisis estático y obligatoriedad de tipado. | Línea base aprobada. |
-| **ADR-0004** | [Arquitectura Offline de React Query](./03-adrs/0004-frontend-offline-resilience.md) | 🟢 **Aceptado** | Caché local y mecanismo de contingencia para resiliencia de clientes. | Línea base aprobada. |
-| **ADR-0005** | [Seguridad de Costo Cero vía CodeQL](./03-adrs/0005-ci-cd-quality-codeql.md) | 🟢 **Aceptado** | Escaneo automatizado de vulnerabilidades en el pipeline de CI. | Línea base aprobada. |
-| **ADR-0007** | [Estrategia de Loki y OpenTelemetry](./03-adrs/0007-observability-telemetry-loki-opentelemetry.md) | 🟢 **Aceptado** | Rastreo distribuido y recolección de logs centralizada. | Línea base aprobada. |
-| **ADR-0008** | [Patrones de Gateway y BFF](./03-adrs/0008-progressive-multimodule-evolution-gateway-bff.md) | 🟢 **Aceptado** | Optimiza solicitudes de red para clientes multimódulo. | Línea base aprobada. |
-| **ADR-0009** | [Fijación Estricta de Dependencias](./03-adrs/0009-strict-dependency-pinning-vulnerability-management.md) | 🟢 **Aceptado** | Mitiga vulnerabilidades de inyección en la cadena de suministro. | Línea base aprobada. |
-| **ADR-0010** | [Estrategia SaaS Multi-Tenancy](./03-adrs/0010-multi-tenancy-architecture-strategy.md) | 🟢 **Aceptado** | Define la estrategia de aislamiento de base de datos por cliente corporativo. | Línea base aprobada. |
-| **ADR-0011** | [Tolerancia a Fallos y Resiliencia](./03-adrs/0011-fault-tolerance-resiliency-patterns.md) | 🟢 **Aceptado** | Cortacircuitos (`opossum`) y reintentos exponenciales. | Línea base aprobada. |
-| **ADR-0012** | [Autorización Avanzada (RBAC/ABAC)](./03-adrs/0012-advanced-authorization-rbac-abac.md) | 🟢 **Aceptado** | Modelado de permisos contextuales de grano fino. | Línea base aprobada. |
-| **ADR-0014** | [Caché Distribuida (Redis)](./03-adrs/0014-distributed-caching-strategy-redis.md) | 🟢 **Aceptado** | Cachés en memoria para validaciones de autenticación y sesiones activas. | Línea base aprobada. |
-| **ADR-0015** | [Arquitectura Dirigida por Eventos](./03-adrs/0015-event-driven-architecture-intra-domain.md) | 🟢 **Aceptado** | Publicación de eventos asíncronos para sincronización de estado. | Línea base aprobada. |
-| **ADR-0016** | [Rastro de Auditoría de Negocio Inmutable](./03-adrs/0016-immutable-business-audit-trail.md) | 🟢 **Aceptado** | Estrategia de auditoría a nivel de aplicación usando Eventos de Dominio. | Línea base aprobada. |
-| **ADR-0017** | [Estrategia de Feature Flagging](./03-adrs/0017-feature-flagging-strategy.md) | 🟢 **Aceptado** | Feature Flags inyectadas por infraestructura (Unleash/LaunchDarkly). | Línea base aprobada. |
-| **ADR-0018** | [Puertas de Calidad de la Pirámide de Pruebas](./03-adrs/0018-testing-pyramid-quality-gates.md) | 🟢 **Aceptado** | Límites de cobertura para pruebas E2E, de contrato y unitarias (>70%). | Línea base aprobada. |
-| **ADR-0019** | [Patrones de Dominio Táctico](./03-adrs/0019-tactical-design-patterns-future-proofing.md) | 🟢 **Aceptado** | Patrón Result, Null Objects y Decoradores. | Línea base aprobada. |
-| **ADR-0020** | [Abstracción de Proveedor de Identidad](./03-adrs/0020-identity-provider-abstraction-strategy.md) | 🟢 **Aceptado** | Desacopla UMS de Auth0, Keycloak o Entra ID. | Línea base aprobada. |
-| **ADR-0021** | [Grafo de Autorización de Alto Rendimiento](./03-adrs/0021-high-performance-auth-and-graph-compilation.md) | 🟢 **Aceptado** | Compilación de permisos optimizada bajo un límite de latencia <5ms. | Línea base aprobada. |
-| **ADR-0022** | [Proyecciones de Salida Enchufables](./03-adrs/0022-contextual-auth-and-pluggable-projections.md) | 🟢 **Aceptado** | Capas de proyección de lectura conscientes del contexto fuera del núcleo. | Línea base aprobada. |
-| **ADR-0023** | [Acceso Centralizado vs Descentralizado](./03-adrs/0023-centralized-ums-vs-decentralized-access.md) | 🟢 **Aceptado** | Establece el límite del núcleo de autorización autoritativo. | Línea base aprobada. |
-| **ADR-0024** | [Configuración y Feature Management](./03-adrs/0024-configuration-feature-management-platform.md) | 🟢 **Aceptado** | Motor dinámico de parámetros Multi-IdP. | Línea base aprobada. |
-| **ADR-0025** | [Abstracción de Proveedor de Feature Flag](./03-adrs/0025-feature-flag-provider-abstraction.md) | 🟢 **Aceptado** | `IFeatureFlagPort` enchufable para Unleash/ConfigCat. | Línea base aprobada. |
-| **ADR-0026** | [MFA y Autenticación Sin Contraseña](./03-adrs/0026-mfa-passwordless-adaptive-authentication.md) | 🟢 **Aceptado** | WebAuthn, Passkeys, TOTP y MFA adaptativo basado en riesgo. | Línea base aprobada. |
-| **ADR-0027** | [Estructura de API REST & gRPC Doble Protocolo](./03-adrs/0027-dual-protocol-rest-grpc-api-gateway.md) | 🟢 **Aceptado** | APIs RESTful públicas y servicios gRPC internos. | Línea base aprobada. |
-| **ADR-0028** | [Infraestructura Híbrida Autohospedada](./03-adrs/0028-self-hosted-hybrid-infrastructure-on-premise.md) | 🟢 **Aceptado** | Capacidad agnóstica de nube (MinIO, RabbitMQ, Vault OSS). | Línea base aprobada. |
-| **ADR-0029** | [Biblioteca de Primitivas DDD Tácticas](./03-adrs/0029-tactical-ddd-primitives-library.md) | 🟢 **Aceptado** | Estandariza librerías autorizadas para dominio modular táctico. | Línea base aprobada. |
+- [Estandares Globales de Ingenieria](./04-artifacts/engineering-standards.md)
+- [Modelo de Madurez Arquitectonica](./04-artifacts/architecture-maturity-model.md)
+- [Plan de Pruebas de Contrato](./04-artifacts/contract-testing-plan.md)
+- [Estrategia de Observabilidad](./04-artifacts/observability-strategy.md)
+- [Especificacion IAM Empresarial](./04-artifacts/enterprise-iam-ums-specification.md)
+- [Especificacion de Alta Concurrencia](./04-artifacts/high-concurrency-auth-specification.md)
+- [Especificacion de Plataforma de Configuracion](./04-artifacts/ums-configuration-platform-spec.md)
+- [Especificacion MFA y Sin Contrasena](./04-artifacts/mfa-passwordless-security-spec.md)
+- [Especificacion de Consola Web UMS](./04-artifacts/ums-web-console-product-scope.md)
+- [Analisis de Brecha y Deuda Tecnica](./04-artifacts/gap-analysis-and-optimization-plan.md)
+- [Reporte de Gobernanza Multi-Tenant](./04-artifacts/enterprise-multitenant-governance-report.md)
+- [Informe de Auditoria Maestra bMAD](./04-artifacts/bmad-master-audit-alignment-report.md)
 
-### 🟡 2. PROPUESTO Y PENDIENTE DE REVISIÓN (Pendientes de Revisión/Aprobación por el PO)
-Estas decisiones se encuentran actualmente **Propuestas** y representan backlogs estratégicos. **Deben ser aprobadas formalmente por el PO antes de comenzar la codificación**:
+### Fase 05 -- Hoja de Ruta de Lanzamientos
 
-| ID ADR | Título de la Decisión | Estado | Impacto / Alcance | Acción del PO Requerida |
-| :--- | :--- | :--- | :--- | :--- |
-| **ADR-0006** | [Futuros Microservicios vía Dapr](./03-adrs/0006-future-microservices-transition-dapr.md) | 🟡 **Propuesto** | Integración de sidecar para estado distribuido y mensajería. | **PO revisar/aprobar** para activar migración a microservicios. |
-| **ADR-0013** | [Infraestructura en la Nube y DR](./03-adrs/0013-cloud-infrastructure-topology-dr.md) | 🟡 **Propuesto** | Límites de replicación de recuperación ante desastres multirregión. | **PO revisar/aprobar** para autorizar presupuesto de despliegue. |
-| **ADR-0031** | [Abstracción de Identidad a Sujeto](./03-adrs/0031-abstract-identity-domain-subject.md) | 🟡 **Propuesto** | Transición de concepto de Empleado hacia Sujeto agnóstico ligado a Organización. | **PO revisar/aprobar** para habilitar soporte completo B2B y multi-tenant. |
-| **ADR-0032** | [La Organización como Límite del Dominio](./03-adrs/0032-organization-as-strategic-domain-boundary.md) | 🟡 **Propuesto** | Establece Organización como contenedor de Sujetos y Sistemas para gobernanza y seguridad. | **PO revisar/aprobar** para formalizar fronteras de propiedad y Zero Trust. |
-
-### 🛠️€Â´ 3. CANCELADO, RECHAZADO O VETADO (Rechazados o Descartados por el PO)
-Estas decisiones arquitectónicas han sido **Vetadas / Rechazadas** o **Canceladas** por el Product Owner y **nunca deben ser implementadas**:
-
-*   *Actualmente, no hay decisiones rechazadas ni canceladas. Usted tiene plena autoridad para mover cualquier ADR a esta sección para vetar su implementación.*
-
----
-
-### 🛠️ [Fase 04 - Estándares y Artefactos de Ingeniería](./04-artifacts/)
-Pautas técnicas, reglas de código limpio, estándares de seguridad y planes de calidad técnica.
-*   📄 **[Estándares Globales de Ingeniería](./04-artifacts/engineering-standards.md)**: Cumplimiento de SOLID, Arquitectura Limpia, OWASP y pautas DDD.
-*   📄 **[Modelo de Madurez Arquitectónica (AMM)](./04-artifacts/architecture-maturity-model.md)**: Evaluación de madurez de TOGAF ACMM y Well-Architected Framework.
-*   📄 **[Plan de Pruebas de Contrato](./04-artifacts/contract-testing-plan.md)**: Integración segura de microservicios usando Pact.
-*   📄 **[Estrategia de Observabilidad Distribuida](./04-artifacts/observability-strategy.md)**: Telemetría unificada usando OpenTelemetry y Grafana Loki.
-*   📄 **[Análisis de Brecha y Deuda Técnica](./04-artifacts/gap-analysis-and-optimization-plan.md)**: Evaluación de madurez de arquitectura y plan de mitigación técnica.
-*   📄 **[Especificación IAM Empresarial](./04-artifacts/enterprise-iam-ums-specification.md)**: Contratos y especificaciones del grafo de autorización dinámica.
-*   📄 **[Especificación de Autenticación de Alta Concurrencia](./04-artifacts/high-concurrency-auth-specification.md)**: Esquemas de almacenamiento en caché de rendimiento y rotación de tokens.
-*   📄 **[Espec de Producto de la Consola Web UMS](./04-artifacts/ums-web-console-product-scope.md)**: Panel de control administrativo PAP y monitores SRE.
-*   📄 **[Espec de Plataforma de Gestión de Configuración y Features](./04-artifacts/ums-configuration-platform-spec.md)**: Motor de configuración multi-IdP y marco de feature flags.
-*   📄 **[Espec de Autenticación MFA y Sin Contraseña](./04-artifacts/mfa-passwordless-security-spec.md)**: Especificación de autenticación adaptativa basada en riesgos y multifactor.
-*   📄 **[Espec Maestra de Auditoría Empresarial y bMAD](./04-artifacts/bmad-master-audit-alignment-report.md)**: Especificación exhaustiva de alineación business-models-architecture-delivery.
-*   📄 **[Reporte de Gobernanza Multi-Tenant y Organizacional](./04-artifacts/enterprise-multitenant-governance-report.md)**: Evaluación del dominio, jerarquía y estrategia Tenant-Aware / RLS.
-
----
-
-### 📈 [Fase 05 - Hoja de Ruta de Lanzamientos](./05-roadmap/)
-Estrategias de liberación de código, despliegue continuo y automatización de despliegue.
-*   📄 **[Estrategia de Versionado y Lanzamiento](./05-roadmap/versioning-and-audit-strategy.md)**: Gestión de tags y publicaciones utilizando Nx Release.
+- [Estrategia de Versionado y Lanzamiento](./05-roadmap/versioning-and-audit-strategy.md)

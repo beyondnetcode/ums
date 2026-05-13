@@ -1,28 +1,15 @@
-﻿# ADR 0023: Centralized UMS Core vs Decentralized Access Control
+# ADR 0023: Centralized UMS Core vs Decentralized Access Control
 
-## Status
-Accepted
+* **Status:** Accepted
+* **Based on:** [arc32-23](https://github.com/beyondnetcode/arc32_progresive_monolith/blob/main/arc-corporate-ws/corporate-standards/02-adrs/nodejs/0023-centralized-ums-vs-decentralized-access.md)
+* **Date:** 2026-05-08
 
-## Context
-SaaS enterprise platforms (SCM, ERP, etc.) suffer from fragmented identity directories and siloed access control logic. Hardcoding roles and permission checks inside individual applications leads to severe security vulnerabilities, administrative overhead, and poor auditability.
+## Adaptation Summary
 
-Under the **spec-driven AI strategy BMAD-METHOD**, all critical platform capabilities must remain highly decoupled, extensible, and future-proof.
+The corporate standard is adopted with the following project-specific modifications:
+1. Architecture principle adopted verbatim. UMS references the corporate centralized-kernel model.
+2. No project-specific deviation. This ADR exists to document adoption context for the UMS domain.
 
-## Decision
-We will establish a **Centralized User Management System (UMS) Core** to act as a shared, highly extensible "authorization kernel" across all enterprise portals. 
+## Full Standard Reference
 
-The system will:
-*   **Decouple Concerns**: Separate identity verification (delegated to external federated IdPs via the Strategy Pattern) from fine-grained authorization graph compilation.
-*   **Support Multi-Tenant Contexts**: Resolve context-aware branch/site permissions seamlessly.
-*   **Deliver Pluggable Projections**: Project compiled authorizations into multiple formats (Hierarchical JSON, JWT compressed claims, Graph structures) using the Strategy Pattern.
-*   **Optimize Performance**: Use a high-performance Read-Aside Redis Cache to resolve contextual permission graphs in under **5ms**.
-
-## Consequences
-
-### Positive
-*   **Absolute SoC**: Core business applications are entirely decoupled from Identity Provider schemas and SDKs.
-*   **Unified Auditing**: Complete visibility over global access control changes from a single, immutable ledger.
-*   **Sub-millisecond Resolution**: Redis read-aside caching delivers ultra-low latency.
-
-### Negative
-*   **Network Dependency**: Introduces an internal network dependency, mitigated by Redis cache optimization and low-latency internal protocols (e.g., gRPC).
+See the corporate source for the complete decision context and rationale.

@@ -1,6 +1,6 @@
 # ðŸ§ª Functional Story 4: Registrar Sistema y Definir Topología de Menú
 
-Este caso de uso especifica el flujo para registrar una nueva aplicación cliente (Sistema) en el UMS y definir su jerarquía de recursos de navegación (Menús, Submenús, Opciones y Acciones).
+Este caso de uso especifica el flujo para registrar una nueva aplicación cliente (Sistema) en el UMS y definir su jerarquía de recursos de navegación (Módulos, Menús, Opciones y Acciones).
 
 ---
 
@@ -33,20 +33,20 @@ sequenceDiagram
     API->>Audit: Registrar Evento SystemRegisteredEvent
     API-->>Console: 201 Created { systemId, apiCredential }
     Console-->>Admin: Mostrar credencial del sistema (una sola vez, pedir copiar)
-    Admin->>Console: Navegar a Sistemas > Topología > Agregar Menú
-    loop Construir Ãrbol de Menús
-        Admin->>Console: Agregar Menú â†’ Submenús â†’ Opciones â†’ Acciones
-        Console->>API: POST /api/v1/systems/{id}/menus (batch recursivo)
-        API->>DB: Insertar registros MENU / SUBMENU / OPTION / ACTION
+    Admin->>Console: Navegar a Sistemas > Topología > Agregar Módulo
+    loop Construir Árbol de Topología
+        Admin->>Console: Agregar Módulo → Agregar Menú → Agregar Opciones → Adjuntar Acciones
+        Console->>API: POST /api/v1/systems/{id}/modules (batch recursivo)
+        API->>DB: Insertar registros MODULE / MENU / OPTION / ACTION
     end
     API-->>Console: Confirmación de topología guardada
 ```
 
 ### A. Flujo Principal
 1. El SuperAdmin navega a **Sistemas** y hace clic en **Registrar Nuevo Sistema**.
-2. Llena el nombre del sistema (`SCM Route Planner`), código de máquina (`scm_route_planner`) y la URL base.
+2. Llena el nombre del sistema (`Route Planner`), código de máquina (`route_planner`) y la URL base.
 3. La API genera una credencial de API M2M única y hasheada que las aplicaciones cliente utilizarán en los encabezados `Authorization: Bearer` al llamar a `POST /v1/authorization/graph`. Esta credencial se muestra **una sola vez** y debe ser guardada.
-4. El administrador navega al **Constructor de Topología** para el sistema registrado y construye el árbol de navegación: `Menús â†’ Submenús â†’ Opciones â†’ Acciones`.
+4. El administrador navega al **Constructor de Topología** para el sistema registrado y construye el árbol de navegación: `Módulos â†’ Menús â†’ Opciones â†’ Acciones`.
 5. Cada nodo especifica una etiqueta, un índice de orden y (para las Acciones) un mapeo de endpoint de la API y código de acción (`create`, `read`, `update`, `delete`, `export`, `approve`).
 
 ---

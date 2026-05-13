@@ -12,7 +12,7 @@ Tras un análisis exhaustivo del ecosistema de UMS, hemos identificado un **acop
 
 ### Principales Hallazgos Arquitectónicos
 1.  **Acoplamiento de Identidad (Empleado vs Sujeto):** La dependencia de `identity_reference` como campo mandatorio asume una relación laboral interna. Esto bloquea escenarios B2B donde el usuario es un proveedor externo, un transportista tercero o un bot de integración (M2M) que carece de registro en la base de datos de RRHH corporativa.
-2.  **Activos de Software Huérfanos:** Los sistemas (SCM, WMS, ERP) y sus componentes (Menus, APIs) operan actualmente en un catálogo global "plano". No existe una definición explícita de quién es el dueño lógico del recurso y bajo qué condiciones un tercero (Tenant) puede consumirlo.
+2.  **Activos de Software Huérfanos:** Los sistemas (ERP, CRM, HCM) y sus componentes (Menus, APIs) operan actualmente en un catálogo global "plano". No existe una definición explícita de quién es el dueño lógico del recurso y bajo qué condiciones un tercero (Tenant) puede consumirlo.
 3.  **Límites de Seguridad Ambiguos:** El modelo de permisos se enfoca en el "Qué" (acción) pero no en el "Quién es el dueño del objeto". Esto vulnera principios de Zero Trust donde la Organización debería ser la frontera física y lógica de cada bit de información.
 
 ---

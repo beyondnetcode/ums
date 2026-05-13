@@ -32,7 +32,7 @@ The UMS must allow per-tenant (and optionally per-system) configuration of one o
 | **IdP Type Registry** | Supported types: `INTERNAL_BCRYPT`, `ZITADEL`, `AZURE_AD`, `OKTA`, `KEYCLOAK`, `AUTH0`, `GOOGLE`, `LDAP`, `SAML2`, `GENERIC_OIDC`. |
 | **Priority & Fallback Rules** | Each IdP entry has a `priority` rank. If the primary IdP is unreachable (timeout/500), the engine falls back in priority order. |
 | **Hybrid Authentication** | A tenant may have INTERNAL + EXTERNAL IdPs active simultaneously. The routing strategy is evaluated per login attempt based on user domain hints. |
-| **Per-System Association** | An IdP configuration can be scoped to a specific `system_id` (e.g., only the HCM Portal uses LDAP; SCM uses Azure AD). |
+| **Per-System Association** | An IdP configuration can be scoped to a specific `system_id` (e.g., only the HCM Portal uses LDAP; Client System uses Azure AD). |
 | **Secure Credential Storage** | OAuth client secrets, SAML certificates, and LDAP bind credentials are encrypted at rest using AES-256 and referenced by `config_secret_ref`. |
 
 ### 2.2 IdP Configuration Schema
@@ -41,7 +41,7 @@ The UMS must allow per-tenant (and optionally per-system) configuration of one o
 {
   "idp_config_id": "idp_azure_logisticscorp",
   "tenant_id": "tenant_logistics_corp",
-  "system_id": "scm_route_planner",
+  "system_id": "route_planner",
   "provider_type": "AZURE_AD",
   "priority": 1,
   "fallback_to": "idp_internal_logisticscorp",
@@ -116,8 +116,8 @@ Each system registered in UMS must support a **dynamic, versioned, auditable con
 
 ```json
 {
-  "system_config_id": "cfg_scm_logisticscorp_v2",
-  "system_id": "scm_route_planner",
+  "system_config_id": "cfg_logisticscorp_v2",
+  "system_id": "route_planner",
   "tenant_id": "tenant_logistics_corp",
   "version": "2.1.0",
   "status": "ACTIVE",
@@ -130,7 +130,7 @@ Each system registered in UMS must support a **dynamic, versioned, auditable con
   "onboarding": {
     "self_registration_enabled": false,
     "auto_profile_creation_enabled": true,
-    "default_profile_template": "Template_SCM_Analyst_Baseline_v1"
+    "default_profile_template": "Template_Analyst_Baseline_v1"
   },
   "branding": {
     "primary_color": "#0B3D91",
@@ -317,7 +317,7 @@ The active Feature Flag provider is resolved per request using a **provider sele
   "type": "PERCENTAGE",
   "description": "Enables the redesigned Fleet Dispatch UI — progressive rollout.",
   "targets": {
-    "systems": ["scm_route_planner"],
+    "systems": ["route_planner"],
     "tenants": ["tenant_logistics_corp"],
     "environments": ["staging", "production"],
     "rollout_percentage": 25
@@ -341,7 +341,7 @@ The active Feature Flag provider is resolved per request using a **provider sele
 ```mermaid
 sequenceDiagram
     autonumber
-    participant Client as Client System (SCM Portal)
+    participant Client as Client System (Client Portal)
     participant FlagAPI as Feature Flag API
     participant Cache as Redis Cache
     participant UseCase as EvaluateFlagUseCase (Core)
