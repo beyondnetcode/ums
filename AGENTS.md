@@ -2,13 +2,16 @@
 Enterprise Monorepo for User Management System (UMS). An authorization block prototype capable of working with third-party Identity Providers or operating standalone, using .NET 8 LTS, React, and PostgreSQL.
 
 ## Build & Run
-Commands for Frontend (run from within `./src/ums-workspace/`):
-- Frontend Install: `npm install`
-- Frontend Start: `npx nx run apps-web:dev`
-- Setup Docs Context (Context7): `npx ctx7 setup`
-- Markdown Encoding Sanitation: `python ./bmad-core/scripts/cleanup_markdown_encoding.py`
+> [!IMPORTANT]
+> The technical engine of this monorepo is located in `src/.workspace`. All technical commands must be executed relative to that directory.
 
-Commands for Backend (run from within `./src/ums-workspace/apps/api-dotnet/` or root solution directory):
+Commands for Frontend (run from `src/.workspace`):
+- Frontend Install: `npm install`
+- Frontend Start: `npx nx run app-web:dev`
+- Setup Docs Context (Context7): `npx ctx7 setup`
+- Markdown Encoding Sanitation: `python ../../.bmad-core/scripts/cleanup_markdown_encoding.py`
+
+Commands for Backend (run from within `./src/ums/app-api-dotnet/` or root solution directory):
 - Backend Build: `dotnet build`
 - Backend Test: `dotnet test`
 - Backend Run: `dotnet run`
@@ -17,7 +20,7 @@ Commands for Backend (run from within `./src/ums-workspace/apps/api-dotnet/` or 
 - Runtime: **.NET 8 LTS** (Backend) and React v18 + Vite (Frontend).
 - Monorepo: Managed via Nx, npm Workspaces (Frontend) and standard .NET SLN.
 - DB: PostgreSQL 16 + Entity Framework Core (EF Core).
-- Key Modules: `apps/api-dotnet` (Pending - .NET Backend Solution), `apps/web` (Frontend React Portal).
+- Key Modules: `src/ums/app-api-dotnet` (.NET Backend), `src/ums/app-web` (Frontend React Portal).
 - Pattern: Clean Architecture (Hexagonal), SOLID, Explicit Bounded Contexts.
 
 ## Conventions
@@ -33,7 +36,7 @@ Commands for Backend (run from within `./src/ums-workspace/apps/api-dotnet/` or 
 - Before updating dependencies, verify strict dependency pinning.
 - If modifying core logic, ensure architectural traceability to approved ADRs.
 - Keep formatting clean, adhering to ESLint and Prettier configs in the workspace.
-- **BMAD Rule Compliance:** Any agent working on this repository MUST read, prioritize, and strictly enforce the 12 rules defined in `bmad-core/rules/global-rules.md` and `.bmad/rules/project-rules.yaml`. If encoding artifacts (mojibake) are detected, the agent MUST run the utility script `python ./bmad-core/scripts/cleanup_markdown_encoding.py` immediately to enforce rule R-03. No code or documentation commits are permitted without validating against these rules.
+- **BMAD Rule Compliance:** Any agent working on this repository MUST read, prioritize, and strictly enforce the 13 rules defined in `.bmad-core/rules/global-rules.md`, `.bmad-core/rules/structuring-standard.md` (R-13), and `.harness/rules/project-rules.yaml`. If encoding artifacts (mojibake) are detected, the agent MUST run the utility script `python ./.bmad-core/scripts/cleanup_markdown_encoding.py` immediately to enforce rule R-03. No code or documentation commits are permitted without validating against these rules.
 - **Context Retrieval:** Always use **Context7** (`npx ctx7`) to fetch updated, version-specific documentation for third-party libraries before implementing complex external integrations.
 - **Corporate Standards Alignment:** Any agent making architectural design decisions MUST query the **Corporate Reference** via Context7 (`use context7 for beyondnetcode/arc32_progresive_monolith`) to ensure absolute compliance with baseline polyglot standards and authoritative patterns.
 

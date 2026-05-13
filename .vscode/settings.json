@@ -1,15 +1,10 @@
 {
-  "yaml.schemas": {
-    "./.bmad/schemas/project-rules.schema.json": [
-      ".bmad/rules/project-rules.yaml"
-    ]
-  },
-  "json.schemas": [
-    {
-      "fileMatch": [
-        "/.bmad/rules/project-rules.json"
-      ],
-      "url": "./.bmad/schemas/project-rules.schema.json"
-    }
-  ]
+  "eslint.workingDirectories": ["./src/.workspace"],
+  "typescript.tsdk": "./src/.workspace/node_modules/typescript/lib",
+  "nx.workspaceRoot": "./src/.workspace",
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "src/.workspace/.nx": true
+  }
 }

@@ -1,0 +1,887 @@
+[NX v22.7.1 Daemon Client] - 2026-05-11T15:48:31.940Z - [Client] Starting new daemon server in background
+[NX v22.7.1 Daemon Client] - 2026-05-11T15:48:32.008Z - [Client] Waiting for server (max: 6000 attempts, 10ms interval)
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:32.923Z - New daemon starting from: D:\Users\aarroyo\personal\sources\arc32_nodejs_progresive_monolith\arc-nodejs-workspace\node_modules\nx\dist\src\daemon\server\server.js
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:32.924Z - New daemon __dirname: D:\Users\aarroyo\personal\sources\arc32_nodejs_progresive_monolith\arc-nodejs-workspace\node_modules\nx\dist\src\daemon\server
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:32.924Z - New daemon nxVersion: 22.7.1
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:32.926Z - New daemon getInstalledNxVersion(): 22.7.1
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:32.929Z - Time taken for 'workspace context init' 5.649799999780953ms
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:32.936Z - [Server] Starting outdated check interval (20ms)
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:32.939Z - Started listening on: \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\009e2ce24bef92925938\d.sock
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:32.942Z - [WATCHER]: Subscribed to changes within: D:\Users\aarroyo\personal\sources\arc32_nodejs_progresive_monolith\arc-nodejs-workspace (native)
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:32.943Z - [LATEST-NX]: Pulling latest Nx...
+[NX v22.7.1 Daemon Client] - 2026-05-11T15:48:32.946Z - [Client] Server available
+[NX v22.7.1 Daemon Client] - 2026-05-11T15:48:32.947Z - [Client] Daemon server started, pid=28296
+Fetching nx...
+[NX v22.7.1 Daemon Client] - 2026-05-11T15:48:32.950Z - [Messenger] Setting up socket listeners
+[NX v22.7.1 Daemon Client] - 2026-05-11T15:48:32.951Z - [Messenger] listen() complete
+[NX v22.7.1 Daemon Client] - 2026-05-11T15:48:33.835Z - [Messenger] Sending message type: REQUEST_PROJECT_GRAPH
+[NX v22.7.1 Daemon Client] - 2026-05-11T15:48:33.836Z - [Messenger] Message sent
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:34.570Z - [AI-AGENTS]: Starting agent configuration status computation
+[isolated-plugin] spawned worker for "D:\Users\aarroyo\personal\sources\arc32_nodejs_progresive_monolith\arc-nodejs-workspace\node_modules\nx\dist\src\plugins\js" (pid: 27688, socket: \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin28296-0-2516.8705000001937.sock)
+[isolated-plugin] spawned worker for "D:\Users\aarroyo\personal\sources\arc32_nodejs_progresive_monolith\arc-nodejs-workspace\node_modules\nx\dist\src\plugins\package-json" (pid: 26168, socket: \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin28296-1-2573.9842999996617.sock)
+[isolated-plugin] spawned worker for "D:\Users\aarroyo\personal\sources\arc32_nodejs_progresive_monolith\arc-nodejs-workspace\node_modules\nx\dist\src\plugins\project-json\build-nodes\project-json" (pid: 4176, socket: \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin28296-2-2631.3843999998644.sock)
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:34.761Z - Established a connection. Number of open connections: 1
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:34.762Z - Established a connection. Number of open connections: 2
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:34.764Z - Time taken for 'loadSpecifiedNxPlugins' 175.7409999994561ms
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:34.765Z - Closed a connection. Number of open connections: 1
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:34.766Z - Received raw message of length 6142
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:34.767Z - Received json message of type REQUEST_PROJECT_GRAPH
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:34.767Z - [REQUEST]: Client Request for Project Graph Received
+[plugin-worker] "D:\Users\aarroyo\personal\sources\arc32_nodejs_progresive_monolith\arc-nodejs-workspace\node_modules\nx\dist\src\plugins\js" (pid: 27688) listening on \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin28296-0-2516.8705000001937.sock
+[isolated-plugin] connected to worker for "D:\Users\aarroyo\personal\sources\arc32_nodejs_progresive_monolith\arc-nodejs-workspace\node_modules\nx\dist\src\plugins\js" (pid: 27688)
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:35.269Z - Time taken for 'start-plugin-worker:D:\Users\aarroyo\personal\sources\arc32_nodejs_progresive_monolith\arc-nodejs-workspace\node_modules\nx\dist\src\plugins\js' 687.2767000002787ms
+[plugin-worker] "D:\Users\aarroyo\personal\sources\arc32_nodejs_progresive_monolith\arc-nodejs-workspace\node_modules\nx\dist\src\plugins\js" (pid: 27688) connected
+Time taken for 'plugin worker 27688 code loading' 518.3019000003114ms
+[plugin-worker] "D:\Users\aarroyo\personal\sources\arc32_nodejs_progresive_monolith\arc-nodejs-workspace\node_modules\nx\dist\src\plugins\package-json" (pid: 26168) listening on \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin28296-1-2573.9842999996617.sock
+[isolated-plugin] connected to worker for "D:\Users\aarroyo\personal\sources\arc32_nodejs_progresive_monolith\arc-nodejs-workspace\node_modules\nx\dist\src\plugins\package-json" (pid: 26168)
+[plugin-worker] "D:\Users\aarroyo\personal\sources\arc32_nodejs_progresive_monolith\arc-nodejs-workspace\node_modules\nx\dist\src\plugins\package-json" (pid: 26168) connected
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:35.350Z - Time taken for 'start-plugin-worker:D:\Users\aarroyo\personal\sources\arc32_nodejs_progresive_monolith\arc-nodejs-workspace\node_modules\nx\dist\src\plugins\package-json' 713.4175999993458ms
+Time taken for 'plugin worker 26168 code loading' 531.2640000004321ms
+[plugin-worker] "D:\Users\aarroyo\personal\sources\arc32_nodejs_progresive_monolith\arc-nodejs-workspace\node_modules\nx\dist\src\plugins\project-json\build-nodes\project-json" (pid: 4176) listening on \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin28296-2-2631.3843999998644.sock
+[isolated-plugin] connected to worker for "D:\Users\aarroyo\personal\sources\arc32_nodejs_progresive_monolith\arc-nodejs-workspace\node_modules\nx\dist\src\plugins\project-json\build-nodes\project-json" (pid: 4176)
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:35.414Z - Time taken for 'start-plugin-worker:D:\Users\aarroyo\personal\sources\arc32_nodejs_progresive_monolith\arc-nodejs-workspace\node_modules\nx\dist\src\plugins\project-json\build-nodes\project-json' 719.5860999999568ms
+[plugin-worker] "D:\Users\aarroyo\personal\sources\arc32_nodejs_progresive_monolith\arc-nodejs-workspace\node_modules\nx\dist\src\plugins\project-json\build-nodes\project-json" (pid: 4176) connected
+Time taken for 'plugin worker 4176 code loading' 549.1633999999613ms
+[plugin-worker] "D:\Users\aarroyo\personal\sources\arc32_nodejs_progresive_monolith\arc-nodejs-workspace\node_modules\nx\dist\src\plugins\package-json" (pid: 26168) loaded successfully
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:35.655Z - Time taken for 'Load Nx Plugin: D:\Users\aarroyo\personal\sources\arc32_nodejs_progresive_monolith\arc-nodejs-workspace\node_modules\nx\dist\src\plugins\package-json' 1078.1859999997541ms
+[plugin-worker] "D:\Users\aarroyo\personal\sources\arc32_nodejs_progresive_monolith\arc-nodejs-workspace\node_modules\nx\dist\src\plugins\project-json\build-nodes\project-json" (pid: 4176) loaded successfully
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:35.692Z - Time taken for 'Load Nx Plugin: D:\Users\aarroyo\personal\sources\arc32_nodejs_progresive_monolith\arc-nodejs-workspace\node_modules\nx\dist\src\plugins\project-json\build-nodes\project-json' 1114.1789000006393ms
+[plugin-worker] "D:\Users\aarroyo\personal\sources\arc32_nodejs_progresive_monolith\arc-nodejs-workspace\node_modules\nx\dist\src\plugins\js" (pid: 27688) loaded successfully
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:35.753Z - [REQUEST]: Updated workspace context based on watched changes, recomputing project graph...
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:35.753Z - [REQUEST]: 
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:35.753Z - [REQUEST]: 
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:35.755Z - Reusing in-memory cached project graph because no files changed.
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:35.756Z - Streaming message to client: progress update for topic graph-construction
+[NX v22.7.1 Daemon Client] - 2026-05-11T15:48:35.753Z - [Messenger] Received message, length: 47
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:35.767Z - Time taken for 'loadDefaultNxPlugins' 1176.9695000005886ms
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:35.767Z - Time taken for 'Load Nx Plugin: D:\Users\aarroyo\personal\sources\arc32_nodejs_progresive_monolith\arc-nodejs-workspace\node_modules\nx\dist\src\plugins\js' 1176.69020000007ms
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:35.767Z - Time taken for 'hash changed files from watcher' 0.3969999998807907ms
+Time taken for 'nx/core/project-json:createNodes' 0.2717000003904104ms
+[isolated-plugin] shutting down worker for "nx/core/project-json" after createNodes
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:35.773Z - Streaming message to client: progress update for topic graph-construction
+[NX v22.7.1 Daemon Client] - 2026-05-11T15:48:35.771Z - [Messenger] Received message, length: 153
+Time taken for 'nx/core/package-json:createNodes' 17.023400000296533ms
+[isolated-plugin] shutting down worker for "nx/core/package-json" after createNodes
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:35.788Z - Streaming message to client: progress update for topic graph-construction
+[NX v22.7.1 Daemon Client] - 2026-05-11T15:48:35.785Z - [Messenger] Received message, length: 112
+Time taken for 'nx/js/dependencies-and-lockfile:createNodes' 34.39819999970496ms
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:35.810Z - Streaming message to client: progress update for topic graph-construction
+[NX v22.7.1 Daemon Client] - 2026-05-11T15:48:35.807Z - [Messenger] Received message, length: 47
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:35.855Z - Streaming message to client: progress update for topic graph-construction
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:35.858Z - Time taken for 'build-project-configs' 66.73919999971986ms
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:35.858Z - Time taken for 'createNodes:merge' 11.025899999774992ms
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:35.858Z - Time taken for 'native-file-deps' 0.017400000244379044ms
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:35.858Z - Time taken for 'get-workspace-files' 0.6806999994441867ms
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:35.858Z - Time taken for 'get-all-workspace-files' 0.4495999999344349ms
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:35.858Z - Time taken for 'read cache' 0.611600000411272ms
+[NX v22.7.1 Daemon Client] - 2026-05-11T15:48:35.858Z - [Messenger] Received message, length: 47
+Time taken for 'build typescript dependencies' 637.3781000003219ms
+[isolated-plugin] shutting down worker for "nx/js/dependencies-and-lockfile" after createDependencies
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:36.611Z - Streaming message to client: progress update for topic graph-construction
+[NX v22.7.1 Daemon Client] - 2026-05-11T15:48:36.609Z - [Messenger] Received message, length: 47
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:36.632Z - [SYNC]: collect registered sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:36.650Z - Wrote project graph cache to D:\Users\aarroyo\personal\sources\arc32_nodejs_progresive_monolith\arc-nodejs-workspace\.nx\workspace-data\project-graph.json
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:36.651Z - Serializing response for REQUEST_PROJECT_GRAPH message in json mode
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:36.651Z - Responding to REQUEST_PROJECT_GRAPH message
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:36.651Z - [REQUEST]: Responding to the client. project-graph
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:36.651Z - Time taken for 'total for creating and serializing project graph' 1883.5584000004455ms
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:36.651Z - Time taken for 'total execution time for createProjectGraph()' 783.3751999996603ms
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:36.652Z - Time taken for 'createDependencies' 768.5654999995604ms
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:36.652Z - Time taken for 'nx/js/dependencies-and-lockfile:createDependencies' 768.0948999999091ms
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:36.652Z - Time taken for 'createMetadata' 0.04450000077486038ms
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:36.652Z - Time taken for 'serialize graph' 6.083700000308454ms
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:36.652Z - Time taken for 'write cache' 16.207600000314415ms
+[NX v22.7.1 Daemon Client] - 2026-05-11T15:48:36.655Z - [Messenger] Received message, length: 522401
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:36.659Z - Done responding to the client project-graph
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:36.659Z - Handled json message REQUEST_PROJECT_GRAPH. Handling time: 1884. Response time: 8.
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:37.292Z - Closed a connection. Number of open connections: 0
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:59.178Z - [LATEST-NX]: Successfully pulled latest Nx to C:\Users\aarroyo\AppData\Local\Temp\tmp-28296-N9z4gIfS7eNt
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:59.182Z - [NX-CONSOLE]: Using local implementation (NX_USE_LOCAL=true or inner call)
+DEBUG nx::native::ide::install: Detected editor: Unknown
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:59.184Z - [AI-AGENTS]: Failed to compute agent configuration status from latest Nx. Error: Only URLs with a scheme in: file, data, and node are supported by the default ESM loader. On Windows, absolute paths must be valid file:// URLs. Received protocol 'd:'
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:59.185Z - [AI-AGENTS]: Agent configuration status computation completed: 0 fully configured, 0 outdated, 0 partially configured, 0 non-configured
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:48:59.185Z - [NX-CONSOLE]: Console status check completed, shouldPrompt: false
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:03.341Z - [WATCHER]: docs/02-architecture/reference-architecture-nodejs-arc42.md was modified
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:03.342Z - [WATCHER]: File changes detected:
+Created:
+(none)
+Updated:
+  - docs/02-architecture/reference-architecture-nodejs-arc42.md
+Deleted:
+(none)
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:03.342Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:03.344Z - [WATCHER]: Processing file changes in outputs
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:03.453Z - [REQUEST]: Updated workspace context based on watched changes, recomputing project graph...
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:03.453Z - [REQUEST]: docs/02-architecture/reference-architecture-nodejs-arc42.md
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:03.454Z - [REQUEST]: 
+[plugin-client] restarting worker for "nx/js/dependencies-and-lockfile"
+[isolated-plugin] spawned worker for "nx/js/dependencies-and-lockfile" (pid: 12724, socket: \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin28296-3-151398.74849999975.sock)
+[plugin-client] restarting worker for "nx/core/package-json"
+[isolated-plugin] spawned worker for "nx/core/package-json" (pid: 27240, socket: \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin28296-4-151508.9082000004.sock)
+[plugin-client] restarting worker for "nx/core/project-json"
+[isolated-plugin] spawned worker for "nx/core/project-json" (pid: 15448, socket: \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin28296-5-151570.19519999996.sock)
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:03.681Z - Time taken for 'hash changed files from watcher' 0.5827000001445413ms
+[isolated-plugin] connected to worker for "nx/js/dependencies-and-lockfile" (pid: 12724)
+[plugin-worker] "nx/js/dependencies-and-lockfile" (pid: 12724) listening on \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin28296-3-151398.74849999975.sock
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:04.059Z - Time taken for 'start-plugin-worker:nx/js/dependencies-and-lockfile' 603.0193999996409ms
+[plugin-worker] "nx/js/dependencies-and-lockfile" (pid: 12724) connected
+Time taken for 'plugin worker 12724 code loading' 368.3957000002265ms
+[isolated-plugin] connected to worker for "nx/core/package-json" (pid: 27240)
+[plugin-worker] "nx/core/package-json" (pid: 27240) listening on \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin28296-4-151508.9082000004.sock
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:04.090Z - Time taken for 'start-plugin-worker:nx/core/package-json' 523.0724999997765ms
+[plugin-worker] "nx/core/package-json" (pid: 27240) connected
+Time taken for 'plugin worker 27240 code loading' 353.93820000067353ms
+[plugin-worker] "nx/core/project-json" (pid: 15448) listening on \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin28296-5-151570.19519999996.sock
+[isolated-plugin] connected to worker for "nx/core/project-json" (pid: 15448)
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:04.134Z - Time taken for 'start-plugin-worker:nx/core/project-json' 505.85280000045896ms
+[plugin-worker] "nx/core/project-json" (pid: 15448) connected
+Time taken for 'plugin worker 15448 code loading' 353.52089999988675ms
+[plugin-worker] "nx/core/package-json" (pid: 27240) loaded successfully
+Time taken for 'nx/core/package-json:createNodes' 14.96860000025481ms
+[isolated-plugin] shutting down worker for "nx/core/package-json" after createNodes
+[plugin-worker] "nx/core/project-json" (pid: 15448) loaded successfully
+[plugin-worker] "nx/js/dependencies-and-lockfile" (pid: 12724) loaded successfully
+Time taken for 'nx/core/project-json:createNodes' 0.22059999965131283ms
+[isolated-plugin] shutting down worker for "nx/core/project-json" after createNodes
+Time taken for 'nx/js/dependencies-and-lockfile:createNodes' 12.236100000329316ms
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:04.353Z - Time taken for 'build-project-configs' 890.1528000002727ms
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:04.353Z - Time taken for 'createNodes:merge' 1.4523000000044703ms
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:04.353Z - Time taken for 'get-all-workspace-files' 0.19149999972432852ms
+Time taken for 'build typescript dependencies' 0.22429999988526106ms
+[isolated-plugin] shutting down worker for "nx/js/dependencies-and-lockfile" after createDependencies
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:04.380Z - [SYNC]: collect registered sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:04.382Z - [SYNC]: project graph hash is the same, not collecting task sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:04.383Z - [SYNC]: nx.json hash is the same, not collecting global sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:04.383Z - Time taken for 'total execution time for createProjectGraph()' 31.141900000162423ms
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:04.383Z - Time taken for 'createDependencies' 25.355399999767542ms
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:04.383Z - Time taken for 'nx/js/dependencies-and-lockfile:createDependencies' 25.129099999554455ms
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:04.383Z - Time taken for 'createMetadata' 0.01510000042617321ms
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:04.383Z - Time taken for 'serialize graph' 3.3355000000447035ms
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:11.542Z - [WATCHER]: Processing file changes in outputs
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:11.542Z - [WATCHER]: docs/02-architecture/stack-summary.md was modified
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:11.542Z - [WATCHER]: File changes detected:
+Created:
+(none)
+Updated:
+  - docs/02-architecture/stack-summary.md
+Deleted:
+(none)
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:11.542Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:11.743Z - [REQUEST]: Updated workspace context based on watched changes, recomputing project graph...
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:11.743Z - [REQUEST]: docs/02-architecture/stack-summary.md
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:11.743Z - [REQUEST]: 
+[plugin-client] restarting worker for "nx/js/dependencies-and-lockfile"
+[isolated-plugin] spawned worker for "nx/js/dependencies-and-lockfile" (pid: 27596, socket: \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin28296-6-159687.59119999968.sock)
+[plugin-client] restarting worker for "nx/core/package-json"
+[isolated-plugin] spawned worker for "nx/core/package-json" (pid: 16172, socket: \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin28296-7-159786.5798000004.sock)
+[plugin-client] restarting worker for "nx/core/project-json"
+[isolated-plugin] spawned worker for "nx/core/project-json" (pid: 8816, socket: \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin28296-8-159834.23550000042.sock)
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:11.951Z - Time taken for 'hash changed files from watcher' 0.35819999873638153ms
+[isolated-plugin] connected to worker for "nx/js/dependencies-and-lockfile" (pid: 27596)
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:12.289Z - Time taken for 'start-plugin-worker:nx/js/dependencies-and-lockfile' 543.8916999995708ms
+[plugin-worker] "nx/js/dependencies-and-lockfile" (pid: 27596) listening on \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin28296-6-159687.59119999968.sock
+[plugin-worker] "nx/js/dependencies-and-lockfile" (pid: 27596) connected
+Time taken for 'plugin worker 27596 code loading' 356.89780000038445ms
+[plugin-worker] "nx/core/package-json" (pid: 16172) listening on \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin28296-7-159786.5798000004.sock
+[isolated-plugin] connected to worker for "nx/core/package-json" (pid: 16172)
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:12.351Z - Time taken for 'start-plugin-worker:nx/core/package-json' 506.84439999982715ms
+Time taken for 'plugin worker 16172 code loading' 363.59249999932945ms
+[plugin-worker] "nx/core/package-json" (pid: 16172) connected
+[plugin-worker] "nx/core/project-json" (pid: 8816) listening on \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin28296-8-159834.23550000042.sock
+[isolated-plugin] connected to worker for "nx/core/project-json" (pid: 8816)
+Time taken for 'plugin worker 8816 code loading' 372.5889999996871ms
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:12.422Z - Time taken for 'start-plugin-worker:nx/core/project-json' 529.3301999997348ms
+[plugin-worker] "nx/core/project-json" (pid: 8816) connected
+[plugin-worker] "nx/js/dependencies-and-lockfile" (pid: 27596) loaded successfully
+[plugin-worker] "nx/core/package-json" (pid: 16172) loaded successfully
+Time taken for 'nx/js/dependencies-and-lockfile:createNodes' 16.009199999272823ms
+[isolated-plugin] shutting down worker for "nx/core/package-json" after createNodes
+[plugin-worker] "nx/core/project-json" (pid: 8816) loaded successfully
+Time taken for 'nx/core/project-json:createNodes' 0.21859999932348728ms
+[isolated-plugin] shutting down worker for "nx/core/project-json" after createNodes
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:12.606Z - Time taken for 'build-project-configs' 852.3819999992847ms
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:12.606Z - Time taken for 'createNodes:merge' 1.302300000563264ms
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:12.606Z - Time taken for 'get-all-workspace-files' 0.1692000012844801ms
+Time taken for 'build typescript dependencies' 0.1810999996960163ms
+[isolated-plugin] shutting down worker for "nx/js/dependencies-and-lockfile" after createDependencies
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:12.625Z - [SYNC]: collect registered sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:12.626Z - [SYNC]: project graph hash is the same, not collecting task sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:12.626Z - [SYNC]: nx.json hash is the same, not collecting global sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:12.626Z - Time taken for 'total execution time for createProjectGraph()' 25.048200000077486ms
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:12.626Z - Time taken for 'createDependencies' 18.573599999770522ms
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:12.626Z - Time taken for 'nx/js/dependencies-and-lockfile:createDependencies' 18.437099998816848ms
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:12.626Z - Time taken for 'createMetadata' 0.017000000923871994ms
+[NX v22.7.1 Daemon Server] - 2026-05-11T15:51:12.626Z - Time taken for 'serialize graph' 3.0149000007659197ms
+[NX v22.7.1 Daemon Client] - 2026-05-13T21:04:54.277Z - [Client] Starting new daemon server in background
+[NX v22.7.1 Daemon Client] - 2026-05-13T21:04:54.331Z - [Client] Waiting for server (max: 6000 attempts, 10ms interval)
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:55.336Z - New daemon starting from: D:\Users\aarroyo\personal\sources\ums\node_modules\nx\dist\src\daemon\server\server.js
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:55.337Z - New daemon __dirname: D:\Users\aarroyo\personal\sources\ums\node_modules\nx\dist\src\daemon\server
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:55.337Z - New daemon nxVersion: 22.7.1
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:55.338Z - New daemon getInstalledNxVersion(): 22.7.1
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:55.341Z - Time taken for 'workspace context init' 2.6935999989509583ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:55.344Z - [Server] Starting outdated check interval (20ms)
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:55.347Z - Started listening on: \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\5aecffa20b0627a3e030\d.sock
+[NX v22.7.1 Daemon Client] - 2026-05-13T21:04:55.349Z - [Client] Server available
+[NX v22.7.1 Daemon Client] - 2026-05-13T21:04:55.350Z - [Client] Daemon server started, pid=25204
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:55.350Z - [WATCHER]: Subscribed to changes within: D:\Users\aarroyo\personal\sources\ums (native)
+[NX v22.7.1 Daemon Client] - 2026-05-13T21:04:55.351Z - [Messenger] Setting up socket listeners
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:55.352Z - [LATEST-NX]: Pulling latest Nx...
+[NX v22.7.1 Daemon Client] - 2026-05-13T21:04:55.352Z - [Messenger] listen() complete
+Fetching nx...
+[NX v22.7.1 Daemon Client] - 2026-05-13T21:04:56.139Z - [Messenger] Sending message type: REQUEST_PROJECT_GRAPH
+[NX v22.7.1 Daemon Client] - 2026-05-13T21:04:56.140Z - [Messenger] Message sent
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:56.264Z - [AI-AGENTS]: Starting agent configuration status computation
+[isolated-plugin] spawned worker for "D:\Users\aarroyo\personal\sources\ums\node_modules\nx\dist\src\plugins\js" (pid: 2852, socket: \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin25204-0-1898.8178999982774.sock)
+[isolated-plugin] spawned worker for "D:\Users\aarroyo\personal\sources\ums\node_modules\nx\dist\src\plugins\package-json" (pid: 19216, socket: \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin25204-1-1962.5023999996483.sock)
+[isolated-plugin] spawned worker for "D:\Users\aarroyo\personal\sources\ums\node_modules\nx\dist\src\plugins\project-json\build-nodes\project-json" (pid: 23924, socket: \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin25204-2-2027.5583999995142.sock)
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:56.474Z - Established a connection. Number of open connections: 1
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:56.475Z - Established a connection. Number of open connections: 2
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:56.478Z - Time taken for 'loadSpecifiedNxPlugins' 195.72540000081062ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:56.478Z - Closed a connection. Number of open connections: 1
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:56.479Z - Received raw message of length 5665
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:56.480Z - Received json message of type REQUEST_PROJECT_GRAPH
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:56.481Z - [REQUEST]: Client Request for Project Graph Received
+[plugin-worker] "D:\Users\aarroyo\personal\sources\ums\node_modules\nx\dist\src\plugins\js" (pid: 2852) listening on \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin25204-0-1898.8178999982774.sock
+[isolated-plugin] connected to worker for "D:\Users\aarroyo\personal\sources\ums\node_modules\nx\dist\src\plugins\js" (pid: 2852)
+Time taken for 'plugin worker 2852 code loading' 374.5240000002086ms
+[plugin-worker] "D:\Users\aarroyo\personal\sources\ums\node_modules\nx\dist\src\plugins\js" (pid: 2852) connected
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:56.814Z - Time taken for 'start-plugin-worker:D:\Users\aarroyo\personal\sources\ums\node_modules\nx\dist\src\plugins\js' 540.913200000301ms
+[plugin-worker] "D:\Users\aarroyo\personal\sources\ums\node_modules\nx\dist\src\plugins\package-json" (pid: 19216) listening on \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin25204-1-1962.5023999996483.sock
+[isolated-plugin] connected to worker for "D:\Users\aarroyo\personal\sources\ums\node_modules\nx\dist\src\plugins\package-json" (pid: 19216)
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:56.877Z - Time taken for 'start-plugin-worker:D:\Users\aarroyo\personal\sources\ums\node_modules\nx\dist\src\plugins\package-json' 541.3831000011414ms
+Time taken for 'plugin worker 19216 code loading' 365.6982999984175ms
+[plugin-worker] "D:\Users\aarroyo\personal\sources\ums\node_modules\nx\dist\src\plugins\package-json" (pid: 19216) connected
+[plugin-worker] "D:\Users\aarroyo\personal\sources\ums\node_modules\nx\dist\src\plugins\project-json\build-nodes\project-json" (pid: 23924) listening on \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin25204-2-2027.5583999995142.sock
+[isolated-plugin] connected to worker for "D:\Users\aarroyo\personal\sources\ums\node_modules\nx\dist\src\plugins\project-json\build-nodes\project-json" (pid: 23924)
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:56.940Z - Time taken for 'start-plugin-worker:D:\Users\aarroyo\personal\sources\ums\node_modules\nx\dist\src\plugins\project-json\build-nodes\project-json' 539.691800000146ms
+Time taken for 'plugin worker 23924 code loading' 356.16580000147223ms
+[plugin-worker] "D:\Users\aarroyo\personal\sources\ums\node_modules\nx\dist\src\plugins\project-json\build-nodes\project-json" (pid: 23924) connected
+[plugin-worker] "D:\Users\aarroyo\personal\sources\ums\node_modules\nx\dist\src\plugins\package-json" (pid: 19216) loaded successfully
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.090Z - Time taken for 'Load Nx Plugin: D:\Users\aarroyo\personal\sources\ums\node_modules\nx\dist\src\plugins\package-json' 820.9940999988467ms
+[plugin-worker] "D:\Users\aarroyo\personal\sources\ums\node_modules\nx\dist\src\plugins\project-json\build-nodes\project-json" (pid: 23924) loaded successfully
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.123Z - Time taken for 'Load Nx Plugin: D:\Users\aarroyo\personal\sources\ums\node_modules\nx\dist\src\plugins\project-json\build-nodes\project-json' 853.1519000008702ms
+[plugin-worker] "D:\Users\aarroyo\personal\sources\ums\node_modules\nx\dist\src\plugins\js" (pid: 2852) loaded successfully
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.137Z - [REQUEST]: Updated workspace context based on watched changes, recomputing project graph...
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.137Z - [REQUEST]: 
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.137Z - [REQUEST]: 
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.138Z - Reusing in-memory cached project graph because no files changed.
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.139Z - Streaming message to client: progress update for topic graph-construction
+[NX v22.7.1 Daemon Client] - 2026-05-13T21:04:57.140Z - [Messenger] Received message, length: 47
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.146Z - Time taken for 'loadDefaultNxPlugins' 868.5461999997497ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.146Z - Time taken for 'Load Nx Plugin: D:\Users\aarroyo\personal\sources\ums\node_modules\nx\dist\src\plugins\js' 868.2677000015974ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.146Z - Time taken for 'hash changed files from watcher' 0.35920000076293945ms
+Time taken for 'nx/core/project-json:createNodes' 0.2455000001937151ms
+[isolated-plugin] shutting down worker for "nx/core/project-json" after createNodes
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.150Z - Streaming message to client: progress update for topic graph-construction
+[NX v22.7.1 Daemon Client] - 2026-05-13T21:04:57.151Z - [Messenger] Received message, length: 153
+Time taken for 'nx/core/package-json:createNodes' 6.731300000101328ms
+[isolated-plugin] shutting down worker for "nx/core/package-json" after createNodes
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.156Z - Streaming message to client: progress update for topic graph-construction
+[NX v22.7.1 Daemon Client] - 2026-05-13T21:04:57.157Z - [Messenger] Received message, length: 112
+Time taken for 'nx/js/dependencies-and-lockfile:createNodes' 24.719699999317527ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.180Z - Streaming message to client: progress update for topic graph-construction
+[NX v22.7.1 Daemon Client] - 2026-05-13T21:04:57.181Z - [Messenger] Received message, length: 47
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.212Z - Streaming message to client: progress update for topic graph-construction
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.215Z - Time taken for 'build-project-configs' 48.73729999922216ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.215Z - Time taken for 'createNodes:merge' 6.558900000527501ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.215Z - Time taken for 'native-file-deps' 0.005100000649690628ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.215Z - Time taken for 'get-workspace-files' 0.7609000001102686ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.215Z - Time taken for 'get-all-workspace-files' 13.331900000572205ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.215Z - Time taken for 'read cache' 1.32010000012815ms
+[NX v22.7.1 Daemon Client] - 2026-05-13T21:04:57.218Z - [Messenger] Received message, length: 47
+Time taken for 'build typescript dependencies' 53.56540000066161ms
+[isolated-plugin] shutting down worker for "nx/js/dependencies-and-lockfile" after createDependencies
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.343Z - Streaming message to client: progress update for topic graph-construction
+[NX v22.7.1 Daemon Client] - 2026-05-13T21:04:57.344Z - [Messenger] Received message, length: 47
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.355Z - [SYNC]: collect registered sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.367Z - Wrote project graph cache to D:\Users\aarroyo\personal\sources\ums\.nx\workspace-data\project-graph.json
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.367Z - Serializing response for REQUEST_PROJECT_GRAPH message in json mode
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.367Z - Responding to REQUEST_PROJECT_GRAPH message
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.367Z - [REQUEST]: Responding to the client. project-graph
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.368Z - Time taken for 'total for creating and serializing project graph' 886.8224999997765ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.368Z - Time taken for 'total execution time for createProjectGraph()' 149.20819999836385ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.368Z - Time taken for 'createDependencies' 137.87549999915063ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.368Z - Time taken for 'nx/js/dependencies-and-lockfile:createDependencies' 137.4837000016123ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.368Z - Time taken for 'createMetadata' 0.039499999955296516ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.368Z - Time taken for 'serialize graph' 3.801699999719858ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.368Z - Time taken for 'write cache' 10.62019999884069ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.371Z - Done responding to the client project-graph
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.371Z - Handled json message REQUEST_PROJECT_GRAPH. Handling time: 887. Response time: 4.
+[NX v22.7.1 Daemon Client] - 2026-05-13T21:04:57.372Z - [Messenger] Received message, length: 524870
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:04:57.848Z - Closed a connection. Number of open connections: 0
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:09.987Z - [LATEST-NX]: Successfully pulled latest Nx to C:\Users\aarroyo\AppData\Local\Temp\tmp-25204-6rlxLrhErJJQ
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:09.990Z - [NX-CONSOLE]: Using local implementation (NX_USE_LOCAL=true or inner call)
+DEBUG nx::native::ide::install: Detected editor: Unknown
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:09.992Z - [AI-AGENTS]: Failed to compute agent configuration status from latest Nx. Error: Only URLs with a scheme in: file, data, and node are supported by the default ESM loader. On Windows, absolute paths must be valid file:// URLs. Received protocol 'd:'
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:09.992Z - [AI-AGENTS]: Agent configuration status computation completed: 0 fully configured, 0 outdated, 0 partially configured, 0 non-configured
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:09.993Z - [NX-CONSOLE]: Console status check completed, shouldPrompt: false
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:36.936Z - [WATCHER]: governance/product was deleted
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:36.936Z - [WATCHER]: File changes detected:
+Created:
+(none)
+Updated:
+(none)
+Deleted:
+  - governance/product
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:36.936Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:36.939Z - [WATCHER]: Processing file changes in outputs
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:36.987Z - [WATCHER]: 0 file(s) created or restored, 0 file(s) modified, 23 file(s) deleted
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:36.987Z - [WATCHER]: File changes detected:
+Created:
+(none)
+Updated:
+(none)
+Deleted:
+  - governance/requirements/functional-stories/fs-06-auto-assign-template.md
+  - governance/standards
+  - governance/requirements/permission-matrix-example.md
+  - governance/requirements/functional-stories/fs-04-register-system-topology.md
+  - governance/requirements/functional-stories/fs-03-register-organization.md
+  - governance/requirements/functional-stories/fs-10-external-b2b-access-request-approval.md
+  - governance/requirements/glossary.md
+  - architecture/adrs
+  - governance/requirements
+  - architecture/blueprints/architecture-spec.md
+  ... and 13 more
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:36.987Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:36.987Z - [WATCHER]: Processing file changes in outputs
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:37.040Z - [WATCHER]: 8 file(s) created or restored, 0 file(s) modified, 28 file(s) deleted
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:37.041Z - [WATCHER]: File changes detected:
+Created:
+  - src/ums/architecture/blueprints/vendor-risk-assessment.md
+  - src/ums/architecture/blueprints/nestjslatam-ddd-evaluation.md
+  - src/ums/architecture/blueprints/cloud_agnostic_architecture.svg
+  - src/ums/architecture/blueprints/stack-summary.md
+  - src/ums/architecture/blueprints/bounded-context-map.md
+  - src/ums/architecture/blueprints/dotnet-migration-and-tech-stack-plan.md
+  - src/ums/architecture/blueprints/stack.md
+  - src/ums/architecture/blueprints/reference-architecture-nodejs-arc42.md
+Updated:
+(none)
+Deleted:
+  - architecture/blueprints/stack-summary.md
+  - architecture/blueprints/cloud_agnostic_architecture.svg
+  - architecture/blueprints
+  - architecture/blueprints-es/technical-enablers
+  - architecture/blueprints-es/technical-enablers/index.md
+  - architecture/blueprints/stack.md
+  - architecture/blueprints/technical-enablers/index.md
+  - architecture/blueprints/technical-enablers/te-03-enforce-organization-rls-postgresql.md
+  - architecture/blueprints-es/bounded-context-map.md
+  - architecture/blueprints/nestjslatam-ddd-evaluation.md
+  ... and 18 more
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:37.041Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:37.044Z - [REQUEST]: Updated workspace context based on watched changes, recomputing project graph...
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:37.044Z - [REQUEST]: src/ums/architecture/blueprints/vendor-risk-assessment.md,src/ums/architecture/blueprints/nestjslatam-ddd-evaluation.md,src/ums/architecture/blueprints/cloud_agnostic_architecture.svg,src/ums/architecture/blueprints/stack-summary.md,src/ums/architecture/blueprints/bounded-context-map.md,src/ums/architecture/blueprints/dotnet-migration-and-tech-stack-plan.md,src/ums/architecture/blueprints/stack.md,src/ums/architecture/blueprints/reference-architecture-nodejs-arc42.md
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:37.044Z - [REQUEST]: governance/product,governance/requirements/functional-stories/fs-06-auto-assign-template.md,governance/standards,governance/requirements/permission-matrix-example.md,governance/requirements/functional-stories/fs-04-register-system-topology.md,governance/requirements/functional-stories/fs-03-register-organization.md,governance/requirements/functional-stories/fs-10-external-b2b-access-request-approval.md,governance/requirements/glossary.md,architecture/adrs,governance/requirements,architecture/blueprints/architecture-spec.md,governance/requirements/functional-stories/fs-08-hosted-login-redirection.md,governance/requirements/functional-stories/fs-01-user-authentication.md,architecture/adrs-es,governance/requirements/functional-stories/fs-07-visual-graph-resolver.md,governance/requirements/conceptual-data-model.md,governance/requirements/functional-stories,governance/requirements/functional-stories/fs-02-create-authorization-template.md,governance/roadmap,governance/requirements/functional-stories/index.md,governance,governance/requirements/functional-stories/fs-09-mfa-passwordless-adaptive-auth.md,governance/requirements/functional-stories/fs-05-create-profile-manual-template.md,architecture/artifacts-es,architecture/blueprints/stack-summary.md,architecture/blueprints/cloud_agnostic_architecture.svg,architecture/blueprints,architecture/blueprints-es/technical-enablers,architecture/blueprints-es/technical-enablers/index.md,architecture/blueprints/stack.md,architecture/blueprints/technical-enablers/index.md,architecture/blueprints/technical-enablers/te-03-enforce-organization-rls-postgresql.md,architecture/blueprints-es/bounded-context-map.md,architecture/blueprints/nestjslatam-ddd-evaluation.md,architecture/blueprints-es/cloud_agnostic_architecture.svg,architecture/blueprints-es/nestjslatam-ddd-evaluation.md,architecture/blueprints-es/reference-architecture-nodejs-arc42.md,architecture/blueprints-es/technical-enablers/te-02-resolve-hierarchical-config.md,architecture/blueprints/technical-enablers/te-01-build-authorization-graph.md,architecture/blueprints/dotnet-migration-and-tech-stack-plan.md,architecture/blueprints/vendor-risk-assessment.md,architecture/blueprints/technical-enablers/te-02-resolve-hierarchical-config.md,architecture/blueprints-es/stack.md,architecture/blueprints/reference-architecture-nodejs-arc42.md,architecture/blueprints-es/technical-enablers/te-01-build-authorization-graph.md,architecture/blueprints-es/architecture-spec.md,architecture/blueprints-es/technical-enablers/te-03-enforce-organization-rls-postgresql.md,architecture/blueprints/bounded-context-map.md,architecture/blueprints-es/vendor-risk-assessment.md,architecture/blueprints/technical-enablers,architecture/blueprints-es/stack-summary.md,architecture/blueprints-es/dotnet-migration-and-tech-stack-plan.md
+[plugin-client] restarting worker for "nx/js/dependencies-and-lockfile"
+[isolated-plugin] spawned worker for "nx/js/dependencies-and-lockfile" (pid: 29060, socket: \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin25204-3-42673.56119999848.sock)
+[plugin-client] restarting worker for "nx/core/package-json"
+[isolated-plugin] spawned worker for "nx/core/package-json" (pid: 28404, socket: \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin25204-4-42797.825299998745.sock)
+[plugin-client] restarting worker for "nx/core/project-json"
+[isolated-plugin] spawned worker for "nx/core/project-json" (pid: 21624, socket: \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin25204-5-42849.052699999884.sock)
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:37.283Z - [WATCHER]: Processing file changes in outputs
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:37.283Z - [WATCHER]: Processing file changes in outputs
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:37.284Z - [WATCHER]: 1 file(s) created or restored, 0 file(s) modified, 8 file(s) deleted
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:37.284Z - [WATCHER]: File changes detected:
+Created:
+  - src/ums/sonar-project.properties
+Updated:
+(none)
+Deleted:
+  - knowledge/pocs/kong-gateway/kong.yml
+  - knowledge/pocs/kong-gateway
+  - architecture
+  - architecture/blueprints-es
+  - knowledge/pocs/kong-gateway/docker-compose.yml
+  - knowledge/pocs
+  - knowledge
+  - sonar-project.properties
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:37.284Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:37.284Z - Time taken for 'hash changed files from watcher' 1.3358999993652105ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:37.396Z - [REQUEST]: Updated workspace context based on watched changes, recomputing project graph...
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:37.396Z - [REQUEST]: src/ums/architecture/blueprints/vendor-risk-assessment.md,src/ums/architecture/blueprints/nestjslatam-ddd-evaluation.md,src/ums/architecture/blueprints/cloud_agnostic_architecture.svg,src/ums/architecture/blueprints/stack-summary.md,src/ums/architecture/blueprints/bounded-context-map.md,src/ums/architecture/blueprints/dotnet-migration-and-tech-stack-plan.md,src/ums/architecture/blueprints/stack.md,src/ums/architecture/blueprints/reference-architecture-nodejs-arc42.md,src/ums/sonar-project.properties
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:37.396Z - [REQUEST]: governance/product,governance/requirements/functional-stories/fs-06-auto-assign-template.md,governance/standards,governance/requirements/permission-matrix-example.md,governance/requirements/functional-stories/fs-04-register-system-topology.md,governance/requirements/functional-stories/fs-03-register-organization.md,governance/requirements/functional-stories/fs-10-external-b2b-access-request-approval.md,governance/requirements/glossary.md,architecture/adrs,governance/requirements,architecture/blueprints/architecture-spec.md,governance/requirements/functional-stories/fs-08-hosted-login-redirection.md,governance/requirements/functional-stories/fs-01-user-authentication.md,architecture/adrs-es,governance/requirements/functional-stories/fs-07-visual-graph-resolver.md,governance/requirements/conceptual-data-model.md,governance/requirements/functional-stories,governance/requirements/functional-stories/fs-02-create-authorization-template.md,governance/roadmap,governance/requirements/functional-stories/index.md,governance,governance/requirements/functional-stories/fs-09-mfa-passwordless-adaptive-auth.md,governance/requirements/functional-stories/fs-05-create-profile-manual-template.md,architecture/artifacts-es,architecture/blueprints/stack-summary.md,architecture/blueprints/cloud_agnostic_architecture.svg,architecture/blueprints,architecture/blueprints-es/technical-enablers,architecture/blueprints-es/technical-enablers/index.md,architecture/blueprints/stack.md,architecture/blueprints/technical-enablers/index.md,architecture/blueprints/technical-enablers/te-03-enforce-organization-rls-postgresql.md,architecture/blueprints-es/bounded-context-map.md,architecture/blueprints/nestjslatam-ddd-evaluation.md,architecture/blueprints-es/cloud_agnostic_architecture.svg,architecture/blueprints-es/nestjslatam-ddd-evaluation.md,architecture/blueprints-es/reference-architecture-nodejs-arc42.md,architecture/blueprints-es/technical-enablers/te-02-resolve-hierarchical-config.md,architecture/blueprints/technical-enablers/te-01-build-authorization-graph.md,architecture/blueprints/dotnet-migration-and-tech-stack-plan.md,architecture/blueprints/vendor-risk-assessment.md,architecture/blueprints/technical-enablers/te-02-resolve-hierarchical-config.md,architecture/blueprints-es/stack.md,architecture/blueprints/reference-architecture-nodejs-arc42.md,architecture/blueprints-es/technical-enablers/te-01-build-authorization-graph.md,architecture/blueprints-es/architecture-spec.md,architecture/blueprints-es/technical-enablers/te-03-enforce-organization-rls-postgresql.md,architecture/blueprints/bounded-context-map.md,architecture/blueprints-es/vendor-risk-assessment.md,architecture/blueprints/technical-enablers,architecture/blueprints-es/stack-summary.md,architecture/blueprints-es/dotnet-migration-and-tech-stack-plan.md,knowledge/pocs/kong-gateway/kong.yml,knowledge/pocs/kong-gateway,architecture,architecture/blueprints-es,knowledge/pocs/kong-gateway/docker-compose.yml,knowledge/pocs,knowledge,sonar-project.properties
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:37.399Z - Time taken for 'hash changed files from watcher' 1.1403999999165535ms
+[plugin-worker] "nx/js/dependencies-and-lockfile" (pid: 29060) listening on \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin25204-3-42673.56119999848.sock
+Time taken for 'plugin worker 29060 code loading' 362.8122000005096ms
+[isolated-plugin] connected to worker for "nx/js/dependencies-and-lockfile" (pid: 29060)
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:37.641Z - Time taken for 'start-plugin-worker:nx/js/dependencies-and-lockfile' 594.6200000010431ms
+[plugin-worker] "nx/js/dependencies-and-lockfile" (pid: 29060) connected
+[plugin-worker] "nx/core/package-json" (pid: 28404) listening on \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin25204-4-42797.825299998745.sock
+[isolated-plugin] connected to worker for "nx/core/package-json" (pid: 28404)
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:37.682Z - Time taken for 'start-plugin-worker:nx/core/package-json' 512.1940999999642ms
+Time taken for 'plugin worker 28404 code loading' 362.2962999995798ms
+[plugin-worker] "nx/core/package-json" (pid: 28404) connected
+[plugin-worker] "nx/core/project-json" (pid: 21624) listening on \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin25204-5-42849.052699999884.sock
+Time taken for 'plugin worker 21624 code loading' 425.7464000005275ms
+[isolated-plugin] connected to worker for "nx/core/project-json" (pid: 21624)
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:37.824Z - Time taken for 'start-plugin-worker:nx/core/project-json' 602.31780000031ms
+[plugin-worker] "nx/core/project-json" (pid: 21624) connected
+[plugin-worker] "nx/js/dependencies-and-lockfile" (pid: 29060) loaded successfully
+[plugin-worker] "nx/core/package-json" (pid: 28404) loaded successfully
+Time taken for 'nx/core/package-json:createNodes' 1.6502000000327826ms
+Time taken for 'nx/core/package-json:createNodes' 2.4144000001251698ms
+[isolated-plugin] shutting down worker for "nx/core/package-json" after createNodes
+Time taken for 'nx/js/dependencies-and-lockfile:createNodes' 8.058399999514222ms
+Time taken for 'nx/js/dependencies-and-lockfile:createNodes' 8.813699999824166ms
+[plugin-worker] "nx/core/project-json" (pid: 21624) loaded successfully
+Time taken for 'nx/core/project-json:createNodes' 0.06300000101327896ms
+Time taken for 'nx/core/project-json:createNodes' 0.722800001502037ms
+[isolated-plugin] shutting down worker for "nx/core/project-json" after createNodes
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:37.991Z - Time taken for 'build-project-configs' 581.0746999997646ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:37.991Z - Time taken for 'build-project-configs' 582.5546000003815ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:37.991Z - Time taken for 'createNodes:merge' 0.9217999987304211ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:37.991Z - Time taken for 'createNodes:merge' 1.4247000012546778ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:37.991Z - Time taken for 'get-all-workspace-files' 0.27119999937713146ms
+Time taken for 'build typescript dependencies' 0.28539999946951866ms
+[isolated-plugin] shutting down worker for "nx/js/dependencies-and-lockfile" after createDependencies
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:38.010Z - [SYNC]: collect registered sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:38.011Z - [SYNC]: project graph hash is the same, not collecting task sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:38.011Z - [SYNC]: nx.json hash is the same, not collecting global sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:38.011Z - [SYNC]: collect registered sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:38.011Z - [SYNC]: project graph hash is the same, not collecting task sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:38.011Z - [SYNC]: nx.json hash is the same, not collecting global sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:38.012Z - Time taken for 'total execution time for createProjectGraph()' 26.44800000078976ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:38.012Z - Time taken for 'createDependencies' 19.459999999031425ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:38.012Z - Time taken for 'nx/js/dependencies-and-lockfile:createDependencies' 19.320199999958277ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:38.012Z - Time taken for 'createMetadata' 0.009600000455975533ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:05:38.012Z - Time taken for 'serialize graph' 2.4717000015079975ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:31.808Z - [WATCHER]: 0 file(s) created or restored, 0 file(s) modified, 0 file(s) deleted
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.014Z - [REQUEST]: Updated workspace context based on watched changes, recomputing project graph...
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.014Z - [REQUEST]: 
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.014Z - [REQUEST]: 
+[plugin-client] restarting worker for "nx/js/dependencies-and-lockfile"
+[isolated-plugin] spawned worker for "nx/js/dependencies-and-lockfile" (pid: 28212, socket: \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin25204-6-97648.89319999889.sock)
+[plugin-client] restarting worker for "nx/core/package-json"
+[isolated-plugin] spawned worker for "nx/core/package-json" (pid: 26088, socket: \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin25204-7-97719.96649999917.sock)
+[plugin-client] restarting worker for "nx/core/project-json"
+[isolated-plugin] spawned worker for "nx/core/project-json" (pid: 4040, socket: \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin25204-8-97771.31069999933.sock)
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.212Z - [WATCHER]: 0 file(s) created or restored, 0 file(s) modified, 5 file(s) deleted
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.212Z - [WATCHER]: File changes detected:
+Created:
+(none)
+Updated:
+(none)
+Deleted:
+  - governance/product/product-vision.md
+  - governance/product/objectives.md
+  - governance/product/business-context.md
+  - governance/product/scope.md
+  - governance/product/stakeholders.md
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.212Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.212Z - [WATCHER]: Processing file changes in outputs
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.212Z - Time taken for 'hash changed files from watcher' 0.210699999704957ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.226Z - [WATCHER]: 3 file(s) created or restored, 0 file(s) modified, 1 file(s) deleted
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.227Z - [WATCHER]: File changes detected:
+Created:
+  - src/ums/architecture/blueprints/cloud_agnostic_architecture.svg
+  - src/ums/architecture/blueprints/architecture-spec.md
+  - src/ums/architecture/blueprints/bounded-context-map.md
+Updated:
+(none)
+Deleted:
+  - src/ums/architecture/blueprints/dotnet-migration-and-tech-stack-plan.md
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.227Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.227Z - [WATCHER]: Processing file changes in outputs
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.355Z - [WATCHER]: 6 file(s) created or restored, 0 file(s) modified, 1 file(s) deleted
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.358Z - [WATCHER]: File changes detected:
+Created:
+  - src/ums/architecture/blueprints/dotnet-migration-and-tech-stack-plan.md
+  - src/ums/architecture/blueprints/nestjslatam-ddd-evaluation.md
+  - src/ums/architecture/blueprints/reference-architecture-nodejs-arc42.md
+  - src/ums/architecture/blueprints/stack-summary.md
+  - src/ums/architecture/blueprints/stack.md
+  - src/ums/architecture/blueprints/vendor-risk-assessment.md
+Updated:
+(none)
+Deleted:
+  - architecture/adrs/0001-monorepo-orchestration-nx.md
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.358Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.358Z - [WATCHER]: Processing file changes in outputs
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.406Z - [WATCHER]: Processing file changes in outputs
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.406Z - [WATCHER]: 15 file(s) created or restored, 0 file(s) modified, 16 file(s) deleted
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.409Z - [WATCHER]: File changes detected:
+Created:
+  - src/ums/architecture/adrs/0009-strict-dependency-pinning-vulnerability-management.md
+  - src/ums/architecture/adrs/0013-cloud-infrastructure-topology-dr.md
+  - src/ums/architecture/adrs/0005-ci-cd-quality-codeql.md
+  - src/ums/architecture/adrs/0012-advanced-authorization-rbac-abac.md
+  - src/ums/architecture/adrs/0006-future-microservices-transition-dapr.md
+  - src/ums/architecture/adrs/0001-monorepo-orchestration-nx.md
+  - src/ums/architecture/adrs/0007-observability-telemetry-loki-opentelemetry.md
+  - src/ums/architecture/adrs/0008-progressive-multimodule-evolution-gateway-bff.md
+  - src/ums/architecture/adrs/0014-distributed-caching-strategy-redis.md
+  - src/ums/architecture/adrs/0003-strict-typescript-standards.md
+  ... and 5 more
+Updated:
+(none)
+Deleted:
+  - architecture/adrs/0014-distributed-caching-strategy-redis.md
+  - architecture/adrs/0013-cloud-infrastructure-topology-dr.md
+  - architecture/adrs/0008-progressive-multimodule-evolution-gateway-bff.md
+  - architecture/adrs/0003-strict-typescript-standards.md
+  - architecture/adrs/0009-strict-dependency-pinning-vulnerability-management.md
+  - architecture/adrs/0005-ci-cd-quality-codeql.md
+  - architecture/adrs/0016-immutable-business-audit-trail.md
+  - architecture/adrs/0012-advanced-authorization-rbac-abac.md
+  - architecture/adrs/0007-observability-telemetry-loki-opentelemetry.md
+  - architecture/adrs/0002-clean-architecture-nestjs.md
+  ... and 6 more
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.409Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.459Z - [WATCHER]: Processing file changes in outputs
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.461Z - [WATCHER]: 8 file(s) created or restored, 1 file(s) modified, 9 file(s) deleted
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.463Z - [WATCHER]: File changes detected:
+Created:
+  - src/ums/architecture/adrs/0020-identity-provider-abstraction-strategy.md
+  - src/ums/architecture/adrs/0022-contextual-auth-and-pluggable-projections.md
+  - src/ums/architecture/adrs/0016-immutable-business-audit-trail.md
+  - src/ums/architecture/adrs/0017-feature-flagging-strategy.md
+  - src/ums/architecture/adrs/0019-tactical-design-patterns-future-proofing.md
+  - src/ums/architecture/adrs/0021-high-performance-auth-and-graph-compilation.md
+  - src/ums/architecture/adrs/0018-testing-pyramid-quality-gates.md
+  - src/ums/architecture/adrs/0023-centralized-ums-vs-decentralized-access.md
+Updated:
+  - src/ums/architecture/adrs/0024-configuration-feature-management-platform.md
+Deleted:
+  - architecture/adrs/0016-immutable-business-audit-trail.md
+  - architecture/adrs/0017-feature-flagging-strategy.md
+  - architecture/adrs/0021-high-performance-auth-and-graph-compilation.md
+  - architecture/adrs/0018-testing-pyramid-quality-gates.md
+  - architecture/adrs/0019-tactical-design-patterns-future-proofing.md
+  - architecture/adrs/0022-contextual-auth-and-pluggable-projections.md
+  - architecture/adrs/0023-centralized-ums-vs-decentralized-access.md
+  - architecture/adrs/0020-identity-provider-abstraction-strategy.md
+  - architecture/adrs/0024-configuration-feature-management-platform.md
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.463Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.512Z - [WATCHER]: Processing file changes in outputs
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.519Z - [WATCHER]: 8 file(s) created or restored, 0 file(s) modified, 8 file(s) deleted
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.520Z - [WATCHER]: File changes detected:
+Created:
+  - src/ums/architecture/adrs/0025-feature-flag-provider-abstraction.md
+  - src/ums/architecture/adrs/0028-self-hosted-hybrid-infrastructure-on-premise.md
+  - src/ums/architecture/adrs/0029-tactical-ddd-primitives-library.md
+  - src/ums/architecture/adrs/0027-dual-protocol-rest-grpc-api-gateway.md
+  - src/ums/architecture/adrs/0026-mfa-passwordless-adaptive-authentication.md
+  - src/ums/architecture/adrs/0024-configuration-feature-management-platform.md
+  - src/ums/architecture/adrs/0030-api-gateway-kong-vs-nestjs.md
+  - src/ums/architecture/adrs/0031-abstract-identity-domain-subject.md
+Updated:
+(none)
+Deleted:
+  - architecture/adrs/0025-feature-flag-provider-abstraction.md
+  - architecture/adrs/0029-tactical-ddd-primitives-library.md
+  - architecture/adrs/0031-abstract-identity-domain-subject.md
+  - architecture/adrs/0026-mfa-passwordless-adaptive-authentication.md
+  - architecture/adrs/0030-api-gateway-kong-vs-nestjs.md
+  - architecture/adrs/0028-self-hosted-hybrid-infrastructure-on-premise.md
+  - architecture/adrs/0024-configuration-feature-management-platform.md
+  - architecture/adrs/0027-dual-protocol-rest-grpc-api-gateway.md
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.521Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.567Z - [WATCHER]: Processing file changes in outputs
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.578Z - [WATCHER]: 4 file(s) created or restored, 0 file(s) modified, 4 file(s) deleted
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.579Z - [WATCHER]: File changes detected:
+Created:
+  - src/ums/architecture/adrs/0034-hierarchical-multi-tenancy-domain-model.md
+  - src/ums/architecture/adrs/0032-organization-as-strategic-domain-boundary.md
+  - src/ums/architecture/adrs/0033-enterprise-minimal-apis-adoption.md
+  - src/ums/architecture/adrs/0035-hybrid-policy-inheritance-engine.md
+Updated:
+(none)
+Deleted:
+  - architecture/adrs/0032-organization-as-strategic-domain-boundary.md
+  - architecture/adrs/0035-hybrid-policy-inheritance-engine.md
+  - architecture/adrs/0033-enterprise-minimal-apis-adoption.md
+  - architecture/adrs/0034-hierarchical-multi-tenancy-domain-model.md
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.579Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.619Z - [REQUEST]: Updated workspace context based on watched changes, recomputing project graph...
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.619Z - [REQUEST]: src/ums/architecture/blueprints/cloud_agnostic_architecture.svg,src/ums/architecture/blueprints/architecture-spec.md,src/ums/architecture/blueprints/bounded-context-map.md,src/ums/architecture/blueprints/dotnet-migration-and-tech-stack-plan.md,src/ums/architecture/blueprints/nestjslatam-ddd-evaluation.md,src/ums/architecture/blueprints/reference-architecture-nodejs-arc42.md,src/ums/architecture/blueprints/stack-summary.md,src/ums/architecture/blueprints/stack.md,src/ums/architecture/blueprints/vendor-risk-assessment.md,src/ums/architecture/adrs/0009-strict-dependency-pinning-vulnerability-management.md,src/ums/architecture/adrs/0013-cloud-infrastructure-topology-dr.md,src/ums/architecture/adrs/0005-ci-cd-quality-codeql.md,src/ums/architecture/adrs/0012-advanced-authorization-rbac-abac.md,src/ums/architecture/adrs/0006-future-microservices-transition-dapr.md,src/ums/architecture/adrs/0001-monorepo-orchestration-nx.md,src/ums/architecture/adrs/0007-observability-telemetry-loki-opentelemetry.md,src/ums/architecture/adrs/0008-progressive-multimodule-evolution-gateway-bff.md,src/ums/architecture/adrs/0014-distributed-caching-strategy-redis.md,src/ums/architecture/adrs/0003-strict-typescript-standards.md,src/ums/architecture/adrs/0004-frontend-offline-resilience.md,src/ums/architecture/adrs/0002-clean-architecture-nestjs.md,src/ums/architecture/adrs/0015-event-driven-architecture-intra-domain.md,src/ums/architecture/adrs/0010-multi-tenancy-architecture-strategy.md,src/ums/architecture/adrs/0011-fault-tolerance-resiliency-patterns.md,src/ums/architecture/adrs/0020-identity-provider-abstraction-strategy.md,src/ums/architecture/adrs/0022-contextual-auth-and-pluggable-projections.md,src/ums/architecture/adrs/0016-immutable-business-audit-trail.md,src/ums/architecture/adrs/0017-feature-flagging-strategy.md,src/ums/architecture/adrs/0019-tactical-design-patterns-future-proofing.md,src/ums/architecture/adrs/0021-high-performance-auth-and-graph-compilation.md,src/ums/architecture/adrs/0018-testing-pyramid-quality-gates.md,src/ums/architecture/adrs/0023-centralized-ums-vs-decentralized-access.md,src/ums/architecture/adrs/0024-configuration-feature-management-platform.md,src/ums/architecture/adrs/0025-feature-flag-provider-abstraction.md,src/ums/architecture/adrs/0028-self-hosted-hybrid-infrastructure-on-premise.md,src/ums/architecture/adrs/0029-tactical-ddd-primitives-library.md,src/ums/architecture/adrs/0027-dual-protocol-rest-grpc-api-gateway.md,src/ums/architecture/adrs/0026-mfa-passwordless-adaptive-authentication.md,src/ums/architecture/adrs/0030-api-gateway-kong-vs-nestjs.md,src/ums/architecture/adrs/0031-abstract-identity-domain-subject.md,src/ums/architecture/adrs/0034-hierarchical-multi-tenancy-domain-model.md,src/ums/architecture/adrs/0032-organization-as-strategic-domain-boundary.md,src/ums/architecture/adrs/0033-enterprise-minimal-apis-adoption.md,src/ums/architecture/adrs/0035-hybrid-policy-inheritance-engine.md
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.619Z - [REQUEST]: governance/product/product-vision.md,governance/product/objectives.md,governance/product/business-context.md,governance/product/scope.md,governance/product/stakeholders.md,architecture/adrs/0001-monorepo-orchestration-nx.md,architecture/adrs/0014-distributed-caching-strategy-redis.md,architecture/adrs/0013-cloud-infrastructure-topology-dr.md,architecture/adrs/0008-progressive-multimodule-evolution-gateway-bff.md,architecture/adrs/0003-strict-typescript-standards.md,architecture/adrs/0009-strict-dependency-pinning-vulnerability-management.md,architecture/adrs/0005-ci-cd-quality-codeql.md,architecture/adrs/0016-immutable-business-audit-trail.md,architecture/adrs/0012-advanced-authorization-rbac-abac.md,architecture/adrs/0007-observability-telemetry-loki-opentelemetry.md,architecture/adrs/0002-clean-architecture-nestjs.md,architecture/adrs/0006-future-microservices-transition-dapr.md,architecture/adrs/0004-frontend-offline-resilience.md,architecture/adrs/0011-fault-tolerance-resiliency-patterns.md,architecture/adrs/0010-multi-tenancy-architecture-strategy.md,architecture/adrs/0015-event-driven-architecture-intra-domain.md,architecture/adrs/0017-feature-flagging-strategy.md,architecture/adrs/0021-high-performance-auth-and-graph-compilation.md,architecture/adrs/0018-testing-pyramid-quality-gates.md,architecture/adrs/0019-tactical-design-patterns-future-proofing.md,architecture/adrs/0022-contextual-auth-and-pluggable-projections.md,architecture/adrs/0023-centralized-ums-vs-decentralized-access.md,architecture/adrs/0020-identity-provider-abstraction-strategy.md,architecture/adrs/0024-configuration-feature-management-platform.md,architecture/adrs/0025-feature-flag-provider-abstraction.md,architecture/adrs/0029-tactical-ddd-primitives-library.md,architecture/adrs/0031-abstract-identity-domain-subject.md,architecture/adrs/0026-mfa-passwordless-adaptive-authentication.md,architecture/adrs/0030-api-gateway-kong-vs-nestjs.md,architecture/adrs/0028-self-hosted-hybrid-infrastructure-on-premise.md,architecture/adrs/0027-dual-protocol-rest-grpc-api-gateway.md,architecture/adrs/0032-organization-as-strategic-domain-boundary.md,architecture/adrs/0035-hybrid-policy-inheritance-engine.md,architecture/adrs/0033-enterprise-minimal-apis-adoption.md,architecture/adrs/0034-hierarchical-multi-tenancy-domain-model.md
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.622Z - [WATCHER]: Processing file changes in outputs
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.623Z - Time taken for 'hash changed files from watcher' 4.809599999338388ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.630Z - [WATCHER]: 9 file(s) created or restored, 0 file(s) modified, 5 file(s) deleted
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.631Z - [WATCHER]: File changes detected:
+Created:
+  - src/ums/architecture/adrs/0036-anti-privilege-escalation-recursive-scope-validation.md
+  - src/ums/architecture/artifacts/contract-testing-plan.md
+  - src/ums/architecture/artifacts/corporate-standards-baseline.md
+  - src/ums/architecture/adrs/0038-delegated-administration-temporal-scopes.md
+  - src/ums/architecture/adrs/0040-federated-token-strategy-hierarchical-context.md
+  - src/ums/architecture/adrs/0039-hybrid-rbac-abac-policy-compilation.md
+  - src/ums/architecture/artifacts/architecture-maturity-model.md
+  - src/ums/architecture/artifacts/bmad-master-audit-alignment-report.md
+  - src/ums/architecture/adrs/0037-tenant-aware-partitioning-strategy.md
+Updated:
+(none)
+Deleted:
+  - architecture/adrs/0036-anti-privilege-escalation-recursive-scope-validation.md
+  - architecture/adrs/0037-tenant-aware-partitioning-strategy.md
+  - architecture/adrs/0039-hybrid-rbac-abac-policy-compilation.md
+  - architecture/adrs/0038-delegated-administration-temporal-scopes.md
+  - architecture/adrs/0040-federated-token-strategy-hierarchical-context.md
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.631Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.676Z - [WATCHER]: Processing file changes in outputs
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.686Z - [WATCHER]: 8 file(s) created or restored, 0 file(s) modified, 0 file(s) deleted
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.687Z - [WATCHER]: File changes detected:
+Created:
+  - src/ums/architecture/artifacts/mfa-passwordless-security-spec.md
+  - src/ums/architecture/artifacts/engineering-standards.md
+  - src/ums/architecture/artifacts/enterprise-multitenant-governance-report.md
+  - src/ums/architecture/artifacts/observability-strategy.md
+  - src/ums/architecture/artifacts/gap-analysis-and-optimization-plan.md
+  - src/ums/architecture/artifacts/enterprise-iam-ums-specification.md
+  - src/ums/architecture/artifacts/high-concurrency-auth-specification.md
+  - src/ums/architecture/artifacts/kong-plugins-configuration-guide.md
+Updated:
+(none)
+Deleted:
+(none)
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.687Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.728Z - [WATCHER]: Processing file changes in outputs
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.737Z - [REQUEST]: Updated workspace context based on watched changes, recomputing project graph...
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.737Z - [REQUEST]: src/ums/architecture/blueprints/cloud_agnostic_architecture.svg,src/ums/architecture/blueprints/architecture-spec.md,src/ums/architecture/blueprints/bounded-context-map.md,src/ums/architecture/blueprints/dotnet-migration-and-tech-stack-plan.md,src/ums/architecture/blueprints/nestjslatam-ddd-evaluation.md,src/ums/architecture/blueprints/reference-architecture-nodejs-arc42.md,src/ums/architecture/blueprints/stack-summary.md,src/ums/architecture/blueprints/stack.md,src/ums/architecture/blueprints/vendor-risk-assessment.md,src/ums/architecture/adrs/0009-strict-dependency-pinning-vulnerability-management.md,src/ums/architecture/adrs/0013-cloud-infrastructure-topology-dr.md,src/ums/architecture/adrs/0005-ci-cd-quality-codeql.md,src/ums/architecture/adrs/0012-advanced-authorization-rbac-abac.md,src/ums/architecture/adrs/0006-future-microservices-transition-dapr.md,src/ums/architecture/adrs/0001-monorepo-orchestration-nx.md,src/ums/architecture/adrs/0007-observability-telemetry-loki-opentelemetry.md,src/ums/architecture/adrs/0008-progressive-multimodule-evolution-gateway-bff.md,src/ums/architecture/adrs/0014-distributed-caching-strategy-redis.md,src/ums/architecture/adrs/0003-strict-typescript-standards.md,src/ums/architecture/adrs/0004-frontend-offline-resilience.md,src/ums/architecture/adrs/0002-clean-architecture-nestjs.md,src/ums/architecture/adrs/0015-event-driven-architecture-intra-domain.md,src/ums/architecture/adrs/0010-multi-tenancy-architecture-strategy.md,src/ums/architecture/adrs/0011-fault-tolerance-resiliency-patterns.md,src/ums/architecture/adrs/0020-identity-provider-abstraction-strategy.md,src/ums/architecture/adrs/0022-contextual-auth-and-pluggable-projections.md,src/ums/architecture/adrs/0016-immutable-business-audit-trail.md,src/ums/architecture/adrs/0017-feature-flagging-strategy.md,src/ums/architecture/adrs/0019-tactical-design-patterns-future-proofing.md,src/ums/architecture/adrs/0021-high-performance-auth-and-graph-compilation.md,src/ums/architecture/adrs/0018-testing-pyramid-quality-gates.md,src/ums/architecture/adrs/0023-centralized-ums-vs-decentralized-access.md,src/ums/architecture/adrs/0024-configuration-feature-management-platform.md,src/ums/architecture/adrs/0025-feature-flag-provider-abstraction.md,src/ums/architecture/adrs/0028-self-hosted-hybrid-infrastructure-on-premise.md,src/ums/architecture/adrs/0029-tactical-ddd-primitives-library.md,src/ums/architecture/adrs/0027-dual-protocol-rest-grpc-api-gateway.md,src/ums/architecture/adrs/0026-mfa-passwordless-adaptive-authentication.md,src/ums/architecture/adrs/0030-api-gateway-kong-vs-nestjs.md,src/ums/architecture/adrs/0031-abstract-identity-domain-subject.md,src/ums/architecture/adrs/0034-hierarchical-multi-tenancy-domain-model.md,src/ums/architecture/adrs/0032-organization-as-strategic-domain-boundary.md,src/ums/architecture/adrs/0033-enterprise-minimal-apis-adoption.md,src/ums/architecture/adrs/0035-hybrid-policy-inheritance-engine.md,src/ums/architecture/adrs/0036-anti-privilege-escalation-recursive-scope-validation.md,src/ums/architecture/artifacts/contract-testing-plan.md,src/ums/architecture/artifacts/corporate-standards-baseline.md,src/ums/architecture/adrs/0038-delegated-administration-temporal-scopes.md,src/ums/architecture/adrs/0040-federated-token-strategy-hierarchical-context.md,src/ums/architecture/adrs/0039-hybrid-rbac-abac-policy-compilation.md,src/ums/architecture/artifacts/architecture-maturity-model.md,src/ums/architecture/artifacts/bmad-master-audit-alignment-report.md,src/ums/architecture/adrs/0037-tenant-aware-partitioning-strategy.md,src/ums/architecture/artifacts/mfa-passwordless-security-spec.md,src/ums/architecture/artifacts/engineering-standards.md,src/ums/architecture/artifacts/enterprise-multitenant-governance-report.md,src/ums/architecture/artifacts/observability-strategy.md,src/ums/architecture/artifacts/gap-analysis-and-optimization-plan.md,src/ums/architecture/artifacts/enterprise-iam-ums-specification.md,src/ums/architecture/artifacts/high-concurrency-auth-specification.md,src/ums/architecture/artifacts/kong-plugins-configuration-guide.md
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.737Z - [REQUEST]: governance/product/product-vision.md,governance/product/objectives.md,governance/product/business-context.md,governance/product/scope.md,governance/product/stakeholders.md,architecture/adrs/0001-monorepo-orchestration-nx.md,architecture/adrs/0014-distributed-caching-strategy-redis.md,architecture/adrs/0013-cloud-infrastructure-topology-dr.md,architecture/adrs/0008-progressive-multimodule-evolution-gateway-bff.md,architecture/adrs/0003-strict-typescript-standards.md,architecture/adrs/0009-strict-dependency-pinning-vulnerability-management.md,architecture/adrs/0005-ci-cd-quality-codeql.md,architecture/adrs/0016-immutable-business-audit-trail.md,architecture/adrs/0012-advanced-authorization-rbac-abac.md,architecture/adrs/0007-observability-telemetry-loki-opentelemetry.md,architecture/adrs/0002-clean-architecture-nestjs.md,architecture/adrs/0006-future-microservices-transition-dapr.md,architecture/adrs/0004-frontend-offline-resilience.md,architecture/adrs/0011-fault-tolerance-resiliency-patterns.md,architecture/adrs/0010-multi-tenancy-architecture-strategy.md,architecture/adrs/0015-event-driven-architecture-intra-domain.md,architecture/adrs/0017-feature-flagging-strategy.md,architecture/adrs/0021-high-performance-auth-and-graph-compilation.md,architecture/adrs/0018-testing-pyramid-quality-gates.md,architecture/adrs/0019-tactical-design-patterns-future-proofing.md,architecture/adrs/0022-contextual-auth-and-pluggable-projections.md,architecture/adrs/0023-centralized-ums-vs-decentralized-access.md,architecture/adrs/0020-identity-provider-abstraction-strategy.md,architecture/adrs/0024-configuration-feature-management-platform.md,architecture/adrs/0025-feature-flag-provider-abstraction.md,architecture/adrs/0029-tactical-ddd-primitives-library.md,architecture/adrs/0031-abstract-identity-domain-subject.md,architecture/adrs/0026-mfa-passwordless-adaptive-authentication.md,architecture/adrs/0030-api-gateway-kong-vs-nestjs.md,architecture/adrs/0028-self-hosted-hybrid-infrastructure-on-premise.md,architecture/adrs/0027-dual-protocol-rest-grpc-api-gateway.md,architecture/adrs/0032-organization-as-strategic-domain-boundary.md,architecture/adrs/0035-hybrid-policy-inheritance-engine.md,architecture/adrs/0033-enterprise-minimal-apis-adoption.md,architecture/adrs/0034-hierarchical-multi-tenancy-domain-model.md,architecture/adrs/0036-anti-privilege-escalation-recursive-scope-validation.md,architecture/adrs/0037-tenant-aware-partitioning-strategy.md,architecture/adrs/0039-hybrid-rbac-abac-policy-compilation.md,architecture/adrs/0038-delegated-administration-temporal-scopes.md,architecture/adrs/0040-federated-token-strategy-hierarchical-context.md
+[plugin-worker] "nx/js/dependencies-and-lockfile" (pid: 28212) listening on \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin25204-6-97648.89319999889.sock
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.742Z - Time taken for 'hash changed files from watcher' 4.63260000012815ms
+[isolated-plugin] connected to worker for "nx/js/dependencies-and-lockfile" (pid: 28212)
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.746Z - Time taken for 'start-plugin-worker:nx/js/dependencies-and-lockfile' 727.3588999994099ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.746Z - [WATCHER]: 3 file(s) created or restored, 0 file(s) modified, 3 file(s) deleted
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.747Z - [WATCHER]: File changes detected:
+Created:
+  - src/ums/architecture/artifacts/ums-configuration-platform-spec.md
+  - src/ums/architecture/artifacts/ums-web-console-product-scope.md
+  - src/ums/governance/roadmap/versioning-and-audit-strategy.md
+Updated:
+(none)
+Deleted:
+  - governance/roadmap/versioning-and-audit-strategy.md
+  - src/ums-workspace/docs
+  - src/ums-workspace
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.747Z - [SYNC]: clearing sync generators cache due to file changes
+Time taken for 'plugin worker 28212 code loading' 541.618299998343ms
+[plugin-worker] "nx/js/dependencies-and-lockfile" (pid: 28212) connected
+[plugin-worker] "nx/core/package-json" (pid: 26088) listening on \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin25204-7-97719.96649999917.sock
+[isolated-plugin] connected to worker for "nx/core/package-json" (pid: 26088)
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.788Z - Time taken for 'start-plugin-worker:nx/core/package-json' 700.1974999997765ms
+Time taken for 'plugin worker 26088 code loading' 528.3824000004679ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.794Z - [WATCHER]: Processing file changes in outputs
+[plugin-worker] "nx/core/package-json" (pid: 26088) connected
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.855Z - [REQUEST]: Updated workspace context based on watched changes, recomputing project graph...
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.855Z - [REQUEST]: src/ums/architecture/blueprints/cloud_agnostic_architecture.svg,src/ums/architecture/blueprints/architecture-spec.md,src/ums/architecture/blueprints/bounded-context-map.md,src/ums/architecture/blueprints/dotnet-migration-and-tech-stack-plan.md,src/ums/architecture/blueprints/nestjslatam-ddd-evaluation.md,src/ums/architecture/blueprints/reference-architecture-nodejs-arc42.md,src/ums/architecture/blueprints/stack-summary.md,src/ums/architecture/blueprints/stack.md,src/ums/architecture/blueprints/vendor-risk-assessment.md,src/ums/architecture/adrs/0009-strict-dependency-pinning-vulnerability-management.md,src/ums/architecture/adrs/0013-cloud-infrastructure-topology-dr.md,src/ums/architecture/adrs/0005-ci-cd-quality-codeql.md,src/ums/architecture/adrs/0012-advanced-authorization-rbac-abac.md,src/ums/architecture/adrs/0006-future-microservices-transition-dapr.md,src/ums/architecture/adrs/0001-monorepo-orchestration-nx.md,src/ums/architecture/adrs/0007-observability-telemetry-loki-opentelemetry.md,src/ums/architecture/adrs/0008-progressive-multimodule-evolution-gateway-bff.md,src/ums/architecture/adrs/0014-distributed-caching-strategy-redis.md,src/ums/architecture/adrs/0003-strict-typescript-standards.md,src/ums/architecture/adrs/0004-frontend-offline-resilience.md,src/ums/architecture/adrs/0002-clean-architecture-nestjs.md,src/ums/architecture/adrs/0015-event-driven-architecture-intra-domain.md,src/ums/architecture/adrs/0010-multi-tenancy-architecture-strategy.md,src/ums/architecture/adrs/0011-fault-tolerance-resiliency-patterns.md,src/ums/architecture/adrs/0020-identity-provider-abstraction-strategy.md,src/ums/architecture/adrs/0022-contextual-auth-and-pluggable-projections.md,src/ums/architecture/adrs/0016-immutable-business-audit-trail.md,src/ums/architecture/adrs/0017-feature-flagging-strategy.md,src/ums/architecture/adrs/0019-tactical-design-patterns-future-proofing.md,src/ums/architecture/adrs/0021-high-performance-auth-and-graph-compilation.md,src/ums/architecture/adrs/0018-testing-pyramid-quality-gates.md,src/ums/architecture/adrs/0023-centralized-ums-vs-decentralized-access.md,src/ums/architecture/adrs/0024-configuration-feature-management-platform.md,src/ums/architecture/adrs/0025-feature-flag-provider-abstraction.md,src/ums/architecture/adrs/0028-self-hosted-hybrid-infrastructure-on-premise.md,src/ums/architecture/adrs/0029-tactical-ddd-primitives-library.md,src/ums/architecture/adrs/0027-dual-protocol-rest-grpc-api-gateway.md,src/ums/architecture/adrs/0026-mfa-passwordless-adaptive-authentication.md,src/ums/architecture/adrs/0030-api-gateway-kong-vs-nestjs.md,src/ums/architecture/adrs/0031-abstract-identity-domain-subject.md,src/ums/architecture/adrs/0034-hierarchical-multi-tenancy-domain-model.md,src/ums/architecture/adrs/0032-organization-as-strategic-domain-boundary.md,src/ums/architecture/adrs/0033-enterprise-minimal-apis-adoption.md,src/ums/architecture/adrs/0035-hybrid-policy-inheritance-engine.md,src/ums/architecture/adrs/0036-anti-privilege-escalation-recursive-scope-validation.md,src/ums/architecture/artifacts/contract-testing-plan.md,src/ums/architecture/artifacts/corporate-standards-baseline.md,src/ums/architecture/adrs/0038-delegated-administration-temporal-scopes.md,src/ums/architecture/adrs/0040-federated-token-strategy-hierarchical-context.md,src/ums/architecture/adrs/0039-hybrid-rbac-abac-policy-compilation.md,src/ums/architecture/artifacts/architecture-maturity-model.md,src/ums/architecture/artifacts/bmad-master-audit-alignment-report.md,src/ums/architecture/adrs/0037-tenant-aware-partitioning-strategy.md,src/ums/architecture/artifacts/mfa-passwordless-security-spec.md,src/ums/architecture/artifacts/engineering-standards.md,src/ums/architecture/artifacts/enterprise-multitenant-governance-report.md,src/ums/architecture/artifacts/observability-strategy.md,src/ums/architecture/artifacts/gap-analysis-and-optimization-plan.md,src/ums/architecture/artifacts/enterprise-iam-ums-specification.md,src/ums/architecture/artifacts/high-concurrency-auth-specification.md,src/ums/architecture/artifacts/kong-plugins-configuration-guide.md,src/ums/architecture/artifacts/ums-configuration-platform-spec.md,src/ums/architecture/artifacts/ums-web-console-product-scope.md,src/ums/governance/roadmap/versioning-and-audit-strategy.md
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.855Z - [REQUEST]: governance/product/product-vision.md,governance/product/objectives.md,governance/product/business-context.md,governance/product/scope.md,governance/product/stakeholders.md,architecture/adrs/0001-monorepo-orchestration-nx.md,architecture/adrs/0014-distributed-caching-strategy-redis.md,architecture/adrs/0013-cloud-infrastructure-topology-dr.md,architecture/adrs/0008-progressive-multimodule-evolution-gateway-bff.md,architecture/adrs/0003-strict-typescript-standards.md,architecture/adrs/0009-strict-dependency-pinning-vulnerability-management.md,architecture/adrs/0005-ci-cd-quality-codeql.md,architecture/adrs/0016-immutable-business-audit-trail.md,architecture/adrs/0012-advanced-authorization-rbac-abac.md,architecture/adrs/0007-observability-telemetry-loki-opentelemetry.md,architecture/adrs/0002-clean-architecture-nestjs.md,architecture/adrs/0006-future-microservices-transition-dapr.md,architecture/adrs/0004-frontend-offline-resilience.md,architecture/adrs/0011-fault-tolerance-resiliency-patterns.md,architecture/adrs/0010-multi-tenancy-architecture-strategy.md,architecture/adrs/0015-event-driven-architecture-intra-domain.md,architecture/adrs/0017-feature-flagging-strategy.md,architecture/adrs/0021-high-performance-auth-and-graph-compilation.md,architecture/adrs/0018-testing-pyramid-quality-gates.md,architecture/adrs/0019-tactical-design-patterns-future-proofing.md,architecture/adrs/0022-contextual-auth-and-pluggable-projections.md,architecture/adrs/0023-centralized-ums-vs-decentralized-access.md,architecture/adrs/0020-identity-provider-abstraction-strategy.md,architecture/adrs/0024-configuration-feature-management-platform.md,architecture/adrs/0025-feature-flag-provider-abstraction.md,architecture/adrs/0029-tactical-ddd-primitives-library.md,architecture/adrs/0031-abstract-identity-domain-subject.md,architecture/adrs/0026-mfa-passwordless-adaptive-authentication.md,architecture/adrs/0030-api-gateway-kong-vs-nestjs.md,architecture/adrs/0028-self-hosted-hybrid-infrastructure-on-premise.md,architecture/adrs/0027-dual-protocol-rest-grpc-api-gateway.md,architecture/adrs/0032-organization-as-strategic-domain-boundary.md,architecture/adrs/0035-hybrid-policy-inheritance-engine.md,architecture/adrs/0033-enterprise-minimal-apis-adoption.md,architecture/adrs/0034-hierarchical-multi-tenancy-domain-model.md,architecture/adrs/0036-anti-privilege-escalation-recursive-scope-validation.md,architecture/adrs/0037-tenant-aware-partitioning-strategy.md,architecture/adrs/0039-hybrid-rbac-abac-policy-compilation.md,architecture/adrs/0038-delegated-administration-temporal-scopes.md,architecture/adrs/0040-federated-token-strategy-hierarchical-context.md,governance/roadmap/versioning-and-audit-strategy.md,src/ums-workspace/docs,src/ums-workspace
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.859Z - Time taken for 'hash changed files from watcher' 3.509800000116229ms
+[plugin-worker] "nx/core/project-json" (pid: 4040) listening on \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin25204-8-97771.31069999933.sock
+[isolated-plugin] connected to worker for "nx/core/project-json" (pid: 4040)
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:32.913Z - Time taken for 'start-plugin-worker:nx/core/project-json' 774.186400000006ms
+Time taken for 'plugin worker 4040 code loading' 484.3931999988854ms
+[plugin-worker] "nx/core/project-json" (pid: 4040) connected
+[plugin-worker] "nx/core/package-json" (pid: 26088) loaded successfully
+[plugin-worker] "nx/js/dependencies-and-lockfile" (pid: 28212) loaded successfully
+Time taken for 'nx/core/package-json:createNodes' 2.2568999994546175ms
+Time taken for 'nx/core/package-json:createNodes' 3.356300000101328ms
+Time taken for 'nx/core/package-json:createNodes' 3.4247999992221594ms
+Time taken for 'nx/core/package-json:createNodes' 3.459300000220537ms
+[isolated-plugin] shutting down worker for "nx/core/package-json" after createNodes
+Time taken for 'nx/js/dependencies-and-lockfile:createNodes' 7.357300000265241ms
+Time taken for 'nx/js/dependencies-and-lockfile:createNodes' 8.097900001332164ms
+Time taken for 'nx/js/dependencies-and-lockfile:createNodes' 8.141200000420213ms
+Time taken for 'nx/js/dependencies-and-lockfile:createNodes' 8.229800000786781ms
+[plugin-worker] "nx/core/project-json" (pid: 4040) loaded successfully
+Time taken for 'nx/core/project-json:createNodes' 0.04379999823868275ms
+Time taken for 'nx/core/project-json:createNodes' 1.0171999987214804ms
+Time taken for 'nx/core/project-json:createNodes' 1.0805999990552664ms
+Time taken for 'nx/core/project-json:createNodes' 1.3571999985724688ms
+[isolated-plugin] shutting down worker for "nx/core/project-json" after createNodes
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:33.089Z - Time taken for 'build-project-configs' 219.74720000103116ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:33.089Z - Time taken for 'build-project-configs' 220.95940000005066ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:33.089Z - Time taken for 'build-project-configs' 221.6900000013411ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:33.089Z - Time taken for 'build-project-configs' 222.2920000012964ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:33.089Z - Time taken for 'createNodes:merge' 1.2998000010848045ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:33.089Z - Time taken for 'createNodes:merge' 1.157499998807907ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:33.089Z - Time taken for 'createNodes:merge' 0.7033999990671873ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:33.089Z - Time taken for 'createNodes:merge' 0.5785999987274408ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:33.089Z - Time taken for 'get-all-workspace-files' 0.29059999994933605ms
+Time taken for 'build typescript dependencies' 0.30550000071525574ms
+[isolated-plugin] shutting down worker for "nx/js/dependencies-and-lockfile" after createDependencies
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:33.115Z - [SYNC]: collect registered sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:33.116Z - [SYNC]: project graph hash is the same, not collecting task sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:33.116Z - [SYNC]: nx.json hash is the same, not collecting global sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:33.116Z - [SYNC]: collect registered sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:33.117Z - [SYNC]: project graph hash is the same, not collecting task sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:33.117Z - [SYNC]: nx.json hash is the same, not collecting global sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:33.117Z - [SYNC]: collect registered sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:33.118Z - [SYNC]: project graph hash is the same, not collecting task sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:33.118Z - [SYNC]: nx.json hash is the same, not collecting global sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:33.118Z - [SYNC]: collect registered sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:33.118Z - [SYNC]: project graph hash is the same, not collecting task sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:33.118Z - [SYNC]: nx.json hash is the same, not collecting global sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:33.119Z - Time taken for 'total execution time for createProjectGraph()' 27.369100000709295ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:33.119Z - Time taken for 'createDependencies' 20.42769999988377ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:33.119Z - Time taken for 'nx/js/dependencies-and-lockfile:createDependencies' 20.226199999451637ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:33.119Z - Time taken for 'createMetadata' 0.027699999511241913ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:33.119Z - Time taken for 'serialize graph' 6.916500000283122ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:46.640Z - [WATCHER]: MASTER_INDEX.md was modified
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:46.641Z - [WATCHER]: File changes detected:
+Created:
+(none)
+Updated:
+  - MASTER_INDEX.md
+Deleted:
+(none)
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:46.642Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:46.642Z - [WATCHER]: Processing file changes in outputs
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:46.848Z - [REQUEST]: Updated workspace context based on watched changes, recomputing project graph...
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:46.849Z - [REQUEST]: MASTER_INDEX.md
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:46.849Z - [REQUEST]: 
+[plugin-client] restarting worker for "nx/js/dependencies-and-lockfile"
+[isolated-plugin] spawned worker for "nx/js/dependencies-and-lockfile" (pid: 15816, socket: \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin25204-9-112484.95089999959.sock)
+[plugin-client] restarting worker for "nx/core/package-json"
+[isolated-plugin] spawned worker for "nx/core/package-json" (pid: 21160, socket: \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin25204-10-112545.92540000007.sock)
+[plugin-client] restarting worker for "nx/core/project-json"
+[isolated-plugin] spawned worker for "nx/core/project-json" (pid: 26888, socket: \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin25204-11-112598.73019999824.sock)
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:47.042Z - Time taken for 'hash changed files from watcher' 1.2289000004529953ms
+[plugin-worker] "nx/js/dependencies-and-lockfile" (pid: 15816) listening on \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin25204-9-112484.95089999959.sock
+Time taken for 'plugin worker 15816 code loading' 522.5929000005126ms
+[isolated-plugin] connected to worker for "nx/js/dependencies-and-lockfile" (pid: 15816)
+[plugin-worker] "nx/js/dependencies-and-lockfile" (pid: 15816) connected
+[plugin-worker] "nx/core/package-json" (pid: 21160) listening on \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin25204-10-112545.92540000007.sock
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:47.593Z - Time taken for 'start-plugin-worker:nx/js/dependencies-and-lockfile' 739.1969000007957ms
+Time taken for 'plugin worker 21160 code loading' 502.4385000001639ms
+[isolated-plugin] connected to worker for "nx/core/package-json" (pid: 21160)
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:47.609Z - Time taken for 'start-plugin-worker:nx/core/package-json' 695.8956000003964ms
+[plugin-worker] "nx/core/package-json" (pid: 21160) connected
+[plugin-worker] "nx/core/project-json" (pid: 26888) listening on \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin25204-11-112598.73019999824.sock
+[isolated-plugin] connected to worker for "nx/core/project-json" (pid: 26888)
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:47.728Z - Time taken for 'start-plugin-worker:nx/core/project-json' 762.19820000045ms
+Time taken for 'plugin worker 26888 code loading' 517.2355000004172ms
+[plugin-worker] "nx/core/project-json" (pid: 26888) connected
+[plugin-worker] "nx/core/package-json" (pid: 21160) loaded successfully
+Time taken for 'nx/core/package-json:createNodes' 9.260600000619888ms
+[isolated-plugin] shutting down worker for "nx/core/package-json" after createNodes
+[plugin-worker] "nx/js/dependencies-and-lockfile" (pid: 15816) loaded successfully
+Time taken for 'nx/js/dependencies-and-lockfile:createNodes' 10.69679999910295ms
+[plugin-worker] "nx/core/project-json" (pid: 26888) loaded successfully
+Time taken for 'nx/core/project-json:createNodes' 0.2488000001758337ms
+[isolated-plugin] shutting down worker for "nx/core/project-json" after createNodes
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:47.935Z - Time taken for 'build-project-configs' 1069.9635000005364ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:47.935Z - Time taken for 'createNodes:merge' 3.7653999999165535ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:47.935Z - Time taken for 'get-all-workspace-files' 0.4626000002026558ms
+Time taken for 'build typescript dependencies' 0.1721000000834465ms
+[isolated-plugin] shutting down worker for "nx/js/dependencies-and-lockfile" after createDependencies
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:47.962Z - [SYNC]: collect registered sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:47.964Z - [SYNC]: project graph hash is the same, not collecting task sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:47.964Z - [SYNC]: nx.json hash is the same, not collecting global sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:47.965Z - Time taken for 'total execution time for createProjectGraph()' 30.88740000128746ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:47.965Z - Time taken for 'createDependencies' 22.95020000077784ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:47.965Z - Time taken for 'nx/js/dependencies-and-lockfile:createDependencies' 22.655299998819828ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:47.965Z - Time taken for 'createMetadata' 0.02410000003874302ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:47.965Z - Time taken for 'serialize graph' 6.262700000777841ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:58.651Z - [WATCHER]: Processing file changes in outputs
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:58.651Z - [WATCHER]: MASTER_INDEX.es.md was modified
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:58.652Z - [WATCHER]: File changes detected:
+Created:
+(none)
+Updated:
+  - MASTER_INDEX.es.md
+Deleted:
+(none)
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:58.652Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:59.057Z - [REQUEST]: Updated workspace context based on watched changes, recomputing project graph...
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:59.058Z - [REQUEST]: MASTER_INDEX.es.md
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:59.058Z - [REQUEST]: 
+[plugin-client] restarting worker for "nx/js/dependencies-and-lockfile"
+[isolated-plugin] spawned worker for "nx/js/dependencies-and-lockfile" (pid: 24152, socket: \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin25204-12-124692.14789999835.sock)
+[plugin-client] restarting worker for "nx/core/package-json"
+[isolated-plugin] spawned worker for "nx/core/package-json" (pid: 27996, socket: \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin25204-13-124783.43129999936.sock)
+[plugin-client] restarting worker for "nx/core/project-json"
+[isolated-plugin] spawned worker for "nx/core/project-json" (pid: 27592, socket: \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin25204-14-124836.5055999998.sock)
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:59.274Z - Time taken for 'hash changed files from watcher' 0.8601000010967255ms
+[plugin-worker] "nx/js/dependencies-and-lockfile" (pid: 24152) listening on \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin25204-12-124692.14789999835.sock
+[isolated-plugin] connected to worker for "nx/js/dependencies-and-lockfile" (pid: 24152)
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:59.555Z - Time taken for 'start-plugin-worker:nx/js/dependencies-and-lockfile' 494.84799999929965ms
+Time taken for 'plugin worker 24152 code loading' 317.5991999991238ms
+[plugin-worker] "nx/js/dependencies-and-lockfile" (pid: 24152) connected
+[isolated-plugin] connected to worker for "nx/core/package-json" (pid: 27996)
+[plugin-worker] "nx/core/package-json" (pid: 27996) listening on \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin25204-13-124783.43129999936.sock
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:59.600Z - Time taken for 'start-plugin-worker:nx/core/package-json' 449.51950000040233ms
+[plugin-worker] "nx/core/package-json" (pid: 27996) connected
+Time taken for 'plugin worker 27996 code loading' 314.42119999974966ms
+[isolated-plugin] connected to worker for "nx/core/project-json" (pid: 27592)
+[plugin-worker] "nx/core/project-json" (pid: 27592) listening on \\.\pipe\nx\C:\Users\aarroyo\AppData\Local\Temp\plugin25204-14-124836.5055999998.sock
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:59.751Z - Time taken for 'start-plugin-worker:nx/core/project-json' 546.4590000007302ms
+[plugin-worker] "nx/core/project-json" (pid: 27592) connected
+Time taken for 'plugin worker 27592 code loading' 392.39439999870956ms
+[plugin-worker] "nx/js/dependencies-and-lockfile" (pid: 24152) loaded successfully
+Time taken for 'nx/js/dependencies-and-lockfile:createNodes' 11.789599999785423ms
+[plugin-worker] "nx/core/package-json" (pid: 27996) loaded successfully
+Time taken for 'nx/core/package-json:createNodes' 9.022099999710917ms
+[isolated-plugin] shutting down worker for "nx/core/package-json" after createNodes
+[plugin-worker] "nx/core/project-json" (pid: 27592) loaded successfully
+[isolated-plugin] shutting down worker for "nx/core/project-json" after createNodes
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:59.947Z - Time taken for 'build-project-configs' 877.1677000001073ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:59.947Z - Time taken for 'createNodes:merge' 1.69679999910295ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:59.947Z - Time taken for 'get-all-workspace-files' 0.36940000019967556ms
+Time taken for 'build typescript dependencies' 0.20230000093579292ms
+[isolated-plugin] shutting down worker for "nx/js/dependencies-and-lockfile" after createDependencies
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:59.968Z - [SYNC]: collect registered sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:59.969Z - [SYNC]: project graph hash is the same, not collecting task sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:59.969Z - [SYNC]: nx.json hash is the same, not collecting global sync generators
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:59.970Z - Time taken for 'total execution time for createProjectGraph()' 27.93019999936223ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:59.970Z - Time taken for 'createDependencies' 22.174599999561906ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:59.970Z - Time taken for 'nx/js/dependencies-and-lockfile:createDependencies' 21.97099999897182ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:59.970Z - Time taken for 'createMetadata' 0.008799999952316284ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:06:59.970Z - Time taken for 'serialize graph' 3.0664000008255243ms
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:10:17.478Z - [WATCHER]: 0 file(s) created or restored, 0 file(s) modified, 3 file(s) deleted
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:10:17.478Z - [WATCHER]: File changes detected:
+Created:
+(none)
+Updated:
+(none)
+Deleted:
+  - nx.json
+  - package-lock.json
+  - package.json
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:10:17.478Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:10:17.479Z - [WATCHER]: Processing file changes in outputs
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:10:17.495Z - [Server] lock file hash changed! old=14033018958466377118, new=3244421341483603138
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:10:17.495Z - [Server] Daemon outdated: LOCK_FILES_CHANGED
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:10:17.495Z - [Server] Restarting daemon...
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:10:17.497Z - Restarting daemon with script: D:\Users\aarroyo\personal\sources\ums\node_modules\nx\dist\src\daemon\server\start.js
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:10:17.497Z - Old daemon __dirname: D:\Users\aarroyo\personal\sources\ums\node_modules\nx\dist\src\daemon\server
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:10:17.497Z - Current process.execPath: C:\Program Files\nodejs\node.exe
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:10:17.562Z - Started new daemon process in background
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:10:17.563Z - [WATCHER]: Processing file changes in outputs
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:10:17.563Z - [WATCHER]: 5 file(s) created or restored, 0 file(s) modified, 7 file(s) deleted
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:10:17.564Z - [WATCHER]: File changes detected:
+Created:
+  - src/.workspace/.lintstagedrc.json
+  - src/.workspace/context7.json
+  - src/.workspace/tsconfig.json
+  - src/.workspace/.eslintrc.js
+  - src/.workspace/commitlint.config.js
+Updated:
+(none)
+Deleted:
+  - .husky
+  - .lintstagedrc.json
+  - tsconfig.json
+  - .nx
+  - commitlint.config.js
+  - .eslintrc.js
+  - context7.json
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:10:17.564Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:10:17.564Z - [WATCHER]: Stopping the watcher for D:\Users\aarroyo\personal\sources\ums (sources)
+node:internal/modules/cjs/loader:1143
+  throw err;
+  ^
+
+Error: Cannot find module 'D:\Users\aarroyo\personal\sources\ums\node_modules\nx\dist\src\daemon\server\start.js'
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1140:15)
+    at Module._load (node:internal/modules/cjs/loader:981:27)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+    at node:internal/main/run_main_module:28:49 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v18.20.6
