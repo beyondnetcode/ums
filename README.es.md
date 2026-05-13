@@ -8,7 +8,7 @@
 
 Bienvenido al **Sistema de Gestión de Usuarios (UMS)**, un monolito modular empresarial altamente resiliente, diseñado para gestionar identidades corporativas, control de acceso y ciclos de vida de usuarios.
 
-Esta solución es una implementación 100% en Node.js que sirve como una instancia concreta de la [Arquitectura de Referencia Políglota Corporativa Unificada (bMAD)](https://github.com/beyondnetcode/arc32_progresive_monolith). UMS implementa un diseño evolutivo "Primero el Monolito" utilizando el **Método BMAD**, permitiendo que los dominios de negocio se extraigan como microservicios independientes en el futuro (usando Dapr, gRPC o arquitecturas dirigidas por eventos) con cero reescritura de las reglas del núcleo de dominio.
+Esta solución es una implementación en .NET 8 LTS que sirve como una instancia concreta de la [Arquitectura de Referencia Políglota Corporativa Unificada (bMAD)](https://github.com/beyondnetcode/arc32_progresive_monolith). UMS implementa un diseño evolutivo "Primero el Monolito" utilizando el **Método BMAD**, permitiendo que los dominios de negocio se extraigan como microservicios independientes en el futuro (usando Dapr, gRPC o arquitecturas dirigidas por eventos) con cero reescritura de las reglas del núcleo de dominio.
 
 ### 🎯 Objetivos Primarios:
 *   **Desacoplamiento Estricto y Arquitectura Limpia:** Diseño guiado por el dominio (DDD) utilizando principios hexagonales (Puertos y Adaptadores) para garantizar independencia absoluta de frameworks.
@@ -23,8 +23,8 @@ Esta solución es una implementación 100% en Node.js que sirve como una instanc
 🚀 **No explores los directorios al azar.** Todas las rutas técnicas y de cumplimiento están organizadas explícitamente por rol de usuario:
 
 1.  👉 **[Índice Maestro Global (ES)](./MASTER_INDEX.es.md)**: La puerta de entrada canónica. Encuentra tu ruta de lectura obligatoria según tu perfil (Proveedor, Desarrollador, Arquitecto, Project Manager).
-2.  🏛️ **[Documentación Maestra bMAD](./src/ums-workspace/docs/index.md)**: Índice unificado central que mapea desde la Fase 00 hasta la Fase 05.
-3.  📜 **[Hub de Registro ADR](./src/ums-workspace/docs/index.md#📜-phase-03---architectural-decision-records-adrs)**: Acceso directo a los 29 Registros de Decisiones Arquitectónicas (ADR) activas.
+2.  🏛️ **[Documentación Maestra bMAD](./src/ums-workspace/docs/index.es.md)**: Índice unificado central que mapea desde la Fase 00 hasta la Fase 05.
+3.  📜 **[Hub de Registro ADR](./src/ums-workspace/docs/index.es.md#📜-phase-03---registros-de-decisión-arquitectónica-adrs)**: Acceso directo a los 29 Registros de Decisiones Arquitectónicas (ADR) activas.
 
 ---
 
@@ -34,10 +34,10 @@ Para interactuar de forma segura con el código base de UMS, todos los desarroll
 
 ### 🛑 Disclaimers Importantes:
 *   **Agnóstico de Proveedores de Auth:** Diseñado para funcionar tanto como un bloque de autorización autónomo como en tándem con proveedores de identidad corporativos existentes.
-*   **Instancia de Referencia:** Sirve como la base de referencia corporativa para aplicaciones modulares Node.js/NestJS. Prioriza la limpieza demostrativa sobre micro-eficiencias densas y optimizadas.
+*   **Instancia de Referencia:** Sirve como la base de referencia corporativa para aplicaciones modulares .NET/C#. Prioriza la limpieza demostrativa sobre micro-eficiencias densas y optimizadas.
 
 ### ✅ Recomendaciones de Uso Cruciales:
-1.  **Nunca Saltarse los Puertos:** Nunca inyectes dependencias de frameworks externos (controladores NestJS), Bases de Datos (TypeORM) o librerías de terceros directamente dentro de las carpetas `/domain`.
+1.  **Nunca Saltarse los Puertos:** Nunca inyectes dependencias de frameworks externos (controladores ASP.NET Core), Bases de Datos (EF Core) o librerías de terceros directamente dentro de las carpetas `/domain`.
 2.  **Sincronización con la Base ADR:** Cualquier desviación del diseño técnico exige la consulta del registro histórico de decisiones arquitectónicas autorizadas antes de su implementación.
 3.  **Adoptar Docs-as-Code:** Mantén actualizados los mapas de documentación siguiendo estrictamente las **fases numéricas bMAD** (00-Producto, 01-Requisitos, 02-Arquitectura, 03-ADRs, 04-Artefactos, 05-Roadmap).
 
@@ -49,11 +49,11 @@ Para interactuar de forma segura con el código base de UMS, todos los desarroll
 
 | Componente | Tecnología / Framework | Rol |
 | :--- | :--- | :--- |
-| **Núcleo Backend** | NestJS (v10) / Node 20 LTS | Monolito Modular / API Transaccional |
+| **Núcleo Backend** | .NET 8 LTS / ASP.NET Core | Monolito Modular / API Transaccional |
 | **Frontend** | React (v18) / Vite / Zustand / Query | Portal Corporativo Unificado |
-| **Motor de Monorepo** | Nx & npm Workspaces | Orquestación de Dependencias y Velocidad de Build |
-| **Capa de Datos** | PostgreSQL 16 / TypeORM | Identidades Persistentes y Grafo de Permisos |
-| **Seguridad** | CodeQL / SonarJS / ESLint Boundaries | Puertas de Calidad Automatizadas en CI/CD |
+| **Motor de Monorepo** | Nx / npm Workspaces / .NET SLN | Orquestación de Dependencias y Velocidad de Build |
+| **Capa de Datos** | PostgreSQL 16 / EF Core | Identidades Persistentes y Grafo de Permisos |
+| **Seguridad** | CodeQL / SonarJS / CSharpier / ESLint | Puertas de Calidad Automatizadas en CI/CD |
 
 ### 🛠️ Directorio de Accesos Rápidos
 *   🏛️ **[Blueprint de Referencia Corporativa](https://github.com/beyondnetcode/arc32_progresive_monolith)**: Especificaciones corporativas oficiales para sistemas políglotas.
