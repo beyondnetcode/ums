@@ -8,7 +8,7 @@
 
 Bienvenido al **Sistema de Gestión de Usuarios (UMS)**, un monolito modular empresarial altamente resiliente, diseñado para gestionar identidades corporativas, control de acceso y ciclos de vida de usuarios.
 
-Esta solución es una implementación en .NET 8 LTS que sirve como una instancia concreta de la [Arquitectura de Referencia Políglota Corporativa Unificada (bMAD)](https://github.com/beyondnetcode/arc32_progresive_monolith). UMS implementa un diseño evolutivo "Primero el Monolito" utilizando el **Método BMAD**, permitiendo que los dominios de negocio se extraigan como microservicios independientes en el futuro (usando Dapr, gRPC o arquitecturas dirigidas por eventos) con cero reescritura de las reglas del núcleo de dominio.
+Esta solución es una implementación en .NET 8 LTS que sirve como una instancia concreta de la [Arquitectura de Referencia Políglota Corporativa Unificada](https://github.com/beyondnetcode/arc32_progresive_monolith). UMS implementa un diseño evolutivo "Primero el Monolito" utilizando el **Método BMAD**, permitiendo que los dominios de negocio se extraigan como microservicios independientes en el futuro (usando Dapr, gRPC o arquitecturas dirigidas por eventos) con cero reescritura de las reglas del núcleo de dominio.
 
 ### 🎯 Objetivos Primarios:
 *   **Desacoplamiento Estricto y Arquitectura Limpia:** Diseño guiado por el dominio (DDD) utilizando principios hexagonales (Puertos y Adaptadores) para garantizar independencia absoluta de frameworks.
@@ -65,5 +65,6 @@ Para interactuar de forma segura con el código base de UMS, todos los desarroll
 
 🤖 **Habilitación Aumentada por IA:** Este repositorio soporta nativamente agentes autónomos e IA asistida en el desarrollo, siguiendo el estándar de ingeniería BMAD Harness.
 👉 **[Explorar Developer Harness en AGENTS.md](./AGENTS.md)**
+
 
 
