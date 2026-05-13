@@ -107,6 +107,7 @@ Estas decisiones se encuentran actualmente **Propuestas** y representan backlogs
 | :--- | :--- | :--- | :--- | :--- |
 | **ADR-0006** | [Futuros Microservicios vÃƒÂ­a Dapr](./03-adrs/0006-future-microservices-transition-dapr.md) | Ã°Å¸Å¸Â¡ **Propuesto** | IntegraciÃƒÂ³n de sidecar para estado distribuido y mensajerÃƒÂ­a. | **PO revisar/aprobar** para activar migraciÃƒÂ³n a microservicios. |
 | **ADR-0013** | [Infraestructura en la Nube y DR](./03-adrs/0013-cloud-infrastructure-topology-dr.md) | Ã°Å¸Å¸Â¡ **Propuesto** | LÃƒÂ­mites de replicaciÃƒÂ³n de recuperaciÃƒÂ³n ante desastres multirregiÃƒÂ³n. | **PO revisar/aprobar** para autorizar presupuesto de despliegue. |
+| **ADR-0031** | [AbstracciÃƒÂ³n de Identidad a Sujeto](./03-adrs/0031-abstract-identity-domain-subject.md) | Ã°Å¸Å¸Â¡ **Propuesto** | TransiciÃƒÂ³n de concepto de Empleado hacia Sujeto agnÃƒÂ³stico ligado a OrganizaciÃƒÂ³n. | **PO revisar/aprobar** para habilitar soporte completo B2B y multi-tenant. |
 
 ### Ã°Å¸â€Â´ 3. CANCELADO, RECHAZADO O VETADO (Rechazados o Descartados por el PO)
 Estas decisiones arquitectÃƒÂ³nicas han sido **Vetadas / Rechazadas** o **Canceladas** por el Product Owner y **nunca deben ser implementadas**:
