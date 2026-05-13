@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BMAD Project Rules Schema",
+  "type": "object",
+  "properties": {
+    "rules": {
+      "type": "array",
+      "description": "List of BMAD agent rules enforced in the workspace.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^R-\\d{2}$",
+            "description": "The unique identifier of the rule, matching format R-XX (e.g., R-01)."
+          },
+          "title": {
+            "type": "string",
+            "description": "A human-readable title of the rule."
+          },
+          "agents": {
+            "type": "array",
+            "description": "Standard BMAD agents that are in scope for this rule.",
+            "items": {
+              "type": "string",
+              "enum": ["po", "architect", "dev", "qa", "sm", "analyst"]
+            }
+          },
+          "trigger": {
+            "type": "string",
+            "description": "The scenario or lifecycle event that triggers agent evaluation of this rule."
+          },
+          "instruction": {
+            "type": "string",
+            "description": "The explicit, enforceable instruction the agent must comply with."
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["critical", "warning", "info"],
+            "description": "Classification of failure to comply with the rule."
+          }
+        },
+        "required": ["id", "title", "agents", "trigger", "instruction", "severity"]
+      }
+    }
+  },
+  "required": ["rules"]
+}
