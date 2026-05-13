@@ -1,27 +1,31 @@
 ## Project
-Enterprise Monorepo for User Management System (UMS). An authorization block prototype capable of working with third-party Identity Providers or operating standalone, using NestJS, React, and PostgreSQL.
+Enterprise Monorepo for User Management System (UMS). An authorization block prototype capable of working with third-party Identity Providers or operating standalone, using .NET 8 LTS, React, and PostgreSQL.
 
 ## Build & Run
-All commands must be run from within the `./src/ums-workspace/` directory:
-- Build: `npm run build`
-- Test: `npm run test`
-- Lint: `npm run lint`
-- Start API: `npx nx run api:serve`
-- Start Client: `npx nx run apps-web:dev`
+Commands for Frontend (run from within `./src/ums-workspace/`):
+- Frontend Install: `npm install`
+- Frontend Start: `npx nx run apps-web:dev`
 - Setup Docs Context (Context7): `npx ctx7 setup`
 
+Commands for Backend (run from within `./src/ums-workspace/apps/api-dotnet/` or root solution directory):
+- Backend Build: `dotnet build`
+- Backend Test: `dotnet test`
+- Backend Run: `dotnet run`
+
 ## Architecture
-- Runtime: Node.js v20+ (LTS) with NestJS v10 (Backend) and React v18 + Vite (Frontend).
-- Monorepo: Managed via Nx & npm Workspaces.
-- DB: PostgreSQL 16 + TypeORM.
-- Key Modules: `apps/api` (Backend), `apps/web` (Frontend), `libs/aop` (Aspect-Oriented Programming for Observability).
+- Runtime: **.NET 8 LTS** (Backend) and React v18 + Vite (Frontend).
+- Monorepo: Managed via Nx, npm Workspaces (Frontend) and standard .NET SLN.
+- DB: PostgreSQL 16 + Entity Framework Core (EF Core).
+- Key Modules: `apps/api-dotnet` (Pending - .NET Backend Solution), `apps/web` (Frontend React Portal).
 - Pattern: Clean Architecture (Hexagonal), SOLID, Explicit Bounded Contexts.
 
 ## Conventions
 - Adhere to the **bMAD Method** for numerical sequential documentation (Phases 00 to 05).
-- Strictly isolate domain rules from external frameworks (Hexagonal boundaries).
-- Enforce strict TypeScript standards and type safety.
-- Every PR must pass static analysis (SonarJS) and dependency security gates.
+- Strictly isolate Domain rules from external frameworks.
+  - JS/TS: Hexagonal boundaries and strict linting.
+  - C#: `{BoundedContext}.Domain` project must be pure POCOs with zero NuGet references.
+- Utilize the **Result Pattern** instead of throwing application exceptions for domain flow control.
+- Enforce strict TypeScript and C# types with static analysis gates (SonarJS).
 
 ## Agent Rules
 - NEVER delete or bypass existing tests to make a fix pass.

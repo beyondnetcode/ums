@@ -1,17 +1,14 @@
 {
-  "name": "arc-nodejs-workspace",
+  "name": "ums-monorepo-workspace",
   "version": "1.0.0",
-  "description": "Enterprise Monorepo for User Management System (UMS) using NestJS, React, PostgreSQL, and BMAD Method",
+  "description": "Enterprise Monorepo for User Management System (UMS) using .NET, React, PostgreSQL, and BMAD Method",
   "private": true,
   "workspaces": [
-    "apps/api",
-    "apps/web",
-    "libs/aop"
+    "apps/web"
   ],
   "scripts": {
     "dev": "npm run dev --workspaces --if-present",
     "build": "npm run build --workspaces --if-present",
-    "start": "npm run start --workspace=apps/api",
     "lint": "npm run lint --workspaces --if-present",
     "test": "npm run test --workspaces --if-present"
   },
