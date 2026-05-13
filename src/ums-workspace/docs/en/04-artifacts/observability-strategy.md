@@ -1,6 +1,6 @@
-# 📈 End-to-End Distributed Observability & Telemetry Strategy
+﻿# 📈 End-to-End Distributed Observability & Telemetry Strategy
 
-This document details the telemetry architecture, trace propagation, logging standards, and cost-effective monitoring stack for the SCM/UMS platform under the **bMAD Method**.
+This document details the telemetry architecture, trace propagation, logging standards, and cost-effective monitoring stack for the SCM/UMS platform under the **spec-driven AI strategy BMAD-METHOD**.
 
 ---
 

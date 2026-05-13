@@ -1,4 +1,4 @@
-# 📐 Plan de Migración de Stack Backend: NestJS a .NET 8 LTS
+﻿# 📐 Plan de Migración de Stack Backend: NestJS a .NET 8 LTS
 
 **Tipo de Documento:** Plan de Implementación Arquitectónico  
 **Fase bMAD:** Fase 02 - Diseño de Arquitectura  
@@ -9,7 +9,7 @@
 
 ## 💡 1. Contexto Ejecutivo y Justificación
 
-Siguiendo el mandato de alineación arquitectónica corporativa y el **Método bMAD**, estamos ejecutando una realineación crítica de stack para el **Sistema de Gestión de Usuarios (UMS)**.
+Siguiendo el mandato de alineación arquitectónica corporativa y la **estrategia spec-driven AI BMAD-METHOD**, estamos ejecutando una realineación crítica de stack para el **Sistema de Gestión de Usuarios (UMS)**.
 
 El sistema transiciona de su línea base original Node.js/NestJS hacia un stack backend altamente robusto de nivel empresarial en **.NET 8 / C#**. Este movimiento optimiza el compilador de autorización para capacidades de cómputo intensivo, garantiza un tipado estricto y seguridad en tiempo de compilación, y aprovecha los mecanismos avanzados de concurrencia de EF Core, al mismo tiempo que preserva en su totalidad la aplicación frontend **React (Vite)**.
 

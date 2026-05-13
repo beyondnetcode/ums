@@ -1,8 +1,8 @@
-# 🏛️ Progressive Node.js Reference Architecture (Monolith-to-Microservices)
+﻿# 🏛️ Progressive Node.js Reference Architecture (Monolith-to-Microservices)
 
 Welcome to the **Node.js Progressive Architecture Reference**, a blueprints for enterprise-grade solutions built to evolve. This repository serves as the canonical baseline for systems that need to start fast as a **Modular Monolith** but are architected to scale out seamlessly into **Distributed Microservices**.
 
-The solution leverages the **BMAD Method**, enforcing strict **Clean Architecture (Hexagonal)** principles, explicit bounded contexts, and rigorous quality gates. 
+The solution leverages the **spec-driven AI strategy BMAD-METHOD**, enforcing strict **Clean Architecture (Hexagonal)** principles, explicit bounded contexts, and rigorous quality gates. 
 
 > [!IMPORTANT]
 > **Evolutionary Strategy**: This system adopts a **"Monolith-First"** design. By isolating domains within a highly decoupled Nx Monorepo, business domains can later be extracted as standalone Microservices (using Dapr Sidecars, gRPC, or Event-Driven mechanisms) with **zero rewrite** of core business rules.
@@ -17,7 +17,7 @@ The solution leverages the **BMAD Method**, enforcing strict **Clean Architectur
 
 ## 📚 Documentation Index & Navigation Guide
 
-This repository contains extensive technical documentation following the **bMAD Method** and industry standards (C4 Model and Markdown Architectural Decision Records - MADR). Use the following curated guides to navigate the codebase:
+This repository contains extensive technical documentation following the **spec-driven AI strategy BMAD-METHOD** and industry standards (C4 Model and Markdown Architectural Decision Records - MADR). Use the following curated guides to navigate the codebase:
 
 ### 🏛️ bMAD Structure and Taxonomy (Interactive Navigation)
 Click on the phases or files to navigate quickly and directly through the knowledge base:

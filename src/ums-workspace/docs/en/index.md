@@ -1,8 +1,8 @@
-# 🗺️ Master Navigation Map - UMS Knowledge Base
+﻿# 🗺️ Master Navigation Map - UMS Knowledge Base
 
 > 🌍 **Language Selector:** [🇪🇸 Español](../es/index.md) | [🇺🇸 English](./index.md)
 
-Welcome to the master technical documentation for the **User Management System (UMS)**. This knowledge base is structured under the **bMAD Method (numerical sequential phases)** to guarantee maximum discoverability, traceability, and seamless support for both human developers and autonomous AI copilots.
+Welcome to the master technical documentation for the **User Management System (UMS)**. This knowledge base is structured under the **spec-driven AI strategy BMAD-METHOD (numerical sequential phases)** to guarantee maximum discoverability, traceability, and seamless support for both human developers and autonomous AI copilots.
 
 ---
 

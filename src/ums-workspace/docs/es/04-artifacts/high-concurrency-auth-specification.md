@@ -1,8 +1,8 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
+ï»¿> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versiï¿½n original (Inglï¿½s) y estï¿½ programado para traducciï¿½n oficial en la hoja de ruta.
 
 # ğŸ” High-Concurrency Authentication & Authorization Specification (UMS)
 
-This specification defines the enterprise-grade design, API contracts, security controls, and non-functional requirements for the **User Management System (UMS) High-Concurrency Authentication & Authorization API** under the **bMAD Method**.
+This specification defines the enterprise-grade design, API contracts, security controls, and non-functional requirements for the **User Management System (UMS) High-Concurrency Authentication & Authorization API** under the **spec-driven AI strategy BMAD-METHOD**.
 
 ---
 

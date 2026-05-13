@@ -1,8 +1,8 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
+ï»¿> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versiï¿½n original (Inglï¿½s) y estï¿½ programado para traducciï¿½n oficial en la hoja de ruta.
 
 # ğŸ·ï¸ Automated Versioning & Continuous Audit Strategy
 
-To maintain a strict, traceable audit log synchronized with GitHub, the BMAD Method does not rely on manual document drafting. Instead, we leverage the ecosystem we have already built (**Conventional Commits**) combined with the native power of our orchestrator: **Nx Release**.
+To maintain a strict, traceable audit log synchronized with GitHub, the spec-driven AI strategy BMAD-METHOD does not rely on manual document drafting. Instead, we leverage the ecosystem we have already built (**Conventional Commits**) combined with the native power of our orchestrator: **Nx Release**.
 
 ## 1. The Pillar: Conventional Commits
 Since we have already implemented `commitlint`, the repository knows exactly what type of change occurred.

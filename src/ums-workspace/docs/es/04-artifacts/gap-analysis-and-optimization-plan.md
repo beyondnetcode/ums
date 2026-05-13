@@ -1,4 +1,4 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
+ï»¿> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versiï¿½n original (Inglï¿½s) y estï¿½ programado para traducciï¿½n oficial en la hoja de ruta.
 
 # ðŸš€ BMAD Architectural Gap Analysis & Optimization Plan
 
@@ -13,7 +13,7 @@ The current architecture (ADRs 0001 to 0010) already perfectly satisfies the fol
 *   **Resilience (5)**: Achieved via Strict Hexagonal Boundaries (ADR 0002) and SonarQube/ESLint Governance (ADR 0003).
 *   **Modularity (8)**: Achieved via Nx Monorepo, strict dependency rules, and ESLint boundaries (ADR 0001).
 *   **Observability (9)**: Addressed proactively in the backlog via OpenTelemetry and Loki (ADR 0007).
-*   **Technical Governance (14)**: Perfectly executed via the ongoing BMAD Method ADR registry, automated CHANGELOGs, and the new **[Global Engineering Standards Manifesto](./engineering_standards.md)** enforcing SOLID, DRY, KISS, Secure by Design (OWASP), and optional DDD.
+*   **Technical Governance (14)**: Perfectly executed via the ongoing spec-driven AI strategy BMAD-METHOD ADR registry, automated CHANGELOGs, and the new **[Global Engineering Standards Manifesto](./engineering_standards.md)** enforcing SOLID, DRY, KISS, Secure by Design (OWASP), and optional DDD.
 *   **Portability (15 & 16)**: Implicitly achieved via existing Docker containerization.
 
 ---

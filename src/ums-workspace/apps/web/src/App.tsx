@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import {
   Users,
   UserCheck,
@@ -48,7 +48,7 @@ export default function App() {
     }
 
     try {
-      // Let's simulate BMAD Method automation phases for high visual impact!
+      // Let's simulate spec-driven AI strategy BMAD-METHOD automation phases for high visual impact!
       setBmadAgent('analysis');
       await delay(800);
       setBmadAgent('planning');
@@ -177,10 +177,10 @@ export default function App() {
         {/* Dashboard Grid Details */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
-          {/* LEFT: BMAD Method Agent & Automation Status Panel */}
+          {/* LEFT: spec-driven AI strategy BMAD-METHOD Agent & Automation Status Panel */}
           <div className="lg:col-span-4 flex flex-col gap-6">
             
-            {/* BMAD METHOD MONITOR */}
+            {/* spec-driven AI strategy BMAD-METHOD MONITOR */}
             <div className="glass-panel p-6 rounded-3xl shadow-xl border border-slate-200 dark:border-slate-800">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">

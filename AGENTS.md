@@ -1,4 +1,4 @@
-## Project
+﻿## Project
 Enterprise Monorepo for User Management System (UMS). An authorization block prototype capable of working with third-party Identity Providers or operating standalone, using .NET 8 LTS, React, and PostgreSQL.
 
 ## Build & Run
@@ -20,7 +20,7 @@ Commands for Backend (run from within `./src/ums-workspace/apps/api-dotnet/` or 
 - Pattern: Clean Architecture (Hexagonal), SOLID, Explicit Bounded Contexts.
 
 ## Conventions
-- Adhere to the **bMAD Method** for numerical sequential documentation (Phases 00 to 05).
+- Adhere to the **spec-driven AI strategy BMAD-METHOD** for numerical sequential documentation (Phases 00 to 05).
 - Strictly isolate Domain rules from external frameworks.
   - JS/TS: Hexagonal boundaries and strict linting.
   - C#: `{BoundedContext}.Domain` project must be pure POCOs with zero NuGet references.

@@ -1,4 +1,4 @@
-# 🏢 Workspace del Monorepo UMS (`src/ums-workspace/`)
+﻿# 🏢 Workspace del Monorepo UMS (`src/ums-workspace/`)
 
 Bienvenido al workspace central del monorepo del **Sistema de Gestión de Usuarios (UMS)**. Este espacio está orquestado mediante **Nx** y **npm Workspaces** para el frontend, conviviendo junto a la solución backend corporativa en **.NET 8 LTS**.
 
@@ -10,7 +10,7 @@ Bienvenido al workspace central del monorepo del **Sistema de Gestión de Usuari
 
 ## ⚡ 1. Stack Tecnológico Objetivo
 
-Siguiendo el **Método bMAD** corporativo, UMS aplica una segregación estricta entre las capacidades de la interfaz de usuario y un núcleo backend de alto rendimiento:
+Siguiendo la **estrategia spec-driven AI BMAD-METHOD** corporativo, UMS aplica una segregación estricta entre las capacidades de la interfaz de usuario y un núcleo backend de alto rendimiento:
 - **Frontend:** React (v18+, Última Versión Estable), Vite, Zustand, TanStack Query.
 - **Núcleo Backend:** .NET 8 LTS, ASP.NET Core Minimal APIs, MediatR, FluentValidation.
 - **Capa de Datos:** PostgreSQL 16, Entity Framework Core (EF Core vía Npgsql).

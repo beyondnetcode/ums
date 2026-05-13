@@ -1,4 +1,4 @@
-# 🏢 UMS Monorepo Workspace (`src/ums-workspace/`)
+﻿# 🏢 UMS Monorepo Workspace (`src/ums-workspace/`)
 
 Welcome to the core monorepo workspace for the **User Management System (UMS)**. This workspace is orchestrated via **Nx** and **npm Workspaces** for the frontend, residing alongside the C# **.NET 8 LTS** backend solution.
 
@@ -10,7 +10,7 @@ Welcome to the core monorepo workspace for the **User Management System (UMS)**.
 
 ## ⚡ 1. Target Technology Stack
 
-Following the corporate **bMAD Method**, UMS enforces strict segregation between frontend capabilities and a highly-performant backend kernel:
+Following the corporate **spec-driven AI strategy BMAD-METHOD**, UMS enforces strict segregation between frontend capabilities and a highly-performant backend kernel:
 - **Frontend:** React (v18+, Latest Stable), Vite, Zustand, TanStack Query.
 - **Backend Core:** .NET 8 LTS, ASP.NET Core Minimal APIs, MediatR, FluentValidation.
 - **Data Layer:** PostgreSQL 16, Entity Framework Core (EF Core via Npgsql).

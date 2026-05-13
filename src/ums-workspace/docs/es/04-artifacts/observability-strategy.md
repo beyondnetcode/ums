@@ -1,8 +1,8 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
+ï»¿> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versiï¿½n original (Inglï¿½s) y estï¿½ programado para traducciï¿½n oficial en la hoja de ruta.
 
 # ðŸ“ˆ End-to-End Distributed Observability & Telemetry Strategy
 
-This document details the telemetry architecture, trace propagation, logging standards, and cost-effective monitoring stack for the SCM/UMS platform under the **bMAD Method**.
+This document details the telemetry architecture, trace propagation, logging standards, and cost-effective monitoring stack for the SCM/UMS platform under the **spec-driven AI strategy BMAD-METHOD**.
 
 ---
 

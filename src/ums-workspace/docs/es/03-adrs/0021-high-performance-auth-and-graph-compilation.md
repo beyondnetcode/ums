@@ -1,4 +1,4 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
+ï»¿> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versiï¿½n original (Inglï¿½s) y estï¿½ programado para traducciï¿½n oficial en la hoja de ruta.
 
 # ADR 0021: High-Performance Authentication and Authorization Graph Compilation
 
@@ -8,7 +8,7 @@ Accepted
 ## Context
 In a federated B2B SaaS ecosystem, user login is the highest-concurrency entry point. Generating complex dynamic role-resolution trees and querying PostgreSQL relational tables on every HTTP request to build custom menus and permission structures is highly resource-intensive, resulting in high database load and poor latency profiles.
 
-Under the **bMAD Method**, all high-concurrency gateways must be stateless, horizontally scalable, and optimized for sub-millisecond response profiles.
+Under the **spec-driven AI strategy BMAD-METHOD**, all high-concurrency gateways must be stateless, horizontally scalable, and optimized for sub-millisecond response profiles.
 
 ## Decision
 We will expose a unified, stateless `/api/v1/auth/login` endpoint that abstracts internal/external identity providers (using the Strategy Pattern) and returns a pre-compiled, Redis-cached **Hierarchical Authorization Graph** mapping:

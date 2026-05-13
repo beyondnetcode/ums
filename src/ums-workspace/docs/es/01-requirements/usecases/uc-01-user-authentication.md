@@ -1,8 +1,8 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
+ï»¿> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versiï¿½n original (Inglï¿½s) y estï¿½ programado para traducciï¿½n oficial en la hoja de ruta.
 
 # ðŸ§ª Use Case 1: User Authentication via External IdP
 
-This document specifies the transaction flow, actors, and fallback strategies for authenticating a corporate user against an external identity provider (IdP) under the **bMAD Method**.
+This document specifies the transaction flow, actors, and fallback strategies for authenticating a corporate user against an external identity provider (IdP) under the **spec-driven AI strategy BMAD-METHOD**.
 
 ---
 

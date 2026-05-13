@@ -1,4 +1,4 @@
-# 📐 Modern Enterprise MFA & Passwordless Authentication Specification (v3.1.0)
+﻿# 📐 Modern Enterprise MFA & Passwordless Authentication Specification (v3.1.0)
 
 **Version:** 3.1.0 | **Status:** Under Review | **Method:** bMAD  
 **Classification:** Core Security Capability — Cross-Cutting Identity Boundary
@@ -368,7 +368,7 @@ Scenario: Modifying route planning cost triggers step-up verification
 
 ## 🏁 6. Architectural Verification & Compliance Status
 
-This specification has been thoroughly reviewed against the **bMAD Method** and is declared **FULLY COMPLIANT**:
+This specification has been thoroughly reviewed against the **spec-driven AI strategy BMAD-METHOD** and is declared **FULLY COMPLIANT**:
 
 1.  **Traceable Business Needs**: Verified. The OKRs defined in Section 1 map directly to the technical capabilities, user stories, and non-functional requirements.
 2.  **Structural Consistency**: Verified. The Hexagonal Architecture ports (`IMfaPort`, `IWebAuthnPort`) decouple the domain core from infrastructure gateways (Twilio, FIDO2 controllers), guaranteeing no vendor lock-in.

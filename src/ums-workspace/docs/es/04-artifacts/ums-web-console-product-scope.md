@@ -1,8 +1,8 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
+ï»¿> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versiï¿½n original (Inglï¿½s) y estï¿½ programado para traducciï¿½n oficial en la hoja de ruta.
 
 # ðŸ’» UMS Administrative Web Console - Product & Functional Specification
 
-This specification details the product vision, module breakdowns, user roles, and UI/UX architecture for the **UMS Administrative Web Console**, serving as the primary **Policy Administration Point (PAP)** and **Policy Information Point (PIP) Monitor** under the **bMAD Method**.
+This specification details the product vision, module breakdowns, user roles, and UI/UX architecture for the **UMS Administrative Web Console**, serving as the primary **Policy Administration Point (PAP)** and **Policy Information Point (PIP) Monitor** under the **spec-driven AI strategy BMAD-METHOD**.
 
 ---
 

@@ -1,6 +1,6 @@
-# 💾 Conceptual Data Model
+﻿# 💾 Conceptual Data Model
 
-This document details the database schema, entity structures, relationships, and Entity-Relationship diagrams for the **User Management System (UMS)** under the **bMAD Method**.
+This document details the database schema, entity structures, relationships, and Entity-Relationship diagrams for the **User Management System (UMS)** under the **spec-driven AI strategy BMAD-METHOD**.
 
 ---
 

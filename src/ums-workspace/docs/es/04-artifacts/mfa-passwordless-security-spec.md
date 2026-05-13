@@ -1,4 +1,4 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
+ï»¿> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versiï¿½n original (Inglï¿½s) y estï¿½ programado para traducciï¿½n oficial en la hoja de ruta.
 
 # ğŸ“ Modern Enterprise MFA & Passwordless Authentication Specification (v3.1.0)
 
@@ -370,7 +370,7 @@ Scenario: Modifying route planning cost triggers step-up verification
 
 ## ğŸ 6. Architectural Verification & Compliance Status
 
-This specification has been thoroughly reviewed against the **bMAD Method** and is declared **FULLY COMPLIANT**:
+This specification has been thoroughly reviewed against the **spec-driven AI strategy BMAD-METHOD** and is declared **FULLY COMPLIANT**:
 
 1.  **Traceable Business Needs**: Verified. The OKRs defined in Section 1 map directly to the technical capabilities, user stories, and non-functional requirements.
 2.  **Structural Consistency**: Verified. The Hexagonal Architecture ports (`IMfaPort`, `IWebAuthnPort`) decouple the domain core from infrastructure gateways (Twilio, FIDO2 controllers), guaranteeing no vendor lock-in.

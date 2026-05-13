@@ -1,4 +1,4 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
+ï»¿> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versiï¿½n original (Inglï¿½s) y estï¿½ programado para traducciï¿½n oficial en la hoja de ruta.
 
 # ADR 0023: Centralized UMS Core vs Decentralized Access Control
 
@@ -8,7 +8,7 @@ Accepted
 ## Context
 SaaS enterprise platforms (SCM, ERP, etc.) suffer from fragmented identity directories and siloed access control logic. Hardcoding roles and permission checks inside individual applications leads to severe security vulnerabilities, administrative overhead, and poor auditability.
 
-Under the **bMAD Method**, all critical platform capabilities must remain highly decoupled, extensible, and future-proof.
+Under the **spec-driven AI strategy BMAD-METHOD**, all critical platform capabilities must remain highly decoupled, extensible, and future-proof.
 
 ## Decision
 We will establish a **Centralized User Management System (UMS) Core** to act as a shared, highly extensible "authorization kernel" across all enterprise portals. 

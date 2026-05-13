@@ -1,4 +1,4 @@
-# 🗺️ Índice Maestro Global (Punto de Entrada de UMS)
+﻿# 🗺️ Índice Maestro Global (Punto de Entrada de UMS)
 
 > 🌍 **Navegación Bilingüe:** [🇺🇸 English Version (Master Index)](./MASTER_INDEX.md) | [🇪🇸 Versión en Español](./MASTER_INDEX.es.md)
 
@@ -32,7 +32,7 @@ Todos los contribuyentes del ecosistema—sin importar su antigüedad—DEBEN ad
 
 ## 🏛️ 3. Estructura y Taxonomía bMAD (Navegación por Fases)
 
-La documentación de este repositorio sigue el **Método bMAD** (fases secuenciales numéricas). Haz clic en las referencias para navegar a través de la base de conocimiento:
+La documentación de este repositorio sigue la **estrategia spec-driven AI BMAD-METHOD** (fases secuenciales numéricas). Haz clic en las referencias para navegar a través de la base de conocimiento:
 
 ### 🎯 **[Fase 00 - Visión de Producto](./src/ums-workspace/docs/es/00-product/)**
 *   [Visión de Producto](./src/ums-workspace/docs/es/00-product/product-vision.md) | [Contexto de Negocio](./src/ums-workspace/docs/es/00-product/business-context.md) | [Alcance y Límites](./src/ums-workspace/docs/es/00-product/scope.md) | [Objetivos Estratégicos (OKRs)](./src/ums-workspace/docs/es/00-product/objectives.md) | [Mapa de Stakeholders](./src/ums-workspace/docs/es/00-product/stakeholders.md)

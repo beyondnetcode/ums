@@ -1,7 +1,7 @@
-{
+﻿{
   "$schema": "https://context7.com/schema/context7.json",
   "projectTitle": "User Management System (UMS) - Enterprise Monorepo",
-  "description": "Enterprise-grade User Management System implementing Clean Architecture (Hexagonal) and SOLID principles in .NET 8 LTS and React following the corporate bMAD Method.",
+  "description": "Enterprise-grade User Management System implementing Clean Architecture (Hexagonal) and SOLID principles in .NET 8 LTS and React following the corporate spec-driven AI strategy BMAD-METHOD.",
   "folders": [
     "src/ums-workspace/docs",
     "src/ums-workspace/apps"

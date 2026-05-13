@@ -1,4 +1,4 @@
-# ADR 0022: Contextual Authentication and Pluggable Output Projections
+﻿# ADR 0022: Contextual Authentication and Pluggable Output Projections
 
 ## Status
 Accepted
@@ -6,7 +6,7 @@ Accepted
 ## Context
 SaaS platforms require both robust external/internal identity verification and fine-grained, context-aware authorization (incorporating corporate branch contexts). Hardcoding permission models or forcing a single token output format limits integration with diverse microservices and high-fidelity frontends.
 
-Under the **bMAD Method**, all high-concurrency systems must remain decoupled, highly extensible, and future-proof.
+Under the **spec-driven AI strategy BMAD-METHOD**, all high-concurrency systems must remain decoupled, highly extensible, and future-proof.
 
 ## Decision
 We will establish a centralized UMS Core capable of decoupling identity validation from hierarchical authorization graph compilation. 

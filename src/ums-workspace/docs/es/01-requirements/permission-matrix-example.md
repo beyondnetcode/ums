@@ -1,8 +1,8 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
+ï»¿> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versiï¿½n original (Inglï¿½s) y estï¿½ programado para traducciï¿½n oficial en la hoja de ruta.
 
 # ðŸ“Š Permission Matrix Example (Artifact 4)
 
-This document presents a practical demonstration of how the **ULPMS Resolution Engine** compiles conflicting and multi-profile permissions for a single corporate user under the **bMAD Method**.
+This document presents a practical demonstration of how the **ULPMS Resolution Engine** compiles conflicting and multi-profile permissions for a single corporate user under the **spec-driven AI strategy BMAD-METHOD**.
 
 ---
 

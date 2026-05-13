@@ -1,8 +1,8 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
+ï»¿> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versiï¿½n original (Inglï¿½s) y estï¿½ programado para traducciï¿½n oficial en la hoja de ruta.
 
 # ðŸ§ª Integration Contract Testing Plan (Pact Specification)
 
-This document establishes the strategic plan and continuous integration guidelines for **Consumer-Driven Contract Testing** across SCM/UMS domains under the **bMAD Method**.
+This document establishes the strategic plan and continuous integration guidelines for **Consumer-Driven Contract Testing** across SCM/UMS domains under the **spec-driven AI strategy BMAD-METHOD**.
 
 ---
 

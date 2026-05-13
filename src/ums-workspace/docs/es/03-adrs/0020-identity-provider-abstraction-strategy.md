@@ -1,4 +1,4 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
+ï»¿> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versiï¿½n original (Inglï¿½s) y estï¿½ programado para traducciï¿½n oficial en la hoja de ruta.
 
 # ADR 0020: Identity Provider Abstraction Strategy
 
@@ -8,7 +8,7 @@ Accepted
 ## Context
 Traditional enterprise systems tightly couple their authentication flows to a specific proprietary Identity Provider (IdP) SDK (e.g., Zitadel, AWS Cognito, Okta), leading to high migration costs, severe vendor lock-in, and the inability to cater to enterprise B2B clients demanding SAML/OIDC SSO federation or air-gapped standalone environments requiring internal username/password authentication.
 
-Under the **bMAD Method**, all critical platform capabilities must remain highly decoupled, extensible, and future-proof.
+Under the **spec-driven AI strategy BMAD-METHOD**, all critical platform capabilities must remain highly decoupled, extensible, and future-proof.
 
 ## Decision
 We will decouple authentication from the core authorization domain using the **Strategy Pattern** wrapped behind a clean Hexagonal Port (`IAuthenticationPort`). While Zitadel remains the default external reference implementation, the platform core is entirely agnostic of the physical identity provider.

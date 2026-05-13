@@ -1,8 +1,8 @@
-# 🗺️ Mapa de Navegación Maestro - Base de Conocimiento de UMS
+﻿# 🗺️ Mapa de Navegación Maestro - Base de Conocimiento de UMS
 
 > 🌍 **Selector de Idioma:** [🇪🇸 Español](./index.md) | [🇺🇸 English](../en/index.md)
 
-Bienvenido a la documentación técnica maestra del **Sistema de Gestión de Usuarios (UMS)**. Esta base de conocimiento está estructurada bajo el **Método bMAD (fases secuenciales numéricas)** para garantizar la máxima descubribilidad, trazabilidad y soporte continuo tanto para desarrolladores humanos como para copilotos de IA autónomos.
+Bienvenido a la documentación técnica maestra del **Sistema de Gestión de Usuarios (UMS)**. Esta base de conocimiento está estructurada bajo el **estrategia spec-driven AI BMAD-METHOD (fases secuenciales numéricas)** para garantizar la máxima descubribilidad, trazabilidad y soporte continuo tanto para desarrolladores humanos como para copilotos de IA autónomos.
 
 ---
 

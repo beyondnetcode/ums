@@ -1,8 +1,8 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
+ï»¿> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versiï¿½n original (Inglï¿½s) y estï¿½ programado para traducciï¿½n oficial en la hoja de ruta.
 
 # ðŸ§ª Use Case 2: Build User Authorization Graph
 
-This document specifies the transaction flow, actors, and caching strategies for compiling the dynamic graph of allowed actions and resources for an authenticated session under the **bMAD Method**.
+This document specifies the transaction flow, actors, and caching strategies for compiling the dynamic graph of allowed actions and resources for an authenticated session under the **spec-driven AI strategy BMAD-METHOD**.
 
 ---
 

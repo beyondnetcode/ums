@@ -1,4 +1,4 @@
-# 🏛️ Software Architecture Design Document (UMS)
+﻿# 🏛️ Software Architecture Design Document (UMS)
 
 This document details the formal system design specification for the **`arc-nodejs-workspace`** monorepo. It adopts the **C4 Model** software modeling standard (Level 1: System Context, Level 2: Containers, Level 3: Components) and presents the unified and audited technical inventory of the project.
 
@@ -189,7 +189,7 @@ This inventory details all tools, libraries, plugins, and components per workspa
 
 ## 🧠 4. Architectural Decision Matrix
 
-This matrix maps foundational technical decisions to their targeted Quality Attributes, summarizing the architectural strategy and enforcement mechanisms to ensure a verifiable and sustainable system under the **bMAD Method**:
+This matrix maps foundational technical decisions to their targeted Quality Attributes, summarizing the architectural strategy and enforcement mechanisms to ensure a verifiable and sustainable system under the **spec-driven AI strategy BMAD-METHOD**:
 
 | Decision / Focus | ADR Reference | Primary Quality Attributes | Decision Summary & Technical Strategy | Enforcement & Verification Mechanism |
 | :--- | :--- | :--- | :--- | :--- |

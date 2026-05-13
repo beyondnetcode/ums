@@ -1,4 +1,4 @@
-# 🏛️ User Management System (UMS) - Enterprise Reference Monorepo
+﻿# 🏛️ User Management System (UMS) - Enterprise Reference Monorepo
 
 > 🌍 **Language Selector:** [🇺🇸 English](./README.md) | [🇪🇸 Español](./README.es.md)
 
@@ -8,7 +8,7 @@
 
 Welcome to the **User Management System (UMS)**, an enterprise-grade, highly resilient modular monolith engineered to manage corporate identities, access control, and user lifecycles. 
 
-This solution is a .NET 8 LTS implementation that serves as a concrete instance of the [Unified Corporate Polyglot Reference Architecture](https://github.com/beyondnetcode/arc32_progresive_monolith). UMS implements a "Monolith-First" evolutionary design using the **BMAD Method**, allowing business domains to be extracted as independent microservices in the future (using Dapr, gRPC, or event-driven architectures) with zero rewrite of core domain rules.
+This solution is a .NET 8 LTS implementation that serves as a concrete instance of the [Unified Corporate Polyglot Reference Architecture](https://github.com/beyondnetcode/arc32_progresive_monolith). UMS implements a "Monolith-First" evolutionary design using the **spec-driven AI strategy BMAD-METHOD**, allowing business domains to be extracted as independent microservices in the future (using Dapr, gRPC, or event-driven architectures) with zero rewrite of core domain rules.
 
 ### 🎯 Primary Objectives:
 *   **Strict Decoupling & Clean Architecture:** Domain-driven design using Hexagonal (Ports & Adapters) principles to ensure absolute framework independence.
