@@ -24,18 +24,25 @@ sequenceDiagram
     participant App as App Cliente
     participant HostedLogin as Portal UMS Login
     participant ConfigAPI as Servicio de Configuración
-    participant IdP as Proveedor IdP (Nativo/Ext)
+    participant IdP as Proveedor IdP (SSO/External)
+    participant DB as DB Interna PostgreSQL (Bcrypt)
 
     User->>App: Clic botón "Iniciar Sesión"
     App->>HostedLogin: Redirige /oauth/v2/authorize?client_id={sys_id}&tenant_id={t_id}&redirect_uri={cb}
     HostedLogin->>ConfigAPI: Solicitar branding activo y config de sistema
     ConfigAPI-->>HostedLogin: Retornar metadata de branding
     HostedLogin->>HostedLogin: Renderizar CSS y Logo (Compilación HTML dinámica)
-    HostedLogin-->>User: Presentar Login Personalizado (Mostrando opciones IdP)
+    HostedLogin-->>User: Presentar Login Personalizado (Mostrando opciones)
     
-    User->>HostedLogin: Envía credenciales o selecciona opción SSO
-    HostedLogin->>IdP: Delegar verificación (ej., Okta/Zitadel o DB nativa)
-    IdP-->>HostedLogin: Éxito en verificación y detalles del usuario
+    alt Autenticación Externa (IDP / SSO)
+        User->>HostedLogin: Selecciona opción SSO (ej., Entra ID)
+        HostedLogin->>IdP: Delegar verificación
+        IdP-->>HostedLogin: Éxito en verificación y claims del usuario
+    else Autenticación Interna (Credenciales Nativas)
+        User->>HostedLogin: Ingresa Usuario y Contraseña Local
+        HostedLogin->>DB: Validar hash Bcrypt
+        DB-->>HostedLogin: Confirmación de credenciales válidas
+    end
     
     HostedLogin->>HostedLogin: Generar JWT firmado con contextos del tenant
     HostedLogin-->>User: Redirección 302 hacia redirect_uri?code={auth_code}

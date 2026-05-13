@@ -1,4 +1,4 @@
-﻿# 🧪 Use Case 10: Authenticate via Customizable Hosted Login Page
+# 🧪 Use Case 10: Authenticate via Customizable Hosted Login Page
 
 This use case details the flow for centralizing user authentication through a secure, UMS-hosted login page that dynamically adapts its branding and layouts per tenant and system.
 
@@ -24,18 +24,25 @@ sequenceDiagram
     participant App as Downstream Client App
     participant HostedLogin as UMS Hosted Login Portal
     participant ConfigAPI as Configuration Service
-    participant IdP as Identity Provider (Native or Ext)
+    participant IdP as Identity Provider (SSO/External)
+    participant DB as Internal PostgreSQL DB (Bcrypt)
 
     User->>App: Clicks "Login" button
     App->>HostedLogin: Redirects to /oauth/v2/authorize?client_id={sys_id}&tenant_id={t_id}&redirect_uri={cb}
-    HostedLogin->>ConfigAPI: Fetch active branding & system configs (Logo, primary_color, custom_css)
+    HostedLogin->>ConfigAPI: Fetch active branding & system configs
     ConfigAPI-->>HostedLogin: Return branding metadata
-    HostedLogin->>HostedLogin: Render customized CSS & Logo (Dynamic HTML compilation)
-    HostedLogin-->>User: Present Custom Login Page (Showing configured IdP options)
+    HostedLogin->>HostedLogin: Render customized CSS & Logo
+    HostedLogin-->>User: Present Custom Login Page (Showing options)
     
-    User->>HostedLogin: Submits credentials or selects SSO option
-    HostedLogin->>IdP: Delegate verification (e.g., Okta/Zitadel or UMS internal DB)
-    IdP-->>HostedLogin: Verification success & user details
+    alt External Authentication (IDP / SSO)
+        User->>HostedLogin: Selects SSO option (e.g., Entra ID)
+        HostedLogin->>IdP: Delegate verification
+        IdP-->>HostedLogin: Verification success & user claims
+    else Internal Authentication (Native Credentials)
+        User->>HostedLogin: Enters Local Username & Password
+        HostedLogin->>DB: Validate Bcrypt hash
+        DB-->>HostedLogin: Valid credentials confirmation
+    end
     
     HostedLogin->>HostedLogin: Mint standard, signed JWT with tenant contexts
     HostedLogin-->>User: Redirect 302 back to redirect_uri?code={auth_code}

@@ -1,4 +1,4 @@
-﻿> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versi�n original (Ingl�s) y est� programado para traducci�n oficial en la hoja de ruta.
+> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versi�n original (Ingl�s) y est� programado para traducci�n oficial en la hoja de ruta.
 
 # 🏛️ Software Architecture Design Document (UMS)
 
@@ -43,17 +43,25 @@ Defines the boundary of the User Management System (UMS) interacting with corpor
 ```mermaid
 graph TD
     User["Multi-Tenant Users (Tenant Staff)"]
+    ExternalUser["B2B External Users (Clients/Suppliers)"]
+    Sponsor["Sponsor User (Internal Approver)"]
     Admin["Global Admin / Tenant Admin / SRE"]
     UMS["UMS Authorization & Config Core"]
     UMSConsole["UMS Admin Web Console (PAP)"]
     ExternalAuth["External Identity Service (OAuth / Tenant IdP)"]
+    InternalAuth["Internal Credential DB (Native Login)"]
     ExternalFlags["Feature Flag Providers (LaunchDarkly/Unleash)"]
     Downstream["Downstream SaaS Services (SCM, TMS, WMS, etc.)"]
 
     User -->|Logs in via Auth Gateway| UMS
+    ExternalUser -->|Submits Access Request| UMS
+    Sponsor -->|Approves External Request (UC-12)| UMSConsole
     Admin -->|Manages profiles, configs, flags| UMSConsole
     UMSConsole -->|Calls Auth & Config APIs| UMS
-    UMS -->|Verifies credentials per Tenant| ExternalAuth
+    
+    UMS -->|Branch A: Federated Auth| ExternalAuth
+    UMS -->|Branch B: Local Native Auth| InternalAuth
+    
     UMS -->|Evaluates Flags via Adapters| ExternalFlags
     UMS -->|Injects Auth Graph & Config State| Downstream
 ```
@@ -72,15 +80,15 @@ graph TD
     end
 
     subgraph Gateways["BFF Gateways"]
-        WebBFF["Web BFF Gateway (NestJS)"]
+        WebBFF["Web BFF Gateway (.NET 8)"]
         MobileBFF["Mobile BFF Gateway (Payload Optimizer)"]
     end
 
     subgraph Server["Application Services (Tenant Isolated)"]
-        NestAPI["UMS Core (Auth, Identity, Profiles)"]
+        BackendAPI["UMS Core (.NET 8 Auth, Identity, Profiles)"]
         ConfigAPI["Config & Feature Flag Module"]
         PostgresDB["PostgreSQL 16 Database (Shared Schema + RLS)"]
-        AuditDB["Audit Ledger (Isolated Read-Only Table)"]
+        AuditDB["Audit Ledger & Access Requests (UC-12)"]
         RedisCache["Redis Cluster (Auth Graph + Cfg + Flags)"]
     end
 
@@ -92,16 +100,19 @@ graph TD
     ReactApp -->|1. HTTPS / JWT + Tenant Header| WebBFF
     AdminApp -->|1. HTTPS / JWT + SuperAdmin Token| WebBFF
     MobileApp -->|1. HTTPS / Optimized Payload| MobileBFF
-    WebBFF -->|2. Internal TCP / gRPC| NestAPI
+    WebBFF -->|2. Internal TCP / gRPC| BackendAPI
     WebBFF -->|2. Internal TCP / gRPC| ConfigAPI
-    MobileBFF -->|2. Internal TCP / gRPC| NestAPI
-    NestAPI -->|3. Sets LOCAL tenant context via RLS| PostgresDB
+    MobileBFF -->|2. Internal TCP / gRPC| BackendAPI
+    BackendAPI -->|3. Sets LOCAL tenant context via RLS| PostgresDB
     ConfigAPI -->|3. Sets LOCAL tenant context via RLS| PostgresDB
-    NestAPI -->|4. Read-Aside cache lookup| RedisCache
+    BackendAPI -->|4. Read-Aside cache lookup| RedisCache
     ConfigAPI -->|4. Read/Write config & flags| RedisCache
-    NestAPI -->|5. Delegates identity verification| ExternalIdP
-    ConfigAPI -->|5. Pluggable Flag Eval via IFeatureFlagPort| ExternalProviders
-    NestAPI -->|6. Streams mutation events| AuditDB
+    
+    BackendAPI -->|5a. [IDP Auth Branch] Verifies Token| ExternalIdP
+    BackendAPI -->|5b. [Internal Auth Branch] Bcrypt check| PostgresDB
+    
+    ConfigAPI -->|5c. Pluggable Flag Eval via IFeatureFlagPort| ExternalProviders
+    BackendAPI -->|6. Streams mutation events & Request Approvals| AuditDB
     ConfigAPI -->|6. Streams config events| AuditDB
 ```
 
