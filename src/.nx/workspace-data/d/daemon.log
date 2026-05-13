@@ -634,3 +634,4 @@ Time taken for 'build typescript dependencies' 8.784099999815226ms
 [NX v22.7.1 Daemon Server] - 2026-05-13T21:24:37.253Z - Done responding to the client project-graph
 [NX v22.7.1 Daemon Server] - 2026-05-13T21:24:37.253Z - Handled json message REQUEST_PROJECT_GRAPH. Handling time: 0. Response time: 1.
 [NX v22.7.1 Daemon Client] - 2026-05-13T21:24:37.251Z - [Messenger] Received message, length: 239650
+[NX v22.7.1 Daemon Server] - 2026-05-13T21:24:37.644Z - Closed a connection. Number of open connections: 0

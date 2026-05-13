@@ -1,32 +1,40 @@
-﻿# UMS Monorepo Workspace
+# UMS — Enterprise User Management System
 
-> **Language:** [English](./README.md) | [Espanol](./README.es.md)
+> **High-scale Modular Monolith for Unified Identity & Authorization.**
+>
+> ![Status](https://img.shields.io/badge/Status-Active-success) ![Arch](https://img.shields.io/badge/Architecture-Modular_Monolith-blue) ![Engine](https://img.shields.io/badge/Engine-.NET_8_/_React-informational)
 
-Nx workspace for the User Management System -- .NET 8 backend and React frontend.
+---
 
-## Tech Stack
+### 🚀 Navigation Hub
+Explore the repository layers:
 
-- **Frontend:** React 18 / Vite / Zustand / TanStack Query
-- **Backend:** .NET 8 LTS / ASP.NET Core / MediatR / FluentValidation
-- **Data:** PostgreSQL 16 / EF Core (Npgsql)
-- **Tooling:** Nx / npm Workspaces / CSharpier / ESLint / CodeQL
+- [⚖️ **Governance**](./governance/) — Vision, Roadmap & Requirements.
+- [🏗️ **Architecture**](./architecture/) — ADRs, Blueprints & C4 Models.
+- [🛠️ **Infrastructure**](./infrastructure/) — Docker, K8s & Gateway.
+- [🚀 **Operations**](./operations/) — Observability & Monitoring.
+- [🎓 **Knowledge**](./knowledge/) — Onboarding & POCs.
+- [💻 **Source Code**](./src/) — The Engine Room (Apps & Libs).
 
-## Quick Start
+---
 
-### Frontend
-```bash
-npm install
-npx nx run apps-web:dev
+### 🏛️ Technical DNA
+- **Patterns**: Modular Monolith, DDD, Clean Architecture, Hexagonal.
+- **Backend**: .NET 8 LTS (Result Pattern, MediatR).
+- **Frontend**: React 18 + Vite (State Management with Zustand).
+- **Security**: Row-Level Security (RLS) + OAuth2/OIDC.
+
+### 🚦 Quick Start
+```powershell
+# 1. Enter the Engine Room
+cd src
+
+# 2. Install & Start Frontend
+npm install; npx nx run app-web:dev
+
+# 3. Build Backend
+dotnet build ./apps/app-api-dotnet/Ums.sln
 ```
 
-### Backend (from apps/api-dotnet/)
-```bash
-dotnet build
-dotnet test
-dotnet run --project Ums.Presentation
-```
-
-## Documentation
-
-- [English Knowledge Base](./docs/en/index.md)
-- [Base de Conocimientos en Espanol](./docs/es/index.md)
+### ⚖️ Engineering Governance
+Detailed technical navigation is available in the [**Master Index**](./MASTER_INDEX.md). This project follows the **BMAD-METHOD** for AI-augmented documentation traceability.

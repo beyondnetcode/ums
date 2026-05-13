@@ -2,7 +2,7 @@
 
 > **Language:** [English](./MASTER_INDEX.md) | [Espanol](./MASTER_INDEX.es.md)
 
-Phase-based navigation for the User Management System (UMS) documentation.
+Product Lifecycle and Engineering Specifications for the User Management System (UMS).
 
 ---
 

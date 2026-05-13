@@ -24,11 +24,12 @@ Commands for Backend (run from within `./src/apps/app-api-dotnet/` or root solut
 - Pattern: Clean Architecture (Hexagonal), SOLID, Explicit Bounded Contexts.
 
 ## Conventions
-- Adhere to the **spec-driven AI strategy BMAD-METHOD** for numerical sequential documentation (Phases 00 to 05).
-- Strictly isolate Domain rules from external frameworks.
+- **Engineering Patterns**: Adhere to **Clean Architecture** (Hexagonal), **SOLID** principles, and strict **DDD** bounded contexts.
+- **AI-Driven Strategy**: Utilize the **BMAD-METHOD** for spec-driven development and numerical sequential documentation (Phases 00 to 05).
+- **Domain Purity**: Strictly isolate Domain rules from external frameworks.
   - JS/TS: Hexagonal boundaries and strict linting.
   - C#: `{BoundedContext}.Domain` project must be pure POCOs with zero NuGet references.
-- Utilize the **Result Pattern** instead of throwing application exceptions for domain flow control.
+- **Flow Control**: Utilize the **Result Pattern** instead of throwing application exceptions for domain flow control.
 - Enforce strict TypeScript and C# types with static analysis gates (SonarJS).
 
 ## Agent Rules
