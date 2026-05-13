@@ -10,42 +10,27 @@ import sys
 
 # Define replacements map for common Windows double-encoding (mojibake) artifacts
 REPLACEMENTS = {
-    "ÃƒÂ³": "ó",
-    "ÃƒÂ¡": "á",
-    "ÃƒÂ©": "é",
-    "ÃƒÂ­": "í",
-    "ÃƒÂº": "ú",
-    "ÃƒÂ±": "ñ",
-    "Ãƒâ€œ": "Ó",
-    "Ãƒâ€˜": "Ñ",
-    "Ãƒâ€°": "É",
-    "ÃƒÂ": "á",
-    "Ãƒï¿½": "Á",
-    "ÃƒÅ¡": "Ú",
-    "Ã³": "ó",
-    "Ã¡": "á",
-    "Ã©": "é",
-    "Ã­": "í",
-    "Ãº": "ú",
-    "Ã±": "ñ",
-    "Ã“": "Ó",
-    "Ã‘": "Ñ",
-    "Ã‰": "É",
-    "Ã°Å¸â€œÅ“": "📜",
-    "Ã°Å¸â€œâ€ž": "📄",
+    "Ã³": "ó", "Ã¡": "á", "Ã©": "é", "Ã­": "í", "Ãº": "ú", "Ã±": "ñ",
+    "Ã“": "Ó", "Ã‘": "Ñ", "Ã‰": "É", "Ã€": "À",
+    "â†’": "→", "â‡’": "⇒",
+    "Ã°Å¸Â§Âª": "🧪",
+    "Ã°Å¸Â â€ºÃ¯Â¸Â": "📑",
+    "Ã°Å¸â€œÂ": "🔄",
     "Ã°Å¸â€ºÂ¡Ã¯Â¸Â": "🛡️",
-    "Ã°Å¸Â â€ºÃ¯Â¸Â": "🏛️",
-    "Ã°Å¸Å¸Â¢": "🟢",
-    "Ã°Å¸Å¸Â¡": "🟡",
-    "Ã°Å¸â€ Â´": "🔴",
-    "Ã°Å¸â€ºÂ Ã¯Â¸Â": "🛠️",
-    "Ã°Å¸â€œË†": "📈",
-    "Ã°Å¸â€œ": "📜",
-    "Ã°Å¸â": "🛠️",
-    "â€œ": "“",
-    "â€": "”",
-    "â€™": "'"
+    "â€œ": "“", "â€": "”", "â€™": "'"
 }
+
+def fix_mojibake(text):
+    # Try to fix double encoding: text was encoded as utf-8, then misread as latin-1, then encoded as utf-8 again
+    try:
+        # If the text contains characters that look like mojibake
+        if any(c in text for c in "ÃÂâ"):
+            # This is a common trick to reverse double encoding
+            fixed = text.encode('latin-1').decode('utf-8')
+            return fixed
+    except:
+        pass
+    return text
 
 def scan_and_repair(root_dir):
     print(f"[*] Starting recursive scan for Markdown encoding artifacts in: {root_dir}")
@@ -53,7 +38,6 @@ def scan_and_repair(root_dir):
     scanned_count = 0
 
     for root, dirs, files in os.walk(root_dir):
-        # Skip version control and dependency folders
         if any(skip in root for skip in [".git", "node_modules", "bin", "obj"]):
             continue
             
@@ -63,19 +47,20 @@ def scan_and_repair(root_dir):
                 file_path = os.path.join(root, file)
                 
                 try:
-                    with open(file_path, "rb") as f:
-                        content_bytes = f.read()
+                    # First read as UTF-8
+                    with open(file_path, "r", encoding="utf-8", errors="replace") as f:
+                        text = f.read()
                     
-                    # Attempt to decode as standard UTF-8
-                    text = content_bytes.decode("utf-8", errors="replace")
                     original_text = text
                     
-                    # Perform replacements for known patterns
+                    # 1. Apply dynamic fix for double encoding
+                    text = fix_mojibake(text)
+                    
+                    # 2. Apply static replacements for specific artifacts
                     for corrupted, restored in REPLACEMENTS.items():
                         text = text.replace(corrupted, restored)
                     
                     if text != original_text:
-                        # Save back as clean UTF-8 without BOM
                         with open(file_path, "w", encoding="utf-8", newline="\n") as f:
                             f.write(text)
                         print(f"[+] Repaired: {file_path}")

@@ -21,7 +21,7 @@ To align development with enterprise outcomes, UMS tracks these measurable indic
     *   *KR 2.2*: Keep TypeORM-level PostgreSQL Row-Level Security (RLS) overhead **below 5ms** per query.
 *   **Objective 3: Zero-Deployment Agility**
     *   *KR 3.1*: Swap or configure external Identity Providers (Zitadel, Okta, Azure AD) or Feature Flag systems **without deploying code or restarting services**.
-    *   *KR 3.2*: Support **deep-merge hierarchical overrides** (Global Default â†’ Tenant â†’ System â†’ Branch â†’ Env) resolved at runtime with immediate propagation.
+    *   *KR 3.2*: Support **deep-merge hierarchical overrides** (Global Default → Tenant → System → Branch → Env) resolved at runtime with immediate propagation.
 
 ### 1.3 MVP vs. Enterprise Scope Matrix
 
