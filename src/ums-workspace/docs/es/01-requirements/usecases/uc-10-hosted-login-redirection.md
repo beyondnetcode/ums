@@ -1,65 +1,63 @@
-﻿> 🚧 **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
+# 🧪 Caso de Uso 10: Autenticar vía Página de Inicio Personalizable
 
-# 🧪 Use Case 10: Authenticate via Customizable Hosted Login Page
-
-This use case details the flow for centralizing user authentication through a secure, UMS-hosted login page that dynamically adapts its branding and layouts per tenant and system.
+Este caso de uso detalla el flujo para centralizar la autenticación de usuarios mediante una página de inicio de sesión alojada (hosted) y segura en el UMS, que adapta dinámicamente su diseño (branding) y características para cada inquilino y sistema.
 
 ---
 
-## 🏛️ 1. Use Case Definition
+## 🏛️ 1. Definición del Caso de Uso
 
-| Attribute | Specification |
+| Atributo | Especificación |
 | :--- | :--- |
-| **Name** | Authenticate via Customizable Hosted Login Page |
-| **Primary Actor** | End User, Downstream Client System |
-| **Preconditions** | The client system is registered in UMS and has configured redirect callback URLs. |
-| **Postconditions** | The user is authenticated by the selected IdP (or native fallback), and UMS redirects them back to the client application with a signed JWT. |
+| **Nombre** | Autenticar vía Página de Inicio Personalizable |
+| **Actor Principal** | Usuario Final, Sistema Cliente |
+| **Precondiciones** | El sistema cliente está registrado en UMS y ha configurado URLs de redirección de retorno (callbacks). |
+| **Postcondiciones** | El usuario es autenticado por el IdP seleccionado (o fallback nativo), y UMS lo redirige de vuelta a la aplicación cliente junto con un JWT firmado. |
 
 ---
 
-## 🔄 2. Transaction Flow
+## 🔄 2. Flujo de Transacción
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant User as End User
-    participant App as Downstream Client App
-    participant HostedLogin as UMS Hosted Login Portal
-    participant ConfigAPI as Configuration Service
-    participant IdP as Identity Provider (Native or Ext)
+    participant User as Usuario Final
+    participant App as App Cliente
+    participant HostedLogin as Portal UMS Login
+    participant ConfigAPI as Servicio de Configuración
+    participant IdP as Proveedor IdP (Nativo/Ext)
 
-    User->>App: Clicks "Login" button
-    App->>HostedLogin: Redirects to /oauth/v2/authorize?client_id={sys_id}&tenant_id={t_id}&redirect_uri={cb}
-    HostedLogin->>ConfigAPI: Fetch active branding & system configs (Logo, primary_color, custom_css)
-    ConfigAPI-->>HostedLogin: Return branding metadata
-    HostedLogin->>HostedLogin: Render customized CSS & Logo (Dynamic HTML compilation)
-    HostedLogin-->>User: Present Custom Login Page (Showing configured IdP options)
+    User->>App: Clic botón "Iniciar Sesión"
+    App->>HostedLogin: Redirige /oauth/v2/authorize?client_id={sys_id}&tenant_id={t_id}&redirect_uri={cb}
+    HostedLogin->>ConfigAPI: Solicitar branding activo y config de sistema
+    ConfigAPI-->>HostedLogin: Retornar metadata de branding
+    HostedLogin->>HostedLogin: Renderizar CSS y Logo (Compilación HTML dinámica)
+    HostedLogin-->>User: Presentar Login Personalizado (Mostrando opciones IdP)
     
-    User->>HostedLogin: Submits credentials or selects SSO option
-    HostedLogin->>IdP: Delegate verification (e.g., Okta/Zitadel or UMS internal DB)
-    IdP-->>HostedLogin: Verification success & user details
+    User->>HostedLogin: Envía credenciales o selecciona opción SSO
+    HostedLogin->>IdP: Delegar verificación (ej., Okta/Zitadel o DB nativa)
+    IdP-->>HostedLogin: Éxito en verificación y detalles del usuario
     
-    HostedLogin->>HostedLogin: Mint standard, signed JWT with tenant contexts
-    HostedLogin-->>User: Redirect 302 back to redirect_uri?code={auth_code}
-    User->>App: Delivered to callback endpoint with code
+    HostedLogin->>HostedLogin: Generar JWT firmado con contextos del tenant
+    HostedLogin-->>User: Redirección 302 hacia redirect_uri?code={auth_code}
+    User->>App: Entrega en endpoint callback con el código
 ```
 
-### A. Main Flow
-1. An End User visits a registered downstream application (e.g., SCM Portal) and clicks the "Login" button.
-2. The downstream application redirects the user's browser to the secure, centralized UMS Hosted Login page, passing its `client_id` (System ID), `tenant_id`, and a verified `redirect_uri` as query parameters.
-3. The UMS Hosted Login Portal queries the Configuration Service for the active branding configuration (logo, colors, custom CSS classes) associated with the specified Tenant and System.
-4. The Configuration Service resolves the configuration using the hierarchical resolution engine (applying Tenant and System-level branding overrides).
-5. The Hosted Login page injects the fetched stylesheet properties, logo URL, and font settings into the DOM at runtime.
-6. The user is presented with a premium, brand-aligned login interface displaying the specific IdP login options configured for their Tenant (e.g., "Login with Microsoft Entra" or "Passwordless Passkey").
-7. The user completes the login process. The UMS Hosted Login Portal authenticates them via the configured IdP.
-8. Upon successful validation, UMS issues a standard, cryptographically signed JWT containing the user's compiled permission graph and tenant scopes.
-9. The Hosted Login Portal redirects the user's browser back to the registered `redirect_uri` callback with an authorization code or token payload.
+### A. Flujo Principal
+1. Un Usuario Final visita una aplicación registrada (ej. Portal SCM) y hace clic en "Iniciar Sesión".
+2. La aplicación redirige el navegador del usuario hacia el Portal Centralizado de Login (Hosted) de UMS, enviando su `client_id` (ID Sistema), `tenant_id` y un `redirect_uri` verificado en los parámetros de consulta.
+3. El Portal de Login UMS consulta el Servicio de Configuración para obtener el diseño de marca activo (logo, colores, clases CSS personalizadas) asociado con dicho Inquilino y Sistema.
+4. El Servicio de Configuración resuelve la estructura utilizando el motor de resolución jerárquico (aplicando sobreescrituras a nivel Tenant y Sistema).
+5. La página de login inyecta las propiedades de hojas de estilo, URL de logotipo y fuentes en el DOM en tiempo de ejecución.
+6. El usuario visualiza una interfaz premium, alineada a la marca de la organización, que muestra únicamente las opciones de IdP permitidas para ese Tenant (ej. "Ingresar con Microsoft Entra" o "Passkey sin Contraseña").
+7. El usuario completa el flujo de autenticación. El Portal de Login UMS autentica al usuario contra el IdP configurado.
+8. Tras la validación exitosa, UMS emite un JWT estándar y criptográficamente firmado que incluye el grafo de permisos compilado y los alcances del tenant.
+9. El Portal de Login redirige el navegador del usuario hacia la URL de retorno (callback `redirect_uri`) con un código de autorización.
 
 ---
 
-## ⚙️ 3. Dynamic Branding Options
+## ⚙️ 3. Opciones Dinámicas de Diseño (Branding)
 
-The UMS Hosted Login page supports these configuration variables in the versioned `SYSTEM_CONFIGURATION` JSON:
+La página alojada soporta las siguientes variables configurables almacenadas como JSON en la base de datos `SYSTEM_CONFIGURATION`:
 
 ```json
 {
@@ -79,11 +77,10 @@ The UMS Hosted Login page supports these configuration variables in the versione
 
 ---
 
-## 🛡️ 4. Exception Handling
+## 🛡️ 4. Manejo de Excepciones
 
-### Alternative Flow A: Invalid Redirect URI
-- If the `redirect_uri` passed in the query parameters does not match the registered redirect whitelist for the system inside UMS, the login flow is immediately aborted. The portal presents a secure `400 Bad Request` page and logs a security alert.
+### Flujo Alternativo A: URI de Redirección Inválida
+- Si la `redirect_uri` suministrada en la consulta no coincide con la lista blanca permitida registrada para ese sistema en el UMS, el flujo de login se aborta de inmediato. El portal muestra una página segura `400 Bad Request` y levanta una alerta de seguridad.
 
-### Alternative Flow B: Branding Fetch Timeout
-- If the Configuration Service is unresponsive or times out, the Hosted Login Portal falls back to the Global default layout (UMS default neutral dark theme) to guarantee authentication services remain fully available.
-
+### Flujo Alternativo B: Timeout al Obtener Branding
+- Si el Servicio de Configuración no responde o agota el tiempo de espera, el Portal Login de UMS aplica el layout Global predeterminado (un tema neutro y oscuro) garantizando que los servicios de autenticación permanezcan completamente disponibles.

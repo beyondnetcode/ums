@@ -1,88 +1,86 @@
-﻿> 🚧 **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
+# 🧪 Caso de Uso 9: Resolver Configuración Jerárquica del Sistema
 
-# 🧪 Use Case 9: Resolve Hierarchical System Configuration
-
-This use case details the flow for calculating the "effective" system configuration for a client application by evaluating and merging hierarchical override layers.
+Este caso de uso detalla el flujo para calcular la configuración del sistema "efectiva" para una aplicación cliente, mediante la evaluación y fusión de capas de sobrescritura (override) jerárquicas.
 
 ---
 
-## 🏛️ 1. Use Case Definition
+## 🏛️ 1. Definición del Caso de Uso
 
-| Attribute | Specification |
+| Atributo | Especificación |
 | :--- | :--- |
-| **Name** | Resolve Hierarchical System Configuration |
-| **Primary Actor** | Downstream Client System (M2M) or API Gateway |
-| **Preconditions** | The system requesting configuration is registered in the UMS. |
-| **Postconditions** | A JSON object representing the effective configuration (after applying all hierarchical overrides) is returned to the client and cached. |
+| **Nombre** | Resolver Configuración Jerárquica del Sistema |
+| **Actor Principal** | Sistema Cliente (M2M) o API Gateway |
+| **Precondiciones** | El sistema que solicita la configuración está registrado en el UMS. |
+| **Postcondiciones** | Se devuelve y se almacena en caché un objeto JSON que representa la configuración efectiva (luego de aplicar todas las sobrescrituras jerárquicas). |
 
 ---
 
-## 🔄 2. Transaction Flow
+## 🔄 2. Flujo de Transacción
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant Client as Client Application
-    participant ConfigAPI as Configuration Engine API
-    participant Cache as Redis Cache (cfg:sys)
-    participant Resolver as Config Resolution Strategy
+    participant Client as App Cliente
+    participant ConfigAPI as API Motor Config
+    participant Cache as Caché Redis (cfg:sys)
+    participant Resolver as Estrategia de Resolución Config
     participant DB as PostgreSQL
 
     Client->>ConfigAPI: GET /v1/config/system/{system_id}?tenant_id=X&branch_id=Y&env=PROD
-    ConfigAPI->>Cache: Query cache for effective config hash
-    alt Cache Hit
-        Cache-->>ConfigAPI: Return cached config
-    else Cache Miss
-        ConfigAPI->>Resolver: Request config resolution
-        Resolver->>DB: Fetch base config (Global)
-        Resolver->>DB: Fetch tenant override config (Tenant Level)
-        Resolver->>DB: Fetch system override config (System Level)
-        Resolver->>DB: Fetch branch override config (Branch Level)
-        Resolver->>DB: Fetch environment override config (Env Level)
+    ConfigAPI->>Cache: Consultar caché por hash de config
+    alt Acierto en Caché
+        Cache-->>ConfigAPI: Retornar configuración cacheadad
+    else Fallo en Caché
+        ConfigAPI->>Resolver: Solicitar resolución de config
+        Resolver->>DB: Obtener config base (Nivel Global)
+        Resolver->>DB: Obtener config override tenant (Nivel Tenant)
+        Resolver->>DB: Obtener config override sistema (Nivel Sistema)
+        Resolver->>DB: Obtener config override sede (Nivel Sede)
+        Resolver->>DB: Obtener config override entorno (Nivel Env)
         
-        Resolver->>Resolver: Apply Deep Merge (Global <- Tenant <- System <- Branch <- Env)
+        Resolver->>Resolver: Aplicar Fusión Profunda (Global <- Tenant <- Sistema <- Sede <- Env)
         
-        Resolver->>Cache: Store calculated effective config (TTL = 300s)
-        Resolver-->>ConfigAPI: Return effective config payload
+        Resolver->>Cache: Guardar configuración efectiva (TTL = 300s)
+        Resolver-->>ConfigAPI: Retornar payload configuración efectiva
     end
     ConfigAPI-->>Client: 200 OK { effective_config }
 ```
 
-### A. Main Flow
-1. A client system (e.g., SCM Portal) boots up and requests its configuration from the UMS API, providing its `system_id`, `tenant_id`, and runtime context (e.g., `branch_id`, `environment`).
-2. The Config API checks Redis for a pre-calculated effective configuration matching this exact context hash.
-3. If a cache miss occurs, the Resolution Strategy is invoked. It queries the database for all available configuration layers applicable to the context.
-4. The Engine performs a **Deep Merge** starting from the lowest priority layer (Global) and sequentially applying overrides up to the highest priority layer (Environment).
-5. The final calculated object is cached with a 5-minute TTL.
-6. The client system receives the final configuration JSON and adjusts its runtime behavior (e.g., hides MFA prompt if `mfa_enabled=false` at the system level despite being `true` at the tenant level).
+### A. Flujo Principal
+1. Un sistema cliente (ej., Portal SCM) se inicia y solicita su configuración desde la API de UMS, proporcionando su `system_id`, `tenant_id` y su contexto de ejecución (ej., `branch_id`, `environment`).
+2. La API de Configuración verifica en Redis si existe una configuración efectiva pre-calculada que coincida exactamente con este hash de contexto.
+3. En caso de fallo de caché, se invoca la Estrategia de Resolución. Esta consulta la base de datos por todas las capas de configuración disponibles para dicho contexto.
+4. El Motor realiza una **Fusión Profunda (Deep Merge)** comenzando desde la capa de menor prioridad (Global) y aplicando las sobrescrituras secuencialmente hasta llegar a la capa de mayor prioridad (Entorno).
+5. El objeto final calculado se guarda en caché con un Tiempo de Vida (TTL) de 5 minutos.
+6. El sistema cliente recibe el JSON con la configuración final y ajusta su comportamiento (ej., oculta el botón de MFA si `mfa_enabled=false` a nivel de Sistema, aunque esté habilitado a nivel Tenant).
 
 ---
 
-## ⚙️ 3. Resolution Precedence Logic
+## ⚙️ 3. Lógica de Precedencia de Resolución
 
-The Deep Merge function follows this strict precedence (Priority 1 overwrites Priority 7):
+La función de Fusión Profunda sigue esta precedencia estricta (Prioridad 1 sobreescribe a Prioridad 7):
 
-1. **Environment Level**: Constraints dictated by infrastructure (e.g., `PROD` forces secure cookies).
-2. **User Level**: Extreme-edge customization (e.g., `user_id_123` overrides theme).
-3. **Role Level**: Config adjustments based on assigned Profile.
-4. **Branch Level**: Overrides specific to a physical `branch_id` (e.g., `Callao Terminal` forces local IdP).
-5. **System Level**: Application-specific overrides (e.g., `TMS` vs `WMS`).
-6. **Tenant Level**: Organization-wide baseline (e.g., `LogisticsCorp`).
-7. **Global Level**: UMS default hardcoded values.
+1. **Nivel Entorno**: Restricciones dictadas por infraestructura (ej., `PROD` obliga a cookies seguras).
+2. **Nivel Usuario**: Personalización en extremo (ej., `user_id_123` sobreescribe el tema visual).
+3. **Nivel Rol**: Ajustes de configuración según el Perfil asignado.
+4. **Nivel Sede (Branch)**: Sobrescrituras específicas a una sede física (ej., `Terminal Callao` fuerza el IdP local).
+5. **Nivel Sistema**: Sobrescrituras de aplicación (ej., `TMS` frente a `WMS`).
+6. **Nivel Inquilino (Tenant)**: Línea base de toda la organización (ej., `LogisticsCorp`).
+7. **Nivel Global**: Valores predeterminados en duro del UMS.
 
-### Deep Merge Example
+### Ejemplo de Fusión Profunda (Deep Merge)
 
-**Tenant Level Config:**
+**Configuración Nivel Inquilino (Tenant):**
 ```json
 { "auth": { "mfa_enabled": true, "session_timeout": 3600 }, "branding": { "color": "#000" } }
 ```
 
-**System Level Config (Override):**
+**Configuración Nivel Sistema (Override):**
 ```json
 { "auth": { "mfa_enabled": false }, "modules_enabled": ["tracking"] }
 ```
 
-**Resulting Effective Config:**
+**Configuración Efectiva Resultante:**
 ```json
 {
   "auth": { "mfa_enabled": false, "session_timeout": 3600 },
@@ -93,11 +91,10 @@ The Deep Merge function follows this strict precedence (Priority 1 overwrites Pr
 
 ---
 
-## 🛡️ 4. Exception Handling
+## 🛡️ 4. Manejo de Excepciones
 
-### Alternative Flow A: Missing Baseline Configuration
-- If no configuration exists for the requested Tenant or System, the resolver gracefully falls back to the Global Default Level. It does not return a 404, guaranteeing the client system receives safe fallback values to operate.
+### Flujo Alternativo A: Configuración Base Ausente
+- Si no existe configuración para el Tenant o Sistema solicitado, el resolutor recae elegantemente al Nivel Global Predeterminado. No retorna error 404, asegurando que el sistema cliente reciba valores de respaldo seguros para seguir operando.
 
-### Alternative Flow B: Config Syntax Error during Merge
-- If a custom JSON override contains invalid syntax that breaks the deep merge process, the engine logs an error to the Audit Context and skips that specific layer, proceeding with the lower-priority layers.
-
+### Flujo Alternativo B: Error de Sintaxis durante Fusión
+- Si un override JSON personalizado contiene sintaxis inválida que rompe el proceso de fusión profunda, el motor registra un error en el Contexto de Auditoría y omite esa capa específica, continuando con las capas de menor prioridad.

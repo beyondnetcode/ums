@@ -1,127 +1,124 @@
-﻿> 🚧 **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
+# 🧪 Caso de Uso 11: Autenticación Adaptativa Multifactor y Sin Contraseña
 
-# 🧪 Use Case 11: Multi-Factor & Passwordless Adaptive Authentication
-
-This document specifies the detailed transaction flow, actors, preconditions, postconditions, and exception handling for enrolling and authenticating users using Multi-Factor Authentication (MFA) and/or Passwordless Passkeys (WebAuthn), governed by dynamic adaptive risk evaluation under the **spec-driven AI strategy BMAD-METHOD**.
+Este documento especifica el flujo de transacción detallado, actores, precondiciones, postcondiciones y manejo de excepciones para el registro y autenticación de usuarios empleando Autenticación Multifactor (MFA) y/o Passkeys Sin Contraseña (WebAuthn), bajo el control de la evaluación dinámica y adaptativa de riesgos de la **estrategia spec-driven AI BMAD-METHOD**.
 
 ---
 
-## 🏛️ 1. Use Case Definition
+## 🏛️ 1. Definición del Caso de Uso
 
-| Attribute | Specification |
+| Atributo | Especificación |
 | :--- | :--- |
-| **Name** | Multi-Factor & Passwordless Adaptive Authentication |
-| **Primary Actor** | End User (e.g., B2B Operator, Business Analyst), Downstream Client System |
-| **Preconditions** | The user has registered an account in UMS. The tenant security policy allows or enforces MFA/Passwordless. |
-| **Postconditions** | The user's identity is verified, a secure session is established, and the tailored authorization graph is returned. |
+| **Nombre** | Autenticación Adaptativa Multifactor y Sin Contraseña |
+| **Actor Principal** | Usuario Final (ej. Operador B2B, Analista de Negocio), Sistema Cliente |
+| **Precondiciones** | El usuario tiene una cuenta en el UMS. La política de seguridad del Tenant permite o exige MFA/Passkeys. |
+| **Postcondiciones** | La identidad del usuario es verificada, se establece una sesión segura y se retorna un grafo de autorización hecho a la medida. |
 
 ---
 
-## 🔄 2. Transaction Flow
+## 🔄 2. Flujo de Transacción
 
-### A. Sequence: Onboarding & MFA Registration
+### A. Secuencia: Onboarding & Registro de MFA
 
-This flow occurs when a user logs in for the first time or is forced by policy to enroll a new secondary factor (TOTP/Passkey).
+Este flujo ocurre cuando un usuario inicia sesión por primera vez o la política lo obliga a inscribir un nuevo segundo factor (TOTP/Passkey).
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User as End User
-    participant Portal as UMS Hosted Login Portal
-    participant Gateway as UMS Auth Gateway
-    participant MFA as MFA Service (PDP)
+    actor User as Usuario Final
+    participant Portal as Portal Login UMS
+    participant Gateway as API Gateway .NET 8 Auth
+    participant MFA as Servicio MFA (PDP)
     participant DB as PostgreSQL
 
-    User->>Portal: Submit primary credentials (Username/Password)
+    User->>Portal: Enviar credenciales (Usuario/Clave)
     Portal->>Gateway: POST /v1/auth/login
     Gateway->>MFA: CheckEnforcePolicy(user_id, tenant_id)
-    MFA-->>Gateway: Return Status: ONBOARDING_REQUIRED (No factors registered)
+    MFA-->>Gateway: Retorno: ONBOARDING_REQUIRED (Sin factores)
     Gateway-->>Portal: 403 Forbidden { state_token, status: "MFA_ONBOARDING_REQUIRED" }
-    Portal->>User: Display MFA Onboarding Choice (TOTP or Passkey)
+    Portal->>User: Mostrar pantalla inscripción MFA (TOTP o Passkey)
     
-    alt Choice: TOTP (Authenticator App)
-        User->>Portal: Select TOTP enrollment
+    alt Elección: TOTP (App Autenticador)
+        User->>Portal: Seleccionar inscripción TOTP
         Portal->>Gateway: POST /v1/auth/mfa/enroll { factor_type: "TOTP", state_token }
         Gateway->>MFA: GenerateOtpSecret(user_id)
-        MFA-->>Gateway: Return secret key & otpauth URL
+        MFA-->>Gateway: Retornar clave secreta y URL otpauth
         Gateway-->>Portal: 200 OK { secret_key, qr_code_url }
-        Portal->>User: Display QR Code & demand confirmation code
-        User->>Portal: Scan QR & input 6-digit verification OTP
+        Portal->>User: Mostrar QR y solicitar código validación
+        User->>Portal: Escanear QR e ingresar código 6 dígitos
         Portal->>Gateway: POST /v1/auth/mfa/confirm-enroll { factor_type: "TOTP", code, state_token }
         Gateway->>MFA: VerifyAndActivateFactor(code, secret)
-        MFA->>DB: Save verified ENROLLED_MFA_FACTOR (encrypted)
-        MFA-->>Gateway: Return 8 generated Recovery Codes
+        MFA->>DB: Guardar ENROLLED_MFA_FACTOR verificado (encriptado)
+        MFA-->>Gateway: Retornar 8 Códigos Recuperación
         Gateway-->>Portal: 200 OK { recovery_codes }
-        Portal->>User: Present Recovery Codes and complete session
+        Portal->>User: Entregar códigos de respaldo y finalizar sesión
     end
 ```
 
-### B. Sequence: Passwordless Passkey Assertion Login
+### B. Secuencia: Inicio de Sesión Asertivo con Passkey (Passwordless)
 
-This flow details how a user logs in seamlessly using their device's native biometric sensors or hardware security keys without passwords.
+Este flujo detalla cómo un usuario ingresa directamente utilizando sensores biométricos nativos de su dispositivo (Huella, FaceID) o llaves de seguridad físicas (FIDO2) sin emplear contraseñas.
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User as End User
-    participant Portal as Client Application Portal
-    participant Gateway as UMS Auth Gateway
-    participant WebAuthn as WebAuthn Service
+    actor User as Usuario Final
+    participant Portal as Portal App Cliente
+    participant Gateway as API Gateway .NET 8 Auth
+    participant WebAuthn as Servicio WebAuthn
     participant DB as PostgreSQL
 
-    User->>Portal: Click "Login with Passkey" and enter email
+    User->>Portal: Clic "Login con Passkey" e ingresar correo
     Portal->>Gateway: POST /v1/auth/passkey/assertion-options { email, tenant_id }
     Gateway->>WebAuthn: GenerateAssertionOptions(email)
-    WebAuthn->>DB: Query registered public keys in ENROLLED_MFA_FACTOR
-    DB-->>WebAuthn: Return public key references
-    WebAuthn->>WebAuthn: Generate random cryptographically secure challenge (32 bytes)
+    WebAuthn->>DB: Consultar claves públicas en ENROLLED_MFA_FACTOR
+    DB-->>WebAuthn: Retornar referencias de clave pública
+    WebAuthn->>WebAuthn: Generar desafío aleatorio seguro (32 bytes)
     WebAuthn-->>Portal: 200 OK { challenge, credential_ids }
-    Portal->>User: Invoke browser credentials.get() (Fingerprint/FaceID)
-    User-->>Portal: Approves biometrics and signs challenge
+    Portal->>User: Invoca browser credentials.get() (FaceID/Huella)
+    User-->>Portal: Aprueba biométricamente y firma el desafío
     Portal->>Gateway: POST /v1/auth/passkey/verify-assertion { assertion_response }
     Gateway->>WebAuthn: VerifyAssertion(assertion_response)
-    WebAuthn->>WebAuthn: Verify signature using public key & assertion challenge
-    alt Success
-        WebAuthn-->>Gateway: Verification Success
-        Gateway-->>Portal: Mint Tokens + Return Authorization Graph
-        Portal-->>User: Grant access to Dashboard
-    else Failure
-        WebAuthn-->>Gateway: Throw InvalidSignatureException
+    WebAuthn->>WebAuthn: Validar firma con clave pública y desafío
+    alt Verificación Exitosa
+        WebAuthn-->>Gateway: Éxito en Verificación
+        Gateway-->>Portal: Emitir JWT + Grafo Permisos
+        Portal-->>User: Acceso autorizado al Dashboard
+    else Verificación Fallida
+        WebAuthn-->>Gateway: Lanza InvalidSignatureException
         Gateway-->>Portal: 401 Unauthorized [ERR_PASSKEY_FAILED]
     end
 ```
 
 ---
 
-## 🛡️ 3. Alternative Flows & Exception Handling
+## 🛡️ 3. Flujos Alternativos y Manejo de Excepciones
 
-### Alternative Flow A: Primary Factor Loss Recovery (Self-Service Recovery)
-- If the user has lost their MFA device (e.g., phone with TOTP) or biometric capabilities are unavailable:
-    1. On the MFA challenge screen, the user selects **"Use Recovery Code"**.
-    2. The user submits one of the 8-character alphabetic backup recovery codes saved during onboarding.
-    3. The gateway hashes the input using Bcrypt and compares it against stored values in the `RECOVERY_CODES` table.
-    4. Upon successful validation, the gateway:
-        - Marks the selected recovery code as `USED` (making it permanently inactive).
-        - Generates a short-lived temporary session.
-        - Redirects the user directly to the MFA factors administration screen to re-register a new device.
-        - Emits a `UserRecoveryCodeUsedEvent` to the audit ledger.
+### Flujo Alternativo A: Recuperación ante Pérdida del Factor Primario (Auto-Servicio)
+- Si el usuario pierde su dispositivo MFA (ej., teléfono con TOTP) o no puede acceder a su biometría:
+    1. En la pantalla de MFA, el usuario hace clic en **"Usar Código de Recuperación"**.
+    2. Envía uno de los códigos de respaldo alfabéticos de 8 caracteres guardados durante el registro inicial.
+    3. El gateway somete la entrada a un hash Bcrypt y lo compara con los valores guardados en la tabla `RECOVERY_CODES`.
+    4. Tras la validación, el gateway:
+        - Marca el código de recuperación como `USED` (inactivándolo permanentemente).
+        - Genera una sesión temporal de vida corta.
+        - Redirige al usuario directamente a la pantalla de administración de factores MFA para que registre un nuevo dispositivo.
+        - Emite un evento `UserRecoveryCodeUsedEvent` al registro de auditoría.
 
-### Alternative Flow B: Adaptive Risk Step-Up Intervention
-- If the user's login context is deemed suspicious (e.g., login attempt from a new geographic location or an unrecognized device fingerprint):
-    1. The `AdaptiveRiskEvaluator` scores the request risk as `HIGH`.
-    2. The gateway intercepts the normal authentication flow and issues a step-up challenge, regardless of whether "Remember Device" was active.
-    3. The user is prompted to complete their strongest available factor (such as WebAuthn Passkey biometrics).
-    4. If completed successfully, the risk score is mitigated, the device fingerprint is added as "trusted," and the session is established.
-    5. If the user fails to complete the step-up verification within 3 attempts, the gateway aborts the authentication flow, logs a security threat to Grafana Loki, and locks the user's account for 15 minutes.
+### Flujo Alternativo B: Intervención de Evaluación de Riesgos Adaptativa (Step-Up)
+- Si el contexto de login de un usuario se considera sospechoso (ej. inicio de sesión desde un nuevo país o una huella digital de navegador irreconocible):
+    1. El motor `AdaptiveRiskEvaluator` califica el riesgo como `ALTO` (`HIGH`).
+    2. El gateway intercepta el flujo normal y exige un desafío Step-Up MFA, ignorando cualquier estado de "Recordar Dispositivo".
+    3. Se obliga al usuario a completar la autenticación con el factor más robusto disponible (ej., Passkeys biométricas).
+    4. Si tiene éxito, se disminuye el nivel de riesgo, el nuevo dispositivo se marca como de confianza y la sesión es establecida.
+    5. Si falla el desafío luego de 3 intentos, el gateway aborta la autenticación, envía la amenaza a Grafana Loki y bloquea temporalmente la cuenta por 15 minutos.
 
-### Exception 1: Out-of-Sync TOTP Clock Drift
-- If the user submits a valid TOTP code that fails verification due to minor clock unsynchronization on their device:
-    1. The `MfaService` evaluates adjacent time windows (one interval backward and one interval forward, ±30 seconds).
-    2. If the code is valid in an adjacent window, the service accepts the code, logs a warning about clock drift, and automatically resynchronizes the server's tracking offset for that user factor.
-    3. If the code remains invalid across all adjacent windows, the server rejects the attempt with `401 Unauthorized` [error code: `ERR_INVALID_MFA_CODE`].
+### Excepción 1: Sincronización de Reloj Desfasada en TOTP
+- Si un usuario envía un código TOTP válido que fracasa al validar debido a un desfase horario en su teléfono:
+    1. El servicio `MfaService` evalúa las ventanas de tiempo colindantes (±30 segundos).
+    2. Si el código acierta en una de las ventanas adyacentes, el sistema acepta el login, emite un *warning* sobre la des-sincronización y automáticamente re-ajusta el *offset* temporal interno del servidor asociado a ese dispositivo.
+    3. Si falla en todas las ventanas adyacentes, rechaza el intento con `401 Unauthorized` [código de error: `ERR_INVALID_MFA_CODE`].
 
 ---
 
-## 📋 4. Primary Operational Model Reference
-The multi-factor and passwordless capabilities configured per tenant are fully declared, cached, and versioned via the **System Behavioral Configuration Model**. For complete API payloads, schema specifications, and security threat analyses, consult **[mfa-passwordless-security-spec.md](../../04-artifacts/mfa-passwordless-security-spec.md)**.
-
+## 📋 4. Referencia del Modelo Operativo Principal
+Las capacidades multifactor y sin contraseñas configurables por Tenant se encuentran completamente declaradas y versionadas bajo el **Modelo de Configuración de Comportamiento del Sistema**. Para más detalles de la especificación técnica, visite **[mfa-passwordless-security-spec.md](../../04-artifacts/mfa-passwordless-security-spec.md)**.

@@ -1,63 +1,60 @@
-﻿> 🚧 **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
+# 🧪 Caso de Uso 5: Registrar Sistema y Definir Topología de Menú
 
-# 🧪 Use Case 5: Register System and Define Menu Topology
-
-This use case specifies the flow for registering a new client application (System) into the UMS and defining its navigational resource hierarchy (Menus, Submenus, Options, and Actions).
+Este caso de uso especifica el flujo para registrar una nueva aplicación cliente (Sistema) en el UMS y definir su jerarquía de recursos de navegación (Menús, Submenús, Opciones y Acciones).
 
 ---
 
-## 🏛️ 1. Use Case Definition
+## 🏛️ 1. Definición del Caso de Uso
 
-| Attribute | Specification |
+| Atributo | Especificación |
 | :--- | :--- |
-| **Name** | Register System and Define Menu Topology |
-| **Primary Actor** | Global Security Administrator (SuperAdmin) |
-| **Preconditions** | Actor is authenticated as SuperAdmin in the UMS Admin Console. |
-| **Postconditions** | System is registered with a secure M2M API credential. Menu topology is defined and available for template assignment. |
+| **Nombre** | Registrar Sistema y Definir Topología de Menú |
+| **Actor Principal** | Administrador de Seguridad Global (SuperAdmin) |
+| **Precondiciones** | El actor está autenticado como SuperAdmin en la Consola de Administración UMS. |
+| **Postcondiciones** | El Sistema se registra con una credencial de API M2M segura. La topología de menú se define y está disponible para la asignación de plantillas. |
 
 ---
 
-## 🔄 2. Transaction Flow
+## 🔄 2. Flujo de Transacción
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Admin as Global Security Administrator
-    participant Console as UMS Admin Console
-    participant API as UMS .NET 8 API
+    actor Admin as Administrador de Seguridad
+    participant Console as Consola Admin UMS
+    participant API as API .NET 8 UMS
     participant DB as PostgreSQL
-    participant Audit as Audit Ledger
+    participant Audit as Registro de Auditoría
 
-    Admin->>Console: Navigate to Systems > Register New System
-    Admin->>Console: Fill system name, code, base URL
+    Admin->>Console: Navegar a Sistemas > Registrar Nuevo Sistema
+    Admin->>Console: Llenar nombre del sistema, código, URL base
     Console->>API: POST /api/v1/systems { name, system_code, base_url }
-    API->>DB: Insert SYSTEM record, generate api_credential_hash
-    API->>Audit: Log SystemRegisteredEvent
+    API->>DB: Insertar registro SYSTEM, generar api_credential_hash
+    API->>Audit: Registrar Evento SystemRegisteredEvent
     API-->>Console: 201 Created { systemId, apiCredential }
-    Console-->>Admin: Show system credential (once only, copy prompt)
-    Admin->>Console: Navigate to Systems > Topology > Add Menu
-    loop Build Menu Tree
-        Admin->>Console: Add Menu → Submenus → Options → Actions
-        Console->>API: POST /api/v1/systems/{id}/menus (recursive batch)
-        API->>DB: Insert MENU / SUBMENU / OPTION / ACTION records
+    Console-->>Admin: Mostrar credencial del sistema (una sola vez, pedir copiar)
+    Admin->>Console: Navegar a Sistemas > Topología > Agregar Menú
+    loop Construir Árbol de Menús
+        Admin->>Console: Agregar Menú → Submenús → Opciones → Acciones
+        Console->>API: POST /api/v1/systems/{id}/menus (batch recursivo)
+        API->>DB: Insertar registros MENU / SUBMENU / OPTION / ACTION
     end
-    API-->>Console: Topology saved confirmation
+    API-->>Console: Confirmación de topología guardada
 ```
 
-### A. Main Flow
-1. SuperAdmin navigates to **Systems** and clicks **Register New System**.
-2. Fills in system name (`SCM Route Planner`), machine code (`scm_route_planner`), and base URL.
-3. The API generates a unique, hashed M2M API credential that client applications use in `Authorization: Bearer` headers when calling `POST /v1/authorization/graph`. This credential is shown **once** and must be saved.
-4. Admin navigates to the **Topology Builder** for the registered system and constructs the navigation tree: `Menus → Submenus → Options → Actions`.
-5. Each node specifies a label, order index, and (for Actions) an API endpoint mapping and action code (`create`, `read`, `update`, `delete`, `export`, `approve`).
+### A. Flujo Principal
+1. El SuperAdmin navega a **Sistemas** y hace clic en **Registrar Nuevo Sistema**.
+2. Llena el nombre del sistema (`SCM Route Planner`), código de máquina (`scm_route_planner`) y la URL base.
+3. La API genera una credencial de API M2M única y hasheada que las aplicaciones cliente utilizarán en los encabezados `Authorization: Bearer` al llamar a `POST /v1/authorization/graph`. Esta credencial se muestra **una sola vez** y debe ser guardada.
+4. El administrador navega al **Constructor de Topología** para el sistema registrado y construye el árbol de navegación: `Menús → Submenús → Opciones → Acciones`.
+5. Cada nodo especifica una etiqueta, un índice de orden y (para las Acciones) un mapeo de endpoint de la API y código de acción (`create`, `read`, `update`, `delete`, `export`, `approve`).
 
 ---
 
-## 🛡️ 3. Alternative Flows & Exception Handling
+## 🛡️ 3. Flujos Alternativos y Manejo de Excepciones
 
-### Alternative Flow A: Duplicate System Code
-- If `system_code` already exists, the API returns a `409 Conflict` with error code `ERR_DUPLICATE_SYSTEM_CODE`.
+### Flujo Alternativo A: Código de Sistema Duplicado
+- Si el `system_code` ya existe, la API devuelve un `409 Conflict` con el código de error `ERR_DUPLICATE_SYSTEM_CODE`.
 
-### Alternative Flow B: Topology Incomplete
-- If an Option has no Actions defined, the topology is saved as a draft but cannot be referenced in Authorization Templates until at least one Action is linked.
-
+### Flujo Alternativo B: Topología Incompleta
+- Si una Opción no tiene Acciones definidas, la topología se guarda como borrador pero no puede ser referenciada en Plantillas de Autorización hasta que se vincule al menos una Acción.

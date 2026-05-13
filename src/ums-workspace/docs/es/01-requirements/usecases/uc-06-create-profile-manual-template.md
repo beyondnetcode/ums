@@ -1,68 +1,65 @@
-﻿> 🚧 **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
+# 🧪 Caso de Uso 6: Crear Perfil y Asignar Manualmente Plantilla de Autorización
 
-# 🧪 Use Case 6: Create Profile and Manually Assign Authorization Template
-
-This use case specifies the flow for creating a user Profile within an Organization/Branch context and **manually assigning** one or more Authorization Templates to it via the Admin Console.
+Este caso de uso especifica el flujo para crear un Perfil de usuario dentro de un contexto de Organización/Sede y **asignar manualmente** una o más Plantillas de Autorización a este a través de la Consola de Administración.
 
 ---
 
-## 🏛️ 1. Use Case Definition
+## 🏛️ 1. Definición del Caso de Uso
 
-| Attribute | Specification |
+| Atributo | Especificación |
 | :--- | :--- |
-| **Name** | Create Profile and Manually Assign Authorization Template |
-| **Primary Actor** | Global Security Administrator (SuperAdmin) or Tenant Operations Manager (LocalAdmin) |
-| **Preconditions** | Target Organization, Branch, and at least one Authorization Template are registered in the system. |
-| **Postconditions** | Profile is created and active. Template is linked. All users assigned to this profile inherit the compiled permission graph immediately. Redis cache keys for affected users are evicted. |
+| **Nombre** | Crear Perfil y Asignar Manualmente Plantilla de Autorización |
+| **Actor Principal** | Administrador de Seguridad Global (SuperAdmin) o Gestor de Operaciones de Tenant (LocalAdmin) |
+| **Precondiciones** | La Organización destino, Sede y al menos una Plantilla de Autorización están registradas en el sistema. |
+| **Postcondiciones** | El Perfil es creado y se encuentra activo. La Plantilla es vinculada. Todos los usuarios asignados a este perfil heredan el grafo de permisos compilado inmediatamente. Las claves de caché de Redis para los usuarios afectados son desalojadas. |
 
 ---
 
-## 🔄 2. Transaction Flow
+## 🔄 2. Flujo de Transacción
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Admin as Security Administrator
-    participant Console as UMS Admin Console
-    participant API as UMS .NET 8 API
+    actor Admin as Administrador de Seguridad
+    participant Console as Consola Admin UMS
+    participant API as API .NET 8 UMS
     participant DB as PostgreSQL
-    participant Cache as Redis Cache
-    participant Audit as Audit Ledger
+    participant Cache as Caché Redis
+    participant Audit as Registro de Auditoría
 
-    Admin->>Console: Navigate to Profiles > Create New Profile
-    Admin->>Console: Select Organization, Branch (optional), enter profile name
+    Admin->>Console: Navegar a Perfiles > Crear Nuevo Perfil
+    Admin->>Console: Seleccionar Organización, Sede (opcional), ingresar nombre
     Console->>API: POST /api/v1/profiles { organization_id, branch_id, name }
-    API->>DB: Insert PROFILE record (auto_assigned = false)
-    API->>Audit: Log ProfileCreatedEvent
+    API->>DB: Insertar registro PROFILE (auto_assigned = false)
+    API->>Audit: Registrar Evento ProfileCreatedEvent
     API-->>Console: 201 Created { profileId }
-    Admin->>Console: Navigate to Profile > Templates > Assign Template
-    Admin->>Console: Select template from list (e.g., SCM_Analyst_Baseline_v1)
+    Admin->>Console: Navegar a Perfil > Plantillas > Asignar Plantilla
+    Admin->>Console: Seleccionar plantilla de la lista (ej. SCM_Analyst_Baseline_v1)
     Console->>API: POST /api/v1/profiles/{profileId}/templates { template_id }
-    API->>DB: Link TEMPLATE to PROFILE
-    API->>Cache: Evict all graph cache keys for users in this profile
-    API->>Audit: Log TemplateAssignedEvent { profileId, templateId, assignedBy, manual: true }
-    API-->>Console: 200 OK - Template linked, cache evicted
-    Console-->>Admin: Show success notification
+    API->>DB: Vincular TEMPLATE a PROFILE
+    API->>Cache: Desalojar todas las claves de caché del grafo para usuarios en este perfil
+    API->>Audit: Registrar Evento TemplateAssignedEvent { profileId, templateId, assignedBy, manual: true }
+    API-->>Console: 200 OK - Plantilla vinculada, caché desalojada
+    Console-->>Admin: Mostrar notificación de éxito
 ```
 
-### A. Main Flow
-1. Admin navigates to **Profiles** module and clicks **Create New Profile**.
-2. Selects the target Organization (required) and optionally a Branch for context-scoping. Enters a descriptive profile name (e.g., `TransportationAnalyst_Callao`).
-3. Profile is created and saved with `auto_assigned = false`.
-4. Admin navigates to the profile's **Template Assignment** panel and selects one or more available Authorization Templates from a searchable dropdown.
-5. The API persists the template link, evicts all Redis graph cache keys for users currently assigned to this profile, and writes an immutable audit record flagged as `manual: true`.
-6. All users in the profile immediately receive the updated permission graph on their next request (cache miss forces recompilation).
+### A. Flujo Principal
+1. El Administrador navega al módulo de **Perfiles** y hace clic en **Crear Nuevo Perfil**.
+2. Selecciona la Organización de destino (obligatorio) y opcionalmente una Sede para establecer el contexto. Ingresa un nombre descriptivo para el perfil (ej. `TransportationAnalyst_Callao`).
+3. El Perfil se crea y se guarda con `auto_assigned = false`.
+4. El Administrador navega al panel de **Asignación de Plantillas** del perfil y selecciona una o más Plantillas de Autorización disponibles en un menú desplegable con búsqueda.
+5. La API persiste el enlace de la plantilla, desaloja todas las claves de la caché de Redis correspondientes a los grafos de los usuarios actualmente asignados a este perfil, y escribe un registro inmutable en auditoría marcado como `manual: true`.
+6. Todos los usuarios en el perfil reciben inmediatamente el grafo de permisos actualizado en su próxima solicitud (un fallo en caché fuerza la recompilación).
 
 ---
 
-## 🛡️ 3. Alternative Flows & Exception Handling
+## 🛡️ 3. Flujos Alternativos y Manejo de Excepciones
 
-### Alternative Flow A: Template Version Conflict
-- If the selected template version introduces conflicting explicit DENY rules that override locally customized ALLOW entries in the profile, the Console displays a compatibility warning requiring admin confirmation before persisting.
+### Flujo Alternativo A: Conflicto en la Versión de la Plantilla
+- Si la versión de la plantilla seleccionada introduce reglas de DENEGACIÓN explícitas (DENY) que entran en conflicto con las entradas de PERMITIR (ALLOW) personalizadas localmente en el perfil, la Consola muestra una advertencia de compatibilidad requiriendo la confirmación del administrador antes de persistir los cambios.
 
-### Alternative Flow B: Profile Already Has Template
-- If the profile already has an active template assigned, the new assignment **replaces** it after confirmation. The previous template link is archived in the audit trail.
+### Flujo Alternativo B: El Perfil ya tiene una Plantilla
+- Si el perfil ya tiene asignada una plantilla activa, la nueva asignación **reemplaza** a la anterior tras la confirmación. El enlace de la plantilla previa es archivado en el registro de auditoría.
 
-### Alternative Flow C: No Active Users Affected
-- If no users are currently assigned to the profile, the template is linked immediately with no cache eviction required. Audit record is still written.
-
+### Flujo Alternativo C: Sin Usuarios Activos Afectados
+- Si no hay usuarios asignados actualmente al perfil, la plantilla se vincula de forma inmediata sin requerir desalojo de caché. De igual manera se escribe el registro de auditoría.

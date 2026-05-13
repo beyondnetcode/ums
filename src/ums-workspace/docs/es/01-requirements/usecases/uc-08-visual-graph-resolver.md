@@ -1,74 +1,71 @@
-﻿> 🚧 **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
+# 🧪 Caso de Uso 8: Diagnosticar Permisos vía Visualizador de Grafos
 
-# 🧪 Use Case 8: Diagnose User Permissions via Visual Graph Resolver
-
-This use case specifies the flow for SRE engineers and security administrators to diagnose and visualize the compiled authorization graph for a specific user within a target organization, branch, and system context.
+Este caso de uso especifica el flujo para que los ingenieros de SRE y los administradores de seguridad diagnostiquen y visualicen el grafo de autorización compilado para un usuario específico dentro de una organización, sede y contexto de sistema objetivo.
 
 ---
 
-## 🏛️ 1. Use Case Definition
+## 🏛️ 1. Definición del Caso de Uso
 
-| Attribute | Specification |
+| Atributo | Especificación |
 | :--- | :--- |
-| **Name** | Diagnose User Permissions via Visual Graph Resolver |
-| **Primary Actor** | SRE / Support Engineer |
-| **Preconditions** | Actor is authenticated with SRE or SuperAdmin role in the UMS Admin Console. Target user exists and has at least one profile assignment. |
-| **Postconditions** | The compiled authorization graph is rendered visually. The actor can identify allowed paths (green), denied paths (red), and the reason for each decision. |
+| **Nombre** | Diagnosticar Permisos vía Visualizador de Grafos |
+| **Actor Principal** | SRE / Ingeniero de Soporte |
+| **Precondiciones** | El actor está autenticado con rol SRE o SuperAdmin en la Consola Admin UMS. El usuario destino existe y tiene al menos un perfil asignado. |
+| **Postcondiciones** | El grafo de autorización compilado es renderizado visualmente. El actor puede identificar rutas permitidas (verde), denegadas (rojo) y la razón de cada decisión. |
 
 ---
 
-## 🔄 2. Transaction Flow
+## 🔄 2. Flujo de Transacción
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor SRE as SRE / Support Engineer
-    participant Console as UMS Admin Console
-    participant API as UMS .NET 8 API
-    participant Engine as Auth Engine (PDP)
-    participant Cache as Redis Cache
+    actor SRE as SRE / Ingeniero Soporte
+    participant Console as Consola Admin UMS
+    participant API as API .NET 8 UMS
+    participant Engine as Motor Auth (PDP)
+    participant Cache as Caché Redis
     participant DB as PostgreSQL
 
-    SRE->>Console: Navigate to Graph Resolver module
-    SRE->>Console: Search user by email or user_id
+    SRE->>Console: Navegar al módulo Visualizador de Grafos
+    SRE->>Console: Buscar usuario por email o user_id
     Console->>API: GET /api/v1/users?email=analyst@logisticscorp.com
-    API-->>Console: Return matching user record
-    SRE->>Console: Select Organization, Branch, and Target System
+    API-->>Console: Retornar registro de usuario coincidente
+    SRE->>Console: Seleccionar Organización, Sede y Sistema Objetivo
     Console->>API: POST /v1/authorization/graph/diagnostic { user_id, tenant_id, branch_id, system_id }
-    Note over API: Bypass cache for diagnostic - always recompiles from DB
-    API->>Engine: Trigger fresh graph compilation
-    Engine->>DB: Query all profiles and templates for user in context
-    Engine->>Engine: Apply Explicit-Deny Precedence rules
-    Engine-->>API: Return annotated graph with decision reasons per node
-    API-->>Console: Return diagnostic payload { graph, decisions, source_rules }
-    Console->>SRE: Render interactive Visual Tree
-    Note over Console: Green = ALLOW, Red = DENY, Grey = Not Assigned
-    SRE->>Console: Click any node to view decision rationale
-    Console->>SRE: Show rule source (template_id, profile_id, effect, reason)
+    Note over API: Omite caché para diagnóstico - siempre re-compila desde DB
+    API->>Engine: Disparar compilación fresca del grafo
+    Engine->>DB: Consultar todos los perfiles y plantillas para el usuario
+    Engine->>Engine: Aplicar reglas de Precedencia de Denegación Explícita
+    Engine-->>API: Retornar grafo anotado con razones de decisión por nodo
+    API-->>Console: Retornar payload diagnóstico { graph, decisions, source_rules }
+    Console->>SRE: Renderizar Árbol Visual interactivo
+    Note over Console: Verde = PERMITIDO, Rojo = DENEGADO, Gris = No Asignado
+    SRE->>Console: Clic en nodo para ver razón de decisión
+    Console->>SRE: Mostrar fuente de regla (template_id, profile_id, efecto, razón)
 ```
 
-### A. Main Flow
-1. SRE navigates to the **Graph Resolver** module in the Admin Console.
-2. Types the user's email or `user_id` in the search input. The system returns matching user records.
-3. Selects the **Organization**, **Branch**, and **System** context from cascading dropdowns.
-4. Clicks **Resolve Graph**. The API calls the Authorization Engine's **diagnostic endpoint**, which **always bypasses the Redis cache** and recompiles directly from PostgreSQL to show the current ground-truth state.
-5. The engine returns an annotated graph that includes, for each Menu/Submenu/Option/Action node:
-    - The `effect` (`ALLOW`, `DENY`, or `NOT_ASSIGNED`)
-    - The `source_rule` (template_id or profile_id that produced the effect)
-    - The `reason` (e.g., `Granted by Template_SCM_Analyst_Baseline_v1`, `Blocked by Explicit DENY in profile PortSupervisor_Callao`)
-6. The Console renders the tree interactively: **green nodes** for ALLOW, **red nodes** for DENY, **grey nodes** for NOT_ASSIGNED.
-7. SRE can click any node to expand its decision rationale panel.
+### A. Flujo Principal
+1. El SRE navega al módulo **Visualizador de Grafos** en la Consola de Administración.
+2. Escribe el correo del usuario o `user_id` en el buscador. El sistema devuelve los registros de usuarios coincidentes.
+3. Selecciona la **Organización**, **Sede** y **Sistema** a través de listas desplegables en cascada.
+4. Hace clic en **Resolver Grafo**. La API llama al **endpoint de diagnóstico** del Motor de Autorización, el cual **siempre ignora la caché de Redis** y recompila directamente desde PostgreSQL para mostrar el estado actual real (ground-truth).
+5. El motor devuelve un grafo anotado que incluye, para cada nodo de Menú/Submenú/Opción/Acción:
+    - El `efecto` (`ALLOW`, `DENY` o `NOT_ASSIGNED`).
+    - La `fuente de regla` (`template_id` o `profile_id` que produjo el efecto).
+    - La `razón` (ej., `Concedido por Template_SCM_Analyst_Baseline_v1`, `Bloqueado por DENY explícito en perfil PortSupervisor_Callao`).
+6. La Consola renderiza el árbol interactivamente: **nodos verdes** para PERMITIR (ALLOW), **nodos rojos** para DENEGAR (DENY), **nodos grises** para NO ASIGNADO.
+7. El SRE puede hacer clic en cualquier nodo para expandir su panel de justificación de decisión.
 
 ---
 
-## 🛡️ 3. Alternative Flows & Exception Handling
+## 🛡️ 3. Flujos Alternativos y Manejo de Excepciones
 
-### Alternative Flow A: User Has No Profile Assignments
-- If the user has no active profiles for the selected context, the tree renders as completely grey with the message: *"No active profile assignments found for this user in the selected context. Assign a profile or template to grant access."*
+### Flujo Alternativo A: Usuario sin Asignaciones de Perfil
+- Si el usuario no tiene perfiles activos para el contexto seleccionado, el árbol se renderiza completamente gris con el mensaje: *"No se encontraron asignaciones de perfil activas para este usuario en el contexto seleccionado. Asigne un perfil o plantilla para conceder acceso."*
 
-### Alternative Flow B: No Branch Selected (Org-Wide Scope)
-- If branch is left empty, the diagnostic resolves org-wide permissions only, excluding branch-scoped profile overrides.
+### Flujo Alternativo B: Sede no Seleccionada (Alcance de Toda la Organización)
+- Si el campo sede se deja en blanco, el diagnóstico resuelve permisos a nivel de toda la organización, excluyendo sobreescrituras (overrides) de perfiles con alcance específico de sede.
 
-### Alternative Flow C: Geofencing Policy Present
-- If the compiled graph contains ABAC geofencing metadata on any node, the resolver displays the geofencing constraint inline (e.g., `callao_port_radius_10km`) as an informational annotation without evaluating runtime location.
-
+### Flujo Alternativo C: Presencia de Política de Geocercado (Geofencing)
+- Si el grafo compilado contiene metadatos de geocercado ABAC en cualquier nodo, el visualizador muestra la restricción de geocercado en línea (ej., `callao_port_radius_10km`) como una anotación informativa sin evaluar la ubicación en tiempo de ejecución.
