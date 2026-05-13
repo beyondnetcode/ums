@@ -1,0 +1,100 @@
+{
+  "rules": [
+    {
+      "id": "R-01",
+      "title": "Bilingual Documentation Sync",
+      "agents": ["po", "architect", "dev", "qa", "analyst"],
+      "trigger": "Any document, user story, use case, or diagram creation or update.",
+      "instruction": "Every document, user story, use case, and diagram must be maintained in both Spanish and English simultaneously. When content is created or updated in one language, the equivalent artifact in the other language must be updated in the same execution. Never leave a language version outdated or out of sync.",
+      "severity": "critical"
+    },
+    {
+      "id": "R-02",
+      "title": "Contextual Architecture Awareness (Context7)",
+      "agents": ["architect", "dev"],
+      "trigger": "Any task involving architecture, tech stack references, diagrams, or technical decisions.",
+      "instruction": "Before executing any task involving architecture, tech stack references, diagrams, or technical decisions, always resolve and load the current project context using context7. Never make architectural assumptions from memory. Always validate against live context.",
+      "severity": "critical"
+    },
+    {
+      "id": "R-03",
+      "title": "UTF-8 and Markdown Encoding Integrity",
+      "agents": ["po", "architect", "dev", "qa", "sm", "analyst"],
+      "trigger": "Document generation or modification.",
+      "instruction": "All generated or modified documents must be 100% UTF-8 clean. No special characters, corrupted glyphs, or encoding artifacts that could break Markdown rendering are permitted. Verify encoding integrity before finalizing any document output.",
+      "severity": "critical"
+    },
+    {
+      "id": "R-04",
+      "title": "Diagram Language Consistency",
+      "agents": ["po", "architect", "dev", "analyst"],
+      "trigger": "Creation or update of flow diagrams, sequence diagrams, architecture diagrams, or ERDs.",
+      "instruction": "All diagram element labels must match the language of the document they belong to. Spanish document = Spanish labels. English document = English labels. Cross-language diagrams are not permitted unless explicitly requested.",
+      "severity": "warning"
+    },
+    {
+      "id": "R-05",
+      "title": "Tech Stack Coherence Enforcement",
+      "agents": ["architect", "dev", "qa"],
+      "trigger": "Modification of technical references in functional or architectural documentation.",
+      "instruction": "Any technical reference in functional or architectural documentation must be validated against the approved project tech stack. Flag undeclared technologies and missing stack components from relevant documentation.",
+      "severity": "critical"
+    },
+    {
+      "id": "R-06",
+      "title": "UC and Story Separation of Concerns",
+      "agents": ["po", "architect", "analyst"],
+      "trigger": "Creation or update of UCs and stories.",
+      "instruction": "Classify all UCs and stories before creation or update: FUNCTIONAL: business behavior, user goals, operational rules only. TECHNICAL: system behavior, infrastructure, integrations, architecture. TECHNICAL_ENABLER: NFRs, security, performance, architectural decisions. MIXED stories must be split before backlog acceptance. Never merge business logic with implementation details in a single UC.",
+      "severity": "warning"
+    },
+    {
+      "id": "R-07",
+      "title": "UC Traceability on Diagram Updates",
+      "agents": ["po", "architect", "dev", "analyst"],
+      "trigger": "UC creation or update.",
+      "instruction": "When a UC is created or updated, all impacted diagrams must be identified and updated in the same execution. Every diagram modification must log: document name, diagram type, what changed, and the UC ID that triggered the change.",
+      "severity": "critical"
+    },
+    {
+      "id": "R-08",
+      "title": "Authentication Flow Completeness",
+      "agents": ["po", "architect", "dev", "analyst"],
+      "trigger": "Any diagram or document including login or authentication flows.",
+      "instruction": "Any diagram or document including login or authentication flows must explicitly represent both paths: IDP (federated) and Internal (native). The decision point must be clearly visible. Single-path auth diagrams are incomplete and must be flagged.",
+      "severity": "critical"
+    },
+    {
+      "id": "R-09",
+      "title": "Functional Readability Standard",
+      "agents": ["po", "analyst"],
+      "trigger": "Creation or update of functional documentation.",
+      "instruction": "All functional documentation must be written in plain language accessible to non-technical stakeholders. Technical jargon must not appear in FUNCTIONAL artifacts. If a technical concept is essential, include a plain-language summary.",
+      "severity": "warning"
+    },
+    {
+      "id": "R-10",
+      "title": "Audit Report Format on Verification Tasks",
+      "agents": ["qa", "po", "architect", "analyst", "sm"],
+      "trigger": "Any verification or quality audit task.",
+      "instruction": "Any verification or quality audit task must produce a structured report per issue: Affected document or artifact; Location (section, diagram name, line, or UC ID); Issue type (encoding / language / stack / diagram / story-mix); Severity (critical / warning / info); Recommended fix. No verification task is complete without this report.",
+      "severity": "critical"
+    },
+    {
+      "id": "R-11",
+      "title": "PO-first Architect-second Execution Order",
+      "agents": ["po", "architect"],
+      "trigger": "Tasks requiring both functional and architectural analysis.",
+      "instruction": "For tasks requiring both functional and architectural analysis, always execute: 1. PO agent — functional lens, business impact, readability. 2. Architect agent — technical lens, system coherence, stack alignment, diagrams. The Architect phase must build upon PO phase output. Never reverse or parallelize this order unless explicitly instructed.",
+      "severity": "warning"
+    },
+    {
+      "id": "R-12",
+      "title": "Naming and Tagging Convention Enforcement",
+      "agents": ["po", "architect", "dev", "analyst", "sm"],
+      "trigger": "UC, story, epic, or technical enabler creation or update.",
+      "instruction": "All UCs, stories, epics, and technical enablers must follow the project naming convention and tagging taxonomy. Apply category prefixes and tags on creation and update. Flag untagged or incorrectly named artifacts before merge.",
+      "severity": "info"
+    }
+  ]
+}
