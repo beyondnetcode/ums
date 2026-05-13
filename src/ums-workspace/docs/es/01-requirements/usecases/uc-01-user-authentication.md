@@ -1,68 +1,63 @@
-﻿> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versi�n original (Ingl�s) y est� programado para traducci�n oficial en la hoja de ruta.
+# 🧪 Caso de Uso 1: Autenticación de Usuario vía IdP Externo
 
-# 🧪 Use Case 1: User Authentication via External IdP
-
-This document specifies the transaction flow, actors, and fallback strategies for authenticating a corporate user against an external identity provider (IdP) under the **spec-driven AI strategy BMAD-METHOD**.
+Este documento especifica el flujo de transacciones, los actores y las estrategias de respaldo para autenticar a un usuario corporativo mediante un proveedor de identidad externo (IdP) bajo la **estrategia spec-driven AI BMAD-METHOD**.
 
 ---
 
-## 🏛️ 1. Use Case Definition
+## 🏛️ 1. Definición del Caso de Uso
 
-| Attribute | Specification |
+| Atributo | Especificación |
 | :--- | :--- |
-| **Name** | User Authentication via External IdP |
-| **Primary Actor** | SCM Corporate User |
-| **Preconditions** | User is registered in the ULPMS database and holds a valid HR employee reference. |
-| **Postconditions** | Session is established in the SCM application, and a secure HTTP-Only cookie is returned. |
+| **Nombre** | Autenticación de Usuario vía IdP Externo |
+| **Actor Principal** | Usuario Corporativo SCM |
+| **Precondiciones** | El usuario está registrado en la base de datos de ULPMS y posee una referencia válida de empleado de RRHH. |
+| **Postcondiciones** | La sesión se establece en la aplicación SCM y se devuelve una cookie segura HTTP-Only. |
 
 ---
 
-## 🔄 2. Transaction Flow
+## 🔄 2. Flujo de Transacción
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User as SCM Corporate User
-    participant Web as React Web App
-    participant IdP as Identity Provider (OIDC)
-    participant API as NestJS API Gateway
+    actor User as Usuario Corporativo SCM
+    participant Web as App Web React
+    participant IdP as Proveedor de Identidad (OIDC)
+    participant API as API Gateway NestJS
 
-    User->>Web: Click Login
-    Web->>IdP: Redirect with PKCE Auth Code Flow
-    User->>IdP: Enter Corporate Credentials
-    IdP-->>Web: Redirect with Auth Code
-    Web->>API: Exchange Auth Code
-    Note over API: Verify Token & Employee Claim
-    API-->>Web: Set HTTP-Only Session Cookie
+    User->>Web: Clic en Iniciar Sesión
+    Web->>IdP: Redirigir con Flujo Auth Code PKCE
+    User->>IdP: Ingresar Credenciales Corporativas
+    IdP-->>Web: Redirigir con Auth Code
+    Web->>API: Intercambiar Auth Code
+    Note over API: Verificar Token y Claim de Empleado
+    API-->>Web: Configurar Cookie de Sesión HTTP-Only
 ```
 
-### A. Main Flow
-1.  The user accesses the SCM portal and clicks the "Login with Corporate SSO" button.
-2.  The web client redirects the user to the configured external Identity Provider (Keycloak/Azure AD) authorization endpoint using **OAuth 2.0 Auth Code Flow with PKCE**.
-3.  The user authenticates successfully using their corporate credentials on the IdP portal.
-4.  The IdP redirects the browser back to the SCM portal with an authorized single-use Authorization Code.
-5.  The SCM backend exchanges the Authorization Code with the IdP for a cryptographically signed Access Token (JWT) containing employee claims.
-6.  The backend verifies the token's RS256 signature and validates that the `employee_reference` matches an active employee record in the local SCM database.
-7.  The system initializes the user session, injects the tenant context, and returns a secure, HTTP-Only, SameSite=Strict session cookie.
+### A. Flujo Principal
+1.  El usuario accede al portal SCM y hace clic en el botón "Iniciar Sesión con SSO Corporativo".
+2.  El cliente web redirige al usuario al endpoint de autorización del Proveedor de Identidad externo configurado (Keycloak/Azure AD) utilizando el **Flujo de Código de Autorización OAuth 2.0 con PKCE**.
+3.  El usuario se autentica exitosamente utilizando sus credenciales corporativas en el portal del IdP.
+4.  El IdP redirige el navegador de vuelta al portal SCM con un Código de Autorización de un solo uso autorizado.
+5.  El backend SCM intercambia el Código de Autorización con el IdP por un Token de Acceso firmado criptográficamente (JWT) que contiene los claims del empleado.
+6.  El backend verifica la firma RS256 del token y valida que la `employee_reference` coincida con un registro de empleado activo en la base de datos local de SCM.
+7.  El sistema inicializa la sesión del usuario, inyecta el contexto del tenant y devuelve una cookie de sesión segura, HTTP-Only y SameSite=Strict.
 
 ---
 
-## 🛡️ 3. Alternative Flows & Exception Handling
+## 🛡️ 3. Flujos Alternativos y Manejo de Excepciones
 
-### Alternative Flow A: External IdP Inaccessible
-*   If the connection to Keycloak/Azure AD fails, the SCM Gateway intercepts the timeout error.
-*   The system displays a secure fallback credentials page allowing authorized IT Administrators to login using local ULPMS emergency credentials, while standard operators are prompted to retry.
+### Flujo Alternativo A: IdP Externo Inaccesible
+*   Si falla la conexión a Keycloak/Azure AD, el Gateway SCM intercepta el error de tiempo de espera (timeout).
+*   El sistema muestra una página de credenciales de respaldo segura que permite a los Administradores de TI autorizados iniciar sesión utilizando credenciales locales de emergencia de ULPMS, mientras que a los operadores estándar se les solicita reintentar.
 
-### Alternative Flow B: Unlinked Employee Reference
-*   If the authenticated IdP token succeeds but the `employee_reference` is not found or is suspended in the SCM database:
-    *   The backend aborts the login process.
-    *   Saves a security warning inside the immutable access audit logs.
-    *   Returns a `403 Forbidden` response explaining that the corporate account is not active on the SCM portal.
+### Flujo Alternativo B: Referencia de Empleado no Vinculada
+*   Si el token del IdP autenticado es exitoso pero no se encuentra la `employee_reference` o está suspendida en la base de datos SCM:
+    *   El backend aborta el proceso de inicio de sesión.
+    *   Guarda una advertencia de seguridad dentro de los registros de auditoría de acceso inmutables.
+    *   Devuelve una respuesta `403 Forbidden` explicando que la cuenta corporativa no está activa en el portal SCM.
 
 ---
 
-## 📋 4. Primary Operational Model Reference
-The complete transaction flow, multi-factor authentication considerations, and error paths for this use case are modeled around the **SCM Transportation Analyst** initiating a session at the Callao Port Terminal (under *Logistics Corp*). For the detailed technical schemas, parameter structures, and OpenAPI examples, consult **[enterprise-iam-ums-specification.md](../../04-artifacts/enterprise-iam-ums-specification.md)**.
-
-
-
+## 📋 4. Referencia del Modelo Operativo Principal
+El flujo de transacción completo, las consideraciones de autenticación multifactor y las rutas de error para este caso de uso están modeladas en torno al **Analista de Transporte SCM** iniciando una sesión en el Terminal Portuario del Callao (bajo *Logistics Corp*). Para conocer los esquemas técnicos detallados, estructuras de parámetros y ejemplos de OpenAPI, consulte **[enterprise-iam-ums-specification.md](../../04-artifacts/enterprise-iam-ums-specification.md)**.
