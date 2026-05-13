@@ -1,3 +1,5 @@
+<img src="./governance/assets/header-banner.png" height="50" alt="Software Architecture Banner" />
+
 # UMS — Enterprise User Management System
 
 > **High-scale Modular Monolith for Unified Identity & Authorization.**

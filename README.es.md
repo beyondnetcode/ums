@@ -1,3 +1,5 @@
+<img src="./governance/assets/header-banner.png" height="50" alt="Software Architecture Banner" />
+
 # UMS — Sistema de Gestión de Usuarios Empresarial
 
 > **Monolito Modular de alta escala para Identidad y Autorización Unificada.**
