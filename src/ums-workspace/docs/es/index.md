@@ -1,4 +1,4 @@
-﻿# 🗺️ Mapa de Navegación Maestro - Base de Conocimiento de UMS
+# 🗺️ Mapa de Navegación Maestro - Base de Conocimiento de UMS
 
 > 🌍 **Selector de Idioma:** [🇪🇸 Español](./index.md) | [🇺🇸 English](../en/index.md)
 
@@ -35,6 +35,7 @@ Detalla reglas de negocio, secuencias interactivas, diagramas conceptuales de ba
     *   [UC-09: Resolver Configuración Jerárquica del Sistema](./01-requirements/usecases/uc-09-resolve-hierarchical-config.md)
     *   [UC-10: Autenticar vía Página de Inicio Personalizable](./01-requirements/usecases/uc-10-hosted-login-redirection.md)
     *   [UC-11: Autenticación Adaptativa Multifactor y Sin Contraseña](./01-requirements/usecases/uc-11-mfa-passwordless-adaptive-auth.md)
+    *   [UC-12: Flujo de Aprobación y Petición de Acceso Externo B2B](./01-requirements/usecases/uc-12-external-b2b-access-request-approval.md)
 
 ---
 

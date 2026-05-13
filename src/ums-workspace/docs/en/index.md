@@ -1,4 +1,4 @@
-﻿# 🗺️ Master Navigation Map - UMS Knowledge Base
+# 🗺️ Master Navigation Map - UMS Knowledge Base
 
 > 🌍 **Language Selector:** [🇪🇸 Español](../es/index.md) | [🇺🇸 English](./index.md)
 
@@ -35,6 +35,7 @@ Details business rules, interactive sequences, conceptual database diagrams, and
     *   [UC-09: Resolve Hierarchical System Configuration](./01-requirements/usecases/uc-09-resolve-hierarchical-config.md)
     *   [UC-10: Authenticate via Customizable Hosted Login Page](./01-requirements/usecases/uc-10-hosted-login-redirection.md)
     *   [UC-11: Multi-Factor & Passwordless Adaptive Authentication](./01-requirements/usecases/uc-11-mfa-passwordless-adaptive-auth.md)
+    *   [UC-12: External B2B Access Request & Approval Workflow](./01-requirements/usecases/uc-12-external-b2b-access-request-approval.md)
 
 ---
 

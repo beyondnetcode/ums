@@ -1,4 +1,4 @@
-﻿> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versi�n original (Ingl�s) y est� programado para traducci�n oficial en la hoja de ruta.
+> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versi�n original (Ingl�s) y est� programado para traducci�n oficial en la hoja de ruta.
 
 # 💾 Conceptual Data Model
 
@@ -11,6 +11,9 @@ This document details the database schema, entity structures, relationships, and
 ```mermaid
 erDiagram
     ORGANIZATION ||--o{ BRANCH : has
+    ORGANIZATION ||--o{ ORGANIZATION : parent_hierarchy
+    USER ||--o{ EXTERNAL_ACCESS_REQUEST : sponsors
+    ORGANIZATION ||--o{ EXTERNAL_ACCESS_REQUEST : targets
     ORGANIZATION ||--o{ USER : contains
     ORGANIZATION ||--o{ PROFILE : owns
 
@@ -53,12 +56,18 @@ erDiagram
 - `status` (enum): `ACTIVE`, `SUSPENDED`, or `TERMINATED`.
 - `created_at` (timestamp): Record creation timestamp.
 
-### B. Organization Entity (Tenant)
-- `id` (UUID, PK): Unique identifier for the tenant.
-- `name` (string): Corporate legal company name.
-- `company_reference` (string): External company code linking to corporate ERP (e.g., SAP code).
+### B. Entidad Organization (Organización)
+> [!IMPORTANT]
+> Esta entidad representa un nodo empresarial. Una organización puede ser el Tenant corporativo principal (`INTERNAL`), o un actor externo como un `CLIENT` o `SUPPLIER` B2B.
+
+- `id` (UUID, PK): Identificador único de la organización.
+- `tenant_id` (UUID, FK): El tenant maestro general al que pertenece esta organización.
+- `parent_organization_id` (UUID, FK, Nullable): Enlace autorreferencial para agrupación jerárquica (Ej. Grupo Matriz -> Subsidiaria).
+- `type` (enum): `INTERNAL`, `CLIENT`, `SUPPLIER`, `PARTNER`.
+- `name` (string): Nombre legal corporativo de la empresa.
+- `company_reference` (string): Código de empresa externo que enlaza con el ERP corporativo (ej. código SAP).
 - `idp_strategy` (enum): `INTERNAL_BCRYPT`, `ZITADEL`, `AZURE_AD`, `OKTA`, `SAML2`, `GENERIC_OIDC`.
-- `status` (enum): `ACTIVE` or `BLOCKED`.
+- `status` (enum): `ACTIVE` o `BLOCKED`.
 
 ### C. Branch Entity (Sedes)
 > [!IMPORTANT]
@@ -154,6 +163,16 @@ erDiagram
 - `evaluated_for_id` (UUID)
 - `result` (boolean or variant value)
 - `evaluated_at` (timestamp)
+
+### M. Entidad EXTERNAL_ACCESS_REQUEST *(NUEVO — Contexto de Aprobación B2B)*
+- `id` (UUID, PK)
+- `sponsor_user_id` (UUID, FK → USER): Usuario interno que solicita acceso para un tercero.
+- `target_organization_id` (UUID, FK, Nullable → ORGANIZATION): La organización cliente/proveedor B2B externa.
+- `target_user_email` (string): Correo del usuario externo.
+- `requested_profile_id` (UUID, FK → PROFILE): Rol sugerido para el usuario externo.
+- `justification` (text): Razón de negocio para otorgar el acceso.
+- `status` (enum): `DRAFT`, `PENDING_APPROVAL`, `APPROVED`, `REJECTED`.
+- `approved_by` (UUID, FK, Nullable → USER): Administrador PAP que autorizó la solicitud.
 
 ---
 

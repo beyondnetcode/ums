@@ -1,4 +1,4 @@
-﻿# 💾 Conceptual Data Model
+# 💾 Conceptual Data Model
 
 This document details the database schema, entity structures, relationships, and Entity-Relationship diagrams for the **User Management System (UMS)** under the **spec-driven AI strategy BMAD-METHOD**.
 
@@ -9,6 +9,9 @@ This document details the database schema, entity structures, relationships, and
 ```mermaid
 erDiagram
     ORGANIZATION ||--o{ BRANCH : has
+    ORGANIZATION ||--o{ ORGANIZATION : parent_hierarchy
+    USER ||--o{ EXTERNAL_ACCESS_REQUEST : sponsors
+    ORGANIZATION ||--o{ EXTERNAL_ACCESS_REQUEST : targets
     ORGANIZATION ||--o{ USER : contains
     ORGANIZATION ||--o{ PROFILE : owns
 
@@ -51,8 +54,14 @@ erDiagram
 - `status` (enum): `ACTIVE`, `SUSPENDED`, or `TERMINATED`.
 - `created_at` (timestamp): Record creation timestamp.
 
-### B. Organization Entity (Tenant)
-- `id` (UUID, PK): Unique identifier for the tenant.
+### B. Organization Entity
+> [!IMPORTANT]
+> This entity represents a company node. An organization can be the primary corporate Tenant (`INTERNAL`), or an external actor such as a B2B `CLIENT` or `SUPPLIER`.
+
+- `id` (UUID, PK): Unique identifier for the organization.
+- `tenant_id` (UUID, FK): The overarching master tenant this organization belongs to.
+- `parent_organization_id` (UUID, FK, Nullable): Self-referencing link for hierarchical grouping (e.g., Parent Group -> Subsidiary).
+- `type` (enum): `INTERNAL`, `CLIENT`, `SUPPLIER`, `PARTNER`.
 - `name` (string): Corporate legal company name.
 - `company_reference` (string): External company code linking to corporate ERP (e.g., SAP code).
 - `idp_strategy` (enum): `INTERNAL_BCRYPT`, `ZITADEL`, `AZURE_AD`, `OKTA`, `SAML2`, `GENERIC_OIDC`.
@@ -152,6 +161,16 @@ erDiagram
 - `evaluated_for_id` (UUID)
 - `result` (boolean or variant value)
 - `evaluated_at` (timestamp)
+
+### M. EXTERNAL_ACCESS_REQUEST Entity *(NEW — B2B Approval Context)*
+- `id` (UUID, PK)
+- `sponsor_user_id` (UUID, FK → USER): Internal user requesting access for a third party.
+- `target_organization_id` (UUID, FK, Nullable → ORGANIZATION): The external B2B client/supplier organization.
+- `target_user_email` (string): Email of the external user.
+- `requested_profile_id` (UUID, FK → PROFILE): Suggested role for the external user.
+- `justification` (text): Business rationale for granting access.
+- `status` (enum): `DRAFT`, `PENDING_APPROVAL`, `APPROVED`, `REJECTED`.
+- `approved_by` (UUID, FK, Nullable → USER): PAP Admin who authorized the request.
 
 ---
 
