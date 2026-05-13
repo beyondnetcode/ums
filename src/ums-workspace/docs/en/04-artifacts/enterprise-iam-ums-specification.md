@@ -27,11 +27,11 @@ In this reference scenario, a **SCM Transportation Analyst** initiates a session
 ### Use Case: Contextual Authentication & Multi-Tenant Graph Synthesis
 *   **Primary Actor**: SCM Transportation Analyst.
 *   **Target System**: SCM Route Planner.
-*   **Preconditions**: User is registered in UMS and holds a valid employee reference; SCM Route Planner and Callao Terminal are registered in the UMS.
+*   **Preconditions**: User is registered in UMS and holds a valid identity reference; SCM Route Planner and Callao Terminal are registered in the UMS.
 *   **Postconditions**: Session established with dual cryptographically rotated tokens and a contextual, branch-restricted JSON authorization graph.
 
 ### Variations and Exception Paths
-*   **Variation A: Federated Identity Provider (Azure AD/Okta)**: Gateway delegates credential verification to the external corporate IdP via SAML2/OIDC. SCM local database is bypassed for credential verification, and user is mapped using `employee_reference` claims.
+*   **Variation A: Federated Identity Provider (Azure AD/Okta)**: Gateway delegates credential verification to the external corporate IdP via SAML2/OIDC. SCM local database is bypassed for credential verification, and user is mapped using `identity_reference` claims.
 *   **Variation B: Multi-Factor Authentication (MFA)**: If the tenant enforces adaptive MFA based on IP range, the analyst is prompted for WebAuthn (Passkeys) verification before the UMS authorization graph call is triggered.
 *   **Exception 1: Missing Tenant Context**: If the request lacks `tenant_id` or `branch_id`, the API returns a `400 Bad Request` with error code `ERR_MISSING_CONTEXT`, aborting graph resolution.
 *   **Exception 2: Authorization Graph Not Found**: If the user authenticates successfully but holds no active profile assignments for the Callao branch, the API returns a `403 Forbidden` with error code `ERR_ZERO_PERMISSIONS`.
@@ -124,7 +124,7 @@ Authorization: Bearer m2m_token_gateway_abc123
   "principal": {
     "user_id": "usr_analyst_callao_098",
     "email": "analyst@logisticscorp.com",
-    "employee_reference": "EMP-PERU-998"
+    "identity_reference": "EMP-PERU-998"
   },
   "context": {
     "tenant_id": "tenant_logistics_corp",

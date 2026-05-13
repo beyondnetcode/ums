@@ -11,13 +11,13 @@
 Actualmente, el Sistema de Gestión de Usuarios (UMS) y el dominio extendido de SCM utilizan de forma implícita el concepto de "Empleado" como la unidad fundamental que posee permisos, interactúa con los sistemas y se autentica contra el proveedor de identidad (IdP). 
 
 Este enfoque se evidencia en acoplamientos técnicos y funcionales críticos:
-*   **Base de Datos y APIs:** Uso de la propiedad `employee_reference` como validación obligatoria del backend tras el intercambio del Token OAuth (JWT).
-*   **Eventos de Dominio:** El evento `UserRegisteredEvent` transporta directamente el campo `employeeReference`.
+*   **Base de Datos y APIs:** Uso de la propiedad `identity_reference` como validación obligatoria del backend tras el intercambio del Token OAuth (JWT).
+*   **Eventos de Dominio:** El evento `UserRegisteredEvent` transporta directamente el campo `identityReference`.
 *   **Reglas de Negocio:** Validaciones que exigen que la referencia coincida exclusivamente con los sistemas de Recursos Humanos internos.
 
 ### ⚠️ Problema Identificado
 Con la introducción de flujos de negocio B2B (como el **Caso de Uso 12 / FS-10: Flujo de Aprobación de Acceso Externo**), el negocio ahora requiere aprovisionar accesos a identidades que **no son empleados** de la compañía anfitriona (ej: transportistas de terceros, operadores de montacargas contratados por proveedores, auditores externos, clientes B2B). 
-Exigir que estas personas tengan una "Referencia de Empleado" obliga a "ensuciar" la base de datos de RRHH con personal ajeno, bloquea el aprovisionamiento ágil y genera inconsistencia semántica de dominio.
+Exigir que estas personas tengan una "Referencia de Miembro de Organización" obliga a "ensuciar" la base de datos de RRHH con personal ajeno, bloquea el aprovisionamiento ágil y genera inconsistencia semántica de dominio.
 
 ---
 
@@ -29,7 +29,7 @@ Las directrices de implementación técnica y funcional son:
 
 1.  **Abstracción Semántica:** El dominio dejará de validar "Empleados". En su lugar, validará un `Subject` (Sujeto) que tiene un rol y una relación contextual con un `Tenant` a través de su `Organization`.
 2.  **Reemplazo de Referencias:**
-    *   El campo `employee_reference` en la base de datos y los contratos de API será renombrado/migrado a `external_identity_reference` o simplemente `identity_reference`.
+    *   El campo `identity_reference` en la base de datos y los contratos de API será renombrado/migrado a `external_identity_reference` o simplemente `identity_reference`.
     *   Se agregará el campo `identity_reference_type` (`HR_ID`, `VENDOR_CODE`, `GOVERNMENT_ID`, `PARTNER_REF`) para dar contexto semántico a la referencia externa.
 3.  **Responsabilidad de Aprovisionamiento por Organización:** La organización del usuario externo se vuelve la entidad responsable del ciclo de vida de su personal, mediada por flujos de solicitud formal aprobadas por un Sponsor corporativo (cumpliendo el principio de delegación federada).
 
@@ -43,10 +43,10 @@ classDiagram
     class User {
         +UUID id
         +String email
-        +String employee_reference
+        +String identity_reference
     }
     class HR_System {
-        +validateEmployee(employee_reference)
+        +validateEmployee(identity_reference)
     }
     User --> HR_System : Acoplamiento Estricto
 ```
@@ -95,9 +95,9 @@ Para garantizar la continuidad operacional y no romper la compatibilidad hacia a
 
 1.  **Fase de Coexistencia (Lectura/Escritura Doble):**
     *   Enriquecer la tabla de usuarios con el campo `identity_reference` y `reference_type` (nullable temporalmente).
-    *   El API .NET 8 leerá de `employee_reference` si está presente, pero guardará en ambos campos para los registros existentes.
+    *   El API .NET 8 leerá de `identity_reference` si está presente, pero guardará en ambos campos para los registros existentes.
 2.  **Fase de Deprecación de API:**
-    *   Marcar el claim de `employee_reference` en el payload JWT como `[Obsolete]` o en proceso de deprecación, pero manteniéndolo en el token por compatibilidad con microservicios legacy.
+    *   Marcar el claim de `identity_reference` en el payload JWT como `[Obsolete]` o en proceso de deprecación, pero manteniéndolo en el token por compatibilidad con microservicios legacy.
     *   Inyectar el nuevo claim unificado `sub_ref` (Subject Reference).
 3.  **Fase de Purgado:**
-    *   Una vez que el 100% de los servicios consuman `sub_ref`, ejecutar un script de base de datos para eliminar la columna obsoleta `employee_reference`.
+    *   Una vez que el 100% de los servicios consuman `sub_ref`, ejecutar un script de base de datos para eliminar la columna obsoleta `identity_reference`.

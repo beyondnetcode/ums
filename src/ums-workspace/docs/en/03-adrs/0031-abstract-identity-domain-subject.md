@@ -11,13 +11,13 @@
 Currently, the User Management System (UMS) and the extended SCM domain implicitly use the "Employee" concept as the fundamental unit that holds permissions, interacts with systems, and authenticates against the Identity Provider (IdP).
 
 This approach shows critical technical and functional coupling:
-*   **Database and APIs:** The use of the `employee_reference` property as mandatory backend validation after OAuth (JWT) token exchange.
-*   **Domain Events:** The `UserRegisteredEvent` directly carries the `employeeReference` field.
+*   **Database and APIs:** The use of the `identity_reference` property as mandatory backend validation after OAuth (JWT) token exchange.
+*   **Domain Events:** The `UserRegisteredEvent` directly carries the `identityReference` field.
 *   **Business Rules:** Validations that require the reference to match internal Human Resources systems exclusively.
 
 ### ⚠️ Identified Problem
 With the introduction of B2B business flows (such as **Use Case 12 / FS-10: External Access Approval Workflow**), the business now requires provisioning access to identities that **are not employees** of the host company (e.g., third-party drivers, forklift operators hired by suppliers, external auditors, B2B clients).
-Forcing these individuals to have an "Employee Reference" forces "polluting" the HR database with external personnel, blocks agile provisioning, and creates semantic inconsistency in the domain.
+Forcing these individuals to have an "Organization Member Reference" forces "polluting" the HR database with external personnel, blocks agile provisioning, and creates semantic inconsistency in the domain.
 
 ---
 
@@ -29,7 +29,7 @@ The technical and functional implementation guidelines are:
 
 1.  **Semantic Abstraction:** The domain will no longer validate "Employees." Instead, it will validate a `Subject` that has a role and a contextual relationship with a `Tenant` through their `Organization`.
 2.  **Replacement of References:**
-    *   The `employee_reference` field in the database and API contracts will be renamed/migrated to `external_identity_reference` or simply `identity_reference`.
+    *   The `identity_reference` field in the database and API contracts will be renamed/migrated to `external_identity_reference` or simply `identity_reference`.
     *   The `identity_reference_type` field (`HR_ID`, `VENDOR_CODE`, `GOVERNMENT_ID`, `PARTNER_REF`) will be added to give semantic context to the external reference.
 3.  **Provisioning Responsibility by Organization:** The external user's organization becomes the entity responsible for their personnel's lifecycle, mediated by formal request flows approved by a corporate Sponsor (complying with the federated delegation principle).
 
@@ -43,10 +43,10 @@ classDiagram
     class User {
         +UUID id
         +String email
-        +String employee_reference
+        +String identity_reference
     }
     class HR_System {
-        +validateEmployee(employee_reference)
+        +validateEmployee(identity_reference)
     }
     User --> HR_System : Tight Coupling
 ```
@@ -95,9 +95,9 @@ To ensure operational continuity and not break backward compatibility:
 
 1.  **Coexistence Phase (Dual Read/Write):**
     *   Enrich the users table with the `identity_reference` and `reference_type` fields (temporarily nullable).
-    *   The .NET 8 API will read from `employee_reference` if present, but will save to both fields for existing records.
+    *   The .NET 8 API will read from `identity_reference` if present, but will save to both fields for existing records.
 2.  **API Deprecation Phase:**
-    *   Mark the `employee_reference` claim in the JWT payload as `[Obsolete]` or in the process of deprecation, but keeping it in the token for compatibility with legacy microservices.
+    *   Mark the `identity_reference` claim in the JWT payload as `[Obsolete]` or in the process of deprecation, but keeping it in the token for compatibility with legacy microservices.
     *   Inject the new unified claim `sub_ref` (Subject Reference).
 3.  **Purging Phase:**
-    *   Once 100% of the services consume `sub_ref`, execute a database script to remove the obsolete column `employee_reference`.
+    *   Once 100% of the services consume `sub_ref`, execute a database script to remove the obsolete column `identity_reference`.

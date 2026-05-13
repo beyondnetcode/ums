@@ -39,8 +39,8 @@ sequenceDiagram
 2.  The web client redirects the user to the configured external Identity Provider (Keycloak/Azure AD) authorization endpoint using **OAuth 2.0 Auth Code Flow with PKCE**.
 3.  The user authenticates successfully using their corporate credentials on the IdP portal.
 4.  The IdP redirects the browser back to the SCM portal with an authorized single-use Authorization Code.
-5.  The SCM backend exchanges the Authorization Code with the IdP for a cryptographically signed Access Token (JWT) containing employee claims.
-6.  The backend verifies the token's RS256 signature and validates that the `employee_reference` matches an active employee record in the local SCM database.
+5.  The SCM backend exchanges the Authorization Code with the IdP for a cryptographically signed Access Token (JWT) containing identity claims.
+6.  The backend verifies the token's RS256 signature and validates that the `identity_reference` matches an active identity record in the local SCM database.
 7.  The system initializes the user session, injects the tenant context, and returns a secure, HTTP-Only, SameSite=Strict session cookie.
 
 ---
@@ -51,8 +51,8 @@ sequenceDiagram
 *   If the connection to Keycloak/Azure AD fails, the SCM Gateway intercepts the timeout error.
 *   The system displays a secure fallback credentials page allowing authorized IT Administrators to login using local ULPMS emergency credentials, while standard operators are prompted to retry.
 
-### Alternative Flow B: Unlinked Employee Reference
-*   If the authenticated IdP token succeeds but the `employee_reference` is not found or is suspended in the SCM database:
+### Alternative Flow B: Unlinked Organization Member Reference
+*   If the authenticated IdP token succeeds but the `identity_reference` is not found or is suspended in the SCM database:
     *   The backend aborts the login process.
     *   Saves a security warning inside the immutable access audit logs.
     *   Returns a `403 Forbidden` response explaining that the corporate account is not active on the SCM portal.

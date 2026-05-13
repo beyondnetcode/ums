@@ -90,7 +90,7 @@ graph TD
 - IdP configuration data (owned by Config Context)
 
 **Integration Contracts (Published Language):**
-- `UserRegisteredEvent { userId, organizationId, branchId, employeeReference }`
+- `UserRegisteredEvent { userId, organizationId, branchId, identityReference }`
 - `UserSuspendedEvent { userId, tenantId }`
 - `OrganizationCreatedEvent { tenantId, idpStrategy }`
 

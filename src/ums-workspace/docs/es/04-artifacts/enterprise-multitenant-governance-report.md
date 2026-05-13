@@ -11,7 +11,7 @@
 Tras un análisis exhaustivo del ecosistema de UMS, hemos identificado un **acoplamiento estructural rígido** en el diseño original que impacta negativamente la evolución SaaS del producto.
 
 ### Principales Hallazgos Arquitectónicos
-1.  **Acoplamiento de Identidad (Empleado vs Sujeto):** La dependencia de `employee_reference` como campo mandatorio asume una relación laboral interna. Esto bloquea escenarios B2B donde el usuario es un proveedor externo, un transportista tercero o un bot de integración (M2M) que carece de registro en la base de datos de RRHH corporativa.
+1.  **Acoplamiento de Identidad (Empleado vs Sujeto):** La dependencia de `identity_reference` como campo mandatorio asume una relación laboral interna. Esto bloquea escenarios B2B donde el usuario es un proveedor externo, un transportista tercero o un bot de integración (M2M) que carece de registro en la base de datos de RRHH corporativa.
 2.  **Activos de Software Huérfanos:** Los sistemas (SCM, WMS, ERP) y sus componentes (Menus, APIs) operan actualmente en un catálogo global "plano". No existe una definición explícita de quién es el dueño lógico del recurso y bajo qué condiciones un tercero (Tenant) puede consumirlo.
 3.  **Límites de Seguridad Ambiguos:** El modelo de permisos se enfoca en el "Qué" (acción) pero no en el "Quién es el dueño del objeto". Esto vulnera principios de Zero Trust donde la Organización debería ser la frontera física y lógica de cada bit de información.
 
@@ -60,7 +60,7 @@ Los sistemas y aplicaciones pertenecen explícitamente a una organización.
 ## 🚀 5. Estrategia de Transición Incremental
 
 1.  **Fase 01 (Cimentación):** Implementar la tabla de Organizaciones como frontera y asociar el 100% de los usuarios actuales a la "Organización Raíz".
-2.  **Fase 02 (Desacoplamiento):** Migrar de `employee_reference` a `identity_reference` (Sujeto agnóstico). Inyectar `X-Org-Context` en el API Gateway.
+2.  **Fase 02 (Desacoplamiento):** Migrar de `identity_reference` a `identity_reference` (Sujeto agnóstico). Inyectar `X-Org-Context` en el API Gateway.
 3.  **Fase 03 (Enforcement):** Activar políticas RLS en PostgreSQL para todas las tablas de dominio.
 4.  **Fase 04 (Federación):** Habilitar el módulo de Solicitudes B2B para que organizaciones externas soliciten acceso a sistemas internos de forma autónoma.
 

@@ -50,7 +50,7 @@ erDiagram
 - `organization_id` (UUID, FK): Owning tenant organization.
 - `email` (string, Unique): Corporate email address.
 - `password_hash` (string, **Nullable**): Populated **only** when the Internal Bcrypt Strategy adapter is active for the organization. `NULL` when authentication is delegated to an external IdP.
-- `employee_reference` (string): External unique ID linking to corporate HR/ERP records.
+- `identity_reference` (string): External unique ID linking to corporate HR/ERP records.
 - `status` (enum): `ACTIVE`, `SUSPENDED`, or `TERMINATED`.
 - `created_at` (timestamp): Record creation timestamp.
 

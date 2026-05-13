@@ -52,7 +52,7 @@ The UMS must allow per-tenant (and optionally per-system) configuration of one o
     "config_secret_ref": "vault://ums/secrets/logisticscorp/azure_client_secret",
     "scopes": ["openid", "profile", "email"],
     "user_claim_mapping": {
-      "employee_reference": "employeeId",
+      "identity_reference": "identityId",
       "email": "upn"
     }
   },

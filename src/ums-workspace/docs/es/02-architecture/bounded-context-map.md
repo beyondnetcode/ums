@@ -1,4 +1,4 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versiÛn original (InglÈs) y est· programado para traducciÛn oficial en la hoja de ruta.
+> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versin original (Ingls) y est programado para traduccin oficial en la hoja de ruta.
 
 # üó∫Ô∏è Bounded Context Map ‚Äî User Management System (UMS)
 
@@ -92,7 +92,7 @@ graph TD
 - IdP configuration data (owned by Config Context)
 
 **Integration Contracts (Published Language):**
-- `UserRegisteredEvent { userId, organizationId, branchId, employeeReference }`
+- `UserRegisteredEvent { userId, organizationId, branchId, identityReference }`
 - `UserSuspendedEvent { userId, tenantId }`
 - `OrganizationCreatedEvent { tenantId, idpStrategy }`
 

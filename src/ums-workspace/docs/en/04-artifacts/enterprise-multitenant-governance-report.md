@@ -11,7 +11,7 @@
 After an exhaustive analysis of the UMS ecosystem, we have identified a **rigid structural coupling** in the original design that negatively impacts the platform's SaaS evolution.
 
 ### Key Architectural Findings
-1.  **Identity Coupling (Employee vs. Subject):** The dependence on `employee_reference` as a mandatory field assumes an internal employment relationship. This blocks B2B scenarios where the user is an external supplier, a third-party driver, or an integration bot (M2M) lacking a record in the corporate HR database.
+1.  **Identity Coupling (Employee vs. Subject):** The dependence on `identity_reference` as a mandatory field assumes an internal employment relationship. This blocks B2B scenarios where the user is an external supplier, a third-party driver, or an integration bot (M2M) lacking a record in the corporate HR database.
 2.  **Orphaned Software Assets:** Systems (SCM, WMS, ERP) and their components (Menus, APIs) currently operate in a "flat" global catalog. There is no explicit definition of who is the logical owner of the resource and under what conditions a third party (Tenant) can consume it.
 3.  **Ambiguous Security Boundaries:** The permission model focuses on the "What" (action) but not on "Who owns the object." This violates **Zero Trust** principles where the Organization should be the physical and logical frontier for every bit of information.
 
@@ -60,7 +60,7 @@ Systems and applications explicitly belong to an organization.
 ## 🚀 5. Incremental Transition Strategy
 
 1.  **Phase 01 (Foundation):** Implement the Organizations table as a boundary and associate 100% of current users with the "Root Organization."
-2.  **Phase 02 (Decoupling):** Migrate from `employee_reference` to `identity_reference` (Agnostic Subject). Inject `X-Org-Context` in the API Gateway.
+2.  **Phase 02 (Decoupling):** Migrate from `identity_reference` to `identity_reference` (Agnostic Subject). Inject `X-Org-Context` in the API Gateway.
 3.  **Phase 03 (Enforcement):** Activate RLS policies in PostgreSQL for all domain tables.
 4.  **Phase 04 (Federation):** Enable the B2B Access Request module so external organizations can autonomously request access to internal systems.
 
