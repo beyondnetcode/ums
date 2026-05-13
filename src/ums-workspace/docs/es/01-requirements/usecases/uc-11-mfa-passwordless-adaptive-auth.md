@@ -30,7 +30,7 @@ sequenceDiagram
     participant Portal as UMS Hosted Login Portal
     participant Gateway as UMS Auth Gateway
     participant MFA as MFA Service (PDP)
-    participant DB as PostgreSQL (RLS)
+    participant DB as PostgreSQL
 
     User->>Portal: Submit primary credentials (Username/Password)
     Portal->>Gateway: POST /v1/auth/login
@@ -67,7 +67,7 @@ sequenceDiagram
     participant Portal as Client Application Portal
     participant Gateway as UMS Auth Gateway
     participant WebAuthn as WebAuthn Service
-    participant DB as PostgreSQL (RLS)
+    participant DB as PostgreSQL
 
     User->>Portal: Click "Login with Passkey" and enter email
     Portal->>Gateway: POST /v1/auth/passkey/assertion-options { email, tenant_id }

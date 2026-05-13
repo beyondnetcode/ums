@@ -1,15 +1,15 @@
-# 📖 UC-12: External B2B Access Request & Approval Workflow
+﻿# ðŸ“– UC-12: External B2B Access Request & Approval Workflow
 
 This document specifies the transaction flow, actors, preconditions, postconditions, and exception handling for sponsoring, approving, and provisioning access to external B2B organizations (clients, suppliers, partners) and their users under the **spec-driven AI strategy BMAD-METHOD**.
 
 ---
 
-## 🎯 1. Objective
+## ðŸŽ¯ 1. Objective
 To provide a secure, auditable, and federated workflow allowing internal corporate users (Sponsors) to request access for external third-party organizations and their employees, ensuring explicit approval from a Policy Administration Point (PAP) before any external identity is provisioned or granted access to the UMS.
 
 ---
 
-## 🎭 2. Actors
+## ðŸŽ­ 2. Actors
 *   **Sponsor User (Internal):** A corporate employee (e.g., Commercial Executive, Procurement Officer) who initiates the access request for a third-party organization.
 *   **PAP Administrator / Owner:** An authorized user with governance privileges who evaluates and approves or rejects the external access request.
 *   **External User (Target):** The third-party employee (Client/Supplier) who will receive the invitation and onboard the system once approved.
@@ -17,14 +17,14 @@ To provide a secure, auditable, and federated workflow allowing internal corpora
 
 ---
 
-## 🚦 3. Preconditions
+## ðŸš¦ 3. Preconditions
 1.  The Sponsor User must have an active session and belong to an internal organization (`ORGANIZATION.type = INTERNAL`).
 2.  The Sponsor User must possess the `CREATE_EXTERNAL_REQUEST` permission in their compiled authorization graph.
 3.  The suggested Profile for the external user must be explicitly marked as safe for external use (e.g., cannot be an internal Admin profile).
 
 ---
 
-## 🚀 4. Main Success Scenario (Happy Path)
+## ðŸš€ 4. Main Success Scenario (Happy Path)
 
 1.  **Initiation:** The Sponsor User navigates to the "B2B Access Management" module and selects "New External Request".
 2.  **Organization Data Entry:** The Sponsor specifies the target organization. If the organization does not exist, they provide the legal name, ERP reference code, and organization type (`CLIENT` or `SUPPLIER`).
@@ -41,7 +41,7 @@ To provide a secure, auditable, and federated workflow allowing internal corpora
 
 ---
 
-## 🛑 5. Exception Paths
+## ðŸ›‘ 5. Exception Paths
 
 *   **5a. PAP Rejection:**
     *   *Step 7 alternative:* The PAP Administrator clicks "Reject" and provides a rejection reason.
@@ -55,6 +55,6 @@ To provide a secure, auditable, and federated workflow allowing internal corpora
 
 ---
 
-## 🏁 6. Postconditions
+## ðŸ 6. Postconditions
 *   An immutable audit trail (`EXTERNAL_ACCESS_REQUEST`) exists explaining exactly why and who granted access to the external entity.
-*   The external User is logically isolated within their own `ORGANIZATION` boundary, allowing native Row-Level Security (RLS) enforcement.
+*   The external User is logically isolated within their own `ORGANIZATION` boundary, allowing logical application-level isolation (RLS at the database level is considered optional).
