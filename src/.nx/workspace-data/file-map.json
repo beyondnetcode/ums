@@ -1,0 +1,326 @@
+{
+  "version": "6.0",
+  "nxVersion": "22.7.1",
+  "pathMappings": {},
+  "nxJsonPlugins": [],
+  "fileMap": {
+    "nonProjectFiles": [
+      {
+        "file": ".eslintrc.js",
+        "hash": "16266062772136191986"
+      },
+      {
+        "file": ".husky/commit-msg",
+        "hash": "1662522230865824970"
+      },
+      {
+        "file": ".husky/pre-commit",
+        "hash": "2252388722391304785"
+      },
+      {
+        "file": ".lintstagedrc.json",
+        "hash": "12298572085250982508"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Application/Class1.cs",
+        "hash": "5555809034329485531"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Application/Common/Interfaces/ITenantContext.cs",
+        "hash": "1749257076433388530"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Application/Ums.Application.csproj",
+        "hash": "12125349165069650026"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Application/obj/Ums.Application.csproj.nuget.dgspec.json",
+        "hash": "3761589851477245219"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Application/obj/Ums.Application.csproj.nuget.g.props",
+        "hash": "6279994871348701362"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Application/obj/Ums.Application.csproj.nuget.g.targets",
+        "hash": "15192663866877192239"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Application/obj/project.assets.json",
+        "hash": "2690772909745233737"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Application/obj/project.nuget.cache",
+        "hash": "18277140488150718021"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Domain/Class1.cs",
+        "hash": "6619166451904247863"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Domain/Common/Entity.cs",
+        "hash": "3229000035589778580"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Domain/Common/Result.cs",
+        "hash": "1231355482422768255"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Domain/Entities/Organization.cs",
+        "hash": "16050517936800926027"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Domain/Entities/Subject.cs",
+        "hash": "11376818866205039153"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Domain/Enums/OrganizationType.cs",
+        "hash": "16609481206280866642"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Domain/Enums/ReferenceType.cs",
+        "hash": "7030956891476534966"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Domain/Ums.Domain.csproj",
+        "hash": "3208413897984775319"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Domain/obj/Ums.Domain.csproj.nuget.dgspec.json",
+        "hash": "6068624604145664236"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Domain/obj/Ums.Domain.csproj.nuget.g.props",
+        "hash": "6279994871348701362"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Domain/obj/Ums.Domain.csproj.nuget.g.targets",
+        "hash": "15192663866877192239"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Domain/obj/project.assets.json",
+        "hash": "15302572118436807582"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Domain/obj/project.nuget.cache",
+        "hash": "1095288575809194565"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Infrastructure/Class1.cs",
+        "hash": "9791591959825186621"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Infrastructure/Persistence/Interceptors/OrganizationDbContextInterceptor.cs",
+        "hash": "12791585287016540805"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Infrastructure/Persistence/TenantContext.cs",
+        "hash": "13746144764641888682"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Infrastructure/Ums.Infrastructure.csproj",
+        "hash": "11615456958201784248"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Infrastructure/obj/Ums.Infrastructure.csproj.nuget.dgspec.json",
+        "hash": "5021182017769816935"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Infrastructure/obj/Ums.Infrastructure.csproj.nuget.g.props",
+        "hash": "6279994871348701362"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Infrastructure/obj/Ums.Infrastructure.csproj.nuget.g.targets",
+        "hash": "15192663866877192239"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Infrastructure/obj/project.assets.json",
+        "hash": "11166234082131368590"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Infrastructure/obj/project.nuget.cache",
+        "hash": "9069211662691535510"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Presentation/Controllers/WeatherForecastController.cs",
+        "hash": "6233009520490912345"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Presentation/Program.cs",
+        "hash": "7373982767450965999"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Presentation/Properties/launchSettings.json",
+        "hash": "16192983630917131910"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Presentation/Ums.Presentation.csproj",
+        "hash": "2100052356685264607"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Presentation/WeatherForecast.cs",
+        "hash": "9701347439044913580"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Presentation/appsettings.Development.json",
+        "hash": "3339958947771738801"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Presentation/appsettings.json",
+        "hash": "8794831988107864270"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Presentation/obj/Ums.Presentation.csproj.nuget.dgspec.json",
+        "hash": "8837086884807941252"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Presentation/obj/Ums.Presentation.csproj.nuget.g.props",
+        "hash": "3221324454059151633"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Presentation/obj/Ums.Presentation.csproj.nuget.g.targets",
+        "hash": "15192663866877192239"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Presentation/obj/project.assets.json",
+        "hash": "5935238288935908716"
+      },
+      {
+        "file": "apps/app-api-dotnet/Ums.Presentation/obj/project.nuget.cache",
+        "hash": "5856924231904106315"
+      },
+      {
+        "file": "commitlint.config.js",
+        "hash": "10950796656646911766"
+      },
+      {
+        "file": "context7.json",
+        "hash": "3308647264684880070"
+      },
+      {
+        "file": "nx.json",
+        "hash": "5450499829741628076"
+      },
+      {
+        "file": "package-lock.json",
+        "hash": "575977579188431536"
+      },
+      {
+        "file": "package.json",
+        "hash": "2179462807098572817"
+      },
+      {
+        "file": "sonar-project.properties",
+        "hash": "13818528924191370442"
+      },
+      {
+        "file": "tsconfig.json",
+        "hash": "9997677782244487085"
+      }
+    ],
+    "projectFileMap": {
+      "app-web": [
+        {
+          "file": "apps/app-web/.gitignore",
+          "hash": "987422939859577920"
+        },
+        {
+          "file": "apps/app-web/Dockerfile",
+          "hash": "14159326082059877201"
+        },
+        {
+          "file": "apps/app-web/README.md",
+          "hash": "16006196804499990684"
+        },
+        {
+          "file": "apps/app-web/eslint.config.js",
+          "hash": "14295233468073832176"
+        },
+        {
+          "file": "apps/app-web/index.html",
+          "hash": "3523350244501711271"
+        },
+        {
+          "file": "apps/app-web/package.json",
+          "hash": "17137408121745562134",
+          "deps": [
+            "npm:@vitejs/plugin-react",
+            "npm:eslint",
+            "npm:postcss",
+            "npm:typescript",
+            "npm:vite"
+          ]
+        },
+        {
+          "file": "apps/app-web/postcss.config.js",
+          "hash": "15693758819557691193"
+        },
+        {
+          "file": "apps/app-web/project.json",
+          "hash": "6971287596426155806"
+        },
+        {
+          "file": "apps/app-web/public/vite.svg",
+          "hash": "16046085400642193116"
+        },
+        {
+          "file": "apps/app-web/src/App.css",
+          "hash": "13627028001484829084"
+        },
+        {
+          "file": "apps/app-web/src/App.tsx",
+          "hash": "1649707398968774444"
+        },
+        {
+          "file": "apps/app-web/src/application/hooks/use-users.hook.ts",
+          "hash": "15359628369555424744"
+        },
+        {
+          "file": "apps/app-web/src/application/stores/auth.store.ts",
+          "hash": "5905811539909134696"
+        },
+        {
+          "file": "apps/app-web/src/assets/react.svg",
+          "hash": "16069471864800376455"
+        },
+        {
+          "file": "apps/app-web/src/index.css",
+          "hash": "8167900217539817758"
+        },
+        {
+          "file": "apps/app-web/src/main.tsx",
+          "hash": "3025450120565290426"
+        },
+        {
+          "file": "apps/app-web/src/vite-env.d.ts",
+          "hash": "7856441258253745083"
+        },
+        {
+          "file": "apps/app-web/tailwind.config.js",
+          "hash": "16865978060335021304"
+        },
+        {
+          "file": "apps/app-web/tsconfig.app.json",
+          "hash": "14651992544648412334"
+        },
+        {
+          "file": "apps/app-web/tsconfig.json",
+          "hash": "11226547063925144724"
+        },
+        {
+          "file": "apps/app-web/tsconfig.node.json",
+          "hash": "12262193868857656205"
+        },
+        {
+          "file": "apps/app-web/vite.config.ts",
+          "hash": "7439983863429144252",
+          "deps": [
+            "npm:vite",
+            "npm:@vitejs/plugin-react"
+          ]
+        }
+      ]
+    }
+  },
+  "externalNodesHash": "9690358518733275832"
+}

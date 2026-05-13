@@ -3,15 +3,15 @@ Enterprise Monorepo for User Management System (UMS). An authorization block pro
 
 ## Build & Run
 > [!IMPORTANT]
-> The technical engine of this monorepo is located in `src/.workspace`. All technical commands must be executed relative to that directory.
+> The technical engine of this monorepo is located in `src/`. All technical commands must be executed relative to that directory.
 
-Commands for Frontend (run from `src/.workspace`):
+Commands for Frontend (run from `src/`):
 - Frontend Install: `npm install`
 - Frontend Start: `npx nx run app-web:dev`
 - Setup Docs Context (Context7): `npx ctx7 setup`
-- Markdown Encoding Sanitation: `python ../../.bmad-core/scripts/cleanup_markdown_encoding.py`
+- Markdown Encoding Sanitation: `python ../.bmad-core/scripts/cleanup_markdown_encoding.py`
 
-Commands for Backend (run from within `./src/ums/app-api-dotnet/` or root solution directory):
+Commands for Backend (run from within `./src/apps/app-api-dotnet/` or root solution directory):
 - Backend Build: `dotnet build`
 - Backend Test: `dotnet test`
 - Backend Run: `dotnet run`
@@ -20,7 +20,7 @@ Commands for Backend (run from within `./src/ums/app-api-dotnet/` or root soluti
 - Runtime: **.NET 8 LTS** (Backend) and React v18 + Vite (Frontend).
 - Monorepo: Managed via Nx, npm Workspaces (Frontend) and standard .NET SLN.
 - DB: PostgreSQL 16 + Entity Framework Core (EF Core).
-- Key Modules: `src/ums/app-api-dotnet` (.NET Backend), `src/ums/app-web` (Frontend React Portal).
+- Key Modules: `src/apps/app-api-dotnet` (.NET Backend), `src/apps/app-web` (Frontend React Portal).
 - Pattern: Clean Architecture (Hexagonal), SOLID, Explicit Bounded Contexts.
 
 ## Conventions

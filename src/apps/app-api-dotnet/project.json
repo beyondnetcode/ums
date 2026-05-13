@@ -1,0 +1,15 @@
+{
+  "name": "app-api-dotnet",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "command": "dotnet build Ums.sln"
+    },
+    "test": {
+      "command": "dotnet test Ums.sln"
+    },
+    "run": {
+      "command": "dotnet run --project Ums.Presentation"
+    }
+  }
+}

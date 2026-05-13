@@ -1,0 +1,13 @@
+{
+  "name": "app-web",
+  "projectType": "application",
+  "sourceRoot": "src",
+  "targets": {
+    "build": {
+      "command": "vite build"
+    },
+    "dev": {
+      "command": "vite"
+    }
+  }
+}

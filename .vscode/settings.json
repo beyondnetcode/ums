@@ -1,10 +1,12 @@
 {
-  "eslint.workingDirectories": ["./src/.workspace"],
-  "typescript.tsdk": "./src/.workspace/node_modules/typescript/lib",
-  "nx.workspaceRoot": "./src/.workspace",
-  "search.exclude": {
-    "**/node_modules": true,
-    "**/dist": true,
-    "src/.workspace/.nx": true
-  }
+    "eslint.workingDirectories":  [
+                                      "./src"
+                                  ],
+    "typescript.tsdk":  "./src/node_modules/typescript/lib",
+    "nx.workspaceRoot":  "./src",
+    "search.exclude":  {
+                           "**/node_modules":  true,
+                           "**/dist":  true,
+                           "src/.workspace/.nx":  true
+                       }
 }
