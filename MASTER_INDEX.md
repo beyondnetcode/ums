@@ -1,4 +1,4 @@
-﻿# 🗺️ Global Master Index (UMS Entry Point)
+# 🗺️ Global Master Index (UMS Entry Point)
 
 > 🌍 **Bilingual Navigation:** [🇪🇸 Versión en Español (Índice Maestro)](./MASTER_INDEX.es.md) | [🇺🇸 English](./MASTER_INDEX.md)
 
@@ -15,7 +15,7 @@ Identify your current relationship with the project to unlock the tailored compu
 | **External Software Vendor** | 1. [bMAD Master Documentation](./src/ums-workspace/docs/en/index.md)<br>2. [Global Engineering Standards](./src/ums-workspace/docs/en/04-artifacts/engineering-standards.md)<br>3. [C4 Master Specification](./src/ums-workspace/docs/en/02-architecture/architecture-spec.md) | Validate tech baseline, environment isolation, and boundary checks before initiating work. |
 | **Backend Developer / QA** | 1. [Plan for .NET Migration & Hexagonal Boundaries](./src/ums-workspace/docs/en/02-architecture/dotnet-migration-and-tech-stack-plan.md)<br>2. [Contract Testing Plan](./src/ums-workspace/docs/en/04-artifacts/contract-testing-plan.md)<br>3. [Testing Pyramid Quality Gates (ADR-0018)](./src/ums-workspace/docs/en/03-adrs/0018-testing-pyramid-quality-gates.md) | Enforce Test thresholds, DDD patterns, lint validations, and avoid leakages into the core domain. |
 | **Solutions Architect** | 1. [Bounded Context Map](./src/ums-workspace/docs/en/02-architecture/bounded-context-map.md)<br>2. [ADR Registry](./src/ums-workspace/docs/en/03-adrs/)<br>3. [Distributed Observability Strategy](./src/ums-workspace/docs/en/04-artifacts/observability-strategy.md) | Assess overall pattern integrity, evaluate risk indices, and approve microservice readiness gates. |
-| **Product Owner / PM** | 1. [Product Vision](./src/ums-workspace/docs/en/00-product/product-vision.md)<br>2. [Atomic Use Cases Directory](./src/ums-workspace/docs/en/01-requirements/usecases/)<br>3. [Gap Analysis & Debt Strategy](./src/ums-workspace/docs/en/04-artifacts/gap-analysis-and-optimization-plan.md) | Align release milestones with ADR maturity and govern use case coverage definitions. |
+| **Product Owner / PM** | 1. [Product Vision](./src/ums-workspace/docs/en/00-product/product-vision.md)<br>2. [Functional Stories Directory](./src/ums-workspace/docs/en/01-requirements/functional-stories/index.md)<br>3. [Gap Analysis & Debt Strategy](./src/ums-workspace/docs/en/04-artifacts/gap-analysis-and-optimization-plan.md) | Align release milestones with ADR maturity and govern functional stories coverage. |
 
 ---
 

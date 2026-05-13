@@ -1,6 +1,6 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versi�n original (Ingl�s) y est� programado para traducci�n oficial en la hoja de ruta.
+> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
 
-# 🏆 BMAD Master Audit, Alignment & Enterprise Architecture Specification (v3.0.0)
+# ðŸ† BMAD Master Audit, Alignment & Enterprise Architecture Specification (v3.0.0)
 
 This master document serves as the single source of truth for the **User Management System (UMS)**, validating and refining its conceptual, logical, and physical architecture under the **bMAD (Business, Models, Architecture, Delivery) Method**. 
 
@@ -8,7 +8,7 @@ Designed to operate as a completely standalone, abstract, and sovereign security
 
 ---
 
-## 🧭 1. Business Dimension (B) — Strategic Alignment & Governance
+## ðŸ§­ 1. Business Dimension (B) â€” Strategic Alignment & Governance
 
 ### 1.1 Product Vision Alignment
 The UMS serves as an agnostically deployable **Authorization & Behavioral Configuration Engine**. It decouples authentication and permissions logic from individual downstream SaaS systems (WMS, TMS, ERP), unifying corporate compliance while allowing each client organization (Tenant) full self-service governance.
@@ -23,7 +23,7 @@ To align development with enterprise outcomes, UMS tracks these measurable indic
     *   *KR 2.2*: Keep TypeORM-level PostgreSQL Row-Level Security (RLS) overhead **below 5ms** per query.
 *   **Objective 3: Zero-Deployment Agility**
     *   *KR 3.1*: Swap or configure external Identity Providers (Zitadel, Okta, Azure AD) or Feature Flag systems **without deploying code or restarting services**.
-    *   *KR 3.2*: Support **deep-merge hierarchical overrides** (Global Default → Tenant → System → Branch → Env) resolved at runtime with immediate propagation.
+    *   *KR 3.2*: Support **deep-merge hierarchical overrides** (Global Default â†’ Tenant â†’ System â†’ Branch â†’ Env) resolved at runtime with immediate propagation.
 
 ### 1.3 MVP vs. Enterprise Scope Matrix
 
@@ -39,7 +39,7 @@ To align development with enterprise outcomes, UMS tracks these measurable indic
 
 ---
 
-## 🗃️ 2. Models Dimension (M) — Logical & Conceptual Domain Models
+## ðŸ—ƒï¸ 2. Models Dimension (M) â€” Logical & Conceptual Domain Models
 
 The logical representation of the UMS ensures complete separation of tenant contexts while supporting high-performance permission graphing and pluggable configurations.
 
@@ -80,7 +80,7 @@ All state mutations publish structured, JSON-schema-compliant events:
 
 ---
 
-## 🏛️ 3. Architecture Dimension (A) — Enterprise Specifications
+## ðŸ›ï¸ 3. Architecture Dimension (A) â€” Enterprise Specifications
 
 The physical components of the UMS are organized under a strict **Hexagonal Architecture (Ports & Adapters)** model.
 
@@ -107,7 +107,7 @@ graph TD
 ```
 
 ### 3.2 Hierarchical Configuration Overrides (Deep Merge Flow)
-Refer to case details in [UC-09: Resolve Hierarchical System Configuration](file:///d:/Users/aarroyo/personal/sources/ums/arc-nodejs-workspace/docs/01-requirements/usecases/uc-09-resolve-hierarchical-config.md).
+Refer to case details in [TE-02: Resolve Hierarchical System Configuration](file:///d:/Users/aarroyo/personal/sources/ums/arc-nodejs-workspace/docs/01-requirements/../02-architecture/technical-enablers/te-02-resolve-hierarchical-config.md).
 
 ```mermaid
 sequenceDiagram
@@ -164,7 +164,7 @@ Unified telemetry is captured using **OpenTelemetry** and streamed to **Grafana 
 
 ---
 
-## 🚀 4. Delivery Dimension (D) — Engineering & Operations Roadmap
+## ðŸš€ 4. Delivery Dimension (D) â€” Engineering & Operations Roadmap
 
 ### 4.1 DevSecOps Strategy
 *   **Nx Monorepo Tasks**: Standardized builds and task caching inside Nx minimize duplicate builds.
@@ -175,10 +175,10 @@ Unified telemetry is captured using **OpenTelemetry** and streamed to **Grafana 
 
 | ID | Title / Target | Metrics & SLA | Implementation Status |
 | :--- | :--- | :--- | :--- |
-| **NFR-01** | Permission Retrieval Latency | p95 < 50ms under peak load (10,000 req/sec) | ⚡ Optimized (Redis-backed) |
-| **NFR-02** | Shared-Schema Tenant Isolation | PostgreSQL RLS overhead < 5ms per transaction | ✅ Implemented |
-| **NFR-03** | Continuous Availability SLA | 99.99% uptime via Multi-AZ deployments | ⏳ Planned for Q2 |
-| **NFR-04** | Secret Encryption at Rest | AES-256 for local fallbacks; Vault integration | ✅ Specification Complete |
+| **NFR-01** | Permission Retrieval Latency | p95 < 50ms under peak load (10,000 req/sec) | âš¡ Optimized (Redis-backed) |
+| **NFR-02** | Shared-Schema Tenant Isolation | PostgreSQL RLS overhead < 5ms per transaction | âœ… Implemented |
+| **NFR-03** | Continuous Availability SLA | 99.99% uptime via Multi-AZ deployments | â³ Planned for Q2 |
+| **NFR-04** | Secret Encryption at Rest | AES-256 for local fallbacks; Vault integration | âœ… Specification Complete |
 
 ### 4.3 Technical Backlog & Release Roadmap
 
@@ -199,7 +199,7 @@ gantt
 
 ---
 
-## 🏁 5. Architectural Verification & Compliance Status
+## ðŸ 5. Architectural Verification & Compliance Status
 
 This specification has been thoroughly reviewed against our standard quality guidelines. The alignment across all phases is declared **FULLY COMPLIANT**:
 

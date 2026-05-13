@@ -1,14 +1,14 @@
-# 📜 ADR-0026 — Multi-Tenant Adaptive MFA and Passwordless (WebAuthn/Passkeys) Authentication Platform
+# ðŸ“œ ADR-0026 â€” Multi-Tenant Adaptive MFA and Passwordless (WebAuthn/Passkeys) Authentication Platform
 
 **Status:** Accepted  
 **Date:** 2026-05-09  
 **Deciders:** Enterprise Architect, Product Owner, Lead Security Engineer  
-**ADR Type:** Architectural Hardening — Core Identity Platform  
-**Related Specs:** [`mfa-passwordless-security-spec.md`](../../04-artifacts/mfa-passwordless-security-spec.md), [`uc-11-mfa-passwordless-adaptive-auth.md`](../../01-requirements/usecases/uc-11-mfa-passwordless-adaptive-auth.md)
+**ADR Type:** Architectural Hardening â€” Core Identity Platform  
+**Related Specs:** [`mfa-passwordless-security-spec.md`](../../04-artifacts/mfa-passwordless-security-spec.md), [`uc-11-mfa-passwordless-adaptive-auth.md`](../../01-requirements/functional-stories/fs-09-mfa-passwordless-adaptive-auth.md)
 
 ---
 
-## 📋 Context
+## ðŸ“‹ Context
 
 The UMS is the central identity and authorization core governing access across multiple enterprise SaaS platforms. To meet the stringent requirements of enterprise clients (SCM, ERP, WMS), comply with modern cybersecurity standards (OWASP ASVS Level 3, NIST SP 800-63B AAL3), and embrace a Zero Trust architectural posture, several security vulnerabilities must be addressed:
 
@@ -21,7 +21,7 @@ To address these challenges, we require a decentralized, multi-tenant-aware secu
 
 ---
 
-## ⚖️ Decision
+## âš–ï¸ Decision
 
 We will implement an **Adaptive MFA and Passwordless (WebAuthn/Passkeys) Security Subsystem** inside the UMS platform. This includes:
 
@@ -45,7 +45,7 @@ Provides an automated recovery strategy via Bcrypt-hashed secure one-time Recove
 
 ---
 
-## 📐 Architecture Constraints
+## ðŸ“ Architecture Constraints
 
 - **Hexagonal Decoupling**: All MFA factors are decoupled behind the `IMfaPort` and `IWebAuthnPort` interfaces, allowing plug-and-play extensions for external services (e.g., Auth0, Keycloak, Duo, or Zitadel) without modifying core business use cases.
 - **Tenant RLS Enforced**: All newly introduced schemas (`AUTH_POLICY_CONFIGURATION`, `ENROLLED_MFA_FACTOR`, `TRUSTED_DEVICE`) incorporate a `tenant_id` column governed by PostgreSQL Row-Level Security policies.
@@ -55,7 +55,7 @@ Provides an automated recovery strategy via Bcrypt-hashed secure one-time Recove
 
 ---
 
-## ✅ Consequences
+## âœ… Consequences
 
 ### Positive
 - **Strong Anti-Phishing Posture**: WebAuthn/Passkeys bind credential signatures to specific domain origins, eliminating phishing threat vectors.
@@ -70,7 +70,7 @@ Provides an automated recovery strategy via Bcrypt-hashed secure one-time Recove
 
 ---
 
-## 🔗 ADR Impact Cross-References
+## ðŸ”— ADR Impact Cross-References
 
 | ADR | Impact | Action |
 | :--- | :--- | :--- |
