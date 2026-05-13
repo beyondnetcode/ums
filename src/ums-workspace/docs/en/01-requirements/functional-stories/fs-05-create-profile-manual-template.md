@@ -1,4 +1,4 @@
-﻿# 🧪 Use Case 6: Create Profile and Manually Assign Authorization Template
+# 📘 Functional Story 5: Create Profile and Manually Assign Authorization Template
 
 This use case specifies the flow for creating a user Profile within an Organization/Branch context and **manually assigning** one or more Authorization Templates to it via the Admin Console.
 

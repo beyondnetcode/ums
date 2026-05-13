@@ -1,4 +1,4 @@
-﻿# 🧪 Use Case 11: Multi-Factor & Passwordless Adaptive Authentication
+# 📘 Functional Story 9: Multi-Factor & Passwordless Adaptive Authentication
 
 This document specifies the detailed transaction flow, actors, preconditions, postconditions, and exception handling for enrolling and authenticating users using Multi-Factor Authentication (MFA) and/or Passwordless Passkeys (WebAuthn), governed by dynamic adaptive risk evaluation under the **spec-driven AI strategy BMAD-METHOD**.
 

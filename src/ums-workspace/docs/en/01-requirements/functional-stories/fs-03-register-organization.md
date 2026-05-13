@@ -1,4 +1,4 @@
-﻿# 🧪 Use Case 4: Register Organization and Configure IdP Strategy
+# 📘 Functional Story 3: Register Organization and Configure IdP Strategy
 
 This use case specifies the flow for onboarding a new corporate tenant (Organization) into the UMS and configuring its identity authentication strategy.
 

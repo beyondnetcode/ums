@@ -1,4 +1,4 @@
-﻿# 🧪 Use Case 8: Diagnose User Permissions via Visual Graph Resolver
+# 📘 Functional Story 7: Diagnose User Permissions via Visual Graph Resolver
 
 This use case specifies the flow for SRE engineers and security administrators to diagnose and visualize the compiled authorization graph for a specific user within a target organization, branch, and system context.
 

@@ -1,4 +1,4 @@
-﻿# ðŸ—ºï¸ Master Navigation Map - UMS Knowledge Base
+# ðŸ—ºï¸ Master Navigation Map - UMS Knowledge Base
 
 > ðŸŒ **Language Selector:** [ðŸ‡ªðŸ‡¸ EspaÃ±ol](../es/index.md) | [ðŸ‡ºðŸ‡¸ English](./index.md)
 
@@ -23,19 +23,19 @@ Details business rules, interactive sequences, conceptual database diagrams, and
 *   ðŸ“„ **[Glossary of Terms (Ubiquitous Language)](./01-requirements/glossary.md)**: Formal DDD dictionary of the core domain.
 *   ðŸ“„ **[Conceptual Data Model](./01-requirements/conceptual-data-model.md)**: PostgreSQL relational logic and Row-Level Security (RLS) policies.
 *   ðŸ“„ **[Granular Permission Matrix](./01-requirements/permission-matrix-example.md)**: Detailed access logic (RBAC/ABAC) and the explicit-deny precedence rule.
-*   ðŸ“‚ **[Atomic Use Cases](./01-requirements/usecases/)**:
-    *   [UC-01: User Authentication via External IdP](./01-requirements/usecases/uc-01-user-authentication.md)
-    *   [UC-02: Compile Authorization Graph](./01-requirements/usecases/uc-02-build-authorization-graph.md)
-    *   [UC-03: Create & Instantiate Authorization Template](./01-requirements/usecases/uc-03-create-authorization-template.md)
-    *   [UC-04: Register Organization & Configure IdP Strategy](./01-requirements/usecases/uc-04-register-organization.md)
-    *   [UC-05: Register System & Define Menu Topology](./01-requirements/usecases/uc-05-register-system-topology.md)
-    *   [UC-06: Create Profile & Manually Assign Template](./01-requirements/usecases/uc-06-create-profile-manual-template.md)
-    *   [UC-07: Auto-Assign Template on Profile Creation](./01-requirements/usecases/uc-07-auto-assign-template.md)
-    *   [UC-08: Diagnose Permissions via Visual Graph Resolver](./01-requirements/usecases/uc-08-visual-graph-resolver.md)
-    *   [UC-09: Resolve Hierarchical System Configuration](./01-requirements/usecases/uc-09-resolve-hierarchical-config.md)
-    *   [UC-10: Authenticate via Customizable Hosted Login Page](./01-requirements/usecases/uc-10-hosted-login-redirection.md)
-    *   [UC-11: Multi-Factor & Passwordless Adaptive Authentication](./01-requirements/usecases/uc-11-mfa-passwordless-adaptive-auth.md)
-    *   [UC-12: External B2B Access Request & Approval Workflow](./01-requirements/usecases/uc-12-external-b2b-access-request-approval.md)
+*   ðŸ“‚ **[Functional Stories](./01-requirements/functional-stories/)**:
+    *   [UC-01: User Authentication via External IdP](./01-requirements/functional-stories/uc-01-user-authentication.md)
+    *   [UC-02: Compile Authorization Graph](./01-requirements/functional-stories/uc-02-build-authorization-graph.md)
+    *   [UC-03: Create & Instantiate Authorization Template](./01-requirements/functional-stories/uc-03-create-authorization-template.md)
+    *   [UC-04: Register Organization & Configure IdP Strategy](./01-requirements/functional-stories/uc-04-register-organization.md)
+    *   [UC-05: Register System & Define Menu Topology](./01-requirements/functional-stories/uc-05-register-system-topology.md)
+    *   [UC-06: Create Profile & Manually Assign Template](./01-requirements/functional-stories/uc-06-create-profile-manual-template.md)
+    *   [UC-07: Auto-Assign Template on Profile Creation](./01-requirements/functional-stories/uc-07-auto-assign-template.md)
+    *   [UC-08: Diagnose Permissions via Visual Graph Resolver](./01-requirements/functional-stories/uc-08-visual-graph-resolver.md)
+    *   [UC-09: Resolve Hierarchical System Configuration](./01-requirements/functional-stories/uc-09-resolve-hierarchical-config.md)
+    *   [UC-10: Authenticate via Customizable Hosted Login Page](./01-requirements/functional-stories/uc-10-hosted-login-redirection.md)
+    *   [UC-11: Multi-Factor & Passwordless Adaptive Authentication](./01-requirements/functional-stories/uc-11-mfa-passwordless-adaptive-auth.md)
+    *   [UC-12: External B2B Access Request & Approval Workflow](./01-requirements/functional-stories/uc-12-external-b2b-access-request-approval.md)
 
 ---
 

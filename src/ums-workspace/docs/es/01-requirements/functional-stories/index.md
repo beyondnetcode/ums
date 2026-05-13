@@ -1,0 +1,22 @@
+# 📂 Directorio de Functional Stories (Historias Funcionales)
+
+Bienvenido al índice maestro de **Functional Stories** para el Sistema de Gestión de Usuarios (UMS). Este directorio contiene todos los flujos transaccionales y de negocio puros, separados de detalles técnicos de implementación.
+
+---
+
+## 📋 Catálogo de Functional Stories
+
+*   **[FS-01: Autenticación Corporativa vía IdP Externo](./fs-01-user-authentication.md)**
+*   **[FS-02: Crear e Instanciar Plantilla de Autorización](./fs-02-create-authorization-template.md)**
+*   **[FS-03: Registrar Organización y Configurar Estrategia de IdP](./fs-03-register-organization.md)**
+*   **[FS-04: Registrar Sistema y Definir Topología de Menú](./fs-04-register-system-topology.md)**
+*   **[FS-05: Crear Perfil y Asignar Plantilla Manualmente](./fs-05-create-profile-manual-template.md)**
+*   **[FS-06: Auto-Asignar Plantilla al Crear Perfil](./fs-06-auto-assign-template.md)**
+*   **[FS-07: Diagnosticar Permisos vía Visualizador de Grafos](./fs-07-visual-graph-resolver.md)**
+*   **[FS-08: Autenticar vía Página de Inicio Personalizable](./fs-08-hosted-login-redirection.md)**
+*   **[FS-09: Autenticación Adaptativa Multifactor y Sin Contraseña](./fs-09-mfa-passwordless-adaptive-auth.md)**
+*   **[FS-10: Flujo de Aprobación y Petición de Acceso Externo B2B](./fs-10-external-b2b-access-request-approval.md)**
+
+---
+
+👉 **[Volver al Índice de Requisitos](../index.md)**

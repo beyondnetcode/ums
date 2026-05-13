@@ -1,4 +1,4 @@
-﻿# 🏢 Caso de Uso 4: Registrar Organización y Configurar Estrategia de IdP
+# 🏢 Functional Story 3: Registrar Organización y Configurar Estrategia de IdP
 
 Este caso de uso especifica el flujo para integrar a un nuevo inquilino corporativo (Organización) en el UMS y configurar su estrategia de autenticación de identidad.
 

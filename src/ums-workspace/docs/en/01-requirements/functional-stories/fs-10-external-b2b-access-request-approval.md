@@ -1,10 +1,10 @@
-# 🧪 Use Case 12: External B2B Access Request & Approval Workflow
+# ðŸ§ª Functional Story 10: External B2B Access Request & Approval Workflow
 
 This document specifies the transaction flow, actors, preconditions, postconditions, and exception handling for sponsoring, approving, and provisioning access to external B2B organizations (clients, suppliers, partners) and their users under the **spec-driven AI strategy BMAD-METHOD**.
 
 ---
 
-## 🏛️ 1. Use Case Definition
+## ðŸ›ï¸ 1. Use Case Definition
 
 | Attribute | Specification |
 | :--- | :--- |
@@ -16,7 +16,7 @@ This document specifies the transaction flow, actors, preconditions, postconditi
 
 ---
 
-## 🔄 2. Transaction Flow
+## ðŸ”„ 2. Transaction Flow
 
 ### A. Main Success Scenario (Happy Path)
 1. **Initiation:** The Sponsor User navigates to the "B2B Access Management" module and selects "New External Request".
@@ -34,7 +34,7 @@ This document specifies the transaction flow, actors, preconditions, postconditi
 
 ---
 
-## 🛡️ 3. Alternative Flows & Exception Handling
+## ðŸ›¡ï¸ 3. Alternative Flows & Exception Handling
 
 ### Alternative Flow A: PAP Rejection
 * If the PAP Administrator clicks "Reject" and provides a rejection reason: The `EXTERNAL_ACCESS_REQUEST` status is updated to `REJECTED`. The Sponsor is notified, and no external entities are provisioned.
@@ -47,6 +47,6 @@ This document specifies the transaction flow, actors, preconditions, postconditi
 
 ---
 
-## 📋 4. Postconditions & Audit
+## ðŸ“‹ 4. Postconditions & Audit
 * An immutable audit trail (`EXTERNAL_ACCESS_REQUEST`) exists explaining exactly why and who granted access to the external entity.
 * The external User is logically isolated within their own `ORGANIZATION` boundary, allowing native application of Row-Level Security (RLS) in PostgreSQL.

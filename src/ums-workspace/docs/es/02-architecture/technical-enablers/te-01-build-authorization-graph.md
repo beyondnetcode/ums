@@ -1,4 +1,4 @@
-﻿# 🧪 Caso de Uso 2: Compilar Grafo de Autorización
+# 🛡️ Technical Enabler 1: Compilar Grafo de Autorización
 
 Este documento especifica el flujo de transacciones, los actores y las estrategias de caché para compilar el grafo dinámico de acciones y recursos permitidos para una sesión autenticada bajo la **estrategia spec-driven AI BMAD-METHOD**.
 

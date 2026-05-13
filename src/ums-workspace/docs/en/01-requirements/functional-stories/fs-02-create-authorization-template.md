@@ -1,4 +1,4 @@
-﻿# 🧪 Use Case 3: Create & Instantiate Authorization Template
+# 📘 Functional Story 2: Create & Instantiate Authorization Template
 
 This document specifies the transaction flow, actors, and versioning rules for creating a reusable policy template and linking it to profile workspaces under the **spec-driven AI strategy BMAD-METHOD**.
 

@@ -1,4 +1,4 @@
-﻿# 🧪 Use Case 9: Resolve Hierarchical System Configuration
+# 🛡️ Technical Enabler 2: Resolve Hierarchical System Configuration
 
 This use case details the flow for calculating the "effective" system configuration for a client application by evaluating and merging hierarchical override layers.
 

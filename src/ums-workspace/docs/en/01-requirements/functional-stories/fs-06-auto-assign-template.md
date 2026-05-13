@@ -1,4 +1,4 @@
-﻿# 🧪 Use Case 7: Auto-Assign Authorization Template on Profile Creation
+# 📘 Functional Story 6: Auto-Assign Authorization Template on Profile Creation
 
 This use case specifies the flow of the **Automatic Rule-Based Template Assignment Engine**, which triggers upon profile creation to automatically attach the appropriate Authorization Template based on configurable matching rules.
 

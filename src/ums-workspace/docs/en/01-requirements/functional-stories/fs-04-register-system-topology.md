@@ -1,4 +1,4 @@
-﻿# 🧪 Use Case 5: Register System and Define Menu Topology
+# 📘 Functional Story 4: Register System and Define Menu Topology
 
 This use case specifies the flow for registering a new client application (System) into the UMS and defining its navigational resource hierarchy (Menus, Submenus, Options, and Actions).
 

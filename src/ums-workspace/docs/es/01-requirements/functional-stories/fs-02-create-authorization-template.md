@@ -1,4 +1,4 @@
-﻿# 🧪 Caso de Uso 3: Crear e Instanciar Plantilla de Autorización
+# 📘 Functional Story 2: Crear e Instanciar Plantilla de Autorización
 
 Este documento especifica el flujo de transacciones, los actores y las reglas de control de versiones para crear una plantilla de políticas reutilizable y vincularla a espacios de trabajo de perfiles bajo la **estrategia spec-driven AI BMAD-METHOD**.
 

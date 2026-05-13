@@ -1,4 +1,4 @@
-﻿# 🧪 Use Case 1: User Authentication via External IdP
+# 📘 Functional Story 1: User Authentication via External IdP
 
 This document specifies the transaction flow, actors, and fallback strategies for authenticating a corporate user against an external identity provider (IdP) under the **spec-driven AI strategy BMAD-METHOD**.
 

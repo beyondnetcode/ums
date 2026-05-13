@@ -1,10 +1,10 @@
-# 🧪 Use Case 10: Authenticate via Customizable Hosted Login Page
+# ðŸ§ª Functional Story 8: Authenticate via Customizable Hosted Login Page
 
 This use case details the flow for centralizing user authentication through a secure, UMS-hosted login page that dynamically adapts its branding and layouts per tenant and system.
 
 ---
 
-## 🏛️ 1. Use Case Definition
+## ðŸ›ï¸ 1. Use Case Definition
 
 | Attribute | Specification |
 | :--- | :--- |
@@ -15,7 +15,7 @@ This use case details the flow for centralizing user authentication through a se
 
 ---
 
-## 🔄 2. Transaction Flow
+## ðŸ”„ 2. Transaction Flow
 
 ```mermaid
 sequenceDiagram
@@ -62,7 +62,7 @@ sequenceDiagram
 
 ---
 
-## ⚙️ 3. Dynamic Branding Options
+## âš™ï¸ 3. Dynamic Branding Options
 
 The UMS Hosted Login page supports these configuration variables in the versioned `SYSTEM_CONFIGURATION` JSON:
 
@@ -84,7 +84,7 @@ The UMS Hosted Login page supports these configuration variables in the versione
 
 ---
 
-## 🛡️ 4. Exception Handling
+## ðŸ›¡ï¸ 4. Exception Handling
 
 ### Alternative Flow A: Invalid Redirect URI
 - If the `redirect_uri` passed in the query parameters does not match the registered redirect whitelist for the system inside UMS, the login flow is immediately aborted. The portal presents a secure `400 Bad Request` page and logs a security alert.

@@ -1,4 +1,4 @@
-﻿# ðŸ—ºï¸ Mapa de NavegaciÃ³n Maestro - Base de Conocimiento de UMS
+# ðŸ—ºï¸ Mapa de NavegaciÃ³n Maestro - Base de Conocimiento de UMS
 
 > ðŸŒ **Selector de Idioma:** [ðŸ‡ªðŸ‡¸ EspaÃ±ol](./index.md) | [ðŸ‡ºðŸ‡¸ English](../en/index.md)
 
@@ -23,19 +23,19 @@ Detalla reglas de negocio, secuencias interactivas, diagramas conceptuales de ba
 *   ðŸ“„ **[Glosario de TÃ©rminos (Lenguaje Ubicuo)](./01-requirements/glossary.md)**: Diccionario formal DDD del dominio central.
 *   ðŸ“„ **[Modelo de Datos Conceptual](./01-requirements/conceptual-data-model.md)**: LÃ³gica relacional de PostgreSQL y polÃ­ticas de Seguridad a Nivel de Fila (RLS).
 *   ðŸ“„ **[Matriz de Permisos Granulares](./01-requirements/permission-matrix-example.md)**: LÃ³gica de acceso detallada (RBAC/ABAC) y regla de precedencia de denegaciÃ³n explÃ­cita.
-*   ðŸ“‚ **[Casos de Uso AtÃ³micos](./01-requirements/usecases/)**:
-    *   [UC-01: AutenticaciÃ³n de Usuario vÃ­a IdP Externo](./01-requirements/usecases/uc-01-user-authentication.md)
-    *   [UC-02: CompilaciÃ³n de Grafo de AutorizaciÃ³n](./01-requirements/usecases/uc-02-build-authorization-graph.md)
-    *   [UC-03: Crear e Instanciar Plantilla de AutorizaciÃ³n](./01-requirements/usecases/uc-03-create-authorization-template.md)
-    *   [UC-04: Registrar OrganizaciÃ³n y Configurar Estrategia de IdP](./01-requirements/usecases/uc-04-register-organization.md)
-    *   [UC-05: Registrar Sistema y Definir TopologÃ­a de MenÃº](./01-requirements/usecases/uc-05-register-system-topology.md)
-    *   [UC-06: Crear Perfil y Asignar Plantilla Manualmente](./01-requirements/usecases/uc-06-create-profile-manual-template.md)
-    *   [UC-07: Auto-Asignar Plantilla al Crear Perfil](./01-requirements/usecases/uc-07-auto-assign-template.md)
-    *   [UC-08: Diagnosticar Permisos vÃ­a Visualizador de Grafos](./01-requirements/usecases/uc-08-visual-graph-resolver.md)
-    *   [UC-09: Resolver ConfiguraciÃ³n JerÃ¡rquica del Sistema](./01-requirements/usecases/uc-09-resolve-hierarchical-config.md)
-    *   [UC-10: Autenticar vÃ­a PÃ¡gina de Inicio Personalizable](./01-requirements/usecases/uc-10-hosted-login-redirection.md)
-    *   [UC-11: AutenticaciÃ³n Adaptativa Multifactor y Sin ContraseÃ±a](./01-requirements/usecases/uc-11-mfa-passwordless-adaptive-auth.md)
-    *   [UC-12: Flujo de AprobaciÃ³n y PeticiÃ³n de Acceso Externo B2B](./01-requirements/usecases/uc-12-external-b2b-access-request-approval.md)
+*   ðŸ“‚ **[Casos de Uso AtÃ³micos](./01-requirements/functional-stories/)**:
+    *   [UC-01: AutenticaciÃ³n de Usuario vÃ­a IdP Externo](./01-requirements/functional-stories/uc-01-user-authentication.md)
+    *   [UC-02: CompilaciÃ³n de Grafo de AutorizaciÃ³n](./01-requirements/functional-stories/uc-02-build-authorization-graph.md)
+    *   [UC-03: Crear e Instanciar Plantilla de AutorizaciÃ³n](./01-requirements/functional-stories/uc-03-create-authorization-template.md)
+    *   [UC-04: Registrar OrganizaciÃ³n y Configurar Estrategia de IdP](./01-requirements/functional-stories/uc-04-register-organization.md)
+    *   [UC-05: Registrar Sistema y Definir TopologÃ­a de MenÃº](./01-requirements/functional-stories/uc-05-register-system-topology.md)
+    *   [UC-06: Crear Perfil y Asignar Plantilla Manualmente](./01-requirements/functional-stories/uc-06-create-profile-manual-template.md)
+    *   [UC-07: Auto-Asignar Plantilla al Crear Perfil](./01-requirements/functional-stories/uc-07-auto-assign-template.md)
+    *   [UC-08: Diagnosticar Permisos vÃ­a Visualizador de Grafos](./01-requirements/functional-stories/uc-08-visual-graph-resolver.md)
+    *   [UC-09: Resolver ConfiguraciÃ³n JerÃ¡rquica del Sistema](./01-requirements/functional-stories/uc-09-resolve-hierarchical-config.md)
+    *   [UC-10: Autenticar vÃ­a PÃ¡gina de Inicio Personalizable](./01-requirements/functional-stories/uc-10-hosted-login-redirection.md)
+    *   [UC-11: AutenticaciÃ³n Adaptativa Multifactor y Sin ContraseÃ±a](./01-requirements/functional-stories/uc-11-mfa-passwordless-adaptive-auth.md)
+    *   [UC-12: Flujo de AprobaciÃ³n y PeticiÃ³n de Acceso Externo B2B](./01-requirements/functional-stories/uc-12-external-b2b-access-request-approval.md)
 
 ---
 

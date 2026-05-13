@@ -1,4 +1,4 @@
-﻿# 🧪 Caso de Uso 1: Autenticación de Usuario vía IdP Externo
+# 📘 Functional Story 1: Autenticación de Usuario vía IdP Externo
 
 Este documento especifica el flujo de transacciones, los actores y las estrategias de respaldo para autenticar a un usuario corporativo mediante un proveedor de identidad externo (IdP) bajo la **estrategia spec-driven AI BMAD-METHOD**.
 

@@ -1,4 +1,4 @@
-﻿# 🧪 Use Case 2: Build User Authorization Graph
+# 🛡️ Technical Enabler 1: Build User Authorization Graph
 
 This document specifies the transaction flow, actors, and caching strategies for compiling the dynamic graph of allowed actions and resources for an authenticated session under the **spec-driven AI strategy BMAD-METHOD**.
 
