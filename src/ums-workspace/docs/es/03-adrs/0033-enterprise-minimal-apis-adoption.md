@@ -1,4 +1,4 @@
-# ADR-0033: Estandarización de Minimal APIs para Servicios Empresariales en .NET 8/9+
+# ADR-0033: Estrategia de Endpoints en APIs .NET (Minimal APIs vs. Controllers)
 
 *   **Estado:** Propuesto
 *   **Fecha:** 2026-05-13
@@ -7,52 +7,51 @@
 ---
 
 ## 🏛️ 1. Contexto y Problema
-Con la madurez alcanzada por .NET 8 y .NET 9, las **Minimal APIs** han evolucionado de ser un mecanismo sintáctico simplificado a convertirse en el estándar tecnológico promovido por Microsoft para arquitecturas cloud-native y de alto rendimiento (incluyendo el soporte nativo para **Ahead-Of-Time - Native AOT**).
+En .NET 8, 9 y con el roadmap hacia .NET 10, las **Minimal APIs** ya son una tecnología completamente preparada para producción (*production-ready*). Microsoft las posiciona de forma inequívoca como el futuro definitivo de ASP.NET Core, especialmente para despliegues cloud-native.
 
-Tradicionalmente, la organización ha confiado en los **ASP.NET Controllers** clásicos basados en la herencia de `ControllerBase`. Sin embargo, estos introducen un overhead de reflexión considerable durante el escaneo de ensamblados en el arranque (bootstrap), son complejos de compilar bajo Native AOT sin complejas exclusiones, y promueven una estructura orientada a clases que a menudo separa físicamente la definición de las rutas del flujo de negocio, lo que entra en conflicto con filosofías emergentes de alta cohesión como **Vertical Slice Architecture**.
-
-Es necesario decidir si adoptamos **Minimal APIs** como el estándar corporativo corporativo del monorepo de UMS o mantenemos el enfoque tradicional de **Controllers**.
+Dada la infraestructura actual de UMS, necesitamos formalizar criterios claros de gobernanza técnica que definan cuándo adoptar cada modelo (Minimal APIs vs. Controllers tradicionales), evitando la proliferación de patrones caóticos y estableciendo estándares corporativos estrictos de diseño y desacoplamiento.
 
 ---
 
 ## 🎯 2. Decisión Arquitectónica
-Adoptamos un **Enfoque Híbrido con Tendencia Directa hacia la Adopción Total**, formalizando las siguientes directrices obligatorias:
+Adoptamos una **Estrategia Híbrida** gobernada por los siguientes criterios de selección explícitos:
 
-1.  **Nuevos Microservicios y Servicios Serverless:** Es **obligatorio** el uso exclusivo de **Minimal APIs**. Esto garantiza una baja latencia de arranque (Cold Start), menor consumo de memoria RAM y total compatibilidad para optimizaciones de compilación Native AOT.
-2.  **Módulos Monolíticos y Contextos Complejos Existentes:** Se permite la coexistencia técnica. Los nuevos endpoints agregados a servicios legacy deben implementarse de forma preferencial con Minimal APIs dentro del pipeline de enrutamiento existente, mientras se planifica la refactorización progresiva de los controladores tradicionales hacia filtros de endpoint.
-3.  **Estándar de Organización de Código (Gobernanza):** Para evitar la degradación arquitectónica y el antipatrón de "Big Fat Program.cs", se establece el uso obligatorio del patrón de extensión `IEndpointRouteBuilder` para encapsular grupos de endpoints (`MapGroup`) organizados por Bounded Context, o en su defecto, librerías de empaquetado modular como `Carter` o `FastEndpoints`.
-4.  **Desacoplamiento en Clean Architecture:** Los endpoints de Minimal API actuarán estrictamente como la delgada capa de infraestructura HTTP (puerto/adaptador de entrada), delegando de forma inmediata la ejecución a la capa de aplicación a través del mediador de comandos/consultas `ISender` (MediatR).
-5.  **Tipado Fuerte y Documentación Automática:** Se exige el uso consistente de `TypedResults` en lugar del tipo genérico `Results` para garantizar que la documentación OpenAPI (Swagger) se deduzca con precisión absoluta en tiempo de compilación y para facilitar pruebas unitarias rápidas sin mockear el contexto HTTP.
+### 🚀 2.1 Cuándo Usar Minimal APIs
+Es el enfoque predeterminado y obligatorio para:
+1.  **Nuevos Microservicios y Servicios Cloud-Native:** Donde la baja huella de memoria y latencia son críticas.
+2.  **Servicios Serverless y Event-Driven:** Para optimizar los tiempos de arranque (*Cold Start*).
+3.  **BFFs (Backend-for-Frontend):** Por su naturaleza directa y bajo acoplamiento.
+4.  **Módulos basados en Vertical Slice Architecture (VSA):** Facilitando la cohesión espacial del flujo de la característica.
 
----
-
-## 📊 3. Comparativa Técnica Operacional
-
-| Característica | Minimal APIs (.NET 8/9+) | ASP.NET Controllers |
-| :--- | :--- | :--- |
-| **Soporte Native AOT** | Nativo y optimizado de primera clase | Restringido (reflexión interna del framework) |
-| **Rendimiento (Throughput)** | Ultra Alto (baja asignación de memoria) | Alto |
-| **Boilerplate** | Mínimo (enfoque funcional directo) | Medio-Alto (clases, constructores redundantes) |
-| **Curva de Aprendizaje** | Baja (simplificado), pero requiere disciplina | Muy familiar y estandarizado en la industria |
-| **Observabilidad** | Nativa integrada con `OpenTelemetry` | Nativa integrada con `OpenTelemetry` |
-| **Mecanismo Transversal** | Filtros de Endpoint (`IEndpointFilter`) | Filtros de Acción (`IActionFilter`) |
+### 📦 2.2 Cuándo Mantener ASP.NET Controllers
+Se permite el uso de controladores tradicionales únicamente en:
+1.  **APIs Enterprise con Lógica de Filtros Compleja:** Donde la jerarquía heredada de `ActionFilters` provea valor real.
+2.  **Módulos Legacy en Mantenimiento Activo:** Para evitar reescrituras masivas y riesgos operacionales innecesarios.
+3.  **Servicios con Model Binding Avanzado:** Que dependan fuertemente del motor reflectivo clásico de MVC.
 
 ---
 
-## ⚖️ 4. Riesgos, Trade-offs y Mitigaciones
+## 🛠️ 3. Estándares Mandatorios para Minimal APIs
+Para prevenir el antipatrón de "Program.cs monolítico", todo endpoint desarrollado bajo Minimal API en la organización **DEBE** cumplir rigurosamente con:
 
-### ⚠️ Riesgo: Mezcla de Lógica en el Punto de Entrada (Spaghetti Code)
-La flexibilidad sintáctica de las Minimal APIs incita a incrustar lógica de negocio o consultas SQL directamente en el lambda del endpoint.
-*   **Mitigación (M-01):** Regla estática en SonarQube/Linter que prohíbe lambdas de endpoint que excedan las 5 líneas de código. Su única responsabilidad debe ser: extraer datos del request, llamar al dispatcher (MediatR) y retornar el `IResult`.
-
-### ⚠️ Riesgo: Pérdida de Estructura Visual del Proyecto
-Pasar de un directorio `Controllers/` uniforme a múltiples extensiones estáticas dispersas puede reducir la navegabilidad de los desarrolladores nuevos.
-*   **Mitigación (M-02):** Estructuración obligatoria bajo carpetas de Características (Feature Folders) dentro del proyecto WebAPI, donde cada `Endpoint` se define en el mismo directorio que el Request/Response que procesa (Vertical Slice).
+*   **Handlers Aislados:** Se prohíben terminantemente las lambdas inline complejas. Los handlers deben definirse como métodos estáticos o de clase puros (Single Responsibility).
+*   **Estructura por Característica:** Uso obligatorio de métodos de extensión de `IEndpointRouteBuilder` segmentados por módulo funcional (*Feature Module*).
+*   **Agrupamiento Seguro:** Empleo de `MapGroup` por recurso para la inyección unificada de prefijos de ruta, versionamiento y políticas de seguridad (`Policies`) compartidas.
+*   **Alineación con el SDK Base:** Consumo obligatorio del SDK Base corporativo que provee los helpers estandarizados para el registro de endpoints, políticas de versionamiento y telemetría de observabilidad.
 
 ---
 
-## 🚀 5. Estrategia de Transición y Compatibilidad
+## ⚖️ 4. Consecuencias y Trade-offs
 
-1.  **Fase 1 (Corto Plazo):** Registrar el Middleware de enrutamiento de endpoints unificado en el proyecto principal de .NET 8 sin alterar los controladores heredados activos.
-2.  **Fase 2 (Medio Plazo):** Implementar el siguiente Bounded Context a desarrollar en UMS usando exclusivamente el enfoque de Minimal API organizado modularmente mediante la interfaz `IEndpointRouteBuilder`.
-3.  **Fase 3 (Largo Plazo):** Migrar puntos calientes de consumo (High-throughput routes) a Minimal API para poder activar selectivamente la compilación Native AOT y optimizar la densidad de pods en Kubernetes.
+### ✅ Beneficios
+*   **Alto Rendimiento & AOT-Readiness:** Máxima velocidad de ejecución y compatibilidad garantizada con compilación Ahead-of-Time para optimización de recursos cloud.
+*   **Adopción Incremental:** Transición fluida y segura sin necesidad de forzar costosas refactorizaciones en el código productivo actual.
+
+### ⚠️ Retos y Mitigaciones
+*   **Coexistencia de Dos Modelos:** Introduce complejidad inicial de navegación. *Mitigación:* Se proveerá documentación explícita en el proceso de Onboarding y plantillas oficiales en el monorepo.
+*   **Brecha de Habilidades en el Equipo:** Los desarrolladores deben dominar con fluidez tanto la orientación a objetos de MVC como el flujo funcional de Minimal APIs.
+
+---
+
+## 🚀 5. Revisión y Roadmap de Evolución
+La presente decisión será sujeta a una revisión técnica exhaustiva en el **Q2 del siguiente año**. El objetivo será evaluar si los Controladores Tradicionales pueden ser oficialmente marcados como deprecados para el desarrollo de cualquier nuevo proyecto o servicio dentro de la compañía.
