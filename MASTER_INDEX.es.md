@@ -8,18 +8,18 @@ Navegacion por fases de la documentacion del Sistema de Gestion de Usuarios (UMS
 
 ### Fase 00 -- Vision de Producto
 
-- [Vision del Producto](./governance/product/product-vision.md)
-- [Contexto de Negocio](./governance/product/business-context.md)
-- [Alcance y Limites](./governance/product/scope.md)
-- [Objetivos (OKRs)](./governance/product/objectives.md)
-- [Interesados](./governance/product/stakeholders.md)
+- [Vision del Producto](./governance/product-es/product-vision.md)
+- [Contexto de Negocio](./governance/product-es/business-context.md)
+- [Alcance y Limites](./governance/product-es/scope.md)
+- [Objetivos (OKRs)](./governance/product-es/objectives.md)
+- [Interesados](./governance/product-es/stakeholders.md)
 
 ### Fase 01 -- Requisitos de Dominio
 
-- [Glosario (Lenguaje Ubicuo)](./governance/requirements/glossary.md)
-- [Modelo de Datos Conceptual](./governance/requirements/conceptual-data-model.md)
-- [Matriz de Permisos](./governance/requirements/permission-matrix-example.md)
-- [Historias Funcionales](./governance/requirements/functional-stories/index.md)
+- [Glosario (Lenguaje Ubicuo)](./governance/requirements-es/glossary.md)
+- [Modelo de Datos Conceptual](./governance/requirements-es/conceptual-data-model.md)
+- [Matriz de Permisos](./governance/requirements-es/permission-matrix-example.md)
+- [Historias Funcionales](./governance/requirements-es/functional-stories/index.md)
 
 ### Fase 02 -- Arquitectura
 
