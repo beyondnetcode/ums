@@ -8,6 +8,7 @@ All commands must be run from within the `./src/ums-workspace/` directory:
 - Lint: `npm run lint`
 - Start API: `npx nx run api:serve`
 - Start Client: `npx nx run apps-web:dev`
+- Setup Docs Context (Context7): `npx ctx7 setup`
 
 ## Architecture
 - Runtime: Node.js v20+ (LTS) with NestJS v10 (Backend) and React v18 + Vite (Frontend).
@@ -27,6 +28,7 @@ All commands must be run from within the `./src/ums-workspace/` directory:
 - Before updating dependencies, verify strict dependency pinning.
 - If modifying core logic, ensure architectural traceability to approved ADRs.
 - Keep formatting clean, adhering to ESLint and Prettier configs in the workspace.
+- **Context Retrieval:** Always use **Context7** (`npx ctx7`) to fetch updated, version-specific documentation for third-party libraries before implementing complex external integrations to eliminate API hallucinations.
 
 ## Out of Bounds
 - DO NOT modify CI/CD GitHub workflows.
