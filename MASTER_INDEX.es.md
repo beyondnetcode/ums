@@ -1,4 +1,4 @@
-﻿# 🗺️ Índice Maestro Global (Punto de Entrada de UMS)
+# 🗺️ Índice Maestro Global (Punto de Entrada de UMS)
 
 > 🌍 **Navegación Bilingüe:** [🇺🇸 English Version (Master Index)](./MASTER_INDEX.md) | [🇪🇸 Versión en Español](./MASTER_INDEX.es.md)
 
@@ -15,7 +15,7 @@ Identifica tu relación actual con el proyecto para desbloquear la jerarquía de
 | **Proveedor de Software Externo** | 1. [Documentación Maestra bMAD](./src/ums-workspace/docs/es/index.md)<br>2. [Estándares Globales de Ingeniería](./src/ums-workspace/docs/es/04-artifacts/engineering-standards.md)<br>3. [Especificación C4 Maestra](./src/ums-workspace/docs/es/02-architecture/architecture-spec.md) | Validar el stack técnico base, aislamiento de entornos y fronteras lógicas antes de iniciar cualquier trabajo. |
 | **Desarrollador Backend / QA** | 1. [Plan de Migración .NET & Límites Hexagonales](./src/ums-workspace/docs/es/02-architecture/dotnet-migration-and-tech-stack-plan.md)<br>2. [Plan de Pruebas de Contrato](./src/ums-workspace/docs/es/04-artifacts/contract-testing-plan.md)<br>3. [Pirámide de Pruebas y Puertas de Calidad (ADR-0018)](./src/ums-workspace/docs/es/03-adrs/0018-testing-pyramid-quality-gates.md) | Garantizar umbrales de cobertura, patrones DDD y validación estática de código (linting), evitando fugas de lógica hacia el core. |
 | **Arquitecto de Soluciones** | 1. [Mapa de Contextos Delimitados](./src/ums-workspace/docs/es/02-architecture/bounded-context-map.md)<br>2. [Registro Histórico ADR](./src/ums-workspace/docs/es/03-adrs/)<br>3. [Estrategia de Observabilidad Distribuida](./src/ums-workspace/docs/es/04-artifacts/observability-strategy.md) | Evaluar la integridad general de los patrones, los índices de riesgo técnico y aprobar los criterios de extracción de microservicios. |
-| **Product Owner / PM** | 1. [Visión de Producto](./src/ums-workspace/docs/es/00-product/product-vision.md)<br>2. [Directorio de Casos de Uso Atómicos](./src/ums-workspace/docs/es/01-requirements/usecases/)<br>3. [Estrategia de Deuda y Análisis de Brechas](./src/ums-workspace/docs/es/04-artifacts/gap-analysis-and-optimization-plan.md) | Sincronizar hitos de lanzamientos con la madurez técnica de las ADRs y gobernar las definiciones de negocio de los casos de uso. |
+| **Product Owner / PM** | 1. [Visión de Producto](./src/ums-workspace/docs/es/00-product/product-vision.md)<br>2. [Directorio de Casos de Uso Atómicos](./src/ums-workspace/docs/es/01-requirements/usecases/index.md)<br>3. [Estrategia de Deuda y Análisis de Brechas](./src/ums-workspace/docs/es/04-artifacts/gap-analysis-and-optimization-plan.md) | Sincronizar hitos de lanzamientos con la madurez técnica de las ADRs y gobernar las definiciones de negocio de los casos de uso. |
 
 ---
 
@@ -38,7 +38,7 @@ La documentación de este repositorio sigue la **estrategia spec-driven AI BMAD-
 *   [Visión de Producto](./src/ums-workspace/docs/es/00-product/product-vision.md) | [Contexto de Negocio](./src/ums-workspace/docs/es/00-product/business-context.md) | [Alcance y Límites](./src/ums-workspace/docs/es/00-product/scope.md) | [Objetivos Estratégicos (OKRs)](./src/ums-workspace/docs/es/00-product/objectives.md) | [Mapa de Stakeholders](./src/ums-workspace/docs/es/00-product/stakeholders.md)
 
 ### 📋 **[Fase 01 - Requisitos de Dominio](./src/ums-workspace/docs/es/01-requirements/)**
-*   [Catálogo de Casos de Uso Atómicos](./src/ums-workspace/docs/es/01-requirements/usecases/) | [Modelo de Datos Conceptual](./src/ums-workspace/docs/es/01-requirements/conceptual-data-model.md) | [Matriz de Permisos Granulares](./src/ums-workspace/docs/es/01-requirements/permission-matrix-example.md) | [Glosario Ubicuo DDD](./src/ums-workspace/docs/es/01-requirements/glossary.md)
+*   [Catálogo de Casos de Uso Atómicos](./src/ums-workspace/docs/es/01-requirements/usecases/index.md) | [Modelo de Datos Conceptual](./src/ums-workspace/docs/es/01-requirements/conceptual-data-model.md) | [Matriz de Permisos Granulares](./src/ums-workspace/docs/es/01-requirements/permission-matrix-example.md) | [Glosario Ubicuo DDD](./src/ums-workspace/docs/es/01-requirements/glossary.md)
 
 ### 🏗️ **[Fase 02 - Diseño de Arquitectura](./src/ums-workspace/docs/es/02-architecture/)**
 *   **[Plan de Migración .NET 8](./src/ums-workspace/docs/es/02-architecture/dotnet-migration-and-tech-stack-plan.md)** | [Especificación Maestra C4](./src/ums-workspace/docs/es/02-architecture/architecture-spec.md) | [Mapa de Contextos](./src/ums-workspace/docs/es/02-architecture/bounded-context-map.md) | [Evaluación de Riesgo de Bloqueo de Proveedor](./src/ums-workspace/docs/es/02-architecture/vendor-risk-assessment.md)
