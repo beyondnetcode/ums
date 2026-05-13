@@ -1,11 +1,11 @@
 > ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
 
-# ðŸ“œ ADR-0026 â€” Multi-Tenant Adaptive MFA and Passwordless (WebAuthn/Passkeys) Authentication Platform
+# ðŸ“œ ADR-0026 ”” Multi-Tenant Adaptive MFA and Passwordless (WebAuthn/Passkeys) Authentication Platform
 
 **Status:** Accepted  
 **Date:** 2026-05-09  
 **Deciders:** Enterprise Architect, Product Owner, Lead Security Engineer  
-**ADR Type:** Architectural Hardening â€” Core Identity Platform  
+**ADR Type:** Architectural Hardening ”” Core Identity Platform  
 **Related Specs:** [`mfa-passwordless-security-spec.md`](../../04-artifacts/mfa-passwordless-security-spec.md), [`uc-11-mfa-passwordless-adaptive-auth.md`](../../01-requirements/functional-stories/fs-09-mfa-passwordless-adaptive-auth.md)
 
 ---

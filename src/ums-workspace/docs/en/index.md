@@ -133,6 +133,7 @@ Technical guidelines, clean code rules, security standards, and technical qualit
 *   📄 **[Configuration & Feature Management Platform Spec](./04-artifacts/ums-configuration-platform-spec.md)**: Multi-IdP config engine, system behavioral config, and feature flag framework.
 *   📄 **[MFA & Passwordless Authentication Spec](./04-artifacts/mfa-passwordless-security-spec.md)**: High-assurance multi-factor (WebAuthn/Passkeys, TOTP, Email/SMS OTP) and adaptive risk-based authentication spec.
 *   📄 **[BMAD Master Audit & Enterprise Spec](./04-artifacts/bmad-master-audit-alignment-report.md)**: Comprehensive business-models-architecture-delivery spec.
+*   📄 **[Multi-Tenant Governance & Organizational Structure Report](./04-artifacts/enterprise-multitenant-governance-report.md)**: Domain evaluation, hierarchy definition, and Tenant-Aware / RLS strategy.
 
 
 

@@ -8,6 +8,7 @@ Welcome to the master index of **Technical Enablers** for the User Management Sy
 
 *   **[TE-01: Build Authorization Graph](./te-01-build-authorization-graph.md)**
 *   **[TE-02: Resolve Hierarchical System Configuration](./te-02-resolve-hierarchical-config.md)**
+*   **[TE-03: Enforce Row-Level Security (RLS) by Organization](./te-03-enforce-organization-rls-postgresql.md)**
 
 ---
 

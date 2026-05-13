@@ -8,7 +8,7 @@ Designed to operate as a completely standalone, abstract, and sovereign security
 
 ---
 
-## ðŸ§­ 1. Business Dimension (B) â€” Strategic Alignment & Governance
+## ðŸ§­ 1. Business Dimension (B) ”” Strategic Alignment & Governance
 
 ### 1.1 Product Vision Alignment
 The UMS serves as an agnostically deployable **Authorization & Behavioral Configuration Engine**. It decouples authentication and permissions logic from individual downstream SaaS systems (WMS, TMS, ERP), unifying corporate compliance while allowing each client organization (Tenant) full self-service governance.
@@ -39,7 +39,7 @@ To align development with enterprise outcomes, UMS tracks these measurable indic
 
 ---
 
-## ðŸ—ƒï¸ 2. Models Dimension (M) â€” Logical & Conceptual Domain Models
+## ðŸ—ƒï¸ 2. Models Dimension (M) ”” Logical & Conceptual Domain Models
 
 The logical representation of the UMS ensures complete separation of tenant contexts while supporting high-performance permission graphing and pluggable configurations.
 
@@ -80,7 +80,7 @@ All state mutations publish structured, JSON-schema-compliant events:
 
 ---
 
-## ðŸ›ï¸ 3. Architecture Dimension (A) â€” Enterprise Specifications
+## ðŸ›ï¸ 3. Architecture Dimension (A) ”” Enterprise Specifications
 
 The physical components of the UMS are organized under a strict **Hexagonal Architecture (Ports & Adapters)** model.
 
@@ -164,7 +164,7 @@ Unified telemetry is captured using **OpenTelemetry** and streamed to **Grafana 
 
 ---
 
-## ðŸš€ 4. Delivery Dimension (D) â€” Engineering & Operations Roadmap
+## ðŸš€ 4. Delivery Dimension (D) ”” Engineering & Operations Roadmap
 
 ### 4.1 DevSecOps Strategy
 *   **Nx Monorepo Tasks**: Standardized builds and task caching inside Nx minimize duplicate builds.

@@ -130,6 +130,7 @@ Pautas técnicas, reglas de código limpio, estándares de seguridad y planes de
 *   📄 **[Espec de Plataforma de Gestión de Configuración y Features](./04-artifacts/ums-configuration-platform-spec.md)**: Motor de configuración multi-IdP y marco de feature flags.
 *   📄 **[Espec de Autenticación MFA y Sin Contraseña](./04-artifacts/mfa-passwordless-security-spec.md)**: Especificación de autenticación adaptativa basada en riesgos y multifactor.
 *   📄 **[Espec Maestra de Auditoría Empresarial y bMAD](./04-artifacts/bmad-master-audit-alignment-report.md)**: Especificación exhaustiva de alineación business-models-architecture-delivery.
+*   📄 **[Reporte de Gobernanza Multi-Tenant y Organizacional](./04-artifacts/enterprise-multitenant-governance-report.md)**: Evaluación del dominio, jerarquía y estrategia Tenant-Aware / RLS.
 
 ---
 
