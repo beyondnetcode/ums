@@ -6,6 +6,7 @@ Commands for Frontend (run from within `./src/ums-workspace/`):
 - Frontend Install: `npm install`
 - Frontend Start: `npx nx run apps-web:dev`
 - Setup Docs Context (Context7): `npx ctx7 setup`
+- Markdown Encoding Sanitation: `python ./bmad-core/scripts/cleanup_markdown_encoding.py`
 
 Commands for Backend (run from within `./src/ums-workspace/apps/api-dotnet/` or root solution directory):
 - Backend Build: `dotnet build`
@@ -32,7 +33,7 @@ Commands for Backend (run from within `./src/ums-workspace/apps/api-dotnet/` or 
 - Before updating dependencies, verify strict dependency pinning.
 - If modifying core logic, ensure architectural traceability to approved ADRs.
 - Keep formatting clean, adhering to ESLint and Prettier configs in the workspace.
-- **BMAD Rule Compliance:** Any agent working on this repository MUST read, prioritize, and strictly enforce the 12 rules defined in `bmad-core/rules/global-rules.md` and `.bmad/rules/project-rules.yaml`. No code or documentation commits are permitted without validating against these rules.
+- **BMAD Rule Compliance:** Any agent working on this repository MUST read, prioritize, and strictly enforce the 12 rules defined in `bmad-core/rules/global-rules.md` and `.bmad/rules/project-rules.yaml`. If encoding artifacts (mojibake) are detected, the agent MUST run the utility script `python ./bmad-core/scripts/cleanup_markdown_encoding.py` immediately to enforce rule R-03. No code or documentation commits are permitted without validating against these rules.
 - **Context Retrieval:** Always use **Context7** (`npx ctx7`) to fetch updated, version-specific documentation for third-party libraries before implementing complex external integrations.
 - **Corporate Standards Alignment:** Any agent making architectural design decisions MUST query the **Corporate Reference** via Context7 (`use context7 for beyondnetcode/arc32_progresive_monolith`) to ensure absolute compliance with baseline polyglot standards and authoritative patterns.
 
