@@ -1,6 +1,6 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versi�n original (Ingl�s) y est� programado para traducci�n oficial en la hoja de ruta.
+> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
 
-# 🏛️ Arquitectura de Referencia Evolutiva para Sistemas API-Driven (Node.js Stack)
+# ðï¸ Arquitectura de Referencia Evolutiva para Sistemas API-Driven (Node.js Stack)
 
 > [!IMPORTANT]
 > **Corporate Reference Architecture (Monolito-a-Microservicios)**: Este documento define el estándar para construir aplicaciones que inician su ciclo de vida como un **Monolito Modular** altamente desacoplado, con una ruta clara y sin refactorización para evolucionar hacia una malla de **Microservicios Distribuidos**. Utiliza el proyecto base como la implementación canónica de este estándar internacional (**arc42 v8**).
@@ -163,7 +163,7 @@ Valores objetivo que toda implementación bajo este stack debería certificar:
 
 Para ver el ejemplo vivo de la aplicación de todos estos conceptos teóricos en código real y arquitectura física, consulte el repositorio/módulo de:
 
-👉 **[User Management System (UMS) Codebase](./README.md)**
+ð **[User Management System (UMS) Codebase](./README.md)**
 
 Donde se materializan estos conceptos usando:
 *   **Framework**: NestJS.

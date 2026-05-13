@@ -1,4 +1,4 @@
-﻿# 📐 Modern Enterprise MFA & Passwordless Authentication Specification (v3.1.0)
+# 📐 Modern Enterprise MFA & Passwordless Authentication Specification (v3.1.0)
 
 **Version:** 3.1.0 | **Status:** Under Review | **Method:** bMAD  
 **Classification:** Core Security Capability — Cross-Cutting Identity Boundary

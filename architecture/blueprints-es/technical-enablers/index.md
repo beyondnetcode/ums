@@ -1,3 +1,3 @@
-# Õndice de Habilitadores TÈcnicos
+# √çndice de Habilitadores T√©cnicos
 
 ?? **[Volver a Planos](../index.md)**

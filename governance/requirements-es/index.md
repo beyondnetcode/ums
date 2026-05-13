@@ -1,4 +1,4 @@
-# Õndice de Requisitos
+# √çndice de Requisitos
 
 - [Glosario (Lenguaje Ubicuo)](./glossary.md)
 - [Modelo de Datos Conceptual](./conceptual-data-model.md)

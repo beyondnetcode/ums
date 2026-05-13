@@ -1,6 +1,6 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versi�n original (Ingl�s) y est� programado para traducci�n oficial en la hoja de ruta.
+> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
 
-# ⚡ Progressive Node.js Technology Stack Cheat Sheet (Quick Reference)
+# â¡ Progressive Node.js Technology Stack Cheat Sheet (Quick Reference)
 
 This cheat sheet serves as the authoritative, high-density tool reference by architectural layer for developers and autonomous agents working on the Progressive Node.js Reference Architecture.
 

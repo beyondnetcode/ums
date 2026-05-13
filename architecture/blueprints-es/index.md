@@ -1,8 +1,8 @@
-# Õndice de Planos
+# √çndice de Planos
 
 ?? **[Volver a Arquitectura](../index.md)**
 
 - [Espec. de Arquitectura](./architecture-spec.md)
 - [Mapa de Contextos](./bounded-context-map.md)
-- [Stack TecnolÛgico](./stack.md)
-- [Habilitadores TÈcnicos](./technical-enablers/index.md)
+- [Stack Tecnol√≥gico](./stack.md)
+- [Habilitadores T√©cnicos](./technical-enablers/index.md)

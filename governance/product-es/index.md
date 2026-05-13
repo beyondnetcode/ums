@@ -1,8 +1,8 @@
-# Õndice de Gobernanza de Producto
+# √çndice de Gobernanza de Producto
 
-- [VisiÛn del Producto](./product-vision.md)
+- [Visi√≥n del Producto](./product-vision.md)
 - [Contexto de Negocio](./business-context.md)
-- [Alcance y LÌmites](./scope.md)
+- [Alcance y L√≠mites](./scope.md)
 - [Objetivos (OKRs)](./objectives.md)
 - [Stakeholders](./stakeholders.md)
 

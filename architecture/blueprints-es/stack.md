@@ -1,6 +1,6 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versi�n original (Ingl�s) y est� programado para traducci�n oficial en la hoja de ruta.
+> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
 
-# 📐 Authoritative Technology Stack Definition — UMS
+# ð Authoritative Technology Stack Definition â UMS
 
 **Document Type:** Architecture Blueprint  
 **Status:** Approved  
@@ -9,14 +9,14 @@
 
 ---
 
-## 🧭 Executive Context Reference
+## ð§­ Executive Context Reference
 
 *   **Product Name:** User Management System (UMS)
 *   **Product Type:** Hybrid (SaaS & Localized On-Premise deployments)
 *   **Primary Users:** Integrated Application Users (Operators, Business Analysts), B2B Tenant Admins
 *   **Expected Scale (Initial):** < 1,000 tenants, ~50 concurrent users per tenant (~50,000 active concurrent connections total)
 *   **Expected Scale (Target):** > 10,000 tenants, ~500 concurrent users per tenant (~5,000,000 active concurrent connections total)
-*   **Team Size:** ~5–10 Engineers
+*   **Team Size:** ~5â10 Engineers
 *   **Team Expertise:** Strong NestJS & TypeScript/JavaScript, some DevOps (Docker, Kubernetes), no Java expertise
 *   **Existing Constraints:** NestJS framework for UMS Core, PostgreSQL relational engine, high-performance Redis cache, Dapr-ready architecture, strict on-premise K8s deployment capability
 *   **Non-Negotiables:** Absolutely zero cloud-provider SDK dependencies in the core domain layer (strict Hexagonal Architecture); 100% self-hostable open-source infrastructure alternatives.

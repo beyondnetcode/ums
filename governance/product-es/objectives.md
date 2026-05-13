@@ -1,12 +1,12 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versi�n original (Ingl�s) y est� programado para traducci�n oficial en la hoja de ruta.
+> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
 
-# 🎯 Strategic Product Objectives (OKRs) - User Management System (UMS)
+# ð¯ Strategic Product Objectives (OKRs) - User Management System (UMS)
 
 To align technical delivery with corporate goals, the development of the User Management System (UMS) is governed by the following measurable **Objectives and Key Results (OKRs)**:
 
 ---
 
-## 🚀 Objective 1: Deliver Enterprise-Grade, Passwordless Security
+## ð Objective 1: Deliver Enterprise-Grade, Passwordless Security
 Ensure the platform eliminates traditional security risks associated with identity management.
 
 - **KR 1.1**: Achieve **Zero local password hashes stored** for federated users, while maintaining a secure, bcrypt-hashed **Native Credentials Store** as an optional internal fallback.
@@ -15,7 +15,7 @@ Ensure the platform eliminates traditional security risks associated with identi
 
 ---
 
-## ⚡ Objective 2: Maximize Authorization Latency & Build Performance
+## â¡ Objective 2: Maximize Authorization Latency & Build Performance
 Guarantee that centralized permission checks do not degrade the downstream user experience.
 
 - **KR 2.1**: Keep compiled permission graph retrieval latency **under 50ms** using Read-Aside Redis Caching with TTL < 1 hour.
@@ -24,7 +24,7 @@ Guarantee that centralized permission checks do not degrade the downstream user 
 
 ---
 
-## 💼 Objective 3: Enable Self-Service B2B Scalability
+## ð¼ Objective 3: Enable Self-Service B2B Scalability
 Offload administrative tasks to clients, reducing support overhead.
 
 - **KR 3.1**: Reduce client tenant onboarding time from **days to < 10 minutes** via self-service tenant registration portals.
@@ -33,7 +33,7 @@ Offload administrative tasks to clients, reducing support overhead.
 
 ---
 
-## 🔌 Objective 4: Achieve True Plug-and-Play Extensibility (Vendor-Neutral Core)
+## ð Objective 4: Achieve True Plug-and-Play Extensibility (Vendor-Neutral Core)
 Design the system such that all external infrastructures (IdPs and Feature Flag Managers) are completely optional and easily pluggable.
 
 - **KR 4.1**: Deliver a fully functional **Native Fallback Engine** for both Identity (bcrypt/internal DB) and Feature Flags (PostgreSQL targets/evaluator) out of the box, requiring zero external SaaS dependencies.

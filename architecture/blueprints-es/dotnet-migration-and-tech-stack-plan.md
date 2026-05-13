@@ -1,4 +1,4 @@
-﻿# 📐 Plan de Migración de Stack Backend: NestJS a .NET 8 LTS
+# 📐 Plan de Migración de Stack Backend: NestJS a .NET 8 LTS
 
 **Tipo de Documento:** Plan de Implementación Arquitectónico  
 **Fase bMAD:** Fase 02 - Diseño de Arquitectura  

@@ -1,4 +1,4 @@
-﻿# 💻 UMS Administrative Web Console - Product & Functional Specification
+# 💻 UMS Administrative Web Console - Product & Functional Specification
 
 This specification details the product vision, module breakdowns, user roles, and UI/UX architecture for the **UMS Administrative Web Console**, serving as the primary **Policy Administration Point (PAP)** and **Policy Information Point (PIP) Monitor** under the **spec-driven AI strategy BMAD-METHOD**.
 

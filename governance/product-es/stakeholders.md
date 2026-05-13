@@ -1,12 +1,12 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versi�n original (Ingl�s) y est� programado para traducci�n oficial en la hoja de ruta.
+> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
 
-# 👥 Project Stakeholders & Users - User Management System (UMS)
+# ð¥ Project Stakeholders & Users - User Management System (UMS)
 
 To ensure the success of UMS, the following internal and external **Stakeholders** are mapped with their respective roles, responsibilities, and core expectations:
 
 ---
 
-## 🏢 1. Internal Stakeholders
+## ð¢ 1. Internal Stakeholders
 
 | Stakeholder Role | Primary Responsibility | Core Expectation from UMS |
 | :--- | :--- | :--- |
@@ -18,7 +18,7 @@ To ensure the success of UMS, the following internal and external **Stakeholders
 
 ---
 
-## 🌐 2. External Users
+## ð 2. External Users
 
 | User Persona | Context | Key Benefit from UMS |
 | :--- | :--- | :--- |

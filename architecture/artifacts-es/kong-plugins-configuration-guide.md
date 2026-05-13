@@ -1,4 +1,4 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versi�n original (Ingl�s) y est� programado para traducci�n oficial en la hoja de ruta.
+> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
 
 # Guía de Configuración de Kong Gateway (Tier 1)
 
@@ -14,7 +14,7 @@ Este es el esqueleto principal que define los servicios (tu backend de NestJS), 
 _format_version: "3.0"
 _transform: true
 
-# 1. DEFINICIÓN DEL SERVICIO (Tu NestJS BFF)
+# 1. DEFINICIÃN DEL SERVICIO (Tu NestJS BFF)
 services:
   - name: nestjs-bff-service
     url: http://nestjs-bff:3000 # La URL interna de tu contenedor NestJS
@@ -22,7 +22,7 @@ services:
     read_timeout: 60000
     write_timeout: 60000
     
-    # 2. DEFINICIÓN DE LAS RUTAS
+    # 2. DEFINICIÃN DE LAS RUTAS
     routes:
       - name: frontend-api-route
         paths:
@@ -95,7 +95,7 @@ consumers:
 3. **Paso al BFF (Tier 2):** Si todas las verificaciones pasan, Kong reenvía la petición HTTP intacta (con el JWT en el header) hacia `http://nestjs-bff:3000/api/v1/orders`.
 4. **NestJS actúa:** NestJS recibe una petición pre-validada. Solo tiene que leer el payload del JWT (para saber quién es el usuario, ya que Kong ya garantizó que el token es legal) y proceder a orquestar las llamadas a los microservicios (TMS, WMS, etc.).
 
-## 3. ¿Cómo pasar la información de Kong a NestJS?
+## 3. Â¿Cómo pasar la información de Kong a NestJS?
 
 Por defecto, cuando Kong valida un JWT, inyecta headers adicionales antes de mandarle la petición a NestJS. Puedes configurar Kong para que pase el Consumer ID o los claims del JWT en headers específicos:
 

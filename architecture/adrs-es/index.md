@@ -1,6 +1,6 @@
 # Registro de ADRs
 
-Registro histórico de decisiones arquitectónicas.
+Registro histÃ³rico de decisiones arquitectÃ³nicas.
 
 - [0001-monorepo-orchestration-nx.md](0001-monorepo-orchestration-nx.md)
 - [0002-clean-architecture-nestjs.md](0002-clean-architecture-nestjs.md)

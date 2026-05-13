@@ -1,4 +1,4 @@
-﻿# 🔐 High-Concurrency Authentication & Authorization Specification (UMS)
+# 🔐 High-Concurrency Authentication & Authorization Specification (UMS)
 
 This specification defines the enterprise-grade design, API contracts, security controls, and non-functional requirements for the **User Management System (UMS) High-Concurrency Authentication & Authorization API** under the **spec-driven AI strategy BMAD-METHOD**.
 

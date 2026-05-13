@@ -1,4 +1,4 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versi�n original (Ingl�s) y est� programado para traducci�n oficial en la hoja de ruta.
+> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
 
 # UMS Architecture Maturity Model (AMM)
 
@@ -33,7 +33,7 @@ We evaluate the UMS across 5 standard levels of maturity:
 
 We evaluate the UMS architecture against the 5 critical pillars of the Well-Architected Framework.
 
-### 🛡️ Pillar 1: Security & Compliance
+### ð¡ï¸ Pillar 1: Security & Compliance
 **Current Maturity Level: 4 (Managed)**
 *   **Evidence**: 
     *   Zero-Cost Security Pipeline implemented via CodeQL ([ADR-0005](../03-adrs/0005-ci-cd-quality-codeql.md)).
@@ -42,7 +42,7 @@ We evaluate the UMS architecture against the 5 critical pillars of the Well-Arch
     *   Immutable Audit Trails via CDC ([ADR-0016](../03-adrs/0016-immutable-business-audit-trail.md)).
 *   **Path to Level 5**: Implement automated penetration testing in CI and dynamic secrets rotation via HashiCorp Vault.
 
-### ⚡ Pillar 2: Performance Efficiency
+### â¡ Pillar 2: Performance Efficiency
 **Current Maturity Level: 4 (Managed)**
 *   **Evidence**: 
     *   High-Performance Auth Graph compilation under <5ms using Redis ([ADR-0021](../03-adrs/0021-high-performance-auth-and-graph-compilation.md)).
@@ -50,7 +50,7 @@ We evaluate the UMS architecture against the 5 critical pillars of the Well-Arch
     *   Frontend optimized payloads via BFF Gateway ([ADR-0008](../03-adrs/0008-progressive-multimodule-evolution-gateway-bff.md)).
 *   **Path to Level 5**: Implement serverless auto-scaling and predictive caching algorithms.
 
-### 🔄 Pillar 3: Reliability & Resiliency
+### ð Pillar 3: Reliability & Resiliency
 **Current Maturity Level: 3 (Defined) -> Moving to 4**
 *   **Evidence**: 
     *   Frontend Offline Resilience via React Query ([ADR-0004](../03-adrs/0004-frontend-offline-resilience.md)).
@@ -58,7 +58,7 @@ We evaluate the UMS architecture against the 5 critical pillars of the Well-Arch
     *   Cloud Infrastructure Multi-Region DR limits proposed ([ADR-0013](../03-adrs/0013-cloud-infrastructure-topology-dr.md)).
 *   **Path to Level 5**: Execute regular Chaos Engineering drills (Chaos Monkey) and fully active-active multi-region deployment.
 
-### 🛠️ Pillar 4: Operational Excellence
+### ð ï¸ Pillar 4: Operational Excellence
 **Current Maturity Level: 4 (Managed)**
 *   **Evidence**: 
     *   Monorepo Orchestration via Nx ensures deterministic builds ([ADR-0001](../03-adrs/0001-monorepo-orchestration-nx.md)).
@@ -67,7 +67,7 @@ We evaluate the UMS architecture against the 5 critical pillars of the Well-Arch
     *   Quality Gates enforce >70% test coverage strictly via CI ([ADR-0018](../03-adrs/0018-testing-pyramid-quality-gates.md)).
 *   **Path to Level 5**: Achieve fully autonomous, zero-downtime Blue/Green automated deployments with AI-driven anomaly detection in logs.
 
-### 🏗️ Pillar 5: Maintainability & Extensibility (Clean Architecture)
+### ðï¸ Pillar 5: Maintainability & Extensibility (Clean Architecture)
 **Current Maturity Level: 4 (Managed)**
 *   **Evidence**: 
     *   Strict Hexagonal Boundaries decoupling core from infra ([ADR-0002](../03-adrs/0002-clean-architecture-nestjs.md)).

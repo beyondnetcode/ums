@@ -1,6 +1,6 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versi�n original (Ingl�s) y est� programado para traducci�n oficial en la hoja de ruta.
+> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
 
-# 📐 Architectural Evaluation — Utilizing `@nestjslatam/packages` for DDD in UMS Core
+# ð Architectural Evaluation â Utilizing `@nestjslatam/packages` for DDD in UMS Core
 
 **Document Type:** Architectural Evaluation & Standard  
 **Status:** Approved (Conditional)  
@@ -10,7 +10,7 @@
 
 ---
 
-## 🧭 1. Introduction & Context
+## ð§­ 1. Introduction & Context
 
 The **User Management System (UMS)** is an abstract, standalone identity & access governance kernel. While implementing tactical Domain-Driven Design (DDD) patterns (such as Aggregate Roots, Entities, and Value Objects) is currently **optional** for core contexts, standardizing these patterns is critical to stabilizing complex business logic and preventing technical drift.
 
@@ -18,15 +18,15 @@ If the team chooses to utilize DDD patterns for any UMS bounded context (e.g., `
 
 ---
 
-## 📊 2. Architectural Alignment Analysis
+## ð 2. Architectural Alignment Analysis
 
 To be approved for use within the UMS Core Domain, any external library must satisfy our non-negotiable architectural guardrails:
 
-### A. Zero-Infrastructure Dependency Constraint (Compliance: ✅ FULLY COMPLIANT)
+### A. Zero-Infrastructure Dependency Constraint (Compliance: â FULLY COMPLIANT)
 *   **Guardrail:** The core Domain layer must have zero dependencies on external database ORMs (e.g., TypeORM), cloud provider SDKs, or web/HTTP frameworks.
 *   **Evaluation:** `@nestjslatam/ddd` provides pure TypeScript abstractions for tactical DDD primitives with no external runtime dependencies. The base building blocks (`Entity`, `ValueObject`, `AggregateRoot`) run entirely in memory and are highly testable in complete isolation.
 
-### B. Standard Tactical DDD Building Blocks (Compliance: ✅ FULLY COMPLIANT)
+### B. Standard Tactical DDD Building Blocks (Compliance: â FULLY COMPLIANT)
 The library provides complete, reliable implementations of standard DDD tactical components:
 1.  **`ValueObject`**: Supports structural equality based on properties (rather than memory reference equality) and immutable invariant validations.
 2.  **`Entity<ID>`**: Standardizes entities with durable, unique identities that persist over time.
@@ -35,7 +35,7 @@ The library provides complete, reliable implementations of standard DDD tactical
 
 ---
 
-## 📈 3. Benefits of Adoption
+## ð 3. Benefits of Adoption
 
 1.  **Boilerplate Eradication:** Eliminates the need for the team to write custom abstract classes for deep equality, entity comparison, or in-memory domain event tracking, significantly accelerating initial velocity.
 2.  **Unified Engineering Standards:** Provides a pre-approved, unified blueprint for the development team, preventing ad-hoc or inconsistent implementations of DDD tactical patterns.
@@ -43,7 +43,7 @@ The library provides complete, reliable implementations of standard DDD tactical
 
 ---
 
-## 🛠️ 4. Formal Approval & Mandatory Implementation Guidelines
+## ð ï¸ 4. Formal Approval & Mandatory Implementation Guidelines
 
 The use of `@nestjslatam/ddd` is formally **APPROVED** for any UMS bounded context where the team chooses to adopt Domain-Driven Design, subject to the following mandatory guidelines:
 
@@ -60,7 +60,7 @@ Database-specific decorators (such as `@Entity`, `@Column`, or `@ManyToOne` from
 
 ---
 
-## 🔗 5. Vendor Lock-in & Risk Mitigation
+## ð 5. Vendor Lock-in & Risk Mitigation
 
 | Risk | Level | Mitigation Strategy |
 | :--- | :--- | :--- |

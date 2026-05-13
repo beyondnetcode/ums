@@ -1,4 +1,4 @@
-﻿# 📊 Permission Matrix Example (Artifact 4)
+# 📊 Permission Matrix Example (Artifact 4)
 
 This document presents a practical demonstration of how the **ULPMS Resolution Engine** compiles conflicting and multi-profile permissions for a single corporate user under the **spec-driven AI strategy BMAD-METHOD**.
 

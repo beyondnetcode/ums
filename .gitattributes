@@ -1,0 +1,16 @@
+# GitAttributes - Persistence Integrity Standard
+
+# Handle line endings automatically
+* text=auto eol=lf
+
+# Force UTF-8 for all text files
+*.md text eol=lf working-tree-encoding=UTF-8
+*.txt text eol=lf
+*.json text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.svg text
