@@ -388,20 +388,73 @@ To ensure that changes in one context do not break its consumers, automated cont
 
 ## 🗄️ 13. Data Modeling & Persistence (E/R)
 
-The logical persistence structure is designed to support the complexities of an enterprise identity management system with native data isolation.
+The system architecture utilizes a shared database strategy with high-density multi-tenancy. Data isolation is strictly enforced at the engine level using SQL Server 2022 **SESSION_CONTEXT** and **Security Policies (iTVF)**. The model is logically partitioned into six Bounded Contexts (Aggregates) to maintain modularity and high-performance resolution.
 
 ```mermaid
 erDiagram
-    TENANT ||--o{ USER : "belongs_to"
-    TENANT ||--o{ ROLE : "defines"
-    TENANT ||--o{ BRANCH : "owns"
-    USER ||--|| PROFILE : "has"
-    PROFILE ||--o{ USER_ROLE : "assigned_to"
-    ROLE ||--o{ ROLE_PERMISSION : "contains"
+    %% Aggregate: Identity
+    TENANT ||--o{ USER_ACCOUNT : "owns"
+    TENANT ||--o{ BRANCH : "contains"
+    
+    %% Aggregate: Authorization
+    USER_ACCOUNT ||--o{ PROFILE : "has"
+    SYSTEM_SUITE ||--o{ ROLE : "defines"
+    ROLE ||--o{ PERMISSION_TEMPLATE : "governs"
+    PROFILE ||--o{ PROFILE_PERMISSION : "materialized"
+    
+    %% Aggregate: IGA
+    ROLE ||--o{ ROLE_PROMOTION_CRITERIA : "criteria"
+    USER_ACCOUNT ||--o{ USER_PROMOTION_PROCESS : "evaluates"
+    USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "delegates"
+    
+    %% Aggregate: Compliance & Documents
+    USER_ACCOUNT ||--o{ USER_DOCUMENT : "holds"
+    DOCUMENT_TYPE ||--o{ USER_DOCUMENT : "classifies"
+    DOCUMENT_TYPE ||--o{ ACCESS_ENFORCEMENT_POLICY : "restricts"
+    
+    %% Aggregate: Approvals
+    APPROVAL_WORKFLOW ||--o{ APPROVAL_REQUEST : "triggers"
+    USER_ACCOUNT ||--o{ APPROVAL_LOG : "audits"
+    
+    %% Aggregate: Configuration
+    TENANT ||--o{ APP_CONFIGURATION : "settings"
+    SYSTEM_SUITE ||--o{ APP_CONFIGURATION : "overrides"
+
+    USER_ACCOUNT {
+        uuid UserId PK
+        uuid TenantId FK
+        string Status
+    }
+    ROLE {
+        uuid RoleId PK
+        uuid ParentRoleId FK
+        int HierarchyLevel
+    }
+    USER_DOCUMENT {
+        uuid DocumentId PK
+        datetime ExpirationDate
+        string Status
+    }
+    APP_CONFIGURATION {
+        uuid SettingId PK
+        string Code
+        string Value
+    }
 ```
 
-To view the detailed design, SQL Server specific data types, and implemented security policies, consult:
-👉 **[Detailed E/R Model Design (SQL Server 2022)](./database-design-er.md)**
+### 13.1 Aggregate Reference Matrix
+
+| Aggregate | Entities | Responsibility | Design Notes |
+| :--- | :--- | :--- | :--- |
+| **Identity** | TENANT, USER_ACCOUNT, BRANCH | Core identity management and context. | Denormalized TenantId for RLS. |
+| **Authorization**| ROLE, PROFILE, ACTION, SUITE, PERMS | Fine-grained permission resolution. | Recursive role hierarchies and XOR action ownership. |
+| **IGA** | PROMOTION, DELEGATION, CRITERIA | Merit-based evolution and delegation. | Flag-driven criteria engine. |
+| **Compliance** | DOCUMENT, DOC_TYPE, NOTIF_RULE | Document validity and access locking. | Expiration-based access enforcement. |
+| **Approvals** | WORKFLOW, REQUEST, LOG | Multi-step evidence-based approvals. | Immutable audit trail with 10-col schema. |
+| **Configuration**| APP_CONFIGURATION | Multi-level hierarchical parameters. | Closest-scope-wins resolution (Global->Tenant->Suite). |
+
+To view the complete DDL, DBML, and technical constraints, consult the **Source of Truth**:
+👉 **[Detailed E/R Model & Export Formats (er-export-formats.md)](./er-export-formats.md)**
 
 ---
 
