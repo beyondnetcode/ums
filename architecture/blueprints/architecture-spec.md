@@ -17,7 +17,8 @@ The following table defines the mandatory deliverables, strategic scope, and con
 | **2** | [Platform Core Definition](#-7-centralized-authorization-engine-architecture-peppdppappip) | Strategy that identifies cross-cutting capabilities (Identity, Master Data, Event Bus, API Gateway), their common purpose, and reuse principles. Justifies investments in shared components. |
 | **3** | [C4 Diagram (Context, Container, Component)](#-2-c4-model) | Architectural vision at levels 1 and 2: external systems, large containers, and communication between them. Sizes technical complexity and allows estimating effort without detailing classes or internal components. |
 | **4** | [Database Strategy](#-8-database-strategy--multi-tenant-isolation-rls) | Substantiates the choice of persistence pattern (Database-per-Module), guidelines for distributed transactions, and general backup and recovery policies. Details the impact on costs and operations. |
-| **5** | [Event Domain Model (Event Storming)](#-10-asynchronous-communication--event-model) | Map of relevant business events, their producers, and consumers, along with delivery and ordering principles. Guides integration and the effort associated with orchestration/choreography. |
+| **5** | [Entity-Relationship (E/R) Model](./database-design-er.md) | Logical and physical representation of UMS entities (Identity, RBAC, Multi-tenancy) optimized for SQL Server 2022. |
+| **6** | [Event Domain Model (Event Storming)](#-10-asynchronous-communication--event-model) | Map of relevant business events, their producers, and consumers, along with delivery and ordering principles. Guides integration and the effort associated with orchestration/choreography. |
 | **6** | [End-to-End Observability Strategy](#-9-observability--distributed-telemetry-strategy) | Approach to distributed telemetry: traceability of complete business processes, key metrics, and logging models at the architectural level. Used to estimate monitoring tools and costs. |
 | **7** | [Identity & Authorization Design](#-7-centralized-authorization-engine-architecture-peppdppappip) | Strategy for the identity and authorization model: Identity Provider (IdP), authentication flow between contexts, and session guidelines. Helps size security across all domains. |
 | **8** | Documented Non-Functional Requirements (NFRs) | Definition of measurable non-functional requirements that condition the architecture: latency, throughput, availability, and graceful degradation mechanisms. Represents contractual targets that the design must meet. |
@@ -367,8 +368,18 @@ graph TD
 To ensure that changes in one context do not break its consumers, automated contract tests are implemented.
 
 - **Unit Tests**: Pure logic in `Ums.Domain`.
-- **Integration Tests**: Using **Testcontainers** to validate real behavior with PostgreSQL and Redis.
+- **Integration Tests**: Using **Testcontainers** to validate real behavior with SQL Server and Redis.
 - **Contract Tests**: Validation of OpenAPI schemas and asynchronous events.
+
+---
+
+## 🗄️ 13. Data Modeling & Persistence (E/R)
+
+The logical persistence structure is designed to support the complexities of an enterprise identity management system with native data isolation. The model clearly separates identity, credentials, profiles, and hierarchical authorization concerns.
+
+To view the detailed design, SQL Server specific data types, and implemented security policies, consult:
+👉 **[Detailed E/R Model Design (SQL Server 2022)](./database-design-er.md)**
+
 
 
 

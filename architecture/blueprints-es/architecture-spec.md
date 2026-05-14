@@ -17,7 +17,8 @@ La siguiente tabla define los entregables obligatorios, el alcance estratégico 
 | **2** | [Definición del Core de la Plataforma](#-7-arquitectura-del-motor-de-autorización-centralizado-peppdppappip) | Estrategia que identifica capacidades transversales (Identidad, Datos Maestros, Bus de Eventos, API Gateway), su propósito común y principios de reutilización. Justifica las inversiones en componentes compartidos. |
 | **3** | [Diagrama C4 (Contexto, Contenedor, Componente)](#-2-modelo-c4) | Visión arquitectónica en los niveles 1 y 2: sistemas externos, contenedores grandes y comunicación entre ellos. Dimensiona la complejidad técnica y permite estimar el esfuerzo sin detallar clases o componentes internos. |
 | **4** | [Estrategia de Base de Datos](#-8-estrategia-de-base-de-datos-y-aislamiento-multitenant-rls) | Sustenta la elección del patrón de persistencia (Base de datos por módulo), pautas para transacciones distribuidas y políticas generales de respaldo y recuperación. Detalla el impacto en costos y operaciones. |
-| **5** | [Modelo de Dominio de Eventos (Event Storming)](#-10-modelo-de-comunicación-asíncrona-y-eventos) | Mapa de eventos de negocio relevantes, sus productores y consumidores, junto con los principios de entrega y ordenamiento. Guía la integración y el esfuerzo asociado con la orquestación/coreografía. |
+| **5** | [Modelo Entidad-Relación (E/R)](./database-design-er.md) | Representación lógica y física de las entidades de UMS (Identidad, RBAC, Multi-tenancy) optimizada para SQL Server 2022. |
+| **6** | [Modelo de Dominio de Eventos (Event Storming)](#-10-modelo-de-comunicación-asíncrona-y-eventos) | Mapa de eventos de negocio relevantes, sus productores y consumidores, junto con los principios de entrega y ordenamiento. Guía la integración y el esfuerzo asociado con la orquestación/coreografía. |
 | **6** | [Estrategia de Observabilidad Extremo a Extremo](#-9-estrategia-de-observabilidad-y-telemetría-distribuida) | Enfoque para la telemetría distribuida: trazabilidad de procesos de negocio completos, métricas clave y modelos de registro (logging) a nivel arquitectónico. Se utiliza para estimar herramientas de monitoreo y costos. |
 | **7** | [Diseño de Identidad y Autorización](#-7-arquitectura-del-motor-de-autorización-centralizado-peppdppappip) | Estrategia para el modelo de identidad y autorización: Proveedor de Identidad (IdP), flujo de autenticación entre contextos y pautas de sesión. Ayuda a dimensionar la seguridad en todos los dominios. |
 | **8** | Requerimientos No Funcionales Documentados (NFRs) | Definición de requisitos no funcionales medibles que condicionan la arquitectura: latencia, rendimiento (throughput), disponibilidad y mecanismos de degradación controlada. Representa los objetivos contractuales que el diseño debe cumplir. |
@@ -365,5 +366,15 @@ graph TD
 Para garantizar que los cambios en un contexto no rompan a sus consumidores, se implementan pruebas de contrato automatizadas.
 
 - **Pruebas de Unidad**: Lógica pura en `Ums.Domain`.
-- **Pruebas de Integración**: Uso de **Testcontainers** para validar el comportamiento real con PostgreSQL y Redis.
+- **Pruebas de Integración**: Uso de **Testcontainers** para validar el comportamiento real con SQL Server y Redis.
 - **Pruebas de Contrato**: Validación de esquemas OpenAPI y eventos asíncronos.
+
+---
+
+## 🗄️ 13. Modelado de Datos y Persistencia (E/R)
+
+La estructura lógica de persistencia está diseñada para soportar las complejidades de un sistema de gestión de identidades empresarial con aislamiento de datos nativo. El modelo separa claramente las preocupaciones de identidad, credenciales, perfiles y autorización jerárquica.
+
+Para ver el diseño detallado, tipos de datos específicos de SQL Server y políticas de seguridad implementadas, consulte:
+👉 **[Diseño Detallado del Modelo E/R (SQL Server 2022)](./database-design-er.md)**
+
