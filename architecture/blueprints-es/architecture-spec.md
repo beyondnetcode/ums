@@ -207,10 +207,10 @@ Esta matriz mapea las decisiones técnicas fundamentales con sus Atributos de Ca
 | Decisión / Enfoque | Referencia ADR | Atributos de Calidad Primarios | Resumen de Decisión y Estrategia Técnica | Mecanismo de Aplicación y Verificación |
 | :--- | :--- | :--- | :--- | :--- |
 | **Orquestáación de Monorepo** | [ADR 0001](../adrs-es/0001-monorepo-orchestration-nx.md) | Modularidad, Rendimiento de Build | Utiliza Nx y workspaces npm para gestionar módulos desacoplados con configuraciones localizadas. | Verificación de caché de Nx y chequeos de esquema de dependencias localizados. |
-| **Límites Hexagonales** | [ADR 0002](../adrs-es/0002-clean-architecture-nestájs.md) | Desacoplamiento, Testáabilidad, Agnosticismo | Implementa tres capas estárictas: Core (Entidades), Aplicación (Casos de Uso), Infraestructura (Adaptadores). | `eslint-plugin-boundaries` bloquea importaciones no autorizadas de afuera hacia adentro. |
+| **Límites Hexagonales** | [ADR 0002](../adrs-es/0002-clean-architecture-nestjs.md) | Desacoplamiento, Testabilidad, Agnosticismo | Implementa tres capas estárictas: Core (Entidades), Aplicación (Casos de Uso), Infraestructura (Adaptadores). | `eslint-plugin-boundaries` bloquea importaciones no autorizadas de afuera hacia adentro. |
 | **Telemetría de Observabilidad** | [ADR 0007](../adrs-es/0007-observability-telemetry-loki-opentelemetry.md) | Observabilidad, Rendimiento, Monitoreo | Stack Grafana LGTM (Loki + Grafana + Tempo) con OpenTelemetry (OTel). | Pruebas de integración de OpenTelemetry y monitoreo de dashboards de Grafana. |
 | **Gobernanza de Dependencias** | [ADR 0009](../adrs-es/0009-strict-dependency-pinning-vulnerability-management.md) | Seguridad, Estabilidad, Determinismo | Aplica tolerancia cero para versiones dinámicas (se eliminan `^`/`~`) para garantizar builds reproducibles. | `npm audit --audit-level=high` se ejecuta en CI para bloquear PRs vulnerables. |
-| **Estrategia de Motores DB** | [ADR 0026](../adrs-es/0026-authoritative-database-engine-strategy.md) | Ecosistema, Rendimiento, Mantenibilidad | SQL Server para .NET; PostgreSQL/Mongo para Node.js. Alineación con estándares de Microsoft. | Pruebas de integración y políticas de aprovisionamiento de infraestructura. |
+| **Estrategia de Motores DB** | [ADR 0026](../adrs-es/0026-mfa-passwordless-adaptive-authentication.md) | Ecosistema, Rendimiento, Mantenibilidad | SQL Server para .NET; PostgreSQL/Mongo para Node.js. Alineación con estándares de Microsoft. | Pruebas de integración y políticas de aprovisionamiento de infraestructura. |
 | **SaaS Multi-Tenancy** | [ADR 0010](../adrs-es/0010-multi-tenancy-architecture-strategy.md) | Seguridad, Aislamiento de Datos, Eficiencia de Costos | Esquema compartido con RLS (PostgreSQL para Node / SQL Server para .NET) para aplicar aislamiento de tenants. | `AsyncLocalStorage` propaga el Contexto del Tenant; los Interceptores de EF Core validan RLS. |
 | **Tolerancia a Fallos y Resiliencia** | [ADR 0011](../adrs-es/0011-fault-tolerance-resiliency-patterns.md) | Resiliencia, Confiabilidad, Consistencia | Circuit Breaker (`opossum`) + reintentos con Exponential Backoff envueltos estárictamente dentro de los Adaptadores de Infraestructura. | Mocks de Jestá simulando fallos HTTP y verificando transiciones de estado del circuito. |
 | **Autorización Granular** | [ADR 0012](../adrs-es/0012-advanced-authorization-rbac-abac.md) | Seguridad, Trazabilidad, SoC | RBAC/ABAC consciente del tenant utilizando decodificadores de claims JWT y Guards de contexto de ejecución de NestJS. | Pruebas de integración simulando intentos de acceso entre tenants. |
@@ -311,7 +311,7 @@ El diseño de observabilidad de UMS distingue dos capas de registro complementar
 | **Propósito** | Diagnósticos SRE, latencia, tasas de error | Cumplimiento normativo, forense, responsabilidad de acceso |
 | **Consumidor principal** | Grafana / Jaeger / Prometheus | Herramientas internas de compliance, auditores de seguridad |
 | **Mutabilidad** | Rotado / podado por política TTL | Inmutable — solo de adición, nunca se elimina |
-| **Granularidad de eventos** | Cada requestá HTTP, llamada gRPC, consulta a BD | Solo eventos de negocio (login, cambio de permiso, expiración de documento) |
+| **Granularidad de eventos** | Cada request HTTP, llamada gRPC, consulta a BD | Solo eventos de negocio (login, cambio de permiso, expiración de documento) |
 | **Esquema** | OTLP (spans, métricas, logs) | `AuditRecord { who, when, what, result, tenantId }` |
 | **Transporte** | OpenTelemetry SDK → Jaeger/Loki | Bus de eventos de dominio (`IEventBusPort`) → suscriptor de Auditoría | ### Regla de Instrumentación
 
@@ -400,7 +400,7 @@ graph TD
 Para garantizar que los cambios en un contexto no rompan a sus consumidores, se implementan pruebas de contrato automatizadas.
 
 - **Pruebas de Unidad**: Lógica pura en `Ums.Domain`.
-- **Pruebas de Integración**: Uso de **Testácontainers** para validar el comportamiento real con SQL Server y Redis.
+- **Pruebas de Integración**: Uso de **Testcontainers** para validar el comportamiento real con SQL Server y Redis.
 - **Pruebas de Contrato**: Validación de esquemas OpenAPI y eventos asíncronos.
 
 ---
@@ -429,7 +429,7 @@ erDiagram
     %% Aggregate: Compliance & Documents
     USER_ACCOUNT ||--o{ USER_DOCUMENT : "contiene"
     DOCUMENT_TYPE ||--o{ USER_DOCUMENT : "clasifica"
-    DOCUMENT_TYPE ||--o{ ACCESS_ENFORCEMENT_POLICY : "restáringe"
+    DOCUMENT_TYPE ||--o{ ACCESS_ENFORCEMENT_POLICY : "restringe"
     
     %% Aggregate: Approvals
     APPROVAL_WORKFLOW ||--o{ APPROVAL_REQUEST : "dispara"

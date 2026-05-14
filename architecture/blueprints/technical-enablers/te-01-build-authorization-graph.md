@@ -36,7 +36,7 @@ sequenceDiagram
 ```
 
 ### A. Main Flow
-1.  The .NET 8 requestá interceptor/guard receives an incoming API requestá.
+1.  The .NET 8 request interceptor/guard receives an incoming API request.
 2.  The guard queries the high-performance Redis cache cluster using the unique `user_id` as the key.
 3.  **Cache Hit Case**: Redis returns the pre-compiled hierarchical JSON permission graph. The guard instantly resolves the permission (Target p95 < 5ms).
 4.  **Cache Miss Case**: The guard dispatches a compile command to the core Authorization Engine.
@@ -61,6 +61,6 @@ sequenceDiagram
 ---
 
 ## 4. Primary Operational Model Reference
-The complete transaction flow, Redis caching strategy, and Explicit-Deny compilation rules for this use case are modeled around the **Business Analyst** role at the Callao Terminal (under *Logistics Corp*). For the detailed technical schemas, parameter structures, and OpenAPI examples, consult **[enterprise-iam-ums-specification.md](../../04-artifacts/enterprise-iam-ums-specification.md)**.
+The complete transaction flow, Redis caching strategy, and Explicit-Deny compilation rules for this use case are modeled around the **Business Analyst** role at the Callao Terminal (under *Logistics Corp*). For the detailed technical schemas, parameter structures, and OpenAPI examples, consult **[enterprise-iam-ums-specification.md](../../artifacts/enterprise-iam-ums-specification.md)**.
 
 

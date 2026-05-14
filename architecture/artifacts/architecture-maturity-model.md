@@ -44,7 +44,7 @@ We evaluate the UMS architecture against the 5 critical pillars of the Well-Arch
 **Current Maturity Level: 4 (Managed)**
 *   **Evidence**: 
     *   High-Performance Auth Graph compilation under <5ms using Redis ([ADR-0021](../adrs/0021-high-performance-auth-and-graph-compilation.md)).
-    *   Dual-Protocol Strategy (REST for public, gRPC for internal speed) ([ADR-0027](../adrs/0027-dual-protocol-restá-grpc-api-gateway.md)).
+    *   Dual-Protocol Strategy (REST for public, gRPC for internal speed) ([ADR-0027](../adrs/0027-dual-protocol-rest-grpc-api-gateway.md)).
     *   Frontend optimized payloads via BFF Gateway ([ADR-0008](../adrs/0008-progressive-multimodule-evolution-gateway-bff.md)).
 *   **Path to Level 5**: Implement serverless auto-scaling and predictive caching algorithms.
 
@@ -68,7 +68,7 @@ We evaluate the UMS architecture against the 5 critical pillars of the Well-Arch
 ### Pillar 5: Maintainability & Extensibility (Clean Architecture)
 **Current Maturity Level: 4 (Managed)**
 *   **Evidence**: 
-    *   Strict Hexagonal Boundaries decoupling core from infra ([ADR-0002](../adrs/0002-clean-architecture-nestájs.md)).
+    *   Strict Hexagonal Boundaries decoupling core from infra ([ADR-0002](../adrs/0002-clean-architecture-nestjs.md)).
     *   Tactical Design Patterns (Result Monad) future-proofing the core ([ADR-0019](../adrs/0019-tactical-design-patterns-future-proofing.md)).
     *   Event-Driven Architecture decoupling domain modules ([ADR-0015](../adrs/0015-event-driven-architecture-intra-domain.md)).
     *   Vendor Lock-In mitigation strategies clearly defined (Feature Flags, IdPs).

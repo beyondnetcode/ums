@@ -211,7 +211,7 @@ CREATE TRIGGER trg_cascade_delegation_revocation
 
 ### Negative (Cons)
 
-*   **Per-requestá overhead**: 3-5 DB queries per administrative requestá (types lookup, closure check, delegation chain). Mitigation: Cache taxonomy ranks and validated scopes with TTL 60s.
+*   **Per-request overhead**: 3-5 DB queries per administrative request (types lookup, closure check, delegation chain). Mitigation: Cache taxonomy ranks and validated scopes with TTL 60s.
 *   **Cascade revocation cost**: Revoking a deeply nested delegation chain requires recursive updates. Mitigation: Limit delegation depth to 5; batch process with CTE.
 *   **False positives risk**: Overly strict invariants could block legitimate cross-tenant data sharing (e.g., federation reports). Mitigation: `tenant_edges` with `edge_type = 'data_sharing'` can create explicit bypass scopes.
 
@@ -221,6 +221,6 @@ CREATE TRIGGER trg_cascade_delegation_revocation
 
 1.  **Centralized Policy Decision Point (PDP) with XACML**: Rejected. XACML complexity is disproportionate for the UMS scope. The five-invariant pipeline provides equivalent guarantees at lower implementation cost.
 
-2.  **JWT claim-based validation only**: Rejected. Privilege escalation detection requires evaluating the delegation chain state at requestá time, which cannot be pre-encoded in a token.
+2.  **JWT claim-based validation only**: Rejected. Privilege escalation detection requires evaluating the delegation chain state at request time, which cannot be pre-encoded in a token.
 
 3.  **Application-level checks only (no DB validation)**: Rejected. Defense in depth requires both application middleware and database-level RLS enforcement.

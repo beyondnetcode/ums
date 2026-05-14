@@ -1,7 +1,7 @@
 # ADR 0002: Clean Architecture and Hexagonal Boundaries on NestJS
 
 * **Status:** Accepted
-* **Based on:** [arc32-2](https://github.com/beyondnetcode/arc32_progresive_monolith/blob/main/arc-corporate-ws/corporate-standards/02-adrs/core/0002-clean-architecture-hexagonal.md)
+* **Based on:** [arc32-2](https://github.com/beyondnetcode/arc32_progresive_monolith/blob/main/arc-corporate-ws/corporate-standards/02-adrs/0002-clean-architecture-hexagonal.md)
 * **Date:** 2026-05-08
 
 ## Adaptation Summary

@@ -256,7 +256,7 @@ libs/
 |-- shared-utils/           # Pure functions, validators, formatters
 |-- domain-types/           # TypeScript types mirroring C# DTOs
 |-- api-client/             # Axios/HTTP client wrappers
-|-- test-utils/             # Testá helpers, mocks, fixtures
+|-- test-utils/             # Test helpers, mocks, fixtures
 +-- config/                 # Runtime config readers, feature flags
 ```
 
@@ -344,11 +344,11 @@ docs/
 
 | Type | Location | Prefix | Status Tracking |
 |---|---|---|---|
-| Product/Requirements | `docs/*/00-product/`, `docs/*/01-requirements/` | `fs-NN-` | Phase-based |
-| Architecture Specs | `docs/*/02-architecture/` | `te-NN-` | Phase-based |
-| ADRs | `docs/*/03-adrs/` | `NNNN-` | Index with status table |
-| Artifacts | `docs/*/04-artifacts/` | (none) | Versioned |
-| Roadmap | `docs/*/05-roadmap/` | (none) | Versioned | ### 5.3 ADR Format
+| Product/Requirements | `docs/*/product/`, `docs/*/requirements/` | `fs-NN-` | Phase-based |
+| Architecture Specs | `docs/*/architecture/` | `te-NN-` | Phase-based |
+| ADRs | `docs/*/adrs/` | `NNNN-` | Index with status table |
+| Artifacts | `docs/*/artifacts/` | (none) | Versioned |
+| Roadmap | `docs/*/roadmap/` | (none) | Versioned | ### 5.3 ADR Format
 
 Every ADR MUST follow this template:
 
@@ -413,7 +413,7 @@ POCs must NOT be referenced by any production code. POCs must NOT be deployed.
 | `<repo-root>/` | `MASTER_INDEX.md` | Cross-reference of all major directories, docs phases, apps |
 | `docs/en/`, `docs/es/` | `index.md` | Phase overview with links to each subdirectory |
 | `docs/*/NN-<phase>/` | `index.md` | List of documents in phase with descriptions |
-| `docs/*/03-adrs/` | `index.md` | ADR log with status table (number, title, status, date) |
+| `docs/*/adrs/` | `index.md` | ADR log with status table (number, title, status, date) |
 | `docs/*/NN-<phase>/<subcategory>/` | `index.md` | List of items (e.g., functional stories index) |
 | `src/<workspace>/` | `README.md` | Workspace overview, build commands, architecture diagram |
 | `src/<workspace>/apps/<app>/` | `README.md` | App-specific description, run instructions |
@@ -430,7 +430,7 @@ Every README MUST contain:
 
 - All links MUST be relative (never absolute `/`) to support fork/mirror portability
 - Links to `docs/` from code MUST go through `docs/en/` or `docs/es/`
-- ADRs MUST be referenced by number: `[ADR-0041](docs/en/03-adrs/0041-bounded-context-split.md)`
+- ADRs MUST be referenced by number: `[ADR-0041](docs/en/adrs/0041-bounded-context-split.md)`
 - Functional stories MUST be referenced by ID: `FS-01`
 
 ---
@@ -526,7 +526,7 @@ Every template MUST:
 | Default branch | `main` |
 | Branch protection | Require PR, require status checks, require up-to-date |
 | PR merge strategy | Squash merge (linear history) |
-| Issue templates | Bug report, Feature requestá, Technical spike |
+| Issue templates | Bug report, Feature request, Technical spike |
 | PR templates | Summary, Changes, Testing, ADR references |
 | CODEOWNERS | Per directory ownership (.github/CODEOWNERS) |
 | Labels | `area/*`, `type/*`, `priority/*`, `status/*` taxonomy | ### 11.2 Branch Naming
@@ -604,7 +604,7 @@ Types enforced by commitlint: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`
 | No `CONTRIBUTING.md` | `<repo-root>/CONTRIBUTING.md` | Create from template |
 | No `GOVERNANCE.md` | `<repo-root>/GOVERNANCE.md` | Create from template |
 | `.bmad-core/` inside workspace | Merge into root `.bmad/` or `bmad-core/` | Consolidate BMAD config |
-| `docs/rules-summary.md` | `docs/en/04-artifacts/rules-summary.md` | Move under phase structure | ### 13.2 Migration Phases
+| `docs/rules-summary.md` | `docs/en/artifacts/rules-summary.md` | Move under phase structure | ### 13.2 Migration Phases
 
 ```
 Phase 1 — Foundation (Week 1)
@@ -620,7 +620,7 @@ Phase 2 — Source Restáructuring (Week 2-3)
    Create initial libs/ with one shared library to validate pattern
 
 Phase 3 — Documentation Alignment (Week 3-4)
-   Move docs/rules-summary.md to docs/en/04-artifacts/
+   Move docs/rules-summary.md to docs/en/artifacts/
    Add index.md to every docs/ subdirectory
    Update MASTER_INDEX.md with new structure
    Audit all cross-references for correctness
@@ -649,7 +649,7 @@ Phase 4 — Automation (Week 4)
 
 - **Directory lint:** CI pipeline validates canonical tree structure on every PR
 - **Naming lint:** Shell script or custom ESLint rule checks naming conventions
-- **ADR index check:** Verifies every ADR file is listed in `docs/*/03-adrs/index.md`
+- **ADR index check:** Verifies every ADR file is listed in `docs/*/adrs/index.md`
 - **No orphaned docs:** Every `.md` file must be referenced in at least one index or README
 - **Bilingual sync check:** Every file in `docs/en/` must have a corresponding file in `docs/es/` (R-01)
 

@@ -14,7 +14,7 @@ We solve this using **Consumer-Driven Contract Testing** (leveraging **Pact JS**
 
 ## 2. Consumer-Driven Contract Workflow
 
-Contract testing operates under a "Consumer-Driven" model. The consumer (e.g., Billing Module) defines the expected requestá/response payloads, and the provider (e.g., Inventory Module) must satisfy that contract prior to merging code.
+Contract testing operates under a "Consumer-Driven" model. The consumer (e.g., Billing Module) defines the expected request/response payloads, and the provider (e.g., Inventory Module) must satisfy that contract prior to merging code.
 
 ```mermaid
 sequenceDiagram
@@ -23,7 +23,7 @@ sequenceDiagram
     participant Pact as Pact Broker / Local Contract Store
     participant Prov as Provider (Inventory)
 
-    Note over Cons: Write Contract Testá and Define Mock Payload
+    Note over Cons: Write Contract Test and Define Mock Payload
     Cons->>Pact: 1. Generate and Publish Pact JSON Contract File
     Note over Prov: CI Pipeline Triggers Provider Verification
     Pact->>Prov: 2. Fetch Active Contracts
@@ -45,8 +45,8 @@ The following contract specifies an active interaction between the **Billing Mod
   "provider": { "name": "InventoryModule" },
   "interactions": [
     {
-      "description": "A requestá for verified container weight",
-      "requestá": {
+      "description": "A request for verified container weight",
+      "request": {
         "method": "GET",
         "path": "/api/v1/containers/CONT-998822/weight"
       },

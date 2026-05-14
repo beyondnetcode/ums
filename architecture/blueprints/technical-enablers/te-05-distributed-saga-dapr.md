@@ -2,7 +2,7 @@
 
 This document specifies the choreography-based saga pattern for managing distributed business processes that span multiple bounded contexts, using Dapr pub/sub as the event backbone and compensation flows for rollback consistency.
 
-> **Backing ADRs:** [ADR-0035 — Distributed Saga Strategy](../../../arc32_progresive_monolith/architecture/adrs/core/0035-distributed-saga-strategy.md) · [ADR-0006 — Future Microservices Transition with Dapr](../../../arc32_progresive_monolith/architecture/adrs/core/0006-future-microservices-transition-dapr.md)  
+> **Backing ADRs:** [ADR-0035 — Distributed Saga Strategy](../../adrs/0006-future-microservices-transition-dapr.md) · [ADR-0006 — Future Microservices Transition with Dapr](../../adrs/0006-future-microservices-transition-dapr.md)  
 > **Consumed by:** FS-10 (B2B Access Approval), FS-12 (Role Promotion Process)
 
 ---
@@ -39,27 +39,27 @@ sequenceDiagram
 
     Approver->>Identity: POST /access-requests/{id}/approve
     Identity->>Identity: Validate approver scope & temporal window
-    Identity->>Dapr: PUBLISH AccessRequestApproved {requestáId, subjectId, orgId, templateId}
+    Identity->>Dapr: PUBLISH AccessRequestApproved {requestId, subjectId, orgId, templateId}
 
     Dapr-->>Auth: AccessRequestApproved
     Auth->>Auth: Assign AuthorizationTemplate to subject profile
     alt Success
         Auth->>Dapr: PUBLISH ProfileTemplateAssigned {subjectId, templateId}
     else Failure (template not found / scope conflict)
-        Auth->>Dapr: PUBLISH ProfileTemplateAssignmentFailed {requestáId, reason}
+        Auth->>Dapr: PUBLISH ProfileTemplateAssignmentFailed {requestId, reason}
     end
 
     Dapr-->>Notif: ProfileTemplateAssigned
     Notif->>Notif: Send access-granted notification to subject & admin
-    Notif->>Dapr: PUBLISH NotificationSent {requestáId, channel}
+    Notif->>Dapr: PUBLISH NotificationSent {requestId, channel}
 
     Dapr-->>Audit: ProfileTemplateAssigned
     Audit->>Audit: Write immutable audit entry
 
     alt Compensation path: ProfileTemplateAssignmentFailed
         Dapr-->>Identity: ProfileTemplateAssignmentFailed
-        Identity->>Identity: Revert access requestá to PENDING / notify admin
-        Identity->>Dapr: PUBLISH AccessRequestReverted {requestáId, reason}
+        Identity->>Identity: Revert access request to PENDING / notify admin
+        Identity->>Dapr: PUBLISH AccessRequestReverted {requestId, reason}
         Dapr-->>Notif: AccessRequestReverted
         Notif->>Notif: Send failure notification to admin
         Dapr-->>Audit: AccessRequestReverted
@@ -69,7 +69,7 @@ sequenceDiagram
 
 ### A. Main Flow (Happy Path)
 
-1. An administrator approves a B2B access requestá via the UMS REST API.
+1. An administrator approves a B2B access request via the UMS REST API.
 2. The Identity Context validates approver authority and temporal scope (ADR-0038).
 3. `AccessRequestApproved` is published to the Dapr pub/sub topic `ums.access`.
 4. The Authorization Context subscribes to `AccessRequestApproved`, assigns the specified authorization template to the subject's profile, and publishes `ProfileTemplateAssigned`.
@@ -79,7 +79,7 @@ sequenceDiagram
 ### B. Compensation Flow
 
 1. If the Authorization Context cannot assign the template (scope conflict, template archived, privilege escalation detected per ADR-0036), it publishes `ProfileTemplateAssignmentFailed`.
-2. The Identity Context reverts the access requestá status and publishes `AccessRequestReverted`.
+2. The Identity Context reverts the access request status and publishes `AccessRequestReverted`.
 3. Notification and Audit contexts react to the reversal event, completing the compensating path.
 
 ---
@@ -191,11 +191,11 @@ Because Dapr pub/sub guarantees **at-least-once delivery**, all saga step handle
 
 ## 8. Related Documents
 
-- [ADR-0035 — Distributed Saga Strategy](../../../arc32_progresive_monolith/architecture/adrs/core/0035-distributed-saga-strategy.md)
-- [ADR-0006 — Future Microservices Transition with Dapr](../../../arc32_progresive_monolith/architecture/adrs/core/0006-future-microservices-transition-dapr.md)
-- [ADR-0036 — Message Bus Delivery & DLQ Strategy](../../../arc32_progresive_monolith/architecture/adrs/core/0036-message-bus-delivery-strategy.md)
-- [ADR-0016 — Immutable Audit Trail](./adrs/0016-immutable-business-audit-trail.md)
-- [ADR-0046 — Role Evolution & Promotion Governance](./adrs/0046-role-evolution-promotion-governance.md)
+- [ADR-0035 — Distributed Saga Strategy](../../adrs/0006-future-microservices-transition-dapr.md)
+- [ADR-0006 — Future Microservices Transition with Dapr](../../adrs/0006-future-microservices-transition-dapr.md)
+- [ADR-0036 — Message Bus Delivery & DLQ Strategy](../../adrs/0015-event-driven-architecture-intra-domain.md)
+- [ADR-0016 — Immutable Audit Trail](../../adrs/0016-immutable-business-audit-trail.md)
+- [ADR-0046 — Role Evolution & Promotion Governance](../../adrs/0046-role-evolution-and-promotion.md)
 - [TE-04 — Transactional Outbox](./te-04-transactional-outbox.md) ← events are published via outbox before Dapr relay
-- [FS-10 — B2B Access Approval](../../governance/requirements/functional-stories/fs-10-external-b2b-access-requestá-approval.md)
-- [FS-12 — Role Promotion Process](../../governance/requirements/functional-stories/fs-12-role-promotion-process.md)
+- [FS-10 — B2B Access Approval](../../../governance/requirements/functional-stories/fs-10-external-b2b-access-request-approval.md)
+- [FS-12 — Role Promotion Process](../../../governance/requirements/functional-stories/fs-12-role-promotion-process.md)

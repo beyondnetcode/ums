@@ -105,7 +105,7 @@ kubectl exec -n ums -l app=redis -- redis-cli CONFIG SET maxmemory 2gb
 kubectl exec -n ums -l app=redis -- redis-cli --bigkeys
 ```
 
-**Permanent fix:** Update the Redis StatefulSet memory limit and `maxmemory` in the ConfigMap. Submit as a change requestá.
+**Permanent fix:** Update the Redis StatefulSet memory limit and `maxmemory` in the ConfigMap. Submit as a change request.
 
 ---
 

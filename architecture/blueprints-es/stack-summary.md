@@ -65,5 +65,5 @@ Esta guía sirve como referencia autoritativa y de alta densidad de herramientas
 ### 10. Experiencia del Desarrollador (DevEx)
 *   **Servicios Locales:** Especificación Docker Compose (SQL Server, Redis, etc.)
 *   **Framework de Pruebas Unitarias:** xUnit (.NET) / Jestá (Node)
-*   **Pruebas de Integración:** Testácontainers (SQL Server / PostgreSQL / Redis)
+*   **Pruebas de Integración:** Testcontainers (SQL Server / PostgreSQL / Redis)
 *   **Pruebas de Extremo a Extremo (E2E):** Playwright

@@ -9,7 +9,7 @@ This document details the enterprise-grade functional specification, architectur
 ## 1. Business Context Narrative
 The modern enterprise software landscape demands a unified, highly scalable, and context-aware Identity and Access Management (IAM) posture. The **User Management System (UMS)** acts as a centralized, extensible authorization core (or "authorization kernel") shared across all enterprise platforms (ERP, CRM, HCM, etc.). Rather than siloing access control logic inside individual applications, the UMS decouples identity verification (Authentication) from granular permission resolution (Authorization). This allows the system to enforce centralized technical governance, support multi-tenant SaaS isolation, and dynamically adapt to different B2B customer identity directories.
 
-In this reference scenario, a **Business Analyst** initiates a session via the centralized **Client Portal**. The authentication requestá carries not only credentials but also explicit organization (tenant) and branch/site context (e.g., *Callao Port Terminal*). By separating authentication concerns (delegated to federated Identity Providers like Zitadel, Okta, or Azure AD) from authorization compilation, the UMS can resolve and deliver a high-performance, cached **Hierarchical Authorization Graph** that shapes the analyst's entire workspace (menus, options, fleet dispatch actions) in under **5 milliseconds**, preventing vendor lock-in and guaranteeing absolute horizontal scalability.
+In this reference scenario, a **Business Analyst** initiates a session via the centralized **Client Portal**. The authentication request carries not only credentials but also explicit organization (tenant) and branch/site context (e.g., *Callao Port Terminal*). By separating authentication concerns (delegated to federated Identity Providers like Zitadel, Okta, or Azure AD) from authorization compilation, the UMS can resolve and deliver a high-performance, cached **Hierarchical Authorization Graph** that shapes the analyst's entire workspace (menus, options, fleet dispatch actions) in under **5 milliseconds**, preventing vendor lock-in and guaranteeing absolute horizontal scalability.
 
 ---
 
@@ -35,7 +35,7 @@ In this reference scenario, a **Business Analyst** initiates a session via the c
 ### Variations and Exception Paths
 *   **Variation A: Federated Identity Provider (Azure AD/Okta)**: Gateway delegates credential verification to the external corporate IdP via SAML2/OIDC. local database is bypassed for credential verification, and user is mapped using `identity_reference` claims.
 *   **Variation B: Multi-Factor Authentication (MFA)**: If the tenant enforces adaptive MFA based on IP range, the analyst is prompted for WebAuthn (Passkeys) verification before the UMS authorization graph call is triggered.
-*   **Exception 1: Missing Tenant Context**: If the requestá lacks `tenant_id` or `branch_id`, the API returns a `400 Bad Request` with error code `ERR_MISSING_CONTEXT`, aborting graph resolution.
+*   **Exception 1: Missing Tenant Context**: If the request lacks `tenant_id` or `branch_id`, the API returns a `400 Bad Request` with error code `ERR_MISSING_CONTEXT`, aborting graph resolution.
 *   **Exception 2: Authorization Graph Not Found**: If the user authenticates successfully but holds no active profile assignments for the Callao branch, the API returns a `403 Forbidden` with error code `ERR_ZERO_PERMISSIONS`.
 *   **Exception 3: UMS Service Offline (Fallback)**: If the live UMS API is unreachable, the API Gateway activates a circuit breaker, falling back to a locally cached read-only permission graph or enforcing a deny-by-default posture.
 
@@ -232,7 +232,7 @@ Authorization: Bearer m2m_token_gateway_abc123
 ## 10. Security Considerations
 *   **Explicit Deny Precedence**: During graph compilation, the engine evaluates all applicable permissions. Any explicit `DENY` record immediately overrides all inherited `ALLOW` permissions.
 *   **mTLS and Secure Transport**: All inter-service communications between the Authentication Gateway and UMS utilize mutual TLS (mTLS) with strong TLS 1.3 ciphers.
-*   **Audit Trail Ledger**: Every graph compilation requestá and cache miss is logged to an immutable audit trail using database Outbox patterns to ensure non-repudiation.
+*   **Audit Trail Ledger**: Every graph compilation request and cache miss is logged to an immutable audit trail using database Outbox patterns to ensure non-repudiation.
 
 ---
 

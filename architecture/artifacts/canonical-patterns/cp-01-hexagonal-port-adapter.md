@@ -1,7 +1,7 @@
 # CP-01: Hexagonal Architecture — Port/Adapter Pattern
 
 **Runtime:** C# / .NET 8  
-**Backing ADR:** [ADR-0002 — Clean Architecture & Hexagonal Boundaries](../../adrs/0002-clean-architecture-nestájs.md) · [Blueprint — dotnet-migration-and-tech-stack-plan](../../blueprints/dotnet-migration-and-tech-stack-plan.md)  
+**Backing ADR:** [ADR-0002 — Clean Architecture & Hexagonal Boundaries](../../adrs/0002-clean-architecture-nestjs.md) · [Blueprint — dotnet-migration-and-tech-stack-plan](../../blueprints/dotnet-migration-and-tech-stack-plan.md)  
 **Layer contract:** Domain → Application → Infrastructure. Inner layers never reference outer layers.
 
 ---

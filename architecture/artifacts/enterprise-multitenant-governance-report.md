@@ -59,7 +59,7 @@ Systems and applications explicitly belong to an organization.
 1.  **Phase 01 (Foundation):** Implement the Organizations table as a boundary and associate 100% of current users with the "Root Organization."
 2.  **Phase 02 (Decoupling):** Migrate from `identity_reference` to `identity_reference` (Agnostic Subject). Inject `X-Org-Context` in the API Gateway.
 3.  **Phase 03 (Enforcement):** Activate RLS policies in PostgreSQL for all domain tables.
-4.  **Phase 04 (Federation):** Enable the B2B Access Request module so external organizations can autonomously requestá access to internal systems.
+4.  **Phase 04 (Federation):** Enable the B2B Access Request module so external organizations can autonomously request access to internal systems.
 
 ---
 

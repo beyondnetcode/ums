@@ -119,7 +119,7 @@ These decisions are cross-cutting infrastructure concerns not tied to a specific
 | ADR-0025 | Feature Flag Provider Abstraction | Platform |
 | ADR-0027 | Dual REST/gRPC Protocol + Kong | Platform |
 | ADR-0028 | Self-Hosted OSS Infrastructure | Platform |
-| ADR-0029 | @nestájslatam/ddd Adoption | Platform |
+| ADR-0029 | @nestjslatam/ddd Adoption | Platform |
 | ADR-0030 | Kong OSS vs NestJS Gateway | Platform |
 | ADR-0033 | .NET Minimal APIs Strategy | Platform |
 | ADR-0040 | Federated Token Strategy | Platform |
@@ -143,4 +143,4 @@ These decisions are cross-cutting infrastructure concerns not tied to a specific
 - [ADR Registry](./adrs/index.md)
 - [Technical Enablers Index](./blueprints/technical-enablers/index.md)
 - [Architecture Blueprints](./blueprints/index.md)
-- [arc32 ADR Registry](../../arc32_progresive_monolith/architecture/adrs/)
+- [arc32 ADR Registry](./adrs/)

@@ -1,7 +1,7 @@
 # ADR 0016: Traza de Auditoría de Negocio Inmutable y Seguimiento de Cambios
 
 * **Status:** Accepted
-* **Basado en:** [arc32-16](https://github.com/beyondnetcode/arc32_progresive_monolith/blob/main/arc-corporate-ws/corporate-standards/02-adrs/core/0016-immutable-business-audit-trail.md)
+* **Basado en:** [arc32-16](https://github.com/beyondnetcode/arc32_progresive_monolith/blob/main/arc-corporate-ws/corporate-standards/02-adrs/0016-immutable-business-audit-trail.md)
 * **Date:** 2026-05-08
 
 ## Resumen de Adaptación

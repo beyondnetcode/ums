@@ -6,7 +6,7 @@
 
 ### Thank You
 
-- Alberto Arroyo Raygada @nestájslatam
+- Alberto Arroyo Raygada @nestjslatam
 
 ## 0.0.8 (2026-05-10)
 
@@ -16,7 +16,7 @@
 
 ### Thank You
 
-- Alberto Arroyo Raygada @nestájslatam
+- Alberto Arroyo Raygada @nestjslatam
 
 ## 0.0.7 (2026-05-10)
 
@@ -26,7 +26,7 @@
 
 ### Thank You
 
-- Alberto Arroyo Raygada @nestájslatam
+- Alberto Arroyo Raygada @nestjslatam
 
 ## 0.0.6 (2026-05-10)
 
@@ -36,7 +36,7 @@
 
 ### Thank You
 
-- Alberto Arroyo Raygada @nestájslatam
+- Alberto Arroyo Raygada @nestjslatam
 
 ## 0.0.5 (2026-05-10)
 
@@ -46,7 +46,7 @@
 
 ### Thank You
 
-- Alberto Arroyo Raygada @nestájslatam
+- Alberto Arroyo Raygada @nestjslatam
 
 ## 0.0.4 (2026-05-10)
 
@@ -56,7 +56,7 @@
 
 ### Thank You
 
-- Alberto Arroyo Raygada @nestájslatam
+- Alberto Arroyo Raygada @nestjslatam
 
 ## 0.0.3 (2026-05-10)
 
@@ -84,7 +84,7 @@
 
 ### Thank You
 
-- Alberto Arroyo Raygada @nestájslatam
+- Alberto Arroyo Raygada @nestjslatam
 
 ## 0.0.2 (2026-05-08)
 
@@ -98,4 +98,4 @@
 
 ### Thank You
 
-- Alberto Arroyo Raygada @nestájslatam
+- Alberto Arroyo Raygada @nestjslatam

@@ -31,5 +31,5 @@ Nx includes a native versioning suite for monorepos that executes the following 
 ## 4. Action Plan (Next Steps)
 To activate this, we only need to:
 1. Modify your `nx.json` file to enable the `"release"` configuration block.
-2. Testá generating our first `v1.0.0` version and our first foundational `CHANGELOG.md`.
+2. Test generating our first `v1.0.0` version and our first foundational `CHANGELOG.md`.
 

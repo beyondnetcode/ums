@@ -1,4 +1,4 @@
-# Evaluación Arquitectónica — Uso de `@nestájslatam/packages` para DDD en el Core de UMS
+# Evaluación Arquitectónica — Uso de `@nestjslatam/packages` para DDD en el Core de UMS
 
 **Tipo de Documento:** Evaluación y Estándar Arquitectónico  
 **Estado:** Aprobado (Condicional)  
@@ -12,7 +12,7 @@
 
 El **Sistema de Gestión de Usuarios (UMS)** es un núcleo de gobernanza de identidad y acceso independiente y abstracto. Si bien la implementación de patrones tácticos de Diseño Dirigido por Dominios (DDD) (como Aggregate Roots, Entidades y Objetos de Valor) es actualmente **opcional** para los contextos principales, la estándarización de estáos patrones es crítica para estabilizar la lógica de negocio compleja y prevenir la deriva técnica.
 
-Si el equipo elige utilizar patrones DDD para cualquier contexto acotado de UMS (ej. `Identidad`, `Autorización` o `Configuración`), requerimos una librería de bloques de construcción unificada, ligera y pre-aprobada. Esta evaluación examina los paquetes DDD de la organización **`@nestájslatam`** (específicamente `@nestájslatam/ddd`) como el estándar oficial de primitivas tácticas para el Core de UMS.
+Si el equipo elige utilizar patrones DDD para cualquier contexto acotado de UMS (ej. `Identidad`, `Autorización` o `Configuración`), requerimos una librería de bloques de construcción unificada, ligera y pre-aprobada. Esta evaluación examina los paquetes DDD de la organización **`@nestjslatam`** (específicamente `@nestjslatam/ddd`) como el estándar oficial de primitivas tácticas para el Core de UMS.
 
 ---
 
@@ -22,7 +22,7 @@ Para ser aprobada para su uso dentro del Dominio Core de UMS, cualquier librerí
 
 ### A. Restáricción de Cero Dependencia de Infraestructura (Cumplimiento:  TOTAL)
 *   **Guardrail:** La capa de Dominio central debe tener cero dependencias de ORMs de bases de datos externas (ej. TypeORM), SDKs de proveedores de nube o frameworks web/HTTP.
-*   **Evaluación:** `@nestájslatam/ddd` proporciona abstracciones puras de TypeScript para primitivas tácticas de DDD sin dependencias externas en tiempo de ejecución. Los bloques de construcción base (`Entity`, `ValueObject`, `AggregateRoot`) se ejecutan completamente en memoria y son altamente testables en aislamiento completo.
+*   **Evaluación:** `@nestjslatam/ddd` proporciona abstracciones puras de TypeScript para primitivas tácticas de DDD sin dependencias externas en tiempo de ejecución. Los bloques de construcción base (`Entity`, `ValueObject`, `AggregateRoot`) se ejecutan completamente en memoria y son altamente testables en aislamiento completo.
 
 ### B. Bloques de Construcción Tácticos DDD Estándar (Cumplimiento:  TOTAL)
 La librería proporciona implementaciones completas y confiables de componentes tácticos DDD estándar:
@@ -43,18 +43,18 @@ La librería proporciona implementaciones completas y confiables de componentes 
 
 ## 4. Aprobación Formal y Pautas de Implementación Obligatorias
 
-El uso de `@nestájslatam/ddd` estáá formalmente **APROBADO** para cualquier contexto acotado de UMS donde el equipo elija adoptar el Diseño Dirigido por Dominios, sujeto a las siguientes pautas obligatorias:
+El uso de `@nestjslatam/ddd` estáá formalmente **APROBADO** para cualquier contexto acotado de UMS donde el equipo elija adoptar el Diseño Dirigido por Dominios, sujeto a las siguientes pautas obligatorias:
 
 ### Pauta 1: Abstracción de Exportación Barrel (Anti-Acoplamiento)
-Los desarrolladores **nunca** deben importar `@nestájslatam/ddd` directamente dentro de los archivos individuales de entidades de dominio. Para evitar el bloqueo directo a la librería, todas las primitivas aprobadas deben ser re-exportadas a través de un archivo de abstracciones de dominio local dentro del Nx Monorepo:
+Los desarrolladores **nunca** deben importar `@nestjslatam/ddd` directamente dentro de los archivos individuales de entidades de dominio. Para evitar el bloqueo directo a la librería, todas las primitivas aprobadas deben ser re-exportadas a través de un archivo de abstracciones de dominio local dentro del Nx Monorepo:
 *   **Punto de Entrada de Abstracciones:** `libs/domain/src/core-primitives.ts`
-*   **Uso:** Los archivos de dominio deben importar desde `@ums/domain/core-primitives` en lugar de directamente desde `@nestájslatam/ddd`, permitiendo un reemplazo fluido o un override local si la librería llegara a quedar obsoleta.
+*   **Uso:** Los archivos de dominio deben importar desde `@ums/domain/core-primitives` en lugar de directamente desde `@nestjslatam/ddd`, permitiendo un reemplazo fluido o un override local si la librería llegara a quedar obsoleta.
 
 ### Pauta 2: Inmutabilidad Estricta para Objetos de Valor (Value Objects)
 Todas las propiedades definidas en clases que extiendan de `ValueObject` deben declararse como `readonly`. Los Objetos de Valor son inmutables por definición y nunca deben ser mutados después de su instanciación.
 
 ### Pauta 3: Desacoplamiento Estricto de ORMs de Base de Datos
-Los decoradores específicos de la base de datos (como `@Entity`, `@Column` o `@ManyToOne` de TypeORM) estáán **estárictamente prohibidos** dentro de las entidades de dominio o clases que extiendan las primitivas de `@nestájslatam/ddd`. Los esquemas relacionales y el mapeo de persistencia deben manejarse exclusivamente en la capa de Adaptadores de Infraestructura utilizando Mappers especializados.
+Los decoradores específicos de la base de datos (como `@Entity`, `@Column` o `@ManyToOne` de TypeORM) estáán **estárictamente prohibidos** dentro de las entidades de dominio o clases que extiendan las primitivas de `@nestjslatam/ddd`. Los esquemas relacionales y el mapeo de persistencia deben manejarse exclusivamente en la capa de Adaptadores de Infraestructura utilizando Mappers especializados.
 
 ---
 

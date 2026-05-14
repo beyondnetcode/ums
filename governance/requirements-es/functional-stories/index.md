@@ -17,7 +17,7 @@ Bienvenido al índice maestáro de **Functional Stories** para el Sistema de Ges
 *   **[FS-07: Diagnosticar Permisos vía Visualizador de Grafos](./fs-07-visual-graph-resolver.md)**
 *   **[FS-08: Autenticar vía Página de Inicio Personalizable](./fs-08-hosted-login-redirection.md)**
 *   **[FS-09: Autenticación Adaptativa Multifactor y Sin Contraseña](./fs-09-mfa-passwordless-adaptive-auth.md)**
-*   **[FS-10: Flujo de Aprobación y Petición de Acceso Externo B2B](./fs-10-external-b2b-access-requestá-approval.md)**
+*   **[FS-10: Flujo de Aprobación y Petición de Acceso Externo B2B](./fs-10-external-b2b-access-request-approval.md)**
 *   **[FS-11: Cargar y Validar Documento de Usuario](./fs-11-user-document-upload.md)**
 *   **[FS-12: Ejecutar Proceso de Promoción de Rol](./fs-12-role-promotion-process.md)**
 *   **[FS-13: Configurar Parámetros Jerárquicos del Sistema](./fs-13-hierarchical-config.md)**
@@ -27,4 +27,4 @@ Bienvenido al índice maestáro de **Functional Stories** para el Sistema de Ges
 
 ---
 
- **[Volver al Índice de Requisitos](../index.es.md)**
+ **[Volver al Índice de Requisitos](../../index.md)**

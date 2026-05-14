@@ -241,7 +241,7 @@
 ### 10.3 Pirámide de Pruebas
 *   **Herramienta Elegida:**
     *   *Pruebas Unitarias*: xUnit (.NET) / Jestá (Node) (objetivo >80% de cobertura).
-    *   *Pruebas de Integración*: Testácontainers (levantando instancias efímeras de SQL Server/PostgreSQL en Docker local para pruebas realistas).
+    *   *Pruebas de Integración*: Testcontainers (levantando instancias efímeras de SQL Server/PostgreSQL en Docker local para pruebas realistas).
     *   *End-to-End*: Playwright para pruebas de regresión de la Consola Web.
 
 ---

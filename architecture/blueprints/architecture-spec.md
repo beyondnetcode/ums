@@ -210,10 +210,10 @@ This matrix maps foundational technical decisions to their targeted Quality Attr
 | Decision / Focus | ADR Reference | Primary Quality Attributes | Decision Summary & Technical Strategy | Enforcement & Verification Mechanism |
 | :--- | :--- | :--- | :--- | :--- |
 | **Monorepo Orchestáration** | [ADR 0001](../adrs/0001-monorepo-orchestration-nx.md) | Modularity, Build Performance | Uses Nx & npm workspaces to manage decoupled modules with localized configurations. | Nx cache verification and localized dependency schema checks. |
-| **Hexagonal Boundaries** | [ADR 0002](../adrs/0002-clean-architecture-nestájs.md) | Decoupling, Testáability, Agnosticism | Implements three strict layers: Core (Entities), Application (Use Cases), Infrastructure (Adapters). | `eslint-plugin-boundaries` blocks unauthorized outer-to-inner imports. |
+| **Hexagonal Boundaries** | [ADR 0002](../adrs/0002-clean-architecture-nestjs.md) | Decoupling, Testability, Agnosticism | Implements three strict layers: Core (Entities), Application (Use Cases), Infrastructure (Adapters). | `eslint-plugin-boundaries` blocks unauthorized outer-to-inner imports. |
 | **Observability Telemetry** | [ADR 0007](../adrs/0007-observability-telemetry-loki-opentelemetry.md) | Observability, Performance, Monitoring | Grafana LGTM Stack (Loki + Grafana + Tempo) with OpenTelemetry (OTel). | OpenTelemetry integration tests and Grafana dashboards monitoring. |
 | **Dependency Governance** | [ADR 0009](../adrs/0009-strict-dependency-pinning-vulnerability-management.md) | Security, Stability, Determinism | Zero-tolerance for dynamic versions (removes `^`/`~`) to guarantee reproducible builds. | `npm audit --audit-level=high` runs in CI to block vulnerable PRs. |
-| **DB Engine Strategy** | [ADR 0026](../adrs/0026-authoritative-database-engine-strategy.md) | Ecosystem, Performance, Maintainability | SQL Server for .NET; PostgreSQL/Mongo for Node.js. Aligned with Microsoft standards. | Integration tests and infrastructure provisioning policies. |
+| **DB Engine Strategy** | [ADR 0026](../adrs/0026-mfa-passwordless-adaptive-authentication.md) | Ecosystem, Performance, Maintainability | SQL Server for .NET; PostgreSQL/Mongo for Node.js. Aligned with Microsoft standards. | Integration tests and infrastructure provisioning policies. |
 | **SaaS Multi-Tenancy** | [ADR 0010](../adrs/0010-multi-tenancy-architecture-strategy.md) | Security, Data Isolation, Cost Efficiency | Shared schema with RLS (PostgreSQL for Node / SQL Server for .NET) to enforce tenant isolation. | `AsyncLocalStorage` propagates Tenant Context; EF Core Interceptors validate RLS. |
 | **Fault Tolerance & Resiliency** | [ADR 0011](../adrs/0011-fault-tolerance-resiliency-patterns.md) | Resilience, Reliability, Consistency | Circuit Breaker (`opossum`) + Exponential Backoff retries strictly wrapped inside Infrastructure Adapters. | Jestá mocks simulating HTTP failures and verifying circuit state transitions. |
 | **Granular Authorization** | [ADR 0012](../adrs/0012-advanced-authorization-rbac-abac.md) | Security, Traceability, SoC | Tenant-aware RBAC/ABAC using JWT claim decoders and NestJS execution context Guards. | Integration tests simulating cross-tenant access attempts. |
@@ -236,7 +236,7 @@ To guarantee the healthy evolution of the monorepo towards distributed models an
 *   **[ADR 0013: Cloud Infrastructure Topology & DR](../adrs/0013-cloud-infrastructure-topology-dr.md)**: Establishes high availability and disaster recovery topologies across multiple availability zones.
 *   **[ADR 0024: Configuration & Feature Management Platform](../adrs/0024-configuration-feature-management-platform.md)**: Extends UMS to handle dynamic system configuration and multi-IdP setups.
 *   **[ADR 0025: Feature Flag Provider Abstraction](../adrs/0025-feature-flag-provider-abstraction.md)**: Pluggable framework for external flag providers via `IFeatureFlagPort`.
-*   **[ADR 0026: Authoritative Database Engine Strategy](../adrs/0026-authoritative-database-engine-strategy.md)**: Defines engine-specific standards (SQL Server for .NET, PostgreSQL for Node.js) to leverage cloud-native features and RLS/SESSION_CONTEXT capabilities.
+*   **[ADR 0026: Authoritative Database Engine Strategy](../adrs/0026-mfa-passwordless-adaptive-authentication.md)**: Defines engine-specific standards (SQL Server for .NET, PostgreSQL for Node.js) to leverage cloud-native features and RLS/SESSION_CONTEXT capabilities.
 
 ---
 
@@ -315,7 +315,7 @@ The UMS observability design distinguishes two complementary but non-interchange
 | **Purpose** | SRE diagnostics, latency, error rates | Compliance, forensic, access accountability |
 | **Primary consumer** | Grafana / Jaeger / Prometheus | Internal compliance tools, security auditors |
 | **Mutability** | Rotated / pruned by TTL policy | Immutable — append-only, never deleted |
-| **Event granularity** | Every HTTP requestá, gRPC call, DB query | Business events only (login, permission change, document expiry) |
+| **Event granularity** | Every HTTP request, gRPC call, DB query | Business events only (login, permission change, document expiry) |
 | **Schema** | OTLP (spans, metrics, logs) | `AuditRecord { who, when, what, result, tenantId }` |
 | **Transport** | OpenTelemetry SDK → Jaeger/Loki | Domain event bus (`IEventBusPort`) → Audit subscriber | ### Instrumentation Rule
 
@@ -404,7 +404,7 @@ graph TD
 To ensure that changes in one context do not break its consumers, automated contract tests are implemented.
 
 - **Unit Tests**: Pure logic in `Ums.Domain`.
-- **Integration Tests**: Using **Testácontainers** to validate real behavior with SQL Server and Redis.
+- **Integration Tests**: Using **Testcontainers** to validate real behavior with SQL Server and Redis.
 - **Contract Tests**: Validation of OpenAPI schemas and asynchronous events.
 
 ---

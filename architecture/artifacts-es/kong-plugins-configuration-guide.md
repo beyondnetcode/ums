@@ -16,8 +16,8 @@ _transform: true
 
 # 1. DEFINICIÃN DEL SERVICIO (Tu NestJS BFF)
 services:
-  - name: nestájs-bff-service
-    url: http://nestájs-bff:3000 # La URL interna de tu contenedor NestJS
+  - name: nestjs-bff-service
+    url: http://nestjs-bff:3000 # La URL interna de tu contenedor NestJS
     connect_timeout: 60000
     read_timeout: 60000
     write_timeout: 60000
@@ -92,7 +92,7 @@ consumers:
     * **Rate Limiting:** Verifica si la IP del cliente no ha excedido las 10 peticiones por segundo. Si las excede, Kong devuelve un `429 Too Many Requests` inmediatamente. *NestJS ni siquiera se entera.*
     * **CORS:** Resuelve los preflights (`OPTIONS`) sin cargar al backend.
     * **JWT:** Abre el token, verifica que la firma coincida con el secreto y que el token no haya expirado (`exp`). Si es inválido, Kong devuelve un `401 Unauthorized`. *NestJS ni siquiera se entera.*
-3. **Paso al BFF (Tier 2):** Si todas las verificaciones pasan, Kong reenvía la petición HTTP intacta (con el JWT en el header) hacia `http://nestájs-bff:3000/api/v1/orders`.
+3. **Paso al BFF (Tier 2):** Si todas las verificaciones pasan, Kong reenvía la petición HTTP intacta (con el JWT en el header) hacia `http://nestjs-bff:3000/api/v1/orders`.
 4. **NestJS actúa:** NestJS recibe una petición pre-validada. Solo tiene que leer el payload del JWT (para saber quién es el usuario, ya que Kong ya garantizó que el token es legal) y proceder a orquestáar las llamadas a los microservicios (TMS, WMS, etc.).
 
 ## 3. Â¿Cómo pasar la información de Kong a NestJS?
@@ -100,7 +100,7 @@ consumers:
 Por defecto, cuando Kong valida un JWT, inyecta headers adicionales antes de mandarle la petición a NestJS. Puedes configurar Kong para que pase el Consumer ID o los claims del JWT en headers específicos:
 
 ```yaml
-      - name: requestá-transformer
+      - name: request-transformer
         enabled: true
         config:
           add:
@@ -113,15 +113,15 @@ En tu código de **NestJS**, en lugar de volver a validar la criptografía del t
 
 ```typescript
 // NestJS: KongAuthGuard.ts
-import { Injectable, CanActivate, ExecutionContext } from '@nestájs/common';
+import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 
 @Injectable()
 export class KongAuthGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
-    const requestá = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest();
     // Kong ya validó que el token existe y no estáá modificado.
     // Solo leemos el header que Kong inyectó.
-    const consumerId = requestá.headers['x-consumer-id'];
+    const consumerId = request.headers['x-consumer-id'];
     
     if (!consumerId) {
       return false; // Por si alguien logra saltarse Kong

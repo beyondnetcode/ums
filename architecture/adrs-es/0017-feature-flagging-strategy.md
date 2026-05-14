@@ -1,7 +1,7 @@
 # ADR 0017: Estrategia de Feature Flags para Entrega Progresiva
 
 * **Estado:** Aceptado (Incorporado por Referencia)
-* **Fuente Corporativa:** [arc32-17](https://github.com/beyondnetcode/arc32_progresive_monolith/blob/main/arc-corporate-ws/corporate-standards/02-adrs/core/0017-feature-flagging-strategy.md)
+* **Fuente Corporativa:** [arc32-17](https://github.com/beyondnetcode/arc32_progresive_monolith/blob/main/arc-corporate-ws/corporate-standards/02-adrs/0017-feature-flagging-strategy.md)
 
 ## Decisión
 
@@ -9,4 +9,4 @@ Este proyecto adopta el estándar corporativo textualmente según lo definido en
 
 ## Notas Específicas del Proyecto
 
-- Detalles de implementación: ver `docs/es/04-artifacts/corporate-standards-baseline.md`
+- Detalles de implementación: ver `docs/es/artifacts/corporate-standards-baseline.md`

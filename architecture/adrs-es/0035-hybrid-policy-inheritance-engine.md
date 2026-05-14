@@ -127,7 +127,7 @@ public class PolicyResolver
             }
         }
 
-        return result ?? throw new PolicyNotFoundException(policyCode, tenantId);
+        return result  throw new PolicyNotFoundException(policyCode, tenantId);
     }
 
     public AuthorizationDecision Evaluate(ResolvedPolicy policy, EvaluationContext context)

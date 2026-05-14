@@ -61,7 +61,7 @@ We monitor system health and business operations using two structured patterns:
 
 To trace a single business transaction from start to finish (e.g., weighing a container and generating an invoice):
 
-1.  **Ingress**: The API Gateway/BFF generates a unique `trace_id` (if not provided by the client) and injects it into the requestá.
+1.  **Ingress**: The API Gateway/BFF generates a unique `trace_id` (if not provided by the client) and injects it into the request.
 2.  **Use Case**: The Inventory Module executes the weight transaction, logging the process with the associated `trace_id`.
 3.  **Database**: TypeORM traces SQL execution time using database telemetry spans.
 4.  **Asynchronous Handoff**: The `ContainerWeighedEvent` is published to the Outbox carrying the `trace_id` in its header.

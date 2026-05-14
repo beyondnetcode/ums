@@ -65,7 +65,7 @@ Acceptance criteria MUST be observable and business-validatable. They should des
 
 Good:
 
-- "The sponsor can see whether the requestá was approved or rejected."
+- "The sponsor can see whether the request was approved or rejected."
 - "The system prevents external users from receiving internal administrative profiles."
 
 Avoid in functional criteria:

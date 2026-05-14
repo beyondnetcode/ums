@@ -111,7 +111,7 @@
 *   **Chosen Tool:** **Internal CQRS via NestJS CQRS module**
 *   **Why Chosen:** Decouples heavy permission graph compilation (Queries) from basic identity mutations (Commands), optimizing read performance. Caches read-projections in Redis while writing sequentially to **SQL Server 2022**.
 *   **Alternatives Rejected:**
-    *   *Direct CRUD*: Directly querying and compiling relational tables on every read requestá degrades database performance under high concurrent loads.
+    *   *Direct CRUD*: Directly querying and compiling relational tables on every read request degrades database performance under high concurrent loads.
 
 ---
 
@@ -240,7 +240,7 @@
 ### 10.3 Testing Pyramid
 *   **Chosen Tool:**
     *   *Unit Tests*: Jestá (aiming for >80% coverage).
-    *   *Integration Tests*: Jestá + Supertest with **Testácontainers** (spinning up ephemeral **SQL Server Edge/Express** and Redis instances in local Docker for realistic testing).
+    *   *Integration Tests*: Jestá + Supertest with **Testcontainers** (spinning up ephemeral **SQL Server Edge/Express** and Redis instances in local Docker for realistic testing).
     *   *End-to-End*: Playwright for Web Console regression testing.
 
 ---

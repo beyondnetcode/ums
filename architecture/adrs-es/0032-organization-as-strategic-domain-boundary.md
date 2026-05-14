@@ -96,7 +96,7 @@ Elevar a la `Organization` como límite central puede inducir a los desarrollado
 Para transicionar de forma fluida sin romper el código existente:
 
 1.  **Asociación de Legacy Systems:** Todos los sistemas registrados en bases de datos previas que carecen de dueño serán mapeados por script de migración de datos a la Organización Central Operadora (`LOGISTICS_CORP_ROOT`).
-2.  **Validación del Middleware de Gateway:** El API Gateway inyectará el encabezado `X-Org-Context-Id` validando simultáneamente que el `Subject` que realiza el requestá y el `System` solicitado estáén contractualmente autorizados bajo el árbol de esa Organización.
+2.  **Validación del Middleware de Gateway:** El API Gateway inyectará el encabezado `X-Org-Context-Id` validando simultáneamente que el `Subject` que realiza el request y el `System` solicitado estáén contractualmente autorizados bajo el árbol de esa Organización.
 3.  **Contrato del Payload JWT:** El token JWT emitido por el AuthCore incluirá el claim compuestáo:
     ```json
     {

@@ -2,7 +2,7 @@
 
 This document specifies the flow, actors, and failure recovery strategy for guaranteeing at-least-once delivery of domain events to the message bus without distributed transaction risk, following the **BMAD-METHOD spec-driven strategy**.
 
-> **Backing ADRs:** [ADR-0033 — Transactional Outbox](../../../arc32_progresive_monolith/architecture/adrs/core/0033-transactional-outbox-pattern.md) · [ADR-0036 — Message Bus Delivery & DLQ](../../../arc32_progresive_monolith/architecture/adrs/core/0036-message-bus-delivery-strategy.md)  
+> **Backing ADRs:** [ADR-0033 — Transactional Outbox](../../adrs/0015-event-driven-architecture-intra-domain.md) · [ADR-0036 — Message Bus Delivery & DLQ](../../adrs/0015-event-driven-architecture-intra-domain.md)  
 > **Consumed by:** FS-10 (B2B Access Approval), FS-11 (Document Validation), FS-15 (Expiration Notifications)
 
 ---
@@ -154,9 +154,9 @@ Consumers check this header against a processed-events log before applying side 
 | `outbox.relay.poll_duration_ms` | Histogram | Relay cycle latency
 ## 7. Related Documents
 
-- [ADR-0033 — Transactional Outbox Pattern](../../../arc32_progresive_monolith/architecture/adrs/core/0033-transactional-outbox-pattern.md)
-- [ADR-0036 — Message Bus Delivery & DLQ Strategy](../../../arc32_progresive_monolith/architecture/adrs/core/0036-message-bus-delivery-strategy.md)
-- [FS-10 — B2B External Access Approval](../../governance/requirements/functional-stories/fs-10-external-b2b-access-requestá-approval.md)
-- [FS-11 — Document Upload & Validation](../../governance/requirements/functional-stories/fs-11-user-document-upload.md)
-- [FS-15 — Expiration Notification Rules](../../governance/requirements/functional-stories/fs-15-notification-rules.md)
+- [ADR-0033 — Transactional Outbox Pattern](../../adrs/0015-event-driven-architecture-intra-domain.md)
+- [ADR-0036 — Message Bus Delivery & DLQ Strategy](../../adrs/0015-event-driven-architecture-intra-domain.md)
+- [FS-10 — B2B External Access Approval](../../../governance/requirements/functional-stories/fs-10-external-b2b-access-request-approval.md)
+- [FS-11 — Document Upload & Validation](../../../governance/requirements/functional-stories/fs-11-user-document-upload.md)
+- [FS-15 — Expiration Notification Rules](../../../governance/requirements/functional-stories/fs-15-notification-rules.md)
 - [Observability Strategy](../../artifacts/observability-strategy.md)

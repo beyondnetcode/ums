@@ -182,7 +182,7 @@ erDiagram
 - `requested_profile_id` (UUID, FK → PROFILE): Suggested role for the external user.
 - `justification` (text): Business rationale for granting access.
 - `status` (enum): `DRAFT`, `PENDING_APPROVAL`, `APPROVED`, `REJECTED`.
-- `approved_by` (UUID, FK, Nullable → USER): PAP Admin who authorized the requestá.
+- `approved_by` (UUID, FK, Nullable → USER): PAP Admin who authorized the request.
 
 ---
 

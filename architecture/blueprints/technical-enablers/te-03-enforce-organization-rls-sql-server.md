@@ -10,7 +10,7 @@ This document specifies the transaction flow, database session context injection
 | :--- | :--- |
 | **Name** | Enforce Row-Level Security (RLS) by Organization in SQL Server 2022 |
 | **Main Actor** | Persistence Interceptor / EF Core DbContext |
-| **Preconditions** | `organization_id` is present in the requestá context (JWT or Headers). |
+| **Preconditions** | `organization_id` is present in the request context (JWT or Headers). |
 | **Postconditions** | SQL Server 2022 automatically restricts row visibility and modification at the database engine level, regardless of the ORM query executed.
 ## 2. Transaction Flow
 
@@ -38,8 +38,8 @@ sequenceDiagram
 ```
 
 ### A. Main Flow
-1.  The client sends an HTTP requestá carrying the session JWT.
-2.  The **Tenant Middleware** in the .NET 8 backend intercepts the requestá, decodes the token claims, and extracts the unified `org_id` value (Organization Context).
+1.  The client sends an HTTP request carrying the session JWT.
+2.  The **Tenant Middleware** in the .NET 8 backend intercepts the request, decodes the token claims, and extracts the unified `org_id` value (Organization Context).
 3.  The middleware stores the `org_id` in a service with a *Scoped* lifecycle (`ITenantContext`).
 4.  When resolving a query through **Entity Framework Core**, a custom **DbConnectionInterceptor** is activated.
 5.  Immediately after opening the physical connection to SQL Server, the interceptor sets the session context using the native SQL Server API:
@@ -129,4 +129,4 @@ services.AddScoped<TenantSessionContextInterceptor>();
 ---
 
 ## 5. Main Operating Model Reference
-The technical configuration SQL scaffolding, EF Core migrations to create the Security Policy and predicate function, and connection interceptors are aligned with the pattern of the **[Multi-Tenant Governance Report](../../04-artifacts/enterprise-multitenant-governance-report.md)** and the authoritative decision recorded in **[ADR-0041](../../03-adrs/0041-sql-server-2022-as-database-engine.md)** (SQL Server 2022 as the database engine for all UMS services).
+The technical configuration SQL scaffolding, EF Core migrations to create the Security Policy and predicate function, and connection interceptors are aligned with the pattern of the **[Multi-Tenant Governance Report](../../artifacts/enterprise-multitenant-governance-report.md)** and the authoritative decision recorded in **[ADR-0041](../../adrs/0041-authoritative-database-engine-strategy.md)** (SQL Server 2022 as the database engine for all UMS services).

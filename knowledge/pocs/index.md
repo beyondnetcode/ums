@@ -1,6 +1,6 @@
 # POCs Index
 
-**Language:** [English](./index.md) | [Espanol](./index.es.md)
+**Language:** [English](./index.md) | [Espanol](./index.md)
 
 **[Back to Knowledge](../index.md)**
 

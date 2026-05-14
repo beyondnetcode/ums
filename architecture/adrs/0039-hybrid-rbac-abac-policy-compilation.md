@@ -12,11 +12,11 @@ The current UMS authorization model (ADR-0012) proposes hybrid RBAC/ABAC but def
 
 1. **Compile** role-based permissions (RBAC) and attribute-based conditions (ABAC) into a unified policy graph.
 2. **Resolve** the effective policy for a given `(user, tenant, resource, action, context)` tuple.
-3. **Evaluate** attribute conditions at requestá time against session context (time, IP, device, geo, risk score).
+3. **Evaluate** attribute conditions at request time against session context (time, IP, device, geo, risk score).
 4. **Cache** compiled policies to avoid repeated resolution overhead.
 5. **Invalidate** cached policies when policy bindings or delegation grants mutate.
 
-A simple role-permission lookup is insufficient because permissions depend on: the user's role, the target tenant's inherited policies, the user's delegation scope, and contextual attributes of the requestá.
+A simple role-permission lookup is insufficient because permissions depend on: the user's role, the target tenant's inherited policies, the user's delegation scope, and contextual attributes of the request.
 
 ---
 
@@ -282,4 +282,4 @@ public class DelegationCacheInvalidator : IDomainEventHandler<DelegationMutatedE
 
 2.  **OPA (Open Policy Agent) as sidecar**: Rejected. OPA adds operational complexity (sidecar deployment, Rego learning curve) for authorization logic that is tightly coupled to our domain model.
 
-3.  **Per-requestá SQL policy evaluation**: Rejected. Evaluating policies via SQL JOINs on every requestá creates unpredictable latency and couples authorization to the database schema.
+3.  **Per-request SQL policy evaluation**: Rejected. Evaluating policies via SQL JOINs on every request creates unpredictable latency and couples authorization to the database schema.

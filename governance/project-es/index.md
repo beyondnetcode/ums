@@ -11,5 +11,5 @@ Esta seccion contiene el backlog local de producto para UMS. Traduce las Functio
 
 - [Catálogo de Functional Stories](../requirements-es/functional-stories/index.md): Definición de alto nivel de las capacidades del sistema.
 
-**[Volver a Gobernanza](../index.es.md)**
+**[Volver a Gobernanza](../index.md)**
 

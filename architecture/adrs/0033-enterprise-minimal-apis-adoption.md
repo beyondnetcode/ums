@@ -10,5 +10,5 @@ This project adopts the corporate standard verbatim as defined in the source abo
 
 ## Project-Specific Notes
 
-- Implementation details: see `docs/en/04-artifacts/corporate-standards-baseline.md`
+- Implementation details: see `docs/en/artifacts/corporate-standards-baseline.md`
 - Deviation tracking: any future deviation MUST be recorded as a new LOCAL ADR referencing this one.

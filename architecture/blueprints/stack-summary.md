@@ -65,5 +65,5 @@ This cheat sheet serves as the authoritative, high-density tool reference by arc
 ### 10. Developer Experience (DevEx)
 *   **Local Services:** Docker Compose Spec (SQL Server, Redis, etc.)
 *   **Unit Testing Framework:** xUnit (.NET) / Jestá (Node)
-*   **Integration Testing:** Testácontainers (SQL Server / PostgreSQL / Redis)
+*   **Integration Testing:** Testcontainers (SQL Server / PostgreSQL / Redis)
 *   **End-to-End (E2E) Testing:** Playwright

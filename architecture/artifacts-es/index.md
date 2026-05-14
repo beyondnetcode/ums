@@ -1,6 +1,6 @@
 # Índice de Artefactos de Arquitectura
 
-**[Volver a Arquitectura](../index.es.md)**
+**[Volver a Arquitectura](../index.md)**
 
 Esta sección contiene especificaciones detalladas, estándares y reportes técnicos del UMS.
 

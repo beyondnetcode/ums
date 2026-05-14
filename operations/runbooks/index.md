@@ -40,6 +40,6 @@ Alert fires
 
 Runbooks reference these TEs for implementation context:
 
-- [TE-01 — Build Authorization Graph](../../../architecture/blueprints/technical-enablers/te-01-build-authorization-graph.md)
-- [TE-03 — Enforce Organization RLS](../../../architecture/blueprints/technical-enablers/te-03-enforce-organization-rls-sql-server.md)
-- [TE-06 — CQRS Projection Rebuild](../../../architecture/blueprints/technical-enablers/te-06-cqrs-projection-rebuild.md)
+- [TE-01 — Build Authorization Graph](../../architecture/blueprints/technical-enablers/te-01-build-authorization-graph.md)
+- [TE-03 — Enforce Organization RLS](../../architecture/blueprints/technical-enablers/te-03-enforce-organization-rls-sql-server.md)
+- [TE-06 — CQRS Projection Rebuild](../../architecture/blueprints/technical-enablers/te-06-cqrs-projection-rebuild.md)

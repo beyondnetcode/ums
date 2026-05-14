@@ -1,6 +1,6 @@
 # Índice de Habilitadores Técnicos
 
-**[Volver a Planos](../index.es.md)**
+**[Volver a Planos](../index.md)**
 
 
 ## Habilitadores de Dominio
@@ -11,7 +11,7 @@
 
 ## Habilitadores de Mensajería y Consistencia
 
-- [TE-04: Outbox Transaccional (Entrega At-Least-Once)](./te-04-transactional-outbox.md)
-- [TE-05: Saga Distribuida con Dapr](./te-05-distributed-saga-dapr.md)
-- [TE-06: Reconstrucción de Proyección CQRS](./te-06-cqrs-projection-rebuild.md)
+- [TE-04: Outbox Transaccional (Entrega At-Least-Once)](../../blueprints/technical-enablers/te-04-transactional-outbox.md)
+- [TE-05: Saga Distribuida con Dapr](../../blueprints/technical-enablers/te-05-distributed-saga-dapr.md)
+- [TE-06: Reconstrucción de Proyección CQRS](../../blueprints/technical-enablers/te-06-cqrs-projection-rebuild.md)
 

@@ -97,7 +97,7 @@ internal sealed class JwtTenantContext(IHttpContextAccessor accessor) : ITenantC
     }
 
     public bool IsSystemContext =>
-        accessor.HttpContext?.User.IsInRole("system") ?? false;
+        accessor.HttpContext?.User.IsInRole("system")  false;
 }
 ```
 
@@ -216,7 +216,7 @@ scope.ServiceProvider.GetRequiredService<ITenantContext>(); // override registra
 
 ---
 
-## 7. Verification Testá
+## 7. Verification Test
 
 ```csharp
 // Ums.Infrastructure.Tests/RlsEnforcementTests.cs
@@ -241,7 +241,7 @@ public async Task User_from_org_A_cannot_see_data_from_org_B()
 }
 ```
 
-This test runs against a real SQL Server 2022 instance (Testácontainers) — never a mock — to validate the actual RLS policy behavior.
+This test runs against a real SQL Server 2022 instance (Testcontainers) — never a mock — to validate the actual RLS policy behavior.
 
 ---
 
@@ -252,7 +252,7 @@ This test runs against a real SQL Server 2022 instance (Testácontainers) — ne
 | `WHERE org_id = tenantId` in repository | Easy to forget; not enforced by engine | Use RLS session context instead |
 | `SESSION_CONTEXT` set in application code (not interceptor) | Can be overwritten before query | Use `@readonly = 1` + interceptor |
 | `SystemTenantContext` as default registration | All tenants' data exposed | Register only in explicit admin scope |
-| Skipping RLS in integration tests | Tests pass, prod leaks data | Always use real SQL Server + Testácontainers
+| Skipping RLS in integration tests | Tests pass, prod leaks data | Always use real SQL Server + Testcontainers
 ## Related Patterns
 
 - [CP-01 — Hexagonal Port/Adapter](./cp-01-hexagonal-port-adapter.md)

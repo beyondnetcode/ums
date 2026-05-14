@@ -103,7 +103,7 @@ kubectl logs -n ums -l app=ums-auth-engine --tail=200 | grep -iE "compile|timeou
 # Check SQL Server pod
 kubectl get pods -n ums -l app=sqlserver
 
-# Testá connection
+# Test connection
 kubectl exec -n ums deploy/ums-api -- \
   /opt/mssql-tools/bin/sqlcmd -S sqlserver -U sa -P $SA_PASSWORD -Q "SELECT 1"
 

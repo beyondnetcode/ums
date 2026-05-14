@@ -13,7 +13,7 @@ Commands for Frontend (run from `src/`):
 
 Commands for Backend (run from within `./src/apps/app-api-dotnet/` or root solution directory):
 - Backend Build: `dotnet build`
-- Backend Testá: `dotnet test`
+- Backend Test: `dotnet test`
 - Backend Run: `dotnet run`
 
 ## Architecture

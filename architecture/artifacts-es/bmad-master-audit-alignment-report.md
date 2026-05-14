@@ -52,7 +52,7 @@ graph TD
 *   **Hierarchical Orgs & Branches**: Systems and permissions are scoped at the `tenant` level but can be overridden at the `branch` or `sede` level for localized operational compliance (e.g., specific shipping terminal policies).
 
 ### 2.2 Core Domain Entity Model (ERD Subset)
-See [conceptual-data-model.md](file:///d:/Users/aarroyo/personal/sources/ums/arc-nodejs-workspace/docs/01-requirements/conceptual-data-model.md) for full properties.
+See [conceptual-data-model.md](../../governance/requirements/conceptual-data-model.md) for full properties.
 
 ```mermaid
 erDiagram
@@ -104,7 +104,7 @@ graph TD
 ```
 
 ### 3.2 Hierarchical Configuration Overrides (Deep Merge Flow)
-Refer to case details in [TE-02: Resolve Hierarchical System Configuration](file:///d:/Users/aarroyo/personal/sources/ums/arc-nodejs-workspace/docs/01-requirements/../02-architecture/technical-enablers/te-02-resolve-hierarchical-config.md).
+Refer to case details in [TE-02: Resolve Hierarchical System Configuration](../../architecture/blueprints/technical-enablers/te-02-resolve-hierarchical-config.md).
 
 ```mermaid
 sequenceDiagram
@@ -135,7 +135,7 @@ sequenceDiagram
 
 ### 3.3 Observability Architecture & Logging Strategy
 Unified telemetry is captured using **OpenTelemetry** and streamed to **Grafana Loki** and **Prometheus**:
-*   **Correlation IDs**: Every API requestá or Event Bus message injects a unique `X-Correlation-ID` header, propagated across all logs, DB transactions, and outbound events.
+*   **Correlation IDs**: Every API request or Event Bus message injects a unique `X-Correlation-ID` header, propagated across all logs, DB transactions, and outbound events.
 *   **Structured Logging**: App logs conform to structured JSON formats:
     ```json
     {
@@ -198,7 +198,7 @@ gantt
 
 This specification has been thoroughly reviewed against our standard quality guidelines. The alignment across all phases is declared **FULLY COMPLIANT**:
 
-1.  **Traceable Business Needs**: Verified. The business objectives in [objectives.md](file:///d:/Users/aarroyo/personal/sources/ums/arc-nodejs-workspace/docs/00-product/objectives.md) match the technical targets listed in the NFR Backlog.
+1.  **Traceable Business Needs**: Verified. The business objectives in [objectives.md](../../governance/product/objectives.md) match the technical targets listed in the NFR Backlog.
 2.  **Structural Consistency**: Verified. The C4 container specs perfectly match the Bounded Context map and the ERD models.
 3.  **No Vendor Lock-In**: Verified. The plug-and-play architecture defined in ADR-0024 and ADR-0025 ensures all external platforms are entirely optional, relying on native core implementations by default.
 

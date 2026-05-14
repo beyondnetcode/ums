@@ -11,7 +11,7 @@ The current architecture (ADRs 0001 to 0010) already perfectly satisfies the fol
 *   **Resilience (5)**: Achieved via Strict Hexagonal Boundaries (ADR 0002) and SonarQube/ESLint Governance (ADR 0003).
 *   **Modularity (8)**: Achieved via Nx Monorepo, strict dependency rules, and ESLint boundaries (ADR 0001).
 *   **Observability (9)**: Addressed proactively in the backlog via OpenTelemetry and Loki (ADR 0007).
-*   **Technical Governance (14)**: Perfectly executed via the ongoing spec-driven AI strategy BMAD-METHOD ADR registry, automated CHANGELOGs, and the new **[Global Engineering Standards Manifestáo](./engineering_standards.md)** enforcing SOLID, DRY, KISS, Secure by Design (OWASP), and optional DDD.
+*   **Technical Governance (14)**: Perfectly executed via the ongoing spec-driven AI strategy BMAD-METHOD ADR registry, automated CHANGELOGs, and the new **[Global Engineering Standards Manifestáo](./engineering-standards.md)** enforcing SOLID, DRY, KISS, Secure by Design (OWASP), and optional DDD.
 *   **Portability (15 & 16)**: Implicitly achieved via existing Docker containerization.
 
 ---
@@ -58,7 +58,7 @@ We propose the following roadmap of new ADRs to close these gaps definitively:
 *   **Proposed Solution**: **[ADR 0017: Feature Flagging Strategy]**. Integrate a toggle mechanism (e.g., Unleash or LaunchDarkly) to enable/disable features dynamically without recompilation.
 
 ### GAP 8: Automated Quality & Testing Pyramids
-*   **Missing Criterion**: Testáability (12) - CI/CD Coverage > 70%.
+*   **Missing Criterion**: Testability (12) - CI/CD Coverage > 70%.
 *   **Risk**: CI runs tests, but there is no architectural mandate enforcing a specific coverage threshold or distinguishing Unit vs. E2E tests.
 *   **Proposed Solution**: **[ADR 0018: Testing Pyramid & Automated Quality Gates]**. Formalize Jestá configurations, enforce strict >70% coverage thresholds in SonarQube, and define Postman/Newman for API E2E testing.
 
@@ -78,4 +78,4 @@ Use this checklist to track the documentation and implementation of the proposed
 | **ADR 0017** | Feature Flagging Strategy | Approved | Executed |
 | **ADR 0018** | Testing Pyramid & Quality Gates | Approved | Executed |
 | **ADR 0019** | Tactical Design Patterns (Result, Null Object) | Approved | Executed
-*Note: All ADR documents have been initially generated and added to the architecture backlog. Review each one and requestá its technical implementation into the monorepo.*
+*Note: All ADR documents have been initially generated and added to the architecture backlog. Review each one and request its technical implementation into the monorepo.*

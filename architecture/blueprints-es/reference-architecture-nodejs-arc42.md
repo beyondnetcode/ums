@@ -89,7 +89,7 @@ graph TD
         MobileApp["Aplicación Mobile"]
     end
 
-    subgraph GatewayLayer["Capa de Orquestáación"]
+    subgraph GatewayLayer["Capa de Orquestación"]
         BFF["BFF Gateway (Carga Liviana / Agregación)"]
     end
 

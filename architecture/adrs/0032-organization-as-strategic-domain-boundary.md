@@ -96,7 +96,7 @@ Elevating the `Organization` as the central boundary can tempt developers to inj
 To transition smoothly without breaking existing code:
 
 1.  **Legacy Systems Association:** All systems registered in previous databases lacking an owner will be mapped via a data migration script to the Central Operating Organization (`LOGISTICS_CORP_ROOT`).
-2.  **Gateway Middleware Validation:** The API Gateway will inject the `X-Org-Context-Id` header, validating that both the `Subject` making the requestá and the requested `System` are contractually authorized under that Organization's tree.
+2.  **Gateway Middleware Validation:** The API Gateway will inject the `X-Org-Context-Id` header, validating that both the `Subject` making the request and the requested `System` are contractually authorized under that Organization's tree.
 3.  **JWT Payload Contract:** The JWT token issued by AuthCore will include the composite claim:
     ```json
     {

@@ -26,22 +26,22 @@ The application core is completely insulated from vendor lock-in thanks to stric
 ## 2. Identified Infrastructure Risks & Mitigations
 
 ### High Financial Risk: Identity Provider (IdP)
-* **Context**: [ADR-0020](../03-adrs/0020-identity-provider-abstraction-strategy.md) abstracts the Identity Provider, allowing integrations with SaaS solutions like Auth0 or Azure Entra ID.
+* **Context**: [ADR-0020](../adrs/0020-identity-provider-abstraction-strategy.md) abstracts the Identity Provider, allowing integrations with SaaS solutions like Auth0 or Azure Entra ID.
 * **The Risk**: Commercial SaaS Identity platforms bill by Monthly Active Users (MAU) or M2M tokens. At a high B2C or B2B scale, operational costs can skyrocket exponentially.
 * **Mitigation Strategy**: If licensing costs become prohibitive, the infrastructure adapter must be swapped to **Keycloak** (100% Open Source and free). However, this shifts the financial cost from licensing to DevOps maintenance (Kubernetes scaling, database management).
 
 ### 🟡 Medium Licensing Risk: Redis Distributed Caching
-* **Context**: [ADR-0014](../03-adrs/0014-distributed-caching-strategy-redis.md) mandates Redis for caching.
+* **Context**: [ADR-0014](../adrs/0014-distributed-caching-strategy-redis.md) mandates Redis for caching.
 * **The Risk**: Redis Inc. recently changed its licensing from BSD to RSALv2 (Source Available, not strictly OSI Open Source). While free for internal usage, it poses legal concerns for managed service hosting.
 * **Mitigation Strategy**: In case of strict open-source compliance requirements or self-hosted deployment (ADR-0028), the operations team is authorized to use **Valkey** (the Linux Foundation Open Source fork of Redis) as a drop-in replacement.
 
 ### 🟡 Medium Maintenance Risk: Feature Flag Engine
-* **Context**: [ADR-0017](../03-adrs/0017-feature-flagging-strategy.md) utilizes Infrastructure adapters for Feature Flags (e.g., Unleash, ConfigCat).
+* **Context**: [ADR-0017](../adrs/0017-feature-flagging-strategy.md) utilizes Infrastructure adapters for Feature Flags (e.g., Unleash, ConfigCat).
 * **The Risk**: Commercial platforms like LaunchDarkly or Unleash Enterprise have high subscription fees. The free, open-source version of Unleash requires self-hosting.
 * **Mitigation Strategy**: The product team must determine if the DevOps bandwidth exists to host and maintain the open-source Unleash Server. If not, budget must be allocated for a cost-effective SaaS alternative like ConfigCat. The core codebase will remain unaffected due to the `IFeatureTogglePort`.
 
 ### 🟢 Low Risk: Observability Stack
-* **Context**: [ADR-0007](../03-adrs/0007-observability-telemetry-loki-opentelemetry.md) uses the LGTM stack (Loki, Grafana, Tempo) and OpenTelemetry.
+* **Context**: [ADR-0007](../adrs/0007-observability-telemetry-loki-opentelemetry.md) uses the LGTM stack (Loki, Grafana, Tempo) and OpenTelemetry.
 * **The Risk**: Grafana uses an AGPLv3 license.
 * **Mitigation Strategy**: As long as the UMS team only consumes Grafana internally for monitoring and does not distribute a modified version of the Grafana source code as a commercial product, there is zero legal or financial risk.
 

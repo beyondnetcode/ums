@@ -13,7 +13,7 @@ This document establishes the standardized, non-ambiguous glossary of terms for 
 | **User (Usuario)** | A unique human operator or service account registered in the system. Has credentials and assigned Profiles. | `Identity.Users` |
 | **Organization (Organización)**| A company node. Can be the primary corporate Tenant (`INTERNAL`) or an external actor such as a B2B `CLIENT` or `SUPPLIER` linked to an ERP code. | `Identity.Organizations` |
 | **Sponsor User** | An internal corporate user who requests and justifies system access for an external third-party user. | `Identity.Users` |
-| **External Access Request** | An auditable business ticket routing an external B2B access requestá through the PAP approval workflow. | `Identity.AccessRequests` |
+| **External Access Request** | An auditable business ticket routing an external B2B access request through the PAP approval workflow. | `Identity.AccessRequests` |
 | **Branch (Sedes)** | A physical or logical sub-unit of an Organization (e.g., *Callao Port Terminal*, *Lurin Warehouse*). Acts as the branch context for hierarchical authorization routing. | `Identity.Branches` |
 | **Network (Red)** | A logical network boundary (Private Network, Public, Shared) governing access policies. | `Identity.Networks` |
 | **System (Sistema)** | An independent application or sub-portal registered in the platform (e.g., Route Planner, Billing). Contains one or more Modules. | `Auth.Systems` |

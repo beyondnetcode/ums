@@ -57,7 +57,7 @@ Whenever a technical decision is made (e.g., writing a new ADR, choosing a libra
 5.  **Observabilidad** (Observability)
 6.  **Seguridad** (Security)
 7.  **Resiliencia** (Resilience)
-8.  **Testáabilidad** (Testáability)
+8.  **Testabilidad** (Testability)
 9.  **Performance** (Performance)
 10. **Claridad Arquitectónica** (Architectural Clarity)
 
@@ -68,5 +68,5 @@ Before submitting a PR, developers must verify:
 - [ ] No outer-layer logic is leaked into the Domain.
 - [ ] Cross-cutting concerns (Logging, Caching) use Decorators or Ports (No hardcoded tool logic in the core).
 - [ ] DDD was only used if the domain complexity justified it; otherwise, standard Clean Architecture was used.
-- [ ] Testá coverage for the new feature is >70%.
+- [ ] Test coverage for the new feature is >70%.
 - [ ] Local `npm run lint` and `npm run test` pass successfully.

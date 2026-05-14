@@ -1,6 +1,6 @@
 # Índice de Planos
 
-**[Volver a Arquitectura](../index.es.md)**
+**[Volver a Arquitectura](../index.md)**
 
 ### Documentos Principales
 - [Espec. de Arquitectura](./architecture-spec.md)
@@ -10,7 +10,7 @@
 
 ### Evaluaciones y Riesgos
 - [Evaluación de Riesgo de Proveedor](./vendor-risk-assessment.md)
-- [Evaluación DDD (@nestájslatam)](./nestájslatam-ddd-evaluation.md)
+- [Evaluación DDD (@nestjslatam)](./nestjslatam-ddd-evaluation.md)
 - [Arquitectura de Referencia Node.js](./reference-architecture-nodejs-arc42.md)
 
 ### Habilitadores

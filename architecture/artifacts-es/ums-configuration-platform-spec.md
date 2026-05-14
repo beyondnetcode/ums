@@ -267,7 +267,7 @@ interface FlagEvaluationResult {
 
 ### 4.3 Provider Registry & Selection Strategy
 
-The active Feature Flag provider is resolved per requestá using a **provider selector strategy**:
+The active Feature Flag provider is resolved per request using a **provider selector strategy**:
 
 1. **Global Default Provider**: Configured in `system_configuration.feature_flag_provider` (e.g., `INTERNAL`).
 2. **Per-Tenant Override**: A tenant may override the default provider (e.g., *LogisticsCorp* uses LaunchDarkly; all others use Internal).
@@ -374,7 +374,7 @@ sequenceDiagram
 | **Canary Release** | `PERCENTAGE` | Start at 5% of tenant users, increment gradually via Console UI |
 | **Beta Features** | `BOOLEAN` | Scoped to a specific `user_id` list (beta testers) |
 | **Environment Gating** | `BOOLEAN` | Active only in `staging`; disabled in `production` until graduated |
-| **Tenant A/B Testá** | `VARIANT` | Two variants assigned to two tenant groups; metrics collected externally |
+| **Tenant A/B Test** | `VARIANT` | Two variants assigned to two tenant groups; metrics collected externally |
 | **Technical Toggle** | `BOOLEAN` | Non-UI flag toggling backend behavior (e.g., new caching algorithm)
 ## 5. Impact Analysis
 
@@ -419,7 +419,7 @@ sequenceDiagram
 | ADR-0016 (Immutable Audit) | Config + flag mutations trigger audit subscribers | No change — pattern applies |
 | ADR-0017 (Feature Flagging) | **Superseded by ADR-0025** for pluggable provider design | Mark ADR-0017 as superseded |
 | ADR-0020 (IdP Abstraction) | Extended with multi-IdP priority/fallback model | Extend ADR-0020 |
-| **ADR-0025** (new) | Feature Flag Provider Abstraction via `IFeatureFlagPort` | **Created** — see [ADR-0025](../../docs/03-adrs/0025-feature-flag-provider-abstraction.md) | ### 5.5 API Contracts — New Endpoints
+| **ADR-0025** (new) | Feature Flag Provider Abstraction via `IFeatureFlagPort` | **Created** — see [ADR-0025](../../architecture/adrs/0025-feature-flag-provider-abstraction.md) | ### 5.5 API Contracts — New Endpoints
 
 | Endpoint | Method | Description |
 | :--- | :--- | :--- |

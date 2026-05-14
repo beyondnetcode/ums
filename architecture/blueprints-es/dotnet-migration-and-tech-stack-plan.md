@@ -73,7 +73,7 @@ Todos los desarrollos bajo el nuevo stack DEBEN aplicar estárictamente los sigu
 ### 🟡 Fase 3: Migración de Lógica y Verificación
 *   [ ] Migrar entidades de Dominio desde TypeScript hacia POCOs puros en C#.
 *   [ ] Configurar migraciones de EF Core apuntando a PostgreSQL v16.
-*   [ ] Construir suite de verificación utilizando xUnit y Testácontainers (validación de integración SQL).
+*   [ ] Construir suite de verificación utilizando xUnit y Testcontainers (validación de integración SQL).
 
 ---
 

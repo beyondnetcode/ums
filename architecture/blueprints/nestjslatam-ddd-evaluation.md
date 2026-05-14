@@ -1,4 +1,4 @@
-# Architectural Evaluation — Utilizing `@nestájslatam/packages` for DDD in UMS Core
+# Architectural Evaluation — Utilizing `@nestjslatam/packages` for DDD in UMS Core
 
 **Document Type:** Architectural Evaluation & Standard  
 **Status:** Approved (Conditional)  
@@ -12,7 +12,7 @@
 
 The **User Management System (UMS)** is an abstract, standalone identity & access governance kernel. While implementing tactical Domain-Driven Design (DDD) patterns (such as Aggregate Roots, Entities, and Value Objects) is currently **optional** for core contexts, standardizing these patterns is critical to stabilizing complex business logic and preventing technical drift.
 
-If the team chooses to utilize DDD patterns for any UMS bounded context (e.g., `Identity`, `Authorization`, or `Configuration`), we require a unified, lightweight, and pre-approved library of building blocks. This evaluation examines the **`@nestájslatam`** organization's DDD packages (specifically `@nestájslatam/ddd`) as the official tactical primitives standard for the UMS Core.
+If the team chooses to utilize DDD patterns for any UMS bounded context (e.g., `Identity`, `Authorization`, or `Configuration`), we require a unified, lightweight, and pre-approved library of building blocks. This evaluation examines the **`@nestjslatam`** organization's DDD packages (specifically `@nestjslatam/ddd`) as the official tactical primitives standard for the UMS Core.
 
 ---
 
@@ -22,7 +22,7 @@ To be approved for use within the UMS Core Domain, any external library must sat
 
 ### A. Zero-Infrastructure Dependency Constraint (Compliance:  FULLY COMPLIANT)
 *   **Guardrail:** The core Domain layer must have zero dependencies on external database ORMs (e.g., TypeORM), cloud provider SDKs, or web/HTTP frameworks.
-*   **Evaluation:** `@nestájslatam/ddd` provides pure TypeScript abstractions for tactical DDD primitives with no external runtime dependencies. The base building blocks (`Entity`, `ValueObject`, `AggregateRoot`) run entirely in memory and are highly testable in complete isolation.
+*   **Evaluation:** `@nestjslatam/ddd` provides pure TypeScript abstractions for tactical DDD primitives with no external runtime dependencies. The base building blocks (`Entity`, `ValueObject`, `AggregateRoot`) run entirely in memory and are highly testable in complete isolation.
 
 ### B. Standard Tactical DDD Building Blocks (Compliance:  FULLY COMPLIANT)
 The library provides complete, reliable implementations of standard DDD tactical components:
@@ -43,18 +43,18 @@ The library provides complete, reliable implementations of standard DDD tactical
 
 ## 4. Formal Approval & Mandatory Implementation Guidelines
 
-The use of `@nestájslatam/ddd` is formally **APPROVED** for any UMS bounded context where the team chooses to adopt Domain-Driven Design, subject to the following mandatory guidelines:
+The use of `@nestjslatam/ddd` is formally **APPROVED** for any UMS bounded context where the team chooses to adopt Domain-Driven Design, subject to the following mandatory guidelines:
 
 ### Guideline 1: Barrel Export Abstraction (Anti-Coupling)
-Developers must **never** import `@nestájslatam/ddd` directly inside individual domain entity files. To prevent direct library lock-in, all approved primitives must be re-exported via a local domain abstractions file inside the Nx Monorepo:
+Developers must **never** import `@nestjslatam/ddd` directly inside individual domain entity files. To prevent direct library lock-in, all approved primitives must be re-exported via a local domain abstractions file inside the Nx Monorepo:
 *   **Abstractions Entrypoint:** `libs/domain/src/core-primitives.ts`
-*   **Usage:** Domain files must import from `@ums/domain/core-primitives` instead of `@nestájslatam/ddd` directly, allowing a seamless replacement or local override if the library becomes deprecated.
+*   **Usage:** Domain files must import from `@ums/domain/core-primitives` instead of `@nestjslatam/ddd` directly, allowing a seamless replacement or local override if the library becomes deprecated.
 
 ### Guideline 2: Strict Immutability for Value Objects
 All properties defined on classes extending `ValueObject` must be declared as `readonly`. Value Objects are immutable by definition and must never be mutated after instantiation.
 
 ### Guideline 3: Strict Decoupling from Database ORMs
-Database-specific decorators (such as `@Entity`, `@Column`, or `@ManyToOne` from TypeORM) are **strictly prohibited** inside domain entities or classes extending `@nestájslatam/ddd` primitives. Relational schemas and persistence mapping must be handled exclusively in the Infrastructure Adapters layer using specialized Mappers.
+Database-specific decorators (such as `@Entity`, `@Column`, or `@ManyToOne` from TypeORM) are **strictly prohibited** inside domain entities or classes extending `@nestjslatam/ddd` primitives. Relational schemas and persistence mapping must be handled exclusively in the Infrastructure Adapters layer using specialized Mappers.
 
 ---
 

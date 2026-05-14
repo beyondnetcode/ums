@@ -20,7 +20,7 @@ Empieza aquí si eres nuevo en UMS. Este índice le da a cada lector una ruta r�
 | Ver Épicas y Prioridades | [Backlog de Producto MVP](./governance/project-es/mvp-product-backlog.md) | [Priorización MVP](./governance/roadmap/mvp-functional-prioritization.es.md) → [Historias Funcionales](./governance/requirements-es/functional-stories/index.md) |
 | Revisar requisitos funcionales | [Índice de Requisitos](./governance/requirements-es/index.md) | [Historias Funcionales](./governance/requirements-es/functional-stories/index.md) → [Glosario](./governance/requirements-es/glossary.md) |
 | Validar datos y modelo de dominio | [Modelo de Datos Conceptual](./governance/requirements-es/conceptual-data-model.md) | [Formatos de Exportación ER](./architecture/blueprints-es/er-export-formats.md) → [Diseño ER de Base de Datos](./architecture/blueprints-es/database-design-er.md) |
-| Entender la arquitectura | [Portal de Arquitectura](./architecture/index.es.md) | [Especificación C4](./architecture/blueprints-es/architecture-spec.md) → [Registro ADR](./architecture/adrs-es/index.md) |
+| Entender la arquitectura | [Portal de Arquitectura](./architecture/index.md) | [Especificación C4](./architecture/blueprints-es/architecture-spec.md) → [Registro ADR](./architecture/adrs-es/index.md) |
 | Construir u operar el sistema | [Engine Room](./src/) | [Habilitadores Técnicos](./architecture/blueprints-es/technical-enablers/index.md) → [Portal de Operaciones](./operations/index.md) |
 | Navegar todo | [Índice Maestro](./MASTER_INDEX.es.md) | Árbol completo de documentación por fase de ciclo de vida.
 ## Inicio Rápido (Motor Técnico)
@@ -34,22 +34,22 @@ npm install; npx nx run app-web:dev
 ## Hub de Conocimiento
 | Dominio | Índice del Portal | Contenidos |
 | :--- | :--- | :--- |
-| **Gobernanza** | [Portal de Gobernanza](./governance/index.es.md) | Dirección de producto, estándares, roadmap, backlog de proyecto y auditorías. |
+| **Gobernanza** | [Portal de Gobernanza](./governance/index.md) | Dirección de producto, estándares, roadmap, backlog de proyecto y auditorías. |
 | **Entrega de Proyecto** | [Backlog de Proyecto](./governance/project-es/index.md) | Épicas MVP, historias de usuario, orden de prioridad, fases y línea de corte. |
 | **Requisitos** | [Índice de Requisitos](./governance/requirements-es/index.md) | Historias funcionales, glosario de negocio, modelo de permisos y modelo conceptual. |
-| **Arquitectura** | [Portal de Arquitectura](./architecture/index.es.md) | Stack, registro ADR, especificación C4, contextos delimitados y habilitadores técnicos. |
-| **Infraestructura** | [Infraestructura](./infrastructure/index.es.md) | Docker, Kong, Kubernetes y configuración de ambientes. |
-| **Operaciones** | [Portal de Operaciones](./operations/index.es.md) | Runbooks, observabilidad, operación SQL y prácticas SRE. |
-| **Conocimiento** | [Base de Conocimiento](./knowledge/index.es.md) | Rutas de lectura recomendadas, POCs, investigación y onboarding.
+| **Arquitectura** | [Portal de Arquitectura](./architecture/index.md) | Stack, registro ADR, especificación C4, contextos delimitados y habilitadores técnicos. |
+| **Infraestructura** | [Infraestructura](./infrastructure/index.md) | Docker, Kong, Kubernetes y configuración de ambientes. |
+| **Operaciones** | [Portal de Operaciones](./operations/index.md) | Runbooks, observabilidad, operación SQL y prácticas SRE. |
+| **Conocimiento** | [Base de Conocimiento](./knowledge/index.md) | Rutas de lectura recomendadas, POCs, investigación y onboarding.
 ## Lectura Recomendada por Rol
 | Perfil | Objetivo de Lectura | Ruta de Aprendizaje (Links Directos) |
 | :--- | :--- | :--- |
 | **Director / Ejecutivo** | Valor de negocio, alcance MVP y confianza de entrega | [Visión de Producto](./governance/product-es/product-vision.md) → [Priorización MVP](./governance/roadmap/mvp-functional-prioritization.es.md) → [Backlog de Producto MVP](./governance/project-es/mvp-product-backlog.md) |
 | **Product Owner** | Alcance funcional, secuencia y propiedad del backlog | [Visión de Producto](./governance/product-es/product-vision.md) → [Requisitos](./governance/requirements-es/index.md) → [Priorización MVP](./governance/roadmap/mvp-functional-prioritization.es.md) → [Backlog de Producto](./governance/project-es/mvp-product-backlog.md) |
 | **Analista de Negocio** | Narrativa de negocio, reglas y criterios de aceptación | [Requisitos](./governance/requirements-es/index.md) → [Historias Funcionales](./governance/requirements-es/functional-stories/index.md) → [Glosario](./governance/requirements-es/glossary.md) → [Backlog de Producto](./governance/project-es/mvp-product-backlog.md) |
-| **Arquitecto de SW** | Diseño técnico, decisiones y límites de dominio | [Visión de Producto](./governance/product-es/product-vision.md) → [Portal de Arquitectura](./architecture/index.es.md) → [Especificación C4](./architecture/blueprints-es/architecture-spec.md) → [Registro ADR](./architecture/adrs-es/index.md) |
+| **Arquitecto de SW** | Diseño técnico, decisiones y límites de dominio | [Visión de Producto](./governance/product-es/product-vision.md) → [Portal de Arquitectura](./architecture/index.md) → [Especificación C4](./architecture/blueprints-es/architecture-spec.md) → [Registro ADR](./architecture/adrs-es/index.md) |
 | **Developer (BE/FE)** | Qué construir, por qué importa y cómo encaja | [Visión de Producto](./governance/product-es/product-vision.md) → [Backlog de Producto](./governance/project-es/mvp-product-backlog.md) → [Historias Funcionales](./governance/requirements-es/functional-stories/index.md) → [Habilitadores Técnicos](./architecture/blueprints-es/technical-enablers/index.md) → [Engine Room](./src/) |
-| **DevOps / SRE** | Ambientes, confiabilidad y observabilidad | [Backlog de Producto](./governance/project-es/mvp-product-backlog.md) → [Infraestructura](./infrastructure/index.es.md) → [Portal de Operaciones](./operations/index.es.md) → [Estrategia de Observabilidad](./architecture/artifacts-es/observability-strategy.md) |
+| **DevOps / SRE** | Ambientes, confiabilidad y observabilidad | [Backlog de Producto](./governance/project-es/mvp-product-backlog.md) → [Infraestructura](./infrastructure/index.md) → [Portal de Operaciones](./operations/index.md) → [Estrategia de Observabilidad](./architecture/artifacts-es/observability-strategy.md) |
 | **QA / Seguridad** | Calidad, riesgos y estrategia de verificación | [Backlog de Producto](./governance/project-es/mvp-product-backlog.md) → [Plan de Pruebas de Contrato](./architecture/artifacts-es/contract-testing-plan.md) → [Especificación IAM](./architecture/artifacts-es/enterprise-iam-ums-specification.md) → [Modelo de Madurez](./architecture/artifacts-es/architecture-maturity-model.md) |
 | **IA / Agentes** | BMAD-METHOD y reglas del repositorio | [Reglas de Agentes](./AGENTS.md) → [Auditoría BMAD](./architecture/artifacts-es/bmad-master-audit-alignment-report.md) → [Auditoría Taxonomía](./governance/audits/2026-05-13-taxonomy-normalization-audit.md) |
 

@@ -80,7 +80,7 @@ sequenceDiagram
 *   **Deciders**: Enterprise IAM Architect, Lead Developer, Product Owner
 
 #### Context
-High-concurrency user authentication and dynamic role-resolution are critical bottlenecks in B2B SaaS portals. Directly querying PostgreSQL relational schemas to build complex permission graphs on every single HTTP requestá causes high database load and poor p95 latencies.
+High-concurrency user authentication and dynamic role-resolution are critical bottlenecks in B2B SaaS portals. Directly querying PostgreSQL relational schemas to build complex permission graphs on every single HTTP request causes high database load and poor p95 latencies.
 
 #### Decision
 We will expose a unified, stateless `/api/v1/auth/login` endpoint that abstracts authentication providers (internal or external) and returns a pre-compiled, Redis-cached **Hierarchical Authorization Graph** alongside dual cryptographically rotated tokens (Access + Refresh Tokens).
@@ -179,7 +179,7 @@ X-Tenant-ID: org_enterprise_001
 *(Suitable for: OWASP / Security Audit)*
 
 *   **HTTP-Only Cookies**: JWT Access and Refresh Tokens should be stored inside secure, HTTP-Only, SameSite=Strict cookies to mitigate Cross-Site Scripting (XSS) vectors.
-*   **Refresh Token Rotation (RTR)**: Every refresh requestá invalidates the old Refresh Token and issues a new one. If a reuse attempt of an old Refresh Token is detected, the entire session family is instantly revoked to prevent hijacking.
+*   **Refresh Token Rotation (RTR)**: Every refresh request invalidates the old Refresh Token and issues a new one. If a reuse attempt of an old Refresh Token is detected, the entire session family is instantly revoked to prevent hijacking.
 *   **Database Isolation (RLS)**: Core user profiles and permission tables are strictly locked down using PostgreSQL Row-Level Security based on the active Tenant Context.
 *   **Explicit-Deny Rules**: Authorization compilation enforces that any explicit `DENY` rule overrides all other inherited `ALLOW` permissions.
 

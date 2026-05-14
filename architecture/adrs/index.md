@@ -3,7 +3,7 @@
 Historical record of architectural decisions.
 
 - [0001-monorepo-orchestration-nx.md](0001-monorepo-orchestration-nx.md)
-- [0002-clean-architecture-nestájs.md](0002-clean-architecture-nestájs.md)
+- [0002-clean-architecture-nestjs.md](0002-clean-architecture-nestjs.md)
 - [0003-strict-typescript-standards.md](0003-strict-typescript-standards.md)
 - [0004-frontend-offline-resilience.md](0004-frontend-offline-resilience.md)
 - [0005-ci-cd-quality-codeql.md](0005-ci-cd-quality-codeql.md)
@@ -28,10 +28,10 @@ Historical record of architectural decisions.
 - [0024-configuration-feature-management-platform.md](0024-configuration-feature-management-platform.md)
 - [0025-feature-flag-provider-abstraction.md](0025-feature-flag-provider-abstraction.md)
 - [0026-mfa-passwordless-adaptive-authentication.md](0026-mfa-passwordless-adaptive-authentication.md)
-- [0027-dual-protocol-restá-grpc-api-gateway.md](0027-dual-protocol-restá-grpc-api-gateway.md)
+- [0027-dual-protocol-rest-grpc-api-gateway.md](0027-dual-protocol-rest-grpc-api-gateway.md)
 - [0028-self-hosted-hybrid-infrastructure-on-premise.md](0028-self-hosted-hybrid-infrastructure-on-premise.md)
 - [0029-tactical-ddd-primitives-library.md](0029-tactical-ddd-primitives-library.md)
-- [0030-api-gateway-kong-vs-nestájs.md](0030-api-gateway-kong-vs-nestájs.md)
+- [0030-api-gateway-kong-vs-nestjs.md](0030-api-gateway-kong-vs-nestjs.md)
 - [0031-abstract-identity-domain-subject.md](0031-abstract-identity-domain-subject.md)
 - [0032-organization-as-strategic-domain-boundary.md](0032-organization-as-strategic-domain-boundary.md)
 - [0033-enterprise-minimal-apis-adoption.md](0033-enterprise-minimal-apis-adoption.md)

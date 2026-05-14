@@ -1,7 +1,7 @@
 # Indice de POCs
 
-**Idioma:** [English](./index.md) | [Espanol](./index.es.md)
+**Idioma:** [English](./index.md) | [Espanol](./index.md)
 
-**[Volver a Conocimiento](../index.es.md)**
+**[Volver a Conocimiento](../index.md)**
 
-- [POC Kong Gateway](./kong-gateway/index.es.md)
+- [POC Kong Gateway](./kong-gateway/index.md)

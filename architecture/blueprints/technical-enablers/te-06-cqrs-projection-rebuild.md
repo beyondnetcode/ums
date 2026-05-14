@@ -2,7 +2,7 @@
 
 This document specifies the process for safely rebuilding a read model (query-side projection) from the event store when the projection becomes stale, is corrupted, or when a new projection is introduced that must backfill historical events.
 
-> **Backing ADRs:** [ADR-0034 — CQRS Application Matrix](../../../arc32_progresive_monolith/architecture/adrs/core/0034-cqrs-applicability-matrix.md) · [ADR-0015 — Event-Driven Architecture](../../../arc32_progresive_monolith/architecture/adrs/core/0015-event-driven-architecture-intra-domain.md)  
+> **Backing ADRs:** [ADR-0034 — CQRS Application Matrix](../../adrs/0015-event-driven-architecture-intra-domain.md) · [ADR-0015 — Event-Driven Architecture](../../adrs/0015-event-driven-architecture-intra-domain.md)  
 > **Consumed by:** FS-07 (Permission Graph Visualizer)
 
 ---
@@ -175,8 +175,8 @@ public interface IProjectionRouter
 
 ## 9. Related Documents
 
-- [ADR-0034 — CQRS Application Matrix](../../../arc32_progresive_monolith/architecture/adrs/core/0034-cqrs-applicability-matrix.md)
-- [ADR-0015 — Event-Driven Architecture (Intra-Domain)](../../../arc32_progresive_monolith/architecture/adrs/core/0015-event-driven-architecture-intra-domain.md)
+- [ADR-0034 — CQRS Application Matrix](../../adrs/0015-event-driven-architecture-intra-domain.md)
+- [ADR-0015 — Event-Driven Architecture (Intra-Domain)](../../adrs/0015-event-driven-architecture-intra-domain.md)
 - [TE-01 — Build Authorization Graph](./te-01-build-authorization-graph.md) ← the read model this TE rebuilds
-- [FS-07 — Diagnose Permissions via Graph Visualizer](../../governance/requirements/functional-stories/fs-07-visual-graph-resolver.md)
+- [FS-07 — Diagnose Permissions via Graph Visualizer](../../../governance/requirements/functional-stories/fs-07-visual-graph-resolver.md)
 - [Observability Strategy](../../artifacts/observability-strategy.md)

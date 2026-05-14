@@ -40,5 +40,5 @@ Query touches data owned by a specific organization?
 - [Traceability Matrix](../../traceability-matrix.md)
 - [Engineering Standards](../engineering-standards.md)
 - [dotnet Migration & Tech Stack Plan](../../blueprints/dotnet-migration-and-tech-stack-plan.md)
-- [ADR-0002 — Clean Architecture & Hexagonal Boundaries](../../adrs/0002-clean-architecture-nestájs.md)
+- [ADR-0002 — Clean Architecture & Hexagonal Boundaries](../../adrs/0002-clean-architecture-nestjs.md)
 - [ADR-0019 — Tactical Design Patterns](../../adrs/0019-tactical-design-patterns-future-proofing.md)

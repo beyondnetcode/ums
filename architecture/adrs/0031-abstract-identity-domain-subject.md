@@ -31,7 +31,7 @@ The technical and functional implementation guidelines are:
 2.  **Replacement of References:**
     *   The `identity_reference` field in the database and API contracts will be renamed/migrated to `external_identity_reference` or simply `identity_reference`.
     *   The `identity_reference_type` field (`HR_ID`, `VENDOR_CODE`, `GOVERNMENT_ID`, `PARTNER_REF`) will be added to give semantic context to the external reference.
-3.  **Provisioning Responsibility by Organization:** The external user's organization becomes the entity responsible for their personnel's lifecycle, mediated by formal requestá flows approved by a corporate Sponsor (complying with the federated delegation principle).
+3.  **Provisioning Responsibility by Organization:** The external user's organization becomes the entity responsible for their personnel's lifecycle, mediated by formal request flows approved by a corporate Sponsor (complying with the federated delegation principle).
 
 ---
 

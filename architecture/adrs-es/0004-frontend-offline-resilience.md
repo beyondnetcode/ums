@@ -9,4 +9,4 @@ Este proyecto adopta el estándar corporativo textualmente según lo definido en
 
 ## Notas Específicas del Proyecto
 
-- Detalles de implementación: ver `docs/es/04-artifacts/corporate-standards-baseline.md`
+- Detalles de implementación: ver `docs/es/artifacts/corporate-standards-baseline.md`

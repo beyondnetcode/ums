@@ -41,7 +41,7 @@ graph TD
         CF1["Motor de Configuración Multi-IdP"]
         CF2["Modelo de Configuración de Comportamiento del Sistema"]
         CF3["Framework de Gestión de Feature Flags"]
-        CF4["Gestáor de Caché de Configuración"]
+        CF4["Gestor de Caché de Configuración"]
     end
 
     subgraph AuditContext[" Contexto de Auditoría"]
@@ -57,7 +57,7 @@ graph TD
         CO3["Constructor de Plantillas y Motor de Asignación"]
         CO4["Resolutor Visual de Grafos y Diagnósticos"]
         CO5["Monitor del Libro de Seguridad"]
-        CO6["Gestáor de Configuración de IdP"]
+        CO6["Gestor de Configuración de IdP"]
         CO7["Editor de Configuración del Sistema"]
         CO8["Dashboard de Feature Flags"]
     end
@@ -71,7 +71,7 @@ graph TD
 
     subgraph IGAContext[" Contexto IGA"]
         IG1["Motor de Criterios de Promoción de Roles"]
-        IG2["Gestáor de Proceso de Promoción de Usuario"]
+        IG2["Gestor de Proceso de Promoción de Usuario"]
         IG3["Registro de Administración Delegada"]
     end
 

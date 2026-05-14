@@ -49,6 +49,6 @@ Standardizing access under UMS provides three massive business benefits:
 ## 4. Reference Operational Model
 To illustrate the real-world operational execution of UMS, our specifications utilize the **Business Analyst** scenario as the primary reference model. This role represents high-concurrency B2B access to the *Route Planner* under the context of specific tenants (e.g., *Logistics Corp*) and localized branches (e.g., *Callao Terminal, Peru*). 
 
-The detailed architectural specs, sequence diagrams, and dynamic API contracts for this reference model are fully detailed in **[enterprise-iam-ums-specification.md](../04-artifacts/enterprise-iam-ums-specification.md)**.
+The detailed architectural specs, sequence diagrams, and dynamic API contracts for this reference model are fully detailed in **[enterprise-iam-ums-specification.md](../../architecture/artifacts/enterprise-iam-ums-specification.md)**.
 
 

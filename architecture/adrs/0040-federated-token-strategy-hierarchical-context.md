@@ -275,7 +275,7 @@ public class TokenRevoker
 
 ## 4. Alternatives Considered
 
-1.  **Self-contained JWT with all claims**: Rejected. At 8KB+, exceeds header limits in Kong, AWS ALB, and many ingress controllers. Also increases per-requestá bandwidth by 8KB.
+1.  **Self-contained JWT with all claims**: Rejected. At 8KB+, exceeds header limits in Kong, AWS ALB, and many ingress controllers. Also increases per-request bandwidth by 8KB.
 
 2.  **JWT with distributed claims (JWT + separate claims endpoint)**: Rejected. Claims endpoint creates the same introspection dependency but with non-standard implementation. Opaque tokens are a standard pattern (RFC 7662).
 

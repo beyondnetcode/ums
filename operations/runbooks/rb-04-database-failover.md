@@ -3,7 +3,7 @@
 **Component:** SQL Server 2022 — Primary data store for UMS  
 **Impact of failure:** Complete service outage. No read or write operations succeed. Auth, authorization, config, and audit paths all depend on the database.  
 **Recovery objective:** RTO < 30 min (P1) · RPO < 5 min (with transaction log shipping)  
-**Backed by:** [ADR-0013 — Cloud Infrastructure & DR](../../architecture/adrs/0013-cloud-infrastructure-topology-dr.md) · [ADR-0041 — Authoritative Database Engine](../../architecture/adrs/0041-authoritative-unified-database-engine.md)
+**Backed by:** [ADR-0013 — Cloud Infrastructure & DR](../../architecture/adrs/0013-cloud-infrastructure-topology-dr.md) · [ADR-0041 — Authoritative Database Engine](../../architecture/adrs/0041-authoritative-database-engine-strategy.md)
 
 ---
 
@@ -13,7 +13,7 @@
 # 1. Check SQL Server pod
 kubectl get pods -n ums -l app=sqlserver
 
-# 2. Testá connectivity from app pod
+# 2. Test connectivity from app pod
 kubectl exec -n ums deploy/ums-api -- \
   /opt/mssql-tools/bin/sqlcmd -S sqlserver -U sa -P $SA_PASSWORD \
   -Q "SELECT GETUTCDATE() AS now, @@VERSION AS version" -t 5
@@ -201,7 +201,7 @@ curl -s http://ums-api:8080/health | jq .
 
 ```
 [ ] SQL Server pod Running and Ready
-[ ] Testá query succeeds: SELECT 1
+[ ] Test query succeeds: SELECT 1
 [ ] All RLS policies enabled (sys.security_policies)
 [ ] Application health endpoints return 200
 [ ] Auth flow works end-to-end (manual smoke test)
@@ -226,5 +226,5 @@ curl -s http://ums-api:8080/health | jq .
 - [RB-03 — Cache Failure Recovery](./rb-03-cache-failure-recovery.md)
 - [TE-03 — Enforce Organization RLS](../../architecture/blueprints/technical-enablers/te-03-enforce-organization-rls-sql-server.md)
 - [ADR-0013 — Cloud Infrastructure & DR](../../architecture/adrs/0013-cloud-infrastructure-topology-dr.md)
-- [ADR-0041 — Authoritative Database Engine](../../architecture/adrs/0041-authoritative-unified-database-engine.md)
-- [ADR-0044 — Configurable Security Persistence (RLS)](../../architecture/adrs/0044-configurable-security-persistence-strategy.md)
+- [ADR-0041 — Authoritative Database Engine](../../architecture/adrs/0041-authoritative-database-engine-strategy.md)
+- [ADR-0044 — Configurable Security Persistence (RLS)](../../architecture/adrs/0044-delegated-admin-and-approvals.md)

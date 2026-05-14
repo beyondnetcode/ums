@@ -28,4 +28,4 @@ We will implement a **Hierarchical Configuration Engine** (`APP_CONFIGURATION`):
 
 ## Consequences
 *   **Positive**: Extreme flexibility for multi-tenant and multi-system customization. Centralized management of system behavior. Secure storage of sensitive parameters.
-*   **Negative**: Requires a robust caching strategy (e.g., Redis) to avoid high database latency during parameter resolution for every requestá.
+*   **Negative**: Requires a robust caching strategy (e.g., Redis) to avoid high database latency during parameter resolution for every request.

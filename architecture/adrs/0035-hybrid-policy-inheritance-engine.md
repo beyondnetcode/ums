@@ -132,7 +132,7 @@ public class PolicyResolver
             }
         }
 
-        return result ?? throw new PolicyNotFoundException(policyCode, tenantId);
+        return result  throw new PolicyNotFoundException(policyCode, tenantId);
     }
 
     // Evaluates ABAC conditions after policy resolution

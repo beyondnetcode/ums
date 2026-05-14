@@ -38,7 +38,7 @@ sequenceDiagram
 ```
 
 ### A. Flujo Principal
-1.  El cliente envía un requestá HTTP portando el JWT de sesión.
+1.  El cliente envía un request HTTP portando el JWT de sesión.
 2.  El **Tenant Middleware** del backend en .NET 8 intercepta la solicitud, decodifica los claims del token y extrae el valor unificado del `org_id` (Organization Context).
 3.  El middleware almacena el `org_id` en un servicio con ciclo de vida *Scoped* (`ITenantContext`).
 4.  Al resolver una consulta a través de **Entity Framework Core**, se activa un **DbConnectionInterceptor** personalizado.
@@ -129,4 +129,4 @@ services.AddScoped<TenantSessionContextInterceptor>();
 ---
 
 ## 5. Referencia del Modelo Operativo Principal
-El andamiaje técnico de configuración SQL, las migraciones de EF Core para crear la Security Policy y la función de predicado, y los interceptores de conexión estáán alineados con el patrón del **[Reporte de Gobernanza Multi-Tenant](../../04-artifacts/enterprise-multitenant-governance-report.md)** y la decisión autoritativa registrada en el **[ADR-0041](../../03-adrs/0041-sql-server-2022-as-database-engine.md)** (SQL Server 2022 como motor de base de datos para todos los servicios UMS).
+El andamiaje técnico de configuración SQL, las migraciones de EF Core para crear la Security Policy y la función de predicado, y los interceptores de conexión estáán alineados con el patrón del **[Reporte de Gobernanza Multi-Tenant](../../artifacts/enterprise-multitenant-governance-report.md)** y la decisión autoritativa registrada en el **[ADR-0041](../../adrs/0041-authoritative-database-engine-strategy.md)** (SQL Server 2022 como motor de base de datos para todos los servicios UMS).
