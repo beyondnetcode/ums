@@ -32,6 +32,13 @@ erDiagram
     SYSTEM_SUITE ||--o{ ROLE : "define"
     SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "contiene"
     
+    ROLE ||--o{ ROLE : "padre_de"
+    ROLE ||--o{ ROLE_PROMOTION_CRITERIA : "origen"
+    ROLE ||--o{ ROLE_PROMOTION_CRITERIA : "destino"
+    
+    TENANT ||--o{ APP_CONFIGURATION : "configuraciones"
+    SYSTEM_SUITE ||--o{ APP_CONFIGURATION : "anulaciones"
+    
     ROLE ||--o{ PERMISSION_TEMPLATE : "gobierna"
     PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "materializado"
     
@@ -144,11 +151,47 @@ erDiagram
     DOCUMENT_TYPE ||--o{ NOTIFICATION_RULE : "alerta_para"
     DOCUMENT_TYPE ||--o{ ACCESS_ENFORCEMENT_POLICY : "gobierna_acceso"
     
+    USER_ACCOUNT ||--o{ USER_PROMOTION_PROCESS : "candidato"
+    ROLE ||--o{ USER_PROMOTION_PROCESS : "objetivo"
+    APPROVAL_REQUEST ||--o{ USER_PROMOTION_PROCESS : "autorizado_por"
+    
     USER_ACCOUNT {
         uniqueidentifier UserId PK
         uniqueidentifier TenantId FK
         nvarchar UserCategory "INTERNAL/EXTERNAL/B2B/PARTNER"
         nvarchar Status "ACTIVE/BLOCKED/PENDING"
+    }
+
+    ROLE {
+        uniqueidentifier RoleId PK
+        uniqueidentifier ParentRoleId FK "Auto-Ref"
+        int HierarchyLevel
+        int PromotionOrder
+    }
+
+    ROLE_PROMOTION_CRITERIA {
+        uniqueidentifier CriteriaId PK
+        uniqueidentifier SourceRoleId FK
+        uniqueidentifier TargetRoleId FK
+        bit FlagSeniority
+        bit FlagCompliance
+        bit FlagManualApproval
+    }
+
+    USER_PROMOTION_PROCESS {
+        uniqueidentifier ProcessId PK
+        uniqueidentifier UserId FK
+        uniqueidentifier TargetRoleId FK
+        nvarchar Status "EVALUATING/CRITERIA_MET/PENDING_APPROVAL/PROMOTED"
+    }
+
+    APP_CONFIGURATION {
+        uniqueidentifier SettingId PK
+        uniqueidentifier TenantId FK "Anulable"
+        uniqueidentifier SuiteId FK "Anulable"
+        nvarchar Code "Flag / Parámetro"
+        nvarchar Value
+        bit IsInheritable
     }
 
     USER_MANAGEMENT_DELEGATION {

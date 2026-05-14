@@ -32,6 +32,13 @@ erDiagram
     SYSTEM_SUITE ||--o{ ROLE : "defines"
     SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "contains"
     
+    ROLE ||--o{ ROLE : "parent_of"
+    ROLE ||--o{ ROLE_PROMOTION_CRITERIA : "source"
+    ROLE ||--o{ ROLE_PROMOTION_CRITERIA : "target"
+    
+    TENANT ||--o{ APP_CONFIGURATION : "settings"
+    SYSTEM_SUITE ||--o{ APP_CONFIGURATION : "overrides"
+    
     ROLE ||--o{ PERMISSION_TEMPLATE : "governs"
     PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "materialized"
     
@@ -144,11 +151,47 @@ erDiagram
     DOCUMENT_TYPE ||--o{ NOTIFICATION_RULE : "alerts_for"
     DOCUMENT_TYPE ||--o{ ACCESS_ENFORCEMENT_POLICY : "governs_access"
     
+    USER_ACCOUNT ||--o{ USER_PROMOTION_PROCESS : "candidate"
+    ROLE ||--o{ USER_PROMOTION_PROCESS : "target"
+    APPROVAL_REQUEST ||--o{ USER_PROMOTION_PROCESS : "authorized_by"
+    
     USER_ACCOUNT {
         uniqueidentifier UserId PK
         uniqueidentifier TenantId FK
         nvarchar UserCategory "INTERNAL/EXTERNAL/B2B/PARTNER"
         nvarchar Status "ACTIVE/BLOCKED/PENDING"
+    }
+
+    ROLE {
+        uniqueidentifier RoleId PK
+        uniqueidentifier ParentRoleId FK "Self-Ref"
+        int HierarchyLevel
+        int PromotionOrder
+    }
+
+    ROLE_PROMOTION_CRITERIA {
+        uniqueidentifier CriteriaId PK
+        uniqueidentifier SourceRoleId FK
+        uniqueidentifier TargetRoleId FK
+        bit FlagSeniority
+        bit FlagCompliance
+        bit FlagManualApproval
+    }
+
+    USER_PROMOTION_PROCESS {
+        uniqueidentifier ProcessId PK
+        uniqueidentifier UserId FK
+        uniqueidentifier TargetRoleId FK
+        nvarchar Status "EVALUATING/CRITERIA_MET/PENDING_APPROVAL/PROMOTED"
+    }
+
+    APP_CONFIGURATION {
+        uniqueidentifier SettingId PK
+        uniqueidentifier TenantId FK "Nullable"
+        uniqueidentifier SuiteId FK "Nullable"
+        nvarchar Code "Feature Flag / Parameter"
+        nvarchar Value
+        bit IsInheritable
     }
 
     USER_MANAGEMENT_DELEGATION {

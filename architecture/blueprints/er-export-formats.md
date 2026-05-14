@@ -1,13 +1,13 @@
 # UMS E/R Model - Export Formats & Alternatives
 
-If Mermaid visualization is failing or insufficient, use these industry-standard formats to visualize the **Identity Governance & Document Lifecycle Framework**.
+If Mermaid visualization is failing or insufficient, use these industry-standard formats to visualize the **Advanced IGA, Role Evolution & Hierarchical Configuration Framework**.
 
 ## 1. dbdiagram.io (DBML - Recommended) 🚀
 1.  Go to [dbdiagram.io](https://dbdiagram.io/d).
 2. Paste the code below.
 
 ```dbml
-// UMS Framework: IGA & Document Lifecycle Enforcement
+// UMS Framework: Advanced IGA & Hierarchical Governance
 // Engine: SQL Server 2022
 
 Table TENANT {
@@ -36,6 +36,46 @@ Table USER_MANAGEMENT_DELEGATION {
   SuiteId uniqueidentifier
 }
 
+Table ROLE {
+  RoleId uniqueidentifier [pk]
+  SuiteId uniqueidentifier
+  TenantId uniqueidentifier
+  ParentRoleId uniqueidentifier [note: 'Recursive Hierarchy']
+  Name nvarchar
+  HierarchyLevel int
+  PromotionOrder int
+}
+
+Table ROLE_PROMOTION_CRITERIA {
+  CriteriaId uniqueidentifier [pk]
+  SourceRoleId uniqueidentifier
+  TargetRoleId uniqueidentifier
+  FlagSeniority bit [note: 'Check days']
+  FlagCompliance bit [note: 'Check documents']
+  FlagBusinessScore bit
+  FlagManualApproval bit
+  RequiredSeniorityDays int
+}
+
+Table USER_PROMOTION_PROCESS {
+  ProcessId uniqueidentifier [pk]
+  UserId uniqueidentifier
+  TargetRoleId uniqueidentifier
+  Status nvarchar [note: 'EVALUATING/CRITERIA_MET/PENDING_APPROVAL/PROMOTED']
+  EvidenceRequestId uniqueidentifier
+}
+
+Table APP_CONFIGURATION {
+  SettingId uniqueidentifier [pk]
+  TenantId uniqueidentifier [note: 'Nullable: Global if null']
+  SuiteId uniqueidentifier [note: 'Nullable']
+  ModuleId uniqueidentifier [note: 'Nullable']
+  Code nvarchar [note: 'e.g. ENABLE_ROLE_EVOLUTION']
+  Value nvarchar
+  IsInheritable bit [default: 1]
+  IsEncrypted bit [default: 0]
+}
+
 Table DOCUMENT_TYPE {
   DocumentTypeId uniqueidentifier [pk]
   TenantId uniqueidentifier
@@ -47,14 +87,14 @@ Table USER_DOCUMENT {
   DocumentId uniqueidentifier [pk]
   UserId uniqueidentifier
   DocumentTypeId uniqueidentifier
-  RequestId uniqueidentifier [note: 'Optional: linked to approval']
+  RequestId uniqueidentifier
   FileName nvarchar
   FileStoragePath nvarchar
   Checksum nvarchar
   IssueDate datetime2
   ExpirationDate datetime2
-  Status nvarchar [note: 'VALID/EXPIRED/PENDING_RENEWAL']
-  Criticity nvarchar [note: 'LOW/MEDIUM/HIGH/CRITICAL']
+  Status nvarchar
+  Criticity nvarchar
 }
 
 Table NOTIFICATION_RULE {
@@ -68,7 +108,7 @@ Table NOTIFICATION_RULE {
 Table ACCESS_ENFORCEMENT_POLICY {
   PolicyId uniqueidentifier [pk]
   DocumentTypeId uniqueidentifier
-  ActionOnExpiration nvarchar [note: 'BLOCK_USER/RESTRICT_PROFILE/LOG_ONLY']
+  ActionOnExpiration nvarchar
 }
 
 Table APPROVAL_WORKFLOW {
@@ -103,13 +143,6 @@ Table APPROVAL_LOG {
 
 Table SYSTEM_SUITE {
   SuiteId uniqueidentifier [pk]
-  TenantId uniqueidentifier
-  Name nvarchar
-}
-
-Table ROLE {
-  RoleId uniqueidentifier [pk]
-  SuiteId uniqueidentifier
   TenantId uniqueidentifier
   Name nvarchar
 }
@@ -176,6 +209,19 @@ Ref: USER_MANAGEMENT_DELEGATION.ParentAdminUserId > USER_ACCOUNT.UserId
 Ref: USER_MANAGEMENT_DELEGATION.ManagedUserId > USER_ACCOUNT.UserId
 Ref: USER_MANAGEMENT_DELEGATION.SuiteId > SYSTEM_SUITE.SuiteId
 
+Ref: ROLE.SuiteId > SYSTEM_SUITE.SuiteId
+Ref: ROLE.TenantId > TENANT.TenantId
+Ref: ROLE.ParentRoleId > ROLE.RoleId
+Ref: ROLE_PROMOTION_CRITERIA.SourceRoleId > ROLE.RoleId
+Ref: ROLE_PROMOTION_CRITERIA.TargetRoleId > ROLE.RoleId
+Ref: USER_PROMOTION_PROCESS.UserId > USER_ACCOUNT.UserId
+Ref: USER_PROMOTION_PROCESS.TargetRoleId > ROLE.RoleId
+Ref: USER_PROMOTION_PROCESS.EvidenceRequestId > APPROVAL_REQUEST.RequestId
+
+Ref: APP_CONFIGURATION.TenantId > TENANT.TenantId
+Ref: APP_CONFIGURATION.SuiteId > SYSTEM_SUITE.SuiteId
+Ref: APP_CONFIGURATION.ModuleId > FUNCTIONAL_MODULE.ModuleId
+
 Ref: DOCUMENT_TYPE.TenantId > TENANT.TenantId
 Ref: USER_DOCUMENT.UserId > USER_ACCOUNT.UserId
 Ref: USER_DOCUMENT.DocumentTypeId > DOCUMENT_TYPE.DocumentTypeId
@@ -196,8 +242,6 @@ Ref: APPROVAL_LOG.RequestId > APPROVAL_REQUEST.RequestId
 Ref: APPROVAL_LOG.ApproverUserId > USER_ACCOUNT.UserId
 
 Ref: SYSTEM_SUITE.TenantId > TENANT.TenantId
-Ref: ROLE.SuiteId > SYSTEM_SUITE.SuiteId
-Ref: ROLE.TenantId > TENANT.TenantId
 Ref: PROFILE.UserId > USER_ACCOUNT.UserId
 Ref: PROFILE.RoleId > ROLE.RoleId
 Ref: PROFILE.BranchId > BRANCH.BranchId
@@ -220,7 +264,7 @@ Ref: ACTION.ModuleId > FUNCTIONAL_MODULE.ModuleId
 
 ## 2. SQL DDL (SQL Server 2022) 🛠️
 ```sql
--- IGA & Document Lifecycle Enforcement Schema
+-- Advanced IGA: Role Evolution & Hierarchical Configuration
 
 CREATE TABLE TENANT (
     TenantId UNIQUEIDENTIFIER PRIMARY KEY,
@@ -240,12 +284,43 @@ CREATE TABLE USER_ACCOUNT (
     Status NVARCHAR(50) DEFAULT 'PENDING'
 );
 
-CREATE TABLE USER_MANAGEMENT_DELEGATION (
-    DelegationId UNIQUEIDENTIFIER PRIMARY KEY,
+CREATE TABLE SYSTEM_SUITE (
+    SuiteId UNIQUEIDENTIFIER PRIMARY KEY,
     TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
-    ParentAdminUserId UNIQUEIDENTIFIER REFERENCES USER_ACCOUNT(UserId),
-    ManagedUserId UNIQUEIDENTIFIER REFERENCES USER_ACCOUNT(UserId),
-    SuiteId UNIQUEIDENTIFIER NULL REFERENCES SYSTEM_SUITE(SuiteId)
+    Name NVARCHAR(255)
+);
+
+CREATE TABLE ROLE (
+    RoleId UNIQUEIDENTIFIER PRIMARY KEY,
+    SuiteId UNIQUEIDENTIFIER REFERENCES SYSTEM_SUITE(SuiteId),
+    TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
+    ParentRoleId UNIQUEIDENTIFIER NULL REFERENCES ROLE(RoleId),
+    Name NVARCHAR(255),
+    HierarchyLevel INT DEFAULT 0,
+    PromotionOrder INT DEFAULT 0
+);
+
+CREATE TABLE ROLE_PROMOTION_CRITERIA (
+    CriteriaId UNIQUEIDENTIFIER PRIMARY KEY,
+    SourceRoleId UNIQUEIDENTIFIER REFERENCES ROLE(RoleId),
+    TargetRoleId UNIQUEIDENTIFIER REFERENCES ROLE(RoleId),
+    FlagSeniority BIT DEFAULT 0,
+    FlagCompliance BIT DEFAULT 1,
+    FlagBusinessScore BIT DEFAULT 0,
+    FlagManualApproval BIT DEFAULT 1,
+    RequiredSeniorityDays INT DEFAULT 0
+);
+
+CREATE TABLE APP_CONFIGURATION (
+    SettingId UNIQUEIDENTIFIER PRIMARY KEY,
+    TenantId UNIQUEIDENTIFIER NULL REFERENCES TENANT(TenantId),
+    SuiteId UNIQUEIDENTIFIER NULL REFERENCES SYSTEM_SUITE(SuiteId),
+    ModuleId UNIQUEIDENTIFIER NULL, -- References Functional Module later
+    Code NVARCHAR(100),
+    Value NVARCHAR(MAX),
+    IsInheritable BIT DEFAULT 1,
+    IsEncrypted BIT DEFAULT 0,
+    CreatedAt DATETIME2 DEFAULT SYSUTCDATETIME()
 );
 
 CREATE TABLE DOCUMENT_TYPE (
@@ -253,12 +328,6 @@ CREATE TABLE DOCUMENT_TYPE (
     TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
     Name NVARCHAR(255),
     IsAccessCritical BIT DEFAULT 0
-);
-
-CREATE TABLE SYSTEM_SUITE (
-    SuiteId UNIQUEIDENTIFIER PRIMARY KEY,
-    TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
-    Name NVARCHAR(255)
 );
 
 CREATE TABLE APPROVAL_WORKFLOW (
@@ -278,6 +347,15 @@ CREATE TABLE APPROVAL_REQUEST (
     RequestStatus NVARCHAR(50)
 );
 
+CREATE TABLE USER_PROMOTION_PROCESS (
+    ProcessId UNIQUEIDENTIFIER PRIMARY KEY,
+    UserId UNIQUEIDENTIFIER REFERENCES USER_ACCOUNT(UserId),
+    TargetRoleId UNIQUEIDENTIFIER REFERENCES ROLE(RoleId),
+    Status NVARCHAR(50) DEFAULT 'EVALUATING', -- EVALUATING, CRITERIA_MET, PENDING_APPROVAL, PROMOTED
+    EvidenceRequestId UNIQUEIDENTIFIER NULL REFERENCES APPROVAL_REQUEST(RequestId),
+    CreatedAt DATETIME2 DEFAULT SYSUTCDATETIME()
+);
+
 CREATE TABLE USER_DOCUMENT (
     DocumentId UNIQUEIDENTIFIER PRIMARY KEY,
     UserId UNIQUEIDENTIFIER REFERENCES USER_ACCOUNT(UserId),
@@ -290,8 +368,7 @@ CREATE TABLE USER_DOCUMENT (
     ExpirationDate DATETIME2,
     Status NVARCHAR(50) DEFAULT 'VALID',
     Criticity NVARCHAR(50) DEFAULT 'MEDIUM',
-    CreatedAt DATETIME2 DEFAULT SYSUTCDATETIME(),
-    INDEX IX_UserDocument_Expiration (ExpirationDate, Status)
+    CreatedAt DATETIME2 DEFAULT SYSUTCDATETIME()
 );
 
 CREATE TABLE NOTIFICATION_RULE (
@@ -305,14 +382,7 @@ CREATE TABLE NOTIFICATION_RULE (
 CREATE TABLE ACCESS_ENFORCEMENT_POLICY (
     PolicyId UNIQUEIDENTIFIER PRIMARY KEY,
     DocumentTypeId UNIQUEIDENTIFIER REFERENCES DOCUMENT_TYPE(DocumentTypeId),
-    ActionOnExpiration NVARCHAR(50) -- BLOCK_USER, RESTRICT_PROFILE, LOG_ONLY
-);
-
-CREATE TABLE ROLE (
-    RoleId UNIQUEIDENTIFIER PRIMARY KEY,
-    SuiteId UNIQUEIDENTIFIER REFERENCES SYSTEM_SUITE(SuiteId),
-    TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
-    Name NVARCHAR(255)
+    ActionOnExpiration NVARCHAR(50)
 );
 
 CREATE TABLE PROFILE (
@@ -329,6 +399,9 @@ CREATE TABLE FUNCTIONAL_MODULE (
     TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
     Name NVARCHAR(255)
 );
+
+-- Finish App Configuration reference
+ALTER TABLE APP_CONFIGURATION ADD CONSTRAINT FK_Config_Module FOREIGN KEY (ModuleId) REFERENCES FUNCTIONAL_MODULE(ModuleId);
 
 CREATE TABLE FUNCTIONAL_SUBMODULE (
     SubModuleId UNIQUEIDENTIFIER PRIMARY KEY,
@@ -384,5 +457,13 @@ CREATE TABLE APPROVAL_LOG (
     ApproverUserId UNIQUEIDENTIFIER REFERENCES USER_ACCOUNT(UserId),
     ActionTaken NVARCHAR(50),
     CreatedAt DATETIME2 DEFAULT SYSUTCDATETIME()
+);
+
+CREATE TABLE USER_MANAGEMENT_DELEGATION (
+    DelegationId UNIQUEIDENTIFIER PRIMARY KEY,
+    TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
+    ParentAdminUserId UNIQUEIDENTIFIER REFERENCES USER_ACCOUNT(UserId),
+    ManagedUserId UNIQUEIDENTIFIER REFERENCES USER_ACCOUNT(UserId),
+    SuiteId UNIQUEIDENTIFIER NULL REFERENCES SYSTEM_SUITE(SuiteId)
 );
 ```
