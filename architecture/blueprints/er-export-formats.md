@@ -2,14 +2,14 @@
 
 If Mermaid visualization is failing or insufficient, use these industry-standard formats to visualize the **Master-Template Driven Authorization Framework**.
 
-## 1. dbdiagram.io (DBML - Recommended)
-The best tool for interactive, professional E/R visualization.
+## 1. dbdiagram.io (DBML - Recommended) 🚀
+The most professional and interactive way to view the model.
 1.  Go to [dbdiagram.io](https://dbdiagram.io/d).
-2.  Paste the following DBML code:
+2.  Clear the editor and paste the code below.
 
 ```dbml
 // UMS Master-Template Driven ER Model
-// Engine: SQL Server 2022
+// Optimized for dbdiagram.io
 
 Table TENANT {
   TenantId uniqueidentifier [pk]
@@ -19,72 +19,73 @@ Table TENANT {
 
 Table USER {
   UserId uniqueidentifier [pk]
-  TenantId uniqueidentifier [ref: > TENANT.TenantId]
+  TenantId uniqueidentifier
   Username nvarchar
   Email nvarchar
 }
 
 Table SYSTEM_SUITE {
   SuiteId uniqueidentifier [pk]
-  TenantId uniqueidentifier [ref: > TENANT.TenantId]
+  TenantId uniqueidentifier
   Name nvarchar
   Code nvarchar
 }
 
 Table FUNCTIONAL_MODULE {
   ModuleId uniqueidentifier [pk]
-  SuiteId uniqueidentifier [ref: > SYSTEM_SUITE.SuiteId]
+  SuiteId uniqueidentifier
   Name nvarchar
   Code nvarchar
 }
 
 Table PERMISSION_TEMPLATE {
   TemplateId uniqueidentifier [pk]
-  ModuleId uniqueidentifier [ref: > FUNCTIONAL_MODULE.ModuleId]
+  ModuleId uniqueidentifier
   ResourceName nvarchar
   ActionCode nvarchar
   Name nvarchar
 }
 
+Table ROLE {
+  RoleId uniqueidentifier [pk]
+  SuiteId uniqueidentifier
+  Name nvarchar
+}
+
 Table PROFILE {
   ProfileId uniqueidentifier [pk]
-  TenantId uniqueidentifier [ref: > TENANT.TenantId]
-  UserId uniqueidentifier [ref: > USER.UserId]
+  TenantId uniqueidentifier
+  UserId uniqueidentifier
   RoleId uniqueidentifier
   BranchId uniqueidentifier
   DisplayName nvarchar
 }
 
 Table PROFILE_PERMISSION {
-  ProfileId uniqueidentifier [pk, ref: > PROFILE.ProfileId]
-  TemplateId uniqueidentifier [pk, ref: > PERMISSION_TEMPLATE.TemplateId]
+  ProfileId uniqueidentifier [pk]
+  TemplateId uniqueidentifier [pk]
   IsAllowed bit
   IsDenied bit
   IsActive bit
 }
 
-Table ROLE {
-  RoleId uniqueidentifier [pk]
-  SuiteId uniqueidentifier [ref: > SYSTEM_SUITE.SuiteId]
-  Name nvarchar
-}
-
 Table ROLE_PERMISSION {
-  RoleId uniqueidentifier [ref: > ROLE.RoleId]
-  TemplateId uniqueidentifier [ref: > PERMISSION_TEMPLATE.TemplateId]
+  RoleId uniqueidentifier [pk]
+  TemplateId uniqueidentifier [pk]
 }
 
 Table BRANCH {
   BranchId uniqueidentifier [pk]
-  TenantId uniqueidentifier [ref: > TENANT.TenantId]
+  TenantId uniqueidentifier
   Name nvarchar
 }
 
 Table MENU_ITEM {
   MenuItemId uniqueidentifier [pk]
-  ModuleId uniqueidentifier [ref: > FUNCTIONAL_MODULE.ModuleId]
-  ParentItemId uniqueidentifier [ref: > MENU_ITEM.MenuItemId]
+  ModuleId uniqueidentifier
+  ParentItemId uniqueidentifier
   Name nvarchar
+  Route nvarchar
 }
 
 Table AUDIT_LOG {
@@ -95,20 +96,43 @@ Table AUDIT_LOG {
   Action nvarchar
   Timestamp datetimeoffset
 }
+
+// Relationships
+Ref: USER.TenantId > TENANT.TenantId
+Ref: SYSTEM_SUITE.TenantId > TENANT.TenantId
+Ref: BRANCH.TenantId > TENANT.TenantId
+Ref: FUNCTIONAL_MODULE.SuiteId > SYSTEM_SUITE.SuiteId
+Ref: PERMISSION_TEMPLATE.ModuleId > FUNCTIONAL_MODULE.ModuleId
+Ref: ROLE.SuiteId > SYSTEM_SUITE.SuiteId
+Ref: ROLE_PERMISSION.RoleId > ROLE.RoleId
+Ref: ROLE_PERMISSION.TemplateId > PERMISSION_TEMPLATE.TemplateId
+Ref: PROFILE.TenantId > TENANT.TenantId
+Ref: PROFILE.UserId > USER.UserId
+Ref: PROFILE.RoleId > ROLE.RoleId
+Ref: PROFILE.BranchId > BRANCH.BranchId
+Ref: PROFILE_PERMISSION.ProfileId > PROFILE.ProfileId
+Ref: PROFILE_PERMISSION.TemplateId > PERMISSION_TEMPLATE.TemplateId
+Ref: MENU_ITEM.ModuleId > FUNCTIONAL_MODULE.ModuleId
+Ref: MENU_ITEM.ParentItemId > MENU_ITEM.MenuItemId
 ```
 
 ---
 
-## 2. SQL DDL (SQL Server 2022)
-Import this script into **DBeaver**, **SQL Server Management Studio (SSMS)**, or **DataGrip** to generate a native diagram.
+## 2. SQL DDL (SQL Server 2022) 🛠️
+Import into **DBeaver**, **SSMS**, or **DataGrip**.
 
 ```sql
--- UMS Master-Template Schema (Simplified for E/R Tools)
-
 CREATE TABLE TENANT (
     TenantId UNIQUEIDENTIFIER PRIMARY KEY,
     Name NVARCHAR(255) NOT NULL,
     Code NVARCHAR(50) UNIQUE
+);
+
+CREATE TABLE USER (
+    UserId UNIQUEIDENTIFIER PRIMARY KEY,
+    TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
+    Username NVARCHAR(255),
+    Email NVARCHAR(255)
 );
 
 CREATE TABLE SYSTEM_SUITE (
@@ -142,7 +166,7 @@ CREATE TABLE ROLE (
 CREATE TABLE PROFILE (
     ProfileId UNIQUEIDENTIFIER PRIMARY KEY,
     TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
-    UserId UNIQUEIDENTIFIER,
+    UserId UNIQUEIDENTIFIER REFERENCES USER(UserId),
     RoleId UNIQUEIDENTIFIER REFERENCES ROLE(RoleId),
     BranchId UNIQUEIDENTIFIER,
     DisplayName NVARCHAR(255)
@@ -156,48 +180,4 @@ CREATE TABLE PROFILE_PERMISSION (
     IsActive BIT,
     PRIMARY KEY (ProfileId, TemplateId)
 );
-```
-
----
-
-## 3. D2 (Declarative Diagramming)
-Copy this to [play.d2lang.com](https://play.d2lang.com/) for a modern, high-quality SVG layout.
-
-```d2
-direction: right
-TENANT: {
-  shape: sql_table
-  TenantId: uniqueidentifier {near: top}
-  Name: nvarchar
-}
-
-SYSTEM_SUITE: {
-  shape: sql_table
-  SuiteId: uniqueidentifier
-  TenantId: uniqueidentifier
-}
-
-FUNCTIONAL_MODULE: {
-  shape: sql_table
-  ModuleId: uniqueidentifier
-  SuiteId: uniqueidentifier
-}
-
-PERMISSION_TEMPLATE: {
-  shape: sql_table
-  TemplateId: uniqueidentifier
-  ModuleId: uniqueidentifier
-  ActionCode: nvarchar
-}
-
-PROFILE_PERMISSION: {
-  shape: sql_table
-  ProfileId: uniqueidentifier
-  TemplateId: uniqueidentifier
-}
-
-TENANT -> SYSTEM_SUITE: "owns"
-SYSTEM_SUITE -> FUNCTIONAL_MODULE: "contains"
-FUNCTIONAL_MODULE -> PERMISSION_TEMPLATE: "defines"
-PERMISSION_TEMPLATE -> PROFILE_PERMISSION: "materializes"
 ```

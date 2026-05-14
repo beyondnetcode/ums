@@ -5,6 +5,10 @@
 **Architecture:** Hierarchical Framework (Materialized Authority)  
 **Engine:** SQL Server 2022
 
+> [!TIP]
+> **Visualization Issues?**  
+> If Mermaid diagrams do not render correctly in your IDE, please use the **[🚀 Alternative Export Formats (dbdiagram.io, DDL, D2)](./er-export-formats.md)**. These formats are compatible with professional tools like DBeaver, SSMS, and dbdiagram.io.
+
 ## 1. Introduction
 This document details the **Master-Template Driven** authorization model. Every effective permission in the system must be a materialized instance of a controlled `PermissionTemplate`, ensuring 100% governance over the authority catalog.
 

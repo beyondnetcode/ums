@@ -5,6 +5,10 @@
 **Arquitectura:** Framework Jerárquico (Autoridad Materializada)  
 **Motor:** SQL Server 2022
 
+> [!TIP]
+> **¿Problemas de Visualización?**  
+> Si los diagramas Mermaid no se renderizan correctamente, utiliza los **[🚀 Formatos de Exportación Alternativos (dbdiagram.io, DDL, D2)](./er-export-formats.md)**. Estos formatos son compatibles con herramientas profesionales como DBeaver, SSMS y dbdiagram.io.
+
 ## 1. Introducción
 Este documento detalla el modelo de datos **Impulsado por Plantillas Maestras**. Cada permiso efectivo en el sistema debe ser una instancia materializada de una `PermissionTemplate` controlada, garantizando una gobernanza del 100% sobre el catálogo de autoridad.
 
