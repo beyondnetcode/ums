@@ -1,12 +1,12 @@
 # 🗄️ Entity-Relationship (E/R) Model - SQL Server 2022
 
 **Document Type:** Database Design  
-**Status:** Refactored (Role-Scoped Template Governance)  
-**Architecture:** Deep Hierarchy Master Framework  
+**Status:** Refactored (Role-Scoped & Strict Hierarchy)  
+**Architecture:** Hierarchical Master Framework (5-Level Control)  
 **Engine:** SQL Server 2022
 
 ## 1. Introduction
-This document details the **Role-Scoped** authorization model. Every authorized authority is defined within a `PermissionTemplate` owned by a `Role`, ensuring strict alignment with functional boundaries.
+This document details the **Role-Scoped** authorization model, strictly enforcing the hierarchical chain: **System -> Module -> Sub-module -> Option -> Action**.
 
 > [!TIP]
 > **Visualization Issues?**  
@@ -22,7 +22,7 @@ All entities implement the standard 10-column audit schema.
 ## 3. Modular Domain Views
 
 ### 🗺️ 3.1 Global High-Level Map
-Resolution: `Tenant -> System -> Role -> Template -> ProfilePermission`.
+Full Resolution Path: `Tenant -> System -> Role -> Template -> ProfilePermission`.
 
 ```mermaid
 erDiagram
@@ -33,18 +33,17 @@ erDiagram
     ROLE ||--o{ PERMISSION_TEMPLATE : "governs"
     PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "materialized"
     
-    USER ||--o{ PROFILE : "acts_as"
-    PROFILE ||--o{ PROFILE_PERMISSION : "effective_authority"
+    FUNCTIONAL_MODULE ||--o{ FUNCTIONAL_SUBMODULE : "contains"
+    FUNCTIONAL_SUBMODULE ||--o{ FUNCTIONAL_OPTION : "provides"
+    FUNCTIONAL_OPTION ||--o{ ACTION : "executes"
     
-    FUNCTIONAL_MODULE ||--o{ ACTION : "scoped"
-    SYSTEM_SUITE ||--o{ ACTION : "global"
     ACTION ||--o{ PERMISSION_TEMPLATE : "authorized_action"
 ```
 
 ---
 
-### 🔐 3.2 Domain: Role-Centric Authority
-Management of role-scoped templates and deep functional hierarchy.
+### 🔐 3.2 Domain: Role-Centric Authority & Strict Hierarchy
+This domain ensures every permission is scoped to a Role and maps exactly to the 5-level functional hierarchy.
 
 ```mermaid
 erDiagram
@@ -56,7 +55,7 @@ erDiagram
         uniqueidentifier TemplateId PK
         uniqueidentifier RoleId FK
         uniqueidentifier ActionId FK
-        nvarchar ResourceLevel "SYSTEM/MODULE/MENU/SUBMENU/OPTION"
+        nvarchar ResourceLevel "SYSTEM/MODULE/SUBMODULE/OPTION"
         nvarchar ResourceId "Target ID"
     }
     
@@ -71,19 +70,30 @@ erDiagram
 
 ---
 
-### 📍 3.3 Domain: Functional Resources
-Deep organizational and navigational structure.
+### 📍 3.3 Domain: Functional Topology (The 5 Levels)
+Organizational structure of resources.
 
 ```mermaid
 erDiagram
-    SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "contains"
-    FUNCTIONAL_MODULE ||--o{ MENU_ITEM : "topology"
-    MENU_ITEM ||--o{ SUB_MENU : "contains"
-    SUB_MENU ||--o{ FUNCTIONAL_OPTION : "provides"
+    SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "L1: System -> Module"
+    FUNCTIONAL_MODULE ||--o{ FUNCTIONAL_SUBMODULE : "L2: Module -> SubModule"
+    FUNCTIONAL_SUBMODULE ||--o{ FUNCTIONAL_OPTION : "L3: SubModule -> Option"
+    
+    FUNCTIONAL_MODULE {
+        uniqueidentifier ModuleId PK
+        uniqueidentifier SuiteId FK
+        nvarchar Name
+    }
+    
+    FUNCTIONAL_SUBMODULE {
+        uniqueidentifier SubModuleId PK
+        uniqueidentifier ModuleId FK
+        nvarchar Name
+    }
     
     FUNCTIONAL_OPTION {
         uniqueidentifier OptionId PK
-        uniqueidentifier SubMenuId FK
+        uniqueidentifier SubModuleId FK
         nvarchar Name
         nvarchar Code
     }
@@ -92,7 +102,7 @@ erDiagram
 ---
 
 ## 4. Business Rules & Constraints
-1.  **Role Primacy**: A `PermissionTemplate` MUST belong to a `Role`.
-2.  **No Orphan Actions**: Actions must be owned by a System or Module.
-3.  **Hierarchy Compliance**: Authorization supports 6 levels from System to Action.
-4.  **Immutability**: Effective permissions (`ProfilePermission`) must reference a valid Role-Scoped template.
+1.  **Hierarchy Integrity**: Access must be traced through `System > Module > Sub-module > Option > Action`.
+2.  **Role Ownership**: A `PermissionTemplate` MUST belong to a `Role`.
+3.  **No Orphan Actions**: Actions must be owned by a System or Module (Global vs Local context).
+4.  **Materialization**: Effective permissions always reference a valid Role-scoped template.

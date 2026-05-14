@@ -1,13 +1,13 @@
 # UMS E/R Model - Export Formats & Alternatives
 
-If Mermaid visualization is failing or insufficient, use these industry-standard formats to visualize the **Role-Scoped Master Template Framework**.
+If Mermaid visualization is failing or insufficient, use these industry-standard formats to visualize the **Role-Scoped & 5-Level Hierarchy Framework**.
 
 ## 1. dbdiagram.io (DBML - Recommended) 🚀
 1.  Go to [dbdiagram.io](https://dbdiagram.io/d).
 2.  Paste the code below.
 
 ```dbml
-// UMS Role-Scoped Master Template Model
+// UMS Role-Scoped & Strict 5-Level Hierarchy Model
 // Engine: SQL Server 2022
 
 Table TENANT {
@@ -61,6 +61,19 @@ Table FUNCTIONAL_MODULE {
   Name nvarchar
 }
 
+Table FUNCTIONAL_SUBMODULE {
+  SubModuleId uniqueidentifier [pk]
+  ModuleId uniqueidentifier
+  Name nvarchar
+}
+
+Table FUNCTIONAL_OPTION {
+  OptionId uniqueidentifier [pk]
+  SubModuleId uniqueidentifier
+  Name nvarchar
+  Code nvarchar
+}
+
 Table ACTION {
   ActionId uniqueidentifier [pk]
   SuiteId uniqueidentifier [note: 'Global']
@@ -79,6 +92,9 @@ Ref: PROFILE.UserId > USER.UserId
 Ref: PROFILE.RoleId > ROLE.RoleId
 Ref: PROFILE_PERMISSION.ProfileId > PROFILE.ProfileId
 Ref: PROFILE_PERMISSION.TemplateId > PERMISSION_TEMPLATE.TemplateId
+Ref: FUNCTIONAL_MODULE.SuiteId > SYSTEM_SUITE.SuiteId
+Ref: FUNCTIONAL_SUBMODULE.ModuleId > FUNCTIONAL_MODULE.ModuleId
+Ref: FUNCTIONAL_OPTION.SubModuleId > FUNCTIONAL_SUBMODULE.SubModuleId
 Ref: ACTION.SuiteId > SYSTEM_SUITE.SuiteId
 Ref: ACTION.ModuleId > FUNCTIONAL_MODULE.ModuleId
 ```
@@ -87,28 +103,32 @@ Ref: ACTION.ModuleId > FUNCTIONAL_MODULE.ModuleId
 
 ## 2. SQL DDL (SQL Server 2022) 🛠️
 ```sql
--- Role-Scoped Master Schema
+-- 5-Level Hierarchy Master Schema
 
-CREATE TABLE ROLE (
-    RoleId UNIQUEIDENTIFIER PRIMARY KEY,
+CREATE TABLE FUNCTIONAL_MODULE (
+    ModuleId UNIQUEIDENTIFIER PRIMARY KEY,
     SuiteId UNIQUEIDENTIFIER REFERENCES SYSTEM_SUITE(SuiteId),
     Name NVARCHAR(255)
 );
 
-CREATE TABLE PERMISSION_TEMPLATE (
-    TemplateId UNIQUEIDENTIFIER PRIMARY KEY,
-    RoleId UNIQUEIDENTIFIER REFERENCES ROLE(RoleId),
-    ActionId UNIQUEIDENTIFIER REFERENCES ACTION(ActionId),
-    ResourceLevel NVARCHAR(50), -- SYSTEM, MODULE, MENU, etc.
-    ResourceId NVARCHAR(255)
+CREATE TABLE FUNCTIONAL_SUBMODULE (
+    SubModuleId UNIQUEIDENTIFIER PRIMARY KEY,
+    ModuleId UNIQUEIDENTIFIER REFERENCES FUNCTIONAL_MODULE(ModuleId),
+    Name NVARCHAR(255)
 );
 
-CREATE TABLE PROFILE_PERMISSION (
-    ProfileId UNIQUEIDENTIFIER REFERENCES PROFILE(ProfileId),
-    TemplateId UNIQUEIDENTIFIER REFERENCES PERMISSION_TEMPLATE(TemplateId),
-    IsAllowed BIT DEFAULT 1,
-    IsDenied BIT DEFAULT 0,
-    IsActive BIT DEFAULT 1,
-    PRIMARY KEY (ProfileId, TemplateId)
+CREATE TABLE FUNCTIONAL_OPTION (
+    OptionId UNIQUEIDENTIFIER PRIMARY KEY,
+    SubModuleId UNIQUEIDENTIFIER REFERENCES FUNCTIONAL_SUBMODULE(SubModuleId),
+    Name NVARCHAR(255),
+    Code NVARCHAR(50)
+);
+
+CREATE TABLE ACTION (
+    ActionId UNIQUEIDENTIFIER PRIMARY KEY,
+    SuiteId UNIQUEIDENTIFIER REFERENCES SYSTEM_SUITE(SuiteId),
+    ModuleId UNIQUEIDENTIFIER REFERENCES FUNCTIONAL_MODULE(ModuleId),
+    Code NVARCHAR(50),
+    CONSTRAINT CHK_ActionOwnership CHECK (SuiteId IS NOT NULL OR ModuleId IS NOT NULL)
 );
 ```

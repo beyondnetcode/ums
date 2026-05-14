@@ -1,12 +1,12 @@
 # 🗄️ Modelo Entidad-Relación (E/R) - SQL Server 2022
 
 **Tipo de Documento:** Diseño de Base de Datos  
-**Estatus:** Refactorizado (Gobernanza de Plantillas Vinculadas al Rol)  
-**Arquitectura:** Framework Maestro de Jerarquía Profunda  
+**Estatus:** Refactorizado (Vinculado al Rol y Jerarquía Estricta)  
+**Arquitectura:** Framework Maestro (Control de 5 Niveles)  
 **Motor:** SQL Server 2022
 
 ## 1. Introducción
-Este documento detalla el modelo de **Plantillas Vinculadas al Rol**. Toda autoridad autorizada se define dentro de una `PermissionTemplate` propiedad de un `Role`, garantizando una alineación estricta con los límites funcionales.
+Este documento detalla el modelo de autorización **Vinculado al Rol**, aplicando estrictamente la cadena jerárquica: **Sistema -> Módulo -> Sub-módulo -> Opción -> Acción**.
 
 > [!TIP]
 > **¿Problemas de Visualización?**  
@@ -22,7 +22,7 @@ Todas las entidades implementan el esquema de auditoría estándar de 10 columna
 ## 3. Vistas Modulares por Dominio
 
 ### 🗺️ 3.1 Mapa Global de Alto Nivel
-Resolución: `Inquilino -> Sistema -> Rol -> Plantilla -> Permiso de Perfil`.
+Ruta de Resolución: `Inquilino -> Sistema -> Rol -> Plantilla -> Permiso de Perfil`.
 
 ```mermaid
 erDiagram
@@ -33,18 +33,17 @@ erDiagram
     ROLE ||--o{ PERMISSION_TEMPLATE : "gobierna"
     PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "materializado"
     
-    USER ||--o{ PROFILE : "actúa_como"
-    PROFILE ||--o{ PROFILE_PERMISSION : "autoridad_efectiva"
+    FUNCTIONAL_MODULE ||--o{ FUNCTIONAL_SUBMODULE : "contiene"
+    FUNCTIONAL_SUBMODULE ||--o{ FUNCTIONAL_OPTION : "provee"
+    FUNCTIONAL_OPTION ||--o{ ACTION : "ejecuta"
     
-    FUNCTIONAL_MODULE ||--o{ ACTION : "alcance_módulo"
-    SYSTEM_SUITE ||--o{ ACTION : "alcance_global"
     ACTION ||--o{ PERMISSION_TEMPLATE : "acción_autorizada"
 ```
 
 ---
 
-### 🔐 3.2 Dominio: Autoridad Centrada en el Rol
-Gestión de plantillas vinculadas al rol y jerarquía funcional profunda.
+### 🔐 3.2 Dominio: Autoridad Centrada en el Rol y Jerarquía Estricta
+Este dominio garantiza que cada permiso esté limitado a un Rol y se mapee exactamente a la jerarquía funcional de 5 niveles.
 
 ```mermaid
 erDiagram
@@ -56,7 +55,7 @@ erDiagram
         uniqueidentifier TemplateId PK
         uniqueidentifier RoleId FK
         uniqueidentifier ActionId FK
-        nvarchar ResourceLevel "SYSTEM/MODULE/MENU/SUBMENU/OPTION"
+        nvarchar ResourceLevel "SYSTEM/MODULE/SUBMODULE/OPTION"
         nvarchar ResourceId "ID de Recurso"
     }
     
@@ -71,19 +70,30 @@ erDiagram
 
 ---
 
-### 📍 3.3 Dominio: Recursos Funcionales
-Estructura profunda organizacional y de navegación.
+### 📍 3.3 Dominio: Topología Funcional (Los 5 Niveles)
+Estructura organizacional de los recursos.
 
 ```mermaid
 erDiagram
-    SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "contiene"
-    FUNCTIONAL_MODULE ||--o{ MENU_ITEM : "topología"
-    MENU_ITEM ||--o{ SUB_MENU : "contiene"
-    SUB_MENU ||--o{ FUNCTIONAL_OPTION : "provee"
+    SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "L1: Sistema -> Módulo"
+    FUNCTIONAL_MODULE ||--o{ FUNCTIONAL_SUBMODULE : "L2: Módulo -> SubMódulo"
+    FUNCTIONAL_SUBMODULE ||--o{ FUNCTIONAL_OPTION : "L3: SubMódulo -> Opción"
+    
+    FUNCTIONAL_MODULE {
+        uniqueidentifier ModuleId PK
+        uniqueidentifier SuiteId FK
+        nvarchar Name
+    }
+    
+    FUNCTIONAL_SUBMODULE {
+        uniqueidentifier SubModuleId PK
+        uniqueidentifier ModuleId FK
+        nvarchar Name
+    }
     
     FUNCTIONAL_OPTION {
         uniqueidentifier OptionId PK
-        uniqueidentifier SubMenuId FK
+        uniqueidentifier SubModuleId FK
         nvarchar Name
         nvarchar Code
     }
@@ -92,7 +102,7 @@ erDiagram
 ---
 
 ## 4. Reglas de Negocio y Restricciones
-1.  **Primacía del Rol**: Una `PermissionTemplate` DEBE pertenecer a un `Role`.
-2.  **Sin Acciones Huérfanas**: Las acciones deben ser propiedad de un Sistema o Módulo.
-3.  **Cumplimiento Jerárquico**: La autorización admite 6 niveles desde el Sistema hasta la Acción.
-4.  **Inmutabilidad**: Los permisos efectivos (`ProfilePermission`) deben referenciar una plantilla válida vinculada al rol.
+1.  **Integridad Jerárquica**: El acceso debe rastrearse a través de `Sistema > Módulo > Sub-módulo > Opción > Acción`.
+2.  **Propiedad del Rol**: Una `PermissionTemplate` DEBE pertenecer a un `Role`.
+3.  **Sin Acciones Huérfanas**: Las acciones deben ser propiedad de un Sistema o Módulo (Contexto Global vs Local).
+4.  **Materialización**: Los permisos efectivos siempre referencian una plantilla válida vinculada al rol.
