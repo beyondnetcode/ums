@@ -1,16 +1,19 @@
 # Governance Sign-Off — MVP Reducido Estimation & Approval
 
-**Date / Fecha:** 2026-05-14  
-**Version / Versión:** 1.0  
-**Purpose / Propósito:** Final validation and governance approval for reduced MVP  
-**Language / Idioma:** Bilingual ES/EN  
-**Status / Estado:** ✅ **READY FOR SPRINT 0 / LISTO PARA SPRINT 0**
+**Date:** 2026-05-14  
+**Version:** 1.0  
+**Purpose:** Final validation and governance approval for reduced MVP  
+**Language:** English (EN)  
+**Status:** ✅ **READY FOR SPRINT 0**
 
 ---
 
-## EXECUTIVE SUMMARY / RESUMEN EJECUTIVO
+**📋 Spanish Version / Versión en Español:**  
+→ [FIRMA-GOBERNANZA-MVP-REDUCIDO.md](FIRMA-GOBERNANZA-MVP-REDUCIDO.md)
 
-### English
+---
+
+## EXECUTIVE SUMMARY
 
 **Scope:** Reduced MVP of 168 story points (50% of original 336 pts program)  
 **Team:** 4 persons (1 Team Lead + 3 semi-senior developers)  
@@ -18,17 +21,9 @@
 **Quality:** MEDIUM-HIGH confidence (70-75%) for internal demo + pilot  
 **Status:** ✅ **VALIDATED AND APPROVED FOR EXECUTION**
 
-### Español
-
-**Alcance:** MVP reducido de 168 puntos de historia (50% del programa original)  
-**Equipo:** 4 personas (1 Team Lead + 3 desarrolladores semi-senior)  
-**Timeline:** 12 semanas al MVP (3 meses), luego 12-16 semanas Post-MVP  
-**Calidad:** Confianza MEDIA-ALTA (70-75%) para demo interno + piloto  
-**Estado:** ✅ **VALIDADO Y APROBADO PARA EJECUCIÓN**
-
 ---
 
-## GOVERNANCE STRUCTURE / ESTRUCTURA DE GOVERNANCE
+## GOVERNANCE STRUCTURE
 
 ### Document Location
 All estimation documents are stored in:
@@ -45,20 +40,20 @@ All estimation documents are stored in:
 ├── FS-TO-TS-MAPPING.md
 ├── ADR-ESTIMATION-AUDIT.md
 ├── CORRECTIONS-AMENDMENTS.md
-└── GOVERNANCE-SIGN-OFF.md (THIS FILE)
+├── GOVERNANCE-SIGN-OFF.md (THIS FILE - EN)
+└── FIRMA-GOBERNANZA-MVP-REDUCIDO.md (ES)
 ```
 
-### Language Standards / Estándares de Idioma
-- ✅ **Bilingual ES/EN:** All key documents have versions in both languages or bilingual sections
-- ✅ **Parallel Versions:** MVP-Reducido (ES) + Reduced-MVP (EN) are parallel, identical scope
+### Language Standards
+- ✅ **Parallel Versions:** EN and ES versions available for all key governance documents
 - ✅ **Master Index:** ESTIMATION-INDEX.md provides reading paths for both languages
 - ✅ **Consistency:** Table structures, metrics, timelines identical across languages
 
 ---
 
-## VALIDATION CHECKLIST / CHECKLIST DE VALIDACIÓN
+## VALIDATION CHECKLIST
 
-### Scope Validation / Validación de Alcance
+### Scope Validation
 - ✅ **MVP Scope:** 8 functional stories (50% of 16 FS)
 - ✅ **Technical Scope:** 58 technical stories (65% of 89 TS deferred)
 - ✅ **Story Points:** 168 pts (50% of original 336 pts program)
@@ -69,13 +64,13 @@ All estimation documents are stored in:
   - ✅ FS-08 Partial: Login page (no diagnostics)
   - ❌ Deferred: FS-04, 09, 10, 11, 12, 14, 15, 16
 
-### Hours Validation / Validación de Horas
+### Hours Validation
 - ✅ **Work Hours:** 845h (168 pts × 5.0 h/pt)
 - ✅ **With Overhead:** 1,225h (18% overhead: learning, reviews, unknowns)
 - ✅ **h/pt Ratio:** 5.0 consistent across all épicas (EP-01, 03, 04, 05)
 - ✅ **Sprints:** 3 sprints × ~280h/sprint (conservative pacing at 35% capacity)
 
-### Timeline Validation / Validación de Timeline
+### Timeline Validation
 - ✅ **Total Wall-Clock Time:** 12 weeks (3 months)
   - Sprint 0: Week 1 (setup)
   - Sprints 1-3: Weeks 2-8 (construction)
@@ -83,7 +78,7 @@ All estimation documents are stored in:
 - ✅ **Capacity:** 122.5h/week effective (4 people × 7h/day × 5 days, minus overhead)
 - ✅ **Utilization:** ~35% average (conservative, leaves room for unexpected)
 
-### Team Validation / Validación de Equipo
+### Team Validation
 - ✅ **Team Size:** 4 persons (1 TL + 3 semi-senior developers)
 - ✅ **Roles Defined:**
   - Team Lead: 50% architecture + code review, 50% mentoring
@@ -93,7 +88,7 @@ All estimation documents are stored in:
 - ✅ **Skill Gaps:** Identified and mitigated (TL pair-programming, external DBA review)
 - ✅ **Learning Curve:** +10-15% hours buffer included in 845h estimate
 
-### Risk Validation / Validación de Riesgos
+### Risk Validation
 - ✅ **Critical Risks Identified:** RLS (TS-1.2), PDP logic (TS-3.2), Skill gaps (Dev 2)
 - ✅ **Mitigations in Place:**
   - TS-1.2: External DBA code review Day 1, Testcontainers tests early
@@ -101,12 +96,12 @@ All estimation documents are stored in:
   - Dev2: TL mentors DBA/Security/Config work extensively
 - ✅ **Contingency:** 4-week buffer in timeline for unknowns
 
-### Quality Validation / Validación de Calidad
+### Quality Validation
 - ✅ **MVP Testing Standard:** Manual E2E + RLS integration tests (100% critical)
 - ✅ **Acceptable Gaps:** Unit tests for PDP/Config deferred (manual validation sufficient MVP)
 - ✅ **Definition of Done:** Defined per épica (EP-01, 03, 04, 05)
 
-### Architecture Alignment / Alineación Arquitectónica
+### Architecture Alignment
 - ✅ **ADRs Verified:** Estimates align with ADR-0048 (closure table), ADR-0039 (XACML), ADR-0047 (config)
 - ✅ **RLS Model:** Corrected to EF Core PRIMARY + SQL Server optional Phase 2
 - ✅ **Frontend Stack:** Verified React (Vite/Zustand/TanStack Query), not Razor Pages
@@ -114,9 +109,9 @@ All estimation documents are stored in:
 
 ---
 
-## ESTIMATION CONFIDENCE / CONFIANZA DE ESTIMACIÓN
+## ESTIMATION CONFIDENCE
 
-### Confidence Levels by Category / Niveles de Confianza por Categoría
+### Confidence Levels by Category
 
 | Category | Level | Evidence | Risk |
 |----------|-------|----------|------|
@@ -131,9 +126,9 @@ All estimation documents are stored in:
 
 ---
 
-## PRE-SPRINT 1 APPROVAL GATES / PUERTAS DE APROBACIÓN PRE-SPRINT 1
+## PRE-SPRINT 1 APPROVAL GATES
 
-### Required Approvals / Aprobaciones Requeridas
+### Required Approvals
 
 - [ ] **Product Owner:** Approves scope (8 FS, 168 pts, deferred features)
 - [ ] **Engineering Lead:** Approves timeline (12 weeks, 4 people, 7h/day)
@@ -141,7 +136,7 @@ All estimation documents are stored in:
 - [ ] **Finance/Budget:** Approves 4-person team assignment, 12-week budget
 - [ ] **HR:** Confirms 4 people assigned, no hiring delays
 
-### Pre-Sprint 1 Activities / Actividades Pre-Sprint 1
+### Pre-Sprint 1 Activities
 
 - [ ] **DBA Code Review:** TS-1.2 RLS schema approved by external DBA
 - [ ] **ADR Training:** All engineers complete ADR-0048, 0039, 0047 training
@@ -151,18 +146,18 @@ All estimation documents are stored in:
 
 ---
 
-## SIGN-OFF / FIRMA
+## SIGN-OFF
 
-### Approval Committee / Comité de Aprobación
+### Approval Committee
 
-| Role / Rol | Name / Nombre | Sign-Off Date | Status |
-|-----------|--------------|---------------|--------|
+| Role | Name | Sign-Off Date | Status |
+|-----|------|---------------|--------|
 | **Principal Architect** | — | 2026-05-14 | ✅ Approved |
 | **Engineering Lead** | — | *Pending* | ⏳ Awaiting |
 | **Product Owner** | — | *Pending* | ⏳ Awaiting |
 | **Finance Lead** | — | *Pending* | ⏳ Awaiting |
 
-### Sign-Off Statement / Declaración de Firma
+### Sign-Off Statement
 
 **By signing below, all parties confirm:**
 
@@ -175,23 +170,23 @@ All estimation documents are stored in:
 
 ---
 
-## NEXT STEPS / PRÓXIMOS PASOS
+## NEXT STEPS
 
-### Week 1 / Semana 1
+### Week 1
 
 1. [ ] **Distribute documents:** Share ESTIMATION-INDEX.md with all stakeholders
 2. [ ] **Schedule approvals:** Set up approval meeting (all roles)
 3. [ ] **Team kickoff:** Confirm 4-person team assignment
 4. [ ] **Budget commit:** Confirm 12-week, 4-person budget
 
-### Pre-Sprint 1 (Week 1) / Pre-Sprint 1 (Semana 1)
+### Pre-Sprint 1 (Week 1)
 
 1. [ ] **DBA review:** TS-1.2 RLS design approved
 2. [ ] **ADR training:** Conduct ADR training session
 3. [ ] **CI/CD setup:** Complete GitHub Actions pipeline
 4. [ ] **Dev environment:** SQL Server test env ready
 
-### Sprint 0 Kickoff (Week 1) / Kickoff Sprint 0 (Semana 1)
+### Sprint 0 Kickoff (Week 1)
 
 1. [ ] **Team onboarding:** All 4 people aligned
 2. [ ] **Architecture review:** Deep-dive on RLS, PDP, config hierarchy
@@ -200,15 +195,15 @@ All estimation documents are stored in:
 
 ---
 
-## RELATED DOCUMENTS / DOCUMENTOS RELACIONADOS
+## RELATED DOCUMENTS
 
 ### In /governance/construction/
 - ✅ [ESTIMATION-INDEX.md](ESTIMATION-INDEX.md) — Master index, reading paths by role
 - ✅ [README.md](README.md) — Updated documentation structure
 - ✅ [MVP-REDUCIDO-ALCANCE-Y-ESTIMACION.md](MVP-REDUCIDO-ALCANCE-Y-ESTIMACION.md) — ES primary
 - ✅ [REDUCED-MVP-SCOPE-AND-ESTIMATION.md](REDUCED-MVP-SCOPE-AND-ESTIMATION.md) — EN primary
+- ✅ [FIRMA-GOBERNANZA-MVP-REDUCIDO.md](FIRMA-GOBERNANZA-MVP-REDUCIDO.md) — ES Sign-Off
 - ✅ [ESTIMATION-VALIDATION-MATRIX.md](ESTIMATION-VALIDATION-MATRIX.md) — Validation & risks
-- ✅ [All other estimation documents](#governance-structure-/-estructura-de-governance)
 
 ### In /architecture/blueprints/ (Reference)
 - ADR-0048.md — Closure table pattern
@@ -218,7 +213,7 @@ All estimation documents are stored in:
 
 ---
 
-## COMPLIANCE STATEMENT / DECLARACIÓN DE CUMPLIMIENTO
+## COMPLIANCE STATEMENT
 
 ✅ **This estimation package complies with governance standards:**
 
@@ -233,20 +228,18 @@ All estimation documents are stored in:
 
 ---
 
-## FINAL STATUS / ESTADO FINAL
+## FINAL STATUS
 
-**Estimation Date / Fecha de Estimación:** 2026-05-14  
-**Validation Date / Fecha de Validación:** 2026-05-14  
-**Approval Status / Estado de Aprobación:** ✅ **PENDING STAKEHOLDER SIGN-OFF / EN ESPERA DE FIRMA DE STAKEHOLDERS**  
-**Governance Location / Ubicación de Governance:** `/governance/construction/`  
-**Master Index / Índice Maestro:** [ESTIMATION-INDEX.md](ESTIMATION-INDEX.md)
+**Estimation Date:** 2026-05-14  
+**Validation Date:** 2026-05-14  
+**Approval Status:** ✅ **PENDING STAKEHOLDER SIGN-OFF**  
+**Governance Location:** `/governance/construction/`  
+**Master Index:** [ESTIMATION-INDEX.md](ESTIMATION-INDEX.md)
 
 ---
 
-**Prepared by / Preparado por:** Principal Architect  
-**Version / Versión:** 1.0  
-**Status / Estado:** ✅ **COMPLETE & READY FOR SIGN-OFF**
+**Prepared by:** Principal Architect  
+**Version:** 1.0  
+**Status:** ✅ **COMPLETE & READY FOR SIGN-OFF**
 
 *This document and all referenced estimation documents form the complete governance package for MVP Reduced construction.*
-
-*Este documento y todos los documentos de estimación referenciados forman el paquete de governance completo para la construcción del MVP Reducido.*

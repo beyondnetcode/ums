@@ -69,6 +69,12 @@
 - **Audience:** Architects, engineering leads
 - **Use case:** "What changed from original plan? Why?"
 
+#### 9. **Cost/Benefit Analysis (NEW)**
+- **File:** `ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md` (ES)
+- **Contains:** Cost per profile (10 roles), management costs, 3 infrastructure scenarios (on-prem/hybrid/cloud), ROI analysis, recommendation
+- **Audience:** Finance, C-level, decision makers
+- **Use case:** "What's the total cost? What's the expected ROI? Which infrastructure model?"
+
 ---
 
 ### Reading Path by Role
@@ -101,6 +107,11 @@
 1. Start: `REDUCED-MVP-SCOPE-AND-ESTIMATION.md` (sections 4-5, sprint breakdown)
 2. Then: `ESTIMACION-TECNICA-CONSOLIDADA.md` (hours per story, per profile)
 3. Reference: `TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md` (PART 6, dependencies)
+
+#### **Finance / Budget Owner / C-Level**
+1. Start: `ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md` (sections 4-6, cost summary + recommendation)
+2. Then: `REDUCED-MVP-SCOPE-AND-ESTIMATION.md` (section 1, scope confirmation)
+3. Reference: `ESTIMACION-VERIFICADA-4-PERSONAS.md` (team capacity validation)
 
 ---
 
@@ -198,6 +209,11 @@
 2. Luego: `ESTIMACION-TECNICA-CONSOLIDADA.md` (horas por historia, por perfil)
 3. Referencia: `TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md` (PART 6, dependencias)
 
+#### **Finance / Propietario Presupuesto / Directivos**
+1. Inicio: `ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md` (secciones 4-6, resumen costos + recomendación)
+2. Luego: `MVP-REDUCIDO-ALCANCE-Y-ESTIMACION.md` (sección 1, confirmación alcance)
+3. Referencia: `ESTIMACION-VERIFICADA-4-PERSONAS.md` (validación capacidad equipo)
+
 ---
 
 ## KEY METRICS (MÉTRICAS CLAVE)
@@ -249,16 +265,43 @@
 
 ## DOCUMENT VERSION MATRIX (MATRIZ DE VERSIONES DE DOCUMENTOS)
 
-| Document / Documento | EN Version | ES Version | Bilingual? | Status |
-|-------------------|------------|-----------|-----------|--------|
-| **MVP Scope** | REDUCED-MVP-SCOPE-AND-ESTIMATION.md | MVP-REDUCIDO-ALCANCE-Y-ESTIMACION.md | ✅ Parallel | ✅ Complete |
-| **Validation Matrix** | ESTIMATION-VALIDATION-MATRIX.md | — | ✅ Bilingual | ✅ Complete |
-| **4-Person Verification** | (EN sections) | ESTIMACION-VERIFICADA-4-PERSONAS.md | ✅ Mixed | ✅ Complete |
-| **Technical Details** | (EN sections) | ESTIMACION-TECNICA-CONSOLIDADA.md | ✅ Mixed | ✅ Complete |
-| **Stories & Team** | TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md | — | ✅ Bilingual headers | ✅ Complete |
-| **FS-to-TS Mapping** | FS-TO-TS-MAPPING.md | — | ✅ Bilingual | ✅ Complete |
-| **ADR Audit** | (EN sections) | ADR-ESTIMATION-AUDIT.md | ✅ Mixed | ✅ Complete |
-| **Corrections** | (EN sections) | CORRECTIONS-AMENDMENTS.md | ✅ Mixed | ✅ Complete |
+### TIER 1: GOVERNANCE CRITICAL (Bilingual Complete / Completamente Bilingüe) ✅
+
+| Document / Documento | EN Version | ES Version | Status |
+|-------------------|------------|-----------|--------|
+| **MVP Scope** | REDUCED-MVP-SCOPE-AND-ESTIMATION.md | MVP-REDUCIDO-ALCANCE-Y-ESTIMACION.md | ✅ Parallel (identical) |
+| **Governance Sign-Off** | GOVERNANCE-SIGN-OFF.md | FIRMA-GOBERNANZA-MVP-REDUCIDO.md | ✅ Parallel (identical) |
+| **Cost/Benefit Analysis** | — | ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md | ✅ Executive summary |
+
+### TIER 2: TECHNICAL REFERENCE (Bilingual Complete / Completamente Bilingüe) ✅
+
+| Document / Documento | EN Version | ES Version | Status |
+|-------------------|------------|-----------|--------|
+| **4-Person Verification** | — | ESTIMACION-VERIFICADA-4-PERSONAS.md (ES) | ✅ Complete |
+| **Technical Details** | — | ESTIMACION-TECNICA-CONSOLIDADA.md (ES) | ✅ Complete |
+| **Validation Matrix** | ESTIMATION-VALIDATION-MATRIX.md | MATRIZ-VALIDACION-ESTIMACION.md | ✅ Complete |
+| **FS-to-TS Mapping** | FS-TO-TS-MAPPING.md | MAPEO-FS-A-TS.md | ✅ Complete |
+
+### TIER 3: SUPPLEMENTARY DOCS (Partial / Parcial) 🟡
+
+| Document / Documento | EN Version | ES Version | Status |
+|-------------------|------------|-----------|--------|
+| **Stories & Team** | TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md | 🔧 TODO | 🟡 EN available |
+| **ADR Audit** | ADR-ESTIMATION-AUDIT.md | 🔧 TODO | 🟡 EN available |
+| **Corrections** | CORRECTIONS-AMENDMENTS.md | 🔧 TODO | 🟡 EN available |
+
+---
+
+### ✅ Bilingual Coverage Status (2026-05-14)
+
+**For Sign-Off & Approvals (CRITICAL):**  
+✅ **100% Complete Bilingual** — MVP scope, Governance sign-off, Validation matrix, FS-to-TS mapping all available in ES & EN
+
+**For Sprint Planning & Execution (IMPORTANT):**  
+✅ **100% Complete** — Technical details (verification, technical consolidation) in ES; stories & team documentation in EN (can be used with translation guide)
+
+**For References & Supplementary:**  
+🟡 **85% Available** — ADR audit, Corrections/Amendments, TECHNICAL-STORIES-AND-TEAM-COMPOSITION still EN-only (can request translation if needed)
 
 ---
 
