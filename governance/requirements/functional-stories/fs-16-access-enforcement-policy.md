@@ -1,49 +1,83 @@
-# 📘 Functional Story 16: Define Access Policy on Expiration
+# Functional Story 16: Define Access Policy on Expiration
 
-This document specifies the flow for configuring the automatic actions the system must take when a critical user document expires.
+## 1. Business Purpose
+
+Security and compliance teams need to define what should happen when a critical user document expires. UMS must apply predictable access consequences while keeping the reason visible and auditable.
 
 ---
 
-## 🏛️ 1. Use Case Definition
+## 2. Actors
 
-| Attribute | Specification |
+| Actor | Responsibility |
 | :--- | :--- |
-| **Name** | Define Access Policy on Expiration |
-| **Primary Actor** | Security Architect / Global Administrator |
-| **Preconditions** | The system has document compliance validation enabled. |
-| **Postconditions** | The policy is active and will be executed by the compliance engine upon detecting expired documents. |
+| **Security Architect** | Defines access impact for expired critical documents. |
+| **Global Administrator** | Publishes or updates enforcement policies. |
+| **Affected User** | Receives access restrictions or warnings based on policy. |
 
 ---
 
-## 🔄 2. Transaction Flow
+## 3. Business Preconditions
 
-### A. Main Flow
-1.  The actor selects a document type configured as "Critical for Access" (`IsAccessCritical = TRUE`).
-2.  Defines the action to execute upon expiration:
-    - **BLOCK_USER**: Disables the user's total access to the system.
-    - **RESTRICT_PROFILE**: Blocks only specific profiles linked to the document (e.g., an expired driver's license blocks the driver profile).
-    - **LOG_ONLY**: Only generates an audit alert without restricting access.
-3.  Persists the configuration in `ACCESS_ENFORCEMENT_POLICY`.
-4.  The compliance engine (Worker) evaluates validity daily and executes the defined action immediately upon detecting expiration.
+- Document compliance validation is enabled.
+- The document type is marked as relevant for access control.
+- The actor has permission to manage enforcement policies.
 
 ---
 
-## 🛡️ 3. Alternative Flows and Exception Handling
+## 4. Main Functional Flow
 
-### Alternative Flow A: Re-activation After Renewal
-*   Once the user uploads a new valid document (FS-11) and it is approved, the system must automatically revert the access restriction imposed by the policy.
+1. The actor selects a document type that can affect access.
+2. The actor chooses the business consequence that should apply after expiration.
+3. The actor defines whether a grace period applies.
+4. The actor provides a clear description of the policy purpose and impact.
+5. The system saves and activates the policy.
+6. When a user's document expires, the system applies the configured consequence.
+7. The user and administrators can see why the restriction or warning was applied.
 
 ---
 
-## 📋 4. Implementation Details
+## 5. Alternative Flows and Exceptions
 
-### Involved Entities
-- `ACCESS_ENFORCEMENT_POLICY`
-- `DOCUMENT_TYPE`
-- `USER_ACCOUNT`
-- `PROFILE`
+### A. Re-activation After Renewal
 
-### Acceptance Criteria
-1.  The `BLOCK_USER` action must invalidate all active user sessions immediately.
-2.  There must be a clear audit trail explaining that the block was "Automatic due to Document Expiration".
-3.  The system must allow configuring grace periods before executing the definitive block.
+When the user provides a renewed and approved document, the system removes the restriction according to the configured policy.
+
+### B. Non-critical Document
+
+If the selected document type is not access-critical, the system prevents publication of a blocking policy and suggests a notification-only rule.
+
+---
+
+## 6. Business Rules
+
+1. Critical document expiration may block access, restrict profiles, or only generate an audit warning.
+2. Policies must include `code`, `value`, and `description`.
+3. The user must be able to understand why access was restricted.
+4. Renewal must allow access restoration when the policy conditions are satisfied.
+
+---
+
+## 7. Acceptance Criteria
+
+1. An administrator can configure an access consequence for an access-critical document type.
+2. The system prevents blocking policies for non-critical documents.
+3. Access restrictions are traceable and visible to administrators.
+4. Renewing a valid document can restore access according to policy.
+
+---
+
+## 8. Technical Requirements
+
+- Persist policies in `ACCESS_ENFORCEMENT_POLICY`.
+- Mandatory fields: `Code`, `Value`, `Description`.
+- Enforce uniqueness by `Code`, tenant scope, and `DocumentTypeId`.
+- Supported actions include `BLOCK_USER`, `RESTRICT_PROFILE`, and `LOG_ONLY`.
+- Emit audit events when restrictions are applied or reverted.
+
+---
+
+## 9. Traceability
+
+- Entities: `ACCESS_ENFORCEMENT_POLICY`, `DOCUMENT_TYPE`, `USER_ACCOUNT`, `PROFILE`
+- ADRs: ADR-0045, ADR-0035
+- Related Stories: FS-11, FS-15

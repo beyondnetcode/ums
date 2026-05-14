@@ -77,6 +77,8 @@ All developments under the new stack MUST strictly enforce the following systemi
 *   [ ] Migrate Domain entities from TypeScript to pure C# POCOs.
 *   [ ] Configure EF Core migrations pointing to SQL Server 2022.
 *   [ ] Build verification suite using xUnit and Testcontainers (SQL Server integration validation).
+*   [ ] Enforce the mandatory parametric catalog standard (`Code`, `Value`, `Description`) across all configuration/policy/workflow entities in Domain + Infrastructure mappings.
+*   [ ] Add scope-aware unique constraints and migration backfill plan for catalog entities (`APP_CONFIGURATION`, `NOTIFICATION_RULE`, `ACCESS_ENFORCEMENT_POLICY`, `APPROVAL_WORKFLOW`).
 
 ---
 

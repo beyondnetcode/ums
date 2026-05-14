@@ -1,21 +1,23 @@
-# 📂 Directorio de Functional Stories (Historias Funcionales)
+# Functional Stories Directory
 
-Bienvenido al índice maestro de **Functional Stories** para el Sistema de Gestión de Usuarios (UMS). Este directorio contiene todos los flujos transaccionales y de negocio puros, separados de detalles técnicos de implementación.
+Welcome to the master **Functional Stories** index for the User Management System (UMS). This directory contains business-oriented functional flows separated from technical implementation details.
+
+> **Writing standard:** Every story must follow the [Functional Story Writing Standard](./functional-story-standard.md), keeping the PO/BA narrative separate from technical requirements.
 
 ---
 
-## 📋 Catálogo de Functional Stories
+## Functional Story Catalog
 
-*   **[FS-01: Autenticación Corporativa vía IdP Externo](./fs-01-user-authentication.md)**
-*   **[FS-02: Crear e Instanciar Plantilla de Autorización](./fs-02-create-authorization-template.md)**
-*   **[FS-03: Registrar Organización y Configurar Estrategia de IdP](./fs-03-register-organization.md)**
-*   **[FS-04: Registrar Sistema y Definir Topología de Menú](./fs-04-register-system-topology.md)**
-*   **[FS-05: Crear Perfil y Asignar Plantilla Manualmente](./fs-05-create-profile-manual-template.md)**
-*   **[FS-06: Auto-Asignar Plantilla al Crear Perfil](./fs-06-auto-assign-template.md)**
-*   **[FS-07: Diagnosticar Permisos vía Visualizador de Grafos](./fs-07-visual-graph-resolver.md)**
-*   **[FS-08: Autenticar vía Página de Inicio Personalizable](./fs-08-hosted-login-redirection.md)**
-*   **[FS-09: Autenticación Adaptativa Multifactor y Sin Contraseña](./fs-09-mfa-passwordless-adaptive-auth.md)**
-*   **[FS-10: Flujo de Aprobación y Petición de Acceso Externo B2B](./fs-10-external-b2b-access-request-approval.md)**
+*   **[FS-01: Corporate Authentication via External IdP](./fs-01-user-authentication.md)**
+*   **[FS-02: Create and Instantiate Authorization Template](./fs-02-create-authorization-template.md)**
+*   **[FS-03: Register Organization and Configure IdP Strategy](./fs-03-register-organization.md)**
+*   **[FS-04: Register System and Define Menu Topology](./fs-04-register-system-topology.md)**
+*   **[FS-05: Create Profile and Manually Assign Template](./fs-05-create-profile-manual-template.md)**
+*   **[FS-06: Auto-Assign Template on Profile Creation](./fs-06-auto-assign-template.md)**
+*   **[FS-07: Diagnose Permissions via Graph Visualizer](./fs-07-visual-graph-resolver.md)**
+*   **[FS-08: Authenticate via Customizable Hosted Login Page](./fs-08-hosted-login-redirection.md)**
+*   **[FS-09: Adaptive MFA and Passwordless Authentication](./fs-09-mfa-passwordless-adaptive-auth.md)**
+*   **[FS-10: B2B External Access Request and Approval Flow](./fs-10-external-b2b-access-request-approval.md)**
 *   **[FS-11: Upload and Validate User Document](./fs-11-user-document-upload.md)**
 *   **[FS-12: Execute Role Promotion Process](./fs-12-role-promotion-process.md)**
 *   **[FS-13: Configure Hierarchical System Parameters](./fs-13-hierarchical-config.md)**
@@ -25,4 +27,4 @@ Bienvenido al índice maestro de **Functional Stories** para el Sistema de Gesti
 
 ---
 
-👉 **[Volver al Índice de Requisitos](../index.md)**
+**[Back to Requirements Index](../index.md)**

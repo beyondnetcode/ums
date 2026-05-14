@@ -193,8 +193,10 @@ erDiagram
         uniqueidentifier SettingId PK
         uniqueidentifier TenantId FK "Nullable"
         uniqueidentifier SuiteId FK "Nullable"
+        uniqueidentifier ModuleId FK "Nullable"
         nvarchar Code "Feature Flag / Parameter"
-        nvarchar Value
+        nvarchar Value "Operational Value"
+        nvarchar Description "Purpose + impact + expected behavior + scope"
         bit IsInheritable
     }
 
@@ -209,6 +211,9 @@ erDiagram
         uniqueidentifier WorkflowId PK
         uniqueidentifier TenantId FK
         uniqueidentifier SuiteId FK "Nullable"
+        nvarchar Code
+        nvarchar Value
+        nvarchar Description
         nvarchar TargetUserCategory
         bit RequiresApproval
     }
@@ -242,12 +247,19 @@ erDiagram
         uniqueidentifier RuleId PK
         uniqueidentifier TenantId FK
         uniqueidentifier DocumentTypeId FK
+        nvarchar Code
+        nvarchar Value
+        nvarchar Description
         int DaysBefore
         nvarchar Channel "EMAIL/IN_APP/SMS"
     }
 
     ACCESS_ENFORCEMENT_POLICY {
         uniqueidentifier PolicyId PK
+        uniqueidentifier TenantId FK "Nullable (Global if NULL)"
+        nvarchar Code
+        nvarchar Value
+        nvarchar Description
         uniqueidentifier DocumentTypeId FK
         nvarchar ActionOnExpiration "BLOCK_USER/RESTRICT_PROFILE/LOG_ONLY"
     }
@@ -264,3 +276,4 @@ erDiagram
 6.  **Approval Mandates**: External/B2B users MUST pass through an `APPROVAL_WORKFLOW` before reaching an `ACTIVE` status or being assigned high-risk profiles. Supporting documents defined in `APPROVAL_REQUIRED_DOCUMENT` must be uploaded to `USER_DOCUMENT` before workflow advancement.
 7.  **Automated Compliance Enforcement**: Background workers scan `USER_DOCUMENT`. Upon expiration, the `ACCESS_ENFORCEMENT_POLICY` is triggered. Critical documents will automatically transition the `USER_ACCOUNT` to a `BLOCKED` status or restrict specific `PROFILE` context.
 8.  **Parametric Notifications**: `NOTIFICATION_RULE` allows configuring N-step alerts (e.g., 30, 15, 5 days before expiration) per Tenant and Document Type.
+9.  **Mandatory Parametric Catalog Standard**: Every parameter/configuration/catalog entity MUST include `Code`, `Value`, and `Description`. `Description` must document purpose, functional impact, expected behavior, and applicable scope. All such entities must additionally define uniqueness by scope, versioning lineage, auditing metadata, traceability events, cache invalidation strategy, and forward extensibility.

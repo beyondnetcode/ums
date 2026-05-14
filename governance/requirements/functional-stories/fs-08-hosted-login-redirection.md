@@ -1,93 +1,66 @@
-# 🧪 Functional Story 8: Autenticar vía Página de Inicio Personalizable
+# Functional Story 8: Authenticate via Customizable Hosted Login Page
 
-Este caso de uso detalla el flujo para centralizar la autenticación de usuarios mediante una página de inicio de sesión alojada (hosted) y segura en el UMS, que adapta dinámicamente su diseño (branding) y características para cada inquilino y sistema.
+## 1. Business Purpose
 
----
+Client systems need a centralized login experience that can reflect each tenant or system brand while keeping authentication governed by UMS.
 
-## 🏛️ 1. Definición del Caso de Uso
+## 2. Actors
 
-| Atributo | Especificación |
+| Actor | Responsibility |
 | :--- | :--- |
-| **Nombre** | Autenticar vía Página de Inicio Personalizable |
-| **Actor Principal** | Usuario Final, Sistema Cliente |
-| **Precondiciones** | El sistema cliente está registrado en UMS y ha configurado URLs de redirección de retorno (callbacks). |
-| **Postcondiciones** | El usuario es autenticado por el IdP seleccionado (o fallback nativo), y UMS lo redirige de vuelta a la aplicación cliente junto con un JWT firmado. |
+| **End User** | Starts sign-in from a client system. |
+| **Client System** | Redirects users to hosted login and receives the result. |
+| **Tenant/System Administrator** | Configures branding and login behavior. |
 
----
+## 3. Business Preconditions
 
-## 🔄 2. Flujo de Transacción
+- The client system is registered in UMS.
+- Return locations are configured for the client system.
+- Branding and login settings exist or fall back to defaults.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant User as Usuario Final
-    participant App as App Cliente
-    participant HostedLogin as Portal UMS Login
-    participant ConfigAPI as Servicio de Configuración
-    participant IdP as Proveedor IdP (SSO/External)
-    participant DB as DB Interna PostgreSQL (Bcrypt)
+## 4. Main Functional Flow
 
-    User->>App: Clic botón "Iniciar Sesión"
-    App->>HostedLogin: Redirige /oauth/v2/authorize?client_id={sys_id}&tenant_id={t_id}&redirect_uri={cb}
-    HostedLogin->>ConfigAPI: Solicitar branding activo y config de sistema
-    ConfigAPI-->>HostedLogin: Retornar metadata de branding
-    HostedLogin->>HostedLogin: Renderizar CSS y Logo (Compilación HTML dinámica)
-    HostedLogin-->>User: Presentar Login Personalizado (Mostrando opciones)
-    
-    alt Autenticación Externa (IDP / SSO)
-        User->>HostedLogin: Selecciona opción SSO (ej., Entra ID)
-        HostedLogin->>IdP: Delegar verificación
-        IdP-->>HostedLogin: Éxito en verificación y claims del usuario
-    else Autenticación Interna (Credenciales Nativas)
-        User->>HostedLogin: Ingresa Usuario y Contraseña Local
-        HostedLogin->>DB: Validar hash Bcrypt
-        DB-->>HostedLogin: Confirmación de credenciales válidas
-    end
-    
-    HostedLogin->>HostedLogin: Generar JWT firmado con contextos del tenant
-    HostedLogin-->>User: Redirección 302 hacia redirect_uri?code={auth_code}
-    User->>App: Entrega en endpoint callback con el código
-```
+1. The user starts login from a client system.
+2. The user is sent to the hosted UMS login page.
+3. UMS displays the appropriate branding and available sign-in options.
+4. The user completes authentication through the configured method.
+5. UMS returns the user to the client system.
+6. The client system receives the authenticated user context and continues the user journey.
 
-### A. Flujo Principal
-1. Un Usuario Final visita una aplicación registrada (ej. portal cliente) y hace clic en "Iniciar Sesión".
-2. La aplicación redirige el navegador del usuario hacia el Portal Centralizado de Login (Hosted) de UMS, enviando su `client_id` (ID Sistema), `tenant_id` y un `redirect_uri` verificado en los parámetros de consulta.
-3. El Portal de Login UMS consulta el Servicio de Configuración para obtener el diseño de marca activo (logo, colores, clases CSS personalizadas) asociado con dicho Inquilino y Sistema.
-4. El Servicio de Configuración resuelve la estructura utilizando el motor de resolución jerárquico (aplicando sobreescrituras a nivel Tenant y Sistema).
-5. La página de login inyecta las propiedades de hojas de estilo, URL de logotipo y fuentes en el DOM en tiempo de ejecución.
-6. El usuario visualiza una interfaz premium, alineada a la marca de la organización, que muestra únicamente las opciones de IdP permitidas para ese Tenant (ej. "Ingresar con Microsoft Entra" o "Passkey sin Contraseña").
-7. El usuario completa el flujo de autenticación. El Portal de Login UMS autentica al usuario contra el IdP configurado.
-8. Tras la validación exitosa, UMS emite un JWT estándar y criptográficamente firmado que incluye el grafo de permisos compilado y los alcances del tenant.
-9. El Portal de Login redirige el navegador del usuario hacia la URL de retorno (callback `redirect_uri`) con un código de autorización.
+## 5. Alternative Flows and Exceptions
 
----
+### A. Branding Not Configured
 
-## âš™ï¸ 3. Opciones Dinámicas de Diseño (Branding)
+If no custom branding exists, UMS uses the approved default experience.
 
-La página alojada soporta las siguientes variables configurables almacenadas como JSON en la base de datos `SYSTEM_CONFIGURATION`:
+### B. Invalid Return Location
 
-```json
-{
-  "branding": {
-    "theme": "dark",
-    "primary_color": "#0F52BA",
-    "logo_url": "https://cdn.logisticscorp.com/assets/logo.png",
-    "custom_css_url": "https://cdn.logisticscorp.com/styles/login-override.css",
-    "font_family": "Outfit, sans-serif"
-  },
-  "login_behaviors": {
-    "show_passkey_option": true,
-    "allow_remember_me": false
-  }
-}
-```
+If the client system requests an unapproved return location, UMS blocks the redirect.
 
----
+## 6. Business Rules
 
-## 🛡️ 4. Manejo de Excepciones
+1. Hosted login must support tenant and system-level branding.
+2. Only approved client return locations may be used.
+3. The login page must not expose another tenant's branding or settings.
+4. Authentication method selection follows configured tenant/system policy.
 
-### Flujo Alternativo A: URI de Redirección Inválida
-- Si la `redirect_uri` suministrada en la consulta no coincide con la lista blanca permitida registrada para ese sistema en el UMS, el flujo de login se aborta de inmediato. El portal muestra una página segura `400 Bad Request` y levanta una alerta de seguridad.
+## 7. Acceptance Criteria
 
-### Flujo Alternativo B: Timeout al Obtener Branding
-- Si el Servicio de Configuración no responde o agota el tiempo de espera, el Portal Login de UMS aplica el layout Global predeterminado (un tema neutro y oscuro) garantizando que los servicios de autenticación permanezcan completamente disponibles.
+1. Users see the correct login experience for their tenant/system context.
+2. Missing branding falls back to defaults.
+3. Unauthorized return locations are rejected.
+4. Successful authentication returns the user to the client system.
+
+## 8. Technical Requirements
+
+- Resolve branding and login behavior from system configuration.
+- Support configured IdP and native fallback strategies.
+- Validate redirect/callback locations.
+- Issue approved session/token result after authentication.
+- Audit successful and failed hosted-login attempts.
+
+## 9. Traceability
+
+- Entities: `SYSTEM_CONFIGURATION`, `IDP_CONFIGURATION`, `FEATURE_FLAG`
+- ADRs: ADR-0020, ADR-0022
+- Related Stories: FS-01, FS-09, FS-13

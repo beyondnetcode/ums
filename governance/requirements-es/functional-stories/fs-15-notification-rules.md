@@ -1,46 +1,77 @@
-# 📘 Functional Story 15: Configurar Reglas de Notificación por Vencimiento
+# Functional Story 15: Configurar Reglas de Notificación por Vencimiento
 
-Este documento especifica el flujo para parametrizar las alertas preventivas que se envían a los usuarios antes de que su documentación expire.
+## 1. Propósito de Negocio
+
+Los administradores de cumplimiento necesitan advertir a los usuarios antes de que sus documentos requeridos expiren, para que puedan renovarlos a tiempo y evitar restricciones de acceso innecesarias.
 
 ---
 
-## 🏛️ 1. Definición del Caso de Uso
+## 2. Actores
 
-| Atributo | Especificación |
+| Actor | Responsabilidad |
 | :--- | :--- |
-| **Nombre** | Configurar Reglas de Notificación por Vencimiento |
-| **Actor Principal** | Administrador de Cumplimiento (Compliance) |
-| **Precondiciones** | El `DOCUMENT_TYPE` está configurado. |
-| **Postcondiciones** | Las reglas de notificación son persistidas y listas para ser procesadas por el motor de alertas. |
+| **Administrador de Cumplimiento** | Define tiempos y canales de notificación. |
+| **Usuario** | Recibe recordatorios de renovación. |
+| **Motor de Cumplimiento** | Aplica reglas activas cuando los documentos se acercan al vencimiento. |
 
 ---
 
-## 🔄 2. Flujo de Transacción
+## 3. Precondiciones de Negocio
 
-### A. Flujo Principal
-1.  El administrador selecciona el tipo de documento a parametrizar.
-2.  Define el número de días de anticipación para la alerta (ej. 30 días, 15 días, 5 días).
-3.  Selecciona el canal de envío (Email, In-App, SMS).
-4.  El sistema permite añadir múltiples pasos de notificación para el mismo documento.
-5.  El sistema persiste las reglas en la tabla `NOTIFICATION_RULE`.
-6.  El proceso en segundo plano (Worker) utilizará estas reglas para comparar contra la `ExpirationDate` de los documentos de los usuarios y disparar las alertas.
+- El tipo de documento existe.
+- El administrador tiene permiso para gestionar reglas de notificación.
 
 ---
 
-## 🛡️ 3. Flujos Alternativos y Manejo de Excepciones
+## 4. Flujo Funcional Principal
 
-### Flujo Alternativo A: Duplicidad de Reglas
-*   Si se intenta configurar una regla idéntica (mismo día y canal) para el mismo Tenant/Documento, el sistema solicita modificar el parámetro para evitar spam de notificaciones.
+1. El administrador selecciona el tipo de documento que requiere recordatorios.
+2. El administrador define cuántos días antes del vencimiento debe notificarse al usuario.
+3. El administrador selecciona uno o más canales de entrega.
+4. El administrador proporciona una descripción clara de la regla y su impacto de negocio.
+5. El sistema guarda la regla y la deja disponible para el procesamiento de cumplimiento.
+6. Los usuarios reciben recordatorios según las reglas activas.
 
 ---
 
-## 📋 4. Detalles de Implementación
+## 5. Flujos Alternativos y Excepciones
 
-### Entidades Involucradas
-- `NOTIFICATION_RULE`
-- `DOCUMENT_TYPE`
+### A. Regla de Notificación Duplicada
 
-### Criterios de Aceptación
-1.  El sistema debe permitir configurar al menos 3 niveles de alerta por defecto.
-2.  Las notificaciones deben ser filtrables por Tenant para permitir políticas regionales diferenciadas.
-3.  El sistema debe registrar la trazabilidad de cada notificación enviada con éxito.
+Si ya existe una regla idéntica para el mismo documento, tenant, anticipación y canal, el sistema evita la duplicidad para prevenir exceso de notificaciones.
+
+---
+
+## 6. Reglas de Negocio
+
+1. Las reglas de notificación deben configurarse por tenant y tipo de documento.
+2. Pueden existir múltiples pasos de recordatorio para el mismo tipo de documento.
+3. Toda regla debe incluir `code`, `value` y `description`.
+4. El sistema debe preservar trazabilidad de las notificaciones enviadas.
+
+---
+
+## 7. Criterios de Aceptación
+
+1. Un administrador puede configurar al menos tres niveles de recordatorio.
+2. Las reglas duplicadas son bloqueadas.
+3. Los usuarios reciben recordatorios antes del vencimiento cuando aplican reglas.
+4. El comportamiento de notificación puede variar por tenant.
+
+---
+
+## 8. Requisitos Técnicos
+
+- Persistir reglas en `NOTIFICATION_RULE`.
+- Campos obligatorios: `Code`, `Value`, `Description`.
+- Aplicar unicidad por `Code`, `TenantId` y `DocumentTypeId`.
+- Registrar trazabilidad de entrega de notificaciones.
+- Soportar invalidación de caché cuando cambian reglas de notificación.
+
+---
+
+## 9. Trazabilidad
+
+- Entidades: `NOTIFICATION_RULE`, `DOCUMENT_TYPE`, `USER_DOCUMENT`
+- ADRs: ADR-0045, ADR-0016
+- Historias relacionadas: FS-11, FS-16

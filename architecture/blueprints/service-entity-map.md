@@ -35,6 +35,21 @@ This document serves as the authoritative mapping between system entities, their
 
 ---
 
+## 🧱 1.1 Mandatory Parametric Catalog Contract
+
+For all parameter/configuration/catalog entities (including `APP_CONFIGURATION`, `NOTIFICATION_RULE`, `ACCESS_ENFORCEMENT_POLICY`, `APPROVAL_WORKFLOW`, and future `IDP_CONFIGURATION` / `SYSTEM_CONFIGURATION` / `FEATURE_FLAG` records), the write owner MUST enforce:
+
+- mandatory fields: `Code`, `Value`, `Description`
+- scope-aware unique constraints for `Code`
+- explicit version lineage
+- audit metadata and immutable change trail
+- traceability events for cache invalidation and compliance
+- forward-compatible schema evolution rules
+
+`Description` MUST document purpose, functional impact, expected behavior, and applicable scope.
+
+---
+
 ## 🛠️ 2. Data Access & Governance Rules
 
 1.  **Strict Write Ownership**: Only the **Service Owner** specified in the table above is allowed to perform `INSERT`, `UPDATE`, or `DELETE` operations on the corresponding entities.

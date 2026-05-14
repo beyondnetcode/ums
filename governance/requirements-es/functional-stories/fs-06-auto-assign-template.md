@@ -1,89 +1,64 @@
-# 🧪 Functional Story 6: Auto-Asignar Plantilla de Autorización al Crear Perfil
+# Functional Story 6: Auto-Asignar Plantilla de Autorización al Crear Perfil
 
-Este caso de uso especifica el flujo del **Motor Automático de Asignación de Plantillas Basado en Reglas**, el cual se activa al momento de la creación de un perfil para adjuntar automáticamente la Plantilla de Autorización correspondiente según reglas de coincidencia configurables.
+## 1. Propósito de Negocio
 
----
+UMS debe reducir administración manual asignando la plantilla correcta cuando un nuevo perfil coincide con reglas de negocio aprobadas.
 
-## 🏛️ 1. Definición del Caso de Uso
+## 2. Actores
 
-| Atributo | Especificación |
+| Actor | Responsabilidad |
 | :--- | :--- |
-| **Nombre** | Auto-Asignar Plantilla de Autorización al Crear Perfil |
-| **Actor Principal** | Motor de Reglas UMS (Actor del Sistema ”” disparado automáticamente) |
-| **Actor Secundario** | Administrador de Seguridad Global (SuperAdmin ”” configura las reglas) |
-| **Precondiciones** | Al menos una Regla de Asignación está configurada y activa. El perfil desencadenado tiene atributos de metadatos que coinciden con una regla. |
-| **Postcondiciones** | El Perfil es creado con `auto_assigned = true`. La plantilla coincidente es vinculada. Las claves de caché de Redis son desalojadas si existen usuarios. Se escribe el registro de auditoría marcado como `auto: true`. |
+| **Administrador de Seguridad** | Configura reglas de asignación. |
+| **Motor de Reglas UMS** | Aplica reglas coincidentes durante la creación del perfil. |
 
----
+## 3. Precondiciones de Negocio
 
-## 🔄 2. Flujo de Configuración de Reglas (Admin ”” Configuración Ãšnica)
+- Existe al menos una regla de asignación activa.
+- El perfil creado contiene atributos evaluables.
+- Existe una plantilla coincidente activa.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Admin as Administrador de Seguridad
-    participant Console as Consola Admin UMS
-    participant API as API .NET 8 UMS
-    participant DB as PostgreSQL
+## 4. Flujo Funcional Principal
 
-    Admin->>Console: Navegar a Plantillas > Reglas de Asignación > Crear Regla
-    Admin->>Console: Definir condiciones de la regla (role_code, organization_id, branch_id) y target template_id
-    Console->>API: POST /api/v1/assignment-rules { conditions, template_id, priority }
-    API->>DB: Persistir registro ASSIGNMENT_RULE (estado ACTIVE)
-    API-->>Console: 201 Created { ruleId }
-    Console-->>Admin: Confirmación de regla activa
-```
+1. El administrador define una regla que vincula atributos de perfil con una plantilla.
+2. Se crea un nuevo perfil.
+3. UMS evalúa el perfil contra reglas de asignación activas.
+4. Si una regla coincide, UMS asigna automáticamente la plantilla correspondiente.
+5. El perfil queda marcado como asignado automáticamente.
+6. Los usuarios afectados reciben los permisos resultantes.
 
----
+## 5. Flujos Alternativos y Excepciones
 
-## 🔄 3. Flujo Disparador de Asignación Automática (Sistema ”” Al Crear Perfil)
+### A. Ninguna Regla Coincide
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Trigger as Evento de Creación de Perfil
-    participant Engine as Motor de Reglas (Servicio de Dominio)
-    participant DB as PostgreSQL
-    participant Cache as Caché Redis
-    participant Audit as Registro de Auditoría
+Si ninguna regla activa coincide con el perfil, el perfil queda sin asignación automática y puede gestionarse manualmente.
 
-    Trigger->>Engine: Evento ProfileCreatedEvent { profileId, role_code, organization_id, branch_id }
-    Engine->>DB: Consultar todas las reglas ASSIGNMENT_RULES activas ordenadas por prioridad
-    Engine->>Engine: Evaluar condición de cada regla contra atributos del perfil
-    alt Regla Coincidente Encontrada
-        Engine->>DB: Vincular template_id al perfil (auto_assigned = true)
-        Engine->>Cache: Desalojar claves del grafo en caché (si hay usuarios asignados)
-        Engine->>Audit: Registrar Evento TemplateAutoAssignedEvent { profileId, templateId, ruleId, auto: true }
-    else No hay Coincidencia de Regla
-        Engine->>Audit: Registrar Evento ProfileCreatedNoRuleMatchEvent { profileId }
-        Note over Engine: Perfil creado sin plantilla - requiere asignación manual
-    end
-```
+### B. Múltiples Reglas Coinciden
 
-### A. Lógica de Coincidencia de Reglas
-Las reglas son evaluadas en **orden de prioridad** (número menor = mayor prioridad). La **primera regla coincidente** gana (evaluación de cortocircuito).
+Si más de una regla coincide, UMS aplica la regla de mayor prioridad y registra por qué fue seleccionada.
 
-Una regla es coincidente cuando **todas** sus condiciones son satisfechas:
+## 6. Reglas de Negocio
 
-| Campo Condición | Tipo de Coincidencia | Ejemplo de Valor |
-| :--- | :--- | :--- |
-| `role_code` | Coincidencia exacta | `TransportationAnalyst` |
-| `organization_id` | Coincidencia exacta o comodín `*` | `tenant_logistics_corp` |
-| `branch_id` | Coincidencia exacta o comodín `*` | `branch_callao_terminal` |
-| `system_id` | Coincidencia exacta o comodín `*` | `route_planner` |
+1. La asignación automática debe ser explicable.
+2. La prioridad de reglas debe ser determinística.
+3. La asignación manual permanece disponible cuando la automatización no coincide.
+4. Las asignaciones automáticas deben ser auditables.
 
-**Ejemplo de Regla:**
-> *Si `role_code = "TransportationAnalyst"` Y `organization_id = "tenant_logistics_corp"` ENTONCES asignar `Analyst_Baseline_v1`*
+## 7. Criterios de Aceptación
 
----
+1. Una regla coincidente asigna una plantilla automáticamente.
+2. Un perfil sin regla coincidente queda disponible para asignación manual.
+3. La prioridad resuelve múltiples coincidencias consistentemente.
+4. La razón de asignación es visible para administradores.
 
-## 🛡️ 4. Flujos Alternativos y Manejo de Excepciones
+## 8. Requisitos Técnicos
 
-### Flujo Alternativo A: Múltiples Reglas Coinciden
-- Si más de una regla coincide con los atributos del perfil, solamente se aplica la **regla de mayor prioridad** (el número de prioridad más bajo). Las demás coincidencias se registran en el rastro de auditoría como candidatas.
+- Evaluar reglas activas durante la creación del perfil.
+- Persistir estado de asignación en la relación perfil/plantilla.
+- Invalidar caché del grafo de autorización para usuarios afectados.
+- Emitir evento de auditoría con `auto: true` y referencia de regla seleccionada.
 
-### Flujo Alternativo B: Plantilla Objetivo Desactivada
-- Si la plantilla correspondiente ha sido desactivada o eliminada desde que se creó la regla, el motor registra una advertencia `RULE_TEMPLATE_UNAVAILABLE` en el rastro de auditoría y pasa a evaluar la siguiente regla coincidente. Si no existe alternativa, el perfil se crea sin asignación de plantilla.
+## 9. Trazabilidad
 
-### Flujo Alternativo C: Fallo del Motor de Reglas
-- Si el Motor de Reglas lanza una excepción no controlada, **NO se revierte la creación del Perfil** (el perfil se guarda). El fallo del motor se registra como un evento de nivel `CRITICAL` y el perfil se marca para una revisión de asignación manual de plantilla.
+- Entidades: `PROFILE`, `PERMISSION_TEMPLATE`, `PROFILE_PERMISSION`
+- ADRs: ADR-0042, ADR-0043, ADR-0035
+- Technical Enabler: TE-01

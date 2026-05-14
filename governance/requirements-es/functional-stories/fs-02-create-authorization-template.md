@@ -1,56 +1,66 @@
-# 📘 Functional Story 2: Crear e Instanciar Plantilla de Autorización
+# Functional Story 2: Crear e Instanciar Plantilla de Autorización
 
-Este documento especifica el flujo de transacciones, los actores y las reglas de control de versiones para crear una plantilla de políticas reutilizable y vincularla a espacios de trabajo de perfiles bajo la **estrategia spec-driven AI BMAD-METHOD**.
+## 1. Propósito de Negocio
 
----
+Los administradores necesitan plantillas de autorización reutilizables para gobernar patrones comunes de acceso de forma consistente entre perfiles y sistemas. UMS debe permitir crear, versionar y asignar plantillas sin redefinir permisos manualmente para cada perfil.
 
-## 🏛️ 1. Definición del Caso de Uso
+## 2. Actores
 
-| Atributo | Especificación |
+| Actor | Responsabilidad |
 | :--- | :--- |
-| **Nombre** | Crear e Instanciar Plantilla de Autorización |
-| **Actor Principal** | Administrador Global de TI |
-| **Precondiciones** | Los Sistemas, Menús, Opciones y Acciones están registrados en el sistema. |
-| **Postcondiciones** | Se crea la Plantilla de Autorización y todos los Perfiles vinculados heredan las políticas en tiempo real. |
+| **Administrador Global de TI** | Crea y mantiene plantillas reutilizables de autorización. |
+| **Administrador de Tenant/Sistema** | Asigna plantillas aprobadas a perfiles cuando está permitido. |
 
----
+## 3. Precondiciones de Negocio
 
-## 🔄 2. Flujo de Transacción
+- La topología del sistema destino está registrada.
+- Las acciones disponibles están definidas.
+- El administrador tiene permiso para gestionar plantillas.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Admin as Administrador TI
-    participant Web as App Web React
-    participant API as Backend .NET 8
-    participant DB as PostgreSQL
-    participant Audit as Registro de Auditoría
+## 4. Flujo Funcional Principal
 
-    Admin->>Web: Definir Nombre y Seleccionar Autorizaciones
-    Web->>API: POST /api/v1/templates
-    Note over API: Validar Esquema y Versionado
-    API->>DB: Guardar Plantilla Versión 1.0.0
-    API->>DB: Asignar Plantilla a Perfil
-    API->>Audit: Registrar Evento CDC de Auditoría
-    API-->>Web: Respuesta de Éxito
-    Web-->>Admin: Mostrar Notificación de Éxito
-```
+1. El administrador abre el gestor de plantillas.
+2. El administrador crea una nueva plantilla con nombre, versión y propósito.
+3. El administrador selecciona los sistemas, menús, opciones y acciones que la plantilla permitirá o denegará.
+4. El sistema valida que los permisos seleccionados pertenezcan a recursos registrados válidos.
+5. El administrador publica la plantilla.
+6. El administrador asigna la plantilla a un perfil existente o nuevo.
+7. Los usuarios vinculados a ese perfil reciben el comportamiento de autorización efectivo desde la plantilla asignada.
 
-### A. Flujo Principal
-1.  El Administrador Global de TI navega a la sección de Gestor de Plantillas en el portal de administración y hace clic en el botón "Crear Nueva Plantilla".
-2.  El administrador define los metadatos de la plantilla (nombre: `PortOperatorBaseline`, versión inicial: `v1.0.0`).
-3.  El administrador selecciona los `Sistemas`, `Menús` y `Acciones` específicos que esta plantilla permitirá (ej. permitir `create` y `read` en `Containers`).
-4.  El administrador envía el formulario de creación. La aplicación web envía una solicitud `POST` a `/api/v1/templates`.
-5.  El backend valida el esquema de autorización e inserta la Plantilla y sus Autorizaciones correspondientes dentro de PostgreSQL en una única transacción de base de datos segura.
-6.  El administrador selecciona un `Perfil` existente (o crea uno nuevo) y lo vincula a la `Plantilla` recién creada.
-7.  El sistema actualiza automáticamente todas las sesiones de usuario que pertenecen a ese perfil, invalida las claves de caché de Redis coincidentes y escribe una entrada en el libro mayor de auditoría inmutable.
+## 5. Flujos Alternativos y Excepciones
 
----
+### A. Selección de Permiso Inválida
 
-## 🛡️ 3. Flujos Alternativos y Manejo de Excepciones
+Si el administrador selecciona un recurso o acción inválida, el sistema impide la publicación y explica qué debe corregirse.
 
-### Flujo Alternativo A: Fallo en la Validación del Esquema
-*   Si el administrador intenta asignar una acción inválida (por ejemplo, una acción dirigida a un menú u opción inexistente), el backend intercepta la solicitud y rechaza la transacción con un error `400 Bad Request` explicando el error de validación.
+### B. Actualización de Plantilla Incompatible
 
-### Flujo Alternativo B: Conflicto por Actualización de Versión Mayor
-*   Si la actualización de una plantilla introduce cambios incompatibles que entran en conflicto con las anulaciones personalizadas locales en ciertos Perfiles, el sistema muestra al administrador una advertencia de compatibilidad, requiriendo su aprobación explícita antes de aplicar los cambios globalmente.
+Si una nueva versión de plantilla entra en conflicto con sobrescrituras locales en perfiles, el sistema advierte al administrador y exige confirmación explícita antes de aplicar el cambio.
+
+## 6. Reglas de Negocio
+
+1. Las plantillas deben estar versionadas.
+2. Las plantillas solo deben referenciar recursos registrados válidos.
+3. La asignación de plantillas debe ser auditable.
+4. Los cambios que afectan usuarios existentes deben ser trazables.
+
+## 7. Criterios de Aceptación
+
+1. Un administrador puede crear y publicar una plantilla válida.
+2. Los recursos inválidos no pueden incluirse en una plantilla.
+3. Una plantilla puede asignarse a un perfil.
+4. Los cambios de plantilla quedan auditables y trazables.
+
+## 8. Requisitos Técnicos
+
+- Persistir plantillas y permisos usando `PERMISSION_TEMPLATE`, `PROFILE` y `PROFILE_PERMISSION`.
+- Validar integridad de jerarquía de recursos antes de publicar.
+- Invalidar caché del grafo de autorización compilado para usuarios afectados tras asignación o actualización.
+- Emitir eventos de auditoría por creación, publicación, asignación y cambio de versión.
+- Preservar linaje de versionado semántico.
+
+## 9. Trazabilidad
+
+- Entidades: `PERMISSION_TEMPLATE`, `PROFILE`, `PROFILE_PERMISSION`, `ACTION`
+- ADRs: ADR-0039, ADR-0042, ADR-0021
+- Technical Enabler: TE-01

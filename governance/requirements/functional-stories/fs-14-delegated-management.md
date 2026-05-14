@@ -1,47 +1,65 @@
-# 📘 Functional Story 14: Delegate User Management Between Administrators
+# Functional Story 14: Delegate User Management Between Administrators
 
-This document specifies the flow for an administrator to delegate the management of a pool of users to another administrator, enabling decentralized and secure administration.
+## 1. Business Purpose
 
----
+Organizations need to delegate user management without giving unrestricted administrative power. UMS must let an administrator assign limited management responsibility while preserving ownership, scope, and revocability.
 
-## 🏛️ 1. Use Case Definition
+## 2. Actors
 
-| Attribute | Specification |
+| Actor | Responsibility |
 | :--- | :--- |
-| **Name** | Delegate User Management Between Administrators |
-| **Primary Actor** | Delegating Administrator |
-| **Preconditions** | Both users hold administrative roles within the same Tenant. |
-| **Postconditions** | A management relationship is created in the `USER_MANAGEMENT_DELEGATION` table. |
+| **Delegating Administrator** | Grants a limited management scope to another administrator. |
+| **Receiving Administrator** | Manages only the delegated users and scope. |
+| **Superior Administrator** | Can supervise or revoke delegated authority. |
 
----
+## 3. Business Preconditions
 
-## 🔄 2. Transaction Flow
+- Both administrators belong to an authorized tenant context.
+- The delegating administrator owns or controls the users and scope being delegated.
+- The receiving administrator is eligible to manage users.
 
-### A. Main Flow
-1.  The Delegating Administrator selects one or more users under their charge.
-2.  Selects the "Child Administrator" who will receive the management authority.
-3.  Defines the scope of the delegation (e.g., restricted to a specific System/Suite).
-4.  The system validates that the receiving administrator does not have a hierarchical level that creates a circular authority conflict.
-5.  The system records the delegation in `USER_MANAGEMENT_DELEGATION`.
-6.  From this point, the receiving administrator can view and manage the profiles of the delegated users within the defined scope.
+## 4. Main Functional Flow
 
----
+1. The delegating administrator selects the users to delegate.
+2. The delegating administrator selects the receiving administrator.
+3. The delegating administrator defines the scope and optional time limit.
+4. The system validates that the delegation does not exceed the delegator's own authority.
+5. The system activates the delegation.
+6. The receiving administrator can manage delegated users only within the approved scope.
 
-## 🛡️ 3. Alternative Flows and Exception Handling
+## 5. Alternative Flows and Exceptions
 
-### Alternative Flow A: Scope Not Owned
-*   If the Delegating Administrator attempts to delegate permissions over a system they do not themselves administer, the system blocks the operation under the principle of "No one delegates what they do not own".
+### A. Scope Not Owned
 
----
+If the delegating administrator attempts to delegate authority they do not own, the system blocks the operation.
 
-## 📋 4. Implementation Details
+### B. Circular or Unsafe Delegation
 
-### Involved Entities
-- `USER_MANAGEMENT_DELEGATION`
-- `USER_ACCOUNT`
-- `SYSTEM_SUITE`
+If the delegation creates a circular management chain or privilege escalation, the system rejects it.
 
-### Acceptance Criteria
-1.  The receiving administrator must be able to perform actions (password reset, profile assignment) only on the delegated users.
-2.  The delegation must be revocable at any time by the delegating administrator or a superior administrator.
-3.  The system must support multiple delegation (a user managed by more than one administrator).
+## 6. Business Rules
+
+1. No administrator can delegate authority they do not have.
+2. Delegation must be limited by user pool, system/suite, tenant, or time when applicable.
+3. Delegation must be revocable.
+4. Multiple administrators may manage the same user only when explicitly delegated.
+
+## 7. Acceptance Criteria
+
+1. Delegated authority is limited to the approved users and scope.
+2. Delegation can be revoked by the delegator or a superior administrator.
+3. Circular delegation is prevented.
+4. Every delegation change is auditable.
+
+## 8. Technical Requirements
+
+- Persist relationships in `USER_MANAGEMENT_DELEGATION`.
+- Validate recursive scope and anti-privilege escalation rules.
+- Support optional `SuiteId` and temporal scope.
+- Emit audit events for creation, update, revocation, and attempted violations.
+
+## 9. Traceability
+
+- Entities: `USER_MANAGEMENT_DELEGATION`, `USER_ACCOUNT`, `SYSTEM_SUITE`
+- ADRs: ADR-0038, ADR-0044
+- Related Stories: FS-10, FS-12

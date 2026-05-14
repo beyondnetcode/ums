@@ -1,49 +1,83 @@
-# 📘 Functional Story 16: Definir Política de Acceso por Expiración
+# Functional Story 16: Definir Política de Acceso por Vencimiento
 
-Este documento especifica el flujo para configurar las acciones automáticas que el sistema debe tomar cuando un documento crítico de un usuario expira.
+## 1. Propósito de Negocio
+
+Los equipos de seguridad y cumplimiento necesitan definir qué debe ocurrir cuando un documento crítico de usuario vence. UMS debe aplicar consecuencias de acceso predecibles manteniendo visible y auditable la razón.
 
 ---
 
-## 🏛️ 1. Definición del Caso de Uso
+## 2. Actores
 
-| Atributo | Especificación |
+| Actor | Responsabilidad |
 | :--- | :--- |
-| **Nombre** | Definir Política de Acceso por Expiración |
-| **Actor Principal** | Arquitecto de Seguridad / Administrador Global |
-| **Precondiciones** | El sistema tiene habilitada la validación de cumplimiento documental. |
-| **Postcondiciones** | La política queda activa y será ejecutada por el motor de cumplimiento al detectar documentos vencidos. |
+| **Arquitecto de Seguridad** | Define el impacto de acceso por documentos críticos vencidos. |
+| **Administrador Global** | Publica o actualiza políticas de cumplimiento. |
+| **Usuario Afectado** | Recibe restricciones o advertencias según la política. |
 
 ---
 
-## 🔄 2. Flujo de Transacción
+## 3. Precondiciones de Negocio
 
-### A. Flujo Principal
-1.  El actor selecciona un tipo de documento configurado como "Crítico para el Acceso" (`IsAccessCritical = TRUE`).
-2.  Define la acción a ejecutar tras la expiración:
-    - **BLOCK_USER**: Desactiva el acceso total del usuario al sistema.
-    - **RESTRICT_PROFILE**: Bloquea solo perfiles específicos vinculados al documento (ej. licencia de conducir expirada bloquea perfil de conductor).
-    - **LOG_ONLY**: Solo genera una alerta de auditoría sin restringir el acceso.
-3.  Persiste la configuración en `ACCESS_ENFORCEMENT_POLICY`.
-4.  El motor de cumplimiento (Worker) evalúa diariamente la vigencia y ejecuta la acción definida de forma inmediata al detectar el vencimiento.
+- La validación de cumplimiento documental está habilitada.
+- El tipo de documento está marcado como relevante para control de acceso.
+- El actor tiene permiso para gestionar políticas de enforcement.
 
 ---
 
-## 🛡️ 3. Flujos Alternativos y Manejo de Excepciones
+## 4. Flujo Funcional Principal
 
-### Flujo Alternativo A: Re-activación tras Renovación
-*   Una vez que el usuario carga un nuevo documento válido (FS-11) y este es aprobado, el sistema debe revertir automáticamente la restricción de acceso impuesta por la política.
+1. El actor selecciona un tipo de documento que puede afectar el acceso.
+2. El actor elige la consecuencia de negocio que debe aplicarse tras el vencimiento.
+3. El actor define si aplica un periodo de gracia.
+4. El actor proporciona una descripción clara del propósito e impacto de la política.
+5. El sistema guarda y activa la política.
+6. Cuando vence el documento de un usuario, el sistema aplica la consecuencia configurada.
+7. El usuario y los administradores pueden ver por qué se aplicó la restricción o advertencia.
 
 ---
 
-## 📋 4. Detalles de Implementación
+## 5. Flujos Alternativos y Excepciones
 
-### Entidades Involucradas
-- `ACCESS_ENFORCEMENT_POLICY`
-- `DOCUMENT_TYPE`
-- `USER_ACCOUNT`
-- `PROFILE`
+### A. Reactivación Después de Renovación
 
-### Criterios de Aceptación
-1.  La acción `BLOCK_USER` debe invalidar todas las sesiones activas del usuario de forma inmediata.
-2.  Debe existir un rastro de auditoría claro que explique que el bloqueo fue "Automático por Expiración Documental".
-3.  El sistema debe permitir configurar periodos de gracia antes de ejecutar el bloqueo definitivo.
+Cuando el usuario entrega un documento renovado y aprobado, el sistema retira la restricción según la política configurada.
+
+### B. Documento No Crítico
+
+Si el tipo de documento seleccionado no es crítico para acceso, el sistema impide publicar una política de bloqueo y sugiere una regla solo informativa.
+
+---
+
+## 6. Reglas de Negocio
+
+1. El vencimiento de un documento crítico puede bloquear acceso, restringir perfiles o solo generar advertencia de auditoría.
+2. Las políticas deben incluir `code`, `value` y `description`.
+3. El usuario debe poder entender por qué se restringió el acceso.
+4. La renovación debe permitir restaurar acceso cuando se cumplan las condiciones de la política.
+
+---
+
+## 7. Criterios de Aceptación
+
+1. Un administrador puede configurar una consecuencia para un tipo de documento crítico.
+2. El sistema impide políticas de bloqueo sobre documentos no críticos.
+3. Las restricciones quedan trazables y visibles para administradores.
+4. Renovar un documento válido puede restaurar acceso según la política.
+
+---
+
+## 8. Requisitos Técnicos
+
+- Persistir políticas en `ACCESS_ENFORCEMENT_POLICY`.
+- Campos obligatorios: `Code`, `Value`, `Description`.
+- Aplicar unicidad por `Code`, alcance de tenant y `DocumentTypeId`.
+- Acciones soportadas: `BLOCK_USER`, `RESTRICT_PROFILE` y `LOG_ONLY`.
+- Emitir eventos de auditoría cuando se aplican o revierten restricciones.
+
+---
+
+## 9. Trazabilidad
+
+- Entidades: `ACCESS_ENFORCEMENT_POLICY`, `DOCUMENT_TYPE`, `USER_ACCOUNT`, `PROFILE`
+- ADRs: ADR-0045, ADR-0035
+- Historias relacionadas: FS-11, FS-15

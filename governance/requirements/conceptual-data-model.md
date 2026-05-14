@@ -125,6 +125,9 @@ erDiagram
 - `id` (UUID, PK)
 - `tenant_id` (UUID, FK → ORGANIZATION)
 - `system_id` (UUID, FK, Nullable → SYSTEM): `NULL` means applies to all systems for the tenant
+- `code` (string, Unique by scope): Stable technical key for the IdP configuration record.
+- `value` (jsonb): Operational configuration payload consumed by runtime.
+- `description` (text): Functional purpose, impact, expected behavior, and applicable scope.
 - `provider_type` (enum): `INTERNAL_BCRYPT`, `ZITADEL`, `AZURE_AD`, `OKTA`, `KEYCLOAK`, `AUTH0`, `GOOGLE`, `LDAP`, `SAML2`, `GENERIC_OIDC`
 - `priority` (integer): Resolution order (lower = higher priority)
 - `fallback_to` (UUID, FK, Nullable → IDP_CONFIGURATION)
@@ -139,6 +142,9 @@ erDiagram
 - `id` (UUID, PK)
 - `system_id` (UUID, FK → SYSTEM)
 - `tenant_id` (UUID, FK → ORGANIZATION)
+- `code` (string, Unique by scope): Stable technical key for the configuration parameter.
+- `value` (jsonb): Operational value used by the system at runtime.
+- `description` (text): Functional purpose, impact, expected behavior, and scope.
 - `version` (string): Semantic version (e.g., `2.1.0`)
 - `config_payload` (jsonb): Full behavioral config (auth, session, MFA, onboarding, branding, modules)
 - `status` (enum): `ACTIVE`, `ARCHIVED`, `DRAFT`
@@ -147,6 +153,9 @@ erDiagram
 
 ### K. FEATURE_FLAG Entity *(NEW — Configuration Context)*
 - `id` (UUID, PK)
+- `code` (string, Unique globally): Canonical feature flag identifier (alias of `flag_code` for catalog consistency).
+- `value` (jsonb): Effective operational flag value/payload (`enabled`, variant, or rollout object).
+- `description` (text): Functional purpose, impact, expected behavior, and scope.
 - `flag_code` (string, Unique globally): Machine-readable identifier (e.g., `FLEET_DISPATCH_NEW_UI_V2`)
 - `type` (enum): `BOOLEAN`, `VARIANT`, `PERCENTAGE`
 - `targets` (jsonb): Scoping rules `{ systems, tenants, organizations, branches, roles, users, environments, rollout_percentage }`
@@ -174,6 +183,34 @@ erDiagram
 - `justification` (text): Business rationale for granting access.
 - `status` (enum): `DRAFT`, `PENDING_APPROVAL`, `APPROVED`, `REJECTED`.
 - `approved_by` (UUID, FK, Nullable → USER): PAP Admin who authorized the request.
+
+---
+
+## 🧩 3.1 Mandatory Parametric Catalog Standard
+
+All parameter/configuration/catalog entities MUST include, at minimum:
+
+- `code`
+- `value`
+- `description`
+
+`description` MUST clearly document:
+
+1. purpose of use,
+2. functional impact,
+3. expected behavior,
+4. applicable scope/configuration context.
+
+This standard applies to global, tenant, and system/suite scoped parameters; feature flags; policies; security configurations; workflows; business rules; and notification/approval configurations.
+
+All these entities must also define:
+
+- uniqueness constraints by scope,
+- versioning strategy,
+- audit metadata,
+- traceability events,
+- cacheability/invalidation strategy,
+- forward extensibility.
 
 ---
 

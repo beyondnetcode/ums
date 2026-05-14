@@ -30,6 +30,9 @@ La siguiente tabla define los entregables obligatorios, el alcance estratégico 
 | **14** | [Infraestructura de Despliegue](#-11-infraestructura-de-despliegue-y-topología-cloud) | Diseño de la topología y costos operativos. |
 | **15** | [Estructura de Desglose de Trabajo](#-5-gestión-de-deuda-técnica-y-hoja-de-ruta-arquitectónica-backlog) | Hoja de ruta con fases, sprints e hitos. |
 
+> [!IMPORTANT]
+> **Estándar Obligatorio de Catálogos Paramétricos:** Todas las tablas y entidades de parámetros/configuración/catálogos en UMS DEBEN incluir `code`, `value` y `description`, con unicidad por alcance, versionado, auditoría, trazabilidad, cacheabilidad y extensibilidad futura. Aplica a parámetros globales/tenant/system, feature flags, políticas, configuración de seguridad, workflows, reglas de negocio y configuraciones de notificación/aprobación.
+
 ---
 
 ## 🗺️ 2. Modelo C4
@@ -508,6 +511,5 @@ El framework admite una matriz de acciones empresarial estándar que incluye:
 ### 14.3 Gobernanza y Trazabilidad
 *   **Denegación Explícita**: Admite anulaciones a nivel de perfil sin mutar la plantilla maestra.
 *   **Cumplimiento de Auditoría**: Cada materialización y anulación se captura con campos de auditoría corporativa completos e IDs de correlación.
-
 
 

@@ -27,6 +27,9 @@ The following table defines the mandatory deliverables, strategic scope, and con
 | **14** | [Deployment Infrastructure](#-11-deployment-infrastructure--cloud-topology) | Layout of the topology (cloud/on-premise/hybrid) and operational costs. |
 | **15** | [Work Breakdown Structure & Plan](#-5-technical-debt-management--architectural-roadmap-backlog) | Roadmap with phases, sprints, and milestones. |
 
+> [!IMPORTANT]
+> **Mandatory Parametric Catalog Standard:** All parameter/configuration/catalog tables and entities in UMS MUST include `code`, `value`, and `description`, with enforced uniqueness by scope, versioning, auditability, traceability, cacheability, and future extensibility. This applies to global/tenant/system-scope parameters, feature flags, policies, security settings, workflows, business rules, and notification/approval configuration.
+
 ---
 
 ## 🗺️ 2. C4 Model
@@ -506,7 +509,6 @@ The framework supports a standard enterprise action matrix including:
 ### 14.3 Governance & Traceability
 *   **Explicit Deny**: Supports overrides at the profile level without mutating the master template.
 *   **Audit Compliance**: Every materialization and override is captured with full corporate audit fields and correlation IDs.
-
 
 
 

@@ -1,52 +1,92 @@
-# 🧪 Functional Story 10: B2B External Access Request and Approval Flow
+# Functional Story 10: B2B External Access Request and Approval Flow
 
-This document specifies the transaction flow, actors, preconditions, postconditions, and exception handling for sponsoring, approving, and provisioning access for external B2B organizations (clients, suppliers, partners) and their users under the **BMAD-METHOD spec-driven AI strategy**.
+## 1. Business Purpose
+
+Internal users need a controlled way to request access for external business partners such as clients, suppliers, and partner organizations. UMS must ensure that external access is justified, approved, traceable, and limited to the correct business scope.
 
 ---
 
-## 🏛️ 1. Use Case Definition
+## 2. Actors
 
-| Attribute | Specification |
+| Actor | Responsibility |
 | :--- | :--- |
-| **Name** | B2B External Access Request and Approval Flow |
-| **Primary Actor** | Sponsor User (Internal Corporate Employee) |
-| **Secondary Actors** | PAP Administrator (Approver), Target External User |
-| **Preconditions** | The Sponsor User is authenticated and belongs to an `INTERNAL` organization. Holds the `CREATE_EXTERNAL_REQUEST` permission. |
-| **Postconditions** | An immutable audit trail `EXTERNAL_ACCESS_REQUEST` is created. The external User and Organization are provisioned and logically isolated. |
+| **Sponsor User** | Requests and justifies access for an external user. |
+| **PAP Administrator** | Reviews, approves, or rejects the request. |
+| **External User** | Receives onboarding after approval. |
 
 ---
 
-## 🔄 2. Transaction Flow
+## 3. Business Preconditions
 
-### A. Main Flow (Happy Path)
-1. **Initiation:** The Sponsor User navigates to the "B2B Access Management" module and selects "New External Request".
-2. **Organization Data Entry:** The Sponsor specifies the target organization. If the organization does not exist, they provide the legal name, ERP reference code, and organization type (`CLIENT` or `SUPPLIER`).
-3. **User Data Entry:** The Sponsor enters the target external user's email and selects an allowed Profile (e.g. "Supplier Portal — Read Only").
-4. **Justification:** The Sponsor writes a mandatory business justification and submits the form.
-5. **Record Creation:** The UMS Engine (.NET 8) creates an `EXTERNAL_ACCESS_REQUEST` record with status `PENDING_APPROVAL`.
-6. **Notification:** The UMS Engine dispatches an internal notification to PAP Administrators alerting them of a pending request.
-7. **Evaluation:** A PAP Administrator reviews the request in the pending queue and clicks "Approve".
-8. **Provisioning (Event-Driven):**
-    * The `EXTERNAL_ACCESS_REQUEST` status is updated to `APPROVED` along with the `approved_by` audit trail.
-    * The UMS Engine creates the external `ORGANIZATION` (if it did not exist) linked to the primary `tenant_id`.
-    * The UMS Engine pre-registers the `USER` with the requested `PROFILE`.
-9. **Onboarding:** The UMS Engine sends a secure Magic Link (Passwordless) or a Welcome Email to the external user's email address to complete system enrollment.
+- The sponsor is an authenticated internal corporate user.
+- The sponsor has permission to request external access.
+- The requested access profile is available for external users.
 
 ---
 
-## 🛡️ 3. Alternative Flows and Exception Handling
+## 4. Main Functional Flow
 
-### Alternative Flow A: Rejection by the PAP
-* If the PAP Administrator clicks "Reject" and provides a rejection reason: The `EXTERNAL_ACCESS_REQUEST` status is updated to `REJECTED`. The Sponsor is notified and no external entities are provisioned.
-
-### Alternative Flow B: Invalid Requested Profile
-* If the Sponsor attempts to bypass UI controls and sends an API payload requesting a highly privileged internal Profile: The UMS Engine rejects the request returning a `403 Forbidden` exception, logging a security audit event for privilege escalation attempt.
-
-### Alternative Flow C: External Organization Already Exists
-* If the Engine detects that the organization already exists during provisioning: The Engine safely attaches the new user to the existing organization instead of raising a conflict error.
+1. The sponsor opens the B2B access management area and starts a new external access request.
+2. The sponsor identifies the external organization. If it does not exist, the sponsor provides the legal name, external reference code, and organization type.
+3. The sponsor enters the external user's email address and selects an allowed external profile.
+4. The sponsor provides a mandatory business justification.
+5. The system creates a pending access request and notifies the responsible approvers.
+6. A PAP Administrator reviews the request, justification, target organization, and requested profile.
+7. If the request is appropriate, the PAP Administrator approves it.
+8. The system provisions or links the external organization and prepares the external user for onboarding.
+9. The external user receives a secure onboarding message to complete registration.
 
 ---
 
-## 📋 4. Postconditions and Audit
-* An immutable audit trail (`EXTERNAL_ACCESS_REQUEST`) exists that explains exactly why and by whom access was granted to the external entity.
-* The external User is logically isolated within their own `ORGANIZATION` boundary, enabling native Row-Level Security (RLS) enforcement in **SQL Server 2022** via `SESSION_CONTEXT` and Security Policies.
+## 5. Alternative Flows and Exceptions
+
+### A. Request Rejected
+
+If the PAP Administrator rejects the request, the sponsor is notified with the rejection reason and no external access is granted.
+
+### B. Requested Profile Is Not Allowed
+
+If the sponsor requests a profile that is not allowed for external users, the system blocks the request and records the attempted privilege escalation.
+
+### C. External Organization Already Exists
+
+If the organization already exists, the system links the new user to the existing organization instead of creating a duplicate.
+
+---
+
+## 6. Business Rules
+
+1. External access must always have an internal sponsor.
+2. External access must have a business justification.
+3. External users must not receive internal administrative profiles.
+4. Approval or rejection must be traceable to the approving administrator.
+5. External users must remain logically isolated within their organization boundary.
+
+---
+
+## 7. Acceptance Criteria
+
+1. A sponsor can submit a complete external access request.
+2. A PAP Administrator can approve or reject the request with a visible outcome.
+3. Rejected requests do not provision users or organizations.
+4. Duplicate external organizations are handled without creating conflicting records.
+5. Privileged internal profiles cannot be assigned to external users.
+
+---
+
+## 8. Technical Requirements
+
+- Persist the request as `EXTERNAL_ACCESS_REQUEST` / `APPROVAL_REQUEST` with pending, approved, and rejected states.
+- Record immutable audit data including sponsor, approver, justification, status, and timestamps.
+- Enforce profile validation at the service/API boundary.
+- Use application-layer tenant filtering as the primary isolation control and SQL Server 2022 RLS as infrastructure hardening.
+- Emit provisioning and audit events after approval.
+- Return an authorization failure for privilege escalation attempts.
+
+---
+
+## 9. Traceability
+
+- Entities: `APPROVAL_REQUEST`, `APPROVAL_WORKFLOW`, `USER_ACCOUNT`, `PROFILE`, `TENANT`
+- ADRs: ADR-0031, ADR-0032, ADR-0038, ADR-0044
+- Related Stories: FS-03, FS-14

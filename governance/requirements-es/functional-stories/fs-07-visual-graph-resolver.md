@@ -1,71 +1,64 @@
-# 🧪 Functional Story 7: Diagnosticar Permisos vía Visualizador de Grafos
+# Functional Story 7: Diagnosticar Permisos vía Visualizador de Grafos
 
-Este caso de uso especifica el flujo para que los ingenieros de SRE y los administradores de seguridad diagnostiquen y visualicen el grafo de autorización compilado para un usuario específico dentro de una organización, sede y contexto de sistema objetivo.
+## 1. Propósito de Negocio
 
----
+Los equipos de soporte y seguridad necesitan entender por qué un usuario puede o no puede realizar una acción. UMS debe ofrecer una explicación visual clara de permisos efectivos, rutas permitidas, rutas denegadas y razones de decisión.
 
-## 🏛️ 1. Definición del Caso de Uso
+## 2. Actores
 
-| Atributo | Especificación |
+| Actor | Responsabilidad |
 | :--- | :--- |
-| **Nombre** | Diagnosticar Permisos vía Visualizador de Grafos |
-| **Actor Principal** | SRE / Ingeniero de Soporte |
-| **Precondiciones** | El actor está autenticado con rol SRE o SuperAdmin en la Consola Admin UMS. El usuario destino existe y tiene al menos un perfil asignado. |
-| **Postcondiciones** | El grafo de autorización compilado es renderizado visualmente. El actor puede identificar rutas permitidas (verde), denegadas (rojo) y la razón de cada decisión. |
+| **SRE / Ingeniero de Soporte** | Investiga problemas de permisos. |
+| **Administrador de Seguridad** | Revisa configuración y decisiones de autorización. |
 
----
+## 3. Precondiciones de Negocio
 
-## 🔄 2. Flujo de Transacción
+- El actor tiene permisos de diagnóstico.
+- El usuario objetivo existe.
+- El usuario objetivo tiene al menos un perfil.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor SRE as SRE / Ingeniero Soporte
-    participant Console as Consola Admin UMS
-    participant API as API .NET 8 UMS
-    participant Engine as Motor Auth (PDP)
-    participant Cache as Caché Redis
-    participant DB as PostgreSQL
+## 4. Flujo Funcional Principal
 
-    SRE->>Console: Navegar al módulo Visualizador de Grafos
-    SRE->>Console: Buscar usuario por email o user_id
-    Console->>API: GET /api/v1/users?email=analyst@logisticscorp.com
-    API-->>Console: Retornar registro de usuario coincidente
-    SRE->>Console: Seleccionar Organización, Sede y Sistema Objetivo
-    Console->>API: POST /v1/authorization/graph/diagnostic { user_id, tenant_id, branch_id, system_id }
-    Note over API: Omite caché para diagnóstico - siempre re-compila desde DB
-    API->>Engine: Disparar compilación fresca del grafo
-    Engine->>DB: Consultar todos los perfiles y plantillas para el usuario
-    Engine->>Engine: Aplicar reglas de Precedencia de Denegación Explícita
-    Engine-->>API: Retornar grafo anotado con razones de decisión por nodo
-    API-->>Console: Retornar payload diagnóstico { graph, decisions, source_rules }
-    Console->>SRE: Renderizar Ãrbol Visual interactivo
-    Note over Console: Verde = PERMITIDO, Rojo = DENEGADO, Gris = No Asignado
-    SRE->>Console: Clic en nodo para ver razón de decisión
-    Console->>SRE: Mostrar fuente de regla (template_id, profile_id, efecto, razón)
-```
+1. El actor busca al usuario objetivo.
+2. El actor selecciona tenant, sede y sistema para el diagnóstico.
+3. El sistema resuelve los permisos efectivos del usuario para ese contexto.
+4. El sistema muestra un grafo visual de rutas permitidas y denegadas.
+5. El actor puede inspeccionar la razón de cada decisión.
+6. El actor usa la explicación para resolver problemas de soporte o configuración.
 
-### A. Flujo Principal
-1. El SRE navega al módulo **Visualizador de Grafos** en la Consola de Administración.
-2. Escribe el correo del usuario o `user_id` en el buscador. El sistema devuelve los registros de usuarios coincidentes.
-3. Selecciona la **Organización**, **Sede** y **Sistema** a través de listas desplegables en cascada.
-4. Hace clic en **Resolver Grafo**. La API llama al **endpoint de diagnóstico** del Motor de Autorización, el cual **siempre ignora la caché de Redis** y recompila directamente desde PostgreSQL para mostrar el estado actual real (ground-truth).
-5. El motor devuelve un grafo anotado que incluye, para cada nodo de Módulo/Menú/Opción/Acción:
-    - El `efecto` (`ALLOW`, `DENY` o `NOT_ASSIGNED`).
-    - La `fuente de regla` (`template_id` o `profile_id` que produjo el efecto).
-    - La `razón` (ej., `Concedido por Analyst_Baseline_v1`, `Bloqueado por DENY explícito en perfil PortSupervisor_Callao`).
-6. La Consola renderiza el árbol interactivamente: **nodos verdes** para PERMITIR (ALLOW), **nodos rojos** para DENEGAR (DENY), **nodos grises** para NO ASIGNADO.
-7. El SRE puede hacer clic en cualquier nodo para expandir su panel de justificación de decisión.
+## 5. Flujos Alternativos y Excepciones
 
----
+### A. Usuario Sin Perfiles
 
-## 🛡️ 3. Flujos Alternativos y Manejo de Excepciones
+Si el usuario no tiene perfiles activos, el sistema muestra que no existen permisos disponibles por asignación.
 
-### Flujo Alternativo A: Usuario sin Asignaciones de Perfil
-- Si el usuario no tiene perfiles activos para el contexto seleccionado, el árbol se renderiza completamente gris con el mensaje: *"No se encontraron asignaciones de perfil activas para este usuario en el contexto seleccionado. Asigne un perfil o plantilla para conceder acceso."*
+### B. Reglas en Conflicto
 
-### Flujo Alternativo B: Sede no Seleccionada (Alcance de Toda la Organización)
-- Si el campo sede se deja en blanco, el diagnóstico resuelve permisos a nivel de toda la organización, excluyendo sobreescrituras (overrides) de perfiles con alcance específico de sede.
+Si aplican reglas de permitir y denegar, el sistema explica que la denegación explícita tiene prioridad.
 
-### Flujo Alternativo C: Presencia de Política de Geocercado (Geofencing)
-- Si el grafo compilado contiene metadatos de geocercado ABAC en cualquier nodo, el visualizador muestra la restricción de geocercado en línea (ej., `callao_port_radius_10km`) como una anotación informativa sin evaluar la ubicación en tiempo de ejecución.
+## 6. Reglas de Negocio
+
+1. El diagnóstico debe explicar la razón detrás de cada decisión.
+2. Los permisos denegados deben distinguirse visualmente de los permitidos.
+3. El acceso diagnóstico debe restringirse a roles autorizados de soporte o seguridad.
+4. El diagnóstico no debe otorgar permisos adicionales.
+
+## 7. Criterios de Aceptación
+
+1. Usuarios autorizados pueden diagnosticar permisos efectivos para un usuario y contexto.
+2. El grafo muestra claramente rutas permitidas y denegadas.
+3. Las razones de decisión son visibles.
+4. Los usuarios sin perfiles muestran un estado comprensible sin permisos.
+
+## 8. Requisitos Técnicos
+
+- Resolver el grafo diagnóstico de autorización sin mutar permisos.
+- Incluir reglas fuente y razones de decisión en la respuesta diagnóstica.
+- Omitir o refrescar caché cuando la precisión diagnóstica requiera datos fuente actuales.
+- Emitir eventos de auditoría por acceso diagnóstico.
+
+## 9. Trazabilidad
+
+- Entidades: `PROFILE`, `PROFILE_PERMISSION`, `PERMISSION_TEMPLATE`, `ACTION`
+- ADRs: ADR-0021, ADR-0039
+- Technical Enabler: TE-01

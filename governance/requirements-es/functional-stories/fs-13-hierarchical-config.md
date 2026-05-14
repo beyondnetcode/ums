@@ -1,48 +1,92 @@
-# 📘 Functional Story 13: Configurar Parámetros Jerárquicos del Sistema
+# Functional Story 13: Configurar Parámetros Jerárquicos del Sistema
 
-Este documento especifica el flujo para gestionar configuraciones y feature flags bajo un modelo de herencia y anulaciones (overrides).
+## 1. Propósito de Negocio
+
+Los administradores necesitan configurar el comportamiento del sistema sin solicitar un despliegue cada vez que un tenant, sistema o módulo requiere una regla operativa distinta. UMS debe permitir configuración controlada en múltiples alcances, preservando reglas claras de herencia y sobrescritura.
 
 ---
 
-## 🏛️ 1. Definición del Caso de Uso
+## 2. Actores
 
-| Atributo | Especificación |
+| Actor | Responsabilidad |
 | :--- | :--- |
-| **Nombre** | Configurar Parámetros Jerárquicos del Sistema |
-| **Actor Principal** | Administrador Global / de Tenant / de Sistema |
-| **Precondiciones** | El actor tiene permisos de administración sobre el alcance (Scope) seleccionado. |
-| **Postcondiciones** | El parámetro es persistido y aplicado dinámicamente según la regla de herencia. |
+| **Administrador Global** | Define valores por defecto aplicables a toda la plataforma. |
+| **Administrador de Tenant** | Ajusta comportamiento para un tenant cuando la política global lo permite. |
+| **Administrador de Sistema** | Ajusta comportamiento para un sistema o suite registrada. |
+| **Sistema Cliente** | Consume la configuración efectiva resuelta por UMS. |
 
 ---
 
-## 🔄 2. Flujo de Transacción
+## 3. Precondiciones de Negocio
 
-### A. Flujo Principal
-1.  El administrador accede al panel de configuración.
-2.  Selecciona el alcance (Scope) de la configuración: Global, Tenant, Sistema (Suite) o Módulo.
-3.  Ingresa el código del parámetro (ej. `ENABLE_DOC_VALIDATION`) y su valor.
-4.  Define si el parámetro es heredable (`IsInheritable`) por niveles inferiores.
-5.  El sistema valida si existe una restricción de "No Heredable" en un nivel superior que impida la anulación.
-6.  El sistema persiste el registro en `APP_CONFIGURATION`.
-7.  Los servicios consumen el valor resuelto siguiendo la lógica: "El valor más específico (Módulo > Sistema > Tenant > Global) prevalece".
+- El administrador está autenticado.
+- El administrador tiene permiso para gestionar configuración en el alcance seleccionado.
+- El tenant, sistema o módulo destino está registrado y activo.
 
 ---
 
-## 🛡️ 3. Flujos Alternativos y Manejo de Excepciones
+## 4. Flujo Funcional Principal
 
-### Flujo Alternativo A: Intento de Override Bloqueado
-*   Si un administrador de Tenant intenta cambiar un valor que fue marcado como `IsInheritable = FALSE` a nivel Global, el sistema rechaza el cambio y muestra la política de cumplimiento superior.
+1. El administrador abre el panel de configuración.
+2. El administrador selecciona el alcance donde aplicará el parámetro: Global, Tenant, System/Suite o Module.
+3. El administrador registra el identificador del parámetro, su valor y una descripción clara de su propósito de negocio.
+4. El administrador decide si niveles inferiores podrán sobrescribir el valor.
+5. El sistema verifica si una restricción superior impide el cambio solicitado.
+6. El sistema guarda el parámetro y lo deja disponible para resolver la configuración efectiva.
+7. Los sistemas cliente reciben el valor más específico aplicable según la jerarquía.
 
 ---
 
-## 📋 4. Detalles de Implementación
+## 5. Flujos Alternativos y Excepciones
 
-### Entidades Involucradas
-- `APP_CONFIGURATION`
-- `TENANT`
-- `SYSTEM_SUITE`
+### A. Sobrescritura No Permitida
 
-### Criterios de Aceptación
-1.  Un cambio en el nivel Global debe propagarse a todos los Tenants que no tengan un override específico.
-2.  El sistema debe soportar valores cifrados para parámetros marcados como sensibles.
-3.  La resolución del parámetro debe ocurrir en tiempo real o mediante caché invalidable.
+Si un administrador de nivel superior marcó el parámetro como no sobrescribible, el sistema impide el cambio inferior e informa qué regla superior controla el comportamiento.
+
+### B. Descripción Funcional Faltante
+
+Si el administrador no proporciona una descripción significativa, el sistema impide la publicación y solicita documentar propósito, impacto, comportamiento esperado y alcance aplicable.
+
+### C. Parámetro Duplicado en el Mismo Alcance
+
+Si ya existe un parámetro con el mismo identificador en el alcance seleccionado, el sistema evita la duplicidad y orienta al administrador a editar el parámetro existente o crear un cambio versionado.
+
+---
+
+## 6. Reglas de Negocio
+
+1. Gana el valor más específico aplicable: Module sobre System/Suite, System/Suite sobre Tenant, Tenant sobre Global.
+2. Un valor no sobrescribible bloquea cambios en alcances inferiores.
+3. Todo parámetro configurable debe incluir `code`, `value` y `description`.
+4. La descripción debe explicar propósito, impacto funcional, comportamiento esperado y alcance.
+5. Los valores sensibles deben tratarse como configuración protegida y no exponerse en texto plano a usuarios no autorizados.
+
+---
+
+## 7. Criterios de Aceptación
+
+1. Un administrador puede crear un parámetro en un alcance permitido.
+2. El sistema impide sobrescrituras inferiores cuando una regla superior las bloquea.
+3. El valor efectivo entregado al sistema cliente respeta las reglas de jerarquía.
+4. Un parámetro no puede publicarse sin una descripción funcional clara.
+5. No se permiten identificadores duplicados dentro del mismo alcance.
+
+---
+
+## 8. Requisitos Técnicos
+
+- Persistir configuraciones en `APP_CONFIGURATION`.
+- Campos obligatorios: `Code`, `Value`, `Description`.
+- Aplicar unicidad por alcance mediante `UX_APP_CONFIGURATION_CODE_SCOPE`.
+- Soportar linaje de versiones, auditoría, eventos de trazabilidad, cacheabilidad e invalidación.
+- Los parámetros sensibles deben soportar valores cifrados.
+- La configuración efectiva puede cachearse, pero debe invalidarse cuando cambia un parámetro.
+
+---
+
+## 9. Trazabilidad
+
+- Entidades: `APP_CONFIGURATION`, `TENANT`, `SYSTEM_SUITE`, `FUNCTIONAL_MODULE`
+- ADRs: ADR-0024, ADR-0047
+- Technical Enabler: TE-02 Resolve Hierarchical System Configuration
+- Estándar: Estándar de Redacción de Historias Funcionales; Estándar de Catálogos Paramétricos

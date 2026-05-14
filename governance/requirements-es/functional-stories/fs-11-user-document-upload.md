@@ -1,49 +1,64 @@
-# 📘 Functional Story 11: Cargar y Validar Documento de Usuario
+# Functional Story 11: Cargar y Validar Documento de Usuario
 
-Este documento especifica el flujo para la carga, registro de metadatos y validación de documentos requeridos para el cumplimiento (compliance) y la identidad del usuario.
+## 1. Propósito de Negocio
 
----
+Los usuarios y administradores necesitan entregar documentos requeridos para que UMS valide identidad, cumplimiento y elegibilidad de acceso. El sistema debe mantener el estado documental entendible y trazable.
 
-## 🏛️ 1. Definición del Caso de Uso
+## 2. Actores
 
-| Atributo | Especificación |
+| Actor | Responsabilidad |
 | :--- | :--- |
-| **Nombre** | Cargar y Validar Documento de Usuario |
-| **Actor Principal** | Usuario / Administrador de Identidad |
-| **Precondiciones** | El usuario existe y el `DOCUMENT_TYPE` está configurado en el sistema. |
-| **Postcondiciones** | El documento se almacena en el servidor de archivos y el registro operativo es persistido con su fecha de vigencia. |
+| **Usuario** | Carga su propio documento requerido. |
+| **Administrador de Identidad** | Carga o revisa documentos en nombre de usuarios. |
+| **Revisor de Cumplimiento** | Confirma si el documento es aceptable. |
 
----
+## 3. Precondiciones de Negocio
 
-## 🔄 2. Flujo de Transacción
+- El usuario existe.
+- El tipo de documento está configurado.
+- El actor tiene permiso para cargar o revisar el documento.
 
-### A. Flujo Principal
-1.  El actor selecciona el tipo de documento a cargar (ej. Identidad, Contrato, Certificado).
-2.  El actor adjunta el archivo físico y proporciona la fecha de emisión (`IssueDate`) y expiración (`ExpirationDate`).
-3.  El sistema genera un hash de integridad (`Checksum`) del archivo.
-4.  El sistema almacena el archivo en el servidor de archivos/cloud storage y obtiene la ruta de acceso (`FileStoragePath`).
-5.  El sistema registra la entidad `USER_DOCUMENT` vinculando el archivo al usuario y clasificándolo por su tipo.
-6.  El sistema marca el estado del documento como `VALID` (si está dentro de rango de fecha) o `PENDING_RENEWAL`.
+## 4. Flujo Funcional Principal
 
----
+1. El actor selecciona el tipo de documento requerido.
+2. El actor carga el archivo y registra fechas de emisión y vencimiento.
+3. El sistema valida que las fechas sean coherentes.
+4. El sistema registra el documento y marca su estado inicial de cumplimiento.
+5. El documento queda disponible para revisión y futuras verificaciones de cumplimiento.
 
-## 🛡️ 3. Flujos Alternativos y Manejo de Excepciones
+## 5. Flujos Alternativos y Excepciones
 
-### Flujo Alternativo A: Documento Expirado en Carga
-*   Si la fecha de expiración ingresada es menor a la fecha actual, el sistema registra el documento con estado `EXPIRED` y dispara una notificación inmediata de regularización.
+### A. Documento Ya Vencido
 
-### Flujo Alternativo B: Error de Integridad
-*   Si el cálculo del Checksum falla o se detecta un archivo corrupto, el sistema aborta la persistencia y solicita al usuario cargar el archivo nuevamente.
+Si el documento está vencido al momento de carga, el sistema lo registra como vencido e inicia el flujo de regularización.
 
----
+### B. Archivo No Aceptable
 
-## 📋 4. Detalles de Implementación
+Si el archivo está corrupto, no puede leerse o incumple reglas de carga, el sistema solicita cargar un archivo válido.
 
-### Entidades Involucradas
-- `USER_DOCUMENT`
-- `DOCUMENT_TYPE`
+## 6. Reglas de Negocio
 
-### Criterios de Aceptación
-1.  El sistema debe rechazar archivos que superen el tamaño máximo configurado.
-2.  La fecha de expiración debe ser obligatoriamente posterior a la fecha de emisión.
-3.  El registro en la base de datos debe contener la ruta exacta del servidor de archivos para su recuperación posterior.
+1. La fecha de vencimiento debe ser posterior a la fecha de emisión.
+2. Todo documento requerido debe vincularse a un tipo de documento configurado.
+3. Los documentos críticos pueden afectar el acceso al vencer.
+4. Todo cambio de estado documental debe ser trazable.
+
+## 7. Criterios de Aceptación
+
+1. Un documento válido puede cargarse y vincularse al usuario.
+2. Las fechas inválidas son rechazadas.
+3. Los documentos vencidos quedan claramente marcados.
+4. El documento puede usarse en flujos de cumplimiento y enforcement.
+
+## 8. Requisitos Técnicos
+
+- Persistir metadata en `USER_DOCUMENT`.
+- Clasificar documentos mediante `DOCUMENT_TYPE`.
+- Guardar ubicación del archivo y checksum para recuperación e integridad.
+- Emitir eventos de auditoría por carga, validación, rechazo y cambios de estado.
+
+## 9. Trazabilidad
+
+- Entidades: `USER_DOCUMENT`, `DOCUMENT_TYPE`
+- ADRs: ADR-0045, ADR-0016
+- Historias relacionadas: FS-15, FS-16

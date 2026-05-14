@@ -1,63 +1,90 @@
-# 📘 Functional Story 1: Autenticación de Usuario vía IdP Externo
+# Functional Story 1: Autenticación Corporativa vía IdP Externo
 
-Este documento especifica el flujo de transacciones, los actores y las estrategias de respaldo para autenticar a un usuario corporativo mediante un proveedor de identidad externo (IdP) bajo la **estrategia spec-driven AI BMAD-METHOD**.
+## 1. Propósito de Negocio
+
+Los usuarios corporativos necesitan acceder a los sistemas cliente usando el proveedor de identidad confiable de su organización. UMS debe validar que el usuario esté reconocido, activo y autorizado para iniciar una sesión segura sin exigir una contraseña separada administrada por cada aplicación.
 
 ---
 
-## 🏛️ 1. Definición del Caso de Uso
+## 2. Actores
 
-| Atributo | Especificación |
+| Actor | Responsabilidad |
 | :--- | :--- |
-| **Nombre** | Autenticación de Usuario vía IdP Externo |
-| **Actor Principal** | Usuario Corporativo |
-| **Precondiciones** | El usuario está registrado en la base de datos de ULPMS y posee una referencia de identidad válida. |
-| **Postcondiciones** | La sesión se establece en la aplicación cliente y se devuelve una cookie segura HTTP-Only. |
+| **Usuario Corporativo** | Intenta iniciar sesión en un sistema cliente. |
+| **Proveedor de Identidad Externo** | Confirma la identidad corporativa del usuario. |
+| **UMS** | Valida la identidad contra registros activos y establece la sesión de aplicación. |
+| **Administrador TI** | Puede usar acceso de emergencia cuando el proveedor externo no está disponible. |
 
 ---
 
-## 🔄 2. Flujo de Transacción
+## 3. Precondiciones de Negocio
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor User as Usuario Corporativo
-    participant Web as App Web React
-    participant IdP as Proveedor de Identidad (OIDC)
-    participant API as API Gateway .NET 8
-
-    User->>Web: Clic en Iniciar Sesión
-    Web->>IdP: Redirigir con Flujo Auth Code PKCE
-    User->>IdP: Ingresar Credenciales Corporativas
-    IdP-->>Web: Redirigir con Auth Code
-    Web->>API: Intercambiar Auth Code
-    Note over API: Verificar Token y Claim de Identidad
-    API-->>Web: Configurar Cookie de Sesión HTTP-Only
-```
-
-### A. Flujo Principal
-1.  El usuario accede al portal cliente y hace clic en el botón "Iniciar Sesión con SSO Corporativo".
-2.  El cliente web redirige al usuario al endpoint de autorización del Proveedor de Identidad externo configurado (Keycloak/Azure AD) utilizando el **Flujo de Código de Autorización OAuth 2.0 con PKCE**.
-3.  El usuario se autentica exitosamente utilizando sus credenciales corporativas en el portal del IdP.
-4.  El IdP redirige el navegador de vuelta al portal cliente con un Código de Autorización de un solo uso autorizado.
-5.  El backend cliente intercambia el Código de Autorización con el IdP por un Token de Acceso firmado criptográficamente (JWT) que contiene los claims de identidad.
-6.  El backend verifica la firma RS256 del token y valida que la `identity_reference` coincida con un registro de identidad activa en la base de datos local del cliente.
-7.  El sistema inicializa la sesión del usuario, inyecta el contexto del tenant y devuelve una cookie de sesión segura, HTTP-Only y SameSite=Strict.
+- El usuario existe en UMS y está vinculado a una referencia de identidad corporativa válida.
+- La cuenta del usuario está activa.
+- La organización tiene configurado un proveedor de identidad.
 
 ---
 
-## 🛡️ 3. Flujos Alternativos y Manejo de Excepciones
+## 4. Flujo Funcional Principal
 
-### Flujo Alternativo A: IdP Externo Inaccesible
-*   Si falla la conexión a Keycloak/Azure AD, el API Gateway intercepta el error de tiempo de espera (timeout).
-*   El sistema muestra una página de credenciales de respaldo segura que permite a los Administradores de TI autorizados iniciar sesión utilizando credenciales locales de emergencia de ULPMS, mientras que a los operadores estándar se les solicita reintentar.
-
-### Flujo Alternativo B: Referencia de Miembro de Organización no Vinculada
-*   Si el token del IdP autenticado es exitoso pero no se encuentra la `identity_reference` o está suspendida en la base de datos cliente:
-    *   El backend aborta el proceso de inicio de sesión.
-    *   Guarda una advertencia de seguridad dentro de los registros de auditoría de acceso inmutables.
-    *   Devuelve una respuesta `403 Forbidden` explicando que la cuenta corporativa no está activa en el portal cliente.
+1. El usuario abre el portal cliente y selecciona inicio de sesión corporativo.
+2. El usuario es redirigido al proveedor de identidad confiable de su organización.
+3. El usuario se autentica con sus credenciales corporativas.
+4. El proveedor de identidad confirma la identidad del usuario a UMS.
+5. UMS verifica que la identidad pertenezca a un usuario registrado y activo.
+6. UMS establece la sesión del usuario y aplica el contexto de tenant correcto.
+7. El usuario ingresa a la aplicación cliente con los permisos asignados a sus perfiles.
 
 ---
 
-## 📋 4. Referencia del Modelo Operativo Principal
-El flujo de transacción completo, las consideraciones de autenticación multifactor y las rutas de error para este caso de uso están modeladas en torno al **Analista de Negocio** iniciando una sesión en el Terminal Portuario del Callao (bajo *Logistics Corp*). Para conocer los esquemas técnicos detallados, estructuras de parámetros y ejemplos de OpenAPI, consulte **[enterprise-iam-ums-specification.md](../../04-artifacts/enterprise-iam-ums-specification.md)**.
+## 5. Flujos Alternativos y Excepciones
+
+### A. Proveedor de Identidad Externo No Disponible
+
+Si el proveedor de identidad externo no está disponible, los usuarios estándar deben reintentar más tarde. Los administradores TI autorizados pueden usar una ruta de acceso local de emergencia cuando la política lo habilite.
+
+### B. Identidad Corporativa No Vinculada o Inactiva
+
+Si la identidad externa es válida pero no está vinculada a un usuario activo en UMS, el inicio de sesión se rechaza y se registra una advertencia de seguridad.
+
+### C. Cuenta de Usuario Suspendida
+
+Si el usuario existe pero está suspendido o terminado, el sistema bloquea el acceso y muestra un mensaje claro sobre el estado de la cuenta.
+
+---
+
+## 6. Reglas de Negocio
+
+1. Una identidad corporativa por sí sola no basta; el usuario también debe estar activo en UMS.
+2. El acceso de emergencia se limita a administradores TI explícitamente autorizados.
+3. Todo inicio de sesión fallido o bloqueado debe ser auditable.
+4. El contexto de tenant debe establecerse antes de resolver permisos.
+
+---
+
+## 7. Criterios de Aceptación
+
+1. Un usuario activo y vinculado puede iniciar sesión mediante el proveedor de identidad de su organización.
+2. Un usuario sin registro activo en UMS no puede acceder a la aplicación.
+3. Un usuario suspendido no puede iniciar sesión.
+4. La indisponibilidad del proveedor no otorga acceso silenciosamente.
+5. Los resultados de inicio de sesión quedan disponibles para auditoría y soporte.
+
+---
+
+## 8. Requisitos Técnicos
+
+- Soportar OAuth 2.0 Authorization Code con PKCE para autenticación externa.
+- Validar tokens firmados y claims obligatorios de identidad.
+- Vincular el claim de identidad externa con la referencia de identidad en UMS.
+- Establecer una sesión segura mediante cookies HTTP-only, SameSite o el mecanismo aprobado.
+- Retornar fallo de autorización cuando la identidad no está vinculada o activa.
+- Emitir eventos inmutables de auditoría para fallos y advertencias.
+
+---
+
+## 9. Trazabilidad
+
+- Entidades: `USER_ACCOUNT`, `IDP_CONFIGURATION`, `PROFILE`
+- ADRs: ADR-0020, ADR-0022, ADR-0026
+- Historias relacionadas: FS-08, FS-09

@@ -12,7 +12,9 @@ This document summarizes the rules configuration enforced by the AI agent harnes
 | **R-06** | Separation of Concerns (UC/Story) | `po`, `architect`, `analyst` | UC/Story editing | Classify as Functional/Technical/Enabler. Split Mixed. | Warning |
 | **R-07** | UC Traceability | `po`, `architect`, `dev`, `analyst` | UC modification | Sync impacted diagrams and log modification metadata. | **Critical** |
 | **R-08** | Auth Flow Completeness | `po`, `architect`, `dev`, `analyst` | Auth logic/diagrams | Explicitly model Federated (IDP) & Internal paths. | **Critical** |
-| **R-09** | Functional Readability | `po`, `analyst` | Functional doc editing | Exclude technical jargon from user-facing requirements. | Warning |
+| **R-09** | Functional Readability | `po`, `analyst`, `architect`, `dev` | Functional story editing | Keep business narrative understandable for Product Owners and Business Analysts; move implementation details to a dedicated technical requirements section. | **Critical** |
 | **R-10** | Audit Report Format | `qa`, `po`, `architect`, `analyst`, `sm` | Verification tasks | Produce a structured audit findings report. | **Critical** |
 | **R-11** | PO-first Architect-second | `po`, `architect` | Combined analysis | Ensure Architect follows the Functional/PO base analysis. | Warning |
 | **R-12** | Naming & Tagging | All Agents | Artifact management | Enforce structural naming, prefixes, and tagging. | Info |
+| **R-13** | Parametric Catalog Standard (`code/value/description`) | `architect`, `dev`, `qa`, `analyst` | Any parameter/config/policy/workflow/flag model change | Every parameterization/configuration/catalog table MUST include `code`, `value`, `description` plus uniqueness, versioning, audit, traceability, cacheability and forward extensibility controls. | **Critical** |
+| **R-14** | Functional/Technical Story Split | `po`, `analyst`, `architect`, `dev`, `qa` | New or modified Functional Story | Functional intent, flows, business rules and acceptance criteria MUST be separated from APIs, payloads, protocols, persistence, cache, security controls and implementation constraints. | **Critical** |

@@ -1,60 +1,63 @@
-# 🧪 Functional Story 4: Registrar Sistema y Definir Topología de Menú
+# Functional Story 4: Registrar Sistema y Definir Topología de Menú
 
-Este caso de uso especifica el flujo para registrar una nueva aplicación cliente (Sistema) en el UMS y definir su jerarquía de recursos de navegación (Módulos, Menús, Opciones y Acciones).
+## 1. Propósito de Negocio
 
----
+UMS debe permitir que los administradores registren sistemas cliente y describan su estructura de navegación para asignar permisos sobre capacidades reales del negocio.
 
-## 📑 1. Definición del Caso de Uso
+## 2. Actores
 
-| Atributo | Especificación |
+| Actor | Responsabilidad |
 | :--- | :--- |
-| **Nombre** | Registrar Sistema y Definir Topología de Menú |
-| **Actor Principal** | Administrador de Seguridad Global (SuperAdmin) |
-| **Precondiciones** | El actor está autenticado como SuperAdmin en la Consola de Administración UMS. |
-| **Postcondiciones** | El Sistema se registra con una credencial de API M2M segura. La topología de menú se define y está disponible para la asignación de plantillas. |
+| **Administrador de Seguridad Global** | Registra sistemas cliente y define su topología de menú. |
+| **Dueño del Sistema Cliente** | Proporciona la estructura del sistema y sus acciones de acceso. |
 
----
+## 3. Precondiciones de Negocio
 
-## 🔄 2. Flujo de Transacción
+- El administrador está autorizado para registrar sistemas.
+- El dueño del sistema ha proporcionado módulos, menús, opciones y acciones esperadas.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Admin as Administrador de Seguridad
-    participant Console as Consola Admin UMS
-    participant API as API .NET 8 UMS
-    participant DB as PostgreSQL
-    participant Audit as Registro de Auditoría
+## 4. Flujo Funcional Principal
 
-    Admin->>Console: Navegar a Sistemas > Registrar Nuevo Sistema
-    Admin->>Console: Llenar nombre del sistema, código, URL base
-    Console->>API: POST /api/v1/systems { name, system_code, base_url }
-    API->>DB: Insertar registro SYSTEM, generar api_credential_hash
-    API->>Audit: Registrar Evento SystemRegisteredEvent
-    API-->>Console: 201 Created { systemId, apiCredential }
-    Console-->>Admin: Mostrar credencial del sistema (una sola vez, pedir copiar)
-    Admin->>Console: Navegar a Sistemas > Topología > Agregar Módulo
-    loop Construir Árbol de Topología
-        Admin->>Console: Agregar Módulo → Agregar Menú → Agregar Opciones → Adjuntar Acciones
-        Console->>API: POST /api/v1/systems/{id}/modules (batch recursivo)
-        API->>DB: Insertar registros MODULE / MENU / OPTION / ACTION
-    end
-    API-->>Console: Confirmación de topología guardada
-```
+1. El administrador inicia el registro de un nuevo sistema cliente.
+2. El administrador ingresa nombre, código de negocio e información de enrutamiento.
+3. El sistema queda registrado y disponible para configurar su topología.
+4. El administrador define módulos, menús, opciones y acciones.
+5. El sistema valida que la topología esté suficientemente completa para soportar plantillas de autorización.
+6. La topología queda disponible para asignación de permisos y diagnóstico.
 
-### A. Flujo Principal
-1. El SuperAdmin navega a **Sistemas** y hace clic en **Registrar Nuevo Sistema**.
-2. Llena el nombre del sistema (`Route Planner`), código de máquina (`route_planner`) y la URL base.
-3. La API genera una credencial de API M2M única y hasheada que las aplicaciones cliente utilizarán en los encabezados `Authorization: Bearer` al llamar a `POST /v1/authorization/graph`. Esta credencial se muestra **una sola vez** y debe ser guardada.
-4. El administrador navega al **Constructor de Topología** para el sistema registrado y construye el árbol de navegación: `Módulos → Menús → Opciones → Acciones`.
-5. Cada nodo especifica una etiqueta, un índice de orden y (para las Acciones) un mapeo de endpoint de la API y código de acción (`create`, `read`, `update`, `delete`, `export`, `approve`).
+## 5. Flujos Alternativos y Excepciones
 
----
+### A. Código de Sistema Duplicado
 
-## 🛡️ 3. Flujos Alternativos y Manejo de Excepciones
+Si otro sistema ya usa el mismo código de negocio, UMS impide el registro y solicita elegir un código único.
 
-### Flujo Alternativo A: Código de Sistema Duplicado
-- Si el `system_code` ya existe, la API devuelve un `409 Conflict` con el código de error `ERR_DUPLICATE_SYSTEM_CODE`.
+### B. Topología Incompleta
 
-### Flujo Alternativo B: Topología Incompleta
-- Si una Opción no tiene Acciones definidas, la topología se guarda como borrador pero no puede ser referenciada en Plantillas de Autorización hasta que se vincule al menos una Acción.
+Si un nodo de topología está incompleto, UMS puede guardarlo como borrador pero impide usarlo en plantillas hasta definir las acciones requeridas.
+
+## 6. Reglas de Negocio
+
+1. Los códigos de sistema deben ser únicos.
+2. Menús y opciones deben pertenecer a una jerarquía de sistema registrada.
+3. Las acciones deben ser explícitas antes de asignarse mediante plantillas.
+4. Una topología en borrador no debe otorgar permisos.
+
+## 7. Criterios de Aceptación
+
+1. Un administrador puede registrar un sistema nuevo con código único.
+2. Los códigos duplicados son rechazados.
+3. La topología de menú puede construirse y revisarse.
+4. La topología incompleta no puede usarse para asignación de autorización.
+
+## 8. Requisitos Técnicos
+
+- Persistir topología usando `SYSTEM_SUITE`, `FUNCTIONAL_MODULE`, `FUNCTIONAL_SUBMODULE`, `FUNCTIONAL_OPTION` y `ACTION`.
+- Generar y almacenar credencial segura machine-to-machine para sistemas registrados.
+- Emitir `SystemRegisteredEvent`.
+- Validar completitud de topología antes de usarla en plantillas.
+
+## 9. Trazabilidad
+
+- Entidades: `SYSTEM_SUITE`, `FUNCTIONAL_MODULE`, `FUNCTIONAL_SUBMODULE`, `FUNCTIONAL_OPTION`, `ACTION`
+- ADRs: ADR-0032, ADR-0034, ADR-0047
+- Historias relacionadas: FS-02, FS-07

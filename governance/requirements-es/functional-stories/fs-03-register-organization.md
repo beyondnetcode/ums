@@ -1,55 +1,66 @@
-# 🏢 Functional Story 3: Registrar Organización y Configurar Estrategia de IdP
+# Functional Story 3: Registrar Organización y Configurar Estrategia de IdP
 
-Este caso de uso especifica el flujo para integrar a un nuevo inquilino corporativo (Organización) en el UMS y configurar su estrategia de autenticación de identidad.
+## 1. Propósito de Negocio
 
----
+UMS debe permitir que administradores de seguridad incorporen una nueva organización y definan cómo se autenticarán sus usuarios. Esto da a cada tenant una estrategia clara de identidad manteniendo el registro gobernado y auditable.
 
-## 🏛️ 1. Definición del Caso de Uso
+## 2. Actores
 
-| Atributo | Especificación |
+| Actor | Responsabilidad |
 | :--- | :--- |
-| **Nombre** | Registrar Organización y Configurar Estrategia de IdP |
-| **Actor Principal** | Administrador de Seguridad Global (SuperAdmin) |
-| **Precondiciones** | El actor está autenticado como SuperAdmin en la Consola de Administración UMS. |
-| **Postcondiciones** | La Organización está registrada y activa. La estrategia IdP está persistida. Las sedes pueden ser registradas. |
+| **Administrador de Seguridad Global** | Registra organizaciones y elige su estrategia de identidad. |
+| **Administrador de Organización** | Podrá gestionar sedes, usuarios y configuraciones locales posteriormente. |
 
----
+## 3. Precondiciones de Negocio
 
-## 🔄 2. Flujo de Transacción
+- El actor está autenticado como administrador global.
+- La organización está aprobada para onboarding.
+- La información empresarial requerida está disponible.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Admin as Administrador de Seguridad
-    participant Console as Consola Admin UMS
-    participant API as API .NET 8 UMS
-    participant DB as PostgreSQL
-    participant Audit as Registro de Auditoría
+## 4. Flujo Funcional Principal
 
-    Admin->>Console: Navegar a Organizaciones > Crear Nueva
-    Console->>Admin: Mostrar Formulario de Registro
-    Admin->>Console: Llenar nombre, código ERP, seleccionar Estrategia IdP (ej. Azure AD OIDC)
-    Console->>API: POST /api/v1/organizations { name, erp_code, idp_strategy, idp_config }
-    Note over API: Validar esquema y conectividad IdP
-    API->>DB: Insertar registro ORGANIZATION con estado ACTIVE
-    API->>Audit: Registrar Evento OrganizationCreatedEvent
-    API-->>Console: 201 Created { organizationId }
-    Console-->>Admin: Mostrar notificación de éxito y redirigir al Registro de Sedes
-```
+1. El administrador abre el área de gestión de organizaciones.
+2. El administrador ingresa nombre legal, código de referencia externo y tipo de organización.
+3. El administrador selecciona la estrategia de identidad que usará la organización.
+4. Si la estrategia seleccionada requiere información adicional, el administrador completa la configuración requerida.
+5. El sistema valida que la organización pueda registrarse.
+6. El sistema activa la organización y registra la decisión de onboarding.
+7. El administrador puede continuar con la configuración de sedes y usuarios.
 
-### A. Flujo Principal
-1. El SuperAdmin navega al módulo de **Organizaciones** en la Consola de Administración.
-2. Llena el formulario de registro: nombre legal de la empresa, código de referencia ERP y selecciona la estrategia IdP de la lista de complementos (`INTERNAL_BCRYPT`, `ZITADEL`, `AZURE_AD`, `OKTA`, `SAML2`, `GENERIC_OIDC`).
-3. Si se selecciona un IdP externo, el formulario se expande dinámicamente para recopilar los campos de configuración OIDC/SAML requeridos (ID de cliente, URL de autoridad, certificados).
-4. Al enviar, la API valida la configuración (opcionalmente realiza una prueba de estado de conectividad del IdP).
-5. La organización se persiste, se escribe un registro de auditoría inmutable y el administrador es redirigido para registrar las sedes.
+## 5. Flujos Alternativos y Excepciones
 
----
+### A. Configuración de Proveedor de Identidad No Verificable
 
-## 🛡️ 3. Flujos Alternativos y Manejo de Excepciones
+Si el proveedor de identidad seleccionado no puede validarse, la organización no se activa hasta corregir la configuración.
 
-### Flujo Alternativo A: Fallo de Conectividad IdP
-- Si la URL de descubrimiento OIDC/SAML suministrada es inalcanzable, la API devuelve un `422 Unprocessable Entity` con el código de error `ERR_IDP_UNREACHABLE`. El registro de la organización **no** es persistido.
+### B. Referencia Externa Duplicada
 
-### Flujo Alternativo B: Código ERP Duplicado
-- Si la `company_reference` (código ERP) ya existe, la API devuelve un `409 Conflict` con el código de error `ERR_DUPLICATE_ORG_CODE`.
+Si la referencia empresarial ya existe, el sistema evita crear una organización duplicada.
+
+## 6. Reglas de Negocio
+
+1. Cada organización debe tener una referencia externa única cuando aplique.
+2. La estrategia de autenticación debe seleccionarse explícitamente.
+3. La creación de organización debe ser auditable.
+4. El registro de sedes depende de una organización activa.
+
+## 7. Criterios de Aceptación
+
+1. Un administrador global puede registrar una organización válida.
+2. Las referencias empresariales duplicadas son rechazadas.
+3. Una configuración IdP inválida impide la activación.
+4. Una organización registrada puede usarse para onboarding de sedes y usuarios.
+
+## 8. Requisitos Técnicos
+
+- Persistir datos de organización en el modelo `TENANT` / `ORGANIZATION`.
+- Persistir configuración de proveedor de identidad en `IDP_CONFIGURATION`.
+- Aplicar unicidad para referencias externas de compañía.
+- Emitir `OrganizationCreatedEvent`.
+- Validar configuración IdP según el tipo de proveedor seleccionado.
+
+## 9. Trazabilidad
+
+- Entidades: `TENANT`, `BRANCH`, `IDP_CONFIGURATION`, `USER_ACCOUNT`
+- ADRs: ADR-0031, ADR-0032, ADR-0034, ADR-0010
+- Technical Enabler: TE-03

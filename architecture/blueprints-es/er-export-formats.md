@@ -72,6 +72,7 @@ Table APP_CONFIGURATION {
   ModuleId uniqueidentifier [note: 'Nullable']
   Code nvarchar [note: 'e.g. ENABLE_ROLE_EVOLUTION']
   Value nvarchar
+  Description nvarchar [note: 'Technical/Business purpose of the setting']
   IsInheritable bit [default: 1]
   IsEncrypted bit [default: 0]
 }
@@ -101,12 +102,19 @@ Table NOTIFICATION_RULE {
   RuleId uniqueidentifier [pk]
   TenantId uniqueidentifier
   DocumentTypeId uniqueidentifier
+  Code nvarchar [note: 'ej. DOC_EXPIRY_NOTICE_30D_EMAIL']
+  Value nvarchar [note: 'ej. 30|EMAIL o payload JSON']
+  Description nvarchar [note: 'Propósito, impacto funcional, comportamiento esperado y alcance']
   DaysBefore int
   Channel nvarchar
 }
 
 Table ACCESS_ENFORCEMENT_POLICY {
   PolicyId uniqueidentifier [pk]
+  TenantId uniqueidentifier [note: 'Anulable si es política global base']
+  Code nvarchar [note: 'ej. DOC_EXPIRY_BLOCK_USER']
+  Value nvarchar [note: 'ej. BLOCK_USER/RESTRICT_PROFILE/LOG_ONLY']
+  Description nvarchar [note: 'Propósito, impacto, comportamiento esperado y alcance']
   DocumentTypeId uniqueidentifier
   ActionOnExpiration nvarchar
 }
@@ -115,6 +123,9 @@ Table APPROVAL_WORKFLOW {
   WorkflowId uniqueidentifier [pk]
   TenantId uniqueidentifier
   SuiteId uniqueidentifier
+  Code nvarchar [note: 'ej. B2B_EXTERNAL_ACCESS_DEFAULT']
+  Value nvarchar [note: 'ej. JSON con etapas/aprobadores']
+  Description nvarchar [note: 'Propósito, impacto, comportamiento esperado y alcance']
   TargetUserCategory nvarchar
   RequiresApproval bit
 }
@@ -316,8 +327,9 @@ CREATE TABLE APP_CONFIGURATION (
     TenantId UNIQUEIDENTIFIER NULL REFERENCES TENANT(TenantId),
     SuiteId UNIQUEIDENTIFIER NULL REFERENCES SYSTEM_SUITE(SuiteId),
     ModuleId UNIQUEIDENTIFIER NULL, -- References Functional Module later
-    Code NVARCHAR(100),
-    Value NVARCHAR(MAX),
+    Code NVARCHAR(100) NOT NULL,
+    Value NVARCHAR(MAX) NOT NULL,
+    Description NVARCHAR(MAX) NOT NULL,
     IsInheritable BIT DEFAULT 1,
     IsEncrypted BIT DEFAULT 0,
     CreatedAt DATETIME2 DEFAULT SYSUTCDATETIME()
@@ -334,6 +346,9 @@ CREATE TABLE APPROVAL_WORKFLOW (
     WorkflowId UNIQUEIDENTIFIER PRIMARY KEY,
     TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
     SuiteId UNIQUEIDENTIFIER NULL REFERENCES SYSTEM_SUITE(SuiteId),
+    Code NVARCHAR(100) NOT NULL,
+    Value NVARCHAR(MAX) NOT NULL,
+    Description NVARCHAR(MAX) NOT NULL,
     TargetUserCategory NVARCHAR(50),
     RequiresApproval BIT DEFAULT 1
 );
@@ -375,12 +390,19 @@ CREATE TABLE NOTIFICATION_RULE (
     RuleId UNIQUEIDENTIFIER PRIMARY KEY,
     TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
     DocumentTypeId UNIQUEIDENTIFIER REFERENCES DOCUMENT_TYPE(DocumentTypeId),
+    Code NVARCHAR(100) NOT NULL,
+    Value NVARCHAR(MAX) NOT NULL,
+    Description NVARCHAR(MAX) NOT NULL,
     DaysBefore INT,
     Channel NVARCHAR(50)
 );
 
 CREATE TABLE ACCESS_ENFORCEMENT_POLICY (
     PolicyId UNIQUEIDENTIFIER PRIMARY KEY,
+    TenantId UNIQUEIDENTIFIER NULL REFERENCES TENANT(TenantId),
+    Code NVARCHAR(100) NOT NULL,
+    Value NVARCHAR(MAX) NOT NULL,
+    Description NVARCHAR(MAX) NOT NULL,
     DocumentTypeId UNIQUEIDENTIFIER REFERENCES DOCUMENT_TYPE(DocumentTypeId),
     ActionOnExpiration NVARCHAR(50)
 );
@@ -402,6 +424,17 @@ CREATE TABLE FUNCTIONAL_MODULE (
 
 -- Finish App Configuration reference
 ALTER TABLE APP_CONFIGURATION ADD CONSTRAINT FK_Config_Module FOREIGN KEY (ModuleId) REFERENCES FUNCTIONAL_MODULE(ModuleId);
+CREATE UNIQUE INDEX UX_APP_CONFIGURATION_CODE_SCOPE
+ON APP_CONFIGURATION (Code, ISNULL(TenantId, '00000000-0000-0000-0000-000000000000'), ISNULL(SuiteId, '00000000-0000-0000-0000-000000000000'), ISNULL(ModuleId, '00000000-0000-0000-0000-000000000000'));
+
+CREATE UNIQUE INDEX UX_NOTIFICATION_RULE_CODE_SCOPE
+ON NOTIFICATION_RULE (Code, TenantId, DocumentTypeId);
+
+CREATE UNIQUE INDEX UX_ACCESS_ENFORCEMENT_POLICY_CODE_SCOPE
+ON ACCESS_ENFORCEMENT_POLICY (Code, ISNULL(TenantId, '00000000-0000-0000-0000-000000000000'), DocumentTypeId);
+
+CREATE UNIQUE INDEX UX_APPROVAL_WORKFLOW_CODE_SCOPE
+ON APPROVAL_WORKFLOW (Code, TenantId, ISNULL(SuiteId, '00000000-0000-0000-0000-000000000000'));
 
 CREATE TABLE FUNCTIONAL_SUBMODULE (
     SubModuleId UNIQUEIDENTIFIER PRIMARY KEY,

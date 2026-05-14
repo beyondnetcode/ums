@@ -1,60 +1,63 @@
-# 🧪 Functional Story 4: Register System and Define Menu Topology
+# Functional Story 4: Register System and Define Menu Topology
 
-This use case specifies the flow to register a new client application (System) in the UMS and define its hierarchy of navigation resources (Modules, Menus, Options, and Actions).
+## 1. Business Purpose
 
----
+UMS must let administrators register client systems and describe their navigation structure so permissions can be assigned against real business capabilities.
 
-## 📑 1. Use Case Definition
+## 2. Actors
 
-| Attribute | Specification |
+| Actor | Responsibility |
 | :--- | :--- |
-| **Name** | Register System and Define Menu Topology |
-| **Primary Actor** | Global Security Administrator (SuperAdmin) |
-| **Preconditions** | Actor is authenticated as SuperAdmin in the UMS Admin Console. |
-| **Postconditions** | System is registered with a secure M2M API credential. Menu topology is defined and available for template assignment. |
+| **Global Security Administrator** | Registers client systems and defines their menu topology. |
+| **Client System Owner** | Provides the system structure and access actions. |
 
----
+## 3. Business Preconditions
 
-## 🔄 2. Transaction Flow
+- The administrator is authorized to register systems.
+- The system owner has provided the expected modules, menus, options, and actions.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Admin as Security Administrator
-    participant Console as UMS Admin Console
-    participant API as UMS .NET 8 API
-    participant DB as PostgreSQL
-    participant Audit as Audit Log
+## 4. Main Functional Flow
 
-    Admin->>Console: Navigate to Systems > Register New System
-    Admin->>Console: Fill system name, code, base URL
-    Console->>API: POST /api/v1/systems { name, system_code, base_url }
-    API->>DB: Insert SYSTEM record, generate api_credential_hash
-    API->>Audit: Log SystemRegisteredEvent
-    API-->>Console: 201 Created { systemId, apiCredential }
-    Console-->>Admin: Show system credential (once, ask to copy)
-    Admin->>Console: Navigate to Systems > Topology > Add Module
-    loop Build Topology Tree
-        Admin->>Console: Add Module → Add Menu → Add Options → Attach Actions
-        Console->>API: POST /api/v1/systems/{id}/modules (recursive batch)
-        API->>DB: Insert MODULE / MENU / OPTION / ACTION records
-    end
-    API-->>Console: Topology saved confirmation
-```
+1. The administrator starts the registration of a new client system.
+2. The administrator enters the system name, business code, and routing information.
+3. The system is registered and marked available for topology configuration.
+4. The administrator defines modules, menus, options, and actions.
+5. The system validates that the topology is complete enough to support authorization templates.
+6. The topology becomes available for permission assignment and diagnostics.
 
-### A. Main Flow
-1. SuperAdmin navigates to **Systems** and clicks **Register New System**.
-2. Fills system name (`Route Planner`), machine code (`route_planner`), and base URL.
-3. The API generates a unique and hashed M2M API credential that client applications will use in `Authorization: Bearer` headers when calling `POST /v1/authorization/graph`. This credential is shown **only once** and must be saved.
-4. The admin navigates to the **Topology Builder** for the registered system and builds the navigation tree: `Modules → Menus → Options → Actions`.
-5. Each node specifies a label, an order index, and (for Actions) an API endpoint mapping and action code (`create`, `read`, `update`, `delete`, `export`, `approve`).
+## 5. Alternative Flows and Exceptions
 
----
+### A. Duplicate System Code
 
-## 🛡️ 3. Alternative Flows and Exception Handling
+If another system already uses the same business code, UMS prevents registration and asks the administrator to choose a unique code.
 
-### Alternative Flow A: Duplicate System Code
-- If `system_code` already exists, the API returns a `409 Conflict` with error code `ERR_DUPLICATE_SYSTEM_CODE`.
+### B. Incomplete Topology
 
-### Alternative Flow B: Incomplete Topology
-- If an Option has no defined Actions, the topology is saved as a draft but cannot be referenced in Authorization Templates until at least one Action is linked.
+If a topology node is incomplete, UMS can save it as draft but prevents its use in authorization templates until required actions are defined.
+
+## 6. Business Rules
+
+1. System codes must be unique.
+2. Menus and options must belong to a registered system hierarchy.
+3. Actions must be explicit before they can be assigned through templates.
+4. Draft topology must not grant permissions.
+
+## 7. Acceptance Criteria
+
+1. An administrator can register a new system with a unique code.
+2. Duplicate system codes are rejected.
+3. Menu topology can be built and reviewed.
+4. Incomplete topology cannot be used for authorization assignment.
+
+## 8. Technical Requirements
+
+- Persist topology using `SYSTEM_SUITE`, `FUNCTIONAL_MODULE`, `FUNCTIONAL_SUBMODULE`, `FUNCTIONAL_OPTION`, and `ACTION`.
+- Generate and store a secure machine-to-machine credential for registered systems.
+- Emit `SystemRegisteredEvent`.
+- Validate topology completeness before template usage.
+
+## 9. Traceability
+
+- Entities: `SYSTEM_SUITE`, `FUNCTIONAL_MODULE`, `FUNCTIONAL_SUBMODULE`, `FUNCTIONAL_OPTION`, `ACTION`
+- ADRs: ADR-0032, ADR-0034, ADR-0047
+- Related Stories: FS-02, FS-07

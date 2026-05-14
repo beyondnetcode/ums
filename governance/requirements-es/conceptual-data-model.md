@@ -127,6 +127,9 @@ erDiagram
 - `id` (UUID, PK)
 - `tenant_id` (UUID, FK → ORGANIZATION)
 - `system_id` (UUID, FK, Nullable → SYSTEM): `NULL` means applies to all systems for the tenant
+- `code` (string, Unique por alcance): Clave técnica estable del registro de configuración IdP.
+- `value` (jsonb): Payload operativo de configuración consumido en runtime.
+- `description` (text): Propósito funcional, impacto, comportamiento esperado y alcance aplicable.
 - `provider_type` (enum): `INTERNAL_BCRYPT`, `ZITADEL`, `AZURE_AD`, `OKTA`, `KEYCLOAK`, `AUTH0`, `GOOGLE`, `LDAP`, `SAML2`, `GENERIC_OIDC`
 - `priority` (integer): Resolution order (lower = higher priority)
 - `fallback_to` (UUID, FK, Nullable → IDP_CONFIGURATION)
@@ -141,6 +144,9 @@ erDiagram
 - `id` (UUID, PK)
 - `system_id` (UUID, FK → SYSTEM)
 - `tenant_id` (UUID, FK → ORGANIZATION)
+- `code` (string, Unique por alcance): Clave técnica estable del parámetro.
+- `value` (jsonb): Valor operativo usado por el sistema en runtime.
+- `description` (text): Propósito funcional, impacto, comportamiento esperado y alcance.
 - `version` (string): Semantic version (e.g., `2.1.0`)
 - `config_payload` (jsonb): Full behavioral config (auth, session, MFA, onboarding, branding, modules)
 - `status` (enum): `ACTIVE`, `ARCHIVED`, `DRAFT`
@@ -149,6 +155,9 @@ erDiagram
 
 ### K. FEATURE_FLAG Entity *(NEW — Configuration Context)*
 - `id` (UUID, PK)
+- `code` (string, Unique global): Identificador canónico de la bandera (alias de `flag_code` para consistencia de catálogo).
+- `value` (jsonb): Valor/payload operativo efectivo (`enabled`, variante o rollout object).
+- `description` (text): Propósito funcional, impacto, comportamiento esperado y alcance.
 - `flag_code` (string, Unique globally): Machine-readable identifier (e.g., `FLEET_DISPATCH_NEW_UI_V2`)
 - `type` (enum): `BOOLEAN`, `VARIANT`, `PERCENTAGE`
 - `targets` (jsonb): Scoping rules `{ systems, tenants, organizations, branches, roles, users, environments, rollout_percentage }`
@@ -179,10 +188,37 @@ erDiagram
 
 ---
 
+## 🧩 3.1 Estándar Obligatorio de Catálogos Paramétricos
+
+Todas las entidades de parámetros/configuración/catálogos DEBEN incluir como mínimo:
+
+- `code`
+- `value`
+- `description`
+
+`description` DEBE documentar claramente:
+
+1. para qué se usa,
+2. impacto funcional,
+3. comportamiento esperado,
+4. alcance/contexto de configuración aplicable.
+
+Este estándar aplica a parámetros globales, por tenant y por system/suite; feature flags; políticas; configuraciones de seguridad; workflows; reglas de negocio; y configuraciones de notificación/aprobación.
+
+Además, estas entidades deben definir:
+
+- constraints únicos por alcance,
+- estrategia de versionado,
+- metadatos de auditoría,
+- eventos de trazabilidad,
+- estrategia de cacheabilidad/invalidación,
+- extensibilidad futura.
+
+---
+
 ## ⚙️ 4. Key Precedence Axioms (Engine Rules)
 
 1. **Deny-by-Default**: An action is blocked until an explicit `ALLOW` is declared by a profile or template.
 2. **Permissive Union**: If no `DENY` is present, the user inherits all active `ALLOW` blocks from all assigned profiles.
 3. **Explicit Deny Dominance**: A `DENY` from *any* active profile instantly invalidates matching `ALLOW` blocks across all other profiles.
 4. **Branch Scope Precedence**: Branch-scoped profiles override org-wide profiles for the matching branch context.
-

@@ -1,51 +1,65 @@
-# 📘 Functional Story 12: Ejecutar Proceso de Promoción de Rol
+# Functional Story 12: Ejecutar Proceso de Promoción de Rol
 
-Este documento especifica el flujo automatizado y manual para la evolución de roles de un usuario basándose en criterios de mérito y cumplimiento.
+## 1. Propósito de Negocio
 
----
+UMS debe soportar evolución controlada de roles para que los usuarios avancen cuando cumplan criterios de antigüedad, cumplimiento, desempeño o aprobación. Las promociones deben ser explicables y auditables.
 
-## 🏛️ 1. Definición del Caso de Uso
+## 2. Actores
 
-| Atributo | Especificación |
+| Actor | Responsabilidad |
 | :--- | :--- |
-| **Nombre** | Ejecutar Proceso de Promoción de Rol |
-| **Actor Principal** | Sistema (Background Worker) / Administrador (Aprobador) |
-| **Precondiciones** | Jerarquía de roles definida y criterios de promoción configurados en `ROLE_PROMOTION_CRITERIA`. |
-| **Postcondiciones** | El usuario recibe un nuevo rol en su perfil y se registra la trazabilidad de la promoción. |
+| **Evaluador de Promoción** | Detecta usuarios elegibles para promoción. |
+| **Administrador Aprobador** | Revisa y aprueba o rechaza la promoción. |
+| **Usuario** | Recibe el cambio de rol resultante. |
 
----
+## 3. Precondiciones de Negocio
 
-## 🔄 2. Flujo de Transacción
+- La jerarquía de roles está definida.
+- Los criterios de promoción están configurados.
+- El usuario tiene un perfil activo elegible para promoción.
 
-### A. Flujo Principal
-1.  El proceso en segundo plano (Worker) escanea periódicamente a los usuarios para evaluar su elegibilidad para el siguiente nivel jerárquico.
-2.  El sistema verifica los flags activos en `ROLE_PROMOTION_CRITERIA` (Antigüedad, Documentos válidos, Scoring).
-3.  Si se cumplen todos los criterios automatizados, el sistema cambia el estado del proceso a `CRITERIA_MET` y envía una notificación de "Oportunidad de Promoción" al administrador.
-4.  El sistema inicializa un flujo de aprobación (`APPROVAL_REQUEST`).
-5.  El administrador revisa la evidencia y aprueba la solicitud.
-6.  El sistema actualiza el rol del usuario en la tabla `PROFILE` y marca el proceso como `PROMOTED`.
+## 4. Flujo Funcional Principal
 
----
+1. El sistema evalúa usuarios contra los criterios de promoción configurados.
+2. Si un usuario cumple los criterios, el sistema lo marca como elegible para promoción.
+3. El administrador responsable recibe la oportunidad de promoción.
+4. El administrador revisa la evidencia y decide si aprueba.
+5. Si se aprueba, el rol del usuario se actualiza.
+6. El sistema registra la decisión de promoción y su evidencia.
 
-## 🛡️ 3. Flujos Alternativos y Manejo de Excepciones
+## 5. Flujos Alternativos y Excepciones
 
-### Flujo Alternativo A: Criterios no cumplidos
-*   Si el usuario no cumple uno o más flags (ej. documento expirado), el sistema mantiene el estado `EVALUATING` y registra el motivo del rechazo automático para consulta del administrador.
+### A. Criterios No Cumplidos
 
-### Flujo Alternativo B: Rechazo de Promoción
-*   Si el administrador rechaza la promoción (ej. desempeño insuficiente no medible por flags), el proceso vuelve a `EVALUATING` con un periodo de bloqueo configurable para nuevos intentos.
+Si el usuario no cumple uno o más criterios, el sistema mantiene su rol actual y registra la razón.
 
----
+### B. Promoción Rechazada
 
-## 📋 4. Detalles de Implementación
+Si el administrador rechaza la promoción, el usuario permanece en el rol actual y se conserva el motivo.
 
-### Entidades Involucradas
-- `ROLE_PROMOTION_CRITERIA`
-- `USER_PROMOTION_PROCESS`
-- `ROLE`
-- `APPROVAL_REQUEST`
+## 6. Reglas de Negocio
 
-### Criterios de Aceptación
-1.  La promoción solo puede ocurrir hacia un rol con `HierarchyLevel` superior al actual.
-2.  El sistema no debe permitir la promoción si existen documentos mandatorios expirados.
-3.  Toda promoción exitosa debe quedar registrada en el historial inmutable con referencia a la aprobación manual.
+1. La promoción solo puede avanzar hacia un rol de nivel superior.
+2. Los requisitos obligatorios de cumplimiento deben satisfacerse antes de promover.
+3. Puede requerirse aprobación manual según los criterios configurados.
+4. Toda decisión de promoción debe ser trazable.
+
+## 7. Criterios de Aceptación
+
+1. Los usuarios elegibles pueden identificarse según criterios configurados.
+2. Los usuarios con documentos obligatorios vencidos no son promovidos.
+3. Las promociones aprobadas actualizan el rol efectivo del usuario.
+4. Las promociones rechazadas conservan una razón clara.
+
+## 8. Requisitos Técnicos
+
+- Evaluar criterios desde `ROLE_PROMOTION_CRITERIA`.
+- Registrar estado del proceso en `USER_PROMOTION_PROCESS`.
+- Usar `APPROVAL_REQUEST` cuando se requiera aprobación manual.
+- Persistir eventos de auditoría por elegibilidad, aprobación, rechazo y cierre de promoción.
+
+## 9. Trazabilidad
+
+- Entidades: `ROLE_PROMOTION_CRITERIA`, `USER_PROMOTION_PROCESS`, `ROLE`, `APPROVAL_REQUEST`
+- ADRs: ADR-0046, ADR-0036
+- Historias relacionadas: FS-11, FS-14

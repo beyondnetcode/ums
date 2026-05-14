@@ -193,8 +193,10 @@ erDiagram
         uniqueidentifier SettingId PK
         uniqueidentifier TenantId FK "Anulable"
         uniqueidentifier SuiteId FK "Anulable"
+        uniqueidentifier ModuleId FK "Anulable"
         nvarchar Code "Flag / Parámetro"
-        nvarchar Value
+        nvarchar Value "Valor Operativo"
+        nvarchar Description "Propósito + impacto + comportamiento esperado + alcance"
         bit IsInheritable
     }
 
@@ -209,6 +211,9 @@ erDiagram
         uniqueidentifier WorkflowId PK
         uniqueidentifier TenantId FK
         uniqueidentifier SuiteId FK "Anulable"
+        nvarchar Code
+        nvarchar Value
+        nvarchar Description
         nvarchar TargetUserCategory
         bit RequiresApproval
     }
@@ -242,12 +247,19 @@ erDiagram
         uniqueidentifier RuleId PK
         uniqueidentifier TenantId FK
         uniqueidentifier DocumentTypeId FK
+        nvarchar Code
+        nvarchar Value
+        nvarchar Description
         int DaysBefore
         nvarchar Channel "EMAIL/IN_APP/SMS"
     }
 
     ACCESS_ENFORCEMENT_POLICY {
         uniqueidentifier PolicyId PK
+        uniqueidentifier TenantId FK "Anulable (Global si NULL)"
+        nvarchar Code
+        nvarchar Value
+        nvarchar Description
         uniqueidentifier DocumentTypeId FK
         nvarchar ActionOnExpiration "BLOCK_USER/RESTRICT_PROFILE/LOG_ONLY"
     }
@@ -264,3 +276,4 @@ erDiagram
 6.  **Mandatos de Aprobación**: Los usuarios Externos/B2B DEBEN pasar por un `APPROVAL_WORKFLOW` antes de alcanzar un estado `ACTIVE` o de que se les asignen perfiles de alto riesgo. Los documentos de respaldo definidos en `APPROVAL_REQUIRED_DOCUMENT` deben cargarse en `USER_DOCUMENT` antes del avance del flujo.
 7.  **Aplicación Automática de Cumplimiento**: Workers en segundo plano escanean `USER_DOCUMENT`. Al expirar, se activa la `ACCESS_ENFORCEMENT_POLICY`. Los documentos críticos transicionarán automáticamente el `USER_ACCOUNT` a un estado `BLOCKED` o restringirán el contexto de un `PROFILE` específico.
 8.  **Notificaciones Paramétricas**: `NOTIFICATION_RULE` permite configurar N-pasos de alerta (ej. 30, 15, 5 días antes de la expiración) por Inquilino y Tipo de Documento.
+9.  **Estándar Obligatorio de Catálogos Paramétricos**: Toda entidad de parámetros/configuración/catálogo DEBE incluir `Code`, `Value` y `Description`. `Description` debe documentar propósito, impacto funcional, comportamiento esperado y alcance aplicable. Adicionalmente, estas entidades deben definir unicidad por alcance, linaje de versionado, metadatos de auditoría, eventos de trazabilidad, estrategia de invalidación de caché y extensibilidad futura.
