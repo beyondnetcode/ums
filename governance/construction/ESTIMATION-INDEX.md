@@ -70,19 +70,19 @@
 - **Use case:** "What changed from original plan? Why?"
 
 #### 9. **Cost/Benefit Analysis (NEW)**
-- **File:** `ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md` (ES)
+- **File:** [ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md](ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md) (ES)
 - **Contains:** Cost per profile (10 roles), management costs, 3 infrastructure scenarios (on-prem/hybrid/cloud), ROI analysis, recommendation
 - **Audience:** Finance, C-level, decision makers
 - **Use case:** "What's the total cost? What's the expected ROI? Which infrastructure model?"
 
 #### 10. **Execution Model Comparison (NEW - STRATEGIC)**
-- **File:** `MODELO-EJECUCION-HUMANO-VS-AI-DRIVEN.md` (ES)
+- **File:** [MODELO-EJECUCION-HUMANO-VS-AI-DRIVEN.md](MODELO-EJECUCION-HUMANO-VS-AI-DRIVEN.md) (ES)
 - **Contains:** Human team vs AI-Driven team (cost S/141K-195K, timeline 8-12 weeks), risk analysis, governance trade-offs, ROI comparison (382% vs 729%), recommendations
 - **Audience:** C-level, CTO, strategic decision makers
 - **Use case:** "Should we use traditional team or AI-assisted team? What's the risk/benefit tradeoff?"
 
 #### 11. **AI Timeline Justification (NEW - CREDIBILITY & HONESTY)**
-- **File:** `JUSTIFICACION-TIMELINE-AI-DRIVEN.md` (ES)
+- **File:** [JUSTIFICACION-TIMELINE-AI-DRIVEN.md](JUSTIFICACION-TIMELINE-AI-DRIVEN.md) (ES)
 - **Contains:** Hour-by-hour breakdown of AI-Driven model (agents 12% time, human validation 59%, setup 15%, rework 10%), international research citations, honest analysis of where acceleration comes from, where agents excel vs struggle
 - **Audience:** Skeptics, decision makers, risk managers, technical leaders
 - **Use case:** "Is the 8.5-week AI timeline real or marketing hype? Where does the acceleration actually come from?"

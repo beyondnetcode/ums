@@ -110,23 +110,23 @@ Everything you need to:
 
 ### 📊 Economic & Strategic Analysis (Read for Decisions)
 
-- **[construction/ESTIMATION-INDEX.md](./construction/ESTIMATION-INDEX.md)** ⭐ **MASTER INDEX**
+- **[📌 construction/ESTIMATION-INDEX.md](./construction/ESTIMATION-INDEX.md)** ⭐ **MASTER INDEX**
   - Complete bilingual index of all estimation + analysis documents
   - Role-based reading paths (Finance, Engineering, Product, QA, Hiring)
   - **Start here for all governance documentation**
 
-- **[construction/ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md](./construction/ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md)**
+- **[💰 ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md](./construction/ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md)** (ES)
   - 10 role cost breakdown (S/ 5K-16K per month by seniority)
   - 3 infrastructure scenarios: On-Premise (S/ 193K), Hybrid ⭐ (S/ 182K), Cloud-Native (S/ 191K)
   - ROI analysis: 84% Year 1 with 50 clients projected
   - **Read for budget approval**
 
-- **[construction/MODELO-EJECUCION-HUMANO-VS-AI-DRIVEN.md](./construction/MODELO-EJECUCION-HUMANO-VS-AI-DRIVEN.md)**
+- **[🎯 MODELO-EJECUCION-HUMANO-VS-AI-DRIVEN.md](./construction/MODELO-EJECUCION-HUMANO-VS-AI-DRIVEN.md)** (ES)
   - Human team (S/ 182K, 12 weeks, ROI 382%) vs AI-Driven (S/ 141K, 8.5 weeks, ROI 729%)
   - Risk analysis, governance trade-offs, post-MVP scalability
   - **Read for execution model decision**
 
-- **[construction/JUSTIFICACION-TIMELINE-AI-DRIVEN.md](./construction/JUSTIFICACION-TIMELINE-AI-DRIVEN.md)**
+- **[🔍 JUSTIFICACION-TIMELINE-AI-DRIVEN.md](./construction/JUSTIFICACION-TIMELINE-AI-DRIVEN.md)** (ES)
   - Honest breakdown: agents 12% time, human validation 59%, setup 15%, rework 10%
   - International research citations (GitHub Copilot, Anthropic, McKinsey, Y Combinator)
   - Clarifies agents save COST (30%), not TIME (validation overhead 50%)

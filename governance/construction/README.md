@@ -40,9 +40,9 @@
 ├── FS-TO-TS-MAPPING.md (EN/ES bilingual)
 │
 ├── [ECONOMIC & STRATEGIC ANALYSIS / ANÁLISIS ECONÓMICO Y ESTRATÉGICO] ⭐ NEW
-├── ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md (ES, executive summary for C-level)
-├── MODELO-EJECUCION-HUMANO-VS-AI-DRIVEN.md (ES, strategic decision framework)
-├── JUSTIFICACION-TIMELINE-AI-DRIVEN.md (ES, honest breakdown of AI timeline)
+├── [ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md](ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md) (ES, executive summary for C-level)
+├── [MODELO-EJECUCION-HUMANO-VS-AI-DRIVEN.md](MODELO-EJECUCION-HUMANO-VS-AI-DRIVEN.md) (ES, strategic decision framework)
+├── [JUSTIFICACION-TIMELINE-AI-DRIVEN.md](JUSTIFICACION-TIMELINE-AI-DRIVEN.md) (ES, honest breakdown of AI timeline)
 │
 ├── [AUDITS & CORRECTIONS / AUDITORÍAS Y CORRECCIONES]
 ├── ADR-ESTIMATION-AUDIT.md (ES/EN)
@@ -210,7 +210,7 @@
 
 #### **A. Cost/Benefit Analysis (Análisis de Costo/Beneficio)**
 
-**File:** [ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md](ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md) (ES)
+**File:** [📊 ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md](ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md) (ES)
 
 **What:** Complete economic breakdown for MVP 12-week project with 3 infrastructure scenarios  
 **Who:** Finance leaders, Budget owners, C-level decision makers  
@@ -237,7 +237,7 @@
 
 #### **B. Execution Model Comparison (Modelo de Ejecución)**
 
-**File:** [MODELO-EJECUCION-HUMANO-VS-AI-DRIVEN.md](MODELO-EJECUCION-HUMANO-VS-AI-DRIVEN.md) (ES)
+**File:** [🎯 MODELO-EJECUCION-HUMANO-VS-AI-DRIVEN.md](MODELO-EJECUCION-HUMANO-VS-AI-DRIVEN.md) (ES)
 
 **What:** Strategic analysis comparing traditional Human team vs AI-Driven supervised model  
 **Who:** C-level, CTO, strategic decision makers  
@@ -268,7 +268,7 @@
 
 #### **C. AI Timeline Justification (Justificación de Timeline AI)**
 
-**File:** [JUSTIFICACION-TIMELINE-AI-DRIVEN.md](JUSTIFICACION-TIMELINE-AI-DRIVEN.md) (ES)
+**File:** [🔍 JUSTIFICACION-TIMELINE-AI-DRIVEN.md](JUSTIFICACION-TIMELINE-AI-DRIVEN.md) (ES)
 
 **What:** Detailed, honest breakdown of where the 8.5-week AI-Driven timeline comes from  
 **Who:** Skeptics, decision makers, risk managers  
