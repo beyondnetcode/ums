@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UMS Interactive E/R Viewer</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background-color: #f4f7f6; }
+        .container { max-width: 1200px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; text-align: center; }
+        .controls { text-align: center; margin-bottom: 20px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; background-color: #3498db; color: white; border: none; border-radius: 4px; }
+        button:hover { background-color: #2980b9; }
+        .diagram-container { border: 1px solid #ddd; padding: 20px; border-radius: 4px; overflow: auto; background: white; min-height: 600px; }
+        .mermaid { display: flex; justify-content: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗄️ UMS Interactive E/R Viewer</h1>
+        <p style="text-align:center; color:#7f8c8d;">Selecciona un dominio para visualizar el modelo detallado. Puedes usar el zoom del navegador para explorar.</p>
+        <div class="controls">
+            <button onclick="renderDiagram('global')">Mapa Global</button>
+            <button onclick="renderDiagram('auth')">Framework de Autorización</button>
+            <button onclick="renderDiagram('topology')">Topología y Menús</button>
+            <button onclick="renderDiagram('audit')">Auditoría e Identidad</button>
+        </div>
+        <div id="viewer" class="diagram-container">
+            <div id="mermaid-root" class="mermaid">
+                erDiagram
+                    TENANT ||--o{ SYSTEM_SUITE : "posee"
+                    TENANT ||--o{ USER : "posee"
+                    TENANT ||--o{ BRANCH : "posee"
+                    SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "contiene"
+                    FUNCTIONAL_MODULE ||--o{ PERMISSION_TEMPLATE : "define"
+                    PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "materializa"
+                    USER ||--o{ PROFILE : "actúa_como"
+                    PROFILE ||--o{ PROFILE_PERMISSION : "autoridad"
+                    BRANCH ||--o{ PROFILE : "contexto"
+            </div>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'forest', securityLevel: 'loose' });
+
+        const diagrams = {
+            global: `erDiagram
+    TENANT ||--o{ SYSTEM_SUITE : "posee"
+    TENANT ||--o{ USER : "posee"
+    TENANT ||--o{ BRANCH : "posee"
+    TENANT ||--o{ AUDIT_LOG : "monitorea"
+    SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "contiene"
+    FUNCTIONAL_MODULE ||--o{ PERMISSION_TEMPLATE : "define"
+    PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "materializa"
+    USER ||--o{ PROFILE : "actúa_como"
+    PROFILE ||--o{ PROFILE_PERMISSION : "autoridad"
+    BRANCH ||--o{ PROFILE : "ubicación"`,
+            auth: `erDiagram
+    SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "contiene"
+    FUNCTIONAL_MODULE ||--o{ PERMISSION_TEMPLATE : "definiciones_maestras"
+    PERMISSION_TEMPLATE ||--o{ ROLE_PERMISSION : "blueprint"
+    PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "materializado"
+    PROFILE ||--o{ PROFILE_PERMISSION : "efectivo"
+    ROLE ||--o{ PROFILE : "fuente"`,
+            topology: `erDiagram
+    SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "contiene"
+    FUNCTIONAL_MODULE ||--o{ MENU_ITEM : "topología"
+    MENU_ITEM ||--o{ MENU_ITEM : "jerarquía"
+    MENU_ITEM ||--o{ PERMISSION_TEMPLATE : "requiere"
+    BRANCH ||--o{ PROFILE : "contexto"`,
+            audit: `erDiagram
+    TENANT ||--o{ AUDIT_LOG : "monitorea"
+    USER ||--o{ AUDIT_LOG : "originador"
+    PROFILE ||--o{ AUDIT_LOG : "contexto"`
+        };
+
+        async function renderDiagram(key) {
+            const root = document.getElementById('mermaid-root');
+            root.removeAttribute('data-processed');
+            root.innerHTML = diagrams[key];
+            await mermaid.run();
+        }
+    </script>
+</body>
+</html>
