@@ -24,6 +24,7 @@ Implementaremos un framework de **Gobernanza de Identidad y Aprobaciones** integ
     *   **Aprobaciones de Doble Alcance**:
         *   *Alcance de Onboarding*: Activar a un usuario (ej. un usuario `EXTERNAL` requiere aprobación de RRHH antes de que su estado sea `ACTIVE`).
         *   *Alcance de Asignación*: Otorgar un `Profile` sensible (ej. otorgar "Administrador de Sistema" requiere doble aprobación).
+    *   **Evidencia de Respaldo**: Los flujos pueden requerir documentación obligatoria (ej. "Acuerdo de Servicio B2B"). Los metadatos y punteros (URIs) se almacenan en `APPROVAL_ATTACHMENT`, mientras que los archivos residen en un servidor de archivos dedicado.
 
 4.  **Rastro de Auditoría Inmutable**:
     *   Todos los pasos de aprobación (APPROVE, REJECT) y los cambios de delegación se registran de forma inmutable en `APPROVAL_LOG` utilizando el esquema corporativo estándar de 10 columnas.

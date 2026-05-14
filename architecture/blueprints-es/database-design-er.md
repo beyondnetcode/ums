@@ -135,6 +135,9 @@ erDiagram
     USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "admin"
     USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "gestionado"
     APPROVAL_WORKFLOW ||--o{ APPROVAL_REQUEST : "define_reglas_para"
+    APPROVAL_WORKFLOW ||--o{ APPROVAL_REQUIRED_DOCUMENT : "exige"
+    APPROVAL_REQUEST ||--o{ APPROVAL_ATTACHMENT : "evidenciado_por"
+    APPROVAL_REQUIRED_DOCUMENT ||--o{ APPROVAL_ATTACHMENT : "tipificado_como"
     
     USER_ACCOUNT {
         uniqueidentifier UserId PK
@@ -157,6 +160,13 @@ erDiagram
         nvarchar TargetUserCategory
         bit RequiresApproval
     }
+
+    APPROVAL_REQUIRED_DOCUMENT {
+        uniqueidentifier DocumentTypeId PK
+        uniqueidentifier WorkflowId FK
+        nvarchar Name
+        bit IsMandatory
+    }
     
     APPROVAL_REQUEST {
         uniqueidentifier RequestId PK
@@ -164,6 +174,14 @@ erDiagram
         uniqueidentifier TargetUserId FK
         uniqueidentifier TargetProfileId FK "Anulable"
         nvarchar RequestStatus "PENDING/APPROVED/REJECTED"
+    }
+
+    APPROVAL_ATTACHMENT {
+        uniqueidentifier AttachmentId PK
+        uniqueidentifier RequestId FK
+        uniqueidentifier DocumentTypeId FK
+        nvarchar FileStoragePath "URI/Ruta al Servidor de Archivos"
+        nvarchar Checksum "Hash de Integridad"
     }
 ```
 
@@ -175,4 +193,4 @@ erDiagram
 3.  **Propiedad de Acción XOR Estricta**: Una Acción debe pertenecer a un Sistema O a un Módulo, pero nunca a ambos: `CHECK ((SuiteId IS NOT NULL AND ModuleId IS NULL) OR (SuiteId IS NULL AND ModuleId IS NOT NULL))`.
 4.  **Integridad Jerárquica**: El acceso debe rastrearse a través de `Sistema > Módulo > Sub-módulo > Opción > Acción`.
 5.  **Administración Delegada (Muchos-a-Muchos)**: El alcance de administración de un usuario se define mediante la tabla `USER_MANAGEMENT_DELEGATION`. Esto permite que múltiples administradores gestionen el mismo pool de usuarios, opcionalmente restringido por `SuiteId`.
-6.  **Mandatos de Aprobación**: Los usuarios Externos/B2B DEBEN pasar por un `APPROVAL_WORKFLOW` antes de alcanzar un estado `ACTIVE` o de que se les asignen perfiles de alto riesgo.
+6.  **Mandatos de Aprobación**: Los usuarios Externos/B2B DEBEN pasar por un `APPROVAL_WORKFLOW` antes de alcanzar un estado `ACTIVE` o de que se les asignen perfiles de alto riesgo. Los documentos de respaldo definidos en `APPROVAL_REQUIRED_DOCUMENT` deben cargarse en `APPROVAL_ATTACHMENT` antes del avance del flujo.

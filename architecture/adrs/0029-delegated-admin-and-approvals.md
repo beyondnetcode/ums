@@ -24,6 +24,7 @@ We will implement an **Identity Governance & Approvals** framework integrated di
     *   **Dual-Scope Approvals**:
         *   *Onboarding Scope*: Activating a user (e.g., an `EXTERNAL` user requires HR approval before status becomes `ACTIVE`).
         *   *Assignment Scope*: Granting a sensitive `Profile` (e.g., granting "System Admin" requires dual approval).
+    *   **Supporting Evidence**: Flujos can require mandatory documentation (e.g., "B2B Service Agreement"). Metadata and pointers (URIs) are stored in `APPROVAL_ATTACHMENT`, while files reside in a dedicated File Server.
 
 4.  **Immutable Audit Trail**:
     *   All approval steps (APPROVE, REJECT) and delegation changes are logged immutably in `APPROVAL_LOG` using the standard corporate 10-column schema.

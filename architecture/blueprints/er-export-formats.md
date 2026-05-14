@@ -65,6 +65,23 @@ Table APPROVAL_LOG {
   Comments nvarchar
 }
 
+Table APPROVAL_REQUIRED_DOCUMENT {
+  DocumentTypeId uniqueidentifier [pk]
+  WorkflowId uniqueidentifier
+  Name nvarchar
+  IsMandatory bit
+}
+
+Table APPROVAL_ATTACHMENT {
+  AttachmentId uniqueidentifier [pk]
+  RequestId uniqueidentifier
+  DocumentTypeId uniqueidentifier [note: 'Nullable']
+  FileName nvarchar
+  FileStoragePath nvarchar
+  Checksum nvarchar
+  FileSize int
+}
+
 Table SYSTEM_SUITE {
   SuiteId uniqueidentifier [pk]
   TenantId uniqueidentifier
@@ -178,6 +195,9 @@ Ref: APPROVAL_REQUEST.TargetUserId > USER_ACCOUNT.UserId
 Ref: APPROVAL_REQUEST.TargetProfileId > PROFILE.ProfileId
 Ref: APPROVAL_LOG.RequestId > APPROVAL_REQUEST.RequestId
 Ref: APPROVAL_LOG.ApproverUserId > USER_ACCOUNT.UserId
+Ref: APPROVAL_REQUIRED_DOCUMENT.WorkflowId > APPROVAL_WORKFLOW.WorkflowId
+Ref: APPROVAL_ATTACHMENT.RequestId > APPROVAL_REQUEST.RequestId
+Ref: APPROVAL_ATTACHMENT.DocumentTypeId > APPROVAL_REQUIRED_DOCUMENT.DocumentTypeId
 ```
 
 ---
@@ -323,6 +343,24 @@ CREATE TABLE APPROVAL_LOG (
     ApproverUserId UNIQUEIDENTIFIER REFERENCES USER_ACCOUNT(UserId),
     ActionTaken NVARCHAR(50),
     Comments NVARCHAR(MAX),
+    CreatedAt DATETIME2 DEFAULT SYSUTCDATETIME()
+);
+
+CREATE TABLE APPROVAL_REQUIRED_DOCUMENT (
+    DocumentTypeId UNIQUEIDENTIFIER PRIMARY KEY,
+    WorkflowId UNIQUEIDENTIFIER REFERENCES APPROVAL_WORKFLOW(WorkflowId),
+    Name NVARCHAR(255),
+    IsMandatory BIT DEFAULT 1
+);
+
+CREATE TABLE APPROVAL_ATTACHMENT (
+    AttachmentId UNIQUEIDENTIFIER PRIMARY KEY,
+    RequestId UNIQUEIDENTIFIER REFERENCES APPROVAL_REQUEST(RequestId),
+    DocumentTypeId UNIQUEIDENTIFIER NULL REFERENCES APPROVAL_REQUIRED_DOCUMENT(DocumentTypeId),
+    FileName NVARCHAR(255),
+    FileStoragePath NVARCHAR(MAX),
+    Checksum NVARCHAR(255),
+    FileSize INT,
     CreatedAt DATETIME2 DEFAULT SYSUTCDATETIME()
 );
 ```

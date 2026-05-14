@@ -135,6 +135,9 @@ erDiagram
     USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "admin"
     USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "managed"
     APPROVAL_WORKFLOW ||--o{ APPROVAL_REQUEST : "defines_rules_for"
+    APPROVAL_WORKFLOW ||--o{ APPROVAL_REQUIRED_DOCUMENT : "mandates"
+    APPROVAL_REQUEST ||--o{ APPROVAL_ATTACHMENT : "evidenced_by"
+    APPROVAL_REQUIRED_DOCUMENT ||--o{ APPROVAL_ATTACHMENT : "typed_as"
     
     USER_ACCOUNT {
         uniqueidentifier UserId PK
@@ -157,6 +160,13 @@ erDiagram
         nvarchar TargetUserCategory
         bit RequiresApproval
     }
+
+    APPROVAL_REQUIRED_DOCUMENT {
+        uniqueidentifier DocumentTypeId PK
+        uniqueidentifier WorkflowId FK
+        nvarchar Name
+        bit IsMandatory
+    }
     
     APPROVAL_REQUEST {
         uniqueidentifier RequestId PK
@@ -164,6 +174,14 @@ erDiagram
         uniqueidentifier TargetUserId FK
         uniqueidentifier TargetProfileId FK "Nullable"
         nvarchar RequestStatus "PENDING/APPROVED/REJECTED"
+    }
+
+    APPROVAL_ATTACHMENT {
+        uniqueidentifier AttachmentId PK
+        uniqueidentifier RequestId FK
+        uniqueidentifier DocumentTypeId FK
+        nvarchar FileStoragePath "URI/Path to File Server"
+        nvarchar Checksum "Integrity Hash"
     }
 ```
 
@@ -175,4 +193,4 @@ erDiagram
 3.  **Strict XOR Action Ownership**: An Action must belong to a System OR a Module, but never both: `CHECK ((SuiteId IS NOT NULL AND ModuleId IS NULL) OR (SuiteId IS NULL AND ModuleId IS NOT NULL))`.
 4.  **Hierarchy Integrity**: Access must be traced through `System > Module > Sub-module > Option > Action`.
 5.  **Delegated Administration (Many-to-Many)**: A user's scope of administration is defined via the `USER_MANAGEMENT_DELEGATION` table. This allows multiple administrators to manage the same user pool, optionally restricted by `SuiteId`.
-6.  **Approval Mandates**: External/B2B users MUST pass through an `APPROVAL_WORKFLOW` before reaching an `ACTIVE` status or being assigned high-risk profiles.
+6.  **Approval Mandates**: External/B2B users MUST pass through an `APPROVAL_WORKFLOW` before reaching an `ACTIVE` status or being assigned high-risk profiles. Supporting documents defined in `APPROVAL_REQUIRED_DOCUMENT` must be uploaded to `APPROVAL_ATTACHMENT` before workflow advancement.
