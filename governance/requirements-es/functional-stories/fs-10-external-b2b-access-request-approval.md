@@ -1,10 +1,10 @@
-# ðŸ§ª Functional Story 10: Flujo de Aprobación y Petición de Acceso Externo B2B
+# 🧪 Functional Story 10: Flujo de Aprobación y Petición de Acceso Externo B2B
 
 Este documento especifica el flujo de transacciones, actores, precondiciones, postcondiciones y manejo de excepciones para patrocinar, aprobar y aprovisionar el acceso a organizaciones B2B externas (clientes, proveedores, socios) y a sus usuarios bajo la **estrategia spec-driven AI BMAD-METHOD**.
 
 ---
 
-## ðŸ›ï¸ 1. Definición del Caso de Uso
+## 🏛️ 1. Definición del Caso de Uso
 
 | Atributo | Especificación |
 | :--- | :--- |
@@ -16,7 +16,7 @@ Este documento especifica el flujo de transacciones, actores, precondiciones, po
 
 ---
 
-## ðŸ”„ 2. Flujo de Transacción
+## 🔄 2. Flujo de Transacción
 
 ### A. Flujo Principal (Happy Path)
 1. **Iniciación:** El Usuario Patrocinador navega al módulo de "Gestión de Accesos B2B" y selecciona "Nueva Solicitud Externa".
@@ -34,7 +34,7 @@ Este documento especifica el flujo de transacciones, actores, precondiciones, po
 
 ---
 
-## ðŸ›¡ï¸ 3. Flujos Alternativos y Manejo de Excepciones
+## 🛡️ 3. Flujos Alternativos y Manejo de Excepciones
 
 ### Flujo Alternativo A: Rechazo por el PAP
 * Si el Administrador PAP hace clic en "Rechazar" y proporciona un motivo de rechazo: El estado del `EXTERNAL_ACCESS_REQUEST` se actualiza a `REJECTED`. El Patrocinador es notificado, y no se aprovisionan entidades externas.
@@ -47,6 +47,6 @@ Este documento especifica el flujo de transacciones, actores, precondiciones, po
 
 ---
 
-## ðŸ“‹ 4. Postcondiciones y Auditoría
+## 📋 4. Postcondiciones y Auditoría
 * Existe un rastro de auditoría inmutable (`EXTERNAL_ACCESS_REQUEST`) que explica exactamente por qué y quién otorgó acceso a la entidad externa.
 * El Usuario externo está lógicamente aislado dentro de su propia frontera `ORGANIZATION`, permitiendo la aplicación nativa de Seguridad a Nivel de Fila (RLS) en **SQL Server 2022** mediante `SESSION_CONTEXT` y Security Policies.

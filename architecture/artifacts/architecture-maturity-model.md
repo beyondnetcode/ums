@@ -34,45 +34,45 @@ We evaluate the UMS architecture against the 5 critical pillars of the Well-Arch
 ### 🛡️ Pillar 1: Security & Compliance
 **Current Maturity Level: 4 (Managed)**
 *   **Evidence**: 
-    *   Zero-Cost Security Pipeline implemented via CodeQL ([ADR-0005](../03-adrs/0005-ci-cd-quality-codeql.md)).
-    *   Strict Dependency Pinning prevents Supply Chain attacks ([ADR-0009](../03-adrs/0009-strict-dependency-pinning-vulnerability-management.md)).
-    *   Data Isolation enforced at the DB level using Row-Level Security (RLS) for multi-tenancy ([ADR-0010](../03-adrs/0010-multi-tenancy-architecture-strategy.md)).
-    *   Immutable Audit Trails via CDC ([ADR-0016](../03-adrs/0016-immutable-business-audit-trail.md)).
+    *   Zero-Cost Security Pipeline implemented via CodeQL ([ADR-0005](../adrs/0005-ci-cd-quality-codeql.md)).
+    *   Strict Dependency Pinning prevents Supply Chain attacks ([ADR-0009](../adrs/0009-strict-dependency-pinning-vulnerability-management.md)).
+    *   Data Isolation enforced at the DB level using Row-Level Security (RLS) for multi-tenancy ([ADR-0010](../adrs/0010-multi-tenancy-architecture-strategy.md)).
+    *   Immutable Audit Trails via CDC ([ADR-0016](../adrs/0016-immutable-business-audit-trail.md)).
 *   **Path to Level 5**: Implement automated penetration testing in CI and dynamic secrets rotation via HashiCorp Vault.
 
 ### ⚡ Pillar 2: Performance Efficiency
 **Current Maturity Level: 4 (Managed)**
 *   **Evidence**: 
-    *   High-Performance Auth Graph compilation under <5ms using Redis ([ADR-0021](../03-adrs/0021-high-performance-auth-and-graph-compilation.md)).
-    *   Dual-Protocol Strategy (REST for public, gRPC for internal speed) ([ADR-0027](../03-adrs/0027-dual-protocol-rest-grpc-api-gateway.md)).
-    *   Frontend optimized payloads via BFF Gateway ([ADR-0008](../03-adrs/0008-progressive-multimodule-evolution-gateway-bff.md)).
+    *   High-Performance Auth Graph compilation under <5ms using Redis ([ADR-0021](../adrs/0021-high-performance-auth-and-graph-compilation.md)).
+    *   Dual-Protocol Strategy (REST for public, gRPC for internal speed) ([ADR-0027](../adrs/0027-dual-protocol-rest-grpc-api-gateway.md)).
+    *   Frontend optimized payloads via BFF Gateway ([ADR-0008](../adrs/0008-progressive-multimodule-evolution-gateway-bff.md)).
 *   **Path to Level 5**: Implement serverless auto-scaling and predictive caching algorithms.
 
 ### 🔄 Pillar 3: Reliability & Resiliency
 **Current Maturity Level: 3 (Defined) -> Moving to 4**
 *   **Evidence**: 
-    *   Frontend Offline Resilience via React Query ([ADR-0004](../03-adrs/0004-frontend-offline-resilience.md)).
-    *   Fault Tolerance via Circuit Breakers (`opossum`) and Retries ([ADR-0011](../03-adrs/0011-fault-tolerance-resiliency-patterns.md)).
-    *   Cloud Infrastructure Multi-Region DR limits proposed ([ADR-0013](../03-adrs/0013-cloud-infrastructure-topology-dr.md)).
+    *   Frontend Offline Resilience via React Query ([ADR-0004](../adrs/0004-frontend-offline-resilience.md)).
+    *   Fault Tolerance via Circuit Breakers (`opossum`) and Retries ([ADR-0011](../adrs/0011-fault-tolerance-resiliency-patterns.md)).
+    *   Cloud Infrastructure Multi-Region DR limits proposed ([ADR-0013](../adrs/0013-cloud-infrastructure-topology-dr.md)).
 *   **Path to Level 5**: Execute regular Chaos Engineering drills (Chaos Monkey) and fully active-active multi-region deployment.
 
 ### 🛠️ Pillar 4: Operational Excellence
 **Current Maturity Level: 4 (Managed)**
 *   **Evidence**: 
-    *   Monorepo Orchestration via Nx ensures deterministic builds ([ADR-0001](../03-adrs/0001-monorepo-orchestration-nx.md)).
-    *   Comprehensive Telemetry using LGTM and OpenTelemetry ([ADR-0007](../03-adrs/0007-observability-telemetry-loki-opentelemetry.md)).
-    *   Feature Flagging allows decoupling deployment from release ([ADR-0017](../03-adrs/0017-feature-flagging-strategy.md)).
-    *   Quality Gates enforce >70% test coverage strictly via CI ([ADR-0018](../03-adrs/0018-testing-pyramid-quality-gates.md)).
+    *   Monorepo Orchestration via Nx ensures deterministic builds ([ADR-0001](../adrs/0001-monorepo-orchestration-nx.md)).
+    *   Comprehensive Telemetry using LGTM and OpenTelemetry ([ADR-0007](../adrs/0007-observability-telemetry-loki-opentelemetry.md)).
+    *   Feature Flagging allows decoupling deployment from release ([ADR-0017](../adrs/0017-feature-flagging-strategy.md)).
+    *   Quality Gates enforce >70% test coverage strictly via CI ([ADR-0018](../adrs/0018-testing-pyramid-quality-gates.md)).
 *   **Path to Level 5**: Achieve fully autonomous, zero-downtime Blue/Green automated deployments with AI-driven anomaly detection in logs.
 
 ### 🏗️ Pillar 5: Maintainability & Extensibility (Clean Architecture)
 **Current Maturity Level: 4 (Managed)**
 *   **Evidence**: 
-    *   Strict Hexagonal Boundaries decoupling core from infra ([ADR-0002](../03-adrs/0002-clean-architecture-nestjs.md)).
-    *   Tactical Design Patterns (Result Monad) future-proofing the core ([ADR-0019](../03-adrs/0019-tactical-design-patterns-future-proofing.md)).
-    *   Event-Driven Architecture decoupling domain modules ([ADR-0015](../03-adrs/0015-event-driven-architecture-intra-domain.md)).
+    *   Strict Hexagonal Boundaries decoupling core from infra ([ADR-0002](../adrs/0002-clean-architecture-nestjs.md)).
+    *   Tactical Design Patterns (Result Monad) future-proofing the core ([ADR-0019](../adrs/0019-tactical-design-patterns-future-proofing.md)).
+    *   Event-Driven Architecture decoupling domain modules ([ADR-0015](../adrs/0015-event-driven-architecture-intra-domain.md)).
     *   Vendor Lock-In mitigation strategies clearly defined (Feature Flags, IdPs).
-*   **Path to Level 5**: Seamless transition from Modular Monolith to Dapr Microservices with zero domain code changes ([ADR-0006](../03-adrs/0006-future-microservices-transition-dapr.md)).
+*   **Path to Level 5**: Seamless transition from Modular Monolith to Dapr Microservices with zero domain code changes ([ADR-0006](../adrs/0006-future-microservices-transition-dapr.md)).
 
 ---
 

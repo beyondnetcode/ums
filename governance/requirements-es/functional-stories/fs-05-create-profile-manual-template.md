@@ -1,10 +1,10 @@
-# ðŸ§ª Functional Story 5: Crear Perfil y Asignar Manualmente Plantilla de Autorización
+# 🧪 Functional Story 5: Crear Perfil y Asignar Manualmente Plantilla de Autorización
 
 Este caso de uso especifica el flujo para crear un Perfil de usuario dentro de un contexto de Organización/Sede y **asignar manualmente** una o más Plantillas de Autorización a este a través de la Consola de Administración.
 
 ---
 
-## ðŸ›ï¸ 1. Definición del Caso de Uso
+## 🏛️ 1. Definición del Caso de Uso
 
 | Atributo | Especificación |
 | :--- | :--- |
@@ -15,7 +15,7 @@ Este caso de uso especifica el flujo para crear un Perfil de usuario dentro de u
 
 ---
 
-## ðŸ”„ 2. Flujo de Transacción
+## 🔄 2. Flujo de Transacción
 
 ```mermaid
 sequenceDiagram
@@ -53,7 +53,7 @@ sequenceDiagram
 
 ---
 
-## ðŸ›¡ï¸ 3. Flujos Alternativos y Manejo de Excepciones
+## 🛡️ 3. Flujos Alternativos y Manejo de Excepciones
 
 ### Flujo Alternativo A: Conflicto en la Versión de la Plantilla
 - Si la versión de la plantilla seleccionada introduce reglas de DENEGACIÓN explícitas (DENY) que entran en conflicto con las entradas de PERMITIR (ALLOW) personalizadas localmente en el perfil, la Consola muestra una advertencia de compatibilidad requiriendo la confirmación del administrador antes de persistir los cambios.

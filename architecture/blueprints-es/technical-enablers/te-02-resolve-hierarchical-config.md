@@ -1,10 +1,10 @@
-# ðŸ§ª Technical Enabler 2: Resolver Configuración Jerárquica del Sistema
+# 🧪 Technical Enabler 2: Resolver Configuración Jerárquica del Sistema
 
 Este caso de uso detalla el flujo para calcular la configuración del sistema "efectiva" para una aplicación cliente, mediante la evaluación y fusión de capas de sobrescritura (override) jerárquicas.
 
 ---
 
-## ðŸ›ï¸ 1. Definición del Caso de Uso
+## 🏛️ 1. Definición del Caso de Uso
 
 | Atributo | Especificación |
 | :--- | :--- |
@@ -15,7 +15,7 @@ Este caso de uso detalla el flujo para calcular la configuración del sistema "e
 
 ---
 
-## ðŸ”„ 2. Flujo de Transacción
+## 🔄 2. Flujo de Transacción
 
 ```mermaid
 sequenceDiagram
@@ -24,7 +24,7 @@ sequenceDiagram
     participant ConfigAPI as API Motor Config
     participant Cache as Caché Redis (cfg:sys)
     participant Resolver as Estrategia de Resolución Config
-    participant DB as PostgreSQL
+    participant DB as SQL Server 2022
 
     Client->>ConfigAPI: GET /v1/config/system/{system_id}?tenant_id=X&branch_id=Y&env=PROD
     ConfigAPI->>Cache: Consultar caché por hash de config
@@ -91,7 +91,7 @@ La función de Fusión Profunda sigue esta precedencia estricta (Prioridad 1 sob
 
 ---
 
-## ðŸ›¡ï¸ 4. Manejo de Excepciones
+## 🛡️ 4. Manejo de Excepciones
 
 ### Flujo Alternativo A: Configuración Base Ausente
 - Si no existe configuración para el Tenant o Sistema solicitado, el resolutor recae elegantemente al Nivel Global Predeterminado. No retorna error 404, asegurando que el sistema cliente reciba valores de respaldo seguros para seguir operando.

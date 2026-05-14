@@ -1,10 +1,10 @@
-# ðŸ§ª Functional Story 9: Autenticación Adaptativa Multifactor y Sin Contraseña
+# 🧪 Functional Story 9: Autenticación Adaptativa Multifactor y Sin Contraseña
 
 Este documento especifica el flujo de transacción detallado, actores, precondiciones, postcondiciones y manejo de excepciones para el registro y autenticación de usuarios empleando Autenticación Multifactor (MFA) y/o Passkeys Sin Contraseña (WebAuthn), bajo el control de la evaluación dinámica y adaptativa de riesgos de la **estrategia spec-driven AI BMAD-METHOD**.
 
 ---
 
-## ðŸ›ï¸ 1. Definición del Caso de Uso
+## 🏛️ 1. Definición del Caso de Uso
 
 | Atributo | Especificación |
 | :--- | :--- |
@@ -15,7 +15,7 @@ Este documento especifica el flujo de transacción detallado, actores, precondic
 
 ---
 
-## ðŸ”„ 2. Flujo de Transacción
+## 🔄 2. Flujo de Transacción
 
 ### A. Secuencia: Onboarding & Registro de MFA
 
@@ -91,7 +91,7 @@ sequenceDiagram
 
 ---
 
-## ðŸ›¡ï¸ 3. Flujos Alternativos y Manejo de Excepciones
+## 🛡️ 3. Flujos Alternativos y Manejo de Excepciones
 
 ### Flujo Alternativo A: Recuperación ante Pérdida del Factor Primario (Auto-Servicio)
 - Si el usuario pierde su dispositivo MFA (ej., teléfono con TOTP) o no puede acceder a su biometría:
@@ -120,5 +120,5 @@ sequenceDiagram
 
 ---
 
-## ðŸ“‹ 4. Referencia del Modelo Operativo Principal
+## 📋 4. Referencia del Modelo Operativo Principal
 Las capacidades multifactor y sin contraseñas configurables por Tenant se encuentran completamente declaradas y versionadas bajo el **Modelo de Configuración de Comportamiento del Sistema**. Para más detalles de la especificación técnica, visite **[mfa-passwordless-security-spec.md](../../04-artifacts/mfa-passwordless-security-spec.md)**.

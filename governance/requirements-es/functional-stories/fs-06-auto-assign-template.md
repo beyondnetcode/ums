@@ -1,10 +1,10 @@
-# ðŸ§ª Functional Story 6: Auto-Asignar Plantilla de Autorización al Crear Perfil
+# 🧪 Functional Story 6: Auto-Asignar Plantilla de Autorización al Crear Perfil
 
 Este caso de uso especifica el flujo del **Motor Automático de Asignación de Plantillas Basado en Reglas**, el cual se activa al momento de la creación de un perfil para adjuntar automáticamente la Plantilla de Autorización correspondiente según reglas de coincidencia configurables.
 
 ---
 
-## ðŸ›ï¸ 1. Definición del Caso de Uso
+## 🏛️ 1. Definición del Caso de Uso
 
 | Atributo | Especificación |
 | :--- | :--- |
@@ -16,7 +16,7 @@ Este caso de uso especifica el flujo del **Motor Automático de Asignación de P
 
 ---
 
-## ðŸ”„ 2. Flujo de Configuración de Reglas (Admin ”” Configuración Ãšnica)
+## 🔄 2. Flujo de Configuración de Reglas (Admin ”” Configuración Ãšnica)
 
 ```mermaid
 sequenceDiagram
@@ -36,7 +36,7 @@ sequenceDiagram
 
 ---
 
-## ðŸ”„ 3. Flujo Disparador de Asignación Automática (Sistema ”” Al Crear Perfil)
+## 🔄 3. Flujo Disparador de Asignación Automática (Sistema ”” Al Crear Perfil)
 
 ```mermaid
 sequenceDiagram
@@ -77,7 +77,7 @@ Una regla es coincidente cuando **todas** sus condiciones son satisfechas:
 
 ---
 
-## ðŸ›¡ï¸ 4. Flujos Alternativos y Manejo de Excepciones
+## 🛡️ 4. Flujos Alternativos y Manejo de Excepciones
 
 ### Flujo Alternativo A: Múltiples Reglas Coinciden
 - Si más de una regla coincide con los atributos del perfil, solamente se aplica la **regla de mayor prioridad** (el número de prioridad más bajo). Las demás coincidencias se registran en el rastro de auditoría como candidatas.

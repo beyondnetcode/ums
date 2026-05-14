@@ -1,52 +1,52 @@
-# ðŸ§ª Functional Story 10: Flujo de Aprobación y Petición de Acceso Externo B2B
+# 🧪 Functional Story 10: B2B External Access Request and Approval Flow
 
-Este documento especifica el flujo de transacciones, actores, precondiciones, postcondiciones y manejo de excepciones para patrocinar, aprobar y aprovisionar el acceso a organizaciones B2B externas (clientes, proveedores, socios) y a sus usuarios bajo la **estrategia spec-driven AI BMAD-METHOD**.
+This document specifies the transaction flow, actors, preconditions, postconditions, and exception handling for sponsoring, approving, and provisioning access for external B2B organizations (clients, suppliers, partners) and their users under the **BMAD-METHOD spec-driven AI strategy**.
 
 ---
 
-## ðŸ›ï¸ 1. Definición del Caso de Uso
+## 🏛️ 1. Use Case Definition
 
-| Atributo | Especificación |
+| Attribute | Specification |
 | :--- | :--- |
-| **Nombre** | Flujo de Aprobación y Petición de Acceso Externo B2B |
-| **Actor Principal** | Usuario Patrocinador (Empleado Corporativo Interno) |
-| **Actor Secundario** | Administrador PAP (Aprobador), Usuario Externo Objetivo |
-| **Precondiciones** | El Usuario Patrocinador está autenticado y pertenece a una organización tipo INTERNAL. Posee el permiso CREATE_EXTERNAL_REQUEST. |
-| **Postcondiciones** | Se crea un rastro de auditoría inmutable EXTERNAL_ACCESS_REQUEST. El Usuario y Organización externos son aprovisionados y aislados lógicamente. |
+| **Name** | B2B External Access Request and Approval Flow |
+| **Primary Actor** | Sponsor User (Internal Corporate Employee) |
+| **Secondary Actors** | PAP Administrator (Approver), Target External User |
+| **Preconditions** | The Sponsor User is authenticated and belongs to an `INTERNAL` organization. Holds the `CREATE_EXTERNAL_REQUEST` permission. |
+| **Postconditions** | An immutable audit trail `EXTERNAL_ACCESS_REQUEST` is created. The external User and Organization are provisioned and logically isolated. |
 
 ---
 
-## ðŸ”„ 2. Flujo de Transacción
+## 🔄 2. Transaction Flow
 
-### A. Flujo Principal (Happy Path)
-1. **Iniciación:** El Usuario Patrocinador navega al módulo de "Gestión de Accesos B2B" y selecciona "Nueva Solicitud Externa".
-2. **Ingreso de Datos de Organización:** El Patrocinador especifica la organización objetivo. Si la organización no existe, proporciona el nombre legal, código de referencia ERP y el tipo de organización (`CLIENT` o `SUPPLIER`).
-3. **Ingreso de Datos de Usuario:** El Patrocinador ingresa el correo electrónico del usuario externo objetivo y selecciona un Perfil permitido (Ej. "Portal Proveedor - Solo Lectura").
-4. **Justificación:** El Patrocinador escribe una justificación de negocio obligatoria y envía el formulario.
-5. **Creación de Registro:** El Motor UMS en .NET 8 crea un registro `EXTERNAL_ACCESS_REQUEST` con estado `PENDING_APPROVAL`.
-6. **Notificación:** El Motor UMS despacha una notificación interna a los Administradores PAP avisando de una solicitud pendiente.
-7. **Evaluación:** Un Administrador PAP revisa la solicitud en la cola de pendientes y hace clic en "Aprobar".
-8. **Aprovisionamiento (Basado en Eventos):**
-    * El estado del `EXTERNAL_ACCESS_REQUEST` se actualiza a `APPROVED` junto con el rastro de auditoría `approved_by`.
-    * El Motor UMS crea la `ORGANIZATION` externa (si no existía) vinculada al `tenant_id` principal.
-    * El Motor UMS pre-registra al `USER` con el `PROFILE` solicitado.
-9. **Onboarding:** El Motor UMS envía un Enlace Mágico seguro (Passwordless) o un Correo de Bienvenida al correo del usuario externo para completar el alta en el sistema.
-
----
-
-## ðŸ›¡ï¸ 3. Flujos Alternativos y Manejo de Excepciones
-
-### Flujo Alternativo A: Rechazo por el PAP
-* Si el Administrador PAP hace clic en "Rechazar" y proporciona un motivo de rechazo: El estado del `EXTERNAL_ACCESS_REQUEST` se actualiza a `REJECTED`. El Patrocinador es notificado, y no se aprovisionan entidades externas.
-
-### Flujo Alternativo B: Perfil Solicitado Inválido
-* Si el Patrocinador intenta eludir los controles de la interfaz y envía un payload a la API solicitando un Perfil interno altamente privilegiado: El Motor UMS rechaza la petición retornando una excepción `403 Forbidden`, registrando un evento de auditoría de seguridad por intento de escalada de privilegios.
-
-### Flujo Alternativo C: La Organización Externa Ya Existe
-* Si el Motor detecta que la organización ya existe durante el aprovisionamiento: El Motor adjunta de forma segura el nuevo usuario a la organización existente en lugar de lanzar un error de conflicto.
+### A. Main Flow (Happy Path)
+1. **Initiation:** The Sponsor User navigates to the "B2B Access Management" module and selects "New External Request".
+2. **Organization Data Entry:** The Sponsor specifies the target organization. If the organization does not exist, they provide the legal name, ERP reference code, and organization type (`CLIENT` or `SUPPLIER`).
+3. **User Data Entry:** The Sponsor enters the target external user's email and selects an allowed Profile (e.g. "Supplier Portal — Read Only").
+4. **Justification:** The Sponsor writes a mandatory business justification and submits the form.
+5. **Record Creation:** The UMS Engine (.NET 8) creates an `EXTERNAL_ACCESS_REQUEST` record with status `PENDING_APPROVAL`.
+6. **Notification:** The UMS Engine dispatches an internal notification to PAP Administrators alerting them of a pending request.
+7. **Evaluation:** A PAP Administrator reviews the request in the pending queue and clicks "Approve".
+8. **Provisioning (Event-Driven):**
+    * The `EXTERNAL_ACCESS_REQUEST` status is updated to `APPROVED` along with the `approved_by` audit trail.
+    * The UMS Engine creates the external `ORGANIZATION` (if it did not exist) linked to the primary `tenant_id`.
+    * The UMS Engine pre-registers the `USER` with the requested `PROFILE`.
+9. **Onboarding:** The UMS Engine sends a secure Magic Link (Passwordless) or a Welcome Email to the external user's email address to complete system enrollment.
 
 ---
 
-## ðŸ“‹ 4. Postcondiciones y Auditoría
-* Existe un rastro de auditoría inmutable (`EXTERNAL_ACCESS_REQUEST`) que explica exactamente por qué y quién otorgó acceso a la entidad externa.
-* El Usuario externo está lógicamente aislado dentro de su propia frontera `ORGANIZATION`, permitiendo la aplicación nativa de Seguridad a Nivel de Fila (RLS) en **SQL Server 2022** mediante `SESSION_CONTEXT` y Security Policies.
+## 🛡️ 3. Alternative Flows and Exception Handling
+
+### Alternative Flow A: Rejection by the PAP
+* If the PAP Administrator clicks "Reject" and provides a rejection reason: The `EXTERNAL_ACCESS_REQUEST` status is updated to `REJECTED`. The Sponsor is notified and no external entities are provisioned.
+
+### Alternative Flow B: Invalid Requested Profile
+* If the Sponsor attempts to bypass UI controls and sends an API payload requesting a highly privileged internal Profile: The UMS Engine rejects the request returning a `403 Forbidden` exception, logging a security audit event for privilege escalation attempt.
+
+### Alternative Flow C: External Organization Already Exists
+* If the Engine detects that the organization already exists during provisioning: The Engine safely attaches the new user to the existing organization instead of raising a conflict error.
+
+---
+
+## 📋 4. Postconditions and Audit
+* An immutable audit trail (`EXTERNAL_ACCESS_REQUEST`) exists that explains exactly why and by whom access was granted to the external entity.
+* The external User is logically isolated within their own `ORGANIZATION` boundary, enabling native Row-Level Security (RLS) enforcement in **SQL Server 2022** via `SESSION_CONTEXT` and Security Policies.

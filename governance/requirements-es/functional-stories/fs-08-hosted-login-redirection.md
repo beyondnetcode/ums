@@ -1,10 +1,10 @@
-# ðŸ§ª Functional Story 8: Autenticar vía Página de Inicio Personalizable
+# 🧪 Functional Story 8: Autenticar vía Página de Inicio Personalizable
 
 Este caso de uso detalla el flujo para centralizar la autenticación de usuarios mediante una página de inicio de sesión alojada (hosted) y segura en el UMS, que adapta dinámicamente su diseño (branding) y características para cada inquilino y sistema.
 
 ---
 
-## ðŸ›ï¸ 1. Definición del Caso de Uso
+## 🏛️ 1. Definición del Caso de Uso
 
 | Atributo | Especificación |
 | :--- | :--- |
@@ -15,7 +15,7 @@ Este caso de uso detalla el flujo para centralizar la autenticación de usuarios
 
 ---
 
-## ðŸ”„ 2. Flujo de Transacción
+## 🔄 2. Flujo de Transacción
 
 ```mermaid
 sequenceDiagram
@@ -84,7 +84,7 @@ La página alojada soporta las siguientes variables configurables almacenadas co
 
 ---
 
-## ðŸ›¡ï¸ 4. Manejo de Excepciones
+## 🛡️ 4. Manejo de Excepciones
 
 ### Flujo Alternativo A: URI de Redirección Inválida
 - Si la `redirect_uri` suministrada en la consulta no coincide con la lista blanca permitida registrada para ese sistema en el UMS, el flujo de login se aborta de inmediato. El portal muestra una página segura `400 Bad Request` y levanta una alerta de seguridad.

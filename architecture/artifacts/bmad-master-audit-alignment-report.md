@@ -1,4 +1,4 @@
-# ðŸ† BMAD Master Audit, Alignment & Enterprise Architecture Specification (v3.0.0)
+# 🏆 BMAD Master Audit, Alignment & Enterprise Architecture Specification (v3.0.0)
 
 This master document serves as the single source of truth for the **User Management System (UMS)**, validating and refining its conceptual, logical, and physical architecture under the **bMAD (Business, Models, Architecture, Delivery) Method**. 
 
@@ -6,7 +6,7 @@ Designed to operate as a completely standalone, abstract, and sovereign security
 
 ---
 
-## ðŸ§­ 1. Business Dimension (B) ”” Strategic Alignment & Governance
+## 🧭 1. Business Dimension (B) ”” Strategic Alignment & Governance
 
 ### 1.1 Product Vision Alignment
 The UMS serves as an agnostically deployable **Authorization & Behavioral Configuration Engine**. It decouples authentication and permissions logic from individual downstream SaaS systems (WMS, TMS, ERP), unifying corporate compliance while allowing each client organization (Tenant) full self-service governance.
@@ -37,7 +37,7 @@ To align development with enterprise outcomes, UMS tracks these measurable indic
 
 ---
 
-## ðŸ—ƒï¸ 2. Models Dimension (M) ”” Logical & Conceptual Domain Models
+## 🗃️ 2. Models Dimension (M) ”” Logical & Conceptual Domain Models
 
 The logical representation of the UMS ensures complete separation of tenant contexts while supporting high-performance permission graphing and pluggable configurations.
 
@@ -78,7 +78,7 @@ All state mutations publish structured, JSON-schema-compliant events:
 
 ---
 
-## ðŸ›ï¸ 3. Architecture Dimension (A) ”” Enterprise Specifications
+## 🏛️ 3. Architecture Dimension (A) ”” Enterprise Specifications
 
 The physical components of the UMS are organized under a strict **Hexagonal Architecture (Ports & Adapters)** model.
 
@@ -162,7 +162,7 @@ Unified telemetry is captured using **OpenTelemetry** and streamed to **Grafana 
 
 ---
 
-## ðŸš€ 4. Delivery Dimension (D) ”” Engineering & Operations Roadmap
+## 🚀 4. Delivery Dimension (D) ”” Engineering & Operations Roadmap
 
 ### 4.1 DevSecOps Strategy
 *   **Nx Monorepo Tasks**: Standardized builds and task caching inside Nx minimize duplicate builds.
@@ -197,7 +197,7 @@ gantt
 
 ---
 
-## ðŸ 5. Architectural Verification & Compliance Status
+## 🏁 5. Architectural Verification & Compliance Status
 
 This specification has been thoroughly reviewed against our standard quality guidelines. The alignment across all phases is declared **FULLY COMPLIANT**:
 

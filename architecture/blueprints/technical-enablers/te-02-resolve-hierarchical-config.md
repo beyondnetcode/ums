@@ -24,7 +24,7 @@ sequenceDiagram
     participant ConfigAPI as Configuration Engine API
     participant Cache as Redis Cache (cfg:sys)
     participant Resolver as Config Resolution Strategy
-    participant DB as PostgreSQL
+    participant DB as SQL Server 2022
 
     Client->>ConfigAPI: GET /v1/config/system/{system_id}?tenant_id=X&branch_id=Y&env=PROD
     ConfigAPI->>Cache: Query cache for effective config hash

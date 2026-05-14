@@ -22,7 +22,7 @@ sequenceDiagram
     autonumber
     participant Guard as Middleware ASP.NET Core
     participant Engine as Motor Auth (Core)
-    participant DB as PostgreSQL
+    participant DB as SQL Server 2022
     participant Cache as Caché Redis
 
     Guard->>Cache: Consultar grafo en caché para el Usuario
@@ -43,7 +43,7 @@ sequenceDiagram
 2.  El guard consulta el clúster de caché Redis de alto rendimiento utilizando el `user_id` único como clave.
 3.  **Caso de Acierto en Caché:** Redis devuelve el grafo jerárquico de permisos JSON precompilado. El guard resuelve el permiso instantáneamente (Objetivo p95 < 5ms).
 4.  **Caso de Fallo en Caché:** El guard envía un comando de compilación al Motor de Autorización principal.
-5.  El motor consulta PostgreSQL para recuperar todos los `Perfiles` asignados al `Usuario` y cualquier `Plantilla de Autorización` principal vinculada a esos perfiles.
+5.  El motor consulta SQL Server 2022 para recuperar todos los `Perfiles` asignados al `Usuario` y cualquier `Plantilla de Autorización` principal vinculada a esos perfiles.
 6.  El motor aplica las **Reglas de precedencia de Denegación Explícita**:
     *   Encuentra todas las políticas `ALLOW` (Permitir).
     *   Encuentra todas las políticas `DENY` (Denegar).
@@ -56,7 +56,7 @@ sequenceDiagram
 ## 🛡️ 3. Flujos Alternativos y Manejo de Excepciones
 
 ### Flujo Alternativo A: Servidor de Caché Desconectado
-*   Si Redis está inactivo o agota el tiempo de espera, el guard intercepta el error de la caché y de forma segura consulta la base de datos PostgreSQL directamente, garantizando la disponibilidad total del sistema con una latencia de lectura ligeramente degradada.
+*   Si Redis está inactivo o agota el tiempo de espera, el guard intercepta el error de la caché y de forma segura consulta la base de datos SQL Server 2022 directamente, garantizando la disponibilidad total del sistema con una latencia de lectura ligeramente degradada.
 
 ### Flujo Alternativo B: Asignación de Perfil Vacía
 *   Si un usuario no tiene Perfiles activos asignados a su cuenta, el motor devuelve un grafo JSON vacío con un estado de no asignado, impidiendo que el usuario visualice cualquier subportal.

@@ -1,10 +1,10 @@
-# ðŸ§ª Functional Story 7: Diagnosticar Permisos vía Visualizador de Grafos
+# 🧪 Functional Story 7: Diagnosticar Permisos vía Visualizador de Grafos
 
 Este caso de uso especifica el flujo para que los ingenieros de SRE y los administradores de seguridad diagnostiquen y visualicen el grafo de autorización compilado para un usuario específico dentro de una organización, sede y contexto de sistema objetivo.
 
 ---
 
-## ðŸ›ï¸ 1. Definición del Caso de Uso
+## 🏛️ 1. Definición del Caso de Uso
 
 | Atributo | Especificación |
 | :--- | :--- |
@@ -15,7 +15,7 @@ Este caso de uso especifica el flujo para que los ingenieros de SRE y los admini
 
 ---
 
-## ðŸ”„ 2. Flujo de Transacción
+## 🔄 2. Flujo de Transacción
 
 ```mermaid
 sequenceDiagram
@@ -59,7 +59,7 @@ sequenceDiagram
 
 ---
 
-## ðŸ›¡ï¸ 3. Flujos Alternativos y Manejo de Excepciones
+## 🛡️ 3. Flujos Alternativos y Manejo de Excepciones
 
 ### Flujo Alternativo A: Usuario sin Asignaciones de Perfil
 - Si el usuario no tiene perfiles activos para el contexto seleccionado, el árbol se renderiza completamente gris con el mensaje: *"No se encontraron asignaciones de perfil activas para este usuario en el contexto seleccionado. Asigne un perfil o plantilla para conceder acceso."*

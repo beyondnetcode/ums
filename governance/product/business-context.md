@@ -1,4 +1,4 @@
-# ðŸ’¼ Business Context - User Management System (UMS)
+# 💼 Business Context - User Management System (UMS)
 
 ## 1. Problem Statement
 Historically, corporate software ecosystems suffer from fragmented identity and access governance. Each system (TMS, WMS, CRM) manages its own local database of users, password hashes, and authorization roles. This results in:
