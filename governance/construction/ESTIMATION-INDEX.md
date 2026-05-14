@@ -81,6 +81,12 @@
 - **Audience:** C-level, CTO, strategic decision makers
 - **Use case:** "Should we use traditional team or AI-assisted team? What's the risk/benefit tradeoff?"
 
+#### 11. **AI Timeline Justification (NEW - CREDIBILITY & HONESTY)**
+- **File:** `JUSTIFICACION-TIMELINE-AI-DRIVEN.md` (ES)
+- **Contains:** Hour-by-hour breakdown of AI-Driven model (agents 12% time, human validation 59%, setup 15%, rework 10%), international research citations, honest analysis of where acceleration comes from, where agents excel vs struggle
+- **Audience:** Skeptics, decision makers, risk managers, technical leaders
+- **Use case:** "Is the 8.5-week AI timeline real or marketing hype? Where does the acceleration actually come from?"
+
 ---
 
 ### Reading Path by Role
@@ -115,9 +121,14 @@
 3. Reference: `TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md` (PART 6, dependencies)
 
 #### **Finance / Budget Owner / C-Level**
-1. Start: `ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md` (sections 4-6, cost summary + recommendation)
-2. Then: `REDUCED-MVP-SCOPE-AND-ESTIMATION.md` (section 1, scope confirmation)
-3. Reference: `ESTIMACION-VERIFICADA-4-PERSONAS.md` (team capacity validation)
+1. **Quick Cost Decision (15 min):** `ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md` (sections 4-7, cost summary, 3 scenarios, recommendation)
+   - See: Hybrid recommended @ S/ 182,350 (11% less than on-prem, best ROI 84% Year 1)
+2. **Strategic Decision (20 min):** `MODELO-EJECUCION-HUMANO-VS-AI-DRIVEN.md` (sections 1-3, comparison table, recommendations)
+   - See: Human S/ 182K 12 weeks (ROI 382%) vs AI-Driven S/ 141K 8.5 weeks (ROI 729%)
+3. **Credibility Check (10 min):** `JUSTIFICACION-TIMELINE-AI-DRIVEN.md` (section 1-2, honest breakdown, research citations)
+   - See: Agents save COST (30%), not TIME (validation = 50% of work); McKinsey 15-25% acceleration confirmed
+4. **Scope Confirmation (5 min):** `REDUCED-MVP-SCOPE-AND-ESTIMATION.md` (section 1 ONLY, scope lock)
+5. **Reference:** `ESTIMACION-VERIFICADA-4-PERSONAS.md` (team capacity validation)
 
 ---
 

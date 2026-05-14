@@ -21,9 +21,12 @@ Everything you need to:
 
 ### By Your Role
 
-**Executive / Leadership:**
+**Executive / Leadership / C-Level:**
 → Read: [`product-readiness-final-assessment.md`](./project/product-readiness-final-assessment.md) (15 min)  
-→ Decision: Approve construction start (✅ already approved)
+→ Then: [`construction/ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md`](./construction/ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md) (10 min) — Cost & infrastructure recommendation  
+→ Then: [`construction/MODELO-EJECUCION-HUMANO-VS-AI-DRIVEN.md`](./construction/MODELO-EJECUCION-HUMANO-VS-AI-DRIVEN.md) (15 min) — Human vs AI-Driven execution model comparison  
+→ Reference: [`construction/JUSTIFICACION-TIMELINE-AI-DRIVEN.md`](./construction/JUSTIFICACION-TIMELINE-AI-DRIVEN.md) (10 min) — AI timeline credibility check  
+→ Decision: Approve infrastructure model (Hybrid recommended) + execution model (AI-Driven or Human)
 
 **Engineering Lead / Tech Architect:**
 → Read: [`construction/TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md`](./construction/TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md) PART 1, 6, 7 (30 min)  
@@ -102,6 +105,32 @@ Everything you need to:
    - Traceability: 16 Functional Stories → 89 Technical Stories
    - Validates requirements coverage
    - **REQUIRED READ:** PO + QA
+
+---
+
+### 📊 Economic & Strategic Analysis (Read for Decisions)
+
+- **[construction/ESTIMATION-INDEX.md](./construction/ESTIMATION-INDEX.md)** ⭐ **MASTER INDEX**
+  - Complete bilingual index of all estimation + analysis documents
+  - Role-based reading paths (Finance, Engineering, Product, QA, Hiring)
+  - **Start here for all governance documentation**
+
+- **[construction/ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md](./construction/ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md)**
+  - 10 role cost breakdown (S/ 5K-16K per month by seniority)
+  - 3 infrastructure scenarios: On-Premise (S/ 193K), Hybrid ⭐ (S/ 182K), Cloud-Native (S/ 191K)
+  - ROI analysis: 84% Year 1 with 50 clients projected
+  - **Read for budget approval**
+
+- **[construction/MODELO-EJECUCION-HUMANO-VS-AI-DRIVEN.md](./construction/MODELO-EJECUCION-HUMANO-VS-AI-DRIVEN.md)**
+  - Human team (S/ 182K, 12 weeks, ROI 382%) vs AI-Driven (S/ 141K, 8.5 weeks, ROI 729%)
+  - Risk analysis, governance trade-offs, post-MVP scalability
+  - **Read for execution model decision**
+
+- **[construction/JUSTIFICACION-TIMELINE-AI-DRIVEN.md](./construction/JUSTIFICACION-TIMELINE-AI-DRIVEN.md)**
+  - Honest breakdown: agents 12% time, human validation 59%, setup 15%, rework 10%
+  - International research citations (GitHub Copilot, Anthropic, McKinsey, Y Combinator)
+  - Clarifies agents save COST (30%), not TIME (validation overhead 50%)
+  - **Read to validate AI timeline credibility**
 
 ---
 
