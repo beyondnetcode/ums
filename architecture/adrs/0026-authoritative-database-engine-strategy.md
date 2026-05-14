@@ -1,32 +1,34 @@
-# ADR 0026: Authoritative Database Engine Strategy by Language Stack
+# ADR 0026: Authoritative Unified Database Engine Strategy
 
 ## Status
-Proposed
+Approved
 
 ## Context
-As the UMS project evolves into an enterprise-grade monorepo and migrates core components to .NET 8, it is necessary to standardize the database engine preferences to optimize for ecosystem alignment, performance, and maintainability across different language stacks.
+As the UMS project evolves into an enterprise-grade monorepo, it is necessary to standardize the database engine to optimize for operational simplicity, cross-service data integrity, and corporate licensing alignment. 
 
-Previously, PostgreSQL was used as the default relational engine for both Node.js and .NET prototypes. However, corporate standards for .NET excellence prioritize SQL Server for mission-critical .NET applications.
+Previously, a polyglot engine strategy was proposed (SQL Server for .NET and PostgreSQL/MongoDB for Node.js). However, managing multiple database engines in production—especially in on-premise or localized deployments—increases infrastructure overhead, security complexity (multiple RLS implementations), and total cost of ownership.
 
 ## Decision
-We will adopt a polyglot-aware database strategy based on the primary language of the application service:
+We will adopt a **Unified Database Strategy** for all services within the UMS product ecosystem:
 
-1.  **For .NET 8+ Applications (e.g., UMS Core API):**
-    *   **Relational Engine:** **SQL Server 2022** (Latest stable version).
-    *   **ORM:** Entity Framework Core (EF Core) with `Microsoft.EntityFrameworkCore.SqlServer`.
-    *   **Rationale:** Seamless integration with .NET ecosystem, superior tooling (SSMS/Azure Data Studio), and optimized execution plans for MediatR-based workloads.
+1.  **Unified Relational Engine:** **SQL Server 2022** (Standard or Enterprise).
+    *   **All runtimes** (.NET 8 Core API and Node.js/NestJS Satellite services) must persist their data exclusively in SQL Server 2022.
+    *   **Rationale:** Standardizing on a single engine allows for a unified Row-Level Security (RLS) implementation, simplified backup/restore procedures, and consistent execution plan analysis.
 
-2.  **For Node.js / NestJS Applications:**
-    *   **Relational Engine:** **PostgreSQL 16**.
-    *   **NoSQL Engine:** **MongoDB**.
-    *   **Rationale:** Community maturity, native JSONB support in PG, and high developer velocity in the Node.js ecosystem.
+2.  **Schema-per-Context Isolation:**
+    *   To maintain modularity, each Bounded Context will own a dedicated SQL Server Schema (e.g., `[ums_identity]`, `[ums_authz]`).
+    *   Direct cross-schema joins are discouraged in favor of domain events, but permitted for optimized read-only reporting views under strict governance.
 
-### Security Implementation
-*   **Row-Level Security (RLS):** For .NET/SQL Server services, RLS will be implemented using SQL Server **Security Policies** and **Inline Table-Valued Functions (iTVF)** for filtering, instead of PostgreSQL policies.
-*   **Multi-Tenancy:** The "Shared Database, Shared Schema" model remains mandatory, enforced via SQL Server RLS.
+3.  **ORM / Driver Support:**
+    *   **.NET 8**: Entity Framework Core with `Microsoft.EntityFrameworkCore.SqlServer`.
+    *   **Node.js / NestJS**: TypeORM or Prisma using the **`mssql`** driver.
+
+4.  **Security Implementation:**
+    *   **Unified RLS**: All services will utilize SQL Server **Security Policies** and **SESSION_CONTEXT** for multi-tenant isolation.
+    *   This eliminates the need to maintain parallel RLS logic for PostgreSQL.
 
 ## Consequences
-*   The UMS migration plan from NestJS (Node) to .NET 8 must be updated to replace Npgsql with the SQL Server provider.
-*   Local development environments (Docker Compose) will include a `mssql-server-linux` container for the .NET API.
-*   Architectural blueprints and technical inventories must be updated to reflect SQL Server as the authoritative engine for the .NET stack.
-*   Satellite systems inheriting from this reference architecture must follow these same engine preferences based on their language stack.
+*   **Correction**: All references to PostgreSQL or MongoDB for Node.js services in `stack.md` or earlier documentation are now deprecated.
+*   **Infrastructure**: Local development environments (Docker Compose) will only require a single `mssql-server-linux` instance.
+*   **Skill Set**: The team must ensure proficiency in T-SQL and SQL Server-specific performance tuning across all language stacks.
+*   **Migration**: Any existing Node.js prototypes using PostgreSQL must be migrated to SQL Server.

@@ -18,7 +18,7 @@
 *   **Team Expertise:** Strong NestJS & TypeScript/JavaScript, some DevOps (Docker, Kubernetes), no Java expertise
 *   **Existing Constraints:** Transitioning to .NET 8 for Core API, SQL Server relational engine, high-performance Redis cache, Dapr-ready architecture, strict on-premise K8s deployment capability.
 *   **Non-Negotiables:** Absolutely zero cloud-provider SDK dependencies in the core domain layer (strict Hexagonal Architecture); 100% self-hostable open-source infrastructure alternatives.
-*   **Polyglot Strategy (ADR 0026):** .NET 8 -> SQL Server; Node.js -> PostgreSQL/MongoDB.
+*   **Polyglot Strategy (ADR 0026):** .NET 8 (Core) & Node.js (Satellites) -> **Unified SQL Server 2022 Engine**.
 
 ---
 
@@ -97,7 +97,7 @@
 
 ### 4.1 Architectural Pattern
 *   **Chosen Tool:** **Hexagonal Architecture (Ports & Adapters) / Clean Architecture**
-*   **Why Chosen:** Mandated to ensure the core Domain layer has **absolutely zero dependencies** on NestJS, TypeORM, PostgreSQL, or external cloud SDKs. Core logic communicates exclusively with interfaces (Ports), making the kernel completely sovereign and future-proof.
+*   **Why Chosen:** Mandated to ensure the core Domain layer has **absolutely zero dependencies** on NestJS, TypeORM, SQL Server, or external cloud SDKs. Core logic communicates exclusively with interfaces (Ports), making the kernel completely sovereign and future-proof.
 *   **Alternatives Rejected:**
     *   *Standard 3-Tier Layered Architecture*: Creates strong coupling between business logic, database ORMs, and network frameworks, violating our non-negotiable sovereignty constraint.
 
@@ -109,7 +109,7 @@
 
 ### 4.3 CQRS Approach
 *   **Chosen Tool:** **Internal CQRS via NestJS CQRS module**
-*   **Why Chosen:** Decouples heavy permission graph compilation (Queries) from basic identity mutations (Commands), optimizing read performance. Caches read-projections in Redis while writing sequentially to PostgreSQL.
+*   **Why Chosen:** Decouples heavy permission graph compilation (Queries) from basic identity mutations (Commands), optimizing read performance. Caches read-projections in Redis while writing sequentially to **SQL Server 2022**.
 *   **Alternatives Rejected:**
     *   *Direct CRUD*: Directly querying and compiling relational tables on every read request degrades database performance under high concurrent loads.
 
@@ -118,12 +118,10 @@
 ## 5. Data Layer
 
 ### 5.1 Primary Database + ORM/Query Builder
-*   **For .NET 8 Services:** **SQL Server 2022 + Entity Framework Core (EF Core)**
-    *   **Why:** Official Microsoft support, tight ecosystem integration, and optimized RLS via `SESSION_CONTEXT`.
-*   **For Node.js Relational Services:** **PostgreSQL v16 + TypeORM / Drizzle**
-    *   **Why:** Robust native JSONB support and high maturity in the Node.js community.
-*   **For Node.js NoSQL Services:** **MongoDB (Atlas / Enterprise)**
-    *   **Why:** High flexibility for unstructured documents and rapid prototyping.
+*   **Unified Relational Engine:** **SQL Server 2022 (All Services)**
+    *   **For .NET 8 Services:** EF Core with SQL Server Provider.
+    *   **For Node.js Services:** TypeORM / Prisma with `mssql` driver.
+    *   **Why:** Official corporate standard, superior RLS via `SESSION_CONTEXT`, and operational simplicity for on-premise deployments.
 
 ### 5.2 Migration Strategy
 *   **Chosen Tool:** **TypeORM Migrations executed via K8s Init-Containers**
@@ -155,9 +153,8 @@
 
 ### 6.1 Isolation Model
 *   **Strategy:** **Shared Database with Native Row-Level Security (RLS)**
-*   **Implementation (SQL Server):** Uses `SESSION_CONTEXT('TenantId', @value)` and Security Policies with iTVF predicates.
-*   **Implementation (PostgreSQL):** Uses `SET LOCAL app.current_tenant = 'value'` and native `CREATE POLICY`.
-*   **Why Chosen:** High packing density and low administrative overhead while maintaining absolute isolation at the engine level.
+*   **Implementation (Unified):** Uses SQL Server `SESSION_CONTEXT('TenantId', @value)` and Security Policies with iTVF predicates for both .NET and Node.js.
+*   **Why Chosen:** High packing density and absolute isolation at the engine level with a single implementation to maintain.
 *   **Alternatives Rejected:**
     *   *Database-per-tenant*: High infrastructure cost and severe administrative overhead when managing thousands of databases.
     *   *Schema-per-tenant*: Becomes hard to scale and migrate when tenant counts exceed 1,000, causing connection pool exhaustion.
@@ -166,7 +163,7 @@
 *   **Chosen Tool:** **NestJS Interceptor + PostgreSQL Connection Session Context**
 *   **Why Chosen:** Resolves the `tenant_id` from JWT claims or `X-Tenant-ID` headers at ingress, and uses a database transaction wrapper to inject the tenant context into the active PostgreSQL session dynamically.
 *   **Alternatives Rejected:**
-    *   *Application-level filtering*: Prone to developer omissions (forgetting a `WHERE tenant_id = x` clause), leading to critical data leak vulnerabilities. RLS prevents this at the database level.
+    *   *Application-level filtering*: Prone to developer omissions (forgetting a `WHERE tenant_id = x` clause), leading to critical data leak vulnerabilities. RLS prevents this at the database level across all runtimes.
 
 ---
 
@@ -232,7 +229,7 @@
 
 ### 10.1 Local Development Setup
 *   **Chosen Tool:** **Docker Compose Spec**
-*   **Why Chosen:** Allows developers to spin up the entire UMS dependency suite (**SQL Server**, **PostgreSQL**, Redis, RabbitMQ, MinIO) locally with a single command (`docker compose up -d`).
+*   **Why Chosen:** Allows developers to spin up the entire UMS dependency suite (**SQL Server 2022**, Redis, RabbitMQ, MinIO) locally with a single command (`docker compose up -d`).
 
 ### 10.2 Monorepo vs. Multi-repo
 *   **Chosen Tool:** **Nx Monorepo**
@@ -241,7 +238,7 @@
 ### 10.3 Testing Pyramid
 *   **Chosen Tool:**
     *   *Unit Tests*: Jest (aiming for >80% coverage).
-    *   *Integration Tests*: Jest + Supertest with **Testcontainers** (spinning up ephemeral PostgreSQL and Redis instances in local Docker for realistic testing).
+    *   *Integration Tests*: Jest + Supertest with **Testcontainers** (spinning up ephemeral **SQL Server Edge/Express** and Redis instances in local Docker for realistic testing).
     *   *End-to-End*: Playwright for Web Console regression testing.
 
 ---
@@ -261,7 +258,7 @@ To avoid cloud-provider lock-in and support offline, on-premise environments, **
 
 | Component | Chosen Solution | Lock-in Risk | Mitigation Strategy | Re-evaluate Trigger |
 | :--- | :--- | :--- | :--- | :--- |
-| **Database** | PostgreSQL v16 | **Low** | Standard SQL compliance. Domain layer has no direct dependency (decoupled via Ports). | Exceeding 20 TB of active data |
+| **Database** | SQL Server 2022 | **Medium** | Standard SQL compliance. Domain layer has no direct dependency (decoupled via Ports). Use of RLS creates some lock-in. | Licensing cost change |
 | **Object Store** | MinIO | **Low** | MinIO uses the exact AWS S3 API contract. Swapping requires a simple config change. | Performance bottlenecks |
 | **Secrets Store**| HashiCorp Vault | **Low** | Secret resolution is abstracted via K8s secrets injection or custom Adapter. | Licensing model changes |
 | **Gateway** | Kong Gateway | **Low** | Configuration is managed via standard K8s Ingress resources. | Custom routing constraints |
@@ -275,10 +272,10 @@ To avoid cloud-provider lock-in and support offline, on-premise environments, **
 *   **Rationale:** Balances high-performance/safety requirements for the core with development speed for utilities.
 *   **Revisit When:** Organizational skills shift significantly or a unified single-runtime model is required.
 
-### Decision 2: Language-Driven Database Selection (ADR 0026)
-*   **Decision:** **SQL Server for .NET; PostgreSQL/Mongo for Node.**
-*   **Rationale:** Leverages the native strengths of each platform's driver and ecosystem support.
-*   **Revisit When:** Cross-service data sharing requires a single unified engine or licensing costs exceed budget.
+### Decision 2: Unified Database Engine (ADR 0026)
+*   **Decision:** **SQL Server 2022 for all services (.NET and Node.js).**
+*   **Rationale:** Eliminates infrastructure fragmentation and ensures unified security enforcement (RLS).
+*   **Revisit When:** Licensing costs exceed budget or a specific context requires native NoSQL features.
 
 ---
 
