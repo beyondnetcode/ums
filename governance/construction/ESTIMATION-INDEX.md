@@ -75,6 +75,12 @@
 - **Audience:** Finance, C-level, decision makers
 - **Use case:** "What's the total cost? What's the expected ROI? Which infrastructure model?"
 
+#### 10. **Execution Model Comparison (NEW - STRATEGIC)**
+- **File:** `MODELO-EJECUCION-HUMANO-VS-AI-DRIVEN.md` (ES)
+- **Contains:** Human team vs AI-Driven team (cost S/141K-195K, timeline 8-12 weeks), risk analysis, governance trade-offs, ROI comparison (382% vs 729%), recommendations
+- **Audience:** C-level, CTO, strategic decision makers
+- **Use case:** "Should we use traditional team or AI-assisted team? What's the risk/benefit tradeoff?"
+
 ---
 
 ### Reading Path by Role
