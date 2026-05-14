@@ -405,25 +405,15 @@ To view the detailed design, SQL Server specific data types, and implemented sec
 
 ---
 
-## 🏗️ 14. Authorization Template & Inheritance Flow
+*   **Functional Hierarchy**: Access is governed by the intersection of **Resource** (Module/Menu) and **Action** (View/Create/Approve/etc).
 
-The UMS implements a decoupled, hierarchical authorization management system where authority is resolved at the **Profile** level within a strictly isolated multi-tenant structure.
+### 14.2 Granular Action Matrix
+The framework supports a standard enterprise action matrix including:
+*   `view`, `create`, `edit`, `delete`, `approve`, `export`, `import`, `print`, `copy`, `download`, `execute`, `manage`, `assign`, `audit`.
 
-### 14.1 Hierarchical Ownership
-*   **Tenant Core**: The Tenant is the root anchor; it owns the **Systems (Suites)** and **Branches**.
-*   **System Scoping**: A **System** owns its specific **Roles** and **Permissions**. There are no global roles; every role is contained within a System boundary.
-*   **Profile Nexus**: A **Profile** is the unique contextual tuple: `(Tenant + System + Branch + User + Role)`.
-
-### 14.2 Lifecycle & Governance
-*   **Inheritance**: Roles are created from System-specific Templates. Profiles are created from Roles.
-*   **Effective Persistence**: Final authorizations are persisted at the **Profile** level to allow for granular **Overrides** (Grant/Deny) without affecting the base Role.
-*   **Versioning**: All templates and effective profiles support semantic versioning and controlled migration flows.
-
-### 14.3 Decoupling Model
-1.  **System/Suite**: The functional boundary (e.g., ERP, CRM) owned by a Tenant.
-2.  **Role**: The blueprint of permissions within a System.
-3.  **Profile**: The contextual implementation for a specific User and Branch.
-4.  **Effective Authorization**: The final, audited, and persisted set of permissions for a Profile.
+### 14.3 Governance & Traceability
+*   **Explicit Deny**: Supports overrides at the profile level without mutating the master template.
+*   **Audit Compliance**: Every materialization and override is captured with full corporate audit fields and correlation IDs.
 
 
 

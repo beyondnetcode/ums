@@ -1,37 +1,35 @@
-# ADR 0028: Modelo de Gobernanza y Autorización Centrado en el Perfil Enterprise
+# ADR 0028: Modelo de Gobernanza y Autorización Impulsado por Plantillas Maestras
 
 ## Estatus
-Refactorizado (Estándares Enterprise)
+Refactorizado (Gobernanza de Plantillas Maestras)
 
 ## Contexto
-Los modelos RBAC estándar fallan en entornos empresariales multi-inquilino y multi-sistema donde los permisos están contextualizados por la estructura organizacional (Sucursales) y los límites funcionales (Sistemas). La asignación directa usuario-rol crea brechas de gobernanza. Un modelo robusto debe aislar los roles dentro de los sistemas y consolidar la autoridad en un único pivote contextual: el **Perfil**.
+Los modelos de autorización estándar a menudo permiten permisos "ad-hoc" a nivel de usuario o perfil, lo que lleva a una deriva en la gobernanza y pesadillas de auditoría. Los entornos empresariales requieren una única fuente inmutable de verdad para toda autoridad posible: la **Plantilla de Permisos**.
 
 ## Decisión
-Implementaremos un **Modelo de Autorización Centrado en el Perfil Enterprise** gobernado por las siguientes reglas estrictas:
+Implementaremos un **Framework de Autorización Impulsado por Plantillas Maestras** gobernado por las siguientes reglas inmutables:
 
-1.  **Propiedad Jerárquica Estricta**:
-    *   Un **Inquilino (Tenant)** posee sus **Usuarios**, **Sistemas (Suites)** y **Sucursales (Branches)**.
-    *   Un **Sistema** pertenece a un único Inquilino.
-    *   Un **Rol** pertenece a un único Sistema. Los roles globales están prohibidos.
-    *   Un **Permiso** pertenece al contexto funcional de un Sistema.
+1.  **Plantilla de Permisos como Fuente Maestra**:
+    *   Ningún permiso puede existir en un Perfil si no ha sido definido previamente en el catálogo maestro `PERMISSION_TEMPLATE`.
+    *   Las plantillas definen la intersección granular de un **Recurso** (Módulo/Menú/Opción) y una **Acción** (Ver/Crear/Exportar/etc.).
 
-2.  **El Perfil como Nexo Contextual**:
-    *   El **Perfil** es la intersección única de: `Tenant` + `Sistema` + `Sucursal` + `Usuario` + `Rol`.
-    *   Las autorizaciones se resuelven y persisten a nivel de **Perfil** como "Permisos Efectivos".
+2.  **Materialización vía ProfilePermission**:
+    *   La autoridad se "materializa" desde una Plantilla hacia una entrada de **ProfilePermission**.
+    *   `ProfilePermission` almacena el **Estado Efectivo** utilizando una lógica de triple estado: `IsAllowed`, `IsDenied`, `IsActive`.
+    *   Esto admite tanto RBAC (herencia) como ABAC-lite (anulaciones/denegaciones).
 
-3.  **Estándares de Gobernanza y Auditoría**:
-    *   Cada entidad debe implementar el **Esquema de Auditoría Corporativa** (más de 10 columnas).
-    *   El soporte para **Soft Delete**, **Bloqueo Optimista** y **Pistas de Auditoría** es obligatorio para todas las operaciones de persistencia.
-    *   **Trazabilidad**: Las operaciones críticas de seguridad deben rastrear `CorrelationId`, `AuditId` y `TransactionId`.
+3.  **Jerarquía Estricta**:
+    *   Cada permiso pertenece a un **Sistema (Suite)**.
+    *   Las plantillas se agrupan por **Módulos Funcionales**.
 
-4.  **Motor de Autorización**:
-    *   El motor resuelve los permisos consultando la tabla de **Permisos Efectivos** para el `ProfileId` actual.
-    *   Admite **Anulaciones (Overrides)** (Conceder/Denegar) a nivel de Perfil para una granularidad máxima.
+4.  **Gobernanza y Auditoría**:
+    *   Cada entidad implementa el **Esquema de Auditoría Corporativa** (más de 10 columnas).
+    *   El `Motor de Autorización` resuelve la autoridad efectiva consultando la tabla materializada `ProfilePermission`, garantizando un rendimiento de resolución de un solo salto.
 
 ## Implementación Técnica
-*   **Cardinalidad**: `Tenant (1:N) Sistema (1:N) Rol (1:N) Perfil`.
-*   **Persistencia**: Los permisos efectivos se proyectan desde `Role -> ProfilePermission` al crear/sincronizar el perfil.
+*   **Cardinalidad**: `Sistema (1:N) Módulo (1:N) Plantilla (1:N) PermisoDePerfil`.
+*   **Persistencia**: `ProfilePermission` es una copia física de la autoridad de la plantilla para un Perfil específico, lo que permite anulaciones no destructivas.
 
 ## Consecuencias
-*   **Positivo**: Aislamiento perfecto, resolución contextual simplificada, auditabilidad total y escalabilidad masiva para entornos multi-organización.
-*   **Negativo**: Mayor gestión de metadatos y requerimiento de una lógica de sincronización robusta entre Roles y Perfiles.
+*   **Positivo**: Control absoluto sobre el catálogo de permisos, historial 100% auditable, soporte para denegaciones explícitas y resolución de alto rendimiento.
+*   **Negativo**: Requiere un proceso de sincronización cuando se actualiza la Plantilla Maestra.

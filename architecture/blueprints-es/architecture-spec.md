@@ -400,25 +400,22 @@ Para ver el diseño detallado, tipos de datos específicos de SQL Server y polí
 
 ---
 
-## 🏗️ 14. Flujo de Plantillas de Autorización y Herencia
+## 🏗️ 14. Framework de Autorización de Plantilla Maestra
 
-El UMS implementa un sistema de gestión de autorizaciones desacoplado y jerárquico donde la autoridad se resuelve a nivel de **Perfil** dentro de una estructura multi-inquilino estrictamente aislada.
+El UMS implementa un framework de autorización **Impulsado por Plantillas Maestras**, donde toda la autoridad efectiva debe originarse en un catálogo central controlado.
 
-### 14.1 Propiedad Jerárquica
-*   **Núcleo del Tenant**: El Tenant es el ancla raíz; posee los **Sistemas (Suites)** y las **Sucursales (Branches)**.
-*   **Alcance del Sistema**: Un **Sistema** posee sus **Roles** y **Permisos** específicos. No existen roles globales; cada rol está contenido dentro de un límite de Sistema.
-*   **Nexo del Perfil**: Un **Perfil** es la tupla contextual única: `(Tenant + Sistema + Sucursal + Usuario + Rol)`.
+### 14.1 Materialización Impulsada por Plantillas
+*   **Maestro Inmutable**: `PermissionTemplate` es la única fuente para las definiciones de permisos. No se permiten permisos ad-hoc.
+*   **Estado Efectivo**: La autoridad se materializa en `ProfilePermission` utilizando una lógica de triple estado (`IsAllowed`, `IsDenied`, `IsActive`).
+*   **Jerarquía Funcional**: El acceso se gobierna por la intersección de **Recurso** (Módulo/Menú) y **Acción** (Ver/Crear/Aprobar/etc).
 
-### 14.2 Ciclo de Vida y Gobernanza
-*   **Herencia**: Los roles se crean a partir de Plantillas específicas del Sistema. Los perfiles se crean a partir de Roles.
-*   **Persistencia Efectiva**: Las autorizaciones finales se persisten a nivel de **Perfil** para permitir **Anulaciones (Overrides)** granulares (Conceder/Denegar) sin afectar al Rol base.
-*   **Versionado**: Todas las plantillas y perfiles efectivos admiten el versionado semántico y flujos de migración controlados.
+### 14.2 Matriz de Acciones Granulares
+El framework admite una matriz de acciones empresarial estándar que incluye:
+*   `view`, `create`, `edit`, `delete`, `approve`, `export`, `import`, `print`, `copy`, `download`, `execute`, `manage`, `assign`, `audit`.
 
-### 14.3 Modelo de Desacoplamiento
-1.  **Sistema/Suite**: El límite funcional (ej. ERP, CRM) propiedad de un Inquilino.
-2.  **Rol**: El esquema base de permisos dentro de un Sistema.
-3.  **Perfil**: La implementación contextual para un Usuario y Sucursal específicos.
-4.  **Autorización Efectiva**: El conjunto final de permisos persistido y auditado para un Perfil.
+### 14.3 Gobernanza y Trazabilidad
+*   **Denegación Explícita**: Admite anulaciones a nivel de perfil sin mutar la plantilla maestra.
+*   **Cumplimiento de Auditoría**: Cada materialización y anulación se captura con campos de auditoría corporativa completos e IDs de correlación.
 
 
 

@@ -1,12 +1,12 @@
 # 🗄️ Modelo Entidad-Relación (E/R) - SQL Server 2022
 
 **Tipo de Documento:** Diseño de Base de Datos  
-**Estatus:** Refactorizado (Modelo Perfil Enterprise)  
-**Arquitectura:** Multi-tenancy Jerárquico (Nexo de Perfiles)  
+**Estatus:** Refactorizado (Impulsado por Plantillas Maestras)  
+**Arquitectura:** Framework Jerárquico (Autoridad Materializada)  
 **Motor:** SQL Server 2022
 
 ## 1. Introducción
-Este documento detalla el modelo de datos **Centrado en el Perfil Enterprise** para el **User Management System (UMS)**. El modelo impone una propiedad jerárquica estricta y posiciona al `Profile` como la intersección contextual de la identidad y la autorización.
+Este documento detalla el modelo de datos **Impulsado por Plantillas Maestras**. Cada permiso efectivo en el sistema debe ser una instancia materializada de una `PermissionTemplate` controlada, garantizando una gobernanza del 100% sobre el catálogo de autoridad.
 
 ---
 
@@ -22,17 +22,13 @@ Cada entidad en este esquema DEBE implementar las siguientes columnas.
 | `DeletedAt` | `datetimeoffset` | Marca de tiempo de eliminación lógica. |
 | `DeletedBy` | `uniqueidentifier` | ID del eliminador. |
 | `Version` | `int` | Bloqueo optimista (Predeterminado: 1). |
-| `IsActive` | `bit` | Indicador de estado activo. |
-| `TenantId` | `uniqueidentifier` | Aislamiento contextual (cuando aplique). |
-| `CorrelationId`| `uniqueidentifier` | Trazabilidad en operaciones distribuidas. |
+| `IsActive` | `bit` | Indicador de estado. |
+| `TenantId` | `uniqueidentifier` | Aislamiento contextual. |
+| `CorrelationId`| `uniqueidentifier` | Trazabilidad distribuida. |
 
 ---
 
-## 3. Diagrama E/R (Mermaid)
-
 ## 3. Vistas Modulares por Dominio
-
-Para mejorar la legibilidad y la navegación, el modelo se divide en dominios funcionales.
 
 ### 🗺️ 3.1 Mapa Global de Alto Nivel
 Vista completa de las relaciones entre módulos núcleo.
@@ -42,95 +38,75 @@ erDiagram
     TENANT ||--o{ SYSTEM_SUITE : "posee"
     TENANT ||--o{ USER : "posee"
     TENANT ||--o{ BRANCH : "posee"
-    TENANT ||--o{ AUDIT_LOG : "monitorea"
     
-    SYSTEM_SUITE ||--o{ ROLE : "define"
-    SYSTEM_SUITE ||--o{ PERMISSION : "categoriza"
-    SYSTEM_SUITE ||--o{ PERMISSION_TEMPLATE : "plantillas"
-    SYSTEM_SUITE ||--o{ MENU_ITEM : "topología"
+    SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "contiene"
+    FUNCTIONAL_MODULE ||--o{ PERMISSION_TEMPLATE : "define_catálogo"
+    
+    PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "materializado_en"
     
     USER ||--o{ PROFILE : "actúa_como"
-    USER ||--o{ AUDIT_LOG : "origina"
+    PROFILE ||--o{ PROFILE_PERMISSION : "posee_autoridad"
     
-    ROLE ||--o{ PROFILE : "esquema"
-    
-    PERMISSION_TEMPLATE ||--|| ROLE : "representa"
-    
-    PROFILE ||--o{ PROFILE_PERMISSION : "efectivo"
-    PROFILE ||--o{ AUDIT_LOG : "contexto"
-    
-    BRANCH ||--o{ PROFILE : "ubicación"
+    ROLE ||--o{ PROFILE : "esquema_de_autoridad"
+    ROLE ||--o{ ROLE_PERMISSION : "blueprint_base"
+    PERMISSION_TEMPLATE ||--o{ ROLE_PERMISSION : "define_base_de_rol"
 ```
 
 ---
 
-### 👤 3.2 Dominio: Identidad y Núcleo
-Gestión de Inquilinos, Usuarios y sus credenciales primarias.
+### 🔐 3.2 Dominio: Framework de Autorización Maestro (El Núcleo)
+Este dominio gestiona el catálogo de permisos inmutables y su materialización en perfiles.
 
 ```mermaid
 erDiagram
-    TENANT ||--o{ USER : "aloja"
-    USER ||--|| USER_CREDENTIAL : "tiene"
-    USER ||--o{ PROFILE : "actúa_como"
-
-    TENANT {
-        uniqueidentifier TenantId PK
-        nvarchar Name
+    SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "contiene"
+    FUNCTIONAL_MODULE ||--o{ PERMISSION_TEMPLATE : "definiciones_maestras"
+    
+    PERMISSION_TEMPLATE ||--o{ ROLE_PERMISSION : "esquema_estándar"
+    PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "autoridad_materializada"
+    
+    PROFILE ||--o{ PROFILE_PERMISSION : "contexto_efectivo"
+    ROLE ||--o{ PROFILE : "fuente_de_autoridad"
+    
+    PERMISSION_TEMPLATE {
+        uniqueidentifier TemplateId PK
+        uniqueidentifier ModuleId FK
+        nvarchar ResourceName "Menú/Opción/SubMenú"
+        nvarchar ActionCode "Ver/Crear/Exportar/etc"
+        nvarchar Name "Nombre Editable"
     }
-    USER {
-        uniqueidentifier UserId PK
-        uniqueidentifier TenantId FK
-        nvarchar Username
-        nvarchar Email
-    }
-```
-
----
-
-### 🔐 3.3 Dominio: Perfiles y Autoridad (El Núcleo)
-El corazón del UMS: cómo los Roles, Plantillas y Perfiles se consolidan en Permisos Efectivos.
-
-```mermaid
-erDiagram
-    SYSTEM_SUITE ||--o{ ROLE : "define"
-    SYSTEM_SUITE ||--o{ PERMISSION : "categoriza"
-    SYSTEM_SUITE ||--o{ PERMISSION_TEMPLATE : "plantillas"
     
-    PERMISSION_TEMPLATE ||--o{ TEMPLATE_PERMISSION : "esquemas_base"
-    PERMISSION_TEMPLATE ||--|| ROLE : "representa"
-    
-    ROLE ||--o{ ROLE_PERMISSION : "permisos_base"
-    ROLE ||--o{ PROFILE : "esquema_base"
-    
-    PROFILE ||--o{ PROFILE_PERMISSION : "consolida"
-    
-    PERMISSION ||--o{ ROLE_PERMISSION : "vincula"
-    PERMISSION ||--o{ PROFILE_PERMISSION : "efectivo"
-    
-    PROFILE {
-        uniqueidentifier ProfileId PK
-        uniqueidentifier RoleId FK
-        uniqueidentifier UserId FK
-        nvarchar DisplayName
+    PROFILE_PERMISSION {
+        uniqueidentifier ProfileId PK, FK
+        uniqueidentifier TemplateId PK, FK
+        bit IsAllowed "Permitir Explícito"
+        bit IsDenied "Denegar Explícito (Anulación)"
+        bit IsActive "Estado Operativo"
     }
 ```
 
 ---
 
-### 📍 3.4 Dominio: Topología y Navegación
-Estructura organizacional y disposición funcional de menús.
+### 📍 3.3 Dominio: Topología Funcional y Navegación
+Estructura jerárquica de sistemas y menús.
 
 ```mermaid
 erDiagram
-    TENANT ||--o{ BRANCH : "posee"
-    SYSTEM_SUITE ||--o{ MENU_ITEM : "topología"
+    SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "contiene"
+    FUNCTIONAL_MODULE ||--o{ MENU_ITEM : "topología"
     MENU_ITEM ||--o{ MENU_ITEM : "jerarquía"
-    MENU_ITEM ||--o{ PERMISSION : "protegido_por"
-    BRANCH ||--o{ PROFILE : "contexto"
-
+    MENU_ITEM ||--o{ PERMISSION_TEMPLATE : "requiere_acceso"
+    
+    FUNCTIONAL_MODULE {
+        uniqueidentifier ModuleId PK
+        uniqueidentifier SuiteId FK
+        nvarchar Name
+        nvarchar Code
+    }
+    
     MENU_ITEM {
         uniqueidentifier MenuItemId PK
-        uniqueidentifier SuiteId FK
+        uniqueidentifier ModuleId FK
         uniqueidentifier ParentItemId FK
         nvarchar Name
         nvarchar Route
@@ -139,15 +115,15 @@ erDiagram
 
 ---
 
-### 📝 3.5 Dominio: Auditoría y Trazabilidad
-Monitoreo global e integridad transaccional.
+### 📝 3.4 Dominio: Auditoría e Identidad
+Gestión de identidades y trazabilidad global.
 
 ```mermaid
 erDiagram
+    TENANT ||--o{ USER : "aloja"
     TENANT ||--o{ AUDIT_LOG : "monitorea"
-    USER ||--o{ AUDIT_LOG : "originador"
     PROFILE ||--o{ AUDIT_LOG : "contexto"
-
+    
     AUDIT_LOG {
         bigint LogId PK
         uniqueidentifier CorrelationId
@@ -159,17 +135,9 @@ erDiagram
 
 ---
 
-## 🛠️ 4. Exploración Interactiva
-Dado que los visores de Markdown son estáticos, para una experiencia dinámica completa (zoom/pan/expandir), utilice las siguientes herramientas:
-
-1.  **Mermaid Live Editor**: Copie los bloques de código Mermaid anteriores en [Mermaid.live](https://mermaid.live/) para explorar e exportar interactivamente en alta resolución.
-2.  **Extensiones de VS Code**: Utilice "Markdown Preview Mermaid Support" para habilitar el zoom dentro de su IDE.
-
----
-
 ## 4. Reglas de Negocio y Normalización
-1.  **Aislamiento Estricto**: Un Rol no puede existir fuera de un contexto de Sistema.
-2.  **Integridad Contextual**: Un Perfil solo puede crearse si el Rol seleccionado pertenece al Sistema seleccionado, y ambos pertenecen al mismo Tenant.
-3.  **Hub de Plantillas**: Las plantillas de permisos vinculan a un Rol de Sistema específico, permitiendo la inicialización de perfiles de forma agnóstica a la sucursal.
-4.  **Eliminación Lógica (Soft Delete)**: Los datos nunca se eliminan físicamente; se completa `DeletedAt` para mantener el historial.
-5.  **Persistencia Efectiva**: `PROFILE_PERMISSION` actúa como la fuente de verdad para el `Motor de Autorización`, combinando los valores por defecto del Rol con las anulaciones específicas del Perfil.
+1.  **Primacía de la Plantilla**: `PermissionTemplate` es la fuente maestra absoluta. No se permiten permisos ad-hoc.
+2.  **Autoridad de Triple Estado**: `ProfilePermission` utiliza `IsAllowed`, `IsDenied` e `IsActive` para resolver la autoridad final.
+3.  **Jerarquía**: `Sistema > Módulo > Menú > Acción`.
+4.  **Matriz de Acciones**: Las plantillas admiten acciones granulares: `view`, `create`, `edit`, `delete`, `approve`, `export`, `import`, `print`, `copy`, `download`, `execute`, `manage`, `assign`, `audit`.
+5.  **Eliminación Lógica (Soft Delete)**: Obligatoria para todas las entidades para mantener la integridad de la auditoría.

@@ -1,37 +1,35 @@
-# ADR 0028: Enterprise Profile-Centric Authorization and Governance Model
+# ADR 0028: Master-Template Driven Authorization and Governance Model
 
 ## Status
-Refactored (Enterprise Standards)
+Refactored (Master-Template Governance)
 
 ## Context
-Standard RBAC models fail in multi-tenant, multi-suite enterprise environments where permissions are contextualized by organizational structure (Branches) and functional boundaries (Systems). Direct user-role assignment creates governance gaps. A robust model must isolate roles within systems and consolidate authority at a single contextual pivot: the **Profile**.
+Standard authorization models often allow for "ad-hoc" permissions at the user or profile level, leading to governance drift and auditing nightmares. Enterprise environments require a single, immutable source of truth for all possible authority: the **Permission Template**.
 
 ## Decision
-We will implement an **Enterprise Profile-Centric Authorization Model** governed by the following strict rules:
+We will implement a **Master-Template Driven Authorization Framework** governed by the following immutable rules:
 
-1.  **Strict Hierarchical Ownership**:
-    *   A **Tenant** owns its **Users**, **Systems (Suites)**, and **Branches**.
-    *   A **System** belongs to a single Tenant.
-    *   A **Role** belongs to a single System. Global roles are prohibited.
-    *   A **Permission** belongs to the functional context of a System.
+1.  **PermissionTemplate as the Master Source**:
+    *   No permission can exist in a Profile if it hasn't been defined in the `PERMISSION_TEMPLATE` master catalog.
+    *   Templates define the granular intersection of a **Resource** (Module/Menu/Option) and an **Action** (View/Create/Export/etc.).
 
-2.  **Profile as the Contextual Nexus**:
-    *   The **Profile** is the unique intersection of: `Tenant` + `System` + `Branch` + `User` + `Role`.
-    *   Authorizations are resolved and persisted at the **Profile** level as "Effective Permissions".
+2.  **Materialization via ProfilePermission**:
+    *   Authority is "materialized" from a Template into a **ProfilePermission** entry.
+    *   `ProfilePermission` stores the **Effective State** using a triple-state logic: `IsAllowed`, `IsDenied`, `IsActive`.
+    *   This supports both RBAC (inheritance) and ABAC-lite (overrides/denies).
 
-3.  **Governance & Audit Standards**:
-    *   Every entity must implement the **Corporate Audit Schema** (10+ columns).
-    *   Support for **Soft Delete**, **Optimistic Locking**, and **Audit Trails** is mandatory for all persistence operations.
-    *   **Traceability**: Critical security operations must track `CorrelationId`, `AuditId`, and `TransactionId`.
+3.  **Strict Hierarchy**:
+    *   Every permission belongs to a **System/Suite**.
+    *   Templates are grouped by **Functional Modules**.
 
-4.  **Authorization Engine**:
-    *   The engine resolves permissions by querying the **Effective Permissions** table for the current `ProfileId`.
-    *   Supports **Overrides** (Grant/Deny) at the Profile level for maximum granularity.
+4.  **Governance & Audit**:
+    *   Every entity implements the **Corporate Audit Schema** (10+ columns).
+    *   The `Authorization Engine` resolves effective authority by querying the materialized `ProfilePermission` table, ensuring single-hop resolution performance.
 
 ## Technical Implementation
-*   **Cardinality**: `Tenant (1:N) System (1:N) Role (1:N) Profile`.
-*   **Persistence**: Effective permissions are projected from `Role -> ProfilePermission` upon profile creation/sync.
+*   **Cardinality**: `System (1:N) Module (1:N) PermissionTemplate (1:N) ProfilePermission`.
+*   **Persistence**: `ProfilePermission` is a physical copy of the template's authority for a specific Profile, allowing for non-destructive overrides.
 
 ## Consequences
-*   **Positive**: Perfect isolation, simplified contextual resolution, full auditability, and massive scalability for multi-org environments.
-*   **Negative**: Increased metadata management and the requirement for a robust synchronization logic between Roles and Profiles.
+*   **Positive**: Absolute control over the permission catalog, 100% auditable history, support for explicit denies, and high-performance resolution.
+*   **Negative**: Requires a synchronization process when the Master Template is updated.
