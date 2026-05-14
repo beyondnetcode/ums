@@ -388,4 +388,22 @@ erDiagram
 Para ver el diseño detallado, tipos de datos específicos de SQL Server y políticas de seguridad implementadas, consulte:
 👉 **[Diseño Detallado del Modelo E/R (SQL Server 2022)](./database-design-er.md)**
 
+---
+
+## 🏗️ 14. Flujo de Plantillas de Autorización y Herencia
+
+El UMS implementa un sistema desacoplado de gestión de autorizaciones donde los permisos se agrupan en **Suites** y se estandarizan mediante **Plantillas de Permisos**.
+
+### 14.1 Ciclo de Vida y Gobernanza
+*   **Definición**: Las plantillas se definen a nivel de Sistema (Global) o de Inquilino (Local).
+*   **Herencia**: Los roles se crean seleccionando una versión de Plantilla. El sistema admite la **Inicialización Estática** (copia al crear) y la **Sincronización Vinculada** (actualizaciones dinámicas).
+*   **Versionado**: Las plantillas utilizan el versionado semántico (v1.0.0). Los roles pueden actualizarse a versiones más nuevas de las plantillas mediante un flujo de migración controlado.
+
+### 14.2 Modelo de Desacoplamiento
+1.  **Sistema/Suite**: El límite funcional (ej. ERP, CRM).
+2.  **Plantilla de Permisos**: El esquema reutilizable.
+3.  **Rol/Perfil**: La implementación específica del inquilino.
+4.  **Autorización Efectiva**: El conjunto final de permisos resultante de la herencia de la plantilla más las anulaciones específicas del inquilino.
+
+
 

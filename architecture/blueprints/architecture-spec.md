@@ -18,11 +18,8 @@ The following table defines the mandatory deliverables, strategic scope, and con
 | **3** | [C4 Diagram (Context, Container, Component)](#-2-c4-model) | Architectural vision at levels 1 and 2: external systems, large containers, and communication between them. Sizes technical complexity and allows estimating effort without detailing classes or internal components. |
 | **4** | [Database Strategy](#-8-database-strategy--multi-tenant-isolation-rls) | Substantiates the choice of persistence pattern (Database-per-Module), guidelines for distributed transactions, and general backup and recovery policies. Details the impact on costs and operations. |
 | **5** | [Entity-Relationship (E/R) Model](./database-design-er.md) | Logical and physical representation of UMS entities (Identity, RBAC, Multi-tenancy) optimized for SQL Server 2022. |
-| **6** | [Event Domain Model (Event Storming)](#-10-asynchronous-communication--event-model) | Map of relevant business events, their producers, and consumers, along with delivery and ordering principles. Guides integration and the effort associated with orchestration/choreography. |
-| **6** | [End-to-End Observability Strategy](#-9-observability--distributed-telemetry-strategy) | Approach to distributed telemetry: traceability of complete business processes, key metrics, and logging models at the architectural level. Used to estimate monitoring tools and costs. |
-| **7** | [Identity & Authorization Design](#-7-centralized-authorization-engine-architecture-peppdppappip) | Strategy for the identity and authorization model: Identity Provider (IdP), authentication flow between contexts, and session guidelines. Helps size security across all domains. |
-| **8** | Documented Non-Functional Requirements (NFRs) | Definition of measurable non-functional requirements that condition the architecture: latency, throughput, availability, and graceful degradation mechanisms. Represents contractual targets that the design must meet. |
-| **9** | Master Data Management Strategy | Work plan for master data: key entities, migration approach from SAP, quality guidelines, and phases. Justifies the integration and data cleansing effort in the budget. |
+| **6** | [Authorization Template Specification](#-14-authorization-template--inheritance-flow) | Strategy for managing reusable permission blueprints (Templates) and their inheritance lifecycle across systems and tenants. |
+| **7** | [Event Domain Model (Event Storming)](#-10-asynchronous-communication--event-model) | Map of relevant business events, their producers, and consumers, along with delivery and ordering principles. Guides integration and the effort associated with orchestration/choreography. |
 | **10** | API Versioning & Evolution Strategy | Guidelines for contract evolution (APIs and events): how changes are introduced without breaking dependencies. Forecasts technical governance and the cost of maintaining compatibility. |
 | **11** | Multi-Domain Synchronization Strategy | Approach to eventual consistency between contexts: definition of sources of truth, duplication guidelines, and conflict resolution. Reveals integration complexity and its impact on timelines. |
 | **12** | [Initial Architecture Decision Records (ADRs)](#-4-architectural-decision-matrix) | Log of the most influential architectural decisions, their justification, and alternatives. Backs up why a specific path was chosen, clarifying risks and assumed costs. |
@@ -86,6 +83,7 @@ graph TD
     subgraph Server["Application Services (Tenant Isolated)"]
         BackendAPI["UMS Core (.NET 8 Auth, Identity, Profiles)"]
         ConfigAPI["Config & Feature Flag Module"]
+        TemplateAPI["Template & Suite Manager (Auth Blueprints)"]
         SqlServerDB["SQL Server 2022 Database (Shared Schema + RLS)"]
         AuditDB["Audit Ledger & Access Requests (UC-12)"]
         RedisCache["Redis Cluster (Auth Graph + Cfg + Flags)"]
@@ -101,9 +99,11 @@ graph TD
     MobileApp -->|"1. HTTPS / Optimized Payload"| MobileBFF
     WebBFF -->|"2. Internal TCP / gRPC"| BackendAPI
     WebBFF -->|"2. Internal TCP / gRPC"| ConfigAPI
+    WebBFF -->|"2. Internal TCP / gRPC"| TemplateAPI
     MobileBFF -->|"2. Internal TCP / gRPC"| BackendAPI
     BackendAPI -->|"3. Sets LOCAL tenant context via RLS"| SqlServerDB
     ConfigAPI -->|"3. Sets LOCAL tenant context via RLS"| SqlServerDB
+    TemplateAPI -->|"3. Global/Local Query + RLS"| SqlServerDB
     BackendAPI -->|"4. Read-Aside cache lookup"| RedisCache
     ConfigAPI -->|"4. Read/Write config & flags"| RedisCache
     
@@ -389,6 +389,24 @@ erDiagram
 
 To view the detailed design, SQL Server specific data types, and implemented security policies, consult:
 👉 **[Detailed E/R Model Design (SQL Server 2022)](./database-design-er.md)**
+
+---
+
+## 🏗️ 14. Authorization Template & Inheritance Flow
+
+The UMS implements a decoupled authorization management system where permissions are grouped into **Suites** and standardized via **Permission Templates**.
+
+### 14.1 Lifecycle & Governance
+*   **Definition**: Templates are defined at the System level (Global) or Tenant level (Local).
+*   **Inheritance**: Roles are created by selecting a Template version. The system supports **Static Initialization** (copy-on-create) and **Linked Sync** (dynamic updates).
+*   **Versioning**: Templates use semantic versioning (v1.0.0). Roles can be upgraded to newer template versions via a controlled migration flow.
+
+### 14.2 Decoupling Model
+1.  **System/Suite**: The functional boundary (e.g., ERP, CRM).
+2.  **Permission Template**: The reusable blueprint.
+3.  **Role/Profile**: The tenant-specific implementation.
+4.  **Effective Authorization**: The final set of permissions resulting from the template inheritance plus tenant-specific overrides.
+
 
 
 

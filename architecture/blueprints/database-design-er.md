@@ -18,6 +18,13 @@ erDiagram
     TENANT ||--o{ ROLE : "defines"
     TENANT ||--o{ BRANCH : "owns"
     TENANT ||--o{ AUDIT_LOG : "generates"
+    TENANT ||--o{ PERMISSION_TEMPLATE : "defines_local"
+
+    SYSTEM_SUITE ||--o{ PERMISSION : "categorizes"
+    SYSTEM_SUITE ||--o{ PERMISSION_TEMPLATE : "provides_base_for"
+
+    PERMISSION_TEMPLATE ||--o{ TEMPLATE_PERMISSION : "contains"
+    PERMISSION_TEMPLATE ||--o{ ROLE : "initializes"
 
     USER ||--|| USER_CREDENTIAL : "has"
     USER ||--|| PROFILE : "has"
@@ -28,8 +35,29 @@ erDiagram
     ROLE ||--o{ USER_ROLE : "assigned_to"
     
     PERMISSION ||--o{ ROLE_PERMISSION : "associated_with"
+    PERMISSION ||--o{ TEMPLATE_PERMISSION : "associated_with"
     
     BRANCH ||--o{ USER_BRANCH : "associated_with"
+
+    SYSTEM_SUITE {
+        uniqueidentifier SuiteId PK
+        nvarchar Name "NOT NULL"
+        nvarchar Code "UK, NOT NULL"
+    }
+
+    PERMISSION_TEMPLATE {
+        uniqueidentifier TemplateId PK
+        uniqueidentifier TenantId FK "NULL for Global"
+        uniqueidentifier SuiteId FK
+        nvarchar Name "NOT NULL"
+        nvarchar Version "NOT NULL"
+        bit IsActive
+    }
+
+    TEMPLATE_PERMISSION {
+        uniqueidentifier TemplateId PK, FK
+        uniqueidentifier PermissionId PK, FK
+    }
 
     TENANT {
         uniqueidentifier TenantId PK
@@ -68,6 +96,7 @@ erDiagram
     ROLE {
         uniqueidentifier RoleId PK
         uniqueidentifier TenantId FK
+        uniqueidentifier SourceTemplateId FK "NULLABLE"
         nvarchar Name "NOT NULL"
         nvarchar Description
         bit IsSystemRole "DEFAULT 0"
@@ -75,6 +104,7 @@ erDiagram
 
     PERMISSION {
         uniqueidentifier PermissionId PK
+        uniqueidentifier SuiteId FK
         nvarchar Code "UK, NOT NULL"
         nvarchar Name "NOT NULL"
         nvarchar Category
