@@ -373,8 +373,19 @@ Para garantizar que los cambios en un contexto no rompan a sus consumidores, se 
 
 ## 🗄️ 13. Modelado de Datos y Persistencia (E/R)
 
-La estructura lógica de persistencia está diseñada para soportar las complejidades de un sistema de gestión de identidades empresarial con aislamiento de datos nativo. El modelo separa claramente las preocupaciones de identidad, credenciales, perfiles y autorización jerárquica.
+La estructura lógica de persistencia está diseñada para soportar las complejidades de un sistema de gestión de identidades empresarial con aislamiento de datos nativo.
+
+```mermaid
+erDiagram
+    TENANT ||--o{ USER : "pertenece_a"
+    TENANT ||--o{ ROLE : "define"
+    TENANT ||--o{ BRANCH : "posee"
+    USER ||--|| PROFILE : "tiene"
+    USER ||--o{ USER_ROLE : "asignado_a"
+    ROLE ||--o{ ROLE_PERMISSION : "contiene"
+```
 
 Para ver el diseño detallado, tipos de datos específicos de SQL Server y políticas de seguridad implementadas, consulte:
 👉 **[Diseño Detallado del Modelo E/R (SQL Server 2022)](./database-design-er.md)**
+
 

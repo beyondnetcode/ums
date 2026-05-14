@@ -375,10 +375,21 @@ To ensure that changes in one context do not break its consumers, automated cont
 
 ## 🗄️ 13. Data Modeling & Persistence (E/R)
 
-The logical persistence structure is designed to support the complexities of an enterprise identity management system with native data isolation. The model clearly separates identity, credentials, profiles, and hierarchical authorization concerns.
+The logical persistence structure is designed to support the complexities of an enterprise identity management system with native data isolation.
+
+```mermaid
+erDiagram
+    TENANT ||--o{ USER : "belongs_to"
+    TENANT ||--o{ ROLE : "defines"
+    TENANT ||--o{ BRANCH : "owns"
+    USER ||--|| PROFILE : "has"
+    USER ||--o{ USER_ROLE : "assigned_to"
+    ROLE ||--o{ ROLE_PERMISSION : "contains"
+```
 
 To view the detailed design, SQL Server specific data types, and implemented security policies, consult:
 👉 **[Detailed E/R Model Design (SQL Server 2022)](./database-design-er.md)**
+
 
 
 
