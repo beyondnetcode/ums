@@ -402,18 +402,23 @@ Para ver el diseño detallado, tipos de datos específicos de SQL Server y polí
 
 ## 🏗️ 14. Flujo de Plantillas de Autorización y Herencia
 
-El UMS implementa un sistema desacoplado de gestión de autorizaciones donde los permisos se agrupan en **Suites** y se estandarizan mediante **Plantillas de Permisos**.
+El UMS implementa un sistema de gestión de autorizaciones desacoplado y jerárquico donde la autoridad se resuelve a nivel de **Perfil** dentro de una estructura multi-inquilino estrictamente aislada.
 
-### 14.1 Ciclo de Vida y Gobernanza
-*   **Definición**: Las plantillas se definen a nivel de Sistema (Global) o de Inquilino (Local).
-*   **Herencia**: Los roles se crean seleccionando una versión de Plantilla. El sistema admite la **Inicialización Estática** (copia al crear) y la **Sincronización Vinculada** (actualizaciones dinámicas).
-*   **Versionado**: Las plantillas utilizan el versionado semántico (v1.0.0). Los roles pueden actualizarse a versiones más nuevas de las plantillas mediante un flujo de migración controlado.
+### 14.1 Propiedad Jerárquica
+*   **Núcleo del Tenant**: El Tenant es el ancla raíz; posee los **Sistemas (Suites)** y las **Sucursales (Branches)**.
+*   **Alcance del Sistema**: Un **Sistema** posee sus **Roles** y **Permisos** específicos. No existen roles globales; cada rol está contenido dentro de un límite de Sistema.
+*   **Nexo del Perfil**: Un **Perfil** es la tupla contextual única: `(Tenant + Sistema + Sucursal + Usuario + Rol)`.
 
-### 14.2 Modelo de Desacoplamiento
-1.  **Sistema/Suite**: El límite funcional (ej. ERP, CRM).
-2.  **Plantilla de Permisos**: El esquema reutilizable.
-3.  **Rol/Perfil**: La implementación específica del inquilino.
-4.  **Autorización Efectiva**: El conjunto final de permisos resultante de la herencia de la plantilla más las anulaciones específicas del inquilino.
+### 14.2 Ciclo de Vida y Gobernanza
+*   **Herencia**: Los roles se crean a partir de Plantillas específicas del Sistema. Los perfiles se crean a partir de Roles.
+*   **Persistencia Efectiva**: Las autorizaciones finales se persisten a nivel de **Perfil** para permitir **Anulaciones (Overrides)** granulares (Conceder/Denegar) sin afectar al Rol base.
+*   **Versionado**: Todas las plantillas y perfiles efectivos admiten el versionado semántico y flujos de migración controlados.
+
+### 14.3 Modelo de Desacoplamiento
+1.  **Sistema/Suite**: El límite funcional (ej. ERP, CRM) propiedad de un Inquilino.
+2.  **Rol**: El esquema base de permisos dentro de un Sistema.
+3.  **Perfil**: La implementación contextual para un Usuario y Sucursal específicos.
+4.  **Autorización Efectiva**: El conjunto final de permisos persistido y auditado para un Perfil.
 
 
 

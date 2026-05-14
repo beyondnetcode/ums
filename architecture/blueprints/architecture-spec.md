@@ -396,7 +396,7 @@ erDiagram
     TENANT ||--o{ ROLE : "defines"
     TENANT ||--o{ BRANCH : "owns"
     USER ||--|| PROFILE : "has"
-    USER ||--o{ USER_ROLE : "assigned_to"
+    PROFILE ||--o{ USER_ROLE : "assigned_to"
     ROLE ||--o{ ROLE_PERMISSION : "contains"
 ```
 
@@ -407,18 +407,23 @@ To view the detailed design, SQL Server specific data types, and implemented sec
 
 ## 🏗️ 14. Authorization Template & Inheritance Flow
 
-The UMS implements a decoupled authorization management system where permissions are grouped into **Suites** and standardized via **Permission Templates**.
+The UMS implements a decoupled, hierarchical authorization management system where authority is resolved at the **Profile** level within a strictly isolated multi-tenant structure.
 
-### 14.1 Lifecycle & Governance
-*   **Definition**: Templates are defined at the System level (Global) or Tenant level (Local).
-*   **Inheritance**: Roles are created by selecting a Template version. The system supports **Static Initialization** (copy-on-create) and **Linked Sync** (dynamic updates).
-*   **Versioning**: Templates use semantic versioning (v1.0.0). Roles can be upgraded to newer template versions via a controlled migration flow.
+### 14.1 Hierarchical Ownership
+*   **Tenant Core**: The Tenant is the root anchor; it owns the **Systems (Suites)** and **Branches**.
+*   **System Scoping**: A **System** owns its specific **Roles** and **Permissions**. There are no global roles; every role is contained within a System boundary.
+*   **Profile Nexus**: A **Profile** is the unique contextual tuple: `(Tenant + System + Branch + User + Role)`.
 
-### 14.2 Decoupling Model
-1.  **System/Suite**: The functional boundary (e.g., ERP, CRM).
-2.  **Permission Template**: The reusable blueprint.
-3.  **Role/Profile**: The tenant-specific implementation.
-4.  **Effective Authorization**: The final set of permissions resulting from the template inheritance plus tenant-specific overrides.
+### 14.2 Lifecycle & Governance
+*   **Inheritance**: Roles are created from System-specific Templates. Profiles are created from Roles.
+*   **Effective Persistence**: Final authorizations are persisted at the **Profile** level to allow for granular **Overrides** (Grant/Deny) without affecting the base Role.
+*   **Versioning**: All templates and effective profiles support semantic versioning and controlled migration flows.
+
+### 14.3 Decoupling Model
+1.  **System/Suite**: The functional boundary (e.g., ERP, CRM) owned by a Tenant.
+2.  **Role**: The blueprint of permissions within a System.
+3.  **Profile**: The contextual implementation for a specific User and Branch.
+4.  **Effective Authorization**: The final, audited, and persisted set of permissions for a Profile.
 
 
 

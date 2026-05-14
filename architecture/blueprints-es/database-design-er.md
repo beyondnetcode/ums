@@ -1,28 +1,30 @@
 # 🗄️ Modelo Entidad-Relación (E/R) - SQL Server 2022
 
 **Tipo de Documento:** Diseño de Base de Datos  
-**Estatus:** Refactorizado (Centrado en el Perfil)  
-**Arquitectura:** Multi-tenancy Contextual (Hub de Perfiles)  
+**Estatus:** Refactorizado (Modelo Perfil Enterprise)  
+**Arquitectura:** Multi-tenancy Jerárquico (Nexo de Perfiles)  
 **Motor:** SQL Server 2022
 
 ## 1. Introducción
-Este documento detalla el modelo de datos **Centrado en el Perfil** para el **User Management System (UMS)**. El modelo gira en torno a la entidad `Profile`, que sirve como la consolidación contextual de la identidad y la autoridad a través de Sistemas, Roles y Sucursales.
+Este documento detalla el modelo de datos **Centrado en el Perfil Enterprise** para el **User Management System (UMS)**. El modelo impone una propiedad jerárquica estricta y posiciona al `Profile` como la intersección contextual de la identidad y la autorización.
 
 ---
 
 ## 2. Estándares Corporativos de Auditoría y Trazabilidad
-Cada tabla en este esquema DEBE implementar las siguientes columnas de auditoría para cumplir con los estándares de gobernanza corporativa.
+Cada entidad en este esquema DEBE implementar las siguientes columnas.
 
 | Columna | Tipo | Descripción |
 | :--- | :--- | :--- |
 | `CreatedAt` | `datetimeoffset` | Marca de tiempo de creación. |
-| `CreatedBy` | `uniqueidentifier` | ID del usuario/sistema que creó el registro. |
-| `UpdatedAt` | `datetimeoffset` | Marca de tiempo de la última actualización (Nulo). |
-| `UpdatedBy` | `uniqueidentifier` | ID del usuario/sistema que actualizó el registro por última vez. |
-| `DeletedAt` | `datetimeoffset` | Marca de tiempo de eliminación lógica (Nulo). |
-| `DeletedBy` | `uniqueidentifier` | ID del usuario/sistema que eliminó el registro. |
-| `Version` | `int` | Versión de la fila para concurrencia optimista (Predeterminado: 1). |
-| `Status` | `int` | Estado del registro (1: Activo, 0: Inactivo, 99: Eliminado). |
+| `CreatedBy` | `uniqueidentifier` | ID del creador. |
+| `UpdatedAt` | `datetimeoffset` | Marca de tiempo de actualización. |
+| `UpdatedBy` | `uniqueidentifier` | ID del último actualizador. |
+| `DeletedAt` | `datetimeoffset` | Marca de tiempo de eliminación lógica. |
+| `DeletedBy` | `uniqueidentifier` | ID del eliminador. |
+| `Version` | `int` | Bloqueo optimista (Predeterminado: 1). |
+| `IsActive` | `bit` | Indicador de estado activo. |
+| `TenantId` | `uniqueidentifier` | Aislamiento contextual (cuando aplique). |
+| `CorrelationId`| `uniqueidentifier` | Trazabilidad en operaciones distribuidas. |
 
 ---
 
@@ -30,73 +32,49 @@ Cada tabla en este esquema DEBE implementar las siguientes columnas de auditorí
 
 ```mermaid
 erDiagram
-    TENANT ||--o{ USER : "aloja"
-    TENANT ||--o{ SYSTEM_SUITE : "se_suscribe_a"
-    TENANT ||--o{ BRANCH : "contiene"
-    TENANT ||--o{ ROLE : "gestiona"
+    TENANT ||--o{ SYSTEM_SUITE : "posee"
+    TENANT ||--o{ BRANCH : "posee"
+    TENANT ||--o{ USER : "posee"
     TENANT ||--o{ PROFILE : "gobierna"
-    TENANT ||--o{ AUDIT_LOG : "registra"
+    TENANT ||--o{ AUDIT_LOG : "monitorea"
 
-    USER ||--o{ PROFILE : "actúa_como"
-    USER ||--|| USER_CREDENTIAL : "tiene"
+    SYSTEM_SUITE ||--o{ ROLE : "define"
+    SYSTEM_SUITE ||--o{ PERMISSION : "categoriza"
+    SYSTEM_SUITE ||--o{ MENU_ITEM : "topología"
+    SYSTEM_SUITE ||--o{ PERMISSION_TEMPLATE : "provee_esquemas"
+    SYSTEM_SUITE ||--o{ PROFILE : "contexto_funcional"
 
-    SYSTEM_SUITE ||--o{ PERMISSION : "define"
-    SYSTEM_SUITE ||--o{ PERMISSION_TEMPLATE : "plantillas"
-    SYSTEM_SUITE ||--o{ PROFILE : "contexto_para"
-    SYSTEM_SUITE ||--o{ MENU_ITEM : "contiene_topología"
+    BRANCH ||--o{ PROFILE : "ubicación_operativa"
 
-    MENU_ITEM ||--o{ MENU_ITEM : "es_padre_de"
-    MENU_ITEM ||--o{ PERMISSION : "requiere"
+    USER ||--o{ PROFILE : "identidad_activa"
+    USER ||--|| USER_CREDENTIAL : "credenciales"
 
-    ROLE ||--o{ PROFILE : "esquema_para"
-    ROLE ||--o{ ROLE_PERMISSION : "permisos_base"
+    ROLE ||--o{ ROLE_PERMISSION : "autorizaciones_base"
+    ROLE ||--o{ PROFILE : "esquema_de_autoridad"
 
-    BRANCH ||--o{ PROFILE : "ubicación_para"
+    PERMISSION ||--o{ ROLE_PERMISSION : "vincula"
+    PERMISSION ||--o{ PROFILE_PERMISSION : "vínculos_efectivos"
+    PERMISSION ||--o{ TEMPLATE_PERMISSION : "vínculos_de_plantilla"
+    PERMISSION ||--o{ MENU_ITEM : "guarda_de_acceso"
+
+    PERMISSION_TEMPLATE ||--o{ TEMPLATE_PERMISSION : "contiene"
+    PERMISSION_TEMPLATE ||--o{ ROLE : "inicializa"
 
     PROFILE ||--o{ PROFILE_PERMISSION : "consolida"
 
-    PERMISSION ||--o{ ROLE_PERMISSION : "vincula"
-    PERMISSION ||--o{ PROFILE_PERMISSION : "vínculo_efectivo"
-    PERMISSION ||--o{ TEMPLATE_PERMISSION : "vincula"
+    MENU_ITEM ||--o{ MENU_ITEM : "jerarquía"
 
-    PERMISSION_TEMPLATE ||--o{ TEMPLATE_PERMISSION : "esquemas_base"
-
-    PROFILE {
-        uniqueidentifier ProfileId PK
-        uniqueidentifier TenantId FK
-        uniqueidentifier UserId FK
-        uniqueidentifier SystemId FK
-        uniqueidentifier RoleId FK
-        uniqueidentifier BranchId FK
-        nvarchar DisplayName
-        nvarchar AuditId "Vínculo de Trazabilidad"
-    }
-
-    PROFILE_PERMISSION {
-        uniqueidentifier ProfileId PK, FK
-        uniqueidentifier PermissionId PK, FK
-        bit IsDenied "Override: Forzar Denegación"
-        nvarchar GrantReason
-    }
-
-    USER {
-        uniqueidentifier UserId PK
-        uniqueidentifier TenantId FK
-        nvarchar Username "UK"
-        nvarchar Email "UK"
-    }
-
-    ROLE {
-        uniqueidentifier RoleId PK
-        uniqueidentifier TenantId FK
-        uniqueidentifier SourceTemplateId FK
-        nvarchar Name
+    TENANT {
+        uniqueidentifier TenantId PK
+        nvarchar Name "NOT NULL"
+        nvarchar Code "UK"
     }
 
     SYSTEM_SUITE {
         uniqueidentifier SuiteId PK
+        uniqueidentifier TenantId FK
         nvarchar Name
-        nvarchar Code "UK"
+        nvarchar Code
     }
 
     BRANCH {
@@ -106,15 +84,35 @@ erDiagram
         nvarchar Code
     }
 
-    MENU_ITEM {
-        uniqueidentifier MenuItemId PK
+    ROLE {
+        uniqueidentifier RoleId PK
         uniqueidentifier SuiteId FK
-        uniqueidentifier ParentItemId FK "NULL para Raíz"
-        uniqueidentifier PermissionId FK "Permiso de Acceso"
+        uniqueidentifier TenantId FK
         nvarchar Name
-        nvarchar Route
-        nvarchar Icon
-        int SortOrder
+    }
+
+    PROFILE {
+        uniqueidentifier ProfileId PK
+        uniqueidentifier TenantId FK
+        uniqueidentifier UserId FK
+        uniqueidentifier SystemId FK
+        uniqueidentifier BranchId FK
+        uniqueidentifier RoleId FK
+        nvarchar DisplayName
+    }
+
+    PROFILE_PERMISSION {
+        uniqueidentifier ProfileId PK, FK
+        uniqueidentifier PermissionId PK, FK
+        bit IsDenied "Anulación de Permiso"
+        nvarchar GrantReason
+    }
+
+    PERMISSION {
+        uniqueidentifier PermissionId PK
+        uniqueidentifier SuiteId FK
+        nvarchar Code "UK"
+        nvarchar Name
     }
 
     AUDIT_LOG {
@@ -124,26 +122,14 @@ erDiagram
         uniqueidentifier ProfileId
         uniqueidentifier CorrelationId
         uniqueidentifier TransactionId
-        nvarchar Action
-        nvarchar EntityName
-        nvarchar OldValue
-        nvarchar NewValue
         datetimeoffset Timestamp
     }
 ```
 
 ---
 
-## 4. Multi-tenancy y Aislamiento
-El aislamiento se aplica mediante **SQL Server Row-Level Security (RLS)**.
-
-*   **Entidades Globales** (`SystemSuites`, `Permissions`, `GlobalTemplates`): Accesibles por todos los inquilinos.
-*   **Entidades de Inquilino** (`Users`, `Roles`, `Profiles`, `Branches`): Aisladas por `TenantId` utilizando `SESSION_CONTEXT(N'TenantId')`.
-*   **Resolución Efectiva**: El `Motor de Autorización` resuelve los permisos principalmente desde `ProfilePermissions` para el `ActiveProfileId`.
-
----
-
-## 5. Persistencia de Autorizaciones Efectivas
-*   Cuando se crea un **Perfil**, los permisos del **Rol** seleccionado (y su Plantilla) se proyectan en `ProfilePermissions`.
-*   Cualquier **Anulación (Override)** realizada por un administrador se almacena directamente en `ProfilePermissions` para ese `ProfileId` específico.
-*   Esto garantiza que el `Motor de Autorización` realice una única combinación (join) altamente indexada para recuperar el conjunto completo de permisos para el contexto actual del usuario.
+## 4. Reglas de Negocio y Normalización
+1.  **Aislamiento Estricto**: Un Rol no puede existir fuera de un contexto de Sistema.
+2.  **Integridad Contextual**: Un Perfil solo puede crearse si el Rol seleccionado pertenece al Sistema seleccionado, y ambos pertenecen al mismo Tenant.
+3.  **Eliminación Lógica (Soft Delete)**: Los datos nunca se eliminan físicamente; se completa `DeletedAt` para mantener el historial.
+4.  **Persistencia Efectiva**: `PROFILE_PERMISSION` actúa como la fuente de verdad para el `Motor de Autorización`, combinando los valores por defecto del Rol con las anulaciones específicas del Perfil.

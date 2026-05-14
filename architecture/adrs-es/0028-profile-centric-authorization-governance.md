@@ -1,36 +1,37 @@
-# ADR 0028: Modelo de Gobernanza y Autorización Centrado en el Perfil
+# ADR 0028: Modelo de Gobernanza y Autorización Centrado en el Perfil Enterprise
 
 ## Estatus
-Propuesto
+Refactorizado (Estándares Enterprise)
 
 ## Contexto
-El modelo de autorización anterior dependía de una asociación directa entre Usuarios, Roles y Permisos. Esto generaba inconsistencias conceptuales donde las anulaciones de permisos para un usuario específico requerían la creación de un nuevo rol o la gestión de asignaciones ad-hoc, complicando la gobernanza y la auditoría. Existe la necesidad de una entidad central que encapsule todo el contexto de una autorización (Usuario, Rol, Sistema, Sucursal e Inquilino) y sirva como contenedor para las "Autorizaciones Efectivas".
+Los modelos RBAC estándar fallan en entornos empresariales multi-inquilino y multi-sistema donde los permisos están contextualizados por la estructura organizacional (Sucursales) y los límites funcionales (Sistemas). La asignación directa usuario-rol crea brechas de gobernanza. Un modelo robusto debe aislar los roles dentro de los sistemas y consolidar la autoridad en un único pivote contextual: el **Perfil**.
 
 ## Decisión
-Haremos la transición a un **Modelo de Autorización Centrado en el Perfil**.
+Implementaremos un **Modelo de Autorización Centrado en el Perfil Enterprise** gobernado por las siguientes reglas estrictas:
 
-1.  **El Perfil como Eje de Gobernanza**:
-    *   Un **Perfil** es la unidad atómica de autorización.
-    *   Es una composición contextual de: `UserId` + `RoleId` + `SystemId` + `BranchId` + `TenantId`.
-    *   Un usuario puede tener múltiples perfiles (ej. "Gerente en Sucursal A" y "Auditor en Sucursal B").
+1.  **Propiedad Jerárquica Estricta**:
+    *   Un **Inquilino (Tenant)** posee sus **Usuarios**, **Sistemas (Suites)** y **Sucursales (Branches)**.
+    *   Un **Sistema** pertenece a un único Inquilino.
+    *   Un **Rol** pertenece a un único Sistema. Los roles globales están prohibidos.
+    *   Un **Permiso** pertenece al contexto funcional de un Sistema.
 
-2.  **Persistencia de Autorizaciones Efectivas**:
-    *   En lugar de resolver los permisos al vuelo desde los roles, el conjunto final de autorizaciones se persistirá a nivel de **Perfil** en una tabla `ProfilePermissions`.
-    *   Esto permite **Anulaciones (Overrides)** granulares (agregar o eliminar permisos) para un perfil específico sin afectar a otros usuarios que comparten el mismo Rol.
+2.  **El Perfil como Nexo Contextual**:
+    *   El **Perfil** es la intersección única de: `Tenant` + `Sistema` + `Sucursal` + `Usuario` + `Rol`.
+    *   Las autorizaciones se resuelven y persisten a nivel de **Perfil** como "Permisos Efectivos".
 
-3.  **Estándares de Trazabilidad y Auditoría**:
-    *   Todos los cambios de autorización deben rastrearse con un `TransactionId` o `AuditId`.
-    *   Cada entidad en el sistema seguirá el **Esquema de Auditoría Corporativa Estándar** (Created, Updated, Deleted, Version, Status).
+3.  **Estándares de Gobernanza y Auditoría**:
+    *   Cada entidad debe implementar el **Esquema de Auditoría Corporativa** (más de 10 columnas).
+    *   El soporte para **Soft Delete**, **Bloqueo Optimista** y **Pistas de Auditoría** es obligatorio para todas las operaciones de persistencia.
+    *   **Trazabilidad**: Las operaciones críticas de seguridad deben rastrear `CorrelationId`, `AuditId` y `TransactionId`.
 
-4.  **Desacoplamiento**:
-    *   **Rol**: Un esquema base de permisos.
-    *   **Perfil**: Una implementación contextual de un Rol para un Usuario y una Sucursal específicos.
+4.  **Motor de Autorización**:
+    *   El motor resuelve los permisos consultando la tabla de **Permisos Efectivos** para el `ProfileId` actual.
+    *   Admite **Anulaciones (Overrides)** (Conceder/Denegar) a nivel de Perfil para una granularidad máxima.
 
 ## Implementación Técnica
-*   La tabla `Users` ya no estará vinculada directamente a `Roles`.
-*   La tabla `Profiles` se convierte en el punto de unión central.
-*   El `Motor de Autorización` resolverá los permisos consultando el **ID del Perfil Activo** en el contexto de ejecución.
+*   **Cardinalidad**: `Tenant (1:N) Sistema (1:N) Rol (1:N) Perfil`.
+*   **Persistencia**: Los permisos efectivos se proyectan desde `Role -> ProfilePermission` al crear/sincronizar el perfil.
 
 ## Consecuencias
-*   **Positivo**: Granularidad perfecta para anulaciones, auditoría simplificada (un solo lugar para ver qué puede hacer un usuario en un contexto específico) y mejor alineación con estructuras organizacionales complejas.
-*   **Negativo**: Mayor número de filas en las tablas de permisos (`ProfilePermissions`) y necesidad de lógica para mantener los perfiles sincronizados con sus roles/plantillas de origen cuando sea necesario.
+*   **Positivo**: Aislamiento perfecto, resolución contextual simplificada, auditabilidad total y escalabilidad masiva para entornos multi-organización.
+*   **Negativo**: Mayor gestión de metadatos y requerimiento de una lógica de sincronización robusta entre Roles y Perfiles.
