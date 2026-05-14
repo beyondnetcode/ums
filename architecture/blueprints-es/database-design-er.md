@@ -1,198 +1,134 @@
 # 🗄️ Modelo Entidad-Relación (E/R) - SQL Server 2022
 
 **Tipo de Documento:** Diseño de Base de Datos  
-**Estatus:** Propuesto  
-**Arquitectura:** Multi-tenancy (Esquema Compartido + RLS)  
+**Estatus:** Refactorizado (Centrado en el Perfil)  
+**Arquitectura:** Multi-tenancy Contextual (Hub de Perfiles)  
 **Motor:** SQL Server 2022
 
 ## 1. Introducción
-Este documento detalla el diseño del modelo de datos para el **User Management System (UMS)**. El diseño está optimizado para **SQL Server 2022**, utilizando tipos de datos modernos y una estructura que facilita el aislamiento de datos mediante **Row-Level Security (RLS)** y el uso de `SESSION_CONTEXT`.
+Este documento detalla el modelo de datos **Centrado en el Perfil** para el **User Management System (UMS)**. El modelo gira en torno a la entidad `Profile`, que sirve como la consolidación contextual de la identidad y la autoridad a través de Sistemas, Roles y Sucursales.
 
 ---
 
-## 2. Diagrama E/R (Mermaid)
+## 2. Estándares Corporativos de Auditoría y Trazabilidad
+Cada tabla en este esquema DEBE implementar las siguientes columnas de auditoría para cumplir con los estándares de gobernanza corporativa.
+
+| Columna | Tipo | Descripción |
+| :--- | :--- | :--- |
+| `CreatedAt` | `datetimeoffset` | Marca de tiempo de creación. |
+| `CreatedBy` | `uniqueidentifier` | ID del usuario/sistema que creó el registro. |
+| `UpdatedAt` | `datetimeoffset` | Marca de tiempo de la última actualización (Nulo). |
+| `UpdatedBy` | `uniqueidentifier` | ID del usuario/sistema que actualizó el registro por última vez. |
+| `DeletedAt` | `datetimeoffset` | Marca de tiempo de eliminación lógica (Nulo). |
+| `DeletedBy` | `uniqueidentifier` | ID del usuario/sistema que eliminó el registro. |
+| `Version` | `int` | Versión de la fila para concurrencia optimista (Predeterminado: 1). |
+| `Status` | `int` | Estado del registro (1: Activo, 0: Inactivo, 99: Eliminado). |
+
+---
+
+## 3. Diagrama E/R (Mermaid)
 
 ```mermaid
 erDiagram
-    TENANT ||--o{ USER : "pertenece_a"
-    TENANT ||--o{ ROLE : "define"
-    TENANT ||--o{ BRANCH : "posee"
-    TENANT ||--o{ AUDIT_LOG : "genera"
-    TENANT ||--o{ PERMISSION_TEMPLATE : "define_local"
+    TENANT ||--o{ USER : "aloja"
+    TENANT ||--o{ SYSTEM_SUITE : "se_suscribe_a"
+    TENANT ||--o{ BRANCH : "contiene"
+    TENANT ||--o{ ROLE : "gestiona"
+    TENANT ||--o{ PROFILE : "gobierna"
+    TENANT ||--o{ AUDIT_LOG : "registra"
 
-    SYSTEM_SUITE ||--o{ PERMISSION : "categoriza"
-    SYSTEM_SUITE ||--o{ PERMISSION_TEMPLATE : "provee_base_para"
-
-    PERMISSION_TEMPLATE ||--o{ TEMPLATE_PERMISSION : "contiene"
-    PERMISSION_TEMPLATE ||--o{ ROLE : "inicializa"
-
+    USER ||--o{ PROFILE : "actúa_como"
     USER ||--|| USER_CREDENTIAL : "tiene"
-    USER ||--|| PROFILE : "tiene"
-    USER ||--o{ USER_ROLE : "asignado_a"
-    USER ||--o{ USER_BRANCH : "opera_en"
 
-    ROLE ||--o{ ROLE_PERMISSION : "contiene"
-    ROLE ||--o{ USER_ROLE : "asignado_a"
-    
-    PERMISSION ||--o{ ROLE_PERMISSION : "asociado_a"
-    PERMISSION ||--o{ TEMPLATE_PERMISSION : "asociado_a"
-    
-    BRANCH ||--o{ USER_BRANCH : "asociado_a"
+    SYSTEM_SUITE ||--o{ PERMISSION : "define"
+    SYSTEM_SUITE ||--o{ PERMISSION_TEMPLATE : "plantillas"
+    SYSTEM_SUITE ||--o{ PROFILE : "contexto_para"
 
-    SYSTEM_SUITE {
-        uniqueidentifier SuiteId PK
-        nvarchar Name "NOT NULL"
-        nvarchar Code "UK, NOT NULL"
+    ROLE ||--o{ PROFILE : "esquema_para"
+    ROLE ||--o{ ROLE_PERMISSION : "permisos_base"
+
+    BRANCH ||--o{ PROFILE : "ubicación_para"
+
+    PROFILE ||--o{ PROFILE_PERMISSION : "consolida"
+
+    PERMISSION ||--o{ ROLE_PERMISSION : "vincula"
+    PERMISSION ||--o{ PROFILE_PERMISSION : "vínculo_efectivo"
+    PERMISSION ||--o{ TEMPLATE_PERMISSION : "vincula"
+
+    PERMISSION_TEMPLATE ||--o{ TEMPLATE_PERMISSION : "esquemas_base"
+
+    PROFILE {
+        uniqueidentifier ProfileId PK
+        uniqueidentifier TenantId FK
+        uniqueidentifier UserId FK
+        uniqueidentifier SystemId FK
+        uniqueidentifier RoleId FK
+        uniqueidentifier BranchId FK
+        nvarchar DisplayName
+        nvarchar AuditId "Vínculo de Trazabilidad"
     }
 
-    PERMISSION_TEMPLATE {
-        uniqueidentifier TemplateId PK
-        uniqueidentifier TenantId FK "NULL para Global"
-        uniqueidentifier SuiteId FK
-        nvarchar Name "NOT NULL"
-        nvarchar Version "NOT NULL"
-        bit IsActive
-    }
-
-    TEMPLATE_PERMISSION {
-        uniqueidentifier TemplateId PK, FK
+    PROFILE_PERMISSION {
+        uniqueidentifier ProfileId PK, FK
         uniqueidentifier PermissionId PK, FK
-    }
-
-    TENANT {
-        uniqueidentifier TenantId PK
-        nvarchar Name "NOT NULL"
-        nvarchar Code "UK, NOT NULL"
-        int Status "NOT NULL"
-        datetimeoffset CreatedAt "DEFAULT GETDATE()"
+        bit IsDenied "Override: Forzar Denegación"
+        nvarchar GrantReason
     }
 
     USER {
         uniqueidentifier UserId PK
-        uniqueidentifier TenantId FK "RLS"
-        nvarchar Username "UK, NOT NULL"
-        nvarchar Email "UK, NOT NULL"
-        bit IsActive "DEFAULT 1"
-        bit IsServiceAccount "DEFAULT 0"
-        datetimeoffset CreatedAt
-    }
-
-    USER_CREDENTIAL {
-        uniqueidentifier CredentialId PK
-        uniqueidentifier UserId FK "UK"
-        nvarchar PasswordHash "NOT NULL"
-        nvarchar SecurityStamp
-        datetimeoffset LastChangedAt
-    }
-
-    PROFILE {
-        uniqueidentifier ProfileId PK
-        uniqueidentifier UserId FK "UK"
-        nvarchar FirstName
-        nvarchar LastName
-        nvarchar Attributes "JSON (ABAC)"
+        uniqueidentifier TenantId FK
+        nvarchar Username "UK"
+        nvarchar Email "UK"
     }
 
     ROLE {
         uniqueidentifier RoleId PK
         uniqueidentifier TenantId FK
-        uniqueidentifier SourceTemplateId FK "NULLABLE"
-        nvarchar Name "NOT NULL"
-        nvarchar Description
-        bit IsSystemRole "DEFAULT 0"
+        uniqueidentifier SourceTemplateId FK
+        nvarchar Name
     }
 
-    PERMISSION {
-        uniqueidentifier PermissionId PK
-        uniqueidentifier SuiteId FK
-        nvarchar Code "UK, NOT NULL"
-        nvarchar Name "NOT NULL"
-        nvarchar Category
-    }
-
-    ROLE_PERMISSION {
-        uniqueidentifier RoleId PK, FK
-        uniqueidentifier PermissionId PK, FK
-    }
-
-    USER_ROLE {
-        uniqueidentifier UserId PK, FK
-        uniqueidentifier RoleId PK, FK
+    SYSTEM_SUITE {
+        uniqueidentifier SuiteId PK
+        nvarchar Name
+        nvarchar Code "UK"
     }
 
     BRANCH {
         uniqueidentifier BranchId PK
         uniqueidentifier TenantId FK
-        nvarchar Name "NOT NULL"
-        nvarchar Code "NOT NULL"
-    }
-
-    USER_BRANCH {
-        uniqueidentifier UserId PK, FK
-        uniqueidentifier BranchId PK, FK
+        nvarchar Name
+        nvarchar Code
     }
 
     AUDIT_LOG {
-        bigint LogId PK "IDENTITY"
-        uniqueidentifier TenantId FK
-        uniqueidentifier UserId FK
-        nvarchar Action "NOT NULL"
-        nvarchar EntityName "NOT NULL"
-        nvarchar EntityId
-        nvarchar OldValue "JSON"
-        nvarchar NewValue "JSON"
-        datetimeoffset Timestamp "DEFAULT GETDATE()"
+        bigint LogId PK
+        uniqueidentifier TenantId
+        uniqueidentifier UserId
+        uniqueidentifier ProfileId
+        uniqueidentifier CorrelationId
+        uniqueidentifier TransactionId
+        nvarchar Action
+        nvarchar EntityName
+        nvarchar OldValue
+        nvarchar NewValue
+        datetimeoffset Timestamp
     }
 ```
 
 ---
 
-## 3. Diccionario de Datos y Tipos SQL Server
+## 4. Multi-tenancy y Aislamiento
+El aislamiento se aplica mediante **SQL Server Row-Level Security (RLS)**.
 
-### 3.1 Estándares de Tipos
-*   **Identificadores (PK/FK):** `uniqueidentifier` utilizando `NEWSEQUENTIALID()` en SQL Server para evitar fragmentación de índices.
-*   **Fechas:** `datetimeoffset` para garantizar precisión en zonas horarias globales.
-*   **Cadenas:** `nvarchar(n)` para soporte Unicode completo.
-*   **Metadatos/ABAC:** `nvarchar(max)` con validación `ISJSON()` para flexibilidad de atributos dinámicos.
-
-### 3.2 Tablas Principales
-
-| Tabla | Propósito | Estrategia de Índice |
-| :--- | :--- | :--- |
-| `Tenants` | Maestro de inquilinos. | Clustered en `TenantId`. Unique en `Code`. |
-| `Users` | Identidades de usuario. | Clustered en `UserId`. Non-clustered en `TenantId` (RLS Optimization). |
-| `Roles` | Definición de roles por tenant. | Filtrado por `TenantId`. |
-| `AuditLogs` | Trazabilidad de cambios. | Clustered en `LogId` (bigint identity). Particionado por `Timestamp` si la escala aumenta. |
+*   **Entidades Globales** (`SystemSuites`, `Permissions`, `GlobalTemplates`): Accesibles por todos los inquilinos.
+*   **Entidades de Inquilino** (`Users`, `Roles`, `Profiles`, `Branches`): Aisladas por `TenantId` utilizando `SESSION_CONTEXT(N'TenantId')`.
+*   **Resolución Efectiva**: El `Motor de Autorización` resuelve los permisos principalmente desde `ProfilePermissions` para el `ActiveProfileId`.
 
 ---
 
-## 4. Implementación de Multi-tenancy (RLS)
-
-Para SQL Server, la propuesta de aislamiento se basa en el uso de **Security Policies** y **Inline Table-Valued Functions (iTVF)**.
-
-### Función de Filtro Predicado
-```sql
-CREATE FUNCTION Security.fn_tenantSecurityPredicate(@TenantId uniqueidentifier)
-    RETURNS TABLE
-    WITH SCHEMABINDING
-AS
-    RETURN SELECT 1 AS fn_security_predicate_result
-    WHERE @TenantId = CAST(SESSION_CONTEXT(N'TenantId') AS uniqueidentifier)
-       OR CAST(SESSION_CONTEXT(N'IsSuperAdmin') AS bit) = 1;
-```
-
-### Política de Seguridad
-```sql
-CREATE SECURITY POLICY Security.TenantIdFilter
-    ADD FILTER PREDICATE Security.fn_tenantSecurityPredicate(TenantId) ON dbo.Users,
-    ADD FILTER PREDICATE Security.fn_tenantSecurityPredicate(TenantId) ON dbo.Roles,
-    ADD FILTER PREDICATE Security.fn_tenantSecurityPredicate(TenantId) ON dbo.AuditLogs
-    WITH (STATE = ON);
-```
-
----
-
-## 5. Consideraciones para el Blueprint
-1.  **Escalabilidad:** Se recomienda el uso de **Indexes Columnstore** en la tabla `AuditLogs` si el volumen de auditoría supera los millones de registros.
-2.  **Integridad:** Todas las relaciones N:M se manejan mediante tablas de unión con claves compuestas para optimizar la navegación.
-3.  **Seguridad:** Los hashes de contraseña nunca deben almacenarse en la tabla `Users`, sino en `UserCredentials` para permitir la rotación de secretos y múltiples métodos de autenticación (ej. MFA).
+## 5. Persistencia de Autorizaciones Efectivas
+*   Cuando se crea un **Perfil**, los permisos del **Rol** seleccionado (y su Plantilla) se proyectan en `ProfilePermissions`.
+*   Cualquier **Anulación (Override)** realizada por un administrador se almacena directamente en `ProfilePermissions` para ese `ProfileId` específico.
+*   Esto garantiza que el `Motor de Autorización` realice una única combinación (join) altamente indexada para recuperar el conjunto completo de permisos para el contexto actual del usuario.

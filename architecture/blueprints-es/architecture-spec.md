@@ -25,10 +25,10 @@ La siguiente tabla define los entregables obligatorios, el alcance estratégico 
 | **9** | Estrategia de Gestión de Datos Maestros | Plan de trabajo para datos maestros: entidades clave, enfoque de migración desde SAP, pautas de calidad y fases. Justifica el esfuerzo de integración y limpieza de datos en el presupuesto. |
 | **10** | Estrategia de Versionamiento y Evolución de APIs | Pautas para la evolución de contratos (APIs y eventos): cómo se introducen cambios sin romper dependencias. Prevé la gobernanza técnica y el costo de mantener la compatibilidad. |
 | **11** | Estrategia de Sincronización Multi-Dominio | Enfoque para la consistencia eventual entre contextos: definición de fuentes de verdad, pautas de disposición y resolución de conflictos. Revela la complejidad de integración y su impacto en los cronogramas. |
-| **12** | [Registros de Decisión de Arquitectura Iniciales (ADRs)](#-4-matriz-de-decisión-arquitectónica) | Registro de las decisiones arquitectónicas más influyentes, su justificación y alternativas. Respalda por qué se eligió un camino específico, aclarando riesgos y costos asumidos. |
-| **13** | [Plan de Pruebas de Contrato de Integración](#-12-estrategia-de-calidad-y-pruebas-de-contrato) | Estrategia para asegurar que las interacciones entre contextos cumplan con sus contratos, integradas en el pipeline de CI/CD. Justifica el aseguramiento de la calidad en las integraciones sin detallar herramientas específicas. |
-| **14** | [Infraestructura de Despliegue](#-11-infraestructura-de-despliegue-y-topología-cloud) | Diseño de la topología (nube/on-premise/híbrida), servicios gestionados clave y estimaciones de costos operativos. Proporciona una línea base financiera y técnica para el dimensionamiento. |
-| **15** | [Estructura de Desglose de Trabajo y Plan](#-5-gestión-de-deuda-técnica-y-hoja-de-ruta-arquitectónica-backlog) | Hoja de ruta con fases, sprints, perfiles, hitos y criterios de aceptación. Traduce la estrategia en un cronograma y justifica la carga de trabajo y los costos de cada etapa. |
+| **12** | [Registros de Decisión de Arquitectura (ADRs)](#-4-matriz-de-decisión-arquitectónica) | Registro de decisiones influyentes, incluyendo el **[Modelo Centrado en el Perfil](../adrs-es/0028-profile-centric-authorization-governance.md)**, justificación y alternativas. |
+| **13** | [Plan de Pruebas de Contrato](#-12-estrategia-de-calidad-y-pruebas-de-contrato) | Estrategia para asegurar que las interacciones cumplan con los contratos. |
+| **14** | [Infraestructura de Despliegue](#-11-infraestructura-de-despliegue-y-topología-cloud) | Diseño de la topología y costos operativos. |
+| **15** | [Estructura de Desglose de Trabajo](#-5-gestión-de-deuda-técnica-y-hoja-de-ruta-arquitectónica-backlog) | Hoja de ruta con fases, sprints e hitos. |
 
 ---
 
@@ -142,10 +142,20 @@ graph TD
         SqlServer["Microsoft SQL Server (Driver ADO.NET)"]
     end
 
-    Controller -->|"Envía Comando"| Handler
-    Handler -->|"Valida con"| Validator
-    Handler -->|"Instancia y crea"| Entity
-    Handler -.->|"Depende de"| IUserRepo
+    subgraph Application["Ums.Application (Casos de Uso)"]
+        Handler["ResolveProfilePermissionsHandler (MediatR)"]
+        ProfileService["ProfileEffectivePermissionService"]
+    end
+
+    subgraph Domain["Ums.Domain (Núcleo POCO Puro)"]
+        ProfileEntity["Profile Aggregate (User+System+Role+Branch)"]
+        IProfileRepo["IProfileRepository (Puerto de Persistencia)"]
+    end
+
+    Controller -->|"Envía Solicitud"| Handler
+    Handler -->|"Calcula permisos"| ProfileService
+    ProfileService -->|"Carga contexto"| ProfileEntity
+    Handler -.->|"Persiste permisos"| IProfileRepo
     
     EfRepo -.->|"Implementa"| IUserRepo
     EfRepo -->|"Accede vía"| SqlServer

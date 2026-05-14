@@ -22,10 +22,10 @@ The following table defines the mandatory deliverables, strategic scope, and con
 | **7** | [Event Domain Model (Event Storming)](#-10-asynchronous-communication--event-model) | Map of relevant business events, their producers, and consumers, along with delivery and ordering principles. Guides integration and the effort associated with orchestration/choreography. |
 | **10** | API Versioning & Evolution Strategy | Guidelines for contract evolution (APIs and events): how changes are introduced without breaking dependencies. Forecasts technical governance and the cost of maintaining compatibility. |
 | **11** | Multi-Domain Synchronization Strategy | Approach to eventual consistency between contexts: definition of sources of truth, duplication guidelines, and conflict resolution. Reveals integration complexity and its impact on timelines. |
-| **12** | [Initial Architecture Decision Records (ADRs)](#-4-architectural-decision-matrix) | Log of the most influential architectural decisions, their justification, and alternatives. Backs up why a specific path was chosen, clarifying risks and assumed costs. |
-| **13** | [Integration Contract Testing Plan](#-12-quality-strategy--contract-testing) | Strategy to ensure interactions between contexts comply with their contracts, integrated into the CI/CD pipeline. Justifies quality assurance in integrations without detailing specific tools. |
-| **14** | [Deployment Infrastructure](#-11-deployment-infrastructure--cloud-topology) | Layout of the topology (cloud/on-premise/hybrid), key managed services, and operational cost estimations. Provides a financial and technical baseline for sizing. |
-| **15** | [Work Breakdown Structure & Plan](#-5-technical-debt-management--architectural-roadmap-backlog) | Roadmap with phases, sprints, profiles, milestones, and acceptance criteria. Translates strategy into a schedule and justifies workload and costs for each stage. |
+| **12** | [Initial Architecture Decision Records (ADRs)](#-4-architectural-decision-matrix) | Log of the most influential architectural decisions, including the **[Profile-Centric Model](../adrs/0028-profile-centric-authorization-governance.md)**, justification, and alternatives. |
+| **13** | [Integration Contract Testing Plan](#-12-quality-strategy--contract-testing) | Strategy to ensure interactions between contexts comply with their contracts. |
+| **14** | [Deployment Infrastructure](#-11-deployment-infrastructure--cloud-topology) | Layout of the topology (cloud/on-premise/hybrid) and operational costs. |
+| **15** | [Work Breakdown Structure & Plan](#-5-technical-debt-management--architectural-roadmap-backlog) | Roadmap with phases, sprints, and milestones. |
 
 ---
 
@@ -84,6 +84,7 @@ graph TD
         BackendAPI["UMS Core (.NET 8 Auth, Identity, Profiles)"]
         ConfigAPI["Config & Feature Flag Module"]
         TemplateAPI["Template & Suite Manager (Auth Blueprints)"]
+        ProfileAPI["Profile & Authority Manager (Consolidated Context)"]
         SqlServerDB["SQL Server 2022 Database (Shared Schema + RLS)"]
         AuditDB["Audit Ledger & Access Requests (UC-12)"]
         RedisCache["Redis Cluster (Auth Graph + Cfg + Flags)"]
@@ -104,6 +105,8 @@ graph TD
     BackendAPI -->|"3. Sets LOCAL tenant context via RLS"| SqlServerDB
     ConfigAPI -->|"3. Sets LOCAL tenant context via RLS"| SqlServerDB
     TemplateAPI -->|"3. Global/Local Query + RLS"| SqlServerDB
+    ProfileAPI -->|"3. Consolidates & Persists Effective Perms"| SqlServerDB
+    BackendAPI -->|"4. Resolves Active Profile Context"| ProfileAPI
     BackendAPI -->|"4. Read-Aside cache lookup"| RedisCache
     ConfigAPI -->|"4. Read/Write config & flags"| RedisCache
     
@@ -142,10 +145,20 @@ graph TD
         SqlServer["Microsoft SQL Server (ADO.NET Driver)"]
     end
 
-    Controller -->|"Sends Command"| Handler
-    Handler -->|"Validates with"| Validator
-    Handler -->|"Instantiates and creates"| Entity
-    Handler -.->|"Depends on"| IUserRepo
+    subgraph Application["Ums.Application (Use Cases)"]
+        Handler["ResolveProfilePermissionsHandler (MediatR)"]
+        ProfileService["ProfileEffectivePermissionService"]
+    end
+
+    subgraph Domain["Ums.Domain (Pure POCO Core)"]
+        ProfileEntity["Profile Aggregate (User+System+Role+Branch)"]
+        IProfileRepo["IProfileRepository (Persistence Port)"]
+    end
+
+    Controller -->|"Sends Request"| Handler
+    Handler -->|"Calculates perms"| ProfileService
+    ProfileService -->|"Loads context"| ProfileEntity
+    Handler -.->|"Persists perms"| IProfileRepo
     
     EfRepo -.->|"Implements"| IUserRepo
     EfRepo -->|"Access via"| SqlServer
