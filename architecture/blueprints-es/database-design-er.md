@@ -55,8 +55,11 @@ erDiagram
         uniqueidentifier TemplateId PK
         uniqueidentifier RoleId FK
         uniqueidentifier ActionId FK
-        nvarchar ResourceLevel "SYSTEM/MODULE/SUBMODULE/OPTION"
-        nvarchar ResourceId "ID de Recurso"
+        uniqueidentifier TenantId FK "RLS"
+        uniqueidentifier SuiteId FK "Exclusive Arc"
+        uniqueidentifier ModuleId FK "Exclusive Arc"
+        uniqueidentifier SubModuleId FK "Exclusive Arc"
+        uniqueidentifier OptionId FK "Exclusive Arc"
     }
     
     PROFILE_PERMISSION {
@@ -82,18 +85,21 @@ erDiagram
     FUNCTIONAL_MODULE {
         uniqueidentifier ModuleId PK
         uniqueidentifier SuiteId FK
+        uniqueidentifier TenantId FK "RLS"
         nvarchar Name
     }
     
     FUNCTIONAL_SUBMODULE {
         uniqueidentifier SubModuleId PK
         uniqueidentifier ModuleId FK
+        uniqueidentifier TenantId FK "RLS"
         nvarchar Name
     }
     
     FUNCTIONAL_OPTION {
         uniqueidentifier OptionId PK
         uniqueidentifier SubModuleId FK
+        uniqueidentifier TenantId FK "RLS"
         nvarchar Name
         nvarchar Code
     }
@@ -101,8 +107,8 @@ erDiagram
 
 ---
 
-## 4. Reglas de Negocio y Restricciones
-1.  **Integridad Jerárquica**: El acceso debe rastrearse a través de `Sistema > Módulo > Sub-módulo > Opción > Acción`.
-2.  **Propiedad del Rol**: Una `PermissionTemplate` DEBE pertenecer a un `Role`.
-3.  **Sin Acciones Huérfanas**: Las acciones deben ser propiedad de un Sistema o Módulo (Contexto Global vs Local).
-4.  **Materialización**: Los permisos efectivos siempre referencian una plantilla válida vinculada al rol.
+## 4. Reglas de Negocio y Restricciones Técnicas
+1.  **Row-Level Security (RLS)**: `TenantId` está denormalizado en todas las entidades funcionales (Module, Option, Template, Action, Role) para permitir aislamiento O(1) vía RLS nativo de SQL Server.
+2.  **Arco Exclusivo (Integridad de Plantilla)**: `PermissionTemplate` implementa 4 FKs anulables que apuntan a la jerarquía de recursos. Un constraint `CHECK` garantiza que exactamente UNO tenga valor, forzando integridad referencial estricta sobre el polimorfismo.
+3.  **Propiedad de Acción XOR Estricta**: Una Acción debe pertenecer a un Sistema O a un Módulo, pero nunca a ambos: `CHECK ((SuiteId IS NOT NULL AND ModuleId IS NULL) OR (SuiteId IS NULL AND ModuleId IS NOT NULL))`.
+4.  **Integridad Jerárquica**: El acceso debe rastrearse a través de `Sistema > Módulo > Sub-módulo > Opción > Acción`.

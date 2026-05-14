@@ -9,6 +9,7 @@ If Mermaid visualization is failing or insufficient, use these industry-standard
 ```dbml
 // UMS Role-Scoped & Strict 5-Level Hierarchy Model
 // Engine: SQL Server 2022
+// Optimizations: RLS Denormalization & Exclusive Arc
 
 Table TENANT {
   TenantId uniqueidentifier [pk]
@@ -29,6 +30,7 @@ Table SYSTEM_SUITE {
 Table ROLE {
   RoleId uniqueidentifier [pk]
   SuiteId uniqueidentifier
+  TenantId uniqueidentifier [note: 'RLS']
   Name nvarchar
 }
 
@@ -36,8 +38,11 @@ Table PERMISSION_TEMPLATE {
   TemplateId uniqueidentifier [pk]
   RoleId uniqueidentifier
   ActionId uniqueidentifier
-  ResourceLevel nvarchar
-  ResourceId nvarchar
+  TenantId uniqueidentifier [note: 'RLS']
+  SuiteId uniqueidentifier [note: 'Exclusive Arc']
+  ModuleId uniqueidentifier [note: 'Exclusive Arc']
+  SubModuleId uniqueidentifier [note: 'Exclusive Arc']
+  OptionId uniqueidentifier [note: 'Exclusive Arc']
 }
 
 Table PROFILE {
@@ -58,26 +63,30 @@ Table PROFILE_PERMISSION {
 Table FUNCTIONAL_MODULE {
   ModuleId uniqueidentifier [pk]
   SuiteId uniqueidentifier
+  TenantId uniqueidentifier [note: 'RLS']
   Name nvarchar
 }
 
 Table FUNCTIONAL_SUBMODULE {
   SubModuleId uniqueidentifier [pk]
   ModuleId uniqueidentifier
+  TenantId uniqueidentifier [note: 'RLS']
   Name nvarchar
 }
 
 Table FUNCTIONAL_OPTION {
   OptionId uniqueidentifier [pk]
   SubModuleId uniqueidentifier
+  TenantId uniqueidentifier [note: 'RLS']
   Name nvarchar
   Code nvarchar
 }
 
 Table ACTION {
   ActionId uniqueidentifier [pk]
-  SuiteId uniqueidentifier [note: 'Global']
-  ModuleId uniqueidentifier [note: 'Module-Specific']
+  SuiteId uniqueidentifier [note: 'XOR Global']
+  ModuleId uniqueidentifier [note: 'XOR Module-Specific']
+  TenantId uniqueidentifier [note: 'RLS']
   Code nvarchar
 }
 
@@ -85,50 +94,62 @@ Table ACTION {
 Ref: USER.TenantId > TENANT.TenantId
 Ref: SYSTEM_SUITE.TenantId > TENANT.TenantId
 Ref: ROLE.SuiteId > SYSTEM_SUITE.SuiteId
+Ref: ROLE.TenantId > TENANT.TenantId
 Ref: PERMISSION_TEMPLATE.RoleId > ROLE.RoleId
 Ref: PERMISSION_TEMPLATE.ActionId > ACTION.ActionId
+Ref: PERMISSION_TEMPLATE.TenantId > TENANT.TenantId
+Ref: PERMISSION_TEMPLATE.SuiteId > SYSTEM_SUITE.SuiteId
+Ref: PERMISSION_TEMPLATE.ModuleId > FUNCTIONAL_MODULE.ModuleId
+Ref: PERMISSION_TEMPLATE.SubModuleId > FUNCTIONAL_SUBMODULE.SubModuleId
+Ref: PERMISSION_TEMPLATE.OptionId > FUNCTIONAL_OPTION.OptionId
 Ref: PROFILE.TenantId > TENANT.TenantId
 Ref: PROFILE.UserId > USER.UserId
 Ref: PROFILE.RoleId > ROLE.RoleId
 Ref: PROFILE_PERMISSION.ProfileId > PROFILE.ProfileId
 Ref: PROFILE_PERMISSION.TemplateId > PERMISSION_TEMPLATE.TemplateId
 Ref: FUNCTIONAL_MODULE.SuiteId > SYSTEM_SUITE.SuiteId
+Ref: FUNCTIONAL_MODULE.TenantId > TENANT.TenantId
 Ref: FUNCTIONAL_SUBMODULE.ModuleId > FUNCTIONAL_MODULE.ModuleId
+Ref: FUNCTIONAL_SUBMODULE.TenantId > TENANT.TenantId
 Ref: FUNCTIONAL_OPTION.SubModuleId > FUNCTIONAL_SUBMODULE.SubModuleId
+Ref: FUNCTIONAL_OPTION.TenantId > TENANT.TenantId
 Ref: ACTION.SuiteId > SYSTEM_SUITE.SuiteId
 Ref: ACTION.ModuleId > FUNCTIONAL_MODULE.ModuleId
+Ref: ACTION.TenantId > TENANT.TenantId
 ```
 
 ---
 
 ## 2. SQL DDL (SQL Server 2022) 🛠️
 ```sql
--- 5-Level Hierarchy Master Schema
-
-CREATE TABLE FUNCTIONAL_MODULE (
-    ModuleId UNIQUEIDENTIFIER PRIMARY KEY,
-    SuiteId UNIQUEIDENTIFIER REFERENCES SYSTEM_SUITE(SuiteId),
-    Name NVARCHAR(255)
-);
-
-CREATE TABLE FUNCTIONAL_SUBMODULE (
-    SubModuleId UNIQUEIDENTIFIER PRIMARY KEY,
-    ModuleId UNIQUEIDENTIFIER REFERENCES FUNCTIONAL_MODULE(ModuleId),
-    Name NVARCHAR(255)
-);
-
-CREATE TABLE FUNCTIONAL_OPTION (
-    OptionId UNIQUEIDENTIFIER PRIMARY KEY,
-    SubModuleId UNIQUEIDENTIFIER REFERENCES FUNCTIONAL_SUBMODULE(SubModuleId),
-    Name NVARCHAR(255),
-    Code NVARCHAR(50)
-);
+-- 5-Level Hierarchy Master Schema with Technical Optimizations
 
 CREATE TABLE ACTION (
     ActionId UNIQUEIDENTIFIER PRIMARY KEY,
     SuiteId UNIQUEIDENTIFIER REFERENCES SYSTEM_SUITE(SuiteId),
     ModuleId UNIQUEIDENTIFIER REFERENCES FUNCTIONAL_MODULE(ModuleId),
+    TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
     Code NVARCHAR(50),
-    CONSTRAINT CHK_ActionOwnership CHECK (SuiteId IS NOT NULL OR ModuleId IS NOT NULL)
+    CONSTRAINT CHK_ActionOwnership_XOR CHECK (
+        (SuiteId IS NOT NULL AND ModuleId IS NULL) OR 
+        (SuiteId IS NULL AND ModuleId IS NOT NULL)
+    )
+);
+
+CREATE TABLE PERMISSION_TEMPLATE (
+    TemplateId UNIQUEIDENTIFIER PRIMARY KEY,
+    RoleId UNIQUEIDENTIFIER REFERENCES ROLE(RoleId),
+    ActionId UNIQUEIDENTIFIER REFERENCES ACTION(ActionId),
+    TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
+    SuiteId UNIQUEIDENTIFIER NULL REFERENCES SYSTEM_SUITE(SuiteId),
+    ModuleId UNIQUEIDENTIFIER NULL REFERENCES FUNCTIONAL_MODULE(ModuleId),
+    SubModuleId UNIQUEIDENTIFIER NULL REFERENCES FUNCTIONAL_SUBMODULE(SubModuleId),
+    OptionId UNIQUEIDENTIFIER NULL REFERENCES FUNCTIONAL_OPTION(OptionId),
+    CONSTRAINT CHK_Exclusive_Resource CHECK (
+        (CASE WHEN SuiteId IS NULL THEN 0 ELSE 1 END +
+         CASE WHEN ModuleId IS NULL THEN 0 ELSE 1 END +
+         CASE WHEN SubModuleId IS NULL THEN 0 ELSE 1 END +
+         CASE WHEN OptionId IS NULL THEN 0 ELSE 1 END) = 1
+    )
 );
 ```

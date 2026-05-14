@@ -55,8 +55,11 @@ erDiagram
         uniqueidentifier TemplateId PK
         uniqueidentifier RoleId FK
         uniqueidentifier ActionId FK
-        nvarchar ResourceLevel "SYSTEM/MODULE/SUBMODULE/OPTION"
-        nvarchar ResourceId "Target ID"
+        uniqueidentifier TenantId FK "RLS"
+        uniqueidentifier SuiteId FK "Exclusive Arc"
+        uniqueidentifier ModuleId FK "Exclusive Arc"
+        uniqueidentifier SubModuleId FK "Exclusive Arc"
+        uniqueidentifier OptionId FK "Exclusive Arc"
     }
     
     PROFILE_PERMISSION {
@@ -82,18 +85,21 @@ erDiagram
     FUNCTIONAL_MODULE {
         uniqueidentifier ModuleId PK
         uniqueidentifier SuiteId FK
+        uniqueidentifier TenantId FK "RLS"
         nvarchar Name
     }
     
     FUNCTIONAL_SUBMODULE {
         uniqueidentifier SubModuleId PK
         uniqueidentifier ModuleId FK
+        uniqueidentifier TenantId FK "RLS"
         nvarchar Name
     }
     
     FUNCTIONAL_OPTION {
         uniqueidentifier OptionId PK
         uniqueidentifier SubModuleId FK
+        uniqueidentifier TenantId FK "RLS"
         nvarchar Name
         nvarchar Code
     }
@@ -101,8 +107,8 @@ erDiagram
 
 ---
 
-## 4. Business Rules & Constraints
-1.  **Hierarchy Integrity**: Access must be traced through `System > Module > Sub-module > Option > Action`.
-2.  **Role Ownership**: A `PermissionTemplate` MUST belong to a `Role`.
-3.  **No Orphan Actions**: Actions must be owned by a System or Module (Global vs Local context).
-4.  **Materialization**: Effective permissions always reference a valid Role-scoped template.
+## 4. Business Rules & Technical Constraints
+1.  **Row-Level Security (RLS)**: `TenantId` is denormalized across all functional entities (Module, Option, Template, Action, Role) to allow O(1) isolation checks via SQL Server RLS.
+2.  **Exclusive Arc (Template Integrity)**: `PermissionTemplate` implements 4 nullable FKs pointing to the resource hierarchy. A `CHECK` constraint guarantees exactly ONE is populated, enforcing strict database referential integrity over polymorphism.
+3.  **Strict XOR Action Ownership**: An Action must belong to a System OR a Module, but never both: `CHECK ((SuiteId IS NOT NULL AND ModuleId IS NULL) OR (SuiteId IS NULL AND ModuleId IS NOT NULL))`.
+4.  **Hierarchy Integrity**: Access must be traced through `System > Module > Sub-module > Option > Action`.
