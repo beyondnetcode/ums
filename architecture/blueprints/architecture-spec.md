@@ -481,6 +481,7 @@ erDiagram
         uuid SettingId PK
         string Code
         string Value
+        string Description
     }
 ```
 
