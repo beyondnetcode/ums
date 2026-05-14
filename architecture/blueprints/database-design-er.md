@@ -28,16 +28,16 @@ Full Resolution Path: `Tenant -> System -> Role -> Template -> ProfilePermission
 erDiagram
     TENANT ||--o{ SYSTEM_SUITE : "owns"
     TENANT ||--o{ BRANCH : "operates"
-    TENANT ||--o{ USER : "owns"
+    TENANT ||--o{ USER_ACCOUNT : "owns"
     SYSTEM_SUITE ||--o{ ROLE : "defines"
     SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "contains"
     
     ROLE ||--o{ PERMISSION_TEMPLATE : "governs"
     PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "materialized"
     
-    USER ||--o{ PROFILE : "acts_as"
-    USER ||--o{ USER : "manages (Delegated Admin)"
-    USER ||--o{ APPROVAL_REQUEST : "onboards/approves"
+    USER_ACCOUNT ||--o{ PROFILE : "acts_as"
+    USER_ACCOUNT ||--o{ USER_ACCOUNT : "manages (Delegated Admin)"
+    USER_ACCOUNT ||--o{ APPROVAL_REQUEST : "onboards/approves"
     
     BRANCH ||--o{ PROFILE : "context_of"
     PROFILE ||--o{ PROFILE_PERMISSION : "effective_authority"
@@ -131,14 +131,14 @@ Management of user lifecycle, delegated administration, and onboarding workflows
 
 ```mermaid
 erDiagram
-    USER ||--o{ USER : "managed_by"
+    USER_ACCOUNT ||--o{ USER_ACCOUNT : "managed_by"
     APPROVAL_WORKFLOW ||--o{ APPROVAL_REQUEST : "defines_rules_for"
     APPROVAL_REQUEST ||--o{ APPROVAL_LOG : "audit_trail"
-    USER ||--o{ APPROVAL_REQUEST : "target_user"
-    USER ||--o{ APPROVAL_LOG : "approver"
+    USER_ACCOUNT ||--o{ APPROVAL_REQUEST : "target_user"
+    USER_ACCOUNT ||--o{ APPROVAL_LOG : "approver"
     PROFILE ||--o{ APPROVAL_REQUEST : "target_profile"
     
-    USER {
+    USER_ACCOUNT {
         uniqueidentifier UserId PK
         uniqueidentifier TenantId FK
         uniqueidentifier ManagedByUserId FK "Self-Reference"
