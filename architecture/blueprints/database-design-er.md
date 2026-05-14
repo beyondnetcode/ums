@@ -136,14 +136,19 @@ erDiagram
     USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "managed"
     APPROVAL_WORKFLOW ||--o{ APPROVAL_REQUEST : "defines_rules_for"
     APPROVAL_WORKFLOW ||--o{ APPROVAL_REQUIRED_DOCUMENT : "mandates"
-    APPROVAL_REQUEST ||--o{ APPROVAL_ATTACHMENT : "evidenced_by"
-    APPROVAL_REQUIRED_DOCUMENT ||--o{ APPROVAL_ATTACHMENT : "typed_as"
+    APPROVAL_REQUEST ||--o{ USER_DOCUMENT : "evidenced_by"
+    APPROVAL_REQUIRED_DOCUMENT ||--o{ DOCUMENT_TYPE : "typed_as"
+    
+    USER_ACCOUNT ||--o{ USER_DOCUMENT : "holds"
+    DOCUMENT_TYPE ||--o{ USER_DOCUMENT : "classifies"
+    DOCUMENT_TYPE ||--o{ NOTIFICATION_RULE : "alerts_for"
+    DOCUMENT_TYPE ||--o{ ACCESS_ENFORCEMENT_POLICY : "governs_access"
     
     USER_ACCOUNT {
         uniqueidentifier UserId PK
         uniqueidentifier TenantId FK
         nvarchar UserCategory "INTERNAL/EXTERNAL/B2B/PARTNER"
-        nvarchar Status "PENDING/ACTIVE/SUSPENDED"
+        nvarchar Status "ACTIVE/BLOCKED/PENDING"
     }
 
     USER_MANAGEMENT_DELEGATION {
@@ -162,9 +167,8 @@ erDiagram
     }
 
     APPROVAL_REQUIRED_DOCUMENT {
-        uniqueidentifier DocumentTypeId PK
+        uniqueidentifier DocumentTypeId PK, FK
         uniqueidentifier WorkflowId FK
-        nvarchar Name
         bit IsMandatory
     }
     
@@ -176,12 +180,29 @@ erDiagram
         nvarchar RequestStatus "PENDING/APPROVED/REJECTED"
     }
 
-    APPROVAL_ATTACHMENT {
-        uniqueidentifier AttachmentId PK
-        uniqueidentifier RequestId FK
+    USER_DOCUMENT {
+        uniqueidentifier DocumentId PK
+        uniqueidentifier UserId FK
         uniqueidentifier DocumentTypeId FK
+        datetime2 IssueDate
+        datetime2 ExpirationDate
+        nvarchar Status "VALID/EXPIRED/PENDING_RENEWAL"
+        nvarchar Criticity "LOW/MEDIUM/HIGH/CRITICAL"
         nvarchar FileStoragePath "URI/Path to File Server"
-        nvarchar Checksum "Integrity Hash"
+    }
+
+    NOTIFICATION_RULE {
+        uniqueidentifier RuleId PK
+        uniqueidentifier TenantId FK
+        uniqueidentifier DocumentTypeId FK
+        int DaysBefore
+        nvarchar Channel "EMAIL/IN_APP/SMS"
+    }
+
+    ACCESS_ENFORCEMENT_POLICY {
+        uniqueidentifier PolicyId PK
+        uniqueidentifier DocumentTypeId FK
+        nvarchar ActionOnExpiration "BLOCK_USER/RESTRICT_PROFILE/LOG_ONLY"
     }
 ```
 
@@ -193,4 +214,6 @@ erDiagram
 3.  **Strict XOR Action Ownership**: An Action must belong to a System OR a Module, but never both: `CHECK ((SuiteId IS NOT NULL AND ModuleId IS NULL) OR (SuiteId IS NULL AND ModuleId IS NOT NULL))`.
 4.  **Hierarchy Integrity**: Access must be traced through `System > Module > Sub-module > Option > Action`.
 5.  **Delegated Administration (Many-to-Many)**: A user's scope of administration is defined via the `USER_MANAGEMENT_DELEGATION` table. This allows multiple administrators to manage the same user pool, optionally restricted by `SuiteId`.
-6.  **Approval Mandates**: External/B2B users MUST pass through an `APPROVAL_WORKFLOW` before reaching an `ACTIVE` status or being assigned high-risk profiles. Supporting documents defined in `APPROVAL_REQUIRED_DOCUMENT` must be uploaded to `APPROVAL_ATTACHMENT` before workflow advancement.
+6.  **Approval Mandates**: External/B2B users MUST pass through an `APPROVAL_WORKFLOW` before reaching an `ACTIVE` status or being assigned high-risk profiles. Supporting documents defined in `APPROVAL_REQUIRED_DOCUMENT` must be uploaded to `USER_DOCUMENT` before workflow advancement.
+7.  **Automated Compliance Enforcement**: Background workers scan `USER_DOCUMENT`. Upon expiration, the `ACCESS_ENFORCEMENT_POLICY` is triggered. Critical documents will automatically transition the `USER_ACCOUNT` to a `BLOCKED` status or restrict specific `PROFILE` context.
+8.  **Parametric Notifications**: `NOTIFICATION_RULE` allows configuring N-step alerts (e.g., 30, 15, 5 days before expiration) per Tenant and Document Type.

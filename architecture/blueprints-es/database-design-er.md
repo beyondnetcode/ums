@@ -136,14 +136,19 @@ erDiagram
     USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "gestionado"
     APPROVAL_WORKFLOW ||--o{ APPROVAL_REQUEST : "define_reglas_para"
     APPROVAL_WORKFLOW ||--o{ APPROVAL_REQUIRED_DOCUMENT : "exige"
-    APPROVAL_REQUEST ||--o{ APPROVAL_ATTACHMENT : "evidenciado_por"
-    APPROVAL_REQUIRED_DOCUMENT ||--o{ APPROVAL_ATTACHMENT : "tipificado_como"
+    APPROVAL_REQUEST ||--o{ USER_DOCUMENT : "evidenciado_por"
+    APPROVAL_REQUIRED_DOCUMENT ||--o{ DOCUMENT_TYPE : "tipificado_como"
+    
+    USER_ACCOUNT ||--o{ USER_DOCUMENT : "posee"
+    DOCUMENT_TYPE ||--o{ USER_DOCUMENT : "clasifica"
+    DOCUMENT_TYPE ||--o{ NOTIFICATION_RULE : "alerta_para"
+    DOCUMENT_TYPE ||--o{ ACCESS_ENFORCEMENT_POLICY : "gobierna_acceso"
     
     USER_ACCOUNT {
         uniqueidentifier UserId PK
         uniqueidentifier TenantId FK
         nvarchar UserCategory "INTERNAL/EXTERNAL/B2B/PARTNER"
-        nvarchar Status "PENDING/ACTIVE/SUSPENDED"
+        nvarchar Status "ACTIVE/BLOCKED/PENDING"
     }
 
     USER_MANAGEMENT_DELEGATION {
@@ -162,9 +167,8 @@ erDiagram
     }
 
     APPROVAL_REQUIRED_DOCUMENT {
-        uniqueidentifier DocumentTypeId PK
+        uniqueidentifier DocumentTypeId PK, FK
         uniqueidentifier WorkflowId FK
-        nvarchar Name
         bit IsMandatory
     }
     
@@ -176,12 +180,29 @@ erDiagram
         nvarchar RequestStatus "PENDING/APPROVED/REJECTED"
     }
 
-    APPROVAL_ATTACHMENT {
-        uniqueidentifier AttachmentId PK
-        uniqueidentifier RequestId FK
+    USER_DOCUMENT {
+        uniqueidentifier DocumentId PK
+        uniqueidentifier UserId FK
         uniqueidentifier DocumentTypeId FK
+        datetime2 IssueDate
+        datetime2 ExpirationDate
+        nvarchar Status "VALID/EXPIRED/PENDING_RENEWAL"
+        nvarchar Criticity "LOW/MEDIUM/HIGH/CRITICAL"
         nvarchar FileStoragePath "URI/Ruta al Servidor de Archivos"
-        nvarchar Checksum "Hash de Integridad"
+    }
+
+    NOTIFICATION_RULE {
+        uniqueidentifier RuleId PK
+        uniqueidentifier TenantId FK
+        uniqueidentifier DocumentTypeId FK
+        int DaysBefore
+        nvarchar Channel "EMAIL/IN_APP/SMS"
+    }
+
+    ACCESS_ENFORCEMENT_POLICY {
+        uniqueidentifier PolicyId PK
+        uniqueidentifier DocumentTypeId FK
+        nvarchar ActionOnExpiration "BLOCK_USER/RESTRICT_PROFILE/LOG_ONLY"
     }
 ```
 
@@ -193,4 +214,6 @@ erDiagram
 3.  **Propiedad de Acción XOR Estricta**: Una Acción debe pertenecer a un Sistema O a un Módulo, pero nunca a ambos: `CHECK ((SuiteId IS NOT NULL AND ModuleId IS NULL) OR (SuiteId IS NULL AND ModuleId IS NOT NULL))`.
 4.  **Integridad Jerárquica**: El acceso debe rastrearse a través de `Sistema > Módulo > Sub-módulo > Opción > Acción`.
 5.  **Administración Delegada (Muchos-a-Muchos)**: El alcance de administración de un usuario se define mediante la tabla `USER_MANAGEMENT_DELEGATION`. Esto permite que múltiples administradores gestionen el mismo pool de usuarios, opcionalmente restringido por `SuiteId`.
-6.  **Mandatos de Aprobación**: Los usuarios Externos/B2B DEBEN pasar por un `APPROVAL_WORKFLOW` antes de alcanzar un estado `ACTIVE` o de que se les asignen perfiles de alto riesgo. Los documentos de respaldo definidos en `APPROVAL_REQUIRED_DOCUMENT` deben cargarse en `APPROVAL_ATTACHMENT` antes del avance del flujo.
+6.  **Mandatos de Aprobación**: Los usuarios Externos/B2B DEBEN pasar por un `APPROVAL_WORKFLOW` antes de alcanzar un estado `ACTIVE` o de que se les asignen perfiles de alto riesgo. Los documentos de respaldo definidos en `APPROVAL_REQUIRED_DOCUMENT` deben cargarse en `USER_DOCUMENT` antes del avance del flujo.
+7.  **Aplicación Automática de Cumplimiento**: Workers en segundo plano escanean `USER_DOCUMENT`. Al expirar, se activa la `ACCESS_ENFORCEMENT_POLICY`. Los documentos críticos transicionarán automáticamente el `USER_ACCOUNT` a un estado `BLOCKED` o restringirán el contexto de un `PROFILE` específico.
+8.  **Notificaciones Paramétricas**: `NOTIFICATION_RULE` permite configurar N-pasos de alerta (ej. 30, 15, 5 días antes de la expiración) por Inquilino y Tipo de Documento.

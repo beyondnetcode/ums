@@ -1,15 +1,14 @@
 # UMS E/R Model - Export Formats & Alternatives
 
-If Mermaid visualization is failing or insufficient, use these industry-standard formats to visualize the **Role-Scoped & 5-Level Hierarchy Framework**.
+If Mermaid visualization is failing or insufficient, use these industry-standard formats to visualize the **Identity Governance & Document Lifecycle Framework**.
 
 ## 1. dbdiagram.io (DBML - Recommended) 🚀
 1.  Go to [dbdiagram.io](https://dbdiagram.io/d).
-2.  Paste the code below.
+2. Paste the code below.
 
 ```dbml
-// UMS Role-Scoped & Strict 5-Level Hierarchy Model
+// UMS Framework: IGA & Document Lifecycle Enforcement
 // Engine: SQL Server 2022
-// Optimizations: RLS Denormalization & Exclusive Arc
 
 Table TENANT {
   TenantId uniqueidentifier [pk]
@@ -18,16 +17,15 @@ Table TENANT {
 
 Table BRANCH {
   BranchId uniqueidentifier [pk]
-  TenantId uniqueidentifier [note: 'RLS']
+  TenantId uniqueidentifier
   Name nvarchar
-  Code nvarchar
 }
 
 Table USER_ACCOUNT {
   UserId uniqueidentifier [pk]
   TenantId uniqueidentifier
-  UserCategory nvarchar [note: 'INTERNAL/EXTERNAL/B2B...']
-  Status nvarchar [note: 'PENDING/ACTIVE/SUSPENDED']
+  UserCategory nvarchar
+  Status nvarchar [note: 'ACTIVE/BLOCKED/PENDING']
 }
 
 Table USER_MANAGEMENT_DELEGATION {
@@ -35,16 +33,56 @@ Table USER_MANAGEMENT_DELEGATION {
   TenantId uniqueidentifier
   ParentAdminUserId uniqueidentifier
   ManagedUserId uniqueidentifier
-  SuiteId uniqueidentifier [note: 'Optional Scope']
+  SuiteId uniqueidentifier
+}
+
+Table DOCUMENT_TYPE {
+  DocumentTypeId uniqueidentifier [pk]
+  TenantId uniqueidentifier
+  Name nvarchar
+  IsAccessCritical bit
+}
+
+Table USER_DOCUMENT {
+  DocumentId uniqueidentifier [pk]
+  UserId uniqueidentifier
+  DocumentTypeId uniqueidentifier
+  RequestId uniqueidentifier [note: 'Optional: linked to approval']
+  FileName nvarchar
+  FileStoragePath nvarchar
+  Checksum nvarchar
+  IssueDate datetime2
+  ExpirationDate datetime2
+  Status nvarchar [note: 'VALID/EXPIRED/PENDING_RENEWAL']
+  Criticity nvarchar [note: 'LOW/MEDIUM/HIGH/CRITICAL']
+}
+
+Table NOTIFICATION_RULE {
+  RuleId uniqueidentifier [pk]
+  TenantId uniqueidentifier
+  DocumentTypeId uniqueidentifier
+  DaysBefore int
+  Channel nvarchar
+}
+
+Table ACCESS_ENFORCEMENT_POLICY {
+  PolicyId uniqueidentifier [pk]
+  DocumentTypeId uniqueidentifier
+  ActionOnExpiration nvarchar [note: 'BLOCK_USER/RESTRICT_PROFILE/LOG_ONLY']
 }
 
 Table APPROVAL_WORKFLOW {
   WorkflowId uniqueidentifier [pk]
   TenantId uniqueidentifier
-  SuiteId uniqueidentifier [note: 'Nullable']
+  SuiteId uniqueidentifier
   TargetUserCategory nvarchar
   RequiresApproval bit
-  MaxSteps int
+}
+
+Table APPROVAL_REQUIRED_DOCUMENT {
+  DocumentTypeId uniqueidentifier [pk]
+  WorkflowId uniqueidentifier
+  IsMandatory bit
 }
 
 Table APPROVAL_REQUEST {
@@ -52,9 +90,8 @@ Table APPROVAL_REQUEST {
   TenantId uniqueidentifier
   WorkflowId uniqueidentifier
   TargetUserId uniqueidentifier
-  TargetProfileId uniqueidentifier [note: 'Nullable']
+  TargetProfileId uniqueidentifier
   RequestStatus nvarchar
-  CurrentStep int
 }
 
 Table APPROVAL_LOG {
@@ -62,24 +99,6 @@ Table APPROVAL_LOG {
   RequestId uniqueidentifier
   ApproverUserId uniqueidentifier
   ActionTaken nvarchar
-  Comments nvarchar
-}
-
-Table APPROVAL_REQUIRED_DOCUMENT {
-  DocumentTypeId uniqueidentifier [pk]
-  WorkflowId uniqueidentifier
-  Name nvarchar
-  IsMandatory bit
-}
-
-Table APPROVAL_ATTACHMENT {
-  AttachmentId uniqueidentifier [pk]
-  RequestId uniqueidentifier
-  DocumentTypeId uniqueidentifier [note: 'Nullable']
-  FileName nvarchar
-  FileStoragePath nvarchar
-  Checksum nvarchar
-  FileSize int
 }
 
 Table SYSTEM_SUITE {
@@ -91,22 +110,8 @@ Table SYSTEM_SUITE {
 Table ROLE {
   RoleId uniqueidentifier [pk]
   SuiteId uniqueidentifier
-  TenantId uniqueidentifier [note: 'RLS']
+  TenantId uniqueidentifier
   Name nvarchar
-}
-
-Table PERMISSION_TEMPLATE {
-  TemplateId uniqueidentifier [pk]
-  RoleId uniqueidentifier
-  ActionId uniqueidentifier
-  TenantId uniqueidentifier [note: 'RLS']
-  SuiteId uniqueidentifier [note: 'Exclusive Arc']
-  ModuleId uniqueidentifier [note: 'Exclusive Arc']
-  SubModuleId uniqueidentifier [note: 'Exclusive Arc']
-  OptionId uniqueidentifier [note: 'Exclusive Arc']
-  IsAllowed bit [note: 'Default State']
-  IsDenied bit [note: 'Default State']
-  IsActive bit [note: 'Default State']
 }
 
 Table PROFILE {
@@ -114,7 +119,7 @@ Table PROFILE {
   TenantId uniqueidentifier
   UserId uniqueidentifier
   RoleId uniqueidentifier
-  BranchId uniqueidentifier [note: 'Branch Context']
+  BranchId uniqueidentifier
 }
 
 Table PROFILE_PERMISSION {
@@ -125,86 +130,97 @@ Table PROFILE_PERMISSION {
   IsActive bit
 }
 
+Table PERMISSION_TEMPLATE {
+  TemplateId uniqueidentifier [pk]
+  RoleId uniqueidentifier
+  ActionId uniqueidentifier
+  TenantId uniqueidentifier
+  SuiteId uniqueidentifier
+  ModuleId uniqueidentifier
+  SubModuleId uniqueidentifier
+  OptionId uniqueidentifier
+}
+
 Table FUNCTIONAL_MODULE {
   ModuleId uniqueidentifier [pk]
   SuiteId uniqueidentifier
-  TenantId uniqueidentifier [note: 'RLS']
+  TenantId uniqueidentifier
   Name nvarchar
 }
 
 Table FUNCTIONAL_SUBMODULE {
   SubModuleId uniqueidentifier [pk]
   ModuleId uniqueidentifier
-  TenantId uniqueidentifier [note: 'RLS']
-  Name nvarchar
+  TenantId uniqueidentifier
 }
 
 Table FUNCTIONAL_OPTION {
   OptionId uniqueidentifier [pk]
   SubModuleId uniqueidentifier
-  TenantId uniqueidentifier [note: 'RLS']
-  Name nvarchar
+  TenantId uniqueidentifier
   Code nvarchar
 }
 
 Table ACTION {
   ActionId uniqueidentifier [pk]
-  SuiteId uniqueidentifier [note: 'XOR Global']
-  ModuleId uniqueidentifier [note: 'XOR Module-Specific']
-  TenantId uniqueidentifier [note: 'RLS']
+  SuiteId uniqueidentifier
+  ModuleId uniqueidentifier
+  TenantId uniqueidentifier
   Code nvarchar
 }
 
 // Relationships
 Ref: USER_ACCOUNT.TenantId > TENANT.TenantId
-Ref: BRANCH.TenantId > TENANT.TenantId
-Ref: SYSTEM_SUITE.TenantId > TENANT.TenantId
-Ref: ROLE.SuiteId > SYSTEM_SUITE.SuiteId
-Ref: ROLE.TenantId > TENANT.TenantId
-Ref: PERMISSION_TEMPLATE.RoleId > ROLE.RoleId
-Ref: PERMISSION_TEMPLATE.ActionId > ACTION.ActionId
-Ref: PERMISSION_TEMPLATE.TenantId > TENANT.TenantId
-Ref: PERMISSION_TEMPLATE.SuiteId > SYSTEM_SUITE.SuiteId
-Ref: PERMISSION_TEMPLATE.ModuleId > FUNCTIONAL_MODULE.ModuleId
-Ref: PERMISSION_TEMPLATE.SubModuleId > FUNCTIONAL_SUBMODULE.SubModuleId
-Ref: PERMISSION_TEMPLATE.OptionId > FUNCTIONAL_OPTION.OptionId
-Ref: PROFILE.TenantId > TENANT.TenantId
-Ref: PROFILE.UserId > USER_ACCOUNT.UserId
-Ref: PROFILE.RoleId > ROLE.RoleId
-Ref: PROFILE.BranchId > BRANCH.BranchId
-Ref: PROFILE_PERMISSION.ProfileId > PROFILE.ProfileId
-Ref: PROFILE_PERMISSION.TemplateId > PERMISSION_TEMPLATE.TemplateId
-Ref: FUNCTIONAL_MODULE.SuiteId > SYSTEM_SUITE.SuiteId
-Ref: FUNCTIONAL_MODULE.TenantId > TENANT.TenantId
-Ref: FUNCTIONAL_SUBMODULE.ModuleId > FUNCTIONAL_MODULE.ModuleId
-Ref: FUNCTIONAL_SUBMODULE.TenantId > TENANT.TenantId
-Ref: FUNCTIONAL_OPTION.SubModuleId > FUNCTIONAL_SUBMODULE.SubModuleId
-Ref: FUNCTIONAL_OPTION.TenantId > TENANT.TenantId
-Ref: ACTION.SuiteId > SYSTEM_SUITE.SuiteId
-Ref: ACTION.ModuleId > FUNCTIONAL_MODULE.ModuleId
-Ref: ACTION.TenantId > TENANT.TenantId
 Ref: USER_MANAGEMENT_DELEGATION.TenantId > TENANT.TenantId
 Ref: USER_MANAGEMENT_DELEGATION.ParentAdminUserId > USER_ACCOUNT.UserId
 Ref: USER_MANAGEMENT_DELEGATION.ManagedUserId > USER_ACCOUNT.UserId
 Ref: USER_MANAGEMENT_DELEGATION.SuiteId > SYSTEM_SUITE.SuiteId
+
+Ref: DOCUMENT_TYPE.TenantId > TENANT.TenantId
+Ref: USER_DOCUMENT.UserId > USER_ACCOUNT.UserId
+Ref: USER_DOCUMENT.DocumentTypeId > DOCUMENT_TYPE.DocumentTypeId
+Ref: USER_DOCUMENT.RequestId > APPROVAL_REQUEST.RequestId
+Ref: NOTIFICATION_RULE.TenantId > TENANT.TenantId
+Ref: NOTIFICATION_RULE.DocumentTypeId > DOCUMENT_TYPE.DocumentTypeId
+Ref: ACCESS_ENFORCEMENT_POLICY.DocumentTypeId > DOCUMENT_TYPE.DocumentTypeId
+
 Ref: APPROVAL_WORKFLOW.TenantId > TENANT.TenantId
 Ref: APPROVAL_WORKFLOW.SuiteId > SYSTEM_SUITE.SuiteId
+Ref: APPROVAL_REQUIRED_DOCUMENT.WorkflowId > APPROVAL_WORKFLOW.WorkflowId
+Ref: APPROVAL_REQUIRED_DOCUMENT.DocumentTypeId > DOCUMENT_TYPE.DocumentTypeId
 Ref: APPROVAL_REQUEST.TenantId > TENANT.TenantId
 Ref: APPROVAL_REQUEST.WorkflowId > APPROVAL_WORKFLOW.WorkflowId
 Ref: APPROVAL_REQUEST.TargetUserId > USER_ACCOUNT.UserId
 Ref: APPROVAL_REQUEST.TargetProfileId > PROFILE.ProfileId
 Ref: APPROVAL_LOG.RequestId > APPROVAL_REQUEST.RequestId
 Ref: APPROVAL_LOG.ApproverUserId > USER_ACCOUNT.UserId
-Ref: APPROVAL_REQUIRED_DOCUMENT.WorkflowId > APPROVAL_WORKFLOW.WorkflowId
-Ref: APPROVAL_ATTACHMENT.RequestId > APPROVAL_REQUEST.RequestId
-Ref: APPROVAL_ATTACHMENT.DocumentTypeId > APPROVAL_REQUIRED_DOCUMENT.DocumentTypeId
+
+Ref: SYSTEM_SUITE.TenantId > TENANT.TenantId
+Ref: ROLE.SuiteId > SYSTEM_SUITE.SuiteId
+Ref: ROLE.TenantId > TENANT.TenantId
+Ref: PROFILE.UserId > USER_ACCOUNT.UserId
+Ref: PROFILE.RoleId > ROLE.RoleId
+Ref: PROFILE.BranchId > BRANCH.BranchId
+Ref: PROFILE_PERMISSION.ProfileId > PROFILE.ProfileId
+Ref: PROFILE_PERMISSION.TemplateId > PERMISSION_TEMPLATE.TemplateId
+Ref: PERMISSION_TEMPLATE.RoleId > ROLE.RoleId
+Ref: PERMISSION_TEMPLATE.ActionId > ACTION.ActionId
+Ref: PERMISSION_TEMPLATE.SuiteId > SYSTEM_SUITE.SuiteId
+Ref: PERMISSION_TEMPLATE.ModuleId > FUNCTIONAL_MODULE.ModuleId
+Ref: PERMISSION_TEMPLATE.SubModuleId > FUNCTIONAL_SUBMODULE.SubModuleId
+Ref: PERMISSION_TEMPLATE.OptionId > FUNCTIONAL_OPTION.OptionId
+Ref: FUNCTIONAL_MODULE.SuiteId > SYSTEM_SUITE.SuiteId
+Ref: FUNCTIONAL_SUBMODULE.ModuleId > FUNCTIONAL_MODULE.ModuleId
+Ref: FUNCTIONAL_OPTION.SubModuleId > FUNCTIONAL_SUBMODULE.SubModuleId
+Ref: ACTION.SuiteId > SYSTEM_SUITE.SuiteId
+Ref: ACTION.ModuleId > FUNCTIONAL_MODULE.ModuleId
 ```
 
 ---
 
 ## 2. SQL DDL (SQL Server 2022) 🛠️
 ```sql
--- 5-Level Hierarchy & Identity Governance Schema
+-- IGA & Document Lifecycle Enforcement Schema
 
 CREATE TABLE TENANT (
     TenantId UNIQUEIDENTIFIER PRIMARY KEY,
@@ -214,15 +230,14 @@ CREATE TABLE TENANT (
 CREATE TABLE BRANCH (
     BranchId UNIQUEIDENTIFIER PRIMARY KEY,
     TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
-    Name NVARCHAR(255),
-    Code NVARCHAR(50)
+    Name NVARCHAR(255)
 );
 
 CREATE TABLE USER_ACCOUNT (
     UserId UNIQUEIDENTIFIER PRIMARY KEY,
     TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
     UserCategory NVARCHAR(50),
-    Status NVARCHAR(50)
+    Status NVARCHAR(50) DEFAULT 'PENDING'
 );
 
 CREATE TABLE USER_MANAGEMENT_DELEGATION (
@@ -230,14 +245,67 @@ CREATE TABLE USER_MANAGEMENT_DELEGATION (
     TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
     ParentAdminUserId UNIQUEIDENTIFIER REFERENCES USER_ACCOUNT(UserId),
     ManagedUserId UNIQUEIDENTIFIER REFERENCES USER_ACCOUNT(UserId),
-    SuiteId UNIQUEIDENTIFIER NULL REFERENCES SYSTEM_SUITE(SuiteId),
-    CreatedAt DATETIME2 DEFAULT SYSUTCDATETIME()
+    SuiteId UNIQUEIDENTIFIER NULL REFERENCES SYSTEM_SUITE(SuiteId)
+);
+
+CREATE TABLE DOCUMENT_TYPE (
+    DocumentTypeId UNIQUEIDENTIFIER PRIMARY KEY,
+    TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
+    Name NVARCHAR(255),
+    IsAccessCritical BIT DEFAULT 0
 );
 
 CREATE TABLE SYSTEM_SUITE (
     SuiteId UNIQUEIDENTIFIER PRIMARY KEY,
     TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
     Name NVARCHAR(255)
+);
+
+CREATE TABLE APPROVAL_WORKFLOW (
+    WorkflowId UNIQUEIDENTIFIER PRIMARY KEY,
+    TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
+    SuiteId UNIQUEIDENTIFIER NULL REFERENCES SYSTEM_SUITE(SuiteId),
+    TargetUserCategory NVARCHAR(50),
+    RequiresApproval BIT DEFAULT 1
+);
+
+CREATE TABLE APPROVAL_REQUEST (
+    RequestId UNIQUEIDENTIFIER PRIMARY KEY,
+    TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
+    WorkflowId UNIQUEIDENTIFIER REFERENCES APPROVAL_WORKFLOW(WorkflowId),
+    TargetUserId UNIQUEIDENTIFIER REFERENCES USER_ACCOUNT(UserId),
+    TargetProfileId UNIQUEIDENTIFIER NULL,
+    RequestStatus NVARCHAR(50)
+);
+
+CREATE TABLE USER_DOCUMENT (
+    DocumentId UNIQUEIDENTIFIER PRIMARY KEY,
+    UserId UNIQUEIDENTIFIER REFERENCES USER_ACCOUNT(UserId),
+    DocumentTypeId UNIQUEIDENTIFIER REFERENCES DOCUMENT_TYPE(DocumentTypeId),
+    RequestId UNIQUEIDENTIFIER NULL REFERENCES APPROVAL_REQUEST(RequestId),
+    FileName NVARCHAR(255),
+    FileStoragePath NVARCHAR(MAX),
+    Checksum NVARCHAR(255),
+    IssueDate DATETIME2,
+    ExpirationDate DATETIME2,
+    Status NVARCHAR(50) DEFAULT 'VALID',
+    Criticity NVARCHAR(50) DEFAULT 'MEDIUM',
+    CreatedAt DATETIME2 DEFAULT SYSUTCDATETIME(),
+    INDEX IX_UserDocument_Expiration (ExpirationDate, Status)
+);
+
+CREATE TABLE NOTIFICATION_RULE (
+    RuleId UNIQUEIDENTIFIER PRIMARY KEY,
+    TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
+    DocumentTypeId UNIQUEIDENTIFIER REFERENCES DOCUMENT_TYPE(DocumentTypeId),
+    DaysBefore INT,
+    Channel NVARCHAR(50)
+);
+
+CREATE TABLE ACCESS_ENFORCEMENT_POLICY (
+    PolicyId UNIQUEIDENTIFIER PRIMARY KEY,
+    DocumentTypeId UNIQUEIDENTIFIER REFERENCES DOCUMENT_TYPE(DocumentTypeId),
+    ActionOnExpiration NVARCHAR(50) -- BLOCK_USER, RESTRICT_PROFILE, LOG_ONLY
 );
 
 CREATE TABLE ROLE (
@@ -265,15 +333,13 @@ CREATE TABLE FUNCTIONAL_MODULE (
 CREATE TABLE FUNCTIONAL_SUBMODULE (
     SubModuleId UNIQUEIDENTIFIER PRIMARY KEY,
     ModuleId UNIQUEIDENTIFIER REFERENCES FUNCTIONAL_MODULE(ModuleId),
-    TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
-    Name NVARCHAR(255)
+    TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId)
 );
 
 CREATE TABLE FUNCTIONAL_OPTION (
     OptionId UNIQUEIDENTIFIER PRIMARY KEY,
     SubModuleId UNIQUEIDENTIFIER REFERENCES FUNCTIONAL_SUBMODULE(SubModuleId),
     TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
-    Name NVARCHAR(255),
     Code NVARCHAR(50)
 );
 
@@ -282,11 +348,7 @@ CREATE TABLE ACTION (
     SuiteId UNIQUEIDENTIFIER REFERENCES SYSTEM_SUITE(SuiteId),
     ModuleId UNIQUEIDENTIFIER REFERENCES FUNCTIONAL_MODULE(ModuleId),
     TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
-    Code NVARCHAR(50),
-    CONSTRAINT CHK_ActionOwnership_XOR CHECK (
-        (SuiteId IS NOT NULL AND ModuleId IS NULL) OR 
-        (SuiteId IS NULL AND ModuleId IS NOT NULL)
-    )
+    Code NVARCHAR(50)
 );
 
 CREATE TABLE PERMISSION_TEMPLATE (
@@ -297,44 +359,23 @@ CREATE TABLE PERMISSION_TEMPLATE (
     SuiteId UNIQUEIDENTIFIER NULL REFERENCES SYSTEM_SUITE(SuiteId),
     ModuleId UNIQUEIDENTIFIER NULL REFERENCES FUNCTIONAL_MODULE(ModuleId),
     SubModuleId UNIQUEIDENTIFIER NULL REFERENCES FUNCTIONAL_SUBMODULE(SubModuleId),
-    OptionId UNIQUEIDENTIFIER NULL REFERENCES FUNCTIONAL_OPTION(OptionId),
-    IsAllowed BIT DEFAULT 1,
-    IsDenied BIT DEFAULT 0,
-    IsActive BIT DEFAULT 1,
-    CONSTRAINT CHK_Exclusive_Resource CHECK (
-        (CASE WHEN SuiteId IS NULL THEN 0 ELSE 1 END +
-         CASE WHEN ModuleId IS NULL THEN 0 ELSE 1 END +
-         CASE WHEN SubModuleId IS NULL THEN 0 ELSE 1 END +
-         CASE WHEN OptionId IS NULL THEN 0 ELSE 1 END) = 1
-    )
+    OptionId UNIQUEIDENTIFIER NULL REFERENCES FUNCTIONAL_OPTION(OptionId)
 );
 
 CREATE TABLE PROFILE_PERMISSION (
     ProfileId UNIQUEIDENTIFIER REFERENCES PROFILE(ProfileId),
     TemplateId UNIQUEIDENTIFIER REFERENCES PERMISSION_TEMPLATE(TemplateId),
-    IsAllowed BIT DEFAULT 1,
-    IsDenied BIT DEFAULT 0,
-    IsActive BIT DEFAULT 1,
+    IsAllowed BIT,
+    IsDenied BIT,
+    IsActive BIT,
     PRIMARY KEY (ProfileId, TemplateId)
 );
 
-CREATE TABLE APPROVAL_WORKFLOW (
-    WorkflowId UNIQUEIDENTIFIER PRIMARY KEY,
-    TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
-    SuiteId UNIQUEIDENTIFIER NULL REFERENCES SYSTEM_SUITE(SuiteId),
-    TargetUserCategory NVARCHAR(50),
-    RequiresApproval BIT DEFAULT 1,
-    MaxSteps INT DEFAULT 1
-);
-
-CREATE TABLE APPROVAL_REQUEST (
-    RequestId UNIQUEIDENTIFIER PRIMARY KEY,
-    TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
+CREATE TABLE APPROVAL_REQUIRED_DOCUMENT (
+    DocumentTypeId UNIQUEIDENTIFIER REFERENCES DOCUMENT_TYPE(DocumentTypeId),
     WorkflowId UNIQUEIDENTIFIER REFERENCES APPROVAL_WORKFLOW(WorkflowId),
-    TargetUserId UNIQUEIDENTIFIER REFERENCES USER_ACCOUNT(UserId),
-    TargetProfileId UNIQUEIDENTIFIER NULL REFERENCES PROFILE(ProfileId),
-    RequestStatus NVARCHAR(50),
-    CurrentStep INT DEFAULT 1
+    IsMandatory BIT DEFAULT 1,
+    PRIMARY KEY (DocumentTypeId, WorkflowId)
 );
 
 CREATE TABLE APPROVAL_LOG (
@@ -342,25 +383,6 @@ CREATE TABLE APPROVAL_LOG (
     RequestId UNIQUEIDENTIFIER REFERENCES APPROVAL_REQUEST(RequestId),
     ApproverUserId UNIQUEIDENTIFIER REFERENCES USER_ACCOUNT(UserId),
     ActionTaken NVARCHAR(50),
-    Comments NVARCHAR(MAX),
-    CreatedAt DATETIME2 DEFAULT SYSUTCDATETIME()
-);
-
-CREATE TABLE APPROVAL_REQUIRED_DOCUMENT (
-    DocumentTypeId UNIQUEIDENTIFIER PRIMARY KEY,
-    WorkflowId UNIQUEIDENTIFIER REFERENCES APPROVAL_WORKFLOW(WorkflowId),
-    Name NVARCHAR(255),
-    IsMandatory BIT DEFAULT 1
-);
-
-CREATE TABLE APPROVAL_ATTACHMENT (
-    AttachmentId UNIQUEIDENTIFIER PRIMARY KEY,
-    RequestId UNIQUEIDENTIFIER REFERENCES APPROVAL_REQUEST(RequestId),
-    DocumentTypeId UNIQUEIDENTIFIER NULL REFERENCES APPROVAL_REQUIRED_DOCUMENT(DocumentTypeId),
-    FileName NVARCHAR(255),
-    FileStoragePath NVARCHAR(MAX),
-    Checksum NVARCHAR(255),
-    FileSize INT,
     CreatedAt DATETIME2 DEFAULT SYSUTCDATETIME()
 );
 ```
