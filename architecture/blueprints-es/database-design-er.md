@@ -27,14 +27,18 @@ Ruta de Resolución: `Inquilino -> Sistema -> Rol -> Plantilla -> Permiso de Per
 ```mermaid
 erDiagram
     TENANT ||--o{ SYSTEM_SUITE : "posee"
+    TENANT ||--o{ BRANCH : "opera"
     SYSTEM_SUITE ||--o{ ROLE : "define"
     SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "contiene"
     
     ROLE ||--o{ PERMISSION_TEMPLATE : "gobierna"
     PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "materializado"
     
+    USER ||--o{ PROFILE : "actúa_como"
+    BRANCH ||--o{ PROFILE : "contexto_de"
+    PROFILE ||--o{ PROFILE_PERMISSION : "autoridad_efectiva"
+    
     FUNCTIONAL_MODULE ||--o{ FUNCTIONAL_SUBMODULE : "contiene"
-    FUNCTIONAL_SUBMODULE ||--o{ FUNCTIONAL_OPTION : "provee"
     FUNCTIONAL_OPTION ||--o{ ACTION : "ejecuta"
     
     ACTION ||--o{ PERMISSION_TEMPLATE : "acción_autorizada"
@@ -60,6 +64,14 @@ erDiagram
         uniqueidentifier ModuleId FK "Exclusive Arc"
         uniqueidentifier SubModuleId FK "Exclusive Arc"
         uniqueidentifier OptionId FK "Exclusive Arc"
+    }
+    
+    PROFILE {
+        uniqueidentifier ProfileId PK, FK
+        uniqueidentifier TenantId FK "RLS"
+        uniqueidentifier UserId FK
+        uniqueidentifier RoleId FK
+        uniqueidentifier BranchId FK "Contexto de Sucursal"
     }
     
     PROFILE_PERMISSION {

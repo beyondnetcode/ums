@@ -16,6 +16,13 @@ Table TENANT {
   Name nvarchar
 }
 
+Table BRANCH {
+  BranchId uniqueidentifier [pk]
+  TenantId uniqueidentifier [note: 'RLS']
+  Name nvarchar
+  Code nvarchar
+}
+
 Table USER {
   UserId uniqueidentifier [pk]
   TenantId uniqueidentifier
@@ -50,6 +57,7 @@ Table PROFILE {
   TenantId uniqueidentifier
   UserId uniqueidentifier
   RoleId uniqueidentifier
+  BranchId uniqueidentifier [note: 'Branch Context']
 }
 
 Table PROFILE_PERMISSION {
@@ -92,6 +100,7 @@ Table ACTION {
 
 // Relationships
 Ref: USER.TenantId > TENANT.TenantId
+Ref: BRANCH.TenantId > TENANT.TenantId
 Ref: SYSTEM_SUITE.TenantId > TENANT.TenantId
 Ref: ROLE.SuiteId > SYSTEM_SUITE.SuiteId
 Ref: ROLE.TenantId > TENANT.TenantId
@@ -105,6 +114,7 @@ Ref: PERMISSION_TEMPLATE.OptionId > FUNCTIONAL_OPTION.OptionId
 Ref: PROFILE.TenantId > TENANT.TenantId
 Ref: PROFILE.UserId > USER.UserId
 Ref: PROFILE.RoleId > ROLE.RoleId
+Ref: PROFILE.BranchId > BRANCH.BranchId
 Ref: PROFILE_PERMISSION.ProfileId > PROFILE.ProfileId
 Ref: PROFILE_PERMISSION.TemplateId > PERMISSION_TEMPLATE.TemplateId
 Ref: FUNCTIONAL_MODULE.SuiteId > SYSTEM_SUITE.SuiteId
@@ -136,6 +146,28 @@ CREATE TABLE ACTION (
     )
 );
 
+CREATE TABLE ROLE (
+    RoleId UNIQUEIDENTIFIER PRIMARY KEY,
+    SuiteId UNIQUEIDENTIFIER REFERENCES SYSTEM_SUITE(SuiteId),
+    TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
+    Name NVARCHAR(255)
+);
+
+CREATE TABLE BRANCH (
+    BranchId UNIQUEIDENTIFIER PRIMARY KEY,
+    TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
+    Name NVARCHAR(255),
+    Code NVARCHAR(50)
+);
+
+CREATE TABLE PROFILE (
+    ProfileId UNIQUEIDENTIFIER PRIMARY KEY,
+    TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
+    UserId UNIQUEIDENTIFIER REFERENCES USER(UserId),
+    RoleId UNIQUEIDENTIFIER REFERENCES ROLE(RoleId),
+    BranchId UNIQUEIDENTIFIER REFERENCES BRANCH(BranchId)
+);
+
 CREATE TABLE PERMISSION_TEMPLATE (
     TemplateId UNIQUEIDENTIFIER PRIMARY KEY,
     RoleId UNIQUEIDENTIFIER REFERENCES ROLE(RoleId),
@@ -151,5 +183,14 @@ CREATE TABLE PERMISSION_TEMPLATE (
          CASE WHEN SubModuleId IS NULL THEN 0 ELSE 1 END +
          CASE WHEN OptionId IS NULL THEN 0 ELSE 1 END) = 1
     )
+);
+
+CREATE TABLE PROFILE_PERMISSION (
+    ProfileId UNIQUEIDENTIFIER REFERENCES PROFILE(ProfileId),
+    TemplateId UNIQUEIDENTIFIER REFERENCES PERMISSION_TEMPLATE(TemplateId),
+    IsAllowed BIT DEFAULT 1,
+    IsDenied BIT DEFAULT 0,
+    IsActive BIT DEFAULT 1,
+    PRIMARY KEY (ProfileId, TemplateId)
 );
 ```

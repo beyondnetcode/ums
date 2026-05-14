@@ -27,14 +27,18 @@ Full Resolution Path: `Tenant -> System -> Role -> Template -> ProfilePermission
 ```mermaid
 erDiagram
     TENANT ||--o{ SYSTEM_SUITE : "owns"
+    TENANT ||--o{ BRANCH : "operates"
     SYSTEM_SUITE ||--o{ ROLE : "defines"
     SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "contains"
     
     ROLE ||--o{ PERMISSION_TEMPLATE : "governs"
     PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "materialized"
     
+    USER ||--o{ PROFILE : "acts_as"
+    BRANCH ||--o{ PROFILE : "context_of"
+    PROFILE ||--o{ PROFILE_PERMISSION : "effective_authority"
+    
     FUNCTIONAL_MODULE ||--o{ FUNCTIONAL_SUBMODULE : "contains"
-    FUNCTIONAL_SUBMODULE ||--o{ FUNCTIONAL_OPTION : "provides"
     FUNCTIONAL_OPTION ||--o{ ACTION : "executes"
     
     ACTION ||--o{ PERMISSION_TEMPLATE : "authorized_action"
@@ -60,6 +64,14 @@ erDiagram
         uniqueidentifier ModuleId FK "Exclusive Arc"
         uniqueidentifier SubModuleId FK "Exclusive Arc"
         uniqueidentifier OptionId FK "Exclusive Arc"
+    }
+    
+    PROFILE {
+        uniqueidentifier ProfileId PK, FK
+        uniqueidentifier TenantId FK "RLS"
+        uniqueidentifier UserId FK
+        uniqueidentifier RoleId FK
+        uniqueidentifier BranchId FK "Location Context"
     }
     
     PROFILE_PERMISSION {
