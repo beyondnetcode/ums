@@ -1,35 +1,34 @@
-# ADR 0028: Master-Template Driven Authorization and Governance Model
+# ADR 0028: Master-Template Driven Authorization and Scoped Action Governance
 
 ## Status
-Refactored (Master-Template Governance)
+Refactored (Hierarchical Action Ownership)
 
 ## Context
-Standard authorization models often allow for "ad-hoc" permissions at the user or profile level, leading to governance drift and auditing nightmares. Enterprise environments require a single, immutable source of truth for all possible authority: the **Permission Template**.
+Previous iterations allowed for actions that could potentially exist outside a clear functional context. To ensure enterprise-grade governance, every authorized action must be strictly scoped to either a **System** (Global actions) or a **Functional Module** (Specific actions).
 
 ## Decision
-We will implement a **Master-Template Driven Authorization Framework** governed by the following immutable rules:
+We will implement **Scoped Action Governance** within the Master-Template Framework:
 
-1.  **PermissionTemplate as the Master Source**:
-    *   No permission can exist in a Profile if it hasn't been defined in the `PERMISSION_TEMPLATE` master catalog.
-    *   Templates define the granular intersection of a **Resource** (Module/Menu/Option) and an **Action** (View/Create/Export/etc.).
+1.  **Strict Action Ownership**:
+    *   Every `ACTION` must belong to a `SYSTEM_SUITE` (Global) or a `FUNCTIONAL_MODULE` (Specific).
+    *   Orphaned actions (without a system or module parent) are strictly prohibited.
 
-2.  **Materialization via ProfilePermission**:
-    *   Authority is "materialized" from a Template into a **ProfilePermission** entry.
-    *   `ProfilePermission` stores the **Effective State** using a triple-state logic: `IsAllowed`, `IsDenied`, `IsActive`.
-    *   This supports both RBAC (inheritance) and ABAC-lite (overrides/denies).
+2.  **Resolution Path**:
+    *   Authorization follows a mandatory hierarchical path:
+        `Tenant -> System -> Module -> Resource -> Action -> Template -> ProfilePermission`.
 
-3.  **Strict Hierarchy**:
-    *   Every permission belongs to a **System/Suite**.
-    *   Templates are grouped by **Functional Modules**.
+3.  **Template Junction**:
+    *   `PermissionTemplate` acts as the authorized junction between a **Resource** (System, Module, Menu, SubMenu, Option) and a **Scoped Action**.
 
-4.  **Governance & Audit**:
-    *   Every entity implements the **Corporate Audit Schema** (10+ columns).
-    *   The `Authorization Engine` resolves effective authority by querying the materialized `ProfilePermission` table, ensuring single-hop resolution performance.
+4.  **No Effective Drift**:
+    *   `ProfilePermission` is a materialized instance of a `PermissionTemplate`.
+    *   Manual assignment of actions to profiles without a template is impossible by design.
 
 ## Technical Implementation
-*   **Cardinality**: `System (1:N) Module (1:N) PermissionTemplate (1:N) ProfilePermission`.
-*   **Persistence**: `ProfilePermission` is a physical copy of the template's authority for a specific Profile, allowing for non-destructive overrides.
+*   **Action Entity**: Implements `SystemId` and `ModuleId` (one must be non-null).
+*   **Resource Mapping**: Templates map resources to scoped actions.
+*   **Audit**: All ownership changes are fully audited with the 10-column corporate schema.
 
 ## Consequences
-*   **Positive**: Absolute control over the permission catalog, 100% auditable history, support for explicit denies, and high-performance resolution.
-*   **Negative**: Requires a synchronization process when the Master Template is updated.
+*   **Positive**: Eliminates functional ambiguity, ensures every permission has a clear owner, and simplifies auditing.
+*   **Negative**: Slightly more complex schema due to the conditional ownership of actions.

@@ -1,147 +1,105 @@
 # 🗄️ Modelo Entidad-Relación (E/R) - SQL Server 2022
 
 **Tipo de Documento:** Diseño de Base de Datos  
-**Estatus:** Refactorizado (Impulsado por Plantillas Maestras)  
-**Arquitectura:** Framework Jerárquico (Autoridad Materializada)  
+**Estatus:** Refactorizado (Gobernanza de Acciones con Alcance)  
+**Arquitectura:** Framework Jerárquico Maestro  
 **Motor:** SQL Server 2022
+
+## 1. Introducción
+Este documento detalla el modelo de **Acciones con Alcance**. Toda autoridad en el sistema debe pertenecer a un contenedor funcional (Sistema o Módulo), eliminando los permisos huérfanos y garantizando una gobernanza arquitectónica estricta.
 
 > [!TIP]
 > **¿Problemas de Visualización?**  
 > Si los diagramas Mermaid no se renderizan correctamente, utiliza los **[🚀 Formatos de Exportación Alternativos (dbdiagram.io, DDL, D2)](./er-export-formats.md)**. Estos formatos son compatibles con herramientas profesionales como DBeaver, SSMS y dbdiagram.io.
 
-## 1. Introducción
-Este documento detalla el modelo de datos **Impulsado por Plantillas Maestras**. Cada permiso efectivo en el sistema debe ser una instancia materializada de una `PermissionTemplate` controlada, garantizando una gobernanza del 100% sobre el catálogo de autoridad.
-
 ---
 
 ## 2. Estándares Corporativos de Auditoría y Trazabilidad
-Cada entidad en este esquema DEBE implementar las siguientes columnas.
-
-| Columna | Tipo | Descripción |
-| :--- | :--- | :--- |
-| `CreatedAt` | `datetimeoffset` | Marca de tiempo de creación. |
-| `CreatedBy` | `uniqueidentifier` | ID del creador. |
-| `UpdatedAt` | `datetimeoffset` | Marca de tiempo de actualización. |
-| `UpdatedBy` | `uniqueidentifier` | ID del último actualizador. |
-| `DeletedAt` | `datetimeoffset` | Marca de tiempo de eliminación lógica. |
-| `DeletedBy` | `uniqueidentifier` | ID del eliminador. |
-| `Version` | `int` | Bloqueo optimista (Predeterminado: 1). |
-| `IsActive` | `bit` | Indicador de estado. |
-| `TenantId` | `uniqueidentifier` | Aislamiento contextual. |
-| `CorrelationId`| `uniqueidentifier` | Trazabilidad distribuida. |
+Cada entidad en este esquema DEBE implementar las 10 columnas estándar (`CreatedAt`, `CreatedBy`, `UpdatedAt`, `UpdatedBy`, `DeletedAt`, `DeletedBy`, `Version`, `IsActive`, `TenantId`, `CorrelationId`).
 
 ---
 
 ## 3. Vistas Modulares por Dominio
 
 ### 🗺️ 3.1 Mapa Global de Alto Nivel
-Vista completa de las relaciones entre módulos núcleo.
+Ruta de resolución completa: `Inquilino -> Sistema -> Módulo -> Recurso -> Acción -> Plantilla -> Permiso de Perfil`.
 
 ```mermaid
 erDiagram
     TENANT ||--o{ SYSTEM_SUITE : "posee"
-    TENANT ||--o{ USER : "posee"
-    TENANT ||--o{ BRANCH : "posee"
-    
     SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "contiene"
-    FUNCTIONAL_MODULE ||--o{ PERMISSION_TEMPLATE : "define_catálogo"
+    SYSTEM_SUITE ||--o{ ACTION : "acciones_globales"
+    FUNCTIONAL_MODULE ||--o{ ACTION : "acciones_de_módulo"
     
-    PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "materializado_en"
+    ACTION ||--o{ PERMISSION_TEMPLATE : "vinculado_a"
+    PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "materializado"
     
     USER ||--o{ PROFILE : "actúa_como"
-    PROFILE ||--o{ PROFILE_PERMISSION : "posee_autoridad"
+    PROFILE ||--o{ PROFILE_PERMISSION : "autoridad"
     
-    ROLE ||--o{ PROFILE : "esquema_de_autoridad"
-    ROLE ||--o{ ROLE_PERMISSION : "blueprint_base"
-    PERMISSION_TEMPLATE ||--o{ ROLE_PERMISSION : "define_base_de_rol"
+    ROLE ||--o{ PROFILE : "esquema"
+    PERMISSION_TEMPLATE ||--o{ ROLE_PERMISSION : "base_de_rol"
 ```
 
 ---
 
-### 🔐 3.2 Dominio: Framework de Autorización Maestro (El Núcleo)
-Este dominio gestiona el catálogo de permisos inmutables y su materialización en perfiles.
+### 🔐 3.2 Dominio: Framework de Autorización con Alcance
+Gestión de acciones con alcance y su materialización.
 
 ```mermaid
 erDiagram
-    SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "contiene"
-    FUNCTIONAL_MODULE ||--o{ PERMISSION_TEMPLATE : "definiciones_maestras"
+    SYSTEM_SUITE ||--o{ ACTION : "global"
+    FUNCTIONAL_MODULE ||--o{ ACTION : "específica"
     
-    PERMISSION_TEMPLATE ||--o{ ROLE_PERMISSION : "esquema_estándar"
-    PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "autoridad_materializada"
+    ACTION ||--o{ PERMISSION_TEMPLATE : "define"
+    PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "efectivo"
     
-    PROFILE ||--o{ PROFILE_PERMISSION : "contexto_efectivo"
-    ROLE ||--o{ PROFILE : "fuente_de_autoridad"
+    ACTION {
+        uniqueidentifier ActionId PK
+        uniqueidentifier SuiteId FK "Nullable"
+        uniqueidentifier ModuleId FK "Nullable"
+        nvarchar Code "VIEW/CREATE/EDIT"
+    }
     
     PERMISSION_TEMPLATE {
         uniqueidentifier TemplateId PK
-        uniqueidentifier ModuleId FK
-        nvarchar ResourceName "Menú/Opción/SubMenú"
-        nvarchar ActionCode "Ver/Crear/Exportar/etc"
-        nvarchar Name "Nombre Editable"
+        uniqueidentifier ActionId FK
+        nvarchar ResourceType "SYSTEM/MODULE/MENU/OPTION"
+        nvarchar ResourceId "ID de Recurso"
     }
     
     PROFILE_PERMISSION {
         uniqueidentifier ProfileId PK, FK
         uniqueidentifier TemplateId PK, FK
-        bit IsAllowed "Permitir Explícito"
-        bit IsDenied "Denegar Explícito (Anulación)"
-        bit IsActive "Estado Operativo"
+        bit IsAllowed
+        bit IsDenied
+        bit IsActive
     }
 ```
 
 ---
 
-### 📍 3.3 Dominio: Topología Funcional y Navegación
-Estructura jerárquica de sistemas y menús.
+### 📍 3.3 Dominio: Topología Funcional
+Jerarquía de estructura organizacional y navegación.
 
 ```mermaid
 erDiagram
     SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "contiene"
     FUNCTIONAL_MODULE ||--o{ MENU_ITEM : "topología"
     MENU_ITEM ||--o{ MENU_ITEM : "jerarquía"
-    MENU_ITEM ||--o{ PERMISSION_TEMPLATE : "requiere_acceso"
-    
-    FUNCTIONAL_MODULE {
-        uniqueidentifier ModuleId PK
-        uniqueidentifier SuiteId FK
-        nvarchar Name
-        nvarchar Code
-    }
     
     MENU_ITEM {
         uniqueidentifier MenuItemId PK
         uniqueidentifier ModuleId FK
         uniqueidentifier ParentItemId FK
         nvarchar Name
-        nvarchar Route
     }
 ```
 
 ---
 
-### 📝 3.4 Dominio: Auditoría e Identidad
-Gestión de identidades y trazabilidad global.
-
-```mermaid
-erDiagram
-    TENANT ||--o{ USER : "aloja"
-    TENANT ||--o{ AUDIT_LOG : "monitorea"
-    PROFILE ||--o{ AUDIT_LOG : "contexto"
-    
-    AUDIT_LOG {
-        bigint LogId PK
-        uniqueidentifier CorrelationId
-        uniqueidentifier TransactionId
-        nvarchar Action
-        datetimeoffset Timestamp
-    }
-```
-
----
-
-## 4. Reglas de Negocio y Normalización
-1.  **Primacía de la Plantilla**: `PermissionTemplate` es la fuente maestra absoluta. No se permiten permisos ad-hoc.
-2.  **Autoridad de Triple Estado**: `ProfilePermission` utiliza `IsAllowed`, `IsDenied` e `IsActive` para resolver la autoridad final.
-3.  **Jerarquía**: `Sistema > Módulo > Menú > Acción`.
-4.  **Matriz de Acciones**: Las plantillas admiten acciones granulares: `view`, `create`, `edit`, `delete`, `approve`, `export`, `import`, `print`, `copy`, `download`, `execute`, `manage`, `assign`, `audit`.
-5.  **Eliminación Lógica (Soft Delete)**: Obligatoria para todas las entidades para mantener la integridad de la auditoría.
+## 4. Reglas de Negocio y Restricciones
+1.  **Propiedad de Acciones**: Toda Acción DEBE tener un `SuiteId` o un `ModuleId`.
+2.  **Restricción**: `CHECK (SuiteId IS NOT NULL OR ModuleId IS NOT NULL)`.
+3.  **Sin Huérfanos**: Todos los permisos deben rastrearse hasta una plantilla.
+4.  **Inmutabilidad**: Las plantillas son la fuente de verdad; los ProfilePermissions son anulaciones/materializaciones.
