@@ -43,6 +43,10 @@ erDiagram
     SYSTEM_SUITE ||--o{ PERMISSION : "defines"
     SYSTEM_SUITE ||--o{ PERMISSION_TEMPLATE : "templates"
     SYSTEM_SUITE ||--o{ PROFILE : "context_for"
+    SYSTEM_SUITE ||--o{ MENU_ITEM : "contains_topology"
+
+    MENU_ITEM ||--o{ MENU_ITEM : "parent_of"
+    MENU_ITEM ||--o{ PERMISSION : "requires"
 
     ROLE ||--o{ PROFILE : "blueprint_for"
     ROLE ||--o{ ROLE_PERMISSION : "base_perms"
@@ -100,6 +104,17 @@ erDiagram
         uniqueidentifier TenantId FK
         nvarchar Name
         nvarchar Code
+    }
+
+    MENU_ITEM {
+        uniqueidentifier MenuItemId PK
+        uniqueidentifier SuiteId FK
+        uniqueidentifier ParentItemId FK "NULL for Root"
+        uniqueidentifier PermissionId FK "Access Grant"
+        nvarchar Name
+        nvarchar Route
+        nvarchar Icon
+        int SortOrder
     }
 
     AUDIT_LOG {
