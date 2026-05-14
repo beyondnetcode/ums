@@ -6,9 +6,10 @@ El módulo de Plantillas de Autorización proporciona un mecanismo para definir 
 ## 2. Modelo de Dominio y Desacoplamiento
 El sistema impone un desacoplamiento estricto entre las áreas funcionales y los roles de implementación:
 
-1.  **Sistema/Suite**: Define el límite funcional (ej. "Suite de Logística", "Suite de Finanzas").
-2.  **Plantilla de Permisos**: Un conjunto versionado de permisos dentro de una Suite.
-3.  **Rol**: Un objeto específico del inquilino (tenant) que implementa una Plantilla.
+1.  **Sistema/Suite**: Define el límite funcional propiedad de un Inquilino.
+2.  **Plantilla de Permisos**: Un conjunto versionado de permisos estrictamente limitado a una Suite.
+3.  **Rol**: Un esquema específico del Sistema derivado de una Plantilla.
+4.  **Perfil**: El nexo contextual donde se persisten las autorizaciones efectivas.
 
 ## 3. Reglas de Negocio
 
@@ -20,8 +21,8 @@ El sistema impone un desacoplamiento estricto entre las áreas funcionales y los
 Los inquilinos pueden agregar o eliminar permisos específicos a un Rol que fue creado a partir de una Plantilla, creando un "Delta" con respecto al esquema base.
 
 ### 3.3 Alcance y Multi-tenancy
-*   **Plantillas Globales**: Creadas por el Administrador del Sistema (`TenantId = NULL`). Disponibles para todos los inquilinos.
-*   **Plantillas Locales**: Creadas por un Administrador de Inquilino. Disponibles solo dentro de ese inquilino específico.
+*   **Alcance del Sistema**: Cada plantilla está vinculada a un Sistema/Suite específico.
+*   **Aislamiento del Inquilino**: Las plantillas están aisladas por `TenantId`. Las plantillas globales se gestionan como valores predeterminados del sistema pero siempre dentro del contexto de un Sistema.
 
 ## 4. Ciclo de Vida y Versionado
 *   Las plantillas admiten los estados **Borrador**, **Publicada** y **Depreciada**.

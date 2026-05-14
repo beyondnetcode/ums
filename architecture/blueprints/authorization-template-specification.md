@@ -6,9 +6,10 @@ The Authorization Template module provides a mechanism to define reusable sets o
 ## 2. Domain Model & Decoupling
 The system enforces a strict decoupling between functional areas and implementation roles:
 
-1.  **System/Suite**: Defines the functional boundary (e.g., "Logistics Suite", "Finance Suite").
-2.  **Permission Template**: A versioned set of permissions within a Suite.
-3.  **Role**: A tenant-specific object that implements a Template.
+1.  **System/Suite**: Defines the functional boundary owned by a Tenant.
+2.  **Permission Template**: A versioned set of permissions strictly scoped to a Suite.
+3.  **Role**: A System-specific blueprint derived from a Template.
+4.  **Profile**: The contextual nexus where effective authorizations are persisted.
 
 ## 3. Business Rules
 
@@ -20,8 +21,8 @@ The system enforces a strict decoupling between functional areas and implementat
 Tenants can add or remove specific permissions to a Role that was created from a Template, creating a "Delta" from the base blueprint.
 
 ### 3.3 Scoping & Multi-tenancy
-*   **Global Templates**: Created by the System Admin (`TenantId = NULL`). Available to all tenants.
-*   **Local Templates**: Created by a Tenant Admin. Available only within that specific tenant.
+*   **System Scoping**: Every template is bound to a specific System/Suite.
+*   **Tenant Isolation**: Templates are isolated by `TenantId`. Global templates are managed as System-wide defaults but always within the context of a System.
 
 ## 4. Lifecycle & Versioning
 *   Templates support **Draft**, **Published**, and **Deprecated** states.
