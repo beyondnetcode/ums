@@ -160,8 +160,8 @@
     *   *Schema-per-tenant*: Becomes hard to scale and migrate when tenant counts exceed 1,000, causing connection pool exhaustion.
 
 ### 6.2 Tenant Resolution Mechanism
-*   **Chosen Tool:** **NestJS Interceptor + PostgreSQL Connection Session Context**
-*   **Why Chosen:** Resolves the `tenant_id` from JWT claims or `X-Tenant-ID` headers at ingress, and uses a database transaction wrapper to inject the tenant context into the active PostgreSQL session dynamically.
+*   **Chosen Tool:** **NestJS Interceptor + SQL Server SESSION_CONTEXT**
+*   **Why Chosen:** Resolves the `tenant_id` from JWT claims or `X-Tenant-ID` headers at ingress, and uses a database interceptor/wrapper to inject the tenant context into the active SQL Server session using `sp_set_session_context`.
 *   **Alternatives Rejected:**
     *   *Application-level filtering*: Prone to developer omissions (forgetting a `WHERE tenant_id = x` clause), leading to critical data leak vulnerabilities. RLS prevents this at the database level across all runtimes.
 
@@ -276,6 +276,12 @@ To avoid cloud-provider lock-in and support offline, on-premise environments, **
 *   **Decision:** **SQL Server 2022 for all services (.NET and Node.js).**
 *   **Rationale:** Eliminates infrastructure fragmentation and ensures unified security enforcement (RLS).
 *   **Revisit When:** Licensing costs exceed budget or a specific context requires native NoSQL features.
+
+### Decision 3: Single Database Engine Strategy — SQL Server 2022 for all services
+*   **Decision:** All services, including NestJS satellites (Config, Template, Profile managers), must persist exclusively in SQL Server 2022.
+*   **Rationale:** Polyglot persistence (PG/Mongo) was rejected to minimize operational overhead in on-premise deployments and unify the Row-Level Security (RLS) implementation.
+*   **Impact:** All services share a single backup, security, and maintenance strategy. Node.js services must use the `mssql` driver.
+*   **Revisit When:** Re-evaluate if unstructured data volume requires a specialized NoSQL engine for non-relational workloads.
 
 ---
 
