@@ -21,7 +21,13 @@ Product Lifecycle and Engineering Specifications for the User Management System 
 - [Permission Matrix](./governance/requirements/permission-matrix-example.md)
 - [Functional Stories](./governance/requirements/functional-stories/index.md)
 
-### Phase 02 -- Architecture
+### Phase 02 -- MVP Planning and Project Backlog
+
+- [MVP Functional Story Prioritization](./governance/roadmap/mvp-functional-prioritization.md)
+- [Project Backlog](./governance/project/index.md)
+- [MVP Product Backlog](./governance/project/mvp-product-backlog.md)
+
+### Phase 03 -- Architecture
 
 - [.NET Migration & Tech Stack Plan](./architecture/blueprints/dotnet-migration-and-tech-stack-plan.md)
 - [Bounded Context Map](./architecture/blueprints/bounded-context-map.md)
@@ -29,11 +35,11 @@ Product Lifecycle and Engineering Specifications for the User Management System 
 - [Technology Stack](./architecture/blueprints/stack.md)
 - [Technical Enablers](./architecture/blueprints/technical-enablers/index.md)
 
-### Phase 03 -- Architectural Decision Records (ADRs)
+### Phase 04 -- Architectural Decision Records (ADRs)
 
 - [Full ADR Registry](./architecture/adrs/) (40 active decisions)
 
-### Phase 04 -- Engineering Standards & Artifacts
+### Phase 05 -- Engineering Standards & Artifacts
 
 - [Engineering Standards](./architecture/artifacts/engineering-standards.md)
 - [Architecture Maturity Model](./architecture/artifacts/architecture-maturity-model.md)
@@ -42,7 +48,8 @@ Product Lifecycle and Engineering Specifications for the User Management System 
 - [Enterprise IAM Spec](./architecture/artifacts/enterprise-iam-ums-specification.md)
 - [Multi-Tenant Governance Report](./architecture/artifacts/enterprise-multitenant-governance-report.md)
 
-### Phase 05 -- Release Roadmap
+### Phase 06 -- Release Roadmap
 
+- [Roadmap Index](./governance/roadmap/index.md)
 - [Versioning & Audit Strategy](./governance/roadmap/versioning-and-audit-strategy.md)
 - [CHANGELOG](./CHANGELOG.md)

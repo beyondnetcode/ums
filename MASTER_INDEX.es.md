@@ -21,7 +21,13 @@ Navegacion por fases de la documentacion del Sistema de Gestion de Usuarios (UMS
 - [Matriz de Permisos](./governance/requirements-es/permission-matrix-example.md)
 - [Historias Funcionales](./governance/requirements-es/functional-stories/index.md)
 
-### Fase 02 -- Arquitectura
+### Fase 02 -- Planeacion MVP y Backlog de Proyecto
+
+- [Priorizacion de Historias Funcionales para MVP](./governance/roadmap/mvp-functional-prioritization.es.md)
+- [Backlog de Proyecto](./governance/project-es/index.md)
+- [Backlog de Producto MVP](./governance/project-es/mvp-product-backlog.md)
+
+### Fase 03 -- Arquitectura
 
 - [Plan de Migracion .NET](./architecture/blueprints-es/dotnet-migration-and-tech-stack-plan.md)
 - [Mapa de Contextos Delimitados](./architecture/blueprints-es/bounded-context-map.md)
@@ -29,11 +35,11 @@ Navegacion por fases de la documentacion del Sistema de Gestion de Usuarios (UMS
 - [Stack Tecnologico](./architecture/blueprints-es/stack.md)
 - [Habilitadores Tecnicos](./architecture/blueprints-es/technical-enablers/index.md)
 
-### Fase 03 -- Registros de Decision Arquitectonica (ADRs)
+### Fase 04 -- Registros de Decision Arquitectonica (ADRs)
 
 - [Registro Completo de ADRs](./architecture/adrs-es/) (40 decisiones activas)
 
-### Fase 04 -- Estandares de Ingenieria y Artefactos
+### Fase 05 -- Estandares de Ingenieria y Artefactos
 
 - [Estandares de Ingenieria](./architecture/artifacts-es/engineering-standards.md)
 - [Modelo de Madurez Arquitectonica](./architecture/artifacts-es/architecture-maturity-model.md)
@@ -42,7 +48,8 @@ Navegacion por fases de la documentacion del Sistema de Gestion de Usuarios (UMS
 - [Especificacion IAM Empresarial](./architecture/artifacts-es/enterprise-iam-ums-specification.md)
 - [Reporte de Gobernanza Multi-Tenant](./architecture/artifacts-es/enterprise-multitenant-governance-report.md)
 
-### Fase 05 -- Hoja de Ruta
+### Fase 06 -- Hoja de Ruta
 
+- [Indice de Roadmap](./governance/roadmap/index.md)
 - [Estrategia de Versionado](./governance/roadmap/versioning-and-audit-strategy.md)
 - [CHANGELOG](./CHANGELOG.md)
