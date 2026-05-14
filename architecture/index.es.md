@@ -1,6 +1,6 @@
 # Portal de Arquitectura
 
-?? **[Volver al README Principal](../README.es.md)**
+**[Volver al README Principal](../README.es.md)**
 
 - [Planos](./blueprints-es/index.md)
 - [Registro ADR](./adrs-es/index.md)

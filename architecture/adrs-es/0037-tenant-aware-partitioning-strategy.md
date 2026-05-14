@@ -1,6 +1,6 @@
 # ADR-0037: Estrategia de Particionamiento por Inquilino
 
-*   **Estado:** Propuesto
+*   **Estado:** Propuestao
 *   **Fecha:** 2026-05-13
 *   **Autores:** Equipo de Arquitectura Senior & Product Owners
 
@@ -10,12 +10,12 @@
 
 El UMS actual usa un modelo de esquema compartido con RLS para aislamiento de inquilinos (ADR-0010). A medida que el sistema crece para soportar inquilinos jerárquicos (ADR-0034), surgen tres desafíos de escalabilidad:
 
-1. **Recuperación de datos por inquilino**: Restaurar datos para un grupo empresarial completo (root tenant + todos los descendientes) requiere escanear toda la tabla compartida.
+1. **Recuperación de datos por inquilino**: Restáaurar datos para un grupo empresarial completo (root tenant + todos los descendientes) requiere escanear toda la tabla compartida.
 2. **Vecino ruidoso**: Un root tenant de alto volumen (ej. 10M usuarios) degrada el rendimiento de consultas para inquilinos más pequeños que comparten la misma tabla física.
 3. **Vacío y mantenimiento**: El autovacuum de PostgreSQL debe escanear la tabla completa incluso si solo un root tenant tiene alta actividad de escritura.
 4. **Fragmentación futura**: La arquitectura debe soportar la migración de particiones completas de root tenant a instancias de base de datos separadas sin tiempo de inactividad.
 
-El modelo híbrido agrupado (ADR-0010) asumía inquilinos planos de tamaño aproximadamente igual. El modelo jerárquico invalida esta suposición — los root tenants pueden variar desde 1K hasta 10M de usuarios.
+El modelo híbrido agrupado (ADR-0010) asumía inquilinos planos de tamaño aproximadamente igual. El modelo jerárquico invalida está suposición — los root tenants pueden variar desde 1K hasta 10M de usuarios.
 
 ---
 
@@ -78,19 +78,17 @@ public class PartitionManager
 | `policies` | `root_tenant_id` | `RANGE (version)` | 1 por root tenant |
 | `policy_bindings` | `root_tenant_id` | Ninguno | 1 por root tenant |
 | `audit_log` | `root_tenant_id` | `RANGE (created_at)` sub-particiones mensuales | 1 por root tenant + mensual |
-| `delegation_grants` | `root_tenant_id` | `LIST (status)` | 1 por root tenant |
-
-### 2.4. Particionamiento de Closure Table
+| `delegation_grants` | `root_tenant_id` | `LIST (status)` | 1 por root tenant | ### 2.4. Particionamiento de Closure Table
 
 La closure table debe usar el mismo esquema de particionamiento. Esto requiere almacenar `root_tenant_id` en la closure table (desnormalizado desde tenants).
 
 ```sql
 CREATE TABLE tenant_closure (
-    ancestor_id UUID NOT NULL,
+    ancestáor_id UUID NOT NULL,
     descendant_id UUID NOT NULL,
     depth INT NOT NULL CHECK (depth >= 0),
     root_tenant_id UUID NOT NULL,
-    PRIMARY KEY (ancestor_id, descendant_id, root_tenant_id)
+    PRIMARY KEY (ancestáor_id, descendant_id, root_tenant_id)
 ) PARTITION BY LIST (root_tenant_id);
 
 CREATE TABLE tenant_closure_root_001 PARTITION OF tenant_closure

@@ -1,4 +1,4 @@
-# 🎯 Product Vision - User Management System (UMS)
+# Product Vision - User Management System (UMS)
 
 ## 1. Executive Summary
 The **User Management System (UMS)** is an abstract, standalone authorization & identity governance kernel. Its core vision is to centralize and standardize the governance of identities, organizations, and fine-grained permissions across a federated, multi-system **B2B Multi-tenant SaaS architecture** via highly decoupled APIs and message buses.

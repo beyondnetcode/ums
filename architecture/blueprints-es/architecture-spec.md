@@ -1,15 +1,15 @@
-# 🏛️ Documento de Diseño de Arquitectura de Software (UMS)
+# Documento de Diseño de Arquitectura de Software (UMS)
 
 Este documento detalla la especificación formal del diseño del sistema para el monorepo **`ums`**. Adopta el estándar de modelado de software **Modelo C4** (Nivel 1: Contexto del Sistema, Nivel 2: Contenedores, Nivel 3: Componentes) y presenta el inventario técnico unificado y auditado del proyecto.
 
 > [!IMPORTANT]
-> **Mandato de Estándares de Ingeniería:** Todas las decisiones arquitectónicas descritas aquí están estrictamente gobernadas por los **[Estándares Globales de Ingeniería y el Manifiesto BMAD](../artifacts/engineering-standards.md)**. Principios como SOLID, Clean Architecture, DDD opcional y la evitación de anti-patrones son obligatorios y se aplican automáticamente a través de pipelines de CI/CD.
+> **Mandato de Estándares de Ingeniería:** Todas las decisiones arquitectónicas descritas aquí estáán estárictamente gobernadas por los **[Estándares Globales de Ingeniería y el Manifiestáo BMAD](../artifacts/engineering-standards.md)**. Principios como SOLID, Clean Architecture, DDD opcional y la evitación de anti-patrones son obligatorios y se aplican automáticamente a través de pipelines de CI/CD.
 
 ---
 
-## 🎯 1. Entregables Arquitectónicos y Línea Base de Requerimientos
+## 1. Entregables Arquitectónicos y Línea Base de Requerimientos
 
-La siguiente tabla define los entregables obligatorios, el alcance estratégico y los requisitos de diseño contractual que rigen la arquitectura de software de este monorepo:
+La siguiente tabla define los entregables obligatorios, el alcance estáratégico y los requisitos de diseño contractual que rigen la arquitectura de software de esté monorepo:
 
 | Prioridad | Entregable | Descripción (Nivel Estratégico – Racional Ejecutivo) |
 | :--- | :--- | :--- |
@@ -22,20 +22,18 @@ La siguiente tabla define los entregables obligatorios, el alcance estratégico 
 | **6** | [Estrategia de Observabilidad Extremo a Extremo](#-9-estrategia-de-observabilidad-y-telemetría-distribuida) | Enfoque para la telemetría distribuida: trazabilidad de procesos de negocio completos, métricas clave y modelos de registro (logging) a nivel arquitectónico. Se utiliza para estimar herramientas de monitoreo y costos. |
 | **7** | [Diseño de Identidad y Autorización](#-7-arquitectura-del-motor-de-autorización-centralizado-peppdppappip) | Estrategia para el modelo de identidad y autorización: Proveedor de Identidad (IdP), flujo de autenticación entre contextos y pautas de sesión. Ayuda a dimensionar la seguridad en todos los dominios. |
 | **8** | Requerimientos No Funcionales Documentados (NFRs) | Definición de requisitos no funcionales medibles que condicionan la arquitectura: latencia, rendimiento (throughput), disponibilidad y mecanismos de degradación controlada. Representa los objetivos contractuales que el diseño debe cumplir. |
-| **9** | Estrategia de Gestión de Datos Maestros | Plan de trabajo para datos maestros: entidades clave, enfoque de migración desde SAP, pautas de calidad y fases. Justifica el esfuerzo de integración y limpieza de datos en el presupuesto. |
+| **9** | Estrategia de Gestión de Datos Maestros | Plan de trabajo para datos maestáros: entidades clave, enfoque de migración desde SAP, pautas de calidad y fases. Justifica el esfuerzo de integración y limpieza de datos en el presupuesto. |
 | **10** | Estrategia de Versionamiento y Evolución de APIs | Pautas para la evolución de contratos (APIs y eventos): cómo se introducen cambios sin romper dependencias. Prevé la gobernanza técnica y el costo de mantener la compatibilidad. |
 | **11** | Estrategia de Sincronización Multi-Dominio | Enfoque para la consistencia eventual entre contextos: definición de fuentes de verdad, pautas de disposición y resolución de conflictos. Revela la complejidad de integración y su impacto en los cronogramas. |
 | **12** | [Registros de Decisión de Arquitectura (ADRs)](#-4-matriz-de-decisión-arquitectónica) | Registro de decisiones influyentes, incluyendo el **[Modelo Centrado en el Perfil](../adrs-es/0043-profile-centric-authorization-governance.md)**, justificación y alternativas. |
 | **13** | [Plan de Pruebas de Contrato](#-12-estrategia-de-calidad-y-pruebas-de-contrato) | Estrategia para asegurar que las interacciones cumplan con los contratos. |
 | **14** | [Infraestructura de Despliegue](#-11-infraestructura-de-despliegue-y-topología-cloud) | Diseño de la topología y costos operativos. |
-| **15** | [Estructura de Desglose de Trabajo](#-5-gestión-de-deuda-técnica-y-hoja-de-ruta-arquitectónica-backlog) | Hoja de ruta con fases, sprints e hitos. |
-
-> [!IMPORTANT]
+| **15** | [Estructura de Desglose de Trabajo](#-5-gestión-de-deuda-técnica-y-hoja-de-ruta-arquitectónica-backlog) | Hoja de ruta con fases, sprints e hitos. | > [!IMPORTANT]
 > **Estándar Obligatorio de Catálogos Paramétricos:** Todas las tablas y entidades de parámetros/configuración/catálogos en UMS DEBEN incluir `code`, `value` y `description`, con unicidad por alcance, versionado, auditoría, trazabilidad, cacheabilidad y extensibilidad futura. Aplica a parámetros globales/tenant/system, feature flags, políticas, configuración de seguridad, workflows, reglas de negocio y configuraciones de notificación/aprobación.
 
 ---
 
-## 🗺️ 2. Modelo C4
+## 2. Modelo C4
 
 El diseño arquitectónico de UMS se modela en tres niveles progresivos de abstracción para alinear la visión de negocio con la implementación física del código.
 
@@ -166,11 +164,11 @@ graph TD
 
 ---
 
-## 📊 3. Inventario Técnico de Dependencias (Sovereign Tech Inventory)
+## 3. Inventario Técnico de Dependencias (Sovereign Tech Inventory)
 
 Este inventario detalla todas las herramientas, librerías, plugins y componentes por workspace con su respectiva versión instalada, recomendación de ciclo de vida técnico (*Staff Recommendation*) y URL de referencia oficial.
 
-### 🚀 A. Backend (Capa de API .NET 8)
+### A. Backend (Capa de API .NET 8)
 
 | Dependencia / Librería | Versión Instalada | Recomendación Técnica | URL de Referencia |
 | :--- | :--- | :--- | :--- |
@@ -181,68 +179,56 @@ Este inventario detalla todas las herramientas, librerías, plugins y componente
 | `FluentValidation` | `^11.0.0` | **Mantener (Estable)** - Validación fuertemente tipada para comandos y consultas. | [FluentValidation](https://fluentvalidation.net/) |
 | `BCrypt.Net-Next` | `^4.0.3` | **Mantener (Estable)** - Hashing seguro para almacenamiento de credenciales. | [BCrypt.Net](https://github.com/BcryptNet/bcrypt.net) |
 | `Swashbuckle.AspNetCore` | `^6.5.0` | **Mantener (Estable)** - Generación automática de especificaciones OpenAPI 3. | [Swashbuckle Docs](https://github.com/domaindrivendev/Swashbuckle.AspNetCore) |
-| `OpenTelemetry` | `^1.7.0` | **Mantener (Crítico)** - Estándar industrial para observabilidad y trazabilidad. | [OpenTelemetry .NET](https://opentelemetry.io/docs/instrumentation/net/) |
-
----
-
-### ⚛️ B. Frontend (Cliente Web React)
+| `OpenTelemetry` | `^1.7.0` | **Mantener (Crítico)** - Estándar industrial para observabilidad y trazabilidad. | [OpenTelemetry .NET](https://opentelemetry.io/docs/instrumentation/net/)
+### B. Frontend (Cliente Web React)
 
 | Dependencia / Librería | Versión Instalada | Recomendación Técnica | URL de Referencia |
 | :--- | :--- | :--- | :--- |
 | `react` | `^18.3.1` | **Mantener (Estable)** - Versión ultra-estable compatible con ecosistemas maduros. | [Documentación de React](https://react.dev/) |
 | `vite` | `^5.4.10` | **Mantener (Estable)** - Empaquetador ultra-rápido compatible con Node 18. | [Vite JS](https://vitejs.dev/) |
 | `@tanstack/react-query`| `^5.100.9` | **Mantener (Crítico)** - Sincronización de estado del servidor asíncrona y caché inteligente. | [Docs de TanStack Query](https://tanstack.com/query/latest) |
-| `zustand` | `^5.0.13` | **Mantener (Estable)** - Gestor de estado global ligero alternativo a Redux. | [Zustand GitHub](https://github.com/pmndrs/zustand) |
+| `zustand` | `^5.0.13` | **Mantener (Estable)** - Gestáor de estado global ligero alternativo a Redux. | [Zustand GitHub](https://github.com/pmndrs/zustand) |
 | `tailwindcss` | `^3.4.19` | **Mantener (Estable)** - Motor CSS de utilidades de alto rendimiento. | [Tailwind CSS](https://tailwindcss.com/) |
 | `axios` | `^1.16.0` | **Mantener (Estable)** - Cliente HTTP robusto con soporte de interceptores globales. | [Docs de Axios](https://axios-http.com/) |
-| `lucide-react` | `^1.14.0` | **Mantener (Estable)** - Colección moderna de iconos SVG reactivos. | [Lucide Icons](https://lucide.dev/) |
-
----
-
-### 🛠️ C. Calidad y Gobernanza Global (Raíz del Monorepo)
+| `lucide-react` | `^1.14.0` | **Mantener (Estable)** - Colección moderna de iconos SVG reactivos. | [Lucide Icons](https://lucide.dev/)
+### C. Calidad y Gobernanza Global (Raíz del Monorepo)
 
 | Dependencia / Librería | Versión Instalada | Recomendación Técnica | URL de Referencia |
 | :--- | :--- | :--- | :--- |
 | `nx` | `^20.3.0` | **Mantener (Crítico)** - Ejecutor de tareas de alto rendimiento con soporte de caché. | [Docs de Nx Dev](https://nx.dev/) |
-| `eslint-plugin-boundaries`| `^5.0.0` | **Mantener (Estable)** - Gobernanza estricta para límites hexagonales. | [eslint-plugin-boundaries](https://github.com/javierguzman/eslint-plugin-boundaries) |
-| `eslint-plugin-sonarjs` | `^3.0.0` | **Mantener (Estable)** - Análisis estático Sonar de costo cero para proyectos locales. | [SonarJS ESLint](https://github.com/SonarSource/eslint-plugin-sonarjs) |
+| `eslint-plugin-boundaries`| `^5.0.0` | **Mantener (Estable)** - Gobernanza estáricta para límites hexagonales. | [eslint-plugin-boundaries](https://github.com/javierguzman/eslint-plugin-boundaries) |
+| `eslint-plugin-sonarjs` | `^3.0.0` | **Mantener (Estable)** - Análisis estáático Sonar de costo cero para proyectos locales. | [SonarJS ESLint](https://github.com/SonarSource/eslint-plugin-sonarjs) |
 | `husky` | `^9.0.0` | **Mantener (Estable)** - Intercepción y automatización de Git Hooks. | [Docs de Husky](https://typicode.github.io/husky/) |
-| `lint-staged` | `^15.0.0` | **Mantener (Estable)** - Ejecución optimizada de linters solo en archivos Git Staged. | [lint-staged GitHub](https://github.com/lint-staged/lint-staged) |
-
----
-
-## 🧠 4. Matriz de Decisión Arquitectónica
+| `lint-staged` | `^15.0.0` | **Mantener (Estable)** - Ejecución optimizada de linters solo en archivos Git Staged. | [lint-staged GitHub](https://github.com/lint-staged/lint-staged)
+## 4. Matriz de Decisión Arquitectónica
 
 Esta matriz mapea las decisiones técnicas fundamentales con sus Atributos de Calidad objetivo, resumiendo la estrategia arquitectónica y los mecanismos de aplicación para asegurar un sistema verificable y sostenible bajo la **estrategia de IA impulsada por especificaciones BMAD-METHOD**:
 
 | Decisión / Enfoque | Referencia ADR | Atributos de Calidad Primarios | Resumen de Decisión y Estrategia Técnica | Mecanismo de Aplicación y Verificación |
 | :--- | :--- | :--- | :--- | :--- |
-| **Orquestación de Monorepo** | [ADR 0001](../adrs-es/0001-monorepo-orchestration-nx.md) | Modularidad, Rendimiento de Build | Utiliza Nx y workspaces npm para gestionar módulos desacoplados con configuraciones localizadas. | Verificación de caché de Nx y chequeos de esquema de dependencias localizados. |
-| **Límites Hexagonales** | [ADR 0002](../adrs-es/0002-clean-architecture-nestjs.md) | Desacoplamiento, Testabilidad, Agnosticismo | Implementa tres capas estrictas: Core (Entidades), Aplicación (Casos de Uso), Infraestructura (Adaptadores). | `eslint-plugin-boundaries` bloquea importaciones no autorizadas de afuera hacia adentro. |
+| **Orquestáación de Monorepo** | [ADR 0001](../adrs-es/0001-monorepo-orchestration-nx.md) | Modularidad, Rendimiento de Build | Utiliza Nx y workspaces npm para gestionar módulos desacoplados con configuraciones localizadas. | Verificación de caché de Nx y chequeos de esquema de dependencias localizados. |
+| **Límites Hexagonales** | [ADR 0002](../adrs-es/0002-clean-architecture-nestájs.md) | Desacoplamiento, Testáabilidad, Agnosticismo | Implementa tres capas estárictas: Core (Entidades), Aplicación (Casos de Uso), Infraestructura (Adaptadores). | `eslint-plugin-boundaries` bloquea importaciones no autorizadas de afuera hacia adentro. |
 | **Telemetría de Observabilidad** | [ADR 0007](../adrs-es/0007-observability-telemetry-loki-opentelemetry.md) | Observabilidad, Rendimiento, Monitoreo | Stack Grafana LGTM (Loki + Grafana + Tempo) con OpenTelemetry (OTel). | Pruebas de integración de OpenTelemetry y monitoreo de dashboards de Grafana. |
 | **Gobernanza de Dependencias** | [ADR 0009](../adrs-es/0009-strict-dependency-pinning-vulnerability-management.md) | Seguridad, Estabilidad, Determinismo | Aplica tolerancia cero para versiones dinámicas (se eliminan `^`/`~`) para garantizar builds reproducibles. | `npm audit --audit-level=high` se ejecuta en CI para bloquear PRs vulnerables. |
 | **Estrategia de Motores DB** | [ADR 0026](../adrs-es/0026-authoritative-database-engine-strategy.md) | Ecosistema, Rendimiento, Mantenibilidad | SQL Server para .NET; PostgreSQL/Mongo para Node.js. Alineación con estándares de Microsoft. | Pruebas de integración y políticas de aprovisionamiento de infraestructura. |
 | **SaaS Multi-Tenancy** | [ADR 0010](../adrs-es/0010-multi-tenancy-architecture-strategy.md) | Seguridad, Aislamiento de Datos, Eficiencia de Costos | Esquema compartido con RLS (PostgreSQL para Node / SQL Server para .NET) para aplicar aislamiento de tenants. | `AsyncLocalStorage` propaga el Contexto del Tenant; los Interceptores de EF Core validan RLS. |
-| **Tolerancia a Fallos y Resiliencia** | [ADR 0011](../adrs-es/0011-fault-tolerance-resiliency-patterns.md) | Resiliencia, Confiabilidad, Consistencia | Circuit Breaker (`opossum`) + reintentos con Exponential Backoff envueltos estrictamente dentro de los Adaptadores de Infraestructura. | Mocks de Jest simulando fallos HTTP y verificando transiciones de estado del circuito. |
+| **Tolerancia a Fallos y Resiliencia** | [ADR 0011](../adrs-es/0011-fault-tolerance-resiliency-patterns.md) | Resiliencia, Confiabilidad, Consistencia | Circuit Breaker (`opossum`) + reintentos con Exponential Backoff envueltos estárictamente dentro de los Adaptadores de Infraestructura. | Mocks de Jestá simulando fallos HTTP y verificando transiciones de estado del circuito. |
 | **Autorización Granular** | [ADR 0012](../adrs-es/0012-advanced-authorization-rbac-abac.md) | Seguridad, Trazabilidad, SoC | RBAC/ABAC consciente del tenant utilizando decodificadores de claims JWT y Guards de contexto de ejecución de NestJS. | Pruebas de integración simulando intentos de acceso entre tenants. |
-| **Caché Distribuida** | [ADR 0014](../adrs-es/0014-distributed-caching-strategy-redis.md) | Rendimiento, Descarga de Base de Datos | Caché Read-Aside con almacén Redis, completamente oculto tras una abstracción pura de Core `ICachePort`. | Pruebas de integración de Redis y verificación estricta de TTL. |
+| **Caché Distribuida** | [ADR 0014](../adrs-es/0014-distributed-caching-strategy-redis.md) | Rendimiento, Descarga de Base de Datos | Caché Read-Aside con almacén Redis, completamente oculto tras una abstracción pura de Core `ICachePort`. | Pruebas de integración de Redis y verificación estáricta de TTL. |
 | **Desacoplamiento Basado en Eventos** | [ADR 0015](../adrs-es/0015-event-driven-architecture-intra-domain.md) | Desacoplamiento, Escalabilidad, Extensibilidad | Los módulos del monolito se comunican asíncronamente utilizando un bus de eventos interno oculto tras `IEventBusPort`. | Pruebas unitarias verificando rutas de ejecución asíncronas y formatos de payload. |
-| **Auditoría Inmutable** | [ADR 0016](../adrs-es/0016-immutable-business-audit-trail.md) | Trazabilidad, Cumplimiento, Seguridad | Rastrea automáticamente las mutaciones críticas de negocio (Valor Anterior -> Valor Nuevo) utilizando suscriptores de base de datos. | Interceptores de Lifecycle Hook de TypeORM con tablas estrictamente aisladas. |
+| **Auditoría Inmutable** | [ADR 0016](../adrs-es/0016-immutable-business-audit-trail.md) | Trazabilidad, Cumplimiento, Seguridad | Rastrea automáticamente las mutaciones críticas de negocio (Valor Anterior -> Valor Nuevo) utilizando suscriptores de base de datos. | Interceptores de Lifecycle Hook de TypeORM con tablas estárictamente aisladas. |
 | **Integridad de Dominio Táctico** | [ADR 0019](../adrs-es/0019-tactical-design-patterns-future-proofing.md) | Desacoplamiento, Claridad, Preparación para Dapr | Utiliza el Patrón Result, Null Objects y Decoradores para proteger el Core de lanzar errores HTTP o de frameworks externos. | Tipos de retorno obligatorios y reglas personalizadas de ESLint boundaries. |
-| **Abstracción del Proveedor de Identidad** | [ADR 0020](../adrs-es/0020-identity-provider-abstraction-strategy.md) | Desacoplamiento, Neutralidad de Proveedor, Extensibilidad | Abstrae directorios externos (Zitadel, Okta, SAML) vía el Patrón Strategy envuelto bajo un Puerto Hexagonal. | Pruebas unitarias de Jest verificando el enrutamiento agnóstico de credenciales. |
+| **Abstracción del Proveedor de Identidad** | [ADR 0020](../adrs-es/0020-identity-provider-abstraction-strategy.md) | Desacoplamiento, Neutralidad de Proveedor, Extensibilidad | Abstrae directorios externos (Zitadel, Okta, SAML) vía el Patrón Strategy envuelto bajo un Puerto Hexagonal. | Pruebas unitarias de Jestá verificando el enrutamiento agnóstico de credenciales. |
 | **Compilación de Alto Rendimiento** | [ADR 0021](../adrs-es/0021-high-performance-auth-and-graph-compilation.md) | Rendimiento, Latencia Ultra Baja, Escalabilidad | Resuelve grafos de permisos jerárquicos dinámicos en menos de 5ms utilizando caché read-aside de Redis. | Pruebas de carga Locust y trazabilidad de telemetría SRE. |
 | **Autenticación Contextual** | [ADR 0022](../adrs-es/0022-contextual-auth-and-pluggable-projections.md) | Multi-Tenancy, Personalización, Extensibilidad | Soporta resolución de contexto de sedes corporativas localizadas y proyecta grafos compilados en múltiples formatos de salida. | Pruebas de integración verificando estructuras de menú dinámicas específicas por sede. |
-| **Kernel de Autorización Centralizado** | [ADR 0023](../adrs-es/0023-centralized-ums-vs-decentralized-access.md) | Seguridad, SoC, Gobernanza | Establece el UMS como un núcleo de autorización centralizado compartido en todas las aplicaciones empresariales. | Chequeos estrictos de límites de ESLint y auditorías centralizadas del libro de acceso. |
-
----
-
-## 📈 5. Gestión de Deuda Técnica y Hoja de Ruta Arquitectónica (Backlog)
+| **Kernel de Autorización Centralizado** | [ADR 0023](../adrs-es/0023-centralized-ums-vs-decentralized-access.md) | Seguridad, SoC, Gobernanza | Establece el UMS como un núcleo de autorización centralizado compartido en todas las aplicaciones empresariales. | Chequeos estárictos de límites de ESLint y auditorías centralizadas del libro de acceso.
+## 5. Gestión de Deuda Técnica y Hoja de Ruta Arquitectónica (Backlog)
 
 Para garantizar la evolución saludable del monorepo hacia modelos distribuidos y telemetría de producción, se establecen los siguientes elementos en el backlog de arquitectura:
 
 *   **[ADR 0006: Transición Futura a Microservicios con Dapr](../adrs-es/0006-future-microservices-transition-dapr.md)**: Establece los criterios técnicos y disparadores que determinarán cuándo dividir el monolito modular en microservicios independientes gobernados por sidecars de Dapr.
-*   **[ADR 0008: Evolución Progresiva Multi-Módulo con API Gateway y BFF](../adrs-es/0008-progressive-multimodule-evolution-gateway-bff.md)**: Establece el diseño progresivo para transformar esta solución de referencia 100% Node.js en un portal multi-módulo capaz de integrar sistemas independientes (TMS, WMS, etc.) expuestos como servicios con bases de datos aisladas, consumidos a través de un API Gateway central y optimizados mediante gateways Backend For Frontend (BFF) para clientes Web y Móviles.
-*   **[ADR 0009: Pinning Estricto de Dependencias y Gestión Automatizada de Vulnerabilidades](../adrs-es/0009-strict-dependency-pinning-vulnerability-management.md)**: Establece la estrategia de tolerancia cero para versiones dinámicas de dependencias, aplicando versiones estáticas en todo el monorepo, con actualizaciones automáticas de bots de dependencias y chequeos de vulnerabilidad CI altos/críticos.
+*   **[ADR 0008: Evolución Progresiva Multi-Módulo con API Gateway y BFF](../adrs-es/0008-progressive-multimodule-evolution-gateway-bff.md)**: Establece el diseño progresivo para transformar está solución de referencia 100% Node.js en un portal multi-módulo capaz de integrar sistemas independientes (TMS, WMS, etc.) expuestáos como servicios con bases de datos aisladas, consumidos a través de un API Gateway central y optimizados mediante gateways Backend For Frontend (BFF) para clientes Web y Móviles.
+*   **[ADR 0009: Pinning Estricto de Dependencias y Gestión Automatizada de Vulnerabilidades](../adrs-es/0009-strict-dependency-pinning-vulnerability-management.md)**: Establece la estrategia de tolerancia cero para versiones dinámicas de dependencias, aplicando versiones estááticas en todo el monorepo, con actualizaciones automáticas de bots de dependencias y chequeos de vulnerabilidad CI altos/críticos.
 *   **[ADR 0010: Estrategia de Arquitectura Multi-Tenancy para la Evolución SaaS](../adrs-es/0010-multi-tenancy-architecture-strategy.md)**: Establece la estrategia híbrida de multi-tenancy agrupada utilizando un esquema compartido de PostgreSQL junto con Seguridad a Nivel de Fila (RLS) para aplicar el aislamiento absoluto de datos a nivel de motor para una escalabilidad SaaS rentable.
 *   **[ADR 0013: Topología de Infraestructura Cloud y DR](../adrs-es/0013-cloud-infrastructure-topology-dr.md)**: Establece topologías de alta disponibilidad y recuperación ante desastres en múltiples zonas de disponibilidad.
 *   **[ADR 0024: Plataforma de Gestión de Configuración y Features](../adrs-es/0024-configuration-feature-management-platform.md)**: Extiende UMS para manejar configuración dinámica del sistema y configuraciones multi-IdP.
@@ -250,7 +236,7 @@ Para garantizar la evolución saludable del monorepo hacia modelos distribuidos 
 
 ---
 
-## 🛡️ 6. Evaluación de Riesgo Financiero y Operativo
+## 6. Evaluación de Riesgo Financiero y Operativo
 
 Una evaluación exhaustiva de las decisiones **"Build vs. Buy"**, implicaciones de licenciamiento y costos operativos asociados con el stack tecnológico soberano.
 
@@ -258,7 +244,7 @@ Una evaluación exhaustiva de las decisiones **"Build vs. Buy"**, implicaciones 
 
 ---
 
-## 🏛️ 7. Arquitectura del Motor de Autorización Centralizado (PEP/PDP/PAP/PIP)
+## 7. Arquitectura del Motor de Autorización Centralizado (PEP/PDP/PAP/PIP)
 
 Para soportar un control de acceso seguro, consciente del contexto y altamente escalable en todas las aplicaciones corporativas, el sistema adopta un **Sistema de Gestión de Usuarios (UMS)** centralizado que sirve como un "kernel de autorización" compartido. Esta arquitectura desacopla la validación de identidad de la resolución de permisos dinámicos implementando las capas del **Modelo de Referencia Arquitectónica XACML**:
 
@@ -271,7 +257,7 @@ Al utilizar el **Patrón Strategy** para proyecciones de salida dinámicas, el U
 
 ---
 
-## 🗄️ 8. Estrategia de Base de Datos y Aislamiento Multitenant (RLS)
+## 8. Estrategia de Base de Datos y Aislamiento Multitenant (RLS)
 
 El sistema utiliza un modelo de **Base de Datos Compartida** con aislamiento lógico reforzado mediante **Row-Level Security (RLS)** de PostgreSQL. Esto garantiza que ningún inquilino (tenant) pueda acceder a datos de otro, incluso si existe un error en la capa de aplicación.
 
@@ -292,9 +278,9 @@ sequenceDiagram
 
 ---
 
-## 📊 9. Estrategia de Observabilidad y Telemetría Distribuida
+## 9. Estrategia de Observabilidad y Telemetría Distribuida
 
-Adherencia estricta al estándar **OpenTelemetry** para garantizar la soberanía de los datos de monitoreo y evitar el bloqueo de proveedores (Cloud-Agnostic).
+Adherencia estáricta al estándar **OpenTelemetry** para garantizar la soberanía de los datos de monitoreo y evitar el bloqueo de proveedores (Cloud-Agnostic).
 
 ```mermaid
 graph LR
@@ -316,7 +302,7 @@ graph LR
 
 ---
 
-## 🔭 Estrategia de Doble Registro: Observabilidad vs. Audit Context
+## Estrategia de Doble Registro: Observabilidad vs. Audit Context
 
 El diseño de observabilidad de UMS distingue dos capas de registro complementarias pero no intercambiables:
 
@@ -325,11 +311,9 @@ El diseño de observabilidad de UMS distingue dos capas de registro complementar
 | **Propósito** | Diagnósticos SRE, latencia, tasas de error | Cumplimiento normativo, forense, responsabilidad de acceso |
 | **Consumidor principal** | Grafana / Jaeger / Prometheus | Herramientas internas de compliance, auditores de seguridad |
 | **Mutabilidad** | Rotado / podado por política TTL | Inmutable — solo de adición, nunca se elimina |
-| **Granularidad de eventos** | Cada request HTTP, llamada gRPC, consulta a BD | Solo eventos de negocio (login, cambio de permiso, expiración de documento) |
+| **Granularidad de eventos** | Cada requestá HTTP, llamada gRPC, consulta a BD | Solo eventos de negocio (login, cambio de permiso, expiración de documento) |
 | **Esquema** | OTLP (spans, métricas, logs) | `AuditRecord { who, when, what, result, tenantId }` |
-| **Transporte** | OpenTelemetry SDK → Jaeger/Loki | Bus de eventos de dominio (`IEventBusPort`) → suscriptor de Auditoría |
-
-### Regla de Instrumentación
+| **Transporte** | OpenTelemetry SDK → Jaeger/Loki | Bus de eventos de dominio (`IEventBusPort`) → suscriptor de Auditoría | ### Regla de Instrumentación
 
 Toda operación de negocio crítica DEBE emitir AMBAS señales dentro del mismo límite de transacción:
 
@@ -347,15 +331,13 @@ Toda operación de negocio crítica DEBE emitir AMBAS señales dentro del mismo 
 | `DocumentExpiredEvent` | `ComplianceEnforcementRecord` | `compliance.document.expire` |
 | `IdpConfigUpdatedEvent` | `ConfigChangeRecord` | `config.idp.update` |
 | `FeatureFlagStateChangedEvent` | `ConfigChangeRecord` | `config.flag.change` |
-| `AccessAttemptEvent` (auth gateway) | `AccessAttemptLog` | `auth.attempt` |
-
-### Ruta de Escalación de Alertas SRE
+| `AccessAttemptEvent` (auth gateway) | `AccessAttemptLog` | `auth.attempt` | ### Ruta de Escalación de Alertas SRE
 
 Una tasa de error sostenida en spans `authz.permission.mutate` (>2% durante 5 min) dispara una alerta de Grafana → el SRE valida mediante el libro del Audit Context si los errores se correlacionan con una migración de permisos legítima o con un patrón anómalo.
 
 ---
 
-## 🔄 10. Modelo de Comunicación Asíncrona y Eventos
+## 10. Modelo de Comunicación Asíncrona y Eventos
 
 Diferenciación clara entre **Eventos de Dominio** (dentro del mismo contexto acotado) y **Eventos de Integración** (entre diferentes contextos o sistemas externos) para mantener la autonomía de los módulos.
 
@@ -381,7 +363,7 @@ graph TD
 
 ---
 
-## ☁️ 11. Infraestructura de Despliegue y Topología Cloud
+## 11. Infraestructura de Despliegue y Topología Cloud
 
 Diseño optimizado para **Kubernetes** con capacidad de despliegue en nubes públicas o entornos on-premise privados.
 
@@ -413,19 +395,19 @@ graph TD
 
 ---
 
-## 🧪 12. Estrategia de Calidad y Pruebas de Contrato
+## 12. Estrategia de Calidad y Pruebas de Contrato
 
 Para garantizar que los cambios en un contexto no rompan a sus consumidores, se implementan pruebas de contrato automatizadas.
 
 - **Pruebas de Unidad**: Lógica pura en `Ums.Domain`.
-- **Pruebas de Integración**: Uso de **Testcontainers** para validar el comportamiento real con SQL Server y Redis.
+- **Pruebas de Integración**: Uso de **Testácontainers** para validar el comportamiento real con SQL Server y Redis.
 - **Pruebas de Contrato**: Validación de esquemas OpenAPI y eventos asíncronos.
 
 ---
 
-## 🗄️ 13. Modelado de Datos y Persistencia (E/R)
+## 13. Modelado de Datos y Persistencia (E/R)
 
-La arquitectura del sistema utiliza una estrategia de base de datos compartida con multi-tenancy de alta densidad. El aislamiento de datos se aplica estrictamente a nivel de motor utilizando SQL Server 2022 **SESSION_CONTEXT** y **Políticas de Seguridad (iTVF)**. El modelo está particionado lógicamente en seis Contextos Delimitados (Agregados) para mantener la modularidad y una resolución de alto rendimiento.
+La arquitectura del sistema utiliza una estrategia de base de datos compartida con multi-tenancy de alta densidad. El aislamiento de datos se aplica estárictamente a nivel de motor utilizando SQL Server 2022 **SESSION_CONTEXT** y **Políticas de Seguridad (iTVF)**. El modelo estáá particionado lógicamente en seis Contextos Delimitados (Agregados) para mantener la modularidad y una resolución de alto rendimiento.
 
 ```mermaid
 erDiagram
@@ -447,7 +429,7 @@ erDiagram
     %% Aggregate: Compliance & Documents
     USER_ACCOUNT ||--o{ USER_DOCUMENT : "contiene"
     DOCUMENT_TYPE ||--o{ USER_DOCUMENT : "clasifica"
-    DOCUMENT_TYPE ||--o{ ACCESS_ENFORCEMENT_POLICY : "restringe"
+    DOCUMENT_TYPE ||--o{ ACCESS_ENFORCEMENT_POLICY : "restáringe"
     
     %% Aggregate: Approvals
     APPROVAL_WORKFLOW ||--o{ APPROVAL_REQUEST : "dispara"
@@ -488,16 +470,14 @@ erDiagram
 | **IGA** | PROMOTION, DELEGATION, CRITERIA | Evolución basada en méritos y delegación. | Motor de criterios impulsado por flags. |
 | **Compliance** | DOCUMENT, DOC_TYPE, NOTIF_RULE | Validez de documentos y bloqueo de acceso. | Aplicación de acceso basada en expiración. |
 | **Approvals** | WORKFLOW, REQUEST, LOG | Aprobaciones multi-paso basadas en evidencia. | Auditoría inmutable con esquema de 10 columnas. |
-| **Configuration**| APP_CONFIGURATION | Parámetros jerárquicos multi-nivel. | Resolución de "el alcance más cercano gana". |
-
-Para consultar el DDL, DBML y las restricciones técnicas completas, consulte la **Fuente de Verdad**:
-👉 **[Modelo E/R Detallado y Formatos de Exportación (er-export-formats.md)](./er-export-formats.md)**
+| **Configuration**| APP_CONFIGURATION | Parámetros jerárquicos multi-nivel. | Resolución de "el alcance más cercano gana". | Para consultar el DDL, DBML y las restricciónes técnicas completas, consulte la **Fuente de Verdad**:
+ **[Modelo E/R Detallado y Formatos de Exportación (er-export-formats.md)](./er-export-formats.md)**
 
 ---
 
-## 🏗️ 14. Framework de Autorización de Plantilla Maestra
+## 14. Framework de Autorización de Plantilla Maestára
 
-El UMS implementa un framework de autorización **Impulsado por Plantillas Maestras**, donde toda la autoridad efectiva debe originarse en un catálogo central controlado.
+El UMS implementa un framework de autorización **Impulsado por Plantillas Maestáras**, donde toda la autoridad efectiva debe originarse en un catálogo central controlado.
 
 ### 14.1 Materialización Impulsada por Plantillas
 *   **Maestro Inmutable**: `PermissionTemplate` es la única fuente para las definiciones de permisos. No se permiten permisos ad-hoc.
@@ -509,7 +489,7 @@ El framework admite una matriz de acciones empresarial estándar que incluye:
 *   `view`, `create`, `edit`, `delete`, `approve`, `export`, `import`, `print`, `copy`, `download`, `execute`, `manage`, `assign`, `audit`.
 
 ### 14.3 Gobernanza y Trazabilidad
-*   **Denegación Explícita**: Admite anulaciones a nivel de perfil sin mutar la plantilla maestra.
+*   **Denegación Explícita**: Admite anulaciones a nivel de perfil sin mutar la plantilla maestára.
 *   **Cumplimiento de Auditoría**: Cada materialización y anulación se captura con campos de auditoría corporativa completos e IDs de correlación.
 
 

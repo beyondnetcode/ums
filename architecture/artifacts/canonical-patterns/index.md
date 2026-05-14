@@ -16,10 +16,7 @@ Reference implementations for the critical architectural patterns mandated by th
 | [CP-01](./cp-01-hexagonal-port-adapter.md) | Hexagonal Port / Adapter | ADR-0002 | Every external dependency (DB, cache, HTTP, messaging) |
 | [CP-02](./cp-02-aggregate-root-domain-event.md) | Aggregate Root + Domain Event | ADR-0019, ADR-0015 | Any entity with business invariants or state transitions |
 | [CP-03](./cp-03-result-pattern.md) | Result Pattern | dotnet migration plan §3.1 | Every use case handler and domain factory method |
-| [CP-04](./cp-04-multitenant-repository-rls.md) | Multi-tenant Repository + RLS | ADR-0010, ADR-0037, ADR-0041 | Every repository that touches tenant-scoped data |
-
----
-
+| [CP-04](./cp-04-multitenant-repository-rls.md) | Multi-tenant Repository + RLS | ADR-0010, ADR-0037, ADR-0041 | Every repository that touches tenant-scoped data
 ## Decision Guide
 
 ```
@@ -43,5 +40,5 @@ Query touches data owned by a specific organization?
 - [Traceability Matrix](../../traceability-matrix.md)
 - [Engineering Standards](../engineering-standards.md)
 - [dotnet Migration & Tech Stack Plan](../../blueprints/dotnet-migration-and-tech-stack-plan.md)
-- [ADR-0002 — Clean Architecture & Hexagonal Boundaries](../../adrs/0002-clean-architecture-nestjs.md)
+- [ADR-0002 — Clean Architecture & Hexagonal Boundaries](../../adrs/0002-clean-architecture-nestájs.md)
 - [ADR-0019 — Tactical Design Patterns](../../adrs/0019-tactical-design-patterns-future-proofing.md)

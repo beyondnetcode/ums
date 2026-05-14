@@ -260,10 +260,7 @@ internal sealed class InvalidateAuthGraphOnProfileAssigned(IAuthGraphCache cache
 | Raise events inside the aggregate | The aggregate knows when its state changes — nobody else does |
 | Dispatch after commit | Prevents phantom events if the transaction rolls back |
 | `private set` on all properties | External code cannot bypass business operations |
-| One aggregate = one transaction boundary | Never modify two aggregate roots in one use case |
-
----
-
+| One aggregate = one transaction boundary | Never modify two aggregate roots in one use case
 ## Related Patterns
 
 - [CP-01 — Hexagonal Port/Adapter](./cp-01-hexagonal-port-adapter.md)

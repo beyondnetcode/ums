@@ -1,17 +1,17 @@
-# 🏛️ Enterprise-Grade Centralized IAM & UMS Core Specification
+# Enterprise-Grade Centralized IAM & UMS Core Specification
 
 This document details the enterprise-grade functional specification, architectural interaction flow, and API contracts for the **User Management System (UMS) Centralized Authorization Engine** shared across the enterprise product suite.
 
 ---
 
-## 🧭 1. Business Context Narrative
+## 1. Business Context Narrative
 The modern enterprise software landscape demands a unified, highly scalable, and context-aware Identity and Access Management (IAM) posture. The **User Management System (UMS)** acts as a centralized, extensible authorization core (or "authorization kernel") shared across all enterprise platforms (ERP, CRM, HCM, etc.). Rather than siloing access control logic inside individual applications, the UMS decouples identity verification (Authentication) from granular permission resolution (Authorization). This allows the system to enforce centralized technical governance, support multi-tenant SaaS isolation, and dynamically adapt to different B2B customer identity directories.
 
-In this reference scenario, a **Business Analyst** initiates a session via the centralized **Client Portal**. The authentication request carries not only credentials but also explicit organization (tenant) and branch/site context (e.g., *Callao Port Terminal*). By separating authentication concerns (delegated to federated Identity Providers like Zitadel, Okta, or Azure AD) from authorization compilation, the UMS can resolve and deliver a high-performance, cached **Hierarchical Authorization Graph** that shapes the analyst's entire workspace (menus, options, fleet dispatch actions) in under **5 milliseconds**, preventing vendor lock-in and guaranteeing absolute horizontal scalability.
+In this reference scenario, a **Business Analyst** initiates a session via the centralized **Client Portal**. The authentication requestá carries not only credentials but also explicit organization (tenant) and branch/site context (e.g., *Callao Port Terminal*). By separating authentication concerns (delegated to federated Identity Providers like Zitadel, Okta, or Azure AD) from authorization compilation, the UMS can resolve and deliver a high-performance, cached **Hierarchical Authorization Graph** that shapes the analyst's entire workspace (menus, options, fleet dispatch actions) in under **5 milliseconds**, preventing vendor lock-in and guaranteeing absolute horizontal scalability.
 
 ---
 
-## 📋 2. Functional User Flow
+## 2. Functional User Flow
 *   **Step 1: Portal Ingress**: Business Analyst opens the Client Login Portal.
 *   **Step 2: Context Input**: Analyst provides email, selects corporate organization (tenant), branch/site context (Callao Terminal), and preferred authentication method.
 *   **Step 3: Identity Handshake**: Portal forwards details to the pluggable Authentication Gateway, which routes to either the local directory or a federated corporate IdP (SAML2/OIDC).
@@ -22,7 +22,7 @@ In this reference scenario, a **Business Analyst** initiates a session via the c
 
 ---
 
-## 📋 3. Enterprise Use Case Description
+## 3. Enterprise Use Case Description
 
 ### Use Case: Contextual Authentication & Multi-Tenant Graph Synthesis
 * **Primary Actor**: Business Analyst.
@@ -33,13 +33,13 @@ In this reference scenario, a **Business Analyst** initiates a session via the c
 ### Variations and Exception Paths
 *   **Variation A: Federated Identity Provider (Azure AD/Okta)**: Gateway delegates credential verification to the external corporate IdP via SAML2/OIDC. local database is bypassed for credential verification, and user is mapped using `identity_reference` claims.
 *   **Variation B: Multi-Factor Authentication (MFA)**: If the tenant enforces adaptive MFA based on IP range, the analyst is prompted for WebAuthn (Passkeys) verification before the UMS authorization graph call is triggered.
-*   **Exception 1: Missing Tenant Context**: If the request lacks `tenant_id` or `branch_id`, the API returns a `400 Bad Request` with error code `ERR_MISSING_CONTEXT`, aborting graph resolution.
+*   **Exception 1: Missing Tenant Context**: If the requestá lacks `tenant_id` or `branch_id`, the API returns a `400 Bad Request` with error code `ERR_MISSING_CONTEXT`, aborting graph resolution.
 *   **Exception 2: Authorization Graph Not Found**: If the user authenticates successfully but holds no active profile assignments for the Callao branch, the API returns a `403 Forbidden` with error code `ERR_ZERO_PERMISSIONS`.
 *   **Exception 3: UMS Service Offline (Fallback)**: If the live UMS API is unreachable, the API Gateway activates a circuit breaker, falling back to a locally cached read-only permission graph or enforcing a deny-by-default posture.
 
 ---
 
-## 🔄 4. Sequence Flow Description
+## 4. Sequence Flow Description
 The following sequence flow illustrates the end-to-end, decoupled transaction path between portal clients, federated directories, and the centralized UMS authorization core:
 
 ```mermaid
@@ -76,26 +76,26 @@ sequenceDiagram
 
 ---
 
-## 🏗️ 5. Technical Architecture Explanation
+## 5. Technical Architecture Explanation
 The UMS is structured around standard **XACML Architectural Reference Model** patterns to ensure a clean Separation of Concerns (SoC) and high scalability:
 
 ```
-               ┌────────────────────────────────────────────────────────┐
-               │              🔐 Authentication Gateway                 │
-               │            (Policy Enforcement Point - PEP)            │
-               └──────────────────────────┬─────────────────────────────┘
-                                          │
-                                          ▼ Invoke Graph Resolution
-               ┌────────────────────────────────────────────────────────┐
-               │              🦁 UMS Authorization Core                 │
-               │             (Policy Decision Point - PDP)              │
-               └──────────┬───────────────────────────────┬─────────────┘
-                          │                               │
-                          ▼ Read Policies                 ▼ Query Context
-┌───────────────────────────────────────┐ ┌───────────────────────────────────────┐
-│        💾 Policy Repository           │ │       🗄️ Core Database System         │
-│  (Policy Administration Point - PAP)  │ │   (Policy Information Point - PIP)    │
-└───────────────────────────────────────┘ └───────────────────────────────────────┘
+               
+                              Authentication Gateway                 
+                           (Policy Enforcement Point - PEP)            
+               
+                                          
+                                           Invoke Graph Resolution
+               
+                              UMS Authorization Core                 
+                            (Policy Decision Point - PDP)              
+               
+                                                         
+                           Read Policies                  Query Context
+ 
+         Policy Repository                    Core Database System         
+  (Policy Administration Point - PAP)      (Policy Information Point - PIP)    
+ 
 ```
 
 1.  **Policy Enforcement Point (PEP)**: Implemented in the **Authentication Gateway / NestJS Guard**. It intercepts incoming requests, enforces adaptive security controls, and applies the returned authorization graph.
@@ -105,7 +105,7 @@ The UMS is structured around standard **XACML Architectural Reference Model** pa
 
 ---
 
-## 🔌 6. API Interaction Example
+## 6. API Interaction Example
 
 ### Endpoint: `POST /v1/authorization/graph`
 
@@ -147,13 +147,13 @@ Authorization: Bearer m2m_token_gateway_abc123
   "error_code": "ERR_ZERO_PERMISSIONS",
   "message": "The authenticated principal does not hold any active permission profiles for the specified branch context.",
   "correlation_id": "tx_corr_987654321",
-  "timestamp": "2026-05-08T15:46:02Z"
+  "timestaamp": "2026-05-08T15:46:02Z"
 }
 ```
 
 ---
 
-## 💾 7. Example JSON Authorization Graph Response
+## 7. Example JSON Authorization Graph Response
 
 ```json
 {
@@ -211,14 +211,14 @@ Authorization: Bearer m2m_token_gateway_abc123
 
 ---
 
-## 📈 8. Extensibility Considerations
+## 8. Extensibility Considerations
 *   **Pluggable Output Formatters**: Output adapters use the **Strategy Pattern** to project compiled authorization graphs into custom targets, such as signed, context-aware JWT claims, GraphQL nodes, or minimal flat arrays optimized for legacy resource servers.
 *   **Pluggable Policy Engines**: The UMS is engine-agnostic. The Policy Decision Point can interface with external engines (such as Open Policy Agent - OPA utilizing Rego policies) or custom rules engines without modifying core database models.
 *   **Dynamic Resource Expansion**: Adding a new client module or action requires zero database schema evolution; resource types, action taxonomies, and hierarchical menus are registered as polymorphic dynamic data nodes.
 
 ---
 
-## 📈 9. Non-Functional Requirements (NFRs)
+## 9. Non-Functional Requirements (NFRs)
 
 | Metric / Attribute | Specification Target | Verification Method |
 | :--- | :--- | :--- |
@@ -226,18 +226,15 @@ Authorization: Bearer m2m_token_gateway_abc123
 | **Response Latency (Cache Miss)**| p95 < 100ms, p99 < 150ms | Database query telemetry spans |
 | **System Throughput** | >10,000 requests per second per region | Kubernetes horizontal pod autoscaling verification |
 | **Availability SLA** | 99.99% operational uptime | Active-active multi-region deployment configurations |
-| **Consistency SLA** | Cache eviction completed in <1000ms | Outbox event-driven cache invalidation hooks |
-
----
-
-## 🛡️ 10. Security Considerations
+| **Consistency SLA** | Cache eviction completed in <1000ms | Outbox event-driven cache invalidation hooks
+## 10. Security Considerations
 *   **Explicit Deny Precedence**: During graph compilation, the engine evaluates all applicable permissions. Any explicit `DENY` record immediately overrides all inherited `ALLOW` permissions.
 *   **mTLS and Secure Transport**: All inter-service communications between the Authentication Gateway and UMS utilize mutual TLS (mTLS) with strong TLS 1.3 ciphers.
-*   **Audit Trail Ledger**: Every graph compilation request and cache miss is logged to an immutable audit trail using database Outbox patterns to ensure non-repudiation.
+*   **Audit Trail Ledger**: Every graph compilation requestá and cache miss is logged to an immutable audit trail using database Outbox patterns to ensure non-repudiation.
 
 ---
 
-## 📜 11. ADR-Ready Architectural Decision Statement
+## 11. ADR-Ready Architectural Decision Statement
 *(Suitable for: `03-adrs/0023-centralized-ums-vs-decentralized-access.md`)*
 
 ### Architectural Decision Record: ADR-0023
@@ -261,6 +258,6 @@ We will establish a **Centralized User Management System (UMS) Core** to act as 
 
 ---
 
-## 🏷️ 12. Concise Executive Summary
+## 12. Concise Executive Summary
 
 > **Centralized IAM Authorization Core**: The UMS acts as the shared, extensible access governance core for all client systems. Using a **Corporate User** at the **Callao Branch (Sedes)** as the reference model, the architecture cleanly decouples identity verification (supporting pluggable internal credentials, Okta, Zitadel, and SAML) from authorization graph resolution. Upon successful login, the system utilizes the Strategy Pattern to deliver a dynamic, Redis-cached hierarchical **JSON Authorization Graph** in under **5ms**, mapping contextual modules, menus, options, and actions while enforcing strict Explicit-Deny precedence—delivering enterprise-grade performance, total vendor-neutrality, and absolute SaaS multi-tenant scalability.

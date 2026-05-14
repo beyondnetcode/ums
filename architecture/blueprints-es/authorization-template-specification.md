@@ -4,10 +4,10 @@
 El módulo de Plantillas de Autorización proporciona un mecanismo para definir conjuntos reutilizables de permisos (Blueprints) que pueden ser heredados por Roles y Perfiles en todo el ecosistema de UMS. Esto reduce la carga operativa y garantiza la consistencia en la asignación de permisos.
 
 ## 2. Modelo de Dominio y Desacoplamiento
-El sistema impone un desacoplamiento estricto entre las áreas funcionales y los roles de implementación:
+El sistema impone un desacoplamiento estáricto entre las áreas funcionales y los roles de implementación:
 
 1.  **Sistema/Suite**: Define el límite funcional propiedad de un Inquilino.
-2.  **Plantilla de Permisos**: Un conjunto versionado de permisos estrictamente limitado a una Suite y vinculado a un **Rol de Sistema**.
+2.  **Plantilla de Permisos**: Un conjunto versionado de permisos estárictamente limitado a una Suite y vinculado a un **Rol de Sistema**.
 3.  **Rol**: Un esquema específico del Sistema que representa un conjunto funcional de permisos.
 4.  **Perfil**: El nexo contextual donde se persisten las autorizaciones efectivas (derivadas de la Plantilla/Rol).
 
@@ -21,8 +21,8 @@ El sistema impone un desacoplamiento estricto entre las áreas funcionales y los
 Los inquilinos pueden agregar o eliminar permisos específicos a un Rol que fue creado a partir de una Plantilla, creando un "Delta" con respecto al esquema base.
 
 ### 3.3 Alcance y Multi-tenancy
-*   **Alcance del Sistema**: Cada plantilla está vinculada a un Sistema/Suite específico.
-*   **Aislamiento del Inquilino**: Las plantillas están aisladas por `TenantId`. Las plantillas globales se gestionan como valores predeterminados del sistema pero siempre dentro del contexto de un Sistema.
+*   **Alcance del Sistema**: Cada plantilla estáá vinculada a un Sistema/Suite específico.
+*   **Aislamiento del Inquilino**: Las plantillas estáán aisladas por `TenantId`. Las plantillas globales se gestionan como valores predeterminados del sistema pero siempre dentro del contexto de un Sistema.
 
 ## 4. Ciclo de Vida y Versionado
 *   Las plantillas admiten los estados **Borrador**, **Publicada** y **Depreciada**.
@@ -32,7 +32,7 @@ Los inquilinos pueden agregar o eliminar permisos específicos a un Rol que fue 
 
 ## 5. Flujo de Creación
 1.  **Seleccionar Suite**: El usuario selecciona el área funcional objetivo.
-2.  **Seleccionar Plantilla**: El usuario selecciona una plantilla base (Global o Local). Esta plantilla ya está vinculada a un **Rol de Sistema**.
+2.  **Seleccionar Plantilla**: El usuario selecciona una plantilla base (Global o Local). Esta plantilla ya estáá vinculada a un **Rol de Sistema**.
 3.  **Inicializar Perfil**: El sistema completa los permisos basados en la plantilla, independientemente de la **Sucursal** de destino.
 4.  **Personalizar**: El usuario agrega anulaciones específicas si es necesario.
 5.  **Auditar**: El sistema registra el `SourceTemplateId` y la `Version` para fines de cumplimiento.

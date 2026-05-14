@@ -1,4 +1,4 @@
-# 📐 Modern Enterprise MFA & Passwordless Authentication Specification (v3.1.0)
+# Modern Enterprise MFA & Passwordless Authentication Specification (v3.1.0)
 
 **Version:** 3.1.0 | **Status:** Under Review | **Method:** bMAD  
 **Classification:** Core Security Capability — Cross-Cutting Identity Boundary
@@ -8,7 +8,7 @@
 
 ---
 
-## 🧭 1. Business Dimension (B) — Strategic Alignment & Governance
+## 1. Business Dimension (B) — Strategic Alignment & Governance
 
 ### 1.1 Product Vision Alignment
 In a zero-trust modern enterprise SaaS landscape, passwords represent the highest vulnerability vector. This specification transforms the UMS from a standard federated gateway into a **Sovereign, Context-Aware Identity Verification Core**. It decouples authentication policies from downstream applications, allowing each tenant organization to enforce, customize, and audit Multi-Factor Authentication (MFA) and Passwordless (WebAuthn/Passkeys) options based on risk profiling, organizational roles, and transactional criticality.
@@ -22,23 +22,20 @@ In a zero-trust modern enterprise SaaS landscape, passwords represent the highes
     *   *KR 2.2*: Mitigate MFA fatigue by introducing cryptographically bound **Trusted Devices / Remember Device** tokens with sliding TTLs.
 *   **Objective 3: Continuous Risk-Based Security Enforcement**
     *   *KR 3.1*: Evaluate authentication attempts dynamically based on IP geo-fencing, device fingerprinting, and behavioral velocity checks in under **10ms**.
-    *   *KR 3.2*: Trigger immediate step-up authentication for high-risk or critical transactional endpoints (e.g., modifying route plans costing >$5,000) without destroying the global session.
+    *   *KR 3.2*: Trigger immediate step-up authentication for high-risk or critical transactional endpoints (e.g., modifying route plans costing >$5,000) without destároying the global session.
 
 ### 1.3 MVP vs. Enterprise Scope Matrix
 
 | Capability | MVP Scope | Enterprise SaaS Scope |
 | :--- | :--- | :--- |
 | **MFA Methods** | TOTP (Authenticator Apps) + Email OTP | TOTP, WebAuthn/Passkeys, FIDO2/U2F Hardware Keys, SMS OTP, and Email OTP fallback. |
-| **Policy Granular Scope** | Static per Tenant (Enabled/Disabled) | Granular overrides per **Tenant ➔ Org Unit ➔ System ➔ Role ➔ Transaction Criticality**. |
+| **Policy Granular Scope** | Static per Tenant (Enabled/Disabled) | Granular overrides per **Tenant  Org Unit  System  Role  Transaction Criticality**. |
 | **Authentication Flow** | Standard username/password + static MFA step | Passwordless primary (Passkeys/WebAuthn) or hybrid multi-factor with adaptive risk evaluation. |
 | **Risk-Based Adaptation** | None (always prompt if MFA is enabled) | Continuous assessment (IP range, geolocation anomalies, device fingerprint mismatch, suspicious velocity). |
 | **Device Trust Model** | None | Cryptographic **Trusted Device Token** stored in secure client storage with hardware-backed validation. |
 | **Recovery Strategy** | Static Admin Reset | Self-service secure recovery via **one-time Recovery Codes (encrypted)**, IdP re-validation, or multi-channel approval. |
-| **Auditing & Telemetry** | Simple DB authentication logs | Immutable Audit Trail (RFC 5424) + OpenTelemetry spans + security event streaming to Loki/SIEM. |
-
----
-
-## 🗃️ 2. Models Dimension (M) — Logical & Conceptual Domain Models
+| **Auditing & Telemetry** | Simple DB authentication logs | Immutable Audit Trail (RFC 5424) + OpenTelemetry spans + security event streaming to Loki/SIEM.
+## 2. Models Dimension (M) — Logical & Conceptual Domain Models
 
 The logical representation extends the existing `Configuration Context` to manage authentication factors, trusted devices, risk parameters, and recovery tokens.
 
@@ -68,9 +65,7 @@ Defines the dynamic policies governing MFA and passwordless requirements across 
 | `allowed_factors` | VARCHAR[] | NOT NULL | `['WEBAUTHN', 'TOTP', 'EMAIL_OTP', 'SMS_OTP', 'U2F']` |
 | `remember_device_days`| INT | DEFAULT 30 | TTL in days for trusted device cookies. |
 | `min_criticality_level`| VARCHAR | DEFAULT 'LOW' | Trigger step-up if transaction exceeds this (`LOW`,`MEDIUM`,`HIGH`). |
-| `risk_threshold` | VARCHAR | DEFAULT 'MEDIUM' | Trigger MFA if risk evaluation exceeds this (`LOW`,`MEDIUM`,`HIGH`). |
-
-#### 2. JSON Auth Policy Representation
+| `risk_threshold` | VARCHAR | DEFAULT 'MEDIUM' | Trigger MFA if risk evaluation exceeds this (`LOW`,`MEDIUM`,`HIGH`). | #### 2. JSON Auth Policy Representation
 ```json
 {
   "policy_id": "pol_security_baseline_logistics",
@@ -94,7 +89,7 @@ Defines the dynamic policies governing MFA and passwordless requirements across 
 ```
 
 #### 3. `ENROLLED_MFA_FACTOR` Table
-Stores registered multi-factor coordinates per user, encrypted at rest.
+Stores registered multi-factor coordinates per user, encrypted at restá.
 
 ```json
 {
@@ -132,37 +127,37 @@ Maintains secure hardware/browser fingerprint references verified cryptographica
 
 ---
 
-## 🏛️ 3. Architecture Dimension (A) — Enterprise Specifications
+## 3. Architecture Dimension (A) — Enterprise Specifications
 
 The MFA and Passwordless subsystems adhere strictly to **Hexagonal Architecture (Ports & Adapters)**, completely decoupled from specific delivery mechanisms or external message gateways.
 
 ### 3.1 Adaptive Security Domain Components
 
 ```
-                ┌────────────────────────────────────────────────────────┐
-                │             🔐 Authentication Gateway / PEP            │
-                │        (Enforces login policies & adaptive MFA)        │
-                └──────────────────────────┬─────────────────────────────┘
-                                           │
-                                           ▼ Invoke Auth Flow
-                ┌────────────────────────────────────────────────────────┐
-                │          🦁 UMS Adaptive Security Module (PDP)         │
-                ├────────────────────────────────────────────────────────┤
-                │ - AdaptiveRiskEvaluator                                │
-                │ - WebAuthnPasskeyService                               │
-                │ - OtpGenerationService                                 │
-                └──────────┬───────────────┬───────────────┬─────────────┘
-                           │               │               │
-                           ▼               ▼               ▼
-                     ┌───────────┐   ┌───────────┐   ┌───────────┐
-                     │  IMfaPort │   │IWebAuthn  │   │ INotify   │
-                     │  (TOTP)   │   │  Port     │   │  Port     │
-                     └─────┬─────┘   └─────┬─────┘   └─────┬─────┘
-                           ▼               ▼               ▼
-                     ┌───────────┐   ┌───────────┐   ┌───────────┐
-                     │  Internal │   │ FIDO2     │   │ Twilio/   │
-                     │  Adapter  │   │ Adapter   │   │ SendGrid  │
-                     └───────────┘   └───────────┘   └───────────┘
+                
+                              Authentication Gateway / PEP            
+                        (Enforces login policies & adaptive MFA)        
+                
+                                           
+                                            Invoke Auth Flow
+                
+                           UMS Adaptive Security Module (PDP)         
+                
+                 - AdaptiveRiskEvaluator                                
+                 - WebAuthnPasskeyService                               
+                 - OtpGenerationService                                 
+                
+                                                         
+                                                         
+                           
+                       IMfaPort    IWebAuthn      INotify   
+                       (TOTP)        Port          Port     
+                           
+                                                         
+                           
+                       Internal     FIDO2         Twilio/   
+                       Adapter      Adapter       SendGrid  
+                           
 ```
 
 ### 3.2 Dynamic WebAuthn/Passkey Challenge-Response Flow
@@ -237,7 +232,7 @@ To ensure complete, distributed observability, all authentication factors, risk 
 Example of a structured security event logged to Grafana Loki:
 ```json
 {
-  "timestamp": "2026-05-09T14:40:02Z",
+  "timestaamp": "2026-05-09T14:40:02Z",
   "level": "WARN",
   "correlation_id": "tx_corr_mfa_88319",
   "tenant_id": "tenant_logistics_corp",
@@ -248,7 +243,7 @@ Example of a structured security event logged to Grafana Loki:
 
 ---
 
-## 🔒 4. Threat Model & Security Compliance
+## 4. Threat Model & Security Compliance
 
 ### 4.1 STRIDE Threat Analysis
 
@@ -257,9 +252,7 @@ Example of a structured security event logged to Grafana Loki:
 | **Passkey Replay Attack** | **Spoofing / Tampering** | Challenges are cryptographically random, 32-byte single-use vectors. Verification tracks assertion counters stored in the database. If an incoming counter is lower or equal to the saved counter, the attempt is flagged as a replay exploit, and the session is permanently locked. |
 | **Credential Stuffing fallback** | **Information Disclosure** | Enforce aggressive brute-force rate-limiting on SMS/Email OTP (max 3 attempts per 5 minutes) and TOTP. Enforce exponential backoff sleep-timers. |
 | **MFA Prompt Fatigue**| **Denial of Service** | Trusted device tokens verify browser cryptographic fingerprints. Limits active authentication challenges to a maximum of 1 active prompt per user session family. |
-| **Token Hijacking** | **Elevation of Privilege** | Trusted Device Tokens use hardware-backed WebAuthn credentials to generate single-use assertion signatures, ensuring that a simple cookie theft cannot compromise the trusted status. |
-
-### 4.2 Security Compliance Checklist
+| **Token Hijacking** | **Elevation of Privilege** | Trusted Device Tokens use hardware-backed WebAuthn credentials to generate single-use assertion signatures, ensuring that a simple cookie theft cannot compromise the trusted status. | ### 4.2 Security Compliance Checklist
 
 #### OWASP ASVS v4.0.3 Compliance (Level 3 Enforcements)
 - [ ] **ASVS 2.1.1**: Verify that all active authentication methods use cryptographically strong random challenge values.
@@ -274,7 +267,7 @@ Example of a structured security event logged to Grafana Loki:
 
 ---
 
-## 🚀 5. Delivery Dimension (D) — Engineering Specifications
+## 5. Delivery Dimension (D) — Engineering Specifications
 
 ### 5.1 User Stories & Given/When/Then Acceptance Criteria
 
@@ -362,11 +355,8 @@ Scenario: Modifying route planning cost triggers step-up verification
 | **NFR-01** | Risk Evaluation Overhead | p95 < 10ms under peak load (5,000 req/sec) | Locust performance suite |
 | **NFR-02** | WebAuthn Validation Latency | p95 < 40ms per cryptographic signature verification | K6 benchmarking scripts |
 | **NFR-03** | Rate-Limit Protection | Lock accounts after 5 sequential failed MFA attempts | Security unit tests |
-| **NFR-04** | Recovery Code Security | Encryption via Bcrypt with work factor 10 | Security code audit |
-
----
-
-## 🏁 6. Architectural Verification & Compliance Status
+| **NFR-04** | Recovery Code Security | Encryption via Bcrypt with work factor 10 | Security code audit
+## 6. Architectural Verification & Compliance Status
 
 This specification has been thoroughly reviewed against the **spec-driven AI strategy BMAD-METHOD** and is declared **FULLY COMPLIANT**:
 

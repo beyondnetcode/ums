@@ -9,9 +9,7 @@ UMS should reduce manual administration by assigning the right authorization tem
 | Actor | Responsibility |
 | :--- | :--- |
 | **Security Administrator** | Configures assignment rules. |
-| **UMS Rule Engine** | Applies matching rules during profile creation. |
-
-## 3. Business Preconditions
+| **UMS Rule Engine** | Applies matching rules during profile creation. | ## 3. Business Preconditions
 
 - At least one assignment rule is active.
 - The created profile contains attributes that can be evaluated.

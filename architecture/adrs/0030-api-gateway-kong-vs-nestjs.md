@@ -2,7 +2,7 @@
 
 * **Status:** Accepted (Incorporated by Reference)
 * **Date:** 2026-05-08
-* **Corporate Source:** [arc32-30](https://github.com/beyondnetcode/arc32_progresive_monolith/blob/main/arc-corporate-ws/corporate-standards/02-adrs/core/0030-api-gateway-kong-vs-nestjs.md)
+* **Corporate Source:** [arc32-30](https://github.com/beyondnetcode/arc32_progresive_monolith/blob/main/arc-corporate-ws/corporate-standards/02-adrs/core/0030-api-gateway-kong-vs-nestájs.md)
 
 ## Decision
 

@@ -33,9 +33,7 @@ We will adopt a **dual-mode token strategy**: JWT for BFF-to-Frontend communicat
 | BFF ↔ Backend API (internal) | Opaque (reference token) | Full context via introspection, header size < 200 bytes |
 | Backend ↔ Backend (gRPC) | Opaque + mTLS | Service identity + full user context |
 | External IdP ↔ UMS | JWT (from IdP) | Standard OAuth2/OIDC, transformed on entry |
-| Long-lived machine tokens | Opaque (PAT) | Revocable, scoped, auditable |
-
-### 2.2. JWT for Frontend (Minimal Claims)
+| Long-lived machine tokens | Opaque (PAT) | Revocable, scoped, auditable | ### 2.2. JWT for Frontend (Minimal Claims)
 
 ```json
 {
@@ -217,15 +215,15 @@ public class TokenIntrospectionMiddleware
 
 ```
                 Issue                    Introspect               Revoke
-                  │                         │                       │
-                  ▼                         ▼                       ▼
-    ┌──────────────────────┐    ┌──────────────────────┐    ┌──────────────┐
-    │ OpaqueTokenService   │    │ TokenIntrospection   │    │ TokenRevoker │
-    │ .Create()            │    │ .Introspect()        │    │ .Revoke()    │
-    │                      │    │                      │    │              │
-    │ Store → Redis TTL 1h │    │ Get ← Redis          │    │ Del ← Redis  │
-    │ Return ref token     │    │ Return TokenContext   │    │ + audit log  │
-    └──────────────────────┘    └──────────────────────┘    └──────────────┘
+                                                                  
+                                                                  
+            
+     OpaqueTokenService        TokenIntrospection        TokenRevoker 
+     .Create()                 .Introspect()             .Revoke()    
+                                                                      
+     Store → Redis TTL 1h      Get ← Redis               Del ← Redis  
+     Return ref token          Return TokenContext        + audit log  
+            
 ```
 
 ### 2.6. Token Revocation
@@ -277,7 +275,7 @@ public class TokenRevoker
 
 ## 4. Alternatives Considered
 
-1.  **Self-contained JWT with all claims**: Rejected. At 8KB+, exceeds header limits in Kong, AWS ALB, and many ingress controllers. Also increases per-request bandwidth by 8KB.
+1.  **Self-contained JWT with all claims**: Rejected. At 8KB+, exceeds header limits in Kong, AWS ALB, and many ingress controllers. Also increases per-requestá bandwidth by 8KB.
 
 2.  **JWT with distributed claims (JWT + separate claims endpoint)**: Rejected. Claims endpoint creates the same introspection dependency but with non-standard implementation. Opaque tokens are a standard pattern (RFC 7662).
 

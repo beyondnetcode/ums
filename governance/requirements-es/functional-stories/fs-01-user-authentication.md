@@ -2,7 +2,7 @@
 
 ## 1. Propósito de Negocio
 
-Los usuarios corporativos necesitan acceder a los sistemas cliente usando el proveedor de identidad confiable de su organización. UMS debe validar que el usuario esté reconocido, activo y autorizado para iniciar una sesión segura sin exigir una contraseña separada administrada por cada aplicación.
+Los usuarios corporativos necesitan acceder a los sistemas cliente usando el proveedor de identidad confiable de su organización. UMS debe validar que el usuario estáé reconocido, activo y autorizado para iniciar una sesión segura sin exigir una contraseña separada administrada por cada aplicación.
 
 ---
 
@@ -13,14 +13,11 @@ Los usuarios corporativos necesitan acceder a los sistemas cliente usando el pro
 | **Usuario Corporativo** | Intenta iniciar sesión en un sistema cliente. |
 | **Proveedor de Identidad Externo** | Confirma la identidad corporativa del usuario. |
 | **UMS** | Valida la identidad contra registros activos y establece la sesión de aplicación. |
-| **Administrador TI** | Puede usar acceso de emergencia cuando el proveedor externo no está disponible. |
-
----
-
+| **Administrador TI** | Puede usar acceso de emergencia cuando el proveedor externo no estáá disponible.
 ## 3. Precondiciones de Negocio
 
-- El usuario existe en UMS y está vinculado a una referencia de identidad corporativa válida.
-- La cuenta del usuario está activa.
+- El usuario existe en UMS y estáá vinculado a una referencia de identidad corporativa válida.
+- La cuenta del usuario estáá activa.
 - La organización tiene configurado un proveedor de identidad.
 
 ---
@@ -41,21 +38,21 @@ Los usuarios corporativos necesitan acceder a los sistemas cliente usando el pro
 
 ### A. Proveedor de Identidad Externo No Disponible
 
-Si el proveedor de identidad externo no está disponible, los usuarios estándar deben reintentar más tarde. Los administradores TI autorizados pueden usar una ruta de acceso local de emergencia cuando la política lo habilite.
+Si el proveedor de identidad externo no estáá disponible, los usuarios estándar deben reintentar más tarde. Los administradores TI autorizados pueden usar una ruta de acceso local de emergencia cuando la política lo habilite.
 
 ### B. Identidad Corporativa No Vinculada o Inactiva
 
-Si la identidad externa es válida pero no está vinculada a un usuario activo en UMS, el inicio de sesión se rechaza y se registra una advertencia de seguridad.
+Si la identidad externa es válida pero no estáá vinculada a un usuario activo en UMS, el inicio de sesión se rechaza y se registra una advertencia de seguridad.
 
 ### C. Cuenta de Usuario Suspendida
 
-Si el usuario existe pero está suspendido o terminado, el sistema bloquea el acceso y muestra un mensaje claro sobre el estado de la cuenta.
+Si el usuario existe pero estáá suspendido o terminado, el sistema bloquea el acceso y muestra un mensaje claro sobre el estado de la cuenta.
 
 ---
 
 ## 6. Reglas de Negocio
 
-1. Una identidad corporativa por sí sola no basta; el usuario también debe estar activo en UMS.
+1. Una identidad corporativa por sí sola no basta; el usuario también debe estáar activo en UMS.
 2. El acceso de emergencia se limita a administradores TI explícitamente autorizados.
 3. Todo inicio de sesión fallido o bloqueado debe ser auditable.
 4. El contexto de tenant debe establecerse antes de resolver permisos.
@@ -78,7 +75,7 @@ Si el usuario existe pero está suspendido o terminado, el sistema bloquea el ac
 - Validar tokens firmados y claims obligatorios de identidad.
 - Vincular el claim de identidad externa con la referencia de identidad en UMS.
 - Establecer una sesión segura mediante cookies HTTP-only, SameSite o el mecanismo aprobado.
-- Retornar fallo de autorización cuando la identidad no está vinculada o activa.
+- Retornar fallo de autorización cuando la identidad no estáá vinculada o activa.
 - Emitir eventos inmutables de auditoría para fallos y advertencias.
 
 ---

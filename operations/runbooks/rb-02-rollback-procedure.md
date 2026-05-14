@@ -16,9 +16,7 @@ Trigger a rollback when **any** of the following are true:
 | Auth endpoint p99 | > 2000ms sustained | Grafana → Auth Latency panel |
 | Health check failures | Any service returning non-200 | `kubectl get pods -n ums` |
 | Data integrity alert | Any row-level security breach signal | Audit log alert |
-| Critical bug confirmed | Bug affects core auth/authz flow | Manual decision by IC |
-
-**Do NOT rollback for:** transient spikes < 2 min · P3/P4 incidents with a known fix available in < 1 h · warnings without user impact.
+| Critical bug confirmed | Bug affects core auth/authz flow | Manual decision by IC | **Do NOT rollback for:** transient spikes < 2 min · P3/P4 incidents with a known fix available in < 1 h · warnings without user impact.
 
 ---
 
@@ -73,9 +71,7 @@ curl -s http://ums-api:8080/health | jq .
 | Drop column | **No** | Restore from backup |
 | Rename column | **No** (data risk) | Restore from backup |
 | Data transformation | Depends | Restore from backup if no inverse script |
-| RLS policy change | Yes | Re-apply previous policy |
-
-### 3.2 Reversible Migration — Down Script
+| RLS policy change | Yes | Re-apply previous policy | ### 3.2 Reversible Migration — Down Script
 
 ```bash
 # Run migration down script (if framework supports it)
@@ -191,7 +187,7 @@ See [TE-06 — CQRS Projection Rebuild](../../architecture/blueprints/technical-
 [ ] No pending outbox events older than 5 min
 [ ] Cache hit rate > 80%
 [ ] Confirm with a sample end-to-end auth flow (manual smoke test)
-[ ] Document rollback in incident timeline with revision numbers and timestamps
+[ ] Document rollback in incident timeline with revision numbers and timestaamps
 ```
 
 ---

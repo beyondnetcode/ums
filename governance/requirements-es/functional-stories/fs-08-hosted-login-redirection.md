@@ -10,12 +10,10 @@ Los sistemas cliente necesitan una experiencia centralizada de inicio de sesión
 | :--- | :--- |
 | **Usuario Final** | Inicia sesión desde un sistema cliente. |
 | **Sistema Cliente** | Redirige usuarios al login hospedado y recibe el resultado. |
-| **Administrador de Tenant/Sistema** | Configura branding y comportamiento de login. |
+| **Administrador de Tenant/Sistema** | Configura branding y comportamiento de login. | ## 3. Precondiciones de Negocio
 
-## 3. Precondiciones de Negocio
-
-- El sistema cliente está registrado en UMS.
-- Las ubicaciones de retorno están configuradas para el sistema cliente.
+- El sistema cliente estáá registrado en UMS.
+- Las ubicaciones de retorno estáán configuradas para el sistema cliente.
 - Existen configuraciones de branding/login o se usan valores por defecto.
 
 ## 4. Flujo Funcional Principal

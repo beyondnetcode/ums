@@ -6,7 +6,7 @@
 
 ---
 
-## 🔬 1. Evaluación del Dominio Actual y Hallazgos
+## 1. Evaluación del Dominio Actual y Hallazgos
 
 Tras un análisis exhaustivo del ecosistema de UMS, hemos identificado un **acoplamiento estructural rígido** en el diseño original que impacta negativamente la evolución SaaS del producto.
 
@@ -17,7 +17,7 @@ Tras un análisis exhaustivo del ecosistema de UMS, hemos identificado un **acop
 
 ---
 
-## 🎯 2. Modelo de Dominio Objetivo (Enterprise-Grade)
+## 2. Modelo de Dominio Objetivo (Enterprise-Grade)
 
 Proponemos una reestructuración donde la **Organización** se eleva como el **Aggregate Root Estratégico** de todo el ecosistema.
 
@@ -30,7 +30,7 @@ Proponemos una reestructuración donde la **Organización** se eleva como el **A
 
 ---
 
-## 🛡️ 3. Estrategia Multi-Tenant e IAM (Identity & Access Management)
+## 3. Estrategia Multi-Tenant e IAM (Identity & Access Management)
 
 Para cumplir con requerimientos de escala empresarial y seguridad **Zero Trust**, el sistema adoptará el siguiente modelo:
 
@@ -46,18 +46,15 @@ Los sistemas y aplicaciones pertenecen explícitamente a una organización.
 
 ---
 
-## 📊 4. Riesgos, Trade-offs y Mitigaciones
+## 4. Riesgos, Trade-offs y Mitigaciones
 
 | Riesgo | Impacto | Estrategia de Mitigación |
 | :--- | :--- | :--- |
-| **God Entity (Organización)** | Alta complejidad en un solo objeto. | Desacoplar mediante Bounded Contexts. La Org es un ID compartido, pero su lógica está distribuida. |
+| **God Entity (Organización)** | Alta complejidad en un solo objeto. | Desacoplar mediante Bounded Contexts. La Org es un ID compartido, pero su lógica estáá distribuida. |
 | **Noisy Neighbor** | Degradación de performance. | Implementación de Rate Limiting y Quotas a nivel de API Gateway por `OrganizationId`. |
 | **Complejidad de Migración** | Breaking changes en APIs existentes. | Estrategia de **Coexistencia y Deprecación** (Dual-Read/Write) detallada en el ADR-0031. |
-| **Gobernanza de Service Accounts** | Acceso descontrolado M2M. | Inclusión de identidades no-humanas bajo la jerarquía de la Organización con rotación de secretos en Vault. |
-
----
-
-## 🚀 5. Estrategia de Transición Incremental
+| **Gobernanza de Service Accounts** | Acceso descontrolado M2M. | Inclusión de identidades no-humanas bajo la jerarquía de la Organización con rotación de secretos en Vault.
+## 5. Estrategia de Transición Incremental
 
 1.  **Fase 01 (Cimentación):** Implementar la tabla de Organizaciones como frontera y asociar el 100% de los usuarios actuales a la "Organización Raíz".
 2.  **Fase 02 (Desacoplamiento):** Migrar de `identity_reference` a `identity_reference` (Sujeto agnóstico). Inyectar `X-Org-Context` en el API Gateway.
@@ -66,7 +63,7 @@ Los sistemas y aplicaciones pertenecen explícitamente a una organización.
 
 ---
 
-## ✅ 6. Conclusión de Validación End-to-End
+## 6. Conclusión de Validación End-to-End
 Este modelo garantiza que el negocio pueda crecer de una plataforma corporativa cerrada a un **Ecosistema SaaS Multi-Tenant Federado**. La arquitectura cumple con:
 *   **Seguridad:** Zero Trust y RLS.
 *   **Negocio:** Flexibilidad para partners, clientes y proveedores.

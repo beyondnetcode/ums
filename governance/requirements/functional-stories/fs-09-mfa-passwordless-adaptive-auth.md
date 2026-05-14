@@ -10,9 +10,7 @@ UMS must strengthen authentication when risk or tenant policy requires it, while
 | :--- | :--- |
 | **End User** | Completes additional verification or passwordless sign-in. |
 | **Tenant Administrator** | Configures authentication policy. |
-| **UMS** | Evaluates policy and risk before granting access. |
-
-## 3. Business Preconditions
+| **UMS** | Evaluates policy and risk before granting access. | ## 3. Business Preconditions
 
 - The user has an account in UMS.
 - The tenant policy allows or requires MFA/passwordless authentication.

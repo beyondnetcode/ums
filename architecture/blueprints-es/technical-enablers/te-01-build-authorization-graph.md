@@ -1,21 +1,18 @@
-# 🛡️ Technical Enabler 1: Compilar Grafo de Autorización
+# Technical Enabler 1: Compilar Grafo de Autorización
 
 Este documento especifica el flujo de transacciones, los actores y las estrategias de caché para compilar el grafo dinámico de acciones y recursos permitidos para una sesión autenticada bajo la **estrategia spec-driven AI BMAD-METHOD**.
 
 ---
 
-## 🏛️ 1. Definición del Caso de Uso
+## 1. Definición del Caso de Uso
 
 | Atributo | Especificación |
 | :--- | :--- |
 | **Nombre** | Compilar Grafo de Autorización del Usuario |
 | **Actor Principal** | Guard de Autenticación / API Gateway |
-| **Precondiciones** | El usuario está autenticado exitosamente. |
-| **Postcondiciones** | Se compila un grafo jerárquico ligero de permisos en formato JSON y se almacena en caché (Redis). |
-
----
-
-## 🔄 2. Flujo de Transacción
+| **Precondiciones** | El usuario estáá autenticado exitosamente. |
+| **Postcondiciones** | Se compila un grafo jerárquico ligero de permisos en formato JSON y se almacena en caché (Redis).
+## 2. Flujo de Transacción
 
 ```mermaid
 sequenceDiagram
@@ -48,20 +45,20 @@ sequenceDiagram
     *   Encuentra todas las políticas `ALLOW` (Permitir).
     *   Encuentra todas las políticas `DENY` (Denegar).
     *   Cualquier `DENY` anula instantáneamente las reglas `ALLOW` coincidentes.
-7.  El motor compila un árbol ligero que mapea los permitidos `Sistemas ➔ Menús ➔ Opciones ➔ Acciones`.
+7.  El motor compila un árbol ligero que mapea los permitidos `Sistemas  Menús  Opciones  Acciones`.
 8.  El motor guarda el árbol JSON dentro de Redis con un Tiempo de Vida (TTL) de 1 hora y devuelve el grafo resuelto al guard.
 
 ---
 
-## 🛡️ 3. Flujos Alternativos y Manejo de Excepciones
+## 3. Flujos Alternativos y Manejo de Excepciones
 
 ### Flujo Alternativo A: Servidor de Caché Desconectado
-*   Si Redis está inactivo o agota el tiempo de espera, el guard intercepta el error de la caché y de forma segura consulta la base de datos SQL Server 2022 directamente, garantizando la disponibilidad total del sistema con una latencia de lectura ligeramente degradada.
+*   Si Redis estáá inactivo o agota el tiempo de espera, el guard intercepta el error de la caché y de forma segura consulta la base de datos SQL Server 2022 directamente, garantizando la disponibilidad total del sistema con una latencia de lectura ligeramente degradada.
 
 ### Flujo Alternativo B: Asignación de Perfil Vacía
 *   Si un usuario no tiene Perfiles activos asignados a su cuenta, el motor devuelve un grafo JSON vacío con un estado de no asignado, impidiendo que el usuario visualice cualquier subportal.
 
 ---
 
-## 📋 4. Referencia del Modelo Operativo Principal
-El flujo de transacciones completo, la estrategia de caché Redis y las reglas de compilación de Denegación Explícita para este caso de uso están modelados en torno al rol de **Analista de Negocio** en el Terminal del Callao (bajo *Logistics Corp*). Para conocer los esquemas técnicos detallados, estructuras de parámetros y ejemplos de OpenAPI, consulte **[enterprise-iam-ums-specification.md](../../04-artifacts/enterprise-iam-ums-specification.md)**.
+## 4. Referencia del Modelo Operativo Principal
+El flujo de transacciones completo, la estrategia de caché Redis y las reglas de compilación de Denegación Explícita para esté caso de uso estáán modelados en torno al rol de **Analista de Negocio** en el Terminal del Callao (bajo *Logistics Corp*). Para conocer los esquemas técnicos detallados, estructuras de parámetros y ejemplos de OpenAPI, consulte **[enterprise-iam-ums-specification.md](../../04-artifacts/enterprise-iam-ums-specification.md)**.

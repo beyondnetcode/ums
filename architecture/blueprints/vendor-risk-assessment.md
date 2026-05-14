@@ -25,7 +25,7 @@ The application core is completely insulated from vendor lock-in thanks to stric
 
 ## 2. Identified Infrastructure Risks & Mitigations
 
-### 🔴 High Financial Risk: Identity Provider (IdP)
+### High Financial Risk: Identity Provider (IdP)
 * **Context**: [ADR-0020](../03-adrs/0020-identity-provider-abstraction-strategy.md) abstracts the Identity Provider, allowing integrations with SaaS solutions like Auth0 or Azure Entra ID.
 * **The Risk**: Commercial SaaS Identity platforms bill by Monthly Active Users (MAU) or M2M tokens. At a high B2C or B2B scale, operational costs can skyrocket exponentially.
 * **Mitigation Strategy**: If licensing costs become prohibitive, the infrastructure adapter must be swapped to **Keycloak** (100% Open Source and free). However, this shifts the financial cost from licensing to DevOps maintenance (Kubernetes scaling, database management).

@@ -10,12 +10,10 @@ Los usuarios y administradores necesitan entregar documentos requeridos para que
 | :--- | :--- |
 | **Usuario** | Carga su propio documento requerido. |
 | **Administrador de Identidad** | Carga o revisa documentos en nombre de usuarios. |
-| **Revisor de Cumplimiento** | Confirma si el documento es aceptable. |
-
-## 3. Precondiciones de Negocio
+| **Revisor de Cumplimiento** | Confirma si el documento es aceptable. | ## 3. Precondiciones de Negocio
 
 - El usuario existe.
-- El tipo de documento está configurado.
+- El tipo de documento estáá configurado.
 - El actor tiene permiso para cargar o revisar el documento.
 
 ## 4. Flujo Funcional Principal
@@ -30,11 +28,11 @@ Los usuarios y administradores necesitan entregar documentos requeridos para que
 
 ### A. Documento Ya Vencido
 
-Si el documento está vencido al momento de carga, el sistema lo registra como vencido e inicia el flujo de regularización.
+Si el documento estáá vencido al momento de carga, el sistema lo registra como vencido e inicia el flujo de regularización.
 
 ### B. Archivo No Aceptable
 
-Si el archivo está corrupto, no puede leerse o incumple reglas de carga, el sistema solicita cargar un archivo válido.
+Si el archivo estáá corrupto, no puede leerse o incumple reglas de carga, el sistema solicita cargar un archivo válido.
 
 ## 6. Reglas de Negocio
 

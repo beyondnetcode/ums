@@ -9,11 +9,9 @@ UMS debe permitir que los administradores registren sistemas cliente y describan
 | Actor | Responsabilidad |
 | :--- | :--- |
 | **Administrador de Seguridad Global** | Registra sistemas cliente y define su topología de menú. |
-| **Dueño del Sistema Cliente** | Proporciona la estructura del sistema y sus acciones de acceso. |
+| **Dueño del Sistema Cliente** | Proporciona la estructura del sistema y sus acciones de acceso. | ## 3. Precondiciones de Negocio
 
-## 3. Precondiciones de Negocio
-
-- El administrador está autorizado para registrar sistemas.
+- El administrador estáá autorizado para registrar sistemas.
 - El dueño del sistema ha proporcionado módulos, menús, opciones y acciones esperadas.
 
 ## 4. Flujo Funcional Principal
@@ -22,7 +20,7 @@ UMS debe permitir que los administradores registren sistemas cliente y describan
 2. El administrador ingresa nombre, código de negocio e información de enrutamiento.
 3. El sistema queda registrado y disponible para configurar su topología.
 4. El administrador define módulos, menús, opciones y acciones.
-5. El sistema valida que la topología esté suficientemente completa para soportar plantillas de autorización.
+5. El sistema valida que la topología estáé suficientemente completa para soportar plantillas de autorización.
 6. La topología queda disponible para asignación de permisos y diagnóstico.
 
 ## 5. Flujos Alternativos y Excepciones
@@ -33,7 +31,7 @@ Si otro sistema ya usa el mismo código de negocio, UMS impide el registro y sol
 
 ### B. Topología Incompleta
 
-Si un nodo de topología está incompleto, UMS puede guardarlo como borrador pero impide usarlo en plantillas hasta definir las acciones requeridas.
+Si un nodo de topología estáá incompleto, UMS puede guardarlo como borrador pero impide usarlo en plantillas hasta definir las acciones requeridas.
 
 ## 6. Reglas de Negocio
 

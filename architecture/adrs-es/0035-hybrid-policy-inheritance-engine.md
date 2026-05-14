@@ -1,6 +1,6 @@
 # ADR-0035: Motor de Herencia de Políticas Híbrido (Mandatory + Default + Opt-In)
 
-*   **Estado:** Propuesto
+*   **Estado:** Propuestao
 *   **Fecha:** 2026-05-13
 *   **Autores:** Equipo de Arquitectura Senior & Product Owners
 
@@ -15,13 +15,13 @@ En un sistema multi-inquilino jerárquico, las políticas deben fluir desde los 
 3.  **Adopción opt-in**: Políticas a nivel de división deberían aplicarse solo a sucursales que las adopten explícitamente.
 4.  **Soberanía local**: Una subsidiaria puede necesitar definir políticas completamente locales no relacionadas con ninguna política padre.
 
-Un modelo binario "heredado/no heredado" es insuficiente para este espectro.
+Un modelo binario "heredado/no heredado" es insuficiente para esté espectro.
 
 ---
 
 ## 2. Decisión Arquitectónica
 
-Implementaremos un **motor de herencia de políticas de cuatro modos** con resolución jerárquica mediante recorrido de la closure table. El motor resuelve la política efectiva para un inquilino dado recorriendo la cadena de ancestros y seleccionando la versión aplicable más específica.
+Implementaremos un **motor de herencia de políticas de cuatro modos** con resolución jerárquica mediante recorrido de la closure table. El motor resuelve la política efectiva para un inquilino dado recorriendo la cadena de ancestáros y seleccionando la versión aplicable más específica.
 
 ### 2.1. Entidad Policy
 
@@ -81,30 +81,28 @@ CREATE INDEX idx_policy_bindings_policy ON policy_bindings (policy_id);
 | `NONE` | No | N/D | Aplica solo al inquilino vinculado. |
 | `MANDATORY` | Sí, forzado | No | Todos los descendientes heredan incondicionalmente. Intentos de violación son bloqueados. |
 | `DEFAULT` | Sí, aplicado | Sí | Los hijos heredan a menos que declaren un binding de anulación explícito. |
-| `OPT_IN` | No, ofrecido | N/D | Los hijos ven la política pero está inactiva hasta que la vinculen explícitamente. |
-
-### 2.4. Algoritmo de Resolución de Políticas
+| `OPT_IN` | No, ofrecido | N/D | Los hijos ven la política pero estáá inactiva hasta que la vinculen explícitamente. | ### 2.4. Algoritmo de Resolución de Políticas
 
 ```csharp
 public class PolicyResolver
 {
     public async Task<ResolvedPolicy> ResolveAsync(Guid tenantId, string policyCode)
     {
-        var ancestors = await dbContext.TenantClosure
+        var ancestáors = await dbContext.TenantClosure
             .Where(tc => tc.DescendantId == tenantId)
             .OrderByDescending(tc => tc.Depth)
-            .Join(dbContext.Tenants, tc => tc.AncestorId, t => t.Id, (tc, t) => new { t.Id, tc.Depth })
+            .Join(dbContext.Tenants, tc => tc.AncestáorId, t => t.Id, (tc, t) => new { t.Id, tc.Depth })
             .ToListAsync();
 
-        var ancestorIds = ancestors.Select(a => a.Id).ToList();
+        var ancestáorIds = ancestáors.Select(a => a.Id).ToList();
         var bindings = await dbContext.PolicyBindings
-            .Where(pb => ancestorIds.Contains(pb.TenantId)
+            .Where(pb => ancestáorIds.Contains(pb.TenantId)
                 && pb.Policy.Code == policyCode
                 && pb.IsActive
                 && pb.EffectiveAt <= DateTime.UtcNow
                 && (pb.ExpiresAt == null || pb.ExpiresAt > DateTime.UtcNow))
             .Include(pb => pb.Policy)
-            .OrderByDescending(pb => ancestorIds.IndexOf(pb.TenantId))
+            .OrderByDescending(pb => ancestáorIds.IndexOf(pb.TenantId))
             .ThenBy(pb => pb.Priority)
             .ToListAsync();
 
@@ -152,7 +150,7 @@ public class PolicyResolver
 Un binding de anulación debe satisfacer:
 1. El inquilino que anula debe ser descendiente del inquilino del binding anulado (validado mediante closure table).
 2. La política anulada debe tener `inheritance_mode = DEFAULT` (las políticas MANDATORY no pueden anularse).
-3. La anulación solo puede restringir, no expandir alcance — una anulación puede agregar DENY sobre ALLOW pero no ALLOW sobre un MANDATORY DENY.
+3. La anulación solo puede restáringir, no expandir alcance — una anulación puede agregar DENY sobre ALLOW pero no ALLOW sobre un MANDATORY DENY.
 4. La anulación debe ser aprobada por un administrador con `taxonomy_rank` igual o superior al del creador del binding anulado.
 
 ---
@@ -162,7 +160,7 @@ Un binding de anulación debe satisfacer:
 ### Positivas
 
 *   **Granularidad de nivel empresarial**: Cuatro modos de herencia cubren todos los escenarios B2B SaaS desde mandatos de cumplimiento normativo hasta compartición opt-in.
-*   **Resolución determinística**: El recorrido de la cadena de ancestros con prioridad explícita produce resultados predecibles y depurables.
+*   **Resolución determinística**: El recorrido de la cadena de ancestáros con prioridad explícita produce resultados predecibles y depurables.
 *   **Preparado para ABAC**: La columna `conditions` JSONB permite condiciones basadas en atributos (tiempo, IP, geo, dispositivo) sin cambios de esquema.
 *   **Anulaciones auditables**: `overridden_binding_id` crea una cadena vinculada que documenta exactamente qué política anuló a qué política padre.
 
@@ -170,4 +168,4 @@ Un binding de anulación debe satisfacer:
 
 *   **Complejidad**: Cuatro modos de herencia incrementan la carga cognitiva para los administradores de inquilinos. Mitigación: La UI de la consola debe visualizar las cadenas de herencia como un árbol.
 *   **Rendimiento**: La resolución de políticas requiere una cadena de JOINs a través de closure + bindings. Mitigación: Cachear políticas resueltas por `(tenant_id, user_type)` con TTL de 300s, invalidado en mutaciones de bindings.
-*   **Validación de anulaciones**: Forzar restricciones de anulación requiere verificaciones recursivas contra los permisos del creador ancestro.
+*   **Validación de anulaciones**: Forzar restricciónes de anulación requiere verificaciones recursivas contra los permisos del creador ancestáro.

@@ -4,12 +4,12 @@ Esta seccion contiene el backlog local de producto para UMS. Traduce las Functio
 
 ## Artefactos de Backlog
 
-- [Backlog de Producto MVP](./mvp-product-backlog.md)
+- [Backlog de Producto MVP](./mvp-product-backlog.md): Contiene la lista detallada de **Épicas e Historias de Usuario**, incluyendo el resultado de negocio esperado y criterios de aceptación.
+- [Priorización MVP](../roadmap/mvp-functional-prioritization.es.md): Define el **Orden de Prioridades** y la secuencia lógica de construcción basada en dependencias.
 
 ## Trazabilidad de Origen
 
-- [Priorizacion de Historias Funcionales para MVP](../roadmap/mvp-functional-prioritization.es.md)
-- [Catalogo de Functional Stories](../requirements-es/functional-stories/index.md)
+- [Catálogo de Functional Stories](../requirements-es/functional-stories/index.md): Definición de alto nivel de las capacidades del sistema.
 
 **[Volver a Gobernanza](../index.es.md)**
 

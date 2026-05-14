@@ -1,4 +1,4 @@
-# 🚀 Visión del Producto - Sistema de Gestión de Usuarios (UMS)
+# Visión del Producto - Sistema de Gestión de Usuarios (UMS)
 
 ## 1. Resumen Ejecutivo
 El **Sistema de Gestión de Usuarios (UMS)** es un núcleo abstracto e independiente para la gobernanza de identidad y autorización. Su visión principal es centralizar y estandarizar el control de identidades, organizaciones y permisos granulares en una arquitectura **SaaS B2B Multi-tenant** federada y multisistema, a través de APIs altamente desacopladas y buses de mensajería.

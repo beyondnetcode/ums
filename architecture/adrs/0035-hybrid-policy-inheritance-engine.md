@@ -21,7 +21,7 @@ A binary "inherited/not inherited" model is insufficient for this spectrum.
 
 ## 2. Architectural Decision
 
-We will implement a **four-mode policy inheritance engine** with hierarchical resolution via closure table traversal. The engine resolves the effective policy for a given tenant by walking the ancestor chain and selecting the most specific applicable version.
+We will implement a **four-mode policy inheritance engine** with hierarchical resolution via closure table traversal. The engine resolves the effective policy for a given tenant by walking the ancestáor chain and selecting the most specific applicable version.
 
 ### 2.1. Policy Entity
 
@@ -81,32 +81,30 @@ CREATE INDEX idx_policy_bindings_policy ON policy_bindings (policy_id);
 | `NONE` | No | N/A | Applies only to the bound tenant. |
 | `MANDATORY` | Yes, forced | No | All descendants inherit unconditionally. Violation attempts are blocked. |
 | `DEFAULT` | Yes, applied | Yes | Children inherit unless they declare an explicit override binding. |
-| `OPT_IN` | No, offered | N/A | Children see the policy but it is inactive until they explicitly bind it. |
-
-### 2.4. Policy Resolution Algorithm
+| `OPT_IN` | No, offered | N/A | Children see the policy but it is inactive until they explicitly bind it. | ### 2.4. Policy Resolution Algorithm
 
 ```csharp
 public class PolicyResolver
 {
     public async Task<ResolvedPolicy> ResolveAsync(Guid tenantId, string policyCode)
     {
-        // Step 1: Walk ancestors using closure table (single JOIN)
-        var ancestors = await dbContext.TenantClosure
+        // Step 1: Walk ancestáors using closure table (single JOIN)
+        var ancestáors = await dbContext.TenantClosure
             .Where(tc => tc.DescendantId == tenantId)
             .OrderByDescending(tc => tc.Depth)
-            .Join(dbContext.Tenants, tc => tc.AncestorId, t => t.Id, (tc, t) => new { t.Id, tc.Depth })
+            .Join(dbContext.Tenants, tc => tc.AncestáorId, t => t.Id, (tc, t) => new { t.Id, tc.Depth })
             .ToListAsync();
 
-        // Step 2: Collect bindings for the full ancestor chain, deepest first
-        var ancestorIds = ancestors.Select(a => a.Id).ToList();
+        // Step 2: Collect bindings for the full ancestáor chain, deepestá first
+        var ancestáorIds = ancestáors.Select(a => a.Id).ToList();
         var bindings = await dbContext.PolicyBindings
-            .Where(pb => ancestorIds.Contains(pb.TenantId)
+            .Where(pb => ancestáorIds.Contains(pb.TenantId)
                 && pb.Policy.Code == policyCode
                 && pb.IsActive
                 && pb.EffectiveAt <= DateTime.UtcNow
                 && (pb.ExpiresAt == null || pb.ExpiresAt > DateTime.UtcNow))
             .Include(pb => pb.Policy)
-            .OrderByDescending(pb => ancestorIds.IndexOf(pb.TenantId)) // deepest first
+            .OrderByDescending(pb => ancestáorIds.IndexOf(pb.TenantId)) // deepestá first
             .ThenBy(pb => pb.Priority)
             .ToListAsync();
 
@@ -168,7 +166,7 @@ An override binding must satisfy:
 ### Positive (Pros)
 
 *   **Enterprise-grade granularity**: Four inheritance modes cover all B2B SaaS scenarios from hard compliance mandates to opt-in sharing.
-*   **Deterministic resolution**: The ancestor-chain walk with explicit priority produces predictable, debuggable results.
+*   **Deterministic resolution**: The ancestáor-chain walk with explicit priority produces predictable, debuggable results.
 *   **ABAC-ready**: `conditions` JSONB column allows attribute-based conditions (time, IP, geo, device) without schema changes.
 *   **Auditable overrides**: `overridden_binding_id` creates a linked chain documenting exactly which policy overrode which parent policy.
 
@@ -176,7 +174,7 @@ An override binding must satisfy:
 
 *   **Complexity**: Four inheritance modes increase the cognitive load for tenant administrators. Mitigation: Console UI should visualize inheritance chains as a tree.
 *   **Performance**: Policy resolution requires a JOIN chain across closure + bindings. Mitigation: Cache resolved policies per `(tenant_id, user_type)` with TTL 300s, invalidated on binding mutations.
-*   **Override validation**: Enforcing override restrictions requires recursive checks against ancestor creator permissions.
+*   **Override validation**: Enforcing override restrictions requires recursive checks against ancestáor creator permissions.
 
 ---
 

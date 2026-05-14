@@ -1,21 +1,18 @@
-# 🛡️ Technical Enabler 1: Build User Authorization Graph
+# Technical Enabler 1: Build User Authorization Graph
 
 This document specifies the transaction flow, actors, and caching strategies for compiling the dynamic graph of allowed actions and resources for an authenticated session under the **spec-driven AI strategy BMAD-METHOD**.
 
 ---
 
-## 🏛️ 1. Use Case Definition
+## 1. Use Case Definition
 
 | Attribute | Specification |
 | :--- | :--- |
 | **Name** | Build User Authorization Graph |
 | **Primary Actor** | Authentication Guard / API Gateway |
 | **Preconditions** | User is successfully authenticated. |
-| **Postconditions** | A lightweight hierarchical JSON permission graph is compiled and cached in Redis. |
-
----
-
-## 🔄 2. Transaction Flow
+| **Postconditions** | A lightweight hierarchical JSON permission graph is compiled and cached in Redis.
+## 2. Transaction Flow
 
 ```mermaid
 sequenceDiagram
@@ -39,7 +36,7 @@ sequenceDiagram
 ```
 
 ### A. Main Flow
-1.  The .NET 8 request interceptor/guard receives an incoming API request.
+1.  The .NET 8 requestá interceptor/guard receives an incoming API requestá.
 2.  The guard queries the high-performance Redis cache cluster using the unique `user_id` as the key.
 3.  **Cache Hit Case**: Redis returns the pre-compiled hierarchical JSON permission graph. The guard instantly resolves the permission (Target p95 < 5ms).
 4.  **Cache Miss Case**: The guard dispatches a compile command to the core Authorization Engine.
@@ -48,12 +45,12 @@ sequenceDiagram
     *   Find all `ALLOW` policies.
     *   Find all `DENY` policies.
     *   Any `DENY` instantly overrides matching `ALLOW` rules.
-7.  The engine compiles a lightweight tree mapping allowed `Systems ➔ Menus ➔ Options ➔ Actions`.
+7.  The engine compiles a lightweight tree mapping allowed `Systems  Menus  Options  Actions`.
 8.  The engine saves the JSON tree inside Redis with a Time-To-Live (TTL) of 1 hour and returns the resolved graph to the guard.
 
 ---
 
-## 🛡️ 3. Alternative Flows & Exception Handling
+## 3. Alternative Flows & Exception Handling
 
 ### Alternative Flow A: Cache Server Offline
 *   If Redis is down or times out, the guard intercepts the cache error and gracefully queries the SQL Server 2022 database directly, ensuring total system availability with slightly degraded read latency.
@@ -63,7 +60,7 @@ sequenceDiagram
 
 ---
 
-## 📋 4. Primary Operational Model Reference
+## 4. Primary Operational Model Reference
 The complete transaction flow, Redis caching strategy, and Explicit-Deny compilation rules for this use case are modeled around the **Business Analyst** role at the Callao Terminal (under *Logistics Corp*). For the detailed technical schemas, parameter structures, and OpenAPI examples, consult **[enterprise-iam-ums-specification.md](../../04-artifacts/enterprise-iam-ums-specification.md)**.
 
 

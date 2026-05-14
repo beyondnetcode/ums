@@ -1,21 +1,18 @@
-# 🛡️ Technical Enabler 3: Enforce Row-Level Security (RLS) by Organization
+# Technical Enabler 3: Enforce Row-Level Security (RLS) by Organization
 
 This document specifies the transaction flow, database session context injection, and SQL Server 2022 RLS policy configuration to guarantee physical multi-tenant data isolation under the **spec-driven AI BMAD-METHOD strategy**.
 
 ---
 
-## 🏛️ 1. Use Case Definition
+## 1. Use Case Definition
 
 | Attribute | Specification |
 | :--- | :--- |
 | **Name** | Enforce Row-Level Security (RLS) by Organization in SQL Server 2022 |
 | **Main Actor** | Persistence Interceptor / EF Core DbContext |
-| **Preconditions** | `organization_id` is present in the request context (JWT or Headers). |
-| **Postconditions** | SQL Server 2022 automatically restricts row visibility and modification at the database engine level, regardless of the ORM query executed. |
-
----
-
-## 🔄 2. Transaction Flow
+| **Preconditions** | `organization_id` is present in the requestá context (JWT or Headers). |
+| **Postconditions** | SQL Server 2022 automatically restricts row visibility and modification at the database engine level, regardless of the ORM query executed.
+## 2. Transaction Flow
 
 ```mermaid
 sequenceDiagram
@@ -41,8 +38,8 @@ sequenceDiagram
 ```
 
 ### A. Main Flow
-1.  The client sends an HTTP request carrying the session JWT.
-2.  The **Tenant Middleware** in the .NET 8 backend intercepts the request, decodes the token claims, and extracts the unified `org_id` value (Organization Context).
+1.  The client sends an HTTP requestá carrying the session JWT.
+2.  The **Tenant Middleware** in the .NET 8 backend intercepts the requestá, decodes the token claims, and extracts the unified `org_id` value (Organization Context).
 3.  The middleware stores the `org_id` in a service with a *Scoped* lifecycle (`ITenantContext`).
 4.  When resolving a query through **Entity Framework Core**, a custom **DbConnectionInterceptor** is activated.
 5.  Immediately after opening the physical connection to SQL Server, the interceptor sets the session context using the native SQL Server API:
@@ -76,7 +73,7 @@ sequenceDiagram
 
 ---
 
-## 🛡️ 3. Alternative Flows and Exception Handling
+## 3. Alternative Flows and Exception Handling
 
 ### Alternative Flow A: Execution in Background Jobs
 *   If an asynchronous worker (e.g., RabbitMQ Listener) processes an event without a user token, it must resolve the `organization_id` directly from the event body and manually inject it into the scoped context. The interceptor then calls `sp_set_session_context` before any persistence operations to activate RLS.
@@ -91,7 +88,7 @@ sequenceDiagram
 
 ---
 
-## ⚙️ 4. .NET 8 Implementation Reference
+## 4. .NET 8 Implementation Reference
 
 The `DbConnectionInterceptor` sets tenant context immediately after a connection is opened:
 
@@ -131,5 +128,5 @@ services.AddScoped<TenantSessionContextInterceptor>();
 
 ---
 
-## 📋 5. Main Operating Model Reference
+## 5. Main Operating Model Reference
 The technical configuration SQL scaffolding, EF Core migrations to create the Security Policy and predicate function, and connection interceptors are aligned with the pattern of the **[Multi-Tenant Governance Report](../../04-artifacts/enterprise-multitenant-governance-report.md)** and the authoritative decision recorded in **[ADR-0041](../../03-adrs/0041-sql-server-2022-as-database-engine.md)** (SQL Server 2022 as the database engine for all UMS services).

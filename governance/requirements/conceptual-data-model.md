@@ -1,10 +1,10 @@
-# 💾 Conceptual Data Model
+# Conceptual Data Model
 
 This document details the database schema, entity structures, relationships, and Entity-Relationship diagrams for the **User Management System (UMS)** under the **spec-driven AI strategy BMAD-METHOD**.
 
 ---
 
-## 🏛️ 1. Entity-Relationship Diagram
+## 1. Entity-Relationship Diagram
 
 ```mermaid
 erDiagram
@@ -46,7 +46,7 @@ erDiagram
 
 ---
 
-## 📋 2. Entity Attributes Specification
+## 2. Entity Attributes Specification
 
 ### A. User Entity
 - `id` (UUID, PK): Unique identifier for the user.
@@ -55,7 +55,7 @@ erDiagram
 - `password_hash` (string, **Nullable**): Populated **only** when the Internal Bcrypt Strategy adapter is active for the organization. `NULL` when authentication is delegated to an external IdP.
 - `identity_reference` (string): External unique ID linking to corporate HR/ERP records.
 - `status` (enum): `ACTIVE`, `SUSPENDED`, or `TERMINATED`.
-- `created_at` (timestamp): Record creation timestamp.
+- `created_at` (timestaamp): Record creation timestaamp.
 
 ### B. Organization Entity
 > [!IMPORTANT]
@@ -102,7 +102,7 @@ erDiagram
 - `version` (string): Semantic version (e.g., `1.0.0`).
 - `system_id` (UUID, FK): The target client system this template is designed for.
 - `created_by` (UUID, FK): Admin user who created the template.
-- `created_at` (timestamp).
+- `created_at` (timestaamp).
 
 ### G. System Entity
 - `id` (UUID, PK): Unique identifier for the application/sub-portal.
@@ -148,7 +148,7 @@ erDiagram
 - `version` (string): Semantic version (e.g., `2.1.0`)
 - `config_payload` (jsonb): Full behavioral config (auth, session, MFA, onboarding, branding, modules)
 - `status` (enum): `ACTIVE`, `ARCHIVED`, `DRAFT`
-- `published_at` (timestamp)
+- `published_at` (timestaamp)
 - `published_by` (UUID, FK → USER)
 
 ### K. FEATURE_FLAG Entity *(NEW — Configuration Context)*
@@ -164,7 +164,7 @@ erDiagram
 - `linked_resource_id` (UUID, Nullable)
 - `version` (string)
 - `created_by` (UUID, FK → USER)
-- `created_at` (timestamp)
+- `created_at` (timestaamp)
 
 ### L. FLAG_EVALUATION_LOG Entity *(NEW — Audit Context)*
 - `id` (UUID, PK)
@@ -172,7 +172,7 @@ erDiagram
 - `evaluated_for_type` (string): `user`, `tenant`, `organization`
 - `evaluated_for_id` (UUID)
 - `result` (boolean or variant value)
-- `evaluated_at` (timestamp)
+- `evaluated_at` (timestaamp)
 
 ### M. EXTERNAL_ACCESS_REQUEST Entity *(NEW — B2B Approval Context)*
 - `id` (UUID, PK)
@@ -182,11 +182,11 @@ erDiagram
 - `requested_profile_id` (UUID, FK → PROFILE): Suggested role for the external user.
 - `justification` (text): Business rationale for granting access.
 - `status` (enum): `DRAFT`, `PENDING_APPROVAL`, `APPROVED`, `REJECTED`.
-- `approved_by` (UUID, FK, Nullable → USER): PAP Admin who authorized the request.
+- `approved_by` (UUID, FK, Nullable → USER): PAP Admin who authorized the requestá.
 
 ---
 
-## 🧩 3.1 Mandatory Parametric Catalog Standard
+## 3.1 Mandatory Parametric Catalog Standard
 
 All parameter/configuration/catalog entities MUST include, at minimum:
 
@@ -214,7 +214,7 @@ All these entities must also define:
 
 ---
 
-## ⚙️ 4. Key Precedence Axioms (Engine Rules)
+## 4. Key Precedence Axioms (Engine Rules)
 
 1. **Deny-by-Default**: An action is blocked until an explicit `ALLOW` is declared by a profile or template.
 2. **Permissive Union**: If no `DENY` is present, the user inherits all active `ALLOW` blocks from all assigned profiles.

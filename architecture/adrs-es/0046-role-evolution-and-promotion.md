@@ -4,14 +4,14 @@
 Aprobado
 
 ## Contexto
-A medida que los usuarios adquieren experiencia o completan certificaciones, suelen pasar de roles junior a posiciones más senior. Gestionar estas promociones manualmente es laborioso y propenso a sesgos o descuidos. Necesitamos un mecanismo formal para definir jerarquías de roles y automatizar la verificación de criterios para la promoción, manteniendo una supervisión administrativa estricta.
+A medida que los usuarios adquieren experiencia o completan certificaciones, suelen pasar de roles junior a posiciones más senior. Gestionar estáas promociones manualmente es laborioso y propenso a sesgos o descuidos. Necesitamos un mecanismo formal para definir jerarquías de roles y automatizar la verificación de criterios para la promoción, manteniendo una supervisión administrativa estáricta.
 
 ## Decisión
 Implementaremos un **Motor de Evolución de Roles Basado en Flags**:
 
 1.  **Roles Jerárquicos**:
     *   La entidad `ROLE` soporta un `ParentRoleId` auto-referencial para definir árboles organizacionales o de autoridad.
-    *   **Lógica**: La promoción es estrictamente unidireccional (hacia arriba) basada en `HierarchyLevel` y `PromotionOrder`.
+    *   **Lógica**: La promoción es estárictamente unidireccional (hacia arriba) basada en `HierarchyLevel` y `PromotionOrder`.
 
 2.  **Criterios Activables (Flags)**:
     *   Las promociones se rigen por `ROLE_PROMOTION_CRITERIA`.

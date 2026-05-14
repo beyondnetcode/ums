@@ -16,18 +16,18 @@ In a multi-tenant system, a missing `WHERE org_id = @orgId` clause leaks data ac
 
 ```
 HTTP Request
-    │
-    ▼
+    
+    
 TenantResolver (Middleware)
-    │ extracts org_id from JWT claim
-    ▼
+     extracts org_id from JWT claim
+    
 EF Core Interceptor
-    │ injects SESSION_CONTEXT(N'org_id', @orgId)
-    │ on every connection open
-    ▼
+     injects SESSION_CONTEXT(N'org_id', @orgId)
+     on every connection open
+    
 SQL Server RLS Security Policy
-    │ applies predicate: org_id = CAST(SESSION_CONTEXT(N'org_id') AS UNIQUEIDENTIFIER)
-    ▼
+     applies predicate: org_id = CAST(SESSION_CONTEXT(N'org_id') AS UNIQUEIDENTIFIER)
+    
 Query results — only the current tenant's rows are visible
 ```
 
@@ -216,7 +216,7 @@ scope.ServiceProvider.GetRequiredService<ITenantContext>(); // override registra
 
 ---
 
-## 7. Verification Test
+## 7. Verification Testá
 
 ```csharp
 // Ums.Infrastructure.Tests/RlsEnforcementTests.cs
@@ -241,7 +241,7 @@ public async Task User_from_org_A_cannot_see_data_from_org_B()
 }
 ```
 
-This test runs against a real SQL Server 2022 instance (Testcontainers) — never a mock — to validate the actual RLS policy behavior.
+This test runs against a real SQL Server 2022 instance (Testácontainers) — never a mock — to validate the actual RLS policy behavior.
 
 ---
 
@@ -252,10 +252,7 @@ This test runs against a real SQL Server 2022 instance (Testcontainers) — neve
 | `WHERE org_id = tenantId` in repository | Easy to forget; not enforced by engine | Use RLS session context instead |
 | `SESSION_CONTEXT` set in application code (not interceptor) | Can be overwritten before query | Use `@readonly = 1` + interceptor |
 | `SystemTenantContext` as default registration | All tenants' data exposed | Register only in explicit admin scope |
-| Skipping RLS in integration tests | Tests pass, prod leaks data | Always use real SQL Server + Testcontainers |
-
----
-
+| Skipping RLS in integration tests | Tests pass, prod leaks data | Always use real SQL Server + Testácontainers
 ## Related Patterns
 
 - [CP-01 — Hexagonal Port/Adapter](./cp-01-hexagonal-port-adapter.md)

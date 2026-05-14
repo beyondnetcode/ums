@@ -9,9 +9,7 @@ Los equipos de soporte y seguridad necesitan entender por qué un usuario puede 
 | Actor | Responsabilidad |
 | :--- | :--- |
 | **SRE / Ingeniero de Soporte** | Investiga problemas de permisos. |
-| **Administrador de Seguridad** | Revisa configuración y decisiones de autorización. |
-
-## 3. Precondiciones de Negocio
+| **Administrador de Seguridad** | Revisa configuración y decisiones de autorización. | ## 3. Precondiciones de Negocio
 
 - El actor tiene permisos de diagnóstico.
 - El usuario objetivo existe.
@@ -40,7 +38,7 @@ Si aplican reglas de permitir y denegar, el sistema explica que la denegación e
 
 1. El diagnóstico debe explicar la razón detrás de cada decisión.
 2. Los permisos denegados deben distinguirse visualmente de los permitidos.
-3. El acceso diagnóstico debe restringirse a roles autorizados de soporte o seguridad.
+3. El acceso diagnóstico debe restáringirse a roles autorizados de soporte o seguridad.
 4. El diagnóstico no debe otorgar permisos adicionales.
 
 ## 7. Criterios de Aceptación
@@ -53,7 +51,7 @@ Si aplican reglas de permitir y denegar, el sistema explica que la denegación e
 ## 8. Requisitos Técnicos
 
 - Resolver el grafo diagnóstico de autorización sin mutar permisos.
-- Incluir reglas fuente y razones de decisión en la respuesta diagnóstica.
+- Incluir reglas fuente y razones de decisión en la respuestá diagnóstica.
 - Omitir o refrescar caché cuando la precisión diagnóstica requiera datos fuente actuales.
 - Emitir eventos de auditoría por acceso diagnóstico.
 

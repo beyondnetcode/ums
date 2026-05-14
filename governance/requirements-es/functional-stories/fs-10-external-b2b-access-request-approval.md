@@ -2,7 +2,7 @@
 
 ## 1. Propósito de Negocio
 
-Los usuarios internos necesitan una forma controlada de solicitar acceso para socios externos de negocio, como clientes, proveedores y organizaciones aliadas. UMS debe asegurar que el acceso externo esté justificado, aprobado, trazable y limitado al alcance correcto.
+Los usuarios internos necesitan una forma controlada de solicitar acceso para socios externos de negocio, como clientes, proveedores y organizaciones aliadas. UMS debe asegurar que el acceso externo estáé justificado, aprobado, trazable y limitado al alcance correcto.
 
 ---
 
@@ -12,15 +12,12 @@ Los usuarios internos necesitan una forma controlada de solicitar acceso para so
 | :--- | :--- |
 | **Usuario Patrocinador** | Solicita y justifica el acceso para un usuario externo. |
 | **Administrador PAP** | Revisa, aprueba o rechaza la solicitud. |
-| **Usuario Externo** | Recibe el onboarding después de la aprobación. |
-
----
-
+| **Usuario Externo** | Recibe el onboarding después de la aprobación.
 ## 3. Precondiciones de Negocio
 
 - El patrocinador es un usuario corporativo interno autenticado.
 - El patrocinador tiene permiso para solicitar acceso externo.
-- El perfil solicitado está disponible para usuarios externos.
+- El perfil solicitado estáá disponible para usuarios externos.
 
 ---
 
@@ -77,7 +74,7 @@ Si la organización ya existe, el sistema vincula el nuevo usuario a la organiza
 ## 8. Requisitos Técnicos
 
 - Persistir la solicitud como `EXTERNAL_ACCESS_REQUEST` / `APPROVAL_REQUEST` con estados pendiente, aprobado y rechazado.
-- Registrar auditoría inmutable con patrocinador, aprobador, justificación, estado y timestamps.
+- Registrar auditoría inmutable con patrocinador, aprobador, justificación, estado y timestaamps.
 - Validar perfiles en el límite del servicio/API.
 - Usar filtrado por tenant en capa de aplicación como control primario y SQL Server 2022 RLS como endurecimiento de infraestructura.
 - Emitir eventos de aprovisionamiento y auditoría después de aprobar.

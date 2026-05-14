@@ -1,22 +1,22 @@
-# 🚀 BMAD Architectural Gap Analysis & Optimization Plan
+# BMAD Architectural Gap Analysis & Optimization Plan
 
-## 📋 Executive Summary
+## Executive Summary
 This document analyzes the current state of the UMS (User Management System) monorepo architecture against 16 Enterprise-Grade Quality Criteria. The analysis identifies areas of high maturity (where the architecture perfectly aligns) and strategic **GAPS** (where new architectural decisions are required to meet enterprise demands, particularly for high-availability logistics and customs integrations).
 
 ---
 
-## ✅ 1. Fully Covered Criteria (High Maturity)
+## 1. Fully Covered Criteria (High Maturity)
 The current architecture (ADRs 0001 to 0010) already perfectly satisfies the following criteria:
 
 *   **Resilience (5)**: Achieved via Strict Hexagonal Boundaries (ADR 0002) and SonarQube/ESLint Governance (ADR 0003).
 *   **Modularity (8)**: Achieved via Nx Monorepo, strict dependency rules, and ESLint boundaries (ADR 0001).
 *   **Observability (9)**: Addressed proactively in the backlog via OpenTelemetry and Loki (ADR 0007).
-*   **Technical Governance (14)**: Perfectly executed via the ongoing spec-driven AI strategy BMAD-METHOD ADR registry, automated CHANGELOGs, and the new **[Global Engineering Standards Manifesto](./engineering_standards.md)** enforcing SOLID, DRY, KISS, Secure by Design (OWASP), and optional DDD.
+*   **Technical Governance (14)**: Perfectly executed via the ongoing spec-driven AI strategy BMAD-METHOD ADR registry, automated CHANGELOGs, and the new **[Global Engineering Standards Manifestáo](./engineering_standards.md)** enforcing SOLID, DRY, KISS, Secure by Design (OWASP), and optional DDD.
 *   **Portability (15 & 16)**: Implicitly achieved via existing Docker containerization.
 
 ---
 
-## 🚧 2. Identified GAPS & Optimization Plan (Proposed ADRs)
+## 2. Identified GAPS & Optimization Plan (Proposed ADRs)
 
 To elevate the UMS platform to support mission-critical operations (like SUNAT customs transmissions, 24/7 terminal operations, and strict legal audits), we have identified **8 Strategic GAPS**. 
 
@@ -58,26 +58,24 @@ We propose the following roadmap of new ADRs to close these gaps definitively:
 *   **Proposed Solution**: **[ADR 0017: Feature Flagging Strategy]**. Integrate a toggle mechanism (e.g., Unleash or LaunchDarkly) to enable/disable features dynamically without recompilation.
 
 ### GAP 8: Automated Quality & Testing Pyramids
-*   **Missing Criterion**: Testability (12) - CI/CD Coverage > 70%.
+*   **Missing Criterion**: Testáability (12) - CI/CD Coverage > 70%.
 *   **Risk**: CI runs tests, but there is no architectural mandate enforcing a specific coverage threshold or distinguishing Unit vs. E2E tests.
-*   **Proposed Solution**: **[ADR 0018: Testing Pyramid & Automated Quality Gates]**. Formalize Jest configurations, enforce strict >70% coverage thresholds in SonarQube, and define Postman/Newman for API E2E testing.
+*   **Proposed Solution**: **[ADR 0018: Testing Pyramid & Automated Quality Gates]**. Formalize Jestá configurations, enforce strict >70% coverage thresholds in SonarQube, and define Postman/Newman for API E2E testing.
 
 ---
 
-## 🎯 Implementation Tracking Checklist
+## Implementation Tracking Checklist
 Use this checklist to track the documentation and implementation of the proposed architectural upgrades.
 
 | ID | Title / Strategy | ADR Document Status | Implementation Status |
 | :--- | :--- | :--- | :--- |
-| **ADR 0011** | Fault Tolerance & Resiliency Patterns | ✅ Approved | ✅ Executed |
-| **ADR 0012** | Advanced Authorization (RBAC/ABAC) | ✅ Approved | ✅ Executed |
-| **ADR 0013** | Cloud Infrastructure Topology & DR | 🟡 Proposed | ⏳ Pending |
-| **ADR 0014** | Distributed Caching Strategy | ✅ Approved | ✅ Executed |
-| **ADR 0015** | Event-Driven Architecture (EDA) | ✅ Approved | ✅ Executed |
-| **ADR 0016** | Immutable Business Audit Trail | ✅ Approved | ✅ Executed |
-| **ADR 0017** | Feature Flagging Strategy | ✅ Approved | ✅ Executed |
-| **ADR 0018** | Testing Pyramid & Quality Gates | ✅ Approved | ✅ Executed |
-| **ADR 0019** | Tactical Design Patterns (Result, Null Object) | ✅ Approved | ✅ Executed |
-
----
-*Note: All ADR documents have been initially generated and added to the architecture backlog. Review each one and request its technical implementation into the monorepo.*
+| **ADR 0011** | Fault Tolerance & Resiliency Patterns | Approved | Executed |
+| **ADR 0012** | Advanced Authorization (RBAC/ABAC) | Approved | Executed |
+| **ADR 0013** | Cloud Infrastructure Topology & DR | 🟡 Proposed | Pending |
+| **ADR 0014** | Distributed Caching Strategy | Approved | Executed |
+| **ADR 0015** | Event-Driven Architecture (EDA) | Approved | Executed |
+| **ADR 0016** | Immutable Business Audit Trail | Approved | Executed |
+| **ADR 0017** | Feature Flagging Strategy | Approved | Executed |
+| **ADR 0018** | Testing Pyramid & Quality Gates | Approved | Executed |
+| **ADR 0019** | Tactical Design Patterns (Result, Null Object) | Approved | Executed
+*Note: All ADR documents have been initially generated and added to the architecture backlog. Review each one and requestá its technical implementation into the monorepo.*

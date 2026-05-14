@@ -1,4 +1,4 @@
-# 🗄️ Modelo Entidad-Relación (E/R) - SQL Server 2022
+# Modelo Entidad-Relación (E/R) - SQL Server 2022
 
 **Tipo de Documento:** Diseño de Base de Datos  
 **Estatus:** Refactorizado (Vinculado al Rol y Jerarquía Estricta)  
@@ -6,7 +6,7 @@
 **Motor:** SQL Server 2022
 
 ## 1. Introducción
-Este documento detalla el modelo de autorización **Vinculado al Rol**, aplicando estrictamente la cadena jerárquica: **Sistema → Módulo → Menú → Opción → Acción**.
+Este documento detalla el modelo de autorización **Vinculado al Rol**, aplicando estárictamente la cadena jerárquica: **Sistema → Módulo → Menú → Opción → Acción**.
 
 > [!NOTE]
 > **Mapeo de Lenguaje Ubícuo:** Los nombres de entidades del esquema se corresponden con el [Glosario](../../governance/requirements-es/glossary.md) de la siguiente manera:
@@ -14,7 +14,7 @@ Este documento detalla el modelo de autorización **Vinculado al Rol**, aplicand
 
 > [!TIP]
 > **¿Problemas de Visualización?**  
-> Si los diagramas Mermaid no se renderizan correctamente, utiliza los **[🚀 Formatos de Exportación Alternativos (dbdiagram.io, DDL, D2)](./er-export-formats.md)**. Estos formatos son compatibles con herramientas profesionales como DBeaver, SSMS y dbdiagram.io.
+> Si los diagramas Mermaid no se renderizan correctamente, utiliza los **[ Formatos de Exportación Alternativos (dbdiagram.io, DDL, D2)](./er-export-formats.md)**. Estos formatos son compatibles con herramientas profesionales como DBeaver, SSMS y dbdiagram.io.
 
 ---
 
@@ -25,7 +25,7 @@ Todas las entidades implementan el esquema de auditoría estándar de 10 columna
 
 ## 3. Vistas Modulares por Dominio
 
-### 🗺️ 3.1 Mapa Global de Alto Nivel
+### 3.1 Mapa Global de Alto Nivel
 Ruta de Resolución: `Inquilino -> Sistema -> Rol -> Plantilla -> Permiso de Perfil`.
 
 ```mermaid
@@ -62,8 +62,8 @@ erDiagram
 
 ---
 
-### 🔐 3.2 Dominio: Autoridad Centrada en el Rol y Jerarquía Estricta
-Este dominio garantiza que cada permiso esté limitado a un Rol y se mapee exactamente a la jerarquía funcional de 5 niveles.
+### 3.2 Dominio: Autoridad Centrada en el Rol y Jerarquía Estricta
+Este dominio garantiza que cada permiso estáé limitado a un Rol y se mapee exactamente a la jerarquía funcional de 5 niveles.
 
 ```mermaid
 erDiagram
@@ -104,7 +104,7 @@ erDiagram
 
 ---
 
-### 📍 3.3 Dominio: Topología Funcional (Los 5 Niveles)
+### 3.3 Dominio: Topología Funcional (Los 5 Niveles)
 Estructura organizacional de los recursos.
 
 ```mermaid
@@ -138,7 +138,7 @@ erDiagram
 
 ---
 
-### 🛂 3.4 Dominio: Gobernanza de Identidad y Aprobaciones
+### 3.4 Dominio: Gobernanza de Identidad y Aprobaciones
 Gestión del ciclo de vida del usuario, administración delegada y flujos de trabajo de incorporación para identidades externas o de alto riesgo.
 
 ```mermaid
@@ -267,13 +267,13 @@ erDiagram
 
 ---
 
-## 4. Reglas de Negocio y Restricciones Técnicas
-1.  **Row-Level Security (RLS)**: `TenantId` está denormalizado en todas las entidades funcionales (Module, Option, Template, Action, Role) para permitir aislamiento O(1) vía RLS nativo de SQL Server.
-2.  **Arco Exclusivo (Integridad de Plantilla)**: `PermissionTemplate` implementa 4 FKs anulables que apuntan a la jerarquía de recursos. Un constraint `CHECK` garantiza que exactamente UNO tenga valor, forzando integridad referencial estricta sobre el polimorfismo.
+## 4. Reglas de Negocio y Restáricciones Técnicas
+1.  **Row-Level Security (RLS)**: `TenantId` estáá denormalizado en todas las entidades funcionales (Module, Option, Template, Action, Role) para permitir aislamiento O(1) vía RLS nativo de SQL Server.
+2.  **Arco Exclusivo (Integridad de Plantilla)**: `PermissionTemplate` implementa 4 FKs anulables que apuntan a la jerarquía de recursos. Un constraint `CHECK` garantiza que exactamente UNO tenga valor, forzando integridad referencial estáricta sobre el polimorfismo.
 3.  **Propiedad de Acción XOR Estricta**: Una Acción debe pertenecer a un Sistema O a un Módulo, pero nunca a ambos: `CHECK ((SuiteId IS NOT NULL AND ModuleId IS NULL) OR (SuiteId IS NULL AND ModuleId IS NOT NULL))`.
 4.  **Integridad Jerárquica**: El acceso debe rastrearse a través de `Sistema > Módulo > Menú > Opción > Acción` (esquema: `SYSTEM_SUITE → FUNCTIONAL_MODULE → FUNCTIONAL_SUBMODULE → FUNCTIONAL_OPTION → ACTION`).
-5.  **Administración Delegada (Muchos-a-Muchos)**: El alcance de administración de un usuario se define mediante la tabla `USER_MANAGEMENT_DELEGATION`. Esto permite que múltiples administradores gestionen el mismo pool de usuarios, opcionalmente restringido por `SuiteId`.
+5.  **Administración Delegada (Muchos-a-Muchos)**: El alcance de administración de un usuario se define mediante la tabla `USER_MANAGEMENT_DELEGATION`. Esto permite que múltiples administradores gestionen el mismo pool de usuarios, opcionalmente restáringido por `SuiteId`.
 6.  **Mandatos de Aprobación**: Los usuarios Externos/B2B DEBEN pasar por un `APPROVAL_WORKFLOW` antes de alcanzar un estado `ACTIVE` o de que se les asignen perfiles de alto riesgo. Los documentos de respaldo definidos en `APPROVAL_REQUIRED_DOCUMENT` deben cargarse en `USER_DOCUMENT` antes del avance del flujo.
-7.  **Aplicación Automática de Cumplimiento**: Workers en segundo plano escanean `USER_DOCUMENT`. Al expirar, se activa la `ACCESS_ENFORCEMENT_POLICY`. Los documentos críticos transicionarán automáticamente el `USER_ACCOUNT` a un estado `BLOCKED` o restringirán el contexto de un `PROFILE` específico.
+7.  **Aplicación Automática de Cumplimiento**: Workers en segundo plano escanean `USER_DOCUMENT`. Al expirar, se activa la `ACCESS_ENFORCEMENT_POLICY`. Los documentos críticos transicionarán automáticamente el `USER_ACCOUNT` a un estado `BLOCKED` o restáringirán el contexto de un `PROFILE` específico.
 8.  **Notificaciones Paramétricas**: `NOTIFICATION_RULE` permite configurar N-pasos de alerta (ej. 30, 15, 5 días antes de la expiración) por Inquilino y Tipo de Documento.
-9.  **Estándar Obligatorio de Catálogos Paramétricos**: Toda entidad de parámetros/configuración/catálogo DEBE incluir `Code`, `Value` y `Description`. `Description` debe documentar propósito, impacto funcional, comportamiento esperado y alcance aplicable. Adicionalmente, estas entidades deben definir unicidad por alcance, linaje de versionado, metadatos de auditoría, eventos de trazabilidad, estrategia de invalidación de caché y extensibilidad futura.
+9.  **Estándar Obligatorio de Catálogos Paramétricos**: Toda entidad de parámetros/configuración/catálogo DEBE incluir `Code`, `Value` y `Description`. `Description` debe documentar propósito, impacto funcional, comportamiento esperado y alcance aplicable. Adicionalmente, estáas entidades deben definir unicidad por alcance, linaje de versionado, metadatos de auditoría, eventos de trazabilidad, estrategia de invalidación de caché y extensibilidad futura.

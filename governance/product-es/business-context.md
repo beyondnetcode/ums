@@ -1,4 +1,4 @@
-# 💼 Contexto de Negocio - Sistema de Gestión de Usuarios (UMS)
+# Contexto de Negocio - Sistema de Gestión de Usuarios (UMS)
 
 ## 1. Declaración del Problema
 Históricamente, los ecosistemas de software corporativo sufren de una gobernanza de identidad y acceso fragmentada. Cada sistema (TMS, WMS, CRM) gestiona su propia base de datos local de usuarios y roles. Esto resulta en:

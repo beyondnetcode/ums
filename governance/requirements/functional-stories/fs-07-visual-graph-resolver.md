@@ -9,9 +9,7 @@ Support and security teams need to understand why a user can or cannot perform a
 | Actor | Responsibility |
 | :--- | :--- |
 | **SRE / Support Engineer** | Investigates permission issues. |
-| **Security Administrator** | Reviews authorization configuration and decisions. |
-
-## 3. Business Preconditions
+| **Security Administrator** | Reviews authorization configuration and decisions. | ## 3. Business Preconditions
 
 - The actor has diagnostic permissions.
 - The target user exists.

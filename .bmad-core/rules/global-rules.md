@@ -92,9 +92,21 @@ This document establishes the mandatory rule configuration for the AI agent harn
     2. Architect agent — technical lens, system coherence, stack alignment, diagrams.
     The Architect phase must build upon PO phase output. Never reverse or parallelize this order unless explicitly instructed.
 
----
-
 ### R-12: Naming and Tagging Convention Enforcement
 *   **Scope**: `po`, `architect`, `dev`, `analyst`, `sm`
 *   **Trigger Condition**: UC, story, epic, or technical enabler creation or update.
 *   **Instruction**: All UCs, stories, epics, and technical enablers must follow the project naming convention and tagging taxonomy. Apply category prefixes and tags on creation and update. Flag untagged or incorrectly named artifacts before merge.
+
+---
+
+### R-13: Enterprise Structuring Standard
+*   **Scope**: `po`, `architect`, `dev`, `qa`, `sm`, `analyst`
+*   **Trigger Condition**: Repository initialization, new module creation, or documentation refactoring.
+*   **Instruction**: All directory creation, module scaffolding, and file naming must strictly follow the `structuring-standard.md` (R-13). Any deviation requires an explicit ADR.
+
+---
+
+### R-14: Enterprise Documentation Professionalism
+*   **Scope**: `po`, `architect`, `dev`, `qa`, `analyst`
+*   **Trigger Condition**: Creation or modification of any Markdown (.md) file.
+*   **Instruction**: Documentation must maintain a clean, professional enterprise visual standard. The use of emojis, UTF-8 icons, or non-standard decorative characters is strictly forbidden in headings, tables, or body text. Prioritize structured plain text, standard Markdown headings, clean tables, and simple lists. This applies to all supported languages.

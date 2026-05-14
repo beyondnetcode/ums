@@ -12,10 +12,7 @@ Compliance administrators need to warn users before required documents expire, s
 | :--- | :--- |
 | **Compliance Administrator** | Defines notification timing and delivery channels. |
 | **User** | Receives renewal reminders. |
-| **Compliance Engine** | Applies active rules when documents approach expiration. |
-
----
-
+| **Compliance Engine** | Applies active rules when documents approach expiration.
 ## 3. Business Preconditions
 
 - The document type exists.

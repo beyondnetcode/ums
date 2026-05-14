@@ -1,4 +1,4 @@
-# 🗄️ Entity-Relationship (E/R) Model - SQL Server 2022
+# Entity-Relationship (E/R) Model - SQL Server 2022
 
 **Document Type:** Database Design  
 **Status:** Refactored (Role-Scoped & Strict Hierarchy)  
@@ -14,7 +14,7 @@ This document details the **Role-Scoped** authorization model, strictly enforcin
 
 > [!TIP]
 > **Visualization Issues?**  
-> If Mermaid diagrams do not render correctly in your IDE, please use the **[🚀 Alternative Export Formats (dbdiagram.io, DDL, D2)](./er-export-formats.md)**. These formats are compatible with professional tools like DBeaver, SSMS, and dbdiagram.io.
+> If Mermaid diagrams do not render correctly in your IDE, please use the **[ Alternative Export Formats (dbdiagram.io, DDL, D2)](./er-export-formats.md)**. These formats are compatible with professional tools like DBeaver, SSMS, and dbdiagram.io.
 
 ---
 
@@ -25,7 +25,7 @@ All entities implement the standard 10-column audit schema.
 
 ## 3. Modular Domain Views
 
-### 🗺️ 3.1 Global High-Level Map
+### 3.1 Global High-Level Map
 Full Resolution Path: `Tenant -> System -> Role -> Template -> ProfilePermission`.
 
 ```mermaid
@@ -62,7 +62,7 @@ erDiagram
 
 ---
 
-### 🔐 3.2 Domain: Role-Centric Authority & Strict Hierarchy
+### 3.2 Domain: Role-Centric Authority & Strict Hierarchy
 This domain ensures every permission is scoped to a Role and maps exactly to the 5-level functional hierarchy.
 
 ```mermaid
@@ -104,7 +104,7 @@ erDiagram
 
 ---
 
-### 📍 3.3 Domain: Functional Topology (The 5 Levels)
+### 3.3 Domain: Functional Topology (The 5 Levels)
 Organizational structure of resources.
 
 ```mermaid
@@ -138,7 +138,7 @@ erDiagram
 
 ---
 
-### 🛂 3.4 Domain: Identity Governance & Approvals
+### 3.4 Domain: Identity Governance & Approvals
 Management of user lifecycle, delegated administration, and onboarding workflows for high-risk or external identities.
 
 ```mermaid

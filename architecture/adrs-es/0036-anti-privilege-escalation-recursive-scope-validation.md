@@ -1,6 +1,6 @@
 # ADR-0036: Anti-Escalada de Privilegios mediante Validación Recursiva de Alcance
 
-*   **Estado:** Propuesto
+*   **Estado:** Propuestao
 *   **Fecha:** 2026-05-13
 *   **Autores:** Equipo de Arquitectura Senior & Product Owners
 
@@ -13,7 +13,7 @@ En un sistema multi-inquilino jerárquico con administración delegada, la escal
 1. Acceder a recursos en un inquilino del mismo nivel o superior.
 2. Conceder permisos que no posee a otros usuarios.
 3. Delegar poderes administrativos más allá del alcance que recibió.
-4. Modificar políticas que restringen su propio inquilino o sus ancestros.
+4. Modificar políticas que restáringen su propio inquilino o sus ancestáros.
 5. Crear usuarios en inquilinos fuera de su ámbito gestionado.
 
 Las verificaciones RBAC tradicionales ("¿tiene el usuario el rol X?") son insuficientes porque no consideran la **relación jerárquica** entre el alcance del actor y el recurso objetivo.
@@ -28,13 +28,11 @@ Implementaremos un **Pipeline de Validación Recursiva de Alcance** que verifica
 
 | # | Invariante | Regla | Validación |
 |---|---|---|---|
-| I1 | **Dominancia Jerárquica** | El `taxonomy_rank` del actor debe ser estrictamente menor que el del objetivo | 1 consulta DB a `tenant_types` |
-| I2 | **Contención de Alcance** | El inquilino objetivo debe estar dentro del subárbol `managed_tenants[]` del actor | 1 JOIN en `tenant_closure` |
+| I1 | **Dominancia Jerárquica** | El `taxonomy_rank` del actor debe ser estárictamente menor que el del objetivo | 1 consulta DB a `tenant_types` |
+| I2 | **Contención de Alcance** | El inquilino objetivo debe estáar dentro del subárbol `managed_tenants[]` del actor | 1 JOIN en `tenant_closure` |
 | I3 | **No Expansión de Concesión** | El actor no puede delegar poderes que no posee | Recorrido de cadena de `DelegationGrant` |
-| I4 | **Restricción de Políticas** | El actor no puede modificar/eliminar una política MANDATORY de nivel superior | Verificación de `inheritance_mode` |
-| I5 | **Integridad de Revocación** | Si cualquier concesión en la cadena se revoca, todas las concesiones derivadas son inválidas | Verificación recursiva de estado de `DelegationGrant` |
-
-### 2.2. Pipeline de Middleware de Validación de Alcance
+| I4 | **Restáricción de Políticas** | El actor no puede modificar/eliminar una política MANDATORY de nivel superior | Verificación de `inheritance_mode` |
+| I5 | **Integridad de Revocación** | Si cualquier concesión en la cadena se revoca, todas las concesiones derivadas son inválidas | Verificación recursiva de estado de `DelegationGrant` | ### 2.2. Pipeline de Middleware de Validación de Alcance
 
 ```csharp
 app.UseMiddleware<TenantResolutionMiddleware>()
@@ -75,7 +73,7 @@ public class DelegationGrant : Entity
     public Result<DelegationGrant> Create(
         User granter, User grantee, DelegationScope scope, bool canDelegate, Guid? parentGrantId)
     {
-        // I3: Validar que granter posee el alcance que está delegando
+        // I3: Validar que granter posee el alcance que estáá delegando
     }
 
     public Result Revoke(Guid revokedByUserId)
@@ -142,12 +140,12 @@ public class ScopeContainmentMiddleware
                     && dbContext.TenantAssignments
                         .Where(ta => ta.UserId == actorUser.Id && ta.IsActive)
                         .Select(ta => ta.TenantId)
-                        .Contains(tc.AncestorId));
+                        .Contains(tc.AncestáorId));
 
             if (!isWithinScope)
             {
                 context.Items["AuthorizationResult"] = AuthorizationResult.Deny(
-                    "I2", $"El inquilino objetivo {targetTenantId} está fuera del alcance gestionado del actor");
+                    "I2", $"El inquilino objetivo {targetTenantId} estáá fuera del alcance gestionado del actor");
                 await WriteDeniedResponse(context);
                 return;
             }
@@ -198,11 +196,11 @@ CREATE TRIGGER trg_cascade_delegation_revocation
 
 *   **Defensa en profundidad**: Cinco invariantes independientemente testeables previenen puntos únicos de fallo en la lógica de seguridad.
 *   **Validación de jerarquía O(1)**: El rango de taxonomía elimina recorridos recursivos del árbol para la verificación más frecuente (I1).
-*   **Cadena de confianza explícita**: Cada delegación está vinculada a su padre, permitiendo trazabilidad completa y revocación en cascada.
+*   **Cadena de confianza explícita**: Cada delegación estáá vinculada a su padre, permitiendo trazabilidad completa y revocación en cascada.
 *   **Aislamiento de middleware**: Cada invariante se ejecuta como middleware independiente, permitiendo deshabilitación selectiva por endpoint.
 
 ### Negativas
 
 *   **Sobrecarga por petición**: 3-5 consultas DB por petición administrativa. Mitigación: Cachear rangos de taxonomía y alcances validados con TTL 60s.
 *   **Costo de revocación en cascada**: Revocar una cadena de delegación profundamente anidada requiere actualizaciones recursivas. Mitigación: Limitar profundidad de delegación a 5; procesar por lotes con CTE.
-*   **Riesgo de falsos positivos**: Invariantes demasiado estrictas podrían bloquear compartición legítima de datos cross-tenant. Mitigación: `tenant_edges` con `edge_type = 'data_sharing'` puede crear alcances de exclusión explícitos.
+*   **Riesgo de falsos positivos**: Invariantes demasiado estárictas podrían bloquear compartición legítima de datos cross-tenant. Mitigación: `tenant_edges` con `edge_type = 'data_sharing'` puede crear alcances de exclusión explícitos.

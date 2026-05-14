@@ -10,9 +10,7 @@ Las organizaciones necesitan delegar gestión de usuarios sin entregar poder adm
 | :--- | :--- |
 | **Administrador Delegante** | Otorga un alcance limitado de gestión a otro administrador. |
 | **Administrador Receptor** | Gestiona solo los usuarios y alcance delegados. |
-| **Administrador Superior** | Puede supervisar o revocar la autoridad delegada. |
-
-## 3. Precondiciones de Negocio
+| **Administrador Superior** | Puede supervisar o revocar la autoridad delegada. | ## 3. Precondiciones de Negocio
 
 - Ambos administradores pertenecen a un contexto de tenant autorizado.
 - El administrador delegante posee o controla los usuarios y el alcance delegado.

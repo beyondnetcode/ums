@@ -1,6 +1,6 @@
 # ADR-0039: RBAC/ABAC Híbrido con Motor de Compilación de Políticas
 
-*   **Estado:** Propuesto
+*   **Estado:** Propuestao
 *   **Fecha:** 2026-05-13
 *   **Autores:** Equipo de Arquitectura Senior & Product Owners
 
@@ -28,32 +28,32 @@ Implementaremos un **Motor de Compilación de Políticas** que pre-compila todas
 
 ```
 Usuario + Inquilino + Contexto
-        │
-        ▼
-┌──────────────────────────┐
-│ 1. Resolución de Roles   │ ← RBAC: coleccionar roles del usuario en el inquilino efectivo
-└──────────┬───────────────┘
-           ▼
-┌──────────────────────────────────┐
-│ 2. Colección de Policy Bindings  │ ← Recorrer cadena de ancestros vía closure table
-└──────────┬───────────────────────┘
-           ▼
-┌──────────────────────────────────┐
-│ 3. Aplicar Herencia de Políticas │ ← Resolver MANDATORY > DEFAULT > OPT_IN > NONE
-└──────────┬───────────────────────┘
-           ▼
-┌──────────────────────────────────┐
-│ 4. Filtro por Alcance Delegación │ ← Restringir al alcance de delegación efectivo
-└──────────┬───────────────────────┘
-           ▼
-┌──────────────────────────────────┐
-│ 5. Adjuntar Condiciones ABAC     │ ← Adjuntar predicados de atributos a cada permiso
-└──────────┬───────────────────────┘
-           ▼
-┌──────────────────────────────────┐
-│ 6. Compilación del Grafo         │ ← Construir lista plana ordenada de permisos
-└──────────┬───────────────────────┘
-           ▼
+        
+        
+
+ 1. Resolución de Roles    ← RBAC: coleccionar roles del usuario en el inquilino efectivo
+
+           
+
+ 2. Colección de Policy Bindings   ← Recorrer cadena de ancestáros vía closure table
+
+           
+
+ 3. Aplicar Herencia de Políticas  ← Resolver MANDATORY > DEFAULT > OPT_IN > NONE
+
+           
+
+ 4. Filtro por Alcance Delegación  ← Restáringir al alcance de delegación efectivo
+
+           
+
+ 5. Adjuntar Condiciones ABAC      ← Adjuntar predicados de atributos a cada permiso
+
+           
+
+ 6. Compilación del Grafo          ← Construir lista plana ordenada de permisos
+
+           
     CompiledPolicyGraph (cacheado)
 ```
 
@@ -89,7 +89,7 @@ public class AbacCondition
 
 ### 2.3. Algoritmo de Compilación
 
-El compilador: (1) recolecta bindings de la cadena de ancestros, (2) aplica reglas de herencia (MANDATORY siempre gana, DEFAULT es anulable), (3) filtra por alcance de delegación, (4) expande políticas a permisos planos, (5) resuelve conflictos: DENY explícito siempre gana sobre ALLOW. El resultado es una lista plana de `CompiledPermission` ordenada por prioridad.
+El compilador: (1) recolecta bindings de la cadena de ancestáros, (2) aplica reglas de herencia (MANDATORY siempre gana, DEFAULT es anulable), (3) filtra por alcance de delegación, (4) expande políticas a permisos planos, (5) resuelve conflictos: DENY explícito siempre gana sobre ALLOW. El resultado es una lista plana de `CompiledPermission` ordenada por prioridad.
 
 ### 2.4. Evaluación en Tiempo de Petición
 

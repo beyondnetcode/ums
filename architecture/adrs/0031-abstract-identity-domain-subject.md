@@ -6,7 +6,7 @@
 
 ---
 
-## 🏛️ 1. Context and Problem
+## 1. Context and Problem
 
 Currently, the User Management System (UMS) and the client domain implicitly use the "Employee" concept as the fundamental unit that holds permissions, interacts with systems, and authenticates against the Identity Provider (IdP).
 
@@ -15,13 +15,13 @@ This approach shows critical technical and functional coupling:
 *   **Domain Events:** The `UserRegisteredEvent` directly carries the `identityReference` field.
 *   **Business Rules:** Validations that require the reference to match internal Human Resources systems exclusively.
 
-### ⚠️ Identified Problem
+### Identified Problem
 With the introduction of B2B business flows (such as **Use Case 12 / FS-10: External Access Approval Workflow**), the business now requires provisioning access to identities that **are not employees** of the host company (e.g., third-party drivers, forklift operators hired by suppliers, external auditors, B2B clients).
 Forcing these individuals to have an "Organization Member Reference" forces "polluting" the HR database with external personnel, blocks agile provisioning, and creates semantic inconsistency in the domain.
 
 ---
 
-## 🎯 2. Architectural Decision
+## 2. Architectural Decision
 
 We have decided to **refactor the central identity entity in the UMS and system core, transitioning from the coupled concept of "Employee" to an agnostic abstraction of "Subject" (Subject / Identity)** mandatorily linked to an **"Organization"**.
 
@@ -31,13 +31,13 @@ The technical and functional implementation guidelines are:
 2.  **Replacement of References:**
     *   The `identity_reference` field in the database and API contracts will be renamed/migrated to `external_identity_reference` or simply `identity_reference`.
     *   The `identity_reference_type` field (`HR_ID`, `VENDOR_CODE`, `GOVERNMENT_ID`, `PARTNER_REF`) will be added to give semantic context to the external reference.
-3.  **Provisioning Responsibility by Organization:** The external user's organization becomes the entity responsible for their personnel's lifecycle, mediated by formal request flows approved by a corporate Sponsor (complying with the federated delegation principle).
+3.  **Provisioning Responsibility by Organization:** The external user's organization becomes the entity responsible for their personnel's lifecycle, mediated by formal requestá flows approved by a corporate Sponsor (complying with the federated delegation principle).
 
 ---
 
-## 📊 3. Transition Conceptual Diagram
+## 3. Transition Conceptual Diagram
 
-### ❌ Former Model (Coupled)
+### Former Model (Coupled)
 ```mermaid
 classDiagram
     class User {
@@ -51,7 +51,7 @@ classDiagram
     User --> HR_System : Tight Coupling
 ```
 
-### ✅ Proposed Model (Decoupled and Extensible)
+### Proposed Model (Decoupled and Extensible)
 ```mermaid
 classDiagram
     class Organization {
@@ -75,7 +75,7 @@ classDiagram
 
 ---
 
-## ⚖️ 4. Trade-offs and Consequences
+## 4. Trade-offs and Consequences
 
 ### Positive Consequences (Benefits)
 *   **Scalability and Reusability:** Native and unlimited support for any actor (suppliers, clients, M2M integration bots, IoT, contractors).
@@ -89,7 +89,7 @@ classDiagram
 
 ---
 
-## 🚀 5. Incremental Migration Strategy (Zero-Downtime)
+## 5. Incremental Migration Strategy (Zero-Downtime)
 
 To ensure operational continuity and not break backward compatibility:
 

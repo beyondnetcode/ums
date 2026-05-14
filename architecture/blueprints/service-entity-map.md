@@ -4,7 +4,7 @@ This document serves as the authoritative mapping between system entities, their
 
 ---
 
-## 🏛️ 1. Entity Ownership & Schema Mapping
+## 1. Entity Ownership & Schema Mapping
 
 | Entity | Bounded Context | Service Owner (Write) | Runtime | SQL Server Schema |
 | :--- | :--- | :--- | :--- | :--- |
@@ -31,11 +31,8 @@ This document serves as the authoritative mapping between system entities, their
 | **APPROVAL_REQUIRED_DOCUMENT**| Approvals | UMS Core API | .NET 8 | `[ums_approval]` |
 | **APPROVAL_REQUEST** | Approvals | UMS Core API | .NET 8 | `[ums_approval]` |
 | **APPROVAL_LOG** | Approvals | UMS Core API | .NET 8 | `[ums_approval]` |
-| **APP_CONFIGURATION** | Configuration | UMS Core API | .NET 8 | `[ums_config]` |
-
----
-
-## 🧱 1.1 Mandatory Parametric Catalog Contract
+| **APP_CONFIGURATION** | Configuration | UMS Core API | .NET 8 | `[ums_config]`
+## 1.1 Mandatory Parametric Catalog Contract
 
 For all parameter/configuration/catalog entities (including `APP_CONFIGURATION`, `NOTIFICATION_RULE`, `ACCESS_ENFORCEMENT_POLICY`, `APPROVAL_WORKFLOW`, and future `IDP_CONFIGURATION` / `SYSTEM_CONFIGURATION` / `FEATURE_FLAG` records), the write owner MUST enforce:
 
@@ -50,7 +47,7 @@ For all parameter/configuration/catalog entities (including `APP_CONFIGURATION`,
 
 ---
 
-## 🛠️ 2. Data Access & Governance Rules
+## 2. Data Access & Governance Rules
 
 1.  **Strict Write Ownership**: Only the **Service Owner** specified in the table above is allowed to perform `INSERT`, `UPDATE`, or `DELETE` operations on the corresponding entities.
 2.  **Cross-Service Reads (Read-Only)**:
@@ -60,7 +57,7 @@ For all parameter/configuration/catalog entities (including `APP_CONFIGURATION`,
 
 ---
 
-## ⚠️ 3. Explicit Correction: Database Engine Standardization
+## 3. Explicit Correction: Database Engine Standardization
 
 > [!IMPORTANT]
 > **Unified Engine Strategy**: Although `architecture/blueprints/stack.md` and some early prototypes mention PostgreSQL for Node.js/NestJS components, the final authoritative decision for the UMS production product is **SQL Server 2022 for all services**, regardless of the runtime (.NET 8 or NestJS).
@@ -69,6 +66,6 @@ For all parameter/configuration/catalog entities (including `APP_CONFIGURATION`,
 
 ---
 
-## 🔗 4. References
+## 4. References
 *   For the complete E/R diagram and relationship cardinality, refer to **[er-export-formats.md](er-export-formats.md)**.
 *   For technical implementation of **Progressive Isolation** (Application-level + SQL Server RLS hardening), refer to the Identity Context documentation and ADR-0041.

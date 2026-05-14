@@ -4,7 +4,7 @@
 Aprobado
 
 ## Contexto
-En un entorno altamente regulado, el acceso al sistema debe estar condicionado a la validez de la documentación de respaldo (identidad, contratos B2B, certificados). El monitoreo manual de las fechas de expiración es ineficiente y propenso a errores. Necesitamos un sistema que alerte proactivamente a los usuarios y restrinja automáticamente el acceso cuando la documentación crítica expire.
+En un entorno altamente regulado, el acceso al sistema debe estáar condicionado a la validez de la documentación de respaldo (identidad, contratos B2B, certificados). El monitoreo manual de las fechas de expiración es ineficiente y propenso a errores. Necesitamos un sistema que alerte proactivamente a los usuarios y restárinja automáticamente el acceso cuando la documentación crítica expire.
 
 ## Decisión
 Implementaremos un framework de **Aplicación de Políticas y Ciclo de Vida Documental**:
@@ -24,8 +24,8 @@ Implementaremos un framework de **Aplicación de Políticas y Ciclo de Vida Docu
 4.  **Arquitectura Desacoplada Basada en Eventos**:
     *   **Worker/Scheduler**: Escanea documentos diariamente y publica eventos (`DocumentNearExpirationEvent`, `DocumentExpiredEvent`).
     *   **Servicio de Notificación**: Consume eventos de expiración y despacha alertas multicanal.
-    *   **Motor de Políticas**: Consume `DocumentExpiredEvent` e interactúa con el `IdentityService` para bloquear cuentas o restringir perfiles.
+    *   **Motor de Políticas**: Consume `DocumentExpiredEvent` e interactúa con el `IdentityService` para bloquear cuentas o restáringir perfiles.
 
 ## Consecuencias
-*   **Positivo**: Garantiza el cumplimiento del 100% de los requisitos de gobernanza de identidad. Reduce la carga operativa para los administradores de inquilinos. Proporciona un rastro de auditoría claro de por qué se restringió el acceso.
+*   **Positivo**: Garantiza el cumplimiento del 100% de los requisitos de gobernanza de identidad. Reduce la carga operativa para los administradores de inquilinos. Proporciona un rastro de auditoría claro de por qué se restáringió el acceso.
 *   **Negativo**: Los usuarios pueden ser bloqueados inesperadamente si ignoran múltiples notificaciones. Requiere una lógica robusta de "Periodo de Gracia" y flujos de renovación sencillos en la interfaz de usuario.

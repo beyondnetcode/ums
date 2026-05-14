@@ -1,4 +1,4 @@
-# 🔬 Product Scope & Boundaries - User Management System (UMS)
+# Product Scope & Boundaries - User Management System (UMS)
 
 ## 1. In-Scope Capabilities
 The User Management System (UMS) is an **abstract, sovereign security kernel completely decoupled from any specific application suite**. It is designed to govern identities, behavioral configurations, and fine-grained permissions for any generic downstream system, communicating purely via:

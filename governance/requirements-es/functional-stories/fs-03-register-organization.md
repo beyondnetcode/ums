@@ -9,13 +9,11 @@ UMS debe permitir que administradores de seguridad incorporen una nueva organiza
 | Actor | Responsabilidad |
 | :--- | :--- |
 | **Administrador de Seguridad Global** | Registra organizaciones y elige su estrategia de identidad. |
-| **Administrador de Organización** | Podrá gestionar sedes, usuarios y configuraciones locales posteriormente. |
+| **Administrador de Organización** | Podrá gestionar sedes, usuarios y configuraciones locales posteriormente. | ## 3. Precondiciones de Negocio
 
-## 3. Precondiciones de Negocio
-
-- El actor está autenticado como administrador global.
-- La organización está aprobada para onboarding.
-- La información empresarial requerida está disponible.
+- El actor estáá autenticado como administrador global.
+- La organización estáá aprobada para onboarding.
+- La información empresarial requerida estáá disponible.
 
 ## 4. Flujo Funcional Principal
 

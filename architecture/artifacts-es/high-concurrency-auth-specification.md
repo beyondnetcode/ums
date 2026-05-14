@@ -1,25 +1,25 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versi�n original (Ingl�s) y est� programado para traducci�n oficial en la hoja de ruta.
+> **Nota de Arquitectura:** Este documento se encuentra actualmente en su versin original (Ingls) y está programado para traduccin oficial en la hoja de ruta.
 
-# 🔐 High-Concurrency Authentication & Authorization Specification (UMS)
+# High-Concurrency Authentication & Authorization Specification (UMS)
 
 This specification defines the enterprise-grade design, API contracts, security controls, and non-functional requirements for the **User Management System (UMS) High-Concurrency Authentication & Authorization API** under the **spec-driven AI strategy BMAD-METHOD**.
 
 ---
 
-## 🏛️ 1. Business Context Version
+## 1. Business Context Version
 *(Suitable for: `business-context.md` / Stakeholder Alignment)*
 
-### 🚀 High-Performance Access Gatekeeper
+### High-Performance Access Gatekeeper
 In a federated B2B SaaS ecosystem, user login is the highest-concurrency entry point. To ensure a seamless user experience, the UMS exposes a highly resilient, low-latency, and scalable authentication endpoint. This gateway abstracts both internal credentials and federated Identity Providers (IdPs)—such as Zitadel, Okta, Microsoft Entra ID, or OAuth2/Passport social logins (Google, etc.)—delegating identity verification while maintaining strict central authority over the multi-tenant context.
 
 Upon successful authentication, rather than returning a simple user profile, the API dynamically compiles and injects a unified, cached **Hierarchical Authorization Graph**. This graph maps precisely which Systems, Modules, Menus, Options, Actions, and Contextual Scopes the authenticated user is allowed to access within their specific corporate organization, ensuring dynamic UI rendering and robust downstream microservices authorization enforcement at runtime.
 
 ---
 
-## 📋 2. Product Requirement Version
+## 2. Product Requirement Version
 *(Suitable for: `product-scope.md` / `requirements.md` / Backlog)*
 
-### 📝 Product Feature: High-Performance Multi-Tenant Authenticator
+### Product Feature: High-Performance Multi-Tenant Authenticator
 *   **Actor**: Portal Users, External API Clients.
 *   **User Story**:
     > *As a* B2B multi-tenant user,
@@ -30,25 +30,25 @@ Upon successful authentication, rather than returning a simple user profile, the
 1.  **Agnostic Intake Schema**: The API must accept an agnostic payload containing authentication credentials (e.g., username/password or an external JWT/OAuth2 code), the `target_system_id` being accessed, and the `organization_id` (tenant context).
 2.  **Pluggable Identity Resolvers**: The system must support internal UMS-managed credentials (Bcrypt storage) and external IdPs (SAML, OIDC, OAuth2, WebAuthn, generic Social Identity Providers) without modifying business logic.
 3.  **Token Lifecycle Management**: Enforce secure session handshakes by issuing a short-lived **JSON Web Token (JWT) Access Token** coupled with a cryptographically secure, rotated **Refresh Token** (sliding expiration window).
-4.  **Hierarchical Authorization Compilation**: After credentials verification, compile a complete hierarchical JSON authorization tree mapping: `Organization ➔ System ➔ Role ➔ Module ➔ Menu ➔ Option ➔ Action`.
+4.  **Hierarchical Authorization Compilation**: After credentials verification, compile a complete hierarchical JSON authorization tree mapping: `Organization  System  Role  Module  Menu  Option  Action`.
 5.  **Dynamic Precedence Rule**: Apply the **Explicit-Deny Precedence** rule on compiled permissions before returning the payload to the client.
 
 ---
 
-## 🏗️ 3. Technical Architecture Version
+## 3. Technical Architecture Version
 *(Suitable for: `architecture-spec.md` / System Design)*
 
-### ⚙️ Stateless Session Handshake and Graph Compilation Flow
+### Stateless Session Handshake and Graph Compilation Flow
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User as 👤 Corporate User
-    participant Gateway as 🔐 API Gateway / BFF
-    participant AuthEngine as 🧠 UMS Auth Engine
-    participant IdP as 🔑 Agnostic IdP / Store
-    participant Redis as ⚡ Redis Cache
-    participant DB as 🐘 PostgreSQL (RLS)
+    actor User as  Corporate User
+    participant Gateway as  API Gateway / BFF
+    participant AuthEngine as  UMS Auth Engine
+    participant IdP as  Agnostic IdP / Store
+    participant Redis as  Redis Cache
+    participant DB as  PostgreSQL (RLS)
 
     User->>Gateway: POST /api/v1/auth/login { credentials, target_system, organization }
     Gateway->>AuthEngine: Delegate Authentication
@@ -73,7 +73,7 @@ sequenceDiagram
 
 ---
 
-## 📜 4. ADR-Ready Decision Statement
+## 4. ADR-Ready Decision Statement
 *(Suitable for: `03-adrs/0021-high-performance-auth-and-graph-compilation.md`)*
 
 ### Architectural Decision Record: ADR-0021
@@ -82,7 +82,7 @@ sequenceDiagram
 *   **Deciders**: Enterprise IAM Architect, Lead Developer, Product Owner
 
 #### Context
-High-concurrency user authentication and dynamic role-resolution are critical bottlenecks in B2B SaaS portals. Directly querying PostgreSQL relational schemas to build complex permission graphs on every single HTTP request causes high database load and poor p95 latencies.
+High-concurrency user authentication and dynamic role-resolution are critical bottlenecks in B2B SaaS portals. Directly querying PostgreSQL relational schemas to build complex permission graphs on every single HTTP requestá causes high database load and poor p95 latencies.
 
 #### Decision
 We will expose a unified, stateless `/api/v1/auth/login` endpoint that abstracts authentication providers (internal or external) and returns a pre-compiled, Redis-cached **Hierarchical Authorization Graph** alongside dual cryptographically rotated tokens (Access + Refresh Tokens).
@@ -97,7 +97,7 @@ We will expose a unified, stateless `/api/v1/auth/login` endpoint that abstracts
 
 ---
 
-## 🔌 5. API Design Considerations
+## 5. API Design Considerations
 *(Suitable for: Swagger/OpenAPI Specs & API Governance)*
 
 ### Agnostic Authentication Contract
@@ -166,7 +166,7 @@ X-Tenant-ID: org_enterprise_001
 
 ---
 
-## 📈 6. Non-Functional Requirements (NFRs)
+## 6. Non-Functional Requirements (NFRs)
 *(Suitable for: SLA / SRE Specifications)*
 
 1.  **High Concurrency Target**: The login and token-exchange API must support **>10,000 active concurrent connections** with zero degradation.
@@ -177,17 +177,17 @@ X-Tenant-ID: org_enterprise_001
 
 ---
 
-## 🛡️ 7. Security Considerations
+## 7. Security Considerations
 *(Suitable for: OWASP / Security Audit)*
 
 *   **HTTP-Only Cookies**: JWT Access and Refresh Tokens should be stored inside secure, HTTP-Only, SameSite=Strict cookies to mitigate Cross-Site Scripting (XSS) vectors.
-*   **Refresh Token Rotation (RTR)**: Every refresh request invalidates the old Refresh Token and issues a new one. If a reuse attempt of an old Refresh Token is detected, the entire session family is instantly revoked to prevent hijacking.
+*   **Refresh Token Rotation (RTR)**: Every refresh requestá invalidates the old Refresh Token and issues a new one. If a reuse attempt of an old Refresh Token is detected, the entire session family is instantly revoked to prevent hijacking.
 *   **Database Isolation (RLS)**: Core user profiles and permission tables are strictly locked down using PostgreSQL Row-Level Security based on the active Tenant Context.
 *   **Explicit-Deny Rules**: Authorization compilation enforces that any explicit `DENY` rule overrides all other inherited `ALLOW` permissions.
 
 ---
 
-## 🏷️ 8. Concise Executive Summary
+## 8. Concise Executive Summary
 *(Suitable for: High-level presentations)*
 
 > **Unified High-Concurrency IAM Core**: The UMS exposes a stateless, high-concurrency API (`/api/v1/auth/login`) that abstracts internal and external identity providers (Zitadel, Okta, Azure AD, Social logins) via a pluggable adapter pattern. Upon successful authentication, the API delivers dual cryptographically rotated tokens alongside a pre-compiled, Redis-cached **Hierarchical Authorization Graph** mapping multi-tenant permissions down to modules, menus, options, and actions in under **5ms**, combining outstanding high-throughput performance with robust, enterprise-grade access governance.

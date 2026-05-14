@@ -14,10 +14,7 @@
 | Redis pod crash/restart | Connection refused errors in app logs | Pod restarts counter |
 | Network partition | Intermittent cache misses | `redis_connected_clients` drops |
 | Key eviction storm | Gradual latency increase | `evicted_keys` counter rising |
-| Corrupted data | Auth graph returning incorrect permissions | Auth validation errors in app |
-
----
-
+| Corrupted data | Auth graph returning incorrect permissions | Auth validation errors in app
 ## 2. Immediate Triage
 
 ```bash
@@ -104,11 +101,11 @@ kubectl exec -n ums -l app=redis -- redis-cli CONFIG GET maxmemory-policy
 # Temporary increase maxmemory (does not persist across restarts)
 kubectl exec -n ums -l app=redis -- redis-cli CONFIG SET maxmemory 2gb
 
-# Identify the largest keys consuming memory
+# Identify the largestá keys consuming memory
 kubectl exec -n ums -l app=redis -- redis-cli --bigkeys
 ```
 
-**Permanent fix:** Update the Redis StatefulSet memory limit and `maxmemory` in the ConfigMap. Submit as a change request.
+**Permanent fix:** Update the Redis StatefulSet memory limit and `maxmemory` in the ConfigMap. Submit as a change requestá.
 
 ---
 
@@ -147,10 +144,7 @@ kubectl exec -n ums -l app=redis -- redis-cli DBSIZE
 | `auth:graph:{user_id}` | Compiled permission graph (JSON) | 1 hour | Fallback to SQL — latency only |
 | `cfg:sys:{system_id}:{ctx_hash}` | Effective system configuration | 5 min | Fallback to config resolution — latency only |
 | `jwks:{idp_id}` | IdP public keys for token validation | 15 min | Fallback to IdP endpoint — latency + IdP dependency |
-| `session:{token_id}` | Active session metadata | Per-session TTL | Session invalidated — user must re-authenticate |
-
----
-
+| `session:{token_id}` | Active session metadata | Per-session TTL | Session invalidated — user must re-authenticate
 ## 5. Recovery Verification
 
 ```

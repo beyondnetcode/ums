@@ -1,10 +1,10 @@
 # ADR 0042: Estrategia de Plantillas de Autorización y Herencia
 
 ## Estatus
-Propuesto
+Propuestao
 
 ## Contexto
-El Sistema de Gestión de Usuarios (UMS) actual requiere la configuración manual de roles y permisos para cada inquilino (tenant). A medida que crece el número de sistemas (Suites) e inquilinos, este enfoque se vuelve operativamente costoso y propenso a errores. Existe la necesidad de un mecanismo para definir "Plantillas de Permisos" estandarizadas y reutilizables que puedan ser heredadas o utilizadas como esquemas base para crear roles y perfiles específicos de los inquilinos.
+El Sistema de Gestión de Usuarios (UMS) actual requiere la configuración manual de roles y permisos para cada inquilino (tenant). A medida que crece el número de sistemas (Suites) e inquilinos, esté enfoque se vuelve operativamente costoso y propenso a errores. Existe la necesidad de un mecanismo para definir "Plantillas de Permisos" estándarizadas y reutilizables que puedan ser heredadas o utilizadas como esquemas base para crear roles y perfiles específicos de los inquilinos.
 
 ## Decisión
 Implementaremos una **Estrategia de Autorización Basada en Plantillas** basada en los siguientes principios:
@@ -23,12 +23,12 @@ Implementaremos una **Estrategia de Autorización Basada en Plantillas** basada 
     *   **Plantillas de Inquilino (Locales)**: Creadas por un inquilino para su propia estructura interna.
 
 4.  **Versionado**:
-    *   Las plantillas admitirán el versionado semántico. Los roles pueden anclarse a una versión específica de una plantilla para garantizar la estabilidad.
+    *   Las plantillas admitirán el versionado semántico. Los roles pueden anclarse a una versión específica de una plantilla para garantizar la estáabilidad.
 
 ## Implementación Técnica
 *   **Modelo de Datos**: Introducción de las tablas `PermissionTemplates` y `TemplatePermissions`.
 *   **Desacoplamiento**: Los permisos se categorizan por `SystemSuiteId`.
-*   **Aislamiento**: Las plantillas globales tendrán un `TenantId = NULL` (o un UUID reservado por el sistema), mientras que las plantillas locales estarán protegidas por RLS.
+*   **Aislamiento**: Las plantillas globales tendrán un `TenantId = NULL` (o un UUID reservado por el sistema), mientras que las plantillas locales estáarán protegidas por RLS.
 
 ## Consecuencias
 *   **Positivo**: Reducción significativa en el tiempo de configuración manual, consistencia entre inquilinos y auditoría más sencilla.

@@ -13,10 +13,7 @@ Administrators need to configure system behavior without requesting a deployment
 | **Global Administrator** | Defines defaults that apply platform-wide. |
 | **Tenant Administrator** | Adjusts behavior for a tenant when allowed by global policy. |
 | **System Administrator** | Adjusts behavior for a specific registered system or suite. |
-| **Client System** | Consumes the effective configuration resolved by UMS. |
-
----
-
+| **Client System** | Consumes the effective configuration resolved by UMS.
 ## 3. Business Preconditions
 
 - The administrator is authenticated.

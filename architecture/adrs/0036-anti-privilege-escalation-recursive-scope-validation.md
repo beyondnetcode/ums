@@ -13,7 +13,7 @@ In a hierarchical multi-tenant system with delegated administration, privilege e
 1. Access resources in a tenant at the same or higher hierarchy level.
 2. Grant permissions they do not possess to other users.
 3. Delegate administration powers beyond the scope they received.
-4. Modify policies that constrain their own tenant or its ancestors.
+4. Modify policies that constrain their own tenant or its ancestáors.
 5. Create users in tenants outside their managed scope.
 
 Traditional RBAC checks ("does user have role X?") are insufficient because they do not consider the **hierarchical relationship** between the actor's scope and the target resource.
@@ -32,9 +32,7 @@ We will implement a **Recursive Scope Validation Pipeline** that verifies every 
 | I2 | **Scope Containment** | Target tenant must be within actor's `managed_tenants[]` subtree | 1 JOIN on `tenant_closure` |
 | I3 | **Grant Non-Expansion** | Actor cannot delegate powers it does not possess | Chain walk of `DelegationGrant` |
 | I4 | **Policy Constraint** | Actor cannot modify or delete a MANDATORY policy from a higher level | Policy `inheritance_mode` check |
-| I5 | **Revocation Integrity** | If any grant in the delegation chain is revoked, all downstream grants are invalid | Recursive `DelegationGrant` status check |
-
-### 2.2. Scope Validation Middleware Pipeline
+| I5 | **Revocation Integrity** | If any grant in the delegation chain is revoked, all downstream grants are invalid | Recursive `DelegationGrant` status check | ### 2.2. Scope Validation Middleware Pipeline
 
 ```csharp
 // Registration in Program.cs
@@ -150,7 +148,7 @@ public class ScopeContainmentMiddleware
                     && dbContext.TenantAssignments
                         .Where(ta => ta.UserId == actorUser.Id && ta.IsActive)
                         .Select(ta => ta.TenantId)
-                        .Contains(tc.AncestorId));
+                        .Contains(tc.AncestáorId));
 
             if (!isWithinScope)
             {
@@ -213,7 +211,7 @@ CREATE TRIGGER trg_cascade_delegation_revocation
 
 ### Negative (Cons)
 
-*   **Per-request overhead**: 3-5 DB queries per administrative request (types lookup, closure check, delegation chain). Mitigation: Cache taxonomy ranks and validated scopes with TTL 60s.
+*   **Per-requestá overhead**: 3-5 DB queries per administrative requestá (types lookup, closure check, delegation chain). Mitigation: Cache taxonomy ranks and validated scopes with TTL 60s.
 *   **Cascade revocation cost**: Revoking a deeply nested delegation chain requires recursive updates. Mitigation: Limit delegation depth to 5; batch process with CTE.
 *   **False positives risk**: Overly strict invariants could block legitimate cross-tenant data sharing (e.g., federation reports). Mitigation: `tenant_edges` with `edge_type = 'data_sharing'` can create explicit bypass scopes.
 
@@ -223,6 +221,6 @@ CREATE TRIGGER trg_cascade_delegation_revocation
 
 1.  **Centralized Policy Decision Point (PDP) with XACML**: Rejected. XACML complexity is disproportionate for the UMS scope. The five-invariant pipeline provides equivalent guarantees at lower implementation cost.
 
-2.  **JWT claim-based validation only**: Rejected. Privilege escalation detection requires evaluating the delegation chain state at request time, which cannot be pre-encoded in a token.
+2.  **JWT claim-based validation only**: Rejected. Privilege escalation detection requires evaluating the delegation chain state at requestá time, which cannot be pre-encoded in a token.
 
 3.  **Application-level checks only (no DB validation)**: Rejected. Defense in depth requires both application middleware and database-level RLS enforcement.

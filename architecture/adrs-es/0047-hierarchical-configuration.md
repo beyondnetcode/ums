@@ -4,7 +4,7 @@
 Aprobado
 
 ## Contexto
-Un sistema multi-inquilino con módulos funcionales complejos requiere una forma flexible de gestionar configuraciones, feature flags y parámetros de negocio. Hardcodear estos valores o almacenarlos en tablas desconectadas no es escalable. Necesitamos un motor de configuración centralizado que soporte herencia y anulaciones (overrides) en diferentes alcances organizacionales.
+Un sistema multi-inquilino con módulos funcionales complejos requiere una forma flexible de gestionar configuraciones, feature flags y parámetros de negocio. Hardcodear estáos valores o almacenarlos en tablas desconectadas no es escalable. Necesitamos un motor de configuración centralizado que soporte herencia y anulaciones (overrides) en diferentes alcances organizacionales.
 
 ## Decisión
 Implementaremos un **Motor de Configuración Jerárquica** (`APP_CONFIGURATION`):
@@ -12,9 +12,9 @@ Implementaremos un **Motor de Configuración Jerárquica** (`APP_CONFIGURATION`)
 1.  **Resolución por Alcance (Herencia)**:
     *   Las configuraciones se pueden definir en cuatro niveles de granularidad:
         *   **Global**: `TenantId`, `SuiteId`, `ModuleId` son todos NULL.
-        *   **Tenant**: `TenantId` está poblado; los demás son NULL.
-        *   **Suite/Sistema**: `SuiteId` está poblado.
-        *   **Módulo**: `ModuleId` está poblado.
+        *   **Tenant**: `TenantId` estáá poblado; los demás son NULL.
+        *   **Suite/Sistema**: `SuiteId` estáá poblado.
+        *   **Módulo**: `ModuleId` estáá poblado.
     *   **Estrategia de Resolución**: "El Alcance más cercano gana". El sistema resuelve los parámetros buscando desde el alcance más específico (Módulo) hacia arriba hasta el nivel Global.
 
 2.  **Control de Herencia**:

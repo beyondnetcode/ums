@@ -8,7 +8,7 @@ Este estándar define cómo deben redactarse las Historias Funcionales de UMS pa
 
 ## 1. Estructura Obligatoria
 
-Toda Historia Funcional DEBE seguir esta estructura:
+Toda Historia Funcional DEBE seguir está estructura:
 
 1. **Propósito de Negocio**: qué problema resuelve y por qué importa.
 2. **Actores**: participantes principales y secundarios, descritos por responsabilidad de negocio.
@@ -17,7 +17,7 @@ Toda Historia Funcional DEBE seguir esta estructura:
 5. **Flujos Alternativos y Excepciones**: resultados de negocio ante rechazo, duplicidad, información faltante, servicio no disponible o estado inválido.
 6. **Reglas de Negocio**: reglas de dominio validables por el Product Owner.
 7. **Criterios de Aceptación**: condiciones verificables por PO/QA.
-8. **Requisitos Técnicos**: restricciones de implementación para desarrollo.
+8. **Requisitos Técnicos**: restricciónes de implementación para desarrollo.
 9. **Trazabilidad**: entidades, ADRs, Technical Enablers y artefactos operativos relacionados.
 
 ---
@@ -53,7 +53,7 @@ La sección de Requisitos Técnicos DEBE capturar:
 - códigos de error,
 - requisitos de protocolos o tokens,
 - contratos de integración,
-- restricciones derivadas de ADRs o Technical Enablers.
+- restricciónes derivadas de ADRs o Technical Enablers.
 
 Esta sección permite que desarrollo tenga precisión sin hacer más difícil la lectura funcional.
 

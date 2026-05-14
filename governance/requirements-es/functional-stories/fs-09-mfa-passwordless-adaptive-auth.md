@@ -2,7 +2,7 @@
 
 ## 1. Propósito de Negocio
 
-UMS debe reforzar la autenticación cuando el riesgo o la política del tenant lo requiera, permitiendo acceso moderno sin contraseña cuando esté permitido.
+UMS debe reforzar la autenticación cuando el riesgo o la política del tenant lo requiera, permitiendo acceso moderno sin contraseña cuando estáé permitido.
 
 ## 2. Actores
 
@@ -10,9 +10,7 @@ UMS debe reforzar la autenticación cuando el riesgo o la política del tenant l
 | :--- | :--- |
 | **Usuario Final** | Completa verificación adicional o inicio sin contraseña. |
 | **Administrador de Tenant** | Configura la política de autenticación. |
-| **UMS** | Evalúa política y riesgo antes de otorgar acceso. |
-
-## 3. Precondiciones de Negocio
+| **UMS** | Evalúa política y riesgo antes de otorgar acceso. | ## 3. Precondiciones de Negocio
 
 - El usuario tiene cuenta en UMS.
 - La política del tenant permite o exige MFA/passwordless.
@@ -23,7 +21,7 @@ UMS debe reforzar la autenticación cuando el riesgo o la política del tenant l
 1. El usuario inicia autenticación.
 2. UMS evalúa la política del tenant y el contexto de riesgo actual.
 3. Si se requiere verificación adicional, UMS solicita al usuario completar el desafío aprobado.
-4. Si el acceso sin contraseña está permitido, UMS permite autenticarse con el método registrado.
+4. Si el acceso sin contraseña estáá permitido, UMS permite autenticarse con el método registrado.
 5. Tras verificación exitosa, UMS establece la sesión del usuario.
 6. El usuario continúa hacia el sistema destino con los permisos correspondientes.
 
@@ -51,13 +49,13 @@ Si el contexto de riesgo es elevado, UMS exige verificación más fuerte antes d
 ## 7. Criterios de Aceptación
 
 1. Los usuarios pueden completar MFA cuando es requerido.
-2. Los usuarios pueden usar acceso sin contraseña cuando está permitido y registrado.
+2. Los usuarios pueden usar acceso sin contraseña cuando estáá permitido y registrado.
 3. La verificación fallida bloquea la creación de sesión.
 4. El riesgo elevado activa verificación más fuerte.
 
 ## 8. Requisitos Técnicos
 
-- Soportar mecanismos MFA y passwordless aprobados, incluyendo WebAuthn/passkeys cuando esté configurado.
+- Soportar mecanismos MFA y passwordless aprobados, incluyendo WebAuthn/passkeys cuando estáé configurado.
 - Evaluar política de seguridad tenant/sistema antes de emitir sesión.
 - Persistir estado de enrolamiento y resultados de verificación.
 - Emitir eventos de auditoría por registro, desafío, éxito, fallo y escalamiento de riesgo.

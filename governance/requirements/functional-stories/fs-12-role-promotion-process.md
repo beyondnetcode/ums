@@ -10,9 +10,7 @@ UMS must support controlled role evolution so users can advance when they meet s
 | :--- | :--- |
 | **Promotion Evaluator** | Detects users eligible for promotion. |
 | **Approving Administrator** | Reviews and approves or rejects the promotion. |
-| **User** | Receives the resulting role change. |
-
-## 3. Business Preconditions
+| **User** | Receives the resulting role change. | ## 3. Business Preconditions
 
 - Role hierarchy is defined.
 - Promotion criteria are configured.

@@ -9,17 +9,15 @@ Los administradores necesitan plantillas de autorización reutilizables para gob
 | Actor | Responsabilidad |
 | :--- | :--- |
 | **Administrador Global de TI** | Crea y mantiene plantillas reutilizables de autorización. |
-| **Administrador de Tenant/Sistema** | Asigna plantillas aprobadas a perfiles cuando está permitido. |
+| **Administrador de Tenant/Sistema** | Asigna plantillas aprobadas a perfiles cuando estáá permitido. | ## 3. Precondiciones de Negocio
 
-## 3. Precondiciones de Negocio
-
-- La topología del sistema destino está registrada.
-- Las acciones disponibles están definidas.
+- La topología del sistema destino estáá registrada.
+- Las acciones disponibles estáán definidas.
 - El administrador tiene permiso para gestionar plantillas.
 
 ## 4. Flujo Funcional Principal
 
-1. El administrador abre el gestor de plantillas.
+1. El administrador abre el gestáor de plantillas.
 2. El administrador crea una nueva plantilla con nombre, versión y propósito.
 3. El administrador selecciona los sistemas, menús, opciones y acciones que la plantilla permitirá o denegará.
 4. El sistema valida que los permisos seleccionados pertenezcan a recursos registrados válidos.
@@ -39,7 +37,7 @@ Si una nueva versión de plantilla entra en conflicto con sobrescrituras locales
 
 ## 6. Reglas de Negocio
 
-1. Las plantillas deben estar versionadas.
+1. Las plantillas deben estáar versionadas.
 2. Las plantillas solo deben referenciar recursos registrados válidos.
 3. La asignación de plantillas debe ser auditable.
 4. Los cambios que afectan usuarios existentes deben ser trazables.

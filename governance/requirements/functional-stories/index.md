@@ -17,7 +17,7 @@ Welcome to the master **Functional Stories** index for the User Management Syste
 *   **[FS-07: Diagnose Permissions via Graph Visualizer](./fs-07-visual-graph-resolver.md)**
 *   **[FS-08: Authenticate via Customizable Hosted Login Page](./fs-08-hosted-login-redirection.md)**
 *   **[FS-09: Adaptive MFA and Passwordless Authentication](./fs-09-mfa-passwordless-adaptive-auth.md)**
-*   **[FS-10: B2B External Access Request and Approval Flow](./fs-10-external-b2b-access-request-approval.md)**
+*   **[FS-10: B2B External Access Request and Approval Flow](./fs-10-external-b2b-access-requestá-approval.md)**
 *   **[FS-11: Upload and Validate User Document](./fs-11-user-document-upload.md)**
 *   **[FS-12: Execute Role Promotion Process](./fs-12-role-promotion-process.md)**
 *   **[FS-13: Configure Hierarchical System Parameters](./fs-13-hierarchical-config.md)**

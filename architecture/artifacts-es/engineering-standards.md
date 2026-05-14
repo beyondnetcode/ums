@@ -1,75 +1,66 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
+# Estándares Globales de Ingeniería y Guías del Desarrollador (Manifiesto BMAD)
 
-# ðï¸ Global Engineering Standards & Developer Guidelines (BMAD Manifesto)
+## 1.  Principios de Ingeniería Núcleo (Obligatorios)
+Todo el código, wrappers y diseños arquitectónicos dentro de este monorepo **DEBEN** adherirse estrictamente a los siguientes principios. Las revisiones de código rechazarán cualquier Pull Request que viole estas bases:
 
-## 1. ð Core Engineering Principles (Mandatory)
-All code, wrappers, and architectural designs within this monorepo **MUST** strictly adhere to the following principles. Code reviews will reject any Pull Request violating these foundations:
-
-*   **SOLID**: Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, and Dependency Inversion.
-*   **DRY (Don't Repeat Yourself)**: Eliminate unnecessary duplication. Consolidate shared logic into utilities or shared-kernel libraries.
-*   **KISS (Keep It Simple, Stupid)**: Avoid over-engineering. Write code that is easy to read, understand, and debug.
-*   **YAGNI (You Aren't Gonna Need It)**: Do not add functionality, abstractions, or tools until they are strictly necessary.
-*   **SoC (Separation of Concerns)**: Keep layers completely isolated. A controller must not write business logic; a use case must not execute raw SQL.
-*   **Clean Code & Clean Architecture**: Maintain strict boundaries (Adapters vs. Core). Ensure code readability and intent-revealing names.
-*   **Secure by Design & OWASP**: Validate all inputs (DTOs), sanitize outputs, enforce RBAC natively, and prevent SQL/NoSQL injections by default.
+*   **SOLID**: Responsabilidad Única, Abierto/Cerrado, Sustitución de Liskov, Segregación de Interfaces e Inversión de Dependencias.
+*   **DRY (Don't Repeat Yourself)**: Eliminar duplicación innecesaria. Consolidar lógica compartida en utilidades o librerías de núcleo compartido.
+*   **KISS (Keep It Simple, Stupid)**: Evitar la sobre-ingeniería. Escribir código fácil de leer, entender y depurar.
+*   **YAGNI (You Aren't Gonna Need It)**: No añadir funcionalidad, abstracciones o herramientas hasta que sean estrictamente necesarias.
+*   **SoC (Separation of Concerns)**: Mantener las capas completamente aisladas. Un controlador no debe escribir lógica de negocio; un caso de uso no debe ejecutar SQL crudo.
+*   **Clean Code y Arquitectura Limpia**: Mantener límites estrictos (Adaptadores vs. Núcleo). Asegurar la legibilidad del código y nombres que revelen la intención.
+*   **Seguridad por Diseño y OWASP**: Validar todas las entradas (DTOs), sanear salidas, aplicar RBAC de forma nativa y prevenir inyecciones SQL/NoSQL por defecto.
 
 ---
 
-## 2. ð¡ï¸ Domain-Driven Design (DDD): Optional & Pragmatic
-While our architecture supports tactical and strategic DDD:
-**DDD is strictly OPTIONAL**. 
-It shall only be used when it adds tangible value to a complex business domain. It must **not** be considered a mandatory or restrictive straitjacket for the architecture. For simple CRUD (Create, Read, Update, Delete) operations, standard Hexagonal Use Cases and Data Mappers are more than sufficient. Over-applying DDD to simple entities is considered an anti-pattern (Over-engineering).
+## 2.  Diseño Dirigido por el Dominio (DDD): Opcional y Pragmático
+Aunque nuestra arquitectura soporta DDD táctico y estratégico:
+**El uso de DDD es estrictamente OPCIONAL**. 
+Solo debe usarse cuando aporte valor tangible a un dominio de negocio complejo. No debe considerarse una "camisa de fuerza" obligatoria o restrictiva. Para operaciones CRUD simples, los Casos de Uso Hexagonales estándar y los Data Mappers son más que suficientes. Aplicar DDD en exceso a entidades simples se considera un anti-patrón (Sobre-ingeniería).
 
 ---
 
-## 3. ð« Architectural & Code Anti-Patterns (Strictly Forbidden)
-To guarantee high maintainability and low technical debt, the following practices are explicitly banned:
-*   **High Coupling**: Direct dependencies on concrete third-party tools within the Core. (Violates DIP).
-*   **God Classes / Magic Modules**: Classes that handle routing, validation, business logic, and database saving simultaneously.
-*   **Vendor Lock-In without Adapters**: Hardcoding SDKs (e.g., AWS SDK, Unleash, Redis) outside of isolated Infrastructure Ports/Adapters.
-*   **Spaghetti Code & Callback Hells**: Lack of structured async/await or functional monads (like the Result Pattern).
-*   **Ignored Exceptions**: Catching errors without properly logging them or returning generic 500s without trace IDs.
+## 3.  Anti-patrones Arquitectónicos y de Código (Estrictamente Prohibidos)
+Para garantizar una alta mantenibilidad y baja deuda técnica, las siguientes prácticas están explícitamente prohibidas:
+*   **Alto Acoplamiento**: Dependencias directas sobre herramientas de terceros concretas dentro del Núcleo (Viola DIP).
+*   **Clases Dios / Módulos Mágicos**: Clases que manejan enrutamiento, validación, lógica de negocio y persistencia simultáneamente.
+*   **Vendor Lock-In sin Adaptadores**: Hardcodear SDKs (ej. AWS SDK, Redis) fuera de Puertos/Adaptadores de infraestructura aislados.
+*   **Código Espagueti**: Falta de estructura async/await o mónadas funcionales (como el Result Pattern).
+*   **Excepciones Ignoradas**: Capturar errores sin registrarlos adecuadamente o retornar errores 500 genéricos sin IDs de traza.
 
 ---
 
-## 4. âï¸ Technical Governance & Enforcement Mechanisms
-Human review is flawed. We rely on **Automated Enforcement** to ensure these principles are sustainable over time within the BMAD framework:
+## 4.  Gobernanza Técnica y Mecanismos de Aplicación
+Confiamos en la **Aplicación Automatizada** para asegurar que estos principios sean sostenibles en el tiempo dentro del marco BMAD:
 
-1.  **Linters & Architectural Rules**: 
-    *   `eslint-plugin-boundaries` will automatically fail the build if a developer imports an outer layer (infrastructure) into an inner layer (core).
-2.  **Static Code Analysis**: 
-    *   `eslint-plugin-sonarjs` runs locally to detect cognitive complexity, cognitive debt, and code smells before a commit is even created.
-3.  **Quality Gates & CI/CD Validations**: 
-    *   GitHub Actions will block merging if tests fail or if the build breaks.
-4.  **Automated Testing & Coverage Thresholds**: 
-    *   Unit and E2E tests are mandatory. SonarQube/Jest will enforce a hard threshold of **>70% Code Coverage**.
-5.  **Dependency & Security Scanning**: 
-    *   Mandatory `npm audit --audit-level=high` in CI/CD pipelines to block vulnerable dependencies. GitHub CodeQL runs asynchronously to detect OWASP vulnerabilities.
-6.  **Coding Standards Enforcement**: 
-    *   Prettier and ESLint are enforced via Husky `pre-commit` hooks. Code that is not formatted correctly cannot be committed.
+1.  **Linters y Reglas Arquitectónicas**: `eslint-plugin-boundaries` fallará el build si un desarrollador importa una capa externa (infraestructura) en una capa interna (núcleo).
+2.  **Análisis de Código Estático**: `eslint-plugin-sonarjs` detecta complejidad cognitiva y deuda técnica antes del commit.
+3.  **Quality Gates en CI/CD**: GitHub Actions bloqueará el merge si las pruebas fallan o el build se rompe.
+4.  **Pruebas Automatizadas y Cobertura**: Las pruebas unitarias y E2E son obligatorias. Se requiere una **cobertura de código >70%**.
+5.  **Escaneo de Seguridad**: `npm audit` obligatorio en pipelines de CI/CD para bloquear dependencias vulnerables.
+6.  **Estándares de Formato**: Prettier y ESLint aplicados vía hooks de `pre-commit` con Husky.
 
 ---
 
-## 5. ð¯ Decision Priority Matrix
-Whenever a technical decision is made (e.g., writing a new ADR, choosing a library, or designing a module), the architect and developers must prioritize the following attributes, in order:
-1.  **Mantenibilidad** (Maintainability)
-2.  **Escalabilidad** (Scalability)
-3.  **Extensibilidad** (Extensibility)
-4.  **Desacoplamiento** (Decoupling)
-5.  **Observabilidad** (Observability)
-6.  **Seguridad** (Security)
-7.  **Resiliencia** (Resilience)
-8.  **Testabilidad** (Testability)
-9.  **Performance** (Performance)
-10. **Claridad Arquitectónica** (Architectural Clarity)
+## 5.  Matriz de Prioridad de Decisiones
+Al tomar una decisión técnica, se deben priorizar los siguientes atributos en este orden:
+1.  **Mantenibilidad**
+2.  **Escalabilidad**
+3.  **Extensibilidad**
+4.  **Desacoplamiento**
+5.  **Observabilidad**
+6.  **Seguridad**
+7.  **Resiliencia**
+8.  **Testabilidad**
+9.  **Rendimiento**
+10. **Claridad Arquitectónica**
 
 ---
 
-## 6. ð Pull Request Quality Checklist
-Before submitting a PR, developers must verify:
-- [ ] No outer-layer logic is leaked into the Domain.
-- [ ] Cross-cutting concerns (Logging, Caching) use Decorators or Ports (No hardcoded tool logic in the core).
-- [ ] DDD was only used if the domain complexity justified it; otherwise, standard Clean Architecture was used.
-- [ ] Test coverage for the new feature is >70%.
-- [ ] Local `npm run lint` and `npm run test` pass successfully.
-
+## 6.  Checklist de Calidad para Pull Requests
+Antes de enviar un PR, los desarrolladores deben verificar:
+- [ ] Ninguna lógica de capa externa se filtra al Dominio.
+- [ ] Los intereses transversales (Logging, Caché) usan Decoradores o Puertos.
+- [ ] Se usó DDD solo si la complejidad del dominio lo justificaba.
+- [ ] La cobertura de pruebas para la nueva característica es >70%.
+- [ ] `npm run lint` y `npm run test` pasan localmente.

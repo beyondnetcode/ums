@@ -1,4 +1,4 @@
-# ADR 0001: Orquestación de Monorepo con Nx y npm Workspaces
+# ADR 0001: Orquestáación de Monorepo con Nx y npm Workspaces
 
 * **Estado:** Aceptado (Incorporado por Referencia)
 * **Fuente Corporativa:** [arc32-1](https://github.com/beyondnetcode/arc32_progresive_monolith/blob/main/arc-corporate-ws/corporate-standards/02-adrs/core/0001-monorepo-orchestration-nx.md)

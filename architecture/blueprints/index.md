@@ -1,6 +1,6 @@
 # Blueprints Index
 
-?? **[Back to Architecture](../index.md)**
+**[Back to Architecture](../index.md)**
 
 - [Architecture Spec](./architecture-spec.md)
 - [Bounded Context Map](./bounded-context-map.md)

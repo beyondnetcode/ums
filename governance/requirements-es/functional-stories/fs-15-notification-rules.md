@@ -2,7 +2,7 @@
 
 ## 1. Propósito de Negocio
 
-Los administradores de cumplimiento necesitan advertir a los usuarios antes de que sus documentos requeridos expiren, para que puedan renovarlos a tiempo y evitar restricciones de acceso innecesarias.
+Los administradores de cumplimiento necesitan advertir a los usuarios antes de que sus documentos requeridos expiren, para que puedan renovarlos a tiempo y evitar restricciónes de acceso innecesarias.
 
 ---
 
@@ -12,10 +12,7 @@ Los administradores de cumplimiento necesitan advertir a los usuarios antes de q
 | :--- | :--- |
 | **Administrador de Cumplimiento** | Define tiempos y canales de notificación. |
 | **Usuario** | Recibe recordatorios de renovación. |
-| **Motor de Cumplimiento** | Aplica reglas activas cuando los documentos se acercan al vencimiento. |
-
----
-
+| **Motor de Cumplimiento** | Aplica reglas activas cuando los documentos se acercan al vencimiento.
 ## 3. Precondiciones de Negocio
 
 - El tipo de documento existe.

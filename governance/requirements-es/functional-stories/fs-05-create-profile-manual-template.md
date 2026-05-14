@@ -9,9 +9,7 @@ Los administradores necesitan crear perfiles que representen responsabilidades r
 | Actor | Responsabilidad |
 | :--- | :--- |
 | **Administrador de Seguridad** | Crea perfiles y asigna plantillas. |
-| **Gestor de Operaciones de Tenant** | Administra perfiles locales dentro de su alcance delegado. |
-
-## 3. Precondiciones de Negocio
+| **Gestáor de Operaciones de Tenant** | Administra perfiles locales dentro de su alcance delegado. | ## 3. Precondiciones de Negocio
 
 - La organización destino existe.
 - La sede destino existe cuando se requiere alcance por sede.

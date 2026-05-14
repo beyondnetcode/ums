@@ -16,10 +16,7 @@ This document specifies the flow, actors, and failure recovery strategy for guar
 | **Secondary Actor** | Outbox Relay Service (background worker) |
 | **Preconditions** | A business command has been received and validated. The UMS database is reachable. |
 | **Postconditions** | The domain event is persisted atomically with the business entity change and eventually delivered to RabbitMQ. No event is lost even if the broker is temporarily unavailable. |
-| **Invariant** | The business state change and its event record are written in the **same local transaction**. The relay never publishes an event before the business transaction commits. |
-
----
-
+| **Invariant** | The business state change and its event record are written in the **same local transaction**. The relay never publishes an event before the business transaction commits.
 ## 2. Transaction Flow
 
 ```mermaid
@@ -154,15 +151,12 @@ Consumers check this header against a processed-events log before applying side 
 | `outbox.events.pending` | Gauge | Backlog size — alert if > threshold for > N minutes |
 | `outbox.events.published_total` | Counter | Healthy throughput |
 | `outbox.events.dead_lettered` | Counter | Events that exhausted retries — requires intervention |
-| `outbox.relay.poll_duration_ms` | Histogram | Relay cycle latency |
-
----
-
+| `outbox.relay.poll_duration_ms` | Histogram | Relay cycle latency
 ## 7. Related Documents
 
 - [ADR-0033 — Transactional Outbox Pattern](../../../arc32_progresive_monolith/architecture/adrs/core/0033-transactional-outbox-pattern.md)
 - [ADR-0036 — Message Bus Delivery & DLQ Strategy](../../../arc32_progresive_monolith/architecture/adrs/core/0036-message-bus-delivery-strategy.md)
-- [FS-10 — B2B External Access Approval](../../governance/requirements/functional-stories/fs-10-external-b2b-access-request-approval.md)
+- [FS-10 — B2B External Access Approval](../../governance/requirements/functional-stories/fs-10-external-b2b-access-requestá-approval.md)
 - [FS-11 — Document Upload & Validation](../../governance/requirements/functional-stories/fs-11-user-document-upload.md)
 - [FS-15 — Expiration Notification Rules](../../governance/requirements/functional-stories/fs-15-notification-rules.md)
 - [Observability Strategy](../../artifacts/observability-strategy.md)

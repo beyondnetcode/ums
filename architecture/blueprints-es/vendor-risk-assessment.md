@@ -16,7 +16,7 @@ Este documento sirve como la línea base arquitectónica para evaluar el stack t
 ## 1. Frameworks y Lenguajes Principales
 **Estado:** 🟢 Riesgo Cero
 
-El núcleo de la aplicación está completamente aislado del bloqueo de proveedores gracias a la adhesión estricta a la Arquitectura Hexagonal (ADR-0002).
+El núcleo de la aplicación estáá completamente aislado del bloqueo de proveedores gracias a la adhesión estáricta a la Arquitectura Hexagonal (ADR-0002).
 * **TypeScript y Node.js**: Código Abierto (Apache 2.0 / MIT).
 * **NestJS**: Código Abierto (MIT), framework empresarial altamente adoptado.
 * **Nx Monorepo**: Código Abierto (MIT). *Nota: Nx Cloud ofrece almacenamiento en caché SaaS, pero el almacenamiento en caché local es 100% gratuito.*
@@ -25,15 +25,15 @@ El núcleo de la aplicación está completamente aislado del bloqueo de proveedo
 
 ## 2. Riesgos de Infraestructura Identificados y Mitigaciones
 
-### 🔴 Riesgo Financiero Alto: Proveedor de Identidad (IdP)
+### Riesgo Financiero Alto: Proveedor de Identidad (IdP)
 * **Contexto**: [ADR-0020](../03-adrs/0020-identity-provider-abstraction-strategy.md) abstrae al Proveedor de Identidad, permitiendo integraciones con soluciones SaaS como Auth0 o Azure Entra ID.
 * **El Riesgo**: Las plataformas de Identidad SaaS comerciales facturan por Usuarios Activos Mensuales (MAU) o tokens M2M. A una escala alta de B2C o B2B, los costos operativos pueden dispararse exponencialmente.
-* **Estrategia de Mitigación**: Si los costos de licencia se vuelven prohibitivos, el adaptador de infraestructura debe cambiarse a **Keycloak** (100% Código Abierto y gratuito). Sin embargo, esto traslada el costo financiero de la licencia al mantenimiento de DevOps (escalado de Kubernetes, gestión de bases de datos).
+* **Estrategia de Mitigación**: Si los costos de licencia se vuelven prohibitivos, el adaptador de infraestructura debe cambiarse a **Keycloak** (100% Código Abierto y gratuito). Sin embargo, estáo traslada el costo financiero de la licencia al mantenimiento de DevOps (escalado de Kubernetes, gestión de bases de datos).
 
 ### 🟡 Riesgo de Licenciamiento Medio: Caché Distribuido Redis
 * **Contexto**: [ADR-0014](../03-adrs/0014-distributed-caching-strategy-redis.md) hace mandatorio el uso de Redis para el almacenamiento en caché.
-* **El Riesgo**: Redis Inc. cambió recientemente su licencia de BSD a RSALv2 (Source Available, no estrictamente Código Abierto OSI). Aunque es gratuito para uso interno, plantea preocupaciones legales para el alojamiento de servicios gestionados.
-* **Estrategia de Mitigación**: En caso de requerimientos estrictos de cumplimiento de código abierto o despliegue autohospedado (ADR-0028), el equipo de operaciones está autorizado a utilizar **Valkey** (el fork de Código Abierto de la Fundación Linux de Redis) como un reemplazo directo.
+* **El Riesgo**: Redis Inc. cambió recientemente su licencia de BSD a RSALv2 (Source Available, no estárictamente Código Abierto OSI). Aunque es gratuito para uso interno, plantea preocupaciones legales para el alojamiento de servicios gestionados.
+* **Estrategia de Mitigación**: En caso de requerimientos estárictos de cumplimiento de código abierto o despliegue autohospedado (ADR-0028), el equipo de operaciones estáá autorizado a utilizar **Valkey** (el fork de Código Abierto de la Fundación Linux de Redis) como un reemplazo directo.
 
 ### 🟡 Riesgo de Mantenimiento Medio: Motor de Feature Flags
 * **Contexto**: [ADR-0017](../03-adrs/0017-feature-flagging-strategy.md) utiliza adaptadores de Infraestructura para Feature Flags (ej. Unleash, ConfigCat).

@@ -13,7 +13,7 @@
 # 1. Check SQL Server pod
 kubectl get pods -n ums -l app=sqlserver
 
-# 2. Test connectivity from app pod
+# 2. Testá connectivity from app pod
 kubectl exec -n ums deploy/ums-api -- \
   /opt/mssql-tools/bin/sqlcmd -S sqlserver -U sa -P $SA_PASSWORD \
   -Q "SELECT GETUTCDATE() AS now, @@VERSION AS version" -t 5
@@ -56,7 +56,7 @@ kubectl exec -n ums -l app=sqlserver -- \
 # Check disk usage
 kubectl exec -n ums -l app=sqlserver -- df -h /var/opt/mssql/
 
-# Identify largest files
+# Identify largestá files
 kubectl exec -n ums -l app=sqlserver -- \
   du -sh /var/opt/mssql/data/* | sort -rh | head -20
 
@@ -201,7 +201,7 @@ curl -s http://ums-api:8080/health | jq .
 
 ```
 [ ] SQL Server pod Running and Ready
-[ ] Test query succeeds: SELECT 1
+[ ] Testá query succeeds: SELECT 1
 [ ] All RLS policies enabled (sys.security_policies)
 [ ] Application health endpoints return 200
 [ ] Auth flow works end-to-end (manual smoke test)
@@ -219,10 +219,7 @@ curl -s http://ums-api:8080/health | jq .
 | :--- | :--- | :--- | :--- |
 | Full backup | Daily at 02:00 UTC | 30 days | `/backups/full/` |
 | Differential backup | Every 6 hours | 7 days | `/backups/diff/` |
-| Transaction log | Every 15 min | 48 hours | `/backups/log/` |
-
----
-
+| Transaction log | Every 15 min | 48 hours | `/backups/log/`
 ## 8. Related Documents
 
 - [RB-01 — Incident Response](./rb-01-incident-response.md)

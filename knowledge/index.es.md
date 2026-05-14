@@ -16,9 +16,7 @@ Este hub de conocimiento proporciona los puntos de entrada recomendados para ent
 | Arquitecto | [Portal de Arquitectura](../architecture/index.es.md) | [Registro ADR](../architecture/adrs-es/index.md) |
 | Developer | [Backlog de Producto MVP](../governance/project-es/mvp-product-backlog.md) | [Habilitadores Tecnicos](../architecture/blueprints-es/technical-enablers/index.md) |
 | QA / Seguridad | [Modelo de Madurez Arquitectonica](../architecture/artifacts-es/architecture-maturity-model.md) | [Plan de Pruebas de Contrato](../architecture/artifacts-es/contract-testing-plan.md) |
-| DevOps / SRE | [Portal de Operaciones](../operations/index.md) | [Runbooks](../operations/runbooks/index.md) |
-
-## Areas de Conocimiento
+| DevOps / SRE | [Portal de Operaciones](../operations/index.md) | [Runbooks](../operations/runbooks/index.md) | ## Areas de Conocimiento
 
 - [POCs](./pocs/index.es.md)
 - [Indice Maestro](../MASTER_INDEX.es.md)

@@ -1,4 +1,4 @@
-# 🗺️ Bounded Context Map — User Management System (UMS)
+# Bounded Context Map — User Management System (UMS)
 
 This document establishes the formal **Domain-Driven Design (DDD) Bounded Context Map** for the UMS platform. It defines the boundaries of each domain context, their internal responsibilities, and the integration contracts between them.
 
@@ -7,7 +7,7 @@ This document establishes the formal **Domain-Driven Design (DDD) Bounded Contex
 
 ---
 
-## 🧭 Quick Navigation
+## Quick Navigation
 | Context | Primary Mission | Direct Access |
 | :--- | :--- | :--- |
 | **Identity** | User and Tenant management. | [View Detail](#-a-identity-context) |
@@ -17,22 +17,19 @@ This document establishes the formal **Domain-Driven Design (DDD) Bounded Contex
 | **Console** | Administration interface (PAP). | [View Detail](#-e-console-context-policy-administration-point--pap) |
 | **Cache** | High-performance layer. | [View Detail](#-f-cache-context-infrastructure) |
 | **IGA** | Role promotion and delegated administration. | [View Detail](#-g-iga-context-identity-governance--administration) |
-| **Compliance** | Document lifecycle and access enforcement. | [View Detail](#-h-compliance-context) |
-
----
-
-## 📐 1. Context Map Overview
+| **Compliance** | Document lifecycle and access enforcement. | [View Detail](#-h-compliance-context)
+## 1. Context Map Overview
 
 ```mermaid
 graph TD
-    subgraph IdentityContext["🔐 Identity Context"]
+    subgraph IdentityContext[" Identity Context"]
         IC1["User Registration & Lifecycle"]
         IC2["Organization (Tenant) Management"]
         IC3["Branch (Sedes) Registry"]
         IC4["IdP Strategy Adapters (Pluggable)"]
     end
 
-    subgraph AuthorizationContext["🔑 Authorization Context"]
+    subgraph AuthorizationContext[" Authorization Context"]
         AC1["System & Resource Registry"]
         AC2["Module / Menu / Option / Action Topology"]
         AC3["Profile & Template Engine"]
@@ -40,21 +37,21 @@ graph TD
         AC5["Explicit-Deny Precedence Resolver"]
     end
 
-    subgraph ConfigContext["⚙️ Configuration & Feature Management Context"]
+    subgraph ConfigContext[" Configuration & Feature Management Context"]
         CF1["Multi-IdP Configuration Engine"]
         CF2["System Behavioral Configuration Model"]
         CF3["Feature Flag Management Framework"]
         CF4["Config Cache Manager"]
     end
 
-    subgraph AuditContext["📋 Audit Context"]
+    subgraph AuditContext[" Audit Context"]
         AU1["Immutable Audit Ledger (CDC/Subscribers)"]
         AU2["Access Attempt Log"]
         AU3["Permission Mutation History"]
         AU4["Config & Flag Change History"]
     end
 
-    subgraph ConsoleContext["💻 Console Context (PAP)"]
+    subgraph ConsoleContext[" Console Context (PAP)"]
         CO1["Admin Web Portal UI"]
         CO2["Tenant & Branch CRUD Views"]
         CO3["Template Builder & Assignment Engine"]
@@ -65,20 +62,20 @@ graph TD
         CO8["Feature Flag Dashboard"]
     end
 
-    subgraph CacheContext["⚡ Cache Context (Infrastructure)"]
+    subgraph CacheContext[" Cache Context (Infrastructure)"]
         CA1["Redis: auth_graph namespace"]
         CA2["Redis: cfg namespace (IdP + System Config)"]
         CA3["Redis: flags namespace (Evaluated Flag Sets)"]
         CA4["TTL Governance & Eviction Hooks"]
     end
 
-    subgraph IGAContext["🎖️ IGA Context"]
+    subgraph IGAContext[" IGA Context"]
         IG1["Role Promotion Criteria Engine"]
         IG2["User Promotion Process Manager"]
         IG3["Delegated Administration Registry"]
     end
 
-    subgraph ComplianceContext["📄 Compliance Context"]
+    subgraph ComplianceContext[" Compliance Context"]
         CM1["User Document Lifecycle"]
         CM2["Access Enforcement Policy Engine"]
         CM3["Pre-Expiration Notification Rules"]
@@ -106,9 +103,9 @@ graph TD
 
 ---
 
-## 📦 2. Context Definitions
+## 2. Context Definitions
 
-### 🔐 A. Identity Context
+### A. Identity Context
 **Mission:** Manage the lifecycle of all principals (users) and the organizational structures (tenants and branches) they belong to. Delegate credential verification to pluggable, external Identity Providers using configurations supplied by the Configuration Context.
 
 **Owns:**
@@ -129,7 +126,7 @@ graph TD
 
 ---
 
-### 🔑 B. Authorization Context
+### B. Authorization Context
 **Mission:** Act as the **Policy Decision Point (PDP)**. Compile and resolve the hierarchical authorization graph for any authenticated principal based on their organization, branch, profiles, and attached templates.
 
 **Owns:**
@@ -150,11 +147,11 @@ graph TD
 **Integration Contracts (Published Language):**
 - `GET /v1/authorization/graph` → returns `HierarchicalJsonGraph`
 - `POST /v1/authorization/templates` → creates versioned template
-- `PermissionMutatedEvent { userId, profileId, effect, actionId, timestamp }`
+- `PermissionMutatedEvent { userId, profileId, effect, actionId, timestaamp }`
 
 ---
 
-### ⚙️ C. Configuration & Feature Management Context *(NEW)*
+### C. Configuration & Feature Management Context *(NEW)*
 **Mission:** Govern the **dynamic, multi-tenant runtime behavior** of all UMS-integrated systems without requiring code changes or redeployment. Owns three capability pillars:
 1. **Multi-IdP Configuration Engine** — per-tenant/system IdP registry with priority/fallback
 2. **System Behavioral Configuration** — versioned JSON config for auth, session, branding, modules
@@ -179,13 +176,13 @@ graph TD
 - `GET /v1/config/idp?tenant_id&system_id` → returns ordered IdP config set
 - `GET /v1/config/system/{system_id}?tenant_id` → returns active system config
 - `POST /v1/flags/evaluate` → returns evaluated flag set for a runtime context
-- `IdpConfigUpdatedEvent { configId, tenantId, version, timestamp }`
+- `IdpConfigUpdatedEvent { configId, tenantId, version, timestaamp }`
 - `SystemConfigPublishedEvent { configId, systemId, tenantId, version }`
 - `FeatureFlagStateChangedEvent { flagCode, newStatus, targetScope, changedBy }`
 
 ---
 
-### 📋 D. Audit Context
+### D. Audit Context
 **Mission:** Maintain an **immutable, tamper-proof ledger** of all identity events, permission mutations, **and configuration changes**. Serves compliance, forensic, and SRE diagnostic needs.
 
 **Owns:**
@@ -198,7 +195,7 @@ graph TD
 
 ---
 
-### 💻 E. Console Context (Policy Administration Point — PAP)
+### E. Console Context (Policy Administration Point — PAP)
 **Mission:** Provide the **Administrative Web Portal** that allows SuperAdmins and Tenant Managers to govern organizations, systems, profiles, templates, IdP configurations, system configs, and feature flags.
 
 **Owns:**
@@ -213,7 +210,7 @@ graph TD
 
 ---
 
-### 🎖️ G. IGA Context (Identity Governance & Administration)
+### G. IGA Context (Identity Governance & Administration)
 **Mission:** Govern the complete lifecycle of role evolution, user promotion processes, and delegated user administration. Acts as the rules engine that evaluates promotion criteria and orchestrates approval workflows for role advancement.
 
 **Schema DB:** `ums_iga`
@@ -233,14 +230,14 @@ graph TD
 **Integration Contracts (Published Language):**
 - `POST /v1/iga/promotion/evaluate` → triggers criteria evaluation for a user
 - `GET /v1/iga/promotion/pending` → list promotions awaiting approval
-- `PromotionCriteriaMetEvent { userId, roleId, processId, timestamp }`
-- `PromotionApprovedEvent { userId, fromRoleId, toRoleId, approvedBy, timestamp }`
+- `PromotionCriteriaMetEvent { userId, roleId, processId, timestaamp }`
+- `PromotionApprovedEvent { userId, fromRoleId, toRoleId, approvedBy, timestaamp }`
 
 **Integration Pattern:** Receives `UserRegisteredEvent` from Identity Context. Publishes `PromotionApprovedEvent` consumed by Authorization Context (to update Profile) and Identity Context (to update user status).
 
 ---
 
-### 📄 H. Compliance Context
+### H. Compliance Context
 **Mission:** Enforce document-based access policies for all users. Manages the complete lifecycle of user documents, evaluates expiration status, dispatches configurable pre-expiration notifications, and triggers automated enforcement actions (block, downgrade, notify-only, suspend) upon expiration.
 
 **Schema DB:** `ums_compliance`
@@ -262,14 +259,14 @@ graph TD
 **Integration Contracts (Published Language):**
 - `POST /v1/compliance/documents` → upload user document
 - `GET /v1/compliance/documents/{userId}/status` → document compliance summary
-- `DocumentExpiredEvent { userId, documentId, criticity, enforcementAction, timestamp }`
-- `DocumentValidatedEvent { userId, documentId, validatedBy, timestamp }`
+- `DocumentExpiredEvent { userId, documentId, criticity, enforcementAction, timestaamp }`
+- `DocumentValidatedEvent { userId, documentId, validatedBy, timestaamp }`
 
 **Integration Pattern:** Receives `UserRegisteredEvent` from Identity. Publishes `DocumentExpiredEvent` consumed by Identity Context (triggers BLOCK_ACCESS) and Audit Context. Sends notifications via `INotificationPort`.
 
 ---
 
-### ⚡ F. Cache Context (Infrastructure)
+### F. Cache Context (Infrastructure)
 **Mission:** Provide a high-performance distributed cache layer for authorization graphs, system configurations, and feature flag evaluations — all under strict namespace governance.
 
 **Cache Namespaces:**
@@ -278,13 +275,11 @@ graph TD
 | `auth_graph:*` | Authorization Context | `auth_graph:{userId}:{systemId}:{tenantId}:{branchId}` | 3600s |
 | `cfg:idp:*` | Configuration Context | `cfg:idp:{tenantId}:{systemId}` | 900s |
 | `cfg:sys:*` | Configuration Context | `cfg:sys:{systemId}:{tenantId}` | 300s |
-| `flags:*` | Configuration Context | `flags:{systemId}:{tenantId}:{userId}` | 60s |
-
-**Integration Pattern:** Hidden behind pure core port abstractions (`ICachePort`, `IConfigCachePort`). Only infrastructure adapters interact with Redis directly.
+| `flags:*` | Configuration Context | `flags:{systemId}:{tenantId}:{userId}` | 60s | **Integration Pattern:** Hidden behind pure core port abstractions (`ICachePort`, `IConfigCachePort`). Only infrastructure adapters interact with Redis directly.
 
 ---
 
-## 🔗 3. Context Relationships
+## 3. Context Relationships
 
 | Upstream Context | Downstream Context | Pattern | Contract |
 | :--- | :--- | :--- | :--- |
@@ -304,11 +299,8 @@ graph TD
 | IGA Context | Audit Context | **Conformist (Event)** | Publishes `PromotionCriteriaMetEvent`, `PromotionApprovedEvent` |
 | Identity Context | Compliance Context | **Customer-Supplier** | Publishes `UserRegisteredEvent` consumed by Compliance to initialize document tracking |
 | Compliance Context | Identity Context | **Customer-Supplier** | Publishes `DocumentExpiredEvent` triggering BLOCK_ACCESS in Identity |
-| Compliance Context | Audit Context | **Conformist (Event)** | Publishes `DocumentExpiredEvent`, `DocumentValidatedEvent` |
-
----
-
-## 🚧 4. Anti-Corruption Layers (ACL)
+| Compliance Context | Audit Context | **Conformist (Event)** | Publishes `DocumentExpiredEvent`, `DocumentValidatedEvent`
+## 4. Anti-Corruption Layers (ACL)
 
 | Boundary | ACL Mechanism | Reason |
 | :--- | :--- | :--- |
@@ -320,5 +312,4 @@ graph TD
 | Authorization ↔ Event Bus | `IEventBusPort` | Prevents Kafka/RabbitMQ from coupling to use cases |
 | Console ↔ UMS APIs | REST API contracts (versioned) | Console is an external consumer; treated as any third party |
 | Compliance ↔ Notification Providers | `INotificationPort` (Strategy Pattern) | Prevents SMTP/Twilio SDKs from coupling to domain |
-| Compliance ↔ Object Storage | `IDocumentStoragePort` (Strategy Pattern) | Prevents MinIO/S3 SDK from leaking into domain |
-
+| Compliance ↔ Object Storage | `IDocumentStoragePort` (Strategy Pattern) | Prevents MinIO/S3 SDK from leaking into domain | 

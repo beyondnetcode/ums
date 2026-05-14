@@ -10,12 +10,10 @@ UMS debe soportar evolución controlada de roles para que los usuarios avancen c
 | :--- | :--- |
 | **Evaluador de Promoción** | Detecta usuarios elegibles para promoción. |
 | **Administrador Aprobador** | Revisa y aprueba o rechaza la promoción. |
-| **Usuario** | Recibe el cambio de rol resultante. |
+| **Usuario** | Recibe el cambio de rol resultante. | ## 3. Precondiciones de Negocio
 
-## 3. Precondiciones de Negocio
-
-- La jerarquía de roles está definida.
-- Los criterios de promoción están configurados.
+- La jerarquía de roles estáá definida.
+- Los criterios de promoción estáán configurados.
 - El usuario tiene un perfil activo elegible para promoción.
 
 ## 4. Flujo Funcional Principal

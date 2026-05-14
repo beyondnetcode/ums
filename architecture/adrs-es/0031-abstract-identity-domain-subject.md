@@ -1,12 +1,12 @@
 # ADR-0031: Abstracción del Dominio de Identidad (De Empleado a Sujeto Vinculado a Organización)
 
-*   **Estado:** Propuesto
+*   **Estado:** Propuestao
 *   **Fecha:** 2026-05-13
 *   **Autores:** Equipo de Arquitectura & Product Owners
 
 ---
 
-## 🏛️ 1. Contexto y Problema
+## 1. Contexto y Problema
 
 Actualmente, el Sistema de Gestión de Usuarios (UMS) y el dominio del cliente utilizan de forma implícita el concepto de "Empleado" como la unidad fundamental que posee permisos, interactúa con los sistemas y se autentica contra el proveedor de identidad (IdP). 
 
@@ -15,13 +15,13 @@ Este enfoque se evidencia en acoplamientos técnicos y funcionales críticos:
 *   **Eventos de Dominio:** El evento `UserRegisteredEvent` transporta directamente el campo `identityReference`.
 *   **Reglas de Negocio:** Validaciones que exigen que la referencia coincida exclusivamente con los sistemas de Recursos Humanos internos.
 
-### ⚠️ Problema Identificado
+### Problema Identificado
 Con la introducción de flujos de negocio B2B (como el **Caso de Uso 12 / FS-10: Flujo de Aprobación de Acceso Externo**), el negocio ahora requiere aprovisionar accesos a identidades que **no son empleados** de la compañía anfitriona (ej: transportistas de terceros, operadores de montacargas contratados por proveedores, auditores externos, clientes B2B). 
-Exigir que estas personas tengan una "Referencia de Miembro de Organización" obliga a "ensuciar" la base de datos de RRHH con personal ajeno, bloquea el aprovisionamiento ágil y genera inconsistencia semántica de dominio.
+Exigir que estáas personas tengan una "Referencia de Miembro de Organización" obliga a "ensuciar" la base de datos de RRHH con personal ajeno, bloquea el aprovisionamiento ágil y genera inconsistencia semántica de dominio.
 
 ---
 
-## 🎯 2. Decisión Arquitectónica
+## 2. Decisión Arquitectónica
 
 Hemos decidido **refactorizar la entidad central de identidad en el UMS y el core del sistema, transitando del concepto acoplado de "Empleado" hacia una abstracción agnóstica de "Sujeto" (Subject / Identity)** vinculada obligatoriamente a una **"Organización" (Organization)**.
 
@@ -35,9 +35,9 @@ Las directrices de implementación técnica y funcional son:
 
 ---
 
-## 📊 3. Diagrama Conceptual de la Transición
+## 3. Diagrama Conceptual de la Transición
 
-### ❌ Modelo Anterior (Acoplado)
+### Modelo Anterior (Acoplado)
 ```mermaid
 classDiagram
     class User {
@@ -51,7 +51,7 @@ classDiagram
     User --> HR_System : Acoplamiento Estricto
 ```
 
-### ✅ Modelo Propuesto (Desacoplado y Extensible)
+### Modelo Propuestao (Desacoplado y Extensible)
 ```mermaid
 classDiagram
     class Organization {
@@ -75,7 +75,7 @@ classDiagram
 
 ---
 
-## ⚖️ 4. Trade-offs y Consecuencias
+## 4. Trade-offs y Consecuencias
 
 ### Consecuencias Positivas (Beneficios)
 *   **Escalabilidad y Reutilización:** Soporte nativo e ilimitado para cualquier actor (proveedores, clientes, bots de integración M2M, IoT, contratistas).
@@ -85,17 +85,17 @@ classDiagram
 
 ### Consecuencias Negativas / Desafíos
 *   **Esfuerzo de Migración:** Requiere una estrategia de deprecación e interoperabilidad para no romper las bases de datos productivas ni los flujos de intercambio de tokens JWT activos.
-*   **Actualización de la Matriz de Claims:** El IdP ahora debe emitir un claim genérico de sujeto o entidad externa en lugar del claim estricto de empleado corporativo.
+*   **Actualización de la Matriz de Claims:** El IdP ahora debe emitir un claim genérico de sujeto o entidad externa en lugar del claim estáricto de empleado corporativo.
 
 ---
 
-## 🚀 5. Estrategia de Migración Incremental (Zero-Downtime)
+## 5. Estrategia de Migración Incremental (Zero-Downtime)
 
 Para garantizar la continuidad operacional y no romper la compatibilidad hacia atrás:
 
 1.  **Fase de Coexistencia (Lectura/Escritura Doble):**
     *   Enriquecer la tabla de usuarios con el campo `identity_reference` y `reference_type` (nullable temporalmente).
-    *   El API .NET 8 leerá de `identity_reference` si está presente, pero guardará en ambos campos para los registros existentes.
+    *   El API .NET 8 leerá de `identity_reference` si estáá presente, pero guardará en ambos campos para los registros existentes.
 2.  **Fase de Deprecación de API:**
     *   Marcar el claim de `identity_reference` en el payload JWT como `[Obsolete]` o en proceso de deprecación, pero manteniéndolo en el token por compatibilidad con microservicios legacy.
     *   Inyectar el nuevo claim unificado `sub_ref` (Subject Reference).

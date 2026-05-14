@@ -16,10 +16,7 @@ This document specifies the process for safely rebuilding a read model (query-si
 | **Trigger** | Projection schema migration · Bug fix in projection logic · New read model introduction · Data inconsistency detected |
 | **Preconditions** | The event store contains the authoritative sequence of domain events. The target projection store (SQL read schema or Redis) is accessible. |
 | **Postconditions** | The projection reflects the correct state as computed by replaying all events up to the latest sequence. Live traffic is not disrupted during the rebuild. |
-| **Invariant** | The write side (command model) is never modified during a projection rebuild. The event store is treated as append-only and read-only during this process. |
-
----
-
+| **Invariant** | The write side (command model) is never modified during a projection rebuild. The event store is treated as append-only and read-only during this process.
 ## 2. CQRS Applicability in UMS
 
 The UMS applies CQRS selectively per ADR-0034. The primary projection subject is the **Authorization Graph** (FS-07):
@@ -28,10 +25,7 @@ The UMS applies CQRS selectively per ADR-0034. The primary projection subject is
 | :--- | :--- | :--- | :--- |
 | User Authorization Graph | Redis (hot) + SQL (warm) | Policy logic change, template mutation, bug fix | On-demand |
 | Organization Hierarchy View | SQL read schema | Closure table migration | Rare |
-| Audit Trail View | SQL read-only replica | Schema evolution | Rare |
-
----
-
+| Audit Trail View | SQL read-only replica | Schema evolution | Rare
 ## 3. Rebuild Flow
 
 ```mermaid
@@ -164,9 +158,7 @@ public interface IProjectionRouter
 | :--- | :--- | :--- |
 | < 100K events | < 2 min | 100 |
 | 100K–1M events | 5–20 min | 500 |
-| > 1M events | 20–60 min | 1000 + parallel workers |
-
-For large projections, consider enabling **parallel aggregate rebuild**: partition by `aggregate_id` hash and run N workers concurrently. Each worker owns a non-overlapping subset of aggregates.
+| > 1M events | 20–60 min | 1000 + parallel workers | For large projections, consider enabling **parallel aggregate rebuild**: partition by `aggregate_id` hash and run N workers concurrently. Each worker owns a non-overlapping subset of aggregates.
 
 ---
 
@@ -177,9 +169,7 @@ For large projections, consider enabling **parallel aggregate rebuild**: partiti
 | `projection.rebuild.events_processed` | Counter | Progress indicator |
 | `projection.rebuild.lag_seconds` | Gauge | Distance to live event head |
 | `projection.rebuild.batch_duration_ms` | Histogram | Throughput per batch |
-| `projection.rebuild.errors_total` | Counter | Failed handler applications |
-
-Set a Grafana alert: if `projection.rebuild.lag_seconds` does not decrease for > 5 minutes, the rebuild has stalled.
+| `projection.rebuild.errors_total` | Counter | Failed handler applications | Set a Grafana alert: if `projection.rebuild.lag_seconds` does not decrease for > 5 minutes, the rebuild has stalled.
 
 ---
 

@@ -60,7 +60,7 @@ CREATE TABLE delegation_grants (
     CONSTRAINT valid_scope_tree CHECK (
         EXISTS (
             SELECT 1 FROM tenant_closure
-            WHERE ancestor_id = (
+            WHERE ancestáor_id = (
                 SELECT scope_tenant_id FROM delegation_grants dg2
                 WHERE dg2.id = delegation_grants.parent_grant_id
             )
@@ -189,10 +189,7 @@ Every delegation lifecycle event emits a domain event:
 | `DelegationRevoked` | Grant revoked | revoker, grantee, reason |
 | `DelegationExpired` | TTL reached | grant_id, grantee, original_expires_at |
 | `DelegationCascadeRevoked` | Parent revoked | root_grant_id, affected_grants[] |
-| `DelegationUsed` | Admin action performed via delegation | grant_id, action, target_tenant_id |
-
----
-
+| `DelegationUsed` | Admin action performed via delegation | grant_id, action, target_tenant_id
 ## 3. Consequences
 
 ### Positive (Pros)

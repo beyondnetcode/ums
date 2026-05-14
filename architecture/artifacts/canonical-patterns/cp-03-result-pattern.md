@@ -220,7 +220,7 @@ var result = Email.Create(rawEmail)
 ## What NOT to Do
 
 ```csharp
-// ❌ PROHIBITED: exception for business flow
+//  PROHIBITED: exception for business flow
 public User GetUserOrThrow(UserId id)
 {
     var user = db.Users.Find(id);
@@ -228,7 +228,7 @@ public User GetUserOrThrow(UserId id)
     return user;
 }
 
-// ✓ CORRECT: Result communicates absence
+//  CORRECT: Result communicates absence
 public async Task<Result<User>> FindUserAsync(UserId id, CancellationToken ct)
 {
     var user = await db.Users.FindAsync([id], ct);

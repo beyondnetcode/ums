@@ -2,7 +2,7 @@
 
 If Mermaid visualization is failing or insufficient, use these industry-standard formats to visualize the **Advanced IGA, Role Evolution & Hierarchical Configuration Framework**.
 
-## 1. dbdiagram.io (DBML - Recommended) 🚀
+## 1. dbdiagram.io (DBML - Recommended) 
 1.  Go to [dbdiagram.io](https://dbdiagram.io/d).
 2. Paste the code below.
 
@@ -273,7 +273,7 @@ Ref: ACTION.ModuleId > FUNCTIONAL_MODULE.ModuleId
 
 ---
 
-## 2. SQL DDL (SQL Server 2022) 🛠️
+## 2. SQL DDL (SQL Server 2022) 
 ```sql
 -- Advanced IGA: Role Evolution & Hierarchical Configuration
 

@@ -1,16 +1,16 @@
-# 🏛️ Arquitectura de Referencia Evolutiva para Sistemas API-Driven (Node.js Stack)
+# Arquitectura de Referencia Evolutiva para Sistemas API-Driven (Node.js Stack)
 
 > [!IMPORTANT]
-> **Corporate Reference Architecture (Monolito-a-Microservicios)**: Este documento define el estándar para construir aplicaciones que inician su ciclo de vida como un **Monolito Modular** altamente desacoplado, con una ruta clara y sin refactorización para evolucionar hacia una malla de **Microservicios Distribuidos**. Utiliza el proyecto base como la implementación canónica de este estándar internacional (**arc42 v8**).
+> **Corporate Reference Architecture (Monolito-a-Microservicios)**: Este documento define el estándar para construir aplicaciones que inician su ciclo de vida como un **Monolito Modular** altamente desacoplado, con una ruta clara y sin refactorización para evolucionar hacia una malla de **Microservicios Distribuidos**. Utiliza el proyecto base como la implementación canónica de esté estándar internacional (**arc42 v8**).
 
 ---
 
 ## 1. Introducción y Objetivos
 
-Esta arquitectura de referencia proporciona un plano estandarizado para construir sistemas empresariales modernos, altamente escalables y modulares. 
+Esta arquitectura de referencia proporciona un plano estándarizado para construir sistemas empresariales modernos, altamente escalables y modulares. 
 
 ### 1.1 Propósito y Aplicabilidad
-Este patrón está diseñado específicamente para sistemas que:
+Este patrón estáá diseñado específicamente para sistemas que:
 *   Tienen una orientación fuerte al **uso intensivo de APIs**.
 *   Requieren procesamiento concurrente y asíncrono nativo.
 *   **No** dependen de servicios con bloqueos de entrada/salida (I/O) constantes o procesamiento matemático pesado que bloquee el event loop.
@@ -22,19 +22,19 @@ Este patrón está diseñado específicamente para sistemas que:
 
 ---
 
-## 2. Restricciones de Arquitectura y Pilares Base
+## 2. Restáricciones de Arquitectura y Pilares Base
 
-Cualquier sistema basado en este blueprint debe adherirse a los siguientes pilares del ecosistema:
+Cualquier sistema basado en esté blueprint debe adherirse a los siguientes pilares del ecosistema:
 
 *   **Gobernanza del Stack**: Base tecnológica en Node.js/TypeScript gestionada mediante un entorno modular (Monorepo Nx o similar para cohesión de contratos).
-*   **Mandato bMAD / Global Engineering Standards**: Aplicación estricta de SOLID, Clean Code y principios de Arquitectura Hexagonal.
+*   **Mandato bMAD / Global Engineering Standards**: Aplicación estáricta de SOLID, Clean Code y principios de Arquitectura Hexagonal.
 *   **Manejo de I/O**: Aprovechamiento del modelo no bloqueante de Node.js. Evitar operaciones sincrónicas en el hilo principal.
 
 ---
 
 ## 3. Contexto y Alcance (Modelo Operacional)
 
-Define cómo interactúan los sistemas basados en este stack con el ecosistema corporativo. 
+Define cómo interactúan los sistemas basados en esté stack con el ecosistema corporativo. 
 
 ### 3.1 Patrón de Contexto General
 *(Ejemplo de Instanciación Técnica usando UMS como referencia)*
@@ -57,7 +57,7 @@ graph TD
 
 ## 4. Estrategia de Solución
 
-Las decisiones técnicas fundamentales invariantes para esta arquitectura de referencia son:
+Las decisiones técnicas fundamentales invariantes para está arquitectura de referencia son:
 
 ### 4.1 Arquitectura Hexagonal (Puertos y Adaptadores)
 Mandatorio aislar la lógica de negocio (Domain & Application) de los detalles de entrada/salida (Infrastructure). 
@@ -80,7 +80,7 @@ El roadmap de evolución física sigue tres hitos clave definidos en los ADRs as
 
 ## 5. Vista de Bloques Técnica (Plantilla de Contenedores)
 
-La topología física recomendada para este ecosistema incluye tres capas de distribución:
+La topología física recomendada para esté ecosistema incluye tres capas de distribución:
 
 ```mermaid
 graph TD
@@ -89,7 +89,7 @@ graph TD
         MobileApp["Aplicación Mobile"]
     end
 
-    subgraph GatewayLayer["Capa de Orquestación"]
+    subgraph GatewayLayer["Capa de Orquestáación"]
         BFF["BFF Gateway (Carga Liviana / Agregación)"]
     end
 
@@ -125,7 +125,7 @@ Recomendado: Contenerización Docker, orquestación en Kubernetes (K8s) y autoes
 
 ## 8. Conceptos Transversales Corporativos
 
-Independientemente del sistema implementado, se deben integrar estos estándares:
+Independientemente del sistema implementado, se deben integrar estáos estándares:
 
 *   **Seguridad Centralizada**: Implementación obligatoria de modelos basados en Claims/Scopes (ej. RBAC/ABAC).
 *   **Observabilidad Nativa**:
@@ -137,33 +137,30 @@ Independientemente del sistema implementado, se deben integrar estos estándares
 
 ## 9. Matriz de Decisiones de Referencia (ADR Baseline)
 
-Cualquier implementación de este stack hereda por defecto estas estrategias:
+Cualquier implementación de esté stack hereda por defecto estáas estrategias:
 
 | Enfoque de Diseño | Estrategia Técnica | Justificación Técnica |
 | :--- | :--- | :--- |
 | **Gobierno Interno** | `eslint-plugin-boundaries` | Evita el acoplamiento cíclico y protege las capas del Hexágono. |
 | **Resiliencia** | Circuit Breakers (`opossum` o similar) | Previene el fallo en cascada en sistemas orientados a APIs. |
 | **Caché** | Patrón Read-Aside distribuido | Protege la base de datos y optimiza el throughput del API. |
-| **Testing** | Pirámide de Pruebas Automatizada | Garantiza la calidad con fuerte énfasis en Pruebas de Unidad y Contrato. |
-
----
-
+| **Testing** | Pirámide de Pruebas Automatizada | Garantiza la calidad con fuerte énfasis en Pruebas de Unidad y Contrato.
 ## 10. Requerimientos de Calidad del Stack (NFR Benchmark)
 
-Valores objetivo que toda implementación bajo este stack debería certificar:
+Valores objetivo que toda implementación bajo esté stack debería certificar:
 *   **Latencia API Interna**: P95 < 50ms.
-*   **Seguridad**: 0 vulnerabilidades "High/Critical" (escaneo estático SAST).
+*   **Seguridad**: 0 vulnerabilidades "High/Critical" (escaneo estáático SAST).
 *   **Eficiencia**: Bajo consumo base de memoria (Idle memory footprint) facilitando la densidad de microservicios.
 
 ---
 
 ## 11. Implementación de Referencia Canónica
 
-Para ver el ejemplo vivo de la aplicación de todos estos conceptos teóricos en código real y arquitectura física, consulte el repositorio/módulo de:
+Para ver el ejemplo vivo de la aplicación de todos estáos conceptos teóricos en código real y arquitectura física, consulte el repositorio/módulo de:
 
-👉 **[User Management System (UMS) Codebase](./README.md)**
+ **[User Management System (UMS) Codebase](./README.md)**
 
-Donde se materializan estos conceptos usando:
+Donde se materializan estáos conceptos usando:
 *   **Framework**: NestJS.
 *   **ORM**: TypeORM con soporte PostgreSQL RLS nativo.
-*   **Testing**: Jest para lógica hexagonal.
+*   **Testing**: Jestá para lógica hexagonal.

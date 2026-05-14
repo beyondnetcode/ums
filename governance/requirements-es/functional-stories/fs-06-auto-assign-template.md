@@ -9,9 +9,7 @@ UMS debe reducir administración manual asignando la plantilla correcta cuando u
 | Actor | Responsabilidad |
 | :--- | :--- |
 | **Administrador de Seguridad** | Configura reglas de asignación. |
-| **Motor de Reglas UMS** | Aplica reglas coincidentes durante la creación del perfil. |
-
-## 3. Precondiciones de Negocio
+| **Motor de Reglas UMS** | Aplica reglas coincidentes durante la creación del perfil. | ## 3. Precondiciones de Negocio
 
 - Existe al menos una regla de asignación activa.
 - El perfil creado contiene atributos evaluables.

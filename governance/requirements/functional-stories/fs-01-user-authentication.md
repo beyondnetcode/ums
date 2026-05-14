@@ -13,10 +13,7 @@ Corporate users need to access client systems using their organization's trusted
 | **Corporate User** | Attempts to sign in to a client system. |
 | **External Identity Provider** | Confirms the user's corporate identity. |
 | **UMS** | Validates the identity against active UMS records and establishes the application session. |
-| **IT Administrator** | May use emergency access when the external provider is unavailable. |
-
----
-
+| **IT Administrator** | May use emergency access when the external provider is unavailable.
 ## 3. Business Preconditions
 
 - The user exists in UMS and is linked to a valid corporate identity reference.

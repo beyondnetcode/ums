@@ -1,4 +1,4 @@
-# 📐 Backend Stack Migration Plan: NestJS to .NET 8 LTS
+# Backend Stack Migration Plan: NestJS to .NET 8 LTS
 
 **Document Type:** Architectural Implementation Plan  
 **bMAD Phase:** Phase 02 - Architecture Design  
@@ -7,13 +7,13 @@
 
 ---
 
-## 💡 1. Executive Context & Justification
+## 1. Executive Context & Justification
 
 Following the mandate for corporate architectural alignment and the **spec-driven AI BMAD-METHOD strategy**, we are executing a critical stack realignment for the **User Management System (UMS)**.
 
 The system is transitioning from its original Node.js/NestJS baseline to a highly robust, enterprise-grade **.NET 8 / C#** backend stack. This move optimizes the core authorization compiler for heavy compute capabilities, guarantees strict compile-time safety, and leverages advanced EF Core concurrency mechanisms while fully preserving the **React (Vite)** frontend application.
 
-### 🎯 Target Unified Stack Definitions
+### Target Unified Stack Definitions
 *   **Frontend:** React (v18+, Latest Stable) / Vite / Zustand / TanStack Query.
 *   **Backend Core:** **.NET 8 LTS** / ASP.NET Core Minimal APIs / C#.
 *   **Persistence:** **SQL Server 2022** (Latest Stable Version) / Entity Framework Core (EF Core via SqlServer).
@@ -21,7 +21,7 @@ The system is transitioning from its original Node.js/NestJS baseline to a highl
 
 ---
 
-## 🏗️ 2. .NET Architecture & Solution Topology
+## 2. .NET Architecture & Solution Topology
 
 In compliance with the corporate standard **[Authoritative Tech Stack for .NET](https://github.com/beyondnetcode/arc32_progresive_monolith)**, the new UMS solution (`Ums.sln`) will reside alongside the frontend in the monorepo and strictly enforce the following project segregation:
 
@@ -34,18 +34,15 @@ graph TD
     Infra --> App
 ```
 
-### 📂 Project Boundary Matrix
+### Project Boundary Matrix
 
 | Project Layer | Technology Mandate | Responsibilities | NuGet / Reference Constraint |
 | :--- | :--- | :--- | :--- |
 | **`Ums.Domain`** | Pure POCOs | Entities, Value Objects, Aggregate Roots, Domain Events, Domain Service Contracts. | **ZERO NuGet References**. Pure `System` namespace only. |
 | **`Ums.Application`** | MediatR, FluentValidation | CQRS Use Cases (Commands/Queries), Validation, Application Ports (Interfaces). | `MediatR`, `FluentValidation`. No EF Core or HTTP API dependencies. |
 | **`Ums.Infrastructure`**| EF Core, SQL Server | SQL Server DbContext, Dapper (for Read Projections), Redis, Vault Adapters, Tenant Resolver. | `Microsoft.EntityFrameworkCore.SqlServer`, `Microsoft.Data.SqlClient`. |
-| **`Ums.Presentation`**| ASP.NET Core | Minimal APIs configuration, Authorization Middleware, controllers mapping DTOs to Commands. | `OpenTelemetry`, `Swashbuckle`. |
-
----
-
-## 🛡️ 3. Executive Guidelines & Policies
+| **`Ums.Presentation`**| ASP.NET Core | Minimal APIs configuration, Authorization Middleware, controllers mapping DTOs to Commands. | `OpenTelemetry`, `Swashbuckle`.
+## 3. Executive Guidelines & Policies
 
 All developments under the new stack MUST strictly enforce the following systemic invariants:
 
@@ -56,7 +53,7 @@ All developments under the new stack MUST strictly enforce the following systemi
 
 ---
 
-## 🚀 4. Phase-wise Execution Roadmap
+## 4. Phase-wise Execution Roadmap
 
 ### 🟢 Phase 0: Workspace Sanitization (Completed)
 *   [x] Remove original NestJS API source code (`apps/api`).
@@ -76,12 +73,12 @@ All developments under the new stack MUST strictly enforce the following systemi
 ### 🟡 Phase 3: Logic Migration & Verification
 *   [ ] Migrate Domain entities from TypeScript to pure C# POCOs.
 *   [ ] Configure EF Core migrations pointing to SQL Server 2022.
-*   [ ] Build verification suite using xUnit and Testcontainers (SQL Server integration validation).
+*   [ ] Build verification suite using xUnit and Testácontainers (SQL Server integration validation).
 *   [ ] Enforce the mandatory parametric catalog standard (`Code`, `Value`, `Description`) across all configuration/policy/workflow entities in Domain + Infrastructure mappings.
 *   [ ] Add scope-aware unique constraints and migration backfill plan for catalog entities (`APP_CONFIGURATION`, `NOTIFICATION_RULE`, `ACCESS_ENFORCEMENT_POLICY`, `APPROVAL_WORKFLOW`).
 
 ---
 
-## ⚖️ 5. Impact Assessment
+## 5. Impact Assessment
 *   **Developer Harness (`AGENTS.md`):** Must be updated to include .NET 8 runtimes so incoming agents recognize the multi-language environment.
 *   **CI/CD Pipelines:** Will require .NET Core SDK installation steps in addition to standard Node modules.

@@ -1,10 +1,10 @@
-# ADR 0043: Gobernanza de Plantillas Maestras Vinculadas al Rol y Jerarquía Profunda
+# ADR 0043: Gobernanza de Plantillas Maestáras Vinculadas al Rol y Jerarquía Profunda
 
 ## Estatus
 Refactorizado (Gobernanza Vinculada al Rol)
 
 ## Contexto
-Para garantizar la integridad funcional absoluta, las plantillas de permisos no deben existir como esquemas desconectados. Deben estar estrictamente vinculadas a un **Rol** dentro de un **Sistema**, asegurando que la autoridad siempre se defina dentro de un contexto organizacional y funcional válido.
+Para garantizar la integridad funcional absoluta, las plantillas de permisos no deben existir como esquemas desconectados. Deben estáar estárictamente vinculadas a un **Rol** dentro de un **Sistema**, asegurando que la autoridad siempre se defina dentro de un contexto organizacional y funcional válido.
 
 ## Decisión
 Implementaremos la **Gobernanza de Plantillas Vinculadas al Rol** con una jerarquía funcional profunda:
@@ -36,4 +36,4 @@ Implementaremos la **Gobernanza de Plantillas Vinculadas al Rol** con una jerarq
 
 ## Consecuencias
 *   **Positivo**: Elimina conjuntos de autoridad desconectados, garantiza que los roles sean el pivote principal de gobernanza y admite requerimientos empresariales extremadamente granulares.
-*   **Negativo**: Requerimientos de entrada de datos más estrictos (las plantillas deben crearse por Rol).
+*   **Negativo**: Requerimientos de entrada de datos más estárictos (las plantillas deben crearse por Rol).

@@ -13,15 +13,12 @@ Los administradores necesitan configurar el comportamiento del sistema sin solic
 | **Administrador Global** | Define valores por defecto aplicables a toda la plataforma. |
 | **Administrador de Tenant** | Ajusta comportamiento para un tenant cuando la política global lo permite. |
 | **Administrador de Sistema** | Ajusta comportamiento para un sistema o suite registrada. |
-| **Sistema Cliente** | Consume la configuración efectiva resuelta por UMS. |
-
----
-
+| **Sistema Cliente** | Consume la configuración efectiva resuelta por UMS.
 ## 3. Precondiciones de Negocio
 
-- El administrador está autenticado.
+- El administrador estáá autenticado.
 - El administrador tiene permiso para gestionar configuración en el alcance seleccionado.
-- El tenant, sistema o módulo destino está registrado y activo.
+- El tenant, sistema o módulo destino estáá registrado y activo.
 
 ---
 

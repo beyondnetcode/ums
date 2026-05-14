@@ -16,9 +16,7 @@ This knowledge hub provides the recommended entry points for understanding UMS b
 | Architect | [Architecture Portal](../architecture/index.md) | [ADR Registry](../architecture/adrs/index.md) |
 | Developer | [MVP Product Backlog](../governance/project/mvp-product-backlog.md) | [Technical Enablers](../architecture/blueprints/technical-enablers/index.md) |
 | QA / Security | [Architecture Maturity Model](../architecture/artifacts/architecture-maturity-model.md) | [Contract Testing Plan](../architecture/artifacts/contract-testing-plan.md) |
-| DevOps / SRE | [Operations Portal](../operations/index.md) | [Runbooks](../operations/runbooks/index.md) |
-
-## Knowledge Areas
+| DevOps / SRE | [Operations Portal](../operations/index.md) | [Runbooks](../operations/runbooks/index.md) | ## Knowledge Areas
 
 - [POCs](./pocs/index.md)
 - [Master Index](../MASTER_INDEX.md)

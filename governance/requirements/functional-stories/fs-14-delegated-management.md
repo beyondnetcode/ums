@@ -10,9 +10,7 @@ Organizations need to delegate user management without giving unrestricted admin
 | :--- | :--- |
 | **Delegating Administrator** | Grants a limited management scope to another administrator. |
 | **Receiving Administrator** | Manages only the delegated users and scope. |
-| **Superior Administrator** | Can supervise or revoke delegated authority. |
-
-## 3. Business Preconditions
+| **Superior Administrator** | Can supervise or revoke delegated authority. | ## 3. Business Preconditions
 
 - Both administrators belong to an authorized tenant context.
 - The delegating administrator owns or controls the users and scope being delegated.

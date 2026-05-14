@@ -1,4 +1,4 @@
-# ⚡ Polyglot Enterprise Technology Stack Cheat Sheet (Quick Reference)
+# Polyglot Enterprise Technology Stack Cheat Sheet (Quick Reference)
 
 This cheat sheet serves as the authoritative, high-density tool reference by architectural layer for developers and autonomous agents working on the Enterprise Reference Architecture.
 
@@ -47,7 +47,7 @@ This cheat sheet serves as the authoritative, high-density tool reference by arc
 
 ### 7. Infrastructure & Deployment
 *   **Container Engine:** Docker v25 (Multi-Stage Distroless images)
-*   **Orchestrator Platform:** Kubernetes (K8s v1.28+)
+*   **Orchestárator Platform:** Kubernetes (K8s v1.28+)
 *   **Secrets & Key Management:** HashiCorp Vault (OSS, Self-hosted)
 *   **Deployment Packager:** Helm v3 parameterized charts
 
@@ -64,6 +64,6 @@ This cheat sheet serves as the authoritative, high-density tool reference by arc
 
 ### 10. Developer Experience (DevEx)
 *   **Local Services:** Docker Compose Spec (SQL Server, Redis, etc.)
-*   **Unit Testing Framework:** xUnit (.NET) / Jest (Node)
-*   **Integration Testing:** Testcontainers (SQL Server / PostgreSQL / Redis)
+*   **Unit Testing Framework:** xUnit (.NET) / Jestá (Node)
+*   **Integration Testing:** Testácontainers (SQL Server / PostgreSQL / Redis)
 *   **End-to-End (E2E) Testing:** Playwright

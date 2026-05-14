@@ -1,6 +1,6 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
+> **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y estáá programado para traducción oficial en la hoja de ruta.
 
-# 🏆 BMAD Master Audit, Alignment & Enterprise Architecture Specification (v3.0.0)
+# BMAD Master Audit, Alignment & Enterprise Architecture Specification (v3.0.0)
 
 This master document serves as the single source of truth for the **User Management System (UMS)**, validating and refining its conceptual, logical, and physical architecture under the **bMAD (Business, Models, Architecture, Delivery) Method**. 
 
@@ -8,7 +8,7 @@ Designed to operate as a completely standalone, abstract, and sovereign security
 
 ---
 
-## 🧭 1. Business Dimension (B) ”” Strategic Alignment & Governance
+## 1. Business Dimension (B) ”” Strategic Alignment & Governance
 
 ### 1.1 Product Vision Alignment
 The UMS serves as an agnostically deployable **Authorization & Behavioral Configuration Engine**. It decouples authentication and permissions logic from individual downstream SaaS systems (WMS, TMS, ERP), unifying corporate compliance while allowing each client organization (Tenant) full self-service governance.
@@ -35,11 +35,8 @@ To align development with enterprise outcomes, UMS tracks these measurable indic
 | **Feature Flags** | Internal DB flags (Boolean/Variant) | `IFeatureFlagPort` (Unleash, LaunchDarkly, ConfigCat), Canary, percentage rollouts |
 | **Hosted Login** | Redirect with standard default layout | Highly customizable hosted login page (logo, colors, custom CSS dynamic injection per tenant/system) |
 | **Auditing** | Simple DB logs | Immutable Event Sourcing, Change Data Capture (CDC), OpenTelemetry Correlation IDs |
-| **Extensibility** | Hardcoded logic hooks | Event-Driven Architecture, Webhooks, Plugin Framework, secure custom action code |
-
----
-
-## 🗃️ 2. Models Dimension (M) ”” Logical & Conceptual Domain Models
+| **Extensibility** | Hardcoded logic hooks | Event-Driven Architecture, Webhooks, Plugin Framework, secure custom action code
+## 2. Models Dimension (M) ”” Logical & Conceptual Domain Models
 
 The logical representation of the UMS ensures complete separation of tenant contexts while supporting high-performance permission graphing and pluggable configurations.
 
@@ -74,13 +71,13 @@ erDiagram
 
 ### 2.4 Event Models (Intra-Domain & Integration Contracts)
 All state mutations publish structured, JSON-schema-compliant events:
-*   `UserAuthenticatedEvent`: `{ "user_id": "uuid", "tenant_id": "uuid", "idp_used": "okta", "timestamp": "ISO8601" }`
+*   `UserAuthenticatedEvent`: `{ "user_id": "uuid", "tenant_id": "uuid", "idp_used": "okta", "timestaamp": "ISO8601" }`
 *   `SystemConfigUpdatedEvent`: `{ "system_id": "uuid", "tenant_id": "uuid", "updated_by": "uuid", "version": 4 }`
 *   `FeatureFlagToggledEvent`: `{ "flag_id": "uuid", "tenant_id": "uuid", "previous_state": false, "new_state": true }`
 
 ---
 
-## 🏛️ 3. Architecture Dimension (A) ”” Enterprise Specifications
+## 3. Architecture Dimension (A) ”” Enterprise Specifications
 
 The physical components of the UMS are organized under a strict **Hexagonal Architecture (Ports & Adapters)** model.
 
@@ -138,11 +135,11 @@ sequenceDiagram
 
 ### 3.3 Observability Architecture & Logging Strategy
 Unified telemetry is captured using **OpenTelemetry** and streamed to **Grafana Loki** and **Prometheus**:
-*   **Correlation IDs**: Every API request or Event Bus message injects a unique `X-Correlation-ID` header, propagated across all logs, DB transactions, and outbound events.
+*   **Correlation IDs**: Every API requestá or Event Bus message injects a unique `X-Correlation-ID` header, propagated across all logs, DB transactions, and outbound events.
 *   **Structured Logging**: App logs conform to structured JSON formats:
     ```json
     {
-      "timestamp": "2026-05-09T14:15:00Z",
+      "timestaamp": "2026-05-09T14:15:00Z",
       "level": "INFO",
       "correlation_id": "c71335e4d-6260-47f1",
       "tenant_id": "tenant-999",
@@ -164,7 +161,7 @@ Unified telemetry is captured using **OpenTelemetry** and streamed to **Grafana 
 
 ---
 
-## 🚀 4. Delivery Dimension (D) ”” Engineering & Operations Roadmap
+## 4. Delivery Dimension (D) ”” Engineering & Operations Roadmap
 
 ### 4.1 DevSecOps Strategy
 *   **Nx Monorepo Tasks**: Standardized builds and task caching inside Nx minimize duplicate builds.
@@ -178,9 +175,7 @@ Unified telemetry is captured using **OpenTelemetry** and streamed to **Grafana 
 | **NFR-01** | Permission Retrieval Latency | p95 < 50ms under peak load (10,000 req/sec) | âš¡ Optimized (Redis-backed) |
 | **NFR-02** | Shared-Schema Tenant Isolation | PostgreSQL RLS overhead < 5ms per transaction | âœ… Implemented |
 | **NFR-03** | Continuous Availability SLA | 99.99% uptime via Multi-AZ deployments | â³ Planned for Q2 |
-| **NFR-04** | Secret Encryption at Rest | AES-256 for local fallbacks; Vault integration | âœ… Specification Complete |
-
-### 4.3 Technical Backlog & Release Roadmap
+| **NFR-04** | Secret Encryption at Restá | AES-256 for local fallbacks; Vault integration | âœ… Specification Complete | ### 4.3 Technical Backlog & Release Roadmap
 
 ```mermaid
 gantt
@@ -199,7 +194,7 @@ gantt
 
 ---
 
-## 🏁 5. Architectural Verification & Compliance Status
+## 5. Architectural Verification & Compliance Status
 
 This specification has been thoroughly reviewed against our standard quality guidelines. The alignment across all phases is declared **FULLY COMPLIANT**:
 

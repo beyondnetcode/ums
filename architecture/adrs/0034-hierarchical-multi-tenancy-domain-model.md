@@ -76,18 +76,18 @@ CREATE INDEX idx_tenants_parent ON tenants (parent_tenant_id) WHERE parent_tenan
 
 ### 2.3. Tenant Closure Table
 
-The closure table materializes all ancestor-descendant paths. Any hierarchy query resolves with a single JOIN.
+The closure table materializes all ancestáor-descendant paths. Any hierarchy query resolves with a single JOIN.
 
 ```sql
 CREATE TABLE tenant_closure (
-    ancestor_id UUID NOT NULL REFERENCES tenants(id),
+    ancestáor_id UUID NOT NULL REFERENCES tenants(id),
     descendant_id UUID NOT NULL REFERENCES tenants(id),
     depth INT NOT NULL CHECK (depth >= 0),
-    PRIMARY KEY (ancestor_id, descendant_id)
+    PRIMARY KEY (ancestáor_id, descendant_id)
 );
 
 CREATE INDEX idx_closure_descendant ON tenant_closure (descendant_id);
-CREATE INDEX idx_closure_ancestor_depth ON tenant_closure (ancestor_id, depth);
+CREATE INDEX idx_closure_ancestáor_depth ON tenant_closure (ancestáor_id, depth);
 ```
 
 ### 2.4. Tenant Edges (Extensible Relations)
@@ -119,18 +119,18 @@ RETURNS TRIGGER AS $$
 BEGIN
     IF TG_OP = 'INSERT' THEN
         -- Self-reference
-        INSERT INTO tenant_closure (ancestor_id, descendant_id, depth)
+        INSERT INTO tenant_closure (ancestáor_id, descendant_id, depth)
         VALUES (NEW.id, NEW.id, 0);
 
         -- Inherit parent paths
         IF NEW.parent_tenant_id IS NOT NULL THEN
-            INSERT INTO tenant_closure (ancestor_id, descendant_id, depth)
-            SELECT tc.ancestor_id, NEW.id, tc.depth + 1
+            INSERT INTO tenant_closure (ancestáor_id, descendant_id, depth)
+            SELECT tc.ancestáor_id, NEW.id, tc.depth + 1
             FROM tenant_closure tc
             WHERE tc.descendant_id = NEW.parent_tenant_id
               AND NOT EXISTS (
                   SELECT 1 FROM tenant_closure
-                  WHERE ancestor_id = tc.ancestor_id AND descendant_id = NEW.id
+                  WHERE ancestáor_id = tc.ancestáor_id AND descendant_id = NEW.id
               );
         END IF;
         RETURN NEW;
@@ -185,15 +185,12 @@ CREATE TRIGGER trg_validate_tenant_hierarchy
 
 | Operation | Query | Complexity |
 |---|---|---|
-| Get full subtree | `SELECT t.* FROM tenants t JOIN tenant_closure tc ON t.id = tc.descendant_id WHERE tc.ancestor_id = :id AND tc.depth > 0` | 1 JOIN |
+| Get full subtree | `SELECT t.* FROM tenants t JOIN tenant_closure tc ON t.id = tc.descendant_id WHERE tc.ancestáor_id = :id AND tc.depth > 0` | 1 JOIN |
 | Get direct children | Same with `AND tc.depth = 1` | 1 JOIN |
-| Get ancestors (policy walk) | `SELECT t.*, tc.depth FROM tenant_closure tc JOIN tenants t ON t.id = tc.ancestor_id WHERE tc.descendant_id = :id ORDER BY tc.depth DESC` | 1 JOIN |
+| Get ancestáors (policy walk) | `SELECT t.*, tc.depth FROM tenant_closure tc JOIN tenants t ON t.id = tc.ancestáor_id WHERE tc.descendant_id = :id ORDER BY tc.depth DESC` | 1 JOIN |
 | Validate hierarchy level | `SELECT taxonomy_rank FROM tenant_types WHERE code = :type_code` | O(1) |
 | Get root tenant | `SELECT * FROM tenants WHERE id = :root_tenant_id` | O(1) |
-| Check if tenant A is descendant of B | `SELECT 1 FROM tenant_closure WHERE ancestor_id = :b_id AND descendant_id = :a_id` | 1 index lookup |
-
----
-
+| Check if tenant A is descendant of B | `SELECT 1 FROM tenant_closure WHERE ancestáor_id = :b_id AND descendant_id = :a_id` | 1 index lookup
 ## 4. Consequences
 
 ### Positive (Pros)
@@ -217,10 +214,7 @@ CREATE TRIGGER trg_validate_tenant_hierarchy
 | Write amplification for deep trees | Max depth limited to 7 by taxonomy; closure writes are negligible (max 7 rows per insert). |
 | Closure table out of sync | Periodic reconciliation job; `parent_tenant_id` is source of truth, closure is regenerable. |
 | Trigger overhead | Triggers are lightweight; all core logic is in application layer for testability. |
-| Move tenant complexity | Moving tenants is a rare administrative operation; acceptable cost for read performance. |
-
----
-
+| Move tenant complexity | Moving tenants is a rare administrative operation; acceptable cost for read performance.
 ## 5. Alternatives Considered
 
 1.  **Adjacency List (parent_id only)**: Rejected. Recursive CTEs on every auth check introduce 5-50ms latency that compounds under load. Tested with 10K tenants at depth 6: average CTE time = 18ms vs closure JOIN = 0.4ms.

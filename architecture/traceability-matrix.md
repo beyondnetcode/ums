@@ -8,7 +8,7 @@
 
 ## 1. Forward Trace: FS → ADR → TE
 
-> Legend: `[UMS]` = UMS-specific ADR · `[ARC]` = arc32 core ADR · `⚠ TE pending` = pattern decided but no Technical Enabler yet
+> Legend: `[UMS]` = UMS-specific ADR · `[ARC]` = arc32 core ADR · ` TE pending` = pattern decided but no Technical Enabler yet
 
 | FS | Title | Domain | ADRs | TE |
 |:---|:---|:---|:---|:---|
@@ -27,10 +27,7 @@
 | **FS-13** | Configure Hierarchical System Parameters | Configuration / Inheritance | [UMS] ADR-0047, ADR-0024 · [ARC] ADR-0024 | TE-02 |
 | **FS-14** | Delegate User Management Between Administrators | Governance / Delegation | [UMS] ADR-0038, ADR-0044 | — |
 | **FS-15** | Configure Expiration Notification Rules | Compliance / Notifications | [UMS] ADR-0045, ADR-0016 · [ARC] ADR-0016 | — |
-| **FS-16** | Define Access Policy on Expiration | Compliance / Enforcement | [UMS] ADR-0045, ADR-0035 | — |
-
----
-
+| **FS-16** | Define Access Policy on Expiration | Compliance / Enforcement | [UMS] ADR-0045, ADR-0035 | —
 ## 2. Technical Enablers Registry
 
 | TE | Title | Pattern | Backing ADRs | Consumed by FS |
@@ -40,9 +37,7 @@
 | **TE-03** | Enforce Row-Level Security by Organization | Multi-tenant data isolation (SQL Server RLS) | [UMS] ADR-0037, ADR-0041 · [ARC] ADR-0044 | FS-03 |
 | **TE-04** | Transactional Outbox for Async Messaging | Outbox pattern — at-least-once delivery | [ARC] ADR-0033, ADR-0036 | FS-10, FS-11, FS-15 |
 | **TE-05** | Distributed Saga with Dapr | Choreography/orchestration sagas | [ARC] ADR-0035, ADR-0006 | FS-10, FS-12 |
-| **TE-06** | CQRS Projection Rebuild Strategy | Read model rebuild from event store | [ARC] ADR-0034, ADR-0015 | FS-07 |
-
-> **TE-04, TE-05, TE-06** are defined below but do not yet have implementation documents.  
+| **TE-06** | CQRS Projection Rebuild Strategy | Read model rebuild from event store | [ARC] ADR-0034, ADR-0015 | FS-07 | > **TE-04, TE-05, TE-06** are defined below but do not yet have implementation documents.  
 > See [Coverage Gaps](#4-coverage-gaps) for creation tracking.
 
 ---
@@ -76,9 +71,7 @@ Navigates from an architectural decision back to which business requirements mot
 | ADR-0044 | Delegated Administration & Approval Workflows | FS-10, FS-14 |
 | ADR-0045 | Automated Document-Based Access Enforcement | FS-11, FS-15, FS-16 |
 | ADR-0046 | Role Evolution and Promotion Governance | FS-12 |
-| ADR-0047 | Hierarchical Configuration Management | FS-04, FS-13 |
-
-### arc32 Core ADRs referenced by UMS
+| ADR-0047 | Hierarchical Configuration Management | FS-04, FS-13 | ### arc32 Core ADRs referenced by UMS
 
 | ADR | Title (short) | Motivating FS |
 |:---|:---|:---|
@@ -94,10 +87,7 @@ Navigates from an architectural decision back to which business requirements mot
 | ADR-0034 | CQRS Application Matrix | FS-07 (via TE-06) |
 | ADR-0035 | Distributed Saga Strategy | FS-10, FS-12 (via TE-05) |
 | ADR-0036 | Message Bus Delivery & DLQ Strategy | FS-10, FS-11, FS-15 (via TE-04) |
-| ADR-0044 | Configurable Security Persistence (RLS) | FS-03 (via TE-03) |
-
----
-
+| ADR-0044 | Configurable Security Persistence (RLS) | FS-03 (via TE-03)
 ## 4. Coverage Gaps
 
 ### 4.1 Functional Stories without Technical Enabler
@@ -108,15 +98,13 @@ These FSs involve complex implementation patterns backed by ADRs but lack a TE d
 |:---|:---|:---|:---|
 | FS-10, FS-11, FS-15 | TE-04 | Transactional Outbox — async at-least-once delivery | High |
 | FS-10, FS-12 | TE-05 | Distributed Saga with Dapr choreography | High |
-| FS-07 | TE-06 | CQRS Projection rebuild from event store | Medium |
-
-### 4.2 ADRs with No Functional Story Coverage
+| FS-07 | TE-06 | CQRS Projection rebuild from event store | Medium | ### 4.2 ADRs with No Functional Story Coverage
 
 These decisions are cross-cutting infrastructure concerns not tied to a specific user story:
 
 | ADR | Title | Nature |
 |:---|:---|:---|
-| ADR-0001 | Monorepo Orchestration (Nx) | Platform |
+| ADR-0001 | Monorepo Orchestáration (Nx) | Platform |
 | ADR-0002 | Hexagonal Architecture / NestJS | Platform |
 | ADR-0003 | Strict TypeScript + SonarJS | Platform |
 | ADR-0005 | CI/CD Security with CodeQL | Platform |
@@ -131,13 +119,11 @@ These decisions are cross-cutting infrastructure concerns not tied to a specific
 | ADR-0025 | Feature Flag Provider Abstraction | Platform |
 | ADR-0027 | Dual REST/gRPC Protocol + Kong | Platform |
 | ADR-0028 | Self-Hosted OSS Infrastructure | Platform |
-| ADR-0029 | @nestjslatam/ddd Adoption | Platform |
+| ADR-0029 | @nestájslatam/ddd Adoption | Platform |
 | ADR-0030 | Kong OSS vs NestJS Gateway | Platform |
 | ADR-0033 | .NET Minimal APIs Strategy | Platform |
 | ADR-0040 | Federated Token Strategy | Platform |
-| ADR-0041 | Authoritative Database Engine | Platform |
-
-> Platform ADRs are foundational constraints, not feature-driven. Their absence from FS coverage is expected.
+| ADR-0041 | Authoritative Database Engine | Platform | > Platform ADRs are foundational constraints, not feature-driven. Their absence from FS coverage is expected.
 
 ---
 
@@ -150,10 +136,7 @@ These decisions are cross-cutting infrastructure concerns not tied to a specific
 | **Multi-Tenancy** | FS-03, FS-04 | ADR-0010, ADR-0031, ADR-0032, ADR-0034, ADR-0037 |
 | **Governance & Delegation** | FS-10, FS-12, FS-14 | ADR-0036, ADR-0038, ADR-0044, ADR-0046 |
 | **Compliance & Documents** | FS-11, FS-15, FS-16 | ADR-0016, ADR-0045 |
-| **Configuration** | FS-13 | ADR-0024, ADR-0047 |
-
----
-
+| **Configuration** | FS-13 | ADR-0024, ADR-0047
 ## 6. Related Documents
 
 - [Functional Stories Index](../governance/requirements/functional-stories/index.md)

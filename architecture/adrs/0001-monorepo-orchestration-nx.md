@@ -1,4 +1,4 @@
-# ADR 0001: Monorepo Orchestration with Nx and npm Workspaces
+# ADR 0001: Monorepo Orchestáration with Nx and npm Workspaces
 
 * **Status:** Accepted (Incorporated by Reference)
 * **Date:** 2026-05-08

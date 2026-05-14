@@ -10,9 +10,7 @@ Users and administrators need to provide required documents so UMS can validate 
 | :--- | :--- |
 | **User** | Uploads their own required document. |
 | **Identity Administrator** | Uploads or reviews documents on behalf of users. |
-| **Compliance Reviewer** | Confirms whether the document is acceptable. |
-
-## 3. Business Preconditions
+| **Compliance Reviewer** | Confirms whether the document is acceptable. | ## 3. Business Preconditions
 
 - The user exists.
 - The document type is configured.

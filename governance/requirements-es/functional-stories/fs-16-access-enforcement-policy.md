@@ -12,14 +12,11 @@ Los equipos de seguridad y cumplimiento necesitan definir qué debe ocurrir cuan
 | :--- | :--- |
 | **Arquitecto de Seguridad** | Define el impacto de acceso por documentos críticos vencidos. |
 | **Administrador Global** | Publica o actualiza políticas de cumplimiento. |
-| **Usuario Afectado** | Recibe restricciones o advertencias según la política. |
-
----
-
+| **Usuario Afectado** | Recibe restricciónes o advertencias según la política.
 ## 3. Precondiciones de Negocio
 
-- La validación de cumplimiento documental está habilitada.
-- El tipo de documento está marcado como relevante para control de acceso.
+- La validación de cumplimiento documental estáá habilitada.
+- El tipo de documento estáá marcado como relevante para control de acceso.
 - El actor tiene permiso para gestionar políticas de enforcement.
 
 ---
@@ -50,10 +47,10 @@ Si el tipo de documento seleccionado no es crítico para acceso, el sistema impi
 
 ## 6. Reglas de Negocio
 
-1. El vencimiento de un documento crítico puede bloquear acceso, restringir perfiles o solo generar advertencia de auditoría.
+1. El vencimiento de un documento crítico puede bloquear acceso, restáringir perfiles o solo generar advertencia de auditoría.
 2. Las políticas deben incluir `code`, `value` y `description`.
-3. El usuario debe poder entender por qué se restringió el acceso.
-4. La renovación debe permitir restaurar acceso cuando se cumplan las condiciones de la política.
+3. El usuario debe poder entender por qué se restáringió el acceso.
+4. La renovación debe permitir restáaurar acceso cuando se cumplan las condiciones de la política.
 
 ---
 
@@ -61,8 +58,8 @@ Si el tipo de documento seleccionado no es crítico para acceso, el sistema impi
 
 1. Un administrador puede configurar una consecuencia para un tipo de documento crítico.
 2. El sistema impide políticas de bloqueo sobre documentos no críticos.
-3. Las restricciones quedan trazables y visibles para administradores.
-4. Renovar un documento válido puede restaurar acceso según la política.
+3. Las restricciónes quedan trazables y visibles para administradores.
+4. Renovar un documento válido puede restáaurar acceso según la política.
 
 ---
 
@@ -72,7 +69,7 @@ Si el tipo de documento seleccionado no es crítico para acceso, el sistema impi
 - Campos obligatorios: `Code`, `Value`, `Description`.
 - Aplicar unicidad por `Code`, alcance de tenant y `DocumentTypeId`.
 - Acciones soportadas: `BLOCK_USER`, `RESTRICT_PROFILE` y `LOG_ONLY`.
-- Emitir eventos de auditoría cuando se aplican o revierten restricciones.
+- Emitir eventos de auditoría cuando se aplican o revierten restricciónes.
 
 ---
 

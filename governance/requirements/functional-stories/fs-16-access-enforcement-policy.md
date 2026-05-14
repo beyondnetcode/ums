@@ -12,10 +12,7 @@ Security and compliance teams need to define what should happen when a critical 
 | :--- | :--- |
 | **Security Architect** | Defines access impact for expired critical documents. |
 | **Global Administrator** | Publishes or updates enforcement policies. |
-| **Affected User** | Receives access restrictions or warnings based on policy. |
-
----
-
+| **Affected User** | Receives access restrictions or warnings based on policy.
 ## 3. Business Preconditions
 
 - Document compliance validation is enabled.
@@ -53,7 +50,7 @@ If the selected document type is not access-critical, the system prevents public
 1. Critical document expiration may block access, restrict profiles, or only generate an audit warning.
 2. Policies must include `code`, `value`, and `description`.
 3. The user must be able to understand why access was restricted.
-4. Renewal must allow access restoration when the policy conditions are satisfied.
+4. Renewal must allow access restáoration when the policy conditions are satisfied.
 
 ---
 

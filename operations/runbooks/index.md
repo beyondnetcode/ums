@@ -13,28 +13,25 @@ Operational procedures for diagnosing and recovering from infrastructure and app
 | [RB-01](./rb-01-incident-response.md) | Incident Response | Any production alert | P1–P4 |
 | [RB-02](./rb-02-rollback-procedure.md) | Rollback Procedure | Deployment regression detected | P1–P2 |
 | [RB-03](./rb-03-cache-failure-recovery.md) | Cache Failure Recovery (Redis) | Redis unavailable or hit rate degraded | P2 |
-| [RB-04](./rb-04-database-failover.md) | Database Failover (SQL Server) | SQL Server unreachable or data integrity risk | P1 |
-
----
-
+| [RB-04](./rb-04-database-failover.md) | Database Failover (SQL Server) | SQL Server unreachable or data integrity risk | P1
 ## Decision Tree — Which Runbook?
 
 ```
 Alert fires
-│
-├─ Auth 401/403 spike or latency > 2s?
-│   ├─ Redis PING fails → RB-03 (Cache Recovery)
-│   ├─ SQL Server unreachable → RB-04 (DB Failover)
-│   └─ After recent deployment → RB-02 (Rollback)
-│
-├─ Full service outage?
-│   └─ Start with RB-01 (Incident Response) → triage leads to RB-03 or RB-04
-│
-├─ Deployment just released and metrics degraded?
-│   └─ RB-02 (Rollback Procedure)
-│
-└─ Unsure of root cause?
-    └─ Always start with RB-01 (Incident Response)
+
+ Auth 401/403 spike or latency > 2s?
+    Redis PING fails → RB-03 (Cache Recovery)
+    SQL Server unreachable → RB-04 (DB Failover)
+    After recent deployment → RB-02 (Rollback)
+
+ Full service outage?
+    Start with RB-01 (Incident Response) → triage leads to RB-03 or RB-04
+
+ Deployment just released and metrics degraded?
+    RB-02 (Rollback Procedure)
+
+ Unsure of root cause?
+     Always start with RB-01 (Incident Response)
 ```
 
 ---

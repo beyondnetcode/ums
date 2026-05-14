@@ -9,9 +9,7 @@ Administrators need to create profiles that represent real work responsibilities
 | Actor | Responsibility |
 | :--- | :--- |
 | **Security Administrator** | Creates profiles and assigns templates. |
-| **Tenant Operations Manager** | Manages local profiles within delegated scope. |
-
-## 3. Business Preconditions
+| **Tenant Operations Manager** | Manages local profiles within delegated scope. | ## 3. Business Preconditions
 
 - The target organization exists.
 - The target branch exists when branch-scoped access is required.

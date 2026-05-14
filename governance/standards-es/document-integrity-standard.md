@@ -1,4 +1,4 @@
-# 🛡️ Document Integrity & Compatibility Standard (UTF-8/LF)
+# Document Integrity & Compatibility Standard (UTF-8/LF)
 
 > **Goal**: Ensure 100% consistent rendering across GitHub, IDEs, and Operating Systems.
 

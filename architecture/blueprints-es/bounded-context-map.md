@@ -1,13 +1,13 @@
-# 🗺️ Mapa de Contextos Acotados — Sistema de Gestión de Usuarios (UMS)
+# Mapa de Contextos Acotados — Sistema de Gestión de Usuarios (UMS)
 
 Este documento establece el **Mapa de Contextos Acotados de Diseño Dirigido por Dominios (DDD)** formal para la plataforma UMS. Define los límites de cada contexto de dominio, sus responsabilidades internas y los contratos de integración entre ellos.
 
 > [!IMPORTANT]
-> Este es un **Entregable Arquitectónico de Prioridad 1** según lo establecido en `architecture-spec.md`. Todos los equipos deben alinearse con este mapa antes de implementar funcionalidades que crucen los límites de los contextos.
+> Este es un **Entregable Arquitectónico de Prioridad 1** según lo establecido en `architecture-spec.md`. Todos los equipos deben alinearse con esté mapa antes de implementar funcionalidades que crucen los límites de los contextos.
 
 ---
 
-## 🧭 Navegación Rápida
+## Navegación Rápida
 | Contexto | Misión Principal | Acceso Directo |
 | :--- | :--- | :--- |
 | **Identidad** | Gestión de usuarios y tenants. | [Ver Detalle](#-a-contexto-de-identidad) |
@@ -17,22 +17,19 @@ Este documento establece el **Mapa de Contextos Acotados de Diseño Dirigido por
 | **Consola** | Interfaz de administración (PAP). | [Ver Detalle](#-e-contexto-de-consola-punto-de-administración-de-políticas--pap) |
 | **Caché** | Capa de alto rendimiento. | [Ver Detalle](#-f-contexto-de-caché-infraestructura) |
 | **IGA** | Promoción de roles y administración delegada. | [Ver Detalle](#-g-contexto-iga-gobernanza-y-administración-de-identidad) |
-| **Cumplimiento** | Ciclo de vida de documentos y aplicación de acceso. | [Ver Detalle](#-h-contexto-de-cumplimiento) |
-
----
-
-## 📐 1. Descripción General del Mapa de Contextos
+| **Cumplimiento** | Ciclo de vida de documentos y aplicación de acceso. | [Ver Detalle](#-h-contexto-de-cumplimiento)
+## 1. Descripción General del Mapa de Contextos
 
 ```mermaid
 graph TD
-    subgraph IdentityContext["🔐 Contexto de Identidad"]
+    subgraph IdentityContext[" Contexto de Identidad"]
         IC1["Registro y Ciclo de Vida del Usuario"]
         IC2["Gestión de Organizaciones (Tenants)"]
         IC3["Registro de Sedes (Branches)"]
         IC4["Adaptadores de Estrategia IdP (Enchufables)"]
     end
 
-    subgraph AuthorizationContext["🔑 Contexto de Autorización"]
+    subgraph AuthorizationContext[" Contexto de Autorización"]
         AC1["Registro de Sistemas y Recursos"]
         AC2["Topología de Menú / Submenú / Opción / Acción"]
         AC3["Motor de Perfiles y Plantillas"]
@@ -40,45 +37,45 @@ graph TD
         AC5["Resolutor de Precedencia de Denegación Explícita"]
     end
 
-    subgraph ConfigContext["⚙️ Contexto de Configuración y Gestión de Funciones"]
+    subgraph ConfigContext[" Contexto de Configuración y Gestión de Funciones"]
         CF1["Motor de Configuración Multi-IdP"]
         CF2["Modelo de Configuración de Comportamiento del Sistema"]
         CF3["Framework de Gestión de Feature Flags"]
-        CF4["Gestor de Caché de Configuración"]
+        CF4["Gestáor de Caché de Configuración"]
     end
 
-    subgraph AuditContext["📋 Contexto de Auditoría"]
+    subgraph AuditContext[" Contexto de Auditoría"]
         AU1["Libro de Auditoría Inmutable (CDC/Suscriptores)"]
         AU2["Registro de Intentos de Acceso"]
         AU3["Historial de Mutación de Permisos"]
         AU4["Historial de Cambios de Configuración y Flags"]
     end
 
-    subgraph ConsoleContext["💻 Contexto de Consola (PAP)"]
+    subgraph ConsoleContext[" Contexto de Consola (PAP)"]
         CO1["UI del Portal Web de Administración"]
         CO2["Vistas CRUD de Tenant y Sede"]
         CO3["Constructor de Plantillas y Motor de Asignación"]
         CO4["Resolutor Visual de Grafos y Diagnósticos"]
         CO5["Monitor del Libro de Seguridad"]
-        CO6["Gestor de Configuración de IdP"]
+        CO6["Gestáor de Configuración de IdP"]
         CO7["Editor de Configuración del Sistema"]
         CO8["Dashboard de Feature Flags"]
     end
 
-    subgraph CacheContext["⚡ Contexto de Caché (Infraestructura)"]
+    subgraph CacheContext[" Contexto de Caché (Infraestructura)"]
         CA1["Redis: namespace auth_graph"]
         CA2["Redis: namespace cfg (IdP + Config de Sistema)"]
         CA3["Redis: namespace flags (Sets de Flags Evaluados)"]
         CA4["Gobernanza de TTL y Hooks de Evicción"]
     end
 
-    subgraph IGAContext["🎖️ Contexto IGA"]
+    subgraph IGAContext[" Contexto IGA"]
         IG1["Motor de Criterios de Promoción de Roles"]
-        IG2["Gestor de Proceso de Promoción de Usuario"]
+        IG2["Gestáor de Proceso de Promoción de Usuario"]
         IG3["Registro de Administración Delegada"]
     end
 
-    subgraph ComplianceContext["📄 Contexto de Cumplimiento"]
+    subgraph ComplianceContext[" Contexto de Cumplimiento"]
         CM1["Ciclo de Vida del Documento de Usuario"]
         CM2["Motor de Políticas de Aplicación de Acceso"]
         CM3["Reglas de Notificación Pre-Vencimiento"]
@@ -106,9 +103,9 @@ graph TD
 
 ---
 
-## 📦 2. Definiciones de Contexto
+## 2. Definiciones de Contexto
 
-### 🔐 A. Contexto de Identidad
+### A. Contexto de Identidad
 **Misión:** Gestionar el ciclo de vida de todos los principales (usuarios) y las estructuras organizativas (tenants y sedes) a las que pertenecen. Delegar la verificación de credenciales a Proveedores de Identidad externos y enchufables utilizando las configuraciones suministradas por el Contexto de Configuración.
 
 **Es dueño de:**
@@ -129,7 +126,7 @@ graph TD
 
 ---
 
-### 🔑 B. Contexto de Autorización
+### B. Contexto de Autorización
 **Misión:** Actuar como el **Punto de Decisión de Políticas (PDP)**. Compilar y resolver el grafo de autorización jerárquico para cualquier principal autenticado basado en su organización, sede, perfiles y plantillas adjuntas.
 
 **Es dueño de:**
@@ -150,11 +147,11 @@ graph TD
 **Contratos de Integración (Lenguaje Publicado):**
 - `GET /v1/authorization/graph` → devuelve `HierarchicalJsonGraph`
 - `POST /v1/authorization/templates` → crea plantilla versionada
-- `PermissionMutatedEvent { userId, profileId, effect, actionId, timestamp }`
+- `PermissionMutatedEvent { userId, profileId, effect, actionId, timestaamp }`
 
 ---
 
-### ⚙️ C. Contexto de Configuración y Gestión de Funciones *(NUEVO)*
+### C. Contexto de Configuración y Gestión de Funciones *(NUEVO)*
 **Misión:** Gobernar el **comportamiento dinámico de tiempo de ejecución multi-tenant** de todos los sistemas integrados con UMS sin requerir cambios de código o despliegue. Posee tres pilares de capacidad:
 1. **Motor de Configuración Multi-IdP** — registro de IdP por tenant/sistema con prioridad/fallback.
 2. **Configuración de Comportamiento del Sistema** — configuración JSON versionada para auth, sesión, marca, módulos.
@@ -179,13 +176,13 @@ graph TD
 - `GET /v1/config/idp?tenant_id&system_id` → devuelve el conjunto ordenado de config de IdP
 - `GET /v1/config/system/{system_id}?tenant_id` → devuelve la configuración activa del sistema
 - `POST /v1/flags/evaluate` → devuelve el conjunto de flags evaluados para un contexto de ejecución
-- `IdpConfigUpdatedEvent { configId, tenantId, version, timestamp }`
+- `IdpConfigUpdatedEvent { configId, tenantId, version, timestaamp }`
 - `SystemConfigPublishedEvent { configId, systemId, tenantId, version }`
 - `FeatureFlagStateChangedEvent { flagCode, newStatus, targetScope, changedBy }`
 
 ---
 
-### 📋 D. Contexto de Auditoría
+### D. Contexto de Auditoría
 **Misión:** Mantener un **libro de contabilidad inmutable y a prueba de manipulaciones** de todos los eventos de identidad, mutaciones de permisos **y cambios de configuración**. Atiende necesidades de cumplimiento, forenses y diagnósticos de SRE.
 
 **Es dueño de:**
@@ -198,14 +195,14 @@ graph TD
 
 ---
 
-### 💻 E. Contexto de Consola (Punto de Administración de Políticas — PAP)
+### E. Contexto de Consola (Punto de Administración de Políticas — PAP)
 **Misión:** Proporcionar el **Portal Web Administrativo** que permite a los SuperAdmins y Gerentes de Tenant gobernar organizaciones, sistemas, perfiles, plantillas, configuraciones de IdP, configuraciones de sistema y feature flags.
 
 **Es dueño de:**
 - Portal Web de Administración (React SPA)
 - UI de Constructor de Plantillas y Configurador de Reglas de Asignación Automática
 - Resolutor Visual de Grafos
-- **Gestor de Configuración de IdP** *(NUEVO)*
+- **Gestáor de Configuración de IdP** *(NUEVO)*
 - **Editor de Configuración del Sistema** *(NUEVO)*
 - **Dashboard de Feature Flags** *(NUEVO)*
 
@@ -213,8 +210,8 @@ graph TD
 
 ---
 
-### 🎖️ G. Contexto IGA (Gobernanza y Administración de Identidad)
-**Misión:** Gobernar el ciclo de vida completo de la evolución de roles, los procesos de promoción de usuarios y la administración delegada de usuarios. Actúa como el motor de reglas que evalúa los criterios de promoción y orquesta los flujos de aprobación para el avance de roles.
+### G. Contexto IGA (Gobernanza y Administración de Identidad)
+**Misión:** Gobernar el ciclo de vida completo de la evolución de roles, los procesos de promoción de usuarios y la administración delegada de usuarios. Actúa como el motor de reglas que evalúa los criterios de promoción y orquestá los flujos de aprobación para el avance de roles.
 
 **Schema DB:** `ums_iga`
 **Servicio Dueño:** .NET 8 Core API (migrado desde satélite NestJS — ADR-0041 en progreso)
@@ -233,14 +230,14 @@ graph TD
 **Contratos de Integración (Lenguaje Publicado):**
 - `POST /v1/iga/promotion/evaluate` → desencadena la evaluación de criterios para un usuario
 - `GET /v1/iga/promotion/pending` → lista las promociones en espera de aprobación
-- `PromotionCriteriaMetEvent { userId, roleId, processId, timestamp }`
-- `PromotionApprovedEvent { userId, fromRoleId, toRoleId, approvedBy, timestamp }`
+- `PromotionCriteriaMetEvent { userId, roleId, processId, timestaamp }`
+- `PromotionApprovedEvent { userId, fromRoleId, toRoleId, approvedBy, timestaamp }`
 
 **Patrón de Integración:** Recibe `UserRegisteredEvent` del Contexto de Identidad. Publica `PromotionApprovedEvent` consumido por el Contexto de Autorización (para actualizar el Profile) y el Contexto de Identidad (para actualizar el estado del usuario).
 
 ---
 
-### 📄 H. Contexto de Cumplimiento
+### H. Contexto de Cumplimiento
 **Misión:** Aplicar políticas de acceso basadas en documentos para todos los usuarios. Gestiona el ciclo de vida completo de los documentos de usuario, evalúa el estado de vencimiento, despacha notificaciones pre-vencimiento configurables y desencadena acciones de aplicación automatizadas (bloquear, degradar, solo-notificar, suspender) al vencimiento.
 
 **Schema DB:** `ums_compliance`
@@ -256,21 +253,21 @@ graph TD
 
 **NO es dueño de:**
 - Identidad del usuario o autoridad de bloqueo (delega `UserBlockedEvent` al Contexto de Identidad)
-- Orquestación de flujos de aprobación (propiedad del Contexto IGA)
+- Orquestáación de flujos de aprobación (propiedad del Contexto IGA)
 - Libro de auditoría (propiedad del Contexto de Auditoría)
 
 **Contratos de Integración (Lenguaje Publicado):**
 - `POST /v1/compliance/documents` → cargar documento de usuario
 - `GET /v1/compliance/documents/{userId}/status` → resumen de cumplimiento documental
-- `DocumentExpiredEvent { userId, documentId, criticity, enforcementAction, timestamp }`
-- `DocumentValidatedEvent { userId, documentId, validatedBy, timestamp }`
+- `DocumentExpiredEvent { userId, documentId, criticity, enforcementAction, timestaamp }`
+- `DocumentValidatedEvent { userId, documentId, validatedBy, timestaamp }`
 
 **Patrón de Integración:** Recibe `UserRegisteredEvent` de Identidad. Publica `DocumentExpiredEvent` consumido por el Contexto de Identidad (desencadena BLOCK_ACCESS) y el Contexto de Auditoría. Envía notificaciones vía `INotificationPort`.
 
 ---
 
-### ⚡ F. Contexto de Caché (Infraestructura)
-**Misión:** Proporcionar una capa de caché distribuida de alto rendimiento para grafos de autorización, configuraciones de sistema y evaluaciones de feature flags — todo bajo una gobernanza estricta de namespaces.
+### F. Contexto de Caché (Infraestructura)
+**Misión:** Proporcionar una capa de caché distribuida de alto rendimiento para grafos de autorización, configuraciones de sistema y evaluaciones de feature flags — todo bajo una gobernanza estáricta de namespaces.
 
 **Namespaces de Caché:**
 | Namespace | Contexto Dueño | Patrón de Clave | TTL |
@@ -278,13 +275,11 @@ graph TD
 | `auth_graph:*` | Contexto de Autorización | `auth_graph:{userId}:{systemId}:{tenantId}:{branchId}` | 3600s |
 | `cfg:idp:*` | Contexto de Configuración | `cfg:idp:{tenantId}:{systemId}` | 900s |
 | `cfg:sys:*` | Contexto de Configuración | `cfg:sys:{systemId}:{tenantId}` | 300s |
-| `flags:*` | Contexto de Configuración | `flags:{systemId}:{tenantId}:{userId}` | 60s |
-
-**Patrón de Integración:** Oculto tras abstracciones puras de puertos del núcleo (`ICachePort`, `IConfigCachePort`). Solo los adaptadores de infraestructura interactúan directamente con Redis.
+| `flags:*` | Contexto de Configuración | `flags:{systemId}:{tenantId}:{userId}` | 60s | **Patrón de Integración:** Oculto tras abstracciones puras de puertos del núcleo (`ICachePort`, `IConfigCachePort`). Solo los adaptadores de infraestructura interactúan directamente con Redis.
 
 ---
 
-## 🔗 3. Relaciones de Contexto
+## 3. Relaciones de Contexto
 
 | Contexto Aguas Arriba (Upstream) | Contexto Aguas Abajo (Downstream) | Patrón | Contrato |
 | :--- | :--- | :--- | :--- |
@@ -304,11 +299,8 @@ graph TD
 | Contexto IGA | Contexto de Auditoría | **Conformist (Evento)** | Publica `PromotionCriteriaMetEvent`, `PromotionApprovedEvent` |
 | Contexto de Identidad | Contexto de Cumplimiento | **Customer-Supplier** | Publica `UserRegisteredEvent` consumido por Cumplimiento para inicializar el seguimiento documental |
 | Contexto de Cumplimiento | Contexto de Identidad | **Customer-Supplier** | Publica `DocumentExpiredEvent` desencadenando BLOCK_ACCESS en Identidad |
-| Contexto de Cumplimiento | Contexto de Auditoría | **Conformist (Evento)** | Publica `DocumentExpiredEvent`, `DocumentValidatedEvent` |
-
----
-
-## 🚧 4. Capas Anti-Corrupción (ACL)
+| Contexto de Cumplimiento | Contexto de Auditoría | **Conformist (Evento)** | Publica `DocumentExpiredEvent`, `DocumentValidatedEvent`
+## 4. Capas Anti-Corrupción (ACL)
 
 | Límite | Mecanismo ACL | Razón |
 | :--- | :--- | :--- |
@@ -320,4 +312,4 @@ graph TD
 | Autorización ↔ Bus de Eventos | `IEventBusPort` | Evita que Kafka/RabbitMQ se acoplen a los casos de uso |
 | Consola ↔ APIs de UMS | Contratos de API REST (versionados) | La consola es un consumidor externo; se trata como a cualquier tercero |
 | Cumplimiento ↔ Proveedores de Notificación | `INotificationPort` (Patrón Strategy) | Evita que los SDKs de SMTP/Twilio se acoplen al dominio |
-| Cumplimiento ↔ Almacenamiento de Objetos | `IDocumentStoragePort` (Patrón Strategy) | Evita que el SDK de MinIO/S3 se filtre en el dominio |
+| Cumplimiento ↔ Almacenamiento de Objetos | `IDocumentStoragePort` (Patrón Strategy) | Evita que el SDK de MinIO/S3 se filtre en el dominio | 

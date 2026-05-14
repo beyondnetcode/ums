@@ -1,4 +1,4 @@
-# 📐 UMS Configuration Platform — Functional & Architectural Specification
+# UMS Configuration Platform — Functional & Architectural Specification
 
 **Version:** 2.0.0 | **Status:** Accepted | **Method:** bMAD  
 **Classification:** Core Platform Capability — Cross-Cutting Concern
@@ -8,7 +8,7 @@
 
 ---
 
-## 🧭 1. Business Context & Strategic Rationale
+## 1. Business Context & Strategic Rationale
 
 Modern enterprise SaaS platforms require the ability to **adapt behavior at runtime without redeployment**. The UMS Configuration Platform provides a centralized, multi-tenant, auditable, and API-first parametrization engine that governs three orthogonal concerns:
 
@@ -20,7 +20,7 @@ These capabilities eliminate the need for environment-specific deployments when 
 
 ---
 
-## 📋 2. Pillar 1 — Multi-IdP Configuration Engine
+## 2. Pillar 1 — Multi-IdP Configuration Engine
 
 ### 2.1 Functional Requirements
 
@@ -33,9 +33,7 @@ The UMS must allow per-tenant (and optionally per-system) configuration of one o
 | **Priority & Fallback Rules** | Each IdP entry has a `priority` rank. If the primary IdP is unreachable (timeout/500), the engine falls back in priority order. |
 | **Hybrid Authentication** | A tenant may have INTERNAL + EXTERNAL IdPs active simultaneously. The routing strategy is evaluated per login attempt based on user domain hints. |
 | **Per-System Association** | An IdP configuration can be scoped to a specific `system_id` (e.g., only the HCM Portal uses LDAP; Client System uses Azure AD). |
-| **Secure Credential Storage** | OAuth client secrets, SAML certificates, and LDAP bind credentials are encrypted at rest using AES-256 and referenced by `config_secret_ref`. |
-
-### 2.2 IdP Configuration Schema
+| **Secure Credential Storage** | OAuth client secrets, SAML certificates, and LDAP bind credentials are encrypted at restá using AES-256 and referenced by `config_secret_ref`. | ### 2.2 IdP Configuration Schema
 
 ```json
 {
@@ -97,7 +95,7 @@ sequenceDiagram
 
 ---
 
-## 📋 3. Pillar 2 — System Behavioral Configuration Model
+## 3. Pillar 2 — System Behavioral Configuration Model
 
 ### 3.1 Functional Requirements
 
@@ -107,12 +105,10 @@ Each system registered in UMS must support a **dynamic, versioned, auditable con
 | :--- | :--- |
 | **Authentication** | `auth_strategy`, `mfa_enabled`, `mfa_method` (`TOTP`, `WEBAUTHN`, `SMS`), `passwordless_enabled` |
 | **Session Policy** | `access_token_ttl_seconds`, `refresh_token_ttl_seconds`, `idle_session_timeout_seconds`, `max_concurrent_sessions` |
-| **Multi-Tenancy Restrictions** | `allowed_organizations`, `blocked_regions`, `ip_allowlist`, `branch_restriction_enabled` |
+| **Multi-Tenancy Restárictions** | `allowed_organizations`, `blocked_regions`, `ip_allowlist`, `branch_restriction_enabled` |
 | **Onboarding** | `self_registration_enabled`, `email_verification_required`, `auto_profile_creation_enabled` |
 | **Branding & UI** | `primary_color`, `logo_url`, `login_background_url`, `tenant_display_name`, `hosted_login_enabled`, `custom_css_url`, `font_family` |
-| **Module Enablement** | `modules_enabled: ["fleet_dispatch", "route_planning", "audit_export"]` |
-
-### 3.2 Configuration Schema
+| **Module Enablement** | `modules_enabled: ["fleet_dispatch", "route_planning", "audit_export"]` | ### 3.2 Configuration Schema
 
 ```json
 {
@@ -173,7 +169,7 @@ When a client system requests its configuration, the UMS engine calculates the "
 
 ---
 
-## 📋 4. Pillar 3 — Feature Flag Management Framework (Pluggable Provider Architecture)
+## 4. Pillar 3 — Feature Flag Management Framework (Pluggable Provider Architecture)
 
 > [!IMPORTANT]
 > The Feature Flag framework is designed under the **same hexagonal abstraction principle** as the IdP strategy. The UMS core MUST NOT depend on any specific feature flag vendor or implementation. All evaluation is routed through a **pluggable `IFeatureFlagPort` adapter**. This enables zero-impact migration between internal and external flag engines.
@@ -189,36 +185,33 @@ When a client system requests its configuration, the UMS engine calculates the "
 | **Real-Time Evaluation** | Flags evaluated in real-time via API without requiring application redeployment |
 | **Unique Flag Codes** | Each flag has a globally unique `flag_code` string consumed by client systems |
 | **Gradual Rollout** | Percentage-based rollout supports Canary releases and Beta feature strategies |
-| **Audit Trail** | Every flag state change logged immutably with actor, timestamp, and previous state |
-| **Distributed Cache** | Evaluated flag sets cached per evaluation context — TTL governed per provider |
-
----
-
+| **Audit Trail** | Every flag state change logged immutably with actor, timestaamp, and previous state |
+| **Distributed Cache** | Evaluated flag sets cached per evaluation context — TTL governed per provider
 ### 4.2 Pluggable Provider Architecture — `IFeatureFlagPort`
 
 The Feature Flag engine follows the same **Hexagonal Architecture (Ports & Adapters)** pattern applied to the IdP subsystem. The UMS Core Use Cases interact **exclusively** with the `IFeatureFlagPort` interface. The concrete provider is injected via dependency injection at startup, configured per system or tenant.
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                     UMS Core (Domain Layer)                         │
-│                                                                     │
-│   EvaluateFlagUseCase ──────────────► IFeatureFlagPort (Port)       │
-│                                            │                        │
-└────────────────────────────────────────────┼────────────────────────┘
-                                             │
-                    ┌────────────────────────┼────────────────────────┐
-                    │     Infrastructure Adapters (Implementations)   │
-                    ├────────────────────────┼────────────────────────┤
-                    ▼                        ▼                        ▼
-        ┌───────────────────┐   ┌────────────────────┐  ┌─────────────────────┐
-        │ InternalFlagEngine│   │LaunchDarklyAdapter │  │  UnleashAdapter     │
-        │ (UMS built-in)    │   │(LaunchDarkly SDK)  │  │  (Unleash SDK)      │
-        └───────────────────┘   └────────────────────┘  └─────────────────────┘
-                    ▼                        ▼                        ▼
-        ┌───────────────────┐   ┌────────────────────┐  ┌─────────────────────┐
-        │ ConfigCatAdapter  │   │AzureAppConfigAdapter│  │ CustomProviderAdapter│
-        │ (ConfigCat SDK)   │   │(Azure SDK)          │  │ (Future extension)  │
-        └───────────────────┘   └────────────────────┘  └─────────────────────┘
+
+                     UMS Core (Domain Layer)                         
+                                                                     
+   EvaluateFlagUseCase  IFeatureFlagPort (Port)       
+                                                                    
+
+                                             
+                    
+                         Infrastructure Adapters (Implementations)   
+                    
+                                                                    
+             
+         InternalFlagEngine   LaunchDarklyAdapter     UnleashAdapter     
+         (UMS built-in)       (LaunchDarkly SDK)      (Unleash SDK)      
+             
+                                                                    
+             
+         ConfigCatAdapter     AzureAppConfigAdapter   CustomProviderAdapter
+         (ConfigCat SDK)      (Azure SDK)             (Future extension)  
+             
 ```
 
 #### `IFeatureFlagPort` Interface Contract
@@ -272,7 +265,7 @@ interface FlagEvaluationResult {
 
 ### 4.3 Provider Registry & Selection Strategy
 
-The active Feature Flag provider is resolved per request using a **provider selector strategy**:
+The active Feature Flag provider is resolved per requestá using a **provider selector strategy**:
 
 1. **Global Default Provider**: Configured in `system_configuration.feature_flag_provider` (e.g., `INTERNAL`).
 2. **Per-Tenant Override**: A tenant may override the default provider (e.g., *LogisticsCorp* uses LaunchDarkly; all others use Internal).
@@ -304,10 +297,7 @@ The active Feature Flag provider is resolved per request using a **provider sele
 | **Unleash** | `UnleashFlagAdapter` | Uses Unleash SDK with toggle name mapped to `flag_code`. Context mapped to Unleash context. |
 | **ConfigCat** | `ConfigCatFlagAdapter` | Uses ConfigCat Server SDK. `flag_code` mapped to ConfigCat setting key. |
 | **Azure App Configuration** | `AzureAppConfigFlagAdapter` | Uses Azure SDK feature manager with filter conditions mapped to targeting rules. |
-| **Custom** | `CustomFlagAdapter` | Implements `IFeatureFlagPort`. Any future provider registered as a NestJS injectable. |
-
----
-
+| **Custom** | `CustomFlagAdapter` | Implements `IFeatureFlagPort`. Any future provider registered as a NestJS injectable.
 ### 4.5 Flag Definition Schema (Internal Engine)
 
 ```json
@@ -382,12 +372,9 @@ sequenceDiagram
 | **Canary Release** | `PERCENTAGE` | Start at 5% of tenant users, increment gradually via Console UI |
 | **Beta Features** | `BOOLEAN` | Scoped to a specific `user_id` list (beta testers) |
 | **Environment Gating** | `BOOLEAN` | Active only in `staging`; disabled in `production` until graduated |
-| **Tenant A/B Test** | `VARIANT` | Two variants assigned to two tenant groups; metrics collected externally |
-| **Technical Toggle** | `BOOLEAN` | Non-UI flag toggling backend behavior (e.g., new caching algorithm) |
-
----
-
-## 📊 5. Impact Analysis
+| **Tenant A/B Testá** | `VARIANT` | Two variants assigned to two tenant groups; metrics collected externally |
+| **Technical Toggle** | `BOOLEAN` | Non-UI flag toggling backend behavior (e.g., new caching algorithm)
+## 5. Impact Analysis
 
 ### 5.1 Domain Model — New Entities Required
 
@@ -397,9 +384,7 @@ sequenceDiagram
 | `SYSTEM_CONFIGURATION` | Config Context | Versioned behavioral config per system/tenant |
 | `FEATURE_FLAG` | Config Context | Flag definition with targeting rules and provider metadata |
 | `FLAG_EVALUATION_LOG` | Audit Context | Immutable log of flag evaluations |
-| `FEATURE_FLAG_PROVIDER_CONFIG` | Config Context | Per-tenant provider overrides and SDK key references |
-
-### 5.2 Bounded Context Impact
+| `FEATURE_FLAG_PROVIDER_CONFIG` | Config Context | Per-tenant provider overrides and SDK key references | ### 5.2 Bounded Context Impact
 
 > [!IMPORTANT]
 > A **new bounded context** — `Configuration & Feature Management Context` — is introduced. This context cannot be merged with existing contexts without violating the Single Responsibility Principle.
@@ -432,9 +417,7 @@ sequenceDiagram
 | ADR-0016 (Immutable Audit) | Config + flag mutations trigger audit subscribers | No change — pattern applies |
 | ADR-0017 (Feature Flagging) | **Superseded by ADR-0025** for pluggable provider design | Mark ADR-0017 as superseded |
 | ADR-0020 (IdP Abstraction) | Extended with multi-IdP priority/fallback model | Extend ADR-0020 |
-| **ADR-0025** (new) | Feature Flag Provider Abstraction via `IFeatureFlagPort` | **Created** — see [ADR-0025](../../docs/03-adrs/0025-feature-flag-provider-abstraction.md) |
-
-### 5.5 API Contracts — New Endpoints
+| **ADR-0025** (new) | Feature Flag Provider Abstraction via `IFeatureFlagPort` | **Created** — see [ADR-0025](../../docs/03-adrs/0025-feature-flag-provider-abstraction.md) | ### 5.5 API Contracts — New Endpoints
 
 | Endpoint | Method | Description |
 | :--- | :--- | :--- |
@@ -447,9 +430,7 @@ sequenceDiagram
 | `/v1/flags` | `POST` | Create a new feature flag |
 | `/v1/flags/{flag_code}` | `PATCH` | Update flag status or targeting rules |
 | `/v1/flags/evaluate` | `POST` | Evaluate active flags for a given runtime context (proxies to active provider) |
-| `/v1/flags/provider/health` | `GET` | Health check of the active feature flag provider |
-
-### 5.6 Integration Events — New Domain Events
+| `/v1/flags/provider/health` | `GET` | Health check of the active feature flag provider | ### 5.6 Integration Events — New Domain Events
 
 | Event | Published By | Consumed By | Purpose |
 | :--- | :--- | :--- | :--- |
@@ -458,9 +439,7 @@ sequenceDiagram
 | `SystemConfigPublishedEvent` | Config Context | Audit + Cache Eviction + Client Systems | Broadcast config changes |
 | `FeatureFlagCreatedEvent` | Config Context | Audit | Track flag lifecycle |
 | `FeatureFlagStateChangedEvent` | Config Context | Audit + Cache Eviction + Client Systems | Broadcast flag state changes |
-| `FeatureFlagProviderChangedEvent` | Config Context | Audit + All Consumers | Alert when active provider switches |
-
-### 5.7 Extensibility via Provider/Adapter Strategy
+| `FeatureFlagProviderChangedEvent` | Config Context | Audit + All Consumers | Alert when active provider switches | ### 5.7 Extensibility via Provider/Adapter Strategy
 
 The `IFeatureFlagPort` is the **only integration point** between UMS core and any feature flag vendor. Adding a new provider requires:
 1. Implement `IFeatureFlagPort` in a new adapter class.
@@ -472,7 +451,7 @@ This ensures **zero core-layer changes** when switching or extending providers.
 
 ---
 
-## 🚧 6. Non-Functional Requirements
+## 6. Non-Functional Requirements
 
 | Attribute | Requirement |
 | :--- | :--- |
@@ -484,4 +463,4 @@ This ensures **zero core-layer changes** when switching or extending providers.
 | **Audit** | 100% of config mutations and flag state changes written to immutable ledger |
 | **Availability** | Config API tolerates DB unavailability via last-known-good Redis fallback |
 | **Isolation** | All entities RLS-enforced by `tenant_id` |
-| **Observability** | Every flag evaluation carries `traceId` and `providerName` in structured logs |
+| **Observability** | Every flag evaluation carries `traceId` and `providerName` in structured logs | 

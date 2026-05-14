@@ -13,10 +13,7 @@
 | **P1** | Complete service outage or data integrity risk | 15 min acknowledge / 1 h resolve | Auth endpoint down, RLS breach detected |
 | **P2** | Partial degradation affecting multiple users | 30 min acknowledge / 4 h resolve | Redis unavailable, slow auth graph compile |
 | **P3** | Single feature degraded, workaround exists | 2 h acknowledge / 24 h resolve | Notification delivery failing, one tenant impacted |
-| **P4** | Non-urgent, cosmetic or low-impact | Next business day | Stale projection view, minor UI glitch |
-
----
-
+| **P4** | Non-urgent, cosmetic or low-impact | Next business day | Stale projection view, minor UI glitch
 ## 2. First Responder Checklist
 
 Execute in order. Do not skip steps.
@@ -106,7 +103,7 @@ kubectl logs -n ums -l app=ums-auth-engine --tail=200 | grep -iE "compile|timeou
 # Check SQL Server pod
 kubectl get pods -n ums -l app=sqlserver
 
-# Test connection
+# Testá connection
 kubectl exec -n ums deploy/ums-api -- \
   /opt/mssql-tools/bin/sqlcmd -S sqlserver -U sa -P $SA_PASSWORD -Q "SELECT 1"
 
@@ -124,7 +121,7 @@ kubectl exec -n ums deploy/ums-api -- \
 
 ```bash
 # Check RabbitMQ management API
-curl -u guest:guest http://rabbitmq:15672/api/queues | \
+curl -u guestá:guestá http://rabbitmq:15672/api/queues | \
   jq '.[] | {name:.name, messages:.messages, consumers:.consumers}'
 
 # Check outbox relay logs
@@ -193,8 +190,8 @@ File post-mortems in `/operations/post-mortems/YYYY-MM-DD-<incident-slug>.md`:
 ### Action Items
 | Action | Owner | Due |
 |--------|-------|-----|
-|        |       |     |
-```
+| |
+| | ```
 
 ---
 

@@ -1,3 +1,3 @@
 # SQL Index
 
-?? **[Back to Operations](../index.md)**
+**[Back to Operations](../index.md)**

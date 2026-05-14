@@ -1,4 +1,4 @@
-# 📐 Authoritative Technology Stack Definition — UMS
+# Authoritative Technology Stack Definition — UMS
 
 **Document Type:** Architecture Blueprint  
 **Status:** Approved  
@@ -7,7 +7,7 @@
 
 ---
 
-## 🧭 Executive Context Reference
+## Executive Context Reference
 
 *   **Product Name:** User Management System (UMS)
 *   **Product Type:** Hybrid (SaaS & Localized On-Premise deployments)
@@ -83,7 +83,7 @@
 *   **Chosen Tool:** **RS256 Signed JSON Web Tokens (JWT) + mutual TLS (mTLS)**
 *   **Why Chosen:** JWTs enable stateless, cryptographically verified user sessions. mTLS (managed by Istio/Linkerd or Kong) secures all internal container-to-container traffic, adhering to Zero Trust guidelines.
 *   **Alternatives Rejected:**
-    *   *Stateful Session Cookies*: Restricts horizontal scaling by requiring session synchronization or sticky sessions across distributed container instances.
+    *   *Stateful Session Cookies*: Restáricts horizontal scaling by requiring session synchronization or sticky sessions across distributed container instances.
 
 ### 3.3 Rate Limiting Strategy
 *   **Chosen Tool:** **Sliding-Window Rate Limiting enforced at Kong Gateway using Redis**
@@ -111,7 +111,7 @@
 *   **Chosen Tool:** **Internal CQRS via NestJS CQRS module**
 *   **Why Chosen:** Decouples heavy permission graph compilation (Queries) from basic identity mutations (Commands), optimizing read performance. Caches read-projections in Redis while writing sequentially to **SQL Server 2022**.
 *   **Alternatives Rejected:**
-    *   *Direct CRUD*: Directly querying and compiling relational tables on every read request degrades database performance under high concurrent loads.
+    *   *Direct CRUD*: Directly querying and compiling relational tables on every read requestá degrades database performance under high concurrent loads.
 
 ---
 
@@ -175,7 +175,7 @@
 *   **Chosen Tool:** **Docker v25 with Multi-Stage distroless builds**
 *   **Why Chosen:** Reduces the container image size to the absolute minimum and eliminates standard shell utilities, significantly hardening the production containers against remote execution exploits.
 
-### 7.2 Orchestration
+### 7.2 Orchestáration
 *   **Chosen Tool:** **Kubernetes (K8s v1.28+)**
 *   **Why Chosen:** Standardizes deployment, scaling, and self-healing. Works identically across public clouds (EKS, GKE) and local on-premise clusters (MicroK8s, Rancher K3s, OpenShift).
 
@@ -239,8 +239,8 @@
 
 ### 10.3 Testing Pyramid
 *   **Chosen Tool:**
-    *   *Unit Tests*: Jest (aiming for >80% coverage).
-    *   *Integration Tests*: Jest + Supertest with **Testcontainers** (spinning up ephemeral **SQL Server Edge/Express** and Redis instances in local Docker for realistic testing).
+    *   *Unit Tests*: Jestá (aiming for >80% coverage).
+    *   *Integration Tests*: Jestá + Supertest with **Testácontainers** (spinning up ephemeral **SQL Server Edge/Express** and Redis instances in local Docker for realistic testing).
     *   *End-to-End*: Playwright for Web Console regression testing.
 
 ---
@@ -252,10 +252,7 @@ To avoid cloud-provider lock-in and support offline, on-premise environments, **
 | Service Name | Purpose | Why NOT Internally | Cloud-Agnostic Alternative | Domain Interface |
 | :--- | :--- | :--- | :--- | :--- |
 | **Twilio** | SMS OTP Delivery | Telecommunication carrier gateways require complex global agreements. | Local SMTP-to-SMS Gateway or self-hosted SMS Modem | `ISmsPort` |
-| **SendGrid** | Transactional Emails | Managing IP reputation and mail delivery queues is a massive operational overhead. | Self-hosted Postfix / Haraka SMTP server | `IEmailPort` |
-
----
-
+| **SendGrid** | Transactional Emails | Managing IP reputation and mail delivery queues is a massive operational overhead. | Self-hosted Postfix / Haraka SMTP server | `IEmailPort`
 ## 12. Vendor Lock-in Risk Register
 
 | Component | Chosen Solution | Lock-in Risk | Mitigation Strategy | Re-evaluate Trigger |
@@ -263,10 +260,7 @@ To avoid cloud-provider lock-in and support offline, on-premise environments, **
 | **Database** | SQL Server 2022 | **Medium** | Standard SQL compliance. Domain layer has no direct dependency (decoupled via Ports). Use of RLS creates some lock-in. | Licensing cost change |
 | **Object Store** | MinIO | **Low** | MinIO uses the exact AWS S3 API contract. Swapping requires a simple config change. | Performance bottlenecks |
 | **Secrets Store**| HashiCorp Vault | **Low** | Secret resolution is abstracted via K8s secrets injection or custom Adapter. | Licensing model changes |
-| **Gateway** | Kong Gateway | **Low** | Configuration is managed via standard K8s Ingress resources. | Custom routing constraints |
-
----
-
+| **Gateway** | Kong Gateway | **Low** | Configuration is managed via standard K8s Ingress resources. | Custom routing constraints
 ## 13. Decision Log
 
 ### Decision 1: Polyglot Backend Strategy

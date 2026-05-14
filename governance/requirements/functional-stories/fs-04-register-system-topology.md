@@ -9,9 +9,7 @@ UMS must let administrators register client systems and describe their navigatio
 | Actor | Responsibility |
 | :--- | :--- |
 | **Global Security Administrator** | Registers client systems and defines their menu topology. |
-| **Client System Owner** | Provides the system structure and access actions. |
-
-## 3. Business Preconditions
+| **Client System Owner** | Provides the system structure and access actions. | ## 3. Business Preconditions
 
 - The administrator is authorized to register systems.
 - The system owner has provided the expected modules, menus, options, and actions.

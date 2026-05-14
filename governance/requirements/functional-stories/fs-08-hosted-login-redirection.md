@@ -10,9 +10,7 @@ Client systems need a centralized login experience that can reflect each tenant 
 | :--- | :--- |
 | **End User** | Starts sign-in from a client system. |
 | **Client System** | Redirects users to hosted login and receives the result. |
-| **Tenant/System Administrator** | Configures branding and login behavior. |
-
-## 3. Business Preconditions
+| **Tenant/System Administrator** | Configures branding and login behavior. | ## 3. Business Preconditions
 
 - The client system is registered in UMS.
 - Return locations are configured for the client system.

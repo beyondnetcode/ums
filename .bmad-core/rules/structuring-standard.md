@@ -12,68 +12,101 @@
 | Principle | Description |
 |-----------|-------------|
 | **Convention over Configuration** | Directory layout and naming follow predictable patterns. No project-specific overrides without ADR. |
-| **Separation of Concerns** | Each directory has exactly one purpose. Cross-cutting concerns live at the lowest shared parent. |
-| **Bounded Context Isolation** | Domain boundaries are physical directory boundaries. No跨-context file sharing without explicit interfaces. |
-| **Docs-as-Code** | Documentation follows code lifecycle: versioned, reviewed, linted, and co-located with its domain. |
+| **Separation of Concerns** | Each directory has exactly one purpose. Cross-cutting concerns live at the lowestá shared parent. |
+| **Bounded Context Isolation** | Domain boundaries are physical directory boundaries. No-context file sharing without explicit interfaces. |
+| **Docs-as-Code** | Documentation follows code lifecycle: versioned, reviewed, linted, and co-located with its domain. Must maintain enterprise visual standard (no emojis/icons). |
 | **Progressive Disclosure** | Top-level directories aggregate; lower levels reveal detail. MASTER_INDEX.md provides the entry point. |
-| **Bilingual Mirror** | All user-facing documentation is maintained in `en/` and `es/` with identical directory trees. |
-
----
-
+| **Bilingual Mirror** | All user-facing documentation is maintained in `en/` and `es/` with identical directory trees.
 ## 2. Repository Tree (Canonical)
 
 ```
 <repo-root>/
 |
 |-- .bmad/                          # [CONFIG] BMAD project rules & schemas
-|   |-- rules/
-|   |   |-- project-rules.yaml
-|   |   +-- project-rules.json
-|   +-- schemas/
-|       +-- project-rules.schema.json
+|
+|-- rules/
+|
+| |-- project-rules.yaml
+|
+| +-- project-rules.json
+| +-- schemas/
+| +-- project-rules.schema.json
 |
 |-- bmad-core/                      # [CORE] BMAD framework (immutable, do not edit)
-|   |-- rules/
-|   |   |-- global-rules.md
-|   |   +-- structuring-standard.md     # THIS FILE
-|   +-- scripts/
-|       +-- cleanup_markdown_encoding.py
+|
+|-- rules/
+|
+| |-- global-rules.md
+|
+| +-- structuring-standard.md     # THIS FILE
+| +-- scripts/
+| +-- cleanup_markdown_encoding.py
 |
 |-- docs/                           # [DOCS] Enterprise documentation (bilingual)
-|   |-- en/
-|   |   |-- index.md                    # Entry point for English docs
-|   |   |-- 00-product/
-|   |   |-- 01-requirements/
-|   |   |-- 02-architecture/
-|   |   |-- 03-adrs/
-|   |   |-- 04-artifacts/
-|   |   +-- 05-roadmap/
-|   +-- es/                             # Spanish mirror (identical tree)
-|       |-- index.md
-|       |-- 00-product/
-|       +-- ...
+|
+|-- en/
+|
+| |-- index.md                    # Entry point for English docs
+|
+| |-- 00-product/
+|
+| |-- 01-requirements/
+|
+| |-- 02-architecture/
+|
+| |-- 03-adrs/
+|
+| |-- 04-artifacts/
+|
+| +-- 05-roadmap/
+| +-- es/                             # Spanish mirror (identical tree)
+|
+|-- index.md
+|
+|-- 00-product/
+| +-- ...
 |
 |-- src/                            # [SOURCE] All runnable code
-|   +-- <workspace>/
-|       |-- apps/                       # Deployable applications
-|       |   |-- <app-name>/             # One directory per app
-|       |   |   |-- src/
-|       |   |   |-- tests/
-|       |   |   +-- <app-config-files>
-|       |   +-- ...
-|       |-- libs/                       # Shared libraries
-|       |   |-- <lib-name>/
-|       |   |   |-- src/
-|       |   |   +-- tests/
-|       |   +-- ...
-|       |-- tools/                      # Build scripts, codegen, migration scripts
-|       |-- ops/                        # Infrastructure as Code
-|       |-- poc/                        # Proofs of concept (one subdir per POC)
-|       +-- docs/                       # Workspace-specific dev documentation
-|           |-- dev-guide/
-|           |-- runbooks/
-|           |-- templates/
-|           +-- decisions/              # Workspace-level decisions (if not in ADRs)
+| +-- <workspace>/
+|
+|-- apps/                       # Deployable applications
+|
+| |-- <app-name>/             # One directory per app
+|
+| |
+|-- src/
+|
+| |
+|-- tests/
+|
+| | +-- <app-config-files>
+|
+| +-- ...
+|
+|-- libs/                       # Shared libraries
+|
+| |-- <lib-name>/
+|
+| |
+|-- src/
+|
+| | +-- tests/
+|
+| +-- ...
+|
+|-- tools/                      # Build scripts, codegen, migration scripts
+|
+|-- ops/                        # Infrastructure as Code
+|
+|-- poc/                        # Proofs of concept (one subdir per POC)
+| +-- docs/                       # Workspace-specific dev documentation
+|
+|-- dev-guide/
+|
+|-- runbooks/
+|
+|-- templates/
+| +-- decisions/              # Workspace-level decisions (if not in ADRs)
 |
 |-- AGENTS.md                       # [ROOT] AI agent instructions
 |-- README.md                       # [ROOT] Project overview (English)
@@ -100,10 +133,7 @@
 | `src/<workspace>/tools/` | Scripts, code generators | Yes |
 | `src/<workspace>/ops/` | IaC, Docker, Kubernetes | Yes |
 | `src/<workspace>/poc/` | Research/spikes | Yes (delete when done) |
-| `src/<workspace>/docs/` | Developer documentation | Yes |
-
----
-
+| `src/<workspace>/docs/` | Developer documentation | Yes
 ## 3. Naming Conventions
 
 ### 3.1 Directory Naming
@@ -117,9 +147,7 @@
 | ADRs in `docs/` | `NNNN-<kebab-case>` | `0001-monorepo-orchestration-nx` |
 | Tools | `kebab-case` | `codegen`, `db-migrate`, `seed-data` |
 | Ops | `kebab-case` | `grafana`, `otel`, `kong` |
-| POCs | `kebab-case` | `kong-gateway`, `graphql-bench` |
-
-### 3.2 File Naming
+| POCs | `kebab-case` | `kong-gateway`, `graphql-bench` | ### 3.2 File Naming
 
 | Category | Convention | Example |
 |---|---|---|
@@ -135,15 +163,14 @@
 | Technical enablers | `te-NN-kebab-case.md` | `te-01-build-authorization-graph.md` |
 | CI/CD workflows | `kebab-case.yml` | `ci.yml`, `deploy-production.yml` |
 | Dockerfiles | `Dockerfile` or `Dockerfile.<role>` | `Dockerfile`, `Dockerfile.dev` |
-| Root docs | `KEBAB_CASE.ext` | `README.md`, `CONTRIBUTING.md`, `GOVERNANCE.md` |
-
-### 3.3 Backend (.NET) Project Naming
+| Root docs | `KEBAB_CASE.ext` | `README.md`, `CONTRIBUTING.md`, `GOVERNANCE.md` | ### 3.3 Backend (.NET) Project Naming
 
 ```
 {Product}.{BoundedContext}.{Layer}
       ^          ^            ^
-      |          |            +-- Domain | Application | Infrastructure | Presentation
-      |          +-- Identity | Authorization | Configuration | Audit
+      |
+| +-- Domain | Application | Infrastructure | Presentation
+      | +-- Identity | Authorization | Configuration | Audit
       +-- Ums
 ```
 
@@ -161,15 +188,21 @@ src/
 |-- app/            # App root: providers, layouts, routing
 |-- pages/          # Route-level page components
 |-- features/       # Feature modules (one per bounded context / capability)
-|   |-- auth/
-|   |-- authorization/
-|   |-- organizations/
-|   +-- audit/
+|
+|-- auth/
+|
+|-- authorization/
+|
+|-- organizations/
+| +-- audit/
 |-- shared/         # Reusable UI, hooks, utils, types
-|   |-- ui/
-|   |-- hooks/
-|   |-- utils/
-|   +-- types/
+|
+|-- ui/
+|
+|-- hooks/
+|
+|-- utils/
+| +-- types/
 +-- lib/            # External integrations, API clients, third-party wrappers
 ```
 
@@ -215,9 +248,7 @@ src/ums-workspace/
 | Infrastructure → Domain | Direct reference | YES |
 | Infrastructure → Application | Interface/Port only | YES |
 | Presentation → Application | Direct reference | YES |
-| Presentation → Domain | Direct reference | NO (must go through Application) |
-
-### 4.3 Library (libs/) Categorization
+| Presentation → Domain | Direct reference | NO (must go through Application) | ### 4.3 Library (libs/) Categorization
 
 ```
 libs/
@@ -225,7 +256,7 @@ libs/
 |-- shared-utils/           # Pure functions, validators, formatters
 |-- domain-types/           # TypeScript types mirroring C# DTOs
 |-- api-client/             # Axios/HTTP client wrappers
-|-- test-utils/             # Test helpers, mocks, fixtures
+|-- test-utils/             # Testá helpers, mocks, fixtures
 +-- config/                 # Runtime config readers, feature flags
 ```
 
@@ -240,40 +271,72 @@ libs/
 ```
 docs/
 |-- en/
-|   |-- index.md                         # Phase overview, reading guide
-|   |-- 00-product/                      # Product vision, stakeholders, scope
-|   |   |-- product-vision.md
-|   |   |-- business-context.md
-|   |   |-- objectives.md
-|   |   |-- scope.md
-|   |   +-- stakeholders.md
-|   |-- 01-requirements/                 # Domain analysis, stories, glossary
-|   |   |-- glossary.md
-|   |   |-- conceptual-data-model.md
-|   |   |-- permission-matrix-example.md
-|   |   +-- functional-stories/
-|   |       |-- index.md
-|   |       |-- fs-01-user-authentication.md
-|   |       +-- ...
-|   |-- 02-architecture/                 # C4, DDD maps, tech stack, NFRs
-|   |   |-- architecture-spec.md
-|   |   |-- bounded-context-map.md
-|   |   |-- stack.md
-|   |   +-- technical-enablers/
-|   |       |-- index.md
-|   |       |-- te-01-build-authorization-graph.md
-|   |       +-- ...
-|   |-- 03-adrs/                         # ADRs (flat directory, no sub-phases)
-|   |   |-- index.md                     # ADR log with status table
-|   |   |-- 0001-monorepo-orchestration-nx.md
-|   |   +-- ...
-|   |-- 04-artifacts/                    # Maturity models, audits, specs
-|   |   |-- engineering-standards.md
-|   |   |-- architecture-maturity-model.md
-|   |   +-- ...
-|   +-- 05-roadmap/                      # Release plans, versioning
-|       |-- versioning-and-audit-strategy.md
-|       +-- ...
+|
+|-- index.md                         # Phase overview, reading guide
+|
+|-- 00-product/                      # Product vision, stakeholders, scope
+|
+| |-- product-vision.md
+|
+| |-- business-context.md
+|
+| |-- objectives.md
+|
+| |-- scope.md
+|
+| +-- stakeholders.md
+|
+|-- 01-requirements/                 # Domain analysis, stories, glossary
+|
+| |-- glossary.md
+|
+| |-- conceptual-data-model.md
+|
+| |-- permission-matrix-example.md
+|
+| +-- functional-stories/
+|
+| |-- index.md
+|
+| |-- fs-01-user-authentication.md
+|
+| +-- ...
+|
+|-- 02-architecture/                 # C4, DDD maps, tech stack, NFRs
+|
+| |-- architecture-spec.md
+|
+| |-- bounded-context-map.md
+|
+| |-- stack.md
+|
+| +-- technical-enablers/
+|
+| |-- index.md
+|
+| |-- te-01-build-authorization-graph.md
+|
+| +-- ...
+|
+|-- 03-adrs/                         # ADRs (flat directory, no sub-phases)
+|
+| |-- index.md                     # ADR log with status table
+|
+| |-- 0001-monorepo-orchestration-nx.md
+|
+| +-- ...
+|
+|-- 04-artifacts/                    # Maturity models, audits, specs
+|
+| |-- engineering-standards.md
+|
+| |-- architecture-maturity-model.md
+|
+| +-- ...
+| +-- 05-roadmap/                      # Release plans, versioning
+|
+|-- versioning-and-audit-strategy.md
+| +-- ...
 +-- es/                                  # Spanish mirror (identical tree)
 ```
 
@@ -285,9 +348,7 @@ docs/
 | Architecture Specs | `docs/*/02-architecture/` | `te-NN-` | Phase-based |
 | ADRs | `docs/*/03-adrs/` | `NNNN-` | Index with status table |
 | Artifacts | `docs/*/04-artifacts/` | (none) | Versioned |
-| Roadmap | `docs/*/05-roadmap/` | (none) | Versioned |
-
-### 5.3 ADR Format
+| Roadmap | `docs/*/05-roadmap/` | (none) | Versioned | ### 5.3 ADR Format
 
 Every ADR MUST follow this template:
 
@@ -324,7 +385,7 @@ All cross-boundary communication MUST use interfaces/ports. Concrete implementat
 
 ```
 Utility identified as reusable
-  → Placed in nearest consumer's scope (local)
+  → Placed in nearestá consumer's scope (local)
   → Second consumer appears
   → Promoted to src/<workspace>/libs/<lib-name>/
   → Third consumer from different app/BC
@@ -335,8 +396,8 @@ Utility identified as reusable
 
 ```
 New POC → src/<workspace>/poc/<poc-name>/
-  ├── Accepted → migrate code to apps/ or libs/, delete poc/
-  └── Rejected → delete poc/
+   Accepted → migrate code to apps/ or libs/, delete poc/
+   Rejected → delete poc/
 ```
 
 POCs must NOT be referenced by any production code. POCs must NOT be deployed.
@@ -356,9 +417,7 @@ POCs must NOT be referenced by any production code. POCs must NOT be deployed.
 | `docs/*/NN-<phase>/<subcategory>/` | `index.md` | List of items (e.g., functional stories index) |
 | `src/<workspace>/` | `README.md` | Workspace overview, build commands, architecture diagram |
 | `src/<workspace>/apps/<app>/` | `README.md` | App-specific description, run instructions |
-| `src/<workspace>/libs/<lib>/` | `README.md` | Library API, usage examples, dependency diagram |
-
-### 7.2 README Content Standard
+| `src/<workspace>/libs/<lib>/` | `README.md` | Library API, usage examples, dependency diagram | ### 7.2 README Content Standard
 
 Every README MUST contain:
 1. Title and one-paragraph description
@@ -390,9 +449,7 @@ Draft → Review → Approved → Published → Reviewed (quarterly) → Archive
 | Review | PR with reviewers | No |
 | Approved | `main` branch | Yes (changes require new PR) |
 | Published | `main` branch + indexed | Yes |
-| Archived | `docs/archive/` | Yes |
-
-### 8.2 Ownership Matrix
+| Archived | `docs/archive/` | Yes | ### 8.2 Ownership Matrix
 
 | Document Type | Owner | Review Cadence |
 |---|---|---|
@@ -402,9 +459,7 @@ Draft → Review → Approved → Published → Reviewed (quarterly) → Archive
 | Artifacts (Phase 04) | Engineering | Per release |
 | Roadmap (Phase 05) | Product Manager | Per release |
 | README files | Tech Leads | Per release |
-| AGENTS.md | Platform/DevEx | Per tooling change |
-
-### 8.3 Deprecation
+| AGENTS.md | Platform/DevEx | Per tooling change | ### 8.3 Deprecation
 
 To deprecate a document:
 1. Mark the old document header with `* **Status:** Deprecated`
@@ -462,7 +517,7 @@ Every template MUST:
 
 ---
 
-## 11. GitHub Enterprise Best Practices
+## 11. GitHub Enterprise Bestá Practices
 
 ### 11.1 Repository Configuration
 
@@ -471,12 +526,10 @@ Every template MUST:
 | Default branch | `main` |
 | Branch protection | Require PR, require status checks, require up-to-date |
 | PR merge strategy | Squash merge (linear history) |
-| Issue templates | Bug report, Feature request, Technical spike |
+| Issue templates | Bug report, Feature requestá, Technical spike |
 | PR templates | Summary, Changes, Testing, ADR references |
 | CODEOWNERS | Per directory ownership (.github/CODEOWNERS) |
-| Labels | `area/*`, `type/*`, `priority/*`, `status/*` taxonomy |
-
-### 11.2 Branch Naming
+| Labels | `area/*`, `type/*`, `priority/*`, `status/*` taxonomy | ### 11.2 Branch Naming
 
 | Pattern | Example |
 |---|---|
@@ -484,9 +537,7 @@ Every template MUST:
 | `fix/<issue>-<kebab-desc>` | `fix/87-fix-tenant-resolution` |
 | `docs/<kebab-desc>` | `docs/add-adr-0041` |
 | `refactor/<kebab-desc>` | `refactor/extract-identity-context` |
-| `chore/<kebab-desc>` | `chore/upgrade-dotnet-8` |
-
-### 11.3 Commit Message Format
+| `chore/<kebab-desc>` | `chore/upgrade-dotnet-8` | ### 11.3 Commit Message Format
 
 ```
 <type>(<scope>): <imperative description>
@@ -516,9 +567,7 @@ Types enforced by commitlint: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`
 | `src/` with no sub-workspace | Monolith trap, no isolation | Use `src/<workspace>/apps/`, `src/<workspace>/libs/` |
 | `docs/` with no phase separation | Information overload, no progressive disclosure | Use `docs/en/NN-<phase>/` structure |
 | Nested deeper than 5 levels | Discovery becomes impossible | Flatten at 5. Create a new top-level dir. |
-| Mixed `docs/en/` and `docs/es/` out of sync | Bilingual integrity broken | Enforce R-01: both mirrors updated atomically |
-
-### 12.2 Naming Anti-Patterns
+| Mixed `docs/en/` and `docs/es/` out of sync | Bilingual integrity broken | Enforce R-01: both mirrors updated atomically | ### 12.2 Naming Anti-Patterns
 
 | Anti-Pattern | Why It's Wrong | Correct Approach |
 |---|---|---|
@@ -526,28 +575,21 @@ Types enforced by commitlint: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`
 | ADR `final-version-v2.md` | Unversioned, no traceability | Use `0042-title.md` with supersedes chain |
 | `utils/`, `helpers/`, `misc/` | Dumping ground, no semantic meaning | Name by domain: `string-utils`, `date-utils` |
 | `index.ts` with 500+ re-exports | Barrel file explosion | Group by feature, one barrel per module |
-| `README.md` with no language switcher | Bilingual requirement violated | Add `[EN](README.md) | [ES](README.es.md)` |
-
-### 12.3 Governance Anti-Patterns
+| `README.md` with no language switcher | Bilingual requirement violated | Add `[EN](README.md) | [ES](README.es.md)` | ### 12.3 Governance Anti-Patterns
 
 | Anti-Pattern | Why It's Wrong | Correct Approach |
 |---|---|---|
 | Orphaned docs (no owner) | No accountability, stale information | Every doc has owner in header or CODEOWNERS |
 | ADRs that are never reviewed | Decisions without validation | ADR review step in PR template |
 | Docs in personal branches for months | Knowledge silo, no collaboration | Docs are code: PR, review, merge, iterate |
-| No index file in directory | Hidden content, poor DX | Every directory gets an index/README |
-
-### 12.4 Modularity Anti-Patterns
+| No index file in directory | Hidden content, poor DX | Every directory gets an index/README | ### 12.4 Modularity Anti-Patterns
 
 | Anti-Pattern | Why It's Wrong | Correct Approach |
 |---|---|---|
 | Domain project references EF Core | Couples domain to infrastructure | Domain is pure POCOs, zero dependencies |
 | Shared kernel becomes "everything" | Ball of mud, no bounded context integrity | Narrow shared kernel, document in context map |
 | Circular dependencies between libs | Build breaks, runtime errors | Enforce with eslint-plugin-boundaries or MSBuild rules |
-| POCs merged into main | Dead code, no cleanup commitment | POCs on branches or dedicated poc/ dir with expiry |
-
----
-
+| POCs merged into main | Dead code, no cleanup commitment | POCs on branches or dedicated poc/ dir with expiry
 ## 13. Migration Strategy
 
 ### 13.1 Current → Target State Mapping
@@ -562,34 +604,32 @@ Types enforced by commitlint: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`
 | No `CONTRIBUTING.md` | `<repo-root>/CONTRIBUTING.md` | Create from template |
 | No `GOVERNANCE.md` | `<repo-root>/GOVERNANCE.md` | Create from template |
 | `.bmad-core/` inside workspace | Merge into root `.bmad/` or `bmad-core/` | Consolidate BMAD config |
-| `docs/rules-summary.md` | `docs/en/04-artifacts/rules-summary.md` | Move under phase structure |
-
-### 13.2 Migration Phases
+| `docs/rules-summary.md` | `docs/en/04-artifacts/rules-summary.md` | Move under phase structure | ### 13.2 Migration Phases
 
 ```
 Phase 1 — Foundation (Week 1)
-  ├── Create CONTRIBUTING.md, GOVERNANCE.md, SUPPORT.md, SECURITY.md
-  ├── Consolidate .bmad-core/ into .bmad/ configuration
-  ├── Create templates/ directory with ADR, FS, TE templates
-  └── Add CODEOWNERS file
+   Create CONTRIBUTING.md, GOVERNANCE.md, SUPPORT.md, SECURITY.md
+   Consolidate .bmad-core/ into .bmad/ configuration
+   Create templates/ directory with ADR, FS, TE templates
+   Add CODEOWNERS file
 
-Phase 2 — Source Restructuring (Week 2-3)
-  ├── Restructure .NET solution into bounded context projects
-  ├── Create src/ layout for frontend (app/, pages/, features/, shared/)
-  ├── Add tests/ directories matching src/ structure
-  └── Create initial libs/ with one shared library to validate pattern
+Phase 2 — Source Restáructuring (Week 2-3)
+   Restructure .NET solution into bounded context projects
+   Create src/ layout for frontend (app/, pages/, features/, shared/)
+   Add tests/ directories matching src/ structure
+   Create initial libs/ with one shared library to validate pattern
 
 Phase 3 — Documentation Alignment (Week 3-4)
-  ├── Move docs/rules-summary.md to docs/en/04-artifacts/
-  ├── Add index.md to every docs/ subdirectory
-  ├── Update MASTER_INDEX.md with new structure
-  └── Audit all cross-references for correctness
+   Move docs/rules-summary.md to docs/en/04-artifacts/
+   Add index.md to every docs/ subdirectory
+   Update MASTER_INDEX.md with new structure
+   Audit all cross-references for correctness
 
 Phase 4 — Automation (Week 4)
-  ├── Add directory structure validation to CI pipeline
-  ├── Add stale-doc detection workflow
-  ├── Create PR template with structural compliance checklist
-  └── Add lint rule for naming conventions where tooling supports it
+   Add directory structure validation to CI pipeline
+   Add stale-doc detection workflow
+   Create PR template with structural compliance checklist
+   Add lint rule for naming conventions where tooling supports it
 ```
 
 ### 13.3 Migration Rules

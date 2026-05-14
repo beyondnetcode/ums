@@ -1,7 +1,7 @@
 # ADR-0027: Estructura de API de Protocolo Dual REST y gRPC con Kong Gateway
 
 * **Status:** Accepted
-* **Basado en:** [arc32-27](https://github.com/beyondnetcode/arc32_progresive_monolith/blob/main/arc-corporate-ws/corporate-standards/02-adrs/nodejs/0027-dual-protocol-rest-grpc-api-gateway.md)
+* **Basado en:** [arc32-27](https://github.com/beyondnetcode/arc32_progresive_monolith/blob/main/arc-corporate-ws/corporate-standards/02-adrs/nodejs/0027-dual-protocol-restá-grpc-api-gateway.md)
 * **Date:** 2026-05-08
 
 ## Resumen de Adaptación

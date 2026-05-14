@@ -1,6 +1,6 @@
 # ADR-0040: Estrategia de Token Federado para Contexto Jerárquico
 
-*   **Estado:** Propuesto
+*   **Estado:** Propuestao
 *   **Fecha:** 2026-05-13
 *   **Autores:** Equipo de Arquitectura Senior & Product Owners
 
@@ -33,9 +33,7 @@ Adoptaremos una **estrategia de token de modo dual**: JWT para comunicación BFF
 | BFF ↔ Backend API (interno) | Opaco (token de referencia) | Contexto completo vía introspección, cabecera < 200 bytes |
 | Backend ↔ Backend (gRPC) | Opaco + mTLS | Identidad de servicio + contexto completo de usuario |
 | IdP Externo ↔ UMS | JWT (del IdP) | OAuth2/OIDC estándar, transformado en entrada |
-| Tokens de máquina de larga duración | Opaco (PAT) | Revocable, acotado, auditable |
-
-### 2.2. JWT para Frontend (Claims Mínimos)
+| Tokens de máquina de larga duración | Opaco (PAT) | Revocable, acotado, auditable | ### 2.2. JWT para Frontend (Claims Mínimos)
 
 ```json
 {
@@ -82,6 +80,6 @@ El middleware `TokenIntrospectionMiddleware`: (1) extrae la cabecera `Authorizat
 ### Negativas
 
 *   **Latencia de introspección**: Cada llamada servicio-a-servicio requiere una búsqueda en Redis (1-3ms). Mitigación: El contexto se cachea por el TTL del token; la introspección es una sola búsqueda de clave.
-*   **Dependencia de Redis**: La validación de tokens depende de la disponibilidad de Redis. Mitigación: Caché en memoria local como respaldo L2; circuit breaker si Redis está caído.
+*   **Dependencia de Redis**: La validación de tokens depende de la disponibilidad de Redis. Mitigación: Caché en memoria local como respaldo L2; circuit breaker si Redis estáá caído.
 *   **Gestión de estado**: Tokens revocados permanecen en Redis hasta el TTL. Mitigación: TTL igual al vencimiento del token (máximo 1 hora); revocación elimina proactivamente.
 *   **Complejidad operativa**: Dos tipos de token incrementan la superficie de pruebas. Mitigación: La detección de tipo es una simple verificación de formato.

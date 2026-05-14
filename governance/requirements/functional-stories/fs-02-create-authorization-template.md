@@ -9,9 +9,7 @@ Administrators need reusable authorization templates so common access patterns c
 | Actor | Responsibility |
 | :--- | :--- |
 | **Global IT Administrator** | Creates and maintains reusable authorization templates. |
-| **Tenant/System Administrator** | Assigns approved templates to profiles when allowed. |
-
-## 3. Business Preconditions
+| **Tenant/System Administrator** | Assigns approved templates to profiles when allowed. | ## 3. Business Preconditions
 
 - The target system topology is registered.
 - The available actions are defined.

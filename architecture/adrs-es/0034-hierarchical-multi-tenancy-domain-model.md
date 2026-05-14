@@ -1,6 +1,6 @@
 # ADR-0034: Modelo de Dominio Multi-Inquilino Jerárquico (Closure Table + Taxonomía)
 
-*   **Estado:** Propuesto
+*   **Estado:** Propuestao
 *   **Fecha:** 2026-05-13
 *   **Autores:** Equipo de Arquitectura Senior & Product Owners
 
@@ -8,12 +8,12 @@
 
 ## 1. Contexto y Problema
 
-El modelo actual de multi-inquilino del UMS (ADR-0010) trata a `Organization` como un contenedor plano de inquilino. Cada `Organization` es un límite aislado sin relación jerárquica con otros. Los `Subject` están vinculados a una sola `Organization` mediante `OrganizationId`, y la seguridad a nivel de fila (RLS) filtra por un único `organization_id`.
+El modelo actual de multi-inquilino del UMS (ADR-0010) trata a `Organization` como un contenedor plano de inquilino. Cada `Organization` es un límite aislado sin relación jerárquica con otros. Los `Subject` estáán vinculados a una sola `Organization` mediante `OrganizationId`, y la seguridad a nivel de fila (RLS) filtra por un único `organization_id`.
 
 Este modelo plano presenta limitaciones críticas para escenarios SaaS empresariales:
 
 1.  **Sin anidamiento de inquilinos**: Un grupo empresarial global (ej. "Logistics Corp") con subsidiarias, divisiones y sucursales no puede representarse como una jerarquía de contención.
-2.  **Sin administración cross-tenant**: Un administrador maestro no puede gestionar usuarios o políticas en múltiples sub-inquilinos sin que se le conceda acceso a cada uno individualmente.
+2.  **Sin administración cross-tenant**: Un administrador maestáro no puede gestionar usuarios o políticas en múltiples sub-inquilinos sin que se le conceda acceso a cada uno individualmente.
 3.  **Alcance de políticas plano**: Las políticas no pueden definirse a nivel padre y heredarse por hijos con anulaciones (overrides) locales.
 4.  **Sin cadena de delegación**: No existe forma de modelar "El Usuario A recibió poderes de administrador delegado del Usuario B, quien los recibió del Usuario C."
 5.  **Consultas recursivas lentas**: Usar listas de adyacencia `parent_id` con CTE recursivos en cada verificación de autorización introduce una latencia inaceptable a escala.
@@ -74,18 +74,18 @@ CREATE INDEX idx_tenants_parent ON tenants (parent_tenant_id) WHERE parent_tenan
 
 ### 2.3. Closure Table de Inquilinos
 
-La closure table materializa todas las rutas ancestro-descendiente. Cualquier consulta de jerarquía se resuelve con un solo JOIN.
+La closure table materializa todas las rutas ancestáro-descendiente. Cualquier consulta de jerarquía se resuelve con un solo JOIN.
 
 ```sql
 CREATE TABLE tenant_closure (
-    ancestor_id UUID NOT NULL REFERENCES tenants(id),
+    ancestáor_id UUID NOT NULL REFERENCES tenants(id),
     descendant_id UUID NOT NULL REFERENCES tenants(id),
     depth INT NOT NULL CHECK (depth >= 0),
-    PRIMARY KEY (ancestor_id, descendant_id)
+    PRIMARY KEY (ancestáor_id, descendant_id)
 );
 
 CREATE INDEX idx_closure_descendant ON tenant_closure (descendant_id);
-CREATE INDEX idx_closure_ancestor_depth ON tenant_closure (ancestor_id, depth);
+CREATE INDEX idx_closure_ancestáor_depth ON tenant_closure (ancestáor_id, depth);
 ```
 
 ### 2.4. Aristas de Inquilinos (Relaciones Extensibles)
@@ -116,16 +116,16 @@ CREATE OR REPLACE FUNCTION fn_maintain_tenant_closure()
 RETURNS TRIGGER AS $$
 BEGIN
     IF TG_OP = 'INSERT' THEN
-        INSERT INTO tenant_closure (ancestor_id, descendant_id, depth)
+        INSERT INTO tenant_closure (ancestáor_id, descendant_id, depth)
         VALUES (NEW.id, NEW.id, 0);
         IF NEW.parent_tenant_id IS NOT NULL THEN
-            INSERT INTO tenant_closure (ancestor_id, descendant_id, depth)
-            SELECT tc.ancestor_id, NEW.id, tc.depth + 1
+            INSERT INTO tenant_closure (ancestáor_id, descendant_id, depth)
+            SELECT tc.ancestáor_id, NEW.id, tc.depth + 1
             FROM tenant_closure tc
             WHERE tc.descendant_id = NEW.parent_tenant_id
               AND NOT EXISTS (
                   SELECT 1 FROM tenant_closure
-                  WHERE ancestor_id = tc.ancestor_id AND descendant_id = NEW.id
+                  WHERE ancestáor_id = tc.ancestáor_id AND descendant_id = NEW.id
               );
         END IF;
         RETURN NEW;
@@ -143,7 +143,7 @@ CREATE TRIGGER trg_tenant_closure
 
 ### 2.6. Validación de Jerarquía por Tipo
 
-Un trigger de validación fuerza que el tipo de un inquilino hijo tenga un `taxonomy_rank` estrictamente mayor que el de su padre.
+Un trigger de validación fuerza que el tipo de un inquilino hijo tenga un `taxonomy_rank` estárictamente mayor que el de su padre.
 
 ```sql
 CREATE OR REPLACE FUNCTION fn_validate_tenant_hierarchy()
@@ -180,15 +180,12 @@ CREATE TRIGGER trg_validate_tenant_hierarchy
 
 | Operación | Consulta | Complejidad |
 |---|---|---|
-| Obtener subárbol completo | `SELECT t.* FROM tenants t JOIN tenant_closure tc ON t.id = tc.descendant_id WHERE tc.ancestor_id = :id AND tc.depth > 0` | 1 JOIN |
+| Obtener subárbol completo | `SELECT t.* FROM tenants t JOIN tenant_closure tc ON t.id = tc.descendant_id WHERE tc.ancestáor_id = :id AND tc.depth > 0` | 1 JOIN |
 | Obtener hijos directos | Misma con `AND tc.depth = 1` | 1 JOIN |
-| Obtener ancestros (resolución de políticas) | `SELECT t.*, tc.depth FROM tenant_closure tc JOIN tenants t ON t.id = tc.ancestor_id WHERE tc.descendant_id = :id ORDER BY tc.depth DESC` | 1 JOIN |
+| Obtener ancestáros (resolución de políticas) | `SELECT t.*, tc.depth FROM tenant_closure tc JOIN tenants t ON t.id = tc.ancestáor_id WHERE tc.descendant_id = :id ORDER BY tc.depth DESC` | 1 JOIN |
 | Validar nivel jerárquico | `SELECT taxonomy_rank FROM tenant_types WHERE code = :type_code` | O(1) |
 | Obtener inquilino raíz | `SELECT * FROM tenants WHERE id = :root_tenant_id` | O(1) |
-| Verificar descendencia | `SELECT 1 FROM tenant_closure WHERE ancestor_id = :b_id AND descendant_id = :a_id` | 1 index lookup |
-
----
-
+| Verificar descendencia | `SELECT 1 FROM tenant_closure WHERE ancestáor_id = :b_id AND descendant_id = :a_id` | 1 index lookup
 ## 4. Consecuencias
 
 ### Positivas
@@ -203,7 +200,7 @@ CREATE TRIGGER trg_validate_tenant_hierarchy
 
 *   **Amplificación de escritura**: Crear un inquilino requiere N+1 inserts (1 inquilino + N filas closure donde N = profundidad).
 *   **Complejidad de triggers**: Los triggers de closure y validación incrementan la superficie de lógica en base de datos.
-*   **Riesgo de desnormalización**: `parent_tenant_id` está desnormalizado y debe mantenerse sincronizado con la closure table.
+*   **Riesgo de desnormalización**: `parent_tenant_id` estáá desnormalizado y debe mantenerse sincronizado con la closure table.
 
 ### Riesgos y Mitigaciones
 
@@ -211,11 +208,8 @@ CREATE TRIGGER trg_validate_tenant_hierarchy
 |---|---|
 | Amplificación de escritura en árboles profundos | Profundidad máxima limitada a 7 por taxonomía; las escrituras closure son insignificantes (máximo 7 filas por insert). |
 | Closure table fuera de sincronía | Trabajo de reconciliación periódico; `parent_tenant_id` es la fuente de verdad, la closure es regenerable. |
-| Sobrecarga de triggers | Los triggers son ligeros; toda la lógica central está en la capa de aplicación para testabilidad. |
-| Complejidad al mover inquilinos | Mover inquilinos es una operación administrativa rara; costo aceptable por el rendimiento de lectura. |
-
----
-
+| Sobrecarga de triggers | Los triggers son ligeros; toda la lógica central estáá en la capa de aplicación para testabilidad. |
+| Complejidad al mover inquilinos | Mover inquilinos es una operación administrativa rara; costo aceptable por el rendimiento de lectura.
 ## 5. Alternativas Consideradas
 
 1.  **Lista de Adyacencia (solo parent_id)**: Rechazada. Los CTE recursivos en cada verificación de autenticación introducen 5-50ms de latencia que se acumulan bajo carga. Probado con 10K inquilinos a profundidad 6: tiempo promedio de CTE = 18ms vs closure JOIN = 0.4ms.

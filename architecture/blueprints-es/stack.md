@@ -1,4 +1,4 @@
-# 📐 Definición Autoritativa del Stack Tecnológico — UMS
+# Definición Autoritativa del Stack Tecnológico — UMS
 
 **Tipo de Documento:** Plano de Arquitectura (Blueprint)  
 **Estado:** Aprobado  
@@ -7,7 +7,7 @@
 
 ---
 
-## 🧭 Referencia de Contexto Ejecutivo
+## Referencia de Contexto Ejecutivo
 
 *   **Nombre del Producto:** Sistema de Gestión de Usuarios (UMS)
 *   **Tipo de Producto:** Híbrido (Despliegues SaaS y On-Premise localizados)
@@ -16,8 +16,8 @@
 *   **Escala Esperada (Objetivo):** > 10,000 tenants, ~500 usuarios concurrentes por tenant (~5,000,000 conexiones concurrentes activas totales)
 *   **Tamaño del Equipo:** ~5–10 Ingenieros
 *   **Experiencia del Equipo:** Sólida en NestJS y TypeScript/JavaScript, algo de DevOps (Docker, Kubernetes), sin experiencia en Java
-*   **Restricciones Existentes:** Transición a .NET 8 para la API Core, motor relacional SQL Server, caché Redis de alto rendimiento, arquitectura lista para Dapr, capacidad de despliegue estricta en K8s on-premise.
-*   **No Negociables:** Absolutamente cero dependencias de SDKs de proveedores de nube en la capa de dominio principal (Arquitectura Hexagonal estricta); alternativas de infraestructura de código abierto 100% autohospedables.
+*   **Restáricciones Existentes:** Transición a .NET 8 para la API Core, motor relacional SQL Server, caché Redis de alto rendimiento, arquitectura lista para Dapr, capacidad de despliegue estáricta en K8s on-premise.
+*   **No Negociables:** Absolutamente cero dependencias de SDKs de proveedores de nube en la capa de dominio principal (Arquitectura Hexagonal estáricta); alternativas de infraestructura de código abierto 100% autohospedables.
 *   **Estrategia Polyglot (ADR 0026):** .NET 8 -> SQL Server; Node.js -> PostgreSQL/MongoDB.
 
 ---
@@ -26,7 +26,7 @@
 
 ### 1.1 Lenguaje + Versión
 *   **Núcleo Empresarial Principal:** **C# ejecutándose en .NET 8 LTS**
-    *   **Por qué:** Rendimiento superior para tareas de cómputo intensivo, herramientas de grado empresarial y seguridad de tipos estricta.
+    *   **Por qué:** Rendimiento superior para tareas de cómputo intensivo, herramientas de grado empresarial y seguridad de tipos estáricta.
 *   **Servicios Satélite/Ligeros:** **TypeScript v5.4+ ejecutándose en Node.js v20 LTS**
     *   **Por qué:** Alta velocidad de desarrollo y ecosistema rico para módulos no críticos.
 *   **Alternativas Rechazadas:**
@@ -34,14 +34,14 @@
     *   *Java (Spring Boot)*: Rechazado por mayor huella de memoria y falta de experiencia del equipo.
 
 ### 1.2 Sistema de Tipos / Configuración del Compilador
-*   **Herramienta Elegida:** **Compilación estricta de TypeScript mediante SWC (`@swc/core`) dentro de Nx Monorepo**
-*   **Por qué se eligió:** `strict: true` obliga a evitar el `any` implícito y realiza chequeos estrictos de nulos, previniendo errores comunes en tiempo de ejecución. SWC compila TypeScript hasta 20 veces más rápido que el `tsc` tradicional, acelerando significativamente los ciclos de desarrollo local y las ejecuciones de CI/CD.
+*   **Herramienta Elegida:** **Compilación estáricta de TypeScript mediante SWC (`@swc/core`) dentro de Nx Monorepo**
+*   **Por qué se eligió:** `strict: true` obliga a evitar el `any` implícito y realiza chequeos estárictos de nulos, previniendo errores comunes en tiempo de ejecución. SWC compila TypeScript hasta 20 veces más rápido que el `tsc` tradicional, acelerando significativamente los ciclos de desarrollo local y las ejecuciones de CI/CD.
 *   **Alternativas Rechazadas:**
     *   *tsc (compilador estándar de TypeScript)*: Rechazado como motor de compilación principal debido a los tiempos de compilación lentos en configuraciones de monorepo de alta concurrencia, pero se mantiene únicamente para el chequeo de tipos (`tsc --noEmit`).
 
 ### 1.3 Toolchain de Linting y Formateo
 *   **Herramienta Elegida:** **ESLint v8 + Prettier v3 integrados mediante Husky y lint-staged**
-*   **Por qué se eligió:** Garantiza un formateo de código uniforme y automatizado, además de un análisis estático en la etapa de pre-commit, evitando que entre al repositorio código no formateado o con errores detectables.
+*   **Por qué se eligió:** Garantiza un formateo de código uniforme y automatizado, además de un análisis estáático en la etapa de pre-commit, evitando que entre al repositorio código no formateado o con errores detectables.
 *   **Alternativas Rechazadas:**
     *   *TSLint*: Depreciado; ya no tiene soporte.
 
@@ -59,7 +59,7 @@
 
 ### 2.2 Estándar de Documentación de API
 *   **Herramienta Elegida:** **OpenAPI v3 (Swagger) generado dinámicamente mediante decoradores de NestJS / Swashbuckle para .NET**
-*   **Por qué se eligió:** Asegura que las APIs REST públicas se documenten automáticamente, sean interactivas y estén completamente sincronizadas con la base de código, con cero mantenimiento manual de documentos.
+*   **Por qué se eligió:** Asegura que las APIs REST públicas se documenten automáticamente, sean interactivas y estáén completamente sincronizadas con la base de código, con cero mantenimiento manual de documentos.
 *   **Alternativas Rechazadas:**
     *   *Colecciones manuales de Postman*: Alta carga de mantenimiento y propensas a desincronizarse con las APIs de producción.
 
@@ -77,17 +77,17 @@
 *   **Herramienta Elegida:** **Kong API Gateway (Edición Open Source)**
 *   **Por qué se eligió:** Un API gateway agnóstico de la nube, ligero y de rendimiento extremadamente alto (construido sobre Nginx) que maneja rate-limiting B2B, listas blancas de IP y enrutamiento. Se ejecuta nativamente en Kubernetes y es completamente autohospedable on-premise.
 *   **Alternativas Rechazadas:**
-    *   *AWS API Gateway / Azure API Management*: Rechazados porque son propietarios, están bloqueados por la nube y no pueden ejecutarse on-premise dentro de las redes locales de los clientes.
+    *   *AWS API Gateway / Azure API Management*: Rechazados porque son propietarios, estáán bloqueados por la nube y no pueden ejecutarse on-premise dentro de las redes locales de los clientes.
 
 ### 3.2 Mecanismo de Autenticación
 *   **Herramienta Elegida:** **Tokens Web JSON (JWT) firmados con RS256 + TLS mutuo (mTLS)**
 *   **Por qué se eligió:** Los JWT permiten sesiones de usuario sin estado y verificadas criptográficamente. mTLS (gestionado por Istio/Linkerd o Kong) asegura todo el tráfico interno de contenedor a contenedor, adhiriéndose a las directrices de Zero Trust.
 *   **Alternativas Rechazadas:**
-    *   *Cookies de Sesión con Estado*: Restringe el escalado horizontal al requerir sincronización de sesiones o sesiones pegajosas (sticky sessions) a través de instancias de contenedores distribuidas.
+    *   *Cookies de Sesión con Estado*: Restáringe el escalado horizontal al requerir sincronización de sesiones o sesiones pegajosas (sticky sessions) a través de instancias de contenedores distribuidas.
 
 ### 3.3 Estrategia de Rate Limiting
 *   **Herramienta Elegida:** **Rate Limiting de ventana deslizante aplicado en Kong Gateway usando Redis**
-*   **Por qué se eligió:** Previene intentos de fuerza bruta o de denegación de servicio. Aplicar esto en la capa de Gateway usando Redis ahorra ciclos de CPU a nivel de aplicación al descartar el tráfico malicioso antes de que llegue a los pods.
+*   **Por qué se eligió:** Previene intentos de fuerza bruta o de denegación de servicio. Aplicar estáo en la capa de Gateway usando Redis ahorra ciclos de CPU a nivel de aplicación al descartar el tráfico malicioso antes de que llegue a los pods.
 *   **Alternativas Rechazadas:**
     *   *Rate-limiting en memoria a nivel de aplicación*: Riesgo de agotamiento de memoria y no comparte el estado del rate-limiting entre múltiples pods horizontales.
 
@@ -99,11 +99,11 @@
 *   **Herramienta Elegida:** **Arquitectura Hexagonal (Puertos y Adaptadores) / Arquitectura Limpia**
 *   **Por qué se eligió:** Obligatorio para asegurar que la capa de Dominio central tenga **absolutamente cero dependencias** de NestJS, EF Core, TypeORM o SDKs de nube externos. La lógica central se comunica exclusivamente con interfaces (Puertos), haciendo que el kernel sea completamente soberano y preparado para el futuro.
 *   **Alternativas Rechazadas:**
-    *   *Arquitectura de 3 capas estándar*: Crea un fuerte acoplamiento entre la lógica de negocio, los ORMs de base de datos y los frameworks de red, violando nuestra restricción de soberanía no negociable.
+    *   *Arquitectura de 3 capas estándar*: Crea un fuerte acoplamiento entre la lógica de negocio, los ORMs de base de datos y los frameworks de red, violando nuestára restricción de soberanía no negociable.
 
 ### 4.2 Estrategia de Módulo / Contexto Acotado
 *   **Herramienta Elegida:** **Monolito Modular dentro de Nx Monorepo (preparado para Dapr)**
-*   **Por qué se eligió:** Minimiza la complejidad operativa y de despliegue inicial para nuestro equipo de 5-10 ingenieros. Todos los contextos (`Identity`, `Authorization`, `Configuration`, `Audit`) están aislados dentro de límites estrictos de librerías, lo que permite dividirlos en microservicios independientes de Dapr sin refactorizar los modelos de dominio centrales.
+*   **Por qué se eligió:** Minimiza la complejidad operativa y de despliegue inicial para nuestáro equipo de 5-10 ingenieros. Todos los contextos (`Identity`, `Authorization`, `Configuration`, `Audit`) estáán aislados dentro de límites estárictos de librerías, lo que permite dividirlos en microservicios independientes de Dapr sin refactorizar los modelos de dominio centrales.
 *   **Alternativas Rechazadas:**
     *   *Microservicios distribuidos desde el Día 1*: Alta complejidad operativa, sobrecarga de despliegue y latencia de red que abrumaría a un equipo de ingeniería pequeño.
 
@@ -127,7 +127,7 @@
 
 ### 5.2 Estrategia de Migración
 *   **Herramienta Elegida:** **Migraciones de TypeORM ejecutadas mediante Init-Containers de K8s**
-*   **Por qué se eligió:** Garantiza que los esquemas de base de datos estén versionados y las migraciones se ejecuten secuencial y exitosamente antes de que los pods de la aplicación se activen, previniendo la desincronización de esquemas durante actualizaciones continuas (rolling updates).
+*   **Por qué se eligió:** Garantiza que los esquemas de base de datos estáén versionados y las migraciones se ejecuten secuencial y exitosamente antes de que los pods de la aplicación se activen, previniendo la desincronización de esquemas durante actualizaciones continuas (rolling updates).
 *   **Alternativas Rechazadas:**
     *   *TypeORM `synchronize: true`*: Extremadamente peligroso para entornos de producción, ya que puede causar la pérdida accidental de datos.
 
@@ -147,7 +147,7 @@
 *   **Herramienta Elegida:** **RabbitMQ (Autohospedado, AMQP v0.9.1)**
 *   **Por qué se eligió:** Broker de alto rendimiento, ligero y completamente autohospedable con capacidades de enrutamiento robustas. Se adapta perfectamente a las redes on-premise y conlleva una baja sobrecarga administrativa.
 *   **Alternativas Rechazadas:**
-    *   *Apache Kafka*: Ofrece un mayor rendimiento pero conlleva una carga administrativa e infraestructura masiva (Zookeeper/KRaft) que es innecesaria para nuestra escala inicial.
+    *   *Apache Kafka*: Ofrece un mayor rendimiento pero conlleva una carga administrativa e infraestructura masiva (Zookeeper/KRaft) que es innecesaria para nuestára escala inicial.
 
 ---
 
@@ -166,7 +166,7 @@
 *   **Herramienta Elegida:** **Interceptor de NestJS / Middleware de ASP.NET + Contexto de Sesión de Conexión de Base de Datos**
 *   **Por qué se eligió:** Resuelve el `tenant_id` desde los claims de JWT o cabeceras `X-Tenant-ID` en el ingreso, y utiliza un wrapper de transacción de base de datos para inyectar dinámicamente el contexto del tenant en la sesión activa.
 *   **Alternativas Rechazadas:**
-    *   *Filtrado a nivel de aplicación*: Propenso a omisiones de desarrolladores (olvidar una cláusula `WHERE tenant_id = x`), lo que lleva a vulnerabilidades críticas de filtración de datos. RLS previene esto a nivel de base de datos.
+    *   *Filtrado a nivel de aplicación*: Propenso a omisiones de desarrolladores (olvidar una cláusula `WHERE tenant_id = x`), lo que lleva a vulnerabilidades críticas de filtración de datos. RLS previene estáo a nivel de base de datos.
 
 ---
 
@@ -176,7 +176,7 @@
 *   **Herramienta Elegida:** **Docker v25 con builds distroless multi-etapa**
 *   **Por qué se eligió:** Reduce el tamaño de la imagen del contenedor al mínimo absoluto y elimina las utilidades estándar de shell, endureciendo significativamente los contenedores de producción contra exploits de ejecución remota.
 
-### 7.2 Orquestación
+### 7.2 Orquestáación
 *   **Herramienta Elegida:** **Kubernetes (K8s v1.28+)**
 *   **Por qué se eligió:** Estandariza el despliegue, el escalado y la auto-recuperación. Funciona de manera idéntica en nubes públicas (EKS, GKE) y clusters locales on-premise (MicroK8s, Rancher K3s, OpenShift).
 
@@ -196,7 +196,7 @@
 
 ### 8.1 Estándar de Instrumentación
 *   **Herramienta Elegida:** **OpenTelemetry (estándar W3C Trace Context)**
-*   **Por qué se eligió:** Mandatorio por nuestros no negociables. Garantiza que el código de la aplicación permanezca completamente neutral respecto al proveedor. Si cambiamos de Jaeger/Loki a Datadog o New Relic, no tenemos que modificar una sola línea de código de la aplicación.
+*   **Por qué se eligió:** Mandatorio por nuestáros no negociables. Garantiza que el código de la aplicación permanezca completamente neutral respecto al proveedor. Si cambiamos de Jaeger/Loki a Datadog o New Relic, no tenemos que modificar una sola línea de código de la aplicación.
 
 ### 8.2 Métricas
 *   **Herramienta Elegida:** **Prometheus recolectando desde OpenTelemetry Collector**
@@ -240,34 +240,28 @@
 
 ### 10.3 Pirámide de Pruebas
 *   **Herramienta Elegida:**
-    *   *Pruebas Unitarias*: xUnit (.NET) / Jest (Node) (objetivo >80% de cobertura).
-    *   *Pruebas de Integración*: Testcontainers (levantando instancias efímeras de SQL Server/PostgreSQL en Docker local para pruebas realistas).
+    *   *Pruebas Unitarias*: xUnit (.NET) / Jestá (Node) (objetivo >80% de cobertura).
+    *   *Pruebas de Integración*: Testácontainers (levantando instancias efímeras de SQL Server/PostgreSQL en Docker local para pruebas realistas).
     *   *End-to-End*: Playwright para pruebas de regresión de la Consola Web.
 
 ---
 
 ## 11. Servicios de Terceros
 
-Para evitar el bloqueo de proveedores de nube y soportar entornos fuera de línea (offline) y on-premise, **es mandatorio el uso de cero integraciones SaaS externas**. Las integraciones opcionales están completamente abstraídas tras Puertos de Dominio.
+Para evitar el bloqueo de proveedores de nube y soportar entornos fuera de línea (offline) y on-premise, **es mandatorio el uso de cero integraciones SaaS externas**. Las integraciones opcionales estáán completamente abstraídas tras Puertos de Dominio.
 
 | Nombre del Servicio | Propósito | Por qué NO Internamente | Alternativa Agnóstica de Nube | Interfaz de Dominio |
 | :--- | :--- | :--- | :--- | :--- |
 | **Twilio** | Entrega de SMS OTP | Los gateways de operadoras de telecomunicaciones requieren acuerdos globales complejos. | Gateway local SMTP-a-SMS o Módem SMS autohospedado | `ISmsPort` |
-| **SendGrid** | Emails Transaccionales | Gestionar la reputación de IP y las colas de entrega de correo es una carga operativa masiva. | Servidor SMTP Postfix / Haraka autohospedado | `IEmailPort` |
-
----
-
+| **SendGrid** | Emails Transaccionales | Gestionar la reputación de IP y las colas de entrega de correo es una carga operativa masiva. | Servidor SMTP Postfix / Haraka autohospedado | `IEmailPort`
 ## 12. Registro de Riesgo de Bloqueo de Proveedor (Vendor Lock-in)
 
 | Componente | Solución Elegida | Riesgo de Bloqueo | Estrategia de Mitigación | Disparador de Re-evaluación |
 | :--- | :--- | :--- | :--- | :--- |
-| **Base de Datos** | SQL Server / PostgreSQL | **Medio** | Cumplimiento estándar de SQL. La capa de dominio está desacoplada mediante Puertos. | Cambios drásticos en el licenciamiento |
+| **Base de Datos** | SQL Server / PostgreSQL | **Medio** | Cumplimiento estándar de SQL. La capa de dominio estáá desacoplada mediante Puertos. | Cambios drásticos en el licenciamiento |
 | **Almacén de Objetos** | MinIO | **Bajo** | MinIO utiliza exactamente el contrato de API de AWS S3. | Cuellos de botella de rendimiento |
 | **Almacén de Secretos**| HashiCorp Vault | **Bajo** | La resolución de secretos se abstrae mediante inyección de secretos de K8s. | Cambios en el modelo de licenciamiento |
-| **Gateway** | Kong Gateway | **Bajo** | La configuración se gestiona mediante recursos estándar de Ingress de K8s. | Restricciones de enrutamiento personalizadas |
-
----
-
+| **Gateway** | Kong Gateway | **Bajo** | La configuración se gestiona mediante recursos estándar de Ingress de K8s. | Restáricciones de enrutamiento personalizadas
 ## 13. Log de Decisiones
 
 ### Decisión 1: Estrategia de Backend Polyglot
@@ -284,9 +278,9 @@ Para evitar el bloqueo de proveedores de nube y soportar entornos fuera de líne
 
 ## 14. Preguntas Abiertas
 
-1.  **Gateways de SMS On-premise:** ¿Qué hardware de SMS local o proveedores de telecomunicaciones están pre-aprobados por clientes empresariales localizados?
+1.  **Gateways de SMS On-premise:** ¿Qué hardware de SMS local o proveedores de telecomunicaciones estáán pre-aprobados por clientes empresariales localizados?
     *   *Información Necesaria:* Contratos activos de SMS locales o especificaciones de hardware de gateway SMS.
     *   *Resolutor BMAD:* **Agente de Dev / Agente de Infra** durante el onboarding de la Fase 05.
-2.  **Registro Dinámico de OIDC:** ¿Deberían las instalaciones on-premise soportar registros dinámicos de clientes OIDC, o deben configurarse estáticamente mediante Helm?
+2.  **Registro Dinámico de OIDC:** ¿Deberían las instalaciones on-premise soportar registros dinámicos de clientes OIDC, o deben configurarse estááticamente mediante Helm?
     *   *Información Necesaria:* Capacidades de onboarding de la infraestructura de TI del cliente.
     *   *Resolutor BMAD:* **Product Owner / Arquitecto de Soluciones** durante los despliegues piloto.

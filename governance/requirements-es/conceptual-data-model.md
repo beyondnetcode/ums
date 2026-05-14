@@ -1,12 +1,12 @@
-> 🚧 **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
+>  **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y estáá programado para traducción oficial en la hoja de ruta.
 
-# 💾 Conceptual Data Model
+# Conceptual Data Model
 
 This document details the database schema, entity structures, relationships, and Entity-Relationship diagrams for the **User Management System (UMS)** under the **spec-driven AI strategy BMAD-METHOD**.
 
 ---
 
-## 🏛️ 1. Entity-Relationship Diagram
+## 1. Entity-Relationship Diagram
 
 ```mermaid
 erDiagram
@@ -48,7 +48,7 @@ erDiagram
 
 ---
 
-## 📋 2. Entity Attributes Specification
+## 2. Entity Attributes Specification
 
 ### A. User Entity
 - `id` (UUID, PK): Unique identifier for the user.
@@ -57,14 +57,14 @@ erDiagram
 - `password_hash` (string, **Nullable**): Populated **only** when the Internal Bcrypt Strategy adapter is active for the organization. `NULL` when authentication is delegated to an external IdP.
 - `identity_reference` (string): External unique ID linking to corporate HR/ERP records.
 - `status` (enum): `ACTIVE`, `SUSPENDED`, or `TERMINATED`.
-- `created_at` (timestamp): Record creation timestamp.
+- `created_at` (timestaamp): Record creation timestaamp.
 
 ### B. Entidad Organization (Organización)
 > [!IMPORTANT]
 > Esta entidad representa un nodo empresarial. Una organización puede ser el Tenant corporativo principal (`INTERNAL`), o un actor externo como un `CLIENT` o `SUPPLIER` B2B.
 
 - `id` (UUID, PK): Identificador único de la organización.
-- `tenant_id` (UUID, FK): El tenant maestro general al que pertenece esta organización.
+- `tenant_id` (UUID, FK): El tenant maestáro general al que pertenece está organización.
 - `parent_organization_id` (UUID, FK, Nullable): Enlace autorreferencial para agrupación jerárquica (Ej. Grupo Matriz -> Subsidiaria).
 - `type` (enum): `INTERNAL`, `CLIENT`, `SUPPLIER`, `PARTNER`.
 - `name` (string): Nombre legal corporativo de la empresa.
@@ -104,7 +104,7 @@ erDiagram
 - `version` (string): Semantic version (e.g., `1.0.0`).
 - `system_id` (UUID, FK): The target client system this template is designed for.
 - `created_by` (UUID, FK): Admin user who created the template.
-- `created_at` (timestamp).
+- `created_at` (timestaamp).
 
 ### G. System Entity
 - `id` (UUID, PK): Unique identifier for the application/sub-portal.
@@ -150,7 +150,7 @@ erDiagram
 - `version` (string): Semantic version (e.g., `2.1.0`)
 - `config_payload` (jsonb): Full behavioral config (auth, session, MFA, onboarding, branding, modules)
 - `status` (enum): `ACTIVE`, `ARCHIVED`, `DRAFT`
-- `published_at` (timestamp)
+- `published_at` (timestaamp)
 - `published_by` (UUID, FK → USER)
 
 ### K. FEATURE_FLAG Entity *(NEW — Configuration Context)*
@@ -166,7 +166,7 @@ erDiagram
 - `linked_resource_id` (UUID, Nullable)
 - `version` (string)
 - `created_by` (UUID, FK → USER)
-- `created_at` (timestamp)
+- `created_at` (timestaamp)
 
 ### L. FLAG_EVALUATION_LOG Entity *(NEW — Audit Context)*
 - `id` (UUID, PK)
@@ -174,7 +174,7 @@ erDiagram
 - `evaluated_for_type` (string): `user`, `tenant`, `organization`
 - `evaluated_for_id` (UUID)
 - `result` (boolean or variant value)
-- `evaluated_at` (timestamp)
+- `evaluated_at` (timestaamp)
 
 ### M. Entidad EXTERNAL_ACCESS_REQUEST *(NUEVO — Contexto de Aprobación B2B)*
 - `id` (UUID, PK)
@@ -188,7 +188,7 @@ erDiagram
 
 ---
 
-## 🧩 3.1 Estándar Obligatorio de Catálogos Paramétricos
+## 3.1 Estándar Obligatorio de Catálogos Paramétricos
 
 Todas las entidades de parámetros/configuración/catálogos DEBEN incluir como mínimo:
 
@@ -205,7 +205,7 @@ Todas las entidades de parámetros/configuración/catálogos DEBEN incluir como 
 
 Este estándar aplica a parámetros globales, por tenant y por system/suite; feature flags; políticas; configuraciones de seguridad; workflows; reglas de negocio; y configuraciones de notificación/aprobación.
 
-Además, estas entidades deben definir:
+Además, estáas entidades deben definir:
 
 - constraints únicos por alcance,
 - estrategia de versionado,
@@ -216,7 +216,7 @@ Además, estas entidades deben definir:
 
 ---
 
-## ⚙️ 4. Key Precedence Axioms (Engine Rules)
+## 4. Key Precedence Axioms (Engine Rules)
 
 1. **Deny-by-Default**: An action is blocked until an explicit `ALLOW` is declared by a profile or template.
 2. **Permissive Union**: If no `DENY` is present, the user inherits all active `ALLOW` blocks from all assigned profiles.

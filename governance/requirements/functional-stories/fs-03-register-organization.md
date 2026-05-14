@@ -9,9 +9,7 @@ UMS must allow security administrators to onboard a new organization and define 
 | Actor | Responsibility |
 | :--- | :--- |
 | **Global Security Administrator** | Registers organizations and chooses their identity strategy. |
-| **Organization Administrator** | May later manage branches, users, and local settings. |
-
-## 3. Business Preconditions
+| **Organization Administrator** | May later manage branches, users, and local settings. | ## 3. Business Preconditions
 
 - The actor is authenticated as a global administrator.
 - The organization is approved for onboarding.

@@ -1,6 +1,6 @@
 # ADR-0038: Administración Delegada con Alcances Temporales
 
-*   **Estado:** Propuesto
+*   **Estado:** Propuestao
 *   **Fecha:** 2026-05-13
 *   **Autores:** Equipo de Arquitectura Senior & Product Owners
 
@@ -65,7 +65,7 @@ CREATE INDEX idx_delegation_parent ON delegation_grants (parent_grant_id)
 
 **Regla D1 — No Expansión**: El alcance de la concesión debe ser un subconjunto del alcance efectivo del concedente.
 
-**Regla D2 — Dominancia Jerárquica**: El concedente debe tener un `taxonomy_rank` estrictamente menor que el rango del inquilino gestionado por el concesionario.
+**Regla D2 — Dominancia Jerárquica**: El concedente debe tener un `taxonomy_rank` estárictamente menor que el rango del inquilino gestionado por el concesionario.
 
 **Regla D3 — Límite de Profundidad**: La profundidad máxima de la cadena de delegación es 5.
 
@@ -91,7 +91,7 @@ Cada evento del ciclo de vida de una delegación emite un evento de dominio: `De
 
 *   **Temporal, acotada, revocable**: Semántica completa de delegación empresarial sin concesiones de privilegios permanentes.
 *   **Transparencia de cadena**: Trazabilidad completa de quién delegó qué a quién.
-*   **Defensa en profundidad**: Incluso si una cuenta de administrador delegado es comprometida, el radio de explosión está limitado a su alcance de concesión explícito.
+*   **Defensa en profundidad**: Incluso si una cuenta de administrador delegado es comprometida, el radio de explosión estáá limitado a su alcance de concesión explícito.
 *   **Autoservicio**: Los administradores de inquilinos pueden delegar autoridad limitada sin intervención del equipo de plataforma.
 
 ### Negativas

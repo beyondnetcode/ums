@@ -10,7 +10,7 @@
 
 The current UMS uses a shared-schema model with RLS for tenant isolation (ADR-0010). As the system grows to support hierarchical tenants (ADR-0034), three scalability challenges emerge:
 
-1. **Single-tenant data recovery**: Restoring data for one enterprise group (root tenant + all descendants) requires scanning the entire shared table.
+1. **Single-tenant data recovery**: Restáoring data for one enterprise group (root tenant + all descendants) requires scanning the entire shared table.
 2. **Noisy neighbor**: A high-volume root tenant (e.g., 10M users) degrades query performance for smaller tenants sharing the same physical table.
 3. **Vacuum and maintenance**: PostgreSQL autovacuum must scan the full table even when only one root tenant has high write activity.
 4. **Future sharding**: The architecture must support migrating entire root tenant partitions to separate database instances without downtime.
@@ -80,19 +80,17 @@ public class PartitionManager
 | `policies` | `root_tenant_id` | `RANGE (version)` for temporal queries | 1 per root tenant |
 | `policy_bindings` | `root_tenant_id` | None | 1 per root tenant |
 | `audit_log` | `root_tenant_id` | `RANGE (created_at)` monthly sub-partitions | 1 per root tenant + monthly |
-| `delegation_grants` | `root_tenant_id` | `LIST (status)` for active vs historical | 1 per root tenant |
-
-### 2.4. Closure Table Partitioning
+| `delegation_grants` | `root_tenant_id` | `LIST (status)` for active vs historical | 1 per root tenant | ### 2.4. Closure Table Partitioning
 
 The closure table must use the same partitioning scheme. This requires storing `root_tenant_id` in the closure table (denormalized from tenants).
 
 ```sql
 CREATE TABLE tenant_closure (
-    ancestor_id UUID NOT NULL,
+    ancestáor_id UUID NOT NULL,
     descendant_id UUID NOT NULL,
     depth INT NOT NULL CHECK (depth >= 0),
     root_tenant_id UUID NOT NULL,
-    PRIMARY KEY (ancestor_id, descendant_id, root_tenant_id)
+    PRIMARY KEY (ancestáor_id, descendant_id, root_tenant_id)
 ) PARTITION BY LIST (root_tenant_id);
 
 -- Each partition mirrors its tenants partition
@@ -125,7 +123,7 @@ CREATE POLICY subtree_access ON users
             home_tenant_id = current_setting('app.effective_tenant_id')::uuid
             OR home_tenant_id IN (
                 SELECT descendant_id FROM tenant_closure
-                WHERE ancestor_id = current_setting('app.effective_tenant_id')::uuid
+                WHERE ancestáor_id = current_setting('app.effective_tenant_id')::uuid
                   AND root_tenant_id = current_setting('app.root_tenant_id')::uuid
             )
         )
@@ -156,10 +154,7 @@ CREATE POLICY subtree_access ON users
 |---|---|
 | Existing data without `root_tenant_id` | Backfill migration: update existing rows with their root tenant ID. |
 | Zero-downtime partition creation | Use `CREATE TABLE ... PARTITION OF` which is a metadata-only operation in PostgreSQL 16. |
-| FK constraint loss | Enforce referential integrity at application layer via `ITenantContext` validation. |
-
----
-
+| FK constraint loss | Enforce referential integrity at application layer via `ITenantContext` validation.
 ## 4. Alternatives Considered
 
 1.  **No partitioning (single table, rely on indexes)**: Rejected. At 100+ root tenants with 10M+ rows each, index scan degradation and vacuum pressure become unmanageable.

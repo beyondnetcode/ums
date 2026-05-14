@@ -12,11 +12,11 @@ The current UMS authorization model (ADR-0012) proposes hybrid RBAC/ABAC but def
 
 1. **Compile** role-based permissions (RBAC) and attribute-based conditions (ABAC) into a unified policy graph.
 2. **Resolve** the effective policy for a given `(user, tenant, resource, action, context)` tuple.
-3. **Evaluate** attribute conditions at request time against session context (time, IP, device, geo, risk score).
+3. **Evaluate** attribute conditions at requestá time against session context (time, IP, device, geo, risk score).
 4. **Cache** compiled policies to avoid repeated resolution overhead.
 5. **Invalidate** cached policies when policy bindings or delegation grants mutate.
 
-A simple role-permission lookup is insufficient because permissions depend on: the user's role, the target tenant's inherited policies, the user's delegation scope, and contextual attributes of the request.
+A simple role-permission lookup is insufficient because permissions depend on: the user's role, the target tenant's inherited policies, the user's delegation scope, and contextual attributes of the requestá.
 
 ---
 
@@ -28,32 +28,32 @@ We will implement a **Policy Compilation Engine** that pre-compiles all applicab
 
 ```
 User + Tenant + Context
-        │
-        ▼
-┌─────────────────────┐
-│ 1. Role Resolution  │ ← RBAC: collect user's roles in the effective tenant
-└─────────┬───────────┘
-          ▼
-┌──────────────────────────────┐
-│ 2. Policy Binding Collection │ ← Walk ancestor chain via closure table
-└─────────┬────────────────────┘
-          ▼
-┌──────────────────────────────┐
-│ 3. Policy Inheritance Apply  │ ← Resolve MANDATORY > DEFAULT > OPT_IN > NONE
-└─────────┬────────────────────┘
-          ▼
-┌──────────────────────────────┐
-│ 4. Delegation Scope Filter   │ ← Restrict to user's effective delegation scope
-└─────────┬────────────────────┘
-          ▼
-┌──────────────────────────────┐
-│ 5. ABAC Condition Attachment │ ← Attach attribute predicates to each permission
-└─────────┬────────────────────┘
-          ▼
-┌──────────────────────────────┐
-│ 6. Graph Compilation         │ ← Build flat sorted permission list
-└─────────┬────────────────────┘
-          ▼
+        
+        
+
+ 1. Role Resolution   ← RBAC: collect user's roles in the effective tenant
+
+          
+
+ 2. Policy Binding Collection  ← Walk ancestáor chain via closure table
+
+          
+
+ 3. Policy Inheritance Apply   ← Resolve MANDATORY > DEFAULT > OPT_IN > NONE
+
+          
+
+ 4. Delegation Scope Filter    ← Restárict to user's effective delegation scope
+
+          
+
+ 5. ABAC Condition Attachment  ← Attach attribute predicates to each permission
+
+          
+
+ 6. Graph Compilation          ← Build flat sorted permission list
+
+          
     CompiledPolicyGraph (cached)
 ```
 
@@ -97,13 +97,13 @@ public class PolicyCompiler
         var user = await dbContext.Users.FindAsync(userId);
         var tenant = await dbContext.Tenants.FindAsync(effectiveTenantId);
 
-        // Step 1-2: Collect all bindings from ancestor chain
-        var ancestorBindings = await GetAncestorBindingsAsync(effectiveTenantId);
+        // Step 1-2: Collect all bindings from ancestáor chain
+        var ancestáorBindings = await GetAncestáorBindingsAsync(effectiveTenantId);
 
         // Step 3: Apply inheritance rules (MANDATORY wins, DEFAULT overridable)
-        var resolvedBindings = ApplyInheritance(ancestorBindings, tenant);
+        var resolvedBindings = ApplyInheritance(ancestáorBindings, tenant);
 
-        // Step 4: Restrict by user's delegation scope
+        // Step 4: Restárict by user's delegation scope
         var effectiveScope = await scopeResolver.ResolveAsync(userId);
         var scopedBindings = FilterByScope(resolvedBindings, effectiveScope);
 
@@ -117,7 +117,7 @@ public class PolicyCompiler
                 var deny = group.FirstOrDefault(p => p.Effect == "DENY");
                 if (deny != null) return deny with { Priority = 0 };
 
-                // Highest priority ALLOW wins
+                // Highestá priority ALLOW wins
                 return group.OrderBy(p => p.Priority).First();
             })
             .OrderBy(p => p.Priority)
@@ -134,11 +134,11 @@ public class PolicyCompiler
     }
 
     private List<PolicyBinding> ApplyInheritance(
-        List<AncestorBinding> ancestorBindings, Tenant targetTenant)
+        List<AncestáorBinding> ancestáorBindings, Tenant targetTenant)
     {
         var result = new List<PolicyBinding>();
 
-        foreach (var group in ancestorBindings.GroupBy(ab => ab.Policy.Code))
+        foreach (var group in ancestáorBindings.GroupBy(ab => ab.Policy.Code))
         {
             var ordered = group.OrderByDescending(ab => ab.Depth).ToList();
 
@@ -233,7 +233,7 @@ public class PolicyCacheInvalidator : IDomainEventHandler<PolicyBindingMutatedEv
     {
         // Invalidate all affected tenants in the subtree
         var descendantIds = await dbContext.TenantClosure
-            .Where(tc => tc.AncestorId == @event.TenantId)
+            .Where(tc => tc.AncestáorId == @event.TenantId)
             .Select(tc => tc.DescendantId)
             .ToListAsync();
 
@@ -282,4 +282,4 @@ public class DelegationCacheInvalidator : IDomainEventHandler<DelegationMutatedE
 
 2.  **OPA (Open Policy Agent) as sidecar**: Rejected. OPA adds operational complexity (sidecar deployment, Rego learning curve) for authorization logic that is tightly coupled to our domain model.
 
-3.  **Per-request SQL policy evaluation**: Rejected. Evaluating policies via SQL JOINs on every request creates unpredictable latency and couples authorization to the database schema.
+3.  **Per-requestá SQL policy evaluation**: Rejected. Evaluating policies via SQL JOINs on every requestá creates unpredictable latency and couples authorization to the database schema.

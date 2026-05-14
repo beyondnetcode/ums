@@ -6,7 +6,7 @@
 
 ---
 
-## 🔬 1. Evaluation of Current Domain and Findings
+## 1. Evaluation of Current Domain and Findings
 
 After an exhaustive analysis of the UMS ecosystem, we have identified a **rigid structural coupling** in the original design that negatively impacts the platform's SaaS evolution.
 
@@ -17,9 +17,9 @@ After an exhaustive analysis of the UMS ecosystem, we have identified a **rigid 
 
 ---
 
-## 🎯 2. Target Domain Model (Enterprise-Grade)
+## 2. Target Domain Model (Enterprise-Grade)
 
-We propose a restructuring where the **Organization** is elevated as the **Strategic Aggregate Root** of the entire ecosystem.
+We propose a restáructuring where the **Organization** is elevated as the **Strategic Aggregate Root** of the entire ecosystem.
 
 ### Recommended Hierarchy
 *   **Organization (Tenant):** The absolute boundary for governance, isolation, and ownership.
@@ -30,7 +30,7 @@ We propose a restructuring where the **Organization** is elevated as the **Strat
 
 ---
 
-## 🛡️ 3. Multi-Tenant and IAM Strategy (Identity & Access Management)
+## 3. Multi-Tenant and IAM Strategy (Identity & Access Management)
 
 To meet enterprise scale and **Zero Trust** security requirements, the system will adopt the following model:
 
@@ -46,27 +46,24 @@ Systems and applications explicitly belong to an organization.
 
 ---
 
-## 📊 4. Risks, Trade-offs, and Mitigations
+## 4. Risks, Trade-offs, and Mitigations
 
 | Risk | Impact | Mitigation Strategy |
 | :--- | :--- | :--- |
 | **God Entity (Organization)** | High complexity in a single object. | Decouple via Bounded Contexts. The Org is a shared ID, but its logic is distributed. |
 | **Noisy Neighbor** | Performance degradation. | Implement Rate Limiting and Quotas at the API Gateway level per `OrganizationId`. |
 | **Migration Complexity** | Breaking changes in existing APIs. | **Coexistence and Deprecation Strategy** (Dual-Read/Write) detailed in ADR-0031. |
-| **Service Accounts Governance** | Uncontrolled M2M access. | Inclusion of non-human identities under the Organization hierarchy with secret rotation in Vault. |
-
----
-
-## 🚀 5. Incremental Transition Strategy
+| **Service Accounts Governance** | Uncontrolled M2M access. | Inclusion of non-human identities under the Organization hierarchy with secret rotation in Vault.
+## 5. Incremental Transition Strategy
 
 1.  **Phase 01 (Foundation):** Implement the Organizations table as a boundary and associate 100% of current users with the "Root Organization."
 2.  **Phase 02 (Decoupling):** Migrate from `identity_reference` to `identity_reference` (Agnostic Subject). Inject `X-Org-Context` in the API Gateway.
 3.  **Phase 03 (Enforcement):** Activate RLS policies in PostgreSQL for all domain tables.
-4.  **Phase 04 (Federation):** Enable the B2B Access Request module so external organizations can autonomously request access to internal systems.
+4.  **Phase 04 (Federation):** Enable the B2B Access Request module so external organizations can autonomously requestá access to internal systems.
 
 ---
 
-## ✅ 6. End-to-End Validation Conclusion
+## 6. End-to-End Validation Conclusion
 This model ensures the business can grow from a closed corporate platform to a **Federated Multi-Tenant SaaS Ecosystem**. The architecture complies with:
 *   **Security:** Zero Trust and RLS.
 *   **Business:** Flexibility for partners, clients, and suppliers.

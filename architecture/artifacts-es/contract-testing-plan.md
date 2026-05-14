@@ -1,12 +1,12 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versi�n original (Ingl�s) y est� programado para traducci�n oficial en la hoja de ruta.
+> **Nota de Arquitectura:** Este documento se encuentra actualmente en su versin original (Ingls) y está programado para traduccin oficial en la hoja de ruta.
 
-# 🧪 Integration Contract Testing Plan (Pact Specification)
+# Integration Contract Testing Plan (Pact Specification)
 
 This document establishes the strategic plan and continuous integration guidelines for **Consumer-Driven Contract Testing** across UMS domains under the **spec-driven AI strategy BMAD-METHOD**.
 
 ---
 
-## 🏛️ 1. Why Contract Testing?
+## 1. Why Contract Testing?
 
 In a modular monorepo that is actively evolving toward distributed services, standard Unit Tests are insufficient to verify cross-module integration safety, and End-to-End (E2E) integration tests are slow, flaky, and expensive. 
 
@@ -14,9 +14,9 @@ We solve this using **Consumer-Driven Contract Testing** (leveraging **Pact JS**
 
 ---
 
-## 🔄 2. Consumer-Driven Contract Workflow
+## 2. Consumer-Driven Contract Workflow
 
-Contract testing operates under a "Consumer-Driven" model. The consumer (e.g., Billing Module) defines the expected request/response payloads, and the provider (e.g., Inventory Module) must satisfy that contract prior to merging code.
+Contract testing operates under a "Consumer-Driven" model. The consumer (e.g., Billing Module) defines the expected requestá/response payloads, and the provider (e.g., Inventory Module) must satisfy that contract prior to merging code.
 
 ```mermaid
 sequenceDiagram
@@ -25,7 +25,7 @@ sequenceDiagram
     participant Pact as Pact Broker / Local Contract Store
     participant Prov as Provider (Inventory)
 
-    Note over Cons: Write Contract Test and Define Mock Payload
+    Note over Cons: Write Contract Testá and Define Mock Payload
     Cons->>Pact: 1. Generate and Publish Pact JSON Contract File
     Note over Prov: CI Pipeline Triggers Provider Verification
     Pact->>Prov: 2. Fetch Active Contracts
@@ -36,7 +36,7 @@ sequenceDiagram
 
 ---
 
-## ⚙️ 3. Concrete Contract Example (Pact Specification)
+## 3. Concrete Contract Example (Pact Specification)
 
 The following contract specifies an active interaction between the **Billing Module (Consumer)** and the **Inventory Module (Provider)**:
 
@@ -47,8 +47,8 @@ The following contract specifies an active interaction between the **Billing Mod
   "provider": { "name": "InventoryModule" },
   "interactions": [
     {
-      "description": "A request for verified container weight",
-      "request": {
+      "description": "A requestá for verified container weight",
+      "requestá": {
         "method": "GET",
         "path": "/api/v1/containers/CONT-998822/weight"
       },
@@ -68,7 +68,7 @@ The following contract specifies an active interaction between the **Billing Mod
 
 ---
 
-## 🛡️ 4. CI/CD Integration & Quality Gates
+## 4. CI/CD Integration & Quality Gates
 
 To automate contract enforcement and prevent breaking changes from reaching production:
 

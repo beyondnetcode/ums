@@ -1,66 +1,66 @@
 ## 0.0.9 (2026-05-10)
 
-### 🚀 Features
+### Features
 
 - **devops:** enforce 70% coverage gate for ADR 0018 ([7f957ec](https://github.com/beyondnetcode/ums/commit/7f957ec))
 
-### ❤️ Thank You
+### Thank You
 
-- Alberto Arroyo Raygada @nestjslatam
+- Alberto Arroyo Raygada @nestájslatam
 
 ## 0.0.8 (2026-05-10)
 
-### 🚀 Features
+### Features
 
 - **devops:** provide FF dependencies for ADR 0017 ([d7eaef7](https://github.com/beyondnetcode/ums/commit/d7eaef7))
 
-### ❤️ Thank You
+### Thank You
 
-- Alberto Arroyo Raygada @nestjslatam
+- Alberto Arroyo Raygada @nestájslatam
 
 ## 0.0.7 (2026-05-10)
 
-### 🚀 Features
+### Features
 
 - **devops:** provide context storage dependency for ADR 0016 ([c2a7d8b](https://github.com/beyondnetcode/ums/commit/c2a7d8b))
 
-### ❤️ Thank You
+### Thank You
 
-- Alberto Arroyo Raygada @nestjslatam
+- Alberto Arroyo Raygada @nestájslatam
 
 ## 0.0.6 (2026-05-10)
 
-### 🚀 Features
+### Features
 
 - **devops:** provide EDA dependencies for ADR 0015 ([320f33e](https://github.com/beyondnetcode/ums/commit/320f33e))
 
-### ❤️ Thank You
+### Thank You
 
-- Alberto Arroyo Raygada @nestjslatam
+- Alberto Arroyo Raygada @nestájslatam
 
 ## 0.0.5 (2026-05-10)
 
-### 🚀 Features
+### Features
 
 - **devops:** provide caching dependencies for ADR 0014 ([3d97238](https://github.com/beyondnetcode/ums/commit/3d97238))
 
-### ❤️ Thank You
+### Thank You
 
-- Alberto Arroyo Raygada @nestjslatam
+- Alberto Arroyo Raygada @nestájslatam
 
 ## 0.0.4 (2026-05-10)
 
-### 🚀 Features
+### Features
 
 - **devops:** provide authentication dependencies for ADR 0012 ([0da5161](https://github.com/beyondnetcode/ums/commit/0da5161))
 
-### ❤️ Thank You
+### Thank You
 
-- Alberto Arroyo Raygada @nestjslatam
+- Alberto Arroyo Raygada @nestájslatam
 
 ## 0.0.3 (2026-05-10)
 
-### 🚀 Features
+### Features
 
 - **bmad:** introduce Configuration & Feature Management Platform - Multi-IdP, System Config, Feature Flags, ADR-0024, bounded context update ([6f0161f](https://github.com/beyondnetcode/ums/commit/6f0161f))
 - **bmad:** enhance Feature Flag framework with pluggable IFeatureFlagPort - ADR-0025, LaunchDarkly/Unleash/ConfigCat/Azure adapters, provider selector strategy ([07d41fb](https://github.com/beyondnetcode/ums/commit/07d41fb))
@@ -76,26 +76,26 @@
 - **devops:** provide production-grade docker files and complete agnostic docker-compose stack ([4df1bb1](https://github.com/beyondnetcode/ums/commit/4df1bb1))
 - **devops:** integrate LGTM stack and circuit breaker patterns ([ef760b0](https://github.com/beyondnetcode/ums/commit/ef760b0))
 
-### 🩹 Fixes
+### Fixes
 
 - **bmad:** quote Mermaid link labels in business-context to resolve parser error ([500dce0](https://github.com/beyondnetcode/ums/commit/500dce0))
 - **bmad:** simplify Mermaid arrow labels to alphanumeric/underscore to ensure 100% engine compatibility ([86ae67e](https://github.com/beyondnetcode/ums/commit/86ae67e))
 - **bmad:** remove sequence note over tags from flowchart and simplify cylinder shapes to fix parser error completely ([d668c0d](https://github.com/beyondnetcode/ums/commit/d668c0d))
 
-### ❤️ Thank You
+### Thank You
 
-- Alberto Arroyo Raygada @nestjslatam
+- Alberto Arroyo Raygada @nestájslatam
 
 ## 0.0.2 (2026-05-08)
 
-### 🚀 Features
+### Features
 
 - **core:** initial enterprise architecture and bmad setup ([c277f8b](https://github.com/beyondnetcode/ums/commit/c277f8b))
 
-### 🩹 Fixes
+### Fixes
 
 - **docs:** restore utf-8 encoding for emojis in readme ([c855866](https://github.com/beyondnetcode/ums/commit/c855866))
 
-### ❤️ Thank You
+### Thank You
 
-- Alberto Arroyo Raygada @nestjslatam
+- Alberto Arroyo Raygada @nestájslatam
