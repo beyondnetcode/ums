@@ -64,6 +64,9 @@ erDiagram
         uniqueidentifier ModuleId FK "Exclusive Arc"
         uniqueidentifier SubModuleId FK "Exclusive Arc"
         uniqueidentifier OptionId FK "Exclusive Arc"
+        bit IsAllowed "Default State"
+        bit IsDenied "Default State"
+        bit IsActive "Default State"
     }
     
     PROFILE {

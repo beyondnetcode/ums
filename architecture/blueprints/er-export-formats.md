@@ -50,6 +50,9 @@ Table PERMISSION_TEMPLATE {
   ModuleId uniqueidentifier [note: 'Exclusive Arc']
   SubModuleId uniqueidentifier [note: 'Exclusive Arc']
   OptionId uniqueidentifier [note: 'Exclusive Arc']
+  IsAllowed bit [note: 'Default State']
+  IsDenied bit [note: 'Default State']
+  IsActive bit [note: 'Default State']
 }
 
 Table PROFILE {
@@ -177,6 +180,9 @@ CREATE TABLE PERMISSION_TEMPLATE (
     ModuleId UNIQUEIDENTIFIER NULL REFERENCES FUNCTIONAL_MODULE(ModuleId),
     SubModuleId UNIQUEIDENTIFIER NULL REFERENCES FUNCTIONAL_SUBMODULE(SubModuleId),
     OptionId UNIQUEIDENTIFIER NULL REFERENCES FUNCTIONAL_OPTION(OptionId),
+    IsAllowed BIT DEFAULT 1,
+    IsDenied BIT DEFAULT 0,
+    IsActive BIT DEFAULT 1,
     CONSTRAINT CHK_Exclusive_Resource CHECK (
         (CASE WHEN SuiteId IS NULL THEN 0 ELSE 1 END +
          CASE WHEN ModuleId IS NULL THEN 0 ELSE 1 END +
