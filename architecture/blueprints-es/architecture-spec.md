@@ -422,20 +422,73 @@ Para garantizar que los cambios en un contexto no rompan a sus consumidores, se 
 
 ## 🗄️ 13. Modelado de Datos y Persistencia (E/R)
 
-La estructura lógica de persistencia está diseñada para soportar las complejidades de un sistema de gestión de identidades empresarial con aislamiento de datos nativo.
+La arquitectura del sistema utiliza una estrategia de base de datos compartida con multi-tenancy de alta densidad. El aislamiento de datos se aplica estrictamente a nivel de motor utilizando SQL Server 2022 **SESSION_CONTEXT** y **Políticas de Seguridad (iTVF)**. El modelo está particionado lógicamente en seis Contextos Delimitados (Agregados) para mantener la modularidad y una resolución de alto rendimiento.
 
 ```mermaid
 erDiagram
-    TENANT ||--o{ USER : "pertenece_a"
-    TENANT ||--o{ ROLE : "define"
-    TENANT ||--o{ BRANCH : "posee"
-    USER ||--|| PROFILE : "tiene"
-    USER ||--o{ USER_ROLE : "asignado_a"
-    ROLE ||--o{ ROLE_PERMISSION : "contiene"
+    %% Aggregate: Identity
+    TENANT ||--o{ USER_ACCOUNT : "posee"
+    TENANT ||--o{ BRANCH : "contiene"
+    
+    %% Aggregate: Authorization
+    USER_ACCOUNT ||--o{ PROFILE : "tiene"
+    SYSTEM_SUITE ||--o{ ROLE : "define"
+    ROLE ||--o{ PERMISSION_TEMPLATE : "gobierna"
+    PROFILE ||--o{ PROFILE_PERMISSION : "materializado"
+    
+    %% Aggregate: IGA
+    ROLE ||--o{ ROLE_PROMOTION_CRITERIA : "criterios"
+    USER_ACCOUNT ||--o{ USER_PROMOTION_PROCESS : "evalúa"
+    USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "delega"
+    
+    %% Aggregate: Compliance & Documents
+    USER_ACCOUNT ||--o{ USER_DOCUMENT : "contiene"
+    DOCUMENT_TYPE ||--o{ USER_DOCUMENT : "clasifica"
+    DOCUMENT_TYPE ||--o{ ACCESS_ENFORCEMENT_POLICY : "restringe"
+    
+    %% Aggregate: Approvals
+    APPROVAL_WORKFLOW ||--o{ APPROVAL_REQUEST : "dispara"
+    USER_ACCOUNT ||--o{ APPROVAL_LOG : "audita"
+    
+    %% Aggregate: Configuration
+    TENANT ||--o{ APP_CONFIGURATION : "ajustes"
+    SYSTEM_SUITE ||--o{ APP_CONFIGURATION : "anulaciones"
+
+    USER_ACCOUNT {
+        uuid UserId PK
+        uuid TenantId FK
+        string Status
+    }
+    ROLE {
+        uuid RoleId PK
+        uuid ParentRoleId FK
+        int HierarchyLevel
+    }
+    USER_DOCUMENT {
+        uuid DocumentId PK
+        datetime ExpirationDate
+        string Status
+    }
+    APP_CONFIGURATION {
+        uuid SettingId PK
+        string Code
+        string Value
+    }
 ```
 
-Para ver el diseño detallado, tipos de datos específicos de SQL Server y políticas de seguridad implementadas, consulte:
-👉 **[Diseño Detallado del Modelo E/R (SQL Server 2022)](./database-design-er.md)**
+### 13.1 Matriz de Referencia de Agregados
+
+| Agregado | Entidades | Responsabilidad | Notas de Diseño |
+| :--- | :--- | :--- | :--- |
+| **Identity** | TENANT, USER_ACCOUNT, BRANCH | Gestión de identidad base y contexto. | TenantId desnormalizado para RLS. |
+| **Authorization**| ROLE, PROFILE, ACTION, SUITE, PERMS | Resolución de permisos de grano fino. | Jerarquías de roles recursivas y propiedad XOR. |
+| **IGA** | PROMOTION, DELEGATION, CRITERIA | Evolución basada en méritos y delegación. | Motor de criterios impulsado por flags. |
+| **Compliance** | DOCUMENT, DOC_TYPE, NOTIF_RULE | Validez de documentos y bloqueo de acceso. | Aplicación de acceso basada en expiración. |
+| **Approvals** | WORKFLOW, REQUEST, LOG | Aprobaciones multi-paso basadas en evidencia. | Auditoría inmutable con esquema de 10 columnas. |
+| **Configuration**| APP_CONFIGURATION | Parámetros jerárquicos multi-nivel. | Resolución de "el alcance más cercano gana". |
+
+Para consultar el DDL, DBML y las restricciones técnicas completas, consulte la **Fuente de Verdad**:
+👉 **[Modelo E/R Detallado y Formatos de Exportación (er-export-formats.md)](./er-export-formats.md)**
 
 ---
 
