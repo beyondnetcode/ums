@@ -26,9 +26,16 @@ Table BRANCH {
 Table USER_ACCOUNT {
   UserId uniqueidentifier [pk]
   TenantId uniqueidentifier
-  ManagedByUserId uniqueidentifier [note: 'Delegated Admin']
   UserCategory nvarchar [note: 'INTERNAL/EXTERNAL/B2B...']
   Status nvarchar [note: 'PENDING/ACTIVE/SUSPENDED']
+}
+
+Table USER_MANAGEMENT_DELEGATION {
+  DelegationId uniqueidentifier [pk]
+  TenantId uniqueidentifier
+  ParentAdminUserId uniqueidentifier
+  ManagedUserId uniqueidentifier
+  SuiteId uniqueidentifier [note: 'Optional Scope']
 }
 
 Table APPROVAL_WORKFLOW {
@@ -159,7 +166,10 @@ Ref: FUNCTIONAL_OPTION.TenantId > TENANT.TenantId
 Ref: ACTION.SuiteId > SYSTEM_SUITE.SuiteId
 Ref: ACTION.ModuleId > FUNCTIONAL_MODULE.ModuleId
 Ref: ACTION.TenantId > TENANT.TenantId
-Ref: USER_ACCOUNT.ManagedByUserId > USER_ACCOUNT.UserId
+Ref: USER_MANAGEMENT_DELEGATION.TenantId > TENANT.TenantId
+Ref: USER_MANAGEMENT_DELEGATION.ParentAdminUserId > USER_ACCOUNT.UserId
+Ref: USER_MANAGEMENT_DELEGATION.ManagedUserId > USER_ACCOUNT.UserId
+Ref: USER_MANAGEMENT_DELEGATION.SuiteId > SYSTEM_SUITE.SuiteId
 Ref: APPROVAL_WORKFLOW.TenantId > TENANT.TenantId
 Ref: APPROVAL_WORKFLOW.SuiteId > SYSTEM_SUITE.SuiteId
 Ref: APPROVAL_REQUEST.TenantId > TENANT.TenantId
@@ -191,9 +201,17 @@ CREATE TABLE BRANCH (
 CREATE TABLE USER_ACCOUNT (
     UserId UNIQUEIDENTIFIER PRIMARY KEY,
     TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
-    ManagedByUserId UNIQUEIDENTIFIER REFERENCES USER_ACCOUNT(UserId),
     UserCategory NVARCHAR(50),
     Status NVARCHAR(50)
+);
+
+CREATE TABLE USER_MANAGEMENT_DELEGATION (
+    DelegationId UNIQUEIDENTIFIER PRIMARY KEY,
+    TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
+    ParentAdminUserId UNIQUEIDENTIFIER REFERENCES USER_ACCOUNT(UserId),
+    ManagedUserId UNIQUEIDENTIFIER REFERENCES USER_ACCOUNT(UserId),
+    SuiteId UNIQUEIDENTIFIER NULL REFERENCES SYSTEM_SUITE(SuiteId),
+    CreatedAt DATETIME2 DEFAULT SYSUTCDATETIME()
 );
 
 CREATE TABLE SYSTEM_SUITE (

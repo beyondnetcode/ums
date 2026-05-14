@@ -9,10 +9,11 @@ A medida que la empresa escala, los Administradores de Inquilinos (Tenant Admins
 ## Decisión
 Implementaremos un framework de **Gobernanza de Identidad y Aprobaciones** integrado directamente en el modelo de autorización:
 
-1.  **Administración Delegada Jerárquica**:
-    *   La entidad `USER` incluirá una columna auto-referencial `ManagedByUserId`.
-    *   **Regla**: Un administrador delegado solo puede gestionar usuarios dentro de su subárbol jerárquico.
-    *   **Principio del Menor Privilegio**: Cuando un administrador asigna un `Profile` (Rol) a un usuario gestionado, el sistema debe verificar que los permisos efectivos del propio administrador (`ProfilePermission`) igualen o superen los permisos que se están otorgando. Un gerente no puede otorgar autoridad que no posee.
+1.  **Administración Delegada Muchos-a-Muchos**:
+    *   Utilizaremos una tabla de asociación dedicada `USER_MANAGEMENT_DELEGATION` en lugar de una auto-referencia recursiva.
+    *   **Regla**: Esto permite que un usuario sea gestionado por múltiples administradores (ej. un administrador local de B2B y un administrador global del sistema).
+    *   **Alcance**: La delegación puede limitarse a un `SuiteId` específico, permitiendo que un administrador gestione a un usuario solo para ciertos sistemas.
+    *   **Principio del Menor Privilegio**: Cuando un administrador asigna un `Profile` (Rol) a un usuario gestionado, el sistema debe verificar que los permisos efectivos del propio administrador (`ProfilePermission`) igualen o superen los permisos que se están otorgando.
 
 2.  **Categorización de Usuarios**:
     *   Los usuarios se categorizan estrictamente (`INTERNAL`, `EXTERNAL`, `B2B`, `PARTNER`, etc.) a través del atributo `UserCategory`.

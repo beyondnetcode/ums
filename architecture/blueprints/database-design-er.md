@@ -36,7 +36,8 @@ erDiagram
     PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "materialized"
     
     USER_ACCOUNT ||--o{ PROFILE : "acts_as"
-    USER_ACCOUNT ||--o{ USER_ACCOUNT : "manages (Delegated Admin)"
+    USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "administers"
+    USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "is_managed"
     USER_ACCOUNT ||--o{ APPROVAL_REQUEST : "onboards/approves"
     
     BRANCH ||--o{ PROFILE : "context_of"
@@ -131,19 +132,22 @@ Management of user lifecycle, delegated administration, and onboarding workflows
 
 ```mermaid
 erDiagram
-    USER_ACCOUNT ||--o{ USER_ACCOUNT : "managed_by"
+    USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "admin"
+    USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "managed"
     APPROVAL_WORKFLOW ||--o{ APPROVAL_REQUEST : "defines_rules_for"
-    APPROVAL_REQUEST ||--o{ APPROVAL_LOG : "audit_trail"
-    USER_ACCOUNT ||--o{ APPROVAL_REQUEST : "target_user"
-    USER_ACCOUNT ||--o{ APPROVAL_LOG : "approver"
-    PROFILE ||--o{ APPROVAL_REQUEST : "target_profile"
     
     USER_ACCOUNT {
         uniqueidentifier UserId PK
         uniqueidentifier TenantId FK
-        uniqueidentifier ManagedByUserId FK "Self-Reference"
         nvarchar UserCategory "INTERNAL/EXTERNAL/B2B/PARTNER"
         nvarchar Status "PENDING/ACTIVE/SUSPENDED"
+    }
+
+    USER_MANAGEMENT_DELEGATION {
+        uniqueidentifier DelegationId PK
+        uniqueidentifier ParentAdminUserId FK
+        uniqueidentifier ManagedUserId FK
+        uniqueidentifier SuiteId FK "Optional Scope"
     }
     
     APPROVAL_WORKFLOW {
@@ -170,5 +174,5 @@ erDiagram
 2.  **Exclusive Arc (Template Integrity)**: `PermissionTemplate` implements 4 nullable FKs pointing to the resource hierarchy. A `CHECK` constraint guarantees exactly ONE is populated, enforcing strict database referential integrity over polymorphism.
 3.  **Strict XOR Action Ownership**: An Action must belong to a System OR a Module, but never both: `CHECK ((SuiteId IS NOT NULL AND ModuleId IS NULL) OR (SuiteId IS NULL AND ModuleId IS NOT NULL))`.
 4.  **Hierarchy Integrity**: Access must be traced through `System > Module > Sub-module > Option > Action`.
-5.  **Delegated Administration (Least Privilege)**: A user's scope of administration is defined by their `ProfilePermission` and restricted hierarchically via `ManagedByUserId`. Administrators cannot grant permissions they do not possess.
+5.  **Delegated Administration (Many-to-Many)**: A user's scope of administration is defined via the `USER_MANAGEMENT_DELEGATION` table. This allows multiple administrators to manage the same user pool, optionally restricted by `SuiteId`.
 6.  **Approval Mandates**: External/B2B users MUST pass through an `APPROVAL_WORKFLOW` before reaching an `ACTIVE` status or being assigned high-risk profiles.

@@ -9,10 +9,11 @@ As the enterprise scales, Tenant Administrators cannot manually manage every use
 ## Decision
 We will implement an **Identity Governance & Approvals** framework integrated directly into the authorization model:
 
-1.  **Hierarchical Delegated Administration**:
-    *   The `USER` entity will include a self-referencing `ManagedByUserId` column.
-    *   **Rule**: A delegated administrator can only manage users within their hierarchical subtree.
-    *   **Principle of Least Privilege**: When an administrator assigns a `Profile` (Role) to a managed user, the system must verify that the administrator's own effective permissions (`ProfilePermission`) equal or exceed the permissions being granted. A manager cannot grant authority they do not possess.
+1.  **Many-to-Many Delegated Administration**:
+    *   We will use a dedicated association table `USER_MANAGEMENT_DELEGATION` instead of a recursive self-join.
+    *   **Rule**: This allows a user to be managed by multiple administrators (e.g., a local B2B admin and a global system admin).
+    *   **Scope**: Delegation can be scoped to a specific `SuiteId`, allowing an admin to manage a user only for certain systems.
+    *   **Principle of Least Privilege**: When an administrator assigns a `Profile` (Role) to a managed user, the system must verify that the administrator's own effective permissions (`ProfilePermission`) equal or exceed the permissions being granted.
 
 2.  **User Categorization**:
     *   Users are strictly categorized (`INTERNAL`, `EXTERNAL`, `B2B`, `PARTNER`, etc.) via the `UserCategory` attribute.

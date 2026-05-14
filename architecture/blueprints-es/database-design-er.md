@@ -36,7 +36,8 @@ erDiagram
     PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "materializado"
     
     USER_ACCOUNT ||--o{ PROFILE : "actúa_como"
-    USER_ACCOUNT ||--o{ USER_ACCOUNT : "gestiona (Admin Delegada)"
+    USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "administra"
+    USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "es_gestionado"
     USER_ACCOUNT ||--o{ APPROVAL_REQUEST : "onboardings/aprueba"
     
     BRANCH ||--o{ PROFILE : "contexto_de"
@@ -131,19 +132,22 @@ Gestión del ciclo de vida del usuario, administración delegada y flujos de tra
 
 ```mermaid
 erDiagram
-    USER_ACCOUNT ||--o{ USER_ACCOUNT : "gestionado_por"
+    USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "admin"
+    USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "gestionado"
     APPROVAL_WORKFLOW ||--o{ APPROVAL_REQUEST : "define_reglas_para"
-    APPROVAL_REQUEST ||--o{ APPROVAL_LOG : "rastro_auditoría"
-    USER_ACCOUNT ||--o{ APPROVAL_REQUEST : "usuario_objetivo"
-    USER_ACCOUNT ||--o{ APPROVAL_LOG : "aprobador"
-    PROFILE ||--o{ APPROVAL_REQUEST : "perfil_objetivo"
     
     USER_ACCOUNT {
         uniqueidentifier UserId PK
         uniqueidentifier TenantId FK
-        uniqueidentifier ManagedByUserId FK "Auto-Referencia"
         nvarchar UserCategory "INTERNAL/EXTERNAL/B2B/PARTNER"
         nvarchar Status "PENDING/ACTIVE/SUSPENDED"
+    }
+
+    USER_MANAGEMENT_DELEGATION {
+        uniqueidentifier DelegationId PK
+        uniqueidentifier ParentAdminUserId FK
+        uniqueidentifier ManagedUserId FK
+        uniqueidentifier SuiteId FK "Alcance Opcional"
     }
     
     APPROVAL_WORKFLOW {
@@ -170,5 +174,5 @@ erDiagram
 2.  **Arco Exclusivo (Integridad de Plantilla)**: `PermissionTemplate` implementa 4 FKs anulables que apuntan a la jerarquía de recursos. Un constraint `CHECK` garantiza que exactamente UNO tenga valor, forzando integridad referencial estricta sobre el polimorfismo.
 3.  **Propiedad de Acción XOR Estricta**: Una Acción debe pertenecer a un Sistema O a un Módulo, pero nunca a ambos: `CHECK ((SuiteId IS NOT NULL AND ModuleId IS NULL) OR (SuiteId IS NULL AND ModuleId IS NOT NULL))`.
 4.  **Integridad Jerárquica**: El acceso debe rastrearse a través de `Sistema > Módulo > Sub-módulo > Opción > Acción`.
-5.  **Administración Delegada (Menor Privilegio)**: El alcance de administración de un usuario está definido por su `ProfilePermission` y restringido jerárquicamente vía `ManagedByUserId`. Los administradores no pueden otorgar permisos que no poseen.
+5.  **Administración Delegada (Muchos-a-Muchos)**: El alcance de administración de un usuario se define mediante la tabla `USER_MANAGEMENT_DELEGATION`. Esto permite que múltiples administradores gestionen el mismo pool de usuarios, opcionalmente restringido por `SuiteId`.
 6.  **Mandatos de Aprobación**: Los usuarios Externos/B2B DEBEN pasar por un `APPROVAL_WORKFLOW` antes de alcanzar un estado `ACTIVE` o de que se les asignen perfiles de alto riesgo.
