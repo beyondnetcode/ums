@@ -35,19 +35,31 @@ Cada entidad en este esquema DEBE implementar las siguientes columnas.
 Para mejorar la legibilidad y la navegación, el modelo se divide en dominios funcionales.
 
 ### 🗺️ 3.1 Mapa Global de Alto Nivel
-Vista simplificada de las relaciones principales.
+Vista completa de las relaciones entre módulos núcleo.
 
 ```mermaid
 erDiagram
-    TENANT ||--o{ SYSTEM_SUITE : ""
-    TENANT ||--o{ USER : ""
-    TENANT ||--o{ BRANCH : ""
-    SYSTEM_SUITE ||--o{ ROLE : ""
-    SYSTEM_SUITE ||--o{ PERMISSION : ""
-    USER ||--o{ PROFILE : ""
-    ROLE ||--o{ PROFILE : ""
-    BRANCH ||--o{ PROFILE : ""
-    PROFILE ||--o{ PROFILE_PERMISSION : ""
+    TENANT ||--o{ SYSTEM_SUITE : "posee"
+    TENANT ||--o{ USER : "posee"
+    TENANT ||--o{ BRANCH : "posee"
+    TENANT ||--o{ AUDIT_LOG : "monitorea"
+    
+    SYSTEM_SUITE ||--o{ ROLE : "define"
+    SYSTEM_SUITE ||--o{ PERMISSION : "categoriza"
+    SYSTEM_SUITE ||--o{ PERMISSION_TEMPLATE : "plantillas"
+    SYSTEM_SUITE ||--o{ MENU_ITEM : "topología"
+    
+    USER ||--o{ PROFILE : "actúa_como"
+    USER ||--o{ AUDIT_LOG : "origina"
+    
+    ROLE ||--o{ PROFILE : "esquema"
+    
+    PERMISSION_TEMPLATE ||--|| ROLE : "representa"
+    
+    PROFILE ||--o{ PROFILE_PERMISSION : "efectivo"
+    PROFILE ||--o{ AUDIT_LOG : "contexto"
+    
+    BRANCH ||--o{ PROFILE : "ubicación"
 ```
 
 ---

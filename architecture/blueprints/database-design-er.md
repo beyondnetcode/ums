@@ -35,19 +35,31 @@ Every entity in this schema MUST implement the following columns.
 To improve readability and navigation, the model is divided into functional domains.
 
 ### 🗺️ 3.1 Global High-Level Map
-Simplified view of the core relationships.
+Comprehensive view of core module relationships.
 
 ```mermaid
 erDiagram
-    TENANT ||--o{ SYSTEM_SUITE : ""
-    TENANT ||--o{ USER : ""
-    TENANT ||--o{ BRANCH : ""
-    SYSTEM_SUITE ||--o{ ROLE : ""
-    SYSTEM_SUITE ||--o{ PERMISSION : ""
-    USER ||--o{ PROFILE : ""
-    ROLE ||--o{ PROFILE : ""
-    BRANCH ||--o{ PROFILE : ""
-    PROFILE ||--o{ PROFILE_PERMISSION : ""
+    TENANT ||--o{ SYSTEM_SUITE : "owns"
+    TENANT ||--o{ USER : "owns"
+    TENANT ||--o{ BRANCH : "owns"
+    TENANT ||--o{ AUDIT_LOG : "monitors"
+    
+    SYSTEM_SUITE ||--o{ ROLE : "defines"
+    SYSTEM_SUITE ||--o{ PERMISSION : "categorizes"
+    SYSTEM_SUITE ||--o{ PERMISSION_TEMPLATE : "blueprints"
+    SYSTEM_SUITE ||--o{ MENU_ITEM : "topology"
+    
+    USER ||--o{ PROFILE : "acts_as"
+    USER ||--o{ AUDIT_LOG : "originates"
+    
+    ROLE ||--o{ PROFILE : "blueprint"
+    
+    PERMISSION_TEMPLATE ||--|| ROLE : "represents"
+    
+    PROFILE ||--o{ PROFILE_PERMISSION : "effective"
+    PROFILE ||--o{ AUDIT_LOG : "context"
+    
+    BRANCH ||--o{ PROFILE : "location"
 ```
 
 ---
