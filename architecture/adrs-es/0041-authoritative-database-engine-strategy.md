@@ -1,4 +1,4 @@
-# ADR 0026: Estrategia de Motor de Base de Datos Autorizada por Stack de Lenguaje
+# ADR 0041: Estrategia de Motor de Base de Datos Autorizada por Stack de Lenguaje
 
 ## Estado
 Propuesto

@@ -32,7 +32,7 @@ Esta guía sirve como referencia autoritativa y de alta densidad de herramientas
 
 ### 5. Capa de Datos
 *   **Base de Datos Primaria (.NET):** SQL Server 2022
-*   **Base de Datos Primaria (Node):** PostgreSQL v16 / MongoDB
+*   **Base de Datos Primaria (Node):** SQL Server 2022 *(decisión UMS: todos los servicios usan SQL Server 2022 según ADR-0041)*
 *   **Mapeo Relacional (ORM):** EF Core (.NET) / TypeORM (Node)
 *   **Motor de Migración de Esquema:** Migraciones de EF / Migraciones de TypeORM vía K8s Init-Containers
 *   **Caché en Memoria:** Redis v7.2 (Sentinel / Cluster)
@@ -42,7 +42,7 @@ Esta guía sirve como referencia autoritativa y de alta densidad de herramientas
 ### 6. Estrategia Multi-tenancy
 *   **Modelo de Aislamiento de Datos:** Base de Datos Compartida con Seguridad a Nivel de Fila (RLS)
 *   **Implementación (.NET):** SQL Server SESSION_CONTEXT + Políticas de Seguridad
-*   **Implementación (Node):** PostgreSQL SET LOCAL app.current_tenant + CREATE POLICY
+*   **Implementación (Node):** SQL Server SESSION_CONTEXT + Security Policies *(alineado con el núcleo .NET; según ADR-0041)*
 *   **Resolución de Contexto:** Extracción de claims JWT vía Middleware / Guards
 
 ### 7. Infraestructura y Despliegue
@@ -63,7 +63,7 @@ Esta guía sirve como referencia autoritativa y de alta densidad de herramientas
 *   **Auditoría de Dependencias:** Snyk CLI + `npm audit` / `dotnet list package --vulnerable`
 
 ### 10. Experiencia del Desarrollador (DevEx)
-*   **Servicios Locales:** Especificación Docker Compose (SQL Server, PostgreSQL, Redis, etc.)
+*   **Servicios Locales:** Especificación Docker Compose (SQL Server, Redis, etc.)
 *   **Framework de Pruebas Unitarias:** xUnit (.NET) / Jest (Node)
 *   **Pruebas de Integración:** Testcontainers (SQL Server / PostgreSQL / Redis)
 *   **Pruebas de Extremo a Extremo (E2E):** Playwright

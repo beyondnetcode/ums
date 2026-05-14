@@ -1,4 +1,4 @@
-# ADR 0030: Automated Document-Based Access Enforcement
+# ADR 0045: Automated Document-Based Access Enforcement
 
 ## Status
 Approved

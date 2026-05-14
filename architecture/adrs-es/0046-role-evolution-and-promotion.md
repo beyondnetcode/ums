@@ -1,4 +1,4 @@
-# ADR 0031: Gobernanza de Evolución y Promoción de Roles
+# ADR 0046: Gobernanza de Evolución y Promoción de Roles
 
 ## Estatus
 Aprobado

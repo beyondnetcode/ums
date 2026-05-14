@@ -16,6 +16,8 @@ This document establishes the formal **Domain-Driven Design (DDD) Bounded Contex
 | **Audit** | Immutable event ledger. | [View Detail](#-d-audit-context) |
 | **Console** | Administration interface (PAP). | [View Detail](#-e-console-context-policy-administration-point--pap) |
 | **Cache** | High-performance layer. | [View Detail](#-f-cache-context-infrastructure) |
+| **IGA** | Role promotion and delegated administration. | [View Detail](#-g-iga-context-identity-governance--administration) |
+| **Compliance** | Document lifecycle and access enforcement. | [View Detail](#-h-compliance-context) |
 
 ---
 
@@ -32,7 +34,7 @@ graph TD
 
     subgraph AuthorizationContext["🔑 Authorization Context"]
         AC1["System & Resource Registry"]
-        AC2["Menu / Submenu / Option / Action Topology"]
+        AC2["Module / Menu / Option / Action Topology"]
         AC3["Profile & Template Engine"]
         AC4["Permission Graph Compiler (PDP)"]
         AC5["Explicit-Deny Precedence Resolver"]
@@ -70,6 +72,19 @@ graph TD
         CA4["TTL Governance & Eviction Hooks"]
     end
 
+    subgraph IGAContext["🎖️ IGA Context"]
+        IG1["Role Promotion Criteria Engine"]
+        IG2["User Promotion Process Manager"]
+        IG3["Delegated Administration Registry"]
+    end
+
+    subgraph ComplianceContext["📄 Compliance Context"]
+        CM1["User Document Lifecycle"]
+        CM2["Access Enforcement Policy Engine"]
+        CM3["Pre-Expiration Notification Rules"]
+        CM4["Notification Dispatcher (INotificationPort)"]
+    end
+
     IdentityContext -->|"Customer-Supplier: User + Org + Branch claims"| AuthorizationContext
     IdentityContext -->|"Customer-Supplier: Tenant scope keys"| ConfigContext
     AuthorizationContext -->|"Conformist: emits mutation events"| AuditContext
@@ -81,6 +96,12 @@ graph TD
     ConsoleContext -->|"Customer-Supplier: Config + Flags admin"| ConfigContext
     AuthorizationContext -->|"Read-Aside: cache auth_graph"| CacheContext
     ConfigContext -->|"Read-Aside: cache cfg + flags"| CacheContext
+    IdentityContext -->|"Customer-Supplier: UserRegisteredEvent"| IGAContext
+    IdentityContext -->|"Customer-Supplier: UserRegisteredEvent"| ComplianceContext
+    IGAContext -->|"Customer-Supplier: PromotionApprovedEvent"| AuthorizationContext
+    IGAContext -->|"Conformist: emits promotion events"| AuditContext
+    ComplianceContext -->|"Customer-Supplier: DocumentExpiredEvent → block"| IdentityContext
+    ComplianceContext -->|"Conformist: emits document events"| AuditContext
 ```
 
 ---
@@ -113,7 +134,7 @@ graph TD
 
 **Owns:**
 - `System` aggregate (registered client applications)
-- `Menu → Submenu → Option → Action` topology
+- `Module → Menu → Option → Action` topology (schema: `FUNCTIONAL_MODULE → FUNCTIONAL_SUBMODULE → FUNCTIONAL_OPTION`)
 - `Profile` aggregate
 - `AuthorizationTemplate` aggregate
 - `Authorization` (Allow/Deny records)
@@ -192,6 +213,62 @@ graph TD
 
 ---
 
+### 🎖️ G. IGA Context (Identity Governance & Administration)
+**Mission:** Govern the complete lifecycle of role evolution, user promotion processes, and delegated user administration. Acts as the rules engine that evaluates promotion criteria and orchestrates approval workflows for role advancement.
+
+**Schema DB:** `ums_iga`
+**Owner Service:** .NET 8 Core API (migrated from NestJS satellite — ADR-0041 in progress)
+
+**Owns:**
+- `RolePromotionCriteria` aggregate (seniority thresholds, document flags, custom rules)
+- `UserPromotionProcess` aggregate (status: `EVALUATING → CRITERIA_MET → PENDING_APPROVAL → PROMOTED`)
+- `UserManagementDelegation` entity (admin scope with optional SuiteId restriction)
+- `IPromotionEvaluatorPort` (core port — background worker abstraction)
+
+**Does NOT own:**
+- Role definitions (owned by Authorization Context)
+- User identity (owned by Identity Context)
+- Notification delivery (owned by Compliance Context)
+
+**Integration Contracts (Published Language):**
+- `POST /v1/iga/promotion/evaluate` → triggers criteria evaluation for a user
+- `GET /v1/iga/promotion/pending` → list promotions awaiting approval
+- `PromotionCriteriaMetEvent { userId, roleId, processId, timestamp }`
+- `PromotionApprovedEvent { userId, fromRoleId, toRoleId, approvedBy, timestamp }`
+
+**Integration Pattern:** Receives `UserRegisteredEvent` from Identity Context. Publishes `PromotionApprovedEvent` consumed by Authorization Context (to update Profile) and Identity Context (to update user status).
+
+---
+
+### 📄 H. Compliance Context
+**Mission:** Enforce document-based access policies for all users. Manages the complete lifecycle of user documents, evaluates expiration status, dispatches configurable pre-expiration notifications, and triggers automated enforcement actions (block, downgrade, notify-only, suspend) upon expiration.
+
+**Schema DB:** `ums_compliance`
+**Owner Service:** .NET 8 Core API (migrated from NestJS satellite — ADR-0041 in progress)
+
+**Owns:**
+- `UserDocument` aggregate (status: `PENDING_REVIEW → VALID | REJECTED | EXPIRED`)
+- `AccessEnforcementPolicy` entity (ActionOnExpiration: `BLOCK_ACCESS | NOTIFY_ONLY | DOWNGRADE_ROLE | SUSPEND`)
+- `NotificationRule` entity (N-step pre-expiration alerts via Channel: `EMAIL | SMS | IN_APP | WEBHOOK`)
+- `AccessNotification` entity (dispatched notification audit record)
+- `INotificationPort` (core port — pluggable: SMTP, Twilio, Webhook)
+- `IDocumentStoragePort` (core port — MinIO S3-compatible adapter)
+
+**Does NOT own:**
+- User identity or blocking authority (delegates `UserBlockedEvent` to Identity Context)
+- Approval workflow orchestration (owned by IGA Context)
+- Audit ledger (owned by Audit Context)
+
+**Integration Contracts (Published Language):**
+- `POST /v1/compliance/documents` → upload user document
+- `GET /v1/compliance/documents/{userId}/status` → document compliance summary
+- `DocumentExpiredEvent { userId, documentId, criticity, enforcementAction, timestamp }`
+- `DocumentValidatedEvent { userId, documentId, validatedBy, timestamp }`
+
+**Integration Pattern:** Receives `UserRegisteredEvent` from Identity. Publishes `DocumentExpiredEvent` consumed by Identity Context (triggers BLOCK_ACCESS) and Audit Context. Sends notifications via `INotificationPort`.
+
+---
+
 ### ⚡ F. Cache Context (Infrastructure)
 **Mission:** Provide a high-performance distributed cache layer for authorization graphs, system configurations, and feature flag evaluations — all under strict namespace governance.
 
@@ -222,6 +299,12 @@ graph TD
 | Console Context | Config Context | **Customer-Supplier** | PAP calls Config APIs for IdP, system config, and flag management |
 | Authorization Context | Cache Context | **Shared Kernel (ICachePort)** | Read-aside; invalidation on mutation events |
 | Config Context | Cache Context | **Shared Kernel (IConfigCachePort)** | Read-aside for cfg + flags; invalidation on config events |
+| Identity Context | IGA Context | **Customer-Supplier** | Publishes `UserRegisteredEvent` consumed by IGA to initialize promotion tracking |
+| IGA Context | Authorization Context | **Customer-Supplier** | Publishes `PromotionApprovedEvent` consumed by Authorization to update Profile |
+| IGA Context | Audit Context | **Conformist (Event)** | Publishes `PromotionCriteriaMetEvent`, `PromotionApprovedEvent` |
+| Identity Context | Compliance Context | **Customer-Supplier** | Publishes `UserRegisteredEvent` consumed by Compliance to initialize document tracking |
+| Compliance Context | Identity Context | **Customer-Supplier** | Publishes `DocumentExpiredEvent` triggering BLOCK_ACCESS in Identity |
+| Compliance Context | Audit Context | **Conformist (Event)** | Publishes `DocumentExpiredEvent`, `DocumentValidatedEvent` |
 
 ---
 
@@ -236,4 +319,6 @@ graph TD
 | Authorization ↔ Redis (auth_graph) | `ICachePort` | Prevents Redis client from leaking into domain layer |
 | Authorization ↔ Event Bus | `IEventBusPort` | Prevents Kafka/RabbitMQ from coupling to use cases |
 | Console ↔ UMS APIs | REST API contracts (versioned) | Console is an external consumer; treated as any third party |
+| Compliance ↔ Notification Providers | `INotificationPort` (Strategy Pattern) | Prevents SMTP/Twilio SDKs from coupling to domain |
+| Compliance ↔ Object Storage | `IDocumentStoragePort` (Strategy Pattern) | Prevents MinIO/S3 SDK from leaking into domain |
 

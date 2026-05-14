@@ -1,4 +1,4 @@
-# ADR 0026: Authoritative Unified Database Engine Strategy
+# ADR 0041: Authoritative Unified Database Engine Strategy
 
 ## Status
 Approved

@@ -42,4 +42,11 @@ Registro histórico de decisiones arquitectónicas.
 - [0038-delegated-administration-temporal-scopes.md](0038-delegated-administration-temporal-scopes.md)
 - [0039-hybrid-rbac-abac-policy-compilation.md](0039-hybrid-rbac-abac-policy-compilation.md)
 - [0040-federated-token-strategy-hierarchical-context.md](0040-federated-token-strategy-hierarchical-context.md)
+- [0041-authoritative-database-engine-strategy.md](0041-authoritative-database-engine-strategy.md)
+- [0042-authorization-template-and-inheritance-strategy.md](0042-authorization-template-and-inheritance-strategy.md)
+- [0043-profile-centric-authorization-governance.md](0043-profile-centric-authorization-governance.md)
+- [0044-delegated-admin-and-approvals.md](0044-delegated-admin-and-approvals.md)
+- [0045-document-lifecycle-enforcement.md](0045-document-lifecycle-enforcement.md)
+- [0046-role-evolution-and-promotion.md](0046-role-evolution-and-promotion.md)
+- [0047-hierarchical-configuration.md](0047-hierarchical-configuration.md)
 

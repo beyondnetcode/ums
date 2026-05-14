@@ -6,7 +6,11 @@
 **Motor:** SQL Server 2022
 
 ## 1. Introducción
-Este documento detalla el modelo de autorización **Vinculado al Rol**, aplicando estrictamente la cadena jerárquica: **Sistema -> Módulo -> Sub-módulo -> Opción -> Acción**.
+Este documento detalla el modelo de autorización **Vinculado al Rol**, aplicando estrictamente la cadena jerárquica: **Sistema → Módulo → Menú → Opción → Acción**.
+
+> [!NOTE]
+> **Mapeo de Lenguaje Ubícuo:** Los nombres de entidades del esquema se corresponden con el [Glosario](../../governance/requirements-es/glossary.md) de la siguiente manera:
+> `SYSTEM_SUITE` = **Sistema** · `FUNCTIONAL_MODULE` = **Módulo** · `FUNCTIONAL_SUBMODULE` = **Menú** · `FUNCTIONAL_OPTION` = **Opción** · `ACTION` = **Acción**
 
 > [!TIP]
 > **¿Problemas de Visualización?**  
@@ -255,7 +259,7 @@ erDiagram
 1.  **Row-Level Security (RLS)**: `TenantId` está denormalizado en todas las entidades funcionales (Module, Option, Template, Action, Role) para permitir aislamiento O(1) vía RLS nativo de SQL Server.
 2.  **Arco Exclusivo (Integridad de Plantilla)**: `PermissionTemplate` implementa 4 FKs anulables que apuntan a la jerarquía de recursos. Un constraint `CHECK` garantiza que exactamente UNO tenga valor, forzando integridad referencial estricta sobre el polimorfismo.
 3.  **Propiedad de Acción XOR Estricta**: Una Acción debe pertenecer a un Sistema O a un Módulo, pero nunca a ambos: `CHECK ((SuiteId IS NOT NULL AND ModuleId IS NULL) OR (SuiteId IS NULL AND ModuleId IS NOT NULL))`.
-4.  **Integridad Jerárquica**: El acceso debe rastrearse a través de `Sistema > Módulo > Sub-módulo > Opción > Acción`.
+4.  **Integridad Jerárquica**: El acceso debe rastrearse a través de `Sistema > Módulo > Menú > Opción > Acción` (esquema: `SYSTEM_SUITE → FUNCTIONAL_MODULE → FUNCTIONAL_SUBMODULE → FUNCTIONAL_OPTION → ACTION`).
 5.  **Administración Delegada (Muchos-a-Muchos)**: El alcance de administración de un usuario se define mediante la tabla `USER_MANAGEMENT_DELEGATION`. Esto permite que múltiples administradores gestionen el mismo pool de usuarios, opcionalmente restringido por `SuiteId`.
 6.  **Mandatos de Aprobación**: Los usuarios Externos/B2B DEBEN pasar por un `APPROVAL_WORKFLOW` antes de alcanzar un estado `ACTIVE` o de que se les asignen perfiles de alto riesgo. Los documentos de respaldo definidos en `APPROVAL_REQUIRED_DOCUMENT` deben cargarse en `USER_DOCUMENT` antes del avance del flujo.
 7.  **Aplicación Automática de Cumplimiento**: Workers en segundo plano escanean `USER_DOCUMENT`. Al expirar, se activa la `ACCESS_ENFORCEMENT_POLICY`. Los documentos críticos transicionarán automáticamente el `USER_ACCOUNT` a un estado `BLOCKED` o restringirán el contexto de un `PROFILE` específico.

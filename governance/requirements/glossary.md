@@ -24,6 +24,7 @@ This document establishes the standardized, non-ambiguous glossary of terms for 
 | **Profile (Perfil)** | A physical collection of authorizations assigned to Users, scoped to an Organization and optionally a Branch. | `Auth.Profiles` |
 | **Authorization (Autorización)**| The mapping of an Allow/Deny policy to a specific Resource + Action. | `Auth.Authorizations` |
 | **Auth Template (Plantilla)** | A reusable versioned blueprint of authorizations used to instantiate Profiles. | `Auth.Templates` |
+| **Role (Rol)** | A named blueprint representing a set of functional permissions within a System. Roles form a self-referential hierarchy (`ParentRoleId`) enabling inheritance. A Role is the source from which Auth Templates are derived; it is NOT directly assigned to users — only via a Profile. | `Auth.Roles` |
 | **Permission (Permiso)** | The runtime resolved ability of a User to execute an Action, following the precedence rules. | Resolved at Runtime |
 | **Multi-Tenancy** | Architectural pattern enabling multiple secure tenants to share the same physical database. | `Core.Architecture` |
 | **Authorization Graph** | The compiled hierarchical JSON structure mapping a principal's full permission set for a given system and branch context. | Resolved at Runtime |

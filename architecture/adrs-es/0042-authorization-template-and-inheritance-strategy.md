@@ -1,4 +1,4 @@
-# ADR 0027: Estrategia de Plantillas de Autorización y Herencia
+# ADR 0042: Estrategia de Plantillas de Autorización y Herencia
 
 ## Estatus
 Propuesto

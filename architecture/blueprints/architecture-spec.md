@@ -22,7 +22,7 @@ The following table defines the mandatory deliverables, strategic scope, and con
 | **7** | [Event Domain Model (Event Storming)](#-10-asynchronous-communication--event-model) | Map of relevant business events, their producers, and consumers, along with delivery and ordering principles. Guides integration and the effort associated with orchestration/choreography. |
 | **10** | API Versioning & Evolution Strategy | Guidelines for contract evolution (APIs and events): how changes are introduced without breaking dependencies. Forecasts technical governance and the cost of maintaining compatibility. |
 | **11** | Multi-Domain Synchronization Strategy | Approach to eventual consistency between contexts: definition of sources of truth, duplication guidelines, and conflict resolution. Reveals integration complexity and its impact on timelines. |
-| **12** | [Initial Architecture Decision Records (ADRs)](#-4-architectural-decision-matrix) | Log of the most influential architectural decisions, including the **[Profile-Centric Model](../adrs/0028-profile-centric-authorization-governance.md)**, justification, and alternatives. |
+| **12** | [Initial Architecture Decision Records (ADRs)](#-4-architectural-decision-matrix) | Log of the most influential architectural decisions, including the **[Profile-Centric Model](../adrs/0043-profile-centric-authorization-governance.md)**, justification, and alternatives. |
 | **13** | [Integration Contract Testing Plan](#-12-quality-strategy--contract-testing) | Strategy to ensure interactions between contexts comply with their contracts. |
 | **14** | [Deployment Infrastructure](#-11-deployment-infrastructure--cloud-topology) | Layout of the topology (cloud/on-premise/hybrid) and operational costs. |
 | **15** | [Work Breakdown Structure & Plan](#-5-technical-debt-management--architectural-roadmap-backlog) | Roadmap with phases, sprints, and milestones. |
@@ -65,7 +65,7 @@ graph TD
 ---
 
 ### Level 2: Container Diagram
-Maps the physical subsystems (React Frontend, NestJS API, PostgreSQL Database) that make up the monorepo and how they communicate using secure protocols.
+Maps the physical subsystems (React Frontend, .NET 8 API, SQL Server 2022 Database) that make up the monorepo and how they communicate using secure protocols.
 
 ```mermaid
 graph TD
@@ -315,6 +315,45 @@ graph LR
     Loki --> Grafana
     Tempo --> Grafana
 ```
+
+---
+
+## 🔭 Observability Layer vs. Audit Context — Dual-Ledger Strategy
+
+The UMS observability design distinguishes two complementary but non-interchangeable record-keeping layers:
+
+| Dimension | OpenTelemetry (Telemetry) | Audit Context (Business Ledger) |
+| :--- | :--- | :--- |
+| **Purpose** | SRE diagnostics, latency, error rates | Compliance, forensic, access accountability |
+| **Primary consumer** | Grafana / Jaeger / Prometheus | Internal compliance tools, security auditors |
+| **Mutability** | Rotated / pruned by TTL policy | Immutable — append-only, never deleted |
+| **Event granularity** | Every HTTP request, gRPC call, DB query | Business events only (login, permission change, document expiry) |
+| **Schema** | OTLP (spans, metrics, logs) | `AuditRecord { who, when, what, result, tenantId }` |
+| **Transport** | OpenTelemetry SDK → Jaeger/Loki | Domain event bus (`IEventBusPort`) → Audit subscriber |
+
+### Instrumentation Rule
+
+Every critical business operation MUST emit BOTH signals in the same transaction boundary:
+
+1. **OpenTelemetry span** — wraps the use case handler (MediatR pipeline behavior), capturing duration, error code, and `tenantId` attribute.
+2. **Domain event** — published via `IEventBusPort` at the end of the use case, consumed by the Audit Context subscriber which writes the `AuditRecord`.
+
+### Event → Audit Record Mapping
+
+| Domain Event | Audit Record Type | OTel Span Name |
+| :--- | :--- | :--- |
+| `UserRegisteredEvent` | `IdentityLifecycleRecord` | `identity.user.register` |
+| `UserSuspendedEvent` | `IdentityLifecycleRecord` | `identity.user.suspend` |
+| `PermissionMutatedEvent` | `PermissionMutationRecord` | `authz.permission.mutate` |
+| `PromotionApprovedEvent` | `PromotionRecord` | `iga.promotion.approve` |
+| `DocumentExpiredEvent` | `ComplianceEnforcementRecord` | `compliance.document.expire` |
+| `IdpConfigUpdatedEvent` | `ConfigChangeRecord` | `config.idp.update` |
+| `FeatureFlagStateChangedEvent` | `ConfigChangeRecord` | `config.flag.change` |
+| `AccessAttemptEvent` (auth gateway) | `AccessAttemptLog` | `auth.attempt` |
+
+### SRE Alert Escalation Path
+
+A sustained error rate on `authz.permission.mutate` spans (>2% over 5 min) triggers a Grafana alert → SRE validates via Audit Context ledger whether the errors correlate with a legitimate permission migration or an anomalous pattern.
 
 ---
 

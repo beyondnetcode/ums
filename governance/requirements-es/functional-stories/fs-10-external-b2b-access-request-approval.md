@@ -49,4 +49,4 @@ Este documento especifica el flujo de transacciones, actores, precondiciones, po
 
 ## ðŸ“‹ 4. Postcondiciones y Auditoría
 * Existe un rastro de auditoría inmutable (`EXTERNAL_ACCESS_REQUEST`) que explica exactamente por qué y quién otorgó acceso a la entidad externa.
-* El Usuario externo está lógicamente aislado dentro de su propia frontera `ORGANIZATION`, permitiendo la aplicación nativa de Seguridad a Nivel de Fila (RLS) en PostgreSQL.
+* El Usuario externo está lógicamente aislado dentro de su propia frontera `ORGANIZATION`, permitiendo la aplicación nativa de Seguridad a Nivel de Fila (RLS) en **SQL Server 2022** mediante `SESSION_CONTEXT` y Security Policies.

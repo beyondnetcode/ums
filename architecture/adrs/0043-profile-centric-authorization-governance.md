@@ -1,4 +1,4 @@
-# ADR 0028: Role-Scoped Master Templates and Deep Hierarchy Governance
+# ADR 0043: Role-Scoped Master Templates and Deep Hierarchy Governance
 
 ## Status
 Refactored (Role-Scoped Governance)

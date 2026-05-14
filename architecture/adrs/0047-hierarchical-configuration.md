@@ -1,4 +1,4 @@
-# ADR 0032: Hierarchical Configuration Management
+# ADR 0047: Hierarchical Configuration Management
 
 ## Status
 Approved

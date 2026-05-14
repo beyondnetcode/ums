@@ -1,4 +1,4 @@
-# ADR 0031: Role Evolution and Promotion Governance
+# ADR 0046: Role Evolution and Promotion Governance
 
 ## Status
 Approved

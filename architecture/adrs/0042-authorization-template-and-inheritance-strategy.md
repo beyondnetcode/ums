@@ -1,4 +1,4 @@
-# ADR 0027: Authorization Template and Inheritance Strategy
+# ADR 0042: Authorization Template and Inheritance Strategy
 
 ## Status
 Proposed

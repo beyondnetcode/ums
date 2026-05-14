@@ -313,6 +313,45 @@ graph LR
 
 ---
 
+## 🔭 Estrategia de Doble Registro: Observabilidad vs. Audit Context
+
+El diseño de observabilidad de UMS distingue dos capas de registro complementarias pero no intercambiables:
+
+| Dimensión | OpenTelemetry (Telemetría) | Audit Context (Libro de Negocio) |
+| :--- | :--- | :--- |
+| **Propósito** | Diagnósticos SRE, latencia, tasas de error | Cumplimiento normativo, forense, responsabilidad de acceso |
+| **Consumidor principal** | Grafana / Jaeger / Prometheus | Herramientas internas de compliance, auditores de seguridad |
+| **Mutabilidad** | Rotado / podado por política TTL | Inmutable — solo de adición, nunca se elimina |
+| **Granularidad de eventos** | Cada request HTTP, llamada gRPC, consulta a BD | Solo eventos de negocio (login, cambio de permiso, expiración de documento) |
+| **Esquema** | OTLP (spans, métricas, logs) | `AuditRecord { who, when, what, result, tenantId }` |
+| **Transporte** | OpenTelemetry SDK → Jaeger/Loki | Bus de eventos de dominio (`IEventBusPort`) → suscriptor de Auditoría |
+
+### Regla de Instrumentación
+
+Toda operación de negocio crítica DEBE emitir AMBAS señales dentro del mismo límite de transacción:
+
+1. **OpenTelemetry span** — envuelve el handler del caso de uso (comportamiento del pipeline de MediatR), capturando duración, código de error y el atributo `tenantId`.
+2. **Evento de dominio** — publicado vía `IEventBusPort` al finalizar el caso de uso, consumido por el suscriptor del Audit Context que escribe el `AuditRecord`.
+
+### Mapeo Evento → Audit Record
+
+| Evento de Dominio | Tipo de Audit Record | Nombre de OTel Span |
+| :--- | :--- | :--- |
+| `UserRegisteredEvent` | `IdentityLifecycleRecord` | `identity.user.register` |
+| `UserSuspendedEvent` | `IdentityLifecycleRecord` | `identity.user.suspend` |
+| `PermissionMutatedEvent` | `PermissionMutationRecord` | `authz.permission.mutate` |
+| `PromotionApprovedEvent` | `PromotionRecord` | `iga.promotion.approve` |
+| `DocumentExpiredEvent` | `ComplianceEnforcementRecord` | `compliance.document.expire` |
+| `IdpConfigUpdatedEvent` | `ConfigChangeRecord` | `config.idp.update` |
+| `FeatureFlagStateChangedEvent` | `ConfigChangeRecord` | `config.flag.change` |
+| `AccessAttemptEvent` (auth gateway) | `AccessAttemptLog` | `auth.attempt` |
+
+### Ruta de Escalación de Alertas SRE
+
+Una tasa de error sostenida en spans `authz.permission.mutate` (>2% durante 5 min) dispara una alerta de Grafana → el SRE valida mediante el libro del Audit Context si los errores se correlacionan con una migración de permisos legítima o con un patrón anómalo.
+
+---
+
 ## 🔄 10. Modelo de Comunicación Asíncrona y Eventos
 
 Diferenciación clara entre **Eventos de Dominio** (dentro del mismo contexto acotado) y **Eventos de Integración** (entre diferentes contextos o sistemas externos) para mantener la autonomía de los módulos.

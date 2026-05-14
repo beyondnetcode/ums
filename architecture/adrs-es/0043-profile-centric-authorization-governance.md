@@ -1,4 +1,4 @@
-# ADR 0028: Gobernanza de Plantillas Maestras Vinculadas al Rol y Jerarquía Profunda
+# ADR 0043: Gobernanza de Plantillas Maestras Vinculadas al Rol y Jerarquía Profunda
 
 ## Estatus
 Refactorizado (Gobernanza Vinculada al Rol)

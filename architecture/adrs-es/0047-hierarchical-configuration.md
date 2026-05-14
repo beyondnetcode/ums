@@ -1,4 +1,4 @@
-# ADR 0032: Gestión de Configuración Jerárquica
+# ADR 0047: Gestión de Configuración Jerárquica
 
 ## Estatus
 Aprobado

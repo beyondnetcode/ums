@@ -6,7 +6,11 @@
 **Engine:** SQL Server 2022
 
 ## 1. Introduction
-This document details the **Role-Scoped** authorization model, strictly enforcing the hierarchical chain: **System -> Module -> Sub-module -> Option -> Action**.
+This document details the **Role-Scoped** authorization model, strictly enforcing the hierarchical chain: **System → Module → Menu → Option → Action**.
+
+> [!NOTE]
+> **Ubiquitous Language Mapping:** The schema entity names align with the [Glossary](../../governance/requirements/glossary.md) as follows:
+> `SYSTEM_SUITE` = **System** · `FUNCTIONAL_MODULE` = **Module** · `FUNCTIONAL_SUBMODULE` = **Menu** · `FUNCTIONAL_OPTION` = **Option** · `ACTION` = **Action**
 
 > [!TIP]
 > **Visualization Issues?**  
@@ -255,7 +259,7 @@ erDiagram
 1.  **Row-Level Security (RLS)**: `TenantId` is denormalized across all functional entities (Module, Option, Template, Action, Role) to allow O(1) isolation checks via SQL Server RLS.
 2.  **Exclusive Arc (Template Integrity)**: `PermissionTemplate` implements 4 nullable FKs pointing to the resource hierarchy. A `CHECK` constraint guarantees exactly ONE is populated, enforcing strict database referential integrity over polymorphism.
 3.  **Strict XOR Action Ownership**: An Action must belong to a System OR a Module, but never both: `CHECK ((SuiteId IS NOT NULL AND ModuleId IS NULL) OR (SuiteId IS NULL AND ModuleId IS NOT NULL))`.
-4.  **Hierarchy Integrity**: Access must be traced through `System > Module > Sub-module > Option > Action`.
+4.  **Hierarchy Integrity**: Access must be traced through `System > Module > Menu > Option > Action` (schema: `SYSTEM_SUITE → FUNCTIONAL_MODULE → FUNCTIONAL_SUBMODULE → FUNCTIONAL_OPTION → ACTION`).
 5.  **Delegated Administration (Many-to-Many)**: A user's scope of administration is defined via the `USER_MANAGEMENT_DELEGATION` table. This allows multiple administrators to manage the same user pool, optionally restricted by `SuiteId`.
 6.  **Approval Mandates**: External/B2B users MUST pass through an `APPROVAL_WORKFLOW` before reaching an `ACTIVE` status or being assigned high-risk profiles. Supporting documents defined in `APPROVAL_REQUIRED_DOCUMENT` must be uploaded to `USER_DOCUMENT` before workflow advancement.
 7.  **Automated Compliance Enforcement**: Background workers scan `USER_DOCUMENT`. Upon expiration, the `ACCESS_ENFORCEMENT_POLICY` is triggered. Critical documents will automatically transition the `USER_ACCOUNT` to a `BLOCKED` status or restrict specific `PROFILE` context.

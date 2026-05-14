@@ -1,4 +1,4 @@
-# ADR 0030: Aplicación Automática de Acceso basada en Ciclo de Vida Documental
+# ADR 0045: Aplicación Automática de Acceso basada en Ciclo de Vida Documental
 
 ## Estatus
 Aprobado

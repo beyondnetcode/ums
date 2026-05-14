@@ -16,6 +16,12 @@ Bienvenido al índice maestro de **Functional Stories** para el Sistema de Gesti
 *   **[FS-08: Autenticar vía Página de Inicio Personalizable](./fs-08-hosted-login-redirection.md)**
 *   **[FS-09: Autenticación Adaptativa Multifactor y Sin Contraseña](./fs-09-mfa-passwordless-adaptive-auth.md)**
 *   **[FS-10: Flujo de Aprobación y Petición de Acceso Externo B2B](./fs-10-external-b2b-access-request-approval.md)**
+*   **[FS-11: Upload and Validate User Document](./fs-11-user-document-upload.md)**
+*   **[FS-12: Execute Role Promotion Process](./fs-12-role-promotion-process.md)**
+*   **[FS-13: Configure Hierarchical System Parameters](./fs-13-hierarchical-config.md)**
+*   **[FS-14: Delegate User Management Between Administrators](./fs-14-delegated-management.md)**
+*   **[FS-15: Configure Expiration Notification Rules](./fs-15-notification-rules.md)**
+*   **[FS-16: Define Access Policy on Expiration](./fs-16-access-enforcement-policy.md)**
 
 ---
 
