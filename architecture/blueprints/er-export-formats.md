@@ -26,6 +26,36 @@ Table BRANCH {
 Table USER {
   UserId uniqueidentifier [pk]
   TenantId uniqueidentifier
+  ManagedByUserId uniqueidentifier [note: 'Delegated Admin']
+  UserCategory nvarchar [note: 'INTERNAL/EXTERNAL/B2B...']
+  Status nvarchar [note: 'PENDING/ACTIVE/SUSPENDED']
+}
+
+Table APPROVAL_WORKFLOW {
+  WorkflowId uniqueidentifier [pk]
+  TenantId uniqueidentifier
+  SuiteId uniqueidentifier [note: 'Nullable']
+  TargetUserCategory nvarchar
+  RequiresApproval bit
+  MaxSteps int
+}
+
+Table APPROVAL_REQUEST {
+  RequestId uniqueidentifier [pk]
+  TenantId uniqueidentifier
+  WorkflowId uniqueidentifier
+  TargetUserId uniqueidentifier
+  TargetProfileId uniqueidentifier [note: 'Nullable']
+  RequestStatus nvarchar
+  CurrentStep int
+}
+
+Table APPROVAL_LOG {
+  LogId bigint [pk]
+  RequestId uniqueidentifier
+  ApproverUserId uniqueidentifier
+  ActionTaken nvarchar
+  Comments nvarchar
 }
 
 Table SYSTEM_SUITE {
@@ -129,13 +159,59 @@ Ref: FUNCTIONAL_OPTION.TenantId > TENANT.TenantId
 Ref: ACTION.SuiteId > SYSTEM_SUITE.SuiteId
 Ref: ACTION.ModuleId > FUNCTIONAL_MODULE.ModuleId
 Ref: ACTION.TenantId > TENANT.TenantId
+Ref: USER.ManagedByUserId > USER.UserId
+Ref: APPROVAL_WORKFLOW.TenantId > TENANT.TenantId
+Ref: APPROVAL_WORKFLOW.SuiteId > SYSTEM_SUITE.SuiteId
+Ref: APPROVAL_REQUEST.TenantId > TENANT.TenantId
+Ref: APPROVAL_REQUEST.WorkflowId > APPROVAL_WORKFLOW.WorkflowId
+Ref: APPROVAL_REQUEST.TargetUserId > USER.UserId
+Ref: APPROVAL_REQUEST.TargetProfileId > PROFILE.ProfileId
+Ref: APPROVAL_LOG.RequestId > APPROVAL_REQUEST.RequestId
+Ref: APPROVAL_LOG.ApproverUserId > USER.UserId
+Ref: APPROVAL_LOG.ApproverUserId > USER_ACCOUNT.UserId
 ```
 
 ---
 
 ## 2. SQL DDL (SQL Server 2022) 🛠️
 ```sql
--- 5-Level Hierarchy Master Schema with Technical Optimizations
+-- 5-Level Hierarchy & Identity Governance Schema
+
+CREATE TABLE USER_ACCOUNT (
+    UserId UNIQUEIDENTIFIER PRIMARY KEY,
+    TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
+    ManagedByUserId UNIQUEIDENTIFIER REFERENCES USER_ACCOUNT(UserId),
+    UserCategory NVARCHAR(50),
+    Status NVARCHAR(50)
+);
+
+CREATE TABLE APPROVAL_WORKFLOW (
+    WorkflowId UNIQUEIDENTIFIER PRIMARY KEY,
+    TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
+    SuiteId UNIQUEIDENTIFIER NULL REFERENCES SYSTEM_SUITE(SuiteId),
+    TargetUserCategory NVARCHAR(50),
+    RequiresApproval BIT DEFAULT 1,
+    MaxSteps INT DEFAULT 1
+);
+
+CREATE TABLE APPROVAL_REQUEST (
+    RequestId UNIQUEIDENTIFIER PRIMARY KEY,
+    TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
+    WorkflowId UNIQUEIDENTIFIER REFERENCES APPROVAL_WORKFLOW(WorkflowId),
+    TargetUserId UNIQUEIDENTIFIER REFERENCES USER_ACCOUNT(UserId),
+    TargetProfileId UNIQUEIDENTIFIER NULL, -- References PROFILE
+    RequestStatus NVARCHAR(50),
+    CurrentStep INT DEFAULT 1
+);
+
+CREATE TABLE APPROVAL_LOG (
+    LogId BIGINT IDENTITY(1,1) PRIMARY KEY,
+    RequestId UNIQUEIDENTIFIER REFERENCES APPROVAL_REQUEST(RequestId),
+    ApproverUserId UNIQUEIDENTIFIER REFERENCES USER_ACCOUNT(UserId),
+    ActionTaken NVARCHAR(50),
+    Comments NVARCHAR(MAX),
+    CreatedAt DATETIME2 DEFAULT SYSUTCDATETIME()
+);
 
 CREATE TABLE ACTION (
     ActionId UNIQUEIDENTIFIER PRIMARY KEY,

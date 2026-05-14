@@ -28,6 +28,7 @@ Ruta de Resolución: `Inquilino -> Sistema -> Rol -> Plantilla -> Permiso de Per
 erDiagram
     TENANT ||--o{ SYSTEM_SUITE : "posee"
     TENANT ||--o{ BRANCH : "opera"
+    TENANT ||--o{ USER : "posee"
     SYSTEM_SUITE ||--o{ ROLE : "define"
     SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "contiene"
     
@@ -35,6 +36,9 @@ erDiagram
     PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "materializado"
     
     USER ||--o{ PROFILE : "actúa_como"
+    USER ||--o{ USER : "gestiona (Admin Delegada)"
+    USER ||--o{ APPROVAL_REQUEST : "onboardings/aprueba"
+    
     BRANCH ||--o{ PROFILE : "contexto_de"
     PROFILE ||--o{ PROFILE_PERMISSION : "autoridad_efectiva"
     
@@ -122,8 +126,49 @@ erDiagram
 
 ---
 
+### 🛂 3.4 Dominio: Gobernanza de Identidad y Aprobaciones
+Gestión del ciclo de vida del usuario, administración delegada y flujos de trabajo de incorporación para identidades externas o de alto riesgo.
+
+```mermaid
+erDiagram
+    USER ||--o{ USER : "gestionado_por"
+    APPROVAL_WORKFLOW ||--o{ APPROVAL_REQUEST : "define_reglas_para"
+    APPROVAL_REQUEST ||--o{ APPROVAL_LOG : "rastro_auditoría"
+    USER ||--o{ APPROVAL_REQUEST : "usuario_objetivo"
+    USER ||--o{ APPROVAL_LOG : "aprobador"
+    PROFILE ||--o{ APPROVAL_REQUEST : "perfil_objetivo"
+    
+    USER {
+        uniqueidentifier UserId PK
+        uniqueidentifier TenantId FK
+        uniqueidentifier ManagedByUserId FK "Auto-Referencia"
+        nvarchar UserCategory "INTERNAL/EXTERNAL/B2B/PARTNER"
+        nvarchar Status "PENDING/ACTIVE/SUSPENDED"
+    }
+    
+    APPROVAL_WORKFLOW {
+        uniqueidentifier WorkflowId PK
+        uniqueidentifier TenantId FK
+        uniqueidentifier SuiteId FK "Anulable"
+        nvarchar TargetUserCategory
+        bit RequiresApproval
+    }
+    
+    APPROVAL_REQUEST {
+        uniqueidentifier RequestId PK
+        uniqueidentifier WorkflowId FK
+        uniqueidentifier TargetUserId FK
+        uniqueidentifier TargetProfileId FK "Anulable"
+        nvarchar RequestStatus "PENDING/APPROVED/REJECTED"
+    }
+```
+
+---
+
 ## 4. Reglas de Negocio y Restricciones Técnicas
 1.  **Row-Level Security (RLS)**: `TenantId` está denormalizado en todas las entidades funcionales (Module, Option, Template, Action, Role) para permitir aislamiento O(1) vía RLS nativo de SQL Server.
 2.  **Arco Exclusivo (Integridad de Plantilla)**: `PermissionTemplate` implementa 4 FKs anulables que apuntan a la jerarquía de recursos. Un constraint `CHECK` garantiza que exactamente UNO tenga valor, forzando integridad referencial estricta sobre el polimorfismo.
 3.  **Propiedad de Acción XOR Estricta**: Una Acción debe pertenecer a un Sistema O a un Módulo, pero nunca a ambos: `CHECK ((SuiteId IS NOT NULL AND ModuleId IS NULL) OR (SuiteId IS NULL AND ModuleId IS NOT NULL))`.
 4.  **Integridad Jerárquica**: El acceso debe rastrearse a través de `Sistema > Módulo > Sub-módulo > Opción > Acción`.
+5.  **Administración Delegada (Menor Privilegio)**: El alcance de administración de un usuario está definido por su `ProfilePermission` y restringido jerárquicamente vía `ManagedByUserId`. Los administradores no pueden otorgar permisos que no poseen.
+6.  **Mandatos de Aprobación**: Los usuarios Externos/B2B DEBEN pasar por un `APPROVAL_WORKFLOW` antes de alcanzar un estado `ACTIVE` o de que se les asignen perfiles de alto riesgo.

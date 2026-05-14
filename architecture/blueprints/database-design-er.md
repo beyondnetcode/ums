@@ -28,6 +28,7 @@ Full Resolution Path: `Tenant -> System -> Role -> Template -> ProfilePermission
 erDiagram
     TENANT ||--o{ SYSTEM_SUITE : "owns"
     TENANT ||--o{ BRANCH : "operates"
+    TENANT ||--o{ USER : "owns"
     SYSTEM_SUITE ||--o{ ROLE : "defines"
     SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "contains"
     
@@ -35,6 +36,9 @@ erDiagram
     PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "materialized"
     
     USER ||--o{ PROFILE : "acts_as"
+    USER ||--o{ USER : "manages (Delegated Admin)"
+    USER ||--o{ APPROVAL_REQUEST : "onboards/approves"
+    
     BRANCH ||--o{ PROFILE : "context_of"
     PROFILE ||--o{ PROFILE_PERMISSION : "effective_authority"
     
@@ -122,8 +126,49 @@ erDiagram
 
 ---
 
+### 🛂 3.4 Domain: Identity Governance & Approvals
+Management of user lifecycle, delegated administration, and onboarding workflows for high-risk or external identities.
+
+```mermaid
+erDiagram
+    USER ||--o{ USER : "managed_by"
+    APPROVAL_WORKFLOW ||--o{ APPROVAL_REQUEST : "defines_rules_for"
+    APPROVAL_REQUEST ||--o{ APPROVAL_LOG : "audit_trail"
+    USER ||--o{ APPROVAL_REQUEST : "target_user"
+    USER ||--o{ APPROVAL_LOG : "approver"
+    PROFILE ||--o{ APPROVAL_REQUEST : "target_profile"
+    
+    USER {
+        uniqueidentifier UserId PK
+        uniqueidentifier TenantId FK
+        uniqueidentifier ManagedByUserId FK "Self-Reference"
+        nvarchar UserCategory "INTERNAL/EXTERNAL/B2B/PARTNER"
+        nvarchar Status "PENDING/ACTIVE/SUSPENDED"
+    }
+    
+    APPROVAL_WORKFLOW {
+        uniqueidentifier WorkflowId PK
+        uniqueidentifier TenantId FK
+        uniqueidentifier SuiteId FK "Nullable"
+        nvarchar TargetUserCategory
+        bit RequiresApproval
+    }
+    
+    APPROVAL_REQUEST {
+        uniqueidentifier RequestId PK
+        uniqueidentifier WorkflowId FK
+        uniqueidentifier TargetUserId FK
+        uniqueidentifier TargetProfileId FK "Nullable"
+        nvarchar RequestStatus "PENDING/APPROVED/REJECTED"
+    }
+```
+
+---
+
 ## 4. Business Rules & Technical Constraints
 1.  **Row-Level Security (RLS)**: `TenantId` is denormalized across all functional entities (Module, Option, Template, Action, Role) to allow O(1) isolation checks via SQL Server RLS.
 2.  **Exclusive Arc (Template Integrity)**: `PermissionTemplate` implements 4 nullable FKs pointing to the resource hierarchy. A `CHECK` constraint guarantees exactly ONE is populated, enforcing strict database referential integrity over polymorphism.
 3.  **Strict XOR Action Ownership**: An Action must belong to a System OR a Module, but never both: `CHECK ((SuiteId IS NOT NULL AND ModuleId IS NULL) OR (SuiteId IS NULL AND ModuleId IS NOT NULL))`.
 4.  **Hierarchy Integrity**: Access must be traced through `System > Module > Sub-module > Option > Action`.
+5.  **Delegated Administration (Least Privilege)**: A user's scope of administration is defined by their `ProfilePermission` and restricted hierarchically via `ManagedByUserId`. Administrators cannot grant permissions they do not possess.
+6.  **Approval Mandates**: External/B2B users MUST pass through an `APPROVAL_WORKFLOW` before reaching an `ACTIVE` status or being assigned high-risk profiles.
