@@ -1,5 +1,7 @@
 # Estándar de Redacción de Historias Funcionales
 
+> **Fuente corporativa:** Este estándar local de UMS implementa el estándar base ARC32/BMAD-METHOD definido en `arc32_progresive_monolith/governance/sdlc-es/03-documentation/functional-story-writing-standard.md`.
+
 Este estándar define cómo deben redactarse las Historias Funcionales de UMS para que Product Owners, Analistas de Negocio, QA y Desarrolladores puedan usar el mismo documento sin mezclar intención de negocio con detalle de implementación.
 
 ---

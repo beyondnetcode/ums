@@ -1,5 +1,7 @@
 # Functional Story Writing Standard
 
+> **Corporate source:** This local UMS standard implements the ARC32/BMAD-METHOD base standard defined in `arc32_progresive_monolith/governance/sdlc/03-documentation/functional-story-writing-standard.md`.
+
 This standard defines how UMS Functional Stories must be written so Product Owners, Business Analysts, QA, and Developers can use the same document without mixing business intent with implementation detail.
 
 ---
