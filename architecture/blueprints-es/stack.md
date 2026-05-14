@@ -16,19 +16,22 @@
 *   **Escala Esperada (Objetivo):** > 10,000 tenants, ~500 usuarios concurrentes por tenant (~5,000,000 conexiones concurrentes activas totales)
 *   **Tamaño del Equipo:** ~5–10 Ingenieros
 *   **Experiencia del Equipo:** Sólida en NestJS y TypeScript/JavaScript, algo de DevOps (Docker, Kubernetes), sin experiencia en Java
-*   **Restricciones Existentes:** Framework NestJS para el Core de UMS, motor relacional PostgreSQL, caché Redis de alto rendimiento, arquitectura preparada para Dapr, capacidad estricta de despliegue K8s on-premise
-*   **No Negociables:** Absolutamente cero dependencias de SDK de proveedores de nube en la capa de dominio central (Arquitectura Hexagonal estricta); alternativas de infraestructura de código abierto 100% autohospedables.
+*   **Restricciones Existentes:** Transición a .NET 8 para la API Core, motor relacional SQL Server, caché Redis de alto rendimiento, arquitectura lista para Dapr, capacidad de despliegue estricta en K8s on-premise.
+*   **No Negociables:** Absolutamente cero dependencias de SDKs de proveedores de nube en la capa de dominio principal (Arquitectura Hexagonal estricta); alternativas de infraestructura de código abierto 100% autohospedables.
+*   **Estrategia Polyglot (ADR 0026):** .NET 8 -> SQL Server; Node.js -> PostgreSQL/MongoDB.
 
 ---
 
 ## 1. Runtime y Lenguaje
 
 ### 1.1 Lenguaje + Versión
-*   **Herramienta Elegida:** **TypeScript v5.4+ ejecutándose en Node.js v20 LTS**
-*   **Por qué se eligió:** Permite tipado estático, una rica experiencia de desarrollador y alineación inmediata con la sólida experiencia en TypeScript del equipo. Node.js v20 LTS garantiza soporte empresarial a largo plazo, APIs estables y optimización del tiempo de ejecución V8 nativo de alto rendimiento.
+*   **Núcleo Empresarial Principal:** **C# ejecutándose en .NET 8 LTS**
+    *   **Por qué:** Rendimiento superior para tareas de cómputo intensivo, herramientas de grado empresarial y seguridad de tipos estricta.
+*   **Servicios Satélite/Ligeros:** **TypeScript v5.4+ ejecutándose en Node.js v20 LTS**
+    *   **Por qué:** Alta velocidad de desarrollo y ecosistema rico para módulos no críticos.
 *   **Alternativas Rechazadas:**
-    *   *Golang*: Rechazado porque el equipo no tiene experiencia en Golang; introducir un nuevo lenguaje retrasaría severamente el tiempo de salida al mercado (time-to-market).
-    *   *Java (Spring Boot)*: Explícitamente rechazado debido a la falta de experiencia del equipo en Java y una mayor huella de memoria en entornos con contenedores.
+    *   *Golang*: Rechazado por falta de experiencia del equipo; introducir un nuevo lenguaje retrasaría el tiempo de salida al mercado.
+    *   *Java (Spring Boot)*: Rechazado por mayor huella de memoria y falta de experiencia del equipo.
 
 ### 1.2 Sistema de Tipos / Configuración del Compilador
 *   **Herramienta Elegida:** **Compilación estricta de TypeScript mediante SWC (`@swc/core`) dentro de Nx Monorepo**
@@ -47,7 +50,7 @@
 ## 2. Capa de API
 
 ### 2.1 Protocolo de API Principal y Framework
-*   **Herramienta Elegida:** **Motor de Doble Protocolo: REST (vía NestJS Express) + gRPC (vía NestJS Microservices)**
+*   **Herramienta Elegida:** **Motor de Doble Protocolo: REST (vía NestJS Express / ASP.NET Core) + gRPC (vía NestJS Microservices / gRPC-dotnet)**
 *   **Por qué se eligió:**
     *   *REST (JSON)*: Sirve como la API pública para integraciones de clientes aguas abajo y la página de Login de UMS debido a su compatibilidad universal.
     *   *gRPC (Protocol Buffers)*: Obliga a una comunicación interna de alto rendimiento, baja latencia y tipos seguros (BFF a UMS, o servicio a servicio) para garantizar que los grafos de permisos se resuelvan en **menos de 5ms**.
@@ -55,16 +58,16 @@
     *   *GraphQL*: Rechazado debido a la alta complejidad de caché, la sobrecarga de complejidad de consultas y la dificultad de mantener límites de latencia predecibles de sub-5ms bajo un anidamiento multi-tenant B2B masivo.
 
 ### 2.2 Estándar de Documentación de API
-*   **Herramienta Elegida:** **OpenAPI v3 (Swagger) generado dinámicamente mediante decoradores de NestJS**
+*   **Herramienta Elegida:** **OpenAPI v3 (Swagger) generado dinámicamente mediante decoradores de NestJS / Swashbuckle para .NET**
 *   **Por qué se eligió:** Asegura que las APIs REST públicas se documenten automáticamente, sean interactivas y estén completamente sincronizadas con la base de código, con cero mantenimiento manual de documentos.
 *   **Alternativas Rechazadas:**
     *   *Colecciones manuales de Postman*: Alta carga de mantenimiento y propensas a desincronizarse con las APIs de producción.
 
 ### 2.3 Librería de Validación
-*   **Herramienta Elegida:** **`class-validator` + `class-transformer`**
-*   **Por qué se eligió:** Se integra nativamente con los Pipes de NestJS para aplicar validación declarativa basada en decoradores directamente en los DTOs (Objetos de Transferencia de Datos) en el ingreso a la red.
+*   **Herramienta Elegida:** **`class-validator` + `class-transformer` (Node) / Data Annotations + FluentValidation (.NET)**
+*   **Por qué se eligió:** Se integra nativamente con los Pipes de NestJS o el Pipeline de Middleware de ASP.NET para aplicar validación declarativa basada en decoradores directamente en los DTOs en el ingreso a la red.
 *   **Alternativas Rechazadas:**
-    *   *Joi / Zod*: Aunque son altamente performantes, no se integran tan perfectamente con la inyección de dependencias basada en clases y los decoradores de NestJS como lo hace `class-validator`.
+    *   *Joi / Zod*: Aunque son altamente performantes, no se integran tan perfectamente con la inyección de dependencias basada en clases y los decoradores como las soluciones nativas.
 
 ---
 
@@ -84,9 +87,9 @@
 
 ### 3.3 Estrategia de Rate Limiting
 *   **Herramienta Elegida:** **Rate Limiting de ventana deslizante aplicado en Kong Gateway usando Redis**
-*   **Por qué se eligió:** Previene intentos de fuerza bruta o de denegación de servicio. Aplicar esto en la capa de Gateway usando Redis ahorra ciclos de CPU a nivel de aplicación al descartar el tráfico malicioso antes de que llegue a los pods de NestJS.
+*   **Por qué se eligió:** Previene intentos de fuerza bruta o de denegación de servicio. Aplicar esto en la capa de Gateway usando Redis ahorra ciclos de CPU a nivel de aplicación al descartar el tráfico malicioso antes de que llegue a los pods.
 *   **Alternativas Rechazadas:**
-    *   *Rate-limiting en memoria a nivel de aplicación*: Riesgo de agotamiento de memoria y no comparte el estado del rate-limiting entre múltiples pods horizontales de aplicación.
+    *   *Rate-limiting en memoria a nivel de aplicación*: Riesgo de agotamiento de memoria y no comparte el estado del rate-limiting entre múltiples pods horizontales.
 
 ---
 
@@ -94,19 +97,19 @@
 
 ### 4.1 Patrón Arquitectónico
 *   **Herramienta Elegida:** **Arquitectura Hexagonal (Puertos y Adaptadores) / Arquitectura Limpia**
-*   **Por qué se eligió:** Obligatorio para asegurar que la capa de Dominio central tenga **absolutamente cero dependencias** de NestJS, TypeORM, PostgreSQL o SDKs de nube externos. La lógica central se comunica exclusivamente con interfaces (Puertos), haciendo que el kernel sea completamente soberano y preparado para el futuro.
+*   **Por qué se eligió:** Obligatorio para asegurar que la capa de Dominio central tenga **absolutamente cero dependencias** de NestJS, EF Core, TypeORM o SDKs de nube externos. La lógica central se comunica exclusivamente con interfaces (Puertos), haciendo que el kernel sea completamente soberano y preparado para el futuro.
 *   **Alternativas Rechazadas:**
     *   *Arquitectura de 3 capas estándar*: Crea un fuerte acoplamiento entre la lógica de negocio, los ORMs de base de datos y los frameworks de red, violando nuestra restricción de soberanía no negociable.
 
 ### 4.2 Estrategia de Módulo / Contexto Acotado
 *   **Herramienta Elegida:** **Monolito Modular dentro de Nx Monorepo (preparado para Dapr)**
-*   **Por qué se eligió:** Minimiza la complejidad operativa y de despliegue inicial para nuestro equipo de 5-10 ingenieros. Todos los contextos (`Identity`, `Authorization`, `Configuration`, `Audit`) están aislados dentro de límites estrictos de librerías en Nx, lo que permite dividirlos en microservicios independientes de Dapr sin refactorizar los modelos de dominio centrales.
+*   **Por qué se eligió:** Minimiza la complejidad operativa y de despliegue inicial para nuestro equipo de 5-10 ingenieros. Todos los contextos (`Identity`, `Authorization`, `Configuration`, `Audit`) están aislados dentro de límites estrictos de librerías, lo que permite dividirlos en microservicios independientes de Dapr sin refactorizar los modelos de dominio centrales.
 *   **Alternativas Rechazadas:**
     *   *Microservicios distribuidos desde el Día 1*: Alta complejidad operativa, sobrecarga de despliegue y latencia de red que abrumaría a un equipo de ingeniería pequeño.
 
 ### 4.3 Enfoque CQRS
-*   **Herramienta Elegida:** **CQRS interno a través del módulo CQRS de NestJS**
-*   **Por qué se eligió:** Desacopla la compilación pesada del grafo de permisos (Consultas) de las mutaciones de identidad básicas (Comandos), optimizando el rendimiento de lectura. Almacena proyecciones de lectura en caché en Redis mientras escribe secuencialmente en PostgreSQL.
+*   **Herramienta Elegida:** **CQRS interno a través de librerías (MediatR en .NET / Módulo CQRS en NestJS)**
+*   **Por qué se eligió:** Desacopla la compilación pesada del grafo de permisos (Consultas) de las mutaciones de identidad básicas (Comandos), optimizando el rendimiento de lectura.
 *   **Alternativas Rechazadas:**
     *   *CRUD directo*: Consultar y compilar directamente tablas relacionales en cada solicitud de lectura degrada el rendimiento de la base de datos bajo altas cargas concurrentes.
 
@@ -114,11 +117,13 @@
 
 ## 5. Capa de Datos
 
-### 5.1 Base de Datos Principal + ORM/Query Builder
-*   **Herramienta Elegida:** **PostgreSQL v16 + TypeORM (para mapeos de escritura) y driver nativo `pg` (para consultas de rendimiento puro)**
-*   **Por qué se eligió:** PostgreSQL 16 ofrece capacidades relacionales robustas de grado empresarial, soporte nativo de JSONB y una potente Seguridad a Nivel de Fila (RLS) para el aislamiento de tenants. TypeORM acelera el CRUD básico, mientras que el driver nativo `pg` se utiliza para consultas raw altamente optimizadas durante la resolución del grafo de permisos de alta concurrencia.
-*   **Alternativas Rechazadas:**
-    *   *MongoDB*: Carece de garantías transaccionales ACID robustas para matrices de autorización relacionales complejas.
+### 5.1 Base de Datos Primaria + ORM/Query Builder
+*   **Para Servicios .NET 8:** **SQL Server 2022 + Entity Framework Core (EF Core)**
+    *   **Por qué:** Soporte oficial de Microsoft, integración profunda con el ecosistema y RLS optimizado vía `SESSION_CONTEXT`.
+*   **Para Servicios Relacionales Node.js:** **PostgreSQL v16 + TypeORM / Drizzle**
+    *   **Por qué:** Soporte nativo de JSONB robusto y alta madurez en la comunidad Node.js.
+*   **Para Servicios NoSQL Node.js:** **MongoDB (Atlas / Enterprise)**
+    *   **Por qué:** Alta flexibilidad para documentos no estructurados y prototipado rápido.
 
 ### 5.2 Estrategia de Migración
 *   **Herramienta Elegida:** **Migraciones de TypeORM ejecutadas mediante Init-Containers de K8s**
@@ -149,15 +154,17 @@
 ## 6. Estrategia Multi-tenancy
 
 ### 6.1 Modelo de Aislamiento
-*   **Herramienta Elegida:** **Base de Datos compartida con Seguridad a Nivel de Fila (RLS) de PostgreSQL**
-*   **Por qué se eligió:** Asegura una alta densidad de empaquetado de tenants y una sobrecarga de mantenimiento de base de datos ultra baja. Las políticas de RLS de PostgreSQL restringen el acceso dinámicamente basado en el contexto de la transacción activa (`SET LOCAL app.current_tenant = 'tenant_id'`), previniendo filtraciones de datos entre tenants a nivel de motor.
+*   **Estrategia:** **Base de Datos Compartida con Seguridad a Nivel de Fila (RLS) Nativa**
+*   **Implementación (SQL Server):** Utiliza `SESSION_CONTEXT('TenantId', @value)` y Políticas de Seguridad con predicados iTVF.
+*   **Implementación (PostgreSQL):** Utiliza `SET LOCAL app.current_tenant = 'value'` y `CREATE POLICY` nativo.
+*   **Por qué se eligió:** Alta densidad de empaquetado y baja sobrecarga administrativa manteniendo el aislamiento absoluto a nivel de motor.
 *   **Alternativas Rechazadas:**
     *   *Base de datos por tenant*: Alto costo de infraestructura y grave sobrecarga administrativa al gestionar miles de bases de datos.
     *   *Esquema por tenant*: Se vuelve difícil de escalar y migrar cuando el número de tenants supera los 1,000, causando el agotamiento del pool de conexiones.
 
 ### 6.2 Mecanismo de Resolución de Tenant
-*   **Herramienta Elegida:** **Interceptor de NestJS + Contexto de Sesión de Conexión de PostgreSQL**
-*   **Por qué se eligió:** Resuelve el `tenant_id` desde los claims de JWT o cabeceras `X-Tenant-ID` en el ingreso, y utiliza un wrapper de transacción de base de datos para inyectar dinámicamente el contexto del tenant en la sesión activa de PostgreSQL.
+*   **Herramienta Elegida:** **Interceptor de NestJS / Middleware de ASP.NET + Contexto de Sesión de Conexión de Base de Datos**
+*   **Por qué se eligió:** Resuelve el `tenant_id` desde los claims de JWT o cabeceras `X-Tenant-ID` en el ingreso, y utiliza un wrapper de transacción de base de datos para inyectar dinámicamente el contexto del tenant en la sesión activa.
 *   **Alternativas Rechazadas:**
     *   *Filtrado a nivel de aplicación*: Propenso a omisiones de desarrolladores (olvidar una cláusula `WHERE tenant_id = x`), lo que lleva a vulnerabilidades críticas de filtración de datos. RLS previene esto a nivel de base de datos.
 
@@ -216,16 +223,16 @@
 *   **Por qué se eligió:** Satisface tanto el enrutamiento basado en roles (para el renderizado de UI) como la evaluación precisa de atributos (geofencing, umbrales de acción) requeridos por los portales de clientes integrados modernos.
 
 ### 9.3 Herramientas de Auditoría de Dependencias
-*   **Herramienta Elegida:** **CLI de Snyk Open Source + `npm audit` ejecutado en el pipeline de CI/CD**
-*   **Por qué se eligió:** Bloquea las construcciones automáticamente si se detectan vulnerabilidades críticas (CVEs) en los paquetes npm, protegiendo la cadena de suministro de software.
+*   **Herramienta Elegida:** **CLI de Snyk Open Source + `npm audit` / `dotnet list package --vulnerable` ejecutado en el pipeline de CI/CD**
+*   **Por qué se eligió:** Bloquea las construcciones automáticamente si se detectan vulnerabilidades críticas (CVEs) en los paquetes npm o nuget, protegiendo la cadena de suministro de software.
 
 ---
 
 ## 10. Experiencia del Desarrollador
 
 ### 10.1 Configuración de Desarrollo Local
-*   **Herramienta Elegida:** **Docker Compose Spec**
-*   **Por qué se eligió:** Permite a los desarrolladores levantar toda la suite de dependencias de UMS (PostgreSQL, Redis, RabbitMQ, MinIO, Kong Gateway) localmente con un solo comando (`docker compose up -d`), asegurando la consistencia del entorno.
+*   **Herramienta Elegida:** **Especificación Docker Compose**
+*   **Por qué se eligió:** Permite a los desarrolladores levantar toda la suite de dependencias de UMS (**SQL Server**, **PostgreSQL**, Redis, RabbitMQ, MinIO) localmente con un solo comando (`docker compose up -d`).
 
 ### 10.2 Monorepo vs. Multi-repo
 *   **Herramienta Elegida:** **Nx Monorepo**
@@ -233,8 +240,8 @@
 
 ### 10.3 Pirámide de Pruebas
 *   **Herramienta Elegida:**
-    *   *Pruebas Unitarias*: Jest (objetivo >80% de cobertura).
-    *   *Pruebas de Integración*: Jest + Supertest con **Testcontainers** (levantando instancias efímeras de PostgreSQL y Redis en Docker local para pruebas realistas).
+    *   *Pruebas Unitarias*: xUnit (.NET) / Jest (Node) (objetivo >80% de cobertura).
+    *   *Pruebas de Integración*: Testcontainers (levantando instancias efímeras de SQL Server/PostgreSQL en Docker local para pruebas realistas).
     *   *End-to-End*: Playwright para pruebas de regresión de la Consola Web.
 
 ---
@@ -254,26 +261,24 @@ Para evitar el bloqueo de proveedores de nube y soportar entornos fuera de líne
 
 | Componente | Solución Elegida | Riesgo de Bloqueo | Estrategia de Mitigación | Disparador de Re-evaluación |
 | :--- | :--- | :--- | :--- | :--- |
-| **Base de Datos** | PostgreSQL v16 | **Bajo** | Cumplimiento estándar de SQL. La capa de dominio no tiene dependencia directa (desacoplada vía Puertos). | Superar los 20 TB de datos activos |
-| **Almacén de Objetos** | MinIO | **Bajo** | MinIO utiliza exactamente el contrato de API de AWS S3. Cambiar requiere un simple cambio de configuración. | Cuellos de botella de rendimiento |
-| **Almacén de Secretos**| HashiCorp Vault | **Bajo** | La resolución de secretos se abstrae mediante inyección de secretos de K8s o un Adaptador personalizado. | Cambios en el modelo de licenciamiento |
+| **Base de Datos** | SQL Server / PostgreSQL | **Medio** | Cumplimiento estándar de SQL. La capa de dominio está desacoplada mediante Puertos. | Cambios drásticos en el licenciamiento |
+| **Almacén de Objetos** | MinIO | **Bajo** | MinIO utiliza exactamente el contrato de API de AWS S3. | Cuellos de botella de rendimiento |
+| **Almacén de Secretos**| HashiCorp Vault | **Bajo** | La resolución de secretos se abstrae mediante inyección de secretos de K8s. | Cambios en el modelo de licenciamiento |
 | **Gateway** | Kong Gateway | **Bajo** | La configuración se gestiona mediante recursos estándar de Ingress de K8s. | Restricciones de enrutamiento personalizadas |
 
 ---
 
 ## 13. Log de Decisiones
 
-### Decisión 1: Runtime de Node.js/TypeScript
-*   **Opciones Consideradas:** TypeScript (Node.js), Golang, Java (Spring Boot)
-*   **Elegida:** **TypeScript (Node.js)**
-*   **Racional:** Se alinea con la sólida experiencia existente del equipo, reduciendo el tiempo de salida al mercado y manteniendo bajos los costos de desarrollo. SWC mitiga la sobrecarga de compilación.
-*   **Revisar Cuando:** Cualquier compilación crítica de grafo de permisos vinculada a CPU supere los 100ms.
+### Decisión 1: Estrategia de Backend Polyglot
+*   **Decisión:** **.NET 8 para el Núcleo Empresarial; Node.js para Servicios Satélite.**
+*   **Racional:** Equilibra los requisitos de alto rendimiento/seguridad para el núcleo con la velocidad de desarrollo para utilidades.
+*   **Revisar cuando:** Las habilidades organizativas cambien significativamente o se requiera un modelo de runtime único unificado.
 
-### Decisión 2: PostgreSQL con Seguridad a Nivel de Fila (RLS)
-*   **Opciones Consideradas:** Base de Datos compartida con RLS, Esquema por tenant, DB por tenant
-*   **Elegida:** **Shared Database with RLS**
-*   **Racional:** Ofrece una alta densidad de empaquetado, bajo costo de infraestructura y aprovisionamiento de tenants extremadamente simple (<1s), mientras aplica el aislamiento a nivel de motor.
-*   **Revisar Cuando:** El pool de conexiones activas concurrentes de cualquier tenant individual supere los umbrales de conexión de PostgreSQL, o las leyes de soberanía de datos obliguen a la separación física.
+### Decisión 2: Selección de Base de Datos Impulsada por el Lenguaje (ADR 0026)
+*   **Decisión:** **SQL Server para .NET; PostgreSQL/Mongo para Node.**
+*   **Racional:** Aprovecha las fortalezas nativas del driver y el ecosistema de cada plataforma.
+*   **Revisar cuando:** El intercambio de datos entre servicios requiera un único motor unificado o los costos de licencia excedan el presupuesto.
 
 ---
 

@@ -1,21 +1,21 @@
-# ⚡ Progressive Node.js Technology Stack Cheat Sheet (Quick Reference)
+# ⚡ Polyglot Enterprise Technology Stack Cheat Sheet (Quick Reference)
 
-This cheat sheet serves as the authoritative, high-density tool reference by architectural layer for developers and autonomous agents working on the Progressive Node.js Reference Architecture.
+This cheat sheet serves as the authoritative, high-density tool reference by architectural layer for developers and autonomous agents working on the Enterprise Reference Architecture.
 
 ---
 
 ### 1. Runtime & Language
-*   **Runtime Environment:** Node.js v20 LTS
-*   **Language:** TypeScript v5.4+ (Strict Mode)
-*   **Compiler Engine:** SWC (`@swc/core`) inside Nx Monorepo
-*   **Code Quality:** ESLint v8 + Prettier v3
-*   **Git Quality Gates:** Husky + lint-staged
+*   **Enterprise Core:** .NET 8 LTS (C#)
+*   **Satellite Services:** Node.js v20 LTS (TypeScript v5.4+)
+*   **Compiler Engine:** Roslyn (.NET) / SWC (Node)
+*   **Code Quality:** SonarJS / SonarLint / ESLint v8 + Prettier v3
+*   **Git Quality Gates:** Husky + lint-staged / .NET Pre-commit hooks
 
 ### 2. API Layer
-*   **Internal Protocols:** gRPC (NestJS Microservices)
-*   **External Protocols:** REST API (NestJS Express)
-*   **Validation Standard:** `class-validator` + `class-transformer`
-*   **API Documentation:** OpenAPI v3 (Swagger) via NestJS decorators
+*   **Internal Protocols:** gRPC (gRPC-dotnet / NestJS Microservices)
+*   **External Protocols:** REST API (ASP.NET Core / NestJS Express)
+*   **Validation Standard:** FluentValidation / class-validator + class-transformer
+*   **API Documentation:** OpenAPI v3 (Swagger) via Swashbuckle / NestJS decorators
 
 ### 3. Gateway Layer
 *   **API Gateway:** Kong Gateway (Open Source Edition)
@@ -27,25 +27,26 @@ This cheat sheet serves as the authoritative, high-density tool reference by arc
 *   **Architectural Pattern:** Hexagonal Architecture (Ports & Adapters)
 *   **Monorepo Strategy:** Nx Monorepo
 *   **Execution Pattern:** Modular Monolith (Dapr-Ready)
-*   **Segregation Pattern:** Internal CQRS (NestJS CQRS Module)
-*   **Dependency Injection:** Native NestJS DI Container
+*   **Segregation Pattern:** Internal CQRS (MediatR / NestJS CQRS Module)
+*   **Dependency Injection:** Native Container (.NET / NestJS)
 
 ### 5. Data Layer
-*   **Primary Relational Database:** PostgreSQL v16
-*   **Relational Mapping (ORM):** TypeORM (TypeScript)
-*   **High-Performance Queries:** Native `pg` driver
-*   **Schema Migration Engine:** TypeORM Migrations via Kubernetes Init-Containers
-*   **In-Memory Caching:** Redis v7.2 (Sentinel / Cluster Replications)
+*   **Primary Database (.NET):** SQL Server 2022
+*   **Primary Database (Node):** PostgreSQL v16 / MongoDB
+*   **Relational Mapping (ORM):** EF Core (.NET) / TypeORM (Node)
+*   **Schema Migration Engine:** EF Migrations / TypeORM Migrations via K8s Init-Containers
+*   **In-Memory Caching:** Redis v7.2 (Sentinel / Cluster)
 *   **Object & Asset Store:** MinIO (S3-Compatible, Self-hosted)
 *   **Asynchronous Message Broker:** RabbitMQ (AMQP v0.9.1, Self-hosted)
 
 ### 6. Multi-tenancy Strategy
 *   **Data Isolation Model:** Shared Database with Row-Level Security (RLS)
-*   **Tenant Resolution Context:** JWT claim extraction via NestJS Guards
-*   **Isolation Enforcement:** Dynamic database transaction session injection (`SET LOCAL app.current_tenant`)
+*   **Implementation (.NET):** SQL Server SESSION_CONTEXT + Security Policies
+*   **Implementation (Node):** PostgreSQL SET LOCAL app.current_tenant + CREATE POLICY
+*   **Context Resolution:** JWT claim extraction via Middleware / Guards
 
 ### 7. Infrastructure & Deployment
-*   **Container Engine:** Docker v25 (Multi-Stage Distroless node images)
+*   **Container Engine:** Docker v25 (Multi-Stage Distroless images)
 *   **Orchestrator Platform:** Kubernetes (K8s v1.28+)
 *   **Secrets & Key Management:** HashiCorp Vault (OSS, Self-hosted)
 *   **Deployment Packager:** Helm v3 parameterized charts
@@ -59,10 +60,10 @@ This cheat sheet serves as the authoritative, high-density tool reference by arc
 ### 9. Security
 *   **Auth Registries:** Federated OIDC & SAML + UMS Native BCrypt Store
 *   **Access Control:** Hierarchical RBAC + Attribute-Based Access Control (ABAC)
-*   **Dependency Audit:** Snyk CLI + `npm audit` inside CI/CD pipelines
+*   **Dependency Audit:** Snyk CLI + `npm audit` / `dotnet list package --vulnerable`
 
 ### 10. Developer Experience (DevEx)
-*   **Local Services:** Docker Compose Spec
-*   **Unit Testing Framework:** Jest
-*   **Integration Testing:** Jest + Supertest with **Testcontainers**
+*   **Local Services:** Docker Compose Spec (SQL Server, PostgreSQL, Redis, etc.)
+*   **Unit Testing Framework:** xUnit (.NET) / Jest (Node)
+*   **Integration Testing:** Testcontainers (SQL Server / PostgreSQL / Redis)
 *   **End-to-End (E2E) Testing:** Playwright

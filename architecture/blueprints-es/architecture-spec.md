@@ -51,17 +51,17 @@ graph TD
     ExternalFlags["Proveedores de Feature Flags (LaunchDarkly/Unleash)"]
     Downstream["Servicios SaaS Aguas Abajo"]
 
-    User -->|Inicia sesión vía Auth Gateway| UMS
-    ExternalUser -->|Envía Solicitud de Acceso| UMS
-    Sponsor -->|Aprueba Solicitud Externa (UC-12)| UMSConsole
-    Admin -->|Gestiona perfiles, configs, flags| UMSConsole
-    UMSConsole -->|Llama a APIs de Auth y Config| UMS
+    User -->|"Inicia sesión vía Auth Gateway"| UMS
+    ExternalUser -->|"Envía Solicitud de Acceso"| UMS
+    Sponsor -->|"Aprueba Solicitud Externa (UC-12)"| UMSConsole
+    Admin -->|"Gestiona perfiles, configs, flags"| UMSConsole
+    UMSConsole -->|"Llama a APIs de Auth y Config"| UMS
     
-    UMS -->|Rama A: Auth Federada| ExternalAuth
-    UMS -->|Rama B: Auth Nativa Local| InternalAuth
+    UMS -->|"Rama A: Auth Federada"| ExternalAuth
+    UMS -->|"Rama B: Auth Nativa Local"| InternalAuth
     
-    UMS -->|Evalúa Flags vía Adaptadores| ExternalFlags
-    UMS -->|Inyecta Grafo de Auth y Estado de Config| Downstream
+    UMS -->|"Evalúa Flags vía Adaptadores"| ExternalFlags
+    UMS -->|"Inyecta Grafo de Auth y Estado de Config"| Downstream
 ```
 
 ---
@@ -85,7 +85,7 @@ graph TD
     subgraph Server["Servicios de Aplicación (Aislados por Tenant)"]
         BackendAPI["UMS Core (.NET 8 Auth, Identidad, Perfiles)"]
         ConfigAPI["Módulo de Configuración y Feature Flags"]
-        PostgresDB["Base de Datos PostgreSQL 16 (Esquema Compartido + RLS)"]
+        SqlServerDB["SQL Server 2022 Database (Shared Schema + RLS)"]
         AuditDB["Libro de Auditoría y Solicitudes de Acceso (UC-12)"]
         RedisCache["Cluster Redis (Grafo de Auth + Cfg + Flags)"]
     end
@@ -95,23 +95,23 @@ graph TD
         ExternalProviders["Proveedores de Flags (LaunchDarkly / ConfigCat)"]
     end
 
-    ReactApp -->|1. HTTPS / JWT + Header de Tenant| WebBFF
-    AdminApp -->|1. HTTPS / JWT + Token de SuperAdmin| WebBFF
-    MobileApp -->|1. HTTPS / Payload Optimizado| MobileBFF
-    WebBFF -->|2. TCP Interno / gRPC| BackendAPI
-    WebBFF -->|2. TCP Interno / gRPC| ConfigAPI
-    MobileBFF -->|2. TCP Interno / gRPC| BackendAPI
-    BackendAPI -->|3. Establece contexto LOCAL de tenant vía RLS| PostgresDB
-    ConfigAPI -->|3. Establece contexto LOCAL de tenant vía RLS| PostgresDB
-    BackendAPI -->|4. Búsqueda en caché Read-Aside| RedisCache
-    ConfigAPI -->|4. Lectura/Escritura de config y flags| RedisCache
+    ReactApp -->|"1. HTTPS / JWT + Header de Tenant"| WebBFF
+    AdminApp -->|"1. HTTPS / JWT + Token de SuperAdmin"| WebBFF
+    MobileApp -->|"1. HTTPS / Payload Optimizado"| MobileBFF
+    WebBFF -->|"2. TCP Interno / gRPC"| BackendAPI
+    WebBFF -->|"2. TCP Interno / gRPC"| ConfigAPI
+    MobileBFF -->|"2. TCP Interno / gRPC"| BackendAPI
+    BackendAPI -->|"3. Establece contexto LOCAL de tenant vía RLS"| SqlServerDB
+    ConfigAPI -->|"3. Establece contexto LOCAL de tenant vía RLS"| SqlServerDB
+    BackendAPI -->|"4. Búsqueda en caché Read-Aside"| RedisCache
+    ConfigAPI -->|"4. Lectura/Escritura de config y flags"| RedisCache
     
-    BackendAPI -->|5a. [Rama Auth IDP] Verifica Token| ExternalIdP
-    BackendAPI -->|5b. [Rama Auth Interna] Verificación Bcrypt| PostgresDB
+    BackendAPI -->|"5a. [Rama Auth IDP] Verifica Token"| ExternalIdP
+    BackendAPI -->|"5b. [Rama Auth Interna] Verificación de Credenciales"| SqlServerDB
     
-    ConfigAPI -->|5c. Eval de Flags enchufable vía IFeatureFlagPort| ExternalProviders
-    BackendAPI -->|6. Transmite eventos de mutación y Aprobaciones| AuditDB
-    ConfigAPI -->|6. Transmite eventos de configuración| AuditDB
+    ConfigAPI -->|"5c. Eval de Flags enchufable vía IFeatureFlagPort"| ExternalProviders
+    BackendAPI -->|"6. Transmite eventos de mutación y Aprobaciones"| AuditDB
+    ConfigAPI -->|"6. Transmite eventos de configuración"| AuditDB
 ```
 
 ---
@@ -138,16 +138,16 @@ graph TD
 
     subgraph Infrastructure["Ums.Infrastructure (Adaptadores)"]
         EfRepo["EfUserRepository (Implementación EF Core)"]
-        Postgres["Npgsql (Driver PostgreSQL Nativo)"]
+        SqlServer["Microsoft SQL Server (Driver ADO.NET)"]
     end
 
-    Controller -->|Envía Comando| Handler
-    Handler -->|Valida con| Validator
-    Handler -->|Instancia y crea| Entity
-    Handler -.->|Depende de| IUserRepo
+    Controller -->|"Envía Comando"| Handler
+    Handler -->|"Valida con"| Validator
+    Handler -->|"Instancia y crea"| Entity
+    Handler -.->|"Depende de"| IUserRepo
     
-    EfRepo -.->|Implementa| IUserRepo
-    EfRepo -->|Accede vía| Postgres
+    EfRepo -.->|"Implementa"| IUserRepo
+    EfRepo -->|"Accede vía"| SqlServer
 ```
 
 ---
@@ -162,8 +162,8 @@ Este inventario detalla todas las herramientas, librerías, plugins y componente
 | :--- | :--- | :--- | :--- |
 | `Microsoft.AspNetCore.App` | `8.0.x` | **Mantener (Estable)** - Framework de alto rendimiento para APIs modernas. | [.NET 8 Docs](https://learn.microsoft.com/en-us/aspnet/core/) |
 | `MediatR` | `^12.0.0` | **Mantener (Crítico)** - Implementación de desacoplamiento vía patrón Mediator. | [MediatR GitHub](https://github.com/jbogard/MediatR) |
-| `Microsoft.EntityFrameworkCore`| `8.0.x` | **Mantener (Estable)** - ORM de alto rendimiento con soporte para RLS y migraciones. | [EF Core Docs](https://learn.microsoft.com/en-us/ef/core/) |
-| `Npgsql.EntityFrameworkCore.PostgreSQL` | `8.0.x` | **Mantener (Estable)** - Driver optimizado para PostgreSQL. | [Npgsql Docs](https://www.npgsql.org/efcore/) |
+| `Microsoft.EntityFrameworkCore.SqlServer`| `8.0.x` | **Mantener (Estable)** - ORM con soporte oficial para SQL Server y RLS. | [EF Core SQL Server](https://learn.microsoft.com/en-us/ef/core/providers/sql-server/) |
+| `Microsoft.Data.SqlClient` | `^5.2.0` | **Mantener (Estable)** - Driver de conexión oficial y maduro para SQL Server. | [SqlClient GitHub](https://github.com/dotnet/SqlClient) |
 | `FluentValidation` | `^11.0.0` | **Mantener (Estable)** - Validación fuertemente tipada para comandos y consultas. | [FluentValidation](https://fluentvalidation.net/) |
 | `BCrypt.Net-Next` | `^4.0.3` | **Mantener (Estable)** - Hashing seguro para almacenamiento de credenciales. | [BCrypt.Net](https://github.com/BcryptNet/bcrypt.net) |
 | `Swashbuckle.AspNetCore` | `^6.5.0` | **Mantener (Estable)** - Generación automática de especificaciones OpenAPI 3. | [Swashbuckle Docs](https://github.com/domaindrivendev/Swashbuckle.AspNetCore) |
@@ -207,7 +207,8 @@ Esta matriz mapea las decisiones técnicas fundamentales con sus Atributos de Ca
 | **Límites Hexagonales** | [ADR 0002](../03-adrs/0002-clean-architecture-nestjs.md) | Desacoplamiento, Testabilidad, Agnosticismo | Implementa tres capas estrictas: Core (Entidades), Aplicación (Casos de Uso), Infraestructura (Adaptadores). | `eslint-plugin-boundaries` bloquea importaciones no autorizadas de afuera hacia adentro. |
 | **Telemetría de Observabilidad** | [ADR 0007](../03-adrs/0007-observability-telemetry-loki-opentelemetry.md) | Observabilidad, Rendimiento, Monitoreo | Stack Grafana LGTM (Loki + Grafana + Tempo) con OpenTelemetry (OTel). | Pruebas de integración de OpenTelemetry y monitoreo de dashboards de Grafana. |
 | **Gobernanza de Dependencias** | [ADR 0009](../03-adrs/0009-strict-dependency-pinning-vulnerability-management.md) | Seguridad, Estabilidad, Determinismo | Aplica tolerancia cero para versiones dinámicas (se eliminan `^`/`~`) para garantizar builds reproducibles. | `npm audit --audit-level=high` se ejecuta en CI para bloquear PRs vulnerables. |
-| **SaaS Multi-Tenancy** | [ADR 0010](../03-adrs/0010-multi-tenancy-architecture-strategy.md) | Seguridad, Aislamiento de Datos, Eficiencia de Costos | Esquema de Base de Datos compartido con Seguridad a Nivel de Fila (RLS) de PostgreSQL para aplicar aislamiento de tenants. | `AsyncLocalStorage` propaga el Contexto del Tenant; los Suscriptores de TypeORM validan RLS. |
+| **Estrategia de Motores DB** | [ADR 0026](../03-adrs/0026-authoritative-database-engine-strategy.md) | Ecosistema, Rendimiento, Mantenibilidad | SQL Server para .NET; PostgreSQL/Mongo para Node.js. Alineación con estándares de Microsoft. | Pruebas de integración y políticas de aprovisionamiento de infraestructura. |
+| **SaaS Multi-Tenancy** | [ADR 0010](../03-adrs/0010-multi-tenancy-architecture-strategy.md) | Seguridad, Aislamiento de Datos, Eficiencia de Costos | Esquema compartido con RLS (PostgreSQL para Node / SQL Server para .NET) para aplicar aislamiento de tenants. | `AsyncLocalStorage` propaga el Contexto del Tenant; los Interceptores de EF Core validan RLS. |
 | **Tolerancia a Fallos y Resiliencia** | [ADR 0011](../03-adrs/0011-fault-tolerance-resiliency-patterns.md) | Resiliencia, Confiabilidad, Consistencia | Circuit Breaker (`opossum`) + reintentos con Exponential Backoff envueltos estrictamente dentro de los Adaptadores de Infraestructura. | Mocks de Jest simulando fallos HTTP y verificando transiciones de estado del circuito. |
 | **Autorización Granular** | [ADR 0012](../03-adrs/0012-advanced-authorization-rbac-abac.md) | Seguridad, Trazabilidad, SoC | RBAC/ABAC consciente del tenant utilizando decodificadores de claims JWT y Guards de contexto de ejecución de NestJS. | Pruebas de integración simulando intentos de acceso entre tenants. |
 | **Caché Distribuida** | [ADR 0014](../03-adrs/0014-distributed-caching-strategy-redis.md) | Rendimiento, Descarga de Base de Datos | Caché Read-Aside con almacén Redis, completamente oculto tras una abstracción pura de Core `ICachePort`. | Pruebas de integración de Redis y verificación estricta de TTL. |
@@ -262,17 +263,17 @@ El sistema utiliza un modelo de **Base de Datos Compartida** con aislamiento ló
 
 ```mermaid
 sequenceDiagram
-    participant App as API .NET 8 (DbContext)
-    participant PG as Motor PostgreSQL 16
-    participant Table as Tabla Protegida (e.g., Users)
+    participant App as "API .NET 8 (DbContext)"
+    participant SQL as "SQL Server 2022"
+    participant Table as "Tabla Protegida (e.g., Users)"
 
-    App->>PG: Abre conexión del pool
-    App->>PG: Ejecuta SET LOCAL app.current_tenant = 'tenant_uuid'
-    App->>PG: SELECT * FROM users WHERE ...
-    PG->>PG: Evalúa Política RLS nativa
-    PG->>Table: Filtra filas por tenant_id
-    Table-->>PG: Retorna solo filas autorizadas
-    PG-->>App: Dataset filtrado y seguro
+    App->>SQL: "Abre conexión del pool"
+    App->>SQL: "SESSION_CONTEXT('TenantId', @uuid)"
+    App->>SQL: "SELECT * FROM users WHERE ..."
+    SQL->>SQL: "Evalúa Security Policy (iTVF)"
+    SQL->>Table: "Filtra filas por tenant_id"
+    Table-->>SQL: "Retorna solo filas autorizadas"
+    SQL-->>App: "Dataset filtrado y seguro"
 ```
 
 ---
@@ -290,10 +291,10 @@ graph LR
     Tempo["Grafana Tempo (Tracing)"]
     Grafana["Grafana Dashboards"]
 
-    App -->|Push OTLP| OTelCol
-    OTelCol -->|Scrape| Prom
-    OTelCol -->|Push| Loki
-    OTelCol -->|Push| Tempo
+    App -->|"Push OTLP"| OTelCol
+    OTelCol -->|"Scrape"| Prom
+    OTelCol -->|"Push"| Loki
+    OTelCol -->|"Push"| Tempo
     Prom --> Grafana
     Loki --> Grafana
     Tempo --> Grafana
@@ -333,7 +334,7 @@ Diseño optimizado para **Kubernetes** con capacidad de despliegue en nubes púb
 
 ```mermaid
 graph TD
-    Internet((Internet))
+    Internet(("Internet"))
     LB["Load Balancer (Cloud/Metal)"]
     Ingress["NGINX Ingress Controller"]
     Vault["HashiCorp Vault (Secretos)"]
@@ -346,7 +347,7 @@ graph TD
         end
     end
 
-    DB[(PostgreSQL 16 Cluster)]
+    DB[("SQL Server 2022 Cluster")]
 
     Internet --> LB
     LB --> Ingress
@@ -354,7 +355,7 @@ graph TD
     BFF --> API
     API --> Redis
     API --> DB
-    API -.->|Lee secretos| Vault
+    API -.->|"Lee secretos"| Vault
 ```
 
 ---

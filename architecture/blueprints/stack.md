@@ -16,19 +16,22 @@
 *   **Expected Scale (Target):** > 10,000 tenants, ~500 concurrent users per tenant (~5,000,000 active concurrent connections total)
 *   **Team Size:** ~5–10 Engineers
 *   **Team Expertise:** Strong NestJS & TypeScript/JavaScript, some DevOps (Docker, Kubernetes), no Java expertise
-*   **Existing Constraints:** NestJS framework for UMS Core, PostgreSQL relational engine, high-performance Redis cache, Dapr-ready architecture, strict on-premise K8s deployment capability
+*   **Existing Constraints:** Transitioning to .NET 8 for Core API, SQL Server relational engine, high-performance Redis cache, Dapr-ready architecture, strict on-premise K8s deployment capability.
 *   **Non-Negotiables:** Absolutely zero cloud-provider SDK dependencies in the core domain layer (strict Hexagonal Architecture); 100% self-hostable open-source infrastructure alternatives.
+*   **Polyglot Strategy (ADR 0026):** .NET 8 -> SQL Server; Node.js -> PostgreSQL/MongoDB.
 
 ---
 
 ## 1. Runtime & Language
 
 ### 1.1 Language + Version
-*   **Chosen Tool:** **TypeScript v5.4+ running on Node.js v20 LTS**
-*   **Why Chosen:** Enables static typing, rich developer experience, and immediate alignment with the team's strong TypeScript expertise. Node.js v20 LTS ensures long-term enterprise support, stable APIs, and native high-performance V8 runtime optimization.
+*   **Primary Enterprise Core:** **C# running on .NET 8 LTS**
+    *   **Why:** Superior performance for compute-intensive tasks, enterprise-grade tooling, and strict type safety.
+*   **Satellite/Lightweight Services:** **TypeScript v5.4+ running on Node.js v20 LTS**
+    *   **Why:** High developer velocity and rich ecosystem for non-core modules.
 *   **Alternatives Rejected:**
-    *   *Golang*: Rejected because the team has no Golang expertise; introducing a new language would severely delay time-to-market.
-    *   *Java (Spring Boot)*: Explicitly rejected due to "no Java" team expertise and higher memory footprint in containerized environments.
+    *   *Golang*: Rejected due to lack of team expertise; introducing a new language would delay time-to-market.
+    *   *Java (Spring Boot)*: Rejected due to higher memory footprint and lack of team expertise.
 
 ### 1.2 Type System / Compiler Setup
 *   **Chosen Tool:** **Strict TypeScript Compiling compiled via SWC (`@swc/core`) inside Nx Monorepo**
@@ -115,10 +118,12 @@
 ## 5. Data Layer
 
 ### 5.1 Primary Database + ORM/Query Builder
-*   **Chosen Tool:** **PostgreSQL v16 + TypeORM (for write-mappings) and `pg` native driver (for raw performance queries)**
-*   **Why Chosen:** PostgreSQL 16 offers robust, enterprise-grade relational capabilities, native JSONB support, and powerful Row-Level Security (RLS) for tenant isolation. TypeORM accelerates basic CRUD, while the native `pg` driver is utilized for highly optimized raw queries during high-concurrency permission graph resolution.
-*   **Alternatives Rejected:**
-    *   *MongoDB*: Lacks robust ACID transactional guarantees for complex relational authorization matrices.
+*   **For .NET 8 Services:** **SQL Server 2022 + Entity Framework Core (EF Core)**
+    *   **Why:** Official Microsoft support, tight ecosystem integration, and optimized RLS via `SESSION_CONTEXT`.
+*   **For Node.js Relational Services:** **PostgreSQL v16 + TypeORM / Drizzle**
+    *   **Why:** Robust native JSONB support and high maturity in the Node.js community.
+*   **For Node.js NoSQL Services:** **MongoDB (Atlas / Enterprise)**
+    *   **Why:** High flexibility for unstructured documents and rapid prototyping.
 
 ### 5.2 Migration Strategy
 *   **Chosen Tool:** **TypeORM Migrations executed via K8s Init-Containers**
@@ -149,8 +154,10 @@
 ## 6. Multi-tenancy Strategy
 
 ### 6.1 Isolation Model
-*   **Chosen Tool:** **Shared Database with PostgreSQL Row-Level Security (RLS)**
-*   **Why Chosen:** Ensures high-density tenant packing and ultra-low database maintenance overhead. PostgreSQL RLS policies restrict access dynamically based on the active transaction context (`SET LOCAL app.current_tenant = 'tenant_id'`), preventing cross-tenant data leaks at the engine level.
+*   **Strategy:** **Shared Database with Native Row-Level Security (RLS)**
+*   **Implementation (SQL Server):** Uses `SESSION_CONTEXT('TenantId', @value)` and Security Policies with iTVF predicates.
+*   **Implementation (PostgreSQL):** Uses `SET LOCAL app.current_tenant = 'value'` and native `CREATE POLICY`.
+*   **Why Chosen:** High packing density and low administrative overhead while maintaining absolute isolation at the engine level.
 *   **Alternatives Rejected:**
     *   *Database-per-tenant*: High infrastructure cost and severe administrative overhead when managing thousands of databases.
     *   *Schema-per-tenant*: Becomes hard to scale and migrate when tenant counts exceed 1,000, causing connection pool exhaustion.
@@ -225,7 +232,7 @@
 
 ### 10.1 Local Development Setup
 *   **Chosen Tool:** **Docker Compose Spec**
-*   **Why Chosen:** Allows developers to spin up the entire UMS dependency suite (PostgreSQL, Redis, RabbitMQ, MinIO, Kong Gateway) locally with a single command (`docker compose up -d`), ensuring environment consistency.
+*   **Why Chosen:** Allows developers to spin up the entire UMS dependency suite (**SQL Server**, **PostgreSQL**, Redis, RabbitMQ, MinIO) locally with a single command (`docker compose up -d`).
 
 ### 10.2 Monorepo vs. Multi-repo
 *   **Chosen Tool:** **Nx Monorepo**
@@ -263,17 +270,15 @@ To avoid cloud-provider lock-in and support offline, on-premise environments, **
 
 ## 13. Decision Log
 
-### Decision 1: Node.js/TypeScript Runtime
-*   **Options Considered:** TypeScript (Node.js), Golang, Java (Spring Boot)
-*   **Chosen:** **TypeScript (Node.js)**
-*   **Rationale:** Aligns with the team's strong existing expertise, reducing time-to-market and keeping development costs low. SWC mitigates compilation overhead.
-*   **Revisit When:** Any critical CPU-bound permission graph compilation exceeds 100ms.
+### Decision 1: Polyglot Backend Strategy
+*   **Decision:** **.NET 8 for Enterprise Core; Node.js for Satellite Services.**
+*   **Rationale:** Balances high-performance/safety requirements for the core with development speed for utilities.
+*   **Revisit When:** Organizational skills shift significantly or a unified single-runtime model is required.
 
-### Decision 2: PostgreSQL with Row-Level Security (RLS)
-*   **Options Considered:** Shared Database with RLS, Schema-per-tenant, DB-per-tenant
-*   **Chosen:** **Shared Database with RLS**
-*   **Rationale:** Delivers high packing density, low infrastructure cost, and extremely simple tenant provisioning (<1s), while enforcing engine-level isolation.
-*   **Revisit When:** Any single tenant's active concurrent connection pool exceeds PostgreSQL connection thresholds, or data sovereignty laws mandate physical separation.
+### Decision 2: Language-Driven Database Selection (ADR 0026)
+*   **Decision:** **SQL Server for .NET; PostgreSQL/Mongo for Node.**
+*   **Rationale:** Leverages the native strengths of each platform's driver and ecosystem support.
+*   **Revisit When:** Cross-service data sharing requires a single unified engine or licensing costs exceed budget.
 
 ---
 

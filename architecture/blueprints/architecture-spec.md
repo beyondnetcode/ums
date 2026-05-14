@@ -51,17 +51,17 @@ graph TD
     ExternalFlags["Feature Flag Providers (LaunchDarkly/Unleash)"]
     Downstream["Downstream SaaS Services"]
 
-    User -->|Logs in via Auth Gateway| UMS
-    ExternalUser -->|Submits Access Request| UMS
-    Sponsor -->|Approves External Request (UC-12)| UMSConsole
-    Admin -->|Manages profiles, configs, flags| UMSConsole
-    UMSConsole -->|Calls Auth & Config APIs| UMS
+    User -->|"Logs in via Auth Gateway"| UMS
+    ExternalUser -->|"Submits Access Request"| UMS
+    Sponsor -->|"Approves External Request (UC-12)"| UMSConsole
+    Admin -->|"Manages profiles, configs, flags"| UMSConsole
+    UMSConsole -->|"Calls Auth & Config APIs"| UMS
     
-    UMS -->|Branch A: Federated Auth| ExternalAuth
-    UMS -->|Branch B: Local Native Auth| InternalAuth
+    UMS -->|"Branch A: Federated Auth"| ExternalAuth
+    UMS -->|"Branch B: Local Native Auth"| InternalAuth
     
-    UMS -->|Evaluates Flags via Adapters| ExternalFlags
-    UMS -->|Injects Auth Graph & Config State| Downstream
+    UMS -->|"Evaluates Flags via Adapters"| ExternalFlags
+    UMS -->|"Injects Auth Graph & Config State"| Downstream
 ```
 
 ---
@@ -85,7 +85,7 @@ graph TD
     subgraph Server["Application Services (Tenant Isolated)"]
         BackendAPI["UMS Core (.NET 8 Auth, Identity, Profiles)"]
         ConfigAPI["Config & Feature Flag Module"]
-        PostgresDB["PostgreSQL 16 Database (Shared Schema + RLS)"]
+        SqlServerDB["SQL Server 2022 Database (Shared Schema + RLS)"]
         AuditDB["Audit Ledger & Access Requests (UC-12)"]
         RedisCache["Redis Cluster (Auth Graph + Cfg + Flags)"]
     end
@@ -95,23 +95,23 @@ graph TD
         ExternalProviders["Flag Providers (LaunchDarkly / ConfigCat)"]
     end
 
-    ReactApp -->|1. HTTPS / JWT + Tenant Header| WebBFF
-    AdminApp -->|1. HTTPS / JWT + SuperAdmin Token| WebBFF
-    MobileApp -->|1. HTTPS / Optimized Payload| MobileBFF
-    WebBFF -->|2. Internal TCP / gRPC| BackendAPI
-    WebBFF -->|2. Internal TCP / gRPC| ConfigAPI
-    MobileBFF -->|2. Internal TCP / gRPC| BackendAPI
-    BackendAPI -->|3. Sets LOCAL tenant context via RLS| PostgresDB
-    ConfigAPI -->|3. Sets LOCAL tenant context via RLS| PostgresDB
-    BackendAPI -->|4. Read-Aside cache lookup| RedisCache
-    ConfigAPI -->|4. Read/Write config & flags| RedisCache
+    ReactApp -->|"1. HTTPS / JWT + Tenant Header"| WebBFF
+    AdminApp -->|"1. HTTPS / JWT + SuperAdmin Token"| WebBFF
+    MobileApp -->|"1. HTTPS / Optimized Payload"| MobileBFF
+    WebBFF -->|"2. Internal TCP / gRPC"| BackendAPI
+    WebBFF -->|"2. Internal TCP / gRPC"| ConfigAPI
+    MobileBFF -->|"2. Internal TCP / gRPC"| BackendAPI
+    BackendAPI -->|"3. Sets LOCAL tenant context via RLS"| SqlServerDB
+    ConfigAPI -->|"3. Sets LOCAL tenant context via RLS"| SqlServerDB
+    BackendAPI -->|"4. Read-Aside cache lookup"| RedisCache
+    ConfigAPI -->|"4. Read/Write config & flags"| RedisCache
     
-    BackendAPI -->|5a. [IDP Auth Branch] Verifies Token| ExternalIdP
-    BackendAPI -->|5b. [Internal Auth Branch] Bcrypt check| PostgresDB
+    BackendAPI -->|"5a. [IDP Auth Branch] Verifies Token"| ExternalIdP
+    BackendAPI -->|"5b. [Internal Auth Branch] Credential verification"| SqlServerDB
     
-    ConfigAPI -->|5c. Pluggable Flag Eval via IFeatureFlagPort| ExternalProviders
-    BackendAPI -->|6. Streams mutation events & Request Approvals| AuditDB
-    ConfigAPI -->|6. Streams config events| AuditDB
+    ConfigAPI -->|"5c. Pluggable Flag Eval via IFeatureFlagPort"| ExternalProviders
+    BackendAPI -->|"6. Streams mutation events & Request Approvals"| AuditDB
+    ConfigAPI -->|"6. Streams config events"| AuditDB
 ```
 
 ---
@@ -138,16 +138,16 @@ graph TD
 
     subgraph Infrastructure["Ums.Infrastructure (Adapters)"]
         EfRepo["EfUserRepository (EF Core Implementation)"]
-        Postgres["Npgsql (Native PostgreSQL Driver)"]
+        SqlServer["Microsoft SQL Server (ADO.NET Driver)"]
     end
 
-    Controller -->|Sends Command| Handler
-    Handler -->|Validates with| Validator
-    Handler -->|Instantiates and creates| Entity
-    Handler -.->|Depends on| IUserRepo
+    Controller -->|"Sends Command"| Handler
+    Handler -->|"Validates with"| Validator
+    Handler -->|"Instantiates and creates"| Entity
+    Handler -.->|"Depends on"| IUserRepo
     
-    EfRepo -.->|Implements| IUserRepo
-    EfRepo -->|Access via| Postgres
+    EfRepo -.->|"Implements"| IUserRepo
+    EfRepo -->|"Access via"| SqlServer
 ```
 
 ---
@@ -162,8 +162,8 @@ This inventory details all tools, libraries, plugins, and components per workspa
 | :--- | :--- | :--- | :--- |
 | `Microsoft.AspNetCore.App` | `8.0.x` | **Keep (Stable)** - High-performance framework for modern APIs. | [.NET 8 Docs](https://learn.microsoft.com/en-us/aspnet/core/) |
 | `MediatR` | `^12.0.0` | **Keep (Critical)** - Decoupling implementation via Mediator pattern. | [MediatR GitHub](https://github.com/jbogard/MediatR) |
-| `Microsoft.EntityFrameworkCore`| `8.0.x` | **Keep (Stable)** - High-performance ORM with RLS and migration support. | [EF Core Docs](https://learn.microsoft.com/en-us/ef/core/) |
-| `Npgsql.EntityFrameworkCore.PostgreSQL` | `8.0.x` | **Keep (Stable)** - Optimized driver for PostgreSQL. | [Npgsql Docs](https://www.npgsql.org/efcore/) |
+| `Microsoft.EntityFrameworkCore.SqlServer`| `8.0.x` | **Keep (Stable)** - ORM with official SQL Server support and RLS. | [EF Core SQL Server](https://learn.microsoft.com/en-us/ef/core/providers/sql-server/) |
+| `Microsoft.Data.SqlClient` | `^5.2.0` | **Keep (Stable)** - Official and mature connection driver for SQL Server. | [SqlClient GitHub](https://github.com/dotnet/SqlClient) |
 | `FluentValidation` | `^11.0.0` | **Keep (Stable)** - Strongly-typed validation for commands and queries. | [FluentValidation](https://fluentvalidation.net/) |
 | `BCrypt.Net-Next` | `^4.0.3` | **Keep (Stable)** - Secure hashing for credential storage. | [BCrypt.Net](https://github.com/BcryptNet/bcrypt.net) |
 | `Swashbuckle.AspNetCore` | `^6.5.0` | **Keep (Stable)** - Automatic generation of OpenAPI 3 specifications. | [Swashbuckle Docs](https://github.com/domaindrivendev/Swashbuckle.AspNetCore) |
@@ -206,8 +206,9 @@ This matrix maps foundational technical decisions to their targeted Quality Attr
 | **Monorepo Orchestration** | [ADR 0001](../03-adrs/0001-monorepo-orchestration-nx.md) | Modularity, Build Performance | Uses Nx & npm workspaces to manage decoupled modules with localized configurations. | Nx cache verification and localized dependency schema checks. |
 | **Hexagonal Boundaries** | [ADR 0002](../03-adrs/0002-clean-architecture-nestjs.md) | Decoupling, Testability, Agnosticism | Implements three strict layers: Core (Entities), Application (Use Cases), Infrastructure (Adapters). | `eslint-plugin-boundaries` blocks unauthorized outer-to-inner imports. |
 | **Observability Telemetry** | [ADR 0007](../03-adrs/0007-observability-telemetry-loki-opentelemetry.md) | Observability, Performance, Monitoring | Grafana LGTM Stack (Loki + Grafana + Tempo) with OpenTelemetry (OTel). | OpenTelemetry integration tests and Grafana dashboards monitoring. |
-| **Dependency Governance** | [ADR 0009](../03-adrs/0009-strict-dependency-pinning-vulnerability-management.md) | Security, Stability, Determinism | Enforces zero-tolerance for dynamic versions (`^`/`~` removed) to guarantee reproducible builds. | `npm audit --audit-level=high` runs in CI to block vulnerable PRs. |
-| **Multi-Tenancy SaaS** | [ADR 0010](../03-adrs/0010-multi-tenancy-architecture-strategy.md) | Security, Data Isolation, Cost Efficiency | Shared Database schema with PostgreSQL Row-Level Security (RLS) to enforce tenant isolation. | `AsyncLocalStorage` propagates Tenant Context; TypeORM Subscribers validate RLS. |
+| **Dependency Governance** | [ADR 0009](../03-adrs/0009-strict-dependency-pinning-vulnerability-management.md) | Security, Stability, Determinism | Zero-tolerance for dynamic versions (removes `^`/`~`) to guarantee reproducible builds. | `npm audit --audit-level=high` runs in CI to block vulnerable PRs. |
+| **DB Engine Strategy** | [ADR 0026](../03-adrs/0026-authoritative-database-engine-strategy.md) | Ecosystem, Performance, Maintainability | SQL Server for .NET; PostgreSQL/Mongo for Node.js. Aligned with Microsoft standards. | Integration tests and infrastructure provisioning policies. |
+| **SaaS Multi-Tenancy** | [ADR 0010](../03-adrs/0010-multi-tenancy-architecture-strategy.md) | Security, Data Isolation, Cost Efficiency | Shared schema with RLS (PostgreSQL for Node / SQL Server for .NET) to enforce tenant isolation. | `AsyncLocalStorage` propagates Tenant Context; EF Core Interceptors validate RLS. |
 | **Fault Tolerance & Resiliency** | [ADR 0011](../03-adrs/0011-fault-tolerance-resiliency-patterns.md) | Resilience, Reliability, Consistency | Circuit Breaker (`opossum`) + Exponential Backoff retries strictly wrapped inside Infrastructure Adapters. | Jest mocks simulating HTTP failures and verifying circuit state transitions. |
 | **Granular Authorization** | [ADR 0012](../03-adrs/0012-advanced-authorization-rbac-abac.md) | Security, Traceability, SoC | Tenant-aware RBAC/ABAC using JWT claim decoders and NestJS execution context Guards. | Integration tests simulating cross-tenant access attempts. |
 | **Distributed Caching** | [ADR 0014](../03-adrs/0014-distributed-caching-strategy-redis.md) | Performance, Database Offloading | Read-Aside caching with Redis store, completely hidden behind a pure Core `ICachePort` abstraction. | Redis integration tests and strict TTL verification. |
@@ -229,11 +230,11 @@ To guarantee the healthy evolution of the monorepo towards distributed models an
 *   **[ADR 0006: Future Microservices Transition with Dapr](../03-adrs/0006-future-microservices-transition-dapr.md)**: Establishes the technical criteria and triggers that will determine when to split the modular monolith into independent microservices governed by Dapr sidecars.
 *   **[ADR 0008: Progressive Multi-Module Evolution with API Gateway and BFF](../03-adrs/0008-progressive-multimodule-evolution-gateway-bff.md)**: Establishes the progressive design to transform this 100% Node.js reference solution into a multi-module portal capable of integrating independent systems (TMS, WMS, etc.) exposed as services with isolated databases, consumed via a central API Gateway and optimized through Backend For Frontend (BFF) gateways for Web and Mobile clients.
 *   **[ADR 0009: Strict Dependency Pinning and Automated Vulnerability Management](../03-adrs/0009-strict-dependency-pinning-vulnerability-management.md)**: Establishes the strategy of zero-tolerance for dynamic dependency versions, enforcing static versions across the monorepo, with automated dependency bot updates and high/critical CI vulnerability checks.
-*   **[ADR 0010: Multi-Tenancy Architecture Strategy for SaaS Evolution](../03-adrs/0010-multi-tenancy-architecture-strategy.md)**: Establishes the hybrid pooled multi-tenancy strategy utilizing a shared PostgreSQL schema coupled with Row-Level Security (RLS) to enforce absolute data isolation at the engine level for cost-effective SaaS scalability.
+*   **[ADR 0010: Multi-Tenancy Architecture Strategy for SaaS Evolution](../03-adrs/0010-multi-tenancy-architecture-strategy.md)**: Establishes the hybrid pooled multi-tenancy strategy utilizing a shared database schema coupled with RLS to enforce absolute data isolation at the engine level.
 *   **[ADR 0013: Cloud Infrastructure Topology & DR](../03-adrs/0013-cloud-infrastructure-topology-dr.md)**: Establishes high availability and disaster recovery topologies across multiple availability zones.
 *   **[ADR 0024: Configuration & Feature Management Platform](../03-adrs/0024-configuration-feature-management-platform.md)**: Extends UMS to handle dynamic system configuration and multi-IdP setups.
 *   **[ADR 0025: Feature Flag Provider Abstraction](../03-adrs/0025-feature-flag-provider-abstraction.md)**: Pluggable framework for external flag providers via `IFeatureFlagPort`.
-
+*   **[ADR 0026: Authoritative Database Engine Strategy](../03-adrs/0026-authoritative-database-engine-strategy.md)**: Defines engine-specific standards (SQL Server for .NET, PostgreSQL for Node.js) to leverage cloud-native features and RLS/SESSION_CONTEXT capabilities.
 
 ---
 
@@ -252,7 +253,7 @@ To support secure, context-aware, and highly scalable access control across all 
 1.  **Policy Enforcement Point (PEP)**: Intercepts incoming client requests at the API Gateway or individual NestJS Guards, enforcing access rules by reading the returned authorization graph.
 2.  **Policy Decision Point (PDP)**: The core UMS Engine. It compiles and resolves fine-grained permissions into a cached, hierarchical graph under 5ms using Redis.
 3.  **Policy Administration Point (PAP)**: The UMS administrative portal where security teams manage baseline templates, tenant profiles, and explicit permission rules.
-4.  **Policy Information Point (PIP)**: Relational PostgreSQL registries supplying active tenant, branch (sedes), and user attributes during graph evaluation.
+4.  **Policy Information Point (PIP)**: Relational database registries supplying active tenant, branch (sedes), and user attributes during graph evaluation.
 
 By utilizing the **Strategy Pattern** for dynamic output projections, the UMS can format the compiled graph into a variety of target structures on-the-fly (including frontend-optimized JSON, cryptographically signed JWT scopes, or Claims-based lists), ensuring high adaptability and complete zero-lock-in longevity. For a complete analysis of the Business Analyst reference model and API contracts, consult **[enterprise-iam-ums-specification.md](../04-artifacts/enterprise-iam-ums-specification.md)**.
 
@@ -260,21 +261,21 @@ By utilizing the **Strategy Pattern** for dynamic output projections, the UMS ca
 
 ## 🗄️ 8. Database Strategy & Multi-tenant Isolation (RLS)
 
-The system utilizes a **Shared Database** model with logical isolation reinforced via PostgreSQL **Row-Level Security (RLS)**. This ensures that no tenant can ever access data from another, even if an application-layer error occurs.
+The system utilizes a **Shared Database** model with logical isolation reinforced via SQL Server **SESSION_CONTEXT** and security policies (iTVF). This ensures that no tenant can ever access data from another, even if an application-layer error occurs.
 
 ```mermaid
 sequenceDiagram
-    participant App as .NET 8 API (DbContext)
-    participant PG as PostgreSQL 16 Engine
-    participant Table as Protected Table (e.g., Users)
+    participant App as "API .NET 8 (DbContext)"
+    participant SQL as "SQL Server 2022"
+    participant Table as "Protected Table (e.g., Users)"
 
-    App->>PG: Opens connection from pool
-    App->>PG: Executes SET LOCAL app.current_tenant = 'tenant_uuid'
-    App->>PG: SELECT * FROM users WHERE ...
-    PG->>PG: Evaluates native RLS Policy
-    PG->>Table: Filters rows by tenant_id
-    Table-->>PG: Returns only authorized rows
-    PG-->>App: Filtered and secure dataset
+    App->>SQL: "Opens connection from pool"
+    App->>SQL: "SESSION_CONTEXT('TenantId', @uuid)"
+    App->>SQL: "SELECT * FROM users WHERE ..."
+    SQL->>SQL: "Evaluates Security Policy (iTVF)"
+    SQL->>Table: "Filters rows by tenant_id"
+    Table-->>SQL: "Returns only authorized rows"
+    SQL-->>App: "Filtered and secure dataset"
 ```
 
 ---
@@ -292,10 +293,10 @@ graph LR
     Tempo["Grafana Tempo (Tracing)"]
     Grafana["Grafana Dashboards"]
 
-    App -->|Push OTLP| OTelCol
-    OTelCol -->|Scrape| Prom
-    OTelCol -->|Push| Loki
-    OTelCol -->|Push| Tempo
+    App -->|"Push OTLP"| OTelCol
+    OTelCol -->|"Scrape"| Prom
+    OTelCol -->|"Push"| Loki
+    OTelCol -->|"Push"| Tempo
     Prom --> Grafana
     Loki --> Grafana
     Tempo --> Grafana
@@ -335,7 +336,7 @@ Design optimized for **Kubernetes** with the capability to deploy in public clou
 
 ```mermaid
 graph TD
-    Internet((Internet))
+    Internet(("Internet"))
     LB["Load Balancer (Cloud/Metal)"]
     Ingress["NGINX Ingress Controller"]
     Vault["HashiCorp Vault (Secrets)"]
@@ -348,7 +349,7 @@ graph TD
         end
     end
 
-    DB[(PostgreSQL 16 Cluster)]
+    DB[("SQL Server 2022 Cluster")]
 
     Internet --> LB
     LB --> Ingress
@@ -356,7 +357,7 @@ graph TD
     BFF --> API
     API --> Redis
     API --> DB
-    API -.->|Reads secrets| Vault
+    API -.->|"Reads secrets"| Vault
 ```
 
 ---
