@@ -1,34 +1,39 @@
-# ADR 0028: Modelo de Gobernanza de Acciones con Alcance y Autorización Impulsada por Plantillas
+# ADR 0028: Gobernanza de Plantillas Maestras Vinculadas al Rol y Jerarquía Profunda
 
 ## Estatus
-Refactorizado (Propiedad de Acciones Jerárquicas)
+Refactorizado (Gobernanza Vinculada al Rol)
 
 ## Contexto
-Iteraciones anteriores permitían acciones que potencialmente podían existir fuera de un contexto funcional claro. Para garantizar una gobernanza de nivel empresarial, cada acción autorizada debe estar estrictamente vinculada a un **Sistema** (Acciones globales) o a un **Módulo Funcional** (Acciones específicas).
+Para garantizar la integridad funcional absoluta, las plantillas de permisos no deben existir como esquemas desconectados. Deben estar estrictamente vinculadas a un **Rol** dentro de un **Sistema**, asegurando que la autoridad siempre se defina dentro de un contexto organizacional y funcional válido.
 
 ## Decisión
-Implementaremos la **Gobernanza de Acciones con Alcance** dentro del Framework de Plantillas Maestras:
+Implementaremos la **Gobernanza de Plantillas Vinculadas al Rol** con una jerarquía funcional profunda:
 
-1.  **Propiedad Estricta de Acciones**:
-    *   Cada `ACTION` debe pertenecer a un `SYSTEM_SUITE` (Global) o a un `FUNCTIONAL_MODULE` (Específica).
-    *   Las acciones huérfanas (sin un padre de sistema o módulo) están estrictamente prohibidas.
+1.  **Cadena de Relación Estricta**:
+    *   `Sistema (1:N) Rol (1:N) Plantilla (1:N) PermisoDePerfil`.
+    *   Las plantillas son ahora una extensión de la definición de autoridad del Rol.
 
-2.  **Ruta de Resolución**:
-    *   La autorización sigue una ruta jerárquica obligatoria:
-        `Tenant -> Sistema -> Módulo -> Recurso -> Acción -> Plantilla -> PermisoDePerfil`.
+2.  **Jerarquía Funcional Profunda**:
+    *   El modelo admite explícitamente la autorización en 6 niveles:
+        1. **Sistema/Suite**
+        2. **Módulo Funcional**
+        3. **Menú/ÍtemMenú**
+        4. **SubMenú** (si aplica)
+        5. **Opción Funcional**
+        6. **Acción** (Ver, Crear, etc.)
 
-3.  **Unión de Plantilla (Junction)**:
-    *   `PermissionTemplate` actúa como la unión autorizada entre un **Recurso** (Sistema, Módulo, Menú, SubMenú, Opción) y una **Acción con Alcance**.
+3.  **Propiedad de Acciones con Alcance**:
+    *   Las acciones DEBEN pertenecer a un **Sistema** o **Módulo**. Sin huérfanos.
+    *   Las acciones se reutilizan dentro de las plantillas en el contexto del Rol.
 
-4.  **Sin Deriva Efectiva**:
-    *   `ProfilePermission` es una instancia materializada de una `PermissionTemplate`.
-    *   La asignación manual de acciones a perfiles sin una plantilla es imposible por diseño.
+4.  **Materialización Efectiva**:
+    *   `ProfilePermission` es un vínculo materializado a una **Plantilla Vinculada al Rol**, admitiendo anulaciones explícitas de `IsAllowed/IsDenied`.
 
 ## Implementación Técnica
-*   **Entidad Action**: Implementa `SystemId` y `ModuleId` (al menos uno debe ser no nulo).
-*   **Mapeo de Recursos**: Las plantillas mapean recursos a acciones con alcance.
-*   **Auditoría**: Todos los cambios de propiedad se auditan completamente con el esquema corporativo de 10 columnas.
+*   **PermissionTemplate**: Clave foránea a `RoleId`.
+*   **Mapeo de Jerarquía**: La identificación de recursos admite estructuras recursivas de menús y opciones.
+*   **Auditoría**: Esquema corporativo obligatorio de 10 columnas para todas las entidades.
 
 ## Consecuencias
-*   **Positivo**: Elimina la ambigüedad funcional, garantiza que cada permiso tenga un propietario claro y simplifica la auditoría.
-*   **Negativo**: Esquema ligeramente más complejo debido a la propiedad condicional de las acciones.
+*   **Positivo**: Elimina conjuntos de autoridad desconectados, garantiza que los roles sean el pivote principal de gobernanza y admite requerimientos empresariales extremadamente granulares.
+*   **Negativo**: Requerimientos de entrada de datos más estrictos (las plantillas deben crearse por Rol).

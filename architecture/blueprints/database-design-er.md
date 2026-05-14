@@ -1,12 +1,12 @@
 # 🗄️ Entity-Relationship (E/R) Model - SQL Server 2022
 
 **Document Type:** Database Design  
-**Status:** Refactored (Scoped Action Governance)  
-**Architecture:** Hierarchical Master Framework  
+**Status:** Refactored (Role-Scoped Template Governance)  
+**Architecture:** Deep Hierarchy Master Framework  
 **Engine:** SQL Server 2022
 
 ## 1. Introduction
-This document details the **Scoped Action** authorization model. Every authority in the system must belong to a functional container (System or Module), eliminating orphaned permissions and ensuring strict architectural governance.
+This document details the **Role-Scoped** authorization model. Every authorized authority is defined within a `PermissionTemplate` owned by a `Role`, ensuring strict alignment with functional boundaries.
 
 > [!TIP]
 > **Visualization Issues?**  
@@ -15,56 +15,48 @@ This document details the **Scoped Action** authorization model. Every authority
 ---
 
 ## 2. Standard Corporate Audit & Traceability
-Every entity in this schema MUST implement the standard 10 columns (`CreatedAt`, `CreatedBy`, `UpdatedAt`, `UpdatedBy`, `DeletedAt`, `DeletedBy`, `Version`, `IsActive`, `TenantId`, `CorrelationId`).
+All entities implement the standard 10-column audit schema.
 
 ---
 
 ## 3. Modular Domain Views
 
 ### 🗺️ 3.1 Global High-Level Map
-Full resolution path: `Tenant -> System -> Module -> Resource -> Action -> Template -> ProfilePermission`.
+Resolution: `Tenant -> System -> Role -> Template -> ProfilePermission`.
 
 ```mermaid
 erDiagram
     TENANT ||--o{ SYSTEM_SUITE : "owns"
+    SYSTEM_SUITE ||--o{ ROLE : "defines"
     SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "contains"
-    SYSTEM_SUITE ||--o{ ACTION : "global_actions"
-    FUNCTIONAL_MODULE ||--o{ ACTION : "module_actions"
     
-    ACTION ||--o{ PERMISSION_TEMPLATE : "scoped_to"
+    ROLE ||--o{ PERMISSION_TEMPLATE : "governs"
     PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "materialized"
     
     USER ||--o{ PROFILE : "acts_as"
-    PROFILE ||--o{ PROFILE_PERMISSION : "authority"
+    PROFILE ||--o{ PROFILE_PERMISSION : "effective_authority"
     
-    ROLE ||--o{ PROFILE : "blueprint"
-    PERMISSION_TEMPLATE ||--o{ ROLE_PERMISSION : "role_base"
+    FUNCTIONAL_MODULE ||--o{ ACTION : "scoped"
+    SYSTEM_SUITE ||--o{ ACTION : "global"
+    ACTION ||--o{ PERMISSION_TEMPLATE : "authorized_action"
 ```
 
 ---
 
-### 🔐 3.2 Domain: Scoped Authorization Framework
-Management of scoped actions and their materialization.
+### 🔐 3.2 Domain: Role-Centric Authority
+Management of role-scoped templates and deep functional hierarchy.
 
 ```mermaid
 erDiagram
-    SYSTEM_SUITE ||--o{ ACTION : "global"
-    FUNCTIONAL_MODULE ||--o{ ACTION : "specific"
-    
-    ACTION ||--o{ PERMISSION_TEMPLATE : "defines"
-    PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "effective"
-    
-    ACTION {
-        uniqueidentifier ActionId PK
-        uniqueidentifier SuiteId FK "Nullable"
-        uniqueidentifier ModuleId FK "Nullable"
-        nvarchar Code "VIEW/CREATE/EDIT"
-    }
+    ROLE ||--o{ PERMISSION_TEMPLATE : "owns"
+    PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "defines"
+    ACTION ||--o{ PERMISSION_TEMPLATE : "authorized"
     
     PERMISSION_TEMPLATE {
         uniqueidentifier TemplateId PK
+        uniqueidentifier RoleId FK
         uniqueidentifier ActionId FK
-        nvarchar ResourceType "SYSTEM/MODULE/MENU/OPTION"
+        nvarchar ResourceLevel "SYSTEM/MODULE/MENU/SUBMENU/OPTION"
         nvarchar ResourceId "Target ID"
     }
     
@@ -79,27 +71,28 @@ erDiagram
 
 ---
 
-### 📍 3.3 Domain: Functional Topology
-Hierarchy of organizational structure and navigation.
+### 📍 3.3 Domain: Functional Resources
+Deep organizational and navigational structure.
 
 ```mermaid
 erDiagram
     SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "contains"
     FUNCTIONAL_MODULE ||--o{ MENU_ITEM : "topology"
-    MENU_ITEM ||--o{ MENU_ITEM : "hierarchy"
+    MENU_ITEM ||--o{ SUB_MENU : "contains"
+    SUB_MENU ||--o{ FUNCTIONAL_OPTION : "provides"
     
-    MENU_ITEM {
-        uniqueidentifier MenuItemId PK
-        uniqueidentifier ModuleId FK
-        uniqueidentifier ParentItemId FK
+    FUNCTIONAL_OPTION {
+        uniqueidentifier OptionId PK
+        uniqueidentifier SubMenuId FK
         nvarchar Name
+        nvarchar Code
     }
 ```
 
 ---
 
 ## 4. Business Rules & Constraints
-1.  **Action Ownership**: Every Action MUST have either a `SuiteId` or a `ModuleId`.
-2.  **Constraint**: `CHECK (SuiteId IS NOT NULL OR ModuleId IS NOT NULL)`.
-3.  **No Orphans**: All permissions must trace back to a template.
-4.  **Immutability**: Permission templates are the source of truth; ProfilePermissions are overrides/materializations.
+1.  **Role Primacy**: A `PermissionTemplate` MUST belong to a `Role`.
+2.  **No Orphan Actions**: Actions must be owned by a System or Module.
+3.  **Hierarchy Compliance**: Authorization supports 6 levels from System to Action.
+4.  **Immutability**: Effective permissions (`ProfilePermission`) must reference a valid Role-Scoped template.

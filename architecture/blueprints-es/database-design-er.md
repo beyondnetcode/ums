@@ -1,12 +1,12 @@
 # 🗄️ Modelo Entidad-Relación (E/R) - SQL Server 2022
 
 **Tipo de Documento:** Diseño de Base de Datos  
-**Estatus:** Refactorizado (Gobernanza de Acciones con Alcance)  
-**Arquitectura:** Framework Jerárquico Maestro  
+**Estatus:** Refactorizado (Gobernanza de Plantillas Vinculadas al Rol)  
+**Arquitectura:** Framework Maestro de Jerarquía Profunda  
 **Motor:** SQL Server 2022
 
 ## 1. Introducción
-Este documento detalla el modelo de **Acciones con Alcance**. Toda autoridad en el sistema debe pertenecer a un contenedor funcional (Sistema o Módulo), eliminando los permisos huérfanos y garantizando una gobernanza arquitectónica estricta.
+Este documento detalla el modelo de **Plantillas Vinculadas al Rol**. Toda autoridad autorizada se define dentro de una `PermissionTemplate` propiedad de un `Role`, garantizando una alineación estricta con los límites funcionales.
 
 > [!TIP]
 > **¿Problemas de Visualización?**  
@@ -15,56 +15,48 @@ Este documento detalla el modelo de **Acciones con Alcance**. Toda autoridad en 
 ---
 
 ## 2. Estándares Corporativos de Auditoría y Trazabilidad
-Cada entidad en este esquema DEBE implementar las 10 columnas estándar (`CreatedAt`, `CreatedBy`, `UpdatedAt`, `UpdatedBy`, `DeletedAt`, `DeletedBy`, `Version`, `IsActive`, `TenantId`, `CorrelationId`).
+Todas las entidades implementan el esquema de auditoría estándar de 10 columnas.
 
 ---
 
 ## 3. Vistas Modulares por Dominio
 
 ### 🗺️ 3.1 Mapa Global de Alto Nivel
-Ruta de resolución completa: `Inquilino -> Sistema -> Módulo -> Recurso -> Acción -> Plantilla -> Permiso de Perfil`.
+Resolución: `Inquilino -> Sistema -> Rol -> Plantilla -> Permiso de Perfil`.
 
 ```mermaid
 erDiagram
     TENANT ||--o{ SYSTEM_SUITE : "posee"
+    SYSTEM_SUITE ||--o{ ROLE : "define"
     SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "contiene"
-    SYSTEM_SUITE ||--o{ ACTION : "acciones_globales"
-    FUNCTIONAL_MODULE ||--o{ ACTION : "acciones_de_módulo"
     
-    ACTION ||--o{ PERMISSION_TEMPLATE : "vinculado_a"
+    ROLE ||--o{ PERMISSION_TEMPLATE : "gobierna"
     PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "materializado"
     
     USER ||--o{ PROFILE : "actúa_como"
-    PROFILE ||--o{ PROFILE_PERMISSION : "autoridad"
+    PROFILE ||--o{ PROFILE_PERMISSION : "autoridad_efectiva"
     
-    ROLE ||--o{ PROFILE : "esquema"
-    PERMISSION_TEMPLATE ||--o{ ROLE_PERMISSION : "base_de_rol"
+    FUNCTIONAL_MODULE ||--o{ ACTION : "alcance_módulo"
+    SYSTEM_SUITE ||--o{ ACTION : "alcance_global"
+    ACTION ||--o{ PERMISSION_TEMPLATE : "acción_autorizada"
 ```
 
 ---
 
-### 🔐 3.2 Dominio: Framework de Autorización con Alcance
-Gestión de acciones con alcance y su materialización.
+### 🔐 3.2 Dominio: Autoridad Centrada en el Rol
+Gestión de plantillas vinculadas al rol y jerarquía funcional profunda.
 
 ```mermaid
 erDiagram
-    SYSTEM_SUITE ||--o{ ACTION : "global"
-    FUNCTIONAL_MODULE ||--o{ ACTION : "específica"
-    
-    ACTION ||--o{ PERMISSION_TEMPLATE : "define"
-    PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "efectivo"
-    
-    ACTION {
-        uniqueidentifier ActionId PK
-        uniqueidentifier SuiteId FK "Nullable"
-        uniqueidentifier ModuleId FK "Nullable"
-        nvarchar Code "VIEW/CREATE/EDIT"
-    }
+    ROLE ||--o{ PERMISSION_TEMPLATE : "posee"
+    PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "define"
+    ACTION ||--o{ PERMISSION_TEMPLATE : "autorizado"
     
     PERMISSION_TEMPLATE {
         uniqueidentifier TemplateId PK
+        uniqueidentifier RoleId FK
         uniqueidentifier ActionId FK
-        nvarchar ResourceType "SYSTEM/MODULE/MENU/OPTION"
+        nvarchar ResourceLevel "SYSTEM/MODULE/MENU/SUBMENU/OPTION"
         nvarchar ResourceId "ID de Recurso"
     }
     
@@ -79,27 +71,28 @@ erDiagram
 
 ---
 
-### 📍 3.3 Dominio: Topología Funcional
-Jerarquía de estructura organizacional y navegación.
+### 📍 3.3 Dominio: Recursos Funcionales
+Estructura profunda organizacional y de navegación.
 
 ```mermaid
 erDiagram
     SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "contiene"
     FUNCTIONAL_MODULE ||--o{ MENU_ITEM : "topología"
-    MENU_ITEM ||--o{ MENU_ITEM : "jerarquía"
+    MENU_ITEM ||--o{ SUB_MENU : "contiene"
+    SUB_MENU ||--o{ FUNCTIONAL_OPTION : "provee"
     
-    MENU_ITEM {
-        uniqueidentifier MenuItemId PK
-        uniqueidentifier ModuleId FK
-        uniqueidentifier ParentItemId FK
+    FUNCTIONAL_OPTION {
+        uniqueidentifier OptionId PK
+        uniqueidentifier SubMenuId FK
         nvarchar Name
+        nvarchar Code
     }
 ```
 
 ---
 
 ## 4. Reglas de Negocio y Restricciones
-1.  **Propiedad de Acciones**: Toda Acción DEBE tener un `SuiteId` o un `ModuleId`.
-2.  **Restricción**: `CHECK (SuiteId IS NOT NULL OR ModuleId IS NOT NULL)`.
-3.  **Sin Huérfanos**: Todos los permisos deben rastrearse hasta una plantilla.
-4.  **Inmutabilidad**: Las plantillas son la fuente de verdad; los ProfilePermissions son anulaciones/materializaciones.
+1.  **Primacía del Rol**: Una `PermissionTemplate` DEBE pertenecer a un `Role`.
+2.  **Sin Acciones Huérfanas**: Las acciones deben ser propiedad de un Sistema o Módulo.
+3.  **Cumplimiento Jerárquico**: La autorización admite 6 niveles desde el Sistema hasta la Acción.
+4.  **Inmutabilidad**: Los permisos efectivos (`ProfilePermission`) deben referenciar una plantilla válida vinculada al rol.

@@ -1,25 +1,23 @@
 # UMS E/R Model - Export Formats & Alternatives
 
-If Mermaid visualization is failing or insufficient, use these industry-standard formats to visualize the **Scoped Action Governance Framework**.
+If Mermaid visualization is failing or insufficient, use these industry-standard formats to visualize the **Role-Scoped Master Template Framework**.
 
 ## 1. dbdiagram.io (DBML - Recommended) 🚀
 1.  Go to [dbdiagram.io](https://dbdiagram.io/d).
 2.  Paste the code below.
 
 ```dbml
-// UMS Scoped Action Governance Model
+// UMS Role-Scoped Master Template Model
 // Engine: SQL Server 2022
 
 Table TENANT {
   TenantId uniqueidentifier [pk]
   Name nvarchar
-  Code nvarchar [unique]
 }
 
 Table USER {
   UserId uniqueidentifier [pk]
   TenantId uniqueidentifier
-  Username nvarchar
 }
 
 Table SYSTEM_SUITE {
@@ -28,23 +26,17 @@ Table SYSTEM_SUITE {
   Name nvarchar
 }
 
-Table FUNCTIONAL_MODULE {
-  ModuleId uniqueidentifier [pk]
+Table ROLE {
+  RoleId uniqueidentifier [pk]
   SuiteId uniqueidentifier
   Name nvarchar
 }
 
-Table ACTION {
-  ActionId uniqueidentifier [pk]
-  SuiteId uniqueidentifier [note: 'Nullable']
-  ModuleId uniqueidentifier [note: 'Nullable']
-  Code nvarchar
-}
-
 Table PERMISSION_TEMPLATE {
   TemplateId uniqueidentifier [pk]
+  RoleId uniqueidentifier
   ActionId uniqueidentifier
-  ResourceType nvarchar
+  ResourceLevel nvarchar
   ResourceId nvarchar
 }
 
@@ -63,46 +55,52 @@ Table PROFILE_PERMISSION {
   IsActive bit
 }
 
-Table ROLE {
-  RoleId uniqueidentifier [pk]
+Table FUNCTIONAL_MODULE {
+  ModuleId uniqueidentifier [pk]
   SuiteId uniqueidentifier
   Name nvarchar
+}
+
+Table ACTION {
+  ActionId uniqueidentifier [pk]
+  SuiteId uniqueidentifier [note: 'Global']
+  ModuleId uniqueidentifier [note: 'Module-Specific']
+  Code nvarchar
 }
 
 // Relationships
 Ref: USER.TenantId > TENANT.TenantId
 Ref: SYSTEM_SUITE.TenantId > TENANT.TenantId
-Ref: FUNCTIONAL_MODULE.SuiteId > SYSTEM_SUITE.SuiteId
-Ref: ACTION.SuiteId > SYSTEM_SUITE.SuiteId
-Ref: ACTION.ModuleId > FUNCTIONAL_MODULE.ModuleId
+Ref: ROLE.SuiteId > SYSTEM_SUITE.SuiteId
+Ref: PERMISSION_TEMPLATE.RoleId > ROLE.RoleId
 Ref: PERMISSION_TEMPLATE.ActionId > ACTION.ActionId
 Ref: PROFILE.TenantId > TENANT.TenantId
 Ref: PROFILE.UserId > USER.UserId
 Ref: PROFILE.RoleId > ROLE.RoleId
 Ref: PROFILE_PERMISSION.ProfileId > PROFILE.ProfileId
 Ref: PROFILE_PERMISSION.TemplateId > PERMISSION_TEMPLATE.TemplateId
+Ref: ACTION.SuiteId > SYSTEM_SUITE.SuiteId
+Ref: ACTION.ModuleId > FUNCTIONAL_MODULE.ModuleId
 ```
 
 ---
 
 ## 2. SQL DDL (SQL Server 2022) 🛠️
 ```sql
--- Scoped Action Schema
+-- Role-Scoped Master Schema
 
-CREATE TABLE ACTION (
-    ActionId UNIQUEIDENTIFIER PRIMARY KEY,
+CREATE TABLE ROLE (
+    RoleId UNIQUEIDENTIFIER PRIMARY KEY,
     SuiteId UNIQUEIDENTIFIER REFERENCES SYSTEM_SUITE(SuiteId),
-    ModuleId UNIQUEIDENTIFIER REFERENCES FUNCTIONAL_MODULE(ModuleId),
-    Code NVARCHAR(50) NOT NULL,
-    CONSTRAINT CHK_ActionOwnership CHECK (SuiteId IS NOT NULL OR ModuleId IS NOT NULL)
+    Name NVARCHAR(255)
 );
 
 CREATE TABLE PERMISSION_TEMPLATE (
     TemplateId UNIQUEIDENTIFIER PRIMARY KEY,
+    RoleId UNIQUEIDENTIFIER REFERENCES ROLE(RoleId),
     ActionId UNIQUEIDENTIFIER REFERENCES ACTION(ActionId),
-    ResourceType NVARCHAR(100),
-    ResourceId NVARCHAR(255),
-    AuditFields... -- Add standard 10 columns
+    ResourceLevel NVARCHAR(50), -- SYSTEM, MODULE, MENU, etc.
+    ResourceId NVARCHAR(255)
 );
 
 CREATE TABLE PROFILE_PERMISSION (
