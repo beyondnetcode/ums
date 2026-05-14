@@ -13,20 +13,20 @@ La siguiente tabla define los entregables obligatorios, el alcance estratégico 
 
 | Prioridad | Entregable | Descripción (Nivel Estratégico – Racional Ejecutivo) |
 | :--- | :--- | :--- |
-| **1** | Mapa de Contextos Acotados (Bounded Context Map) | Representación de los contextos acotados del dominio IAM de UMS, sus responsabilidades, cómo se relacionan y cómo evolucionarán. Establece un alcance funcional claro para los equipos y el presupuesto. |
-| **2** | Definición del Core de la Plataforma | Estrategia que identifica capacidades transversales (Identidad, Datos Maestros, Bus de Eventos, API Gateway), su propósito común y principios de reutilización. Justifica las inversiones en componentes compartidos. |
-| **3** | Diagrama C4 (Contexto, Contenedor, Componente) | Visión arquitectónica en los niveles 1 y 2: sistemas externos, contenedores grandes y comunicación entre ellos. Dimensiona la complejidad técnica y permite estimar el esfuerzo sin detallar clases o componentes internos. |
+| **1** | [Mapa de Contextos Acotados (Bounded Context Map)](./bounded-context-map.md) | Representación de los contextos acotados del dominio IAM de UMS, sus responsabilidades, cómo se relacionan y cómo evolucionarán. Establece un alcance funcional claro para los equipos y el presupuesto. |
+| **2** | [Definición del Core de la Plataforma](#-7-arquitectura-del-motor-de-autorización-centralizado-peppdppappip) | Estrategia que identifica capacidades transversales (Identidad, Datos Maestros, Bus de Eventos, API Gateway), su propósito común y principios de reutilización. Justifica las inversiones en componentes compartidos. |
+| **3** | [Diagrama C4 (Contexto, Contenedor, Componente)](#-2-modelo-c4) | Visión arquitectónica en los niveles 1 y 2: sistemas externos, contenedores grandes y comunicación entre ellos. Dimensiona la complejidad técnica y permite estimar el esfuerzo sin detallar clases o componentes internos. |
 | **4** | Estrategia de Base de Datos | Sustenta la elección del patrón de persistencia (Base de datos por módulo), pautas para transacciones distribuidas y políticas generales de respaldo y recuperación. Detalla el impacto en costos y operaciones. |
 | **5** | Modelo de Dominio de Eventos (Event Storming) | Mapa de eventos de negocio relevantes, sus productores y consumidores, junto con los principios de entrega y ordenamiento. Guía la integración y el esfuerzo asociado con la orquestación/coreografía. |
 | **6** | Estrategia de Observabilidad Extremo a Extremo | Enfoque para la telemetría distribuida: trazabilidad de procesos de negocio completos, métricas clave y modelos de registro (logging) a nivel arquitectónico. Se utiliza para estimar herramientas de monitoreo y costos. |
-| **7** | Diseño de Identidad y Autorización | Estrategia para el modelo de identidad y autorización: Proveedor de Identidad (IdP), flujo de autenticación entre contextos y pautas de sesión. Ayuda a dimensionar la seguridad en todos los dominios. |
+| **7** | [Diseño de Identidad y Autorización](#-7-arquitectura-del-motor-de-autorización-centralizado-peppdppappip) | Estrategia para el modelo de identidad y autorización: Proveedor de Identidad (IdP), flujo de autenticación entre contextos y pautas de sesión. Ayuda a dimensionar la seguridad en todos los dominios. |
 | **8** | Requerimientos No Funcionales Documentados (NFRs) | Definición de requisitos no funcionales medibles que condicionan la arquitectura: latencia, rendimiento (throughput), disponibilidad y mecanismos de degradación controlada. Representa los objetivos contractuales que el diseño debe cumplir. |
 | **9** | Estrategia de Gestión de Datos Maestros | Plan de trabajo para datos maestros: entidades clave, enfoque de migración desde SAP, pautas de calidad y fases. Justifica el esfuerzo de integración y limpieza de datos en el presupuesto. |
 | **10** | Estrategia de Versionamiento y Evolución de APIs | Pautas para la evolución de contratos (APIs y eventos): cómo se introducen cambios sin romper dependencias. Prevé la gobernanza técnica y el costo de mantener la compatibilidad. |
 | **11** | Estrategia de Sincronización Multi-Dominio | Enfoque para la consistencia eventual entre contextos: definición de fuentes de verdad, pautas de duplicación y resolución de conflictos. Revela la complejidad de integración y su impacto en los cronogramas. |
-| **12** | Registros de Decisión de Arquitectura Iniciales (ADRs) | Registro de las decisiones arquitectónicas más influyentes, su justificación y alternativas. Respalda por qué se eligió un camino específico, aclarando riesgos y costos asumidos. |
+| **12** | [Registros de Decisión de Arquitectura Iniciales (ADRs)](#-4-matriz-de-decisión-arquitectónica) | Registro de las decisiones arquitectónicas más influyentes, su justificación y alternativas. Respalda por qué se eligió un camino específico, aclarando riesgos y costos asumidos. |
 | **13** | Plan de Pruebas de Contrato de Integración | Estrategia para asegurar que las interacciones entre contextos cumplan con sus contratos, integradas en el pipeline de CI/CD. Justifica el aseguramiento de la calidad en las integraciones sin detallar herramientas específicas. |
-| **14** | Infraestructura de Despliegue | Diseño de la topología (nube/on-premise/híbrida), servicios gestionados clave y estimaciones de costos operativos. Proporciona una línea base financiera y técnica para el dimensionamiento. |
+| **14** | [Infraestructura de Despliegue](#-5-gestión-de-deuda-técnica-y-hoja-de-ruta-arquitectónica-backlog) | Diseño de la topología (nube/on-premise/híbrida), servicios gestionados clave y estimaciones de costos operativos. Proporciona una línea base financiera y técnica para el dimensionamiento. |
 | **15** | Estructura de Desglose de Trabajo y Plan | Hoja de ruta con fases, sprints, perfiles, hitos y criterios de aceptación. Traduce la estrategia en un cronograma y justifica la carga de trabajo y los costos de cada etapa. |
 
 ---
@@ -117,38 +117,37 @@ graph TD
 ---
 
 ### Nivel 3: Diagrama de Componentes de la API
-Un zoom interactivo a la estructura de la **API NestJS**, demostrando el flujo de control hacia el núcleo (*Inversión de Control*) de la Arquitectura Hexagonal.
+Un zoom interactivo a la estructura de la **API .NET 8**, demostrando el flujo de control hacia el núcleo (*Inversión de Control*) de la Arquitectura Hexagonal y el uso de **MediatR**.
 
 ```mermaid
 graph TD
-    subgraph HTTP["Capa de Adaptadores Externos (HTTP)"]
-        Controller["UserController (Controlador HTTP)"]
+    subgraph Presentation["Ums.Presentation (Web API)"]
+        Controller["UsersController / Minimal APIs (Capa de Entrada)"]
     end
 
-    subgraph Application["Capa de Casos de Uso (Aplicación)"]
-        UseCase["RegisterUserUseCase (Caso de Uso de Negocio)"]
-        DTO["RegisterUserDto (Validación)"]
+    subgraph Application["Ums.Application (Casos de Uso)"]
+        Handler["CreateUserCommandHandler (Manejador MediatR)"]
+        Command["CreateUserCommand (Contrato de Aplicación)"]
+        Validator["CreateUserValidator (FluentValidation)"]
     end
 
-    subgraph Core["Capa de Núcleo de Dominio (Core)"]
-        UserEntity["User Entity (Entidad de Negocio Pura)"]
+    subgraph Domain["Ums.Domain (Núcleo POCO)"]
+        Entity["User Aggregate Root (Entidad de Negocio Pura)"]
         IUserRepo["IUserRepository (Puerto de Persistencia)"]
-        IPassHasher["IPasswordHasher (Puerto de Hashing)"]
     end
 
-    subgraph Infrastructure["Capa de Adaptadores de Infraestructura"]
-        TypeOrmRepo["TypeOrmUserRepository (Adaptador de Persistencia)"]
-        BcryptHasher["BcryptPasswordHasher (Adaptador de Hashing)"]
+    subgraph Infrastructure["Ums.Infrastructure (Adaptadores)"]
+        EfRepo["EfUserRepository (Implementación EF Core)"]
+        Postgres["Npgsql (Driver PostgreSQL Nativo)"]
     end
 
-    Controller -->|Invoca| UseCase
-    UseCase -->|Valida entrada con| DTO
-    UseCase -->|Instancia y crea| UserEntity
-    UseCase -.->|Depende de| IUserRepo
-    UseCase -.->|Depende de| IPassHasher
-
-    TypeOrmRepo -.->|Implementa| IUserRepo
-    BcryptHasher -.->|Implementa| IPassHasher
+    Controller -->|Envía Comando| Handler
+    Handler -->|Valida con| Validator
+    Handler -->|Instancia y crea| Entity
+    Handler -.->|Depende de| IUserRepo
+    
+    EfRepo -.->|Implementa| IUserRepo
+    EfRepo -->|Accede vía| Postgres
 ```
 
 ---
@@ -157,18 +156,18 @@ graph TD
 
 Este inventario detalla todas las herramientas, librerías, plugins y componentes por workspace con su respectiva versión instalada, recomendación de ciclo de vida técnico (*Staff Recommendation*) y URL de referencia oficial.
 
-### 🦁 A. Backend (Capa de API NestJS)
+### 🚀 A. Backend (Capa de API .NET 8)
 
 | Dependencia / Librería | Versión Instalada | Recomendación Técnica | URL de Referencia |
 | :--- | :--- | :--- | :--- |
-| `@nestjs/core` | `^10.0.0` | **Mantener (Estable)** - Núcleo robusto para inyección de dependencias. | [Docs de NestJS](https://docs.nestjs.com/) |
-| `@nestjs/throttler` | `^6.5.0` | **Mantener (Estable)** - Prevención de fuerza bruta y ataques DDoS locales. | [Rate Limiting en NestJS](https://docs.nestjs.com/security/rate-limiting) |
-| `@nestjs/typeorm` | `^11.0.1` | **Mantener (Estable)** - Integración nativa de persistencia con soporte de transacciones. | [NestJS TypeORM](https://docs.nestjs.com/techniques/database) |
-| `typeorm` | `^0.3.28` | **Mantener (Estable)** - ORM maduro con excelente soporte de migraciones y Type Safety. | [TypeORM Oficial](https://typeorm.io/) |
-| `bcrypt` | `^6.0.0` | **Mantener (Estable)** - Algoritmo criptográfico robusto para almacenamiento de contraseñas. | [Bcrypt GitHub](https://github.com/kelektiv/node.bcrypt.js) |
-| `helmet` | `^8.1.0` | **Mantener (Crítico)** - Inyección automática de cabeceras HTTP seguras (CORS, XSS). | [Docs de Helmet](https://helmetjs.github.com/) |
-| `pg` | `^8.20.0` | **Mantener (Estable)** - Driver de conexión nativa de alto rendimiento para PostgreSQL. | [Node Postgres](https://node-postgres.com/) |
-| `class-validator` | `^0.15.1` | **Mantener (Estable)** - Validación declarativa de DTOs en tiempo de ejecución. | [Class Validator](https://github.com/typestack/class-validator) |
+| `Microsoft.AspNetCore.App` | `8.0.x` | **Mantener (Estable)** - Framework de alto rendimiento para APIs modernas. | [.NET 8 Docs](https://learn.microsoft.com/en-us/aspnet/core/) |
+| `MediatR` | `^12.0.0` | **Mantener (Crítico)** - Implementación de desacoplamiento vía patrón Mediator. | [MediatR GitHub](https://github.com/jbogard/MediatR) |
+| `Microsoft.EntityFrameworkCore`| `8.0.x` | **Mantener (Estable)** - ORM de alto rendimiento con soporte para RLS y migraciones. | [EF Core Docs](https://learn.microsoft.com/en-us/ef/core/) |
+| `Npgsql.EntityFrameworkCore.PostgreSQL` | `8.0.x` | **Mantener (Estable)** - Driver optimizado para PostgreSQL. | [Npgsql Docs](https://www.npgsql.org/efcore/) |
+| `FluentValidation` | `^11.0.0` | **Mantener (Estable)** - Validación fuertemente tipada para comandos y consultas. | [FluentValidation](https://fluentvalidation.net/) |
+| `BCrypt.Net-Next` | `^4.0.3` | **Mantener (Estable)** - Hashing seguro para almacenamiento de credenciales. | [BCrypt.Net](https://github.com/BcryptNet/bcrypt.net) |
+| `Swashbuckle.AspNetCore` | `^6.5.0` | **Mantener (Estable)** - Generación automática de especificaciones OpenAPI 3. | [Swashbuckle Docs](https://github.com/domaindrivendev/Swashbuckle.AspNetCore) |
+| `OpenTelemetry` | `^1.7.0` | **Mantener (Crítico)** - Estándar industrial para observabilidad y trazabilidad. | [OpenTelemetry .NET](https://opentelemetry.io/docs/instrumentation/net/) |
 
 ---
 

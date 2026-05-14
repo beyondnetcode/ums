@@ -7,6 +7,18 @@ Este documento establece el **Mapa de Contextos Acotados de Diseño Dirigido por
 
 ---
 
+## 🧭 Navegación Rápida
+| Contexto | Misión Principal | Acceso Directo |
+| :--- | :--- | :--- |
+| **Identidad** | Gestión de usuarios y tenants. | [Ver Detalle](#-a-contexto-de-identidad) |
+| **Autorización** | Motor de permisos y PDP. | [Ver Detalle](#-b-contexto-de-autorización) |
+| **Configuración** | Gestión de flags y overrides. | [Ver Detalle](#-c-contexto-de-configuración-y-gestión-de-funciones-nuevo) |
+| **Auditoría** | Libro inmutable de eventos. | [Ver Detalle](#-d-contexto-de-auditoría) |
+| **Consola** | Interfaz de administración (PAP). | [Ver Detalle](#-e-contexto-de-consola-punto-de-administración-de-políticas--pap) |
+| **Caché** | Capa de alto rendimiento. | [Ver Detalle](#-f-contexto-de-caché-infraestructura) |
+
+---
+
 ## 📐 1. Descripción General del Mapa de Contextos
 
 ```mermaid
