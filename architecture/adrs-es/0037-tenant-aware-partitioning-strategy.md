@@ -1,8 +1,9 @@
 # ADR-0037: Estrategia de Particionamiento por Inquilino
 
-*   **Estado:** Propuestao
+*   **Estado:** Reemplazado por ADR-0049
 *   **Fecha:** 2026-05-13
 *   **Autores:** Equipo de Arquitectura Senior & Product Owners
+*   **Razón de Reemplazo:** Sintaxis específica de PostgreSQL (PARTITION BY LIST, FDW, pg_class, autovacuum, foreign data wrapper). Usar ADR-0049 (adaptación para SQL Server) en su lugar.
 
 ---
 

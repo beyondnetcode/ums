@@ -1,8 +1,9 @@
 # ADR-0037: Tenant-Aware Partitioning Strategy
 
-*   **Status:** Proposed
+*   **Status:** Superseded by ADR-0049
 *   **Date:** 2026-05-13
 *   **Authors:** Senior Architecture & Product Owners Team
+*   **Supersession Reason:** PostgreSQL-specific syntax (PARTITION BY LIST, FDW, pg_class, autovacuum, foreign data wrapper). Use ADR-0049 (SQL Server adaptation) instead.
 
 ---
 

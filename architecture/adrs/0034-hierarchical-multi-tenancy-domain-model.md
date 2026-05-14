@@ -1,8 +1,9 @@
 # ADR-0034: Hierarchical Multi-Tenancy Domain Model (Closure Table + Taxonomy)
 
-*   **Status:** Proposed
+*   **Status:** Superseded by ADR-0048
 *   **Date:** 2026-05-13
 *   **Authors:** Senior Architecture & Product Owners Team
+*   **Supersession Reason:** PostgreSQL syntax is incompatible with SQL Server 2022. Use ADR-0048 (SQL Server adaptation) instead.
 
 ---
 

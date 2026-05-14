@@ -1,8 +1,9 @@
 # ADR-0034: Modelo de Dominio Multi-Inquilino Jerárquico (Closure Table + Taxonomía)
 
-*   **Estado:** Propuestao
+*   **Estado:** Reemplazado por ADR-0048
 *   **Fecha:** 2026-05-13
 *   **Autores:** Equipo de Arquitectura Senior & Product Owners
+*   **Razón de Reemplazo:** La sintaxis PostgreSQL es incompatible con SQL Server 2022. Usar ADR-0048 (adaptación para SQL Server) en su lugar.
 
 ---
 

@@ -15,9 +15,10 @@ This document establishes the formal **Domain-Driven Design (DDD) Bounded Contex
 | **Configuration** | Flag and override management. | [View Detail](#-c-configuration--feature-management-context-new) |
 | **Audit** | Immutable event ledger. | [View Detail](#-d-audit-context) |
 | **Console** | Administration interface (PAP). | [View Detail](#-e-console-context-policy-administration-point--pap) |
-| **Cache** | High-performance layer. | [View Detail](#-f-cache-context-infrastructure) |
-| **IGA** | Role promotion and delegated administration. | [View Detail](#-g-iga-context-identity-governance--administration) |
-| **Compliance** | Document lifecycle and access enforcement. | [View Detail](#-h-compliance-context)
+| **Approvals** | Approval workflow orchestration. | [View Detail](#-f-approvals-context-new) |
+| **Cache** | High-performance layer. | [View Detail](#-g-cache-context-infrastructure) |
+| **IGA** | Role promotion and delegated administration. | [View Detail](#-h-iga-context-identity-governance--administration) |
+| **Compliance** | Document lifecycle and access enforcement. | [View Detail](#-i-compliance-context)
 ## 1. Context Map Overview
 
 ```mermaid
@@ -75,6 +76,13 @@ graph TD
         IG3["Delegated Administration Registry"]
     end
 
+    subgraph ApprovalContext[" Approvals Context"]
+        AP1["Approval Workflow Orchestrator"]
+        AP2["Approval Request Manager"]
+        AP3["Required Document Registry"]
+        AP4["Approval Audit Trail"]
+    end
+
     subgraph ComplianceContext[" Compliance Context"]
         CM1["User Document Lifecycle"]
         CM2["Access Enforcement Policy Engine"]
@@ -91,21 +99,28 @@ graph TD
     ConsoleContext -->|"Customer-Supplier: PAP calls via API"| AuthorizationContext
     ConsoleContext -->|"Customer-Supplier: Admin identity"| IdentityContext
     ConsoleContext -->|"Customer-Supplier: Config + Flags admin"| ConfigContext
+    ConsoleContext -->|"Customer-Supplier: Approval workflow admin"| ApprovalContext
     AuthorizationContext -->|"Read-Aside: cache auth_graph"| CacheContext
     ConfigContext -->|"Read-Aside: cache cfg + flags"| CacheContext
     IdentityContext -->|"Customer-Supplier: UserRegisteredEvent"| IGAContext
     IdentityContext -->|"Customer-Supplier: UserRegisteredEvent"| ComplianceContext
+    IdentityContext -->|"Customer-Supplier: B2B external user request"| ApprovalContext
     IGAContext -->|"Customer-Supplier: PromotionApprovedEvent"| AuthorizationContext
+    IGAContext -->|"Customer-Supplier: PromotionApprovedEvent"| ApprovalContext
     IGAContext -->|"Conformist: emits promotion events"| AuditContext
     ComplianceContext -->|"Customer-Supplier: DocumentExpiredEvent → block"| IdentityContext
+    ComplianceContext -->|"Customer-Supplier: document validation request"| ApprovalContext
     ComplianceContext -->|"Conformist: emits document events"| AuditContext
+    ApprovalContext -->|"Customer-Supplier: ApprovalRequestCreatedEvent"| IdentityContext
+    ApprovalContext -->|"Customer-Supplier: ApprovalResolvedEvent"| AuthorizationContext
+    ApprovalContext -->|"Conformist: emits approval events"| AuditContext
 ```
 
 ---
 
 ## 2. Context Definitions
 
-### A. Identity Context
+### 🔐 A. Identity Context
 **Mission:** Manage the lifecycle of all principals (users) and the organizational structures (tenants and branches) they belong to. Delegate credential verification to pluggable, external Identity Providers using configurations supplied by the Configuration Context.
 
 **Owns:**
@@ -126,7 +141,7 @@ graph TD
 
 ---
 
-### B. Authorization Context
+### 🔑 B. Authorization Context
 **Mission:** Act as the **Policy Decision Point (PDP)**. Compile and resolve the hierarchical authorization graph for any authenticated principal based on their organization, branch, profiles, and attached templates.
 
 **Owns:**
@@ -151,7 +166,7 @@ graph TD
 
 ---
 
-### C. Configuration & Feature Management Context *(NEW)*
+### ⚙️ C. Configuration & Feature Management Context *(NEW)*
 **Mission:** Govern the **dynamic, multi-tenant runtime behavior** of all UMS-integrated systems without requiring code changes or redeployment. Owns three capability pillars:
 1. **Multi-IdP Configuration Engine** — per-tenant/system IdP registry with priority/fallback
 2. **System Behavioral Configuration** — versioned JSON config for auth, session, branding, modules
@@ -175,27 +190,42 @@ graph TD
 **Integration Contracts (Published Language):**
 - `GET /v1/config/idp?tenant_id&system_id` → returns ordered IdP config set
 - `GET /v1/config/system/{system_id}?tenant_id` → returns active system config
+- `GET /v1/config/app?tenant_id&code` → returns app configuration value (with inheritance chain)
+- `POST /v1/config/app` → creates/updates app config (versioned, tenant/system-scoped)
+- `GET /v1/config/app/hierarchy?tenant_id&code` → explains inheritance chain (tenant → system → global)
 - `POST /v1/flags/evaluate` → returns evaluated flag set for a runtime context
-- `IdpConfigUpdatedEvent { configId, tenantId, version, timestaamp }`
+- `IdpConfigUpdatedEvent { configId, tenantId, version, timestamp }`
 - `SystemConfigPublishedEvent { configId, systemId, tenantId, version }`
+- `AppConfigUpdatedEvent { configId, tenantId, systemId, code, version, timestamp }`
 - `FeatureFlagStateChangedEvent { flagCode, newStatus, targetScope, changedBy }`
 
 ---
 
-### D. Audit Context
-**Mission:** Maintain an **immutable, tamper-proof ledger** of all identity events, permission mutations, **and configuration changes**. Serves compliance, forensic, and SRE diagnostic needs.
+### 📋 D. Audit Context
+**Mission:** Maintain an **immutable, tamper-proof ledger** of all identity events, permission mutations, configuration changes, approval decisions, document lifecycle events, and role promotions. Serves compliance, forensic, and SRE diagnostic needs.
 
 **Owns:**
 - `AuditRecord` entity (who, when, what, result)
 - `AccessAttemptLog` (authentication success/failure)
 - `PermissionMutationHistory` (ALLOW/DENY changes)
 - `ConfigChangeHistory` (IdP config, system config, feature flag mutations) *(NEW)*
+- `ApprovalAuditLog` (approval request creation, resolution, decisions) *(NEW)*
+- `DocumentLifecycleHistory` (document upload, validation, expiration, enforcement) *(NEW)*
+- `RolePromotionAuditLog` (promotion criteria evaluation, approvals, status transitions) *(NEW)*
 
-**Integration Pattern:** Event-driven subscriber (Conformist). Receives events from Identity, Authorization, and Configuration contexts via internal event bus (`IEventBusPort`).
+**Integration Pattern:** Event-driven subscriber (Conformist). Receives events from all business contexts (Identity, Authorization, Configuration, Approvals, Compliance, IGA) via internal event bus (`IEventBusPort`).
+
+**Published Events Consumed:**
+- From Identity: `UserRegisteredEvent`, `UserSuspendedEvent`, `OrganizationCreatedEvent`
+- From Authorization: `PermissionMutatedEvent`
+- From Configuration: `IdpConfigUpdatedEvent`, `SystemConfigPublishedEvent`, `AppConfigUpdatedEvent`, `FeatureFlagStateChangedEvent`
+- From Approvals: `ApprovalRequestCreatedEvent`, `ApprovalResolvedEvent`
+- From Compliance: `DocumentExpiredEvent`, `DocumentValidatedEvent`, `NotificationSentEvent`
+- From IGA: `PromotionCriteriaMetEvent`, `PromotionApprovedEvent`
 
 ---
 
-### E. Console Context (Policy Administration Point — PAP)
+### 💻 E. Console Context (Policy Administration Point — PAP)
 **Mission:** Provide the **Administrative Web Portal** that allows SuperAdmins and Tenant Managers to govern organizations, systems, profiles, templates, IdP configurations, system configs, and feature flags.
 
 **Owns:**
@@ -210,7 +240,55 @@ graph TD
 
 ---
 
-### G. IGA Context (Identity Governance & Administration)
+### 📝 F. Approvals Context *(NEW)*
+**Mission:** Orchestrate and manage approval workflows for B2B external access requests, document validation, and role promotion processes. Act as the central point of control for all multi-step authorization and compliance decisions.
+
+**Schema DB:** `[ums_approval]`
+**Owner Service:** UMS Core API (.NET 8)
+
+**Owns:**
+- `ApprovalWorkflow` aggregate (defines approval routing, required steps, approver roles)
+- `ApprovalRequest` aggregate (status: `PENDING → APPROVED | REJECTED`)
+- `ApprovalRequiredDocument` entity (document type requirements linked to workflows)
+- `ApprovalLog` entity (immutable decision record: who, when, what, decision, reason)
+- `IApprovalRouterPort` (core port — routes requests to correct approvers based on scope)
+
+**Does NOT own:**
+- Document storage (owned by Compliance Context)
+- User identity (owned by Identity Context)
+- Role definitions or profile assignment (owned by Authorization Context)
+- Audit ledger (owned by Audit Context)
+
+**Integration Contracts (Published Language):**
+- `POST /v1/approvals/workflows` → create or update approval workflow
+- `POST /v1/approvals/request` → submit approval request (B2B, document validation, promotion)
+- `PATCH /v1/approvals/request/{requestId}` → approve/reject with decision and reason
+- `GET /v1/approvals/request/{requestId}` → retrieve request status and decision
+- `GET /v1/approvals/pending?tenant_id&role=approver` → list pending approvals by approver
+- `ApprovalRequestCreatedEvent { requestId, workflowId, targetUserId, targetProfileId, requestType, timestamp }`
+- `ApprovalResolvedEvent { requestId, decision, approvedBy, reason, timestamp }`
+- `ApprovalRejectedEvent { requestId, rejectionReason, rejectedBy, timestamp }`
+
+**Integration Pattern:** Customer-Supplier (upstream from Identity, Compliance, IGA). Publishes approval events to Identity and Authorization for provisioning/profile updates. Conformist to Audit for all decisions.
+
+---
+
+### ⚡ G. Cache Context (Infrastructure)
+**Mission:** Provide a high-performance distributed cache layer for authorization graphs, system configurations, and feature flag evaluations — all under strict namespace governance.
+
+**Cache Namespaces:**
+| Namespace | Owner Context | Key Pattern | TTL |
+| :--- | :--- | :--- | :--- |
+| `auth_graph:*` | Authorization Context | `auth_graph:{userId}:{systemId}:{tenantId}:{branchId}` | 3600s |
+| `cfg:idp:*` | Configuration Context | `cfg:idp:{tenantId}:{systemId}` | 900s |
+| `cfg:sys:*` | Configuration Context | `cfg:sys:{systemId}:{tenantId}` | 300s |
+| `flags:*` | Configuration Context | `flags:{systemId}:{tenantId}:{userId}` | 60s |
+
+**Integration Pattern:** Hidden behind pure core port abstractions (`ICachePort`, `IConfigCachePort`). Only infrastructure adapters interact with Redis directly.
+
+---
+
+### 🎖️ H. IGA Context (Identity Governance & Administration)
 **Mission:** Govern the complete lifecycle of role evolution, user promotion processes, and delegated user administration. Acts as the rules engine that evaluates promotion criteria and orchestrates approval workflows for role advancement.
 
 **Schema DB:** `ums_iga`
@@ -230,14 +308,14 @@ graph TD
 **Integration Contracts (Published Language):**
 - `POST /v1/iga/promotion/evaluate` → triggers criteria evaluation for a user
 - `GET /v1/iga/promotion/pending` → list promotions awaiting approval
-- `PromotionCriteriaMetEvent { userId, roleId, processId, timestaamp }`
-- `PromotionApprovedEvent { userId, fromRoleId, toRoleId, approvedBy, timestaamp }`
+- `PromotionCriteriaMetEvent { userId, roleId, processId, timestamp }`
+- `PromotionApprovedEvent { userId, fromRoleId, toRoleId, approvedBy, timestamp }`
 
 **Integration Pattern:** Receives `UserRegisteredEvent` from Identity Context. Publishes `PromotionApprovedEvent` consumed by Authorization Context (to update Profile) and Identity Context (to update user status).
 
 ---
 
-### H. Compliance Context
+### 📄 I. Compliance Context
 **Mission:** Enforce document-based access policies for all users. Manages the complete lifecycle of user documents, evaluates expiration status, dispatches configurable pre-expiration notifications, and triggers automated enforcement actions (block, downgrade, notify-only, suspend) upon expiration.
 
 **Schema DB:** `ums_compliance`
@@ -253,29 +331,18 @@ graph TD
 
 **Does NOT own:**
 - User identity or blocking authority (delegates `UserBlockedEvent` to Identity Context)
-- Approval workflow orchestration (owned by IGA Context)
+- Approval workflow orchestration (owned by Approvals Context)
 - Audit ledger (owned by Audit Context)
 
 **Integration Contracts (Published Language):**
 - `POST /v1/compliance/documents` → upload user document
 - `GET /v1/compliance/documents/{userId}/status` → document compliance summary
-- `DocumentExpiredEvent { userId, documentId, criticity, enforcementAction, timestaamp }`
-- `DocumentValidatedEvent { userId, documentId, validatedBy, timestaamp }`
+- `POST /v1/compliance/documents/{documentId}/validate` → validate or reject document
+- `DocumentExpiredEvent { userId, documentId, criticity, enforcementAction, timestamp }`
+- `DocumentValidatedEvent { userId, documentId, validatedBy, timestamp }`
+- `NotificationSentEvent { userId, documentId, channel, timestamp }`
 
-**Integration Pattern:** Receives `UserRegisteredEvent` from Identity. Publishes `DocumentExpiredEvent` consumed by Identity Context (triggers BLOCK_ACCESS) and Audit Context. Sends notifications via `INotificationPort`.
-
----
-
-### F. Cache Context (Infrastructure)
-**Mission:** Provide a high-performance distributed cache layer for authorization graphs, system configurations, and feature flag evaluations — all under strict namespace governance.
-
-**Cache Namespaces:**
-| Namespace | Owner Context | Key Pattern | TTL |
-| :--- | :--- | :--- | :--- |
-| `auth_graph:*` | Authorization Context | `auth_graph:{userId}:{systemId}:{tenantId}:{branchId}` | 3600s |
-| `cfg:idp:*` | Configuration Context | `cfg:idp:{tenantId}:{systemId}` | 900s |
-| `cfg:sys:*` | Configuration Context | `cfg:sys:{systemId}:{tenantId}` | 300s |
-| `flags:*` | Configuration Context | `flags:{systemId}:{tenantId}:{userId}` | 60s | **Integration Pattern:** Hidden behind pure core port abstractions (`ICachePort`, `IConfigCachePort`). Only infrastructure adapters interact with Redis directly.
+**Integration Pattern:** Receives `UserRegisteredEvent` from Identity to initialize document tracking. Publishes `DocumentExpiredEvent` (triggers enforcement in Identity), `DocumentValidatedEvent`, and sends notifications via `INotificationPort`. Sends all document/notification events to Audit Context (Conformist).
 
 ---
 
@@ -285,21 +352,28 @@ graph TD
 | :--- | :--- | :--- | :--- |
 | Identity Context | Authorization Context | **Customer-Supplier** | User/Org/Branch claims pushed as events or queried via API |
 | Identity Context | Config Context | **Customer-Supplier** | Tenant scope keys used for config isolation |
+| Identity Context | Approvals Context | **Customer-Supplier** | B2B user registration requests trigger approval workflows |
 | Config Context | Identity Context | **Customer-Supplier** | IdP config supplied to Auth Gateway for routing |
 | Authorization Context | Audit Context | **Conformist (Event)** | Publishes `PermissionMutatedEvent` |
-| Identity Context | Audit Context | **Conformist (Event)** | Publishes `UserRegisteredEvent`, `UserSuspendedEvent` |
-| Config Context | Audit Context | **Conformist (Event)** | Publishes `IdpConfigUpdatedEvent`, `SystemConfigPublishedEvent`, `FeatureFlagStateChangedEvent` |
+| Identity Context | Audit Context | **Conformist (Event)** | Publishes `UserRegisteredEvent`, `UserSuspendedEvent`, `OrganizationCreatedEvent` |
+| Config Context | Audit Context | **Conformist (Event)** | Publishes `IdpConfigUpdatedEvent`, `SystemConfigPublishedEvent`, `AppConfigUpdatedEvent`, `FeatureFlagStateChangedEvent` |
 | Console Context | Authorization Context | **Customer-Supplier** | PAP calls Authorization APIs for template/profile management |
 | Console Context | Identity Context | **Customer-Supplier** | PAP calls Identity APIs for org/branch management |
 | Console Context | Config Context | **Customer-Supplier** | PAP calls Config APIs for IdP, system config, and flag management |
+| Console Context | Approvals Context | **Customer-Supplier** | PAP admin calls Approvals APIs for workflow management and decision review |
 | Authorization Context | Cache Context | **Shared Kernel (ICachePort)** | Read-aside; invalidation on mutation events |
 | Config Context | Cache Context | **Shared Kernel (IConfigCachePort)** | Read-aside for cfg + flags; invalidation on config events |
 | Identity Context | IGA Context | **Customer-Supplier** | Publishes `UserRegisteredEvent` consumed by IGA to initialize promotion tracking |
-| IGA Context | Authorization Context | **Customer-Supplier** | Publishes `PromotionApprovedEvent` consumed by Authorization to update Profile |
-| IGA Context | Audit Context | **Conformist (Event)** | Publishes `PromotionCriteriaMetEvent`, `PromotionApprovedEvent` |
 | Identity Context | Compliance Context | **Customer-Supplier** | Publishes `UserRegisteredEvent` consumed by Compliance to initialize document tracking |
+| IGA Context | Authorization Context | **Customer-Supplier** | Publishes `PromotionApprovedEvent` consumed by Authorization to update Profile |
+| IGA Context | Approvals Context | **Customer-Supplier** | Role promotion decisions require approval workflow |
+| IGA Context | Audit Context | **Conformist (Event)** | Publishes `PromotionCriteriaMetEvent`, `PromotionApprovedEvent` |
+| Approvals Context | Identity Context | **Customer-Supplier** | Publishes `ApprovalRequestCreatedEvent`, `ApprovalResolvedEvent` for B2B provisioning |
+| Approvals Context | Authorization Context | **Customer-Supplier** | Publishes approval events for profile/role assignment based on decisions |
+| Approvals Context | Audit Context | **Conformist (Event)** | Publishes `ApprovalRequestCreatedEvent`, `ApprovalResolvedEvent`, `ApprovalRejectedEvent` |
 | Compliance Context | Identity Context | **Customer-Supplier** | Publishes `DocumentExpiredEvent` triggering BLOCK_ACCESS in Identity |
-| Compliance Context | Audit Context | **Conformist (Event)** | Publishes `DocumentExpiredEvent`, `DocumentValidatedEvent`
+| Compliance Context | Approvals Context | **Customer-Supplier** | Document validation requests trigger approval workflows |
+| Compliance Context | Audit Context | **Conformist (Event)** | Publishes `DocumentExpiredEvent`, `DocumentValidatedEvent`, `NotificationSentEvent`
 ## 4. Anti-Corruption Layers (ACL)
 
 | Boundary | ACL Mechanism | Reason |
@@ -310,6 +384,7 @@ graph TD
 | Config ↔ Redis (cfg/flags) | `IConfigCachePort` | Separate port from auth graph cache to enforce namespace governance |
 | Authorization ↔ Redis (auth_graph) | `ICachePort` | Prevents Redis client from leaking into domain layer |
 | Authorization ↔ Event Bus | `IEventBusPort` | Prevents Kafka/RabbitMQ from coupling to use cases |
+| Approvals ↔ Approver Notification | `IApprovalRouterPort` (Strategy Pattern) | Routes approval requests to correct approvers; prevents tight coupling to notification mechanism |
 | Console ↔ UMS APIs | REST API contracts (versioned) | Console is an external consumer; treated as any third party |
 | Compliance ↔ Notification Providers | `INotificationPort` (Strategy Pattern) | Prevents SMTP/Twilio SDKs from coupling to domain |
 | Compliance ↔ Object Storage | `IDocumentStoragePort` (Strategy Pattern) | Prevents MinIO/S3 SDK from leaking into domain | 

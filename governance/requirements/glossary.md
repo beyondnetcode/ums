@@ -11,10 +11,11 @@ This document establishes the standardized, non-ambiguous glossary of terms for 
 | Term | Definition | SSoT Schema Owner |
 | :--- | :--- | :--- |
 | **User (Usuario)** | A unique human operator or service account registered in the system. Has credentials and assigned Profiles. | `Identity.Users` |
-| **Organization (Organización)**| A company node. Can be the primary corporate Tenant (`INTERNAL`) or an external actor such as a B2B `CLIENT` or `SUPPLIER` linked to an ERP code. | `Identity.Organizations` |
-| **Sponsor User** | An internal corporate user who requests and justifies system access for an external third-party user. | `Identity.Users` |
-| **External Access Request** | An auditable business ticket routing an external B2B access request through the PAP approval workflow. | `Identity.AccessRequests` |
-| **Branch (Sedes)** | A physical or logical sub-unit of an Organization (e.g., *Callao Port Terminal*, *Lurin Warehouse*). Acts as the branch context for hierarchical authorization routing. | `Identity.Branches` |
+| **Tenant (Inquilino)** | A secured, isolated organizational namespace sharing the same physical UMS platform. Every database row is marked with a `TenantId`. Tenants implement Row-Level Security (RLS) for infrastructure-level isolation. Maps 1:1 to an Organization. | `Identity.Tenants` |
+| **Organization (Organización)**| A company or business entity registered in UMS. Defines a security boundary and maps to a Tenant. Can be the primary corporate organization (`INTERNAL`, owns the platform) or an external actor (`CLIENT`, `SUPPLIER`, `PARTNER`) linked to ERP identifiers. The Organization's Tenant ID determines data isolation. | `Identity.Organizations` |
+| **Sponsor User** | An internal corporate user (from the `INTERNAL` Organization) who requests and justifies system access for an external B2B user via the approval workflow. | `Identity.Users` |
+| **External Access Request** | An auditable business ticket routing a B2B user onboarding request through the Approvals Context workflow. Initiated by a Sponsor User. | `Approvals.Requests` |
+| **Branch (Sedes)** | A physical or logical sub-unit of an Organization (e.g., *Callao Port Terminal*, *Lurin Warehouse*). Scoped to a single Tenant. Acts as the branch context for hierarchical authorization routing and Row-Level Security enforcement. | `Identity.Branches` |
 | **Network (Red)** | A logical network boundary (Private Network, Public, Shared) governing access policies. | `Identity.Networks` |
 | **System (Sistema)** | An independent application or sub-portal registered in the platform (e.g., Route Planner, Billing). Contains one or more Modules. | `Auth.Systems` |
 | **Menu (Menú)** | A structured navigation tree of sidebars and views within a Module. | `Auth.Menus` |

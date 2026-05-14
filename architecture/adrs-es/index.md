@@ -49,4 +49,6 @@ Registro histórico de decisiones arquitectónicas.
 - [0045-document-lifecycle-enforcement.md](0045-document-lifecycle-enforcement.md)
 - [0046-role-evolution-and-promotion.md](0046-role-evolution-and-promotion.md)
 - [0047-hierarchical-configuration.md](0047-hierarchical-configuration.md)
+- [0048-hierarchical-multi-tenancy-sql-server.md](0048-hierarchical-multi-tenancy-sql-server.md)
+- [0049-tenant-aware-partitioning-sql-server.md](0049-tenant-aware-partitioning-sql-server.md)
 

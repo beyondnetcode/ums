@@ -15,9 +15,10 @@ Este documento establece el **Mapa de Contextos Acotados de Diseño Dirigido por
 | **Configuración** | Gestión de flags y overrides. | [Ver Detalle](#-c-contexto-de-configuración-y-gestión-de-funciones-nuevo) |
 | **Auditoría** | Libro inmutable de eventos. | [Ver Detalle](#-d-contexto-de-auditoría) |
 | **Consola** | Interfaz de administración (PAP). | [Ver Detalle](#-e-contexto-de-consola-punto-de-administración-de-políticas--pap) |
-| **Caché** | Capa de alto rendimiento. | [Ver Detalle](#-f-contexto-de-caché-infraestructura) |
-| **IGA** | Promoción de roles y administración delegada. | [Ver Detalle](#-g-contexto-iga-gobernanza-y-administración-de-identidad) |
-| **Cumplimiento** | Ciclo de vida de documentos y aplicación de acceso. | [Ver Detalle](#-h-contexto-de-cumplimiento)
+| **Aprobaciones** | Orquestación de flujos de aprobación. | [Ver Detalle](#-f-contexto-de-aprobaciones-nuevo) |
+| **Caché** | Capa de alto rendimiento. | [Ver Detalle](#-g-contexto-de-caché-infraestructura) |
+| **IGA** | Promoción de roles y administración delegada. | [Ver Detalle](#-h-contexto-iga-gobernanza-y-administración-de-identidad) |
+| **Cumplimiento** | Ciclo de vida de documentos y aplicación de acceso. | [Ver Detalle](#-i-contexto-de-cumplimiento)
 ## 1. Descripción General del Mapa de Contextos
 
 ```mermaid
@@ -69,6 +70,13 @@ graph TD
         CA4["Gobernanza de TTL y Hooks de Evicción"]
     end
 
+    subgraph ApprovalContext[" Contexto de Aprobaciones"]
+        AP1["Orquestador de Flujo de Aprobación"]
+        AP2["Gestor de Solicitud de Aprobación"]
+        AP3["Registro de Documento Requerido"]
+        AP4["Pista de Auditoría de Aprobación"]
+    end
+
     subgraph IGAContext[" Contexto IGA"]
         IG1["Motor de Criterios de Promoción de Roles"]
         IG2["Gestor de Proceso de Promoción de Usuario"]
@@ -91,14 +99,21 @@ graph TD
     ConsoleContext -->|"Customer-Supplier: PAP llama vía API"| AuthorizationContext
     ConsoleContext -->|"Customer-Supplier: Identidad de Admin"| IdentityContext
     ConsoleContext -->|"Customer-Supplier: Admin de Config + Flags"| ConfigContext
+    ConsoleContext -->|"Customer-Supplier: Admin de flujo de aprobación"| ApprovalContext
     AuthorizationContext -->|"Read-Aside: caché auth_graph"| CacheContext
     ConfigContext -->|"Read-Aside: caché cfg + flags"| CacheContext
     IdentityContext -->|"Customer-Supplier: UserRegisteredEvent"| IGAContext
     IdentityContext -->|"Customer-Supplier: UserRegisteredEvent"| ComplianceContext
+    IdentityContext -->|"Customer-Supplier: solicitud de usuario externo B2B"| ApprovalContext
     IGAContext -->|"Customer-Supplier: PromotionApprovedEvent"| AuthorizationContext
+    IGAContext -->|"Customer-Supplier: PromotionApprovedEvent"| ApprovalContext
     IGAContext -->|"Conformist: emite eventos de promoción"| AuditContext
     ComplianceContext -->|"Customer-Supplier: DocumentExpiredEvent → bloqueo"| IdentityContext
+    ComplianceContext -->|"Customer-Supplier: solicitud de validación de documento"| ApprovalContext
     ComplianceContext -->|"Conformist: emite eventos de documentos"| AuditContext
+    ApprovalContext -->|"Customer-Supplier: ApprovalRequestCreatedEvent"| IdentityContext
+    ApprovalContext -->|"Customer-Supplier: ApprovalResolvedEvent"| AuthorizationContext
+    ApprovalContext -->|"Conformist: emite eventos de aprobación"| AuditContext
 ```
 
 ---
@@ -175,23 +190,38 @@ graph TD
 **Contratos de Integración (Lenguaje Publicado):**
 - `GET /v1/config/idp?tenant_id&system_id` → devuelve el conjunto ordenado de config de IdP
 - `GET /v1/config/system/{system_id}?tenant_id` → devuelve la configuración activa del sistema
+- `GET /v1/config/app?tenant_id&code` → devuelve el valor de configuración de app (con cadena de herencia)
+- `POST /v1/config/app` → crea/actualiza configuración de app (versionada, alcance tenant/sistema)
+- `GET /v1/config/app/hierarchy?tenant_id&code` → explica la cadena de herencia (tenant → sistema → global)
 - `POST /v1/flags/evaluate` → devuelve el conjunto de flags evaluados para un contexto de ejecución
-- `IdpConfigUpdatedEvent { configId, tenantId, version, timestaamp }`
+- `IdpConfigUpdatedEvent { configId, tenantId, version, timestamp }`
 - `SystemConfigPublishedEvent { configId, systemId, tenantId, version }`
+- `AppConfigUpdatedEvent { configId, tenantId, systemId, code, version, timestamp }`
 - `FeatureFlagStateChangedEvent { flagCode, newStatus, targetScope, changedBy }`
 
 ---
 
 ### D. Contexto de Auditoría
-**Misión:** Mantener un **libro de contabilidad inmutable y a prueba de manipulaciones** de todos los eventos de identidad, mutaciones de permisos **y cambios de configuración**. Atiende necesidades de cumplimiento, forenses y diagnósticos de SRE.
+**Misión:** Mantener un **libro de contabilidad inmutable y a prueba de manipulaciones** de todos los eventos de identidad, mutaciones de permisos, cambios de configuración, decisiones de aprobación, eventos de ciclo de vida de documentos y promociones de roles. Atiende necesidades de cumplimiento, forenses y diagnósticos de SRE.
 
 **Es dueño de:**
 - Entidad `AuditRecord` (quién, cuándo, qué, resultado)
 - `AccessAttemptLog` (éxito/fallo de autenticación)
 - `PermissionMutationHistory` (cambios de PERMITIR/DENEGAR)
 - `ConfigChangeHistory` (mutaciones de config de IdP, config de sistema, feature flags) *(NUEVO)*
+- `ApprovalAuditLog` (creación de solicitud de aprobación, resolución, decisiones) *(NUEVO)*
+- `DocumentLifecycleHistory` (carga, validación, vencimiento, ejecución de documentos) *(NUEVO)*
+- `RolePromotionAuditLog` (evaluación de criterios de promoción, aprobaciones, transiciones de estado) *(NUEVO)*
 
-**Patrón de Integración:** Suscriptor basado en eventos (Conformist). Recibe eventos de los contextos de Identidad, Autorización y Configuración a través del bus de eventos interno (`IEventBusPort`).
+**Patrón de Integración:** Suscriptor basado en eventos (Conformist). Recibe eventos de todos los contextos de negocio (Identidad, Autorización, Configuración, Aprobaciones, Cumplimiento, IGA) a través del bus de eventos interno (`IEventBusPort`).
+
+**Eventos Publicados Consumidos:**
+- Desde Identidad: `UserRegisteredEvent`, `UserSuspendedEvent`, `OrganizationCreatedEvent`
+- Desde Autorización: `PermissionMutatedEvent`
+- Desde Configuración: `IdpConfigUpdatedEvent`, `SystemConfigPublishedEvent`, `AppConfigUpdatedEvent`, `FeatureFlagStateChangedEvent`
+- Desde Aprobaciones: `ApprovalRequestCreatedEvent`, `ApprovalResolvedEvent`
+- Desde Cumplimiento: `DocumentExpiredEvent`, `DocumentValidatedEvent`, `NotificationSentEvent`
+- Desde IGA: `PromotionCriteriaMetEvent`, `PromotionApprovedEvent`
 
 ---
 
@@ -210,7 +240,40 @@ graph TD
 
 ---
 
-### G. Contexto IGA (Gobernanza y Administración de Identidad)
+### F. Contexto de Aprobaciones *(NUEVO)*
+**Misión:** Orquestar y gestionar flujos de aprobación para solicitudes de acceso B2B externo, validación de documentos y procesos de promoción de roles. Actúa como punto central de control para todas las decisiones de autorización y cumplimiento de múltiples pasos.
+
+**Schema DB:** `[ums_approval]`
+**Servicio Dueño:** UMS Core API (.NET 8)
+
+**Es dueño de:**
+- Agregado `ApprovalWorkflow` (define enrutamiento de aprobación, pasos requeridos, roles de aprobador)
+- Agregado `ApprovalRequest` (estado: `PENDING → APPROVED | REJECTED`)
+- Entidad `ApprovalRequiredDocument` (requisitos de tipo de documento vinculados a flujos)
+- Entidad `ApprovalLog` (registro inmutable de decisión: quién, cuándo, qué, decisión, razón)
+- `IApprovalRouterPort` (puerto central — enruta solicitudes a aprobadores correctos según alcance)
+
+**NO es dueño de:**
+- Almacenamiento de documentos (propiedad del Contexto de Cumplimiento)
+- Identidad del usuario (propiedad del Contexto de Identidad)
+- Definiciones de roles o asignación de perfiles (propiedad del Contexto de Autorización)
+- Libro de auditoría (propiedad del Contexto de Auditoría)
+
+**Contratos de Integración (Lenguaje Publicado):**
+- `POST /v1/approvals/workflows` → crear o actualizar flujo de aprobación
+- `POST /v1/approvals/request` → enviar solicitud de aprobación (B2B, validación de documento, promoción)
+- `PATCH /v1/approvals/request/{requestId}` → aprobar/rechazar con decisión y razón
+- `GET /v1/approvals/request/{requestId}` → recuperar estado y decisión de solicitud
+- `GET /v1/approvals/pending?tenant_id&role=approver` → listar aprobaciones pendientes por aprobador
+- `ApprovalRequestCreatedEvent { requestId, workflowId, targetUserId, targetProfileId, requestType, timestamp }`
+- `ApprovalResolvedEvent { requestId, decision, approvedBy, reason, timestamp }`
+- `ApprovalRejectedEvent { requestId, rejectionReason, rejectedBy, timestamp }`
+
+**Patrón de Integración:** Customer-Supplier (upstream desde Identidad, Cumplimiento, IGA). Publica eventos de aprobación a Identidad y Autorización para aprovisionamiento/actualizaciones de perfil. Conformist a Auditoría para todas las decisiones.
+
+---
+
+### H. Contexto IGA (Gobernanza y Administración de Identidad)
 **Misión:** Gobernar el ciclo de vida completo de la evolución de roles, los procesos de promoción de usuarios y la administración delegada de usuarios. Actúa como el motor de reglas que evalúa los criterios de promoción y orquestá los flujos de aprobación para el avance de roles.
 
 **Schema DB:** `ums_iga`
@@ -230,14 +293,14 @@ graph TD
 **Contratos de Integración (Lenguaje Publicado):**
 - `POST /v1/iga/promotion/evaluate` → desencadena la evaluación de criterios para un usuario
 - `GET /v1/iga/promotion/pending` → lista las promociones en espera de aprobación
-- `PromotionCriteriaMetEvent { userId, roleId, processId, timestaamp }`
-- `PromotionApprovedEvent { userId, fromRoleId, toRoleId, approvedBy, timestaamp }`
+- `PromotionCriteriaMetEvent { userId, roleId, processId, timestamp }`
+- `PromotionApprovedEvent { userId, fromRoleId, toRoleId, approvedBy, timestamp }`
 
 **Patrón de Integración:** Recibe `UserRegisteredEvent` del Contexto de Identidad. Publica `PromotionApprovedEvent` consumido por el Contexto de Autorización (para actualizar el Profile) y el Contexto de Identidad (para actualizar el estado del usuario).
 
 ---
 
-### H. Contexto de Cumplimiento
+### I. Contexto de Cumplimiento
 **Misión:** Aplicar políticas de acceso basadas en documentos para todos los usuarios. Gestiona el ciclo de vida completo de los documentos de usuario, evalúa el estado de vencimiento, despacha notificaciones pre-vencimiento configurables y desencadena acciones de aplicación automatizadas (bloquear, degradar, solo-notificar, suspender) al vencimiento.
 
 **Schema DB:** `ums_compliance`
@@ -253,20 +316,22 @@ graph TD
 
 **NO es dueño de:**
 - Identidad del usuario o autoridad de bloqueo (delega `UserBlockedEvent` al Contexto de Identidad)
-- Orquestáación de flujos de aprobación (propiedad del Contexto IGA)
+- Orquestación de flujos de aprobación (propiedad del Contexto de Aprobaciones)
 - Libro de auditoría (propiedad del Contexto de Auditoría)
 
 **Contratos de Integración (Lenguaje Publicado):**
 - `POST /v1/compliance/documents` → cargar documento de usuario
 - `GET /v1/compliance/documents/{userId}/status` → resumen de cumplimiento documental
-- `DocumentExpiredEvent { userId, documentId, criticity, enforcementAction, timestaamp }`
-- `DocumentValidatedEvent { userId, documentId, validatedBy, timestaamp }`
+- `POST /v1/compliance/documents/{documentId}/validate` → validar o rechazar documento
+- `DocumentExpiredEvent { userId, documentId, criticity, enforcementAction, timestamp }`
+- `DocumentValidatedEvent { userId, documentId, validatedBy, timestamp }`
+- `NotificationSentEvent { userId, documentId, channel, timestamp }`
 
-**Patrón de Integración:** Recibe `UserRegisteredEvent` de Identidad. Publica `DocumentExpiredEvent` consumido por el Contexto de Identidad (desencadena BLOCK_ACCESS) y el Contexto de Auditoría. Envía notificaciones vía `INotificationPort`.
+**Patrón de Integración:** Recibe `UserRegisteredEvent` de Identidad para inicializar seguimiento de documentos. Publica `DocumentExpiredEvent` (desencadena ejecución en Identidad), `DocumentValidatedEvent` y envía notificaciones vía `INotificationPort`. Envía todos los eventos de documento/notificación al Contexto de Auditoría (Conformist).
 
 ---
 
-### F. Contexto de Caché (Infraestructura)
+### G. Contexto de Caché (Infraestructura)
 **Misión:** Proporcionar una capa de caché distribuida de alto rendimiento para grafos de autorización, configuraciones de sistema y evaluaciones de feature flags — todo bajo una gobernanza estáricta de namespaces.
 
 **Namespaces de Caché:**
@@ -285,21 +350,28 @@ graph TD
 | :--- | :--- | :--- | :--- |
 | Contexto de Identidad | Contexto de Autorización | **Customer-Supplier** | Claims de Usuario/Org/Sede enviados como eventos o consultados vía API |
 | Contexto de Identidad | Contexto de Configuración | **Customer-Supplier** | Claves de alcance de Tenant utilizadas para el aislamiento de configuración |
+| Contexto de Identidad | Contexto de Aprobaciones | **Customer-Supplier** | Solicitudes de registro de usuario externo B2B desencadenan flujos de aprobación |
 | Contexto de Configuración | Contexto de Identidad | **Customer-Supplier** | Configuración de IdP suministrada al Auth Gateway para el enrutamiento |
 | Contexto de Autorización | Contexto de Auditoría | **Conformist (Evento)** | Publica `PermissionMutatedEvent` |
-| Contexto de Identidad | Contexto de Auditoría | **Conformist (Evento)** | Publica `UserRegisteredEvent`, `UserSuspendedEvent` |
-| Contexto de Configuración | Contexto de Auditoría | **Conformist (Evento)** | Publica `IdpConfigUpdatedEvent`, `SystemConfigPublishedEvent`, `FeatureFlagStateChangedEvent` |
+| Contexto de Identidad | Contexto de Auditoría | **Conformist (Evento)** | Publica `UserRegisteredEvent`, `UserSuspendedEvent`, `OrganizationCreatedEvent` |
+| Contexto de Configuración | Contexto de Auditoría | **Conformist (Evento)** | Publica `IdpConfigUpdatedEvent`, `SystemConfigPublishedEvent`, `AppConfigUpdatedEvent`, `FeatureFlagStateChangedEvent` |
 | Contexto de Consola | Contexto de Autorización | **Customer-Supplier** | PAP llama a APIs de Autorización para gestión de plantillas/perfiles |
 | Contexto de Consola | Contexto de Identidad | **Customer-Supplier** | PAP llama a APIs de Identidad para gestión de org/sedes |
 | Contexto de Consola | Contexto de Configuración | **Customer-Supplier** | PAP llama a APIs de Configuración para gestión de IdP, config de sistema y flags |
+| Contexto de Consola | Contexto de Aprobaciones | **Customer-Supplier** | Admin de PAP llama a APIs de Aprobaciones para gestión de flujos y revisión de decisiones |
 | Contexto de Autorización | Contexto de Caché | **Shared Kernel (ICachePort)** | Read-aside; invalidación en eventos de mutación |
 | Contexto de Configuración | Contexto de Caché | **Shared Kernel (IConfigCachePort)** | Read-aside para cfg + flags; invalidación en eventos de configuración |
 | Contexto de Identidad | Contexto IGA | **Customer-Supplier** | Publica `UserRegisteredEvent` consumido por IGA para inicializar el seguimiento de promociones |
-| Contexto IGA | Contexto de Autorización | **Customer-Supplier** | Publica `PromotionApprovedEvent` consumido por Autorización para actualizar el Profile |
-| Contexto IGA | Contexto de Auditoría | **Conformist (Evento)** | Publica `PromotionCriteriaMetEvent`, `PromotionApprovedEvent` |
 | Contexto de Identidad | Contexto de Cumplimiento | **Customer-Supplier** | Publica `UserRegisteredEvent` consumido por Cumplimiento para inicializar el seguimiento documental |
+| Contexto IGA | Contexto de Autorización | **Customer-Supplier** | Publica `PromotionApprovedEvent` consumido por Autorización para actualizar el Profile |
+| Contexto IGA | Contexto de Aprobaciones | **Customer-Supplier** | Las decisiones de promoción de roles requieren flujo de aprobación |
+| Contexto IGA | Contexto de Auditoría | **Conformist (Evento)** | Publica `PromotionCriteriaMetEvent`, `PromotionApprovedEvent` |
+| Contexto de Aprobaciones | Contexto de Identidad | **Customer-Supplier** | Publica `ApprovalRequestCreatedEvent`, `ApprovalResolvedEvent` para aprovisionamiento B2B |
+| Contexto de Aprobaciones | Contexto de Autorización | **Customer-Supplier** | Publica eventos de aprobación para asignación de perfil/rol basada en decisiones |
+| Contexto de Aprobaciones | Contexto de Auditoría | **Conformist (Evento)** | Publica `ApprovalRequestCreatedEvent`, `ApprovalResolvedEvent`, `ApprovalRejectedEvent` |
 | Contexto de Cumplimiento | Contexto de Identidad | **Customer-Supplier** | Publica `DocumentExpiredEvent` desencadenando BLOCK_ACCESS en Identidad |
-| Contexto de Cumplimiento | Contexto de Auditoría | **Conformist (Evento)** | Publica `DocumentExpiredEvent`, `DocumentValidatedEvent`
+| Contexto de Cumplimiento | Contexto de Aprobaciones | **Customer-Supplier** | Solicitudes de validación de documentos desencadenan flujos de aprobación |
+| Contexto de Cumplimiento | Contexto de Auditoría | **Conformist (Evento)** | Publica `DocumentExpiredEvent`, `DocumentValidatedEvent`, `NotificationSentEvent`
 ## 4. Capas Anti-Corrupción (ACL)
 
 | Límite | Mecanismo ACL | Razón |
@@ -310,6 +382,7 @@ graph TD
 | Configuración ↔ Redis (cfg/flags) | `IConfigCachePort` | Puerto separado del caché del grafo de auth para aplicar gobernanza de namespaces |
 | Autorización ↔ Redis (auth_graph) | `ICachePort` | Evita que el cliente de Redis se filtre en la capa de dominio |
 | Autorización ↔ Bus de Eventos | `IEventBusPort` | Evita que Kafka/RabbitMQ se acoplen a los casos de uso |
+| Aprobaciones ↔ Notificación de Aprobador | `IApprovalRouterPort` (Patrón Strategy) | Enruta solicitudes de aprobación a aprobadores correctos; evita acoplamiento estrecho al mecanismo de notificación |
 | Consola ↔ APIs de UMS | Contratos de API REST (versionados) | La consola es un consumidor externo; se trata como a cualquier tercero |
 | Cumplimiento ↔ Proveedores de Notificación | `INotificationPort` (Patrón Strategy) | Evita que los SDKs de SMTP/Twilio se acoplen al dominio |
 | Cumplimiento ↔ Almacenamiento de Objetos | `IDocumentStoragePort` (Patrón Strategy) | Evita que el SDK de MinIO/S3 se filtre en el dominio | 

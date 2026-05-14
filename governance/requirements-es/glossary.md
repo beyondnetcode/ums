@@ -4,11 +4,14 @@ Este documento establece el glosario de términos estándarizado y no ambiguo pa
 
 ## 1. Entidades de Identidad
 
-| Término | Definición |
-| :--- | :--- |
-| **Sujeto (Subject)** | La representación abstracta de una identidad (Persona o Sistema) dentro del ecosistema. |
-| **Organización** | El límite administrativo y de seguridad principal. Un Sujeto siempre pertenece a una Organización. |
-| **Tenant** | Una instancia lógica aislada de datos y configuración dentro de una Organización. | ## 2. Entidades de Autorización
+| Término | Definición | Propietario SSoT |
+| :--- | :--- | :--- |
+| **Usuario** | Un operador humano único o cuenta de servicio registrado en el sistema. Tiene credenciales y Perfiles asignados. | `Identity.Users` |
+| **Tenant (Inquilino)** | Un espacio de nombres organizativo asegurado e aislado que comparte la misma plataforma UMS física. Cada fila de base de datos está marcada con un `TenantId`. Los Tenants implementan Row-Level Security (RLS) para aislamiento a nivel de infraestructura. Mapea 1:1 a una Organización. | `Identity.Tenants` |
+| **Organización** | Una empresa o entidad comercial registrada en UMS. Define un límite de seguridad y mapea a un Tenant. Puede ser la organización corporativa principal (`INTERNAL`, propietaria de la plataforma) o un actor externo (`CLIENT`, `SUPPLIER`, `PARTNER`) vinculado a identificadores ERP. El ID de Tenant de la Organización determina el aislamiento de datos. | `Identity.Organizations` |
+| **Usuario Patrocinador** | Un usuario corporativo interno (de la Organización `INTERNAL`) que solicita y justifica el acceso al sistema para un usuario B2B externo a través del flujo de aprobación. | `Identity.Users` |
+| **Solicitud de Acceso Externo** | Un boleto de negocio auditable que enruta una solicitud de incorporación de usuario B2B a través del flujo del Contexto de Aprobaciones. Iniciado por un Usuario Patrocinador. | `Approvals.Requests` |
+| **Sede (Branch)** | Una sub-unidad física o lógica de una Organización (ej. *Terminal Portuario del Callao*, *Almacén de Lurín*). Está limitada a un único Tenant. Actúa como contexto de sede para enrutamiento de autorización jerárquica y aplicación de Row-Level Security. | `Identity.Branches` | ## 2. Entidades de Autorización
 
 | Término | Definición | Propietario SSoT |
 | :--- | :--- | :--- |
