@@ -13,21 +13,21 @@ The following table defines the mandatory deliverables, strategic scope, and con
 
 | Priority | Deliverable | Description (Strategic Level – Executive Rationale) |
 | :--- | :--- | :--- |
-| **1** | Bounded Context Map | Representation of the bounded contexts of the UMS IAM domain, their responsibilities, how they relate, and how they will evolve. Establishes a clear functional scope for teams and budgeting. |
-| **2** | Platform Core Definition | Strategy that identifies cross-cutting capabilities (Identity, Master Data, Event Bus, API Gateway), their common purpose, and reuse principles. Justifies investments in shared components. |
-| **3** | C4 Diagram (Context, Container, Component) | Architectural vision at levels 1 and 2: external systems, large containers, and communication between them. Sizes technical complexity and allows estimating effort without detailing classes or internal components. |
-| **4** | Database Strategy | Substantiates the choice of persistence pattern (Database-per-Module), guidelines for distributed transactions, and general backup and recovery policies. Details the impact on costs and operations. |
-| **5** | Event Domain Model (Event Storming) | Map of relevant business events, their producers, and consumers, along with delivery and ordering principles. Guides integration and the effort associated with orchestration/choreography. |
-| **6** | End-to-End Observability Strategy | Approach to distributed telemetry: traceability of complete business processes, key metrics, and logging models at the architectural level. Used to estimate monitoring tools and costs. |
-| **7** | Identity & Authorization Design | Strategy for the identity and authorization model: Identity Provider (IdP), authentication flow between contexts, and session guidelines. Helps size security across all domains. |
+| **1** | [Bounded Context Map](./bounded-context-map.md) | Representation of the bounded contexts of the UMS IAM domain, their responsibilities, how they relate, and how they will evolve. Establishes a clear functional scope for teams and budgeting. |
+| **2** | [Platform Core Definition](#-7-centralized-authorization-engine-architecture-peppdppappip) | Strategy that identifies cross-cutting capabilities (Identity, Master Data, Event Bus, API Gateway), their common purpose, and reuse principles. Justifies investments in shared components. |
+| **3** | [C4 Diagram (Context, Container, Component)](#-2-c4-model) | Architectural vision at levels 1 and 2: external systems, large containers, and communication between them. Sizes technical complexity and allows estimating effort without detailing classes or internal components. |
+| **4** | [Database Strategy](#-8-database-strategy--multi-tenant-isolation-rls) | Substantiates the choice of persistence pattern (Database-per-Module), guidelines for distributed transactions, and general backup and recovery policies. Details the impact on costs and operations. |
+| **5** | [Event Domain Model (Event Storming)](#-10-asynchronous-communication--event-model) | Map of relevant business events, their producers, and consumers, along with delivery and ordering principles. Guides integration and the effort associated with orchestration/choreography. |
+| **6** | [End-to-End Observability Strategy](#-9-observability--distributed-telemetry-strategy) | Approach to distributed telemetry: traceability of complete business processes, key metrics, and logging models at the architectural level. Used to estimate monitoring tools and costs. |
+| **7** | [Identity & Authorization Design](#-7-centralized-authorization-engine-architecture-peppdppappip) | Strategy for the identity and authorization model: Identity Provider (IdP), authentication flow between contexts, and session guidelines. Helps size security across all domains. |
 | **8** | Documented Non-Functional Requirements (NFRs) | Definition of measurable non-functional requirements that condition the architecture: latency, throughput, availability, and graceful degradation mechanisms. Represents contractual targets that the design must meet. |
 | **9** | Master Data Management Strategy | Work plan for master data: key entities, migration approach from SAP, quality guidelines, and phases. Justifies the integration and data cleansing effort in the budget. |
 | **10** | API Versioning & Evolution Strategy | Guidelines for contract evolution (APIs and events): how changes are introduced without breaking dependencies. Forecasts technical governance and the cost of maintaining compatibility. |
 | **11** | Multi-Domain Synchronization Strategy | Approach to eventual consistency between contexts: definition of sources of truth, duplication guidelines, and conflict resolution. Reveals integration complexity and its impact on timelines. |
-| **12** | Initial Architecture Decision Records (ADRs) | Log of the most influential architectural decisions, their justification, and alternatives. Backs up why a specific path was chosen, clarifying risks and assumed costs. |
-| **13** | Integration Contract Testing Plan | Strategy to ensure interactions between contexts comply with their contracts, integrated into the CI/CD pipeline. Justifies quality assurance in integrations without detailing specific tools. |
-| **14** | Deployment Infrastructure | Layout of the topology (cloud/on-premise/hybrid), key managed services, and operational cost estimations. Provides a financial and technical baseline for sizing. |
-| **15** | Work Breakdown Structure & Plan | Roadmap with phases, sprints, profiles, milestones, and acceptance criteria. Translates strategy into a schedule and justifies workload and costs for each stage. |
+| **12** | [Initial Architecture Decision Records (ADRs)](#-4-architectural-decision-matrix) | Log of the most influential architectural decisions, their justification, and alternatives. Backs up why a specific path was chosen, clarifying risks and assumed costs. |
+| **13** | [Integration Contract Testing Plan](#-12-quality-strategy--contract-testing) | Strategy to ensure interactions between contexts comply with their contracts, integrated into the CI/CD pipeline. Justifies quality assurance in integrations without detailing specific tools. |
+| **14** | [Deployment Infrastructure](#-11-deployment-infrastructure--cloud-topology) | Layout of the topology (cloud/on-premise/hybrid), key managed services, and operational cost estimations. Provides a financial and technical baseline for sizing. |
+| **15** | [Work Breakdown Structure & Plan](#-5-technical-debt-management--architectural-roadmap-backlog) | Roadmap with phases, sprints, profiles, milestones, and acceptance criteria. Translates strategy into a schedule and justifies workload and costs for each stage. |
 
 ---
 
@@ -117,38 +117,37 @@ graph TD
 ---
 
 ### Level 3: API Component Diagram
-An interactive zoom into the **NestJS API** structure, demonstrating the flow of control towards the core (*Inversion of Control*) of the Hexagonal Architecture.
+An interactive zoom into the **.NET 8 API** structure, demonstrating the flow of control towards the core (*Inversion of Control*) of the Hexagonal Architecture and the use of **MediatR**.
 
 ```mermaid
 graph TD
-    subgraph HTTP["External Adapters Layer (HTTP)"]
-        Controller["UserController (HTTP Controller)"]
+    subgraph Presentation["Ums.Presentation (Web API)"]
+        Controller["UsersController / Minimal APIs (Entry Layer)"]
     end
 
-    subgraph Application["Use Cases Layer (Application)"]
-        UseCase["RegisterUserUseCase (Business Use Case)"]
-        DTO["RegisterUserDto (Validation)"]
+    subgraph Application["Ums.Application (Use Cases)"]
+        Handler["CreateUserCommandHandler (MediatR Handler)"]
+        Command["CreateUserCommand (Application Contract)"]
+        Validator["CreateUserValidator (FluentValidation)"]
     end
 
-    subgraph Core["Domain Core Layer (Core)"]
-        UserEntity["User Entity (Pure Business Entity)"]
+    subgraph Domain["Ums.Domain (Pure POCO Core)"]
+        Entity["User Aggregate Root (Pure Business Entity)"]
         IUserRepo["IUserRepository (Persistence Port)"]
-        IPassHasher["IPasswordHasher (Hashing Port)"]
     end
 
-    subgraph Infrastructure["Persistence Adapters Layer"]
-        TypeOrmRepo["TypeOrmUserRepository (Persistence Adapter)"]
-        BcryptHasher["BcryptPasswordHasher (Hashing Adapter)"]
+    subgraph Infrastructure["Ums.Infrastructure (Adapters)"]
+        EfRepo["EfUserRepository (EF Core Implementation)"]
+        Postgres["Npgsql (Native PostgreSQL Driver)"]
     end
 
-    Controller -->|Invokes| UseCase
-    UseCase -->|Validates input with| DTO
-    UseCase -->|Instantiates and creates| UserEntity
-    UseCase -.->|Depends on| IUserRepo
-    UseCase -.->|Depends on| IPassHasher
-
-    TypeOrmRepo -.->|Implements| IUserRepo
-    BcryptHasher -.->|Implements| IPassHasher
+    Controller -->|Sends Command| Handler
+    Handler -->|Validates with| Validator
+    Handler -->|Instantiates and creates| Entity
+    Handler -.->|Depends on| IUserRepo
+    
+    EfRepo -.->|Implements| IUserRepo
+    EfRepo -->|Access via| Postgres
 ```
 
 ---
@@ -157,18 +156,18 @@ graph TD
 
 This inventory details all tools, libraries, plugins, and components per workspace with their respective installed version, technical lifecycle recommendation (*Staff Recommendation*), and official reference URL.
 
-### 🦁 A. Backend (NestJS API Layer)
+### 🚀 A. Backend (.NET 8 API Layer)
 
 | Dependency / Library | Installed Version | Technical Recommendation | Reference URL |
 | :--- | :--- | :--- | :--- |
-| `@nestjs/core` | `^10.0.0` | **Keep (Stable)** - Robust core for dependency injection. | [NestJS Docs](https://docs.nestjs.com/) |
-| `@nestjs/throttler` | `^6.5.0` | **Keep (Stable)** - Prevention of brute force and local DDoS attacks. | [NestJS Rate Limiting](https://docs.nestjs.com/security/rate-limiting) |
-| `@nestjs/typeorm` | `^11.0.1` | **Keep (Stable)** - Native persistence integration with transaction support. | [NestJS TypeORM](https://docs.nestjs.com/techniques/database) |
-| `typeorm` | `^0.3.28` | **Keep (Stable)** - Mature ORM with excellent migration support and Type Safety. | [TypeORM Official](https://typeorm.io/) |
-| `bcrypt` | `^6.0.0` | **Keep (Stable)** - Robust cryptographic algorithm for password storage. | [Bcrypt GitHub](https://github.com/kelektiv/node.bcrypt.js) |
-| `helmet` | `^8.1.0` | **Keep (Critical)** - Automatic injection of secure HTTP headers (CORS, XSS). | [Helmet Docs](https://helmetjs.github.com/) |
-| `pg` | `^8.20.0` | **Keep (Stable)** - High-performance native connection driver for PostgreSQL. | [Node Postgres](https://node-postgres.com/) |
-| `class-validator` | `^0.15.1` | **Keep (Stable)** - Declarative validation of DTOs at runtime. | [Class Validator](https://github.com/typestack/class-validator) |
+| `Microsoft.AspNetCore.App` | `8.0.x` | **Keep (Stable)** - High-performance framework for modern APIs. | [.NET 8 Docs](https://learn.microsoft.com/en-us/aspnet/core/) |
+| `MediatR` | `^12.0.0` | **Keep (Critical)** - Decoupling implementation via Mediator pattern. | [MediatR GitHub](https://github.com/jbogard/MediatR) |
+| `Microsoft.EntityFrameworkCore`| `8.0.x` | **Keep (Stable)** - High-performance ORM with RLS and migration support. | [EF Core Docs](https://learn.microsoft.com/en-us/ef/core/) |
+| `Npgsql.EntityFrameworkCore.PostgreSQL` | `8.0.x` | **Keep (Stable)** - Optimized driver for PostgreSQL. | [Npgsql Docs](https://www.npgsql.org/efcore/) |
+| `FluentValidation` | `^11.0.0` | **Keep (Stable)** - Strongly-typed validation for commands and queries. | [FluentValidation](https://fluentvalidation.net/) |
+| `BCrypt.Net-Next` | `^4.0.3` | **Keep (Stable)** - Secure hashing for credential storage. | [BCrypt.Net](https://github.com/BcryptNet/bcrypt.net) |
+| `Swashbuckle.AspNetCore` | `^6.5.0` | **Keep (Stable)** - Automatic generation of OpenAPI 3 specifications. | [Swashbuckle Docs](https://github.com/domaindrivendev/Swashbuckle.AspNetCore) |
+| `OpenTelemetry` | `^1.7.0` | **Keep (Critical)** - Industry standard for observability and traceability. | [OpenTelemetry .NET](https://opentelemetry.io/docs/instrumentation/net/) |
 
 ---
 
@@ -256,6 +255,119 @@ To support secure, context-aware, and highly scalable access control across all 
 4.  **Policy Information Point (PIP)**: Relational PostgreSQL registries supplying active tenant, branch (sedes), and user attributes during graph evaluation.
 
 By utilizing the **Strategy Pattern** for dynamic output projections, the UMS can format the compiled graph into a variety of target structures on-the-fly (including frontend-optimized JSON, cryptographically signed JWT scopes, or Claims-based lists), ensuring high adaptability and complete zero-lock-in longevity. For a complete analysis of the Business Analyst reference model and API contracts, consult **[enterprise-iam-ums-specification.md](../04-artifacts/enterprise-iam-ums-specification.md)**.
+
+---
+
+## 🗄️ 8. Database Strategy & Multi-tenant Isolation (RLS)
+
+The system utilizes a **Shared Database** model with logical isolation reinforced via PostgreSQL **Row-Level Security (RLS)**. This ensures that no tenant can ever access data from another, even if an application-layer error occurs.
+
+```mermaid
+sequenceDiagram
+    participant App as .NET 8 API (DbContext)
+    participant PG as PostgreSQL 16 Engine
+    participant Table as Protected Table (e.g., Users)
+
+    App->>PG: Opens connection from pool
+    App->>PG: Executes SET LOCAL app.current_tenant = 'tenant_uuid'
+    App->>PG: SELECT * FROM users WHERE ...
+    PG->>PG: Evaluates native RLS Policy
+    PG->>Table: Filters rows by tenant_id
+    Table-->>PG: Returns only authorized rows
+    PG-->>App: Filtered and secure dataset
+```
+
+---
+
+## 📊 9. Observability & Distributed Telemetry Strategy
+
+Strict adherence to the **OpenTelemetry** standard to guarantee sovereign monitoring data and avoid cloud-provider lock-in (Cloud-Agnostic).
+
+```mermaid
+graph LR
+    App["Application (.NET / React)"]
+    OTelCol["OpenTelemetry Collector (Sidecar)"]
+    Prom["Prometheus (Metrics)"]
+    Loki["Grafana Loki (Logs)"]
+    Tempo["Grafana Tempo (Tracing)"]
+    Grafana["Grafana Dashboards"]
+
+    App -->|Push OTLP| OTelCol
+    OTelCol -->|Scrape| Prom
+    OTelCol -->|Push| Loki
+    OTelCol -->|Push| Tempo
+    Prom --> Grafana
+    Loki --> Grafana
+    Tempo --> Grafana
+```
+
+---
+
+## 🔄 10. Asynchronous Communication & Event Model
+
+Clear differentiation between **Domain Events** (within the same bounded context) and **Integration Events** (between different contexts or external systems) to maintain module autonomy.
+
+```mermaid
+graph TD
+    subgraph ContextA["Identity Context"]
+        DomainEvent["Domain Event (UserCreated)"]
+        HandlerA["Internal Handler (Ums.Application)"]
+    end
+
+    subgraph Messaging["Message Bus (RabbitMQ)"]
+        IntegrationEvent["Integration Event (UserProvisioned)"]
+    end
+
+    subgraph ContextB["Audit Context"]
+        HandlerB["Audit Subscriber"]
+    end
+
+    DomainEvent --> HandlerA
+    HandlerA --> IntegrationEvent
+    IntegrationEvent --> HandlerB
+```
+
+---
+
+## ☁️ 11. Deployment Infrastructure & Cloud Topology
+
+Design optimized for **Kubernetes** with the capability to deploy in public clouds or private on-premise environments.
+
+```mermaid
+graph TD
+    Internet((Internet))
+    LB["Load Balancer (Cloud/Metal)"]
+    Ingress["NGINX Ingress Controller"]
+    Vault["HashiCorp Vault (Secrets)"]
+    
+    subgraph K8s["Kubernetes Cluster"]
+        subgraph NS_UMS["Namespace: ums-prod"]
+            BFF["Pod: Web-BFF"]
+            API["Pod: Core-API"]
+            Redis["Pod: Redis-Sentinel"]
+        end
+    end
+
+    DB[(PostgreSQL 16 Cluster)]
+
+    Internet --> LB
+    LB --> Ingress
+    Ingress --> BFF
+    BFF --> API
+    API --> Redis
+    API --> DB
+    API -.->|Reads secrets| Vault
+```
+
+---
+
+## 🧪 12. Quality Strategy & Contract Testing
+
+To ensure that changes in one context do not break its consumers, automated contract tests are implemented.
+
+- **Unit Tests**: Pure logic in `Ums.Domain`.
+- **Integration Tests**: Using **Testcontainers** to validate real behavior with PostgreSQL and Redis.
+- **Contract Tests**: Validation of OpenAPI schemas and asynchronous events.
 
 
 

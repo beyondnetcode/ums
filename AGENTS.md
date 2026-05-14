@@ -38,6 +38,7 @@ Commands for Backend (run from within `./src/apps/app-api-dotnet/` or root solut
 - If modifying core logic, ensure architectural traceability to approved ADRs.
 - Keep formatting clean, adhering to ESLint and Prettier configs in the workspace.
 - **BMAD Rule Compliance:** Any agent working on this repository MUST read, prioritize, and strictly enforce the 13 rules defined in `.bmad-core/rules/global-rules.md`, `.bmad-core/rules/structuring-standard.md` (R-13), and `.harness/rules/project-rules.yaml`. If encoding artifacts (mojibake) are detected, the agent MUST run the utility script `python ./.bmad-core/scripts/cleanup_markdown_encoding.py` immediately to enforce rule R-03. No code or documentation commits are permitted without validating against these rules.
+- **Multi-language Synchronization & Diagram Validation:** Whenever documentation is updated, the agent MUST ensure that both English and Spanish versions are synchronized in content, technical precision, and clarity. Additionally, all Mermaid diagrams MUST be validated for syntax and structural correctness before any commit.
 - **Context Retrieval:** Always use **Context7** (`npx ctx7`) to fetch updated, version-specific documentation for third-party libraries before implementing complex external integrations.
 - **Corporate Standards Alignment:** Any agent making architectural design decisions MUST query the **Corporate Reference** via Context7 (`use context7 for beyondnetcode/arc32_progresive_monolith`) to ensure absolute compliance with baseline polyglot standards and authoritative patterns.
 

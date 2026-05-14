@@ -16,18 +16,18 @@ La siguiente tabla define los entregables obligatorios, el alcance estratégico 
 | **1** | [Mapa de Contextos Acotados (Bounded Context Map)](./bounded-context-map.md) | Representación de los contextos acotados del dominio IAM de UMS, sus responsabilidades, cómo se relacionan y cómo evolucionarán. Establece un alcance funcional claro para los equipos y el presupuesto. |
 | **2** | [Definición del Core de la Plataforma](#-7-arquitectura-del-motor-de-autorización-centralizado-peppdppappip) | Estrategia que identifica capacidades transversales (Identidad, Datos Maestros, Bus de Eventos, API Gateway), su propósito común y principios de reutilización. Justifica las inversiones en componentes compartidos. |
 | **3** | [Diagrama C4 (Contexto, Contenedor, Componente)](#-2-modelo-c4) | Visión arquitectónica en los niveles 1 y 2: sistemas externos, contenedores grandes y comunicación entre ellos. Dimensiona la complejidad técnica y permite estimar el esfuerzo sin detallar clases o componentes internos. |
-| **4** | Estrategia de Base de Datos | Sustenta la elección del patrón de persistencia (Base de datos por módulo), pautas para transacciones distribuidas y políticas generales de respaldo y recuperación. Detalla el impacto en costos y operaciones. |
-| **5** | Modelo de Dominio de Eventos (Event Storming) | Mapa de eventos de negocio relevantes, sus productores y consumidores, junto con los principios de entrega y ordenamiento. Guía la integración y el esfuerzo asociado con la orquestación/coreografía. |
-| **6** | Estrategia de Observabilidad Extremo a Extremo | Enfoque para la telemetría distribuida: trazabilidad de procesos de negocio completos, métricas clave y modelos de registro (logging) a nivel arquitectónico. Se utiliza para estimar herramientas de monitoreo y costos. |
+| **4** | [Estrategia de Base de Datos](#-8-estrategia-de-base-de-datos-y-aislamiento-multitenant-rls) | Sustenta la elección del patrón de persistencia (Base de datos por módulo), pautas para transacciones distribuidas y políticas generales de respaldo y recuperación. Detalla el impacto en costos y operaciones. |
+| **5** | [Modelo de Dominio de Eventos (Event Storming)](#-10-modelo-de-comunicación-asíncrona-y-eventos) | Mapa de eventos de negocio relevantes, sus productores y consumidores, junto con los principios de entrega y ordenamiento. Guía la integración y el esfuerzo asociado con la orquestación/coreografía. |
+| **6** | [Estrategia de Observabilidad Extremo a Extremo](#-9-estrategia-de-observabilidad-y-telemetría-distribuida) | Enfoque para la telemetría distribuida: trazabilidad de procesos de negocio completos, métricas clave y modelos de registro (logging) a nivel arquitectónico. Se utiliza para estimar herramientas de monitoreo y costos. |
 | **7** | [Diseño de Identidad y Autorización](#-7-arquitectura-del-motor-de-autorización-centralizado-peppdppappip) | Estrategia para el modelo de identidad y autorización: Proveedor de Identidad (IdP), flujo de autenticación entre contextos y pautas de sesión. Ayuda a dimensionar la seguridad en todos los dominios. |
 | **8** | Requerimientos No Funcionales Documentados (NFRs) | Definición de requisitos no funcionales medibles que condicionan la arquitectura: latencia, rendimiento (throughput), disponibilidad y mecanismos de degradación controlada. Representa los objetivos contractuales que el diseño debe cumplir. |
 | **9** | Estrategia de Gestión de Datos Maestros | Plan de trabajo para datos maestros: entidades clave, enfoque de migración desde SAP, pautas de calidad y fases. Justifica el esfuerzo de integración y limpieza de datos en el presupuesto. |
 | **10** | Estrategia de Versionamiento y Evolución de APIs | Pautas para la evolución de contratos (APIs y eventos): cómo se introducen cambios sin romper dependencias. Prevé la gobernanza técnica y el costo de mantener la compatibilidad. |
-| **11** | Estrategia de Sincronización Multi-Dominio | Enfoque para la consistencia eventual entre contextos: definición de fuentes de verdad, pautas de duplicación y resolución de conflictos. Revela la complejidad de integración y su impacto en los cronogramas. |
+| **11** | Estrategia de Sincronización Multi-Dominio | Enfoque para la consistencia eventual entre contextos: definición de fuentes de verdad, pautas de disposición y resolución de conflictos. Revela la complejidad de integración y su impacto en los cronogramas. |
 | **12** | [Registros de Decisión de Arquitectura Iniciales (ADRs)](#-4-matriz-de-decisión-arquitectónica) | Registro de las decisiones arquitectónicas más influyentes, su justificación y alternativas. Respalda por qué se eligió un camino específico, aclarando riesgos y costos asumidos. |
-| **13** | Plan de Pruebas de Contrato de Integración | Estrategia para asegurar que las interacciones entre contextos cumplan con sus contratos, integradas en el pipeline de CI/CD. Justifica el aseguramiento de la calidad en las integraciones sin detallar herramientas específicas. |
-| **14** | [Infraestructura de Despliegue](#-5-gestión-de-deuda-técnica-y-hoja-de-ruta-arquitectónica-backlog) | Diseño de la topología (nube/on-premise/híbrida), servicios gestionados clave y estimaciones de costos operativos. Proporciona una línea base financiera y técnica para el dimensionamiento. |
-| **15** | Estructura de Desglose de Trabajo y Plan | Hoja de ruta con fases, sprints, perfiles, hitos y criterios de aceptación. Traduce la estrategia en un cronograma y justifica la carga de trabajo y los costos de cada etapa. |
+| **13** | [Plan de Pruebas de Contrato de Integración](#-12-estrategia-de-calidad-y-pruebas-de-contrato) | Estrategia para asegurar que las interacciones entre contextos cumplan con sus contratos, integradas en el pipeline de CI/CD. Justifica el aseguramiento de la calidad en las integraciones sin detallar herramientas específicas. |
+| **14** | [Infraestructura de Despliegue](#-11-infraestructura-de-despliegue-y-topología-cloud) | Diseño de la topología (nube/on-premise/híbrida), servicios gestionados clave y estimaciones de costos operativos. Proporciona una línea base financiera y técnica para el dimensionamiento. |
+| **15** | [Estructura de Desglose de Trabajo y Plan](#-5-gestión-de-deuda-técnica-y-hoja-de-ruta-arquitectónica-backlog) | Hoja de ruta con fases, sprints, perfiles, hitos y criterios de aceptación. Traduce la estrategia en un cronograma y justifica la carga de trabajo y los costos de cada etapa. |
 
 ---
 
@@ -247,9 +247,122 @@ Una evaluación exhaustiva de las decisiones **"Build vs. Buy"**, implicaciones 
 
 Para soportar un control de acceso seguro, consciente del contexto y altamente escalable en todas las aplicaciones corporativas, el sistema adopta un **Sistema de Gestión de Usuarios (UMS)** centralizado que sirve como un "kernel de autorización" compartido. Esta arquitectura desacopla la validación de identidad de la resolución de permisos dinámicos implementando las capas del **Modelo de Referencia Arquitectónica XACML**:
 
-1.  **Policy Enforcement Point (PEP)**: Intercepta las solicitudes entrantes del cliente en el API Gateway o en Guards individuales de NestJS, aplicando las reglas de acceso al leer el grafo de autorización devuelto.
+1.  **Policy Enforcement Point (PEP)**: Intercepta las solicitudes entrantes del cliente en el API Gateway o en Guards individuales de .NET, aplicando las reglas de acceso al leer el grafo de autorización devuelto.
 2.  **Policy Decision Point (PDP)**: El motor central de UMS. Compila y resuelve permisos de grano fino en un grafo jerárquico almacenado en caché en menos de 5ms utilizando Redis.
 3.  **Policy Administration Point (PAP)**: El portal administrativo de UMS donde los equipos de seguridad gestionan plantillas base, perfiles de tenant y reglas de permiso explícitas.
 4.  **Policy Information Point (PIP)**: Registros relacionales de PostgreSQL que suministran atributos activos de tenant, sede y usuario durante la evaluación del grafo.
 
 Al utilizar el **Patrón Strategy** para proyecciones de salida dinámicas, el UMS puede formatear el grafo compilado en una variedad de estructuras de destino sobre la marcha (incluyendo JSON optimizado para frontend, alcances JWT firmados criptográficamente o listas basadas en claims), asegurando una alta adaptabilidad y una longevidad completa sin bloqueos de proveedor. Para un análisis completo del modelo de referencia de Analista de Negocio y los contratos de API, consulte **[enterprise-iam-ums-specification.md](../04-artifacts/enterprise-iam-ums-specification.md)**.
+
+---
+
+## 🗄️ 8. Estrategia de Base de Datos y Aislamiento Multitenant (RLS)
+
+El sistema utiliza un modelo de **Base de Datos Compartida** con aislamiento lógico reforzado mediante **Row-Level Security (RLS)** de PostgreSQL. Esto garantiza que ningún inquilino (tenant) pueda acceder a datos de otro, incluso si existe un error en la capa de aplicación.
+
+```mermaid
+sequenceDiagram
+    participant App as API .NET 8 (DbContext)
+    participant PG as Motor PostgreSQL 16
+    participant Table as Tabla Protegida (e.g., Users)
+
+    App->>PG: Abre conexión del pool
+    App->>PG: Ejecuta SET LOCAL app.current_tenant = 'tenant_uuid'
+    App->>PG: SELECT * FROM users WHERE ...
+    PG->>PG: Evalúa Política RLS nativa
+    PG->>Table: Filtra filas por tenant_id
+    Table-->>PG: Retorna solo filas autorizadas
+    PG-->>App: Dataset filtrado y seguro
+```
+
+---
+
+## 📊 9. Estrategia de Observabilidad y Telemetría Distribuida
+
+Adherencia estricta al estándar **OpenTelemetry** para garantizar la soberanía de los datos de monitoreo y evitar el bloqueo de proveedores (Cloud-Agnostic).
+
+```mermaid
+graph LR
+    App["Aplicación (.NET / React)"]
+    OTelCol["OpenTelemetry Collector (Sidecar)"]
+    Prom["Prometheus (Métricas)"]
+    Loki["Grafana Loki (Logs)"]
+    Tempo["Grafana Tempo (Tracing)"]
+    Grafana["Grafana Dashboards"]
+
+    App -->|Push OTLP| OTelCol
+    OTelCol -->|Scrape| Prom
+    OTelCol -->|Push| Loki
+    OTelCol -->|Push| Tempo
+    Prom --> Grafana
+    Loki --> Grafana
+    Tempo --> Grafana
+```
+
+---
+
+## 🔄 10. Modelo de Comunicación Asíncrona y Eventos
+
+Diferenciación clara entre **Eventos de Dominio** (dentro del mismo contexto acotado) y **Eventos de Integración** (entre diferentes contextos o sistemas externos) para mantener la autonomía de los módulos.
+
+```mermaid
+graph TD
+    subgraph ContextA["Contexto de Identidad"]
+        DomainEvent["Evento de Dominio (UserCreated)"]
+        HandlerA["Manejador Interno (Ums.Application)"]
+    end
+
+    subgraph Messaging["Bus de Mensajería (RabbitMQ)"]
+        IntegrationEvent["Evento de Integración (UserProvisioned)"]
+    end
+
+    subgraph ContextB["Contexto de Auditoría"]
+        HandlerB["Suscriptor de Auditoría"]
+    end
+
+    DomainEvent --> HandlerA
+    HandlerA --> IntegrationEvent
+    IntegrationEvent --> HandlerB
+```
+
+---
+
+## ☁️ 11. Infraestructura de Despliegue y Topología Cloud
+
+Diseño optimizado para **Kubernetes** con capacidad de despliegue en nubes públicas o entornos on-premise privados.
+
+```mermaid
+graph TD
+    Internet((Internet))
+    LB["Load Balancer (Cloud/Metal)"]
+    Ingress["NGINX Ingress Controller"]
+    Vault["HashiCorp Vault (Secretos)"]
+    
+    subgraph K8s["Cluster Kubernetes"]
+        subgraph NS_UMS["Namespace: ums-prod"]
+            BFF["Pod: Web-BFF"]
+            API["Pod: Core-API"]
+            Redis["Pod: Redis-Sentinel"]
+        end
+    end
+
+    DB[(PostgreSQL 16 Cluster)]
+
+    Internet --> LB
+    LB --> Ingress
+    Ingress --> BFF
+    BFF --> API
+    API --> Redis
+    API --> DB
+    API -.->|Lee secretos| Vault
+```
+
+---
+
+## 🧪 12. Estrategia de Calidad y Pruebas de Contrato
+
+Para garantizar que los cambios en un contexto no rompan a sus consumidores, se implementan pruebas de contrato automatizadas.
+
+- **Pruebas de Unidad**: Lógica pura en `Ums.Domain`.
+- **Pruebas de Integración**: Uso de **Testcontainers** para validar el comportamiento real con PostgreSQL y Redis.
+- **Pruebas de Contrato**: Validación de esquemas OpenAPI y eventos asíncronos.
