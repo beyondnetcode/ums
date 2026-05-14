@@ -30,108 +30,128 @@ Every entity in this schema MUST implement the following columns.
 
 ## 3. E/R Diagram (Mermaid)
 
+## 3. Modular Domain Views
+
+To improve readability and navigation, the model is divided into functional domains.
+
+### 🗺️ 3.1 Global High-Level Map
+Simplified view of the core relationships.
+
 ```mermaid
 erDiagram
-    TENANT ||--o{ SYSTEM_SUITE : "owns"
-    TENANT ||--o{ BRANCH : "owns"
-    TENANT ||--o{ USER : "owns"
-    TENANT ||--o{ PROFILE : "governs"
-    TENANT ||--o{ AUDIT_LOG : "monitors"
+    TENANT ||--o{ SYSTEM_SUITE : ""
+    TENANT ||--o{ USER : ""
+    TENANT ||--o{ BRANCH : ""
+    SYSTEM_SUITE ||--o{ ROLE : ""
+    SYSTEM_SUITE ||--o{ PERMISSION : ""
+    USER ||--o{ PROFILE : ""
+    ROLE ||--o{ PROFILE : ""
+    BRANCH ||--o{ PROFILE : ""
+    PROFILE ||--o{ PROFILE_PERMISSION : ""
+```
 
-    SYSTEM_SUITE ||--o{ ROLE : "defines"
-    SYSTEM_SUITE ||--o{ PERMISSION : "categorizes"
-    SYSTEM_SUITE ||--o{ MENU_ITEM : "topology"
-    SYSTEM_SUITE ||--o{ PERMISSION_TEMPLATE : "provides_blueprints"
-    SYSTEM_SUITE ||--o{ PROFILE : "functional_context"
+---
 
-    BRANCH ||--o{ PROFILE : "operational_location"
+### 👤 3.2 Domain: Identity & Core
+Management of Tenants, Users, and their primary credentials.
 
-    USER ||--o{ PROFILE : "active_identity"
-    USER ||--|| USER_CREDENTIAL : "credentials"
-
-    ROLE ||--o{ ROLE_PERMISSION : "base_authorizations"
-    ROLE ||--o{ PROFILE : "authority_blueprint"
-
-    PERMISSION ||--o{ ROLE_PERMISSION : "links"
-    PERMISSION ||--o{ PROFILE_PERMISSION : "effective_links"
-    PERMISSION ||--o{ TEMPLATE_PERMISSION : "links"
-    PERMISSION ||--o{ MENU_ITEM : "access_guard"
-
-    PERMISSION_TEMPLATE ||--o{ TEMPLATE_PERMISSION : "blueprints"
-    PERMISSION_TEMPLATE ||--|| ROLE : "represents_system_role"
-
-    PROFILE ||--o{ PROFILE_PERMISSION : "consolidates"
-
-    MENU_ITEM ||--o{ MENU_ITEM : "hierarchy"
+```mermaid
+erDiagram
+    TENANT ||--o{ USER : "hosts"
+    USER ||--|| USER_CREDENTIAL : "has"
+    USER ||--o{ PROFILE : "acts_as"
 
     TENANT {
         uniqueidentifier TenantId PK
-        nvarchar Name "NOT NULL"
-        nvarchar Code "UK"
+        nvarchar Name
     }
-
-    SYSTEM_SUITE {
-        uniqueidentifier SuiteId PK
+    USER {
+        uniqueidentifier UserId PK
         uniqueidentifier TenantId FK
-        nvarchar Name
-        nvarchar Code
+        nvarchar Username
+        nvarchar Email
     }
+```
 
-    BRANCH {
-        uniqueidentifier BranchId PK
-        uniqueidentifier TenantId FK
-        nvarchar Name
-        nvarchar Code
-    }
+---
 
-    ROLE {
-        uniqueidentifier RoleId PK
-        uniqueidentifier SuiteId FK
-        uniqueidentifier TenantId FK
-        nvarchar Name
-    }
+### 🔐 3.3 Domain: Profiles & Authority (The Core)
+The heart of the UMS: how Roles, Templates, and Profiles consolidate into Effective Permissions.
 
-    PERMISSION_TEMPLATE {
-        uniqueidentifier TemplateId PK
-        uniqueidentifier SuiteId FK
-        uniqueidentifier RoleId FK
-        nvarchar Name
-    }
-
+```mermaid
+erDiagram
+    SYSTEM_SUITE ||--o{ ROLE : "defines"
+    SYSTEM_SUITE ||--o{ PERMISSION : "categorizes"
+    SYSTEM_SUITE ||--o{ PERMISSION_TEMPLATE : "templates"
+    
+    PERMISSION_TEMPLATE ||--o{ TEMPLATE_PERMISSION : "blueprints"
+    PERMISSION_TEMPLATE ||--|| ROLE : "represents"
+    
+    ROLE ||--o{ ROLE_PERMISSION : "base_perms"
+    ROLE ||--o{ PROFILE : "blueprint_for"
+    
+    PROFILE ||--o{ PROFILE_PERMISSION : "consolidates"
+    
+    PERMISSION ||--o{ ROLE_PERMISSION : "links"
+    PERMISSION ||--o{ PROFILE_PERMISSION : "effective"
+    
     PROFILE {
         uniqueidentifier ProfileId PK
-        uniqueidentifier TenantId FK
-        uniqueidentifier UserId FK
-        uniqueidentifier SystemId FK
-        uniqueidentifier BranchId FK
         uniqueidentifier RoleId FK
+        uniqueidentifier UserId FK
         nvarchar DisplayName
     }
+```
 
-    PROFILE_PERMISSION {
-        uniqueidentifier ProfileId PK, FK
-        uniqueidentifier PermissionId PK, FK
-        bit IsDenied "Override Grant"
-        nvarchar GrantReason
-    }
+---
 
-    PERMISSION {
-        uniqueidentifier PermissionId PK
+### 📍 3.4 Domain: Topology & Navigation
+Organizational structure and functional menu layout.
+
+```mermaid
+erDiagram
+    TENANT ||--o{ BRANCH : "owns"
+    SYSTEM_SUITE ||--o{ MENU_ITEM : "topology"
+    MENU_ITEM ||--o{ MENU_ITEM : "hierarchy"
+    MENU_ITEM ||--o{ PERMISSION : "guarded_by"
+    BRANCH ||--o{ PROFILE : "context"
+
+    MENU_ITEM {
+        uniqueidentifier MenuItemId PK
         uniqueidentifier SuiteId FK
-        nvarchar Code "UK"
+        uniqueidentifier ParentItemId FK
         nvarchar Name
+        nvarchar Route
     }
+```
+
+---
+
+### 📝 3.5 Domain: Audit & Traceability
+Global monitoring and transactional integrity.
+
+```mermaid
+erDiagram
+    TENANT ||--o{ AUDIT_LOG : "monitors"
+    USER ||--o{ AUDIT_LOG : "originator"
+    PROFILE ||--o{ AUDIT_LOG : "context"
 
     AUDIT_LOG {
         bigint LogId PK
-        uniqueidentifier TenantId
-        uniqueidentifier UserId
-        uniqueidentifier ProfileId
         uniqueidentifier CorrelationId
         uniqueidentifier TransactionId
+        nvarchar Action
         datetimeoffset Timestamp
     }
 ```
+
+---
+
+## 🛠️ 4. Interactive Exploration
+Since Markdown viewers are static, for a full dynamic experience (zoom/pan/expand), please use the following tools:
+
+1.  **Mermaid Live Editor**: Copy the Mermaid code blocks above into [Mermaid.live](https://mermaid.live/) to interactively explore and export in high resolution.
+2.  **VS Code Extensions**: Use "Markdown Preview Mermaid Support" to enable zooming within your IDE.
 
 ---
 
