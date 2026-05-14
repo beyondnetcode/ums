@@ -152,9 +152,11 @@
 ## 6. Multi-tenancy Strategy
 
 ### 6.1 Isolation Model
-*   **Strategy:** **Shared Database with Native Row-Level Security (RLS)**
-*   **Implementation (Unified):** Uses SQL Server `SESSION_CONTEXT('TenantId', @value)` and Security Policies with iTVF predicates for both .NET and Node.js.
-*   **Why Chosen:** High packing density and absolute isolation at the engine level with a single implementation to maintain.
+*   **Strategy:** **Logical Isolation (Application-Level) + Native Row-Level Security (RLS) Hardening**
+*   **Implementation (Progressive):**
+    *   **Phase 1 (Primary):** Enforced at the **Application Layer** using EF Core Global Query Filters (.NET) and Custom Interceptors (NestJS). Requires mandatory `TenantId` denormalization in all functional entities for O(1) filtering.
+    *   **Phase 2 (Hardening):** Optional infrastructure-level protection using SQL Server `SESSION_CONTEXT` and Security Policies (iTVF) to prevent accidental data leaks even if the application layer fails.
+*   **Why Chosen:** Aligns with the `arc32_progresive_monolith` standard. Guarantees that core logic does not strictly depend on infrastructure features for basic operation, while allowing high-security hardening where SQL Server 2022 is available.
 *   **Alternatives Rejected:**
     *   *Database-per-tenant*: High infrastructure cost and severe administrative overhead when managing thousands of databases.
     *   *Schema-per-tenant*: Becomes hard to scale and migrate when tenant counts exceed 1,000, causing connection pool exhaustion.

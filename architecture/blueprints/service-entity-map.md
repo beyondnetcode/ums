@@ -56,4 +56,4 @@ This document serves as the authoritative mapping between system entities, their
 
 ## 🔗 4. References
 *   For the complete E/R diagram and relationship cardinality, refer to **[er-export-formats.md](er-export-formats.md)**.
-*   For technical implementation of Row-Level Security (RLS) in SQL Server, refer to the Identity Context documentation.
+*   For technical implementation of **Progressive Isolation** (Application-level + SQL Server RLS hardening), refer to the Identity Context documentation and ADR-0041.

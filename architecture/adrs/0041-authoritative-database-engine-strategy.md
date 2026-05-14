@@ -24,8 +24,9 @@ We will adopt a **Unified Database Strategy** for all services within the UMS pr
     *   **Node.js / NestJS**: TypeORM or Prisma using the **`mssql`** driver.
 
 4.  **Security Implementation:**
-    *   **Unified RLS**: All services will utilize SQL Server **Security Policies** and **SESSION_CONTEXT** for multi-tenant isolation.
-    *   This eliminates the need to maintain parallel RLS logic for PostgreSQL.
+    *   **Primary (Logical):** All services must implement **Application-Level Isolation** using global filters and denormalized `TenantId` fields.
+    *   **Secondary (Infrastructure):** SQL Server **Security Policies** and **SESSION_CONTEXT** will be utilized as a secondary hardening layer (Defense in Depth) to satisfy enterprise compliance without creating hard logic lock-in.
+    *   This approach aligns with the `arc32` Phase 1 requirements for infrastructure independence.
 
 ## Consequences
 *   **Correction**: All references to PostgreSQL or MongoDB for Node.js services in `stack.md` or earlier documentation are now deprecated.
