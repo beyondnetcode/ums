@@ -7,9 +7,9 @@ El módulo de Plantillas de Autorización proporciona un mecanismo para definir 
 El sistema impone un desacoplamiento estricto entre las áreas funcionales y los roles de implementación:
 
 1.  **Sistema/Suite**: Define el límite funcional propiedad de un Inquilino.
-2.  **Plantilla de Permisos**: Un conjunto versionado de permisos estrictamente limitado a una Suite.
-3.  **Rol**: Un esquema específico del Sistema derivado de una Plantilla.
-4.  **Perfil**: El nexo contextual donde se persisten las autorizaciones efectivas.
+2.  **Plantilla de Permisos**: Un conjunto versionado de permisos estrictamente limitado a una Suite y vinculado a un **Rol de Sistema**.
+3.  **Rol**: Un esquema específico del Sistema que representa un conjunto funcional de permisos.
+4.  **Perfil**: El nexo contextual donde se persisten las autorizaciones efectivas (derivadas de la Plantilla/Rol).
 
 ## 3. Reglas de Negocio
 
@@ -28,10 +28,11 @@ Los inquilinos pueden agregar o eliminar permisos específicos a un Rol que fue 
 *   Las plantillas admiten los estados **Borrador**, **Publicada** y **Depreciada**.
 *   El versionado sigue SemVer (ej. v1.2.0).
 *   Se mantiene la trazabilidad automática para cada cambio en una plantilla.
+*   **Metadatos Editables**: El `Nombre` y la `Descripción` de una plantilla son editables durante todo su ciclo de vida (sujetos a auditoría).
 
 ## 5. Flujo de Creación
 1.  **Seleccionar Suite**: El usuario selecciona el área funcional objetivo.
-2.  **Seleccionar Plantilla**: El usuario selecciona una plantilla base (Global o Local).
-3.  **Configurar Rol**: El sistema completa previamente los permisos basados en la plantilla.
+2.  **Seleccionar Plantilla**: El usuario selecciona una plantilla base (Global o Local). Esta plantilla ya está vinculada a un **Rol de Sistema**.
+3.  **Inicializar Perfil**: El sistema completa los permisos basados en la plantilla, independientemente de la **Sucursal** de destino.
 4.  **Personalizar**: El usuario agrega anulaciones específicas si es necesario.
 5.  **Auditar**: El sistema registra el `SourceTemplateId` y la `Version` para fines de cumplimiento.

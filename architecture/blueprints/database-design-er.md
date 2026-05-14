@@ -54,11 +54,11 @@ erDiagram
 
     PERMISSION ||--o{ ROLE_PERMISSION : "links"
     PERMISSION ||--o{ PROFILE_PERMISSION : "effective_links"
-    PERMISSION ||--o{ TEMPLATE_PERMISSION : "template_links"
+    PERMISSION ||--o{ TEMPLATE_PERMISSION : "links"
     PERMISSION ||--o{ MENU_ITEM : "access_guard"
 
-    PERMISSION_TEMPLATE ||--o{ TEMPLATE_PERMISSION : "contains"
-    PERMISSION_TEMPLATE ||--o{ ROLE : "initializes"
+    PERMISSION_TEMPLATE ||--o{ TEMPLATE_PERMISSION : "blueprints"
+    PERMISSION_TEMPLATE ||--|| ROLE : "represents_system_role"
 
     PROFILE ||--o{ PROFILE_PERMISSION : "consolidates"
 
@@ -88,6 +88,13 @@ erDiagram
         uniqueidentifier RoleId PK
         uniqueidentifier SuiteId FK
         uniqueidentifier TenantId FK
+        nvarchar Name
+    }
+
+    PERMISSION_TEMPLATE {
+        uniqueidentifier TemplateId PK
+        uniqueidentifier SuiteId FK
+        uniqueidentifier RoleId FK
         nvarchar Name
     }
 
@@ -131,5 +138,6 @@ erDiagram
 ## 4. Business Rules & Normalization
 1.  **Strict Isolation**: A Role cannot exist outside a System context.
 2.  **Contextual Integrity**: A Profile can only be created if the selected Role belongs to the selected System, and both belong to the same Tenant.
-3.  **Soft Delete**: Data is never physically removed; `DeletedAt` is populated to maintain history.
-4.  **Effective Persistance**: `PROFILE_PERMISSION` acts as the source of truth for the `Authorization Engine`, combining Role-based defaults with Profile-specific overrides.
+3.  **Template Hub**: Permission Templates link to a specific System Role, allowing for branch-agnostic profile initialization.
+4.  **Soft Delete**: Data is never physically removed; `DeletedAt` is populated to maintain history.
+5.  **Effective Persistance**: `PROFILE_PERMISSION` acts as the source of truth for the `Authorization Engine`, combining Role-based defaults with Profile-specific overrides.

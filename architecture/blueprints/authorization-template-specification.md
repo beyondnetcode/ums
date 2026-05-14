@@ -7,9 +7,9 @@ The Authorization Template module provides a mechanism to define reusable sets o
 The system enforces a strict decoupling between functional areas and implementation roles:
 
 1.  **System/Suite**: Defines the functional boundary owned by a Tenant.
-2.  **Permission Template**: A versioned set of permissions strictly scoped to a Suite.
-3.  **Role**: A System-specific blueprint derived from a Template.
-4.  **Profile**: The contextual nexus where effective authorizations are persisted.
+2.  **Permission Template**: A versioned set of permissions strictly scoped to a Suite and linked to a **System Role**.
+3.  **Role**: A System-specific blueprint representing a functional set of permissions.
+4.  **Profile**: The contextual nexus where effective authorizations (derived from Template/Role) are persisted.
 
 ## 3. Business Rules
 
@@ -28,10 +28,11 @@ Tenants can add or remove specific permissions to a Role that was created from a
 *   Templates support **Draft**, **Published**, and **Deprecated** states.
 *   Versioning follows SemVer (e.g., v1.2.0).
 *   Automatic traceability is maintained for every change to a template.
+*   **Editable Metadata**: The `Name` and `Description` of a template are editable throughout its lifecycle (subject to audit).
 
 ## 5. Creation Flow
 1.  **Select Suite**: User selects the target functional area.
-2.  **Select Template**: User selects a base template (Global or Local).
-3.  **Configure Role**: The system pre-fills permissions based on the template.
+2.  **Select Template**: User selects a base template (Global or Local). This template is already linked to a **System Role**.
+3.  **Initialize Profile**: The system pre-fills permissions based on the template, regardless of the target **Branch**.
 4.  **Customize**: User adds specific overrides if necessary.
 5.  **Audit**: The system logs the `SourceTemplateId` and `Version` for compliance.

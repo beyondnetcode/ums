@@ -58,7 +58,7 @@ erDiagram
     PERMISSION ||--o{ MENU_ITEM : "guarda_de_acceso"
 
     PERMISSION_TEMPLATE ||--o{ TEMPLATE_PERMISSION : "contiene"
-    PERMISSION_TEMPLATE ||--o{ ROLE : "inicializa"
+    PERMISSION_TEMPLATE ||--|| ROLE : "representa_rol_de_sistema"
 
     PROFILE ||--o{ PROFILE_PERMISSION : "consolida"
 
@@ -88,6 +88,13 @@ erDiagram
         uniqueidentifier RoleId PK
         uniqueidentifier SuiteId FK
         uniqueidentifier TenantId FK
+        nvarchar Name
+    }
+
+    PERMISSION_TEMPLATE {
+        uniqueidentifier TemplateId PK
+        uniqueidentifier SuiteId FK
+        uniqueidentifier RoleId FK
         nvarchar Name
     }
 
@@ -131,5 +138,6 @@ erDiagram
 ## 4. Reglas de Negocio y Normalización
 1.  **Aislamiento Estricto**: Un Rol no puede existir fuera de un contexto de Sistema.
 2.  **Integridad Contextual**: Un Perfil solo puede crearse si el Rol seleccionado pertenece al Sistema seleccionado, y ambos pertenecen al mismo Tenant.
-3.  **Eliminación Lógica (Soft Delete)**: Los datos nunca se eliminan físicamente; se completa `DeletedAt` para mantener el historial.
-4.  **Persistencia Efectiva**: `PROFILE_PERMISSION` actúa como la fuente de verdad para el `Motor de Autorización`, combinando los valores por defecto del Rol con las anulaciones específicas del Perfil.
+3.  **Hub de Plantillas**: Las plantillas de permisos vinculan a un Rol de Sistema específico, permitiendo la inicialización de perfiles de forma agnóstica a la sucursal.
+4.  **Eliminación Lógica (Soft Delete)**: Los datos nunca se eliminan físicamente; se completa `DeletedAt` para mantener el historial.
+5.  **Persistencia Efectiva**: `PROFILE_PERMISSION` actúa como la fuente de verdad para el `Motor de Autorización`, combinando los valores por defecto del Rol con las anulaciones específicas del Perfil.
