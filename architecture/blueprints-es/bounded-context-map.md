@@ -1,230 +1,226 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versin original (Ingls) y est programado para traduccin oficial en la hoja de ruta.
+# 🗺️ Mapa de Contextos Acotados — Sistema de Gestión de Usuarios (UMS)
 
-# 🗺️ Bounded Context Map — User Management System (UMS)
-
-This document establishes the formal **Domain-Driven Design (DDD) Bounded Context Map** for the UMS platform. It defines the boundaries of each domain context, their internal responsibilities, and the integration contracts between them.
+Este documento establece el **Mapa de Contextos Acotados de Diseño Dirigido por Dominios (DDD)** formal para la plataforma UMS. Define los límites de cada contexto de dominio, sus responsabilidades internas y los contratos de integración entre ellos.
 
 > [!IMPORTANT]
-> This is a **Priority 1 Architectural Deliverable** as established in `architecture-spec.md`. All teams must align to this map before implementing features that cross context boundaries.
+> Este es un **Entregable Arquitectónico de Prioridad 1** según lo establecido en `architecture-spec.md`. Todos los equipos deben alinearse con este mapa antes de implementar funcionalidades que crucen los límites de los contextos.
 
 ---
 
-## 📐 1. Context Map Overview
+## 📐 1. Descripción General del Mapa de Contextos
 
 ```mermaid
 graph TD
-    subgraph IdentityContext["🔐 Identity Context"]
-        IC1["User Registration & Lifecycle"]
-        IC2["Organization (Tenant) Management"]
-        IC3["Branch (Sedes) Registry"]
-        IC4["IdP Strategy Adapters (Pluggable)"]
+    subgraph IdentityContext["🔐 Contexto de Identidad"]
+        IC1["Registro y Ciclo de Vida del Usuario"]
+        IC2["Gestión de Organizaciones (Tenants)"]
+        IC3["Registro de Sedes (Branches)"]
+        IC4["Adaptadores de Estrategia IdP (Enchufables)"]
     end
 
-    subgraph AuthorizationContext["🔑 Authorization Context"]
-        AC1["System & Resource Registry"]
-        AC2["Menu / Submenu / Option / Action Topology"]
-        AC3["Profile & Template Engine"]
-        AC4["Permission Graph Compiler (PDP)"]
-        AC5["Explicit-Deny Precedence Resolver"]
+    subgraph AuthorizationContext["🔑 Contexto de Autorización"]
+        AC1["Registro de Sistemas y Recursos"]
+        AC2["Topología de Menú / Submenú / Opción / Acción"]
+        AC3["Motor de Perfiles y Plantillas"]
+        AC4["Compilador de Grafos de Permisos (PDP)"]
+        AC5["Resolutor de Precedencia de Denegación Explícita"]
     end
 
-    subgraph ConfigContext["⚙️ Configuration & Feature Management Context"]
-        CF1["Multi-IdP Configuration Engine"]
-        CF2["System Behavioral Configuration Model"]
-        CF3["Feature Flag Management Framework"]
-        CF4["Config Cache Manager"]
+    subgraph ConfigContext["⚙️ Contexto de Configuración y Gestión de Funciones"]
+        CF1["Motor de Configuración Multi-IdP"]
+        CF2["Modelo de Configuración de Comportamiento del Sistema"]
+        CF3["Framework de Gestión de Feature Flags"]
+        CF4["Gestor de Caché de Configuración"]
     end
 
-    subgraph AuditContext["📋 Audit Context"]
-        AU1["Immutable Audit Ledger (CDC/Subscribers)"]
-        AU2["Access Attempt Log"]
-        AU3["Permission Mutation History"]
-        AU4["Config & Flag Change History"]
+    subgraph AuditContext["📋 Contexto de Auditoría"]
+        AU1["Libro de Auditoría Inmutable (CDC/Suscriptores)"]
+        AU2["Registro de Intentos de Acceso"]
+        AU3["Historial de Mutación de Permisos"]
+        AU4["Historial de Cambios de Configuración y Flags"]
     end
 
-    subgraph ConsoleContext["💻 Console Context (PAP)"]
-        CO1["Admin Web Portal UI"]
-        CO2["Tenant & Branch CRUD Views"]
-        CO3["Template Builder & Assignment Engine"]
-        CO4["Visual Graph Resolver & Diagnostics"]
-        CO5["Security Ledger Monitor"]
-        CO6["IdP Configuration Manager"]
-        CO7["System Config Editor"]
-        CO8["Feature Flag Dashboard"]
+    subgraph ConsoleContext["💻 Contexto de Consola (PAP)"]
+        CO1["UI del Portal Web de Administración"]
+        CO2["Vistas CRUD de Tenant y Sede"]
+        CO3["Constructor de Plantillas y Motor de Asignación"]
+        CO4["Resolutor Visual de Grafos y Diagnósticos"]
+        CO5["Monitor del Libro de Seguridad"]
+        CO6["Gestor de Configuración de IdP"]
+        CO7["Editor de Configuración del Sistema"]
+        CO8["Dashboard de Feature Flags"]
     end
 
-    subgraph CacheContext["⚡ Cache Context (Infrastructure)"]
-        CA1["Redis: auth_graph namespace"]
-        CA2["Redis: cfg namespace (IdP + System Config)"]
-        CA3["Redis: flags namespace (Evaluated Flag Sets)"]
-        CA4["TTL Governance & Eviction Hooks"]
+    subgraph CacheContext["⚡ Contexto de Caché (Infraestructura)"]
+        CA1["Redis: namespace auth_graph"]
+        CA2["Redis: namespace cfg (IdP + Config de Sistema)"]
+        CA3["Redis: namespace flags (Sets de Flags Evaluados)"]
+        CA4["Gobernanza de TTL y Hooks de Evicción"]
     end
 
-    IdentityContext -->|"Customer-Supplier: User + Org + Branch claims"| AuthorizationContext
-    IdentityContext -->|"Customer-Supplier: Tenant scope keys"| ConfigContext
-    AuthorizationContext -->|"Conformist: emits mutation events"| AuditContext
-    IdentityContext -->|"Conformist: emits lifecycle events"| AuditContext
-    ConfigContext -->|"Conformist: emits config + flag events"| AuditContext
-    ConfigContext -->|"Customer-Supplier: provides IdP config to"| IdentityContext
-    ConsoleContext -->|"Customer-Supplier: PAP calls via API"| AuthorizationContext
-    ConsoleContext -->|"Customer-Supplier: Admin identity"| IdentityContext
-    ConsoleContext -->|"Customer-Supplier: Config + Flags admin"| ConfigContext
-    AuthorizationContext -->|"Read-Aside: cache auth_graph"| CacheContext
-    ConfigContext -->|"Read-Aside: cache cfg + flags"| CacheContext
+    IdentityContext -->|"Customer-Supplier: Claims de Usuario + Org + Sede"| AuthorizationContext
+    IdentityContext -->|"Customer-Supplier: Claves de alcance de Tenant"| ConfigContext
+    AuthorizationContext -->|"Conformist: emite eventos de mutación"| AuditContext
+    IdentityContext -->|"Conformist: emite eventos de ciclo de vida"| AuditContext
+    ConfigContext -->|"Conformist: emite eventos de config + flags"| AuditContext
+    ConfigContext -->|"Customer-Supplier: proporciona config de IdP a"| IdentityContext
+    ConsoleContext -->|"Customer-Supplier: PAP llama vía API"| AuthorizationContext
+    ConsoleContext -->|"Customer-Supplier: Identidad de Admin"| IdentityContext
+    ConsoleContext -->|"Customer-Supplier: Admin de Config + Flags"| ConfigContext
+    AuthorizationContext -->|"Read-Aside: caché auth_graph"| CacheContext
+    ConfigContext -->|"Read-Aside: caché cfg + flags"| CacheContext
 ```
 
 ---
 
-## 📦 2. Context Definitions
+## 📦 2. Definiciones de Contexto
 
-### 🔐 A. Identity Context
-**Mission:** Manage the lifecycle of all principals (users) and the organizational structures (tenants and branches) they belong to. Delegate credential verification to pluggable, external Identity Providers using configurations supplied by the Configuration Context.
+### 🔐 A. Contexto de Identidad
+**Misión:** Gestionar el ciclo de vida de todos los principales (usuarios) y las estructuras organizativas (tenants y sedes) a las que pertenecen. Delegar la verificación de credenciales a Proveedores de Identidad externos y enchufables utilizando las configuraciones suministradas por el Contexto de Configuración.
 
-**Owns:**
-- `User` aggregate (registration, suspension, offboarding)
-- `Organization` (Tenant) aggregate
-- `Branch` (Sedes) aggregate
-- `IAuthenticationPort` (pluggable IdP strategy adapter — reads from Config Context)
+**Es dueño de:**
+- Agregado `User` (registro, suspensión, baja)
+- Agregado `Organization` (Tenant)
+- Agregado `Branch` (Sede)
+- `IAuthenticationPort` (adaptador de estrategia de IdP enchufable — lee del Contexto de Configuración)
 
-**Does NOT own:**
-- Authorization rules or permission logic
-- Audit ledger storage
-- IdP configuration data (owned by Config Context)
+**NO es dueño de:**
+- Reglas de autorización o lógica de permisos
+- Almacenamiento del libro de auditoría
+- Datos de configuración de IdP (propiedad del Contexto de Configuración)
 
-**Integration Contracts (Published Language):**
+**Contratos de Integración (Lenguaje Publicado):**
 - `UserRegisteredEvent { userId, organizationId, branchId, identityReference }`
 - `UserSuspendedEvent { userId, tenantId }`
 - `OrganizationCreatedEvent { tenantId, idpStrategy }`
 
 ---
 
-### 🔑 B. Authorization Context
-**Mission:** Act as the **Policy Decision Point (PDP)**. Compile and resolve the hierarchical authorization graph for any authenticated principal based on their organization, branch, profiles, and attached templates.
+### 🔑 B. Contexto de Autorización
+**Misión:** Actuar como el **Punto de Decisión de Políticas (PDP)**. Compilar y resolver el grafo de autorización jerárquico para cualquier principal autenticado basado en su organización, sede, perfiles y plantillas adjuntas.
 
-**Owns:**
-- `System` aggregate (registered client applications)
-- `Menu → Submenu → Option → Action` topology
-- `Profile` aggregate
-- `AuthorizationTemplate` aggregate
-- `Authorization` (Allow/Deny records)
-- `Permission Graph Compiler` (core engine)
-- `Explicit-Deny Precedence` rules engine
+**Es dueño de:**
+- Agregado `System` (aplicaciones cliente registradas)
+- Topología `Menu → Submenu → Option → Action`
+- Agregado `Profile`
+- Agregado `AuthorizationTemplate`
+- `Authorization` (registros de Permitir/Denegar)
+- `Compilador de Grafos de Permisos` (motor central)
+- Motor de reglas de `Precedencia de Denegación Explícita`
 
-**Does NOT own:**
-- Identity verification (delegated to Identity Context via port)
-- Cache storage (delegated to Cache Context via `ICachePort`)
-- Admin UI rendering (delegated to Console Context)
-- Feature flag state (delegated to Config Context)
+**NO es dueño de:**
+- Verificación de identidad (delegada al Contexto de Identidad vía puerto)
+- Almacenamiento en caché (delegado al Contexto de Caché vía `ICachePort`)
+- Renderizado de la UI de administración (delegado al Contexto de Consola)
+- Estado de feature flags (delegado al Contexto de Configuración)
 
-**Integration Contracts (Published Language):**
-- `GET /v1/authorization/graph` → returns `HierarchicalJsonGraph`
-- `POST /v1/authorization/templates` → creates versioned template
+**Contratos de Integración (Lenguaje Publicado):**
+- `GET /v1/authorization/graph` → devuelve `HierarchicalJsonGraph`
+- `POST /v1/authorization/templates` → crea plantilla versionada
 - `PermissionMutatedEvent { userId, profileId, effect, actionId, timestamp }`
 
 ---
 
-### ⚙️ C. Configuration & Feature Management Context *(NEW)*
-**Mission:** Govern the **dynamic, multi-tenant runtime behavior** of all UMS-integrated systems without requiring code changes or redeployment. Owns three capability pillars:
-1. **Multi-IdP Configuration Engine** — per-tenant/system IdP registry with priority/fallback
-2. **System Behavioral Configuration** — versioned JSON config for auth, session, branding, modules
-3. **Feature Flag Framework** — centralized, multi-dimensional toggle engine with rollout strategies
+### ⚙️ C. Contexto de Configuración y Gestión de Funciones *(NUEVO)*
+**Misión:** Gobernar el **comportamiento dinámico de tiempo de ejecución multi-tenant** de todos los sistemas integrados con UMS sin requerir cambios de código o despliegue. Posee tres pilares de capacidad:
+1. **Motor de Configuración Multi-IdP** — registro de IdP por tenant/sistema con prioridad/fallback.
+2. **Configuración de Comportamiento del Sistema** — configuración JSON versionada para auth, sesión, marca, módulos.
+3. **Framework de Feature Flags** — motor de toggles centralizado y multidimensional con estrategias de rollout.
 
-**Owns:**
-- `IdpConfiguration` aggregate
-- `SystemConfiguration` aggregate (versioned)
-- `FeatureFlag` aggregate
-- `FeatureFlagProviderConfig` aggregate *(per-tenant provider overrides)*
-- `FlagEvaluationEngine` (domain service — routes via port)
-- `IFeatureFlagPort` (core port — pluggable: Internal, LaunchDarkly, Unleash, ConfigCat, Azure App Config)
-- `IConfigCachePort` (infrastructure port — separate from auth graph cache)
-- `ISecretStorePort` (infrastructure port — vault-referenced credentials)
+**Es dueño de:**
+- Agregado `IdpConfiguration`
+- Agregado `SystemConfiguration` (versionado)
+- Agregado `FeatureFlag`
+- Agregado `FeatureFlagProviderConfig` *(overrides de proveedor por tenant)*
+- `FlagEvaluationEngine` (servicio de dominio — enruta vía puerto)
+- `IFeatureFlagPort` (puerto central — enchufable: Interno, LaunchDarkly, Unleash, ConfigCat, Azure App Config)
+- `IConfigCachePort` (puerto de infraestructura — separado del caché del grafo de auth)
+- `ISecretStorePort` (puerto de infraestructura — credenciales referenciadas en vault)
 
-**Does NOT own:**
-- User or organization identities (scopes them as foreign keys only)
-- Permission graphs (belongs to Authorization Context)
-- Admin UI (belongs to Console Context)
+**NO es dueño de:**
+- Identidades de usuario u organización (solo las referencia como claves foráneas)
+- Grafos de permisos (pertenece al Contexto de Autorización)
+- UI de administración (pertenece al Contexto de Consola)
 
-**Integration Contracts (Published Language):**
-- `GET /v1/config/idp?tenant_id&system_id` → returns ordered IdP config set
-- `GET /v1/config/system/{system_id}?tenant_id` → returns active system config
-- `POST /v1/flags/evaluate` → returns evaluated flag set for a runtime context
+**Contratos de Integración (Lenguaje Publicado):**
+- `GET /v1/config/idp?tenant_id&system_id` → devuelve el conjunto ordenado de config de IdP
+- `GET /v1/config/system/{system_id}?tenant_id` → devuelve la configuración activa del sistema
+- `POST /v1/flags/evaluate` → devuelve el conjunto de flags evaluados para un contexto de ejecución
 - `IdpConfigUpdatedEvent { configId, tenantId, version, timestamp }`
 - `SystemConfigPublishedEvent { configId, systemId, tenantId, version }`
 - `FeatureFlagStateChangedEvent { flagCode, newStatus, targetScope, changedBy }`
 
 ---
 
-### 📋 D. Audit Context
-**Mission:** Maintain an **immutable, tamper-proof ledger** of all identity events, permission mutations, **and configuration changes**. Serves compliance, forensic, and SRE diagnostic needs.
+### 📋 D. Contexto de Auditoría
+**Misión:** Mantener un **libro de contabilidad inmutable y a prueba de manipulaciones** de todos los eventos de identidad, mutaciones de permisos **y cambios de configuración**. Atiende necesidades de cumplimiento, forenses y diagnósticos de SRE.
 
-**Owns:**
-- `AuditRecord` entity (who, when, what, result)
-- `AccessAttemptLog` (authentication success/failure)
-- `PermissionMutationHistory` (ALLOW/DENY changes)
-- `ConfigChangeHistory` (IdP config, system config, feature flag mutations) *(NEW)*
+**Es dueño de:**
+- Entidad `AuditRecord` (quién, cuándo, qué, resultado)
+- `AccessAttemptLog` (éxito/fallo de autenticación)
+- `PermissionMutationHistory` (cambios de PERMITIR/DENEGAR)
+- `ConfigChangeHistory` (mutaciones de config de IdP, config de sistema, feature flags) *(NUEVO)*
 
-**Integration Pattern:** Event-driven subscriber (Conformist). Receives events from Identity, Authorization, and Configuration contexts via internal event bus (`IEventBusPort`).
-
----
-
-### 💻 E. Console Context (Policy Administration Point — PAP)
-**Mission:** Provide the **Administrative Web Portal** that allows SuperAdmins and Tenant Managers to govern organizations, systems, profiles, templates, IdP configurations, system configs, and feature flags.
-
-**Owns:**
-- Admin Web Portal (React SPA)
-- Template Builder UI & Automated Assignment Rule Configurator
-- Visual Graph Resolver
-- **IdP Configuration Manager** *(NEW)*
-- **System Config Editor** *(NEW)*
-- **Feature Flag Dashboard** *(NEW)*
-
-**Integration Pattern:** Customer-Supplier. Calls all backend contexts via their published REST APIs. Authenticates using the same UMS AuthGateway with a `SuperAdmin`-scoped `system_id`.
+**Patrón de Integración:** Suscriptor basado en eventos (Conformist). Recibe eventos de los contextos de Identidad, Autorización y Configuración a través del bus de eventos interno (`IEventBusPort`).
 
 ---
 
-### ⚡ F. Cache Context (Infrastructure)
-**Mission:** Provide a high-performance distributed cache layer for authorization graphs, system configurations, and feature flag evaluations — all under strict namespace governance.
+### 💻 E. Contexto de Consola (Punto de Administración de Políticas — PAP)
+**Misión:** Proporcionar el **Portal Web Administrativo** que permite a los SuperAdmins y Gerentes de Tenant gobernar organizaciones, sistemas, perfiles, plantillas, configuraciones de IdP, configuraciones de sistema y feature flags.
 
-**Cache Namespaces:**
-| Namespace | Owner Context | Key Pattern | TTL |
+**Es dueño de:**
+- Portal Web de Administración (React SPA)
+- UI de Constructor de Plantillas y Configurador de Reglas de Asignación Automática
+- Resolutor Visual de Grafos
+- **Gestor de Configuración de IdP** *(NUEVO)*
+- **Editor de Configuración del Sistema** *(NUEVO)*
+- **Dashboard de Feature Flags** *(NUEVO)*
+
+**Patrón de Integración:** Customer-Supplier. Llama a todos los contextos del backend a través de sus APIs REST publicadas. Se autentica utilizando el mismo AuthGateway de UMS con un `system_id` de alcance `SuperAdmin`.
+
+---
+
+### ⚡ F. Contexto de Caché (Infraestructura)
+**Misión:** Proporcionar una capa de caché distribuida de alto rendimiento para grafos de autorización, configuraciones de sistema y evaluaciones de feature flags — todo bajo una gobernanza estricta de namespaces.
+
+**Namespaces de Caché:**
+| Namespace | Contexto Dueño | Patrón de Clave | TTL |
 | :--- | :--- | :--- | :--- |
-| `auth_graph:*` | Authorization Context | `auth_graph:{userId}:{systemId}:{tenantId}:{branchId}` | 3600s |
-| `cfg:idp:*` | Configuration Context | `cfg:idp:{tenantId}:{systemId}` | 900s |
-| `cfg:sys:*` | Configuration Context | `cfg:sys:{systemId}:{tenantId}` | 300s |
-| `flags:*` | Configuration Context | `flags:{systemId}:{tenantId}:{userId}` | 60s |
+| `auth_graph:*` | Contexto de Autorización | `auth_graph:{userId}:{systemId}:{tenantId}:{branchId}` | 3600s |
+| `cfg:idp:*` | Contexto de Configuración | `cfg:idp:{tenantId}:{systemId}` | 900s |
+| `cfg:sys:*` | Contexto de Configuración | `cfg:sys:{systemId}:{tenantId}` | 300s |
+| `flags:*` | Contexto de Configuración | `flags:{systemId}:{tenantId}:{userId}` | 60s |
 
-**Integration Pattern:** Hidden behind pure core port abstractions (`ICachePort`, `IConfigCachePort`). Only infrastructure adapters interact with Redis directly.
+**Patrón de Integración:** Oculto tras abstracciones puras de puertos del núcleo (`ICachePort`, `IConfigCachePort`). Solo los adaptadores de infraestructura interactúan directamente con Redis.
 
 ---
 
-## 🔗 3. Context Relationships
+## 🔗 3. Relaciones de Contexto
 
-| Upstream Context | Downstream Context | Pattern | Contract |
+| Contexto Aguas Arriba (Upstream) | Contexto Aguas Abajo (Downstream) | Patrón | Contrato |
 | :--- | :--- | :--- | :--- |
-| Identity Context | Authorization Context | **Customer-Supplier** | User/Org/Branch claims pushed as events or queried via API |
-| Identity Context | Config Context | **Customer-Supplier** | Tenant scope keys used for config isolation |
-| Config Context | Identity Context | **Customer-Supplier** | IdP config supplied to Auth Gateway for routing |
-| Authorization Context | Audit Context | **Conformist (Event)** | Publishes `PermissionMutatedEvent` |
-| Identity Context | Audit Context | **Conformist (Event)** | Publishes `UserRegisteredEvent`, `UserSuspendedEvent` |
-| Config Context | Audit Context | **Conformist (Event)** | Publishes `IdpConfigUpdatedEvent`, `SystemConfigPublishedEvent`, `FeatureFlagStateChangedEvent` |
-| Console Context | Authorization Context | **Customer-Supplier** | PAP calls Authorization APIs for template/profile management |
-| Console Context | Identity Context | **Customer-Supplier** | PAP calls Identity APIs for org/branch management |
-| Console Context | Config Context | **Customer-Supplier** | PAP calls Config APIs for IdP, system config, and flag management |
-| Authorization Context | Cache Context | **Shared Kernel (ICachePort)** | Read-aside; invalidation on mutation events |
-| Config Context | Cache Context | **Shared Kernel (IConfigCachePort)** | Read-aside for cfg + flags; invalidation on config events |
+| Contexto de Identidad | Contexto de Autorización | **Customer-Supplier** | Claims de Usuario/Org/Sede enviados como eventos o consultados vía API |
+| Contexto de Identidad | Contexto de Configuración | **Customer-Supplier** | Claves de alcance de Tenant utilizadas para el aislamiento de configuración |
+| Contexto de Configuración | Contexto de Identidad | **Customer-Supplier** | Configuración de IdP suministrada al Auth Gateway para el enrutamiento |
+| Contexto de Autorización | Contexto de Auditoría | **Conformist (Evento)** | Publica `PermissionMutatedEvent` |
+| Contexto de Identidad | Contexto de Auditoría | **Conformist (Evento)** | Publica `UserRegisteredEvent`, `UserSuspendedEvent` |
+| Contexto de Configuración | Contexto de Auditoría | **Conformist (Evento)** | Publica `IdpConfigUpdatedEvent`, `SystemConfigPublishedEvent`, `FeatureFlagStateChangedEvent` |
+| Contexto de Consola | Contexto de Autorización | **Customer-Supplier** | PAP llama a APIs de Autorización para gestión de plantillas/perfiles |
+| Contexto de Consola | Contexto de Identidad | **Customer-Supplier** | PAP llama a APIs de Identidad para gestión de org/sedes |
+| Contexto de Consola | Contexto de Configuración | **Customer-Supplier** | PAP llama a APIs de Configuración para gestión de IdP, config de sistema y flags |
+| Contexto de Autorización | Contexto de Caché | **Shared Kernel (ICachePort)** | Read-aside; invalidación en eventos de mutación |
+| Contexto de Configuración | Contexto de Caché | **Shared Kernel (IConfigCachePort)** | Read-aside para cfg + flags; invalidación en eventos de configuración |
 
 ---
 
-## 🚧 4. Anti-Corruption Layers (ACL)
+## 🚧 4. Capas Anti-Corrupción (ACL)
 
-| Boundary | ACL Mechanism | Reason |
+| Límite | Mecanismo ACL | Razón |
 | :--- | :--- | :--- |
-| Authorization ↔ External IdP | `IAuthenticationPort` (Strategy Pattern) | Prevents Zitadel/Okta SDK from polluting core |
-| Config ↔ Feature Flag Providers | `IFeatureFlagPort` (Strategy Pattern) | Prevents LaunchDarkly/Unleash/ConfigCat SDKs from coupling to core. Mirrors IAuthenticationPort design (ADR-0025). |
-| Config ↔ Secret Vault | `ISecretStorePort` (Strategy Pattern) | Prevents AWS Secrets Manager / HashiCorp Vault SDK from leaking into domain |
-| Config ↔ Redis (cfg/flags) | `IConfigCachePort` | Separate port from auth graph cache to enforce namespace governance |
-| Authorization ↔ Redis (auth_graph) | `ICachePort` | Prevents Redis client from leaking into domain layer |
-| Authorization ↔ Event Bus | `IEventBusPort` | Prevents Kafka/RabbitMQ from coupling to use cases |
-| Console ↔ UMS APIs | REST API contracts (versioned) | Console is an external consumer; treated as any third party |
-
-
+| Autorización ↔ IdP Externo | `IAuthenticationPort` (Patrón Strategy) | Evita que el SDK de Zitadel/Okta contamine el núcleo |
+| Configuración ↔ Proveedores de Feature Flags | `IFeatureFlagPort` (Patrón Strategy) | Evita que los SDKs de LaunchDarkly/Unleash/ConfigCat se acoplen al núcleo. Refleja el diseño de IAuthenticationPort (ADR-0025). |
+| Configuración ↔ Secret Vault | `ISecretStorePort` (Patrón Strategy) | Evita que el SDK de AWS Secrets Manager / HashiCorp Vault se filtre en el dominio |
+| Configuración ↔ Redis (cfg/flags) | `IConfigCachePort` | Puerto separado del caché del grafo de auth para aplicar gobernanza de namespaces |
+| Autorización ↔ Redis (auth_graph) | `ICachePort` | Evita que el cliente de Redis se filtre en la capa de dominio |
+| Autorización ↔ Bus de Eventos | `IEventBusPort` | Evita que Kafka/RabbitMQ se acoplen a los casos de uso |
+| Consola ↔ APIs de UMS | Contratos de API REST (versionados) | La consola es un consumidor externo; se trata como a cualquier tercero |

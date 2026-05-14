@@ -1,54 +1,51 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
+# Evaluación de Riesgo Financiero y de Bloqueo de Proveedor (Vendor Lock-In)
 
-# Vendor Lock-In & Financial Risk Assessment
+## Estado
+Aprobado
 
-## Status
-Approved
-
-## Date
+## Fecha
 2026-05-10
 
-## Context
-As the UMS system adopts various frameworks, databases, and third-party tools, we must continuously evaluate the **"Build vs. Buy"** decisions to prevent unexpected financial burdens, licensing conflicts, or vendor lock-in.
+## Contexto
+A medida que el sistema UMS adopta varios frameworks, bases de datos y herramientas de terceros, debemos evaluar continuamente las decisiones de **"Build vs. Buy"** (Construir vs. Comprar) para prevenir cargas financieras inesperadas, conflictos de licencias o el bloqueo por parte de proveedores.
 
-This document serves as the architectural baseline for evaluating the current technology stack against cost scalability, open-source compliance, and operational maintenance.
-
----
-
-## 1. Core Frameworks & Languages
-**Status:** ð¢ Zero Risk
-
-The application core is completely insulated from vendor lock-in thanks to strict adherence to Hexagonal Architecture (ADR-0002).
-* **TypeScript & Node.js**: Open Source (Apache 2.0 / MIT).
-* **NestJS**: Open Source (MIT), highly adopted enterprise framework.
-* **Nx Monorepo**: Open Source (MIT). *Note: Nx Cloud offers SaaS caching, but local caching is 100% free.*
+Este documento sirve como la línea base arquitectónica para evaluar el stack tecnológico actual frente a la escalabilidad de costos, el cumplimiento de código abierto y el mantenimiento operativo.
 
 ---
 
-## 2. Identified Infrastructure Risks & Mitigations
+## 1. Frameworks y Lenguajes Principales
+**Estado:** 🟢 Riesgo Cero
 
-### ð´ High Financial Risk: Identity Provider (IdP)
-* **Context**: [ADR-0020](../03-adrs/0020-identity-provider-abstraction-strategy.md) abstracts the Identity Provider, allowing integrations with SaaS solutions like Auth0 or Azure Entra ID.
-* **The Risk**: Commercial SaaS Identity platforms bill by Monthly Active Users (MAU) or M2M tokens. At a high B2C or B2B scale, operational costs can skyrocket exponentially.
-* **Mitigation Strategy**: If licensing costs become prohibitive, the infrastructure adapter must be swapped to **Keycloak** (100% Open Source and free). However, this shifts the financial cost from licensing to DevOps maintenance (Kubernetes scaling, database management).
-
-### ð¡ Medium Licensing Risk: Redis Distributed Caching
-* **Context**: [ADR-0014](../03-adrs/0014-distributed-caching-strategy-redis.md) mandates Redis for caching.
-* **The Risk**: Redis Inc. recently changed its licensing from BSD to RSALv2 (Source Available, not strictly OSI Open Source). While free for internal usage, it poses legal concerns for managed service hosting.
-* **Mitigation Strategy**: In case of strict open-source compliance requirements or self-hosted deployment (ADR-0028), the operations team is authorized to use **Valkey** (the Linux Foundation Open Source fork of Redis) as a drop-in replacement.
-
-### ð¡ Medium Maintenance Risk: Feature Flag Engine
-* **Context**: [ADR-0017](../03-adrs/0017-feature-flagging-strategy.md) utilizes Infrastructure adapters for Feature Flags (e.g., Unleash, ConfigCat).
-* **The Risk**: Commercial platforms like LaunchDarkly or Unleash Enterprise have high subscription fees. The free, open-source version of Unleash requires self-hosting.
-* **Mitigation Strategy**: The product team must determine if the DevOps bandwidth exists to host and maintain the open-source Unleash Server. If not, budget must be allocated for a cost-effective SaaS alternative like ConfigCat. The core codebase will remain unaffected due to the `IFeatureTogglePort`.
-
-### ð¢ Low Risk: Observability Stack
-* **Context**: [ADR-0007](../03-adrs/0007-observability-telemetry-loki-opentelemetry.md) uses the LGTM stack (Loki, Grafana, Tempo) and OpenTelemetry.
-* **The Risk**: Grafana uses an AGPLv3 license.
-* **Mitigation Strategy**: As long as the UMS team only consumes Grafana internally for monitoring and does not distribute a modified version of the Grafana source code as a commercial product, there is zero legal or financial risk.
+El núcleo de la aplicación está completamente aislado del bloqueo de proveedores gracias a la adhesión estricta a la Arquitectura Hexagonal (ADR-0002).
+* **TypeScript y Node.js**: Código Abierto (Apache 2.0 / MIT).
+* **NestJS**: Código Abierto (MIT), framework empresarial altamente adoptado.
+* **Nx Monorepo**: Código Abierto (MIT). *Nota: Nx Cloud ofrece almacenamiento en caché SaaS, pero el almacenamiento en caché local es 100% gratuito.*
 
 ---
 
-## Conclusion
-The current UMS architecture has been deliberately designed to minimize lock-in. Any commercial tool (IdP, Feature Flags, Database) is kept entirely outside the domain boundaries using ports and adapters, ensuring that the business can instantly pivot to open-source alternatives if vendor pricing models change.
+## 2. Riesgos de Infraestructura Identificados y Mitigaciones
 
+### 🔴 Riesgo Financiero Alto: Proveedor de Identidad (IdP)
+* **Contexto**: [ADR-0020](../03-adrs/0020-identity-provider-abstraction-strategy.md) abstrae al Proveedor de Identidad, permitiendo integraciones con soluciones SaaS como Auth0 o Azure Entra ID.
+* **El Riesgo**: Las plataformas de Identidad SaaS comerciales facturan por Usuarios Activos Mensuales (MAU) o tokens M2M. A una escala alta de B2C o B2B, los costos operativos pueden dispararse exponencialmente.
+* **Estrategia de Mitigación**: Si los costos de licencia se vuelven prohibitivos, el adaptador de infraestructura debe cambiarse a **Keycloak** (100% Código Abierto y gratuito). Sin embargo, esto traslada el costo financiero de la licencia al mantenimiento de DevOps (escalado de Kubernetes, gestión de bases de datos).
+
+### 🟡 Riesgo de Licenciamiento Medio: Caché Distribuido Redis
+* **Contexto**: [ADR-0014](../03-adrs/0014-distributed-caching-strategy-redis.md) hace mandatorio el uso de Redis para el almacenamiento en caché.
+* **El Riesgo**: Redis Inc. cambió recientemente su licencia de BSD a RSALv2 (Source Available, no estrictamente Código Abierto OSI). Aunque es gratuito para uso interno, plantea preocupaciones legales para el alojamiento de servicios gestionados.
+* **Estrategia de Mitigación**: En caso de requerimientos estrictos de cumplimiento de código abierto o despliegue autohospedado (ADR-0028), el equipo de operaciones está autorizado a utilizar **Valkey** (el fork de Código Abierto de la Fundación Linux de Redis) como un reemplazo directo.
+
+### 🟡 Riesgo de Mantenimiento Medio: Motor de Feature Flags
+* **Contexto**: [ADR-0017](../03-adrs/0017-feature-flagging-strategy.md) utiliza adaptadores de Infraestructura para Feature Flags (ej. Unleash, ConfigCat).
+* **El Riesgo**: Las plataformas comerciales como LaunchDarkly o Unleash Enterprise tienen tarifas de suscripción altas. La versión gratuita y de código abierto de Unleash requiere autohospedaje.
+* **Estrategia de Mitigación**: El equipo de producto debe determinar si existe el ancho de banda de DevOps para hospedar y mantener el Servidor Unleash de código abierto. Si no es así, se debe asignar presupuesto para una alternativa SaaS rentable como ConfigCat. El código base central no se verá afectado debido al `IFeatureTogglePort`.
+
+### 🟢 Riesgo Bajo: Stack de Observabilidad
+* **Contexto**: [ADR-0007](../03-adrs/0007-observability-telemetry-loki-opentelemetry.md) utiliza el stack LGTM (Loki, Grafana, Tempo) y OpenTelemetry.
+* **El Riesgo**: Grafana utiliza una licencia AGPLv3.
+* **Estrategia de Mitigación**: Mientras el equipo de UMS solo consuma Grafana internamente para monitoreo y no distribuya una versión modificada del código fuente de Grafana como un producto comercial, el riesgo legal o financiero es cero.
+
+---
+
+## Conclusión
+La arquitectura actual de UMS ha sido diseñada deliberadamente para minimizar el bloqueo. Cualquier herramienta comercial (IdP, Feature Flags, Base de Datos) se mantiene completamente fuera de los límites del dominio utilizando puertos y adaptadores, asegurando que el negocio pueda pivotar instantáneamente hacia alternativas de código abierto si los modelos de precios de los proveedores cambian.

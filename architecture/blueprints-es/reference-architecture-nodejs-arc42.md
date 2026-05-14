@@ -1,5 +1,3 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
-
 # ðï¸ Arquitectura de Referencia Evolutiva para Sistemas API-Driven (Node.js Stack)
 
 > [!IMPORTANT]

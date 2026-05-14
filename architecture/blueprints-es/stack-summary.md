@@ -1,71 +1,68 @@
-> ?? **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y está programado para traducción oficial en la hoja de ruta.
+# ⚡ Guía Rápida del Stack Tecnológico Progresivo de Node.js (Referencia Rápida)
 
-# â¡ Progressive Node.js Technology Stack Cheat Sheet (Quick Reference)
-
-This cheat sheet serves as the authoritative, high-density tool reference by architectural layer for developers and autonomous agents working on the Progressive Node.js Reference Architecture.
+Esta guía sirve como referencia autoritativa y de alta densidad de herramientas por capa arquitectónica para desarrolladores y agentes autónomos que trabajan en la Arquitectura de Referencia Progresiva de Node.js.
 
 ---
 
-### 1. Runtime & Language
-*   **Runtime Environment:** Node.js v20 LTS
-*   **Language:** TypeScript v5.4+ (Strict Mode)
-*   **Compiler Engine:** SWC (`@swc/core`) inside Nx Monorepo
-*   **Code Quality:** ESLint v8 + Prettier v3
-*   **Git Quality Gates:** Husky + lint-staged
+### 1. Runtime y Lenguaje
+*   **Entorno de Ejecución:** Node.js v20 LTS
+*   **Lenguaje:** TypeScript v5.4+ (Modo Estricto)
+*   **Motor de Compilación:** SWC (`@swc/core`) dentro de Nx Monorepo
+*   **Calidad de Código:** ESLint v8 + Prettier v3
+*   **Quality Gates de Git:** Husky + lint-staged
 
-### 2. API Layer
-*   **Internal Protocols:** gRPC (NestJS Microservices)
-*   **External Protocols:** REST API (NestJS Express)
-*   **Validation Standard:** `class-validator` + `class-transformer`
-*   **API Documentation:** OpenAPI v3 (Swagger) via NestJS decorators
+### 2. Capa de API
+*   **Protocolos Internos:** gRPC (NestJS Microservices)
+*   **Protocolos Externos:** API REST (NestJS Express)
+*   **Estándar de Validación:** `class-validator` + `class-transformer`
+*   **Documentación de API:** OpenAPI v3 (Swagger) vía decoradores de NestJS
 
-### 3. Gateway Layer
-*   **API Gateway:** Kong Gateway (Open Source Edition)
-*   **Session Management:** RS256 Signed JSON Web Tokens (JWT)
-*   **Internal Security:** Mutual TLS (mTLS) via Istio Service Mesh
-*   **Rate Limiting:** Sliding-Window Rate Limiter (Kong Redis plugin)
+### 3. Capa de Gateway
+*   **API Gateway:** Kong Gateway (Edición Open Source)
+*   **Gestión de Sesión:** Tokens Web JSON (JWT) firmados con RS256
+*   **Seguridad Interna:** TLS mutuo (mTLS) vía Istio Service Mesh
+*   **Rate Limiting:** Limitador de ventana deslizante (plugin Kong Redis)
 
-### 4. Domain & Application Layer
-*   **Architectural Pattern:** Hexagonal Architecture (Ports & Adapters)
-*   **Monorepo Strategy:** Nx Monorepo
-*   **Execution Pattern:** Modular Monolith (Dapr-Ready)
-*   **Segregation Pattern:** Internal CQRS (NestJS CQRS Module)
-*   **Dependency Injection:** Native NestJS DI Container
+### 4. Capa de Dominio y Aplicación
+*   **Patrón Arquitectónico:** Arquitectura Hexagonal (Puertos y Adaptadores)
+*   **Estrategia de Monorepo:** Nx Monorepo
+*   **Patrón de Ejecución:** Monolito Modular (Preparado para Dapr)
+*   **Patrón de Segregación:** CQRS interno (Módulo CQRS de NestJS)
+*   **Inyección de Dependencias:** Contenedor DI nativo de NestJS
 
-### 5. Data Layer
-*   **Primary Relational Database:** PostgreSQL v16
-*   **Relational Mapping (ORM):** TypeORM (TypeScript)
-*   **High-Performance Queries:** Native `pg` driver
-*   **Schema Migration Engine:** TypeORM Migrations via Kubernetes Init-Containers
-*   **In-Memory Caching:** Redis v7.2 (Sentinel / Cluster Replications)
-*   **Object & Asset Store:** MinIO (S3-Compatible, Self-hosted)
-*   **Asynchronous Message Broker:** RabbitMQ (AMQP v0.9.1, Self-hosted)
+### 5. Capa de Datos
+*   **Base de Datos Relacional Principal:** PostgreSQL v16
+*   **Mapeo Relacional (ORM):** TypeORM (TypeScript)
+*   **Consultas de Alto Rendimiento:** Driver nativo `pg`
+*   **Motor de Migración de Esquema:** Migraciones de TypeORM vía Init-Containers de Kubernetes
+*   **Caché en Memoria:** Redis v7.2 (Replicaciones Sentinel / Cluster)
+*   **Almacén de Objetos y Activos:** MinIO (Compatible con S3, Autohospedado)
+*   **Broker de Mensajería Asíncrona:** RabbitMQ (AMQP v0.9.1, Autohospedado)
 
-### 6. Multi-tenancy Strategy
-*   **Data Isolation Model:** Shared Database with Row-Level Security (RLS)
-*   **Tenant Resolution Context:** JWT claim extraction via NestJS Guards
-*   **Isolation Enforcement:** Dynamic database transaction session injection (`SET LOCAL app.current_tenant`)
+### 6. Estrategia Multi-tenancy
+*   **Modelo de Aislamiento de Datos:** Base de datos compartida con Seguridad a Nivel de Fila (RLS)
+*   **Contexto de Resolución de Tenant:** Extracción de claims JWT vía Guards de NestJS
+*   **Aplicación del Aislamiento:** Inyección dinámica de sesión de transacción de base de datos (`SET LOCAL app.current_tenant`)
 
-### 7. Infrastructure & Deployment
-*   **Container Engine:** Docker v25 (Multi-Stage Distroless node images)
-*   **Orchestrator Platform:** Kubernetes (K8s v1.28+)
-*   **Secrets & Key Management:** HashiCorp Vault (OSS, Self-hosted)
-*   **Deployment Packager:** Helm v3 parameterized charts
+### 7. Infraestructura y Despliegue
+*   **Motor de Contenedores:** Docker v25 (Imágenes node Distroless multi-etapa)
+*   **Plataforma Orquestadora:** Kubernetes (K8s v1.28+)
+*   **Gestión de Secretos y Claves:** HashiCorp Vault (OSS, Autohospedado)
+*   **Empaquetador de Despliegue:** Charts parametrizados de Helm v3
 
-### 8. Observability
-*   **Instrumentation Standard:** OpenTelemetry (Vendor-Neutral SDKs)
-*   **Log Aggregator:** Grafana Loki (OSS)
-*   **Distributed Traces:** Jaeger (OSS)
-*   **Metric Server:** Prometheus Pulling Engine
+### 8. Observabilidad
+*   **Estándar de Instrumentación:** OpenTelemetry (SDKs agnósticos del proveedor)
+*   **Agregador de Logs:** Grafana Loki (OSS)
+*   **Trazas Distribuidas:** Jaeger (OSS)
+*   **Servidor de Métricas:** Motor de recolección Prometheus
 
-### 9. Security
-*   **Auth Registries:** Federated OIDC & SAML + UMS Native BCrypt Store
-*   **Access Control:** Hierarchical RBAC + Attribute-Based Access Control (ABAC)
-*   **Dependency Audit:** Snyk CLI + `npm audit` inside CI/CD pipelines
+### 9. Seguridad
+*   **Registros de Auth:** OIDC y SAML federados + UMS Native BCrypt Store
+*   **Control de Acceso:** RBAC jerárquico + Control de Acceso Basado en Atributos (ABAC)
+*   **Auditoría de Dependencias:** CLI de Snyk + `npm audit` dentro de los pipelines de CI/CD
 
-### 10. Developer Experience (DevEx)
-*   **Local Services:** Docker Compose Spec
-*   **Unit Testing Framework:** Jest
-*   **Integration Testing:** Jest + Supertest with **Testcontainers**
-*   **End-to-End (E2E) Testing:** Playwright
-
+### 10. Experiencia del Desarrollador (DevEx)
+*   **Servicios Locales:** Docker Compose Spec
+*   **Framework de Pruebas Unitarias:** Jest
+*   **Pruebas de Integración:** Jest + Supertest con **Testcontainers**
+*   **Pruebas de Extremo a Extremo (E2E):** Playwright
