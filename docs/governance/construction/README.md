@@ -1,4 +1,9 @@
 # UMS Construction Planning — Documentation Index **Version:** 2.0 **Date:** 2026-05-14 **Status:** Ready for Construction — **MVP REDUCED (168 pts, 12 weeks, 4 people)**
+
+**[Back to Main README](../../../README.md)**
+
+Welcome to the **Construction** portal. Here you will find the documentation and resources required to understand and manage this area of the system.
+
 **Language / Idioma:** Bilingual ES/EN
 
 ---

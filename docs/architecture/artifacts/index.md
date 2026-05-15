@@ -1,5 +1,9 @@
 # Artifacts Index
 
+**[Back to Main README](../../../README.md)**
+
+Welcome to the **Artifacts** portal. Here you will find the documentation and resources required to understand and manage this area of the system.
+
 **[Back to Architecture](../index.md)**
 
 - [Canonical Code Patterns](./canonical-patterns/index.md) — Reference implementations: Port/Adapter, Aggregate Root, Result Pattern, Multi-tenant RLS

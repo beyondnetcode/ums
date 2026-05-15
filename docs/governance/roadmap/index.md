@@ -1,5 +1,9 @@
 # Roadmap Index
 
+**[Back to Main README](../../../README.md)**
+
+Welcome to the **Roadmap** portal. Here you will find the documentation and resources required to understand and manage this area of the system.
+
 **[Back to Governance](../index.md)**
 
 - [MVP Functional Story Prioritization](./mvp-functional-prioritization.md)

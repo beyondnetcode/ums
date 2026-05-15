@@ -1,5 +1,9 @@
 # Registro de ADRs
 
+Welcome to the **Adrs Es** index. Here you will find the technical and governance documentation related to this module.
+
+**[Back to Main README](../../../README.md)**
+
 Registro histórico de decisiones arquitectónicas.
 
 - [0001-monorepo-orchestration-nx.md](0001-monorepo-orchestration-nx.md)

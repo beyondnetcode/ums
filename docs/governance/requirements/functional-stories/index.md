@@ -1,5 +1,7 @@
 # Functional Stories Directory
 
+**[Back to Main README](../../../../README.md)**
+
 Welcome to the master **Functional Stories** index for the User Management System (UMS). This directory contains business-oriented functional flows separated from technical implementation details.
 
 > **Writing standard:** Every story must follow the [Functional Story Writing Standard](./functional-story-standard.md), keeping the PO/BA narrative separate from technical requirements.

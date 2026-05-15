@@ -1,5 +1,7 @@
 # Canonical Code Patterns
 
+**[Back to Main README](../../../../README.md)**
+
 **[Back to Artifacts](../index.md)**
 
 Reference implementations for the critical architectural patterns mandated by the UMS engineering standards. Each pattern document includes the problem statement, the canonical C# / .NET 8 code, and the anti-patterns to reject in code review.

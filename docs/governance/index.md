@@ -1,7 +1,10 @@
 # UMS Governance Portal
 
+**[Back to Main README](../../README.md)**
+
+Welcome to the **Governance** portal. Here you will find the documentation and resources required to understand and manage this area of the system.
+
 **Version:** 1.0 | **Date:** 2026-05-14 | **Status:** Construction Ready
-**[Back to Main README](../README.md)**
 
 ---
 
@@ -17,8 +20,8 @@
 - [Construction README](./construction/README.md) — How-to guide by role (PO, engineer, QA, hiring, DevOps)
 - [Technical Stories & Team Composition](./construction/TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md) — **PRIMARY**: 89 TS, 8 team profiles, effort validation (578 pts)
 - [FS-to-TS Mapping](./construction/FS-TO-TS-MAPPING.md) — Requirement traceability (16 FS → 89 TS)
-- [Service Implementation Plan](./construction/SERVICE-IMPLEMENTATION-PLAN.md) — .NET 8 monorepo, architecture, CI/CD
-- [TE-03 RLS Implementation](./construction/TE-03-rls-sql-server-implementation.md) — Two-layer RLS deep dive
+- [Service Implementation Plan](./project-es/SERVICE-IMPLEMENTATION-PLAN.md) — .NET 8 monorepo, architecture, CI/CD
+- [TE-03 RLS Implementation](./construction/README.md) — Two-layer RLS deep dive
 
 #### **Detailed Designs** (Post-MVP Épicas)
 - [EP-06: Approvals (MFA, B2B, Delegation)](./project/ep-06-approvals-detailed-design.md)

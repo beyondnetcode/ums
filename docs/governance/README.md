@@ -1,5 +1,7 @@
 # UMS Governance — Complete Reference **Version:** 2.0 **Date:** 2026-05-15 **Status:** **READY FOR BOARD APPROVAL & CONSTRUCTION**
 
+**[Back to Main README](../../README.md)**
+
 ---
 
 ## FOR DIRECTORS, CTO & INVESTORS — START HERE
@@ -56,7 +58,7 @@ Everything you need to:
 → Action: Post 2 job descriptions (Senior Security Engineer, QA Automation)
 
 **DevOps Engineer:**
-→ Read: [`construction/SERVICE-IMPLEMENTATION-PLAN.md`](./construction/SERVICE-IMPLEMENTATION-PLAN.md) (30 min)
+→ Read: [`construction/SERVICE-IMPLEMENTATION-PLAN.md`](./project-es/SERVICE-IMPLEMENTATION-PLAN.md) (30 min)
 → Action: Set up GitHub Actions + SQL Server test environment
 
 ---
@@ -200,12 +202,12 @@ Everything you need to:
 
 ### Technical Details (Read by Need)
 
-- **[construction/SERVICE-IMPLEMENTATION-PLAN.md](./construction/SERVICE-IMPLEMENTATION-PLAN.md)**
+- **[construction/SERVICE-IMPLEMENTATION-PLAN.md](./project-es/SERVICE-IMPLEMENTATION-PLAN.md)**
 - .NET 8 monorepo structure, layered architecture
 - Test pyramid, CI/CD pipeline
 - **Read before Sprint 1**
 
-- **[construction/TE-03-rls-sql-server-implementation.md](./construction/TE-03-rls-sql-server-implementation.md)**
+- **[construction/TE-03-rls-sql-server-implementation.md](./construction/README.md)**
 - Two-layer RLS model (EF Core + SQL Server)
 - DbConnectionInterceptor, SESSION_CONTEXT, error handling
 - **Read by DBA + Backend before TS-1.2 starts**

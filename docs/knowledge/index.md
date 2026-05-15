@@ -1,8 +1,10 @@
 # Knowledge Base
 
-**Language:** [English](./index.md) | [Espanol](./index.md)
+**[Back to Main README](../../README.md)**
 
-**[Back to Main README](../README.md)**
+Welcome to the **Knowledge Base** portal. Here you will find the documentation and resources required to understand and manage this area of the system.
+
+**Language:** [English](./index.md) | [Espanol](./index.md)
 
 This knowledge hub provides the recommended entry points for understanding UMS by audience and lifecycle phase.
 

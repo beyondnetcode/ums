@@ -1,8 +1,10 @@
 # Base de Conocimiento
 
-**Idioma:** [English](./index.md) | [Espanol](./index.md)
+**[Volver al README Principal](../../README.es.md)**
 
-**[Volver al README Principal](../README.es.md)**
+Bienvenido al portal de **Knowledge Base**. Aquí encontrarás la documentación y recursos necesarios para entender y gestionar esta área del sistema.
+
+**Idioma:** [English](./index.md) | [Espanol](./index.md)
 
 Este hub de conocimiento proporciona los puntos de entrada recomendados para entender UMS por audiencia y fase del ciclo de vida.
 

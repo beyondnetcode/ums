@@ -1,7 +1,10 @@
 # Índice de Habilitadores Técnicos
 
-**[Volver a Planos](../index.md)**
+**[Back to Main README](../../../../README.md)**
 
+Welcome to the **Technical Enablers** portal. Here you will find the documentation and resources required to understand and manage this area of the system.
+
+**[Volver a Planos](../index.md)**
 
 ## Habilitadores de Dominio
 

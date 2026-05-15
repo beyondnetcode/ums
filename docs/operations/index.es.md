@@ -1,6 +1,6 @@
 # Índice de Operaciones
 
-**[Volver al README Principal](../README.es.md)**
+**[Volver al README Principal](../../README.es.md)**
 
 Esta sección contiene guías y procedimientos para la operación, observabilidad y mantenimiento del sistema UMS.
 

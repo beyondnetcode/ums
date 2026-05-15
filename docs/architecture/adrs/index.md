@@ -1,5 +1,9 @@
 # ADR Registry
 
+Welcome to the **Adrs** index. Here you will find the technical and governance documentation related to this module.
+
+**[Back to Main README](../../../README.md)**
+
 Historical record of architectural decisions.
 
 - [0001-monorepo-orchestration-nx.md](0001-monorepo-orchestration-nx.md)

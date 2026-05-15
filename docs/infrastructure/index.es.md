@@ -1,6 +1,6 @@
 # Índice de Infraestructura
 
-**[Volver al README Principal](../README.es.md)**
+**[Volver al README Principal](../../README.es.md)**
 
 Configuración y despliegue de los componentes de infraestructura del UMS.
 
