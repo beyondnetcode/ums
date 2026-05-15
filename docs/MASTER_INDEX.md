@@ -1,6 +1,6 @@
 # Master Index -- UMS Navigation Hub
 
-> **Language:** [English](./MASTER_INDEX.md) | [Espanol](./MASTER_INDEX.es.md)
+> **Language:** [English](./MASTER_INDEX.md) | [Español](./MASTER_INDEX.es.md)
 
 Product Lifecycle and Engineering Specifications for the User Management System (UMS).
 
@@ -23,33 +23,16 @@ Product Lifecycle and Engineering Specifications for the User Management System 
 
 ### Phase 02 -- MVP Planning and Project Backlog
 
-- [MVP Functional Story Prioritization](./governance/roadmap/mvp-functional-prioritization.md)
 - [Project Backlog](./governance/project/index.md)
 - [MVP Product Backlog](./governance/project/mvp-product-backlog.md)
+- [Epic 06: Approvals](./governance/project/ep-06-approvals-detailed-design.md)
+- [Epic 07: Compliance](./governance/project/ep-07-compliance-detailed-design.md)
+- [Epic 08: IGA](./governance/project/ep-08-iga-detailed-design.md)
 
-### Phase 03 -- Architecture
+### Phase 03 -- Architecture & Database Design
 
-- [.NET Migration & Tech Stack Plan](./architecture/blueprints/dotnet-migration-and-tech-stack-plan.md)
-- [Bounded Context Map](./architecture/blueprints/bounded-context-map.md)
-- [C4 Architecture Spec](./architecture/blueprints/architecture-spec.md)
-- [Technology Stack](./architecture/blueprints/stack.md)
-- [Technical Enablers](./architecture/blueprints/technical-enablers/index.md)
-
-### Phase 04 -- Architectural Decision Records (ADRs)
-
-- [Full ADR Registry](./architecture/adrs/) (40 active decisions)
-
-### Phase 05 -- Engineering Standards & Artifacts
-
-- [Engineering Standards](./architecture/artifacts/engineering-standards.md)
-- [Architecture Maturity Model](./architecture/artifacts/architecture-maturity-model.md)
-- [Contract Testing Plan](./architecture/artifacts/contract-testing-plan.md)
-- [Observability Strategy](./architecture/artifacts/observability-strategy.md)
-- [Enterprise IAM Spec](./architecture/artifacts/enterprise-iam-ums-specification.md)
-- [Multi-Tenant Governance Report](./architecture/artifacts/enterprise-multitenant-governance-report.md)
-
-### Phase 06 -- Release Roadmap
-
-- [Roadmap Index](./governance/roadmap/index.md)
-- [Versioning & Audit Strategy](./governance/roadmap/versioning-and-audit-strategy.md)
-- [CHANGELOG](../CHANGELOG.md)
+- [Database Design ER](./architecture/blueprints/database-design-er.md)
+- [ER Export Formats](./architecture/blueprints/er-export-formats.md)
+- [Interactive ER Viewer](./architecture/blueprints/interactive-er-viewer.html)
+- [Service Entity Map](./architecture/blueprints/service-entity-map.md)
+- [Architecture Portal](./architecture/index.md)

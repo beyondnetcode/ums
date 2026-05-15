@@ -1,8 +1,8 @@
 # Directorio de Functional Stories (Historias Funcionales)
 
-**[Back to Main README](../../../../README.md)**
+**[Volver al README Principal](../../../../README.es.md)**
 
-Bienvenido al índice maestáro de **Functional Stories** para el Sistema de Gestión de Usuarios (UMS). Este directorio contiene todos los flujos transaccionales y de negocio puros, separados de detalles técnicos de implementación.
+Bienvenido al índice maestro de **Functional Stories** para el Sistema de Gestión de Usuarios (UMS). Este directorio contiene todos los flujos transaccionales y de negocio puros, separados de detalles técnicos de implementación.
 
 > **Estándar de redacción:** Toda historia debe seguir el [Estándar de Redacción de Historias Funcionales](./functional-story-standard.md), separando la narrativa PO/BA de los requisitos técnicos.
 
@@ -29,4 +29,4 @@ Bienvenido al índice maestáro de **Functional Stories** para el Sistema de Ges
 
 ---
 
- **[Volver al Índice de Requisitos](../../index.md)**
+**[Volver al Índice de Requisitos](../index.md)**

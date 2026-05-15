@@ -1,19 +1,12 @@
-# Índice de Planos
+# Planos Técnicos de Arquitectura
 
-**[Back to Main README](../../../README.md)**
+Especificaciones detalladas de ingeniería para el User Management System (UMS), con un enfoque principal en el diseño de la base de datos y las relaciones entre entidades.
 
-**[Volver a Arquitectura](../index.md)**
+## Documentos Clave
 
-### Documentos Principales
-- [Espec. de Arquitectura](./architecture-spec.md)
-- [Mapa de Contextos](./bounded-context-map.md)
-- [Stack Tecnológico](./stack.md)
-- [Resumen del Stack](./stack-summary.md)
+- **[Diseño de Base de Datos ER](./database-design-er.md)**: El diagrama y documentación definitiva de entidad-relación.
+- **[Formatos de Exportación ER](./er-export-formats.md)**: Diferentes representaciones (SQL, Mermaid, PNG) del modelo de datos.
 
-### Evaluaciones y Riesgos
-- [Evaluación de Riesgo de Proveedor](./vendor-risk-assessment.md)
-- [Evaluación DDD (@nestjslatam)](./nestjslatam-ddd-evaluation.md)
-- [Arquitectura de Referencia Node.js](./reference-architecture-nodejs-arc42.md)
+---
 
-### Habilitadores
-- [Habilitadores Técnicos](./technical-enablers/index.md)
+**[Volver al Portal de Arquitectura](../index.es.md)** | **[Volver al Índice Maestro](../../MASTER_INDEX.es.md)**

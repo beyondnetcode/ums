@@ -1,12 +1,13 @@
-# Product Governance Index
+# Product Vision & Context
 
-Welcome to the **Product** index. Here you will find the technical and governance documentation related to this module.
+Documentation defining the "Why" and "What" of the User Management System (UMS).
 
-**[Back to Main README](../../../README.md)**
-
+## Documents
 - [Product Vision](./product-vision.md)
 - [Business Context](./business-context.md)
 - [Scope & Boundaries](./scope.md)
 - [Objectives (OKRs)](./objectives.md)
 - [Stakeholders](./stakeholders.md)
 
+---
+**[Back to Governance Portal](../index.md)** | **[Back to Master Index](../../MASTER_INDEX.md)**

@@ -13,7 +13,7 @@ Welcome to the master **Functional Stories** index for the User Management Syste
 *   **[FS-01: Corporate Authentication via External IdP](./fs-01-user-authentication.md)**
 *   **[FS-02: Create and Instantiate Authorization Template](./fs-02-create-authorization-template.md)**
 *   **[FS-03: Register Organization and Configure IdP Strategy](./fs-03-register-organization.md)**
-*   **[FS-04: Register System and Define Menu Topology](./fs-04-register-system-topology.md)**
+*   **[FS-04: Registrar System and Define Menu Topology](./fs-04-register-system-topology.md)**
 *   **[FS-05: Create Profile and Manually Assign Template](./fs-05-create-profile-manual-template.md)**
 *   **[FS-06: Auto-Assign Template on Profile Creation](./fs-06-auto-assign-template.md)**
 *   **[FS-07: Diagnose Permissions via Graph Visualizer](./fs-07-visual-graph-resolver.md)**

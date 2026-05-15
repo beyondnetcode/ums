@@ -1,11 +1,12 @@
-# Índice de Requisitos
+# Portal de Requerimientos
 
-Welcome to the **Requirements Es** index. Here you will find the technical and governance documentation related to this module.
+Especificaciones funcionales y modelos de dominio para UMS.
 
-**[Back to Main README](../../../README.md)**
-
-- [Glosario (Lenguaje Ubicuo)](./glossary.md)
+## Documentos
+- [Índice de Historias Funcionales](./functional-stories/index.md)
+- [Glosario](./glossary.md)
 - [Modelo de Datos Conceptual](./conceptual-data-model.md)
-- [Matriz de Permisos](./permission-matrix-example.md)
-- [Historias Funcionales](./functional-stories/index.md)
+- [Ejemplo de Matriz de Permisos](./permission-matrix-example.md)
 
+---
+**[Volver al Portal de Gobernanza](../index.es.md)** | **[Volver al Índice Maestro](../../MASTER_INDEX.es.md)**

@@ -1,12 +1,14 @@
-# Blueprints Index
+# Architecture Blueprints
 
-**[Back to Main README](../../../README.md)**
+Detailed engineering specifications for the User Management System (UMS), with a primary focus on the database design and entity relationships.
 
-Welcome to the **Blueprints** portal. Here you will find the documentation and resources required to understand and manage this area of the system.
+## Key Documents
 
-**[Back to Architecture](../index.md)**
+- **[Database Design ER](./database-design-er.md)**: The definitive entity-relationship diagram and documentation.
+- **[ER Export Formats](./er-export-formats.md)**: Different representations (SQL, Mermaid, PNG) of the data model.
+- **[Interactive ER Viewer](./interactive-er-viewer.html)**: Interactive tool for database exploration.
+- **[Service Entity Map](./service-entity-map.md)**: Mapping between services and their database entities.
 
-- [Architecture Spec](./architecture-spec.md)
-- [Bounded Context Map](./bounded-context-map.md)
-- [Tech Stack](./stack.md)
-- [Technical Enablers](./technical-enablers/index.md)
+---
+
+**[Back to Architecture Portal](../index.md)** | **[Back to Master Index](../../MASTER_INDEX.md)**

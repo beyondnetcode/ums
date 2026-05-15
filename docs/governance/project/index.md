@@ -1,17 +1,12 @@
-# Project Backlog
+# Project Delivery & Backlog
 
-**[Back to Main README](../../../README.md)**
+MVP scope, prioritization, and detailed functional designs.
 
-This section contains the local product backlog for UMS. It translates the prioritized Functional Stories into epics and user stories that can be refined, estimated, and planned for delivery.
-
-## Backlog Artifacts
-
+## Documents
 - [MVP Product Backlog](./mvp-product-backlog.md)
+- [EP-06: Approvals Detailed Design](./ep-06-approvals-detailed-design.md)
+- [EP-07: Compliance Detailed Design](./ep-07-compliance-detailed-design.md)
+- [EP-08: IGA Detailed Design](./ep-08-iga-detailed-design.md)
 
-## Source Traceability
-
-- [MVP Functional Story Prioritization](../roadmap/mvp-functional-prioritization.md)
-- [Functional Stories Catalog](../requirements/functional-stories/index.md)
-
-**[Back to Governance](../index.md)**
-
+---
+**[Back to Governance Portal](../index.md)** | **[Back to Master Index](../../MASTER_INDEX.md)**

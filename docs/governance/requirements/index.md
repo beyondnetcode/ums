@@ -1,11 +1,12 @@
-# Requirements Index
+# Requirements Portal
 
-Welcome to the **Requirements** index. Here you will find the technical and governance documentation related to this module.
+Functional specifications and domain models for UMS.
 
-**[Back to Main README](../../../README.md)**
-
-- [Glossary (Ubiquitous Language)](./glossary.md)
+## Documents
+- [Functional Stories Index](./functional-stories/index.md)
+- [Glossary](./glossary.md)
 - [Conceptual Data Model](./conceptual-data-model.md)
-- [Permission Matrix](./permission-matrix-example.md)
-- [Functional User Stories](./functional-stories/index.md)
+- [Permission Matrix Example](./permission-matrix-example.md)
 
+---
+**[Back to Governance Portal](../index.md)** | **[Back to Master Index](../../MASTER_INDEX.md)**
