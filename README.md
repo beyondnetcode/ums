@@ -40,6 +40,7 @@ npm install; npx nx run app-web:dev
 | **Project Delivery** | [Project Backlog](./docs/governance/project/index.md) | MVP epics, user stories, and functional design of core modules. |
 | **Requirements** | [Requirements Index](./docs/governance/requirements/index.md) | Functional stories, business glossary, and conceptual data model. |
 | **Architecture** | [Architecture Portal](./docs/architecture/index.md) | Database ER design, entity maps, and interactive viewers. |
+| **Construction** | [Construction Portal](./docs/governance/construction/index.md) | DDD domain layer design (bounded contexts, aggregates, events, commands). |
 
 ---
 

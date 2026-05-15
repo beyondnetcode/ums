@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UMS — DDD Domain Layer Viewer</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            color: #2c3e50;
+        }
+
+        header {
+            background: #1a252f;
+            color: white;
+            padding: 18px 32px;
+        }
+
+        header h1 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        header p {
+            font-size: 0.82rem;
+            color: #95a5a6;
+            margin-top: 4px;
+        }
+
+        .layout {
+            display: flex;
+            height: calc(100vh - 70px);
+        }
+
+        /* Sidebar */
+        nav {
+            width: 260px;
+            min-width: 220px;
+            background: #fff;
+            border-right: 1px solid #dde1e7;
+            overflow-y: auto;
+            padding: 12px 0;
+        }
+
+        nav .section-label {
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #7f8c8d;
+            padding: 14px 20px 6px;
+        }
+
+        nav button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 9px 20px;
+            font-size: 0.84rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #34495e;
+            border-left: 3px solid transparent;
+            transition: background 0.15s, border-color 0.15s;
+            line-height: 1.4;
+        }
+
+        nav button:hover {
+            background: #f4f6f8;
+            color: #1a252f;
+        }
+
+        nav button.active {
+            background: #eaf3fb;
+            border-left-color: #2980b9;
+            color: #1a6fa3;
+            font-weight: 600;
+        }
+
+        /* Diagram area */
+        main {
+            flex: 1;
+            overflow: auto;
+            padding: 28px 32px;
+        }
+
+        .diagram-header {
+            margin-bottom: 18px;
+        }
+
+        .diagram-header h2 {
+            font-size: 1.1rem;
+            color: #1a252f;
+        }
+
+        .diagram-header p {
+            font-size: 0.82rem;
+            color: #7f8c8d;
+            margin-top: 4px;
+        }
+
+        .diagram-card {
+            background: white;
+            border: 1px solid #dde1e7;
+            border-radius: 6px;
+            padding: 28px 24px;
+            overflow: auto;
+            min-height: 300px;
+        }
+
+        .mermaid {
+            display: flex;
+            justify-content: center;
+        }
+
+        .badge {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 8px;
+            vertical-align: middle;
+            text-transform: uppercase;
+        }
+
+        .badge-context { background: #d5e8f9; color: #1a6fa3; }
+        .badge-state   { background: #d5f5e3; color: #1d8348; }
+        .badge-flow    { background: #fdebd0; color: #a04000; }
+
+        .hint {
+            font-size: 0.76rem;
+            color: #95a5a6;
+            margin-top: 12px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>UMS — DDD Domain Layer Viewer</h1>
+    <p>Bounded Context Map · Maquinas de Estado · Flujos Cross-Contexto &nbsp;|&nbsp; Version 2.0 · 2026-05-15</p>
+</header>
+
+<div class="layout">
+
+    <nav id="sidebar">
+        <div class="section-label">Arquitectura</div>
+        <button onclick="show('bounded-context')" class="active">Bounded Context Map</button>
+
+        <div class="section-label">Maquinas de Estado</div>
+        <button onclick="show('sm-useraccount')">UserAccount</button>
+        <button onclick="show('sm-template')">PermissionTemplate</button>
+        <button onclick="show('sm-approval')">ApprovalRequest</button>
+        <button onclick="show('sm-promotion')">UserPromotionProcess</button>
+        <button onclick="show('sm-document')">UserDocument</button>
+
+        <div class="section-label">Flujos Cross-Contexto</div>
+        <button onclick="show('flow-b2b')">Onboarding B2B (FS-10)</button>
+        <button onclick="show('flow-expiration')">Expiracion Documento (FS-16)</button>
+        <button onclick="show('flow-promotion')">Promocion de Rol (FS-12)</button>
+    </nav>
+
+    <main>
+        <div class="diagram-header" id="diagram-title">
+            <h2>Bounded Context Map <span class="badge badge-context">Contexto</span></h2>
+            <p>9 bounded contexts · relaciones Customer-Supplier, Conformist y Read-Aside · ACL ports</p>
+        </div>
+        <div class="diagram-card">
+            <div id="mermaid-root" class="mermaid">
+graph TD
+    subgraph Core["Nucleo del Producto"]
+        A["BC-A: Identity\nums_identity\n.NET 8"]
+        B["BC-B: Authorization\nums_authz\n.NET 8"]
+    end
+    subgraph Supporting["Soporte Operacional"]
+        C["BC-C: Configuration\nums_config\n.NET 8"]
+        F["BC-F: Approvals\nums_approval\n.NET 8"]
+        H["BC-H: IGA\nums_iga\n.NET 8"]
+        I["BC-I: Compliance\nums_compliance\n.NET 8"]
+    end
+    subgraph Generic["Genericos"]
+        D["BC-D: Audit\nums_audit\n.NET 8"]
+        G["BC-G: Cache\nRedis\nInfrastructura"]
+        E["BC-E: Console PAP\nReact SPA\nSin entidades propias"]
+    end
+    A -->|"Customer-Supplier\nUser + Org + Branch claims"| B
+    A -->|"Customer-Supplier\nTenant scope keys"| C
+    A -->|"Customer-Supplier\nUserRegisteredEvent"| F
+    A -->|"Customer-Supplier\nUserRegisteredEvent"| H
+    A -->|"Customer-Supplier\nUserRegisteredEvent"| I
+    A -->|"Conformist\nevents"| D
+    C -->|"Customer-Supplier\nIdP config al gateway"| A
+    B -->|"Read-Aside\nauth_graph cache"| G
+    C -->|"Read-Aside\ncfg + flags cache"| G
+    B -->|"Conformist\nevents"| D
+    C -->|"Conformist\nevents"| D
+    H -->|"Customer-Supplier\nPromotionApprovedEvent"| B
+    H -->|"Customer-Supplier\npromocion requiere workflow"| F
+    H -->|"Conformist\nevents"| D
+    I -->|"Customer-Supplier\nDocumentExpiredEvent BLOCK"| A
+    I -->|"Customer-Supplier\nvalidacion doc"| F
+    I -->|"Conformist\nevents"| D
+    F -->|"Customer-Supplier\nprovisioning B2B"| A
+    F -->|"Customer-Supplier\nasignacion Profile post-aprobacion"| B
+    F -->|"Conformist\nevents"| D
+    E -->|"Customer-Supplier\nREST APIs"| A
+    E -->|"Customer-Supplier\nREST APIs"| B
+    E -->|"Customer-Supplier\nREST APIs"| C
+    E -->|"Customer-Supplier\nREST APIs"| F
+            </div>
+        </div>
+        <p class="hint">Usa Ctrl + Rueda del raton para hacer zoom en el navegador</p>
+    </main>
+
+</div>
+
+<script>
+    mermaid.initialize({
+        startOnLoad: true,
+        theme: 'default',
+        securityLevel: 'loose',
+        flowchart: { curve: 'basis', useMaxWidth: false },
+        sequence:  { useMaxWidth: false },
+        state:     { useMaxWidth: false }
+    });
+
+    const meta = {
+        'bounded-context': {
+            title: 'Bounded Context Map',
+            badge: 'badge-context',
+            badgeLabel: 'Contexto',
+            desc: '9 bounded contexts · relaciones Customer-Supplier, Conformist y Read-Aside · ACL ports'
+        },
+        'sm-useraccount': {
+            title: 'Maquina de Estado: UserAccount',
+            badge: 'badge-state',
+            badgeLabel: 'State Machine',
+            desc: 'BC-A Identity · FS-01, FS-03, FS-09, FS-10 · estados: PENDING / ACTIVE / BLOCKED'
+        },
+        'sm-template': {
+            title: 'Maquina de Estado: PermissionTemplate',
+            badge: 'badge-state',
+            badgeLabel: 'State Machine',
+            desc: 'BC-B Authorization · FS-02, FS-05, FS-06 · estados: DRAFT / PUBLISHED / DEPRECATED'
+        },
+        'sm-approval': {
+            title: 'Maquina de Estado: ApprovalRequest',
+            badge: 'badge-state',
+            badgeLabel: 'State Machine',
+            desc: 'BC-F Approvals · FS-10, FS-12 · estados: PENDING / APPROVED / REJECTED / CANCELLED / EXPIRED'
+        },
+        'sm-promotion': {
+            title: 'Maquina de Estado: UserPromotionProcess',
+            badge: 'badge-state',
+            badgeLabel: 'State Machine',
+            desc: 'BC-H IGA · FS-12 · estados: EVALUATING / CRITERIA_MET / PENDING_APPROVAL / PROMOTED'
+        },
+        'sm-document': {
+            title: 'Maquina de Estado: UserDocument',
+            badge: 'badge-state',
+            badgeLabel: 'State Machine',
+            desc: 'BC-I Compliance · FS-11, FS-15, FS-16 · estados: PENDING_REVIEW / VALID / EXPIRED / REJECTED'
+        },
+        'flow-b2b': {
+            title: 'Flujo Cross-Contexto: Onboarding de Usuario Externo B2B',
+            badge: 'badge-flow',
+            badgeLabel: 'Flujo',
+            desc: 'FS-10 · Identity → Approvals → Authorization → Audit'
+        },
+        'flow-expiration': {
+            title: 'Flujo Cross-Contexto: Expiracion de Documento Critico',
+            badge: 'badge-flow',
+            badgeLabel: 'Flujo',
+            desc: 'FS-16 · Background Worker → Compliance → Identity → Audit'
+        },
+        'flow-promotion': {
+            title: 'Flujo Cross-Contexto: Promocion de Rol',
+            badge: 'badge-flow',
+            badgeLabel: 'Flujo',
+            desc: 'FS-12 · Background Worker → IGA → Approvals → Authorization → Audit'
+        }
+    };
+
+    const diagrams = {
+        'bounded-context': `graph TD
+    subgraph Core["Nucleo del Producto"]
+        A["BC-A: Identity\\nums_identity\\n.NET 8"]
+        B["BC-B: Authorization\\nums_authz\\n.NET 8"]
+    end
+    subgraph Supporting["Soporte Operacional"]
+        C["BC-C: Configuration\\nums_config\\n.NET 8"]
+        F["BC-F: Approvals\\nums_approval\\n.NET 8"]
+        H["BC-H: IGA\\nums_iga\\n.NET 8"]
+        I["BC-I: Compliance\\nums_compliance\\n.NET 8"]
+    end
+    subgraph Generic["Genericos"]
+        D["BC-D: Audit\\nums_audit\\n.NET 8"]
+        G["BC-G: Cache\\nRedis\\nInfrastructura"]
+        E["BC-E: Console PAP\\nReact SPA\\nSin entidades propias"]
+    end
+    A -->|"Customer-Supplier\\nUser + Org + Branch claims"| B
+    A -->|"Customer-Supplier\\nTenant scope keys"| C
+    A -->|"Customer-Supplier\\nUserRegisteredEvent"| F
+    A -->|"Customer-Supplier\\nUserRegisteredEvent"| H
+    A -->|"Customer-Supplier\\nUserRegisteredEvent"| I
+    A -->|"Conformist\\nevents"| D
+    C -->|"Customer-Supplier\\nIdP config al gateway"| A
+    B -->|"Read-Aside\\nauth_graph cache"| G
+    C -->|"Read-Aside\\ncfg + flags cache"| G
+    B -->|"Conformist\\nevents"| D
+    C -->|"Conformist\\nevents"| D
+    H -->|"Customer-Supplier\\nPromotionApprovedEvent"| B
+    H -->|"Customer-Supplier\\npromocion requiere workflow"| F
+    H -->|"Conformist\\nevents"| D
+    I -->|"Customer-Supplier\\nDocumentExpiredEvent BLOCK"| A
+    I -->|"Customer-Supplier\\nvalidacion doc"| F
+    I -->|"Conformist\\nevents"| D
+    F -->|"Customer-Supplier\\nprovisioning B2B"| A
+    F -->|"Customer-Supplier\\nasignacion Profile post-aprobacion"| B
+    F -->|"Conformist\\nevents"| D
+    E -->|"Customer-Supplier\\nREST APIs"| A
+    E -->|"Customer-Supplier\\nREST APIs"| B
+    E -->|"Customer-Supplier\\nREST APIs"| C
+    E -->|"Customer-Supplier\\nREST APIs"| F`,
+
+        'sm-useraccount': `stateDiagram-v2
+    [*] --> PENDING : RegisterUser
+    PENDING --> ACTIVE : ActivateUser\\n(ONBOARDING aprobado o INTERNAL directo)
+    ACTIVE --> BLOCKED : BlockUser\\n(DocumentExpired CRITICAL / bloqueo manual)
+    BLOCKED --> ACTIVE : RestoreUser\\n(renovacion documental + desbloqueo)
+    PENDING --> [*] : ApprovalRequest REJECTED`,
+
+        'sm-template': `stateDiagram-v2
+    [*] --> DRAFT : CreateTemplate
+    DRAFT --> PUBLISHED : PublishTemplate\\n(recursos validos)
+    PUBLISHED --> DEPRECATED : DeprecateTemplate`,
+
+        'sm-approval': `stateDiagram-v2
+    [*] --> PENDING : SubmitApprovalRequest
+    PENDING --> APPROVED : ApproveRequest\\n(rol aprobador)
+    PENDING --> REJECTED : RejectRequest\\n(rol aprobador)
+    PENDING --> CANCELLED : CancelRequest\\n(solicitante / admin)
+    PENDING --> EXPIRED : SLA vencido\\n(Background Worker)`,
+
+        'sm-promotion': `stateDiagram-v2
+    [*] --> EVALUATING : InitiatePromotionEvaluation
+    EVALUATING --> CRITERIA_MET : Background Worker\\n(todos los flags cumplidos)
+    CRITERIA_MET --> PENDING_APPROVAL : ApprovalRequest\\nROLE_PROMOTION creado
+    PENDING_APPROVAL --> PROMOTED : ApprovalRequest APPROVED
+    PENDING_APPROVAL --> EVALUATING : ApprovalRequest REJECTED`,
+
+        'sm-document': `stateDiagram-v2
+    [*] --> PENDING_REVIEW : UploadDocument
+    PENDING_REVIEW --> VALID : ValidateDocument (reviewer)
+    PENDING_REVIEW --> REJECTED : RejectDocument (reviewer)
+    VALID --> EXPIRED : ExpirationDate superada\\n(Background Worker)
+    EXPIRED --> PENDING_REVIEW : UploadDocument (nuevo)
+    REJECTED --> PENDING_REVIEW : UploadDocument (nuevo)`,
+
+        'flow-b2b': `sequenceDiagram
+    participant Sponsor as Sponsor User
+    participant Approvals as BC-F Approvals
+    participant Identity as BC-A Identity
+    participant Auth as BC-B Authorization
+    participant Audit as BC-D Audit
+
+    Sponsor->>Approvals: SubmitApprovalRequest (ONBOARDING, B2B)
+    Approvals->>Audit: ApprovalRequestSubmittedEvent
+    Approvals->>Approvals: Notifica al rol aprobador
+    Note over Approvals: Estado: PENDING
+
+    Approvals->>Approvals: ApproveRequest (PAP Admin)
+    Approvals->>Identity: ApprovalRequestApprovedEvent
+    Approvals->>Audit: ApprovalRequestApprovedEvent
+
+    Identity->>Identity: ActivateUser (PENDING -> ACTIVE)
+    Identity->>Auth: UserActivatedEvent
+    Identity->>Audit: UserActivatedEvent
+
+    Auth->>Auth: AssignProfileToUser
+    Auth->>Audit: ProfileAssignedToUserEvent`,
+
+        'flow-expiration': `sequenceDiagram
+    participant Worker as Background Worker
+    participant Compliance as BC-I Compliance
+    participant Identity as BC-A Identity
+    participant Audit as BC-D Audit
+
+    Worker->>Compliance: ExpireDocumentCommand
+    Compliance->>Compliance: UserDocument VALID -> EXPIRED
+    Compliance->>Identity: DocumentExpiredEvent (BLOCK_ACCESS)
+    Compliance->>Audit: DocumentExpiredEvent
+
+    Identity->>Identity: BlockUser (ACTIVE -> BLOCKED)
+    Identity->>Audit: UserBlockedEvent`,
+
+        'flow-promotion': `sequenceDiagram
+    participant Worker as Background Worker
+    participant IGA as BC-H IGA
+    participant Approvals as BC-F Approvals
+    participant Auth as BC-B Authorization
+    participant Audit as BC-D Audit
+
+    Worker->>IGA: MarkCriteriaMetCommand
+    IGA->>IGA: EVALUATING -> CRITERIA_MET
+    IGA->>Approvals: SubmitApprovalRequest (ROLE_PROMOTION)
+    IGA->>Audit: PromotionCriteriaMetEvent
+
+    Approvals->>Approvals: ApproveRequest (Admin)
+    Approvals->>IGA: ApprovalRequestApprovedEvent
+    Approvals->>Auth: ApprovalRequestApprovedEvent
+
+    IGA->>IGA: PENDING_APPROVAL -> PROMOTED
+    IGA->>Audit: PromotionApprovedEvent
+
+    Auth->>Auth: Actualiza Profile (nuevo RoleId)
+    Auth->>Audit: PermissionMutatedEvent`
+    };
+
+    let currentKey = 'bounded-context';
+
+    async function show(key) {
+        currentKey = key;
+
+        // Update active button
+        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+
+        // Update header
+        const m = meta[key];
+        document.getElementById('diagram-title').innerHTML =
+            `<h2>${m.title} <span class="badge ${m.badge}">${m.badgeLabel}</span></h2><p>${m.desc}</p>`;
+
+        // Render diagram
+        const root = document.getElementById('mermaid-root');
+        root.removeAttribute('data-processed');
+        root.innerHTML = diagrams[key];
+        await mermaid.run();
+    }
+</script>
+
+</body>
+</html>

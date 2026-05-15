@@ -36,3 +36,21 @@ Product Lifecycle and Engineering Specifications for the User Management System 
 - [Interactive ER Viewer](./architecture/blueprints/interactive-er-viewer.html)
 - [Service Entity Map](./architecture/blueprints/service-entity-map.md)
 - [Architecture Portal](./architecture/index.md)
+
+### Phase 04 -- Construction & Domain Design
+
+- [Construction Portal](./governance/construction/index.md)
+- [DDD Design Portal](./governance/construction/ddd-design/index.md)
+- [Bounded Context Map](./governance/construction/ddd-design/01-bounded-context-map.md)
+- [Ubiquitous Language](./governance/construction/ddd-design/02-ubiquitous-language.md)
+- [Identity Context](./governance/construction/ddd-design/03-identity-context.md)
+- [Authorization Context](./governance/construction/ddd-design/04-authorization-context.md)
+- [Configuration Context](./governance/construction/ddd-design/05-configuration-context.md)
+- [Audit Context](./governance/construction/ddd-design/06-audit-context.md)
+- [Approvals Context](./governance/construction/ddd-design/07-approvals-context.md)
+- [IGA Context](./governance/construction/ddd-design/08-iga-context.md)
+- [Compliance Context](./governance/construction/ddd-design/09-compliance-context.md)
+- [Cross-Context Flows](./governance/construction/ddd-design/10-cross-context-flows.md)
+- [DDD Primitives](./governance/construction/ddd-design/11-ddd-primitives.md)
+- [Design Decisions & Gaps](./governance/construction/ddd-design/12-design-decisions.md)
+- [Interactive DDD Viewer](./governance/construction/ddd-design/interactive-ddd-viewer.html)

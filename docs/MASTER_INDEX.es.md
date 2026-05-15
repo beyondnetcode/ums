@@ -34,3 +34,21 @@ Especificaciones de Ingeniería y Ciclo de Vida del Producto para el User Manage
 - [Diseño de Base de Datos ER](./architecture/blueprints-es/database-design-er.md)
 - [Formatos de Exportación ER](./architecture/blueprints-es/er-export-formats.md)
 - [Portal de Arquitectura](./architecture/index.es.md)
+
+### Fase 04 -- Construccion y Diseño de Dominio
+
+- [Portal de Construccion](./governance/construction/index.md)
+- [Portal DDD](./governance/construction/ddd-design/index.md)
+- [Mapa de Bounded Contexts](./governance/construction/ddd-design/01-bounded-context-map.md)
+- [Lenguaje Ubicuo](./governance/construction/ddd-design/02-ubiquitous-language.md)
+- [Contexto Identity](./governance/construction/ddd-design/03-identity-context.md)
+- [Contexto Authorization](./governance/construction/ddd-design/04-authorization-context.md)
+- [Contexto Configuration](./governance/construction/ddd-design/05-configuration-context.md)
+- [Contexto Audit](./governance/construction/ddd-design/06-audit-context.md)
+- [Contexto Approvals](./governance/construction/ddd-design/07-approvals-context.md)
+- [Contexto IGA](./governance/construction/ddd-design/08-iga-context.md)
+- [Contexto Compliance](./governance/construction/ddd-design/09-compliance-context.md)
+- [Flujos Cross-Contexto](./governance/construction/ddd-design/10-cross-context-flows.md)
+- [Primitivas DDD](./governance/construction/ddd-design/11-ddd-primitives.md)
+- [Decisiones de Diseno y Vacios](./governance/construction/ddd-design/12-design-decisions.md)
+- [Viewer Interactivo DDD](./governance/construction/ddd-design/interactive-ddd-viewer.html)
