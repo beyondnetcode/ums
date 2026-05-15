@@ -2,15 +2,15 @@
 
 **Tipo de Documento:** Diseño de Base de Datos  
 **Estatus:** Refactorizado (Vinculado al Rol y Jerarquía Estricta)  
-**Arquitectura:** Framework Maestro (Control de 6 Niveles)  
+**Arquitectura:** Framework Maestro (Control de 5 Niveles)  
 **Motor:** SQL Server 2022
 
 ## 1. Introducción
-Este documento detalla el modelo de autorización **Vinculado al Rol**, aplicando estárictamente la cadena jerárquica: **Sistema → Módulo → SubMódulo → Menú → Opción → Acción**.
+Este documento detalla el modelo de autorización **Vinculado al Rol**, aplicando estrictamente la cadena jerárquica: **Sistema → Módulo → Menú → SubMenú → Opción**.
 
 > [!NOTE]
 > **Mapeo de Lenguaje Ubícuo:** Los nombres de entidades del esquema se corresponden con el [Glosario](../../governance/requirements-es/glossary.md) de la siguiente manera:
-> `SYSTEM_SUITE` = **Sistema** · `FUNCTIONAL_MODULE` = **Módulo** · `FUNCTIONAL_SUBMODULE` = **SubMódulo** · `FUNCTIONAL_MENU` = **Menú** · `FUNCTIONAL_OPTION` = **Opción** · `ACTION` = **Acción**
+> `SYSTEM_SUITE` = **Sistema** · `FUNCTIONAL_MODULE` = **Módulo** · `FUNCTIONAL_MENU` = **Menú** · `FUNCTIONAL_SUBMENU` = **SubMenú** · `FUNCTIONAL_OPTION` = **Opción**
 
 > [!TIP]
 > **¿Problemas de Visualización?**  
@@ -51,13 +51,12 @@ erDiagram
     USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "es_gestionado"
     USER_ACCOUNT ||--o{ APPROVAL_REQUEST : "onboardings/aprueba"
     
-    BRANCH ||--o{ PROFILE : "contexto_de"
-    PROFILE ||--o{ PROFILE_PERMISSION : "autoridad_efectiva"
+    SYSTEM_SUITE ||--o{ ACTION : "define global"
+    FUNCTIONAL_MODULE ||--o{ ACTION : "define local"
     
-    FUNCTIONAL_MODULE ||--o{ FUNCTIONAL_SUBMODULE : "contiene"
-    FUNCTIONAL_SUBMODULE ||--o{ FUNCTIONAL_MENU : "contiene"
-    FUNCTIONAL_MENU ||--o{ FUNCTIONAL_OPTION : "contiene"
-    FUNCTIONAL_OPTION ||--o{ ACTION : "ejecuta"
+    FUNCTIONAL_MODULE ||--o{ FUNCTIONAL_MENU : "contiene"
+    FUNCTIONAL_MENU ||--o{ FUNCTIONAL_SUBMENU : "contiene"
+    FUNCTIONAL_SUBMENU ||--o{ FUNCTIONAL_OPTION : "contiene"
     
     ACTION ||--o{ PERMISSION_TEMPLATE : "acción_autorizada"
 ```
@@ -80,8 +79,8 @@ erDiagram
         uniqueidentifier TenantId FK "RLS"
         uniqueidentifier SuiteId FK "Arco Exclusivo"
         uniqueidentifier ModuleId FK "Arco Exclusivo"
-        uniqueidentifier SubModuleId FK "Arco Exclusivo"
         uniqueidentifier MenuId FK "Arco Exclusivo"
+        uniqueidentifier SubMenuId FK "Arco Exclusivo"
         uniqueidentifier OptionId FK "Arco Exclusivo"
         bit IsAllowed "Estado por Defecto"
         bit IsDenied "Estado por Defecto"
@@ -107,16 +106,15 @@ erDiagram
 
 ---
 
-### 3.3 Dominio: Topología Funcional (Los 6 Niveles)
+### 3.3 Dominio: Topología Funcional (Los 5 Niveles)
 Estructura organizacional de los recursos.
 
 ```mermaid
 erDiagram
     SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "L1: Sistema -> Módulo"
-    FUNCTIONAL_MODULE ||--o{ FUNCTIONAL_SUBMODULE : "L2: Módulo -> SubMódulo"
-    FUNCTIONAL_SUBMODULE ||--o{ FUNCTIONAL_MENU : "L3: SubMódulo -> Menú"
-    FUNCTIONAL_MENU ||--o{ FUNCTIONAL_OPTION : "L4: Menú -> Opción"
-    FUNCTIONAL_OPTION ||--o{ ACTION : "L5: Opción -> Acción"
+    FUNCTIONAL_MODULE ||--o{ FUNCTIONAL_MENU : "L2: Módulo -> Menú"
+    FUNCTIONAL_MENU ||--o{ FUNCTIONAL_SUBMENU : "L3: Menú -> SubMenú"
+    FUNCTIONAL_SUBMENU ||--o{ FUNCTIONAL_OPTION : "L4: SubMenú -> Opción"
     
     FUNCTIONAL_MODULE {
         uniqueidentifier ModuleId PK
@@ -125,23 +123,32 @@ erDiagram
         nvarchar Name
     }
     
-    FUNCTIONAL_SUBMODULE {
-        uniqueidentifier SubModuleId PK
+    FUNCTIONAL_MENU {
+        uniqueidentifier MenuId PK
         uniqueidentifier ModuleId FK
         uniqueidentifier TenantId FK "RLS"
         nvarchar Name
     }
 
-    FUNCTIONAL_MENU {
-        uniqueidentifier MenuId PK
-        uniqueidentifier SubModuleId FK
+    FUNCTIONAL_SUBMENU {
+        uniqueidentifier SubMenuId PK
+        uniqueidentifier MenuId FK
         uniqueidentifier TenantId FK "RLS"
         nvarchar Name
     }
     
     FUNCTIONAL_OPTION {
         uniqueidentifier OptionId PK
-        uniqueidentifier MenuId FK
+        uniqueidentifier SubMenuId FK
+        uniqueidentifier TenantId FK "RLS"
+        nvarchar Name
+        nvarchar Code
+    }
+
+    ACTION {
+        uniqueidentifier ActionId PK
+        uniqueidentifier SuiteId FK "Anulable"
+        uniqueidentifier ModuleId FK "Anulable"
         uniqueidentifier TenantId FK "RLS"
         nvarchar Name
         nvarchar Code
@@ -283,7 +290,7 @@ erDiagram
 1.  **Row-Level Security (RLS)**: `TenantId` estáá denormalizado en todas las entidades funcionales (Module, Option, Template, Action, Role) para permitir aislamiento O(1) vía RLS nativo de SQL Server.
 2.  **Arco Exclusivo (Integridad de Plantilla)**: `PermissionTemplate` implementa 5 FKs anulables que apuntan a la jerarquía de recursos. Un constraint `CHECK` garantiza que exactamente UNO tenga valor, forzando integridad referencial estricta sobre el polimorfismo.
 3.  **Propiedad de Acción XOR Estricta**: Una Acción debe pertenecer a un Sistema O a un Módulo, pero nunca a ambos: `CHECK ((SuiteId IS NOT NULL AND ModuleId IS NULL) OR (SuiteId IS NULL AND ModuleId IS NOT NULL))`.
-4.  **Integridad Jerárquica**: El acceso debe rastrearse a través de `Sistema > Módulo > SubMódulo > Menú > Opción > Acción` (esquema: `SYSTEM_SUITE → FUNCTIONAL_MODULE → FUNCTIONAL_SUBMODULE → FUNCTIONAL_MENU → FUNCTIONAL_OPTION → ACTION`).
+4.  **Integridad Jerárquica**: El acceso debe rastrearse a través de `Sistema > Módulo > Menú > SubMenú > Opción` (esquema: `SYSTEM_SUITE → FUNCTIONAL_MODULE → FUNCTIONAL_MENU → FUNCTIONAL_SUBMENU → FUNCTIONAL_OPTION`).
 5.  **Administración Delegada (Muchos-a-Muchos)**: El alcance de administración de un usuario se define mediante la tabla `USER_MANAGEMENT_DELEGATION`. Esto permite que múltiples administradores gestionen el mismo pool de usuarios, opcionalmente restáringido por `SuiteId`.
 6.  **Mandatos de Aprobación**: Los usuarios Externos/B2B DEBEN pasar por un `APPROVAL_WORKFLOW` antes de alcanzar un estado `ACTIVE` o de que se les asignen perfiles de alto riesgo. Los documentos de respaldo definidos en `APPROVAL_REQUIRED_DOCUMENT` deben cargarse en `USER_DOCUMENT` antes del avance del flujo.
 7.  **Aplicación Automática de Cumplimiento**: Workers en segundo plano escanean `USER_DOCUMENT`. Al expirar, se activa la `ACCESS_ENFORCEMENT_POLICY`. Los documentos críticos transicionarán automáticamente el `USER_ACCOUNT` a un estado `BLOCKED` o restáringirán el contexto de un `PROFILE` específico.
