@@ -29,7 +29,7 @@
 - [Product Vision](./project/index.md)
 - [Requirements](./requirements/index.md)
 - [Roadmap](./roadmap/index.md)
-- [ADR Library](./architecture/blueprints/) — 49 architectural decision records
+- [ADR Library](../architecture/blueprints/) — 49 architectural decision records
 
 ---
 

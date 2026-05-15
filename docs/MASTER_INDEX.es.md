@@ -52,4 +52,4 @@ Navegacion por fases de la documentacion del Sistema de Gestion de Usuarios (UMS
 
 - [Indice de Roadmap](./governance/roadmap/index.md)
 - [Estrategia de Versionado](./governance/roadmap/versioning-and-audit-strategy.md)
-- [CHANGELOG](./CHANGELOG.md)
+- [CHANGELOG](../CHANGELOG.md)

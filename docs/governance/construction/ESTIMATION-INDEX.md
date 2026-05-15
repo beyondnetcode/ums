@@ -1,9 +1,23 @@
 # Estimation Index — MVP Reducido | Índice de Estimación
 
-**Date / Fecha:** 2026-05-14  
-**Version / Versión:** 1.0  
-**Purpose / Propósito:** Master index of all estimation documents (Bilingual ES/EN)  
-**Status / Estado:** ✅ **COMPLETE & VALIDATED**
+**Date / Fecha:** 2026-05-15  
+**Version / Versión:** 2.0  
+**Purpose / Propósito:** Master index of all estimation, financial, and strategic documents (Bilingual ES/EN)  
+**Status / Estado:** ✅ **COMPLETE & READY FOR BOARD APPROVAL**
+
+---
+
+## ⭐ FOR DIRECTORS / CTO / INVESTORS — START HERE
+
+**If you have 5 minutes for a board decision:**
+
+| Document | Time | What it does |
+|----------|------|--------------|
+| 📊 **[../RESUMEN-EJECUTIVO-DIRECTORES.md](../RESUMEN-EJECUTIVO-DIRECTORES.md)** | 5 min | 1-page bilingual summary: investment, ROI, timeline, decision |
+| 🎯 **[../DECISION-MATRIX.md](../DECISION-MATRIX.md)** | 5 min | Sign-off form for CTO + CFO + Head of Engineering |
+| 🎤 **[../BOARD-PRESENTATION.md](../BOARD-PRESENTATION.md)** | 20 min | 12-slide deck for board meeting |
+
+**Decision needed today:** Approve S/ 141K (AI-Driven) or S/ 182K (Human) for MVP in 8.5-12 weeks, ROI Y1 84-112%.
 
 ---
 
@@ -86,6 +100,18 @@
 - **Contains:** Hour-by-hour breakdown of AI-Driven model (agents 12% time, human validation 59%, setup 15%, rework 10%), international research citations, honest analysis of where acceleration comes from, where agents excel vs struggle
 - **Audience:** Skeptics, decision makers, risk managers, technical leaders
 - **Use case:** "Is the 8.5-week AI timeline real or marketing hype? Where does the acceleration actually come from?"
+
+#### 12. **Revenue Model Year 1 (NEW - DEFENSIBLE FINANCIAL PROJECTIONS) ⭐**
+- **File:** [REVENUE-MODEL-YEAR-1.md](REVENUE-MODEL-YEAR-1.md) (ES)
+- **Contains:** CAC (S/ 7,248), LTV (S/ 108K), LTV/CAC ratio (14.9x), payback (3 months), 50-client ramp-up plan (pilots → partners → outbound), pricing tiers, sensitivity analysis (25/50/65 clients)
+- **Audience:** CFO, investors, sales/marketing strategists
+- **Use case:** "How do we credibly reach S/ 1.8M revenue Year 1? What are the unit economics?"
+
+#### 13. **Competitive Analysis (NEW - MARKET POSITIONING) ⭐**
+- **File:** [COMPETITIVE-ANALYSIS.md](COMPETITIVE-ANALYSIS.md) (ES)
+- **Contains:** UMS vs Okta/Auth0/Azure AD/OneLogin pricing comparison, 3-year TCO analysis (UMS saves S/ 164K-352K), strategic positioning map, common objections + responses
+- **Audience:** Sales, board, CFO, strategic decision makers
+- **Use case:** "Why UMS and not Okta? How do we justify pricing? What's our market position?"
 
 ---
 

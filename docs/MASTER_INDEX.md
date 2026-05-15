@@ -52,4 +52,4 @@ Product Lifecycle and Engineering Specifications for the User Management System 
 
 - [Roadmap Index](./governance/roadmap/index.md)
 - [Versioning & Audit Strategy](./governance/roadmap/versioning-and-audit-strategy.md)
-- [CHANGELOG](./CHANGELOG.md)
+- [CHANGELOG](../CHANGELOG.md)

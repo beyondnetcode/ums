@@ -1,16 +1,32 @@
 # UMS Governance — Complete Reference
 
-**Version:** 1.0  
-**Date:** 2026-05-14  
-**Status:** ✅ **READY FOR CONSTRUCTION**
+**Version:** 2.0  
+**Date:** 2026-05-15  
+**Status:** ✅ **READY FOR BOARD APPROVAL & CONSTRUCTION**
+
+---
+
+## ⭐ FOR DIRECTORS, CTO & INVESTORS — START HERE
+
+> 🎯 **Tienes 5 minutos? Lee solo esto:**
+
+| # | Documento | Tiempo | Para qué sirve |
+|---|-----------|--------|----------------|
+| 1 | 📊 **[RESUMEN-EJECUTIVO-DIRECTORES.md](./RESUMEN-EJECUTIVO-DIRECTORES.md)** | **5 min** | **Inversión, ROI, timeline, decisión** — Bilingüe ES/EN |
+| 2 | 🎯 **[DECISION-MATRIX.md](./DECISION-MATRIX.md)** | **5 min** | **Go/No-Go con firmas CTO/CFO/HoE** |
+| 3 | 🎤 **[BOARD-PRESENTATION.md](./BOARD-PRESENTATION.md)** | **20 min** | **12 slides para reunión del directorio** |
+
+**🎯 Decisión clave que se necesita HOY:** Aprobar S/ 141K (AI-Driven) o S/ 182K (Humano) para MVP de 8.5-12 semanas, ROI Y1 84-112%.
 
 ---
 
 ## 🎯 What Is This?
 
-This is the **complete governance documentation** for the User Management System (UMS) — from product vision through construction planning.
+This is the **complete governance documentation** for the User Management System (UMS) — from product vision through construction planning, financial analysis, and board-ready materials.
 
 Everything you need to:
+- ✅ Approve investment with confidence (executive summary + decision matrix)
+- ✅ Present to board (12-slide deck + revenue model + competitive analysis)
 - ✅ Understand the product readiness
 - ✅ Plan construction with technical stories
 - ✅ Build and deploy with confidence
@@ -21,12 +37,25 @@ Everything you need to:
 
 ### By Your Role
 
-**Executive / Leadership / C-Level:**
-→ Read: [`product-readiness-final-assessment.md`](./project/product-readiness-final-assessment.md) (15 min)  
-→ Then: [`construction/ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md`](./construction/ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md) (10 min) — Cost & infrastructure recommendation  
-→ Then: [`construction/MODELO-EJECUCION-HUMANO-VS-AI-DRIVEN.md`](./construction/MODELO-EJECUCION-HUMANO-VS-AI-DRIVEN.md) (15 min) — Human vs AI-Driven execution model comparison  
-→ Reference: [`construction/JUSTIFICACION-TIMELINE-AI-DRIVEN.md`](./construction/JUSTIFICACION-TIMELINE-AI-DRIVEN.md) (10 min) — AI timeline credibility check  
-→ Decision: Approve infrastructure model (Hybrid recommended) + execution model (AI-Driven or Human)
+**🏛️ Executive / Director / Board / Investor:**
+→ ⭐ **Start:** [RESUMEN-EJECUTIVO-DIRECTORES.md](./RESUMEN-EJECUTIVO-DIRECTORES.md) (5 min)  
+→ 🎯 **Decide:** [DECISION-MATRIX.md](./DECISION-MATRIX.md) (5 min) — Sign-off form  
+→ 🎤 **Present:** [BOARD-PRESENTATION.md](./BOARD-PRESENTATION.md) (20 min) — Slide deck  
+→ **Decision:** Approve S/ 141K (AI-Driven) or S/ 182K (Human) for 8.5-12 week MVP
+
+**💰 CFO / Finance / Budget Owner:**
+→ Start: [RESUMEN-EJECUTIVO-DIRECTORES.md](./RESUMEN-EJECUTIVO-DIRECTORES.md) (5 min)  
+→ Then: [Cost/Benefit Analysis](./construction/ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md) (15 min)  
+→ Then: [Revenue Model Y1](./construction/REVENUE-MODEL-YEAR-1.md) (15 min) — CAC, LTV, payback  
+→ Reference: [Competitive Analysis](./construction/COMPETITIVE-ANALYSIS.md) (10 min) — TCO benchmarks  
+→ Decision: Approve total budget + infrastructure model
+
+**🔧 CTO / Technical Decision Maker:**
+→ Start: [RESUMEN-EJECUTIVO-DIRECTORES.md](./RESUMEN-EJECUTIVO-DIRECTORES.md) (5 min)  
+→ Validate timeline: [JUSTIFICACION-TIMELINE-AI-DRIVEN.md](./construction/JUSTIFICACION-TIMELINE-AI-DRIVEN.md) (10 min)  
+→ Validate scope: [Product Readiness](./project/product-readiness-final-assessment.md) (15 min)  
+→ Validate execution: [Human vs AI-Driven](./construction/MODELO-EJECUCION-HUMANO-VS-AI-DRIVEN.md) (15 min)  
+→ Decision: Approve execution model (AI-Driven recommended if architect available)
 
 **Engineering Lead / Tech Architect:**
 → Read: [`construction/TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md`](./construction/TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md) PART 1, 6, 7 (30 min)  
@@ -54,13 +83,34 @@ Everything you need to:
 
 ```
 /governance/
-├── README.md (this file)
+├── README.md (this file — v2.0)
 ├── index.md (quick navigation)
+│
+├── ⭐ EXECUTIVE PORTAL (Directors, CTO, Investors)
+├── RESUMEN-EJECUTIVO-DIRECTORES.md ⭐ (5 min board summary, bilingual)
+├── DECISION-MATRIX.md ⭐ (Go/No-Go sign-off form)
+├── BOARD-PRESENTATION.md ⭐ (12-slide deck for board meeting)
 │
 ├── /construction/ ⭐ PRIMARY FOR EXECUTION
 │   ├── README.md — How-to guide (start here)
+│   ├── ESTIMATION-INDEX.md — Master bilingual index
+│   │
+│   ├── [💰 FINANCIAL & STRATEGIC ANALYSIS]
+│   ├── ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md — 3 infra scenarios, ROI 84%
+│   ├── REVENUE-MODEL-YEAR-1.md ⭐ NEW — CAC/LTV/churn, 50 clients ramp
+│   ├── COMPETITIVE-ANALYSIS.md ⭐ NEW — Okta/Auth0/Azure AD benchmarks, TCO
+│   ├── MODELO-EJECUCION-HUMANO-VS-AI-DRIVEN.md — Strategic execution decision
+│   ├── JUSTIFICACION-TIMELINE-AI-DRIVEN.md — Honest AI timeline breakdown
+│   │
+│   ├── [📊 SCOPE & ESTIMATION]
+│   ├── MVP-REDUCIDO-ALCANCE-Y-ESTIMACION.md (ES) / REDUCED-MVP-SCOPE-AND-ESTIMATION.md (EN)
+│   ├── ESTIMATION-VALIDATION-MATRIX.md — Confidence levels, risks
+│   ├── ESTIMACION-VERIFICADA-4-PERSONAS.md — 4-person team capacity
+│   │
+│   ├── [🔧 TECHNICAL DETAILS]
 │   ├── TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md — 89 TS + team profiles
 │   ├── FS-TO-TS-MAPPING.md — Requirements traceability
+│   ├── ESTIMACION-TECNICA-CONSOLIDADA.md — Story-by-story breakdown
 │   ├── SERVICE-IMPLEMENTATION-PLAN.md — .NET 8 structure + CI/CD
 │   └── TE-03-rls-sql-server-implementation.md — RLS deep dive
 │
@@ -83,28 +133,62 @@ Everything you need to:
 
 ## 📖 Documents at a Glance
 
-### 🏆 Most Important (Read First)
+### ⭐ EXECUTIVE PORTAL (Boards, CTO, Investors) — READ FIRST
 
-1. **[product-readiness-final-assessment.md](./project/product-readiness-final-assessment.md)** (15 min)
+1. **[RESUMEN-EJECUTIVO-DIRECTORES.md](./RESUMEN-EJECUTIVO-DIRECTORES.md)** (5 min) — 🌟 START HERE
+   - Bilingual ES/EN 1-page summary
+   - Investment: S/ 141K-195K | Timeline: 8.5-12 weeks | ROI Y1: 84-112%
+   - Top 3 risks + mitigations
+   - GO/NO-GO recommendation
+   - **AUDIENCE:** Directors, board members, investors
+
+2. **[DECISION-MATRIX.md](./DECISION-MATRIX.md)** (5 min)
+   - Formal sign-off form (CTO + CFO + Head of Engineering)
+   - Execution model choice (AI-Driven vs Human)
+   - Infrastructure choice (On-Prem vs Hybrid vs Cloud-Native)
+   - Risks acceptance + KPIs agreement
+   - **AUDIENCE:** Decision makers, signing authorities
+
+3. **[BOARD-PRESENTATION.md](./BOARD-PRESENTATION.md)** (20 min)
+   - 12-slide markdown deck (exportable to PDF/PPTX)
+   - Problem → Solution → Market → Product → Tech → Team → Cost → Timeline → ROI → Risk → Ask
+   - **AUDIENCE:** Pitch to board, investors, strategic partners
+
+### 💰 FINANCIAL & MARKET ANALYSIS (CFO, Strategy)
+
+4. **[construction/ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md](./construction/ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md)** (15 min)
+   - 10 role costs + 3 infrastructure scenarios
+   - Recommended: Hybrid Azure model @ S/ 182,350
+
+5. **[construction/REVENUE-MODEL-YEAR-1.md](./construction/REVENUE-MODEL-YEAR-1.md)** (15 min) ⭐ NEW
+   - CAC S/ 7,248 | LTV S/ 108K | LTV/CAC 14.9x
+   - Payback 3 months | Ramp to 50 customers Y1
+   - Sensitivity: 25/50/65 customer scenarios
+
+6. **[construction/COMPETITIVE-ANALYSIS.md](./construction/COMPETITIVE-ANALYSIS.md)** (10 min) ⭐ NEW
+   - UMS vs Okta/Auth0/Azure AD/OneLogin
+   - 3-year TCO: UMS saves S/ 164K-352K
+   - Common objections + responses
+
+### 🏗️ READINESS & CONSTRUCTION (CTO, Engineering Lead)
+
+7. **[product-readiness-final-assessment.md](./project/product-readiness-final-assessment.md)** (15 min)
    - 100% readiness across 8 épicas
    - Timeline: MVP 6-7 weeks, Full product 14-17 weeks
    - Go/No-Go: ✅ **AUTHORIZED FOR CONSTRUCTION**
 
-2. **[construction/README.md](./construction/README.md)** (10 min)
+8. **[construction/README.md](./construction/README.md)** (10 min)
    - How to use construction docs by role
-   - Sprint 0 checklist
-   - FAQ
+   - Sprint 0 checklist + FAQ
 
-3. **[construction/TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md](./construction/TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md)** (60 min)
+9. **[construction/TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md](./construction/TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md)** (60 min)
    - 89 technical stories (MVP 55 + Post-MVP 33)
-   - 8 team profiles (skills, capacity, ownership)
-   - Effort validation: 578 pts, 6.25-7.75 FTE
+   - 8 team profiles, effort validation, hiring gaps
    - **REQUIRED READ:** All engineers + hiring
 
-4. **[construction/FS-TO-TS-MAPPING.md](./construction/FS-TO-TS-MAPPING.md)** (30 min)
-   - Traceability: 16 Functional Stories → 89 Technical Stories
-   - Validates requirements coverage
-   - **REQUIRED READ:** PO + QA
+10. **[construction/FS-TO-TS-MAPPING.md](./construction/FS-TO-TS-MAPPING.md)** (30 min)
+    - Traceability: 16 Functional Stories → 89 Technical Stories
+    - **REQUIRED READ:** PO + QA
 
 ---
 
