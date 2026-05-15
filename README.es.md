@@ -40,7 +40,7 @@ npm install; npx nx run app-web:dev
 | **Entrega del Proyecto** | [Backlog del Proyecto](./docs/governance/project-es/index.md) | Épicas MVP, historias de usuario y diseño funcional de módulos core. |
 | **Requerimientos** | [Índice de Requerimientos](./docs/governance/requirements-es/index.md) | Historias funcionales, glosario de negocio y modelo de datos conceptual. |
 | **Arquitectura** | [Portal de Arquitectura](./docs/architecture/index.es.md) | Diseño ER de base de datos, mapas de entidades y visores interactivos. |
-| **Construccion** | [Portal de Construccion](./docs/governance/construction/index.md) | Diseño DDD de la capa de dominio (bounded contexts, agregados, eventos, comandos). |
+| **Construccion** | [Portal de Construccion](./docs/governance/construction/index.es.md) | Diseño DDD de la capa de dominio (bounded contexts, agregados, eventos, comandos). |
 
 ---
 

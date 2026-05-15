@@ -1,5 +1,7 @@
 # Construction Portal
 
+> **Language:** **English** | [Español](./index.es.md)
+
 **Fase:** Construccion | **Estado:** En progreso  
 **Inicio:** Mayo 2026 | **Target produccion:** Q3 2026
 

@@ -37,7 +37,7 @@ Especificaciones de Ingeniería y Ciclo de Vida del Producto para el User Manage
 
 ### Fase 04 -- Construccion y Diseño de Dominio
 
-- [Portal de Construccion](./governance/construction/index.md)
+- [Portal de Construccion](./governance/construction/index.es.md)
 - [Portal DDD](./governance/construction/ddd-design/index.md)
 - [Mapa de Bounded Contexts](./governance/construction/ddd-design/01-bounded-context-map.md)
 - [Lenguaje Ubicuo](./governance/construction/ddd-design/02-ubiquitous-language.md)
