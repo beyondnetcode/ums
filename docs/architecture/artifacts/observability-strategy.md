@@ -52,8 +52,8 @@ graph TD
 
 ### C. System & Business Metrics (Mimir)
 We monitor system health and business operations using two structured patterns:
-*   **RED Pattern (Services)**: **R**ate (requests/sec), **E**rrors (HTTP 5xx / database failures), **D**uration (latency p95/p99 targets < 200ms).
-*   **USE Pattern (Infrastructure)**: **U**tilization, **S**aturation, and **E**rrors for CPU, memory, and database connections.
+*   **RED Pattern (Services)**: **R** ate (requests/sec), **E** rrors (HTTP 5xx / database failures), **D** uration (latency p95/p99 targets < 200ms).
+*   **USE Pattern (Infrastructure)**: **U** tilization, **S** aturation, and **E** rrors for CPU, memory, and database connections.
 
 ---
 

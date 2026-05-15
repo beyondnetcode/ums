@@ -127,7 +127,7 @@ BEGIN
               AND NOT EXISTS (
                   SELECT 1 FROM tenant_closure
                   WHERE ancestáor_id = tc.ancestáor_id AND descendant_id = NEW.id
-              );
+);
         END IF;
         RETURN NEW;
     ELSIF TG_OP = 'DELETE' THEN

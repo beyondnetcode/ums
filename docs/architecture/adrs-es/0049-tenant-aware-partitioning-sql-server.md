@@ -1,10 +1,10 @@
 # ADR-0049: Estrategia de Particionamiento Consciente de Tenants para SQL Server 2022
 
-*   **Estado:** Aceptado
-*   **Fecha:** 2026-05-14
-*   **Autores:** Equipo de Arquitectura
-*   **Reemplaza:** ADR-0037 (versión PostgreSQL)
-*   **Relacionado:** ADR-0010 (Multi-Tenancy Básica), ADR-0041 (Motor de BD), ADR-0048 (Modelo Jerárquico)
+* **Estado:** Aceptado
+* **Fecha:** 2026-05-14
+* **Autores:** Equipo de Arquitectura
+* **Reemplaza:** ADR-0037 (versión PostgreSQL)
+* **Relacionado:** ADR-0010 (Multi-Tenancy Básica), ADR-0041 (Motor de BD), ADR-0048 (Modelo Jerárquico)
 
 ---
 
@@ -30,28 +30,28 @@ Adoptar **particionamiento LIST por `root_tenant_id`** para tablas centrales. Ca
 ```sql
 -- Tabla maestra (plantilla)
 CREATE TABLE [ums_identity].[TENANT] (
-    tenant_id UNIQUEIDENTIFIER NOT NULL,
-    root_tenant_id UNIQUEIDENTIFIER NOT NULL,
-    name NVARCHAR(255) NOT NULL,
-    type_code VARCHAR(32) NOT NULL,
-    status VARCHAR(16) NOT NULL DEFAULT 'ACTIVE',
-    parent_tenant_id UNIQUEIDENTIFIER NULL,
-    
-    PRIMARY KEY CLUSTERED (root_tenant_id, tenant_id)  -- Clave de partición primero
+ tenant_id UNIQUEIDENTIFIER NOT NULL,
+ root_tenant_id UNIQUEIDENTIFIER NOT NULL,
+ name NVARCHAR(255) NOT NULL,
+ type_code VARCHAR(32) NOT NULL,
+ status VARCHAR(16) NOT NULL DEFAULT 'ACTIVE',
+ parent_tenant_id UNIQUEIDENTIFIER NULL,
+
+ PRIMARY KEY CLUSTERED (root_tenant_id, tenant_id) -- Clave de partición primero
 ) ON ps_tenant_by_root(root_tenant_id);
 
 -- Función de partición: Lista de IDs de tenant raíz
 CREATE PARTITION FUNCTION pf_tenant_by_root (UNIQUEIDENTIFIER)
-    AS PARTITION RANGE LEFT 
-    FOR VALUES (
-        '11111111-1111-1111-1111-111111111111',
-        '22222222-2222-2222-2222-222222222222'
-    );
+ AS PARTITION RANGE LEFT
+ FOR VALUES (
+ '11111111-1111-1111-1111-111111111111',
+ '22222222-2222-2222-2222-222222222222'
+ );
 
 -- Esquema de partición: Mapear particiones a grupos de archivos
 CREATE PARTITION SCHEME ps_tenant_by_root
-    AS PARTITION pf_tenant_by_root
-    TO (fg_tenant_001, fg_tenant_002, [PRIMARY]);
+ AS PARTITION pf_tenant_by_root
+ TO (fg_tenant_001, fg_tenant_002, [PRIMARY]);
 ```
 
 ### 2.2 Tablas Centrales a Particionar
@@ -72,31 +72,31 @@ Crear automáticamente particiones para nuevos tenants raíz:
 ```csharp
 public class PartitionManager
 {
-    private readonly DbContext _dbContext;
-    
-    public async Task EnsurePartitionAsync(Guid rootTenantId)
-    {
-        var exists = await _dbContext.Database
-            .SqlQueryRaw<bool>(
-                @"SELECT CASE WHEN EXISTS (
-                    SELECT 1 FROM sys.partitions 
-                    WHERE partition_number > 1 
-                      AND object_id = OBJECT_ID('[ums_identity].[TENANT]')
-                ) THEN 1 ELSE 0 END"
-            )
-            .FirstAsync();
-        
-        if (!exists)
-        {
-            // Crear grupo de archivos
-            await _dbContext.Database.ExecuteSqlRawAsync(
-                $"ALTER DATABASE [ums] ADD FILEGROUP fg_tenant_{rootTenantId:N}");
-            
-            // Alterar función de partición
-            await _dbContext.Database.ExecuteSqlRawAsync(
-                $"ALTER PARTITION FUNCTION pf_tenant_by_root() SPLIT RANGE ('{rootTenantId}')");
-        }
-    }
+ private readonly DbContext _dbContext;
+
+ public async Task EnsurePartitionAsync(Guid rootTenantId)
+ {
+ var exists = await _dbContext.Database
+ .SqlQueryRaw<bool>(
+ @"SELECT CASE WHEN EXISTS (
+ SELECT 1 FROM sys.partitions
+ WHERE partition_number > 1
+ AND object_id = OBJECT_ID('[ums_identity].[TENANT]')
+ ) THEN 1 ELSE 0 END"
+ )
+ .FirstAsync();
+
+ if (!exists)
+ {
+ // Crear grupo de archivos
+ await _dbContext.Database.ExecuteSqlRawAsync(
+ $"ALTER DATABASE [ums] ADD FILEGROUP fg_tenant_{rootTenantId:N}");
+
+ // Alterar función de partición
+ await _dbContext.Database.ExecuteSqlRawAsync(
+ $"ALTER PARTITION FUNCTION pf_tenant_by_root() SPLIT RANGE ('{rootTenantId}')");
+ }
+ }
 }
 ```
 
@@ -105,12 +105,12 @@ public class PartitionManager
 Siempre incluir `root_tenant_id` en cláusula WHERE para pruning de partición:
 
 ```csharp
-// ✅ BIEN: Pruning de partición habilitado
+// BIEN: Pruning de partición habilitado
 var tenants = await _dbContext.Tenants
-    .Where(t => t.RootTenantId == rootTenantId)
-    .ToListAsync();
+ .Where(t => t.RootTenantId == rootTenantId)
+ .ToListAsync();
 
-// ❌ MALO: Sin pruning (escanea todas las particiones)
+// MALO: Sin pruning (escanea todas las particiones)
 var all = await _dbContext.Tenants.ToListAsync();
 ```
 
@@ -126,12 +126,12 @@ Layer 2 (Failsafe): SQL Server RLS previene fugas cross-partition
 CREATE FUNCTION [ums_identity].[fn_tenant_partition_filter](@RootTenantId UNIQUEIDENTIFIER)
 RETURNS TABLE WITH SCHEMABINDING AS
 RETURN
-    SELECT 1 AS result 
-    WHERE @RootTenantId = CAST(SESSION_CONTEXT(N'root_tenant_id') AS UNIQUEIDENTIFIER);
+ SELECT 1 AS result
+ WHERE @RootTenantId = CAST(SESSION_CONTEXT(N'root_tenant_id') AS UNIQUEIDENTIFIER);
 
 CREATE SECURITY POLICY [ums_identity].[TenantPartitionPolicy]
-    ADD FILTER PREDICATE [ums_identity].[fn_tenant_partition_filter](root_tenant_id)
-        ON [ums_identity].[TENANT];
+ ADD FILTER PREDICATE [ums_identity].[fn_tenant_partition_filter](root_tenant_id)
+ ON [ums_identity].[TENANT];
 ```
 
 ---
@@ -157,16 +157,16 @@ Si un tenant raíz excede capacidad de instancia única:
 ## 6. Consecuencias
 
 ### Positivas
-- ✅ Recuperación rápida de tenant (DROP partición en vez de DELETE)
-- ✅ Aislamiento de vecino ruidoso
-- ✅ Optimización de índices por partición
-- ✅ Rendimiento mejorado vía pruning de partición
-- ✅ Listo para sharding futuro
+- Recuperación rápida de tenant (DROP partición en vez de DELETE)
+- Aislamiento de vecino ruidoso
+- Optimización de índices por partición
+- Rendimiento mejorado vía pruning de partición
+- Listo para sharding futuro
 
 ### Negativas
-- ⚠️ Clave de partición en todas las consultas
-- ⚠️ Restricciones FK limitadas entre particiones (validar en app)
-- ⚠️ Complejidad adicional en mantenimiento de particiones
+- Clave de partición en todas las consultas
+- Restricciones FK limitadas entre particiones (validar en app)
+- Complejidad adicional en mantenimiento de particiones
 
 ---
 

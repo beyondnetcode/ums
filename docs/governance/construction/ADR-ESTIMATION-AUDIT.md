@@ -1,24 +1,24 @@
 # ADR-Estimation Audit — Technical Stories Alignment
 
-**Date:** 2026-05-14  
-**Purpose:** Verify if story point estimates align with ADR complexity definitions  
-**Status:** ⚠️ **CRITICAL MISALIGNMENTS FOUND**
+**Date:** 2026-05-14
+**Purpose:** Verify if story point estimates align with ADR complexity definitions
+**Status:** **CRITICAL MISALIGNMENTS FOUND**
 
 ---
 
 ## Executive Summary
 
-**Comparison:** 8 ADRs read + 30 technical stories analyzed  
-**Result:** **5 story point estimates are UNDERSTATED** based on ADR complexity  
-**Risk:** MVP timeline may be underestimated by 1-2 weeks  
+**Comparison:** 8 ADRs read + 30 technical stories analyzed
+**Result:** **5 story point estimates are UNDERSTATED** based on ADR complexity
+**Risk:** MVP timeline may be underestimated by 1-2 weeks
 
 | Category | Stories | Underestimated | Risk Level |
 |----------|---------|-----------------|-----------|
-| **Authorization (EP-03)** | 7 TS | 2 stories | 🔴 HIGH |
-| **Configuration (EP-04)** | 5 TS | 1 story | 🟡 MEDIUM |
-| **IGA/Promotion (EP-08)** | 9 TS | 2 stories | 🔴 HIGH |
-| **RLS/Tenancy (EP-01)** | 6 TS | 0 | ✅ OK |
-| **Other Épicas** | 62 TS | 0 | ✅ OK |
+| **Authorization (EP-03)** | 7 TS | 2 stories | HIGH |
+| **Configuration (EP-04)** | 5 TS | 1 story | MEDIUM |
+| **IGA/Promotion (EP-08)** | 9 TS | 2 stories | HIGH |
+| **RLS/Tenancy (EP-01)** | 6 TS | 0 | OK |
+| **Other Épicas** | 62 TS | 0 | OK |
 
 **Action Required:** Re-estimate 5 stories before Sprint 1
 
@@ -48,13 +48,13 @@
 
 | TS | Title | Size | ADR Complexity | Aligned? |
 |----|----|------|-----------------|----------|
-| **TS-3.1** | XACML Domain Model | 13 pts | Describes domain structure only | ✅ OK |
-| **TS-3.2** | **PEP/PDP/PAP/PIP** | **21 pts** | Describes 6-step compilation pipeline + caching | ⚠️ **QUESTIONABLE** |
-| TS-3.3 | Authorization SQL Tables | 13 pts | Tables structure | ✅ OK |
-| TS-3.4 | Middleware & Attributes | 8 pts | Middleware integration | ✅ OK |
-| TS-3.5 | Policy Management API | 8 pts | Admin endpoints | ✅ OK |
-| TS-3.6 | PDP Unit Tests | 13 pts | 20+ scenarios | ✅ OK |
-| TS-3.7 | Authorization Integration Tests | 13 pts | Full flow testing | ✅ OK |
+| **TS-3.1** | XACML Domain Model | 13 pts | Describes domain structure only | OK |
+| **TS-3.2** | **PEP/PDP/PAP/PIP** | **21 pts** | Describes 6-step compilation pipeline + caching | **QUESTIONABLE** |
+| TS-3.3 | Authorization SQL Tables | 13 pts | Tables structure | OK |
+| TS-3.4 | Middleware & Attributes | 8 pts | Middleware integration | OK |
+| TS-3.5 | Policy Management API | 8 pts | Admin endpoints | OK |
+| TS-3.6 | PDP Unit Tests | 13 pts | 20+ scenarios | OK |
+| TS-3.7 | Authorization Integration Tests | 13 pts | Full flow testing | OK |
 
 ### Detailed Concern: TS-3.2 (21 pts)
 
@@ -70,9 +70,9 @@
 - **Best case:** 21 pts assumes team has prior XACML/ABAC experience
 - **Worst case:** Could be 34 pts (21 + 13) if PDP and PIP are separate responsibilities
 - **Recommendation:** Split TS-3.2 into **two** stories:
-  - **TS-3.2a:** PDP/PAP (Policy Decision & Admin Points) — 13 pts
-  - **TS-3.2b:** PIP + Attribute Resolution — 13 pts (separate concern, ties to config system)
-  - **Total:** 26 pts (was 21 pts) — +5 pts to EP-03
+- **TS-3.2a:** PDP/PAP (Policy Decision & Admin Points) — 13 pts
+- **TS-3.2b:** PIP + Attribute Resolution — 13 pts (separate concern, ties to config system)
+- **Total:** 26 pts (was 21 pts) — +5 pts to EP-03
 
 ---
 
@@ -101,11 +101,11 @@
 
 | TS | Title | Size | ADR Complexity | Aligned? |
 |----|----|------|---|---|
-| TS-4.1 | Config Domain Model | 8 pts | Value objects + scope logic | ✅ OK |
-| **TS-4.3** | **Resolution Service & Cache** | **5 pts** | **4-level hierarchy + inheritance control + encryption + caching** | 🔴 **UNDERSTATED** |
-| TS-4.2 | SQL Tables | 5 pts | Schema | ✅ OK |
-| TS-4.4 | API Endpoints | 5 pts | CRUD | ✅ OK |
-| TS-4.5 | Tests | 8 pts | | ✅ OK |
+| TS-4.1 | Config Domain Model | 8 pts | Value objects + scope logic | OK |
+| **TS-4.3** | **Resolution Service & Cache** | **5 pts** | **4-level hierarchy + inheritance control + encryption + caching** | **UNDERSTATED** |
+| TS-4.2 | SQL Tables | 5 pts | Schema | OK |
+| TS-4.4 | API Endpoints | 5 pts | CRUD | OK |
+| TS-4.5 | Tests | 8 pts | | OK |
 
 ### Detailed Concern: TS-4.3 (5 pts)
 
@@ -133,10 +133,10 @@
 **Flag-Driven Role Evolution Engine:**
 1. Hierarchical roles (self-referencing ParentRoleId, HierarchyLevel, PromotionOrder)
 2. **Toggleable criteria (Flags):**
-   - FlagSeniority: days in current role
-   - FlagCompliance: mandatory documents/certs valid
-   - FlagBusinessScore: performance rankings
-   - FlagManualApproval: human intervention required
+- FlagSeniority: days in current role
+- FlagCompliance: mandatory documents/certs valid
+- FlagBusinessScore: performance rankings
+- FlagManualApproval: human intervention required
 3. **Background Promotion Watcher** (periodic scan, fires PromotionOpportunityEvent)
 4. **Approval Workflow** (CRITERIA_MET → APPROVAL_REQUEST flow)
 
@@ -144,25 +144,25 @@
 
 | TS | Title | Size | ADR Complexity | Aligned? |
 |----|----|------|---|---|
-| TS-8.1 | Maturity Domain Model | 13 pts | Role maturity + promotion request | ✅ OK |
-| **TS-8.2** | **Maturity Calculator** | **8 pts** | **4 toggleable flags + background watcher + event system** | 🔴 **UNDERSTATED** |
-| TS-8.3 | Impact Analysis Engine | 21 pts | Risk scoring, conflict detection | ✅ OK |
-| TS-8.4 | State Machine | 8 pts | 8 states | ✅ OK |
-| TS-8.5 | SQL Tables | 8 pts | Schema | ✅ OK |
-| **TS-8.7** | **Eligibility Notification Engine** | **5 pts** | **Background job + multiple notification channels (5)** | ⚠️ **UNDERSTATED** |
-| TS-8.6 | Workflow Integration | 13 pts | Approvals integration | ✅ OK |
-| TS-8.8 | API Endpoints | 8 pts | CRUD | ✅ OK |
-| TS-8.9 | Tests | 13 pts | Full lifecycle | ✅ OK |
+| TS-8.1 | Maturity Domain Model | 13 pts | Role maturity + promotion request | OK |
+| **TS-8.2** | **Maturity Calculator** | **8 pts** | **4 toggleable flags + background watcher + event system** | **UNDERSTATED** |
+| TS-8.3 | Impact Analysis Engine | 21 pts | Risk scoring, conflict detection | OK |
+| TS-8.4 | State Machine | 8 pts | 8 states | OK |
+| TS-8.5 | SQL Tables | 8 pts | Schema | OK |
+| **TS-8.7** | **Eligibility Notification Engine** | **5 pts** | **Background job + multiple notification channels (5)** | **UNDERSTATED** |
+| TS-8.6 | Workflow Integration | 13 pts | Approvals integration | OK |
+| TS-8.8 | API Endpoints | 8 pts | CRUD | OK |
+| TS-8.9 | Tests | 13 pts | Full lifecycle | OK |
 
 ### Detailed Concern: TS-8.2 (8 pts)
 
 **ADR-0046 requires:**
 - **4 independent criteria checkers** (Seniority, Compliance, BusinessScore, ManualApproval)
-  - Each with different data sources (tenure logs, document store, HR systems, manual flag)
+- Each with different data sources (tenure logs, document store, HR systems, manual flag)
 - **Background Promotion Watcher** (background job, periodic scanning, event firing)
-  - Scheduling logic (Quartz/Hangfire)
-  - Event sourcing integration (PromotionOpportunityEvent)
-  - State transitions (CRITERIA_NOT_MET → CRITERIA_MET)
+- Scheduling logic (Quartz/Hangfire)
+- Event sourcing integration (PromotionOpportunityEvent)
+- State transitions (CRITERIA_NOT_MET → CRITERIA_MET)
 - **Approval Workflow integration** (ties to EP-06 Approvals context)
 
 **Estimate validity:**
@@ -193,22 +193,22 @@ Actually, wait — **this overlaps with EP-07 TS-7.3 (Notification Engine, 13 pt
 ## 4. Other Épicas (OK)
 
 ### EP-01: Tenant & Identity
-- ✅ TS-1.1 to TS-1.6 aligned with ADR-0048 (closure table, composite keys)
-- ✅ RLS correctly repositioned to application layer (EF Core) with optional SQL Server hardening
+- TS-1.1 to TS-1.6 aligned with ADR-0048 (closure table, composite keys)
+- RLS correctly repositioned to application layer (EF Core) with optional SQL Server hardening
 
 ### EP-02: System Catalog
-- ✅ Simple registration + topology, no complex patterns
+- Simple registration + topology, no complex patterns
 
 ### EP-05: Experience & Diagnostics
-- ✅ UI-driven stories, straightforward
+- UI-driven stories, straightforward
 
 ### EP-06: Security (MFA, B2B, Delegation)
-- ✅ Examined FS-09, FS-10, FS-14 earlier
-- ✅ TS-6.2 (Risk Scoring, 21 pts) — aligns with ADR-0026 complexity
+- Examined FS-09, FS-10, FS-14 earlier
+- TS-6.2 (Risk Scoring, 21 pts) — aligns with ADR-0026 complexity
 
 ### EP-07: Compliance
-- ✅ TS-7.3 (Notification Engine, 13 pts) — aligns with background job pattern
-- ✅ TS-7.5 (Enforcement Engine, 13 pts) — aligns with 3 modes + grace period
+- TS-7.3 (Notification Engine, 13 pts) — aligns with background job pattern
+- TS-7.5 (Enforcement Engine, 13 pts) — aligns with 3 modes + grace period
 
 ---
 
@@ -244,29 +244,29 @@ Actually, wait — **this overlaps with EP-07 TS-7.3 (Notification Engine, 13 pt
 ### High Risk (Red Flags)
 
 1. **TS-3.2 Split Required** (Authority: ADR-0039, Section 2.1)
-   - Policy Compilation has 6 steps, not 1
-   - PIP (attribute resolution) is a distinct service responsibility
-   - Current 21 pts might not cover both PDP AND PIP
-   - **Mitigation:** Split into TS-3.2a (PDP/PAP, 13 pts) + TS-3.2b (PIP, 13 pts)
+- Policy Compilation has 6 steps, not 1
+- PIP (attribute resolution) is a distinct service responsibility
+- Current 21 pts might not cover both PDP AND PIP
+- **Mitigation:** Split into TS-3.2a (PDP/PAP, 13 pts) + TS-3.2b (PIP, 13 pts)
 
 2. **TS-8.2 Underestimated** (Authority: ADR-0046)
-   - 4 independent flag checkers require separate development/testing
-   - Background worker scheduling adds operational complexity
-   - Event system integration (firing PromotionOpportunityEvent)
-   - **Mitigation:** Increase to 13 pts, prioritize flag checker implementations
+- 4 independent flag checkers require separate development/testing
+- Background worker scheduling adds operational complexity
+- Event system integration (firing PromotionOpportunityEvent)
+- **Mitigation:** Increase to 13 pts, prioritize flag checker implementations
 
 3. **TS-4.3 Underestimated** (Authority: ADR-0047)
-   - Encryption handling (IsEncrypted column handling, key management)
-   - Inheritance control validation (IsInheritable conflicts)
-   - 4-level resolution algorithm (not trivial)
-   - **Mitigation:** Increase to 8 pts, add encryption integration point
+- Encryption handling (IsEncrypted column handling, key management)
+- Inheritance control validation (IsInheritable conflicts)
+- 4-level resolution algorithm (not trivial)
+- **Mitigation:** Increase to 8 pts, add encryption integration point
 
 ### Medium Risk (Yellow Flags)
 
 1. **TS-8.7 Dependency Chain**
-   - If TS-7.3 (Notification Engine) runs in parallel Sprint 3, TS-8.7 can reuse (5 pts)
-   - If sequential, TS-8.7 might need 8 pts (no reusable foundation)
-   - **Mitigation:** Schedule TS-7.3 early in Sprint 3, clarify dependency
+- If TS-7.3 (Notification Engine) runs in parallel Sprint 3, TS-8.7 can reuse (5 pts)
+- If sequential, TS-8.7 might need 8 pts (no reusable foundation)
+- **Mitigation:** Schedule TS-7.3 early in Sprint 3, clarify dependency
 
 ---
 
@@ -275,21 +275,21 @@ Actually, wait — **this overlaps with EP-07 TS-7.3 (Notification Engine, 13 pt
 ### Before Sprint 1
 
 1. **Re-estimate TS-3.2**
-   - Decision: Keep as 21 pts OR split into TS-3.2a + TS-3.2b (26 pts total)
-   - Rationale: ADR-0039 describes 6 distinct pipeline steps + caching
-   - Action: Engineering lead reviews policy compilation scope with architect
+- Decision: Keep as 21 pts OR split into TS-3.2a + TS-3.2b (26 pts total)
+- Rationale: ADR-0039 describes 6 distinct pipeline steps + caching
+- Action: Engineering lead reviews policy compilation scope with architect
 
 2. **Update TS-4.3 to 8 pts**
-   - Rationale: ADR-0047 explicitly calls out 4-level resolution + encryption + caching
-   - Action: Update backlog, adjust Sprint 1 capacity
+- Rationale: ADR-0047 explicitly calls out 4-level resolution + encryption + caching
+- Action: Update backlog, adjust Sprint 1 capacity
 
 3. **Update TS-8.2 to 13 pts**
-   - Rationale: ADR-0046 describes 4 flag checkers + background worker + events
-   - Action: Update backlog, consider splitting into TS-8.2a (flags) + TS-8.2b (worker)
+- Rationale: ADR-0046 describes 4 flag checkers + background worker + events
+- Action: Update backlog, consider splitting into TS-8.2a (flags) + TS-8.2b (worker)
 
 4. **Document TS-8.7 Dependency**
-   - Decision: Schedule TS-7.3 (Notification Engine) to complete before TS-8.7
-   - Action: Add explicit dependency link in backlog
+- Decision: Schedule TS-7.3 (Notification Engine) to complete before TS-8.7
+- Action: Add explicit dependency link in backlog
 
 ### Before Post-MVP (Sprint 3)
 
@@ -301,7 +301,7 @@ Actually, wait — **this overlaps with EP-07 TS-7.3 (Notification Engine, 13 pt
 
 ## Audit Conclusion
 
-**Status:** ⚠️ **ALIGNMENT GAPS FOUND** — **Not Critical, But Action Required**
+**Status:** **ALIGNMENT GAPS FOUND** — **Not Critical, But Action Required**
 
 **Verdict:**
 - **3 out of 5 story estimates** are understated based on ADR complexity
@@ -309,15 +309,15 @@ Actually, wait — **this overlaps with EP-07 TS-7.3 (Notification Engine, 13 pt
 - **MVP Impact:** Negligible (still 6-7 weeks)
 - **Severity:** Medium (detectable in Sprint 1, manageable with re-estimation)
 
-**Go/No-Go Decision:** ✅ **PROCEED WITH ADJUSTMENTS**
+**Go/No-Go Decision:** **PROCEED WITH ADJUSTMENTS**
 - Update 4 stories (TS-3.2, TS-4.3, TS-8.2, TS-8.7)
 - Recalculate post-MVP burn rate (17 pts/week instead of planned)
 - Communicate timeline adjustment (1 week) to stakeholders
 
 ---
 
-**Audit Performed By:** Comprehensive ADR Review (ADR-0010, 0021, 0039, 0046, 0047, 0048, 0049)  
-**Sources:** 8 ADRs, 30 technical stories analyzed  
+**Audit Performed By:** Comprehensive ADR Review (ADR-0010, 0021, 0039, 0046, 0047, 0048, 0049)
+**Sources:** 8 ADRs, 30 technical stories analyzed
 **Confidence Level:** High (ADR-based, architectural authority)
 
 ---

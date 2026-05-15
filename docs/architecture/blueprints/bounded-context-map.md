@@ -23,104 +23,104 @@ This document establishes the formal **Domain-Driven Design (DDD) Bounded Contex
 
 ```mermaid
 graph TD
-    subgraph IdentityContext[" Identity Context"]
-        IC1["User Registration & Lifecycle"]
-        IC2["Organization (Tenant) Management"]
-        IC3["Branch (Sedes) Registry"]
-        IC4["IdP Strategy Adapters (Pluggable)"]
-    end
+ subgraph IdentityContext[" Identity Context"]
+ IC1["User Registration & Lifecycle"]
+ IC2["Organization (Tenant) Management"]
+ IC3["Branch (Sedes) Registry"]
+ IC4["IdP Strategy Adapters (Pluggable)"]
+ end
 
-    subgraph AuthorizationContext[" Authorization Context"]
-        AC1["System & Resource Registry"]
-        AC2["Module / Menu / Option / Action Topology"]
-        AC3["Profile & Template Engine"]
-        AC4["Permission Graph Compiler (PDP)"]
-        AC5["Explicit-Deny Precedence Resolver"]
-    end
+ subgraph AuthorizationContext[" Authorization Context"]
+ AC1["System & Resource Registry"]
+ AC2["Module / Menu / Option / Action Topology"]
+ AC3["Profile & Template Engine"]
+ AC4["Permission Graph Compiler (PDP)"]
+ AC5["Explicit-Deny Precedence Resolver"]
+ end
 
-    subgraph ConfigContext[" Configuration & Feature Management Context"]
-        CF1["Multi-IdP Configuration Engine"]
-        CF2["System Behavioral Configuration Model"]
-        CF3["Feature Flag Management Framework"]
-        CF4["Config Cache Manager"]
-    end
+ subgraph ConfigContext[" Configuration & Feature Management Context"]
+ CF1["Multi-IdP Configuration Engine"]
+ CF2["System Behavioral Configuration Model"]
+ CF3["Feature Flag Management Framework"]
+ CF4["Config Cache Manager"]
+ end
 
-    subgraph AuditContext[" Audit Context"]
-        AU1["Immutable Audit Ledger (CDC/Subscribers)"]
-        AU2["Access Attempt Log"]
-        AU3["Permission Mutation History"]
-        AU4["Config & Flag Change History"]
-    end
+ subgraph AuditContext[" Audit Context"]
+ AU1["Immutable Audit Ledger (CDC/Subscribers)"]
+ AU2["Access Attempt Log"]
+ AU3["Permission Mutation History"]
+ AU4["Config & Flag Change History"]
+ end
 
-    subgraph ConsoleContext[" Console Context (PAP)"]
-        CO1["Admin Web Portal UI"]
-        CO2["Tenant & Branch CRUD Views"]
-        CO3["Template Builder & Assignment Engine"]
-        CO4["Visual Graph Resolver & Diagnostics"]
-        CO5["Security Ledger Monitor"]
-        CO6["IdP Configuration Manager"]
-        CO7["System Config Editor"]
-        CO8["Feature Flag Dashboard"]
-    end
+ subgraph ConsoleContext[" Console Context (PAP)"]
+ CO1["Admin Web Portal UI"]
+ CO2["Tenant & Branch CRUD Views"]
+ CO3["Template Builder & Assignment Engine"]
+ CO4["Visual Graph Resolver & Diagnostics"]
+ CO5["Security Ledger Monitor"]
+ CO6["IdP Configuration Manager"]
+ CO7["System Config Editor"]
+ CO8["Feature Flag Dashboard"]
+ end
 
-    subgraph CacheContext[" Cache Context (Infrastructure)"]
-        CA1["Redis: auth_graph namespace"]
-        CA2["Redis: cfg namespace (IdP + System Config)"]
-        CA3["Redis: flags namespace (Evaluated Flag Sets)"]
-        CA4["TTL Governance & Eviction Hooks"]
-    end
+ subgraph CacheContext[" Cache Context (Infrastructure)"]
+ CA1["Redis: auth_graph namespace"]
+ CA2["Redis: cfg namespace (IdP + System Config)"]
+ CA3["Redis: flags namespace (Evaluated Flag Sets)"]
+ CA4["TTL Governance & Eviction Hooks"]
+ end
 
-    subgraph IGAContext[" IGA Context"]
-        IG1["Role Promotion Criteria Engine"]
-        IG2["User Promotion Process Manager"]
-        IG3["Delegated Administration Registry"]
-    end
+ subgraph IGAContext[" IGA Context"]
+ IG1["Role Promotion Criteria Engine"]
+ IG2["User Promotion Process Manager"]
+ IG3["Delegated Administration Registry"]
+ end
 
-    subgraph ApprovalContext[" Approvals Context"]
-        AP1["Approval Workflow Orchestrator"]
-        AP2["Approval Request Manager"]
-        AP3["Required Document Registry"]
-        AP4["Approval Audit Trail"]
-    end
+ subgraph ApprovalContext[" Approvals Context"]
+ AP1["Approval Workflow Orchestrator"]
+ AP2["Approval Request Manager"]
+ AP3["Required Document Registry"]
+ AP4["Approval Audit Trail"]
+ end
 
-    subgraph ComplianceContext[" Compliance Context"]
-        CM1["User Document Lifecycle"]
-        CM2["Access Enforcement Policy Engine"]
-        CM3["Pre-Expiration Notification Rules"]
-        CM4["Notification Dispatcher (INotificationPort)"]
-    end
+ subgraph ComplianceContext[" Compliance Context"]
+ CM1["User Document Lifecycle"]
+ CM2["Access Enforcement Policy Engine"]
+ CM3["Pre-Expiration Notification Rules"]
+ CM4["Notification Dispatcher (INotificationPort)"]
+ end
 
-    IdentityContext -->|"Customer-Supplier: User + Org + Branch claims"| AuthorizationContext
-    IdentityContext -->|"Customer-Supplier: Tenant scope keys"| ConfigContext
-    AuthorizationContext -->|"Conformist: emits mutation events"| AuditContext
-    IdentityContext -->|"Conformist: emits lifecycle events"| AuditContext
-    ConfigContext -->|"Conformist: emits config + flag events"| AuditContext
-    ConfigContext -->|"Customer-Supplier: provides IdP config to"| IdentityContext
-    ConsoleContext -->|"Customer-Supplier: PAP calls via API"| AuthorizationContext
-    ConsoleContext -->|"Customer-Supplier: Admin identity"| IdentityContext
-    ConsoleContext -->|"Customer-Supplier: Config + Flags admin"| ConfigContext
-    ConsoleContext -->|"Customer-Supplier: Approval workflow admin"| ApprovalContext
-    AuthorizationContext -->|"Read-Aside: cache auth_graph"| CacheContext
-    ConfigContext -->|"Read-Aside: cache cfg + flags"| CacheContext
-    IdentityContext -->|"Customer-Supplier: UserRegisteredEvent"| IGAContext
-    IdentityContext -->|"Customer-Supplier: UserRegisteredEvent"| ComplianceContext
-    IdentityContext -->|"Customer-Supplier: B2B external user request"| ApprovalContext
-    IGAContext -->|"Customer-Supplier: PromotionApprovedEvent"| AuthorizationContext
-    IGAContext -->|"Customer-Supplier: PromotionApprovedEvent"| ApprovalContext
-    IGAContext -->|"Conformist: emits promotion events"| AuditContext
-    ComplianceContext -->|"Customer-Supplier: DocumentExpiredEvent → block"| IdentityContext
-    ComplianceContext -->|"Customer-Supplier: document validation request"| ApprovalContext
-    ComplianceContext -->|"Conformist: emits document events"| AuditContext
-    ApprovalContext -->|"Customer-Supplier: ApprovalRequestCreatedEvent"| IdentityContext
-    ApprovalContext -->|"Customer-Supplier: ApprovalResolvedEvent"| AuthorizationContext
-    ApprovalContext -->|"Conformist: emits approval events"| AuditContext
+ IdentityContext -->|"Customer-Supplier: User + Org + Branch claims"| AuthorizationContext
+ IdentityContext -->|"Customer-Supplier: Tenant scope keys"| ConfigContext
+ AuthorizationContext -->|"Conformist: emits mutation events"| AuditContext
+ IdentityContext -->|"Conformist: emits lifecycle events"| AuditContext
+ ConfigContext -->|"Conformist: emits config + flag events"| AuditContext
+ ConfigContext -->|"Customer-Supplier: provides IdP config to"| IdentityContext
+ ConsoleContext -->|"Customer-Supplier: PAP calls via API"| AuthorizationContext
+ ConsoleContext -->|"Customer-Supplier: Admin identity"| IdentityContext
+ ConsoleContext -->|"Customer-Supplier: Config + Flags admin"| ConfigContext
+ ConsoleContext -->|"Customer-Supplier: Approval workflow admin"| ApprovalContext
+ AuthorizationContext -->|"Read-Aside: cache auth_graph"| CacheContext
+ ConfigContext -->|"Read-Aside: cache cfg + flags"| CacheContext
+ IdentityContext -->|"Customer-Supplier: UserRegisteredEvent"| IGAContext
+ IdentityContext -->|"Customer-Supplier: UserRegisteredEvent"| ComplianceContext
+ IdentityContext -->|"Customer-Supplier: B2B external user request"| ApprovalContext
+ IGAContext -->|"Customer-Supplier: PromotionApprovedEvent"| AuthorizationContext
+ IGAContext -->|"Customer-Supplier: PromotionApprovedEvent"| ApprovalContext
+ IGAContext -->|"Conformist: emits promotion events"| AuditContext
+ ComplianceContext -->|"Customer-Supplier: DocumentExpiredEvent → block"| IdentityContext
+ ComplianceContext -->|"Customer-Supplier: document validation request"| ApprovalContext
+ ComplianceContext -->|"Conformist: emits document events"| AuditContext
+ ApprovalContext -->|"Customer-Supplier: ApprovalRequestCreatedEvent"| IdentityContext
+ ApprovalContext -->|"Customer-Supplier: ApprovalResolvedEvent"| AuthorizationContext
+ ApprovalContext -->|"Conformist: emits approval events"| AuditContext
 ```
 
 ---
 
 ## 2. Context Definitions
 
-### 🔐 A. Identity Context
+### A. Identity Context
 **Mission:** Manage the lifecycle of all principals (users) and the organizational structures (tenants and branches) they belong to. Delegate credential verification to pluggable, external Identity Providers using configurations supplied by the Configuration Context.
 
 **Owns:**
@@ -141,7 +141,7 @@ graph TD
 
 ---
 
-### 🔑 B. Authorization Context
+### B. Authorization Context
 **Mission:** Act as the **Policy Decision Point (PDP)**. Compile and resolve the hierarchical authorization graph for any authenticated principal based on their organization, branch, profiles, and attached templates.
 
 **Owns:**
@@ -166,7 +166,7 @@ graph TD
 
 ---
 
-### ⚙️ C. Configuration & Feature Management Context *(NEW)*
+### C. Configuration & Feature Management Context *(NEW)*
 **Mission:** Govern the **dynamic, multi-tenant runtime behavior** of all UMS-integrated systems without requiring code changes or redeployment. Owns three capability pillars:
 1. **Multi-IdP Configuration Engine** — per-tenant/system IdP registry with priority/fallback
 2. **System Behavioral Configuration** — versioned JSON config for auth, session, branding, modules
@@ -201,7 +201,7 @@ graph TD
 
 ---
 
-### 📋 D. Audit Context
+### D. Audit Context
 **Mission:** Maintain an **immutable, tamper-proof ledger** of all identity events, permission mutations, configuration changes, approval decisions, document lifecycle events, and role promotions. Serves compliance, forensic, and SRE diagnostic needs.
 
 **Owns:**
@@ -225,7 +225,7 @@ graph TD
 
 ---
 
-### 💻 E. Console Context (Policy Administration Point — PAP)
+### E. Console Context (Policy Administration Point — PAP)
 **Mission:** Provide the **Administrative Web Portal** that allows SuperAdmins and Tenant Managers to govern organizations, systems, profiles, templates, IdP configurations, system configs, and feature flags.
 
 **Owns:**
@@ -240,7 +240,7 @@ graph TD
 
 ---
 
-### 📝 F. Approvals Context *(NEW)*
+### F. Approvals Context *(NEW)*
 **Mission:** Orchestrate and manage approval workflows for B2B external access requests, document validation, and role promotion processes. Act as the central point of control for all multi-step authorization and compliance decisions.
 
 **Schema DB:** `[ums_approval]`
@@ -273,7 +273,7 @@ graph TD
 
 ---
 
-### ⚡ G. Cache Context (Infrastructure)
+### G. Cache Context (Infrastructure)
 **Mission:** Provide a high-performance distributed cache layer for authorization graphs, system configurations, and feature flag evaluations — all under strict namespace governance.
 
 **Cache Namespaces:**
@@ -288,7 +288,7 @@ graph TD
 
 ---
 
-### 🎖️ H. IGA Context (Identity Governance & Administration)
+### H. IGA Context (Identity Governance & Administration)
 **Mission:** Govern the complete lifecycle of role evolution, user promotion processes, and delegated user administration. Acts as the rules engine that evaluates promotion criteria and orchestrates approval workflows for role advancement.
 
 **Schema DB:** `ums_iga`
@@ -315,7 +315,7 @@ graph TD
 
 ---
 
-### 📄 I. Compliance Context
+### I. Compliance Context
 **Mission:** Enforce document-based access policies for all users. Manages the complete lifecycle of user documents, evaluates expiration status, dispatches configurable pre-expiration notifications, and triggers automated enforcement actions (block, downgrade, notify-only, suspend) upon expiration.
 
 **Schema DB:** `ums_compliance`
@@ -387,4 +387,4 @@ graph TD
 | Approvals ↔ Approver Notification | `IApprovalRouterPort` (Strategy Pattern) | Routes approval requests to correct approvers; prevents tight coupling to notification mechanism |
 | Console ↔ UMS APIs | REST API contracts (versioned) | Console is an external consumer; treated as any third party |
 | Compliance ↔ Notification Providers | `INotificationPort` (Strategy Pattern) | Prevents SMTP/Twilio SDKs from coupling to domain |
-| Compliance ↔ Object Storage | `IDocumentStoragePort` (Strategy Pattern) | Prevents MinIO/S3 SDK from leaking into domain | 
+| Compliance ↔ Object Storage | `IDocumentStoragePort` (Strategy Pattern) | Prevents MinIO/S3 SDK from leaking into domain |

@@ -1,6 +1,6 @@
 # Corrections & Amendments — Technical Stories
 
-**Date:** 2026-05-14 (Revision 1)  
+**Date:** 2026-05-14 (Revision 1)
 **Status:** Corrections applied to TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md + FS-TO-TS-MAPPING.md
 
 ---
@@ -13,7 +13,7 @@ During construction planning validation, **2 critical errors** were identified i
 
 ## Error #1: RLS Implementation Model (CRITICAL)
 
-### ❌ What Was Written (INCORRECT)
+### What Was Written (INCORRECT)
 
 **TS-1.2:** "SQL Server Infrastructure — Tenant & Identity Tables + RLS"
 - Description emphasized SQL Server RLS as **primary enforcement mechanism**
@@ -22,11 +22,11 @@ During construction planning validation, **2 critical errors** were identified i
 **TS-1.3:** "EF Core DbConnectionInterceptor — SESSION_CONTEXT Setup"
 - Described implementing SESSION_CONTEXT in SQL Server as the isolation mechanism
 
-### ✅ What's Correct (per stack.md Section 6.1)
+### What's Correct (per stack.md Section 6.1)
 
 **Multi-tenancy Strategy:** "Logical Isolation (Application-Level) + Native Row-Level Security (RLS) Hardening"
 
-**Phase 1 (PRIMARY):** 
+**Phase 1 (PRIMARY):**
 - Enforced at the **Application Layer** using EF Core Global Query Filters
 - Requires mandatory `TenantId` denormalization in all functional entities
 - O(1) filtering via WHERE clause (no database RLS required)
@@ -36,13 +36,13 @@ During construction planning validation, **2 critical errors** were identified i
 - Prevents accidental data leaks if application layer fails
 - **NOT required for basic functionality**
 
-### 📝 Corrections Applied
+### Corrections Applied
 
 **TS-1.2 (Updated):**
 - **New Title:** "SQL Server Infrastructure — Tenant & Identity Tables (Schema & Indices)"
 - **New Size:** 8 pts (reduced from 13 pts, schema only)
 - **New Description:** Focus on composite keys (id, root_tenant_id) and indices, not RLS predicates
-- **Added Note:** "⚠️ RLS enforcement is PRIMARY at Application Layer (TS-1.3, EF Core filters); SQL Server RLS is optional hardening (Phase 2)"
+- **Added Note:** " RLS enforcement is PRIMARY at Application Layer (TS-1.3, EF Core filters); SQL Server RLS is optional hardening (Phase 2)"
 
 **TS-1.3 (Updated):**
 - **New Title:** "EF Core Global Query Filters — Application-Level Tenant Isolation (PRIMARY)"
@@ -51,7 +51,7 @@ During construction planning validation, **2 critical errors** were identified i
 - **Key AC:** "Filter applied automatically: no developer needs to add WHERE clauses"
 - **Added:** Phase 2 note about optional SQL Server RLS
 
-### 🎯 Impact on Stories
+### Impact on Stories
 
 | Story | Old Size | New Size | Reason |
 |-------|----------|----------|--------|
@@ -59,13 +59,13 @@ During construction planning validation, **2 critical errors** were identified i
 | TS-1.3 | 5 pts | 8 pts | Primary isolation mechanism |
 | **EP-01 Total** | 55 pts | **50 pts** | -5 pts net (RLS complexity reduced) |
 
-### 📚 Reference Documentation
+### Reference Documentation
 
 - **Source:** `/architecture/blueprints/stack.md` Section 6 (Multi-tenancy Strategy)
 - **Quote:** "Phase 1 (Primary): Enforced at the Application Layer using EF Core Global Query Filters... Phase 2 (Hardening): Optional infrastructure-level protection using SQL Server SESSION_CONTEXT..."
 - **ADR:** ADR-0048 (Closure Table), ADR-0049 (Partitioning) — both assume application-layer filtering
 
-### ✅ Validation
+### Validation
 
 - **RLS Tests (TS-1.6):** Now test EF Core filter isolation, not SQL Server RLS
 - **Integration Tests:** Verify composite key enforcement + filter correctness
@@ -75,7 +75,7 @@ During construction planning validation, **2 critical errors** were identified i
 
 ## Error #2: Frontend Stack (CRITICAL)
 
-### ❌ What Was Written (INCORRECT)
+### What Was Written (INCORRECT)
 
 **TS-5.1:** "Hosted Login Page — Razor Pages Implementation"
 - Described building Razor page (`Pages/Auth/Login.cshtml`)
@@ -88,7 +88,7 @@ During construction planning validation, **2 critical errors** were identified i
 **Profile 6:** "Frontend Engineer (Razor Pages, HTML/CSS/JS)"
 - Listed ASP.NET Razor, Bootstrap, vanilla JavaScript as tech stack
 
-### ✅ What's Correct (per dotnet-migration-and-tech-stack-plan.md)
+### What's Correct (per dotnet-migration-and-tech-stack-plan.md)
 
 **Frontend Stack:**
 ```
@@ -105,7 +105,7 @@ Web[apps/web - React Portal] --> Pres[Ums.Presentation - Web API]
 - Technology: React 18+, Vite build, Zustand state, TanStack Query for data fetching
 - Integration: OpenAPI-generated client SDK for type-safe API calls
 
-### 📝 Corrections Applied
+### Corrections Applied
 
 **TS-5.1 (Updated):**
 - **New Title:** "Hosted Login Page — React (Vite) Implementation"
@@ -125,7 +125,7 @@ Web[apps/web - React Portal] --> Pres[Ums.Presentation - Web API]
 - **Removed:** Razor, Bootstrap, C# templating
 - **Reasoning:** Monorepo strategy (Nx) allows shared types between React frontend and .NET backend
 
-### 🎯 Impact on Stories
+### Impact on Stories
 
 | Story | Old Tech | New Tech | Skills Change |
 |-------|----------|----------|----------------|
@@ -133,26 +133,26 @@ Web[apps/web - React Portal] --> Pres[Ums.Presentation - Web API]
 | TS-5.2 | Razor Pages | React/Vite | Backend → Frontend (React specialist) |
 | Profile 6 | ASP.NET | React | Different skill profile entirely |
 
-### 📚 Reference Documentation
+### Reference Documentation
 
 - **Source:** `/architecture/blueprints/dotnet-migration-and-tech-stack-plan.md` Section 1 & 2
 - **Quote:** "...while fully preserving the **React (Vite)** frontend application"
 - **Tech Stack:** "Frontend: React (v18+, Latest Stable) / Vite / Zustand / TanStack Query"
 - **Integration:** "Contract-First Doctrine: Integration with the React portal will utilize generated OpenAPI specifications"
 
-### ✅ Validation
+### Validation
 
 - **Monorepo:** .NET backend (Ums.sln) + React frontend (apps/web) share single Nx monorepo
 - **Type Safety:** OpenAPI codegen ensures frontend & backend contract alignment
 - **Dev Experience:** Shared TypeScript types between frontend (Zustand store) and backend DTOs
 - **Build:** Vite handles React build, .NET handles backend, CI/CD handles both independently
 
-### 🔄 Cross-Document Updates
+### Cross-Document Updates
 
 All references updated in:
-- ✅ TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md (TS-5.1, TS-5.2, Profile 6)
-- ✅ FS-TO-TS-MAPPING.md (FS-08)
-- ✅ construction/README.md (warning added)
+- TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md (TS-5.1, TS-5.2, Profile 6)
+- FS-TO-TS-MAPPING.md (FS-08)
+- construction/README.md (warning added)
 
 ---
 
@@ -211,8 +211,8 @@ See `/construction/README.md` FAQ section or contact Principal Architect for RLS
 
 ---
 
-**Approved by:** Principal Architect  
-**Date:** 2026-05-14  
-**Status:** ✅ **CORRECTIONS APPLIED & VALIDATED**
+**Approved by:** Principal Architect
+**Date:** 2026-05-14
+**Status:** **CORRECTIONS APPLIED & VALIDATED**
 
 *All technical stories in TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md reflect these corrections.*

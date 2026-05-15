@@ -12,7 +12,7 @@ A comprehensive audit and verification process was performed following the struc
 | Affected Artifact | Location | Issue Type | Severity | Action Taken |
 | :--- | :--- | :--- | :--- | :--- |
 | **Governance Docs (ES)** | `/governance` | Language Symmetry | Critical | Restored 22 overwritten Spanish documents from Git history. |
-| **Architecture Index** | `/architecture` | Navigation | 🟡 Warning | Created `index.md` files for direct document routing. |
+| **Architecture Index** | `/architecture` | Navigation | Warning | Created `index.md` files for direct document routing. |
 | **Main README** | `/README.md` | Semantic Ambiguity | Critical | Decoupled BMAD-METHOD from Core Architecture. |
 | **Global Navigation** | Repository Root | Discoverability | Critical | Implemented recursive hierarchical index network. |
 | **Encoding** | All Markdown | UTF-8 Integrity | Critical | Verified with `cleanup_markdown_encoding.py`. 0 issues. | ## 3. Verification Results

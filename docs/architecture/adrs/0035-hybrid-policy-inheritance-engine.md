@@ -66,8 +66,8 @@ CREATE TABLE policy_bindings (
         EXISTS (
             SELECT 1 FROM policy_bindings pb2
             WHERE pb2.id = overridden_binding_id AND pb2.tenant_id != tenant_id
-        )
-    )
+)
+)
 );
 
 CREATE INDEX idx_policy_bindings_tenant ON policy_bindings (tenant_id, is_active);

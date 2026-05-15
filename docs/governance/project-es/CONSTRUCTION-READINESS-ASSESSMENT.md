@@ -1,34 +1,34 @@
-# 🏗️ Evaluación de Readiness para Construcción (Development)
+# Evaluación de Readiness para Construcción (Development)
 
-**Fecha:** 2026-05-14  
-**Evaluador:** Arquitectura + Producto  
-**Estado Global:** ⚠️ **PARCIALMENTE LISTO** (77% ready)
+**Fecha:** 2026-05-14
+**Evaluador:** Arquitectura + Producto
+**Estado Global:** **PARCIALMENTE LISTO** (77% ready)
 
 ---
 
-## 📋 Resumen Ejecutivo
+## Resumen Ejecutivo
 
 | Área | Estado | % Listo | Bloqueador | Acción |
 |------|--------|---------|-----------|--------|
-| **Épicas & Backlog** | ✅ Completo | 100% | No | Listo para dev |
-| **Bounded Contexts** | ✅ Completo | 100% | No | Listo para dev |
-| **ER Model** | ✅ Completo | 100% | No | Listo para dev |
-| **Functional Stories** | ✅ Completo | 100% | No | Listo para dev |
-| **ADR Core (0001-0025)** | ✅ Completo | 100% | No | Listo para dev |
-| **ADR UMS-Specific (0026-0047)** | ⚠️ Parcial | 70% | **SÍ** | **Revisar antes de dev** |
-| **Technical Enablers** | ⚠️ Parcial | 85% | **SÍ** | **Actualizar** |
-| **Service Implementation Plan** | ❌ Falta | 0% | **SÍ** | **Crear** |
-| **API Spec (OpenAPI 3.0)** | ❌ Falta | 0% | Recomendado | **Crear para C1** |
-| **DB Migration Scripts** | ❌ Falta | 0% | Recomendado | **Crear para C1** |
+| **Épicas & Backlog** | Completo | 100% | No | Listo para dev |
+| **Bounded Contexts** | Completo | 100% | No | Listo para dev |
+| **ER Model** | Completo | 100% | No | Listo para dev |
+| **Functional Stories** | Completo | 100% | No | Listo para dev |
+| **ADR Core (0001-0025)** | Completo | 100% | No | Listo para dev |
+| **ADR UMS-Specific (0026-0047)** | Parcial | 70% | **SÍ** | **Revisar antes de dev** |
+| **Technical Enablers** | Parcial | 85% | **SÍ** | **Actualizar** |
+| **Service Implementation Plan** | Falta | 0% | **SÍ** | **Crear** |
+| **API Spec (OpenAPI 3.0)** | Falta | 0% | Recomendado | **Crear para C1** |
+| **DB Migration Scripts** | Falta | 0% | Recomendado | **Crear para C1** |
 
 ---
 
-## 🔴 Problemas Críticos Identificados
+## Problemas Críticos Identificados
 
-### 1️⃣ **ADR-0034 & ADR-0037: PostgreSQL sin adaptación a SQL Server**
+### 1⃣ **ADR-0034 & ADR-0037: PostgreSQL sin adaptación a SQL Server**
 
-**Status:** Proposed (no implementado aún)  
-**Severidad:** 🔴 CRÍTICA  
+**Status:** Proposed (no implementado aún)
+**Severidad:** CRÍTICA
 **Impacto:** Si se implementan tal cual, fallarán en SQL Server 2022
 
 #### Problemas en ADR-0034 (Hierarchical Multi-Tenancy):
@@ -71,60 +71,60 @@ USING (root_tenant_id = CAST(SESSION_CONTEXT(N'root_tenant_id') AS uniqueidentif
 ```
 
 **Recomendación:**
-- 🚫 NO implementar ADR-0034 y ADR-0037 tal como están
-- ✅ Crear ADR-0034v2 y ADR-0037v2 adaptados a SQL Server 2022
-- ⚠️ Marcar originals como `Status: Superseded — Requires SQL Server Adaptation`
+- NO implementar ADR-0034 y ADR-0037 tal como están
+- Crear ADR-0034v2 y ADR-0037v2 adaptados a SQL Server 2022
+- Marcar originals como `Status: Superseded — Requires SQL Server Adaptation`
 
 ---
 
-### 2️⃣ **Technical Enablers Incompletos**
+### 2⃣ **Technical Enablers Incompletos**
 
 **TE-03 ("Enforce Organization RLS - SQL Server")** — Parcialmente correcto
 
 **Estado:** Escrito en 2026-05 pero sin verificación de sintaxis SQL Server completa
 
 **Gaps encontrados:**
-- ✅ DbConnectionInterceptor conceptualmente correcto
-- ✅ SESSION_CONTEXT setup correcto
-- ⚠️ Falta: Manejo de failover (replication scenarios)
-- ⚠️ Falta: Limpieza de SESSION_CONTEXT en error
-- ⚠️ Falta: Test cases para validar RLS sin app-layer filter
+- DbConnectionInterceptor conceptualmente correcto
+- SESSION_CONTEXT setup correcto
+- Falta: Manejo de failover (replication scenarios)
+- Falta: Limpieza de SESSION_CONTEXT en error
+- Falta: Test cases para validar RLS sin app-layer filter
 
 **Recomendación:**
 - Expandir TE-03 con:
-  ```csharp
-  // Error handling
-  try {
-    await _dbConnection.SetSessionContextAsync(tenantId);
-  } catch {
-    // Log + clean SESSION_CONTEXT before throwing
-  }
-  
-  // Verification query
-  SELECT CAST(SESSION_CONTEXT(N'current_tenant_id') AS uniqueidentifier);
-  ```
+ ```csharp
+ // Error handling
+ try {
+ await _dbConnection.SetSessionContextAsync(tenantId);
+ } catch {
+ // Log + clean SESSION_CONTEXT before throwing
+ }
+
+ // Verification query
+ SELECT CAST(SESSION_CONTEXT(N'current_tenant_id') AS uniqueidentifier);
+ ```
 
 ---
 
-### 3️⃣ **Falta: Service Implementation Plan**
+### 3⃣ **Falta: Service Implementation Plan**
 
-**Status:** ❌ DOCUMENTO FALTANTE  
-**Criticidad:** 🔴 BLOQUEADOR para fase de "Architecture → Implementation"
+**Status:** DOCUMENTO FALTANTE
+**Criticidad:** BLOQUEADOR para fase de "Architecture → Implementation"
 
 **Qué debe incluir:**
 ```
 Servicio: UMS Core API (.NET 8)
 ├─ Modules (por Bounded Context)
-│  ├─ Identity.Module
-│  ├─ Authorization.Module
-│  ├─ Configuration.Module
-│  ├─ Audit.Module
-│  └─ Approvals.Module
+│ ├─ Identity.Module
+│ ├─ Authorization.Module
+│ ├─ Configuration.Module
+│ ├─ Audit.Module
+│ └─ Approvals.Module
 ├─ Package structure
-│  ├─ Domain layer (aggregates, value objects)
-│  ├─ Application layer (use cases, commands, queries)
-│  ├─ Infrastructure layer (repos, ports, adapters)
-│  └─ API layer (controllers, filters)
+│ ├─ Domain layer (aggregates, value objects)
+│ ├─ Application layer (use cases, commands, queries)
+│ ├─ Infrastructure layer (repos, ports, adapters)
+│ └─ API layer (controllers, filters)
 ├─ CI/CD pipeline
 ├─ Test strategy
 └─ Deployment stages
@@ -132,76 +132,76 @@ Servicio: UMS Core API (.NET 8)
 
 ---
 
-### 4️⃣ **Falta: OpenAPI 3.0 Specification**
+### 4⃣ **Falta: OpenAPI 3.0 Specification**
 
-**Status:** ❌ DOCUMENTO FALTANTE  
-**Criticidad:** 🟡 RECOMENDADO antes de C1 (Sprint 1)
+**Status:** DOCUMENTO FALTANTE
+**Criticidad:** RECOMENDADO antes de C1 (Sprint 1)
 
 **Endpoints documentados en BCM but NOT in OpenAPI format:**
 
 Ejemplo de lo que falta:
 ```yaml
 paths:
-  /v1/approvals/request:
-    post:
-      summary: Submit approval request
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ApprovalRequest'
-      responses:
-        '201':
-          description: Approval request created
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '403':
-          $ref: '#/components/responses/Forbidden'
+ /v1/approvals/request:
+ post:
+ summary: Submit approval request
+ requestBody:
+ required: true
+ content:
+ application/json:
+ schema:
+ $ref: '#/components/schemas/ApprovalRequest'
+ responses:
+ '201':
+ description: Approval request created
+ '400':
+ $ref: '#/components/responses/BadRequest'
+ '403':
+ $ref: '#/components/responses/Forbidden'
 ```
 
 ---
 
-## 🟡 Problemas Secundarios (No bloqueadores)
+## Problemas Secundarios (No bloqueadores)
 
-### 5️⃣ **Mojibake Characters en algunos documentos (residual)**
+### 5⃣ **Mojibake Characters en algunos documentos (residual)**
 
-**Status:** ⚠️ Parcialmente solucionado  
-**Documentos:** 
-- ✅ Functional Stories (FS-01 a FS-16): Reparados
-- ✅ Technical Enablers (TE-01 a TE-03): Reparados
-- ⚠️ ADRs (0034, 0037): "ancestáor" aparece aún (mojibake residual)
-- ⚠️ Compliance ER Diagram: "Orquestáación" en glossary (mojibake residual)
+**Status:** Parcialmente solucionado
+**Documentos:**
+- Functional Stories (FS-01 a FS-16): Reparados
+- Technical Enablers (TE-01 a TE-03): Reparados
+- ADRs (0034, 0037): "ancestáor" aparece aún (mojibake residual)
+- Compliance ER Diagram: "Orquestáación" en glossary (mojibake residual)
 
-**Impacto:** Visual/minor — no afecta desarrollo  
+**Impacto:** Visual/minor — no afecta desarrollo
 **Acción:** Limpiar antes de hacer PR a main
 
 ---
 
-### 6️⃣ **ADR-0010 (Core Multi-Tenancy) — Layer Inversion Resuelta**
+### 6⃣ **ADR-0010 (Core Multi-Tenancy) — Layer Inversion Resuelta**
 
-**Status:** ✅ CORRECTA después de análisis anterior
+**Status:** CORRECTA después de análisis anterior
 
 Confirmación:
-- ✅ Layer 1 (Primary): EF Core `HasQueryFilter` → aplicación controla aislamiento
-- ✅ Layer 2 (Failsafe): SQL Server RLS → infraestructura como red de seguridad
-- ✅ DbConnectionInterceptor conecta ambas capas
+- Layer 1 (Primary): EF Core `HasQueryFilter` → aplicación controla aislamiento
+- Layer 2 (Failsafe): SQL Server RLS → infraestructura como red de seguridad
+- DbConnectionInterceptor conecta ambas capas
 
 **Listo para implementación.**
 
 ---
 
-## ✅ Áreas Listas para Desarrollo
+## Áreas Listas para Desarrollo
 
 ### Épicas MVP (US-001 a US-012): **100% LISTO**
 
 | Épica | ER | BCM | FS | Listo |
 |-------|-----|----|----|-------|
-| EP-01 (Tenant & Identity) | ✅ | ✅ | FS-01, FS-03, FS-08 | ✅ |
-| EP-02 (System Catalog) | ✅ | ✅ | FS-04 | ✅ |
-| EP-03 (Authorization) | ✅ | ✅ | FS-02, FS-05, FS-06 | ✅ |
-| EP-04 (Configuration) | ✅ | ✅ | FS-13 | ✅ |
-| EP-05 (Experience & Diagnostics) | ✅ | ✅ | FS-07, FS-08 | ✅ |
+| EP-01 (Tenant & Identity) | | | FS-01, FS-03, FS-08 | |
+| EP-02 (System Catalog) | | | FS-04 | |
+| EP-03 (Authorization) | | | FS-02, FS-05, FS-06 | |
+| EP-04 (Configuration) | | | FS-13 | |
+| EP-05 (Experience & Diagnostics) | | | FS-07, FS-08 | |
 
 **Estos 5 están listos para sprint 1.**
 
@@ -211,9 +211,9 @@ Confirmación:
 
 | Épica | Estado | Bloqueador |
 |-------|--------|-----------|
-| EP-06 (B2B & Delegación) | ✅ Arquitectura OK | Approvals Context definido ✅ |
-| EP-07 (Cumplimiento) | ✅ Arquitectura OK | Service plan + TE-03 expansión |
-| EP-08 (IGA) | ✅ Arquitectura OK | ADR-0046/0047 + Service plan |
+| EP-06 (B2B & Delegación) | Arquitectura OK | Approvals Context definido |
+| EP-07 (Cumplimiento) | Arquitectura OK | Service plan + TE-03 expansión |
+| EP-08 (IGA) | Arquitectura OK | ADR-0046/0047 + Service plan |
 
 **Pueden iniciar una semana después de EP-01-05, pero necesitan:**
 - ADR-0034v2, ADR-0037v2 (SQL Server)
@@ -222,7 +222,7 @@ Confirmación:
 
 ---
 
-## 🚀 Plan de Acción Recomendado
+## Plan de Acción Recomendado
 
 ### Fase 0: Pre-Construcción (esta semana)
 
@@ -260,80 +260,80 @@ Confirmación:
 
 ---
 
-## 📊 Matriz de Readiness por Contexto
+## Matriz de Readiness por Contexto
 
 | Bounded Context | ER Design | API Contracts | Service Plan | Test Plan | Listo |
 |-----------------|-----------|---------------|--------------|-----------|-------|
-| **Identity** | ✅ | ✅ | ⚠️ Partial | ❌ | 🟡 85% |
-| **Authorization** | ✅ | ✅ | ⚠️ Partial | ❌ | 🟡 85% |
-| **Configuration** | ✅ | ✅ | ⚠️ Partial | ❌ | 🟡 85% |
-| **Audit** | ✅ | ✅ | ⚠️ Partial | ❌ | 🟡 85% |
-| **Console (PAP)** | ✅ | ✅ | ❌ | ❌ | 🟡 70% (React SPA falta) |
-| **Approvals** | ✅ | ✅ | ⚠️ Partial | ❌ | 🟡 80% |
-| **Compliance** | ✅ | ✅ | ❌ | ❌ | 🟡 70% (NestJS Sat.) |
-| **IGA** | ✅ | ✅ | ❌ | ❌ | 🟡 70% (NestJS Sat.) |
-| **Cache** | ✅ | ✅ | ⚠️ Partial | ❌ | 🟡 75% |
+| **Identity** | | | Partial | | 85% |
+| **Authorization** | | | Partial | | 85% |
+| **Configuration** | | | Partial | | 85% |
+| **Audit** | | | Partial | | 85% |
+| **Console (PAP)** | | | | | 70% (React SPA falta) |
+| **Approvals** | | | Partial | | 80% |
+| **Compliance** | | | | | 70% (NestJS Sat.) |
+| **IGA** | | | | | 70% (NestJS Sat.) |
+| **Cache** | | | Partial | | 75% |
 
 ---
 
-## 🎯 Recomendación Final
+## Recomendación Final
 
-### ✅ **PUEDES INICIAR CONSTRUCCIÓN CON ESTAS CONDICIONES:**
+### **PUEDES INICIAR CONSTRUCCIÓN CON ESTAS CONDICIONES:**
 
 1. **Esta semana (Pre-Construcción):**
-   - ✅ Crear ADR-0034v2 y ADR-0037v2 (SQL Server)
-   - ✅ Expandir TE-03 con error handling
-   - ✅ Crear Service Implementation Plan documento
-   - ✅ (Opcional pero recomendado) Crear OpenAPI 3.0 spec
+- Crear ADR-0034v2 y ADR-0037v2 (SQL Server)
+- Expandir TE-03 con error handling
+- Crear Service Implementation Plan documento
+- (Opcional pero recomendado) Crear OpenAPI 3.0 spec
 
 2. **Sprint 1 puede empezar CON:**
-   - ✅ EP-01-05 (Épicas MVP Core)
-   - ✅ US-001 a US-016
+- EP-01-05 (Épicas MVP Core)
+- US-001 a US-016
 
 3. **NO EMPEZAR AÚN:**
-   - ❌ EP-06 (B2B + Approvals) sin ADR-0034v2 claridad
-   - ❌ EP-07 (Compliance) sin Service plan consolidado
-   - ❌ EP-08 (IGA) sin decisión de hierarchical tenants
+- EP-06 (B2B + Approvals) sin ADR-0034v2 claridad
+- EP-07 (Compliance) sin Service plan consolidado
+- EP-08 (IGA) sin decisión de hierarchical tenants
 
-### 📈 **Readiness Progression:**
+### **Readiness Progression:**
 
 ```
-Hoy (2026-05-14):          77% ready
+Hoy (2026-05-14): 77% ready
 Después de Pre-Construcción: 95% ready → LISTO PARA SPRINT 1
-Sprint 1 completo:         Épicas 1-5 en producción
-Sprint 2:                  Épicas 6-8 (si ADR-0034v2/0037v2 aprobados)
+Sprint 1 completo: Épicas 1-5 en producción
+Sprint 2: Épicas 6-8 (si ADR-0034v2/0037v2 aprobados)
 ```
 
 ---
 
-## ❓ Preguntas para Equipo
+## Preguntas para Equipo
 
 Antes de finalizr Pre-Construcción, necesitas responder:
 
 1. **¿Implementar jerarquía de tenants (ADR-0034/0037) en fase 1 o fase 2?**
-   - Impacta duración del proyecto: +2 sprints si es fase 1
+- Impacta duración del proyecto: +2 sprints si es fase 1
 
 2. **¿Usar React SPA para PAP (Console Context) o API-only en fase 1?**
-   - Afecta US-015/016 scope
+- Afecta US-015/016 scope
 
 3. **¿NestJS satélites (Compliance, IGA) listos para desarrollo simultáneo a .NET 8 Core?**
-   - Requiere coordinación de equipos
+- Requiere coordinación de equipos
 
 4. **¿Necesitas OpenAPI 3.0 spec generado automáticamente o es documentación suficiente?**
-   - Recomendado para frontend/testing
+- Recomendado para frontend/testing
 
 ---
 
-## 🏁 Conclusión
+## Conclusión
 
 **Status: ADELANTE CON CONSTRUCCIÓN (con condiciones)**
 
-✅ Arquitectura está sólida y madura  
-✅ Épicas MVP están completamente especificadas  
-⚠️ 2 ADRs necesitan adaptación SQL Server (pero no son bloqueadores para Sprint 1)  
-⚠️ Service Implementation Plan es RECOMENDADO crear esta semana  
+ Arquitectura está sólida y madura
+ Épicas MVP están completamente especificadas
+ 2 ADRs necesitan adaptación SQL Server (pero no son bloqueadores para Sprint 1)
+ Service Implementation Plan es RECOMENDADO crear esta semana
 
-**Riesgo de cambio arquitectónico durante desarrollo:** 🟡 BAJO  
-**Riesgo de descubrimientos en ER Model:** 🟢 MUY BAJO  
-**Riesgo de scope creep:** 🟡 MEDIO (si no se aclaran Épicas 6-8)
+**Riesgo de cambio arquitectónico durante desarrollo:** BAJO
+**Riesgo de descubrimientos en ER Model:** MUY BAJO
+**Riesgo de scope creep:** MEDIO (si no se aclaran Épicas 6-8)
 

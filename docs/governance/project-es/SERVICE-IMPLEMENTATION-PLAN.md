@@ -1,8 +1,8 @@
 # Plan de Implementación de Servicios — UMS Sprint 1-2
 
-**Fecha:** 2026-05-14  
-**Versión:** 1.0  
-**Estado:** Aprobado para Sprint 1  
+**Fecha:** 2026-05-14
+**Versión:** 1.0
+**Estado:** Aprobado para Sprint 1
 **Equipo Responsable:** Arquitecto Principal, Lead Backend (.NET)
 
 ---
@@ -20,76 +20,76 @@ Definir la estructura modular, organización de paquetes, estrategia de pruebas 
 ```
 ums/
 ├── src/
-│   ├── Shared/
-│   │   ├── UMS.Shared.Kernel/                    # DDD primitives (ValueObject, AggregateRoot, etc.)
-│   │   ├── UMS.Shared.Infrastructure/            # Cross-cutting concerns (logging, telemetry, exceptions)
-│   │   ├── UMS.Shared.Ports/                     # Ports abstractions (IRepository, ICache, IEventBus)
-│   │   └── UMS.Shared.Adapters/                  # Shared adapters (EF Core base classes, middleware)
-│   │
-│   ├── Contexts/
-│   │   ├── Identity/
-│   │   │   ├── UMS.Contexts.Identity.Domain/     # Domain Layer (Aggregates, ValueObjects, Events)
-│   │   │   ├── UMS.Contexts.Identity.Application/ # Use Cases (Commands, Queries, Handlers)
-│   │   │   ├── UMS.Contexts.Identity.Ports/      # Port abstractions (IIdentityRepository, ITokenService, etc.)
-│   │   │   ├── UMS.Contexts.Identity.Adapters/   # Adapters (EF Core DbContext, API controllers, events)
-│   │   │   └── UMS.Contexts.Identity.API/        # HTTP/gRPC endpoints (DTO contracts, routes)
-│   │   │
-│   │   ├── Authorization/
-│   │   │   ├── UMS.Contexts.Authorization.Domain/
-│   │   │   ├── UMS.Contexts.Authorization.Application/
-│   │   │   ├── UMS.Contexts.Authorization.Ports/
-│   │   │   ├── UMS.Contexts.Authorization.Adapters/
-│   │   │   └── UMS.Contexts.Authorization.API/
-│   │   │
-│   │   ├── Configuration/
-│   │   ├── Audit/
-│   │   ├── Console/
-│   │   ├── Approvals/  # NEW in Sprint 1
-│   │   ├── IGA/        # NEW in Sprint 2 (Identity Governance & Administration)
-│   │   └── Compliance/
-│   │
-│   ├── Infrastructure/
-│   │   ├── UMS.Infrastructure.Persistence/       # EF Core DbContext, migrations, RLS configuration
-│   │   ├── UMS.Infrastructure.Messaging/         # Event bus (in-memory for Sprint 1, AMQP later)
-│   │   ├── UMS.Infrastructure.Caching/           # Redis integration (optional Sprint 1)
-│   │   ├── UMS.Infrastructure.Security/          # RLS, SESSION_CONTEXT, encryption
-│   │   └── UMS.Infrastructure.Observability/     # OpenTelemetry, Serilog
-│   │
-│   ├── Gateway/
-│   │   ├── UMS.Gateway.API/                      # API Gateway (.NET Minimal APIs)
-│   │   └── UMS.Gateway.gRPC/                     # gRPC gateway (future)
-│   │
-│   └── UMS.sln
+│ ├── Shared/
+│ │ ├── UMS.Shared.Kernel/ # DDD primitives (ValueObject, AggregateRoot, etc.)
+│ │ ├── UMS.Shared.Infrastructure/ # Cross-cutting concerns (logging, telemetry, exceptions)
+│ │ ├── UMS.Shared.Ports/ # Ports abstractions (IRepository, ICache, IEventBus)
+│ │ └── UMS.Shared.Adapters/ # Shared adapters (EF Core base classes, middleware)
+│ │
+│ ├── Contexts/
+│ │ ├── Identity/
+│ │ │ ├── UMS.Contexts.Identity.Domain/ # Domain Layer (Aggregates, ValueObjects, Events)
+│ │ │ ├── UMS.Contexts.Identity.Application/ # Use Cases (Commands, Queries, Handlers)
+│ │ │ ├── UMS.Contexts.Identity.Ports/ # Port abstractions (IIdentityRepository, ITokenService, etc.)
+│ │ │ ├── UMS.Contexts.Identity.Adapters/ # Adapters (EF Core DbContext, API controllers, events)
+│ │ │ └── UMS.Contexts.Identity.API/ # HTTP/gRPC endpoints (DTO contracts, routes)
+│ │ │
+│ │ ├── Authorization/
+│ │ │ ├── UMS.Contexts.Authorization.Domain/
+│ │ │ ├── UMS.Contexts.Authorization.Application/
+│ │ │ ├── UMS.Contexts.Authorization.Ports/
+│ │ │ ├── UMS.Contexts.Authorization.Adapters/
+│ │ │ └── UMS.Contexts.Authorization.API/
+│ │ │
+│ │ ├── Configuration/
+│ │ ├── Audit/
+│ │ ├── Console/
+│ │ ├── Approvals/ # NEW in Sprint 1
+│ │ ├── IGA/ # NEW in Sprint 2 (Identity Governance & Administration)
+│ │ └── Compliance/
+│ │
+│ ├── Infrastructure/
+│ │ ├── UMS.Infrastructure.Persistence/ # EF Core DbContext, migrations, RLS configuration
+│ │ ├── UMS.Infrastructure.Messaging/ # Event bus (in-memory for Sprint 1, AMQP later)
+│ │ ├── UMS.Infrastructure.Caching/ # Redis integration (optional Sprint 1)
+│ │ ├── UMS.Infrastructure.Security/ # RLS, SESSION_CONTEXT, encryption
+│ │ └── UMS.Infrastructure.Observability/ # OpenTelemetry, Serilog
+│ │
+│ ├── Gateway/
+│ │ ├── UMS.Gateway.API/ # API Gateway (.NET Minimal APIs)
+│ │ └── UMS.Gateway.gRPC/ # gRPC gateway (future)
+│ │
+│ └── UMS.sln
 │
 ├── tests/
-│   ├── Unit/
-│   │   ├── UMS.Contexts.Identity.Tests/
-│   │   ├── UMS.Contexts.Authorization.Tests/
-│   │   └── ...
-│   │
-│   ├── Integration/
-│   │   ├── UMS.Contexts.Identity.IntegrationTests/
-│   │   └── ...
-│   │
-│   └── E2E/
-│       ├── UMS.API.E2ETests/
-│       └── UMS.Scenarios.E2ETests/
+│ ├── Unit/
+│ │ ├── UMS.Contexts.Identity.Tests/
+│ │ ├── UMS.Contexts.Authorization.Tests/
+│ │ └── ...
+│ │
+│ ├── Integration/
+│ │ ├── UMS.Contexts.Identity.IntegrationTests/
+│ │ └── ...
+│ │
+│ └── E2E/
+│ ├── UMS.API.E2ETests/
+│ └── UMS.Scenarios.E2ETests/
 │
 ├── infrastructure/
-│   ├── docker-compose.yml                        # SQL Server 2022 + Redis (optional) + messaging
-│   ├── kubernetes/                               # K8s manifests (future)
-│   └── sql-scripts/
-│       ├── schema/                               # DDL: tables, indexes, RLS policies
-│       ├── migrations/                           # EF Core migrations
-│       └── seed/                                 # Reference data (tenant_types, roles)
+│ ├── docker-compose.yml # SQL Server 2022 + Redis (optional) + messaging
+│ ├── kubernetes/ # K8s manifests (future)
+│ └── sql-scripts/
+│ ├── schema/ # DDL: tables, indexes, RLS policies
+│ ├── migrations/ # EF Core migrations
+│ └── seed/ # Reference data (tenant_types, roles)
 │
 └── .github/
-    ├── workflows/
-    │   ├── ci-pr.yml                             # Run on PR: build, lint, tests, SonarQube
-    │   ├── cd-main.yml                           # Run on merge to main: build, publish, deploy-dev
-    │   └── deploy-staging-prod.yml               # Manual approval workflows
-    │
-    └── dependabot.yml                            # Automated dependency updates
+ ├── workflows/
+ │ ├── ci-pr.yml # Run on PR: build, lint, tests, SonarQube
+ │ ├── cd-main.yml # Run on merge to main: build, publish, deploy-dev
+ │ └── deploy-staging-prod.yml # Manual approval workflows
+ │
+ └── dependabot.yml # Automated dependency updates
 
 ```
 
@@ -112,69 +112,69 @@ ums/
 
 ```csharp
 // Domain Layer
-UMS.Contexts.Identity.Domain              // namespace: UMS.Contexts.Identity.Domain
-  └── Aggregates/
-      └── Tenant.cs
-      └── User.cs
-  └── ValueObjects/
-      └── TenantId.cs
-      └── Email.cs
-  └── Events/
-      └── TenantCreatedEvent.cs
+UMS.Contexts.Identity.Domain // namespace: UMS.Contexts.Identity.Domain
+ └── Aggregates/
+ └── Tenant.cs
+ └── User.cs
+ └── ValueObjects/
+ └── TenantId.cs
+ └── Email.cs
+ └── Events/
+ └── TenantCreatedEvent.cs
 
 // Application Layer
-UMS.Contexts.Identity.Application         // namespace: UMS.Contexts.Identity.Application
-  └── Commands/
-      └── CreateTenant/
-          ├── CreateTenantCommand.cs
-          └── CreateTenantCommandHandler.cs
-  └── Queries/
-      └── GetTenant/
-          ├── GetTenantQuery.cs
-          └── GetTenantQueryHandler.cs
-  └── Validators/
-      └── CreateTenantValidator.cs
+UMS.Contexts.Identity.Application // namespace: UMS.Contexts.Identity.Application
+ └── Commands/
+ └── CreateTenant/
+ ├── CreateTenantCommand.cs
+ └── CreateTenantCommandHandler.cs
+ └── Queries/
+ └── GetTenant/
+ ├── GetTenantQuery.cs
+ └── GetTenantQueryHandler.cs
+ └── Validators/
+ └── CreateTenantValidator.cs
 
 // Ports Layer
-UMS.Contexts.Identity.Ports               // namespace: UMS.Contexts.Identity.Ports
-  └── Persistence/
-      └── ITenantRepository.cs
-  └── Services/
-      └── ITokenService.cs
+UMS.Contexts.Identity.Ports // namespace: UMS.Contexts.Identity.Ports
+ └── Persistence/
+ └── ITenantRepository.cs
+ └── Services/
+ └── ITokenService.cs
 
 // Adapters Layer
-UMS.Contexts.Identity.Adapters            // namespace: UMS.Contexts.Identity.Adapters
-  └── Persistence/
-      └── EfCore/
-          ├── IdentityDbContext.cs
-          └── TenantEfCoreRepository.cs
-  └── Controllers/
-      └── TenantsController.cs
-  └── EventHandlers/
-      └── TenantCreatedEventHandler.cs
+UMS.Contexts.Identity.Adapters // namespace: UMS.Contexts.Identity.Adapters
+ └── Persistence/
+ └── EfCore/
+ ├── IdentityDbContext.cs
+ └── TenantEfCoreRepository.cs
+ └── Controllers/
+ └── TenantsController.cs
+ └── EventHandlers/
+ └── TenantCreatedEventHandler.cs
 ```
 
 ### 3.2. Shared Kernel Structure
 
 ```csharp
-UMS.Shared.Kernel                         // DDD primitives (technology-agnostic)
-  ├── ValueObject.cs
-  ├── AggregateRoot.cs
-  ├── DomainEvent.cs
-  ├── Result<T>.cs                        # Railway-Oriented Programming
-  ├── Entity.cs
-  └── Specification<T>.cs
+UMS.Shared.Kernel // DDD primitives (technology-agnostic)
+ ├── ValueObject.cs
+ ├── AggregateRoot.cs
+ ├── DomainEvent.cs
+ ├── Result<T>.cs # Railway-Oriented Programming
+ ├── Entity.cs
+ └── Specification<T>.cs
 
-UMS.Shared.Infrastructure                 # Cross-cutting services
-  ├── Logging/
-  ├── Telemetry/
-  ├── Serialization/
-  ├── Exceptions/
-  │   └── UMSException.cs
-  └── Middleware/
-      ├── GlobalExceptionMiddleware.cs
-      ├── TenantResolutionMiddleware.cs
-      └── RLSSessionContextMiddleware.cs
+UMS.Shared.Infrastructure # Cross-cutting services
+ ├── Logging/
+ ├── Telemetry/
+ ├── Serialization/
+ ├── Exceptions/
+ │ └── UMSException.cs
+ └── Middleware/
+ ├── GlobalExceptionMiddleware.cs
+ ├── TenantResolutionMiddleware.cs
+ └── RLSSessionContextMiddleware.cs
 ```
 
 ---
@@ -183,18 +183,12 @@ UMS.Shared.Infrastructure                 # Cross-cutting services
 
 ### 4.1. Test Pyramid (Obligatorio >70% coverage)
 
-```
-         [Acceptance / Scenarios]                ~10%
-                (E2E, Scenarios)
-               ▲
-              ╱ ╲
-             ╱   ╲
-            ╱     ╲ [Integration Tests]          ~20%
-           ╱       ╲ (Queries, Handlers, Adapters)
-          ╱         ╲
-         ╱___________╲
-        [Unit Tests]                              ~70%
-        (Domain, Value Objects, Validators)
+```mermaid
+flowchart TB
+    A[Acceptance / Scenarios ~10%<br/>E2E, Scenarios]
+    I[Integration Tests ~20%<br/>Queries, Handlers, Adapters]
+    U[Unit Tests ~70%<br/>Domain, Value Objects, Validators]
+    A --> I --> U
 ```
 
 ### 4.2. Test Project Organization
@@ -202,49 +196,49 @@ UMS.Shared.Infrastructure                 # Cross-cutting services
 ```
 tests/
 ├── Unit/
-│   ├── UMS.Contexts.Identity.Tests/
-│   │   ├── Domain/
-│   │   │   └── TenantAggregateTests.cs           # Crear, cambiar estado, eventos
-│   │   ├── Application/
-│   │   │   └── CreateTenantCommandHandlerTests.cs
-│   │   ├── Validators/
-│   │   │   └── CreateTenantValidatorTests.cs
-│   │   └── ValueObjects/
-│   │       └── EmailTests.cs
-│   │
-│   └── UMS.Shared.Kernel.Tests/
-│       └── ResultTests.cs                        # Railway-Oriented Programming patterns
+│ ├── UMS.Contexts.Identity.Tests/
+│ │ ├── Domain/
+│ │ │ └── TenantAggregateTests.cs # Crear, cambiar estado, eventos
+│ │ ├── Application/
+│ │ │ └── CreateTenantCommandHandlerTests.cs
+│ │ ├── Validators/
+│ │ │ └── CreateTenantValidatorTests.cs
+│ │ └── ValueObjects/
+│ │ └── EmailTests.cs
+│ │
+│ └── UMS.Shared.Kernel.Tests/
+│ └── ResultTests.cs # Railway-Oriented Programming patterns
 │
 ├── Integration/
-│   ├── UMS.Contexts.Identity.IntegrationTests/
-│   │   ├── Persistence/
-│   │   │   └── TenantRepositoryTests.cs          # EF Core, test data, RLS isolation
-│   │   ├── Queries/
-│   │   │   └── GetTenantQueryHandlerTests.cs
-│   │   └── Fixtures/
-│   │       └── IdentityDbContextFixture.cs       # Shared database setup/teardown
-│   │
-│   └── UMS.Infrastructure.IntegrationTests/
-│       ├── Persistence/
-│       └── Messaging/
+│ ├── UMS.Contexts.Identity.IntegrationTests/
+│ │ ├── Persistence/
+│ │ │ └── TenantRepositoryTests.cs # EF Core, test data, RLS isolation
+│ │ ├── Queries/
+│ │ │ └── GetTenantQueryHandlerTests.cs
+│ │ └── Fixtures/
+│ │ └── IdentityDbContextFixture.cs # Shared database setup/teardown
+│ │
+│ └── UMS.Infrastructure.IntegrationTests/
+│ ├── Persistence/
+│ └── Messaging/
 │
 └── E2E/
-    ├── UMS.API.E2ETests/
-    │   ├── Tenants/
-    │   │   ├── CreateTenantE2ETests.cs           # Full request/response cycle
-    │   │   ├── GetTenantE2ETests.cs
-    │   │   └── TenantHierarchyE2ETests.cs
-    │   │
-    │   ├── Authorization/
-    │   │
-    │   ├── Fixtures/
-    │   │   ├── ApiFixture.cs                     # API startup, client, test data
-    │   │   └── DatabaseFixture.cs
-    │   │
-    │   └── Scenarios/                            # User journey tests
-    │       └── CorporateUserOnboardingScenario.cs
-    │
-    └── docker-compose.test.yml                   # Test SQL Server instance
+ ├── UMS.API.E2ETests/
+ │ ├── Tenants/
+ │ │ ├── CreateTenantE2ETests.cs # Full request/response cycle
+ │ │ ├── GetTenantE2ETests.cs
+ │ │ └── TenantHierarchyE2ETests.cs
+ │ │
+ │ ├── Authorization/
+ │ │
+ │ ├── Fixtures/
+ │ │ ├── ApiFixture.cs # API startup, client, test data
+ │ │ └── DatabaseFixture.cs
+ │ │
+ │ └── Scenarios/ # User journey tests
+ │ └── CorporateUserOnboardingScenario.cs
+ │
+ └── docker-compose.test.yml # Test SQL Server instance
 ```
 
 ### 4.3. Testing Strategy por Context
@@ -264,40 +258,40 @@ tests/
 // Reusable fixtures for all tests
 public class IdentityDbContextFixture : IAsyncLifetime
 {
-    private readonly IDbContextFactory<IdentityDbContext> _factory;
-    public IdentityDbContext DbContext { get; private set; }
-    
-    public async Task InitializeAsync()
-    {
-        DbContext = _factory.CreateDbContext();
-        await DbContext.Database.EnsureCreatedAsync();
-        await SeedReferenceData();
-    }
-    
-    public async Task DisposeAsync()
-    {
-        await DbContext.Database.EnsureDeletedAsync();
-        await DbContext.DisposeAsync();
-    }
-    
-    private async Task SeedReferenceData()
-    {
-        DbContext.Set<TenantType>().AddRange(TenantTypeBuilder.RootType(), ...);
-        await DbContext.SaveChangesAsync();
-    }
+ private readonly IDbContextFactory<IdentityDbContext> _factory;
+ public IdentityDbContext DbContext { get; private set; }
+
+ public async Task InitializeAsync()
+ {
+ DbContext = _factory.CreateDbContext();
+ await DbContext.Database.EnsureCreatedAsync();
+ await SeedReferenceData();
+ }
+
+ public async Task DisposeAsync()
+ {
+ await DbContext.Database.EnsureDeletedAsync();
+ await DbContext.DisposeAsync();
+ }
+
+ private async Task SeedReferenceData()
+ {
+ DbContext.Set<TenantType>().AddRange(TenantTypeBuilder.RootType(), ...);
+ await DbContext.SaveChangesAsync();
+ }
 }
 
 // Test data builder
 public class TenantBuilder
 {
-    public static Tenant ValidCorporateTenant(Guid? rootTenantId = null) =>
-        new Tenant(
-            Guid.NewGuid(),
-            "Test Corp",
-            "test-corp",
-            "ENTERPRISE",
-            rootTenantId ?? Guid.NewGuid(),
-            null);
+ public static Tenant ValidCorporateTenant(Guid? rootTenantId = null) =>
+ new Tenant(
+ Guid.NewGuid(),
+ "Test Corp",
+ "test-corp",
+ "ENTERPRISE",
+ rootTenantId ?? Guid.NewGuid(),
+ null);
 }
 ```
 
@@ -313,73 +307,73 @@ public class TenantBuilder
 name: CI — Pull Request Validation
 
 on:
-  pull_request:
-    branches: [main, develop]
+ pull_request:
+ branches: [main, develop]
 
 jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
-    
-    services:
-      sqlserver:
-        image: mcr.microsoft.com/mssql/server:2022-latest
-        env:
-          MSSQL_SA_PASSWORD: "StrongPassword123!"
-          ACCEPT_EULA: "Y"
-        options: >-
-          --health-cmd="/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P StrongPassword123! -Q 'SELECT 1'"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 1433:1433
-    
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup .NET 8
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
-      
-      - name: Restore dependencies
-        run: dotnet restore UMS.sln
-      
-      - name: Build
-        run: dotnet build UMS.sln --configuration Release --no-restore
-      
-      - name: Run Unit Tests
-        run: |
-          dotnet test tests/Unit/ \
-            --configuration Release \
-            --no-build \
-            --logger "trx;LogFileName=test-results.trx" \
-            --collect:"XPlat Code Coverage"
-      
-      - name: Run Integration Tests
-        run: |
-          dotnet test tests/Integration/ \
-            --configuration Release \
-            --no-build \
-            --logger "trx;LogFileName=test-results-integration.trx"
-        env:
-          ConnectionStrings__DefaultConnection: "Server=localhost;User Id=sa;Password=StrongPassword123!;TrustServerCertificate=true;"
-      
-      - name: Upload coverage to SonarQube
-        run: |
-          dotnet tool install -g dotnet-sonarscanner
-          dotnet sonarscanner begin \
-            /k:"ums" \
-            /d:sonar.host.url="https://sonarqube.example.com" \
-            /d:sonar.login="${{ secrets.SONARQUBE_TOKEN }}"
-          dotnet build UMS.sln --configuration Release
-          dotnet sonarscanner end /d:sonar.login="${{ secrets.SONARQUBE_TOKEN }}"
-      
-      - name: SonarQube Quality Gate
-        run: |
-          # Fail if quality gate fails (70% coverage, technical debt, etc.)
-          curl -s https://sonarqube.example.com/api/qualitygates/project_status?projectKey=ums \
-            | jq -e '.projectStatus.status == "OK"'
+ build-and-test:
+ runs-on: ubuntu-latest
+
+ services:
+ sqlserver:
+ image: mcr.microsoft.com/mssql/server:2022-latest
+ env:
+ MSSQL_SA_PASSWORD: "StrongPassword123!"
+ ACCEPT_EULA: "Y"
+ options: >-
+--health-cmd="/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P StrongPassword123! -Q 'SELECT 1'"
+--health-interval 10s
+--health-timeout 5s
+--health-retries 5
+ ports:
+- 1433:1433
+
+ steps:
+- uses: actions/checkout@v4
+
+- name: Setup .NET 8
+ uses: actions/setup-dotnet@v4
+ with:
+ dotnet-version: '8.0.x'
+
+- name: Restore dependencies
+ run: dotnet restore UMS.sln
+
+- name: Build
+ run: dotnet build UMS.sln --configuration Release --no-restore
+
+- name: Run Unit Tests
+ run: |
+ dotnet test tests/Unit/ \
+--configuration Release \
+--no-build \
+--logger "trx;LogFileName=test-results.trx" \
+--collect:"XPlat Code Coverage"
+
+- name: Run Integration Tests
+ run: |
+ dotnet test tests/Integration/ \
+--configuration Release \
+--no-build \
+--logger "trx;LogFileName=test-results-integration.trx"
+ env:
+ ConnectionStrings__DefaultConnection: "Server=localhost;User Id=sa;Password=StrongPassword123!;TrustServerCertificate=true;"
+
+- name: Upload coverage to SonarQube
+ run: |
+ dotnet tool install -g dotnet-sonarscanner
+ dotnet sonarscanner begin \
+ /k:"ums" \
+ /d:sonar.host.url="https://sonarqube.example.com" \
+ /d:sonar.login="${{ secrets.SONARQUBE_TOKEN }}"
+ dotnet build UMS.sln --configuration Release
+ dotnet sonarscanner end /d:sonar.login="${{ secrets.SONARQUBE_TOKEN }}"
+
+- name: SonarQube Quality Gate
+ run: |
+# Fail if quality gate fails (70% coverage, technical debt, etc.)
+ curl -s https://sonarqube.example.com/api/qualitygates/project_status?projectKey=ums \
+| jq -e '.projectStatus.status == "OK"'
 ```
 
 #### `cd-main.yml` — Merge to Main Deployment
@@ -388,57 +382,55 @@ jobs:
 name: CD — Main Branch Deployment
 
 on:
-  push:
-    branches: [main]
+ push:
+ branches: [main]
 
 jobs:
-  deploy-dev:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup .NET 8
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
-      
-      - name: Build Release Package
-        run: |
-          dotnet publish src/Gateway/UMS.Gateway.API/UMS.Gateway.API.csproj \
-            -c Release \
-            -o ./publish
-      
-      - name: Build Docker Image
-        run: |
-          docker build -t ums-api:${{ github.sha }} .
-      
-      - name: Push to Container Registry
-        run: |
-          docker login -u ${{ secrets.REGISTRY_USER }} -p ${{ secrets.REGISTRY_PASSWORD }}
-          docker push ums-api:${{ github.sha }}
-      
-      - name: Deploy to DEV Environment
-        run: |
-          kubectl set image deployment/ums-api \
-            ums-api=ums-api:${{ github.sha }} \
-            -n ums-dev
-          kubectl rollout status deployment/ums-api -n ums-dev
+ deploy-dev:
+ runs-on: ubuntu-latest
+
+ steps:
+- uses: actions/checkout@v4
+
+- name: Setup .NET 8
+ uses: actions/setup-dotnet@v4
+ with:
+ dotnet-version: '8.0.x'
+
+- name: Build Release Package
+ run: |
+ dotnet publish src/Gateway/UMS.Gateway.API/UMS.Gateway.API.csproj \
+-c Release \
+-o ./publish
+
+- name: Build Docker Image
+ run: |
+ docker build -t ums-api:${{ github.sha }} .
+
+- name: Push to Container Registry
+ run: |
+ docker login -u ${{ secrets.REGISTRY_USER }} -p ${{ secrets.REGISTRY_PASSWORD }}
+ docker push ums-api:${{ github.sha }}
+
+- name: Deploy to DEV Environment
+ run: |
+ kubectl set image deployment/ums-api \
+ ums-api=ums-api:${{ github.sha }} \
+-n ums-dev
+ kubectl rollout status deployment/ums-api -n ums-dev
 ```
 
 ### 5.2. Branch Strategy (Git Flow)
 
-```
-main (production-ready)
-  ↑
-  └─ release/v1.0.0 ──┐
-      ↑               │
-develop (integration) └─→ hotfix/issue-123
-  ↑
-  └─ feature/ep-01-identity
-  └─ feature/ep-02-catalog
-  └─ feature/rl-enhancement
-  └─ ...
+```mermaid
+flowchart LR
+    F1[feature/ep-01-identity] --> D[develop]
+    F2[feature/ep-02-catalog] --> D
+    F3[feature/rl-enhancement] --> D
+    D --> R[release/v1.0.0]
+    R --> M[main production-ready]
+    M --> H[hotfix/issue-123]
+    H --> M
 ```
 
 **Reglas:**
@@ -467,7 +459,7 @@ dotnet build UMS.sln /p:EnforceCodeStyleInBuild=true /p:TreatWarningsAsErrors=tr
 # Run unit tests locally (fail fast)
 dotnet test tests/Unit/ --no-build --logger minimal
 
-echo "✅ Pre-commit checks passed!"
+echo " Pre-commit checks passed!"
 ```
 
 ---
@@ -480,76 +472,76 @@ echo "✅ Pre-commit checks passed!"
 // UMS.Shared.Adapters/DbContextBase.cs
 public abstract class UmsDbContext : DbContext
 {
-    protected readonly IServiceProvider _serviceProvider;
-    protected readonly ICurrentUserContext _currentUserContext;
-    
-    protected UmsDbContext(DbContextOptions options, 
-        IServiceProvider serviceProvider,
-        ICurrentUserContext currentUserContext) 
-        : base(options)
-    {
-        _serviceProvider = serviceProvider;
-        _currentUserContext = currentUserContext;
-    }
-    
-    // All aggregates MUST include root_tenant_id for RLS + partitioning
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        base.OnModelCreating(modelBuilder);
-        
-        // Apply global RLS query filter to ALL entities
-        ApplyGlobalRLSFilters(modelBuilder);
-        
-        // Register all entity configurations
-        RegisterEntityConfigurations(modelBuilder);
-    }
-    
-    private void ApplyGlobalRLSFilters(ModelBuilder modelBuilder)
-    {
-        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
-        {
-            if (entityType.FindProperty("root_tenant_id") != null)
-            {
-                var method = typeof(UmsDbContext)
-                    .GetMethod(nameof(ConfigureRLSFilter), 
-                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
-                    ?.MakeGenericMethod(entityType.ClrType);
-                
-                method?.Invoke(null, new object[] { modelBuilder });
-            }
-        }
-    }
-    
-    private static void ConfigureRLSFilter<T>(ModelBuilder modelBuilder) where T : class
-    {
-        modelBuilder.Entity<T>()
-            .HasQueryFilter(e => EF.Property<Guid>(e, "root_tenant_id") 
-                == CurrentTenantIdProvider.Current);
-    }
+ protected readonly IServiceProvider _serviceProvider;
+ protected readonly ICurrentUserContext _currentUserContext;
+
+ protected UmsDbContext(DbContextOptions options,
+ IServiceProvider serviceProvider,
+ ICurrentUserContext currentUserContext)
+ : base(options)
+ {
+ _serviceProvider = serviceProvider;
+ _currentUserContext = currentUserContext;
+ }
+
+ // All aggregates MUST include root_tenant_id for RLS + partitioning
+ protected override void OnModelCreating(ModelBuilder modelBuilder)
+ {
+ base.OnModelCreating(modelBuilder);
+
+ // Apply global RLS query filter to ALL entities
+ ApplyGlobalRLSFilters(modelBuilder);
+
+ // Register all entity configurations
+ RegisterEntityConfigurations(modelBuilder);
+ }
+
+ private void ApplyGlobalRLSFilters(ModelBuilder modelBuilder)
+ {
+ foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+ {
+ if (entityType.FindProperty("root_tenant_id") != null)
+ {
+ var method = typeof(UmsDbContext)
+ .GetMethod(nameof(ConfigureRLSFilter),
+ System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
+ ?.MakeGenericMethod(entityType.ClrType);
+
+ method?.Invoke(null, new object[] { modelBuilder });
+ }
+ }
+ }
+
+ private static void ConfigureRLSFilter<T>(ModelBuilder modelBuilder) where T : class
+ {
+ modelBuilder.Entity<T>()
+ .HasQueryFilter(e => EF.Property<Guid>(e, "root_tenant_id")
+ == CurrentTenantIdProvider.Current);
+ }
 }
 
 // UMS.Infrastructure.Persistence/IdentityDbContext.cs
 public class IdentityDbContext : UmsDbContext
 {
-    public DbSet<Tenant> Tenants { get; set; }
-    public DbSet<User> Users { get; set; }
-    public DbSet<TenantType> TenantTypes { get; set; }
-    public DbSet<TenantClosure> TenantClosures { get; set; }
-    
-    public IdentityDbContext(DbContextOptions<IdentityDbContext> options,
-        IServiceProvider serviceProvider,
-        ICurrentUserContext currentUserContext)
-        : base(options, serviceProvider, currentUserContext)
-    {
-    }
-    
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        base.OnModelCreating(modelBuilder);
-        
-        // Context-specific configurations
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(IdentityDbContext).Assembly);
-    }
+ public DbSet<Tenant> Tenants { get; set; }
+ public DbSet<User> Users { get; set; }
+ public DbSet<TenantType> TenantTypes { get; set; }
+ public DbSet<TenantClosure> TenantClosures { get; set; }
+
+ public IdentityDbContext(DbContextOptions<IdentityDbContext> options,
+ IServiceProvider serviceProvider,
+ ICurrentUserContext currentUserContext)
+ : base(options, serviceProvider, currentUserContext)
+ {
+ }
+
+ protected override void OnModelCreating(ModelBuilder modelBuilder)
+ {
+ base.OnModelCreating(modelBuilder);
+
+ // Context-specific configurations
+ modelBuilder.ApplyConfigurationsFromAssembly(typeof(IdentityDbContext).Assembly);
+ }
 }
 ```
 
@@ -559,46 +551,46 @@ public class IdentityDbContext : UmsDbContext
 // UMS.Contexts.Identity.Adapters/EfCore/Configuration/TenantConfiguration.cs
 public class TenantConfiguration : IEntityTypeConfiguration<Tenant>
 {
-    public void Configure(EntityTypeBuilder<Tenant> builder)
-    {
-        builder.ToTable("tenants", schema: "identity");
-        
-        builder.HasKey(t => new { t.Id, t.RootTenantId });  // Composite PK for partitioning
-        
-        builder.Property(t => t.Id)
-            .HasColumnName("id")
-            .HasConversion(id => id.Value, guid => new TenantId(guid));
-        
-        builder.Property(t => t.RootTenantId)
-            .HasColumnName("root_tenant_id")
-            .IsRequired();
-        
-        builder.Property(t => t.Name)
-            .HasColumnName("name")
-            .HasMaxLength(255)
-            .IsRequired();
-        
-        builder.Property(t => t.TypeCode)
-            .HasColumnName("type_code")
-            .HasMaxLength(32)
-            .IsRequired();
-        
-        builder.HasIndex(t => new { t.RootTenantId, t.TypeCode })
-            .HasName("idx_tenants_root_type");
-        
-        // Standard audit columns
-        builder.Property("created_by").HasMaxLength(255);
-        builder.Property("created_at").HasDefaultValueSql("GETUTCDATE()");
-        builder.Property("modified_by").HasMaxLength(255);
-        builder.Property("modified_at");
-        builder.Property("is_deleted").HasDefaultValue(false);
-        
-        // Relationships
-        builder.HasMany<TenantClosure>()
-            .WithOne()
-            .HasForeignKey(tc => new { tc.AncestorId, tc.RootTenantId })
-            .OnDelete(DeleteBehavior.Cascade);
-    }
+ public void Configure(EntityTypeBuilder<Tenant> builder)
+ {
+ builder.ToTable("tenants", schema: "identity");
+
+ builder.HasKey(t => new { t.Id, t.RootTenantId }); // Composite PK for partitioning
+
+ builder.Property(t => t.Id)
+ .HasColumnName("id")
+ .HasConversion(id => id.Value, guid => new TenantId(guid));
+
+ builder.Property(t => t.RootTenantId)
+ .HasColumnName("root_tenant_id")
+ .IsRequired();
+
+ builder.Property(t => t.Name)
+ .HasColumnName("name")
+ .HasMaxLength(255)
+ .IsRequired();
+
+ builder.Property(t => t.TypeCode)
+ .HasColumnName("type_code")
+ .HasMaxLength(32)
+ .IsRequired();
+
+ builder.HasIndex(t => new { t.RootTenantId, t.TypeCode })
+ .HasName("idx_tenants_root_type");
+
+ // Standard audit columns
+ builder.Property("created_by").HasMaxLength(255);
+ builder.Property("created_at").HasDefaultValueSql("GETUTCDATE()");
+ builder.Property("modified_by").HasMaxLength(255);
+ builder.Property("modified_at");
+ builder.Property("is_deleted").HasDefaultValue(false);
+
+ // Relationships
+ builder.HasMany<TenantClosure>()
+ .WithOne()
+ .HasForeignKey(tc => new { tc.AncestorId, tc.RootTenantId })
+ .OnDelete(DeleteBehavior.Cascade);
+ }
 }
 ```
 
@@ -608,42 +600,42 @@ public class TenantConfiguration : IEntityTypeConfiguration<Tenant>
 // UMS.Infrastructure.Security/RLSSessionContextInterceptor.cs
 public class RLSSessionContextInterceptor : DbConnectionInterceptor
 {
-    private readonly ICurrentUserContext _currentUserContext;
-    
-    public RLSSessionContextInterceptor(ICurrentUserContext currentUserContext)
-    {
-        _currentUserContext = currentUserContext;
-    }
-    
-    public override async ValueTask<InterceptionResult> ConnectionOpeningAsync(
-        DbConnection connection,
-        ConnectionEventData eventData,
-        InterceptionResult result,
-        CancellationToken cancellationToken = default)
-    {
-        // SESSION_CONTEXT setup BEFORE any query executes
-        var rootTenantId = _currentUserContext.RootTenantId;
-        
-        using (var cmd = connection.CreateCommand())
-        {
-            cmd.CommandText = "EXEC sp_set_session_context @key=N'root_tenant_id', @value=@tenantId";
-            cmd.Parameters.Add(new SqlParameter("@tenantId", rootTenantId));
-            
-            await connection.OpenAsync(cancellationToken);
-            await cmd.ExecuteNonQueryAsync(cancellationToken);
-        }
-        
-        return result;
-    }
+ private readonly ICurrentUserContext _currentUserContext;
+
+ public RLSSessionContextInterceptor(ICurrentUserContext currentUserContext)
+ {
+ _currentUserContext = currentUserContext;
+ }
+
+ public override async ValueTask<InterceptionResult> ConnectionOpeningAsync(
+ DbConnection connection,
+ ConnectionEventData eventData,
+ InterceptionResult result,
+ CancellationToken cancellationToken = default)
+ {
+ // SESSION_CONTEXT setup BEFORE any query executes
+ var rootTenantId = _currentUserContext.RootTenantId;
+
+ using (var cmd = connection.CreateCommand())
+ {
+ cmd.CommandText = "EXEC sp_set_session_context @key=N'root_tenant_id', @value=@tenantId";
+ cmd.Parameters.Add(new SqlParameter("@tenantId", rootTenantId));
+
+ await connection.OpenAsync(cancellationToken);
+ await cmd.ExecuteNonQueryAsync(cancellationToken);
+ }
+
+ return result;
+ }
 }
 
 // Registration in DI
 services.AddScoped<RLSSessionContextInterceptor>();
 services.AddDbContext<IdentityDbContext>((provider, options) =>
 {
-    options
-        .UseSqlServer("Server=...;Database=ums_identity;...")
-        .AddInterceptors(provider.GetRequiredService<RLSSessionContextInterceptor>());
+ options
+ .UseSqlServer("Server=...;Database=ums_identity;...")
+ .AddInterceptors(provider.GetRequiredService<RLSSessionContextInterceptor>());
 });
 ```
 
@@ -659,22 +651,22 @@ var builder = WebApplicationBuilder.CreateBuilder(args);
 
 // Add shared kernel
 builder.Services
-    .AddSharedKernel()
-    .AddSharedInfrastructure()
-    .AddSharedPorts();
+ .AddSharedKernel()
+ .AddSharedInfrastructure()
+ .AddSharedPorts();
 
 // Add domain-specific contexts
 builder.Services
-    .AddIdentityContext()
-    .AddAuthorizationContext()
-    .AddConfigurationContext()
-    .AddAuditContext();
+ .AddIdentityContext()
+ .AddAuthorizationContext()
+ .AddConfigurationContext()
+ .AddAuditContext();
 
 // Add infrastructure
 builder.Services
-    .AddPersistence()
-    .AddMessaging()
-    .AddSecurity();
+ .AddPersistence()
+ .AddMessaging()
+ .AddSecurity();
 
 // Add API layer
 builder.Services.AddControllers();
@@ -691,18 +683,18 @@ app.Run();
 // Extension method for Identity context
 public static IServiceCollection AddIdentityContext(this IServiceCollection services)
 {
-    // Domain & Application
-    services.AddScoped<ICreateTenantUseCase, CreateTenantCommandHandler>();
-    services.AddScoped<IGetTenantUseCase, GetTenantQueryHandler>();
-    
-    // Persistence
-    services.AddScoped<ITenantRepository, TenantEfCoreRepository>();
-    services.AddScoped<ITenantTypeRepository, TenantTypeEfCoreRepository>();
-    
-    // Validators
-    services.AddScoped<CreateTenantValidator>();
-    
-    return services;
+ // Domain & Application
+ services.AddScoped<ICreateTenantUseCase, CreateTenantCommandHandler>();
+ services.AddScoped<IGetTenantUseCase, GetTenantQueryHandler>();
+
+ // Persistence
+ services.AddScoped<ITenantRepository, TenantEfCoreRepository>();
+ services.AddScoped<ITenantTypeRepository, TenantTypeEfCoreRepository>();
+
+ // Validators
+ services.AddScoped<CreateTenantValidator>();
+
+ return services;
 }
 ```
 
@@ -715,19 +707,19 @@ public static IServiceCollection AddIdentityContext(this IServiceCollection serv
 ```bash
 # Initial migrations per context (run from Infrastructure project)
 dotnet ef migrations add InitialIdentitySchema \
-  --project src/Infrastructure/UMS.Infrastructure.Persistence \
-  --startup-project src/Gateway/UMS.Gateway.API \
-  --context IdentityDbContext \
-  --output-dir Migrations/Identity
+--project src/Infrastructure/UMS.Infrastructure.Persistence \
+--startup-project src/Gateway/UMS.Gateway.API \
+--context IdentityDbContext \
+--output-dir Migrations/Identity
 
 dotnet ef migrations add InitialAuthorizationSchema \
-  --context AuthorizationDbContext \
-  --output-dir Migrations/Authorization
+--context AuthorizationDbContext \
+--output-dir Migrations/Authorization
 
 # Apply migrations to local dev
 dotnet ef database update \
-  --project src/Infrastructure/UMS.Infrastructure.Persistence \
-  --startup-project src/Gateway/UMS.Gateway.API
+--project src/Infrastructure/UMS.Infrastructure.Persistence \
+--startup-project src/Gateway/UMS.Gateway.API
 ```
 
 ### 8.2. Migration Naming Convention
@@ -735,9 +727,9 @@ dotnet ef database update \
 ```
 Migrations/
 ├── Identity/
-│   ├── 20260521120000_InitialIdentitySchema.cs
-│   ├── 20260522140000_AddTenantClosure.cs
-│   └── 20260523150000_AddRLSSecurityPolicy.cs
+│ ├── 20260521120000_InitialIdentitySchema.cs
+│ ├── 20260522140000_AddTenantClosure.cs
+│ └── 20260523150000_AddRLSSecurityPolicy.cs
 ├── Authorization/
 ├── Configuration/
 └── Audit/
@@ -751,20 +743,20 @@ Migrations/
 
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'tenant_types')
 BEGIN
-    CREATE TABLE [identity].[tenant_types] (
-        [code] VARCHAR(32) PRIMARY KEY,
-        [taxonomy_rank] INT NOT NULL UNIQUE,
-        [can_have_children] BIT NOT NULL DEFAULT 1,
-        [max_children] INT NULL,
-        [description] NVARCHAR(MAX)
-    );
+ CREATE TABLE [identity].[tenant_types] (
+ [code] VARCHAR(32) PRIMARY KEY,
+ [taxonomy_rank] INT NOT NULL UNIQUE,
+ [can_have_children] BIT NOT NULL DEFAULT 1,
+ [max_children] INT NULL,
+ [description] NVARCHAR(MAX)
+ );
 END;
 
 IF NOT EXISTS (SELECT * FROM [identity].[tenant_types] WHERE [code] = 'ROOT')
 BEGIN
-    INSERT INTO [identity].[tenant_types] VALUES
-        ('ROOT', 0, 1, NULL, 'Root tenant (platform)');
-    -- ... other types
+ INSERT INTO [identity].[tenant_types] VALUES
+ ('ROOT', 0, 1, NULL, 'Root tenant (platform)');
+-- ... other types
 END;
 ```
 
@@ -781,22 +773,22 @@ END;
 [ApiExplorerSettings(GroupName = "Identity")]
 public class TenantsController : ControllerBase
 {
-    [HttpPost]
-    [ProducesResponseType(typeof(CreateTenantResponse), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(ValidationErrorResponse), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreateTenant(
-        [FromBody] CreateTenantRequest request,
-        CancellationToken cancellationToken)
-    {
-        var command = request.ToCommand();
-        var result = await _handler.Handle(command, cancellationToken);
-        
-        return result.IsSuccess 
-            ? CreatedAtAction(nameof(GetTenant), 
-                new { id = result.Value.Id }, 
-                result.Value) 
-            : BadRequest(result.Errors);
-    }
+ [HttpPost]
+ [ProducesResponseType(typeof(CreateTenantResponse), StatusCodes.Status201Created)]
+ [ProducesResponseType(typeof(ValidationErrorResponse), StatusCodes.Status400BadRequest)]
+ public async Task<IActionResult> CreateTenant(
+ [FromBody] CreateTenantRequest request,
+ CancellationToken cancellationToken)
+ {
+ var command = request.ToCommand();
+ var result = await _handler.Handle(command, cancellationToken);
+
+ return result.IsSuccess
+ ? CreatedAtAction(nameof(GetTenant),
+ new { id = result.Value.Id },
+ result.Value)
+ : BadRequest(result.Errors);
+ }
 }
 ```
 
@@ -806,19 +798,19 @@ public class TenantsController : ControllerBase
 // UMS.Gateway.API/OpenApiConfiguration.cs
 builder.Services.AddOpenApi("ums-api", options =>
 {
-    options.Title = "UMS API";
-    options.Version = "1.0.0";
-    options.Description = "User Management System — Identity, Authorization, Audit";
-    
-    options.SecuritySchemes.Add("Bearer", new OpenApiSecurityScheme
-    {
-        Type = SecuritySchemeType.Http,
-        Scheme = "Bearer",
-        BearerFormat = "JWT"
-    });
-    
-    options.Tags.Add("Identity", "Tenant and user management");
-    options.Tags.Add("Authorization", "Policy and role management");
+ options.Title = "UMS API";
+ options.Version = "1.0.0";
+ options.Description = "User Management System — Identity, Authorization, Audit";
+
+ options.SecuritySchemes.Add("Bearer", new OpenApiSecurityScheme
+ {
+ Type = SecuritySchemeType.Http,
+ Scheme = "Bearer",
+ BearerFormat = "JWT"
+ });
+
+ options.Tags.Add("Identity", "Tenant and user management");
+ options.Tags.Add("Authorization", "Policy and role management");
 });
 ```
 
@@ -890,11 +882,11 @@ builder.Services.AddOpenApi("ums-api", options =>
 
 | Riesgo | Probabilidad | Impacto | Mitigación |
 |--------|-------------|--------|-----------|
-| RLS filter bypassed in query | 🔴 ALTA | 🔴 CRÍTICO | Mandatory code review checklist; unit test per repo |
-| EF Core migration fails in production | 🟡 MEDIA | 🔴 CRÍTICO | Test migrations locally first; idempotent scripts only |
-| .NET 8 dependency conflicts | 🟢 BAJA | 🟡 MEDIA | Central NuGet.config, pin transitive dependencies |
-| Schema design misses partition key | 🔴 ALTA | 🟡 MEDIA | SQL Server 2022 partition function validated pre-migration |
-| Test coverage drops below 70% | 🟡 MEDIA | 🟡 MEDIA | SonarQube gate enforced; test-first development (TDD) |
+| RLS filter bypassed in query | ALTA | CRÍTICO | Mandatory code review checklist; unit test per repo |
+| EF Core migration fails in production | MEDIA | CRÍTICO | Test migrations locally first; idempotent scripts only |
+| .NET 8 dependency conflicts | BAJA | MEDIA | Central NuGet.config, pin transitive dependencies |
+| Schema design misses partition key | ALTA | MEDIA | SQL Server 2022 partition function validated pre-migration |
+| Test coverage drops below 70% | MEDIA | MEDIA | SonarQube gate enforced; test-first development (TDD) |
 
 ---
 
@@ -913,6 +905,6 @@ builder.Services.AddOpenApi("ums-api", options =>
 
 ---
 
-**Aprobado por:** [Architect Name]  
-**Fecha de Aprobación:** 2026-05-14  
+**Aprobado por:** [Architect Name]
+**Fecha de Aprobación:** 2026-05-14
 **Próxima Revisión:** 2026-05-21 (Post-Week 1)

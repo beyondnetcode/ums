@@ -63,10 +63,10 @@ CREATE TABLE delegation_grants (
             WHERE ancestáor_id = (
                 SELECT scope_tenant_id FROM delegation_grants dg2
                 WHERE dg2.id = delegation_grants.parent_grant_id
-            )
+)
             AND descendant_id = delegation_grants.scope_tenant_id
-        )
-    )
+)
+)
 ) PARTITION BY LIST (root_tenant_id);
 
 CREATE INDEX idx_delegation_grantee ON delegation_grants (grantee_user_id, status);
@@ -125,7 +125,7 @@ public class EffectiveScopeResolver
                 resourceTypes: ALL_RESOURCE_TYPES,
                 actions: ALL_ACTIONS,
                 maxRole: ManagedRole.TENANT_ADMIN
-            );
+);
         }
 
         if (user.UserType == UserType.DELEGATED_ADMIN)

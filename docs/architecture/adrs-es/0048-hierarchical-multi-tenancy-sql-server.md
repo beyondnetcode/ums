@@ -125,7 +125,7 @@ BEGIN
             SELECT 1 FROM [ums_identity].[tenant_closure] tc
             WHERE tc.ancestor_id = i.tenant_id 
               AND tc.descendant_id = i.tenant_id
-        );
+);
         
         -- Heredar rutas del padre
         INSERT INTO [ums_identity].[tenant_closure] 
@@ -140,7 +140,7 @@ BEGIN
               SELECT 1 FROM [ums_identity].[tenant_closure]
               WHERE ancestor_id = tc.ancestor_id 
                 AND descendant_id = i.tenant_id
-          );
+);
     END
     
     -- Delete: Remover todas las rutas descendientes

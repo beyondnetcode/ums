@@ -225,7 +225,7 @@ interface IFeatureFlagPort {
   evaluate(
     flagCode: string,
     context: FlagEvaluationContext
-  ): Promise<FlagEvaluationResult>;
+): Promise<FlagEvaluationResult>;
 
   /**
    * Bulk-evaluate all active flags for a given context.
@@ -233,7 +233,7 @@ interface IFeatureFlagPort {
    */
   evaluateAll(
     context: FlagEvaluationContext
-  ): Promise<Record<string, FlagEvaluationResult>>;
+): Promise<Record<string, FlagEvaluationResult>>;
 
   /**
    * Check if the provider is healthy and reachable.

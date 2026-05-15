@@ -1,7 +1,7 @@
 # Post-MVP Readiness Audit — EP-06, EP-07, EP-08
 
-**Version:** 1.0  
-**Date:** 2026-05-14  
+**Version:** 1.0
+**Date:** 2026-05-14
 **Objective:** Audit completeness of 3 post-MVP epics; identify gaps and analysis priorities.
 
 ---
@@ -22,7 +22,7 @@
 
 ### 2.1 Current Status (60% Readiness)
 
-#### ✅ Exists
+#### Exists
 
 | Component | Location | Details |
 |-----------|----------|---------|
@@ -32,7 +32,7 @@
 | **Approvals Context** | `/architecture/blueprints/bounded-context-map.md` | Defined with entities, routes, events |
 | **User Stories** | `/governance/project/mvp-product-backlog.md` | US-017 to US-022 present |
 
-#### ⚠️ Incomplete
+#### Incomplete
 
 | Component | Problem | Priority | Effort |
 |-----------|---------|----------|--------|
@@ -42,7 +42,7 @@
 | **API Contract (OpenAPI)** | No detailed routes; DTOs pending | MEDIUM | 2h |
 | **Integration Points** | Unclear how Approvals integrates with Authorization context | MEDIUM | 2h |
 
-#### ❌ Completely Missing
+#### Completely Missing
 
 | Component | Impact | Effort |
 |-----------|--------|--------|
@@ -119,55 +119,55 @@
 ```sql
 -- Missing complete definition
 CREATE TABLE [approval].[approval_workflows] (
-    [id] UNIQUEIDENTIFIER PRIMARY KEY,
-    [root_tenant_id] UNIQUEIDENTIFIER NOT NULL,
-    [name] VARCHAR(255),
-    [trigger_type] VARCHAR(32),  -- 'USER_ONBOARDING', 'PROFILE_ASSIGNMENT', 'DELEGATION'
-    [approval_type] VARCHAR(32), -- 'SERIAL', 'PARALLEL', 'QUORUM'
-    [required_approvals] INT,
-    [timeout_days] INT,
-    -- Missing: approval_rules, escalation_config, metadata
+ [id] UNIQUEIDENTIFIER PRIMARY KEY,
+ [root_tenant_id] UNIQUEIDENTIFIER NOT NULL,
+ [name] VARCHAR(255),
+ [trigger_type] VARCHAR(32), -- 'USER_ONBOARDING', 'PROFILE_ASSIGNMENT', 'DELEGATION'
+ [approval_type] VARCHAR(32), -- 'SERIAL', 'PARALLEL', 'QUORUM'
+ [required_approvals] INT,
+ [timeout_days] INT,
+-- Missing: approval_rules, escalation_config, metadata
 );
 
 -- Incomplete
 CREATE TABLE [approval].[approval_requests] (
-    [id] UNIQUEIDENTIFIER PRIMARY KEY,
-    [root_tenant_id] UNIQUEIDENTIFIER NOT NULL,
-    [workflow_id] UNIQUEIDENTIFIER,
-    [requester_id] UNIQUEIDENTIFIER,
-    [target_user_id] UNIQUEIDENTIFIER,
-    [requested_action] VARCHAR(255),
-    [status] VARCHAR(32),  -- 'PENDING', 'APPROVED', 'REJECTED'
-    [created_at] DATETIME2,
-    [expires_at] DATETIME2,
-    -- Missing: approval_attachments relationship, escalation tracking
+ [id] UNIQUEIDENTIFIER PRIMARY KEY,
+ [root_tenant_id] UNIQUEIDENTIFIER NOT NULL,
+ [workflow_id] UNIQUEIDENTIFIER,
+ [requester_id] UNIQUEIDENTIFIER,
+ [target_user_id] UNIQUEIDENTIFIER,
+ [requested_action] VARCHAR(255),
+ [status] VARCHAR(32), -- 'PENDING', 'APPROVED', 'REJECTED'
+ [created_at] DATETIME2,
+ [expires_at] DATETIME2,
+-- Missing: approval_attachments relationship, escalation tracking
 );
 
 -- Missing
 CREATE TABLE [approval].[approval_approvers] (
-    [id] UNIQUEIDENTIFIER PRIMARY KEY,
-    [approval_request_id] UNIQUEIDENTIFIER,
-    [approver_id] UNIQUEIDENTIFIER,
-    [approval_status] VARCHAR(32),  -- 'PENDING', 'APPROVED', 'REJECTED'
-    [approval_order] INT,  -- For SERIAL approvals
-    [approved_at] DATETIME2,
-    [decision_reason] NVARCHAR(MAX),
-    [root_tenant_id] UNIQUEIDENTIFIER
+ [id] UNIQUEIDENTIFIER PRIMARY KEY,
+ [approval_request_id] UNIQUEIDENTIFIER,
+ [approver_id] UNIQUEIDENTIFIER,
+ [approval_status] VARCHAR(32), -- 'PENDING', 'APPROVED', 'REJECTED'
+ [approval_order] INT, -- For SERIAL approvals
+ [approved_at] DATETIME2,
+ [decision_reason] NVARCHAR(MAX),
+ [root_tenant_id] UNIQUEIDENTIFIER
 );
 
 -- Missing
 CREATE TABLE [delegation].[user_management_delegations] (
-    [id] UNIQUEIDENTIFIER PRIMARY KEY,
-    [root_tenant_id] UNIQUEIDENTIFIER NOT NULL,
-    [delegating_admin_id] UNIQUEIDENTIFIER,  -- Who delegates
-    [delegated_admin_id] UNIQUEIDENTIFIER,   -- To whom
-    [scope_type] VARCHAR(32),  -- 'TENANT', 'ORGANIZATION', 'SYSTEM'
-    [scope_id] UNIQUEIDENTIFIER,
-    [allowed_actions] VARCHAR(MAX),  -- JSON: ['CREATE_USER', 'ASSIGN_PROFILE', ...]
-    [valid_from] DATETIME2,
-    [valid_until] DATETIME2,
-    [approval_request_id] UNIQUEIDENTIFIER,  -- Link to approval
-    [status] VARCHAR(32)  -- 'ACTIVE', 'PENDING', 'EXPIRED', 'REVOKED'
+ [id] UNIQUEIDENTIFIER PRIMARY KEY,
+ [root_tenant_id] UNIQUEIDENTIFIER NOT NULL,
+ [delegating_admin_id] UNIQUEIDENTIFIER, -- Who delegates
+ [delegated_admin_id] UNIQUEIDENTIFIER, -- To whom
+ [scope_type] VARCHAR(32), -- 'TENANT', 'ORGANIZATION', 'SYSTEM'
+ [scope_id] UNIQUEIDENTIFIER,
+ [allowed_actions] VARCHAR(MAX), -- JSON: ['CREATE_USER', 'ASSIGN_PROFILE', ...]
+ [valid_from] DATETIME2,
+ [valid_until] DATETIME2,
+ [approval_request_id] UNIQUEIDENTIFIER, -- Link to approval
+ [status] VARCHAR(32) -- 'ACTIVE', 'PENDING', 'EXPIRED', 'REVOKED'
 );
 ```
 
@@ -179,14 +179,14 @@ CREATE TABLE [delegation].[user_management_delegations] (
 
 ### 3.1 Current Status (40% Readiness)
 
-#### ✅ Exists
+#### Exists
 
 | Component | Location | Details |
 |-----------|----------|---------|
 | **ADR-0045** | `/architecture/adrs/0045-document-lifecycle-enforcement.md` | Document lifecycle defined |
 | **User Stories** | MVP backlog | US-023 to US-028 present |
 
-#### ⚠️ Incomplete
+#### Incomplete
 
 | Component | Problem | Priority |
 |-----------|---------|----------|
@@ -195,7 +195,7 @@ CREATE TABLE [delegation].[user_management_delegations] (
 | **FS-11: Document Lifecycle** | Partial; validation workflow missing | MEDIUM |
 | **ER Model** | Document, notification, policy tables not mapped | HIGH |
 
-#### ❌ Completely Missing
+#### Completely Missing
 
 | Component | Impact |
 |-----------|--------|
@@ -258,56 +258,56 @@ CREATE TABLE [delegation].[user_management_delegations] (
 ```sql
 -- Missing
 CREATE TABLE [compliance].[documents] (
-    [id] UNIQUEIDENTIFIER PRIMARY KEY,
-    [root_tenant_id] UNIQUEIDENTIFIER NOT NULL,
-    [user_id] UNIQUEIDENTIFIER,
-    [document_type] VARCHAR(64),  -- 'IDENTITY_PROOF', 'SERVICE_AGREEMENT', etc.
-    [document_name] VARCHAR(255),
-    [storage_uri] VARCHAR(MAX),  -- Reference to file storage
-    [uploaded_at] DATETIME2,
-    [status] VARCHAR(32),  -- 'UPLOADED', 'VALIDATING', 'APPROVED', 'REJECTED'
-    [valid_until] DATETIME2,  -- Revalidation deadline
-    [validation_notes] NVARCHAR(MAX)
+ [id] UNIQUEIDENTIFIER PRIMARY KEY,
+ [root_tenant_id] UNIQUEIDENTIFIER NOT NULL,
+ [user_id] UNIQUEIDENTIFIER,
+ [document_type] VARCHAR(64), -- 'IDENTITY_PROOF', 'SERVICE_AGREEMENT', etc.
+ [document_name] VARCHAR(255),
+ [storage_uri] VARCHAR(MAX), -- Reference to file storage
+ [uploaded_at] DATETIME2,
+ [status] VARCHAR(32), -- 'UPLOADED', 'VALIDATING', 'APPROVED', 'REJECTED'
+ [valid_until] DATETIME2, -- Revalidation deadline
+ [validation_notes] NVARCHAR(MAX)
 );
 
 -- Missing
 CREATE TABLE [compliance].[document_validators] (
-    [id] UNIQUEIDENTIFIER PRIMARY KEY,
-    [document_id] UNIQUEIDENTIFIER,
-    [validator_id] UNIQUEIDENTIFIER,
-    [validation_status] VARCHAR(32),  -- 'PENDING', 'APPROVED', 'REJECTED'
-    [validation_date] DATETIME2,
-    [validation_reason] NVARCHAR(MAX),
-    [root_tenant_id] UNIQUEIDENTIFIER
+ [id] UNIQUEIDENTIFIER PRIMARY KEY,
+ [document_id] UNIQUEIDENTIFIER,
+ [validator_id] UNIQUEIDENTIFIER,
+ [validation_status] VARCHAR(32), -- 'PENDING', 'APPROVED', 'REJECTED'
+ [validation_date] DATETIME2,
+ [validation_reason] NVARCHAR(MAX),
+ [root_tenant_id] UNIQUEIDENTIFIER
 );
 
 -- Missing
 CREATE TABLE [compliance].[expiration_notification_rules] (
-    [id] UNIQUEIDENTIFIER PRIMARY KEY,
-    [root_tenant_id] UNIQUEIDENTIFIER NOT NULL,
-    [code] VARCHAR(64),
-    [name] VARCHAR(255),
-    [scope_type] VARCHAR(32),  -- 'GLOBAL', 'TENANT', 'ORGANIZATION'
-    [target_user_category] VARCHAR(32),  -- 'INTERNAL', 'EXTERNAL', 'B2B'
-    [days_before_expiration] INT,
-    [notification_channels] VARCHAR(MAX),  -- JSON: ['EMAIL', 'IN_APP']
-    [notify_user] BIT,
-    [notify_admin] BIT,
-    [notify_approver] BIT,
-    [frequency] VARCHAR(32)  -- 'ONCE', 'DAILY', 'WEEKLY'
+ [id] UNIQUEIDENTIFIER PRIMARY KEY,
+ [root_tenant_id] UNIQUEIDENTIFIER NOT NULL,
+ [code] VARCHAR(64),
+ [name] VARCHAR(255),
+ [scope_type] VARCHAR(32), -- 'GLOBAL', 'TENANT', 'ORGANIZATION'
+ [target_user_category] VARCHAR(32), -- 'INTERNAL', 'EXTERNAL', 'B2B'
+ [days_before_expiration] INT,
+ [notification_channels] VARCHAR(MAX), -- JSON: ['EMAIL', 'IN_APP']
+ [notify_user] BIT,
+ [notify_admin] BIT,
+ [notify_approver] BIT,
+ [frequency] VARCHAR(32) -- 'ONCE', 'DAILY', 'WEEKLY'
 );
 
 -- Missing
 CREATE TABLE [compliance].[access_expiration_policies] (
-    [id] UNIQUEIDENTIFIER PRIMARY KEY,
-    [root_tenant_id] UNIQUEIDENTIFIER NOT NULL,
-    [code] VARCHAR(64),
-    [name] VARCHAR(255),
-    [scope_type] VARCHAR(32),  -- 'PROFILE', 'PERMISSION', 'DELEGATION'
-    [on_expiration_action] VARCHAR(32),  -- 'WARNING', 'SUSPEND', 'REVOKE'
-    [grace_period_days] INT,
-    [allow_extension] BIT,
-    [require_reapproval_on_extend] BIT
+ [id] UNIQUEIDENTIFIER PRIMARY KEY,
+ [root_tenant_id] UNIQUEIDENTIFIER NOT NULL,
+ [code] VARCHAR(64),
+ [name] VARCHAR(255),
+ [scope_type] VARCHAR(32), -- 'PROFILE', 'PERMISSION', 'DELEGATION'
+ [on_expiration_action] VARCHAR(32), -- 'WARNING', 'SUSPEND', 'REVOKE'
+ [grace_period_days] INT,
+ [allow_extension] BIT,
+ [require_reapproval_on_extend] BIT
 );
 ```
 
@@ -319,14 +319,14 @@ CREATE TABLE [compliance].[access_expiration_policies] (
 
 ### 4.1 Current Status (30% Readiness)
 
-#### ✅ Exists
+#### Exists
 
 | Component | Location | Details |
 |-----------|----------|---------|
 | **ADR-0046** | `/architecture/adrs/0046-role-evolution-and-promotion.md` | Role evolution strategy |
 | **User Stories** | MVP backlog | US-031, US-032 only |
 
-#### ⚠️ Incomplete
+#### Incomplete
 
 | Component | Problem | Priority |
 |-----------|---------|----------|
@@ -335,7 +335,7 @@ CREATE TABLE [compliance].[access_expiration_policies] (
 | **Impact Analysis** | How calculated (new permissions, affected systems)? | MEDIUM |
 | **IGA Context Definition** | Bounded context does NOT exist | HIGH |
 
-#### ❌ Completely Missing
+#### Completely Missing
 
 | Component | Impact |
 |-----------|--------|
@@ -370,40 +370,40 @@ CREATE TABLE [compliance].[access_expiration_policies] (
 ```sql
 -- Missing
 CREATE TABLE [iga].[role_promotion_requests] (
-    [id] UNIQUEIDENTIFIER PRIMARY KEY,
-    [root_tenant_id] UNIQUEIDENTIFIER NOT NULL,
-    [requesting_user_id] UNIQUEIDENTIFIER,
-    [target_user_id] UNIQUEIDENTIFIER,
-    [current_role_id] UNIQUEIDENTIFIER,
-    [target_role_id] UNIQUEIDENTIFIER,
-    [promotion_reason] NVARCHAR(MAX),
-    [request_date] DATETIME2,
-    [status] VARCHAR(32),  -- 'DRAFT', 'PENDING_REVIEW', 'APPROVED', 'REJECTED', 'EXECUTED'
-    [approval_request_id] UNIQUEIDENTIFIER  -- Link to Approvals
+ [id] UNIQUEIDENTIFIER PRIMARY KEY,
+ [root_tenant_id] UNIQUEIDENTIFIER NOT NULL,
+ [requesting_user_id] UNIQUEIDENTIFIER,
+ [target_user_id] UNIQUEIDENTIFIER,
+ [current_role_id] UNIQUEIDENTIFIER,
+ [target_role_id] UNIQUEIDENTIFIER,
+ [promotion_reason] NVARCHAR(MAX),
+ [request_date] DATETIME2,
+ [status] VARCHAR(32), -- 'DRAFT', 'PENDING_REVIEW', 'APPROVED', 'REJECTED', 'EXECUTED'
+ [approval_request_id] UNIQUEIDENTIFIER -- Link to Approvals
 );
 
 -- Missing
 CREATE TABLE [iga].[role_promotion_impact_analysis] (
-    [id] UNIQUEIDENTIFIER PRIMARY KEY,
-    [promotion_request_id] UNIQUEIDENTIFIER,
-    [new_permissions_count] INT,
-    [affected_systems_count] INT,
-    [risk_score] DECIMAL(3,2),  -- 0.0 to 1.0
-    [conflicting_permissions] VARCHAR(MAX),  -- JSON array
-    [analysis_timestamp] DATETIME2,
-    [analyst_notes] NVARCHAR(MAX)
+ [id] UNIQUEIDENTIFIER PRIMARY KEY,
+ [promotion_request_id] UNIQUEIDENTIFIER,
+ [new_permissions_count] INT,
+ [affected_systems_count] INT,
+ [risk_score] DECIMAL(3,2), -- 0.0 to 1.0
+ [conflicting_permissions] VARCHAR(MAX), -- JSON array
+ [analysis_timestamp] DATETIME2,
+ [analyst_notes] NVARCHAR(MAX)
 );
 
 -- Missing
 CREATE TABLE [iga].[role_maturity_levels] (
-    [id] UNIQUEIDENTIFIER PRIMARY KEY,
-    [root_tenant_id] UNIQUEIDENTIFIER NOT NULL,
-    [role_id] UNIQUEIDENTIFIER,
-    [current_maturity_level] VARCHAR(32),  -- 'JUNIOR', 'SENIOR', 'LEAD', 'PRINCIPAL'
-    [next_maturity_level] VARCHAR(32),
-    [days_at_current_level] INT,
-    [promotion_eligibility_date] DATETIME2,
-    [last_review_date] DATETIME2
+ [id] UNIQUEIDENTIFIER PRIMARY KEY,
+ [root_tenant_id] UNIQUEIDENTIFIER NOT NULL,
+ [role_id] UNIQUEIDENTIFIER,
+ [current_maturity_level] VARCHAR(32), -- 'JUNIOR', 'SENIOR', 'LEAD', 'PRINCIPAL'
+ [next_maturity_level] VARCHAR(32),
+ [days_at_current_level] INT,
+ [promotion_eligibility_date] DATETIME2,
+ [last_review_date] DATETIME2
 );
 ```
 
@@ -413,18 +413,18 @@ CREATE TABLE [iga].[role_maturity_levels] (
 
 ```
 EP-06 (Approvals/Security)
-  ├── FS-09 (MFA) → Identity Context ✅
-  ├── FS-14 (Delegation) → ADR-0044 ✅, Audit Context ✅
-  └── FS-10 (B2B Approval) → Approvals Context (new)
+ ├── FS-09 (MFA) → Identity Context
+ ├── FS-14 (Delegation) → ADR-0044 , Audit Context
+ └── FS-10 (B2B Approval) → Approvals Context (new)
 
 EP-07 (Compliance)
-  ├── FS-11 (Documents) → Approvals Context (EP-06), Document storage
-  ├── FS-15 (Notifications) → Configuration Context ✅
-  └── FS-16 (Expiration) → Authorization Context ✅
+ ├── FS-11 (Documents) → Approvals Context (EP-06), Document storage
+ ├── FS-15 (Notifications) → Configuration Context
+ └── FS-16 (Expiration) → Authorization Context
 
 EP-08 (IGA)
-  ├── FS-12 (Role Promotion) → Approvals Context (EP-06), Impact Analysis Engine
-  └── → IGA Bounded Context (new)
+ ├── FS-12 (Role Promotion) → Approvals Context (EP-06), Impact Analysis Engine
+ └── → IGA Bounded Context (new)
 ```
 
 **Conclusion:** EP-06 is prerequisite for EP-07 and EP-08. Sequence: **EP-06 → EP-07 → EP-08**.
@@ -436,27 +436,27 @@ EP-08 (IGA)
 ### EP-06: 5 days estimated
 
 1. **FS-09 Adaptive MFA** (3h)
-   - Detailed acceptance criteria
-   - Risk scoring model
-   
+- Detailed acceptance criteria
+- Risk scoring model
+
 2. **FS-14 Delegated Admin** (4h)
-   - State machine (delegation states)
-   - Scope validation logic
-   - Temporal constraints
-   
+- State machine (delegation states)
+- Scope validation logic
+- Temporal constraints
+
 3. **FS-10 B2B Approval** (2h)
-   - Document attachment rules
-   - Approval chain definition
-   
+- Document attachment rules
+- Approval chain definition
+
 4. **ER Model EP-06** (2h)
-   - approval_workflows
-   - approval_requests, approval_approvers
-   - user_management_delegations
-   
+- approval_workflows
+- approval_requests, approval_approvers
+- user_management_delegations
+
 5. **Integration Map** (2h)
-   - Approvals ↔ Authorization
-   - Approvals ↔ Audit
-   - Approvals ↔ Configuration
+- Approvals ↔ Authorization
+- Approvals ↔ Audit
+- Approvals ↔ Configuration
 
 **Total EP-06:** 13 hours
 
@@ -465,28 +465,28 @@ EP-08 (IGA)
 ### EP-07: 5 days estimated
 
 1. **FS-11 Document Lifecycle** (3h)
-   - Document type catalog
-   - Validation workflow
-   - Storage integration
-   
+- Document type catalog
+- Validation workflow
+- Storage integration
+
 2. **FS-15 Notification Rules (CREATE)** (3h)
-   - Rule model definition
-   - Trigger conditions
-   - Notification channels
-   
+- Rule model definition
+- Trigger conditions
+- Notification channels
+
 3. **FS-16 Expiration Enforcement (CREATE)** (3h)
-   - Enforcement modes
-   - Grace periods
-   - Recovery paths
-   
+- Enforcement modes
+- Grace periods
+- Recovery paths
+
 4. **ER Model EP-07** (2h)
-   - documents, document_validators
-   - expiration_notification_rules
-   - access_expiration_policies
-   
+- documents, document_validators
+- expiration_notification_rules
+- access_expiration_policies
+
 5. **Compliance Context Definition** (2h)
-   - Bounded context (entities, ports, events)
-   - Integration with other contexts
+- Bounded context (entities, ports, events)
+- Integration with other contexts
 
 **Total EP-07:** 13 hours
 
@@ -495,20 +495,20 @@ EP-08 (IGA)
 ### EP-08: 4 days estimated
 
 1. **FS-12 Role Promotion (EXPAND)** (4h)
-   - Break into sub-stories (5-6 stories)
-   - Impact analysis engine design
-   - Execution flow
-   
+- Break into sub-stories (5-6 stories)
+- Impact analysis engine design
+- Execution flow
+
 2. **ER Model EP-08** (2h)
-   - role_promotion_requests
-   - role_promotion_impact_analysis
-   - role_maturity_levels
-   
+- role_promotion_requests
+- role_promotion_impact_analysis
+- role_maturity_levels
+
 3. **IGA Context Definition** (2h)
-   - Bounded context design
-   - Port abstractions
-   - Event contracts
-   
+- Bounded context design
+- Port abstractions
+- Event contracts
+
 4. **Integration: IGA ↔ Approvals ↔ Authorization** (2h)
 
 **Total EP-08:** 10 hours
@@ -517,40 +517,40 @@ EP-08 (IGA)
 
 ## 7. Recommendations & Next Steps
 
-### 🔴 Critical (Blocks construction)
+### Critical (Blocks construction)
 
 1. **EP-06 ER Model** (approval_workflows, requests, delegations)
-   - Required for Sprint 2 (after MVP)
-   - **Effort:** 2h
-   - **Priority:** Now
-   
+- Required for Sprint 2 (after MVP)
+- **Effort:** 2h
+- **Priority:** Now
+
 2. **EP-07 ER Model** (documents, notifications, policies)
-   - Required for Sprint 2
-   - **Effort:** 2h
-   - **Priority:** Now
+- Required for Sprint 2
+- **Effort:** 2h
+- **Priority:** Now
 
 3. **EP-06 FS-14 Scope Validation Logic**
-   - Design document required for correct implementation
-   - **Effort:** 2h
-   - **Priority:** This week
+- Design document required for correct implementation
+- **Effort:** 2h
+- **Priority:** This week
 
-### 🟡 Important (Impacts Sprint planning)
+### Important (Impacts Sprint planning)
 
 4. **EP-07 FS-15, FS-16 (CREATE)**
-   - New stories do not exist
-   - **Effort:** 6h
-   - **Priority:** This week
+- New stories do not exist
+- **Effort:** 6h
+- **Priority:** This week
 
 5. **EP-08 IGA Context + FS-12 Expansion**
-   - **Effort:** 4h
-   - **Priority:** Next week
+- **Effort:** 4h
+- **Priority:** Next week
 
-### 🟢 Recommended (Improves visibility)
+### Recommended (Improves visibility)
 
 6. **Bounded Context Maps** for Compliance + IGA
-   - Clear visualization
-   - **Effort:** 2h
-   - **Priority:** Next week
+- Clear visualization
+- **Effort:** 2h
+- **Priority:** Next week
 
 ---
 
@@ -568,5 +568,5 @@ EP-08 (IGA)
 
 **Next Step:** Proceed with detailed expansion of **EP-06** beginning today.
 
-**Approved by:** [Architect]  
+**Approved by:** [Architect]
 **Date:** 2026-05-14

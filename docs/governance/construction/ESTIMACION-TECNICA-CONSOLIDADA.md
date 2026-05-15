@@ -1,8 +1,8 @@
 # Estimación Técnica Consolidada — UMS Construction
 
-**Fecha:** 2026-05-14  
-**Versión:** 1.0  
-**Propósito:** Tabla consolidada de estimaciones por perfil, trazable a Gantt  
+**Fecha:** 2026-05-14
+**Versión:** 1.0
+**Propósito:** Tabla consolidada de estimaciones por perfil, trazable a Gantt
 **Formato:** Ejecutivo, sin extensiones
 
 ---
@@ -135,7 +135,7 @@
 **Validación MVP:**
 - 1,272h ÷ 6.25 FTE ÷ 40h/semana = 5.1 semanas (alineado a 6-7 weeks con buffer)
 - Velocidad: 253 pts ÷ 6 weeks ÷ 6.25 FTE = 6.7 pts/FTE/week (realista)
-- **Status:** ✅ VIABLE
+- **Status:** VIABLE
 
 ---
 
@@ -151,7 +151,7 @@
 **Validación Post-MVP:**
 - 1,490h ÷ 7.75 FTE ÷ 40h/semana = 4.8 semanas teórico, pero dominios complejos → 9-10 weeks estimadas
 - Velocidad esperada más baja (XACML, compliance engines, delegation state machines = mayor complejidad)
-- **Status:** ✅ VIABLE con Security specialist (1.5 FTE post-MVP)
+- **Status:** VIABLE con Security specialist (1.5 FTE post-MVP)
 
 ---
 
@@ -208,39 +208,39 @@
 
 **Sprint 1 Parallelizable (7 equipos):**
 ```
-Team 1 (Backend DDD):   TS-1.1, TS-2.1, TS-3.1, TS-4.1  (domain models)
-Team 2 (DBA):          TS-1.2, TS-2.2, TS-3.3, TS-4.2   (schemas en paralelo)
-Team 3 (Backend API):  TS-1.5, TS-2.4, TS-4.4, TS-5.4   (APIs simples)
-Team 4 (Backend EF):   TS-1.3 (DbContext mapping)
-Team 5 (Security):     —— (light involvement, TS-3.1 review)
-Team 6 (QA):          Fixture setup, test scaffolding
-Team 7 (Frontend):    —— (waiting for TS-1.5 endpoint)
+Team 1 (Backend DDD): TS-1.1, TS-2.1, TS-3.1, TS-4.1 (domain models)
+Team 2 (DBA): TS-1.2, TS-2.2, TS-3.3, TS-4.2 (schemas en paralelo)
+Team 3 (Backend API): TS-1.5, TS-2.4, TS-4.4, TS-5.4 (APIs simples)
+Team 4 (Backend EF): TS-1.3 (DbContext mapping)
+Team 5 (Security): —— (light involvement, TS-3.1 review)
+Team 6 (QA): Fixture setup, test scaffolding
+Team 7 (Frontend): —— (waiting for TS-1.5 endpoint)
 ```
 **Result:** 7 historias paralelas en Sprint 1, 0 conflictos, todas completan Week 1
 
 **Sprint 2-3 Parallelizable:**
 ```
-Layer 1 (APIs):        TS-1.5, TS-2.4, TS-3.5, TS-4.4, TS-5.3
-Layer 2 (PDP engine):  TS-3.2, TS-3.2b (pueden solaparse con cuidado: TS-3.2b usa IAttributeRepository port definido en TS-3.2)
-Layer 3 (Middleware):  TS-3.4 (espera TS-3.2, pero UI puede avanzar)
-Layer 4 (Frontend):    TS-5.1, TS-5.2 (esperan endpoints TS-1.5, TS-5.3, TS-5.4)
-Layer 5 (Config):      TS-4.3 (espera TS-4.1 domain, TS-4.2 schema: OK paralelo)
+Layer 1 (APIs): TS-1.5, TS-2.4, TS-3.5, TS-4.4, TS-5.3
+Layer 2 (PDP engine): TS-3.2, TS-3.2b (pueden solaparse con cuidado: TS-3.2b usa IAttributeRepository port definido en TS-3.2)
+Layer 3 (Middleware): TS-3.4 (espera TS-3.2, pero UI puede avanzar)
+Layer 4 (Frontend): TS-5.1, TS-5.2 (esperan endpoints TS-1.5, TS-5.3, TS-5.4)
+Layer 5 (Config): TS-4.3 (espera TS-4.1 domain, TS-4.2 schema: OK paralelo)
 ```
 **Result:** 5-6 equipos paralelos, 2-3 dependencias gating, 1-2 semana compresión posible
 
 ### 5. HISTORIAS RECOMENDADAS MVP vs POST-MVP
 
 **RECOMENDADO MVP (253 pts, 6-7 semanas):**
-- ✅ **EP-01** Tenant & Identity (55 pts) — Foundation, **CRÍTICA**
-- ✅ **EP-02** System Catalog (31 pts) — Lightweight, **RECOMENDADA**
-- ✅ **EP-03** Authorization (89 pts) — Core security, **CRÍTICA**
-- ✅ **EP-04** Configuration (31 pts) — Enabler para TS-3.2b + TS-8.2, **RECOMENDADA**
-- ✅ **EP-05** Experience (47 pts) — UI + diagnostics, **RECOMENDADA**
+- **EP-01** Tenant & Identity (55 pts) — Foundation, **CRÍTICA**
+- **EP-02** System Catalog (31 pts) — Lightweight, **RECOMENDADA**
+- **EP-03** Authorization (89 pts) — Core security, **CRÍTICA**
+- **EP-04** Configuration (31 pts) — Enabler para TS-3.2b + TS-8.2, **RECOMENDADA**
+- **EP-05** Experience (47 pts) — UI + diagnostics, **RECOMENDADA**
 
 **RECOMENDADO POST-MVP (330 pts, 8-10 semanas):**
-- ✅ **EP-06** MFA, B2B, Delegation (150 pts) — Require Security specialist + DDD engineers
-- ✅ **EP-07** Compliance (69 pts) — Background services, document handling
-- ✅ **EP-08** IGA Promotion (111 pts) — Complex state machines + impact analysis
+- **EP-06** MFA, B2B, Delegation (150 pts) — Require Security specialist + DDD engineers
+- **EP-07** Compliance (69 pts) — Background services, document handling
+- **EP-08** IGA Promotion (111 pts) — Complex state machines + impact analysis
 
 **No mover a POST-MVP si quieres MVP verdadero:** Todas las épicas MVP son críticas para product demo.
 
@@ -359,8 +359,8 @@ Layer 5 (Config):      TS-4.3 (espera TS-4.1 domain, TS-4.2 schema: OK paralelo)
 
 ---
 
-**Documento Aprobado por:** Principal Architect  
-**Fecha:** 2026-05-14  
-**Status:** ✅ **CONSOLIDADO, LISTO PARA GANTT**
+**Documento Aprobado por:** Principal Architect
+**Fecha:** 2026-05-14
+**Status:** **CONSOLIDADO, LISTO PARA GANTT**
 
 *Use esta tabla como source-of-truth para planificación de sprints, estimaciones, y timeline Gantt.*

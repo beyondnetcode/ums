@@ -1,31 +1,31 @@
 # UMS Governance Portal
 
-**Version:** 1.0 | **Date:** 2026-05-14 | **Status:** ✅ Construction Ready  
+**Version:** 1.0 | **Date:** 2026-05-14 | **Status:** Construction Ready
 **[Back to Main README](../README.md)**
 
 ---
 
-## 📋 Governance Index
+## Governance Index
 
 ### Quick Links by Phase
 
-#### 🎯 **Product Readiness** (✅ Complete)
+#### **Product Readiness** (Complete)
 - [Product Readiness Assessment](./project/product-readiness-final-assessment.md) — 100% readiness, 8 épicas validated, Go/No-Go approved
 - [Product Backlog](./project/mvp-product-backlog.md) — 16 functional stories (FS-01 to FS-16)
 
-#### 🔧 **Construction Planning** (✅ Ready)
+#### **Construction Planning** (Ready)
 - [Construction README](./construction/README.md) — How-to guide by role (PO, engineer, QA, hiring, DevOps)
 - [Technical Stories & Team Composition](./construction/TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md) — **PRIMARY**: 89 TS, 8 team profiles, effort validation (578 pts)
 - [FS-to-TS Mapping](./construction/FS-TO-TS-MAPPING.md) — Requirement traceability (16 FS → 89 TS)
 - [Service Implementation Plan](./construction/SERVICE-IMPLEMENTATION-PLAN.md) — .NET 8 monorepo, architecture, CI/CD
 - [TE-03 RLS Implementation](./construction/TE-03-rls-sql-server-implementation.md) — Two-layer RLS deep dive
 
-#### 🏗️ **Detailed Designs** (Post-MVP Épicas)
+#### **Detailed Designs** (Post-MVP Épicas)
 - [EP-06: Approvals (MFA, B2B, Delegation)](./project/ep-06-approvals-detailed-design.md)
 - [EP-07: Compliance (Docs, Notifications, Enforcement)](./project/ep-07-compliance-detailed-design.md)
 - [EP-08: IGA (Role Promotion)](./project/ep-08-iga-detailed-design.md)
 
-#### 🏛️ **Architecture & Strategy**
+#### **Architecture & Strategy**
 - [Product Vision](./project/index.md)
 - [Requirements](./requirements/index.md)
 - [Roadmap](./roadmap/index.md)
@@ -33,7 +33,7 @@
 
 ---
 
-## 👥 Read This Based on Your Role
+## Read This Based on Your Role
 
 | Role | Start Here | Next | Time |
 |------|-----------|------|------|
@@ -47,7 +47,7 @@
 
 ---
 
-## 📊 Key Metrics
+## Key Metrics
 
 - **Readiness:** 100% (8/8 épicas validated)
 - **Total Story Points:** 578 (MVP 253 + Post-MVP 325)
@@ -55,12 +55,12 @@
 - **Functional Stories:** 16 (FS-01 to FS-16)
 - **Team Size:** 6.25 FTE (MVP) → 7.75 FTE (Post-MVP)
 - **Timeline:** MVP 6-7 weeks, Full product 14-17 weeks
-- **Risk Level:** 🟢 LOW
-- **Status:** ✅ AUTHORIZED FOR CONSTRUCTION
+- **Risk Level:** LOW
+- **Status:** AUTHORIZED FOR CONSTRUCTION
 
 ---
 
-## 🚀 Next Steps (Sprint 0)
+## Next Steps (Sprint 0)
 
 1. **Leadership:** Approve readiness + budget for hiring
 2. **Engineering:** Read `construction/README.md` (your role) + TECHNICAL-STORIES
@@ -72,4 +72,4 @@ See `construction/README.md` Sprint 0 checklist for complete tasks.
 
 ---
 
-*Last Updated: 2026-05-14 | Status: ✅ Construction Phase Ready*
+*Last Updated: 2026-05-14 | Status: Construction Phase Ready*

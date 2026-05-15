@@ -1,10 +1,10 @@
 # MVP Reducido — Alcance, Estimación y Entregables
 
-**Fecha:** 2026-05-14  
-**Versión:** 1.0  
-**Equipo:** 4 personas (1 TL + 3 semi-senior), 7h/día  
-**Timeline MVP:** 12 semanas (3 meses)  
-**Status:** ✅ **REALISTA Y VIABLE**
+**Fecha:** 2026-05-14
+**Versión:** 1.0
+**Equipo:** 4 personas (1 TL + 3 semi-senior), 7h/día
+**Timeline MVP:** 12 semanas (3 meses)
+**Status:** **REALISTA Y VIABLE**
 
 ---
 
@@ -14,22 +14,22 @@
 
 | FS | Título | Alcance MVP | Notas |
 |----|--------|-------------|-------|
-| **FS-01** | Corporate User Login | ✅ Completo | Email + password, credential validation |
-| **FS-02** | User Self-Registration | ✅ Completo | Email + name + password, verification email |
-| **FS-03** | Organization Onboarding | ✅ Completo | Create root tenant + admin user |
-| **FS-05** | Define Authorization Policy | ✅ Completo | Create policies with rules, conditions, effects |
-| **FS-06** | Assign Authorization Profile | ✅ Completo | Create profiles, assign to users |
-| **FS-07** | Evaluate User Permissions | ✅ Completo | Runtime decision point, middleware enforcement |
-| **FS-13** | Define Hierarchical Configuration | ✅ Completo | 4-level hierarchy, caching, encryption |
-| **FS-08** | Hosted Login Page | ✅ Partial | Login page only (no diagnostics dashboard) |
-| **FS-04** | System Catalog | ❌ **Post-MVP** | Register systems, define topology |
-| **FS-09** | Adaptive MFA | ❌ **Post-MVP** | Risk scoring, passwordless methods |
-| **FS-10** | B2B External Access | ❌ **Post-MVP** | External user approval workflow |
-| **FS-11** | Document Upload | ❌ **Post-MVP** | Compliance document storage |
-| **FS-12** | Role Promotion | ❌ **Post-MVP** | Role maturity tracking, promotion workflow |
-| **FS-14** | Delegated Administration | ❌ **Post-MVP** | Delegation with scope constraints |
-| **FS-15** | Expiration Notifications | ❌ **Post-MVP** | Background notification engine |
-| **FS-16** | Access Enforcement | ❌ **Post-MVP** | Access suspension/revocation on expiration |
+| **FS-01** | Corporate User Login | Completo | Email + password, credential validation |
+| **FS-02** | User Self-Registration | Completo | Email + name + password, verification email |
+| **FS-03** | Organization Onboarding | Completo | Create root tenant + admin user |
+| **FS-05** | Define Authorization Policy | Completo | Create policies with rules, conditions, effects |
+| **FS-06** | Assign Authorization Profile | Completo | Create profiles, assign to users |
+| **FS-07** | Evaluate User Permissions | Completo | Runtime decision point, middleware enforcement |
+| **FS-13** | Define Hierarchical Configuration | Completo | 4-level hierarchy, caching, encryption |
+| **FS-08** | Hosted Login Page | Partial | Login page only (no diagnostics dashboard) |
+| **FS-04** | System Catalog | **Post-MVP** | Register systems, define topology |
+| **FS-09** | Adaptive MFA | **Post-MVP** | Risk scoring, passwordless methods |
+| **FS-10** | B2B External Access | **Post-MVP** | External user approval workflow |
+| **FS-11** | Document Upload | **Post-MVP** | Compliance document storage |
+| **FS-12** | Role Promotion | **Post-MVP** | Role maturity tracking, promotion workflow |
+| **FS-14** | Delegated Administration | **Post-MVP** | Delegation with scope constraints |
+| **FS-15** | Expiration Notifications | **Post-MVP** | Background notification engine |
+| **FS-16** | Access Enforcement | **Post-MVP** | Access suspension/revocation on expiration |
 
 **MVP Funcional:** 8 de 16 FS (50%)
 
@@ -41,57 +41,57 @@
 
 | TS | Título | Size | Include? | Notas |
 |----|--------|------|----------|-------|
-| TS-1.1 | Tenant Hierarchy Domain Model | 8 | ✅ | Tenant aggregate, TenantClosure pattern |
-| TS-1.2 | SQL Server RLS + Partition | 8 | ✅ | 4 tables, composite PK, partition root_tenant_id |
-| TS-1.3 | EF Core Global Query Filters | 8 | ✅ | ICurrentTenantResolver, global filters |
-| TS-1.4 | Registration Ports/Adapters | 8 | ✅ | IPasswordHasher, IEmailService, IUserRepository |
-| TS-1.5 | Auth API Endpoints | 8 | ✅ | /login, /register, /tenants endpoints |
-| TS-1.6 | RLS Integration Tests | 13 | ✅ | 3-tenant isolation, Layer 1+2 RLS validation |
-| **EP-01 Total** | — | **55** | ✅ | **Foundational, all stories required** |
+| TS-1.1 | Tenant Hierarchy Domain Model | 8 | | Tenant aggregate, TenantClosure pattern |
+| TS-1.2 | SQL Server RLS + Partition | 8 | | 4 tables, composite PK, partition root_tenant_id |
+| TS-1.3 | EF Core Global Query Filters | 8 | | ICurrentTenantResolver, global filters |
+| TS-1.4 | Registration Ports/Adapters | 8 | | IPasswordHasher, IEmailService, IUserRepository |
+| TS-1.5 | Auth API Endpoints | 8 | | /login, /register, /tenants endpoints |
+| TS-1.6 | RLS Integration Tests | 13 | | 3-tenant isolation, Layer 1+2 RLS validation |
+| **EP-01 Total** | — | **55** | | **Foundational, all stories required** |
 
 ### EP-03: Authorization (CORE ONLY)
 
 | TS | Título | Size | Include? | Notas |
 |----|--------|------|----------|-------|
-| TS-3.1 | XACML Domain Model | 13 | ✅ | Policy, Rule, Profile, Permission aggregates |
-| TS-3.2 | PDP + PAP Implementation | 13 | ✅ | Policy Decision Point + Policy Admin Point (core logic) |
-| TS-3.2b | PIP (Attribute Resolution) | 13 | ❌ | **Deferred to Post-MVP** (use basic attributes MVP) |
-| TS-3.3 | Authorization SQL Tables | 13 | ✅ | policies, rules, profiles, assignments tables |
-| TS-3.4 | Authorization Middleware | 8 | ✅ | Intercept requests, enforce ALLOW/DENY |
-| TS-3.5 | Policy API Endpoints | 8 | ✅ | CRUD policies/profiles, decision test endpoint |
-| TS-3.6 | PDP Unit Tests | 13 | ❌ | **Deferred to Post-MVP** (20+ scenarios optional MVP) |
-| TS-3.7 | Authorization Integration Tests | 13 | ❌ | **Deferred to Post-MVP** (manual E2E testing MVP) |
-| **EP-03 Total (MVP)** | — | **56** | ✅ | **Core authorization, no advanced testing** |
-| **EP-03 Total (Post-MVP)** | — | **39** | ❌ | TS-3.2b, TS-3.6, TS-3.7 deferred |
+| TS-3.1 | XACML Domain Model | 13 | | Policy, Rule, Profile, Permission aggregates |
+| TS-3.2 | PDP + PAP Implementation | 13 | | Policy Decision Point + Policy Admin Point (core logic) |
+| TS-3.2b | PIP (Attribute Resolution) | 13 | | **Deferred to Post-MVP** (use basic attributes MVP) |
+| TS-3.3 | Authorization SQL Tables | 13 | | policies, rules, profiles, assignments tables |
+| TS-3.4 | Authorization Middleware | 8 | | Intercept requests, enforce ALLOW/DENY |
+| TS-3.5 | Policy API Endpoints | 8 | | CRUD policies/profiles, decision test endpoint |
+| TS-3.6 | PDP Unit Tests | 13 | | **Deferred to Post-MVP** (20+ scenarios optional MVP) |
+| TS-3.7 | Authorization Integration Tests | 13 | | **Deferred to Post-MVP** (manual E2E testing MVP) |
+| **EP-03 Total (MVP)** | — | **56** | | **Core authorization, no advanced testing** |
+| **EP-03 Total (Post-MVP)** | — | **39** | | TS-3.2b, TS-3.6, TS-3.7 deferred |
 
 ### EP-04: Configuration (COMPLETO)
 
 | TS | Título | Size | Include? | Notas |
 |----|--------|------|----------|-------|
-| TS-4.1 | Config Domain Model | 8 | ✅ | ConfigurationParameter aggregate, scope hierarchy |
-| TS-4.2 | Config SQL Tables | 5 | ✅ | parameters, parameter_history tables |
-| TS-4.3 | Hierarchical Resolution Service | 8 | ✅ | 4-level resolution, encryption, caching |
-| TS-4.4 | Config API Endpoints | 5 | ✅ | CRUD parameters, resolve endpoint |
-| TS-4.5 | Config Integration Tests | 8 | ✅ | Hierarchy resolution, cache, invalidation |
-| **EP-04 Total** | — | **31** | ✅ | **Complete, required by TS-3.2 + TS-8.2 (Post-MVP)** |
+| TS-4.1 | Config Domain Model | 8 | | ConfigurationParameter aggregate, scope hierarchy |
+| TS-4.2 | Config SQL Tables | 5 | | parameters, parameter_history tables |
+| TS-4.3 | Hierarchical Resolution Service | 8 | | 4-level resolution, encryption, caching |
+| TS-4.4 | Config API Endpoints | 5 | | CRUD parameters, resolve endpoint |
+| TS-4.5 | Config Integration Tests | 8 | | Hierarchy resolution, cache, invalidation |
+| **EP-04 Total** | — | **31** | | **Complete, required by TS-3.2 + TS-8.2 (Post-MVP)** |
 
 ### EP-05: Experience & Diagnostics (LIGHT)
 
 | TS | Título | Size | Include? | Notas |
 |----|--------|------|----------|-------|
-| TS-5.1 | Hosted Login Page (React) | 13 | ✅ | Branded login form, responsive, validation |
-| TS-5.2 | Diagnostics Dashboard | 13 | ❌ | **Deferred to Post-MVP** (admin metrics, real-time) |
-| TS-5.3 | Audit Log Endpoint | 8 | ✅ | GET /audit/logs, queryable, paginated |
-| TS-5.4 | Health Check Endpoint | 5 | ✅ | /health, /health/ready for monitoring |
-| TS-5.5 | Frontend Integration Tests | 8 | ❌ | **Deferred to Post-MVP** (manual testing MVP) |
-| **EP-05 Total (MVP)** | — | **26** | ✅ | **Login + minimal monitoring** |
-| **EP-05 Total (Post-MVP)** | — | **21** | ❌ | TS-5.2, TS-5.5 deferred |
+| TS-5.1 | Hosted Login Page (React) | 13 | | Branded login form, responsive, validation |
+| TS-5.2 | Diagnostics Dashboard | 13 | | **Deferred to Post-MVP** (admin metrics, real-time) |
+| TS-5.3 | Audit Log Endpoint | 8 | | GET /audit/logs, queryable, paginated |
+| TS-5.4 | Health Check Endpoint | 5 | | /health, /health/ready for monitoring |
+| TS-5.5 | Frontend Integration Tests | 8 | | **Deferred to Post-MVP** (manual testing MVP) |
+| **EP-05 Total (MVP)** | — | **26** | | **Login + minimal monitoring** |
+| **EP-05 Total (Post-MVP)** | — | **21** | | TS-5.2, TS-5.5 deferred |
 
 ### EP-02: System Catalog (DEFERRED)
 
 | TS | Título | Size | Include? | Notas |
 |----|--------|------|----------|-------|
-| TS-2.1 to TS-2.5 | All | 31 | ❌ | **Entirely deferred to Post-MVP Phase 2** (can run apps without system registry initially) |
+| TS-2.1 to TS-2.5 | All | 31 | | **Entirely deferred to Post-MVP Phase 2** (can run apps without system registry initially) |
 
 ---
 
@@ -108,7 +108,7 @@
 **Validation:**
 - 845h ÷ 4 people ÷ 7h/day ÷ 5 days = 6 weeks pure work
 - Plus overhead (20%), learning (15%), unknowns (10%) = 845h × 1.45 = 1,225h estimate
-- 1,225h ÷ 122.5h/week = **10 weeks = 2.5 sprints** ✅
+- 1,225h ÷ 122.5h/week = **10 weeks = 2.5 sprints**
 - **MVP Timeline: 12 weeks wall-clock (includes Sprint 0 setup, buffer)**
 
 ---
@@ -148,10 +148,10 @@
 **Total Sprint 1:** 320h / 500h available (64%)
 
 **Deliverable:**
-- ✅ 3 domain models (Tenant, Policy, Configuration)
-- ✅ 3 SQL schemas (identity, authorization, configuration)
-- ✅ EF Core DbContext with all mappings
-- ✅ Migrations ready to run
+- 3 domain models (Tenant, Policy, Configuration)
+- 3 SQL schemas (identity, authorization, configuration)
+- EF Core DbContext with all mappings
+- Migrations ready to run
 
 **Blocker Resolution:**
 - TS-1.2 must complete by Day 5, before TS-4.2 + TS-3.3 can finalize schema
@@ -175,11 +175,11 @@
 **Total Sprint 2:** 350h / 500h available (70%)
 
 **Deliverable:**
-- ✅ EF Core global filters applied, tenant isolation working
-- ✅ User registration flow (domain service, email sending)
-- ✅ PDP engine evaluates policies with caching
-- ✅ Configuration resolution with hierarchy + encryption
-- ✅ All 3 major business layers functional
+- EF Core global filters applied, tenant isolation working
+- User registration flow (domain service, email sending)
+- PDP engine evaluates policies with caching
+- Configuration resolution with hierarchy + encryption
+- All 3 major business layers functional
 
 **Critical Validation:**
 - TS-3.2 rule matching must pass peer review (no logic errors)
@@ -207,11 +207,11 @@
 **Total Sprint 3:** 350h / 750h available
 
 **Deliverable:**
-- ✅ All REST APIs functional (login, register, policies, config, audit, health)
-- ✅ Authorization middleware intercepts requests
-- ✅ React login page working (responsive, accessible WCAG A)
-- ✅ RLS integration tests pass (100% coverage critical)
-- ✅ **MVP COMPLETE & TESTED**
+- All REST APIs functional (login, register, policies, config, audit, health)
+- Authorization middleware intercepts requests
+- React login page working (responsive, accessible WCAG A)
+- RLS integration tests pass (100% coverage critical)
+- **MVP COMPLETE & TESTED**
 
 **Release Readiness:**
 - All endpoints tested manually
@@ -229,7 +229,7 @@
 | **0** | 1 | Setup | 20% | 80h | CI/CD, dev env | — |
 | **1** | 2-3 | Domains + Schema | 64% | 320h | Models, schemas, EF | TS-1.2 review |
 | **2** | 4-5 | Core Logic | 70% | 350h | PDP, config, EF filters | TS-3.2, TS-4.3 code review |
-| **3** | 6-8 | APIs + Tests + UI | 47% | 350h | **MVP COMPLETE** ✅ | TS-1.6 tests pass |
+| **3** | 6-8 | APIs + Tests + UI | 47% | 350h | **MVP COMPLETE** | TS-1.6 tests pass |
 | **Total** | **1-8** | — | **~60% avg** | **1,100h** | **MVP Production-Ready** | — |
 
 **Wall-Clock Time:** 8 weeks to MVP (vs 12 weeks with buffer for unknowns)
@@ -255,24 +255,24 @@
 ### Impact on Functional Stories
 
 **MVP Covers (8 FS):**
-- ✅ FS-01: Corporate Login
-- ✅ FS-02: Self-Registration
-- ✅ FS-03: Org Onboarding
-- ✅ FS-05: Policy Definition
-- ✅ FS-06: Profile Assignment
-- ✅ FS-07: Permission Evaluation
-- ✅ FS-13: Config Hierarchy
-- ✅ FS-08: Login Page (partial, no diagnostics)
+- FS-01: Corporate Login
+- FS-02: Self-Registration
+- FS-03: Org Onboarding
+- FS-05: Policy Definition
+- FS-06: Profile Assignment
+- FS-07: Permission Evaluation
+- FS-13: Config Hierarchy
+- FS-08: Login Page (partial, no diagnostics)
 
 **Post-MVP Covers (8 FS):**
-- ❌ FS-04: System Catalog
-- ❌ FS-09: Adaptive MFA
-- ❌ FS-10: B2B External Access
-- ❌ FS-11: Document Upload
-- ❌ FS-12: Role Promotion
-- ❌ FS-14: Delegated Admin
-- ❌ FS-15: Expiration Notifications
-- ❌ FS-16: Access Enforcement
+- FS-04: System Catalog
+- FS-09: Adaptive MFA
+- FS-10: B2B External Access
+- FS-11: Document Upload
+- FS-12: Role Promotion
+- FS-14: Delegated Admin
+- FS-15: Expiration Notifications
+- FS-16: Access Enforcement
 
 ---
 
@@ -280,32 +280,32 @@
 
 ### What MVP Can Do
 
-✅ **Identity & Access:**
+**Identity & Access:**
 - Users create accounts (email + password)
 - Corporate users login with email + password
 - Organizations onboard with admin user
 - Multi-tenant isolation (3-layer: composite PK + EF filter + RLS optional)
 
-✅ **Authorization:**
+**Authorization:**
 - Admins define policies with rules, conditions, effects (XACML-style)
 - Admins create profiles (bundles of policies)
 - Admins assign profiles to users
 - Runtime permission evaluation: user requests action → PDP evaluates → ALLOW/DENY decision
 - Authorization middleware enforces decisions at API layer
 
-✅ **Configuration:**
+**Configuration:**
 - Admins define parameters at tenant/system/environment level
 - Hierarchical resolution: system param overrides tenant param
 - Encryption for sensitive values
 - Caching with invalidation
 - Feature flag support
 
-✅ **UI & Monitoring:**
+**UI & Monitoring:**
 - Branded, responsive login page (React)
 - Audit log API (queryable, filterable)
 - Health check endpoints (Kubernetes-compatible)
 
-✅ **Security (Foundational):**
+**Security (Foundational):**
 - Password hashing (Bcrypt, 12 rounds)
 - Email verification (Sendgrid)
 - JWT authentication (httpOnly cookies)
@@ -317,32 +317,32 @@
 
 ### What's Deferred to Post-MVP
 
-❌ **System Catalog:**
+**System Catalog:**
 - No system registry (can hardcode system names MVP)
 - No topology definition
 - Deferred: FS-04
 
-❌ **Advanced Authorization:**
+**Advanced Authorization:**
 - No Policy Information Point (PIP) attribute resolution (use static attributes)
 - No advanced unit tests (20+ scenarios)
 - No integration test suite (manual E2E validation)
 - Deferred: TS-3.2b, TS-3.6, TS-3.7
 
-❌ **Security (Advanced):**
+**Security (Advanced):**
 - No MFA / risk scoring
 - No passwordless (FIDO2, magic link, push)
 - No B2B external access workflows
 - No delegated administration with scope constraints
 - Deferred: FS-09, FS-10, FS-14
 
-❌ **Compliance:**
+**Compliance:**
 - No document upload
 - No expiration notifications
 - No access enforcement (suspension/revocation)
 - No role promotion / maturity tracking
 - Deferred: FS-11, FS-12, FS-15, FS-16, EP-07, EP-08
 
-❌ **Admin Features:**
+**Admin Features:**
 - No diagnostics dashboard (system health metrics)
 - No real-time monitoring widgets
 - Deferred: TS-5.2, TS-5.5
@@ -360,7 +360,7 @@
 | **Backend Dev 2** | 1 (Semi-Senior, Rotating) | DBA tasks (Sprint 1-2), Security (TS-3.2), Config (TS-4.3), Middleware (TS-3.4) | 35h (100%) |
 | **QA/Backend Dev 3** | 1 (Semi-Senior) | Authorization schema (TS-3.3), Frontend (TS-5.1), Integration tests (TS-1.6), health checks | 35h (100%) |
 
-**Total Capacity:** 122.5h/week = **980h over 8 weeks**  
+**Total Capacity:** 122.5h/week = **980h over 8 weeks**
 **Sprint 0-3 Usage:** 1,100h (includes buffer)
 
 ---
@@ -445,26 +445,26 @@
 ### MVP Reducido (168 pts, 12 weeks, 4 personas)
 
 **Entra:**
-- ✅ Tenant & identity (55 pts)
-- ✅ Authorization core (56 pts)
-- ✅ Configuration (31 pts)
-- ✅ Login page + audit (26 pts)
+- Tenant & identity (55 pts)
+- Authorization core (56 pts)
+- Configuration (31 pts)
+- Login page + audit (26 pts)
 - **Total: 168 pts, 845h work, 1,225h with overhead = 10 weeks sprint time, 12 weeks wall-clock**
 
 **Sale:**
-- ❌ System Catalog (31 pts)
-- ❌ MFA / Security advanced (163 pts)
-- ❌ Compliance lifecycle (69 pts)
-- ❌ IGA role promotion (111 pts)
-- ❌ Diagnostics dashboard (13 pts)
+- System Catalog (31 pts)
+- MFA / Security advanced (163 pts)
+- Compliance lifecycle (69 pts)
+- IGA role promotion (111 pts)
+- Diagnostics dashboard (13 pts)
 - **Total deferred: 387 pts, ~1,530h work, 15+ weeks Post-MVP**
 
 **Viability:**
-- ✅ Realista con 4 personas × 7h/día
-- ✅ 12 weeks viable timeline
-- ✅ Core functionality complete (login, authorization, config)
-- ✅ Quality gates built-in (code review, tests)
-- ✅ Escalable: Post-MVP adds advanced features without rework
+- Realista con 4 personas × 7h/día
+- 12 weeks viable timeline
+- Core functionality complete (login, authorization, config)
+- Quality gates built-in (code review, tests)
+- Escalable: Post-MVP adds advanced features without rework
 
 **Próximos Pasos:**
 1. [ ] Validar alcance MVP con stakeholders (8 FS, 168 pts)
@@ -474,8 +474,8 @@
 
 ---
 
-**Aprobado por:** Principal Architect  
-**Fecha:** 2026-05-14  
-**Status:** ✅ **MVP REDUCIDO DEFINIDO, REALISTA Y VIABLE**
+**Aprobado por:** Principal Architect
+**Fecha:** 2026-05-14
+**Status:** **MVP REDUCIDO DEFINIDO, REALISTA Y VIABLE**
 
 *Este MVP es completo funcional para demostración interna y tiene valor real para usuarios. Post-MVP agrega seguridad avanzada, compliance y automatización.*

@@ -167,7 +167,7 @@ app.MapPost("/v1/users", async (
         req.Email,
         req.DisplayName,
         req.OrganizationId
-    ), ct);
+), ct);
 
     return result.IsSuccess
         ? Results.Created($"/v1/users/{result.Value}", new { id = result.Value })

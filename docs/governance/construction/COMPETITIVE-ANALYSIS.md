@@ -7,24 +7,22 @@
 
 ---
 
-## 🎯 RESUMEN EJECUTIVO
+## RESUMEN EJECUTIVO
 
 | Dimensión | UMS | Okta | Auth0 | Azure AD | Veredicto |
 |-----------|-----|------|-------|----------|-----------|
-| **Precio (100 usuarios)** | S/ 3,000/mes | S/ 5,400/mes | S/ 3,600/mes | S/ 3,240/mes | 🟢 UMS 17-45% más barato |
-| **Time-to-Production** | 1-2 semanas | 2-4 semanas | 1-3 semanas | 3-6 semanas | 🟢 UMS competitivo |
-| **Multi-tenancy jerárquico** | ✅ Nativo (closure tables) | ⚠️ Limitado | ⚠️ Limitado | ⚠️ Vía Azure subs | 🟢 UMS diferenciador |
-| **Localización Perú** | ✅ Nativa (idioma, soporte, factura) | ❌ Solo en inglés | ❌ Solo en inglés | ⚠️ Parcial | 🟢 UMS diferenciador |
-| **Customization (XACML)** | ✅ Policy-as-Code nativo | ⚠️ Mediante features pagos | ⚠️ Reglas JS | ⚠️ Conditional Access | 🟢 UMS más flexible |
-| **Soporte en castellano** | ✅ Local, mismo huso horario | ⚠️ EN/ES limitado | ⚠️ EN principalmente | ⚠️ Partner-based | 🟢 UMS diferenciador |
-| **Data residency Perú** | ✅ Opcional (on-prem o Azure Perú) | ❌ US/EU principalmente | ❌ US/EU | ⚠️ Azure regiones limitadas | 🟢 UMS diferenciador |
-| **Compliance local (peruano)** | ✅ Diseñado para SBS, INDECOPI | ❌ Genérico US/EU | ❌ Genérico | ⚠️ Genérico | 🟢 UMS diferenciador |
-
-**Conclusión:** UMS gana en 6 de 8 dimensiones críticas para el mercado mid-market peruano.
+| **Precio (100 usuarios)** | S/ 3,000/mes | S/ 5,400/mes | S/ 3,600/mes | S/ 3,240/mes | UMS 17-45% más barato |
+| **Time-to-Production** | 1-2 semanas | 2-4 semanas | 1-3 semanas | 3-6 semanas | UMS competitivo |
+| **Multi-tenancy jerárquico** | Nativo (closure tables) | Limitado | Limitado | Vía Azure subs | UMS diferenciador |
+| **Localización Perú** | Nativa (idioma, soporte, factura) | Solo en inglés | Solo en inglés | Parcial | UMS diferenciador |
+| **Customization (XACML)** | Policy-as-Code nativo | Mediante features pagos | Reglas JS | Conditional Access | UMS más flexible |
+| **Soporte en castellano** | Local, mismo huso horario | EN/ES limitado | EN principalmente | Partner-based | UMS diferenciador |
+| **Data residency Perú** | Opcional (on-prem o Azure Perú) | US/EU principalmente | US/EU | Azure regiones limitadas | UMS diferenciador |
+| **Compliance local (peruano)** | Diseñado para SBS, INDECOPI | Genérico US/EU | Genérico | Genérico | UMS diferenciador | **Conclusión:** UMS gana en 6 de 8 dimensiones críticas para el mercado mid-market peruano.
 
 ---
 
-## 📊 1. ANÁLISIS DETALLADO POR COMPETIDOR
+## 1. ANÁLISIS DETALLADO POR COMPETIDOR
 
 ### 1.1 Okta (Líder Global)
 
@@ -34,19 +32,15 @@
 - Para 500 usuarios: $2,500-7,500/mes = **S/ 9,000-27,000/mes**
 
 **Fortalezas:**
-- ✅ Líder reconocido (Gartner MQ)
-- ✅ 7,000+ integraciones pre-construidas
-- ✅ Identity Cloud robusto
-
-**Debilidades vs UMS:**
-- ❌ Costo prohibitivo para mid-market peruano
-- ❌ Onboarding 4-8 semanas con consultores certificados
-- ❌ Multi-tenancy jerárquico complejo (requiere múltiples orgs)
-- ❌ Sin presencia local en Perú (soporte vía SI partners)
-- ❌ Pricing per-user escala mal para empresas con muchos usuarios
-- ❌ Pricing en USD expone a riesgo cambiario
-
-**Time-to-value:** 4-8 semanas con SI partner
+- Líder reconocido (Gartner MQ)
+- 7,000+ integraciones pre-construidas
+- Identity Cloud robusto **Debilidades vs UMS:**
+- Costo prohibitivo para mid-market peruano
+- Onboarding 4-8 semanas con consultores certificados
+- Multi-tenancy jerárquico complejo (requiere múltiples orgs)
+- Sin presencia local en Perú (soporte vía SI partners)
+- Pricing per-user escala mal para empresas con muchos usuarios
+- Pricing en USD expone a riesgo cambiario **Time-to-value:** 4-8 semanas con SI partner
 
 ---
 
@@ -59,17 +53,17 @@
 - Para 100 usuarios típicos: $400-1,000/mes = **S/ 1,440-3,600/mes**
 
 **Fortalezas:**
-- ✅ Developer-first (excelente DX)
-- ✅ Free tier generoso
-- ✅ Acquired por Okta (estabilidad)
+- Developer-first (excelente DX)
+- Free tier generoso
+- Acquired por Okta (estabilidad)
 
 **Debilidades vs UMS:**
-- ❌ Modelo per-Active-User crea picos imprevisibles
-- ❌ Multi-tenancy no es nativo (requiere "Organizations" feature)
-- ❌ Sin soporte XACML estándar (usa reglas JS custom)
-- ❌ Soporte en español limitado
-- ❌ Compliance peruano no es target
-- ❌ Datos en US/EU (issues data residency)
+- Modelo per-Active-User crea picos imprevisibles
+- Multi-tenancy no es nativo (requiere "Organizations" feature)
+- Sin soporte XACML estándar (usa reglas JS custom)
+- Soporte en español limitado
+- Compliance peruano no es target
+- Datos en US/EU (issues data residency)
 
 **Time-to-value:** 1-3 semanas para casos simples; 4-8 semanas para multi-tenant
 
@@ -84,19 +78,15 @@
 - Para 100 usuarios (P2): $900/mes = **S/ 3,240/mes**
 
 **Fortalezas:**
-- ✅ Bundled con Microsoft 365
-- ✅ Conditional Access avanzado
-- ✅ MFA robusto
-
-**Debilidades vs UMS:**
-- ❌ Lock-in con ecosistema Microsoft
-- ❌ Multi-tenancy = múltiples Azure subscriptions (complejo, caro)
-- ❌ Customization limitada (no policy-as-code abierto)
-- ❌ Integración con apps no-Microsoft requiere desarrollo custom
-- ❌ Pricing escalado per-usuario sube rápido
-- ❌ Compliance local Perú requiere configuración adicional
-
-**Time-to-value:** 3-6 semanas (especialmente si no se está en ecosistema Microsoft)
+- Bundled con Microsoft 365
+- Conditional Access avanzado
+- MFA robusto **Debilidades vs UMS:**
+- Lock-in con ecosistema Microsoft
+- Multi-tenancy = múltiples Azure subscriptions (complejo, caro)
+- Customization limitada (no policy-as-code abierto)
+- Integración con apps no-Microsoft requiere desarrollo custom
+- Pricing escalado per-usuario sube rápido
+- Compliance local Perú requiere configuración adicional **Time-to-value:** 3-6 semanas (especialmente si no se está en ecosistema Microsoft)
 
 ---
 
@@ -107,30 +97,24 @@
 - Para 100 usuarios: $400-800/mes = **S/ 1,440-2,880/mes**
 
 **Fortalezas vs UMS:**
-- ✅ Pricing competitivo
-- ✅ MFA decente
-
-**Debilidades vs UMS:**
-- ❌ Menor diferenciación tecnológica
-- ❌ Soporte español limitado
-- ❌ Sin presencia local Perú
+- Pricing competitivo
+- MFA decente **Debilidades vs UMS:**
+- Menor diferenciación tecnológica
+- Soporte español limitado
+- Sin presencia local Perú
 
 ---
 
 ### 1.5 Competidores Locales (Perú)
 
-**Situación:** **No existe competidor local directo con producto IAM completo.**
-
-Existen:
-- 🟡 **SI Integradores** (GMD, Stefanini, Indra) — ofrecen implementaciones custom (S/ 200K-500K, 6-12 meses)
-- 🟡 **Soluciones AD on-premise legacy** — requieren especialistas internos, no SaaS
-- 🟡 **Open source** (Keycloak, Authentik) — requieren expertise técnico significativo
-
-**Oportunidad:** UMS es el **primer producto SaaS IAM made-in-Peru** orientado a mid-market.
+**Situación:** **No existe competidor local directo con producto IAM completo.** Existen:
+- **SI Integradores** (GMD, Stefanini, Indra) — ofrecen implementaciones custom (S/ 200K-500K, 6-12 meses)
+- **Soluciones AD on-premise legacy** — requieren especialistas internos, no SaaS
+- **Open source** (Keycloak, Authentik) — requieren expertise técnico significativo **Oportunidad:** UMS es el **primer producto SaaS IAM made-in-Peru **orientado a mid-market.
 
 ---
 
-## 💰 2. ANÁLISIS DE TCO (Total Cost of Ownership) — 3 AÑOS
+## 2. ANÁLISIS DE TCO (Total Cost of Ownership) — 3 AÑOS
 
 Para empresa peruana mid-market con 200 usuarios:
 
@@ -144,38 +128,29 @@ Para empresa peruana mid-market con 200 usuarios:
 | **Training equipo IT (3 años)** | S/ 5,000 | S/ 30,000 | S/ 20,000 | S/ 25,000 |
 | **Customizations (3 años)** | S/ 10,000 | S/ 60,000 | S/ 40,000 | S/ 80,000 |
 | **TOTAL TCO 3 años** | **S/ 138,000** | S/ 490,000 | S/ 302,000 | S/ 439,400 |
-| **Ahorro vs UMS** | — | **S/ 352K (255% más caro)** | S/ 164K (119% más caro) | S/ 301K (218% más caro) |
-
-**Argumento de venta clave:** UMS ahorra **S/ 164K-352K en 3 años** vs alternativas globales.
+| **Ahorro vs UMS** | — | **S/ 352K (255% más caro)** | S/ 164K (119% más caro) | S/ 301K (218% más caro) | **Argumento de venta clave:** UMS ahorra **S/ 164K-352K en 3 años **vs alternativas globales.
 
 ---
 
-## 🎯 3. POSICIONAMIENTO ESTRATÉGICO
+## 3. POSICIONAMIENTO ESTRATÉGICO
 
 ### 3.1 Mapa Competitivo (2D)
 
-```
-                  Alto │
-                       │
-                       │           Okta ●
-       Precio          │
-       Premium         │      Azure AD P2 ●
-                       │
-                       │            Auth0 ●
-                       │
-                       │     OneLogin ●
-                       │
-                       │
-                  ────────────────────────────
-                       │
-                       │            UMS ● ⭐ (sweet spot)
-       Mid             │
-       Pricing         │
-                       │
-                       │     Keycloak ● (free pero requiere expertise)
-                       │
-                  Bajo └─────────────────────────────────────
-                       Bajo      Customization/Localization     Alto
+```mermaid
+quadrantChart
+    title Mapa Competitivo IAM (Mid-Market Peru)
+    x-axis "Customization / Localizacion baja" --> "Customization / Localizacion alta"
+    y-axis "Pricing bajo" --> "Pricing premium"
+    quadrant-1 "Premium globales"
+    quadrant-2 "Sin opciones"
+    quadrant-3 "Open-source DIY"
+    quadrant-4 "Sweet spot UMS"
+    Okta: [0.30, 0.90]
+    Azure AD P2: [0.25, 0.70]
+    Auth0: [0.45, 0.60]
+    OneLogin: [0.35, 0.55]
+    Keycloak: [0.55, 0.10]
+    UMS: [0.80, 0.40]
 ```
 
 **Sweet spot UMS:** Pricing mid + localización alta = espacio sin competidor directo en Perú
@@ -196,7 +171,7 @@ Para empresa peruana mid-market con 200 usuarios:
 
 ---
 
-## 📈 4. VENTANA DE OPORTUNIDAD
+## 4. VENTANA DE OPORTUNIDAD
 
 ### 4.1 Por qué AHORA es el momento
 
@@ -206,20 +181,16 @@ Para empresa peruana mid-market con 200 usuarios:
 | **Compliance peruano endurece** | SBS Resolución 504-2021, Ley Protección Datos | Mercado obligado a invertir en IAM |
 | **Adopción de SaaS mid-market acelera** | Pandemic-era digitalization continuada | Demanda creciente |
 | **Talent disponible (post-bootcamps)** | Aumento de devs .NET/React en Perú | Capacidad de construir + soportar localmente |
-| **GenAI reduce costo de desarrollo** | 25-30% velocity gain | UMS llega a mercado más rápido que competencia local |
-
-### 4.2 Riesgo Competitivo
+| **GenAI reduce costo de desarrollo** | 25-30% velocity gain | UMS llega a mercado más rápido que competencia local | ### 4.2 Riesgo Competitivo
 
 | Amenaza | Probabilidad | Mitigación |
 |---------|--------------|------------|
 | Okta lanza pricing agresivo Latam | Baja | Sus márgenes no lo permiten; respuesta tomaría 12+ meses |
 | Competidor local nace en 2026 | Media | First-mover advantage + 49 ADRs propietarios |
 | Cliente prefiere open-source (Keycloak) | Media-Alta | UMS ofrece "managed Keycloak experience" + SLA local |
-| Microsoft regala Azure AD bundled | Alta (ya pasa) | UMS para no-Microsoft shops + multi-cloud customers |
+| Microsoft regala Azure AD bundled | Alta (ya pasa) | UMS para no-Microsoft shops + multi-cloud customers | ---
 
----
-
-## 🎯 5. OBJECIONES COMUNES Y RESPUESTAS
+## 5. OBJECIONES COMUNES Y RESPUESTAS
 
 ### Objeción 1: "Okta es el líder, ¿por qué arriesgar con producto nuevo?"
 **Respuesta:**
@@ -253,18 +224,16 @@ Para empresa peruana mid-market con 200 usuarios:
 
 ---
 
-## 🔗 Referencias Cruzadas
+## Referencias Cruzadas
 
 | Para... | Lea... |
 |---------|--------|
 | Modelo de revenue (justificación pricing) | [REVENUE-MODEL-YEAR-1.md](./REVENUE-MODEL-YEAR-1.md) |
 | Costo de construir UMS (inversión) | [ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md](./ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md) |
 | Diferenciador técnico (RLS, XACML) | [TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md](./TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md) |
-| Resumen ejecutivo para directorio | [../RESUMEN-EJECUTIVO-DIRECTORES.md](../RESUMEN-EJECUTIVO-DIRECTORES.md) |
+| Resumen ejecutivo para directorio | [../RESUMEN-EJECUTIVO-DIRECTORES.md](../RESUMEN-EJECUTIVO-DIRECTORES.md) | ---
 
----
-
-## 📋 FUENTES Y CITAS
+## FUENTES Y CITAS
 
 Datos de pricing recopilados de:
 - Okta: https://www.okta.com/pricing/ (consultado 2026-05)
@@ -280,7 +249,4 @@ Benchmarks SaaS LTV/CAC:
 
 ---
 
-**Documento preparado por:** Arquitecto Principal
-**Fecha:** 2026-05-15
-**Estado:** 🟡 Borrador — Validar pricing con sales team antes de pitch externo
-**Próximo paso:** Cross-check con Sales/Marketing para ajustar mensajes y benchmark final
+**Documento preparado por:** Arquitecto Principal **Fecha:** 2026-05-15 **Estado:** Borrador — Validar pricing con sales team antes de pitch externo **Próximo paso:** Cross-check con Sales/Marketing para ajustar mensajes y benchmark final

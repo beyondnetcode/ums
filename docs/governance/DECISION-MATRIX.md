@@ -3,23 +3,19 @@
 > **Propósito:** Documento formal de aprobación para iniciar construcción del MVP.
 > **Firmantes requeridos:** CTO, CFO, Head of Engineering
 > **Fecha límite de decisión:** 7 días desde recepción
-> **Próximo paso si GO:** Kickoff Sprint 0 dentro de 7 días
-
-**Versión:** 1.0 | **Fecha:** 2026-05-15 | **Estado:** ⏳ PENDIENTE DE FIRMA
+> **Próximo paso si GO:** Kickoff Sprint 0 dentro de 7 días **Versión:** 1.0 | **Fecha:** 2026-05-15 | **Estado:** ⏳ PENDIENTE DE FIRMA
 
 ---
 
-## 📋 SECCIÓN 1: Decisiones Estratégicas
+## SECCIÓN 1: Decisiones Estratégicas
 
 ### 1.1 Modelo de Ejecución
 
 | Opción | Costo | Timeline | ROI Y1 | Riesgo | Recomendación |
 |--------|-------|----------|--------|--------|--------------|
-| ☐ **A. AI-Driven Híbrido** | S/ 141,000 | 8.5 sem | 729% | Medio | ⭐ **RECOMENDADO** |
-| ☐ **B. Equipo Humano Tradicional** | S/ 182,350 | 12 sem | 382% | Bajo | Plan B conservador |
-| ☐ **C. NO-GO** | — | — | — | — | Si no se cumplen condiciones |
-
-**Selección:** ☐ A   ☐ B   ☐ C
+| **A. AI-Driven Híbrido** | S/ 141,000 | 8.5 sem | 729% | Medio | **RECOMENDADO** |
+| **B. Equipo Humano Tradicional** | S/ 182,350 | 12 sem | 382% | Bajo | Plan B conservador |
+| **C. NO-GO** | — | — | — | — | Si no se cumplen condiciones | **Selección:** A B C
 
 ---
 
@@ -27,11 +23,9 @@
 
 | Opción | Costo Infra (3 meses) | Costo Op. Anual | Lock-in | Recomendación |
 |--------|----------------------|-----------------|---------|--------------|
-| ☐ **On-Premise** | S/ 23,100 | S/ 180,000 | Bajo | ❌ Complejo, no recomendado |
-| ☐ **Híbrido (Azure)** | S/ 12,450 | S/ 95,000 | Medio | ⭐ **RECOMENDADO** |
-| ☐ **Cloud-Native** | S/ 21,300 | S/ 110,000 | Alto | Alternativa futura |
-
-**Selección:** ☐ On-Premise   ☐ Híbrido   ☐ Cloud-Native
+| **On-Premise** | S/ 23,100 | S/ 180,000 | Bajo | Complejo, no recomendado |
+| **Híbrido (Azure)** | S/ 12,450 | S/ 95,000 | Medio | **RECOMENDADO** |
+| **Cloud-Native** | S/ 21,300 | S/ 110,000 | Alto | Alternativa futura | **Selección:** On-Premise Híbrido Cloud-Native
 
 ---
 
@@ -39,14 +33,12 @@
 
 | Opción | Story Points | Funcionalidades | Timeline | Recomendación |
 |--------|--------------|-----------------|----------|--------------|
-| ☐ **MVP Reducido (8 FS)** | 168 pts | Identidad + Authz + Config + Login | 8.5–12 sem | ⭐ **RECOMENDADO** |
-| ☐ **MVP Completo (16 FS)** | 336 pts | Todo el producto | 25+ semanas | ❌ Excede capacidad equipo |
-
-**Selección:** ☐ Reducido   ☐ Completo
+| **MVP Reducido (8 FS)** | 168 pts | Identidad + Authz + Config + Login | 8.5–12 sem | **RECOMENDADO** |
+| **MVP Completo (16 FS)** | 336 pts | Todo el producto | 25+ semanas | Excede capacidad equipo | **Selección:** Reducido Completo
 
 ---
 
-## 📋 SECCIÓN 2: Condiciones de Aprobación
+## SECCIÓN 2: Condiciones de Aprobación
 
 Marcar cada condición como aceptada antes de firmar:
 
@@ -82,21 +74,19 @@ Marcar cada condición como aceptada antes de firmar:
 
 ---
 
-## 📋 SECCIÓN 3: Riesgos Aceptados
+## SECCIÓN 3: Riesgos Aceptados
 
 Confirmar comprensión y aceptación de cada riesgo:
 
-| # | Riesgo | Prob. | Impacto | Mitigación | ✓ Acepto |
+| # | Riesgo | Prob. | Impacto | Mitigación | Acepto |
 |---|--------|-------|---------|------------|---------|
-| 1 | Complejidad RLS multi-tenant subestimada | Media | Alto | Code review DBA externo + pair programming TL | ☐ |
-| 2 | Hiring 2 ingenieros (si Modelo B) no completo en 2 sem | Media | Medio | Contractor backup S/ 18K reservado | ☐ |
-| 3 | Alucinaciones AI (si Modelo A) generan retrabajo | Media-Alta | Medio | Quality gates + 10% buffer presupuestado | ☐ |
-| 4 | Retrasos por dependencia entre TS críticos (RLS → PDP → Config) | Baja-Media | Alto | Buffer 4 semanas en timeline 12 sem | ☐ |
-| 5 | Cliente adoption Y1 menor a 50 (Revenue model) | Media | Alto | Sensitivity analysis 25/50/100 clientes en revenue model | ☐ |
+| 1 | Complejidad RLS multi-tenant subestimada | Media | Alto | Code review DBA externo + pair programming TL | |
+| 2 | Hiring 2 ingenieros (si Modelo B) no completo en 2 sem | Media | Medio | Contractor backup S/ 18K reservado | |
+| 3 | Alucinaciones AI (si Modelo A) generan retrabajo | Media-Alta | Medio | Quality gates + 10% buffer presupuestado | |
+| 4 | Retrasos por dependencia entre TS críticos (RLS → PDP → Config) | Baja-Media | Alto | Buffer 4 semanas en timeline 12 sem | |
+| 5 | Cliente adoption Y1 menor a 50 (Revenue model) | Media | Alto | Sensitivity analysis 25/50/100 clientes en revenue model | | ---
 
----
-
-## 📋 SECCIÓN 4: Métricas de Éxito Acordadas
+## SECCIÓN 4: Métricas de Éxito Acordadas
 
 Definir KPIs verificables para sign-off final del MVP:
 
@@ -121,57 +111,39 @@ Definir KPIs verificables para sign-off final del MVP:
 
 ---
 
-## 📋 SECCIÓN 5: Firmas
+## SECCIÓN 5: Firmas
 
-### Firmante 1: Chief Technology Officer
-
-**Decisión:** ☐ GO Modelo A (AI-Driven)   ☐ GO Modelo B (Humano)   ☐ NO-GO
-
-**Comentarios/Condiciones adicionales:**
+### Firmante 1: Chief Technology Officer **Decisión:** GO Modelo A (AI-Driven) GO Modelo B (Humano) NO-GO** Comentarios/Condiciones adicionales:**
 ```
 _________________________________________________________________
 _________________________________________________________________
 ```
 
-**Nombre:** _______________________________
-**Firma:** _______________________________
-**Fecha:** _______________________________
+**Nombre:**_______________________________**Firma:**_______________________________**Fecha:**_______________________________
 
 ---
 
-### Firmante 2: Chief Financial Officer
-
-**Decisión:** ☐ APROBAR S/ 141K (Modelo A)   ☐ APROBAR S/ 182K (Modelo B)   ☐ NO-GO
-
-**Comentarios/Condiciones financieras:**
+### Firmante 2: Chief Financial Officer **Decisión:** APROBAR S/ 141K (Modelo A) APROBAR S/ 182K (Modelo B) NO-GO** Comentarios/Condiciones financieras:**
 ```
 _________________________________________________________________
 _________________________________________________________________
 ```
 
-**Nombre:** _______________________________
-**Firma:** _______________________________
-**Fecha:** _______________________________
+**Nombre:**_______________________________**Firma:**_______________________________**Fecha:**_______________________________
 
 ---
 
-### Firmante 3: Head of Engineering
-
-**Decisión:** ☐ APROBAR equipo + timeline   ☐ NO-GO
-
-**Comentarios/Compromisos de equipo:**
+### Firmante 3: Head of Engineering **Decisión:** APROBAR equipo + timeline NO-GO** Comentarios/Compromisos de equipo:**
 ```
 _________________________________________________________________
 _________________________________________________________________
 ```
 
-**Nombre:** _______________________________
-**Firma:** _______________________________
-**Fecha:** _______________________________
+**Nombre:**_______________________________**Firma:**_______________________________**Fecha:**_______________________________
 
 ---
 
-## 📋 SECCIÓN 6: Próximos Pasos Post-Firma
+## SECCIÓN 6: Próximos Pasos Post-Firma
 
 ### Si decisión es GO:
 
@@ -205,7 +177,7 @@ _________________________________________________________________
 
 ---
 
-## 🔗 Documentos de Soporte para esta Decisión
+## Documentos de Soporte para esta Decisión
 
 | Pregunta del Firmante | Documento de Referencia | Tiempo Lectura |
 |----------------------|------------------------|----------------|
@@ -215,15 +187,10 @@ _________________________________________________________________
 | **"¿Detalle de costos por escenario?"** | [ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md](./construction/ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md) | 15 min |
 | **"¿Qué pasa si X se retrasa?"** | [ESTIMATION-VALIDATION-MATRIX.md](./construction/ESTIMATION-VALIDATION-MATRIX.md) | 20 min |
 | **"¿Resumen rápido?"** | [RESUMEN-EJECUTIVO-DIRECTORES.md](./RESUMEN-EJECUTIVO-DIRECTORES.md) | 5 min |
-| **"¿Presentación visual?"** | [BOARD-PRESENTATION.md](./BOARD-PRESENTATION.md) | 20 min |
+| **"¿Presentación visual?"** | [BOARD-PRESENTATION.md](./BOARD-PRESENTATION.md) | 20 min | ---
+
+**Documento preparado por:** Arquitecto Principal **Fecha:** 2026-05-15 **Última actualización:** 2026-05-15 **Estado:** ⏳ PENDIENTE DE FIRMA DE LOS 3 FIRMANTES
 
 ---
 
-**Documento preparado por:** Arquitecto Principal
-**Fecha:** 2026-05-15
-**Última actualización:** 2026-05-15
-**Estado:** ⏳ PENDIENTE DE FIRMA DE LOS 3 FIRMANTES
-
----
-
-> 💡 **Nota:** Este documento es el "botón Sign Here" del governance. Una vez firmado por los 3 firmantes, este documento se archiva en `/governance/audits/` con fecha y se inicia el plan de ejecución.
+> **Nota:** Este documento es el "botón Sign Here" del governance. Una vez firmado por los 3 firmantes, este documento se archiva en `/governance/audits/` con fecha y se inicia el plan de ejecución.

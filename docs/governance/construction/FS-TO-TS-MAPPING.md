@@ -1,8 +1,8 @@
 # Functional Stories → Technical Stories Mapping
 
-**Version:** 1.0  
-**Date:** 2026-05-14  
-**Purpose:** Map each Functional Story (FS) to its Technical Stories (TS)  
+**Version:** 1.0
+**Date:** 2026-05-14
+**Purpose:** Map each Functional Story (FS) to its Technical Stories (TS)
 **Scope:** All 16 functional stories across 8 épicas
 
 ---
@@ -11,7 +11,7 @@
 
 ### FS-01: Corporate User Login
 
-**Functional Description:**  
+**Functional Description:**
 As a corporate user, I can log in with email + password to access the UMS.
 
 **Associated Technical Stories:**
@@ -25,16 +25,16 @@ As a corporate user, I can log in with email + password to access the UMS.
 | TS-1.6 | Multi-Tenant Isolation Tests | 13 pts | Validate login isolation across tenants (EF filter + composite key) |
 
 **Acceptance Criteria Alignment:**
-- ✅ User can enter email + password → handled by TS-1.5 (form validation)
-- ✅ Password verified securely → handled by TS-1.4 (BcryptPasswordHasher)
-- ✅ User isolated by tenant → handled by TS-1.3 (EF Core global query filter, PRIMARY) + TS-1.2 (composite key enforcement)
-- ✅ Login auditable → implicit in all TS (audit columns)
+- User can enter email + password → handled by TS-1.5 (form validation)
+- Password verified securely → handled by TS-1.4 (BcryptPasswordHasher)
+- User isolated by tenant → handled by TS-1.3 (EF Core global query filter, PRIMARY) + TS-1.2 (composite key enforcement)
+- Login auditable → implicit in all TS (audit columns)
 
 ---
 
 ### FS-02: User Self-Registration
 
-**Functional Description:**  
+**Functional Description:**
 As a new user, I can self-register with email + name + password, receive verification email.
 
 **Associated Technical Stories:**
@@ -48,17 +48,17 @@ As a new user, I can self-register with email + name + password, receive verific
 | TS-1.6 | Multi-Tenant Isolation Tests | 13 pts | Validate registered users isolated by tenant |
 
 **Acceptance Criteria Alignment:**
-- ✅ Form accepts email, name, password → TS-1.5 (FluentValidation)
-- ✅ Password hashed before storage → TS-1.4 (BcryptPasswordHasher)
-- ✅ Verification email sent → TS-1.4 (SendgridEmailAdapter)
-- ✅ Unverified users cannot login → TS-1.5 (API logic check)
-- ✅ Each user isolated by tenant → TS-1.3 (EF Core filter) + TS-1.2 (composite key)
+- Form accepts email, name, password → TS-1.5 (FluentValidation)
+- Password hashed before storage → TS-1.4 (BcryptPasswordHasher)
+- Verification email sent → TS-1.4 (SendgridEmailAdapter)
+- Unverified users cannot login → TS-1.5 (API logic check)
+- Each user isolated by tenant → TS-1.3 (EF Core filter) + TS-1.2 (composite key)
 
 ---
 
 ### FS-03: Organization Onboarding
 
-**Functional Description:**  
+**Functional Description:**
 As an org admin, I can onboard a new organization with name + contact info, creating root tenant + initial admin user.
 
 **Associated Technical Stories:**
@@ -72,10 +72,10 @@ As an org admin, I can onboard a new organization with name + contact info, crea
 | TS-1.6 | Multi-Tenant Isolation Tests | 13 pts | Validate new tenant isolated, admin user scoped |
 
 **Acceptance Criteria Alignment:**
-- ✅ Create new organization → TS-1.1 + TS-1.5 (Tenant aggregate + endpoint)
-- ✅ Initialize root_tenant_id (closure table anchor) → TS-1.2 (schema) + TS-1.1 (domain logic)
-- ✅ Create admin user scoped to tenant → TS-1.4 (user creation service)
-- ✅ Verify tenant/admin isolated from others → TS-1.6 (EF Core filter + tests)
+- Create new organization → TS-1.1 + TS-1.5 (Tenant aggregate + endpoint)
+- Initialize root_tenant_id (closure table anchor) → TS-1.2 (schema) + TS-1.1 (domain logic)
+- Create admin user scoped to tenant → TS-1.4 (user creation service)
+- Verify tenant/admin isolated from others → TS-1.6 (EF Core filter + tests)
 
 ---
 
@@ -83,7 +83,7 @@ As an org admin, I can onboard a new organization with name + contact info, crea
 
 ### FS-04: Register System and Define Topology
 
-**Functional Description:**  
+**Functional Description:**
 As a system admin, I can register a system (e.g., CRM) and define its topology (environments, endpoints).
 
 **Associated Technical Stories:**
@@ -96,10 +96,10 @@ As a system admin, I can register a system (e.g., CRM) and define its topology (
 | TS-2.5 | Catalog Integration Tests | 8 pts | System registration, isolation, topology queries |
 
 **Acceptance Criteria Alignment:**
-- ✅ Register system with name, type, base_url → TS-2.4 (API) + TS-2.1 (domain validation)
-- ✅ Define environments (DEV, TEST, STAGING, PROD) → TS-2.1 (SystemTopology value object)
-- ✅ Enumerate endpoints per environment → TS-2.2 (schema with topology JSON)
-- ✅ Systems scoped to tenant → TS-2.2 (RLS via root_tenant_id)
+- Register system with name, type, base_url → TS-2.4 (API) + TS-2.1 (domain validation)
+- Define environments (DEV, TEST, STAGING, PROD) → TS-2.1 (SystemTopology value object)
+- Enumerate endpoints per environment → TS-2.2 (schema with topology JSON)
+- Systems scoped to tenant → TS-2.2 (RLS via root_tenant_id)
 
 ---
 
@@ -107,7 +107,7 @@ As a system admin, I can register a system (e.g., CRM) and define its topology (
 
 ### FS-05: Define Authorization Policy
 
-**Functional Description:**  
+**Functional Description:**
 As a security admin, I can define XACML-style policies with rules, conditions, and effects.
 
 **Associated Technical Stories:**
@@ -120,17 +120,17 @@ As a security admin, I can define XACML-style policies with rules, conditions, a
 | TS-3.6 | PDP Unit Tests | 13 pts | Policy evaluation logic (20+ scenarios) |
 
 **Acceptance Criteria Alignment:**
-- ✅ Create policy with name, rules list → TS-3.1 (Policy aggregate) + TS-3.5 (POST endpoint)
-- ✅ Each rule: effect [ALLOW/DENY], conditions, actions, resources → TS-3.1 (Rule entity)
-- ✅ Conditions: attribute-based (user.role, system.name, time.hour) → TS-3.2 (PIP attribute resolution)
-- ✅ Rules evaluated in order (first match wins or effect aggregation) → TS-3.2 (PDP logic)
-- ✅ Policies persistent and queryable → TS-3.3 (SQL tables)
+- Create policy with name, rules list → TS-3.1 (Policy aggregate) + TS-3.5 (POST endpoint)
+- Each rule: effect [ALLOW/DENY], conditions, actions, resources → TS-3.1 (Rule entity)
+- Conditions: attribute-based (user.role, system.name, time.hour) → TS-3.2 (PIP attribute resolution)
+- Rules evaluated in order (first match wins or effect aggregation) → TS-3.2 (PDP logic)
+- Policies persistent and queryable → TS-3.3 (SQL tables)
 
 ---
 
 ### FS-06: Assign Authorization Profile to User
 
-**Functional Description:**  
+**Functional Description:**
 As a security admin, I can create profiles (bundles of policies) and assign them to users.
 
 **Associated Technical Stories:**
@@ -143,17 +143,17 @@ As a security admin, I can create profiles (bundles of policies) and assign them
 | TS-3.7 | Authorization Integration Tests | 13 pts | Profile assignment flow, permission inheritance |
 
 **Acceptance Criteria Alignment:**
-- ✅ Create profile with name, policies list → TS-3.1 (Profile aggregate) + TS-3.5 (API)
-- ✅ Assign profile to user → TS-3.5 (POST assign endpoint) + TS-3.3 (profile_assignments table)
-- ✅ User inherits all policies' permissions → TS-3.2 (PDP compilation model, ADR-0021)
-- ✅ Assignment persistent → TS-3.3 (SQL)
-- ✅ Verify user gains permissions post-assignment → TS-3.7 (integration tests)
+- Create profile with name, policies list → TS-3.1 (Profile aggregate) + TS-3.5 (API)
+- Assign profile to user → TS-3.5 (POST assign endpoint) + TS-3.3 (profile_assignments table)
+- User inherits all policies' permissions → TS-3.2 (PDP compilation model, ADR-0021)
+- Assignment persistent → TS-3.3 (SQL)
+- Verify user gains permissions post-assignment → TS-3.7 (integration tests)
 
 ---
 
 ### FS-07: Evaluate User Permissions at Runtime
 
-**Functional Description:**  
+**Functional Description:**
 At API request time, evaluate if user can perform action on resource (PDP decision).
 
 **Associated Technical Stories:**
@@ -166,12 +166,12 @@ At API request time, evaluate if user can perform action on resource (PDP decisi
 | TS-3.7 | Authorization Integration Tests | 13 pts | End-to-end request → decision → allow/deny |
 
 **Acceptance Criteria Alignment:**
-- ✅ Extract user, system, action, resource from request context → TS-3.4 (middleware)
-- ✅ Resolve user attributes (role, group, tenure) via PIP → TS-3.2 (IAttributeRepository)
-- ✅ Evaluate policies' conditions → TS-3.2 (PDP evaluation)
-- ✅ Return ALLOW or DENY decision + explanation → TS-3.2 (decision object)
-- ✅ Enforce decision (allow continuation or 403) → TS-3.4 (middleware enforcement)
-- ✅ Cache decisions for performance → TS-3.2 (IAuthorizationCache)
+- Extract user, system, action, resource from request context → TS-3.4 (middleware)
+- Resolve user attributes (role, group, tenure) via PIP → TS-3.2 (IAttributeRepository)
+- Evaluate policies' conditions → TS-3.2 (PDP evaluation)
+- Return ALLOW or DENY decision + explanation → TS-3.2 (decision object)
+- Enforce decision (allow continuation or 403) → TS-3.4 (middleware enforcement)
+- Cache decisions for performance → TS-3.2 (IAuthorizationCache)
 
 ---
 
@@ -179,7 +179,7 @@ At API request time, evaluate if user can perform action on resource (PDP decisi
 
 ### FS-13: Define Hierarchical Configuration Parameters
 
-**Functional Description:**  
+**Functional Description:**
 As a config admin, I can define parameters at tenant/system/environment level with hierarchical resolution.
 
 **Associated Technical Stories:**
@@ -192,11 +192,11 @@ As a config admin, I can define parameters at tenant/system/environment level wi
 | TS-4.5 | Configuration Hierarchy Tests | 8 pts | Scope resolution, override behavior, cache invalidation |
 
 **Acceptance Criteria Alignment:**
-- ✅ Create parameter at scope (TENANT/SYSTEM/ENVIRONMENT) → TS-4.1 + TS-4.4 (API)
-- ✅ Hierarchical resolution (ENV > SYSTEM > TENANT defaults) → TS-4.3 (resolution service)
-- ✅ Override behavior: system param overrides tenant param → TS-4.3 (resolution logic)
-- ✅ Parameterized by tenant → TS-4.2 (RLS via root_tenant_id)
-- ✅ Performance: caching with TTL (5 min) → TS-4.3 (Redis optional)
+- Create parameter at scope (TENANT/SYSTEM/ENVIRONMENT) → TS-4.1 + TS-4.4 (API)
+- Hierarchical resolution (ENV > SYSTEM > TENANT defaults) → TS-4.3 (resolution service)
+- Override behavior: system param overrides tenant param → TS-4.3 (resolution logic)
+- Parameterized by tenant → TS-4.2 (RLS via root_tenant_id)
+- Performance: caching with TTL (5 min) → TS-4.3 (Redis optional)
 
 ---
 
@@ -204,7 +204,7 @@ As a config admin, I can define parameters at tenant/system/environment level wi
 
 ### FS-08: Hosted Login Page + Diagnostics
 
-**Functional Description:**  
+**Functional Description:**
 As a user, I see a branded login page. As admin, I see diagnostics dashboard with system health + audit logs.
 
 **Associated Technical Stories:**
@@ -218,12 +218,12 @@ As a user, I see a branded login page. As admin, I see diagnostics dashboard wit
 | TS-5.5 | Frontend Integration Tests | 8 pts | E2E login flow (Playwright), dashboard load, metric accuracy |
 
 **Acceptance Criteria Alignment:**
-- ✅ Login page branded (tenant colors from config) → TS-5.1 (React page + TS-4.3 config resolution)
-- ✅ Form: email, password, remember-me → TS-5.1 (controlled React form, client+server validation)
-- ✅ Error messages: invalid credentials, account locked, network errors → TS-5.1 (React error handling)
-- ✅ Diagnostics widgets: tenant count, user count, EF Core filter health, response times → TS-5.2 (metrics via TanStack Query)
-- ✅ Audit events queryable with filters → TS-5.3 (API filtering, pagination)
-- ✅ Health endpoint for k8s/monitoring → TS-5.4 (200/503 responses)
+- Login page branded (tenant colors from config) → TS-5.1 (React page + TS-4.3 config resolution)
+- Form: email, password, remember-me → TS-5.1 (controlled React form, client+server validation)
+- Error messages: invalid credentials, account locked, network errors → TS-5.1 (React error handling)
+- Diagnostics widgets: tenant count, user count, EF Core filter health, response times → TS-5.2 (metrics via TanStack Query)
+- Audit events queryable with filters → TS-5.3 (API filtering, pagination)
+- Health endpoint for k8s/monitoring → TS-5.4 (200/503 responses)
 
 ---
 
@@ -231,7 +231,7 @@ As a user, I see a branded login page. As admin, I see diagnostics dashboard wit
 
 ### FS-09: Adaptive MFA & Passwordless Authentication
 
-**Functional Description:**  
+**Functional Description:**
 During login, evaluate risk (6 factors). If HIGH risk, challenge with MFA. Support FIDO2, magic link, app push.
 
 **Associated Technical Stories:**
@@ -245,18 +245,18 @@ During login, evaluate risk (6 factors). If HIGH risk, challenge with MFA. Suppo
 | TS-6.11 | MFA Integration Tests | 13 pts | Login with MFA, risk score calculation, passwordless flows |
 
 **Acceptance Criteria Alignment:**
-- ✅ Evaluate 6 risk factors (frequency, geographic, device, network, failed attempts, tenant risk) → TS-6.2 (risk engine)
-- ✅ Calculate 0-100 risk score, map to 4 levels (LOW/MEDIUM/HIGH/CRITICAL) → TS-6.2 (thresholds)
-- ✅ LOW risk: no MFA. MEDIUM: OTP. HIGH: MFA + biometric. CRITICAL: block + alert → TS-6.2 (decision logic)
-- ✅ Support FIDO2, magic link, app push → TS-6.3 (all 3 methods)
-- ✅ Backup codes for device loss → TS-6.3 (FIDO2 recovery)
-- ✅ MFA challenges persistent, auditable → TS-6.4 (SQL)
+- Evaluate 6 risk factors (frequency, geographic, device, network, failed attempts, tenant risk) → TS-6.2 (risk engine)
+- Calculate 0-100 risk score, map to 4 levels (LOW/MEDIUM/HIGH/CRITICAL) → TS-6.2 (thresholds)
+- LOW risk: no MFA. MEDIUM: OTP. HIGH: MFA + biometric. CRITICAL: block + alert → TS-6.2 (decision logic)
+- Support FIDO2, magic link, app push → TS-6.3 (all 3 methods)
+- Backup codes for device loss → TS-6.3 (FIDO2 recovery)
+- MFA challenges persistent, auditable → TS-6.4 (SQL)
 
 ---
 
 ### FS-10: B2B External Access & Approval Flow
 
-**Functional Description:**  
+**Functional Description:**
 External partner requests access to systems. Approval workflow (Security → Manager) grants access.
 
 **Associated Technical Stories:**
@@ -269,17 +269,17 @@ External partner requests access to systems. Approval workflow (Security → Man
 | TS-6.12 | B2B & Delegation Integration Tests | 13 pts | Full approval workflow, access grant, isolation |
 
 **Acceptance Criteria Alignment:**
-- ✅ External user submits request with requested systems + attachments → TS-6.7 (request submission)
-- ✅ Approval workflow: Security reviewer → Manager (serial) → TS-6.5 + TS-6.7 (state machine)
-- ✅ Approve: external user registered, access to systems granted → TS-6.7 (on approval, create user + assign permissions)
-- ✅ Reject: user cannot register → TS-6.7 (cleanup)
-- ✅ All decisions auditable with who/when/why → TS-6.6 (audit columns) + Audit context
+- External user submits request with requested systems + attachments → TS-6.7 (request submission)
+- Approval workflow: Security reviewer → Manager (serial) → TS-6.5 + TS-6.7 (state machine)
+- Approve: external user registered, access to systems granted → TS-6.7 (on approval, create user + assign permissions)
+- Reject: user cannot register → TS-6.7 (cleanup)
+- All decisions auditable with who/when/why → TS-6.6 (audit columns) + Audit context
 
 ---
 
 ### FS-14: Delegated Administration & Scopes
 
-**Functional Description:**  
+**Functional Description:**
 Admin A can delegate specific scopes (read-only, system X only, role Y only) to Admin B for limited duration.
 
 **Associated Technical Stories:**
@@ -293,11 +293,11 @@ Admin A can delegate specific scopes (read-only, system X only, role Y only) to 
 | TS-6.12 | B2B & Delegation Integration Tests | 13 pts | Scope enforcement, expiration, audit |
 
 **Acceptance Criteria Alignment:**
-- ✅ Define scope: SYSTEM (can admin only System A), ORGANIZATION (own org only), ROLE (only assign Role X), OPERATION (read-only), TEMPORARY (expires) → TS-6.8 (scope model)
-- ✅ State machine: DRAFT → PENDING_APPROVAL → ACTIVE → EXPIRING → EXPIRED/REVOKED → TS-6.8 (8 states)
-- ✅ Temporal: start_date, end_date, auto-revoke on expiration → TS-6.8 (temporal constraints)
-- ✅ Enforce scope: delegate tries action outside scope → 403 Forbidden → TS-6.9 (middleware)
-- ✅ Audit delegated actions with delegator credit → TS-6.9 + Audit context
+- Define scope: SYSTEM (can admin only System A), ORGANIZATION (own org only), ROLE (only assign Role X), OPERATION (read-only), TEMPORARY (expires) → TS-6.8 (scope model)
+- State machine: DRAFT → PENDING_APPROVAL → ACTIVE → EXPIRING → EXPIRED/REVOKED → TS-6.8 (8 states)
+- Temporal: start_date, end_date, auto-revoke on expiration → TS-6.8 (temporal constraints)
+- Enforce scope: delegate tries action outside scope → 403 Forbidden → TS-6.9 (middleware)
+- Audit delegated actions with delegator credit → TS-6.9 + Audit context
 
 ---
 
@@ -305,7 +305,7 @@ Admin A can delegate specific scopes (read-only, system X only, role Y only) to 
 
 ### FS-11: Upload & Validate Compliance Documents
 
-**Functional Description:**  
+**Functional Description:**
 User uploads ID, passport, certification, etc. System validates document and stores securely.
 
 **Associated Technical Stories:**
@@ -318,18 +318,18 @@ User uploads ID, passport, certification, etc. System validates document and sto
 | TS-7.7 | Document Upload Integration Tests | 13 pts | Upload, validation, download, isolation |
 
 **Acceptance Criteria Alignment:**
-- ✅ Upload form accepts document type (ID, passport, cert, license, etc.) → TS-7.6 (form) + TS-7.1 (taxonomy)
-- ✅ File size limit 10 MB, type whitelist (PDF, JPG, PNG) → TS-7.2 (validation)
-- ✅ Virus scan (ClamAV/VirusTotal) before storage → TS-7.2 (scanning)
-- ✅ Encrypt at rest + in transit → TS-7.2 (S3 encryption)
-- ✅ Secure download: pre-signed URLs (1h expiration) → TS-7.2 (S3 URLs)
-- ✅ Documents scoped to user + tenant → TS-7.4 (RLS)
+- Upload form accepts document type (ID, passport, cert, license, etc.) → TS-7.6 (form) + TS-7.1 (taxonomy)
+- File size limit 10 MB, type whitelist (PDF, JPG, PNG) → TS-7.2 (validation)
+- Virus scan (ClamAV/VirusTotal) before storage → TS-7.2 (scanning)
+- Encrypt at rest + in transit → TS-7.2 (S3 encryption)
+- Secure download: pre-signed URLs (1h expiration) → TS-7.2 (S3 URLs)
+- Documents scoped to user + tenant → TS-7.4 (RLS)
 
 ---
 
 ### FS-15: Expiration Notification Rules (NEW)
 
-**Functional Description:**  
+**Functional Description:**
 Admin defines rules: "Send EMAIL 30 days before document expiration, daily until 1 day before."
 
 **Associated Technical Stories:**
@@ -342,18 +342,18 @@ Admin defines rules: "Send EMAIL 30 days before document expiration, daily until
 | TS-7.7 | Compliance Integration Tests | 13 pts | Rule triggering, notification dispatch, frequency limits |
 
 **Acceptance Criteria Alignment:**
-- ✅ Create rule: days_before_expiration (7, 30, 60, 90) → TS-7.1 (value object) + TS-7.6 (API)
-- ✅ Notification channels: EMAIL, IN_APP, SMS, WEBHOOK, SLACK → TS-7.3 (channel adapters)
-- ✅ Frequency: ONCE, DAILY, WEEKLY, ON_LOGIN → TS-7.3 (frequency check)
-- ✅ Background job hourly → TS-7.3 (Quartz scheduler)
-- ✅ No spam: check if already notified → TS-7.3 (smart filtering)
-- ✅ Retry on failure (Polly exponential backoff) → TS-7.3 (resilience)
+- Create rule: days_before_expiration (7, 30, 60, 90) → TS-7.1 (value object) + TS-7.6 (API)
+- Notification channels: EMAIL, IN_APP, SMS, WEBHOOK, SLACK → TS-7.3 (channel adapters)
+- Frequency: ONCE, DAILY, WEEKLY, ON_LOGIN → TS-7.3 (frequency check)
+- Background job hourly → TS-7.3 (Quartz scheduler)
+- No spam: check if already notified → TS-7.3 (smart filtering)
+- Retry on failure (Polly exponential backoff) → TS-7.3 (resilience)
 
 ---
 
 ### FS-16: Access Behavior on Expiration (NEW)
 
-**Functional Description:**  
+**Functional Description:**
 On document expiration, apply enforcement: WARNING (banner), SUSPEND (block), or REVOKE (permanent).
 
 **Associated Technical Stories:**
@@ -366,12 +366,12 @@ On document expiration, apply enforcement: WARNING (banner), SUSPEND (block), or
 | TS-7.7 | Compliance Integration Tests | 13 pts | All 3 enforcement modes, grace period, appeal |
 
 **Acceptance Criteria Alignment:**
-- ✅ 3 enforcement modes (WARNING, SUSPEND, REVOKE) configurable per tenant → TS-7.1 + TS-7.6 (config)
-- ✅ Grace period: N days delay before enforcement applies → TS-7.5 (grace logic)
-- ✅ WARNING: show banner, access allowed → TS-7.5 (state: EXPIRING)
-- ✅ SUSPEND: block access until document renewed → TS-7.5 (state: SUSPENDED, middleware check)
-- ✅ REVOKE: permanent revoke, user appeals to admin → TS-7.5 (state: REVOKED, appeal workflow)
-- ✅ Extension request: user can request 0-N more days (optional reapproval) → TS-7.5 + TS-7.6
+- 3 enforcement modes (WARNING, SUSPEND, REVOKE) configurable per tenant → TS-7.1 + TS-7.6 (config)
+- Grace period: N days delay before enforcement applies → TS-7.5 (grace logic)
+- WARNING: show banner, access allowed → TS-7.5 (state: EXPIRING)
+- SUSPEND: block access until document renewed → TS-7.5 (state: SUSPENDED, middleware check)
+- REVOKE: permanent revoke, user appeals to admin → TS-7.5 (state: REVOKED, appeal workflow)
+- Extension request: user can request 0-N more days (optional reapproval) → TS-7.5 + TS-7.6
 
 ---
 
@@ -379,7 +379,7 @@ On document expiration, apply enforcement: WARNING (banner), SUSPEND (block), or
 
 ### FS-12: Role Promotion & Maturity Tracking (EXPANDED 2→6 stories)
 
-**Functional Description:**  
+**Functional Description:**
 Track user role maturity (JUNIOR→INTERMEDIATE→SENIOR→LEAD→PRINCIPAL). User requests promotion when eligible. Security reviews impact, approves/rejects.
 
 **Associated Technical Stories:**
@@ -396,15 +396,15 @@ Track user role maturity (JUNIOR→INTERMEDIATE→SENIOR→LEAD→PRINCIPAL). Us
 | TS-8.9 | Promotion Integration Tests | 13 pts | Full lifecycle: eligible → request → approve → execute → verify |
 
 **Acceptance Criteria Alignment:**
-- ✅ Maturity levels: JUNIOR (0-6mo), INTERMEDIATE (6-18mo), SENIOR (18+mo), LEAD, PRINCIPAL → TS-8.1 (enum)
-- ✅ Eligibility: tenure + certifications + performance + compliance → TS-8.2 (calculator)
-- ✅ User notified when eligible → TS-8.7 (background job)
-- ✅ User requests promotion → TS-8.8 (API) + TS-8.1 (PromotionRequest)
-- ✅ Security reviews impact (permissions added/removed, risk score) → TS-8.3 (impact analysis)
-- ✅ Manager approves/rejects → TS-8.6 (approval workflow via TS-6.5)
-- ✅ Low risk auto-approved, high risk requires security review → TS-8.4 (state machine logic)
-- ✅ On execution: revoke old role, grant new role → TS-8.6 (call Authorization context)
-- ✅ Verify permissions correctly applied → TS-8.9 (test)
+- Maturity levels: JUNIOR (0-6mo), INTERMEDIATE (6-18mo), SENIOR (18+mo), LEAD, PRINCIPAL → TS-8.1 (enum)
+- Eligibility: tenure + certifications + performance + compliance → TS-8.2 (calculator)
+- User notified when eligible → TS-8.7 (background job)
+- User requests promotion → TS-8.8 (API) + TS-8.1 (PromotionRequest)
+- Security reviews impact (permissions added/removed, risk score) → TS-8.3 (impact analysis)
+- Manager approves/rejects → TS-8.6 (approval workflow via TS-6.5)
+- Low risk auto-approved, high risk requires security review → TS-8.4 (state machine logic)
+- On execution: revoke old role, grant new role → TS-8.6 (call Authorization context)
+- Verify permissions correctly applied → TS-8.9 (test)
 
 ---
 
@@ -412,36 +412,36 @@ Track user role maturity (JUNIOR→INTERMEDIATE→SENIOR→LEAD→PRINCIPAL). Us
 
 | Épica | FS | Title | # TS | Total Points | Validation |
 |-------|----|----|------|--------------|------------|
-| **EP-01** | FS-01 | Corporate Login | 6 | 55 | ✅ 6 TS cover full login flow |
-| | FS-02 | Self-Registration | 6 | 55 | ✅ Reuse TS-1.1-1.6 |
-| | FS-03 | Org Onboarding | 6 | 55 | ✅ Reuse TS-1.1-1.6 |
-| **EP-02** | FS-04 | System Catalog | 5 | 31 | ✅ 5 TS cover registration + isolation |
-| **EP-03** | FS-05 | Policy Definition | 5 | 68 | ✅ 5 TS cover domain + engine + tests |
-| | FS-06 | Profile Assignment | 5 | 68 | ✅ Reuse TS-3.1-3.7 |
-| | FS-07 | Permission Evaluation | 5 | 68 | ✅ Reuse TS-3.2, TS-3.4-3.7 |
-| **EP-04** | FS-13 | Config Hierarchy | 5 | 31 | ✅ 5 TS cover domain + service + cache |
-| **EP-05** | FS-08 | Login Page + Diagnostics | 5 | 47 | ✅ 5 TS cover UI + metrics + audit |
-| **EP-06** | FS-09 | Adaptive MFA | 6 | 89 | ✅ 6 TS cover risk + passwordless + tests |
-| | FS-10 | B2B Access | 5 | 68 | ✅ 5 TS cover approval workflow |
-| | FS-14 | Delegated Admin | 6 | 79 | ✅ 6 TS cover scopes + enforcement |
-| **EP-07** | FS-11 | Document Upload | 5 | 50 | ✅ 5 TS cover secure storage + validation |
-| | FS-15 | Expiration Rules | 5 | 48 | ✅ 5 TS cover background engine |
-| | FS-16 | Access Enforcement | 5 | 48 | ✅ 5 TS cover 3 modes + extension |
-| **EP-08** | FS-12 | Role Promotion | 9 | 106 | ✅ 9 TS cover maturity + impact + workflow |
-| | | **TOTAL** | **89** | **578 pts** | ✅ Comprehensive |
+| **EP-01** | FS-01 | Corporate Login | 6 | 55 | 6 TS cover full login flow |
+| | FS-02 | Self-Registration | 6 | 55 | Reuse TS-1.1-1.6 |
+| | FS-03 | Org Onboarding | 6 | 55 | Reuse TS-1.1-1.6 |
+| **EP-02** | FS-04 | System Catalog | 5 | 31 | 5 TS cover registration + isolation |
+| **EP-03** | FS-05 | Policy Definition | 5 | 68 | 5 TS cover domain + engine + tests |
+| | FS-06 | Profile Assignment | 5 | 68 | Reuse TS-3.1-3.7 |
+| | FS-07 | Permission Evaluation | 5 | 68 | Reuse TS-3.2, TS-3.4-3.7 |
+| **EP-04** | FS-13 | Config Hierarchy | 5 | 31 | 5 TS cover domain + service + cache |
+| **EP-05** | FS-08 | Login Page + Diagnostics | 5 | 47 | 5 TS cover UI + metrics + audit |
+| **EP-06** | FS-09 | Adaptive MFA | 6 | 89 | 6 TS cover risk + passwordless + tests |
+| | FS-10 | B2B Access | 5 | 68 | 5 TS cover approval workflow |
+| | FS-14 | Delegated Admin | 6 | 79 | 6 TS cover scopes + enforcement |
+| **EP-07** | FS-11 | Document Upload | 5 | 50 | 5 TS cover secure storage + validation |
+| | FS-15 | Expiration Rules | 5 | 48 | 5 TS cover background engine |
+| | FS-16 | Access Enforcement | 5 | 48 | 5 TS cover 3 modes + extension |
+| **EP-08** | FS-12 | Role Promotion | 9 | 106 | 9 TS cover maturity + impact + workflow |
+| | | **TOTAL** | **89** | **578 pts** | Comprehensive |
 
 ---
 
 **Key Observations:**
 
-1. ✅ **Every FS has 5-9 TS** — no orphaned functional stories
-2. ✅ **TS are reused across multiple FS** (e.g., TS-1.2 RLS tables used by FS-01, FS-02, FS-03)
-3. ✅ **Cross-épica dependencies explicit** (e.g., FS-10 B2B uses TS-6.5 Approvals, FS-12 uses TS-6.5 + TS-8.6)
-4. ✅ **Each TS has clear purpose** — fits exactly one architectural layer
-5. ✅ **Story points balanced** — 89 TS, 578 pts avg 6.5 pts/story (realistic)
+1. **Every FS has 5-9 TS** — no orphaned functional stories
+2. **TS are reused across multiple FS** (e.g., TS-1.2 RLS tables used by FS-01, FS-02, FS-03)
+3. **Cross-épica dependencies explicit** (e.g., FS-10 B2B uses TS-6.5 Approvals, FS-12 uses TS-6.5 + TS-8.6)
+4. **Each TS has clear purpose** — fits exactly one architectural layer
+5. **Story points balanced** — 89 TS, 578 pts avg 6.5 pts/story (realistic)
 
 ---
 
-**Approved by:** Principal Architect  
-**Date:** 2026-05-14  
-**Status:** ✅ **MAPPING COMPLETE & VALIDATED**
+**Approved by:** Principal Architect
+**Date:** 2026-05-14
+**Status:** **MAPPING COMPLETE & VALIDATED**

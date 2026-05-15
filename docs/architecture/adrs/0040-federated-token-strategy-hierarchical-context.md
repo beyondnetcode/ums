@@ -91,7 +91,7 @@ public class OpaqueTokenService
         // Return short reference token (no embedded claims)
         var referenceToken = Convert.ToBase64String(
             Encoding.UTF8.GetBytes($"ums_ref_v2:{tokenId}")
-        );
+);
 
         return referenceToken;
     }

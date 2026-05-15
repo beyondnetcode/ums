@@ -126,9 +126,9 @@ CREATE POLICY subtree_access ON users
                 SELECT descendant_id FROM tenant_closure
                 WHERE ancestáor_id = current_setting('app.effective_tenant_id')::uuid
                   AND root_tenant_id = current_setting('app.root_tenant_id')::uuid
-            )
-        )
-    );
+)
+)
+);
 ```
 
 ---

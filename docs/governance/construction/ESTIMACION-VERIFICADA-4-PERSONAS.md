@@ -1,8 +1,8 @@
 # Estimación Verificada — Squad 4 Personas × 7h/día
 
-**Fecha:** 2026-05-14  
-**Premisa:** 1 Team Lead + 3 desarrolladores semi-senior, máximo 4 personas  
-**Capacidad:** 7h útiles/día (no 8)  
+**Fecha:** 2026-05-14
+**Premisa:** 1 Team Lead + 3 desarrolladores semi-senior, máximo 4 personas
+**Capacidad:** 7h útiles/día (no 8)
 **Objetivo:** Recalcular MVP/Post-MVP con realismo
 
 ---
@@ -49,15 +49,15 @@ Usaré **1,000h/sprint** como línea base conservadora.
 
 ---
 
-## 3. ⚠️ VERIFICACIÓN CRÍTICA: MVP 6-7 SEMANAS NO ES VIABLE
+## 3. VERIFICACIÓN CRÍTICA: MVP 6-7 SEMANAS NO ES VIABLE
 
 **Comparación:**
 
 | Escenario | Personas | h/día | h/sprint | MVP Hours | MVP Sprints | MVP Weeks | Viable? |
 |-----------|----------|-------|----------|-----------|-------------|-----------|---------|
-| Original (6.25 FTE) | 6.25 | 50 | 500 | 1,272h | 2.5 | 6-7 ✅ | ✅ SÍ |
-| **ACTUAL (4 personas)** | **4** | **24.5** | **1,000** | **1,272h** | **1.3** | **10-13** | ❌ **NO** |
-| MVP Reducido (50%) | 4 | 24.5 | 1,000 | 636h | 0.6 | 4-5 | ✅ POSIBLE |
+| Original (6.25 FTE) | 6.25 | 50 | 500 | 1,272h | 2.5 | 6-7 | SÍ |
+| **ACTUAL (4 personas)** | **4** | **24.5** | **1,000** | **1,272h** | **1.3** | **10-13** | **NO** |
+| MVP Reducido (50%) | 4 | 24.5 | 1,000 | 636h | 0.6 | 4-5 | POSIBLE |
 
 **Conclusión:** Con 4 personas × 7h/día:
 - **MVP completo (253 pts) = 10-13 semanas mínimo** (no 6-7)
@@ -79,24 +79,24 @@ Usaré **1,000h/sprint** como línea base conservadora.
 
 **Sprints 1-3 (Weeks 2-8: MVP Heavy Lifting)**
 - **Sprint 1 (Week 2-3, 2000h available):**
-  - TS-1.1, TS-1.2, TS-2.1, TS-2.2, TS-3.1, TS-4.1 (domain + schema)
-  - Start: Dev1 (domains), Dev2 (schemas), TL (architecture oversight)
-  - **350h consumed** (35% capacity to account for learning)
-  - Deliverable: 6 domain models + 4 schemas + EF mappings
+- TS-1.1, TS-1.2, TS-2.1, TS-2.2, TS-3.1, TS-4.1 (domain + schema)
+- Start: Dev1 (domains), Dev2 (schemas), TL (architecture oversight)
+- **350h consumed** (35% capacity to account for learning)
+- Deliverable: 6 domain models + 4 schemas + EF mappings
 
 - **Sprint 2 (Week 4-5, 2000h available):**
-  - TS-1.3, TS-1.4, TS-3.2, TS-3.2b, TS-4.3, TS-2.3, TS-2.4 (core logic)
-  - **Key blocker resolved:** TS-1.2 (RLS) must be 100% done before TS-1.3 start
-  - Parallel: Dev1 on TS-1.3 (EF filters) + TS-1.4 (ports), Dev2 on TS-3.2/3.2b (PDP/PIP), Dev3 on TS-4.3 (config)
-  - **380h consumed** (38% capacity)
-  - Deliverable: PDP engine, Config resolver, registration flow, EF filters
+- TS-1.3, TS-1.4, TS-3.2, TS-3.2b, TS-4.3, TS-2.3, TS-2.4 (core logic)
+- **Key blocker resolved:** TS-1.2 (RLS) must be 100% done before TS-1.3 start
+- Parallel: Dev1 on TS-1.3 (EF filters) + TS-1.4 (ports), Dev2 on TS-3.2/3.2b (PDP/PIP), Dev3 on TS-4.3 (config)
+- **380h consumed** (38% capacity)
+- Deliverable: PDP engine, Config resolver, registration flow, EF filters
 
 - **Sprint 3 (Week 6-8, 2000h available):**
-  - TS-1.5, TS-1.6, TS-3.3, TS-3.4, TS-3.5, TS-3.6, TS-3.7, TS-4.4, TS-4.5, TS-5.1, TS-5.2, TS-5.3, TS-5.4, TS-5.5 (APIs, tests, UI)
-  - Critical: TS-1.6 (RLS tests) and TS-3.7 (authorization tests) MUST pass
-  - Parallel: Dev1 + Dev2 on APIs, Dev3 on integration tests, TL on code review + architecture
-  - **400h consumed** (40% capacity)
-  - **Deliverable: MVP COMPLETE** ✅
+- TS-1.5, TS-1.6, TS-3.3, TS-3.4, TS-3.5, TS-3.6, TS-3.7, TS-4.4, TS-4.5, TS-5.1, TS-5.2, TS-5.3, TS-5.4, TS-5.5 (APIs, tests, UI)
+- Critical: TS-1.6 (RLS tests) and TS-3.7 (authorization tests) MUST pass
+- Parallel: Dev1 + Dev2 on APIs, Dev3 on integration tests, TL on code review + architecture
+- **400h consumed** (40% capacity)
+- **Deliverable: MVP COMPLETE**
 
 **MVP Capacity Used:** 350 + 380 + 400 = 1,130h / 1,272h estimated
 **Buffer:** 142h (~11%, adequate)
@@ -145,16 +145,16 @@ Usaré **1,000h/sprint** como línea base conservadora.
 
 ### Reestimación por Perfil (con 4 personas & Learning Curve)
 
-**TS-1.2 (RLS Schema & Partition):** 48h → **60h** (+25% learning curve DBA/Dev2)  
-**TS-3.2 (PDP Engine):** 56h → **72h** (+29% complexity, semi-senior needs pair programming)  
-**TS-3.2b (PIP Resolvers):** 56h → **68h** (+21% integration overhead)  
-**TS-6.2 (Risk Scoring):** 56h → **70h** (+25% ML baseline, stats learning)  
-**TS-8.3 (Impact Analysis Engine):** 56h → **75h** (+34% algorithm complexity)  
-**TS-5.1 (React Login):** 56h → **48h** (-14% simpler than expected, reuse patterns)  
+**TS-1.2 (RLS Schema & Partition):** 48h → **60h** (+25% learning curve DBA/Dev2)
+**TS-3.2 (PDP Engine):** 56h → **72h** (+29% complexity, semi-senior needs pair programming)
+**TS-3.2b (PIP Resolvers):** 56h → **68h** (+21% integration overhead)
+**TS-6.2 (Risk Scoring):** 56h → **70h** (+25% ML baseline, stats learning)
+**TS-8.3 (Impact Analysis Engine):** 56h → **75h** (+34% algorithm complexity)
+**TS-5.1 (React Login):** 56h → **48h** (-14% simpler than expected, reuse patterns)
 **Others (standard):** Keep h estimates, add 10-15% learning overhead average
 
-**Adjusted MVP:** 1,272h → **1,380h** (+8.5% learning, complexity)  
-**Adjusted Post-MVP:** 1,490h → **1,630h** (+9.4% complexity, state machines)  
+**Adjusted MVP:** 1,272h → **1,380h** (+8.5% learning, complexity)
+**Adjusted Post-MVP:** 1,490h → **1,630h** (+9.4% complexity, state machines)
 **Adjusted Total:** 2,762h → **3,010h** (+9% buffer for semi-senior team)
 
 ---
@@ -166,12 +166,12 @@ Usaré **1,000h/sprint** como línea base conservadora.
 | **0** | 1 | Setup | — | 1,000h | 80h | 8% | — | CI/CD, dev env ready |
 | **1** | 2-3 | Domains + Schema | 1.1, 1.2, 2.1, 2.2, 3.1, 4.1 | 2,000h | 350h | 18% | — | 6 models + 4 schemas |
 | **2** | 4-5 | Core Logic | 1.3, 1.4, 3.2, 3.2b, 4.3, 2.3, 2.4 | 2,000h | 380h | 19% | TS-1.2 done | PDP, Config, Ports |
-| **3** | 6-8 | APIs + Tests + UI | 1.5-1.6, 3.3-3.7, 4.4-4.5, 5.1-5.5 | 3,000h | 400h | 13% | TS-1.2, 3.2 done | **MVP COMPLETE** ✅ |
+| **3** | 6-8 | APIs + Tests + UI | 1.5-1.6, 3.3-3.7, 4.4-4.5, 5.1-5.5 | 3,000h | 400h | 13% | TS-1.2, 3.2 done | **MVP COMPLETE** |
 | **MVP Total** | **2-8** | — | **EP-01-05 (53 TS)** | **8,000h** | **1,210h** | **15%** | — | **6-7 weeks wall-clock** |
 | | | | | | | | | **(3-4 weeks intense)** |
 | **4** | 9-10 | EP-06+07 Start | 6.1, 6.2, 6.4, 6.5, 6.6, 7.1, 7.2, 7.4 | 2,000h | 380h | 19% | MVP tested | Risk engine, MFA, Approvals |
 | **5** | 11-13 | EP-06+07+08 Mid | 6.3, 6.7, 6.8, 7.3, 7.5, 8.1, 8.2, 8.3 | 3,000h | 390h | 13% | TS-6.2 done | Passwordless, Delegation, Notification |
-| **6** | 14-23 | Finalization | 6.9-6.12, 7.6-7.7, 8.4-8.9 | 6,000h | 720h | 12% | All domains | **Post-MVP COMPLETE** ✅ |
+| **6** | 14-23 | Finalization | 6.9-6.12, 7.6-7.7, 8.4-8.9 | 6,000h | 720h | 12% | All domains | **Post-MVP COMPLETE** |
 | **Post-MVP Total** | **9-23** | — | **EP-06-08 (36 TS)** | **11,000h** | **1,490h** | **14%** | — | **14-15 weeks wall-clock** |
 | **TOTAL** | **1-23** | — | **All (89 TS)** | **19,000h** | **2,780h** | **15%** | — | **22-23 weeks total** |
 
@@ -180,34 +180,34 @@ Usaré **1,000h/sprint** como línea base conservadora.
 ## 8. OPCIONES REALISTAS
 
 ### Opción A: MVP Completo, Post-MVP Extendido (22-25 weeks total)
-- ✅ Mantener 253 pts MVP
-- ✅ Mantener 330 pts Post-MVP
-- ❌ Timeline: 22-25 semanas (5.5 meses)
-- ❌ MVP tardío: Semanas 8-10 en lugar de 6-7
-- ✅ Calidad: Tiempo para peer review, testing
+- Mantener 253 pts MVP
+- Mantener 330 pts Post-MVP
+- Timeline: 22-25 semanas (5.5 meses)
+- MVP tardío: Semanas 8-10 en lugar de 6-7
+- Calidad: Tiempo para peer review, testing
 - **Recomendación:** Si tienes flexibilidad en timing
 
 ### Opción B: MVP Reducido (140 pts), Timeline 12 weeks
 - **Scope MVP:**
-  - ✅ EP-01 Tenant & Identity (55 pts) — Foundation CRÍTICA
-  - ✅ EP-03 Authorization Core (40 pts) — Reduce TS-3.2b, keep TS-3.2
-  - ✅ EP-05 Login Page Only (13 pts) — No Diagnostics Dashboard
-  - ✅ EP-04 Configuration Basics (32 pts) — Simplify, keep TS-4.3
-  - ❌ EP-02 System Catalog — Move to Phase 2
+- EP-01 Tenant & Identity (55 pts) — Foundation CRÍTICA
+- EP-03 Authorization Core (40 pts) — Reduce TS-3.2b, keep TS-3.2
+- EP-05 Login Page Only (13 pts) — No Diagnostics Dashboard
+- EP-04 Configuration Basics (32 pts) — Simplify, keep TS-4.3
+- EP-02 System Catalog — Move to Phase 2
 - **Removed from MVP:**
-  - TS-5.2 (Diagnostics Dashboard) — Move to Post-MVP
-  - TS-3.2b (PIP) — Merge into TS-3.2, reduce scope
-  - Non-critical tests
-- ✅ Timeline: **12 weeks (3 months)**
-- ✅ MVP viable with 4 people
+- TS-5.2 (Diagnostics Dashboard) — Move to Post-MVP
+- TS-3.2b (PIP) — Merge into TS-3.2, reduce scope
+- Non-critical tests
+- Timeline: **12 weeks (3 months)**
+- MVP viable with 4 people
 - **Recomendation:** If you need MVP in 3 months
 
 ### Opción C: Hire 2 More (6.25 FTE total), Timeline 6-7 weeks
 - Hire: 1 Backend (DDD), 1 QA
 - Total: 6 people (or 6.25 FTE with part-time roles)
 - Capacity: 245h/sprint (same as original plan)
-- ✅ MVP: 6-7 weeks viable
-- ❌ Cost & onboarding overhead
+- MVP: 6-7 weeks viable
+- Cost & onboarding overhead
 - **Recommendation:** If MVP deadline is hard-stop
 
 ---
@@ -251,8 +251,8 @@ Usaré **1,000h/sprint** como línea base conservadora.
 
 ---
 
-**Documento Preparado por:** Principal Architect  
-**Fecha:** 2026-05-14  
-**Status:** ✅ **VERIFICADO PARA 4 PERSONAS, REALISTA**
+**Documento Preparado por:** Principal Architect
+**Fecha:** 2026-05-14
+**Status:** **VERIFICADO PARA 4 PERSONAS, REALISTA**
 
 *La estimación original asumía 6.25 FTE. Con 4 personas × 7h/día, la duración MVP es 10-13 semanas mínimo, no 6-7.*

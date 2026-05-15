@@ -1,23 +1,15 @@
-# Estimation Index — MVP Reducido | Índice de Estimación
-
-**Date / Fecha:** 2026-05-15  
-**Version / Versión:** 2.0  
-**Purpose / Propósito:** Master index of all estimation, financial, and strategic documents (Bilingual ES/EN)  
-**Status / Estado:** ✅ **COMPLETE & READY FOR BOARD APPROVAL**
+# Estimation Index — MVP Reducido | Índice de Estimación **Date / Fecha:** 2026-05-15 **Version / Versión:** 2.0 **Purpose / Propósito:** Master index of all estimation, financial, and strategic documents (Bilingual ES/EN)
+**Status / Estado:** **COMPLETE & READY FOR BOARD APPROVAL**
 
 ---
 
-## ⭐ FOR DIRECTORS / CTO / INVESTORS — START HERE
-
-**If you have 5 minutes for a board decision:**
+## FOR DIRECTORS / CTO / INVESTORS — START HERE** If you have 5 minutes for a board decision:**
 
 | Document | Time | What it does |
 |----------|------|--------------|
-| 📊 **[../RESUMEN-EJECUTIVO-DIRECTORES.md](../RESUMEN-EJECUTIVO-DIRECTORES.md)** | 5 min | 1-page bilingual summary: investment, ROI, timeline, decision |
-| 🎯 **[../DECISION-MATRIX.md](../DECISION-MATRIX.md)** | 5 min | Sign-off form for CTO + CFO + Head of Engineering |
-| 🎤 **[../BOARD-PRESENTATION.md](../BOARD-PRESENTATION.md)** | 20 min | 12-slide deck for board meeting |
-
-**Decision needed today:** Approve S/ 141K (AI-Driven) or S/ 182K (Human) for MVP in 8.5-12 weeks, ROI Y1 84-112%.
+| **[../RESUMEN-EJECUTIVO-DIRECTORES.md](../RESUMEN-EJECUTIVO-DIRECTORES.md)** | 5 min | 1-page bilingual summary: investment, ROI, timeline, decision |
+| **[../DECISION-MATRIX.md](../DECISION-MATRIX.md)** | 5 min | Sign-off form for CTO + CFO + Head of Engineering |
+| **[../BOARD-PRESENTATION.md](../BOARD-PRESENTATION.md)** | 20 min | 12-slide deck for board meeting | **Decision needed today:** Approve S/ 141K (AI-Driven) or S/ 182K (Human) for MVP in 8.5-12 weeks, ROI Y1 84-112%.
 
 ---
 
@@ -27,7 +19,7 @@
 
 **If you need:** What's in MVP, how long it takes, and how to judge if it's realistic?
 
-→ Start here: **[REDUCED-MVP-SCOPE-AND-ESTIMATION.md](REDUCED-MVP-SCOPE-AND-ESTIMATION.md)** (EN)  
+→ Start here: **[REDUCED-MVP-SCOPE-AND-ESTIMATION.md](REDUCED-MVP-SCOPE-AND-ESTIMATION.md)** (EN)
 → O aquí: **[MVP-REDUCIDO-ALCANCE-Y-ESTIMACION.md](MVP-REDUCIDO-ALCANCE-Y-ESTIMACION.md)** (ES)
 
 ---
@@ -101,13 +93,13 @@
 - **Audience:** Skeptics, decision makers, risk managers, technical leaders
 - **Use case:** "Is the 8.5-week AI timeline real or marketing hype? Where does the acceleration actually come from?"
 
-#### 12. **Revenue Model Year 1 (NEW - DEFENSIBLE FINANCIAL PROJECTIONS) ⭐**
+#### 12. **Revenue Model Year 1 (NEW - DEFENSIBLE FINANCIAL PROJECTIONS) **
 - **File:** [REVENUE-MODEL-YEAR-1.md](REVENUE-MODEL-YEAR-1.md) (ES)
 - **Contains:** CAC (S/ 7,248), LTV (S/ 108K), LTV/CAC ratio (14.9x), payback (3 months), 50-client ramp-up plan (pilots → partners → outbound), pricing tiers, sensitivity analysis (25/50/65 clients)
 - **Audience:** CFO, investors, sales/marketing strategists
 - **Use case:** "How do we credibly reach S/ 1.8M revenue Year 1? What are the unit economics?"
 
-#### 13. **Competitive Analysis (NEW - MARKET POSITIONING) ⭐**
+#### 13. **Competitive Analysis (NEW - MARKET POSITIONING) **
 - **File:** [COMPETITIVE-ANALYSIS.md](COMPETITIVE-ANALYSIS.md) (ES)
 - **Contains:** UMS vs Okta/Auth0/Azure AD/OneLogin pricing comparison, 3-year TCO analysis (UMS saves S/ 164K-352K), strategic positioning map, common objections + responses
 - **Audience:** Sales, board, CFO, strategic decision makers
@@ -117,42 +109,36 @@
 
 ### Reading Path by Role
 
-#### **Product Owner / Business Stakeholder**
-1. Start: `REDUCED-MVP-SCOPE-AND-ESTIMATION.md` (sections 1-3)
+#### **Product Owner / Business Stakeholder **1. Start: `REDUCED-MVP-SCOPE-AND-ESTIMATION.md` (sections 1-3)
 2. Then: `ESTIMATION-VALIDATION-MATRIX.md` (scope section)
 3. Reference: `FS-TO-TS-MAPPING.md` (which FS in MVP?)
 4. Decision: Sign-off checklist in `ESTIMATION-VALIDATION-MATRIX.md`
 
-#### **Engineering Lead / Tech Architect**
-1. Start: `REDUCED-MVP-SCOPE-AND-ESTIMATION.md` (full)
+#### **Engineering Lead / Tech Architect **1. Start: `REDUCED-MVP-SCOPE-AND-ESTIMATION.md` (full)
 2. Then: `ESTIMACION-VERIFICADA-4-PERSONAS.md` (team capacity)
 3. Then: `ESTIMACION-TECNICA-CONSOLIDADA.md` (story details)
 4. Reference: `ADR-ESTIMATION-AUDIT.md` (alignment with architecture)
 5. Planning: `TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md` (PART 6-7, critical path)
 6. Risk: `ESTIMATION-VALIDATION-MATRIX.md` (risks & mitigations)
 
-#### **Hiring / HR**
-1. Start: `ESTIMACION-VERIFICADA-4-PERSONAS.md` (team composition)
+#### **Hiring / HR** 1. Start: `ESTIMACION-VERIFICADA-4-PERSONAS.md` (team composition)
 2. Then: `REDUCED-MVP-SCOPE-AND-ESTIMATION.md` (section 6, team roles)
 3. Reference: `TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md` (PART 3-5, skill matrix)
 
-#### **QA Lead**
-1. Start: `REDUCED-MVP-SCOPE-AND-ESTIMATION.md` (section 8, DoD)
+#### **QA Lead **1. Start: `REDUCED-MVP-SCOPE-AND-ESTIMATION.md` (section 8, DoD)
 2. Then: `ESTIMATION-VALIDATION-MATRIX.md` (testing coverage)
 3. Reference: `FS-TO-TS-MAPPING.md` (test scenarios per FS)
 
-#### **Sprint Planner / Scrum Master**
-1. Start: `REDUCED-MVP-SCOPE-AND-ESTIMATION.md` (sections 4-5, sprint breakdown)
+#### **Sprint Planner / Scrum Master **1. Start: `REDUCED-MVP-SCOPE-AND-ESTIMATION.md` (sections 4-5, sprint breakdown)
 2. Then: `ESTIMACION-TECNICA-CONSOLIDADA.md` (hours per story, per profile)
 3. Reference: `TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md` (PART 6, dependencies)
 
-#### **Finance / Budget Owner / C-Level**
-1. **Quick Cost Decision (15 min):** `ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md` (sections 4-7, cost summary, 3 scenarios, recommendation)
-   - See: Hybrid recommended @ S/ 182,350 (11% less than on-prem, best ROI 84% Year 1)
+#### **Finance / Budget Owner / C-Level **1. **Quick Cost Decision (15 min):** `ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md` (sections 4-7, cost summary, 3 scenarios, recommendation)
+- See: Hybrid recommended @ S/ 182,350 (11% less than on-prem, best ROI 84% Year 1)
 2. **Strategic Decision (20 min):** `MODELO-EJECUCION-HUMANO-VS-AI-DRIVEN.md` (sections 1-3, comparison table, recommendations)
-   - See: Human S/ 182K 12 weeks (ROI 382%) vs AI-Driven S/ 141K 8.5 weeks (ROI 729%)
+- See: Human S/ 182K 12 weeks (ROI 382%) vs AI-Driven S/ 141K 8.5 weeks (ROI 729%)
 3. **Credibility Check (10 min):** `JUSTIFICACION-TIMELINE-AI-DRIVEN.md` (section 1-2, honest breakdown, research citations)
-   - See: Agents save COST (30%), not TIME (validation = 50% of work); McKinsey 15-25% acceleration confirmed
+- See: Agents save COST (30%), not TIME (validation = 50% of work); McKinsey 15-25% acceleration confirmed
 4. **Scope Confirmation (5 min):** `REDUCED-MVP-SCOPE-AND-ESTIMATION.md` (section 1 ONLY, scope lock)
 5. **Reference:** `ESTIMACION-VERIFICADA-4-PERSONAS.md` (team capacity validation)
 
@@ -223,37 +209,31 @@
 
 ### Ruta de Lectura por Rol
 
-#### **Product Owner / Stakeholder**
-1. Inicio: `MVP-REDUCIDO-ALCANCE-Y-ESTIMACION.md` (secciones 1-3)
+#### **Product Owner / Stakeholder **1. Inicio: `MVP-REDUCIDO-ALCANCE-Y-ESTIMACION.md` (secciones 1-3)
 2. Luego: `ESTIMATION-VALIDATION-MATRIX.md` (sección scope)
 3. Referencia: `FS-TO-TS-MAPPING.md` (¿cuál FS en MVP?)
 4. Decisión: Checklist de sign-off en `ESTIMATION-VALIDATION-MATRIX.md`
 
-#### **Líder de Ingeniería / Arquitecto**
-1. Inicio: `MVP-REDUCIDO-ALCANCE-Y-ESTIMACION.md` (completo)
+#### **Líder de Ingeniería / Arquitecto **1. Inicio: `MVP-REDUCIDO-ALCANCE-Y-ESTIMACION.md` (completo)
 2. Luego: `ESTIMACION-VERIFICADA-4-PERSONAS.md` (capacidad del equipo)
 3. Luego: `ESTIMACION-TECNICA-CONSOLIDADA.md` (detalles de historias)
 4. Referencia: `ADR-ESTIMATION-AUDIT.md` (alineación con arquitectura)
 5. Planificación: `TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md` (PART 6-7, ruta crítica)
 6. Riesgo: `ESTIMATION-VALIDATION-MATRIX.md` (riesgos & mitigaciones)
 
-#### **Hiring / HR**
-1. Inicio: `ESTIMACION-VERIFICADA-4-PERSONAS.md` (composición del equipo)
+#### **Hiring / HR** 1. Inicio: `ESTIMACION-VERIFICADA-4-PERSONAS.md` (composición del equipo)
 2. Luego: `MVP-REDUCIDO-ALCANCE-Y-ESTIMACION.md` (sección 6, roles)
 3. Referencia: `TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md` (PART 3-5, matriz de habilidades)
 
-#### **Lead de QA**
-1. Inicio: `MVP-REDUCIDO-ALCANCE-Y-ESTIMACION.md` (sección 8, DoD)
+#### **Lead de QA** 1. Inicio: `MVP-REDUCIDO-ALCANCE-Y-ESTIMACION.md` (sección 8, DoD)
 2. Luego: `ESTIMATION-VALIDATION-MATRIX.md` (cobertura de testing)
 3. Referencia: `FS-TO-TS-MAPPING.md` (escenarios de test por FS)
 
-#### **Planificador de Sprint / Scrum Master**
-1. Inicio: `MVP-REDUCIDO-ALCANCE-Y-ESTIMACION.md` (secciones 4-5, desglose de sprints)
+#### **Planificador de Sprint / Scrum Master **1. Inicio: `MVP-REDUCIDO-ALCANCE-Y-ESTIMACION.md` (secciones 4-5, desglose de sprints)
 2. Luego: `ESTIMACION-TECNICA-CONSOLIDADA.md` (horas por historia, por perfil)
 3. Referencia: `TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md` (PART 6, dependencias)
 
-#### **Finance / Propietario Presupuesto / Directivos**
-1. Inicio: `ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md` (secciones 4-6, resumen costos + recomendación)
+#### **Finance / Propietario Presupuesto / Directivos **1. Inicio: `ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md` (secciones 4-6, resumen costos + recomendación)
 2. Luego: `MVP-REDUCIDO-ALCANCE-Y-ESTIMACION.md` (sección 1, confirmación alcance)
 3. Referencia: `ESTIMACION-VERIFICADA-4-PERSONAS.md` (validación capacidad equipo)
 
@@ -270,81 +250,71 @@
 | **Hours/Week / Horas por Semana** | 122.5h effective (4 × 7h/day) |
 | **Sprints / Sprints** | Sprint 0 (setup) + 3 sprints (construction) |
 | **h/Point Ratio** | 5.0 (consistent across all epics) |
-| **Confidence Level / Nivel de Confianza** | 🟡 MEDIUM-HIGH (70-75%) |
-| **Status / Estado** | ✅ READY FOR EXECUTION / LISTO PARA EJECUCIÓN |
-
----
+| **Confidence Level / Nivel de Confianza** | MEDIUM-HIGH (70-75%) |
+| **Status / Estado** | READY FOR EXECUTION / LISTO PARA EJECUCIÓN | ---
 
 ## GOVERNANCE STRUCTURE (ESTRUCTURA DE GOVERNANCE)
 
 ```
 /governance/
 ├── /construction/
-│   ├── ESTIMATION-INDEX.md (THIS FILE / ESTE ARCHIVO)
-│   ├── README.md (Updated with estimation links / Actualizado con links de estimación)
-│   │
-│   ├── [REDUCED MVP / MVP REDUCIDO]
-│   ├── MVP-REDUCIDO-ALCANCE-Y-ESTIMACION.md (ES)
-│   ├── REDUCED-MVP-SCOPE-AND-ESTIMATION.md (EN)
-│   │
-│   ├── [VALIDATION / VALIDACIÓN]
-│   ├── ESTIMATION-VALIDATION-MATRIX.md (EN/ES bilingual)
-│   ├── ESTIMACION-VERIFICADA-4-PERSONAS.md (ES/EN)
-│   │
-│   ├── [TECHNICAL DETAILS / DETALLES TÉCNICOS]
-│   ├── ESTIMACION-TECNICA-CONSOLIDADA.md (ES)
-│   ├── TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md (EN/ES)
-│   ├── FS-TO-TS-MAPPING.md (EN/ES bilingual)
-│   │
-│   ├── [AUDITS / AUDITORÍAS]
-│   ├── ADR-ESTIMATION-AUDIT.md (ES/EN)
-│   ├── CORRECTIONS-AMENDMENTS.md (ES/EN)
-│   │
-│   └── [TEMPLATES]
-│       └── [future templates / templates futuros]
+│ ├── ESTIMATION-INDEX.md (THIS FILE / ESTE ARCHIVO)
+│ ├── README.md (Updated with estimation links / Actualizado con links de estimación)
+│ │
+│ ├── [REDUCED MVP / MVP REDUCIDO]
+│ ├── MVP-REDUCIDO-ALCANCE-Y-ESTIMACION.md (ES)
+│ ├── REDUCED-MVP-SCOPE-AND-ESTIMATION.md (EN)
+│ │
+│ ├── [VALIDATION / VALIDACIÓN]
+│ ├── ESTIMATION-VALIDATION-MATRIX.md (EN/ES bilingual)
+│ ├── ESTIMACION-VERIFICADA-4-PERSONAS.md (ES/EN)
+│ │
+│ ├── [TECHNICAL DETAILS / DETALLES TÉCNICOS]
+│ ├── ESTIMACION-TECNICA-CONSOLIDADA.md (ES)
+│ ├── TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md (EN/ES)
+│ ├── FS-TO-TS-MAPPING.md (EN/ES bilingual)
+│ │
+│ ├── [AUDITS / AUDITORÍAS]
+│ ├── ADR-ESTIMATION-AUDIT.md (ES/EN)
+│ ├── CORRECTIONS-AMENDMENTS.md (ES/EN)
+│ │
+│ └── [TEMPLATES]
+│ └── [future templates / templates futuros]
 ```
 
 ---
 
 ## DOCUMENT VERSION MATRIX (MATRIZ DE VERSIONES DE DOCUMENTOS)
 
-### TIER 1: GOVERNANCE CRITICAL (Bilingual Complete / Completamente Bilingüe) ✅
+### TIER 1: GOVERNANCE CRITICAL (Bilingual Complete / Completamente Bilingüe)
 
 | Document / Documento | EN Version | ES Version | Status |
 |-------------------|------------|-----------|--------|
-| **MVP Scope** | REDUCED-MVP-SCOPE-AND-ESTIMATION.md | MVP-REDUCIDO-ALCANCE-Y-ESTIMACION.md | ✅ Parallel (identical) |
-| **Governance Sign-Off** | GOVERNANCE-SIGN-OFF.md | FIRMA-GOBERNANZA-MVP-REDUCIDO.md | ✅ Parallel (identical) |
-| **Cost/Benefit Analysis** | — | ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md | ✅ Executive summary |
-
-### TIER 2: TECHNICAL REFERENCE (Bilingual Complete / Completamente Bilingüe) ✅
+| **MVP Scope** | REDUCED-MVP-SCOPE-AND-ESTIMATION.md | MVP-REDUCIDO-ALCANCE-Y-ESTIMACION.md | Parallel (identical) |
+| **Governance Sign-Off** | GOVERNANCE-SIGN-OFF.md | FIRMA-GOBERNANZA-MVP-REDUCIDO.md | Parallel (identical) |
+| **Cost/Benefit Analysis** | — | ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md | Executive summary | ### TIER 2: TECHNICAL REFERENCE (Bilingual Complete / Completamente Bilingüe)
 
 | Document / Documento | EN Version | ES Version | Status |
 |-------------------|------------|-----------|--------|
-| **4-Person Verification** | — | ESTIMACION-VERIFICADA-4-PERSONAS.md (ES) | ✅ Complete |
-| **Technical Details** | — | ESTIMACION-TECNICA-CONSOLIDADA.md (ES) | ✅ Complete |
-| **Validation Matrix** | ESTIMATION-VALIDATION-MATRIX.md | MATRIZ-VALIDACION-ESTIMACION.md | ✅ Complete |
-| **FS-to-TS Mapping** | FS-TO-TS-MAPPING.md | MAPEO-FS-A-TS.md | ✅ Complete |
-
-### TIER 3: SUPPLEMENTARY DOCS (Partial / Parcial) 🟡
+| **4-Person Verification** | — | ESTIMACION-VERIFICADA-4-PERSONAS.md (ES) | Complete |
+| **Technical Details** | — | ESTIMACION-TECNICA-CONSOLIDADA.md (ES) | Complete |
+| **Validation Matrix** | ESTIMATION-VALIDATION-MATRIX.md | MATRIZ-VALIDACION-ESTIMACION.md | Complete |
+| **FS-to-TS Mapping** | FS-TO-TS-MAPPING.md | MAPEO-FS-A-TS.md | Complete | ### TIER 3: SUPPLEMENTARY DOCS (Partial / Parcial)
 
 | Document / Documento | EN Version | ES Version | Status |
 |-------------------|------------|-----------|--------|
-| **Stories & Team** | TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md | 🔧 TODO | 🟡 EN available |
-| **ADR Audit** | ADR-ESTIMATION-AUDIT.md | 🔧 TODO | 🟡 EN available |
-| **Corrections** | CORRECTIONS-AMENDMENTS.md | 🔧 TODO | 🟡 EN available |
+| **Stories & Team** | TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md | TODO | EN available |
+| **ADR Audit** | ADR-ESTIMATION-AUDIT.md | TODO | EN available |
+| **Corrections** | CORRECTIONS-AMENDMENTS.md | TODO | EN available | ---
 
----
+### Bilingual Coverage Status (2026-05-14)
 
-### ✅ Bilingual Coverage Status (2026-05-14)
+**For Sign-Off & Approvals (CRITICAL):**
+**100% Complete Bilingual** — MVP scope, Governance sign-off, Validation matrix, FS-to-TS mapping all available in ES & EN** For Sprint Planning & Execution (IMPORTANT):**
+**100% Complete** — Technical details (verification, technical consolidation) in ES; stories & team documentation in EN (can be used with translation guide)
 
-**For Sign-Off & Approvals (CRITICAL):**  
-✅ **100% Complete Bilingual** — MVP scope, Governance sign-off, Validation matrix, FS-to-TS mapping all available in ES & EN
-
-**For Sprint Planning & Execution (IMPORTANT):**  
-✅ **100% Complete** — Technical details (verification, technical consolidation) in ES; stories & team documentation in EN (can be used with translation guide)
-
-**For References & Supplementary:**  
-🟡 **85% Available** — ADR audit, Corrections/Amendments, TECHNICAL-STORIES-AND-TEAM-COMPOSITION still EN-only (can request translation if needed)
+**For References & Supplementary:**
+**85% Available** — ADR audit, Corrections/Amendments, TECHNICAL-STORIES-AND-TEAM-COMPOSITION still EN-only (can request translation if needed)
 
 ---
 
@@ -360,20 +330,16 @@
 - [ ] **CI/CD Ready / CI/CD Listo:** GitHub Actions pipeline working, SQL Server test env ready
 - [ ] **Estimation Baseline / Baseline de Estimación:** h/pt ratio 5.0 agreed by team
 
-### Sign-Off / Firma
-
-**Approved by / Aprobado por:** Principal Architect  
-**Date / Fecha:** 2026-05-14  
-**Status / Estado:** ✅ **READY FOR SPRINT 0 / LISTO PARA SPRINT 0**
+### Sign-Off / Firma **Approved by / Aprobado por:** Principal Architect **Date / Fecha:** 2026-05-14 **Status / Estado:** **READY FOR SPRINT 0 / LISTO PARA SPRINT 0**
 
 ---
 
 ## NEXT STEPS (PRÓXIMOS PASOS)
 
 ### Immediate / Inmediato (Week 1 / Semana 1)
-1. [ ] **Share this index / Comparte este índice** with team
-2. [ ] **Assign reading paths / Asigna rutas de lectura** by role
-3. [ ] **Schedule sign-off meeting / Programa reunión de sign-off** with stakeholders
+1. [ ] **Share this index / Comparte este índice **with team
+2. [ ] **Assign reading paths / Asigna rutas de lectura **by role
+3. [ ] **Schedule sign-off meeting / Programa reunión de sign-off **with stakeholders
 4. [ ] **Confirm team assignment / Confirma asignación de equipo** (4 people, 12 weeks)
 
 ### Pre-Sprint 1 / Pre-Sprint 1 (Week 1 / Semana 1)
@@ -382,15 +348,11 @@
 3. [ ] **CI/CD setup / Setup CI/CD** (GitHub Actions, test environments)
 
 ### Sprint 0 Kickoff / Kickoff Sprint 0 (Week 1 / Semana 1)
-1. [ ] **Team onboarding / Onboarding del equipo**
-2. [ ] **Development environment setup / Setup ambiente de desarrollo**
-3. [ ] **Architecture deep-dive / Revisión profunda de arquitectura**
+1. [ ] **Team onboarding / Onboarding del equipo **2. [ ] **Development environment setup / Setup ambiente de desarrollo **3. [ ] **Architecture deep-dive / Revisión profunda de arquitectura**
 
 ---
 
-**Document prepared by / Documento preparado por:** Principal Architect  
-**Last updated / Última actualización:** 2026-05-14  
-**Language standards / Estándares de idioma:** Bilingual ES/EN (documents parallel or embedded)  
+**Document prepared by / Documento preparado por:** Principal Architect **Last updated / Última actualización:** 2026-05-14 **Language standards / Estándares de idioma:** Bilingual ES/EN (documents parallel or embedded)
 **Governance location / Ubicación de governance:** `/governance/construction/`
 
-**Status / Estado:** ✅ **COMPLETE & INDEXED / COMPLETO E INDEXADO**
+**Status / Estado:** **COMPLETE & INDEXED / COMPLETO E INDEXADO**
