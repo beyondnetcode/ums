@@ -13,13 +13,15 @@
 
 ## FOR DIRECTORS / CTO / INVESTORS — START HERE (5 min)
 
-> **¿Tienes 5 minutos para una decisión de inversión?**
+> **Have 5 minutes for an investment decision?**
 
 | # | Document | Time | Purpose |
 |---|----------|------|---------|
-| 1 | **[Resumen Ejecutivo (ES/EN)](./docs/governance/RESUMEN-EJECUTIVO-DIRECTORES.md)** | 5 min | Investment S/ 141K-195K, ROI Y1 84-112%, timeline 8.5-12 weeks, GO/NO-GO |
+| 1 | **[Executive Summary (ES/EN)](./docs/governance/RESUMEN-EJECUTIVO-DIRECTORES.md)** | 5 min | Investment S/ 141K-195K, ROI Y1 84-112%, timeline 8.5-12 weeks, GO/NO-GO |
 | 2 | **[Decision Matrix](./docs/governance/DECISION-MATRIX.md)** | 5 min | Sign-off form: CTO + CFO + Head of Engineering |
-| 3 | **[Board Presentation (12 slides)](./docs/governance/BOARD-PRESENTATION.md)** | 20 min | Markdown deck for board meeting (exportable to PDF/PPTX) | **Key numbers:** S/ 141K AI-Driven (8.5 weeks) | S/ 182K Human (12 weeks) | ROI Y1 84%-112% | Payback 3 months | LTV/CAC 14.9x
+| 3 | **[Board Presentation (12 slides)](./docs/governance/BOARD-PRESENTATION.md)** | 20 min | Markdown deck for board meeting (exportable to PDF/PPTX) |
+
+**Key numbers:** S/ 141K AI-Driven (8.5 weeks) | S/ 182K Human (12 weeks) | ROI Y1 84%-112% | Payback 3 months | LTV/CAC 14.9x
 
 ---
 
@@ -34,9 +36,9 @@ Start here if you are new to UMS. This index gives each reader a fast route into
 | Validate the data and domain model | [Conceptual Data Model](./docs/governance/requirements/conceptual-data-model.md) | [ER Export Formats](./docs/architecture/blueprints/er-export-formats.md) → [Database Design ER](./docs/architecture/blueprints/database-design-er.md) |
 | Understand the architecture | [Architecture Portal](./docs/architecture/index.md) | [C4 Architecture Spec](./docs/architecture/blueprints/architecture-spec.md) → [ADR Registry](./docs/architecture/adrs/index.md) |
 | **Approve Investment / Decide** | [**Executive Summary**](./docs/governance/RESUMEN-EJECUTIVO-DIRECTORES.md) | [Decision Matrix](./docs/governance/DECISION-MATRIX.md) → [Board Presentation](./docs/governance/BOARD-PRESENTATION.md) → [Revenue Model](./docs/governance/construction/REVENUE-MODEL-YEAR-1.md) |
-| **Plan & Execute Construction** | [**Construction Index**](./docs/governance/construction/ESTIMATION-INDEX.md) | [MVP Scope (ES/EN)](./docs/governance/construction/README.md) → [Cost Analysis](./docs/governance/construction/ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md) → [Execution Models](./docs/governance/construction/MODELO-EJECUCION-HUMANO-VS-AI-DRIVEN.md) |
+| **Plan & Execute Construction** | [**Construction Index**](./docs/governance/construction/ESTIMATION-INDEX.md) | [MVP Scope (EN)](./docs/governance/construction/REDUCED-MVP-SCOPE-AND-ESTIMATION.md) → [Cost Analysis](./docs/governance/construction/ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md) → [Execution Models](./docs/governance/construction/MODELO-EJECUCION-HUMANO-VS-AI-DRIVEN.md) |
 | Build or operate the system | [Engine Room](./src/) | [Technical Enablers](./docs/architecture/blueprints/technical-enablers/index.md) → [Operations Portal](./docs/operations/index.md) |
-| Browse everything | [Master Index](./docs/MASTER_INDEX.md) | Complete document tree by lifecycle phase.
+| Browse everything | [Master Index](./docs/MASTER_INDEX.md) | Complete document tree by lifecycle phase. |
 ## Quick Start (Engine Room)
 ```powershell
 cd src
@@ -68,7 +70,9 @@ npm install; npx nx run app-web:dev
 | **QA / Security** | Quality gates, risks, and verification strategy | [Product Backlog](./docs/governance/project/mvp-product-backlog.md) → [Contract Testing](./docs/architecture/artifacts/contract-testing-plan.md) → [Enterprise IAM](./docs/architecture/artifacts/enterprise-iam-ums-specification.md) → [Maturity Model](./docs/architecture/artifacts/architecture-maturity-model.md) |
 | **Finance / Budget Owner** | Cost estimation, ROI, and infrastructure trade-offs | [**Cost Analysis (3 scenarios)**](./docs/governance/construction/ANALISIS-COSTO-BENEFICIO-MVP-REDUCIDO.md) → [**Execution Models Comparison**](./docs/governance/construction/MODELO-EJECUCION-HUMANO-VS-AI-DRIVEN.md) → [MVP Scope](./docs/governance/construction/ESTIMATION-INDEX.md) |
 | **Engineering Lead / Tech Architect** | What to build, team composition, and critical path | [Product Backlog](./docs/governance/project/mvp-product-backlog.md) → [**Construction Index (89 TS, team, dependencies)**](./docs/governance/construction/ESTIMATION-INDEX.md) → [Technical Stories](./docs/governance/construction/README.md) → [Architecture Portal](./docs/architecture/index.md) |
-| **AI / Agents** | BMAD-METHOD and repository rules | [Agent Rules](./AGENTS.md) → [BMAD Audit](./docs/architecture/artifacts/bmad-master-audit-alignment-report.md) → [Taxonomy Audit](./docs/governance/audits/2026-05-13-taxonomy-normalization-audit.md) | ---
+| **AI / Agents** | BMAD-METHOD and repository rules | [Agent Rules](./AGENTS.md) → [BMAD Audit](./docs/architecture/artifacts/bmad-master-audit-alignment-report.md) → [Taxonomy Audit](./docs/governance/audits/2026-05-13-taxonomy-normalization-audit.md) |
+
+---
 
 ## Executive & Board Portal — Investment Decision (MVP S/ 141K-195K)
 
@@ -80,7 +84,9 @@ npm install; npx nx run app-web:dev
 | **Sign Go/No-Go decision** | [Decision Matrix](./docs/governance/DECISION-MATRIX.md) | 5 min | Sign-off form: CTO + CFO + Head of Engineering |
 | **Board meeting pitch** | [Board Presentation](./docs/governance/BOARD-PRESENTATION.md) | 20 min | 12 slides: problem → solution → cost → ROI → ask |
 | **Revenue & unit economics** | [Revenue Model Y1](./docs/governance/construction/REVENUE-MODEL-YEAR-1.md) | 15 min | CAC, LTV (14.9x), 50-client ramp-up plan, sensitivity |
-| **Competitive positioning** | [Competitive Analysis](./docs/governance/construction/COMPETITIVE-ANALYSIS.md) | 10 min | vs Okta/Auth0/Azure AD; TCO saves S/ 164K-352K (3y) | ---
+| **Competitive positioning** | [Competitive Analysis](./docs/governance/construction/COMPETITIVE-ANALYSIS.md) | 10 min | vs Okta/Auth0/Azure AD; TCO saves S/ 164K-352K (3y) |
+
+---
 
 ## Construction Planning Portal (MVP Reduced — 8.5-12 weeks)
 
@@ -95,8 +101,10 @@ npm install; npx nx run app-web:dev
 | **AI Timeline Credibility** | [AI Timeline Justification](./docs/governance/construction/JUSTIFICACION-TIMELINE-AI-DRIVEN.md) | 10 min | Honest breakdown: agents 12%, validation 59%, setup 15%, rework 10% |
 | **Technical story details** | [Technical Stories & Team](./docs/governance/construction/TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md) | 60 min | 89 TS across 8 épicas, team profiles, critical paths |
 | **FS-to-TS traceability** | [FS Mapping](./docs/governance/construction/FS-TO-TS-MAPPING.md) | 30 min | Requirements coverage validation, acceptance criteria alignment |
-| **RLS & Security Design** | [RLS Deep Dive](./docs/governance/construction/README.md) | 30 min | Two-layer model, SESSION_CONTEXT, error handling, failover |
-| **Architecture & Implementation** | [Service Plan](./docs/governance/project-es/SERVICE-IMPLEMENTATION-PLAN.md) | 40 min | .NET 8 structure, test pyramid, CI/CD, DI patterns | ---
+| **RLS & Security Design** | [Construction README](./docs/governance/construction/README.md) | 30 min | Two-layer model, SESSION_CONTEXT, error handling, failover |
+| **Architecture & Implementation** | [Service Plan](./docs/governance/project-es/SERVICE-IMPLEMENTATION-PLAN.md) | 40 min | .NET 8 structure, test pyramid, CI/CD, DI patterns |
+
+---
 
 **Reading Paths by Role:**
 
@@ -108,7 +116,9 @@ npm install; npx nx run app-web:dev
 | **Engineering Lead** | [Construction Index](./docs/governance/construction/ESTIMATION-INDEX.md) → [Technical Stories](./docs/governance/construction/TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md) → [RLS Deep Dive](./docs/governance/construction/README.md) | 90 min |
 | **QA Lead** | [Construction README](./docs/governance/construction/README.md) → [FS Mapping](./docs/governance/construction/FS-TO-TS-MAPPING.md) → [Validation Matrix](./docs/governance/construction/ESTIMATION-VALIDATION-MATRIX.md) | 45 min |
 | **DevOps / SRE** | [Service Plan](./docs/governance/project-es/SERVICE-IMPLEMENTATION-PLAN.md) → [RLS Implementation](./docs/governance/construction/README.md) | 60 min |
-| **Developer** | [Construction README](./docs/governance/construction/README.md) → [Technical Stories](./docs/governance/construction/TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md) → [Service Plan](./docs/governance/project-es/SERVICE-IMPLEMENTATION-PLAN.md) | 90 min | ---
+| **Developer** | [Construction README](./docs/governance/construction/README.md) → [Technical Stories](./docs/governance/construction/TECHNICAL-STORIES-AND-TEAM-COMPOSITION.md) → [Service Plan](./docs/governance/project-es/SERVICE-IMPLEMENTATION-PLAN.md) | 90 min |
+
+---
 
 ## Contribution & Governance
 - **Workflow**: This repo uses [BMAD-METHOD](./AGENTS.md) for spec-driven documentation.

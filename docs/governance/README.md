@@ -4,13 +4,13 @@
 
 ## FOR DIRECTORS, CTO & INVESTORS — START HERE
 
-> **Tienes 5 minutos? Lee solo esto:**
+> **Have 5 minutes? Read only this:**
 
-| # | Documento | Tiempo | Para qué sirve |
-|---|-----------|--------|----------------|
-| 1 | **[RESUMEN-EJECUTIVO-DIRECTORES.md](./RESUMEN-EJECUTIVO-DIRECTORES.md)** | **5 min** | **Inversión, ROI, timeline, decisión** — Bilingüe ES/EN |
-| 2 | **[DECISION-MATRIX.md](./DECISION-MATRIX.md)** | **5 min** | **Go/No-Go con firmas CTO/CFO/HoE** |
-| 3 | **[BOARD-PRESENTATION.md](./BOARD-PRESENTATION.md)** | **20 min** | **12 slides para reunión del directorio** | **Decisión clave que se necesita HOY:** Aprobar S/ 141K (AI-Driven) o S/ 182K (Humano) para MVP de 8.5-12 semanas, ROI Y1 84-112%.
+| # | Document | Time | Purpose |
+|---|----------|------|---------|
+| 1 | **[RESUMEN-EJECUTIVO-DIRECTORES.md](./RESUMEN-EJECUTIVO-DIRECTORES.md)** | **5 min** | **Investment, ROI, timeline, decision** — Bilingual ES/EN |
+| 2 | **[DECISION-MATRIX.md](./DECISION-MATRIX.md)** | **5 min** | **Go/No-Go with CTO/CFO/HoE signatures** |
+| 3 | **[BOARD-PRESENTATION.md](./BOARD-PRESENTATION.md)** | **20 min** | **12 slides for board meeting** | **Key decision needed TODAY:** Approve S/ 141K (AI-Driven) or S/ 182K (Human) for 8.5-12 week MVP, ROI Y1 84-112%.
 
 ---
 
