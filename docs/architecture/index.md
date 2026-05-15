@@ -13,6 +13,22 @@ Detailed engineering blueprints focusing on:
 - **[Interactive ER Viewer](./blueprints/interactive-er-viewer.html)**: Browser-based tool to explore the database structure.
 - **[Service Entity Map](./blueprints/service-entity-map.md)**: Logical mapping between system services and database entities.
 
+### [Traceability Matrix](./traceability-matrix.md)
+Cross-reference of all Functional Stories (FS-01..16) to ADRs and Technical Enablers.
+
+### [Technical Enablers](./blueprints/technical-enablers/index.md)
+Engineering blueprints specifying how ADRs are implemented in the UMS context:
+- **[TE-04: Transactional Outbox](./blueprints/technical-enablers/te-04-transactional-outbox.md)**
+- **[TE-05: Distributed Saga with Dapr](./blueprints/technical-enablers/te-05-distributed-saga-dapr.md)**
+- **[TE-06: CQRS Projection Rebuild](./blueprints/technical-enablers/te-06-cqrs-projection-rebuild.md)**
+
+### [Canonical Patterns](./artifacts/canonical-patterns/index.md)
+Reference implementations for core architectural patterns:
+- **[CP-01: Hexagonal Architecture — Port & Adapter](./artifacts/canonical-patterns/cp-01-hexagonal-port-adapter.md)**
+- **[CP-02: Aggregate Root & Domain Event](./artifacts/canonical-patterns/cp-02-aggregate-root-domain-event.md)**
+- **[CP-03: Result Pattern](./artifacts/canonical-patterns/cp-03-result-pattern.md)**
+- **[CP-04: Multi-Tenant Repository with RLS](./artifacts/canonical-patterns/cp-04-multitenant-repository-rls.md)**
+
 ### Related — Domain Layer Design
 - **[DDD Design Portal](../governance/construction/ddd-design/index.md)**: Bounded contexts, aggregates, value objects, commands, events, and state machines for the complete product.
 - **[Interactive DDD Viewer](../governance/construction/ddd-design/interactive-ddd-viewer.html)**: Browser-based tool to explore bounded context map, state machines, and cross-context flows.

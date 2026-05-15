@@ -36,6 +36,9 @@ Product Lifecycle and Engineering Specifications for the User Management System 
 - [Interactive ER Viewer](./architecture/blueprints/interactive-er-viewer.html)
 - [Service Entity Map](./architecture/blueprints/service-entity-map.md)
 - [Architecture Portal](./architecture/index.md)
+- [Traceability Matrix (FS → ADR → TE)](./architecture/traceability-matrix.md)
+- [Technical Enablers Index](./architecture/blueprints/technical-enablers/index.md)
+- [Canonical Patterns Index](./architecture/artifacts/canonical-patterns/index.md)
 
 ### Phase 04 -- Construction & Domain Design
 
@@ -54,3 +57,11 @@ Product Lifecycle and Engineering Specifications for the User Management System 
 - [DDD Primitives](./governance/construction/ddd-design/11-ddd-primitives.md)
 - [Design Decisions & Gaps](./governance/construction/ddd-design/12-design-decisions.md)
 - [Interactive DDD Viewer](./governance/construction/ddd-design/interactive-ddd-viewer.html)
+
+### Phase 05 -- Operations
+
+- [Operations Portal](./operations/index.md)
+- [RB-01: Incident Response](./operations/runbooks/rb-01-incident-response.md)
+- [RB-02: Rollback Procedure](./operations/runbooks/rb-02-rollback-procedure.md)
+- [RB-03: Cache Failure Recovery](./operations/runbooks/rb-03-cache-failure-recovery.md)
+- [RB-04: Database Failover](./operations/runbooks/rb-04-database-failover.md)
