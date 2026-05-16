@@ -12,6 +12,7 @@ Detailed engineering blueprints focusing on:
 - **[ER Export Formats](./blueprints/er-export-formats.md)**: SQL, Mermaid, and image exports of the schema.
 - **[Interactive ER Viewer](./blueprints/interactive-er-viewer.html)**: Browser-based tool to explore the database structure.
 - **[Service Entity Map](./blueprints/service-entity-map.md)**: Logical mapping between system services and database entities.
+- **[Shell Library Architecture](./blueprints/shell-library-architecture.md)**: UMS-owned shell layer for inherited DDD and Factory patterns.
 
 ### [Traceability Matrix](./traceability-matrix.md)
 Cross-reference of all Functional Stories (FS-01..16) to ADRs and Technical Enablers.
@@ -31,6 +32,7 @@ Reference implementations for core architectural patterns:
 
 ### Related — Domain Layer Design
 - **[DDD Design Portal](../governance/construction/ddd-design/index.md)**: Bounded contexts, aggregates, value objects, commands, events, and state machines for the complete product.
+- **[DDD Primitives](../governance/construction/ddd-design/11-ddd-primitives.md)**: Domain primitives implemented through the UMS shell library layer.
 - **[Interactive DDD Viewer](../governance/construction/ddd-design/interactive-ddd-viewer.html)**: Browser-based tool to explore bounded context map, state machines, and cross-context flows.
 
 ---

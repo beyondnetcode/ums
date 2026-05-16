@@ -4,8 +4,8 @@
 |-------|-------|
 | **Pattern ID** | CP-02 |
 | **Type** | Domain / Tactical DDD |
-| **ADR Reference** | [ADR-0029: Tactical DDD Primitives](../../../../../reference/architecture/adrs/nodejs/0029-tactical-ddd-primitives-library.md) |
-| **Language** | TypeScript / NestJS |
+| **ADR Reference** | [ADR-0054: Shell Library Isolation](../../adrs/0054-shell-library-isolation.md) |
+| **Language** | .NET 10 / C# shell implementation; TypeScript example retained as conceptual reference |
 | **Last Review** | 2026-05-15 |
 
 ---
@@ -13,6 +13,8 @@
 ## Intent
 
 Encapsulate business invariants in an **Aggregate Root** and communicate state changes via **Domain Events** — ensuring consistency within the aggregate boundary and decoupling downstream side effects.
+
+For the UMS .NET implementation, these primitives are provided by `Ums.Shell.Ddd` and consumed by `Ums.Domain`. The code examples below remain conceptual pattern examples; application code must use the UMS shell namespace and must not import upstream pattern libraries directly.
 
 ---
 

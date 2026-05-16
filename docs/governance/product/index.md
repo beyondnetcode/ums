@@ -8,6 +8,7 @@ Documentation defining the "Why" and "What" of the User Management System (UMS).
 - [Scope & Boundaries](./scope.md)
 - [Objectives (OKRs)](./objectives.md)
 - [Stakeholders](./stakeholders.md)
+- [UX/UI Design Proposal](./ux-ui-design-proposal.md)
 
 ---
 **[Back to Governance Portal](../index.md)** | **[Back to Master Index](../../MASTER_INDEX.md)**

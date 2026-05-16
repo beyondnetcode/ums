@@ -14,7 +14,7 @@ This matrix links every **Functional Story (FS)** to its governing **Architectur
 | FS-02 | Create Authorization Template | — | ADR-0012 (RBAC/ABAC Guards), ADR-0021 (Auth Graph) | TE-02 (Permission Graph Compiler) |
 | FS-03 | Register Organization | — | ADR-0010 (Multi-Tenancy RLS), ADR-0031 (Schema per Context) | TE-03 (Tenant Provisioning), TE-04 (Transactional Outbox) |
 | FS-04 | Register System Topology | — | ADR-0031 (Schema per Context), ADR-0034 (CQRS) | TE-06 (CQRS Projection Rebuild) |
-| FS-05 | Create Profile / Manual Template | — | ADR-0012 (RBAC/ABAC), ADR-0029 (DDD Primitives) | TE-02 (Permission Graph) |
+| FS-05 | Create Profile / Manual Template | ADR-0054 (Shell Library Isolation) | ADR-0012 (RBAC/ABAC), ADR-0029 (DDD Primitives) | TE-02 (Permission Graph) |
 | FS-06 | Auto-Assign Template | — | ADR-0015 (Event Bus), ADR-0033 (Transactional Outbox) | TE-04 (Transactional Outbox) |
 | FS-07 | Visual Graph Resolver | — | ADR-0021 (Auth Graph Compilation), ADR-0022 (Contextual Projections) | TE-06 (CQRS Projection Rebuild) |
 | FS-08 | Hosted Login Redirection | — | ADR-0020 (IdP Abstraction), ADR-0027 (Dual-Protocol Node) | TE-01 (JWT / OIDC flow) |
@@ -45,6 +45,7 @@ This matrix links every **Functional Story (FS)** to its governing **Architectur
 | ADR-0026 | MFA Adaptive Implementation | FS-01, FS-09 |
 | ADR-0027 | Dual-Protocol Node Setup | FS-08 |
 | ADR-0029 | Tactical DDD Primitives | FS-05 |
+| ADR-0054 | Shell Library Isolation for DDD and Factory Patterns | FS-05 |
 | ADR-0031 | Isolated Schema Per Context | FS-03, FS-04 |
 | ADR-0033 | Transactional Outbox | FS-06, FS-11, FS-15 |
 | ADR-0034 | CQRS Applicability | FS-04, FS-13 |

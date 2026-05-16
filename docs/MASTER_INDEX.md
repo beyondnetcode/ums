@@ -13,6 +13,7 @@ Product Lifecycle and Engineering Specifications for the User Management System 
 - [Scope and Boundaries](./governance/product/scope.md)
 - [Objectives (OKRs)](./governance/product/objectives.md)
 - [Stakeholders](./governance/product/stakeholders.md)
+- [UX/UI Design Proposal](./governance/product/ux-ui-design-proposal.md)
 
 ### Phase 01 -- Domain Requirements
 
@@ -35,6 +36,7 @@ Product Lifecycle and Engineering Specifications for the User Management System 
 - [ER Export Formats](./architecture/blueprints/er-export-formats.md)
 - [Interactive ER Viewer](./architecture/blueprints/interactive-er-viewer.html)
 - [Service Entity Map](./architecture/blueprints/service-entity-map.md)
+- [Shell Library Architecture](./architecture/blueprints/shell-library-architecture.md)
 - [Architecture Portal](./architecture/index.md)
 - [Traceability Matrix (FS → ADR → TE)](./architecture/traceability-matrix.md)
 - [Technical Enablers Index](./architecture/blueprints/technical-enablers/index.md)
@@ -55,6 +57,12 @@ Product Lifecycle and Engineering Specifications for the User Management System 
 - [Compliance Context](./governance/construction/ddd-design/09-compliance-context.md)
 - [Cross-Context Flows](./governance/construction/ddd-design/10-cross-context-flows.md)
 - [DDD Primitives](./governance/construction/ddd-design/11-ddd-primitives.md)
+- [ADR-0050: Naming & Taxonomy Standard](./architecture/adrs/0050-naming-taxonomy-standard.md)
+- [ADR-0051: Event Bus Injectable Port](./architecture/adrs/0051-event-bus-injectable-port.md)
+- [ADR-0052: Immutable Audit Trail](./architecture/adrs/0052-immutable-audit-trail-enforcement.md)
+- [ADR-0053: OpenTelemetry Observability](./architecture/adrs/0053-opentelemetry-observability.md)
+- [ADR-0054: Shell Library Isolation](./architecture/adrs/0054-shell-library-isolation.md)
+- [ADR Registry](./architecture/adrs/index.md)
 - [Design Decisions & Gaps](./governance/construction/ddd-design/12-design-decisions.md)
 - [Interactive DDD Viewer](./governance/construction/ddd-design/interactive-ddd-viewer.html)
 

@@ -36,7 +36,7 @@
 | # | Documento | Contenido |
 |---|-----------|-----------|
 | 10 | [Cross-Context Flows](./10-cross-context-flows.md) | B2B Onboarding · Document Expiration · Role Promotion · Tabla de enrutamiento |
-| 11 | [DDD Primitives](./11-ddd-primitives.md) | Entity / AggregateRoot / ValueObject / Result&lt;T&gt; · Estructura monorepo |
+| 11 | [DDD Primitives](./11-ddd-primitives.md) | Entity / AggregateRoot / ValueObject / Result&lt;T&gt; · Librerías shell `Ums.Shell.*` |
 | 12 | [Design Decisions & Gaps](./12-design-decisions.md) | 8 decisiones justificadas · 6 vacios de validacion (V1-V6) |
 
 ---

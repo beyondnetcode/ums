@@ -15,7 +15,7 @@ UMS is a satellite repository of `arc32_progresive_monolith`. The parent reposit
 | ADR | Title | Status |
 |-----|-------|--------|
 | ADR-0001 – ADR-0028 | Foundation, infrastructure, runtime, CI/CD | Referenced — files pending |
-| ADR-0029 | C# Native DDD Primitives (no external library) | Accepted |
+| ADR-0029 | C# Native DDD Primitives | Clarified by ADR-0054 |
 
 ## DDD & Domain Design (ADR-0030 – ADR-0049)
 
@@ -33,6 +33,7 @@ UMS is a satellite repository of `arc32_progresive_monolith`. The parent reposit
 | [ADR-0051](./0051-event-bus-injectable-port.md) | Event Bus — Injectable Port Strategy (.NET / MassTransit) | Accepted |
 | [ADR-0052](./0052-immutable-audit-trail-enforcement.md) | Immutable Audit Trail — SQL Server Enforcement Strategy | Accepted |
 | [ADR-0053](./0053-opentelemetry-observability.md) | OpenTelemetry Observability Strategy | Accepted |
+| [ADR-0054](./0054-shell-library-isolation.md) | Shell Library Isolation for DDD and Factory Patterns | Accepted |
 
 ---
 

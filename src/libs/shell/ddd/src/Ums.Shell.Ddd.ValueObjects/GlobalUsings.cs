@@ -1,0 +1,1 @@
+﻿global using Ums.Shell.Ddd.ValueObjects.Common;

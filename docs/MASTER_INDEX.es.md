@@ -33,6 +33,7 @@ Especificaciones de Ingeniería y Ciclo de Vida del Producto para el User Manage
 
 - [Diseño de Base de Datos ER](./architecture/blueprints-es/database-design-er.md)
 - [Formatos de Exportación ER](./architecture/blueprints-es/er-export-formats.md)
+- [Arquitectura de Librerías Shell](./architecture/blueprints-es/shell-library-architecture.md)
 - [Portal de Arquitectura](./architecture/index.es.md)
 
 ### Fase 04 -- Construccion y Diseño de Dominio
@@ -50,5 +51,6 @@ Especificaciones de Ingeniería y Ciclo de Vida del Producto para el User Manage
 - [Contexto Compliance](./governance/construction/ddd-design/09-compliance-context.md)
 - [Flujos Cross-Contexto](./governance/construction/ddd-design/10-cross-context-flows.md)
 - [Primitivas DDD](./governance/construction/ddd-design/11-ddd-primitives.md)
+- [ADR-0054: Aislamiento de Librerías Shell](./architecture/adrs/0054-shell-library-isolation.md)
 - [Decisiones de Diseno y Vacios](./governance/construction/ddd-design/12-design-decisions.md)
 - [Viewer Interactivo DDD](./governance/construction/ddd-design/interactive-ddd-viewer.html)

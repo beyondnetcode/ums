@@ -8,6 +8,7 @@ Detailed engineering specifications for the User Management System (UMS), with a
 - **[ER Export Formats](./er-export-formats.md)**: Different representations (SQL, Mermaid, PNG) of the data model.
 - **[Interactive ER Viewer](./interactive-er-viewer.html)**: Interactive tool for database exploration.
 - **[Service Entity Map](./service-entity-map.md)**: Mapping between services and their database entities.
+- **[Shell Library Architecture](./shell-library-architecture.md)**: Dependency and inheritance model for the UMS-owned DDD and Factory shell libraries.
 
 ## Technical Enablers
 

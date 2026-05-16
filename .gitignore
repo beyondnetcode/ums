@@ -30,8 +30,13 @@ lerna-debug.log*
 *.suo
 *.ntvs*
 *.njsproj
-*.sln
 *.sw?
+
+# .NET build artifacts
+**/bin/
+**/obj/
+*.nupkg
+*.snupkg
 
 # OS metadata
 .DS_Store

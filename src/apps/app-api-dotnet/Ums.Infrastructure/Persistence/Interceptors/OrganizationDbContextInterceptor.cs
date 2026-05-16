@@ -5,9 +5,8 @@ using Ums.Application.Common.Interfaces;
 namespace Ums.Infrastructure.Persistence.Interceptors;
 
 /// <summary>
-/// EF Core Interceptor that automatically injects the Organization Context 
-/// into the PostgreSQL session before any command is executed.
-/// This enables Row-Level Security (RLS) enforcement at the database engine level.
+/// EF Core interceptor that sets the organization context in the SQL Server session.
+/// Application-layer tenant filtering remains the primary isolation mechanism; this context supports database RLS as a failsafe.
 /// </summary>
 public class OrganizationDbContextInterceptor : DbConnectionInterceptor
 {
@@ -19,41 +18,46 @@ public class OrganizationDbContextInterceptor : DbConnectionInterceptor
     }
 
     /// <summary>
-    /// Executes native SQL to set the session variable immediately after connection is opened.
-    /// Uses 'SET LOCAL' so the setting is restricted to the current transaction.
+    /// Sets the SQL Server session context immediately after the connection is opened.
     /// </summary>
-    public override async ValueTask<InterceptionResult> ConnectionOpenedAsync(
+    public override async Task ConnectionOpenedAsync(
         DbConnection connection,
         ConnectionEndEventData eventData,
-        InterceptionResult result,
         CancellationToken cancellationToken = default)
     {
         if (_tenantContext.OrganizationId.HasValue)
         {
-            var orgId = _tenantContext.OrganizationId.Value.ToString();
-            
             using var command = connection.CreateCommand();
-            command.CommandText = $"SET LOCAL app.current_organization_id = '{orgId}';";
+            command.CommandText = "EXEC sp_set_session_context @key = N'current_organization_id', @value = @organizationId;";
+
+            var organizationId = command.CreateParameter();
+            organizationId.ParameterName = "@organizationId";
+            organizationId.Value = _tenantContext.OrganizationId.Value;
+            command.Parameters.Add(organizationId);
+
             await command.ExecuteNonQueryAsync(cancellationToken);
         }
 
-        return await base.ConnectionOpenedAsync(connection, eventData, result, cancellationToken);
+        await base.ConnectionOpenedAsync(connection, eventData, cancellationToken);
     }
 
-    public override InterceptionResult ConnectionOpened(
+    public override void ConnectionOpened(
         DbConnection connection,
-        ConnectionEndEventData eventData,
-        InterceptionResult result)
+        ConnectionEndEventData eventData)
     {
         if (_tenantContext.OrganizationId.HasValue)
         {
-            var orgId = _tenantContext.OrganizationId.Value.ToString();
-            
             using var command = connection.CreateCommand();
-            command.CommandText = $"SET LOCAL app.current_organization_id = '{orgId}';";
+            command.CommandText = "EXEC sp_set_session_context @key = N'current_organization_id', @value = @organizationId;";
+
+            var organizationId = command.CreateParameter();
+            organizationId.ParameterName = "@organizationId";
+            organizationId.Value = _tenantContext.OrganizationId.Value;
+            command.Parameters.Add(organizationId);
+
             command.ExecuteNonQuery();
         }
 
-        return base.ConnectionOpened(connection, eventData, result);
+        base.ConnectionOpened(connection, eventData);
     }
 }
