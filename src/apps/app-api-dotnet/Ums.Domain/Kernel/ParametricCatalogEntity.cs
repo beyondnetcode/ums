@@ -46,6 +46,7 @@ public abstract class ParametricCatalogEntity<TEntity, TProps> : AggregateRoot<T
         string code,
         string value,
         string description,
+        string updatedBy,
         string version = "1.0.0",
         Guid? systemSuiteId = null)
     {
@@ -70,12 +71,12 @@ public abstract class ParametricCatalogEntity<TEntity, TProps> : AggregateRoot<T
         Props.GetType().GetProperty(nameof(ParametricCatalogProps.Description))?.SetValue(Props, global::Ums.Domain.Kernel.ValueObjects.Description.Create(description));
         Props.GetType().GetProperty(nameof(ParametricCatalogProps.Version))?.SetValue(Props, global::Ums.Domain.Kernel.ValueObjects.Version.Create(version));
         
-        Props.Audit.Update("system");
+        Props.Audit.Update(updatedBy);
 
         return Result.Success();
     }
 
-    public Result UpdateValue(string value, string description, string version)
+    public Result UpdateValue(string value, string description, string updatedBy, string version)
     {
         if (string.IsNullOrWhiteSpace(value))
             return Result.Failure("Value is required.");
@@ -90,14 +91,14 @@ public abstract class ParametricCatalogEntity<TEntity, TProps> : AggregateRoot<T
         Props.GetType().GetProperty(nameof(ParametricCatalogProps.Description))?.SetValue(Props, global::Ums.Domain.Kernel.ValueObjects.Description.Create(description));
         Props.GetType().GetProperty(nameof(ParametricCatalogProps.Version))?.SetValue(Props, global::Ums.Domain.Kernel.ValueObjects.Version.Create(version));
         
-        Props.Audit.Update("system");
+        Props.Audit.Update(updatedBy);
 
         return Result.Success();
     }
 
-    public void Deactivate()
+    public void Deactivate(string updatedBy)
     {
         Props.IsActive = false;
-        Props.Audit.Update("system");
+        Props.Audit.Update(updatedBy);
     }
 }

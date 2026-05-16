@@ -12,7 +12,7 @@ public class TenantProps : IProps
     public TenantStatus Status { get; set; }
     public AuditValueObject Audit { get; private set; }
 
-    public TenantProps(IdValueObject id, Code code, Name name, OrganizationType type, IdpStrategy idpStrategy, Value? companyReference, TenantId? parentTenantId)
+    public TenantProps(IdValueObject id, Code code, Name name, OrganizationType type, IdpStrategy idpStrategy, Value? companyReference, TenantId? parentTenantId, string createdBy)
     {
         Id = id;
         Code = code;
@@ -22,7 +22,7 @@ public class TenantProps : IProps
         CompanyReference = companyReference;
         ParentTenantId = parentTenantId;
         Status = TenantStatus.Active;
-        Audit = AuditValueObject.Create("system");
+        Audit = AuditValueObject.Create(createdBy);
     }
 
     public object Clone()

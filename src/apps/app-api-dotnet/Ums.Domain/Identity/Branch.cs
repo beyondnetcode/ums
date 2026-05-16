@@ -1,33 +1,38 @@
 namespace Ums.Domain.Identity;
 
+using Ums.Domain.Kernel.ValueObjects;
+
 public sealed class Branch : Entity<Branch, BranchProps>
 {
     private Branch(BranchProps props) : base(props) { }
 
-    public Guid TenantId => Props.TenantId.GetValue();
-    public string Code => Props.Code.GetValue();
-    public string Name => Props.Name.GetValue();
-    public string? GeofencingMetadata => Props.GeofencingMetadata?.GetValue();
+    public TenantId TenantId => Props.TenantId;
+    public Code Code => Props.Code;
+    public Name Name => Props.Name;
+    public Value? GeofencingMetadata => Props.GeofencingMetadata;
     public bool IsActive => Props.IsActive;
 
     public Guid GetId() => Props.Id.GetValue();
 
-    public static Result<Branch> Create(Guid tenantId, string code, string name, string? geofencingMetadata = null)
+    public static Result<Branch> Create(TenantId tenantId, Code code, Name name, string createdBy, Value? geofencingMetadata = null)
     {
-        if (tenantId == Guid.Empty)
-            return Result<Branch>.Failure(DomainErrors.TenantRequired);
-
-        var codeValue = global::Ums.Domain.Kernel.ValueObjects.Code.Create(code);
-        if (string.IsNullOrWhiteSpace(name))
-            return Result<Branch>.Failure(DomainErrors.NameRequired);
-
         var props = new BranchProps(
             IdValueObject.Create(),
-            global::Ums.Domain.Kernel.ValueObjects.TenantId.Load(tenantId),
-            codeValue,
-            global::Ums.Domain.Kernel.ValueObjects.Name.Create(name.Trim()),
-            geofencingMetadata != null ? global::Ums.Domain.Kernel.ValueObjects.Value.Create(geofencingMetadata) : null);
+            tenantId,
+            code,
+            name,
+            geofencingMetadata,
+            createdBy);
 
-        return Result<Branch>.Success(new Branch(props));
+        var branch = new Branch(props);
+
+        if (!branch.IsValid())
+        {
+            return Result<Branch>.Failure(branch.BrokenRules.GetBrokenRulesAsString());
+        }
+
+        return Result<Branch>.Success(branch);
     }
+
 }
+

@@ -17,41 +17,68 @@ public sealed class UserPromotionProcess : AggregateRoot<UserPromotionProcess, U
     public Guid? ApprovalRequestId => Props.ApprovalRequestId?.GetValue();
     public UserPromotionStatus Status => Props.Status;
 
-    public static Result<UserPromotionProcess> Start(Guid tenantId, Guid userId, Guid criteriaId, Guid targetRoleId)
+    public static Result<UserPromotionProcess> Start(Guid tenantId, Guid userId, Guid criteriaId, Guid targetRoleId, string createdBy)
     {
         if (tenantId == Guid.Empty || userId == Guid.Empty || criteriaId == Guid.Empty || targetRoleId == Guid.Empty)
-            return Result<UserPromotionProcess>.Failure("Tenant, user, criteria, and target role identifiers are required.");
+        {
+            var brokenRules = new BrokenRulesManager();
+            brokenRules.Add(new BrokenRule("Identifiers", "Tenant, user, criteria, and target role identifiers are required."));
+            return Result<UserPromotionProcess>.Failure(brokenRules.GetBrokenRulesAsString());
+        }
 
         var props = new UserPromotionProcessProps(
             IdValueObject.Create(),
             global::Ums.Domain.Kernel.ValueObjects.TenantId.Load(tenantId),
             global::Ums.Domain.Kernel.ValueObjects.UserId.Load(userId),
             global::Ums.Domain.Iga.ValueObjects.CriteriaId.Load(criteriaId),
-            global::Ums.Domain.Authorization.ValueObjects.RoleId.Load(targetRoleId));
+            global::Ums.Domain.Authorization.ValueObjects.RoleId.Load(targetRoleId),
+            createdBy);
 
         var process = new UserPromotionProcess(props);
+
+        if (!process.IsValid())
+        {
+            return Result<UserPromotionProcess>.Failure(process.BrokenRules.GetBrokenRulesAsString());
+        }
+
         return Result<UserPromotionProcess>.Success(process);
     }
 
-    public Result MarkCriteriaMet(Guid approvalRequestId)
+    public Result MarkCriteriaMet(Guid approvalRequestId, string updatedBy)
     {
         if (approvalRequestId == Guid.Empty)
-            return Result.Failure("Approval request identifier is required.");
+        {
+            BrokenRules.Add(new BrokenRule(nameof(approvalRequestId), "Approval request identifier is required."));
+        }
+
+        if (!IsValid())
+        {
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+        }
 
         Props.ApprovalRequestId = IdValueObject.Load(approvalRequestId);
         Props.Status = UserPromotionStatus.PendingApproval;
-        Props.Audit.Update("system");
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy);
         
         return Result.Success();
     }
 
-    public Result Complete()
+    public Result Complete(string updatedBy)
     {
         if (Props.Status != UserPromotionStatus.PendingApproval && Props.Status != UserPromotionStatus.CriteriaMet)
-            return Result.Failure("Promotion can only complete after criteria are met.");
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Status), "Promotion can only complete after criteria are met."));
+        }
+
+        if (!IsValid())
+        {
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+        }
 
         Props.Status = UserPromotionStatus.Promoted;
-        Props.Audit.Update("system");
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy);
         
         DomainEvents.ApplyChange(new UserPromotionCompletedEvent(Props.TenantId.GetValue(), GetId(), Props.UserId.GetValue(), Props.TargetRoleId.GetValue()), true);
         return Result.Success();

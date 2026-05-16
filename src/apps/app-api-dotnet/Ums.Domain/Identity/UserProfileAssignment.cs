@@ -1,12 +1,17 @@
 namespace Ums.Domain.Identity;
 
+using Ums.Domain.Kernel.ValueObjects;
+using Ums.Domain.Identity.ValueObjects;
+using Ums.Domain.Authorization.ValueObjects;
+
 public sealed class UserProfileAssignment : Entity<UserProfileAssignment, UserProfileAssignmentProps>
 {
     internal UserProfileAssignment(UserProfileAssignmentProps props) : base(props) { }
 
-    public Guid TenantId => Props.TenantId.GetValue();
-    public Guid UserAccountId => Props.UserAccountId.GetValue();
-    public Guid ProfileId => Props.ProfileId.GetValue();
-    public Guid? BranchId => Props.BranchId?.GetValue();
+    public TenantId TenantId => Props.TenantId;
+    public UserAccountId UserAccountId => Props.UserAccountId;
+    public ProfileId ProfileId => Props.ProfileId;
+    public BranchId? BranchId => Props.BranchId;
     public DateTimeOffset AssignedAt => Props.AssignedAt;
 }
+

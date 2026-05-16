@@ -1,8 +1,11 @@
 namespace Ums.Domain.Identity;
 
+using Ums.Domain.Kernel.ValueObjects;
+using Ums.Domain.Identity.ValueObjects;
+
 public class UserAccountProps : IProps
 {
-    public IdValueObject Id { get; private set; }
+    public UserAccountId Id { get; private set; }
     public TenantId TenantId { get; private set; }
     public BranchId? BranchId { get; private set; }
     public EmailAddress Email { get; private set; }
@@ -11,7 +14,7 @@ public class UserAccountProps : IProps
     public UserAccountStatus Status { get; set; }
     public AuditValueObject Audit { get; private set; }
 
-    public UserAccountProps(IdValueObject id, global::Ums.Domain.Kernel.ValueObjects.TenantId tenantId, global::Ums.Domain.Kernel.ValueObjects.BranchId? branchId, EmailAddress email, global::Ums.Domain.Identity.ValueObjects.IdentityReference identityReference, global::Ums.Domain.Kernel.ValueObjects.Value? passwordHash)
+    public UserAccountProps(UserAccountId id, TenantId tenantId, BranchId? branchId, EmailAddress email, IdentityReference identityReference, Value? passwordHash, string createdBy)
     {
         Id = id;
         TenantId = tenantId;
@@ -20,7 +23,7 @@ public class UserAccountProps : IProps
         IdentityReference = identityReference;
         PasswordHash = passwordHash;
         Status = UserAccountStatus.Pending;
-        Audit = AuditValueObject.Create("system");
+        Audit = AuditValueObject.Create(createdBy);
     }
 
     public object Clone()
@@ -28,3 +31,4 @@ public class UserAccountProps : IProps
         return this.MemberwiseClone();
     }
 }
+

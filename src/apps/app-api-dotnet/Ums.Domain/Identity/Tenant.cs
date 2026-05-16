@@ -1,5 +1,7 @@
 namespace Ums.Domain.Identity;
 
+using Ums.Domain.Kernel.ValueObjects;
+
 public sealed class Tenant : AggregateRoot<Tenant, TenantProps>
 {
     private readonly List<Branch> _branches = new();
@@ -12,75 +14,104 @@ public sealed class Tenant : AggregateRoot<Tenant, TenantProps>
         }
     }
 
-    public string Code => Props.Code.GetValue();
-    public string Name => Props.Name.GetValue();
+    public Code Code => Props.Code;
+    public Name Name => Props.Name;
     public OrganizationType Type => Props.Type;
     public IdpStrategy IdpStrategy => Props.IdpStrategy;
-    public string? CompanyReference => Props.CompanyReference?.GetValue();
-    public Guid? ParentTenantId => Props.ParentTenantId?.GetValue();
+    public Value? CompanyReference => Props.CompanyReference;
+    public TenantId? ParentTenantId => Props.ParentTenantId;
     public TenantStatus Status => Props.Status;
     public IReadOnlyCollection<Branch> Branches => _branches.AsReadOnly();
 
     public static Result<Tenant> Create(
-        string code,
-        string name,
+        Code code,
+        Name name,
         OrganizationType type,
+        string createdBy,
         IdpStrategy idpStrategy = null!,
-        string? companyReference = null,
-        Guid? parentTenantId = null)
+        Value? companyReference = null,
+        TenantId? parentTenantId = null)
     {
         idpStrategy ??= IdpStrategy.InternalBcrypt;
         
-        var codeValue = global::Ums.Domain.Kernel.ValueObjects.Code.Create(code);
-        if (string.IsNullOrWhiteSpace(name))
-            return Result<Tenant>.Failure(DomainErrors.NameRequired);
-
         var id = IdValueObject.Create();
         var props = new TenantProps(
             id,
-            codeValue,
-            global::Ums.Domain.Kernel.ValueObjects.Name.Create(name.Trim()),
+            code,
+            name,
             type,
             idpStrategy,
-            companyReference != null ? global::Ums.Domain.Kernel.ValueObjects.Value.Create(companyReference.Trim()) : null,
-            parentTenantId.HasValue ? global::Ums.Domain.Kernel.ValueObjects.TenantId.Load(parentTenantId.Value) : null);
+            companyReference,
+            parentTenantId,
+            createdBy);
 
         var tenant = new Tenant(props);
+
+        if (!tenant.IsValid())
+        {
+            return Result<Tenant>.Failure(tenant.BrokenRules.GetBrokenRulesAsString());
+        }
+
         return Result<Tenant>.Success(tenant);
     }
 
-    public Result AddBranch(string code, string name, string? geofencingMetadata = null)
+
+    public Result AddBranch(Code code, Name name, string updatedBy, Value? geofencingMetadata = null)
     {
-        var branchResult = Branch.Create(Props.Id.GetValue(), code, name, geofencingMetadata);
+        var branchResult = Branch.Create(TenantId.Load(Props.Id.GetValue()), code, name, updatedBy, geofencingMetadata);
         if (branchResult.IsFailure)
             return Result.Failure(branchResult.Error);
 
         if (_branches.Any(branch => branch.Code == branchResult.Value.Code))
-            return Result.Failure("Branch code must be unique inside the tenant.");
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Branches), "Branch code must be unique inside the tenant."));
+        }
+
+        if (!IsValid())
+        {
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+        }
 
         _branches.Add(branchResult.Value);
-        DomainEvents.ApplyChange(new BranchCreatedEvent(Props.Id.GetValue(), branchResult.Value.GetId(), branchResult.Value.Code), true);
-        Props.Audit.Update("system");
+        DomainEvents.ApplyChange(new BranchCreatedEvent(Props.Id.GetValue(), branchResult.Value.GetId(), branchResult.Value.Code.GetValue()), true);
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy);
         return Result.Success();
     }
 
-    public Result Suspend()
+    public Result Suspend(string updatedBy)
     {
         if (Props.Status == TenantStatus.Archived)
-            return Result.Failure("Archived tenants cannot be suspended.");
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Status), "Archived tenants cannot be suspended."));
+        }
+
+        if (!IsValid())
+        {
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+        }
 
         Props.Status = TenantStatus.Suspended;
-        Props.Audit.Update("system");
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy);
         return Result.Success();
     }
 
-    public Result Activate()
+    public Result Activate(string updatedBy)
     {
         if (Props.Status == TenantStatus.Archived)
-            return Result.Failure("Archived tenants cannot be activated.");
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Status), "Archived tenants cannot be activated."));
+        }
+
+        if (!IsValid())
+        {
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+        }
 
         Props.Status = TenantStatus.Active;
-        Props.Audit.Update("system");
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy);
         return Result.Success();
     }
 }

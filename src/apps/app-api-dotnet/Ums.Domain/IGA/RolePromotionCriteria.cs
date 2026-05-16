@@ -16,16 +16,21 @@ public sealed class RolePromotionCriteria : ParametricCatalogEntity<RolePromotio
         Guid sourceRoleId,
         Guid targetRoleId,
         string evaluationExpression,
+        string createdBy,
         string version = "1.0.0")
     {
+        var brokenRules = new BrokenRulesManager();
         if (sourceRoleId == Guid.Empty || targetRoleId == Guid.Empty)
-            return Result<RolePromotionCriteria>.Failure("Source and target roles are required.");
+            brokenRules.Add(new BrokenRule("Roles", "Source and target roles are required."));
 
         if (sourceRoleId == targetRoleId)
-            return Result<RolePromotionCriteria>.Failure("Source and target roles must be different.");
+            brokenRules.Add(new BrokenRule("Roles", "Source and target roles must be different."));
 
         if (string.IsNullOrWhiteSpace(evaluationExpression))
-            return Result<RolePromotionCriteria>.Failure("Evaluation expression is required.");
+            brokenRules.Add(new BrokenRule(nameof(evaluationExpression), "Evaluation expression is required."));
+
+        if (brokenRules.GetBrokenRules().Any())
+            return Result<RolePromotionCriteria>.Failure(brokenRules.GetBrokenRulesAsString());
 
         var props = new RolePromotionCriteriaProps
         {
@@ -34,8 +39,16 @@ public sealed class RolePromotionCriteria : ParametricCatalogEntity<RolePromotio
             EvaluationExpression = global::Ums.Domain.Kernel.ValueObjects.TextValueObject.Create(evaluationExpression.Trim())
         };
 
+        props.GetType().GetProperty(nameof(ParametricCatalogProps.Audit))?.SetValue(props, AuditValueObject.Create(createdBy));
+
         var criteria = new RolePromotionCriteria(props);
-        var result = criteria.SetCatalogFields(tenantId, code, value, description, version);
+        
+        if (!criteria.IsValid())
+        {
+            return Result<RolePromotionCriteria>.Failure(criteria.BrokenRules.GetBrokenRulesAsString());
+        }
+
+        var result = criteria.SetCatalogFields(tenantId, code, value, description, createdBy, version);
         
         return result.IsFailure ? Result<RolePromotionCriteria>.Failure(result.Error) : Result<RolePromotionCriteria>.Success(criteria);
     }

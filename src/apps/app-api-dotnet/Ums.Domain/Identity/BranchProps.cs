@@ -10,7 +10,7 @@ public class BranchProps : IProps
     public bool IsActive { get; set; }
     public AuditValueObject Audit { get; private set; }
 
-    public BranchProps(IdValueObject id, TenantId tenantId, Code code, Name name, Value? geofencingMetadata)
+    public BranchProps(IdValueObject id, TenantId tenantId, Code code, Name name, Value? geofencingMetadata, string createdBy)
     {
         Id = id;
         TenantId = tenantId;
@@ -18,7 +18,7 @@ public class BranchProps : IProps
         Name = name;
         GeofencingMetadata = geofencingMetadata;
         IsActive = true;
-        Audit = AuditValueObject.Create("system");
+        Audit = AuditValueObject.Create(createdBy);
     }
 
     public object Clone()

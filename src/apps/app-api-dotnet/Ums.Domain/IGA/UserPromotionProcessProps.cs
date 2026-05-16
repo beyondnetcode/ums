@@ -11,7 +11,7 @@ public class UserPromotionProcessProps : IProps
     public UserPromotionStatus Status { get; set; }
     public AuditValueObject Audit { get; private set; }
 
-    public UserPromotionProcessProps(IdValueObject id, global::Ums.Domain.Kernel.ValueObjects.TenantId tenantId, global::Ums.Domain.Kernel.ValueObjects.UserId userId, global::Ums.Domain.Iga.ValueObjects.CriteriaId criteriaId, global::Ums.Domain.Authorization.ValueObjects.RoleId targetRoleId)
+    public UserPromotionProcessProps(IdValueObject id, global::Ums.Domain.Kernel.ValueObjects.TenantId tenantId, global::Ums.Domain.Kernel.ValueObjects.UserId userId, global::Ums.Domain.Iga.ValueObjects.CriteriaId criteriaId, global::Ums.Domain.Authorization.ValueObjects.RoleId targetRoleId, string createdBy)
     {
         Id = id;
         TenantId = tenantId;
@@ -19,7 +19,7 @@ public class UserPromotionProcessProps : IProps
         CriteriaId = criteriaId;
         TargetRoleId = targetRoleId;
         Status = UserPromotionStatus.Evaluating;
-        Audit = AuditValueObject.Create("system");
+        Audit = AuditValueObject.Create(createdBy);
     }
 
     public object Clone()

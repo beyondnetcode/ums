@@ -1,5 +1,9 @@
 namespace Ums.Domain.Identity;
 
+using Ums.Domain.Kernel.ValueObjects;
+using Ums.Domain.Identity.ValueObjects;
+using Ums.Domain.Authorization.ValueObjects;
+
 public sealed class UserAccount : AggregateRoot<UserAccount, UserAccountProps>
 {
     private readonly List<UserProfileAssignment> _profileAssignments = new();
@@ -12,77 +16,102 @@ public sealed class UserAccount : AggregateRoot<UserAccount, UserAccountProps>
         }
     }
 
-    public Guid TenantId => Props.TenantId.GetValue();
-    public Guid? BranchId => Props.BranchId?.GetValue();
-    public string Email => Props.Email.GetValue();
-    public string IdentityReference => Props.IdentityReference.GetValue();
-    public string? PasswordHash => Props.PasswordHash?.GetValue();
+    public TenantId TenantId => Props.TenantId;
+    public BranchId? BranchId => Props.BranchId;
+    public EmailAddress Email => Props.Email;
+    public IdentityReference IdentityReference => Props.IdentityReference;
+    public Value? PasswordHash => Props.PasswordHash;
     public UserAccountStatus Status => Props.Status;
     public IReadOnlyCollection<UserProfileAssignment> ProfileAssignments => _profileAssignments.AsReadOnly();
 
-    public static Result<UserAccount> Register(Guid tenantId, string email, string identityReference, Guid? branchId = null, string? passwordHash = null)
+    public static Result<UserAccount> Register(TenantId tenantId, EmailAddress email, IdentityReference identityReference, string createdBy, BranchId? branchId = null, Value? passwordHash = null)
     {
-        if (tenantId == Guid.Empty)
-            return Result<UserAccount>.Failure(DomainErrors.TenantRequired);
-
-        var emailResult = global::Ums.Domain.Kernel.ValueObjects.EmailAddress.Create(email);
-        if (emailResult.IsFailure) return Result<UserAccount>.Failure(emailResult.Error);
-        var emailValue = emailResult.Value;
-        
-        if (string.IsNullOrWhiteSpace(identityReference))
-            return Result<UserAccount>.Failure("Identity reference is required.");
-
         var props = new UserAccountProps(
-            IdValueObject.Create(),
-            global::Ums.Domain.Kernel.ValueObjects.TenantId.Load(tenantId),
-            branchId.HasValue ? global::Ums.Domain.Kernel.ValueObjects.BranchId.Load(branchId.Value) : null,
-            emailValue,
-            global::Ums.Domain.Identity.ValueObjects.IdentityReference.Create(identityReference.Trim()),
-            passwordHash != null ? global::Ums.Domain.Kernel.ValueObjects.Value.Create(passwordHash) : null);
+            UserAccountId.Create(),
+            tenantId,
+            branchId,
+            email,
+            identityReference,
+            passwordHash,
+            createdBy);
 
         var user = new UserAccount(props);
+
+        if (!user.IsValid())
+        {
+            return Result<UserAccount>.Failure(user.BrokenRules.GetBrokenRulesAsString());
+        }
+
         return Result<UserAccount>.Success(user);
     }
 
-    public Result Activate()
+
+    public Result Activate(string updatedBy)
     {
         if (Props.Status == UserAccountStatus.Terminated)
-            return Result.Failure("Terminated users cannot be activated.");
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Status), "Terminated users cannot be activated."));
+        }
+
+        if (!IsValid())
+        {
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+        }
 
         Props.Status = UserAccountStatus.Active;
         DomainEvents.ApplyChange(new UserActivatedEvent(Props.TenantId.GetValue(), Props.Id.GetValue()), true);
-        Props.Audit.Update("system");
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy);
         return Result.Success();
     }
 
-    public Result Block(string reason)
+    public Result Block(string reason, string updatedBy)
     {
         if (string.IsNullOrWhiteSpace(reason))
-            return Result.Failure("Block reason is required.");
+        {
+            BrokenRules.Add(new BrokenRule("Reason", "Block reason is required."));
+        }
+
+        if (!IsValid())
+        {
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+        }
 
         Props.Status = UserAccountStatus.Blocked;
         DomainEvents.ApplyChange(new UserBlockedEvent(Props.TenantId.GetValue(), Props.Id.GetValue(), reason.Trim()), true);
-        Props.Audit.Update("system");
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy);
         return Result.Success();
     }
 
-    public Result AssignProfile(Guid profileId, Guid? branchId = null)
+    public Result AssignProfile(ProfileId profileId, string updatedBy, BranchId? branchId = null)
     {
-        if (profileId == Guid.Empty)
-            return Result.Failure("Profile identifier is required.");
+        if (profileId == null)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(profileId), "Profile identifier is required."));
+        }
 
-        if (_profileAssignments.Any(item => item.ProfileId == profileId && item.BranchId == branchId))
-            return Result.Failure("Profile is already assigned to the user in this scope.");
+        if (profileId != null && _profileAssignments.Any(item => item.ProfileId == profileId && item.BranchId == branchId))
+        {
+            BrokenRules.Add(new BrokenRule(nameof(ProfileAssignments), "Profile is already assigned to the user in this scope."));
+        }
+
+        if (!IsValid())
+        {
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+        }
 
         var assignmentProps = new UserProfileAssignmentProps(
             IdValueObject.Create(),
             Props.TenantId,
-            IdValueObject.Load(Props.Id.GetValue()),
-            global::Ums.Domain.Authorization.ValueObjects.ProfileId.Load(profileId),
-            branchId.HasValue ? global::Ums.Domain.Kernel.ValueObjects.BranchId.Load(branchId.Value) : null);
+            Props.Id,
+            profileId!,
+            branchId);
         
         _profileAssignments.Add(new UserProfileAssignment(assignmentProps));
-        Props.Audit.Update("system");
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy);
         return Result.Success();
     }
 }
+

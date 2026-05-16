@@ -18,16 +18,20 @@ public sealed class UserManagementDelegation : AggregateRoot<UserManagementDeleg
     public string Scope => Props.Scope.GetValue();
     public DelegationStatus Status => Props.Status;
 
-    public static Result<UserManagementDelegation> Grant(Guid tenantId, Guid delegatorUserId, Guid delegateUserId, DateRange effectiveRange, string scope)
+    public static Result<UserManagementDelegation> Grant(Guid tenantId, Guid delegatorUserId, Guid delegateUserId, DateRange effectiveRange, string scope, string createdBy)
     {
+        var brokenRules = new BrokenRulesManager();
         if (tenantId == Guid.Empty || delegatorUserId == Guid.Empty || delegateUserId == Guid.Empty)
-            return Result<UserManagementDelegation>.Failure("Tenant, delegator, and delegate identifiers are required.");
+            brokenRules.Add(new BrokenRule("Identifiers", "Tenant, delegator, and delegate identifiers are required."));
 
         if (delegatorUserId == delegateUserId)
-            return Result<UserManagementDelegation>.Failure("Delegator and delegate must be different.");
+            brokenRules.Add(new BrokenRule("Users", "Delegator and delegate must be different."));
 
         if (string.IsNullOrWhiteSpace(scope))
-            return Result<UserManagementDelegation>.Failure("Delegation scope is required.");
+            brokenRules.Add(new BrokenRule(nameof(scope), "Delegation scope is required."));
+
+        if (brokenRules.GetBrokenRules().Any())
+            return Result<UserManagementDelegation>.Failure(brokenRules.GetBrokenRulesAsString());
 
         var props = new UserManagementDelegationProps(
             IdValueObject.Create(),
@@ -35,16 +39,25 @@ public sealed class UserManagementDelegation : AggregateRoot<UserManagementDeleg
             global::Ums.Domain.Kernel.ValueObjects.UserId.Load(delegatorUserId),
             global::Ums.Domain.Kernel.ValueObjects.UserId.Load(delegateUserId),
             effectiveRange,
-            global::Ums.Domain.Kernel.ValueObjects.TextValueObject.Create(scope.Trim()));
+            global::Ums.Domain.Kernel.ValueObjects.TextValueObject.Create(scope.Trim()),
+            createdBy);
 
         var delegation = new UserManagementDelegation(props);
+
+        if (!delegation.IsValid())
+        {
+            return Result<UserManagementDelegation>.Failure(delegation.BrokenRules.GetBrokenRulesAsString());
+        }
+
         return Result<UserManagementDelegation>.Success(delegation);
     }
 
-    public void Revoke()
+    public Result Revoke(string updatedBy)
     {
         Props.Status = DelegationStatus.Revoked;
-        Props.Audit.Update("system");
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy);
+        return Result.Success();
     }
     
     public Guid GetId() => Props.Id.GetValue();

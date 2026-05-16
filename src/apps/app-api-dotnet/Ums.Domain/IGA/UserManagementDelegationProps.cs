@@ -12,7 +12,7 @@ public class UserManagementDelegationProps : IProps
     public DelegationStatus Status { get; set; }
     public AuditValueObject Audit { get; private set; }
 
-    public UserManagementDelegationProps(IdValueObject id, global::Ums.Domain.Kernel.ValueObjects.TenantId tenantId, global::Ums.Domain.Kernel.ValueObjects.UserId delegatorUserId, global::Ums.Domain.Kernel.ValueObjects.UserId delegateUserId, DateRange effectiveRange, StringValueObject scope)
+    public UserManagementDelegationProps(IdValueObject id, global::Ums.Domain.Kernel.ValueObjects.TenantId tenantId, global::Ums.Domain.Kernel.ValueObjects.UserId delegatorUserId, global::Ums.Domain.Kernel.ValueObjects.UserId delegateUserId, DateRange effectiveRange, StringValueObject scope, string createdBy)
     {
         Id = id;
         TenantId = tenantId;
@@ -22,7 +22,7 @@ public class UserManagementDelegationProps : IProps
         EffectiveTo = effectiveRange.EndsAt;
         Scope = scope;
         Status = DelegationStatus.Active;
-        Audit = AuditValueObject.Create("system");
+        Audit = AuditValueObject.Create(createdBy);
     }
 
     public object Clone()

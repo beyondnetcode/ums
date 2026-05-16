@@ -9,6 +9,6 @@ public class RolePromotionCriteriaProps : ParametricCatalogProps
     public RolePromotionCriteriaProps()
     {
         Id = IdValueObject.Create();
-        Audit = AuditValueObject.Create("system");
+        // Audit is typically initialized via the Catalog mechanism or explicit setter
     }
 }
