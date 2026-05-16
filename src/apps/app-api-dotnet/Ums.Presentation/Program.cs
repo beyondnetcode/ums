@@ -1,8 +1,15 @@
+using Ums.Globalization;
+using Ums.Globalization.Access;
+using Ums.Presentation.Middleware;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddScoped<ILocalizationService, LocalizationService>();
 
 var app = builder.Build();
+
+app.UseCulture();
 
 app.UseHttpsRedirection();
 
@@ -10,9 +17,28 @@ app.MapGet("/health", () => Results.Ok(new
 {
     Status = "Healthy",
     Service = "UMS API",
+    Language = CultureContext.Current,
     Timestamp = DateTimeOffset.UtcNow
 }))
 .WithName("GetHealth")
+.WithTags("Platform");
+
+app.MapGet("/health/{language}", (string language) =>
+{
+    using (CultureContext.Set(language))
+    {
+        var localizer = new LocalizationService();
+        return Results.Ok(new
+        {
+            Status = "Healthy",
+            Service = "UMS API",
+            Message = localizer.T("system.internal_error"),
+            Language = language,
+            Timestamp = DateTimeOffset.UtcNow
+        });
+    }
+})
+.WithName("GetHealthLocalized")
 .WithTags("Platform");
 
 var summaries = new[]

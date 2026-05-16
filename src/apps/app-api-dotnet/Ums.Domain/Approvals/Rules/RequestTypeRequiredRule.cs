@@ -1,5 +1,7 @@
 namespace Ums.Domain.Approvals.Rules;
 
+using Ums.Domain.Kernel;
+
 public class RequestTypeRequiredRule : AbstractRuleValidator<object>
 {
     private readonly string _requestType;
@@ -13,7 +15,7 @@ public class RequestTypeRequiredRule : AbstractRuleValidator<object>
     {
         if (string.IsNullOrWhiteSpace(_requestType))
         {
-            AddBrokenRule("RequestType", "Request type is required.");
+            AddBrokenRule("RequestType", DomainErrors.Approval.RequestTypeRequired);
         }
     }
 }

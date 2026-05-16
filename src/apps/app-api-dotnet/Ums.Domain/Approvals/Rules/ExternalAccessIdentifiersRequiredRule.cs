@@ -1,5 +1,7 @@
 namespace Ums.Domain.Approvals.Rules;
 
+using Ums.Domain.Kernel;
+
 public class ExternalAccessIdentifiersRequiredRule : AbstractRuleValidator<object>
 {
     private readonly Guid _tenantId;
@@ -19,7 +21,7 @@ public class ExternalAccessIdentifiersRequiredRule : AbstractRuleValidator<objec
     {
         if (_tenantId == Guid.Empty || _sponsorUserId == Guid.Empty || _targetOrganizationId == Guid.Empty || _requestedProfileId == Guid.Empty)
         {
-            AddBrokenRule("Identifiers", "Tenant, sponsor, target organization, and requested profile identifiers are required.");
+            AddBrokenRule("Identifiers", DomainErrors.Approval.ExternalIdentifiersRequired);
         }
     }
 }

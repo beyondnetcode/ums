@@ -19,12 +19,12 @@ public sealed class FunctionalSubmodule : Entity<FunctionalSubmodule, Functional
     public static Result<FunctionalSubmodule> Create(Guid tenantId, Guid systemSuiteId, Guid moduleId, string code, string label, int displayOrder, string? iconCode = null)
     {
         if (tenantId == Guid.Empty || systemSuiteId == Guid.Empty || moduleId == Guid.Empty)
-            return Result<FunctionalSubmodule>.Failure("Tenant, system, and module identifiers are required.");
+            return Result<FunctionalSubmodule>.Failure(DomainErrors.FunctionalSubmodule.TenantSystemModuleRequired);
 
         var codeValue = global::Ums.Domain.Kernel.ValueObjects.Code.Create(code);
 
         if (string.IsNullOrWhiteSpace(label))
-            return Result<FunctionalSubmodule>.Failure("Menu label is required.");
+            return Result<FunctionalSubmodule>.Failure(DomainErrors.FunctionalSubmodule.MenuLabelRequired);
 
         var props = new FunctionalSubmoduleProps(
             IdValueObject.Create(),
@@ -46,7 +46,7 @@ public sealed class FunctionalSubmodule : Entity<FunctionalSubmodule, Functional
             return Result.Failure(optionResult.Error);
 
         if (_options.Any(option => option.Code == optionResult.Value.Code))
-            return Result.Failure("Option code must be unique inside the menu.");
+            return Result.Failure(DomainErrors.FunctionalSubmodule.OptionCodeNotUnique);
 
         _options.Add(optionResult.Value);
         Props.Audit.Update("system");

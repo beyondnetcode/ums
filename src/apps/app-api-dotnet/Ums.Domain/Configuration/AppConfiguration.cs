@@ -11,12 +11,12 @@ public sealed class AppConfiguration : ParametricCatalogEntity<AppConfiguration,
     public static Result<AppConfiguration> Create(Guid tenantId, Guid systemSuiteId, string code, string value, string description, string version = "1.0.0")
     {
         if (systemSuiteId == Guid.Empty)
-            return Result<AppConfiguration>.Failure("System suite identifier is required.");
+            return Result<AppConfiguration>.Failure(DomainErrors.Configuration.SystemSuiteIdRequired);
 
         var props = new AppConfigurationProps();
         var configuration = new AppConfiguration(props);
         
-        var result = configuration.SetCatalogFields(tenantId, code, value, description, version, systemSuiteId);
+        var result = configuration.SetCatalogFields(tenantId, code, value, description, "system", version, systemSuiteId);
         if (result.IsFailure)
             return Result<AppConfiguration>.Failure(result.Error);
 
@@ -27,7 +27,7 @@ public sealed class AppConfiguration : ParametricCatalogEntity<AppConfiguration,
     public Result Publish(Guid publishedBy)
     {
         if (publishedBy == Guid.Empty)
-            return Result.Failure("Publisher identifier is required.");
+            return Result.Failure(DomainErrors.Configuration.PublisherRequired);
 
         Props.Status = LifecycleStatus.Published;
         Props.PublishedAt = DateTimeOffset.UtcNow;

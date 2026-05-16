@@ -17,15 +17,15 @@ public sealed class FunctionalModule : Entity<FunctionalModule, FunctionalModule
     public static Result<FunctionalModule> Create(Guid tenantId, Guid systemSuiteId, string code, string name, string description)
     {
         if (tenantId == Guid.Empty || systemSuiteId == Guid.Empty)
-            return Result<FunctionalModule>.Failure("Tenant and system identifiers are required.");
+            return Result<FunctionalModule>.Failure(DomainErrors.FunctionalModule.TenantAndSystemRequired);
 
         var codeValue = global::Ums.Domain.Kernel.ValueObjects.Code.Create(code);
 
         if (string.IsNullOrWhiteSpace(name))
-            return Result<FunctionalModule>.Failure(DomainErrors.NameRequired);
+            return Result<FunctionalModule>.Failure(DomainErrors.Common.Required);
 
         if (string.IsNullOrWhiteSpace(description))
-            return Result<FunctionalModule>.Failure(DomainErrors.DescriptionRequired);
+            return Result<FunctionalModule>.Failure(DomainErrors.Common.Required);
 
         var props = new FunctionalModuleProps(
             IdValueObject.Create(),
@@ -45,7 +45,7 @@ public sealed class FunctionalModule : Entity<FunctionalModule, FunctionalModule
             return Result.Failure(menuResult.Error);
 
         if (_menus.Any(menu => menu.Code == menuResult.Value.Code))
-            return Result.Failure("Menu code must be unique inside the module.");
+            return Result.Failure(DomainErrors.FunctionalModule.MenuCodeNotUnique);
 
         _menus.Add(menuResult.Value);
         Props.Audit.Update("system");

@@ -1,5 +1,7 @@
 namespace Ums.Domain.Approvals.Rules;
 
+using Ums.Domain.Kernel;
+
 public class PendingStateToResolveRule : AbstractRuleValidator<object>
 {
     private readonly ApprovalRequestStatus _status;
@@ -13,7 +15,7 @@ public class PendingStateToResolveRule : AbstractRuleValidator<object>
     {
         if (_status != ApprovalRequestStatus.Pending)
         {
-            AddBrokenRule("Status", "Only pending approval requests can be resolved.");
+            AddBrokenRule("Status", DomainErrors.Approval.OnlyPendingCanResolve);
         }
     }
 }

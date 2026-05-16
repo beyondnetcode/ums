@@ -1,5 +1,7 @@
 namespace Ums.Domain.Approvals.Rules;
 
+using Ums.Domain.Kernel;
+
 public class MinimumApprovalsRule : AbstractRuleValidator<object>
 {
     private readonly int _requiredApprovals;
@@ -13,7 +15,7 @@ public class MinimumApprovalsRule : AbstractRuleValidator<object>
     {
         if (_requiredApprovals <= 0)
         {
-            AddBrokenRule("RequiredApprovals", "At least one approval is required.");
+            AddBrokenRule("RequiredApprovals", DomainErrors.Approval.MinimumApprovalsRequired);
         }
     }
 }

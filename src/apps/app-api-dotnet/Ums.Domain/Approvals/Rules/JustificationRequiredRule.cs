@@ -1,5 +1,7 @@
 namespace Ums.Domain.Approvals.Rules;
 
+using Ums.Domain.Kernel;
+
 public class JustificationRequiredRule : AbstractRuleValidator<object>
 {
     private readonly string _justification;
@@ -13,7 +15,7 @@ public class JustificationRequiredRule : AbstractRuleValidator<object>
     {
         if (string.IsNullOrWhiteSpace(_justification))
         {
-            AddBrokenRule("Justification", "Justification is required.");
+            AddBrokenRule("Justification", DomainErrors.Approval.JustificationRequired);
         }
     }
 }

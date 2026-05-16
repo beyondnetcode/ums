@@ -21,13 +21,13 @@ public sealed class RolePromotionCriteria : ParametricCatalogEntity<RolePromotio
     {
         var brokenRules = new BrokenRulesManager();
         if (sourceRoleId == Guid.Empty || targetRoleId == Guid.Empty)
-            brokenRules.Add(new BrokenRule("Roles", "Source and target roles are required."));
+            brokenRules.Add(new BrokenRule("Roles", DomainErrors.Iga.SourceTargetRolesRequired));
 
         if (sourceRoleId == targetRoleId)
-            brokenRules.Add(new BrokenRule("Roles", "Source and target roles must be different."));
+            brokenRules.Add(new BrokenRule("Roles", DomainErrors.Iga.SourceTargetMustDiffer));
 
         if (string.IsNullOrWhiteSpace(evaluationExpression))
-            brokenRules.Add(new BrokenRule(nameof(evaluationExpression), "Evaluation expression is required."));
+            brokenRules.Add(new BrokenRule(nameof(evaluationExpression), DomainErrors.Iga.EvaluationExpressionRequired));
 
         if (brokenRules.GetBrokenRules().Any())
             return Result<RolePromotionCriteria>.Failure(brokenRules.GetBrokenRulesAsString());

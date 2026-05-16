@@ -1,5 +1,7 @@
 namespace Ums.Domain.Approvals.Rules;
 
+using Ums.Domain.Kernel;
+
 public class DraftStateToSubmitRule : AbstractRuleValidator<object>
 {
     private readonly ApprovalRequestStatus _status;
@@ -13,7 +15,7 @@ public class DraftStateToSubmitRule : AbstractRuleValidator<object>
     {
         if (_status != ApprovalRequestStatus.Draft)
         {
-            AddBrokenRule("Status", "Only draft external access requests can be submitted.");
+            AddBrokenRule("Status", DomainErrors.Approval.OnlyDraftCanSubmit);
         }
     }
 }

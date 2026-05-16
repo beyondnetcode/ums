@@ -22,13 +22,13 @@ public sealed class UserManagementDelegation : AggregateRoot<UserManagementDeleg
     {
         var brokenRules = new BrokenRulesManager();
         if (tenantId == Guid.Empty || delegatorUserId == Guid.Empty || delegateUserId == Guid.Empty)
-            brokenRules.Add(new BrokenRule("Identifiers", "Tenant, delegator, and delegate identifiers are required."));
+            brokenRules.Add(new BrokenRule("Identifiers", DomainErrors.Iga.DelegationIdentifiersRequired));
 
         if (delegatorUserId == delegateUserId)
-            brokenRules.Add(new BrokenRule("Users", "Delegator and delegate must be different."));
+            brokenRules.Add(new BrokenRule("Users", DomainErrors.Iga.DelegatorDelegateMustDiffer));
 
         if (string.IsNullOrWhiteSpace(scope))
-            brokenRules.Add(new BrokenRule(nameof(scope), "Delegation scope is required."));
+            brokenRules.Add(new BrokenRule(nameof(scope), DomainErrors.Iga.DelegationScopeRequired));
 
         if (brokenRules.GetBrokenRules().Any())
             return Result<UserManagementDelegation>.Failure(brokenRules.GetBrokenRulesAsString());

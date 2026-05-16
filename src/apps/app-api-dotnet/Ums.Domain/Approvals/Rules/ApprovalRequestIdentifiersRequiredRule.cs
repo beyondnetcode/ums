@@ -1,5 +1,7 @@
 namespace Ums.Domain.Approvals.Rules;
 
+using Ums.Domain.Kernel;
+
 public class ApprovalRequestIdentifiersRequiredRule : AbstractRuleValidator<object>
 {
     private readonly Guid _tenantId;
@@ -17,7 +19,7 @@ public class ApprovalRequestIdentifiersRequiredRule : AbstractRuleValidator<obje
     {
         if (_tenantId == Guid.Empty || _workflowId == Guid.Empty || _requestedBy == Guid.Empty)
         {
-            AddBrokenRule("Identifiers", "Tenant, workflow, and requester identifiers are required.");
+            AddBrokenRule("Identifiers", DomainErrors.Approval.IdentifiersRequired);
         }
     }
 }

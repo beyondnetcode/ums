@@ -21,10 +21,10 @@ public sealed class UserDocument : AggregateRoot<UserDocument, UserDocumentProps
     public static Result<UserDocument> Upload(Guid tenantId, Guid userId, Guid documentTypeId, string storageReference, DateTimeOffset? expiresAt = null)
     {
         if (tenantId == Guid.Empty || userId == Guid.Empty || documentTypeId == Guid.Empty)
-            return Result<UserDocument>.Failure("Tenant, user, and document type identifiers are required.");
+            return Result<UserDocument>.Failure(DomainErrors.Compliance.UserDocumentIdentifiersRequired);
 
         if (string.IsNullOrWhiteSpace(storageReference))
-            return Result<UserDocument>.Failure("Storage reference is required.");
+            return Result<UserDocument>.Failure(DomainErrors.Compliance.StorageReferenceRequired);
 
         var props = new UserDocumentProps(
             IdValueObject.Create(),
@@ -41,7 +41,7 @@ public sealed class UserDocument : AggregateRoot<UserDocument, UserDocumentProps
     public Result MarkValid(string comment)
     {
         if (string.IsNullOrWhiteSpace(comment))
-            return Result.Failure("Review comment is required.");
+            return Result.Failure(DomainErrors.Compliance.ReviewCommentRequired);
 
         Props.Status = UserDocumentStatus.Valid;
         Props.ReviewComment = global::Ums.Domain.Kernel.ValueObjects.TextValueObject.Create(comment.Trim());
@@ -54,7 +54,7 @@ public sealed class UserDocument : AggregateRoot<UserDocument, UserDocumentProps
     public Result Reject(string comment)
     {
         if (string.IsNullOrWhiteSpace(comment))
-            return Result.Failure("Review comment is required.");
+            return Result.Failure(DomainErrors.Compliance.ReviewCommentRequired);
 
         Props.Status = UserDocumentStatus.Rejected;
         Props.ReviewComment = global::Ums.Domain.Kernel.ValueObjects.TextValueObject.Create(comment.Trim());

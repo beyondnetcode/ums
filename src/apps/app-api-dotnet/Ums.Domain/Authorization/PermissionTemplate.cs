@@ -19,15 +19,15 @@ public sealed class PermissionTemplate : AggregateRoot<PermissionTemplate, Permi
     public static Result<PermissionTemplate> Create(Guid tenantId, Guid systemSuiteId, string code, string name, string version, string description, Guid createdBy)
     {
         if (tenantId == Guid.Empty || systemSuiteId == Guid.Empty || createdBy == Guid.Empty)
-            return Result<PermissionTemplate>.Failure("Tenant, system, and creator identifiers are required.");
+            return Result<PermissionTemplate>.Failure(DomainErrors.PermissionTemplate.IdentifiersRequired);
 
         var codeValue = global::Ums.Domain.Kernel.ValueObjects.Code.Create(code);
 
         if (string.IsNullOrWhiteSpace(name))
-            return Result<PermissionTemplate>.Failure(DomainErrors.NameRequired);
+            return Result<PermissionTemplate>.Failure(DomainErrors.Common.Required);
 
         if (string.IsNullOrWhiteSpace(description))
-            return Result<PermissionTemplate>.Failure(DomainErrors.DescriptionRequired);
+            return Result<PermissionTemplate>.Failure(DomainErrors.Common.Required);
 
         var props = new PermissionTemplateProps(
             IdValueObject.Create(),
@@ -45,10 +45,10 @@ public sealed class PermissionTemplate : AggregateRoot<PermissionTemplate, Permi
     public Result AddGrant(Guid functionalActionId, PermissionEffect effect)
     {
         if (functionalActionId == Guid.Empty)
-            return Result.Failure("Functional action identifier is required.");
+            return Result.Failure(DomainErrors.PermissionTemplate.FunctionalActionIdRequired);
 
         if (_grants.Any(grant => grant.FunctionalActionId == functionalActionId))
-            return Result.Failure("Template already declares a grant for this action.");
+            return Result.Failure(DomainErrors.PermissionTemplate.GrantAlreadyExists);
 
         var grantProps = new AuthorizationGrantProps(
             IdValueObject.Create(),
@@ -66,7 +66,7 @@ public sealed class PermissionTemplate : AggregateRoot<PermissionTemplate, Permi
     public Result Publish()
     {
         if (!_grants.Any())
-            return Result.Failure("Permission template cannot be published without grants.");
+            return Result.Failure(DomainErrors.PermissionTemplate.CannotPublishWithoutGrants);
 
         Props.Status = LifecycleStatus.Published;
         DomainEvents.ApplyChange(new PermissionTemplatePublishedEvent(Props.TenantId.GetValue(), Props.Id.GetValue(), Props.Code.GetValue(), Props.TemplateVersion.GetValue()), true);

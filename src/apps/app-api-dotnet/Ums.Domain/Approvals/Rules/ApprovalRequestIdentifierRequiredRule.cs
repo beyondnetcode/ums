@@ -1,5 +1,7 @@
 namespace Ums.Domain.Approvals.Rules;
 
+using Ums.Domain.Kernel;
+
 public class ApprovalRequestIdentifierRequiredRule : AbstractRuleValidator<object>
 {
     private readonly Guid _approvalRequestId;
@@ -13,7 +15,7 @@ public class ApprovalRequestIdentifierRequiredRule : AbstractRuleValidator<objec
     {
         if (_approvalRequestId == Guid.Empty)
         {
-            AddBrokenRule("ApprovalRequestId", "Approval request identifier is required.");
+            AddBrokenRule("ApprovalRequestId", DomainErrors.Approval.RequestIdRequired);
         }
     }
 }

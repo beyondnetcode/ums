@@ -1,5 +1,7 @@
 namespace Ums.Domain.Approvals.Rules;
 
+using Ums.Domain.Kernel;
+
 public class ResolverIdentifierRequiredRule : AbstractRuleValidator<object>
 {
     private readonly Guid _resolvedBy;
@@ -13,7 +15,7 @@ public class ResolverIdentifierRequiredRule : AbstractRuleValidator<object>
     {
         if (_resolvedBy == Guid.Empty)
         {
-            AddBrokenRule("ResolvedBy", "Resolver identifier is required.");
+            AddBrokenRule("ResolvedBy", DomainErrors.Approval.ResolverIdRequired);
         }
     }
 }

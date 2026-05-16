@@ -15,7 +15,7 @@ public class EmailAddressValidator : AbstractRuleValidator<ValueObject<string>>
         var value = Subject.GetValue();
         if (string.IsNullOrWhiteSpace(value) || !EmailRegex.IsMatch(value))
         {
-            AddBrokenRule("EmailAddress", "A valid email address is required.");
+            AddBrokenRule("EmailAddress", DomainErrors.ValueObject.EmailRequired);
         }
     }
 }

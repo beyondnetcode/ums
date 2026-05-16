@@ -13,10 +13,10 @@ public sealed class CompiledPolicyGraph : Entity<CompiledPolicyGraph, CompiledPo
     public static Result<CompiledPolicyGraph> Create(Guid tenantId, Guid userId, string graphHash, string payload)
     {
         if (tenantId == Guid.Empty || userId == Guid.Empty)
-            return Result<CompiledPolicyGraph>.Failure("Tenant and user identifiers are required.");
+            return Result<CompiledPolicyGraph>.Failure(DomainErrors.CompiledPolicyGraph.IdentifiersRequired);
 
         if (string.IsNullOrWhiteSpace(graphHash))
-            return Result<CompiledPolicyGraph>.Failure("Graph hash is required.");
+            return Result<CompiledPolicyGraph>.Failure(DomainErrors.CompiledPolicyGraph.GraphHashRequired);
 
         var props = new CompiledPolicyGraphProps(
             IdValueObject.Create(),

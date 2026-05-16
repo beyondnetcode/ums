@@ -16,15 +16,15 @@ public sealed class FunctionalOption : Entity<FunctionalOption, FunctionalOption
     public static Result<FunctionalOption> Create(Guid tenantId, Guid systemSuiteId, Guid moduleId, Guid menuId, string code, string label, string routePath)
     {
         if (tenantId == Guid.Empty || systemSuiteId == Guid.Empty || moduleId == Guid.Empty || menuId == Guid.Empty)
-            return Result<FunctionalOption>.Failure("Tenant, system, module, and menu identifiers are required.");
+            return Result<FunctionalOption>.Failure(DomainErrors.FunctionalOption.IdentifiersRequired);
 
         var codeValue = global::Ums.Domain.Kernel.ValueObjects.Code.Create(code);
 
         if (string.IsNullOrWhiteSpace(label))
-            return Result<FunctionalOption>.Failure("Option label is required.");
+            return Result<FunctionalOption>.Failure(DomainErrors.FunctionalOption.LabelRequired);
 
         if (string.IsNullOrWhiteSpace(routePath))
-            return Result<FunctionalOption>.Failure("Route path is required.");
+            return Result<FunctionalOption>.Failure(DomainErrors.FunctionalOption.RouteRequired);
 
         var props = new FunctionalOptionProps(
             IdValueObject.Create(),

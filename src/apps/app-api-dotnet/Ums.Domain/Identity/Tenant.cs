@@ -64,7 +64,7 @@ public sealed class Tenant : AggregateRoot<Tenant, TenantProps>
 
         if (_branches.Any(branch => branch.Code == branchResult.Value.Code))
         {
-            BrokenRules.Add(new BrokenRule(nameof(Branches), "Branch code must be unique inside the tenant."));
+            BrokenRules.Add(new BrokenRule(nameof(Branches), DomainErrors.Tenant.BranchCodeNotUnique));
         }
 
         if (!IsValid())
@@ -83,7 +83,7 @@ public sealed class Tenant : AggregateRoot<Tenant, TenantProps>
     {
         if (Props.Status == TenantStatus.Archived)
         {
-            BrokenRules.Add(new BrokenRule(nameof(Status), "Archived tenants cannot be suspended."));
+            BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.Tenant.ArchivedCannotSuspend));
         }
 
         if (!IsValid())
@@ -101,7 +101,7 @@ public sealed class Tenant : AggregateRoot<Tenant, TenantProps>
     {
         if (Props.Status == TenantStatus.Archived)
         {
-            BrokenRules.Add(new BrokenRule(nameof(Status), "Archived tenants cannot be activated."));
+            BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.Tenant.ArchivedCannotActivate));
         }
 
         if (!IsValid())

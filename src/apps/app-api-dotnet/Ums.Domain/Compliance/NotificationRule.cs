@@ -10,7 +10,7 @@ public sealed class NotificationRule : ParametricCatalogEntity<NotificationRule,
     public static Result<NotificationRule> Create(Guid tenantId, string code, string value, string description, string triggerEvent, string channel, string version = "1.0.0")
     {
         if (string.IsNullOrWhiteSpace(triggerEvent) || string.IsNullOrWhiteSpace(channel))
-            return Result<NotificationRule>.Failure("Trigger event and channel are required.");
+            return Result<NotificationRule>.Failure(DomainErrors.Compliance.NotificationTriggerRequired);
 
         var props = new NotificationRuleProps
         {

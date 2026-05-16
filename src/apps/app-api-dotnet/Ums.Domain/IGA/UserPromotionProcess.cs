@@ -22,7 +22,7 @@ public sealed class UserPromotionProcess : AggregateRoot<UserPromotionProcess, U
         if (tenantId == Guid.Empty || userId == Guid.Empty || criteriaId == Guid.Empty || targetRoleId == Guid.Empty)
         {
             var brokenRules = new BrokenRulesManager();
-            brokenRules.Add(new BrokenRule("Identifiers", "Tenant, user, criteria, and target role identifiers are required."));
+            brokenRules.Add(new BrokenRule("Identifiers", DomainErrors.Iga.PromotionIdentifiersRequired));
             return Result<UserPromotionProcess>.Failure(brokenRules.GetBrokenRulesAsString());
         }
 
@@ -48,7 +48,7 @@ public sealed class UserPromotionProcess : AggregateRoot<UserPromotionProcess, U
     {
         if (approvalRequestId == Guid.Empty)
         {
-            BrokenRules.Add(new BrokenRule(nameof(approvalRequestId), "Approval request identifier is required."));
+            BrokenRules.Add(new BrokenRule(nameof(approvalRequestId), DomainErrors.Iga.ApprovalIdRequired));
         }
 
         if (!IsValid())
@@ -68,7 +68,7 @@ public sealed class UserPromotionProcess : AggregateRoot<UserPromotionProcess, U
     {
         if (Props.Status != UserPromotionStatus.PendingApproval && Props.Status != UserPromotionStatus.CriteriaMet)
         {
-            BrokenRules.Add(new BrokenRule(nameof(Status), "Promotion can only complete after criteria are met."));
+            BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.Iga.PromotionOnlyCompleteAfterCriteria));
         }
 
         if (!IsValid())

@@ -21,15 +21,15 @@ public sealed class Role : AggregateRoot<Role, RoleProps>
     public static Result<Role> Create(Guid tenantId, Guid systemSuiteId, string code, string name, string description, Guid? parentRoleId = null)
     {
         if (tenantId == Guid.Empty || systemSuiteId == Guid.Empty)
-            return Result<Role>.Failure("Tenant and system identifiers are required.");
+            return Result<Role>.Failure(DomainErrors.Role.TenantAndSystemRequired);
 
         var codeValue = global::Ums.Domain.Kernel.ValueObjects.Code.Create(code);
 
         if (string.IsNullOrWhiteSpace(name))
-            return Result<Role>.Failure(DomainErrors.NameRequired);
+            return Result<Role>.Failure(DomainErrors.Common.Required);
 
         if (string.IsNullOrWhiteSpace(description))
-            return Result<Role>.Failure(DomainErrors.DescriptionRequired);
+            return Result<Role>.Failure(DomainErrors.Common.Required);
 
         var props = new RoleProps(
             IdValueObject.Create(),

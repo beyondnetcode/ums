@@ -51,18 +51,18 @@ public abstract class ParametricCatalogEntity<TEntity, TProps> : AggregateRoot<T
         Guid? systemSuiteId = null)
     {
         if (tenantId == Guid.Empty)
-            return Result.Failure("TenantId is required.");
+            return Result.Failure(DomainErrors.ParametricCatalog.TenantIdRequired);
 
         var codeValue = global::Ums.Domain.Kernel.ValueObjects.Code.Create(code);
 
         if (string.IsNullOrWhiteSpace(value))
-            return Result.Failure("Value is required.");
+            return Result.Failure(DomainErrors.ParametricCatalog.ValueRequired);
 
         if (string.IsNullOrWhiteSpace(description))
-            return Result.Failure("Description is required.");
+            return Result.Failure(DomainErrors.ParametricCatalog.DescriptionRequired);
 
         if (string.IsNullOrWhiteSpace(version))
-            return Result.Failure("Version is required.");
+            return Result.Failure(DomainErrors.ParametricCatalog.VersionRequired);
 
         Props.GetType().GetProperty(nameof(ParametricCatalogProps.TenantId))?.SetValue(Props, global::Ums.Domain.Kernel.ValueObjects.TenantId.Load(tenantId));
         Props.GetType().GetProperty(nameof(ParametricCatalogProps.SystemSuiteId))?.SetValue(Props, systemSuiteId.HasValue ? global::Ums.Domain.Kernel.ValueObjects.SystemSuiteId.Load(systemSuiteId.Value) : null);
@@ -79,13 +79,13 @@ public abstract class ParametricCatalogEntity<TEntity, TProps> : AggregateRoot<T
     public Result UpdateValue(string value, string description, string updatedBy, string version)
     {
         if (string.IsNullOrWhiteSpace(value))
-            return Result.Failure("Value is required.");
+            return Result.Failure(DomainErrors.ParametricCatalog.ValueRequired);
 
         if (string.IsNullOrWhiteSpace(description))
-            return Result.Failure("Description is required.");
+            return Result.Failure(DomainErrors.ParametricCatalog.DescriptionRequired);
 
         if (string.IsNullOrWhiteSpace(version))
-            return Result.Failure("Version is required.");
+            return Result.Failure(DomainErrors.ParametricCatalog.VersionRequired);
 
         Props.GetType().GetProperty(nameof(ParametricCatalogProps.Value))?.SetValue(Props, global::Ums.Domain.Kernel.ValueObjects.Value.Create(value));
         Props.GetType().GetProperty(nameof(ParametricCatalogProps.Description))?.SetValue(Props, global::Ums.Domain.Kernel.ValueObjects.Description.Create(description));

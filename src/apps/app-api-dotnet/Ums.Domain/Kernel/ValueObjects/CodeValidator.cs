@@ -9,7 +9,7 @@ public class CodeValidator : AbstractRuleValidator<ValueObject<string>>
         var value = Subject.GetValue();
         if (string.IsNullOrWhiteSpace(value))
         {
-            AddBrokenRule("Code", DomainErrors.CodeRequired);
+            AddBrokenRule("Code", DomainErrors.Common.Required);
         }
     }
 }

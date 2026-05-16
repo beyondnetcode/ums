@@ -35,7 +35,7 @@ public sealed class IdpConfiguration : ParametricCatalogEntity<IdpConfiguration,
         };
 
         var configuration = new IdpConfiguration(props);
-        var result = configuration.SetCatalogFields(tenantId, code, value, description, version, systemSuiteId);
+        var result = configuration.SetCatalogFields(tenantId, code, value, description, "system", version, systemSuiteId);
         if (result.IsFailure)
             return Result<IdpConfiguration>.Failure(result.Error);
 

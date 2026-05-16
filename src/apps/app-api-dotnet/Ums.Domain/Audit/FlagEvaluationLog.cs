@@ -14,10 +14,10 @@ public sealed class FlagEvaluationLog : Entity<FlagEvaluationLog, FlagEvaluation
     public static Result<FlagEvaluationLog> Create(Guid tenantId, Guid flagId, string evaluatedForType, Guid evaluatedForId, string result)
     {
         if (tenantId == Guid.Empty || flagId == Guid.Empty || evaluatedForId == Guid.Empty)
-            return Result<FlagEvaluationLog>.Failure("Tenant, flag, and evaluated subject identifiers are required.");
+            return Result<FlagEvaluationLog>.Failure(DomainErrors.Audit.FlagLogIdentifiersRequired);
 
         if (string.IsNullOrWhiteSpace(evaluatedForType) || string.IsNullOrWhiteSpace(result))
-            return Result<FlagEvaluationLog>.Failure("Evaluated subject type and result are required.");
+            return Result<FlagEvaluationLog>.Failure(DomainErrors.Audit.FlagLogSubjectRequired);
 
         var props = new FlagEvaluationLogProps(
             IdValueObject.Create(),

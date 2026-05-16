@@ -9,7 +9,7 @@ public record DateRange
     {
         if (endsAt.HasValue && endsAt.Value < startsAt)
         {
-            throw new ArgumentException("End date cannot be earlier than start date.");
+            throw new ArgumentException(DomainErrors.ValueObject.DateRangeInvalid);
         }
         StartsAt = startsAt;
         EndsAt = endsAt;

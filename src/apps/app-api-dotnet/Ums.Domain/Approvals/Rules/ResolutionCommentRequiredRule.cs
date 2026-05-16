@@ -1,5 +1,7 @@
 namespace Ums.Domain.Approvals.Rules;
 
+using Ums.Domain.Kernel;
+
 public class ResolutionCommentRequiredRule : AbstractRuleValidator<object>
 {
     private readonly string _comment;
@@ -13,7 +15,7 @@ public class ResolutionCommentRequiredRule : AbstractRuleValidator<object>
     {
         if (string.IsNullOrWhiteSpace(_comment))
         {
-            AddBrokenRule("ResolutionComment", "Resolution comment is required.");
+            AddBrokenRule("ResolutionComment", DomainErrors.Approval.ResolutionCommentRequired);
         }
     }
 }

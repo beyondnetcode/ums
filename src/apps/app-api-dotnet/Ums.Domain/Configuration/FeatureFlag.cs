@@ -23,7 +23,7 @@ public sealed class FeatureFlag : ParametricCatalogEntity<FeatureFlag, FeatureFl
         Guid? systemSuiteId = null)
     {
         if (createdBy == Guid.Empty)
-            return Result<FeatureFlag>.Failure("Creator identifier is required.");
+            return Result<FeatureFlag>.Failure(DomainErrors.Configuration.CreatorRequired);
 
         var props = new FeatureFlagProps
         {
@@ -33,7 +33,7 @@ public sealed class FeatureFlag : ParametricCatalogEntity<FeatureFlag, FeatureFl
         };
 
         var flag = new FeatureFlag(props);
-        var result = flag.SetCatalogFields(tenantId, code, value, description, version, systemSuiteId);
+        var result = flag.SetCatalogFields(tenantId, code, value, description, createdBy.ToString(), version, systemSuiteId);
         if (result.IsFailure)
             return Result<FeatureFlag>.Failure(result.Error);
 

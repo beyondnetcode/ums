@@ -25,10 +25,10 @@ public sealed class Profile : AggregateRoot<Profile, ProfileProps>
     public static Result<Profile> Create(Guid tenantId, string name, Guid? branchId = null, Guid? templateId = null, bool autoAssigned = false)
     {
         if (tenantId == Guid.Empty)
-            return Result<Profile>.Failure(DomainErrors.TenantRequired);
+            return Result<Profile>.Failure(DomainErrors.Tenant.Required);
 
         if (string.IsNullOrWhiteSpace(name))
-            return Result<Profile>.Failure(DomainErrors.NameRequired);
+            return Result<Profile>.Failure(DomainErrors.Common.Required);
 
         var props = new ProfileProps(
             IdValueObject.Create(),
@@ -45,10 +45,10 @@ public sealed class Profile : AggregateRoot<Profile, ProfileProps>
     public Result AddRole(Guid roleId)
     {
         if (roleId == Guid.Empty)
-            return Result.Failure("Role identifier is required.");
+            return Result.Failure(DomainErrors.Profile.RoleIdRequired);
 
         if (_roleIds.Contains(roleId))
-            return Result.Failure("Role is already assigned to profile.");
+            return Result.Failure(DomainErrors.Profile.RoleAlreadyAssigned);
 
         _roleIds.Add(roleId);
         Props.Audit.Update("system");
@@ -58,7 +58,7 @@ public sealed class Profile : AggregateRoot<Profile, ProfileProps>
     public Result AddGrant(Guid functionalActionId, PermissionEffect effect)
     {
         if (functionalActionId == Guid.Empty)
-            return Result.Failure("Functional action identifier is required.");
+            return Result.Failure(DomainErrors.Profile.FunctionalActionIdRequired);
 
         var existingGrant = _grants.FirstOrDefault(grant => grant.FunctionalActionId == functionalActionId);
         if (existingGrant is not null)

@@ -15,15 +15,15 @@ public sealed class FunctionalAction : Entity<FunctionalAction, FunctionalAction
     public static Result<FunctionalAction> Create(Guid tenantId, Guid systemSuiteId, string code, string name, FunctionalActionLevel level, Guid? levelId = null)
     {
         if (tenantId == Guid.Empty || systemSuiteId == Guid.Empty)
-            return Result<FunctionalAction>.Failure("Tenant and system identifiers are required.");
+            return Result<FunctionalAction>.Failure(DomainErrors.FunctionalAction.TenantAndSystemRequired);
 
         if (level != FunctionalActionLevel.System && (!levelId.HasValue || levelId.Value == Guid.Empty))
-            return Result<FunctionalAction>.Failure("Level identifier is required for non-system actions.");
+            return Result<FunctionalAction>.Failure(DomainErrors.FunctionalAction.LevelRequired);
 
         var codeValue = global::Ums.Domain.Kernel.ValueObjects.Code.Create(code);
 
         if (string.IsNullOrWhiteSpace(name))
-            return Result<FunctionalAction>.Failure(DomainErrors.NameRequired);
+            return Result<FunctionalAction>.Failure(DomainErrors.Common.Required);
 
         var props = new FunctionalActionProps(
             IdValueObject.Create(),

@@ -1,5 +1,7 @@
 namespace Ums.Domain.Approvals.ValueObjects;
 
+using Ums.Domain.Kernel;
+
 public class RequestType : StringValueObject
 {
     private RequestType(string value) : base(value) { }
@@ -11,7 +13,7 @@ public class RequestType : StringValueObject
         base.AddValidators();
         if (string.IsNullOrWhiteSpace(GetValue()))
         {
-            BrokenRules.Add(new BrokenRule(nameof(RequestType), "Request type is required."));
+            BrokenRules.Add(new BrokenRule(nameof(RequestType), DomainErrors.Approval.RequestTypeRequired));
         }
     }
 }

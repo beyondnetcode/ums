@@ -25,15 +25,15 @@ public sealed class SystemSuite : AggregateRoot<SystemSuite, SystemSuiteProps>
     public static Result<SystemSuite> Register(Guid tenantId, string code, string name, string baseUrl)
     {
         if (tenantId == Guid.Empty)
-            return Result<SystemSuite>.Failure(DomainErrors.TenantRequired);
+            return Result<SystemSuite>.Failure(DomainErrors.Tenant.Required);
 
         var codeValue = global::Ums.Domain.Kernel.ValueObjects.Code.Create(code);
 
         if (string.IsNullOrWhiteSpace(name))
-            return Result<SystemSuite>.Failure(DomainErrors.NameRequired);
+            return Result<SystemSuite>.Failure(DomainErrors.Common.Required);
 
         if (string.IsNullOrWhiteSpace(baseUrl))
-            return Result<SystemSuite>.Failure("Base URL is required.");
+            return Result<SystemSuite>.Failure(DomainErrors.SystemSuite.BaseUrlRequired);
 
         var props = new SystemSuiteProps(
             IdValueObject.Create(),
@@ -53,7 +53,7 @@ public sealed class SystemSuite : AggregateRoot<SystemSuite, SystemSuiteProps>
             return Result.Failure(moduleResult.Error);
 
         if (_modules.Any(module => module.Code == moduleResult.Value.Code))
-            return Result.Failure("Module code must be unique inside the system.");
+            return Result.Failure(DomainErrors.SystemSuite.ModuleCodeNotUnique);
 
         _modules.Add(moduleResult.Value);
         DomainEvents.ApplyChange(new FunctionalTopologyChangedEvent(Props.TenantId.GetValue(), Props.Id.GetValue(), moduleResult.Value.Code), true);
@@ -68,7 +68,7 @@ public sealed class SystemSuite : AggregateRoot<SystemSuite, SystemSuiteProps>
             return Result.Failure(actionResult.Error);
 
         if (_actions.Any(action => action.Code == actionResult.Value.Code))
-            return Result.Failure("Action code must be unique inside the system.");
+            return Result.Failure(DomainErrors.SystemSuite.ActionCodeNotUnique);
 
         _actions.Add(actionResult.Value);
         DomainEvents.ApplyChange(new FunctionalTopologyChangedEvent(Props.TenantId.GetValue(), Props.Id.GetValue(), actionResult.Value.Code), true);

@@ -20,10 +20,10 @@ public sealed class AuditRecord : AggregateRoot<AuditRecord, AuditRecordProps>
     public static Result<AuditRecord> Append(Guid tenantId, string eventType, string actor, string payload, string correlationId)
     {
         if (tenantId == Guid.Empty)
-            return Result<AuditRecord>.Failure(DomainErrors.TenantRequired);
+            return Result<AuditRecord>.Failure(DomainErrors.Tenant.Required);
 
         if (string.IsNullOrWhiteSpace(eventType) || string.IsNullOrWhiteSpace(actor) || string.IsNullOrWhiteSpace(correlationId))
-            return Result<AuditRecord>.Failure("Event type, actor, and correlation id are required.");
+            return Result<AuditRecord>.Failure(DomainErrors.Audit.RecordIdentifiersRequired);
 
         var props = new AuditRecordProps(
             IdValueObject.Create(),

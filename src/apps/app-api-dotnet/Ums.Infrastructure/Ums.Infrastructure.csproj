@@ -3,6 +3,11 @@
   <ItemGroup>
     <ProjectReference Include="../Ums.Domain/Ums.Domain.csproj" />
     <ProjectReference Include="../Ums.Application/Ums.Application.csproj" />
+    <ProjectReference Include="../Ums.Globalization/Ums.Globalization.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
   <ItemGroup>

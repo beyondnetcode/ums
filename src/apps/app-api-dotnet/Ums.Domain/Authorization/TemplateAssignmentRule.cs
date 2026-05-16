@@ -19,10 +19,10 @@ public sealed class TemplateAssignmentRule : ParametricCatalogEntity<TemplateAss
         string version = "1.0.0")
     {
         if (templateId == Guid.Empty)
-            return Result<TemplateAssignmentRule>.Failure("Template identifier is required.");
+            return Result<TemplateAssignmentRule>.Failure(DomainErrors.TemplateAssignmentRule.TemplateIdRequired);
 
         if (string.IsNullOrWhiteSpace(predicateExpression))
-            return Result<TemplateAssignmentRule>.Failure("Predicate expression is required.");
+            return Result<TemplateAssignmentRule>.Failure(DomainErrors.TemplateAssignmentRule.PredicateRequired);
 
         var props = new TemplateAssignmentRuleProps
         {

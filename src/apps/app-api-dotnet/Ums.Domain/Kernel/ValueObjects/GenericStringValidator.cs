@@ -20,7 +20,7 @@ public class GenericStringValidator : AbstractRuleValidator<ValueObject<string>>
         var value = Subject.GetValue();
         if (_isRequired && string.IsNullOrWhiteSpace(value))
         {
-            AddBrokenRule(_propertyName, $"{_propertyName} is required.");
+            AddBrokenRule(_propertyName, DomainErrors.ValueObject.PropertyRequired);
         }
     }
 }

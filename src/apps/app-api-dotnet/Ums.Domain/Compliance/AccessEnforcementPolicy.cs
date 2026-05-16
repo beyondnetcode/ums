@@ -10,7 +10,7 @@ public sealed class AccessEnforcementPolicy : ParametricCatalogEntity<AccessEnfo
     public static Result<AccessEnforcementPolicy> Create(Guid tenantId, string code, string value, string description, EnforcementEffect effect, string resourceScope, string version = "1.0.0")
     {
         if (string.IsNullOrWhiteSpace(resourceScope))
-            return Result<AccessEnforcementPolicy>.Failure("Resource scope is required.");
+            return Result<AccessEnforcementPolicy>.Failure(DomainErrors.Compliance.ResourceScopeRequired);
 
         var props = new AccessEnforcementPolicyProps
         {

@@ -50,7 +50,7 @@ public sealed class UserAccount : AggregateRoot<UserAccount, UserAccountProps>
     {
         if (Props.Status == UserAccountStatus.Terminated)
         {
-            BrokenRules.Add(new BrokenRule(nameof(Status), "Terminated users cannot be activated."));
+            BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.User.TerminatedCannotActivate));
         }
 
         if (!IsValid())
@@ -69,7 +69,7 @@ public sealed class UserAccount : AggregateRoot<UserAccount, UserAccountProps>
     {
         if (string.IsNullOrWhiteSpace(reason))
         {
-            BrokenRules.Add(new BrokenRule("Reason", "Block reason is required."));
+            BrokenRules.Add(new BrokenRule("Reason", DomainErrors.User.BlockReasonRequired));
         }
 
         if (!IsValid())
@@ -88,12 +88,12 @@ public sealed class UserAccount : AggregateRoot<UserAccount, UserAccountProps>
     {
         if (profileId == null)
         {
-            BrokenRules.Add(new BrokenRule(nameof(profileId), "Profile identifier is required."));
+            BrokenRules.Add(new BrokenRule(nameof(profileId), DomainErrors.User.ProfileIdRequired));
         }
 
         if (profileId != null && _profileAssignments.Any(item => item.ProfileId == profileId && item.BranchId == branchId))
         {
-            BrokenRules.Add(new BrokenRule(nameof(ProfileAssignments), "Profile is already assigned to the user in this scope."));
+            BrokenRules.Add(new BrokenRule(nameof(ProfileAssignments), DomainErrors.User.ProfileAlreadyAssigned));
         }
 
         if (!IsValid())
