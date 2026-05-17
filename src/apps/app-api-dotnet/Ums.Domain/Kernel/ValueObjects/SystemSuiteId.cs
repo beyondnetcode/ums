@@ -1,7 +1,5 @@
 namespace Ums.Domain.Kernel.ValueObjects;
 
-using Ums.Shell.Ddd;
-
 public class SystemSuiteId : IdValueObject
 {
     private SystemSuiteId(Guid value) : base(value) { }

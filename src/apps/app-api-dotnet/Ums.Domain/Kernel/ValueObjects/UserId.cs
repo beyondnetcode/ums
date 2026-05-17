@@ -1,7 +1,5 @@
 namespace Ums.Domain.Kernel.ValueObjects;
 
-using Ums.Shell.Ddd;
-
 public class UserId : IdValueObject
 {
     private UserId(Guid value) : base(value) { }

@@ -1,5 +1,3 @@
-using Ums.Shell.Ddd.ValueObjects.Common;
-
 namespace Ums.Domain.Kernel.ValueObjects;
 
 public class Comment : StringValueObject

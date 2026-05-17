@@ -1,0 +1,37 @@
+namespace Ums.Domain.Identity.UserAccount.MfaEnrollment;
+
+public sealed class MfaEnrollment : Entity<MfaEnrollment, MfaEnrollmentProps>
+{
+    private MfaEnrollment(MfaEnrollmentProps props) : base(props)
+    {
+    }
+
+    public UserAccountId UserAccountId => Props.UserAccountId;
+    public MfaMethod Method => Props.Method;
+    public MfaEnrollmentStatus Status => Props.Status;
+
+    public MfaEnrollmentId GetId() => MfaEnrollmentId.Load(Props.Id.GetValue());
+
+    public static Result<MfaEnrollment> Create(
+        UserAccountId userAccountId,
+        MfaMethod method,
+        ActorId createdBy)
+    {
+        var props = new MfaEnrollmentProps(IdValueObject.Create(), userAccountId, method, createdBy);
+        var enrollment = new MfaEnrollment(props);
+
+        if (!enrollment.IsValid())
+        {
+            return Result<MfaEnrollment>.Failure(enrollment.BrokenRules.GetBrokenRulesAsString());
+        }
+
+        return Result<MfaEnrollment>.Success(enrollment);
+    }
+
+    public Result Verify(ActorId updatedBy)
+    {
+        Props.Status = MfaEnrollmentStatus.Verified;
+        Props.Audit.Update(updatedBy.GetValue());
+        return Result.Success();
+    }
+}

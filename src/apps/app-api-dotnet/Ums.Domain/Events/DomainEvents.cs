@@ -1,36 +1,38 @@
 namespace Ums.Domain.Events;
 
-using Ums.Shell.Ddd;
-using Ums.Domain.Kernel.ValueObjects;
-
 public abstract record UmsDomainEvent(Guid TenantId) : DomainEvent;
 
 public sealed record TenantCreatedEvent(Guid TenantId, string Code, string Name) : UmsDomainEvent(TenantId);
+public sealed record TenantSuspendedEvent(Guid TenantId) : UmsDomainEvent(TenantId);
+public sealed record TenantActivatedEvent(Guid TenantId) : UmsDomainEvent(TenantId);
+
 public sealed record BranchCreatedEvent(Guid TenantId, Guid BranchId, string Code) : UmsDomainEvent(TenantId);
-public sealed record UserRegisteredEvent(Guid TenantId, Guid UserId, string Email) : UmsDomainEvent(TenantId);
-public sealed record UserActivatedEvent(Guid TenantId, Guid UserId) : UmsDomainEvent(TenantId);
-public sealed record UserBlockedEvent(Guid TenantId, Guid UserId, string Reason) : UmsDomainEvent(TenantId);
+public sealed record BranchRemovedEvent(Guid TenantId, Guid BranchId) : UmsDomainEvent(TenantId);
+public sealed record BranchDeactivatedEvent(Guid TenantId, Guid BranchId) : UmsDomainEvent(TenantId);
+public sealed record BranchReactivatedEvent(Guid TenantId, Guid BranchId) : UmsDomainEvent(TenantId);
 
-public sealed record SystemSuiteRegisteredEvent(Guid TenantId, Guid SystemSuiteId, string Code) : UmsDomainEvent(TenantId);
-public sealed record FunctionalTopologyChangedEvent(Guid TenantId, Guid SystemSuiteId, string Code) : UmsDomainEvent(TenantId);
-public sealed record RoleCreatedEvent(Guid TenantId, Guid RoleId, string Code) : UmsDomainEvent(TenantId);
-public sealed record ProfileCreatedEvent(Guid TenantId, Guid ProfileId, string Name) : UmsDomainEvent(TenantId);
-public sealed record PermissionTemplatePublishedEvent(Guid TenantId, Guid TemplateId, string Code, string Version) : UmsDomainEvent(TenantId);
-public sealed record ProfilePermissionChangedEvent(Guid TenantId, Guid ProfileId, Guid FunctionalActionId) : UmsDomainEvent(TenantId);
+public sealed record IdentityProviderRegisteredEvent(Guid TenantId, Guid IdentityProviderId, string Code, string Strategy) : UmsDomainEvent(TenantId);
+public sealed record IdentityProviderActivatedEvent(Guid TenantId, Guid IdentityProviderId, string Code) : UmsDomainEvent(TenantId);
+public sealed record IdentityProviderDeactivatedEvent(Guid TenantId, Guid IdentityProviderId, string Code) : UmsDomainEvent(TenantId);
+public sealed record IdentityProviderRemovedEvent(Guid TenantId, Guid IdentityProviderId) : UmsDomainEvent(TenantId);
 
-public sealed record ConfigurationChangedEvent(Guid TenantId, Guid ConfigurationId, string Code, string Version) : UmsDomainEvent(TenantId);
-public sealed record FeatureFlagChangedEvent(Guid TenantId, Guid FeatureFlagId, string Code, string Version) : UmsDomainEvent(TenantId);
+public sealed record BrandingCreatedEvent(Guid TenantId, Guid BrandingId) : UmsDomainEvent(TenantId);
+public sealed record BrandingUpdatedEvent(Guid TenantId, Guid BrandingId) : UmsDomainEvent(TenantId);
+public sealed record BrandingRemovedEvent(Guid TenantId, Guid BrandingId) : UmsDomainEvent(TenantId);
+public sealed record BrandingDnsVerifiedEvent(Guid TenantId, Guid BrandingId) : UmsDomainEvent(TenantId);
+public sealed record BrandingDnsFailedEvent(Guid TenantId, Guid BrandingId) : UmsDomainEvent(TenantId);
 
-public sealed record ApprovalRequestedEvent(Guid TenantId, Guid ApprovalRequestId, string RequestType) : UmsDomainEvent(TenantId);
-public sealed record ApprovalCompletedEvent(Guid TenantId, Guid ApprovalRequestId, string Decision) : UmsDomainEvent(TenantId);
+public sealed record UserRegisteredEvent(Guid UserId, Guid TenantId, Guid? BranchId, string Category, string? IdentityReference) : UmsDomainEvent(TenantId);
+public sealed record UserActivatedEvent(Guid UserId, Guid TenantId) : UmsDomainEvent(TenantId);
+public sealed record UserBlockedEvent(Guid UserId, Guid TenantId, string Reason) : UmsDomainEvent(TenantId);
+public sealed record UserRestoredEvent(Guid UserId, Guid TenantId) : UmsDomainEvent(TenantId);
+public sealed record MfaEnrolledEvent(Guid UserId, Guid TenantId, string Method) : UmsDomainEvent(TenantId);
+public sealed record MfaVerifiedEvent(Guid UserId, Guid TenantId, string Method) : UmsDomainEvent(TenantId);
+public sealed record AuthenticationAttemptedEvent(Guid? UserId, Guid TenantId, bool Success, string Reason, string IpAddress) : UmsDomainEvent(TenantId);
 
-public sealed record UserPromotionStartedEvent(Guid TenantId, Guid PromotionProcessId, Guid UserId) : UmsDomainEvent(TenantId);
-public sealed record UserPromotionCompletedEvent(Guid TenantId, Guid PromotionProcessId, Guid UserId, Guid TargetRoleId) : UmsDomainEvent(TenantId);
-public sealed record DelegationGrantedEvent(Guid TenantId, Guid DelegationId, Guid DelegateUserId) : UmsDomainEvent(TenantId);
+public abstract record AuthorizationDomainEvent : DomainEvent;
 
-public sealed record UserDocumentUploadedEvent(Guid TenantId, Guid UserDocumentId, Guid UserId) : UmsDomainEvent(TenantId);
-public sealed record UserDocumentStatusChangedEvent(Guid TenantId, Guid UserDocumentId, string Status) : UmsDomainEvent(TenantId);
-public sealed record AccessEnforcementPolicyChangedEvent(Guid TenantId, Guid PolicyId, string Code) : UmsDomainEvent(TenantId);
-
-public sealed record AuditRecordAppendedEvent(Guid TenantId, Guid AuditRecordId, string EventType) : UmsDomainEvent(TenantId);
-
+public sealed record PermissionTemplateCreatedEvent(Guid TemplateId, Guid RoleId, Guid SystemSuiteId, string Version) : AuthorizationDomainEvent;
+public sealed record PermissionTemplatePublishedEvent(Guid TemplateId, string Version) : AuthorizationDomainEvent;
+public sealed record PermissionTemplateMutatedEvent(Guid TemplateId, string Version) : AuthorizationDomainEvent;
+public sealed record PermissionTemplateDeprecatedEvent(Guid TemplateId, string Version) : AuthorizationDomainEvent;

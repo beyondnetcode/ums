@@ -1,7 +1,5 @@
 namespace Ums.Domain.Kernel.ValueObjects;
 
-using Ums.Shell.Ddd;
-
 public class BranchId : IdValueObject
 {
     private BranchId(Guid value) : base(value) { }

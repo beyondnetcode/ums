@@ -1,7 +1,5 @@
 namespace Ums.Domain.Enums;
 
-using Ums.Shell.Ddd;
-
 public class OrganizationType : DomainEnumeration
 {
     public static readonly OrganizationType INTERNAL = new(1, nameof(INTERNAL));

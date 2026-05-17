@@ -1,7 +1,3 @@
-using Ums.Shell.Ddd;
-using Ums.Shell.Ddd.Rules.Impl;
-using Ums.Shell.Ddd.Rules;
-
 namespace Ums.Domain.Kernel.ValueObjects;
 
 public class GenericStringValidator : AbstractRuleValidator<ValueObject<string>>
