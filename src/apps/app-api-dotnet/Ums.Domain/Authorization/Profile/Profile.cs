@@ -20,12 +20,14 @@ public sealed class Profile : AggregateRoot<Profile, ProfileProps>
         {
             DomainEvents.RaiseEvent(new ProfileCreatedEvent(
                 Props.Id.GetValue(),
+                Props.TenantId.GetValue(),
                 Props.UserId.GetValue(),
                 Props.RoleId.GetValue(),
                 Props.BranchId?.GetValue()));
         }
     }
 
+    public TenantId TenantId => Props.TenantId;
     public UserId UserId => Props.UserId;
     public RoleId RoleId => Props.RoleId;
     public BranchId? BranchId => Props.BranchId;
@@ -37,13 +39,14 @@ public sealed class Profile : AggregateRoot<Profile, ProfileProps>
     public ProfileId GetId() => ProfileId.Load(Props.Id.GetValue());
 
     public static Result<Profile> Create(
+        TenantId tenantId,
         UserId userId,
         RoleId roleId,
         BranchId? branchId,
         ActorId createdBy)
     {
         var scope = branchId is null ? ProfileScope.OrgWide : ProfileScope.BranchScoped;
-        var props = new ProfileProps(IdValueObject.Create(), userId, roleId, branchId, scope, createdBy);
+        var props = new ProfileProps(IdValueObject.Create(), tenantId, userId, roleId, branchId, scope, createdBy);
         var profile = new Profile(props);
 
         if (!profile.IsValid())
@@ -61,17 +64,27 @@ public sealed class Profile : AggregateRoot<Profile, ProfileProps>
             BrokenRules.Add(new BrokenRule(nameof(IsActive), DomainErrors.Authorization.ProfileAlreadyInactive));
         }
 
+        if (template.TenantId != TenantId)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Template), DomainErrors.Authorization.TemplateTenantMismatch));
+        }
+
         if (template.Status != TemplateStatus.Published)
         {
             BrokenRules.Add(new BrokenRule(nameof(Template), DomainErrors.Authorization.TemplateNotPublishedForProfile));
+        }
+
+        var templateId = TemplateId.Load(template.GetId().GetValue());
+
+        if (_permissions.Any(p => p.TemplateId == templateId))
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Permissions), DomainErrors.Authorization.ProfileTemplateAlreadyLinked));
         }
 
         if (!IsValid())
         {
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
-
-        var templateId = TemplateId.Load(template.GetId().GetValue());
 
         foreach (var templateItem in template.Items)
         {

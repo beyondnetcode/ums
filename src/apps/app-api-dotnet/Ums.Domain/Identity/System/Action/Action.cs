@@ -1,35 +1,64 @@
 namespace Ums.Domain.Identity.System.Action;
 
-public class Action
-{
-    public ActionCode Code { get; }
-    public Name Description { get; }
+using Ums.Shell.Ddd.Rules.Impl;
 
-    private Action(ActionCode code, Name description)
+public sealed class Action : Entity<Action, ActionProps>
+{
+    private Action(ActionProps props) : base(props)
     {
-        Code = code;
-        Description = description;
+        AddValidationRules();
     }
 
-    public static Result<Action> Create(ActionCode code, Name description)
+    public TenantId TenantId => Props.TenantId;
+    public SystemSuiteId? SystemSuiteId => Props.SystemSuiteId;
+    public ModuleId? ModuleId => Props.ModuleId;
+    public ActionCode Code => Props.Code;
+    public Name Name => Props.Name;
+
+    public ActionId GetId() => ActionId.Load(Props.Id.GetValue());
+
+    public static Result<Action> Create(
+        TenantId tenantId,
+        SystemSuiteId? systemSuiteId,
+        ModuleId? moduleId,
+        ActionCode code,
+        Name name,
+        ActorId createdBy)
     {
-        if (string.IsNullOrWhiteSpace(code.GetValue()))
+        var props = new ActionProps(IdValueObject.Create(), tenantId, systemSuiteId, moduleId, code, name, createdBy);
+        var action = new Action(props);
+
+        if (!action.IsValid())
         {
-            return Result<Action>.Failure(DomainErrors.ValueObject.PropertyRequired);
+            return Result<Action>.Failure(action.BrokenRules.GetBrokenRulesAsString());
         }
 
-        var action = new Action(code, description);
         return Result<Action>.Success(action);
     }
 
-    public override bool Equals(object? obj)
+    private void AddValidationRules()
     {
-        if (obj is not Action other) return false;
-        return Code.GetValue() == other.Code.GetValue();
+        ValidatorRules.Add(new ActionXorValidator(this));
     }
+}
 
-    public override int GetHashCode()
+public class ActionXorValidator : AbstractRuleValidator<Action>
+{
+    public ActionXorValidator(Action subject) : base(subject) { }
+
+    public override void AddRules(Ums.Shell.Ddd.Rules.RuleContext? context)
     {
-        return Code.GetValue().GetHashCode();
+        var hasSuite = Subject.Props.SystemSuiteId is not null;
+        var hasModule = Subject.Props.ModuleId is not null;
+
+        if (!hasSuite && !hasModule)
+        {
+            AddBrokenRule(nameof(Action), DomainErrors.System.ActionRequiresOwner);
+        }
+
+        if (hasSuite && hasModule)
+        {
+            AddBrokenRule(nameof(Action), DomainErrors.System.ActionXorViolation);
+        }
     }
 }

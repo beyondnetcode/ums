@@ -1,29 +1,27 @@
-namespace Ums.Domain.Identity.System.Role;
+namespace Ums.Domain.Approvals.DocumentType;
 
-public class RoleProps : IProps
+public class DocumentTypeProps : IProps
 {
     public IdValueObject Id { get; set; }
-    public SystemId SystemId { get; set; }
+    public TenantId TenantId { get; set; }
     public Code Code { get; set; }
     public Name Name { get; set; }
     public Description Description { get; set; }
-    public bool IsActive { get; set; }
     public AuditValueObject Audit { get; private set; }
 
-    public RoleProps(
+    public DocumentTypeProps(
         IdValueObject id,
-        SystemId systemId,
+        TenantId tenantId,
         Code code,
         Name name,
         Description description,
         ActorId createdBy)
     {
         Id = id;
-        SystemId = systemId;
+        TenantId = tenantId;
         Code = code;
         Name = name;
         Description = description;
-        IsActive = true;
         Audit = AuditValueObject.Create(createdBy.GetValue());
     }
 

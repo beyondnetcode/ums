@@ -73,6 +73,8 @@ public static class DomainErrors
         public const string ActionNotGranted = "system.action_not_granted";
         public const string ConfigurationKeyAlreadyExists = "system.configuration_key_already_exists";
         public const string ConfigurationKeyNotFound = "system.configuration_key_not_found";
+        public const string ActionRequiresOwner = "system.action_requires_owner";
+        public const string ActionXorViolation = "system.action_xor_violation";
     }
 
     public static class Authorization
@@ -89,6 +91,35 @@ public static class DomainErrors
         public const string PermissionAlreadyExists = "authorization.permission_already_exists";
         public const string PermissionNotFound = "authorization.permission_not_found";
         public const string TemplateNotPublishedForProfile = "authorization.template_not_published_for_profile";
+        public const string TemplateTenantMismatch = "authorization.template_tenant_mismatch";
+        public const string ProfileTemplateAlreadyLinked = "authorization.profile_template_already_linked";
+        public const string RoleAlreadyActive = "authorization.role_already_active";
+        public const string RoleAlreadyInactive = "authorization.role_already_inactive";
+        public const string ActionAlreadyGranted = "authorization.action_already_granted";
+        public const string ActionNotGranted = "authorization.action_not_granted";
+    }
+
+    public static class Approvals
+    {
+        public const string DocumentTypeAlreadyRequired = "approvals.document_type_already_required";
+        public const string RequestNotPending = "approvals.request_not_pending";
+        public const string DocumentAlreadyExpired = "approvals.document_already_expired";
+        public const string PolicyRequiresProfileOrRole = "approvals.policy_requires_profile_or_role";
+        public const string PolicyAlreadyInactive = "approvals.policy_already_inactive";
+        public const string RuleAlreadyInactive = "approvals.rule_already_inactive";
+    }
+
+    public static class IGA
+    {
+        public const string MaturityLevelUnchanged = "iga.maturity_level_unchanged";
+        public const string InvalidPerformanceScore = "iga.invalid_performance_score";
+        public const string PromotionNotInDraft = "iga.promotion_not_in_draft";
+        public const string PromotionNotPendingManager = "iga.promotion_not_pending_manager";
+        public const string PromotionNotPendingSecurity = "iga.promotion_not_pending_security";
+        public const string PromotionNotApproved = "iga.promotion_not_approved";
+        public const string PromotionAlreadyExecuted = "iga.promotion_already_executed";
+        public const string PromotionAlreadyRejected = "iga.promotion_already_rejected";
+        public const string ImpactAnalysisAlreadyExists = "iga.impact_analysis_already_exists";
     }
 
     public static class ValueObject

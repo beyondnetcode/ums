@@ -3,6 +3,7 @@ namespace Ums.Domain.Authorization.Profile;
 public class ProfileProps : IProps
 {
     public IdValueObject Id { get; set; }
+    public TenantId TenantId { get; set; }
     public UserId UserId { get; set; }
     public RoleId RoleId { get; set; }
     public BranchId? BranchId { get; set; }
@@ -12,6 +13,7 @@ public class ProfileProps : IProps
 
     public ProfileProps(
         IdValueObject id,
+        TenantId tenantId,
         UserId userId,
         RoleId roleId,
         BranchId? branchId,
@@ -19,6 +21,7 @@ public class ProfileProps : IProps
         ActorId createdBy)
     {
         Id = id;
+        TenantId = tenantId;
         UserId = userId;
         RoleId = roleId;
         BranchId = branchId;
