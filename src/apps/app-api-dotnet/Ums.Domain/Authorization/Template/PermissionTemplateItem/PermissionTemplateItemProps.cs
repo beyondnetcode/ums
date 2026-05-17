@@ -1,24 +1,26 @@
-namespace Ums.Domain.Authorization.PermissionTemplate.PermissionTemplateItem;
+namespace Ums.Domain.Authorization.Template.PermissionTemplateItem;
 
 public class PermissionTemplateItemProps : IProps
 {
     public IdValueObject Id { get; set; }
-    public PermissionTemplateId TemplateId { get; set; }
+    public TemplateId TemplateId { get; set; }
     public ExclusiveArcTarget TargetType { get; set; }
     public IdValueObject TargetId { get; set; }
-    public ActionId? ActionId { get; set; }
-    public PermissionEffect Effect { get; set; }
-    public PermissionState ItemStatus { get; set; }
+    public ActionId ActionId { get; set; }
+    public bool IsAllowed { get; set; }
+    public bool IsDenied { get; set; }
+    public bool IsActive { get; set; }
     public AuditValueObject Audit { get; private set; }
 
     public PermissionTemplateItemProps(
         IdValueObject id,
-        PermissionTemplateId templateId,
+        TemplateId templateId,
         ExclusiveArcTarget targetType,
         IdValueObject targetId,
-        ActionId? actionId,
-        PermissionEffect effect,
-        PermissionState itemStatus,
+        ActionId actionId,
+        bool isAllowed,
+        bool isDenied,
+        bool isActive,
         ActorId createdBy)
     {
         Id = id;
@@ -26,8 +28,9 @@ public class PermissionTemplateItemProps : IProps
         TargetType = targetType;
         TargetId = targetId;
         ActionId = actionId;
-        Effect = effect;
-        ItemStatus = itemStatus;
+        IsAllowed = isAllowed;
+        IsDenied = isDenied;
+        IsActive = isActive;
         Audit = AuditValueObject.Create(createdBy.GetValue());
     }
 

@@ -1,8 +1,8 @@
-namespace Ums.Domain.Authorization.PermissionTemplate;
+namespace Ums.Domain.Authorization.Template;
 
 using Ums.Domain.Events;
-using Ums.Domain.Authorization.PermissionTemplate.PermissionTemplateItem;
-using PermissionTemplateItemEntity = Ums.Domain.Authorization.PermissionTemplate.PermissionTemplateItem.PermissionTemplateItem;
+using Ums.Domain.Authorization.Template.PermissionTemplateItem;
+using PermissionTemplateItemEntity = Ums.Domain.Authorization.Template.PermissionTemplateItem.PermissionTemplateItem;
 
 public sealed class PermissionTemplate : AggregateRoot<PermissionTemplate, PermissionTemplateProps>
 {
@@ -18,39 +18,34 @@ public sealed class PermissionTemplate : AggregateRoot<PermissionTemplate, Permi
         {
             DomainEvents.RaiseEvent(new PermissionTemplateCreatedEvent(
                 Props.Id.GetValue(),
+                Props.TenantId.GetValue(),
                 Props.RoleId.GetValue(),
                 Props.SystemSuiteId.GetValue(),
                 Props.Version.GetValue()));
         }
     }
 
+    public TenantId TenantId => Props.TenantId;
     public RoleId RoleId => Props.RoleId;
     public SystemSuiteId SystemSuiteId => Props.SystemSuiteId;
-    public Code Code => Props.Code;
-    public Name Name => Props.Name;
-    public Description Description => Props.Description;
     public new TemplateVersion Version => Props.Version;
     public TemplateStatus Status => Props.Status;
 
     public IReadOnlyCollection<PermissionTemplateItemEntity> Items => _items.AsReadOnly();
 
-    public PermissionTemplateId GetId() => PermissionTemplateId.Load(Props.Id.GetValue());
+    public TemplateId GetId() => TemplateId.Load(Props.Id.GetValue());
 
     public static Result<PermissionTemplate> Create(
+        TenantId tenantId,
         RoleId roleId,
         SystemSuiteId systemSuiteId,
-        Code code,
-        Name name,
-        Description description,
         ActorId createdBy)
     {
         var props = new PermissionTemplateProps(
             IdValueObject.Create(),
+            tenantId,
             roleId,
             systemSuiteId,
-            code,
-            name,
-            description,
             TemplateVersion.Initial(),
             TemplateStatus.Draft,
             createdBy);
@@ -91,11 +86,6 @@ public sealed class PermissionTemplate : AggregateRoot<PermissionTemplate, Permi
             BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.Authorization.TemplateNotPublished));
         }
 
-        if (Status == TemplateStatus.Deprecated)
-        {
-            BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.Authorization.TemplateAlreadyDeprecated));
-        }
-
         if (!IsValid())
         {
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
@@ -108,7 +98,7 @@ public sealed class PermissionTemplate : AggregateRoot<PermissionTemplate, Permi
         return Result.Success();
     }
 
-    public Result AddItem(ExclusiveArcTarget targetType, IdValueObject targetId, ActionId? actionId, PermissionEffect effect, ActorId createdBy)
+    public Result AddItem(ExclusiveArcTarget targetType, IdValueObject targetId, ActionId actionId, bool isAllowed, bool isDenied, ActorId createdBy)
     {
         if (Status != TemplateStatus.Draft)
         {
@@ -125,7 +115,7 @@ public sealed class PermissionTemplate : AggregateRoot<PermissionTemplate, Permi
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        var itemResult = PermissionTemplateItemEntity.Create(GetId(), targetType, targetId, actionId, effect, createdBy);
+        var itemResult = PermissionTemplateItemEntity.Create(GetId(), targetType, targetId, actionId, isAllowed, isDenied, createdBy);
         if (itemResult.IsFailure)
         {
             return Result.Failure(itemResult.Error);
@@ -133,68 +123,34 @@ public sealed class PermissionTemplate : AggregateRoot<PermissionTemplate, Permi
 
         _items.Add(itemResult.Value);
         TrackingState.MarkAsDirty();
+        DomainEvents.RaiseEvent(new PermissionTemplateMutatedEvent(Props.Id.GetValue(), Props.Version.GetValue()));
         Props.Audit.Update(createdBy.GetValue());
         return Result.Success();
     }
 
-    public Result UpdateItemEffect(IdValueObject itemId, PermissionEffect newEffect, ActorId updatedBy)
+    public Result SetItemAllow(IdValueObject itemId, ActorId updatedBy)
     {
-        if (Status != TemplateStatus.Draft)
-        {
-            BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.Authorization.TemplateNotDraft));
-        }
-
-        var item = FindItem(itemId);
-        if (item.IsFailure)
-        {
-            BrokenRules.Add(new BrokenRule(nameof(Items), DomainErrors.Common.NotFound));
-        }
-
-        if (!IsValid())
-        {
-            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
-        }
-
-        var updateResult = item.Value.UpdateEffect(newEffect, updatedBy);
-        if (updateResult.IsFailure)
-        {
-            return Result.Failure(updateResult.Error);
-        }
-
-        TrackingState.MarkAsDirty();
-        DomainEvents.RaiseEvent(new PermissionTemplateMutatedEvent(Props.Id.GetValue(), Props.Version.GetValue()));
-        Props.Audit.Update(updatedBy.GetValue());
-        return Result.Success();
+        return ExecuteOnItem(itemId, item => item.SetAllow(updatedBy), updatedBy);
     }
 
-    public Result UpdateItemStatus(IdValueObject itemId, PermissionState newStatus, ActorId updatedBy)
+    public Result SetItemDeny(IdValueObject itemId, ActorId updatedBy)
     {
-        if (Status != TemplateStatus.Draft)
-        {
-            BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.Authorization.TemplateNotDraft));
-        }
+        return ExecuteOnItem(itemId, item => item.SetDeny(updatedBy), updatedBy);
+    }
 
-        var item = FindItem(itemId);
-        if (item.IsFailure)
-        {
-            BrokenRules.Add(new BrokenRule(nameof(Items), DomainErrors.Common.NotFound));
-        }
+    public Result SetItemNeutral(IdValueObject itemId, ActorId updatedBy)
+    {
+        return ExecuteOnItem(itemId, item => item.SetNeutral(updatedBy), updatedBy);
+    }
 
-        if (!IsValid())
-        {
-            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
-        }
+    public Result ActivateItem(IdValueObject itemId, ActorId updatedBy)
+    {
+        return ExecuteOnItem(itemId, item => item.Activate(updatedBy), updatedBy);
+    }
 
-        var updateResult = item.Value.UpdateItemStatus(newStatus, updatedBy);
-        if (updateResult.IsFailure)
-        {
-            return Result.Failure(updateResult.Error);
-        }
-
-        TrackingState.MarkAsDirty();
-        DomainEvents.RaiseEvent(new PermissionTemplateMutatedEvent(Props.Id.GetValue(), Props.Version.GetValue()));
-        Props.Audit.Update(updatedBy.GetValue());
-        return Result.Success();
+    public Result DeactivateItem(IdValueObject itemId, ActorId updatedBy)
+    {
+        return ExecuteOnItem(itemId, item => item.Deactivate(updatedBy), updatedBy);
     }
 
     public Result RemoveItem(IdValueObject itemId, ActorId updatedBy)
@@ -216,6 +172,36 @@ public sealed class PermissionTemplate : AggregateRoot<PermissionTemplate, Permi
         }
 
         _items.Remove(item.Value);
+        TrackingState.MarkAsDirty();
+        DomainEvents.RaiseEvent(new PermissionTemplateMutatedEvent(Props.Id.GetValue(), Props.Version.GetValue()));
+        Props.Audit.Update(updatedBy.GetValue());
+        return Result.Success();
+    }
+
+    private Result ExecuteOnItem(IdValueObject itemId, Func<PermissionTemplateItemEntity, Result> action, ActorId updatedBy)
+    {
+        if (Status != TemplateStatus.Draft)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.Authorization.TemplateNotDraft));
+        }
+
+        var item = FindItem(itemId);
+        if (item.IsFailure)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Items), DomainErrors.Common.NotFound));
+        }
+
+        if (!IsValid())
+        {
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+        }
+
+        var result = action(item.Value);
+        if (result.IsFailure)
+        {
+            return result;
+        }
+
         TrackingState.MarkAsDirty();
         DomainEvents.RaiseEvent(new PermissionTemplateMutatedEvent(Props.Id.GetValue(), Props.Version.GetValue()));
         Props.Audit.Update(updatedBy.GetValue());

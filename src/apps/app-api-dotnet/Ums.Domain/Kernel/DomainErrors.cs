@@ -83,6 +83,12 @@ public static class DomainErrors
         public const string TemplateAlreadyPublished = "authorization.template_already_published";
         public const string TemplateAlreadyDeprecated = "authorization.template_already_deprecated";
         public const string TemplateItemTargetAlreadyExists = "authorization.template_item_target_already_exists";
+        public const string InvalidPermissionEffect = "authorization.invalid_permission_effect";
+        public const string ProfileAlreadyActive = "authorization.profile_already_active";
+        public const string ProfileAlreadyInactive = "authorization.profile_already_inactive";
+        public const string PermissionAlreadyExists = "authorization.permission_already_exists";
+        public const string PermissionNotFound = "authorization.permission_not_found";
+        public const string TemplateNotPublishedForProfile = "authorization.template_not_published_for_profile";
     }
 
     public static class ValueObject

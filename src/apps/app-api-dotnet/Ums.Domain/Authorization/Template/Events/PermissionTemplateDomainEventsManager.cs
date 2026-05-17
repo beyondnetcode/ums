@@ -1,4 +1,4 @@
-namespace Ums.Domain.Authorization.PermissionTemplate;
+namespace Ums.Domain.Authorization.Template;
 
 public class PermissionTemplateDomainEventsManager : DomainEventsManager
 {
