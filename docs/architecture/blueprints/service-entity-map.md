@@ -20,18 +20,18 @@ This document serves as the authoritative mapping between system entities, their
 | **FUNCTIONAL_OPTION** | Authorization | UMS Core API | .NET 8 | `[ums_authz]` |
 | **ACTION** | Authorization | UMS Core API | .NET 8 | `[ums_authz]` |
 | **SYSTEM_SUITE** | Authorization | UMS Core API | .NET 8 | `[ums_authz]` |
-| **ROLE_PROMOTION_CRITERIA**| IGA | IGA Satellite | NestJS | `[ums_iga]` |
-| **USER_PROMOTION_PROCESS** | IGA | IGA Satellite | NestJS | `[ums_iga]` |
-| **USER_MANAGEMENT_DELEGATION**| IGA | IGA Satellite | NestJS | `[ums_iga]` |
-| **DOCUMENT_TYPE** | Compliance | Compliance Satellite | NestJS | `[ums_compliance]` |
-| **USER_DOCUMENT** | Compliance | Compliance Satellite | NestJS | `[ums_compliance]` |
-| **NOTIFICATION_RULE** | Compliance | Compliance Satellite | NestJS | `[ums_compliance]` |
-| **ACCESS_ENFORCEMENT_POLICY**| Compliance | Compliance Satellite | NestJS | `[ums_compliance]` |
-| **APPROVAL_WORKFLOW** | Approvals | UMS Core API | .NET 8 | `[ums_approval]` |
-| **APPROVAL_REQUIRED_DOCUMENT**| Approvals | UMS Core API | .NET 8 | `[ums_approval]` |
-| **APPROVAL_REQUEST** | Approvals | UMS Core API | .NET 8 | `[ums_approval]` |
-| **APPROVAL_LOG** | Approvals | UMS Core API | .NET 8 | `[ums_approval]` |
-| **APP_CONFIGURATION** | Configuration | UMS Core API | .NET 8 | `[ums_config]`
+| **ROLE_MATURITY_STATUS**   | IGA            | UMS Core API           | .NET 8   | `[ums_iga]`        |
+| **PROMOTION_REQUEST**      | IGA            | UMS Core API           | .NET 8   | `[ums_iga]`        |
+| **PROMOTION_IMPACT_ANALYSIS**| IGA          | UMS Core API           | .NET 8   | `[ums_iga]`        |
+| **DOCUMENT_TYPE**          | Compliance     | UMS Core API           | .NET 8   | `[ums_approval]`   |
+| **USER_DOCUMENT**          | Compliance     | UMS Core API           | .NET 8   | `[ums_approval]`   |
+| **NOTIFICATION_RULE**      | Compliance     | UMS Core API           | .NET 8   | `[ums_approval]`   |
+| **ACCESS_ENFORCEMENT_POLICY**| Compliance   | UMS Core API           | .NET 8   | `[ums_approval]`   |
+| **APPROVAL_WORKFLOW**      | Approvals      | UMS Core API           | .NET 8   | `[ums_approval]`   |
+| **APPROVAL_REQUIRED_DOCUMENT**| Approvals   | UMS Core API           | .NET 8   | `[ums_approval]`   |
+| **APPROVAL_REQUEST**       | Approvals      | UMS Core API           | .NET 8   | `[ums_approval]`   |
+| **APPROVAL_LOG**           | Approvals      | UMS Core API           | .NET 8   | `[ums_approval]`   |
+| **APP_CONFIGURATION**      | Configuration  | UMS Core API           | .NET 8   | `[ums_config]`     |
 ## 1.1 Mandatory Parametric Catalog Contract
 
 For all parameter/configuration/catalog entities (including `APP_CONFIGURATION`, `NOTIFICATION_RULE`, `ACCESS_ENFORCEMENT_POLICY`, `APPROVAL_WORKFLOW`, and future `IDP_CONFIGURATION` / `SYSTEM_CONFIGURATION` / `FEATURE_FLAG` records), the write owner MUST enforce:

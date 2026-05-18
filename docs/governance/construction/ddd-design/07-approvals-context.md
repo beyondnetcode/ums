@@ -1,6 +1,9 @@
 # BC-F — Approvals Context
 
 **Schema:** `[ums_approval]` | **Owner:** UMS Core API .NET 8  
+> [!NOTE]
+> En la implementación real de C# (base de código), los agregados de este contexto están consolidados junto con el contexto de Cumplimiento (Compliance) bajo el espacio de nombres unificado **[Ums.Domain.Approvals](file:///d:/Users/aarroyo/personal/sources/ums/src/apps/app-api-dotnet/Ums.Domain/Approvals/)**.
+
 **Mision:** Orquestar flujos de aprobacion para: acceso B2B externo, validacion de documentos y promocion de roles. Punto de control central para decisiones de autorizacion multi-paso.  
 **FS cubiertos:** FS-10, FS-12, FS-11 (validacion documental)  
 **Version:** 2.0 | **Fecha:** 2026-05-15

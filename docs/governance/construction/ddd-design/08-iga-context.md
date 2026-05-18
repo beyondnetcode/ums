@@ -1,9 +1,9 @@
 # BC-H — IGA Context
 
 **Schema:** `[ums_iga]` | **Owner:** UMS Core API .NET 8  
-**Mision:** Gobernar el ciclo de vida de evolucion de roles, procesos de promocion y administracion delegada de usuarios.  
+**Mision:** Gobernar el ciclo de vida de evolución de roles, procesos de promoción y seguimiento del nivel de madurez técnica y operativa de los usuarios dentro de la organización.  
 **FS cubiertos:** FS-12, FS-14  
-**Version:** 2.0 | **Fecha:** 2026-05-15
+**Version:** 3.0 | **Fecha:** 2026-05-18
 
 ---
 
@@ -11,120 +11,112 @@
 
 | Agregado | Raiz | Descripcion |
 |---------|------|-------------|
-| [RolePromotionCriteria](#aggregate-rolepromotionscriteria) | `RolePromotionCriteria` | Criterios y flags de promocion entre roles |
-| [UserPromotionProcess](#aggregate-userpromotionprocess) | `UserPromotionProcess` | Proceso activo de evaluacion para un usuario |
-| [UserManagementDelegation](#aggregate-usermanagementdelegation) | `UserManagementDelegation` | Delegacion de capacidades de administracion |
+| [RoleMaturityStatus](#aggregate-rolematuritystatus) | `RoleMaturityStatus` | Control de nivel de madurez técnica, certificaciones y elegibilidad del usuario |
+| [PromotionRequest](#aggregate-promotionrequest) | `PromotionRequest` | Workflow transaccional y análisis de impacto para la promoción de un usuario |
 
 ---
 
-## Aggregate: RolePromotionCriteria
+## Aggregate: RoleMaturityStatus
 
-**Aggregate Root:** `RolePromotionCriteria`  
+**Aggregate Root:** `RoleMaturityStatus`  
 **FS:** FS-12
 
-### Value Objects
+Representa la madurez y nivel técnico actual de un usuario asignado a un rol específico dentro de un tenant. Monitorea su progreso operativo y determina de forma automática si cumple con las directrices mínimas para postular a una promoción.
 
-| Value Object | Tipo | Regla |
-|-------------|------|-------|
-| `CriteriaFlags` | record | `(FlagSeniority, FlagCompliance, FlagBusinessScore, FlagManualApproval)`; al menos uno activo |
-| `MinimumDaysInRole` | int | Umbral de antiguedad si `FlagSeniority=true` |
-| `MandatoryDocuments` | Guid[] | IDs de DocumentType requeridos validos si `FlagCompliance=true` |
+### Value Objects & Enums
+
+| Tipo | Nombre | Regla / Valores |
+|------|--------|-----------------|
+| `enum` | `RoleMaturityLevel` | `Junior / Intermediate / Senior / Lead / Principal` |
+| `decimal` | `PerformanceScore` | Puntuación de desempeño obligatoria entre `0.0` y `5.0` |
 
 ### Invariantes
 
 | ID | Regla | Fuente |
 |----|-------|--------|
-| INV-RPC1 | `SourceRoleId` y `TargetRoleId` deben pertenecer al mismo `SuiteId` | ADR-0046 |
-| INV-RPC2 | `TargetRole.HierarchyLevel > SourceRole.HierarchyLevel` | ADR-0046 |
-| INV-RPC3 | `TargetRole.PromotionOrder = SourceRole.PromotionOrder + 1`; no saltos | ADR-0046 |
-| INV-RPC4 | Al menos una flag activa | ADR-0046 |
+| INV-RMS1 | **Score Rango Valido:** La puntuación de desempeño (`PerformanceScore`) debe ser mayor o igual a `0.0` y menor o igual a `5.0`. | RoleMaturityStatus.cs |
+| INV-RMS2 | **Elegibilidad por Nivel:** Un usuario solo puede ser elegible para promoción si cumple con el tiempo mínimo de permanencia en su nivel actual: <br> - *Junior:* Mínimo 6 meses. <br> - *Intermediate:* Mínimo 12 meses. <br> - *Senior:* Mínimo 18 meses. <br> - *Lead:* Mínimo 24 meses. <br> - *Principal:* Sin elegibilidad de promoción adicional. | RoleMaturityStatus.cs |
+| INV-RMS3 | **Sin Bloqueos de Cumplimiento:** Cualquier problema de cumplimiento activo (`HasNoComplianceIssues = false`) bloquea inmediatamente la elegibilidad. | RoleMaturityStatus.cs |
+| INV-RMS4 | **Score Mínimo:** Se requiere un `PerformanceScore >= 3.0` para calificar como elegible. | RoleMaturityStatus.cs |
 
-### Comandos y Eventos
+### Comandos y Operaciones
 
-```
-DefinePromotionCriteriaCommand  -> PromotionCriteriaDefinedEvent  { criteriaId, sourceRoleId, targetRoleId }
-UpdateCriteriaFlagsCommand      -> PromotionCriteriaUpdatedEvent  { criteriaId }
-```
+| Comando / Método | Descripción |
+|------------------|-------------|
+| `Create` | Registra el estado inicial de madurez de un usuario para un rol dado. |
+| `UpdateMaturityLevel` | Actualiza al nuevo nivel alcanzado, calcula el siguiente nivel elegible y reinicia la fecha de elegibilidad. |
+| `RecordCertificationCompletion` | Incrementa la cuenta de certificaciones completadas exitosamente. |
+| `RecordTrainingCompletion` | Incrementa la cuenta de capacitaciones/cursos tomados por el usuario. |
+| `UpdatePerformanceScore` | Actualiza la puntuación de desempeño (valida que esté entre 0 y 5). |
+| `MarkComplianceIssue` | Marca un problema de cumplimiento activo detallando el factor de bloqueo. |
+| `ResolveComplianceIssue` | Resuelve y limpia el bloqueo de cumplimiento previo. |
+| `ReviewEligibility` | Evalúa si el usuario cumple con las invariantes (tiempo, score, compliance) y establece la fecha de elegibilidad. |
 
 ---
 
-## Aggregate: UserPromotionProcess
+## Aggregate: PromotionRequest
 
-**Aggregate Root:** `UserPromotionProcess`  
+**Aggregate Root:** `PromotionRequest`  
 **FS:** FS-12
 
-### Value Objects
+Representa la solicitud de promoción de rol activa de un usuario. Gestiona la orquestación y aprobación de dos fases (Aprobación de Manager Directo y Revisión del Oficial de Seguridad) e integra un análisis de riesgo e impacto sobre la matriz de accesos.
 
-| Value Object | Tipo | Regla |
-|-------------|------|-------|
-| `PromotionStatus` | enum | `EVALUATING / CRITERIA_MET / PENDING_APPROVAL / PROMOTED` |
+### Entidades Hijas
+
+| Entidad | Descripcion |
+|---------|-------------|
+| `PromotionImpactAnalysis` | Registro del análisis de riesgo realizado por seguridad, detallando métricas de permisos y mitigaciones. |
+
+### Value Objects & Enums
+
+| Tipo | Nombre | Regla / Valores |
+|------|--------|-----------------|
+| `enum` | `PromotionStatus` | `Draft / PendingManagerApproval / PendingSecurityReview / PendingSecurityApproval / ApprovedReadyToExecute / Executed / Verified / Rejected / VerificationFailed` |
+| `enum` | `ApprovalDecision` | `None / Approved / Rejected` |
 
 ### Invariantes
 
 | ID | Regla | Fuente |
 |----|-------|--------|
-| INV-UPP1 | Solo un proceso activo (`EVALUATING` o `CRITERIA_MET`) por `(userId, targetRoleId)` | ADR-0046 |
-| INV-UPP2 | `PROMOTED` es terminal | ADR-0046 |
-| INV-UPP3 | `CRITERIA_MET -> PENDING_APPROVAL` es automatico; crea `ApprovalRequest ROLE_PROMOTION` | ADR-0046 |
-| INV-UPP4 | Rechazo de la `ApprovalRequest` retorna proceso a `EVALUATING` | glossary.md |
-| INV-UPP5 | Documentos obligatorios expirados bloquean la transicion `EVALUATING -> CRITERIA_MET` | FS-12 |
+| INV-PR1 | **Transición Única de Borrador:** El envío (`Submit`) solo se puede realizar si el estado actual es exactamente `Draft`. | PromotionRequest.cs |
+| INV-PR2 | **Aprobación de Manager Requerida:** Las acciones del Manager (Aprobar/Rechazar) requieren que la solicitud esté en `PendingManagerApproval`. | PromotionRequest.cs |
+| INV-PR3 | **Evaluación de Seguridad Requerida:** Las acciones del Oficial de Seguridad requieren que el estado sea `PendingSecurityReview` o `PendingSecurityApproval` según el nivel de riesgo analizado. | PromotionRequest.cs |
+| INV-PR4 | **Límite de Análisis:** Solo se permite registrar un único reporte de análisis de impacto (`PromotionImpactAnalysis`) por solicitud de promoción. | PromotionRequest.cs |
 
-### Maquina de Estado: UserPromotionProcess
-
-> **Visualizacion:** [interactive-ddd-viewer.html](./interactive-ddd-viewer.html) — seccion "UserPromotionProcess"
+### Máquina de Estados: PromotionRequest
 
 ```mermaid
 stateDiagram-v2
-    [*] --> EVALUATING : InitiatePromotionEvaluation
-    EVALUATING --> CRITERIA_MET : Background Worker (todos los flags cumplidos)
-    CRITERIA_MET --> PENDING_APPROVAL : ApprovalRequest ROLE_PROMOTION creado
-    PENDING_APPROVAL --> PROMOTED : ApprovalRequest APPROVED
-    PENDING_APPROVAL --> EVALUATING : ApprovalRequest REJECTED
+    [*] --> Draft : Create
+    Draft --> PendingManagerApproval : Submit
+    PendingManagerApproval --> PendingSecurityReview : ManagerApprove
+    PendingManagerApproval --> Rejected : ManagerReject
+    PendingSecurityReview --> ApprovedReadyToExecute : SecurityReviewLowRisk
+    PendingSecurityReview --> PendingSecurityApproval : SecurityReviewHighRisk
+    PendingSecurityReview --> Rejected : SecurityReject
+    PendingSecurityApproval --> ApprovedReadyToExecute : SecurityApprove
+    PendingSecurityApproval --> Rejected : SecurityReject
+    ApprovedReadyToExecute --> Executed : Execute
+    Executed --> Verified : Verify
+    Executed --> VerificationFailed : MarkVerificationFailed
 ```
 
-### Comandos y Eventos
+### Comandos y Operaciones
 
-```
-InitiatePromotionEvaluationCommand -> PromotionEvaluationStartedEvent { processId, userId, targetRoleId }
-MarkCriteriaMetCommand             -> PromotionCriteriaMetEvent        { processId, userId, targetRoleId }
-CompletePromotionCommand           -> PromotionApprovedEvent           { processId, userId, fromRoleId, toRoleId, approvedBy }
-RejectPromotionCommand             -> PromotionRejectedEvent           { processId, userId, targetRoleId, reason }
-```
-
----
-
-## Aggregate: UserManagementDelegation
-
-**Aggregate Root:** `UserManagementDelegation`  
-**FS:** FS-14
-
-### Value Objects
-
-| Value Object | Tipo | Regla |
-|-------------|------|-------|
-| `DelegationScope` | record | `(suiteId?: Guid, tenantId: Guid)`; scope de sistemas administrables |
-| `TemporalScope` | record | `(startDate: Date, endDate?: Date)`; ventana temporal |
-| `DelegationStatus` | enum | `ACTIVE / REVOKED / EXPIRED` |
-| `AllowedActions` | string[] | Acciones delegadas: `CREATE / UPDATE / BLOCK / ASSIGN_PROFILE` |
-
-### Invariantes
-
-| ID | Regla | Fuente |
-|----|-------|--------|
-| INV-D1 | Admin no puede delegar permisos que el mismo no posee — Invariante I3 ADR-0036 | ADR-0044, ADR-0036 |
-| INV-D2 | No auto-delegacion | ADR-0036 |
-| INV-D3 | No delegacion circular (A delega a B, B no puede delegar a A) | FS-14 |
-| INV-D4 | Revocacion en cascada: revocar delegacion padre invalida todas las hijas — Invariante I5 ADR-0036 | ADR-0036 |
-| INV-D5 | `SuiteId` presente = delegacion restringida a ese sistema | ADR-0044 |
-
-### Comandos y Eventos
-
-```
-CreateDelegationCommand   -> DelegationCreatedEvent  { delegationId, delegatingAdmin, receivingAdmin, scope }
-RevokeDelegationCommand   -> DelegationRevokedEvent  { delegationId, revokedBy, cascadeCount }
-ExtendDelegationCommand   -> DelegationExtendedEvent { delegationId, newEndDate }
-DelegationExpiredEvent    (emitido por Background Worker cuando endDate < now)
-```
+| Comando / Método | Descripción |
+|------------------|-------------|
+| `Create` | Crea una nueva solicitud en estado `Draft`. |
+| `Submit` | Presenta la solicitud de promoción para aprobación del manager. |
+| `ManagerApprove` | Aprueba la solicitud por parte de su manager y la pasa a revisión de seguridad. |
+| `ManagerReject` | Rechaza la solicitud por el manager directo (estado terminal `Rejected`). |
+| `SecurityReviewLowRisk` | Determina que el perfil no genera impacto crítico, marcándola aprobada y lista para ejecutar. |
+| `SecurityReviewHighRisk` | Identifica riesgos en la matriz y eleva la solicitud al estado `PendingSecurityApproval` para evaluación formal. |
+| `SecurityApprove` | Concede aprobación oficial del oficial de seguridad tras el análisis minucioso. |
+| `SecurityReject` | Rechaza la solicitud por motivos de seguridad (estado terminal `Rejected`). |
+| `Execute` | Aplica físicamente el cambio de rol en el sistema (estado `Executed`). |
+| `Verify` | Confirma la validez y correcta aplicación del rol en producción (estado terminal `Verified`). |
+| `MarkVerificationFailed` | Registra que el rol no fue aplicado correctamente tras la auditoría en vivo (estado `VerificationFailed`). |
+| `AddImpactAnalysis` | Inserta el reporte `PromotionImpactAnalysis` asociando puntaje de riesgo y mitigaciones propuestas. |
 
 ---
 

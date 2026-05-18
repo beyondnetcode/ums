@@ -1,6 +1,9 @@
 # BC-I — Compliance Context
 
 **Schema:** `[ums_compliance]` | **Owner:** UMS Core API .NET 8  
+> [!NOTE]
+> En la implementación real de C# (base de código), los agregados de este contexto están consolidados junto con el contexto de Aprobaciones bajo el espacio de nombres unificado **[Ums.Domain.Approvals](file:///d:/Users/aarroyo/personal/sources/ums/src/apps/app-api-dotnet/Ums.Domain/Approvals/)**.
+
 **Mision:** Hacer cumplir politicas de acceso basadas en documentos. Gestionar ciclo de vida documental, evaluar expiracion, despachar notificaciones y ejecutar enforcement automatizado.  
 **FS cubiertos:** FS-11, FS-15, FS-16  
 **Version:** 2.0 | **Fecha:** 2026-05-15

@@ -9,7 +9,7 @@
 
 | Decision | Justificacion |
 |----------|---------------|
-| `Tenant` como AR separado de `Branch` | Ciclos de vida independientes; Branch depende de Tenant pero no es parte de el |
+| `Branch` como Entidad dentro de `Tenant` | Para garantizar límites transaccionales robustos y que las ramas dependan enteramente de la raíz organizativa del Tenant |
 | `PermissionTemplate` AR separado de `Profile` | Un template puede reutilizarse por multiples Profiles; ciclo de vida independiente (ADR-0042) |
 | `Role` AR separado de `PermissionTemplate` | Role pertenece a Authorization; criterios de promocion pertenecen a IGA; no pueden cohabitar (ADR-0046) |
 | `DocumentType` AR con `NotificationRule` y `AccessEnforcementPolicy` embebidas | Las reglas son configuracion del catalogo, no ciclo de vida independiente; siempre se leen juntas |
@@ -27,7 +27,7 @@ Estos puntos requieren resolucion en workshop tecnico antes del Sprint 1.
 | ID | Pregunta | Impacto | Responsable |
 |----|---------|---------|-------------|
 | V1 | `TemplateAssignmentRule` no existe en `database-design-er.md`. Se necesita agregar la entidad al modelo fisico para implementar FS-06 | Alto — bloquea el sprint que incluya FS-06 | Arquitecto + DBA |
-| V2 | `MfaEnrollment` no aparece en el E/R actual. Se necesita tabla para persistir metodos MFA enrolados por usuario (FS-09) | Alto — bloquea FS-09 | Arquitecto |
+| V2 | `MfaEnrollment` no aparece en el E/R actual. Se necesita tabla para persistir metodos MFA enrolados por usuario (FS-09) | Resuelto | Implementado en el código dentro de UserAccount como Entidad hija |
 | V3 | `PROFILE_INTERNAL_ONLY` flag no esta en el modelo actual. Sin el es imposible aplicar INV-P8 de FS-10 (externos no reciben profiles internos) | Alto — riesgo de seguridad si no se implementa | Product Owner + Arquitecto |
 | V4 | La herencia de politicas de ADR-0035 (MANDATORY/DEFAULT/OPT_IN/NONE) no tiene entidades `Policy` / `PolicyBinding` en el E/R. El modelo actual solo cubre permisos a nivel de template/profile. ¿Se incluye en el producto completo o es una evolucion futura? | Medio — afecta complejidad de Authorization Context | Arquitecto Principal |
 | V5 | `ApprovalWorkflow` no especifica si tiene stages multi-paso (stage 1: manager, stage 2: CISO). El modelo actual asume un solo aprobador. ¿Es multi-stage? | Medio — cambia estructura de `APPROVAL_LOG` y routing | Product Owner |

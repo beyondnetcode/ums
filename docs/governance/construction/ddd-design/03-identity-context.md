@@ -11,9 +11,8 @@
 
 | Agregado | Raiz | Descripcion |
 |---------|------|-------------|
-| [Tenant](#aggregate-tenant) | `Tenant` | Nodo organizacional jerarquico |
-| [UserAccount](#aggregate-useraccount) | `UserAccount` | Principal autenticable |
-| [Branch](#aggregate-branch) | `Branch` | Sub-unidad fisica del tenant |
+| [Tenant](#aggregate-tenant) | `Tenant` | Nodo organizacional jerárquico y sus branches/proveedores de identidad |
+| [UserAccount](#aggregate-useraccount) | `UserAccount` | Principal autenticable con sus métodos de autenticación |
 
 ---
 
@@ -25,19 +24,24 @@
 
 | Entidad | Descripcion |
 |---------|-------------|
-| `Tenant` (AR) | Nodo organizacional en la jerarquia; equivale a Organization en el glosario |
+| `Tenant` (AR) | Nodo organizacional en la jerarquía; equivale a Organization en el glosario |
+| `Branch` | Sub-unidad física del tenant; ciclo de vida gobernado por el Tenant AR |
+| `IdentityProvider` | Proveedor de identidad federada registrado para el tenant |
+| `Branding` | Configuración visual y de DNS para el hosted login del tenant |
 
 ### Value Objects
 
 | Value Object | Tipo base | Regla |
 |-------------|-----------|-------|
 | `TenantType` | enum | `ROOT / ENTERPRISE / SUBSIDIARY / DIVISION / BRANCH / DEPARTMENT` |
-| `TaxonomyRank` | int | Rango jerarquico; determina quien puede ser padre/hijo |
+| `TaxonomyRank` | int | Rango jerárquico; determina quién puede ser padre/hijo |
 | `TenantStatus` | enum | `ACTIVE / SUSPENDED / ARCHIVED` |
 | `OrganizationType` | enum | `INTERNAL / CLIENT / SUPPLIER / PARTNER` |
-| `CompanyReference` | string | Codigo ERP externo (SAP); inmutable post-creacion |
+| `CompanyReference` | string | Código ERP externo (SAP); inmutable post-creación |
 | `IdpStrategyHint` | enum | `INTERNAL_BCRYPT / ZITADEL / AZURE_AD / OKTA / SAML2 / GENERIC_OIDC` |
 | `TenantMetadata` | JSON | Payload libre validado como JSON |
+| `BranchCode` | string | Único dentro del tenant; slug alfanumérico |
+| `GeofencingMetadata` | JSON | Nullable; requiere `radius_km`, `center_lat`, `center_lng` si presente |
 
 ### Invariantes
 
@@ -45,10 +49,14 @@
 |----|-------|--------|
 | INV-T1 | `child.TaxonomyRank > parent.TaxonomyRank` — tipo hijo debe tener rango estrictamente mayor | ADR-0048 |
 | INV-T2 | `BRANCH` y `DEPARTMENT` no pueden tener hijos (`can_have_children = false`) | ADR-0048 |
-| INV-T3 | `ROOT` es su propio `root_tenant_id`; todos los demas deben diferir | ADR-0048 |
-| INV-T4 | `CompanyReference` debe ser unico dentro del tipo `CLIENT/SUPPLIER/PARTNER` del mismo parent | FS-03 |
-| INV-T5 | `ARCHIVED` es terminal; no retorna a `ACTIVE` sin proceso explicito | FS-03 |
+| INV-T3 | `ROOT` es su propio `root_tenant_id`; todos los demás deben diferir | ADR-0048 |
+| INV-T4 | `CompanyReference` debe ser único dentro del tipo `CLIENT/SUPPLIER/PARTNER` del mismo parent | FS-03 |
+| INV-T5 | `ARCHIVED` es terminal; no retorna a `ACTIVE` sin proceso explícito | FS-03 |
 | INV-T6 | No puede crearse `Branch` ni `UserAccount` bajo un Tenant `SUSPENDED` o `ARCHIVED` | FS-03 |
+| INV-B1 | `BranchCode` único dentro del `TenantId` | FS-03 |
+| INV-B2 | `GeofencingMetadata` válido JSON con claves requeridas si presente | conceptual-data-model.md |
+| INV-B3 | Branch inactiva o suspendida no puede recibir nuevos Profiles | FS-03 |
+| INV-B4 | Branch debe pertenecer a un Tenant `ACTIVE` | FS-03 |
 
 ### Comandos
 
@@ -56,31 +64,47 @@
 |---------|-------------|
 | `RegisterTenantCommand` | Registra un nuevo tenant con tipo, referencia externa y estrategia IdP |
 | `SuspendTenantCommand` | Suspende el tenant; bloquea acceso a todos sus usuarios |
-| `ArchiveTenantCommand` | Archiva el tenant; estado terminal |
-| `UpdateIdpStrategyCommand` | Cambia la estrategia de autenticacion del tenant |
-| `ConfigureBrandingCommand` | Configura branding del hosted login (FS-08) |
+| `ActivateTenantCommand` | Activa un tenant suspendido |
+| `AddBranchCommand` | Agrega una sub-unidad física (Branch) al tenant |
+| `RemoveBranchCommand` | Remueve una branch inactiva del tenant |
+| `DeactivateBranchCommand` | Suspende/desactiva temporalmente una branch activa |
+| `ReactivateBranchCommand` | Reactiva una branch suspendida |
+| `RegisterIdentityProviderCommand` | Registra un nuevo proveedor de identidad federada para el tenant |
+| `ActivateIdentityProviderCommand` | Activa un IdP y desactiva los demás del tenant |
+| `DeactivateIdentityProviderCommand` | Desactiva un IdP activo del tenant |
+| `RemoveIdentityProviderCommand` | Remueve un IdP registrado e inactivo del tenant |
+| `SetBrandingCommand` | Configura branding visual por primera vez |
+| `UpdateBrandingCommand` | Actualiza la configuración visual de branding existente |
+| `VerifyBrandingDnsCommand` | Marca el DNS de branding como verificado con éxito |
+| `FailBrandingDnsCommand` | Registra fallo en la verificación DNS del branding |
+| `RemoveBrandingCommand` | Remueve la configuración de branding del tenant |
 
 ### Eventos de Dominio
 
 ```
-TenantRegisteredEvent         { tenantId, parentTenantId?, typeCode, companyReference? }
-TenantSuspendedEvent          { tenantId, reason }
-TenantArchivedEvent           { tenantId }
-TenantIdpStrategyUpdatedEvent { tenantId, newStrategy, version }
+TenantCreatedEvent                 { tenantId, code, name }
+TenantActivatedEvent               { tenantId }
+TenantSuspendedEvent               { tenantId }
+BranchCreatedEvent                 { tenantId, branchId, code }
+BranchRemovedEvent                 { tenantId, branchId }
+BranchDeactivatedEvent             { tenantId, branchId }
+BranchReactivatedEvent             { tenantId, branchId }
+IdentityProviderRegisteredEvent    { tenantId, identityProviderId, code, strategyName }
+IdentityProviderActivatedEvent     { tenantId, identityProviderId, code }
+IdentityProviderDeactivatedEvent   { tenantId, identityProviderId, code }
+IdentityProviderRemovedEvent       { tenantId, identityProviderId }
+BrandingCreatedEvent               { tenantId, brandingId }
+BrandingUpdatedEvent               { tenantId, brandingId }
+BrandingDnsVerifiedEvent           { tenantId, brandingId }
+BrandingDnsFailedEvent             { tenantId, brandingId }
+BrandingRemovedEvent               { tenantId, brandingId }
 ```
 
 ### Repositorio
 
 ```csharp
-ITenantRepository {
-    FindByIdAsync(tenantId, rootTenantId)
-    FindBySlugAsync(slug)
-    FindDescendantsAsync(ancestorId, maxDepth?)
-    FindAncestorsAsync(descendantId)                 // via TenantClosure
-    IsDescendantOfAsync(candidateId, ancestorId)     // 1 index lookup
-    FindByCompanyReferenceAsync(reference, type)
-    AddAsync(tenant)
-    UpdateAsync(tenant)
+ITenantRepository : IAggregateRepository<Tenant> {
+    GetByCodeAsync(code, cancellationToken)
 }
 ```
 
@@ -174,37 +198,6 @@ IUserAccountRepository {
     AddAsync(user)
     UpdateAsync(user)
 }
-```
-
----
-
-## Aggregate: Branch
-
-**Aggregate Root:** `Branch`  
-**FS:** FS-03
-
-### Value Objects
-
-| Value Object | Tipo | Regla |
-|-------------|------|-------|
-| `BranchCode` | string | Unico dentro del tenant; slug alfanumerico |
-| `GeofencingMetadata` | JSON | Nullable; requiere `radius_km`, `center_lat`, `center_lng` si presente |
-| `BranchStatus` | enum | `ACTIVE / SUSPENDED` |
-
-### Invariantes
-
-| ID | Regla | Fuente |
-|----|-------|--------|
-| INV-B1 | `BranchCode` unico dentro del `TenantId` | FS-03 |
-| INV-B2 | `GeofencingMetadata` valido JSON con claves requeridas si presente | conceptual-data-model.md |
-| INV-B3 | Branch `SUSPENDED` no puede recibir nuevos Profiles | FS-03 |
-| INV-B4 | Branch debe pertenecer a un Tenant `ACTIVE` | FS-03 |
-
-### Comandos y Eventos
-
-```
-CreateBranchCommand     -> BranchCreatedEvent     { branchId, tenantId, code }
-SuspendBranchCommand    -> BranchSuspendedEvent   { branchId, tenantId }
 ```
 
 ---

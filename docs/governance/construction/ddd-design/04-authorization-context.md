@@ -9,13 +9,16 @@
 
 ## Agregados
 
-| Agregado | Raiz | Descripcion |
-|---------|------|-------------|
-| [SystemSuite](#aggregate-systemsuite) | `SystemSuite` | Aplicacion cliente con topologia de recursos |
-| [Role](#aggregate-role) | `Role` | Rol jerarquico dentro de un sistema |
-| [PermissionTemplate](#aggregate-permissiontemplate) | `PermissionTemplate` | Blueprint de permisos reutilizable |
-| [TemplateAssignmentRule](#aggregate-templateassignmentrule) | `TemplateAssignmentRule` | Regla de auto-asignacion de templates |
-| [Profile](#aggregate-profile) | `Profile` | Coleccion de autorizaciones de un usuario |
+> [!NOTE]
+> En la implementación real de C# (base de código), **`Profile`** y **`PermissionTemplate`** son los únicos agregados locales de dominio activos. **`SystemSuite`**, **`Role`** y **`TemplateAssignmentRule`** están diferidos en esta fase y son consumidos mediante referencias desacopladas a nivel de Value Object ID (`SystemSuiteId`, `RoleId`).
+
+| Agregado | Raiz | C# Status | Descripcion |
+|---------|------|-----------|-------------|
+| [Profile](#aggregate-profile) | `Profile` | **Activo** | Colección de autorizaciones de un usuario |
+| [PermissionTemplate](#aggregate-permissiontemplate) | `PermissionTemplate` | **Activo** | Blueprint de permisos reutilizable |
+| [SystemSuite](#aggregate-systemsuite) | `SystemSuite` | *Diferido (Ref ID)* | Aplicación cliente con topología de recursos |
+| [Role](#aggregate-role) | `Role` | *Diferido (Ref ID)* | Rol jerárquico dentro de un sistema |
+| [TemplateAssignmentRule](#aggregate-templateassignmentrule) | `TemplateAssignmentRule` | *Diferido (Ref ID)* | Regla de auto-asignación de templates |
 
 ---
 
