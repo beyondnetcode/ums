@@ -72,18 +72,18 @@ If a parameter with the same identifier already exists in the selected scope, th
 
 ## 8. Technical Requirements
 
-- Persist configuration records in `APP_CONFIGURATION`.
-- Mandatory fields: `Code`, `Value`, `Description`.
-- Enforce scope-aware uniqueness with `UX_APP_CONFIGURATION_CODE_SCOPE`.
-- Support version lineage, auditing, traceability events, cacheability and invalidation.
-- Sensitive parameters must support encrypted values.
-- Effective configuration may be cached, but cache entries must be invalidated when a parameter changes.
+> [!WARNING]
+> **ESTADO DE IMPLEMENTACIÓN: DIFERIDO / FUERA DE ALCANCE**  
+> En la fase actual, la gestión activa de parámetros jerárquicos de configuración (`AppConfiguration`) está **diferida** y no está implementada dentro del proyecto principal de dominio de C#.
+
+- Enforce scope-aware configuration parameters structure.
+- Support audit tracking on configuration overrides.
 
 ---
 
 ## 9. Traceability
 
-- Entities: `APP_CONFIGURATION`, `TENANT`, `SYSTEM_SUITE`, `FUNCTIONAL_MODULE`
+- Entities: `AppConfiguration` (Deferred AR)
 - ADRs: ADR-0024, ADR-0047
 - Technical Enabler: TE-02 Resolve Hierarchical System Configuration
 - Standard: Functional Story Writing Standard; Parametric Catalog Standard

@@ -49,13 +49,16 @@ If a topology node is incomplete, UMS can save it as draft but prevents its use 
 
 ## 8. Technical Requirements
 
-- Persist topology using `SYSTEM_SUITE`, `FUNCTIONAL_MODULE`, `FUNCTIONAL_SUBMODULE`, `FUNCTIONAL_OPTION`, and `ACTION`.
-- Generate and store a secure machine-to-machine credential for registered systems.
-- Emit `SystemRegisteredEvent`.
-- Validate topology completeness before template usage.
+> [!WARNING]
+> **ESTADO DE IMPLEMENTACIÓN: DIFERIDO**  
+> En la fase actual, la gestión activa de la topología de recursos de sistemas (`SystemSuite`, `FunctionalModule`, etc.) está **diferida** en el dominio principal de C# y se maneja mediante referencias externas a nivel de Value Object ID (`SystemSuiteId`).
+
+- Enforce system identifier and metadata persistence.
+- Enforce uniqueness for system codes.
+- Emit domain events when system metadata is registered.
 
 ## 9. Traceability
 
-- Entities: `SYSTEM_SUITE`, `FUNCTIONAL_MODULE`, `FUNCTIONAL_SUBMODULE`, `FUNCTIONAL_OPTION`, `ACTION`
+- Entities: `SystemSuite` (Deferred ID Reference), `FunctionalModule` (Deferred ID Reference)
 - ADRs: ADR-0032, ADR-0034, ADR-0047
 - Related Stories: FS-02, FS-07

@@ -50,13 +50,16 @@ If more than one rule matches, UMS applies the highest-priority rule and records
 
 ## 8. Technical Requirements
 
-- Evaluate active assignment rules during profile creation.
+> [!WARNING]
+> **ESTADO DE IMPLEMENTACIÓN: DIFERIDO**  
+> En la fase actual, la lógica automatizada de reglas de auto-asignación (`TemplateAssignmentRule`) está **diferida** en el dominio principal de C# y se maneja mediante referencias externas o asignaciones directas y manuales en los perfiles.
+
 - Persist assignment state on the profile/template relationship.
 - Invalidate authorization graph cache for affected users.
-- Emit audit event with `auto: true` and selected rule reference.
+- Emit domain and audit events for template assignments.
 
 ## 9. Traceability
 
-- Entities: `PROFILE`, `PERMISSION_TEMPLATE`, `PROFILE_PERMISSION`
+- Entities: `Profile` (AR), `PermissionTemplate` (AR), `TemplateAssignmentRule` (Deferred)
 - ADRs: ADR-0042, ADR-0043, ADR-0035
 - Technical Enabler: TE-01

@@ -50,13 +50,16 @@ If the file is corrupted, unreadable, or violates upload rules, the system asks 
 
 ## 8. Technical Requirements
 
-- Persist metadata in `USER_DOCUMENT`.
-- Classify documents through `DOCUMENT_TYPE`.
+> [!NOTE]
+> En la implementación real de C# (base de código), los agregados de cumplimiento y aprobación están unificados bajo el espacio de nombres **[Ums.Domain.Approvals](file:///d:/Users/aarroyo/personal/sources/ums/src/apps/app-api-dotnet/Ums.Domain/Approvals/)**.
+
+- Persist metadata in `UserDocument` Aggregate Root.
+- Classify documents through `DocumentType` Aggregate Root.
 - Store file location and checksum for retrieval and integrity validation.
-- Emit audit events for upload, validation, rejection, and status changes.
+- Emit domain and audit events for upload, validation, rejection, and status changes.
 
 ## 9. Traceability
 
-- Entities: `USER_DOCUMENT`, `DOCUMENT_TYPE`
+- Entities: `UserDocument` (AR), `DocumentType` (AR)
 - ADRs: ADR-0045, ADR-0016
 - Related Stories: FS-15, FS-16

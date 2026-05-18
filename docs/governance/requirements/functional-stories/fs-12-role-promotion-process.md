@@ -51,13 +51,18 @@ If the administrator rejects the promotion, the user remains in the current role
 
 ## 8. Technical Requirements
 
-- Evaluate criteria from `ROLE_PROMOTION_CRITERIA`.
-- Track process state in `USER_PROMOTION_PROCESS`.
-- Use `APPROVAL_REQUEST` when manual approval is required.
-- Persist immutable audit events for promotion eligibility, approval, rejection, and completion.
+> [!NOTE]
+> En la implementación real de C# (base de código), el motor de promociones está implementado mediante dos agregados independientes en el espacio de nombres **[Ums.Domain.IGA](file:///d:/Users/aarroyo/personal/sources/ums/src/apps/app-api-dotnet/Ums.Domain/IGA/)**:
+> 1. **[RoleMaturityStatus](file:///d:/Users/aarroyo/personal/sources/ums/src/apps/app-api-dotnet/Ums.Domain/IGA/RoleMaturityStatus/RoleMaturityStatus.cs)**: Mantiene las capacitaciones, certificaciones, score de desempeño e invariantes de elegibilidad del usuario.
+> 2. **[PromotionRequest](file:///d:/Users/aarroyo/personal/sources/ums/src/apps/app-api-dotnet/Ums.Domain/IGA/PromotionRequest/PromotionRequest.cs)**: Orquesta el flujo de aprobación transaccional y realiza análisis de riesgo automatizados.
+
+- Track user eligibility and technical metrics in `RoleMaturityStatus` Aggregate Root.
+- Manage promotion transaction stages and risk review in `PromotionRequest` Aggregate Root (with `PromotionImpactAnalysis` child entity).
+- Enforce business rules and eligibility criteria (minimum months in level: 6 for Junior, 12 for Intermediate, 18 for Senior, 24 for Lead; performance score >= 3.0; no compliance issues) prior to request submission.
+- Raise appropriate Domain Events: `PromotionRequestCreated`, `PromotionRequestSubmitted`, `PromotionRequestApproved`, `PromotionRequestExecuted`, `PromotionRequestVerified`.
 
 ## 9. Traceability
 
-- Entities: `ROLE_PROMOTION_CRITERIA`, `USER_PROMOTION_PROCESS`, `ROLE`, `APPROVAL_REQUEST`
+- Entities: `RoleMaturityStatus` (AR), `PromotionRequest` (AR), `PromotionImpactAnalysis` (Child Entity)
 - ADRs: ADR-0046, ADR-0036
 - Related Stories: FS-11, FS-14

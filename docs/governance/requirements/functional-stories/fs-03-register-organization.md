@@ -51,14 +51,14 @@ If the company reference already exists, the system prevents creating a duplicat
 
 ## 8. Technical Requirements
 
-- Persist organization data in `TENANT` / `ORGANIZATION` model.
-- Persist identity provider settings in `IDP_CONFIGURATION`.
+- Persist tenant data in `Tenant` Aggregate Root.
+- Persist identity provider settings in `IdentityProvider` child entity.
 - Enforce uniqueness for external company references.
-- Emit `OrganizationCreatedEvent`.
+- Emit `TenantCreatedEvent`.
 - Validate IdP configuration according to the selected provider type.
 
 ## 9. Traceability
 
-- Entities: `TENANT`, `BRANCH`, `IDP_CONFIGURATION`, `USER_ACCOUNT`
+- Entities: `Tenant` (AR), `Branch` (Child Entity), `IdentityProvider` (Child Entity), `UserAccount` (AR)
 - ADRs: ADR-0031, ADR-0032, ADR-0034, ADR-0010
 - Technical Enabler: TE-03

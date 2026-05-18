@@ -51,13 +51,15 @@ If the delegation creates a circular management chain or privilege escalation, t
 
 ## 8. Technical Requirements
 
-- Persist relationships in `USER_MANAGEMENT_DELEGATION`.
-- Validate recursive scope and anti-privilege escalation rules.
-- Support optional `SuiteId` and temporal scope.
-- Emit audit events for creation, update, revocation, and attempted violations.
+> [!WARNING]
+> **ESTADO DE IMPLEMENTACIÓN: DIFERIDO / FUERA DE ALCANCE**  
+> En la fase actual, la lógica transaccional de delegación administrativa de usuarios (`UserManagementDelegation`) está **diferida** y no está implementada dentro del proyecto principal de dominio de C#.
+
+- Enforce recursive scope validation logic at application level.
+- Support audit tracking on delegation lifecycle events.
 
 ## 9. Traceability
 
-- Entities: `USER_MANAGEMENT_DELEGATION`, `USER_ACCOUNT`, `SYSTEM_SUITE`
+- Entities: `UserManagementDelegation` (Deferred AR), `UserAccount` (AR)
 - ADRs: ADR-0038, ADR-0044
 - Related Stories: FS-10, FS-12

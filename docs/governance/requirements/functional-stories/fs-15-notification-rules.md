@@ -59,8 +59,11 @@ If an identical rule already exists for the same document, tenant, timing, and c
 
 ## 8. Technical Requirements
 
-- Persist rules in `NOTIFICATION_RULE`.
-- Mandatory fields: `Code`, `Value`, `Description`.
+> [!NOTE]
+> En la implementación real de C# (base de código), `NotificationRule` es una Entidad hija encapsulada dentro del Agregado **[DocumentType](file:///d:/Users/aarroyo/personal/sources/ums/src/apps/app-api-dotnet/Ums.Domain/Approvals/DocumentType/DocumentType.cs)**, bajo el espacio de nombres unificado **[Ums.Domain.Approvals](file:///d:/Users/aarroyo/personal/sources/ums/src/apps/app-api-dotnet/Ums.Domain/Approvals/)**.
+
+- Persist rules as part of the `DocumentType` Aggregate Root.
+- Mandatory fields: `Code`, `Value` (JSON containing timing/channels), `Description`.
 - Enforce uniqueness by `Code`, `TenantId`, and `DocumentTypeId`.
 - Record notification delivery traceability.
 - Support cache invalidation when notification rules change.
@@ -69,6 +72,6 @@ If an identical rule already exists for the same document, tenant, timing, and c
 
 ## 9. Traceability
 
-- Entities: `NOTIFICATION_RULE`, `DOCUMENT_TYPE`, `USER_DOCUMENT`
+- Entities: `DocumentType` (AR), `NotificationRule` (Child Entity), `UserDocument` (AR)
 - ADRs: ADR-0045, ADR-0016
 - Related Stories: FS-11, FS-16
