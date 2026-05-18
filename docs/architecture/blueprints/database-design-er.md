@@ -33,6 +33,8 @@ erDiagram
     TENANT ||--o{ SYSTEM_SUITE : "owns"
     TENANT ||--o{ BRANCH : "operates"
     TENANT ||--o{ USER_ACCOUNT : "owns"
+    TENANT ||--o{ IDENTITY_PROVIDER : "registers"
+    TENANT ||--o| BRANDING : "configures"
     SYSTEM_SUITE ||--o{ ROLE : "defines"
     SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "contains"
     
@@ -166,6 +168,9 @@ Management of user lifecycle, delegated administration, and onboarding workflows
 
 ```mermaid
 erDiagram
+    TENANT ||--o{ USER_ACCOUNT : "owns"
+    TENANT ||--o{ IDENTITY_PROVIDER : "registers"
+    TENANT ||--o| BRANDING : "configures"
     USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "admin"
     USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "managed"
     APPROVAL_WORKFLOW ||--o{ APPROVAL_REQUEST : "defines_rules_for"
@@ -241,6 +246,38 @@ erDiagram
         uniqueidentifier ParentAdminUserId FK
         uniqueidentifier ManagedUserId FK
         uniqueidentifier SuiteId FK "Optional Scope"
+    }
+
+    TENANT {
+        uniqueidentifier TenantId PK
+        nvarchar Name
+    }
+
+    IDENTITY_PROVIDER {
+        uniqueidentifier IdpId PK
+        uniqueidentifier TenantId FK
+        nvarchar Code "SAML/OIDC/AZURE_AD"
+        nvarchar Name
+        nvarchar Description
+        nvarchar Strategy "OIDC/SAML2/WS_FED"
+        bit IsActive
+    }
+
+    BRANDING {
+        uniqueidentifier BrandingId PK
+        uniqueidentifier TenantId FK "One-to-One / RLS"
+        nvarchar Logo "URI / Storage Path"
+        nvarchar LogoFormat "PNG/SVG/JPEG"
+        nvarchar PrimaryColor "Hex Code"
+        nvarchar BackgroundStyle "Glassmorphism/SleekDark"
+        nvarchar HeadlineText
+        nvarchar SecondaryText
+        nvarchar PrimaryButtonLabel
+        nvarchar FooterText
+        nvarchar CustomDomain "Nullable"
+        nvarchar DnsVerificationStatus "PENDING/VERIFIED/FAILED"
+        nvarchar DnsCnameTarget
+        bit MagicLinkFallbackEnabled
     }
     
     APPROVAL_WORKFLOW {

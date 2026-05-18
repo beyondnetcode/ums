@@ -21,6 +21,33 @@ Table BRANCH {
   Name nvarchar
 }
 
+Table IDENTITY_PROVIDER {
+  IdpId uniqueidentifier [pk]
+  TenantId uniqueidentifier
+  Code nvarchar
+  Name nvarchar
+  Description nvarchar
+  Strategy nvarchar
+  IsActive bit
+}
+
+Table BRANDING {
+  BrandingId uniqueidentifier [pk]
+  TenantId uniqueidentifier
+  Logo nvarchar
+  LogoFormat nvarchar
+  PrimaryColor nvarchar
+  BackgroundStyle nvarchar
+  HeadlineText nvarchar
+  SecondaryText nvarchar
+  PrimaryButtonLabel nvarchar
+  FooterText nvarchar
+  CustomDomain nvarchar
+  DnsVerificationStatus nvarchar
+  DnsCnameTarget nvarchar
+  MagicLinkFallbackEnabled bit
+}
+
 Table USER_ACCOUNT {
   UserId uniqueidentifier [pk]
   TenantId uniqueidentifier
@@ -225,6 +252,8 @@ Table ACTION {
 // Relationships
 Ref: USER_ACCOUNT.TenantId > TENANT.TenantId
 Ref: USER_MANAGEMENT_DELEGATION.TenantId > TENANT.TenantId
+Ref: IDENTITY_PROVIDER.TenantId > TENANT.TenantId
+Ref: BRANDING.TenantId - TENANT.TenantId
 Ref: USER_MANAGEMENT_DELEGATION.ParentAdminUserId > USER_ACCOUNT.UserId
 Ref: USER_MANAGEMENT_DELEGATION.ManagedUserId > USER_ACCOUNT.UserId
 Ref: USER_MANAGEMENT_DELEGATION.SuiteId > SYSTEM_SUITE.SuiteId
@@ -295,6 +324,35 @@ CREATE TABLE BRANCH (
     BranchId UNIQUEIDENTIFIER PRIMARY KEY,
     TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
     Name NVARCHAR(255)
+);
+
+CREATE TABLE IDENTITY_PROVIDER (
+    IdpId UNIQUEIDENTIFIER PRIMARY KEY,
+    TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
+    Code NVARCHAR(100) NOT NULL,
+    Name NVARCHAR(255) NOT NULL,
+    Description NVARCHAR(MAX),
+    Strategy NVARCHAR(100) NOT NULL,
+    IsActive BIT DEFAULT 0,
+    CreatedAt DATETIME2 DEFAULT SYSUTCDATETIME()
+);
+
+CREATE TABLE BRANDING (
+    BrandingId UNIQUEIDENTIFIER PRIMARY KEY,
+    TenantId UNIQUEIDENTIFIER UNIQUE REFERENCES TENANT(TenantId),
+    Logo NVARCHAR(MAX),
+    LogoFormat NVARCHAR(50),
+    PrimaryColor NVARCHAR(50),
+    BackgroundStyle NVARCHAR(100),
+    HeadlineText NVARCHAR(MAX),
+    SecondaryText NVARCHAR(MAX),
+    PrimaryButtonLabel NVARCHAR(255),
+    FooterText NVARCHAR(MAX),
+    CustomDomain NVARCHAR(255) NULL,
+    DnsVerificationStatus NVARCHAR(50) DEFAULT 'PENDING',
+    DnsCnameTarget NVARCHAR(255),
+    MagicLinkFallbackEnabled BIT DEFAULT 0,
+    CreatedAt DATETIME2 DEFAULT SYSUTCDATETIME()
 );
 
 CREATE TABLE USER_ACCOUNT (
