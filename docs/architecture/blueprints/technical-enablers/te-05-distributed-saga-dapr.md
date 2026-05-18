@@ -101,19 +101,19 @@ export class RolePromotionSubscriber {
     private readonly daprClient: DaprClient,
   ) {}
 
-  @DaprSubscribe({ pubsubName: 'ums-pubsub', topic: 'ums.approvals.promotion.approved' })
+  @DaprSubscribe({ pubsubName: 'ums-pubsub', topic: 'ums.iga.promotion-request.approved' })
   async onApprovalGranted(@Body() event: ApprovalGrantedEvent): Promise<void> {
     const result = await this.promotionService.provisionRole(event.sagaId);
     if (result.isFailure) {
       // publish compensation
-      await this.daprClient.pubsub.publish('ums-pubsub', 'ums.approvals.promotion.compensation-requested', {
+      await this.daprClient.pubsub.publish('ums-pubsub', 'ums.iga.promotion-request.compensation-requested', {
         sagaId: event.sagaId,
         reason: result.error,
       });
     }
   }
 
-  @DaprSubscribe({ pubsubName: 'ums-pubsub', topic: 'ums.approvals.promotion.rejected' })
+  @DaprSubscribe({ pubsubName: 'ums-pubsub', topic: 'ums.iga.promotion-request.rejected' })
   async onApprovalRejected(@Body() event: ApprovalRejectedEvent): Promise<void> {
     await this.promotionService.cancelPromotion(event.sagaId, event.reason);
   }
@@ -126,9 +126,9 @@ export class RolePromotionSubscriber {
 
 | Step | Forward Event | Compensation Event | Compensation Handler |
 |------|--------------|-------------------|---------------------|
-| Request submitted | `promotion.requested` | `promotion.cancelled` | Delete saga record |
-| Approval initiated | `promotion.approval-initiated` | `promotion.compensation-requested` | Notify requester |
-| Role provisioned | `promotion.provisioned` | `promotion.revoked` | Remove role grant |
+| Request submitted | `ums.iga.promotion-request.submitted` | `ums.iga.promotion-request.cancelled` | Delete saga record |
+| Approval initiated | `ums.iga.promotion-request.approval-initiated` | `ums.iga.promotion-request.compensation-requested` | Notify requester |
+| Role provisioned | `ums.iga.promotion-request.executed` | `ums.iga.promotion-request.revoked` | Remove role grant |
 
 ---
 
