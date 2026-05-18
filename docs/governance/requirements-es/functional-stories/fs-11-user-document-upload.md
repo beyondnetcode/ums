@@ -50,13 +50,16 @@ Si el archivo estáá corrupto, no puede leerse o incumple reglas de carga, el s
 
 ## 8. Requisitos Técnicos
 
-- Persistir metadata en `USER_DOCUMENT`.
-- Clasificar documentos mediante `DOCUMENT_TYPE`.
+> [!NOTE]
+> En la implementación real de C# (base de código), los agregados de cumplimiento y aprobación están unificados bajo el espacio de nombres **[Ums.Domain.Approvals](file:///d:/Users/aarroyo/personal/sources/ums/src/apps/app-api-dotnet/Ums.Domain/Approvals/)**.
+
+- Persistir metadatos en el Agregado Root `UserDocument`.
+- Clasificar documentos mediante el Agregado Root `DocumentType`.
 - Guardar ubicación del archivo y checksum para recuperación e integridad.
-- Emitir eventos de auditoría por carga, validación, rechazo y cambios de estado.
+- Emitir eventos de dominio y auditoría por carga, validación, rechazo y cambios de estado.
 
 ## 9. Trazabilidad
 
-- Entidades: `USER_DOCUMENT`, `DOCUMENT_TYPE`
+- Entidades: `UserDocument` (AR), `DocumentType` (AR)
 - ADRs: ADR-0045, ADR-0016
 - Historias relacionadas: FS-15, FS-16

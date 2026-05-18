@@ -51,13 +51,18 @@ Si el administrador rechaza la promoción, el usuario permanece en el rol actual
 
 ## 8. Requisitos Técnicos
 
-- Evaluar criterios desde `ROLE_PROMOTION_CRITERIA`.
-- Registrar estado del proceso en `USER_PROMOTION_PROCESS`.
-- Usar `APPROVAL_REQUEST` cuando se requiera aprobación manual.
-- Persistir eventos de auditoría por elegibilidad, aprobación, rechazo y cierre de promoción.
+> [!NOTE]
+> En la implementación real de C# (base de código), el motor de promociones está implementado mediante dos agregados independientes en el espacio de nombres **[Ums.Domain.IGA](file:///d:/Users/aarroyo/personal/sources/ums/src/apps/app-api-dotnet/Ums.Domain/IGA/)**:
+> 1. **[RoleMaturityStatus](file:///d:/Users/aarroyo/personal/sources/ums/src/apps/app-api-dotnet/Ums.Domain/IGA/RoleMaturityStatus/RoleMaturityStatus.cs)**: Mantiene las capacitaciones, certificaciones, score de desempeño e invariantes de elegibilidad del usuario.
+> 2. **[PromotionRequest](file:///d:/Users/aarroyo/personal/sources/ums/src/apps/app-api-dotnet/Ums.Domain/IGA/PromotionRequest/PromotionRequest.cs)**: Orquesta el flujo de aprobación transaccional y realiza análisis de riesgo automatizados.
+
+- Monitorear la elegibilidad y métricas del usuario en el Agregado Root `RoleMaturityStatus`.
+- Gestionar las etapas de la transacción de promoción y el análisis de impacto de riesgo en el Agregado Root `PromotionRequest` (con su entidad hija `PromotionImpactAnalysis`).
+- Hacer cumplir las invariantes de elegibilidad (antigüedad mínima en nivel: Junior 6 meses, Intermediate 12 meses, Senior 18 meses, Lead 24 meses; score de desempeño >= 3.0; sin bloqueos de cumplimiento) antes del envío.
+- Emitir Eventos de Dominio específicos: `PromotionRequestCreated`, `PromotionRequestSubmitted`, `PromotionRequestApproved`, `PromotionRequestExecuted`, `PromotionRequestVerified`.
 
 ## 9. Trazabilidad
 
-- Entidades: `ROLE_PROMOTION_CRITERIA`, `USER_PROMOTION_PROCESS`, `ROLE`, `APPROVAL_REQUEST`
+- Entidades: `RoleMaturityStatus` (AR), `PromotionRequest` (AR), `PromotionImpactAnalysis` (Entidad Hija)
 - ADRs: ADR-0046, ADR-0036
 - Historias relacionadas: FS-11, FS-14

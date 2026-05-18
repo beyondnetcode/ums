@@ -59,8 +59,11 @@ Si ya existe una regla idéntica para el mismo documento, tenant, anticipación 
 
 ## 8. Requisitos Técnicos
 
-- Persistir reglas en `NOTIFICATION_RULE`.
-- Campos obligatorios: `Code`, `Value`, `Description`.
+> [!NOTE]
+> En la implementación real de C# (base de código), `NotificationRule` es una Entidad hija encapsulada dentro del Agregado **[DocumentType](file:///d:/Users/aarroyo/personal/sources/ums/src/apps/app-api-dotnet/Ums.Domain/Approvals/DocumentType/DocumentType.cs)**, bajo el espacio de nombres unificado **[Ums.Domain.Approvals](file:///d:/Users/aarroyo/personal/sources/ums/src/apps/app-api-dotnet/Ums.Domain/Approvals/)**.
+
+- Persistir reglas como parte del Agregado Root `DocumentType`.
+- Campos obligatorios: `Code`, `Value` (JSON con tiempos y canales), `Description`.
 - Aplicar unicidad por `Code`, `TenantId` y `DocumentTypeId`.
 - Registrar trazabilidad de entrega de notificaciones.
 - Soportar invalidación de caché cuando cambian reglas de notificación.
@@ -69,6 +72,6 @@ Si ya existe una regla idéntica para el mismo documento, tenant, anticipación 
 
 ## 9. Trazabilidad
 
-- Entidades: `NOTIFICATION_RULE`, `DOCUMENT_TYPE`, `USER_DOCUMENT`
+- Entidades: `DocumentType` (AR), `NotificationRule` (Entidad Hija), `UserDocument` (AR)
 - ADRs: ADR-0045, ADR-0016
 - Historias relacionadas: FS-11, FS-16

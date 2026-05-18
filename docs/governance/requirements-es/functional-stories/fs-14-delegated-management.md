@@ -51,13 +51,15 @@ Si la delegación crea una cadena circular de gestión o escalamiento de privile
 
 ## 8. Requisitos Técnicos
 
-- Persistir relaciones en `USER_MANAGEMENT_DELEGATION`.
-- Validar reglas recursivas de alcance y anti-escalamiento de privilegios.
-- Soportar `SuiteId` opcional y alcance temporal.
-- Emitir eventos de auditoría por creación, actualización, revocación e intentos de violación.
+> [!WARNING]
+> **ESTADO DE IMPLEMENTACIÓN: DIFERIDO / FUERA DE ALCANCE**  
+> En la fase actual, la lógica transaccional de delegación administrativa de usuarios (`UserManagementDelegation`) está **diferida** y no está implementada dentro del proyecto principal de dominio de C#.
+
+- Hacer cumplir la lógica de validación recursiva de alcance a nivel de aplicación.
+- Soportar el rastreo de auditoría en eventos del ciclo de vida de la delegación.
 
 ## 9. Trazabilidad
 
-- Entidades: `USER_MANAGEMENT_DELEGATION`, `USER_ACCOUNT`, `SYSTEM_SUITE`
+- Entidades: `UserManagementDelegation` (AR Diferido), `UserAccount` (AR)
 - ADRs: ADR-0038, ADR-0044
 - Historias relacionadas: FS-10, FS-12

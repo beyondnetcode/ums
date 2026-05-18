@@ -49,13 +49,16 @@ Si un nodo de topología estáá incompleto, UMS puede guardarlo como borrador p
 
 ## 8. Requisitos Técnicos
 
-- Persistir topología usando `SYSTEM_SUITE`, `FUNCTIONAL_MODULE`, `FUNCTIONAL_SUBMODULE`, `FUNCTIONAL_OPTION` y `ACTION`.
-- Generar y almacenar credencial segura machine-to-machine para sistemas registrados.
-- Emitir `SystemRegisteredEvent`.
-- Validar completitud de topología antes de usarla en plantillas.
+> [!WARNING]
+> **ESTADO DE IMPLEMENTACIÓN: DIFERIDO**  
+> En la fase actual, la gestión activa de la topología de recursos de sistemas (`SystemSuite`, `FunctionalModule`, etc.) está **diferida** en el dominio principal de C# y se maneja mediante referencias externas a nivel de Value Object ID (`SystemSuiteId`).
+
+- Asegurar la persistencia del identificador y metadatos del sistema.
+- Asegurar la unicidad de los códigos de sistema.
+- Emitir eventos de dominio cuando se registran metadatos de sistema.
 
 ## 9. Trazabilidad
 
-- Entidades: `SYSTEM_SUITE`, `FUNCTIONAL_MODULE`, `FUNCTIONAL_SUBMODULE`, `FUNCTIONAL_OPTION`, `ACTION`
+- Entidades: `SystemSuite` (Referencia ID Diferida), `FunctionalModule` (Referencia ID Diferida)
 - ADRs: ADR-0032, ADR-0034, ADR-0047
 - Historias relacionadas: FS-02, FS-07

@@ -65,16 +65,19 @@ Si el tipo de documento seleccionado no es crítico para acceso, el sistema impi
 
 ## 8. Requisitos Técnicos
 
-- Persistir políticas en `ACCESS_ENFORCEMENT_POLICY`.
-- Campos obligatorios: `Code`, `Value`, `Description`.
+> [!NOTE]
+> En la implementación real de C# (base de código), `AccessEnforcementPolicy` es una Entidad hija encapsulada dentro del Agregado **[DocumentType](file:///d:/Users/aarroyo/personal/sources/ums/src/apps/app-api-dotnet/Ums.Domain/Approvals/DocumentType/DocumentType.cs)**, bajo el espacio de nombres unificado **[Ums.Domain.Approvals](file:///d:/Users/aarroyo/personal/sources/ums/src/apps/app-api-dotnet/Ums.Domain/Approvals/)**.
+
+- Persistir políticas como parte del Agregado Root `DocumentType`.
+- Campos obligatorios: `Code`, `Value` (JSON con acciones de la política), `Description`.
 - Aplicar unicidad por `Code`, alcance de tenant y `DocumentTypeId`.
 - Acciones soportadas: `BLOCK_USER`, `RESTRICT_PROFILE` y `LOG_ONLY`.
-- Emitir eventos de auditoría cuando se aplican o revierten restricciónes.
+- Emitir eventos de dominio y auditoría cuando se aplican o revierten restricciones.
 
 ---
 
 ## 9. Trazabilidad
 
-- Entidades: `ACCESS_ENFORCEMENT_POLICY`, `DOCUMENT_TYPE`, `USER_ACCOUNT`, `PROFILE`
+- Entidades: `DocumentType` (AR), `AccessEnforcementPolicy` (Entidad Hija), `UserAccount` (AR), `Profile` (AR)
 - ADRs: ADR-0045, ADR-0035
 - Historias relacionadas: FS-11, FS-15

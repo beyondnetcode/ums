@@ -51,14 +51,14 @@ Si la referencia empresarial ya existe, el sistema evita crear una organización
 
 ## 8. Requisitos Técnicos
 
-- Persistir datos de organización en el modelo `TENANT` / `ORGANIZATION`.
-- Persistir configuración de proveedor de identidad en `IDP_CONFIGURATION`.
+- Persistir datos del tenant en el Agregado Root `Tenant`.
+- Persistir configuración de proveedor de identidad en la Entidad hija `IdentityProvider`.
 - Aplicar unicidad para referencias externas de compañía.
-- Emitir `OrganizationCreatedEvent`.
+- Emitir `TenantCreatedEvent`.
 - Validar configuración IdP según el tipo de proveedor seleccionado.
 
 ## 9. Trazabilidad
 
-- Entidades: `TENANT`, `BRANCH`, `IDP_CONFIGURATION`, `USER_ACCOUNT`
+- Entidades: `Tenant` (AR), `Branch` (Entidad Hija), `IdentityProvider` (Entidad Hija), `UserAccount` (AR)
 - ADRs: ADR-0031, ADR-0032, ADR-0034, ADR-0010
 - Technical Enabler: TE-03

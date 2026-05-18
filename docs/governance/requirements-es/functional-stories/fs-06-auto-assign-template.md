@@ -50,13 +50,16 @@ Si más de una regla coincide, UMS aplica la regla de mayor prioridad y registra
 
 ## 8. Requisitos Técnicos
 
-- Evaluar reglas activas durante la creación del perfil.
-- Persistir estado de asignación en la relación perfil/plantilla.
-- Invalidar caché del grafo de autorización para usuarios afectados.
-- Emitir evento de auditoría con `auto: true` y referencia de regla seleccionada.
+> [!WARNING]
+> **ESTADO DE IMPLEMENTACIÓN: DIFERIDO**  
+> En la fase actual, la lógica automatizada de reglas de auto-asignación (`TemplateAssignmentRule`) está **diferida** en el dominio principal de C# y se maneja mediante referencias externas o asignaciones directas y manuales en los perfiles.
+
+- Persistir el estado de asignación en la relación perfil/plantilla.
+- Invalidar la caché del grafo de autorización para usuarios afectados.
+- Emitir eventos de dominio y auditoría para las asignaciones de plantillas.
 
 ## 9. Trazabilidad
 
-- Entidades: `PROFILE`, `PERMISSION_TEMPLATE`, `PROFILE_PERMISSION`
+- Entidades: `Profile` (AR), `PermissionTemplate` (AR), `TemplateAssignmentRule` (Diferido)
 - ADRs: ADR-0042, ADR-0043, ADR-0035
 - Technical Enabler: TE-01

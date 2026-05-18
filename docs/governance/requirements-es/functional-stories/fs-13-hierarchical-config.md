@@ -72,18 +72,18 @@ Si ya existe un parámetro con el mismo identificador en el alcance seleccionado
 
 ## 8. Requisitos Técnicos
 
-- Persistir configuraciones en `APP_CONFIGURATION`.
-- Campos obligatorios: `Code`, `Value`, `Description`.
-- Aplicar unicidad por alcance mediante `UX_APP_CONFIGURATION_CODE_SCOPE`.
-- Soportar linaje de versiones, auditoría, eventos de trazabilidad, cacheabilidad e invalidación.
-- Los parámetros sensibles deben soportar valores cifrados.
-- La configuración efectiva puede cachearse, pero debe invalidarse cuando cambia un parámetro.
+> [!WARNING]
+> **ESTADO DE IMPLEMENTACIÓN: DIFERIDO / FUERA DE ALCANCE**  
+> En la fase actual, la gestión activa de parámetros jerárquicos de configuración (`AppConfiguration`) está **diferida** y no está implementada dentro del proyecto principal de dominio de C#.
+
+- Asegurar estructura para parámetros de configuración según su alcance.
+- Soportar el rastreo de auditoría en sobrescrituras de configuración.
 
 ---
 
 ## 9. Trazabilidad
 
-- Entidades: `APP_CONFIGURATION`, `TENANT`, `SYSTEM_SUITE`, `FUNCTIONAL_MODULE`
+- Entidades: `AppConfiguration` (AR Diferido)
 - ADRs: ADR-0024, ADR-0047
 - Technical Enabler: TE-02 Resolve Hierarchical System Configuration
 - Estándar: Estándar de Redacción de Historias Funcionales; Estándar de Catálogos Paramétricos
