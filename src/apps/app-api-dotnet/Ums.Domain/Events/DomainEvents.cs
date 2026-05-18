@@ -57,3 +57,37 @@ public sealed record RoleActivatedEvent(Guid RoleId) : AuthorizationDomainEvent;
 public sealed record RoleDeactivatedEvent(Guid RoleId) : AuthorizationDomainEvent;
 public sealed record RoleActionGrantedEvent(Guid RoleId, string ActionCode) : AuthorizationDomainEvent;
 public sealed record RoleActionRevokedEvent(Guid RoleId, string ActionCode) : AuthorizationDomainEvent;
+
+public abstract record ConfigurationDomainEvent : DomainEvent;
+
+public sealed record IdpConfigRegisteredEvent(Guid ConfigId, Guid TenantId, string ProviderType, int Version) : ConfigurationDomainEvent;
+public sealed record IdpConfigActivatedEvent(Guid ConfigId, Guid TenantId) : ConfigurationDomainEvent;
+public sealed record IdpConfigUpdatedEvent(Guid ConfigId, Guid TenantId, int Version) : ConfigurationDomainEvent;
+public sealed record IdpConfigDeactivatedEvent(Guid ConfigId, Guid TenantId) : ConfigurationDomainEvent;
+
+public sealed record AppConfigCreatedEvent(Guid ConfigId, string Scope, string Code, string Version) : ConfigurationDomainEvent;
+public sealed record AppConfigPublishedEvent(Guid ConfigId, string Code, string Version) : ConfigurationDomainEvent;
+public sealed record AppConfigArchivedEvent(Guid ConfigId, string Code) : ConfigurationDomainEvent;
+public sealed record AppConfigUpdatedEvent(Guid ConfigId, string Code, string NewVersion) : ConfigurationDomainEvent;
+
+public sealed record FeatureFlagCreatedEvent(Guid FlagId, string FlagCode, string Type) : ConfigurationDomainEvent;
+public sealed record FeatureFlagActivatedEvent(Guid FlagId, string FlagCode) : ConfigurationDomainEvent;
+public sealed record FeatureFlagDeactivatedEvent(Guid FlagId, string FlagCode) : ConfigurationDomainEvent;
+public sealed record FeatureFlagArchivedEvent(Guid FlagId, string FlagCode) : ConfigurationDomainEvent;
+public sealed record FeatureFlagStateChangedEvent(Guid FlagId, string FlagCode, string NewStatus) : ConfigurationDomainEvent;
+public sealed record FlagEvaluatedEvent(Guid FlagId, string FlagCode, bool Result, string Context) : ConfigurationDomainEvent;
+
+public abstract record ComplianceDomainEvent : DomainEvent;
+
+public sealed record DocumentTypeRegisteredEvent(Guid DocumentTypeId, string Criticity, Guid TenantId) : ComplianceDomainEvent;
+public sealed record NotificationRuleConfiguredEvent(Guid RuleId, Guid DocumentTypeId, int DaysBefore) : ComplianceDomainEvent;
+public sealed record NotificationRuleRemovedEvent(Guid RuleId, Guid DocumentTypeId) : ComplianceDomainEvent;
+public sealed record EnforcementPolicyDefinedEvent(Guid PolicyId, Guid DocumentTypeId, string ActionOnExpiration) : ComplianceDomainEvent;
+public sealed record EnforcementPolicyUpdatedEvent(Guid PolicyId, Guid DocumentTypeId, string ActionOnExpiration) : ComplianceDomainEvent;
+
+public sealed record DocumentUploadedEvent(Guid DocumentId, Guid UserId, Guid DocumentTypeId, DateTime ExpirationDate) : ComplianceDomainEvent;
+public sealed record DocumentValidatedEvent(Guid DocumentId, Guid UserId, Guid ValidatedBy) : ComplianceDomainEvent;
+public sealed record DocumentRejectedEvent(Guid DocumentId, Guid UserId, string RejectionReason) : ComplianceDomainEvent;
+public sealed record DocumentExpiredEvent(Guid DocumentId, Guid UserId, Guid DocumentTypeId, string Criticity) : ComplianceDomainEvent;
+public sealed record DocumentNearExpirationEvent(Guid DocumentId, Guid UserId, Guid DocumentTypeId, int DaysRemaining, int Step) : ComplianceDomainEvent;
+public sealed record EnforcementExecutedEvent(Guid DocumentId, Guid UserId, string Action, DateTime ExecutedAt) : ComplianceDomainEvent;

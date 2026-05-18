@@ -7,6 +7,7 @@ public class DocumentTypeProps : IProps
     public Code Code { get; set; }
     public Name Name { get; set; }
     public Description Description { get; set; }
+    public DocumentCriticity Criticity { get; set; }
     public AuditValueObject Audit { get; private set; }
 
     public DocumentTypeProps(
@@ -15,6 +16,7 @@ public class DocumentTypeProps : IProps
         Code code,
         Name name,
         Description description,
+        DocumentCriticity criticity,
         ActorId createdBy)
     {
         Id = id;
@@ -22,6 +24,7 @@ public class DocumentTypeProps : IProps
         Code = code;
         Name = name;
         Description = description;
+        Criticity = criticity;
         Audit = AuditValueObject.Create(createdBy.GetValue());
     }
 

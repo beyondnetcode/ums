@@ -1,0 +1,55 @@
+namespace Ums.Domain.Configuration.AppConfiguration;
+
+public class AppConfigurationProps : IProps
+{
+    public IdValueObject Id { get; set; }
+    public TenantId? TenantId { get; set; }
+    public SystemSuiteId? SystemSuiteId { get; set; }
+    public IdValueObject? ModuleId { get; set; }
+    public Code Code { get; set; }
+    public ConfigurationValue Value { get; set; }
+    public Description Description { get; set; }
+    public ConfigScope Scope { get; set; }
+    public bool IsInheritable { get; set; }
+    public bool IsEncrypted { get; set; }
+    public string Version { get; set; }
+    public ConfigStatus Status { get; set; }
+    public AuditValueObject Audit { get; private set; }
+
+    public AppConfigurationProps(
+        IdValueObject id,
+        TenantId? tenantId,
+        SystemSuiteId? systemSuiteId,
+        IdValueObject? moduleId,
+        Code code,
+        ConfigurationValue value,
+        Description description,
+        bool isInheritable,
+        bool isEncrypted,
+        ActorId createdBy)
+    {
+        Id = id;
+        TenantId = tenantId;
+        SystemSuiteId = systemSuiteId;
+        ModuleId = moduleId;
+        Code = code;
+        Value = value;
+        Description = description;
+        IsInheritable = isInheritable;
+        IsEncrypted = isEncrypted;
+        Version = "1.0.0";
+        Status = ConfigStatus.Draft;
+        Scope = ResolveScope(tenantId, systemSuiteId, moduleId);
+        Audit = AuditValueObject.Create(createdBy.GetValue());
+    }
+
+    private static ConfigScope ResolveScope(TenantId? tenantId, SystemSuiteId? systemSuiteId, IdValueObject? moduleId)
+    {
+        if (moduleId is not null) return ConfigScope.Module;
+        if (systemSuiteId is not null) return ConfigScope.Suite;
+        if (tenantId is not null) return ConfigScope.Tenant;
+        return ConfigScope.Global;
+    }
+
+    public object Clone() => MemberwiseClone();
+}

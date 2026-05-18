@@ -109,6 +109,41 @@ public static class DomainErrors
         public const string RuleAlreadyInactive = "approvals.rule_already_inactive";
     }
 
+    public static class Configuration
+    {
+        public const string IdpConfigNotDraft           = "configuration.idp_config_not_draft";
+        public const string IdpConfigNotActive          = "configuration.idp_config_not_active";
+        public const string IdpConfigAlreadyActive      = "configuration.idp_config_already_active";
+        public const string IdpConfigAlreadyInactive    = "configuration.idp_config_already_inactive";
+        public const string IdpConfigPayloadInvalid     = "configuration.idp_config_payload_invalid";
+        public const string AppConfigNotDraft           = "configuration.app_config_not_draft";
+        public const string AppConfigNotPublished       = "configuration.app_config_not_published";
+        public const string AppConfigAlreadyArchived    = "configuration.app_config_already_archived";
+        public const string FlagArchivedCannotChange    = "configuration.flag_archived_cannot_change";
+        public const string FlagAlreadyActive           = "configuration.flag_already_active";
+        public const string FlagAlreadyInactive         = "configuration.flag_already_inactive";
+        public const string FlagPercentageOutOfRange    = "configuration.flag_percentage_out_of_range";
+    }
+
+    public static class Audit
+    {
+        public const string WhatChangedRequired = "audit.what_changed_required";
+        public const string AffectedEntityRequired = "audit.affected_entity_required";
+    }
+
+    public static class Compliance
+    {
+        public const string CriticalRequiresEnforcementPolicy  = "compliance.critical_requires_enforcement_policy";
+        public const string NotificationRuleDaysBeforeNotUnique = "compliance.notification_rule_days_before_not_unique";
+        public const string NotificationRuleNotFound            = "compliance.notification_rule_not_found";
+        public const string EnforcementPolicyAlreadyDefined    = "compliance.enforcement_policy_already_defined";
+        public const string EnforcementPolicyNotFound          = "compliance.enforcement_policy_not_found";
+        public const string ExpirationBeforeIssueDate          = "compliance.expiration_before_issue_date";
+        public const string DocumentCannotTransition            = "compliance.document_cannot_transition";
+        public const string DocumentNotPendingReview            = "compliance.document_not_pending_review";
+        public const string DocumentAlreadyExpired              = "compliance.document_already_expired";
+    }
+
     public static class IGA
     {
         public const string MaturityLevelUnchanged = "iga.maturity_level_unchanged";

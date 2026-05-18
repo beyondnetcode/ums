@@ -10,6 +10,8 @@ public class UserDocumentProps : IProps
     public DocumentStatus Status { get; set; }
     public DocumentCriticity Criticity { get; set; }
     public TextValueObject FileStoragePath { get; set; }
+    public string FileChecksum { get; set; }
+    public int NotificationStep { get; set; }
     public AuditValueObject Audit { get; private set; }
 
     public UserDocumentProps(
@@ -18,9 +20,9 @@ public class UserDocumentProps : IProps
         DocumentTypeId documentTypeId,
         DateTime issueDate,
         DateTime expirationDate,
-        DocumentStatus status,
         DocumentCriticity criticity,
         TextValueObject fileStoragePath,
+        string fileChecksum,
         ActorId createdBy)
     {
         Id = id;
@@ -28,9 +30,11 @@ public class UserDocumentProps : IProps
         DocumentTypeId = documentTypeId;
         IssueDate = issueDate;
         ExpirationDate = expirationDate;
-        Status = status;
+        Status = DocumentStatus.PendingReview;
         Criticity = criticity;
         FileStoragePath = fileStoragePath;
+        FileChecksum = fileChecksum;
+        NotificationStep = 0;
         Audit = AuditValueObject.Create(createdBy.GetValue());
     }
 
