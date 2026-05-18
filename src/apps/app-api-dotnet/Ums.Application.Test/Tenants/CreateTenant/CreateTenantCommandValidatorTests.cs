@@ -123,9 +123,9 @@ public class CreateTenantCommandValidatorTests
     }
 
     [Fact]
-    public void Type_WhenExternal_PassesValidation()
+    public void Type_WhenSupplier_PassesValidation()
     {
-        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "EXTERNAL", null, null, null);
+        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "SUPPLIER", null, null, null);
 
         var result = _validator.TestValidate(command);
 

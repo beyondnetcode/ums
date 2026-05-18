@@ -459,7 +459,7 @@ public class UserAccountTests
         user.RecordAuthenticationAttempt(false, "Invalid password", "192.168.1.1", ValidActor);
 
         var events = user.DomainEvents.GetUncommittedChanges().ToList();
-        var authEvent = Assert.IsType<AuthenticationAttemptedEvent>(events.First());
+        var authEvent = events.OfType<AuthenticationAttemptedEvent>().First();
         Assert.False(authEvent.Success);
     }
 

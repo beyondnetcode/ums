@@ -136,6 +136,7 @@ public class ProfileTests
     {
         var profile = Profile.Create(ValidTenantId, ValidUserId, ValidRoleId, ValidBranchId, ValidActor).Value;
         var template = PermissionTemplate.Create(ValidTenantId, ValidRoleId, SystemSuiteId.Load(Guid.NewGuid().ToString()), ValidActor).Value;
+        template.AddItem(ExclusiveArcTarget.Module, IdValueObject.Create(), ActionId.Load(Guid.NewGuid().ToString()), true, false, ValidActor);
         template.Publish(ValidActor);
 
         var result = profile.AssignTemplate(template, ValidActor);
@@ -189,6 +190,7 @@ public class ProfileTests
     {
         var profile = Profile.Create(ValidTenantId, ValidUserId, ValidRoleId, ValidBranchId, ValidActor).Value;
         var template = PermissionTemplate.Create(ValidTenantId, ValidRoleId, SystemSuiteId.Load(Guid.NewGuid().ToString()), ValidActor).Value;
+        template.AddItem(ExclusiveArcTarget.Module, IdValueObject.Create(), ActionId.Load(Guid.NewGuid().ToString()), true, false, ValidActor);
         template.Publish(ValidActor);
         profile.AssignTemplate(template, ValidActor);
 

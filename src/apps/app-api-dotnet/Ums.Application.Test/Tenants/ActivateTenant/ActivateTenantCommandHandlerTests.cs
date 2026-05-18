@@ -4,16 +4,20 @@ using Ums.Application.Tenants.ActivateTenant;
 using Ums.Domain.Identity;
 using Ums.Domain.Identity.Tenant;
 using Ums.Application.Common.Interfaces;
+using Ums.Domain.Kernel;
 
 public class ActivateTenantCommandHandlerTests
 {
     private readonly Mock<ITenantRepository> _tenantRepositoryMock;
+    private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly Mock<IUserContext> _userContextMock;
     private readonly ActivateTenantCommandHandler _handler;
 
     public ActivateTenantCommandHandlerTests()
     {
         _tenantRepositoryMock = new Mock<ITenantRepository>();
+        _unitOfWorkMock = new Mock<IUnitOfWork>();
+        _tenantRepositoryMock.Setup(r => r.UnitOfWork).Returns(_unitOfWorkMock.Object);
         _userContextMock = new Mock<IUserContext>();
         _handler = new ActivateTenantCommandHandler(_tenantRepositoryMock.Object, _userContextMock.Object);
     }

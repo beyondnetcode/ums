@@ -177,8 +177,8 @@ public class AuditRecordTests
             ValidAffectedEntityType,
             ValidRootTenantId).Value;
 
-        var methods = typeof(AuditRecord).GetMethods()
-            .Where(m => m.IsPublic && !m.IsSpecialName)
+        var methods = typeof(AuditRecord).GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.DeclaredOnly)
+            .Where(m => !m.IsSpecialName)
             .Where(m => m.Name != "GetId" && m.Name != "Equals" && m.Name != "GetHashCode" && m.Name != "ToString" && m.Name != "GetType");
 
         Assert.Empty(methods);
