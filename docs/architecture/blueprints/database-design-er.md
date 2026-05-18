@@ -37,8 +37,7 @@ erDiagram
     SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "contains"
     
     ROLE ||--o{ ROLE : "parent_of"
-    ROLE ||--o{ ROLE_PROMOTION_CRITERIA : "source"
-    ROLE ||--o{ ROLE_PROMOTION_CRITERIA : "target"
+    ROLE ||--o{ ROLE_MATURITY_STATUS : "defines eligibility for"
     
     TENANT ||--o{ APP_CONFIGURATION : "settings"
     SYSTEM_SUITE ||--o{ APP_CONFIGURATION : "overrides"
@@ -174,9 +173,10 @@ erDiagram
     DOCUMENT_TYPE ||--o{ NOTIFICATION_RULE : "alerts_for"
     DOCUMENT_TYPE ||--o{ ACCESS_ENFORCEMENT_POLICY : "governs_access"
     
-    USER_ACCOUNT ||--o{ USER_PROMOTION_PROCESS : "candidate"
-    ROLE ||--o{ USER_PROMOTION_PROCESS : "target"
-    APPROVAL_REQUEST ||--o{ USER_PROMOTION_PROCESS : "authorized_by"
+    USER_ACCOUNT ||--o{ PROMOTION_REQUEST : "initiates"
+    ROLE ||--o{ PROMOTION_REQUEST : "target"
+    APPROVAL_REQUEST ||--o{ PROMOTION_REQUEST : "authorized_by"
+    PROMOTION_REQUEST ||--o{ PROMOTION_IMPACT_ANALYSIS : "evaluates risk"
     
     USER_ACCOUNT {
         uniqueidentifier UserId PK
@@ -192,20 +192,32 @@ erDiagram
         int PromotionOrder
     }
 
-    ROLE_PROMOTION_CRITERIA {
-        uniqueidentifier CriteriaId PK
-        uniqueidentifier SourceRoleId FK
-        uniqueidentifier TargetRoleId FK
-        bit FlagSeniority
-        bit FlagCompliance
-        bit FlagManualApproval
+    ROLE_MATURITY_STATUS {
+        uniqueidentifier MaturityStatusId PK
+        uniqueidentifier TenantId FK
+        uniqueidentifier UserId FK
+        nvarchar CurrentLevel "Junior/Intermediate/Senior/Lead/Principal"
+        int CompletedCertificationsCount
+        int CompletedTrainingsCount
+        double PerformanceScore
+        bit HasComplianceIssues
+        datetime2 LastLevelChangeDate
     }
 
-    USER_PROMOTION_PROCESS {
-        uniqueidentifier ProcessId PK
-        uniqueidentifier UserId FK
+    PROMOTION_REQUEST {
+        uniqueidentifier PromotionRequestId PK
+        uniqueidentifier TenantId FK
         uniqueidentifier TargetRoleId FK
-        nvarchar Status "EVALUATING/CRITERIA_MET/PENDING_APPROVAL/PROMOTED"
+        nvarchar Status "DRAFT/SUBMITTED/UNDER_REVIEW/APPROVED/EXECUTED/VERIFIED"
+        uniqueidentifier InitiatedByUserId FK
+    }
+
+    PROMOTION_IMPACT_ANALYSIS {
+        uniqueidentifier ImpactAnalysisId PK
+        uniqueidentifier PromotionRequestId FK
+        nvarchar RiskLevel "LOW/MEDIUM/HIGH"
+        nvarchar AnalysisDetails JSON
+        bit ViolatesSoD
     }
 
     APP_CONFIGURATION {

@@ -46,23 +46,32 @@ Table ROLE {
   PromotionOrder int
 }
 
-Table ROLE_PROMOTION_CRITERIA {
-  CriteriaId uniqueidentifier [pk]
-  SourceRoleId uniqueidentifier
-  TargetRoleId uniqueidentifier
-  FlagSeniority bit [note: 'Check days']
-  FlagCompliance bit [note: 'Check documents']
-  FlagBusinessScore bit
-  FlagManualApproval bit
-  RequiredSeniorityDays int
+Table ROLE_MATURITY_STATUS {
+  MaturityStatusId uniqueidentifier [pk]
+  TenantId uniqueidentifier
+  UserId uniqueidentifier
+  CurrentLevel nvarchar
+  CompletedCertificationsCount int
+  CompletedTrainingsCount int
+  PerformanceScore double
+  HasComplianceIssues bit
+  LastLevelChangeDate datetime2
 }
 
-Table USER_PROMOTION_PROCESS {
-  ProcessId uniqueidentifier [pk]
-  UserId uniqueidentifier
+Table PROMOTION_REQUEST {
+  PromotionRequestId uniqueidentifier [pk]
+  TenantId uniqueidentifier
   TargetRoleId uniqueidentifier
-  Status nvarchar [note: 'EVALUATING/CRITERIA_MET/PENDING_APPROVAL/PROMOTED']
-  EvidenceRequestId uniqueidentifier
+  Status nvarchar [note: 'DRAFT/SUBMITTED/UNDER_REVIEW/APPROVED/EXECUTED/VERIFIED']
+  InitiatedByUserId uniqueidentifier
+}
+
+Table PROMOTION_IMPACT_ANALYSIS {
+  ImpactAnalysisId uniqueidentifier [pk]
+  PromotionRequestId uniqueidentifier
+  RiskLevel nvarchar [note: 'LOW/MEDIUM/HIGH']
+  AnalysisDetails nvarchar
+  ViolatesSoD bit
 }
 
 Table APP_CONFIGURATION {
@@ -222,12 +231,12 @@ Ref: USER_MANAGEMENT_DELEGATION.SuiteId > SYSTEM_SUITE.SuiteId
 
 Ref: ROLE.SuiteId > SYSTEM_SUITE.SuiteId
 Ref: ROLE.TenantId > TENANT.TenantId
-Ref: ROLE.ParentRoleId > ROLE.RoleId
-Ref: ROLE_PROMOTION_CRITERIA.SourceRoleId > ROLE.RoleId
-Ref: ROLE_PROMOTION_CRITERIA.TargetRoleId > ROLE.RoleId
-Ref: USER_PROMOTION_PROCESS.UserId > USER_ACCOUNT.UserId
-Ref: USER_PROMOTION_PROCESS.TargetRoleId > ROLE.RoleId
-Ref: USER_PROMOTION_PROCESS.EvidenceRequestId > APPROVAL_REQUEST.RequestId
+Ref: ROLE_MATURITY_STATUS.UserId > USER_ACCOUNT.UserId
+Ref: ROLE_MATURITY_STATUS.TenantId > TENANT.TenantId
+Ref: PROMOTION_REQUEST.TenantId > TENANT.TenantId
+Ref: PROMOTION_REQUEST.TargetRoleId > ROLE.RoleId
+Ref: PROMOTION_REQUEST.InitiatedByUserId > USER_ACCOUNT.UserId
+Ref: PROMOTION_IMPACT_ANALYSIS.PromotionRequestId > PROMOTION_REQUEST.PromotionRequestId
 
 Ref: APP_CONFIGURATION.TenantId > TENANT.TenantId
 Ref: APP_CONFIGURATION.SuiteId > SYSTEM_SUITE.SuiteId
@@ -311,15 +320,16 @@ CREATE TABLE ROLE (
     PromotionOrder INT DEFAULT 0
 );
 
-CREATE TABLE ROLE_PROMOTION_CRITERIA (
-    CriteriaId UNIQUEIDENTIFIER PRIMARY KEY,
-    SourceRoleId UNIQUEIDENTIFIER REFERENCES ROLE(RoleId),
-    TargetRoleId UNIQUEIDENTIFIER REFERENCES ROLE(RoleId),
-    FlagSeniority BIT DEFAULT 0,
-    FlagCompliance BIT DEFAULT 1,
-    FlagBusinessScore BIT DEFAULT 0,
-    FlagManualApproval BIT DEFAULT 1,
-    RequiredSeniorityDays INT DEFAULT 0
+CREATE TABLE ROLE_MATURITY_STATUS (
+    MaturityStatusId UNIQUEIDENTIFIER PRIMARY KEY,
+    TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
+    UserId UNIQUEIDENTIFIER REFERENCES USER_ACCOUNT(UserId),
+    CurrentLevel NVARCHAR(100),
+    CompletedCertificationsCount INT DEFAULT 0,
+    CompletedTrainingsCount INT DEFAULT 0,
+    PerformanceScore FLOAT DEFAULT 0.0,
+    HasComplianceIssues BIT DEFAULT 0,
+    LastLevelChangeDate DATETIME2
 );
 
 CREATE TABLE APP_CONFIGURATION (
@@ -362,12 +372,21 @@ CREATE TABLE APPROVAL_REQUEST (
     RequestStatus NVARCHAR(50)
 );
 
-CREATE TABLE USER_PROMOTION_PROCESS (
-    ProcessId UNIQUEIDENTIFIER PRIMARY KEY,
-    UserId UNIQUEIDENTIFIER REFERENCES USER_ACCOUNT(UserId),
+CREATE TABLE PROMOTION_REQUEST (
+    PromotionRequestId UNIQUEIDENTIFIER PRIMARY KEY,
+    TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
     TargetRoleId UNIQUEIDENTIFIER REFERENCES ROLE(RoleId),
-    Status NVARCHAR(50) DEFAULT 'EVALUATING', -- EVALUATING, CRITERIA_MET, PENDING_APPROVAL, PROMOTED
-    EvidenceRequestId UNIQUEIDENTIFIER NULL REFERENCES APPROVAL_REQUEST(RequestId),
+    Status NVARCHAR(50) DEFAULT 'DRAFT', -- DRAFT, SUBMITTED, UNDER_REVIEW, APPROVED, EXECUTED, VERIFIED
+    InitiatedByUserId UNIQUEIDENTIFIER REFERENCES USER_ACCOUNT(UserId),
+    CreatedAt DATETIME2 DEFAULT SYSUTCDATETIME()
+);
+
+CREATE TABLE PROMOTION_IMPACT_ANALYSIS (
+    ImpactAnalysisId UNIQUEIDENTIFIER PRIMARY KEY,
+    PromotionRequestId UNIQUEIDENTIFIER REFERENCES PROMOTION_REQUEST(PromotionRequestId),
+    RiskLevel NVARCHAR(50),
+    AnalysisDetails NVARCHAR(MAX),
+    ViolatesSoD BIT DEFAULT 0,
     CreatedAt DATETIME2 DEFAULT SYSUTCDATETIME()
 );
 
