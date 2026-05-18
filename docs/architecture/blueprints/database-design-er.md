@@ -46,6 +46,9 @@ erDiagram
     PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "materialized"
     
     USER_ACCOUNT ||--o{ PROFILE : "acts_as"
+    ROLE ||--o{ PROFILE : "assigned_to"
+    BRANCH ||--o{ PROFILE : "scopes"
+    PROFILE ||--o{ PROFILE_PERMISSION : "customizes"
     USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "administers"
     USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "is_managed"
     USER_ACCOUNT ||--o{ APPROVAL_REQUEST : "onboards/approves"
@@ -68,6 +71,8 @@ This domain ensures every permission is scoped to a Role and maps exactly to the
 ```mermaid
 erDiagram
     ROLE ||--o{ PERMISSION_TEMPLATE : "owns"
+    ROLE ||--o{ PROFILE : "assigned_to"
+    PROFILE ||--o{ PROFILE_PERMISSION : "customizes"
     PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "defines"
     ACTION ||--o{ PERMISSION_TEMPLATE : "authorized"
     

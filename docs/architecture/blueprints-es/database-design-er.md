@@ -46,6 +46,9 @@ erDiagram
     PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "materializado"
     
     USER_ACCOUNT ||--o{ PROFILE : "actúa_como"
+    ROLE ||--o{ PROFILE : "asignado_a"
+    BRANCH ||--o{ PROFILE : "limita_a"
+    PROFILE ||--o{ PROFILE_PERMISSION : "personaliza"
     USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "administra"
     USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "es_gestionado"
     USER_ACCOUNT ||--o{ APPROVAL_REQUEST : "onboardings/aprueba"
@@ -68,6 +71,8 @@ Este dominio garantiza que cada permiso estáé limitado a un Rol y se mapee exa
 ```mermaid
 erDiagram
     ROLE ||--o{ PERMISSION_TEMPLATE : "posee"
+    ROLE ||--o{ PROFILE : "asignado_a"
+    PROFILE ||--o{ PROFILE_PERMISSION : "personaliza"
     PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "define"
     ACTION ||--o{ PERMISSION_TEMPLATE : "autorizado"
     
