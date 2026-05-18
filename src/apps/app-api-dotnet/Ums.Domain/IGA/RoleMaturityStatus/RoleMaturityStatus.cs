@@ -32,6 +32,7 @@ public sealed class RoleMaturityStatus : AggregateRoot<RoleMaturityStatus, RoleM
     {
         var now = DateTime.UtcNow;
         var props = new RoleMaturityStatusProps(IdValueObject.Create(), tenantId, userId, roleId, currentMaturityLevel, now, now, createdBy);
+        props.NextEligibleMaturityLevel = CalculateNextEligibleLevel(currentMaturityLevel);
         var status = new RoleMaturityStatus(props);
 
         if (!status.IsValid())

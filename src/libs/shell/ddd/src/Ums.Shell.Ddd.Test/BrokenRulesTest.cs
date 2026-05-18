@@ -103,7 +103,7 @@ namespace Ums.Shell.Ddd.Test
         [TestMethod]
         public void Entity_Should_Has_BrokenRules_In_Properties()
         {
-            var sampleEntity = SampleEntity.Create(SampleName.Create("foo"), SampleReferenceId.Create(Guid.NewGuid().ToString(), "XXX"));
+            var sampleEntity = SampleEntity.Create(SampleName.Create("foo"), SampleReferenceId.Create(Guid.NewGuid().ToString(), "Sample"));
 
             sampleEntity.IsValid().ShouldBeFalse();
         }

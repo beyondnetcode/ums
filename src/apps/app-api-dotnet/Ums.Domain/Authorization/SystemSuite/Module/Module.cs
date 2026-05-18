@@ -30,7 +30,7 @@ public sealed class Module : Entity<Module, ModuleProps>
         int sortOrder,
         ActorId createdBy)
     {
-        var props = new ModuleProps(IdValueObject.Create(), systemId, code, name, description, ModuleStatus.Active, sortOrder, createdBy);
+        var props = new ModuleProps(IdValueObject.Create(), systemId, code, name, description, ModuleStatus.Inactive, sortOrder, createdBy);
         var module = new Module(props);
 
         if (!module.IsValid())

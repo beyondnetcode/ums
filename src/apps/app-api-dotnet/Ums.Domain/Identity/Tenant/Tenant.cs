@@ -68,7 +68,7 @@ public sealed class Tenant : AggregateRoot<Tenant, TenantProps>
 
     public Result AddBranch(Code code, Name name, ActorId createdBy, Value? geofencingMetadata = null)
     {
-        if (_branches.Any(b => b.Code == code))
+        if (_branches.Any(b => b.Code.Equals(code)))
         {
             BrokenRules.Add(new BrokenRule(nameof(Branches), DomainErrors.Tenant.BranchCodeNotUnique));
         }
@@ -413,6 +413,11 @@ public sealed class Tenant : AggregateRoot<Tenant, TenantProps>
             BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.Tenant.ArchivedCannotSuspend));
         }
 
+        if (Props.Status == TenantStatus.Suspended)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.Tenant.AlreadySuspended));
+        }
+
         if (!IsValid())
         {
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
@@ -430,6 +435,11 @@ public sealed class Tenant : AggregateRoot<Tenant, TenantProps>
         if (Props.Status == TenantStatus.Archived)
         {
             BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.Tenant.ArchivedCannotActivate));
+        }
+
+        if (Props.Status == TenantStatus.Active)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.Tenant.AlreadyActive));
         }
 
         if (!IsValid())

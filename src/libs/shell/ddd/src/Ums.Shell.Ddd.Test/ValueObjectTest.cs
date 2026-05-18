@@ -93,7 +93,7 @@
         [TestMethod]
         public void Should_Has_BrokenRules()
         {
-            var vo = SampleName.Create("foo");
+            var vo = SampleName.Create(" ");
 
             Assert.IsFalse(vo.IsValid);
         }

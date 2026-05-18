@@ -1,12 +1,50 @@
 {
-    "eslint.workingDirectories":  [
-                                      "./src"
-                                  ],
-    "typescript.tsdk":  "./src/node_modules/typescript/lib",
-    "nx.workspaceRoot":  "./src",
-    "search.exclude":  {
-                           "**/node_modules":  true,
-                           "**/dist":  true,
-                           "src/.workspace/.nx":  true
-                       }
+  "files.associations": {
+    "*.cs": "csharp",
+    "*.tsx": "typescriptreact",
+    "*.ts": "typescript",
+    "*.jsx": "javascriptreact",
+    "*.js": "javascript",
+    "*.json": "json",
+    "*.csproj": "xml",
+    "*.sln": "xml"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.tabSize": 2,
+  "editor.detectIndentation": true,
+  "files.autoSave": "onFocusChange",
+  "editor.semanticHighlighting.enabled": true,
+  "editor.semanticTokenColorCustomizations": {
+    "[Default Dark+]": {
+      "rules": {
+        "type": "#4EC9B0",
+        "class": "#4EC9B0",
+        "struct": "#86C691",
+        "enum": "#4EC9B0",
+        "interface": "#4EC9B0",
+        "parameter": "#9CDCFE",
+        "variable": "#9CDCFE",
+        "property": "#9CDCFE",
+        "method": "#DCDCAA",
+        "keyword": "#569CD6",
+        "controlKeyword": "#C586C0",
+        "number": "#B5CEA8"
+      }
+    },
+    "*": {
+      "rules": {
+        "type": "#4EC9B0",
+        "class": "#4EC9B0",
+        "struct": "#86C691",
+        "enum": "#4EC9B0",
+        "interface": "#4EC9B0"
+      }
+    }
+  },
+  "csharp.inlayHints.enableForParameters": true,
+  "csharp.inlayHints.enableForTypes": true,
+  "csharp.semanticHighlighting.enabled": true,
+  "typescript.inlayHints.parameterNames.enabled": "literals",
+  "typescript.inlayHints.variableTypes.enabled": true
 }

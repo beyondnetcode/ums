@@ -19,6 +19,8 @@ public static class DomainErrors
         public const string BranchActive = "tenant.branch_active";
         public const string ArchivedCannotSuspend = "tenant.archived_cannot_suspend";
         public const string ArchivedCannotActivate = "tenant.archived_cannot_activate";
+        public const string AlreadyActive = "tenant.already_active";
+        public const string AlreadySuspended = "tenant.already_suspended";
         public const string IdpCodeNotUnique = "tenant.idp_code_not_unique";
         public const string IdpNotFound = "tenant.idp_not_found";
         public const string IdpAlreadyActive = "tenant.idp_already_active";

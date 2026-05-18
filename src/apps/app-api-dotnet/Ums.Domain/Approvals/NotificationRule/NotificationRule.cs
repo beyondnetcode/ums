@@ -19,6 +19,11 @@ public sealed class NotificationRule : AggregateRoot<NotificationRule, Notificat
         TextValueObject recipient,
         ActorId createdBy)
     {
+        if (string.IsNullOrWhiteSpace(recipient?.GetValue()))
+        {
+            return Result<NotificationRule>.Failure(DomainErrors.ValueObject.PropertyRequired);
+        }
+
         var props = new NotificationRuleProps(IdValueObject.Create(), tenantId, channel, recipient, true, createdBy);
         var rule = new NotificationRule(props);
 

@@ -17,7 +17,7 @@ public class MfaEnrollmentProps : IProps
         Id = id;
         UserAccountId = userAccountId;
         Method = method;
-        Status = MfaEnrollmentStatus.NotEnrolled;
+        Status = MfaEnrollmentStatus.Enrolled;
         Audit = AuditValueObject.Create(createdBy.GetValue());
     }
 

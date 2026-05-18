@@ -76,7 +76,7 @@ public sealed class Profile : AggregateRoot<Profile, ProfileProps>
 
         var templateId = TemplateId.Load(template.GetId().GetValue());
 
-        if (_permissions.Any(p => p.TemplateId == templateId))
+        if (_permissions.Any(p => p.TemplateId.Equals(templateId)))
         {
             BrokenRules.Add(new BrokenRule(nameof(Permissions), DomainErrors.Authorization.ProfileTemplateAlreadyLinked));
         }

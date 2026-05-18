@@ -77,7 +77,7 @@ public sealed class IdpConfiguration : AggregateRoot<IdpConfiguration, IdpConfig
 
     public Result Deactivate(ActorId updatedBy)
     {
-        if (Status == IdpConfigStatus.Inactive)
+        if (Status != IdpConfigStatus.Active)
         {
             BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.Configuration.IdpConfigAlreadyInactive));
         }

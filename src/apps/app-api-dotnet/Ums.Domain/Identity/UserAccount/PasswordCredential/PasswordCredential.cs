@@ -17,6 +17,11 @@ public sealed class PasswordCredential : Entity<PasswordCredential, PasswordCred
         PasswordHash passwordHash,
         ActorId createdBy)
     {
+        if (passwordHash.IsEmpty())
+        {
+            return Result<PasswordCredential>.Failure(DomainErrors.UserAccount.PasswordHashRequired);
+        }
+
         var props = new PasswordCredentialProps(IdValueObject.Create(), userAccountId, passwordHash, createdBy);
         var credential = new PasswordCredential(props);
 

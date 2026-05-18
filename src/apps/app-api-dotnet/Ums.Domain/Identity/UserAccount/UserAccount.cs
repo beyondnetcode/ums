@@ -153,19 +153,11 @@ public sealed class UserAccount : AggregateRoot<UserAccount, UserAccountProps>
             return Result.Failure(credentialResult.Error);
         }
 
-        var isFirst = _passwordCredentials.Count == 0;
-
-        if (isFirst)
+        foreach (var credential in _passwordCredentials)
         {
-            credentialResult.Value.ActivateInternal();
+            credential.DeactivateInternal();
         }
-        else
-        {
-            foreach (var credential in _passwordCredentials)
-            {
-                credential.DeactivateInternal();
-            }
-        }
+        credentialResult.Value.ActivateInternal();
 
         _passwordCredentials.Add(credentialResult.Value);
         TrackingState.MarkAsDirty();
