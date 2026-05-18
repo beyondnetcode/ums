@@ -200,7 +200,7 @@ This guarantees exactly-once delivery under database failure.
 | `UserActivatedEvent` | `ums.identity.user.activated` |
 | `UserBlockedEvent` | `ums.identity.user.blocked` |
 | `DocumentExpiredEvent` | `ums.compliance.document.expired` |
-| `PromotionApprovedEvent` | `ums.iga.user-promotion.approved` |
+| `PromotionRequestApprovedEvent` | `ums.iga.promotion-request.approved` |
 | `ApprovalRequestApprovedEvent` | `ums.approvals.approval-request.approved` |
 | `PermissionMutatedEvent` | `ums.authorization.permission.mutated` |
 | `ProfileAssignedToUserEvent` | `ums.authorization.profile.assigned` |
