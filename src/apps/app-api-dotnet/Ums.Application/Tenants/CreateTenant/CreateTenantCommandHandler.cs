@@ -1,10 +1,10 @@
 namespace Ums.Application.Tenants.CreateTenant;
 
 using Ums.Application.Abstractions.Messaging;
-using Ums.Application.Abstractions.Persistence;
 using Ums.Application.Common;
 using Ums.Application.Common.Interfaces;
 using Ums.Domain.Enums;
+using Ums.Domain.Identity;
 using Ums.Domain.Identity.Tenant;
 using Ums.Domain.Kernel;
 using Ums.Domain.Kernel.ValueObjects;
@@ -12,16 +12,13 @@ using Ums.Domain.Kernel.ValueObjects;
 public sealed class CreateTenantCommandHandler : ICommandHandler<CreateTenantCommand, CreateTenantResponse>
 {
     private readonly ITenantRepository _tenantRepository;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IUserContext _userContext;
 
     public CreateTenantCommandHandler(
         ITenantRepository tenantRepository,
-        IUnitOfWork unitOfWork,
         IUserContext userContext)
     {
         _tenantRepository = tenantRepository;
-        _unitOfWork = unitOfWork;
         _userContext = userContext;
     }
 
@@ -35,7 +32,7 @@ public sealed class CreateTenantCommandHandler : ICommandHandler<CreateTenantCom
         }
 
         var code = Code.Create(request.Code);
-        var existingTenant = await _tenantRepository.FindByCodeAsync(code, cancellationToken);
+        var existingTenant = await _tenantRepository.GetByCodeAsync(code.GetValue(), cancellationToken);
         if (existingTenant is not null)
         {
             return Result<CreateTenantResponse>.Failure("Tenant code already exists.");
@@ -65,7 +62,7 @@ public sealed class CreateTenantCommandHandler : ICommandHandler<CreateTenantCom
         }
 
         await _tenantRepository.AddAsync(tenantResult.Value, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _tenantRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
 
         return Result<CreateTenantResponse>.Success(
             new CreateTenantResponse(tenantResult.Value.Props.Id.GetValue()));

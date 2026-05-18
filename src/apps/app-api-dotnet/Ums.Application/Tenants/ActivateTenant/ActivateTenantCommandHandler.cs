@@ -1,24 +1,20 @@
 namespace Ums.Application.Tenants.ActivateTenant;
 
 using Ums.Application.Abstractions.Messaging;
-using Ums.Application.Abstractions.Persistence;
 using Ums.Application.Common.Interfaces;
+using Ums.Domain.Identity;
 using Ums.Domain.Kernel;
-using Ums.Domain.Kernel.ValueObjects;
 
 public sealed class ActivateTenantCommandHandler : ICommandHandler<ActivateTenantCommand>
 {
     private readonly ITenantRepository _tenantRepository;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IUserContext _userContext;
 
     public ActivateTenantCommandHandler(
         ITenantRepository tenantRepository,
-        IUnitOfWork unitOfWork,
         IUserContext userContext)
     {
         _tenantRepository = tenantRepository;
-        _unitOfWork = unitOfWork;
         _userContext = userContext;
     }
 
@@ -29,7 +25,7 @@ public sealed class ActivateTenantCommandHandler : ICommandHandler<ActivateTenan
             return Result.Failure("Authenticated user is required to activate a tenant.");
         }
 
-        var tenant = await _tenantRepository.FindByIdAsync(TenantId.Load(request.TenantId), cancellationToken);
+        var tenant = await _tenantRepository.GetByIdAsync(request.TenantId, cancellationToken);
         if (tenant is null)
         {
             return Result.Failure("Tenant was not found.");
@@ -42,7 +38,7 @@ public sealed class ActivateTenantCommandHandler : ICommandHandler<ActivateTenan
         }
 
         await _tenantRepository.UpdateAsync(tenant, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _tenantRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
 
         return Result.Success();
     }

@@ -4,5 +4,6 @@ using TenantAggregate = Ums.Domain.Identity.Tenant.Tenant;
 
 public interface ITenantRepository : IAggregateRepository<TenantAggregate>
 {
+    Task<TenantAggregate?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<TenantAggregate?> GetByCodeAsync(string code, CancellationToken cancellationToken = default);
 }

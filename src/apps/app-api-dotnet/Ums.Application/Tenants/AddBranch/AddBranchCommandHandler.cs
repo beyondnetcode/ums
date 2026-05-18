@@ -1,24 +1,21 @@
 namespace Ums.Application.Tenants.AddBranch;
 
 using Ums.Application.Abstractions.Messaging;
-using Ums.Application.Abstractions.Persistence;
 using Ums.Application.Common.Interfaces;
+using Ums.Domain.Identity;
 using Ums.Domain.Kernel;
 using Ums.Domain.Kernel.ValueObjects;
 
 public sealed class AddBranchCommandHandler : ICommandHandler<AddBranchCommand, AddBranchResponse>
 {
     private readonly ITenantRepository _tenantRepository;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IUserContext _userContext;
 
     public AddBranchCommandHandler(
         ITenantRepository tenantRepository,
-        IUnitOfWork unitOfWork,
         IUserContext userContext)
     {
         _tenantRepository = tenantRepository;
-        _unitOfWork = unitOfWork;
         _userContext = userContext;
     }
 
@@ -31,8 +28,7 @@ public sealed class AddBranchCommandHandler : ICommandHandler<AddBranchCommand, 
             return Result<AddBranchResponse>.Failure("Authenticated user is required to add a branch.");
         }
 
-        var tenantId = TenantId.Load(request.TenantId);
-        var tenant = await _tenantRepository.FindByIdAsync(tenantId, cancellationToken);
+        var tenant = await _tenantRepository.GetByIdAsync(request.TenantId, cancellationToken);
         if (tenant is null)
         {
             return Result<AddBranchResponse>.Failure("Tenant was not found.");
@@ -50,7 +46,7 @@ public sealed class AddBranchCommandHandler : ICommandHandler<AddBranchCommand, 
         }
 
         await _tenantRepository.UpdateAsync(tenant, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _tenantRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
 
         return Result<AddBranchResponse>.Success(new AddBranchResponse(request.TenantId));
     }
