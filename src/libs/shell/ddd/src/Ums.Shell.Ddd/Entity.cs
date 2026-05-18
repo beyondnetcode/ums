@@ -162,7 +162,6 @@ namespace Ums.Shell.Ddd
 
         #region Equality
 
-        /// TODO: How improve this method?, how reduce reflextion?
         /// <inheritdoc/>
         public override bool Equals(object? obj)
         {
@@ -178,31 +177,18 @@ namespace Ums.Shell.Ddd
             return ReferenceEntityPropertiesEquals(obj);
         }
 
-        // TODO: An entity can have ValueObjects and Primitive objects. How support this?   
         private bool ReferenceEntityPropertiesEquals(object? obj)
         {
             if (obj is not Entity<TEntity, TProps> entity)
                 return false;
 
-            var propsId = this.GetType().GetProperty("Id");
-            var propsOthersId = obj.GetType().GetProperty("Id");
-
-            if (propsId == null || propsOthersId == null)
-                return false;
-
-            var propsIdValue = propsId.GetValue(this);
-            var propsOthersIdValue = propsOthersId.GetValue(obj);
-
-            if (!propsIdValue!.Equals(propsOthersIdValue))
-                return false;
-
-            return true;
+            return Id.Equals(entity.Id);
         }
 
         /// <inheritdoc/>
         public override int GetHashCode()
         {
-            return base.GetHashCode();
+            return Id.GetHashCode();
         }
 
         /// <summary>

@@ -23,7 +23,7 @@ namespace Ums.Shell.Ddd.Services.Impl
         /// <summary>
         /// Gets a value indicating whether the object is self-deleted.
         /// </summary>
-        public bool IsSelftDeleted { get; private set; }
+        public bool IsSelfDeleted { get; private set; }
 
         /// <summary>
         /// Gets a value indicating whether the object is deleted. 
@@ -54,7 +54,7 @@ namespace Ums.Shell.Ddd.Services.Impl
         {
             IsDirty = true;
             IsNew = false;
-            IsSelftDeleted = false;
+            IsSelfDeleted = false;
             IsDeleted = false;
         }
 
@@ -67,7 +67,7 @@ namespace Ums.Shell.Ddd.Services.Impl
         {
             IsDirty = false;
             IsNew = true;
-            IsSelftDeleted = false;
+            IsSelfDeleted = false;
             IsDeleted = false;
         }
 
@@ -79,7 +79,7 @@ namespace Ums.Shell.Ddd.Services.Impl
         {
             IsDirty = false;
             IsNew = false;
-            IsSelftDeleted = true;
+            IsSelfDeleted = true;
             IsDeleted = false;
         }
 
@@ -91,7 +91,7 @@ namespace Ums.Shell.Ddd.Services.Impl
         {
             IsDirty = false;
             IsNew = false;
-            IsSelftDeleted = false;
+            IsSelfDeleted = false;
             IsDeleted = true;
         }
 
@@ -103,7 +103,7 @@ namespace Ums.Shell.Ddd.Services.Impl
         {
             IsDirty = false;
             IsNew = false;
-            IsSelftDeleted = false;
+            IsSelfDeleted = false;
             IsDeleted = false;
         }
 
@@ -133,7 +133,7 @@ namespace Ums.Shell.Ddd.Services.Impl
 
                     if (trackingValue.IsDirty) MarkAsDirty();
                     if (trackingValue.IsNew) MarkAsNew();
-                    if (trackingValue.IsSelftDeleted) MarkAsSelfDeleted();
+                    if (trackingValue.IsSelfDeleted) MarkAsSelfDeleted();
                     if (trackingValue.IsDeleted) MarkAsDeleted();
                 }
             }

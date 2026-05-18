@@ -7,7 +7,7 @@ namespace Ums.Shell.Ddd
     /// </summary>
     public abstract record DomainEvent : IDomainEvent
     {
-        public IMetadata Metadata { get; set; } = default!;
+        public IMetadata Metadata { get; private set; } = default!;
         public DateTime CreatedAt { get; }
 
         protected DomainEvent()

@@ -29,7 +29,7 @@ namespace Ums.Shell.Ddd
         /// <summary>
         /// The domain events associated with the entity.
         /// </summary>
-        public DomainEventsManager DomainEvents { get; set; }
+        public DomainEventsManager DomainEvents { get; private set; }
 
         #endregion
     }

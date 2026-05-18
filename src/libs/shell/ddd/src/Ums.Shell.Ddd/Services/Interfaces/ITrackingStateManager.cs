@@ -8,7 +8,7 @@ namespace Ums.Shell.Ddd.Services.Interfaces
         bool IsDeleted { get; }
         bool IsDirty { get; }
         bool IsNew { get; }
-        bool IsSelftDeleted { get; }
+        bool IsSelfDeleted { get; }
 
         TrackingStateManager GetTracking<TProp>(TProp props) where TProp : IProps;
         void MarkAsClean();

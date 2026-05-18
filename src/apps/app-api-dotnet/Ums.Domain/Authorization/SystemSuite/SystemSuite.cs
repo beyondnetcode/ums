@@ -17,7 +17,7 @@ public sealed class SystemSuite : AggregateRoot<SystemSuite, SystemSuiteProps>
     {
         if (TrackingState.IsNew)
         {
-            DomainEvents.Raise(new SystemSuiteRegisteredEvent(props.Id.GetValue(), props.TenantId.GetValue(), props.Code.GetValue()));
+            DomainEvents.RaiseEvent(new SystemSuiteRegisteredEvent(props.Id.GetValue(), props.TenantId.GetValue(), props.Code.GetValue()));
         }
     }
 
@@ -68,7 +68,7 @@ public sealed class SystemSuite : AggregateRoot<SystemSuite, SystemSuiteProps>
     public Result SetStatus(SystemStatus status, ActorId updatedBy)
     {
         Props.Status = status;
-        DomainEvents.Raise(new SystemSuiteStatusChangedEvent(Props.Id.GetValue(), status.Name));
+        DomainEvents.RaiseEvent(new SystemSuiteStatusChangedEvent(Props.Id.GetValue(), status.Name));
         Props.Audit.Update(updatedBy.GetValue());
         return Result.Success();
     }
@@ -92,7 +92,7 @@ public sealed class SystemSuite : AggregateRoot<SystemSuite, SystemSuiteProps>
         }
 
         _modules.Add(moduleResult.Value);
-        DomainEvents.Raise(new SystemSuiteModuleAddedEvent(Props.Id.GetValue(), moduleResult.Value.GetId().GetValue(), code.GetValue()));
+        DomainEvents.RaiseEvent(new SystemSuiteModuleAddedEvent(Props.Id.GetValue(), moduleResult.Value.GetId().GetValue(), code.GetValue()));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(createdBy.GetValue());
         return Result.Success();
@@ -112,7 +112,7 @@ public sealed class SystemSuite : AggregateRoot<SystemSuite, SystemSuiteProps>
         }
 
         _modules.Remove(module.Value);
-        DomainEvents.Raise(new SystemSuiteModuleRemovedEvent(Props.Id.GetValue(), module.Value.GetId().GetValue()));
+        DomainEvents.RaiseEvent(new SystemSuiteModuleRemovedEvent(Props.Id.GetValue(), module.Value.GetId().GetValue()));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(updatedBy.GetValue());
         return Result.Success();
@@ -161,7 +161,7 @@ public sealed class SystemSuite : AggregateRoot<SystemSuite, SystemSuiteProps>
             return Result.Failure(activateResult.Error);
         }
 
-        DomainEvents.Raise(new SystemSuiteModuleStatusChangedEvent(Props.Id.GetValue(), module.Value.GetId().GetValue(), "Active"));
+        DomainEvents.RaiseEvent(new SystemSuiteModuleStatusChangedEvent(Props.Id.GetValue(), module.Value.GetId().GetValue(), "Active"));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(updatedBy.GetValue());
         return Result.Success();
@@ -186,7 +186,7 @@ public sealed class SystemSuite : AggregateRoot<SystemSuite, SystemSuiteProps>
             return Result.Failure(deactivateResult.Error);
         }
 
-        DomainEvents.Raise(new SystemSuiteModuleStatusChangedEvent(Props.Id.GetValue(), module.Value.GetId().GetValue(), "Inactive"));
+        DomainEvents.RaiseEvent(new SystemSuiteModuleStatusChangedEvent(Props.Id.GetValue(), module.Value.GetId().GetValue(), "Inactive"));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(updatedBy.GetValue());
         return Result.Success();
@@ -274,7 +274,7 @@ public sealed class SystemSuite : AggregateRoot<SystemSuite, SystemSuiteProps>
         }
 
         _actions.Add(actionResult.Value);
-        DomainEvents.Raise(new SystemSuiteActionRegisteredEvent(Props.Id.GetValue(), code.GetValue()));
+        DomainEvents.RaiseEvent(new SystemSuiteActionRegisteredEvent(Props.Id.GetValue(), code.GetValue()));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(createdBy.GetValue());
         return Result.Success();
@@ -294,7 +294,7 @@ public sealed class SystemSuite : AggregateRoot<SystemSuite, SystemSuiteProps>
         }
 
         _actions.Remove(action.Value);
-        DomainEvents.Raise(new SystemSuiteActionRemovedEvent(Props.Id.GetValue(), code.GetValue()));
+        DomainEvents.RaiseEvent(new SystemSuiteActionRemovedEvent(Props.Id.GetValue(), code.GetValue()));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(updatedBy.GetValue());
         return Result.Success();
