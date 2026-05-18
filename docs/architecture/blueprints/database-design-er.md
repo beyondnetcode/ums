@@ -35,6 +35,9 @@ erDiagram
     TENANT ||--o{ USER_ACCOUNT : "owns"
     TENANT ||--o{ IDENTITY_PROVIDER : "registers"
     TENANT ||--o| BRANDING : "configures"
+    TENANT ||--o{ IDP_CONFIGURATION : "resolves_oidc"
+    TENANT ||--o{ FEATURE_FLAG : "controls"
+    TENANT ||--o{ AUDIT_RECORD : "traces"
     SYSTEM_SUITE ||--o{ ROLE : "defines"
     SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "contains"
     
@@ -335,6 +338,69 @@ erDiagram
         nvarchar Description
         uniqueidentifier DocumentTypeId FK
         nvarchar ActionOnExpiration "BLOCK_USER/RESTRICT_PROFILE/LOG_ONLY"
+    }
+```
+
+---
+
+### 3.5 Domain: Platform Configuration & System Auditing
+This domain covers system-wide configuration, OIDC Identity Provider integrations, multi-dimensional Feature Flag controls, and the immutable append-only ledger for all system actions.
+
+```mermaid
+erDiagram
+    TENANT ||--o{ IDP_CONFIGURATION : "configures_auth"
+    TENANT ||--o{ FEATURE_FLAG : "defines_toggles"
+    TENANT ||--o{ AUDIT_RECORD : "records_actions"
+    
+    FEATURE_FLAG ||--o{ FLAG_EVALUATION_LOG : "evaluates"
+    USER_ACCOUNT ||--o{ FLAG_EVALUATION_LOG : "triggers"
+    USER_ACCOUNT ||--o{ AUDIT_RECORD : "initiates"
+
+    IDP_CONFIGURATION {
+        uniqueidentifier IdpConfigId PK
+        uniqueidentifier TenantId FK
+        nvarchar ProviderType "INTERNAL_BCRYPT/ZITADEL/AZURE_AD/OKTA/KEYCLOAK"
+        nvarchar DomainHints "OIDC Domain Routing"
+        nvarchar ConfigPayload "Encrypted Authorizations"
+        nvarchar SecretRef "Vault Path"
+        nvarchar IdpConfigStatus "DRAFT/ACTIVE/INACTIVE"
+        int ResolutionPriority
+        nvarchar Version
+    }
+
+    FEATURE_FLAG {
+        uniqueidentifier FlagId PK
+        uniqueidentifier TenantId FK
+        nvarchar FlagCode "Unique Code"
+        nvarchar FlagType "BOOLEAN/VARIANT/PERCENTAGE"
+        nvarchar FlagTargets "JSON Rules"
+        nvarchar FlagStatus "ACTIVE/INACTIVE/ARCHIVED"
+        nvarchar LinkedResourceType "Nullable MENU/MODULE/ENDPOINT/WORKFLOW"
+        nvarchar Description
+        bit IsActive
+    }
+
+    FLAG_EVALUATION_LOG {
+        uniqueidentifier LogId PK
+        uniqueidentifier FlagId FK
+        uniqueidentifier UserId FK
+        uniqueidentifier TenantId FK
+        datetime2 EvaluatedAt
+        nvarchar Result
+        nvarchar ContextPayload "JSON Context"
+    }
+
+    AUDIT_RECORD {
+        uniqueidentifier AuditRecordId PK
+        uniqueidentifier TenantId FK "RLS"
+        nvarchar AuditEventType
+        nvarchar SubjectType "USER/ADMIN/SYSTEM/BACKGROUND_WORKER"
+        uniqueidentifier ActorId FK
+        datetime2 EvaluatedAt
+        nvarchar AuditResult "SUCCESS/FAILURE/PARTIAL"
+        nvarchar AffectedEntityType
+        uniqueidentifier AffectedEntityId
+        nvarchar AuditMetadata "JSON Metadata"
     }
 ```
 

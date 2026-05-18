@@ -249,6 +249,64 @@ Table ACTION {
   Code nvarchar
 }
 
+Table APP_CONFIGURATION {
+  SettingId uniqueidentifier [pk]
+  TenantId uniqueidentifier
+  SuiteId uniqueidentifier
+  ModuleId uniqueidentifier
+  Code nvarchar
+  Value nvarchar
+  Description nvarchar
+  IsInheritable bit
+}
+
+Table IDP_CONFIGURATION {
+  IdpConfigId uniqueidentifier [pk]
+  TenantId uniqueidentifier
+  ProviderType nvarchar
+  DomainHints nvarchar
+  ConfigPayload nvarchar
+  SecretRef nvarchar
+  IdpConfigStatus nvarchar
+  ResolutionPriority int
+  Version nvarchar
+}
+
+Table FEATURE_FLAG {
+  FlagId uniqueidentifier [pk]
+  TenantId uniqueidentifier
+  FlagCode nvarchar
+  FlagType nvarchar
+  FlagTargets nvarchar
+  FlagStatus nvarchar
+  LinkedResourceType nvarchar
+  Description nvarchar
+  IsActive bit
+}
+
+Table FLAG_EVALUATION_LOG {
+  LogId uniqueidentifier [pk]
+  FlagId uniqueidentifier
+  UserId uniqueidentifier
+  TenantId uniqueidentifier
+  EvaluatedAt datetime2
+  Result nvarchar
+  ContextPayload nvarchar
+}
+
+Table AUDIT_RECORD {
+  AuditRecordId uniqueidentifier [pk]
+  TenantId uniqueidentifier
+  AuditEventType nvarchar
+  SubjectType nvarchar
+  ActorId uniqueidentifier
+  EvaluatedAt datetime2
+  AuditResult nvarchar
+  AffectedEntityType nvarchar
+  AffectedEntityId uniqueidentifier
+  AuditMetadata nvarchar
+}
+
 // Relationships
 Ref: USER_ACCOUNT.TenantId > TENANT.TenantId
 Ref: USER_MANAGEMENT_DELEGATION.TenantId > TENANT.TenantId
@@ -307,6 +365,17 @@ Ref: FUNCTIONAL_SUBMODULE.ModuleId > FUNCTIONAL_MODULE.ModuleId
 Ref: FUNCTIONAL_OPTION.SubModuleId > FUNCTIONAL_SUBMODULE.SubModuleId
 Ref: ACTION.SuiteId > SYSTEM_SUITE.SuiteId
 Ref: ACTION.ModuleId > FUNCTIONAL_MODULE.ModuleId
+
+Ref: IDP_CONFIGURATION.TenantId > TENANT.TenantId
+
+Ref: FEATURE_FLAG.TenantId > TENANT.TenantId
+
+Ref: FLAG_EVALUATION_LOG.FlagId > FEATURE_FLAG.FlagId
+Ref: FLAG_EVALUATION_LOG.UserId > USER_ACCOUNT.UserId
+Ref: FLAG_EVALUATION_LOG.TenantId > TENANT.TenantId
+
+Ref: AUDIT_RECORD.TenantId > TENANT.TenantId
+Ref: AUDIT_RECORD.ActorId > USER_ACCOUNT.UserId
 ```
 
 ---
@@ -575,5 +644,66 @@ CREATE TABLE USER_MANAGEMENT_DELEGATION (
     ParentAdminUserId UNIQUEIDENTIFIER REFERENCES USER_ACCOUNT(UserId),
     ManagedUserId UNIQUEIDENTIFIER REFERENCES USER_ACCOUNT(UserId),
     SuiteId UNIQUEIDENTIFIER NULL REFERENCES SYSTEM_SUITE(SuiteId)
+);
+
+CREATE TABLE APP_CONFIGURATION (
+    SettingId UNIQUEIDENTIFIER PRIMARY KEY,
+    TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
+    SuiteId UNIQUEIDENTIFIER NULL REFERENCES SYSTEM_SUITE(SuiteId),
+    ModuleId UNIQUEIDENTIFIER NULL REFERENCES FUNCTIONAL_MODULE(ModuleId),
+    Code NVARCHAR(100) NOT NULL,
+    Value NVARCHAR(MAX),
+    Description NVARCHAR(MAX),
+    IsInheritable BIT DEFAULT 1,
+    CreatedAt DATETIME2 DEFAULT SYSUTCDATETIME()
+);
+
+CREATE TABLE IDP_CONFIGURATION (
+    IdpConfigId UNIQUEIDENTIFIER PRIMARY KEY,
+    TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
+    ProviderType NVARCHAR(100) NOT NULL,
+    DomainHints NVARCHAR(MAX),
+    ConfigPayload NVARCHAR(MAX),
+    SecretRef NVARCHAR(MAX),
+    IdpConfigStatus NVARCHAR(50) DEFAULT 'DRAFT',
+    ResolutionPriority INT DEFAULT 1,
+    Version NVARCHAR(50) NOT NULL,
+    CreatedAt DATETIME2 DEFAULT SYSUTCDATETIME()
+);
+
+CREATE TABLE FEATURE_FLAG (
+    FlagId UNIQUEIDENTIFIER PRIMARY KEY,
+    TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
+    FlagCode NVARCHAR(100) UNIQUE NOT NULL,
+    FlagType NVARCHAR(50) NOT NULL,
+    FlagTargets NVARCHAR(MAX),
+    FlagStatus NVARCHAR(50) DEFAULT 'INACTIVE',
+    LinkedResourceType NVARCHAR(50) NULL,
+    Description NVARCHAR(MAX),
+    IsActive BIT DEFAULT 0,
+    CreatedAt DATETIME2 DEFAULT SYSUTCDATETIME()
+);
+
+CREATE TABLE FLAG_EVALUATION_LOG (
+    LogId UNIQUEIDENTIFIER PRIMARY KEY,
+    FlagId UNIQUEIDENTIFIER REFERENCES FEATURE_FLAG(FlagId),
+    UserId UNIQUEIDENTIFIER REFERENCES USER_ACCOUNT(UserId),
+    TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
+    EvaluatedAt DATETIME2 DEFAULT SYSUTCDATETIME(),
+    Result NVARCHAR(255) NOT NULL,
+    ContextPayload NVARCHAR(MAX)
+);
+
+CREATE TABLE AUDIT_RECORD (
+    AuditRecordId UNIQUEIDENTIFIER PRIMARY KEY,
+    TenantId UNIQUEIDENTIFIER REFERENCES TENANT(TenantId),
+    AuditEventType NVARCHAR(100) NOT NULL,
+    SubjectType NVARCHAR(50) NOT NULL,
+    ActorId UNIQUEIDENTIFIER REFERENCES USER_ACCOUNT(UserId),
+    EvaluatedAt DATETIME2 DEFAULT SYSUTCDATETIME(),
+    AuditResult NVARCHAR(50) NOT NULL,
+    AffectedEntityType NVARCHAR(100) NOT NULL,
+    AffectedEntityId UNIQUEIDENTIFIER NOT NULL,
+    AuditMetadata NVARCHAR(MAX)
 );
 ```
