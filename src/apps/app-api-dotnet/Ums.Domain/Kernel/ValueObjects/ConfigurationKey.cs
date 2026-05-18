@@ -29,7 +29,7 @@ public partial class ConfigurationKeyValidator : AbstractRuleValidator<ValueObje
 
         if (value.Length > 100)
         {
-            AddBrokenRule(nameof(ConfigurationKey), DomainErrors.System.ConfigurationKeyTooLong);
+            AddBrokenRule(nameof(ConfigurationKey), DomainErrors.SystemSuite.ConfigurationKeyTooLong);
         }
     }
 }

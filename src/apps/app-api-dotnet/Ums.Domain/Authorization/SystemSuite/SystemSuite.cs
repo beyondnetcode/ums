@@ -1,20 +1,24 @@
-namespace Ums.Domain.Identity.System;
+namespace Ums.Domain.Authorization.SystemSuite;
 
-using Ums.Domain.Identity.System.Configuration;
-using Ums.Domain.Identity.System.Module;
-using Ums.Domain.Identity.System.Action;
-using ModuleEntity = Ums.Domain.Identity.System.Module.Module;
-using ConfigurationEntity = Ums.Domain.Identity.System.Configuration.Configuration;
-using ActionEntity = Ums.Domain.Identity.System.Action.Action;
+using Ums.Domain.Authorization.SystemSuite.AppSetting;
+using Ums.Domain.Authorization.SystemSuite.Module;
+using Ums.Domain.Authorization.SystemSuite.Action;
+using ModuleEntity = Ums.Domain.Authorization.SystemSuite.Module.Module;
+using AppSettingEntity = Ums.Domain.Authorization.SystemSuite.AppSetting.AppSetting;
+using ActionEntity = Ums.Domain.Authorization.SystemSuite.Action.Action;
 
-public sealed class System : AggregateRoot<System, SystemProps>
+public sealed class SystemSuite : AggregateRoot<SystemSuite, SystemSuiteProps>
 {
     private readonly List<ModuleEntity> _modules = new();
-    private readonly List<ConfigurationEntity> _configurations = new();
+    private readonly List<AppSettingEntity> _appSettings = new();
     private readonly List<ActionEntity> _actions = new();
 
-    private System(SystemProps props) : base(props)
+    private SystemSuite(SystemSuiteProps props) : base(props)
     {
+        if (TrackingState.IsNew)
+        {
+            DomainEvents.Raise(new SystemSuiteRegisteredEvent(props.Id.GetValue(), props.TenantId.GetValue(), props.Code.GetValue()));
+        }
     }
 
     public TenantId TenantId => Props.TenantId;
@@ -24,27 +28,27 @@ public sealed class System : AggregateRoot<System, SystemProps>
     public SystemStatus Status => Props.Status;
 
     public IReadOnlyCollection<ModuleEntity> Modules => _modules.AsReadOnly();
-    public IReadOnlyCollection<ConfigurationEntity> Configurations => _configurations.AsReadOnly();
+    public IReadOnlyCollection<AppSettingEntity> AppSettings => _appSettings.AsReadOnly();
     public IReadOnlyCollection<ActionEntity> Actions => _actions.AsReadOnly();
 
-    public SystemId GetId() => SystemId.Load(Props.Id.GetValue());
+    public SystemSuiteId GetId() => SystemSuiteId.Load(Props.Id.GetValue());
 
-    public static Result<System> Create(
+    public static Result<SystemSuite> Create(
         TenantId tenantId,
         Code code,
         Name name,
         Description description,
         ActorId createdBy)
     {
-        var props = new SystemProps(IdValueObject.Create(), tenantId, code, name, description, SystemStatus.Active, createdBy);
-        var system = new System(props);
+        var props = new SystemSuiteProps(IdValueObject.Create(), tenantId, code, name, description, SystemStatus.Active, createdBy);
+        var suite = new SystemSuite(props);
 
-        if (!system.IsValid())
+        if (!suite.IsValid())
         {
-            return Result<System>.Failure(system.BrokenRules.GetBrokenRulesAsString());
+            return Result<SystemSuite>.Failure(suite.BrokenRules.GetBrokenRulesAsString());
         }
 
-        return Result<System>.Success(system);
+        return Result<SystemSuite>.Success(suite);
     }
 
     public Result Update(Name name, Description description, ActorId updatedBy)
@@ -64,6 +68,7 @@ public sealed class System : AggregateRoot<System, SystemProps>
     public Result SetStatus(SystemStatus status, ActorId updatedBy)
     {
         Props.Status = status;
+        DomainEvents.Raise(new SystemSuiteStatusChangedEvent(Props.Id.GetValue(), status.Name));
         Props.Audit.Update(updatedBy.GetValue());
         return Result.Success();
     }
@@ -72,7 +77,7 @@ public sealed class System : AggregateRoot<System, SystemProps>
     {
         if (_modules.Any(m => m.Code == code))
         {
-            BrokenRules.Add(new BrokenRule(nameof(Modules), DomainErrors.System.ModuleCodeNotUnique));
+            BrokenRules.Add(new BrokenRule(nameof(Modules), DomainErrors.SystemSuite.ModuleCodeNotUnique));
         }
 
         if (!IsValid())
@@ -80,13 +85,14 @@ public sealed class System : AggregateRoot<System, SystemProps>
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        var moduleResult = ModuleEntity.Create(GetId(), code, name, description, sortOrder, createdBy);
+        var moduleResult = ModuleEntity.Create(SystemId.Load(Props.Id.GetValue()), code, name, description, sortOrder, createdBy);
         if (moduleResult.IsFailure)
         {
             return Result.Failure(moduleResult.Error);
         }
 
         _modules.Add(moduleResult.Value);
+        DomainEvents.Raise(new SystemSuiteModuleAddedEvent(Props.Id.GetValue(), moduleResult.Value.GetId().GetValue(), code.GetValue()));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(createdBy.GetValue());
         return Result.Success();
@@ -106,6 +112,7 @@ public sealed class System : AggregateRoot<System, SystemProps>
         }
 
         _modules.Remove(module.Value);
+        DomainEvents.Raise(new SystemSuiteModuleRemovedEvent(Props.Id.GetValue(), module.Value.GetId().GetValue()));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(updatedBy.GetValue());
         return Result.Success();
@@ -154,6 +161,7 @@ public sealed class System : AggregateRoot<System, SystemProps>
             return Result.Failure(activateResult.Error);
         }
 
+        DomainEvents.Raise(new SystemSuiteModuleStatusChangedEvent(Props.Id.GetValue(), module.Value.GetId().GetValue(), "Active"));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(updatedBy.GetValue());
         return Result.Success();
@@ -178,16 +186,17 @@ public sealed class System : AggregateRoot<System, SystemProps>
             return Result.Failure(deactivateResult.Error);
         }
 
+        DomainEvents.Raise(new SystemSuiteModuleStatusChangedEvent(Props.Id.GetValue(), module.Value.GetId().GetValue(), "Inactive"));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(updatedBy.GetValue());
         return Result.Success();
     }
 
-    public Result AddConfiguration(ConfigurationKey key, ConfigurationValue value, ConfigurationScope scope, ActorId createdBy)
+    public Result AddAppSetting(ConfigurationKey key, ConfigurationValue value, ConfigurationScope scope, ActorId createdBy)
     {
-        if (_configurations.Any(c => c.Key == key && c.Scope == scope))
+        if (_appSettings.Any(c => c.Key == key && c.Scope == scope))
         {
-            BrokenRules.Add(new BrokenRule(nameof(Configurations), DomainErrors.System.ConfigurationKeyAlreadyExists));
+            BrokenRules.Add(new BrokenRule(nameof(AppSettings), DomainErrors.SystemSuite.ConfigurationKeyAlreadyExists));
         }
 
         if (!IsValid())
@@ -195,24 +204,24 @@ public sealed class System : AggregateRoot<System, SystemProps>
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        var configResult = ConfigurationEntity.Create(key, value, scope);
-        if (configResult.IsFailure)
+        var settingResult = AppSettingEntity.Create(key, value, scope);
+        if (settingResult.IsFailure)
         {
-            return Result.Failure(configResult.Error);
+            return Result.Failure(settingResult.Error);
         }
 
-        _configurations.Add(configResult.Value);
+        _appSettings.Add(settingResult.Value);
         TrackingState.MarkAsDirty();
         Props.Audit.Update(createdBy.GetValue());
         return Result.Success();
     }
 
-    public Result UpdateConfiguration(ConfigurationKey key, ConfigurationValue newValue, ActorId updatedBy)
+    public Result UpdateAppSetting(ConfigurationKey key, ConfigurationValue newValue, ActorId updatedBy)
     {
-        var configuration = FindConfiguration(key);
-        if (configuration.IsFailure)
+        var setting = FindAppSetting(key);
+        if (setting.IsFailure)
         {
-            BrokenRules.Add(new BrokenRule(nameof(Configurations), DomainErrors.System.ConfigurationKeyNotFound));
+            BrokenRules.Add(new BrokenRule(nameof(AppSettings), DomainErrors.SystemSuite.ConfigurationKeyNotFound));
         }
 
         if (!IsValid())
@@ -220,19 +229,19 @@ public sealed class System : AggregateRoot<System, SystemProps>
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        var index = _configurations.IndexOf(configuration.Value);
-        _configurations[index] = configuration.Value.WithValue(newValue);
+        var index = _appSettings.IndexOf(setting.Value);
+        _appSettings[index] = setting.Value.WithValue(newValue);
         TrackingState.MarkAsDirty();
         Props.Audit.Update(updatedBy.GetValue());
         return Result.Success();
     }
 
-    public Result RemoveConfiguration(ConfigurationKey key, ActorId updatedBy)
+    public Result RemoveAppSetting(ConfigurationKey key, ActorId updatedBy)
     {
-        var configuration = FindConfiguration(key);
-        if (configuration.IsFailure)
+        var setting = FindAppSetting(key);
+        if (setting.IsFailure)
         {
-            BrokenRules.Add(new BrokenRule(nameof(Configurations), DomainErrors.System.ConfigurationKeyNotFound));
+            BrokenRules.Add(new BrokenRule(nameof(AppSettings), DomainErrors.SystemSuite.ConfigurationKeyNotFound));
         }
 
         if (!IsValid())
@@ -240,7 +249,7 @@ public sealed class System : AggregateRoot<System, SystemProps>
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        _configurations.Remove(configuration.Value);
+        _appSettings.Remove(setting.Value);
         TrackingState.MarkAsDirty();
         Props.Audit.Update(updatedBy.GetValue());
         return Result.Success();
@@ -258,14 +267,14 @@ public sealed class System : AggregateRoot<System, SystemProps>
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        var systemSuiteId = SystemSuiteId.Load(Props.Id.GetValue());
-        var actionResult = ActionEntity.Create(Props.TenantId, systemSuiteId, null, code, name, createdBy);
+        var actionResult = ActionEntity.Create(Props.TenantId, GetId(), null, code, name, createdBy);
         if (actionResult.IsFailure)
         {
             return Result.Failure(actionResult.Error);
         }
 
         _actions.Add(actionResult.Value);
+        DomainEvents.Raise(new SystemSuiteActionRegisteredEvent(Props.Id.GetValue(), code.GetValue()));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(createdBy.GetValue());
         return Result.Success();
@@ -285,6 +294,7 @@ public sealed class System : AggregateRoot<System, SystemProps>
         }
 
         _actions.Remove(action.Value);
+        DomainEvents.Raise(new SystemSuiteActionRemovedEvent(Props.Id.GetValue(), code.GetValue()));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(updatedBy.GetValue());
         return Result.Success();
@@ -298,12 +308,12 @@ public sealed class System : AggregateRoot<System, SystemProps>
             : Result<ModuleEntity>.Success(module);
     }
 
-    private Result<ConfigurationEntity> FindConfiguration(ConfigurationKey key)
+    private Result<AppSettingEntity> FindAppSetting(ConfigurationKey key)
     {
-        var configuration = _configurations.FirstOrDefault(c => c.Key == key);
-        return configuration is null
-            ? Result<ConfigurationEntity>.Failure(DomainErrors.System.ConfigurationKeyNotFound)
-            : Result<ConfigurationEntity>.Success(configuration);
+        var setting = _appSettings.FirstOrDefault(c => c.Key == key);
+        return setting is null
+            ? Result<AppSettingEntity>.Failure(DomainErrors.SystemSuite.ConfigurationKeyNotFound)
+            : Result<AppSettingEntity>.Success(setting);
     }
 
     private Result<ActionEntity> FindAction(ActionCode code)

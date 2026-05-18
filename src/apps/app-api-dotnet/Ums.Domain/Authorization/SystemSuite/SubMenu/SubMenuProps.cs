@@ -1,32 +1,32 @@
-namespace Ums.Domain.Identity.System.Option;
+namespace Ums.Domain.Authorization.SystemSuite.SubMenu;
 
-public class OptionProps : IProps
+using Ums.Domain.Authorization.SystemSuite.Option;
+using OptionEntity = Ums.Domain.Authorization.SystemSuite.Option.Option;
+
+public class SubMenuProps : IProps
 {
     public IdValueObject Id { get; set; }
-    public SubMenuId SubMenuId { get; set; }
+    public MenuId MenuId { get; set; }
     public Code Code { get; set; }
     public Name Label { get; set; }
     public Description Description { get; set; }
-    public ActionCode ActionCode { get; set; }
     public int SortOrder { get; set; }
     public AuditValueObject Audit { get; private set; }
 
-    public OptionProps(
+    public SubMenuProps(
         IdValueObject id,
-        SubMenuId subMenuId,
+        MenuId menuId,
         Code code,
         Name label,
         Description description,
-        ActionCode actionCode,
         int sortOrder,
         ActorId createdBy)
     {
         Id = id;
-        SubMenuId = subMenuId;
+        MenuId = menuId;
         Code = code;
         Label = label;
         Description = description;
-        ActionCode = actionCode;
         SortOrder = sortOrder;
         Audit = AuditValueObject.Create(createdBy.GetValue());
     }

@@ -29,7 +29,7 @@ public partial class ConfigurationValueValidator : AbstractRuleValidator<ValueOb
 
         if (value.Length > 2000)
         {
-            AddBrokenRule(nameof(ConfigurationValue), DomainErrors.System.ConfigurationValueTooLong);
+            AddBrokenRule(nameof(ConfigurationValue), DomainErrors.SystemSuite.ConfigurationValueTooLong);
         }
     }
 }

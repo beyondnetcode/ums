@@ -1,32 +1,35 @@
-namespace Ums.Domain.Identity.System.Menu;
+namespace Ums.Domain.Authorization.SystemSuite.Module;
 
-using Ums.Domain.Identity.System.SubMenu;
-using SubMenuEntity = Ums.Domain.Identity.System.SubMenu.SubMenu;
+using Ums.Domain.Authorization.SystemSuite.Menu;
+using MenuEntity = Ums.Domain.Authorization.SystemSuite.Menu.Menu;
 
-public class MenuProps : IProps
+public class ModuleProps : IProps
 {
     public IdValueObject Id { get; set; }
-    public ModuleId ModuleId { get; set; }
+    public SystemId SystemId { get; set; }
     public Code Code { get; set; }
-    public Name Label { get; set; }
+    public Name Name { get; set; }
     public Description Description { get; set; }
+    public ModuleStatus Status { get; set; }
     public int SortOrder { get; set; }
     public AuditValueObject Audit { get; private set; }
 
-    public MenuProps(
+    public ModuleProps(
         IdValueObject id,
-        ModuleId moduleId,
+        SystemId systemId,
         Code code,
-        Name label,
+        Name name,
         Description description,
+        ModuleStatus status,
         int sortOrder,
         ActorId createdBy)
     {
         Id = id;
-        ModuleId = moduleId;
+        SystemId = systemId;
         Code = code;
-        Label = label;
+        Name = name;
         Description = description;
+        Status = status;
         SortOrder = sortOrder;
         Audit = AuditValueObject.Create(createdBy.GetValue());
     }

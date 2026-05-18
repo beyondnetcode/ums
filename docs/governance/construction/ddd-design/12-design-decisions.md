@@ -17,6 +17,8 @@
 | `TenantClosure` excluida del dominio | Es proyeccion de infraestructura mantenida por trigger SQL Server; el dominio la consume como servicio de repositorio |
 | Eventos de dominio con ID como referencia (no navigation properties) | Desacoplamiento entre contextos; los agregados solo conocen IDs de otros contextos |
 | `TemplateAssignmentRule` como AR | Tiene su propio ciclo de vida, prioridad y estado; no es parte de Profile ni de Template |
+| `Result<T>` implementado localmente en `Ums.Domain.Kernel` | `Ums.Shell.Ddd` no expone `Result<T>` en su version actual. La implementacion local es aceptada como solucion pragmatica hasta que la shell library agregue soporte nativo. Cuando ocurra, migrar `Kernel/Result.cs` a la shell y eliminar la duplicacion. |
+| `SystemSuite` AR lleva `TenantId` (registro por tenant) | INV-S1 documenta `SystemCode` unico globalmente, pero la implementacion actual vincula cada SystemSuite a un tenant para aplicar RLS. **Pendiente resolucion**: definir si SystemSuite es catalogo global (sin TenantId) o registro por tenant. Si es global, eliminar `TenantId` de `SystemSuiteProps` y requerir un esquema separado fuera del contexto RLS. |
 
 ---
 

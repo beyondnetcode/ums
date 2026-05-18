@@ -1,7 +1,7 @@
-namespace Ums.Domain.Identity.System.SubMenu;
+namespace Ums.Domain.Authorization.SystemSuite.SubMenu;
 
-using Ums.Domain.Identity.System.Option;
-using OptionEntity = Ums.Domain.Identity.System.Option.Option;
+using Ums.Domain.Authorization.SystemSuite.Option;
+using OptionEntity = Ums.Domain.Authorization.SystemSuite.Option.Option;
 
 public sealed class SubMenu : Entity<SubMenu, SubMenuProps>
 {
@@ -59,7 +59,7 @@ public sealed class SubMenu : Entity<SubMenu, SubMenuProps>
     {
         if (_options.Any(o => o.Code == code))
         {
-            BrokenRules.Add(new BrokenRule(nameof(Options), DomainErrors.System.OptionCodeNotUnique));
+            BrokenRules.Add(new BrokenRule(nameof(Options), DomainErrors.SystemSuite.OptionCodeNotUnique));
         }
 
         if (!IsValid())

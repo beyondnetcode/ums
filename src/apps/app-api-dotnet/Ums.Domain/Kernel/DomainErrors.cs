@@ -55,26 +55,26 @@ public static class DomainErrors
         public const string CannotRemoveLastPassword = "user_account.cannot_remove_last_password";
     }
 
-    public static class System
+    public static class SystemSuite
     {
-        public const string ConfigurationKeyTooLong = "system.configuration_key_too_long";
-        public const string ConfigurationValueTooLong = "system.configuration_value_too_long";
-        public const string ActionCodeTooLong = "system.action_code_too_long";
-        public const string OptionCodeNotUnique = "system.option_code_not_unique";
-        public const string SubMenuCodeNotUnique = "system.submenu_code_not_unique";
-        public const string MenuCodeNotUnique = "system.menu_code_not_unique";
-        public const string ModuleAlreadyActive = "system.module_already_active";
-        public const string ModuleAlreadyInactive = "system.module_already_inactive";
-        public const string ModuleInactiveCannotAddMenu = "system.module_inactive_cannot_add_menu";
-        public const string ModuleCodeNotUnique = "system.module_code_not_unique";
-        public const string RoleAlreadyActive = "system.role_already_active";
-        public const string RoleAlreadyInactive = "system.role_already_inactive";
-        public const string ActionAlreadyGranted = "system.action_already_granted";
-        public const string ActionNotGranted = "system.action_not_granted";
-        public const string ConfigurationKeyAlreadyExists = "system.configuration_key_already_exists";
-        public const string ConfigurationKeyNotFound = "system.configuration_key_not_found";
-        public const string ActionRequiresOwner = "system.action_requires_owner";
-        public const string ActionXorViolation = "system.action_xor_violation";
+        public const string ConfigurationKeyTooLong = "system_suite.configuration_key_too_long";
+        public const string ConfigurationValueTooLong = "system_suite.configuration_value_too_long";
+        public const string ActionCodeTooLong = "system_suite.action_code_too_long";
+        public const string OptionCodeNotUnique = "system_suite.option_code_not_unique";
+        public const string SubMenuCodeNotUnique = "system_suite.submenu_code_not_unique";
+        public const string MenuCodeNotUnique = "system_suite.menu_code_not_unique";
+        public const string ModuleAlreadyActive = "system_suite.module_already_active";
+        public const string ModuleAlreadyInactive = "system_suite.module_already_inactive";
+        public const string ModuleInactiveCannotAddMenu = "system_suite.module_inactive_cannot_add_menu";
+        public const string ModuleCodeNotUnique = "system_suite.module_code_not_unique";
+        public const string RoleAlreadyActive = "system_suite.role_already_active";
+        public const string RoleAlreadyInactive = "system_suite.role_already_inactive";
+        public const string ActionAlreadyGranted = "system_suite.action_already_granted";
+        public const string ActionNotGranted = "system_suite.action_not_granted";
+        public const string ConfigurationKeyAlreadyExists = "system_suite.configuration_key_already_exists";
+        public const string ConfigurationKeyNotFound = "system_suite.configuration_key_not_found";
+        public const string ActionRequiresOwner = "system_suite.action_requires_owner";
+        public const string ActionXorViolation = "system_suite.action_xor_violation";
     }
 
     public static class Authorization

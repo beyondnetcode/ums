@@ -1,4 +1,4 @@
-namespace Ums.Domain.Identity.System.Option;
+namespace Ums.Domain.Authorization.SystemSuite.Option;
 
 public sealed class Option : Entity<Option, OptionProps>
 {

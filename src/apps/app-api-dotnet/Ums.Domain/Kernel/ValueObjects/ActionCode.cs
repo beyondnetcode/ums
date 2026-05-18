@@ -29,7 +29,7 @@ public partial class ActionCodeValidator : AbstractRuleValidator<ValueObject<str
 
         if (value.Length > 50)
         {
-            AddBrokenRule(nameof(ActionCode), DomainErrors.System.ActionCodeTooLong);
+            AddBrokenRule(nameof(ActionCode), DomainErrors.SystemSuite.ActionCodeTooLong);
         }
     }
 }

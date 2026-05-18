@@ -1,7 +1,7 @@
-namespace Ums.Domain.Identity.System.Menu;
+namespace Ums.Domain.Authorization.SystemSuite.Menu;
 
-using Ums.Domain.Identity.System.SubMenu;
-using SubMenuEntity = Ums.Domain.Identity.System.SubMenu.SubMenu;
+using Ums.Domain.Authorization.SystemSuite.SubMenu;
+using SubMenuEntity = Ums.Domain.Authorization.SystemSuite.SubMenu.SubMenu;
 
 public sealed class Menu : Entity<Menu, MenuProps>
 {
@@ -59,7 +59,7 @@ public sealed class Menu : Entity<Menu, MenuProps>
     {
         if (_subMenus.Any(sm => sm.Code == code))
         {
-            BrokenRules.Add(new BrokenRule(nameof(SubMenus), DomainErrors.System.SubMenuCodeNotUnique));
+            BrokenRules.Add(new BrokenRule(nameof(SubMenus), DomainErrors.SystemSuite.SubMenuCodeNotUnique));
         }
 
         if (!IsValid())

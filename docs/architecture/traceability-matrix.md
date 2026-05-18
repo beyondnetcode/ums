@@ -58,9 +58,9 @@ This matrix links every **Functional Story (FS)** to its governing **Architectur
 
 | TE ID | Title | Status | Implements ADR | Satisfies FS |
 |-------|-------|--------|----------------|-------------|
-| TE-01 | JWT / OIDC Authentication Flow | Defined | ADR-0020, ADR-0026 | FS-01, FS-08, FS-09 |
-| TE-02 | Permission Graph Compiler | Defined | ADR-0012, ADR-0021 | FS-02, FS-05, FS-07, FS-14, FS-16 |
-| TE-03 | Tenant Provisioning Pipeline | Defined | ADR-0010 | FS-03, FS-14, FS-16 |
+| TE-01 | JWT / OIDC Authentication Flow | **[Approved](./blueprints/technical-enablers/te-01-jwt-oidc-flow.md)** | ADR-0020, ADR-0026 | FS-01, FS-08, FS-09 |
+| TE-02 | Permission Graph Compiler | **[Approved](./blueprints/technical-enablers/te-02-permission-graph-compiler.md)** | ADR-0012, ADR-0021 | FS-02, FS-05, FS-07, FS-14, FS-16 |
+| TE-03 | Tenant Provisioning Pipeline | **[Approved](./blueprints/technical-enablers/te-03-tenant-provisioning.md)** | ADR-0010 | FS-03, FS-14, FS-16 |
 | TE-04 | Transactional Outbox Pattern | **[Defined](./blueprints/technical-enablers/te-04-transactional-outbox.md)** | ADR-0033, ADR-0015 | FS-06, FS-11, FS-15 |
 | TE-05 | Distributed Saga with Dapr | **[Defined](./blueprints/technical-enablers/te-05-distributed-saga-dapr.md)** | ADR-0035 | FS-10, FS-12 |
 | TE-06 | CQRS Projection Rebuild | **[Defined](./blueprints/technical-enablers/te-06-cqrs-projection-rebuild.md)** | ADR-0034 | FS-04, FS-07, FS-13 |
@@ -84,10 +84,10 @@ This matrix links every **Functional Story (FS)** to its governing **Architectur
 
 | Gap | Description | Recommended Action |
 |-----|-------------|-------------------|
-| TE-01 not formalized | JWT/OIDC flow blueprint missing | Create `te-01-jwt-oidc-flow.md` |
-| TE-02 not formalized | Permission graph blueprint missing | Create `te-02-permission-graph-compiler.md` |
-| TE-03 not formalized | Tenant provisioning blueprint missing | Create `te-03-tenant-provisioning.md` |
 | No FS-level acceptance tests linked | FSes have no test coverage pointer | Add "Acceptance Tests" section to each FS |
+| BC-C / BC-D / BC-I domain code missing | Configuration, Audit, Compliance contexts have no C# domain model | Implement domain layers before Sprint 1 |
+| Application layer empty | No commands or handlers implemented | Begin with Identity context commands |
+| Design decisions V1, V3–V6 open | See [12-design-decisions.md](../../governance/construction/ddd-design/12-design-decisions.md) | Resolve in technical workshop before Sprint 1 |
 
 ---
 

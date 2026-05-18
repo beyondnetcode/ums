@@ -1,7 +1,7 @@
-namespace Ums.Domain.Identity.System.Module;
+namespace Ums.Domain.Authorization.SystemSuite.Module;
 
-using Ums.Domain.Identity.System.Menu;
-using MenuEntity = Ums.Domain.Identity.System.Menu.Menu;
+using Ums.Domain.Authorization.SystemSuite.Menu;
+using MenuEntity = Ums.Domain.Authorization.SystemSuite.Menu.Menu;
 
 public sealed class Module : Entity<Module, ModuleProps>
 {
@@ -60,7 +60,7 @@ public sealed class Module : Entity<Module, ModuleProps>
     {
         if (Status == ModuleStatus.Active)
         {
-            BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.System.ModuleAlreadyActive));
+            BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.SystemSuite.ModuleAlreadyActive));
         }
 
         if (!IsValid())
@@ -77,7 +77,7 @@ public sealed class Module : Entity<Module, ModuleProps>
     {
         if (Status == ModuleStatus.Inactive)
         {
-            BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.System.ModuleAlreadyInactive));
+            BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.SystemSuite.ModuleAlreadyInactive));
         }
 
         if (!IsValid())
@@ -94,12 +94,12 @@ public sealed class Module : Entity<Module, ModuleProps>
     {
         if (Status == ModuleStatus.Inactive)
         {
-            BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.System.ModuleInactiveCannotAddMenu));
+            BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.SystemSuite.ModuleInactiveCannotAddMenu));
         }
 
         if (_menus.Any(m => m.Code == code))
         {
-            BrokenRules.Add(new BrokenRule(nameof(Menus), DomainErrors.System.MenuCodeNotUnique));
+            BrokenRules.Add(new BrokenRule(nameof(Menus), DomainErrors.SystemSuite.MenuCodeNotUnique));
         }
 
         if (!IsValid())

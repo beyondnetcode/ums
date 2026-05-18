@@ -32,6 +32,14 @@ public sealed record AuthenticationAttemptedEvent(Guid? UserId, Guid TenantId, b
 
 public abstract record AuthorizationDomainEvent : DomainEvent;
 
+public sealed record SystemSuiteRegisteredEvent(Guid SystemSuiteId, Guid TenantId, string Code) : AuthorizationDomainEvent;
+public sealed record SystemSuiteStatusChangedEvent(Guid SystemSuiteId, string Status) : AuthorizationDomainEvent;
+public sealed record SystemSuiteModuleAddedEvent(Guid SystemSuiteId, Guid ModuleId, string Code) : AuthorizationDomainEvent;
+public sealed record SystemSuiteModuleRemovedEvent(Guid SystemSuiteId, Guid ModuleId) : AuthorizationDomainEvent;
+public sealed record SystemSuiteModuleStatusChangedEvent(Guid SystemSuiteId, Guid ModuleId, string Status) : AuthorizationDomainEvent;
+public sealed record SystemSuiteActionRegisteredEvent(Guid SystemSuiteId, string ActionCode) : AuthorizationDomainEvent;
+public sealed record SystemSuiteActionRemovedEvent(Guid SystemSuiteId, string ActionCode) : AuthorizationDomainEvent;
+
 public sealed record PermissionTemplateCreatedEvent(Guid TemplateId, Guid TenantId, Guid RoleId, Guid SystemSuiteId, string Version) : AuthorizationDomainEvent;
 public sealed record PermissionTemplatePublishedEvent(Guid TemplateId, string Version) : AuthorizationDomainEvent;
 public sealed record PermissionTemplateMutatedEvent(Guid TemplateId, string Version) : AuthorizationDomainEvent;

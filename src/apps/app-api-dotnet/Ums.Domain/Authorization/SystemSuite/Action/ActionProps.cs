@@ -1,30 +1,30 @@
-namespace Ums.Domain.Identity.System;
+namespace Ums.Domain.Authorization.SystemSuite.Action;
 
-public class SystemProps : IProps
+public class ActionProps : IProps
 {
     public IdValueObject Id { get; set; }
     public TenantId TenantId { get; set; }
-    public Code Code { get; set; }
+    public SystemSuiteId? SystemSuiteId { get; set; }
+    public ModuleId? ModuleId { get; set; }
+    public ActionCode Code { get; set; }
     public Name Name { get; set; }
-    public Description Description { get; set; }
-    public SystemStatus Status { get; set; }
     public AuditValueObject Audit { get; private set; }
 
-    public SystemProps(
+    public ActionProps(
         IdValueObject id,
         TenantId tenantId,
-        Code code,
+        SystemSuiteId? systemSuiteId,
+        ModuleId? moduleId,
+        ActionCode code,
         Name name,
-        Description description,
-        SystemStatus status,
         ActorId createdBy)
     {
         Id = id;
         TenantId = tenantId;
+        SystemSuiteId = systemSuiteId;
+        ModuleId = moduleId;
         Code = code;
         Name = name;
-        Description = description;
-        Status = status;
         Audit = AuditValueObject.Create(createdBy.GetValue());
     }
 

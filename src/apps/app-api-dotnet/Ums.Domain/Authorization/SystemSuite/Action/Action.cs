@@ -1,4 +1,4 @@
-namespace Ums.Domain.Identity.System.Action;
+namespace Ums.Domain.Authorization.SystemSuite.Action;
 
 using Ums.Shell.Ddd.Rules.Impl;
 
@@ -53,12 +53,12 @@ public class ActionXorValidator : AbstractRuleValidator<Action>
 
         if (!hasSuite && !hasModule)
         {
-            AddBrokenRule(nameof(Action), DomainErrors.System.ActionRequiresOwner);
+            AddBrokenRule(nameof(Action), DomainErrors.SystemSuite.ActionRequiresOwner);
         }
 
         if (hasSuite && hasModule)
         {
-            AddBrokenRule(nameof(Action), DomainErrors.System.ActionXorViolation);
+            AddBrokenRule(nameof(Action), DomainErrors.SystemSuite.ActionXorViolation);
         }
     }
 }
