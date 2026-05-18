@@ -1,6 +1,6 @@
 namespace Ums.Domain.Kernel;
 
-public interface ITenantScopedRepository<TAggregate>
+public interface IAggregateRepository<TAggregate>
     where TAggregate : class
 {
     Task<TAggregate?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
