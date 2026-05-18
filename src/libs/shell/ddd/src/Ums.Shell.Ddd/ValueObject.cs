@@ -79,7 +79,7 @@ namespace Ums.Shell.Ddd
             Validate();
         }
 
-        protected void SetValue(TValue value)
+        public void SetValue(TValue value)
         {
             ArgumentNullException.ThrowIfNull(value, nameof(value));
 

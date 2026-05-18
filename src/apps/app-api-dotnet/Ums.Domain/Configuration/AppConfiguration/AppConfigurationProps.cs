@@ -9,7 +9,7 @@ public class AppConfigurationProps : IProps
     public Code Code { get; set; }
     public ConfigurationValue Value { get; set; }
     public Description Description { get; set; }
-    public ConfigScope Scope { get; set; }
+    public ConfigurationScope Scope { get; set; }
     public bool IsInheritable { get; set; }
     public bool IsEncrypted { get; set; }
     public string Version { get; set; }
@@ -43,12 +43,12 @@ public class AppConfigurationProps : IProps
         Audit = AuditValueObject.Create(createdBy.GetValue());
     }
 
-    private static ConfigScope ResolveScope(TenantId? tenantId, SystemSuiteId? systemSuiteId, IdValueObject? moduleId)
+    private static ConfigurationScope ResolveScope(TenantId? tenantId, SystemSuiteId? systemSuiteId, IdValueObject? moduleId)
     {
-        if (moduleId is not null) return ConfigScope.Module;
-        if (systemSuiteId is not null) return ConfigScope.Suite;
-        if (tenantId is not null) return ConfigScope.Tenant;
-        return ConfigScope.Global;
+        if (moduleId is not null) return ConfigurationScope.Module;
+        if (systemSuiteId is not null) return ConfigurationScope.Suite;
+        if (tenantId is not null) return ConfigurationScope.Tenant;
+        return ConfigurationScope.Global;
     }
 
     public object Clone() => MemberwiseClone();

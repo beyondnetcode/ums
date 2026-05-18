@@ -4,6 +4,7 @@ using Ums.Application.Abstractions.Messaging;
 using Ums.Application.Common.Interfaces;
 using Ums.Domain.Identity;
 using Ums.Domain.Kernel;
+using Ums.Domain.Kernel.ValueObjects;
 
 public sealed class SuspendTenantCommandHandler : ICommandHandler<SuspendTenantCommand>
 {

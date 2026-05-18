@@ -2,10 +2,11 @@ namespace Ums.Domain.Configuration.FeatureFlag;
 
 using Ums.Domain.Configuration.FeatureFlag.Events;
 using Ums.Domain.Configuration.FeatureFlag.FlagEvaluationLog;
+using FlagEvaluationLogEntity = Ums.Domain.Configuration.FeatureFlag.FlagEvaluationLog.FlagEvaluationLog;
 
 public sealed class FeatureFlag : AggregateRoot<FeatureFlag, FeatureFlagProps>
 {
-    private readonly List<FlagEvaluationLog> _evaluationLog = new();
+    private readonly List<FlagEvaluationLogEntity> _evaluationLog = new();
 
     public new FeatureFlagDomainEventsManager DomainEvents { get; }
 
@@ -25,7 +26,7 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlag, FeatureFlagProps>
     public FlagStatus Status => Props.Status;
     public int? RolloutPercentage => Props.RolloutPercentage;
 
-    public IReadOnlyCollection<FlagEvaluationLog> EvaluationLog => _evaluationLog.AsReadOnly();
+    public IReadOnlyCollection<FlagEvaluationLogEntity> EvaluationLog => _evaluationLog.AsReadOnly();
 
     public FeatureFlagId GetId() => FeatureFlagId.Load(Props.Id.GetValue());
 
@@ -134,7 +135,7 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlag, FeatureFlagProps>
 
         var result = Status == FlagStatus.Active;
 
-        _evaluationLog.Add(FlagEvaluationLog.Record(evaluatedBy, result, context));
+        _evaluationLog.Add(FlagEvaluationLogEntity.Record(evaluatedBy, result, context));
         DomainEvents.RaiseEvent(new FlagEvaluatedEvent(Props.Id.GetValue(), Props.FlagCode, result, context));
         return Result<bool>.Success(result);
     }

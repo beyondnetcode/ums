@@ -18,7 +18,7 @@ public sealed class AppConfiguration : AggregateRoot<AppConfiguration, AppConfig
     }
 
     public Code Code => Props.Code;
-    public ConfigScope Scope => Props.Scope;
+    public ConfigurationScope Scope => Props.Scope;
     public ConfigStatus Status => Props.Status;
     public bool IsInheritable => Props.IsInheritable;
     public string Version => Props.Version;
@@ -111,7 +111,7 @@ public sealed class AppConfiguration : AggregateRoot<AppConfiguration, AppConfig
 
     private static string BumpMinorVersion(string semver)
     {
-        if (Version.TryParse(semver, out var v))
+        if (System.Version.TryParse(semver, out var v))
             return $"{v.Major}.{v.Minor + 1}.0";
         return semver;
     }

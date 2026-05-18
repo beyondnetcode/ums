@@ -1,5 +1,6 @@
 namespace Ums.Domain.Approvals.UserDocument;
 
+using Ums.Domain.Approvals.UserDocument.Events;
 using Ums.Domain.Approvals.UserDocument.AccessNotification;
 using AccessNotificationEntity = Ums.Domain.Approvals.UserDocument.AccessNotification.AccessNotification;
 
@@ -7,8 +8,12 @@ public sealed class UserDocument : AggregateRoot<UserDocument, UserDocumentProps
 {
     private readonly List<AccessNotificationEntity> _notifications = new();
 
+    public new UserDocumentDomainEventsManager DomainEvents { get; }
+
     private UserDocument(UserDocumentProps props) : base(props)
     {
+        DomainEvents = new UserDocumentDomainEventsManager(this);
+
         if (TrackingState.IsNew)
         {
             DomainEvents.RaiseEvent(new DocumentUploadedEvent(

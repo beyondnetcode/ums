@@ -36,7 +36,7 @@ public sealed record SystemSuiteRegisteredEvent(Guid SystemSuiteId, Guid TenantI
 public sealed record SystemSuiteStatusChangedEvent(Guid SystemSuiteId, string Status) : AuthorizationDomainEvent;
 public sealed record SystemSuiteModuleAddedEvent(Guid SystemSuiteId, Guid ModuleId, string Code) : AuthorizationDomainEvent;
 public sealed record SystemSuiteModuleRemovedEvent(Guid SystemSuiteId, Guid ModuleId) : AuthorizationDomainEvent;
-public sealed record SystemSuiteModuleStatusChangedEvent(Guid SystemSuiteId, Guid ModuleId, string Status) : AuthorizationDomainEvent;
+public sealed record SystemSuiteModuleStatusChangedEvent(Guid SystemSuiteId, Guid ModuleId, string NewStatus) : AuthorizationDomainEvent;
 public sealed record SystemSuiteActionRegisteredEvent(Guid SystemSuiteId, string ActionCode) : AuthorizationDomainEvent;
 public sealed record SystemSuiteActionRemovedEvent(Guid SystemSuiteId, string ActionCode) : AuthorizationDomainEvent;
 
@@ -86,7 +86,7 @@ public sealed record EnforcementPolicyDefinedEvent(Guid PolicyId, Guid DocumentT
 public sealed record EnforcementPolicyUpdatedEvent(Guid PolicyId, Guid DocumentTypeId, string ActionOnExpiration) : ComplianceDomainEvent;
 
 public sealed record DocumentUploadedEvent(Guid DocumentId, Guid UserId, Guid DocumentTypeId, DateTime ExpirationDate) : ComplianceDomainEvent;
-public sealed record DocumentValidatedEvent(Guid DocumentId, Guid UserId, Guid ValidatedBy) : ComplianceDomainEvent;
+public sealed record DocumentValidatedEvent(Guid DocumentId, Guid UserId, string ValidatedBy) : ComplianceDomainEvent;
 public sealed record DocumentRejectedEvent(Guid DocumentId, Guid UserId, string RejectionReason) : ComplianceDomainEvent;
 public sealed record DocumentExpiredEvent(Guid DocumentId, Guid UserId, Guid DocumentTypeId, string Criticity) : ComplianceDomainEvent;
 public sealed record DocumentNearExpirationEvent(Guid DocumentId, Guid UserId, Guid DocumentTypeId, int DaysRemaining, int Step) : ComplianceDomainEvent;

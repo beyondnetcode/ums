@@ -4,12 +4,12 @@ using Ums.Shell.Ddd.Services.Impl;
 
 public class FeatureFlagDomainEventsManager : DomainEventsManager
 {
-    public FeatureFlagDomainEventsManager(object aggregateRoot) : base(aggregateRoot) { }
+    public FeatureFlagDomainEventsManager(IAggregateRoot aggregateRoot) : base(aggregateRoot) { }
 
-    public void Apply(FeatureFlagCreatedEvent @event) { }
-    public void Apply(FeatureFlagActivatedEvent @event) { }
-    public void Apply(FeatureFlagDeactivatedEvent @event) { }
-    public void Apply(FeatureFlagArchivedEvent @event) { }
-    public void Apply(FeatureFlagStateChangedEvent @event) { }
-    public void Apply(FlagEvaluatedEvent @event) { }
+    private void Apply(FeatureFlagCreatedEvent @event) { }
+    private void Apply(FeatureFlagActivatedEvent @event) { }
+    private void Apply(FeatureFlagDeactivatedEvent @event) { }
+    private void Apply(FeatureFlagArchivedEvent @event) { }
+    private void Apply(FeatureFlagStateChangedEvent @event) { }
+    private void Apply(FlagEvaluatedEvent @event) { }
 }

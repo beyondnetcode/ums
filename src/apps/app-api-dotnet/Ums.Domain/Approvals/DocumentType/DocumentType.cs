@@ -1,5 +1,6 @@
 namespace Ums.Domain.Approvals.DocumentType;
 
+using Ums.Domain.Approvals.DocumentType.Events;
 using Ums.Domain.Approvals.DocumentType.NotificationRule;
 using Ums.Domain.Approvals.DocumentType.EnforcementPolicy;
 using NotificationRuleEntity = Ums.Domain.Approvals.DocumentType.NotificationRule.NotificationRule;
@@ -10,8 +11,12 @@ public sealed class DocumentType : AggregateRoot<DocumentType, DocumentTypeProps
     private readonly List<NotificationRuleEntity> _notificationRules = new();
     private EnforcementPolicyEntity? _enforcementPolicy;
 
+    public new DocumentTypeDomainEventsManager DomainEvents { get; }
+
     private DocumentType(DocumentTypeProps props) : base(props)
     {
+        DomainEvents = new DocumentTypeDomainEventsManager(this);
+
         if (TrackingState.IsNew)
         {
             DomainEvents.RaiseEvent(new DocumentTypeRegisteredEvent(
@@ -125,7 +130,7 @@ public sealed class DocumentType : AggregateRoot<DocumentType, DocumentTypeProps
         }
 
         if (Criticity != DocumentCriticity.Critical && Criticity != DocumentCriticity.High
-            && (actionOnExpiration == AccessEnforcementAction.BlockAccess || actionOnExpiration == AccessEnforcementAction.DowngradeRole))
+            && (actionOnExpiration == AccessEnforcementAction.BlockUser || actionOnExpiration == AccessEnforcementAction.RestrictProfile))
         {
             BrokenRules.Add(new BrokenRule(nameof(Criticity), DomainErrors.Compliance.CriticalRequiresEnforcementPolicy));
         }

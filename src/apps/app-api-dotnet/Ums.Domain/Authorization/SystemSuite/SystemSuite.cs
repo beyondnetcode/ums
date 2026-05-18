@@ -3,6 +3,7 @@ namespace Ums.Domain.Authorization.SystemSuite;
 using Ums.Domain.Authorization.SystemSuite.AppSetting;
 using Ums.Domain.Authorization.SystemSuite.Module;
 using Ums.Domain.Authorization.SystemSuite.Action;
+using Ums.Domain.Authorization.SystemSuite.Events;
 using ModuleEntity = Ums.Domain.Authorization.SystemSuite.Module.Module;
 using AppSettingEntity = Ums.Domain.Authorization.SystemSuite.AppSetting.AppSetting;
 using ActionEntity = Ums.Domain.Authorization.SystemSuite.Action.Action;
@@ -13,8 +14,12 @@ public sealed class SystemSuite : AggregateRoot<SystemSuite, SystemSuiteProps>
     private readonly List<AppSettingEntity> _appSettings = new();
     private readonly List<ActionEntity> _actions = new();
 
+    public new SystemSuiteDomainEventsManager DomainEvents { get; }
+
     private SystemSuite(SystemSuiteProps props) : base(props)
     {
+        DomainEvents = new SystemSuiteDomainEventsManager(this);
+
         if (TrackingState.IsNew)
         {
             DomainEvents.RaiseEvent(new SystemSuiteRegisteredEvent(props.Id.GetValue(), props.TenantId.GetValue(), props.Code.GetValue()));

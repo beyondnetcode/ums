@@ -1,4 +1,4 @@
-namespace Ums.Domain.Test.Identity.Tenant;
+﻿namespace Ums.Domain.Test.Identity.Tenant;
 
 using Ums.Domain.Identity.Tenant;
 using Ums.Domain.Identity.Tenant.Branding;
@@ -6,12 +6,11 @@ using Xunit;
 
 public class TenantTests
 {
-    private static Code ValidCode => Code.Create("TEST-001");
-    private static Name ValidName => Name.Create("Test Tenant");
-    private static ActorId ValidActor => ActorId.Create("user-001");
-    private static OrganizationType ValidType => OrganizationType.INTERNAL;
-    private static Description ValidDescription => Description.Create("Test IdP");
-
+    private static readonly Code ValidCode = Code.Create("TEST-001");
+    private static readonly Name ValidName = Name.Create("Test Tenant");
+    private static readonly ActorId ValidActor = ActorId.Create("user-001");
+    private static readonly OrganizationType ValidType = OrganizationType.INTERNAL;
+    private static readonly Description ValidDescription = Description.Create("Test IdP");
     private static BrandingSettings ValidBrandingSettings => BrandingSettings.CreateBuilder()
         .WithLogo(Logo.Create("https://cdn.example.com/logo.png"), LogoFormat.Png)
         .WithTheme(HexColor.Create("#FF5733"), BackgroundStyle.SolidColor)

@@ -4,10 +4,10 @@ using Ums.Shell.Ddd.Services.Impl;
 
 public class IdpConfigurationDomainEventsManager : DomainEventsManager
 {
-    public IdpConfigurationDomainEventsManager(object aggregateRoot) : base(aggregateRoot) { }
+    public IdpConfigurationDomainEventsManager(IAggregateRoot aggregateRoot) : base(aggregateRoot) { }
 
-    public void Apply(IdpConfigRegisteredEvent @event) { }
-    public void Apply(IdpConfigActivatedEvent @event) { }
-    public void Apply(IdpConfigUpdatedEvent @event) { }
-    public void Apply(IdpConfigDeactivatedEvent @event) { }
+    private void Apply(IdpConfigRegisteredEvent @event) { }
+    private void Apply(IdpConfigActivatedEvent @event) { }
+    private void Apply(IdpConfigUpdatedEvent @event) { }
+    private void Apply(IdpConfigDeactivatedEvent @event) { }
 }
