@@ -1,0 +1,29 @@
+{
+	"folders": [
+		{
+			"name": "UMS Root",
+			"path": "/Users/beyondnet/Source/ums"
+		},
+		{
+			"name": "src",
+			"path": "/Users/beyondnet/Source/ums/src"
+		},
+		{
+			"name": "Shell DDD",
+			"path": "/Users/beyondnet/Source/ums/src/libs/shell/ddd/src"
+		},
+		{
+			"name": "Shell Factory",
+			"path": "/Users/beyondnet/Source/ums/src/libs/shell/factory/src"
+		},
+		{
+			"name": "API App",
+			"path": "/Users/beyondnet/Source/ums/src/apps/ums.api"
+		},
+		{
+			"name": "Web App",
+			"path": "/Users/beyondnet/Source/ums/src/apps/ums.web-app"
+		}
+	],
+	"settings": {}
+}

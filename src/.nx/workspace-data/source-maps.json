@@ -168,5 +168,91 @@
       "nx.json",
       "nx/target-defaults"
     ]
+  },
+  "apps/app-api-dotnet": {
+    "root": [
+      "apps/app-api-dotnet/project.json",
+      "nx/core/project-json"
+    ],
+    "name": [
+      "apps/app-api-dotnet/project.json",
+      "nx/core/project-json"
+    ],
+    "projectType": [
+      "apps/app-api-dotnet/project.json",
+      "nx/core/project-json"
+    ],
+    "targets": [
+      "apps/app-api-dotnet/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build": [
+      "apps/app-api-dotnet/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.executor": [
+      "apps/app-api-dotnet/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options": [
+      "apps/app-api-dotnet/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.command": [
+      "apps/app-api-dotnet/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test": [
+      "apps/app-api-dotnet/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test.executor": [
+      "apps/app-api-dotnet/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test.options": [
+      "apps/app-api-dotnet/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test.options.command": [
+      "apps/app-api-dotnet/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.run": [
+      "apps/app-api-dotnet/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.run.executor": [
+      "apps/app-api-dotnet/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.run.options": [
+      "apps/app-api-dotnet/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.run.options.command": [
+      "apps/app-api-dotnet/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.cache": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.build.dependsOn": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.build.parallelism": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.test.cache": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.test.parallelism": [
+      "nx.json",
+      "nx/target-defaults"
+    ]
   }
 }

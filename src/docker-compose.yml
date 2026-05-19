@@ -1,0 +1,58 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: ums-postgres
+    environment:
+      POSTGRES_DB: ums
+      POSTGRES_USER: ums_user
+      POSTGRES_PASSWORD: ums_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ums_user -d ums"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ums-network
+
+  # .NET Backend API
+  ums-api:
+    build:
+      context: .
+      dockerfile: apps/ums.api/Ums.Presentation/Dockerfile
+    container_name: ums-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ums;Username=ums_user;Password=ums_password
+    ports:
+      - "5293:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - ums-network
+
+  # React Frontend
+  ums-web:
+    build:
+      context: .
+      dockerfile: apps/ums.web-app/Dockerfile
+    container_name: ums-web
+    ports:
+      - "5173:80"
+    depends_on:
+      - ums-api
+    networks:
+      - ums-network
+
+networks:
+  ums-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

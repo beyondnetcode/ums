@@ -1,0 +1,21 @@
+{
+  "run": {
+    "command": "nx run app-web:build",
+    "startTime": "2026-05-19T13:44:31.371Z",
+    "endTime": "2026-05-19T13:44:32.239Z",
+    "inner": false
+  },
+  "tasks": [
+    {
+      "taskId": "app-web:build",
+      "target": "build",
+      "projectName": "app-web",
+      "hash": "4273068146860080914",
+      "startTime": "2026-05-19T13:44:31.425Z",
+      "endTime": "2026-05-19T13:44:32.234Z",
+      "params": "",
+      "cacheStatus": "cache-miss",
+      "status": 1
+    }
+  ]
+}

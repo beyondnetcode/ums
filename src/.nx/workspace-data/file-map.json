@@ -7,253 +7,683 @@
     "nonProjectFiles": [
       {
         "file": ".eslintrc.js",
-        "hash": "16266062772136191986"
+        "hash": "16211247502022710247"
       },
       {
         "file": ".husky/commit-msg",
-        "hash": "1662522230865824970"
+        "hash": "10104770268178730172"
       },
       {
         "file": ".husky/pre-commit",
-        "hash": "2252388722391304785"
+        "hash": "8906304965158091741"
       },
       {
         "file": ".lintstagedrc.json",
-        "hash": "12298572085250982508"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Application/Class1.cs",
-        "hash": "5555809034329485531"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Application/Common/Interfaces/ITenantContext.cs",
-        "hash": "1749257076433388530"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Application/Ums.Application.csproj",
-        "hash": "12125349165069650026"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Application/obj/Ums.Application.csproj.nuget.dgspec.json",
-        "hash": "3761589851477245219"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Application/obj/Ums.Application.csproj.nuget.g.props",
-        "hash": "6279994871348701362"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Application/obj/Ums.Application.csproj.nuget.g.targets",
-        "hash": "15192663866877192239"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Application/obj/project.assets.json",
-        "hash": "2690772909745233737"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Application/obj/project.nuget.cache",
-        "hash": "18277140488150718021"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Domain/Class1.cs",
-        "hash": "6619166451904247863"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Domain/Common/Entity.cs",
-        "hash": "3229000035589778580"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Domain/Common/Result.cs",
-        "hash": "1231355482422768255"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Domain/Entities/Organization.cs",
-        "hash": "16050517936800926027"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Domain/Entities/Subject.cs",
-        "hash": "11376818866205039153"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Domain/Enums/OrganizationType.cs",
-        "hash": "16609481206280866642"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Domain/Enums/ReferenceType.cs",
-        "hash": "7030956891476534966"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Domain/Ums.Domain.csproj",
-        "hash": "3208413897984775319"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Domain/obj/Ums.Domain.csproj.nuget.dgspec.json",
-        "hash": "6068624604145664236"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Domain/obj/Ums.Domain.csproj.nuget.g.props",
-        "hash": "6279994871348701362"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Domain/obj/Ums.Domain.csproj.nuget.g.targets",
-        "hash": "15192663866877192239"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Domain/obj/project.assets.json",
-        "hash": "15302572118436807582"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Domain/obj/project.nuget.cache",
-        "hash": "1095288575809194565"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Infrastructure/Class1.cs",
-        "hash": "9791591959825186621"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Infrastructure/Persistence/Interceptors/OrganizationDbContextInterceptor.cs",
-        "hash": "12791585287016540805"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Infrastructure/Persistence/TenantContext.cs",
-        "hash": "13746144764641888682"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Infrastructure/Ums.Infrastructure.csproj",
-        "hash": "11615456958201784248"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Infrastructure/obj/Ums.Infrastructure.csproj.nuget.dgspec.json",
-        "hash": "5021182017769816935"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Infrastructure/obj/Ums.Infrastructure.csproj.nuget.g.props",
-        "hash": "6279994871348701362"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Infrastructure/obj/Ums.Infrastructure.csproj.nuget.g.targets",
-        "hash": "15192663866877192239"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Infrastructure/obj/project.assets.json",
-        "hash": "11166234082131368590"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Infrastructure/obj/project.nuget.cache",
-        "hash": "9069211662691535510"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Presentation/Controllers/WeatherForecastController.cs",
-        "hash": "6233009520490912345"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Presentation/Program.cs",
-        "hash": "7373982767450965999"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Presentation/Properties/launchSettings.json",
-        "hash": "16192983630917131910"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Presentation/Ums.Presentation.csproj",
-        "hash": "2100052356685264607"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Presentation/WeatherForecast.cs",
-        "hash": "9701347439044913580"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Presentation/appsettings.Development.json",
-        "hash": "3339958947771738801"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Presentation/appsettings.json",
-        "hash": "8794831988107864270"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Presentation/obj/Ums.Presentation.csproj.nuget.dgspec.json",
-        "hash": "8837086884807941252"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Presentation/obj/Ums.Presentation.csproj.nuget.g.props",
-        "hash": "3221324454059151633"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Presentation/obj/Ums.Presentation.csproj.nuget.g.targets",
-        "hash": "15192663866877192239"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Presentation/obj/project.assets.json",
-        "hash": "5935238288935908716"
-      },
-      {
-        "file": "apps/app-api-dotnet/Ums.Presentation/obj/project.nuget.cache",
-        "hash": "5856924231904106315"
+        "hash": "5020186389821047974"
       },
       {
         "file": "commitlint.config.js",
-        "hash": "10950796656646911766"
+        "hash": "9434414401698340232"
       },
       {
         "file": "context7.json",
         "hash": "3308647264684880070"
       },
       {
+        "file": "graph.json",
+        "hash": "17349813273771842306"
+      },
+      {
+        "file": "libs/shell/ddd/.gitignore",
+        "hash": "9272581773384673148"
+      },
+      {
+        "file": "libs/shell/ddd/LICENSE",
+        "hash": "9134025855732130211"
+      },
+      {
+        "file": "libs/shell/ddd/ORIGIN.md",
+        "hash": "14012377011223680836"
+      },
+      {
+        "file": "libs/shell/ddd/README.md",
+        "hash": "7294049805128411895"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.AutoMapper/Impl/EnumerationConverter.cs",
+        "hash": "16237450944354492258"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.AutoMapper/Ums.Shell.Ddd.AutoMapper.csproj",
+        "hash": "4225723097846280823"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/AutoMapper/Interfaces/IDomainEventsManager.cs",
+        "hash": "16278923029251088519"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/AutoMapper/Interfaces/ITrackingStateManager.cs",
+        "hash": "8194558092770644461"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/AutoMapper/ParentRootAuditDtoToEntityConvert.cs",
+        "hash": "14815890993981304523"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/AutoMapper/ParentRootEntityAuditToAuditDtoConvert.cs",
+        "hash": "6373773185478731485"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/AutoMapper/ParentRootProfile.cs",
+        "hash": "17782372281138693916"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/AutoMapperTest.cs",
+        "hash": "12587066302782847715"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/BrokenRulesTest.cs",
+        "hash": "16263833593992802981"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Dtos/AuditDto.cs",
+        "hash": "3810258743982654211"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Dtos/SampleEntityDto.cs",
+        "hash": "8908883655293026897"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Entities/SampleAggregateRoot.cs",
+        "hash": "9174682962136333688"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Entities/SampleCreatedDomainEvent.cs",
+        "hash": "10335362387163708254"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Entities/SampleEntity.cs",
+        "hash": "5946544765287134459"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Entities/SampleEntityChild.cs",
+        "hash": "1041159962570000583"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Entities/SampleEntityValidator.cs",
+        "hash": "8297038444209611969"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Entities/SampleName.cs",
+        "hash": "2310373928012917477"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Entities/SampleNameValidator.cs",
+        "hash": "10327468021026121145"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Entities/SampleReference.cs",
+        "hash": "17386399451464998293"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Entities/SampleReferenceId.cs",
+        "hash": "8036781253898214320"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Entities/SampleReferenceIdValidator.cs",
+        "hash": "13981401928826307388"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/EnumerationTest.cs",
+        "hash": "7040473977899271174"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Extensions/BrokenRulesExtensions.cs",
+        "hash": "17939199181175332947"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/GlobalUsings.cs",
+        "hash": "11908352505974793190"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/PropertyChangedTest.cs",
+        "hash": "15585456254568891254"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/SampleEntityTest.cs",
+        "hash": "6777864196573312206"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/SampleNameValidatorTest.cs",
+        "hash": "3768033621215266461"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Services/DomainEventsManagerTest.cs",
+        "hash": "9291241094038588532"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/TestMain.cs",
+        "hash": "12246375325287956740"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Ums.Shell.Ddd.Test.csproj",
+        "hash": "13909809488526309890"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/ValueObjectTest.cs",
+        "hash": "16141406224064356107"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Audit/AuditValueObject.cs",
+        "hash": "3068663398333853355"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Common/BoolValueObject.cs",
+        "hash": "17705220961727080340"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Common/DecimalValueObject.cs",
+        "hash": "10684801248185574347"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Common/IntValueObject.cs",
+        "hash": "7341000668810258563"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Common/StringValueObject.cs",
+        "hash": "17775469996916534053"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/GlobalUsings.cs",
+        "hash": "8449273468499491904"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Ums.Shell.Ddd.ValueObjects.csproj",
+        "hash": "11780593344111765112"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Validators/IdGuidValidator.cs",
+        "hash": "11708503576038509243"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Validators/StringMaxLenghtValidator.cs",
+        "hash": "12013533671936191567"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Validators/StringMinLenghtValidator.cs",
+        "hash": "15457971501406590589"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Validators/StringNotNullValidator.cs",
+        "hash": "7848677579861924034"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Validators/StringRangeLengthValidator.cs",
+        "hash": "3890327191946893143"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/.editorconfig",
+        "hash": "12170194868035843471"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/AggregateRoot.cs",
+        "hash": "11376167354725119028"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/DomainEnumeration.cs",
+        "hash": "8910310106875446984"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/DomainEvent.cs",
+        "hash": "2528507889979836027"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Entity.cs",
+        "hash": "15689788362558303041"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Extensions/MediatorExtension.cs",
+        "hash": "5644078653281884024"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Extensions/TypeExtensions.cs",
+        "hash": "15372713939407737581"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/GlobalUsings.cs",
+        "hash": "12452770833610398419"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Helpers/IdHelper.cs",
+        "hash": "8127368911434567890"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Helpers/ReflectionHelper.cs",
+        "hash": "10139258156885900212"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/IdValueObject.cs",
+        "hash": "12362636186788612228"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Interfaces/IAggregateRoot.cs",
+        "hash": "5846136271868852861"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Interfaces/IDomainEvent.cs",
+        "hash": "8728429301789194788"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Interfaces/IEntity.cs",
+        "hash": "12428358529003857543"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Interfaces/IMetadata.cs",
+        "hash": "17757262812759461088"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Interfaces/IProps.cs",
+        "hash": "1453262994618520888"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Interfaces/IRepository.cs",
+        "hash": "379993425432459368"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Interfaces/IUnitOfWork.cs",
+        "hash": "12240513250552341646"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Rules/BrokenRule.cs",
+        "hash": "4293444276093026671"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Rules/BrokenRulesExtension.cs",
+        "hash": "15780341723582658399"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Rules/Impl/AbstractRuleValidator.cs",
+        "hash": "17068982905441688247"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Rules/Interfaces/IRuleValidator.cs",
+        "hash": "14002782395490669181"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Rules/PropertyChange/AbstractNotifyPropertyChanged.cs",
+        "hash": "5455226918456902509"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Rules/PropertyChange/NotifyPropertyChangedContext.cs",
+        "hash": "6488567385486009711"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Rules/PropertyChange/NotifyPropertyChangedContextArgs.cs",
+        "hash": "31262394382762561"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Rules/PropertyChange/ReflectionTypeExtensions.cs",
+        "hash": "13599476457218030524"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Rules/RuleContext.cs",
+        "hash": "16636634475071394614"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Impl/BrokenRulesManager.cs",
+        "hash": "8521348546059665895"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Impl/DomainEventsManager.cs",
+        "hash": "10874868280578972897"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Impl/TrackingStateManager.cs",
+        "hash": "17278958267759782762"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Impl/ValidatorRuleManager.cs",
+        "hash": "6064203268810921969"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Interfaces/IDomainEventsManager.cs",
+        "hash": "3862633412247641980"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Interfaces/ITrackingStateManager.cs",
+        "hash": "8194558092770644461"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Ums.Shell.Ddd.csproj",
+        "hash": "2087235324808623297"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Ums.Shell.Ddd.sln",
+        "hash": "18320087743645518852"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/ValueObject.cs",
+        "hash": "15281678896634147859"
+      },
+      {
+        "file": "libs/shell/factory/.gitignore",
+        "hash": "9272581773384673148"
+      },
+      {
+        "file": "libs/shell/factory/LICENSE",
+        "hash": "9134025855732130211"
+      },
+      {
+        "file": "libs/shell/factory/ORIGIN.md",
+        "hash": "3191986382814857445"
+      },
+      {
+        "file": "libs/shell/factory/README.md",
+        "hash": "14519246512482354712"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Bootstrapper/LogicModelFactoryRecordSetup.cs",
+        "hash": "574948644990939905"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Impl/LogicModelCATLoader.cs",
+        "hash": "18058820106088943667"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Impl/LogicModelPADLoader.cs",
+        "hash": "8188212492592453403"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Impl/LogicModelREVLoader.cs",
+        "hash": "8562489413787122034"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Impl/StrategyBuilder.cs",
+        "hash": "4679164492671645624"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Interfaces/ILogicModelLoader.cs",
+        "hash": "9878964054875908553"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Interfaces/IStrategyBuilder.cs",
+        "hash": "10224873896762882247"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Models/Criteria.cs",
+        "hash": "127822212573203411"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Models/ModelFilter.cs",
+        "hash": "2260216252416203274"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Models/Strategy.cs",
+        "hash": "10982772974396091306"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Models/ePersonalizationType.cs",
+        "hash": "4874466858545401231"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Program.cs",
+        "hash": "6303208591350108462"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Ums.Shell.Factory.Demo.csproj",
+        "hash": "11206619182545192455"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Installer/Extensions/ServiceCollectionExtensions.cs",
+        "hash": "16445897686602005291"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Installer/Extensions/ServiceProviderExtensions.cs",
+        "hash": "17106589667944202944"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Installer/GlobalUsings.cs",
+        "hash": "5849248778685694640"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Installer/Impl/FactoryBuilder.cs",
+        "hash": "9326515836885879345"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Installer/Impl/ServiceLocator.cs",
+        "hash": "9191999430851293401"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Installer/Ums.Shell.Factory.Installer.csproj",
+        "hash": "11186346317317987915"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Test/Factory/Impl/DoSomething.cs",
+        "hash": "16272529520465370701"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Test/Factory/Impl/DoSomethingLessThan18.cs",
+        "hash": "11054439108835059645"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Test/Factory/Impl/EmptyFactoryRecordSetupSource.cs",
+        "hash": "4348153652717817465"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Test/Factory/Impl/FactoryRecordSetupSource.cs",
+        "hash": "10750159487544934812"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Test/Factory/Impl/TestCases.cs",
+        "hash": "6987411930555254665"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Test/Factory/Interfaces/IDoSomething.cs",
+        "hash": "14104390490544895027"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Test/Factory/Models/Consultant.cs",
+        "hash": "14585364541158002573"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Test/Factory/Test.cs",
+        "hash": "11938196204076037818"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Test/GlobalUsings.cs",
+        "hash": "17340915020823294517"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Test/Ums.Shell.Factory.Test.csproj",
+        "hash": "10276796793674158998"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.sln",
+        "hash": "7048121211507711060"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Fluent/Impl/FactorySetupCreateBuilder.cs",
+        "hash": "6195594214396964582"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Fluent/Impl/FactorySetupGroupCreateBuilder.cs",
+        "hash": "16712088811858215492"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Fluent/Impl/FactorySetupWhenBuilder.cs",
+        "hash": "2414021644115352978"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Fluent/Interface/IFactoryRecordSetupCreateBuilder.cs",
+        "hash": "11888298027301792369"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Fluent/Interface/IFactoryRecordSetupGroupCreateBuilder.cs",
+        "hash": "12116877389713662637"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Fluent/Interface/IFactoryRecordSetupWhenBuilder.cs",
+        "hash": "11025123169121805584"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/GlobalUsings.cs",
+        "hash": "1362423787806646448"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Impl/AbstractFactoryInterceptor.cs",
+        "hash": "3525859258260296317"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Impl/AbstractFactorySetupSource.cs",
+        "hash": "14239505156165897707"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Impl/Factory.cs",
+        "hash": "9194458806518221682"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Impl/FactoryCreator.cs",
+        "hash": "11841337827519533932"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Impl/FactorySetupProvider.cs",
+        "hash": "5800010852753280571"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Impl/NullFactoryInterceptor.cs",
+        "hash": "10783724279207269200"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Impl/ServiceLocator.cs",
+        "hash": "6484916435093533486"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Interface/IFactory.cs",
+        "hash": "5477824032187976609"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Interface/IFactoryBuilder.cs",
+        "hash": "631272658177457597"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Interface/IFactoryCreator.cs",
+        "hash": "6947007008003611723"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Interface/IFactoryInterceptor.cs",
+        "hash": "8067027427723676317"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Interface/IFactorySetupProvider.cs",
+        "hash": "8921267208440191502"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Interface/IFactorySetupSource.cs",
+        "hash": "14769509413967505606"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Interface/IScopedServiceLocator.cs",
+        "hash": "8288957024701345823"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Interface/IServiceLocator.cs",
+        "hash": "10627099522347561361"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Model/ServiceLocatorRecord.cs",
+        "hash": "4901160070006780420"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Model/Setup.cs",
+        "hash": "38425205674903492"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Model/SetupItem.cs",
+        "hash": "7704586592972222145"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Ums.Shell.Factory.csproj",
+        "hash": "18015587442786391459"
+      },
+      {
         "file": "nx.json",
-        "hash": "5450499829741628076"
+        "hash": "6253689389994858270"
       },
       {
         "file": "package-lock.json",
-        "hash": "575977579188431536"
+        "hash": "11537814298228859099"
       },
       {
         "file": "package.json",
-        "hash": "2179462807098572817"
+        "hash": "2236388159892865050"
       },
       {
         "file": "sonar-project.properties",
-        "hash": "13818528924191370442"
+        "hash": "11296511598039711882"
       },
       {
         "file": "tsconfig.json",
-        "hash": "9997677782244487085"
+        "hash": "17007764994909223794"
       }
     ],
     "projectFileMap": {
       "app-web": [
         {
           "file": "apps/app-web/.gitignore",
-          "hash": "987422939859577920"
+          "hash": "13046175384202504187"
         },
         {
           "file": "apps/app-web/Dockerfile",
-          "hash": "14159326082059877201"
+          "hash": "415185693149761018"
         },
         {
           "file": "apps/app-web/README.md",
-          "hash": "16006196804499990684"
+          "hash": "13026217733715566195"
         },
         {
           "file": "apps/app-web/eslint.config.js",
-          "hash": "14295233468073832176"
+          "hash": "16145672096969245511",
+          "deps": [
+            "npm:@eslint/js",
+            "npm:globals",
+            "npm:eslint-plugin-react-hooks@5.0.0",
+            "npm:eslint-plugin-react-refresh",
+            "npm:typescript-eslint"
+          ]
         },
         {
           "file": "apps/app-web/index.html",
-          "hash": "3523350244501711271"
+          "hash": "4025202329384162906"
         },
         {
           "file": "apps/app-web/package.json",
-          "hash": "17137408121745562134",
+          "hash": "16399257232460004553",
           "deps": [
+            "npm:@eslint/js",
+            "npm:@types/react",
+            "npm:@types/react-dom",
             "npm:@vitejs/plugin-react",
-            "npm:eslint",
+            "npm:autoprefixer",
+            "npm:eslint@9.13.0",
+            "npm:eslint-plugin-react-hooks@5.0.0",
+            "npm:eslint-plugin-react-refresh",
+            "npm:globals",
             "npm:postcss",
-            "npm:typescript",
-            "npm:vite"
+            "npm:tailwindcss",
+            "npm:typescript@5.6.2",
+            "npm:typescript-eslint",
+            "npm:vite@5.4.10",
+            "npm:@tanstack/react-query",
+            "npm:axios",
+            "npm:lucide-react",
+            "npm:react",
+            "npm:react-dom",
+            "npm:zustand"
           ]
         },
         {
           "file": "apps/app-web/postcss.config.js",
-          "hash": "15693758819557691193"
+          "hash": "1121830044826443979"
         },
         {
           "file": "apps/app-web/project.json",
@@ -265,19 +695,30 @@
         },
         {
           "file": "apps/app-web/src/App.css",
-          "hash": "13627028001484829084"
+          "hash": "4474226338506881641"
         },
         {
           "file": "apps/app-web/src/App.tsx",
-          "hash": "1649707398968774444"
+          "hash": "13945449033833999943",
+          "deps": [
+            "npm:react",
+            "npm:lucide-react"
+          ]
         },
         {
           "file": "apps/app-web/src/application/hooks/use-users.hook.ts",
-          "hash": "15359628369555424744"
+          "hash": "15549349356238488947",
+          "deps": [
+            "npm:@tanstack/react-query",
+            "npm:axios"
+          ]
         },
         {
           "file": "apps/app-web/src/application/stores/auth.store.ts",
-          "hash": "5905811539909134696"
+          "hash": "17176243783052242214",
+          "deps": [
+            "npm:zustand"
+          ]
         },
         {
           "file": "apps/app-web/src/assets/react.svg",
@@ -285,42 +726,1153 @@
         },
         {
           "file": "apps/app-web/src/index.css",
-          "hash": "8167900217539817758"
+          "hash": "6937277729635285444"
         },
         {
           "file": "apps/app-web/src/main.tsx",
-          "hash": "3025450120565290426"
+          "hash": "15472231304380165260",
+          "deps": [
+            "npm:react",
+            "npm:react-dom",
+            "npm:@tanstack/react-query"
+          ]
         },
         {
           "file": "apps/app-web/src/vite-env.d.ts",
-          "hash": "7856441258253745083"
+          "hash": "12946363841406869089"
         },
         {
           "file": "apps/app-web/tailwind.config.js",
-          "hash": "16865978060335021304"
+          "hash": "16122034276312188158"
         },
         {
           "file": "apps/app-web/tsconfig.app.json",
-          "hash": "14651992544648412334"
+          "hash": "1085951157392555052"
         },
         {
           "file": "apps/app-web/tsconfig.json",
-          "hash": "11226547063925144724"
+          "hash": "2365188958523842680"
         },
         {
           "file": "apps/app-web/tsconfig.node.json",
-          "hash": "12262193868857656205"
+          "hash": "3810366411942401755"
         },
         {
           "file": "apps/app-web/vite.config.ts",
-          "hash": "7439983863429144252",
+          "hash": "6915348412283217279",
           "deps": [
-            "npm:vite",
+            "npm:vite@5.4.10",
             "npm:@vitejs/plugin-react"
           ]
+        }
+      ],
+      "app-api-dotnet": [
+        {
+          "file": "apps/app-api-dotnet/Ums.Application.Test/Common/Behaviors/ValidationBehaviorTests.cs",
+          "hash": "15384531517523581133"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application.Test/Common/DomainEnumerationParserTests.cs",
+          "hash": "1042243082080174248"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application.Test/GlobalUsings.cs",
+          "hash": "17597938523928419463"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application.Test/Tenants/ActivateTenant/ActivateTenantCommandHandlerTests.cs",
+          "hash": "8535025359032845514"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application.Test/Tenants/ActivateTenant/ActivateTenantCommandValidatorTests.cs",
+          "hash": "7480358531250076662"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application.Test/Tenants/AddBranch/AddBranchCommandHandlerTests.cs",
+          "hash": "14145420197271254849"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application.Test/Tenants/AddBranch/AddBranchCommandValidatorTests.cs",
+          "hash": "14132777754142678209"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application.Test/Tenants/CreateTenant/CreateTenantCommandHandlerTests.cs",
+          "hash": "11799261865476208928"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application.Test/Tenants/CreateTenant/CreateTenantCommandValidatorTests.cs",
+          "hash": "10183604100753343107"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application.Test/Tenants/SuspendTenant/SuspendTenantCommandHandlerTests.cs",
+          "hash": "4442822262910671898"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application.Test/Tenants/SuspendTenant/SuspendTenantCommandValidatorTests.cs",
+          "hash": "2341023308962600299"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application.Test/Ums.Application.Test.csproj",
+          "hash": "14889083960533575377"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application/Abstractions/Messaging/ICommand.cs",
+          "hash": "1686071257197539361"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application/Abstractions/Messaging/ICommandHandler.cs",
+          "hash": "14565688723512449479"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application/Abstractions/Messaging/IQuery.cs",
+          "hash": "7520970053349819135"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application/Abstractions/Messaging/IQueryHandler.cs",
+          "hash": "1085866092674372637"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application/Class1.cs",
+          "hash": "3771615498569643378"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application/Common/Behaviors/ValidationBehavior.cs",
+          "hash": "1437056130868211898"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application/Common/DomainEnumerationParser.cs",
+          "hash": "1298343802791372019"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application/Common/Interfaces/ITenantContext.cs",
+          "hash": "1749257076433388530"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application/Common/Interfaces/IUserContext.cs",
+          "hash": "16541713746513975936"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application/DependencyInjection.cs",
+          "hash": "4494324424861357832"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application/Tenants/ActivateTenant/ActivateTenantCommand.cs",
+          "hash": "5253960842494031883"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application/Tenants/ActivateTenant/ActivateTenantCommandHandler.cs",
+          "hash": "13089160901691952850"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application/Tenants/ActivateTenant/ActivateTenantCommandValidator.cs",
+          "hash": "7712376587581208169"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application/Tenants/AddBranch/AddBranchCommand.cs",
+          "hash": "665772131478826000"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application/Tenants/AddBranch/AddBranchCommandHandler.cs",
+          "hash": "12823510951238798610"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application/Tenants/AddBranch/AddBranchCommandValidator.cs",
+          "hash": "2172957393802373534"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application/Tenants/AddBranch/AddBranchResponse.cs",
+          "hash": "16518716586742810484"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application/Tenants/CreateTenant/CreateTenantCommand.cs",
+          "hash": "11544061774116107858"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application/Tenants/CreateTenant/CreateTenantCommandHandler.cs",
+          "hash": "7835257188692905042"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application/Tenants/CreateTenant/CreateTenantCommandValidator.cs",
+          "hash": "7529324590463132047"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application/Tenants/CreateTenant/CreateTenantResponse.cs",
+          "hash": "15703312483399124697"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application/Tenants/SuspendTenant/SuspendTenantCommand.cs",
+          "hash": "7318179640436257525"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application/Tenants/SuspendTenant/SuspendTenantCommandHandler.cs",
+          "hash": "15678790524682840873"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application/Tenants/SuspendTenant/SuspendTenantCommandValidator.cs",
+          "hash": "2806101142105635506"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Application/Ums.Application.csproj",
+          "hash": "1089101489028520257"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain.Test/Approvals/AccessEnforcementPolicy/AccessEnforcementPolicyTests.cs",
+          "hash": "3259773941081808825"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain.Test/Approvals/ApprovalRequest/ApprovalRequestTests.cs",
+          "hash": "9442975871647956681"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain.Test/Approvals/ApprovalWorkflow/ApprovalWorkflowTests.cs",
+          "hash": "8019980134587828863"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain.Test/Approvals/DocumentType/DocumentTypeTests.cs",
+          "hash": "640429730858340888"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain.Test/Approvals/NotificationRule/NotificationRuleTests.cs",
+          "hash": "4610945254969885378"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain.Test/Approvals/UserDocument/UserDocumentTests.cs",
+          "hash": "2685131700625902498"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain.Test/Audit/AuditRecord/AuditRecordTests.cs",
+          "hash": "8503979187726804793"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain.Test/Authorization/Profile/ProfileTests.cs",
+          "hash": "11989850848460912075"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain.Test/Authorization/SystemSuite/SystemSuiteTests.cs",
+          "hash": "9389607557090678962"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain.Test/Authorization/Template/PermissionTemplateTests.cs",
+          "hash": "3158706855311945142"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain.Test/Configuration/AppConfiguration/AppConfigurationTests.cs",
+          "hash": "4901936398493076037"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain.Test/Configuration/FeatureFlag/FeatureFlagTests.cs",
+          "hash": "7022663478957466806"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain.Test/Configuration/IdpConfiguration/IdpConfigurationTests.cs",
+          "hash": "12829416173342773930"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain.Test/GlobalUsings.cs",
+          "hash": "15963589374153086421"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain.Test/IGA/PromotionRequest/PromotionImpactAnalysis/PromotionImpactAnalysisTests.cs",
+          "hash": "188006799965474408"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain.Test/IGA/PromotionRequest/PromotionRequestTests.cs",
+          "hash": "5937573349894987175"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain.Test/IGA/RoleMaturityStatus/RoleMaturityStatusTests.cs",
+          "hash": "12751072621430696231"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain.Test/Identity/Tenant/TenantTests.cs",
+          "hash": "16294300646902410203"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain.Test/Identity/UserAccount/PasswordCredential/PasswordCredentialTests.cs",
+          "hash": "5524121805494646757"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain.Test/Identity/UserAccount/UserAccountTests.cs",
+          "hash": "1450489631039397653"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain.Test/Ums.Domain.Test.csproj",
+          "hash": "12926986513050861676"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Approvals/AccessEnforcementPolicy/AccessEnforcementPolicy.cs",
+          "hash": "14887446131827407141"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Approvals/AccessEnforcementPolicy/AccessEnforcementPolicyProps.cs",
+          "hash": "7625963410739159208"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Approvals/ApprovalRequest/ApprovalRequest.cs",
+          "hash": "2781103082765265787"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Approvals/ApprovalRequest/ApprovalRequestProps.cs",
+          "hash": "17621529699101161547"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Approvals/ApprovalWorkflow/ApprovalRequiredDocument/ApprovalRequiredDocument.cs",
+          "hash": "12412951421699594745"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Approvals/ApprovalWorkflow/ApprovalRequiredDocument/ApprovalRequiredDocumentProps.cs",
+          "hash": "1707844022107058027"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Approvals/ApprovalWorkflow/ApprovalWorkflow.cs",
+          "hash": "4279179997993286216"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Approvals/ApprovalWorkflow/ApprovalWorkflowProps.cs",
+          "hash": "11083070248950553575"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Approvals/DocumentType/DocumentType.cs",
+          "hash": "10591712189277412507"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Approvals/DocumentType/DocumentTypeProps.cs",
+          "hash": "4167274492173720134"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Approvals/DocumentType/EnforcementPolicy/EnforcementPolicy.cs",
+          "hash": "16808606286564914670"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Approvals/DocumentType/EnforcementPolicy/EnforcementPolicyProps.cs",
+          "hash": "7640521024666989084"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Approvals/DocumentType/Events/DocumentTypeDomainEventsManager.cs",
+          "hash": "7638661632666533452"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Approvals/DocumentType/NotificationRule/NotificationRule.cs",
+          "hash": "15168586752692084146"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Approvals/DocumentType/NotificationRule/NotificationRuleProps.cs",
+          "hash": "9030189277911394359"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Approvals/NotificationRule/NotificationRule.cs",
+          "hash": "3456605211790496078"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Approvals/NotificationRule/NotificationRuleProps.cs",
+          "hash": "5721594804231308342"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Approvals/UserDocument/AccessNotification/AccessNotification.cs",
+          "hash": "6579236297868336324"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Approvals/UserDocument/AccessNotification/AccessNotificationProps.cs",
+          "hash": "13732909945335748837"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Approvals/UserDocument/Events/UserDocumentDomainEventsManager.cs",
+          "hash": "7273172607277403584"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Approvals/UserDocument/UserDocument.cs",
+          "hash": "7407517218144394073"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Approvals/UserDocument/UserDocumentProps.cs",
+          "hash": "16623673489397754330"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Audit/AuditRecord/AuditRecord.cs",
+          "hash": "16738927304247468287"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Audit/AuditRecord/AuditRecordProps.cs",
+          "hash": "8724612951826220982"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Audit/AuditRecord/IAuditRecordRepository.cs",
+          "hash": "11638559636230708901"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Authorization/Profile/Events/ProfileDomainEventsManager.cs",
+          "hash": "13261334694752871924"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Authorization/Profile/Profile.cs",
+          "hash": "689454082422734965"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Authorization/Profile/ProfilePermission/ProfilePermission.cs",
+          "hash": "13215286487310017657"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Authorization/Profile/ProfilePermission/ProfilePermissionProps.cs",
+          "hash": "11004348791444060262"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Authorization/Profile/ProfilePermission/ProfilePermissionSettings.cs",
+          "hash": "14201756912027850015"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Authorization/Profile/ProfileProps.cs",
+          "hash": "14905514698872470589"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Authorization/SystemSuite/Action/Action.cs",
+          "hash": "6730687196388163591"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Authorization/SystemSuite/Action/ActionProps.cs",
+          "hash": "4205827593169672810"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Authorization/SystemSuite/AppSetting/AppSetting.cs",
+          "hash": "2253017160628445676"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Authorization/SystemSuite/Events/SystemSuiteDomainEventsManager.cs",
+          "hash": "4657132758878816538"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Authorization/SystemSuite/Menu/Menu.cs",
+          "hash": "3852894379667384578"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Authorization/SystemSuite/Menu/MenuProps.cs",
+          "hash": "11977723634314578092"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Authorization/SystemSuite/Module/Module.cs",
+          "hash": "11402066337444482560"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Authorization/SystemSuite/Module/ModuleProps.cs",
+          "hash": "14143694780874962029"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Authorization/SystemSuite/Option/Option.cs",
+          "hash": "15404394148345554173"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Authorization/SystemSuite/Option/OptionProps.cs",
+          "hash": "10562909858615150446"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Authorization/SystemSuite/SubMenu/SubMenu.cs",
+          "hash": "7316809250522344354"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Authorization/SystemSuite/SubMenu/SubMenuProps.cs",
+          "hash": "2168743491521575593"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Authorization/SystemSuite/SystemSuite.cs",
+          "hash": "12126451561238265283"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Authorization/SystemSuite/SystemSuiteProps.cs",
+          "hash": "13108446091204641541"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Authorization/Template/Events/PermissionTemplateDomainEventsManager.cs",
+          "hash": "12249350999948463654"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Authorization/Template/PermissionTemplate.cs",
+          "hash": "181242870970693378"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Authorization/Template/PermissionTemplateItem/PermissionTemplateItem.cs",
+          "hash": "15000411716240626988"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Authorization/Template/PermissionTemplateItem/PermissionTemplateItemProps.cs",
+          "hash": "3686394735057157797"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Authorization/Template/PermissionTemplateProps.cs",
+          "hash": "15113395284821953054"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Configuration/AppConfiguration/AppConfiguration.cs",
+          "hash": "10245663280007031440"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Configuration/AppConfiguration/AppConfigurationProps.cs",
+          "hash": "583362889882171375"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Configuration/AppConfiguration/Events/AppConfigurationDomainEventsManager.cs",
+          "hash": "8040372347302145736"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Configuration/FeatureFlag/Events/FeatureFlagDomainEventsManager.cs",
+          "hash": "14903800886833590281"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Configuration/FeatureFlag/FeatureFlag.cs",
+          "hash": "9363685577712428772"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Configuration/FeatureFlag/FeatureFlagProps.cs",
+          "hash": "3641248354654361092"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Configuration/FeatureFlag/FlagEvaluationLog/FlagEvaluationLog.cs",
+          "hash": "14017947312261161164"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Configuration/FeatureFlag/FlagEvaluationLog/FlagEvaluationLogProps.cs",
+          "hash": "12198500124767528123"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Configuration/IdpConfiguration/Events/IdpConfigurationDomainEventsManager.cs",
+          "hash": "8111126764697929305"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Configuration/IdpConfiguration/IdpConfiguration.cs",
+          "hash": "5976033219260283197"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Configuration/IdpConfiguration/IdpConfigurationProps.cs",
+          "hash": "4135466262162586040"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/AccessEnforcementAction.cs",
+          "hash": "770156242757582000"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/ApprovalDecision.cs",
+          "hash": "4619667483775393000"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/ApprovalStatus.cs",
+          "hash": "10560144014464401640"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/AuditResult.cs",
+          "hash": "11955748143671720659"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/BackgroundStyle.cs",
+          "hash": "1176722486051439567"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/ConfigStatus.cs",
+          "hash": "10164791445465747766"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/ConfigurationScope.cs",
+          "hash": "8539923746467100509"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/DnsVerificationStatus.cs",
+          "hash": "2125806745424940158"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/DocumentCriticity.cs",
+          "hash": "2064518194167093909"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/DocumentStatus.cs",
+          "hash": "8089060445341950949"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/DomainEnums.cs",
+          "hash": "16942747110425092003"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/ExclusiveArcTarget.cs",
+          "hash": "9409566427088771642"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/FlagStatus.cs",
+          "hash": "7568383148877967282"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/FlagType.cs",
+          "hash": "366098205906511119"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/IdentityReferenceType.cs",
+          "hash": "1824251638724819958"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/IdpConfigStatus.cs",
+          "hash": "12267804458884928673"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/LinkedResourceType.cs",
+          "hash": "13009986313635310490"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/LogoFormat.cs",
+          "hash": "11007731786756265139"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/MfaEnrollmentStatus.cs",
+          "hash": "11468988341485581238"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/MfaMethod.cs",
+          "hash": "12651406341473452907"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/ModuleStatus.cs",
+          "hash": "17839819774447371394"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/NotificationChannel.cs",
+          "hash": "10232587446532374554"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/OrganizationType.cs",
+          "hash": "2955399544299047961"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/PermissionEffect.cs",
+          "hash": "7822714078532567512"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/PermissionState.cs",
+          "hash": "4911525606435825271"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/ProfileScope.cs",
+          "hash": "4295914535447614227"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/PromotionStatus.cs",
+          "hash": "4646632300957622046"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/ProviderType.cs",
+          "hash": "9969930790402879473"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/RoleMaturityLevel.cs",
+          "hash": "11340209402886385057"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/SubjectType.cs",
+          "hash": "8414690014762509224"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/SystemStatus.cs",
+          "hash": "12727915874086329115"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/TemplateStatus.cs",
+          "hash": "9671872464886057133"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/UserCategory.cs",
+          "hash": "1179070657398576433"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Enums/UserStatus.cs",
+          "hash": "96026893413792360"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Events/DomainEvents.cs",
+          "hash": "15699048692549839552"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/GlobalUsings.cs",
+          "hash": "8355050124523216887"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/IGA/PromotionRequest/PromotionImpactAnalysis/PromotionImpactAnalysis.cs",
+          "hash": "7096744989049357922"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/IGA/PromotionRequest/PromotionImpactAnalysis/PromotionImpactAnalysisProps.cs",
+          "hash": "2259166712572086785"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/IGA/PromotionRequest/PromotionRequest.cs",
+          "hash": "13122005912998696659"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/IGA/PromotionRequest/PromotionRequestProps.cs",
+          "hash": "13751592273596767239"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/IGA/RoleMaturityStatus/RoleMaturityStatus.cs",
+          "hash": "7109540804150232067"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/IGA/RoleMaturityStatus/RoleMaturityStatusProps.cs",
+          "hash": "6451704646610706998"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Identity/Repositories.cs",
+          "hash": "14285279231675508800"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Identity/Repositories/IUserAccountRepository.cs",
+          "hash": "12537540103880568813"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Identity/Tenant/Branch/Branch.cs",
+          "hash": "8680071891655148722"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Identity/Tenant/Branch/BranchProps.cs",
+          "hash": "3307116736454624093"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Identity/Tenant/Branding/Branding.cs",
+          "hash": "15605877873449958842"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Identity/Tenant/Branding/BrandingProps.cs",
+          "hash": "14892607220963927660"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Identity/Tenant/Branding/BrandingSettings.cs",
+          "hash": "3767139012909112471"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Identity/Tenant/Events/TenantDomainEventsManager.cs",
+          "hash": "10676034734012751913"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Identity/Tenant/IdentityProvider/IdentityProvider.cs",
+          "hash": "4855224822521127643"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Identity/Tenant/IdentityProvider/IdentityProviderProps.cs",
+          "hash": "3311936745658872491"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Identity/Tenant/Tenant.cs",
+          "hash": "14818962662399237763"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Identity/Tenant/TenantProps.cs",
+          "hash": "10983937191131727371"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Identity/UserAccount/Events/UserAccountDomainEventsManager.cs",
+          "hash": "11481244894214662331"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Identity/UserAccount/MfaEnrollment/MfaEnrollment.cs",
+          "hash": "13518818551372766395"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Identity/UserAccount/MfaEnrollment/MfaEnrollmentProps.cs",
+          "hash": "10432068453189900596"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Identity/UserAccount/PasswordCredential/PasswordCredential.cs",
+          "hash": "11634580313821100263"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Identity/UserAccount/PasswordCredential/PasswordCredentialProps.cs",
+          "hash": "15222785094953440500"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Identity/UserAccount/UserAccount.cs",
+          "hash": "9188263184771002625"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Identity/UserAccount/UserAccountProps.cs",
+          "hash": "9708606038988330324"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/DomainErrors.cs",
+          "hash": "135350657353764868"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/DomainGuards.cs",
+          "hash": "12344199709563620722"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/RepositoryContracts.cs",
+          "hash": "13885226386678957569"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/Result.cs",
+          "hash": "16404653545765800574"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/AccessEnforcementPolicyId.cs",
+          "hash": "13834280942549752574"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/ActionCode.cs",
+          "hash": "11499018553742590599"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/ActionId.cs",
+          "hash": "4654153660725186866"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/ActorId.cs",
+          "hash": "4158862564914066486"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/AppConfigurationId.cs",
+          "hash": "13588900773607220709"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/ApprovalRequestId.cs",
+          "hash": "13378964457210223706"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/ApprovalRequiredDocumentId.cs",
+          "hash": "1681310559702701360"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/ApprovalWorkflowId.cs",
+          "hash": "4405576646657980581"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/AuditRecordId.cs",
+          "hash": "15252344243678801363"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/BranchId.cs",
+          "hash": "15591397891984850144"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/BrandingId.cs",
+          "hash": "12659163362189716285"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/Code.cs",
+          "hash": "17769234733361694619"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/CodeValidator.cs",
+          "hash": "15752899169965963649"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/Comment.cs",
+          "hash": "7270649026845936192"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/CompanyReference.cs",
+          "hash": "3759174402876446892"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/ConfigurationKey.cs",
+          "hash": "3835397612969678779"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/ConfigurationValue.cs",
+          "hash": "9463847281646378624"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/CustomDomain.cs",
+          "hash": "14764878007077451275"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/DateRange.cs",
+          "hash": "1778479936126341823"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/Description.cs",
+          "hash": "9561499169146631484"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/DnsCnameTarget.cs",
+          "hash": "16191154712668007260"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/DocumentTypeId.cs",
+          "hash": "7923959883329424139"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/Email.cs",
+          "hash": "2856985844235423271"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/EmailAddress.cs",
+          "hash": "16998716207257074749"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/EmailAddressValidator.cs",
+          "hash": "1222680615548974873"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/FeatureFlagId.cs",
+          "hash": "6484343134754673038"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/GenericStringValidator.cs",
+          "hash": "7043729476735210414"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/HexColor.cs",
+          "hash": "15574412410464564694"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/IdentityProviderId.cs",
+          "hash": "15825484290967948030"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/IdentityReference.cs",
+          "hash": "13494383498680532577"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/IdpConfigurationId.cs",
+          "hash": "5444738852159108126"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/Justification.cs",
+          "hash": "2354128100753032588"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/LoginText.cs",
+          "hash": "12805524131479538432"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/Logo.cs",
+          "hash": "14406415238450138482"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/MenuId.cs",
+          "hash": "3023227025832404002"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/MfaEnrollmentId.cs",
+          "hash": "12747909611385167408"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/ModuleId.cs",
+          "hash": "3370440212188868379"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/Name.cs",
+          "hash": "8389583338136589916"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/NotificationRuleId.cs",
+          "hash": "16544190429425857283"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/OptionId.cs",
+          "hash": "12955460158166823067"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/OrganizationId.cs",
+          "hash": "8658401982124108750"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/PasswordCredentialId.cs",
+          "hash": "18073466497152860184"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/PasswordHash.cs",
+          "hash": "17152101303737966799"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/PermissionTemplateItemId.cs",
+          "hash": "12025030156777037877"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/ProfileId.cs",
+          "hash": "14698571910111729663"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/ProfilePermissionId.cs",
+          "hash": "12553340261247144599"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/PromotionImpactAnalysisId.cs",
+          "hash": "13406396313781886083"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/PromotionRequestId.cs",
+          "hash": "11866260384116198565"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/Reason.cs",
+          "hash": "8028024255471552729"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/RoleId.cs",
+          "hash": "6714285743636875630"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/RoleMaturityStatusId.cs",
+          "hash": "2322030324326748739"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/SubMenuId.cs",
+          "hash": "13258336817235769638"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/SystemId.cs",
+          "hash": "9908685566094420950"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/SystemSuiteId.cs",
+          "hash": "11662609001186835208"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/TemplateId.cs",
+          "hash": "5917651333942938199"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/TemplateVersion.cs",
+          "hash": "5494699588363133194"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/TenantId.cs",
+          "hash": "12047677746382629574"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/TextValueObject.cs",
+          "hash": "14306243301737141738"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/UserAccountId.cs",
+          "hash": "15875175597910819393"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/UserDocumentId.cs",
+          "hash": "13654757663082124634"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/UserId.cs",
+          "hash": "5483226444746768648"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/Value.cs",
+          "hash": "1482705571464219333"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Kernel/ValueObjects/Version.cs",
+          "hash": "6340911145450376199"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Domain/Ums.Domain.csproj",
+          "hash": "8049444794350917328"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Globalization/Access/CultureContext.cs",
+          "hash": "6593804198030854293"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Globalization/Access/StringLocalizer.cs",
+          "hash": "16913594138707334505"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Globalization/Core/LanguageCode.cs",
+          "hash": "12763412361038038098"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Globalization/Core/LocalizedMessage.cs",
+          "hash": "1475062636330246360"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Globalization/GlobalUsings.cs",
+          "hash": "11134687733978960925"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Globalization/ILocalizationService.cs",
+          "hash": "14274946616947072935"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Globalization/LocalizationService.cs",
+          "hash": "9867031223603547845"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Globalization/Resources/en/domain-errors.json",
+          "hash": "3422987549860818413"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Globalization/Resources/es/domain-errors.json",
+          "hash": "657172573433284479"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Globalization/Ums.Globalization.csproj",
+          "hash": "15010118109947487732"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Infrastructure/Class1.cs",
+          "hash": "13673146194012367993"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Infrastructure/DependencyInjection.cs",
+          "hash": "8532783170737957787"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Infrastructure/Persistence/InMemoryTenantRepository.cs",
+          "hash": "6229831121337864684"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Infrastructure/Persistence/Interceptors/OrganizationDbContextInterceptor.cs",
+          "hash": "16188142919126880699"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Infrastructure/Persistence/Migrations/20260514_parametric_catalog_standard.sql",
+          "hash": "16801708419632267833"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Infrastructure/Persistence/TenantContext.cs",
+          "hash": "13746144764641888682"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Infrastructure/Services/UserContext.cs",
+          "hash": "9438678124651448087"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Infrastructure/Ums.Infrastructure.csproj",
+          "hash": "15100709672685560995"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Presentation/Endpoints/ResultExtensions.cs",
+          "hash": "10475592698455050229"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Presentation/Endpoints/TenantEndpoints.cs",
+          "hash": "713039511742218702"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Presentation/Middleware/CultureMiddleware.cs",
+          "hash": "13546851368255882047"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Presentation/Middleware/DevAuthMiddleware.cs",
+          "hash": "11820816307557125501"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Presentation/Program.cs",
+          "hash": "741608829710632678"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Presentation/Properties/launchSettings.json",
+          "hash": "14353803806174627669"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Presentation/Ums.Presentation.csproj",
+          "hash": "4948380206576228693"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Presentation/appsettings.Development.json",
+          "hash": "7886013864804760141"
+        },
+        {
+          "file": "apps/app-api-dotnet/Ums.Presentation/appsettings.json",
+          "hash": "16219606408788645753"
+        },
+        {
+          "file": "apps/app-api-dotnet/project.json",
+          "hash": "12670269346174016059"
         }
       ]
     }
   },
-  "externalNodesHash": "9690358518733275832"
+  "externalNodesHash": "4935790633874111262"
 }

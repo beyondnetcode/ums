@@ -1,0 +1,11 @@
+node_modules/
+dist/
+build/
+.git/
+.gitignore
+*.md
+.env*
+!.env.production
+apps/ums.api/
+apps/ums.web-app/
+libs/
