@@ -1,0 +1,15 @@
+global using System;
+global using System.Collections.Generic;
+global using System.Linq;
+global using System.Threading;
+global using System.Threading.Tasks;
+global using FluentValidation;
+global using MediatR;
+global using Ums.Domain.Kernel;
+global using Ums.Domain.Enums;
+global using Ums.Domain.Kernel.ValueObjects;
+global using Ums.Domain.Identity;
+global using Ums.Application.Abstractions.Messaging;
+global using Ums.Application.Common;
+global using Ums.Shell.Ddd;
+global using Ums.Shell.Ddd.ValueObjects.Common;
