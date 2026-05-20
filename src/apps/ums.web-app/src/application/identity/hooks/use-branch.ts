@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import tenantService from '../../../infrastructure/identity/services/tenant.service';
 import { useNotificationStore } from '../../stores/notification.store';
+import { useI18n } from '../../i18n/use-i18n';
 import { AddBranchPayload, Branch } from '../../../domain/identity/models/branch.model';
 
 export const useGetBranches = (tenantId: string | null) => {
@@ -11,9 +12,7 @@ export const useGetBranches = (tenantId: string | null) => {
       try {
         return await tenantService.getBranches(tenantId);
       } catch (err: any) {
-        // Gracefully handle 404 — tenant not yet in backend (local prototype mode)
-        const status = err?.response?.status;
-        if (status === 404) {
+        if (err?.response?.status === 404) {
           return [];
         }
         throw err;
@@ -21,7 +20,6 @@ export const useGetBranches = (tenantId: string | null) => {
     },
     enabled: !!tenantId,
     retry: (failureCount, error: any) => {
-      // Do not retry on 404 — the resource simply doesn't exist on the backend yet
       if (error?.response?.status === 404) return false;
       return failureCount < 1;
     },
@@ -31,21 +29,22 @@ export const useGetBranches = (tenantId: string | null) => {
 export const useAddBranch = (tenantId: string) => {
   const queryClient = useQueryClient();
   const addNotification = useNotificationStore((state) => state.addNotification);
+  const t = useI18n();
 
   return useMutation({
     mutationFn: (payload: AddBranchPayload) => tenantService.addBranch(tenantId, payload),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['tenants', tenantId, 'branches'] });
       addNotification({
-        title: 'Branch Added',
-        message: `Successfully added branch '${payloadToName(data.code)}' [Code: ${data.code}] to tenant.`,
+        title: t.notifBranchAdded,
+        message: t.notifBranchAddedMsg(data.code),
         type: 'success',
       });
     },
     onError: (error: any) => {
       addNotification({
-        title: 'Add Branch Failed',
-        message: error.response?.data?.detail || error.message || 'Error occurred while adding branch.',
+        title: t.notifBranchAdded,
+        message: error.response?.data?.detail || error.message || t.notifBranchAdded,
         type: 'error',
       });
     },
@@ -55,21 +54,22 @@ export const useAddBranch = (tenantId: string) => {
 export const useRemoveBranch = (tenantId: string) => {
   const queryClient = useQueryClient();
   const addNotification = useNotificationStore((state) => state.addNotification);
+  const t = useI18n();
 
   return useMutation({
     mutationFn: (branchId: string) => tenantService.removeBranch(tenantId, branchId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tenants', tenantId, 'branches'] });
       addNotification({
-        title: 'Branch Removed',
-        message: 'The branch was successfully deleted from the tenant configuration.',
+        title: t.notifBranchRemoved,
+        message: t.notifBranchRemovedMsg,
         type: 'warning',
       });
     },
     onError: (error: any) => {
       addNotification({
-        title: 'Removal Failed',
-        message: error.response?.data?.detail || error.message || 'Could not delete branch.',
+        title: t.notifBranchRemoved,
+        message: error.response?.data?.detail || error.message || t.notifBranchRemovedMsg,
         type: 'error',
       });
     },
@@ -79,21 +79,22 @@ export const useRemoveBranch = (tenantId: string) => {
 export const useDeactivateBranch = (tenantId: string) => {
   const queryClient = useQueryClient();
   const addNotification = useNotificationStore((state) => state.addNotification);
+  const t = useI18n();
 
   return useMutation({
     mutationFn: (branchId: string) => tenantService.deactivateBranch(tenantId, branchId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tenants', tenantId, 'branches'] });
       addNotification({
-        title: 'Branch Deactivated',
-        message: 'Selected branch status has been toggled to inactive.',
+        title: t.notifBranchDeactivated,
+        message: t.notifBranchDeactivatedMsg,
         type: 'info',
       });
     },
     onError: (error: any) => {
       addNotification({
-        title: 'Deactivation Failed',
-        message: error.response?.data?.detail || error.message || 'Could not deactivate branch.',
+        title: t.notifBranchDeactivated,
+        message: error.response?.data?.detail || error.message || t.notifBranchDeactivatedMsg,
         type: 'error',
       });
     },
@@ -103,28 +104,24 @@ export const useDeactivateBranch = (tenantId: string) => {
 export const useReactivateBranch = (tenantId: string) => {
   const queryClient = useQueryClient();
   const addNotification = useNotificationStore((state) => state.addNotification);
+  const t = useI18n();
 
   return useMutation({
     mutationFn: (branchId: string) => tenantService.reactivateBranch(tenantId, branchId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tenants', tenantId, 'branches'] });
       addNotification({
-        title: 'Branch Reactivated',
-        message: 'Selected branch status was successfully restored to active.',
+        title: t.notifBranchReactivated,
+        message: t.notifBranchReactivatedMsg,
         type: 'success',
       });
     },
     onError: (error: any) => {
       addNotification({
-        title: 'Reactivation Failed',
-        message: error.response?.data?.detail || error.message || 'Could not reactivate branch.',
+        title: t.notifBranchReactivated,
+        message: error.response?.data?.detail || error.message || t.notifBranchReactivatedMsg,
         type: 'error',
       });
     },
   });
-};
-
-// Simple helper to fallback to readable name
-const payloadToName = (code: string) => {
-  return code.toLowerCase().replace(/_/g, ' ');
 };

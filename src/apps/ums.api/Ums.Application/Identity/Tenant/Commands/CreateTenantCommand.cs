@@ -10,8 +10,7 @@ public sealed record CreateTenantCommand(
     string Name,
     string Type,
     string? IdpStrategy,
-    string? CompanyReference,
-    Guid? ParentTenantId) : ICommand<CreateTenantResponse>;
+    string? CompanyReference) : ICommand<CreateTenantResponse>;
 
 
 

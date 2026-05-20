@@ -45,6 +45,25 @@ export default {
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
       },
+      keyframes: {
+        tooltipIn: {
+          '0%': { opacity: '0', transform: 'scale(0.92) translateY(3px)' },
+          '100%': { opacity: '1', transform: 'scale(1) translateY(0)' },
+        },
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        slideDown: {
+          '0%': { opacity: '0', transform: 'translateY(-6px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+      },
+      animation: {
+        tooltipIn: 'tooltipIn 0.12s ease-out forwards',
+        fadeIn: 'fadeIn 0.18s ease-out forwards',
+        slideDown: 'slideDown 0.18s ease-out forwards',
+      },
     },
   },
   plugins: [],

@@ -27,8 +27,7 @@ public class CreateTenantCommandHandlerTests
         Name: "Test Tenant",
         Type: "INTERNAL",
         IdpStrategy: "InternalBcrypt",
-        CompanyReference: null,
-        ParentTenantId: null);
+        CompanyReference: null);
 
     #region Handle - Success Scenarios
 
@@ -93,20 +92,6 @@ public class CreateTenantCommandHandlerTests
         _tenantRepositoryMock.Setup(r => r.GetByCodeAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Tenant?)null);
         var command = ValidCommand with { CompanyReference = "COMP-123" };
-
-        var result = await _handler.Handle(command, CancellationToken.None);
-
-        Assert.True(result.IsSuccess);
-    }
-
-    [Fact]
-    public async Task Handle_WithParentTenantId_ReturnsSuccess()
-    {
-        _userContextMock.Setup(u => u.UserId).Returns("user-001");
-        _tenantRepositoryMock.Setup(r => r.GetByCodeAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Tenant?)null);
-        var parentTenantId = Guid.NewGuid();
-        var command = ValidCommand with { ParentTenantId = parentTenantId };
 
         var result = await _handler.Handle(command, CancellationToken.None);
 
@@ -195,8 +180,7 @@ public class CreateTenantCommandHandlerTests
             Name: "Test Tenant",
             Type: "INTERNAL",
             IdpStrategy: null,
-            CompanyReference: null,
-            ParentTenantId: null);
+            CompanyReference: null);
 
         var result = await _handler.Handle(command, CancellationToken.None);
 

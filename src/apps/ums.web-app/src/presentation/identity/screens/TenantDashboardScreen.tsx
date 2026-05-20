@@ -1,27 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  useGetTenant, 
-  useActivateTenant, 
-  useSuspendTenant 
+import React, { useEffect } from 'react';
+import {
+  useGetAllTenants,
+  useActivateTenant,
+  useSuspendTenant
 } from '../../../application/identity/hooks/use-tenant';
+import { useI18n } from '../../../application/i18n/use-i18n';
 import { TenantForm } from '../components/TenantForm';
 import { BranchManager } from '../components/BranchManager';
 import { M3Card } from '../../shared/components/M3Card';
 import { M3Button } from '../../shared/components/M3Button';
 import { M3TextField } from '../../shared/components/M3TextField';
+import { M3Select } from '../../shared/components/M3Select';
 import { M3DataView, SortOption, FilterOption, QueryCriteriaOption } from '../../shared/components/M3DataView';
 import { Tenant } from '../../../domain/identity/models/tenant.model';
 import { useNotificationStore } from '../../../application/stores/notification.store';
-import { 
-  Building2, 
+import {
+  Building2,
   ArrowRight,
   RefreshCw,
   Sliders,
   ShieldAlert,
   CheckCircle2,
-  GitFork,
   Check,
-  AlertTriangle,
   Building,
   Info,
   MapPin,
@@ -29,452 +29,427 @@ import {
   Palette,
   Plus,
   Trash2,
-  X
+  X,
+  Pencil,
+  Save
 } from 'lucide-react';
+import { IconButton, Tooltip } from '../../shared/components/Tooltip';
+
+// ─── Local model types ──────────────────────────────────────────────────────
+
+type IdpStrategy = 'OIDC' | 'SAML2' | 'OAuth2';
 
 interface AuthProvider {
   id: string;
+  code: string;
   name: string;
-  type: 'OIDC' | 'SAML2' | 'OAuth2';
-  clientId: string;
+  description: string;
+  strategy: IdpStrategy;
   isActive: boolean;
 }
 
 interface BrandingConfig {
-  welcomeTitle: string;
+  headlineText: string;
+  secondaryText: string;
+  primaryButtonLabel: string;
+  footerText: string;
   primaryColor: string;
-  logoUrl: string;
+  backgroundStyle: string;
+  logo: string;
+  logoFormat: string;
+  customDomain: string;
+  magicLinkFallbackEnabled: boolean;
+  dnsVerificationStatus: string;
 }
 
+const DEFAULT_BRANDING: BrandingConfig = {
+  headlineText: '',
+  secondaryText: '',
+  primaryButtonLabel: '',
+  footerText: '',
+  primaryColor: '#3b5bdb',
+  backgroundStyle: 'solid',
+  logo: '',
+  logoFormat: 'png',
+  customDomain: '',
+  magicLinkFallbackEnabled: false,
+  dnsVerificationStatus: 'Pending',
+};
+
+// ─── Component ──────────────────────────────────────────────────────────────
+
 export const TenantDashboardScreen: React.FC = () => {
-  const addNotification = useNotificationStore((state) => state.addNotification);
+  const addNotification = useNotificationStore((s) => s.addNotification);
+  const t = useI18n();
 
-  // Collection of baseline tenants (simulating core database index)
-  const [knownTenants, setKnownTenants] = useState<Tenant[]>([
-    { 
-      tenantId: '3fa85f64-5717-4562-b3fc-2c963f66afa6', 
-      code: 'DEV_ROOT', 
-      name: 'Default Developer Tenant (Root)', 
-      type: 'Enterprise', 
-      status: 'Active', 
-      companyReference: 'REF_ROOT_001', 
-      parentTenantId: null 
-    },
-    { 
-      tenantId: 'c9b736b4-6a84-48f8-b34d-176bc5a6d542', 
-      code: 'ACME_INT', 
-      name: 'Acme Global Logistics', 
-      type: 'Corporate', 
-      status: 'Active', 
-      companyReference: 'ACME-902', 
-      parentTenantId: '3fa85f64-5717-4562-b3fc-2c963f66afa6' 
-    },
-    { 
-      tenantId: 'a3f5b9d2-7c3d-4c8e-a9b0-123456789abc', 
-      code: 'CONTOSO_EMEA', 
-      name: 'Contoso Retail EMEA', 
-      type: 'Subsidiary', 
-      status: 'Suspended', 
-      companyReference: 'CONT-EMEA-88', 
-      parentTenantId: '3fa85f64-5717-4562-b3fc-2c963f66afa6' 
-    },
-    { 
-      tenantId: '9e8d7c6b-5a4f-3e2d-1c0b-9876543210fe', 
-      code: 'NWD_IND', 
-      name: 'Northwind Industrial', 
-      type: 'Industrial', 
-      status: 'Active', 
-      companyReference: 'NWD-CORE-10', 
-      parentTenantId: null 
-    },
-    { 
-      tenantId: '5f4e3d2c-1b0a-9f8e-7d6c-543210987654', 
-      code: 'VNG_HLTH', 
-      name: 'Vanguard Health Systems', 
-      type: 'Medical', 
-      status: 'Active', 
-      companyReference: 'VNG-HEALTH-5', 
-      parentTenantId: null 
-    },
-    { 
-      tenantId: 'f3e2d1c0-b9a8-7f6e-5d4c-321098765432', 
-      code: 'APX_FIN', 
-      name: 'Apex Financial Group', 
-      type: 'Financial', 
-      status: 'Pending', 
-      companyReference: 'APX-GLOBAL-7', 
-      parentTenantId: null 
-    }
-  ]);
+  // ── API ────────────────────────────────────────────────────────────────────
+  const { data: apiTenants = [], isLoading: isLoadingList } = useGetAllTenants();
+  const [localOverrides, setLocalOverrides] = React.useState<Record<string, Partial<Tenant>>>({});
 
-  // Selected details state
-  const [selectedId, setSelectedId] = useState<string>('3fa85f64-5717-4562-b3fc-2c963f66afa6');
-  
-  // Custom M3 Child structures stored per tenant
-  const [providersData, setProvidersData] = useState<{ [tenantId: string]: AuthProvider[] }>({
-    '3fa85f64-5717-4562-b3fc-2c963f66afa6': [
-      { id: '1', name: 'Google Workspace Identity', type: 'OIDC', clientId: '902318-abc.apps.googleusercontent.com', isActive: true },
-      { id: '2', name: 'Azure Active Directory', type: 'SAML2', clientId: 'tenant-azure-992-ad', isActive: false }
-    ],
-    'c9b736b4-6a84-48f8-b34d-176bc5a6d542': [
-      { id: '3', name: 'Okta Enterprise SSO', type: 'OIDC', clientId: 'acme-sso-okta-882', isActive: true }
-    ]
-  });
+  const knownTenants: Tenant[] = apiTenants.map((tenant) => ({
+    ...tenant,
+    ...localOverrides[tenant.tenantId],
+  }));
 
-  const [brandingData, setBrandingData] = useState<{ [tenantId: string]: BrandingConfig }>({
-    '3fa85f64-5717-4562-b3fc-2c963f66afa6': {
-      welcomeTitle: 'Welcome to Developer Workspace',
-      primaryColor: 'HSL(262, 52%, 47%)',
-      logoUrl: 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=80&auto=format&fit=crop&q=60'
-    },
-    'c9b736b4-6a84-48f8-b34d-176bc5a6d542': {
-      welcomeTitle: 'Acme Global Logistics Console',
-      primaryColor: 'HSL(200, 70%, 40%)',
-      logoUrl: 'https://images.unsplash.com/photo-1516880711640-ef7db81be3e1?w=80&auto=format&fit=crop&q=60'
-    }
-  });
+  const patchKnownTenants = (updater: (prev: Tenant[]) => Tenant[]) => {
+    const next = updater(knownTenants);
+    const overrides: Record<string, Partial<Tenant>> = {};
+    next.forEach((tenant) => { overrides[tenant.tenantId] = tenant; });
+    setLocalOverrides(overrides);
+  };
 
-  // M3 Console active tab: 'branches' | 'providers' | 'branding'
-  const [activeConsoleTab, setActiveConsoleTab] = useState<'branches' | 'providers' | 'branding'>('branches');
+  // ── Selection ──────────────────────────────────────────────────────────────
+  const [selectedId, setSelectedId] = React.useState<string>('');
+  const [showDiscardDialog, setShowDiscardDialog] = React.useState(false);
+  const [pendingNavigationId, setPendingNavigationId] = React.useState<string | null>(null);
+  const [activeConsoleTab, setActiveConsoleTab] = React.useState<'branches' | 'providers' | 'branding'>('branches');
 
-  // M3DataView State Control
-  const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('list');
-  const [searchCriteria, setSearchCriteria] = useState<string>('name');
-  const [searchValue, setSearchValue] = useState<string>('');
-  const [appliedQuery, setAppliedQuery] = useState<{ criteria: string; term: string }>({ criteria: 'name', term: '' });
-  const [activeFilter, setActiveFilter] = useState<string>('all');
-  const [sortBy, setSortBy] = useState<string>('name');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  const [page, setPage] = useState<number>(1);
-  const pageSize = 5;
+  // ── Tenant inline-edit ────────────────────────────────────────────────────
+  const [isTenantEditing, setIsTenantEditing] = React.useState(false);
+  const [editName, setEditName] = React.useState('');
+  const [editCode, setEditCode] = React.useState('');
+  const [editCompanyRef, setEditCompanyRef] = React.useState('');
+  const [editType, setEditType] = React.useState('');
 
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  // ── Provider data + inline-edit ───────────────────────────────────────────
+  const [providersData, setProvidersData] = React.useState<Record<string, AuthProvider[]>>({});
+  const [editingProviderId, setEditingProviderId] = React.useState<string | null>(null);
+  const [editProvName, setEditProvName] = React.useState('');
+  const [editProvCode, setEditProvCode] = React.useState('');
+  const [editProvDescription, setEditProvDescription] = React.useState('');
+  const [editProvStrategy, setEditProvStrategy] = React.useState<IdpStrategy>('OIDC');
 
-  // Auth Provider dynamic adding form states
-  const [isAddingProvider, setIsAddingProvider] = useState(false);
-  const [provName, setProvName] = useState('');
-  const [provType, setProvType] = useState<'OIDC' | 'SAML2' | 'OAuth2'>('OIDC');
-  const [provClientId, setProvClientId] = useState('');
+  // ── Provider add form ─────────────────────────────────────────────────────
+  const [isAddingProvider, setIsAddingProvider] = React.useState(false);
+  const [provName, setProvName] = React.useState('');
+  const [provCode, setProvCode] = React.useState('');
+  const [provDescription, setProvDescription] = React.useState('');
+  const [provStrategy, setProvStrategy] = React.useState<IdpStrategy>('OIDC');
 
-  // Branding dynamic configuration local form states
-  const [brandTitle, setBrandTitle] = useState('');
-  const [brandColor, setBrandColor] = useState('');
-  const [brandLogo, setBrandLogo] = useState('');
+  // ── Branding data + form ──────────────────────────────────────────────────
+  const [brandingData, setBrandingData] = React.useState<Record<string, BrandingConfig>>({});
+  const [brandHeadline, setBrandHeadline] = React.useState('');
+  const [brandSecondary, setBrandSecondary] = React.useState('');
+  const [brandButtonLabel, setBrandButtonLabel] = React.useState('');
+  const [brandFooter, setBrandFooter] = React.useState('');
+  const [brandColor, setBrandColor] = React.useState('#3b5bdb');
+  const [brandBackground, setBrandBackground] = React.useState('solid');
+  const [brandLogo, setBrandLogo] = React.useState('');
+  const [brandLogoFormat, setBrandLogoFormat] = React.useState('png');
+  const [brandCustomDomain, setBrandCustomDomain] = React.useState('');
+  const [brandMagicLink, setBrandMagicLink] = React.useState(false);
 
-  // Active query hook for the selected tenant or custom queried ID
-  const { data: tenant, isLoading, error } = useGetTenant(selectedId || null);
+  // ── List controls ──────────────────────────────────────────────────────────
+  const [isCreateOpen, setIsCreateOpen] = React.useState(false);
+  const [viewMode, setViewMode] = React.useState<'list' | 'thumbnail'>('list');
+  const [searchCriteria, setSearchCriteria] = React.useState<string>('name');
+  const [searchValue, setSearchValue] = React.useState<string>('');
+  const [appliedQuery, setAppliedQuery] = React.useState<{ criteria: string; term: string }>({ criteria: 'name', term: '' });
+  const [activeFilter, setActiveFilter] = React.useState<string>('all');
+  const [sortBy, setSortBy] = React.useState<string>('name');
+  const [sortOrder, setSortOrder] = React.useState<'asc' | 'desc'>('asc');
+  const [page, setPage] = React.useState<number>(1);
+  const pageSize = 9;
 
-  // Graceful local fallback if backend does not yet contain seed records
-  const activeTenant = tenant || knownTenants.find((t) => t.tenantId === selectedId);
-
-  // Mutation hooks
+  const activeTenant = knownTenants.find((tenant) => tenant.tenantId === selectedId);
   const activateMutation = useActivateTenant(selectedId);
   const suspendMutation = useSuspendTenant(selectedId);
+  const isPendingMutation = activateMutation.isPending || suspendMutation.isPending;
+  const activeProviders = providersData[selectedId] || [];
+  const hasPendingChanges = isTenantEditing || !!editingProviderId;
 
-  // Synchronized status toggling with instant local state fallback
-  const handleToggleStatus = (newStatus: 'Active' | 'Suspended') => {
-    // 1. Update local list state immediately for instant rendering
-    setKnownTenants((prev) =>
-      prev.map((t) => (t.tenantId === selectedId ? { ...t, status: newStatus } : t))
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
+  /** Synchronously reset all right-panel state when switching tenants. */
+  const applyTenantSelection = (id: string) => {
+    const b = brandingData[id] ?? DEFAULT_BRANDING;
+    setBrandHeadline(b.headlineText);
+    setBrandSecondary(b.secondaryText);
+    setBrandButtonLabel(b.primaryButtonLabel);
+    setBrandFooter(b.footerText);
+    setBrandColor(b.primaryColor);
+    setBrandBackground(b.backgroundStyle);
+    setBrandLogo(b.logo);
+    setBrandLogoFormat(b.logoFormat);
+    setBrandCustomDomain(b.customDomain);
+    setBrandMagicLink(b.magicLinkFallbackEnabled);
+    setIsAddingProvider(false);
+    setProvName(''); setProvCode(''); setProvDescription('');
+    setIsTenantEditing(false);
+    setEditingProviderId(null);
+    setActiveConsoleTab('branches');
+    setSelectedId(id);
+  };
+
+  const handleSelectTenant = (id: string) => {
+    if (id === selectedId) return;
+    if (hasPendingChanges) {
+      setPendingNavigationId(id);
+      setShowDiscardDialog(true);
+      return;
+    }
+    applyTenantSelection(id);
+  };
+
+  const confirmDiscard = () => {
+    if (pendingNavigationId) applyTenantSelection(pendingNavigationId);
+    setPendingNavigationId(null);
+    setShowDiscardDialog(false);
+  };
+
+  // Auto-select first tenant when the list first loads
+  useEffect(() => {
+    if (!selectedId && apiTenants.length > 0) {
+      applyTenantSelection(apiTenants[0].tenantId);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [apiTenants]);
+
+  // ── Tenant edit ───────────────────────────────────────────────────────────
+
+  const openTenantEdit = () => {
+    if (!activeTenant) return;
+    setEditName(activeTenant.name);
+    setEditCode(activeTenant.code);
+    setEditCompanyRef(activeTenant.companyReference || '');
+    setEditType(activeTenant.type);
+    setIsTenantEditing(true);
+  };
+
+  const saveTenantEdit = () => {
+    if (!editName.trim() || !editCode.trim()) return;
+    patchKnownTenants((prev) =>
+      prev.map((tenant) =>
+        tenant.tenantId === selectedId
+          ? { ...tenant, name: editName.trim(), code: editCode.trim().toUpperCase(), companyReference: editCompanyRef.trim(), type: editType }
+          : tenant
+      )
     );
-    
-    // 2. Add system notification toast
+    addNotification({ title: t.notifTenantUpdated, message: t.notifTenantUpdatedMsg(editName.trim()), type: 'success' });
+    setIsTenantEditing(false);
+  };
+
+  // ── Status toggle ─────────────────────────────────────────────────────────
+
+  const handleToggleStatus = (newStatus: 'Active' | 'Suspended') => {
+    patchKnownTenants((prev) =>
+      prev.map((tenant) => (tenant.tenantId === selectedId ? { ...tenant, status: newStatus } : tenant))
+    );
     addNotification({
-      title: newStatus === 'Active' ? 'Tenant Activated' : 'Tenant Suspended',
-      message: `The selected tenant status was successfully set to ${newStatus}.`,
+      title: newStatus === 'Active' ? t.notifActivated : t.notifSuspended,
+      message: t.notifStatusSetTo(newStatus),
       type: newStatus === 'Active' ? 'success' : 'warning',
     });
-
-    // 3. Sync with backend API silently (graceful fallback if 404/failure)
     if (newStatus === 'Active') {
-      activateMutation.mutate(undefined, {
-        onError: (err) => {
-          console.warn("API Activation bypassed. Handled locally:", err.message);
-        }
-      });
+      activateMutation.mutate(undefined, { onError: (err) => console.warn('Handled locally:', err.message) });
     } else {
-      suspendMutation.mutate(undefined, {
-        onError: (err) => {
-          console.warn("API Suspension bypassed. Handled locally:", err.message);
-        }
-      });
+      suspendMutation.mutate(undefined, { onError: (err) => console.warn('Handled locally:', err.message) });
     }
   };
 
-  // Synchronize dynamic updates from the GET detail endpoint back into the local list state
-  useEffect(() => {
-    if (tenant) {
-      setKnownTenants((prev) => {
-        const exists = prev.some((t) => t.tenantId === tenant.tenantId);
-        if (!exists) {
-          return [tenant, ...prev];
-        }
-        return prev.map((t) => t.tenantId === tenant.tenantId ? { ...t, status: tenant.status } : t);
-      });
-    }
-  }, [tenant]);
+  // ── Provider handlers ─────────────────────────────────────────────────────
 
-  // Synchronize branding values when changing the active tenant selection
-  useEffect(() => {
-    if (selectedId) {
-      const activeBrand = brandingData[selectedId] || {
-        welcomeTitle: 'UMS Corporate Portal',
-        primaryColor: 'HSL(262, 52%, 47%)',
-        logoUrl: ''
-      };
-      setBrandTitle(activeBrand.welcomeTitle);
-      setBrandColor(activeBrand.primaryColor);
-      setBrandLogo(activeBrand.logoUrl);
-      
-      // Reset creation panels
-      setIsAddingProvider(false);
-      setProvName('');
-      setProvClientId('');
-    }
-  }, [selectedId, brandingData]);
+  const openProviderEdit = (p: AuthProvider) => {
+    setEditingProviderId(p.id);
+    setEditProvName(p.name);
+    setEditProvCode(p.code);
+    setEditProvDescription(p.description);
+    setEditProvStrategy(p.strategy);
+  };
 
-  // Handle Tenant Creation Success
-  const handleCreateSuccess = (newTenantId: string, newCode: string, newName: string) => {
-    const newTenant: Tenant = {
-      tenantId: newTenantId,
-      code: newCode,
-      name: newName,
-      type: 'Enterprise',
-      status: 'Active',
-      companyReference: 'NEW-REF-' + newCode,
-      parentTenantId: null
+  const saveProviderEdit = () => {
+    if (!editProvName.trim() || !editingProviderId) return;
+    setProvidersData((prev) => ({
+      ...prev,
+      [selectedId]: (prev[selectedId] || []).map((p) =>
+        p.id === editingProviderId
+          ? { ...p, name: editProvName.trim(), code: editProvCode.trim().toUpperCase(), description: editProvDescription.trim(), strategy: editProvStrategy }
+          : p
+      ),
+    }));
+    addNotification({ title: t.notifProviderUpdated, message: t.notifProviderUpdatedMsg(editProvName.trim()), type: 'success' });
+    setEditingProviderId(null);
+  };
+
+  const handleAddProvider = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!provName.trim()) return;
+    const newProvider: AuthProvider = {
+      id: Math.random().toString(36).substring(2, 9),
+      name: provName.trim(),
+      code: provCode.trim().toUpperCase() || provName.trim().toUpperCase().replace(/\s+/g, '_').substring(0, 20),
+      description: provDescription.trim(),
+      strategy: provStrategy,
+      isActive: true,
     };
+    setProvidersData((prev) => ({ ...prev, [selectedId]: [...(prev[selectedId] || []), newProvider] }));
+    setProvName(''); setProvCode(''); setProvDescription(''); setIsAddingProvider(false);
+    addNotification({ title: t.notifProviderAdded, message: t.notifProviderAddedMsg(newProvider.name, newProvider.strategy), type: 'success' });
+  };
 
-    setKnownTenants((prev) => [newTenant, ...prev]);
-    setSelectedId(newTenantId);
+  const handleToggleProvider = (providerId: string) => {
+    setProvidersData((prev) => ({
+      ...prev,
+      [selectedId]: (prev[selectedId] || []).map((p) => p.id === providerId ? { ...p, isActive: !p.isActive } : p),
+    }));
+    addNotification({ title: t.notifProviderModified, message: t.notifProviderModifiedMsg, type: 'info' });
+  };
+
+  const handleRemoveProvider = (providerId: string) => {
+    setProvidersData((prev) => ({ ...prev, [selectedId]: (prev[selectedId] || []).filter((p) => p.id !== providerId) }));
+    addNotification({ title: t.notifProviderRemoved, message: t.notifProviderRemovedMsg, type: 'warning' });
+  };
+
+  // ── Branding handler ──────────────────────────────────────────────────────
+
+  const handleUpdateBranding = (e: React.FormEvent) => {
+    e.preventDefault();
+    const updated: BrandingConfig = {
+      headlineText: brandHeadline.trim(),
+      secondaryText: brandSecondary.trim(),
+      primaryButtonLabel: brandButtonLabel.trim(),
+      footerText: brandFooter.trim(),
+      primaryColor: brandColor,
+      backgroundStyle: brandBackground,
+      logo: brandLogo.trim(),
+      logoFormat: brandLogoFormat,
+      customDomain: brandCustomDomain.trim(),
+      magicLinkFallbackEnabled: brandMagicLink,
+      dnsVerificationStatus: brandingData[selectedId]?.dnsVerificationStatus ?? 'Pending',
+    };
+    setBrandingData((prev) => ({ ...prev, [selectedId]: updated }));
+    addNotification({ title: t.notifBrandingApplied, message: t.notifBrandingMsg(brandColor), type: 'success' });
+  };
+
+  // ── New tenant form success ───────────────────────────────────────────────
+
+  const handleCreateSuccess = (newTenantId: string) => {
     setPage(1);
     setAppliedQuery({ criteria: 'name', term: '' });
     setSearchValue('');
-    setActiveConsoleTab('branches');
+    applyTenantSelection(newTenantId);
   };
 
-  // Query database submit handler (for loading specific GUID or local filters)
+  // ── List controls ─────────────────────────────────────────────────────────
+
   const handleQuerySubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setPage(1);
-    
-    // If querying specifically by GUID, try to retrieve it directly from the endpoint
-    if (searchCriteria === 'id' && searchValue.trim()) {
-      const targetId = searchValue.trim();
-      setSelectedId(targetId);
-    }
-    
+    if (searchCriteria === 'id' && searchValue.trim()) handleSelectTenant(searchValue.trim());
     setAppliedQuery({ criteria: searchCriteria, term: searchValue });
   };
 
-  // Reset Query Criteria Filter helper
   const handleResetQuery = () => {
     setSearchValue('');
     setAppliedQuery({ criteria: 'name', term: '' });
     setPage(1);
   };
 
-  // Interactive local filter/sort/pagination logic
+  // ── Derived list data ─────────────────────────────────────────────────────
+
   let processedTenants = [...knownTenants];
-
-  // 1. Status Filter
-  if (activeFilter !== 'all') {
-    processedTenants = processedTenants.filter(t => t.status === activeFilter);
-  }
-
-  // 2. Query Criteria Search Filter
+  if (activeFilter !== 'all') processedTenants = processedTenants.filter((t) => t.status === activeFilter);
   if (appliedQuery.term.trim()) {
     const query = appliedQuery.term.toLowerCase().trim();
-    if (appliedQuery.criteria === 'name') {
-      processedTenants = processedTenants.filter(t => t.name.toLowerCase().includes(query));
-    } else if (appliedQuery.criteria === 'code') {
-      processedTenants = processedTenants.filter(t => t.code.toLowerCase().includes(query));
-    } else if (appliedQuery.criteria === 'id') {
-      processedTenants = processedTenants.filter(t => t.tenantId.toLowerCase().includes(query));
-    }
+    processedTenants = processedTenants.filter((t) =>
+      appliedQuery.criteria === 'name' ? t.name.toLowerCase().includes(query) :
+      appliedQuery.criteria === 'code' ? t.code.toLowerCase().includes(query) :
+      t.tenantId.toLowerCase().includes(query)
+    );
   }
-
-  // 3. Sorting
   processedTenants.sort((a, b) => {
-    let valA = (sortBy === 'name' ? a.name : sortBy === 'code' ? a.code : a.status) || '';
-    let valB = (sortBy === 'name' ? b.name : sortBy === 'code' ? b.code : b.status) || '';
-    
-    if (sortOrder === 'asc') {
-      return valA.localeCompare(valB);
-    } else {
-      return valB.localeCompare(valA);
-    }
+    const va = (sortBy === 'name' ? a.name : sortBy === 'code' ? a.code : a.status) || '';
+    const vb = (sortBy === 'name' ? b.name : sortBy === 'code' ? b.code : b.status) || '';
+    return sortOrder === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
   });
 
-  // 4. Pagination slicing
   const totalItems = processedTenants.length;
   const totalPages = Math.ceil(totalItems / pageSize);
   const startIndex = (page - 1) * pageSize;
   const paginatedTenants = processedTenants.slice(startIndex, startIndex + pageSize);
 
-  // Options configuration for M3DataView
+  // ── M3DataView option arrays ───────────────────────────────────────────────
+
   const criteriaOptions: QueryCriteriaOption[] = [
-    { label: 'By Name', value: 'name' },
-    { label: 'By Code', value: 'code' },
-    { label: 'By Tenant ID (GUID)', value: 'id' }
+    { label: t.byName, value: 'name' },
+    { label: t.byCode, value: 'code' },
+    { label: t.byTenantId, value: 'id' },
   ];
-
   const filterOptions: FilterOption[] = [
-    { label: 'All Statuses', value: 'all' },
-    { label: 'Active', value: 'Active' },
-    { label: 'Suspended', value: 'Suspended' }
+    { label: t.allStatuses, value: 'all' },
+    { label: t.active, value: 'Active' },
+    { label: t.suspended, value: 'Suspended' },
   ];
-
   const sortOptions: SortOption[] = [
-    { label: 'Sort: Name', value: 'name' },
-    { label: 'Sort: Code', value: 'code' },
-    { label: 'Sort: Status', value: 'status' }
+    { label: t.sortByName, value: 'name' },
+    { label: t.sortByCode, value: 'code' },
+    { label: t.sortByStatus, value: 'status' },
   ];
 
-  const isPendingMutation = activateMutation.isPending || suspendMutation.isPending;
+  // ── Render helpers ────────────────────────────────────────────────────────
 
-  // Google/Okta identity provider handlers
-  const activeProviders = providersData[selectedId] || [];
-
-  const handleAddProvider = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!provName.trim() || !provClientId.trim()) return;
-
-    const newProvider: AuthProvider = {
-      id: Math.random().toString(36).substring(2, 9),
-      name: provName.trim(),
-      type: provType,
-      clientId: provClientId.trim(),
-      isActive: true
-    };
-
-    setProvidersData((prev) => ({
-      ...prev,
-      [selectedId]: [...(prev[selectedId] || []), newProvider]
-    }));
-
-    setProvName('');
-    setProvClientId('');
-    setIsAddingProvider(false);
-
-    addNotification({
-      title: 'Auth Provider Added',
-      message: `Successfully linked identity scheme: '${newProvider.name}' [${newProvider.type}].`,
-      type: 'success'
-    });
+  const statusBadge = (status: string) => {
+    const label = status === 'Active' ? t.active : status === 'Suspended' ? t.suspended : t.pending;
+    const cls = status === 'Active'
+      ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-500'
+      : status === 'Suspended'
+      ? 'bg-rose-500/10 border-rose-500/25 text-rose-500'
+      : 'bg-amber-500/10 border-amber-500/25 text-amber-500';
+    return <span className={`text-[10px] font-medium px-2.5 py-0.5 rounded-full border ${cls}`}>{label}</span>;
   };
 
-  const handleToggleProvider = (providerId: string) => {
-    setProvidersData((prev) => ({
-      ...prev,
-      [selectedId]: (prev[selectedId] || []).map((p) => 
-        p.id === providerId ? { ...p, isActive: !p.isActive } : p
-      )
-    }));
-
-    addNotification({
-      title: 'Provider State Modified',
-      message: 'Client authentication protocol status successfully updated.',
-      type: 'info'
-    });
-  };
-
-  const handleRemoveProvider = (providerId: string) => {
-    setProvidersData((prev) => ({
-      ...prev,
-      [selectedId]: (prev[selectedId] || []).filter((p) => p.id !== providerId)
-    }));
-
-    addNotification({
-      title: 'Auth Provider Disconnected',
-      message: 'Third-party identity configurations dismantled successfully.',
-      type: 'warning'
-    });
-  };
-
-  // Branding configurations update handler
-  const handleUpdateBranding = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    setBrandingData((prev) => ({
-      ...prev,
-      [selectedId]: {
-        welcomeTitle: brandTitle.trim(),
-        primaryColor: brandColor.trim(),
-        logoUrl: brandLogo.trim()
-      }
-    }));
-
-    addNotification({
-      title: 'Branding Customized',
-      message: `Theme profiles updated. Primary style token: ${brandColor}`,
-      type: 'success'
-    });
-  };
-
-  // Custom List/Table View Renderer
   const renderList = () => (
-    <div className="overflow-x-auto border border-m3-outline/25 rounded-2xl bg-m3-surface-container/20">
+    <div className="overflow-x-auto border border-m3-outline/25 rounded-xl bg-m3-surface-container/20">
       <table className="w-full text-left border-collapse">
         <thead>
-          <tr className="border-b border-m3-outline/20 text-[10px] font-black uppercase tracking-wider text-m3-secondary bg-m3-surface-container/40">
-            <th className="py-4.5 px-5">Tenant Name</th>
-            <th className="py-4.5 px-4">Code</th>
-            <th className="py-4.5 px-4">Category</th>
-            <th className="py-4.5 px-4">Status</th>
-            <th className="py-4.5 px-5 text-right">Action</th>
+          <tr className="border-b border-m3-outline/20 text-xs font-medium text-m3-secondary bg-m3-surface-container/40">
+            <th className="py-3.5 px-5">{t.colTenantName}</th>
+            <th className="py-3.5 px-4">{t.colCode}</th>
+            <th className="py-3.5 px-4">{t.colCategory}</th>
+            <th className="py-3.5 px-4">{t.colStatus}</th>
+            <th className="py-3.5 px-5 text-right">{t.colAction}</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-m3-outline/10 text-xs font-semibold">
-          {paginatedTenants.map((t) => {
-            const isSelected = selectedId === t.tenantId;
+        <tbody className="divide-y divide-m3-outline/10 text-sm">
+          {paginatedTenants.map((ten) => {
+            const isSelected = selectedId === ten.tenantId;
             return (
-              <tr 
-                key={t.tenantId}
-                onClick={() => setSelectedId(t.tenantId)}
+              <tr
+                key={ten.tenantId}
+                onClick={() => handleSelectTenant(ten.tenantId)}
                 className={`group cursor-pointer transition-colors duration-150 ${
-                  isSelected 
-                    ? 'bg-m3-primary-container/30 text-m3-on-primary-container' 
+                  isSelected
+                    ? 'bg-m3-primary-container/30 text-m3-on-primary-container'
                     : 'hover:bg-m3-primary/5 text-m3-secondary hover:text-m3-on-surface'
                 }`}
               >
-                <td className="py-4 px-5">
+                <td className="py-3.5 px-5">
                   <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-xl border transition-colors ${
-                      isSelected 
-                        ? 'bg-m3-primary text-white border-m3-primary' 
+                    <div className={`p-2 rounded-lg border transition-colors ${
+                      isSelected
+                        ? 'bg-m3-primary text-white border-m3-primary'
                         : 'bg-m3-surface-container/60 border-m3-outline/20 text-m3-secondary group-hover:text-m3-primary group-hover:border-m3-primary/30'
                     }`}>
                       <Building2 className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="font-extrabold text-m3-on-surface">{t.name}</p>
-                      <p className="font-mono text-[9px] opacity-60 truncate max-w-[170px] md:max-w-xs">{t.tenantId}</p>
+                      <p className="font-medium text-m3-on-surface">{ten.name}</p>
+                      <p className="text-xs text-m3-secondary/60 truncate max-w-[170px] md:max-w-xs">{ten.companyReference || ten.type}</p>
                     </div>
                   </div>
                 </td>
-                <td className="py-4 px-4 font-mono font-bold text-[10px] text-m3-on-surface">{t.code}</td>
-                <td className="py-4 px-4">{t.type}</td>
-                <td className="py-4 px-4">
-                  <span className={`text-[8px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${
-                    t.status === 'Active'
-                      ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-500'
-                      : t.status === 'Suspended'
-                      ? 'bg-rose-500/10 border-rose-500/25 text-rose-500'
-                      : 'bg-amber-500/10 border-amber-500/25 text-amber-500'
-                  }`}>
-                    {t.status}
-                  </span>
-                </td>
-                <td className="py-4 px-5 text-right">
+                <td className="py-3.5 px-4 font-mono text-xs font-medium text-m3-on-surface">{ten.code}</td>
+                <td className="py-3.5 px-4 text-xs">{ten.type}</td>
+                <td className="py-3.5 px-4">{statusBadge(ten.status)}</td>
+                <td className="py-3.5 px-5 text-right">
                   <div className="flex items-center justify-end gap-1.5">
                     {isSelected && (
-                      <span className="h-5 w-5 bg-m3-primary text-m3-on-primary rounded-full flex items-center justify-center scale-90">
-                        <Check className="w-3.5 h-3.5" />
+                      <span className="h-5 w-5 bg-m3-primary text-m3-on-primary rounded-full flex items-center justify-center">
+                        <Check className="w-3 h-3" />
                       </span>
                     )}
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-m3-primary opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all flex items-center gap-1">
-                      Manage <ArrowRight className="w-3.5 h-3.5" />
+                    <span className="text-xs font-medium text-m3-primary opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all flex items-center gap-1">
+                      {t.manage} <ArrowRight className="w-3.5 h-3.5" />
                     </span>
                   </div>
                 </td>
@@ -486,53 +461,39 @@ export const TenantDashboardScreen: React.FC = () => {
     </div>
   );
 
-  // Custom Thumbnail/Card Grid View Renderer
   const renderThumbnail = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {paginatedTenants.map((t) => {
-        const isSelected = selectedId === t.tenantId;
+      {paginatedTenants.map((ten) => {
+        const isSelected = selectedId === ten.tenantId;
         return (
-          <M3Card 
-            key={t.tenantId}
-            onClick={() => setSelectedId(t.tenantId)}
-            variant={isSelected ? "elevated" : "filled"}
-            className={`p-5 cursor-pointer rounded-2xl border transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md ${
-              isSelected 
-                ? 'border-m3-primary bg-m3-primary-container/15' 
-                : 'border-m3-outline/25 hover:border-m3-primary/30'
+          <M3Card
+            key={ten.tenantId}
+            onClick={() => handleSelectTenant(ten.tenantId)}
+            variant={isSelected ? 'elevated' : 'filled'}
+            className={`p-5 cursor-pointer border transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md ${
+              isSelected ? 'border-m3-primary bg-m3-primary-container/15' : 'border-m3-outline/25 hover:border-m3-primary/30'
             }`}
           >
             <div className="flex justify-between items-start gap-4">
               <div className="flex gap-3">
-                <div className={`p-2.5 rounded-xl border ${
-                  isSelected ? 'bg-m3-primary text-white border-m3-primary' : 'bg-m3-primary/10 text-m3-primary border-m3-primary/10'
-                }`}>
+                <div className={`p-2.5 rounded-lg border ${isSelected ? 'bg-m3-primary text-white border-m3-primary' : 'bg-m3-primary/10 text-m3-primary border-m3-primary/10'}`}>
                   <Building2 className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-black text-m3-on-surface line-clamp-1">{t.name}</h4>
-                  <p className="font-mono text-[9px] opacity-70 mt-0.5">{t.code}</p>
+                  <h4 className="text-sm font-medium text-m3-on-surface line-clamp-1">{ten.name}</h4>
+                  <p className="font-mono text-xs text-m3-secondary/70 mt-0.5">{ten.code}</p>
                 </div>
               </div>
-              <span className={`text-[8px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${
-                t.status === 'Active'
-                  ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-500'
-                  : t.status === 'Suspended'
-                  ? 'bg-rose-500/10 border-rose-500/25 text-rose-500'
-                  : 'bg-amber-500/10 border-amber-500/25 text-amber-500'
-              }`}>
-                {t.status}
-              </span>
+              {statusBadge(ten.status)}
             </div>
-
-            <div className="mt-4 pt-3.5 border-t border-m3-outline/10 grid grid-cols-2 gap-2 text-[10px]">
+            <div className="mt-4 pt-3 border-t border-m3-outline/10 grid grid-cols-2 gap-2 text-xs">
               <div>
-                <p className="text-m3-secondary uppercase font-bold tracking-wider opacity-75">Category</p>
-                <p className="font-bold text-m3-on-surface">{t.type}</p>
+                <p className="text-m3-secondary font-medium">{t.colCategory}</p>
+                <p className="font-medium text-m3-on-surface mt-0.5">{ten.type}</p>
               </div>
               <div>
-                <p className="text-m3-secondary uppercase font-bold tracking-wider opacity-75">Ref</p>
-                <p className="font-bold text-m3-on-surface truncate">{t.companyReference || 'None'}</p>
+                <p className="text-m3-secondary font-medium">{t.ref}</p>
+                <p className="font-medium text-m3-on-surface truncate mt-0.5">{ten.companyReference || '—'}</p>
               </div>
             </div>
           </M3Card>
@@ -541,389 +502,483 @@ export const TenantDashboardScreen: React.FC = () => {
     </div>
   );
 
-  // Footer telemetry stats
   const footerTelemetry = (
     <div className="flex items-center gap-3">
       <div className="flex items-center gap-1.5">
         <span className="h-2 w-2 rounded-full bg-m3-primary animate-pulse" />
-        <span className="text-[10px] uppercase tracking-wider text-m3-secondary/80">
-          Showing {processedTenants.length === 0 ? 0 : startIndex + 1} - {Math.min(startIndex + pageSize, totalItems)} of {totalItems} Tenants
+        <span className="text-xs font-medium text-m3-secondary/80">
+          {t.showing} {processedTenants.length === 0 ? 0 : startIndex + 1}–{Math.min(startIndex + pageSize, totalItems)} {t.of} {totalItems} {t.tenants}
         </span>
       </div>
       {appliedQuery.term.trim() && (
-        <button 
-          onClick={handleResetQuery}
-          className="text-[9px] uppercase tracking-widest text-rose-500 hover:underline font-extrabold flex items-center gap-1"
-        >
-          <Info className="w-3 h-3" /> Clear Criteria Filter
+        <button onClick={handleResetQuery} className="text-xs font-medium text-rose-500 hover:underline flex items-center gap-1">
+          <Info className="w-3 h-3" /> {t.clearFilter}
         </button>
       )}
     </div>
   );
 
+  // ─── JSX ─────────────────────────────────────────────────────────────────
+
   return (
-    <div className="space-y-6">
-      {/* Split Panel Layout */}
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
-        
-        {/* LEFT COLUMN: Data List View (7 columns) */}
-        <div className="xl:col-span-7 space-y-6">
-          <M3DataView
-            title="Tenant Maintenance"
-            subtitle="Explore registered corporate environments, query tenant blocks, and manage branch routing models."
-            searchPlaceholder="Enter search parameter..."
-            searchCriteria={criteriaOptions}
-            activeCriteria={searchCriteria}
-            onCriteriaChange={(val) => setSearchCriteria(val)}
-            searchValue={searchValue}
-            onSearchValueChange={(val) => setSearchValue(val)}
-            onSearchSubmit={handleQuerySubmit}
-            onRegisterNew={() => setIsCreateOpen(true)}
-            registerLabel="New"
-            viewMode={viewMode}
-            onViewModeChange={(mode) => setViewMode(mode)}
-            sortOptions={sortOptions}
-            sortBy={sortBy}
-            onSortByChange={(val) => setSortBy(val)}
-            sortOrder={sortOrder}
-            onSortOrderToggle={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-            filterOptions={filterOptions}
-            activeFilter={activeFilter}
-            onFilterChange={(val) => {
-              setActiveFilter(val);
-              setPage(1);
-            }}
-            isLoading={isLoading}
-            isEmpty={processedTenants.length === 0}
-            emptyLabel="No matching records were located in the workspace index. Clear filters or query another GUID."
-            renderList={renderList}
-            renderThumbnail={renderThumbnail}
-            pagination={{
-              page,
-              pageSize,
-              totalItems,
-              totalPages,
-              onPageChange: (p) => setPage(p)
-            }}
-            telemetryInfo={footerTelemetry}
-          />
-        </div>
+    <div className="flex gap-4 flex-1 min-h-0 h-full">
 
-        {/* RIGHT COLUMN: Tabbed Configuration Console (5 columns) */}
-        <div className="xl:col-span-5 space-y-5">
-          {isLoading ? (
-            <M3Card variant="elevated" className="py-24 text-center text-xs text-m3-secondary border border-m3-outline/20">
-              <RefreshCw className="w-8 h-8 animate-spin text-m3-primary mx-auto mb-3" />
-              Loading profile mapping...
-            </M3Card>
-          ) : activeTenant ? (
-            <div className="space-y-4 animate-fadeIn">
-              
-              {/* Tenant Profile Banner Card */}
-              <M3Card variant="elevated" className="p-5 border border-m3-outline/25 bg-m3-surface-container/20 shadow-sm">
-                <div className="flex justify-between items-start gap-4 pb-3.5 border-b border-m3-outline/15 mb-4">
-                  <div className="flex gap-2">
-                    <div className="p-2 bg-m3-primary/10 rounded-xl text-m3-primary border border-m3-primary/10 self-start">
-                      <Building className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h3 className="text-xs font-black text-m3-on-surface flex items-center gap-1.5 flex-wrap">
-                        {activeTenant.name}
-                        <span className="text-[8px] px-1.5 py-0.5 rounded font-black bg-m3-outline/30 text-m3-secondary uppercase">
-                          {activeTenant.code}
-                        </span>
-                      </h3>
-                      <p className="text-[9px] text-m3-secondary font-mono mt-0.5 max-w-[190px] truncate" title={activeTenant.tenantId}>
-                        ID: {activeTenant.tenantId}
-                      </p>
-                    </div>
-                  </div>
-
-                  <span className={`text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${
-                    activeTenant.status === 'Active'
-                      ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-500'
-                      : activeTenant.status === 'Suspended'
-                      ? 'bg-rose-500/10 border-rose-500/25 text-rose-500'
-                      : 'bg-amber-500/10 border-amber-500/25 text-amber-500'
-                  }`}>
-                    {activeTenant.status}
-                  </span>
-                </div>
-
-                {/* Operations quick suspension switches */}
-                <div className="flex items-center justify-between text-[11px] font-bold">
-                  <div className="flex items-center gap-1 text-m3-secondary">
-                    <Sliders className="w-3.5 h-3.5" />
-                    <span>State controls</span>
-                  </div>
-                  {activeTenant.status === 'Active' ? (
-                    <M3Button
-                      variant="outlined"
-                      onClick={() => handleToggleStatus('Suspended')}
-                      loading={isPendingMutation}
-                      className="text-rose-500 border-rose-500/25 hover:bg-rose-500/10 text-[9px] px-3.5 py-1.5 h-8.5 font-black uppercase tracking-wider"
-                    >
-                      <ShieldAlert className="w-3 h-3 mr-1" /> Suspend
-                    </M3Button>
-                  ) : (
-                    <M3Button
-                      variant="filled"
-                      onClick={() => handleToggleStatus('Active')}
-                      loading={isPendingMutation}
-                      className="bg-emerald-600 hover:bg-emerald-500 text-[9px] px-3.5 py-1.5 h-8.5 font-black uppercase tracking-wider"
-                    >
-                      <CheckCircle2 className="w-3 h-3 mr-1" /> Activate
-                    </M3Button>
-                  )}
-                </div>
-              </M3Card>
-
-              {/* M3 Tab Bar Navigation */}
-              <div className="flex border border-m3-outline/25 bg-m3-surface-container/20 rounded-2xl p-1 select-none">
-                <button
-                  onClick={() => setActiveConsoleTab('branches')}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-200 ${
-                    activeConsoleTab === 'branches'
-                      ? 'bg-m3-primary text-m3-on-primary shadow-sm font-extrabold'
-                      : 'text-m3-secondary hover:bg-m3-primary/10'
-                  }`}
-                >
-                  <MapPin className="w-3.5 h-3.5" /> Locations
-                </button>
-                <button
-                  onClick={() => setActiveConsoleTab('providers')}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-200 ${
-                    activeConsoleTab === 'providers'
-                      ? 'bg-m3-primary text-m3-on-primary shadow-sm font-extrabold'
-                      : 'text-m3-secondary hover:bg-m3-primary/10'
-                  }`}
-                >
-                  <Key className="w-3.5 h-3.5" /> Auth IDPs
-                </button>
-                <button
-                  onClick={() => setActiveConsoleTab('branding')}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-200 ${
-                    activeConsoleTab === 'branding'
-                      ? 'bg-m3-primary text-m3-on-primary shadow-sm font-extrabold'
-                      : 'text-m3-secondary hover:bg-m3-primary/10'
-                  }`}
-                >
-                  <Palette className="w-3.5 h-3.5" /> Branding
-                </button>
+      {/* ── Discard-changes dialog ── */}
+      {showDiscardDialog && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <M3Card variant="elevated" className="p-6 max-w-sm w-full mx-4 border border-m3-outline/30 shadow-2xl space-y-4 animate-fadeIn">
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-amber-500/15 rounded-lg text-amber-500 flex-shrink-0">
+                <ShieldAlert className="w-5 h-5" />
               </div>
-
-              {/* Active Tab Panel content slot */}
-              <M3Card variant="elevated" className="p-5 border border-m3-outline/25 bg-m3-surface-container/20 shadow-sm min-h-[300px]">
-                
-                {/* 1. BRANCHES TAB (Child Structures) */}
-                {activeConsoleTab === 'branches' && (
-                  <BranchManager tenantId={activeTenant.tenantId} />
-                )}
-
-                {/* 2. AUTH PROVIDERS TAB (Child Structures) */}
-                {activeConsoleTab === 'providers' && (
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center border-b border-m3-outline/10 pb-3">
-                      <div>
-                        <h3 className="text-xs font-black uppercase tracking-wider text-m3-on-surface">
-                          Identity Providers
-                        </h3>
-                        <p className="text-[9px] text-m3-secondary font-bold">
-                          Configure federated OIDC or SAML systems.
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Prominent collapsible inline form */}
-                    {!isAddingProvider ? (
-                      <M3Button
-                        variant="tonal"
-                        onClick={() => setIsAddingProvider(true)}
-                        className="w-full flex items-center justify-center gap-1.5 py-2 text-[9px] font-black uppercase tracking-wider border border-m3-primary/15"
-                      >
-                        <Plus className="w-3.5 h-3.5 text-m3-primary" /> Add Provider
-                      </M3Button>
-                    ) : (
-                      <M3Card variant="outlined" className="p-4 rounded-2xl bg-m3-surface-container/30 border-m3-primary/20 animate-fadeIn">
-                        <div className="flex justify-between items-center border-b border-m3-outline/15 pb-2 mb-3">
-                          <h4 className="text-[9px] font-black uppercase tracking-wider text-m3-primary flex items-center gap-1">
-                            <Plus className="w-3.5 h-3.5" /> New Identity Provider
-                          </h4>
-                          <button 
-                            onClick={() => setIsAddingProvider(false)} 
-                            className="p-1 rounded-full hover:bg-m3-primary/10 text-m3-secondary"
-                          >
-                            <X className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-
-                        <form onSubmit={handleAddProvider} className="space-y-3">
-                          <M3TextField
-                            label="Provider Name"
-                            required
-                            value={provName}
-                            onChange={(e) => setProvName(e.target.value)}
-                            placeholder="e.g. Okta SSO"
-                          />
-
-                          <div className="flex flex-col w-full relative mb-4">
-                            <label className="block text-[11px] font-bold text-m3-primary dark:text-m3-primary/80 uppercase tracking-wider mb-2 ml-1">
-                              Protocol Type
-                            </label>
-                            <select
-                              value={provType}
-                              onChange={(e: any) => setProvType(e.target.value)}
-                              className="w-full px-4 py-3.5 text-sm rounded-2xl border border-m3-outline bg-m3-surface-container/40 dark:bg-m3-surface-container/20 text-m3-on-surface focus:outline-none focus:border-m3-primary focus:ring-2 focus:ring-m3-primary/20 transition-all duration-300 cursor-pointer"
-                            >
-                              <option value="OIDC">OIDC (OpenID Connect)</option>
-                              <option value="SAML2">SAML 2.0 Enterprise</option>
-                              <option value="OAuth2">OAuth2 Generic</option>
-                            </select>
-                          </div>
-
-                          <M3TextField
-                            label="Client ID / Entity URL"
-                            required
-                            value={provClientId}
-                            onChange={(e) => setProvClientId(e.target.value)}
-                            placeholder="e.g. https://auth.acme.com"
-                          />
-
-                          <M3Button
-                            variant="filled"
-                            type="submit"
-                            className="w-full text-[9px] py-1.5 h-8.5 font-black uppercase tracking-wider"
-                          >
-                            Save Provider
-                          </M3Button>
-                        </form>
-                      </M3Card>
-                    )}
-
-                    {/* Providers listing */}
-                    <div className="space-y-2.5 max-h-[260px] overflow-y-auto pr-1">
-                      {activeProviders.length === 0 ? (
-                        <div className="py-8 text-center text-[10px] text-m3-secondary/75 flex flex-col items-center justify-center gap-1 border border-dashed border-m3-outline/25 rounded-2xl p-4">
-                          <Key className="w-5 h-5 text-m3-outline" />
-                          No third-party IDPs connected yet.
-                        </div>
-                      ) : (
-                        activeProviders.map((p) => (
-                          <div 
-                            key={p.id}
-                            className={`p-3 rounded-xl border flex items-center justify-between transition-colors bg-m3-surface-container/40 ${
-                              p.isActive ? 'border-m3-outline/35' : 'border-m3-outline/15 opacity-65 bg-m3-outline/5'
-                            }`}
-                          >
-                            <div className="space-y-0.5 max-w-[80%]">
-                              <div className="flex items-center gap-1.5 flex-wrap">
-                                <span className="font-extrabold text-[11px] text-m3-on-surface">{p.name}</span>
-                                <span className="text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded bg-m3-primary/10 text-m3-primary font-mono">{p.type}</span>
-                              </div>
-                              <p className="text-[9px] font-mono text-m3-secondary truncate" title={p.clientId}>ID: {p.clientId}</p>
-                            </div>
-
-                            <div className="flex items-center gap-1 flex-shrink-0">
-                              <button
-                                onClick={() => handleToggleProvider(p.id)}
-                                className={`p-1.5 rounded-full transition-all border ${
-                                  p.isActive 
-                                    ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/20' 
-                                    : 'bg-rose-500/10 border-rose-500/20 text-rose-500 hover:bg-rose-500/20'
-                                }`}
-                                title={p.isActive ? 'Deactivate Provider' : 'Activate Provider'}
-                              >
-                                <Check className="w-3.5 h-3.5" />
-                              </button>
-                              <button
-                                onClick={() => handleRemoveProvider(p.id)}
-                                className="p-1.5 rounded-full hover:bg-m3-error/15 text-m3-secondary hover:text-m3-error transition-all"
-                                title="Disconnect Provider"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* 3. BRANDING TAB (Child Customization) */}
-                {activeConsoleTab === 'branding' && (
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center border-b border-m3-outline/10 pb-3">
-                      <div>
-                        <h3 className="text-xs font-black uppercase tracking-wider text-m3-on-surface">
-                          Custom Branding Styles
-                        </h3>
-                        <p className="text-[9px] text-m3-secondary font-bold">
-                          Configure tenant overrides for logos and themes.
-                        </p>
-                      </div>
-                    </div>
-
-                    <form onSubmit={handleUpdateBranding} className="space-y-3">
-                      <M3TextField
-                        label="Portal Welcome Title"
-                        required
-                        value={brandTitle}
-                        onChange={(e) => setBrandTitle(e.target.value)}
-                        placeholder="e.g. Acme Employee Hub"
-                      />
-
-                      <M3TextField
-                        label="Primary Color Token (HSL / Hex)"
-                        required
-                        value={brandColor}
-                        onChange={(e) => setBrandColor(e.target.value)}
-                        placeholder="e.g. HSL(200, 70%, 40%)"
-                      />
-
-                      <M3TextField
-                        label="Logo Asset URL"
-                        value={brandLogo}
-                        onChange={(e) => setBrandLogo(e.target.value)}
-                        placeholder="e.g. https://logo.domain.com/acme.png"
-                      />
-
-                      {brandLogo && (
-                        <div className="p-3 bg-m3-surface-container/60 rounded-xl border border-m3-outline/25 flex items-center justify-between gap-4">
-                          <span className="text-[9px] uppercase tracking-wider text-m3-secondary font-black">Logo Preview</span>
-                          <img src={brandLogo} alt="Logo preview" className="h-6 w-auto object-contain rounded border border-m3-outline/30 bg-white p-0.5" onError={(e) => { (e.target as any).style.display = 'none'; }} />
-                        </div>
-                      )}
-
-                      <M3Button
-                        variant="filled"
-                        type="submit"
-                        className="w-full text-[9px] py-1.5 h-8.5 font-black uppercase tracking-wider"
-                      >
-                        Apply Branding Styles
-                      </M3Button>
-                    </form>
-                  </div>
-                )}
-
-              </M3Card>
-
+              <div>
+                <h3 className="text-sm font-semibold text-m3-on-surface">{t.unsavedChanges}</h3>
+                <p className="text-xs text-m3-secondary mt-1 leading-relaxed">{t.unsavedChangesMsg}</p>
+              </div>
             </div>
-          ) : (
-            <M3Card variant="elevated" className="p-6 text-center text-xs text-m3-secondary border border-m3-outline/20 bg-m3-surface-container/10">
-              Select a tenant block in the maintenance panel to load details and active branches list.
-            </M3Card>
-          )}
+            <div className="flex gap-2.5 pt-1">
+              <M3Button variant="outlined" onClick={() => setShowDiscardDialog(false)} className="flex-1">
+                {t.cancelEdit}
+              </M3Button>
+              <M3Button variant="filled" onClick={confirmDiscard} className="flex-1 bg-m3-error hover:bg-m3-error/90 border-0">
+                {t.discardChanges}
+              </M3Button>
+            </div>
+          </M3Card>
         </div>
+      )}
 
+      {/* ── Left column — list ── */}
+      <div className="flex flex-col min-w-0 flex-[6]">
+        <M3DataView
+          title={t.tenantMaintenance}
+          subtitle={t.tenantMaintenanceSubtitle}
+          searchPlaceholder={t.searchPlaceholder}
+          searchCriteria={criteriaOptions}
+          activeCriteria={searchCriteria}
+          onCriteriaChange={setSearchCriteria}
+          searchValue={searchValue}
+          onSearchValueChange={setSearchValue}
+          onSearchSubmit={handleQuerySubmit}
+          onRegisterNew={() => setIsCreateOpen(true)}
+          registerLabel={t.newBtn}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+          sortOptions={sortOptions}
+          sortBy={sortBy}
+          onSortByChange={setSortBy}
+          sortOrder={sortOrder}
+          onSortOrderToggle={() => setSortOrder((o) => o === 'asc' ? 'desc' : 'asc')}
+          filterOptions={filterOptions}
+          activeFilter={activeFilter}
+          onFilterChange={(val) => { setActiveFilter(val); setPage(1); }}
+          isLoading={isLoadingList}
+          isEmpty={processedTenants.length === 0}
+          emptyLabel={t.noRecords}
+          emptyTitle={t.dataViewEmptyTitle}
+          loadingLabel={t.dataViewLoading}
+          criteriaLabel={t.dataViewCriteriaLabel}
+          searchTermLabel={t.dataViewSearchTermLabel}
+          searchButtonLabel={t.dataViewSearchBtn}
+          renderList={renderList}
+          renderThumbnail={renderThumbnail}
+          pagination={{ page, pageSize, totalItems, totalPages, onPageChange: setPage }}
+          telemetryInfo={footerTelemetry}
+        />
       </div>
 
-      {/* Register Tenant Modal Form */}
-      <TenantForm
-        isOpen={isCreateOpen}
-        onClose={() => setIsCreateOpen(false)}
-        onSuccess={handleCreateSuccess}
-      />
+      {/* ── Right column — detail ── */}
+      <div className="flex flex-col min-w-0 flex-[4] overflow-y-auto space-y-4 pr-0.5">
+
+        {isLoadingList ? (
+          <M3Card variant="elevated" className="py-24 text-center text-sm text-m3-secondary border border-m3-outline/20">
+            <RefreshCw className="w-8 h-8 animate-spin text-m3-primary mx-auto mb-3" />
+            {t.loadingProfile}
+          </M3Card>
+
+        ) : activeTenant ? (
+          <div key={selectedId} className="space-y-4">
+
+            {/* ── Tenant profile banner ── */}
+            <M3Card
+              variant="elevated"
+              className="p-5 border border-m3-outline/25 bg-m3-surface-container/20 shadow-sm group"
+              onDoubleClick={() => !isTenantEditing && openTenantEdit()}
+            >
+              {!isTenantEditing ? (
+                <>
+                  <div className="flex justify-between items-start gap-4 pb-3.5 border-b border-m3-outline/15 mb-4">
+                    <div className="flex gap-3 flex-1 min-w-0">
+                      <div className="p-2 bg-m3-primary/10 rounded-lg text-m3-primary border border-m3-primary/10 self-start flex-shrink-0">
+                        <Building className="w-5 h-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="text-sm font-semibold text-m3-on-surface flex items-center gap-1.5 flex-wrap">
+                          {activeTenant.name}
+                          <span className="text-xs px-1.5 py-0.5 rounded font-medium bg-m3-outline/30 text-m3-secondary">
+                            {activeTenant.code}
+                          </span>
+                        </h3>
+                        {activeTenant.companyReference && (
+                          <p className="text-xs text-m3-secondary mt-0.5">{activeTenant.companyReference}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      {statusBadge(activeTenant.status)}
+                      <IconButton tooltip={t.editTenant} onClick={openTenantEdit} className="opacity-0 group-hover:opacity-100">
+                        <Pencil className="w-3.5 h-3.5" />
+                      </IconButton>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-1.5 text-m3-secondary font-medium">
+                      <Sliders className="w-3.5 h-3.5" />
+                      <span>{t.stateControls}</span>
+                    </div>
+                    {activeTenant.status === 'Active' ? (
+                      <M3Button
+                        variant="outlined"
+                        onClick={() => handleToggleStatus('Suspended')}
+                        loading={isPendingMutation}
+                        className="text-rose-500 border-rose-500/30 hover:bg-rose-500/10"
+                      >
+                        <ShieldAlert className="w-3.5 h-3.5 mr-1.5" /> {t.suspendBtn}
+                      </M3Button>
+                    ) : (
+                      <M3Button
+                        variant="filled"
+                        onClick={() => handleToggleStatus('Active')}
+                        loading={isPendingMutation}
+                        className="bg-emerald-600 hover:bg-emerald-500"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" /> {t.activateBtn}
+                      </M3Button>
+                    )}
+                  </div>
+
+                  <p className="text-xs text-m3-secondary/50 mt-3 text-center">{t.doubleClickToEdit}</p>
+                </>
+              ) : (
+                /* ── Tenant inline-edit form ── */
+                <div className="space-y-0 animate-fadeIn">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-sm font-medium text-m3-primary flex items-center gap-1.5">
+                      <Pencil className="w-3.5 h-3.5" /> {t.editTenant}
+                    </span>
+                    <IconButton tooltip={t.cancelEdit} onClick={() => setIsTenantEditing(false)}>
+                      <X className="w-3.5 h-3.5" />
+                    </IconButton>
+                  </div>
+
+                  <M3TextField label={t.tenantName} required value={editName} onChange={(e) => setEditName(e.target.value)} />
+                  <M3TextField label={t.tenantCode} required value={editCode} onChange={(e) => setEditCode(e.target.value.toUpperCase())} />
+                  <M3TextField label={t.companyReference} value={editCompanyRef} onChange={(e) => setEditCompanyRef(e.target.value)} />
+
+                  <M3Select label={t.tenantType} value={editType} onChange={(e) => setEditType(e.target.value)}>
+                    {['INTERNAL', 'SUPPLIER', 'CLIENT'].map((tp) => <option key={tp} value={tp}>{tp}</option>)}
+                  </M3Select>
+
+                  <div className="flex gap-2 pt-1">
+                    <M3Button variant="filled" onClick={saveTenantEdit} className="flex-1 flex items-center justify-center gap-1.5">
+                      <Save className="w-3.5 h-3.5" /> {t.saveBtn}
+                    </M3Button>
+                    <M3Button variant="outlined" onClick={() => setIsTenantEditing(false)} className="flex-1">
+                      {t.cancelEdit}
+                    </M3Button>
+                  </div>
+                </div>
+              )}
+            </M3Card>
+
+            {/* ── Tab bar ── */}
+            <div className="flex border border-m3-outline/25 bg-m3-surface-container/20 rounded-xl p-1 select-none">
+              {(['branches', 'providers', 'branding'] as const).map((tab) => {
+                const icons = {
+                  branches: <MapPin className="w-3.5 h-3.5" />,
+                  providers: <Key className="w-3.5 h-3.5" />,
+                  branding: <Palette className="w-3.5 h-3.5" />,
+                };
+                const labels = { branches: t.tabLocations, providers: t.tabAuthIdps, branding: t.tabBranding };
+                return (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveConsoleTab(tab)}
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-medium transition-all duration-200 ${
+                      activeConsoleTab === tab
+                        ? 'bg-m3-primary text-m3-on-primary shadow-sm'
+                        : 'text-m3-secondary hover:bg-m3-primary/10'
+                    }`}
+                  >
+                    {icons[tab]} {labels[tab]}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* ── Tab content ── */}
+            <M3Card variant="elevated" className="p-5 border border-m3-outline/25 bg-m3-surface-container/20 shadow-sm">
+
+              {/* ── Branches tab ── */}
+              {activeConsoleTab === 'branches' && (
+                <BranchManager tenantId={activeTenant.tenantId} />
+              )}
+
+              {/* ── Providers tab ── */}
+              {activeConsoleTab === 'providers' && (
+                <div className="space-y-4">
+                  <div className="border-b border-m3-outline/10 pb-3">
+                    <h3 className="text-sm font-semibold text-m3-on-surface">{t.identityProviders}</h3>
+                    <p className="text-xs text-m3-secondary mt-0.5">{t.idpSubtitle}</p>
+                  </div>
+
+                  {!isAddingProvider && (
+                    <M3Button
+                      variant="tonal"
+                      onClick={() => setIsAddingProvider(true)}
+                      className="w-full flex items-center justify-center gap-1.5 border border-m3-primary/15"
+                    >
+                      <Plus className="w-4 h-4 text-m3-primary" /> {t.addProvider}
+                    </M3Button>
+                  )}
+
+                  {isAddingProvider && (
+                    <M3Card variant="outlined" className="p-4 bg-m3-surface-container/30 border-m3-primary/20 animate-fadeIn">
+                      <div className="flex justify-between items-center border-b border-m3-outline/15 pb-2 mb-4">
+                        <h4 className="text-sm font-medium text-m3-primary flex items-center gap-1.5">
+                          <Plus className="w-3.5 h-3.5" /> {t.newProvider}
+                        </h4>
+                        <IconButton tooltip={t.cancelEdit} onClick={() => setIsAddingProvider(false)}>
+                          <X className="w-3.5 h-3.5" />
+                        </IconButton>
+                      </div>
+                      <form onSubmit={handleAddProvider} className="space-y-0">
+                        <M3TextField label={t.providerName} required value={provName} onChange={(e) => setProvName(e.target.value)} placeholder="e.g. Okta SSO" />
+                        <M3TextField label={t.providerCode} value={provCode} onChange={(e) => setProvCode(e.target.value.toUpperCase())} placeholder="e.g. OKTA_SSO" />
+                        <M3Select label={t.protocolType} value={provStrategy} onChange={(e: any) => setProvStrategy(e.target.value)}>
+                          <option value="OIDC">{t.strategyOIDC}</option>
+                          <option value="SAML2">{t.strategySAML2}</option>
+                          <option value="OAuth2">{t.strategyOAuth2}</option>
+                        </M3Select>
+                        <M3TextField label={t.providerDescription} value={provDescription} onChange={(e) => setProvDescription(e.target.value)} placeholder="e.g. https://login.microsoftonline.com/tenant-id" />
+                        <M3Button variant="filled" type="submit" className="w-full mt-1">{t.saveProvider}</M3Button>
+                      </form>
+                    </M3Card>
+                  )}
+
+                  <div className="space-y-2.5">
+                    {activeProviders.length === 0 ? (
+                      <div className="py-8 text-center text-sm text-m3-secondary/75 flex flex-col items-center gap-2 border border-dashed border-m3-outline/25 rounded-xl p-4">
+                        <Key className="w-5 h-5 text-m3-outline" />
+                        {t.noIdps}
+                      </div>
+                    ) : (
+                      activeProviders.map((p) =>
+                        editingProviderId === p.id ? (
+                          /* inline edit */
+                          <div key={p.id} className="p-4 rounded-xl border border-m3-primary/30 bg-m3-surface-container/50 space-y-0 animate-fadeIn">
+                            <div className="flex items-center justify-between mb-4">
+                              <span className="text-sm font-medium text-m3-primary flex items-center gap-1.5">
+                                <Pencil className="w-3.5 h-3.5" /> {t.editProvider}
+                              </span>
+                              <IconButton tooltip={t.cancelEdit} onClick={() => setEditingProviderId(null)}>
+                                <X className="w-3.5 h-3.5" />
+                              </IconButton>
+                            </div>
+                            <M3TextField label={t.providerName} required value={editProvName} onChange={(e) => setEditProvName(e.target.value)} />
+                            <M3TextField label={t.providerCode} value={editProvCode} onChange={(e) => setEditProvCode(e.target.value.toUpperCase())} />
+                            <M3Select label={t.protocolType} value={editProvStrategy} onChange={(e: any) => setEditProvStrategy(e.target.value)}>
+                              <option value="OIDC">{t.strategyOIDC}</option>
+                              <option value="SAML2">{t.strategySAML2}</option>
+                              <option value="OAuth2">{t.strategyOAuth2}</option>
+                            </M3Select>
+                            <M3TextField label={t.providerDescription} value={editProvDescription} onChange={(e) => setEditProvDescription(e.target.value)} />
+                            <div className="flex gap-2 pt-1">
+                              <M3Button variant="filled" onClick={saveProviderEdit} className="flex-1 flex items-center justify-center gap-1.5">
+                                <Save className="w-3.5 h-3.5" /> {t.saveBtn}
+                              </M3Button>
+                              <M3Button variant="outlined" onClick={() => setEditingProviderId(null)} className="flex-1">
+                                {t.cancelEdit}
+                              </M3Button>
+                            </div>
+                          </div>
+                        ) : (
+                          /* provider row */
+                          <div
+                            key={p.id}
+                            className={`p-3.5 rounded-xl border flex items-center justify-between transition-colors bg-m3-surface-container/40 group/prov ${
+                              p.isActive ? 'border-m3-outline/35' : 'border-m3-outline/15 opacity-60 bg-m3-outline/5'
+                            }`}
+                            onDoubleClick={() => openProviderEdit(p)}
+                          >
+                            <div className="space-y-1 min-w-0 flex-1">
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="font-medium text-sm text-m3-on-surface">{p.name}</span>
+                                {p.code && (
+                                  <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-m3-outline/30 text-m3-secondary font-mono">{p.code}</span>
+                                )}
+                                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-m3-primary/10 text-m3-primary font-mono">{p.strategy}</span>
+                              </div>
+                              {p.description && (
+                                <p className="text-xs font-mono text-m3-secondary truncate">{p.description}</p>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1 flex-shrink-0 ml-2">
+                              <IconButton tooltip={t.editProvider} onClick={() => openProviderEdit(p)} className="opacity-0 group-hover/prov:opacity-100">
+                                <Pencil className="w-3.5 h-3.5" />
+                              </IconButton>
+                              <Tooltip content={p.isActive ? t.deactivate : t.reactivate}>
+                                <button
+                                  onClick={() => handleToggleProvider(p.id)}
+                                  className={`p-1.5 rounded-full transition-all border ${
+                                    p.isActive
+                                      ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/20'
+                                      : 'bg-rose-500/10 border-rose-500/20 text-rose-500 hover:bg-rose-500/20'
+                                  }`}
+                                >
+                                  <Check className="w-3.5 h-3.5" />
+                                </button>
+                              </Tooltip>
+                              <IconButton tooltip={t.removeLocation} onClick={() => handleRemoveProvider(p.id)} className="hover:text-m3-error hover:bg-m3-error/10">
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </IconButton>
+                            </div>
+                          </div>
+                        )
+                      )
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* ── Branding tab ── */}
+              {activeConsoleTab === 'branding' && (
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center border-b border-m3-outline/10 pb-3">
+                    <div>
+                      <h3 className="text-sm font-semibold text-m3-on-surface">{t.customBranding}</h3>
+                      <p className="text-xs text-m3-secondary mt-0.5">{t.brandingSubtitle}</p>
+                    </div>
+                    {/* DNS status badge */}
+                    {(() => {
+                      const dns = brandingData[selectedId]?.dnsVerificationStatus ?? 'Pending';
+                      const cls =
+                        dns === 'Verified' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500'
+                        : dns === 'Failed'   ? 'bg-rose-500/10 border-rose-500/20 text-rose-500'
+                        : 'bg-amber-500/10 border-amber-500/20 text-amber-500';
+                      const label = dns === 'Verified' ? t.brandDnsVerified : dns === 'Failed' ? t.brandDnsFailed : t.brandDnsPending;
+                      return (
+                        <Tooltip content={t.brandDnsStatus}>
+                          <span className={`text-[10px] font-medium px-2.5 py-1 rounded-full border cursor-default ${cls}`}>{label}</span>
+                        </Tooltip>
+                      );
+                    })()}
+                  </div>
+
+                  <form onSubmit={handleUpdateBranding} className="space-y-0">
+
+                    {/* Section: content */}
+                    <p className="text-xs font-medium text-m3-secondary mb-3">{t.brandingContent}</p>
+
+                    <M3TextField label={t.brandHeadline} value={brandHeadline} onChange={(e) => setBrandHeadline(e.target.value)} placeholder="e.g. Welcome to Ransa Portal" />
+                    <M3TextField label={t.brandSecondary} value={brandSecondary} onChange={(e) => setBrandSecondary(e.target.value)} placeholder="e.g. Sign in to continue" />
+                    <M3TextField label={t.brandButtonLabel} value={brandButtonLabel} onChange={(e) => setBrandButtonLabel(e.target.value)} placeholder="e.g. Sign in" />
+                    <M3TextField label={t.brandFooter} value={brandFooter} onChange={(e) => setBrandFooter(e.target.value)} placeholder="e.g. © 2025 Ransa Perú S.A." />
+
+                    {/* Section: visual */}
+                    <p className="text-xs font-medium text-m3-secondary mb-3 mt-2">{t.brandingVisual}</p>
+
+                    {/* Color picker — M3 outlined field style */}
+                    <div className="relative mb-4">
+                      <label className="absolute left-4 px-1 -mx-1 text-xs font-normal bg-m3-surface text-m3-secondary top-0 -translate-y-1/2 z-10 pointer-events-none">
+                        {t.brandPrimaryColor}
+                      </label>
+                      <div className="w-full h-14 px-4 flex items-center gap-3 border-[1.5px] border-m3-outline rounded-[4px] bg-m3-surface-container/30 hover:border-m3-on-surface transition-colors">
+                        <input
+                          type="color"
+                          value={brandColor}
+                          onChange={(e) => setBrandColor(e.target.value)}
+                          className="h-8 w-10 rounded border-0 bg-transparent cursor-pointer p-0 flex-shrink-0"
+                        />
+                        <span className="font-mono text-sm text-m3-on-surface">{brandColor}</span>
+                      </div>
+                    </div>
+
+                    <M3Select label={t.brandBackground} value={brandBackground} onChange={(e) => setBrandBackground(e.target.value)}>
+                      <option value="solid">{t.brandBgSolid}</option>
+                      <option value="gradient-subtle">{t.brandBgGradientSubtle}</option>
+                      <option value="gradient-bold">{t.brandBgGradientBold}</option>
+                    </M3Select>
+
+                    {/* Logo URL + format side-by-side */}
+                    <div className="flex gap-3 items-start">
+                      <div className="flex-1">
+                        <M3TextField label={t.brandLogoUrl} value={brandLogo} onChange={(e) => setBrandLogo(e.target.value)} placeholder="https://logo.ransa.pe/logo.png" className="mb-0" />
+                      </div>
+                      <div className="w-28 flex-shrink-0">
+                        <M3Select label={t.brandLogoFormat} value={brandLogoFormat} onChange={(e) => setBrandLogoFormat(e.target.value)} className="mb-0">
+                          <option value="png">PNG</option>
+                          <option value="svg">SVG</option>
+                          <option value="jpeg">JPEG</option>
+                        </M3Select>
+                      </div>
+                    </div>
+
+                    {brandLogo && (
+                      <div className="mt-2 p-3 bg-m3-surface-container/60 rounded-lg border border-m3-outline/25 flex items-center justify-between gap-4">
+                        <span className="text-xs font-medium text-m3-secondary">{t.brandLogoPreview}</span>
+                        <img
+                          src={brandLogo}
+                          alt="Logo preview"
+                          className="h-6 w-auto object-contain rounded border border-m3-outline/30 bg-white p-0.5"
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                        />
+                      </div>
+                    )}
+
+                    {/* Section: domain & auth */}
+                    <p className="text-xs font-medium text-m3-secondary mb-3 mt-6">{t.brandingDomain}</p>
+
+                    <M3TextField label={t.brandCustomDomain} value={brandCustomDomain} onChange={(e) => setBrandCustomDomain(e.target.value)} placeholder="e.g. auth.ransa.pe" />
+
+                    {/* Magic link toggle — M3 outlined field style */}
+                    <div className="relative mb-4">
+                      <label className="absolute left-4 px-1 -mx-1 text-xs font-normal bg-m3-surface text-m3-secondary top-0 -translate-y-1/2 z-10 pointer-events-none">
+                        {t.brandMagicLink}
+                      </label>
+                      <div className="w-full h-14 px-4 flex items-center justify-between border-[1.5px] border-m3-outline rounded-[4px] bg-m3-surface-container/30 hover:border-m3-on-surface transition-colors">
+                        <span className="text-sm text-m3-secondary">{brandMagicLink ? t.active : t.suspended}</span>
+                        <button
+                          type="button"
+                          onClick={() => setBrandMagicLink(!brandMagicLink)}
+                          className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors focus:outline-none ${
+                            brandMagicLink ? 'bg-m3-primary' : 'bg-m3-outline/50'
+                          }`}
+                        >
+                          <span className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${brandMagicLink ? 'translate-x-6' : 'translate-x-1'}`} />
+                        </button>
+                      </div>
+                    </div>
+
+                    <M3Button variant="filled" type="submit" className="w-full">
+                      {t.applyBranding}
+                    </M3Button>
+                  </form>
+                </div>
+              )}
+
+            </M3Card>
+          </div>
+
+        ) : (
+          <M3Card variant="elevated" className="p-6 text-center text-sm text-m3-secondary border border-m3-outline/20 bg-m3-surface-container/10">
+            {t.selectTenant}
+          </M3Card>
+        )}
+      </div>
+
+      <TenantForm isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} onSuccess={handleCreateSuccess} />
     </div>
   );
 };

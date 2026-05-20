@@ -12,7 +12,7 @@ export const M3Card: React.FC<M3CardProps> = ({
   className = '',
   ...props
 }) => {
-  const baseStyle = 'rounded-3xl p-6 bg-m3-surface-container transition-all duration-300 relative overflow-hidden';
+  const baseStyle = 'rounded-xl p-6 bg-m3-surface-container transition-all duration-300 relative overflow-hidden';
 
   const variants = {
     elevated: 'elevation-1 dark:border dark:border-m3-outline/20',

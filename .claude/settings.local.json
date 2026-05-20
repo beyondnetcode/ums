@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem -Path \"D:\\\\Users\\\\aarroyo\\\\personal\\\\sources\\\\ums\" -Depth 2 | Where-Object { $_.PSIsContainer } | Select-Object FullName)",
+      "Bash(dotnet run *)",
+      "Bash(npm run *)",
+      "Bash(xargs cat)",
+      "Bash(curl -sk https://localhost:7114/api/v1/tenants -o /dev/null -w \"%{http_code}\")",
+      "Bash(curl -s http://localhost:5293/api/v1/tenants -o /dev/null -w \"%{http_code}\")",
+      "Bash(curl -sk \"https://localhost:7114/api/v1/tenants/552dee09-0e47-4a63-9ced-0424cdc94236/branches\" -w \"\\\\nHTTP: %{http_code}\")",
+      "Bash(xargs grep -l \"Tenant\")",
+      "Bash(xargs grep -l \"CreateTenant\\\\|AddTenant\")",
+      "Bash(xargs grep -l -i \"tenant\\\\|create\")",
+      "Bash(dotnet build *)",
+      "Bash(xargs grep -l -i \"seed\\\\|sample\\\\|mock\\\\|fixture\")",
+      "PowerShell(Get-Process -Name \"Ums.Presentation\" -ErrorAction SilentlyContinue)",
+      "PowerShell(Stop-Process -Force)",
+      "Bash(curl -sk https://localhost:7114/api/v1/tenants)",
+      "Bash(npx tsc *)"
+    ]
+  }
+}

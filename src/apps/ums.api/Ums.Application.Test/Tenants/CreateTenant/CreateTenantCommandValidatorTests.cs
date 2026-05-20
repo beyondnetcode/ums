@@ -17,7 +17,7 @@ public class CreateTenantCommandValidatorTests
     [Fact]
     public void Code_WhenEmpty_HasValidationError()
     {
-        var command = new CreateTenantCommand("", "Test Tenant", "INTERNAL", null, null, null);
+        var command = new CreateTenantCommand("", "Test Tenant", "INTERNAL", null, null);
 
         var result = _validator.TestValidate(command);
 
@@ -27,7 +27,7 @@ public class CreateTenantCommandValidatorTests
     [Fact]
     public void Code_WhenWhitespace_HasValidationError()
     {
-        var command = new CreateTenantCommand("   ", "Test Tenant", "INTERNAL", null, null, null);
+        var command = new CreateTenantCommand("   ", "Test Tenant", "INTERNAL", null, null);
 
         var result = _validator.TestValidate(command);
 
@@ -37,7 +37,7 @@ public class CreateTenantCommandValidatorTests
     [Fact]
     public void Code_WhenExceedsMaxLength_HasValidationError()
     {
-        var command = new CreateTenantCommand(new string('A', 51), "Test Tenant", "INTERNAL", null, null, null);
+        var command = new CreateTenantCommand(new string('A', 51), "Test Tenant", "INTERNAL", null, null);
 
         var result = _validator.TestValidate(command);
 
@@ -47,7 +47,7 @@ public class CreateTenantCommandValidatorTests
     [Fact]
     public void Code_WhenValid_PassesValidation()
     {
-        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "INTERNAL", null, null, null);
+        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "INTERNAL", null, null);
 
         var result = _validator.TestValidate(command);
 
@@ -61,7 +61,7 @@ public class CreateTenantCommandValidatorTests
     [Fact]
     public void Name_WhenEmpty_HasValidationError()
     {
-        var command = new CreateTenantCommand("TEST-001", "", "INTERNAL", null, null, null);
+        var command = new CreateTenantCommand("TEST-001", "", "INTERNAL", null, null);
 
         var result = _validator.TestValidate(command);
 
@@ -71,7 +71,7 @@ public class CreateTenantCommandValidatorTests
     [Fact]
     public void Name_WhenExceedsMaxLength_HasValidationError()
     {
-        var command = new CreateTenantCommand("TEST-001", new string('A', 151), "INTERNAL", null, null, null);
+        var command = new CreateTenantCommand("TEST-001", new string('A', 151), "INTERNAL", null, null);
 
         var result = _validator.TestValidate(command);
 
@@ -81,7 +81,7 @@ public class CreateTenantCommandValidatorTests
     [Fact]
     public void Name_WhenValid_PassesValidation()
     {
-        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "INTERNAL", null, null, null);
+        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "INTERNAL", null, null);
 
         var result = _validator.TestValidate(command);
 
@@ -95,7 +95,7 @@ public class CreateTenantCommandValidatorTests
     [Fact]
     public void Type_WhenEmpty_HasValidationError()
     {
-        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "", null, null, null);
+        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "", null, null);
 
         var result = _validator.TestValidate(command);
 
@@ -105,7 +105,7 @@ public class CreateTenantCommandValidatorTests
     [Fact]
     public void Type_WhenNotSupported_HasValidationError()
     {
-        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "INVALID_TYPE", null, null, null);
+        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "INVALID_TYPE", null, null);
 
         var result = _validator.TestValidate(command);
 
@@ -115,7 +115,7 @@ public class CreateTenantCommandValidatorTests
     [Fact]
     public void Type_WhenInternal_PassesValidation()
     {
-        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "INTERNAL", null, null, null);
+        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "INTERNAL", null, null);
 
         var result = _validator.TestValidate(command);
 
@@ -125,7 +125,7 @@ public class CreateTenantCommandValidatorTests
     [Fact]
     public void Type_WhenSupplier_PassesValidation()
     {
-        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "SUPPLIER", null, null, null);
+        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "SUPPLIER", null, null);
 
         var result = _validator.TestValidate(command);
 
@@ -139,7 +139,7 @@ public class CreateTenantCommandValidatorTests
     [Fact]
     public void IdpStrategy_WhenNotSupported_HasValidationError()
     {
-        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "INTERNAL", "INVALID_STRATEGY", null, null);
+        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "INTERNAL", "INVALID_STRATEGY", null);
 
         var result = _validator.TestValidate(command);
 
@@ -149,7 +149,7 @@ public class CreateTenantCommandValidatorTests
     [Fact]
     public void IdpStrategy_WhenNull_PassesValidation()
     {
-        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "INTERNAL", null, null, null);
+        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "INTERNAL", null, null);
 
         var result = _validator.TestValidate(command);
 
@@ -159,7 +159,7 @@ public class CreateTenantCommandValidatorTests
     [Fact]
     public void IdpStrategy_WhenEmpty_PassesValidation()
     {
-        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "INTERNAL", "", null, null);
+        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "INTERNAL", "", null);
 
         var result = _validator.TestValidate(command);
 
@@ -169,7 +169,7 @@ public class CreateTenantCommandValidatorTests
     [Fact]
     public void IdpStrategy_WhenAzureAd_PassesValidation()
     {
-        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "INTERNAL", "AzureAd", null, null);
+        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "INTERNAL", "AzureAd", null);
 
         var result = _validator.TestValidate(command);
 
@@ -179,7 +179,7 @@ public class CreateTenantCommandValidatorTests
     [Fact]
     public void IdpStrategy_WhenOkta_PassesValidation()
     {
-        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "INTERNAL", "Okta", null, null);
+        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "INTERNAL", "Okta", null);
 
         var result = _validator.TestValidate(command);
 
@@ -189,7 +189,7 @@ public class CreateTenantCommandValidatorTests
     [Fact]
     public void IdpStrategy_WhenInternalBcrypt_PassesValidation()
     {
-        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "INTERNAL", "InternalBcrypt", null, null);
+        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "INTERNAL", "InternalBcrypt", null);
 
         var result = _validator.TestValidate(command);
 
@@ -203,7 +203,7 @@ public class CreateTenantCommandValidatorTests
     [Fact]
     public void CompanyReference_WhenExceedsMaxLength_HasValidationError()
     {
-        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "INTERNAL", null, new string('A', 151), null);
+        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "INTERNAL", null, new string('A', 151));
 
         var result = _validator.TestValidate(command);
 
@@ -213,7 +213,7 @@ public class CreateTenantCommandValidatorTests
     [Fact]
     public void CompanyReference_WhenNull_PassesValidation()
     {
-        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "INTERNAL", null, null, null);
+        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "INTERNAL", null, null);
 
         var result = _validator.TestValidate(command);
 
@@ -223,45 +223,11 @@ public class CreateTenantCommandValidatorTests
     [Fact]
     public void CompanyReference_WhenValid_PassesValidation()
     {
-        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "INTERNAL", null, "COMP-123", null);
+        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "INTERNAL", null, "COMP-123");
 
         var result = _validator.TestValidate(command);
 
         result.ShouldNotHaveValidationErrorFor(c => c.CompanyReference);
-    }
-
-    #endregion
-
-    #region ParentTenantId Validation
-
-    [Fact]
-    public void ParentTenantId_WhenEmptyGuid_HasValidationError()
-    {
-        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "INTERNAL", null, null, Guid.Empty);
-
-        var result = _validator.TestValidate(command);
-
-        result.ShouldHaveValidationErrorFor(c => c.ParentTenantId);
-    }
-
-    [Fact]
-    public void ParentTenantId_WhenNull_PassesValidation()
-    {
-        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "INTERNAL", null, null, null);
-
-        var result = _validator.TestValidate(command);
-
-        result.ShouldNotHaveValidationErrorFor(c => c.ParentTenantId);
-    }
-
-    [Fact]
-    public void ParentTenantId_WhenValidGuid_PassesValidation()
-    {
-        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "INTERNAL", null, null, Guid.NewGuid());
-
-        var result = _validator.TestValidate(command);
-
-        result.ShouldNotHaveValidationErrorFor(c => c.ParentTenantId);
     }
 
     #endregion
@@ -271,7 +237,7 @@ public class CreateTenantCommandValidatorTests
     [Fact]
     public void Validate_WithAllValidFields_ReturnsValid()
     {
-        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "INTERNAL", "AzureAd", "COMP-123", Guid.NewGuid());
+        var command = new CreateTenantCommand("TEST-001", "Test Tenant", "INTERNAL", "AzureAd", "COMP-123");
 
         var result = _validator.TestValidate(command);
 
@@ -281,7 +247,7 @@ public class CreateTenantCommandValidatorTests
     [Fact]
     public void Validate_WithMultipleErrors_ReturnsAllErrors()
     {
-        var command = new CreateTenantCommand("", "", "INVALID_TYPE", "INVALID_STRATEGY", new string('A', 200), Guid.Empty);
+        var command = new CreateTenantCommand("", "", "INVALID_TYPE", "INVALID_STRATEGY", new string('A', 200));
 
         var result = _validator.TestValidate(command);
 

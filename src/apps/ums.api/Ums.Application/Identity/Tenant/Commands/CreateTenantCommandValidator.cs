@@ -27,8 +27,5 @@ public sealed class CreateTenantCommandValidator : AbstractValidator<CreateTenan
             .MaximumLength(150)
             .When(command => !string.IsNullOrWhiteSpace(command.CompanyReference));
 
-        RuleFor(command => command.ParentTenantId)
-            .NotEqual(Guid.Empty)
-            .When(command => command.ParentTenantId.HasValue);
     }
 }

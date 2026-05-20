@@ -15,7 +15,6 @@ export interface CreateTenantPayload {
   name: string;
   type: string;
   companyReference?: string;
-  parentTenantId?: string;
 }
 
 export interface CreateTenantResponse {

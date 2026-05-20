@@ -21,6 +21,13 @@ public sealed class InMemoryTenantRepository : ITenantRepository, IUnitOfWork
     public Task<TenantAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
         => GetByIdAsync(id, cancellationToken);
 
+    public Task<IReadOnlyList<TenantAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        var all = _store.Values.ToList();
+        all.ForEach(t => t.BrokenRules.Clear());
+        return Task.FromResult<IReadOnlyList<TenantAggregate>>(all);
+    }
+
     public Task<TenantAggregate?> GetByCodeAsync(string code, CancellationToken cancellationToken = default)
     {
         var tenant = _store.Values.FirstOrDefault(t => string.Equals(t.Code.GetValue(), code, StringComparison.Ordinal));

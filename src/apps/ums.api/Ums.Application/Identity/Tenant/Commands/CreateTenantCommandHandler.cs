@@ -41,9 +41,7 @@ public sealed class CreateTenantCommandHandler : ICommandHandler<CreateTenantCom
         var companyReference = string.IsNullOrWhiteSpace(request.CompanyReference)
             ? null
             : CompanyReference.Create(request.CompanyReference);
-        var parentTenantId = request.ParentTenantId.HasValue
-            ? TenantId.Load(request.ParentTenantId.Value)
-            : null;
+        var parentTenantId = TenantId.Load(Guid.NewGuid());
 
         var tenantResult = Tenant.Create(
             code,

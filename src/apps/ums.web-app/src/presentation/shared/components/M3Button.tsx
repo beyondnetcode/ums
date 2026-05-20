@@ -17,7 +17,7 @@ export const M3Button: React.FC<M3ButtonProps> = ({
   disabled,
   ...props
 }) => {
-  const baseStyle = 'inline-flex items-center justify-center font-semibold text-xs tracking-wider uppercase transition-all duration-300 active:scale-95 disabled:pointer-events-none disabled:opacity-50 select-none';
+  const baseStyle = 'inline-flex items-center justify-center font-medium text-sm tracking-normal transition-all duration-300 active:scale-95 disabled:pointer-events-none disabled:opacity-50 select-none';
 
   const variants = {
     filled: 'bg-m3-primary text-m3-on-primary hover:bg-m3-primary/90 hover:shadow-lg hover:shadow-m3-primary/20 rounded-full px-6 py-3.5',

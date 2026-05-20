@@ -29,6 +29,11 @@ apiClient.interceptors.request.use((config) => {
 
 export const tenantService = {
   // Tenant CRUD & status
+  getAllTenants: async (): Promise<Tenant[]> => {
+    const response = await apiClient.get<Tenant[]>('/tenants');
+    return response.data;
+  },
+
   getTenantById: async (tenantId: string): Promise<Tenant> => {
     const response = await apiClient.get<Tenant>(`/tenants/${tenantId}`);
     return response.data;
