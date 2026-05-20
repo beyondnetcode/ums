@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useAuthStore } from '../../../application/stores/auth.store';
 import { useNotificationStore } from '../../../application/stores/notification.store';
 import { useI18n } from '../../../application/i18n/use-i18n';
+import { useIdleTimeout } from '../../../application/hooks/use-idle-timeout';
 import {
   Database,
   Building2,
@@ -52,6 +53,21 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
   const handleLanguageToggle = () => {
     setDevLanguage(devLanguage === 'en' ? 'es' : 'en');
   };
+
+  const handleIdleLogout = useCallback(() => {
+    logout();
+    addNotification({
+      title: t.sessionExpired,
+      message: t.sessionExpiredMsg,
+      type: 'warning',
+    });
+  }, [logout, addNotification, t]);
+
+  useIdleTimeout({
+    timeoutMs: 15 * 60 * 1000,
+    onIdle: handleIdleLogout,
+    enabled: !!user,
+  });
 
   return (
     <div className="min-h-screen flex flex-col transition-colors duration-500 bg-m3-surface text-m3-on-surface">
@@ -186,7 +202,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
                         return (
                           <button
                             key={tab.id}
-                            onClick={() => setActiveTab(tab.id as any)}
+                            onClick={() => setActiveTab(tab.id as 'tenants' | 'profile' | 'login')}
                             className={`p-3.5 rounded-2xl transition-all duration-200 text-center ${
                               isActive
                                 ? 'bg-m3-primary-container text-m3-on-primary-container font-extrabold elevation-1'
@@ -230,7 +246,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
                             return (
                               <button
                                 key={tab.id}
-                                onClick={() => setActiveTab(tab.id as any)}
+                                onClick={() => setActiveTab(tab.id as 'tenants' | 'profile' | 'login')}
                                 className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-150 text-left font-medium text-sm ${
                                   isActive
                                     ? 'bg-m3-primary-container text-m3-on-primary-container font-extrabold elevation-1'

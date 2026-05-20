@@ -295,7 +295,7 @@ export const M3DataView: React.FC<M3DataViewProps> = ({
             )}
           </div>
 
-          {pagination && pagination.totalPages > 1 && (
+          {pagination && (
             <div className="flex items-center gap-2">
               <button
                 type="button"
@@ -334,6 +334,10 @@ export const M3DataView: React.FC<M3DataViewProps> = ({
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
+
+              <span className="text-xs text-m3-secondary/60 ml-2">
+                Page {pagination.page} of {pagination.totalPages}
+              </span>
             </div>
           )}
         </div>

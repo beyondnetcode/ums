@@ -17,7 +17,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
   isDarkMode: true, // Default dark mode for premium look
-  devUserId: '3fa85f64-5717-4562-b3fc-2c963f66afa6', // Standard sample dev Guid
+  devUserId: '',
   devLanguage: 'es',
   login: (user) => set({ user, isAuthenticated: true }),
   logout: () => set({ user: null, isAuthenticated: false }),

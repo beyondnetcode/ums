@@ -5,6 +5,8 @@ import { M3Button } from '../../shared/components/M3Button';
 import { M3TextField } from '../../shared/components/M3TextField';
 import { M3Select } from '../../shared/components/M3Select';
 import { X, Building } from 'lucide-react';
+import { sanitizeCode, sanitizeInput } from '../../../application/utils/security';
+import { sanitizeCode, sanitizeInput } from '../../../application/utils/security';
 
 interface TenantFormProps {
   isOpen: boolean;
@@ -29,8 +31,13 @@ export const TenantForm: React.FC<TenantFormProps> = ({ isOpen, onClose, onSucce
     setErrors({});
 
     const newErrors: { [key: string]: string } = {};
-    if (code.length < 3) newErrors.code = t.tenantCodeError;
-    if (name.length < 3) newErrors.name = t.tenantNameError;
+    const sanitizedCode = sanitizeCode(code);
+    const sanitizedName = sanitizeInput(name);
+    const sanitizedRef = sanitizeInput(companyReference);
+
+    if (sanitizedCode.length < 3) newErrors.code = t.tenantCodeError;
+    if (!/^[A-Z0-9_]+$/.test(sanitizedCode)) newErrors.code = t.tenantCodeInvalidFormat;
+    if (sanitizedName.length < 3) newErrors.name = t.tenantNameError;
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -39,16 +46,16 @@ export const TenantForm: React.FC<TenantFormProps> = ({ isOpen, onClose, onSucce
 
     try {
       const response = await createTenantMutation.mutateAsync({
-        code,
-        name,
+        code: sanitizedCode,
+        name: sanitizedName,
         type,
-        companyReference: companyReference || undefined,
+        companyReference: sanitizedRef || undefined,
       });
       setCode(''); setName(''); setType('INTERNAL'); setCompanyReference('');
       onSuccess(response.tenantId);
       onClose();
     } catch {
-      // Handled by mutation hook
+      setErrors({ submit: t.tenantCreateFailed });
     }
   };
 

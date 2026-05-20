@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => {
         '/api': {
           target: apiUrl,
           changeOrigin: true,
-          secure: false,
+          secure: mode === 'production',
         },
       },
     },

@@ -6,8 +6,17 @@ import { LoginScreen } from './presentation/identity/screens/LoginScreen';
 import { useAuthStore } from './application/stores/auth.store';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'tenants' | 'profile' | 'login'>('tenants');
+  const [activeTab, setActiveTab] = useState<'tenants' | 'profile' | 'login'>('login');
   const isDarkMode = useAuthStore((state) => state.isDarkMode);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  if (!isAuthenticated) {
+    return (
+      <div className={isDarkMode ? 'dark' : ''}>
+        <LoginScreen />
+      </div>
+    );
+  }
 
   return (
     <div className={isDarkMode ? 'dark' : ''}>

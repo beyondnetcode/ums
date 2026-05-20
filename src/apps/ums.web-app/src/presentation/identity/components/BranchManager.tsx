@@ -7,11 +7,13 @@ import {
   useReactivateBranch
 } from '../../../application/identity/hooks/use-branch';
 import { useI18n } from '../../../application/i18n/use-i18n';
+import { useNotificationStore } from '../../../application/stores/notification.store';
 import { M3Button } from '../../shared/components/M3Button';
 import { M3TextField } from '../../shared/components/M3TextField';
 import { M3Card } from '../../shared/components/M3Card';
 import { IconButton } from '../../shared/components/Tooltip';
 import { RefreshCw, MapPin, EyeOff, ShieldCheck, Trash2, Plus, X, Pencil, Save } from 'lucide-react';
+import { sanitizeInput, sanitizeCode } from '../../../application/utils/security';
 
 interface BranchManagerProps {
   tenantId: string;
@@ -24,6 +26,7 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ tenantId }) => {
   const deactivateBranchMutation = useDeactivateBranch(tenantId);
   const reactivateBranchMutation = useReactivateBranch(tenantId);
   const t = useI18n();
+  const addNotification = useNotificationStore((s) => s.addNotification);
 
   const [isAdding, setIsAdding] = useState(false);
   const [code, setCode] = useState('');
@@ -46,37 +49,44 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ tenantId }) => {
   const cancelBranchEdit = () => setEditingBranchId(null);
 
   const saveBranchEdit = () => {
-    // Local-only update (no API endpoint yet); notify user
     setEditingBranchId(null);
-    alert(`${t.notifBranchUpdated}: ${editBranchName}`);
+    addNotification({
+      title: t.notifBranchUpdated,
+      message: t.notifBranchUpdatedMsg(editBranchName),
+      type: 'info',
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
 
-    if (code.length < 3) {
+    const sanitizedCode = sanitizeCode(code);
+    const sanitizedName = sanitizeInput(name);
+    const sanitizedGeo = geofencing ? sanitizeInput(geofencing) : undefined;
+
+    if (sanitizedCode.length < 3) {
       setErrorMsg(t.branchCodeHelper);
       return;
     }
-    if (name.length < 3) {
+    if (sanitizedName.length < 3) {
       setErrorMsg(t.branchNameHelper);
       return;
     }
 
     try {
       await addBranchMutation.mutateAsync({
-        code: code.toUpperCase().replace(/\s+/g, '_'),
-        name,
-        geofencingMetadata: geofencing || undefined,
+        code: sanitizedCode,
+        name: sanitizedName,
+        geofencingMetadata: sanitizedGeo,
       });
 
       setCode('');
       setName('');
       setGeofencing('');
       setIsAdding(false);
-    } catch (error) {
-      // Handled in query hook alerts
+    } catch {
+      setErrorMsg(t.branchCreateFailed);
     }
   };
 

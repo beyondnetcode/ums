@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import {
   useGetAllTenants,
   useActivateTenant,
@@ -13,7 +13,10 @@ import { M3TextField } from '../../shared/components/M3TextField';
 import { M3Select } from '../../shared/components/M3Select';
 import { M3DataView, SortOption, FilterOption, QueryCriteriaOption } from '../../shared/components/M3DataView';
 import { Tenant } from '../../../domain/identity/models/tenant.model';
+import { AuthProvider, IdpStrategy } from '../../../domain/identity/models/idp.model';
+import { BrandingConfig, DEFAULT_BRANDING } from '../../../domain/identity/models/branding.model';
 import { useNotificationStore } from '../../../application/stores/notification.store';
+import { isValidPublicUrl, sanitizeInput } from '../../../application/utils/security';
 import {
   Building2,
   ArrowRight,
@@ -34,47 +37,6 @@ import {
   Save
 } from 'lucide-react';
 import { IconButton, Tooltip } from '../../shared/components/Tooltip';
-
-// ─── Local model types ──────────────────────────────────────────────────────
-
-type IdpStrategy = 'OIDC' | 'SAML2' | 'OAuth2';
-
-interface AuthProvider {
-  id: string;
-  code: string;
-  name: string;
-  description: string;
-  strategy: IdpStrategy;
-  isActive: boolean;
-}
-
-interface BrandingConfig {
-  headlineText: string;
-  secondaryText: string;
-  primaryButtonLabel: string;
-  footerText: string;
-  primaryColor: string;
-  backgroundStyle: string;
-  logo: string;
-  logoFormat: string;
-  customDomain: string;
-  magicLinkFallbackEnabled: boolean;
-  dnsVerificationStatus: string;
-}
-
-const DEFAULT_BRANDING: BrandingConfig = {
-  headlineText: '',
-  secondaryText: '',
-  primaryButtonLabel: '',
-  footerText: '',
-  primaryColor: '#3b5bdb',
-  backgroundStyle: 'solid',
-  logo: '',
-  logoFormat: 'png',
-  customDomain: '',
-  magicLinkFallbackEnabled: false,
-  dnsVerificationStatus: 'Pending',
-};
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
@@ -197,13 +159,14 @@ export const TenantDashboardScreen: React.FC = () => {
     setShowDiscardDialog(false);
   };
 
-  // Auto-select first tenant when the list first loads
+  const applyTenantSelectionRef = useRef(applyTenantSelection);
+  applyTenantSelectionRef.current = applyTenantSelection;
+
   useEffect(() => {
     if (!selectedId && apiTenants.length > 0) {
-      applyTenantSelection(apiTenants[0].tenantId);
+      applyTenantSelectionRef.current(apiTenants[0].tenantId);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [apiTenants]);
+  }, [apiTenants, selectedId]);
 
   // ── Tenant edit ───────────────────────────────────────────────────────────
 
@@ -217,21 +180,23 @@ export const TenantDashboardScreen: React.FC = () => {
   };
 
   const saveTenantEdit = () => {
-    if (!editName.trim() || !editCode.trim()) return;
+    const sanitizedName = sanitizeInput(editName);
+    const sanitizedCode = sanitizeCode(editCode);
+    const sanitizedRef = sanitizeInput(editCompanyRef);
+    if (!sanitizedName.trim() || !sanitizedCode.trim()) return;
     patchKnownTenants((prev) =>
       prev.map((tenant) =>
         tenant.tenantId === selectedId
-          ? { ...tenant, name: editName.trim(), code: editCode.trim().toUpperCase(), companyReference: editCompanyRef.trim(), type: editType }
+          ? { ...tenant, name: sanitizedName.trim(), code: sanitizedCode.trim(), companyReference: sanitizedRef.trim(), type: editType }
           : tenant
       )
     );
-    addNotification({ title: t.notifTenantUpdated, message: t.notifTenantUpdatedMsg(editName.trim()), type: 'success' });
+    addNotification({ title: t.notifTenantUpdated, message: t.notifTenantUpdatedMsg(sanitizedName.trim()), type: 'success' });
     setIsTenantEditing(false);
   };
 
-  // ── Status toggle ─────────────────────────────────────────────────────────
-
   const handleToggleStatus = (newStatus: 'Active' | 'Suspended') => {
+    const previousStatus = activeTenant?.status;
     patchKnownTenants((prev) =>
       prev.map((tenant) => (tenant.tenantId === selectedId ? { ...tenant, status: newStatus } : tenant))
     );
@@ -240,11 +205,23 @@ export const TenantDashboardScreen: React.FC = () => {
       message: t.notifStatusSetTo(newStatus),
       type: newStatus === 'Active' ? 'success' : 'warning',
     });
-    if (newStatus === 'Active') {
-      activateMutation.mutate(undefined, { onError: (err) => console.warn('Handled locally:', err.message) });
-    } else {
-      suspendMutation.mutate(undefined, { onError: (err) => console.warn('Handled locally:', err.message) });
-    }
+    const mutation = newStatus === 'Active' ? activateMutation : suspendMutation;
+    mutation.mutate(undefined, {
+      onError: () => {
+        if (previousStatus) {
+          patchKnownTenants((prev) =>
+            prev.map((tenant) =>
+              tenant.tenantId === selectedId ? { ...tenant, status: previousStatus } : tenant
+            )
+          );
+        }
+        addNotification({
+          title: t.notifStatusChangeFailed,
+          message: t.notifStatusChangeFailedMsg(newStatus),
+          type: 'error',
+        });
+      },
+    });
   };
 
   // ── Provider handlers ─────────────────────────────────────────────────────
@@ -258,27 +235,33 @@ export const TenantDashboardScreen: React.FC = () => {
   };
 
   const saveProviderEdit = () => {
-    if (!editProvName.trim() || !editingProviderId) return;
+    const sanitizedName = sanitizeInput(editProvName);
+    const sanitizedCode = sanitizeCode(editProvCode);
+    const sanitizedDesc = sanitizeInput(editProvDescription);
+    if (!sanitizedName.trim() || !editingProviderId) return;
     setProvidersData((prev) => ({
       ...prev,
       [selectedId]: (prev[selectedId] || []).map((p) =>
         p.id === editingProviderId
-          ? { ...p, name: editProvName.trim(), code: editProvCode.trim().toUpperCase(), description: editProvDescription.trim(), strategy: editProvStrategy }
+          ? { ...p, name: sanitizedName.trim(), code: sanitizedCode.trim(), description: sanitizedDesc.trim(), strategy: editProvStrategy }
           : p
       ),
     }));
-    addNotification({ title: t.notifProviderUpdated, message: t.notifProviderUpdatedMsg(editProvName.trim()), type: 'success' });
+    addNotification({ title: t.notifProviderUpdated, message: t.notifProviderUpdatedMsg(sanitizedName.trim()), type: 'success' });
     setEditingProviderId(null);
   };
 
   const handleAddProvider = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!provName.trim()) return;
+    const sanitizedName = sanitizeInput(provName);
+    const sanitizedCode = sanitizeCode(provCode);
+    const sanitizedDesc = sanitizeInput(provDescription);
+    if (!sanitizedName.trim()) return;
     const newProvider: AuthProvider = {
-      id: Math.random().toString(36).substring(2, 9),
-      name: provName.trim(),
-      code: provCode.trim().toUpperCase() || provName.trim().toUpperCase().replace(/\s+/g, '_').substring(0, 20),
-      description: provDescription.trim(),
+      id: crypto.randomUUID(),
+      name: sanitizedName.trim(),
+      code: sanitizedCode.trim() || sanitizedName.trim().toUpperCase().replace(/\s+/g, '_').substring(0, 20),
+      description: sanitizedDesc.trim(),
       strategy: provStrategy,
       isActive: true,
     };
@@ -304,16 +287,20 @@ export const TenantDashboardScreen: React.FC = () => {
 
   const handleUpdateBranding = (e: React.FormEvent) => {
     e.preventDefault();
+    if (brandLogo && !isValidPublicUrl(brandLogo)) {
+      addNotification({ title: t.notifBrandingFailed, message: t.notifBrandingFailedMsg, type: 'error' });
+      return;
+    }
     const updated: BrandingConfig = {
-      headlineText: brandHeadline.trim(),
-      secondaryText: brandSecondary.trim(),
-      primaryButtonLabel: brandButtonLabel.trim(),
-      footerText: brandFooter.trim(),
+      headlineText: sanitizeInput(brandHeadline),
+      secondaryText: sanitizeInput(brandSecondary),
+      primaryButtonLabel: sanitizeInput(brandButtonLabel),
+      footerText: sanitizeInput(brandFooter),
       primaryColor: brandColor,
       backgroundStyle: brandBackground,
       logo: brandLogo.trim(),
       logoFormat: brandLogoFormat,
-      customDomain: brandCustomDomain.trim(),
+      customDomain: sanitizeInput(brandCustomDomain),
       magicLinkFallbackEnabled: brandMagicLink,
       dnsVerificationStatus: brandingData[selectedId]?.dnsVerificationStatus ?? 'Pending',
     };
@@ -756,7 +743,7 @@ export const TenantDashboardScreen: React.FC = () => {
                       <form onSubmit={handleAddProvider} className="space-y-0">
                         <M3TextField label={t.providerName} required value={provName} onChange={(e) => setProvName(e.target.value)} placeholder="e.g. Okta SSO" />
                         <M3TextField label={t.providerCode} value={provCode} onChange={(e) => setProvCode(e.target.value.toUpperCase())} placeholder="e.g. OKTA_SSO" />
-                        <M3Select label={t.protocolType} value={provStrategy} onChange={(e: any) => setProvStrategy(e.target.value)}>
+                        <M3Select label={t.protocolType} value={provStrategy} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setProvStrategy(e.target.value as IdpStrategy)}>
                           <option value="OIDC">{t.strategyOIDC}</option>
                           <option value="SAML2">{t.strategySAML2}</option>
                           <option value="OAuth2">{t.strategyOAuth2}</option>
@@ -788,7 +775,7 @@ export const TenantDashboardScreen: React.FC = () => {
                             </div>
                             <M3TextField label={t.providerName} required value={editProvName} onChange={(e) => setEditProvName(e.target.value)} />
                             <M3TextField label={t.providerCode} value={editProvCode} onChange={(e) => setEditProvCode(e.target.value.toUpperCase())} />
-                            <M3Select label={t.protocolType} value={editProvStrategy} onChange={(e: any) => setEditProvStrategy(e.target.value)}>
+                            <M3Select label={t.protocolType} value={editProvStrategy} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setEditProvStrategy(e.target.value as IdpStrategy)}>
                               <option value="OIDC">{t.strategyOIDC}</option>
                               <option value="SAML2">{t.strategySAML2}</option>
                               <option value="OAuth2">{t.strategyOAuth2}</option>
@@ -925,7 +912,7 @@ export const TenantDashboardScreen: React.FC = () => {
                       </div>
                     </div>
 
-                    {brandLogo && (
+                    {brandLogo && isValidPublicUrl(brandLogo) && (
                       <div className="mt-2 p-3 bg-m3-surface-container/60 rounded-lg border border-m3-outline/25 flex items-center justify-between gap-4">
                         <span className="text-xs font-medium text-m3-secondary">{t.brandLogoPreview}</span>
                         <img

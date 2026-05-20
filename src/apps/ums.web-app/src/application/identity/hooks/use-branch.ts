@@ -1,8 +1,19 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import tenantService from '../../../infrastructure/identity/services/tenant.service';
+import { AxiosError } from 'axios';
+import { tenantService } from '../../../infrastructure/identity/services/tenant.service';
 import { useNotificationStore } from '../../stores/notification.store';
 import { useI18n } from '../../i18n/use-i18n';
 import { AddBranchPayload, Branch } from '../../../domain/identity/models/branch.model';
+
+const isNotFound = (error: unknown): boolean =>
+  error instanceof AxiosError && error.response?.status === 404;
+
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (error instanceof AxiosError) {
+    return (error.response?.data as { detail?: string })?.detail || error.message || fallback;
+  }
+  return fallback;
+};
 
 export const useGetBranches = (tenantId: string | null) => {
   return useQuery<Branch[]>({
@@ -11,16 +22,16 @@ export const useGetBranches = (tenantId: string | null) => {
       if (!tenantId) throw new Error('Tenant ID required');
       try {
         return await tenantService.getBranches(tenantId);
-      } catch (err: any) {
-        if (err?.response?.status === 404) {
+      } catch (err) {
+        if (isNotFound(err)) {
           return [];
         }
         throw err;
       }
     },
     enabled: !!tenantId,
-    retry: (failureCount, error: any) => {
-      if (error?.response?.status === 404) return false;
+    retry: (failureCount, error) => {
+      if (isNotFound(error)) return false;
       return failureCount < 1;
     },
   });
@@ -41,10 +52,10 @@ export const useAddBranch = (tenantId: string) => {
         type: 'success',
       });
     },
-    onError: (error: any) => {
+    onError: (error) => {
       addNotification({
         title: t.notifBranchAdded,
-        message: error.response?.data?.detail || error.message || t.notifBranchAdded,
+        message: getErrorMessage(error, t.notifBranchAdded),
         type: 'error',
       });
     },
@@ -66,10 +77,10 @@ export const useRemoveBranch = (tenantId: string) => {
         type: 'warning',
       });
     },
-    onError: (error: any) => {
+    onError: (error) => {
       addNotification({
         title: t.notifBranchRemoved,
-        message: error.response?.data?.detail || error.message || t.notifBranchRemovedMsg,
+        message: getErrorMessage(error, t.notifBranchRemovedMsg),
         type: 'error',
       });
     },
@@ -91,10 +102,10 @@ export const useDeactivateBranch = (tenantId: string) => {
         type: 'info',
       });
     },
-    onError: (error: any) => {
+    onError: (error) => {
       addNotification({
         title: t.notifBranchDeactivated,
-        message: error.response?.data?.detail || error.message || t.notifBranchDeactivatedMsg,
+        message: getErrorMessage(error, t.notifBranchDeactivatedMsg),
         type: 'error',
       });
     },
@@ -116,10 +127,10 @@ export const useReactivateBranch = (tenantId: string) => {
         type: 'success',
       });
     },
-    onError: (error: any) => {
+    onError: (error) => {
       addNotification({
         title: t.notifBranchReactivated,
-        message: error.response?.data?.detail || error.message || t.notifBranchReactivatedMsg,
+        message: getErrorMessage(error, t.notifBranchReactivatedMsg),
         type: 'error',
       });
     },

@@ -14,7 +14,6 @@ export const LoginScreen: React.FC = () => {
 
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState('admin');
 
   const devProfiles = [
     {
@@ -54,12 +53,12 @@ export const LoginScreen: React.FC = () => {
     e.preventDefault();
     if (username.length < 3) return;
 
-    const generatedId = Math.random().toString(36).substring(2, 9) + '-5717-4562-b3fc-' + Math.random().toString(36).substring(2, 11);
+    const generatedId = crypto.randomUUID();
     setDevUserId(generatedId);
-    login({ id: generatedId, username, email: email || 'custom@ums.pe', role });
+    login({ id: generatedId, username, email: email || 'custom@ums.pe', role: 'user' });
     addNotification({
       title: t.sessionAuth,
-      message: t.sessionAuthMsg(username, role),
+      message: t.sessionAuthMsg(username, 'user'),
       type: 'success',
     });
   };
@@ -137,28 +136,6 @@ export const LoginScreen: React.FC = () => {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="e.g. operador@ransa.pe"
           />
-
-          <div>
-            <label className="block text-[11px] font-bold text-m3-primary uppercase tracking-wider mb-2 ml-1">
-              {t.devRole}
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-              {['user', 'moderator', 'admin'].map((r) => (
-                <button
-                  key={r}
-                  type="button"
-                  onClick={() => setRole(r)}
-                  className={`py-2.5 rounded-xl border text-xs font-bold capitalize transition-all ${
-                    role === r
-                      ? 'bg-m3-primary text-m3-on-primary border-m3-primary shadow'
-                      : 'border-m3-outline bg-m3-surface-container hover:bg-m3-primary/10 text-m3-secondary'
-                  }`}
-                >
-                  {r}
-                </button>
-              ))}
-            </div>
-          </div>
 
           <div className="pt-3">
             <M3Button variant="filled" className="w-full" type="submit">
