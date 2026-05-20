@@ -5895,6 +5895,16 @@
     "type": "static"
   },
   {
+    "source": "npm:react-resizable-panels",
+    "target": "npm:react",
+    "type": "static"
+  },
+  {
+    "source": "npm:react-resizable-panels",
+    "target": "npm:react-dom",
+    "type": "static"
+  },
+  {
     "source": "npm:read-cache",
     "target": "npm:pify",
     "type": "static"

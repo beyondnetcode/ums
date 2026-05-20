@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import {
   useGetAllTenants,
   useActivateTenant,
@@ -508,7 +509,7 @@ export const TenantDashboardScreen: React.FC = () => {
   // ─── JSX ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="flex gap-4 flex-1 min-h-0 h-full">
+    <PanelGroup direction="horizontal" className="flex gap-4 flex-1 min-h-0 h-full">
 
       {/* ── Discard-changes dialog ── */}
       {showDiscardDialog && (
@@ -536,7 +537,7 @@ export const TenantDashboardScreen: React.FC = () => {
       )}
 
       {/* ── Left column — list ── */}
-      <div className="flex flex-col min-w-0 flex-[6]">
+      <Panel defaultSize={60} minSize={30} className="flex flex-col min-w-0">
         <M3DataView
           title={t.tenantMaintenance}
           subtitle={t.tenantMaintenanceSubtitle}
@@ -572,10 +573,14 @@ export const TenantDashboardScreen: React.FC = () => {
           pagination={{ page, pageSize, totalItems, totalPages, onPageChange: setPage }}
           telemetryInfo={footerTelemetry}
         />
-      </div>
+      </Panel>
+
+      {/* ── Resize handle ── */}
+      <PanelResizeHandle className="w-1.5 bg-m3-outline/10 hover:bg-m3-primary/30 rounded-full cursor-col-resize transition-colors flex-shrink-0" />
 
       {/* ── Right column — detail ── */}
-      <div className="flex flex-col min-w-0 flex-[4] overflow-y-auto space-y-4 pr-0.5">
+      <Panel defaultSize={40} minSize={25} className="flex flex-col min-w-0 overflow-y-auto">
+        <div className="space-y-4 pr-0.5 h-full">
 
         {isLoadingList ? (
           <M3Card variant="elevated" className="py-24 text-center text-sm text-m3-secondary border border-m3-outline/20">
@@ -963,10 +968,11 @@ export const TenantDashboardScreen: React.FC = () => {
             {t.selectTenant}
           </M3Card>
         )}
-      </div>
+        </div>
+      </Panel>
 
       <TenantForm isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} onSuccess={handleCreateSuccess} />
-    </div>
+    </PanelGroup>
   );
 };
 
