@@ -18,15 +18,8 @@ export const M3TextField: React.FC<M3TextFieldProps> = ({
   id,
   ...props
 }) => {
-  // Extract placeholder (hint) and required before spreading to the <input>.
-  // The input always receives placeholder=" " (single space) so that CSS
-  // :placeholder-shown fires correctly for the floating label animation.
-  // The caller's placeholder is rendered as a separate hint element that
-  // appears only when the field is focused and still empty.
   const { placeholder: hint, required: req, ...inputProps } = props;
-
   const inputId = id || `m3-tf-${label.toLowerCase().replace(/\W+/g, '-')}`;
-  // Don't add default bottom margin when the caller already supplies one.
   const hasMbClass = /\bmb-/.test(className);
 
   return (
@@ -38,7 +31,6 @@ export const M3TextField: React.FC<M3TextFieldProps> = ({
           </div>
         )}
 
-        {/* Input — placeholder=" " (space) keeps :placeholder-shown working */}
         <input
           id={inputId}
           required={req}
@@ -60,30 +52,29 @@ export const M3TextField: React.FC<M3TextFieldProps> = ({
           {...inputProps}
         />
 
-        {/* Floating label */}
         <label
           htmlFor={inputId}
           className={`
             absolute left-4 px-1 -mx-1
-            origin-[0_50%] pointer-events-none
+            origin-[0] pointer-events-none
             text-sm font-normal
             transition-all duration-200
             bg-m3-surface
-            top-1/2 -translate-y-1/2 scale-100
-            peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:scale-75
-            peer-[&:not(:placeholder-shown)]:top-0
-            peer-[&:not(:placeholder-shown)]:-translate-y-1/2
+            top-1/2 -translate-y-1/2
+            peer-focus:top-1 peer-focus:-translate-y-full peer-focus:scale-75 peer-focus:text-xs
+            peer-[&:not(:placeholder-shown)]:top-1
+            peer-[&:not(:placeholder-shown)]:-translate-y-full
             peer-[&:not(:placeholder-shown)]:scale-75
+            peer-[&:not(:placeholder-shown)]:text-xs
             ${error
-              ? 'text-m3-error peer-focus:text-m3-error'
-              : 'text-m3-secondary peer-focus:text-m3-primary'
+              ? 'text-m3-error peer-focus:text-m3-error peer-[&:not(:placeholder-shown)]:text-m3-error'
+              : 'text-m3-secondary peer-focus:text-m3-primary peer-[&:not(:placeholder-shown)]:text-m3-primary'
             }
           `}
         >
           {label}{req && <span className="ml-0.5 text-m3-error">*</span>}
         </label>
 
-        {/* Hint — visible only when focused and empty */}
         {hint && (
           <span
             className="

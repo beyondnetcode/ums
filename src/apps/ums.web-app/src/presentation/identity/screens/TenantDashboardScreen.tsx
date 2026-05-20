@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   useGetAllTenants,
   useActivateTenant,
@@ -16,7 +16,7 @@ import { Tenant } from '../../../domain/identity/models/tenant.model';
 import { AuthProvider, IdpStrategy } from '../../../domain/identity/models/idp.model';
 import { BrandingConfig, DEFAULT_BRANDING } from '../../../domain/identity/models/branding.model';
 import { useNotificationStore } from '../../../application/stores/notification.store';
-import { isValidPublicUrl, sanitizeInput } from '../../../application/utils/security';
+import { isValidPublicUrl, sanitizeInput, sanitizeCode } from '../../../application/utils/security';
 import {
   Building2,
   ArrowRight,
@@ -649,7 +649,7 @@ export const TenantDashboardScreen: React.FC = () => {
                 </>
               ) : (
                 /* ── Tenant inline-edit form ── */
-                <div className="space-y-0 animate-fadeIn">
+                <div className="space-y-1 animate-fadeIn">
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-sm font-medium text-m3-primary flex items-center gap-1.5">
                       <Pencil className="w-3.5 h-3.5" /> {t.editTenant}
@@ -740,7 +740,7 @@ export const TenantDashboardScreen: React.FC = () => {
                           <X className="w-3.5 h-3.5" />
                         </IconButton>
                       </div>
-                      <form onSubmit={handleAddProvider} className="space-y-0">
+                      <form onSubmit={handleAddProvider} className="space-y-1">
                         <M3TextField label={t.providerName} required value={provName} onChange={(e) => setProvName(e.target.value)} placeholder="e.g. Okta SSO" />
                         <M3TextField label={t.providerCode} value={provCode} onChange={(e) => setProvCode(e.target.value.toUpperCase())} placeholder="e.g. OKTA_SSO" />
                         <M3Select label={t.protocolType} value={provStrategy} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setProvStrategy(e.target.value as IdpStrategy)}>
@@ -764,7 +764,7 @@ export const TenantDashboardScreen: React.FC = () => {
                       activeProviders.map((p) =>
                         editingProviderId === p.id ? (
                           /* inline edit */
-                          <div key={p.id} className="p-4 rounded-xl border border-m3-primary/30 bg-m3-surface-container/50 space-y-0 animate-fadeIn">
+                          <div key={p.id} className="p-4 rounded-xl border border-m3-primary/30 bg-m3-surface-container/50 space-y-1 animate-fadeIn">
                             <div className="flex items-center justify-between mb-4">
                               <span className="text-sm font-medium text-m3-primary flex items-center gap-1.5">
                                 <Pencil className="w-3.5 h-3.5" /> {t.editProvider}
@@ -863,7 +863,7 @@ export const TenantDashboardScreen: React.FC = () => {
                     })()}
                   </div>
 
-                  <form onSubmit={handleUpdateBranding} className="space-y-0">
+                  <form onSubmit={handleUpdateBranding} className="space-y-1">
 
                     {/* Section: content */}
                     <p className="text-xs font-medium text-m3-secondary mb-3">{t.brandingContent}</p>

@@ -6,7 +6,6 @@ import { M3TextField } from '../../shared/components/M3TextField';
 import { M3Select } from '../../shared/components/M3Select';
 import { X, Building } from 'lucide-react';
 import { sanitizeCode, sanitizeInput } from '../../../application/utils/security';
-import { sanitizeCode, sanitizeInput } from '../../../application/utils/security';
 
 interface TenantFormProps {
   isOpen: boolean;
@@ -81,7 +80,7 @@ export const TenantForm: React.FC<TenantFormProps> = ({ isOpen, onClose, onSucce
         </div>
 
         {/* Form body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-0">
+        <form onSubmit={handleSubmit} className="p-6 space-y-1">
           <M3TextField
             label={t.tenantCode}
             required

@@ -7,11 +7,6 @@ interface M3SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   helperText?: string;
 }
 
-/**
- * M3 Outlined Select — matches M3TextField shape, height, border and colour
- * tokens. The label is always in the floated position because a <select>
- * always displays a selected value.
- */
 export const M3Select: React.FC<M3SelectProps> = ({
   label,
   error,
@@ -47,22 +42,21 @@ export const M3Select: React.FC<M3SelectProps> = ({
           {children}
         </select>
 
-        {/* Label — always floated since selects always show a value */}
         <label
           htmlFor={selectId}
           className={`
             absolute left-4 px-1 -mx-1
-            pointer-events-none text-xs font-normal
+            origin-[0] pointer-events-none
+            text-xs font-normal
             bg-m3-surface
-            top-0 -translate-y-1/2
+            top-1 -translate-y-full scale-75
             transition-colors duration-200
-            ${error ? 'text-m3-error' : 'text-m3-secondary peer-focus:text-m3-primary'}
+            ${error ? 'text-m3-error' : 'text-m3-primary peer-focus:text-m3-primary'}
           `}
         >
           {label}
         </label>
 
-        {/* Dropdown chevron */}
         <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-m3-secondary">
           <ChevronDown className="w-4 h-4" />
         </div>

@@ -33,7 +33,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
   setActiveTab,
 }) => {
   const { isDarkMode, toggleDarkMode, user, devUserId, devLanguage, logout, setDevLanguage } = useAuthStore();
-  const { notifications, setIsOpen, isOpen } = useNotificationStore();
+  const { notifications, setIsOpen, isOpen, addNotification } = useNotificationStore();
   const t = useI18n();
   const [navCollapsed, setNavCollapsed] = useState(false);
   const [expandedModules, setExpandedModules] = useState<{ [key: string]: boolean }>({

@@ -6,648 +6,648 @@
   "fileMap": {
     "nonProjectFiles": [
       {
-        "file": ".dockerignore",
-        "hash": "8399182633670279156"
-      },
-      {
-        "file": ".eslintrc.js",
-        "hash": "16266062772136191986"
-      },
-      {
-        "file": ".husky/commit-msg",
-        "hash": "1662522230865824970"
-      },
-      {
-        "file": ".husky/pre-commit",
-        "hash": "2252388722391304785"
-      },
-      {
-        "file": ".lintstagedrc.json",
-        "hash": "12298572085250982508"
-      },
-      {
-        "file": "Makefile",
-        "hash": "4319482054261021320"
-      },
-      {
-        "file": "commitlint.config.js",
-        "hash": "10950796656646911766"
-      },
-      {
-        "file": "context7.json",
-        "hash": "3308647264684880070"
-      },
-      {
-        "file": "docker-compose.yml",
-        "hash": "11802560021471875407"
-      },
-      {
-        "file": "graph.json",
-        "hash": "17349813273771842306"
-      },
-      {
-        "file": "libs/shell/ddd/.gitignore",
-        "hash": "9272581773384673148"
-      },
-      {
-        "file": "libs/shell/ddd/LICENSE",
-        "hash": "9134025855732130211"
-      },
-      {
-        "file": "libs/shell/ddd/ORIGIN.md",
-        "hash": "14012377011223680836"
-      },
-      {
-        "file": "libs/shell/ddd/README.md",
-        "hash": "7294049805128411895"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.AutoMapper/Impl/EnumerationConverter.cs",
-        "hash": "16237450944354492258"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.AutoMapper/Ums.Shell.Ddd.AutoMapper.csproj",
-        "hash": "4225723097846280823"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/AutoMapper/Interfaces/IDomainEventsManager.cs",
-        "hash": "16278923029251088519"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/AutoMapper/Interfaces/ITrackingStateManager.cs",
-        "hash": "8194558092770644461"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/AutoMapper/ParentRootAuditDtoToEntityConvert.cs",
-        "hash": "14815890993981304523"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/AutoMapper/ParentRootEntityAuditToAuditDtoConvert.cs",
-        "hash": "6373773185478731485"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/AutoMapper/ParentRootProfile.cs",
-        "hash": "17782372281138693916"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/AutoMapperTest.cs",
-        "hash": "12587066302782847715"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/BrokenRulesTest.cs",
-        "hash": "4119149522962902377"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Dtos/AuditDto.cs",
-        "hash": "3810258743982654211"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Dtos/SampleEntityDto.cs",
-        "hash": "8908883655293026897"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Entities/SampleAggregateRoot.cs",
-        "hash": "9174682962136333688"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Entities/SampleCreatedDomainEvent.cs",
-        "hash": "10335362387163708254"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Entities/SampleEntity.cs",
-        "hash": "5946544765287134459"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Entities/SampleEntityChild.cs",
-        "hash": "1041159962570000583"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Entities/SampleEntityValidator.cs",
-        "hash": "8297038444209611969"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Entities/SampleName.cs",
-        "hash": "2310373928012917477"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Entities/SampleNameValidator.cs",
-        "hash": "10327468021026121145"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Entities/SampleReference.cs",
-        "hash": "17386399451464998293"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Entities/SampleReferenceId.cs",
-        "hash": "8036781253898214320"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Entities/SampleReferenceIdValidator.cs",
-        "hash": "13981401928826307388"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/EnumerationTest.cs",
-        "hash": "7040473977899271174"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Extensions/BrokenRulesExtensions.cs",
-        "hash": "17939199181175332947"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/GlobalUsings.cs",
-        "hash": "11908352505974793190"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/PropertyChangedTest.cs",
-        "hash": "15585456254568891254"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/SampleEntityTest.cs",
-        "hash": "6777864196573312206"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/SampleNameValidatorTest.cs",
-        "hash": "3768033621215266461"
-      },
-      {
         "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Services/DomainEventsManagerTest.cs",
         "hash": "9291241094038588532"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/TestMain.cs",
-        "hash": "12246375325287956740"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Ums.Shell.Ddd.Test.csproj",
-        "hash": "13909809488526309890"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/ValueObjectTest.cs",
-        "hash": "16141406224064356107"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Audit/AuditValueObject.cs",
-        "hash": "3068663398333853355"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Common/BoolValueObject.cs",
-        "hash": "17705220961727080340"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Common/DecimalValueObject.cs",
-        "hash": "10684801248185574347"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Common/IntValueObject.cs",
-        "hash": "7341000668810258563"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Common/StringValueObject.cs",
-        "hash": "17775469996916534053"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/GlobalUsings.cs",
-        "hash": "8449273468499491904"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Ums.Shell.Ddd.ValueObjects.csproj",
-        "hash": "11780593344111765112"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Validators/IdGuidValidator.cs",
-        "hash": "11708503576038509243"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Validators/StringMaxLenghtValidator.cs",
-        "hash": "12013533671936191567"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Validators/StringMinLenghtValidator.cs",
-        "hash": "15457971501406590589"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Validators/StringNotNullValidator.cs",
-        "hash": "7848677579861924034"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Validators/StringRangeLengthValidator.cs",
-        "hash": "3890327191946893143"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/.editorconfig",
-        "hash": "12170194868035843471"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/AggregateRoot.cs",
-        "hash": "11376167354725119028"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/DomainEnumeration.cs",
-        "hash": "8910310106875446984"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/DomainEvent.cs",
-        "hash": "2528507889979836027"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Entity.cs",
-        "hash": "15689788362558303041"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Extensions/MediatorExtension.cs",
-        "hash": "5644078653281884024"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Extensions/TypeExtensions.cs",
-        "hash": "15372713939407737581"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Factories/DddServiceFactory.cs",
-        "hash": "14057798502160871472"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/GlobalUsings.cs",
-        "hash": "12452770833610398419"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Helpers/IdHelper.cs",
-        "hash": "8127368911434567890"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Helpers/ReflectionHelper.cs",
-        "hash": "10139258156885900212"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/IdValueObject.cs",
-        "hash": "12362636186788612228"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Interfaces/IAggregateRoot.cs",
-        "hash": "5846136271868852861"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Interfaces/IDomainEvent.cs",
-        "hash": "8728429301789194788"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Interfaces/IEntity.cs",
-        "hash": "12428358529003857543"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Interfaces/IMetadata.cs",
-        "hash": "17757262812759461088"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Interfaces/IProps.cs",
-        "hash": "1453262994618520888"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Interfaces/IRepository.cs",
-        "hash": "379993425432459368"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Interfaces/IUnitOfWork.cs",
-        "hash": "12240513250552341646"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Rules/BrokenRule.cs",
-        "hash": "4293444276093026671"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Rules/BrokenRulesExtension.cs",
-        "hash": "15780341723582658399"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Rules/Impl/AbstractRuleValidator.cs",
-        "hash": "17068982905441688247"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Rules/Interfaces/IRuleValidator.cs",
-        "hash": "14002782395490669181"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Rules/PropertyChange/AbstractNotifyPropertyChanged.cs",
-        "hash": "5455226918456902509"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Rules/PropertyChange/NotifyPropertyChangedContext.cs",
-        "hash": "6488567385486009711"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Rules/PropertyChange/NotifyPropertyChangedContextArgs.cs",
-        "hash": "31262394382762561"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Rules/PropertyChange/ReflectionTypeExtensions.cs",
-        "hash": "13599476457218030524"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Rules/RuleContext.cs",
-        "hash": "16636634475071394614"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Impl/BrokenRulesManager.cs",
-        "hash": "2593964683391444450"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Impl/DomainEventsManager.cs",
-        "hash": "10874868280578972897"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Impl/TrackingStateManager.cs",
-        "hash": "17278958267759782762"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Impl/ValidatorRuleManager.cs",
-        "hash": "928357733725119209"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Interfaces/IBrokenRulesManager.cs",
-        "hash": "3512227988054523858"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Interfaces/IDomainEventsManager.cs",
-        "hash": "3862633412247641980"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Interfaces/ITrackingStateManager.cs",
-        "hash": "8194558092770644461"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Interfaces/IValidatorRuleManager.cs",
-        "hash": "8345398719071807332"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Ums.Shell.Ddd.csproj",
-        "hash": "2087235324808623297"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Ums.Shell.Ddd.sln",
-        "hash": "18320087743645518852"
-      },
-      {
-        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/ValueObject.cs",
-        "hash": "3703972428746575533"
-      },
-      {
-        "file": "libs/shell/factory/.gitignore",
-        "hash": "9272581773384673148"
-      },
-      {
-        "file": "libs/shell/factory/LICENSE",
-        "hash": "9134025855732130211"
-      },
-      {
-        "file": "libs/shell/factory/ORIGIN.md",
-        "hash": "3191986382814857445"
-      },
-      {
-        "file": "libs/shell/factory/README.md",
-        "hash": "14519246512482354712"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Bootstrapper/LogicModelFactoryRecordSetup.cs",
-        "hash": "574948644990939905"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Impl/LogicModelCATLoader.cs",
-        "hash": "18058820106088943667"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Impl/LogicModelPADLoader.cs",
-        "hash": "8188212492592453403"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Impl/LogicModelREVLoader.cs",
-        "hash": "8562489413787122034"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Impl/StrategyBuilder.cs",
-        "hash": "4679164492671645624"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Interfaces/ILogicModelLoader.cs",
-        "hash": "9878964054875908553"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Interfaces/IStrategyBuilder.cs",
-        "hash": "10224873896762882247"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Models/Criteria.cs",
-        "hash": "127822212573203411"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Models/ModelFilter.cs",
-        "hash": "2260216252416203274"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Models/Strategy.cs",
-        "hash": "10982772974396091306"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Models/ePersonalizationType.cs",
-        "hash": "4874466858545401231"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Program.cs",
-        "hash": "6303208591350108462"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Ums.Shell.Factory.Demo.csproj",
-        "hash": "11206619182545192455"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory.Installer/Extensions/ServiceCollectionExtensions.cs",
-        "hash": "16445897686602005291"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory.Installer/Extensions/ServiceProviderExtensions.cs",
-        "hash": "17106589667944202944"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory.Installer/GlobalUsings.cs",
-        "hash": "5849248778685694640"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory.Installer/Impl/FactoryBuilder.cs",
-        "hash": "9326515836885879345"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory.Installer/Impl/ServiceLocator.cs",
-        "hash": "9191999430851293401"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory.Installer/Ums.Shell.Factory.Installer.csproj",
-        "hash": "11186346317317987915"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory.Test/Factory/Impl/DoSomething.cs",
-        "hash": "16272529520465370701"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory.Test/Factory/Impl/DoSomethingLessThan18.cs",
-        "hash": "11054439108835059645"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory.Test/Factory/Impl/EmptyFactoryRecordSetupSource.cs",
-        "hash": "4348153652717817465"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory.Test/Factory/Impl/FactoryRecordSetupSource.cs",
-        "hash": "10750159487544934812"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory.Test/Factory/Impl/TestCases.cs",
-        "hash": "6987411930555254665"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory.Test/Factory/Interfaces/IDoSomething.cs",
-        "hash": "14104390490544895027"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory.Test/Factory/Models/Consultant.cs",
-        "hash": "14585364541158002573"
       },
       {
         "file": "libs/shell/factory/src/Ums.Shell.Factory.Test/Factory/Test.cs",
         "hash": "11938196204076037818"
       },
       {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory.Test/GlobalUsings.cs",
-        "hash": "17340915020823294517"
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/DomainEvent.cs",
+        "hash": "2528507889979836027"
       },
       {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory.Test/Ums.Shell.Factory.Test.csproj",
-        "hash": "10276796793674158998"
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Rules/BrokenRule.cs",
+        "hash": "4293444276093026671"
       },
       {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory.sln",
-        "hash": "7048121211507711060"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory/Fluent/Impl/FactorySetupCreateBuilder.cs",
-        "hash": "6195594214396964582"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory/Fluent/Impl/FactorySetupGroupCreateBuilder.cs",
-        "hash": "16712088811858215492"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory/Fluent/Impl/FactorySetupWhenBuilder.cs",
-        "hash": "2414021644115352978"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory/Fluent/Interface/IFactoryRecordSetupCreateBuilder.cs",
-        "hash": "11888298027301792369"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory/Fluent/Interface/IFactoryRecordSetupGroupCreateBuilder.cs",
-        "hash": "12116877389713662637"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory/Fluent/Interface/IFactoryRecordSetupWhenBuilder.cs",
-        "hash": "11025123169121805584"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory/GlobalUsings.cs",
-        "hash": "1362423787806646448"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory/Impl/AbstractFactoryInterceptor.cs",
-        "hash": "3525859258260296317"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory/Impl/AbstractFactorySetupSource.cs",
-        "hash": "14239505156165897707"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory/Impl/Factory.cs",
-        "hash": "9194458806518221682"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory/Impl/FactoryCreator.cs",
-        "hash": "11841337827519533932"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory/Impl/FactorySetupProvider.cs",
-        "hash": "5800010852753280571"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory/Impl/NullFactoryInterceptor.cs",
-        "hash": "10783724279207269200"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory/Impl/ServiceLocator.cs",
-        "hash": "6484916435093533486"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory/Interface/IFactory.cs",
-        "hash": "5477824032187976609"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory/Interface/IFactoryBuilder.cs",
-        "hash": "631272658177457597"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory/Interface/IFactoryCreator.cs",
-        "hash": "6947007008003611723"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory/Interface/IFactoryInterceptor.cs",
-        "hash": "8067027427723676317"
-      },
-      {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory/Interface/IFactorySetupProvider.cs",
-        "hash": "8921267208440191502"
+        "file": "tsconfig.json",
+        "hash": "9997677782244487085"
       },
       {
         "file": "libs/shell/factory/src/Ums.Shell.Factory/Interface/IFactorySetupSource.cs",
         "hash": "14769509413967505606"
       },
       {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory/Interface/IScopedServiceLocator.cs",
-        "hash": "8288957024701345823"
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Dtos/AuditDto.cs",
+        "hash": "3810258743982654211"
       },
       {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory/Interface/IServiceLocator.cs",
-        "hash": "10627099522347561361"
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Fluent/Interface/IFactoryRecordSetupGroupCreateBuilder.cs",
+        "hash": "12116877389713662637"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Test/Factory/Interfaces/IDoSomething.cs",
+        "hash": "14104390490544895027"
+      },
+      {
+        "file": "docker-compose.yml",
+        "hash": "11802560021471875407"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Installer/Impl/FactoryBuilder.cs",
+        "hash": "9326515836885879345"
+      },
+      {
+        "file": "package-lock.json",
+        "hash": "14883915857031578835"
+      },
+      {
+        "file": "libs/shell/factory/ORIGIN.md",
+        "hash": "3191986382814857445"
+      },
+      {
+        "file": "libs/shell/ddd/.gitignore",
+        "hash": "9272581773384673148"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Entity.cs",
+        "hash": "15689788362558303041"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Impl/ValidatorRuleManager.cs",
+        "hash": "928357733725119209"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Impl/BrokenRulesManager.cs",
+        "hash": "2593964683391444450"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Rules/RuleContext.cs",
+        "hash": "16636634475071394614"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Entities/SampleEntity.cs",
+        "hash": "5946544765287134459"
+      },
+      {
+        "file": ".dockerignore",
+        "hash": "8399182633670279156"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Impl/FactoryCreator.cs",
+        "hash": "11841337827519533932"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Validators/StringMaxLenghtValidator.cs",
+        "hash": "12013533671936191567"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Common/StringValueObject.cs",
+        "hash": "17775469996916534053"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Impl/LogicModelPADLoader.cs",
+        "hash": "8188212492592453403"
+      },
+      {
+        "file": "libs/shell/ddd/ORIGIN.md",
+        "hash": "14012377011223680836"
+      },
+      {
+        "file": "libs/shell/factory/.gitignore",
+        "hash": "9272581773384673148"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Bootstrapper/LogicModelFactoryRecordSetup.cs",
+        "hash": "574948644990939905"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.AutoMapper/Ums.Shell.Ddd.AutoMapper.csproj",
+        "hash": "4225723097846280823"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Ums.Shell.Ddd.ValueObjects.csproj",
+        "hash": "11780593344111765112"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Program.cs",
+        "hash": "6303208591350108462"
       },
       {
         "file": "libs/shell/factory/src/Ums.Shell.Factory/Model/ServiceLocatorRecord.cs",
         "hash": "4901160070006780420"
       },
       {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory/Model/Setup.cs",
-        "hash": "38425205674903492"
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Ums.Shell.Ddd.sln",
+        "hash": "18320087743645518852"
       },
       {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory/Model/SetupItem.cs",
-        "hash": "7704586592972222145"
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/DomainEnumeration.cs",
+        "hash": "8910310106875446984"
       },
       {
-        "file": "libs/shell/factory/src/Ums.Shell.Factory/Ums.Shell.Factory.csproj",
-        "hash": "18015587442786391459"
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Validators/IdGuidValidator.cs",
+        "hash": "11708503576038509243"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Models/Strategy.cs",
+        "hash": "10982772974396091306"
       },
       {
         "file": "nx.json",
         "hash": "5450499829741628076"
       },
       {
-        "file": "package-lock.json",
-        "hash": "10310028457826831748"
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Impl/StrategyBuilder.cs",
+        "hash": "4679164492671645624"
       },
       {
-        "file": "package.json",
-        "hash": "2179462807098572817"
+        "file": "libs/shell/factory/README.md",
+        "hash": "14519246512482354712"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/PropertyChangedTest.cs",
+        "hash": "15585456254568891254"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Validators/StringRangeLengthValidator.cs",
+        "hash": "3890327191946893143"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Test/Factory/Impl/FactoryRecordSetupSource.cs",
+        "hash": "10750159487544934812"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Audit/AuditValueObject.cs",
+        "hash": "3068663398333853355"
+      },
+      {
+        "file": "commitlint.config.js",
+        "hash": "10950796656646911766"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Impl/NullFactoryInterceptor.cs",
+        "hash": "10783724279207269200"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Models/ePersonalizationType.cs",
+        "hash": "4874466858545401231"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Common/IntValueObject.cs",
+        "hash": "7341000668810258563"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Interfaces/IBrokenRulesManager.cs",
+        "hash": "3512227988054523858"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Test/Factory/Impl/DoSomething.cs",
+        "hash": "16272529520465370701"
+      },
+      {
+        "file": "libs/shell/ddd/README.md",
+        "hash": "7294049805128411895"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Rules/PropertyChange/NotifyPropertyChangedContextArgs.cs",
+        "hash": "31262394382762561"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/AutoMapper/Interfaces/IDomainEventsManager.cs",
+        "hash": "16278923029251088519"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/AggregateRoot.cs",
+        "hash": "11376167354725119028"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Entities/SampleEntityChild.cs",
+        "hash": "1041159962570000583"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Models/ModelFilter.cs",
+        "hash": "2260216252416203274"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Dtos/SampleEntityDto.cs",
+        "hash": "8908883655293026897"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/ValueObject.cs",
+        "hash": "3703972428746575533"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Fluent/Interface/IFactoryRecordSetupCreateBuilder.cs",
+        "hash": "11888298027301792369"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Interface/IServiceLocator.cs",
+        "hash": "10627099522347561361"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Installer/Extensions/ServiceProviderExtensions.cs",
+        "hash": "17106589667944202944"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Test/Factory/Impl/DoSomethingLessThan18.cs",
+        "hash": "11054439108835059645"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Interface/IFactoryBuilder.cs",
+        "hash": "631272658177457597"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Common/BoolValueObject.cs",
+        "hash": "17705220961727080340"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Helpers/ReflectionHelper.cs",
+        "hash": "10139258156885900212"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Impl/TrackingStateManager.cs",
+        "hash": "17278958267759782762"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Impl/LogicModelCATLoader.cs",
+        "hash": "18058820106088943667"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/TestMain.cs",
+        "hash": "12246375325287956740"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Interfaces/ILogicModelLoader.cs",
+        "hash": "9878964054875908553"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Interfaces/IValidatorRuleManager.cs",
+        "hash": "8345398719071807332"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Entities/SampleName.cs",
+        "hash": "2310373928012917477"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Interface/IFactory.cs",
+        "hash": "5477824032187976609"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Interface/IScopedServiceLocator.cs",
+        "hash": "8288957024701345823"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Entities/SampleReference.cs",
+        "hash": "17386399451464998293"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Interfaces/IMetadata.cs",
+        "hash": "17757262812759461088"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Interface/IFactorySetupProvider.cs",
+        "hash": "8921267208440191502"
+      },
+      {
+        "file": "libs/shell/factory/LICENSE",
+        "hash": "9134025855732130211"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/ValueObjectTest.cs",
+        "hash": "16141406224064356107"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Validators/StringMinLenghtValidator.cs",
+        "hash": "15457971501406590589"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Interfaces/IAggregateRoot.cs",
+        "hash": "5846136271868852861"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Rules/Interfaces/IRuleValidator.cs",
+        "hash": "14002782395490669181"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Extensions/TypeExtensions.cs",
+        "hash": "15372713939407737581"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Installer/Extensions/ServiceCollectionExtensions.cs",
+        "hash": "16445897686602005291"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Impl/Factory.cs",
+        "hash": "9194458806518221682"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Factories/DddServiceFactory.cs",
+        "hash": "14057798502160871472"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Ums.Shell.Factory.Demo.csproj",
+        "hash": "11206619182545192455"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Entities/SampleEntityValidator.cs",
+        "hash": "8297038444209611969"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/GlobalUsings.cs",
+        "hash": "1362423787806646448"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Helpers/IdHelper.cs",
+        "hash": "8127368911434567890"
+      },
+      {
+        "file": "Makefile",
+        "hash": "4319482054261021320"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Fluent/Impl/FactorySetupWhenBuilder.cs",
+        "hash": "2414021644115352978"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Interface/IFactoryCreator.cs",
+        "hash": "6947007008003611723"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Extensions/MediatorExtension.cs",
+        "hash": "5644078653281884024"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/AutoMapper/ParentRootProfile.cs",
+        "hash": "17782372281138693916"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Interfaces/IRepository.cs",
+        "hash": "379993425432459368"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Entities/SampleCreatedDomainEvent.cs",
+        "hash": "10335362387163708254"
+      },
+      {
+        "file": ".lintstagedrc.json",
+        "hash": "12298572085250982508"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/GlobalUsings.cs",
+        "hash": "8449273468499491904"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Interfaces/IProps.cs",
+        "hash": "1453262994618520888"
+      },
+      {
+        "file": ".eslintrc.js",
+        "hash": "16266062772136191986"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Interfaces/IStrategyBuilder.cs",
+        "hash": "10224873896762882247"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Fluent/Impl/FactorySetupGroupCreateBuilder.cs",
+        "hash": "16712088811858215492"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/IdValueObject.cs",
+        "hash": "12362636186788612228"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/GlobalUsings.cs",
+        "hash": "11908352505974793190"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/AutoMapper/Interfaces/ITrackingStateManager.cs",
+        "hash": "8194558092770644461"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/AutoMapperTest.cs",
+        "hash": "12587066302782847715"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/SampleNameValidatorTest.cs",
+        "hash": "3768033621215266461"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Test/Factory/Impl/EmptyFactoryRecordSetupSource.cs",
+        "hash": "4348153652717817465"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/AutoMapper/ParentRootEntityAuditToAuditDtoConvert.cs",
+        "hash": "6373773185478731485"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Impl/ServiceLocator.cs",
+        "hash": "6484916435093533486"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Impl/AbstractFactorySetupSource.cs",
+        "hash": "14239505156165897707"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Rules/Impl/AbstractRuleValidator.cs",
+        "hash": "17068982905441688247"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Interfaces/ITrackingStateManager.cs",
+        "hash": "8194558092770644461"
       },
       {
         "file": "sonar-project.properties",
         "hash": "13818528924191370442"
       },
       {
-        "file": "tsconfig.json",
-        "hash": "9997677782244487085"
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Installer/Ums.Shell.Factory.Installer.csproj",
+        "hash": "11186346317317987915"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Fluent/Interface/IFactoryRecordSetupWhenBuilder.cs",
+        "hash": "11025123169121805584"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Interfaces/IUnitOfWork.cs",
+        "hash": "12240513250552341646"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/BrokenRulesTest.cs",
+        "hash": "4119149522962902377"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Interfaces/IDomainEventsManager.cs",
+        "hash": "3862633412247641980"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/EnumerationTest.cs",
+        "hash": "7040473977899271174"
+      },
+      {
+        "file": "libs/shell/ddd/LICENSE",
+        "hash": "9134025855732130211"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Fluent/Impl/FactorySetupCreateBuilder.cs",
+        "hash": "6195594214396964582"
+      },
+      {
+        "file": ".husky/commit-msg",
+        "hash": "1662522230865824970"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/GlobalUsings.cs",
+        "hash": "12452770833610398419"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Impl/FactorySetupProvider.cs",
+        "hash": "5800010852753280571"
+      },
+      {
+        "file": "package.json",
+        "hash": "2179462807098572817"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Validators/StringNotNullValidator.cs",
+        "hash": "7848677579861924034"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/SampleEntityTest.cs",
+        "hash": "6777864196573312206"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Rules/PropertyChange/ReflectionTypeExtensions.cs",
+        "hash": "13599476457218030524"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Model/SetupItem.cs",
+        "hash": "7704586592972222145"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Entities/SampleReferenceIdValidator.cs",
+        "hash": "13981401928826307388"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Extensions/BrokenRulesExtensions.cs",
+        "hash": "17939199181175332947"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Entities/SampleReferenceId.cs",
+        "hash": "8036781253898214320"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.sln",
+        "hash": "7048121211507711060"
+      },
+      {
+        "file": "graph.json",
+        "hash": "17349813273771842306"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Interface/IFactoryInterceptor.cs",
+        "hash": "8067027427723676317"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Rules/PropertyChange/NotifyPropertyChangedContext.cs",
+        "hash": "6488567385486009711"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Test/Ums.Shell.Factory.Test.csproj",
+        "hash": "10276796793674158998"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.AutoMapper/Impl/EnumerationConverter.cs",
+        "hash": "16237450944354492258"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/.editorconfig",
+        "hash": "12170194868035843471"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Installer/Impl/ServiceLocator.cs",
+        "hash": "9191999430851293401"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Impl/LogicModelREVLoader.cs",
+        "hash": "8562489413787122034"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Common/DecimalValueObject.cs",
+        "hash": "10684801248185574347"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Impl/DomainEventsManager.cs",
+        "hash": "10874868280578972897"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Test/Factory/Impl/TestCases.cs",
+        "hash": "6987411930555254665"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Installer/GlobalUsings.cs",
+        "hash": "5849248778685694640"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Model/Setup.cs",
+        "hash": "38425205674903492"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Rules/BrokenRulesExtension.cs",
+        "hash": "15780341723582658399"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Interfaces/IDomainEvent.cs",
+        "hash": "8728429301789194788"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Ums.Shell.Ddd.csproj",
+        "hash": "2087235324808623297"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Impl/AbstractFactoryInterceptor.cs",
+        "hash": "3525859258260296317"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Interfaces/IEntity.cs",
+        "hash": "12428358529003857543"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Entities/SampleAggregateRoot.cs",
+        "hash": "9174682962136333688"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Test/Factory/Models/Consultant.cs",
+        "hash": "14585364541158002573"
+      },
+      {
+        "file": ".husky/pre-commit",
+        "hash": "2252388722391304785"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Ums.Shell.Ddd.Test.csproj",
+        "hash": "13909809488526309890"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/AutoMapper/ParentRootAuditDtoToEntityConvert.cs",
+        "hash": "14815890993981304523"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Test/GlobalUsings.cs",
+        "hash": "17340915020823294517"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory/Ums.Shell.Factory.csproj",
+        "hash": "18015587442786391459"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Rules/PropertyChange/AbstractNotifyPropertyChanged.cs",
+        "hash": "5455226918456902509"
+      },
+      {
+        "file": "libs/shell/factory/src/Ums.Shell.Factory.Demo/Models/Criteria.cs",
+        "hash": "127822212573203411"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Entities/SampleNameValidator.cs",
+        "hash": "10327468021026121145"
+      },
+      {
+        "file": "context7.json",
+        "hash": "3308647264684880070"
       }
     ],
     "projectFileMap": {
@@ -681,11 +681,11 @@
         },
         {
           "file": "apps/ums.web-app/index.html",
-          "hash": "4025202329384162906"
+          "hash": "4174862928369077053"
         },
         {
           "file": "apps/ums.web-app/package.json",
-          "hash": "16399257232460004553",
+          "hash": "11311512671563649215",
           "deps": [
             "npm:@eslint/js",
             "npm:@types/react",
@@ -706,6 +706,7 @@
             "npm:lucide-react",
             "npm:react",
             "npm:react-dom",
+            "npm:zod",
             "npm:zustand"
           ]
         },
@@ -727,22 +728,28 @@
         },
         {
           "file": "apps/ums.web-app/src/App.tsx",
-          "hash": "6602358780480823447",
+          "hash": "4429197251883483851",
           "deps": [
             "npm:react"
           ]
         },
         {
-          "file": "apps/ums.web-app/src/application/hooks/use-users.hook.ts",
-          "hash": "15549349356238488947",
+          "file": "apps/ums.web-app/src/application/hooks/use-idle-timeout.ts",
+          "hash": "7089163049716207112",
           "deps": [
-            "npm:@tanstack/react-query",
-            "npm:axios"
+            "npm:react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/application/hooks/use-inline-edit.ts",
+          "hash": "15300742781781255947",
+          "deps": [
+            "npm:react"
           ]
         },
         {
           "file": "apps/ums.web-app/src/application/i18n/translations.ts",
-          "hash": "12216844306335404336"
+          "hash": "4885017519771166239"
         },
         {
           "file": "apps/ums.web-app/src/application/i18n/use-i18n.ts",
@@ -750,31 +757,37 @@
         },
         {
           "file": "apps/ums.web-app/src/application/identity/hooks/use-branch.ts",
-          "hash": "15878261764623534504",
+          "hash": "12718145000558485231",
           "deps": [
-            "npm:@tanstack/react-query"
+            "npm:@tanstack/react-query",
+            "npm:axios"
           ]
         },
         {
           "file": "apps/ums.web-app/src/application/identity/hooks/use-tenant.ts",
-          "hash": "6149814707420889512",
+          "hash": "13830952353541814031",
           "deps": [
-            "npm:@tanstack/react-query"
+            "npm:@tanstack/react-query",
+            "npm:axios"
           ]
         },
         {
           "file": "apps/ums.web-app/src/application/stores/auth.store.ts",
-          "hash": "798297074887578939",
+          "hash": "3631449900931472580",
           "deps": [
             "npm:zustand"
           ]
         },
         {
           "file": "apps/ums.web-app/src/application/stores/notification.store.ts",
-          "hash": "11683018124155195979",
+          "hash": "5242060651247859196",
           "deps": [
             "npm:zustand"
           ]
+        },
+        {
+          "file": "apps/ums.web-app/src/application/utils/security.ts",
+          "hash": "11300699309948049757"
         },
         {
           "file": "apps/ums.web-app/src/assets/react.svg",
@@ -785,23 +798,42 @@
           "hash": "9966387304430981435"
         },
         {
+          "file": "apps/ums.web-app/src/domain/identity/models/branding.model.ts",
+          "hash": "16239994601461126121"
+        },
+        {
+          "file": "apps/ums.web-app/src/domain/identity/models/idp.model.ts",
+          "hash": "8733630696154352527"
+        },
+        {
           "file": "apps/ums.web-app/src/domain/identity/models/tenant.model.ts",
           "hash": "6851333810083434742"
+        },
+        {
+          "file": "apps/ums.web-app/src/domain/identity/models/tenant.schema.ts",
+          "hash": "12395374465315486039",
+          "deps": [
+            "npm:zod"
+          ]
         },
         {
           "file": "apps/ums.web-app/src/index.css",
           "hash": "16663798797402393624"
         },
         {
+          "file": "apps/ums.web-app/src/infrastructure/identity/config/api-header.provider.ts",
+          "hash": "16815473279841699546"
+        },
+        {
           "file": "apps/ums.web-app/src/infrastructure/identity/services/tenant.service.ts",
-          "hash": "17132527911770840814",
+          "hash": "6946225551256653642",
           "deps": [
             "npm:axios"
           ]
         },
         {
           "file": "apps/ums.web-app/src/main.tsx",
-          "hash": "15472231304380165260",
+          "hash": "31114632104952803",
           "deps": [
             "npm:react",
             "npm:react-dom",
@@ -810,7 +842,7 @@
         },
         {
           "file": "apps/ums.web-app/src/presentation/identity/components/BranchManager.tsx",
-          "hash": "60210464906136969",
+          "hash": "11113172845823010599",
           "deps": [
             "npm:react",
             "npm:lucide-react"
@@ -818,7 +850,7 @@
         },
         {
           "file": "apps/ums.web-app/src/presentation/identity/components/TenantForm.tsx",
-          "hash": "18005925531361874666",
+          "hash": "2666446458934120612",
           "deps": [
             "npm:react",
             "npm:lucide-react"
@@ -826,7 +858,7 @@
         },
         {
           "file": "apps/ums.web-app/src/presentation/identity/screens/LoginScreen.tsx",
-          "hash": "15311648117552875787",
+          "hash": "18270046641919865523",
           "deps": [
             "npm:react",
             "npm:lucide-react"
@@ -842,7 +874,15 @@
         },
         {
           "file": "apps/ums.web-app/src/presentation/identity/screens/TenantDashboardScreen.tsx",
-          "hash": "2077308393090713949",
+          "hash": "17092868819449887165",
+          "deps": [
+            "npm:react",
+            "npm:lucide-react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/shared/components/ErrorBoundary.tsx",
+          "hash": "14760859068541361784",
           "deps": [
             "npm:react",
             "npm:lucide-react"
@@ -864,7 +904,7 @@
         },
         {
           "file": "apps/ums.web-app/src/presentation/shared/components/M3DataView.tsx",
-          "hash": "9861145602586741121",
+          "hash": "3333627377577670828",
           "deps": [
             "npm:react",
             "npm:lucide-react"
@@ -901,6 +941,13 @@
           ]
         },
         {
+          "file": "apps/ums.web-app/src/presentation/shared/components/StatusBadge.tsx",
+          "hash": "481845020664527675",
+          "deps": [
+            "npm:react"
+          ]
+        },
+        {
           "file": "apps/ums.web-app/src/presentation/shared/components/Tooltip.tsx",
           "hash": "7283755138841321476",
           "deps": [
@@ -909,7 +956,7 @@
         },
         {
           "file": "apps/ums.web-app/src/presentation/shared/layouts/MainLayout.tsx",
-          "hash": "6050506867546556516",
+          "hash": "17382349011951545837",
           "deps": [
             "npm:react",
             "npm:lucide-react"
@@ -937,7 +984,7 @@
         },
         {
           "file": "apps/ums.web-app/vite.config.ts",
-          "hash": "15351107418002829578",
+          "hash": "3953249202012177924",
           "deps": [
             "npm:vite@5.4.10",
             "npm:@vitejs/plugin-react"
@@ -2360,5 +2407,5 @@
       ]
     }
   },
-  "externalNodesHash": "4935790633874111262"
+  "externalNodesHash": "3668212042099147265"
 }
