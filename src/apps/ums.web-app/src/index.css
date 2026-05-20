@@ -4,28 +4,69 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Light Theme M3 Palette (Indigo/Violet base) */
+  --m3-primary: 262 52% 47%;
+  --m3-on-primary: 0 0% 100%;
+  --m3-primary-container: 262 90% 92%;
+  --m3-on-primary-container: 262 95% 15%;
+  --m3-secondary: 262 10% 45%;
+  --m3-on-secondary: 0 0% 100%;
+  --m3-surface: 220 20% 98%;
+  --m3-on-surface: 220 40% 10%;
+  --m3-surface-container: 0 0% 100%;
+  --m3-outline: 220 12% 85%;
+  --m3-error: 0 75% 45%;
+  --m3-on-error: 0 0% 100%;
+}
+
+.dark {
+  /* Dark Theme M3 Palette */
+  --m3-primary: 262 85% 75%;
+  --m3-on-primary: 262 95% 15%;
+  --m3-primary-container: 262 50% 24%;
+  --m3-on-primary-container: 262 90% 90%;
+  --m3-secondary: 262 15% 70%;
+  --m3-on-secondary: 262 95% 15%;
+  --m3-surface: 220 30% 6%;
+  --m3-on-surface: 220 25% 90%;
+  --m3-surface-container: 220 20% 10%;
+  --m3-outline: 220 12% 20%;
+  --m3-error: 0 85% 70%;
+  --m3-on-error: 0 95% 15%;
+}
+
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900 font-sans antialiased selection:bg-brand-500 selection:text-white;
+    @apply bg-m3-surface text-m3-on-surface antialiased selection:bg-m3-primary/30;
     font-family: 'Inter', sans-serif;
-  }
-
-  body.dark {
-    @apply bg-dark-950 text-slate-100;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 }
 
-/* Premium Custom Glassmorphism utility */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+/* Premium custom elevation styles mapping standard Material Design 3 heights */
+.elevation-1 {
+  box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.05), 0px 1px 2px 0px rgba(0, 0, 0, 0.08);
 }
 
-.dark .glass-panel {
-  background: rgba(15, 23, 42, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+.elevation-2 {
+  box-shadow: 0px 2px 6px 2px rgba(0, 0, 0, 0.06), 0px 1px 2px 0px rgba(0, 0, 0, 0.1);
 }
+
+.elevation-3 {
+  box-shadow: 0px 4px 12px 4px rgba(0, 0, 0, 0.08), 0px 2px 4px 0px rgba(0, 0, 0, 0.12);
+}
+
+/* Custom premium ambient glow */
+.m3-glow {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(100px);
+  pointer-events: none;
+  opacity: 0.15;
+  transition: opacity 0.3s ease;
+}
+.dark .m3-glow {
+  opacity: 0.08;
+}
+

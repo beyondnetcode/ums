@@ -1,52 +1,10 @@
 {
   "nodes": {
-    "app-api-dotnet": {
-      "name": "app-api-dotnet",
-      "type": "app",
-      "data": {
-        "root": "apps/app-api-dotnet",
-        "name": "app-api-dotnet",
-        "projectType": "application",
-        "targets": {
-          "build": {
-            "executor": "nx:run-commands",
-            "options": {
-              "command": "dotnet build Ums.sln"
-            },
-            "configurations": {},
-            "parallelism": true,
-            "cache": true,
-            "dependsOn": [
-              "^build"
-            ]
-          },
-          "test": {
-            "executor": "nx:run-commands",
-            "options": {
-              "command": "dotnet test Ums.sln"
-            },
-            "configurations": {},
-            "parallelism": true,
-            "cache": true
-          },
-          "run": {
-            "executor": "nx:run-commands",
-            "options": {
-              "command": "dotnet run --project Ums.Presentation"
-            },
-            "configurations": {},
-            "parallelism": true
-          }
-        },
-        "implicitDependencies": [],
-        "tags": []
-      }
-    },
     "app-web": {
       "name": "app-web",
       "type": "app",
       "data": {
-        "root": "apps/app-web",
+        "root": "apps/ums.web-app",
         "name": "app-web",
         "tags": [
           "npm:private"
@@ -114,6 +72,48 @@
         "projectType": "application",
         "sourceRoot": "src",
         "implicitDependencies": []
+      }
+    },
+    "app-api-dotnet": {
+      "name": "app-api-dotnet",
+      "type": "app",
+      "data": {
+        "root": "apps/ums.api",
+        "name": "app-api-dotnet",
+        "projectType": "application",
+        "targets": {
+          "build": {
+            "executor": "nx:run-commands",
+            "options": {
+              "command": "dotnet build Ums.sln"
+            },
+            "configurations": {},
+            "parallelism": true,
+            "cache": true,
+            "dependsOn": [
+              "^build"
+            ]
+          },
+          "test": {
+            "executor": "nx:run-commands",
+            "options": {
+              "command": "dotnet test Ums.sln"
+            },
+            "configurations": {},
+            "parallelism": true,
+            "cache": true
+          },
+          "run": {
+            "executor": "nx:run-commands",
+            "options": {
+              "command": "dotnet run --project Ums.Presentation"
+            },
+            "configurations": {},
+            "parallelism": true
+          }
+        },
+        "implicitDependencies": [],
+        "tags": []
       }
     }
   },
@@ -5880,7 +5880,6 @@
     }
   },
   "dependencies": {
-    "app-api-dotnet": [],
     "app-web": [
       {
         "source": "app-web",
@@ -5983,6 +5982,7 @@
         "type": "static"
       }
     ],
+    "app-api-dotnet": [],
     "npm:eslint@9.13.0": [
       {
         "source": "npm:eslint@9.13.0",
@@ -13279,5 +13279,5 @@
   },
   "version": "6.0",
   "errors": [],
-  "computedAt": 1779198271314
+  "computedAt": 1779288012998
 }

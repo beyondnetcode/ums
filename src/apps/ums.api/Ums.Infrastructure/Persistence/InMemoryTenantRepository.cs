@@ -44,5 +44,23 @@ public sealed class InMemoryTenantRepository : ITenantRepository, IUnitOfWork
 
     public Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default) => Task.FromResult(true);
 
+    /// <summary>
+    /// Dev-only: stores a tenant aggregate under a specified well-known GUID.
+    /// Uses reflection to ensure the aggregate's own Props.Id matches the known key
+    /// so that GET /tenants/{id} responses return the expected identifier.
+    /// Used by <see cref="DevDataSeeder"/>.
+    /// </summary>
+    public void SeedWithKnownId(Guid knownId, TenantAggregate aggregate)
+    {
+        // Use reflection to overwrite the auto-generated Id inside TenantProps
+        // so the DTO response matches the known dev seed GUID.
+        var propsId = aggregate.Props.Id;
+        var valueField = propsId.GetType().BaseType?.BaseType?
+            .GetField("_value", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        valueField?.SetValue(propsId, knownId);
+
+        _store[knownId] = aggregate;
+    }
+
     public void Dispose() { }
 }

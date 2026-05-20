@@ -9,6 +9,7 @@ using Ums.Application;
 using Ums.Globalization;
 using Ums.Globalization.Access;
 using Ums.Infrastructure;
+using Ums.Infrastructure.Persistence;
 using Ums.Presentation.Endpoints.Identity.Tenant;
 using Ums.Presentation.Endpoints.Identity.Tenant.Queries;
 using Ums.Presentation.Extensions;
@@ -110,6 +111,14 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+// Seed in-memory repository with dev prototype data in Development mode
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var repository = scope.ServiceProvider.GetRequiredService<InMemoryTenantRepository>();
+    DevDataSeeder.Seed(repository);
+}
 
 var versionSet = app.NewApiVersionSet()
     .HasApiVersion(new ApiVersion(1))
