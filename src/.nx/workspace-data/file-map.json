@@ -95,7 +95,7 @@
       },
       {
         "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/BrokenRulesTest.cs",
-        "hash": "16263833593992802981"
+        "hash": "4119149522962902377"
       },
       {
         "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Dtos/AuditDto.cs",
@@ -262,6 +262,10 @@
         "hash": "15372713939407737581"
       },
       {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Factories/DddServiceFactory.cs",
+        "hash": "14057798502160871472"
+      },
+      {
         "file": "libs/shell/ddd/src/Ums.Shell.Ddd/GlobalUsings.cs",
         "hash": "12452770833610398419"
       },
@@ -343,7 +347,7 @@
       },
       {
         "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Impl/BrokenRulesManager.cs",
-        "hash": "8521348546059665895"
+        "hash": "2593964683391444450"
       },
       {
         "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Impl/DomainEventsManager.cs",
@@ -355,7 +359,11 @@
       },
       {
         "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Impl/ValidatorRuleManager.cs",
-        "hash": "6064203268810921969"
+        "hash": "928357733725119209"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Interfaces/IBrokenRulesManager.cs",
+        "hash": "3512227988054523858"
       },
       {
         "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Interfaces/IDomainEventsManager.cs",
@@ -364,6 +372,10 @@
       {
         "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Interfaces/ITrackingStateManager.cs",
         "hash": "8194558092770644461"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Interfaces/IValidatorRuleManager.cs",
+        "hash": "8345398719071807332"
       },
       {
         "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Ums.Shell.Ddd.csproj",
@@ -375,7 +387,7 @@
       },
       {
         "file": "libs/shell/ddd/src/Ums.Shell.Ddd/ValueObject.cs",
-        "hash": "15281678896634147859"
+        "hash": "3703972428746575533"
       },
       {
         "file": "libs/shell/factory/.gitignore",
@@ -729,22 +741,30 @@
           ]
         },
         {
+          "file": "apps/ums.web-app/src/application/i18n/translations.ts",
+          "hash": "12216844306335404336"
+        },
+        {
+          "file": "apps/ums.web-app/src/application/i18n/use-i18n.ts",
+          "hash": "4629619721949337569"
+        },
+        {
           "file": "apps/ums.web-app/src/application/identity/hooks/use-branch.ts",
-          "hash": "13294979816862832474",
+          "hash": "15878261764623534504",
           "deps": [
             "npm:@tanstack/react-query"
           ]
         },
         {
           "file": "apps/ums.web-app/src/application/identity/hooks/use-tenant.ts",
-          "hash": "15870252609985243329",
+          "hash": "6149814707420889512",
           "deps": [
             "npm:@tanstack/react-query"
           ]
         },
         {
           "file": "apps/ums.web-app/src/application/stores/auth.store.ts",
-          "hash": "2265464878573121710",
+          "hash": "798297074887578939",
           "deps": [
             "npm:zustand"
           ]
@@ -766,7 +786,7 @@
         },
         {
           "file": "apps/ums.web-app/src/domain/identity/models/tenant.model.ts",
-          "hash": "17822610167508742108"
+          "hash": "6851333810083434742"
         },
         {
           "file": "apps/ums.web-app/src/index.css",
@@ -774,7 +794,7 @@
         },
         {
           "file": "apps/ums.web-app/src/infrastructure/identity/services/tenant.service.ts",
-          "hash": "11630022768837047234",
+          "hash": "17132527911770840814",
           "deps": [
             "npm:axios"
           ]
@@ -790,7 +810,7 @@
         },
         {
           "file": "apps/ums.web-app/src/presentation/identity/components/BranchManager.tsx",
-          "hash": "9752219453801553951",
+          "hash": "60210464906136969",
           "deps": [
             "npm:react",
             "npm:lucide-react"
@@ -798,7 +818,7 @@
         },
         {
           "file": "apps/ums.web-app/src/presentation/identity/components/TenantForm.tsx",
-          "hash": "14014013722051134534",
+          "hash": "18005925531361874666",
           "deps": [
             "npm:react",
             "npm:lucide-react"
@@ -806,7 +826,7 @@
         },
         {
           "file": "apps/ums.web-app/src/presentation/identity/screens/LoginScreen.tsx",
-          "hash": "13521259177444548762",
+          "hash": "15311648117552875787",
           "deps": [
             "npm:react",
             "npm:lucide-react"
@@ -814,7 +834,7 @@
         },
         {
           "file": "apps/ums.web-app/src/presentation/identity/screens/ProfileScreen.tsx",
-          "hash": "2136269181977490267",
+          "hash": "179017433720493152",
           "deps": [
             "npm:react",
             "npm:lucide-react"
@@ -822,7 +842,7 @@
         },
         {
           "file": "apps/ums.web-app/src/presentation/identity/screens/TenantDashboardScreen.tsx",
-          "hash": "13888798369409952948",
+          "hash": "2077308393090713949",
           "deps": [
             "npm:react",
             "npm:lucide-react"
@@ -830,16 +850,32 @@
         },
         {
           "file": "apps/ums.web-app/src/presentation/shared/components/M3Button.tsx",
-          "hash": "5062930028224570758",
+          "hash": "816673236102707566",
           "deps": [
             "npm:react"
           ]
         },
         {
           "file": "apps/ums.web-app/src/presentation/shared/components/M3Card.tsx",
-          "hash": "16917364879464736149",
+          "hash": "17155420697780147726",
           "deps": [
             "npm:react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/shared/components/M3DataView.tsx",
+          "hash": "9861145602586741121",
+          "deps": [
+            "npm:react",
+            "npm:lucide-react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/shared/components/M3Select.tsx",
+          "hash": "1538241111632049118",
+          "deps": [
+            "npm:react",
+            "npm:lucide-react"
           ]
         },
         {
@@ -851,7 +887,7 @@
         },
         {
           "file": "apps/ums.web-app/src/presentation/shared/components/M3TextField.tsx",
-          "hash": "12860047901074737782",
+          "hash": "4641212537008184777",
           "deps": [
             "npm:react"
           ]
@@ -865,8 +901,15 @@
           ]
         },
         {
+          "file": "apps/ums.web-app/src/presentation/shared/components/Tooltip.tsx",
+          "hash": "7283755138841321476",
+          "deps": [
+            "npm:react"
+          ]
+        },
+        {
           "file": "apps/ums.web-app/src/presentation/shared/layouts/MainLayout.tsx",
-          "hash": "10491992962373792006",
+          "hash": "6050506867546556516",
           "deps": [
             "npm:react",
             "npm:lucide-react"
@@ -878,7 +921,7 @@
         },
         {
           "file": "apps/ums.web-app/tailwind.config.js",
-          "hash": "1364153483547520658"
+          "hash": "9647774352860277434"
         },
         {
           "file": "apps/ums.web-app/tsconfig.app.json",
@@ -894,7 +937,7 @@
         },
         {
           "file": "apps/ums.web-app/vite.config.ts",
-          "hash": "4287784784191891134",
+          "hash": "15351107418002829578",
           "deps": [
             "npm:vite@5.4.10",
             "npm:@vitejs/plugin-react"
@@ -936,11 +979,11 @@
         },
         {
           "file": "apps/ums.api/Ums.Application.Test/Tenants/CreateTenant/CreateTenantCommandHandlerTests.cs",
-          "hash": "4586215835534068017"
+          "hash": "3443274390662741832"
         },
         {
           "file": "apps/ums.api/Ums.Application.Test/Tenants/CreateTenant/CreateTenantCommandValidatorTests.cs",
-          "hash": "13917834940697240985"
+          "hash": "6412580535096664080"
         },
         {
           "file": "apps/ums.api/Ums.Application.Test/Tenants/SuspendTenant/SuspendTenantCommandHandlerTests.cs",
@@ -1176,15 +1219,15 @@
         },
         {
           "file": "apps/ums.api/Ums.Application/Identity/Tenant/Commands/CreateTenantCommand.cs",
-          "hash": "10274331620562408721"
+          "hash": "711753439128914842"
         },
         {
           "file": "apps/ums.api/Ums.Application/Identity/Tenant/Commands/CreateTenantCommandHandler.cs",
-          "hash": "6223452130215323097"
+          "hash": "16369337511363359029"
         },
         {
           "file": "apps/ums.api/Ums.Application/Identity/Tenant/Commands/CreateTenantCommandValidator.cs",
-          "hash": "12131192734793038709"
+          "hash": "18185796903087479058"
         },
         {
           "file": "apps/ums.api/Ums.Application/Identity/Tenant/Commands/SuspendTenantCommand.cs",
@@ -1281,6 +1324,14 @@
         {
           "file": "apps/ums.api/Ums.Application/Identity/Tenant/IdentityProvider/Queries/GetIdentityProvidersByTenantIdQueryHandler.cs",
           "hash": "4553432444251398474"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Identity/Tenant/Queries/GetAllTenantsQuery.cs",
+          "hash": "16996303842777042803"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Identity/Tenant/Queries/GetAllTenantsQueryHandler.cs",
+          "hash": "14167592787448498263"
         },
         {
           "file": "apps/ums.api/Ums.Application/Identity/Tenant/Queries/GetTenantByIdQuery.cs",
@@ -1792,7 +1843,7 @@
         },
         {
           "file": "apps/ums.api/Ums.Domain/Identity/Repositories.cs",
-          "hash": "14285279231675508800"
+          "hash": "9308718422665140691"
         },
         {
           "file": "apps/ums.api/Ums.Domain/Identity/Repositories/IUserAccountRepository.cs",
@@ -2187,8 +2238,12 @@
           "hash": "10384263774638364773"
         },
         {
+          "file": "apps/ums.api/Ums.Infrastructure/Persistence/DevDataSeeder.cs",
+          "hash": "14611989702462112980"
+        },
+        {
           "file": "apps/ums.api/Ums.Infrastructure/Persistence/InMemoryTenantRepository.cs",
-          "hash": "6229831121337864684"
+          "hash": "5245528333074903252"
         },
         {
           "file": "apps/ums.api/Ums.Infrastructure/Persistence/Interceptors/OrganizationDbContextInterceptor.cs",
@@ -2228,7 +2283,7 @@
         },
         {
           "file": "apps/ums.api/Ums.Presentation/Endpoints/Identity/Tenant/Queries/TenantQueryEndpoints.cs",
-          "hash": "11412545530041951870"
+          "hash": "910828854669411161"
         },
         {
           "file": "apps/ums.api/Ums.Presentation/Endpoints/Identity/Tenant/TenantBranchEndpoints.cs",
@@ -2276,7 +2331,7 @@
         },
         {
           "file": "apps/ums.api/Ums.Presentation/Program.cs",
-          "hash": "16035085995153378996"
+          "hash": "6173929505302705583"
         },
         {
           "file": "apps/ums.api/Ums.Presentation/Properties/launchSettings.json",

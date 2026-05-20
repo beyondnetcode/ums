@@ -5751,6 +5751,15 @@
         "hash": "sha512-CzhO+pFNo8ajLM2d2IW/R93ipy99LWjtwblvC1RsoSUMZgyLbYFr221TnSNT7GjGdYui6P459mw9JH/g/zW2ug=="
       }
     },
+    "npm:zod": {
+      "type": "npm",
+      "name": "npm:zod",
+      "data": {
+        "version": "4.4.3",
+        "packageName": "zod",
+        "hash": "sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ=="
+      }
+    },
     "npm:zustand": {
       "type": "npm",
       "name": "npm:zustand",
@@ -6434,6 +6443,7 @@
     "node_modules/yargs-parser": "npm:yargs-parser",
     "node_modules/yocto-queue": "npm:yocto-queue",
     "node_modules/yoctocolors": "npm:yoctocolors",
+    "node_modules/zod": "npm:zod",
     "node_modules/zustand": "npm:zustand"
   }
 }
