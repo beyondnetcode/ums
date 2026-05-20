@@ -95,7 +95,7 @@ namespace Ums.Shell.Ddd.Test
         [TestMethod]
         public void Entity_Should_Has_BrokenRules()
         {
-            var sampleEntity = SampleEntity.Create(SampleName.Create("Default"), SampleReferenceId.Create(Guid.NewGuid().ToString(),"XXX"));
+            var sampleEntity = SampleEntity.Create(SampleName.Create("Default"), SampleReferenceId.Create(Guid.NewGuid().ToString(), "SomeReference"));
 
             sampleEntity.IsValid().ShouldBeFalse();
         }
@@ -111,7 +111,7 @@ namespace Ums.Shell.Ddd.Test
         [TestMethod]
         public void Entity_Should_Not_Have_BrokenRules()
         {
-            var sampleEntity = SampleEntity.Create(SampleName.Create("BeyondNet"), SampleReferenceId.Create(Guid.NewGuid().ToString(), "XXX"));
+            var sampleEntity = SampleEntity.Create(SampleName.Create("BeyondNet"), SampleReferenceId.Create(Guid.NewGuid().ToString(), "ValidReference"));
 
             sampleEntity.IsValid().ShouldBeTrue();
         }

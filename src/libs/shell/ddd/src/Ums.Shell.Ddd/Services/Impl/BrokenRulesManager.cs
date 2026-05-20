@@ -1,13 +1,11 @@
 ﻿using System.Globalization;
 using System.Text;
 using Ums.Shell.Ddd.Rules;
+using Ums.Shell.Ddd.Services.Interfaces;
 
 namespace Ums.Shell.Ddd.Services.Impl
 {
-    /// <summary>
-    /// Represents a collection of broken rules.
-    /// </summary>
-    public class BrokenRulesManager
+    public class BrokenRulesManager : IBrokenRulesManager
     {
         private List<BrokenRule> _brokenRules = new();
 

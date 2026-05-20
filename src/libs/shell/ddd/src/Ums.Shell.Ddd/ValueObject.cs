@@ -1,7 +1,9 @@
-﻿using Ums.Shell.Ddd.Interfaces;
+﻿using Ums.Shell.Ddd.Factories;
+using Ums.Shell.Ddd.Interfaces;
 using Ums.Shell.Ddd.Rules.Impl;
 using Ums.Shell.Ddd.Rules.PropertyChange;
 using Ums.Shell.Ddd.Services.Impl;
+using Ums.Shell.Ddd.Services.Interfaces;
 
 namespace Ums.Shell.Ddd
 {
@@ -13,11 +15,11 @@ namespace Ums.Shell.Ddd
     {
         #region Members
 
-        public TrackingStateManager TrackingState { get; private set; }
+        public ITrackingStateManager TrackingState { get; private set; }
 
         public ValidatorRuleManager<AbstractRuleValidator<ValueObject<TValue>>> ValidatorRules { get; private set; }
 
-        public BrokenRulesManager BrokenRules { get; private set; }
+        public IBrokenRulesManager BrokenRules { get; private set; }
 
         public bool IsValid => !BrokenRules.GetBrokenRules().Any();
 
@@ -48,15 +50,11 @@ namespace Ums.Shell.Ddd
         {
             ArgumentNullException.ThrowIfNull(value, nameof(value));
 
-            /*
-             * TODO: Enhance this logic using Inversion of Control (IoC) without injecting dependencies directly in the constructor. 
-             * We also need to abstract the creation of dependency instances to support multiple IoC containers.
-            */
-            BrokenRules = new BrokenRulesManager();
+            BrokenRules = DddServiceFactory.CreateBrokenRulesManager();
 
             ValidatorRules = new ValidatorRuleManager<AbstractRuleValidator<ValueObject<TValue>>>();
 
-            TrackingState = new TrackingStateManager();
+            TrackingState = DddServiceFactory.CreateTrackingStateManager();
 
             RegisterProperty(nameof(InternalValue), typeof(TValue), value, ValuePropertyChanged);
 

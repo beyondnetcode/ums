@@ -1,13 +1,10 @@
 ﻿using Ums.Shell.Ddd.Rules;
 using Ums.Shell.Ddd.Rules.Interfaces;
+using Ums.Shell.Ddd.Services.Interfaces;
 
 namespace Ums.Shell.Ddd.Services.Impl
 {
-    /// <summary>
-    /// Represents a collection of validator rules for a specific type.
-    /// </summary>
-    /// <typeparam name="TValidator">The type of object to validate.</typeparam>
-    public class ValidatorRuleManager<TValidator> where TValidator : IRuleValidator
+    public class ValidatorRuleManager<TValidator> : IValidatorRuleManager<TValidator> where TValidator : IRuleValidator
     {
         private readonly List<TValidator> _businessRules = [];
 
