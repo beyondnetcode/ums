@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 
 interface M3SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
@@ -8,9 +8,17 @@ interface M3SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
 }
 
 /**
- * M3 Outlined Select — matches M3TextField shape, height, border and colour
- * tokens. The label is always in the floated position because a <select>
- * always displays a selected value.
+ * MD3 Outlined Select
+ *
+ * Uses the same <fieldset>/<legend> notch technique as M3TextField.
+ * A <select> always displays a selected value so the label is permanently
+ * in the floated position — the notch is always open.
+ *
+ * Spec references:
+ *   • Height           56 dp  (h-14)
+ *   • Corner radius     4 dp
+ *   • Border            1 px  resting / hover; 2 px focused
+ *   • Label floating    Body Small  12 sp → text-xs
  */
 export const M3Select: React.FC<M3SelectProps> = ({
   label,
@@ -19,45 +27,76 @@ export const M3Select: React.FC<M3SelectProps> = ({
   className = '',
   id,
   children,
+  onFocus: extOnFocus,
+  onBlur: extOnBlur,
   ...props
 }) => {
   const selectId = id || `m3-sel-${label.toLowerCase().replace(/\W+/g, '-')}`;
   const hasMbClass = /\bmb-/.test(className);
 
+  const [focused, setFocused] = useState(false);
+
+  const borderClass = focused
+    ? `border-2 ${error ? 'border-m3-error' : 'border-m3-primary'}`
+    : error
+    ? 'border border-m3-error'
+    : 'border border-m3-outline hover:border-m3-on-surface';
+
+  const labelColorClass = focused
+    ? error
+      ? 'text-m3-error'
+      : 'text-m3-primary'
+    : error
+    ? 'text-m3-error'
+    : 'text-m3-secondary';
+
   return (
     <div className={`relative w-full ${hasMbClass ? '' : 'mb-4'} ${className}`}>
-      <div className="relative">
+      {/*
+        Selects always show a value, so the label is always floated.
+        The notch is always open (max-width: 1000px).
+      */}
+      <fieldset
+        className={[
+          'relative w-full h-14 m-0 p-0 min-w-0 rounded-[4px]',
+          'bg-m3-surface-container/30 dark:bg-m3-surface-container/20',
+          'transition-colors duration-150',
+          borderClass,
+        ].join(' ')}
+      >
+        {/* Always-open notch */}
+        <legend
+          aria-hidden="true"
+          className="ml-3 h-0 overflow-hidden whitespace-nowrap text-xs opacity-0 pointer-events-none select-none"
+          style={{ maxWidth: '1000px', padding: '0 4px' }}
+        >
+          {label}
+        </legend>
+
         <select
           id={selectId}
-          className={`
-            peer w-full h-14 pl-4 pr-10 pt-5 pb-1 text-sm
-            bg-m3-surface-container/30 dark:bg-m3-surface-container/20
-            text-m3-on-surface
-            rounded-[4px] border-[1.5px]
-            focus:outline-none transition-colors duration-200
-            appearance-none cursor-pointer
-            disabled:opacity-50 disabled:cursor-not-allowed
-            ${error
-              ? 'border-m3-error focus:border-m3-error'
-              : 'border-m3-outline hover:border-m3-on-surface focus:border-m3-primary'
-            }
-          `}
+          onFocus={(e) => { setFocused(true); extOnFocus?.(e); }}
+          onBlur={(e)  => { setFocused(false); extOnBlur?.(e); }}
+          className={[
+            'absolute inset-0 w-full h-full bg-transparent rounded-[4px]',
+            'pl-4 pr-10 pt-5 pb-2 text-sm text-m3-on-surface',
+            'focus:outline-none appearance-none cursor-pointer',
+            'disabled:opacity-50 disabled:cursor-not-allowed',
+          ].join(' ')}
           {...props}
         >
           {children}
         </select>
 
-        {/* Label — always floated since selects always show a value */}
+        {/* Floated label — always in notch position */}
         <label
           htmlFor={selectId}
-          className={`
-            absolute left-4 px-1 -mx-1
-            pointer-events-none text-xs font-normal
-            bg-m3-surface
-            top-0 -translate-y-1/2
-            transition-colors duration-200
-            ${error ? 'text-m3-error' : 'text-m3-secondary peer-focus:text-m3-primary'}
-          `}
+          className={[
+            'absolute left-3 px-1 top-0 -translate-y-1/2',
+            'pointer-events-none text-xs font-normal',
+            'transition-colors duration-150',
+            labelColorClass,
+          ].join(' ')}
         >
           {label}
         </label>
@@ -66,10 +105,14 @@ export const M3Select: React.FC<M3SelectProps> = ({
         <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-m3-secondary">
           <ChevronDown className="w-4 h-4" />
         </div>
-      </div>
+      </fieldset>
 
       {(error || helperText) && (
-        <span className={`block text-xs mt-1 ml-1 ${error ? 'text-m3-error' : 'text-m3-secondary/75'}`}>
+        <span
+          className={`block text-xs mt-1 ml-4 ${
+            error ? 'text-m3-error' : 'text-m3-secondary/75'
+          }`}
+        >
           {error || helperText}
         </span>
       )}

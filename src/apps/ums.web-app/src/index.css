@@ -5,35 +5,97 @@
 @tailwind utilities;
 
 :root {
-  /* Light Theme M3 Palette (Indigo/Violet base) */
-  --m3-primary: 262 52% 47%;
-  --m3-on-primary: 0 0% 100%;
-  --m3-primary-container: 262 90% 92%;
-  --m3-on-primary-container: 262 95% 15%;
-  --m3-secondary: 262 10% 45%;
-  --m3-on-secondary: 0 0% 100%;
-  --m3-surface: 220 20% 98%;
-  --m3-on-surface: 220 40% 10%;
-  --m3-surface-container: 0 0% 100%;
-  --m3-outline: 220 12% 85%;
-  --m3-error: 0 75% 45%;
-  --m3-on-error: 0 0% 100%;
+  /* ── MD3 Light Theme — Indigo/Violet key colour ───────────────────────────
+     All values are HSL channel triples (no hsl() wrapper) so Tailwind can
+     compose them with opacity modifiers: hsl(var(--token) / <alpha>).        */
+
+  /* Primary role */
+  --m3-primary:              262 52% 47%;
+  --m3-on-primary:             0  0% 100%;
+  --m3-primary-container:    262 90% 92%;
+  --m3-on-primary-container: 262 95%  15%;
+
+  /* Secondary role */
+  --m3-secondary:            262 10% 45%;
+  --m3-on-secondary:           0  0% 100%;
+  --m3-secondary-container:  262 35% 88%;
+  --m3-on-secondary-container: 262 50% 12%;
+
+  /* Tertiary role (warm complement) */
+  --m3-tertiary:             320 38% 48%;
+  --m3-on-tertiary:            0  0% 100%;
+  --m3-tertiary-container:   320 80% 92%;
+  --m3-on-tertiary-container: 320 60% 12%;
+
+  /* Error role */
+  --m3-error:                  0 75% 45%;
+  --m3-on-error:               0  0% 100%;
+  --m3-error-container:        0 90% 92%;
+  --m3-on-error-container:     0 80% 20%;
+
+  /* Surface roles */
+  --m3-surface:              220 20% 98%;
+  --m3-on-surface:           220 40% 10%;
+  --m3-surface-variant:      262 18% 90%;
+  --m3-on-surface-variant:   262 12% 35%;
+  --m3-surface-container:      0  0% 100%;
+  --m3-surface-container-low: 220 20% 96%;
+  --m3-surface-container-high: 220 15% 93%;
+
+  /* Outline roles */
+  --m3-outline:              220 12% 85%;
+  --m3-outline-variant:      220  8% 90%;
+
+  /* Inverse */
+  --m3-inverse-surface:      220 30%  20%;
+  --m3-inverse-on-surface:   220 20%  90%;
+  --m3-inverse-primary:      262 85%  75%;
 }
 
 .dark {
-  /* Dark Theme M3 Palette */
-  --m3-primary: 262 85% 75%;
-  --m3-on-primary: 262 95% 15%;
-  --m3-primary-container: 262 50% 24%;
+  /* ── MD3 Dark Theme ───────────────────────────────────────────────────── */
+
+  /* Primary role */
+  --m3-primary:              262 85% 75%;
+  --m3-on-primary:           262 95% 15%;
+  --m3-primary-container:    262 50% 24%;
   --m3-on-primary-container: 262 90% 90%;
-  --m3-secondary: 262 15% 70%;
-  --m3-on-secondary: 262 95% 15%;
-  --m3-surface: 220 30% 6%;
-  --m3-on-surface: 220 25% 90%;
-  --m3-surface-container: 220 20% 10%;
-  --m3-outline: 220 12% 20%;
-  --m3-error: 0 85% 70%;
-  --m3-on-error: 0 95% 15%;
+
+  /* Secondary role */
+  --m3-secondary:            262 15% 70%;
+  --m3-on-secondary:         262 95% 15%;
+  --m3-secondary-container:  262 25% 22%;
+  --m3-on-secondary-container: 262 35% 88%;
+
+  /* Tertiary role */
+  --m3-tertiary:             320 55% 72%;
+  --m3-on-tertiary:          320 60% 12%;
+  --m3-tertiary-container:   320 35% 22%;
+  --m3-on-tertiary-container: 320 80% 92%;
+
+  /* Error role */
+  --m3-error:                  0 85% 70%;
+  --m3-on-error:               0 95% 15%;
+  --m3-error-container:        0 55% 22%;
+  --m3-on-error-container:     0 90% 88%;
+
+  /* Surface roles */
+  --m3-surface:              220 30%  6%;
+  --m3-on-surface:           220 25% 90%;
+  --m3-surface-variant:      262 18% 18%;
+  --m3-on-surface-variant:   262 12% 72%;
+  --m3-surface-container:    220 20% 10%;
+  --m3-surface-container-low: 220 25%  8%;
+  --m3-surface-container-high: 220 18% 14%;
+
+  /* Outline roles */
+  --m3-outline:              220 12% 20%;
+  --m3-outline-variant:      220  8% 16%;
+
+  /* Inverse */
+  --m3-inverse-surface:      220 20% 90%;
+  --m3-inverse-on-surface:   220 30%  6%;
+  --m3-inverse-primary:      262 52% 47%;
 }
 
 @layer base {

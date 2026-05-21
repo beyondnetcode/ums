@@ -31,7 +31,8 @@ import {
   Trash2,
   X,
   Pencil,
-  Save
+  Save,
+  GitBranch,
 } from 'lucide-react';
 import { IconButton, Tooltip } from '../../shared/components/Tooltip';
 
@@ -152,6 +153,21 @@ export const TenantDashboardScreen: React.FC = () => {
   const pageSize = 9;
 
   const activeTenant = knownTenants.find((tenant) => tenant.tenantId === selectedId);
+
+  // Root tenants (parentTenantId === null) own their branding and IdP config.
+  // Child tenants inherit from the parent — hide those tabs to avoid confusion.
+  const isRootTenant = activeTenant?.parentTenantId === null;
+
+  // Tabs available depend on tenant hierarchy level
+  const consoleTabs = (
+    ['branches', 'providers', 'branding'] as Array<'branches' | 'providers' | 'branding'>
+  ).filter((tab) => tab !== 'branding' || isRootTenant);
+
+  // Parent tenant name for child tenant context display
+  const parentTenant = activeTenant?.parentTenantId
+    ? knownTenants.find((t) => t.tenantId === activeTenant.parentTenantId)
+    : null;
+
   const activateMutation = useActivateTenant(selectedId);
   const suspendMutation = useSuspendTenant(selectedId);
   const isPendingMutation = activateMutation.isPending || suspendMutation.isPending;
@@ -622,6 +638,15 @@ export const TenantDashboardScreen: React.FC = () => {
                         {activeTenant.companyReference && (
                           <p className="text-xs text-m3-secondary mt-0.5">{activeTenant.companyReference}</p>
                         )}
+                        {/* Child-tenant hierarchy badge */}
+                        {parentTenant && (
+                          <div className="flex items-center gap-1 mt-1">
+                            <GitBranch className="w-3 h-3 text-m3-tertiary flex-shrink-0" />
+                            <span className="text-[10px] text-m3-tertiary font-medium truncate">
+                              {parentTenant.name}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
@@ -692,15 +717,31 @@ export const TenantDashboardScreen: React.FC = () => {
               )}
             </M3Card>
 
+            {/* ── Child-tenant informational notice ── */}
+            {!isRootTenant && (
+              <div className="flex items-start gap-2.5 px-3.5 py-2.5 rounded-xl border border-m3-tertiary/25 bg-m3-tertiary/8 text-[11px] text-m3-on-surface-variant">
+                <GitBranch className="w-3.5 h-3.5 text-m3-tertiary flex-shrink-0 mt-0.5" />
+                <span>
+                  <span className="font-semibold text-m3-tertiary">Child tenant — </span>
+                  Branding and IdP configuration are managed by the parent organisation
+                  {parentTenant ? ` (${parentTenant.name})` : ''}.
+                </span>
+              </div>
+            )}
+
             {/* ── Tab bar ── */}
             <div className="flex border border-m3-outline/25 bg-m3-surface-container/20 rounded-xl p-1 select-none">
-              {(['branches', 'providers', 'branding'] as const).map((tab) => {
-                const icons = {
+              {consoleTabs.map((tab) => {
+                const icons: Record<typeof tab, React.ReactNode> = {
                   branches: <MapPin className="w-3.5 h-3.5" />,
                   providers: <Key className="w-3.5 h-3.5" />,
                   branding: <Palette className="w-3.5 h-3.5" />,
                 };
-                const labels = { branches: t.tabLocations, providers: t.tabAuthIdps, branding: t.tabBranding };
+                const labels: Record<typeof tab, string> = {
+                  branches: t.tabLocations,
+                  providers: t.tabAuthIdps,
+                  branding: t.tabBranding,
+                };
                 return (
                   <button
                     key={tab}
@@ -852,8 +893,8 @@ export const TenantDashboardScreen: React.FC = () => {
                 </div>
               )}
 
-              {/* ── Branding tab ── */}
-              {activeConsoleTab === 'branding' && (
+              {/* ── Branding tab — root tenants only ── */}
+              {activeConsoleTab === 'branding' && isRootTenant && (
                 <div className="space-y-4">
                   <div className="flex justify-between items-center border-b border-m3-outline/10 pb-3">
                     <div>
