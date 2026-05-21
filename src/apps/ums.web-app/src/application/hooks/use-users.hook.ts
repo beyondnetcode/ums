@@ -1,7 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3000/api';
+// Relative URL — Vite proxy forwards /api → http://localhost:5293 in dev
+// Docker sets VITE_API_URL=http://ums-api:8080 via docker-compose.override.yml
+const API_URL = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api';
+
+// DEV AUTH HEADER — mirrors DevAuthMiddleware default identity on the .NET API
+if (import.meta.env.DEV) {
+  axios.defaults.headers.common['X-User-Id'] = 'dev-user';
+  axios.defaults.headers.common['X-User-Name'] = 'Developer';
+}
 
 export interface User {
   id: string;
