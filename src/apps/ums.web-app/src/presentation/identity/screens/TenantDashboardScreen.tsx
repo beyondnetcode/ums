@@ -213,10 +213,12 @@ export const TenantDashboardScreen: React.FC = () => {
     setShowDiscardDialog(false);
   };
 
-  // Auto-select first tenant when the list first loads
+  // Auto-select on first load — prefer a root tenant so all tabs are visible.
   useEffect(() => {
     if (!selectedId && apiTenants.length > 0) {
-      applyTenantSelection(apiTenants[0].tenantId);
+      const first =
+        apiTenants.find((t) => t.parentTenantId === null) ?? apiTenants[0];
+      applyTenantSelection(first.tenantId);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apiTenants]);
