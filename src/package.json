@@ -17,7 +17,7 @@
                             "@commitlint/cli":  "20.5.3",
                             "@commitlint/config-conventional":  "20.5.3",
                             "@nx/js":  "22.7.1",
-                            "ctx7":  "^0.4.2",
+                            "ctx7":  "0.4.2",
                             "eslint-plugin-sonarjs":  "4.0.3",
                             "nx":  "22.7.1",
                             "typescript":  "5.4.5"

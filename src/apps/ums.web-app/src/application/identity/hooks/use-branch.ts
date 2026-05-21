@@ -1,8 +1,11 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import tenantService from '../../../infrastructure/identity/services/tenant.service';
-import { useNotificationStore } from '../../stores/notification.store';
-import { useI18n } from '../../i18n/use-i18n';
-import { AddBranchPayload, Branch } from '../../../domain/identity/models/branch.model';
+import { useQuery } from '@tanstack/react-query';
+import tenantService from '@infra/identity/services/tenant.service';
+import { useNotifiedMutation } from '@app/hooks/use-notified-mutation';
+import { useI18n } from '@app/i18n/use-i18n';
+import { AddBranchPayload, Branch } from '@domain/identity/models/branch.model';
+import { getHttpStatus } from '@app/errors/http-error';
+
+// ─── Query ──────────────────────────────────────────────────────────────────
 
 export const useGetBranches = (tenantId: string | null) => {
   return useQuery<Branch[]>({
@@ -11,117 +14,83 @@ export const useGetBranches = (tenantId: string | null) => {
       if (!tenantId) throw new Error('Tenant ID required');
       try {
         return await tenantService.getBranches(tenantId);
-      } catch (err: any) {
-        if (err?.response?.status === 404) {
-          return [];
-        }
+      } catch (err: unknown) {
+        if (getHttpStatus(err) === 404) return [];
         throw err;
       }
     },
     enabled: !!tenantId,
-    retry: (failureCount, error: any) => {
-      if (error?.response?.status === 404) return false;
+    retry: (failureCount, error: unknown) => {
+      if (getHttpStatus(error) === 404) return false;
       return failureCount < 1;
     },
   });
 };
 
-export const useAddBranch = (tenantId: string) => {
-  const queryClient = useQueryClient();
-  const addNotification = useNotificationStore((state) => state.addNotification);
-  const t = useI18n();
+// ─── Mutations ──────────────────────────────────────────────────────────────
 
-  return useMutation({
+export const useAddBranch = (tenantId: string) => {
+  const t = useI18n();
+  return useNotifiedMutation({
     mutationFn: (payload: AddBranchPayload) => tenantService.addBranch(tenantId, payload),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['tenants', tenantId, 'branches'] });
-      addNotification({
-        title: t.notifBranchAdded,
-        message: t.notifBranchAddedMsg(data.code),
-        type: 'success',
-      });
-    },
-    onError: (error: any) => {
-      addNotification({
-        title: t.notifBranchAdded,
-        message: error.response?.data?.detail || error.message || t.notifBranchAdded,
-        type: 'error',
-      });
-    },
+    invalidateKeys: [['tenants', tenantId, 'branches']],
+    successNotif: (data) => ({
+      title: t.notifBranchAdded,
+      message: t.notifBranchAddedMsg(data.code),
+    }),
+    errorNotif: () => ({
+      title: t.notifBranchAdded,
+      message: t.notifBranchAdded,
+    }),
   });
 };
 
 export const useRemoveBranch = (tenantId: string) => {
-  const queryClient = useQueryClient();
-  const addNotification = useNotificationStore((state) => state.addNotification);
   const t = useI18n();
-
-  return useMutation({
+  return useNotifiedMutation({
     mutationFn: (branchId: string) => tenantService.removeBranch(tenantId, branchId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tenants', tenantId, 'branches'] });
-      addNotification({
-        title: t.notifBranchRemoved,
-        message: t.notifBranchRemovedMsg,
-        type: 'warning',
-      });
-    },
-    onError: (error: any) => {
-      addNotification({
-        title: t.notifBranchRemoved,
-        message: error.response?.data?.detail || error.message || t.notifBranchRemovedMsg,
-        type: 'error',
-      });
-    },
+    invalidateKeys: [['tenants', tenantId, 'branches']],
+    successNotif: () => ({
+      title: t.notifBranchRemoved,
+      message: t.notifBranchRemovedMsg,
+      type: 'warning' as const,
+    }),
+    errorNotif: () => ({
+      title: t.notifBranchRemoved,
+      message: t.notifBranchRemovedMsg,
+    }),
   });
 };
 
 export const useDeactivateBranch = (tenantId: string) => {
-  const queryClient = useQueryClient();
-  const addNotification = useNotificationStore((state) => state.addNotification);
   const t = useI18n();
-
-  return useMutation({
+  return useNotifiedMutation({
     mutationFn: (branchId: string) => tenantService.deactivateBranch(tenantId, branchId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tenants', tenantId, 'branches'] });
-      addNotification({
-        title: t.notifBranchDeactivated,
-        message: t.notifBranchDeactivatedMsg,
-        type: 'info',
-      });
-    },
-    onError: (error: any) => {
-      addNotification({
-        title: t.notifBranchDeactivated,
-        message: error.response?.data?.detail || error.message || t.notifBranchDeactivatedMsg,
-        type: 'error',
-      });
-    },
+    invalidateKeys: [['tenants', tenantId, 'branches']],
+    successNotif: () => ({
+      title: t.notifBranchDeactivated,
+      message: t.notifBranchDeactivatedMsg,
+      type: 'info' as const,
+    }),
+    errorNotif: () => ({
+      title: t.notifBranchDeactivated,
+      message: t.notifBranchDeactivatedMsg,
+    }),
   });
 };
 
 export const useReactivateBranch = (tenantId: string) => {
-  const queryClient = useQueryClient();
-  const addNotification = useNotificationStore((state) => state.addNotification);
   const t = useI18n();
-
-  return useMutation({
+  return useNotifiedMutation({
     mutationFn: (branchId: string) => tenantService.reactivateBranch(tenantId, branchId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tenants', tenantId, 'branches'] });
-      addNotification({
-        title: t.notifBranchReactivated,
-        message: t.notifBranchReactivatedMsg,
-        type: 'success',
-      });
-    },
-    onError: (error: any) => {
-      addNotification({
-        title: t.notifBranchReactivated,
-        message: error.response?.data?.detail || error.message || t.notifBranchReactivatedMsg,
-        type: 'error',
-      });
-    },
+    invalidateKeys: [['tenants', tenantId, 'branches']],
+    successNotif: () => ({
+      title: t.notifBranchReactivated,
+      message: t.notifBranchReactivatedMsg,
+    }),
+    errorNotif: () => ({
+      title: t.notifBranchReactivated,
+      message: t.notifBranchReactivatedMsg,
+    }),
   });
 };

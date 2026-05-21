@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useId } from 'react';
 import { ChevronDown } from 'lucide-react';
 
 interface M3SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   label: string;
   error?: string;
   helperText?: string;
+  /** compact – 48 dp height instead of standard 56 dp */
+  compact?: boolean;
 }
 
 /**
@@ -24,6 +26,7 @@ export const M3Select: React.FC<M3SelectProps> = ({
   label,
   error,
   helperText,
+  compact = false,
   className = '',
   id,
   children,
@@ -31,8 +34,10 @@ export const M3Select: React.FC<M3SelectProps> = ({
   onBlur: extOnBlur,
   ...props
 }) => {
-  const selectId = id || `m3-sel-${label.toLowerCase().replace(/\W+/g, '-')}`;
+  const autoId = useId();
+  const selectId = id || autoId;
   const hasMbClass = /\bmb-/.test(className);
+  const defaultMb = compact ? 'mb-3' : 'mb-4';
 
   const [focused, setFocused] = useState(false);
 
@@ -51,14 +56,14 @@ export const M3Select: React.FC<M3SelectProps> = ({
     : 'text-m3-secondary';
 
   return (
-    <div className={`relative w-full ${hasMbClass ? '' : 'mb-4'} ${className}`}>
+    <div className={`relative w-full ${hasMbClass ? '' : defaultMb} ${className}`}>
       {/*
         Selects always show a value, so the label is always floated.
         The notch is always open (max-width: 1000px).
       */}
       <fieldset
         className={[
-          'relative w-full h-14 m-0 p-0 min-w-0 rounded-[4px]',
+          `relative w-full ${compact ? 'h-12' : 'h-14'} m-0 p-0 min-w-0 rounded-[4px]`,
           'bg-m3-surface-container/30 dark:bg-m3-surface-container/20',
           'transition-colors duration-150',
           borderClass,
@@ -79,7 +84,7 @@ export const M3Select: React.FC<M3SelectProps> = ({
           onBlur={(e)  => { setFocused(false); extOnBlur?.(e); }}
           className={[
             'absolute inset-0 w-full h-full bg-transparent rounded-[4px]',
-            'pl-4 pr-10 pt-5 pb-2 text-sm text-m3-on-surface',
+            `pl-4 pr-10 ${compact ? 'pt-4 pb-1' : 'pt-5 pb-2'} text-sm text-m3-on-surface`,
             'focus:outline-none appearance-none cursor-pointer',
             'disabled:opacity-50 disabled:cursor-not-allowed',
           ].join(' ')}

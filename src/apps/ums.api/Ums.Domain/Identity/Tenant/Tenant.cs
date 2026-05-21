@@ -49,11 +49,12 @@ public sealed class Tenant : AggregateRoot<Tenant, TenantProps>
         ActorId createdBy,
         IdpStrategy idpStrategy = null!,
         CompanyReference? companyReference = null,
-        TenantId? parentTenantId = null)
+        TenantId? parentTenantId = null,
+        TenantId? tenantId = null)
     {
         idpStrategy ??= IdpStrategy.InternalBcrypt;
 
-        var id = IdValueObject.Create();
+        var id = tenantId ?? IdValueObject.Create();
         var props = new TenantProps(id, code, name, type, idpStrategy, companyReference, parentTenantId, createdBy);
 
         var tenant = new Tenant(props);

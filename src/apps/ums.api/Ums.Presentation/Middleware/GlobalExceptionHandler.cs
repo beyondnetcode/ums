@@ -80,7 +80,7 @@ public sealed class GlobalExceptionHandler
     private string GetErrorTitle(Exception exception) => exception switch
     {
         UnauthorizedAccessException => "Unauthorized",
-        KeyNotFoundException => "Not Found",
+        System.Collections.Generic.KeyNotFoundException => "Not Found",
         InvalidOperationException => "Invalid Operation",
         ArgumentException => "Bad Request",
         _ => "Internal Server Error",
@@ -89,7 +89,7 @@ public sealed class GlobalExceptionHandler
     private string GetErrorDetail(Exception exception) => exception switch
     {
         UnauthorizedAccessException => "The request requires valid authentication credentials.",
-        KeyNotFoundException => "The requested resource was not found.",
+        System.Collections.Generic.KeyNotFoundException => "The requested resource was not found.",
         InvalidOperationException => exception.Message,
         ArgumentException => exception.Message,
         _ => "An unexpected error occurred. Please try again later.",
@@ -98,7 +98,7 @@ public sealed class GlobalExceptionHandler
     private int GetStatusCode(Exception exception) => exception switch
     {
         UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
-        KeyNotFoundException => StatusCodes.Status404NotFound,
+        System.Collections.Generic.KeyNotFoundException => StatusCodes.Status404NotFound,
         InvalidOperationException => StatusCodes.Status400BadRequest,
         ArgumentException => StatusCodes.Status400BadRequest,
         _ => StatusCodes.Status500InternalServerError,

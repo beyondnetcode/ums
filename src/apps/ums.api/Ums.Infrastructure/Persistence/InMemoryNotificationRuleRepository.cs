@@ -1,0 +1,31 @@
+namespace Ums.Infrastructure.Persistence;
+
+using System.Collections.Concurrent;
+using Ums.Domain.Approvals;
+using Ums.Domain.Kernel;
+using NotificationRuleAggregate = Ums.Domain.Approvals.NotificationRule.NotificationRule;
+
+public sealed class InMemoryNotificationRuleRepository : INotificationRuleRepository, IUnitOfWork
+{
+    private readonly ConcurrentDictionary<Guid, NotificationRuleAggregate> _store = new();
+    public IUnitOfWork UnitOfWork => this;
+
+    public Task<NotificationRuleAggregate?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    { _store.TryGetValue(id, out var e); e?.BrokenRules.Clear(); return Task.FromResult(e); }
+
+    public Task<NotificationRuleAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
+        => GetByIdAsync(id, cancellationToken);
+
+    public Task<IReadOnlyList<NotificationRuleAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+    { var all = _store.Values.ToList(); all.ForEach(e => e.BrokenRules.Clear()); return Task.FromResult<IReadOnlyList<NotificationRuleAggregate>>(all); }
+
+    public Task<IReadOnlyList<NotificationRuleAggregate>> GetByTenantIdAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    { var f = _store.Values.Where(e => e.Props.TenantId.GetValue() == tenantId).ToList(); f.ForEach(e => e.BrokenRules.Clear()); return Task.FromResult<IReadOnlyList<NotificationRuleAggregate>>(f); }
+
+    public Task AddAsync(NotificationRuleAggregate a, CancellationToken c = default) { _store[a.Props.Id.GetValue()] = a; return Task.CompletedTask; }
+    public Task UpdateAsync(NotificationRuleAggregate a, CancellationToken c = default) { _store[a.Props.Id.GetValue()] = a; return Task.CompletedTask; }
+    public Task<int> SaveChangesAsync(CancellationToken c = default) => Task.FromResult(1);
+    public Task<bool> SaveEntitiesAsync(CancellationToken c = default) => Task.FromResult(true);
+    public void Seed(NotificationRuleAggregate a) => _store[a.Props.Id.GetValue()] = a;
+    public void Dispose() { }
+}

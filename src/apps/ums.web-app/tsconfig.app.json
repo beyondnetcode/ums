@@ -21,7 +21,17 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+
+    /* Path aliases — use @app/, @domain/, @infra/, @presentation/ */
+    "baseUrl": ".",
+    "paths": {
+      "@app/*":          ["src/application/*"],
+      "@domain/*":       ["src/domain/*"],
+      "@infra/*":        ["src/infrastructure/*"],
+      "@presentation/*": ["src/presentation/*"],
+      "@shared/*":       ["src/presentation/shared/*"]
+    }
   },
   "include": ["src"]
 }

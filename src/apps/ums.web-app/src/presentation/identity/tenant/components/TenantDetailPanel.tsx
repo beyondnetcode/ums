@@ -1,0 +1,105 @@
+import React from 'react';
+import { MapPin, Key, Palette, GitBranch } from 'lucide-react';
+import { Tenant } from '@domain/identity/models/tenant.model';
+import { DetailPanelShell, DetailTab } from '@shared/components/DetailPanelShell';
+import { BranchManager } from './BranchManager';
+import { BrandingPanel } from './BrandingPanel';
+import { IdpPanel } from './IdpPanel';
+import { TenantProfileCard } from './TenantProfileCard';
+import { useI18n } from '@app/i18n/use-i18n';
+
+export type ConsoleTab = 'branches' | 'providers' | 'branding';
+
+interface TenantDetailPanelProps {
+  selectedId: string;
+  activeTenant: Tenant | undefined;
+  parentTenant: Tenant | null;
+  isRootTenant: boolean;
+  isLoading: boolean;
+  activeConsoleTab: ConsoleTab;
+  consoleTabs: ConsoleTab[];
+  onConsoleTabChange: (tab: ConsoleTab) => void;
+  onTenantUpdate: (tenantId: string, patch: Partial<Tenant>) => void;
+  onTenantEditingChange: (isEditing: boolean) => void;
+}
+
+export const TenantDetailPanel: React.FC<TenantDetailPanelProps> = ({
+  selectedId,
+  activeTenant,
+  parentTenant,
+  isRootTenant,
+  isLoading,
+  activeConsoleTab,
+  consoleTabs,
+  onConsoleTabChange,
+  onTenantUpdate,
+  onTenantEditingChange,
+}) => {
+  const t = useI18n();
+
+  const icons: Record<ConsoleTab, React.ReactNode> = {
+    branches: <MapPin className="w-3.5 h-3.5" />,
+    providers: <Key className="w-3.5 h-3.5" />,
+    branding: <Palette className="w-3.5 h-3.5" />,
+  };
+
+  const labels: Record<ConsoleTab, string> = {
+    branches: t.tabLocations,
+    providers: t.tabAuthIdps,
+    branding: t.tabBranding,
+  };
+
+  const tabs: DetailTab<ConsoleTab>[] = consoleTabs.map((tab) => ({
+    key: tab,
+    label: labels[tab],
+    icon: icons[tab],
+  }));
+
+  const banner = !isRootTenant ? (
+    <div className="flex items-start gap-2.5 px-3.5 py-2.5 rounded-xl border border-m3-tertiary/25 bg-m3-tertiary/10 text-[11px] text-m3-on-surface-variant">
+      <GitBranch className="w-3.5 h-3.5 text-m3-tertiary flex-shrink-0 mt-0.5" />
+      <span>
+        <span className="font-semibold text-m3-tertiary">Child tenant - </span>
+        Branding and IdP configuration are managed by the parent organisation
+        {parentTenant ? ` (${parentTenant.name})` : ''}.
+      </span>
+    </div>
+  ) : undefined;
+
+  return (
+    <DetailPanelShell<ConsoleTab>
+      isLoading={isLoading}
+      isEmpty={!activeTenant}
+      loadingLabel={t.loadingProfile}
+      emptyLabel={t.selectTenant}
+      entityKey={selectedId}
+      tabs={tabs}
+      activeTab={activeConsoleTab}
+      onTabChange={onConsoleTabChange}
+      header={
+        activeTenant ? (
+          <TenantProfileCard
+            tenant={activeTenant}
+            parentTenant={parentTenant}
+            onTenantUpdate={onTenantUpdate}
+            onEditingChange={onTenantEditingChange}
+          />
+        ) : undefined
+      }
+      banner={banner}
+    >
+      {activeConsoleTab === 'branches' && activeTenant && (
+        <BranchManager tenantId={activeTenant.tenantId} />
+      )}
+
+      {activeConsoleTab === 'providers' && activeTenant && (
+        <IdpPanel tenantId={activeTenant.tenantId} />
+      )}
+
+      {activeConsoleTab === 'branding' && isRootTenant && activeTenant && (
+        <BrandingPanel tenantId={activeTenant.tenantId} isRootTenant={isRootTenant} />
+      )}
+    </DetailPanelShell>
+  );
+};
+

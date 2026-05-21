@@ -1,5 +1,6 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
+import path from 'path'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
@@ -7,10 +8,24 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
+    resolve: {
+      alias: {
+        '@app':          path.resolve(__dirname, 'src/application'),
+        '@domain':       path.resolve(__dirname, 'src/domain'),
+        '@infra':        path.resolve(__dirname, 'src/infrastructure'),
+        '@presentation': path.resolve(__dirname, 'src/presentation'),
+        '@shared':       path.resolve(__dirname, 'src/presentation/shared'),
+      },
+    },
     server: {
       port: 5173,
       proxy: {
         '/api': {
+          target: apiUrl,
+          changeOrigin: true,
+          secure: false,
+        },
+        '/graphql': {
           target: apiUrl,
           changeOrigin: true,
           secure: false,

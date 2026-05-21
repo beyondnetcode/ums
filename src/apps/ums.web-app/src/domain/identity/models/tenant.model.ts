@@ -1,24 +1,13 @@
-export type TenantStatus = 'Active' | 'Suspended' | 'Pending';
-
-export interface Tenant {
-  tenantId: string;
-  code: string;
-  name: string;
-  type: string;
-  status: TenantStatus;
-  parentTenantId: string | null;
-  companyReference: string | null;
-}
-
-export interface CreateTenantPayload {
-  code: string;
-  name: string;
-  type: string;
-  companyReference?: string;
-}
-
-export interface CreateTenantResponse {
-  tenantId: string;
-  code: string;
-  name: string;
-}
+/**
+ * tenant.model.ts
+ *
+ * Re-exports types from the Zod schema (single source of truth).
+ * The schema file owns both the runtime validator and the inferred TS types.
+ */
+export type {
+  Tenant,
+  TenantPage,
+  TenantStatus,
+  CreateTenantPayload,
+  CreateTenantResponse,
+} from '../schemas/tenant.schema';

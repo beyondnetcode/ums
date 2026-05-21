@@ -12,7 +12,34 @@ using Ums.Infrastructure;
 using Ums.Infrastructure.Persistence;
 using Ums.Presentation.Endpoints.Identity.Tenant;
 using Ums.Presentation.Endpoints.Identity.Tenant.Queries;
+using Ums.Presentation.Endpoints.Identity.UserAccount;
+using Ums.Presentation.Endpoints.Identity.UserAccount.Queries;
+using Ums.Presentation.Endpoints.Authorization.Profile;
+using Ums.Presentation.Endpoints.Authorization.Profile.Queries;
+using Ums.Presentation.Endpoints.Authorization.SystemSuite;
+using Ums.Presentation.Endpoints.Authorization.SystemSuite.Queries;
+using Ums.Presentation.Endpoints.Authorization.Template;
+using Ums.Presentation.Endpoints.Authorization.Template.Queries;
+using Ums.Presentation.Endpoints.Audit.AuditRecord;
+using Ums.Presentation.Endpoints.Audit.AuditRecord.Queries;
+using Ums.Presentation.Endpoints.Approvals.ApprovalWorkflow;
+using Ums.Presentation.Endpoints.Approvals.ApprovalWorkflow.Queries;
+using Ums.Presentation.Endpoints.Approvals.ApprovalRequest;
+using Ums.Presentation.Endpoints.Approvals.ApprovalRequest.Queries;
+using Ums.Presentation.Endpoints.Approvals.DocumentType;
+using Ums.Presentation.Endpoints.Approvals.DocumentType.Queries;
+using Ums.Presentation.Endpoints.Approvals.UserDocument;
+using Ums.Presentation.Endpoints.Approvals.UserDocument.Queries;
+using Ums.Presentation.Endpoints.Approvals.AccessEnforcementPolicy;
+using Ums.Presentation.Endpoints.Approvals.AccessEnforcementPolicy.Queries;
+using Ums.Presentation.Endpoints.Approvals.NotificationRule;
+using Ums.Presentation.Endpoints.Approvals.NotificationRule.Queries;
+using Ums.Presentation.Endpoints.IGA.PromotionRequest;
+using Ums.Presentation.Endpoints.IGA.PromotionRequest.Queries;
+using Ums.Presentation.Endpoints.IGA.RoleMaturityStatus;
+using Ums.Presentation.Endpoints.IGA.RoleMaturityStatus.Queries;
 using Ums.Presentation.Extensions;
+using Ums.Presentation.GraphQL;
 using Ums.Presentation.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +49,7 @@ ConfigureSecrets(builder);
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddScoped<ILocalizationService, LocalizationService>();
+builder.Services.AddUmsGraphQl();
 
 builder.Services.AddApiVersioning(options =>
 {
@@ -37,6 +65,20 @@ var windowMinutes = rateLimit.GetValue<int>("WindowMinutes", 1);
 
 builder.Services.AddRateLimiter(options =>
 {
+    options.AddPolicy("graphql", context =>
+    {
+        var clientIp = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: $"graphql:{clientIp}",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = Math.Max(1, permitLimit / 2),
+                Window = TimeSpan.FromMinutes(windowMinutes),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0,
+            });
+    });
+
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
     {
         var clientIp = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
@@ -148,6 +190,10 @@ app.UseCulture();
 app.UseDevAuth();
 app.UseHttpsRedirection();
 
+app.MapGraphQL("/graphql")
+    .WithTags("GraphQL - Queries")
+    .RequireRateLimiting("graphql");
+
 app.MapGet("/health", () => Results.Ok(new
 {
     Status = "Healthy",
@@ -162,11 +208,42 @@ versionedGroup.MapTenantEndpoints();
 versionedGroup.MapTenantBranchEndpoints();
 versionedGroup.MapTenantIdentityProviderEndpoints();
 versionedGroup.MapTenantBrandingEndpoints();
+versionedGroup.MapUserAccountEndpoints();
+
+versionedGroup.MapProfileEndpoints();
+
+versionedGroup.MapSystemSuiteEndpoints();
+
+versionedGroup.MapPermissionTemplateEndpoints();
+
+versionedGroup.MapAuditRecordEndpoints();
+
+versionedGroup.MapApprovalWorkflowEndpoints();
+versionedGroup.MapApprovalRequestEndpoints();
+versionedGroup.MapDocumentTypeEndpoints();
+versionedGroup.MapUserDocumentEndpoints();
+versionedGroup.MapAccessEnforcementPolicyEndpoints();
+versionedGroup.MapNotificationRuleEndpoints();
+versionedGroup.MapPromotionRequestEndpoints();
+versionedGroup.MapRoleMaturityStatusEndpoints();
 
 versionedGroup.MapTenantQueryEndpoints();
 versionedGroup.MapBranchQueryEndpoints();
 versionedGroup.MapBrandingQueryEndpoints();
 versionedGroup.MapIdentityProviderQueryEndpoints();
+versionedGroup.MapUserAccountQueryEndpoints();
+versionedGroup.MapProfileQueryEndpoints();
+versionedGroup.MapSystemSuiteQueryEndpoints();
+versionedGroup.MapPermissionTemplateQueryEndpoints();
+versionedGroup.MapAuditRecordQueryEndpoints();
+versionedGroup.MapApprovalWorkflowQueryEndpoints();
+versionedGroup.MapApprovalRequestQueryEndpoints();
+versionedGroup.MapDocumentTypeQueryEndpoints();
+versionedGroup.MapUserDocumentQueryEndpoints();
+versionedGroup.MapAccessEnforcementPolicyQueryEndpoints();
+versionedGroup.MapNotificationRuleQueryEndpoints();
+versionedGroup.MapPromotionRequestQueryEndpoints();
+versionedGroup.MapRoleMaturityStatusQueryEndpoints();
 
 app.Run();
 

@@ -1,0 +1,222 @@
+import React, { useEffect, useCallback } from 'react';
+import { useI18n } from '@app/i18n/use-i18n';
+import { useInlineEdit } from '@app/hooks/use-inline-edit';
+import { useResetOnChange } from '@app/hooks/use-reset-on-change';
+import { useNotificationStore } from '@app/stores/notification.store';
+import { idpService } from '@infra/identity/services/idp.service';
+import type { IdentityProvider } from '@domain/identity/schemas/identity-provider.schema';
+import { M3Button } from '@shared/components/M3Button';
+import { M3TextField } from '@shared/components/M3TextField';
+import { M3Select } from '@shared/components/M3Select';
+import { EntityRow } from '@shared/components/EntityRow';
+import { InlineAddForm } from '@shared/components/InlineAddForm';
+import { EmptyState } from '@shared/components/EmptyState';
+import { SectionHeader } from '@shared/components/SectionHeader';
+import { CodeBadge } from '@shared/components/CodeBadge';
+import { IconButton, Tooltip } from '@shared/components/Tooltip';
+import { Key, Pencil, Save, Check, Trash2, X } from 'lucide-react';
+import { IDP_STRATEGIES } from '@domain/identity/constants/idp.constants';
+import type { IdpStrategy } from '@domain/identity/constants/idp.constants';
+
+interface IdpDraft {
+  name: string;
+  code: string;
+  description: string;
+  strategy: string;
+}
+
+interface IdpPanelProps {
+  tenantId: string;
+}
+
+export const IdpPanel: React.FC<IdpPanelProps> = ({ tenantId }) => {
+  const t = useI18n();
+  const addNotification = useNotificationStore((s) => s.addNotification);
+
+  const [providers, setProviders] = React.useState<IdentityProvider[]>([]);
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const edit = useInlineEdit<IdpDraft>(['name', 'code', 'description', 'strategy']);
+
+  const [isAddingProvider, setIsAddingProvider] = React.useState(false);
+  const [provName, setProvName] = React.useState('');
+  const [provCode, setProvCode] = React.useState('');
+  const [provDescription, setProvDescription] = React.useState('');
+  const [provStrategy, setProvStrategy] = React.useState<IdpStrategy>('OIDC');
+
+  useResetOnChange(tenantId, () => {
+    setIsAddingProvider(false);
+    setProvName(''); setProvCode(''); setProvDescription('');
+    edit.cancelEdit();
+  });
+
+  const loadProviders = useCallback(async () => {
+    if (!tenantId) return;
+    setIsLoading(true);
+    try {
+      const data = await idpService.getByIdentityProviders(tenantId);
+      setProviders(data);
+    } catch {
+      addNotification({ title: t.error, message: t.notifIdpLoadFailed, type: 'error' });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [tenantId, addNotification, t]);
+
+  useEffect(() => { loadProviders(); }, [loadProviders]);
+
+  const strategyLabels: Record<string, string> = {
+    OIDC: t.strategyOIDC,
+    SAML2: t.strategySAML2,
+    OAuth2: t.strategyOAuth2,
+  };
+
+  const saveProviderEdit = async () => {
+    const result = edit.commitEdit();
+    if (!result || !result.draft.name?.trim()) return;
+    addNotification({ title: t.notifProviderUpdated, message: t.notifProviderUpdatedMsg(result.draft.name!.trim()), type: 'success' });
+    await loadProviders();
+  };
+
+  const handleAddProvider = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!provName.trim()) return;
+    try {
+      await idpService.registerIdentityProvider(tenantId, {
+        name: provName.trim(),
+        code: provCode.trim().toUpperCase() || provName.trim().toUpperCase().replace(/\s+/g, '_').substring(0, 20),
+        description: provDescription.trim(),
+        strategy: provStrategy,
+      });
+      setProvName(''); setProvCode(''); setProvDescription(''); setIsAddingProvider(false);
+      addNotification({ title: t.notifProviderAdded, message: t.notifProviderAddedMsg(provName.trim(), provStrategy), type: 'success' });
+      await loadProviders();
+    } catch {
+      addNotification({ title: t.error, message: t.notifIdpRegisterFailed, type: 'error' });
+    }
+  };
+
+  const handleToggleProvider = async (provider: IdentityProvider) => {
+    try {
+      if (provider.isActive) {
+        await idpService.deactivateIdentityProvider(tenantId, provider.identityProviderId);
+      } else {
+        await idpService.activateIdentityProvider(tenantId, provider.identityProviderId);
+      }
+      addNotification({ title: t.notifProviderModified, message: t.notifProviderModifiedMsg, type: 'info' });
+      await loadProviders();
+    } catch {
+      addNotification({ title: t.error, message: t.notifIdpToggleFailed, type: 'error' });
+    }
+  };
+
+  const handleRemoveProvider = async (providerId: string) => {
+    try {
+      await idpService.removeIdentityProvider(tenantId, providerId);
+      addNotification({ title: t.notifProviderRemoved, message: t.notifProviderRemovedMsg, type: 'warning' });
+      await loadProviders();
+    } catch {
+      addNotification({ title: t.error, message: t.notifIdpRemoveFailed, type: 'error' });
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <SectionHeader title={t.identityProviders} subtitle={t.idpSubtitle} />
+
+      <InlineAddForm
+        isOpen={isAddingProvider}
+        onToggle={setIsAddingProvider}
+        onSubmit={handleAddProvider}
+        addLabel={t.addProvider}
+        title={t.newProvider}
+        cancelLabel={t.cancelEdit}
+        submitLabel={t.saveProvider}
+      >
+        <M3TextField label={t.providerName} required value={provName} onChange={(e) => setProvName(e.target.value)} placeholder="e.g. Okta SSO" />
+        <M3TextField label={t.providerCode} value={provCode} onChange={(e) => setProvCode(e.target.value.toUpperCase())} placeholder="e.g. OKTA_SSO" />
+        <M3Select label={t.protocolType} value={provStrategy} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setProvStrategy(e.target.value as IdpStrategy)}>
+          {IDP_STRATEGIES.map((s) => <option key={s} value={s}>{strategyLabels[s]}</option>)}
+        </M3Select>
+        <M3TextField label={t.providerDescription} value={provDescription} onChange={(e) => setProvDescription(e.target.value)} placeholder="e.g. https://login.microsoftonline.com/tenant-id" />
+      </InlineAddForm>
+
+      <div className="space-y-2.5">
+        {isLoading ? (
+          <div className="py-8 text-center text-sm text-m3-secondary">{t.loading}</div>
+        ) : providers.length === 0 ? (
+          <EmptyState icon={<Key className="w-5 h-5 text-m3-outline" />} message={t.noIdps} />
+        ) : (
+          providers.map((p) =>
+            edit.isEditing(p.identityProviderId) ? (
+              <div key={p.identityProviderId} className="p-4 rounded-xl border border-m3-primary/30 bg-m3-surface-container/50 space-y-0 animate-fadeIn">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-sm font-medium text-m3-primary flex items-center gap-1.5">
+                    <Pencil className="w-3.5 h-3.5" /> {t.editProvider}
+                  </span>
+                  <IconButton tooltip={t.cancelEdit} onClick={edit.cancelEdit}>
+                    <X className="w-3.5 h-3.5" />
+                  </IconButton>
+                </div>
+                <M3TextField label={t.providerName} required value={edit.draft.name ?? ''} onChange={(e) => edit.setField('name', e.target.value)} />
+                <M3TextField label={t.providerCode} value={edit.draft.code ?? ''} onChange={(e) => edit.setField('code', e.target.value.toUpperCase())} />
+                <M3Select label={t.protocolType} value={edit.draft.strategy ?? 'OIDC'} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => edit.setField('strategy', e.target.value)}>
+                  <option value="OIDC">{t.strategyOIDC}</option>
+                  <option value="SAML2">{t.strategySAML2}</option>
+                  <option value="OAuth2">{t.strategyOAuth2}</option>
+                </M3Select>
+                <M3TextField label={t.providerDescription} value={edit.draft.description ?? ''} onChange={(e) => edit.setField('description', e.target.value)} />
+                <div className="flex gap-2 pt-1">
+                  <M3Button variant="filled" onClick={saveProviderEdit} className="flex-1 flex items-center justify-center gap-1.5">
+                    <Save className="w-3.5 h-3.5" /> {t.saveBtn}
+                  </M3Button>
+                  <M3Button variant="outlined" onClick={edit.cancelEdit} className="flex-1">
+                    {t.cancelEdit}
+                  </M3Button>
+                </div>
+              </div>
+            ) : (
+              <EntityRow
+                key={p.identityProviderId}
+                id={p.identityProviderId}
+                isActive={p.isActive}
+                onDoubleClick={() => edit.openEdit(p.identityProviderId, { name: p.name, code: p.code, description: p.description, strategy: p.strategy })}
+                actions={
+                  <>
+                    <IconButton tooltip={t.editProvider} onClick={() => edit.openEdit(p.identityProviderId, { name: p.name, code: p.code, description: p.description, strategy: p.strategy })} className="opacity-0 group-hover/row:opacity-100">
+                      <Pencil className="w-3.5 h-3.5" />
+                    </IconButton>
+                    <Tooltip content={p.isActive ? t.deactivate : t.reactivate}>
+                      <button
+                        onClick={() => handleToggleProvider(p)}
+                        className={`p-1.5 rounded-full transition-all border ${
+                          p.isActive
+                            ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/20'
+                            : 'bg-rose-500/10 border-rose-500/20 text-rose-500 hover:bg-rose-500/20'
+                        }`}
+                      >
+                        <Check className="w-3.5 h-3.5" />
+                      </button>
+                    </Tooltip>
+                    <IconButton tooltip={t.removeLocation} onClick={() => handleRemoveProvider(p.identityProviderId)} className="hover:text-m3-error hover:bg-m3-error/10">
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </IconButton>
+                  </>
+                }
+              >
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="font-medium text-sm text-m3-on-surface">{p.name}</span>
+                  {p.code && <CodeBadge code={p.code} size="xs" />}
+                  <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-m3-primary/10 text-m3-primary font-mono">{p.strategy}</span>
+                </div>
+                {p.description && (
+                  <p className="text-xs font-mono text-m3-secondary truncate">{p.description}</p>
+                )}
+              </EntityRow>
+            ),
+          )
+        )}
+      </div>
+    </div>
+  );
+};

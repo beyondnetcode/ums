@@ -20,21 +20,12 @@ interface NotificationState {
 }
 
 export const useNotificationStore = create<NotificationState>((set) => ({
-  notifications: [
-    {
-      id: 'init',
-      title: 'System Initialized',
-      message: 'UMS Client running in Clean Architecture mode with local emulators.',
-      type: 'info',
-      timestamp: new Date().toISOString(),
-      read: false,
-    }
-  ],
+  notifications: [],
   isOpen: false,
   addNotification: (n) => set((state) => {
     const newN: AppNotification = {
       ...n,
-      id: Math.random().toString(36).substring(2, 9),
+      id: crypto.randomUUID(),
       timestamp: new Date().toISOString(),
       read: false,
     };

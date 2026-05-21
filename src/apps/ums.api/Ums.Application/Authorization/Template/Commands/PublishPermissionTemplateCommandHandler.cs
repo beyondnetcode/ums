@@ -1,0 +1,45 @@
+using Ums.Application.Authorization.Template.DTOs;
+
+namespace Ums.Application.Authorization.Template.Commands;
+
+using Ums.Application.Common.Interfaces;
+using Ums.Domain.Authorization;
+
+public sealed class PublishPermissionTemplateCommandHandler : ICommandHandler<PublishPermissionTemplateCommand>
+{
+    private readonly IPermissionTemplateRepository _templateRepository;
+    private readonly IUserContext _userContext;
+
+    public PublishPermissionTemplateCommandHandler(
+        IPermissionTemplateRepository templateRepository,
+        IUserContext userContext)
+    {
+        _templateRepository = templateRepository;
+        _userContext = userContext;
+    }
+
+    public async Task<Result> Handle(PublishPermissionTemplateCommand request, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(_userContext.UserId))
+        {
+            return Result.Failure("Authenticated user is required to publish a template.");
+        }
+
+        var template = await _templateRepository.GetByIdAsync(request.TemplateId, cancellationToken);
+        if (template is null)
+        {
+            return Result.Failure("Template was not found.");
+        }
+
+        var result = template.Publish(ActorId.Create(_userContext.UserId));
+        if (result.IsFailure)
+        {
+            return result;
+        }
+
+        await _templateRepository.UpdateAsync(template, cancellationToken);
+        await _templateRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+
+        return Result.Success();
+    }
+}

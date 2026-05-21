@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 
 interface TooltipProps {
   content: string;
-  children: React.ReactElement;
+  children: React.ReactNode;
   placement?: 'top' | 'bottom' | 'left' | 'right';
   delay?: number;
 }
@@ -16,7 +16,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
   const [visible, setVisible] = useState(false);
   const [coords, setCoords] = useState({ top: 0, left: 0 });
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const triggerRef = useRef<HTMLElement | null>(null);
+  const triggerRef = useRef<HTMLSpanElement | null>(null);
   const tooltipRef = useRef<HTMLDivElement | null>(null);
 
   const show = () => {
@@ -50,7 +50,6 @@ export const Tooltip: React.FC<TooltipProps> = ({
       left = rect.right + gap;
     }
 
-    // Clamp to viewport
     left = Math.max(6, Math.min(left, window.innerWidth - tip.width - 6));
     top = Math.max(6, Math.min(top, window.innerHeight - tip.height - 6));
 
@@ -59,24 +58,20 @@ export const Tooltip: React.FC<TooltipProps> = ({
 
   useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); }, []);
 
-  if (!content) return children;
-
-  const child = React.cloneElement(children, {
-    ref: (el: HTMLElement) => {
-      triggerRef.current = el;
-      const originalRef = (children as any).ref;
-      if (typeof originalRef === 'function') originalRef(el);
-      else if (originalRef) originalRef.current = el;
-    },
-    onMouseEnter: (e: React.MouseEvent) => { show(); children.props.onMouseEnter?.(e); },
-    onMouseLeave: (e: React.MouseEvent) => { hide(); children.props.onMouseLeave?.(e); },
-    onFocus: (e: React.FocusEvent) => { show(); children.props.onFocus?.(e); },
-    onBlur: (e: React.FocusEvent) => { hide(); children.props.onBlur?.(e); },
-  });
+  if (!content) return <>{children}</>;
 
   return (
     <>
-      {child}
+      <span
+        ref={triggerRef}
+        onMouseEnter={show}
+        onMouseLeave={hide}
+        onFocus={show}
+        onBlur={hide}
+        className="inline-flex"
+      >
+        {children}
+      </span>
       {visible && typeof document !== 'undefined' && (
         <div
           ref={tooltipRef}

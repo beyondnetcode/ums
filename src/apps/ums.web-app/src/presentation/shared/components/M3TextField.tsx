@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useId } from 'react';
 
 interface M3TextFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
@@ -6,6 +6,11 @@ interface M3TextFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
   helperText?: string;
   icon?: React.ReactNode;
   iconPosition?: 'start' | 'end';
+  /**
+   * compact – renders a 48 dp field instead of the standard 56 dp.
+   * Use in dense settings panels or toolbars where vertical space is limited.
+   */
+  compact?: boolean;
 }
 
 /**
@@ -30,6 +35,7 @@ export const M3TextField: React.FC<M3TextFieldProps> = ({
   helperText,
   icon,
   iconPosition = 'start',
+  compact = false,
   className = '',
   id,
   ...props
@@ -44,8 +50,10 @@ export const M3TextField: React.FC<M3TextFieldProps> = ({
     ...inputProps
   } = props;
 
-  const inputId = id || `m3-tf-${label.toLowerCase().replace(/\W+/g, '-')}`;
+  const autoId = useId();
+  const inputId = id || autoId;
   const hasMbClass = /\bmb-/.test(className);
+  const defaultMb = compact ? 'mb-3' : 'mb-4';
 
   const [focused, setFocused] = useState(false);
 
@@ -72,7 +80,7 @@ export const M3TextField: React.FC<M3TextFieldProps> = ({
     : 'text-m3-secondary';
 
   return (
-    <div className={`relative w-full ${hasMbClass ? '' : 'mb-4'} ${className}`}>
+    <div className={`relative w-full ${hasMbClass ? '' : defaultMb} ${className}`}>
       {/*
         <fieldset> draws the outline; <legend> tells the browser to leave a
         transparent gap (the "notch") in the top border exactly as wide as
@@ -82,7 +90,7 @@ export const M3TextField: React.FC<M3TextFieldProps> = ({
       */}
       <fieldset
         className={[
-          'relative w-full h-14 m-0 p-0 min-w-0 rounded-[4px]',
+          `relative w-full ${compact ? 'h-12' : 'h-14'} m-0 p-0 min-w-0 rounded-[4px]`,
           'bg-m3-surface-container/30 dark:bg-m3-surface-container/20',
           'transition-colors duration-150',
           borderClass,
@@ -116,7 +124,7 @@ export const M3TextField: React.FC<M3TextFieldProps> = ({
           onBlur={(e)  => { setFocused(false); extOnBlur?.(e); }}
           className={[
             'peer absolute inset-0 w-full h-full bg-transparent rounded-[4px]',
-            'px-4 pt-5 pb-2 text-sm text-m3-on-surface',
+            `px-4 ${compact ? 'pt-4 pb-1' : 'pt-5 pb-2'} text-sm text-m3-on-surface`,
             'focus:outline-none',
             'disabled:opacity-50 disabled:cursor-not-allowed',
             icon && iconPosition === 'start' ? 'pl-10' : '',

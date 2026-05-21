@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import App from './App.tsx'
 import './index.css'
+import { useDevToolsStore } from './application/stores/devTools.store'
+import { configureRequestContext } from './infrastructure/http/request-context'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -13,10 +15,23 @@ const queryClient = new QueryClient({
   }
 })
 
-// Initialize body dark class by default for the premium look
-document.body.classList.add('dark');
+const devContextProvider = () => {
+  if (!import.meta.env.DEV) return {};
+  const { devUserId, devLanguage } = useDevToolsStore.getState();
+  return { userId: devUserId, language: devLanguage };
+};
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+configureRequestContext(devContextProvider);
+
+const rootEl = document.getElementById('root');
+if (!rootEl) {
+  throw new Error(
+    '[UMS] Root element #root not found in index.html. ' +
+    'Check that public/index.html contains <div id="root"></div>.'
+  );
+}
+
+ReactDOM.createRoot(rootEl).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <App />

@@ -136,7 +136,8 @@ public static class DevDataSeeder
             actor,
             IdpStrategy.InternalBcrypt,
             companyReference,
-            parentTenantId);
+            parentTenantId,
+            TenantId.Load(id));
 
         if (result.IsFailure) return;
 
@@ -150,6 +151,6 @@ public static class DevDataSeeder
                 actor);
         }
 
-        repository.SeedWithKnownId(id, tenant);
+        repository.Seed(tenant);
     }
 }

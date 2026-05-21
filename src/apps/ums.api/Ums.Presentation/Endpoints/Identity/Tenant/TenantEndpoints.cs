@@ -1,5 +1,6 @@
 namespace Ums.Presentation.Endpoints.Identity.Tenant;
 
+using Ums.Application.Common;
 using Ums.Application.Identity.Tenant.Commands;
 using Ums.Application.Identity.Tenant.DTOs;
 using Ums.Application.Identity.Tenant.Queries;
@@ -13,14 +14,31 @@ public static class TenantEndpoints
 
         // ── Queries ──────────────────────────────────────────────────────────
 
-        group.MapGet("/", async (IMediator mediator, HttpContext context, CancellationToken ct) =>
+        group.MapGet("/", async (
+            [FromQuery] int page,
+            [FromQuery] int pageSize,
+            [FromQuery] string? search,
+            [FromQuery] string? criteria,
+            [FromQuery] string? status,
+            [FromQuery] string? sortBy,
+            [FromQuery] string? sortOrder,
+            IMediator mediator,
+            HttpContext context,
+            CancellationToken ct) =>
         {
-            var result = await mediator.Send(new GetAllTenantsQuery(), ct);
+            var result = await mediator.Send(new GetAllTenantsQuery(
+                page <= 0 ? 1 : page,
+                pageSize <= 0 ? 20 : pageSize,
+                search,
+                string.IsNullOrWhiteSpace(criteria) ? "name" : criteria,
+                string.IsNullOrWhiteSpace(status) ? "all" : status,
+                string.IsNullOrWhiteSpace(sortBy) ? "name" : sortBy,
+                string.IsNullOrWhiteSpace(sortOrder) ? "asc" : sortOrder), ct);
             return result.ToOk(context);
         })
         .WithName("GetAllTenants")
-        .WithSummary("Get all tenants")
-        .Produces<IReadOnlyList<TenantDto>>(StatusCodes.Status200OK);
+        .WithSummary("Get tenants using server-side pagination")
+        .Produces<PagedResult<TenantDto>>(StatusCodes.Status200OK);
 
         // ── Commands ─────────────────────────────────────────────────────────
 

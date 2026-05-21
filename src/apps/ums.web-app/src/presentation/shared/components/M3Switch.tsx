@@ -15,7 +15,8 @@ export const M3Switch: React.FC<M3SwitchProps> = ({
   disabled = false,
   id,
 }) => {
-  const switchId = id || `m3-switch-${Math.random().toString(36).substring(2, 9)}`;
+  const generatedId = React.useId();
+  const switchId = id || generatedId;
 
   const handleToggle = () => {
     if (!disabled) {
@@ -40,7 +41,7 @@ export const M3Switch: React.FC<M3SwitchProps> = ({
           className={`w-5 h-5 rounded-full shadow transition-all duration-300 transform ${
             checked
               ? 'translate-x-5 bg-m3-on-primary scale-110'
-              : 'translate-x-0 bg-m3-secondary hover:bg-m3-primary/80'
+              : 'translate-x-0 bg-m3-secondary hover:bg-m3-primary/100'
           }`}
         />
       </button>

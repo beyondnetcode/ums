@@ -1,0 +1,44 @@
+using Ums.Application.Approvals.DocumentType.DTOs;
+using Ums.Domain.Approvals;
+
+namespace Ums.Application.Approvals.DocumentType.Queries;
+
+public sealed class GetAllDocumentTypesQueryHandler : IQueryHandler<GetAllDocumentTypesQuery, PagedResult<DocumentTypeDto>>
+{
+    private readonly IDocumentTypeRepository _repository;
+
+    public GetAllDocumentTypesQueryHandler(IDocumentTypeRepository repository) => _repository = repository;
+
+    public async Task<Result<PagedResult<DocumentTypeDto>>> Handle(GetAllDocumentTypesQuery request, CancellationToken cancellationToken)
+    {
+        var page = Math.Max(1, request.Page);
+        var pageSize = Math.Clamp(request.PageSize, 1, 100);
+        var sortBy = request.SortBy.Trim().ToLowerInvariant();
+        var sortOrder = request.SortOrder.Trim().ToLowerInvariant();
+        var search = request.Search?.Trim();
+
+        var items = request.TenantId.HasValue
+            ? await _repository.GetByTenantIdAsync(request.TenantId.Value, cancellationToken)
+            : await _repository.GetAllAsync(cancellationToken);
+
+        var query = items.Select(d => new DocumentTypeDto(
+            d.Props.Id.GetValue(), d.Props.TenantId.GetValue(), d.Props.Code.GetValue(),
+            d.Props.Name.GetValue(), d.Props.Description.GetValue(), d.Props.Criticity.ToString()));
+
+        if (!string.IsNullOrWhiteSpace(search))
+            query = query.Where(d => d.Name.Contains(search, StringComparison.OrdinalIgnoreCase));
+
+        query = (sortBy, sortOrder) switch
+        {
+            ("code", "desc") => query.OrderByDescending(d => d.Code),
+            ("criticity", "desc") => query.OrderByDescending(d => d.Criticity),
+            _ => query.OrderBy(d => d.Name),
+        };
+
+        var totalItems = query.Count();
+        var totalPages = totalItems == 0 ? 0 : (int)Math.Ceiling(totalItems / (double)pageSize);
+        var paged = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+        return Result<PagedResult<DocumentTypeDto>>.Success(new PagedResult<DocumentTypeDto>(paged, page, pageSize, totalItems, totalPages));
+    }
+}
