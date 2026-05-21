@@ -26,7 +26,7 @@ public sealed class GetBrandingByTenantIdQueryHandler : IQueryHandler<GetBrandin
 
         if (tenant.Branding is null)
         {
-            return Result<BrandingDto>.Failure("Branding not configured for this tenant.");
+            return Result<BrandingDto>.Success(null!);
         }
 
         var branding = tenant.Branding;
