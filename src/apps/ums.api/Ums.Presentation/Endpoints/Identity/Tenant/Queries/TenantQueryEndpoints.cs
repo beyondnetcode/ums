@@ -1,7 +1,7 @@
 namespace Ums.Presentation.Endpoints.Identity.Tenant.Queries;
 
 using Ums.Application.Identity.Tenant.DTOs;
-using Ums.Application.Identity.Tenant.Queries;
+using Ums.Application.Identity.Tenant.Queries; // GetTenantByIdQuery
 
 public static class TenantQueryEndpoints
 {
@@ -10,14 +10,8 @@ public static class TenantQueryEndpoints
         var group = app.MapGroup("/tenants")
             .WithTags("Tenants - Queries");
 
-        group.MapGet("/", async (IMediator mediator, HttpContext context, CancellationToken ct) =>
-        {
-            var result = await mediator.Send(new GetAllTenantsQuery(), ct);
-            return result.ToOk(context);
-        })
-        .WithName("GetAllTenants")
-        .WithSummary("Get all tenants")
-        .Produces<IReadOnlyList<TenantDto>>(StatusCodes.Status200OK);
+        // GetAllTenants lives in TenantEndpoints to share the same route group
+        // and avoid Asp.Versioning GET-root shadowing on duplicate MapGroup("/tenants").
 
         group.MapGet("/{tenantId:guid}", async (Guid tenantId, IMediator mediator, HttpContext context, CancellationToken ct) =>
         {

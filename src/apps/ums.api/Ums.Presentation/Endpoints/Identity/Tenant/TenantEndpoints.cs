@@ -2,6 +2,7 @@ namespace Ums.Presentation.Endpoints.Identity.Tenant;
 
 using Ums.Application.Identity.Tenant.Commands;
 using Ums.Application.Identity.Tenant.DTOs;
+using Ums.Application.Identity.Tenant.Queries;
 
 public static class TenantEndpoints
 {
@@ -9,6 +10,19 @@ public static class TenantEndpoints
     {
         var group = app.MapGroup("/tenants")
             .WithTags("Tenants");
+
+        // ── Queries ──────────────────────────────────────────────────────────
+
+        group.MapGet("/", async (IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetAllTenantsQuery(), ct);
+            return result.ToOk(context);
+        })
+        .WithName("GetAllTenants")
+        .WithSummary("Get all tenants")
+        .Produces<IReadOnlyList<TenantDto>>(StatusCodes.Status200OK);
+
+        // ── Commands ─────────────────────────────────────────────────────────
 
         group.MapPost("/", async (CreateTenantCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
         {
