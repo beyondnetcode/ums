@@ -8,6 +8,8 @@
 ## 1. Introduction
 This document details the **Role-Scoped** authorization model, strictly enforcing the hierarchical chain: **System → Module → Menu → SubMenu → Option**.
 
+All entity attribute blocks are derived directly from the domain `*Props` classes in `Ums.Domain`, ensuring the diagram reflects the authoritative data model.
+
 > [!NOTE]
 > **Ubiquitous Language Mapping:** The schema entity names align with the [Glossary](../../governance/requirements/glossary.md) as follows:
 > `SYSTEM_SUITE` = **System** · `FUNCTIONAL_MODULE` = **Module** · `FUNCTIONAL_MENU` = **Menu** · `FUNCTIONAL_SUBMENU` = **SubMenu** · `FUNCTIONAL_OPTION` = **Option**
@@ -19,7 +21,16 @@ This document details the **Role-Scoped** authorization model, strictly enforcin
 ---
 
 ## 2. Standard Corporate Audit & Traceability
-All entities implement the standard 10-column audit schema.
+All entities (except append-only logs) implement the standard audit schema — four columns derived from `AuditValueObject`:
+
+| Column | Type | Description |
+|---|---|---|
+| `CreatedAt` | `datetime2` | UTC timestamp of creation |
+| `CreatedBy` | `uniqueidentifier` | Actor who created the record |
+| `UpdatedAt` | `datetime2` | UTC timestamp of last update |
+| `UpdatedBy` | `uniqueidentifier` | Actor who last updated the record |
+
+Append-only entities (`AUDIT_RECORD`, `FLAG_EVALUATION_LOG`, `ACCESS_NOTIFICATION`) do not include update columns — they are immutable by design.
 
 ---
 
@@ -40,32 +51,37 @@ erDiagram
     TENANT ||--o{ AUDIT_RECORD : "traces"
     SYSTEM_SUITE ||--o{ ROLE : "defines"
     SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "contains"
-    
+
     ROLE ||--o{ ROLE : "parent_of"
-    ROLE ||--o{ ROLE_MATURITY_STATUS : "defines eligibility for"
-    
+    ROLE ||--o{ ROLE_MATURITY_STATUS : "defines_eligibility_for"
+
     TENANT ||--o{ APP_CONFIGURATION : "settings"
     SYSTEM_SUITE ||--o{ APP_CONFIGURATION : "overrides"
-    
+
     ROLE ||--o{ PERMISSION_TEMPLATE : "governs"
-    PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "materialized"
-    
+    PERMISSION_TEMPLATE ||--o{ PERMISSION_TEMPLATE_ITEM : "contains"
+    PERMISSION_TEMPLATE_ITEM ||--o{ PROFILE_PERMISSION : "materialized_in"
+
     USER_ACCOUNT ||--o{ PROFILE : "acts_as"
+    USER_ACCOUNT ||--o{ PASSWORD_CREDENTIAL : "authenticates_with"
+    USER_ACCOUNT ||--o{ MFA_ENROLLMENT : "enrolls_mfa"
     ROLE ||--o{ PROFILE : "assigned_to"
     BRANCH ||--o{ PROFILE : "scopes"
     PROFILE ||--o{ PROFILE_PERMISSION : "customizes"
     USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "administers"
     USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "is_managed"
     USER_ACCOUNT ||--o{ APPROVAL_REQUEST : "onboards_or_approves"
-    
-    SYSTEM_SUITE ||--o{ ACTION : "defines global"
-    FUNCTIONAL_MODULE ||--o{ ACTION : "defines local"
-    
+
+    SYSTEM_SUITE ||--o{ ACTION : "defines_global"
+    FUNCTIONAL_MODULE ||--o{ ACTION : "defines_local"
+
     FUNCTIONAL_MODULE ||--o{ FUNCTIONAL_MENU : "contains"
     FUNCTIONAL_MENU ||--o{ FUNCTIONAL_SUBMENU : "contains"
     FUNCTIONAL_SUBMENU ||--o{ FUNCTIONAL_OPTION : "contains"
-    
-    ACTION ||--o{ PERMISSION_TEMPLATE : "authorized_action"
+
+    ACTION ||--o{ PERMISSION_TEMPLATE_ITEM : "authorized_in"
+
+    USER_DOCUMENT ||--o{ ACCESS_NOTIFICATION : "notifies_via"
 ```
 
 ---
@@ -78,44 +94,66 @@ erDiagram
     ROLE ||--o{ PERMISSION_TEMPLATE : "owns"
     ROLE ||--o{ PROFILE : "assigned_to"
     PROFILE ||--o{ PROFILE_PERMISSION : "customizes"
-    PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "defines"
-    ACTION ||--o{ PERMISSION_TEMPLATE : "authorized"
+    PERMISSION_TEMPLATE ||--o{ PERMISSION_TEMPLATE_ITEM : "contains"
+    PERMISSION_TEMPLATE_ITEM ||--o{ PROFILE_PERMISSION : "materialized_in"
+    ACTION ||--o{ PERMISSION_TEMPLATE_ITEM : "authorized_in"
+    ACTION ||--o{ PROFILE_PERMISSION : "enforced_by"
 
     ROLE {
         uniqueidentifier RoleId PK
         uniqueidentifier SuiteId FK
         uniqueidentifier TenantId FK "RLS"
-        uniqueidentifier ParentRoleId FK "Self-Ref"
+        uniqueidentifier ParentRoleId FK "Self-Ref Nullable"
         nvarchar Name
         nvarchar Code
         int HierarchyLevel
         int PromotionOrder
         bit IsActive
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
     }
 
     ACTION {
         uniqueidentifier ActionId PK
-        uniqueidentifier SuiteId FK "Nullable"
-        uniqueidentifier ModuleId FK "Nullable"
         uniqueidentifier TenantId FK "RLS"
-        nvarchar Name
+        uniqueidentifier SystemSuiteId FK "Nullable"
+        uniqueidentifier ModuleId FK "Nullable"
         nvarchar Code
-        bit IsActive
+        nvarchar Name
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
     }
 
     PERMISSION_TEMPLATE {
         uniqueidentifier TemplateId PK
-        uniqueidentifier RoleId FK
-        uniqueidentifier ActionId FK
         uniqueidentifier TenantId FK "RLS"
-        uniqueidentifier SuiteId FK "Exclusive Arc"
-        uniqueidentifier ModuleId FK "Exclusive Arc"
-        uniqueidentifier MenuId FK "Exclusive Arc"
-        uniqueidentifier SubMenuId FK "Exclusive Arc"
-        uniqueidentifier OptionId FK "Exclusive Arc"
-        bit IsAllowed "Default State"
-        bit IsDenied "Default State"
-        bit IsActive "Default State"
+        uniqueidentifier RoleId FK
+        uniqueidentifier SystemSuiteId FK
+        nvarchar Version
+        nvarchar Status "DRAFT-ACTIVE-DEPRECATED"
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
+    }
+
+    PERMISSION_TEMPLATE_ITEM {
+        uniqueidentifier ItemId PK
+        uniqueidentifier TemplateId FK
+        nvarchar TargetType "SUITE-MODULE-MENU-SUBMENU-OPTION"
+        uniqueidentifier TargetId "Exclusive Arc FK"
+        uniqueidentifier ActionId FK
+        bit IsAllowed
+        bit IsDenied
+        bit IsActive
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
     }
 
     PROFILE {
@@ -123,15 +161,30 @@ erDiagram
         uniqueidentifier TenantId FK "RLS"
         uniqueidentifier UserId FK
         uniqueidentifier RoleId FK
-        uniqueidentifier BranchId FK "Location Context"
+        uniqueidentifier BranchId FK "Nullable - Location Context"
+        nvarchar Scope "GLOBAL-BRANCH-SYSTEM"
+        bit IsActive
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
     }
 
     PROFILE_PERMISSION {
-        uniqueidentifier ProfileId PK, FK
-        uniqueidentifier TemplateId PK, FK
+        uniqueidentifier ProfilePermissionId PK
+        uniqueidentifier ProfileId FK
+        uniqueidentifier TemplateId FK
+        nvarchar TargetType "SUITE-MODULE-MENU-SUBMENU-OPTION"
+        uniqueidentifier TargetId "Exclusive Arc FK"
+        uniqueidentifier ActionId FK
         bit IsAllowed
         bit IsDenied
         bit IsActive
+        bit IsOverride "Manual Override Flag"
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
     }
 ```
 
@@ -150,60 +203,97 @@ erDiagram
     SYSTEM_SUITE {
         uniqueidentifier SuiteId PK
         uniqueidentifier TenantId FK "RLS"
-        nvarchar Name
         nvarchar Code
-        bit IsActive
+        nvarchar Name
+        nvarchar Description
+        nvarchar Status "ACTIVE-INACTIVE-BETA"
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
     }
 
     FUNCTIONAL_MODULE {
         uniqueidentifier ModuleId PK
-        uniqueidentifier SuiteId FK
-        uniqueidentifier TenantId FK "RLS"
+        uniqueidentifier SystemId FK "Maps to SuiteId"
+        nvarchar Code
         nvarchar Name
+        nvarchar Description
+        nvarchar Status "ACTIVE-INACTIVE"
+        int SortOrder
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
     }
-    
+
     FUNCTIONAL_MENU {
         uniqueidentifier MenuId PK
         uniqueidentifier ModuleId FK
-        uniqueidentifier TenantId FK "RLS"
-        nvarchar Name
+        nvarchar Code
+        nvarchar Label
+        nvarchar Description
+        int SortOrder
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
     }
 
     FUNCTIONAL_SUBMENU {
         uniqueidentifier SubMenuId PK
         uniqueidentifier MenuId FK
-        uniqueidentifier TenantId FK "RLS"
-        nvarchar Name
+        nvarchar Code
+        nvarchar Label
+        nvarchar Description
+        int SortOrder
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
     }
-    
+
     FUNCTIONAL_OPTION {
         uniqueidentifier OptionId PK
         uniqueidentifier SubMenuId FK
-        uniqueidentifier TenantId FK "RLS"
-        nvarchar Name
         nvarchar Code
+        nvarchar Label
+        nvarchar Description
+        nvarchar ActionCode "Bound Action Reference"
+        int SortOrder
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
     }
-    
+
     ACTION {
         uniqueidentifier ActionId PK
-        uniqueidentifier SuiteId FK "Nullable"
-        uniqueidentifier ModuleId FK "Nullable"
         uniqueidentifier TenantId FK "RLS"
-        nvarchar Name
+        uniqueidentifier SystemSuiteId FK "Nullable"
+        uniqueidentifier ModuleId FK "Nullable"
         nvarchar Code
+        nvarchar Name
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
     }
 ```
 
 ---
 
 ### 3.4 Domain: Identity Governance & Approvals
-Management of user lifecycle, delegated administration, and onboarding workflows for high-risk or external identities.
+Management of user lifecycle, credential management, delegated administration, document workflows, and IGA role promotions.
 
 ```mermaid
 erDiagram
     TENANT ||--o{ USER_ACCOUNT : "owns"
+    TENANT ||--o{ BRANCH : "operates"
     TENANT ||--o{ IDENTITY_PROVIDER : "registers"
     TENANT ||--o| BRANDING : "configures"
+    USER_ACCOUNT ||--o{ PASSWORD_CREDENTIAL : "authenticates_with"
+    USER_ACCOUNT ||--o{ MFA_ENROLLMENT : "enrolls_mfa"
     USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "admin"
     USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "managed"
     USER_ACCOUNT ||--o{ ROLE_MATURITY_STATUS : "has"
@@ -212,12 +302,11 @@ erDiagram
     APPROVAL_WORKFLOW ||--o{ APPROVAL_REQUIRED_DOCUMENT : "mandates"
     APPROVAL_REQUEST ||--o{ USER_DOCUMENT : "evidenced_by"
     APPROVAL_REQUIRED_DOCUMENT ||--o{ DOCUMENT_TYPE : "typed_as"
-
     USER_ACCOUNT ||--o{ USER_DOCUMENT : "holds"
     DOCUMENT_TYPE ||--o{ USER_DOCUMENT : "classifies"
     DOCUMENT_TYPE ||--o{ NOTIFICATION_RULE : "alerts_for"
     DOCUMENT_TYPE ||--o{ ACCESS_ENFORCEMENT_POLICY : "governs_access"
-
+    USER_DOCUMENT ||--o{ ACCESS_NOTIFICATION : "notifies_via"
     USER_ACCOUNT ||--o{ PROMOTION_REQUEST : "initiates"
     ROLE ||--o{ PROMOTION_REQUEST : "target"
     APPROVAL_REQUEST ||--o{ PROMOTION_REQUEST : "authorized_by"
@@ -225,27 +314,59 @@ erDiagram
 
     TENANT {
         uniqueidentifier TenantId PK
-        nvarchar Name
         nvarchar Code
+        nvarchar Name
+        nvarchar Type "ENTERPRISE-SMB-GOVERNMENT-PARTNER"
+        nvarchar IdpStrategy "LOCAL-FEDERATED-HYBRID"
+        nvarchar CompanyReference "Nullable - External CRM Reference"
+        uniqueidentifier ParentTenantId FK "Nullable - Tenant Hierarchy"
         nvarchar Status "ACTIVE-SUSPENDED-INACTIVE"
-        bit IsActive
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
     }
 
     USER_ACCOUNT {
         uniqueidentifier UserId PK
         uniqueidentifier TenantId FK "RLS"
-        nvarchar UserCategory "INTERNAL-EXTERNAL-B2B-PARTNER"
-        nvarchar Status "ACTIVE-BLOCKED-PENDING"
+        uniqueidentifier BranchId FK "Nullable"
+        nvarchar Email
+        nvarchar Category "INTERNAL-EXTERNAL-B2B-PARTNER"
+        nvarchar Status "PENDING-ACTIVE-BLOCKED"
+        nvarchar IdentityReference "Nullable - External IdP Subject ID"
+        nvarchar IdentityReferenceType "Nullable - OIDC-SAML-LOCAL"
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
+    }
+
+    BRANCH {
+        uniqueidentifier BranchId PK
+        uniqueidentifier TenantId FK
+        nvarchar Code
+        nvarchar Name
+        nvarchar GeofencingMetadata "Nullable - JSON Coordinates"
+        bit IsActive
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
     }
 
     IDENTITY_PROVIDER {
         uniqueidentifier IdpId PK
         uniqueidentifier TenantId FK
-        nvarchar Code "SAML-OIDC-AZURE_AD"
+        nvarchar Code
         nvarchar Name
         nvarchar Description
         nvarchar Strategy "OIDC-SAML2-WS_FED"
         bit IsActive
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
     }
 
     BRANDING {
@@ -253,7 +374,7 @@ erDiagram
         uniqueidentifier TenantId FK "One-to-One RLS"
         nvarchar Logo "URI Storage Path"
         nvarchar LogoFormat "PNG-SVG-JPEG"
-        nvarchar PrimaryColor "Hex Code"
+        nvarchar PrimaryColor "Hex Color Code"
         nvarchar BackgroundStyle "Glassmorphism-SleekDark"
         nvarchar HeadlineText
         nvarchar SecondaryText
@@ -263,18 +384,48 @@ erDiagram
         nvarchar DnsVerificationStatus "PENDING-VERIFIED-FAILED"
         nvarchar DnsCnameTarget
         bit MagicLinkFallbackEnabled
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
+    }
+
+    PASSWORD_CREDENTIAL {
+        uniqueidentifier CredentialId PK
+        uniqueidentifier UserAccountId FK
+        nvarchar PasswordHash "BCrypt Hash"
+        bit IsActive
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
+    }
+
+    MFA_ENROLLMENT {
+        uniqueidentifier MfaEnrollmentId PK
+        uniqueidentifier UserAccountId FK
+        nvarchar Method "TOTP-SMS-EMAIL-WEBAUTHN"
+        nvarchar Status "ENROLLED-PENDING-REVOKED"
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
     }
 
     ROLE {
         uniqueidentifier RoleId PK
         uniqueidentifier SuiteId FK
         uniqueidentifier TenantId FK "RLS"
-        uniqueidentifier ParentRoleId FK "Self-Ref"
+        uniqueidentifier ParentRoleId FK "Self-Ref Nullable"
         nvarchar Name
         nvarchar Code
         int HierarchyLevel
         int PromotionOrder
         bit IsActive
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
     }
 
     ROLE_MATURITY_STATUS {
@@ -282,36 +433,54 @@ erDiagram
         uniqueidentifier TenantId FK "RLS"
         uniqueidentifier UserId FK
         uniqueidentifier RoleId FK
-        nvarchar CurrentLevel "Junior-Intermediate-Senior-Lead-Principal"
+        nvarchar CurrentMaturityLevel "JUNIOR-INTERMEDIATE-SENIOR-LEAD-PRINCIPAL"
+        nvarchar NextEligibleMaturityLevel "Nullable"
+        datetime2 AssignedAt
+        datetime2 CurrentLevelSince
+        datetime2 EligibleForPromotionAt "Nullable"
         int CompletedCertificationsCount
         int CompletedTrainingsCount
-        double PerformanceScore
-        bit HasComplianceIssues
-        datetime2 LastLevelChangeDate
+        decimal PerformanceScore
+        bit HasNoComplianceIssues
+        nvarchar BlockingFactor "Nullable"
+        datetime2 LastReviewedAt "Nullable"
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
     }
 
     USER_MANAGEMENT_DELEGATION {
         uniqueidentifier DelegationId PK
         uniqueidentifier ParentAdminUserId FK
         uniqueidentifier ManagedUserId FK
-        uniqueidentifier SuiteId FK "Optional Scope"
+        uniqueidentifier SuiteId FK "Nullable - Optional Scope"
     }
 
     APPROVAL_WORKFLOW {
         uniqueidentifier WorkflowId PK
         uniqueidentifier TenantId FK
-        uniqueidentifier SuiteId FK "Nullable"
+        uniqueidentifier SystemSuiteId FK "Nullable"
         nvarchar Code
-        nvarchar Value
+        nvarchar Name
         nvarchar Description
-        nvarchar TargetUserCategory
+        nvarchar TargetUserCategory "INTERNAL-EXTERNAL-B2B-PARTNER"
         bit RequiresApproval
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
     }
 
     APPROVAL_REQUIRED_DOCUMENT {
-        uniqueidentifier DocumentTypeId PK, FK
+        uniqueidentifier RequiredDocId PK
         uniqueidentifier WorkflowId FK
+        uniqueidentifier DocumentTypeId FK
         bit IsMandatory
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
     }
 
     APPROVAL_REQUEST {
@@ -319,18 +488,53 @@ erDiagram
         uniqueidentifier WorkflowId FK
         uniqueidentifier TargetUserId FK
         uniqueidentifier TargetProfileId FK "Nullable"
-        nvarchar RequestStatus "PENDING-APPROVED-REJECTED"
+        nvarchar Status "PENDING-APPROVED-REJECTED"
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
     }
 
     DOCUMENT_TYPE {
         uniqueidentifier DocumentTypeId PK
         uniqueidentifier TenantId FK
+        nvarchar Code
         nvarchar Name
+        nvarchar Description
+        nvarchar Criticity "LOW-MEDIUM-HIGH-CRITICAL"
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
+    }
+
+    NOTIFICATION_RULE {
+        uniqueidentifier RuleId PK
+        uniqueidentifier TenantId FK
+        uniqueidentifier DocumentTypeId FK
+        nvarchar Channel "EMAIL-IN_APP-SMS"
+        nvarchar Recipient
+        int DaysBefore "Pre-Expiration Alert Days"
         nvarchar Code
         nvarchar Description
-        int ExpirationDays
-        nvarchar Criticity "LOW-MEDIUM-HIGH-CRITICAL"
         bit IsActive
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
+    }
+
+    ACCESS_ENFORCEMENT_POLICY {
+        uniqueidentifier PolicyId PK
+        uniqueidentifier TenantId FK
+        uniqueidentifier ProfileId FK "Nullable"
+        uniqueidentifier RoleId FK "Nullable"
+        nvarchar EnforcementAction "BLOCK_USER-RESTRICT_PROFILE-LOG_ONLY"
+        bit IsActive
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
     }
 
     USER_DOCUMENT {
@@ -339,46 +543,67 @@ erDiagram
         uniqueidentifier DocumentTypeId FK
         datetime2 IssueDate
         datetime2 ExpirationDate
-        nvarchar Status "VALID-EXPIRED-PENDING_RENEWAL"
+        nvarchar Status "PENDING_REVIEW-VALID-EXPIRED-PENDING_RENEWAL"
         nvarchar Criticity "LOW-MEDIUM-HIGH-CRITICAL"
         nvarchar FileStoragePath "URI Path to File Server"
+        nvarchar FileChecksum "Integrity Verification Hash"
+        int NotificationStep "Current Alert Step Index"
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
     }
 
-    NOTIFICATION_RULE {
-        uniqueidentifier RuleId PK
-        uniqueidentifier TenantId FK
-        uniqueidentifier DocumentTypeId FK
-        nvarchar Code
-        nvarchar Value
-        nvarchar Description
-        int DaysBefore
+    ACCESS_NOTIFICATION {
+        uniqueidentifier NotificationId PK
+        uniqueidentifier UserDocumentId FK
+        int Step "Notification Step Number"
         nvarchar Channel "EMAIL-IN_APP-SMS"
-    }
-
-    ACCESS_ENFORCEMENT_POLICY {
-        uniqueidentifier PolicyId PK
-        uniqueidentifier TenantId FK "Nullable (Global if NULL)"
-        nvarchar Code
-        nvarchar Value
-        nvarchar Description
-        uniqueidentifier DocumentTypeId FK
-        nvarchar ActionOnExpiration "BLOCK_USER-RESTRICT_PROFILE-LOG_ONLY"
+        int DaysRemaining "Days Until Expiration"
+        datetime2 SentAt "Append-Only"
     }
 
     PROMOTION_REQUEST {
         uniqueidentifier PromotionRequestId PK
         uniqueidentifier TenantId FK
+        uniqueidentifier UserId FK
+        uniqueidentifier CurrentRoleId FK
         uniqueidentifier TargetRoleId FK
-        uniqueidentifier InitiatedByUserId FK
+        datetime2 RequestedAt
+        uniqueidentifier RequestedBy "Actor Who Initiated"
+        nvarchar RequestReason "Nullable"
+        uniqueidentifier ManagerId FK
+        nvarchar ManagerApprovalStatus "PENDING-APPROVED-REJECTED"
+        datetime2 ManagerDecisionAt "Nullable"
+        nvarchar SecurityApprovalStatus "PENDING-APPROVED-REJECTED"
+        datetime2 SecurityDecisionAt "Nullable"
         nvarchar Status "DRAFT-SUBMITTED-APPROVED-EXECUTED-VERIFIED"
+        datetime2 ExecutedAt "Nullable"
+        uniqueidentifier ExecutedBy "Nullable"
+        datetime2 VerifiedAt "Nullable"
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
     }
 
     PROMOTION_IMPACT_ANALYSIS {
         uniqueidentifier ImpactAnalysisId PK
         uniqueidentifier PromotionRequestId FK
-        nvarchar RiskLevel "LOW-MEDIUM-HIGH"
-        nvarchar AnalysisDetails "JSON"
-        bit ViolatesSoD
+        decimal RiskScore
+        nvarchar RiskLevel "LOW-MEDIUM-HIGH-CRITICAL"
+        int NewPermissionsCount
+        int RemovedPermissionsCount
+        int AffectedSystemsCount
+        nvarchar ConflictingPermissions "Nullable - JSON List"
+        nvarchar RiskFactors "Nullable - JSON List"
+        nvarchar SuggestedMitigations "Nullable - JSON List"
+        datetime2 AnalyzedAt
+        nvarchar AnalyzedBy "Nullable - Analyzer Identity"
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
     }
 ```
 
@@ -400,83 +625,120 @@ erDiagram
 
     TENANT {
         uniqueidentifier TenantId PK
-        nvarchar Name
         nvarchar Code
+        nvarchar Name
+        nvarchar Type "ENTERPRISE-SMB-GOVERNMENT-PARTNER"
+        nvarchar IdpStrategy "LOCAL-FEDERATED-HYBRID"
+        nvarchar CompanyReference "Nullable - External CRM Reference"
+        uniqueidentifier ParentTenantId FK "Nullable - Tenant Hierarchy"
         nvarchar Status "ACTIVE-SUSPENDED-INACTIVE"
-        bit IsActive
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
     }
 
     SYSTEM_SUITE {
         uniqueidentifier SuiteId PK
         uniqueidentifier TenantId FK "RLS"
-        nvarchar Name
         nvarchar Code
-        bit IsActive
+        nvarchar Name
+        nvarchar Description
+        nvarchar Status "ACTIVE-INACTIVE-BETA"
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
     }
 
     USER_ACCOUNT {
         uniqueidentifier UserId PK
         uniqueidentifier TenantId FK "RLS"
-        nvarchar UserCategory "INTERNAL-EXTERNAL-B2B-PARTNER"
-        nvarchar Status "ACTIVE-BLOCKED-PENDING"
+        uniqueidentifier BranchId FK "Nullable"
+        nvarchar Email
+        nvarchar Category "INTERNAL-EXTERNAL-B2B-PARTNER"
+        nvarchar Status "PENDING-ACTIVE-BLOCKED"
+        nvarchar IdentityReference "Nullable - External IdP Subject ID"
+        nvarchar IdentityReferenceType "Nullable - OIDC-SAML-LOCAL"
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
     }
 
     APP_CONFIGURATION {
-        uniqueidentifier SettingId PK
+        uniqueidentifier ConfigId PK
         uniqueidentifier TenantId FK "Nullable"
-        uniqueidentifier SuiteId FK "Nullable"
+        uniqueidentifier SystemSuiteId FK "Nullable"
         uniqueidentifier ModuleId FK "Nullable"
-        nvarchar Code "Feature Flag-Parameter"
+        nvarchar Code
         nvarchar Value "Operational Value"
-        nvarchar Description "Purpose + impact + behavior + scope"
+        nvarchar Description "Purpose - Impact - Behavior - Scope"
+        nvarchar Scope "GLOBAL-TENANT-SUITE-MODULE"
         bit IsInheritable
+        bit IsEncrypted
+        nvarchar Version "Semantic Version e.g. 1.0.0"
+        nvarchar Status "DRAFT-ACTIVE-DEPRECATED"
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
     }
 
     IDP_CONFIGURATION {
         uniqueidentifier IdpConfigId PK
         uniqueidentifier TenantId FK
+        uniqueidentifier SystemSuiteId FK
         nvarchar ProviderType "INTERNAL_BCRYPT-ZITADEL-AZURE_AD-OKTA-KEYCLOAK"
-        nvarchar DomainHints "OIDC Domain Routing"
-        nvarchar ConfigPayload "Encrypted Authorizations"
+        nvarchar DomainHints "JSON Array - OIDC Domain Routing"
+        nvarchar ConfigPayload "Encrypted Authorization Metadata"
         nvarchar SecretRef "Vault Path"
-        nvarchar IdpConfigStatus "DRAFT-ACTIVE-INACTIVE"
+        nvarchar Status "DRAFT-ACTIVE-INACTIVE"
         int ResolutionPriority
-        nvarchar Version
+        uniqueidentifier FallbackToId "Nullable - Fallback Config FK"
+        int Version
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
     }
 
     FEATURE_FLAG {
         uniqueidentifier FlagId PK
-        uniqueidentifier TenantId FK
         nvarchar FlagCode "Unique Code"
         nvarchar FlagType "BOOLEAN-VARIANT-PERCENTAGE"
-        nvarchar FlagTargets "JSON Rules"
-        nvarchar FlagStatus "ACTIVE-INACTIVE-ARCHIVED"
-        nvarchar LinkedResourceType "Nullable: MENU-MODULE-ENDPOINT-WORKFLOW"
-        nvarchar Description
-        bit IsActive
+        nvarchar FlagTargets "JSON Targeting Rules"
+        nvarchar Status "ACTIVE-INACTIVE-ARCHIVED"
+        nvarchar LinkedResourceType "Nullable - MENU-MODULE-ENDPOINT-WORKFLOW"
+        uniqueidentifier LinkedResourceId "Nullable"
+        int RolloutPercentage "Nullable - 0 to 100"
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
     }
 
     FLAG_EVALUATION_LOG {
         uniqueidentifier LogId PK
         uniqueidentifier FlagId FK
-        uniqueidentifier UserId FK
-        uniqueidentifier TenantId FK
-        datetime2 EvaluatedAt
-        nvarchar Result
-        nvarchar ContextPayload "JSON Context"
+        uniqueidentifier EvaluatedBy "User or System Actor"
+        bit Result
+        nvarchar Context "JSON Evaluation Context"
+        datetime2 EvaluatedAt "Append-Only"
     }
 
     AUDIT_RECORD {
         uniqueidentifier AuditRecordId PK
-        uniqueidentifier TenantId FK "RLS"
-        nvarchar AuditEventType
+        uniqueidentifier RootTenantId FK "RLS"
+        uniqueidentifier WhoActed "Actor UUID"
         nvarchar SubjectType "USER-ADMIN-SYSTEM-BACKGROUND_WORKER"
-        uniqueidentifier ActorId FK
-        datetime2 EvaluatedAt
+        datetime2 WhenOccurred "UTC Append-Only"
+        nvarchar WhatChanged "JSON Diff Payload"
+        nvarchar EventType "Domain Event Name"
         nvarchar AuditResult "SUCCESS-FAILURE-PARTIAL"
-        nvarchar AffectedEntityType
         uniqueidentifier AffectedEntityId
-        nvarchar AuditMetadata "JSON Metadata"
+        nvarchar AffectedEntityType "Entity Class Name"
+        nvarchar Metadata "Nullable - JSON Metadata"
     }
 ```
 
@@ -484,11 +746,13 @@ erDiagram
 
 ## 4. Business Rules & Technical Constraints
 1.  **Row-Level Security (RLS)**: `TenantId` is denormalized across all functional entities (Module, Option, Template, Action, Role) to allow O(1) isolation checks via SQL Server RLS.
-2.  **Exclusive Arc (Template Integrity)**: `PermissionTemplate` implements 5 nullable FKs pointing to the resource hierarchy. A `CHECK` constraint guarantees exactly ONE is populated, enforcing strict database referential integrity over polymorphism.
-3.  **Strict XOR Action Ownership**: An Action must belong to a System OR a Module, but never both: `CHECK ((SuiteId IS NOT NULL AND ModuleId IS NULL) OR (SuiteId IS NULL AND ModuleId IS NOT NULL))`.
+2.  **Exclusive Arc (Template Integrity)**: `PermissionTemplateItem` uses a `TargetType` discriminator and a single `TargetId` column instead of 5 nullable FKs. A `CHECK` constraint guarantees `TargetType` is always populated, enforcing strict database referential integrity over polymorphism.
+3.  **Strict XOR Action Ownership**: An Action must belong to a System OR a Module, but never both: `CHECK ((SystemSuiteId IS NOT NULL AND ModuleId IS NULL) OR (SystemSuiteId IS NULL AND ModuleId IS NOT NULL))`.
 4.  **Hierarchy Integrity**: Access must be traced through `System > Module > Menu > SubMenu > Option` (schema: `SYSTEM_SUITE → FUNCTIONAL_MODULE → FUNCTIONAL_MENU → FUNCTIONAL_SUBMENU → FUNCTIONAL_OPTION`).
 5.  **Delegated Administration (Many-to-Many)**: A user's scope of administration is defined via the `USER_MANAGEMENT_DELEGATION` table. This allows multiple administrators to manage the same user pool, optionally restricted by `SuiteId`.
 6.  **Approval Mandates**: External/B2B users MUST pass through an `APPROVAL_WORKFLOW` before reaching an `ACTIVE` status or being assigned high-risk profiles. Supporting documents defined in `APPROVAL_REQUIRED_DOCUMENT` must be uploaded to `USER_DOCUMENT` before workflow advancement.
 7.  **Automated Compliance Enforcement**: Background workers scan `USER_DOCUMENT`. Upon expiration, the `ACCESS_ENFORCEMENT_POLICY` is triggered. Critical documents will automatically transition the `USER_ACCOUNT` to a `BLOCKED` status or restrict specific `PROFILE` context.
-8.  **Parametric Notifications**: `NOTIFICATION_RULE` allows configuring N-step alerts (e.g., 30, 15, 5 days before expiration) per Tenant and Document Type.
+8.  **Parametric Notifications**: `NOTIFICATION_RULE` allows configuring N-step alerts (e.g., 30, 15, 5 days before expiration) per Tenant and Document Type. Each fired notification is recorded as an immutable `ACCESS_NOTIFICATION` entry.
 9.  **Mandatory Parametric Catalog Standard**: Every parameter/configuration/catalog entity MUST include `Code`, `Value`, and `Description`. `Description` must document purpose, functional impact, expected behavior, and applicable scope. All such entities must additionally define uniqueness by scope, versioning lineage, auditing metadata, traceability events, cache invalidation strategy, and forward extensibility.
+10. **Credential Isolation**: `PASSWORD_CREDENTIAL` and `MFA_ENROLLMENT` are separate entities owned by `USER_ACCOUNT`. A user may have at most one active `PASSWORD_CREDENTIAL` and multiple `MFA_ENROLLMENT` records (one per method). This enables clean credential rotation and multi-factor method management without coupling to the core identity record.
+11. **IGA Dual Approval Gate**: `PROMOTION_REQUEST` tracks two independent approval stages — Manager and Security — each with its own status and timestamp. Both must be `APPROVED` before `Status` can advance to `EXECUTED`. The `PROMOTION_IMPACT_ANALYSIS` record is generated automatically and must be reviewed before Security approval is granted.
