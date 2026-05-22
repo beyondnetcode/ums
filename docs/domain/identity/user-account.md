@@ -10,7 +10,7 @@
 ## 1. Aggregate Overview
 
 ### Purpose
-The `UserAccount` aggregate represents a user's identity within a tenant. It governs registration, activation, blocking, external IdP linkage, password credential management, and MFA enrollment. It is the primary identity object referenced by all other bounded contexts.
+The `UserAccount` aggregate represents a user's identity within a tenant. It governs registration, activation, blocking, external IdP linkage, password credential management, and MFA enrollment. It is the primary identity object referenced by all other bounded contexts. It fully owns the `PasswordCredential` and `MfaEnrollment` child entities.
 
 ### Business Responsibility
 - Register users within a tenant, assigning them a category and email.
@@ -27,9 +27,15 @@ The `UserAccount` aggregate represents a user's identity within a tenant. It gov
 2. A `UserAccount` in status `Blocked` cannot authenticate.
 3. A `UserAccount` in status `Pending` has no active `PasswordCredential`.
 4. At most one `PasswordCredential` can be `IsActive = true` at any time.
-5. Multiple `MfaEnrollment` records may exist (one per method), but each method may only be enrolled once per user.
-6. `IdentityReference` and `IdentityReferenceType` must be set together or both null.
-7. A `FEDERATED` user (has `IdentityReference`) should not have an active `PasswordCredential`.
+5. Setting a new password automatically deactivates the previous active credential.
+6. Historical credentials (IsActive = false) are retained for audit — never physically deleted.
+7. `PasswordHash` must be a valid BCrypt hash (validated by domain service before assignment).
+8. `IdentityReference` and `IdentityReferenceType` must be set together or both null.
+9. A `FEDERATED` user (has `IdentityReference`) should not have an active `PasswordCredential`.
+10. Multiple `MfaEnrollment` records may exist (one per method), but each method may only be enrolled once per user.
+11. MFA Enrollment status transitions: `Pending → Enrolled → Revoked`.
+12. `UserAccount.Status` must be `Active` to enroll a new MFA method.
+13. At least one enrolled MFA method must remain if the tenant requires MFA.
 
 ### Related Entities / Value Objects
 | Entity / VO | Type | Ownership |
@@ -43,6 +49,9 @@ The `UserAccount` aggregate represents a user's identity within a tenant. It gov
 | `UserStatus` | Enum | Pending · Active · Blocked |
 | `IdentityReference` | Value Object | External IdP subject ID |
 | `IdentityReferenceType` | Enum | OIDC · SAML · LOCAL |
+| `PasswordHash` | Value Object | Validated BCrypt hash string |
+| `MfaMethod` | Enum | TOTP · SMS · EMAIL · WEBAUTHN |
+| `MfaEnrollmentStatus` | Enum | Enrolled · Pending · Revoked |
 | `AuditValueObject` | Value Object | CreatedAt/By, UpdatedAt/By |
 
 ### Domain Events
@@ -63,14 +72,18 @@ The `UserAccount` aggregate represents a user's identity within a tenant. It gov
 | `ActivateUserCommand` | Activate a pending or blocked user |
 | `BlockUserCommand` | Block a user (compliance enforcement or manual) |
 | `RestoreUserCommand` | Restore a blocked user to Active |
-| `SetPasswordCommand` | Set or rotate the active password credential |
-| `EnrollMfaCommand` | Enroll a new MFA method |
+| `SetPasswordCommand` | Create or rotate the active password credential |
+| `DeactivatePasswordCommand` | Deactivate credential (e.g. on account federation) |
 | `LinkExternalIdentityCommand` | Associate an external IdP subject reference |
+| `EnrollMfaCommand` | Enroll a new MFA method |
+| `VerifyMfaCommand` | Confirm MFA challenge (transitions Pending → Enrolled) |
+| `RevokeMfaEnrollmentCommand` | Revoke an enrolled MFA method |
 
 ### Repository / Service Boundaries
 - `IUserAccountRepository` — persists `UserAccount` aggregate including owned credentials and enrollments.
-- `IPasswordHashingService` — domain service for BCrypt hashing; called before `PasswordCredential` is created.
+- `IPasswordHashingService` — domain service for BCrypt hashing.
 - `IEmailUniquenessChecker` — domain service to verify email uniqueness within a tenant.
+- `IMfaChallengeService` — infrastructure service handling OTP generation/TOTP validation.
 
 ---
 
@@ -91,38 +104,32 @@ UserAccount (Aggregate Root)
 │   ├── IdentityReferenceType?: IdentityReferenceType
 │   └── Audit: AuditValueObject
 ├── Children
-│   ├── PasswordCredential? (0..1 active)
+│   ├── PasswordCredential? (0..N stored, 0..1 active)
+│   │   └── Props: PasswordCredentialProps (Id, UserAccountId, PasswordHash, IsActive)
 │   └── IReadOnlyList<MfaEnrollment>
+│       └── Props: MfaEnrollmentProps (Id, UserAccountId, Method, Status)
 └── DomainEvents: UserAccountDomainEventsManager
 ```
 
 ### Main Attributes
-| Attribute | Type | Notes |
-|---|---|---|
-| `Id` | `Guid` | PK |
-| `TenantId` | `Guid` | FK — RLS scope |
-| `BranchId` | `Guid?` | Optional branch scope |
-| `Email` | `string` | Unique per tenant |
-| `Category` | `UserCategory` | Classification |
-| `Status` | `UserStatus` | Lifecycle state |
-| `IdentityReference` | `string?` | External IdP subject |
-| `IdentityReferenceType` | `string?` | OIDC / SAML / LOCAL |
-
-### Lifecycle / Status Fields
-```
-Pending ──► Active ──► Blocked ──► Active
-                └──► (no direct to Inactive — use Blocked)
-```
-
-### Validation Rules
-- `Email`: required, valid format, unique per `TenantId`.
-- `Category`: must be a valid `UserCategory`.
-- `IdentityReference` + `IdentityReferenceType` must be set/cleared together.
-- Status transitions must follow the defined lifecycle.
+| Attribute | Entity | Type | Notes |
+|---|---|---|---|
+| `Id` | UserAccount | `Guid` | PK |
+| `TenantId` | UserAccount | `Guid` | FK — RLS scope |
+| `Email` | UserAccount | `string` | Unique per tenant |
+| `Category` | UserAccount | `UserCategory` | Classification |
+| `Status` | UserAccount | `UserStatus` | Lifecycle state |
+| `IdentityReference` | UserAccount | `string?` | External IdP subject |
+| `PasswordHash` | PasswordCredential | `string` | BCrypt hash — write-only |
+| `IsActive` | PasswordCredential | `bool` | Only one `true` at a time |
+| `Method` | MfaEnrollment | `MfaMethod` | TOTP / SMS / EMAIL / WEBAUTHN |
+| `Status` | MfaEnrollment | `MfaEnrollmentStatus`| Enrolled / Pending / Revoked |
 
 ---
 
 ## 3. Sequence Diagrams
+
+*(Consolidated view covering core flows)*
 
 ### Register User Flow
 ```mermaid
@@ -133,14 +140,12 @@ sequenceDiagram
     participant R as IUserAccountRepository
     participant E as IEmailUniquenessChecker
 
-    C->>H: RegisterUserCommand(tenantId, email, category, createdBy)
+    C->>H: RegisterUserCommand(...)
     H->>E: IsUnique(tenantId, email)
     E-->>H: true
-    H->>U: UserAccount.Create(id, tenantId, email, category, createdBy)
-    U->>U: Status = Pending
+    H->>U: UserAccount.Create(...)
     U->>U: Raise UserRegisteredEvent
     H->>R: Add(userAccount)
-    R-->>H: ok
     H-->>C: UserId
 ```
 
@@ -162,26 +167,6 @@ sequenceDiagram
     U->>U: Deactivate existing PasswordCredential
     U->>U: Create new PasswordCredential (IsActive = true)
     H->>R: Update(userAccount)
-    R-->>H: ok
-    H-->>C: void
-```
-
-### Block User Flow
-```mermaid
-sequenceDiagram
-    participant C as Client
-    participant H as BlockUserHandler
-    participant R as IUserAccountRepository
-    participant U as UserAccount (AR)
-
-    C->>H: BlockUserCommand(userId, reason, actorId)
-    H->>R: GetById(userId)
-    R-->>H: UserAccount
-    H->>U: userAccount.Block(reason, actorId)
-    U->>U: Guard: Status must be Active
-    U->>U: Status = Blocked
-    U->>U: Raise UserBlockedEvent
-    H->>R: Update(userAccount)
     H-->>C: void
 ```
 
@@ -192,17 +177,19 @@ sequenceDiagram
     participant H as EnrollMfaHandler
     participant R as IUserAccountRepository
     participant U as UserAccount (AR)
+    participant MFA as IMfaChallengeService
 
     C->>H: EnrollMfaCommand(userId, method, actorId)
     H->>R: GetById(userId)
     R-->>H: UserAccount
     H->>U: userAccount.EnrollMfa(enrollmentId, method, actorId)
     U->>U: Guard: method not already enrolled
-    U->>U: Guard: Status = Active
     U->>U: Create MfaEnrollment (Status = Enrolled)
     U->>U: Raise MfaEnrolledEvent
     H->>R: Update(userAccount)
-    H-->>C: MfaEnrollmentId
+    H->>MFA: InitiateSetup(userId, method)
+    MFA-->>H: setupToken
+    H-->>C: enrollmentId, setupToken
 ```
 
 ---
@@ -282,57 +269,47 @@ flowchart TD
         RMS[RoleMaturityStatus]
     end
 
-    subgraph Audit["Audit BC"]
-        AUD[AuditRecord]
+    subgraph Infrastructure["Infrastructure"]
+        HASH[Password Hashing Service]
+        TOTP[TOTP Service]
+        SMS[SMS Gateway]
     end
 
     UA -->|UserRegisteredEvent| PROF
-    UA -->|UserBlockedEvent| PROF
     UA -->|UserId reference| AR
     UA -->|UserId reference| UD
     UA -->|UserId reference| PR
-    UA -->|UserId reference| RMS
-    UA -->|AuthenticationAttemptedEvent| AUD
+    
+    HASH -->|BCrypt hash| PC
+    TOTP -->|OTP validation| MFA
 ```
-
-**Context Ownership:** Identity BC.  
-**Upstream:** `Tenant` provides `TenantId` and `BranchId` context.  
-**Downstream:** Authorization, Approvals, IGA, and Audit all reference `UserId`.  
-**Integration:** `UserRegisteredEvent` → Authorization BC creates a default Profile. `UserBlockedEvent` → Authorization BC deactivates active Profiles.
 
 ---
 
 ## 6. API / Application Layer Contract
 
 ### Commands
-| Command | Input | Output |
-|---|---|---|
-| `RegisterUserCommand` | `tenantId, email, category, identityRef?, identityRefType?, branchId?, createdBy` | `Guid userId` |
-| `ActivateUserCommand` | `userId, actorId` | `void` |
-| `BlockUserCommand` | `userId, reason, actorId` | `void` |
-| `RestoreUserCommand` | `userId, actorId` | `void` |
-| `SetPasswordCommand` | `userId, plainPassword, actorId` | `void` |
-| `EnrollMfaCommand` | `userId, method, actorId` | `Guid enrollmentId` |
-| `LinkExternalIdentityCommand` | `userId, identityReference, identityReferenceType, actorId` | `void` |
+| Command | Output |
+|---|---|
+| `RegisterUserCommand` | `Guid userId` |
+| `ActivateUserCommand` | `void` |
+| `BlockUserCommand` | `void` |
+| `RestoreUserCommand` | `void` |
+| `SetPasswordCommand` | `void` |
+| `DeactivatePasswordCommand` | `void` |
+| `LinkExternalIdentityCommand` | `void` |
+| `EnrollMfaCommand` | `Guid enrollmentId, string setupToken` |
+| `VerifyMfaCommand` | `void` |
+| `RevokeMfaEnrollmentCommand` | `void` |
 
 ### Queries
-| Query | Filter | Returns |
-|---|---|---|
-| `GetUserByIdQuery` | `userId` | `UserAccountDetailDto` |
-| `GetUserByEmailQuery` | `tenantId, email` | `UserAccountDetailDto?` |
-| `ListUsersQuery` | `tenantId, status?, category?, page, pageSize` | `PagedList<UserSummaryDto>` |
-| `GetUserCredentialStatusQuery` | `userId` | `CredentialStatusDto` |
-| `GetUserMfaEnrollmentsQuery` | `userId` | `List<MfaEnrollmentDto>` |
-
-### Error Cases
-| Code | Condition |
+| Query | Returns |
 |---|---|
-| `USER_EMAIL_DUPLICATE` | Email already used in tenant |
-| `USER_NOT_FOUND` | Unknown userId |
-| `USER_NOT_ACTIVE` | Operation requires Active status |
-| `USER_ALREADY_BLOCKED` | Block on already-blocked user |
-| `MFA_METHOD_ALREADY_ENROLLED` | Duplicate MFA method for same user |
-| `IDENTITY_REFERENCE_INCOMPLETE` | Only one of reference/type provided |
+| `GetUserByIdQuery` | `UserAccountDetailDto` |
+| `GetUserByEmailQuery` | `UserAccountDetailDto?` |
+| `ListUsersQuery` | `PagedList<UserSummaryDto>` |
+| `GetUserCredentialStatusQuery` | `CredentialStatusDto` |
+| `GetUserMfaEnrollmentsQuery` | `List<MfaEnrollmentDto>` |
 
 ---
 
@@ -350,17 +327,10 @@ flowchart TD
 | `IX_PasswordCredential_UserAccountId_IsActive` | `UserAccountId, IsActive` | Non-unique |
 | `IX_MfaEnrollment_UserAccountId_Method` | `UserAccountId, Method` | Unique |
 
-### Unique Constraints
-- `(TenantId, Email)` unique.
-- `(UserAccountId, MfaMethod)` unique — one enrollment per method per user.
-
-### Soft Delete / Audit
-- No physical delete for `UserAccount` — use `Blocked` status.
-- `PasswordCredential` rotation keeps history (old credential `IsActive = false`); only the current active one is used.
-
-### Multi-Tenant Considerations
-- All queries must filter by `TenantId` via Row-Level Security.
-- Email uniqueness enforced at the tenant scope, not global.
+### Security
+- `PasswordHash` column must never appear in query projections returned to clients.
+- `PasswordHash` must never appear in `AuditRecord.WhatChanged` payloads.
+- Column must be encrypted at rest (SQL Server Always Encrypted or TDE).
 
 ---
 
@@ -372,20 +342,10 @@ flowchart TD
 | Register User | `Tenant:Admin` or `Tenant:UserManager` |
 | Block / Restore User | `Tenant:Admin` |
 | Set Password | User themselves or `Tenant:Admin` |
-| Enroll MFA | User themselves |
+| Enroll / Revoke / Verify MFA | User themselves |
 | Link External Identity | `Tenant:Admin` |
-
-### Sensitive Data
-- `PasswordHash` — BCrypt hash, never returned in queries; write-only.
-- `Email` — PII; must be masked in logs.
-- `IdentityReference` — external IdP subject ID; restricted read.
 
 ### Audit Events
 - `USER_REGISTERED`, `USER_ACTIVATED`, `USER_BLOCKED`, `USER_RESTORED`
-- `PASSWORD_SET`, `MFA_ENROLLED`, `MFA_VERIFIED`
+- `PASSWORD_SET`, `MFA_ENROLLED`, `MFA_VERIFIED`, `MFA_REVOKED`
 - `AUTHENTICATION_ATTEMPTED` (with `AuditResult: SUCCESS/FAILURE`)
-
-### Compliance Considerations
-- Failed authentication attempts must be recorded in `AUDIT_RECORD` for brute-force detection.
-- PII fields (`Email`) are subject to GDPR right-to-erasure — anonymization strategy needed for inactive accounts.
-- `PasswordHash` must never appear in `WhatChanged` JSON of audit records.

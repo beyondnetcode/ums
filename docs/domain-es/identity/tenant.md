@@ -2,9 +2,9 @@
 
 > **Idioma:** [English](../../domain/identity/tenant.md) | [Español](./tenant.md)
 
-**Bounded Context:** Identity  
-**Aggregate Root:** `Tenant`  
-**Modulo:** `Ums.Domain.Identity.Tenant`  
+**Bounded Context:** Identity
+**Aggregate Root:** `Tenant`
+**Modulo:** `Ums.Domain.Identity.Tenant`
 **Estado:** Produccion
 
 ---
@@ -12,7 +12,7 @@
 ## 1. Descripcion del Agregado
 
 ### Proposito
-`Tenant` es la unidad organizativa raiz del sistema. Representa a una empresa o division que usa UMS como plataforma de gestion de identidades. Agrupa a todos los usuarios, ramas, configuraciones de branding y proveedores de identidad bajo un espacio de nombres unico y aislado.
+`Tenant` es la unidad organizativa raiz del sistema. Representa a una empresa o division que usa UMS como plataforma de gestion de identidades. Agrupa a todos los usuarios, ramas (`Branch`), configuraciones de branding (`Branding`) y proveedores de identidad (`IdentityProvider`) bajo un espacio de nombres unico y aislado.
 
 ### Responsabilidad de Negocio
 - Proveer aislamiento multi-tenant para todos los datos del sistema.
@@ -20,15 +20,30 @@
 - Ser el propietario de `Branch`, `Branding` e `IdentityProvider` como entidades propias.
 - Definir la estrategia de autenticacion (`IdpStrategy`) a nivel de dominio.
 
+**Branch**: Representa una unidad de ubicacion fisica o logica. Provee un ambito geográfico u organizacional. Aplica reglas de geocercado y habilita delegación de administración.
+**Branding**: Contiene la configuración de identidad visual (logo, colores, textos) y dominio personalizado con verificación DNS. Controla cómo se renderiza el portal de login.
+**IdentityProvider**: Representa un proveedor de autenticación externo (OIDC, SAML2, WS_FED). Registra la intención estratégica y el contrato a nivel de negocio para el tenant.
+
 ### Aggregate Root
 `Tenant` es su propio aggregate root. Todas las mutaciones de `Branch`, `Branding` e `IdentityProvider` pasan por comandos de `Tenant`.
 
 ### Invariantes y Reglas de Consistencia
-1. `Code` debe ser globalmente unico en todo el sistema.
-2. Un `Tenant` con `TenantStatus = Suspended` bloquea todos los flujos de autenticacion de sus usuarios.
-3. Solo puede existir un registro `Branding` por Tenant (relacion 1:1).
-4. `IdpStrategy` debe ser coherente: si es `FEDERATED`, debe existir al menos un `IdentityProvider` activo.
-5. Un tenant hijo (`ParentTenantId != null`) hereda politicas del tenant padre.
+1. **Tenant**: `Code` debe ser globalmente unico en todo el sistema.
+2. **Tenant**: Un `Tenant` con `TenantStatus = Suspended` bloquea todos los flujos de autenticacion de sus usuarios.
+3. **Tenant**: `IdpStrategy` debe ser coherente: si es `FEDERATED`, debe existir al menos un `IdentityProvider` activo.
+4. **Tenant**: Un tenant hijo (`ParentTenantId != null`) hereda politicas del tenant padre.
+5. **Branch**: `Code` debe ser unico dentro del `Tenant` propietario.
+6. **Branch**: Una `Branch` no puede ser eliminada si existen registros activos de `UserAccount` o `Profile` asociados.
+7. **Branch**: `GeofencingMetadata` debe ser JSON valido cuando se proporciona.
+8. **Branch**: La desactivacion no elimina; los registros se conservan para trazabilidad historica.
+9. **Branding**: Solo puede existir un registro `Branding` por Tenant (relacion 1:1).
+10. **Branding**: `CustomDomain` debe ser un hostname valido cuando se proporciona.
+11. **Branding**: `DnsVerificationStatus` comienza en `PENDING` cuando se establece `CustomDomain` y no puede establecerse manualmente a `VERIFIED` (solo por el servicio de verificacion DNS).
+12. **Branding**: `LogoFormat` debe coincidir con el formato real del URI de `Logo` subido.
+13. **IdentityProvider**: `Code` debe ser unico dentro del Tenant propietario.
+14. **IdentityProvider**: Un `IdentityProvider` debe ser desactivado antes de ser eliminado.
+15. **IdentityProvider**: Desactivar un `IdentityProvider` que es el unico IdP activo para un tenant Federado no esta permitido a menos que se cambie primero el `IdpStrategy`.
+16. **IdentityProvider**: `Strategy` no puede cambiarse despues del registro — es inmutable una vez establecida.
 
 ### Entidades Relacionadas / Value Objects
 | Entidad / VO | Tipo | Notas |
@@ -53,10 +68,13 @@
 | `BranchRemovedEvent` | Rama eliminada definitivamente |
 | `BrandingCreatedEvent` | Branding configurado por primera vez |
 | `BrandingUpdatedEvent` | Atributos de branding actualizados |
+| `BrandingRemovedEvent` | Configuracion de branding eliminada |
 | `BrandingDnsVerifiedEvent` | Dominio personalizado verificado por DNS |
+| `BrandingDnsFailedEvent` | Intento de verificacion DNS fallido |
 | `IdentityProviderRegisteredEvent` | Nuevo IdP registrado |
 | `IdentityProviderActivatedEvent` | IdP activado |
 | `IdentityProviderDeactivatedEvent` | IdP desactivado |
+| `IdentityProviderRemovedEvent` | IdP eliminado definitivamente |
 
 ### Comandos / Casos de Uso
 | Comando | Descripcion |
@@ -65,14 +83,20 @@
 | `SuspendTenantCommand` | Suspender un tenant activo |
 | `ActivateTenantCommand` | Reactivar un tenant suspendido |
 | `AddBranchCommand` | Agregar una rama al tenant |
+| `UpdateBranchCommand` | Actualizar nombre o metadatos de geocercado |
 | `DeactivateBranchCommand` | Desactivar una rama |
 | `ReactivateBranchCommand` | Reactivar una rama |
 | `RemoveBranchCommand` | Eliminar una rama sin dependientes |
 | `ConfigureBrandingCommand` | Configurar branding por primera vez |
 | `UpdateBrandingCommand` | Actualizar atributos de branding |
+| `SetCustomDomainCommand` | Agregar o reemplazar el dominio personalizado |
+| `RemoveBrandingCommand` | Eliminar la configuracion de branding |
+| `MarkDnsVerifiedCommand` | Interno — llamado por el servicio de verificacion DNS |
+| `MarkDnsFailedCommand` | Interno — llamado por el servicio de verificacion DNS |
 | `RegisterIdentityProviderCommand` | Registrar un IdP externo |
 | `ActivateIdentityProviderCommand` | Activar un IdP |
 | `DeactivateIdentityProviderCommand` | Desactivar un IdP |
+| `RemoveIdentityProviderCommand` | Eliminar definitivamente un IdP inactivo |
 
 ### Limites de Repositorio / Servicio
 - Acceso via `ITenantRepository`.
@@ -96,26 +120,64 @@ Tenant (Aggregate Root)
 │   ├── Status: TenantStatus
 │   └── Audit: AuditValueObject
 ├── Branch (Entidad Propia, 0..N)
+│   └── Props: BranchProps
+│       ├── Id: IdValueObject
+│       ├── TenantId: TenantId
+│       ├── Code: Code
+│       ├── Name: Name
+│       ├── GeofencingMetadata?: Value (JSON)
+│       ├── IsActive: bool
+│       └── Audit: AuditValueObject
 ├── Branding (Entidad Propia, 0..1)
+│   └── Props: BrandingProps
+│       ├── Id: IdValueObject
+│       ├── TenantId: TenantId
+│       ├── Logo: Logo
+│       ├── LogoFormat: LogoFormat
+│       ├── PrimaryColor: HexColor
+│       ├── BackgroundStyle: BackgroundStyle
+│       ├── HeadlineText: LoginText
+│       ├── SecondaryText: LoginText
+│       ├── PrimaryButtonLabel: LoginText
+│       ├── FooterText: LoginText
+│       ├── CustomDomain?: CustomDomain
+│       ├── DnsVerificationStatus: DnsVerificationStatus
+│       ├── DnsCnameTarget: DnsCnameTarget
+│       ├── MagicLinkFallbackEnabled: bool
+│       └── Audit: AuditValueObject
 └── IdentityProvider (Entidad Propia, 0..N)
+    └── Props: IdentityProviderProps
+        ├── Id: IdValueObject
+        ├── TenantId: TenantId
+        ├── Code: Code
+        ├── Name: Name
+        ├── Description: Description
+        ├── Strategy: IdpStrategy
+        ├── IsActive: bool
+        └── Audit: AuditValueObject
 ```
 
-### Atributos Principales
-| Atributo | Tipo | Notas |
-|---|---|---|
-| `Id` | `Guid` | PK |
-| `Code` | `string` | Unico globalmente |
-| `Name` | `string` | Nombre para mostrar |
-| `OrganizationType` | `OrganizationType` | COMPANY / DIVISION / BRANCH_OFFICE |
-| `IdpStrategy` | `IdpStrategy` | LOCAL / FEDERATED / HYBRID |
-| `CompanyReference` | `string?` | Referencia ERP externa |
-| `ParentTenantId` | `Guid?` | FK al tenant padre |
-| `Status` | `TenantStatus` | Active / Suspended / Inactive |
-
 ### Ciclo de Vida
+**Tenant**:
 ```
 Active ──► Suspended ──► Active
 Active ──► Inactive (terminal)
+```
+**Branch**:
+```
+Activo (IsActive = true) ──► Desactivado (IsActive = false) ──► Activo
+                                     └──► Eliminado (si no tiene dependientes)
+```
+**Branding (DNS)**:
+```
+(CustomDomain establecido) -> DnsVerificationStatus = Pending
+                                 ├──► Verified  (CNAME DNS coincide)
+                                 └──► Failed    (CNAME faltante o incorrecto)
+                                         └──► Pending (en reintento)
+```
+**IdentityProvider**:
+```
+Registrado (IsActive = false) ──► Activado (IsActive = true) ──► Desactivado ──► Eliminado
 ```
 
 ---
@@ -165,7 +227,7 @@ sequenceDiagram
     participant R as ITenantRepository
     participant T as Tenant (AR)
 
-    C->>H: AddBranchCommand(tenantId, code, name, geofencing?, createdBy)
+    C->>H: AddBranchCommand(tenantId, code, name, geofencing?)
     H->>R: GetById(tenantId)
     R-->>H: Tenant
     H->>T: tenant.AddBranch(branchId, code, name, geofencing, createdBy)
@@ -174,7 +236,28 @@ sequenceDiagram
     T->>T: Crear Branch (IsActive = true)
     T->>T: Emitir BranchCreatedEvent
     H->>R: Update(tenant)
-    H-->>C: branchId
+    H-->>C: BranchId
+```
+
+### Flujo: Eliminar Rama
+```mermaid
+sequenceDiagram
+    participant C as Cliente
+    participant H as RemoveBranchHandler
+    participant R as ITenantRepository
+    participant T as Tenant (AR)
+    participant D as IBranchDependencyChecker
+
+    C->>H: RemoveBranchCommand(tenantId, branchId, actorId)
+    H->>D: HasDependents(branchId)
+    D-->>H: false
+    H->>R: GetById(tenantId)
+    R-->>H: Tenant
+    H->>T: tenant.RemoveBranch(branchId, actorId)
+    T->>T: Eliminar Branch de coleccion
+    T->>T: Emitir BranchRemovedEvent
+    H->>R: Update(tenant)
+    H-->>C: void
 ```
 
 ### Flujo: Configurar Branding
@@ -184,16 +267,79 @@ sequenceDiagram
     participant H as ConfigureBrandingHandler
     participant R as ITenantRepository
     participant T as Tenant (AR)
+    participant DNS as IDnsVerificationService
 
     C->>H: ConfigureBrandingCommand(tenantId, logo, colores, textos, customDomain?)
     H->>R: GetById(tenantId)
     R-->>H: Tenant
     H->>T: tenant.ConfigureBranding(props, createdBy)
     T->>T: Guardia: Branding no debe existir
-    T->>T: Crear Branding
+    T->>T: Crear Branding (DnsVerificationStatus = Pending si customDomain)
     T->>T: Emitir BrandingCreatedEvent
     H->>R: Update(tenant)
-    H-->>C: brandingId
+    alt customDomain proporcionado
+        H->>DNS: ScheduleVerification(tenantId, cnameTarget, customDomain)
+    end
+    H-->>C: BrandingId
+```
+
+### Flujo: Verificacion DNS (Branding)
+```mermaid
+sequenceDiagram
+    participant DNS as IDnsVerificationService
+    participant H as MarkDnsVerifiedHandler
+    participant R as ITenantRepository
+    participant T as Tenant (AR)
+
+    DNS->>H: MarkDnsVerifiedCommand(tenantId, brandingId)
+    H->>R: GetById(tenantId)
+    R-->>H: Tenant
+    H->>T: tenant.MarkDnsVerified(brandingId)
+    T->>T: Branding.DnsVerificationStatus = Verified
+    T->>T: Emitir BrandingDnsVerifiedEvent
+    H->>R: Update(tenant)
+    DNS-->>H: ok
+```
+
+### Flujo: Registrar IdP
+```mermaid
+sequenceDiagram
+    participant C as Cliente
+    participant H as RegisterIdpHandler
+    participant R as ITenantRepository
+    participant T as Tenant (AR)
+
+    C->>H: RegisterIdentityProviderCommand(tenantId, code, name, description, strategy, createdBy)
+    H->>R: GetById(tenantId)
+    R-->>H: Tenant
+    H->>T: tenant.RegisterIdentityProvider(idpId, code, name, description, strategy, createdBy)
+    T->>T: Guardia: code unico dentro del tenant
+    T->>T: Crear IdentityProvider (IsActive = false)
+    T->>T: Emitir IdentityProviderRegisteredEvent
+    H->>R: Update(tenant)
+    H-->>C: IdpId
+```
+
+### Flujo: Activar IdP
+```mermaid
+sequenceDiagram
+    participant C as Cliente
+    participant H as ActivateIdpHandler
+    participant R as ITenantRepository
+    participant T as Tenant (AR)
+    participant SVC as IIdpStrategyConsistencyService
+
+    C->>H: ActivateIdentityProviderCommand(tenantId, idpId, actorId)
+    H->>SVC: ValidateActivation(tenantId, idpId)
+    SVC-->>H: valido
+    H->>R: GetById(tenantId)
+    R-->>H: Tenant
+    H->>T: tenant.ActivateIdentityProvider(idpId, actorId)
+    T->>T: Buscar IdP en coleccion
+    T->>T: IdP.IsActive = true
+    T->>T: Emitir IdentityProviderActivatedEvent
+    H->>R: Update(tenant)
+    H-->>C: void
 ```
 
 ---
@@ -207,6 +353,9 @@ erDiagram
     TENANT ||--o{ IDENTITY_PROVIDER : "registra"
     TENANT ||--o{ USER_ACCOUNT : "tiene"
     TENANT |o--o{ TENANT : "es_padre_de"
+    BRANCH ||--o{ USER_ACCOUNT : "alcance"
+    BRANCH ||--o{ PROFILE : "contexto_para"
+    IDENTITY_PROVIDER ||--o{ IDP_CONFIGURATION : "configured_by"
 
     TENANT {
         uniqueidentifier TenantId PK
@@ -222,6 +371,54 @@ erDiagram
         datetime2 UpdatedAt
         uniqueidentifier UpdatedBy
     }
+
+    BRANCH {
+        uniqueidentifier BranchId PK
+        uniqueidentifier TenantId FK
+        nvarchar Code "Unico por TenantId"
+        nvarchar Name
+        nvarchar GeofencingMetadata "JSON Nullable"
+        bit IsActive
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
+    }
+
+    BRANDING {
+        uniqueidentifier BrandingId PK
+        uniqueidentifier TenantId FK "Unico - 1:1"
+        nvarchar Logo "URI Storage Path"
+        nvarchar LogoFormat "PNG-SVG-JPEG"
+        nvarchar PrimaryColor "Hex Color"
+        nvarchar BackgroundStyle "Glassmorphism-SleekDark"
+        nvarchar HeadlineText
+        nvarchar SecondaryText
+        nvarchar PrimaryButtonLabel
+        nvarchar FooterText
+        nvarchar CustomDomain "FQDN Nullable"
+        nvarchar DnsVerificationStatus "PENDING-VERIFIED-FAILED"
+        nvarchar DnsCnameTarget "CNAME de Plataforma"
+        bit MagicLinkFallbackEnabled
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
+    }
+
+    IDENTITY_PROVIDER {
+        uniqueidentifier IdpId PK
+        uniqueidentifier TenantId FK
+        nvarchar Code "Unico por TenantId"
+        nvarchar Name
+        nvarchar Description
+        nvarchar Strategy "OIDC-SAML2-WS_FED"
+        bit IsActive
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
+    }
 ```
 
 ---
@@ -232,18 +429,30 @@ erDiagram
 flowchart TD
     subgraph Identity["Identity BC"]
         T[Tenant AR]
-        B[Branch]
-        BR[Branding]
-        IDP[IdentityProvider]
-        UA[UserAccount]
+        B[Branch Entity]
+        BR[Branding Entity]
+        IDP[IdentityProvider Entity]
+        UA[UserAccount AR]
         T --> B
         T --> BR
         T --> IDP
         UA -->|TenantId| T
+        UA -->|BranchId opcional| B
+    end
+
+    subgraph Authorization["Authorization BC"]
+        PROF[Profile AR]
+        PROF -->|BranchId alcance opcional| B
     end
 
     subgraph Configuration["Configuration BC"]
         IDPC[IdpConfiguration AR]
+    end
+
+    subgraph Infrastructure["Infrastructure"]
+        DNS[DNS Verification Service]
+        STORE[File Storage - Logo URI]
+        EXTIDP[IdP Externo - Azure AD, Okta]
     end
 
     subgraph Audit["Audit BC"]
@@ -251,7 +460,15 @@ flowchart TD
     end
 
     IDP -->|IdentityProviderRegisteredEvent| IDPC
+    IDP -->|IdentityProviderDeactivatedEvent| IDPC
+    EXTIDP -->|Contrato de Protocolo| IDP
+    DNS -->|MarkDnsVerifiedCommand| BR
+    DNS -->|MarkDnsFailedCommand| BR
+    STORE -->|Logo URI almacenado| BR
     T -->|eventos de dominio| AUD
+    B -->|eventos de dominio| AUD
+    BR -->|eventos de dominio| AUD
+    IDP -->|eventos de dominio| AUD
 ```
 
 ---
@@ -265,8 +482,20 @@ flowchart TD
 | `SuspendTenantCommand` | `tenantId, actorId` | `void` |
 | `ActivateTenantCommand` | `tenantId, actorId` | `void` |
 | `AddBranchCommand` | `tenantId, code, name, geofencingMetadata?, createdBy` | `Guid branchId` |
+| `UpdateBranchCommand` | `tenantId, branchId, name?, geofencingMetadata?, updatedBy` | `void` |
+| `DeactivateBranchCommand` | `tenantId, branchId, actorId` | `void` |
+| `ReactivateBranchCommand` | `tenantId, branchId, actorId` | `void` |
+| `RemoveBranchCommand` | `tenantId, branchId, actorId` | `void` |
+| `ConfigureBrandingCommand` | `tenantId, logo, logoFormat, primaryColor, backgroundStyle, headlineText, secondaryText, primaryButtonLabel, footerText, customDomain?, cnameTarget, magicLinkFallback, createdBy` | `Guid brandingId` |
+| `UpdateBrandingCommand` | `tenantId, brandingId, campos..., updatedBy` | `void` |
+| `SetCustomDomainCommand` | `tenantId, brandingId, customDomain, updatedBy` | `void` |
+| `RemoveBrandingCommand` | `tenantId, brandingId, actorId` | `void` |
+| `MarkDnsVerifiedCommand` | `tenantId, brandingId` | `void` |
+| `MarkDnsFailedCommand` | `tenantId, brandingId, reason` | `void` |
 | `RegisterIdentityProviderCommand` | `tenantId, code, name, description, strategy, createdBy` | `Guid idpId` |
-| `ConfigureBrandingCommand` | `tenantId, logo, logoFormat, primaryColor, ...` | `Guid brandingId` |
+| `ActivateIdentityProviderCommand` | `tenantId, idpId, actorId` | `void` |
+| `DeactivateIdentityProviderCommand` | `tenantId, idpId, actorId` | `void` |
+| `RemoveIdentityProviderCommand` | `tenantId, idpId, actorId` | `void` |
 
 ### Consultas
 | Consulta | Retorna |
@@ -281,6 +510,19 @@ flowchart TD
 | `TENANT_NOT_FOUND` | tenantId desconocido |
 | `TENANT_NOT_ACTIVE` | Operacion requiere tenant activo |
 | `TENANT_SUSPENDED` | Tenant actualmente suspendido |
+| `BRANCH_CODE_DUPLICATE` | Code ya existe en el tenant |
+| `BRANCH_NOT_FOUND` | branchId desconocido en el tenant |
+| `BRANCH_HAS_DEPENDENTS` | Eliminacion bloqueada por usuarios o perfiles activos |
+| `BRANCH_ALREADY_INACTIVE` | Desactivar una rama ya inactiva |
+| `BRANDING_ALREADY_EXISTS` | ConfigureBranding llamado dos veces |
+| `BRANDING_NOT_FOUND` | Sin branding configurado para el tenant |
+| `DNS_ALREADY_VERIFIED` | Intento de re-verificar un dominio ya verificado |
+| `INVALID_CUSTOM_DOMAIN` | No es un formato FQDN valido |
+| `IDP_CODE_DUPLICATE` | Code existe en el tenant |
+| `IDP_NOT_FOUND` | idpId desconocido en el tenant |
+| `IDP_STRATEGY_IMMUTABLE` | Intento de cambiar Strategy |
+| `IDP_SOLE_ACTIVE_PROVIDER` | Desactivacion dejaria al tenant sin autenticacion |
+| `IDP_NOT_INACTIVE` | Eliminacion intentada en IdP activo |
 
 ---
 
@@ -291,13 +533,18 @@ flowchart TD
 |---|---|---|
 | `IX_Tenant_Code` | `Code` | Unico |
 | `IX_Tenant_ParentTenantId` | `ParentTenantId` | No unico |
+| `IX_Branch_TenantId` | `TenantId` | No unico |
 | `IX_Branch_TenantId_Code` | `TenantId, Code` | Unico |
-| `IX_Branding_TenantId` | `TenantId` | Unico |
+| `IX_Branch_IsActive` | `IsActive` | No unico |
+| `IX_Branding_TenantId` | `TenantId` | Unico (impone 1:1) |
+| `IX_Branding_CustomDomain` | `CustomDomain` | Unico (parcial - no nulo) |
 | `IX_IdentityProvider_TenantId_Code` | `TenantId, Code` | Unico |
+| `IX_IdentityProvider_TenantId_IsActive` | `TenantId, IsActive` | No unico |
 
 ### Consideraciones Multi-Tenant
 - Todas las consultas de entidades hijas deben estar filtradas por `TenantId`.
-- `Code` es clave unica global — no por tenant.
+- `Code` en Tenant es clave unica global — no por tenant.
+- `CustomDomain` unico entre todos los tenants (un dominio no puede ser reclamado por dos tenants).
 
 ---
 
@@ -309,10 +556,19 @@ flowchart TD
 | Registrar Tenant | Platform:Admin |
 | Suspender / Activar Tenant | Platform:Admin |
 | Agregar / Eliminar Branch | Tenant:Admin |
-| Configurar Branding | Tenant:Admin |
-| Registrar IdP | Tenant:Admin |
+| Desactivar / Reactivar Branch | Tenant:Admin |
+| Listar Branches | Tenant:Admin · Tenant:UserManager |
+| Configurar / Actualizar Branding | Tenant:Admin |
+| Establecer Dominio Personalizado | Tenant:Admin |
+| Marcar DNS Verificado/Fallido | Solo servicio interno |
+| Registrar / Eliminar IdP | Tenant:Admin |
+| Activar / Desactivar IdP | Tenant:Admin |
 
 ### Eventos de Auditoria
-- `TENANT_CREATED`, `TENANT_SUSPENDED`, `TENANT_ACTIVATED`
-- `BRANCH_CREATED`, `BRANCH_DEACTIVATED`, `BRANCH_REMOVED`
-- `BRANDING_CONFIGURED`, `IDP_REGISTERED`
+- Tenant: `TENANT_CREATED`, `TENANT_SUSPENDED`, `TENANT_ACTIVATED`
+- Branch: `BRANCH_CREATED`, `BRANCH_DEACTIVATED`, `BRANCH_REACTIVATED`, `BRANCH_REMOVED`
+- Branding: `BRANDING_CONFIGURED`, `BRANDING_UPDATED`, `BRANDING_REMOVED`, `DNS_VERIFIED`, `DNS_FAILED`
+- IdentityProvider: `IDP_REGISTERED`, `IDP_ACTIVATED`, `IDP_DEACTIVATED`, `IDP_REMOVED`
+
+### Datos Sensibles
+- `IdentityProvider` en si no almacena credenciales. Los secretos viven en `IDP_CONFIGURATION.SecretRef` (ruta al vault).

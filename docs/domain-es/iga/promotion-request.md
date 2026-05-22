@@ -16,7 +16,9 @@ El agregado `PromotionRequest` coordina los ascensos de acceso, lo que permite a
 - Registrar la intención de un usuario de adquirir un rol de destino más senior o privilegiado.
 - Controlar el flujo de trabajo de aprobación de múltiples pasos.
 - Incrustar los resultados del análisis de impacto de permisos tóxicos (`PromotionImpactAnalysis`).
+- Cuantificar los riesgos del ascenso de accesos en una puntuación unificada (0 a 100), identificando conflictos de permisos, combinaciones tóxicas y sistemas afectados.
 - Coordinar los estados de ejecución y confirmación posterior al cambio de rol.
+- Proporcionar a los auditores de seguridad directrices recomendadas de mitigación.
 
 ### Raíz del Agregado
 `PromotionRequest` sirve como la raíz del agregado, gestionando el ciclo de vida del proceso de ascenso y albergando a `PromotionImpactAnalysis` como una entidad de propiedad exclusiva.
@@ -31,6 +33,8 @@ El agregado `PromotionRequest` coordina los ascensos de acceso, lo que permite a
    - `ApprovedReadyToExecute` $\rightarrow$ `Executed` (a través de `Execute`).
    - `Executed` $\rightarrow$ `Verified` (a través de `Verify`) O `VerificationFailed` (a través de `MarkVerificationFailed`).
 2. **INV-PR2 (Unicidad del Análisis de Impacto):** Solo se puede registrar un análisis de impacto por cada solicitud de ascenso para evitar la reescritura de historiales (`DomainErrors.IGA.ImpactAnalysisAlreadyExists`).
+3. **INV-PIA1 (Límites de la Puntuación de Riesgo):** El valor de `RiskScore` en el análisis de impacto debe ser un decimal estrictamente entre `0` y `100` inclusive (`DomainErrors.IGA.InvalidPerformanceScore`).
+4. **INV-PIA2 (Inmutabilidad de los Análisis):** Una vez calculado y guardado, un análisis de impacto no puede ser editado. Si los alcances de acceso cambian, debe iniciarse un nuevo ciclo completo de ascenso.
 
 ### Entidades Relacionadas / Objetos de Valor
 | Entidad / VO | Tipo | Descripción |
@@ -42,13 +46,15 @@ El agregado `PromotionRequest` coordina los ascensos de acceso, lo que permite a
 | `PromotionStatus` | Enumerado | Enumerado del estado de la FSM (`Draft`, `PendingManagerApproval`, etc.) |
 | `ApprovalDecision` | Enumerado | `None` · `Approved` · `Rejected` |
 | `PromotionImpactAnalysis` | Entidad | Entidad hija de propiedad exclusiva que contiene métricas de riesgo |
+| `PromotionImpactAnalysisId` | Objeto de Valor | Identificador único de la entidad hija de análisis de impacto |
+| `TextValueObject` | Objeto de Valor | Propiedades de texto generales para niveles de riesgo, mitigaciones, conflictos, etc. |
 
 ---
 
 ## 2. Modelo de Dominio
 
 ### Clases / Entidades / Objetos de Valor
-```
+```text
 PromotionRequest (Aggregate Root)
 ├── Props: PromotionRequestProps
 │   ├── Id: PromotionRequestId
@@ -70,6 +76,19 @@ PromotionRequest (Aggregate Root)
 │   ├── VerifiedAt: DateTime?
 │   └── Audit: AuditValueObject
 └── ImpactAnalyses: PromotionImpactAnalysis[] (Colección Hija)
+    └── Props: PromotionImpactAnalysisProps
+        ├── Id: IdValueObject
+        ├── PromotionRequestId: PromotionRequestId
+        ├── RiskScore: decimal
+        ├── RiskLevel: TextValueObject
+        ├── NewPermissionsCount: int
+        ├── RemovedPermissionsCount: int
+        ├── AffectedSystemsCount: int
+        ├── ConflictingPermissions: TextValueObject?
+        ├── RiskFactors: TextValueObject?
+        ├── SuggestedMitigations: TextValueObject?
+        ├── AnalyzedAt: DateTime
+        └── AnalyzedBy: TextValueObject?
 ```
 
 ---
@@ -111,13 +130,19 @@ classDiagram
         +AuditValueObject Audit
     }
     class PromotionImpactAnalysis {
-        +Guid Id
+        +IdValueObject Id
+        +PromotionRequestId PromotionRequestId
         +decimal RiskScore
         +TextValueObject RiskLevel
         +int NewPermissionsCount
         +int RemovedPermissionsCount
         +int AffectedSystemsCount
         +TextValueObject ConflictingPermissions
+        +TextValueObject RiskFactors
+        +TextValueObject SuggestedMitigations
+        +DateTime AnalyzedAt
+        +TextValueObject AnalyzedBy
+        +Create() Result~PromotionImpactAnalysis~
     }
     class PromotionStatus {
         <<enumeration>>
@@ -142,6 +167,8 @@ classDiagram
 ## 4. Diagramas de Secuencia
 
 ### Proceso de Ascenso de Alto Riesgo
+
+*Nota: Las secuencias de creación y validación para el análisis de impacto se coordinan exclusivamente a través del agregado raíz.*
 
 ```mermaid
 sequenceDiagram
@@ -187,7 +214,7 @@ sequenceDiagram
 
 ```mermaid
 erDiagram
-    PROMOTION_REQUEST ||--o| PROMOTION_IMPACT_ANALYSIS : "evaluado por"
+    PROMOTION_REQUEST ||--o| PROMOTION_IMPACT_ANALYSIS : "posee / evaluado por"
 
     PROMOTION_REQUEST {
         uniqueidentifier PromotionRequestId PK
@@ -229,10 +256,13 @@ erDiagram
 
 ### Reglas de Aislamiento de Inquilinos (Tenancy)
 - Particionado por `TenantId`. Los envíos se verifican contra las propiedades de configuración del inquilino para evitar la falsificación de solicitudes entre inquilinos.
+- La entidad `PromotionImpactAnalysis` hereda las reglas de delimitación de su agregado raíz padre `PromotionRequest`. El acceso entre inquilinos está implícitamente bloqueado.
 
 ---
 
 ## 6. Integración del Contexto Acotado
+
+Los motores de seguridad leen los hallazgos de `PromotionImpactAnalysis` para decidir si bloquear acciones o requerir flujos de aprobación de alto riesgo.
 
 ```mermaid
 flowchart TD
@@ -265,6 +295,7 @@ flowchart TD
 - **SubmitPromotionRequestCommand:** Envía una solicitud a la revisión de la gerencia.
 - **ManagerApprovePromotionRequestCommand:** Registra la verificación de un gerente.
 - **SecurityReviewPromotionRequestCommand:** Registra el análisis de rendimiento dinámico y activa el ramificado de riesgo.
+- **AddImpactAnalysisCommand:** Coordinado por los manejadores de aplicación de `PromotionRequest` para adjuntar los datos del análisis de impacto.
 - **ExecutePromotionRequestCommand:** Ejecuta el cambio de rol en los sistemas de destino.
 - **VerifyPromotionRequestCommand:** Firma de cumplimiento final que valida la propagación exitosa del ascenso.
 
@@ -303,6 +334,7 @@ public class PromotionRequestConfiguration : IEntityTypeConfiguration<PromotionR
             props.OwnsOne(p => p.Audit);
         });
 
+        // Mapea las propiedades del esquema dependiente. La eliminación en cascada garantiza la consistencia.
         builder.HasMany(e => e.ImpactAnalyses)
                .WithOne()
                .HasForeignKey("PromotionRequestId")
@@ -317,12 +349,13 @@ public class PromotionRequestConfiguration : IEntityTypeConfiguration<PromotionR
 
 - **Segregación de Funciones (SOD - Segregation of Duties):** El gerente (`ManagerId`) autorizado para aprobar una solicitud de ascenso no puede ser el usuario objetivo (`UserId`) ni el auditor de seguridad que realiza la evaluación de seguridad.
 - **Ramificación por Riesgo:** Las solicitudes con análisis de impacto de alto riesgo se enrutan a un paso adicional (`PendingSecurityApproval`), evitando adiciones de roles automáticas sin un visto bueno especializado.
+- **Inmutabilidad de los Datos de Auditoría:** Los datos del análisis de impacto son estrictamente de solo lectura una vez que se han guardado. Esto evita que los actores minimicen las combinaciones tóxicas para eludir la revisión de los auditores.
 
 ---
 
 ## 10. Decisiones Técnicas
 
-- **Cálculo de Riesgo Asíncrono:** Generar análisis de permisos tóxicos requiere análisis de grafos complejos. Por lo tanto, se desacopla en una tarea analítica en segundo plano que retorna una entidad `PromotionImpactAnalysis`, en lugar de bloquear síncronamente los flujos de escritura de la capa de aplicación.
+- **Cálculo de Riesgo Asíncrono:** Generar análisis de permisos tóxicos requiere análisis de grafos complejos. Por lo tanto, se desacopla en una tarea analítica en segundo plano que retorna una entidad `PromotionImpactAnalysis`, en lugar de bloquear síncronamente los flujos de escritura de la capa de aplicación o flujos de ejecución del usuario mientras se ejecutan análisis pesados sobre gráficos de permisos.
 
 ---
 

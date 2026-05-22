@@ -10,7 +10,7 @@
 ## 1. Visión General del Agregado
 
 ### Propósito
-El agregado `FeatureFlag` es el interruptor de control operativo del sistema. Define banderas de características (feature flags) y reglas a nivel de plataforma (globales) o específicas del inquilino. Estas banderas controlan rutas de código dinámicas, habilitando características como lanzamientos silenciosos (dark launches), versiones canario (canary releases), despliegues basados en porcentaje y segmentación granular por usuario o sucursal sin necesidad de redistribuir código.
+El agregado `FeatureFlag` es el interruptor de control operativo del sistema. Define banderas de características (feature flags) y reglas a nivel de plataforma (globales) o específicas del inquilino. Estas banderas controlan rutas de código dinámicas, habilitando características como lanzamientos silenciosos (dark launches), versiones canario (canary releases), despliegues basados en porcentaje y segmentación granular. Adicionalmente, consolida la bitácora de evaluación de banderas (`FlagEvaluationLog`), sirviendo como un registro operativo inmutable y listo para auditoría que detalla por qué una bandera específica se evaluó de cierta manera en tiempo de ejecución.
 
 ### Responsabilidad de Negocio
 - Registrar y definir banderas de características con identificadores únicos.
@@ -18,16 +18,21 @@ El agregado `FeatureFlag` es el interruptor de control operativo del sistema. De
 - Permitir el control administrativo (habilitar, deshabilitar, pausar) sobre las características en tiempo de ejecución.
 - Mantener estados de alternancia específicos por entorno (Desarrollo, Staging, Producción).
 - Aplicar segmentación basada en roles de usuario, ubicaciones de sucursales y suites del sistema.
+- Registrar los valores exactos de entrada y salida de las evaluaciones de banderas en tiempo real.
+- Capturar la razón técnica de la evaluación de la bandera y proveer flujos de datos para auditoría y herramientas de seguridad.
 
 ### Raíz de Agregado
-`FeatureFlag` es la raíz del agregado. Todas las actualizaciones de los estados de alternancia o las reglas de evaluación dinámica deben fluir a través de los comandos de la raíz del agregado para garantizar la consistencia y validar las invariantes.
+`FeatureFlag` es la raíz del agregado. Todas las actualizaciones de los estados de alternancia o las reglas de evaluación dinámica deben fluir a través de los comandos de la raíz del agregado para garantizar la consistencia y validar las invariantes. El `FlagEvaluationLog` actúa como una entidad alojada en este contexto que funciona con patrón de adición exclusiva (append-only) de forma asincrónica.
 
 ### Invariantes y Reglas de Consistencia
 1. Una clave de Feature Flag debe ser única. Las banderas globales (`TenantId IS NULL`) deben ser únicas en toda la plataforma. Las banderas delimitadas por inquilino deben ser únicas dentro de ese `TenantId`.
 2. La clave debe seguir el formato kebab-case estricto (ej. `billing.new-checkout-flow`).
 3. Para una estrategia de despliegue `PERCENTAGE` (porcentaje), el porcentaje de despliegue debe ser un número entero entre 0 y 100 inclusive.
-4. Para una estrategia `TARGETED` (segmentada), debe existir al menos una regla de segmentación activa (ej. lista de usuarios específica, lista de sucursales o lista de roles).
-5. Las banderas de características activas en un entorno de producción no se pueden eliminar de forma permanente; deben archivarse o desactivarse para mantener el contexto histórico para las bitácoras de evaluación.
+4. Para una estrategia `TARGETED` (segmentada), debe existir al menos una regla de segmentación activa.
+5. Las banderas de características activas en un entorno de producción no se pueden eliminar de forma permanente; deben archivarse.
+6. `FlagEvaluationLog` es estrictamente **inmutable** y de **adición exclusiva (append-only)**. No se exponen operaciones de actualización ni eliminación.
+7. Cada registro de bitácora debe hacer referencia a un `FlagId` válido y el `TenantId` del registro debe coincidir con el contexto solicitado.
+8. `EvaluatedAt` en la bitácora debe representar la marca de tiempo UTC precisa.
 
 ### Entidades Relacionadas / Objetos de Valor
 | Entidad / VO | Tipo | Propietario |
@@ -37,6 +42,10 @@ El agregado `FeatureFlag` es el interruptor de control operativo del sistema. De
 | `RolloutStrategy` | Enumerado | BOOLEAN · PERCENTAGE · TARGETED |
 | `TargetingRule` | Entidad | Entidad hija propia que contiene criterios de coincidencia de reglas |
 | `AuditValueObject` | Objeto de Valor | Rastrea metadatos de creación y modificación |
+| `FlagEvaluationLogId` | Objeto de Valor | Identificador único de registro basado en Guid |
+| `FlagEvaluationLog` | Entidad | Entidad inmutable de adición exclusiva para auditoría |
+| `EvaluationContext` | Objeto de Valor | Metadatos serializados del entorno del actor solicitante |
+| `EvaluationReason` | Objeto de Valor | Texto estructurado que describe la regla o lógica que desencadenó el resultado |
 
 ### Eventos de Dominio
 | Evento | Desencadenante |
@@ -46,27 +55,30 @@ El agregado `FeatureFlag` es el interruptor de control operativo del sistema. De
 | `RolloutStrategyChangedEvent` | Se modifican los parámetros de la estrategia o del porcentaje de despliegue |
 | `TargetingRulesUpdatedEvent` | Se añade, actualiza o limpia la lista de reglas segmentadas |
 | `FeatureFlagArchivedEvent` | Se archiva una bandera y queda no disponible para nuevas evaluaciones |
+| `FlagEvaluationLoggedEvent` | Se ha confirmado un resultado de evaluación en el almacén de bitácoras persistente |
 
 ### Comandos / Casos de Uso
-| Comando | Descripción |
+| Comando / Consulta | Descripción |
 |---|---|
 | `CreateFeatureFlagCommand` | Registrar una nueva bandera de característica con valores predeterminados |
-| `ToggleFeatureFlagCommand` | Habilitar o deshabilitar una bandera de característica instantáneamente |
+| `ToggleFeatureFlagCommand` | Habilitar o deshabilitar una bandera instantáneamente |
 | `UpdateRolloutStrategyCommand` | Cambiar el tipo de estrategia o ajustar el porcentaje de despliegue |
 | `UpdateTargetingRulesCommand` | Modificar reglas específicas para la segmentación de usuarios/sucursales |
 | `ArchiveFeatureFlagCommand` | Archivar una bandera activa para evitar nuevas evaluaciones |
+| `LogFlagEvaluationCommand` | Escribir un nuevo registro de evaluación inmutable en la base de datos |
+| `GetFlagEvaluationLogsQuery` | Recuperar bitácoras de evaluación filtradas por Bandera, Inquilino o Usuario |
 
 ### Límites de Repositorio / Servicio
 - `IFeatureFlagRepository` — Maneja la recuperación y persistencia de banderas.
-- Los filtros de consulta añaden automáticamente el `TenantId` para banderas delimitadas por inquilino, permitiendo acceso de lectura a banderas globales (`TenantId IS NULL`).
-- No se permiten operaciones de escritura entre límites de inquilinos.
+- `IFlagEvaluationLogRepository` — Maneja la inserción de bitácoras de adición exclusiva y consultas de lectura.
+- Los filtros de consulta añaden automáticamente el `TenantId` para aislar las banderas y bitácoras delimitadas por inquilino. Las banderas globales (`TenantId IS NULL`) son de lectura para inquilinos y exclusivas para administradores de plataforma.
 
 ---
 
 ## 2. Modelo de Dominio
 
 ### Clases / Entidades / Objetos de Valor
-```
+```text
 FeatureFlag (Raíz de Agregado)
 ├── Props: FeatureFlagProps
 │   ├── Id: FeatureFlagId
@@ -80,12 +92,28 @@ FeatureFlag (Raíz de Agregado)
 │   └── Audit: AuditValueObject
 └── Hijos
     └── IReadOnlyList<TargetingRule>
+
+FlagEvaluationLog (Entidad de Auditoría)
+└── Props: FlagEvaluationLogProps
+    ├── Id: FlagEvaluationLogId
+    ├── FlagId: FeatureFlagId
+    ├── TenantId?: TenantId
+    ├── UserId?: UserId
+    ├── BranchId?: BranchId
+    ├── Environment: string (DEV|STAGE|PROD)
+    ├── EvaluatedAt: DateTime
+    ├── Result: bool
+    ├── Reason: EvaluationReason
+    └── ContextValues: EvaluationContext
 ```
 
 ### Reglas de Validación
-- `Key`: Expresión regular que coincide con `^[a-z0-9]+(?:-[a-z0-9]+)*(?:\.[a-z0-9]+(?:-[a-z0-9]+)*)*$` (kebab-case estándar con anidación por puntos opcional).
+- `Key`: Expresión regular que coincide con `^[a-z0-9]+(?:-[a-z0-9]+)*(?:\.[a-z0-9]+(?:-[a-z0-9]+)*)*$`.
 - `Percentage`: Requerido si la estrategia es `PERCENTAGE`, debe estar entre 0 y 100.
-- `TargetingRule`: Las reglas de coincidencia deben tener operadores válidos (EQUALS, IN, NOT_IN) y listas de criterios no vacías.
+- `TargetingRule`: Deben tener operadores válidos (EQUALS, IN, NOT_IN) y listas no vacías.
+- `FlagId` de bitácora: No debe estar vacío.
+- `Environment` de bitácora: Código válido (`DEV`, `STAGE`, `PROD`).
+- `EvaluatedAt`: Debe ser UTC y no futura.
 
 ---
 
@@ -123,8 +151,34 @@ classDiagram
         +List~string~ Values
         +Evaluate(context) bool
     }
+    class FlagEvaluationLog {
+        +Guid Id
+        +Guid FlagId
+        +Guid? TenantId
+        +Guid? UserId
+        +Guid? BranchId
+        +string Environment
+        +DateTime EvaluatedAt
+        +bool Result
+        +EvaluationReason Reason
+        +EvaluationContext ContextValues
+        +Create()
+    }
+    class EvaluationReason {
+        +string StrategyUsed
+        +string MatchedRuleId
+        +string Description
+    }
+    class EvaluationContext {
+        +string ClientIp
+        +string UserAgent
+        +string RequestPath
+    }
     FeatureFlag "1" *-- "1" RolloutStrategy
     FeatureFlag "1" *-- "0..*" TargetingRule
+    FeatureFlag "1" -- "0..*" FlagEvaluationLog : desencadena
+    FlagEvaluationLog "1" *-- "1" EvaluationReason
+    FlagEvaluationLog "1" *-- "1" EvaluationContext
 ```
 
 ---
@@ -151,6 +205,24 @@ sequenceDiagram
     H-->>C: ok
 ```
 
+### Flujo de Registro de Evaluación de Bandera (Evento Asíncrono)
+```mermaid
+sequenceDiagram
+    participant S as AppService
+    participant E as FeatureEvaluationEngine
+    participant M as MessageBus
+    participant H as LogEvaluationHandler
+    participant R as IFlagEvaluationLogRepository
+
+    S->>E: Evaluate("billing.new-checkout-flow", context)
+    E-->>S: true (MatchedRule: UserId IN [56])
+    E->>M: Publicar FlagEvaluatedEvent(flagId, tenantId, context, result, reason)
+    Note over M,H: Procesado de Forma Asíncrona
+    M->>H: Handle(FlagEvaluatedEvent)
+    H->>R: Append(new FlagEvaluationLog(...))
+    R-->>H: ok
+```
+
 ---
 
 ## 5. Modelo ER
@@ -158,7 +230,9 @@ sequenceDiagram
 ```mermaid
 erDiagram
     TENANT ||--o{ FEATURE_FLAG : "posee"
+    TENANT ||--o{ FLAG_EVALUATION_LOG : "contiene"
     FEATURE_FLAG ||--o{ TARGETING_RULE : "contiene"
+    FEATURE_FLAG ||--o{ FLAG_EVALUATION_LOG : "desencadena"
 
     FEATURE_FLAG {
         uniqueidentifier FlagId PK
@@ -179,18 +253,31 @@ erDiagram
         nvarchar Operator "EQUALS-IN-NOT_IN"
         nvarchar ValuesJson "Matriz serializada de valores coincidentes"
     }
+    FLAG_EVALUATION_LOG {
+        uniqueidentifier LogId PK
+        uniqueidentifier FlagId FK
+        uniqueidentifier TenantId FK "Nullable"
+        uniqueidentifier UserId FK "Nullable"
+        uniqueidentifier BranchId FK "Nullable"
+        nvarchar Environment "DEV-STAGE-PROD"
+        datetime2 EvaluatedAt "UTC Timestamp"
+        bit Result
+        nvarchar ReasonStrategy
+        nvarchar ReasonDescription
+        nvarchar ContextJson "Contexto serializado del cliente/entorno"
+    }
 ```
 
 ### Reglas de Aislamiento de Inquilinos
-- Las banderas globales (`TenantId IS NULL`) son definiciones a nivel de sistema, de solo lectura para los administradores de inquilinos.
-- Las banderas delimitadas por inquilinos están aisladas por `TenantId`. Cualquier comando de modificación verifica la propiedad del inquilino.
+- Las banderas globales (`TenantId IS NULL`) son de solo lectura para los inquilinos.
+- Las banderas delimitadas están aisladas por `TenantId`.
+- Las bitácoras asociadas o evaluadas dentro de un contexto de inquilino se particionan estrictamente por `TenantId`. Ninguna operación puede eliminar o actualizar estos registros inmutables.
 
 ---
 
 ## 6. Integración de Contexto Delimitado
-- **Aguas Arriba**: Opcionalmente recupera identificadores de Usuario, Sucursal o Rol de los contextos delimitados de Identidad y Autorización para evaluar las reglas de segmentación.
-- **Aguas Abajo**: Consultado por capas de enrutamiento, componentes de React y controladores de API.
-- Los resultados de la evaluación activan entradas en `FlagEvaluationLog` dentro del mismo contexto.
+- **Aguas Arriba**: Opcionalmente recupera identificadores de Usuario, Sucursal o Rol de los contextos de Identidad y Autorización para evaluar segmentación.
+- **Aguas Abajo**: Consultado por capas de enrutamiento, componentes de React y controladores de API. Alimenta a plataformas de telemetría y análisis con las bitácoras generadas para monitorear el uso de características.
 
 ---
 
@@ -199,24 +286,28 @@ erDiagram
 - `ToggleFeatureFlagCommand` -> Entradas: `FlagId, TenantId?, IsActive` -> Retorna: `void`
 - `UpdateTargetingRulesCommand` -> Entradas: `FlagId, TenantId?, List<RuleDto>` -> Retorna: `void`
 - `EvaluateFeatureFlagQuery` -> Entradas: `TenantId?, Key, UserContext` -> Retorna: `EvaluationResultDto`
+- `LogFlagEvaluationCommand` -> Entradas: `FlagId, TenantId?, UserId?, BranchId?, Environment, Result, Reason, Context` -> Retorna: `Guid`
+- `GetFlagEvaluationLogsQuery` -> Entradas: `TenantId?, FlagId?, PageIndex, PageSize` -> Retorna: `PagedList<FlagEvaluationLogDto>`
 
 ---
 
 ## 8. Infraestructura/Persistencia
-- Índice: Índice único en `TenantId, Key` cuando `TenantId IS NOT NULL`. Índice único en `Key` cuando `TenantId IS NULL` (para banderas globales).
-- Transacción: Las actualizaciones de reglas y alternancia son atómicas; guardan tanto `FEATURE_FLAG` como sus registros `TARGETING_RULE` asociados en una única transacción de base de datos.
+- **Índices**: Único en `TenantId, Key` para banderas de inquilino; único en `Key` para banderas globales. Índice no agrupado en `TenantId, EvaluatedAt` y `FlagId, EvaluatedAt` para consultas de registro rápidas.
+- **Transacciones**: Actualizaciones de reglas son atómicas.
+- **Almacenamiento (Log)**: Optimizado para alta escritura (ej., particionamiento o índice columnstore) al manejar gran volumen de bitácoras `FLAG_EVALUATION_LOG`.
 
 ---
 
 ## 9. Seguridad y Cumplimiento
-- Banderas globales (`TenantId IS NULL`): Restringido a los roles de `Platform:Admin`.
-- Banderas delimitadas por inquilino: Modificable por `Tenant:Admin` para su propio inquilino.
-- Cumplimiento de Auditoría: Todas las acciones de alternancia o ediciones de reglas se registran permanentemente con identificadores de actor para satisfacer los protocolos de auditoría regulatoria.
+- **Control de Accesos**: Banderas globales limitadas a `Platform:Admin`. Banderas de inquilino a `Tenant:Admin`.
+- **Auditoría y Manipulación**: Todas las acciones se registran. La prevención de manipulación en bitácoras se aplica deshabilitando permisos `UPDATE` y `DELETE` en `FLAG_EVALUATION_LOG`.
+- **Privacidad**: Atributos de contexto en el log (`ContextJson`) deben omitir información personal (PII) o datos confidenciales en texto claro.
 
 ---
 
 ## 10. Decisiones Técnicas
-- Almacenar los valores de segmentación como una matriz JSON serializada (`ValuesJson`) permite emparejadores de segmentos complejos y extensibles sin sobrecargar el esquema relacional con tablas de unión excesivas.
+- Almacenar los valores de segmentación como una matriz JSON serializada (`ValuesJson`) permite emparejadores extensibles sin exceso de uniones.
+- Escribir bitácoras de manera asíncrona a través de un bus de mensajes (Event-driven) protege los tiempos de latencia de las transacciones principales contra bloqueos, aislando el rendimiento del motor de evaluación.
 
 ---
 

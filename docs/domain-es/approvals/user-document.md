@@ -10,12 +10,12 @@
 ## 1. Vista General del Agregado
 
 ### Propósito
-El agregado `UserDocument` representa una credencial digital o documento de cumplimiento cargado por un usuario (por ejemplo, verificación de identidad, certificaciones). Gestiona el ciclo de vida de verificación del documento, su estado de validez, estado de cumplimiento y el historial de notificaciones de vencimiento enviadas al usuario.
+El agregado `UserDocument` representa una credencial digital o documento de cumplimiento cargado por un usuario (por ejemplo, verificación de identidad, certificaciones). Gestiona el ciclo de vida de verificación del documento, su estado de validez, estado de cumplimiento y el historial de notificaciones de vencimiento enviadas al usuario a través de la entidad `AccessNotification`. `AccessNotification` sirve como un registro cronológico inmutable de alertas generadas por el sistema.
 
 ### Responsabilidad de Negocio
 - Encapsular los metadatos del documento, incluyendo fecha de emisión, fecha de vencimiento, ubicación de almacenamiento físico y suma de comprobación criptográfica (checksum).
 - Controlar las transiciones de estado a lo largo del ciclo de vida del documento (Pending Review $\rightarrow$ Valid / Rejected / Expired $\rightarrow$ Re-uploaded).
-- Albergar y administrar el historial de envíos de alertas (`AccessNotification`) como entidades de propiedad exclusiva.
+- Albergar y administrar el historial de envíos de alertas (`AccessNotification`) como entidades de propiedad exclusiva, capturando los canales de comunicación y el índice de paso.
 - Garantizar el mapeo estricto del contexto multi-inquilino.
 
 ### Raíz del Agregado
@@ -30,6 +30,9 @@ El agregado `UserDocument` representa una credencial digital o documento de cump
    - Solo los documentos en estado `Expired` y `Rejected` pueden activar la recarga (`ReUpload`), lo que restablece el estado a `PendingReview` y reinicia el contador de pasos de notificación a cero.
    - `Rejected` no puede transicionar directamente a `Valid` sin pasar por un nuevo ciclo de carga/verificación.
 3. **INV-UD3 (Verificación de Integridad):** Cada documento cargado debe proporcionar un hash criptográfico válido (`FileChecksum`) y hacer referencia a una estructura de tipo de documento (`DocumentTypeId`) existente.
+4. **INV-AN1 (Historial Inmutable):** Una vez registrado un `AccessNotification`, sus propiedades no pueden ser modificadas.
+5. **INV-AN2 (Días Restantes Positivos):** En la notificación, `DaysRemaining` debe ser un entero positivo o cero, que represente la ventana de validez restante.
+6. **INV-AN3 (Coordinación de la Secuencia de Pasos):** El índice `Step` de la notificación debe corresponder a una fase de advertencia activa configurada en las reglas del tipo de documento.
 
 ### Entidades Relacionadas / Objetos de Valor
 | Entidad / VO | Tipo | Descripción |
@@ -41,6 +44,9 @@ El agregado `UserDocument` representa una credencial digital o documento de cump
 | `DocumentCriticity` | Objeto de Valor | Clasificación de severidad de cumplimiento |
 | `TextValueObject` | Objeto de Valor | Ruta de almacenamiento validada en el sistema de archivos |
 | `AccessNotification` | Entidad | Entidad hija propiedad del agregado que registra el historial de alertas |
+| `AccessNotificationId` | Objeto de Valor | Identificador único de la entidad de notificación |
+| `NotificationChannel` | Enumerado | EMAIL · SMS · IN_APP · WEB_PUSH |
+| `Step` | Primitivo | Contador del índice de paso |
 
 ---
 
@@ -62,6 +68,12 @@ UserDocument (Aggregate Root)
 │   ├── NotificationStep: int
 │   └── Audit: AuditValueObject
 └── Notifications: AccessNotification[] (Colección Hija)
+    └── Props: AccessNotificationProps
+        ├── Id: AccessNotificationId
+        ├── Step: int
+        ├── Channel: NotificationChannel
+        ├── DaysRemaining: int
+        └── SentAt: DateTime
 ```
 
 ---
@@ -96,11 +108,12 @@ classDiagram
         +AuditValueObject Audit
     }
     class AccessNotification {
+        +Guid Id
         +int Step
         +NotificationChannel Channel
         +int DaysRemaining
         +DateTime SentAt
-        +Record(int, NotificationChannel, int) AccessNotification
+        +Record(step, channel, daysRemaining) AccessNotification
     }
     class DocumentStatus {
         <<enumeration>>
@@ -113,11 +126,19 @@ classDiagram
         +string Name
         +int SeverityLevel
     }
+    class NotificationChannel {
+        <<enumeration>>
+        EMAIL
+        SMS
+        IN_APP
+        WEB_PUSH
+    }
 
     UserDocument *-- UserDocumentProps
     UserDocument "1" *-- "0..*" AccessNotification : posee
     UserDocumentProps --> DocumentStatus
     UserDocumentProps --> DocumentCriticity
+    AccessNotification --> NotificationChannel
 ```
 
 ---
@@ -156,7 +177,7 @@ sequenceDiagram
 
 ```mermaid
 erDiagram
-    USER_DOCUMENT ||--o{ ACCESS_NOTIFICATION : "contiene"
+    USER_DOCUMENT ||--o{ ACCESS_NOTIFICATION : "contiene / registra"
     USER_DOCUMENT }o--|| DOCUMENT_TYPE : "instancia"
 
     USER_DOCUMENT {
@@ -187,7 +208,7 @@ erDiagram
 ```
 
 ### Reglas de Aislamiento de Inquilinos (Tenancy)
-- Los documentos de usuario heredan la estructura de inquilino de la cuenta de usuario propietaria. Las lecturas entre inquilinos están prohibidas mediante filtros a nivel de capa de aplicación en el `UserId`.
+- Los documentos de usuario heredan la estructura de inquilino de la cuenta de usuario propietaria. Las lecturas entre inquilinos están prohibidas mediante filtros a nivel de capa de aplicación en el `UserId`. La seguridad para entidades hijas como `AccessNotification` está garantizada implícitamente por el padre.
 
 ---
 
@@ -209,6 +230,7 @@ flowchart TD
     UD -->|instancia| DT
     UD *--|posee| AN
 ```
+- **Aguas Abajo**: Estos registros de notificación (históricos) son leídos por el motor de cumplimiento de seguridad para verificar si se cumplieron los protocolos de notificación correctos antes de invocar bloqueos de acceso.
 
 ---
 
@@ -219,6 +241,7 @@ flowchart TD
 - **ValidateUserDocumentCommand:** Autorizado para que los Verificadores marquen los documentos como `Valid`.
 - **RejectUserDocumentCommand:** Marca un documento como `Rejected`, incorporando los motivos del rechazo para su posterior corrección.
 - **ReUploadUserDocumentCommand:** Reemplaza archivos inválidos o vencidos, devolviendo el estado de cumplimiento del documento a `PendingReview`.
+- **RecordNotificationSentCommand (interno/método):** Registra el envío de la notificación en el agregado a través de `AccessNotification`.
 - **GetUserDocumentByIdQuery:** Retorna los metadatos de un único documento.
 - **GetAllUserDocumentsQuery:** Consulta orientada a auditorías de cumplimiento, filtrable por estado y userId.
 
@@ -253,7 +276,7 @@ public class UserDocumentConfiguration : IEntityTypeConfiguration<UserDocument>
         builder.HasMany(e => e.Notifications)
                .WithOne()
                .HasForeignKey("UserDocumentId")
-               .OnDelete(DeleteBehavior.Cascade);
+               .OnDelete(DeleteBehavior.Cascade); // Cascada persistida como tabla dependiente.
     }
 }
 ```
@@ -264,12 +287,13 @@ public class UserDocumentConfiguration : IEntityTypeConfiguration<UserDocument>
 
 - **Control de Acceso Basado en Roles (RBAC):** Solo los usuarios con el rol `Role.User` pueden cargar o volver a cargar documentos. Solo `Role.Reviewer` puede validar o rechazar.
 - **Protección de Datos:** Los archivos físicos almacenados (`FileStoragePath`) deben residir en directorios protegidos. La validación criptográfica de `FileChecksum` protege contra alteraciones en el almacenamiento físico subyacente.
+- **Auditoría inmutable:** Los registros de notificaciones son estrictamente de solo lectura después de su creación para evitar la alteración de las rutas de auditoría de seguridad.
 
 ---
 
 ## 10. Decisiones Técnicas
 
-- **Notificaciones Anidadas:** Modelar `AccessNotification` como una colección anidada garantiza trazas de auditoría cronológicas consistentes. Mantener el historial dentro del documento padre proporciona verificaciones rápidas sin requerir costosas consultas cruzadas contra logs generales de mensajería.
+- **Notificaciones Anidadas:** Modelar `AccessNotification` como una colección anidada y persistirlos como entidades propias garantiza trazas de auditoría cronológicas consistentes. Mantener el historial dentro del documento padre proporciona verificaciones rápidas y asegura un alto rendimiento durante las comprobaciones de cumplimiento, sin requerir costosas consultas cruzadas contra logs generales de mensajería o motores externos de auditoría.
 
 ---
 

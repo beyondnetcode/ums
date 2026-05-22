@@ -10,16 +10,17 @@
 ## 1. Aggregate Overview
 
 ### Purpose
-The `UserDocument` aggregate represents a digital credential or compliance document uploaded by a user (e.g., identity verification, certifications). It manages the document's verification lifecycle, validity state, compliance status, and history of expiration notifications sent to the user.
+The `UserDocument` aggregate represents a digital credential or compliance document uploaded by a user (e.g., identity verification, certifications). It manages the document's verification lifecycle, validity state, compliance status, and history of expiration notifications sent to the user (`AccessNotification`). `AccessNotification` records individual notification transmissions sent regarding upcoming expiration.
 
 ### Business Responsibility
 - Encapsulate document metadata including issue date, expiration date, file storage location, and cryptographic checksum.
 - Control state transitions throughout the document lifecycle (Pending Review $\rightarrow$ Valid / Rejected / Expired $\rightarrow$ Re-uploaded).
 - House and manage sending histories (`AccessNotification`) as owned entities.
 - Ensure strict multi-tenant context mapping.
+- Record the exact point in time when an alert was sent to the user, channel used, and remaining validity window.
 
 ### Aggregate Root
-`UserDocument` is a sovereign aggregate root within the Approvals context. It controls its internal state and guarantees that all children (such as `AccessNotification`) are modified exclusively through root domain methods.
+`UserDocument` is a sovereign aggregate root within the Approvals context. It controls its internal state and guarantees that all children (such as `AccessNotification`) are modified exclusively through root domain methods. `AccessNotification` is strictly coordinated under its lifecycle.
 
 ### Invariants and Consistency Rules
 1. **INV-UD1 (Date Sequence Validity):** The document's `ExpirationDate` must be chronologically greater than its `IssueDate`.
@@ -30,6 +31,9 @@ The `UserDocument` aggregate represents a digital credential or compliance docum
    - Only `Expired` and `Rejected` documents can trigger `ReUpload`, which resets the status to `PendingReview` and resets the notification step counter.
    - `Rejected` cannot transition directly to `Valid` without undergoing a new upload/verification cycle.
 3. **INV-UD3 (Integrity Verification):** Every uploaded document must provide a valid cryptographic hash (`FileChecksum`) and reference an existing `DocumentTypeId` structure.
+4. **INV-AN1 (Immutable History):** Once an `AccessNotification` is recorded, its properties cannot be modified.
+5. **INV-AN2 (Positive Days Remaining):** `DaysRemaining` must be a positive integer or zero, representing the remaining validity span.
+6. **INV-AN3 (Step Sequence Coordination):** The `Step` index must correspond to an active warning phase configured in the document type rules.
 
 ### Related Entities / Value Objects
 | Entity / VO | Type | Description |
@@ -41,13 +45,16 @@ The `UserDocument` aggregate represents a digital credential or compliance docum
 | `DocumentCriticity` | Value Object | Compliance severity classification |
 | `TextValueObject` | Value Object | Validated file system storage path |
 | `AccessNotification` | Entity | Owned child entity logging alert history |
+| `AccessNotificationId` | Value Object | Unique entity identifier |
+| `NotificationChannel` | Enum | EMAIL · SMS · IN_APP · WEB_PUSH |
+| `Step` | Primitive | Step index counter |
 
 ---
 
 ## 2. Domain Model
 
 ### Classes / Entities / Value Objects
-```
+```text
 UserDocument (Aggregate Root)
 ├── Props: UserDocumentProps
 │   ├── Id: UserDocumentId
@@ -62,6 +69,12 @@ UserDocument (Aggregate Root)
 │   ├── NotificationStep: int
 │   └── Audit: AuditValueObject
 └── Notifications: AccessNotification[] (Child Collection)
+    └── Props: AccessNotificationProps
+        ├── Id: IdValueObject
+        ├── Step: int
+        ├── Channel: NotificationChannel
+        ├── DaysRemaining: int
+        └── SentAt: DateTime
 ```
 
 ---
@@ -96,11 +109,12 @@ classDiagram
         +AuditValueObject Audit
     }
     class AccessNotification {
+        +Guid Id
         +int Step
         +NotificationChannel Channel
         +int DaysRemaining
         +DateTime SentAt
-        +Record(int, NotificationChannel, int) AccessNotification
+        +Record(step, channel, daysRemaining) AccessNotification
     }
     class DocumentStatus {
         <<enumeration>>
@@ -113,11 +127,19 @@ classDiagram
         +string Name
         +int SeverityLevel
     }
+    class NotificationChannel {
+        <<enumeration>>
+        EMAIL
+        SMS
+        IN_APP
+        WEB_PUSH
+    }
 
     UserDocument *-- UserDocumentProps
     UserDocument "1" *-- "0..*" AccessNotification : owns
     UserDocumentProps --> DocumentStatus
     UserDocumentProps --> DocumentCriticity
+    AccessNotification --> NotificationChannel
 ```
 
 ---
@@ -156,7 +178,7 @@ sequenceDiagram
 
 ```mermaid
 erDiagram
-    USER_DOCUMENT ||--o{ ACCESS_NOTIFICATION : "contains"
+    USER_DOCUMENT ||--o{ ACCESS_NOTIFICATION : "records"
     USER_DOCUMENT }o--|| DOCUMENT_TYPE : "instantiates"
 
     USER_DOCUMENT {
@@ -188,6 +210,7 @@ erDiagram
 
 ### Tenant Isolation Rules
 - User documents inherit the tenant structure of their owning user account. Cross-tenant reads are prohibited through application-layer filters on the `UserId`.
+- `ACCESS_NOTIFICATION` is scoped via its parent aggregate `UserDocument`. Multi-tenant safety is guaranteed implicitly.
 
 ---
 
@@ -209,6 +232,7 @@ flowchart TD
     UD -->|instantiates| DT
     UD *--|owns| AN
 ```
+- Logs recorded in `AccessNotification` are read by the security compliance engine to verify notice protocols.
 
 ---
 
@@ -221,6 +245,7 @@ flowchart TD
 - **ReUploadUserDocumentCommand:** Replaces invalid or expired files, transitioning the status back to `PendingReview`.
 - **GetUserDocumentByIdQuery:** Returns a single document's metadata.
 - **GetAllUserDocumentsQuery:** Query for compliance audits, filterable by status and userId.
+- **RecordNotificationSent:** Managed via `UserDocument` to add `AccessNotification`.
 
 ---
 
@@ -257,6 +282,7 @@ public class UserDocumentConfiguration : IEntityTypeConfiguration<UserDocument>
     }
 }
 ```
+- `AccessNotification` is persisted as a dependent table mapped by EF Core with a cascade delete rule referencing its parent `UserDocument`.
 
 ---
 
@@ -264,12 +290,13 @@ public class UserDocumentConfiguration : IEntityTypeConfiguration<UserDocument>
 
 - **Role-Based Access Control:** Only users with `Role.User` can upload or re-upload documents. Only `Role.Reviewer` can validate or reject.
 - **Data Protection:** The physical files on storage (`FileStoragePath`) should be stored within protected directories. Cryptographic verification of `FileChecksum` protects against underlying file tampering.
+- Logs (`AccessNotification`) are strictly read-only after creation to prevent tampering with security audit paths.
 
 ---
 
 ## 10. Technical Decisions
 
-- **Nested Notifications:** Modeling `AccessNotification` as a nested collection guarantees chronological audit traces. Storing history alongside the parent document provides frictionless historical verification without querying generic communication logs.
+- **Nested Notifications:** Modeling `AccessNotification` as a nested collection guarantees chronological audit traces. Storing history alongside the parent document provides frictionless historical verification without querying generic communication logs. Persisting notification logs as owned entities rather than dispatching them to an external audit engine ensures aggregate self-sufficiency and high performance during compliance checks.
 
 ---
 

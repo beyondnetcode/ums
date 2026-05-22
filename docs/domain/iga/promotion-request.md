@@ -10,12 +10,15 @@
 ## 1. Aggregate Overview
 
 ### Purpose
-The `PromotionRequest` aggregate coordinates access promotions, allowing users to safely request transitions from their current role to a more privileged target role. It enforces a strict, audited verification path including automatic risk scores, manager approval, security assessments, role execution, and post-execution verification.
+The `PromotionRequest` aggregate coordinates access promotions, allowing users to safely request transitions from their current role to a more privileged target role. It enforces a strict, audited verification path including automatic risk scores, manager approval, security assessments, role execution, and post-execution verification. The aggregate also integrates the `PromotionImpactAnalysis` entity to log security risk assessments, tracking toxic combination indicators, separation of duties (SOD) violations, affected directory structures, and mitigation advice before access is authorized.
 
 ### Business Responsibility
 - Record the intent of a user to acquire a more senior or privileged target role.
 - Control the multi-step approval workflow.
-- Embed toxic-permission impact analysis results (`PromotionImpactAnalysis`).
+- Quantify access promotion risks into a unified score (0 to 100).
+- Identify permission conflicts and toxic combinations.
+- List affected software systems and resources.
+- Embed toxic-permission impact analysis results (`PromotionImpactAnalysis`) to provide security auditors with recommended mitigation policies.
 - Coordinate execution and post-change confirmation states.
 
 ### Aggregate Root
@@ -31,24 +34,28 @@ The `PromotionRequest` aggregate coordinates access promotions, allowing users t
    - `ApprovedReadyToExecute` $\rightarrow$ `Executed` (via `Execute`).
    - `Executed` $\rightarrow$ `Verified` (via `Verify`) OR `VerificationFailed` (via `MarkVerificationFailed`).
 2. **INV-PR2 (Impact Analysis Uniqueness):** Only one impact analysis can be recorded per promotion request to prevent history rewriting (`DomainErrors.IGA.ImpactAnalysisAlreadyExists`).
+3. **INV-PR3 (Risk Score Limits):** The `RiskScore` within the impact analysis must be a decimal value strictly between `0` and `100` inclusive (`DomainErrors.IGA.InvalidPerformanceScore`).
+4. **INV-PR4 (Scans Immutability):** Once calculated and saved, an impact analysis cannot be edited. If access scopes change, a brand new promotion cycle must begin.
 
 ### Related Entities / Value Objects
 | Entity / VO | Type | Description |
 |---|---|---|
 | `PromotionRequestId` | Value Object | Unique aggregate identifier |
+| `PromotionImpactAnalysisId` | Value Object | Unique identifier for the impact analysis entity |
 | `TenantId` | Value Object | Partition identifier mapping to the tenant context |
 | `UserId` | Value Object | Target user reference (Identity Context) |
 | `RoleId` | Value Object | Reference to current and target roles (Authorization Context) |
 | `PromotionStatus` | Enum | FSM status enum (`Draft`, `PendingManagerApproval`, etc.) |
 | `ApprovalDecision` | Enum | `None` · `Approved` · `Rejected` |
 | `PromotionImpactAnalysis` | Entity | Owned child entity containing risk metrics |
+| `TextValueObject` | Value Object | General string properties (RequestReason, RiskLevel, Mitigations, ConflictingPermissions) |
 
 ---
 
 ## 2. Domain Model
 
 ### Classes / Entities / Value Objects
-```
+```text
 PromotionRequest (Aggregate Root)
 ├── Props: PromotionRequestProps
 │   ├── Id: PromotionRequestId
@@ -70,6 +77,19 @@ PromotionRequest (Aggregate Root)
 │   ├── VerifiedAt: DateTime?
 │   └── Audit: AuditValueObject
 └── ImpactAnalyses: PromotionImpactAnalysis[] (Child Collection)
+    └── Props: PromotionImpactAnalysisProps
+        ├── Id: IdValueObject
+        ├── PromotionRequestId: PromotionRequestId
+        ├── RiskScore: decimal
+        ├── RiskLevel: TextValueObject
+        ├── NewPermissionsCount: int
+        ├── RemovedPermissionsCount: int
+        ├── AffectedSystemsCount: int
+        ├── ConflictingPermissions: TextValueObject?
+        ├── RiskFactors: TextValueObject?
+        ├── SuggestedMitigations: TextValueObject?
+        ├── AnalyzedAt: DateTime
+        └── AnalyzedBy: TextValueObject?
 ```
 
 ---
@@ -118,6 +138,11 @@ classDiagram
         +int RemovedPermissionsCount
         +int AffectedSystemsCount
         +TextValueObject ConflictingPermissions
+        +TextValueObject RiskFactors
+        +TextValueObject SuggestedMitigations
+        +DateTime AnalyzedAt
+        +TextValueObject AnalyzedBy
+        +Create() Result~PromotionImpactAnalysis~
     }
     class PromotionStatus {
         <<enumeration>>
@@ -228,7 +253,7 @@ erDiagram
 ```
 
 ### Tenant Isolation Rules
-- Partitioned by `TenantId`. Submissions are verified against tenant configuration properties to prevent cross-tenant request forgery.
+- Partitioned by `TenantId`. Submissions are verified against tenant configuration properties to prevent cross-tenant request forgery. Inherits scoping rules to all child entities like `PromotionImpactAnalysis`, blocking access between tenants implicitly.
 
 ---
 
@@ -265,6 +290,7 @@ flowchart TD
 - **SubmitPromotionRequestCommand:** Submits a request to manager review.
 - **ManagerApprovePromotionRequestCommand:** Records a manager's verification.
 - **SecurityReviewPromotionRequestCommand:** Records dynamic performance analysis and triggers risk branching.
+- **AddPromotionImpactAnalysisCommand:** Managed internally/asynchronously to coordinate adding the impact analysis via application handlers.
 - **ExecutePromotionRequestCommand:** Executes the role change in target systems.
 - **VerifyPromotionRequestCommand:** Final compliance sign-off validating successful promotion propagation.
 
@@ -306,7 +332,7 @@ public class PromotionRequestConfiguration : IEntityTypeConfiguration<PromotionR
         builder.HasMany(e => e.ImpactAnalyses)
                .WithOne()
                .HasForeignKey("PromotionRequestId")
-               .OnDelete(DeleteBehavior.Cascade);
+               .OnDelete(DeleteBehavior.Cascade); // Cascade delete on foreign keys guarantees database consistency
     }
 }
 ```
@@ -317,12 +343,13 @@ public class PromotionRequestConfiguration : IEntityTypeConfiguration<PromotionR
 
 - **Segregation of Duties (SOD):** The manager (`ManagerId`) authorized to approve a promotion request cannot be the target user (`UserId`) or the security auditor performing the security assessment.
 - **Risk Branching:** Requests with high-risk impact analysis are routed to an extra step (`PendingSecurityApproval`), preventing automatic role additions without specialized sign-off.
+- **Audit Immutability:** Impact analysis data is strictly read-only once saved. This prevents actors from downplaying toxic combos to sneak permission additions past auditors.
 
 ---
 
 ## 10. Technical Decisions
 
-- **Asynchronous Risk Calculation:** Generating toxic permission scans requires complex graph analytics. Therefore, it is decoupled into a background analytical task that returns a `PromotionImpactAnalysis` entity rather than blocking application-layer write workflows synchronously.
+- **Asynchronous Risk Calculation:** Generating toxic permission scans requires complex graph analytics. Therefore, it is decoupled into a background analytical task that returns a `PromotionImpactAnalysis` entity rather than blocking application-layer write workflows synchronously. Decoupling permission calculation tasks from command processing routes via background queues prevents blocking user execution flows while heavy permission graph analysis runs.
 
 ---
 

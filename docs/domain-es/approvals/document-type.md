@@ -10,16 +10,17 @@
 ## 1. Visión General del Agregado
 
 ### Propósito
-El agregado `DocumentType` gobierna las clasificaciones, reglas y esquemas de políticas para los documentos subidos por los usuarios (ej., Pasaportes, Documentos de certificación). Declara umbrales críticos (`Criticity`), vincula intervalos de notificación recurrentes (entidades `NotificationRule`) y configura acciones proactivas de cumplimiento de seguridad (entidad `EnforcementPolicy`) para ejecutarse automáticamente cuando un documento obligatorio expira o se elimina.
+El agregado `DocumentType` gobierna las clasificaciones, reglas y esquemas de políticas para los documentos subidos por los usuarios (ej., Pasaportes, Documentos de certificación). Declara umbrales críticos (`Criticity`), vincula intervalos de notificación recurrentes (entidades `NotificationRule`) y configura acciones proactivas de cumplimiento de seguridad (entidad `EnforcementPolicy`) para ejecutarse automáticamente cuando un documento obligatorio expira o se elimina. A través de la entidad hija `NotificationRule`, se define un umbral de advertencia reactivo para el cumplimiento de documentos.
 
 ### Responsabilidad de Negocio
 - Registrar y clasificar documentos de verificación corporativa.
 - Establecer pautas de criticidad (Baja, Media, Alta, Crítica).
-- Mantener intervalos dinámicos de notificación para alertar previamente a los usuarios antes de que expire un documento.
+- Mantener intervalos dinámicos de notificación para alertar previamente a los usuarios antes de que expire un documento a través de `NotificationRule`.
+- Definir canales de transmisión de alertas (correo electrónico, SMS, etc.).
 - Definir bloqueos automáticos de cumplimiento (ej., Bloqueo de acceso, restricción de perfiles) cuando fallan los elementos críticos de cumplimiento.
 
 ### Raíz de Agregado
-`DocumentType` es la raíz del agregado. Definir acciones de cumplimiento o configurar alertas de notificación debe realizarse a través de él para aplicar las invariantes.
+`DocumentType` es la raíz del agregado. Definir acciones de cumplimiento o configurar alertas de notificación debe realizarse a través de él para aplicar las invariantes. La entidad `NotificationRule` no puede existir ni realizar transiciones de estado fuera de las restricciones de ciclo de vida de su `DocumentType` padre.
 
 ### Invariantes y Reglas de Consistencia
 1. Cada `DocumentType` debe poseer un `Code` único dentro de su espacio de nombres de `TenantId`.
@@ -27,15 +28,20 @@ El agregado `DocumentType` gobierna las clasificaciones, reglas y esquemas de po
 3. **Mandatos Críticos (INV-DT1)**: Si un `DocumentType` se establece en `Critical`, debe tener exactamente una `EnforcementPolicy` activa definida para garantizar el cumplimiento del sistema.
 4. **Política Única (INV-DT3)**: Solo se permite una `EnforcementPolicy` activa por `DocumentType`.
 5. **Coincidencia de Criticidad (INV-DT4)**: Los tipos de documentos que no son críticos/altos no pueden aplicar acciones de cumplimiento como `BlockUser` o `RestrictProfile`.
+6. **Días Antes Válidos (INV-NR1)**: En `NotificationRule`, `DaysBefore` debe ser un número entero positivo estrictamente mayor que cero.
+7. **Canales Válidos (INV-NR2)**: La colección `Channels` en `NotificationRule` debe contener al menos un canal de notificación válido (Email, SMS, WebPortal) y no puede ser nula ni vacía.
 
 ### Entidades Relacionadas / Objetos de Valor
-| Entidad / VO | Tipo | Propietario |
-|---|---|---|
-| `DocumentTypeId` | Objeto de Valor | Identificador de raíz de agregado basado en Guid |
-| `DocumentCriticity` | Enumerado | LOW · MEDIUM · HIGH · CRITICAL |
-| `NotificationRule` | Entidad | Propia (ver [notification-rule.md](./notification-rule.md)) |
-| `EnforcementPolicy` | Entidad | Entidad hija propia que detalla períodos de gracia y bloqueos |
-| `AuditValueObject` | Objeto de Valor | Rastrea metadatos de creación y modificación |
+| Entidad / VO | Tipo | Propietario | Descripción |
+|---|---|---|---|
+| `DocumentTypeId` | Objeto de Valor | | Identificador de raíz de agregado |
+| `DocumentCriticity` | Enumerado | | LOW · MEDIUM · HIGH · CRITICAL |
+| `NotificationRule` | Entidad | Propia | Define el umbral de advertencia reactivo de expiración |
+| `NotificationRuleId` | Objeto de Valor | Entidad Hija | Identificador único de la regla de notificación |
+| `NotificationChannel` | Enumerado | Entidad Hija | EMAIL · SMS · IN_APP · WEB_PUSH |
+| `EnforcementPolicy` | Entidad | Propia | Detalla períodos de gracia y bloqueos |
+| `Code` | Objeto de Valor | Entidad Hija | Identificador de tipo de notificación |
+| `AuditValueObject` | Objeto de Valor | | Rastrea metadatos de creación y modificación |
 
 ### Eventos de Dominio
 | Evento | Desencadenante |
@@ -76,6 +82,12 @@ DocumentType (Raíz de Agregado)
 │   └── Audit: AuditValueObject
 ├── Hijos
 │   └── IReadOnlyCollection<NotificationRule>
+│       └── Props: NotificationRuleProps
+│           ├── Id: NotificationRuleId
+│           ├── DaysBefore: int
+│           ├── Channels: NotificationChannel[]
+│           ├── Code: Code
+│           └── Description: Description
 └── Hijo (Anulable)
     └── EnforcementPolicy
 ```
@@ -112,6 +124,15 @@ classDiagram
         +int DaysBefore
         +NotificationChannel[] Channels
         +Code Code
+        +Description Description
+        +Create()
+    }
+    class NotificationChannel {
+        <<enumeration>>
+        EMAIL
+        SMS
+        IN_APP
+        WEB_PUSH
     }
     class EnforcementPolicy {
         +Guid Id
@@ -121,6 +142,7 @@ classDiagram
     DocumentType "1" *-- "1" DocumentCriticity
     DocumentType "1" *-- "0..*" NotificationRule
     DocumentType "1" *-- "0..1" EnforcementPolicy
+    NotificationRule "1" *-- "1..*" NotificationChannel
 ```
 
 ---
@@ -185,35 +207,39 @@ erDiagram
 
 ### Reglas de Aislamiento de Inquilinos
 - Los esquemas clasificados están particionados estrictamente por `TenantId`. Todas las consultas de enrutamiento de verificación imponen límites de aislamiento.
+- `NotificationRule` es acotado a través de su agregado padre y hereda todas las restricciones de filtrado multi-inquilino.
 
 ---
 
 ## 6. Integración de Contexto Delimitado
 - **Aguas Arriba**: Hereda las reglas de contexto de `Identidad` (validando registros de inquilinos).
-- **Aguas Abajo**: Consultado por `UserDocument` para verificar los umbrales de alerta, y por `AccessEnforcementPolicy` durante los pases de verificación de cumplimiento.
+- **Aguas Abajo**: Consultado por `UserDocument` para verificar los umbrales de alerta, y por `AccessEnforcementPolicy` durante los pases de verificación de cumplimiento. Las alertas configuradas a través de `NotificationRule` son procesadas por ejecutores en segundo plano para notificar a los usuarios.
 
 ---
 
 ## 7. Capa de Aplicación
 - `CreateDocumentTypeCommand` -> Entradas: `TenantId, Code, Name, Description, Criticity` -> Retorna: `Guid`
+- `ConfigureNotificationRuleCommand` -> Entradas: `DocumentTypeId, DaysBefore, Channels, Code, Description` -> Retorna: `void`
+- `RemoveNotificationRuleCommand` -> Entradas: `DocumentTypeId, RuleId` -> Retorna: `void`
 - `DefineEnforcementPolicyCommand` -> Entradas: `DocumentTypeId, Action, GracePeriodDays?` -> Retorna: `void`
 
 ---
 
 ## 8. Infraestructura/Persistencia
-- Índice: Índice único en `TenantId, Code`.
+- Índice: Índice único en `TenantId, Code`. En `NotificationRule`, índice compuesto en `DocumentTypeId, DaysBefore` para asegurar unicidad.
 - Transacción: Las actualizaciones de hijos (políticas y entradas de reglas de pre-alerta) se almacenan de forma atómica dentro de la transacción de base de datos del padre `DOCUMENT_TYPE`.
 
 ---
 
 ## 9. Seguridad y Cumplimiento
-- Ajustar la clasificación o reglas críticas: Restringido estrictamente a los roles de `Tenant:Admin`.
+- Ajustar la clasificación o reglas críticas: Restringido estrictamente a los roles de `Tenant:Admin`. (Las configuraciones de `NotificationRule` se heredan de esta seguridad).
 - Cumplimiento: Alterar las reglas de cumplimiento representa un alto impacto de seguridad y desencadena un registro de auditoría de alta gravedad.
 
 ---
 
 ## 10. Decisiones Técnicas
 - Consolidar los modelos de `NotificationRule` pre-alerta y `EnforcementPolicy` como elementos secundarios dentro del agregado `DocumentType` protege los límites del dominio contra restricciones divididas.
+- Almacenar los canales de comunicación permitidos como una matriz serializada (`ChannelsJson`) garantiza la flexibilidad sin sobrecargar de consultas complejas.
 
 ---
 

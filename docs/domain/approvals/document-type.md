@@ -10,16 +10,17 @@
 ## 1. Aggregate Overview
 
 ### Purpose
-The `DocumentType` aggregate governs the classifications, rules, and policy schemas for user-uploaded documents (e.g. Passports, Certification documents). It declares critical thresholds (`Criticity`), binds recurring notification intervals (`NotificationRule` entities), and configures proactive security enforcement actions (`EnforcementPolicy` entity) to run automatically when a mandatory document expires or is deleted.
+The `DocumentType` aggregate governs the classifications, rules, and policy schemas for user-uploaded documents (e.g. Passports, Certification documents). It declares critical thresholds (`Criticity`), binds recurring notification intervals (`NotificationRule` entities), and configures proactive security enforcement actions (`EnforcementPolicy` entity) to run automatically when a mandatory document expires or is deleted. `NotificationRule` specifies how many days before expiration a user must be alerted, and which communication channels are authorized.
 
 ### Business Responsibility
 - Register and classify corporate verification documents.
 - Set criticity guidelines (Low, Medium, High, Critical).
 - Maintain dynamic notification intervals to pre-alert users before a document expires.
 - Define automatic enforcement blocks (e.g. Blocking access, restricting profiles) when critical compliance items fail.
+- Map expiration warning rules to specific document categories and define alert transmission channels.
 
 ### Aggregate Root
-`DocumentType` is the aggregate root. Defining enforcement actions or configuring notification alerts must go through it to enforce invariants.
+`DocumentType` is the aggregate root. Defining enforcement actions or configuring notification alerts (`NotificationRule`) must go through it to enforce invariants. `NotificationRule` is an owned entity and cannot exist or undergo state transitions outside the lifecycle constraints of `DocumentType`.
 
 ### Invariants and Consistency Rules
 1. Every `DocumentType` must possess a unique `Code` within its `TenantId` namespace.
@@ -27,15 +28,21 @@ The `DocumentType` aggregate governs the classifications, rules, and policy sche
 3. **Critical Mandates (INV-DT1)**: If a `DocumentType` is set to `Critical`, it must have exactly one active `EnforcementPolicy` defined to secure system compliance.
 4. **Single Policy (INV-DT3)**: Only one active `EnforcementPolicy` is permitted per `DocumentType`.
 5. **Criticity Matching (INV-DT4)**: Non-critical/high document types cannot apply `BlockUser` or `RestrictProfile` enforcement actions.
+6. `NotificationRule.DaysBefore` must be a positive integer strictly greater than zero.
+7. The `NotificationRule.Channels` collection must contain at least one valid notification channel (Email, SMS, WebPortal) and cannot be null or empty.
+8. Life cycle of `NotificationRule` is fully controlled by the parent `DocumentType`.
 
 ### Related Entities / Value Objects
 | Entity / VO | Type | Ownership |
 |---|---|---|
 | `DocumentTypeId` | Value Object | Guid-based aggregate root identifier |
 | `DocumentCriticity` | Enum | LOW · MEDIUM · HIGH · CRITICAL |
-| `NotificationRule` | Entity | Owned (see [notification-rule.md](./notification-rule.md)) |
+| `NotificationRule` | Entity | Owned |
+| `NotificationRuleId` | Value Object | Entity unique identifier |
+| `NotificationChannel` | Enum | EMAIL · SMS · IN_APP · WEB_PUSH |
 | `EnforcementPolicy` | Entity | Owned child detailing grace periods and blocks |
 | `AuditValueObject` | Value Object | Tracks creation and modification metadata |
+| `Code` | Value Object | Alpha-numeric camelCase notification type identifier |
 
 ### Domain Events
 | Event | Trigger |
@@ -64,7 +71,7 @@ The `DocumentType` aggregate governs the classifications, rules, and policy sche
 ## 2. Domain Model
 
 ### Classes / Entities / Value Objects
-```
+```text
 DocumentType (Aggregate Root)
 ├── Props: DocumentTypeProps
 │   ├── Id: DocumentTypeId
@@ -76,6 +83,12 @@ DocumentType (Aggregate Root)
 │   └── Audit: AuditValueObject
 ├── Children
 │   └── IReadOnlyCollection<NotificationRule>
+│       └── Props: NotificationRuleProps
+│           ├── Id: NotificationRuleId
+│           ├── DaysBefore: int
+│           ├── Channels: NotificationChannel[]
+│           ├── Code: Code
+│           └── Description: Description
 └── Child (Nullable)
     └── EnforcementPolicy
 ```
@@ -98,6 +111,7 @@ classDiagram
         +EnforcementPolicy EnforcementPolicy
         +Create()
         +ConfigureNotificationRule()
+        +RemoveNotificationRule()
         +DefineEnforcementPolicy()
     }
     class DocumentCriticity {
@@ -112,6 +126,15 @@ classDiagram
         +int DaysBefore
         +NotificationChannel[] Channels
         +Code Code
+        +Description Description
+        +Create()
+    }
+    class NotificationChannel {
+        <<enumeration>>
+        EMAIL
+        SMS
+        IN_APP
+        WEB_PUSH
     }
     class EnforcementPolicy {
         +Guid Id
@@ -120,6 +143,7 @@ classDiagram
     }
     DocumentType "1" *-- "1" DocumentCriticity
     DocumentType "1" *-- "0..*" NotificationRule
+    NotificationRule "1" *-- "1..*" NotificationChannel
     DocumentType "1" *-- "0..1" EnforcementPolicy
 ```
 
@@ -185,35 +209,40 @@ erDiagram
 
 ### Tenant Isolation Rules
 - Classified schemas are partitioned strictly by `TenantId`. All verification routing queries enforce isolation limits.
+- `NOTIFICATION_RULE` is scoped via its parent aggregate `DocumentType`. Inherits all platform multi-tenant database filtering constraints.
 
 ---
 
 ## 6. Bounded Context Integration
 - **Upstream**: Inherits context rules from `Identity` (validating tenant registers).
-- **Downstream**: Consulted by `UserDocument` to check alert thresholds, and `AccessEnforcementPolicy` during compliance check passes.
+- **Downstream**: Consulted by `UserDocument` to check alert thresholds, and `AccessEnforcementPolicy` during compliance check passes. Alerts triggered are processed by background compliance runners to notify users from the `Identity` context.
 
 ---
 
 ## 7. Application Layer
 - `CreateDocumentTypeCommand` -> Inputs: `TenantId, Code, Name, Description, Criticity` -> Returns: `Guid`
+- `ConfigureNotificationRuleCommand` -> Inputs: `DocumentTypeId, DaysBefore, Channels, Code, Description` -> Returns: `void`
+- `RemoveNotificationRuleCommand` -> Inputs: `DocumentTypeId, RuleId` -> Returns: `void`
 - `DefineEnforcementPolicyCommand` -> Inputs: `DocumentTypeId, Action, GracePeriodDays?` -> Returns: `void`
 
 ---
 
 ## 8. Infrastructure/Persistence
 - Index: Unique index on `TenantId, Code`.
+- Index: Composite index on `DocumentTypeId, DaysBefore` to secure threshold uniqueness.
 - Transaction: Child updates (policies and pre-alert rule entries) are stored atomically within the parent `DOCUMENT_TYPE` database transaction.
 
 ---
 
 ## 9. Security & Compliance
-- Adjusting critical classification or rules: Restricted strictly to `Tenant:Admin` roles.
+- Adjusting critical classification or rules: Restricted strictly to `Tenant:Admin` roles. Rule configurations are inherited from the parent `DocumentType`.
 - Compliance: Altering enforcement rules represents a high security impact and triggers high-severity audit logging.
 
 ---
 
 ## 10. Technical Decisions
 - Consolidating the pre-alert `NotificationRule` and `EnforcementPolicy` models as child elements inside the `DocumentType` aggregate protects domain boundaries from split constraints.
+- Storing allowed communication channels as a serialized array (`ChannelsJson`) within a single database column guarantees database flexibility without massive schema join overheads.
 
 ---
 

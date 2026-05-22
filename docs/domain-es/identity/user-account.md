@@ -2,9 +2,9 @@
 
 > **Idioma:** [English](../../domain/identity/user-account.md) | [Español](./user-account.md)
 
-**Bounded Context:** Identity  
-**Aggregate Root:** `UserAccount`  
-**Modulo:** `Ums.Domain.Identity.UserAccount`  
+**Bounded Context:** Identity
+**Aggregate Root:** `UserAccount`
+**Modulo:** `Ums.Domain.Identity.UserAccount`
 **Estado:** Produccion
 
 ---
@@ -17,18 +17,25 @@
 ### Responsabilidad de Negocio
 - Gestionar el ciclo de vida del usuario: registro, activacion, bloqueo y restauracion.
 - Proveer la identidad central para autenticacion local y federada.
-- Controlar credenciales de contrasena con historial de rotacion.
-- Administrar metodos MFA enrollados por el usuario.
+- Controlar credenciales de contrasena (`PasswordCredential`) con historial de rotacion y asegurar rotacion segura.
+- Administrar metodos MFA (`MfaEnrollment`) enrollados por el usuario de forma independiente (TOTP, SMS, Email, WebAuthn).
+
+**PasswordCredential**: Almacena el hash BCrypt de la contrasena para autenticacion local. Soporta rotacion de credenciales con registros historicos (inactivos).
+**MfaEnrollment**: Registra el enrolamiento de un usuario en un metodo MFA especifico. Se pueden enrolar multiples metodos por usuario, cada uno con su propio ciclo de vida (Enrolled, Pending, Revoked).
 
 ### Aggregate Root
 `UserAccount` es su propio aggregate root. Todas las mutaciones de `PasswordCredential` y `MfaEnrollment` pasan por comandos de `UserAccount`.
 
 ### Invariantes y Reglas de Consistencia
-1. `Email` debe ser unico dentro del mismo `TenantId`.
-2. Un usuario `FEDERATED` (con `IdentityReference`) no debe tener `PasswordCredential` activa.
-3. A lo sumo una `PasswordCredential` con `IsActive = true` por usuario.
-4. Solo un `MfaEnrollment` por metodo por usuario.
-5. `UserStatus` debe ser `Active` para enrolar un nuevo metodo MFA.
+1. **UserAccount**: `Email` debe ser unico dentro del mismo `TenantId`.
+2. **UserAccount/PasswordCredential**: Un usuario `FEDERATED` (con `IdentityReference`) no debe tener `PasswordCredential` activa.
+3. **PasswordCredential**: A lo sumo una `PasswordCredential` con `IsActive = true` por usuario.
+4. **PasswordCredential**: Establecer una nueva contrasena desactiva automaticamente la credencial activa anterior.
+5. **PasswordCredential**: `PasswordHash` debe ser un hash BCrypt valido. Las credenciales historicas se conservan para auditoria y no se eliminan.
+6. **MfaEnrollment**: Un usuario puede enrolar cada `MfaMethod` a lo sumo una vez — sin metodos duplicados.
+7. **MfaEnrollment**: Transiciones de estado del enrolamiento: `Pending -> Enrolled -> Revoked`.
+8. **MfaEnrollment**: `UserAccount.Status` debe ser `Active` para enrolar un nuevo metodo MFA.
+9. **MfaEnrollment**: Al menos un metodo enrollado debe permanecer si el tenant requiere MFA.
 
 ### Entidades Relacionadas / Value Objects
 | Entidad / VO | Tipo | Notas |
@@ -53,6 +60,8 @@
 | `MfaVerifiedEvent` | Desafio MFA completado exitosamente |
 | `AuthenticationAttemptedEvent` | Intento de autenticacion registrado |
 
+*(Nota: Las operaciones de contrasena alimentan la auditoria y no tienen un evento dedicado propio)*
+
 ### Comandos / Casos de Uso
 | Comando | Descripcion |
 |---|---|
@@ -61,6 +70,7 @@
 | `BlockUserCommand` | Bloquear usuario activo |
 | `RestoreUserCommand` | Restaurar usuario bloqueado |
 | `SetPasswordCommand` | Crear o rotar credencial de contrasena activa |
+| `DeactivatePasswordCommand` | Desactivar credencial (ej. en federacion de cuenta) |
 | `EnrollMfaCommand` | Enrolar nuevo metodo MFA |
 | `VerifyMfaCommand` | Confirmar desafio MFA (Pending -> Enrolled) |
 | `RevokeMfaEnrollmentCommand` | Revocar metodo MFA enrollado |
@@ -83,25 +93,36 @@ UserAccount (Aggregate Root)
 │   ├── IdentityReferenceType?: IdentityReferenceType
 │   └── Audit: AuditValueObject
 ├── PasswordCredential (Entidad Propia, 0..N almacenadas, 0..1 activa)
+│   └── Props: PasswordCredentialProps
+│       ├── Id: IdValueObject
+│       ├── UserAccountId: UserAccountId
+│       ├── PasswordHash: PasswordHash
+│       ├── IsActive: bool
+│       └── Audit: AuditValueObject
 └── MfaEnrollment (Entidad Propia, 0..N)
+    └── Props: MfaEnrollmentProps
+        ├── Id: IdValueObject
+        ├── UserAccountId: UserAccountId
+        ├── Method: MfaMethod
+        ├── Status: MfaEnrollmentStatus
+        └── Audit: AuditValueObject
 ```
 
-### Atributos Principales
-| Atributo | Tipo | Notas |
-|---|---|---|
-| `Id` | `Guid` | PK |
-| `TenantId` | `Guid` | FK al Tenant |
-| `BranchId` | `Guid?` | FK opcional a Branch |
-| `Email` | `string` | Unico por TenantId |
-| `UserCategory` | `UserCategory` | EMPLOYEE / CONTRACTOR / EXTERNAL |
-| `Status` | `UserStatus` | Pending / Active / Blocked / Inactive |
-| `IdentityReference` | `string?` | Sub del IdP externo |
-| `IdentityReferenceType` | `IdentityReferenceType?` | OIDC / SAML2 / WS_FED |
-
 ### Ciclo de Vida
+**UserAccount**:
 ```
 Pending ──► Active ──► Blocked ──► Active
 Active ──► Inactive (terminal)
+```
+**PasswordCredential**:
+```
+Nueva Credencial (IsActive = true)
+    ↓ (en SetPassword)
+Credencial Anterior (IsActive = false) — retenida para historial
+```
+**MfaEnrollment**:
+```
+Pending ──► Enrolled ──► Revoked
 ```
 
 ---
@@ -124,28 +145,6 @@ sequenceDiagram
     H-->>C: userId
 ```
 
-### Flujo: Establecer Contrasena
-```mermaid
-sequenceDiagram
-    participant C as Cliente
-    participant H as SetPasswordHandler
-    participant R as IUserAccountRepository
-    participant U as UserAccount (AR)
-    participant P as IPasswordHashingService
-
-    C->>H: SetPasswordCommand(userId, plainPassword, actorId)
-    H->>R: GetById(userId)
-    R-->>H: UserAccount
-    H->>P: Hash(plainPassword)
-    P-->>H: bcryptHash
-    H->>U: userAccount.SetPassword(credentialId, bcryptHash, actorId)
-    U->>U: Buscar PasswordCredential activa
-    U->>U: Desactivar credencial existente
-    U->>U: Crear nueva PasswordCredential (IsActive = true)
-    H->>R: Update(userAccount)
-    H-->>C: void
-```
-
 ### Flujo: Bloquear Usuario
 ```mermaid
 sequenceDiagram
@@ -165,6 +164,44 @@ sequenceDiagram
     H-->>C: void
 ```
 
+### Flujo: Establecer Contrasena
+```mermaid
+sequenceDiagram
+    participant C as Cliente
+    participant H as SetPasswordHandler
+    participant R as IUserAccountRepository
+    participant U as UserAccount (AR)
+    participant P as IPasswordHashingService
+
+    C->>H: SetPasswordCommand(userId, plainPassword, actorId)
+    H->>R: GetById(userId)
+    R-->>H: UserAccount
+    H->>P: Hash(plainPassword)
+    P-->>H: bcryptHash
+    H->>U: userAccount.SetPassword(credentialId, bcryptHash, actorId)
+    U->>U: Buscar PasswordCredential activa
+    U->>U: Establecer IsActive = false en existente
+    U->>U: Crear nueva PasswordCredential (IsActive = true)
+    H->>R: Update(userAccount)
+    H-->>C: void
+```
+
+### Flujo: Desactivar Credencial (en federacion)
+```mermaid
+sequenceDiagram
+    participant H as LinkExternalIdentityHandler
+    participant R as IUserAccountRepository
+    participant U as UserAccount (AR)
+
+    H->>R: GetById(userId)
+    R-->>H: UserAccount
+    H->>U: userAccount.LinkExternalIdentity(ref, refType, actorId)
+    U->>U: Establecer IdentityReference + IdentityReferenceType
+    U->>U: Buscar PasswordCredential activa
+    U->>U: Establecer PasswordCredential.IsActive = false
+    H->>R: Update(userAccount)
+```
+
 ### Flujo: Enrolar MFA
 ```mermaid
 sequenceDiagram
@@ -178,7 +215,7 @@ sequenceDiagram
     H->>R: GetById(userId)
     R-->>H: UserAccount
     H->>U: userAccount.EnrollMfa(enrollmentId, method, actorId)
-    U->>U: Guardia: metodo no enrollado anteriormente
+    U->>U: Guardia: metodo no ya enrollado
     U->>U: Guardia: usuario activo
     U->>U: Crear MfaEnrollment (Status = Enrolled)
     U->>U: Emitir MfaEnrolledEvent
@@ -186,6 +223,45 @@ sequenceDiagram
     H->>MFA: InitiateSetup(userId, method)
     MFA-->>H: setupToken
     H-->>C: enrollmentId, setupToken
+```
+
+### Flujo: Verificar MFA
+```mermaid
+sequenceDiagram
+    participant C as Cliente
+    participant H as VerifyMfaHandler
+    participant R as IUserAccountRepository
+    participant U as UserAccount (AR)
+    participant MFA as IMfaChallengeService
+
+    C->>H: VerifyMfaCommand(userId, enrollmentId, otp, actorId)
+    H->>MFA: Validate(userId, method, otp)
+    MFA-->>H: valido
+    H->>R: GetById(userId)
+    R-->>H: UserAccount
+    H->>U: userAccount.VerifyMfa(enrollmentId, actorId)
+    U->>U: Enrollment.Status = Enrolled
+    U->>U: Emitir MfaVerifiedEvent
+    H->>R: Update(userAccount)
+    H-->>C: void
+```
+
+### Flujo: Revocar MFA
+```mermaid
+sequenceDiagram
+    participant C as Cliente
+    participant H as RevokeMfaHandler
+    participant R as IUserAccountRepository
+    participant U as UserAccount (AR)
+
+    C->>H: RevokeMfaEnrollmentCommand(userId, enrollmentId, actorId)
+    H->>R: GetById(userId)
+    R-->>H: UserAccount
+    H->>U: userAccount.RevokeMfa(enrollmentId, actorId)
+    U->>U: Guardia: ultimo enrolamiento no eliminado si tenant requiere MFA
+    U->>U: Enrollment.Status = Revoked
+    H->>R: Update(userAccount)
+    H-->>C: void
 ```
 
 ---
@@ -212,6 +288,28 @@ erDiagram
         datetime2 UpdatedAt
         uniqueidentifier UpdatedBy
     }
+
+    PASSWORD_CREDENTIAL {
+        uniqueidentifier CredentialId PK
+        uniqueidentifier UserAccountId FK
+        nvarchar PasswordHash "Hash BCrypt - solo escritura"
+        bit IsActive "Solo uno true por UserAccount"
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
+    }
+
+    MFA_ENROLLMENT {
+        uniqueidentifier MfaEnrollmentId PK
+        uniqueidentifier UserAccountId FK
+        nvarchar Method "TOTP-SMS-EMAIL-WEBAUTHN"
+        nvarchar Status "ENROLLED-PENDING-REVOKED"
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
+    }
 ```
 
 ---
@@ -223,8 +321,8 @@ flowchart TD
     subgraph Identity["Identity BC"]
         T[Tenant AR]
         UA[UserAccount AR]
-        PC[PasswordCredential]
-        MFA[MfaEnrollment]
+        PC[PasswordCredential Entity]
+        MFA[MfaEnrollment Entity]
         UA -->|TenantId| T
         UA --> PC
         UA --> MFA
@@ -234,12 +332,28 @@ flowchart TD
         PROF[Profile AR]
     end
 
+    subgraph Infra["Infrastructure"]
+        AUTH[Authentication Service]
+        HASH[Password Hashing Service]
+        TOTP[TOTP Service]
+        SMS[SMS Gateway]
+        WA[WebAuthn Authenticator]
+    end
+
     subgraph Audit["Audit BC"]
         AUD[AuditRecord]
     end
 
     PROF -->|UserId| UA
     UA -->|eventos de dominio| AUD
+    HASH -->|Hash BCrypt| PC
+    AUTH -->|Verificar contrasena| PC
+    PC -->|Evento PASSWORD_SET| AUD
+    TOTP -->|Validacion OTP| MFA
+    SMS -->|Entrega OTP| MFA
+    WA -->|Verificacion de Asercion| MFA
+    MFA -->|MFA_ENROLLED| AUD
+    MFA -->|MFA_VERIFIED| AUD
 ```
 
 ---
@@ -254,7 +368,13 @@ flowchart TD
 | `BlockUserCommand` | `userId, reason, actorId` | `void` |
 | `SetPasswordCommand` | `userId, plainPassword, actorId` | `void` |
 | `EnrollMfaCommand` | `userId, method, actorId` | `Guid enrollmentId, setupToken` |
+| `VerifyMfaCommand` | `userId, enrollmentId, otp, actorId` | `void` |
 | `RevokeMfaEnrollmentCommand` | `userId, enrollmentId, actorId` | `void` |
+
+### Consultas
+| Consulta | Retorna |
+|---|---|
+| `GetUserMfaEnrollmentsQuery(userId)` | `List<MfaEnrollmentDto>` |
 
 ### Casos de Error
 | Codigo | Condicion |
@@ -262,7 +382,12 @@ flowchart TD
 | `USER_EMAIL_DUPLICATE` | Email ya existe en el tenant |
 | `USER_NOT_FOUND` | userId desconocido |
 | `USER_NOT_ACTIVE` | Operacion requiere usuario activo |
+| `USER_IS_FEDERATED` | No se puede establecer contrasena en usuario federado |
+| `PASSWORD_HASH_INVALID` | Fallo en validacion del hash |
 | `MFA_METHOD_ALREADY_ENROLLED` | Metodo MFA ya enrollado |
+| `MFA_ENROLLMENT_NOT_FOUND` | enrollmentId desconocido |
+| `MFA_LAST_ENROLLMENT` | Revocar dejaria al usuario sin MFA (requerido) |
+| `MFA_VERIFICATION_FAILED` | OTP invalido |
 
 ---
 
@@ -274,7 +399,13 @@ flowchart TD
 | `IX_UserAccount_TenantId_Email` | `TenantId, Email` | Unico |
 | `IX_UserAccount_TenantId` | `TenantId` | No unico |
 | `IX_PasswordCredential_UserAccountId_IsActive` | `UserAccountId, IsActive` | No unico |
-| `IX_MfaEnrollment_UserAccountId_Method` | `UserAccountId, Method` | Unico |
+| `IX_MfaEnrollment_UserAccountId_Method` | `UserAccountId, Method` | Unico (solo activos) |
+
+### Seguridad y Restricciones Unicas
+- `(UserAccountId, Method)` — solo un enrolamiento por metodo por usuario activo.
+- La columna `PasswordHash` nunca debe aparecer en proyecciones de consultas retornadas a clientes.
+- `PasswordHash` nunca debe aparecer en payloads `AuditRecord.WhatChanged`.
+- La columna debe estar encriptada en reposo (SQL Server Always Encrypted o TDE).
 
 ---
 
@@ -286,12 +417,23 @@ flowchart TD
 | Registrar Usuario | Tenant:Admin · Tenant:UserManager |
 | Bloquear / Restaurar | Tenant:Admin |
 | Establecer Contrasena | Usuario mismo o Tenant:Admin |
+| Leer Credencial (solo IsActive) | Tenant:Admin |
+| Leer Hash | Nadie — solo escritura |
 | Enrolar MFA | Usuario mismo |
+| Revocar MFA | Usuario mismo o Tenant:Admin |
+| Verificar MFA | Usuario mismo |
 
 ### Datos Sensibles
-- `PasswordHash` es de solo escritura — nunca retornado en consultas ni en registros de auditoria.
+- `PasswordHash` es el campo mas sensible del sistema. El acceso de lectura debe ser bloqueado a nivel de repositorio.
 - `Email` es PII — enmascarado en logs.
 
 ### Eventos de Auditoria
 - `USER_REGISTERED`, `USER_ACTIVATED`, `USER_BLOCKED`, `USER_RESTORED`
-- `PASSWORD_SET`, `MFA_ENROLLED`, `MFA_VERIFIED`, `MFA_REVOKED`
+- `PASSWORD_SET` — registrado con `actorId`, `userId`, timestamp. Hash nunca registrado.
+- `MFA_ENROLLED`, `MFA_VERIFIED`, `MFA_REVOKED`
+
+### Cumplimiento
+- GDPR: El hash no es PII, pero la presencia de un registro de credencial implica cuenta local. Al borrar cuenta, el hash debe ser anulado.
+- NIST 800-63B: BCrypt con factor de costo apropiado requerido.
+- Los registros de enrolamiento MFA deben conservarse para trazabilidad de auditoria incluso despues de la revocacion.
+- Las credenciales WebAuthn (passkeys) nunca deben almacenar datos raw de atestigamiento FIDO en el modelo de dominio — eso pertenece a la capa de infraestructura.
