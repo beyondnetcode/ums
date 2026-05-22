@@ -180,3 +180,4 @@ When updating documentation, ensure both versions are synchronized in content, t
 - **Product questions**: Check the [Product Vision](./docs/governance/product/product-vision.md)
 - **Setup issues**: See [Quick Start](./README.md#quick-start-engine-room)
 - **BMAD Method**: See [AGENTS.md](./AGENTS.md)
+- **BMAD Project Skills**: Use the local project playbooks in [`.harness/playbooks/`](./.harness/playbooks/README.md) for documentation audits, API audits, frontend audits, and modular-monolith evolution reviews.

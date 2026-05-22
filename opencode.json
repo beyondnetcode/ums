@@ -41,25 +41,25 @@
     "bmad-architect": {
       "mode": "primary",
       "model": "groq/openai/gpt-oss-120b",
-      "description": "BMAD Architect — ADRs, system design, debugging complejo, análisis multiarchivo. Stack: .NET 10 + React 18 + PostgreSQL 16. Lee .bmad-core/rules/global-rules.md antes de ejecutar."
+      "description": "BMAD Architect — ADRs, modular monolith, bounded contexts, SQL Server, REST + GraphQL query design, extraction readiness. Stack: .NET 10 + React 18 + SQL Server. Lee AGENTS.md, .bmad-core/rules/global-rules.md y .harness/playbooks/modular-monolith-evolution-playbook.md antes de ejecutar."
     },
 
     "bmad-developer": {
       "mode": "primary",
       "model": "groq/qwen/qwen3-32b",
-      "description": "BMAD Developer — implementación de stories, refactors, coding diario, tests. Nx monorepo en src/. NUNCA eliminar tests para hacer pasar un fix."
+      "description": "BMAD Developer — implementación de stories, refactors, coding diario, tests, reusable components, SQL Server persistence. Usa los playbooks de API y frontend. Nx monorepo en src/. NUNCA eliminar tests para hacer pasar un fix."
     },
 
     "bmad-analyst": {
       "mode": "primary",
       "model": "groq/openai/gpt-oss-20b",
-      "description": "BMAD Analyst/PO — PRDs, historias, specs. Documentación bilingüe ES+EN obligatoria (R-01)."
+      "description": "BMAD Analyst/PO — PRDs, historias, specs, backlog y readability business-first. Documentación bilingüe ES+EN obligatoria. Usa functional-story-standard.md y documentation-audit-playbook.md."
     },
 
     "bmad-qa": {
       "mode": "subagent",
       "model": "groq/llama-3.1-8b-instant",
-      "description": "BMAD QA/SM — criterios de aceptación, checklists, validaciones. Rápido y barato (560 T/s)."
+      "description": "BMAD QA/SM — criterios de aceptación, checklists, validaciones y auditorías de cumplimiento. Usa los playbooks de documentación y API para reportes estructurados."
     }
 
   },

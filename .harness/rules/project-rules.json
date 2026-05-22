@@ -95,6 +95,54 @@
       "trigger": "UC, story, epic, or technical enabler creation or update.",
       "instruction": "All UCs, stories, epics, and technical enablers must follow the project naming convention and tagging taxonomy. Apply category prefixes and tags on creation and update. Flag untagged or incorrectly named artifacts before merge.",
       "severity": "info"
+    },
+    {
+      "id": "R-15",
+      "title": "Functional Story Business-First Structure",
+      "agents": ["po", "architect", "dev", "qa", "analyst"],
+      "trigger": "Creation or update of functional stories, use cases, and business requirements.",
+      "instruction": "Functional stories must be readable to a Product Owner or Business Analyst without implementation knowledge. Functional narrative, rules, and acceptance criteria must stay business-facing. Technical details are allowed only in a dedicated Technical Requirements section, following docs/governance/requirements/functional-stories/functional-story-standard.md.",
+      "severity": "critical"
+    },
+    {
+      "id": "R-16",
+      "title": "Authoritative Stack and Multi-Tenancy Compliance",
+      "agents": ["architect", "dev", "qa"],
+      "trigger": "Any task involving persistence, tenancy, ORM mapping, architectural documentation, ADRs, or technical stack references.",
+      "instruction": "The authoritative backend stack for UMS is .NET 10 + SQL Server + EF Core. PostgreSQL references, syntax, migration examples, or assumptions are not allowed unless explicitly marked as external comparison. Multi-tenancy must be documented and implemented with two layers: application-layer tenant filtering as the primary mechanism and SQL Server RLS as a secondary failsafe only.",
+      "severity": "critical"
+    },
+    {
+      "id": "R-17",
+      "title": "Parametric Catalog Minimum Contract",
+      "agents": ["po", "architect", "dev", "qa", "analyst"],
+      "trigger": "Creation or update of parameter tables, configuration entities, feature flags, policies, workflows, security configuration, notification rules, approval rules, or business-rule catalogs.",
+      "instruction": "Every parameter or configuration entity must include at minimum code, value, and description. The description must explain purpose, functional impact, expected behavior, and applicable scope. Any change to this class of entity must also validate uniqueness constraints, versioning, auditing, traceability, cacheability, and future extensibility across E/R model, ORM, migrations, and documentation.",
+      "severity": "critical"
+    },
+    {
+      "id": "R-18",
+      "title": "Modular Monolith Extraction Readiness",
+      "agents": ["architect", "dev", "qa"],
+      "trigger": "Any change to modules, bounded contexts, cross-context interactions, shared frontend components, APIs, repositories, or integration flows.",
+      "instruction": "Preserve strict bounded-context ownership and avoid cross-context leakage. Prefer explicit contracts, domain events, outbox patterns, ACLs, and reusable base components over shortcuts that couple modules directly. All shared UI or infrastructure logic must be separated from domain-specific behavior so the monolith remains extractable into future services or micro-frontends.",
+      "severity": "critical"
+    },
+    {
+      "id": "R-19",
+      "title": "REST Commands and GraphQL Query Governance",
+      "agents": ["architect", "dev", "qa"],
+      "trigger": "Creation or update of query endpoints, command endpoints, GraphQL schemas, query handlers, or read-model documentation.",
+      "instruction": "UMS may expose REST and GraphQL in the same API tier, but responsibilities must stay clear: commands remain REST-first and queries may be exposed through REST and GraphQL. Pagination, filtering, sorting, typed error mapping, and runtime validation must be centralized and consistent across both surfaces.",
+      "severity": "warning"
+    },
+    {
+      "id": "R-20",
+      "title": "Fixed Version Declaration and Agent Alignment",
+      "agents": ["architect", "dev"],
+      "trigger": "Any dependency update, stack modernization, tooling change, or agent configuration update.",
+      "instruction": "Once a project version is adopted, it must be pinned explicitly in code and documented consistently in agent configs, architecture docs, and contribution guidance. Agent descriptions, prompts, and repo-level instructions must be updated whenever the stack changes materially.",
+      "severity": "warning"
     }
   ]
 }

@@ -110,3 +110,45 @@ This document establishes the mandatory rule configuration for the AI agent harn
 *   **Scope**: `po`, `architect`, `dev`, `qa`, `analyst`
 *   **Trigger Condition**: Creation or modification of any Markdown (.md) file.
 *   **Instruction**: Documentation must maintain a clean, professional enterprise visual standard. The use of emojis, UTF-8 icons, or non-standard decorative characters is strictly forbidden in headings, tables, or body text. Prioritize structured plain text, standard Markdown headings, clean tables, and simple lists. This applies to all supported languages.
+
+---
+
+### R-15: Functional Story Business-First Structure
+*   **Scope**: `po`, `architect`, `dev`, `qa`, `analyst`
+*   **Trigger Condition**: Creation or update of functional stories, use cases, and business requirements.
+*   **Instruction**: Functional stories must be readable to a Product Owner or Business Analyst without implementation knowledge. Functional narrative, rules, and acceptance criteria must stay business-facing. Technical details are allowed only in a dedicated `Technical Requirements` section, following `docs/governance/requirements/functional-stories/functional-story-standard.md`.
+
+---
+
+### R-16: Authoritative Stack and Multi-Tenancy Compliance
+*   **Scope**: `architect`, `dev`, `qa`
+*   **Trigger Condition**: Any task involving persistence, tenancy, ORM mapping, architectural documentation, ADRs, or technical stack references.
+*   **Instruction**: The authoritative backend stack for UMS is `.NET 10 + SQL Server + EF Core`. PostgreSQL references, syntax, migration examples, or assumptions are not allowed unless explicitly marked as external comparison. Multi-tenancy must be documented and implemented with two layers: application-layer tenant filtering as the primary mechanism and SQL Server RLS as a secondary failsafe only.
+
+---
+
+### R-17: Parametric Catalog Minimum Contract
+*   **Scope**: `po`, `architect`, `dev`, `qa`, `analyst`
+*   **Trigger Condition**: Creation or update of parameter tables, configuration entities, feature flags, policies, workflows, security configuration, notification rules, approval rules, or business-rule catalogs.
+*   **Instruction**: Every parameter or configuration entity must include at minimum `code`, `value`, and `description`. The description must explain purpose, functional impact, expected behavior, and applicable scope. Any change to this class of entity must also validate uniqueness constraints, versioning, auditing, traceability, cacheability, and future extensibility across E/R model, ORM, migrations, and documentation.
+
+---
+
+### R-18: Modular Monolith Extraction Readiness
+*   **Scope**: `architect`, `dev`, `qa`
+*   **Trigger Condition**: Any change to modules, bounded contexts, cross-context interactions, shared frontend components, APIs, repositories, or integration flows.
+*   **Instruction**: Preserve strict bounded-context ownership and avoid cross-context leakage. Prefer explicit contracts, domain events, outbox patterns, ACLs, and reusable base components over shortcuts that couple modules directly. All shared UI or infrastructure logic must be separated from domain-specific behavior so the monolith remains extractable into future services or micro-frontends.
+
+---
+
+### R-19: REST Commands and GraphQL Query Governance
+*   **Scope**: `architect`, `dev`, `qa`
+*   **Trigger Condition**: Creation or update of query endpoints, command endpoints, GraphQL schemas, query handlers, or read-model documentation.
+*   **Instruction**: UMS may expose REST and GraphQL in the same API tier, but responsibilities must stay clear: commands remain REST-first and queries may be exposed through REST and GraphQL. Pagination, filtering, sorting, typed error mapping, and runtime validation must be centralized and consistent across both surfaces.
+
+---
+
+### R-20: Fixed Version Declaration and Agent Alignment
+*   **Scope**: `architect`, `dev`
+*   **Trigger Condition**: Any dependency update, stack modernization, tooling change, or agent configuration update.
+*   **Instruction**: Once a project version is adopted, it must be pinned explicitly in code and documented consistently in agent configs, architecture docs, and contribution guidance. Agent descriptions, prompts, and repo-level instructions must be updated whenever the stack changes materially.
