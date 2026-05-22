@@ -53,6 +53,7 @@ export default function TenantDashboardScreen(): React.JSX.Element {
             tenants={dashboard.knownTenants}
             selectedId={dashboard.selectedId}
             isLoading={dashboard.isLoadingList}
+            error={dashboard.listError}
             viewMode={dashboard.viewMode}
             onViewModeChange={dashboard.setViewMode}
             searchCriteria={dashboard.searchCriteria}

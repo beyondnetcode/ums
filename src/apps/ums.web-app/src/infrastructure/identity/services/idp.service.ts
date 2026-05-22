@@ -2,9 +2,12 @@
  * idp.service.ts
  *
  * Infrastructure service for Identity Provider bounded context.
- * Queries and commands use REST API endpoints.
+ * Queries use GraphQL via graphqlClient.
+ * Commands/transactions use REST via httpClient.
+ * All responses are validated at runtime with Zod before returning.
  */
 import { httpClient } from '@infra/http/httpClient';
+import { graphqlIdpQueries } from '@infra/identity/queries/idp.graphql';
 import {
   IdentityProviderListSchema,
   type IdentityProvider,
@@ -12,12 +15,14 @@ import {
 } from '@domain/identity/schemas/identity-provider.schema';
 
 export const idpService = {
+  // ── Queries (GraphQL) ─────────────────────────────────────────────────────
+
   getByIdentityProviders: async (tenantId: string): Promise<IdentityProvider[]> => {
-    const response = await httpClient.get<IdentityProvider[]>(
-      `/tenants/${tenantId}/identity-providers`,
-    );
-    return IdentityProviderListSchema.parse(response);
+    const response = await graphqlIdpQueries.getIdentityProviders(tenantId);
+    return IdentityProviderListSchema.parse(response.tenantIdentityProviders);
   },
+
+  // ── Commands (REST) ───────────────────────────────────────────────────────
 
   registerIdentityProvider: async (
     tenantId: string,

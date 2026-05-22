@@ -22,6 +22,7 @@ interface TenantListPanelProps {
   tenants: Tenant[];
   selectedId: string;
   isLoading: boolean;
+  error: Error | null;
   viewMode: 'list' | 'thumbnail';
   onViewModeChange: (mode: 'list' | 'thumbnail') => void;
   searchCriteria: string;
@@ -54,6 +55,7 @@ export const TenantListPanel: React.FC<TenantListPanelProps> = ({
   tenants,
   selectedId,
   isLoading,
+  error,
   viewMode,
   onViewModeChange,
   searchCriteria,
@@ -335,7 +337,20 @@ export const TenantListPanel: React.FC<TenantListPanelProps> = ({
       searchTermLabel={t.dataViewSearchTermLabel}
       searchButtonLabel={t.dataViewSearchBtn}
       renderList={() => (
-        <div className="overflow-x-auto border border-m3-outline/25 rounded-xl bg-m3-surface-container/20">
+        <>
+          {error && (
+            <div className="mb-4 p-4 rounded-xl border border-rose-200 bg-rose-50">
+              <div className="flex items-start gap-3">
+                <Info className="w-5 h-5 text-rose-500 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-rose-800">{t.error || 'Error'}</p>
+                  <p className="text-xs text-rose-700 mt-1">{error.message}</p>
+                  <p className="text-xs text-rose-600 mt-2">Ensure the backend API is running and try again.</p>
+                </div>
+              </div>
+            </div>
+          )}
+          <div className="overflow-x-auto border border-m3-outline/25 rounded-xl bg-m3-surface-container/20">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-m3-outline/20 text-xs font-medium text-m3-secondary bg-m3-surface-container/40">
@@ -362,6 +377,7 @@ export const TenantListPanel: React.FC<TenantListPanelProps> = ({
             </tbody>
           </table>
         </div>
+        </>
       )}
       renderThumbnail={() => (
         <HierarchicalList<Tenant>

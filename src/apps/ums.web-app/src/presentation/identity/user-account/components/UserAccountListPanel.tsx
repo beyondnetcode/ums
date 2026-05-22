@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Mail, ArrowRight } from 'lucide-react';
+import { Mail, ArrowRight, Info, WifiOff, AlertTriangle } from 'lucide-react';
 import { UserAccount } from '@domain/identity/models/user-account.model';
 import { StatusBadge } from '@shared/components/StatusBadge';
 import { CodeBadge } from '@shared/components/CodeBadge';
@@ -13,11 +13,13 @@ import { EntityRow } from '@shared/components/EntityRow';
 import { EntityCard } from '@shared/components/EntityCard';
 import { useI18n } from '@app/i18n/use-i18n';
 import { useStatusLabel } from '@app/hooks/use-status-label';
+import { GraphQlValidationError, GraphQlUnavailableError } from '@infra/http/graphqlClient';
 
 interface UserAccountListPanelProps {
   accounts: UserAccount[];
   selectedId: string;
   isLoading: boolean;
+  error: Error | null;
   viewMode: 'list' | 'thumbnail';
   onViewModeChange: (mode: 'list' | 'thumbnail') => void;
   searchCriteria: string;
@@ -46,10 +48,57 @@ interface UserAccountListPanelProps {
   sortOptions: SortOption[];
 }
 
+function formatErrorMessage(error: Error): string {
+  if (error instanceof GraphQlValidationError) {
+    return error.details.join('. ');
+  }
+  return error.message;
+}
+
+function ErrorBanner({ error }: { error: Error }) {
+  const t = useI18n();
+  const isUnavailable = error instanceof GraphQlUnavailableError;
+  const isValidation = error instanceof GraphQlValidationError;
+
+  const icon = isUnavailable ? (
+    <WifiOff className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" />
+  ) : isValidation ? (
+    <AlertTriangle className="w-5 h-5 text-rose-500 mt-0.5 flex-shrink-0" />
+  ) : (
+    <Info className="w-5 h-5 text-rose-500 mt-0.5 flex-shrink-0" />
+  );
+
+  const title = isUnavailable
+    ? 'Backend API Unavailable'
+    : isValidation
+      ? 'Invalid Request'
+      : (t.error || 'Error');
+
+  const hint = isUnavailable
+    ? 'Start the backend API and refresh. Run: dotnet run in src/apps/ums.api/Ums.Presentation'
+    : isValidation
+      ? 'Check the request parameters and try again.'
+      : 'Ensure the backend API is running and try again.';
+
+  return (
+    <div className="mb-4 p-4 rounded-xl border border-rose-200 bg-rose-50">
+      <div className="flex items-start gap-3">
+        {icon}
+        <div>
+          <p className="text-sm font-medium text-rose-800">{title}</p>
+          <p className="text-xs text-rose-700 mt-1">{formatErrorMessage(error)}</p>
+          <p className="text-xs text-rose-600 mt-2">{hint}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export const UserAccountListPanel: React.FC<UserAccountListPanelProps> = ({
   accounts,
   selectedId,
   isLoading,
+  error,
   viewMode,
   onViewModeChange,
   searchCriteria,
@@ -170,9 +219,12 @@ export const UserAccountListPanel: React.FC<UserAccountListPanelProps> = ({
       searchTermLabel={t.searchTerm}
       searchButtonLabel={t.searchBtn}
       renderList={() => (
-        <div className="divide-y divide-m3-outline/10">
-          {accounts.map(renderAccountRow)}
-        </div>
+        <>
+          {error && <ErrorBanner error={error} />}
+          <div className="divide-y divide-m3-outline/10">
+            {accounts.map(renderAccountRow)}
+          </div>
+        </>
       )}
       renderThumbnail={() => (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">

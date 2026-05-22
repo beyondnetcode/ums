@@ -15,7 +15,15 @@ public class CultureMiddleware(RequestDelegate next)
 
         using (CultureContext.Set(culture))
         {
-            var cultureInfo = new CultureInfo(culture);
+            CultureInfo cultureInfo;
+            try
+            {
+                cultureInfo = new CultureInfo(culture);
+            }
+            catch (CultureNotFoundException)
+            {
+                cultureInfo = CultureInfo.InvariantCulture;
+            }
             CultureInfo.CurrentCulture = cultureInfo;
             CultureInfo.CurrentUICulture = cultureInfo;
 

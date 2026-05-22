@@ -53,6 +53,7 @@ export interface TenantDashboardActions {
 export function useTenantDashboard(): TenantDashboardState & TenantDashboardActions & {
   knownTenants: Tenant[];
   isLoadingList: boolean;
+  listError: Error | null;
   activeTenant: Tenant | undefined;
   parentTenant: Tenant | null;
   isRootTenant: boolean;
@@ -77,7 +78,7 @@ export function useTenantDashboard(): TenantDashboardState & TenantDashboardActi
   const [page, setPage] = useState(1);
   const pageSize = TENANT_PAGE_SIZE;
 
-  const { data: tenantPage, isLoading: isLoadingList } = useGetAllTenants({
+  const { data: tenantPage, isLoading: isLoadingList, error: listError } = useGetAllTenants({
     page,
     pageSize,
     search: appliedQuery.term,
@@ -187,6 +188,7 @@ export function useTenantDashboard(): TenantDashboardState & TenantDashboardActi
     handleResetQuery,
     knownTenants,
     isLoadingList,
+    listError,
     activeTenant,
     parentTenant,
     isRootTenant,

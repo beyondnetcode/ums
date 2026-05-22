@@ -56,6 +56,7 @@ export interface UserAccountDashboardActions {
 export function useUserAccountDashboard(): UserAccountDashboardState & UserAccountDashboardActions & {
   knownAccounts: UserAccount[];
   isLoadingList: boolean;
+  listError: Error | null;
   activeAccount: UserAccount | undefined;
   totalItems: number;
   totalPages: number;
@@ -78,10 +79,10 @@ export function useUserAccountDashboard(): UserAccountDashboardState & UserAccou
 
   const addNotification = useNotificationStore((s) => s.addNotification);
 
-  const { data: accountPage, isLoading: isLoadingList } = useGetAllUserAccounts({
+  const { data: accountPage, isLoading: isLoadingList, error: listError } = useGetAllUserAccounts({
     page,
     pageSize,
-    search: appliedQuery.term,
+    search: appliedQuery.term || undefined,
     criteria: appliedQuery.criteria,
     status: activeFilter,
     sortBy,
@@ -209,6 +210,7 @@ export function useUserAccountDashboard(): UserAccountDashboardState & UserAccou
     handleResetQuery,
     knownAccounts,
     isLoadingList,
+    listError,
     activeAccount,
     totalItems,
     totalPages,

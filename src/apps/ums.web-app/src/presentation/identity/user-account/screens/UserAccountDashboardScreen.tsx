@@ -63,6 +63,7 @@ export default function UserAccountDashboardScreen(): React.JSX.Element {
             accounts={dashboard.knownAccounts}
             selectedId={dashboard.selectedId}
             isLoading={dashboard.isLoadingList}
+            error={dashboard.listError}
             viewMode={dashboard.viewMode}
             onViewModeChange={dashboard.setViewMode}
             searchCriteria={dashboard.searchCriteria}

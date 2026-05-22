@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -41,6 +41,14 @@ export const MasterDetailLayout: React.FC<MasterDetailLayoutProps> = ({
   const containerRef  = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
   const prevRightPct  = useRef(initialDetailPct);
+  const cleanupDragRef = useRef<(() => void) | null>(null);
+
+  // Cleanup drag listeners on unmount
+  useEffect(() => {
+    return () => {
+      cleanupDragRef.current?.();
+    };
+  }, []);
 
   // ── Drag ────────────────────────────────────────────────────────────────────
 
@@ -62,12 +70,15 @@ export const MasterDetailLayout: React.FC<MasterDetailLayoutProps> = ({
     const onMouseUp = () => {
       isDraggingRef.current = false;
       setIsDragging(false);
+      cleanupDragRef.current = null;
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
     };
 
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
+
+    cleanupDragRef.current = onMouseUp;
   }, [minDetailPct, maxDetailPct]);
 
   // ── Toggle ──────────────────────────────────────────────────────────────────

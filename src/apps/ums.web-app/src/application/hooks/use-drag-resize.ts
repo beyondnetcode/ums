@@ -3,7 +3,7 @@
  *
  * M-10: Extracted from M3DataView to enforce Single Responsibility Principle.
  */
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 
 interface UseDragResizeOptions {
   minSize?: number;
@@ -34,6 +34,13 @@ export function useDragResize({
   const resizableRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
   const prevSizeRef = useRef<number | null>(null);
+  const cleanupDragRef = useRef<(() => void) | null>(null);
+
+  useEffect(() => {
+    return () => {
+      cleanupDragRef.current?.();
+    };
+  }, []);
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
@@ -62,12 +69,15 @@ export function useDragResize({
       const onMouseUp = () => {
         isDraggingRef.current = false;
         setIsDragging(false);
+        cleanupDragRef.current = null;
         window.removeEventListener('mousemove', onMouseMove);
         window.removeEventListener('mouseup', onMouseUp);
       };
 
       window.addEventListener('mousemove', onMouseMove);
       window.addEventListener('mouseup', onMouseUp);
+
+      cleanupDragRef.current = onMouseUp;
     },
     [size, minSize, maxSizeRatio],
   );

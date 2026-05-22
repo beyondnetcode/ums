@@ -19,19 +19,21 @@ import {
   type CreateUserAccountResponse,
 } from '@domain/identity/schemas/user-account.schema';
 
+export interface UserAccountQueryParams {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  criteria?: string;
+  status?: string;
+  sortBy?: string;
+  sortOrder?: string;
+  tenantId?: string;
+}
+
 export const userAccountService = {
   // ── Queries (GraphQL) ─────────────────────────────────────────────────────
 
-  getAllUserAccounts: async (params?: {
-    page?: number;
-    pageSize?: number;
-    search?: string;
-    criteria?: string;
-    status?: string;
-    sortBy?: string;
-    sortOrder?: string;
-    tenantId?: string;
-  }): Promise<UserAccountPage> => {
+  getAllUserAccounts: async (params?: UserAccountQueryParams): Promise<UserAccountPage> => {
     const response = await graphqlQueries.getUserAccounts({
       page: params?.page ?? 1,
       pageSize: params?.pageSize ?? 20,
