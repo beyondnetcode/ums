@@ -3,13 +3,25 @@
   "projectType": "application",
   "targets": {
     "build": {
-      "command": "dotnet build Ums.sln"
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "dotnet build Ums.sln",
+        "cwd": "apps/ums.api"
+      }
     },
     "test": {
-      "command": "dotnet test Ums.sln"
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "dotnet test Ums.sln",
+        "cwd": "apps/ums.api"
+      }
     },
     "run": {
-      "command": "dotnet run --project Ums.Presentation"
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "dotnet run --project Ums.Presentation",
+        "cwd": "apps/ums.api"
+      }
     }
   }
 }

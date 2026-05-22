@@ -1,0 +1,12 @@
+<Solution>
+  <Project Path="../../libs/shell/ddd/src/Ums.Shell.Ddd.ValueObjects/Ums.Shell.Ddd.ValueObjects.csproj" />
+  <Project Path="../../libs/shell/ddd/src/Ums.Shell.Ddd/Ums.Shell.Ddd.csproj" />
+  <Project Path="../../libs/shell/factory/src/Ums.Shell.Factory/Ums.Shell.Factory.csproj" />
+  <Project Path="Ums.Application.Test/Ums.Application.Test.csproj" />
+  <Project Path="Ums.Application/Ums.Application.csproj" />
+  <Project Path="Ums.Domain.Test/Ums.Domain.Test.csproj" />
+  <Project Path="Ums.Domain/Ums.Domain.csproj" />
+  <Project Path="Ums.Globalization/Ums.Globalization.csproj" />
+  <Project Path="Ums.Infrastructure/Ums.Infrastructure.csproj" />
+  <Project Path="Ums.Presentation/Ums.Presentation.csproj" />
+</Solution>
