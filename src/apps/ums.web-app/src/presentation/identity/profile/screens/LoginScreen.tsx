@@ -20,7 +20,7 @@ export default function LoginScreen(): React.JSX.Element {
 
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState('admin');
+  const [role, setRole] = useState('user');
 
   const roleOptions: SegmentOption[] = [
     { value: 'user', label: 'user' },
@@ -175,4 +175,4 @@ export default function LoginScreen(): React.JSX.Element {
       </div>
     </div>
   );
-};
+}

@@ -33,6 +33,13 @@ function LocaleSync() {
   return null;
 }
 
+window.addEventListener('unhandledrejection', (event) => {
+  if (import.meta.env.DEV) {
+    console.error('Unhandled promise rejection:', event.reason);
+  }
+  event.preventDefault();
+});
+
 const rootEl = document.getElementById('root');
 if (!rootEl) {
   throw new Error(

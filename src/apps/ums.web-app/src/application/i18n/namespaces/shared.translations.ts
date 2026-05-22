@@ -31,6 +31,8 @@ export const sharedTranslations = {
     notifReadAll: 'Leer Todo',
     notifClearAll: 'Limpiar Todo',
     notifEmpty: 'Sin operaciones auditadas aún.',
+    sessionExpired: 'Sesión Expirada',
+    sessionExpiredMsg: 'Su sesión ha expirado por inactividad. Por favor, inicie sesión nuevamente.',
   },
   en: {
     appName: 'UMS ENTERPRISE',
@@ -64,5 +66,7 @@ export const sharedTranslations = {
     notifReadAll: 'Read All',
     notifClearAll: 'Clear All',
     notifEmpty: 'No operations audited yet.',
+    sessionExpired: 'Session Expired',
+    sessionExpiredMsg: 'Your session has expired due to inactivity. Please log in again.',
   },
 } as const;
