@@ -194,8 +194,8 @@ erDiagram
     USER_ACCOUNT {
         uniqueidentifier UserId PK
         uniqueidentifier TenantId FK
-        nvarchar UserCategory "INTERNAL/EXTERNAL/B2B/PARTNER"
-        nvarchar Status "ACTIVE/BLOCKED/PENDING"
+        nvarchar UserCategory "INTERNAL-EXTERNAL-B2B-PARTNER"
+        nvarchar Status "ACTIVE-BLOCKED-PENDING"
     }
 
     ROLE {
@@ -209,7 +209,7 @@ erDiagram
         uniqueidentifier MaturityStatusId PK
         uniqueidentifier TenantId FK
         uniqueidentifier UserId FK
-        nvarchar CurrentLevel "Junior/Intermediate/Senior/Lead/Principal"
+        nvarchar CurrentLevel "Junior-Intermediate-Senior-Lead-Principal"
         int CompletedCertificationsCount
         int CompletedTrainingsCount
         double PerformanceScore
@@ -221,15 +221,15 @@ erDiagram
         uniqueidentifier PromotionRequestId PK
         uniqueidentifier TenantId FK
         uniqueidentifier TargetRoleId FK
-        nvarchar Status "DRAFT/SUBMITTED/UNDER_REVIEW/APPROVED/EXECUTED/VERIFIED"
+        nvarchar Status "DRAFT-SUBMITTED-APPROVED-EXECUTED-VERIFIED"
         uniqueidentifier InitiatedByUserId FK
     }
 
     PROMOTION_IMPACT_ANALYSIS {
         uniqueidentifier ImpactAnalysisId PK
         uniqueidentifier PromotionRequestId FK
-        nvarchar RiskLevel "LOW/MEDIUM/HIGH"
-        nvarchar AnalysisDetails JSON
+        nvarchar RiskLevel "LOW-MEDIUM-HIGH"
+        nvarchar AnalysisDetails "JSON"
         bit ViolatesSoD
     }
 
@@ -238,7 +238,7 @@ erDiagram
         uniqueidentifier TenantId FK "Nullable"
         uniqueidentifier SuiteId FK "Nullable"
         uniqueidentifier ModuleId FK "Nullable"
-        nvarchar Code "Feature Flag / Parameter"
+        nvarchar Code "Feature Flag-Parameter"
         nvarchar Value "Operational Value"
         nvarchar Description "Purpose + impact + expected behavior + scope"
         bit IsInheritable
@@ -259,18 +259,18 @@ erDiagram
     IDENTITY_PROVIDER {
         uniqueidentifier IdpId PK
         uniqueidentifier TenantId FK
-        nvarchar Code "SAML/OIDC/AZURE_AD"
+        nvarchar Code "SAML-OIDC-AZURE_AD"
         nvarchar Name
         nvarchar Description
-        nvarchar Strategy "OIDC/SAML2/WS_FED"
+        nvarchar Strategy "OIDC-SAML2-WS_FED"
         bit IsActive
     }
 
     BRANDING {
         uniqueidentifier BrandingId PK
-        uniqueidentifier TenantId FK "One-to-One / RLS"
-        nvarchar Logo "URI / Storage Path"
-        nvarchar LogoFormat "PNG/SVG/JPEG"
+        uniqueidentifier TenantId FK "One-to-One RLS"
+        nvarchar Logo "URI Storage Path"
+        nvarchar LogoFormat "PNG-SVG-JPEG"
         nvarchar PrimaryColor "Hex Code"
         nvarchar BackgroundStyle "Glassmorphism/SleekDark"
         nvarchar HeadlineText
@@ -278,7 +278,7 @@ erDiagram
         nvarchar PrimaryButtonLabel
         nvarchar FooterText
         nvarchar CustomDomain "Nullable"
-        nvarchar DnsVerificationStatus "PENDING/VERIFIED/FAILED"
+        nvarchar DnsVerificationStatus "PENDING-VERIFIED-FAILED"
         nvarchar DnsCnameTarget
         bit MagicLinkFallbackEnabled
     }
@@ -305,7 +305,7 @@ erDiagram
         uniqueidentifier WorkflowId FK
         uniqueidentifier TargetUserId FK
         uniqueidentifier TargetProfileId FK "Nullable"
-        nvarchar RequestStatus "PENDING/APPROVED/REJECTED"
+        nvarchar RequestStatus "PENDING-APPROVED-REJECTED"
     }
 
     USER_DOCUMENT {
@@ -314,9 +314,9 @@ erDiagram
         uniqueidentifier DocumentTypeId FK
         datetime2 IssueDate
         datetime2 ExpirationDate
-        nvarchar Status "VALID/EXPIRED/PENDING_RENEWAL"
-        nvarchar Criticity "LOW/MEDIUM/HIGH/CRITICAL"
-        nvarchar FileStoragePath "URI/Path to File Server"
+        nvarchar Status "VALID-EXPIRED-PENDING_RENEWAL"
+        nvarchar Criticity "LOW-MEDIUM-HIGH-CRITICAL"
+        nvarchar FileStoragePath "URI Path to File Server"
     }
 
     NOTIFICATION_RULE {
@@ -327,7 +327,7 @@ erDiagram
         nvarchar Value
         nvarchar Description
         int DaysBefore
-        nvarchar Channel "EMAIL/IN_APP/SMS"
+        nvarchar Channel "EMAIL-IN_APP-SMS"
     }
 
     ACCESS_ENFORCEMENT_POLICY {
@@ -359,11 +359,11 @@ erDiagram
     IDP_CONFIGURATION {
         uniqueidentifier IdpConfigId PK
         uniqueidentifier TenantId FK
-        nvarchar ProviderType "INTERNAL_BCRYPT/ZITADEL/AZURE_AD/OKTA/KEYCLOAK"
+        nvarchar ProviderType "INTERNAL_BCRYPT-ZITADEL-AZURE_AD-OKTA-KEYCLOAK"
         nvarchar DomainHints "OIDC Domain Routing"
         nvarchar ConfigPayload "Encrypted Authorizations"
         nvarchar SecretRef "Vault Path"
-        nvarchar IdpConfigStatus "DRAFT/ACTIVE/INACTIVE"
+        nvarchar IdpConfigStatus "DRAFT-ACTIVE-INACTIVE"
         int ResolutionPriority
         nvarchar Version
     }
@@ -372,10 +372,10 @@ erDiagram
         uniqueidentifier FlagId PK
         uniqueidentifier TenantId FK
         nvarchar FlagCode "Unique Code"
-        nvarchar FlagType "BOOLEAN/VARIANT/PERCENTAGE"
+        nvarchar FlagType "BOOLEAN-VARIANT-PERCENTAGE"
         nvarchar FlagTargets "JSON Rules"
-        nvarchar FlagStatus "ACTIVE/INACTIVE/ARCHIVED"
-        nvarchar LinkedResourceType "Nullable MENU/MODULE/ENDPOINT/WORKFLOW"
+        nvarchar FlagStatus "ACTIVE-INACTIVE-ARCHIVED"
+        nvarchar LinkedResourceType "Nullable: MENU-MODULE-ENDPOINT-WORKFLOW"
         nvarchar Description
         bit IsActive
     }
@@ -394,10 +394,10 @@ erDiagram
         uniqueidentifier AuditRecordId PK
         uniqueidentifier TenantId FK "RLS"
         nvarchar AuditEventType
-        nvarchar SubjectType "USER/ADMIN/SYSTEM/BACKGROUND_WORKER"
+        nvarchar SubjectType "USER-ADMIN-SYSTEM-BACKGROUND_WORKER"
         uniqueidentifier ActorId FK
         datetime2 EvaluatedAt
-        nvarchar AuditResult "SUCCESS/FAILURE/PARTIAL"
+        nvarchar AuditResult "SUCCESS-FAILURE-PARTIAL"
         nvarchar AffectedEntityType
         uniqueidentifier AffectedEntityId
         nvarchar AuditMetadata "JSON Metadata"
