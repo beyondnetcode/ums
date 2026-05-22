@@ -70,11 +70,11 @@ Product Lifecycle and Engineering Specifications for the User Management System 
 
 - [Domain Aggregate Index](./domain/index.md)
 - **Identity BC:** [Tenant](./domain/identity/tenant.md) · [Branch](./domain/identity/branch.md) · [Branding](./domain/identity/branding.md) · [IdentityProvider](./domain/identity/identity-provider.md) · [UserAccount](./domain/identity/user-account.md) · [PasswordCredential](./domain/identity/password-credential.md) · [MfaEnrollment](./domain/identity/mfa-enrollment.md)
-- Authorization BC: *(pending)*
-- Configuration BC: *(pending)*
-- Approvals BC: *(pending)*
-- IGA BC: *(pending)*
-- Audit BC: *(pending)*
+- **Authorization BC:** [SystemSuite](./domain/authorization/system-suite.md) · [Module](./domain/authorization/module.md) · [Menu](./domain/authorization/menu.md) · [SubMenu](./domain/authorization/sub-menu.md) · [Option](./domain/authorization/option.md) · [Action](./domain/authorization/action.md) · [PermissionTemplate](./domain/authorization/permission-template.md) · [PermissionTemplateItem](./domain/authorization/permission-template-item.md) · [Profile](./domain/authorization/profile.md) · [ProfilePermission](./domain/authorization/profile-permission.md)
+- **Configuration BC:** [AppConfiguration](./domain/configuration/app-configuration.md) · [FeatureFlag](./domain/configuration/feature-flag.md) · [FlagEvaluationLog](./domain/configuration/flag-evaluation-log.md) · [IdpConfiguration](./domain/configuration/idp-configuration.md)
+- **Approvals BC:** [ApprovalWorkflow](./domain/approvals/approval-workflow.md) · [ApprovalRequiredDocument](./domain/approvals/approval-required-document.md) · [ApprovalRequest](./domain/approvals/approval-request.md) · [DocumentType](./domain/approvals/document-type.md) · [NotificationRule](./domain/approvals/notification-rule.md) · [UserDocument](./domain/approvals/user-document.md) · [AccessNotification](./domain/approvals/access-notification.md) · [AccessEnforcementPolicy](./domain/approvals/access-enforcement-policy.md)
+- **IGA BC:** [PromotionRequest](./domain/iga/promotion-request.md) · [PromotionImpactAnalysis](./domain/iga/promotion-impact-analysis.md) · [RoleMaturityStatus](./domain/iga/role-maturity-status.md)
+- **Audit BC:** [AuditRecord](./domain/audit/audit-record.md)
 
 ### Phase 05 -- Operations
 

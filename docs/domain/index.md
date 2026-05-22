@@ -22,52 +22,50 @@ Detailed architecture documents for every Aggregate Root and Owned Entity in the
 
 | Aggregate / Entity | Type | Document |
 |---|---|---|
-| `SystemSuite` | Aggregate Root | *(pending)* |
-| `Module` | Owned Entity (SystemSuite) | *(pending)* |
-| `Menu` | Owned Entity (Module) | *(pending)* |
-| `SubMenu` | Owned Entity (Menu) | *(pending)* |
-| `Option` | Owned Entity (SubMenu) | *(pending)* |
-| `Action` | Owned Entity (Option) | *(pending)* |
-| `PermissionTemplate` | Aggregate Root | *(pending)* |
-| `PermissionTemplateItem` | Owned Entity (PermissionTemplate) | *(pending)* |
-| `Profile` | Aggregate Root | *(pending)* |
-| `ProfilePermission` | Owned Entity (Profile) | *(pending)* |
+| `SystemSuite` | Aggregate Root | [system-suite.md](./authorization/system-suite.md) |
+| `Module` | Owned Entity (SystemSuite) | [module.md](./authorization/module.md) |
+| `Menu` | Owned Entity (Module) | [menu.md](./authorization/menu.md) |
+| `SubMenu` | Owned Entity (Menu) | [sub-menu.md](./authorization/sub-menu.md) |
+| `Option` | Owned Entity (SubMenu) | [option.md](./authorization/option.md) |
+| `Action` | Owned Entity (Option) | [action.md](./authorization/action.md) |
+| `PermissionTemplate` | Aggregate Root | [permission-template.md](./authorization/permission-template.md) |
+| `PermissionTemplateItem` | Owned Entity (PermissionTemplate) | [permission-template-item.md](./authorization/permission-template-item.md) |
+| `Profile` | Aggregate Root | [profile.md](./authorization/profile.md) |
+| `ProfilePermission` | Owned Entity (Profile) | [profile-permission.md](./authorization/profile-permission.md) |
 
 ## Configuration BC — `Ums.Domain.Configuration`
 
-| Aggregate / Entity | Type | Document |
-|---|---|---|
-| `AppConfiguration` | Aggregate Root | *(pending)* |
-| `FeatureFlag` | Aggregate Root | *(pending)* |
-| `FlagEvaluationLog` | Owned Entity (FeatureFlag) | *(pending)* |
-| `IdpConfiguration` | Aggregate Root | *(pending)* |
+| `AppConfiguration` | Aggregate Root | [app-configuration.md](./configuration/app-configuration.md) |
+| `FeatureFlag` | Aggregate Root | [feature-flag.md](./configuration/feature-flag.md) |
+| `FlagEvaluationLog` | Owned Entity (FeatureFlag) | [flag-evaluation-log.md](./configuration/flag-evaluation-log.md) |
+| `IdpConfiguration` | Aggregate Root | [idp-configuration.md](./configuration/idp-configuration.md) |
 
 ## Approvals BC — `Ums.Domain.Approvals`
 
 | Aggregate / Entity | Type | Document |
 |---|---|---|
-| `ApprovalWorkflow` | Aggregate Root | *(pending)* |
-| `ApprovalRequiredDocument` | Owned Entity (ApprovalWorkflow) | *(pending)* |
-| `ApprovalRequest` | Aggregate Root | *(pending)* |
-| `DocumentType` | Aggregate Root | *(pending)* |
-| `NotificationRule` | Aggregate Root | *(pending)* |
-| `UserDocument` | Aggregate Root | *(pending)* |
-| `AccessNotification` | Aggregate Root | *(pending)* |
-| `AccessEnforcementPolicy` | Aggregate Root | *(pending)* |
+| `ApprovalWorkflow` | Aggregate Root | [approval-workflow.md](./approvals/approval-workflow.md) |
+| `ApprovalRequiredDocument` | Owned Entity (ApprovalWorkflow) | [approval-required-document.md](./approvals/approval-required-document.md) |
+| `ApprovalRequest` | Aggregate Root | [approval-request.md](./approvals/approval-request.md) |
+| `DocumentType` | Aggregate Root | [document-type.md](./approvals/document-type.md) |
+| `NotificationRule` | Owned Entity (DocumentType) | [notification-rule.md](./approvals/notification-rule.md) |
+| `UserDocument` | Aggregate Root | [user-document.md](./approvals/user-document.md) |
+| `AccessNotification` | Owned Entity (UserDocument) | [access-notification.md](./approvals/access-notification.md) |
+| `AccessEnforcementPolicy` | Aggregate Root | [access-enforcement-policy.md](./approvals/access-enforcement-policy.md) |
 
 ## IGA BC — `Ums.Domain.IGA`
 
 | Aggregate / Entity | Type | Document |
 |---|---|---|
-| `PromotionRequest` | Aggregate Root | *(pending)* |
-| `PromotionImpactAnalysis` | Owned Entity (PromotionRequest) | *(pending)* |
-| `RoleMaturityStatus` | Aggregate Root | *(pending)* |
+| `PromotionRequest` | Aggregate Root | [promotion-request.md](./iga/promotion-request.md) |
+| `PromotionImpactAnalysis` | Owned Entity (PromotionRequest) | [promotion-impact-analysis.md](./iga/promotion-impact-analysis.md) |
+| `RoleMaturityStatus` | Aggregate Root | [role-maturity-status.md](./iga/role-maturity-status.md) |
 
 ## Audit BC — `Ums.Domain.Audit`
 
 | Aggregate / Entity | Type | Document |
 |---|---|---|
-| `AuditRecord` | Aggregate Root | *(pending)* |
+| `AuditRecord` | Aggregate Root | [audit-record.md](./audit/audit-record.md) |
 
 ---
 

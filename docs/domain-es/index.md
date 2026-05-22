@@ -22,52 +22,50 @@ Documentos de arquitectura detallados para cada Aggregate Root y Entidad Propia 
 
 | Agregado / Entidad | Tipo | Documento |
 |---|---|---|
-| `SystemSuite` | Aggregate Root | *(pendiente)* |
-| `Module` | Entidad Propia (SystemSuite) | *(pendiente)* |
-| `Menu` | Entidad Propia (Module) | *(pendiente)* |
-| `SubMenu` | Entidad Propia (Menu) | *(pendiente)* |
-| `Option` | Entidad Propia (SubMenu) | *(pendiente)* |
-| `Action` | Entidad Propia (Option) | *(pendiente)* |
-| `PermissionTemplate` | Aggregate Root | *(pendiente)* |
-| `PermissionTemplateItem` | Entidad Propia (PermissionTemplate) | *(pendiente)* |
-| `Profile` | Aggregate Root | *(pendiente)* |
-| `ProfilePermission` | Entidad Propia (Profile) | *(pendiente)* |
+| `SystemSuite` | Aggregate Root | [system-suite.md](./authorization/system-suite.md) |
+| `Module` | Entidad Propia (SystemSuite) | [module.md](./authorization/module.md) |
+| `Menu` | Entidad Propia (Module) | [menu.md](./authorization/menu.md) |
+| `SubMenu` | Entidad Propia (Menu) | [sub-menu.md](./authorization/sub-menu.md) |
+| `Option` | Entidad Propia (SubMenu) | [option.md](./authorization/option.md) |
+| `Action` | Entidad Propia (Option) | [action.md](./authorization/action.md) |
+| `PermissionTemplate` | Aggregate Root | [permission-template.md](./authorization/permission-template.md) |
+| `PermissionTemplateItem` | Entidad Propia (PermissionTemplate) | [permission-template-item.md](./authorization/permission-template-item.md) |
+| `Profile` | Aggregate Root | [profile.md](./authorization/profile.md) |
+| `ProfilePermission` | Entidad Propia (Profile) | [profile-permission.md](./authorization/profile-permission.md) |
 
 ## Configuration BC — `Ums.Domain.Configuration`
 
-| Agregado / Entidad | Tipo | Documento |
-|---|---|---|
-| `AppConfiguration` | Aggregate Root | *(pendiente)* |
-| `FeatureFlag` | Aggregate Root | *(pendiente)* |
-| `FlagEvaluationLog` | Entidad Propia (FeatureFlag) | *(pendiente)* |
-| `IdpConfiguration` | Aggregate Root | *(pendiente)* |
+| `AppConfiguration` | Aggregate Root | [app-configuration.md](./configuration/app-configuration.md) |
+| `FeatureFlag` | Aggregate Root | [feature-flag.md](./configuration/feature-flag.md) |
+| `FlagEvaluationLog` | Entidad Propia (FeatureFlag) | [flag-evaluation-log.md](./configuration/flag-evaluation-log.md) |
+| `IdpConfiguration` | Aggregate Root | [idp-configuration.md](./configuration/idp-configuration.md) |
 
 ## Approvals BC — `Ums.Domain.Approvals`
 
 | Agregado / Entidad | Tipo | Documento |
 |---|---|---|
-| `ApprovalWorkflow` | Aggregate Root | *(pendiente)* |
-| `ApprovalRequiredDocument` | Entidad Propia (ApprovalWorkflow) | *(pendiente)* |
-| `ApprovalRequest` | Aggregate Root | *(pendiente)* |
-| `DocumentType` | Aggregate Root | *(pendiente)* |
-| `NotificationRule` | Aggregate Root | *(pendiente)* |
-| `UserDocument` | Aggregate Root | *(pendiente)* |
-| `AccessNotification` | Aggregate Root | *(pendiente)* |
-| `AccessEnforcementPolicy` | Aggregate Root | *(pendiente)* |
+| `ApprovalWorkflow` | Aggregate Root | [approval-workflow.md](./approvals/approval-workflow.md) |
+| `ApprovalRequiredDocument` | Entidad Propia (ApprovalWorkflow) | [approval-required-document.md](./approvals/approval-required-document.md) |
+| `ApprovalRequest` | Aggregate Root | [approval-request.md](./approvals/approval-request.md) |
+| `DocumentType` | Aggregate Root | [document-type.md](./approvals/document-type.md) |
+| `NotificationRule` | Entidad Propia (DocumentType) | [notification-rule.md](./approvals/notification-rule.md) |
+| `UserDocument` | Aggregate Root | [user-document.md](./approvals/user-document.md) |
+| `AccessNotification` | Entidad Propia (UserDocument) | [access-notification.md](./approvals/access-notification.md) |
+| `AccessEnforcementPolicy` | Aggregate Root | [access-enforcement-policy.md](./approvals/access-enforcement-policy.md) |
 
 ## IGA BC — `Ums.Domain.IGA`
 
 | Agregado / Entidad | Tipo | Documento |
 |---|---|---|
-| `PromotionRequest` | Aggregate Root | *(pendiente)* |
-| `PromotionImpactAnalysis` | Entidad Propia (PromotionRequest) | *(pendiente)* |
-| `RoleMaturityStatus` | Aggregate Root | *(pendiente)* |
+| `PromotionRequest` | Aggregate Root | [promotion-request.md](./iga/promotion-request.md) |
+| `PromotionImpactAnalysis` | Entidad Propia (PromotionRequest) | [promotion-impact-analysis.md](./iga/promotion-impact-analysis.md) |
+| `RoleMaturityStatus` | Aggregate Root | [role-maturity-status.md](./iga/role-maturity-status.md) |
 
 ## Audit BC — `Ums.Domain.Audit`
 
 | Agregado / Entidad | Tipo | Documento |
 |---|---|---|
-| `AuditRecord` | Aggregate Root | *(pendiente)* |
+| `AuditRecord` | Aggregate Root | [audit-record.md](./audit/audit-record.md) |
 
 ---
 
