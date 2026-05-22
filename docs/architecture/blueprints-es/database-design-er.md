@@ -80,7 +80,29 @@ erDiagram
     PROFILE ||--o{ PROFILE_PERMISSION : "personaliza"
     PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "define"
     ACTION ||--o{ PERMISSION_TEMPLATE : "autorizado"
-    
+
+    ROLE {
+        uniqueidentifier RoleId PK
+        uniqueidentifier SuiteId FK
+        uniqueidentifier TenantId FK "RLS"
+        uniqueidentifier ParentRoleId FK "Auto-Ref"
+        nvarchar Name
+        nvarchar Code
+        int HierarchyLevel
+        int PromotionOrder
+        bit IsActive
+    }
+
+    ACTION {
+        uniqueidentifier ActionId PK
+        uniqueidentifier SuiteId FK "Anulable"
+        uniqueidentifier ModuleId FK "Anulable"
+        uniqueidentifier TenantId FK "RLS"
+        nvarchar Name
+        nvarchar Code
+        bit IsActive
+    }
+
     PERMISSION_TEMPLATE {
         uniqueidentifier TemplateId PK
         uniqueidentifier RoleId FK
@@ -95,15 +117,15 @@ erDiagram
         bit IsDenied "Estado por Defecto"
         bit IsActive "Estado por Defecto"
     }
-    
+
     PROFILE {
-        uniqueidentifier ProfileId PK, FK
+        uniqueidentifier ProfileId PK
         uniqueidentifier TenantId FK "RLS"
         uniqueidentifier UserId FK
         uniqueidentifier RoleId FK
         uniqueidentifier BranchId FK "Contexto de Sucursal"
     }
-    
+
     PROFILE_PERMISSION {
         uniqueidentifier ProfileId PK, FK
         uniqueidentifier TemplateId PK, FK
@@ -124,7 +146,15 @@ erDiagram
     FUNCTIONAL_MODULE ||--o{ FUNCTIONAL_MENU : "L2: Modulo-Menu"
     FUNCTIONAL_MENU ||--o{ FUNCTIONAL_SUBMENU : "L3: Menu-SubMenu"
     FUNCTIONAL_SUBMENU ||--o{ FUNCTIONAL_OPTION : "L4: SubMenu-Opcion"
-    
+
+    SYSTEM_SUITE {
+        uniqueidentifier SuiteId PK
+        uniqueidentifier TenantId FK "RLS"
+        nvarchar Name
+        nvarchar Code
+        bit IsActive
+    }
+
     FUNCTIONAL_MODULE {
         uniqueidentifier ModuleId PK
         uniqueidentifier SuiteId FK
@@ -176,84 +206,36 @@ erDiagram
     TENANT ||--o| BRANDING : "configura"
     USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "admin"
     USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "gestionado"
+    USER_ACCOUNT ||--o{ ROLE_MATURITY_STATUS : "tiene"
+    ROLE ||--o{ ROLE_MATURITY_STATUS : "define_elegibilidad"
     APPROVAL_WORKFLOW ||--o{ APPROVAL_REQUEST : "define_reglas_para"
     APPROVAL_WORKFLOW ||--o{ APPROVAL_REQUIRED_DOCUMENT : "exige"
     APPROVAL_REQUEST ||--o{ USER_DOCUMENT : "evidenciado_por"
     APPROVAL_REQUIRED_DOCUMENT ||--o{ DOCUMENT_TYPE : "tipificado_como"
-    
+
     USER_ACCOUNT ||--o{ USER_DOCUMENT : "posee"
     DOCUMENT_TYPE ||--o{ USER_DOCUMENT : "clasifica"
     DOCUMENT_TYPE ||--o{ NOTIFICATION_RULE : "alerta_para"
     DOCUMENT_TYPE ||--o{ ACCESS_ENFORCEMENT_POLICY : "gobierna_acceso"
-    
+
     USER_ACCOUNT ||--o{ PROMOTION_REQUEST : "inicia"
     ROLE ||--o{ PROMOTION_REQUEST : "objetivo"
     APPROVAL_REQUEST ||--o{ PROMOTION_REQUEST : "autorizado_por"
-    PROMOTION_REQUEST ||--o{ PROMOTION_IMPACT_ANALYSIS : "evalúa riesgo"
-    
-    USER_ACCOUNT {
-        uniqueidentifier UserId PK
-        uniqueidentifier TenantId FK
-        nvarchar UserCategory "INTERNAL-EXTERNAL-B2B-PARTNER"
-        nvarchar Status "ACTIVE-BLOCKED-PENDING"
-    }
-
-    ROLE {
-        uniqueidentifier RoleId PK
-        uniqueidentifier ParentRoleId FK "Auto-Ref"
-        int HierarchyLevel
-        int PromotionOrder
-    }
-
-    ROLE_MATURITY_STATUS {
-        uniqueidentifier MaturityStatusId PK
-        uniqueidentifier TenantId FK
-        uniqueidentifier UserId FK
-        nvarchar CurrentLevel "Junior-Intermediate-Senior-Lead-Principal"
-        int CompletedCertificationsCount
-        int CompletedTrainingsCount
-        double PerformanceScore
-        bit HasComplianceIssues
-        datetime2 LastLevelChangeDate
-    }
-
-    PROMOTION_REQUEST {
-        uniqueidentifier PromotionRequestId PK
-        uniqueidentifier TenantId FK
-        uniqueidentifier TargetRoleId FK
-        nvarchar Status "DRAFT-SUBMITTED-APPROVED-EXECUTED-VERIFIED"
-        uniqueidentifier InitiatedByUserId FK
-    }
-
-    PROMOTION_IMPACT_ANALYSIS {
-        uniqueidentifier ImpactAnalysisId PK
-        uniqueidentifier PromotionRequestId FK
-        nvarchar RiskLevel "LOW-MEDIUM-HIGH"
-        nvarchar AnalysisDetails "JSON"
-        bit ViolatesSoD
-    }
-
-    APP_CONFIGURATION {
-        uniqueidentifier SettingId PK
-        uniqueidentifier TenantId FK "Anulable"
-        uniqueidentifier SuiteId FK "Anulable"
-        uniqueidentifier ModuleId FK "Anulable"
-        nvarchar Code "Flag-Parametro"
-        nvarchar Value "Valor Operativo"
-        nvarchar Description "Propósito + impacto + comportamiento esperado + alcance"
-        bit IsInheritable
-    }
-
-    USER_MANAGEMENT_DELEGATION {
-        uniqueidentifier DelegationId PK
-        uniqueidentifier ParentAdminUserId FK
-        uniqueidentifier ManagedUserId FK
-        uniqueidentifier SuiteId FK "Alcance Opcional"
-    }
+    PROMOTION_REQUEST ||--o{ PROMOTION_IMPACT_ANALYSIS : "evalua_riesgo"
 
     TENANT {
         uniqueidentifier TenantId PK
         nvarchar Name
+        nvarchar Code
+        nvarchar Status "ACTIVE-SUSPENDED-INACTIVE"
+        bit IsActive
+    }
+
+    USER_ACCOUNT {
+        uniqueidentifier UserId PK
+        uniqueidentifier TenantId FK "RLS"
+        nvarchar UserCategory "INTERNAL-EXTERNAL-B2B-PARTNER"
+        nvarchar Status "ACTIVE-BLOCKED-PENDING"
     }
 
     IDENTITY_PROVIDER {
@@ -271,8 +253,8 @@ erDiagram
         uniqueidentifier TenantId FK "Uno-a-Uno RLS"
         nvarchar Logo "URI Ruta del logo"
         nvarchar LogoFormat "PNG-SVG-JPEG"
-        nvarchar PrimaryColor "Código Hex"
-        nvarchar BackgroundStyle "Glassmorphism/SleekDark"
+        nvarchar PrimaryColor "Codigo Hex"
+        nvarchar BackgroundStyle "Glassmorphism-SleekDark"
         nvarchar HeadlineText
         nvarchar SecondaryText
         nvarchar PrimaryButtonLabel
@@ -282,7 +264,39 @@ erDiagram
         nvarchar DnsCnameTarget
         bit MagicLinkFallbackEnabled
     }
-    
+
+    ROLE {
+        uniqueidentifier RoleId PK
+        uniqueidentifier SuiteId FK
+        uniqueidentifier TenantId FK "RLS"
+        uniqueidentifier ParentRoleId FK "Auto-Ref"
+        nvarchar Name
+        nvarchar Code
+        int HierarchyLevel
+        int PromotionOrder
+        bit IsActive
+    }
+
+    ROLE_MATURITY_STATUS {
+        uniqueidentifier MaturityStatusId PK
+        uniqueidentifier TenantId FK "RLS"
+        uniqueidentifier UserId FK
+        uniqueidentifier RoleId FK
+        nvarchar CurrentLevel "Junior-Intermediate-Senior-Lead-Principal"
+        int CompletedCertificationsCount
+        int CompletedTrainingsCount
+        double PerformanceScore
+        bit HasComplianceIssues
+        datetime2 LastLevelChangeDate
+    }
+
+    USER_MANAGEMENT_DELEGATION {
+        uniqueidentifier DelegationId PK
+        uniqueidentifier ParentAdminUserId FK
+        uniqueidentifier ManagedUserId FK
+        uniqueidentifier SuiteId FK "Alcance Opcional"
+    }
+
     APPROVAL_WORKFLOW {
         uniqueidentifier WorkflowId PK
         uniqueidentifier TenantId FK
@@ -299,13 +313,24 @@ erDiagram
         uniqueidentifier WorkflowId FK
         bit IsMandatory
     }
-    
+
     APPROVAL_REQUEST {
         uniqueidentifier RequestId PK
         uniqueidentifier WorkflowId FK
         uniqueidentifier TargetUserId FK
         uniqueidentifier TargetProfileId FK "Anulable"
         nvarchar RequestStatus "PENDING-APPROVED-REJECTED"
+    }
+
+    DOCUMENT_TYPE {
+        uniqueidentifier DocumentTypeId PK
+        uniqueidentifier TenantId FK
+        nvarchar Name
+        nvarchar Code
+        nvarchar Description
+        int ExpirationDays
+        nvarchar Criticity "LOW-MEDIUM-HIGH-CRITICAL"
+        bit IsActive
     }
 
     USER_DOCUMENT {
@@ -337,7 +362,23 @@ erDiagram
         nvarchar Value
         nvarchar Description
         uniqueidentifier DocumentTypeId FK
-        nvarchar ActionOnExpiration "BLOCK_USER/RESTRICT_PROFILE/LOG_ONLY"
+        nvarchar ActionOnExpiration "BLOCK_USER-RESTRICT_PROFILE-LOG_ONLY"
+    }
+
+    PROMOTION_REQUEST {
+        uniqueidentifier PromotionRequestId PK
+        uniqueidentifier TenantId FK
+        uniqueidentifier TargetRoleId FK
+        uniqueidentifier InitiatedByUserId FK
+        nvarchar Status "DRAFT-SUBMITTED-APPROVED-EXECUTED-VERIFIED"
+    }
+
+    PROMOTION_IMPACT_ANALYSIS {
+        uniqueidentifier ImpactAnalysisId PK
+        uniqueidentifier PromotionRequestId FK
+        nvarchar RiskLevel "LOW-MEDIUM-HIGH"
+        nvarchar AnalysisDetails "JSON"
+        bit ViolatesSoD
     }
 ```
 
@@ -351,10 +392,45 @@ erDiagram
     TENANT ||--o{ IDP_CONFIGURATION : "configura_autenticacion"
     TENANT ||--o{ FEATURE_FLAG : "define_toggles"
     TENANT ||--o{ AUDIT_RECORD : "registra_acciones"
-    
+    TENANT ||--o{ APP_CONFIGURATION : "parametriza"
+    SYSTEM_SUITE ||--o{ APP_CONFIGURATION : "anula"
     FEATURE_FLAG ||--o{ FLAG_EVALUATION_LOG : "evalua"
     USER_ACCOUNT ||--o{ FLAG_EVALUATION_LOG : "desencadena"
     USER_ACCOUNT ||--o{ AUDIT_RECORD : "inicia"
+
+    TENANT {
+        uniqueidentifier TenantId PK
+        nvarchar Name
+        nvarchar Code
+        nvarchar Status "ACTIVE-SUSPENDED-INACTIVE"
+        bit IsActive
+    }
+
+    SYSTEM_SUITE {
+        uniqueidentifier SuiteId PK
+        uniqueidentifier TenantId FK "RLS"
+        nvarchar Name
+        nvarchar Code
+        bit IsActive
+    }
+
+    USER_ACCOUNT {
+        uniqueidentifier UserId PK
+        uniqueidentifier TenantId FK "RLS"
+        nvarchar UserCategory "INTERNAL-EXTERNAL-B2B-PARTNER"
+        nvarchar Status "ACTIVE-BLOCKED-PENDING"
+    }
+
+    APP_CONFIGURATION {
+        uniqueidentifier SettingId PK
+        uniqueidentifier TenantId FK "Anulable"
+        uniqueidentifier SuiteId FK "Anulable"
+        uniqueidentifier ModuleId FK "Anulable"
+        nvarchar Code "Flag-Parametro"
+        nvarchar Value "Valor Operativo"
+        nvarchar Description "Proposito + impacto + comportamiento + alcance"
+        bit IsInheritable
+    }
 
     IDP_CONFIGURATION {
         uniqueidentifier IdpConfigId PK
