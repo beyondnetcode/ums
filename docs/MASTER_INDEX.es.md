@@ -54,3 +54,13 @@ Especificaciones de Ingeniería y Ciclo de Vida del Producto para el User Manage
 - [ADR-0054: Aislamiento de Librerías Shell](./architecture/adrs/0054-shell-library-isolation.md)
 - [Decisiones de Diseno y Vacios](./governance/construction/ddd-design/12-design-decisions.md)
 - [Viewer Interactivo DDD](./governance/construction/ddd-design/interactive-ddd-viewer.html)
+
+### Fase 04b -- Arquitectura de Agregados de Dominio
+
+- [Indice de Agregados de Dominio](./domain-es/index.md)
+- **Identity BC:** [Tenant](./domain-es/identity/tenant.md) · [Branch](./domain-es/identity/branch.md) · [Branding](./domain-es/identity/branding.md) · [IdentityProvider](./domain-es/identity/identity-provider.md) · [UserAccount](./domain-es/identity/user-account.md) · [PasswordCredential](./domain-es/identity/password-credential.md) · [MfaEnrollment](./domain-es/identity/mfa-enrollment.md)
+- Authorization BC: *(pendiente)*
+- Configuration BC: *(pendiente)*
+- Approvals BC: *(pendiente)*
+- IGA BC: *(pendiente)*
+- Audit BC: *(pendiente)*

@@ -66,6 +66,16 @@ Product Lifecycle and Engineering Specifications for the User Management System 
 - [Design Decisions & Gaps](./governance/construction/ddd-design/12-design-decisions.md)
 - [Interactive DDD Viewer](./governance/construction/ddd-design/interactive-ddd-viewer.html)
 
+### Phase 04b -- Domain Aggregate Architecture
+
+- [Domain Aggregate Index](./domain/index.md)
+- **Identity BC:** [Tenant](./domain/identity/tenant.md) · [Branch](./domain/identity/branch.md) · [Branding](./domain/identity/branding.md) · [IdentityProvider](./domain/identity/identity-provider.md) · [UserAccount](./domain/identity/user-account.md) · [PasswordCredential](./domain/identity/password-credential.md) · [MfaEnrollment](./domain/identity/mfa-enrollment.md)
+- Authorization BC: *(pending)*
+- Configuration BC: *(pending)*
+- Approvals BC: *(pending)*
+- IGA BC: *(pending)*
+- Audit BC: *(pending)*
+
 ### Phase 05 -- Operations
 
 - [Operations Portal](./operations/index.md)

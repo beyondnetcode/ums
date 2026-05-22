@@ -31,6 +31,19 @@
 | 08 | [IGA Context](./08-iga-context.md) | BC-H `ums_iga` | RolePromotionCriteria, UserPromotionProcess, UserManagementDelegation | FS-12, FS-14 |
 | 09 | [Compliance Context](./09-compliance-context.md) | BC-I `ums_compliance` | DocumentType, UserDocument | FS-11, FS-15, FS-16 |
 
+### Documentacion de Arquitectura de Agregados
+
+Documentos detallados por agregado con modelo de datos completo, secuencias, invariantes y contrato de API. Ver [Indice de Dominio](../../../domain/index.md).
+
+| Contexto | Agregados documentados |
+|----------|----------------------|
+| Identity | [Tenant](../../../domain/identity/tenant.md) · [Branch](../../../domain/identity/branch.md) · [Branding](../../../domain/identity/branding.md) · [IdentityProvider](../../../domain/identity/identity-provider.md) · [UserAccount](../../../domain/identity/user-account.md) · [PasswordCredential](../../../domain/identity/password-credential.md) · [MfaEnrollment](../../../domain/identity/mfa-enrollment.md) |
+| Authorization | *(pendiente)* |
+| Configuration | *(pendiente)* |
+| Approvals | *(pendiente)* |
+| IGA | *(pendiente)* |
+| Audit | *(pendiente)* |
+
 ### Artefactos Transversales
 
 | # | Documento | Contenido |
