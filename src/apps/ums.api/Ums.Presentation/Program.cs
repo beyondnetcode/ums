@@ -176,10 +176,29 @@ if (app.Environment.IsDevelopment() && persistenceOptions.SeedDevData)
     if (repository is InMemoryTenantRepository inMemoryTenantRepository)
     {
         DevDataSeeder.Seed(inMemoryTenantRepository);
+
+        var inMemoryUserAccountRepository = scope.ServiceProvider.GetService<InMemoryUserAccountRepository>();
+        if (inMemoryUserAccountRepository is not null)
+        {
+            DevDataSeeder.SeedUserAccounts(inMemoryUserAccountRepository);
+        }
     }
     else
     {
         await DevDataSeeder.SeedAsync(repository);
+
+        var userAccountRepository = scope.ServiceProvider.GetService<IUserAccountRepository>();
+        if (userAccountRepository is not null)
+        {
+            foreach (var tenantCode in new[] { "RANSA_PERU", "NEPTUNIA", "APM_CALLAO" })
+            {
+                var tenant = await repository.GetByCodeAsync(tenantCode);
+                if (tenant is not null)
+                {
+                    await DevDataSeeder.SeedUserAccountsAsync(userAccountRepository, tenant.Props.Id.GetValue());
+                }
+            }
+        }
     }
 }
 

@@ -74,7 +74,9 @@ export const IdpPanel: React.FC<IdpPanelProps> = ({ tenantId }) => {
   const saveProviderEdit = async () => {
     const result = edit.commitEdit();
     if (!result || !result.draft.name?.trim()) return;
-    addNotification({ title: t.notifProviderUpdated, message: t.notifProviderUpdatedMsg(result.draft.name!.trim()), type: 'success' });
+    const name = result.draft.name?.trim();
+    if (!name) return;
+    addNotification({ title: t.notifProviderUpdated, message: t.notifProviderUpdatedMsg(name), type: 'success' });
     await loadProviders();
   };
 

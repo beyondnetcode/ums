@@ -53,7 +53,8 @@ export function useTreeNodes<T extends Record<string, unknown>>({
       const parentId = item[parentIdKey] as string | null | undefined;
       if (parentId) {
         if (!childMap.has(parentId)) childMap.set(parentId, []);
-        childMap.get(parentId)!.push(item);
+        const children = childMap.get(parentId);
+        if (children) children.push(item);
       } else {
         roots.push(item);
       }

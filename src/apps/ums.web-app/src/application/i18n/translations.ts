@@ -107,6 +107,16 @@ const translations = {
     userEmailHelper: 'Ingrese un correo electrónico válido.',
     selectAccountToView: 'Seleccione una cuenta para ver los detalles.',
     cancelBtn: 'Cancelar',
+    overview: 'Resumen',
+    permissions: 'Permisos',
+    credentials: 'Credenciales',
+    accountDetails: 'Detalles de la Cuenta',
+    email: 'Correo',
+    category: 'Categoría',
+    noPermissionsAssigned: 'No hay permisos asignados a esta cuenta.',
+    noCredentialsConfigured: 'No hay credenciales configuradas para esta cuenta.',
+    noResultsFound: 'No se encontraron resultados.',
+    noResultsTitle: 'Sin Resultados',
   },
 
   en: {
@@ -212,6 +222,16 @@ const translations = {
     userEmailHelper: 'Enter a valid email address.',
     selectAccountToView: 'Select an account to view details.',
     cancelBtn: 'Cancel',
+    overview: 'Overview',
+    permissions: 'Permissions',
+    credentials: 'Credentials',
+    accountDetails: 'Account Details',
+    email: 'Email',
+    category: 'Category',
+    noPermissionsAssigned: 'No permissions assigned to this account.',
+    noCredentialsConfigured: 'No credentials configured for this account.',
+    noResultsFound: 'No results found.',
+    noResultsTitle: 'No Results',
   },
 } as const;
 

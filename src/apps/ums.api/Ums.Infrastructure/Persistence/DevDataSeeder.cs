@@ -2,8 +2,10 @@ namespace Ums.Infrastructure.Persistence;
 
 using Ums.Domain.Enums;
 using Ums.Domain.Identity.Tenant;
+using Ums.Domain.Identity.UserAccount;
 using Ums.Domain.Kernel.ValueObjects;
 using TenantAggregate = Ums.Domain.Identity.Tenant.Tenant;
+using UserAccountAggregate = Ums.Domain.Identity.UserAccount.UserAccount;
 
 /// <summary>
 /// Seeds the in-memory tenant repository with well-known dev GUIDs so that
@@ -32,12 +34,40 @@ public static class DevDataSeeder
         await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
     }
 
+    public static async Task SeedUserAccountsAsync(IUserAccountRepository repository, Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        var existing = await repository.GetByTenantIdAsync(tenantId, cancellationToken);
+        if (existing.Count > 0)
+        {
+            return;
+        }
+
+        var actor = ActorId.Create(SystemActorId);
+        var tenantIdVo = TenantId.Load(tenantId);
+
+        foreach (var userAccount in BuildSeedUserAccountsForTenant(tenantIdVo, actor))
+        {
+            await repository.AddAsync(userAccount, cancellationToken);
+        }
+
+        await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+    }
+
     public static void Seed(InMemoryTenantRepository repository)
     {
         var actor = ActorId.Create(SystemActorId);
         foreach (var tenant in BuildSeedTenants(actor))
         {
             repository.Seed(tenant);
+        }
+    }
+
+    public static void SeedUserAccounts(InMemoryUserAccountRepository repository)
+    {
+        var actor = ActorId.Create(SystemActorId);
+        foreach (var userAccount in BuildSeedUserAccounts(actor))
+        {
+            repository.Seed(userAccount);
         }
     }
 
@@ -57,6 +87,29 @@ public static class DevDataSeeder
                 [("UNI_MIRAFLORES", "Oficina Miraflores — Av. Larco"), ("UNI_CALLAO_OP", "Operaciones Callao — Jr. Colón")]),
             BuildTenant(Guid.Parse("f3e2d1c0-b9a8-7f6e-5d4c-321098765432"), "INTRADEVCO", "Intradevco Industrial S.A.", "RUC-20101041268", OrganizationType.SUPPLIER, null, actor,
                 [("INTRA_SJL", "Planta San Juan de Lurigancho"), ("INTRA_ATE", "Almacén Ate Vitarte — Carretera Central")]),
+        ];
+    }
+
+    private static IReadOnlyList<UserAccountAggregate> BuildSeedUserAccounts(ActorId actor)
+    {
+        var ransaTenantId = TenantId.Load(Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"));
+        var neptuniaTenantId = TenantId.Load(Guid.Parse("c9b736b4-6a84-48f8-b34d-176bc5a6d542"));
+        var apmTenantId = TenantId.Load(Guid.Parse("a3f5b9d2-7c3d-4c8e-a9b0-123456789abc"));
+
+        return
+        [
+            ..BuildSeedUserAccountsForTenant(ransaTenantId, actor),
+            ..BuildSeedUserAccountsForTenant(neptuniaTenantId, actor),
+            ..BuildSeedUserAccountsForTenant(apmTenantId, actor),
+        ];
+    }
+
+    private static IReadOnlyList<UserAccountAggregate> BuildSeedUserAccountsForTenant(TenantId tenantId, ActorId actor)
+    {
+        return
+        [
+            BuildUserAccount(Guid.NewGuid(), tenantId, $"admin@{tenantId.GetValue().ToString().Replace("-", "")}.pe", UserCategory.Internal, actor),
+            BuildUserAccount(Guid.NewGuid(), tenantId, $"user@{tenantId.GetValue().ToString().Replace("-", "")}.pe", UserCategory.External, actor),
         ];
     }
 
@@ -99,5 +152,30 @@ public static class DevDataSeeder
         }
 
         return tenant;
+    }
+
+    private static UserAccountAggregate BuildUserAccount(
+        Guid id,
+        TenantId tenantId,
+        string email,
+        UserCategory category,
+        ActorId actor)
+    {
+        var emailVo = Email.Create(email);
+        var result = UserAccountAggregate.Create(
+            tenantId,
+            emailVo,
+            category,
+            identityReference: null,
+            identityReferenceType: null,
+            actor,
+            UserAccountId.Load(id));
+
+        if (result.IsFailure)
+        {
+            throw new InvalidOperationException($"Unable to build dev user account seed {email}: {result.Error}");
+        }
+
+        return result.Value;
     }
 }

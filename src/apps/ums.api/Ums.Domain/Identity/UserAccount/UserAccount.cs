@@ -49,10 +49,12 @@ public sealed class UserAccount : AggregateRoot<UserAccount, UserAccountProps>
         UserCategory category,
         IdentityReference? identityReference,
         IdentityReferenceType? identityReferenceType,
-        ActorId createdBy)
+        ActorId createdBy,
+        UserAccountId? userAccountId = null)
     {
+        var id = userAccountId ?? UserAccountId.Load(IdValueObject.Create().GetValue());
         var props = new UserAccountProps(
-            IdValueObject.Create(),
+            id,
             tenantId,
             email,
             category,

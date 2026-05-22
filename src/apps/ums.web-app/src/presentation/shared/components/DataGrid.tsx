@@ -64,7 +64,7 @@ function DataGrid<T extends Record<string, unknown>>({
   const renderRow = (item: T, isChild = false) => {
     const id = String(item[idKey]);
     const isSelected = selectedId === id;
-    const hasChildren = hasHierarchy && data.some((d) => String(d[parentIdKey!]) === id);
+    const hasChildren = hasHierarchy && parentIdKey && data.some((d) => String(d[parentIdKey]) === id);
     const isExpanded = expandedIds.has(id);
 
     return (
@@ -97,11 +97,11 @@ function DataGrid<T extends Record<string, unknown>>({
                     )
                   )}
                   {col.cell ? col.cell(item) : (
-                    <span className="font-medium text-m3-on-surface">{String(item[col.accessor!] ?? '')}</span>
+                    <span className="font-medium text-m3-on-surface">{col.accessor ? String(item[col.accessor] ?? '') : ''}</span>
                   )}
                 </div>
               ) : col.cell ? col.cell(item) : (
-                <span className={isChild ? 'opacity-70' : ''}>{String(item[col.accessor!] ?? '')}</span>
+                <span className={isChild ? 'opacity-70' : ''}>{col.accessor ? String(item[col.accessor] ?? '') : ''}</span>
               )}
             </td>
           ))}
@@ -117,9 +117,9 @@ function DataGrid<T extends Record<string, unknown>>({
             </td>
           )}
         </tr>
-        {isExpanded && hasHierarchy && (
+        {isExpanded && hasHierarchy && parentIdKey && (
           data
-            .filter((d) => String(d[parentIdKey!]) === id)
+            .filter((d) => String(d[parentIdKey]) === id)
             .map((child) => renderRow(child, true))
         )}
       </React.Fragment>
