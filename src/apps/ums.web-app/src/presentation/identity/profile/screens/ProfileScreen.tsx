@@ -20,7 +20,7 @@ import {
 import { NOTIFICATION_ICONS, NOTIFICATION_ICON_CLASSES } from '@shared/theme/notification-theme';
 import type { NotificationType } from '@shared/theme/notification-theme';
 
-export const ProfileScreen: React.FC = () => {
+export default function ProfileScreen(): React.JSX.Element {
   const { user, isAuthenticated } = useAuthStore();
   const { devUserId } = useDevToolsStore();
   const { language } = useI18nStore();

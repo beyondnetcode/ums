@@ -1,56 +1,66 @@
 import React from 'react';
 import { useI18n } from '@app/i18n/use-i18n';
-import { useTenantDashboard } from '@app/identity/hooks/use-tenant-dashboard';
-import { TenantForm } from '../components/TenantForm';
-import { TenantDetailPanel } from '../components/TenantDetailPanel';
-import { TenantListPanel } from '../components/TenantListPanel';
+import { useUserAccountDashboard } from '@app/identity/hooks/use-user-account-dashboard';
+import { UserAccountForm } from '../components/UserAccountForm';
+import { UserAccountDetailPanel } from '../components/UserAccountDetailPanel';
+import { UserAccountListPanel } from '../components/UserAccountListPanel';
 import { PageShell } from '@shared/layouts/PageShell';
 import { MasterDetailLayout } from '@shared/layouts/MasterDetailLayout';
 import { M3Dialog } from '@shared/components/M3Dialog';
 import { SortOption, FilterOption, QueryCriteriaOption } from '@shared/components/M3DataView';
 
-export default function TenantDashboardScreen(): React.JSX.Element {
+export default function UserAccountDashboardScreen(): React.JSX.Element {
   const t = useI18n();
-  const dashboard = useTenantDashboard();
+  const dashboard = useUserAccountDashboard();
 
   const criteriaOptions: QueryCriteriaOption[] = [
-    { label: t.byName, value: 'name' },
-    { label: t.byCode, value: 'code' },
-    { label: t.byTenantId, value: 'id' },
+    { label: t.byEmail, value: 'email' },
+    { label: t.byUserId, value: 'id' },
   ];
   const filterOptions: FilterOption[] = [
     { label: t.allStatuses, value: 'all' },
     { label: t.active, value: 'Active' },
-    { label: t.suspended, value: 'Suspended' },
+    { label: t.pending, value: 'Pending' },
+    { label: t.blocked, value: 'Blocked' },
   ];
   const sortOptions: SortOption[] = [
-    { label: t.sortByName, value: 'name' },
-    { label: t.sortByCode, value: 'code' },
+    { label: t.sortByEmail, value: 'email' },
     { label: t.sortByStatus, value: 'status' },
+    { label: t.sortByCategory, value: 'category' },
   ];
 
   return (
     <PageShell>
       <MasterDetailLayout
-        splitterLabel="Resize tenant detail panel"
+        splitterLabel="Resize user account detail panel"
         overlay={
           <>
             <M3Dialog
-              open={dashboard.showDiscardDialog}
-              title={t.unsavedChanges}
-              message={t.unsavedChangesMsg}
-              onScrimClick={() => dashboard.setShowDiscardDialog(false)}
+              open={dashboard.showBlockDialog}
+              title={t.blockUserTitle}
+              message={t.blockUserMessage}
+              onScrimClick={() => dashboard.setShowBlockDialog(false)}
               actions={[
-                { label: t.cancelEdit, variant: 'outlined', onClick: () => dashboard.setShowDiscardDialog(false) },
-                { label: t.discardChanges, variant: 'filled', className: 'bg-m3-error hover:bg-m3-error/90 border-0', onClick: dashboard.confirmDiscard },
+                { label: t.cancelBtn, variant: 'outlined', onClick: () => dashboard.setShowBlockDialog(false) },
+                { label: t.blockBtn, variant: 'filled', className: 'bg-m3-error hover:bg-m3-error/90 border-0', onClick: dashboard.confirmBlock },
               ]}
             />
-            <TenantForm isOpen={dashboard.isCreateOpen} onClose={() => dashboard.setIsCreateOpen(false)} onSuccess={dashboard.handleCreateSuccess} />
+            <M3Dialog
+              open={dashboard.showRestoreDialog}
+              title={t.restoreUserTitle}
+              message={t.restoreUserMessage}
+              onScrimClick={() => dashboard.setShowRestoreDialog(false)}
+              actions={[
+                { label: t.cancelBtn, variant: 'outlined', onClick: () => dashboard.setShowRestoreDialog(false) },
+                { label: t.restoreBtn, variant: 'filled', onClick: dashboard.confirmRestore },
+              ]}
+            />
+            <UserAccountForm isOpen={dashboard.isCreateOpen} onClose={() => dashboard.setIsCreateOpen(false)} onSuccess={dashboard.handleCreateSuccess} />
           </>
         }
         master={
-          <TenantListPanel
-            tenants={dashboard.knownTenants}
+          <UserAccountListPanel
+            accounts={dashboard.knownAccounts}
             selectedId={dashboard.selectedId}
             isLoading={dashboard.isLoadingList}
             viewMode={dashboard.viewMode}
@@ -75,24 +85,19 @@ export default function TenantDashboardScreen(): React.JSX.Element {
             appliedTerm={dashboard.appliedQuery.term}
             onPageChange={dashboard.setPage}
             onResetQuery={dashboard.handleResetQuery}
-            onSelectTenant={dashboard.handleSelectTenant}
+            onSelectAccount={dashboard.handleSelectAccount}
             criteriaOptions={criteriaOptions}
             filterOptions={filterOptions}
             sortOptions={sortOptions}
           />
         }
         detail={
-          <TenantDetailPanel
-            selectedId={dashboard.selectedId}
-            activeTenant={dashboard.activeTenant}
-            parentTenant={dashboard.parentTenant}
-            isRootTenant={dashboard.isRootTenant}
+          <UserAccountDetailPanel
+            activeAccount={dashboard.activeAccount}
             isLoading={dashboard.isLoadingList}
-            activeConsoleTab={dashboard.activeConsoleTab}
-            consoleTabs={dashboard.consoleTabs}
-            onConsoleTabChange={dashboard.setActiveConsoleTab}
-            onTenantUpdate={dashboard.patchTenant}
-            onTenantEditingChange={dashboard.setIsTenantEditing}
+            onAccountActivate={dashboard.handleActivate}
+            onAccountBlock={dashboard.handleBlockRequest}
+            onAccountRestore={dashboard.handleRestoreRequest}
           />
         }
       />

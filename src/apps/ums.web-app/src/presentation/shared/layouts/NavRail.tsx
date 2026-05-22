@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useI18n } from '@app/i18n/use-i18n';
-import { Building2, User, LogOut, ChevronRight, ChevronDown, ShieldCheck, Cpu } from 'lucide-react';
+import { Building2, User, LogOut, ChevronRight, ChevronDown, ShieldCheck, Cpu, Users } from 'lucide-react';
 import { NAV_ROUTES, pathToTab, NAV_MODULES } from './navigation.config';
 import type { NavModule } from './navigation.config';
 
@@ -21,7 +21,7 @@ export const NavRail: React.FC<NavRailProps> = ({ collapsed }) => {
   const activeTab = pathToTab(location.pathname);
 
   const modules: NavModule[] = useMemo(() => NAV_MODULES({
-    ShieldCheck, Building2, Cpu, User, LogOut,
+    ShieldCheck, Building2, Users, Cpu, User, LogOut,
     primaryColorClass: 'text-m3-primary',
     indigoColorClass: 'text-indigo-400',
     t,

@@ -12,7 +12,7 @@ import { ShieldCheck, Cpu, Key } from 'lucide-react';
 import { useNotificationStore } from '@app/stores/notification.store';
 import { DEV_PROFILES } from '@domain/identity/constants/dev-profiles.constants';
 
-export const LoginScreen: React.FC = () => {
+export default function LoginScreen(): React.JSX.Element {
   const { login, isAuthenticated, user, logout } = useAuthStore();
   const { devUserId, setDevUserId } = useDevToolsStore();
   const addNotification = useNotificationStore((state) => state.addNotification);

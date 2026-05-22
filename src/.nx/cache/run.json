@@ -1,21 +1,21 @@
 {
   "run": {
-    "command": "nx run app-web:dev",
-    "startTime": "2026-05-21T22:04:58.971Z",
-    "endTime": "2026-05-21T22:09:58.618Z",
+    "command": "nx run app-web:build",
+    "startTime": "2026-05-22T00:44:43.634Z",
+    "endTime": "2026-05-22T00:44:43.844Z",
     "inner": false
   },
   "tasks": [
     {
-      "taskId": "app-web:dev",
-      "target": "dev",
+      "taskId": "app-web:build",
+      "target": "build",
       "projectName": "app-web",
-      "hash": "5533436493037748411",
-      "startTime": "2026-05-21T22:04:59.122Z",
-      "endTime": "2026-05-21T22:09:58.617Z",
+      "hash": "4586748108703287676",
+      "startTime": "2026-05-22T00:44:43.672Z",
+      "endTime": "2026-05-22T00:44:43.837Z",
       "params": "",
       "cacheStatus": "cache-miss",
-      "status": 0
+      "status": 1
     }
   ]
 }
