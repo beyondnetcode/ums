@@ -5,13 +5,13 @@ interface M3CardProps extends React.HTMLAttributes<HTMLDivElement> {
   hoverable?: boolean;
 }
 
-export const M3Card: React.FC<M3CardProps> = ({
+export const M3Card = React.forwardRef<HTMLDivElement, M3CardProps>(({
   children,
   variant = 'elevated',
   hoverable = false,
   className = '',
   ...props
-}) => {
+}, ref) => {
   const baseStyle = 'rounded-xl p-6 bg-m3-surface-container transition-all duration-300 relative overflow-hidden';
 
   const variants = {
@@ -26,10 +26,13 @@ export const M3Card: React.FC<M3CardProps> = ({
 
   return (
     <div
+      ref={ref}
       className={`${baseStyle} ${variants[variant]} ${hoverStyle} ${className}`}
       {...props}
     >
       {children}
     </div>
   );
-};
+});
+
+M3Card.displayName = 'M3Card';

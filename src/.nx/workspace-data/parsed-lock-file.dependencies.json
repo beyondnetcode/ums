@@ -191,6 +191,11 @@
   },
   {
     "source": "npm:vite@5.4.10",
+    "target": "npm:lightningcss",
+    "type": "static"
+  },
+  {
+    "source": "npm:vite@5.4.10",
     "target": "npm:esbuild",
     "type": "static"
   },
@@ -207,6 +212,56 @@
   {
     "source": "npm:vite@5.4.10",
     "target": "npm:fsevents",
+    "type": "static"
+  },
+  {
+    "source": "npm:@asamuzakjp/css-color",
+    "target": "npm:@asamuzakjp/generational-cache",
+    "type": "static"
+  },
+  {
+    "source": "npm:@asamuzakjp/css-color",
+    "target": "npm:@csstools/css-calc",
+    "type": "static"
+  },
+  {
+    "source": "npm:@asamuzakjp/css-color",
+    "target": "npm:@csstools/css-color-parser",
+    "type": "static"
+  },
+  {
+    "source": "npm:@asamuzakjp/css-color",
+    "target": "npm:@csstools/css-parser-algorithms",
+    "type": "static"
+  },
+  {
+    "source": "npm:@asamuzakjp/css-color",
+    "target": "npm:@csstools/css-tokenizer",
+    "type": "static"
+  },
+  {
+    "source": "npm:@asamuzakjp/dom-selector",
+    "target": "npm:@asamuzakjp/generational-cache",
+    "type": "static"
+  },
+  {
+    "source": "npm:@asamuzakjp/dom-selector",
+    "target": "npm:@asamuzakjp/nwsapi",
+    "type": "static"
+  },
+  {
+    "source": "npm:@asamuzakjp/dom-selector",
+    "target": "npm:bidi-js",
+    "type": "static"
+  },
+  {
+    "source": "npm:@asamuzakjp/dom-selector",
+    "target": "npm:css-tree",
+    "type": "static"
+  },
+  {
+    "source": "npm:@asamuzakjp/dom-selector",
+    "target": "npm:is-potential-custom-element-name",
     "type": "static"
   },
   {
@@ -2025,6 +2080,11 @@
     "type": "static"
   },
   {
+    "source": "npm:@bramus/specificity",
+    "target": "npm:css-tree",
+    "type": "static"
+  },
+  {
     "source": "npm:@commitlint/cli",
     "target": "npm:@commitlint/format",
     "type": "static"
@@ -2365,6 +2425,46 @@
     "type": "static"
   },
   {
+    "source": "npm:@csstools/css-calc",
+    "target": "npm:@csstools/css-parser-algorithms",
+    "type": "static"
+  },
+  {
+    "source": "npm:@csstools/css-calc",
+    "target": "npm:@csstools/css-tokenizer",
+    "type": "static"
+  },
+  {
+    "source": "npm:@csstools/css-color-parser",
+    "target": "npm:@csstools/css-parser-algorithms",
+    "type": "static"
+  },
+  {
+    "source": "npm:@csstools/css-color-parser",
+    "target": "npm:@csstools/css-tokenizer",
+    "type": "static"
+  },
+  {
+    "source": "npm:@csstools/css-color-parser",
+    "target": "npm:@csstools/color-helpers",
+    "type": "static"
+  },
+  {
+    "source": "npm:@csstools/css-color-parser",
+    "target": "npm:@csstools/css-calc",
+    "type": "static"
+  },
+  {
+    "source": "npm:@csstools/css-parser-algorithms",
+    "target": "npm:@csstools/css-tokenizer",
+    "type": "static"
+  },
+  {
+    "source": "npm:@csstools/css-syntax-patches-for-csstree",
+    "target": "npm:css-tree",
+    "type": "static"
+  },
+  {
     "source": "npm:@emnapi/core",
     "target": "npm:@emnapi/wasi-threads",
     "type": "static"
@@ -2477,6 +2577,11 @@
   {
     "source": "npm:@eslint/core@0.13.0",
     "target": "npm:@types/json-schema",
+    "type": "static"
+  },
+  {
+    "source": "npm:@graphql-typed-document-node/core",
+    "target": "npm:graphql",
     "type": "static"
   },
   {
@@ -3105,6 +3210,61 @@
     "type": "static"
   },
   {
+    "source": "npm:@rolldown/binding-wasm32-wasi",
+    "target": "npm:@emnapi/core@1.10.0",
+    "type": "static"
+  },
+  {
+    "source": "npm:@rolldown/binding-wasm32-wasi",
+    "target": "npm:@emnapi/runtime@1.10.0",
+    "type": "static"
+  },
+  {
+    "source": "npm:@rolldown/binding-wasm32-wasi",
+    "target": "npm:@napi-rs/wasm-runtime@1.1.4",
+    "type": "static"
+  },
+  {
+    "source": "npm:@emnapi/core@1.10.0",
+    "target": "npm:@emnapi/wasi-threads@1.2.1",
+    "type": "static"
+  },
+  {
+    "source": "npm:@emnapi/core@1.10.0",
+    "target": "npm:tslib",
+    "type": "static"
+  },
+  {
+    "source": "npm:@emnapi/runtime@1.10.0",
+    "target": "npm:tslib",
+    "type": "static"
+  },
+  {
+    "source": "npm:@emnapi/wasi-threads@1.2.1",
+    "target": "npm:tslib",
+    "type": "static"
+  },
+  {
+    "source": "npm:@napi-rs/wasm-runtime@1.1.4",
+    "target": "npm:@emnapi/core@1.10.0",
+    "type": "static"
+  },
+  {
+    "source": "npm:@napi-rs/wasm-runtime@1.1.4",
+    "target": "npm:@emnapi/runtime@1.10.0",
+    "type": "static"
+  },
+  {
+    "source": "npm:@napi-rs/wasm-runtime@1.1.4",
+    "target": "npm:@tybys/wasm-util@0.10.2",
+    "type": "static"
+  },
+  {
+    "source": "npm:@tybys/wasm-util@0.10.2",
+    "target": "npm:tslib",
+    "type": "static"
+  },
+  {
     "source": "npm:@simple-libs/child-process-utils",
     "target": "npm:@simple-libs/stream-utils",
     "type": "static"
@@ -3117,6 +3277,111 @@
   {
     "source": "npm:@tanstack/react-query",
     "target": "npm:@tanstack/query-core",
+    "type": "static"
+  },
+  {
+    "source": "npm:@testing-library/dom",
+    "target": "npm:@babel/code-frame",
+    "type": "static"
+  },
+  {
+    "source": "npm:@testing-library/dom",
+    "target": "npm:@babel/runtime",
+    "type": "static"
+  },
+  {
+    "source": "npm:@testing-library/dom",
+    "target": "npm:@types/aria-query",
+    "type": "static"
+  },
+  {
+    "source": "npm:@testing-library/dom",
+    "target": "npm:aria-query",
+    "type": "static"
+  },
+  {
+    "source": "npm:@testing-library/dom",
+    "target": "npm:dom-accessibility-api",
+    "type": "static"
+  },
+  {
+    "source": "npm:@testing-library/dom",
+    "target": "npm:lz-string",
+    "type": "static"
+  },
+  {
+    "source": "npm:@testing-library/dom",
+    "target": "npm:picocolors",
+    "type": "static"
+  },
+  {
+    "source": "npm:@testing-library/dom",
+    "target": "npm:pretty-format",
+    "type": "static"
+  },
+  {
+    "source": "npm:@testing-library/jest-dom",
+    "target": "npm:@adobe/css-tools",
+    "type": "static"
+  },
+  {
+    "source": "npm:@testing-library/jest-dom",
+    "target": "npm:aria-query",
+    "type": "static"
+  },
+  {
+    "source": "npm:@testing-library/jest-dom",
+    "target": "npm:css.escape",
+    "type": "static"
+  },
+  {
+    "source": "npm:@testing-library/jest-dom",
+    "target": "npm:dom-accessibility-api@0.6.3",
+    "type": "static"
+  },
+  {
+    "source": "npm:@testing-library/jest-dom",
+    "target": "npm:picocolors",
+    "type": "static"
+  },
+  {
+    "source": "npm:@testing-library/jest-dom",
+    "target": "npm:redent",
+    "type": "static"
+  },
+  {
+    "source": "npm:@testing-library/react",
+    "target": "npm:@testing-library/dom",
+    "type": "static"
+  },
+  {
+    "source": "npm:@testing-library/react",
+    "target": "npm:@types/react",
+    "type": "static"
+  },
+  {
+    "source": "npm:@testing-library/react",
+    "target": "npm:@types/react-dom",
+    "type": "static"
+  },
+  {
+    "source": "npm:@testing-library/react",
+    "target": "npm:react",
+    "type": "static"
+  },
+  {
+    "source": "npm:@testing-library/react",
+    "target": "npm:react-dom",
+    "type": "static"
+  },
+  {
+    "source": "npm:@testing-library/react",
+    "target": "npm:@babel/runtime",
+    "type": "static"
+  },
+  {
+    "source": "npm:@testing-library/user-event",
+    "target": "npm:@testing-library/dom",
     "type": "static"
   },
   {
@@ -3167,6 +3432,16 @@
   {
     "source": "npm:@types/babel__traverse",
     "target": "npm:@babel/types",
+    "type": "static"
+  },
+  {
+    "source": "npm:@types/chai",
+    "target": "npm:@types/deep-eql",
+    "type": "static"
+  },
+  {
+    "source": "npm:@types/chai",
+    "target": "npm:assertion-error",
     "type": "static"
   },
   {
@@ -3555,6 +3830,141 @@
     "type": "static"
   },
   {
+    "source": "npm:@vitest/coverage-v8",
+    "target": "npm:vitest",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/coverage-v8",
+    "target": "npm:@bcoe/v8-coverage",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/coverage-v8",
+    "target": "npm:@vitest/utils",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/coverage-v8",
+    "target": "npm:ast-v8-to-istanbul",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/coverage-v8",
+    "target": "npm:istanbul-lib-coverage",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/coverage-v8",
+    "target": "npm:istanbul-lib-report",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/coverage-v8",
+    "target": "npm:istanbul-reports",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/coverage-v8",
+    "target": "npm:magicast",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/coverage-v8",
+    "target": "npm:obug",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/coverage-v8",
+    "target": "npm:std-env",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/coverage-v8",
+    "target": "npm:tinyrainbow",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/expect",
+    "target": "npm:@standard-schema/spec",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/expect",
+    "target": "npm:@types/chai",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/expect",
+    "target": "npm:@vitest/spy",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/expect",
+    "target": "npm:@vitest/utils",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/expect",
+    "target": "npm:chai",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/expect",
+    "target": "npm:tinyrainbow",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/pretty-format",
+    "target": "npm:tinyrainbow",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/runner",
+    "target": "npm:@vitest/utils",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/runner",
+    "target": "npm:pathe",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/snapshot",
+    "target": "npm:@vitest/pretty-format",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/snapshot",
+    "target": "npm:@vitest/utils",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/snapshot",
+    "target": "npm:magic-string",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/snapshot",
+    "target": "npm:pathe",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/utils",
+    "target": "npm:@vitest/pretty-format",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/utils",
+    "target": "npm:convert-source-map",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/utils",
+    "target": "npm:tinyrainbow",
+    "type": "static"
+  },
+  {
     "source": "npm:@zkochan/js-yaml",
     "target": "npm:argparse",
     "type": "static"
@@ -3597,6 +4007,26 @@
   {
     "source": "npm:anymatch",
     "target": "npm:picomatch@2.3.2",
+    "type": "static"
+  },
+  {
+    "source": "npm:aria-query",
+    "target": "npm:dequal",
+    "type": "static"
+  },
+  {
+    "source": "npm:ast-v8-to-istanbul",
+    "target": "npm:@jridgewell/trace-mapping",
+    "type": "static"
+  },
+  {
+    "source": "npm:ast-v8-to-istanbul",
+    "target": "npm:estree-walker",
+    "type": "static"
+  },
+  {
+    "source": "npm:ast-v8-to-istanbul",
+    "target": "npm:js-tokens@10.0.0",
     "type": "static"
   },
   {
@@ -3752,6 +4182,11 @@
   {
     "source": "npm:babel-plugin-transform-typescript-metadata",
     "target": "npm:@babel/helper-plugin-utils",
+    "type": "static"
+  },
+  {
+    "source": "npm:bidi-js",
+    "target": "npm:require-from-string",
     "type": "static"
   },
   {
@@ -3995,6 +4430,16 @@
     "type": "static"
   },
   {
+    "source": "npm:css-tree",
+    "target": "npm:mdn-data",
+    "type": "static"
+  },
+  {
+    "source": "npm:css-tree",
+    "target": "npm:source-map-js",
+    "type": "static"
+  },
+  {
     "source": "npm:ctx7",
     "target": "npm:@inquirer/prompts",
     "type": "static"
@@ -4127,6 +4572,16 @@
   {
     "source": "npm:strip-ansi@7.2.0",
     "target": "npm:ansi-regex@6.2.2",
+    "type": "static"
+  },
+  {
+    "source": "npm:data-urls",
+    "target": "npm:whatwg-mimetype",
+    "type": "static"
+  },
+  {
+    "source": "npm:data-urls",
+    "target": "npm:whatwg-url",
     "type": "static"
   },
   {
@@ -4685,6 +5140,11 @@
     "type": "static"
   },
   {
+    "source": "npm:estree-walker",
+    "target": "npm:@types/estree",
+    "type": "static"
+  },
+  {
     "source": "npm:fast-glob",
     "target": "npm:@nodelib/fs.stat",
     "type": "static"
@@ -4880,6 +5340,16 @@
     "type": "static"
   },
   {
+    "source": "npm:graphql-request",
+    "target": "npm:graphql",
+    "type": "static"
+  },
+  {
+    "source": "npm:graphql-request",
+    "target": "npm:@graphql-typed-document-node/core",
+    "type": "static"
+  },
+  {
     "source": "npm:has-tostringtag",
     "target": "npm:has-symbols",
     "type": "static"
@@ -4887,6 +5357,11 @@
   {
     "source": "npm:hasown",
     "target": "npm:function-bind",
+    "type": "static"
+  },
+  {
+    "source": "npm:html-encoding-sniffer",
+    "target": "npm:@exodus/bytes",
     "type": "static"
   },
   {
@@ -4925,8 +5400,138 @@
     "type": "static"
   },
   {
+    "source": "npm:istanbul-lib-report",
+    "target": "npm:istanbul-lib-coverage",
+    "type": "static"
+  },
+  {
+    "source": "npm:istanbul-lib-report",
+    "target": "npm:make-dir",
+    "type": "static"
+  },
+  {
+    "source": "npm:istanbul-lib-report",
+    "target": "npm:supports-color",
+    "type": "static"
+  },
+  {
+    "source": "npm:istanbul-reports",
+    "target": "npm:html-escaper",
+    "type": "static"
+  },
+  {
+    "source": "npm:istanbul-reports",
+    "target": "npm:istanbul-lib-report",
+    "type": "static"
+  },
+  {
     "source": "npm:js-yaml",
     "target": "npm:argparse",
+    "type": "static"
+  },
+  {
+    "source": "npm:jsdom",
+    "target": "npm:@asamuzakjp/css-color",
+    "type": "static"
+  },
+  {
+    "source": "npm:jsdom",
+    "target": "npm:@asamuzakjp/dom-selector",
+    "type": "static"
+  },
+  {
+    "source": "npm:jsdom",
+    "target": "npm:@bramus/specificity",
+    "type": "static"
+  },
+  {
+    "source": "npm:jsdom",
+    "target": "npm:@csstools/css-syntax-patches-for-csstree",
+    "type": "static"
+  },
+  {
+    "source": "npm:jsdom",
+    "target": "npm:@exodus/bytes",
+    "type": "static"
+  },
+  {
+    "source": "npm:jsdom",
+    "target": "npm:css-tree",
+    "type": "static"
+  },
+  {
+    "source": "npm:jsdom",
+    "target": "npm:data-urls",
+    "type": "static"
+  },
+  {
+    "source": "npm:jsdom",
+    "target": "npm:decimal.js",
+    "type": "static"
+  },
+  {
+    "source": "npm:jsdom",
+    "target": "npm:html-encoding-sniffer",
+    "type": "static"
+  },
+  {
+    "source": "npm:jsdom",
+    "target": "npm:is-potential-custom-element-name",
+    "type": "static"
+  },
+  {
+    "source": "npm:jsdom",
+    "target": "npm:lru-cache@11.5.0",
+    "type": "static"
+  },
+  {
+    "source": "npm:jsdom",
+    "target": "npm:parse5",
+    "type": "static"
+  },
+  {
+    "source": "npm:jsdom",
+    "target": "npm:saxes",
+    "type": "static"
+  },
+  {
+    "source": "npm:jsdom",
+    "target": "npm:symbol-tree",
+    "type": "static"
+  },
+  {
+    "source": "npm:jsdom",
+    "target": "npm:tough-cookie",
+    "type": "static"
+  },
+  {
+    "source": "npm:jsdom",
+    "target": "npm:undici",
+    "type": "static"
+  },
+  {
+    "source": "npm:jsdom",
+    "target": "npm:w3c-xmlserializer",
+    "type": "static"
+  },
+  {
+    "source": "npm:jsdom",
+    "target": "npm:webidl-conversions",
+    "type": "static"
+  },
+  {
+    "source": "npm:jsdom",
+    "target": "npm:whatwg-mimetype",
+    "type": "static"
+  },
+  {
+    "source": "npm:jsdom",
+    "target": "npm:whatwg-url",
+    "type": "static"
+  },
+  {
+    "source": "npm:jsdom",
+    "target": "npm:xml-name-validator",
     "type": "static"
   },
   {
@@ -4942,6 +5547,66 @@
   {
     "source": "npm:levn",
     "target": "npm:type-check",
+    "type": "static"
+  },
+  {
+    "source": "npm:lightningcss",
+    "target": "npm:detect-libc",
+    "type": "static"
+  },
+  {
+    "source": "npm:lightningcss",
+    "target": "npm:lightningcss-android-arm64",
+    "type": "static"
+  },
+  {
+    "source": "npm:lightningcss",
+    "target": "npm:lightningcss-darwin-arm64",
+    "type": "static"
+  },
+  {
+    "source": "npm:lightningcss",
+    "target": "npm:lightningcss-darwin-x64",
+    "type": "static"
+  },
+  {
+    "source": "npm:lightningcss",
+    "target": "npm:lightningcss-freebsd-x64",
+    "type": "static"
+  },
+  {
+    "source": "npm:lightningcss",
+    "target": "npm:lightningcss-linux-arm-gnueabihf",
+    "type": "static"
+  },
+  {
+    "source": "npm:lightningcss",
+    "target": "npm:lightningcss-linux-arm64-gnu",
+    "type": "static"
+  },
+  {
+    "source": "npm:lightningcss",
+    "target": "npm:lightningcss-linux-arm64-musl",
+    "type": "static"
+  },
+  {
+    "source": "npm:lightningcss",
+    "target": "npm:lightningcss-linux-x64-gnu",
+    "type": "static"
+  },
+  {
+    "source": "npm:lightningcss",
+    "target": "npm:lightningcss-linux-x64-musl",
+    "type": "static"
+  },
+  {
+    "source": "npm:lightningcss",
+    "target": "npm:lightningcss-win32-arm64-msvc",
+    "type": "static"
+  },
+  {
+    "source": "npm:lightningcss",
+    "target": "npm:lightningcss-win32-x64-msvc",
     "type": "static"
   },
   {
@@ -4972,6 +5637,31 @@
   {
     "source": "npm:lucide-react",
     "target": "npm:react",
+    "type": "static"
+  },
+  {
+    "source": "npm:magic-string",
+    "target": "npm:@jridgewell/sourcemap-codec",
+    "type": "static"
+  },
+  {
+    "source": "npm:magicast",
+    "target": "npm:@babel/parser",
+    "type": "static"
+  },
+  {
+    "source": "npm:magicast",
+    "target": "npm:@babel/types",
+    "type": "static"
+  },
+  {
+    "source": "npm:magicast",
+    "target": "npm:source-map-js",
+    "type": "static"
+  },
+  {
+    "source": "npm:make-dir",
+    "target": "npm:semver",
     "type": "static"
   },
   {
@@ -5790,6 +6480,11 @@
     "type": "static"
   },
   {
+    "source": "npm:parse5",
+    "target": "npm:entities",
+    "type": "static"
+  },
+  {
     "source": "npm:postcss",
     "target": "npm:nanoid",
     "type": "static"
@@ -5875,6 +6570,21 @@
     "type": "static"
   },
   {
+    "source": "npm:pretty-format",
+    "target": "npm:ansi-regex",
+    "type": "static"
+  },
+  {
+    "source": "npm:pretty-format",
+    "target": "npm:ansi-styles@5.2.0",
+    "type": "static"
+  },
+  {
+    "source": "npm:pretty-format",
+    "target": "npm:react-is",
+    "type": "static"
+  },
+  {
     "source": "npm:react",
     "target": "npm:loose-envify",
     "type": "static"
@@ -5892,6 +6602,36 @@
   {
     "source": "npm:react-dom",
     "target": "npm:scheduler",
+    "type": "static"
+  },
+  {
+    "source": "npm:react-router",
+    "target": "npm:react",
+    "type": "static"
+  },
+  {
+    "source": "npm:react-router",
+    "target": "npm:@remix-run/router",
+    "type": "static"
+  },
+  {
+    "source": "npm:react-router-dom",
+    "target": "npm:react",
+    "type": "static"
+  },
+  {
+    "source": "npm:react-router-dom",
+    "target": "npm:react-dom",
+    "type": "static"
+  },
+  {
+    "source": "npm:react-router-dom",
+    "target": "npm:@remix-run/router",
+    "type": "static"
+  },
+  {
+    "source": "npm:react-router-dom",
+    "target": "npm:react-router",
     "type": "static"
   },
   {
@@ -5917,6 +6657,16 @@
   {
     "source": "npm:readdirp",
     "target": "npm:picomatch@2.3.2",
+    "type": "static"
+  },
+  {
+    "source": "npm:redent",
+    "target": "npm:indent-string",
+    "type": "static"
+  },
+  {
+    "source": "npm:redent",
+    "target": "npm:strip-indent",
     "type": "static"
   },
   {
@@ -6002,6 +6752,91 @@
   {
     "source": "npm:restore-cursor",
     "target": "npm:signal-exit@3.0.7",
+    "type": "static"
+  },
+  {
+    "source": "npm:rolldown",
+    "target": "npm:@oxc-project/types",
+    "type": "static"
+  },
+  {
+    "source": "npm:rolldown",
+    "target": "npm:@rolldown/pluginutils",
+    "type": "static"
+  },
+  {
+    "source": "npm:rolldown",
+    "target": "npm:@rolldown/binding-android-arm64",
+    "type": "static"
+  },
+  {
+    "source": "npm:rolldown",
+    "target": "npm:@rolldown/binding-darwin-arm64",
+    "type": "static"
+  },
+  {
+    "source": "npm:rolldown",
+    "target": "npm:@rolldown/binding-darwin-x64",
+    "type": "static"
+  },
+  {
+    "source": "npm:rolldown",
+    "target": "npm:@rolldown/binding-freebsd-x64",
+    "type": "static"
+  },
+  {
+    "source": "npm:rolldown",
+    "target": "npm:@rolldown/binding-linux-arm-gnueabihf",
+    "type": "static"
+  },
+  {
+    "source": "npm:rolldown",
+    "target": "npm:@rolldown/binding-linux-arm64-gnu",
+    "type": "static"
+  },
+  {
+    "source": "npm:rolldown",
+    "target": "npm:@rolldown/binding-linux-arm64-musl",
+    "type": "static"
+  },
+  {
+    "source": "npm:rolldown",
+    "target": "npm:@rolldown/binding-linux-ppc64-gnu",
+    "type": "static"
+  },
+  {
+    "source": "npm:rolldown",
+    "target": "npm:@rolldown/binding-linux-s390x-gnu",
+    "type": "static"
+  },
+  {
+    "source": "npm:rolldown",
+    "target": "npm:@rolldown/binding-linux-x64-gnu",
+    "type": "static"
+  },
+  {
+    "source": "npm:rolldown",
+    "target": "npm:@rolldown/binding-linux-x64-musl",
+    "type": "static"
+  },
+  {
+    "source": "npm:rolldown",
+    "target": "npm:@rolldown/binding-openharmony-arm64",
+    "type": "static"
+  },
+  {
+    "source": "npm:rolldown",
+    "target": "npm:@rolldown/binding-wasm32-wasi",
+    "type": "static"
+  },
+  {
+    "source": "npm:rolldown",
+    "target": "npm:@rolldown/binding-win32-arm64-msvc",
+    "type": "static"
+  },
+  {
+    "source": "npm:rolldown",
+    "target": "npm:@rolldown/binding-win32-x64-msvc",
     "type": "static"
   },
   {
@@ -6145,6 +6980,11 @@
     "type": "static"
   },
   {
+    "source": "npm:saxes",
+    "target": "npm:xmlchars",
+    "type": "static"
+  },
+  {
     "source": "npm:scheduler",
     "target": "npm:loose-envify",
     "type": "static"
@@ -6192,6 +7032,11 @@
   {
     "source": "npm:strip-ansi",
     "target": "npm:ansi-regex",
+    "type": "static"
+  },
+  {
+    "source": "npm:strip-indent",
+    "target": "npm:min-indent",
     "type": "static"
   },
   {
@@ -6390,8 +7235,23 @@
     "type": "static"
   },
   {
+    "source": "npm:tldts",
+    "target": "npm:tldts-core",
+    "type": "static"
+  },
+  {
     "source": "npm:to-regex-range",
     "target": "npm:is-number",
+    "type": "static"
+  },
+  {
+    "source": "npm:tough-cookie",
+    "target": "npm:tldts",
+    "type": "static"
+  },
+  {
+    "source": "npm:tr46",
+    "target": "npm:punycode",
     "type": "static"
   },
   {
@@ -6796,6 +7656,11 @@
   },
   {
     "source": "npm:vite",
+    "target": "npm:lightningcss",
+    "type": "static"
+  },
+  {
+    "source": "npm:vite",
     "target": "npm:esbuild",
     "type": "static"
   },
@@ -6815,13 +7680,248 @@
     "type": "static"
   },
   {
+    "source": "npm:vitest",
+    "target": "npm:@types/node",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:@vitest/coverage-v8",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:jsdom",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:vite@8.0.14",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:@vitest/expect",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:@vitest/mocker@4.1.7",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:@vitest/pretty-format",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:@vitest/runner",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:@vitest/snapshot",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:@vitest/spy",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:@vitest/utils",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:es-module-lexer",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:expect-type",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:magic-string",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:obug",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:pathe",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:picomatch",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:std-env",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:tinybench",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:tinyexec",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:tinyglobby",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:tinyrainbow",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:vite@8.0.14",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:why-is-node-running",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/mocker@4.1.7",
+    "target": "npm:vite@8.0.14",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/mocker@4.1.7",
+    "target": "npm:@vitest/spy",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/mocker@4.1.7",
+    "target": "npm:estree-walker",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/mocker@4.1.7",
+    "target": "npm:magic-string",
+    "type": "static"
+  },
+  {
+    "source": "npm:postcss@8.5.15",
+    "target": "npm:nanoid",
+    "type": "static"
+  },
+  {
+    "source": "npm:postcss@8.5.15",
+    "target": "npm:picocolors",
+    "type": "static"
+  },
+  {
+    "source": "npm:postcss@8.5.15",
+    "target": "npm:source-map-js",
+    "type": "static"
+  },
+  {
+    "source": "npm:vite@8.0.14",
+    "target": "npm:@types/node",
+    "type": "static"
+  },
+  {
+    "source": "npm:vite@8.0.14",
+    "target": "npm:esbuild",
+    "type": "static"
+  },
+  {
+    "source": "npm:vite@8.0.14",
+    "target": "npm:jiti",
+    "type": "static"
+  },
+  {
+    "source": "npm:vite@8.0.14",
+    "target": "npm:yaml",
+    "type": "static"
+  },
+  {
+    "source": "npm:vite@8.0.14",
+    "target": "npm:lightningcss",
+    "type": "static"
+  },
+  {
+    "source": "npm:vite@8.0.14",
+    "target": "npm:picomatch",
+    "type": "static"
+  },
+  {
+    "source": "npm:vite@8.0.14",
+    "target": "npm:postcss@8.5.15",
+    "type": "static"
+  },
+  {
+    "source": "npm:vite@8.0.14",
+    "target": "npm:rolldown",
+    "type": "static"
+  },
+  {
+    "source": "npm:vite@8.0.14",
+    "target": "npm:tinyglobby",
+    "type": "static"
+  },
+  {
+    "source": "npm:vite@8.0.14",
+    "target": "npm:fsevents",
+    "type": "static"
+  },
+  {
+    "source": "npm:w3c-xmlserializer",
+    "target": "npm:xml-name-validator",
+    "type": "static"
+  },
+  {
     "source": "npm:wcwidth",
     "target": "npm:defaults",
     "type": "static"
   },
   {
+    "source": "npm:whatwg-url",
+    "target": "npm:@exodus/bytes",
+    "type": "static"
+  },
+  {
+    "source": "npm:whatwg-url",
+    "target": "npm:tr46",
+    "type": "static"
+  },
+  {
+    "source": "npm:whatwg-url",
+    "target": "npm:webidl-conversions",
+    "type": "static"
+  },
+  {
     "source": "npm:which",
     "target": "npm:isexe",
+    "type": "static"
+  },
+  {
+    "source": "npm:why-is-node-running",
+    "target": "npm:siginfo",
+    "type": "static"
+  },
+  {
+    "source": "npm:why-is-node-running",
+    "target": "npm:stackback",
     "type": "static"
   },
   {

@@ -1,11 +1,13 @@
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { MainLayout } from './presentation/shared/layouts/MainLayout';
-import { TenantDashboardScreen } from './presentation/identity/tenant/screens/TenantDashboardScreen';
-import { ProfileScreen } from './presentation/identity/profile/screens/ProfileScreen';
-import { LoginScreen } from './presentation/identity/profile/screens/LoginScreen';
 import { AppErrorBoundary } from './presentation/shared/components/ErrorBoundary';
+import { RouteLoader } from './presentation/shared/components/RouteLoader';
 import { useThemeStore } from './application/stores/theme.store';
+
+const TenantDashboardScreen = lazy(() => import('./presentation/identity/tenant/screens/TenantDashboardScreen'));
+const ProfileScreen = lazy(() => import('./presentation/identity/profile/screens/ProfileScreen'));
+const LoginScreen = lazy(() => import('./presentation/identity/profile/screens/LoginScreen'));
 
 export default function App() {
   const isDarkMode = useThemeStore((state) => state.isDarkMode);
@@ -20,13 +22,15 @@ export default function App() {
       <AppErrorBoundary>
         <BrowserRouter>
           <MainLayout>
-            <Routes>
-              <Route path="/"         element={<Navigate to="/tenants" replace />} />
-              <Route path="/tenants"  element={<TenantDashboardScreen />} />
-              <Route path="/profile"  element={<ProfileScreen />} />
-              <Route path="/login"    element={<LoginScreen />} />
-              <Route path="*"         element={<Navigate to="/tenants" replace />} />
-            </Routes>
+            <Suspense fallback={<RouteLoader />}>
+              <Routes>
+                <Route path="/"         element={<Navigate to="/tenants" replace />} />
+                <Route path="/tenants"  element={<TenantDashboardScreen />} />
+                <Route path="/profile"  element={<ProfileScreen />} />
+                <Route path="/login"    element={<LoginScreen />} />
+                <Route path="*"         element={<Navigate to="/tenants" replace />} />
+              </Routes>
+            </Suspense>
           </MainLayout>
         </BrowserRouter>
       </AppErrorBoundary>

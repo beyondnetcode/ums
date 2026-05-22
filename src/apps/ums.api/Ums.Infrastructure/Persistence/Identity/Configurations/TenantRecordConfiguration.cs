@@ -1,0 +1,39 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Ums.Infrastructure.Persistence.Identity.Entities;
+
+namespace Ums.Infrastructure.Persistence.Identity.Configurations;
+
+public sealed class TenantRecordConfiguration : IEntityTypeConfiguration<TenantRecord>
+{
+    public void Configure(EntityTypeBuilder<TenantRecord> builder)
+    {
+        builder.ToTable("Tenants", IdentityPersistenceConstants.Schema);
+        builder.HasKey(x => x.Id);
+
+        builder.Property(x => x.Code).HasMaxLength(100).IsRequired();
+        builder.Property(x => x.Name).HasMaxLength(200).IsRequired();
+        builder.Property(x => x.CompanyReference).HasMaxLength(100);
+        builder.Property(x => x.CreatedBy).HasMaxLength(100).IsRequired();
+        builder.Property(x => x.UpdatedBy).HasMaxLength(100);
+        builder.Property(x => x.AuditTimeSpan).HasMaxLength(100).IsRequired();
+
+        builder.HasIndex(x => x.Code).IsUnique();
+        builder.HasIndex(x => x.ParentTenantId);
+
+        builder.HasMany(x => x.Branches)
+            .WithOne(x => x.Tenant)
+            .HasForeignKey(x => x.TenantId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(x => x.IdentityProviders)
+            .WithOne(x => x.Tenant)
+            .HasForeignKey(x => x.TenantId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(x => x.Branding)
+            .WithOne(x => x.Tenant)
+            .HasForeignKey<TenantBrandingRecord>(x => x.TenantId)
+            .OnDelete(DeleteBehavior.Cascade);
+    }
+}

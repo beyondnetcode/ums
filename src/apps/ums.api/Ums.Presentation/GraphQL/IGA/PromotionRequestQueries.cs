@@ -5,6 +5,8 @@ using HotChocolate.Types;
 using Ums.Application.Common;
 using Ums.Application.IGA.PromotionRequest.DTOs;
 using Ums.Application.IGA.PromotionRequest.Queries;
+using Ums.Presentation.Extensions;
+using static Ums.Application.Common.QueryRequestNormalizer;
 
 [ExtendObjectType("Query")]
 public sealed class PromotionRequestQueries
@@ -14,18 +16,17 @@ public sealed class PromotionRequestQueries
         Guid? tenantId, Guid? userId, [Service] IMediator mediator, CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new GetAllPromotionRequestsQuery(
-            page <= 0 ? 1 : page, pageSize <= 0 ? 20 : pageSize, search,
-            string.IsNullOrWhiteSpace(criteria) ? "status" : criteria,
-            string.IsNullOrWhiteSpace(status) ? "all" : status,
-            string.IsNullOrWhiteSpace(sortBy) ? "status" : sortBy,
-            string.IsNullOrWhiteSpace(sortOrder) ? "asc" : sortOrder, tenantId, userId), cancellationToken);
-        if (result.IsFailure) throw new GraphQLException(ErrorBuilder.New().SetMessage(result.Error).SetCode("UMS_QUERY_ERROR").Build());
-        return result.Value;
+            NormalizePage(page), NormalizePageSize(pageSize), search,
+            NormalizeText(criteria, "status"),
+            NormalizeText(status, "all"),
+            NormalizeText(sortBy, "status"),
+            NormalizeText(sortOrder, "asc"), tenantId, userId), cancellationToken);
+        return result.UnwrapGraphQl();
     }
 
     public async Task<PromotionRequestDto?> GetPromotionRequestByIdAsync(Guid id, [Service] IMediator mediator, CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new GetPromotionRequestByIdQuery(id), cancellationToken);
-        return result.IsFailure ? null : result.Value;
+        return result.UnwrapGraphQlOrNull();
     }
 }

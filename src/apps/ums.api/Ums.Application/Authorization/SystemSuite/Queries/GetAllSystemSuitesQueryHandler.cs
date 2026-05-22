@@ -1,5 +1,6 @@
 using Ums.Application.Authorization.SystemSuite.DTOs;
 using Ums.Domain.Authorization;
+using static Ums.Application.Common.QueryRequestNormalizer;
 
 namespace Ums.Application.Authorization.SystemSuite.Queries;
 
@@ -16,13 +17,13 @@ public sealed class GetAllSystemSuitesQueryHandler : IQueryHandler<GetAllSystemS
         GetAllSystemSuitesQuery request,
         CancellationToken cancellationToken)
     {
-        var page = Math.Max(1, request.Page);
-        var pageSize = Math.Clamp(request.PageSize, 1, 100);
-        var criteria = request.Criteria.Trim().ToLowerInvariant();
-        var status = request.Status.Trim();
-        var sortBy = request.SortBy.Trim().ToLowerInvariant();
-        var sortOrder = request.SortOrder.Trim().ToLowerInvariant();
-        var search = request.Search?.Trim();
+        var page = NormalizePage(request.Page);
+        var pageSize = NormalizePageSize(request.PageSize);
+        var criteria = NormalizeText(request.Criteria, "name").ToLowerInvariant();
+        var status = NormalizeText(request.Status, "all");
+        var sortBy = NormalizeText(request.SortBy, "name").ToLowerInvariant();
+        var sortOrder = NormalizeText(request.SortOrder, "asc").ToLowerInvariant();
+        var search = NormalizeSearch(request.Search);
 
         var systemSuites = request.TenantId.HasValue
             ? await _systemSuiteRepository.GetByTenantIdAsync(request.TenantId.Value, cancellationToken)

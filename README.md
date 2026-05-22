@@ -25,11 +25,88 @@ Start here if you are new to UMS. This index gives each reader a fast route into
 
 ---
 
-## Quick Start (Engine Room)
-```powershell
-cd src
-npm install; npx nx run app-web:dev
+## Architecture Overview
+
+### Technology Stack
+| Layer | Technology |
+| :--- | :--- |
+| **Backend** | .NET 8 LTS, HotChocolate (GraphQL), Minimal APIs (REST) |
+| **Frontend** | React 18, Vite 5, TypeScript, TailwindCSS, Zustand, TanStack Query |
+| **Database** | PostgreSQL 16, Entity Framework Core |
+| **Monorepo** | Nx, npm Workspaces |
+| **Methodology** | BMAD-METHOD, Clean Architecture (Hexagonal), DDD |
+
+### Project Structure
 ```
+src/
+├── apps/
+│   ├── ums.api/                    # .NET Backend (Clean Architecture)
+│   │   ├── Domain/                 # Pure POCOs, zero NuGet references
+│   │   ├── Application/            # Use cases, interfaces
+│   │   ├── Infrastructure/         # EF Core, external services
+│   │   └── Presentation/           # GraphQL/REST endpoints
+│   └── ums.web-app/                # React Frontend (Clean Architecture)
+│       ├── src/
+│       │   ├── domain/             # Enterprise entities, value objects
+│       │   ├── application/        # Hooks, stores, use cases
+│       │   ├── infrastructure/     # HTTP clients, GraphQL client
+│       │   └── presentation/       # Components, screens, layouts
+│       └── ...
+└── ...
+```
+
+### Key Architectural Decisions
+- **GraphQL for Queries, REST for Commands**: All read operations use HotChocolate GraphQL; writes use REST Minimal APIs for transactional clarity.
+- **Clean Architecture**: Strict layer boundaries. Domain layer is pure (no external dependencies). Application layer contains use cases and interfaces. Infrastructure handles external concerns.
+- **Result Pattern**: No exceptions for flow control. All operations return `Result<T>` for explicit error handling.
+- **Bounded Contexts**: Identity, Access, Audit, etc. Each context has its own aggregates, services, and presentation modules.
+
+---
+
+## Quick Start (Engine Room)
+
+### Prerequisites
+- Node.js 20+
+- .NET 8 SDK
+- PostgreSQL 16
+
+### Frontend
+```bash
+cd src
+npm install
+npx nx run app-web:dev
+```
+
+### Backend
+```bash
+cd src/apps/ums.api-dotnet
+dotnet build
+dotnet run
+```
+
+### Full Stack (Frontend + Backend)
+```bash
+cd src
+npm install
+npx nx run app-web:dev
+# In another terminal:
+cd apps/ums.api-dotnet && dotnet run
+```
+
+---
+
+## Development Commands
+
+| Command | Description |
+| :--- | :--- |
+| `npm install` | Install all dependencies |
+| `npx nx run app-web:dev` | Start frontend dev server (port 5173) |
+| `npx nx run app-web:build` | Build frontend for production |
+| `npx nx run app-web:lint` | Run ESLint |
+| `npx nx run app-web:test` | Run Vitest tests |
+| `dotnet build` | Build backend solution |
+| `dotnet test` | Run backend tests |
+| `dotnet run` | Start backend API (port 7114) |
 
 ---
 
@@ -44,6 +121,17 @@ npm install; npx nx run app-web:dev
 
 ---
 
+## Security & Compliance
+
+- **Content Security Policy**: Restrictive CSP with `unsafe-eval` removed (production-ready).
+- **CSRF Protection**: Double-submit cookie pattern with token refresh.
+- **Security Headers**: HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy via Nginx.
+- **Input Validation**: Zod schemas as single source of truth for runtime validation.
+
+---
+
 ## Contribution & Governance
 - **Workflow**: This repo uses [BMAD-METHOD](./AGENTS.md) for spec-driven documentation.
 - **Navigation**: Visit the [**Master Index**](./docs/MASTER_INDEX.md) for the full document tree.
+- **Code Standards**: ESLint + TypeScript strict mode. Zero errors required before commit.
+- **Testing**: Vitest with React Testing Library. Coverage thresholds: 60% lines/statements.

@@ -4,19 +4,7 @@ import {
   useSuspendTenant,
 } from '@app/identity/hooks/use-tenant';
 import { useI18n } from '@app/i18n/use-i18n';
-import { useStatusLabel } from '@app/hooks/use-status-label';
-import { useInlineEdit } from '@app/hooks/use-inline-edit';
-import { useResetOnChange } from '@app/hooks/use-reset-on-change';
-import { M3Card } from '@shared/components/M3Card';
-import { M3Button } from '@shared/components/M3Button';
-import { M3TextField } from '@shared/components/M3TextField';
-import { M3Select } from '@shared/components/M3Select';
-import { M3Dialog } from '@shared/components/M3Dialog';
-import { StatusBadge } from '@shared/components/StatusBadge';
-import { CodeBadge } from '@shared/components/CodeBadge';
-import { IconButton } from '@shared/components/Tooltip';
-import { useNotificationStore } from '@app/stores/notification.store';
-import { getHttpErrorMessage } from '@app/errors/http-error';
+import { useActivateTenant, useSuspendTenant } from '@app/identity/hooks/use-tenant';
 import { Tenant } from '@domain/identity/models/tenant.model';
 import { TENANT_TYPES } from '@domain/identity/constants/tenant.constants';
 import {
@@ -114,9 +102,9 @@ export const TenantProfileCard: React.FC<TenantProfileCardProps> = ({
       type: newStatus === 'Active' ? 'success' : 'warning',
     });
     if (newStatus === 'Active') {
-      activateMutation.mutate(undefined, { onError: (err) => console.warn('Handled locally:', getHttpErrorMessage(err, 'Activation failed')) });
+      activateMutation.mutate(undefined, { onError: () => {} });
     } else {
-      suspendMutation.mutate(undefined, { onError: (err) => console.warn('Handled locally:', getHttpErrorMessage(err, 'Suspension failed')) });
+      suspendMutation.mutate(undefined, { onError: () => {} });
     }
   };
 

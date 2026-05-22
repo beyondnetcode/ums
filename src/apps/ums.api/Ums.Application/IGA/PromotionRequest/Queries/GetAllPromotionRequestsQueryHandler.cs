@@ -1,5 +1,6 @@
 using Ums.Application.IGA.PromotionRequest.DTOs;
 using Ums.Domain.IGA;
+using static Ums.Application.Common.QueryRequestNormalizer;
 
 namespace Ums.Application.IGA.PromotionRequest.Queries;
 
@@ -11,11 +12,11 @@ public sealed class GetAllPromotionRequestsQueryHandler : IQueryHandler<GetAllPr
 
     public async Task<Result<PagedResult<PromotionRequestDto>>> Handle(GetAllPromotionRequestsQuery request, CancellationToken cancellationToken)
     {
-        var page = Math.Max(1, request.Page);
-        var pageSize = Math.Clamp(request.PageSize, 1, 100);
-        var status = request.Status.Trim();
-        var sortBy = request.SortBy.Trim().ToLowerInvariant();
-        var sortOrder = request.SortOrder.Trim().ToLowerInvariant();
+        var page = NormalizePage(request.Page);
+        var pageSize = NormalizePageSize(request.PageSize);
+        var status = NormalizeText(request.Status, "all");
+        var sortBy = NormalizeText(request.SortBy, "requestedat").ToLowerInvariant();
+        var sortOrder = NormalizeText(request.SortOrder, "asc").ToLowerInvariant();
 
         var items = request.UserId.HasValue
             ? await _repository.GetByUserIdAsync(request.UserId.Value, cancellationToken)

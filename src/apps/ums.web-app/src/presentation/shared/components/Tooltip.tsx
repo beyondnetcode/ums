@@ -7,7 +7,7 @@ interface TooltipProps {
   delay?: number;
 }
 
-export const Tooltip: React.FC<TooltipProps> = ({
+export const Tooltip: React.FC<TooltipProps> = React.memo(({
   content,
   children,
   placement = 'top',
@@ -69,12 +69,14 @@ export const Tooltip: React.FC<TooltipProps> = ({
         onFocus={show}
         onBlur={hide}
         className="inline-flex"
+        aria-describedby={visible ? 'tooltip-content' : undefined}
       >
         {children}
       </span>
       {visible && typeof document !== 'undefined' && (
         <div
           ref={tooltipRef}
+          id="tooltip-content"
           role="tooltip"
           style={{ position: 'fixed', top: coords.top, left: coords.left, zIndex: 9999 }}
           className="pointer-events-none px-2.5 py-1.5 rounded-lg bg-m3-on-surface/90 text-m3-surface text-[10px] font-semibold tracking-wide shadow-lg whitespace-nowrap backdrop-blur-sm animate-tooltipIn"
@@ -84,7 +86,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
       )}
     </>
   );
-};
+});
 
 interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   tooltip: string;
@@ -92,7 +94,7 @@ interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> 
   children: React.ReactNode;
 }
 
-export const IconButton: React.FC<IconButtonProps> = ({
+export const IconButton: React.FC<IconButtonProps> = React.memo(({
   tooltip,
   placement = 'top',
   children,
@@ -109,4 +111,4 @@ export const IconButton: React.FC<IconButtonProps> = ({
       </button>
     </Tooltip>
   );
-};
+});

@@ -29,6 +29,10 @@ public sealed class InMemoryRoleMaturityStatusRepository : IRoleMaturityStatusRe
     public Task UpdateAsync(RoleMaturityStatusAggregate a, CancellationToken c = default) { _store[a.Props.Id.GetValue()] = a; return Task.CompletedTask; }
     public Task<int> SaveChangesAsync(CancellationToken c = default) => Task.FromResult(1);
     public Task<bool> SaveEntitiesAsync(CancellationToken c = default) => Task.FromResult(true);
-    public void Seed(RoleMaturityStatusAggregate a) => _store[a.Props.Id.GetValue()] = a;
+    public void Seed(RoleMaturityStatusAggregate a)
+    {
+        a.DomainEvents.MarkChangesAsCommitted();
+        _store[a.Props.Id.GetValue()] = a;
+    }
     public void Dispose() { }
 }

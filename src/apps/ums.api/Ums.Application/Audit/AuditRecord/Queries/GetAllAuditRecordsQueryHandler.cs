@@ -1,6 +1,7 @@
 using Ums.Application.Audit.AuditRecord.DTOs;
 using Ums.Domain.Audit.AuditRecord;
 using AuditRecordAggregate = Ums.Domain.Audit.AuditRecord.AuditRecord;
+using static Ums.Application.Common.QueryRequestNormalizer;
 
 namespace Ums.Application.Audit.AuditRecord.Queries;
 
@@ -17,8 +18,8 @@ public sealed class GetAllAuditRecordsQueryHandler : IQueryHandler<GetAllAuditRe
         GetAllAuditRecordsQuery request,
         CancellationToken cancellationToken)
     {
-        var page = Math.Max(1, request.Page);
-        var pageSize = Math.Clamp(request.PageSize, 1, 100);
+        var page = NormalizePage(request.Page);
+        var pageSize = NormalizePageSize(request.PageSize);
 
         var from = request.From ?? DateTime.UtcNow.AddDays(-30);
         var to = request.To ?? DateTime.UtcNow;

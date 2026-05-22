@@ -8,6 +8,7 @@
  */
 import { httpClient } from '@infra/http/httpClient';
 import { graphqlQueries } from '@infra/identity/queries/tenant.graphql';
+import { logger } from '@app/utils/logger';
 import {
   TenantPageSchema,
   TenantSchema,
@@ -47,14 +48,11 @@ export const tenantService = {
       sortOrder: params?.sortOrder,
     });
 
-    console.log('[GraphQL] Raw response:', JSON.stringify(response, null, 2));
-
     const pageResult = TenantPageSchema.safeParse(response.tenants);
     if (!pageResult.success) {
-      console.error('[Zod] Parse error:', pageResult.error);
+      logger.error('Invalid GraphQL response shape for tenants query', pageResult.error);
       throw new Error('Invalid GraphQL response shape for tenants query');
     }
-    console.log('[GraphQL] Parsed result:', pageResult.data);
     return pageResult.data;
   },
 

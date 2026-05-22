@@ -5,6 +5,8 @@ using HotChocolate.Types;
 using Ums.Application.Common;
 using Ums.Application.Identity.UserAccount.DTOs;
 using Ums.Application.Identity.UserAccount.Queries;
+using Ums.Presentation.Extensions;
+using static Ums.Application.Common.QueryRequestNormalizer;
 
 [ExtendObjectType("Query")]
 public sealed class UserAccountQueries
@@ -22,21 +24,16 @@ public sealed class UserAccountQueries
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new GetAllUserAccountsQuery(
-            page <= 0 ? 1 : page,
-            pageSize <= 0 ? 20 : pageSize,
+            NormalizePage(page),
+            NormalizePageSize(pageSize),
             search,
-            string.IsNullOrWhiteSpace(criteria) ? "email" : criteria,
-            string.IsNullOrWhiteSpace(status) ? "all" : status,
-            string.IsNullOrWhiteSpace(sortBy) ? "email" : sortBy,
-            string.IsNullOrWhiteSpace(sortOrder) ? "asc" : sortOrder,
+            NormalizeText(criteria, "email"),
+            NormalizeText(status, "all"),
+            NormalizeText(sortBy, "email"),
+            NormalizeText(sortOrder, "asc"),
             tenantId), cancellationToken);
 
-        if (result.IsFailure)
-        {
-            throw BuildQueryException(result.Error);
-        }
-
-        return result.Value;
+        return result.UnwrapGraphQl();
     }
 
     public async Task<UserAccountDto?> GetUserAccountByIdAsync(
@@ -46,17 +43,6 @@ public sealed class UserAccountQueries
     {
         var result = await mediator.Send(new GetUserAccountByIdQuery(userAccountId), cancellationToken);
 
-        if (result.IsFailure)
-        {
-            return null;
-        }
-
-        return result.Value;
+        return result.UnwrapGraphQlOrNull();
     }
-
-    private static GraphQLException BuildQueryException(string message) =>
-        new(ErrorBuilder.New()
-            .SetMessage(message)
-            .SetCode("UMS_QUERY_ERROR")
-            .Build());
 }

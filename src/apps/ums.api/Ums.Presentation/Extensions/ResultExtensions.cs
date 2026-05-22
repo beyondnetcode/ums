@@ -19,7 +19,7 @@ internal static class ResultExtensions
 
     private static IResult ToProblem(string error, HttpContext? context = null)
     {
-        var (status, title) = ClassifyError(error);
+        var (status, title) = DomainErrorStatusMapper.Map(error);
 
         var problemDetails = new ProblemDetails
         {
@@ -40,33 +40,6 @@ internal static class ResultExtensions
         }
 
         return Results.Problem(problemDetails);
-    }
-
-    private static (int Status, string Title) ClassifyError(string error)
-    {
-        if (string.IsNullOrEmpty(error))
-            return (StatusCodes.Status400BadRequest, "Bad Request");
-
-        if (error.Contains("not found", StringComparison.OrdinalIgnoreCase))
-            return (StatusCodes.Status404NotFound, "Not Found");
-
-        if (error.Contains("Authenticated user is required", StringComparison.OrdinalIgnoreCase))
-            return (StatusCodes.Status401Unauthorized, "Unauthorized");
-
-        if (error.Contains("already", StringComparison.OrdinalIgnoreCase) ||
-            error.Contains("unique", StringComparison.OrdinalIgnoreCase) ||
-            error.Contains("conflict", StringComparison.OrdinalIgnoreCase))
-            return (StatusCodes.Status409Conflict, "Conflict");
-
-        if (error.Contains("unauthorized", StringComparison.OrdinalIgnoreCase) ||
-            error.Contains("forbidden", StringComparison.OrdinalIgnoreCase))
-            return (StatusCodes.Status403Forbidden, "Forbidden");
-
-        if (error.Contains("validation", StringComparison.OrdinalIgnoreCase) ||
-            error.Contains("invalid", StringComparison.OrdinalIgnoreCase))
-            return (StatusCodes.Status422UnprocessableEntity, "Validation Error");
-
-        return (StatusCodes.Status400BadRequest, "Bad Request");
     }
 
     private static string SanitizeErrorMessage(string error)

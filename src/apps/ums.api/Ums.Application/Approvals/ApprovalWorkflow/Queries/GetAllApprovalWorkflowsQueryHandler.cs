@@ -1,5 +1,6 @@
 using Ums.Application.Approvals.ApprovalWorkflow.DTOs;
 using Ums.Domain.Approvals;
+using static Ums.Application.Common.QueryRequestNormalizer;
 
 namespace Ums.Application.Approvals.ApprovalWorkflow.Queries;
 
@@ -11,11 +12,11 @@ public sealed class GetAllApprovalWorkflowsQueryHandler : IQueryHandler<GetAllAp
 
     public async Task<Result<PagedResult<ApprovalWorkflowDto>>> Handle(GetAllApprovalWorkflowsQuery request, CancellationToken cancellationToken)
     {
-        var page = Math.Max(1, request.Page);
-        var pageSize = Math.Clamp(request.PageSize, 1, 100);
-        var sortBy = request.SortBy.Trim().ToLowerInvariant();
-        var sortOrder = request.SortOrder.Trim().ToLowerInvariant();
-        var search = request.Search?.Trim();
+        var page = NormalizePage(request.Page);
+        var pageSize = NormalizePageSize(request.PageSize);
+        var sortBy = NormalizeText(request.SortBy, "name").ToLowerInvariant();
+        var sortOrder = NormalizeText(request.SortOrder, "asc").ToLowerInvariant();
+        var search = NormalizeSearch(request.Search);
 
         var items = request.TenantId.HasValue
             ? await _repository.GetByTenantIdAsync(request.TenantId.Value, cancellationToken)

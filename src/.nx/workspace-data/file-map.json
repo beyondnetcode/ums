@@ -11,19 +11,23 @@
       },
       {
         "file": ".eslintrc.js",
-        "hash": "16266062772136191986"
+        "hash": "16211247502022710247"
       },
       {
         "file": ".husky/commit-msg",
-        "hash": "1662522230865824970"
+        "hash": "10104770268178730172"
       },
       {
         "file": ".husky/pre-commit",
-        "hash": "2252388722391304785"
+        "hash": "8906304965158091741"
       },
       {
         "file": ".lintstagedrc.json",
-        "hash": "12298572085250982508"
+        "hash": "5020186389821047974"
+      },
+      {
+        "file": ".npmrc",
+        "hash": "1499268308230608855"
       },
       {
         "file": "Makefile",
@@ -31,7 +35,7 @@
       },
       {
         "file": "commitlint.config.js",
-        "hash": "10950796656646911766"
+        "hash": "9434414401698340232"
       },
       {
         "file": "context7.json",
@@ -95,7 +99,7 @@
       },
       {
         "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/BrokenRulesTest.cs",
-        "hash": "16263833593992802981"
+        "hash": "4119149522962902377"
       },
       {
         "file": "libs/shell/ddd/src/Ums.Shell.Ddd.Test/Dtos/AuditDto.cs",
@@ -262,6 +266,10 @@
         "hash": "15372713939407737581"
       },
       {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Factories/DddServiceFactory.cs",
+        "hash": "14057798502160871472"
+      },
+      {
         "file": "libs/shell/ddd/src/Ums.Shell.Ddd/GlobalUsings.cs",
         "hash": "12452770833610398419"
       },
@@ -343,7 +351,7 @@
       },
       {
         "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Impl/BrokenRulesManager.cs",
-        "hash": "8521348546059665895"
+        "hash": "2593964683391444450"
       },
       {
         "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Impl/DomainEventsManager.cs",
@@ -355,7 +363,11 @@
       },
       {
         "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Impl/ValidatorRuleManager.cs",
-        "hash": "6064203268810921969"
+        "hash": "928357733725119209"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Interfaces/IBrokenRulesManager.cs",
+        "hash": "3512227988054523858"
       },
       {
         "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Interfaces/IDomainEventsManager.cs",
@@ -364,6 +376,10 @@
       {
         "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Interfaces/ITrackingStateManager.cs",
         "hash": "8194558092770644461"
+      },
+      {
+        "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Services/Interfaces/IValidatorRuleManager.cs",
+        "hash": "8345398719071807332"
       },
       {
         "file": "libs/shell/ddd/src/Ums.Shell.Ddd/Ums.Shell.Ddd.csproj",
@@ -375,7 +391,7 @@
       },
       {
         "file": "libs/shell/ddd/src/Ums.Shell.Ddd/ValueObject.cs",
-        "hash": "15281678896634147859"
+        "hash": "3703972428746575533"
       },
       {
         "file": "libs/shell/factory/.gitignore",
@@ -619,23 +635,23 @@
       },
       {
         "file": "nx.json",
-        "hash": "5450499829741628076"
+        "hash": "6253689389994858270"
       },
       {
         "file": "package-lock.json",
-        "hash": "10310028457826831748"
+        "hash": "14661577769182996736"
       },
       {
         "file": "package.json",
-        "hash": "2179462807098572817"
+        "hash": "15277769903233172977"
       },
       {
         "file": "sonar-project.properties",
-        "hash": "13818528924191370442"
+        "hash": "11296511598039711882"
       },
       {
         "file": "tsconfig.json",
-        "hash": "9997677782244487085"
+        "hash": "17007764994909223794"
       }
     ],
     "projectFileMap": {
@@ -657,8 +673,12 @@
           "hash": "13026217733715566195"
         },
         {
+          "file": "apps/ums.web-app/docs/componentization-and-microfrontends-plan.md",
+          "hash": "1828712898167173920"
+        },
+        {
           "file": "apps/ums.web-app/eslint.config.js",
-          "hash": "16145672096969245511",
+          "hash": "9627014520518971290",
           "deps": [
             "npm:@eslint/js",
             "npm:globals",
@@ -673,33 +693,43 @@
         },
         {
           "file": "apps/ums.web-app/package.json",
-          "hash": "16399257232460004553",
+          "hash": "3160621380400697429",
           "deps": [
             "npm:@eslint/js",
+            "npm:@testing-library/jest-dom",
+            "npm:@testing-library/react",
+            "npm:@testing-library/user-event",
             "npm:@types/react",
             "npm:@types/react-dom",
             "npm:@vitejs/plugin-react",
+            "npm:@vitest/coverage-v8",
             "npm:autoprefixer",
             "npm:eslint@9.13.0",
             "npm:eslint-plugin-react-hooks@5.0.0",
             "npm:eslint-plugin-react-refresh",
             "npm:globals",
+            "npm:jsdom",
             "npm:postcss",
             "npm:tailwindcss",
             "npm:typescript@5.6.2",
             "npm:typescript-eslint",
             "npm:vite@5.4.10",
+            "npm:vitest",
             "npm:@tanstack/react-query",
             "npm:axios",
+            "npm:graphql",
+            "npm:graphql-request",
             "npm:lucide-react",
             "npm:react",
             "npm:react-dom",
+            "npm:react-router-dom",
+            "npm:zod",
             "npm:zustand"
           ]
         },
         {
           "file": "apps/ums.web-app/postcss.config.js",
-          "hash": "1121830044826443979"
+          "hash": "7696850386406747941"
         },
         {
           "file": "apps/ums.web-app/project.json",
@@ -715,43 +745,127 @@
         },
         {
           "file": "apps/ums.web-app/src/App.tsx",
-          "hash": "6602358780480823447",
+          "hash": "12023467882643840485",
+          "deps": [
+            "npm:react",
+            "npm:react-router-dom"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/application/errors/http-error.test.ts",
+          "hash": "12960897585798273074",
+          "deps": [
+            "npm:vitest"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/application/errors/http-error.ts",
+          "hash": "16164698809027499049"
+        },
+        {
+          "file": "apps/ums.web-app/src/application/hooks/index.ts",
+          "hash": "16715050815788788358"
+        },
+        {
+          "file": "apps/ums.web-app/src/application/hooks/use-drag-resize.ts",
+          "hash": "4969752163898097691",
           "deps": [
             "npm:react"
           ]
         },
         {
-          "file": "apps/ums.web-app/src/application/hooks/use-users.hook.ts",
-          "hash": "15549349356238488947",
+          "file": "apps/ums.web-app/src/application/hooks/use-form-fields.ts",
+          "hash": "17039489615812154480",
           "deps": [
-            "npm:@tanstack/react-query",
-            "npm:axios"
+            "npm:react"
           ]
         },
         {
+          "file": "apps/ums.web-app/src/application/hooks/use-inline-edit.ts",
+          "hash": "14774756550130623325",
+          "deps": [
+            "npm:react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/application/hooks/use-local-overrides.ts",
+          "hash": "4640293039026851207",
+          "deps": [
+            "npm:react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/application/hooks/use-notified-mutation.ts",
+          "hash": "2866012923549363799",
+          "deps": [
+            "npm:@tanstack/react-query"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/application/hooks/use-reset-on-change.ts",
+          "hash": "14499264874156009139",
+          "deps": [
+            "npm:react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/application/hooks/use-status-label.ts",
+          "hash": "3439554804534361850"
+        },
+        {
+          "file": "apps/ums.web-app/src/application/i18n/namespaces/identity.translations.ts",
+          "hash": "8019178318859743429"
+        },
+        {
+          "file": "apps/ums.web-app/src/application/i18n/namespaces/shared.translations.ts",
+          "hash": "1747130744198327920"
+        },
+        {
+          "file": "apps/ums.web-app/src/application/i18n/translations.ts",
+          "hash": "2820326142337661555"
+        },
+        {
+          "file": "apps/ums.web-app/src/application/i18n/use-i18n.ts",
+          "hash": "16496707563491105452"
+        },
+        {
           "file": "apps/ums.web-app/src/application/identity/hooks/use-branch.ts",
-          "hash": "13294979816862832474",
+          "hash": "17784103372761688280",
           "deps": [
             "npm:@tanstack/react-query"
           ]
         },
         {
           "file": "apps/ums.web-app/src/application/identity/hooks/use-tenant.ts",
-          "hash": "15870252609985243329",
+          "hash": "16345378091872588369",
           "deps": [
             "npm:@tanstack/react-query"
           ]
         },
         {
           "file": "apps/ums.web-app/src/application/stores/auth.store.ts",
-          "hash": "2265464878573121710",
+          "hash": "13848451196041150000",
+          "deps": [
+            "npm:zustand"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/application/stores/devTools.store.ts",
+          "hash": "5654420331668683264",
           "deps": [
             "npm:zustand"
           ]
         },
         {
           "file": "apps/ums.web-app/src/application/stores/notification.store.ts",
-          "hash": "11683018124155195979",
+          "hash": "11531023475825760680",
+          "deps": [
+            "npm:zustand"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/application/stores/theme.store.ts",
+          "hash": "9547063159644401949",
           "deps": [
             "npm:zustand"
           ]
@@ -761,27 +875,83 @@
           "hash": "16069471864800376455"
         },
         {
+          "file": "apps/ums.web-app/src/domain/identity/constants/dev-profiles.constants.ts",
+          "hash": "12755482198779609882"
+        },
+        {
+          "file": "apps/ums.web-app/src/domain/identity/constants/idp.constants.ts",
+          "hash": "3113799875336017041"
+        },
+        {
+          "file": "apps/ums.web-app/src/domain/identity/constants/system-info.constants.ts",
+          "hash": "17837504602481941796"
+        },
+        {
+          "file": "apps/ums.web-app/src/domain/identity/constants/tenant.constants.ts",
+          "hash": "6238970389585471217"
+        },
+        {
           "file": "apps/ums.web-app/src/domain/identity/models/branch.model.ts",
-          "hash": "9966387304430981435"
+          "hash": "4914829150284744588"
         },
         {
           "file": "apps/ums.web-app/src/domain/identity/models/tenant.model.ts",
-          "hash": "17822610167508742108"
+          "hash": "11691066782130027172"
+        },
+        {
+          "file": "apps/ums.web-app/src/domain/identity/schemas/branch.schema.ts",
+          "hash": "11897297659900126691",
+          "deps": [
+            "npm:zod"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/domain/identity/schemas/tenant.schema.test.ts",
+          "hash": "15743799882981392201",
+          "deps": [
+            "npm:vitest"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/domain/identity/schemas/tenant.schema.ts",
+          "hash": "3068284500026967670",
+          "deps": [
+            "npm:zod"
+          ]
         },
         {
           "file": "apps/ums.web-app/src/index.css",
-          "hash": "16663798797402393624"
+          "hash": "4140147813809028991"
         },
         {
-          "file": "apps/ums.web-app/src/infrastructure/identity/services/tenant.service.ts",
-          "hash": "11630022768837047234",
+          "file": "apps/ums.web-app/src/infrastructure/http/graphqlClient.ts",
+          "hash": "14355899333980264827",
+          "deps": [
+            "npm:graphql-request"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/infrastructure/http/httpClient.ts",
+          "hash": "13707842969399153942",
           "deps": [
             "npm:axios"
           ]
         },
         {
+          "file": "apps/ums.web-app/src/infrastructure/http/request-context.ts",
+          "hash": "189338200017884442"
+        },
+        {
+          "file": "apps/ums.web-app/src/infrastructure/identity/queries/tenant.graphql.ts",
+          "hash": "12662555596949597234"
+        },
+        {
+          "file": "apps/ums.web-app/src/infrastructure/identity/services/tenant.service.ts",
+          "hash": "10860643300331312567"
+        },
+        {
           "file": "apps/ums.web-app/src/main.tsx",
-          "hash": "15472231304380165260",
+          "hash": "10841069486123041027",
           "deps": [
             "npm:react",
             "npm:react-dom",
@@ -790,7 +960,30 @@
         },
         {
           "file": "apps/ums.web-app/src/presentation/identity/components/BranchManager.tsx",
-          "hash": "9752219453801553951",
+          "hash": "7837124241451665858",
+          "deps": [
+            "npm:react",
+            "npm:lucide-react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/identity/components/BrandingPanel.tsx",
+          "hash": "5020239976220756690",
+          "deps": [
+            "npm:react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/identity/components/IdpPanel.tsx",
+          "hash": "942945441071080329",
+          "deps": [
+            "npm:react",
+            "npm:lucide-react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/identity/components/TenantDetailPanel.tsx",
+          "hash": "685511236119665281",
           "deps": [
             "npm:react",
             "npm:lucide-react"
@@ -798,7 +991,23 @@
         },
         {
           "file": "apps/ums.web-app/src/presentation/identity/components/TenantForm.tsx",
-          "hash": "14014013722051134534",
+          "hash": "5390158788504168607",
+          "deps": [
+            "npm:react",
+            "npm:lucide-react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/identity/components/TenantListPanel.tsx",
+          "hash": "97572809308435091",
+          "deps": [
+            "npm:react",
+            "npm:lucide-react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/identity/components/TenantProfileCard.tsx",
+          "hash": "15133269519286277814",
           "deps": [
             "npm:react",
             "npm:lucide-react"
@@ -806,7 +1015,7 @@
         },
         {
           "file": "apps/ums.web-app/src/presentation/identity/screens/LoginScreen.tsx",
-          "hash": "13521259177444548762",
+          "hash": "11633567819633240064",
           "deps": [
             "npm:react",
             "npm:lucide-react"
@@ -814,7 +1023,7 @@
         },
         {
           "file": "apps/ums.web-app/src/presentation/identity/screens/ProfileScreen.tsx",
-          "hash": "2136269181977490267",
+          "hash": "3412678211014586530",
           "deps": [
             "npm:react",
             "npm:lucide-react"
@@ -822,53 +1031,225 @@
         },
         {
           "file": "apps/ums.web-app/src/presentation/identity/screens/TenantDashboardScreen.tsx",
-          "hash": "13888798369409952948",
+          "hash": "6596409631074080965",
+          "deps": [
+            "npm:react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/shared/components/CodeBadge.tsx",
+          "hash": "11537968730415698557",
+          "deps": [
+            "npm:react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/shared/components/DetailPanelShell.tsx",
+          "hash": "7033896480652029466",
           "deps": [
             "npm:react",
             "npm:lucide-react"
           ]
         },
         {
+          "file": "apps/ums.web-app/src/presentation/shared/components/EmptyState.tsx",
+          "hash": "10024132767939246009",
+          "deps": [
+            "npm:react",
+            "npm:lucide-react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/shared/components/EntityRow.tsx",
+          "hash": "1371867284435661541",
+          "deps": [
+            "npm:react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/shared/components/ErrorBoundary.tsx",
+          "hash": "16579514817822405195",
+          "deps": [
+            "npm:react",
+            "npm:lucide-react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/shared/components/InlineAddForm.tsx",
+          "hash": "9122876785389359568",
+          "deps": [
+            "npm:react",
+            "npm:lucide-react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/shared/components/KeyValueRow.tsx",
+          "hash": "15261381855403731419",
+          "deps": [
+            "npm:react"
+          ]
+        },
+        {
           "file": "apps/ums.web-app/src/presentation/shared/components/M3Button.tsx",
-          "hash": "5062930028224570758",
+          "hash": "9503815036042248531",
           "deps": [
             "npm:react"
           ]
         },
         {
           "file": "apps/ums.web-app/src/presentation/shared/components/M3Card.tsx",
-          "hash": "16917364879464736149",
+          "hash": "17155420697780147726",
           "deps": [
             "npm:react"
           ]
         },
         {
-          "file": "apps/ums.web-app/src/presentation/shared/components/M3Switch.tsx",
-          "hash": "2404510865119958910",
-          "deps": [
-            "npm:react"
-          ]
-        },
-        {
-          "file": "apps/ums.web-app/src/presentation/shared/components/M3TextField.tsx",
-          "hash": "12860047901074737782",
-          "deps": [
-            "npm:react"
-          ]
-        },
-        {
-          "file": "apps/ums.web-app/src/presentation/shared/components/NotificationCenter.tsx",
-          "hash": "10958020293397370251",
+          "file": "apps/ums.web-app/src/presentation/shared/components/M3DataView.tsx",
+          "hash": "13927751823233309786",
           "deps": [
             "npm:react",
             "npm:lucide-react"
           ]
         },
         {
-          "file": "apps/ums.web-app/src/presentation/shared/layouts/MainLayout.tsx",
-          "hash": "10491992962373792006",
+          "file": "apps/ums.web-app/src/presentation/shared/components/M3Dialog.tsx",
+          "hash": "3290828408243140480",
           "deps": [
             "npm:react",
+            "npm:lucide-react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/shared/components/M3Drawer.tsx",
+          "hash": "10970374865466921578",
+          "deps": [
+            "npm:react",
+            "npm:lucide-react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/shared/components/M3FieldsetWrapper.tsx",
+          "hash": "6895328848010735202",
+          "deps": [
+            "npm:react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/shared/components/M3FormDialog.tsx",
+          "hash": "18109215420636991033",
+          "deps": [
+            "npm:react",
+            "npm:lucide-react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/shared/components/M3SegmentedButton.tsx",
+          "hash": "5177902916972634614",
+          "deps": [
+            "npm:react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/shared/components/M3Select.tsx",
+          "hash": "17549236954487744671",
+          "deps": [
+            "npm:react",
+            "npm:lucide-react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/shared/components/M3Switch.tsx",
+          "hash": "2733121321504359924",
+          "deps": [
+            "npm:react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/shared/components/M3TextField.tsx",
+          "hash": "1321787246974376454",
+          "deps": [
+            "npm:react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/shared/components/NotificationCenter.tsx",
+          "hash": "67146897073477280",
+          "deps": [
+            "npm:react",
+            "npm:lucide-react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/shared/components/SectionHeader.tsx",
+          "hash": "2468152621061064860",
+          "deps": [
+            "npm:react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/shared/components/Spinner.tsx",
+          "hash": "3341936007346986093",
+          "deps": [
+            "npm:react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/shared/components/StatusBadge.tsx",
+          "hash": "7004670087459379443",
+          "deps": [
+            "npm:react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/shared/components/Tooltip.tsx",
+          "hash": "17638678368312293057",
+          "deps": [
+            "npm:react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/shared/components/index.ts",
+          "hash": "14547506684637568325"
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/shared/layouts/MainLayout.tsx",
+          "hash": "387172517482327368",
+          "deps": [
+            "npm:react",
+            "npm:react-router-dom",
+            "npm:lucide-react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/shared/layouts/MasterDetailLayout.tsx",
+          "hash": "10888250252050244082",
+          "deps": [
+            "npm:react",
+            "npm:lucide-react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/shared/layouts/PageShell.tsx",
+          "hash": "10188334645316140418",
+          "deps": [
+            "npm:react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/shared/layouts/index.ts",
+          "hash": "11096725850667668039"
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/shared/layouts/navigation.config.ts",
+          "hash": "11655750641960745333",
+          "deps": [
+            "npm:react"
+          ]
+        },
+        {
+          "file": "apps/ums.web-app/src/presentation/shared/theme/notification-theme.tsx",
+          "hash": "16334559289380856665",
+          "deps": [
             "npm:lucide-react"
           ]
         },
@@ -878,11 +1259,11 @@
         },
         {
           "file": "apps/ums.web-app/tailwind.config.js",
-          "hash": "1364153483547520658"
+          "hash": "17060021481011404454"
         },
         {
           "file": "apps/ums.web-app/tsconfig.app.json",
-          "hash": "1085951157392555052"
+          "hash": "2531945778992244601"
         },
         {
           "file": "apps/ums.web-app/tsconfig.json",
@@ -894,7 +1275,7 @@
         },
         {
           "file": "apps/ums.web-app/vite.config.ts",
-          "hash": "4287784784191891134",
+          "hash": "7316499161122734063",
           "deps": [
             "npm:vite@5.4.10",
             "npm:@vitejs/plugin-react"
@@ -936,11 +1317,11 @@
         },
         {
           "file": "apps/ums.api/Ums.Application.Test/Tenants/CreateTenant/CreateTenantCommandHandlerTests.cs",
-          "hash": "4586215835534068017"
+          "hash": "3443274390662741832"
         },
         {
           "file": "apps/ums.api/Ums.Application.Test/Tenants/CreateTenant/CreateTenantCommandValidatorTests.cs",
-          "hash": "13917834940697240985"
+          "hash": "6412580535096664080"
         },
         {
           "file": "apps/ums.api/Ums.Application.Test/Tenants/SuspendTenant/SuspendTenantCommandHandlerTests.cs",
@@ -971,6 +1352,446 @@
           "hash": "1085866092674372637"
         },
         {
+          "file": "apps/ums.api/Ums.Application/Approvals/AccessEnforcementPolicy/Commands/CreateAccessEnforcementPolicyCommand.cs",
+          "hash": "14472773752146654847"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/AccessEnforcementPolicy/Commands/CreateAccessEnforcementPolicyCommandHandler.cs",
+          "hash": "7142397893604081809"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/AccessEnforcementPolicy/Commands/CreateAccessEnforcementPolicyCommandValidator.cs",
+          "hash": "430821108257928151"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/AccessEnforcementPolicy/Commands/DeactivateAccessEnforcementPolicyCommand.cs",
+          "hash": "972452792882306484"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/AccessEnforcementPolicy/Commands/DeactivateAccessEnforcementPolicyCommandHandler.cs",
+          "hash": "5636527904298228359"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/AccessEnforcementPolicy/DTOs/AccessEnforcementPolicyDto.cs",
+          "hash": "6214133731631078669"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/AccessEnforcementPolicy/DTOs/CreateAccessEnforcementPolicyResponse.cs",
+          "hash": "15307474919305026648"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/AccessEnforcementPolicy/Queries/GetAccessEnforcementPolicyByIdQuery.cs",
+          "hash": "1836006414293380152"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/AccessEnforcementPolicy/Queries/GetAccessEnforcementPolicyByIdQueryHandler.cs",
+          "hash": "1914275579567449927"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/AccessEnforcementPolicy/Queries/GetAllAccessEnforcementPoliciesQuery.cs",
+          "hash": "4248486670053395597"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/AccessEnforcementPolicy/Queries/GetAllAccessEnforcementPoliciesQueryHandler.cs",
+          "hash": "7527423305645652637"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/ApprovalRequest/Commands/ApproveRequestCommand.cs",
+          "hash": "9536091347225356090"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/ApprovalRequest/Commands/ApproveRequestCommandHandler.cs",
+          "hash": "539184277340727427"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/ApprovalRequest/Commands/CreateApprovalRequestCommand.cs",
+          "hash": "9751115103831623675"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/ApprovalRequest/Commands/CreateApprovalRequestCommandHandler.cs",
+          "hash": "4411996452128933700"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/ApprovalRequest/Commands/CreateApprovalRequestCommandValidator.cs",
+          "hash": "18294954298800031976"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/ApprovalRequest/Commands/RejectRequestCommand.cs",
+          "hash": "9217298794917345415"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/ApprovalRequest/Commands/RejectRequestCommandHandler.cs",
+          "hash": "8258271720668409205"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/ApprovalRequest/DTOs/ApprovalRequestDto.cs",
+          "hash": "3178410542778590852"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/ApprovalRequest/DTOs/CreateApprovalRequestResponse.cs",
+          "hash": "17998538186204136938"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/ApprovalRequest/Queries/GetAllApprovalRequestsQuery.cs",
+          "hash": "6652418999044221563"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/ApprovalRequest/Queries/GetAllApprovalRequestsQueryHandler.cs",
+          "hash": "1448836480835652209"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/ApprovalRequest/Queries/GetApprovalRequestByIdQuery.cs",
+          "hash": "17229622909054119511"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/ApprovalRequest/Queries/GetApprovalRequestByIdQueryHandler.cs",
+          "hash": "9384249122331031851"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/ApprovalWorkflow/Commands/CreateApprovalWorkflowCommand.cs",
+          "hash": "3824961451334930987"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/ApprovalWorkflow/Commands/CreateApprovalWorkflowCommandHandler.cs",
+          "hash": "4151437777213542208"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/ApprovalWorkflow/Commands/CreateApprovalWorkflowCommandValidator.cs",
+          "hash": "12362699834739277163"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/ApprovalWorkflow/DTOs/ApprovalWorkflowDto.cs",
+          "hash": "10399636889502281869"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/ApprovalWorkflow/DTOs/CreateApprovalWorkflowResponse.cs",
+          "hash": "9132853920332532183"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/ApprovalWorkflow/Queries/GetAllApprovalWorkflowsQuery.cs",
+          "hash": "6172298154382171108"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/ApprovalWorkflow/Queries/GetAllApprovalWorkflowsQueryHandler.cs",
+          "hash": "6819391818922971881"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/ApprovalWorkflow/Queries/GetApprovalWorkflowByIdQuery.cs",
+          "hash": "13683856107595189266"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/ApprovalWorkflow/Queries/GetApprovalWorkflowByIdQueryHandler.cs",
+          "hash": "15143076557903950143"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/DocumentType/Commands/CreateDocumentTypeCommand.cs",
+          "hash": "9688668513887015272"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/DocumentType/Commands/CreateDocumentTypeCommandHandler.cs",
+          "hash": "828927219871711654"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/DocumentType/Commands/CreateDocumentTypeCommandValidator.cs",
+          "hash": "11247967890951572308"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/DocumentType/DTOs/CreateDocumentTypeResponse.cs",
+          "hash": "6782983135207741864"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/DocumentType/DTOs/DocumentTypeDto.cs",
+          "hash": "14214483613096335871"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/DocumentType/Queries/GetAllDocumentTypesQuery.cs",
+          "hash": "8539580424306546609"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/DocumentType/Queries/GetAllDocumentTypesQueryHandler.cs",
+          "hash": "16587306599775377576"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/DocumentType/Queries/GetDocumentTypeByIdQuery.cs",
+          "hash": "8221529733738947514"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/DocumentType/Queries/GetDocumentTypeByIdQueryHandler.cs",
+          "hash": "11472611537655487264"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/NotificationRule/Commands/CreateNotificationRuleCommand.cs",
+          "hash": "15739053378068580625"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/NotificationRule/Commands/CreateNotificationRuleCommandHandler.cs",
+          "hash": "14552783278662777854"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/NotificationRule/Commands/CreateNotificationRuleCommandValidator.cs",
+          "hash": "4337184619165395035"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/NotificationRule/Commands/DeactivateNotificationRuleCommand.cs",
+          "hash": "7942211405776829155"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/NotificationRule/Commands/DeactivateNotificationRuleCommandHandler.cs",
+          "hash": "9769018289215918301"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/NotificationRule/DTOs/CreateNotificationRuleResponse.cs",
+          "hash": "5129129603014752950"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/NotificationRule/DTOs/NotificationRuleDto.cs",
+          "hash": "3414972043584997043"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/NotificationRule/Queries/GetAllNotificationRulesQuery.cs",
+          "hash": "17021758466675713070"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/NotificationRule/Queries/GetAllNotificationRulesQueryHandler.cs",
+          "hash": "14423914235831074252"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/NotificationRule/Queries/GetNotificationRuleByIdQuery.cs",
+          "hash": "6633351152567789010"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/NotificationRule/Queries/GetNotificationRuleByIdQueryHandler.cs",
+          "hash": "6174187845771982697"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/UserDocument/Commands/UploadUserDocumentCommand.cs",
+          "hash": "12989265193023293554"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/UserDocument/Commands/UploadUserDocumentCommandHandler.cs",
+          "hash": "6723613975637697121"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/UserDocument/Commands/UploadUserDocumentCommandValidator.cs",
+          "hash": "4944117984840099684"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/UserDocument/Commands/ValidateUserDocumentCommand.cs",
+          "hash": "9967922503345572916"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/UserDocument/Commands/ValidateUserDocumentCommandHandler.cs",
+          "hash": "2631127120224333555"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/UserDocument/DTOs/UploadUserDocumentResponse.cs",
+          "hash": "17429875302575298193"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/UserDocument/DTOs/UserDocumentDto.cs",
+          "hash": "2232891156470013962"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/UserDocument/Queries/GetAllUserDocumentsQuery.cs",
+          "hash": "8107500912333103149"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/UserDocument/Queries/GetAllUserDocumentsQueryHandler.cs",
+          "hash": "3813736569584756337"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/UserDocument/Queries/GetUserDocumentByIdQuery.cs",
+          "hash": "10875719797986086619"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Approvals/UserDocument/Queries/GetUserDocumentByIdQueryHandler.cs",
+          "hash": "3165180843556682338"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Audit/AuditRecord/Commands/RecordAuditCommand.cs",
+          "hash": "17053839974675529807"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Audit/AuditRecord/Commands/RecordAuditCommandHandler.cs",
+          "hash": "12805848284531397630"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Audit/AuditRecord/Commands/RecordAuditCommandValidator.cs",
+          "hash": "14537426179514914325"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Audit/AuditRecord/DTOs/AuditRecordDto.cs",
+          "hash": "10703914028945875417"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Audit/AuditRecord/DTOs/RecordAuditResponse.cs",
+          "hash": "7590277554467367709"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Audit/AuditRecord/Queries/GetAllAuditRecordsQuery.cs",
+          "hash": "3316120019442716117"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Audit/AuditRecord/Queries/GetAllAuditRecordsQueryHandler.cs",
+          "hash": "11352771970806161749"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Audit/AuditRecord/Queries/GetAuditRecordByIdQuery.cs",
+          "hash": "13936620321909320350"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Audit/AuditRecord/Queries/GetAuditRecordByIdQueryHandler.cs",
+          "hash": "9004069775731746942"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/Profile/Commands/ActivateProfileCommand.cs",
+          "hash": "893428073536276431"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/Profile/Commands/ActivateProfileCommandHandler.cs",
+          "hash": "13853579046642337944"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/Profile/Commands/CreateProfileCommand.cs",
+          "hash": "4716542235304415684"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/Profile/Commands/CreateProfileCommandHandler.cs",
+          "hash": "4270101718165159610"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/Profile/Commands/CreateProfileCommandValidator.cs",
+          "hash": "2019053347938616554"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/Profile/Commands/DeactivateProfileCommand.cs",
+          "hash": "8850606059188889079"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/Profile/Commands/DeactivateProfileCommandHandler.cs",
+          "hash": "16068664592979217595"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/Profile/DTOs/CreateProfileResponse.cs",
+          "hash": "6168482795125837689"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/Profile/DTOs/ProfileDto.cs",
+          "hash": "5660605363800532380"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/Profile/Queries/GetAllProfilesQuery.cs",
+          "hash": "18446207378216374716"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/Profile/Queries/GetAllProfilesQueryHandler.cs",
+          "hash": "2887082541848597488"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/Profile/Queries/GetProfileByIdQuery.cs",
+          "hash": "12469596490602530882"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/Profile/Queries/GetProfileByIdQueryHandler.cs",
+          "hash": "5323769260847580476"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/SystemSuite/Commands/CreateSystemSuiteCommand.cs",
+          "hash": "8858042228257866932"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/SystemSuite/Commands/CreateSystemSuiteCommandHandler.cs",
+          "hash": "12552253649354679715"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/SystemSuite/Commands/CreateSystemSuiteCommandValidator.cs",
+          "hash": "3847849634095924250"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/SystemSuite/Commands/SetSystemSuiteStatusCommand.cs",
+          "hash": "829538544103583607"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/SystemSuite/Commands/SetSystemSuiteStatusCommandHandler.cs",
+          "hash": "14045611587895174990"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/SystemSuite/Commands/UpdateSystemSuiteCommand.cs",
+          "hash": "8374890285111858483"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/SystemSuite/Commands/UpdateSystemSuiteCommandHandler.cs",
+          "hash": "11920578873229174001"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/SystemSuite/DTOs/CreateSystemSuiteResponse.cs",
+          "hash": "6233792211364446523"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/SystemSuite/DTOs/SystemSuiteDto.cs",
+          "hash": "12152710067688523227"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/SystemSuite/Queries/GetAllSystemSuitesQuery.cs",
+          "hash": "2642610209875979863"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/SystemSuite/Queries/GetAllSystemSuitesQueryHandler.cs",
+          "hash": "3357289152708819744"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/SystemSuite/Queries/GetSystemSuiteByIdQuery.cs",
+          "hash": "13812409407740996948"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/SystemSuite/Queries/GetSystemSuiteByIdQueryHandler.cs",
+          "hash": "16219158085745571653"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/Template/Commands/CreatePermissionTemplateCommand.cs",
+          "hash": "1530516770945433311"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/Template/Commands/CreatePermissionTemplateCommandHandler.cs",
+          "hash": "17154997494430877762"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/Template/Commands/CreatePermissionTemplateCommandValidator.cs",
+          "hash": "3654172339740779775"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/Template/Commands/PublishPermissionTemplateCommand.cs",
+          "hash": "1836881555479527939"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/Template/Commands/PublishPermissionTemplateCommandHandler.cs",
+          "hash": "429626061790705121"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/Template/DTOs/CreatePermissionTemplateResponse.cs",
+          "hash": "2599655463137429819"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/Template/DTOs/PermissionTemplateDto.cs",
+          "hash": "6008987155591028071"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/Template/Queries/GetAllPermissionTemplatesQuery.cs",
+          "hash": "17734285332369853926"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/Template/Queries/GetAllPermissionTemplatesQueryHandler.cs",
+          "hash": "17050435395997965308"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/Template/Queries/GetPermissionTemplateByIdQuery.cs",
+          "hash": "17787958125742570832"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Authorization/Template/Queries/GetPermissionTemplateByIdQueryHandler.cs",
+          "hash": "11685663710416273019"
+        },
+        {
           "file": "apps/ums.api/Ums.Application/Common/Behaviors/ValidationBehavior.cs",
           "hash": "1437056130868211898"
         },
@@ -987,12 +1808,104 @@
           "hash": "16541713746513975936"
         },
         {
+          "file": "apps/ums.api/Ums.Application/Common/PagedResult.cs",
+          "hash": "10258144209354376970"
+        },
+        {
           "file": "apps/ums.api/Ums.Application/DependencyInjection.cs",
           "hash": "4494324424861357832"
         },
         {
           "file": "apps/ums.api/Ums.Application/GlobalUsings.cs",
           "hash": "15003354994240557271"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/IGA/PromotionRequest/Commands/CreatePromotionRequestCommand.cs",
+          "hash": "4929509763339360114"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/IGA/PromotionRequest/Commands/CreatePromotionRequestCommandHandler.cs",
+          "hash": "1450962410962484682"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/IGA/PromotionRequest/Commands/CreatePromotionRequestCommandValidator.cs",
+          "hash": "16810833448679380767"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/IGA/PromotionRequest/Commands/SubmitPromotionRequestCommand.cs",
+          "hash": "3798448333183394010"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/IGA/PromotionRequest/Commands/SubmitPromotionRequestCommandHandler.cs",
+          "hash": "881136084251726553"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/IGA/PromotionRequest/DTOs/CreatePromotionRequestResponse.cs",
+          "hash": "6037193212527083255"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/IGA/PromotionRequest/DTOs/PromotionRequestDto.cs",
+          "hash": "6679906585073260793"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/IGA/PromotionRequest/Queries/GetAllPromotionRequestsQuery.cs",
+          "hash": "13597156691436850081"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/IGA/PromotionRequest/Queries/GetAllPromotionRequestsQueryHandler.cs",
+          "hash": "1733756785020305194"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/IGA/PromotionRequest/Queries/GetPromotionRequestByIdQuery.cs",
+          "hash": "14503511512451410877"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/IGA/PromotionRequest/Queries/GetPromotionRequestByIdQueryHandler.cs",
+          "hash": "13501851856825869757"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/IGA/RoleMaturityStatus/Commands/CreateRoleMaturityStatusCommand.cs",
+          "hash": "9486500064271673032"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/IGA/RoleMaturityStatus/Commands/CreateRoleMaturityStatusCommandHandler.cs",
+          "hash": "2704352168831000096"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/IGA/RoleMaturityStatus/Commands/CreateRoleMaturityStatusCommandValidator.cs",
+          "hash": "15116905322590892311"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/IGA/RoleMaturityStatus/Commands/UpdateRoleMaturityLevelCommand.cs",
+          "hash": "11107390562377343977"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/IGA/RoleMaturityStatus/Commands/UpdateRoleMaturityLevelCommandHandler.cs",
+          "hash": "5802206069967457665"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/IGA/RoleMaturityStatus/DTOs/CreateRoleMaturityStatusResponse.cs",
+          "hash": "737546839731194410"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/IGA/RoleMaturityStatus/DTOs/RoleMaturityStatusDto.cs",
+          "hash": "16240198997734013370"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/IGA/RoleMaturityStatus/Queries/GetAllRoleMaturityStatusesQuery.cs",
+          "hash": "17194995646478277917"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/IGA/RoleMaturityStatus/Queries/GetAllRoleMaturityStatusesQueryHandler.cs",
+          "hash": "10492897661879751113"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/IGA/RoleMaturityStatus/Queries/GetRoleMaturityStatusByIdQuery.cs",
+          "hash": "6663949273827200327"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/IGA/RoleMaturityStatus/Queries/GetRoleMaturityStatusByIdQueryHandler.cs",
+          "hash": "5210644105895095942"
         },
         {
           "file": "apps/ums.api/Ums.Application/Identity/Tenant/Branch/Commands/AddBranchCommand.cs",
@@ -1176,15 +2089,15 @@
         },
         {
           "file": "apps/ums.api/Ums.Application/Identity/Tenant/Commands/CreateTenantCommand.cs",
-          "hash": "10274331620562408721"
+          "hash": "711753439128914842"
         },
         {
           "file": "apps/ums.api/Ums.Application/Identity/Tenant/Commands/CreateTenantCommandHandler.cs",
-          "hash": "6223452130215323097"
+          "hash": "16369337511363359029"
         },
         {
           "file": "apps/ums.api/Ums.Application/Identity/Tenant/Commands/CreateTenantCommandValidator.cs",
-          "hash": "12131192734793038709"
+          "hash": "18185796903087479058"
         },
         {
           "file": "apps/ums.api/Ums.Application/Identity/Tenant/Commands/SuspendTenantCommand.cs",
@@ -1283,12 +2196,80 @@
           "hash": "4553432444251398474"
         },
         {
+          "file": "apps/ums.api/Ums.Application/Identity/Tenant/Queries/GetAllTenantsQuery.cs",
+          "hash": "10157219084428672876"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Identity/Tenant/Queries/GetAllTenantsQueryHandler.cs",
+          "hash": "10327511565147514363"
+        },
+        {
           "file": "apps/ums.api/Ums.Application/Identity/Tenant/Queries/GetTenantByIdQuery.cs",
           "hash": "6548956737232996085"
         },
         {
           "file": "apps/ums.api/Ums.Application/Identity/Tenant/Queries/GetTenantByIdQueryHandler.cs",
           "hash": "12491887501957400814"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Identity/UserAccount/Commands/ActivateUserAccountCommand.cs",
+          "hash": "7357819391311781887"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Identity/UserAccount/Commands/ActivateUserAccountCommandHandler.cs",
+          "hash": "4575983599395048320"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Identity/UserAccount/Commands/BlockUserAccountCommand.cs",
+          "hash": "11125387109564241228"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Identity/UserAccount/Commands/BlockUserAccountCommandHandler.cs",
+          "hash": "17791060542254424144"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Identity/UserAccount/Commands/CreateUserAccountCommand.cs",
+          "hash": "1236373616903481650"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Identity/UserAccount/Commands/CreateUserAccountCommandHandler.cs",
+          "hash": "8694043924685713549"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Identity/UserAccount/Commands/CreateUserAccountCommandValidator.cs",
+          "hash": "15359865082784331759"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Identity/UserAccount/Commands/RestoreUserAccountCommand.cs",
+          "hash": "14193978988688915398"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Identity/UserAccount/Commands/RestoreUserAccountCommandHandler.cs",
+          "hash": "5006792744930186322"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Identity/UserAccount/DTOs/CreateUserAccountResponse.cs",
+          "hash": "2530332905609144871"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Identity/UserAccount/DTOs/UserAccountDto.cs",
+          "hash": "2979203318833869271"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Identity/UserAccount/Queries/GetAllUserAccountsQuery.cs",
+          "hash": "16102240681943051943"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Identity/UserAccount/Queries/GetAllUserAccountsQueryHandler.cs",
+          "hash": "399981731930773088"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Identity/UserAccount/Queries/GetUserAccountByIdQuery.cs",
+          "hash": "9696754391705007384"
+        },
+        {
+          "file": "apps/ums.api/Ums.Application/Identity/UserAccount/Queries/GetUserAccountByIdQueryHandler.cs",
+          "hash": "1601483467746103264"
         },
         {
           "file": "apps/ums.api/Ums.Application/Ums.Application.csproj",
@@ -1447,6 +2428,10 @@
           "hash": "5721594804231308342"
         },
         {
+          "file": "apps/ums.api/Ums.Domain/Approvals/Repositories.cs",
+          "hash": "16060041420656358897"
+        },
+        {
           "file": "apps/ums.api/Ums.Domain/Approvals/UserDocument/AccessNotification/AccessNotification.cs",
           "hash": "6579236297868336324"
         },
@@ -1476,7 +2461,7 @@
         },
         {
           "file": "apps/ums.api/Ums.Domain/Audit/AuditRecord/IAuditRecordRepository.cs",
-          "hash": "11638559636230708901"
+          "hash": "6328908600248904818"
         },
         {
           "file": "apps/ums.api/Ums.Domain/Authorization/Profile/Events/ProfileDomainEventsManager.cs",
@@ -1501,6 +2486,10 @@
         {
           "file": "apps/ums.api/Ums.Domain/Authorization/Profile/ProfileProps.cs",
           "hash": "14905514698872470589"
+        },
+        {
+          "file": "apps/ums.api/Ums.Domain/Authorization/Repositories.cs",
+          "hash": "3561241929289157890"
         },
         {
           "file": "apps/ums.api/Ums.Domain/Authorization/SystemSuite/Action/Action.cs",
@@ -1783,6 +2772,10 @@
           "hash": "13751592273596767239"
         },
         {
+          "file": "apps/ums.api/Ums.Domain/IGA/Repositories.cs",
+          "hash": "7288771418171307845"
+        },
+        {
           "file": "apps/ums.api/Ums.Domain/IGA/RoleMaturityStatus/RoleMaturityStatus.cs",
           "hash": "7109540804150232067"
         },
@@ -1792,7 +2785,7 @@
         },
         {
           "file": "apps/ums.api/Ums.Domain/Identity/Repositories.cs",
-          "hash": "14285279231675508800"
+          "hash": "2920422887013125187"
         },
         {
           "file": "apps/ums.api/Ums.Domain/Identity/Repositories/IUserAccountRepository.cs",
@@ -1832,7 +2825,7 @@
         },
         {
           "file": "apps/ums.api/Ums.Domain/Identity/Tenant/Tenant.cs",
-          "hash": "14818962662399237763"
+          "hash": "1821126092480062012"
         },
         {
           "file": "apps/ums.api/Ums.Domain/Identity/Tenant/TenantProps.cs",
@@ -2180,15 +3173,71 @@
         },
         {
           "file": "apps/ums.api/Ums.Infrastructure/DependencyInjection.cs",
-          "hash": "2117924247958901569"
+          "hash": "8568880235036522109"
         },
         {
           "file": "apps/ums.api/Ums.Infrastructure/GlobalUsings.cs",
           "hash": "10384263774638364773"
         },
         {
+          "file": "apps/ums.api/Ums.Infrastructure/Persistence/DevDataSeeder.cs",
+          "hash": "2708386622992320875"
+        },
+        {
+          "file": "apps/ums.api/Ums.Infrastructure/Persistence/InMemoryAccessEnforcementPolicyRepository.cs",
+          "hash": "7250383015539720723"
+        },
+        {
+          "file": "apps/ums.api/Ums.Infrastructure/Persistence/InMemoryApprovalRequestRepository.cs",
+          "hash": "4538063736627402494"
+        },
+        {
+          "file": "apps/ums.api/Ums.Infrastructure/Persistence/InMemoryApprovalWorkflowRepository.cs",
+          "hash": "4964964504995236123"
+        },
+        {
+          "file": "apps/ums.api/Ums.Infrastructure/Persistence/InMemoryAuditRecordRepository.cs",
+          "hash": "17014120610431028685"
+        },
+        {
+          "file": "apps/ums.api/Ums.Infrastructure/Persistence/InMemoryDocumentTypeRepository.cs",
+          "hash": "8598133791058825127"
+        },
+        {
+          "file": "apps/ums.api/Ums.Infrastructure/Persistence/InMemoryNotificationRuleRepository.cs",
+          "hash": "9172343241601552864"
+        },
+        {
+          "file": "apps/ums.api/Ums.Infrastructure/Persistence/InMemoryPermissionTemplateRepository.cs",
+          "hash": "13403329147592192924"
+        },
+        {
+          "file": "apps/ums.api/Ums.Infrastructure/Persistence/InMemoryProfileRepository.cs",
+          "hash": "2781038302699926601"
+        },
+        {
+          "file": "apps/ums.api/Ums.Infrastructure/Persistence/InMemoryPromotionRequestRepository.cs",
+          "hash": "4744628185272863746"
+        },
+        {
+          "file": "apps/ums.api/Ums.Infrastructure/Persistence/InMemoryRoleMaturityStatusRepository.cs",
+          "hash": "16064546316043282395"
+        },
+        {
+          "file": "apps/ums.api/Ums.Infrastructure/Persistence/InMemorySystemSuiteRepository.cs",
+          "hash": "4415597009771609030"
+        },
+        {
           "file": "apps/ums.api/Ums.Infrastructure/Persistence/InMemoryTenantRepository.cs",
-          "hash": "6229831121337864684"
+          "hash": "1131641404966313883"
+        },
+        {
+          "file": "apps/ums.api/Ums.Infrastructure/Persistence/InMemoryUserAccountRepository.cs",
+          "hash": "16561657681135372873"
+        },
+        {
+          "file": "apps/ums.api/Ums.Infrastructure/Persistence/InMemoryUserDocumentRepository.cs",
+          "hash": "17153488455233112003"
         },
         {
           "file": "apps/ums.api/Ums.Infrastructure/Persistence/Interceptors/OrganizationDbContextInterceptor.cs",
@@ -2215,6 +3264,102 @@
           "hash": "4080966953579490826"
         },
         {
+          "file": "apps/ums.api/Ums.Presentation/Endpoints/Approvals/AccessEnforcementPolicy/AccessEnforcementPolicyEndpoints.cs",
+          "hash": "3471568249992563688"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/Endpoints/Approvals/AccessEnforcementPolicy/Queries/AccessEnforcementPolicyQueryEndpoints.cs",
+          "hash": "1510615373300076059"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/Endpoints/Approvals/ApprovalRequest/ApprovalRequestEndpoints.cs",
+          "hash": "8748918165082103287"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/Endpoints/Approvals/ApprovalRequest/Queries/ApprovalRequestQueryEndpoints.cs",
+          "hash": "2315190596365450278"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/Endpoints/Approvals/ApprovalWorkflow/ApprovalWorkflowEndpoints.cs",
+          "hash": "6843201130925192404"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/Endpoints/Approvals/ApprovalWorkflow/Queries/ApprovalWorkflowQueryEndpoints.cs",
+          "hash": "9105189683134962430"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/Endpoints/Approvals/DocumentType/DocumentTypeEndpoints.cs",
+          "hash": "16340088725526117695"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/Endpoints/Approvals/DocumentType/Queries/DocumentTypeQueryEndpoints.cs",
+          "hash": "16585367623630170756"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/Endpoints/Approvals/NotificationRule/NotificationRuleEndpoints.cs",
+          "hash": "11023201529875836968"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/Endpoints/Approvals/NotificationRule/Queries/NotificationRuleQueryEndpoints.cs",
+          "hash": "17940682802834061636"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/Endpoints/Approvals/UserDocument/Queries/UserDocumentQueryEndpoints.cs",
+          "hash": "3200597762519255693"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/Endpoints/Approvals/UserDocument/UserDocumentEndpoints.cs",
+          "hash": "5868745464862027484"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/Endpoints/Audit/AuditRecord/AuditRecordEndpoints.cs",
+          "hash": "3895522773830682589"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/Endpoints/Audit/AuditRecord/Queries/AuditRecordQueryEndpoints.cs",
+          "hash": "13570225651213014829"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/Endpoints/Authorization/Profile/ProfileEndpoints.cs",
+          "hash": "7034175019347867563"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/Endpoints/Authorization/Profile/Queries/ProfileQueryEndpoints.cs",
+          "hash": "12691084730085843104"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/Endpoints/Authorization/SystemSuite/Queries/SystemSuiteQueryEndpoints.cs",
+          "hash": "8260872623758579510"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/Endpoints/Authorization/SystemSuite/SystemSuiteEndpoints.cs",
+          "hash": "410704539092972736"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/Endpoints/Authorization/Template/PermissionTemplateEndpoints.cs",
+          "hash": "15872356458262679035"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/Endpoints/Authorization/Template/Queries/PermissionTemplateQueryEndpoints.cs",
+          "hash": "17415708470347515995"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/Endpoints/IGA/PromotionRequest/PromotionRequestEndpoints.cs",
+          "hash": "14062909828681696217"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/Endpoints/IGA/PromotionRequest/Queries/PromotionRequestQueryEndpoints.cs",
+          "hash": "8097220854244466735"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/Endpoints/IGA/RoleMaturityStatus/Queries/RoleMaturityStatusQueryEndpoints.cs",
+          "hash": "18024107841341514199"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/Endpoints/IGA/RoleMaturityStatus/RoleMaturityStatusEndpoints.cs",
+          "hash": "7348446540029661938"
+        },
+        {
           "file": "apps/ums.api/Ums.Presentation/Endpoints/Identity/Tenant/Queries/BranchQueryEndpoints.cs",
           "hash": "10845726655393230075"
         },
@@ -2228,7 +3373,7 @@
         },
         {
           "file": "apps/ums.api/Ums.Presentation/Endpoints/Identity/Tenant/Queries/TenantQueryEndpoints.cs",
-          "hash": "11412545530041951870"
+          "hash": "7166296625958178466"
         },
         {
           "file": "apps/ums.api/Ums.Presentation/Endpoints/Identity/Tenant/TenantBranchEndpoints.cs",
@@ -2240,11 +3385,19 @@
         },
         {
           "file": "apps/ums.api/Ums.Presentation/Endpoints/Identity/Tenant/TenantEndpoints.cs",
-          "hash": "6676528973557420908"
+          "hash": "2161250249632625573"
         },
         {
           "file": "apps/ums.api/Ums.Presentation/Endpoints/Identity/Tenant/TenantIdentityProviderEndpoints.cs",
           "hash": "11338206823793469444"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/Endpoints/Identity/UserAccount/Queries/UserAccountQueryEndpoints.cs",
+          "hash": "4616249390422924745"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/Endpoints/Identity/UserAccount/UserAccountEndpoints.cs",
+          "hash": "8783185691341283709"
         },
         {
           "file": "apps/ums.api/Ums.Presentation/Extensions/ResultExtensions.cs",
@@ -2253,6 +3406,66 @@
         {
           "file": "apps/ums.api/Ums.Presentation/GlobalUsings.cs",
           "hash": "355836482635152018"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/GraphQL/Approvals/AccessEnforcementPolicyQueries.cs",
+          "hash": "16050161650609422290"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/GraphQL/Approvals/ApprovalRequestQueries.cs",
+          "hash": "7110867157745955481"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/GraphQL/Approvals/ApprovalWorkflowQueries.cs",
+          "hash": "13256205684809434002"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/GraphQL/Approvals/DocumentTypeQueries.cs",
+          "hash": "909297912639670528"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/GraphQL/Approvals/NotificationRuleQueries.cs",
+          "hash": "7356995871062993788"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/GraphQL/Approvals/UserDocumentQueries.cs",
+          "hash": "10924111386930885877"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/GraphQL/Audit/AuditRecordQueries.cs",
+          "hash": "6126666289135659493"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/GraphQL/Authorization/PermissionTemplateQueries.cs",
+          "hash": "8611304935431451923"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/GraphQL/Authorization/ProfileQueries.cs",
+          "hash": "2011446508933311470"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/GraphQL/Authorization/SystemSuiteQueries.cs",
+          "hash": "36584189576911991"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/GraphQL/GraphQlServiceCollectionExtensions.cs",
+          "hash": "10098241143067286387"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/GraphQL/IGA/PromotionRequestQueries.cs",
+          "hash": "7570564182863600639"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/GraphQL/IGA/RoleMaturityStatusQueries.cs",
+          "hash": "15731022923421370019"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/GraphQL/Identity/TenantQueries.cs",
+          "hash": "7583950659218829198"
+        },
+        {
+          "file": "apps/ums.api/Ums.Presentation/GraphQL/Identity/UserAccountQueries.cs",
+          "hash": "10300206111123826844"
         },
         {
           "file": "apps/ums.api/Ums.Presentation/Middleware/CorrelationIdMiddleware.cs",
@@ -2268,7 +3481,7 @@
         },
         {
           "file": "apps/ums.api/Ums.Presentation/Middleware/GlobalExceptionHandler.cs",
-          "hash": "15871011411102168097"
+          "hash": "14549955803721453701"
         },
         {
           "file": "apps/ums.api/Ums.Presentation/Middleware/SecurityHeadersMiddleware.cs",
@@ -2276,7 +3489,7 @@
         },
         {
           "file": "apps/ums.api/Ums.Presentation/Program.cs",
-          "hash": "16035085995153378996"
+          "hash": "15786208382676194027"
         },
         {
           "file": "apps/ums.api/Ums.Presentation/Properties/launchSettings.json",
@@ -2284,7 +3497,7 @@
         },
         {
           "file": "apps/ums.api/Ums.Presentation/Ums.Presentation.csproj",
-          "hash": "3753043381911258784"
+          "hash": "16799305984430798259"
         },
         {
           "file": "apps/ums.api/Ums.Presentation/appsettings.Development.json",
@@ -2299,11 +3512,15 @@
           "hash": "12509023909047523570"
         },
         {
+          "file": "apps/ums.api/docs/graphql-query-side.md",
+          "hash": "4395051637460937971"
+        },
+        {
           "file": "apps/ums.api/project.json",
           "hash": "12670269346174016059"
         }
       ]
     }
   },
-  "externalNodesHash": "4935790633874111262"
+  "externalNodesHash": "5581883918514733155"
 }

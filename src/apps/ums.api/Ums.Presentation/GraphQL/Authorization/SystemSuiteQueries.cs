@@ -5,6 +5,8 @@ using HotChocolate.Types;
 using Ums.Application.Common;
 using Ums.Application.Authorization.SystemSuite.DTOs;
 using Ums.Application.Authorization.SystemSuite.Queries;
+using Ums.Presentation.Extensions;
+using static Ums.Application.Common.QueryRequestNormalizer;
 
 [ExtendObjectType("Query")]
 public sealed class SystemSuiteQueries
@@ -22,21 +24,16 @@ public sealed class SystemSuiteQueries
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new GetAllSystemSuitesQuery(
-            page <= 0 ? 1 : page,
-            pageSize <= 0 ? 20 : pageSize,
+            NormalizePage(page),
+            NormalizePageSize(pageSize),
             search,
-            string.IsNullOrWhiteSpace(criteria) ? "name" : criteria,
-            string.IsNullOrWhiteSpace(status) ? "all" : status,
-            string.IsNullOrWhiteSpace(sortBy) ? "name" : sortBy,
-            string.IsNullOrWhiteSpace(sortOrder) ? "asc" : sortOrder,
+            NormalizeText(criteria, "name"),
+            NormalizeText(status, "all"),
+            NormalizeText(sortBy, "name"),
+            NormalizeText(sortOrder, "asc"),
             tenantId), cancellationToken);
 
-        if (result.IsFailure)
-        {
-            throw BuildQueryException(result.Error);
-        }
-
-        return result.Value;
+        return result.UnwrapGraphQl();
     }
 
     public async Task<SystemSuiteDto?> GetSystemSuiteByIdAsync(
@@ -46,17 +43,6 @@ public sealed class SystemSuiteQueries
     {
         var result = await mediator.Send(new GetSystemSuiteByIdQuery(systemSuiteId), cancellationToken);
 
-        if (result.IsFailure)
-        {
-            return null;
-        }
-
-        return result.Value;
+        return result.UnwrapGraphQlOrNull();
     }
-
-    private static GraphQLException BuildQueryException(string message) =>
-        new(ErrorBuilder.New()
-            .SetMessage(message)
-            .SetCode("UMS_QUERY_ERROR")
-            .Build());
 }

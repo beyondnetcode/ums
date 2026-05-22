@@ -26,6 +26,10 @@ public sealed class InMemoryUserDocumentRepository : IUserDocumentRepository, IU
     public Task UpdateAsync(UserDocumentAggregate a, CancellationToken c = default) { _store[a.Props.Id.GetValue()] = a; return Task.CompletedTask; }
     public Task<int> SaveChangesAsync(CancellationToken c = default) => Task.FromResult(1);
     public Task<bool> SaveEntitiesAsync(CancellationToken c = default) => Task.FromResult(true);
-    public void Seed(UserDocumentAggregate a) => _store[a.Props.Id.GetValue()] = a;
+    public void Seed(UserDocumentAggregate a)
+    {
+        a.DomainEvents.MarkChangesAsCommitted();
+        _store[a.Props.Id.GetValue()] = a;
+    }
     public void Dispose() { }
 }

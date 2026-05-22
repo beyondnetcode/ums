@@ -35,7 +35,7 @@ export interface StatusBadgeProps {
   className?: string;
 }
 
-export const StatusBadge: React.FC<StatusBadgeProps> = ({
+export const StatusBadge: React.FC<StatusBadgeProps> = React.memo(({
   status,
   label,
   colorMap,
@@ -51,4 +51,4 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
       {label ?? status}
     </span>
   );
-};
+});

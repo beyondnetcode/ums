@@ -1,5 +1,6 @@
 using Ums.Application.Authorization.Profile.DTOs;
 using Ums.Domain.Authorization;
+using static Ums.Application.Common.QueryRequestNormalizer;
 
 namespace Ums.Application.Authorization.Profile.Queries;
 
@@ -16,13 +17,13 @@ public sealed class GetAllProfilesQueryHandler : IQueryHandler<GetAllProfilesQue
         GetAllProfilesQuery request,
         CancellationToken cancellationToken)
     {
-        var page = Math.Max(1, request.Page);
-        var pageSize = Math.Clamp(request.PageSize, 1, 100);
-        var criteria = request.Criteria.Trim().ToLowerInvariant();
-        var status = request.Status.Trim();
-        var sortBy = request.SortBy.Trim().ToLowerInvariant();
-        var sortOrder = request.SortOrder.Trim().ToLowerInvariant();
-        var search = request.Search?.Trim();
+        var page = NormalizePage(request.Page);
+        var pageSize = NormalizePageSize(request.PageSize);
+        var criteria = NormalizeText(request.Criteria, "userId").ToLowerInvariant();
+        var status = NormalizeText(request.Status, "all");
+        var sortBy = NormalizeText(request.SortBy, "userId").ToLowerInvariant();
+        var sortOrder = NormalizeText(request.SortOrder, "asc").ToLowerInvariant();
+        var search = NormalizeSearch(request.Search);
 
         var profiles = request.UserId.HasValue
             ? await _profileRepository.GetByUserIdAsync(request.UserId.Value, cancellationToken)

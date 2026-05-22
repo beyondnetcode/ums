@@ -50,6 +50,10 @@ public sealed class InMemoryPermissionTemplateRepository : IPermissionTemplateRe
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) => Task.FromResult(1);
     public Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default) => Task.FromResult(true);
 
-    public void Seed(PermissionTemplateAggregate aggregate) => _store[aggregate.Props.Id.GetValue()] = aggregate;
+    public void Seed(PermissionTemplateAggregate aggregate)
+    {
+        aggregate.DomainEvents.MarkChangesAsCommitted();
+        _store[aggregate.Props.Id.GetValue()] = aggregate;
+    }
     public void Dispose() { }
 }

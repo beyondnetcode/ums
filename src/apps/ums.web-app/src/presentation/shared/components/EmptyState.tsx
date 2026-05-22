@@ -23,7 +23,7 @@ export interface EmptyStateProps {
   className?: string;
 }
 
-export const EmptyState: React.FC<EmptyStateProps> = ({
+export const EmptyState: React.FC<EmptyStateProps> = React.memo(({
   icon,
   title,
   message,
@@ -65,4 +65,4 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       {message}
     </div>
   );
-};
+});

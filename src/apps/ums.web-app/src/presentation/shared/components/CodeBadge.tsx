@@ -21,7 +21,7 @@ const SIZE_CLASSES: Record<string, string> = {
   sm: 'text-xs px-1.5 py-0.5',
 };
 
-export const CodeBadge: React.FC<CodeBadgeProps> = ({
+export const CodeBadge: React.FC<CodeBadgeProps> = React.memo(({
   code,
   size = 'sm',
   className = '',
@@ -31,4 +31,4 @@ export const CodeBadge: React.FC<CodeBadgeProps> = ({
   >
     {code}
   </span>
-);
+));

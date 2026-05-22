@@ -3,26 +3,24 @@ import { Database, Menu, Sun, Moon, Bell, Globe, LogOut } from 'lucide-react';
 import { useAuthStore } from '@app/stores/auth.store';
 import { useThemeStore } from '@app/stores/theme.store';
 import { useDevToolsStore } from '@app/stores/devTools.store';
+import { useI18nStore } from '@app/stores/i18n.store';
 import { useNotificationStore } from '@app/stores/notification.store';
 import { useI18n } from '@app/i18n/use-i18n';
 import { NotificationCenter } from '../components/NotificationCenter';
 import { Tooltip } from '../components/Tooltip';
 
-interface TopAppBarProps {
-  onToggleNav: () => void;
-}
-
-export const TopAppBar: React.FC<TopAppBarProps> = ({ onToggleNav }) => {
+export const TopAppBar: React.FC<{ onToggleNav: () => void }> = ({ onToggleNav }) => {
   const { user, logout } = useAuthStore();
   const { isDarkMode, toggleDarkMode } = useThemeStore();
-  const { devUserId, devLanguage, setDevLanguage } = useDevToolsStore();
+  const { devUserId } = useDevToolsStore();
+  const { language, setLanguage } = useI18nStore();
   const { notifications, setIsOpen, isOpen } = useNotificationStore();
   const t = useI18n();
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   const handleLanguageToggle = () => {
-    setDevLanguage(devLanguage === 'en' ? 'es' : 'en');
+    setLanguage(language === 'en' ? 'es' : 'en');
   };
 
   return (
@@ -60,11 +58,11 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({ onToggleNav }) => {
           <Tooltip content={t.toggleLanguage} placement="bottom">
             <button
               onClick={handleLanguageToggle}
-              aria-label={devLanguage === 'en' ? 'Switch to Spanish' : 'Switch to English'}
+              aria-label={language === 'en' ? 'Switch to Spanish' : 'Switch to English'}
               className="p-2.5 rounded-full hover:bg-m3-primary/10 text-m3-secondary hover:text-m3-primary transition-all flex items-center gap-1.5 border border-m3-outline/30"
             >
               <Globe className="w-4 h-4 text-indigo-400" />
-              <span className="text-[11px] font-medium">{devLanguage.toUpperCase()}</span>
+              <span className="text-[11px] font-medium">{language.toUpperCase()}</span>
             </button>
           </Tooltip>
 

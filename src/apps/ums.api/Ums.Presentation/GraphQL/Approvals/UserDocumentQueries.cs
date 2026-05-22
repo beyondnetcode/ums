@@ -5,6 +5,8 @@ using HotChocolate.Types;
 using Ums.Application.Common;
 using Ums.Application.Approvals.UserDocument.DTOs;
 using Ums.Application.Approvals.UserDocument.Queries;
+using Ums.Presentation.Extensions;
+using static Ums.Application.Common.QueryRequestNormalizer;
 
 [ExtendObjectType("Query")]
 public sealed class UserDocumentQueries
@@ -14,18 +16,17 @@ public sealed class UserDocumentQueries
         Guid? userId, Guid? tenantId, [Service] IMediator mediator, CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new GetAllUserDocumentsQuery(
-            page <= 0 ? 1 : page, pageSize <= 0 ? 20 : pageSize, search,
-            string.IsNullOrWhiteSpace(criteria) ? "status" : criteria,
-            string.IsNullOrWhiteSpace(status) ? "all" : status,
-            string.IsNullOrWhiteSpace(sortBy) ? "status" : sortBy,
-            string.IsNullOrWhiteSpace(sortOrder) ? "asc" : sortOrder, userId, tenantId), cancellationToken);
-        if (result.IsFailure) throw new GraphQLException(ErrorBuilder.New().SetMessage(result.Error).SetCode("UMS_QUERY_ERROR").Build());
-        return result.Value;
+            NormalizePage(page), NormalizePageSize(pageSize), search,
+            NormalizeText(criteria, "status"),
+            NormalizeText(status, "all"),
+            NormalizeText(sortBy, "status"),
+            NormalizeText(sortOrder, "asc"), userId, tenantId), cancellationToken);
+        return result.UnwrapGraphQl();
     }
 
     public async Task<UserDocumentDto?> GetUserDocumentByIdAsync(Guid id, [Service] IMediator mediator, CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new GetUserDocumentByIdQuery(id), cancellationToken);
-        return result.IsFailure ? null : result.Value;
+        return result.UnwrapGraphQlOrNull();
     }
 }

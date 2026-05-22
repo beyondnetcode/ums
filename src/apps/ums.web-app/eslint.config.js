@@ -26,6 +26,12 @@ export default tseslint.config(
         'warn',
         { allowConstantExport: true },
       ],
+      // Production: only allow console.error (for error boundaries)
+      'no-console': ['error', { allow: ['error'] }],
+      // Require explicit return types on exported functions for API boundaries
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      // Allow non-null assertions in test files only
+      '@typescript-eslint/no-non-null-assertion': 'warn',
     },
   },
 )

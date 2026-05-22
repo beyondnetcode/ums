@@ -225,6 +225,7 @@ export const M3DataView: React.FC<M3DataViewProps> = ({
                 <select
                   value={activeCriteria}
                   onChange={(e) => onCriteriaChange(e.target.value)}
+                  aria-label={criteriaLabel}
                   className="w-full h-14 px-4 text-sm rounded-[4px] border-[1.5px] border-m3-outline bg-m3-surface-container/30 dark:bg-m3-surface-container/20 text-m3-on-surface focus:outline-none focus:border-m3-primary transition-colors cursor-pointer"
                 >
                   {searchCriteria.map((c) => (
@@ -269,6 +270,7 @@ export const M3DataView: React.FC<M3DataViewProps> = ({
                 <select
                   value={activeFilter}
                   onChange={(e) => onFilterChange(e.target.value)}
+                  aria-label="Filter"
                   className="h-9 px-3 rounded-lg border border-m3-outline bg-m3-surface text-xs font-medium text-m3-secondary focus:outline-none focus:border-m3-primary transition-colors cursor-pointer"
                 >
                   {filterOptions.map((f) => (
@@ -286,6 +288,7 @@ export const M3DataView: React.FC<M3DataViewProps> = ({
                 <select
                   value={sortBy}
                   onChange={(e) => onSortByChange(e.target.value)}
+                  aria-label="Sort by"
                   className="h-9 px-3 rounded-lg border border-m3-outline bg-m3-surface text-xs font-medium text-m3-secondary focus:outline-none focus:border-m3-primary transition-colors cursor-pointer"
                 >
                   {sortOptions.map((s) => (

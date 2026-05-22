@@ -4,12 +4,16 @@ using Asp.Versioning.Builder;
 using Azure.Core;
 using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using Azure.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Microsoft.Extensions.Options;
 using Ums.Application;
+using Ums.Domain.Identity;
 using Ums.Globalization;
 using Ums.Globalization.Access;
 using Ums.Infrastructure;
 using Ums.Infrastructure.Persistence;
+using Ums.Infrastructure.Persistence.Options;
 using Ums.Presentation.Endpoints.Identity.Tenant;
 using Ums.Presentation.Endpoints.Identity.Tenant.Queries;
 using Ums.Presentation.Endpoints.Identity.UserAccount;
@@ -125,7 +129,7 @@ builder.Services.AddSwaggerGen(options =>
     {
         Title = "UMS Tenant API",
         Version = "v1",
-        Description = "User Management System — Tenant REST API (in-memory persistence for development).",
+        Description = "User Management System — modular monolith API with REST commands and GraphQL queries, prepared for SQL Server platform persistence.",
     });
 
     options.AddSecurityDefinition("DevUserId", new OpenApiSecurityScheme
@@ -154,12 +158,29 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Seed in-memory repository with dev prototype data in Development mode
-if (app.Environment.IsDevelopment())
+var persistenceOptions = app.Services.GetRequiredService<IOptions<PersistenceOptions>>().Value;
+
+if (persistenceOptions.Provider == PersistenceProvider.SqlServer && persistenceOptions.InitializePlatformStoreOnStartup)
 {
     using var scope = app.Services.CreateScope();
-    var repository = scope.ServiceProvider.GetRequiredService<InMemoryTenantRepository>();
-    DevDataSeeder.Seed(repository);
+    var platformDbContext = scope.ServiceProvider.GetRequiredService<UmsPlatformDbContext>();
+    await SqlServerSchemaBootstrapper.InitializeAsync(platformDbContext);
+}
+
+// Seed prototype aggregates only while the aggregate store remains in-memory.
+if (app.Environment.IsDevelopment() && persistenceOptions.SeedDevData)
+{
+    using var scope = app.Services.CreateScope();
+    var repository = scope.ServiceProvider.GetRequiredService<ITenantRepository>();
+
+    if (repository is InMemoryTenantRepository inMemoryTenantRepository)
+    {
+        DevDataSeeder.Seed(inMemoryTenantRepository);
+    }
+    else
+    {
+        await DevDataSeeder.SeedAsync(repository);
+    }
 }
 
 var versionSet = app.NewApiVersionSet()
@@ -191,6 +212,10 @@ app.UseDevAuth();
 app.UseHttpsRedirection();
 
 app.MapGraphQL("/graphql")
+    .WithTags("GraphQL - Queries")
+    .RequireRateLimiting("graphql");
+
+versionedGroup.MapGraphQL("/graphql")
     .WithTags("GraphQL - Queries")
     .RequireRateLimiting("graphql");
 

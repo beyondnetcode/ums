@@ -56,6 +56,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository, IUnitOfWork
     /// </summary>
     public void Seed(TenantAggregate aggregate)
     {
+        aggregate.DomainEvents.MarkChangesAsCommitted();
         _store[aggregate.Props.Id.GetValue()] = aggregate;
     }
 

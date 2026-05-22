@@ -60,6 +60,7 @@ public sealed class InMemoryProfileRepository : IProfileRepository, IUnitOfWork
 
     public void Seed(ProfileAggregate aggregate)
     {
+        aggregate.DomainEvents.MarkChangesAsCommitted();
         _store[aggregate.Props.Id.GetValue()] = aggregate;
     }
 

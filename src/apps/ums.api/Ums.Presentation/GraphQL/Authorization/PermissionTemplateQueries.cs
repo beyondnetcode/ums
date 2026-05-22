@@ -5,6 +5,8 @@ using HotChocolate.Types;
 using Ums.Application.Common;
 using Ums.Application.Authorization.Template.DTOs;
 using Ums.Application.Authorization.Template.Queries;
+using Ums.Presentation.Extensions;
+using static Ums.Application.Common.QueryRequestNormalizer;
 
 [ExtendObjectType("Query")]
 public sealed class PermissionTemplateQueries
@@ -22,21 +24,16 @@ public sealed class PermissionTemplateQueries
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new GetAllPermissionTemplatesQuery(
-            page <= 0 ? 1 : page,
-            pageSize <= 0 ? 20 : pageSize,
+            NormalizePage(page),
+            NormalizePageSize(pageSize),
             search,
-            string.IsNullOrWhiteSpace(criteria) ? "version" : criteria,
-            string.IsNullOrWhiteSpace(status) ? "all" : status,
-            string.IsNullOrWhiteSpace(sortBy) ? "version" : sortBy,
-            string.IsNullOrWhiteSpace(sortOrder) ? "asc" : sortOrder,
+            NormalizeText(criteria, "version"),
+            NormalizeText(status, "all"),
+            NormalizeText(sortBy, "version"),
+            NormalizeText(sortOrder, "asc"),
             tenantId), cancellationToken);
 
-        if (result.IsFailure)
-        {
-            throw BuildQueryException(result.Error);
-        }
-
-        return result.Value;
+        return result.UnwrapGraphQl();
     }
 
     public async Task<PermissionTemplateDto?> GetPermissionTemplateByIdAsync(
@@ -46,17 +43,6 @@ public sealed class PermissionTemplateQueries
     {
         var result = await mediator.Send(new GetPermissionTemplateByIdQuery(templateId), cancellationToken);
 
-        if (result.IsFailure)
-        {
-            return null;
-        }
-
-        return result.Value;
+        return result.UnwrapGraphQlOrNull();
     }
-
-    private static GraphQLException BuildQueryException(string message) =>
-        new(ErrorBuilder.New()
-            .SetMessage(message)
-            .SetCode("UMS_QUERY_ERROR")
-            .Build());
 }

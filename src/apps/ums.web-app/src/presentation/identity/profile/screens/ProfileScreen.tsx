@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAuthStore } from '@app/stores/auth.store';
 import { useDevToolsStore } from '@app/stores/devTools.store';
+import { useI18nStore } from '@app/stores/i18n.store';
 import { useNotificationStore } from '@app/stores/notification.store';
 import { useI18n } from '@app/i18n/use-i18n';
 import { SYSTEM_INFO } from '@domain/identity/constants/system-info.constants';
@@ -21,7 +22,8 @@ import type { NotificationType } from '@shared/theme/notification-theme';
 
 export const ProfileScreen: React.FC = () => {
   const { user, isAuthenticated } = useAuthStore();
-  const { devUserId, devLanguage } = useDevToolsStore();
+  const { devUserId } = useDevToolsStore();
+  const { language } = useI18nStore();
   const { notifications, addNotification } = useNotificationStore();
   const t = useI18n();
 
@@ -89,7 +91,7 @@ export const ProfileScreen: React.FC = () => {
               label={t.xLanguageHeader}
               value={
                 <span className="font-extrabold uppercase text-m3-on-surface bg-m3-surface-container px-2 py-0.5 rounded border border-m3-outline/30">
-                  {devLanguage}
+                  {language}
                 </span>
               }
             />

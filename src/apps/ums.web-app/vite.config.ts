@@ -32,5 +32,28 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
+    build: {
+      target: 'es2020',
+      sourcemap: mode === 'development',
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: mode === 'production',
+          drop_debugger: mode === 'production',
+        },
+      },
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'react-vendor': ['react', 'react-dom'],
+            'tanstack-query': ['@tanstack/react-query'],
+            'lucide-icons': ['lucide-react'],
+          },
+        },
+      },
+    },
+    optimizeDeps: {
+      include: ['react', 'react-dom', '@tanstack/react-query', 'zustand'],
+    },
   }
 })

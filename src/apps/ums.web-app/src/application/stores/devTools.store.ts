@@ -9,21 +9,26 @@
  *
  * In production builds this module is still bundled but all state is inert
  * since the API will use real JWT authentication.
+ *
+ * Note: Language is now managed by i18n.store.ts. This store syncs its
+ * devLanguage to i18nStore for backward compatibility during migration.
  */
 import { create } from 'zustand';
+import { useI18nStore } from './i18n.store';
 
 interface DevToolsState {
-  /** Dev user GUID forwarded as X-User-Id header (mirrors DevAuthMiddleware) */
   devUserId: string;
-  /** UI language used while real i18n is not yet driven by the backend */
   devLanguage: 'en' | 'es';
   setDevUserId: (id: string) => void;
   setDevLanguage: (lang: 'en' | 'es') => void;
 }
 
-export const useDevToolsStore = create<DevToolsState>(() => ({
-  devUserId: '3fa85f64-5717-4562-b3fc-2c963f66afa6', // standard sample dev GUID
+export const useDevToolsStore = create<DevToolsState>((set) => ({
+  devUserId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
   devLanguage: 'es',
-  setDevUserId: (id) => useDevToolsStore.setState({ devUserId: id }),
-  setDevLanguage: (lang) => useDevToolsStore.setState({ devLanguage: lang }),
+  setDevUserId: (id) => set({ devUserId: id }),
+  setDevLanguage: (lang) => {
+    set({ devLanguage: lang });
+    useI18nStore.getState().setLanguage(lang);
+  },
 }));

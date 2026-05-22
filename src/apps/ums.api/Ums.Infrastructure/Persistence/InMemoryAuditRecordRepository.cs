@@ -63,6 +63,10 @@ public sealed class InMemoryAuditRecordRepository : IAuditRecordRepository, IUni
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) => Task.FromResult(1);
     public Task<bool> SaveEntitiesAsync(object entity, CancellationToken cancellationToken = default) => Task.FromResult(true);
 
-    public void Seed(AuditRecordAggregate record) => _store[record.Props.Id.GetValue()] = record;
+    public void Seed(AuditRecordAggregate record)
+    {
+        record.DomainEvents.MarkChangesAsCommitted();
+        _store[record.Props.Id.GetValue()] = record;
+    }
     public void Dispose() { }
 }

@@ -5,6 +5,8 @@ using HotChocolate.Types;
 using Ums.Application.Common;
 using Ums.Application.Audit.AuditRecord.DTOs;
 using Ums.Application.Audit.AuditRecord.Queries;
+using Ums.Presentation.Extensions;
+using static Ums.Application.Common.QueryRequestNormalizer;
 
 [ExtendObjectType("Query")]
 public sealed class AuditRecordQueries
@@ -23,16 +25,11 @@ public sealed class AuditRecordQueries
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new GetAllAuditRecordsQuery(
-            page <= 0 ? 1 : page,
-            pageSize <= 0 ? 20 : pageSize,
+            NormalizePage(page),
+            NormalizePageSize(pageSize),
             eventType, actorId, entityId, entityType, tenantId, from, to), cancellationToken);
 
-        if (result.IsFailure)
-        {
-            throw BuildQueryException(result.Error);
-        }
-
-        return result.Value;
+        return result.UnwrapGraphQl();
     }
 
     public async Task<AuditRecordDto?> GetAuditRecordByIdAsync(
@@ -42,17 +39,6 @@ public sealed class AuditRecordQueries
     {
         var result = await mediator.Send(new GetAuditRecordByIdQuery(auditRecordId), cancellationToken);
 
-        if (result.IsFailure)
-        {
-            return null;
-        }
-
-        return result.Value;
+        return result.UnwrapGraphQlOrNull();
     }
-
-    private static GraphQLException BuildQueryException(string message) =>
-        new(ErrorBuilder.New()
-            .SetMessage(message)
-            .SetCode("UMS_QUERY_ERROR")
-            .Build());
 }

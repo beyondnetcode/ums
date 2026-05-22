@@ -11,6 +11,8 @@ using Ums.Application.Identity.Tenant.DTOs;
 using Ums.Application.Identity.Tenant.IdentityProvider.DTOs;
 using Ums.Application.Identity.Tenant.IdentityProvider.Queries;
 using Ums.Application.Identity.Tenant.Queries;
+using Ums.Presentation.Extensions;
+using static Ums.Application.Common.QueryRequestNormalizer;
 
 [ExtendObjectType("Query")]
 public sealed class TenantQueries
@@ -27,20 +29,15 @@ public sealed class TenantQueries
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new GetAllTenantsQuery(
-            page <= 0 ? 1 : page,
-            pageSize <= 0 ? 20 : pageSize,
+            NormalizePage(page),
+            NormalizePageSize(pageSize),
             search,
-            string.IsNullOrWhiteSpace(criteria) ? "name" : criteria,
-            string.IsNullOrWhiteSpace(status) ? "all" : status,
-            string.IsNullOrWhiteSpace(sortBy) ? "name" : sortBy,
-            string.IsNullOrWhiteSpace(sortOrder) ? "asc" : sortOrder), cancellationToken);
+            NormalizeText(criteria, "name"),
+            NormalizeText(status, "all"),
+            NormalizeText(sortBy, "name"),
+            NormalizeText(sortOrder, "asc")), cancellationToken);
 
-        if (result.IsFailure)
-        {
-            throw BuildQueryException(result.Error);
-        }
-
-        return result.Value;
+        return result.UnwrapGraphQl();
     }
 
     public async Task<TenantDto?> GetTenantByIdAsync(
@@ -50,12 +47,7 @@ public sealed class TenantQueries
     {
         var result = await mediator.Send(new GetTenantByIdQuery(tenantId), cancellationToken);
 
-        if (result.IsFailure)
-        {
-            return null;
-        }
-
-        return result.Value;
+        return result.UnwrapGraphQlOrNull();
     }
 
     public async Task<IReadOnlyList<BranchDto>> GetTenantBranchesAsync(
@@ -65,12 +57,7 @@ public sealed class TenantQueries
     {
         var result = await mediator.Send(new GetBranchesByTenantIdQuery(tenantId), cancellationToken);
 
-        if (result.IsFailure)
-        {
-            throw BuildQueryException(result.Error);
-        }
-
-        return result.Value;
+        return result.UnwrapGraphQl();
     }
 
     public async Task<BrandingDto?> GetTenantBrandingAsync(
@@ -80,12 +67,7 @@ public sealed class TenantQueries
     {
         var result = await mediator.Send(new GetBrandingByTenantIdQuery(tenantId), cancellationToken);
 
-        if (result.IsFailure)
-        {
-            return null;
-        }
-
-        return result.Value;
+        return result.UnwrapGraphQlOrNull();
     }
 
     public async Task<IReadOnlyList<IdentityProviderDto>> GetTenantIdentityProvidersAsync(
@@ -95,17 +77,6 @@ public sealed class TenantQueries
     {
         var result = await mediator.Send(new GetIdentityProvidersByTenantIdQuery(tenantId), cancellationToken);
 
-        if (result.IsFailure)
-        {
-            throw BuildQueryException(result.Error);
-        }
-
-        return result.Value;
+        return result.UnwrapGraphQl();
     }
-
-    private static GraphQLException BuildQueryException(string message) =>
-        new(ErrorBuilder.New()
-            .SetMessage(message)
-            .SetCode("UMS_QUERY_ERROR")
-            .Build());
 }

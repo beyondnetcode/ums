@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "ums-web",
+      "runtimeExecutable": "docker",
+      "runtimeArgs": ["exec", "ums-web", "echo", "already running"],
+      "port": 5173
+    }
+  ]
+}

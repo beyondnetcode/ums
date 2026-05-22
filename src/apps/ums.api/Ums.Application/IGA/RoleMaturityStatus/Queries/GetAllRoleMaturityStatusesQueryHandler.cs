@@ -1,5 +1,6 @@
 using Ums.Application.IGA.RoleMaturityStatus.DTOs;
 using Ums.Domain.IGA;
+using static Ums.Application.Common.QueryRequestNormalizer;
 
 namespace Ums.Application.IGA.RoleMaturityStatus.Queries;
 
@@ -11,10 +12,10 @@ public sealed class GetAllRoleMaturityStatusesQueryHandler : IQueryHandler<GetAl
 
     public async Task<Result<PagedResult<RoleMaturityStatusDto>>> Handle(GetAllRoleMaturityStatusesQuery request, CancellationToken cancellationToken)
     {
-        var page = Math.Max(1, request.Page);
-        var pageSize = Math.Clamp(request.PageSize, 1, 100);
-        var sortBy = request.SortBy.Trim().ToLowerInvariant();
-        var sortOrder = request.SortOrder.Trim().ToLowerInvariant();
+        var page = NormalizePage(request.Page);
+        var pageSize = NormalizePageSize(request.PageSize);
+        var sortBy = NormalizeText(request.SortBy, "level").ToLowerInvariant();
+        var sortOrder = NormalizeText(request.SortOrder, "asc").ToLowerInvariant();
 
         var items = request.UserId.HasValue
             ? await _repository.GetByUserIdAsync(request.UserId.Value, cancellationToken)

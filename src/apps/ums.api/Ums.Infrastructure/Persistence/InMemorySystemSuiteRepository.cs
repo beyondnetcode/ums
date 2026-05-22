@@ -61,6 +61,7 @@ public sealed class InMemorySystemSuiteRepository : ISystemSuiteRepository, IUni
 
     public void Seed(SystemSuiteAggregate aggregate)
     {
+        aggregate.DomainEvents.MarkChangesAsCommitted();
         _store[aggregate.Props.Id.GetValue()] = aggregate;
     }
 

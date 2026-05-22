@@ -61,6 +61,7 @@ public sealed class InMemoryUserAccountRepository : IUserAccountRepository, IUni
 
     public void Seed(UserAccountAggregate aggregate)
     {
+        aggregate.DomainEvents.MarkChangesAsCommitted();
         _store[aggregate.Props.Id.GetValue()] = aggregate;
     }
 

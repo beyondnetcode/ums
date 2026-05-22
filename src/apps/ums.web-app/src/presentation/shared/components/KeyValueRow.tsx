@@ -20,7 +20,7 @@ export interface KeyValueRowProps {
   className?: string;
 }
 
-export const KeyValueRow: React.FC<KeyValueRowProps> = ({
+export const KeyValueRow: React.FC<KeyValueRowProps> = React.memo(({
   icon,
   label,
   value,
@@ -39,4 +39,4 @@ export const KeyValueRow: React.FC<KeyValueRowProps> = ({
     </span>
     <span className="font-extrabold text-m3-on-surface text-xs">{value}</span>
   </div>
-);
+));

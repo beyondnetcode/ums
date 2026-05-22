@@ -5,6 +5,8 @@ using HotChocolate.Types;
 using Ums.Application.Common;
 using Ums.Application.Approvals.ApprovalWorkflow.DTOs;
 using Ums.Application.Approvals.ApprovalWorkflow.Queries;
+using Ums.Presentation.Extensions;
+using static Ums.Application.Common.QueryRequestNormalizer;
 
 [ExtendObjectType("Query")]
 public sealed class ApprovalWorkflowQueries
@@ -14,17 +16,16 @@ public sealed class ApprovalWorkflowQueries
         Guid? tenantId, [Service] IMediator mediator, CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new GetAllApprovalWorkflowsQuery(
-            page <= 0 ? 1 : page, pageSize <= 0 ? 20 : pageSize, search,
-            string.IsNullOrWhiteSpace(criteria) ? "name" : criteria,
-            string.IsNullOrWhiteSpace(sortBy) ? "name" : sortBy,
-            string.IsNullOrWhiteSpace(sortOrder) ? "asc" : sortOrder, tenantId), cancellationToken);
-        if (result.IsFailure) throw new GraphQLException(ErrorBuilder.New().SetMessage(result.Error).SetCode("UMS_QUERY_ERROR").Build());
-        return result.Value;
+            NormalizePage(page), NormalizePageSize(pageSize), search,
+            NormalizeText(criteria, "name"),
+            NormalizeText(sortBy, "name"),
+            NormalizeText(sortOrder, "asc"), tenantId), cancellationToken);
+        return result.UnwrapGraphQl();
     }
 
     public async Task<ApprovalWorkflowDto?> GetApprovalWorkflowByIdAsync(Guid id, [Service] IMediator mediator, CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new GetApprovalWorkflowByIdQuery(id), cancellationToken);
-        return result.IsFailure ? null : result.Value;
+        return result.UnwrapGraphQlOrNull();
     }
 }

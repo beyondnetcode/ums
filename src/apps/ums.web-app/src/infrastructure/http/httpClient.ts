@@ -6,6 +6,7 @@
  */
 import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
 import { BASE_URL, getRequestContext, DEV_TENANT_ID } from './request-context';
+import { getCsrfToken, CSRF_HEADER_NAME } from './csrf';
 
 function createHttpClient(): AxiosInstance {
   const client = axios.create({
@@ -18,6 +19,12 @@ function createHttpClient(): AxiosInstance {
     if (userId)   config.headers.set('X-User-Id',  userId);
     if (language) config.headers.set('X-Language', language);
     config.headers.set('X-Tenant-Id', DEV_TENANT_ID);
+
+    const csrfToken = getCsrfToken();
+    if (csrfToken && config.method && !['get', 'head', 'options'].includes(config.method)) {
+      config.headers.set(CSRF_HEADER_NAME, csrfToken);
+    }
+
     return config;
   });
 

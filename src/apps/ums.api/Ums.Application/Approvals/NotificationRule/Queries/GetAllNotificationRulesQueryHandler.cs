@@ -1,5 +1,6 @@
 using Ums.Application.Approvals.NotificationRule.DTOs;
 using Ums.Domain.Approvals;
+using static Ums.Application.Common.QueryRequestNormalizer;
 
 namespace Ums.Application.Approvals.NotificationRule.Queries;
 
@@ -11,11 +12,11 @@ public sealed class GetAllNotificationRulesQueryHandler : IQueryHandler<GetAllNo
 
     public async Task<Result<PagedResult<NotificationRuleDto>>> Handle(GetAllNotificationRulesQuery request, CancellationToken cancellationToken)
     {
-        var page = Math.Max(1, request.Page);
-        var pageSize = Math.Clamp(request.PageSize, 1, 100);
-        var status = request.Status.Trim();
-        var sortBy = request.SortBy.Trim().ToLowerInvariant();
-        var sortOrder = request.SortOrder.Trim().ToLowerInvariant();
+        var page = NormalizePage(request.Page);
+        var pageSize = NormalizePageSize(request.PageSize);
+        var status = NormalizeText(request.Status, "all");
+        var sortBy = NormalizeText(request.SortBy, "channel").ToLowerInvariant();
+        var sortOrder = NormalizeText(request.SortOrder, "asc").ToLowerInvariant();
 
         var items = request.TenantId.HasValue
             ? await _repository.GetByTenantIdAsync(request.TenantId.Value, cancellationToken)

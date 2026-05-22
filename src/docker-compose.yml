@@ -1,21 +1,16 @@
 services:
-  # PostgreSQL Database
-  postgres:
-    image: postgres:16-alpine
-    container_name: ums-postgres
+  # SQL Server compatible lightweight database for development
+  sqlserver-lite:
+    image: mcr.microsoft.com/azure-sql-edge:latest
+    container_name: ums-sqlserver-lite
     environment:
-      POSTGRES_DB: ums
-      POSTGRES_USER: ums_user
-      POSTGRES_PASSWORD: ums_password
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Your_password123"
+      MSSQL_PID: "Developer"
     ports:
-      - "5432:5432"
+      - "1433:1433"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ums_user -d ums"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - sqlserver_data:/var/opt/mssql
     networks:
       - ums-network
 
@@ -28,12 +23,14 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ums;Username=ums_user;Password=ums_password
+      - ConnectionStrings__DefaultConnection=Server=sqlserver-lite,1433;Database=UmsDev;User Id=sa;Password=Your_password123;TrustServerCertificate=True;Encrypt=False;
+      - Persistence__Provider=SqlServer
+      - Persistence__UseSqlServerIdentityStores=true
+      - Persistence__InitializePlatformStoreOnStartup=true
     ports:
       - "5293:8080"
     depends_on:
-      postgres:
-        condition: service_healthy
+      - sqlserver-lite
     networks:
       - ums-network
 
@@ -55,4 +52,4 @@ networks:
     driver: bridge
 
 volumes:
-  postgres_data:
+  sqlserver_data:

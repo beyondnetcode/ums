@@ -19,7 +19,7 @@ export interface SectionHeaderProps {
   className?: string;
 }
 
-export const SectionHeader: React.FC<SectionHeaderProps> = ({
+export const SectionHeader: React.FC<SectionHeaderProps> = React.memo(({
   title,
   subtitle,
   actions,
@@ -36,4 +36,4 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
     </div>
     {actions && <div className="flex items-center gap-2">{actions}</div>}
   </div>
-);
+));

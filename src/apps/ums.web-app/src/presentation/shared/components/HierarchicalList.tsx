@@ -67,6 +67,7 @@ export function HierarchicalList<T extends Record<string, unknown>>({
         const id = String(node.item[idKey]);
         const isSelected = selectedId === id;
         const nodeIsExpanded = isExpanded(id);
+        const nodeHasChildren = getChildren(id).length > 0;
 
         return (
           <div key={id}>
@@ -102,18 +103,31 @@ export const HierarchicalRow: React.FC<HierarchicalRowProps> = ({
   isSelected,
   isChild,
   children,
-}) => (
-  <tr
-    onClick={onClick}
-    className={`group cursor-pointer transition-colors duration-150 ${
-      isSelected
-        ? 'bg-m3-primary-container/30 text-m3-on-primary-container'
-        : 'hover:bg-m3-primary/5 text-m3-secondary hover:text-m3-on-surface'
-    } ${isChild ? 'bg-m3-surface-container/10' : ''}`}
-  >
-    {children}
-  </tr>
-);
+}) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onClick();
+    }
+  };
+
+  return (
+    <tr
+      onClick={onClick}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      role="row"
+      aria-selected={isSelected}
+      className={`group cursor-pointer transition-colors duration-150 ${
+        isSelected
+          ? 'bg-m3-primary-container/30 text-m3-on-primary-container'
+          : 'hover:bg-m3-primary/5 text-m3-secondary hover:text-m3-on-surface'
+      } ${isChild ? 'bg-m3-surface-container/10' : ''}`}
+    >
+      {children}
+    </tr>
+  );
+};
 
 export const HierarchicalExpandButton: React.FC<{
   hasChildren: boolean;
