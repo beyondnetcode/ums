@@ -10,6 +10,7 @@ Technical Enablers (TEs) are detailed engineering blueprints that specify *how* 
 | [TE-04](./te-04-transactional-outbox.md) | Transactional Outbox Pattern | **Approved** | ADR-0033, ADR-0015 | FS-06, FS-11, FS-15 |
 | [TE-05](./te-05-distributed-saga-dapr.md) | Distributed Saga with Dapr | **Approved** | ADR-0035 | FS-10, FS-12 |
 | [TE-06](./te-06-cqrs-projection-rebuild.md) | CQRS Projection Rebuild | **Approved** | ADR-0034 | FS-04, FS-07, FS-13 |
+| [TE-07](./te-07-yarp-api-gateway.md) | YARP API Gateway — Multi-Client SaaS Entry Point | **Proposed** | ADR-0058 | NFR: Multi-client, Security, Rate limiting |
 
 ---
 
