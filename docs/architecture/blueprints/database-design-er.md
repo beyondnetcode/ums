@@ -56,7 +56,7 @@ erDiagram
     PROFILE ||--o{ PROFILE_PERMISSION : "customizes"
     USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "administers"
     USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "is_managed"
-    USER_ACCOUNT ||--o{ APPROVAL_REQUEST : "onboards/approves"
+    USER_ACCOUNT ||--o{ APPROVAL_REQUEST : "onboards_or_approves"
     
     SYSTEM_SUITE ||--o{ ACTION : "defines global"
     FUNCTIONAL_MODULE ||--o{ ACTION : "defines local"
@@ -120,10 +120,10 @@ Organizational structure of resources.
 
 ```mermaid
 erDiagram
-    SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "L1: System -> Module"
-    FUNCTIONAL_MODULE ||--o{ FUNCTIONAL_MENU : "L2: Module -> Menu"
-    FUNCTIONAL_MENU ||--o{ FUNCTIONAL_SUBMENU : "L3: Menu -> SubMenu"
-    FUNCTIONAL_SUBMENU ||--o{ FUNCTIONAL_OPTION : "L4: SubMenu -> Option"
+    SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "L1: System-Module"
+    FUNCTIONAL_MODULE ||--o{ FUNCTIONAL_MENU : "L2: Module-Menu"
+    FUNCTIONAL_MENU ||--o{ FUNCTIONAL_SUBMENU : "L3: Menu-SubMenu"
+    FUNCTIONAL_SUBMENU ||--o{ FUNCTIONAL_OPTION : "L4: SubMenu-Option"
     
     FUNCTIONAL_MODULE {
         uniqueidentifier ModuleId PK
