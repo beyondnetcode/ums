@@ -61,6 +61,7 @@ public static class PermissionTemplateEndpoints
         .ProducesProblem(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status409Conflict);
 
+        // TODO(api-aggregate-tracker): Expose item lifecycle, effect overrides, activation toggles, and deprecate endpoint for PermissionTemplate.
         return app;
     }
 }

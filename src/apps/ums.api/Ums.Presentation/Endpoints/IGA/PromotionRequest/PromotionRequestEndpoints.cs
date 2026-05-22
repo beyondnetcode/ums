@@ -38,6 +38,7 @@ public static class PromotionRequestEndpoints
             return result.ToNoContent(context);
         }).WithName("SubmitPromotionRequest").Produces(StatusCodes.Status204NoContent).ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status409Conflict);
 
+        // TODO(api-aggregate-tracker): Expose manager review, security review, approval, execution, verification, and impact-analysis actions for PromotionRequest.
         return app;
     }
 }

@@ -72,6 +72,7 @@ public static class SystemSuiteEndpoints
         .ProducesProblem(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status400BadRequest);
 
+        // TODO(api-aggregate-tracker): Expose module, menu, option, action, and app-setting lifecycle endpoints for SystemSuite.
         return app;
     }
 }

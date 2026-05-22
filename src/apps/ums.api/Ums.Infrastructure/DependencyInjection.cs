@@ -81,12 +81,14 @@ public static class DependencyInjection
             services.AddSingleton<IProfileRepository>(sp => sp.GetRequiredService<InMemoryProfileRepository>());
         }
 
+        // TODO(api-aggregate-tracker): Add SQL Server repositories for SystemSuite and PermissionTemplate.
         services.AddSingleton<InMemorySystemSuiteRepository>();
         services.AddSingleton<ISystemSuiteRepository>(sp => sp.GetRequiredService<InMemorySystemSuiteRepository>());
 
         services.AddSingleton<InMemoryPermissionTemplateRepository>();
         services.AddSingleton<IPermissionTemplateRepository>(sp => sp.GetRequiredService<InMemoryPermissionTemplateRepository>());
 
+        // TODO(api-aggregate-tracker): Migrate Audit, Approvals, and IGA aggregate repositories from in-memory to SQL Server.
         services.AddSingleton<InMemoryAuditRecordRepository>();
         services.AddSingleton<IAuditRecordRepository>(sp => sp.GetRequiredService<InMemoryAuditRecordRepository>());
 
@@ -114,6 +116,7 @@ public static class DependencyInjection
         services.AddSingleton<InMemoryRoleMaturityStatusRepository>();
         services.AddSingleton<IRoleMaturityStatusRepository>(sp => sp.GetRequiredService<InMemoryRoleMaturityStatusRepository>());
 
+        // TODO(api-aggregate-tracker): Implement Configuration context repositories and register AppConfiguration, FeatureFlag, and IdpConfiguration here.
         return services;
     }
 }

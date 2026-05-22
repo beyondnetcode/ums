@@ -30,6 +30,7 @@ public static class DocumentTypeEndpoints
             return result.ToCreated(r => $"/document-types/{r.DocumentTypeId}", context);
         }).WithName("CreateDocumentType").Produces<CreateDocumentTypeResponse>(StatusCodes.Status201Created).ProducesProblem(StatusCodes.Status400BadRequest);
 
+        // TODO(api-aggregate-tracker): Expose update, notification-rule management, and enforcement-policy management endpoints for DocumentType.
         return app;
     }
 }

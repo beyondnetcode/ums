@@ -75,6 +75,7 @@ public static class ProfileEndpoints
         .ProducesProblem(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status409Conflict);
 
+        // TODO(api-aggregate-tracker): Expose template assignment, permission override, and permission activation/deactivation commands for Profile.
         return app;
     }
 }

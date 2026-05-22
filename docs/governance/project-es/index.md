@@ -4,6 +4,7 @@ Alcance MVP, priorización y diseños funcionales detallados.
 
 ## Documentos
 - [MVP Product Backlog](./mvp-product-backlog.md)
+- [Seguimiento de Implementacion de Agregados en la API](./api-aggregate-implementation-tracker.md)
 - [EP-06: Diseño Detallado de Aprobaciones](./ep-06-approvals-detailed-design.md)
 - [EP-07: Diseño Detallado de Cumplimiento](./ep-07-compliance-detailed-design.md)
 - [EP-08: Diseño Detallado de IGA](./ep-08-iga-detailed-design.md)

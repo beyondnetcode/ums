@@ -30,6 +30,7 @@ public static class ApprovalWorkflowEndpoints
             return result.ToCreated(r => $"/approval-workflows/{r.ApprovalWorkflowId}", context);
         }).WithName("CreateApprovalWorkflow").Produces<CreateApprovalWorkflowResponse>(StatusCodes.Status201Created).ProducesProblem(StatusCodes.Status400BadRequest);
 
+        // TODO(api-aggregate-tracker): Expose required-document and lifecycle management endpoints for ApprovalWorkflow.
         return app;
     }
 }

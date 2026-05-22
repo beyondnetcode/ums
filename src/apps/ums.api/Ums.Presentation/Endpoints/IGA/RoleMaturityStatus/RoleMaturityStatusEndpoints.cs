@@ -37,6 +37,7 @@ public static class RoleMaturityStatusEndpoints
             return result.ToNoContent(context);
         }).WithName("UpdateRoleMaturityLevel").Produces(StatusCodes.Status204NoContent).ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status400BadRequest);
 
+        // TODO(api-aggregate-tracker): Expose certification, training, performance, compliance issue, and eligibility review actions for RoleMaturityStatus.
         return app;
     }
 }

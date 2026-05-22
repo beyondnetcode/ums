@@ -38,6 +38,7 @@ public static class AccessEnforcementPolicyEndpoints
             return result.ToNoContent(context);
         }).WithName("DeactivateAccessEnforcementPolicy").Produces(StatusCodes.Status204NoContent).ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status409Conflict);
 
+        // TODO(api-aggregate-tracker): Expose update endpoint for AccessEnforcementPolicy enforcement action and thresholds.
         return app;
     }
 }

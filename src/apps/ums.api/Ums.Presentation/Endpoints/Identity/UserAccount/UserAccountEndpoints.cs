@@ -84,6 +84,7 @@ public static class UserAccountEndpoints
         .ProducesProblem(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status409Conflict);
 
+        // TODO(api-aggregate-tracker): Expose password lifecycle, MFA lifecycle, and authentication-attempt commands for UserAccount.
         return app;
     }
 }

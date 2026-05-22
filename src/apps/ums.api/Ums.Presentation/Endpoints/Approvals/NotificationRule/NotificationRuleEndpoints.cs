@@ -38,6 +38,7 @@ public static class NotificationRuleEndpoints
             return result.ToNoContent(context);
         }).WithName("DeactivateNotificationRule").Produces(StatusCodes.Status204NoContent).ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status409Conflict);
 
+        // TODO(api-aggregate-tracker): Expose update endpoint for NotificationRule recipient, schedule, and channel configuration.
         return app;
     }
 }

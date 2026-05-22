@@ -38,6 +38,7 @@ public static class UserDocumentEndpoints
             return result.ToNoContent(context);
         }).WithName("ValidateUserDocument").Produces(StatusCodes.Status204NoContent).ProducesProblem(StatusCodes.Status404NotFound);
 
+        // TODO(api-aggregate-tracker): Expose reject, expire, re-upload, notification tracking, and enforcement tracking actions for UserDocument.
         return app;
     }
 }
