@@ -38,11 +38,11 @@ Documentos detallados por agregado con modelo de datos completo, secuencias, inv
 | Contexto | Agregados documentados |
 |----------|----------------------|
 | Identity | [Tenant](../../../domain/identity/tenant.md) · [Branch](../../../domain/identity/branch.md) · [Branding](../../../domain/identity/branding.md) · [IdentityProvider](../../../domain/identity/identity-provider.md) · [UserAccount](../../../domain/identity/user-account.md) · [PasswordCredential](../../../domain/identity/password-credential.md) · [MfaEnrollment](../../../domain/identity/mfa-enrollment.md) |
-| Authorization | *(pendiente)* |
-| Configuration | *(pendiente)* |
-| Approvals | *(pendiente)* |
-| IGA | *(pendiente)* |
-| Audit | *(pendiente)* |
+| Authorization | [SystemSuite](../../../domain/authorization/system-suite.md) · [Module](../../../domain/authorization/module.md) · [Menu](../../../domain/authorization/menu.md) · [SubMenu](../../../domain/authorization/sub-menu.md) · [Option](../../../domain/authorization/option.md) · [Action](../../../domain/authorization/action.md) · [PermissionTemplate](../../../domain/authorization/permission-template.md) · [PermissionTemplateItem](../../../domain/authorization/permission-template-item.md) · [Profile](../../../domain/authorization/profile.md) · [ProfilePermission](../../../domain/authorization/profile-permission.md) |
+| Configuration | [AppConfiguration](../../../domain/configuration/app-configuration.md) · [FeatureFlag](../../../domain/configuration/feature-flag.md) · [FlagEvaluationLog](../../../domain/configuration/flag-evaluation-log.md) · [IdpConfiguration](../../../domain/configuration/idp-configuration.md) |
+| Approvals | [ApprovalWorkflow](../../../domain/approvals/approval-workflow.md) · [ApprovalRequiredDocument](../../../domain/approvals/approval-required-document.md) · [ApprovalRequest](../../../domain/approvals/approval-request.md) · [DocumentType](../../../domain/approvals/document-type.md) · [NotificationRule](../../../domain/approvals/notification-rule.md) · [UserDocument](../../../domain/approvals/user-document.md) · [AccessNotification](../../../domain/approvals/access-notification.md) · [AccessEnforcementPolicy](../../../domain/approvals/access-enforcement-policy.md) |
+| IGA | [PromotionRequest](../../../domain/iga/promotion-request.md) · [PromotionImpactAnalysis](../../../domain/iga/promotion-impact-analysis.md) · [RoleMaturityStatus](../../../domain/iga/role-maturity-status.md) |
+| Audit | [AuditRecord](../../../domain/audit/audit-record.md) |
 
 ### Artefactos Transversales
 
