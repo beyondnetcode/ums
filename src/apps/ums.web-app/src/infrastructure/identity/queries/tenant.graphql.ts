@@ -43,7 +43,7 @@ const GET_TENANTS = `
 `;
 
 const GET_TENANT_BY_ID = `
-  query Tenant($tenantId: ID!) {
+  query Tenant($tenantId: UUID!) {
     getTenantById: tenantById(tenantId: $tenantId) {
       tenantId
       code
@@ -57,7 +57,7 @@ const GET_TENANT_BY_ID = `
 `;
 
 const GET_TENANT_BRANCHES = `
-  query TenantBranches($tenantId: ID!) {
+  query TenantBranches($tenantId: UUID!) {
     getTenantBranches: tenantBranches(tenantId: $tenantId) {
       branchId
       code

@@ -7,7 +7,7 @@
 import { graphqlClient, GraphQlValidationError } from '@infra/http/graphqlClient';
 
 const GET_BRANDING = `
-  query Branding($tenantId: ID!) {
+  query Branding($tenantId: UUID!) {
     getTenantBranding: tenantBranding(tenantId: $tenantId) {
       logo
       logoFormat

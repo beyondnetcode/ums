@@ -7,7 +7,7 @@
 import { graphqlClient, GraphQlValidationError } from '@infra/http/graphqlClient';
 
 const GET_IDENTITY_PROVIDERS = `
-  query IdentityProviders($tenantId: ID!) {
+  query IdentityProviders($tenantId: UUID!) {
     getTenantIdentityProviders: tenantIdentityProviders(tenantId: $tenantId) {
       identityProviderId
       code
