@@ -19,3 +19,5 @@ global using Ums.Infrastructure.Persistence.Configuration;
 global using Ums.Infrastructure.Persistence.Identity;
 global using Ums.Shell.Ddd;
 global using Xunit;
+
+[assembly: CollectionBehavior(DisableTestParallelization = true)]

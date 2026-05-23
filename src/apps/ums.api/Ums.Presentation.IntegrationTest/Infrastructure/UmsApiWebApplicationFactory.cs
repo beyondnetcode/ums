@@ -1,7 +1,12 @@
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Ums.Application.Common.Interfaces;
+using Ums.Domain.Audit.AuditRecord;
+using Ums.Infrastructure.Persistence;
+using Ums.Infrastructure.Persistence.Audit;
 using Ums.Infrastructure.Persistence.Options;
 using Ums.Presentation;
 
@@ -9,6 +14,18 @@ namespace Ums.Presentation.IntegrationTest.Infrastructure;
 
 public sealed class UmsApiWebApplicationFactory : WebApplicationFactory<Program>
 {
+    static UmsApiWebApplicationFactory()
+    {
+        Environment.SetEnvironmentVariable("Persistence__Provider", "InMemory");
+        Environment.SetEnvironmentVariable("Persistence__AggregateStoreMode", "InMemory");
+        Environment.SetEnvironmentVariable("Persistence__UseSqlServerIdentityStores", "false");
+        Environment.SetEnvironmentVariable("Persistence__UseSqlServerAuthorizationStores", "false");
+        Environment.SetEnvironmentVariable("Persistence__UseSqlServerConfigurationStores", "false");
+        Environment.SetEnvironmentVariable("Persistence__SeedDevData", "true");
+        Environment.SetEnvironmentVariable("Persistence__EnableOutbox", "false");
+        Environment.SetEnvironmentVariable("Persistence__InitializePlatformStoreOnStartup", "false");
+    }
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Development");
@@ -34,6 +51,10 @@ public sealed class UmsApiWebApplicationFactory : WebApplicationFactory<Program>
         builder.ConfigureServices(services =>
         {
             services.RemoveAll<UmsPlatformDbContext>();
+            services.AddDbContext<UmsPlatformDbContext>((serviceProvider, options) =>
+            {
+                options.UseInMemoryDatabase("IntegrationTestDb");
+            });
 
             services.RemoveAll<ITenantRepository>();
             services.RemoveAll<IUserAccountRepository>();
@@ -42,6 +63,8 @@ public sealed class UmsApiWebApplicationFactory : WebApplicationFactory<Program>
             services.RemoveAll<IAppConfigurationRepository>();
             services.RemoveAll<IFeatureFlagRepository>();
             services.RemoveAll<IIdpConfigurationRepository>();
+            services.RemoveAll<IAuditRecordRepository>();
+            services.RemoveAll<IUnitOfWorkScope>();
 
             services.RemoveAll<InMemoryTenantRepository>();
             services.RemoveAll<InMemoryUserAccountRepository>();
@@ -50,6 +73,7 @@ public sealed class UmsApiWebApplicationFactory : WebApplicationFactory<Program>
             services.RemoveAll<InMemoryAppConfigurationRepository>();
             services.RemoveAll<InMemoryFeatureFlagRepository>();
             services.RemoveAll<InMemoryIdpConfigurationRepository>();
+            services.RemoveAll<InMemoryAuditRecordRepository>();
 
             services.AddSingleton<InMemoryTenantRepository>();
             services.AddSingleton<ITenantRepository>(sp => sp.GetRequiredService<InMemoryTenantRepository>());
@@ -71,6 +95,11 @@ public sealed class UmsApiWebApplicationFactory : WebApplicationFactory<Program>
 
             services.AddSingleton<InMemoryIdpConfigurationRepository>();
             services.AddSingleton<IIdpConfigurationRepository>(sp => sp.GetRequiredService<InMemoryIdpConfigurationRepository>());
+
+            services.AddSingleton<InMemoryAuditRecordRepository>();
+            services.AddSingleton<IAuditRecordRepository>(sp => sp.GetRequiredService<InMemoryAuditRecordRepository>());
+
+            services.AddSingleton<IUnitOfWorkScope, NoOpUnitOfWorkScope>();
         });
     }
 

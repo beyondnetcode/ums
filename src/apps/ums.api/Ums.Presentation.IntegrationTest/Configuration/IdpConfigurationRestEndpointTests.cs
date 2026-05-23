@@ -88,7 +88,7 @@ public sealed class IdpConfigurationRestEndpointTests : IClassFixture<UmsApiWebA
             fallbackToId = (Guid?)null,
         }, TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
     }
 
     [Fact]
