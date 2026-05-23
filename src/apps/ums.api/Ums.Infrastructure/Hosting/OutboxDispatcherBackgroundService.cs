@@ -41,6 +41,12 @@ internal sealed class OutboxDispatcherBackgroundService(
     private const int MaxRetries = 5;
     private static readonly TimeSpan PollingInterval  = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan ErrorCooldown    = TimeSpan.FromSeconds(30);
+    // HARDENING-01: Lease TTL. If a pod crashes mid-dispatch, another pod can re-claim
+    // the message after this window expires. Must be > max expected dispatch duration.
+    private static readonly TimeSpan LeaseDuration = TimeSpan.FromMinutes(2);
+    // Stable pod identity for diagnostics (PID + machine name).
+    private static readonly string InstanceId =
+        $"{Environment.MachineName}-{Environment.ProcessId}";
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -87,10 +93,18 @@ internal sealed class OutboxDispatcherBackgroundService(
     }
 
     /// <summary>
-    /// Fetches one batch of unprocessed messages, dispatches each one, and returns the
-    /// number of messages that were successfully dequeued from the batch.
-    /// REC-13: After dispatching, any message that hit MaxRetries is moved to the
-    /// dead-letter table and deleted from the outbox to keep the hot table clean.
+    /// HARDENING-01: Two-phase dispatch — claim then process.
+    ///
+    /// Phase 1 (atomic claim): ExecuteUpdateAsync stamps LockedUntil on BatchSize eligible
+    /// rows in a single UPDATE … WHERE, which SQL Server executes atomically. Two concurrent
+    /// pods cannot claim the same row because the WHERE excludes already-locked rows.
+    ///
+    /// Phase 2 (read own batch): only fetch rows locked by this instance so the batch
+    /// is deterministic even if another pod claims new rows between the two operations.
+    ///
+    /// Crash recovery: if this pod dies before marking ProcessedOnUtc, the lease expires
+    /// after LeaseDuration and another pod re-claims and re-dispatches (idempotency is the
+    /// handler's responsibility, as documented in AGENTS.md).
     /// </summary>
     private async Task<int> DispatchBatchAsync(CancellationToken ct)
     {
@@ -98,8 +112,31 @@ internal sealed class OutboxDispatcherBackgroundService(
         var dbContext  = scope.ServiceProvider.GetRequiredService<UmsPlatformDbContext>();
         var publisher  = scope.ServiceProvider.GetRequiredService<IPublisher>();
 
+        var now      = DateTime.UtcNow;
+        var leaseEnd = now.Add(LeaseDuration);
+
+        // Phase 1 — atomic claim: stamp LockedUntil on up to BatchSize eligible messages.
+        // Eligible = not yet processed AND retries not exhausted AND (no lock OR lock expired).
+        var claimed = await dbContext.OutboxMessages
+            .Where(m =>
+                m.ProcessedOnUtc == null &&
+                m.RetryCount < MaxRetries &&
+                (m.LockedUntil == null || m.LockedUntil < now))
+            .Take(BatchSize)
+            .ExecuteUpdateAsync(set => set
+                .SetProperty(x => x.LockedUntil, leaseEnd)
+                .SetProperty(x => x.LockedBy, InstanceId),
+            ct);
+
+        if (claimed == 0)
+            return 0;
+
+        // Phase 2 — read only the messages claimed by this instance in this cycle.
         var messages = await dbContext.OutboxMessages
-            .Where(m => m.ProcessedOnUtc == null && m.RetryCount < MaxRetries)
+            .Where(m =>
+                m.ProcessedOnUtc == null &&
+                m.LockedBy == InstanceId &&
+                m.LockedUntil == leaseEnd)
             .OrderBy(m => m.OccurredOnUtc)
             .Take(BatchSize)
             .ToListAsync(ct);

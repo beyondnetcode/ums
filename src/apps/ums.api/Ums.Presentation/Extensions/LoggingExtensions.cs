@@ -39,6 +39,9 @@ public static class LoggingExtensions
             .Enrich.FromLogContext()                            // picks up BeginScope() key-values (e.g. CorrelationId)
             .Enrich.WithMachineName()
             .Enrich.WithThreadId()
+            // HARDENING-04: Mask PII fields (email, password, token, etc.) before any sink sees them.
+            .Enrich.With<PiiSanitizerEnricher>()
+            .Destructure.With<PiiMaskingPolicy>()
             .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
             .MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Information)
             .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", LogEventLevel.Warning);

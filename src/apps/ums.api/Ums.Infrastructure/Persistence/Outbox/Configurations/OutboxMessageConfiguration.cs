@@ -33,6 +33,9 @@ public sealed class OutboxMessageConfiguration : IEntityTypeConfiguration<Outbox
         builder.Property(x => x.RetryCount)
             .HasDefaultValue(0);
 
+        // HARDENING-01: lease columns for distributed multi-instance dispatch
+        builder.Property(x => x.LockedBy).HasMaxLength(200);
+
         builder.HasIndex(x => new { x.ProcessedOnUtc, x.OccurredOnUtc })
             .HasDatabaseName("IX_OutboxMessages_Dispatch");
 

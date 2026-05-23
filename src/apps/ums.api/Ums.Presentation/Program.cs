@@ -75,6 +75,10 @@ builder.Services.AddScoped<ILocalizationService, LocalizationService>();
 builder.Services.AddUmsGraphQl(builder.Environment);
 builder.Services.AddMemoryCache(); // required by IdempotencyMiddleware (FIX-06)
 
+// HARDENING-02: JWT Bearer authentication. Disabled in dev (DevAuthMiddleware handles it).
+// Production: set Authentication:Enabled=true and configure Authority + Audience.
+builder.Services.AddUmsAuthentication(builder.Configuration);
+
 builder.Services.AddApiVersioning(options =>
 {
     options.DefaultApiVersion = new ApiVersion(1);
@@ -89,21 +93,31 @@ var windowMinutes = rateLimit.GetValue<int>("WindowMinutes", 1);
 
 builder.Services.AddRateLimiter(options =>
 {
-    // REC-07: Partition key — user identity first, API key second, IP last (shared NAT safety)
+    // HARDENING-05: Partition key order — tenant → user → API key → IP.
+    // Tenant-level partitioning prevents one tenant from consuming the global budget
+    // and starving others. Within a tenant, user-level limits apply.
     static string ResolvePartitionKey(HttpContext ctx, string prefix = "")
     {
-        // 1. JWT sub claim (authenticated user)
+        // 1. Tenant ID from JWT (custom claim 'tenant_id' or 'org_id')
+        var tenantId = ctx.User.FindFirst("tenant_id")?.Value
+                    ?? ctx.User.FindFirst("org_id")?.Value;
+
+        // 2. JWT sub claim (authenticated user)
         var sub = ctx.User.FindFirst("sub")?.Value
                ?? ctx.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        if (!string.IsNullOrEmpty(tenantId) && !string.IsNullOrEmpty(sub))
+            return $"{prefix}tenant:{tenantId}:user:{sub}";
+
         if (!string.IsNullOrEmpty(sub))
             return $"{prefix}user:{sub}";
 
-        // 2. X-Api-Key header
+        // 3. X-Api-Key header
         var apiKey = ctx.Request.Headers["X-Api-Key"].FirstOrDefault();
         if (!string.IsNullOrEmpty(apiKey))
             return $"{prefix}apikey:{apiKey}";
 
-        // 3. Fallback: remote IP (shared NAT risk — documented)
+        // 4. Fallback: remote IP (shared NAT risk — documented)
         var ip = ctx.Connection.RemoteIpAddress?.ToString() ?? "unknown";
         return $"{prefix}ip:{ip}";
     }
@@ -184,6 +198,9 @@ builder.Services.AddSwaggerGen(options =>
         In = ParameterLocation.Header,
         Description = "Development-only header. Sets the authenticated user id used by command handlers.",
     });
+
+    // HARDENING-02: JWT Bearer security definition for production Swagger UI
+    options.AddSwaggerBearerAuth();
 
     options.OperationFilter<LanguageHeaderOperationFilter>();
 });
@@ -288,7 +305,13 @@ if (app.Environment.IsDevelopment())
 app.UseCors("DefaultPolicy");
 app.UseSecurityHeaders();
 app.UseCulture();
+// HARDENING-02: UseAuthentication validates JWT Bearer tokens in production.
+// UseDevAuth runs AFTER so it only sets a ClaimsPrincipal when no real auth is present.
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseDevAuth();
+// HARDENING-03: Reject requests from deleted/blocked users whose tokens are still valid.
+app.UseTokenRevocation();
 app.UseHttpsRedirection();
 
 app.MapGraphQL("/graphql")

@@ -84,6 +84,21 @@ public static class UserAccountEndpoints
         .ProducesProblem(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status409Conflict);
 
+        // REC-16: Soft-delete + GDPR anonymization. Irreversible — raises UserDeletedEvent
+        // which also revokes any active tokens via HARDENING-03 TokenRevocationMiddleware.
+        group.MapDelete("/{userAccountId:guid}", async (
+            Guid userAccountId, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new DeleteUserAccountCommand(userAccountId), ct);
+            return result.ToNoContent(context);
+        })
+        .WithName("DeleteUserAccount")
+        .WithSummary("Soft-delete a user account and anonymize PII (GDPR). Action is irreversible.")
+        .Produces(StatusCodes.Status204NoContent)
+        .ProducesProblem(StatusCodes.Status401Unauthorized)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status409Conflict);
+
         // TODO(api-aggregate-tracker): Expose password lifecycle, MFA lifecycle, and authentication-attempt commands for UserAccount.
         return app;
     }

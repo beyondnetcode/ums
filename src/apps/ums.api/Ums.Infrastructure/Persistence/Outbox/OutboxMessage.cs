@@ -23,4 +23,12 @@ public sealed class OutboxMessage
     public int RetryCount { get; set; }
 
     public string? LastError { get; set; }
+
+    // HARDENING-01: Distributed dispatch lease — prevents two pods from processing the
+    // same message concurrently. Set atomically by ExecuteUpdateAsync before reading.
+    // Rows with LockedUntil > UtcNow are invisible to other instances.
+    public DateTime? LockedUntil { get; set; }
+
+    /// <summary>Identity of the pod/process that holds the current lease (for diagnostics).</summary>
+    public string? LockedBy { get; set; }
 }

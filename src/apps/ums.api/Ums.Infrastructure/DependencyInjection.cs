@@ -14,6 +14,7 @@ using Ums.Domain.Configuration;
 using Ums.Domain.IGA;
 using Ums.Domain.Identity;
 using Ums.Infrastructure.Persistence.Audit;
+using Ums.Infrastructure.Persistence.Approvals;
 using Ums.Infrastructure.Persistence.Authorization;
 using Ums.Infrastructure.Persistence.Configuration;
 using Ums.Infrastructure.Hosting;
@@ -40,6 +41,17 @@ public static class DependencyInjection
 
         services.AddScoped<IUserContext, UserContext>();
         services.AddScoped<ITenantContext, TenantContext>();
+
+        // HARDENING-03: Token revocation store — InMemory by default.
+        // In production multi-pod deployments replace with a Redis-backed implementation:
+        //   services.AddStackExchangeRedisCache(o => o.Configuration = config["Redis:Connection"]);
+        //   services.AddSingleton<ITokenRevocationStore, RedisTokenRevocationStore>();
+        services.AddSingleton<ITokenRevocationStore, InMemoryTokenRevocationStore>();
+
+        // HARDENING-03: Register Infrastructure MediatR notification handlers (UserDeleted, UserBlocked → revoke tokens).
+        // MediatR.AddApplication() only scans Ums.Application; Infrastructure handlers must be registered here.
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly));
+
         services.AddHostedService<PersistenceRuntimeReporter>();
         services.AddHostedService<OutboxDispatcherBackgroundService>(); // FIX-02: dispatch domain events from outbox
 
@@ -156,11 +168,23 @@ public static class DependencyInjection
             services.AddSingleton<IAuditRecordRepository>(sp => sp.GetRequiredService<InMemoryAuditRecordRepository>());
         }
 
-        services.AddSingleton<InMemoryApprovalWorkflowRepository>();
-        services.AddSingleton<IApprovalWorkflowRepository>(sp => sp.GetRequiredService<InMemoryApprovalWorkflowRepository>());
+        if (persistence.Provider == PersistenceProvider.SqlServer)
+        {
+            services.AddScoped<IApprovalWorkflowRepository, SqlServerApprovalWorkflowRepository>();
+            services.AddScoped<IApprovalRequestRepository, SqlServerApprovalRequestRepository>();
+            services.AddScoped<INotificationRuleRepository, SqlServerNotificationRuleRepository>();
+        }
+        else
+        {
+            services.AddSingleton<InMemoryApprovalWorkflowRepository>();
+            services.AddSingleton<IApprovalWorkflowRepository>(sp => sp.GetRequiredService<InMemoryApprovalWorkflowRepository>());
 
-        services.AddSingleton<InMemoryApprovalRequestRepository>();
-        services.AddSingleton<IApprovalRequestRepository>(sp => sp.GetRequiredService<InMemoryApprovalRequestRepository>());
+            services.AddSingleton<InMemoryApprovalRequestRepository>();
+            services.AddSingleton<IApprovalRequestRepository>(sp => sp.GetRequiredService<InMemoryApprovalRequestRepository>());
+
+            services.AddSingleton<InMemoryNotificationRuleRepository>();
+            services.AddSingleton<INotificationRuleRepository>(sp => sp.GetRequiredService<InMemoryNotificationRuleRepository>());
+        }
 
         services.AddSingleton<InMemoryDocumentTypeRepository>();
         services.AddSingleton<IDocumentTypeRepository>(sp => sp.GetRequiredService<InMemoryDocumentTypeRepository>());
@@ -170,9 +194,6 @@ public static class DependencyInjection
 
         services.AddSingleton<InMemoryAccessEnforcementPolicyRepository>();
         services.AddSingleton<IAccessEnforcementPolicyRepository>(sp => sp.GetRequiredService<InMemoryAccessEnforcementPolicyRepository>());
-
-        services.AddSingleton<InMemoryNotificationRuleRepository>();
-        services.AddSingleton<INotificationRuleRepository>(sp => sp.GetRequiredService<InMemoryNotificationRuleRepository>());
 
         services.AddSingleton<InMemoryPromotionRequestRepository>();
         services.AddSingleton<IPromotionRequestRepository>(sp => sp.GetRequiredService<InMemoryPromotionRequestRepository>());
