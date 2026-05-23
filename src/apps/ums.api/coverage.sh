@@ -2,13 +2,21 @@
 # =============================================================================
 # coverage.sh — UMS business-layer coverage runner
 #
+# Uses coverlet CLI (static instrumentation — macOS/arm64 compatible).
+# Instruments each test assembly in-place, runs tests, produces Cobertura XML.
+# Merges both reports with ReportGenerator for the final HTML view.
+#
 # Usage:
 #   ./coverage.sh          Run all tests + generate HTML report
-#   ./coverage.sh --ci     Same but exit non-zero if thresholds are not met
+#   ./coverage.sh --ci     Same, exit non-zero if combined < 80% line coverage
+#
+# First time:
+#   dotnet tool restore    (installs coverlet.console + reportgenerator)
 #
 # Output:
-#   coverage/                Cobertura XML files (one per project)
-#   coverage/report/         HTML report (open coverage/report/index.htm)
+#   coverage/domain.cobertura.xml
+#   coverage/application.cobertura.xml
+#   coverage/report/index.html      ← open this in a browser
 # =============================================================================
 
 set -euo pipefail
@@ -22,6 +30,18 @@ for arg in "$@"; do
   [[ "$arg" == "--ci" ]] && CI_MODE=true
 done
 
+DOMAIN_PROJECT="$SCRIPT_DIR/Ums.Domain.Test/Ums.Domain.Test.csproj"
+APPLICATION_PROJECT="$SCRIPT_DIR/Ums.Application.Test/Ums.Application.Test.csproj"
+DOMAIN_DLL="$SCRIPT_DIR/Ums.Domain.Test/bin/Release/net10.0/Ums.Domain.Test.dll"
+APPLICATION_DLL="$SCRIPT_DIR/Ums.Application.Test/bin/Release/net10.0/Ums.Application.Test.dll"
+
+# ---------------------------------------------------------------------------
+# Build (coverlet instruments compiled assemblies)
+# ---------------------------------------------------------------------------
+echo "▶  Building test projects..."
+dotnet build "$DOMAIN_PROJECT"      --configuration Release
+dotnet build "$APPLICATION_PROJECT" --configuration Release
+
 # ---------------------------------------------------------------------------
 # Clean previous results
 # ---------------------------------------------------------------------------
@@ -29,61 +49,51 @@ rm -rf "$COVERAGE_DIR"
 mkdir -p "$COVERAGE_DIR"
 
 # ---------------------------------------------------------------------------
-# Coverlet include/exclude filters
-#
-# INCLUDE: Only business-critical layers
-#   [Ums.Domain]*             — Aggregates, Value Objects, Domain Events, Domain Services
-#   [Ums.Application]*        — Command handlers, Validators, Application Services
-#
-# EXCLUDE (noisy / framework / zero business logic):
-#   [Ums.Domain]*.Props       — Record-style prop bags (structural, no logic)
-#   [Ums.Domain]*Event        — Domain event POCOs (data carriers)
-#   [Ums.Domain]*Id           — Typed ID value objects (Load/Create wrappers)
-#   [Ums.Application]*.DTOs.* — Request/Response record types
-#   [Ums.Application]*Validator — FluentValidation (tested separately)
-#   [Ums.Infrastructure]*     — EF Core mappings, migrations, bootstrapper
-#   [Ums.Presentation]*       — Controllers / Minimal API endpoints
-#   [Ums.Shell.*]*            — Framework kernel (DDD base classes)
-#   [Ums.Globalization]*      — Static resource strings
+# Run Domain tests via coverlet CLI
 # ---------------------------------------------------------------------------
-
-INCLUDE="[Ums.Domain]*%2c[Ums.Application]*"
-EXCLUDE="[Ums.Domain]*.Props%2c[Ums.Domain]*Event%2c[Ums.Domain]*DomainErrors%2c[Ums.Application]*.DTOs.*%2c[Ums.Application]*Validator%2c[Ums.Infrastructure]*%2c[Ums.Presentation]*%2c[Ums.Shell.*]*%2c[Ums.Globalization]*"
+echo "▶  Running Ums.Domain.Test (with coverage)..."
+dotnet coverlet "$DOMAIN_DLL" \
+  --target dotnet \
+  --targetargs "test \"$DOMAIN_PROJECT\" --configuration Release --no-build" \
+  --format cobertura \
+  --output "$COVERAGE_DIR/domain.cobertura.xml" \
+  --include "[Ums.Domain]*" \
+  --exclude "[Ums.Domain]*.Props" \
+  --exclude "[Ums.Domain]*Event" \
+  --exclude "[Ums.Domain]*DomainErrors" \
+  --exclude "[Ums.Infrastructure]*" \
+  --exclude "[Ums.Shell.*]*" \
+  --exclude "[Ums.Globalization]*" \
+  --verbosity Minimal
 
 # ---------------------------------------------------------------------------
-# Run Domain tests
+# Run Application tests via coverlet CLI
 # ---------------------------------------------------------------------------
-echo "▶  Running Ums.Domain.Test..."
-dotnet test "$SCRIPT_DIR/Ums.Domain.Test/Ums.Domain.Test.csproj" \
-  --configuration Release \
-  --no-restore \
-  --collect:"XPlat Code Coverage" \
-  --results-directory "$COVERAGE_DIR/domain" \
-  -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Include="$INCLUDE" \
-     DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Exclude="$EXCLUDE" \
-     DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format="cobertura"
-
-# ---------------------------------------------------------------------------
-# Run Application tests
-# ---------------------------------------------------------------------------
-echo "▶  Running Ums.Application.Test..."
-dotnet test "$SCRIPT_DIR/Ums.Application.Test/Ums.Application.Test.csproj" \
-  --configuration Release \
-  --no-restore \
-  --collect:"XPlat Code Coverage" \
-  --results-directory "$COVERAGE_DIR/application" \
-  -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Include="$INCLUDE" \
-     DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Exclude="$EXCLUDE" \
-     DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format="cobertura"
+echo "▶  Running Ums.Application.Test (with coverage)..."
+dotnet coverlet "$APPLICATION_DLL" \
+  --target dotnet \
+  --targetargs "test \"$APPLICATION_PROJECT\" --configuration Release --no-build" \
+  --format cobertura \
+  --output "$COVERAGE_DIR/application.cobertura.xml" \
+  --include "[Ums.Domain]*" \
+  --include "[Ums.Application]*" \
+  --exclude "[Ums.Domain]*.Props" \
+  --exclude "[Ums.Domain]*Event" \
+  --exclude "[Ums.Domain]*DomainErrors" \
+  --exclude "[Ums.Application]*.DTOs.*" \
+  --exclude "[Ums.Application]*Validator" \
+  --exclude "[Ums.Infrastructure]*" \
+  --exclude "[Ums.Presentation]*" \
+  --exclude "[Ums.Shell.*]*" \
+  --exclude "[Ums.Globalization]*" \
+  --verbosity Minimal
 
 # ---------------------------------------------------------------------------
 # Merge + generate HTML report
 # ---------------------------------------------------------------------------
-COBERTURA_FILES=$(find "$COVERAGE_DIR" -name "coverage.cobertura.xml" | tr '\n' ';' | sed 's/;$//')
-
 echo "▶  Generating HTML report..."
 dotnet tool run reportgenerator \
-  "-reports:$COBERTURA_FILES" \
+  "-reports:$COVERAGE_DIR/domain.cobertura.xml;$COVERAGE_DIR/application.cobertura.xml" \
   "-targetdir:$REPORT_DIR" \
   "-reporttypes:Html;Cobertura;Badges" \
   "-assemblyfilters:+Ums.Domain;+Ums.Application;-Ums.Infrastructure;-Ums.Presentation;-Ums.Shell.*" \
@@ -91,28 +101,19 @@ dotnet tool run reportgenerator \
   "-title:UMS Business Layer Coverage"
 
 echo ""
-echo "✅  Report generated: $REPORT_DIR/index.htm"
+echo "✅  Report → $REPORT_DIR/index.html"
 echo ""
 
 # ---------------------------------------------------------------------------
-# Threshold enforcement (--ci mode)
-#
-# Domain layer:      ≥ 85% line coverage
-# Application layer: ≥ 75% line coverage
-# Combined:          ≥ 80% line coverage
+# Threshold enforcement (--ci mode only)
+# Combined threshold: ≥ 80% line coverage
 # ---------------------------------------------------------------------------
 if $CI_MODE; then
   echo "▶  Enforcing thresholds (CI mode)..."
-  dotnet tool run reportgenerator \
-    "-reports:$COBERTURA_FILES" \
-    "-targetdir:$REPORT_DIR/threshold" \
-    "-reporttypes:Cobertura" \
-    "-assemblyfilters:+Ums.Domain;+Ums.Application" \
-    "-classfilters:-*Props;-*Event;-*DomainErrors;-*Validator;-*.DTOs.*"
 
-  SUMMARY="$REPORT_DIR/threshold/Cobertura.xml"
-  COVERAGE=$(grep -oP 'line-rate="\K[^"]+' "$SUMMARY" | head -1)
-  COVERAGE_PCT=$(echo "$COVERAGE * 100" | bc -l | xargs printf "%.1f")
+  SUMMARY="$REPORT_DIR/Cobertura.xml"
+  COVERAGE=$(grep -oE 'line-rate="[0-9.]+"' "$SUMMARY" | head -1 | grep -oE '[0-9.]+')
+  COVERAGE_PCT=$(printf "%.1f" "$(echo "$COVERAGE * 100" | bc -l)")
 
   echo "  Combined line coverage: ${COVERAGE_PCT}%"
 
