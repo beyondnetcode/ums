@@ -129,12 +129,42 @@ return result.ToHttpResult(); // uses DomainErrorStatusMapper
 **Dev default** (`appsettings.Development.json`): All `UseSqlServer*` = true, `InitializePlatformStoreOnStartup` = true.  
 **Approvals / IGA / SystemSuite / PermissionTemplate** are still InMemory — SQL repos are TODO (see `DependencyInjection.cs` TODOs).
 
+### Server-Side Pagination (REC-12)
+
+All list queries use `GetPagedAsync(page, pageSize, search?, status?, sortBy, sortOrder, ...)` returning `(IReadOnlyList<T> Items, int TotalCount)`. SQL repos use EF Core `Skip/Take` at the DB level. InMemory repos apply equivalent filtering in memory. Handlers receive a `PagedQueryParameters` record from the query object.
+
+### Soft-Delete + GDPR Anonymization (REC-16)
+
+Entities with soft-delete carry `IsDeleted`, `DeletedAtUtc`, `DeletedBy`. `UserAccountRecord` additionally has `AnonymizedAtUtc`.
+
+- **EF global filter**: `!x.IsDeleted` is combined into every `HasQueryFilter` in `UmsPlatformDbContext`.
+- **Handler pattern**: call `aggregate.Delete(actorId)` → `UpdateAsync(aggregate)` → `SoftDeleteAsync(id, deletedBy)` → `SaveEntitiesAsync()`. This order is required so the aggregate is in `_trackedAggregates` for outbox message creation before the soft-delete fields are stamped.
+- **GDPR**: `SoftDeleteAsync` for `UserAccountRecord` replaces `Email` with `gdpr_del_{sha256_16}@anonymized.invalid` and nulls `IdentityReference`. The SHA-256 is deterministic (keyed on the row GUID) so it is irreversible but auditable.
+- **Migration**: `20260523_soft_delete_gdpr.sql` — idempotent `ALTER TABLE` + filtered index `WHERE [IsDeleted] = 0`.
+- **IgnoreQueryFilters**: use in `SoftDeleteAsync` implementations to locate already-deleted rows for idempotence checks.
+
 ### Tenant Isolation (two-layer)
 
 1. **Primary**: EF Core `HasQueryFilter` on every tenant-scoped entity in `UmsPlatformDbContext`. Filter: `!tenantContext.OrganizationId.HasValue || x.TenantId == tenantContext.OrganizationId.Value`.
 2. **Failsafe**: SQL Server RLS predicates set via `OrganizationDbContextInterceptor` (`sp_set_session_context`).
 
 `AppConfigurationRecord` additionally allows `TenantId IS NULL` (global configs visible to all tenants).
+
+### Idempotency (REC-10)
+
+POST/PUT/PATCH endpoints accept an `Idempotency-Key` header (UUID). The middleware stores the first response in `IdempotencyStore` (InMemory / SQL) and replays it verbatim for duplicates within the TTL window. Keys must be client-generated UUIDs. The store is registered in DI via `AddIdempotency()`.
+
+### ETag / Optimistic Concurrency on HTTP (REC-10)
+
+`GET` responses for individual aggregates include an `ETag` header (the aggregate's `RowVersion` as a base64 string). Mutating requests (`PUT`/`PATCH`) should send `If-Match: <etag>`. A mismatch returns HTTP 409 via `ConcurrencyConflictException`.
+
+### Correlation ID / OpenTelemetry (REC-17)
+
+`UseCorrelationId` middleware reads or generates an `X-Correlation-Id` header and injects it into the OTel activity bag. All log entries carry `CorrelationId` via Serilog enrichment. The same ID is forwarded to downstream HTTP calls through `DelegatingHandler`.
+
+### Dead-Letter Queue (REC-13)
+
+Outbox messages that exhaust all retries (`MaxRetries = 5`) are moved to `DeadLetterMessages` table instead of being dropped. The outbox dispatcher updates `FailedAt` / `FailureReason` and marks the message as dead-lettered. `DbSet<DeadLetterMessage> OutboxDeadLetters` is exposed on `UmsPlatformDbContext` for ops inspection.
 
 ### Outbox Pattern
 
@@ -186,9 +216,9 @@ Configured via `AddUmsObservability()`. Set `OpenTelemetry:Endpoint` in appsetti
 
 ### Test Projects
 
-- `Ums.Domain.Test` — domain aggregate unit tests (~377 tests)
-- `Ums.Application.Test` — command/query handler unit tests with Moq (~327 tests)
-- `Ums.Presentation.IntegrationTest` — HTTP integration tests via `WebApplicationFactory`
+- `Ums.Domain.Test` — domain aggregate unit tests (~382 tests)
+- `Ums.Application.Test` — command/query handler unit tests with Moq (~331 tests)
+- `Ums.Presentation.IntegrationTest` — HTTP integration tests via `WebApplicationFactory` (not in `Ums.sln`; run directly with `dotnet test Ums.Presentation.IntegrationTest`)
 
 ### Test Conventions
 
@@ -208,6 +238,12 @@ public XxxTests()
 
 - Tests tagged `[documents gap]` in `TransactionalAtomicityTests` document KNOWN risks — do not delete them.
 - `ValidationBehavior` produces errors prefixed with `"Validation.Failed:"` — assert accordingly.
+- **SQL Server integration tests** (`SqlServerTenantTests`) require Docker. They skip automatically via `Assert.Skip(...)` when Docker is unavailable — never `Skip.If()` which doesn't exist in xUnit v3.
+- **Moq value-tuple returns**: `.ReturnsAsync(((IReadOnlyList<T>)list, list.Count))` — explicit cast required for the tuple type to resolve.
+
+### Testcontainers (SQL Server)
+
+`Ums.Presentation.IntegrationTest/Infrastructure/SqlServerContainerFixture` starts a SQL Server 2022 container on demand and runs all migration scripts via `SqlServerSchemaBootstrapper.InitializeAsync`. Use `[Collection("SqlServer")]` on test classes that need a real DB.
 
 ---
 
@@ -234,4 +270,7 @@ public XxxTests()
 | `Ums.Presentation/Extensions/DomainErrorStatusMapper.cs` | Result error → HTTP status mapping |
 | `Ums.Application/Common/Behaviors/ValidationBehavior.cs` | MediatR pipeline — FluentValidation integration |
 | `Ums.Infrastructure/Hosting/OutboxDispatcherBackgroundService.cs` | Domain event dispatch from outbox |
+| `Ums.Infrastructure/Persistence/SqlServerSchemaBootstrapper.cs` | Ordered migration script runner — add new `.sql` files here |
+| `Ums.Infrastructure/Persistence/Migrations/` | Idempotent SQL migration scripts (embedded resources, run in `ScriptOrder`) |
+| `Ums.Presentation.IntegrationTest/Infrastructure/SqlServerContainerFixture.cs` | Testcontainers SQL Server fixture — starts lazily, graceful skip if Docker absent |
 | `src/apps/ums.api/coverage.sh` | Coverage runner (run from `src/apps/ums.api/`) |
