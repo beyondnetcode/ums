@@ -23,8 +23,11 @@ namespace Ums.Infrastructure.Hosting;
 ///   (FIFO), matching the <c>IX_OutboxMessages_Dispatch</c> index.
 /// - On success: stamps <see cref="OutboxMessage.ProcessedOnUtc"/>.
 /// - On failure: increments <see cref="OutboxMessage.RetryCount"/> and records the last
-///   error. Messages that exceed <see cref="MaxRetries"/> are skipped (dead-lettered in-place
-///   — <c>ProcessedOnUtc</c> remains null so they are queryable for manual inspection).
+///   error.
+/// - REC-13: When <see cref="RetryCount"/> reaches <see cref="MaxRetries"/>, the message
+///   is moved to <see cref="DeadLetterMessage"/> (OutboxDeadLetters table) and removed
+///   from the hot outbox. This keeps the batch query fast and the readiness health check
+///   accurate. Operators can inspect dead-letters via the admin API and replay them.
 /// - Only active when <c>Persistence:EnableOutbox = true</c> and
 ///   <c>Persistence:Provider = SqlServer</c>. In InMemory mode the service exits immediately
 ///   because there is no outbox table.
@@ -86,10 +89,12 @@ internal sealed class OutboxDispatcherBackgroundService(
     /// <summary>
     /// Fetches one batch of unprocessed messages, dispatches each one, and returns the
     /// number of messages that were successfully dequeued from the batch.
+    /// REC-13: After dispatching, any message that hit MaxRetries is moved to the
+    /// dead-letter table and deleted from the outbox to keep the hot table clean.
     /// </summary>
     private async Task<int> DispatchBatchAsync(CancellationToken ct)
     {
-        await using var scope    = scopeFactory.CreateAsyncScope();
+        await using var scope   = scopeFactory.CreateAsyncScope();
         var dbContext  = scope.ServiceProvider.GetRequiredService<UmsPlatformDbContext>();
         var publisher  = scope.ServiceProvider.GetRequiredService<IPublisher>();
 
@@ -104,10 +109,34 @@ internal sealed class OutboxDispatcherBackgroundService(
 
         logger.LogDebug("OutboxDispatcher: processing {Count} message(s).", messages.Count);
 
+        var deadLettered = new List<OutboxMessage>();
+
         foreach (var message in messages)
         {
             if (ct.IsCancellationRequested) break;
             await DispatchMessageAsync(message, publisher, ct);
+
+            // REC-13: If this attempt pushed the message to MaxRetries, move it to DLQ.
+            if (message.RetryCount >= MaxRetries && message.ProcessedOnUtc is null)
+            {
+                deadLettered.Add(message);
+            }
+        }
+
+        // Move exhausted messages to dead-letter table and remove from hot outbox.
+        if (deadLettered.Count > 0)
+        {
+            var deadLetterEntries = deadLettered
+                .Select(DeadLetterMessage.FromOutboxMessage)
+                .ToList();
+
+            dbContext.OutboxDeadLetters.AddRange(deadLetterEntries);
+            dbContext.OutboxMessages.RemoveRange(deadLettered);
+
+            logger.LogWarning(
+                "OutboxDispatcher: {Count} message(s) exhausted retries and were moved to dead-letter store. " +
+                "Inspect OutboxDeadLetters table or use the admin API to review.",
+                deadLettered.Count);
         }
 
         await dbContext.SaveChangesAsync(ct);

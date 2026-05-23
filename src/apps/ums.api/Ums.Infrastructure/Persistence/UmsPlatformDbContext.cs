@@ -38,6 +38,8 @@ public sealed class UmsPlatformDbContext(
     public const string DefaultSchema = "ums_platform";
 
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
+    // REC-13: Dead-letter store for outbox messages that exhausted all retries
+    public DbSet<DeadLetterMessage> OutboxDeadLetters => Set<DeadLetterMessage>();
     public DbSet<TenantRecord> Tenants => Set<TenantRecord>();
     public DbSet<TenantBranchRecord> TenantBranches => Set<TenantBranchRecord>();
     public DbSet<TenantIdentityProviderRecord> TenantIdentityProviders => Set<TenantIdentityProviderRecord>();
@@ -59,6 +61,7 @@ public sealed class UmsPlatformDbContext(
     {
         modelBuilder.HasDefaultSchema(DefaultSchema);
         modelBuilder.ApplyConfiguration(new OutboxMessageConfiguration());
+        modelBuilder.ApplyConfiguration(new DeadLetterMessageConfiguration());
         modelBuilder.ApplyConfiguration(new TenantRecordConfiguration());
         modelBuilder.ApplyConfiguration(new TenantBranchRecordConfiguration());
         modelBuilder.ApplyConfiguration(new TenantIdentityProviderRecordConfiguration());
