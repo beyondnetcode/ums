@@ -1,6 +1,8 @@
+using Ums.Infrastructure.Persistence;
+
 namespace Ums.Infrastructure.Persistence.Identity.Entities;
 
-public sealed class TenantRecord
+public sealed class TenantRecord : IAuditableRecord
 {
     public Guid Id { get; set; }
     public string Code { get; set; } = string.Empty;

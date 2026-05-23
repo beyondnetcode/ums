@@ -12,6 +12,14 @@ internal static class DomainErrorStatusMapper
             return (StatusCodes.Status400BadRequest, "Bad Request");
         }
 
+        // FIX-10: ValidationBehavior prefixes all FluentValidation failures with this
+        // sentinel so they always resolve to 422 — before any substring fallback rules
+        // that could misclassify them based on property-path content.
+        if (error.StartsWith("Validation.Failed:", StringComparison.OrdinalIgnoreCase))
+        {
+            return (StatusCodes.Status422UnprocessableEntity, "Validation Error");
+        }
+
         if (ContainsAny(error, DomainErrors.Common.NotFound, DomainErrors.Tenant.NotFound, DomainErrors.Tenant.BranchNotFound, DomainErrors.Tenant.IdpNotFound, DomainErrors.Tenant.BrandingNotFound, DomainErrors.SystemSuite.ConfigurationKeyNotFound, DomainErrors.Authorization.PermissionNotFound))
         {
             return (StatusCodes.Status404NotFound, "Not Found");

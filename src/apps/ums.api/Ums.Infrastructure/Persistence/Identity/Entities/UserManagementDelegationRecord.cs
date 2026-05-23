@@ -1,6 +1,8 @@
+using Ums.Infrastructure.Persistence;
+
 namespace Ums.Infrastructure.Persistence.Identity.Entities;
 
-public sealed class UserManagementDelegationRecord
+public sealed class UserManagementDelegationRecord : IAuditableRecord
 {
     public Guid Id { get; set; }
     public Guid TenantId { get; set; }

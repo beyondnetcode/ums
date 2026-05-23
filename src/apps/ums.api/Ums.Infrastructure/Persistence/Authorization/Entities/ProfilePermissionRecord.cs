@@ -1,6 +1,8 @@
+using Ums.Infrastructure.Persistence;
+
 namespace Ums.Infrastructure.Persistence.Authorization.Entities;
 
-public sealed class ProfilePermissionRecord
+public sealed class ProfilePermissionRecord : IAuditableRecord
 {
     public Guid Id { get; set; }
     public Guid ProfileId { get; set; }

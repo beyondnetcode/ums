@@ -1,6 +1,8 @@
+using Ums.Infrastructure.Persistence;
+
 namespace Ums.Infrastructure.Persistence.Configuration.Entities;
 
-public sealed class FeatureFlagRecord
+public sealed class FeatureFlagRecord : IAuditableRecord
 {
     public Guid Id { get; set; }
     public string FlagCode { get; set; } = string.Empty;

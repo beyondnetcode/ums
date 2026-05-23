@@ -27,10 +27,16 @@ internal static class OutboxMessageFactory
     private static Guid? ExtractTenantId(IDomainEvent domainEvent)
     {
         var property = domainEvent.GetType().GetProperty("TenantId");
-        if (property?.PropertyType == typeof(Guid))
-        {
+        if (property is null) return null;
+
+        // FIX-11: domain events carry TenantId as Guid? (nullable), not Guid.
+        // The original check (== typeof(Guid)) always returned false for nullable types,
+        // so TenantId was never populated in outbox messages.
+        if (property.PropertyType == typeof(Guid))
+            return (Guid)property.GetValue(domainEvent)!;
+
+        if (property.PropertyType == typeof(Guid?))
             return (Guid?)property.GetValue(domainEvent);
-        }
 
         return null;
     }

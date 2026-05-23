@@ -1,6 +1,8 @@
+using Ums.Infrastructure.Persistence;
+
 namespace Ums.Infrastructure.Persistence.Configuration.Entities;
 
-public sealed class AppConfigurationRecord
+public sealed class AppConfigurationRecord : IAuditableRecord
 {
     public Guid Id { get; set; }
     public Guid? TenantId { get; set; }

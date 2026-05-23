@@ -46,6 +46,7 @@ public static class DependencyInjection
                 ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection must be configured for SQL Server persistence.");
 
             services.AddScoped<OrganizationDbContextInterceptor>();
+            services.AddScoped<AuditSaveChangesInterceptor>(); // FIX-08: auto-stamp audit columns
 
             services.AddDbContext<UmsPlatformDbContext>((serviceProvider, options) =>
             {
@@ -55,7 +56,9 @@ public static class DependencyInjection
                     sqlServer.EnableRetryOnFailure(5);
                 });
 
-                options.AddInterceptors(serviceProvider.GetRequiredService<OrganizationDbContextInterceptor>());
+                options.AddInterceptors(
+                    serviceProvider.GetRequiredService<OrganizationDbContextInterceptor>(),
+                    serviceProvider.GetRequiredService<AuditSaveChangesInterceptor>());
             });
         }
 

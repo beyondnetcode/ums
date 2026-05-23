@@ -80,14 +80,21 @@ public sealed class SqlServerTenantRepository(UmsPlatformDbContext dbContext) : 
 
     public async Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default)
     {
+        // Capture outbox messages BEFORE committing so events are not lost on save failure.
+        // MarkChangesAsCommitted() is called AFTER SaveChangesAsync succeeds (FIX-01).
         foreach (var aggregate in _trackedAggregates)
         {
             dbContext.OutboxMessages.AddRange(OutboxMessageFactory.CreateFromAggregate(aggregate));
+        }
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        foreach (var aggregate in _trackedAggregates)
+        {
             aggregate.DomainEvents.MarkChangesAsCommitted();
         }
 
         _trackedAggregates.Clear();
-        await dbContext.SaveChangesAsync(cancellationToken);
         return true;
     }
 

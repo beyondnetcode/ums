@@ -104,11 +104,16 @@ public sealed class SqlServerUserManagementDelegationRepository(UmsPlatformDbCon
         foreach (var aggregate in _trackedAggregates)
         {
             dbContext.OutboxMessages.AddRange(OutboxMessageFactory.CreateFromAggregate(aggregate));
+        }
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        foreach (var aggregate in _trackedAggregates)
+        {
             aggregate.DomainEvents.MarkChangesAsCommitted();
         }
 
         _trackedAggregates.Clear();
-        await dbContext.SaveChangesAsync(cancellationToken);
         return true;
     }
 

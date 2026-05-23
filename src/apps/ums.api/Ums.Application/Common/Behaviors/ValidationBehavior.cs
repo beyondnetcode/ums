@@ -28,10 +28,15 @@ public sealed class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<
         var validationResults = await Task.WhenAll(
             _validators.Select(validator => validator.ValidateAsync(context, cancellationToken)));
 
+        // FIX-10: Use only ErrorMessage (not PropertyName) to prevent internal dotted-path
+        // fragments like "Command.TenantId.Value" from matching DomainErrorStatusMapper
+        // substring rules ("not found", "unauthorized", etc.) and returning the wrong HTTP
+        // status code. The "Validation.Failed:" sentinel lets DomainErrorStatusMapper
+        // short-circuit to 422 without inspecting individual messages.
         var errors = validationResults
             .SelectMany(result => result.Errors)
             .Where(error => error is not null)
-            .Select(error => $"{error.PropertyName}: {error.ErrorMessage}")
+            .Select(error => error.ErrorMessage)
             .Distinct()
             .ToArray();
 
@@ -40,7 +45,7 @@ public sealed class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<
             return await next();
         }
 
-        return CreateValidationResult<TResponse>(string.Join("; ", errors));
+        return CreateValidationResult<TResponse>($"Validation.Failed: {string.Join("; ", errors)}");
     }
 
     private static TResult CreateValidationResult<TResult>(string error)
