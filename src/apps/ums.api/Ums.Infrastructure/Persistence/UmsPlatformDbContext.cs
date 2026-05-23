@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Ums.Application.Common.Interfaces;
+using Ums.Infrastructure.Persistence.Audit.Configurations;
+using Ums.Infrastructure.Persistence.Audit.Entities;
 using Ums.Infrastructure.Persistence.Authorization.Configurations;
 using Ums.Infrastructure.Persistence.Authorization.Entities;
 using Ums.Infrastructure.Persistence.Configuration.Configurations;
@@ -25,7 +27,7 @@ namespace Ums.Infrastructure.Persistence;
 /// - <c>OrganizationId.HasValue</c>                              → strict per-tenant rows only.
 /// - <see cref="AppConfigurationRecord"/> is nullable-TenantId    → also includes global
 ///   records (<c>TenantId IS NULL</c>) so system-level config is always visible.
-///
+/// 
 /// The SQL Server RLS predicates set via <see cref="Interceptors.OrganizationDbContextInterceptor"/>
 /// remain as the database-level failsafe.
 /// </summary>
@@ -50,7 +52,8 @@ public sealed class UmsPlatformDbContext(
     public DbSet<FeatureFlagRecord> FeatureFlags => Set<FeatureFlagRecord>();
     public DbSet<FeatureFlagEvaluationLogRecord> FeatureFlagEvaluationLogs => Set<FeatureFlagEvaluationLogRecord>();
     public DbSet<IdpConfigurationRecord> IdpConfigurations => Set<IdpConfigurationRecord>();
-    // TODO(api-aggregate-tracker): Add SQL-backed DbSets and mappings for SystemSuite, PermissionTemplate, Approval aggregates, IGA aggregates, and AuditRecord.
+    public DbSet<AuditRecordRecord> AuditRecords => Set<AuditRecordRecord>();
+    // TODO(api-aggregate-tracker): Add SQL-backed DbSets and mappings for SystemSuite, PermissionTemplate, Approval aggregates, and IGA aggregates.
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -70,6 +73,7 @@ public sealed class UmsPlatformDbContext(
         modelBuilder.ApplyConfiguration(new FeatureFlagRecordConfiguration());
         modelBuilder.ApplyConfiguration(new FeatureFlagEvaluationLogRecordConfiguration());
         modelBuilder.ApplyConfiguration(new IdpConfigurationRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new AuditRecordRecordConfiguration());
 
         // -------------------------------------------------------------------------
         // FIX-05: Global query filters — primary tenant isolation mechanism.
