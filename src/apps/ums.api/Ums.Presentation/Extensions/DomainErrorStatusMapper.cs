@@ -17,7 +17,17 @@ internal static class DomainErrorStatusMapper
             return (StatusCodes.Status404NotFound, "Not Found");
         }
 
+        if (error.Contains("not found", StringComparison.OrdinalIgnoreCase))
+        {
+            return (StatusCodes.Status404NotFound, "Not Found");
+        }
+
         if (ContainsAny(error, DomainErrors.Common.Duplicate, DomainErrors.Tenant.BranchCodeNotUnique, DomainErrors.Tenant.IdpCodeNotUnique, DomainErrors.UserAccount.EmailNotUnique, DomainErrors.SystemSuite.OptionCodeNotUnique, DomainErrors.SystemSuite.SubMenuCodeNotUnique, DomainErrors.SystemSuite.MenuCodeNotUnique, DomainErrors.SystemSuite.ModuleCodeNotUnique, DomainErrors.SystemSuite.ConfigurationKeyAlreadyExists, DomainErrors.Authorization.TemplateItemTargetAlreadyExists, DomainErrors.Authorization.PermissionAlreadyExists, DomainErrors.Compliance.DocumentAlreadyExpired))
+        {
+            return (StatusCodes.Status409Conflict, "Conflict");
+        }
+
+        if (error.Contains("already exists", StringComparison.OrdinalIgnoreCase))
         {
             return (StatusCodes.Status409Conflict, "Conflict");
         }

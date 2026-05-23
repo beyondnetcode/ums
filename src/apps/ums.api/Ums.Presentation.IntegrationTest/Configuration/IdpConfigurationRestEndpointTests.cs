@@ -72,4 +72,30 @@ public sealed class IdpConfigurationRestEndpointTests : IClassFixture<UmsApiWebA
         using var deactivatedPayload = JsonDocument.Parse(await getDeactivatedResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
         deactivatedPayload.RootElement.GetProperty("status").GetString().Should().Be("Inactive");
     }
+
+    [Fact]
+    public async Task CreateIdpConfiguration_WithInvalidProviderType_ShouldReturnBadRequest()
+    {
+        var response = await _client.PostAsJsonAsync("/api/v1/idp-configurations", new
+        {
+            tenantId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+            systemSuiteId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            providerType = "AzureAd",
+            domainHints = new[] { "corp.local" },
+            configPayload = "{\"authority\":\"https://login.microsoftonline.com/tenant-a\"}",
+            secretRef = "kv/idp/test-invalid",
+            resolutionPriority = 30,
+            fallbackToId = (Guid?)null,
+        }, TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task GetIdpConfigurationById_WhenMissing_ShouldReturnNotFound()
+    {
+        var response = await _client.GetAsync($"/api/v1/idp-configurations/{Guid.NewGuid()}", TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
 }

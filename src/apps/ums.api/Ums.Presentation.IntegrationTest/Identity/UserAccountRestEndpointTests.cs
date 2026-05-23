@@ -20,11 +20,12 @@ public sealed class UserAccountRestEndpointTests : IClassFixture<UmsApiWebApplic
     [Fact]
     public async Task CreateUserAccount_Activate_Block_Restore_ShouldSucceed()
     {
+        var email = $"integration.user.{Guid.NewGuid():N}@ums.local";
         var createResponse = await _client.PostAsJsonAsync("/api/v1/user-accounts", new
         {
             tenantId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
             branchId = Guid.Parse("55555555-5555-5555-5555-555555555555"),
-            email = $"integration.user.{Guid.NewGuid():N}@ums.local",
+            email,
             category = "Internal",
             identityReference = "EMP-001",
             identityReferenceType = "HrId",
@@ -63,5 +64,25 @@ public sealed class UserAccountRestEndpointTests : IClassFixture<UmsApiWebApplic
         var getRestoredResponse = await _client.GetAsync($"/api/v1/user-accounts/{userAccountId}", TestContext.Current.CancellationToken);
         using var restoredPayload = JsonDocument.Parse(await getRestoredResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
         restoredPayload.RootElement.GetProperty("status").GetString().Should().Be("Active");
+
+        var duplicateCreateResponse = await _client.PostAsJsonAsync("/api/v1/user-accounts", new
+        {
+            tenantId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+            branchId = Guid.Parse("55555555-5555-5555-5555-555555555555"),
+            email,
+            category = "Internal",
+            identityReference = "EMP-002",
+            identityReferenceType = "HrId",
+        }, TestContext.Current.CancellationToken);
+
+        duplicateCreateResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
+    }
+
+    [Fact]
+    public async Task GetUserAccountById_WhenMissing_ShouldReturnNotFound()
+    {
+        var response = await _client.GetAsync($"/api/v1/user-accounts/{Guid.NewGuid()}", TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 }

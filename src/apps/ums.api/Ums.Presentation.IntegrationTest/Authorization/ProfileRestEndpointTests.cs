@@ -55,4 +55,12 @@ public sealed class ProfileRestEndpointTests : IClassFixture<UmsApiWebApplicatio
         using var activatedPayload = JsonDocument.Parse(await getActivatedResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
         activatedPayload.RootElement.GetProperty("isActive").GetBoolean().Should().BeTrue();
     }
+
+    [Fact]
+    public async Task GetProfileById_WhenMissing_ShouldReturnNotFound()
+    {
+        var response = await _client.GetAsync($"/api/v1/profiles/{Guid.NewGuid()}", TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
 }
