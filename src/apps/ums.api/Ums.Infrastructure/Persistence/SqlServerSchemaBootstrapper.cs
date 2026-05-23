@@ -11,6 +11,7 @@ public static partial class SqlServerSchemaBootstrapper
         "20260521_sqlserver_platform_outbox.sql",
         "20260521_sqlserver_identity_aggregates.sql",
         "20260521_sqlserver_authorization_profiles.sql",
+        "20260522_sqlserver_identity_delegations.sql",
     ];
 
     public static async Task InitializeAsync(UmsPlatformDbContext dbContext, CancellationToken cancellationToken = default)

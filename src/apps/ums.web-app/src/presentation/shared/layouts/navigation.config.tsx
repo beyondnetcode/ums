@@ -7,7 +7,7 @@
  */
 import React from 'react';
 
-export type NavItemId = 'tenants' | 'users' | 'profile' | 'login';
+export type NavItemId = 'tenants' | 'users' | 'delegations' | 'profile' | 'login';
 
 export interface NavItem {
   id: NavItemId;
@@ -25,6 +25,7 @@ export interface NavModule {
 export const NAV_ROUTES: Record<NavItemId, string> = {
   tenants: '/tenants',
   users: '/users',
+  delegations: '/delegations',
   profile: '/profile',
   login: '/login',
 };
@@ -32,6 +33,7 @@ export const NAV_ROUTES: Record<NavItemId, string> = {
 export const pathToTab = (pathname: string): NavItemId => {
   if (pathname.startsWith('/tenants')) return 'tenants';
   if (pathname.startsWith('/users')) return 'users';
+  if (pathname.startsWith('/delegations')) return 'delegations';
   if (pathname.startsWith('/profile')) return 'profile';
   if (pathname.startsWith('/login')) return 'login';
   return 'tenants';
@@ -41,6 +43,7 @@ interface NavModulesFactoryDeps {
   ShieldCheck: React.ComponentType<{ className?: string }>;
   Building2: React.ComponentType<{ className?: string }>;
   Users: React.ComponentType<{ className?: string }>;
+  GitMerge: React.ComponentType<{ className?: string }>;
   Cpu: React.ComponentType<{ className?: string }>;
   User: React.ComponentType<{ className?: string }>;
   LogOut: React.ComponentType<{ className?: string }>;
@@ -55,8 +58,9 @@ export const NAV_MODULES = (deps: NavModulesFactoryDeps): NavModule[] => [
     nameKey: 'identityContext',
     icon: <deps.ShieldCheck className={`w-5 h-5 ${deps.primaryColorClass}`} />,
     members: [
-      { id: 'tenants', nameKey: 'tenant', icon: <deps.Building2 className="w-4 h-4" /> },
-      { id: 'users', nameKey: 'userAccounts', icon: <deps.Users className="w-4 h-4" /> },
+      { id: 'tenants',     nameKey: 'tenant',              icon: <deps.Building2 className="w-4 h-4" /> },
+      { id: 'users',       nameKey: 'userAccounts',        icon: <deps.Users className="w-4 h-4" /> },
+      { id: 'delegations', nameKey: 'delegationManagement', icon: <deps.GitMerge className="w-4 h-4" /> },
     ],
   },
   {
