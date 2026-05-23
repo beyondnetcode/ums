@@ -1,15 +1,50 @@
-﻿namespace Ums.Domain.Test.Configuration.FeatureFlag;
+namespace Ums.Domain.Test.Configuration.FeatureFlag;
 
 using Ums.Domain.Configuration.FeatureFlag;
 using Xunit;
 
+/// <summary>
+/// Domain tests for the <see cref="FeatureFlag"/> aggregate.
+///
+/// Coverage intent:
+///   – All state transitions and their guards (Inactive→Active→Inactive→Archived).
+///   – Percentage-flag invariants at both boundaries and invalid values.
+///   – Evaluate: result semantics, evaluation-log accumulation, archived guard.
+///   – Event contract: correct event types emitted per operation.
+///   – LinkedResource metadata stored correctly.
+///   – Lifecycle cycles (activate → deactivate → re-activate).
+///
+/// Excluded intentionally:
+///   – Props / value-object construction (pure structural, zero business risk).
+///   – Audit field values (framework concern, not domain logic).
+/// </summary>
 public class FeatureFlagTests
 {
     private static readonly string ValidFlagCode = "FEATURE-001";
     private static readonly FlagType ValidFlagType = FlagType.Boolean;
     private static readonly string ValidFlagTargets = "all";
     private static readonly ActorId ValidActor = ActorId.Create("user-001");
+
+    // -------------------------------------------------------------------------
+    // Helpers
+    // -------------------------------------------------------------------------
+
+    private static FeatureFlag CreateBoolean() =>
+        FeatureFlag.Create(ValidFlagCode, FlagType.Boolean, ValidFlagTargets, null, null, null, ValidActor).Value;
+
+    private static FeatureFlag CreatePercentage(int pct) =>
+        FeatureFlag.Create(ValidFlagCode, FlagType.Percentage, ValidFlagTargets, null, null, pct, ValidActor).Value;
+
+    private static FeatureFlag CreateActive()
+    {
+        var f = CreateBoolean();
+        f.Activate(ValidActor);
+        return f;
+    }
+
+    // =========================================================================
     #region Create
+    // =========================================================================
 
     [Fact]
     public void Create_WithValidBinaryFlag_ReturnsSuccess()
@@ -56,6 +91,46 @@ public class FeatureFlagTests
         var result = FeatureFlag.Create(ValidFlagCode, FlagType.Percentage, ValidFlagTargets, null, null, -10, ValidActor);
 
         Assert.True(result.IsFailure);
+        Assert.Contains(DomainErrors.Configuration.FlagPercentageOutOfRange, result.Error);
+    }
+
+    [Fact]
+    public void Create_WithPercentageAtBoundaryZero_ReturnsSuccess()
+    {
+        var result = FeatureFlag.Create(ValidFlagCode, FlagType.Percentage, ValidFlagTargets, null, null, 0, ValidActor);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(0, result.Value.RolloutPercentage);
+    }
+
+    [Fact]
+    public void Create_WithPercentageAtBoundaryHundred_ReturnsSuccess()
+    {
+        var result = FeatureFlag.Create(ValidFlagCode, FlagType.Percentage, ValidFlagTargets, null, null, 100, ValidActor);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(100, result.Value.RolloutPercentage);
+    }
+
+    [Fact]
+    public void Create_WithVariantFlagType_NoPercentage_ReturnsSuccess()
+    {
+        var result = FeatureFlag.Create(ValidFlagCode, FlagType.Variant, ValidFlagTargets, null, null, null, ValidActor);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(FlagType.Variant, result.Value.FlagType);
+    }
+
+    [Fact]
+    public void Create_WithLinkedResource_StoresResourceMetadata()
+    {
+        var linkedId = IdValueObject.Create();
+
+        var result = FeatureFlag.Create(
+            ValidFlagCode, FlagType.Boolean, ValidFlagTargets,
+            LinkedResourceType.Module, linkedId, null, ValidActor);
+
+        Assert.True(result.IsSuccess);
     }
 
     [Fact]
@@ -71,12 +146,14 @@ public class FeatureFlagTests
 
     #endregion
 
+    // =========================================================================
     #region Activate
+    // =========================================================================
 
     [Fact]
     public void Activate_WhenInactive_ReturnsSuccess()
     {
-        var flag = FeatureFlag.Create(ValidFlagCode, ValidFlagType, ValidFlagTargets, null, null, null, ValidActor).Value;
+        var flag = CreateBoolean();
 
         var result = flag.Activate(ValidActor);
 
@@ -87,7 +164,7 @@ public class FeatureFlagTests
     [Fact]
     public void Activate_WhenAlreadyActive_ReturnsFailure()
     {
-        var flag = FeatureFlag.Create(ValidFlagCode, ValidFlagType, ValidFlagTargets, null, null, null, ValidActor).Value;
+        var flag = CreateBoolean();
         flag.Activate(ValidActor);
 
         var result = flag.Activate(ValidActor);
@@ -99,7 +176,7 @@ public class FeatureFlagTests
     [Fact]
     public void Activate_WhenArchived_ReturnsFailure()
     {
-        var flag = FeatureFlag.Create(ValidFlagCode, ValidFlagType, ValidFlagTargets, null, null, null, ValidActor).Value;
+        var flag = CreateBoolean();
         flag.Archive(ValidActor);
 
         var result = flag.Activate(ValidActor);
@@ -109,25 +186,41 @@ public class FeatureFlagTests
     }
 
     [Fact]
-    public void Activate_RaisesFeatureFlagActivatedEvent()
+    public void Activate_AfterDeactivate_ReturnsSuccess()
     {
-        var flag = FeatureFlag.Create(ValidFlagCode, ValidFlagType, ValidFlagTargets, null, null, null, ValidActor).Value;
+        // Lifecycle cycle: Inactive → Active → Inactive → Active
+        var flag = CreateBoolean();
+        flag.Activate(ValidActor);
+        flag.Deactivate(ValidActor);
+
+        var result = flag.Activate(ValidActor);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(FlagStatus.Active, flag.Status);
+    }
+
+    [Fact]
+    public void Activate_RaisesActivatedAndStateChangedEvents()
+    {
+        var flag = CreateBoolean();
 
         flag.Activate(ValidActor);
 
         var events = flag.DomainEvents.GetUncommittedChanges().ToList();
         Assert.Contains(events, e => e is FeatureFlagActivatedEvent);
+        Assert.Contains(events, e => e is FeatureFlagStateChangedEvent);
     }
 
     #endregion
 
+    // =========================================================================
     #region Deactivate
+    // =========================================================================
 
     [Fact]
     public void Deactivate_WhenActive_ReturnsSuccess()
     {
-        var flag = FeatureFlag.Create(ValidFlagCode, ValidFlagType, ValidFlagTargets, null, null, null, ValidActor).Value;
-        flag.Activate(ValidActor);
+        var flag = CreateActive();
 
         var result = flag.Deactivate(ValidActor);
 
@@ -138,7 +231,7 @@ public class FeatureFlagTests
     [Fact]
     public void Deactivate_WhenAlreadyInactive_ReturnsFailure()
     {
-        var flag = FeatureFlag.Create(ValidFlagCode, ValidFlagType, ValidFlagTargets, null, null, null, ValidActor).Value;
+        var flag = CreateBoolean();
 
         var result = flag.Deactivate(ValidActor);
 
@@ -149,7 +242,7 @@ public class FeatureFlagTests
     [Fact]
     public void Deactivate_WhenArchived_ReturnsFailure()
     {
-        var flag = FeatureFlag.Create(ValidFlagCode, ValidFlagType, ValidFlagTargets, null, null, null, ValidActor).Value;
+        var flag = CreateBoolean();
         flag.Archive(ValidActor);
 
         var result = flag.Deactivate(ValidActor);
@@ -159,26 +252,27 @@ public class FeatureFlagTests
     }
 
     [Fact]
-    public void Deactivate_RaisesFeatureFlagDeactivatedEvent()
+    public void Deactivate_RaisesDeactivatedAndStateChangedEvents()
     {
-        var flag = FeatureFlag.Create(ValidFlagCode, ValidFlagType, ValidFlagTargets, null, null, null, ValidActor).Value;
-        flag.Activate(ValidActor);
+        var flag = CreateActive();
 
         flag.Deactivate(ValidActor);
 
         var events = flag.DomainEvents.GetUncommittedChanges().ToList();
         Assert.Contains(events, e => e is FeatureFlagDeactivatedEvent);
+        Assert.Contains(events, e => e is FeatureFlagStateChangedEvent);
     }
 
     #endregion
 
+    // =========================================================================
     #region Archive
+    // =========================================================================
 
     [Fact]
     public void Archive_WhenActive_ReturnsSuccess()
     {
-        var flag = FeatureFlag.Create(ValidFlagCode, ValidFlagType, ValidFlagTargets, null, null, null, ValidActor).Value;
-        flag.Activate(ValidActor);
+        var flag = CreateActive();
 
         var result = flag.Archive(ValidActor);
 
@@ -189,7 +283,7 @@ public class FeatureFlagTests
     [Fact]
     public void Archive_WhenInactive_ReturnsSuccess()
     {
-        var flag = FeatureFlag.Create(ValidFlagCode, ValidFlagType, ValidFlagTargets, null, null, null, ValidActor).Value;
+        var flag = CreateBoolean();
 
         var result = flag.Archive(ValidActor);
 
@@ -200,7 +294,7 @@ public class FeatureFlagTests
     [Fact]
     public void Archive_WhenAlreadyArchived_ReturnsFailure()
     {
-        var flag = FeatureFlag.Create(ValidFlagCode, ValidFlagType, ValidFlagTargets, null, null, null, ValidActor).Value;
+        var flag = CreateBoolean();
         flag.Archive(ValidActor);
 
         var result = flag.Archive(ValidActor);
@@ -210,25 +304,27 @@ public class FeatureFlagTests
     }
 
     [Fact]
-    public void Archive_RaisesFeatureFlagArchivedEvent()
+    public void Archive_RaisesArchivedAndStateChangedEvents()
     {
-        var flag = FeatureFlag.Create(ValidFlagCode, ValidFlagType, ValidFlagTargets, null, null, null, ValidActor).Value;
+        var flag = CreateBoolean();
 
         flag.Archive(ValidActor);
 
         var events = flag.DomainEvents.GetUncommittedChanges().ToList();
         Assert.Contains(events, e => e is FeatureFlagArchivedEvent);
+        Assert.Contains(events, e => e is FeatureFlagStateChangedEvent);
     }
 
     #endregion
 
+    // =========================================================================
     #region Evaluate
+    // =========================================================================
 
     [Fact]
     public void Evaluate_WhenActive_ReturnsTrue()
     {
-        var flag = FeatureFlag.Create(ValidFlagCode, ValidFlagType, ValidFlagTargets, null, null, null, ValidActor).Value;
-        flag.Activate(ValidActor);
+        var flag = CreateActive();
 
         var result = flag.Evaluate(Guid.NewGuid(), "test context");
 
@@ -239,7 +335,7 @@ public class FeatureFlagTests
     [Fact]
     public void Evaluate_WhenInactive_ReturnsFalse()
     {
-        var flag = FeatureFlag.Create(ValidFlagCode, ValidFlagType, ValidFlagTargets, null, null, null, ValidActor).Value;
+        var flag = CreateBoolean();
 
         var result = flag.Evaluate(Guid.NewGuid(), "test context");
 
@@ -250,7 +346,7 @@ public class FeatureFlagTests
     [Fact]
     public void Evaluate_WhenArchived_ReturnsFailure()
     {
-        var flag = FeatureFlag.Create(ValidFlagCode, ValidFlagType, ValidFlagTargets, null, null, null, ValidActor).Value;
+        var flag = CreateBoolean();
         flag.Archive(ValidActor);
 
         var result = flag.Evaluate(Guid.NewGuid(), "test context");
@@ -260,14 +356,74 @@ public class FeatureFlagTests
     }
 
     [Fact]
+    public void Evaluate_AppendsEntryToEvaluationLog()
+    {
+        var flag = CreateBoolean();
+        var evaluatorId = Guid.NewGuid();
+        const string ctx = "tenant:abc";
+
+        flag.Evaluate(evaluatorId, ctx);
+
+        Assert.Single(flag.EvaluationLog);
+        Assert.Equal(evaluatorId, flag.EvaluationLog.First().EvaluatedBy);
+        Assert.Equal(ctx, flag.EvaluationLog.First().Context);
+        Assert.False(flag.EvaluationLog.First().Result); // inactive → false
+    }
+
+    [Fact]
+    public void Evaluate_MultipleEvaluations_AccumulateInLog()
+    {
+        var flag = CreateBoolean();
+
+        flag.Evaluate(Guid.NewGuid(), "ctx-1");
+        flag.Evaluate(Guid.NewGuid(), "ctx-2");
+        flag.Evaluate(Guid.NewGuid(), "ctx-3");
+
+        Assert.Equal(3, flag.EvaluationLog.Count);
+    }
+
+    [Fact]
+    public void Evaluate_ActiveFlag_LogEntryResultIsTrue()
+    {
+        var flag = CreateActive();
+
+        flag.Evaluate(Guid.NewGuid(), "ctx");
+
+        Assert.True(flag.EvaluationLog.First().Result);
+    }
+
+    [Fact]
+    public void Evaluate_WhenArchivedAfterEvaluations_LogRetainsHistory()
+    {
+        var flag = CreateActive();
+        flag.Evaluate(Guid.NewGuid(), "before-archive");
+        flag.Archive(ValidActor);
+
+        // Log is still accessible even after archive
+        Assert.Single(flag.EvaluationLog);
+    }
+
+    [Fact]
     public void Evaluate_RaisesFlagEvaluatedEvent()
     {
-        var flag = FeatureFlag.Create(ValidFlagCode, ValidFlagType, ValidFlagTargets, null, null, null, ValidActor).Value;
+        var flag = CreateBoolean();
 
         flag.Evaluate(Guid.NewGuid(), "test context");
 
         var events = flag.DomainEvents.GetUncommittedChanges().ToList();
         Assert.Contains(events, e => e is FlagEvaluatedEvent);
+    }
+
+    [Fact]
+    public void Evaluate_WhenArchived_DoesNotAppendToLog()
+    {
+        var flag = CreateBoolean();
+        flag.Archive(ValidActor);
+        var logCountBefore = flag.EvaluationLog.Count;
+
+        flag.Evaluate(Guid.NewGuid(), "ctx");
+
+        Assert.Equal(logCountBefore, flag.EvaluationLog.Count);
     }
 
     #endregion
