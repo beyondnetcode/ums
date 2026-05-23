@@ -17,7 +17,7 @@ The `UserAccount` aggregate represents a user's identity within a tenant. It gov
 ### Business Responsibility
 - Register users within a tenant, assigning them a category and email.
 - Track lifecycle: Pending → Active → Blocked → Active.
-- Link users to an external Identity Provider (OIDC/SAML subject reference).
+- Link users to an external identity reference from an authoritative source system (HR, vendor, government, partner), while authentication protocol selection remains governed by tenant/provider strategy.
 - Own `PasswordCredential` and `MfaEnrollment` child entities.
 - Emit authentication-related domain events (auth attempted, MFA enrolled/verified).
 
@@ -35,7 +35,7 @@ The `UserAccount` aggregate represents a user's identity within a tenant. It gov
 8. `IdentityReference` and `IdentityReferenceType` must be set together or both null.
 9. A `FEDERATED` user (has `IdentityReference`) should not have an active `PasswordCredential`.
 10. Multiple `MfaEnrollment` records may exist (one per method), but each method may only be enrolled once per user.
-11. MFA enrollment status transitions follow the implemented state machine: `NotEnrolled → Enrolled → Revoked`.
+11. MFA enrollment status values follow the implemented model: `NotEnrolled`, `Enrolled`, `Verified`. New enrollments start in `Enrolled` and move to `Verified` once the challenge is confirmed.
 12. `UserAccount.Status` must not be `Blocked` to enroll a new MFA method.
 13. At least one enrolled MFA method must remain if the tenant requires MFA.
 14. A `UserAccount` acting as a delegated admin may only execute management commands (`RegisterUserCommand`, `BlockUserCommand`, `AssignProfileCommand`) on users within their `ACTIVE` delegation scope — validated by `IDelegationScopeValidator` at application layer.
@@ -47,16 +47,16 @@ The `UserAccount` aggregate represents a user's identity within a tenant. It gov
 | `PasswordCredential` | Entity | Owned — child of UserAccount |
 | `MfaEnrollment` | Entity | Owned — child of UserAccount |
 | `TenantId` | Value Object | FK reference to Tenant |
-| `BranchId` | Value Object | FK reference to Branch (optional scope). Present in props, persistence, and application contracts; direct branch assignment during aggregate creation is still transitional in the current implementation. |
+| `BranchId` | Value Object | FK reference to Branch (optional scope). Supported in props, persistence, application contracts, and aggregate creation flow. |
 | `Email` | Value Object | Validated email |
 | `UserCategory` | Enum | INTERNAL · EXTERNAL · B2B · PARTNER |
 | `DelegationId` | Value Object | Reference to `UserManagementDelegation` — set in application context, not stored on aggregate |
 | `UserStatus` | Enum | Pending · Active · Blocked |
-| `IdentityReference` | Value Object | External IdP subject ID |
-| `IdentityReferenceType` | Enum | OIDC · SAML · LOCAL |
+| `IdentityReference` | Value Object | External master-data reference from the authoritative source system |
+| `IdentityReferenceType` | Enum | HR_ID · VENDOR_CODE · GOVERNMENT_ID · PARTNER_REF |
 | `PasswordHash` | Value Object | Validated BCrypt hash string |
 | `MfaMethod` | Enum | TOTP · SMS · EMAIL · WEBAUTHN |
-| `MfaEnrollmentStatus` | Enum | NotEnrolled · Enrolled · Revoked |
+| `MfaEnrollmentStatus` | Enum | NotEnrolled · Enrolled · Verified |
 | `AuditValueObject` | Value Object | CreatedAt/By, UpdatedAt/By |
 
 ### Domain Events
@@ -79,10 +79,9 @@ The `UserAccount` aggregate represents a user's identity within a tenant. It gov
 | `RestoreUserCommand` | Restore a blocked user to Active |
 | `SetPasswordCommand` | Create or rotate the active password credential |
 | `DeactivatePasswordCommand` | Deactivate credential (e.g. on account federation) |
-| `LinkExternalIdentityCommand` | Associate an external IdP subject reference |
+| `LinkExternalIdentityCommand` | Associate an external authoritative-source identity reference |
 | `EnrollMfaCommand` | Enroll a new MFA method |
-| `VerifyMfaCommand` | Confirm MFA challenge (transitions NotEnrolled → Enrolled) |
-| `RevokeMfaEnrollmentCommand` | Revoke an enrolled MFA method |
+| `VerifyMfaCommand` | Confirm MFA challenge (transitions Enrolled → Verified) |
 
 ### Repository / Service Boundaries
 - `IUserAccountRepository` — persists `UserAccount` aggregate including owned credentials and enrollments.
@@ -122,15 +121,15 @@ UserAccount (Aggregate Root)
 |---|---|---|---|
 | `Id` | UserAccount | `Guid` | PK |
 | `TenantId` | UserAccount | `Guid` | FK — RLS scope |
-| `BranchId` | UserAccount | `Guid?` | Optional branch scope, currently transitional in aggregate creation |
+| `BranchId` | UserAccount | `Guid?` | Optional branch scope |
 | `Email` | UserAccount | `string` | Unique per tenant |
 | `Category` | UserAccount | `UserCategory` | Classification |
 | `Status` | UserAccount | `UserStatus` | Lifecycle state |
-| `IdentityReference` | UserAccount | `string?` | External IdP subject |
+| `IdentityReference` | UserAccount | `string?` | External master-data reference |
 | `PasswordHash` | PasswordCredential | `string` | BCrypt hash — write-only |
 | `IsActive` | PasswordCredential | `bool` | Only one `true` at a time |
 | `Method` | MfaEnrollment | `MfaMethod` | TOTP / SMS / EMAIL / WEBAUTHN |
-| `Status` | MfaEnrollment | `MfaEnrollmentStatus`| NotEnrolled / Enrolled / Revoked |
+| `Status` | MfaEnrollment | `MfaEnrollmentStatus`| NotEnrolled / Enrolled / Verified |
 
 ---
 
@@ -191,7 +190,7 @@ sequenceDiagram
     R-->>H: UserAccount
     H->>U: userAccount.EnrollMfa(method, actorId)
     U->>U: Guard: method not already enrolled
-    U->>U: Create MfaEnrollment (Status = NotEnrolled)
+    U->>U: Create MfaEnrollment (Status = Enrolled)
     U->>U: Raise MfaEnrolledEvent
     H->>R: Update(userAccount)
     H->>MFA: InitiateSetup(userId, method)
@@ -222,7 +221,7 @@ erDiagram
         nvarchar Category "INTERNAL-EXTERNAL-B2B-PARTNER"
         nvarchar Status "PENDING-ACTIVE-BLOCKED"
         nvarchar IdentityReference "Nullable"
-        nvarchar IdentityReferenceType "Nullable - OIDC-SAML-LOCAL"
+        nvarchar IdentityReferenceType "Nullable - HR_ID-VENDOR_CODE-GOVERNMENT_ID-PARTNER_REF"
         datetime2 CreatedAt
         uniqueidentifier CreatedBy
         datetime2 UpdatedAt
@@ -244,7 +243,7 @@ erDiagram
         uniqueidentifier Id PK
         uniqueidentifier UserAccountId FK
         nvarchar Method "TOTP-SMS-EMAIL-WEBAUTHN"
-        nvarchar Status "NOT_ENROLLED-ENROLLED-REVOKED"
+        nvarchar Status "NOT_ENROLLED-ENROLLED-VERIFIED"
         datetime2 CreatedAt
         uniqueidentifier CreatedBy
         datetime2 UpdatedAt
@@ -348,7 +347,6 @@ flowchart TD
 | `LinkExternalIdentityCommand` | `void` |
 | `EnrollMfaCommand` | `Guid enrollmentId, string setupToken` |
 | `VerifyMfaCommand` | `void` |
-| `RevokeMfaEnrollmentCommand` | `void` |
 
 ### Queries
 | Query | Returns |
@@ -398,5 +396,5 @@ flowchart TD
 
 ### Audit Events
 - `USER_REGISTERED`, `USER_ACTIVATED`, `USER_BLOCKED`, `USER_RESTORED`
-- `PASSWORD_SET`, `MFA_ENROLLED`, `MFA_VERIFIED`, `MFA_REVOKED`
+- `PASSWORD_SET`, `MFA_ENROLLED`, `MFA_VERIFIED`
 - `AUTHENTICATION_ATTEMPTED` (with `AuditResult: SUCCESS/FAILURE`)

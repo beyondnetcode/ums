@@ -21,7 +21,7 @@
 - Administrar metodos MFA (`MfaEnrollment`) enrollados por el usuario de forma independiente (TOTP, SMS, Email, WebAuthn).
 
 **PasswordCredential**: Almacena el hash BCrypt de la contrasena para autenticacion local. Soporta rotacion de credenciales con registros historicos (inactivos).
-**MfaEnrollment**: Registra el enrolamiento de un usuario en un metodo MFA especifico. Se pueden enrolar multiples metodos por usuario, cada uno con su propio ciclo de vida (`NotEnrolled`, `Enrolled`, `Revoked`).
+**MfaEnrollment**: Registra el enrolamiento de un usuario en un metodo MFA especifico. Se pueden enrolar multiples metodos por usuario, cada uno con su propio ciclo de vida (`NotEnrolled`, `Enrolled`, `Verified`).
 
 ### Aggregate Root
 `UserAccount` es su propio aggregate root. Todas las mutaciones de `PasswordCredential` y `MfaEnrollment` pasan por comandos de `UserAccount`.
@@ -35,7 +35,7 @@
 6. **PasswordCredential**: Establecer una nueva contrasena desactiva automaticamente la credencial activa anterior.
 7. **PasswordCredential**: `PasswordHash` debe ser un hash BCrypt valido. Las credenciales historicas se conservan para auditoria y no se eliminan.
 8. **MfaEnrollment**: Un usuario puede enrolar cada `MfaMethod` a lo sumo una vez — sin metodos duplicados.
-9. **MfaEnrollment**: Las transiciones de estado siguen el flujo implementado `NotEnrolled -> Enrolled -> Revoked`.
+9. **MfaEnrollment**: Los estados siguen el modelo implementado `NotEnrolled`, `Enrolled`, `Verified`. Un nuevo enrolamiento inicia en `Enrolled` y pasa a `Verified` al confirmar el desafio.
 10. **MfaEnrollment**: `UserAccount.Status` no debe estar en `Blocked` para enrolar un nuevo metodo MFA.
 11. **MfaEnrollment**: Al menos un metodo enrolado debe permanecer si el tenant requiere MFA.
 
@@ -43,12 +43,12 @@
 | Entidad / VO | Tipo | Notas |
 |---|---|---|
 | `TenantId` | Value Object | FK al Tenant propietario |
-| `BranchId` | Value Object | FK opcional a Branch. Ya existe en props, persistencia y contratos de aplicacion; la asignacion directa durante la creacion del agregado sigue en transicion en la implementacion actual. |
+| `BranchId` | Value Object | FK opcional a Branch. Ya esta soportado en props, persistencia, contratos de aplicacion y flujo de creacion del agregado. |
 | `Email` | Value Object | Unico por TenantId |
 | `UserCategory` | Enum | INTERNAL · EXTERNAL · B2B · PARTNER |
 | `UserStatus` | Enum | Pending · Active · Blocked |
-| `IdentityReference` | Value Object | Sub de IdP externo (nullable) |
-| `IdentityReferenceType` | Enum | OIDC · SAML · LOCAL (nullable) |
+| `IdentityReference` | Value Object | Referencia maestra externa del sistema fuente autorizado (nullable) |
+| `IdentityReferenceType` | Enum | HR_ID · VENDOR_CODE · GOVERNMENT_ID · PARTNER_REF (nullable) |
 | `AuditValueObject` | Value Object | CreatedAt/By, UpdatedAt/By |
 
 ### Eventos de Dominio
@@ -74,8 +74,7 @@
 | `SetPasswordCommand` | Crear o rotar credencial de contrasena activa |
 | `DeactivatePasswordCommand` | Desactivar credencial (ej. en federacion de cuenta) |
 | `EnrollMfaCommand` | Enrolar nuevo metodo MFA |
-| `VerifyMfaCommand` | Confirmar desafio MFA (NotEnrolled -> Enrolled) |
-| `RevokeMfaEnrollmentCommand` | Revocar metodo MFA enrollado |
+| `VerifyMfaCommand` | Confirmar desafio MFA (Enrolled -> Verified) |
 | `LinkExternalIdentityCommand` | Vincular identidad federada |
 
 ---
@@ -123,7 +122,7 @@ Credencial Anterior (IsActive = false) — retenida para historial
 ```
 **MfaEnrollment**:
 ```
-NotEnrolled ──► Enrolled ──► Revoked
+NotEnrolled ──► Enrolled ──► Verified
 ```
 
 ---
@@ -218,7 +217,7 @@ sequenceDiagram
     H->>U: userAccount.EnrollMfa(method, actorId)
     U->>U: Guardia: metodo no ya enrollado
     U->>U: Guardia: usuario no bloqueado
-    U->>U: Crear MfaEnrollment (Status = NotEnrolled)
+    U->>U: Crear MfaEnrollment (Status = Enrolled)
     U->>U: Emitir MfaEnrolledEvent
     H->>R: Update(userAccount)
     H->>MFA: InitiateSetup(userId, method)
@@ -241,26 +240,8 @@ sequenceDiagram
     H->>R: GetById(userId)
     R-->>H: UserAccount
     H->>U: userAccount.VerifyMfa(enrollmentId, actorId)
-    U->>U: Enrollment.Status = Enrolled
+    U->>U: Enrollment.Status = Verified
     U->>U: Emitir MfaVerifiedEvent
-    H->>R: Update(userAccount)
-    H-->>C: void
-```
-
-### Flujo: Revocar MFA
-```mermaid
-sequenceDiagram
-    participant C as Cliente
-    participant H as RevokeMfaHandler
-    participant R as IUserAccountRepository
-    participant U as UserAccount (AR)
-
-    C->>H: RevokeMfaEnrollmentCommand(userId, enrollmentId, actorId)
-    H->>R: GetById(userId)
-    R-->>H: UserAccount
-    H->>U: userAccount.RevokeMfa(enrollmentId, actorId)
-    U->>U: Guardia: ultimo enrolamiento no eliminado si tenant requiere MFA
-    U->>U: Enrollment.Status = Revoked
     H->>R: Update(userAccount)
     H-->>C: void
 ```
@@ -283,7 +264,7 @@ erDiagram
         nvarchar UserCategory "INTERNAL-EXTERNAL-B2B-PARTNER"
         nvarchar Status "PENDING-ACTIVE-BLOCKED"
         nvarchar IdentityReference "Nullable"
-        nvarchar IdentityReferenceType "Nullable - OIDC-SAML-LOCAL"
+        nvarchar IdentityReferenceType "Nullable - HR_ID-VENDOR_CODE-GOVERNMENT_ID-PARTNER_REF"
         datetime2 CreatedAt
         uniqueidentifier CreatedBy
         datetime2 UpdatedAt
@@ -305,7 +286,7 @@ erDiagram
         uniqueidentifier MfaEnrollmentId PK
         uniqueidentifier UserAccountId FK
         nvarchar Method "TOTP-SMS-EMAIL-WEBAUTHN"
-        nvarchar Status "NOT_ENROLLED-ENROLLED-REVOKED"
+        nvarchar Status "NOT_ENROLLED-ENROLLED-VERIFIED"
         datetime2 CreatedAt
         uniqueidentifier CreatedBy
         datetime2 UpdatedAt
@@ -370,7 +351,6 @@ flowchart TD
 | `SetPasswordCommand` | `userId, plainPassword, actorId` | `void` |
 | `EnrollMfaCommand` | `userId, method, actorId` | `Guid enrollmentId, setupToken` |
 | `VerifyMfaCommand` | `userId, enrollmentId, otp, actorId` | `void` |
-| `RevokeMfaEnrollmentCommand` | `userId, enrollmentId, actorId` | `void` |
 
 ### Consultas
 | Consulta | Retorna |
@@ -387,7 +367,6 @@ flowchart TD
 | `PASSWORD_HASH_INVALID` | Fallo en validacion del hash |
 | `MFA_METHOD_ALREADY_ENROLLED` | Metodo MFA ya enrollado |
 | `MFA_ENROLLMENT_NOT_FOUND` | enrollmentId desconocido |
-| `MFA_LAST_ENROLLMENT` | Revocar dejaria al usuario sin MFA (requerido) |
 | `MFA_VERIFICATION_FAILED` | OTP invalido |
 
 ---
@@ -421,7 +400,6 @@ flowchart TD
 | Leer Credencial (solo IsActive) | Tenant:Admin |
 | Leer Hash | Nadie — solo escritura |
 | Enrolar MFA | Usuario mismo |
-| Revocar MFA | Usuario mismo o Tenant:Admin |
 | Verificar MFA | Usuario mismo |
 
 ### Datos Sensibles
@@ -431,7 +409,7 @@ flowchart TD
 ### Eventos de Auditoria
 - `USER_REGISTERED`, `USER_ACTIVATED`, `USER_BLOCKED`, `USER_RESTORED`
 - `PASSWORD_SET` — registrado con `actorId`, `userId`, timestamp. Hash nunca registrado.
-- `MFA_ENROLLED`, `MFA_VERIFIED`, `MFA_REVOKED`
+- `MFA_ENROLLED`, `MFA_VERIFIED`
 
 ### Cumplimiento
 - GDPR: El hash no es PII, pero la presencia de un registro de credencial implica cuenta local. Al borrar cuenta, el hash debe ser anulado.

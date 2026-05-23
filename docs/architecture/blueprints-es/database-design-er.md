@@ -338,7 +338,7 @@ erDiagram
         nvarchar Category "INTERNAL-EXTERNAL-B2B-PARTNER"
         nvarchar Status "PENDING-ACTIVE-BLOCKED"
         nvarchar IdentityReference "Nullable - Subject ID del IdP externo"
-        nvarchar IdentityReferenceType "Nullable - OIDC-SAML-LOCAL"
+        nvarchar IdentityReferenceType "Nullable - HR_ID-VENDOR_CODE-GOVERNMENT_ID-PARTNER_REF"
         datetime2 CreatedAt
         uniqueidentifier CreatedBy
         datetime2 UpdatedAt
@@ -408,7 +408,7 @@ erDiagram
         uniqueidentifier MfaEnrollmentId PK
         uniqueidentifier UserAccountId FK
         nvarchar Method "TOTP-SMS-EMAIL-WEBAUTHN"
-        nvarchar Status "NOT_ENROLLED-ENROLLED-REVOKED"
+        nvarchar Status "NOT_ENROLLED-ENROLLED-VERIFIED"
         datetime2 CreatedAt
         uniqueidentifier CreatedBy
         datetime2 UpdatedAt
@@ -662,7 +662,7 @@ erDiagram
         nvarchar Category "INTERNAL-EXTERNAL-B2B-PARTNER"
         nvarchar Status "PENDING-ACTIVE-BLOCKED"
         nvarchar IdentityReference "Nullable - Subject ID del IdP externo"
-        nvarchar IdentityReferenceType "Nullable - OIDC-SAML-LOCAL"
+        nvarchar IdentityReferenceType "Nullable - HR_ID-VENDOR_CODE-GOVERNMENT_ID-PARTNER_REF"
         datetime2 CreatedAt
         uniqueidentifier CreatedBy
         datetime2 UpdatedAt
