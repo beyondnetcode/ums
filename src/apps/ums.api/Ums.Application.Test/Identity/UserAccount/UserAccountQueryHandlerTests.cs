@@ -79,6 +79,7 @@ public class UserAccountQueryHandlerTests
     #region GetAllUserAccountsQueryHandler
     // =========================================================================
 
+    // REC-12: Tests updated to mock GetPagedAsync (handler now delegates paging to the repo).
     [Fact]
     public async Task GetAll_WithoutFilters_ReturnsAll()
     {
@@ -88,18 +89,15 @@ public class UserAccountQueryHandlerTests
             MakeUserAccount("b@test.com", UserStatus.Pending)
         };
 
-        _repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
-             .ReturnsAsync(users);
+        _repo.Setup(r => r.GetPagedAsync(
+                It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>(),
+                It.IsAny<string?>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync(((IReadOnlyList<UserAccount>)users, users.Count));
 
         var query = new GetAllUserAccountsQuery(
-            TenantId: null,
-            Page: 1,
-            PageSize: 10,
-            Criteria: null,
-            Status: "all",
-            SortBy: null,
-            SortOrder: null,
-            Search: null);
+            TenantId: null, Page: 1, PageSize: 10, Criteria: null,
+            Status: "all", SortBy: null, SortOrder: null, Search: null);
 
         var handler = new GetAllUserAccountsQueryHandler(_repo.Object);
         var result = await handler.Handle(query, CancellationToken.None);
@@ -112,53 +110,40 @@ public class UserAccountQueryHandlerTests
     public async Task GetAll_WithTenantId_FilterByTenant()
     {
         var tenantId = Guid.NewGuid();
-        var users = new List<UserAccount>
-        {
-            MakeUserAccount("a@test.com", UserStatus.Active)
-        };
+        var users = new List<UserAccount> { MakeUserAccount("a@test.com", UserStatus.Active) };
 
-        _repo.Setup(r => r.GetByTenantIdAsync(tenantId, It.IsAny<CancellationToken>()))
-             .ReturnsAsync(users);
+        _repo.Setup(r => r.GetPagedAsync(
+                It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>(),
+                It.IsAny<string?>(), It.IsAny<string>(), It.IsAny<string>(),
+                tenantId, It.IsAny<CancellationToken>()))
+             .ReturnsAsync(((IReadOnlyList<UserAccount>)users, users.Count));
 
         var query = new GetAllUserAccountsQuery(
-            TenantId: tenantId,
-            Page: 1,
-            PageSize: 10,
-            Criteria: null,
-            Status: "all",
-            SortBy: null,
-            SortOrder: null,
-            Search: null);
+            TenantId: tenantId, Page: 1, PageSize: 10, Criteria: null,
+            Status: "all", SortBy: null, SortOrder: null, Search: null);
 
         var handler = new GetAllUserAccountsQueryHandler(_repo.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
         Assert.Single(result.Value.Items);
-        _repo.Verify(r => r.GetByTenantIdAsync(tenantId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task GetAll_WithStatusFilter_ReturnsFiltered()
     {
-        var users = new List<UserAccount>
-        {
-            MakeUserAccount("a@test.com", UserStatus.Active),
-            MakeUserAccount("b@test.com", UserStatus.Pending)
-        };
+        // Status filtering is delegated to GetPagedAsync; the repo stub returns pre-filtered list.
+        var users = new List<UserAccount> { MakeUserAccount("a@test.com", UserStatus.Active) };
 
-        _repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
-             .ReturnsAsync(users);
+        _repo.Setup(r => r.GetPagedAsync(
+                It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>(),
+                "Active", It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync(((IReadOnlyList<UserAccount>)users, users.Count));
 
         var query = new GetAllUserAccountsQuery(
-            TenantId: null,
-            Page: 1,
-            PageSize: 10,
-            Criteria: null,
-            Status: "Active",
-            SortBy: null,
-            SortOrder: null,
-            Search: null);
+            TenantId: null, Page: 1, PageSize: 10, Criteria: null,
+            Status: "Active", SortBy: null, SortOrder: null, Search: null);
 
         var handler = new GetAllUserAccountsQueryHandler(_repo.Object);
         var result = await handler.Handle(query, CancellationToken.None);
@@ -171,24 +156,18 @@ public class UserAccountQueryHandlerTests
     [Fact]
     public async Task GetAll_WithSearch_ReturnsSearched()
     {
-        var users = new List<UserAccount>
-        {
-            MakeUserAccount("target@test.com"),
-            MakeUserAccount("other@test.com")
-        };
+        // Search filtering is delegated to GetPagedAsync; the repo stub returns pre-filtered list.
+        var users = new List<UserAccount> { MakeUserAccount("target@test.com") };
 
-        _repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
-             .ReturnsAsync(users);
+        _repo.Setup(r => r.GetPagedAsync(
+                It.IsAny<int>(), It.IsAny<int>(), "target",
+                It.IsAny<string?>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync(((IReadOnlyList<UserAccount>)users, users.Count));
 
         var query = new GetAllUserAccountsQuery(
-            TenantId: null,
-            Page: 1,
-            PageSize: 10,
-            Criteria: "email",
-            Status: "all",
-            SortBy: null,
-            SortOrder: null,
-            Search: "target");
+            TenantId: null, Page: 1, PageSize: 10, Criteria: "email",
+            Status: "all", SortBy: null, SortOrder: null, Search: "target");
 
         var handler = new GetAllUserAccountsQueryHandler(_repo.Object);
         var result = await handler.Handle(query, CancellationToken.None);

@@ -11,6 +11,14 @@ public interface ITenantRepository : IAggregateRepository<TenantAggregate>
     Task<TenantAggregate?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<TenantAggregate?> GetByCodeAsync(string code, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<TenantAggregate>> GetAllAsync(CancellationToken cancellationToken = default);
+    /// <summary>
+    /// REC-12: Server-side paginated query. SQL implementations use Skip/Take at the DB level.
+    /// InMemory implementations call GetAllAsync then apply in-memory pagination.
+    /// Returns (items in the current page, total matching items).
+    /// </summary>
+    Task<(IReadOnlyList<TenantAggregate> Items, int TotalCount)> GetPagedAsync(
+        int page, int pageSize, string? search, string? status, string sortBy, string sortOrder,
+        CancellationToken cancellationToken = default);
 }
 
 public interface IUserAccountRepository : IAggregateRepository<UserAccountAggregate>
@@ -19,6 +27,12 @@ public interface IUserAccountRepository : IAggregateRepository<UserAccountAggreg
     Task<UserAccountAggregate?> GetByEmailAsync(Email email, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<UserAccountAggregate>> GetAllAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<UserAccountAggregate>> GetByTenantIdAsync(Guid tenantId, CancellationToken cancellationToken = default);
+    /// <summary>
+    /// REC-12: Server-side paginated query. SQL implementations use Skip/Take at the DB level.
+    /// </summary>
+    Task<(IReadOnlyList<UserAccountAggregate> Items, int TotalCount)> GetPagedAsync(
+        int page, int pageSize, string? search, string? status, string sortBy, string sortOrder,
+        Guid? tenantId = null, CancellationToken cancellationToken = default);
 }
 
 public interface IUserManagementDelegationRepository : IAggregateRepository<UserManagementDelegationAggregate>

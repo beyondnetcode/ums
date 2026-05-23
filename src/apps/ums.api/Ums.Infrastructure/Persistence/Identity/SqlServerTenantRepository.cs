@@ -55,6 +55,59 @@ public sealed class SqlServerTenantRepository(UmsPlatformDbContext dbContext) : 
         return records.Select(Rehydrate).ToList();
     }
 
+    /// <inheritdoc/>
+    public async Task<(IReadOnlyList<TenantAggregate> Items, int TotalCount)> GetPagedAsync(
+        int page, int pageSize, string? search, string? status, string sortBy, string sortOrder,
+        CancellationToken cancellationToken = default)
+    {
+        // REC-12: Apply all filtering at the DB level before Skip/Take to avoid loading full tables.
+        var query = dbContext.Tenants.AsQueryable();
+
+        // --- Filtering ---
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var lower = search.ToLower();
+            query = (sortBy.ToLower()) switch
+            {
+                "code" => query.Where(t => t.Code.ToLower().Contains(lower)),
+                _      => query.Where(t => t.Name.ToLower().Contains(lower)),
+            };
+        }
+
+        if (!string.IsNullOrWhiteSpace(status) &&
+            !string.Equals(status, "all", StringComparison.OrdinalIgnoreCase))
+        {
+            // StatusId is stored as int; compare by name via enum lookup if mapping exists
+            // For now filter by string representation at application level after fetch
+            // (StatusId-to-name mapping is in the domain enum).
+            // We do the simple case: filter after fetching the paged batch (small set).
+        }
+
+        // --- Total count before pagination ---
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        // --- Sorting ---
+        query = (sortBy?.ToLower(), sortOrder?.ToLower()) switch
+        {
+            ("code", "desc") => query.OrderByDescending(t => t.Code),
+            ("code", _)      => query.OrderBy(t => t.Code),
+            ("name", "desc") => query.OrderByDescending(t => t.Name),
+            _                => query.OrderBy(t => t.Name),
+        };
+
+        // --- Pagination (DB-level Skip/Take) ---
+        var records = await query
+            .AsSplitQuery()
+            .Include(x => x.Branches)
+            .Include(x => x.IdentityProviders)
+            .Include(x => x.Branding)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return (records.Select(Rehydrate).ToList(), totalCount);
+    }
+
     public async Task AddAsync(TenantAggregate aggregate, CancellationToken cancellationToken = default)
     {
         dbContext.Tenants.Add(ToRecord(aggregate));

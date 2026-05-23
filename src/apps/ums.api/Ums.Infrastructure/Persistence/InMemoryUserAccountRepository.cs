@@ -61,6 +61,36 @@ public sealed class InMemoryUserAccountRepository : IUserAccountRepository, IUni
         return Task.FromResult<IReadOnlyList<UserAccountAggregate>>(filtered);
     }
 
+    // REC-12: InMemory — in-memory pagination (acceptable for test/dev data volumes)
+    public async Task<(IReadOnlyList<UserAccountAggregate> Items, int TotalCount)> GetPagedAsync(
+        int page, int pageSize, string? search, string? status, string sortBy, string sortOrder,
+        Guid? tenantId = null, CancellationToken cancellationToken = default)
+    {
+        var all = await GetAllAsync(cancellationToken);
+        var query = tenantId.HasValue
+            ? all.Where(u => u.Props.TenantId.GetValue() == tenantId.Value)
+            : all.AsEnumerable();
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var lower = search.ToLower();
+            query = query.Where(u => u.Props.Email.GetValue().ToLower().Contains(lower));
+        }
+
+        if (!string.IsNullOrWhiteSpace(status) && !string.Equals(status, "all", StringComparison.OrdinalIgnoreCase))
+            query = query.Where(u => u.Props.Status.ToString().Equals(status, StringComparison.OrdinalIgnoreCase));
+
+        query = (sortBy?.ToLower(), sortOrder?.ToLower()) switch
+        {
+            ("email", "desc") => query.OrderByDescending(u => u.Props.Email.GetValue()),
+            _                 => query.OrderBy(u => u.Props.Email.GetValue()),
+        };
+
+        var list = query.ToList();
+        var paged = list.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+        return (paged, list.Count);
+    }
+
     public Task AddAsync(UserAccountAggregate aggregate, CancellationToken cancellationToken = default)
     {
         _store[aggregate.Props.Id.GetValue()] = aggregate;

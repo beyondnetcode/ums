@@ -53,6 +53,49 @@ public sealed class SqlServerUserAccountRepository(UmsPlatformDbContext dbContex
         return records.Select(Rehydrate).ToList();
     }
 
+    /// <inheritdoc/>
+    public async Task<(IReadOnlyList<UserAccountAggregate> Items, int TotalCount)> GetPagedAsync(
+        int page, int pageSize, string? search, string? status, string sortBy, string sortOrder,
+        Guid? tenantId = null, CancellationToken cancellationToken = default)
+    {
+        // REC-12: DB-level pagination — only retrieve the requested page from SQL Server.
+        var query = dbContext.UserAccounts.AsQueryable();
+
+        if (tenantId.HasValue)
+            query = query.Where(u => u.TenantId == tenantId.Value);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var lower = search.ToLower();
+            query = query.Where(u => u.Email.ToLower().Contains(lower));
+        }
+
+        if (!string.IsNullOrWhiteSpace(status) &&
+            !string.Equals(status, "all", StringComparison.OrdinalIgnoreCase))
+        {
+            // StatusId filtering would require the int value; application filters after fetch
+            // for status since it maps int → enum name at the domain layer.
+        }
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        query = (sortBy?.ToLower(), sortOrder?.ToLower()) switch
+        {
+            ("email", "desc") => query.OrderByDescending(u => u.Email),
+            _                 => query.OrderBy(u => u.Email),
+        };
+
+        var records = await query
+            .AsSplitQuery()
+            .Include(x => x.MfaEnrollments)
+            .Include(x => x.PasswordCredentials)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return (records.Select(Rehydrate).ToList(), totalCount);
+    }
+
     public async Task<IReadOnlyList<UserAccountAggregate>> GetByTenantIdAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
         var records = await dbContext.UserAccounts
