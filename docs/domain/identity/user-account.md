@@ -202,15 +202,19 @@ sequenceDiagram
 
 ## 4. Entity / Relationship Model
 
+> **Relación con Delegación:** `USER_MANAGEMENT_DELEGATION` contiene **dos FK independientes hacia `USER_ACCOUNT`** — una para cada rol (`DelegatingAdminId` = grantor, `DelegatedAdminId` = grantee). Esto es un **dual self-join** (auto-relación de roles), no una relación M:M clásica. Un mismo `UserAccount` puede aparecer simultáneamente como grantor en N delegaciones que otorgó y como grantee en M delegaciones que recibe. La circularidad directa (A→B y B→A activos a la vez) se bloquea vía `IDelegationAuthorityChecker` (INV-DEL5); la auto-delegación se bloquea con `CHECK (DelegatingAdminId <> DelegatedAdminId)` en BD (INV-DEL2).
+
 ```mermaid
 erDiagram
-    USER_ACCOUNT ||--o{ PASSWORD_CREDENTIAL : "authenticates_with"
-    USER_ACCOUNT ||--o{ MFA_ENROLLMENT : "enrolls_mfa"
-    USER_ACCOUNT }o--|| TENANT : "belongs_to"
-    USER_ACCOUNT }o--o| BRANCH : "scoped_to"
+    USER_ACCOUNT ||--o{ PASSWORD_CREDENTIAL        : "authenticates_with"
+    USER_ACCOUNT ||--o{ MFA_ENROLLMENT             : "enrolls_mfa"
+    USER_ACCOUNT }o--|| TENANT                     : "belongs_to"
+    USER_ACCOUNT }o--o| BRANCH                     : "scoped_to"
+    USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "grants  (DelegatingAdminId)"
+    USER_ACCOUNT ||--o{ USER_MANAGEMENT_DELEGATION : "receives (DelegatedAdminId)"
 
     USER_ACCOUNT {
-        uniqueidentifier UserId PK
+        uniqueidentifier Id PK
         uniqueidentifier TenantId FK "RLS"
         uniqueidentifier BranchId FK "Nullable"
         nvarchar Email "Unique per TenantId"
@@ -225,7 +229,7 @@ erDiagram
     }
 
     PASSWORD_CREDENTIAL {
-        uniqueidentifier CredentialId PK
+        uniqueidentifier Id PK
         uniqueidentifier UserAccountId FK
         nvarchar PasswordHash "BCrypt"
         bit IsActive "Only one active at a time"
@@ -236,7 +240,7 @@ erDiagram
     }
 
     MFA_ENROLLMENT {
-        uniqueidentifier MfaEnrollmentId PK
+        uniqueidentifier Id PK
         uniqueidentifier UserAccountId FK
         nvarchar Method "TOTP-SMS-EMAIL-WEBAUTHN"
         nvarchar Status "ENROLLED-PENDING-REVOKED"
@@ -245,7 +249,32 @@ erDiagram
         datetime2 UpdatedAt
         uniqueidentifier UpdatedBy
     }
+
+    USER_MANAGEMENT_DELEGATION {
+        uniqueidentifier Id PK
+        uniqueidentifier TenantId FK "RLS"
+        uniqueidentifier DelegatingAdminId FK "→ USER_ACCOUNT (grantor)"
+        uniqueidentifier DelegatedAdminId FK "→ USER_ACCOUNT (grantee)"
+        varchar ScopeTypeId "TENANT-ORGANIZATION-DEPARTMENT-SYSTEM-TEAM"
+        uniqueidentifier ScopeId "Nullable — required when ScopeType ≠ TENANT"
+        nvarchar AllowedActionsJson "JSON: CREATE_USER BLOCK_USER ASSIGN_PROFILE ..."
+        datetimeoffset ValidFrom
+        datetimeoffset ValidUntil
+        int MaxDurationDays "Nullable"
+        bit RequiresApproval
+        uniqueidentifier ApprovalRequestId "Nullable FK"
+        int StatusId "DRAFT-PENDING_APPROVAL-ACTIVE-REVOKED-EXPIRED-COMPLETED-REJECTED-ARCHIVED"
+        datetimeoffset RevokedAt "Nullable"
+        uniqueidentifier RevokedBy "Nullable FK → USER_ACCOUNT"
+        nvarchar RevocationReason "Nullable"
+        datetime2 CreatedAt
+        uniqueidentifier CreatedBy
+        datetime2 UpdatedAt
+        uniqueidentifier UpdatedBy
+    }
 ```
+
+> **Nota INV-DEL2 / INV-DEL5:** La tabla incluye `CHECK (DelegatingAdminId <> DelegatedAdminId)` en BD. La anti-circularidad (A→B no puede coexistir con B→A `ACTIVE`) se detecta en aplicación porque requiere buscar filas — los `CHECK` constraints de SQL no pueden hacer lookups cruzados. Ver [`UserManagementDelegation`](./user-management-delegation.md) §7.
 
 ---
 
@@ -257,8 +286,11 @@ flowchart TD
         UA[UserAccount AR]
         PC[PasswordCredential]
         MFA[MfaEnrollment]
+        UMD[UserManagementDelegation AR]
         UA --> PC
         UA --> MFA
+        UMD -. "DelegatingAdminId\n(grantor FK)" .-> UA
+        UMD -. "DelegatedAdminId\n(grantee FK)" .-> UA
     end
 
     subgraph Authorization["Authorization BC"]
@@ -275,20 +307,29 @@ flowchart TD
         RMS[RoleMaturityStatus]
     end
 
-    subgraph Infrastructure["Infrastructure"]
-        HASH[Password Hashing Service]
-        TOTP[TOTP Service]
-        SMS[SMS Gateway]
+    subgraph AppServices["Application Services"]
+        HASH[IPasswordHashingService]
+        TOTP[IMfaChallengeService]
+        DSV[IDelegationScopeValidator]
+        DAC[IDelegationAuthorityChecker]
     end
 
-    UA -->|UserRegisteredEvent| PROF
-    UA -->|UserId reference| AR
-    UA -->|UserId reference| UD
-    UA -->|UserId reference| PR
-    
+    UA  -->|UserRegisteredEvent| PROF
+    UA  -->|UserId reference| AR
+    UA  -->|UserId reference| UD
+    UA  -->|UserId reference| PR
+
+    DSV -->|"queries ACTIVE delegations"| UMD
+    DSV -->|"gates RegisterUser / BlockUser\nAssignProfile commands"| UA
+    DAC -->|"INV-DEL1: no elevation\nINV-DEL5: no circular"| UMD
+
     HASH -->|BCrypt hash| PC
     TOTP -->|OTP validation| MFA
+
+    AR  -->|ApproveDelegationCommand| UMD
 ```
+
+> **Dual self-join en Identity BC:** `UserManagementDelegation` vive dentro del mismo BC que `UserAccount` pero es un AR independiente. Las dos FK (`DelegatingAdminId`, `DelegatedAdminId`) apuntan ambas a `UserAccount` — líneas punteadas en el diagrama. La validación de autoridad se hace por `IDelegationScopeValidator` (application service), no dentro del propio AR de `UserAccount`.
 
 ---
 

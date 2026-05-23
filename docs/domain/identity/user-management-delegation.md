@@ -282,37 +282,54 @@ sequenceDiagram
 
 ## 4. Entity / Relationship Model
 
+> **Patrón dual self-join:** `USER_MANAGEMENT_DELEGATION` referencia a `USER_ACCOUNT` **dos veces** con roles distintos. El diagrama usa los alias `UA_GRANTOR` y `UA_GRANTEE` para que Mermaid pueda trazar ambas líneas; en BD ambos alias mapean a la misma tabla `[ums_identity].[UserAccounts]`. La misma cuenta puede aparecer como grantor en N filas y como grantee en M filas simultáneamente. La anti-circularidad (A→B activo + B→A activo) se bloquea en aplicación mediante `IDelegationAuthorityChecker` (INV-DEL5); la auto-delegación se bloquea en BD con `CHECK (DelegatingAdminId <> DelegatedAdminId)` (INV-DEL2).
+
 ```mermaid
 erDiagram
-    USER_MANAGEMENT_DELEGATION }o--|| USER_ACCOUNT_DELEGATING : "delegating_admin"
-    USER_MANAGEMENT_DELEGATION }o--|| USER_ACCOUNT_DELEGATED : "delegated_admin"
+    %% UA_GRANTOR y UA_GRANTEE son el mismo UserAccounts — roles distintos
+    UA_GRANTOR ||--o{ USER_MANAGEMENT_DELEGATION : "grants  (DelegatingAdminId)"
+    UA_GRANTEE ||--o{ USER_MANAGEMENT_DELEGATION : "receives (DelegatedAdminId)"
     USER_MANAGEMENT_DELEGATION }o--o| APPROVAL_REQUEST : "requires_approval"
-    USER_ACCOUNT_DELEGATING ||--o{ USER_MANAGEMENT_DELEGATION : "grants"
-    USER_ACCOUNT_DELEGATED  ||--o{ USER_MANAGEMENT_DELEGATION : "receives"
+
+    UA_GRANTOR {
+        uniqueidentifier Id PK
+        nvarchar Email
+        varchar Status "ACTIVE para poder delegar"
+    }
+
+    UA_GRANTEE {
+        uniqueidentifier Id PK
+        nvarchar Email
+        varchar Status "ACTIVE para recibir delegación"
+    }
 
     USER_MANAGEMENT_DELEGATION {
         uniqueidentifier Id PK
         uniqueidentifier TenantId FK "RLS"
-        uniqueidentifier DelegatingAdminId FK
-        uniqueidentifier DelegatedAdminId FK
-        varchar ScopeType "TENANT-ORGANIZATION-DEPARTMENT-SYSTEM-TEAM"
-        uniqueidentifier ScopeId "Nullable"
-        nvarchar AllowedActions "JSON array"
+        uniqueidentifier DelegatingAdminId FK "→ UserAccounts (grantor) · INV-DEL2 ≠ DelegatedAdminId"
+        uniqueidentifier DelegatedAdminId FK "→ UserAccounts (grantee) · INV-DEL2 ≠ DelegatingAdminId"
+        int ScopeTypeId "1=TENANT 2=ORGANIZATION 3=DEPARTMENT 4=SYSTEM 5=TEAM"
+        uniqueidentifier ScopeId "Nullable — required when ScopeTypeId ≠ 1"
+        nvarchar AllowedActionsJson "JSON: [CREATE_USER, BLOCK_USER, ...]"
         datetimeoffset ValidFrom
-        datetimeoffset ValidUntil
+        datetimeoffset ValidUntil "CHECK ValidUntil > ValidFrom"
         int MaxDurationDays "Nullable"
         bit RequiresApproval
         uniqueidentifier ApprovalRequestId "Nullable FK"
-        varchar Status "DRAFT-PENDING_APPROVAL-ACTIVE-REVOKED-EXPIRED-COMPLETED-REJECTED-ARCHIVED"
+        int StatusId "1=DRAFT 2=PENDING_APPROVAL 3=ACTIVE 4=REVOKED 5=EXPIRED 6=COMPLETED 7=REJECTED 8=ARCHIVED"
         datetimeoffset RevokedAt "Nullable"
-        uniqueidentifier RevokedBy "Nullable FK"
-        nvarchar RevocationReason "Nullable"
-        varchar RestrictedToUserCategory "Nullable"
-        uniqueidentifier RestrictedToOrganizationId "Nullable"
+        uniqueidentifier RevokedBy "Nullable FK → UserAccounts"
+        nvarchar RevocationReason "Nullable — required on revocation"
         datetime2 CreatedAt
-        uniqueidentifier CreatedBy
+        nvarchar CreatedBy
         datetime2 UpdatedAt
-        uniqueidentifier UpdatedBy
+        nvarchar UpdatedBy
+    }
+
+    APPROVAL_REQUEST {
+        uniqueidentifier Id PK
+        uniqueidentifier TenantId FK "RLS"
+        varchar Status "PENDING-APPROVED-REJECTED"
     }
 ```
 
