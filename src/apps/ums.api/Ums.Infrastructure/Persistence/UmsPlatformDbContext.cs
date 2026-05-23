@@ -88,37 +88,37 @@ public sealed class UmsPlatformDbContext(
         modelBuilder.Entity<TenantBranchRecord>()
             .HasQueryFilter(x =>
                 !tenantContext.OrganizationId.HasValue ||
-                x.TenantId == tenantContext.OrganizationId.Value);
+                x.TenantId == tenantContext.OrganizationId);
 
         modelBuilder.Entity<TenantBrandingRecord>()
             .HasQueryFilter(x =>
                 !tenantContext.OrganizationId.HasValue ||
-                x.TenantId == tenantContext.OrganizationId.Value);
+                x.TenantId == tenantContext.OrganizationId);
 
         modelBuilder.Entity<TenantIdentityProviderRecord>()
             .HasQueryFilter(x =>
                 !tenantContext.OrganizationId.HasValue ||
-                x.TenantId == tenantContext.OrganizationId.Value);
+                x.TenantId == tenantContext.OrganizationId);
 
         modelBuilder.Entity<UserAccountRecord>()
             .HasQueryFilter(x =>
                 !tenantContext.OrganizationId.HasValue ||
-                x.TenantId == tenantContext.OrganizationId.Value);
+                x.TenantId == tenantContext.OrganizationId);
 
         modelBuilder.Entity<ProfileRecord>()
             .HasQueryFilter(x =>
                 !tenantContext.OrganizationId.HasValue ||
-                x.TenantId == tenantContext.OrganizationId.Value);
+                x.TenantId == tenantContext.OrganizationId);
 
         modelBuilder.Entity<UserManagementDelegationRecord>()
             .HasQueryFilter(x =>
                 !tenantContext.OrganizationId.HasValue ||
-                x.TenantId == tenantContext.OrganizationId.Value);
+                x.TenantId == tenantContext.OrganizationId);
 
         modelBuilder.Entity<IdpConfigurationRecord>()
             .HasQueryFilter(x =>
                 !tenantContext.OrganizationId.HasValue ||
-                x.TenantId == tenantContext.OrganizationId.Value);
+                x.TenantId == tenantContext.OrganizationId);
 
         // AppConfiguration TenantId is nullable: global records (TenantId IS NULL) are
         // always visible regardless of tenant context; tenant-scoped records only for the
@@ -127,7 +127,7 @@ public sealed class UmsPlatformDbContext(
             .HasQueryFilter(x =>
                 !tenantContext.OrganizationId.HasValue ||
                 x.TenantId == null ||
-                x.TenantId == tenantContext.OrganizationId.Value);
+                x.TenantId == tenantContext.OrganizationId);
 
         base.OnModelCreating(modelBuilder);
     }

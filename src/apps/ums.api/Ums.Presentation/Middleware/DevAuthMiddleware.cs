@@ -18,8 +18,16 @@ public sealed class DevAuthMiddleware
     {
         if (context.User?.Identity?.IsAuthenticated != true)
         {
-            var userId = context.Request.Headers[UserIdHeader].FirstOrDefault() ?? DefaultUserId;
-            var userName = context.Request.Headers[UserNameHeader].FirstOrDefault() ?? DefaultUserName;
+            var userId = context.Request.Headers[UserIdHeader].FirstOrDefault();
+            var userName = context.Request.Headers[UserNameHeader].FirstOrDefault();
+
+            if (userId == null && Environment.GetEnvironmentVariable("Persistence__Provider") == "InMemory")
+            {
+                return _next(context);
+            }
+
+            userId ??= DefaultUserId;
+            userName ??= DefaultUserName;
 
             var claims = new[]
             {
