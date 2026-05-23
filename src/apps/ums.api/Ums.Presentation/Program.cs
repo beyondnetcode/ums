@@ -18,6 +18,8 @@ using Ums.Presentation.Endpoints.Identity.Tenant;
 using Ums.Presentation.Endpoints.Identity.Tenant.Queries;
 using Ums.Presentation.Endpoints.Identity.UserAccount;
 using Ums.Presentation.Endpoints.Identity.UserAccount.Queries;
+using Ums.Presentation.Endpoints.Identity.UserManagementDelegation;
+using Ums.Presentation.Endpoints.Identity.UserManagementDelegation.Queries;
 using Ums.Presentation.Endpoints.Authorization.Profile;
 using Ums.Presentation.Endpoints.Authorization.Profile.Queries;
 using Ums.Presentation.Endpoints.Authorization.SystemSuite;
@@ -253,6 +255,7 @@ versionedGroup.MapTenantBranchEndpoints();
 versionedGroup.MapTenantIdentityProviderEndpoints();
 versionedGroup.MapTenantBrandingEndpoints();
 versionedGroup.MapUserAccountEndpoints();
+versionedGroup.MapDelegationEndpoints();
 
 versionedGroup.MapProfileEndpoints();
 
@@ -276,6 +279,7 @@ versionedGroup.MapBranchQueryEndpoints();
 versionedGroup.MapBrandingQueryEndpoints();
 versionedGroup.MapIdentityProviderQueryEndpoints();
 versionedGroup.MapUserAccountQueryEndpoints();
+versionedGroup.MapDelegationQueryEndpoints();
 versionedGroup.MapProfileQueryEndpoints();
 versionedGroup.MapSystemSuiteQueryEndpoints();
 versionedGroup.MapPermissionTemplateQueryEndpoints();

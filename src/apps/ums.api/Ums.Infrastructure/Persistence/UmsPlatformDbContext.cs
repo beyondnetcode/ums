@@ -22,6 +22,7 @@ public sealed class UmsPlatformDbContext(DbContextOptions<UmsPlatformDbContext> 
     public DbSet<UserAccountPasswordCredentialRecord> UserAccountPasswordCredentials => Set<UserAccountPasswordCredentialRecord>();
     public DbSet<ProfileRecord> Profiles => Set<ProfileRecord>();
     public DbSet<ProfilePermissionRecord> ProfilePermissions => Set<ProfilePermissionRecord>();
+    public DbSet<UserManagementDelegationRecord> UserManagementDelegations => Set<UserManagementDelegationRecord>();
     // TODO(api-aggregate-tracker): Add SQL-backed DbSets and mappings for SystemSuite, PermissionTemplate, Approval aggregates, IGA aggregates, AuditRecord, and Configuration aggregates.
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -37,6 +38,7 @@ public sealed class UmsPlatformDbContext(DbContextOptions<UmsPlatformDbContext> 
         modelBuilder.ApplyConfiguration(new UserAccountPasswordCredentialRecordConfiguration());
         modelBuilder.ApplyConfiguration(new ProfileRecordConfiguration());
         modelBuilder.ApplyConfiguration(new ProfilePermissionRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new UserManagementDelegationRecordConfiguration());
 
         base.OnModelCreating(modelBuilder);
     }

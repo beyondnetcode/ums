@@ -61,6 +61,7 @@ public static class DependencyInjection
         {
             services.AddScoped<ITenantRepository, SqlServerTenantRepository>();
             services.AddScoped<IUserAccountRepository, SqlServerUserAccountRepository>();
+            services.AddScoped<IUserManagementDelegationRepository, SqlServerUserManagementDelegationRepository>();
         }
         else
         {
@@ -69,6 +70,9 @@ public static class DependencyInjection
 
             services.AddSingleton<InMemoryUserAccountRepository>();
             services.AddSingleton<IUserAccountRepository>(sp => sp.GetRequiredService<InMemoryUserAccountRepository>());
+
+            services.AddSingleton<InMemoryUserManagementDelegationRepository>();
+            services.AddSingleton<IUserManagementDelegationRepository>(sp => sp.GetRequiredService<InMemoryUserManagementDelegationRepository>());
         }
 
         if (persistence.Provider == PersistenceProvider.SqlServer && persistence.UseSqlServerAuthorizationStores)

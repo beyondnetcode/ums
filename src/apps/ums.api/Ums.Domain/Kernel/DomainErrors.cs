@@ -146,6 +146,18 @@ public static class DomainErrors
         public const string DocumentAlreadyExpired              = "compliance.document_already_expired";
     }
 
+    public static class Delegation
+    {
+        public const string SelfDelegationNotAllowed         = "delegation.self_delegation_not_allowed";
+        public const string ValidUntilMustBeAfterValidFrom   = "delegation.valid_until_must_be_after_valid_from";
+        public const string AllowedActionsRequired           = "delegation.allowed_actions_required";
+        public const string CannotActivateFromCurrentStatus  = "delegation.cannot_activate_from_current_status";
+        public const string CannotRevokeFromCurrentStatus    = "delegation.cannot_revoke_from_current_status";
+        public const string RevocationReasonRequired         = "delegation.revocation_reason_required";
+        public const string CannotArchiveFromCurrentStatus   = "delegation.cannot_archive_from_current_status";
+        public const string NotActive                        = "delegation.not_active";
+    }
+
     public static class IGA
     {
         public const string MaturityLevelUnchanged = "iga.maturity_level_unchanged";

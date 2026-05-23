@@ -1,0 +1,127 @@
+/**
+ * use-delegation.ts — TanStack Query hooks for UserManagementDelegation bounded context
+ *
+ * Queries use useQuery directly (GraphQL reads).
+ * Mutations use useNotifiedMutation factory (REST writes).
+ */
+import { useQuery } from '@tanstack/react-query';
+import delegationService from '@infra/identity/services/delegation.service';
+import { useNotifiedMutation } from '@app/hooks/use-notified-mutation';
+import { useI18n } from '@app/i18n/use-i18n';
+import type { CreateDelegationPayload, Delegation } from '@domain/identity/models/delegation.model';
+import { getHttpStatus } from '@app/errors/http-error';
+import { GraphQlValidationError, GraphQlUnavailableError } from '@infra/http/graphqlClient';
+
+function isNonRecoverableError(error: unknown): boolean {
+  if (error instanceof GraphQlValidationError) return true;
+  const status = getHttpStatus(error);
+  if (status === 400 || status === 401 || status === 403 || status === 404 || status === 422) return true;
+  return false;
+}
+
+function isNetworkError(error: unknown): boolean {
+  return error instanceof GraphQlUnavailableError;
+}
+
+// ─── Queries ────────────────────────────────────────────────────────────────
+
+export const useGetDelegation = (delegationId: string | null) => {
+  return useQuery<Delegation | null>({
+    queryKey: ['delegations', delegationId],
+    queryFn: async () => {
+      if (!delegationId) throw new Error('Delegation ID required');
+      try {
+        return await delegationService.getDelegationById(delegationId);
+      } catch (err: unknown) {
+        if (getHttpStatus(err) === 404) return null;
+        throw err;
+      }
+    },
+    enabled: !!delegationId,
+    retry: (failureCount, error: unknown) => {
+      if (isNonRecoverableError(error)) return false;
+      if (isNetworkError(error)) return failureCount < 2;
+      if (getHttpStatus(error) === 404) return false;
+      return failureCount < 1;
+    },
+  });
+};
+
+export const useGetDelegationsByDelegatedAdmin = (delegatedAdminId: string | null, tenantId: string | null) => {
+  return useQuery<Delegation[]>({
+    queryKey: ['delegations', 'by-delegated-admin', delegatedAdminId, tenantId],
+    queryFn: () => delegationService.getDelegationsByDelegatedAdmin(delegatedAdminId!, tenantId!),
+    enabled: !!delegatedAdminId && !!tenantId,
+    staleTime: 30_000,
+    retry: (failureCount, error: unknown) => {
+      if (isNonRecoverableError(error)) return false;
+      if (isNetworkError(error)) return failureCount < 2;
+      return failureCount < 1;
+    },
+  });
+};
+
+export const useGetDelegationsByDelegatingAdmin = (delegatingAdminId: string | null, tenantId: string | null) => {
+  return useQuery<Delegation[]>({
+    queryKey: ['delegations', 'by-delegating-admin', delegatingAdminId, tenantId],
+    queryFn: () => delegationService.getDelegationsByDelegatingAdmin(delegatingAdminId!, tenantId!),
+    enabled: !!delegatingAdminId && !!tenantId,
+    staleTime: 30_000,
+    retry: (failureCount, error: unknown) => {
+      if (isNonRecoverableError(error)) return false;
+      if (isNetworkError(error)) return failureCount < 2;
+      return failureCount < 1;
+    },
+  });
+};
+
+// ─── Mutations ──────────────────────────────────────────────────────────────
+
+export const useCreateDelegation = () => {
+  const t = useI18n();
+  return useNotifiedMutation({
+    mutationFn: (payload: CreateDelegationPayload) => delegationService.createDelegation(payload),
+    invalidateKeys: [['delegations']],
+    successNotif: () => ({
+      title: t.notifActivated ?? 'Delegation created',
+      message: t.notifUserActivatedMsg ?? 'The delegation was created successfully.',
+    }),
+    errorNotif: () => ({
+      title: t.notifActivateFailed ?? 'Create failed',
+      message: t.notifUserActivateFailedMsg ?? 'Could not create the delegation.',
+    }),
+  });
+};
+
+export const useActivateDelegation = (delegationId: string) => {
+  const t = useI18n();
+  return useNotifiedMutation({
+    mutationFn: () => delegationService.activateDelegation(delegationId),
+    invalidateKeys: [['delegations', delegationId]],
+    successNotif: () => ({
+      title: t.notifActivated ?? 'Delegation activated',
+      message: t.notifUserActivatedMsg ?? 'The delegation is now active.',
+    }),
+    errorNotif: () => ({
+      title: t.notifActivateFailed ?? 'Activate failed',
+      message: t.notifUserActivateFailedMsg ?? 'Could not activate the delegation.',
+    }),
+  });
+};
+
+export const useRevokeDelegation = (delegationId: string) => {
+  const t = useI18n();
+  return useNotifiedMutation({
+    mutationFn: (reason: string) => delegationService.revokeDelegation(delegationId, reason),
+    invalidateKeys: [['delegations', delegationId]],
+    successNotif: () => ({
+      title: t.notifBlocked ?? 'Delegation revoked',
+      message: t.notifUserBlockedMsg ?? 'The delegation has been revoked.',
+      type: 'warning',
+    }),
+    errorNotif: () => ({
+      title: t.notifBlockFailed ?? 'Revoke failed',
+      message: t.notifUserBlockFailedMsg ?? 'Could not revoke the delegation.',
+    }),
+  });
+};

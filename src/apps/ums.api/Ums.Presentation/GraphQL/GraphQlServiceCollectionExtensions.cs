@@ -16,6 +16,7 @@ public static class GraphQlServiceCollectionExtensions
             .AddQueryType(d => d.Name("Query"))
             .AddTypeExtension<TenantQueries>()
             .AddTypeExtension<UserAccountQueries>()
+            .AddTypeExtension<DelegationQueries>()
             .AddTypeExtension<ProfileQueries>()
             .AddTypeExtension<SystemSuiteQueries>()
             .AddTypeExtension<PermissionTemplateQueries>()

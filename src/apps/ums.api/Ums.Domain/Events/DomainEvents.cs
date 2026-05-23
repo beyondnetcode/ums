@@ -91,3 +91,11 @@ public sealed record DocumentRejectedEvent(Guid DocumentId, Guid UserId, string 
 public sealed record DocumentExpiredEvent(Guid DocumentId, Guid UserId, Guid DocumentTypeId, string Criticity) : ComplianceDomainEvent;
 public sealed record DocumentNearExpirationEvent(Guid DocumentId, Guid UserId, Guid DocumentTypeId, int DaysRemaining, int Step) : ComplianceDomainEvent;
 public sealed record EnforcementExecutedEvent(Guid DocumentId, Guid UserId, string Action, DateTime ExecutedAt) : ComplianceDomainEvent;
+
+public abstract record IdentityDelegationDomainEvent(Guid TenantId) : UmsDomainEvent(TenantId);
+public sealed record DelegationCreatedEvent(Guid DelegationId, Guid TenantId, Guid DelegatingAdminId, Guid DelegatedAdminId, string ScopeType, string AllowedActions) : IdentityDelegationDomainEvent(TenantId);
+public sealed record DelegationActivatedEvent(Guid DelegationId, Guid TenantId, DateTimeOffset ValidFrom, DateTimeOffset ValidUntil) : IdentityDelegationDomainEvent(TenantId);
+public sealed record DelegationRevokedEvent(Guid DelegationId, Guid TenantId, Guid RevokedBy, string Reason) : IdentityDelegationDomainEvent(TenantId);
+public sealed record DelegationExpiredEvent(Guid DelegationId, Guid TenantId, DateTimeOffset ExpiredAt) : IdentityDelegationDomainEvent(TenantId);
+public sealed record DelegationRejectedEvent(Guid DelegationId, Guid TenantId, string Reason) : IdentityDelegationDomainEvent(TenantId);
+public sealed record DelegationArchivedEvent(Guid DelegationId, Guid TenantId, string PreviousStatus) : IdentityDelegationDomainEvent(TenantId);

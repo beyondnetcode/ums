@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Text.Json;
 using Ums.Domain.Enums;
 using Ums.Domain.Identity.Tenant;
 using Ums.Domain.Identity.Tenant.Branding;
@@ -7,6 +8,7 @@ using Ums.Domain.Identity.Tenant.IdentityProvider;
 using Ums.Domain.Identity.UserAccount;
 using Ums.Domain.Identity.UserAccount.MfaEnrollment;
 using Ums.Domain.Identity.UserAccount.PasswordCredential;
+using Ums.Domain.Identity.UserManagementDelegation;
 using Ums.Domain.Kernel.ValueObjects;
 using Ums.Infrastructure.Persistence.Identity.Entities;
 using Ums.Shell.Ddd.ValueObjects.Audit;
@@ -15,6 +17,7 @@ namespace Ums.Infrastructure.Persistence.Reflection;
 
 using TenantAggregate = Ums.Domain.Identity.Tenant.Tenant;
 using UserAccountAggregate = Ums.Domain.Identity.UserAccount.UserAccount;
+using UserManagementDelegationAggregate = Ums.Domain.Identity.UserManagementDelegation.UserManagementDelegation;
 
 internal static class IdentityAggregateFactory
 {
@@ -83,6 +86,41 @@ internal static class IdentityAggregateFactory
         account.BrokenRules.Clear();
 
         return account;
+    }
+
+    public static UserManagementDelegationAggregate RehydrateUserManagementDelegation(UserManagementDelegationRecord record)
+    {
+        var actionIds = JsonSerializer.Deserialize<List<int>>(record.AllowedActionsJson) ?? [];
+        var allowedActions = actionIds
+            .Select(id => DomainEnumerationMapper.FromValue<DelegatedAction>(id))
+            .ToList();
+
+        var props = new UserManagementDelegationProps(
+            DelegationId.Load(record.Id),
+            TenantId.Load(record.TenantId),
+            UserAccountId.Load(record.DelegatingAdminId),
+            UserAccountId.Load(record.DelegatedAdminId),
+            DomainEnumerationMapper.FromValue<DelegationScopeType>(record.ScopeTypeId),
+            record.ScopeId,
+            allowedActions,
+            record.ValidFrom,
+            record.ValidUntil,
+            record.MaxDurationDays,
+            record.RequiresApproval,
+            ActorId.Create(record.CreatedBy));
+
+        props.Status = DomainEnumerationMapper.FromValue<DelegationStatus>(record.StatusId);
+        props.ApprovalRequestId = record.ApprovalRequestId;
+        props.RevokedAt = record.RevokedAt;
+        props.RevokedBy = record.RevokedBy;
+        props.RevocationReason = record.RevocationReason;
+        SetAudit(props, record.CreatedBy, record.CreatedAtUtc, record.UpdatedBy, record.UpdatedAtUtc, record.AuditTimeSpan);
+
+        var delegation = Construct<UserManagementDelegationAggregate, UserManagementDelegationProps>(props);
+        delegation.DomainEvents.MarkChangesAsCommitted();
+        delegation.BrokenRules.Clear();
+
+        return delegation;
     }
 
     private static Branch RehydrateBranch(TenantBranchRecord record)
