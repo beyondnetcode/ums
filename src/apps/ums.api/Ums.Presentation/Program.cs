@@ -359,3 +359,5 @@ internal sealed class LanguageHeaderOperationFilter : Swashbuckle.AspNetCore.Swa
         });
     }
 }
+
+public partial class Program;
