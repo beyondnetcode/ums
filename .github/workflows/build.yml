@@ -1,0 +1,62 @@
+name: .NET Build & Test
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/apps/ums.api/**'
+      - 'src/libs/**'
+      - '.github/workflows/build.yml'
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/apps/ums.api/**'
+      - 'src/libs/**'
+      - '.github/workflows/build.yml'
+
+jobs:
+  build-and-test:
+    name: Build & Test (.NET 10)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      # ── Shell libraries ────────────────────────────────────────────────
+      - name: Restore – Shell DDD lib
+        run: dotnet restore src/libs/shell/ddd/src/Ums.Shell.Ddd/Ums.Shell.Ddd.sln
+
+      - name: Build – Shell DDD lib
+        run: dotnet build src/libs/shell/ddd/src/Ums.Shell.Ddd/Ums.Shell.Ddd.sln --no-restore --configuration Release
+
+      - name: Test – Shell DDD lib
+        run: dotnet test src/libs/shell/ddd/src/Ums.Shell.Ddd/Ums.Shell.Ddd.sln --no-build --configuration Release --logger "console;verbosity=minimal"
+
+      - name: Restore – Shell Factory lib
+        run: dotnet restore src/libs/shell/factory/src/Ums.Shell.Factory.sln
+
+      - name: Build – Shell Factory lib
+        run: dotnet build src/libs/shell/factory/src/Ums.Shell.Factory.sln --no-restore --configuration Release
+
+      - name: Test – Shell Factory lib
+        run: dotnet test src/libs/shell/factory/src/Ums.Shell.Factory.sln --no-build --configuration Release --logger "console;verbosity=minimal"
+
+      # ── Main API ───────────────────────────────────────────────────────
+      - name: Restore – UMS API
+        run: dotnet restore src/apps/ums.api/Ums.sln
+
+      - name: Build – UMS API
+        run: dotnet build src/apps/ums.api/Ums.sln --no-restore --configuration Release
+
+      - name: Test – UMS API (unit + integration, skips SQL Server if Docker absent)
+        run: dotnet test src/apps/ums.api/Ums.sln --no-build --configuration Release --logger "console;verbosity=minimal"
+
+      # ── Security audit ─────────────────────────────────────────────────
+      - name: NuGet vulnerability audit
+        run: dotnet list src/apps/ums.api/Ums.sln package --vulnerable --include-transitive
