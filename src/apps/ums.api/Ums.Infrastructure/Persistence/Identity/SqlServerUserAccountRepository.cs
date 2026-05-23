@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Ums.Domain.Identity;
 using Ums.Domain.Kernel;
@@ -107,6 +109,47 @@ public sealed class SqlServerUserAccountRepository(UmsPlatformDbContext dbContex
             .ToListAsync(cancellationToken);
 
         return records.Select(Rehydrate).ToList();
+    }
+
+    /// <inheritdoc/>
+    /// <remarks>
+    /// Design note: Uses EF change tracking (not ExecuteUpdateAsync) so the soft-delete and
+    /// GDPR anonymization changes are batched with the outbox message in a single
+    /// SaveChangesAsync call when the caller later invokes SaveEntitiesAsync.
+    ///
+    /// The caller MUST first call UpdateAsync (to register the aggregate in _trackedAggregates
+    /// for outbox message creation) and then call SoftDeleteAsync (which overwrites the email
+    /// with the anonymized token). Both modifications target the same EF identity-map instance.
+    /// </remarks>
+    public async Task<bool> SoftDeleteAsync(Guid id, string deletedBy, CancellationToken cancellationToken = default)
+    {
+        // IgnoreQueryFilters so we can detect an already-deleted row (return false = idempotent).
+        // EF's identity map returns the same tracked instance that UpdateAsync already loaded,
+        // so modifying `record` here is additive to the changes Apply() already staged.
+        var record = await dbContext.UserAccounts
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted, cancellationToken);
+
+        if (record is null) return false;
+
+        var now = DateTime.UtcNow;
+        record.IsDeleted = true;
+        record.DeletedAtUtc = now;
+        record.DeletedBy = deletedBy;
+        // GDPR: replace PII with a deterministic, irreversible token (SHA-256 of the GUID).
+        record.Email = BuildAnonymizedEmail(id);
+        record.IdentityReference = null;
+        record.AnonymizedAtUtc = now;
+        // EF change tracker now has IsDeleted=true + anonymized email pending; SaveChangesAsync
+        // (called from SaveEntitiesAsync by the handler) will commit everything atomically.
+        return true;
+    }
+
+    private static string BuildAnonymizedEmail(Guid id)
+    {
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(id.ToString()));
+        var prefix = Convert.ToHexString(hash)[..16].ToLower();
+        return $"gdpr_del_{prefix}@anonymized.invalid";
     }
 
     public Task AddAsync(UserAccountAggregate aggregate, CancellationToken cancellationToken = default)

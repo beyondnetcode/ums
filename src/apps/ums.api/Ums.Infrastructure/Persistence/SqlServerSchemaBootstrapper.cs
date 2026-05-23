@@ -13,6 +13,9 @@ public static partial class SqlServerSchemaBootstrapper
         "20260521_sqlserver_authorization_profiles.sql",
         "20260522_sqlserver_identity_delegations.sql",
         "20260523_sqlserver_configuration_aggregates.sql",
+        "20260523_sqlserver_audit_records.sql",
+        "20260523_sqlserver_approvals.sql",
+        "20260523_soft_delete_gdpr.sql",                   // REC-16
     ];
 
     public static async Task InitializeAsync(UmsPlatformDbContext dbContext, CancellationToken cancellationToken = default)

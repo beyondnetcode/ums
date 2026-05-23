@@ -19,6 +19,11 @@ public sealed class TenantRecord : IAuditableRecord
     public string AuditTimeSpan { get; set; } = string.Empty;
     public byte[] RowVersion { get; set; } = [];
 
+    // REC-16: Soft-delete
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAtUtc { get; set; }
+    public string? DeletedBy { get; set; }
+
     public List<TenantBranchRecord> Branches { get; set; } = [];
     public List<TenantIdentityProviderRecord> IdentityProviders { get; set; } = [];
     public TenantBrandingRecord? Branding { get; set; }

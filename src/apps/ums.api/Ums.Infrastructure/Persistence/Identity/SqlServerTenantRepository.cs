@@ -108,6 +108,28 @@ public sealed class SqlServerTenantRepository(UmsPlatformDbContext dbContext) : 
         return (records.Select(Rehydrate).ToList(), totalCount);
     }
 
+    /// <inheritdoc/>
+    /// <remarks>
+    /// Uses EF change tracking so soft-delete changes are committed together with the
+    /// TenantDeletedEvent outbox message in a single SaveChangesAsync call by the caller.
+    /// The caller MUST invoke UpdateAsync first (to populate _trackedAggregates) and then
+    /// call this method before SaveEntitiesAsync.
+    /// </remarks>
+    public async Task<bool> SoftDeleteAsync(Guid id, string deletedBy, CancellationToken cancellationToken = default)
+    {
+        var record = await dbContext.Tenants
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted, cancellationToken);
+
+        if (record is null) return false;
+
+        var now = DateTime.UtcNow;
+        record.IsDeleted = true;
+        record.DeletedAtUtc = now;
+        record.DeletedBy = deletedBy;
+        return true;
+    }
+
     public async Task AddAsync(TenantAggregate aggregate, CancellationToken cancellationToken = default)
     {
         dbContext.Tenants.Add(ToRecord(aggregate));

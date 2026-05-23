@@ -56,6 +56,8 @@ public static class DomainErrors
         public const string InternalRequiresHrId = "user_account.internal_requires_hr_id";
         public const string EmailNotUnique = "user_account.email_not_unique";
         public const string CannotRemoveLastPassword = "user_account.cannot_remove_last_password";
+        // REC-16: soft-delete + GDPR
+        public const string AlreadyDeleted = "user_account.already_deleted";
     }
 
     public static class SystemSuite

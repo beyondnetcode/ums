@@ -82,6 +82,14 @@ public sealed class InMemoryTenantRepository : ITenantRepository, IUnitOfWork
         return Task.FromResult<TenantAggregate?>(tenant);
     }
 
+    /// <inheritdoc/>
+    /// REC-16: InMemory soft-delete removes the entry from the store (no persistence layer).
+    public Task<bool> SoftDeleteAsync(Guid id, string deletedBy, CancellationToken cancellationToken = default)
+    {
+        var removed = _store.TryRemove(id, out _);
+        return Task.FromResult(removed);
+    }
+
     public Task AddAsync(TenantAggregate aggregate, CancellationToken cancellationToken = default)
     {
         _store[aggregate.Props.Id.GetValue()] = aggregate;

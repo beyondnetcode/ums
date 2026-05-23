@@ -316,4 +316,73 @@ public class UserAccountCommandHandlerTests
     }
 
     #endregion
+
+    #region Delete (REC-16)
+
+    [Fact]
+    public async Task Delete_WhenValid_ReturnsSuccess()
+    {
+        var user = MakeUserAccount();
+        user.Activate(ActorId.Create("user-001"));
+
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync(user);
+        _repo.Setup(r => r.SoftDeleteAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync(true);
+
+        var cmd = new DeleteUserAccountCommand(Guid.NewGuid());
+        var handler = new DeleteUserAccountCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        _repo.Verify(r => r.UpdateAsync(user, It.IsAny<CancellationToken>()), Times.Once);
+        _repo.Verify(r => r.SoftDeleteAsync(It.IsAny<Guid>(), "user-001", It.IsAny<CancellationToken>()), Times.Once);
+        _uow.Verify(u => u.SaveEntitiesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Delete_WhenUserNotFound_ReturnsFailure()
+    {
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync((UserAccount?)null);
+
+        var cmd = new DeleteUserAccountCommand(Guid.NewGuid());
+        var handler = new DeleteUserAccountCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("not found", result.Error, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task Delete_WhenAlreadyDeleted_ReturnsFailure()
+    {
+        var user = MakeUserAccount();
+        user.Activate(ActorId.Create("user-001"));
+        user.Delete(ActorId.Create("user-001")); // already deleted
+
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync(user);
+
+        var cmd = new DeleteUserAccountCommand(Guid.NewGuid());
+        var handler = new DeleteUserAccountCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+    }
+
+    [Fact]
+    public async Task Delete_WhenNoAuthenticatedUser_ReturnsFailure()
+    {
+        _ctx.Setup(u => u.UserId).Returns("");
+
+        var cmd = new DeleteUserAccountCommand(Guid.NewGuid());
+        var handler = new DeleteUserAccountCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("Authenticated user is required", result.Error);
+    }
+
+    #endregion
 }

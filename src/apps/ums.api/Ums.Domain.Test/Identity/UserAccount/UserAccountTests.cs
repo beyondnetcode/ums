@@ -498,4 +498,73 @@ public class UserAccountTests
     }
 
     #endregion
+
+    #region Delete (REC-16)
+
+    [Fact]
+    public void Delete_WhenActive_ReturnsSuccess()
+    {
+        var user = UserAccount.Create(ValidTenantId, ValidEmail, ValidCategory, null, null, ValidActor).Value;
+        user.Activate(ValidActor);
+
+        var result = user.Delete(ValidActor);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(UserStatus.Deleted, user.Status);
+    }
+
+    [Fact]
+    public void Delete_WhenPending_ReturnsSuccess()
+    {
+        // Pending accounts can also be deleted (e.g. invited but never activated)
+        var user = UserAccount.Create(ValidTenantId, ValidEmail, ValidCategory, null, null, ValidActor).Value;
+
+        var result = user.Delete(ValidActor);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(UserStatus.Deleted, user.Status);
+    }
+
+    [Fact]
+    public void Delete_WhenAlreadyDeleted_ReturnsFailure()
+    {
+        var user = UserAccount.Create(ValidTenantId, ValidEmail, ValidCategory, null, null, ValidActor).Value;
+        user.Delete(ValidActor); // first delete
+
+        var result = user.Delete(ValidActor); // second delete
+
+        Assert.True(result.IsFailure);
+        Assert.Contains(DomainErrors.UserAccount.AlreadyDeleted, result.Error);
+    }
+
+    [Fact]
+    public void Delete_RaisesUserDeletedEvent()
+    {
+        var user = UserAccount.Create(ValidTenantId, ValidEmail, ValidCategory, null, null, ValidActor).Value;
+        user.Activate(ValidActor);
+        user.DomainEvents.MarkChangesAsCommitted();
+
+        user.Delete(ValidActor);
+
+        var events = user.DomainEvents.GetUncommittedChanges().ToList();
+        Assert.Contains(events, e => e is UserDeletedEvent);
+    }
+
+    [Fact]
+    public void Delete_UserDeletedEvent_CarriesCorrectTenantId()
+    {
+        var user = UserAccount.Create(ValidTenantId, ValidEmail, ValidCategory, null, null, ValidActor).Value;
+        user.Activate(ValidActor);
+        user.DomainEvents.MarkChangesAsCommitted();
+
+        user.Delete(ValidActor);
+
+        var deletedEvent = user.DomainEvents.GetUncommittedChanges()
+            .OfType<UserDeletedEvent>()
+            .Single();
+
+        Assert.Equal(ValidTenantId.GetValue(), deletedEvent.TenantId);
+    }
+
+    #endregion
 }

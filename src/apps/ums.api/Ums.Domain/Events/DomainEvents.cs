@@ -26,6 +26,8 @@ public sealed record UserRegisteredEvent(Guid UserId, Guid TenantId, Guid? Branc
 public sealed record UserActivatedEvent(Guid UserId, Guid TenantId) : UmsDomainEvent(TenantId);
 public sealed record UserBlockedEvent(Guid UserId, Guid TenantId, string Reason) : UmsDomainEvent(TenantId);
 public sealed record UserRestoredEvent(Guid UserId, Guid TenantId) : UmsDomainEvent(TenantId);
+// REC-16: GDPR — raised when a user account is soft-deleted and PII is scheduled for anonymization
+public sealed record UserDeletedEvent(Guid UserId, Guid TenantId) : UmsDomainEvent(TenantId);
 public sealed record MfaEnrolledEvent(Guid UserId, Guid TenantId, string Method) : UmsDomainEvent(TenantId);
 public sealed record MfaVerifiedEvent(Guid UserId, Guid TenantId, string Method) : UmsDomainEvent(TenantId);
 public sealed record AuthenticationAttemptedEvent(Guid? UserId, Guid TenantId, bool Success, string Reason, string IpAddress) : UmsDomainEvent(TenantId);

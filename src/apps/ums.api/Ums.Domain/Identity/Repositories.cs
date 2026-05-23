@@ -19,6 +19,12 @@ public interface ITenantRepository : IAggregateRepository<TenantAggregate>
     Task<(IReadOnlyList<TenantAggregate> Items, int TotalCount)> GetPagedAsync(
         int page, int pageSize, string? search, string? status, string sortBy, string sortOrder,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// REC-16: Soft-delete a tenant by ID. Marks IsDeleted=true and records who deleted it.
+    /// Returns false if the tenant was not found.
+    /// </summary>
+    Task<bool> SoftDeleteAsync(Guid id, string deletedBy, CancellationToken cancellationToken = default);
 }
 
 public interface IUserAccountRepository : IAggregateRepository<UserAccountAggregate>
@@ -33,6 +39,14 @@ public interface IUserAccountRepository : IAggregateRepository<UserAccountAggreg
     Task<(IReadOnlyList<UserAccountAggregate> Items, int TotalCount)> GetPagedAsync(
         int page, int pageSize, string? search, string? status, string sortBy, string sortOrder,
         Guid? tenantId = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// REC-16: Soft-delete a user account by ID. For SQL repos: marks IsDeleted=true and
+    /// anonymizes PII (email → gdpr_del_{sha256}@anonymized.invalid, IdentityReference → null).
+    /// For InMemory repos: removes the record from the store.
+    /// Returns false if not found.
+    /// </summary>
+    Task<bool> SoftDeleteAsync(Guid id, string deletedBy, CancellationToken cancellationToken = default);
 }
 
 public interface IUserManagementDelegationRepository : IAggregateRepository<UserManagementDelegationAggregate>

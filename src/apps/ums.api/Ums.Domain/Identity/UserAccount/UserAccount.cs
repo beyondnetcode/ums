@@ -134,6 +134,29 @@ public sealed class UserAccount : AggregateRoot<UserAccount, UserAccountProps>
         return Result.Success();
     }
 
+    /// <summary>
+    /// REC-16: Soft-delete — transitions the account to the <see cref="UserStatus.Deleted"/> terminal state.
+    /// Call <c>SoftDeleteAsync</c> on the repository afterwards to persist and anonymize PII in the DB.
+    /// </summary>
+    public Result Delete(ActorId deletedBy)
+    {
+        if (Status == UserStatus.Deleted)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.UserAccount.AlreadyDeleted));
+        }
+
+        if (!IsValid())
+        {
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+        }
+
+        Props.Status = UserStatus.Deleted;
+        DomainEvents.RaiseEvent(new UserDeletedEvent(Props.Id.GetValue(), Props.TenantId.GetValue()));
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(deletedBy.GetValue());
+        return Result.Success();
+    }
+
     public Result AddPassword(PasswordHash passwordHash, ActorId createdBy)
     {
         if (Status == UserStatus.Blocked)

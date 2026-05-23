@@ -19,6 +19,13 @@ public sealed class UserAccountRecord : IAuditableRecord
     public string AuditTimeSpan { get; set; } = string.Empty;
     public byte[] RowVersion { get; set; } = [];
 
+    // REC-16: Soft-delete + GDPR anonymization
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAtUtc { get; set; }
+    public string? DeletedBy { get; set; }
+    /// <summary>Timestamp set when email and IdentityReference are replaced with anonymized values (GDPR).</summary>
+    public DateTime? AnonymizedAtUtc { get; set; }
+
     public List<UserAccountMfaEnrollmentRecord> MfaEnrollments { get; set; } = [];
     public List<UserAccountPasswordCredentialRecord> PasswordCredentials { get; set; } = [];
 }

@@ -10,6 +10,8 @@ using Ums.Infrastructure.Persistence.Identity.Configurations;
 using Ums.Infrastructure.Persistence.Identity.Entities;
 using Ums.Infrastructure.Persistence.Outbox;
 using Ums.Infrastructure.Persistence.Outbox.Configurations;
+using Ums.Infrastructure.Persistence.Approvals.Configurations;
+using Ums.Infrastructure.Persistence.Approvals.Entities;
 
 namespace Ums.Infrastructure.Persistence;
 
@@ -55,7 +57,11 @@ public sealed class UmsPlatformDbContext(
     public DbSet<FeatureFlagEvaluationLogRecord> FeatureFlagEvaluationLogs => Set<FeatureFlagEvaluationLogRecord>();
     public DbSet<IdpConfigurationRecord> IdpConfigurations => Set<IdpConfigurationRecord>();
     public DbSet<AuditRecordRecord> AuditRecords => Set<AuditRecordRecord>();
-    // TODO(api-aggregate-tracker): Add SQL-backed DbSets and mappings for SystemSuite, PermissionTemplate, Approval aggregates, and IGA aggregates.
+    public DbSet<ApprovalWorkflowRecord> ApprovalWorkflows => Set<ApprovalWorkflowRecord>();
+    public DbSet<ApprovalRequiredDocumentRecord> ApprovalRequiredDocuments => Set<ApprovalRequiredDocumentRecord>();
+    public DbSet<ApprovalRequestRecord> ApprovalRequests => Set<ApprovalRequestRecord>();
+    public DbSet<NotificationRuleRecord> NotificationRules => Set<NotificationRuleRecord>();
+    // TODO(api-aggregate-tracker): Add SQL-backed DbSets and mappings for SystemSuite, PermissionTemplate, and IGA aggregates.
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -77,6 +83,10 @@ public sealed class UmsPlatformDbContext(
         modelBuilder.ApplyConfiguration(new FeatureFlagEvaluationLogRecordConfiguration());
         modelBuilder.ApplyConfiguration(new IdpConfigurationRecordConfiguration());
         modelBuilder.ApplyConfiguration(new AuditRecordRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new ApprovalWorkflowRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new ApprovalRequiredDocumentRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new ApprovalRequestRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new NotificationRuleRecordConfiguration());
 
         // -------------------------------------------------------------------------
         // FIX-05: Global query filters — primary tenant isolation mechanism.
@@ -84,7 +94,14 @@ public sealed class UmsPlatformDbContext(
         // When OrganizationId is null (system/background context) the short-circuit
         // !HasValue condition makes EF emit no WHERE clause, so all rows are visible.
         // When OrganizationId is set, only the current tenant's rows are returned.
+        //
+        // REC-16: Soft-delete filters are combined here so no deleted rows ever leak.
         // -------------------------------------------------------------------------
+
+        // TenantRecord is not tenant-scoped (it IS the tenant) but must be soft-delete filtered.
+        modelBuilder.Entity<TenantRecord>()
+            .HasQueryFilter(x => !x.IsDeleted);
+
         modelBuilder.Entity<TenantBranchRecord>()
             .HasQueryFilter(x =>
                 !tenantContext.OrganizationId.HasValue ||
@@ -102,8 +119,9 @@ public sealed class UmsPlatformDbContext(
 
         modelBuilder.Entity<UserAccountRecord>()
             .HasQueryFilter(x =>
-                !tenantContext.OrganizationId.HasValue ||
-                x.TenantId == tenantContext.OrganizationId);
+                !x.IsDeleted &&
+                (!tenantContext.OrganizationId.HasValue ||
+                x.TenantId == tenantContext.OrganizationId));
 
         modelBuilder.Entity<ProfileRecord>()
             .HasQueryFilter(x =>
@@ -127,6 +145,16 @@ public sealed class UmsPlatformDbContext(
             .HasQueryFilter(x =>
                 !tenantContext.OrganizationId.HasValue ||
                 x.TenantId == null ||
+                x.TenantId == tenantContext.OrganizationId);
+
+        modelBuilder.Entity<ApprovalWorkflowRecord>()
+            .HasQueryFilter(x =>
+                !tenantContext.OrganizationId.HasValue ||
+                x.TenantId == tenantContext.OrganizationId);
+
+        modelBuilder.Entity<NotificationRuleRecord>()
+            .HasQueryFilter(x =>
+                !tenantContext.OrganizationId.HasValue ||
                 x.TenantId == tenantContext.OrganizationId);
 
         base.OnModelCreating(modelBuilder);

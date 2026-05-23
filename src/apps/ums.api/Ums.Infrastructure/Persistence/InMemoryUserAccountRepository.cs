@@ -91,6 +91,14 @@ public sealed class InMemoryUserAccountRepository : IUserAccountRepository, IUni
         return (paged, list.Count);
     }
 
+    /// <inheritdoc/>
+    /// REC-16: InMemory soft-delete removes the entry from the store entirely (no persistence).
+    public Task<bool> SoftDeleteAsync(Guid id, string deletedBy, CancellationToken cancellationToken = default)
+    {
+        var removed = _store.TryRemove(id, out _);
+        return Task.FromResult(removed);
+    }
+
     public Task AddAsync(UserAccountAggregate aggregate, CancellationToken cancellationToken = default)
     {
         _store[aggregate.Props.Id.GetValue()] = aggregate;
