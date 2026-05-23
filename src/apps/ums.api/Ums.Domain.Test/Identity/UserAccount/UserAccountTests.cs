@@ -368,6 +368,7 @@ public class UserAccountTests
         Assert.True(result.IsSuccess);
         Assert.Single(user.MfaEnrollments);
         Assert.Equal(method, user.MfaEnrollments.First().Method);
+        Assert.Equal(MfaEnrollmentStatus.Enrolled, user.MfaEnrollments.First().Status);
     }
 
     [Fact]
@@ -425,6 +426,7 @@ public class UserAccountTests
         var result = user.VerifyMfaChallenge(enrollmentId, ValidActor);
 
         Assert.True(result.IsSuccess);
+        Assert.Equal(MfaEnrollmentStatus.Verified, user.MfaEnrollments.First().Status);
     }
 
     [Fact]
@@ -451,6 +453,21 @@ public class UserAccountTests
 
         var events = user.DomainEvents.GetUncommittedChanges().ToList();
         Assert.Contains(events, e => e is MfaVerifiedEvent);
+    }
+
+    [Fact]
+    public void VerifyMfaChallenge_WhenAlreadyVerified_ReturnsFailure()
+    {
+        var user = UserAccount.Create(ValidTenantId, ValidEmail, ValidCategory, null, null, ValidActor).Value;
+        var method = MfaMethod.Totp;
+        user.EnrollMfa(method, ValidActor);
+        var enrollmentId = user.MfaEnrollments.First().Id;
+        user.VerifyMfaChallenge(enrollmentId, ValidActor);
+
+        var result = user.VerifyMfaChallenge(enrollmentId, ValidActor);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains(DomainErrors.UserAccount.MfaAlreadyVerified, result.Error);
     }
 
     #endregion

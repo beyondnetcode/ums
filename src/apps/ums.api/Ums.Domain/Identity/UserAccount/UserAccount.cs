@@ -234,7 +234,7 @@ public sealed class UserAccount : AggregateRoot<UserAccount, UserAccountProps>
             BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.UserAccount.BlockedCannotEnrollMfa));
         }
 
-        if (_mfaEnrollments.Any(e => e.Method == method && e.Status != MfaEnrollmentStatus.NotEnrolled))
+        if (_mfaEnrollments.Any(e => e.Method == method))
         {
             BrokenRules.Add(new BrokenRule(nameof(MfaEnrollments), DomainErrors.UserAccount.MfaAlreadyEnrolled));
         }
@@ -273,7 +273,12 @@ public sealed class UserAccount : AggregateRoot<UserAccount, UserAccountProps>
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        enrollment.Value.Verify(updatedBy);
+        var verifyResult = enrollment.Value.Verify(updatedBy);
+        if (verifyResult.IsFailure)
+        {
+            return verifyResult;
+        }
+
         DomainEvents.RaiseEvent(new MfaVerifiedEvent(
             Props.Id.GetValue(),
             Props.TenantId.GetValue(),

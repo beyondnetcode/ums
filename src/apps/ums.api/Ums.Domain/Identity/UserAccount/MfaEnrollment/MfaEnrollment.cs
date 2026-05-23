@@ -30,6 +30,11 @@ public sealed class MfaEnrollment : Entity<MfaEnrollment, MfaEnrollmentProps>
 
     public Result Verify(ActorId updatedBy)
     {
+        if (Props.Status == MfaEnrollmentStatus.Verified)
+        {
+            return Result.Failure(DomainErrors.UserAccount.MfaAlreadyVerified);
+        }
+
         Props.Status = MfaEnrollmentStatus.Verified;
         Props.Audit.Update(updatedBy.GetValue());
         return Result.Success();

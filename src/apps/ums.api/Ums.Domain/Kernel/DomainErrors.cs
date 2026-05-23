@@ -52,6 +52,7 @@ public static class DomainErrors
         public const string PasswordHashRequired = "user_account.password_hash_required";
         public const string BlockedCannotEnrollMfa = "user_account.blocked_cannot_enroll_mfa";
         public const string MfaAlreadyEnrolled = "user_account.mfa_already_enrolled";
+        public const string MfaAlreadyVerified = "user_account.mfa_already_verified";
         public const string InternalRequiresHrId = "user_account.internal_requires_hr_id";
         public const string EmailNotUnique = "user_account.email_not_unique";
         public const string CannotRemoveLastPassword = "user_account.cannot_remove_last_password";
