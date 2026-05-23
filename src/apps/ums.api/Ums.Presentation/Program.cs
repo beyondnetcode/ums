@@ -1,5 +1,6 @@
 using System.Threading.RateLimiting;
 using Asp.Versioning;
+using Serilog;
 using Asp.Versioning.Builder;
 using Azure.Core;
 using Azure.Extensions.AspNetCore.Configuration.Secrets;
@@ -55,14 +56,23 @@ using Ums.Presentation.Extensions;
 using Ums.Presentation.GraphQL;
 using Ums.Presentation.Middleware;
 
+// REC-14: Bootstrap Serilog immediately so startup errors are structured.
+// Host.UseSerilog() replaces the default Microsoft.Extensions.Logging providers.
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
+
 var builder = WebApplication.CreateBuilder(args);
+
+// Replace built-in logging with Serilog; reads appsettings Serilog section.
+builder.Host.UseSerilog((ctx, cfg) => cfg.ConfigureUmsSerilog(ctx));
 
 ConfigureSecrets(builder);
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddScoped<ILocalizationService, LocalizationService>();
-builder.Services.AddUmsGraphQl();
+builder.Services.AddUmsGraphQl(builder.Environment);
 builder.Services.AddMemoryCache(); // required by IdempotencyMiddleware (FIX-06)
 
 builder.Services.AddApiVersioning(options =>
@@ -246,6 +256,21 @@ var versionedGroup = app.MapGroup("api/v{apiVersion:apiVersion}")
     .WithApiVersionSet(versionSet);
 
 app.UseCorrelationId();
+// REC-14: Emit one structured log line per HTTP request (method, path, status, elapsed).
+// Placed after CorrelationId so the CorrelationId log scope is already active.
+app.UseSerilogRequestLogging(opts =>
+{
+    opts.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+    {
+        diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value ?? string.Empty);
+        diagnosticContext.Set("CorrelationId", httpContext.TraceIdentifier);
+    };
+    // Exclude health checks to avoid log noise
+    opts.GetLevel = (ctx, _, _) =>
+        ctx.Request.Path.StartsWithSegments("/health")
+            ? Serilog.Events.LogEventLevel.Verbose
+            : Serilog.Events.LogEventLevel.Information;
+});
 app.UseGlobalExceptionHandler();
 app.UseIdempotency(); // FIX-06: deduplicate POST/PUT/PATCH via Idempotency-Key header
 app.UseRateLimiter();

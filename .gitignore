@@ -51,3 +51,7 @@ build/
 **/.nx/
 **/vite.config.*.timestamp*
 
+
+# Local appsettings overrides — never commit real credentials
+**/appsettings.Local.json
+**/appsettings.*.Local.json

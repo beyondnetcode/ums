@@ -10,9 +10,16 @@ using Ums.Presentation.GraphQL.Identity;
 
 public static class GraphQlServiceCollectionExtensions
 {
-    public static IRequestExecutorBuilder AddUmsGraphQl(this IServiceCollection services)
+    /// <summary>
+    /// REC-11: GraphQL introspection is restricted to Development environment only.
+    /// In Staging/Production, introspection queries are rejected with 400 to prevent
+    /// schema enumeration by unauthorized clients via __schema or __type queries.
+    /// </summary>
+    public static IRequestExecutorBuilder AddUmsGraphQl(
+        this IServiceCollection services,
+        IHostEnvironment environment)
     {
-        return services
+        var builder = services
             .AddGraphQLServer()
             .AddQueryType(d => d.Name("Query"))
             .AddTypeExtension<TenantQueries>()
@@ -37,7 +44,18 @@ public static class GraphQlServiceCollectionExtensions
             .ModifyRequestOptions(options =>
             {
                 options.ExecutionTimeout = TimeSpan.FromSeconds(10);
-                options.IncludeExceptionDetails = false;
+                options.IncludeExceptionDetails = environment.IsDevelopment();
             });
+
+        // REC-11: Disable introspection outside Development so attackers cannot
+        // enumerate the full schema surface via __schema or __type queries.
+        // DisableIntrospection() is an extension on IRequestExecutorBuilder
+        // from HotChocolate.Execution.Configuration.RequestExecutorBuilderExtensions.
+        if (!environment.IsDevelopment())
+        {
+            builder.DisableIntrospection();
+        }
+
+        return builder;
     }
 }
