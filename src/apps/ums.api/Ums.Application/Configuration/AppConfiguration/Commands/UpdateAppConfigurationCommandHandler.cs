@@ -1,0 +1,44 @@
+namespace Ums.Application.Configuration.AppConfiguration.Commands;
+
+using Ums.Application.Common.Interfaces;
+using Ums.Domain.Configuration;
+
+public sealed class UpdateAppConfigurationCommandHandler : ICommandHandler<UpdateAppConfigurationCommand>
+{
+    private readonly IAppConfigurationRepository _repository;
+    private readonly IUserContext _userContext;
+
+    public UpdateAppConfigurationCommandHandler(IAppConfigurationRepository repository, IUserContext userContext)
+    {
+        _repository = repository;
+        _userContext = userContext;
+    }
+
+    public async Task<Result> Handle(UpdateAppConfigurationCommand request, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(_userContext.UserId))
+        {
+            return Result.Failure("Authenticated user is required.");
+        }
+
+        var appConfiguration = await _repository.GetByIdAsync(request.AppConfigurationId, cancellationToken);
+        if (appConfiguration is null)
+        {
+            return Result.Failure("App configuration was not found.");
+        }
+
+        var result = appConfiguration.Update(
+            ConfigurationValue.Create(request.Value),
+            Description.Create(request.Description),
+            ActorId.Create(_userContext.UserId));
+
+        if (result.IsFailure)
+        {
+            return result;
+        }
+
+        await _repository.UpdateAsync(appConfiguration, cancellationToken);
+        await _repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+        return Result.Success();
+    }
+}

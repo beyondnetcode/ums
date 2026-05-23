@@ -1,0 +1,11 @@
+using Ums.Application.Configuration.FeatureFlag.DTOs;
+
+namespace Ums.Application.Configuration.FeatureFlag.Commands;
+
+public sealed record CreateFeatureFlagCommand(
+    string FlagCode,
+    string FlagType,
+    string FlagTargets,
+    string? LinkedResourceType,
+    Guid? LinkedResourceId,
+    int? RolloutPercentage) : ICommand<CreateFeatureFlagResponse>;

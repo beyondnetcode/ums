@@ -7,6 +7,7 @@ using Ums.Application.Common.Interfaces;
 using Ums.Domain.Audit.AuditRecord;
 using Ums.Domain.Approvals;
 using Ums.Domain.Authorization;
+using Ums.Domain.Configuration;
 using Ums.Domain.IGA;
 using Ums.Domain.Identity;
 using Ums.Infrastructure.Persistence.Authorization;
@@ -120,7 +121,17 @@ public static class DependencyInjection
         services.AddSingleton<InMemoryRoleMaturityStatusRepository>();
         services.AddSingleton<IRoleMaturityStatusRepository>(sp => sp.GetRequiredService<InMemoryRoleMaturityStatusRepository>());
 
-        // TODO(api-aggregate-tracker): Implement Configuration context repositories and register AppConfiguration, FeatureFlag, and IdpConfiguration here.
+        // TODO(api-aggregate-tracker): Add SQL Server repositories for AppConfiguration, FeatureFlag, and IdpConfiguration.
+        services.AddSingleton<InMemoryFeatureFlagRepository>();
+        services.AddSingleton<IFeatureFlagRepository>(sp => sp.GetRequiredService<InMemoryFeatureFlagRepository>());
+
+        services.AddSingleton<InMemoryAppConfigurationRepository>();
+        services.AddSingleton<IAppConfigurationRepository>(sp => sp.GetRequiredService<InMemoryAppConfigurationRepository>());
+
+        services.AddSingleton<InMemoryIdpConfigurationRepository>();
+        services.AddSingleton<IIdpConfigurationRepository>(sp => sp.GetRequiredService<InMemoryIdpConfigurationRepository>());
+
+        // TODO(api-aggregate-tracker): Add SQL Server repositories for Configuration context aggregates.
         return services;
     }
 }

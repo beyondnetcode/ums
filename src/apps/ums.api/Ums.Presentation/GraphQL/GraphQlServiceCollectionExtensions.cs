@@ -4,6 +4,7 @@ using HotChocolate.Execution.Configuration;
 using Ums.Presentation.GraphQL.Approvals;
 using Ums.Presentation.GraphQL.Audit;
 using Ums.Presentation.GraphQL.Authorization;
+using Ums.Presentation.GraphQL.Configuration;
 using Ums.Presentation.GraphQL.IGA;
 using Ums.Presentation.GraphQL.Identity;
 
@@ -27,6 +28,9 @@ public static class GraphQlServiceCollectionExtensions
             .AddTypeExtension<UserDocumentQueries>()
             .AddTypeExtension<AccessEnforcementPolicyQueries>()
             .AddTypeExtension<NotificationRuleQueries>()
+            .AddTypeExtension<AppConfigurationQueries>()
+            .AddTypeExtension<FeatureFlagQueries>()
+            .AddTypeExtension<IdpConfigurationQueries>()
             .AddTypeExtension<PromotionRequestQueries>()
             .AddTypeExtension<RoleMaturityStatusQueries>()
             .AddMaxExecutionDepthRule(12)
