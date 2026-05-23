@@ -12,6 +12,8 @@
 ### Purpose
 The `UserAccount` aggregate represents a user's identity within a tenant. It governs registration, activation, blocking, external IdP linkage, password credential management, and MFA enrollment. It is the primary identity object referenced by all other bounded contexts. It fully owns the `PasswordCredential` and `MfaEnrollment` child entities.
 
+> **Delegated Administration:** A `UserAccount` with an administrative role may receive a `UserManagementDelegation` from another administrator, granting them the authority to manage a restricted set of users within a defined scope (tenant, organization, department, system, or team). This authority is enforced at the application layer by checking for an `ACTIVE` delegation before processing restricted commands. See [`UserManagementDelegation`](./user-management-delegation.md) · [FS-14](../../governance/requirements/functional-stories/fs-14-delegated-management.md).
+
 ### Business Responsibility
 - Register users within a tenant, assigning them a category and email.
 - Track lifecycle: Pending → Active → Blocked → Active.
@@ -24,6 +26,8 @@ The `UserAccount` aggregate represents a user's identity within a tenant. It gov
 
 ### Invariants and Consistency Rules
 1. `Email` must be unique per `TenantId`.
+14. A `UserAccount` acting as a delegated admin may only execute management commands (`RegisterUserCommand`, `BlockUserCommand`, `AssignProfileCommand`) on users within their `ACTIVE` delegation scope — validated by `IDelegationScopeValidator` at application layer.
+15. A `UserAccount` cannot delegate authority it does not itself possess (`no-elevation` rule — INV-DEL1).
 2. A `UserAccount` in status `Blocked` cannot authenticate.
 3. A `UserAccount` in status `Pending` has no active `PasswordCredential`.
 4. At most one `PasswordCredential` can be `IsActive = true` at any time.
@@ -46,6 +50,7 @@ The `UserAccount` aggregate represents a user's identity within a tenant. It gov
 | `BranchId` | Value Object | FK reference to Branch (optional scope) |
 | `Email` | Value Object | Validated email |
 | `UserCategory` | Enum | INTERNAL · EXTERNAL · B2B · PARTNER |
+| `DelegationId` | Value Object | Reference to `UserManagementDelegation` — set in application context, not stored on aggregate |
 | `UserStatus` | Enum | Pending · Active · Blocked |
 | `IdentityReference` | Value Object | External IdP subject ID |
 | `IdentityReferenceType` | Enum | OIDC · SAML · LOCAL |
@@ -57,7 +62,7 @@ The `UserAccount` aggregate represents a user's identity within a tenant. It gov
 ### Domain Events
 | Event | Trigger |
 |---|---|
-| `UserRegisteredEvent` | New user created in the system |
+| `UserRegisteredEvent` | New user created in the system (by direct admin or delegated admin) |
 | `UserActivatedEvent` | User moved from Pending or Blocked to Active |
 | `UserBlockedEvent` | User blocked (compliance or manual action) |
 | `UserRestoredEvent` | Blocked user restored to Active |
@@ -84,6 +89,7 @@ The `UserAccount` aggregate represents a user's identity within a tenant. It gov
 - `IPasswordHashingService` — domain service for BCrypt hashing.
 - `IEmailUniquenessChecker` — domain service to verify email uniqueness within a tenant.
 - `IMfaChallengeService` — infrastructure service handling OTP generation/TOTP validation.
+- `IDelegationScopeValidator` — application service; validates that the acting admin has an `ACTIVE` `UserManagementDelegation` covering the target user and requested action before processing delegation-gated commands.
 
 ---
 
@@ -337,13 +343,16 @@ flowchart TD
 ## 8. Security and Audit
 
 ### Authorization Rules
-| Operation | Required Role |
-|---|---|
-| Register User | `Tenant:Admin` or `Tenant:UserManager` |
-| Block / Restore User | `Tenant:Admin` |
-| Set Password | User themselves or `Tenant:Admin` |
-| Enroll / Revoke / Verify MFA | User themselves |
-| Link External Identity | `Tenant:Admin` |
+| Operation | Required Role | Delegation Gate |
+|---|---|---|
+| Register User | `Tenant:Admin` or `Tenant:UserManager` | Delegated admin with `CREATE_USER` in scope |
+| Block / Restore User | `Tenant:Admin` | Delegated admin with `BLOCK_USER` in scope |
+| Set Password | User themselves or `Tenant:Admin` | — |
+| Enroll / Revoke / Verify MFA | User themselves | — |
+| Link External Identity | `Tenant:Admin` | — |
+| Assign Profile | `Tenant:Admin` | Delegated admin with `ASSIGN_PROFILE` in scope |
+
+> **Delegation Gate:** When present, the handler also accepts requests from a `UserAccount` holding an `ACTIVE` `UserManagementDelegation` that covers the target user and the listed action. Validated by `IDelegationScopeValidator` before the command reaches the aggregate. See [`UserManagementDelegation`](./user-management-delegation.md).
 
 ### Audit Events
 - `USER_REGISTERED`, `USER_ACTIVATED`, `USER_BLOCKED`, `USER_RESTORED`

@@ -72,7 +72,7 @@ Product Lifecycle and Engineering Specifications for the User Management System 
 > Phase 04b documents each Aggregate Root with 8 structured sections: Aggregate Overview · Object Model · Sequence Diagrams · ER Model · Bounded Context Model · API Contract · Persistence Notes · Security & Audit. Owned child entities (Branch, Branding, IdentityProvider, etc.) are documented within their parent Aggregate Root page — not as separate documents.
 
 - [Domain Aggregate Index](./domain/index.md)
-- **Identity BC:** [Tenant](./domain/identity/tenant.md) · [UserAccount](./domain/identity/user-account.md)
+- **Identity BC:** [Tenant](./domain/identity/tenant.md) · [UserAccount](./domain/identity/user-account.md) · [UserManagementDelegation](./domain/identity/user-management-delegation.md)
 - **Authorization BC:** [SystemSuite](./domain/authorization/system-suite.md) · [PermissionTemplate](./domain/authorization/permission-template.md) · [Profile](./domain/authorization/profile.md)
 - **Configuration BC:** [IdpConfiguration](./domain/configuration/idp-configuration.md) · [AppConfiguration](./domain/configuration/app-configuration.md) · [FeatureFlag](./domain/configuration/feature-flag.md)
 - **Approvals BC:** [ApprovalWorkflow](./domain/approvals/approval-workflow.md) · [ApprovalRequest](./domain/approvals/approval-request.md) · [DocumentType](./domain/approvals/document-type.md) · [UserDocument](./domain/approvals/user-document.md)

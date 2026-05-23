@@ -3,7 +3,7 @@
 > **Language:** [English](./index.md) | [Español](../../domain-es/identity/index.md)
 
 **Bounded Context:** Identity (`Ums.Domain.Identity`)  
-**Aggregate Roots:** `Tenant`, `UserAccount`
+**Aggregate Roots:** `Tenant`, `UserAccount`, `UserManagementDelegation`
 
 ---
 
@@ -16,6 +16,7 @@
 | [UserAccount](./user-account.md) | Aggregate Root | Production |
 | [PasswordCredential](./password-credential.md) | Owned Entity (UserAccount) | Production |
 | [MfaEnrollment](./mfa-enrollment.md) | Owned Entity (UserAccount) | Production |
+| [UserManagementDelegation](./user-management-delegation.md) | Aggregate Root | Production |
 
 ---
 

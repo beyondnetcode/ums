@@ -25,7 +25,7 @@
 
 | # | Documento | Contexto | Agregados | FS |
 |---|-----------|----------|-----------|----|
-| 03 | [Identity Context](./03-identity-context.md) | BC-A `ums_identity` | Tenant, UserAccount, Branch | FS-01, FS-03, FS-08, FS-09 |
+| 03 | [Identity Context](./03-identity-context.md) | BC-A `ums_identity` | Tenant, UserAccount, UserManagementDelegation | FS-01, FS-03, FS-08, FS-09, FS-14 |
 | 04 | [Authorization Context](./04-authorization-context.md) | BC-B `ums_authz` | SystemSuite, Role, PermissionTemplate, TemplateAssignmentRule, Profile | FS-02, FS-04, FS-05, FS-06, FS-07 |
 | 05 | [Configuration Context](./05-configuration-context.md) | BC-C `ums_config` | IdpConfiguration, AppConfiguration, FeatureFlag | FS-08, FS-09, FS-13 |
 | 06 | [Audit Context](./06-audit-context.md) | BC-D `ums_audit` | AuditRecord | Todos |
@@ -39,7 +39,7 @@ Documentos detallados por Aggregate Root con modelo de datos completo, secuencia
 
 | Contexto | Aggregate Roots | Entidades Propias (dentro de su AR) |
 |----------|-----------------|-------------------------------------|
-| Identity | [Tenant](../../../domain/identity/tenant.md) · [UserAccount](../../../domain/identity/user-account.md) | Branch · Branding · IdentityProvider *(en Tenant)* · PasswordCredential · MfaEnrollment *(en UserAccount)* |
+| Identity | [Tenant](../../../domain/identity/tenant.md) · [UserAccount](../../../domain/identity/user-account.md) · [UserManagementDelegation](../../../domain/identity/user-management-delegation.md) | Branch · Branding · IdentityProvider *(en Tenant)* · PasswordCredential · MfaEnrollment *(en UserAccount)* |
 | Authorization | [SystemSuite](../../../domain/authorization/system-suite.md) · [PermissionTemplate](../../../domain/authorization/permission-template.md) · [Profile](../../../domain/authorization/profile.md) | FunctionalModule · FunctionalMenu · FunctionalSubMenu · FunctionalOption · Action *(en SystemSuite)* · PermissionTemplateItem *(en PermissionTemplate)* · ProfilePermission *(en Profile)* |
 | Configuration | [IdpConfiguration](../../../domain/configuration/idp-configuration.md) · [AppConfiguration](../../../domain/configuration/app-configuration.md) · [FeatureFlag](../../../domain/configuration/feature-flag.md) | FlagEvaluationLog *(en FeatureFlag)* |
 | Approvals | [ApprovalWorkflow](../../../domain/approvals/approval-workflow.md) · [ApprovalRequest](../../../domain/approvals/approval-request.md) · [DocumentType](../../../domain/approvals/document-type.md) · [UserDocument](../../../domain/approvals/user-document.md) | ApprovalRequiredDocument *(en ApprovalWorkflow)* · ApprovalLog *(en ApprovalRequest)* · NotificationRule · AccessEnforcementPolicy *(en DocumentType)* · AccessNotification *(en UserDocument)* |
@@ -61,7 +61,7 @@ Documentos detallados por Aggregate Root con modelo de datos completo, secuencia
 | Metrica | Valor |
 |---------|-------|
 | Bounded Contexts | 9 (7 con entidades propias + Cache + Console) |
-| Aggregate Roots | 19 |
+| Aggregate Roots | 20 |
 | Value Objects | 60+ |
 | Invariantes totales | 55+ |
 | Comandos totales | 60+ |

@@ -2,13 +2,13 @@
 
 > **Idioma:** Español | *Versión en inglés no disponible*
 
-**Schema:** `[ums_identity]` | **Owner:** UMS Core API .NET 8  
-**Misión:** Gestionar el ciclo de vida de principals (usuarios), estructuras organizacionales (tenants) y sub-unidades (branches). Delegar verificacion de credenciales a adaptadores de IdP.  
-**FS cubiertos:** FS-01, FS-03, FS-08, FS-09  
-**Versión:** 2.0 | **Fecha:** 2026-05-15
+**Schema:** `[ums_identity]` · `[delegation]` | **Owner:** UMS Core API .NET 8  
+**Misión:** Gestionar el ciclo de vida de principals (usuarios), estructuras organizacionales (tenants) y sub-unidades (branches). Delegar verificación de credenciales a adaptadores de IdP. Gobernar la autoridad administrativa delegada entre administradores.  
+**FS cubiertos:** FS-01, FS-03, FS-08, FS-09, FS-14  
+**Versión:** 2.1 | **Fecha:** 2026-05-22
 
 > **Arquitectura de Agregados:** Modelo completo con diagramas, secuencias, ER y API:
-> [Tenant](../../../domain/identity/tenant.md) · [UserAccount](../../../domain/identity/user-account.md)
+> [Tenant](../../../domain/identity/tenant.md) · [UserAccount](../../../domain/identity/user-account.md) · [UserManagementDelegation](../../../domain/identity/user-management-delegation.md)
 
 ---
 
@@ -18,6 +18,7 @@
 |---------|------|-------------|
 | [Tenant](#aggregate-tenant) | `Tenant` | Nodo organizacional jerárquico y sus branches/proveedores de identidad |
 | [UserAccount](#aggregate-useraccount) | `UserAccount` | Principal autenticable con sus métodos de autenticación |
+| [UserManagementDelegation](#aggregate-usermanagementdelegation) | `UserManagementDelegation` | Autoridad administrativa delegada con scope, acciones y vigencia temporal |
 
 ---
 
@@ -304,6 +305,135 @@ IUserAccountRepository {
     FindByIdentityReferenceAsync(reference, referenceType, tenantId)
     AddAsync(user)
     UpdateAsync(user)
+}
+```
+
+---
+
+## Aggregate: UserManagementDelegation
+
+**Aggregate Root:** `UserManagementDelegation`  
+**Schema:** `[delegation]`  
+**FS:** FS-14
+
+### Entidades
+
+| Entidad | Descripción |
+|---------|-------------|
+| `UserManagementDelegation` (AR) | Registro de autoridad delegada con scope, acciones y vigencia; sin entidades hijas |
+
+### Value Objects
+
+| Value Object | Tipo base | Regla |
+|-------------|-----------|-------|
+| `DelegationScopeType` | enum | `TENANT / ORGANIZATION / DEPARTMENT / SYSTEM / TEAM` |
+| `AllowedActions` | list | Subconjunto de `CREATE_USER · BLOCK_USER · ASSIGN_PROFILE · RESET_PASSWORD · REVOKE_MFA` |
+| `DelegationStatus` | enum | `DRAFT / PENDING_APPROVAL / ACTIVE / REVOKED / EXPIRED / COMPLETED / REJECTED / ARCHIVED` |
+| `ValidFrom` | DateTimeOffset | ≤ `ValidUntil` |
+| `ValidUntil` | DateTimeOffset | > `ValidFrom` |
+| `RevocationReason` | string? | Requerido cuando `Status → REVOKED` |
+
+### Invariantes
+
+| ID | Regla | Fuente |
+|----|-------|--------|
+| INV-DEL1 | `DelegatingAdmin` no puede otorgar acciones que no posee (no-elevation) | FS-14 §6.1 |
+| INV-DEL2 | `DelegatingAdmin ≠ DelegatedAdmin` | FS-14 §6 |
+| INV-DEL3 | `ValidUntil > ValidFrom` | FS-14 §3 |
+| INV-DEL4 | `AllowedActions` debe ser subconjunto no vacío de la autoridad real del delegador | FS-14 §6.2 |
+| INV-DEL5 | Delegación circular prohibida: si A delegó en B, B no puede delegar en A | FS-14 §5.B |
+| INV-DEL6 | Una delegación `DRAFT` no es visible para el admin delegado hasta `ACTIVE` | EP-06 §2.2 |
+| INV-DEL7 | `REVOKED` o `EXPIRED` no pueden reactivarse; crear nueva | EP-06 §2.2 |
+| INV-DEL8 | `MaxDurationDays` si definido limita `ValidUntil − ValidFrom` | EP-06 §2.1 |
+| INV-DEL9 | Si `RequiresApproval=true`, la activación requiere `ApprovalRequestId` aprobado | EP-06 §2.1 |
+| INV-DEL10 | `ScopeId` debe estar presente si `ScopeType ≠ TENANT` | diseño |
+
+### Diagrama del Agregado
+
+```mermaid
+classDiagram
+    direction TB
+    class UserManagementDelegation {
+        <<AggregateRoot>>
+        +Guid Id
+        +Guid TenantId
+        +Guid DelegatingAdminId
+        +Guid DelegatedAdminId
+        +DelegationScopeType ScopeType
+        +Guid ScopeId
+        +AllowedActions AllowedActions
+        +DateTimeOffset ValidFrom
+        +DateTimeOffset ValidUntil
+        +int MaxDurationDays
+        +bool RequiresApproval
+        +Guid ApprovalRequestId
+        +DelegationStatus Status
+        +DateTimeOffset RevokedAt
+        +Guid RevokedBy
+        +string RevocationReason
+    }
+    class UserAccount {
+        <<AggregateRoot>>
+        +Guid Id
+    }
+    UserManagementDelegation "many" --> "1" UserAccount : delegatingAdmin
+    UserManagementDelegation "many" --> "1" UserAccount : delegatedAdmin
+```
+
+### Máquina de Estado: UserManagementDelegation
+
+```mermaid
+stateDiagram-v2
+    [*] --> DRAFT : CreateDelegation
+    DRAFT --> PENDING_APPROVAL : SubmitForApproval (RequiresApproval=true)
+    DRAFT --> ACTIVE : Activate (RequiresApproval=false)
+    PENDING_APPROVAL --> ACTIVE : ApproveDelegation
+    PENDING_APPROVAL --> REJECTED : RejectDelegation
+    ACTIVE --> REVOKED : RevokeDelegation
+    ACTIVE --> EXPIRED : valid_until alcanzado (Background Worker)
+    ACTIVE --> COMPLETED : Periodo concluye naturalmente
+    REVOKED --> ARCHIVED : ArchiveDelegation
+    EXPIRED --> ARCHIVED : ArchiveDelegation
+    COMPLETED --> ARCHIVED : ArchiveDelegation
+    REJECTED --> ARCHIVED : ArchiveDelegation
+    note right of ACTIVE : IDelegationScopeValidator\nsolo resuelve delegaciones ACTIVE
+    note right of ARCHIVED : Estado terminal — sin retorno
+```
+
+### Comandos
+
+| Comando | Descripción |
+|---------|-------------|
+| `CreateDelegationCommand` | Crea borrador de delegación con scope y acciones permitidas |
+| `SubmitDelegationForApprovalCommand` | Envía a flujo de aprobación si `RequiresApproval=true` |
+| `ActivateDelegationCommand` | Activa directamente o tras aprobación |
+| `RevokeDelegationCommand` | Revocación manual con razón obligatoria |
+| `ExpireDelegationCommand` | Background Worker — expira por `valid_until` |
+| `CompleteDelegationCommand` | Background Worker — conclusión natural del período |
+| `ArchiveDelegationCommand` | Background Worker — archiva estados terminales |
+
+### Eventos de Dominio
+
+```
+DelegationCreatedEvent              { delegationId, delegatingAdminId, delegatedAdminId, scopeType, allowedActions }
+DelegationSubmittedForApprovalEvent { delegationId, approvalRequestId }
+DelegationActivatedEvent            { delegationId, validFrom, validUntil }
+DelegationRevokedEvent              { delegationId, revokedBy, reason }
+DelegationExpiredEvent              { delegationId, expiredAt }
+DelegationRejectedEvent             { delegationId, rejectionReason }
+DelegationArchivedEvent             { delegationId, previousStatus }
+```
+
+### Repositorio
+
+```csharp
+IUserManagementDelegationRepository {
+    FindByIdAsync(delegationId, rootTenantId)
+    FindActiveDelegationsForAdminAsync(delegatedAdminId, tenantId)
+    FindExpiredActiveAsync(asOf)                       // Background Worker
+    FindGrantedByAsync(delegatingAdminId, tenantId)
+    AddAsync(delegation)
+    UpdateAsync(delegation)
 }
 ```
 

@@ -14,6 +14,7 @@ Detailed architecture documents for every Aggregate Root and Owned Entity in the
 |---|---|
 | `Tenant` | [tenant.md](./identity/tenant.md) |
 | `UserAccount` | [user-account.md](./identity/user-account.md) |
+| `UserManagementDelegation` | [user-management-delegation.md](./identity/user-management-delegation.md) |
 
 ### Owned Entities (documented within their parent AR)
 
@@ -24,6 +25,8 @@ Detailed architecture documents for every Aggregate Root and Owned Entity in the
 | `IdentityProvider` | Tenant | [identity-provider.md](./identity/identity-provider.md) |
 | `PasswordCredential` | UserAccount | [password-credential.md](./identity/password-credential.md) |
 | `MfaEnrollment` | UserAccount | [mfa-enrollment.md](./identity/mfa-enrollment.md) |
+
+> `UserManagementDelegation` has no owned child entities — it references `UserAccount` (delegating and delegated admins) and optionally `ApprovalRequest` via FK only.
 
 ---
 
