@@ -91,6 +91,7 @@ public static class DependencyInjection
         {
             services.AddScoped<IAppConfigurationRepository, SqlServerAppConfigurationRepository>();
             services.AddScoped<IFeatureFlagRepository, SqlServerFeatureFlagRepository>();
+            services.AddScoped<IIdpConfigurationRepository, SqlServerIdpConfigurationRepository>();
         }
         else
         {
@@ -99,6 +100,9 @@ public static class DependencyInjection
 
             services.AddSingleton<InMemoryFeatureFlagRepository>();
             services.AddSingleton<IFeatureFlagRepository>(sp => sp.GetRequiredService<InMemoryFeatureFlagRepository>());
+
+            services.AddSingleton<InMemoryIdpConfigurationRepository>();
+            services.AddSingleton<IIdpConfigurationRepository>(sp => sp.GetRequiredService<InMemoryIdpConfigurationRepository>());
         }
 
         // TODO(api-aggregate-tracker): Add SQL Server repositories for SystemSuite and PermissionTemplate.
@@ -136,10 +140,7 @@ public static class DependencyInjection
         services.AddSingleton<InMemoryRoleMaturityStatusRepository>();
         services.AddSingleton<IRoleMaturityStatusRepository>(sp => sp.GetRequiredService<InMemoryRoleMaturityStatusRepository>());
 
-        services.AddSingleton<InMemoryIdpConfigurationRepository>();
-        services.AddSingleton<IIdpConfigurationRepository>(sp => sp.GetRequiredService<InMemoryIdpConfigurationRepository>());
-
-        // TODO(api-aggregate-tracker): Add SQL Server repository for IdpConfiguration and enable full Configuration context persistence.
+        // TODO(api-aggregate-tracker): Validate SQL Server runtime for Configuration context and add dev seed coverage if needed.
         return services;
     }
 }

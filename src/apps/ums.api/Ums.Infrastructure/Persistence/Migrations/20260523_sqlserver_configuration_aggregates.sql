@@ -76,3 +76,33 @@ BEGIN
     CREATE INDEX [IX_FeatureFlagEvaluationLogs_EvaluatedAtUtc] ON [ums_configuration].[FeatureFlagEvaluationLogs]([EvaluatedAtUtc]);
 END
 GO
+
+IF OBJECT_ID('[ums_configuration].[IdpConfigurations]', 'U') IS NULL
+BEGIN
+    CREATE TABLE [ums_configuration].[IdpConfigurations]
+    (
+        [Id] uniqueidentifier NOT NULL,
+        [TenantId] uniqueidentifier NOT NULL,
+        [SystemSuiteId] uniqueidentifier NOT NULL,
+        [ProviderTypeId] int NOT NULL,
+        [DomainHintsJson] nvarchar(4000) NOT NULL,
+        [ConfigPayload] nvarchar(20000) NOT NULL,
+        [SecretRef] nvarchar(500) NOT NULL,
+        [StatusId] int NOT NULL,
+        [ResolutionPriority] int NOT NULL,
+        [FallbackToId] uniqueidentifier NULL,
+        [Version] int NOT NULL,
+        [CreatedBy] nvarchar(100) NOT NULL,
+        [CreatedAtUtc] datetime2 NOT NULL,
+        [UpdatedBy] nvarchar(100) NULL,
+        [UpdatedAtUtc] datetime2 NULL,
+        [AuditTimeSpan] nvarchar(100) NOT NULL,
+        CONSTRAINT [PK_IdpConfigurations] PRIMARY KEY ([Id])
+    );
+    CREATE INDEX [IX_IdpConfigurations_TenantId] ON [ums_configuration].[IdpConfigurations]([TenantId]);
+    CREATE INDEX [IX_IdpConfigurations_SystemSuiteId] ON [ums_configuration].[IdpConfigurations]([SystemSuiteId]);
+    CREATE INDEX [IX_IdpConfigurations_ProviderTypeId] ON [ums_configuration].[IdpConfigurations]([ProviderTypeId]);
+    CREATE INDEX [IX_IdpConfigurations_TenantId_SystemSuiteId_ResolutionPriority]
+        ON [ums_configuration].[IdpConfigurations]([TenantId], [SystemSuiteId], [ResolutionPriority]);
+END
+GO

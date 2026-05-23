@@ -1,7 +1,9 @@
 using System.Reflection;
+using System.Text.Json;
 using Ums.Domain.Configuration.AppConfiguration;
 using Ums.Domain.Configuration.FeatureFlag;
 using Ums.Domain.Configuration.FeatureFlag.FlagEvaluationLog;
+using Ums.Domain.Configuration.IdpConfiguration;
 using Ums.Domain.Enums;
 using Ums.Domain.Kernel.ValueObjects;
 using Ums.Infrastructure.Persistence.Configuration.Entities;
@@ -13,6 +15,7 @@ namespace Ums.Infrastructure.Persistence.Reflection;
 using AppConfigurationAggregate = Ums.Domain.Configuration.AppConfiguration.AppConfiguration;
 using FeatureFlagAggregate = Ums.Domain.Configuration.FeatureFlag.FeatureFlag;
 using FeatureFlagEvaluationLogEntity = Ums.Domain.Configuration.FeatureFlag.FlagEvaluationLog.FlagEvaluationLog;
+using IdpConfigurationAggregate = Ums.Domain.Configuration.IdpConfiguration.IdpConfiguration;
 
 internal static class ConfigurationAggregateFactory
 {
@@ -20,6 +23,7 @@ internal static class ConfigurationAggregateFactory
 
     private static readonly Type AppConfigurationIdType = Type.GetType("Ums.Domain.Kernel.ValueObjects.AppConfigurationId, Ums.Domain")!;
     private static readonly Type FeatureFlagIdType = Type.GetType("Ums.Domain.Kernel.ValueObjects.FeatureFlagId, Ums.Domain")!;
+    private static readonly Type IdpConfigurationIdType = Type.GetType("Ums.Domain.Kernel.ValueObjects.IdpConfigurationId, Ums.Domain")!;
 
     public static AppConfigurationAggregate RehydrateAppConfiguration(AppConfigurationRecord record)
     {
@@ -41,6 +45,30 @@ internal static class ConfigurationAggregateFactory
         SetAudit(props, record.CreatedBy, record.CreatedAtUtc, record.UpdatedBy, record.UpdatedAtUtc, record.AuditTimeSpan);
 
         var aggregate = Construct<AppConfigurationAggregate, AppConfigurationProps>(props);
+        aggregate.DomainEvents.MarkChangesAsCommitted();
+        aggregate.BrokenRules.Clear();
+        return aggregate;
+    }
+
+    public static IdpConfigurationAggregate RehydrateIdpConfiguration(IdpConfigurationRecord record)
+    {
+        var props = new IdpConfigurationProps(
+            LoadTypedId(IdpConfigurationIdType, record.Id),
+            TenantId.Load(record.TenantId),
+            SystemSuiteId.Load(record.SystemSuiteId),
+            DomainEnumerationMapper.FromValue<ProviderType>(record.ProviderTypeId),
+            JsonSerializer.Deserialize<string[]>(record.DomainHintsJson) ?? [],
+            record.ConfigPayload,
+            record.SecretRef,
+            record.ResolutionPriority,
+            record.FallbackToId,
+            ActorId.Create(record.CreatedBy));
+
+        props.Status = DomainEnumerationMapper.FromValue<IdpConfigStatus>(record.StatusId);
+        props.Version = record.Version;
+        SetAudit(props, record.CreatedBy, record.CreatedAtUtc, record.UpdatedBy, record.UpdatedAtUtc, record.AuditTimeSpan);
+
+        var aggregate = Construct<IdpConfigurationAggregate, IdpConfigurationProps>(props);
         aggregate.DomainEvents.MarkChangesAsCommitted();
         aggregate.BrokenRules.Clear();
         return aggregate;

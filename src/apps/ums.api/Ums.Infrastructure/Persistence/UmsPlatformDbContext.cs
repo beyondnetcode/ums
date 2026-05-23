@@ -28,7 +28,8 @@ public sealed class UmsPlatformDbContext(DbContextOptions<UmsPlatformDbContext> 
     public DbSet<AppConfigurationRecord> AppConfigurations => Set<AppConfigurationRecord>();
     public DbSet<FeatureFlagRecord> FeatureFlags => Set<FeatureFlagRecord>();
     public DbSet<FeatureFlagEvaluationLogRecord> FeatureFlagEvaluationLogs => Set<FeatureFlagEvaluationLogRecord>();
-    // TODO(api-aggregate-tracker): Add SQL-backed DbSets and mappings for SystemSuite, PermissionTemplate, Approval aggregates, IGA aggregates, AuditRecord, and IdpConfiguration.
+    public DbSet<IdpConfigurationRecord> IdpConfigurations => Set<IdpConfigurationRecord>();
+    // TODO(api-aggregate-tracker): Add SQL-backed DbSets and mappings for SystemSuite, PermissionTemplate, Approval aggregates, IGA aggregates, and AuditRecord.
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -47,6 +48,7 @@ public sealed class UmsPlatformDbContext(DbContextOptions<UmsPlatformDbContext> 
         modelBuilder.ApplyConfiguration(new AppConfigurationRecordConfiguration());
         modelBuilder.ApplyConfiguration(new FeatureFlagRecordConfiguration());
         modelBuilder.ApplyConfiguration(new FeatureFlagEvaluationLogRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new IdpConfigurationRecordConfiguration());
 
         base.OnModelCreating(modelBuilder);
     }
