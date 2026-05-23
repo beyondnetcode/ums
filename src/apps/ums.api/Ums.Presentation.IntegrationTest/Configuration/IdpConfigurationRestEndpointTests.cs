@@ -1,0 +1,75 @@
+using Ums.Presentation.IntegrationTest.Infrastructure;
+
+namespace Ums.Presentation.IntegrationTest.Configuration;
+
+public sealed class IdpConfigurationRestEndpointTests : IClassFixture<UmsApiWebApplicationFactory>
+{
+    private readonly HttpClient _client;
+
+    public IdpConfigurationRestEndpointTests(UmsApiWebApplicationFactory factory)
+    {
+        _client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            BaseAddress = new Uri("https://localhost"),
+            AllowAutoRedirect = false,
+        });
+        _client.DefaultRequestHeaders.Add("X-User-Id", "00000000-0000-0000-0000-000000000123");
+        _client.DefaultRequestHeaders.Add("X-User-Name", "Integration Tester");
+    }
+
+    [Fact]
+    public async Task CreateUpdateActivateDeactivateIdpConfiguration_ShouldSucceed()
+    {
+        var createResponse = await _client.PostAsJsonAsync("/api/v1/idp-configurations", new
+        {
+            tenantId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+            systemSuiteId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            providerType = "AZURE_AD",
+            domainHints = new[] { "corp.local", "corp.example" },
+            configPayload = "{\"authority\":\"https://login.microsoftonline.com/tenant-a\"}",
+            secretRef = "kv/idp/test",
+            resolutionPriority = 25,
+            fallbackToId = (Guid?)null,
+        }, TestContext.Current.CancellationToken);
+
+        createResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+
+        using var createPayload = JsonDocument.Parse(await createResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
+        var idpConfigurationId = createPayload.RootElement.GetProperty("idpConfigurationId").GetGuid();
+
+        var getCreatedResponse = await _client.GetAsync($"/api/v1/idp-configurations/{idpConfigurationId}", TestContext.Current.CancellationToken);
+        getCreatedResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        using var createdIdpPayload = JsonDocument.Parse(await getCreatedResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
+        createdIdpPayload.RootElement.GetProperty("status").GetString().Should().Be("Draft");
+        createdIdpPayload.RootElement.GetProperty("version").GetInt32().Should().Be(1);
+
+        var updateResponse = await _client.PutAsJsonAsync($"/api/v1/idp-configurations/{idpConfigurationId}", new
+        {
+            idpConfigurationId,
+            domainHints = new[] { "corp.local", "login.corp.local" },
+            configPayload = "{\"authority\":\"https://login.microsoftonline.com/tenant-b\"}",
+            secretRef = "kv/idp/test-updated",
+        }, TestContext.Current.CancellationToken);
+        updateResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        var getUpdatedResponse = await _client.GetAsync($"/api/v1/idp-configurations/{idpConfigurationId}", TestContext.Current.CancellationToken);
+        using var updatedPayload = JsonDocument.Parse(await getUpdatedResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
+        updatedPayload.RootElement.GetProperty("secretRef").GetString().Should().Be("kv/idp/test-updated");
+        updatedPayload.RootElement.GetProperty("version").GetInt32().Should().Be(2);
+
+        var activateResponse = await _client.PostAsync($"/api/v1/idp-configurations/{idpConfigurationId}/activate", null, TestContext.Current.CancellationToken);
+        activateResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        var getActivatedResponse = await _client.GetAsync($"/api/v1/idp-configurations/{idpConfigurationId}", TestContext.Current.CancellationToken);
+        using var activatedPayload = JsonDocument.Parse(await getActivatedResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
+        activatedPayload.RootElement.GetProperty("status").GetString().Should().Be("Active");
+
+        var deactivateResponse = await _client.PostAsync($"/api/v1/idp-configurations/{idpConfigurationId}/deactivate", null, TestContext.Current.CancellationToken);
+        deactivateResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        var getDeactivatedResponse = await _client.GetAsync($"/api/v1/idp-configurations/{idpConfigurationId}", TestContext.Current.CancellationToken);
+        using var deactivatedPayload = JsonDocument.Parse(await getDeactivatedResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
+        deactivatedPayload.RootElement.GetProperty("status").GetString().Should().Be("Inactive");
+    }
+}
