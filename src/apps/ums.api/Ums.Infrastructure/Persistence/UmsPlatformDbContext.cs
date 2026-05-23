@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Ums.Infrastructure.Persistence.Authorization.Configurations;
 using Ums.Infrastructure.Persistence.Authorization.Entities;
+using Ums.Infrastructure.Persistence.Configuration.Configurations;
+using Ums.Infrastructure.Persistence.Configuration.Entities;
 using Ums.Infrastructure.Persistence.Identity.Configurations;
 using Ums.Infrastructure.Persistence.Identity.Entities;
 using Ums.Infrastructure.Persistence.Outbox;
@@ -23,7 +25,10 @@ public sealed class UmsPlatformDbContext(DbContextOptions<UmsPlatformDbContext> 
     public DbSet<ProfileRecord> Profiles => Set<ProfileRecord>();
     public DbSet<ProfilePermissionRecord> ProfilePermissions => Set<ProfilePermissionRecord>();
     public DbSet<UserManagementDelegationRecord> UserManagementDelegations => Set<UserManagementDelegationRecord>();
-    // TODO(api-aggregate-tracker): Add SQL-backed DbSets and mappings for SystemSuite, PermissionTemplate, Approval aggregates, IGA aggregates, AuditRecord, and Configuration aggregates.
+    public DbSet<AppConfigurationRecord> AppConfigurations => Set<AppConfigurationRecord>();
+    public DbSet<FeatureFlagRecord> FeatureFlags => Set<FeatureFlagRecord>();
+    public DbSet<FeatureFlagEvaluationLogRecord> FeatureFlagEvaluationLogs => Set<FeatureFlagEvaluationLogRecord>();
+    // TODO(api-aggregate-tracker): Add SQL-backed DbSets and mappings for SystemSuite, PermissionTemplate, Approval aggregates, IGA aggregates, AuditRecord, and IdpConfiguration.
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -39,6 +44,9 @@ public sealed class UmsPlatformDbContext(DbContextOptions<UmsPlatformDbContext> 
         modelBuilder.ApplyConfiguration(new ProfileRecordConfiguration());
         modelBuilder.ApplyConfiguration(new ProfilePermissionRecordConfiguration());
         modelBuilder.ApplyConfiguration(new UserManagementDelegationRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new AppConfigurationRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new FeatureFlagRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new FeatureFlagEvaluationLogRecordConfiguration());
 
         base.OnModelCreating(modelBuilder);
     }

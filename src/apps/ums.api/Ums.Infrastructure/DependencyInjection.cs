@@ -11,6 +11,7 @@ using Ums.Domain.Configuration;
 using Ums.Domain.IGA;
 using Ums.Domain.Identity;
 using Ums.Infrastructure.Persistence.Authorization;
+using Ums.Infrastructure.Persistence.Configuration;
 using Ums.Infrastructure.Hosting;
 using Ums.Infrastructure.Persistence;
 using Ums.Infrastructure.Persistence.Identity;
@@ -86,6 +87,20 @@ public static class DependencyInjection
             services.AddSingleton<IProfileRepository>(sp => sp.GetRequiredService<InMemoryProfileRepository>());
         }
 
+        if (persistence.Provider == PersistenceProvider.SqlServer && persistence.UseSqlServerConfigurationStores)
+        {
+            services.AddScoped<IAppConfigurationRepository, SqlServerAppConfigurationRepository>();
+            services.AddScoped<IFeatureFlagRepository, SqlServerFeatureFlagRepository>();
+        }
+        else
+        {
+            services.AddSingleton<InMemoryAppConfigurationRepository>();
+            services.AddSingleton<IAppConfigurationRepository>(sp => sp.GetRequiredService<InMemoryAppConfigurationRepository>());
+
+            services.AddSingleton<InMemoryFeatureFlagRepository>();
+            services.AddSingleton<IFeatureFlagRepository>(sp => sp.GetRequiredService<InMemoryFeatureFlagRepository>());
+        }
+
         // TODO(api-aggregate-tracker): Add SQL Server repositories for SystemSuite and PermissionTemplate.
         services.AddSingleton<InMemorySystemSuiteRepository>();
         services.AddSingleton<ISystemSuiteRepository>(sp => sp.GetRequiredService<InMemorySystemSuiteRepository>());
@@ -121,17 +136,10 @@ public static class DependencyInjection
         services.AddSingleton<InMemoryRoleMaturityStatusRepository>();
         services.AddSingleton<IRoleMaturityStatusRepository>(sp => sp.GetRequiredService<InMemoryRoleMaturityStatusRepository>());
 
-        // TODO(api-aggregate-tracker): Add SQL Server repositories for AppConfiguration, FeatureFlag, and IdpConfiguration.
-        services.AddSingleton<InMemoryFeatureFlagRepository>();
-        services.AddSingleton<IFeatureFlagRepository>(sp => sp.GetRequiredService<InMemoryFeatureFlagRepository>());
-
-        services.AddSingleton<InMemoryAppConfigurationRepository>();
-        services.AddSingleton<IAppConfigurationRepository>(sp => sp.GetRequiredService<InMemoryAppConfigurationRepository>());
-
         services.AddSingleton<InMemoryIdpConfigurationRepository>();
         services.AddSingleton<IIdpConfigurationRepository>(sp => sp.GetRequiredService<InMemoryIdpConfigurationRepository>());
 
-        // TODO(api-aggregate-tracker): Add SQL Server repositories for Configuration context aggregates.
+        // TODO(api-aggregate-tracker): Add SQL Server repository for IdpConfiguration and enable full Configuration context persistence.
         return services;
     }
 }

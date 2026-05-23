@@ -17,6 +17,9 @@ public sealed class InMemoryIdpConfigurationRepository : IIdpConfigurationReposi
         return Task.FromResult(entity);
     }
 
+    public Task<IdpConfigurationAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
+        => GetByIdAsync(id, cancellationToken);
+
     public Task<IReadOnlyList<IdpConfigurationAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         var items = _store.Values.ToList();

@@ -17,6 +17,9 @@ public sealed class InMemoryAppConfigurationRepository : IAppConfigurationReposi
         return Task.FromResult(entity);
     }
 
+    public Task<AppConfigurationAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
+        => GetByIdAsync(id, cancellationToken);
+
     public Task<AppConfigurationAggregate?> GetByScopeAndCodeAsync(Guid? tenantId, Guid? systemSuiteId, Guid? moduleId, string code, CancellationToken cancellationToken = default)
     {
         var entity = _store.Values.FirstOrDefault(item =>

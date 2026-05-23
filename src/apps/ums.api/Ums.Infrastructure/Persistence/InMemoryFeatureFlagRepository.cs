@@ -17,6 +17,9 @@ public sealed class InMemoryFeatureFlagRepository : IFeatureFlagRepository, IUni
         return Task.FromResult(entity);
     }
 
+    public Task<FeatureFlagAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
+        => GetByIdAsync(id, cancellationToken);
+
     public Task<FeatureFlagAggregate?> GetByCodeAsync(string flagCode, CancellationToken cancellationToken = default)
     {
         var entity = _store.Values.FirstOrDefault(item =>

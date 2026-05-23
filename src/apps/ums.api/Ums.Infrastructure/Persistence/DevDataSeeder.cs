@@ -169,7 +169,7 @@ public static class DevDataSeeder
             identityReference: null,
             identityReferenceType: null,
             actor,
-            UserAccountId.Load(id));
+            userAccountId: UserAccountId.Load(id));
 
         if (result.IsFailure)
         {

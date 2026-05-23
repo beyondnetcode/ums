@@ -12,6 +12,8 @@ public sealed class PersistenceOptions
 
     public bool UseSqlServerAuthorizationStores { get; init; } = false;
 
+    public bool UseSqlServerConfigurationStores { get; init; } = false;
+
     public bool SeedDevData { get; init; } = true;
 
     public bool EnableOutbox { get; init; } = true;
