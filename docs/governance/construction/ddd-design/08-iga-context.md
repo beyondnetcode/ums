@@ -39,6 +39,28 @@ Representa la madurez y nivel técnico actual de un usuario asignado a un rol es
 | INV-RMS3 | **Sin Bloqueos de Cumplimiento:** Cualquier problema de cumplimiento activo (`HasNoComplianceIssues = false`) bloquea inmediatamente la elegibilidad. | RoleMaturityStatus.cs |
 | INV-RMS4 | **Score Mínimo:** Se requiere un `PerformanceScore >= 3.0` para calificar como elegible. | RoleMaturityStatus.cs |
 
+### Diagrama del Agregado
+
+```mermaid
+classDiagram
+    direction TB
+    class RoleMaturityStatus {
+        <<AggregateRoot>>
+        +Guid Id
+        +Guid UserId
+        +Guid RoleId
+        +Guid TenantId
+        +RoleMaturityLevel Level
+        +decimal PerformanceScore
+        +int CertificationsCompleted
+        +int TrainingsCompleted
+        +bool IsEligibleForPromotion
+        +bool HasNoComplianceIssues
+        +string ComplianceBlockFactor
+        +DateOnly EligibilityDate
+    }
+```
+
 ### Comandos y Operaciones
 
 | Comando / Método | Descripción |
@@ -82,6 +104,36 @@ Representa la solicitud de promoción de rol activa de un usuario. Gestiona la o
 | INV-PR2 | **Aprobación de Manager Requerida:** Las acciones del Manager (Aprobar/Rechazar) requieren que la solicitud esté en `PendingManagerApproval`. | PromotionRequest.cs |
 | INV-PR3 | **Evaluación de Seguridad Requerida:** Las acciones del Oficial de Seguridad requieren que el estado sea `PendingSecurityReview` o `PendingSecurityApproval` según el nivel de riesgo analizado. | PromotionRequest.cs |
 | INV-PR4 | **Límite de Análisis:** Solo se permite registrar un único reporte de análisis de impacto (`PromotionImpactAnalysis`) por solicitud de promoción. | PromotionRequest.cs |
+
+### Diagrama del Agregado
+
+```mermaid
+classDiagram
+    direction TB
+    class PromotionRequest {
+        <<AggregateRoot>>
+        +Guid Id
+        +Guid UserId
+        +Guid TenantId
+        +Guid CurrentRoleId
+        +Guid TargetRoleId
+        +PromotionStatus Status
+        +ApprovalDecision ManagerDecision
+        +ApprovalDecision SecurityDecision
+        +string RejectionReason
+    }
+    class PromotionImpactAnalysis {
+        <<Entity>>
+        +Guid Id
+        +int TotalNewPermissions
+        +int HighRiskPermissions
+        +int SoDConflicts
+        +decimal RiskScore
+        +string Mitigations
+        +DateTimeOffset AnalyzedAt
+    }
+    PromotionRequest "1" --> "0..1" PromotionImpactAnalysis : analyzes
+```
 
 ### Máquina de Estados: PromotionRequest
 

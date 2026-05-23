@@ -69,6 +69,65 @@
 | INV-S4 | Topologia `DRAFT` no puede usarse en PermissionTemplates | FS-04 |
 | INV-S5 | `FunctionalModule.SuiteId` inmutable post-creacion | FS-04 |
 
+### Diagrama del Agregado
+
+```mermaid
+classDiagram
+    direction TB
+    class SystemSuite {
+        <<AggregateRoot>>
+        +Guid Id
+        +Guid TenantId
+        +SystemCode Code
+        +BaseUrl BaseUrl
+        +string ApiCredentialHash
+        +SystemStatus Status
+    }
+    class FunctionalModule {
+        <<Entity>>
+        +Guid Id
+        +string Code
+        +string Name
+        +int Order
+    }
+    class FunctionalSubmodule {
+        <<Entity>>
+        +Guid Id
+        +string Code
+        +string Name
+        +int Order
+    }
+    class FunctionalOption {
+        <<Entity>>
+        +Guid Id
+        +string Code
+        +string Name
+        +int Order
+    }
+    class Action {
+        <<Entity>>
+        +Guid Id
+        +ActionCode Code
+        +ActionLevel Level
+        +string Description
+    }
+    SystemSuite "1" --> "0..*" FunctionalModule : contains
+    FunctionalModule "1" --> "0..*" FunctionalSubmodule : contains
+    FunctionalSubmodule "1" --> "0..*" FunctionalOption : contains
+    SystemSuite "1" --> "0..*" Action : defines
+    FunctionalModule "1" --> "0..*" Action : defines
+```
+
+### Maquina de Estado: SystemSuite
+
+```mermaid
+stateDiagram-v2
+    [*] --> DRAFT : RegisterSystem
+    DRAFT --> PUBLISHED : PublishSystemTopology
+    PUBLISHED --> RETIRED : RetireSystem
+    note right of RETIRED : Estado terminal
+```
+
 ### Comandos
 
 | Comando | Descripcion |
@@ -113,6 +172,34 @@ SystemRetiredEvent           { suiteId }
 | INV-R3 | `PromotionOrder` hijo = padre + 1; no saltos de nivel | ADR-0046 |
 | INV-R4 | Un rol no puede tener mas de un padre (no herencia multiple) | ADR-0046 |
 
+### Diagrama del Agregado
+
+```mermaid
+classDiagram
+    direction TB
+    class Role {
+        <<AggregateRoot>>
+        +Guid Id
+        +Guid SuiteId
+        +Guid TenantId
+        +string Name
+        +string Code
+        +RoleHierarchyLevel HierarchyLevel
+        +int PromotionOrder
+        +Guid ParentRoleId
+    }
+    Role "1" --> "0..*" Role : parentOf
+```
+
+### Maquina de Estado: Role
+
+```mermaid
+stateDiagram-v2
+    [*] --> ACTIVE : CreateRole
+    ACTIVE --> DEPRECATED : DeprecateRole
+    note right of DEPRECATED : Roles deprecados no pueden asignarse a nuevos Profiles
+```
+
 ### Comandos y Eventos
 
 ```
@@ -148,6 +235,31 @@ UpdateRoleHierarchyCommand -> RoleHierarchyUpdatedEvent { roleId, oldParentRoleI
 | INV-PT5 | `DRAFT` no puede asignarse a Profiles | FS-02 |
 | INV-PT6 | `DEPRECATED` no puede asignarse a nuevos Profiles | FS-02 |
 | INV-PT7 | Recursos referenciados deben pertenecer a un `SystemSuite PUBLISHED` | FS-02 |
+
+### Diagrama del Agregado
+
+```mermaid
+classDiagram
+    direction TB
+    class PermissionTemplate {
+        <<AggregateRoot>>
+        +Guid Id
+        +Guid RoleId
+        +Guid TenantId
+        +TemplateScope Scope
+        +TemplateStatus Status
+        +TemplateVersion Version
+    }
+    class TemplateItem {
+        <<Entity>>
+        +Guid Id
+        +Guid ActionId
+        +PermissionEffect Effect
+        +ExclusiveArcTarget Target
+        +bool IsActive
+    }
+    PermissionTemplate "1" --> "1..*" TemplateItem : contains
+```
 
 ### Maquina de Estado: PermissionTemplate
 
@@ -204,6 +316,32 @@ PermissionTemplateDeprecatedEvent { templateId, roleId }
 | INV-AR2 | Template referenciado debe estar `PUBLISHED` | FS-06 |
 | INV-AR3 | La razon de asignacion debe registrarse en `ProfilePermission` (rule reference) | FS-06 |
 
+### Diagrama del Agregado
+
+```mermaid
+classDiagram
+    direction TB
+    class TemplateAssignmentRule {
+        <<AggregateRoot>>
+        +Guid Id
+        +Guid SuiteId
+        +Guid TenantId
+        +Guid TemplateId
+        +JSON RuleCondition
+        +RulePriority Priority
+        +RuleStatus Status
+    }
+```
+
+### Maquina de Estado: TemplateAssignmentRule
+
+```mermaid
+stateDiagram-v2
+    [*] --> ACTIVE : CreateAssignmentRule
+    ACTIVE --> INACTIVE : DeactivateRule
+    INACTIVE --> ACTIVE : ReactivateRule
+```
+
 ### Comandos y Eventos
 
 ```
@@ -247,6 +385,38 @@ DeactivateRuleCommand          -> AssignmentRuleDeactivatedEvent { ruleId }
 | INV-P6 | `DENY` en cualquier Profile invalida `ALLOW` en todos los perfiles del usuario (Axioma 3) | database-design-er.md |
 | INV-P7 | Accion bloqueada hasta `ALLOW` explicito (Deny-by-Default, Axioma 1) | database-design-er.md |
 | INV-P8 | Profiles internos (`INTERNAL_ONLY`) no pueden asignarse a usuarios `EXTERNAL/B2B/PARTNER` | FS-10 |
+
+### Diagrama del Agregado
+
+```mermaid
+classDiagram
+    direction TB
+    class Profile {
+        <<AggregateRoot>>
+        +Guid Id
+        +Guid UserId
+        +Guid TenantId
+        +Guid RoleId
+        +Guid BranchId
+        +ProfileScope Scope
+        +bool IsActive
+        +bool AutoAssigned
+        +AssignmentSource Source
+    }
+    class ProfilePermission {
+        <<Entity>>
+        +Guid Id
+        +Guid TemplateId
+        +Guid ActionId
+        +TargetType TargetType
+        +Guid TargetId
+        +bool IsAllowed
+        +bool IsDenied
+        +bool IsOverride
+        +bool IsActive
+    }
+    Profile "1" --> "0..*" ProfilePermission : materializes
+```
 
 ### Comandos
 

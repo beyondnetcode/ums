@@ -46,6 +46,27 @@
 | Compliance | `DocumentUploaded`, `DocumentValidated`, `DocumentExpired`, `NotificationSent`, `EnforcementExecuted` |
 | IGA | `PromotionCriteriaMet`, `PromotionApproved`, `PromotionRejected`, `DelegationCreated`, `DelegationRevoked` |
 
+### Diagrama del Agregado
+
+```mermaid
+classDiagram
+    direction TB
+    class AuditRecord {
+        <<AggregateRoot>>
+        +Guid Id
+        +Guid RootTenantId
+        +AuditEventType EventType
+        +SubjectType SubjectType
+        +Guid WhoActed
+        +DateTimeOffset WhenOccurred
+        +string WhatChanged
+        +AffectedEntity AffectedEntity
+        +AuditResult Result
+        +JSON AuditMetadata
+    }
+    note for AuditRecord "Append-only — sin UPDATE ni DELETE (ADR-0016)"
+```
+
 ### Comandos y Repositorio
 
 ```

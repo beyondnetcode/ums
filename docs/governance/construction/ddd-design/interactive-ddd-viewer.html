@@ -155,7 +155,15 @@
         <div class="section-label">Arquitectura</div>
         <button onclick="show('bounded-context')" class="active">Bounded Context Map</button>
 
+        <div class="section-label">Estructura de Agregados</div>
+        <button onclick="show('cls-tenant')">Tenant</button>
+        <button onclick="show('cls-useraccount')">UserAccount</button>
+        <button onclick="show('cls-profile')">Profile</button>
+        <button onclick="show('cls-systemsuite')">SystemSuite</button>
+        <button onclick="show('cls-documenttype')">DocumentType</button>
+
         <div class="section-label">Maquinas de Estado</div>
+        <button onclick="show('sm-tenant')">Tenant</button>
         <button onclick="show('sm-useraccount')">UserAccount</button>
         <button onclick="show('sm-template')">PermissionTemplate</button>
         <button onclick="show('sm-approval')">ApprovalRequest</button>
@@ -238,6 +246,42 @@ graph TD
             badge: 'badge-context',
             badgeLabel: 'Contexto',
             desc: '9 bounded contexts · relaciones Customer-Supplier, Conformist y Read-Aside · ACL ports'
+        },
+        'cls-tenant': {
+            title: 'Estructura del Agregado: Tenant',
+            badge: 'badge-context',
+            badgeLabel: 'Agregado',
+            desc: 'BC-A Identity · Tenant AR + Branch + IdentityProvider + Branding'
+        },
+        'cls-useraccount': {
+            title: 'Estructura del Agregado: UserAccount',
+            badge: 'badge-context',
+            badgeLabel: 'Agregado',
+            desc: 'BC-A Identity · UserAccount AR + MfaEnrollment + PasswordCredential'
+        },
+        'cls-profile': {
+            title: 'Estructura del Agregado: Profile',
+            badge: 'badge-context',
+            badgeLabel: 'Agregado',
+            desc: 'BC-B Authorization · Profile AR + ProfilePermission'
+        },
+        'cls-systemsuite': {
+            title: 'Estructura del Agregado: SystemSuite',
+            badge: 'badge-context',
+            badgeLabel: 'Agregado',
+            desc: 'BC-B Authorization · SystemSuite AR + FunctionalModule + Submodule + Option + Action'
+        },
+        'cls-documenttype': {
+            title: 'Estructura del Agregado: DocumentType',
+            badge: 'badge-context',
+            badgeLabel: 'Agregado',
+            desc: 'BC-I Compliance · DocumentType AR + NotificationRule + AccessEnforcementPolicy'
+        },
+        'sm-tenant': {
+            title: 'Maquina de Estado: Tenant',
+            badge: 'badge-state',
+            badgeLabel: 'State Machine',
+            desc: 'BC-A Identity · FS-03 · estados: ACTIVE / SUSPENDED / ARCHIVED'
         },
         'sm-useraccount': {
             title: 'Maquina de Estado: UserAccount',
@@ -330,6 +374,174 @@ graph TD
     E -->|"Customer-Supplier\\nREST APIs"| B
     E -->|"Customer-Supplier\\nREST APIs"| C
     E -->|"Customer-Supplier\\nREST APIs"| F`,
+
+        'cls-tenant': `classDiagram
+    direction TB
+    class Tenant {
+        &lt;&lt;AggregateRoot&gt;&gt;
+        +Guid Id
+        +string Code
+        +string Name
+        +TenantType Type
+        +TenantStatus Status
+        +OrganizationType OrgType
+        +string CompanyReference
+        +Guid ParentTenantId
+    }
+    class Branch {
+        &lt;&lt;Entity&gt;&gt;
+        +Guid Id
+        +string Code
+        +string Name
+        +bool IsActive
+        +JSON GeofencingMetadata
+    }
+    class IdentityProvider {
+        &lt;&lt;Entity&gt;&gt;
+        +Guid Id
+        +string Code
+        +string Name
+        +IdpStrategyHint Strategy
+        +bool IsActive
+    }
+    class Branding {
+        &lt;&lt;Entity&gt;&gt;
+        +Guid Id
+        +string Logo
+        +string PrimaryColor
+        +string CustomDomain
+        +DnsVerificationStatus DnsStatus
+        +bool MagicLinkFallback
+    }
+    Tenant "1" --> "0..*" Branch : contains
+    Tenant "1" --> "0..*" IdentityProvider : registers
+    Tenant "1" --> "0..1" Branding : configures
+    Tenant "1" --> "0..*" Tenant : parentOf`,
+
+        'cls-useraccount': `classDiagram
+    direction TB
+    class UserAccount {
+        &lt;&lt;AggregateRoot&gt;&gt;
+        +Guid Id
+        +Guid TenantId
+        +Guid BranchId
+        +Email Email
+        +UserCategory Category
+        +UserStatus Status
+        +string IdentityReference
+    }
+    class MfaEnrollment {
+        &lt;&lt;Entity&gt;&gt;
+        +Guid Id
+        +MfaMethod Method
+        +MfaEnrollmentStatus Status
+    }
+    class PasswordCredential {
+        &lt;&lt;Entity&gt;&gt;
+        +Guid Id
+        +string PasswordHash
+        +bool IsActive
+    }
+    UserAccount "1" --> "0..*" MfaEnrollment : enrolls
+    UserAccount "1" --> "0..1" PasswordCredential : secures`,
+
+        'cls-profile': `classDiagram
+    direction TB
+    class Profile {
+        &lt;&lt;AggregateRoot&gt;&gt;
+        +Guid Id
+        +Guid UserId
+        +Guid TenantId
+        +Guid RoleId
+        +Guid BranchId
+        +ProfileScope Scope
+        +bool IsActive
+        +bool AutoAssigned
+    }
+    class ProfilePermission {
+        &lt;&lt;Entity&gt;&gt;
+        +Guid Id
+        +Guid TemplateId
+        +Guid ActionId
+        +bool IsAllowed
+        +bool IsDenied
+        +bool IsOverride
+        +bool IsActive
+    }
+    Profile "1" --> "0..*" ProfilePermission : materializes`,
+
+        'cls-systemsuite': `classDiagram
+    direction TB
+    class SystemSuite {
+        &lt;&lt;AggregateRoot&gt;&gt;
+        +Guid Id
+        +Guid TenantId
+        +SystemCode Code
+        +BaseUrl BaseUrl
+        +SystemStatus Status
+    }
+    class FunctionalModule {
+        &lt;&lt;Entity&gt;&gt;
+        +Guid Id
+        +string Code
+        +string Name
+        +int Order
+    }
+    class FunctionalSubmodule {
+        &lt;&lt;Entity&gt;&gt;
+        +Guid Id
+        +string Code
+        +string Name
+    }
+    class FunctionalOption {
+        &lt;&lt;Entity&gt;&gt;
+        +Guid Id
+        +string Code
+        +string Name
+    }
+    class Action {
+        &lt;&lt;Entity&gt;&gt;
+        +Guid Id
+        +ActionCode Code
+        +ActionLevel Level
+    }
+    SystemSuite "1" --> "0..*" FunctionalModule : contains
+    FunctionalModule "1" --> "0..*" FunctionalSubmodule : contains
+    FunctionalSubmodule "1" --> "0..*" FunctionalOption : contains
+    SystemSuite "1" --> "0..*" Action : defines`,
+
+        'cls-documenttype': `classDiagram
+    direction TB
+    class DocumentType {
+        &lt;&lt;AggregateRoot&gt;&gt;
+        +Guid Id
+        +Guid TenantId
+        +string Code
+        +string Name
+        +DocumentCriticity Criticity
+        +int GracePeriodDays
+    }
+    class NotificationRule {
+        &lt;&lt;Entity&gt;&gt;
+        +Guid Id
+        +string Code
+        +int DaysBefore
+        +NotificationChannel[] Channels
+    }
+    class AccessEnforcementPolicy {
+        &lt;&lt;Entity&gt;&gt;
+        +Guid Id
+        +EnforcementAction Action
+        +bool IsActive
+    }
+    DocumentType "1" --> "0..*" NotificationRule : configures
+    DocumentType "1" --> "0..1" AccessEnforcementPolicy : enforces`,
+
+        'sm-tenant': `stateDiagram-v2
+    [*] --> ACTIVE : RegisterTenant
+    ACTIVE --> SUSPENDED : SuspendTenant
+    SUSPENDED --> ACTIVE : ActivateTenant
+    ACTIVE --> ARCHIVED : ArchiveTenant`,
 
         'sm-useraccount': `stateDiagram-v2
     [*] --> PENDING : RegisterUser

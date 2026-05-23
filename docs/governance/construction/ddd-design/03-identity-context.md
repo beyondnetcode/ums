@@ -58,6 +58,76 @@
 | INV-B3 | Branch inactiva o suspendida no puede recibir nuevos Profiles | FS-03 |
 | INV-B4 | Branch debe pertenecer a un Tenant `ACTIVE` | FS-03 |
 
+### Diagrama del Agregado
+
+```mermaid
+classDiagram
+    direction TB
+    class Tenant {
+        <<AggregateRoot>>
+        +Guid Id
+        +string Code
+        +string Name
+        +TenantType Type
+        +TenantStatus Status
+        +OrganizationType OrgType
+        +string CompanyReference
+        +Guid ParentTenantId
+    }
+    class Branch {
+        <<Entity>>
+        +Guid Id
+        +string Code
+        +string Name
+        +bool IsActive
+        +JSON GeofencingMetadata
+    }
+    class IdentityProvider {
+        <<Entity>>
+        +Guid Id
+        +string Code
+        +string Name
+        +IdpStrategyHint Strategy
+        +bool IsActive
+    }
+    class Branding {
+        <<Entity>>
+        +Guid Id
+        +string Logo
+        +LogoFormat Format
+        +string PrimaryColor
+        +BackgroundStyle BgStyle
+        +string CustomDomain
+        +DnsVerificationStatus DnsStatus
+        +bool MagicLinkFallback
+    }
+    Tenant "1" --> "0..*" Branch : contains
+    Tenant "1" --> "0..*" IdentityProvider : registers
+    Tenant "1" --> "0..1" Branding : configures
+    Tenant "1" --> "0..*" Tenant : parentOf
+```
+
+### Maquina de Estado: Tenant
+
+```mermaid
+stateDiagram-v2
+    [*] --> ACTIVE : RegisterTenant
+    ACTIVE --> SUSPENDED : SuspendTenant
+    SUSPENDED --> ACTIVE : ActivateTenant
+    ACTIVE --> ARCHIVED : ArchiveTenant
+    note right of ARCHIVED : Estado terminal — sin retorno
+```
+
+### Maquina de Estado: Branch
+
+```mermaid
+stateDiagram-v2
+    [*] --> ACTIVE : AddBranch
+    ACTIVE --> SUSPENDED : DeactivateBranch
+    SUSPENDED --> ACTIVE : ReactivateBranch
+    ACTIVE --> [*] : RemoveBranch (solo cuando inactiva)
+```
+
 ### Comandos
 
 | Comando | Descripcion |
@@ -148,6 +218,38 @@ ITenantRepository : IAggregateRepository<Tenant> {
 | INV-U7 | Sesion no puede iniciarse si `UserStatus != ACTIVE` | FS-01 |
 | INV-U8 | Fallo de IdP no concede acceso silencioso | FS-01 |
 | INV-U9 | `MfaEnrollment` solo aplica cuando el tenant tiene MFA habilitado o elevacion de riesgo detectada | FS-09 |
+
+### Diagrama del Agregado
+
+```mermaid
+classDiagram
+    direction TB
+    class UserAccount {
+        <<AggregateRoot>>
+        +Guid Id
+        +Guid TenantId
+        +Guid BranchId
+        +Email Email
+        +UserCategory Category
+        +UserStatus Status
+        +string IdentityReference
+        +IdentityReferenceType RefType
+    }
+    class MfaEnrollment {
+        <<Entity>>
+        +Guid Id
+        +MfaMethod Method
+        +MfaEnrollmentStatus Status
+    }
+    class PasswordCredential {
+        <<Entity>>
+        +Guid Id
+        +string PasswordHash
+        +bool IsActive
+    }
+    UserAccount "1" --> "0..*" MfaEnrollment : enrolls
+    UserAccount "1" --> "0..1" PasswordCredential : secures
+```
 
 ### Maquina de Estado: UserAccount
 

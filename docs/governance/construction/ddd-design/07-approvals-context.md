@@ -47,6 +47,29 @@
 | INV-AW2 | `WorkflowCode` unico por scope `(TenantId, SuiteId, TargetUserCategory)` | ADR-0044 |
 | INV-AW3 | Modificacion de workflow no afecta `ApprovalRequest PENDING` activas | ADR-0044 |
 
+### Diagrama del Agregado
+
+```mermaid
+classDiagram
+    direction TB
+    class ApprovalWorkflow {
+        <<AggregateRoot>>
+        +Guid Id
+        +Guid TenantId
+        +Guid SuiteId
+        +WorkflowCode Code
+        +TargetUserCategory TargetCategory
+        +bool RequiresApproval
+        +int SlaHours
+    }
+    class ApprovalRequiredDocument {
+        <<Entity>>
+        +Guid Id
+        +Guid DocumentTypeId
+    }
+    ApprovalWorkflow "1" --> "0..*" ApprovalRequiredDocument : requires
+```
+
 ### Comandos y Eventos
 
 ```
@@ -90,6 +113,33 @@ RemoveRequiredDocumentCommand  -> RequiredDocumentRemovedEvent   { workflowId, d
 | INV-AR5 | `EXPIRED` lo ejecuta Background Worker, no una accion humana | glossary.md |
 | INV-AR6 | `CANCELLED` solo por solicitante original o admin del tenant | FS-10 |
 | INV-AR7 | Profile marcado `INTERNAL_ONLY` no puede ser el objetivo de una solicitud `ONBOARDING` external | FS-10 |
+
+### Diagrama del Agregado
+
+```mermaid
+classDiagram
+    direction TB
+    class ApprovalRequest {
+        <<AggregateRoot>>
+        +Guid Id
+        +Guid WorkflowId
+        +Guid TargetUserId
+        +Guid TargetProfileId
+        +RequestType Type
+        +RequestStatus Status
+        +string Justification
+        +DateTimeOffset SlaDeadline
+    }
+    class ApprovalLog {
+        <<Entity>>
+        +Guid Id
+        +Guid ActorId
+        +ApprovalActionTaken Action
+        +string Reason
+        +DateTimeOffset OccurredAt
+    }
+    ApprovalRequest "1" --> "1..*" ApprovalLog : records
+```
 
 ### Maquina de Estado: ApprovalRequest
 

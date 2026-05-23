@@ -43,6 +43,37 @@
 | INV-IDP4 | `ConfigPayload` debe ser JSON valido | conceptual-data-model.md |
 | INV-IDP5 | `DRAFT` no puede usarse para autenticar usuarios | FS-03 |
 
+### Diagrama del Agregado
+
+```mermaid
+classDiagram
+    direction TB
+    class IdpConfiguration {
+        <<AggregateRoot>>
+        +Guid Id
+        +Guid TenantId
+        +Guid SystemId
+        +ProviderType ProviderType
+        +string[] DomainHints
+        +JSON ConfigPayload
+        +string SecretRef
+        +IdpConfigStatus Status
+        +int ResolutionPriority
+        +Guid FallbackToId
+    }
+```
+
+### Maquina de Estado: IdpConfiguration
+
+```mermaid
+stateDiagram-v2
+    [*] --> DRAFT : RegisterIdpConfig
+    DRAFT --> ACTIVE : ActivateIdpConfig
+    ACTIVE --> INACTIVE : DeactivateIdpConfig
+    INACTIVE --> ACTIVE : ActivateIdpConfig
+    note right of DRAFT : No puede autenticar usuarios
+```
+
 ### Comandos y Eventos
 
 ```
@@ -79,6 +110,28 @@ DeactivateIdpConfigCommand  -> IdpConfigDeactivatedEvent { configId, tenantId }
 | INV-AC3 | Resolucion jerarquica: `MODULE > SUITE > TENANT > GLOBAL` | ADR-0047 |
 | INV-AC4 | `Description` obligatorio; debe documentar proposito, impacto, comportamiento y scope | FS-13, database-design-er.md Regla 9 |
 | INV-AC5 | `DRAFT` no puede servirse a clientes | FS-13 |
+
+### Diagrama del Agregado
+
+```mermaid
+classDiagram
+    direction TB
+    class AppConfiguration {
+        <<AggregateRoot>>
+        +Guid Id
+        +Guid TenantId
+        +Guid SuiteId
+        +Guid ModuleId
+        +ConfigScope Scope
+        +ConfigCode Code
+        +string Value
+        +bool IsInheritable
+        +bool IsEncrypted
+        +ConfigVersion Version
+        +ConfigStatus Status
+        +string Description
+    }
+```
 
 ### Maquina de Estado: AppConfiguration
 
@@ -129,6 +182,42 @@ UpdateAppConfigCommand      -> AppConfigUpdatedEvent    { configId, code, newVer
 | INV-FF1 | `FlagCode` unico globalmente | conceptual-data-model.md |
 | INV-FF2 | `PERCENTAGE` type: `rollout_percentage` entre 0 y 100 | FS-08 |
 | INV-FF3 | `ARCHIVED` no puede evaluarse ni reactivarse; debe crearse nueva version | FS-08 |
+
+### Diagrama del Agregado
+
+```mermaid
+classDiagram
+    direction TB
+    class FeatureFlag {
+        <<AggregateRoot>>
+        +Guid Id
+        +FlagCode Code
+        +FlagType Type
+        +JSON FlagTargets
+        +FlagStatus Status
+        +LinkedResourceType LinkedResourceType
+    }
+    class FlagEvaluationLog {
+        <<Entity>>
+        +Guid Id
+        +string Context
+        +bool Result
+        +DateTimeOffset EvaluatedAt
+    }
+    FeatureFlag "1" --> "0..*" FlagEvaluationLog : records
+```
+
+### Maquina de Estado: FeatureFlag
+
+```mermaid
+stateDiagram-v2
+    [*] --> INACTIVE : CreateFeatureFlag
+    INACTIVE --> ACTIVE : ActivateFlag
+    ACTIVE --> INACTIVE : DeactivateFlag
+    ACTIVE --> ARCHIVED : ArchiveFlag
+    INACTIVE --> ARCHIVED : ArchiveFlag
+    note right of ARCHIVED : Estado terminal — crear nueva version
+```
 
 ### Comandos y Eventos
 

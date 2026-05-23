@@ -53,6 +53,39 @@
 | INV-DT4 | Documentos no-criticos no pueden tener politica `BLOCK_ACCESS` o `DOWNGRADE_ROLE` | FS-16 |
 | INV-DT5 | `NotificationRule` requiere `Code, Value (DaysBefore), Description` obligatorios | FS-15, database-design-er.md Regla 9 |
 
+### Diagrama del Agregado
+
+```mermaid
+classDiagram
+    direction TB
+    class DocumentType {
+        <<AggregateRoot>>
+        +Guid Id
+        +Guid TenantId
+        +string Code
+        +string Name
+        +DocumentCriticity Criticity
+        +int GracePeriodDays
+        +int RenewalPeriodDays
+    }
+    class NotificationRule {
+        <<Entity>>
+        +Guid Id
+        +string Code
+        +int DaysBefore
+        +NotificationChannel[] Channels
+        +string Description
+    }
+    class AccessEnforcementPolicy {
+        <<Entity>>
+        +Guid Id
+        +EnforcementAction Action
+        +bool IsActive
+    }
+    DocumentType "1" --> "0..*" NotificationRule : configures
+    DocumentType "1" --> "0..1" AccessEnforcementPolicy : enforces
+```
+
 ### Comandos
 
 | Comando | Descripcion |
@@ -105,6 +138,34 @@ EnforcementPolicyDefinedEvent   { policyId, documentTypeId, actionOnExpiration }
 | INV-UD3 | Un documento `VALID` que supera `ExpirationDate` transiciona a `EXPIRED` por Background Worker | ADR-0045 |
 | INV-UD4 | Solo un documento `VALID` activo por `(UserId, DocumentTypeId)` | ADR-0045 |
 | INV-UD5 | `FileStoragePath` debe ser URI valida accesible via `IDocumentStoragePort` | tecnico |
+
+### Diagrama del Agregado
+
+```mermaid
+classDiagram
+    direction TB
+    class UserDocument {
+        <<AggregateRoot>>
+        +Guid Id
+        +Guid UserId
+        +Guid TenantId
+        +Guid DocumentTypeId
+        +DocumentStatus Status
+        +DateOnly IssueDate
+        +DateOnly ExpirationDate
+        +string FileStoragePath
+        +string FileChecksum
+        +int NotificationStep
+    }
+    class AccessNotification {
+        <<Entity>>
+        +Guid Id
+        +int Step
+        +NotificationChannel Channel
+        +DateTimeOffset SentAt
+    }
+    UserDocument "1" --> "0..*" AccessNotification : dispatches
+```
 
 ### Maquina de Estado: UserDocument
 
