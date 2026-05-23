@@ -46,17 +46,18 @@ erDiagram
     TENANT ||--o{ USER_ACCOUNT : "owns"
     TENANT ||--o{ IDENTITY_PROVIDER : "registers"
     TENANT ||--o| BRANDING : "configures"
-    TENANT ||--o{ IDP_CONFIGURATION : "resolves_oidc"
-    TENANT ||--o{ FEATURE_FLAG : "controls"
+    TENANT ||--o{ IDP_CONFIGURATION : "routes_identity"
     TENANT ||--o{ AUDIT_RECORD : "traces"
     SYSTEM_SUITE ||--o{ ROLE : "defines"
     SYSTEM_SUITE ||--o{ FUNCTIONAL_MODULE : "contains"
+    SYSTEM_SUITE ||--o{ IDP_CONFIGURATION : "binds_auth"
 
     ROLE ||--o{ ROLE : "parent_of"
     ROLE ||--o{ ROLE_MATURITY_STATUS : "defines_eligibility_for"
 
     TENANT ||--o{ APP_CONFIGURATION : "settings"
     SYSTEM_SUITE ||--o{ APP_CONFIGURATION : "overrides"
+    FUNCTIONAL_MODULE ||--o{ APP_CONFIGURATION : "specializes"
 
     ROLE ||--o{ PERMISSION_TEMPLATE : "governs"
     PERMISSION_TEMPLATE ||--o{ PERMISSION_TEMPLATE_ITEM : "contains"
@@ -157,34 +158,36 @@ erDiagram
     }
 
     PROFILE {
-        uniqueidentifier ProfileId PK
+        uniqueidentifier Id PK
         uniqueidentifier TenantId FK "RLS"
         uniqueidentifier UserId FK
         uniqueidentifier RoleId FK
         uniqueidentifier BranchId FK "Nullable - Contexto de Ubicacion"
-        nvarchar Scope "GLOBAL-BRANCH-SYSTEM"
+        int ScopeId "1=OrgWide, 2=BranchScoped"
         bit IsActive
-        datetime2 CreatedAt
-        uniqueidentifier CreatedBy
-        datetime2 UpdatedAt
-        uniqueidentifier UpdatedBy
+        nvarchar CreatedBy
+        datetime2 CreatedAtUtc
+        nvarchar UpdatedBy "Nullable"
+        datetime2 UpdatedAtUtc "Nullable"
+        nvarchar AuditTimeSpan
     }
 
     PROFILE_PERMISSION {
-        uniqueidentifier ProfilePermissionId PK
+        uniqueidentifier Id PK
         uniqueidentifier ProfileId FK
         uniqueidentifier TemplateId FK
-        nvarchar TargetType "SUITE-MODULE-MENU-SUBMENU-OPTION"
+        int TargetTypeId "1=SystemSuite, 2=Module, 3=Submodule, 4=Option"
         uniqueidentifier TargetId "FK Arco Exclusivo"
         uniqueidentifier ActionId FK
         bit IsAllowed
         bit IsDenied
         bit IsActive
         bit IsOverride "Indicador de Anulacion Manual"
-        datetime2 CreatedAt
-        uniqueidentifier CreatedBy
-        datetime2 UpdatedAt
-        uniqueidentifier UpdatedBy
+        nvarchar CreatedBy
+        datetime2 CreatedAtUtc
+        nvarchar UpdatedBy "Nullable"
+        datetime2 UpdatedAtUtc "Nullable"
+        nvarchar AuditTimeSpan
     }
 ```
 
@@ -304,7 +307,7 @@ erDiagram
     APPROVAL_REQUIRED_DOCUMENT ||--o{ DOCUMENT_TYPE : "typed_as"
     USER_ACCOUNT ||--o{ USER_DOCUMENT : "holds"
     DOCUMENT_TYPE ||--o{ USER_DOCUMENT : "classifies"
-    DOCUMENT_TYPE ||--o{ NOTIFICATION_RULE : "alerts_for"
+    TENANT ||--o{ NOTIFICATION_RULE : "routes_alerts"
     DOCUMENT_TYPE ||--o{ ACCESS_ENFORCEMENT_POLICY : "governs_access"
     USER_DOCUMENT ||--o{ ACCESS_NOTIFICATION : "notifies_via"
     USER_ACCOUNT ||--o{ PROMOTION_REQUEST : "initiates"
@@ -405,7 +408,7 @@ erDiagram
         uniqueidentifier MfaEnrollmentId PK
         uniqueidentifier UserAccountId FK
         nvarchar Method "TOTP-SMS-EMAIL-WEBAUTHN"
-        nvarchar Status "ENROLLED-PENDING-REVOKED"
+        nvarchar Status "NOT_ENROLLED-ENROLLED-REVOKED"
         datetime2 CreatedAt
         uniqueidentifier CreatedBy
         datetime2 UpdatedAt
@@ -511,13 +514,12 @@ erDiagram
     NOTIFICATION_RULE {
         uniqueidentifier RuleId PK
         uniqueidentifier TenantId FK
-        uniqueidentifier DocumentTypeId FK
         nvarchar Channel "EMAIL-IN_APP-SMS"
         nvarchar Recipient
-        int DaysBefore "Dias de Anticipacion para la Alerta"
-        nvarchar Code
-        nvarchar Description
         bit IsActive
+        nvarchar Code "Clave futura recomendada para catalogo"
+        nvarchar Value "Payload operacional futuro recomendado"
+        nvarchar Description "Proposito, impacto, comportamiento y alcance recomendados"
         datetime2 CreatedAt
         uniqueidentifier CreatedBy
         datetime2 UpdatedAt
@@ -615,10 +617,11 @@ Este dominio cubre la configuración global del sistema, integraciones OIDC con 
 ```mermaid
 erDiagram
     TENANT ||--o{ IDP_CONFIGURATION : "configures_auth"
-    TENANT ||--o{ FEATURE_FLAG : "defines_toggles"
     TENANT ||--o{ AUDIT_RECORD : "records_actions"
     TENANT ||--o{ APP_CONFIGURATION : "parameterizes"
     SYSTEM_SUITE ||--o{ APP_CONFIGURATION : "overrides"
+    SYSTEM_SUITE ||--o{ IDP_CONFIGURATION : "binds_auth"
+    FUNCTIONAL_MODULE ||--o{ APP_CONFIGURATION : "specializes"
     FEATURE_FLAG ||--o{ FLAG_EVALUATION_LOG : "evaluates"
     USER_ACCOUNT ||--o{ FLAG_EVALUATION_LOG : "triggers"
     USER_ACCOUNT ||--o{ AUDIT_RECORD : "initiates"
@@ -678,7 +681,7 @@ erDiagram
         bit IsInheritable
         bit IsEncrypted
         nvarchar Version "Version Semantica p.ej. 1.0.0"
-        nvarchar Status "DRAFT-ACTIVE-DEPRECATED"
+        nvarchar Status "DRAFT-PUBLISHED-ARCHIVED"
         datetime2 CreatedAt
         uniqueidentifier CreatedBy
         datetime2 UpdatedAt
@@ -708,7 +711,7 @@ erDiagram
         nvarchar FlagCode "Codigo Unico"
         nvarchar FlagType "BOOLEAN-VARIANT-PERCENTAGE"
         nvarchar FlagTargets "Reglas JSON de Segmentacion"
-        nvarchar Status "ACTIVE-INACTIVE-ARCHIVED"
+        nvarchar Status "INACTIVE-ACTIVE-ARCHIVED"
         nvarchar LinkedResourceType "Nullable - MENU-MODULE-ENDPOINT-WORKFLOW"
         uniqueidentifier LinkedResourceId "Nullable"
         int RolloutPercentage "Nullable - 0 a 100"
@@ -745,14 +748,14 @@ erDiagram
 ---
 
 ## 4. Reglas de Negocio y Restricciones Técnicas
-1.  **Seguridad a Nivel de Fila (RLS)**: `TenantId` está desnormalizado en todas las entidades funcionales (Module, Option, Template, Action, Role) para permitir verificaciones de aislamiento O(1) mediante SQL Server RLS.
+1.  **Aislamiento de Tenant en Dos Capas**: `TenantId` está desnormalizado en todas las entidades funcionales (Module, Option, Template, Action, Role) para permitir filtrado O(1) a nivel de aplicación como mecanismo primario. SQL Server RLS permanece como capa de resguardo de infraestructura, no como control primario.
 2.  **Arco Exclusivo (Integridad de Template)**: `PermissionTemplateItem` usa un discriminador `TargetType` y una columna `TargetId` única en lugar de 5 FKs anulables. Una restricción `CHECK` garantiza que `TargetType` siempre esté poblado, aplicando integridad referencial estricta en base de datos sobre el polimorfismo.
 3.  **XOR Estricto de Propiedad de Acción**: Una Acción debe pertenecer a un Sistema O a un Módulo, pero nunca a ambos: `CHECK ((SystemSuiteId IS NOT NULL AND ModuleId IS NULL) OR (SystemSuiteId IS NULL AND ModuleId IS NOT NULL))`.
 4.  **Integridad de Jerarquía**: El acceso debe trazarse a través de `System > Module > Menu > SubMenu > Option` (esquema: `SYSTEM_SUITE → FUNCTIONAL_MODULE → FUNCTIONAL_MENU → FUNCTIONAL_SUBMENU → FUNCTIONAL_OPTION`).
 5.  **Administración Delegada (Muchos-a-Muchos)**: El alcance de administración de un usuario se define a través de la tabla `USER_MANAGEMENT_DELEGATION`. Esto permite que múltiples administradores gestionen el mismo grupo de usuarios, opcionalmente restringido por `SuiteId`.
 6.  **Mandatos de Aprobación**: Los usuarios Externos/B2B DEBEN pasar por un `APPROVAL_WORKFLOW` antes de alcanzar el estado `ACTIVE` o ser asignados a perfiles de alto riesgo. Los documentos requeridos definidos en `APPROVAL_REQUIRED_DOCUMENT` deben subirse a `USER_DOCUMENT` antes de avanzar en el flujo.
 7.  **Aplicación Automática de Cumplimiento**: Workers en segundo plano escanean `USER_DOCUMENT`. Al vencer, se activa `ACCESS_ENFORCEMENT_POLICY`. Los documentos críticos transicionarán automáticamente el `USER_ACCOUNT` a estado `BLOCKED` o restringirán el contexto del `PROFILE`.
-8.  **Notificaciones Paramétricas**: `NOTIFICATION_RULE` permite configurar alertas de N pasos (p.ej., 30, 15, 5 días antes del vencimiento) por Tenant y Tipo de Documento. Cada notificación disparada se registra como una entrada inmutable `ACCESS_NOTIFICATION`.
+8.  **Enrutamiento de Notificaciones por Tenant**: `NOTIFICATION_RULE` está modelado actualmente como un agregado de enrutamiento propiedad del tenant (`Channel`, `Recipient`, `IsActive`). Los calendarios más granulares orientados por tipo documental siguen siendo una extensión futura y deben introducirse explícitamente antes de documentarse como comportamiento implementado.
 9.  **Estándar de Catálogo Paramétrico Obligatorio**: Cada entidad de parámetro/configuración/catálogo DEBE incluir `Code`, `Value` y `Description`. `Description` debe documentar propósito, impacto funcional, comportamiento esperado y alcance aplicable. Todas estas entidades deben además definir unicidad por alcance, linaje de versiones, metadatos de auditoría, eventos de trazabilidad, estrategia de invalidación de caché y extensibilidad futura.
 10. **Aislamiento de Credenciales**: `PASSWORD_CREDENTIAL` y `MFA_ENROLLMENT` son entidades separadas propiedad de `USER_ACCOUNT`. Un usuario puede tener como máximo una `PASSWORD_CREDENTIAL` activa y múltiples registros `MFA_ENROLLMENT` (uno por método). Esto permite rotación limpia de credenciales y gestión de métodos multi-factor sin acoplamiento al registro de identidad principal.
 11. **Doble Puerta de Aprobación IGA**: `PROMOTION_REQUEST` rastrea dos etapas de aprobación independientes — Manager y Seguridad — cada una con su propio estado y marca de tiempo. Ambas deben estar en `APPROVED` antes de que el `Status` pueda avanzar a `EXECUTED`. El registro `PROMOTION_IMPACT_ANALYSIS` se genera automáticamente y debe ser revisado antes de otorgar la aprobación de Seguridad.

@@ -102,15 +102,18 @@ Table PROMOTION_IMPACT_ANALYSIS {
 }
 
 Table APP_CONFIGURATION {
-  SettingId uniqueidentifier [pk]
+  ConfigId uniqueidentifier [pk]
   TenantId uniqueidentifier [note: 'Nullable: Global if null']
-  SuiteId uniqueidentifier [note: 'Nullable']
+  SystemSuiteId uniqueidentifier [note: 'Nullable']
   ModuleId uniqueidentifier [note: 'Nullable']
-  Code nvarchar [note: 'e.g. ENABLE_ROLE_EVOLUTION']
+  Code nvarchar [note: 'Identificador tecnico unico']
   Value nvarchar
-  Description nvarchar [note: 'Technical/Business purpose of the setting']
+  Description nvarchar [note: 'Proposito, impacto funcional, comportamiento esperado y alcance']
+  Scope nvarchar [note: 'GLOBAL/TENANT/SUITE/MODULE']
   IsInheritable bit [default: 1]
   IsEncrypted bit [default: 0]
+  Version nvarchar [note: 'Version semantica, ej. 1.0.0']
+  Status nvarchar [note: 'DRAFT/PUBLISHED/ARCHIVED']
 }
 
 Table DOCUMENT_TYPE {
@@ -137,12 +140,12 @@ Table USER_DOCUMENT {
 Table NOTIFICATION_RULE {
   RuleId uniqueidentifier [pk]
   TenantId uniqueidentifier
-  DocumentTypeId uniqueidentifier
-  Code nvarchar [note: 'ej. DOC_EXPIRY_NOTICE_30D_EMAIL']
-  Value nvarchar [note: 'ej. 30|EMAIL o payload JSON']
-  Description nvarchar [note: 'Propósito, impacto funcional, comportamiento esperado y alcance']
-  DaysBefore int
   Channel nvarchar
+  Recipient nvarchar
+  Code nvarchar [note: 'Identificador recomendado para futura estandarizacion']
+  Value nvarchar [note: 'Payload operacional recomendado para futura estandarizacion']
+  Description nvarchar [note: 'Proposito, impacto, comportamiento y alcance recomendados']
+  IsActive bit
 }
 
 Table ACCESS_ENFORCEMENT_POLICY {
@@ -191,7 +194,10 @@ Table APPROVAL_LOG {
 Table SYSTEM_SUITE {
   SuiteId uniqueidentifier [pk]
   TenantId uniqueidentifier
+  Code nvarchar
   Name nvarchar
+  Description nvarchar
+  Status nvarchar [note: 'ACTIVE/INACTIVE/BETA']
 }
 
 Table PROFILE {
@@ -199,15 +205,32 @@ Table PROFILE {
   TenantId uniqueidentifier
   UserId uniqueidentifier
   RoleId uniqueidentifier
-  BranchId uniqueidentifier
+  BranchId uniqueidentifier [note: 'Nullable']
+  ScopeId int [note: '1=OrgWide, 2=BranchScoped']
+  IsActive bit
+  CreatedBy nvarchar
+  CreatedAtUtc datetime2
+  UpdatedBy nvarchar [note: 'Nullable']
+  UpdatedAtUtc datetime2 [note: 'Nullable']
+  AuditTimeSpan nvarchar
 }
 
 Table PROFILE_PERMISSION {
-  ProfileId uniqueidentifier [pk]
-  TemplateId uniqueidentifier [pk]
+  ProfilePermissionId uniqueidentifier [pk]
+  ProfileId uniqueidentifier
+  TemplateId uniqueidentifier
+  TargetTypeId int [note: '1=SystemSuite, 2=Module, 3=Submodule, 4=Option']
+  TargetId uniqueidentifier
+  ActionId uniqueidentifier
   IsAllowed bit
   IsDenied bit
   IsActive bit
+  IsOverride bit
+  CreatedBy nvarchar
+  CreatedAtUtc datetime2
+  UpdatedBy nvarchar [note: 'Nullable']
+  UpdatedAtUtc datetime2 [note: 'Nullable']
+  AuditTimeSpan nvarchar
 }
 
 Table PERMISSION_TEMPLATE {
@@ -250,38 +273,43 @@ Table ACTION {
 }
 
 Table APP_CONFIGURATION {
-  SettingId uniqueidentifier [pk]
+  ConfigId uniqueidentifier [pk]
   TenantId uniqueidentifier
-  SuiteId uniqueidentifier
+  SystemSuiteId uniqueidentifier
   ModuleId uniqueidentifier
   Code nvarchar
   Value nvarchar
   Description nvarchar
+  Scope nvarchar
   IsInheritable bit
+  IsEncrypted bit
+  Version nvarchar
+  Status nvarchar
 }
 
 Table IDP_CONFIGURATION {
   IdpConfigId uniqueidentifier [pk]
   TenantId uniqueidentifier
+  SystemSuiteId uniqueidentifier
   ProviderType nvarchar
   DomainHints nvarchar
   ConfigPayload nvarchar
   SecretRef nvarchar
   IdpConfigStatus nvarchar
   ResolutionPriority int
-  Version nvarchar
+  FallbackToId uniqueidentifier
+  Version int
 }
 
 Table FEATURE_FLAG {
   FlagId uniqueidentifier [pk]
-  TenantId uniqueidentifier
   FlagCode nvarchar
   FlagType nvarchar
   FlagTargets nvarchar
   FlagStatus nvarchar
   LinkedResourceType nvarchar
-  Description nvarchar
-  IsActive bit
+  LinkedResourceId uniqueidentifier
+  RolloutPercentage int
 }
 
 Table FLAG_EVALUATION_LOG {
@@ -326,7 +354,7 @@ Ref: PROMOTION_REQUEST.InitiatedByUserId > USER_ACCOUNT.UserId
 Ref: PROMOTION_IMPACT_ANALYSIS.PromotionRequestId > PROMOTION_REQUEST.PromotionRequestId
 
 Ref: APP_CONFIGURATION.TenantId > TENANT.TenantId
-Ref: APP_CONFIGURATION.SuiteId > SYSTEM_SUITE.SuiteId
+Ref: APP_CONFIGURATION.SystemSuiteId > SYSTEM_SUITE.SuiteId
 Ref: APP_CONFIGURATION.ModuleId > FUNCTIONAL_MODULE.ModuleId
 
 Ref: DOCUMENT_TYPE.TenantId > TENANT.TenantId
@@ -334,7 +362,6 @@ Ref: USER_DOCUMENT.UserId > USER_ACCOUNT.UserId
 Ref: USER_DOCUMENT.DocumentTypeId > DOCUMENT_TYPE.DocumentTypeId
 Ref: USER_DOCUMENT.RequestId > APPROVAL_REQUEST.RequestId
 Ref: NOTIFICATION_RULE.TenantId > TENANT.TenantId
-Ref: NOTIFICATION_RULE.DocumentTypeId > DOCUMENT_TYPE.DocumentTypeId
 Ref: ACCESS_ENFORCEMENT_POLICY.DocumentTypeId > DOCUMENT_TYPE.DocumentTypeId
 
 Ref: APPROVAL_WORKFLOW.TenantId > TENANT.TenantId
@@ -354,6 +381,7 @@ Ref: PROFILE.RoleId > ROLE.RoleId
 Ref: PROFILE.BranchId > BRANCH.BranchId
 Ref: PROFILE_PERMISSION.ProfileId > PROFILE.ProfileId
 Ref: PROFILE_PERMISSION.TemplateId > PERMISSION_TEMPLATE.TemplateId
+Ref: PROFILE_PERMISSION.ActionId > ACTION.ActionId
 Ref: PERMISSION_TEMPLATE.RoleId > ROLE.RoleId
 Ref: PERMISSION_TEMPLATE.ActionId > ACTION.ActionId
 Ref: PERMISSION_TEMPLATE.SuiteId > SYSTEM_SUITE.SuiteId
@@ -367,8 +395,8 @@ Ref: ACTION.SuiteId > SYSTEM_SUITE.SuiteId
 Ref: ACTION.ModuleId > FUNCTIONAL_MODULE.ModuleId
 
 Ref: IDP_CONFIGURATION.TenantId > TENANT.TenantId
-
-Ref: FEATURE_FLAG.TenantId > TENANT.TenantId
+Ref: IDP_CONFIGURATION.SystemSuiteId > SYSTEM_SUITE.SuiteId
+Ref: IDP_CONFIGURATION.FallbackToId > IDP_CONFIGURATION.IdpConfigId
 
 Ref: FLAG_EVALUATION_LOG.FlagId > FEATURE_FLAG.FlagId
 Ref: FLAG_EVALUATION_LOG.UserId > USER_ACCOUNT.UserId

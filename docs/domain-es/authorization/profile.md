@@ -1,4 +1,4 @@
-# Profile — Arquitectura de Agregados
+# Profile — Arquitectura de Agregado
 
 **Contexto Delimitado:** Autorización  
 **Raíz de Agregado:** `Profile`  
@@ -10,156 +10,167 @@
 ## 1. Visión General del Agregado
 
 ### Propósito
-El agregado `Profile` representa un rol de seguridad dinámico asignado a los usuarios del sistema. Orquesta las asignaciones de permisos mediante el mapeo de operaciones de suite (acciones) a alcances de acceso específicos (GLOBAL, TENANT o BRANCH). Esto determina qué acciones puede ejecutar un usuario y precisamente qué segmentos de datos (inquilinos/sucursales) tiene permitido ver o modificar.
+El agregado `Profile` representa una asignación efectiva de autorización para un usuario dentro de un tenant. Vincula un `UserId` con un `RoleId` y opcionalmente con un `BranchId`, y luego materializa permisos efectivos a partir de definiciones publicadas de `PermissionTemplate`. Es el contenedor padre de las entidades propias `ProfilePermission` y la fuente operativa usada por los validadores de acceso aguas abajo.
 
 ### Responsabilidad de Negocio
-- Actuar como el mecanismo central de roles de autorización.
-- Hacer cumplir los límites de los alcances de seguridad (niveles Global vs Inquilino vs Sucursal).
-- Gestionar los permisos dinámicos del perfil a través de entidades propias `ProfilePermission`.
-- Controlar las reglas de asignación y ciclos de vida de los roles.
+- Representar la huella de autorización activa de un usuario en un tenant.
+- Hacer cumplir los límites de alcance entre acceso organizacional y acceso por sucursal.
+- Materializar elementos de plantillas publicadas en permisos efectivos `ProfilePermission`.
+- Permitir anulaciones controladas por permiso sin mutar la plantilla fuente.
+- Controlar el ciclo de vida completo del perfil (`Active` / `Inactive`).
 
 ### Raíz de Agregado
-`Profile` es la raíz del agregado. Todos los ajustes de permisos o transiciones de estado deben pasar por comandos de `Profile`.
+`Profile` es la raíz del agregado. El enlace de plantillas, las anulaciones de permisos, la activación/desactivación de permisos y los cambios de estado del agregado deben pasar por `Profile`.
 
 ### Invariantes y Reglas de Consistencia
-1. El `Name` de un perfil debe ser único dentro de su ámbito de `TenantId`.
-2. Un perfil marcado con `Scope = GLOBAL` no puede tener una restricción de alcance de `TenantId` o `BranchId`.
-3. Un perfil marcado con `Scope = TENANT` debe tener un `TenantId` válido.
-4. Un perfil marcado con `Scope = BRANCH` debe tener un `TenantId` y un `BranchId` válidos.
-5. Si el inquilino propietario se suspende, todos los perfiles asignados a ese inquilino se suspenden implícitamente (R-10).
-6. Un perfil no puede contener mapeos duplicados de `ActionId` en sus `ProfilePermission`.
-7. La `PermissionKey` en un `ProfilePermission` debe coincidir exactamente con la clave calculada dentro del catálogo `Action` en el momento de la validación de la asignación.
+1. `TenantId`, `UserId` y `RoleId` son obligatorios para todo `Profile`.
+2. `Scope` se deriva de `BranchId`: sin sucursal es `OrgWide`; con sucursal es `BranchScoped`.
+3. Un `Profile` solo puede enlazar instancias de `PermissionTemplate` del mismo tenant.
+4. Un `Profile` solo puede enlazar plantillas que ya estén en estado `Published`.
+5. Un `Profile` no puede enlazar dos veces la misma plantilla.
+6. Las anulaciones y cambios de estado de permisos solo son válidos mientras el `Profile` padre esté activo.
+7. La identidad de `ProfilePermission` se materializa por cada elemento de plantilla y conserva trazabilidad mediante `TemplateId`.
 
 ### Entidades Relacionadas / Objetos de Valor
-| Entidad / VO | Tipo | Propietario |
-|---|---|---|
-| `ProfilePermission` | Entidad | Propia |
-| `ProfileScope` | Enum | GLOBAL · TENANT · BRANCH |
-| `ProfileName` | Objeto de Valor | Nombre del rol de visualización alfanumérico |
+| Entidad / VO | Tipo | Propiedad | Descripción |
+|---|---|---|---|
+| `ProfilePermission` | Entidad | Propia | Permiso efectivo materializado desde un elemento de plantilla |
+| `ProfileScope` | Enumeración | - | `OrgWide` o `BranchScoped` |
+| `TenantId` | Objeto de Valor | - | Límite de pertenencia del tenant |
+| `UserId` | Objeto de Valor | - | Usuario que recibe el perfil efectivo |
+| `RoleId` | Objeto de Valor | - | Fuente del rol para seleccionar plantillas |
+| `BranchId` | Objeto de Valor | - | Segmentación opcional por sucursal |
+| `TemplateId` | Objeto de Valor | - | Trazabilidad hacia la plantilla origen |
 
 ### Eventos de Dominio
-| Evento | Desencadenante |
+| Evento | Disparador |
 |---|---|
 | `ProfileCreatedEvent` | Nuevo perfil creado |
-| `ProfileScopeAdjustedEvent` | Alcance del perfil ajustado |
-| `ProfilePermissionGrantedEvent` | Permiso (acción) otorgado al perfil |
-| `ProfilePermissionRevokedEvent` | Permiso revocado del perfil |
+| `TemplateLinkedToProfileEvent` | Plantilla publicada enlazada y materializada en permisos |
+| `PermissionOverriddenEvent` | Se aplica allow / deny / neutral / activate / deactivate sobre un permiso |
 | `ProfileDeactivatedEvent` | Perfil desactivado |
-
-### Comandos / Casos de Uso
-| Comando | Descripción |
-|---|---|
-| `CreateProfileCommand` | Crear un nuevo perfil |
-| `GrantPermissionCommand` | Otorga un permiso (acción) al perfil |
+| `ProfileActivatedEvent` | Perfil reactivado |
 
 ---
 
 ## 2. Modelo de Dominio
 
 ### Clases / Entidades / Objetos de Valor
-```
+```text
 Profile (Raíz de Agregado)
 ├── Props: ProfileProps
 │   ├── Id: IdValueObject
-│   ├── TenantId?: TenantId
+│   ├── TenantId: TenantId
+│   ├── UserId: UserId
+│   ├── RoleId: RoleId
 │   ├── BranchId?: BranchId
-│   ├── Name: ProfileName
 │   ├── Scope: ProfileScope
 │   ├── IsActive: bool
 │   └── Audit: AuditValueObject
 └── Hijos
-    └── IReadOnlyList<ProfilePermission>
-        └── ProfilePermission
-            ├── Props: PermissionProps
-            │   ├── Id: IdValueObject
-            │   ├── ProfileId: ProfileId
-            │   ├── ActionId: Guid
-            │   └── PermissionKey: string
+    └── IReadOnlyCollection<ProfilePermission>
+        └── Props: ProfilePermissionProps
+            ├── Id: IdValueObject
+            ├── ProfileId: ProfileId
+            ├── TemplateId: TemplateId
+            ├── TargetType: ExclusiveArcTarget
+            ├── TargetId: IdValueObject
+            ├── ActionId: ActionId
+            ├── IsAllowed: bool
+            ├── IsDenied: bool
+            ├── IsActive: bool
+            ├── IsOverride: bool
+            └── Audit: AuditValueObject
 ```
-
-### Atributos Principales
-| Entidad | Atributo | Tipo | Notas |
-|---|---|---|---|
-| `Profile` | `Id` | `Guid` | PK |
-| `Profile` | `TenantId` | `Guid?` | Nulo si es GLOBAL |
-| `Profile` | `BranchId` | `Guid?` | Nulo si es GLOBAL o TENANT |
-| `Profile` | `Name` | `string` | Único por TenantId |
-| `Profile` | `Scope` | `Enum` | GLOBAL, TENANT, BRANCH |
-| `Profile` | `IsActive` | `bool` | Flag de estado |
-| `ProfilePermission` | `Id` | `Guid` | PK (GrantId) |
-| `ProfilePermission` | `ProfileId` | `Guid` | FK a Profile |
-| `ProfilePermission` | `ActionId` | `Guid` | FK a Action del sistema |
-| `ProfilePermission` | `PermissionKey`| `string` | Clave de caché copiada |
 
 ---
 
-## 3. Diagramas de Modelo de Objetos
+## 3. Diagramas del Modelo de Objetos
 
 ```mermaid
 classDiagram
     direction TB
     class Profile {
         +Guid Id
-        +Guid? TenantId
+        +Guid TenantId
+        +Guid UserId
+        +Guid RoleId
         +Guid? BranchId
-        +ProfileName Name
         +ProfileScope Scope
         +bool IsActive
         +List~ProfilePermission~ Permissions
-        +Create()
-        +GrantPermission()
-        +RevokePermission()
-        +Deactivate()
+        +Create(tenantId, userId, roleId, branchId, actor)
+        +AssignTemplate(template, actor)
+        +OverridePermissionAllow(permissionId, actor)
+        +OverridePermissionDeny(permissionId, actor)
+        +OverridePermissionNeutral(permissionId, actor)
+        +ActivatePermission(permissionId, actor)
+        +DeactivatePermission(permissionId, actor)
+        +Activate(actor)
+        +Deactivate(actor)
     }
     class ProfilePermission {
         +Guid Id
         +Guid ProfileId
+        +Guid TemplateId
+        +ExclusiveArcTarget TargetType
+        +Guid TargetId
         +Guid ActionId
-        +string PermissionKey
+        +bool IsAllowed
+        +bool IsDenied
+        +bool IsActive
+        +bool IsOverride
     }
-    Profile "1" *-- "0..*" ProfilePermission : contiene
+    Profile "1" *-- "0..*" ProfilePermission
 ```
 
 ---
 
 ## 4. Diagramas de Secuencia
 
-### Flujo para Crear un Perfil
+### Flujo de Creación de Perfil y Asignación de Plantilla
 ```mermaid
 sequenceDiagram
     participant C as Cliente
-    participant H as CreateProfileHandler
+    participant H as Handler
     participant R as IProfileRepository
     participant P as Profile (AR)
+    participant T as PermissionTemplate
 
-    C->>H: CreateProfileCommand(tenantId, branchId, name, scope)
-    H->>R: ExistsByName(tenantId, name)
-    R-->>H: false
-    H->>P: Profile.Create(id, tenantId, branchId, name, scope)
-    P->>P: Validar invariantes basados en el alcance
+    C->>H: CreateProfileCommand(tenantId, userId, roleId, branchId)
+    H->>P: Profile.Create(tenantId, userId, roleId, branchId, actor)
+    P->>P: Derivar Scope desde BranchId
     P->>P: Levantar ProfileCreatedEvent
     H->>R: Add(profile)
+    R-->>H: ok
+    H->>T: Cargar plantilla publicada para tenant/rol
+    H->>P: profile.AssignTemplate(template, actor)
+    P->>P: Validar tenant y estado Published
+    P->>P: Materializar elementos ProfilePermission
+    P->>P: Levantar TemplateLinkedToProfileEvent
+    H->>R: Update(profile)
     R-->>H: ok
     H-->>C: ProfileId
 ```
 
-### Flujo para Otorgar un Permiso
+### Flujo de Anulación de Permiso
 ```mermaid
 sequenceDiagram
     participant C as Cliente
-    participant H as GrantPermissionHandler
+    participant H as Handler
     participant R as IProfileRepository
     participant P as Profile (AR)
 
-    C->>H: GrantPermissionCommand(profileId, actionId, key)
+    C->>H: OverridePermissionAllow(profileId, permissionId)
     H->>R: GetById(profileId)
     R-->>H: Profile
-    H->>P: profile.GrantPermission(actionId, key)
-    P->>P: Guard: actionId no presente
-    P->>P: Levantar ProfilePermissionGrantedEvent
+    H->>P: OverridePermissionAllow(permissionId, actor)
+    P->>P: Validar perfil activo
+    P->>P: Marcar permiso como override
+    P->>P: Levantar PermissionOverriddenEvent
     H->>R: Update(profile)
     R-->>H: ok
-    H-->>C: GrantId
+    H-->>C: Success
 ```
 
 ---
@@ -170,62 +181,88 @@ sequenceDiagram
 erDiagram
     PROFILE ||--o{ PROFILE_PERMISSION : "contiene"
     TENANT ||--o{ PROFILE : "posee"
-    BRANCH ||--o{ PROFILE : "limita"
-    ACTION ||--o{ PROFILE_PERMISSION : "otorgado"
+    USER_ACCOUNT ||--o{ PROFILE : "recibe"
+    ROLE ||--o{ PROFILE : "origina"
+    BRANCH ||--o{ PROFILE : "delimita"
+    PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "materializa"
+    ACTION ||--o{ PROFILE_PERMISSION : "ejecuta"
 
     PROFILE {
-        uniqueidentifier ProfileId PK
-        uniqueidentifier TenantId FK "Nullable"
+        uniqueidentifier Id PK
+        uniqueidentifier TenantId FK
+        uniqueidentifier UserId FK
+        uniqueidentifier RoleId FK
         uniqueidentifier BranchId FK "Nullable"
-        nvarchar Name "Unique per TenantId"
-        nvarchar Scope "GLOBAL-TENANT-BRANCH"
+        int ScopeId "1=OrgWide, 2=BranchScoped"
         bit IsActive
+        nvarchar CreatedBy
+        datetime2 CreatedAtUtc
+        nvarchar UpdatedBy "Nullable"
+        datetime2 UpdatedAtUtc "Nullable"
+        nvarchar AuditTimeSpan
     }
     PROFILE_PERMISSION {
-        uniqueidentifier GrantId PK
+        uniqueidentifier Id PK
         uniqueidentifier ProfileId FK
+        uniqueidentifier TemplateId FK
+        int TargetTypeId
+        uniqueidentifier TargetId
         uniqueidentifier ActionId FK
-        nvarchar PermissionKey
+        bit IsAllowed
+        bit IsDenied
+        bit IsActive
+        bit IsOverride
+        nvarchar CreatedBy
+        datetime2 CreatedAtUtc
+        nvarchar UpdatedBy "Nullable"
+        datetime2 UpdatedAtUtc "Nullable"
+        nvarchar AuditTimeSpan
     }
 ```
 
-### Reglas de Aislamiento de Inquilinos
-- Los perfiles globales (`TenantId IS NULL`) se comparten en todo el sistema.
-- Los perfiles delimitados por Inquilino y Sucursal se particionan estrictamente por `TenantId`. Todas las consultas de base de datos dirigidas a operaciones de inquilinos deben aplicar el filtro de inquilinos correspondiente.
-- `ProfilePermission` hereda el alcance de aislamiento del agregado padre `Profile`.
+### Reglas de Aislamiento por Tenant
+- `Profile` siempre pertenece a un tenant en la implementación actual; `TenantId` es obligatorio.
+- El comportamiento organizacional se modela con `ScopeId = OrgWide`, no con `TenantId` nulo.
+- `PROFILE_PERMISSION` hereda el aislamiento desde su `Profile` padre.
 
 ---
 
-## 6. Integración de Contexto Delimitado
-- **Aguas Arriba**: Consume `TenantId` y `BranchId` del Contexto de Identidad (Identity BC).
-- Consume `ActionId` de los agregados `SystemSuite`.
-- Consumido por los contextos de Aprobaciones e IGA para validar solicitudes de sesión y propuestas de elevación.
+## 6. Integración entre Contextos Delimitados
+- **Aguas arriba**: consume `TenantId`, `UserId` y `BranchId` del Contexto de Identidad.
+- Consume `RoleId` y definiciones publicadas de `PermissionTemplate` dentro del contexto de Autorización.
+- Consume `ActionId` y la topología objetivo desde `SystemSuite`.
+- Es consumido por Aprobaciones, IGA y evaluadores de autorización en runtime.
 
 ---
 
 ## 7. Capa de Aplicación
-- `CreateProfileCommand` -> Entradas: `TenantId?, BranchId?, Name, Scope` -> Retorna: `Guid`
-- `GrantPermissionCommand` -> Entradas: `ProfileId, ActionId, PermissionKey` -> Retorna: `Guid`
+- `CreateProfileCommand` -> Entradas: `TenantId, UserId, RoleId, BranchId?` -> Retorna: `Guid`
+- Trabajo pendiente en API: la asignación de plantillas y las anulaciones de permisos ya existen en dominio, pero todavía no están expuestas completamente en endpoints.
 
 ---
 
-## 8. Infraestructura/Persistencia
-- Índice: Índice único en `TenantId, Name` (para asegurar la unicidad del nombre dentro del inquilino).
-- Índice único en `ProfileId, ActionId` para los permisos.
-- Transacción: Las modificaciones a `Profile` y sus elementos secundarios `ProfilePermission` se confirman dentro de una sola transacción de unidad de trabajo de EF Core.
+## 8. Infraestructura / Persistencia
+- Se guarda dentro del límite transaccional de `Profile`.
+- Tabla actual en SQL Server: `[ums_authorization].[Profiles]`
+- Tabla hija actual en SQL Server: `[ums_authorization].[ProfilePermissions]`
+- Índices actuales de `Profile`: `TenantId`, `UserId`, `(TenantId, UserId, RoleId, BranchId)`
+- Índices actuales de `ProfilePermission`: `ProfileId`, `(ProfileId, TemplateId, ActionId, TargetId)`
+- La metadata de auditoría se persiste tanto en la raíz como en cada permiso.
 
 ---
 
 ## 9. Seguridad y Cumplimiento
-- Diseñar / crear perfiles globales: Restringido al rol `Platform:Admin`.
-- Configuración de perfiles de Inquilino / Sucursal: Restringido al rol `Tenant:Admin` (para su propio inquilino).
-- Cumplimiento: La modificación de perfiles es un punto caliente de auditoría de seguridad. Todos los cambios desencadenan de inmediato registros de auditoría e invalidaciones de sesión.
+- La mutación de perfiles es una operación sensible y actualiza la metadata de auditoría del agregado en cada cambio.
+- La autorización efectiva puede endurecerse mediante overrides `deny` o `neutral` sin cambiar la plantilla fuente.
+- Los evaluadores aguas abajo deben tratar perfiles y permisos inactivos como no efectivos.
 
 ---
 
 ## 10. Decisiones Técnicas
-- Las restricciones de alcance (Global vs Inquilino vs Sucursal) se evalúan dentro de la lógica del agregado raíz de dominio en lugar de restricciones de base de datos para asegurar la pureza arquitectónica de la capa de DDD.
-- Desnormalizar `PermissionKey` directamente en `PROFILE_PERMISSION` permite consultas de seguridad inmediatas y de alto rendimiento que omiten los joins de base de datos a los esquemas de SystemSuite al calcular los permisos de sesión activos.
+- `Profile` representa una asignación efectiva de autorización, no un catálogo de roles nombrados.
+- `Scope` se persiste como identificador de enumeración (`ScopeId`) y se deriva desde `BranchId` al crear el agregado.
+- Los permisos efectivos conservan trazabilidad mediante `TemplateId`, habilitando reevaluación, auditoría y reconstrucción futura.
+- Los cambios manuales se expresan con `IsOverride` y toggles de estado en `ProfilePermission`, en lugar de mutar `PermissionTemplate`.
 
 ---
 

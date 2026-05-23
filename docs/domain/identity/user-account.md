@@ -26,8 +26,6 @@ The `UserAccount` aggregate represents a user's identity within a tenant. It gov
 
 ### Invariants and Consistency Rules
 1. `Email` must be unique per `TenantId`.
-14. A `UserAccount` acting as a delegated admin may only execute management commands (`RegisterUserCommand`, `BlockUserCommand`, `AssignProfileCommand`) on users within their `ACTIVE` delegation scope — validated by `IDelegationScopeValidator` at application layer.
-15. A `UserAccount` cannot delegate authority it does not itself possess (`no-elevation` rule — INV-DEL1).
 2. A `UserAccount` in status `Blocked` cannot authenticate.
 3. A `UserAccount` in status `Pending` has no active `PasswordCredential`.
 4. At most one `PasswordCredential` can be `IsActive = true` at any time.
@@ -37,9 +35,11 @@ The `UserAccount` aggregate represents a user's identity within a tenant. It gov
 8. `IdentityReference` and `IdentityReferenceType` must be set together or both null.
 9. A `FEDERATED` user (has `IdentityReference`) should not have an active `PasswordCredential`.
 10. Multiple `MfaEnrollment` records may exist (one per method), but each method may only be enrolled once per user.
-11. MFA Enrollment status transitions: `Pending → Enrolled → Revoked`.
-12. `UserAccount.Status` must be `Active` to enroll a new MFA method.
+11. MFA enrollment status transitions follow the implemented state machine: `NotEnrolled → Enrolled → Revoked`.
+12. `UserAccount.Status` must not be `Blocked` to enroll a new MFA method.
 13. At least one enrolled MFA method must remain if the tenant requires MFA.
+14. A `UserAccount` acting as a delegated admin may only execute management commands (`RegisterUserCommand`, `BlockUserCommand`, `AssignProfileCommand`) on users within their `ACTIVE` delegation scope — validated by `IDelegationScopeValidator` at application layer.
+15. A `UserAccount` cannot delegate authority it does not itself possess (`no-elevation` rule — INV-DEL1).
 
 ### Related Entities / Value Objects
 | Entity / VO | Type | Ownership |
@@ -47,7 +47,7 @@ The `UserAccount` aggregate represents a user's identity within a tenant. It gov
 | `PasswordCredential` | Entity | Owned — child of UserAccount |
 | `MfaEnrollment` | Entity | Owned — child of UserAccount |
 | `TenantId` | Value Object | FK reference to Tenant |
-| `BranchId` | Value Object | FK reference to Branch (optional scope) |
+| `BranchId` | Value Object | FK reference to Branch (optional scope). Present in props, persistence, and application contracts; direct branch assignment during aggregate creation is still transitional in the current implementation. |
 | `Email` | Value Object | Validated email |
 | `UserCategory` | Enum | INTERNAL · EXTERNAL · B2B · PARTNER |
 | `DelegationId` | Value Object | Reference to `UserManagementDelegation` — set in application context, not stored on aggregate |
@@ -56,7 +56,7 @@ The `UserAccount` aggregate represents a user's identity within a tenant. It gov
 | `IdentityReferenceType` | Enum | OIDC · SAML · LOCAL |
 | `PasswordHash` | Value Object | Validated BCrypt hash string |
 | `MfaMethod` | Enum | TOTP · SMS · EMAIL · WEBAUTHN |
-| `MfaEnrollmentStatus` | Enum | Enrolled · Pending · Revoked |
+| `MfaEnrollmentStatus` | Enum | NotEnrolled · Enrolled · Revoked |
 | `AuditValueObject` | Value Object | CreatedAt/By, UpdatedAt/By |
 
 ### Domain Events
@@ -81,7 +81,7 @@ The `UserAccount` aggregate represents a user's identity within a tenant. It gov
 | `DeactivatePasswordCommand` | Deactivate credential (e.g. on account federation) |
 | `LinkExternalIdentityCommand` | Associate an external IdP subject reference |
 | `EnrollMfaCommand` | Enroll a new MFA method |
-| `VerifyMfaCommand` | Confirm MFA challenge (transitions Pending → Enrolled) |
+| `VerifyMfaCommand` | Confirm MFA challenge (transitions NotEnrolled → Enrolled) |
 | `RevokeMfaEnrollmentCommand` | Revoke an enrolled MFA method |
 
 ### Repository / Service Boundaries
@@ -122,6 +122,7 @@ UserAccount (Aggregate Root)
 |---|---|---|---|
 | `Id` | UserAccount | `Guid` | PK |
 | `TenantId` | UserAccount | `Guid` | FK — RLS scope |
+| `BranchId` | UserAccount | `Guid?` | Optional branch scope, currently transitional in aggregate creation |
 | `Email` | UserAccount | `string` | Unique per tenant |
 | `Category` | UserAccount | `UserCategory` | Classification |
 | `Status` | UserAccount | `UserStatus` | Lifecycle state |
@@ -129,7 +130,7 @@ UserAccount (Aggregate Root)
 | `PasswordHash` | PasswordCredential | `string` | BCrypt hash — write-only |
 | `IsActive` | PasswordCredential | `bool` | Only one `true` at a time |
 | `Method` | MfaEnrollment | `MfaMethod` | TOTP / SMS / EMAIL / WEBAUTHN |
-| `Status` | MfaEnrollment | `MfaEnrollmentStatus`| Enrolled / Pending / Revoked |
+| `Status` | MfaEnrollment | `MfaEnrollmentStatus`| NotEnrolled / Enrolled / Revoked |
 
 ---
 
@@ -188,9 +189,9 @@ sequenceDiagram
     C->>H: EnrollMfaCommand(userId, method, actorId)
     H->>R: GetById(userId)
     R-->>H: UserAccount
-    H->>U: userAccount.EnrollMfa(enrollmentId, method, actorId)
+    H->>U: userAccount.EnrollMfa(method, actorId)
     U->>U: Guard: method not already enrolled
-    U->>U: Create MfaEnrollment (Status = Enrolled)
+    U->>U: Create MfaEnrollment (Status = NotEnrolled)
     U->>U: Raise MfaEnrolledEvent
     H->>R: Update(userAccount)
     H->>MFA: InitiateSetup(userId, method)
@@ -243,7 +244,7 @@ erDiagram
         uniqueidentifier Id PK
         uniqueidentifier UserAccountId FK
         nvarchar Method "TOTP-SMS-EMAIL-WEBAUTHN"
-        nvarchar Status "ENROLLED-PENDING-REVOKED"
+        nvarchar Status "NOT_ENROLLED-ENROLLED-REVOKED"
         datetime2 CreatedAt
         uniqueidentifier CreatedBy
         datetime2 UpdatedAt

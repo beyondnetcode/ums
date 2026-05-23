@@ -1,7 +1,7 @@
 # ProfilePermission — Arquitectura de Entidad Propia
 
 **Contexto Delimitado:** Autorización  
-**Raíz de Agregado:** `Profile` (ProfilePermission es una entidad propia dentro del agregado Profile)  
+**Raíz de Agregado:** `Profile` (`ProfilePermission` es una entidad propia dentro del agregado `Profile`)
 **Módulo:** `Ums.Domain.Authorization.Profile.ProfilePermission`  
 **Estado:** Producción
 
@@ -10,49 +10,62 @@
 ## 1. Visión General del Agregado
 
 ### Propósito
-Un `ProfilePermission` representa un permiso individual otorgado (acción) dentro de un `Profile`. Vincula una `Action` granular del sistema (referenciada a través de `ActionId` y una `PermissionKey` optimizada para caché) al rol padre.
+`ProfilePermission` representa un ítem de permiso efectivo dentro de un `Profile`. Se materializa a partir de un elemento publicado de `PermissionTemplate` y luego puede anularse a nivel de perfil sin modificar la plantilla fuente.
 
 ### Responsabilidad de Negocio
-- Vincular operaciones de suite concretas a perfiles de usuario estándar.
-- Participar en comprobaciones de seguridad de sesión de alta velocidad.
+- Preservar el resultado efectivo de autorización asignado a un perfil de usuario.
+- Mantener trazabilidad hacia la plantilla origen mediante `TemplateId`.
+- Almacenar el nivel objetivo del recurso y la `ActionId` concreta.
+- Soportar anulaciones operativas como allow, deny, neutral, activate y deactivate.
 
 ### Raíz de Agregado
-`Profile`. Administrado estrictamente a través del agregado raíz `Profile` padre.
+`Profile`. Se administra estrictamente a través del agregado padre.
 
 ### Invariantes y Reglas de Consistencia
-1. Un perfil no puede contener mapeos duplicados de `ActionId`.
-2. La `PermissionKey` debe coincidir exactamente con la clave calculada dentro del catálogo `Action` en el momento de la validación de la asignación.
+1. Todo `ProfilePermission` pertenece exactamente a un `Profile`.
+2. Todo `ProfilePermission` conserva trazabilidad hacia un `TemplateId` de origen.
+3. Las operaciones de override deben marcar `IsOverride = true`.
+4. La semántica efectiva del permiso surge de la combinación de `IsAllowed`, `IsDenied`, `IsActive` e `IsOverride`.
 
 ### Entidades Relacionadas / Objetos de Valor
-| Entidad / VO | Tipo | Propietario |
+| Entidad / VO | Tipo | Propiedad |
 |---|---|---|
-| `ProfileId` | Objeto de Valor | Referencia FK al Perfil padre |
-| `ActionId` | Objeto de Valor | Referencia FK a la Action del sistema |
-| `PermissionKey` | Objeto de Valor | Clave de caché copiada |
+| `ProfileId` | Objeto de Valor | FK hacia `Profile` |
+| `TemplateId` | Objeto de Valor | Trazabilidad hacia la plantilla origen |
+| `ExclusiveArcTarget` | Enumeración | Nivel objetivo (`SystemSuite`, `Module`, `Submodule`, `Option`) |
+| `TargetId` | Objeto de Valor | Objetivo concreto dentro de la topología funcional |
+| `ActionId` | Objeto de Valor | Acción a ejecutar |
 
 ### Eventos de Dominio
-Los eventos se levantan en el administrador de eventos de la raíz del agregado padre `Profile`:
-- `ProfilePermissionGrantedEvent`
-- `ProfilePermissionRevokedEvent`
+Los eventos se elevan desde el agregado padre `Profile`:
+- `TemplateLinkedToProfileEvent`
+- `PermissionOverriddenEvent`
 
 ---
 
 ## 2. Modelo de Dominio
 
 ### Clases / Entidades / Objetos de Valor
-```
+```text
 Profile (Raíz de Agregado)
 └── ProfilePermission (Entidad Propia)
-    └── Props: PermissionProps
+    └── Props: ProfilePermissionProps
         ├── Id: IdValueObject
         ├── ProfileId: ProfileId
-        ├── ActionId: Guid
-        └── PermissionKey: string
+        ├── TemplateId: TemplateId
+        ├── TargetType: ExclusiveArcTarget
+        ├── TargetId: IdValueObject
+        ├── ActionId: ActionId
+        ├── IsAllowed: bool
+        ├── IsDenied: bool
+        ├── IsActive: bool
+        ├── IsOverride: bool
+        └── Audit: AuditValueObject
 ```
 
 ---
 
-## 3. Diagramas de Modelo de Objetos
+## 3. Diagramas del Modelo de Objetos
 
 ```mermaid
 classDiagram
@@ -63,8 +76,19 @@ classDiagram
     class ProfilePermission {
         +Guid Id
         +Guid ProfileId
+        +Guid TemplateId
+        +ExclusiveArcTarget TargetType
+        +Guid TargetId
         +Guid ActionId
-        +string PermissionKey
+        +bool IsAllowed
+        +bool IsDenied
+        +bool IsActive
+        +bool IsOverride
+        +OverrideAllow(actor)
+        +OverrideDeny(actor)
+        +OverrideNeutral(actor)
+        +Activate(actor)
+        +Deactivate(actor)
     }
     Profile "1" *-- "0..*" ProfilePermission
 ```
@@ -73,23 +97,34 @@ classDiagram
 
 ## 4. Diagramas de Secuencia
 
-### Flujo para Otorgar un Permiso
+### Materialización de Permisos desde Plantilla
 ```mermaid
 sequenceDiagram
-    participant C as Cliente
-    participant H as GrantPermissionHandler
-    participant R as IProfileRepository
-    participant P as Profile (AR)
+    participant H as Handler
+    participant P as Profile
+    participant T as PermissionTemplate
 
-    C->>H: GrantPermissionCommand(profileId, actionId, key)
-    H->>R: GetById(profileId)
-    R-->>H: Profile
-    H->>P: profile.GrantPermission(actionId, key)
-    P->P: Guard: actionId no presente
-    P->P: Levantar ProfilePermissionGrantedEvent
-    H->>R: Update(profile)
-    R-->>H: ok
-    H-->>C: GrantId
+    H->>P: AssignTemplate(template, actor)
+    P->>T: Validar mismo tenant y estado Published
+    loop Por cada item de plantilla
+        P->>P: Create ProfilePermission(ProfileId, TemplateId, TargetType, TargetId, ActionId, flags)
+    end
+    P->>P: Levantar TemplateLinkedToProfileEvent
+```
+
+### Override de Permiso Efectivo
+```mermaid
+sequenceDiagram
+    participant H as Handler
+    participant P as Profile
+    participant PP as ProfilePermission
+
+    H->>P: OverridePermissionDeny(permissionId, actor)
+    P->>PP: OverrideDeny(actor)
+    PP->>PP: IsAllowed = false
+    PP->>PP: IsDenied = true
+    PP->>PP: IsOverride = true
+    P->>P: Levantar PermissionOverriddenEvent
 ```
 
 ---
@@ -99,44 +134,66 @@ sequenceDiagram
 ```mermaid
 erDiagram
     PROFILE ||--o{ PROFILE_PERMISSION : "contiene"
-    ACTION ||--o{ PROFILE_PERMISSION : "otorgado"
+    PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "materializa"
+    ACTION ||--o{ PROFILE_PERMISSION : "ejecuta"
 
     PROFILE_PERMISSION {
-        uniqueidentifier GrantId PK
+        uniqueidentifier Id PK
         uniqueidentifier ProfileId FK
+        uniqueidentifier TemplateId FK
+        int TargetTypeId
+        uniqueidentifier TargetId
         uniqueidentifier ActionId FK
-        nvarchar PermissionKey
+        bit IsAllowed
+        bit IsDenied
+        bit IsActive
+        bit IsOverride
+        nvarchar CreatedBy
+        datetime2 CreatedAtUtc
+        nvarchar UpdatedBy "Nullable"
+        datetime2 UpdatedAtUtc "Nullable"
+        nvarchar AuditTimeSpan
     }
 ```
 
-### Reglas de Aislamiento de Inquilinos
-- Hereda el alcance de aislamiento del agregado padre `Profile` (el cual está estrictamente particionado por inquilino a menos que sea global).
+### Reglas de Aislamiento por Tenant
+- `ProfilePermission` hereda la pertenencia al tenant desde su `Profile` padre.
+- No porta `TenantId` propio; el aislamiento fluye mediante `ProfileId`.
 
 ---
 
-## 6. Integración de Contexto Delimitado
-- Mapea identificadores de `Action` dinámicos desde agregados `SystemSuite`.
+## 6. Integración entre Contextos Delimitados
+- Consume `TemplateId` desde `PermissionTemplate`.
+- Consume `ActionId` y la topología objetivo desde `SystemSuite`.
+- Es consumido por la compilación del grafo de autorización y por validadores de acceso en runtime.
 
 ---
 
 ## 7. Capa de Aplicación
-- `GrantPermissionCommand` -> Entradas: `ProfileId, ActionId, PermissionKey` -> Retorna: `Guid`
+- No existe una superficie de comandos independiente para `ProfilePermission`; todas las operaciones viajan a través de `Profile`.
+- Trabajo pendiente en API: exponer el enlace de plantillas y las anulaciones mediante handlers y endpoints de aplicación.
 
 ---
 
-## 8. Infraestructura/Persistencia
-- Guardado como parte del límite de transacción de `Profile`.
-- Índice: Índice único en `ProfileId, ActionId`.
+## 8. Infraestructura / Persistencia
+- Se guarda dentro del mismo límite transaccional que `Profile`.
+- Tabla actual en SQL Server: `[ums_authorization].[ProfilePermissions]`
+- Índices actuales: `ProfileId`, `(ProfileId, TemplateId, ActionId, TargetId)`
+- La metadata de auditoría se persiste en cada fila.
 
 ---
 
 ## 9. Seguridad y Cumplimiento
-- Las operaciones requieren credenciales administrativas que coincidan con las reglas del agregado padre `Profile`.
+- Los overrides a nivel de perfil permiten endurecer acceso sin mutar la plantilla autoritativa.
+- Los permisos inactivos deben ignorarse en evaluadores de acceso en runtime.
+- `IsOverride` distingue ajustes manuales frente a permisos sembrados por plantilla para auditoría y reconstrucción.
 
 ---
 
 ## 10. Decisiones Técnicas
-- Desnormalizar `PermissionKey` directamente en `PROFILE_PERMISSION` permite consultas de seguridad inmediatas y de alto rendimiento que omiten los joins de base de datos a los esquemas de SystemSuite al calcular los permisos de sesión activos.
+- `ProfilePermission` es un registro materializado de permiso efectivo, no solo una concesión cruda de acción.
+- `TargetTypeId` + `TargetId` implementan el patrón de arco exclusivo heredado desde los items de plantilla.
+- Mantener `TemplateId` en cada fila preserva procedencia y habilita reconstrucciones futuras.
 
 ---
 

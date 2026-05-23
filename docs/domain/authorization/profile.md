@@ -10,69 +10,77 @@
 ## 1. Aggregate Overview
 
 ### Purpose
-The `Profile` aggregate represents a dynamic security role assigned to system users. It orchestrates permission grants by mapping suite operations (actions) to specific access scopes (GLOBAL, TENANT, or BRANCH). This determines what actions a user can execute and precisely which data slices (inquilinos/sucursales) they are allowed to see or modify. It serves as the parent container for `ProfilePermission` owned entities.
+The `Profile` aggregate represents an effective authorization assignment for a user inside a tenant. It binds a `UserId` to a `RoleId` and optionally to a `BranchId`, then materializes effective permissions from published `PermissionTemplate` definitions. It is the parent container for `ProfilePermission` owned entities and the operational source used by downstream access checks.
 
 ### Business Responsibility
-- Act as the central authorization role mechanism.
-- Enforce the boundaries of security scopes (Global vs. Tenant vs. Branch levels).
-- Manage dynamic profile permissions through `ProfilePermission` child entities, binding concrete suite operations to standard user profiles.
-- Control assignment rules and life cycles of roles.
-- Participate in high-speed session security checks.
+- Represent the active authorization footprint of a user in a tenant.
+- Enforce scope boundaries between organization-wide and branch-scoped access.
+- Materialize published template items into effective `ProfilePermission` entries.
+- Allow controlled per-permission overrides without mutating the source template.
+- Control lifecycle state (`Active` / `Inactive`) for the whole profile.
 
 ### Aggregate Root
-`Profile` is the aggregate root. All permission adjustments, status transitions, or `ProfilePermission` modifications must go through `Profile` commands.
+`Profile` is the aggregate root. Template linkage, permission overrides, permission activation/deactivation, and aggregate status changes must go through `Profile`.
 
 ### Invariants and Consistency Rules
-1. **Profile**: A Profile `Name` must be unique within its `TenantId` scope.
-2. **Profile**: A profile marked with `Scope = GLOBAL` cannot have a `TenantId` or `BranchId` scoped constraint.
-3. **Profile**: A profile marked with `Scope = TENANT` must have a valid `TenantId`.
-4. **Profile**: A profile marked with `Scope = BRANCH` must have a valid `TenantId` and `BranchId`.
-5. **Profile**: If the owning Tenant is suspended, all profiles scoped to that tenant are implicitly suspended (R-10).
-6. **ProfilePermission**: A Profile cannot contain duplicate `ActionId` mappings.
-7. **ProfilePermission**: The `PermissionKey` must match exactly the computed key inside the `Action` catalog at assignment validation time.
+1. `TenantId`, `UserId`, and `RoleId` are mandatory for every `Profile`.
+2. `Scope` is derived from `BranchId`: no branch means `OrgWide`; a branch means `BranchScoped`.
+3. A `Profile` can only link `PermissionTemplate` instances from the same tenant.
+4. A `Profile` can only link templates that are already `Published`.
+5. A `Profile` cannot link the same template twice.
+6. Permission overrides and permission state changes are only valid while the parent `Profile` is active.
+7. `ProfilePermission` identity is materialized per template item and keeps source lineage through `TemplateId`.
 
 ### Related Entities / Value Objects
 | Entity / VO | Type | Ownership | Description |
 |---|---|---|---|
-| `ProfilePermission` | Entity | Owned | Individual granted permission (action) within a Profile |
-| `ProfileScope` | Enum | - | GLOBAL · TENANT · BRANCH |
-| `ProfileName` | Value Object | - | Alpha-numeric display role name |
-| `ProfileId` | Value Object | - | FK reference to parent Profile |
-| `ActionId` | Value Object | - | FK reference to system Action |
-| `PermissionKey` | Value Object | - | Copied cache key |
+| `ProfilePermission` | Entity | Owned | Effective permission materialized from a template item |
+| `ProfileScope` | Enumeration | - | `OrgWide` or `BranchScoped` |
+| `TenantId` | Value Object | - | Tenant ownership boundary |
+| `UserId` | Value Object | - | User receiving the effective profile |
+| `RoleId` | Value Object | - | Role source for template selection |
+| `BranchId` | Value Object | - | Optional branch scoping |
+| `TemplateId` | Value Object | - | Source template lineage for materialized permissions |
 
 ### Domain Events
 | Event | Trigger |
 |---|---|
 | `ProfileCreatedEvent` | New profile created |
-| `ProfileScopeAdjustedEvent` | Profile scope modified |
-| `ProfilePermissionGrantedEvent` | Permission mapped to profile |
-| `ProfilePermissionRevokedEvent` | Permission removed from profile |
+| `TemplateLinkedToProfileEvent` | Published template linked and materialized into permissions |
+| `PermissionOverriddenEvent` | Allow / deny / neutral / activate / deactivate applied to a permission |
 | `ProfileDeactivatedEvent` | Profile deactivated |
+| `ProfileActivatedEvent` | Profile reactivated |
 
 ---
 
 ## 2. Domain Model
 
 ### Classes / Entities / Value Objects
-```
+```text
 Profile (Aggregate Root)
 ├── Props: ProfileProps
 │   ├── Id: IdValueObject
-│   ├── TenantId?: TenantId
+│   ├── TenantId: TenantId
+│   ├── UserId: UserId
+│   ├── RoleId: RoleId
 │   ├── BranchId?: BranchId
-│   ├── Name: ProfileName
 │   ├── Scope: ProfileScope
 │   ├── IsActive: bool
 │   └── Audit: AuditValueObject
 └── Children
-    └── IReadOnlyList<ProfilePermission>
-        └── ProfilePermission
-            └── Props: PermissionProps
-                ├── Id: IdValueObject
-                ├── ProfileId: ProfileId
-                ├── ActionId: Guid
-                └── PermissionKey: string
+    └── IReadOnlyCollection<ProfilePermission>
+        └── Props: ProfilePermissionProps
+            ├── Id: IdValueObject
+            ├── ProfileId: ProfileId
+            ├── TemplateId: TemplateId
+            ├── TargetType: ExclusiveArcTarget
+            ├── TargetId: IdValueObject
+            ├── ActionId: ActionId
+            ├── IsAllowed: bool
+            ├── IsDenied: bool
+            ├── IsActive: bool
+            ├── IsOverride: bool
+            └── Audit: AuditValueObject
 ```
 
 ---
@@ -84,22 +92,34 @@ classDiagram
     direction TB
     class Profile {
         +Guid Id
-        +Guid? TenantId
+        +Guid TenantId
+        +Guid UserId
+        +Guid RoleId
         +Guid? BranchId
-        +ProfileName Name
         +ProfileScope Scope
         +bool IsActive
         +List~ProfilePermission~ Permissions
-        +Create()
-        +GrantPermission(actionId, key)
-        +RevokePermission()
-        +Deactivate()
+        +Create(tenantId, userId, roleId, branchId, actor)
+        +AssignTemplate(template, actor)
+        +OverridePermissionAllow(permissionId, actor)
+        +OverridePermissionDeny(permissionId, actor)
+        +OverridePermissionNeutral(permissionId, actor)
+        +ActivatePermission(permissionId, actor)
+        +DeactivatePermission(permissionId, actor)
+        +Activate(actor)
+        +Deactivate(actor)
     }
     class ProfilePermission {
         +Guid Id
         +Guid ProfileId
+        +Guid TemplateId
+        +ExclusiveArcTarget TargetType
+        +Guid TargetId
         +Guid ActionId
-        +string PermissionKey
+        +bool IsAllowed
+        +bool IsDenied
+        +bool IsActive
+        +bool IsOverride
     }
     Profile "1" *-- "0..*" ProfilePermission
 ```
@@ -108,7 +128,32 @@ classDiagram
 
 ## 4. Sequence Diagrams
 
-### Create Profile & Grant Permission Flow
+### Create Profile & Assign Template Flow
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant H as Handler
+    participant R as IProfileRepository
+    participant P as Profile (AR)
+    participant T as PermissionTemplate
+
+    C->>H: CreateProfileCommand(tenantId, userId, roleId, branchId)
+    H->>P: Profile.Create(tenantId, userId, roleId, branchId, actor)
+    P->>P: Derive Scope from BranchId
+    P->>P: Raise ProfileCreatedEvent
+    H->>R: Add(profile)
+    R-->>H: ok
+    H->>T: Load published template for tenant/role
+    H->>P: profile.AssignTemplate(template, actor)
+    P->>P: Validate tenant and published status
+    P->>P: Materialize ProfilePermission items
+    P->>P: Raise TemplateLinkedToProfileEvent
+    H->>R: Update(profile)
+    R-->>H: ok
+    H-->>C: ProfileId
+```
+
+### Permission Override Flow
 ```mermaid
 sequenceDiagram
     participant C as Client
@@ -116,18 +161,16 @@ sequenceDiagram
     participant R as IProfileRepository
     participant P as Profile (AR)
 
-    C->>H: CreateProfileCommand(tenantId, branchId, name, scope)
-    H->>R: ExistsByName(tenantId, name)
-    R-->>H: false
-    H->>P: Profile.Create(id, tenantId, branchId, name, scope)
-    P->>P: Guard invariants based on scope
-    P->>P: Raise ProfileCreatedEvent
-    H->>P: profile.GrantPermission(actionId, key)
-    P->>P: Guard: actionId not already granted
-    P->>P: Raise ProfilePermissionGrantedEvent
-    H->>R: Add(profile)
+    C->>H: OverridePermissionAllow(profileId, permissionId)
+    H->>R: GetById(profileId)
+    R-->>H: Profile
+    H->>P: OverridePermissionAllow(permissionId, actor)
+    P->>P: Validate active profile
+    P->>P: Mark permission as override
+    P->>P: Raise PermissionOverriddenEvent
+    H->>R: Update(profile)
     R-->>H: ok
-    H-->>C: ProfileId
+    H-->>C: Success
 ```
 
 ---
@@ -138,63 +181,88 @@ sequenceDiagram
 erDiagram
     PROFILE ||--o{ PROFILE_PERMISSION : "contains"
     TENANT ||--o{ PROFILE : "owns"
+    USER_ACCOUNT ||--o{ PROFILE : "receives"
+    ROLE ||--o{ PROFILE : "sources"
     BRANCH ||--o{ PROFILE : "scopes"
-    ACTION ||--o{ PROFILE_PERMISSION : "granted"
+    PERMISSION_TEMPLATE ||--o{ PROFILE_PERMISSION : "materializes"
+    ACTION ||--o{ PROFILE_PERMISSION : "enforces"
 
     PROFILE {
-        uniqueidentifier ProfileId PK
-        uniqueidentifier TenantId FK "Nullable"
+        uniqueidentifier Id PK
+        uniqueidentifier TenantId FK
+        uniqueidentifier UserId FK
+        uniqueidentifier RoleId FK
         uniqueidentifier BranchId FK "Nullable"
-        nvarchar Name "Unique per TenantId"
-        nvarchar Scope "GLOBAL-TENANT-BRANCH"
+        int ScopeId "1=OrgWide, 2=BranchScoped"
         bit IsActive
+        nvarchar CreatedBy
+        datetime2 CreatedAtUtc
+        nvarchar UpdatedBy "Nullable"
+        datetime2 UpdatedAtUtc "Nullable"
+        nvarchar AuditTimeSpan
     }
     PROFILE_PERMISSION {
-        uniqueidentifier GrantId PK
+        uniqueidentifier Id PK
         uniqueidentifier ProfileId FK
+        uniqueidentifier TemplateId FK
+        int TargetTypeId
+        uniqueidentifier TargetId
         uniqueidentifier ActionId FK
-        nvarchar PermissionKey
+        bit IsAllowed
+        bit IsDenied
+        bit IsActive
+        bit IsOverride
+        nvarchar CreatedBy
+        datetime2 CreatedAtUtc
+        nvarchar UpdatedBy "Nullable"
+        datetime2 UpdatedAtUtc "Nullable"
+        nvarchar AuditTimeSpan
     }
 ```
 
 ### Tenant Isolation Rules
-- Global profiles (`TenantId IS NULL`) are shared system-wide.
-- Tenant and Branch scoped profiles are strictly partitioned by `TenantId`. All database queries scoped to tenant operations must apply tenant filtering.
-- `PROFILE_PERMISSION` inherits isolation scope from parent `Profile`.
+- `Profile` is always tenant-owned in the current implementation; `TenantId` is required.
+- Organization-wide behavior is modeled through `ScopeId = OrgWide`, not through a null `TenantId`.
+- `PROFILE_PERMISSION` inherits isolation scope from its parent `Profile`.
 
 ---
 
 ## 6. Bounded Context Integration
-- **Upstream**: Consumes `TenantId` and `BranchId` from Identity Bounded Context.
-- Consumes `ActionId` and dynamic `Action` identifiers from `SystemSuite` aggregates.
-- Consumed by Approvals and IGA Contexts to validate session requests and promotion proposals.
+- **Upstream**: Consumes `TenantId`, `UserId`, and `BranchId` from the Identity Bounded Context.
+- Consumes `RoleId` and published `PermissionTemplate` definitions from the Authorization Context.
+- Consumes `ActionId` and target topology from `SystemSuite`.
+- Is consumed by Approvals, IGA, and runtime authorization evaluators.
 
 ---
 
 ## 7. Application Layer
-- `CreateProfileCommand` -> Inputs: `TenantId?, BranchId?, Name, Scope` -> Returns: `Guid`
-- `GrantPermissionCommand` -> Inputs: `ProfileId, ActionId, PermissionKey` -> Returns: `Guid`
+- `CreateProfileCommand` -> Inputs: `TenantId, UserId, RoleId, BranchId?` -> Returns: `Guid`
+- Follow-up API work still pending: template assignment and permission override commands are implemented in the domain but not fully exposed in endpoints yet.
 
 ---
 
 ## 8. Infrastructure/Persistence
-- Saved as part of `Profile` transaction boundary.
-- Index: Unique index on `TenantId, Name` for `Profile`.
-- Index: Unique index on `ProfileId, ActionId` for `PROFILE_PERMISSION`.
-- Transaction: Modifications to `Profile` and its `ProfilePermission` children are committed within a single EF Core unit-of-work transaction.
+- Saved as part of the `Profile` transaction boundary.
+- Current SQL Server table: `[ums_authorization].[Profiles]`
+- Current SQL Server child table: `[ums_authorization].[ProfilePermissions]`
+- Current indexes for `Profile`: `TenantId`, `UserId`, `(TenantId, UserId, RoleId, BranchId)`
+- Current indexes for `ProfilePermission`: `ProfileId`, `(ProfileId, TemplateId, ActionId, TargetId)`
+- Audit metadata is persisted on both the aggregate root and the owned permissions.
 
 ---
 
 ## 9. Security & Compliance
-- Designing / creating Global profiles: Restriced to `Platform:Admin`.
-- Tenant / Branch profile configuration: Restricted to `Tenant:Admin` (for their own tenant).
-- Compliance: Profile modification is a security audit hot-spot. All changes trigger immediate audit trails and session invalidations. Operations on `PROFILE_PERMISSION` require matching credentials.
+- Profile mutation is a security-sensitive operation and updates aggregate audit metadata on every state change.
+- Effective authorization can be tightened through per-permission deny or neutral overrides without changing the source template.
+- Downstream access evaluators should treat inactive profiles and inactive permissions as non-effective.
 
 ---
 
 ## 10. Technical Decisions
-- Scope constraints (Global vs Tenant vs Branch) are evaluated inside the domain aggregate root logic rather than DB constraints to ensure architectural DDD layer purity.
-- Denormalizing `PermissionKey` directly into `PROFILE_PERMISSION` enables immediate, high-performance security queries that skip database joins to SystemSuite schemas when computing active session permissions.
+- `Profile` is an effective authorization assignment, not a named catalog role.
+- `Scope` is persisted as an enumeration identifier (`ScopeId`) and derived from `BranchId` at creation time.
+- Effective permissions preserve lineage through `TemplateId`, allowing re-evaluation, auditing, and future rebuild workflows.
+- Manual changes are expressed through `IsOverride` and state toggles in `ProfilePermission`, instead of mutating `PermissionTemplate`.
 
 ---
 

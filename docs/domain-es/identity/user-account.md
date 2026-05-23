@@ -21,32 +21,34 @@
 - Administrar metodos MFA (`MfaEnrollment`) enrollados por el usuario de forma independiente (TOTP, SMS, Email, WebAuthn).
 
 **PasswordCredential**: Almacena el hash BCrypt de la contrasena para autenticacion local. Soporta rotacion de credenciales con registros historicos (inactivos).
-**MfaEnrollment**: Registra el enrolamiento de un usuario en un metodo MFA especifico. Se pueden enrolar multiples metodos por usuario, cada uno con su propio ciclo de vida (Enrolled, Pending, Revoked).
+**MfaEnrollment**: Registra el enrolamiento de un usuario en un metodo MFA especifico. Se pueden enrolar multiples metodos por usuario, cada uno con su propio ciclo de vida (`NotEnrolled`, `Enrolled`, `Revoked`).
 
 ### Aggregate Root
 `UserAccount` es su propio aggregate root. Todas las mutaciones de `PasswordCredential` y `MfaEnrollment` pasan por comandos de `UserAccount`.
 
 ### Invariantes y Reglas de Consistencia
 1. **UserAccount**: `Email` debe ser unico dentro del mismo `TenantId`.
-2. **UserAccount/PasswordCredential**: Un usuario `FEDERATED` (con `IdentityReference`) no debe tener `PasswordCredential` activa.
-3. **PasswordCredential**: A lo sumo una `PasswordCredential` con `IsActive = true` por usuario.
-4. **PasswordCredential**: Establecer una nueva contrasena desactiva automaticamente la credencial activa anterior.
-5. **PasswordCredential**: `PasswordHash` debe ser un hash BCrypt valido. Las credenciales historicas se conservan para auditoria y no se eliminan.
-6. **MfaEnrollment**: Un usuario puede enrolar cada `MfaMethod` a lo sumo una vez — sin metodos duplicados.
-7. **MfaEnrollment**: Transiciones de estado del enrolamiento: `Pending -> Enrolled -> Revoked`.
-8. **MfaEnrollment**: `UserAccount.Status` debe ser `Active` para enrolar un nuevo metodo MFA.
-9. **MfaEnrollment**: Al menos un metodo enrollado debe permanecer si el tenant requiere MFA.
+2. **UserAccount**: Un usuario en estado `Blocked` no puede autenticarse.
+3. **UserAccount/PasswordCredential**: Un usuario federado (con `IdentityReference`) no debe tener `PasswordCredential` activa.
+4. **UserAccount/PasswordCredential**: Un usuario en estado `Pending` no debe tener una `PasswordCredential` activa.
+5. **PasswordCredential**: A lo sumo una `PasswordCredential` con `IsActive = true` por usuario.
+6. **PasswordCredential**: Establecer una nueva contrasena desactiva automaticamente la credencial activa anterior.
+7. **PasswordCredential**: `PasswordHash` debe ser un hash BCrypt valido. Las credenciales historicas se conservan para auditoria y no se eliminan.
+8. **MfaEnrollment**: Un usuario puede enrolar cada `MfaMethod` a lo sumo una vez — sin metodos duplicados.
+9. **MfaEnrollment**: Las transiciones de estado siguen el flujo implementado `NotEnrolled -> Enrolled -> Revoked`.
+10. **MfaEnrollment**: `UserAccount.Status` no debe estar en `Blocked` para enrolar un nuevo metodo MFA.
+11. **MfaEnrollment**: Al menos un metodo enrolado debe permanecer si el tenant requiere MFA.
 
 ### Entidades Relacionadas / Value Objects
 | Entidad / VO | Tipo | Notas |
 |---|---|---|
 | `TenantId` | Value Object | FK al Tenant propietario |
-| `BranchId` | Value Object | FK opcional a Branch |
+| `BranchId` | Value Object | FK opcional a Branch. Ya existe en props, persistencia y contratos de aplicacion; la asignacion directa durante la creacion del agregado sigue en transicion en la implementacion actual. |
 | `Email` | Value Object | Unico por TenantId |
-| `UserCategory` | Enum | EMPLOYEE · CONTRACTOR · EXTERNAL |
-| `UserStatus` | Enum | Pending · Active · Blocked · Inactive |
+| `UserCategory` | Enum | INTERNAL · EXTERNAL · B2B · PARTNER |
+| `UserStatus` | Enum | Pending · Active · Blocked |
 | `IdentityReference` | Value Object | Sub de IdP externo (nullable) |
-| `IdentityReferenceType` | Enum | OIDC · SAML2 · WS_FED (nullable) |
+| `IdentityReferenceType` | Enum | OIDC · SAML · LOCAL (nullable) |
 | `AuditValueObject` | Value Object | CreatedAt/By, UpdatedAt/By |
 
 ### Eventos de Dominio
@@ -72,7 +74,7 @@
 | `SetPasswordCommand` | Crear o rotar credencial de contrasena activa |
 | `DeactivatePasswordCommand` | Desactivar credencial (ej. en federacion de cuenta) |
 | `EnrollMfaCommand` | Enrolar nuevo metodo MFA |
-| `VerifyMfaCommand` | Confirmar desafio MFA (Pending -> Enrolled) |
+| `VerifyMfaCommand` | Confirmar desafio MFA (NotEnrolled -> Enrolled) |
 | `RevokeMfaEnrollmentCommand` | Revocar metodo MFA enrollado |
 | `LinkExternalIdentityCommand` | Vincular identidad federada |
 
@@ -87,7 +89,7 @@ UserAccount (Aggregate Root)
 │   ├── TenantId: TenantId
 │   ├── BranchId?: BranchId
 │   ├── Email: Email
-│   ├── UserCategory: UserCategory
+│   ├── Category: UserCategory
 │   ├── Status: UserStatus
 │   ├── IdentityReference?: IdentityReference
 │   ├── IdentityReferenceType?: IdentityReferenceType
@@ -112,7 +114,6 @@ UserAccount (Aggregate Root)
 **UserAccount**:
 ```
 Pending ──► Active ──► Blocked ──► Active
-Active ──► Inactive (terminal)
 ```
 **PasswordCredential**:
 ```
@@ -122,7 +123,7 @@ Credencial Anterior (IsActive = false) — retenida para historial
 ```
 **MfaEnrollment**:
 ```
-Pending ──► Enrolled ──► Revoked
+NotEnrolled ──► Enrolled ──► Revoked
 ```
 
 ---
@@ -214,10 +215,10 @@ sequenceDiagram
     C->>H: EnrollMfaCommand(userId, method, actorId)
     H->>R: GetById(userId)
     R-->>H: UserAccount
-    H->>U: userAccount.EnrollMfa(enrollmentId, method, actorId)
+    H->>U: userAccount.EnrollMfa(method, actorId)
     U->>U: Guardia: metodo no ya enrollado
-    U->>U: Guardia: usuario activo
-    U->>U: Crear MfaEnrollment (Status = Enrolled)
+    U->>U: Guardia: usuario no bloqueado
+    U->>U: Crear MfaEnrollment (Status = NotEnrolled)
     U->>U: Emitir MfaEnrolledEvent
     H->>R: Update(userAccount)
     H->>MFA: InitiateSetup(userId, method)
@@ -279,10 +280,10 @@ erDiagram
         uniqueidentifier TenantId FK
         uniqueidentifier BranchId "Nullable FK"
         nvarchar Email "Unico por TenantId"
-        nvarchar UserCategory "EMPLOYEE-CONTRACTOR-EXTERNAL"
-        nvarchar Status "PENDING-ACTIVE-BLOCKED-INACTIVE"
+        nvarchar UserCategory "INTERNAL-EXTERNAL-B2B-PARTNER"
+        nvarchar Status "PENDING-ACTIVE-BLOCKED"
         nvarchar IdentityReference "Nullable"
-        nvarchar IdentityReferenceType "Nullable"
+        nvarchar IdentityReferenceType "Nullable - OIDC-SAML-LOCAL"
         datetime2 CreatedAt
         uniqueidentifier CreatedBy
         datetime2 UpdatedAt
@@ -304,7 +305,7 @@ erDiagram
         uniqueidentifier MfaEnrollmentId PK
         uniqueidentifier UserAccountId FK
         nvarchar Method "TOTP-SMS-EMAIL-WEBAUTHN"
-        nvarchar Status "ENROLLED-PENDING-REVOKED"
+        nvarchar Status "NOT_ENROLLED-ENROLLED-REVOKED"
         datetime2 CreatedAt
         uniqueidentifier CreatedBy
         datetime2 UpdatedAt

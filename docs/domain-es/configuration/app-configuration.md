@@ -1,4 +1,4 @@
-# AppConfiguration — Arquitectura de Agregados
+# AppConfiguration — Arquitectura de Agregado
 
 **Contexto Delimitado:** Configuración  
 **Raíz de Agregado:** `AppConfiguration`  
@@ -10,118 +10,114 @@
 ## 1. Visión General del Agregado
 
 ### Propósito
-El agregado `AppConfiguration` gobierna las configuraciones operativas y políticas específicas del inquilino en UMS. Almacena elementos de configuración como tuplas de código-valor-descripción (cumpliendo con los estándares corporativos) y controla comportamientos en tiempo de ejecución, como la duración de las sesiones de usuario, límites de bloqueo de contraseñas, parámetros de complejidad de contraseñas y reglas de cumplimiento de autenticación multifactor (MFA).
+El agregado `AppConfiguration` representa una entrada individual de configuración jerárquica en UMS. Sigue el patrón corporativo obligatorio `code / value / description` y puede quedar acotado globalmente, por tenant, por suite o por módulo.
 
 ### Responsabilidad de Negocio
-- Registrar y actualizar parámetros operativos personalizados para inquilinos individuales.
-- Configurar políticas de seguridad corporativas (niveles de MFA, bloqueos, reglas de contraseña).
-- Inicializar configuraciones predeterminadas de inquilinos de manera dinámica tras el registro de un nuevo inquilino.
-- Proporcionar un catálogo estructurado y validado de flags de tiempo de ejecución y variables de entorno.
+- Persistir entradas de configuración con significado explícito de negocio.
+- Resolver y preservar el alcance de configuración.
+- Soportar banderas de herencia y cifrado.
+- Controlar el ciclo de vida desde draft a published y archived.
+- Versionar cambios de configuración a lo largo del tiempo.
 
 ### Raíz de Agregado
-`AppConfiguration` es la raíz del agregado. Todas las operaciones de parámetros de configuración deben coordinarse a través de los comandos de la raíz del agregado.
+`AppConfiguration` es una raíz de agregado independiente. Cada fila de configuración se administra de forma autónoma.
 
 ### Invariantes y Reglas de Consistencia
-1. Cada parámetro de configuración debe seguir los estándares estrictos de formato `Code`, `Value` y `Description`.
-2. Un Inquilino solo puede tener una hoja de configuración activa por entorno activo (ej. Desarrollo, Staging, Producción).
-3. Si MFA se establece en `ENFORCED` (obligatorio), al menos un canal de MFA debe estar activo en el perfil de autenticación del inquilino.
-4. `SessionTimeoutInMinutes` debe ser un número entero positivo entre 5 y 1440 (24 horas).
-5. Todas las operaciones requieren un `TenantId` válido y activo.
+1. Toda entrada debe contener `Code`, `Value` y `Description`.
+2. El alcance se deriva de la presencia de `TenantId`, `SystemSuiteId` y `ModuleId`.
+3. Las nuevas configuraciones nacen en `Draft`.
+4. Solo las configuraciones draft pueden actualizarse o publicarse.
+5. Solo las configuraciones published pueden archivarse.
+6. Las actualizaciones incrementan la versión semántica.
 
 ### Entidades Relacionadas / Objetos de Valor
-| Entidad / VO | Tipo | Propietario |
+| Entidad / VO | Tipo | Propiedad |
 |---|---|---|
-| `ConfigurationCode` | Objeto de Valor | Clave de parámetro alfanumérica en camelCase |
-| `ConfigurationValue` | Objeto de Valor | Valor de parámetro dinámico |
-| `SecurityPolicy` | Objeto de Valor | Aplica reglas de MFA, bloqueo y contraseñas |
-| `AuditValueObject` | Objeto de Valor | CreatedAt/By, UpdatedAt/By |
+| `AppConfigurationId` | Objeto de Valor | Identificador del agregado |
+| `TenantId` | Objeto de Valor | Alcance opcional por tenant |
+| `SystemSuiteId` | Objeto de Valor | Alcance opcional por suite |
+| `IdValueObject` | Objeto de Valor | Alcance opcional por módulo |
+| `Code` | Objeto de Valor | Clave técnica |
+| `ConfigurationValue` | Objeto de Valor | Valor operacional |
+| `Description` | Objeto de Valor | Significado funcional |
+| `ConfigurationScope` | Enumeración | `Global`, `Tenant`, `Suite`, `Module` |
+| `ConfigStatus` | Enumeración | `Draft`, `Published`, `Archived` |
 
 ### Eventos de Dominio
-| Evento | Desencadenante |
+| Evento | Disparador |
 |---|---|
-| `AppConfigurationSeededEvent` | Configuraciones predeterminadas creadas para un nuevo inquilino |
-| `ConfigurationParameterUpdatedEvent` | Parámetro de configuración específico modificado |
-| `SecurityPolicyChangedEvent` | Ajuste de reglas de bloqueo o MFA |
-
-### Comandos / Casos de Uso
-| Comando | Descripción |
-|---|---|
-| `SeedDefaultTenantConfigCommand` | Inicializar valores predeterminados al registrar un inquilino |
-| `UpdateConfigurationParameterCommand` | Establecer o modificar un valor de configuración |
-| `UpdateSecurityPolicyCommand` | Modificar políticas de bloqueo o autenticación |
-
-### Límites de Repositorio / Servicio
-- `IAppConfigurationRepository` — Persiste la configuración delimitada por el inquilino. Todas las consultas se filtran por `TenantId`.
-- No se permiten modificaciones entre diferentes inquilinos.
+| `AppConfigCreatedEvent` | Nueva configuración creada |
+| `AppConfigUpdatedEvent` | Configuración draft actualizada |
+| `AppConfigPublishedEvent` | Configuración publicada |
+| `AppConfigArchivedEvent` | Configuración archivada |
 
 ---
 
 ## 2. Modelo de Dominio
 
-### Clases / Entidades / Objetos de Valor
-```
+```text
 AppConfiguration (Raíz de Agregado)
-├── Props: AppConfigurationProps
-│   ├── Id: IdValueObject
-│   ├── TenantId: TenantId
-│   ├── Environment: string (DEV|STAGE|PROD)
-│   ├── SecurityPolicy: SecurityPolicy
-│   └── Audit: AuditValueObject
-└── Hijos
-    └── IReadOnlyList<ConfigParameter>
+└── Props: AppConfigurationProps
+    ├── Id: IdValueObject
+    ├── TenantId?: TenantId
+    ├── SystemSuiteId?: SystemSuiteId
+    ├── ModuleId?: IdValueObject
+    ├── Code: Code
+    ├── Value: ConfigurationValue
+    ├── Description: Description
+    ├── Scope: ConfigurationScope
+    ├── IsInheritable: bool
+    ├── IsEncrypted: bool
+    ├── Version: string
+    ├── Status: ConfigStatus
+    └── Audit: AuditValueObject
 ```
-
-### Reglas de Validación
-- `Code`: Requerido, único por inquilino, alfanumérico en minúsculas + puntos (ej., `security.session.timeout`).
-- `Value`: Validado contra las reglas del esquema de parámetros.
 
 ---
 
-## 3. Diagramas de Modelo de Objetos
+## 3. Diagramas del Modelo de Objetos
 
 ```mermaid
 classDiagram
-    direction LR
     class AppConfiguration {
         +Guid Id
-        +Guid TenantId
-        +string Environment
-        +SecurityPolicy Policy
-        +List~ConfigParameter~ Parameters
-        +SeedDefaults()
-        +UpdateParameter()
+        +Guid? TenantId
+        +Guid? SystemSuiteId
+        +Guid? ModuleId
+        +Code Code
+        +ConfigurationValue Value
+        +Description Description
+        +ConfigurationScope Scope
+        +bool IsInheritable
+        +bool IsEncrypted
+        +string Version
+        +ConfigStatus Status
+        +Create(tenantId, systemSuiteId, moduleId, code, value, description, isInheritable, isEncrypted, actor)
+        +Update(value, description, actor)
+        +Publish(actor)
+        +Archive(actor)
     }
-    class SecurityPolicy {
-        +bool MfaEnforced
-        +int MaxLockoutAttempts
-        +int SessionTimeoutInMinutes
-    }
-    class ConfigParameter {
-        +string Code
-        +string Value
-        +string Description
-    }
-    AppConfiguration "1" *-- "1" SecurityPolicy
-    AppConfiguration "1" *-- "0..*" ConfigParameter
 ```
 
 ---
 
 ## 4. Diagramas de Secuencia
 
-### Flujo de Inicialización Predeterminada
+### Flujo de Publicación
 ```mermaid
 sequenceDiagram
-    participant C as EventListener
-    participant H as SeedConfigHandler
+    participant C as Cliente
+    participant H as Handler
     participant R as IAppConfigurationRepository
     participant A as AppConfiguration (AR)
 
-    C->>H: Consumir TenantCreatedEvent(tenantId)
-    H->>A: AppConfiguration.CreateDefault(tenantId, "PROD")
-    A->>A: Inicializar parámetros estándar de código-valor
-    A->>A: Levantar AppConfigurationSeededEvent
-    H->>R: Add(config)
+    C->>H: PublishAppConfiguration(configId)
+    H->>R: GetById(configId)
+    R-->>H: AppConfiguration
+    H->>A: Publish(actor)
+    A->>A: Validar estado Draft
+    A->>A: Levantar AppConfigPublishedEvent
+    H->>R: Update(configuration)
     R-->>H: ok
 ```
 
@@ -131,58 +127,58 @@ sequenceDiagram
 
 ```mermaid
 erDiagram
-    TENANT ||--|| APP_CONFIGURATION : "configura"
-    APP_CONFIGURATION ||--o{ CONFIG_PARAMETER : "declara"
-
     APP_CONFIGURATION {
-        uniqueidentifier ConfigId PK
-        uniqueidentifier TenantId FK "Unique per Environment"
-        nvarchar Environment "DEV-STAGE-PROD"
-        bit MfaEnforced
-        int MaxLockoutAttempts
-        int SessionTimeoutInMinutes
-        datetime2 UpdatedAt
-        uniqueidentifier UpdatedBy
-    }
-    CONFIG_PARAMETER {
-        uniqueidentifier ParameterId PK
-        uniqueidentifier ConfigId FK
-        nvarchar Code "Unique per ConfigId"
+        uniqueidentifier Id PK
+        uniqueidentifier TenantId FK "Nullable"
+        uniqueidentifier SystemSuiteId FK "Nullable"
+        uniqueidentifier ModuleId FK "Nullable"
+        nvarchar Code
         nvarchar Value
         nvarchar Description
+        int ScopeId
+        bit IsInheritable
+        bit IsEncrypted
+        nvarchar Version
+        int StatusId
+        nvarchar CreatedBy
+        datetime2 CreatedAtUtc
+        nvarchar UpdatedBy
+        datetime2 UpdatedAtUtc
+        nvarchar AuditTimeSpan
     }
 ```
 
-### Reglas de Aislamiento de Inquilinos
-- Todos los registros de `APP_CONFIGURATION` y `CONFIG_PARAMETER` están particionados por `TenantId`. Las consultas directas a la tabla son interceptadas por la capa de repositorios de la Aplicación para aplicar el aislamiento (R-10).
+### Reglas de Aislamiento por Tenant
+- Las entradas globales pueden tener `TenantId` nulo.
+- Las entradas por tenant, suite y módulo se resuelven mediante sus campos explícitos de alcance.
 
 ---
 
-## 6. Integración de Contexto Delimitado
-- **Aguas Arriba**: Consume `TenantCreatedEvent` del Contexto de Identidad para activar la siembra dinámica.
-- **Aguas Abajo**: Los componentes de seguridad y el middleware de Autorización consultan las políticas de sesión durante la autenticación de usuarios.
+## 6. Integración entre Contextos Delimitados
+- Consumido por la resolución de configuración en runtime.
+- Puede servir comportamiento global, por tenant, por suite o por módulo.
 
 ---
 
 ## 7. Capa de Aplicación
-- `UpdateConfigurationParameterCommand` -> Entradas: `TenantId, Code, Value, ActorId` -> Retorna: `void`
+- El agregado de dominio existe, pero la implementación de API/aplicación sigue pendiente en la base de código actual.
 
 ---
 
-## 8. Infraestructura/Persistencia
-- Índice: Índice único en `TenantId, Environment` y `ConfigId, Code`.
-- Transacción: Las modificaciones de parámetros son atómicas dentro de la hoja de configuración del inquilino.
+## 8. Infraestructura / Persistencia
+- La persistencia en SQL Server y la exposición por API siguen pendientes para este agregado.
 
 ---
 
 ## 9. Seguridad y Cumplimiento
-- Ajustar políticas de aplicación: Restringido a los roles de `Tenant:Admin`.
-- Cumplimiento: Los cambios en parámetros críticos de seguridad (como las desactivaciones de MFA) requieren bitácoras de aprobación con doble firma (a través del Contexto de Aprobaciones).
+- `IsEncrypted` identifica entradas que deben tratarse como datos sensibles.
+- `Description` debe explicar propósito, impacto, comportamiento esperado y alcance aplicable.
 
 ---
 
 ## 10. Decisiones Técnicas
-- Estandarizar las propiedades de configuración dentro de un esquema dinámico de `Code-Value` evita rígidas migraciones de esquemas de bases de datos cuando se introducen nuevas características del cliente de interfaz de usuario.
+- `AppConfiguration` está modelado como una entrada de configuración por agregado, no como una hoja por ambiente con hijos.
+- El alcance se resuelve estructuralmente desde los campos de pertenencia y no desde una dimensión libre de ambiente.
 
 ---
 

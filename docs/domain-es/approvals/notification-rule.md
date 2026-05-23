@@ -1,134 +1,149 @@
-# NotificationRule — Arquitectura de Entidades
+# NotificationRule — Arquitectura de Agregado
 
 **Contexto Delimitado:** Aprobaciones  
-**Raíz de Agregado:** `DocumentType`  
-**Módulo:** `Ums.Domain.Approvals.DocumentType.NotificationRule`  
+**Raíz de Agregado:** `NotificationRule`
+**Módulo:** `Ums.Domain.Approvals.NotificationRule`
 **Estado:** Producción
 
 ---
 
-## 1. Visión General de la Entidad
+## 1. Visión General del Agregado
 
 ### Propósito
-La entidad `NotificationRule` define un umbral de advertencia reactivo para el cumplimiento de documentos. Especifica cuántos días antes de la expiración (`DaysBefore`) se debe alertar al usuario y qué canales de comunicación (ej., Correo electrónico, SMS, Notificación push) están autorizados para transmitir el mensaje de alerta.
+El agregado `NotificationRule` representa una regla operativa de destino de notificaciones usada por el proceso de aprobaciones/cumplimiento. Almacena quién debe recibir una notificación, por qué canal y si la regla está activa.
 
 ### Responsabilidad de Negocio
-- Mapear reglas de advertencia de vencimiento a categorías de documentos específicas.
-- Definir canales de transmisión de alertas.
+- Registrar destinos de notificación por tenant.
+- Definir el canal de entrega.
+- Almacenar el destinatario objetivo.
+- Permitir desactivación del ciclo de vida y actualización del destinatario.
 
 ### Raíz de Agregado
-Esta es una entidad propia que pertenece al agregado `DocumentType`. No puede existir ni realizar transiciones de estado fuera de las restricciones de ciclo de vida de su `DocumentType` padre.
+`NotificationRule` es una raíz de agregado independiente en la implementación actual. No está modelada como entidad hija de `DocumentType`.
 
 ### Invariantes y Reglas de Consistencia
-1. `DaysBefore` debe ser un número entero positivo estrictamente mayor que cero.
-2. La colección `Channels` debe contener al menos un canal de notificación válido (Email, SMS, WebPortal) y no puede ser nula ni vacía.
-3. El ciclo de vida está completamente controlado por el `DocumentType` padre.
+1. `TenantId` es obligatorio.
+2. `Recipient` debe existir y no puede estar vacío.
+3. Las nuevas reglas nacen activas.
+4. Una regla ya inactiva no puede desactivarse de nuevo.
 
 ### Entidades Relacionadas / Objetos de Valor
-| Entidad / VO | Tipo | Propietario |
+| Entidad / VO | Tipo | Propiedad |
 |---|---|---|
-| `NotificationRuleId` | Objeto de Valor | Identificador único de la entidad |
-| `NotificationChannel` | Enumerado | EMAIL · SMS · IN_APP · WEB_PUSH |
-| `Code` | Objeto de Valor | Identificador de tipo de notificación alfanumérico en camelCase |
+| `NotificationRuleId` | Objeto de Valor | Identificador del agregado |
+| `TenantId` | Objeto de Valor | Límite de pertenencia del tenant |
+| `NotificationChannel` | Enumeración | Canal de entrega |
+| `TextValueObject` | Objeto de Valor | Destino o dirección del destinatario |
+| `AuditValueObject` | Objeto de Valor | Rastro de auditoría |
+
+### Eventos de Dominio
+- En la implementación actual este agregado no emite eventos de dominio propios.
 
 ---
 
 ## 2. Modelo de Dominio
 
-### Clases / Entidades / Objetos de Valor
-```
-NotificationRule (Entidad)
+```text
+NotificationRule (Raíz de Agregado)
 └── Props: NotificationRuleProps
-    ├── Id: NotificationRuleId
-    ├── DaysBefore: int
-    ├── Channels: NotificationChannel[]
-    ├── Code: Code
-    └── Description: Description
+    ├── Id: IdValueObject
+    ├── TenantId: TenantId
+    ├── Channel: NotificationChannel
+    ├── Recipient: TextValueObject
+    ├── IsActive: bool
+    └── Audit: AuditValueObject
 ```
 
 ---
 
-## 3. Diagramas de Modelo de Objetos
+## 3. Diagramas del Modelo de Objetos
 
 ```mermaid
 classDiagram
-    direction LR
-    class DocumentType {
-        +Guid Id
-        +List~NotificationRule~ NotificationRules
-    }
     class NotificationRule {
         +Guid Id
-        +int DaysBefore
-        +NotificationChannel[] Channels
-        +Code Code
-        +Description Description
-        +Create()
+        +Guid TenantId
+        +NotificationChannel Channel
+        +TextValueObject Recipient
+        +bool IsActive
+        +Create(tenantId, channel, recipient, actor)
+        +UpdateRecipient(recipient, actor)
+        +Deactivate(actor)
     }
-    class NotificationChannel {
-        <<enumeration>>
-        EMAIL
-        SMS
-        IN_APP
-        WEB_PUSH
-    }
-    DocumentType "1" *-- "0..*" NotificationRule
-    NotificationRule "1" *-- "1..*" NotificationChannel
 ```
 
 ---
 
 ## 4. Diagramas de Secuencia
-- Las secuencias de adición y eliminación se coordinan a través de la raíz del agregado [DocumentType](./document-type.md#4-diagramas-de-secuencia).
+
+### Flujo de Actualización de Destinatario
+```mermaid
+sequenceDiagram
+    participant C as Cliente
+    participant H as Handler
+    participant R as INotificationRuleRepository
+    participant N as NotificationRule (AR)
+
+    C->>H: UpdateNotificationRuleRecipient(ruleId, recipient)
+    H->>R: GetById(ruleId)
+    R-->>H: NotificationRule
+    H->>N: UpdateRecipient(recipient, actor)
+    H->>R: Update(notificationRule)
+    R-->>H: ok
+```
 
 ---
 
-## 5. ER Model
+## 5. Modelo ER
 
 ```mermaid
 erDiagram
-    DOCUMENT_TYPE ||--o{ NOTIFICATION_RULE : "define"
+    TENANT ||--o{ NOTIFICATION_RULE : "posee"
 
-    DOCUMENT_TYPE {
-        uniqueidentifier DocumentTypeId PK
-    }
     NOTIFICATION_RULE {
-        uniqueidentifier RuleId PK
-        uniqueidentifier DocumentTypeId FK
-        int DaysBefore
-        nvarchar ChannelsJson "Matriz serializada de canales"
-        nvarchar Code
-        nvarchar Description
+        uniqueidentifier Id PK
+        uniqueidentifier TenantId FK
+        int ChannelId
+        nvarchar Recipient
+        bit IsActive
+        nvarchar CreatedBy
+        datetime2 CreatedAtUtc
+        nvarchar UpdatedBy
+        datetime2 UpdatedAtUtc
+        nvarchar AuditTimeSpan
     }
 ```
 
-### Reglas de Aislamiento de Inquilinos
-- Acotado a través de su agregado padre `DocumentType`. Hereda todas las restricciones de filtrado de base de datos multi-inquilino de la plataforma.
+### Reglas de Aislamiento por Tenant
+- Pertenece estrictamente al tenant mediante `TenantId`.
 
 ---
 
-## 6. Integración de Contexto Delimitado
-- Mapeado internamente dentro del contexto de `Aprobaciones`. Las alertas activadas son procesadas por ejecutores de cumplimiento en segundo plano para notificar a los usuarios desde el contexto de `Identidad`.
+## 6. Integración entre Contextos Delimitados
+- Es usado por la orquestación de aprobaciones y cumplimiento para resolver destinos de notificación en runtime.
 
 ---
 
 ## 7. Capa de Aplicación
-- Gestionado a través de los comandos de aplicación del padre: `ConfigureNotificationRuleCommand` y `RemoveNotificationRuleCommand`.
+- `CreateNotificationRuleCommand` -> Entradas: `TenantId, Channel, Recipient` -> Retorna: `Guid`
+- `DeactivateNotificationRuleCommand` -> Entradas: `RuleId` -> Retorna: `void`
+- Trabajo pendiente en API: exponer actualizaciones de destinatario y semánticas más ricas de programación/configuración.
 
 ---
 
-## 8. Infraestructura/Persistencia
-- Índice: Índice compuesto en `DocumentTypeId, DaysBefore` para asegurar la unicidad del umbral.
+## 8. Infraestructura / Persistencia
+- La implementación del repositorio sigue siendo transicional (`in-memory`) para este agregado.
 
 ---
 
 ## 9. Seguridad y Cumplimiento
-- Las configuraciones de reglas se heredan del `DocumentType` padre. Solo los usuarios autorizados a diseñar estructuras de documentos pueden modificar estos canales de notificación.
+- Los destinos de notificación pueden contener datos sensibles de ruteo operativo y deben aislarse por tenant y auditarse.
 
 ---
 
 ## 10. Decisiones Técnicas
-- Almacenar los canales de comunicación permitidos como una matriz serializada (`ChannelsJson`) dentro de una sola columna de la base de datos garantiza la flexibilidad de la base de datos sin sobrecargar de consultas complejas.
+- `NotificationRule` fue elevada a raíz de agregado en la base de código actual.
+- Esto reemplaza documentación anterior que la modelaba como hija de `DocumentType`.
 
 ---
 
