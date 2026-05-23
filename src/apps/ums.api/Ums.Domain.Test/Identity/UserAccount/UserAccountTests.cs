@@ -8,6 +8,7 @@ using Xunit;
 public class UserAccountTests
 {
     private static readonly TenantId ValidTenantId = TenantId.Load(Guid.NewGuid().ToString());
+    private static readonly BranchId ValidBranchId = BranchId.Load(Guid.NewGuid().ToString());
     private static readonly Email ValidEmail = Email.Create("user@example.com");
     private static readonly ActorId ValidActor = ActorId.Create("user-001");
     private static readonly UserCategory ValidCategory = UserCategory.Internal;
@@ -26,6 +27,22 @@ public class UserAccountTests
         Assert.Equal(UserStatus.Pending, result.Value.Status);
         Assert.Empty(result.Value.MfaEnrollments);
         Assert.Empty(result.Value.PasswordCredentials);
+    }
+
+    [Fact]
+    public void Create_WithBranchId_SetsBranchScope()
+    {
+        var result = UserAccount.Create(
+            ValidTenantId,
+            ValidEmail,
+            ValidCategory,
+            null,
+            null,
+            ValidActor,
+            ValidBranchId);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(ValidBranchId, result.Value.BranchId);
     }
 
     [Fact]

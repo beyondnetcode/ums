@@ -50,6 +50,7 @@ public sealed class UserAccount : AggregateRoot<UserAccount, UserAccountProps>
         IdentityReference? identityReference,
         IdentityReferenceType? identityReferenceType,
         ActorId createdBy,
+        BranchId? branchId = null,
         UserAccountId? userAccountId = null)
     {
         var id = userAccountId ?? UserAccountId.Load(IdValueObject.Create().GetValue());
@@ -60,7 +61,8 @@ public sealed class UserAccount : AggregateRoot<UserAccount, UserAccountProps>
             category,
             identityReference,
             identityReferenceType,
-            createdBy);
+            createdBy,
+            branchId);
 
         var userAccount = new UserAccount(props);
 

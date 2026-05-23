@@ -19,10 +19,12 @@ public class UserAccountProps : IProps
         UserCategory category,
         IdentityReference? identityReference,
         IdentityReferenceType? identityReferenceType,
-        ActorId createdBy)
+        ActorId createdBy,
+        BranchId? branchId = null)
     {
         Id = id;
         TenantId = tenantId;
+        BranchId = branchId;
         Email = email;
         Category = category;
         Status = UserStatus.Pending;

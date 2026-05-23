@@ -42,6 +42,9 @@ public sealed class CreateUserAccountCommandHandler : ICommandHandler<CreateUser
         var identityReferenceType = string.IsNullOrWhiteSpace(request.IdentityReferenceType)
             ? null
             : DomainEnumerationParser.FromName<IdentityReferenceType>(request.IdentityReferenceType);
+        var branchId = request.BranchId.HasValue
+            ? BranchId.Load(request.BranchId.Value)
+            : null;
 
         var userAccountResult = UserAccount.Create(
             TenantId.Load(request.TenantId),
@@ -49,7 +52,8 @@ public sealed class CreateUserAccountCommandHandler : ICommandHandler<CreateUser
             category,
             identityReference,
             identityReferenceType,
-            ActorId.Create(_userContext.UserId));
+            ActorId.Create(_userContext.UserId),
+            branchId);
 
         if (userAccountResult.IsFailure)
         {
