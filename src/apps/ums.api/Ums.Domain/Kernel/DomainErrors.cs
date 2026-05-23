@@ -135,11 +135,6 @@ public static class DomainErrors
 
     public static class Compliance
     {
-        public const string CriticalRequiresEnforcementPolicy  = "compliance.critical_requires_enforcement_policy";
-        public const string NotificationRuleDaysBeforeNotUnique = "compliance.notification_rule_days_before_not_unique";
-        public const string NotificationRuleNotFound            = "compliance.notification_rule_not_found";
-        public const string EnforcementPolicyAlreadyDefined    = "compliance.enforcement_policy_already_defined";
-        public const string EnforcementPolicyNotFound          = "compliance.enforcement_policy_not_found";
         public const string ExpirationBeforeIssueDate          = "compliance.expiration_before_issue_date";
         public const string DocumentCannotTransition            = "compliance.document_cannot_transition";
         public const string DocumentNotPendingReview            = "compliance.document_not_pending_review";

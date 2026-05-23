@@ -12,12 +12,12 @@ internal static class DomainErrorStatusMapper
             return (StatusCodes.Status400BadRequest, "Bad Request");
         }
 
-        if (ContainsAny(error, DomainErrors.Common.NotFound, DomainErrors.Tenant.NotFound, DomainErrors.Tenant.BranchNotFound, DomainErrors.Tenant.IdpNotFound, DomainErrors.Tenant.BrandingNotFound, DomainErrors.Compliance.NotificationRuleNotFound, DomainErrors.Compliance.EnforcementPolicyNotFound, DomainErrors.SystemSuite.ConfigurationKeyNotFound, DomainErrors.Authorization.PermissionNotFound))
+        if (ContainsAny(error, DomainErrors.Common.NotFound, DomainErrors.Tenant.NotFound, DomainErrors.Tenant.BranchNotFound, DomainErrors.Tenant.IdpNotFound, DomainErrors.Tenant.BrandingNotFound, DomainErrors.SystemSuite.ConfigurationKeyNotFound, DomainErrors.Authorization.PermissionNotFound))
         {
             return (StatusCodes.Status404NotFound, "Not Found");
         }
 
-        if (ContainsAny(error, DomainErrors.Common.Duplicate, DomainErrors.Tenant.BranchCodeNotUnique, DomainErrors.Tenant.IdpCodeNotUnique, DomainErrors.UserAccount.EmailNotUnique, DomainErrors.SystemSuite.OptionCodeNotUnique, DomainErrors.SystemSuite.SubMenuCodeNotUnique, DomainErrors.SystemSuite.MenuCodeNotUnique, DomainErrors.SystemSuite.ModuleCodeNotUnique, DomainErrors.SystemSuite.ConfigurationKeyAlreadyExists, DomainErrors.Authorization.TemplateItemTargetAlreadyExists, DomainErrors.Authorization.PermissionAlreadyExists, DomainErrors.Compliance.DocumentAlreadyExpired, DomainErrors.Compliance.NotificationRuleDaysBeforeNotUnique))
+        if (ContainsAny(error, DomainErrors.Common.Duplicate, DomainErrors.Tenant.BranchCodeNotUnique, DomainErrors.Tenant.IdpCodeNotUnique, DomainErrors.UserAccount.EmailNotUnique, DomainErrors.SystemSuite.OptionCodeNotUnique, DomainErrors.SystemSuite.SubMenuCodeNotUnique, DomainErrors.SystemSuite.MenuCodeNotUnique, DomainErrors.SystemSuite.ModuleCodeNotUnique, DomainErrors.SystemSuite.ConfigurationKeyAlreadyExists, DomainErrors.Authorization.TemplateItemTargetAlreadyExists, DomainErrors.Authorization.PermissionAlreadyExists, DomainErrors.Compliance.DocumentAlreadyExpired))
         {
             return (StatusCodes.Status409Conflict, "Conflict");
         }

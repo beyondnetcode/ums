@@ -80,10 +80,6 @@ public sealed record FlagEvaluatedEvent(Guid FlagId, string FlagCode, bool Resul
 public abstract record ComplianceDomainEvent : DomainEvent;
 
 public sealed record DocumentTypeRegisteredEvent(Guid DocumentTypeId, string Criticity, Guid TenantId) : ComplianceDomainEvent;
-public sealed record NotificationRuleConfiguredEvent(Guid RuleId, Guid DocumentTypeId, int DaysBefore) : ComplianceDomainEvent;
-public sealed record NotificationRuleRemovedEvent(Guid RuleId, Guid DocumentTypeId) : ComplianceDomainEvent;
-public sealed record EnforcementPolicyDefinedEvent(Guid PolicyId, Guid DocumentTypeId, string ActionOnExpiration) : ComplianceDomainEvent;
-public sealed record EnforcementPolicyUpdatedEvent(Guid PolicyId, Guid DocumentTypeId, string ActionOnExpiration) : ComplianceDomainEvent;
 
 public sealed record DocumentUploadedEvent(Guid DocumentId, Guid UserId, Guid DocumentTypeId, DateTime ExpirationDate) : ComplianceDomainEvent;
 public sealed record DocumentValidatedEvent(Guid DocumentId, Guid UserId, string ValidatedBy) : ComplianceDomainEvent;
