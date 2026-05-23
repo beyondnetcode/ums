@@ -1,0 +1,189 @@
+namespace Ums.Application.Test.Tenants.IdentityProvider;
+
+using Ums.Application.Common.Interfaces;
+using Ums.Application.Identity.Tenant.IdentityProvider.Commands;
+using Ums.Domain.Identity.Tenant;
+using Ums.Domain.Kernel;
+using Ums.Domain.Enums;
+using Ums.Domain.Identity;
+using Moq;
+using Xunit;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
+public class IdentityProviderCommandHandlerTests
+{
+    private readonly Mock<ITenantRepository> _repo = new();
+    private readonly Mock<IUnitOfWork>       _uow  = new();
+    private readonly Mock<IUserContext>      _ctx  = new();
+
+    public IdentityProviderCommandHandlerTests()
+    {
+        _repo.Setup(r => r.UnitOfWork).Returns(_uow.Object);
+        _uow.Setup(u => u.SaveEntitiesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(true);
+        _ctx.Setup(u => u.UserId).Returns("user-001");
+    }
+
+    private static Tenant MakeTenant()
+    {
+        return Tenant.Create(
+            Code.Create("TENANT-001"),
+            Name.Create("Test Tenant"),
+            OrganizationType.INTERNAL,
+            ActorId.Create("user-001")).Value;
+    }
+
+    // =========================================================================
+    #region RegisterIdentityProviderCommandHandler
+    // =========================================================================
+
+    [Fact]
+    public async Task Register_WithValidCommand_ReturnsSuccess()
+    {
+        _ctx.Setup(u => u.UserId).Returns("user-001");
+        var tenant = MakeTenant();
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync(tenant);
+
+        var cmd = new RegisterIdentityProviderCommand(
+            TenantId: tenant.Props.Id.GetValue(),
+            Code: "IDP-001",
+            Name: "Azure AD",
+            Description: "Corporate Identity Provider",
+            Strategy: "AzureAd");
+
+        var handler = new RegisterIdentityProviderCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        Assert.Single(tenant.IdentityProviders);
+        _repo.Verify(r => r.UpdateAsync(tenant, It.IsAny<CancellationToken>()), Times.Once);
+        _uow.Verify(u => u.SaveEntitiesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Register_WhenTenantNotFound_ReturnsFailure()
+    {
+        _ctx.Setup(u => u.UserId).Returns("user-001");
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync((Tenant?)null);
+
+        var cmd = new RegisterIdentityProviderCommand(
+            TenantId: Guid.NewGuid(),
+            Code: "IDP-001",
+            Name: "Azure AD",
+            Description: "Corporate Identity Provider",
+            Strategy: "AzureAd");
+
+        var handler = new RegisterIdentityProviderCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("tenant was not found", result.Error, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task Register_WhenInvalidStrategy_ReturnsFailure()
+    {
+        _ctx.Setup(u => u.UserId).Returns("user-001");
+        var tenant = MakeTenant();
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync(tenant);
+
+        var cmd = new RegisterIdentityProviderCommand(
+            TenantId: tenant.Props.Id.GetValue(),
+            Code: "IDP-001",
+            Name: "Azure AD",
+            Description: "Corporate Identity Provider",
+            Strategy: "INVALID_STRATEGY");
+
+        var handler = new RegisterIdentityProviderCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("invalid identity provider strategy", result.Error, StringComparison.OrdinalIgnoreCase);
+    }
+
+    #endregion
+
+    // =========================================================================
+    #region ActivateIdentityProviderCommandHandler
+    // =========================================================================
+
+    [Fact]
+    public async Task Activate_WithValidCommand_ReturnsSuccess()
+    {
+        _ctx.Setup(u => u.UserId).Returns("user-001");
+        var tenant = MakeTenant();
+        tenant.RegisterIdentityProvider(Code.Create("IDP-001"), Name.Create("Azure"), Description.Create("Azure"), IdpStrategy.AzureAd, ActorId.Create("user-001"));
+        var idp = tenant.IdentityProviders.First();
+
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync(tenant);
+
+        var cmd = new ActivateIdentityProviderCommand(tenant.Props.Id.GetValue(), idp.Id.GetValue());
+        var handler = new ActivateIdentityProviderCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsSuccess, result.Error);
+        Assert.True(idp.IsActive);
+        _repo.Verify(r => r.UpdateAsync(tenant, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    #endregion
+
+    // =========================================================================
+    #region DeactivateIdentityProviderCommandHandler
+    // =========================================================================
+
+    [Fact]
+    public async Task Deactivate_WithValidCommand_ReturnsSuccess()
+    {
+        _ctx.Setup(u => u.UserId).Returns("user-001");
+        var tenant = MakeTenant();
+        tenant.RegisterIdentityProvider(Code.Create("IDP-001"), Name.Create("Azure"), Description.Create("Azure"), IdpStrategy.AzureAd, ActorId.Create("user-001"));
+        var idp = tenant.IdentityProviders.First();
+        tenant.ActivateIdentityProvider(idp.Id, ActorId.Create("user-001")); // make active
+
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync(tenant);
+
+        var cmd = new DeactivateIdentityProviderCommand(tenant.Props.Id.GetValue(), idp.Id.GetValue());
+        var handler = new DeactivateIdentityProviderCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsSuccess, result.Error);
+        Assert.False(idp.IsActive);
+        _repo.Verify(r => r.UpdateAsync(tenant, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    #endregion
+
+    // =========================================================================
+    #region RemoveIdentityProviderCommandHandler
+    // =========================================================================
+
+    [Fact]
+    public async Task Remove_WithValidCommand_ReturnsSuccess()
+    {
+        _ctx.Setup(u => u.UserId).Returns("user-001");
+        var tenant = MakeTenant();
+        tenant.RegisterIdentityProvider(Code.Create("IDP-001"), Name.Create("Azure"), Description.Create("Azure"), IdpStrategy.AzureAd, ActorId.Create("user-001"));
+        var idp = tenant.IdentityProviders.First();
+
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync(tenant);
+
+        var cmd = new RemoveIdentityProviderCommand(tenant.Props.Id.GetValue(), idp.Id.GetValue());
+        var handler = new RemoveIdentityProviderCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsSuccess, result.Error);
+        Assert.Empty(tenant.IdentityProviders);
+        _repo.Verify(r => r.UpdateAsync(tenant, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    #endregion
+}
