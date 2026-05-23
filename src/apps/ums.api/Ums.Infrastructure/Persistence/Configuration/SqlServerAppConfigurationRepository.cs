@@ -55,12 +55,28 @@ public sealed class SqlServerAppConfigurationRepository(UmsPlatformDbContext dbC
     }
 
     public async Task UpdateAsync(AppConfigurationAggregate aggregate, CancellationToken cancellationToken = default)
+        => await UpdateAsync(aggregate, expectedRowVersion: null, cancellationToken);
+
+    /// <inheritdoc cref="IAppConfigurationRepository.UpdateAsync(AppConfigurationAggregate, byte[], CancellationToken)"/>
+    public async Task UpdateAsync(
+        AppConfigurationAggregate aggregate,
+        byte[]? expectedRowVersion,
+        CancellationToken cancellationToken = default)
     {
         var existing = await dbContext.AppConfigurations
             .FirstOrDefaultAsync(x => x.Id == aggregate.Props.Id.GetValue(), cancellationToken)
             ?? throw new InvalidOperationException($"AppConfiguration {aggregate.Props.Id.GetValue()} does not exist.");
 
         Apply(existing, aggregate);
+
+        // REC-10: If the caller supplied a RowVersion from the If-Match header, override EF Core's
+        // tracked "original" value so the generated UPDATE includes a WHERE RowVersion = @client_rv.
+        // A concurrent modification will cause 0 rows affected → DbUpdateConcurrencyException → HTTP 409.
+        if (expectedRowVersion is { Length: > 0 })
+        {
+            dbContext.Entry(existing).Property(x => x.RowVersion).OriginalValue = expectedRowVersion;
+        }
+
         _trackedAggregates.Add(aggregate);
     }
 

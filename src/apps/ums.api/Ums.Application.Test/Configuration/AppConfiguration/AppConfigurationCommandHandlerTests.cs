@@ -336,7 +336,7 @@ public class AppConfigurationCommandHandlerTests
             CancellationToken.None);
 
         Assert.True(result.IsSuccess);
-        _repo.Verify(r => r.UpdateAsync(config, It.IsAny<CancellationToken>()), Times.Once);
+        _repo.Verify(r => r.UpdateAsync(config, It.IsAny<byte[]?>(), It.IsAny<CancellationToken>()), Times.Once);
         _uow.Verify(u => u.SaveEntitiesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 

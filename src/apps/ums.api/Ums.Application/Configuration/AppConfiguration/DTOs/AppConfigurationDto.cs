@@ -12,4 +12,10 @@ public sealed record AppConfigurationDto(
     bool IsInheritable,
     bool IsEncrypted,
     string Version,
-    string Status);
+    string Status,
+    /// <summary>
+    /// REC-10: SQL Server RowVersion for optimistic concurrency. Exposed as ETag header
+    /// by the Presentation layer. Send as If-Match header in PUT/PATCH requests.
+    /// Null for InMemory-backed instances.
+    /// </summary>
+    byte[]? RowVersion = null);

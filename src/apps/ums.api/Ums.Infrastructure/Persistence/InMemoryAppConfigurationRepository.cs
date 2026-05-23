@@ -50,6 +50,10 @@ public sealed class InMemoryAppConfigurationRepository : IAppConfigurationReposi
         return Task.CompletedTask;
     }
 
+    // REC-10: InMemory has no RowVersion — concurrency token is ignored
+    public Task UpdateAsync(AppConfigurationAggregate aggregate, byte[]? expectedRowVersion, CancellationToken cancellationToken = default)
+        => UpdateAsync(aggregate, cancellationToken);
+
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) => Task.FromResult(1);
 
     public Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default) => Task.FromResult(true);

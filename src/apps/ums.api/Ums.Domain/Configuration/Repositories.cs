@@ -12,6 +12,12 @@ public interface IAppConfigurationRepository : IAggregateRepository<AppConfigura
     Task<AppConfigurationAggregate?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<AppConfigurationAggregate?> GetByScopeAndCodeAsync(Guid? tenantId, Guid? systemSuiteId, Guid? moduleId, string code, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<AppConfigurationAggregate>> GetAllAsync(CancellationToken cancellationToken = default);
+    /// <summary>
+    /// REC-10: Overload of UpdateAsync that enforces optimistic concurrency by setting
+    /// the expected RowVersion (from the client's If-Match ETag).  If <paramref name="expectedRowVersion"/>
+    /// is null the update proceeds without the explicit concurrency check (EF still tracks its own version).
+    /// </summary>
+    Task UpdateAsync(AppConfigurationAggregate aggregate, byte[]? expectedRowVersion, CancellationToken cancellationToken = default);
 }
 
 public interface IFeatureFlagRepository : IAggregateRepository<FeatureFlagAggregate>

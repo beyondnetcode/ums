@@ -37,7 +37,10 @@ public sealed class UpdateAppConfigurationCommandHandler : ICommandHandler<Updat
             return result;
         }
 
-        await _repository.UpdateAsync(appConfiguration, cancellationToken);
+        // REC-10: Pass RowVersion from If-Match header to enforce ETag-based optimistic locking.
+        // The repository sets EF Core's original value so DbUpdateConcurrencyException is raised
+        // if a concurrent modification occurred since the client fetched the ETag.
+        await _repository.UpdateAsync(appConfiguration, request.RowVersion, cancellationToken);
         await _repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
         return Result.Success();
     }

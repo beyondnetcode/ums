@@ -4,6 +4,7 @@ using Ums.Application.Common;
 using Ums.Application.Configuration.AppConfiguration.Commands;
 using Ums.Application.Configuration.AppConfiguration.DTOs;
 using Ums.Application.Configuration.AppConfiguration.Queries;
+using Ums.Presentation.Extensions;
 
 public static class AppConfigurationEndpoints
 {
@@ -54,9 +55,19 @@ public static class AppConfigurationEndpoints
         .ProducesProblem(StatusCodes.Status400BadRequest)
         .ProducesProblem(StatusCodes.Status409Conflict);
 
-        group.MapPut("/{appConfigurationId:guid}", async (Guid appConfigurationId, UpdateAppConfigurationCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        // REC-10: Reads If-Match header for optimistic concurrency.
+        // Clients should include the ETag received from the GET-by-ID response.
+        // Omitting If-Match still works — EF Core tracks the version loaded during UpdateAsync.
+        group.MapPut("/{appConfigurationId:guid}", async (
+            Guid appConfigurationId,
+            UpdateAppConfigurationCommand command,
+            IMediator mediator,
+            HttpContext context,
+            CancellationToken ct) =>
         {
-            var result = await mediator.Send(command with { AppConfigurationId = appConfigurationId }, ct);
+            var rowVersion = ETagHelper.DecodeIfMatch(context.Request.Headers.IfMatch);
+            var result = await mediator.Send(
+                command with { AppConfigurationId = appConfigurationId, RowVersion = rowVersion }, ct);
             return result.ToNoContent(context);
         })
         .WithName("UpdateAppConfiguration")
