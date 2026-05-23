@@ -51,7 +51,7 @@ If the file is corrupted, unreadable, or violates upload rules, the system asks 
 ## 8. Technical Requirements
 
 > [!NOTE]
-> En la implementación real de C# (base de código), los agregados de cumplimiento y aprobación están unificados bajo el espacio de nombres **[Ums.Domain.Approvals](file:///d:/Users/aarroyo/personal/sources/ums/src/apps/app-api-dotnet/Ums.Domain/Approvals/)**.
+> En la implementación real de C# (base de código), los agregados de cumplimiento y aprobación están unificados bajo el espacio de nombres **Ums.Domain.Approvals**.
 
 - Persist metadata in `UserDocument` Aggregate Root.
 - Classify documents through `DocumentType` Aggregate Root.

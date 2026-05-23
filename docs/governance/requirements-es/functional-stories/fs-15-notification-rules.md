@@ -60,7 +60,7 @@ Si ya existe una regla idéntica para el mismo documento, tenant, anticipación 
 ## 8. Requisitos Técnicos
 
 > [!NOTE]
-> En la implementación real de C# (base de código), `NotificationRule` es una Entidad hija encapsulada dentro del Agregado **[DocumentType](file:///d:/Users/aarroyo/personal/sources/ums/src/apps/app-api-dotnet/Ums.Domain/Approvals/DocumentType/DocumentType.cs)**, bajo el espacio de nombres unificado **[Ums.Domain.Approvals](file:///d:/Users/aarroyo/personal/sources/ums/src/apps/app-api-dotnet/Ums.Domain/Approvals/)**.
+> En la implementación real de C# (base de código), `NotificationRule` es una Entidad hija encapsulada dentro del Agregado **DocumentType**, bajo el espacio de nombres unificado **Ums.Domain.Approvals**.
 
 - Persistir reglas como parte del Agregado Root `DocumentType`.
 - Campos obligatorios: `Code`, `Value` (JSON con tiempos y canales), `Description`.

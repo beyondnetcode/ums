@@ -57,6 +57,8 @@ Especificaciones de Ingeniería y Ciclo de Vida del Producto para el User Manage
 
 ### Fase 04b -- Arquitectura de Agregados de Dominio
 
+> La Fase 04b documenta cada Aggregate Root con 8 secciones estructuradas: Visión del Agregado · Modelo de Objeto · Diagramas de Secuencia · Modelo ER · Modelo de Bounded Context · Contrato API · Notas de Persistencia · Seguridad y Auditoría. Las entidades hijas (Branch, Branding, IdentityProvider, etc.) se documentan dentro de la página de su Aggregate Root padre — no como documentos separados.
+
 - [Indice de Agregados de Dominio](./domain-es/index.md)
 - **Identity BC:** [Tenant](./domain-es/identity/tenant.md) · [UserAccount](./domain-es/identity/user-account.md)
 - **Authorization BC:** [SystemSuite](./domain-es/authorization/system-suite.md) · [PermissionTemplate](./domain-es/authorization/permission-template.md) · [Profile](./domain-es/authorization/profile.md)

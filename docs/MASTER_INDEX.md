@@ -37,6 +37,7 @@ Product Lifecycle and Engineering Specifications for the User Management System 
 - [Interactive ER Viewer](./architecture/blueprints/interactive-er-viewer.html)
 - [Service Entity Map](./architecture/blueprints/service-entity-map.md)
 - [Shell Library Architecture](./architecture/blueprints/shell-library-architecture.md)
+- [Architecture Overview](./architecture/overview.md)
 - [Architecture Portal](./architecture/index.md)
 - [Traceability Matrix (FS → ADR → TE)](./architecture/traceability-matrix.md)
 - [Technical Enablers Index](./architecture/blueprints/technical-enablers/index.md)
@@ -67,6 +68,8 @@ Product Lifecycle and Engineering Specifications for the User Management System 
 - [Interactive DDD Viewer](./governance/construction/ddd-design/interactive-ddd-viewer.html)
 
 ### Phase 04b -- Domain Aggregate Architecture
+
+> Phase 04b documents each Aggregate Root with 8 structured sections: Aggregate Overview · Object Model · Sequence Diagrams · ER Model · Bounded Context Model · API Contract · Persistence Notes · Security & Audit. Owned child entities (Branch, Branding, IdentityProvider, etc.) are documented within their parent Aggregate Root page — not as separate documents.
 
 - [Domain Aggregate Index](./domain/index.md)
 - **Identity BC:** [Tenant](./domain/identity/tenant.md) · [UserAccount](./domain/identity/user-account.md)

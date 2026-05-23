@@ -1,9 +1,14 @@
 # BC-D — Audit Context
 
+> **Idioma:** Español | *Versión en inglés no disponible*
+
 **Schema:** `[ums_audit]` | **Owner:** UMS Core API .NET 8  
-**Mision:** Mantener un ledger inmutable y a prueba de manipulaciones de todos los eventos de la plataforma.  
-**Patron:** Conformist puro — solo recibe, nunca emite.  
-**Version:** 2.0 | **Fecha:** 2026-05-15
+**Misión:** Mantener un ledger inmutable y a prueba de manipulaciones de todos los eventos de la plataforma.  
+**Patrón:** Conformist puro — solo recibe, nunca emite.  
+**Versión:** 2.0 | **Fecha:** 2026-05-15
+
+> **Arquitectura de Agregados:** Modelo completo con diagramas, secuencias, ER y API:
+> [AuditRecord](../../../domain/audit/audit-record.md)
 
 ---
 
@@ -13,13 +18,13 @@
 
 ### Entidades
 
-| Entidad | Descripcion |
+| Entidad | Descripción |
 |---------|-------------|
 | `AuditRecord` (AR) | Registro inmutable: quien, cuando, que, resultado |
 
 ### Value Objects
 
-| Value Object | Tipo | Descripcion |
+| Value Object | Tipo | Descripción |
 |-------------|------|-------------|
 | `AuditEventType` | enum/string | Tipo de evento que origino el registro |
 | `SubjectType` | enum | `USER / ADMIN / SYSTEM / BACKGROUND_WORKER` |
@@ -82,4 +87,4 @@ IAuditRepository {
 
 ---
 
-**[Anterior: Configuration Context](./05-configuration-context.md)** | **[Indice DDD](./index.md)** | **[Siguiente: Approvals Context](./07-approvals-context.md)**
+**[Anterior: Configuration Context](./05-configuration-context.md)** | **[Índice DDD](./index.md)** | **[Siguiente: Approvals Context](./07-approvals-context.md)**

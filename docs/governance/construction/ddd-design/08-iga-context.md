@@ -1,15 +1,20 @@
 # BC-H — IGA Context
 
+> **Idioma:** Español | *Versión en inglés no disponible*
+
 **Schema:** `[ums_iga]` | **Owner:** UMS Core API .NET 8  
-**Mision:** Gobernar el ciclo de vida de evolución de roles, procesos de promoción y seguimiento del nivel de madurez técnica y operativa de los usuarios dentro de la organización.  
+**Misión:** Gobernar el ciclo de vida de evolución de roles, procesos de promoción y seguimiento del nivel de madurez técnica y operativa de los usuarios dentro de la organización.  
 **FS cubiertos:** FS-12, FS-14  
-**Version:** 3.0 | **Fecha:** 2026-05-18
+**Versión:** 3.0 | **Fecha:** 2026-05-18
+
+> **Arquitectura de Agregados:** Modelo completo con diagramas, secuencias, ER y API:
+> [PromotionRequest](../../../domain/iga/promotion-request.md) · [RoleMaturityStatus](../../../domain/iga/role-maturity-status.md)
 
 ---
 
 ## Agregados
 
-| Agregado | Raiz | Descripcion |
+| Agregado | Raiz | Descripción |
 |---------|------|-------------|
 | [RoleMaturityStatus](#aggregate-rolematuritystatus) | `RoleMaturityStatus` | Control de nivel de madurez técnica, certificaciones y elegibilidad del usuario |
 | [PromotionRequest](#aggregate-promotionrequest) | `PromotionRequest` | Workflow transaccional y análisis de impacto para la promoción de un usuario |
@@ -81,11 +86,11 @@ classDiagram
 **Aggregate Root:** `PromotionRequest`  
 **FS:** FS-12
 
-Representa la solicitud de promoción de rol activa de un usuario. Gestiona la orquestación y aprobación de dos fases (Aprobación de Manager Directo y Revisión del Oficial de Seguridad) e integra un análisis de riesgo e impacto sobre la matriz de accesos.
+Representa la solicitud de promoción de rol activa de un usuario. Gestióna la orquestación y aprobación de dos fases (Aprobación de Manager Directo y Revisión del Oficial de Seguridad) e integra un análisis de riesgo e impacto sobre la matriz de accesos.
 
 ### Entidades Hijas
 
-| Entidad | Descripcion |
+| Entidad | Descripción |
 |---------|-------------|
 | `PromotionImpactAnalysis` | Registro del análisis de riesgo realizado por seguridad, detallando métricas de permisos y mitigaciones. |
 
@@ -94,7 +99,7 @@ Representa la solicitud de promoción de rol activa de un usuario. Gestiona la o
 | Tipo | Nombre | Regla / Valores |
 |------|--------|-----------------|
 | `enum` | `PromotionStatus` | `Draft / PendingManagerApproval / PendingSecurityReview / PendingSecurityApproval / ApprovedReadyToExecute / Executed / Verified / Rejected / VerificationFailed` |
-| `enum` | `ApprovalDecision` | `None / Approved / Rejected` |
+| `enum` | `ApprovalDecisión` | `None / Approved / Rejected` |
 
 ### Invariantes
 
@@ -172,4 +177,4 @@ stateDiagram-v2
 
 ---
 
-**[Anterior: Approvals Context](./07-approvals-context.md)** | **[Indice DDD](./index.md)** | **[Siguiente: Compliance Context](./09-compliance-context.md)**
+**[Anterior: Approvals Context](./07-approvals-context.md)** | **[Índice DDD](./index.md)** | **[Siguiente: Compliance Context](./09-compliance-context.md)**

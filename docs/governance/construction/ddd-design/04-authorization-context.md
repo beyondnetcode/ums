@@ -1,9 +1,14 @@
 # BC-B — Authorization Context
 
+> **Idioma:** Español | *Versión en inglés no disponible*
+
 **Schema:** `[ums_authz]` | **Owner:** UMS Core API .NET 8  
-**Mision:** Actuar como Policy Decision Point (PDP). Compilar y resolver el grafo de autorizacion jerarquico. Gobernar la topologia de recursos (sistemas, modulos, acciones) y los perfiles de permisos.  
+**Misión:** Actuar como Policy Decisión Point (PDP). Compilar y resolver el grafo de autorización jerarquico. Gobernar la topologia de recursos (sistemas, modulos, acciones) y los perfiles de permisos.  
 **FS cubiertos:** FS-02, FS-04, FS-05, FS-06, FS-07  
-**Version:** 2.0 | **Fecha:** 2026-05-15
+**Versión:** 2.0 | **Fecha:** 2026-05-15
+
+> **Arquitectura de Agregados:** Modelo completo con diagramas, secuencias, ER y API:
+> [SystemSuite](../../../domain/authorization/system-suite.md) · [PermissionTemplate](../../../domain/authorization/permission-template.md) · [Profile](../../../domain/authorization/profile.md)
 
 ---
 
@@ -12,9 +17,9 @@
 > [!NOTE]
 > En la implementación real de C# (base de código), **`Profile`** y **`PermissionTemplate`** son los únicos agregados locales de dominio activos. **`SystemSuite`**, **`Role`** y **`TemplateAssignmentRule`** están diferidos en esta fase y son consumidos mediante referencias desacopladas a nivel de Value Object ID (`SystemSuiteId`, `RoleId`).
 
-| Agregado | Raiz | C# Status | Descripcion |
+| Agregado | Raiz | C# Status | Descripción |
 |---------|------|-----------|-------------|
-| [Profile](#aggregate-profile) | `Profile` | **Activo** | Colección de autorizaciones de un usuario |
+| [Profile](#aggregate-profile) | `Profile` | **Activo** | Colección de autorizaciónes de un usuario |
 | [PermissionTemplate](#aggregate-permissiontemplate) | `PermissionTemplate` | **Activo** | Blueprint de permisos reutilizable |
 | [SystemSuite](#aggregate-systemsuite) | `SystemSuite` | *Diferido (Ref ID)* | Aplicación cliente con topología de recursos |
 | [Role](#aggregate-role) | `Role` | *Diferido (Ref ID)* | Rol jerárquico dentro de un sistema |
@@ -22,7 +27,7 @@
 
 ---
 
-## Axiomas de Autorizacion (ADR-0039)
+## Axiomas de Autorización (ADR-0039)
 
 | Axioma | Enunciado |
 |--------|-----------|
@@ -40,7 +45,7 @@
 
 ### Entidades
 
-| Entidad | Descripcion |
+| Entidad | Descripción |
 |---------|-------------|
 | `SystemSuite` (AR) | Aplicacion cliente registrada en la plataforma |
 | `FunctionalModule` | L1 de la topologia funcional (Modulo) |
@@ -52,22 +57,22 @@
 
 | Value Object | Tipo | Regla |
 |-------------|------|-------|
-| `SystemCode` | string | Unico globalmente; slug machine-readable |
+| `SystemCode` | string | Único globalmente; slug machine-readable |
 | `BaseUrl` | string | URL fisica del sistema para routing del gateway |
 | `ApiCredentialHash` | string | Hash de credencial M2M generado al registro |
 | `SystemStatus` | enum | `DRAFT / PUBLISHED / RETIRED` |
 | `ActionLevel` | enum | `SYSTEM / MODULE / SUBMODULE / OPTION` |
-| `ActionCode` | string | Unico dentro del sistema (ej. `USER_CREATE`) |
+| `ActionCode` | string | Único dentro del sistema (ej. `USER_CREATE`) |
 
 ### Invariantes
 
 | ID | Regla | Fuente |
 |----|-------|--------|
-| INV-S1 | `SystemCode` unico globalmente (no por tenant) | FS-04 |
+| INV-S1 | `SystemCode` único globalmente (no por tenant) | FS-04 |
 | INV-S2 | Action XOR: `(SuiteId NOT NULL AND ModuleId NULL) OR (SuiteId NULL AND ModuleId NOT NULL)` | ADR-0043 |
 | INV-S3 | Jerarquia estricta: Suite -> Module -> Submodule -> Option; no saltos | ADR-0043 |
 | INV-S4 | Topologia `DRAFT` no puede usarse en PermissionTemplates | FS-04 |
-| INV-S5 | `FunctionalModule.SuiteId` inmutable post-creacion | FS-04 |
+| INV-S5 | `FunctionalModule.SuiteId` inmutable post-creación | FS-04 |
 
 ### Diagrama del Agregado
 
@@ -118,7 +123,7 @@ classDiagram
     FunctionalModule "1" --> "0..*" Action : defines
 ```
 
-### Maquina de Estado: SystemSuite
+### Máquina de Estado: SystemSuite
 
 ```mermaid
 stateDiagram-v2
@@ -130,7 +135,7 @@ stateDiagram-v2
 
 ### Comandos
 
-| Comando | Descripcion |
+| Comando | Descripción |
 |---------|-------------|
 | `RegisterSystemCommand` | Registra nuevo sistema con code y URL |
 | `AddModuleToSystemCommand` | Agrega modulo a la topologia del sistema |
@@ -161,7 +166,7 @@ SystemRetiredEvent           { suiteId }
 | Value Object | Tipo | Regla |
 |-------------|------|-------|
 | `RoleHierarchyLevel` | int | Nivel jerarquico; inmutable post-asignacion |
-| `PromotionOrder` | int | Orden lineal de promocion dentro del suite |
+| `PromotionOrder` | int | Orden lineal de promoción dentro del suite |
 
 ### Invariantes
 
@@ -191,7 +196,7 @@ classDiagram
     Role "1" --> "0..*" Role : parentOf
 ```
 
-### Maquina de Estado: Role
+### Máquina de Estado: Role
 
 ```mermaid
 stateDiagram-v2
@@ -221,7 +226,7 @@ UpdateRoleHierarchyCommand -> RoleHierarchyUpdatedEvent { roleId, oldParentRoleI
 | `ExclusiveArcTarget` | record | Encapsula (SuiteId?, ModuleId?, SubmoduleId?, OptionId?); exactamente uno NOT NULL |
 | `TemplateScope` | enum | `GLOBAL` (TenantId=NULL) / `TENANT` (protegido por RLS) |
 | `PermissionEffect` | enum | `ALLOW / DENY` |
-| `TemplateVersion` | string | Semver (ej. `1.0.0`); inmutable una vez publicada |
+| `TemplateVersión` | string | Semver (ej. `1.0.0`); inmutable una vez publicada |
 | `TemplateStatus` | enum | `DRAFT / PUBLISHED / DEPRECATED` |
 
 ### Invariantes
@@ -261,9 +266,9 @@ classDiagram
     PermissionTemplate "1" --> "1..*" TemplateItem : contains
 ```
 
-### Maquina de Estado: PermissionTemplate
+### Máquina de Estado: PermissionTemplate
 
-> **Visualizacion:** [interactive-ddd-viewer.html](./interactive-ddd-viewer.html) — seccion "PermissionTemplate"
+> **Visualización:** [interactive-ddd-viewer.html](./interactive-ddd-viewer.html) — sección "PermissionTemplate"
 
 ```mermaid
 stateDiagram-v2
@@ -274,7 +279,7 @@ stateDiagram-v2
 
 ### Comandos
 
-| Comando | Descripcion |
+| Comando | Descripción |
 |---------|-------------|
 | `CreateTemplateCommand` | Crea template en estado DRAFT |
 | `AddPermissionToTemplateCommand` | Agrega Action+Effect al template (solo en DRAFT) |
@@ -298,7 +303,7 @@ PermissionTemplateDeprecatedEvent { templateId, roleId }
 **Aggregate Root:** `TemplateAssignmentRule`  
 **FS:** FS-06
 
-> **Nota:** Este agregado no aparece en el E/R actual. Pendiente de validacion (gap V1 en [12-design-decisions.md](./12-design-decisions.md)).
+> **Nota:** Este agregado no aparece en el E/R actual. Pendiente de validación (gap V1 en [12-design-decisions.md](./12-design-decisions.md)).
 
 ### Value Objects
 
@@ -312,7 +317,7 @@ PermissionTemplateDeprecatedEvent { templateId, roleId }
 
 | ID | Regla | Fuente |
 |----|-------|--------|
-| INV-AR1 | `RulePriority` unico dentro del mismo `SuiteId` | FS-06 |
+| INV-AR1 | `RulePriority` único dentro del mismo `SuiteId` | FS-06 |
 | INV-AR2 | Template referenciado debe estar `PUBLISHED` | FS-06 |
 | INV-AR3 | La razon de asignacion debe registrarse en `ProfilePermission` (rule reference) | FS-06 |
 
@@ -333,7 +338,7 @@ classDiagram
     }
 ```
 
-### Maquina de Estado: TemplateAssignmentRule
+### Máquina de Estado: TemplateAssignmentRule
 
 ```mermaid
 stateDiagram-v2
@@ -359,9 +364,9 @@ DeactivateRuleCommand          -> AssignmentRuleDeactivatedEvent { ruleId }
 
 ### Entidades
 
-| Entidad | Descripcion |
+| Entidad | Descripción |
 |---------|-------------|
-| `Profile` (AR) | Coleccion fisica de autorizaciones asignada a un usuario |
+| `Profile` (AR) | Coleccion fisica de autorizaciónes asignada a un usuario |
 | `ProfilePermission` | Materializacion del template sobre el perfil; soporta overrides `IsAllowed/IsDenied` |
 
 ### Value Objects
@@ -420,7 +425,7 @@ classDiagram
 
 ### Comandos
 
-| Comando | Descripcion |
+| Comando | Descripción |
 |---------|-------------|
 | `CreateProfileCommand` | Crea perfil vinculado a org, rol y opcionalmente branch |
 | `AssignTemplateToProfileCommand` | Vincula template publicado al perfil (manual) |
@@ -445,4 +450,4 @@ AuthorizationGraphInvalidatedEvent { userId, tenantId, suiteId }
 
 ---
 
-**[Anterior: Identity Context](./03-identity-context.md)** | **[Indice DDD](./index.md)** | **[Siguiente: Configuration Context](./05-configuration-context.md)**
+**[Anterior: Identity Context](./03-identity-context.md)** | **[Índice DDD](./index.md)** | **[Siguiente: Configuration Context](./05-configuration-context.md)**

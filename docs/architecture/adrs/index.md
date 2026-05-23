@@ -6,6 +6,8 @@ All architectural decisions for the User Management System (UMS) are recorded he
 
 UMS is a satellite repository of `arc32_progresive_monolith`. The parent repository defines the corporate architecture baseline; UMS ADRs must either adopt it by reference or document an explicit SQL Server / .NET adaptation where the parent example is runtime- or database-specific.
 
+> **Note:** ADRs 0001–0049 are inherited from the arc32 parent architecture baseline. Their governance and canonical text lives in the [arc32 ADR Registry](https://github.com/beyondnetcode/arc32_progresive_monolith/blob/main/reference/architecture/adrs/README.md). Only UMS-specific decisions (ADR-0050 onward) are maintained as physical files in this repository.
+
 ---
 
 ## Foundation & Cross-Cutting (ADR-0001 – ADR-0029)

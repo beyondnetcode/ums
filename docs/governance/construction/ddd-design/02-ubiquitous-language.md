@@ -1,10 +1,14 @@
 # Lenguaje Ubicuo
 
+> **Idioma:** Español | *Versión en inglés no disponible*
+
 **Tipo:** DDD — Ubiquitous Language  
 **Version:** 2.0 | **Fecha:** 2026-05-15 | **Estado:** Propuesto  
 **Alcance:** Producto completo — FS-01 a FS-16  
 
-Terminos canonicos que todos los artefactos de codigo, documentacion y conversacion deben respetar. Cualquier termino fuera de esta tabla debe ser propuesto y aprobado antes de usarse en el codigo.
+Términos canónicos que todos los artefactos de código, documentación y conversación deben respetar. Cualquier término fuera de esta tabla debe ser propuesto y aprobado antes de usarse en el código.
+
+> **Ver también:** [Glosario de Requisitos](../../../requirements/glossary.md) — versión orientada a negocio del lenguaje ubicuo, organizada por término con definiciones y ejemplos de uso para stakeholders no técnicos.
 
 ---
 

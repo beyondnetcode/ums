@@ -2,6 +2,7 @@
 
 This document establishes the standardized, non-ambiguous glossary of terms for the **User Management System (UMS)** under the **spec-driven AI strategy BMAD-METHOD**.
 
+> **See also:** [Ubiquitous Language (DDD)](../construction/ddd-design/02-ubiquitous-language.md) — the DDD-aligned version of this glossary, organized by Bounded Context with Value Objects, domain invariants, and state machine states.
 
 ---
 

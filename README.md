@@ -14,7 +14,18 @@
 ## Master Navigation Index
 Start here if you are new to UMS. This index gives each reader a fast route into the repository without needing to know the folder structure.
 
-| I want to... | Start Here | Then Read |
+### Quick Route by Persona
+
+| I am a… | Start here | Then read |
+| :--- | :--- | :--- |
+| **Backend Engineer** | [Construction Portal](./docs/governance/construction/index.md) · [Domain Aggregate Index](./docs/domain/index.md) | [DDD Design Portal](./docs/governance/construction/ddd-design/index.md) → [Bounded Context Map](./docs/governance/construction/ddd-design/01-bounded-context-map.md) |
+| **Architect** | [Architecture Portal](./docs/architecture/index.md) · [ADR Registry](./docs/architecture/adrs/index.md) | [Bounded Context Map](./docs/governance/construction/ddd-design/01-bounded-context-map.md) → [Traceability Matrix](./docs/architecture/traceability-matrix.md) |
+| **Product Owner / QA** | [Master Index](./docs/MASTER_INDEX.md) · [Functional Stories](./docs/governance/requirements/functional-stories/index.md) | [MVP Backlog](./docs/governance/project/mvp-product-backlog.md) → [Glossary](./docs/governance/requirements/glossary.md) |
+| **DevOps / Ops** | [Operations Portal](./docs/operations/index.md) · [Runbooks](./docs/operations/runbooks/) | [ADR-0053 OpenTelemetry](./docs/architecture/adrs/0053-opentelemetry-observability.md) → [ADR-0054 Shell Library Isolation](./docs/architecture/adrs/0054-shell-library-isolation.md) |
+
+### I want to…
+
+| Goal | Start Here | Then Read |
 | :--- | :--- | :--- |
 | Understand the product | [Product Vision](./docs/governance/product/product-vision.md) | [Business Context](./docs/governance/product/business-context.md) → [Scope](./docs/governance/product/scope.md) |
 | See Epics & Priorities | [MVP Product Backlog](./docs/governance/project/mvp-product-backlog.md) | [Requirements Index](./docs/governance/requirements/index.md) → [Functional Stories](./docs/governance/requirements/functional-stories/index.md) |
@@ -32,7 +43,7 @@ Start here if you are new to UMS. This index gives each reader a fast route into
 | :--- | :--- |
 | **Backend** | .NET 8 LTS, HotChocolate (GraphQL), Minimal APIs (REST) |
 | **Frontend** | React 18, Vite 5, TypeScript, TailwindCSS, Zustand, TanStack Query |
-| **Database** | PostgreSQL 16, Entity Framework Core |
+| **Database** | SQL Server 2022, Entity Framework Core 8 |
 | **Monorepo** | Nx, npm Workspaces |
 | **Methodology** | BMAD-METHOD, Clean Architecture (Hexagonal), DDD |
 
@@ -68,29 +79,29 @@ src/
 ### Prerequisites
 - Node.js 20+
 - .NET 8 SDK
-- PostgreSQL 16
+- SQL Server 2022 (or Docker: `docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=YourPassword123!" -p 1433:1433 mcr.microsoft.com/mssql/server:2022-latest`)
 
 ### Frontend
 ```bash
-cd src
+cd src/apps/ums.web-app
 npm install
-npx nx run app-web:dev
+npm run dev
 ```
 
 ### Backend
 ```bash
-cd src/apps/ums.api-dotnet
+cd src/apps/ums.api
 dotnet build
 dotnet run
 ```
 
 ### Full Stack (Frontend + Backend)
 ```bash
-cd src
-npm install
-npx nx run app-web:dev
-# In another terminal:
-cd apps/ums.api-dotnet && dotnet run
+# Terminal 1 — Backend (port 7114)
+cd src/apps/ums.api && dotnet run
+
+# Terminal 2 — Frontend (port 5173)
+cd src/apps/ums.web-app && npm run dev
 ```
 
 ---
@@ -99,12 +110,12 @@ cd apps/ums.api-dotnet && dotnet run
 
 | Command | Description |
 | :--- | :--- |
-| `npm install` | Install all dependencies |
-| `npx nx run app-web:dev` | Start frontend dev server (port 5173) |
-| `npx nx run app-web:build` | Build frontend for production |
-| `npx nx run app-web:lint` | Run ESLint |
-| `npx nx run app-web:test` | Run Vitest tests |
-| `dotnet build` | Build backend solution |
+| `npm install` | Install all frontend dependencies (run from `src/apps/ums.web-app`) |
+| `npm run dev` | Start frontend dev server (port 5173) |
+| `npm run build` | Build frontend for production |
+| `npm run lint` | Run ESLint |
+| `npm run test` | Run Vitest tests |
+| `dotnet build` | Build backend solution (run from `src/apps/ums.api`) |
 | `dotnet test` | Run backend tests |
 | `dotnet run` | Start backend API (port 7114) |
 

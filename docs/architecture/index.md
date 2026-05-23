@@ -42,6 +42,12 @@ This decision is recorded in [ADR-0059](./adrs/0059-single-api-tier-decision.md)
 
 ---
 
+## Architecture Overview
+
+- **[Architecture Overview](./overview.md)**: Global architecture vision, bounded context map, aggregate catalog, and cross-context integration principles.
+
+---
+
 ## Core Architecture Assets
 
 This section focuses on the structural design and database models of the system.

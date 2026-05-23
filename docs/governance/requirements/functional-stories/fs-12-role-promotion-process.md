@@ -52,9 +52,9 @@ If the administrator rejects the promotion, the user remains in the current role
 ## 8. Technical Requirements
 
 > [!NOTE]
-> En la implementación real de C# (base de código), el motor de promociones está implementado mediante dos agregados independientes en el espacio de nombres **[Ums.Domain.IGA](file:///d:/Users/aarroyo/personal/sources/ums/src/apps/app-api-dotnet/Ums.Domain/IGA/)**:
-> 1. **[RoleMaturityStatus](file:///d:/Users/aarroyo/personal/sources/ums/src/apps/app-api-dotnet/Ums.Domain/IGA/RoleMaturityStatus/RoleMaturityStatus.cs)**: Mantiene las capacitaciones, certificaciones, score de desempeño e invariantes de elegibilidad del usuario.
-> 2. **[PromotionRequest](file:///d:/Users/aarroyo/personal/sources/ums/src/apps/app-api-dotnet/Ums.Domain/IGA/PromotionRequest/PromotionRequest.cs)**: Orquesta el flujo de aprobación transaccional y realiza análisis de riesgo automatizados.
+> En la implementación real de C# (base de código), el motor de promociones está implementado mediante dos agregados independientes en el espacio de nombres **Ums.Domain.IGA**:
+> 1. **RoleMaturityStatus**: Mantiene las capacitaciones, certificaciones, score de desempeño e invariantes de elegibilidad del usuario.
+> 2. **PromotionRequest**: Orquesta el flujo de aprobación transaccional y realiza análisis de riesgo automatizados.
 
 - Track user eligibility and technical metrics in `RoleMaturityStatus` Aggregate Root.
 - Manage promotion transaction stages and risk review in `PromotionRequest` Aggregate Root (with `PromotionImpactAnalysis` child entity).

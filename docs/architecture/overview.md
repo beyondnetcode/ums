@@ -78,13 +78,19 @@ graph TD
 
 ## 3. High-Level Bounded Context Map
 
-UMS is partitioned into six highly cohesive Bounded Contexts:
-1. **Identity Bounded Context**: Governs tenant registration, organizational branches, white-label branding, identity providers, and physical user account lifecycles.
-2. **Authorization Bounded Context**: Manages application suites, functional modules, granular options, profiles/roles, and dynamic permission matrices.
-3. **Configuration Bounded Context**: Controls application behavior dynamically via feature flags and custom Identity Provider configuration details.
-4. **Approvals Bounded Context**: Coordinates multi-step human-in-the-loop workflows for access elevation, document verification, and tenant transitions.
-5. **IGA (Identity Governance & Administration) Bounded Context**: Evaluates role maturity, promotion request impacts, and separation of duties.
-6. **Audit Bounded Context**: Collects immutable, non-repudiable logs of all critical platform transitions.
+UMS is partitioned into **nine Bounded Contexts** (seven with owned entities, plus Cache and Console support contexts). Two contexts — Approvals and Compliance — are unified under `Ums.Domain.Approvals` in the codebase for implementation simplicity:
+
+1. **Identity BC** (`ums_identity`): Governs tenant registration, organizational branches, white-label branding, identity providers, and user account lifecycles.
+2. **Authorization BC** (`ums_authz`): Manages application suites, functional modules, granular options, profiles/roles, and dynamic permission matrices.
+3. **Configuration BC** (`ums_config`): Controls application behavior dynamically via feature flags and custom Identity Provider configuration.
+4. **Approvals BC** (`ums_approval`): Coordinates multi-step human-in-the-loop workflows for access elevation and tenant transitions.
+5. **Compliance BC** (`ums_compliance`, unified with Approvals in code): Enforces document-based access policies, expiration notifications, and automated enforcement.
+6. **IGA BC** (`ums_iga`): Evaluates role maturity, promotion request impacts, and separation of duties.
+7. **Audit BC** (`ums_audit`): Collects immutable, non-repudiable logs of all critical platform transitions.
+8. **Cache BC** (`ums_cache`): Distributed caching layer for configuration, session data, and feature flags.
+9. **Console BC** (`ums_console`): Administrative console context for platform-level operations.
+
+See [Bounded Context Map](../governance/construction/ddd-design/01-bounded-context-map.md) for full relationship detail.
 
 ```mermaid
 flowchart TD
@@ -128,57 +134,29 @@ flowchart TD
 
 ---
 
-## 4. Aggregate Catalog & Index
+## 4. Aggregate Root Catalog
 
-All domain rules, invariants, and architectural diagrams are consolidated strictly within each aggregate's dedicated documentation file.
+All domain rules, invariants, and architectural diagrams are consolidated within each Aggregate Root's dedicated documentation file. Owned child entities are documented within their parent AR's page — they do not have separate top-level entries.
 
-```
-/docs/domain/
-├── identity/
-│   ├── tenant.md               - Top-level organizational unit and its hierarchy
-│   ├── branch.md               - Location units scoping users and profiles
-│   ├── branding.md             - White-label visual profiles per tenant
-│   ├── identity-provider.md    - External OIDC/SAML mappings
-│   ├── user-account.md         - System login profiles and user life cycles
-│   ├── password-credential.md  - Secure password hashes and policies
-│   └── mfa-enrollment.md       - Multi-factor factors (SMS, Email, TOTP)
-│
-├── authorization/
-│   ├── system-suite.md         - Top-level applications and platform options
-│   ├── module.md               - Dynamic architectural functional zones
-│   ├── menu.md                 - Nested navigational structure mappings
-│   ├── sub-menu.md             - Deeper menu trees
-│   ├── option.md               - User interfaces and entry paths
-│   ├── action.md               - Granular operation tokens (Read/Write/Delete)
-│   ├── permission-template.md  - Preset permission groups
-│   ├── permission-template-item.md - Individual grants inside a template
-│   ├── profile.md              - Dynamic security roles (Global, Tenant, Branch)
-│   └── profile-permission.md   - Specific action grants for a profile
-│
-├── configuration/
-│   ├── app-configuration.md    - Tenant environment features
-│   ├── feature-flag.md         - Operational toggles
-│   ├── flag-evaluation-log.md  - Audit trails for A/B and canary tests
-│   └── idp-configuration.md    - Technical client secrets & keys
-│
-├── approvals/
-│   ├── approval-workflow.md    - Human authorization pipeline definitions
-│   ├── approval-required-document.md - Verification file lists
-│   ├── approval-request.md     - Lifecycle of dynamic approval cases
-│   ├── document-type.md        - Structured file class descriptors
-│   ├── notification-rule.md    - Automated alerts and communications
-│   ├── user-document.md        - Uploaded files requiring human validation
-│   ├── access-notification.md  - Security notifications of elevation
-│   └── access-enforcement-policy.md - Policy restrictions and limits
-│
-├── iga/
-│   ├── promotion-request.md    - Access elevation business proposals
-│   ├── promotion-impact-analysis.md - Separation of Duties collision risk report
-│   └── role-maturity-status.md - Dynamic analysis of profile assignments
-│
-└── audit/
-    └── audit-record.md         - Immutable, append-only security logs
-```
+See [Domain Aggregate Index](../domain/index.md) for the full inventory.
+
+| BC | Aggregate Root | Owned Entities (documented within AR) |
+|---|---|---|
+| **Identity** | [Tenant](../domain/identity/tenant.md) | Branch · Branding · IdentityProvider |
+| **Identity** | [UserAccount](../domain/identity/user-account.md) | PasswordCredential · MfaEnrollment |
+| **Authorization** | [SystemSuite](../domain/authorization/system-suite.md) | FunctionalModule · FunctionalMenu · FunctionalSubMenu · FunctionalOption · Action |
+| **Authorization** | [PermissionTemplate](../domain/authorization/permission-template.md) | PermissionTemplateItem |
+| **Authorization** | [Profile](../domain/authorization/profile.md) | ProfilePermission |
+| **Configuration** | [IdpConfiguration](../domain/configuration/idp-configuration.md) | *(none)* |
+| **Configuration** | [AppConfiguration](../domain/configuration/app-configuration.md) | *(none)* |
+| **Configuration** | [FeatureFlag](../domain/configuration/feature-flag.md) | FlagEvaluationLog |
+| **Approvals** | [ApprovalWorkflow](../domain/approvals/approval-workflow.md) | ApprovalRequiredDocument |
+| **Approvals** | [ApprovalRequest](../domain/approvals/approval-request.md) | ApprovalLog |
+| **Compliance** | [DocumentType](../domain/approvals/document-type.md) | NotificationRule · AccessEnforcementPolicy |
+| **Compliance** | [UserDocument](../domain/approvals/user-document.md) | AccessNotification |
+| **IGA** | [PromotionRequest](../domain/iga/promotion-request.md) | PromotionImpactAnalysis |
+| **IGA** | [RoleMaturityStatus](../domain/iga/role-maturity-status.md) | *(none)* |
+| **Audit** | [AuditRecord](../domain/audit/audit-record.md) | *(none — append-only)* |
 
 ---
 
