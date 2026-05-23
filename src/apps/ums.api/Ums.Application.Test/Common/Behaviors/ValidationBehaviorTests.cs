@@ -68,7 +68,8 @@ public class ValidationBehaviorTests
         var result = await _behavior.Handle(command, Next, CancellationToken.None);
 
         Assert.True(result.IsFailure);
-        Assert.Contains("Name: Name is required", result.Error);
+        Assert.StartsWith("Validation.Failed:", result.Error);
+        Assert.Contains("Name is required", result.Error);
     }
 
     [Fact]
@@ -87,8 +88,9 @@ public class ValidationBehaviorTests
         var result = await _behavior.Handle(command, Next, CancellationToken.None);
 
         Assert.True(result.IsFailure);
-        Assert.Contains("Name: Name is required", result.Error);
-        Assert.Contains("Code: Code is invalid", result.Error);
+        Assert.StartsWith("Validation.Failed:", result.Error);
+        Assert.Contains("Name is required", result.Error);
+        Assert.Contains("Code is invalid", result.Error);
     }
 
     [Fact]
@@ -132,7 +134,8 @@ public class ValidationBehaviorTests
         var result = await behavior.Handle(command, Next, CancellationToken.None);
 
         Assert.True(result.IsFailure);
-        Assert.Contains("Name: Name is required", result.Error);
+        Assert.StartsWith("Validation.Failed:", result.Error);
+        Assert.Contains("Name is required", result.Error);
     }
 
     [Fact]

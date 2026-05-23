@@ -50,6 +50,7 @@ using Ums.Presentation.Endpoints.IGA.PromotionRequest;
 using Ums.Presentation.Endpoints.IGA.PromotionRequest.Queries;
 using Ums.Presentation.Endpoints.IGA.RoleMaturityStatus;
 using Ums.Presentation.Endpoints.IGA.RoleMaturityStatus.Queries;
+using Ums.Infrastructure.HealthChecks;
 using Ums.Presentation.Extensions;
 using Ums.Presentation.GraphQL;
 using Ums.Presentation.Middleware;
@@ -78,11 +79,30 @@ var windowMinutes = rateLimit.GetValue<int>("WindowMinutes", 1);
 
 builder.Services.AddRateLimiter(options =>
 {
+    // REC-07: Partition key — user identity first, API key second, IP last (shared NAT safety)
+    static string ResolvePartitionKey(HttpContext ctx, string prefix = "")
+    {
+        // 1. JWT sub claim (authenticated user)
+        var sub = ctx.User.FindFirst("sub")?.Value
+               ?? ctx.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(sub))
+            return $"{prefix}user:{sub}";
+
+        // 2. X-Api-Key header
+        var apiKey = ctx.Request.Headers["X-Api-Key"].FirstOrDefault();
+        if (!string.IsNullOrEmpty(apiKey))
+            return $"{prefix}apikey:{apiKey}";
+
+        // 3. Fallback: remote IP (shared NAT risk — documented)
+        var ip = ctx.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        return $"{prefix}ip:{ip}";
+    }
+
     options.AddPolicy("graphql", context =>
     {
-        var clientIp = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        var key = ResolvePartitionKey(context, "gql:");
         return RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: $"graphql:{clientIp}",
+            partitionKey: key,
             factory: _ => new FixedWindowRateLimiterOptions
             {
                 PermitLimit = Math.Max(1, permitLimit / 2),
@@ -94,9 +114,9 @@ builder.Services.AddRateLimiter(options =>
 
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
     {
-        var clientIp = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        var key = ResolvePartitionKey(context);
         return RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: clientIp,
+            partitionKey: key,
             factory: _ => new FixedWindowRateLimiterOptions
             {
                 PermitLimit = permitLimit,
@@ -132,6 +152,12 @@ builder.Services.AddRateLimiter(options =>
 
 builder.Services.AddProblemDetails();
 builder.Services.AddEndpointsApiExplorer();
+
+// REC-02: Real health checks — liveness + readiness + outbox backlog
+builder.Services.AddInfrastructureHealthChecks(builder.Configuration);
+
+// REC-06: OpenTelemetry — distributed tracing + metrics
+builder.Services.AddUmsObservability(builder.Configuration);
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
@@ -248,13 +274,31 @@ versionedGroup.MapGraphQL("/graphql")
     .WithTags("GraphQL - Queries")
     .RequireRateLimiting("graphql");
 
-app.MapGet("/health", () => Results.Ok(new
+// REC-02: Liveness — always returns 200 if the process is alive (no DB check)
+app.MapGet("/health/live", () => Results.Ok(new
 {
-    Status = "Healthy",
+    Status  = "Alive",
     Service = "UMS API",
-    Language = CultureContext.Current,
     Timestamp = DateTimeOffset.UtcNow,
 }))
+.WithName("GetLiveness")
+.WithTags("Platform")
+.ExcludeFromDescription(); // keep Swagger clean
+
+// REC-02: Readiness — checks SQL Server + outbox backlog
+app.MapHealthChecks("/health/ready", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    Predicate = hc => hc.Tags.Contains("ready"),
+    ResponseWriter = HealthCheckResponseWriter.WriteJsonAsync,
+})
+.WithName("GetReadiness")
+.WithTags("Platform");
+
+// REC-02: Full health report (all checks)
+app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    ResponseWriter = HealthCheckResponseWriter.WriteJsonAsync,
+})
 .WithName("GetHealth")
 .WithTags("Platform");
 

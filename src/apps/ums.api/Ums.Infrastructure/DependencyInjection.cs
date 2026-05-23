@@ -3,13 +3,17 @@ namespace Ums.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Http.Resilience;
+using Polly;
 using Ums.Application.Common.Interfaces;
+using Ums.Infrastructure.HealthChecks;
 using Ums.Domain.Audit.AuditRecord;
 using Ums.Domain.Approvals;
 using Ums.Domain.Authorization;
 using Ums.Domain.Configuration;
 using Ums.Domain.IGA;
 using Ums.Domain.Identity;
+using Ums.Infrastructure.Persistence.Audit;
 using Ums.Infrastructure.Persistence.Authorization;
 using Ums.Infrastructure.Persistence.Configuration;
 using Ums.Infrastructure.Hosting;
@@ -41,6 +45,12 @@ public static class DependencyInjection
 
         var persistence = configuration.GetSection(PersistenceOptions.SectionName).Get<PersistenceOptions>() ?? new();
 
+        // REC-04: Cross-aggregate transaction scope
+        if (persistence.Provider == PersistenceProvider.SqlServer)
+            services.AddScoped<IUnitOfWorkScope, UnitOfWorkScope>();
+        else
+            services.AddSingleton<IUnitOfWorkScope, NoOpUnitOfWorkScope>();
+
         if (persistence.Provider == PersistenceProvider.SqlServer)
         {
             var connectionString = configuration.GetConnectionString("DefaultConnection")
@@ -49,12 +59,31 @@ public static class DependencyInjection
             services.AddScoped<OrganizationDbContextInterceptor>();
             services.AddScoped<AuditSaveChangesInterceptor>(); // FIX-08: auto-stamp audit columns
 
+            // REC-08: Polly resilience pipeline — circuit breaker on top of EF Core's transient retry
+            services.AddResiliencePipeline("ums-sql", pipelineBuilder =>
+            {
+                pipelineBuilder
+                    .AddRetry(new Polly.Retry.RetryStrategyOptions
+                    {
+                        MaxRetryAttempts = 3,
+                        Delay = TimeSpan.FromMilliseconds(200),
+                        BackoffType = Polly.DelayBackoffType.Exponential,
+                    })
+                    .AddCircuitBreaker(new Polly.CircuitBreaker.CircuitBreakerStrategyOptions
+                    {
+                        FailureRatio    = 0.5,
+                        SamplingDuration = TimeSpan.FromSeconds(30),
+                        MinimumThroughput = 10,
+                        BreakDuration    = TimeSpan.FromSeconds(60),
+                    });
+            });
+
             services.AddDbContext<UmsPlatformDbContext>((serviceProvider, options) =>
             {
                 options.UseSqlServer(connectionString, sqlServer =>
                 {
                     sqlServer.MigrationsHistoryTable("__EFMigrationsHistory", UmsPlatformDbContext.DefaultSchema);
-                    sqlServer.EnableRetryOnFailure(5);
+                    sqlServer.EnableRetryOnFailure(3); // REC-08: reduced; circuit breaker handles sustained failures
                 });
 
                 options.AddInterceptors(
@@ -117,8 +146,15 @@ public static class DependencyInjection
         services.AddSingleton<IPermissionTemplateRepository>(sp => sp.GetRequiredService<InMemoryPermissionTemplateRepository>());
 
         // TODO(api-aggregate-tracker): Migrate Audit, Approvals, and IGA aggregate repositories from in-memory to SQL Server.
-        services.AddSingleton<InMemoryAuditRecordRepository>();
-        services.AddSingleton<IAuditRecordRepository>(sp => sp.GetRequiredService<InMemoryAuditRecordRepository>());
+        if (persistence.Provider == PersistenceProvider.SqlServer)
+        {
+            services.AddScoped<IAuditRecordRepository, SqlServerAuditRecordRepository>();
+        }
+        else
+        {
+            services.AddSingleton<InMemoryAuditRecordRepository>();
+            services.AddSingleton<IAuditRecordRepository>(sp => sp.GetRequiredService<InMemoryAuditRecordRepository>());
+        }
 
         services.AddSingleton<InMemoryApprovalWorkflowRepository>();
         services.AddSingleton<IApprovalWorkflowRepository>(sp => sp.GetRequiredService<InMemoryApprovalWorkflowRepository>());
@@ -145,6 +181,39 @@ public static class DependencyInjection
         services.AddSingleton<IRoleMaturityStatusRepository>(sp => sp.GetRequiredService<InMemoryRoleMaturityStatusRepository>());
 
         // TODO(api-aggregate-tracker): Validate SQL Server runtime for Configuration context and add dev seed coverage if needed.
+        return services;
+    }
+
+    /// <summary>
+    /// REC-02: Registers real health checks (liveness, readiness, outbox backlog, SQL Server).
+    /// Call from Program.cs: <c>builder.Services.AddInfrastructureHealthChecks(configuration);</c>
+    /// Then map endpoints: <c>app.MapInfrastructureHealthCheckEndpoints();</c>
+    /// </summary>
+    public static IServiceCollection AddInfrastructureHealthChecks(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        var persistence = configuration.GetSection(PersistenceOptions.SectionName).Get<PersistenceOptions>() ?? new();
+
+        var builder = services.AddHealthChecks();
+
+        if (persistence.Provider == PersistenceProvider.SqlServer)
+        {
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
+            if (!string.IsNullOrWhiteSpace(connectionString))
+            {
+                builder.AddSqlServer(
+                    connectionString,
+                    name: "sql_server",
+                    tags: ["ready", "db"]);
+            }
+
+            // Outbox backlog monitor — uses the scoped UmsPlatformDbContext
+            builder.AddCheck<HealthChecks.OutboxBacklogHealthCheck>(
+                "outbox_backlog",
+                tags: ["ready", "outbox"]);
+        }
+
         return services;
     }
 }

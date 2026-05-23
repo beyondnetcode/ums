@@ -1,6 +1,9 @@
 namespace Ums.Infrastructure.Persistence;
 
 using System.Collections.Concurrent;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Ums.Application.Common.Interfaces;
 using Ums.Domain.Authorization;
 using Ums.Domain.Kernel;
 using ProfileAggregate = Ums.Domain.Authorization.Profile.Profile;
@@ -8,6 +11,17 @@ using ProfileAggregate = Ums.Domain.Authorization.Profile.Profile;
 public sealed class InMemoryProfileRepository : IProfileRepository, IUnitOfWork
 {
     private readonly ConcurrentDictionary<Guid, ProfileAggregate> _store = new();
+    private readonly IHttpContextAccessor? _httpContextAccessor;
+
+    public InMemoryProfileRepository(IHttpContextAccessor? httpContextAccessor = null)
+    {
+        _httpContextAccessor = httpContextAccessor;
+    }
+
+    // REC-05: Tenant filter for dev/test isolation
+    private Guid? CurrentTenantId =>
+        _httpContextAccessor?.HttpContext?.RequestServices
+            .GetService<ITenantContext>()?.OrganizationId;
 
     public IUnitOfWork UnitOfWork => this;
 
@@ -23,7 +37,11 @@ public sealed class InMemoryProfileRepository : IProfileRepository, IUnitOfWork
 
     public Task<IReadOnlyList<ProfileAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        var all = _store.Values.ToList();
+        // REC-05: filter by tenant when a request context is available
+        var tid = CurrentTenantId;
+        var all = (tid.HasValue
+            ? _store.Values.Where(p => p.Props.TenantId.GetValue() == tid.Value)
+            : _store.Values).ToList();
         all.ForEach(p => p.BrokenRules.Clear());
         return Task.FromResult<IReadOnlyList<ProfileAggregate>>(all);
     }

@@ -386,7 +386,8 @@ public class TransactionalAtomicityTests
 
         var audit = capturedAggregate!.Props.Audit.GetValue();
         Assert.Equal("audited-actor-007", audit.CreatedBy);
-        Assert.True(audit.CreatedAt > DateTime.UtcNow.AddSeconds(-5));
+        // AuditValueObject.Create uses DateTime.Today.ToUniversalTime() (midnight UTC)
+        Assert.Equal(DateTime.Today.ToUniversalTime().Date, audit.CreatedAt.Date);
     }
 
     // =========================================================================

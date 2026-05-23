@@ -22,6 +22,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"   # dotnet tool run requires the manifest directory to be CWD
 COVERAGE_DIR="$SCRIPT_DIR/coverage"
 REPORT_DIR="$COVERAGE_DIR/report"
 CI_MODE=false
@@ -52,7 +53,7 @@ mkdir -p "$COVERAGE_DIR"
 # Run Domain tests via coverlet CLI
 # ---------------------------------------------------------------------------
 echo "▶  Running Ums.Domain.Test (with coverage)..."
-dotnet coverlet "$DOMAIN_DLL" \
+dotnet tool run coverlet "$DOMAIN_DLL" \
   --target dotnet \
   --targetargs "test \"$DOMAIN_PROJECT\" --configuration Release --no-build" \
   --format cobertura \
@@ -70,7 +71,7 @@ dotnet coverlet "$DOMAIN_DLL" \
 # Run Application tests via coverlet CLI
 # ---------------------------------------------------------------------------
 echo "▶  Running Ums.Application.Test (with coverage)..."
-dotnet coverlet "$APPLICATION_DLL" \
+dotnet tool run coverlet "$APPLICATION_DLL" \
   --target dotnet \
   --targetargs "test \"$APPLICATION_PROJECT\" --configuration Release --no-build" \
   --format cobertura \

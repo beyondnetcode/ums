@@ -21,6 +21,12 @@
     <PackageReference Include="Azure.Identity" Version="1.14.2" />
     <PackageReference Include="HotChocolate.AspNetCore" Version="16.0.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
+    <!-- REC-06: OpenTelemetry distributed tracing + metrics -->
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.12.0" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.12.0" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.12.0" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.12.0" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.12.0" />
   </ItemGroup>
 
 </Project>

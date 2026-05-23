@@ -1,6 +1,9 @@
 namespace Ums.Infrastructure.Persistence;
 
 using System.Collections.Concurrent;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Ums.Application.Common.Interfaces;
 using Ums.Domain.Identity;
 using Ums.Domain.Identity.UserManagementDelegation;
 using Ums.Domain.Kernel;
@@ -10,6 +13,17 @@ using UserManagementDelegationAggregate = Ums.Domain.Identity.UserManagementDele
 public sealed class InMemoryUserManagementDelegationRepository : IUserManagementDelegationRepository, IUnitOfWork
 {
     private readonly ConcurrentDictionary<Guid, UserManagementDelegationAggregate> _store = new();
+    private readonly IHttpContextAccessor? _httpContextAccessor;
+
+    public InMemoryUserManagementDelegationRepository(IHttpContextAccessor? httpContextAccessor = null)
+    {
+        _httpContextAccessor = httpContextAccessor;
+    }
+
+    // REC-05: Tenant filter for dev/test isolation
+    private Guid? CurrentTenantId =>
+        _httpContextAccessor?.HttpContext?.RequestServices
+            .GetService<ITenantContext>()?.OrganizationId;
 
     public IUnitOfWork UnitOfWork => this;
 
@@ -61,7 +75,11 @@ public sealed class InMemoryUserManagementDelegationRepository : IUserManagement
 
     public Task<IReadOnlyList<UserManagementDelegationAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        var all = _store.Values.ToList();
+        // REC-05: filter by tenant when a request context is available
+        var tid = CurrentTenantId;
+        var all = (tid.HasValue
+            ? _store.Values.Where(d => d.Props.TenantId.GetValue() == tid.Value)
+            : _store.Values).ToList();
         all.ForEach(d => d.BrokenRules.Clear());
         return Task.FromResult<IReadOnlyList<UserManagementDelegationAggregate>>(all);
     }
