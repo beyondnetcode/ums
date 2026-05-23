@@ -17,6 +17,7 @@ public sealed class TenantRecord : IAuditableRecord
     public string? UpdatedBy { get; set; }
     public DateTime? UpdatedAtUtc { get; set; }
     public string AuditTimeSpan { get; set; } = string.Empty;
+    public byte[] RowVersion { get; set; } = [];
 
     public List<TenantBranchRecord> Branches { get; set; } = [];
     public List<TenantIdentityProviderRecord> IdentityProviders { get; set; } = [];

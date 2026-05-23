@@ -17,6 +17,7 @@ public sealed class UserAccountRecord : IAuditableRecord
     public string? UpdatedBy { get; set; }
     public DateTime? UpdatedAtUtc { get; set; }
     public string AuditTimeSpan { get; set; } = string.Empty;
+    public byte[] RowVersion { get; set; } = [];
 
     public List<UserAccountMfaEnrollmentRecord> MfaEnrollments { get; set; } = [];
     public List<UserAccountPasswordCredentialRecord> PasswordCredentials { get; set; } = [];

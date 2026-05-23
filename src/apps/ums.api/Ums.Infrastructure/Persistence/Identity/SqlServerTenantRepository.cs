@@ -87,7 +87,17 @@ public sealed class SqlServerTenantRepository(UmsPlatformDbContext dbContext) : 
             dbContext.OutboxMessages.AddRange(OutboxMessageFactory.CreateFromAggregate(aggregate));
         }
 
-        await dbContext.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException ex)
+        {
+            // FIX-03: surface optimistic concurrency failures as 409 Conflict
+            var entry = ex.Entries.FirstOrDefault();
+            var id = (Guid)(entry?.Property("Id").CurrentValue ?? Guid.Empty);
+            throw new ConcurrencyConflictException(entry?.Metadata.Name ?? "Unknown", id);
+        }
 
         foreach (var aggregate in _trackedAggregates)
         {

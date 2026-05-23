@@ -20,4 +20,5 @@ public sealed class IdpConfigurationRecord : IAuditableRecord
     public string? UpdatedBy { get; set; }
     public DateTime? UpdatedAtUtc { get; set; }
     public string AuditTimeSpan { get; set; } = string.Empty;
+    public byte[] RowVersion { get; set; } = [];
 }

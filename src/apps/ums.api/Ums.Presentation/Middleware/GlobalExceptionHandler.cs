@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
+using Ums.Infrastructure.Persistence;
 
 public sealed class GlobalExceptionHandler
 {
@@ -79,6 +80,7 @@ public sealed class GlobalExceptionHandler
 
     private string GetErrorTitle(Exception exception) => exception switch
     {
+        ConcurrencyConflictException => "Conflict",                          // FIX-03
         UnauthorizedAccessException => "Unauthorized",
         System.Collections.Generic.KeyNotFoundException => "Not Found",
         InvalidOperationException => "Invalid Operation",
@@ -88,6 +90,7 @@ public sealed class GlobalExceptionHandler
 
     private string GetErrorDetail(Exception exception) => exception switch
     {
+        ConcurrencyConflictException ex => ex.Message,                       // FIX-03
         UnauthorizedAccessException => "The request requires valid authentication credentials.",
         System.Collections.Generic.KeyNotFoundException => "The requested resource was not found.",
         InvalidOperationException => exception.Message,
@@ -97,6 +100,7 @@ public sealed class GlobalExceptionHandler
 
     private int GetStatusCode(Exception exception) => exception switch
     {
+        ConcurrencyConflictException => StatusCodes.Status409Conflict,       // FIX-03
         UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
         System.Collections.Generic.KeyNotFoundException => StatusCodes.Status404NotFound,
         InvalidOperationException => StatusCodes.Status400BadRequest,

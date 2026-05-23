@@ -16,6 +16,7 @@ public sealed class UserAccountRecordConfiguration : IEntityTypeConfiguration<Us
         builder.Property(x => x.CreatedBy).HasMaxLength(100).IsRequired();
         builder.Property(x => x.UpdatedBy).HasMaxLength(100);
         builder.Property(x => x.AuditTimeSpan).HasMaxLength(100).IsRequired();
+        builder.Property(x => x.RowVersion).IsRowVersion(); // FIX-03: optimistic concurrency
 
         builder.HasIndex(x => x.Email);
         builder.HasIndex(x => new { x.TenantId, x.Email }).IsUnique();
