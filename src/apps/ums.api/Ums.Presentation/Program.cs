@@ -62,6 +62,7 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddScoped<ILocalizationService, LocalizationService>();
 builder.Services.AddUmsGraphQl();
+builder.Services.AddMemoryCache(); // required by IdempotencyMiddleware (FIX-06)
 
 builder.Services.AddApiVersioning(options =>
 {
@@ -220,6 +221,7 @@ var versionedGroup = app.MapGroup("api/v{apiVersion:apiVersion}")
 
 app.UseCorrelationId();
 app.UseGlobalExceptionHandler();
+app.UseIdempotency(); // FIX-06: deduplicate POST/PUT/PATCH via Idempotency-Key header
 app.UseRateLimiter();
 
 if (app.Environment.IsDevelopment())
