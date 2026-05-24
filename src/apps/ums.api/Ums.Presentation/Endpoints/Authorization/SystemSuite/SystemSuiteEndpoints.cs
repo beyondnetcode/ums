@@ -72,7 +72,112 @@ public static class SystemSuiteEndpoints
         .ProducesProblem(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status400BadRequest);
 
-        // TODO(api-aggregate-tracker): Expose module, menu, option, action, and app-setting lifecycle endpoints for SystemSuite.
+        // ── Module lifecycle ─────────────────────────────────────────────────
+
+        group.MapPost("/{systemSuiteId:guid}/modules", async (Guid systemSuiteId, AddModuleCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command with { SystemSuiteId = systemSuiteId }, ct);
+            return result.ToNoContent(context);
+        }).WithName("AddModule")
+          .WithSummary("Add a module to the system suite")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status400BadRequest)
+          .ProducesProblem(StatusCodes.Status404NotFound)
+          .ProducesProblem(StatusCodes.Status409Conflict);
+
+        group.MapPut("/{systemSuiteId:guid}/modules/{moduleId:guid}", async (Guid systemSuiteId, Guid moduleId, UpdateModuleCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command with { SystemSuiteId = systemSuiteId, ModuleId = moduleId }, ct);
+            return result.ToNoContent(context);
+        }).WithName("UpdateModule")
+          .WithSummary("Update module name, description, or sort order")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status404NotFound);
+
+        group.MapDelete("/{systemSuiteId:guid}/modules/{moduleId:guid}", async (Guid systemSuiteId, Guid moduleId, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new RemoveModuleCommand(systemSuiteId, moduleId), ct);
+            return result.ToNoContent(context);
+        }).WithName("RemoveModule")
+          .WithSummary("Remove an inactive module from the system suite")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status404NotFound)
+          .ProducesProblem(StatusCodes.Status409Conflict);
+
+        group.MapPost("/{systemSuiteId:guid}/modules/{moduleId:guid}/activate", async (Guid systemSuiteId, Guid moduleId, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new ActivateModuleCommand(systemSuiteId, moduleId), ct);
+            return result.ToNoContent(context);
+        }).WithName("ActivateModule")
+          .WithSummary("Activate a deactivated module")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status404NotFound)
+          .ProducesProblem(StatusCodes.Status409Conflict);
+
+        group.MapPost("/{systemSuiteId:guid}/modules/{moduleId:guid}/deactivate", async (Guid systemSuiteId, Guid moduleId, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new DeactivateModuleCommand(systemSuiteId, moduleId), ct);
+            return result.ToNoContent(context);
+        }).WithName("DeactivateModule")
+          .WithSummary("Deactivate an active module")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status404NotFound)
+          .ProducesProblem(StatusCodes.Status409Conflict);
+
+        // ── App settings ─────────────────────────────────────────────────────
+
+        group.MapPost("/{systemSuiteId:guid}/app-settings", async (Guid systemSuiteId, AddAppSettingCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command with { SystemSuiteId = systemSuiteId }, ct);
+            return result.ToNoContent(context);
+        }).WithName("AddAppSetting")
+          .WithSummary("Add a configuration key-value pair to the system suite")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status400BadRequest)
+          .ProducesProblem(StatusCodes.Status404NotFound)
+          .ProducesProblem(StatusCodes.Status409Conflict);
+
+        group.MapPut("/{systemSuiteId:guid}/app-settings/{key}", async (Guid systemSuiteId, string key, UpdateAppSettingCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command with { SystemSuiteId = systemSuiteId, Key = key }, ct);
+            return result.ToNoContent(context);
+        }).WithName("UpdateAppSetting")
+          .WithSummary("Update the value of an existing app setting")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status404NotFound);
+
+        group.MapDelete("/{systemSuiteId:guid}/app-settings/{key}", async (Guid systemSuiteId, string key, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new RemoveAppSettingCommand(systemSuiteId, key), ct);
+            return result.ToNoContent(context);
+        }).WithName("RemoveAppSetting")
+          .WithSummary("Remove an app setting from the system suite")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status404NotFound);
+
+        // ── Actions ──────────────────────────────────────────────────────────
+
+        group.MapPost("/{systemSuiteId:guid}/actions", async (Guid systemSuiteId, RegisterActionCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command with { SystemSuiteId = systemSuiteId }, ct);
+            return result.ToNoContent(context);
+        }).WithName("RegisterAction")
+          .WithSummary("Register a new action code that can be used in permission templates")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status400BadRequest)
+          .ProducesProblem(StatusCodes.Status404NotFound)
+          .ProducesProblem(StatusCodes.Status409Conflict);
+
+        group.MapDelete("/{systemSuiteId:guid}/actions/{code}", async (Guid systemSuiteId, string code, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new RemoveActionCommand(systemSuiteId, code), ct);
+            return result.ToNoContent(context);
+        }).WithName("RemoveAction")
+          .WithSummary("Remove an unused action from the system suite")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status404NotFound)
+          .ProducesProblem(StatusCodes.Status409Conflict);
+
         return app;
     }
 }
