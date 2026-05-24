@@ -16,7 +16,8 @@
 | **Bounded Context Isolation** | Domain boundaries are physical directory boundaries. No-context file sharing without explicit interfaces. |
 | **Docs-as-Code** | Documentation follows code lifecycle: versioned, reviewed, linted, and co-located with its domain. Must maintain enterprise visual standard (no emojis/icons). |
 | **Progressive Disclosure** | Top-level directories aggregate; lower levels reveal detail. MASTER_INDEX.md provides the entry point. |
-| **Bilingual Mirror** | All user-facing documentation is maintained in `en/` and `es/` with identical directory trees.
+| **Bilingual Mirror** | All user-facing documentation is maintained in `en/` and `es/` with identical directory trees. |
+| **Lean Root (Motor vs Knowledge)** | The root directory enforces a strict dichotomy. Technical execution (code, tests, scripts, build config) lives exclusively in `src/`. Knowledge and governance live in `docs/`. |
 ## 2. Repository Tree (Canonical)
 
 ```
