@@ -25,6 +25,8 @@ using Ums.Infrastructure.Persistence.Identity;
 using Ums.Infrastructure.Persistence.Interceptors;
 using Ums.Infrastructure.Persistence.Options;
 using Ums.Infrastructure.Services;
+using Ums.Application.Approvals.ApprovalRequest.Services;
+using Ums.Infrastructure.Approvals.ApprovalRequest;
 using Ums.Application.Approvals.NotificationRule.Services;
 using Ums.Infrastructure.Approvals.NotificationRule;
 using Ums.Application.Configuration.IdpConfiguration.Services;
@@ -53,6 +55,7 @@ public static class DependencyInjection
         services.AddScoped<IExecutionContextAccessor>(sp => sp.GetRequiredService<RequestContextAccessor>());
         services.AddScoped<IIdpConfigurationResolver, IdpConfigurationResolver>();
         services.AddScoped<INotificationRecipientResolver, NotificationRecipientResolver>();
+        services.AddScoped<IApprovalRequestCreationPolicyResolver, ApprovalRequestCreationPolicyResolver>();
         services.AddSingleton(Channel.CreateUnbounded<AuditTrailEntry>(new UnboundedChannelOptions
         {
             SingleReader = true,
@@ -65,6 +68,8 @@ public static class DependencyInjection
             .AddTransient<EmailNotificationRecipientStrategy, EmailNotificationRecipientStrategy>()
             .AddTransient<SmsNotificationRecipientStrategy, SmsNotificationRecipientStrategy>()
             .AddTransient<InAppNotificationRecipientStrategy, InAppNotificationRecipientStrategy>()
+            .AddTransient<ManualApprovalRequestCreationStrategy, ManualApprovalRequestCreationStrategy>()
+            .AddTransient<AutoApproveApprovalRequestCreationStrategy, AutoApproveApprovalRequestCreationStrategy>()
             .AddTransient<InternalBcryptIdpResolutionStrategy, InternalBcryptIdpResolutionStrategy>()
             .AddTransient<ZitadelIdpResolutionStrategy, ZitadelIdpResolutionStrategy>()
             .AddTransient<AzureAdIdpResolutionStrategy, AzureAdIdpResolutionStrategy>()
@@ -76,6 +81,7 @@ public static class DependencyInjection
             .AddTransient<Saml2IdpResolutionStrategy, Saml2IdpResolutionStrategy>()
             .AddTransient<GenericOidcIdpResolutionStrategy, GenericOidcIdpResolutionStrategy>()
             .AddSource<NotificationRecipientStrategyFactorySetup>()
+            .AddSource<ApprovalRequestCreationStrategyFactorySetup>()
             .AddSource<IdpResolutionStrategyFactorySetup>());
 
         // OPS-01 / HARDENING-03: Token revocation store.

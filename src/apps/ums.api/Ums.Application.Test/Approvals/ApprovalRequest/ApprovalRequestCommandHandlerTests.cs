@@ -3,8 +3,10 @@ namespace Ums.Application.Test.Approvals.ApprovalRequest;
 using Ums.Application.Common.Interfaces;
 using Ums.Application.Approvals.ApprovalRequest.Commands;
 using Ums.Application.Approvals.ApprovalRequest.DTOs;
+using Ums.Application.Approvals.ApprovalRequest.Services;
 using Ums.Domain.Approvals.ApprovalRequest;
 using Ums.Domain.Approvals;
+using ApprovalWorkflowAggregate = Ums.Domain.Approvals.ApprovalWorkflow.ApprovalWorkflow;
 using Ums.Domain.Enums;
 using Ums.Domain.Kernel;
 using Moq;
@@ -16,6 +18,8 @@ using System.Threading.Tasks;
 public class ApprovalRequestCommandHandlerTests
 {
     private readonly Mock<IApprovalRequestRepository> _repo = new();
+    private readonly Mock<IApprovalWorkflowRepository> _workflowRepo = new();
+    private readonly Mock<IApprovalRequestCreationPolicyResolver> _creationPolicyResolver = new();
     private readonly Mock<IUnitOfWork>               _uow  = new();
     private readonly Mock<IUserContext>              _ctx  = new();
 
@@ -35,6 +39,19 @@ public class ApprovalRequestCommandHandlerTests
             ActorId.Create("user-001")).Value;
     }
 
+    private static ApprovalWorkflowAggregate MakeWorkflow(bool requiresApproval = true)
+    {
+        return ApprovalWorkflowAggregate.Create(
+            TenantId.Load(Guid.NewGuid()),
+            Code.Create($"wf-{Guid.NewGuid():N}"),
+            Name.Create("Workflow"),
+            Description.Create("Workflow description"),
+            UserCategory.Internal,
+            requiresApproval,
+            null,
+            ActorId.Create("user-001")).Value;
+    }
+
     // =========================================================================
     #region CreateApprovalRequestCommandHandler
     // =========================================================================
@@ -49,7 +66,17 @@ public class ApprovalRequestCommandHandlerTests
             TargetUserId: Guid.NewGuid(),
             TargetProfileId: Guid.NewGuid());
 
-        var handler = new CreateApprovalRequestCommandHandler(_repo.Object, _ctx.Object);
+        var workflow = MakeWorkflow();
+        var createdRequest = MakeApprovalRequest();
+        _workflowRepo.Setup(r => r.GetByIdAsync(cmd.WorkflowId, It.IsAny<CancellationToken>())).ReturnsAsync(workflow);
+        _creationPolicyResolver.Setup(r => r.Create(
+                workflow,
+                It.IsAny<UserId>(),
+                It.IsAny<ProfileId?>(),
+                It.IsAny<ActorId>()))
+            .Returns(Result<ApprovalRequest>.Success(createdRequest));
+
+        var handler = new CreateApprovalRequestCommandHandler(_repo.Object, _workflowRepo.Object, _creationPolicyResolver.Object, _ctx.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -68,11 +95,29 @@ public class ApprovalRequestCommandHandlerTests
             TargetUserId: Guid.NewGuid(),
             TargetProfileId: Guid.NewGuid());
 
-        var handler = new CreateApprovalRequestCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new CreateApprovalRequestCommandHandler(_repo.Object, _workflowRepo.Object, _creationPolicyResolver.Object, _ctx.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
         Assert.Contains("authenticated user is required", result.Error, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task Create_WhenWorkflowNotFound_ReturnsFailure()
+    {
+        var cmd = new CreateApprovalRequestCommand(
+            WorkflowId: Guid.NewGuid(),
+            TargetUserId: Guid.NewGuid(),
+            TargetProfileId: Guid.NewGuid());
+
+        _workflowRepo.Setup(r => r.GetByIdAsync(cmd.WorkflowId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ApprovalWorkflowAggregate?)null);
+
+        var handler = new CreateApprovalRequestCommandHandler(_repo.Object, _workflowRepo.Object, _creationPolicyResolver.Object, _ctx.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("approval workflow not found", result.Error, StringComparison.OrdinalIgnoreCase);
     }
 
     #endregion

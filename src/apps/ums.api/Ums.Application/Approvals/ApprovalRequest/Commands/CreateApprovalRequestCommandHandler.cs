@@ -4,15 +4,24 @@ namespace Ums.Application.Approvals.ApprovalRequest.Commands;
 
 using Ums.Domain.Approvals;
 using Ums.Domain.Approvals.ApprovalRequest;
+using Ums.Application.Approvals.ApprovalRequest.Services;
 
 public sealed class CreateApprovalRequestCommandHandler : ICommandHandler<CreateApprovalRequestCommand, CreateApprovalRequestResponse>
 {
     private readonly IApprovalRequestRepository _repository;
+    private readonly IApprovalWorkflowRepository _workflowRepository;
+    private readonly IApprovalRequestCreationPolicyResolver _creationPolicyResolver;
     private readonly IUserContext _userContext;
 
-    public CreateApprovalRequestCommandHandler(IApprovalRequestRepository repository, IUserContext userContext)
+    public CreateApprovalRequestCommandHandler(
+        IApprovalRequestRepository repository,
+        IApprovalWorkflowRepository workflowRepository,
+        IApprovalRequestCreationPolicyResolver creationPolicyResolver,
+        IUserContext userContext)
     {
         _repository = repository;
+        _workflowRepository = workflowRepository;
+        _creationPolicyResolver = creationPolicyResolver;
         _userContext = userContext;
     }
 
@@ -23,8 +32,12 @@ public sealed class CreateApprovalRequestCommandHandler : ICommandHandler<Create
         if (string.IsNullOrWhiteSpace(_userContext.UserId))
             return Result<CreateApprovalRequestResponse>.Failure("Authenticated user is required.");
 
-        var result = ApprovalRequest.Create(
-            ApprovalWorkflowId.Load(request.WorkflowId),
+        var workflow = await _workflowRepository.GetByIdAsync(request.WorkflowId, cancellationToken);
+        if (workflow is null)
+            return Result<CreateApprovalRequestResponse>.Failure("Approval workflow not found.");
+
+        var result = _creationPolicyResolver.Create(
+            workflow,
             UserId.Load(request.TargetUserId),
             request.TargetProfileId.HasValue ? ProfileId.Load(request.TargetProfileId.Value) : null,
             ActorId.Create(_userContext.UserId));

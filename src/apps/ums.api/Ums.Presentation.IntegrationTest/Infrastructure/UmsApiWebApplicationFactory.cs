@@ -123,6 +123,7 @@ public sealed class UmsApiWebApplicationFactory : WebApplicationFactory<Program>
     {
         var host = base.CreateHost(builder);
         SeedConfigurationAggregates(host.Services);
+        SeedApprovalAggregates(host.Services);
         return host;
     }
 
@@ -199,5 +200,49 @@ public sealed class UmsApiWebApplicationFactory : WebApplicationFactory<Program>
 
             notificationRuleRepository.Seed(notificationRule);
         }
+    }
+
+    private static void SeedApprovalAggregates(IServiceProvider services)
+    {
+        using var scope = services.CreateScope();
+
+        var workflowRepository = scope.ServiceProvider.GetRequiredService<InMemoryApprovalWorkflowRepository>();
+        var actor = ActorId.Create("00000000-0000-0000-0000-000000000111");
+        var tenantId = TenantId.Load(Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"));
+
+        if (workflowRepository.GetAllAsync().GetAwaiter().GetResult().Count > 0)
+        {
+            return;
+        }
+
+        var manualWorkflow = Ums.Domain.Approvals.ApprovalWorkflow.ApprovalWorkflow.Create(
+            tenantId,
+            Code.Create("manual-approval"),
+            Name.Create("Manual Approval"),
+            Description.Create("Workflow requiring manual approval."),
+            UserCategory.Internal,
+            true,
+            null,
+            actor).Value;
+        SetAggregateId(manualWorkflow.Props, Guid.Parse("88888888-1111-1111-1111-111111111111"));
+        workflowRepository.Seed(manualWorkflow);
+
+        var autoWorkflow = Ums.Domain.Approvals.ApprovalWorkflow.ApprovalWorkflow.Create(
+            tenantId,
+            Code.Create("auto-approval"),
+            Name.Create("Auto Approval"),
+            Description.Create("Workflow that auto-approves requests."),
+            UserCategory.Internal,
+            false,
+            null,
+            actor).Value;
+        SetAggregateId(autoWorkflow.Props, Guid.Parse("88888888-2222-2222-2222-222222222222"));
+        workflowRepository.Seed(autoWorkflow);
+    }
+
+    private static void SetAggregateId(object props, Guid id)
+    {
+        var idProperty = props.GetType().GetProperty("Id");
+        idProperty!.SetValue(props, IdValueObject.Load(id));
     }
 }

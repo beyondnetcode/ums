@@ -10,6 +10,7 @@ global using Microsoft.Extensions.Logging;
 global using Microsoft.Extensions.DependencyInjection;
 global using Ums.Shell.Aop;
 global using Ums.Domain.Kernel;
+global using Ums.Domain.Kernel.ValueObjects;
 global using Ums.Domain.Enums;
 global using Ums.Domain.Identity;
 global using Ums.Application.Common.Aop;
