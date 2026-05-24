@@ -90,7 +90,8 @@ public static class FeatureFlagEndpoints
         .ProducesProblem(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status409Conflict);
 
-        // TODO(api-aggregate-tracker): Expose update endpoint for FeatureFlag targeting rules, linked resource bindings, and rollout strategy changes.
+        // DEFERRED: Targeting-rules update and rollout-strategy changes require
+        // FeatureFlag.UpdateTargetingRules() domain method — not yet implemented.
         return app;
     }
 

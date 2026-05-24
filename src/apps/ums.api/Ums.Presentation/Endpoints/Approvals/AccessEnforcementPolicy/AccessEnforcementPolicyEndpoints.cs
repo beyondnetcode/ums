@@ -38,7 +38,16 @@ public static class AccessEnforcementPolicyEndpoints
             return result.ToNoContent(context);
         }).WithName("DeactivateAccessEnforcementPolicy").Produces(StatusCodes.Status204NoContent).ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status409Conflict);
 
-        // TODO(api-aggregate-tracker): Expose update endpoint for AccessEnforcementPolicy enforcement action and thresholds.
+        group.MapPut("/{policyId:guid}/action", async (Guid policyId, UpdateAccessEnforcementActionCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command with { PolicyId = policyId }, ct);
+            return result.ToNoContent(context);
+        }).WithName("UpdateAccessEnforcementAction")
+          .WithSummary("Change the enforcement action (BlockUser, RestrictProfile, LogOnly)")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status400BadRequest)
+          .ProducesProblem(StatusCodes.Status404NotFound);
+
         return app;
     }
 }

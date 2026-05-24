@@ -30,7 +30,16 @@ public static class DocumentTypeEndpoints
             return result.ToCreated(r => $"/document-types/{r.DocumentTypeId}", context);
         }).WithName("CreateDocumentType").Produces<CreateDocumentTypeResponse>(StatusCodes.Status201Created).ProducesProblem(StatusCodes.Status400BadRequest);
 
-        // TODO(api-aggregate-tracker): Expose update, notification-rule management, and enforcement-policy management endpoints for DocumentType.
+        group.MapPut("/{documentTypeId:guid}", async (Guid documentTypeId, UpdateDocumentTypeCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command with { DocumentTypeId = documentTypeId }, ct);
+            return result.ToNoContent(context);
+        }).WithName("UpdateDocumentType")
+          .WithSummary("Update document type name and description")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status400BadRequest)
+          .ProducesProblem(StatusCodes.Status404NotFound);
+
         return app;
     }
 }

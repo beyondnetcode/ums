@@ -38,7 +38,38 @@ public static class UserDocumentEndpoints
             return result.ToNoContent(context);
         }).WithName("ValidateUserDocument").Produces(StatusCodes.Status204NoContent).ProducesProblem(StatusCodes.Status404NotFound);
 
-        // TODO(api-aggregate-tracker): Expose reject, expire, re-upload, notification tracking, and enforcement tracking actions for UserDocument.
+        group.MapPost("/{userDocumentId:guid}/reject", async (Guid userDocumentId, RejectUserDocumentCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command with { UserDocumentId = userDocumentId }, ct);
+            return result.ToNoContent(context);
+        }).WithName("RejectUserDocument")
+          .WithSummary("Reject a user document — requires re-upload before the workflow can proceed")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status400BadRequest)
+          .ProducesProblem(StatusCodes.Status404NotFound)
+          .ProducesProblem(StatusCodes.Status409Conflict);
+
+        group.MapPost("/{userDocumentId:guid}/expire", async (Guid userDocumentId, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new ExpireUserDocumentCommand(userDocumentId), ct);
+            return result.ToNoContent(context);
+        }).WithName("ExpireUserDocument")
+          .WithSummary("Mark a user document as expired (background-worker use)")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status404NotFound)
+          .ProducesProblem(StatusCodes.Status409Conflict);
+
+        group.MapPost("/{userDocumentId:guid}/re-upload", async (Guid userDocumentId, ReUploadUserDocumentCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command with { UserDocumentId = userDocumentId }, ct);
+            return result.ToNoContent(context);
+        }).WithName("ReUploadUserDocument")
+          .WithSummary("Re-upload a rejected or expired document with a new file and dates")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status400BadRequest)
+          .ProducesProblem(StatusCodes.Status404NotFound)
+          .ProducesProblem(StatusCodes.Status409Conflict);
+
         return app;
     }
 }

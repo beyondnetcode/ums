@@ -95,7 +95,8 @@ public static class AppConfigurationEndpoints
         .ProducesProblem(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status409Conflict);
 
-        // TODO(api-aggregate-tracker): Expose rollback/version comparison endpoints for AppConfiguration once configuration history is persisted.
+        // DEFERRED: Rollback and version-comparison endpoints require a persisted
+        // configuration history (audit table) — not yet implemented in the storage layer.
         return app;
     }
 }

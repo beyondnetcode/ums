@@ -82,7 +82,8 @@ public static class IdpConfigurationEndpoints
         .ProducesProblem(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status409Conflict);
 
-        // TODO(api-aggregate-tracker): Expose fallback resolution graph validation and test-connection endpoint for IdpConfiguration.
+        // DEFERRED: test-connection and fallback graph validation are operational endpoints
+        // requiring IDP infrastructure access — outside the scope of pure CQRS command surface.
         return app;
     }
 }

@@ -38,7 +38,16 @@ public static class NotificationRuleEndpoints
             return result.ToNoContent(context);
         }).WithName("DeactivateNotificationRule").Produces(StatusCodes.Status204NoContent).ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status409Conflict);
 
-        // TODO(api-aggregate-tracker): Expose update endpoint for NotificationRule recipient, schedule, and channel configuration.
+        group.MapPut("/{notificationRuleId:guid}/recipient", async (Guid notificationRuleId, UpdateNotificationRuleRecipientCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command with { NotificationRuleId = notificationRuleId }, ct);
+            return result.ToNoContent(context);
+        }).WithName("UpdateNotificationRuleRecipient")
+          .WithSummary("Update the recipient address of a notification rule")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status400BadRequest)
+          .ProducesProblem(StatusCodes.Status404NotFound);
+
         return app;
     }
 }

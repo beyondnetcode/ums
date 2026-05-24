@@ -16,14 +16,16 @@ public static class AppConfigurationQueryEndpoints
         // Clients should send the ETag value as an If-Match header on subsequent PUT requests.
         group.MapGet("/{id:guid}", async (
             Guid id,
-            IMediator mediator,
-            UmsPlatformDbContext dbContext,
+            [FromServices] IMediator mediator,
+            [FromServices] IServiceProvider services,
             HttpContext context,
             CancellationToken ct) =>
         {
             var result = await mediator.Send(new GetAppConfigurationByIdQuery(id), ct);
 
-            if (result.IsSuccess)
+            var dbContext = services.GetService<UmsPlatformDbContext>();
+
+            if (result.IsSuccess && dbContext is not null)
             {
                 // Attach ETag from RowVersion — read-side query straight from DB context
                 var rv = await dbContext.AppConfigurations

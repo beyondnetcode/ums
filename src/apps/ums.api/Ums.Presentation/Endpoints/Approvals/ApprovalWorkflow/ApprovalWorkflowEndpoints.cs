@@ -30,7 +30,27 @@ public static class ApprovalWorkflowEndpoints
             return result.ToCreated(r => $"/approval-workflows/{r.ApprovalWorkflowId}", context);
         }).WithName("CreateApprovalWorkflow").Produces<CreateApprovalWorkflowResponse>(StatusCodes.Status201Created).ProducesProblem(StatusCodes.Status400BadRequest);
 
-        // TODO(api-aggregate-tracker): Expose required-document and lifecycle management endpoints for ApprovalWorkflow.
+        group.MapPost("/{workflowId:guid}/required-documents", async (Guid workflowId, AddRequiredDocumentCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command with { WorkflowId = workflowId }, ct);
+            return result.ToNoContent(context);
+        }).WithName("AddRequiredDocument")
+          .WithSummary("Add a required document type to the approval workflow")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status400BadRequest)
+          .ProducesProblem(StatusCodes.Status404NotFound)
+          .ProducesProblem(StatusCodes.Status409Conflict);
+
+        group.MapDelete("/{workflowId:guid}/required-documents/{documentId:guid}", async (Guid workflowId, Guid documentId, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new RemoveRequiredDocumentCommand(workflowId, documentId), ct);
+            return result.ToNoContent(context);
+        }).WithName("RemoveRequiredDocument")
+          .WithSummary("Remove a required document from the approval workflow")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status404NotFound)
+          .ProducesProblem(StatusCodes.Status409Conflict);
+
         return app;
     }
 }
