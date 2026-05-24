@@ -145,4 +145,192 @@ public class RoleMaturityStatusCommandHandlerTests
     }
 
     #endregion
+
+    // =========================================================================
+    #region RecordCertificationCompletionCommandHandler
+    // =========================================================================
+
+    [Fact]
+    public async Task RecordCertification_WithValidCommand_IncrementsCount()
+    {
+        var status = MakeRoleMaturityStatus();
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(status);
+
+        var handler = new RecordCertificationCompletionCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(new RecordCertificationCompletionCommand(Guid.NewGuid()), CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(1, status.CompletedCertificationsCount);
+        _uow.Verify(u => u.SaveEntitiesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task RecordCertification_WhenNotFound_ReturnsFailure()
+    {
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((RoleMaturityStatus?)null);
+        var handler = new RecordCertificationCompletionCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(new RecordCertificationCompletionCommand(Guid.NewGuid()), CancellationToken.None);
+        Assert.True(result.IsFailure);
+    }
+
+    [Fact]
+    public async Task RecordCertification_WhenUnauthenticated_ReturnsFailure()
+    {
+        _ctx.Setup(u => u.UserId).Returns("");
+        var handler = new RecordCertificationCompletionCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(new RecordCertificationCompletionCommand(Guid.NewGuid()), CancellationToken.None);
+        Assert.True(result.IsFailure);
+    }
+
+    #endregion
+
+    // =========================================================================
+    #region RecordTrainingCompletionCommandHandler
+    // =========================================================================
+
+    [Fact]
+    public async Task RecordTraining_WithValidCommand_IncrementsCount()
+    {
+        var status = MakeRoleMaturityStatus();
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(status);
+
+        var handler = new RecordTrainingCompletionCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(new RecordTrainingCompletionCommand(Guid.NewGuid()), CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(1, status.CompletedTrainingsCount);
+        _uow.Verify(u => u.SaveEntitiesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task RecordTraining_WhenNotFound_ReturnsFailure()
+    {
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((RoleMaturityStatus?)null);
+        var handler = new RecordTrainingCompletionCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(new RecordTrainingCompletionCommand(Guid.NewGuid()), CancellationToken.None);
+        Assert.True(result.IsFailure);
+    }
+
+    [Fact]
+    public async Task RecordTraining_WhenUnauthenticated_ReturnsFailure()
+    {
+        _ctx.Setup(u => u.UserId).Returns("");
+        var handler = new RecordTrainingCompletionCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(new RecordTrainingCompletionCommand(Guid.NewGuid()), CancellationToken.None);
+        Assert.True(result.IsFailure);
+    }
+
+    #endregion
+
+    // =========================================================================
+    #region UpdatePerformanceScoreCommandHandler
+    // =========================================================================
+
+    [Fact]
+    public async Task UpdateScore_WithValidScore_ReturnsSuccess()
+    {
+        var status = MakeRoleMaturityStatus();
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(status);
+
+        var handler = new UpdatePerformanceScoreCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(new UpdatePerformanceScoreCommand(Guid.NewGuid(), 4.2m), CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(4.2m, status.PerformanceScore);
+    }
+
+    [Fact]
+    public async Task UpdateScore_WithOutOfRangeScore_ReturnsFailure()
+    {
+        var status = MakeRoleMaturityStatus();
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(status);
+
+        var handler = new UpdatePerformanceScoreCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(new UpdatePerformanceScoreCommand(Guid.NewGuid(), 6m), CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+    }
+
+    [Fact]
+    public async Task UpdateScore_WhenNotFound_ReturnsFailure()
+    {
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((RoleMaturityStatus?)null);
+        var handler = new UpdatePerformanceScoreCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(new UpdatePerformanceScoreCommand(Guid.NewGuid(), 3m), CancellationToken.None);
+        Assert.True(result.IsFailure);
+    }
+
+    #endregion
+
+    // =========================================================================
+    #region MarkComplianceIssueCommandHandler & ResolveComplianceIssueCommandHandler
+    // =========================================================================
+
+    [Fact]
+    public async Task MarkCompliance_WithReason_BlocksEligibility()
+    {
+        var status = MakeRoleMaturityStatus();
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(status);
+
+        var handler = new MarkComplianceIssueCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(new MarkComplianceIssueCommand(Guid.NewGuid(), "Policy violation"), CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        Assert.False(status.HasNoComplianceIssues);
+        Assert.NotNull(status.BlockingFactor);
+    }
+
+    [Fact]
+    public async Task ResolveCompliance_AfterIssue_ClearsBlockingFactor()
+    {
+        var status = MakeRoleMaturityStatus();
+        status.MarkComplianceIssue(TextValueObject.Create("Issue"), ActorId.Create("user-001"));
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(status);
+
+        var handler = new ResolveComplianceIssueCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(new ResolveComplianceIssueCommand(Guid.NewGuid()), CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        Assert.True(status.HasNoComplianceIssues);
+        Assert.Null(status.BlockingFactor);
+    }
+
+    [Fact]
+    public async Task MarkCompliance_WhenNotFound_ReturnsFailure()
+    {
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((RoleMaturityStatus?)null);
+        var handler = new MarkComplianceIssueCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(new MarkComplianceIssueCommand(Guid.NewGuid(), "Issue"), CancellationToken.None);
+        Assert.True(result.IsFailure);
+    }
+
+    #endregion
+
+    // =========================================================================
+    #region ReviewEligibilityCommandHandler
+    // =========================================================================
+
+    [Fact]
+    public async Task ReviewEligibility_WithValidStatus_SetsLastReviewedAt()
+    {
+        var status = MakeRoleMaturityStatus();
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(status);
+
+        var handler = new ReviewEligibilityCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(new ReviewEligibilityCommand(Guid.NewGuid()), CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        Assert.NotNull(status.LastReviewedAt);
+    }
+
+    [Fact]
+    public async Task ReviewEligibility_WhenNotFound_ReturnsFailure()
+    {
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((RoleMaturityStatus?)null);
+        var handler = new ReviewEligibilityCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(new ReviewEligibilityCommand(Guid.NewGuid()), CancellationToken.None);
+        Assert.True(result.IsFailure);
+    }
+
+    #endregion
 }
