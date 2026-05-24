@@ -2,13 +2,7 @@ using Asp.Versioning;
 using Azure.Core;
 using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using Azure.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using Microsoft.Extensions.Options;
-using Ums.Domain.Identity;
-using Ums.Infrastructure;
-using Ums.Infrastructure.Persistence;
-using Ums.Infrastructure.Persistence.Options;
 using Ums.Presentation.Bootstrapping;
 using Ums.Presentation.Extensions;
 using Serilog;
@@ -29,50 +23,7 @@ ConfigureSecrets(builder);
 builder.Services.AddUmsApiServiceBootstrappers(builder.Configuration, builder.Environment);
 
 var app = builder.Build();
-
-var persistenceOptions = app.Services.GetRequiredService<IOptions<PersistenceOptions>>().Value;
-
-if (persistenceOptions.Provider == PersistenceProvider.SqlServer && persistenceOptions.InitializePlatformStoreOnStartup)
-{
-    using var scope = app.Services.CreateScope();
-    var platformDbContext = scope.ServiceProvider.GetRequiredService<UmsPlatformDbContext>();
-    await SqlServerSchemaBootstrapper.InitializeAsync(platformDbContext);
-}
-
-// Seed prototype aggregates only while the aggregate store remains in-memory.
-if (app.Environment.IsDevelopment() && persistenceOptions.SeedDevData)
-{
-    using var scope = app.Services.CreateScope();
-    var repository = scope.ServiceProvider.GetRequiredService<ITenantRepository>();
-
-    if (repository is InMemoryTenantRepository inMemoryTenantRepository)
-    {
-        DevDataSeeder.Seed(inMemoryTenantRepository);
-
-        var inMemoryUserAccountRepository = scope.ServiceProvider.GetService<InMemoryUserAccountRepository>();
-        if (inMemoryUserAccountRepository is not null)
-        {
-            DevDataSeeder.SeedUserAccounts(inMemoryUserAccountRepository);
-        }
-    }
-    else
-    {
-        await DevDataSeeder.SeedAsync(repository);
-
-        var userAccountRepository = scope.ServiceProvider.GetService<IUserAccountRepository>();
-        if (userAccountRepository is not null)
-        {
-            foreach (var tenantCode in new[] { "RANSA_PERU", "NEPTUNIA", "APM_CALLAO" })
-            {
-                var tenant = await repository.GetByCodeAsync(tenantCode);
-                if (tenant is not null)
-                {
-                    await DevDataSeeder.SeedUserAccountsAsync(userAccountRepository, tenant.Props.Id.GetValue());
-                }
-            }
-        }
-    }
-}
+await app.InitializeUmsPlatformAsync();
 
 app.UseUmsApiPipeline();
 app.MapUmsApiSurface();
