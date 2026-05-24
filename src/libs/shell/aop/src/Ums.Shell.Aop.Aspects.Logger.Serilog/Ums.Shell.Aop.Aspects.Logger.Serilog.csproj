@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Authors>Raul Naupari</Authors>
+    <Version>1.0.0</Version>
+    <Company>BeyondNet</Company>
+    <Description>Logger integration (Serilog) for the Ums.Shell.Aop.Aspects library</Description>
+    <Copyright>Copyright © 2024-2026 BeyondNet</Copyright>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/csdevlib/Aop</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/csdevlib/Aop</RepositoryUrl>
+    <PackageTags>aop;aspect-oriented-programming;serilog;logging;dotnet;beyondnet</PackageTags>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Serilog" Version="4.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Ums.Shell.Aop.Aspects\Ums.Shell.Aop.Aspects.csproj" />
+  </ItemGroup>
+  
+</Project>

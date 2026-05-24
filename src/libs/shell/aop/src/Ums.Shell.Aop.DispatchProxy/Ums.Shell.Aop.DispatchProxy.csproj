@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Raul Naupari</Authors>
+    <Company>BeyondNet</Company>
+    <Copyright>Copyright © 2024-2026 BeyondNet</Copyright>
+    <Version>1.0.0</Version>
+    <Description>Native proxy implementation for the Ums.Shell.Aop library</Description>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/csdevlib/Aop</PackageProjectUrl>
+    <PackageTags>aop;aspect-oriented-programming;proxy;dotnet;beyondnet</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Ums.Shell.Aop\Ums.Shell.Aop.csproj" />
+  </ItemGroup>
+
+</Project>
