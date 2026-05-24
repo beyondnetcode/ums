@@ -1,6 +1,6 @@
 # UMS — Enterprise User Management System
 
-> **[ 📚 OPEN MASTER INDEX ](./docs/MASTER_INDEX.md) • [ 🇪🇸 LEER EN ESPAÑOL ](./README.es.md) • [ ⚙️ ARCHITECTURE PORTAL ](./docs/architecture/index.md)**  
+> **[ 📚 OPEN MASTER INDEX ](./docs/MASTER_INDEX.md) • [ 🇪🇸 LEER EN ESPAÑOL ](./docs/README.es.md) • [ ⚙️ ARCHITECTURE PORTAL ](./docs/architecture/index.md)**  
 > *Note: GitHub displays source files first. To skip the code and read the documentation, click the links above.*
 
 ---

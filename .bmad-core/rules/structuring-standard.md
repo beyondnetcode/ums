@@ -110,7 +110,7 @@
 |
 |-- AGENTS.md                       # [ROOT] AI agent instructions
 |-- README.md                       # [ROOT] Project overview (English)
-|-- README.es.md                    # [ROOT] Project overview (Spanish)
+|-- docs/README.es.md               # Project overview (Spanish)
 |-- MASTER_INDEX.md                 # [ROOT] Navigation hub (English)
 |-- MASTER_INDEX.es.md              # [ROOT] Navigation hub (Spanish)
 |-- CONTRIBUTING.md                 # [ROOT] Contribution guidelines

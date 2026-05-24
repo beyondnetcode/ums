@@ -59,4 +59,4 @@ Planos detallados de ingeniería centrados en:
 
 ---
 
-**[Volver al Índice Maestro](../MASTER_INDEX.es.md)** | **[Volver al README Raíz](../../README.es.md)**
+**[Volver al Índice Maestro](../MASTER_INDEX.es.md)** | **[Volver al README Principal](../README.es.md)**

@@ -13,4 +13,4 @@ Bienvenido al **Portal de Gobernanza** del User Management System (UMS). Esta se
 
 ---
 
-**[Volver al Índice Maestro](../MASTER_INDEX.es.md)** | **[Volver al README Raíz](../../README.es.md)**
+**[Volver al Índice Maestro](../MASTER_INDEX.es.md)** | **[Volver al README Principal](../README.es.md)**

@@ -1,6 +1,6 @@
 # Directorio de Functional Stories (Historias Funcionales)
 
-**[Volver al README Principal](../../../../README.es.md)**
+**[Volver al README Principal](../../../README.es.md)**
 
 Bienvenido al índice maestro de **Functional Stories** para el Sistema de Gestión de Usuarios (UMS). Este directorio contiene todos los flujos transaccionales y de negocio puros, separados de detalles técnicos de implementación.
 
