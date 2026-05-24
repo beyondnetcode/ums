@@ -423,32 +423,43 @@ public static class UmsApiApplicationBuilderExtensions
 
     internal static RouteGroupBuilder MapUmsCommandEndpoints(this RouteGroupBuilder versionedGroup)
     {
+        versionedGroup
+            .MapIdentityCommandEndpoints()
+            .MapAuthorizationCommandEndpoints()
+            .MapAuditCommandEndpoints()
+            .MapApprovalsCommandEndpoints()
+            .MapConfigurationCommandEndpoints()
+            .MapIgaCommandEndpoints();
+
+        return versionedGroup;
+    }
+
+    internal static RouteGroupBuilder MapUmsQueryEndpoints(this RouteGroupBuilder versionedGroup)
+    {
+        versionedGroup
+            .MapIdentityQueryEndpoints()
+            .MapAuthorizationQueryEndpoints()
+            .MapAuditQueryEndpoints()
+            .MapApprovalsQueryEndpoints()
+            .MapConfigurationQueryEndpoints()
+            .MapIgaQueryEndpoints();
+
+        return versionedGroup;
+    }
+
+    internal static RouteGroupBuilder MapIdentityCommandEndpoints(this RouteGroupBuilder versionedGroup)
+    {
         versionedGroup.MapTenantEndpoints();
         versionedGroup.MapTenantBranchEndpoints();
         versionedGroup.MapTenantIdentityProviderEndpoints();
         versionedGroup.MapTenantBrandingEndpoints();
         versionedGroup.MapUserAccountEndpoints();
         versionedGroup.MapDelegationEndpoints();
-        versionedGroup.MapProfileEndpoints();
-        versionedGroup.MapSystemSuiteEndpoints();
-        versionedGroup.MapPermissionTemplateEndpoints();
-        versionedGroup.MapAuditRecordEndpoints();
-        versionedGroup.MapApprovalWorkflowEndpoints();
-        versionedGroup.MapApprovalRequestEndpoints();
-        versionedGroup.MapDocumentTypeEndpoints();
-        versionedGroup.MapUserDocumentEndpoints();
-        versionedGroup.MapAccessEnforcementPolicyEndpoints();
-        versionedGroup.MapNotificationRuleEndpoints();
-        versionedGroup.MapAppConfigurationEndpoints();
-        versionedGroup.MapFeatureFlagEndpoints();
-        versionedGroup.MapIdpConfigurationEndpoints();
-        versionedGroup.MapPromotionRequestEndpoints();
-        versionedGroup.MapRoleMaturityStatusEndpoints();
 
         return versionedGroup;
     }
 
-    internal static RouteGroupBuilder MapUmsQueryEndpoints(this RouteGroupBuilder versionedGroup)
+    internal static RouteGroupBuilder MapIdentityQueryEndpoints(this RouteGroupBuilder versionedGroup)
     {
         versionedGroup.MapTenantQueryEndpoints();
         versionedGroup.MapBranchQueryEndpoints();
@@ -456,19 +467,92 @@ public static class UmsApiApplicationBuilderExtensions
         versionedGroup.MapIdentityProviderQueryEndpoints();
         versionedGroup.MapUserAccountQueryEndpoints();
         versionedGroup.MapDelegationQueryEndpoints();
+
+        return versionedGroup;
+    }
+
+    internal static RouteGroupBuilder MapAuthorizationCommandEndpoints(this RouteGroupBuilder versionedGroup)
+    {
+        versionedGroup.MapProfileEndpoints();
+        versionedGroup.MapSystemSuiteEndpoints();
+        versionedGroup.MapPermissionTemplateEndpoints();
+
+        return versionedGroup;
+    }
+
+    internal static RouteGroupBuilder MapAuthorizationQueryEndpoints(this RouteGroupBuilder versionedGroup)
+    {
         versionedGroup.MapProfileQueryEndpoints();
         versionedGroup.MapSystemSuiteQueryEndpoints();
         versionedGroup.MapPermissionTemplateQueryEndpoints();
+
+        return versionedGroup;
+    }
+
+    internal static RouteGroupBuilder MapAuditCommandEndpoints(this RouteGroupBuilder versionedGroup)
+    {
+        versionedGroup.MapAuditRecordEndpoints();
+        return versionedGroup;
+    }
+
+    internal static RouteGroupBuilder MapAuditQueryEndpoints(this RouteGroupBuilder versionedGroup)
+    {
         versionedGroup.MapAuditRecordQueryEndpoints();
+        return versionedGroup;
+    }
+
+    internal static RouteGroupBuilder MapApprovalsCommandEndpoints(this RouteGroupBuilder versionedGroup)
+    {
+        versionedGroup.MapApprovalWorkflowEndpoints();
+        versionedGroup.MapApprovalRequestEndpoints();
+        versionedGroup.MapDocumentTypeEndpoints();
+        versionedGroup.MapUserDocumentEndpoints();
+        versionedGroup.MapAccessEnforcementPolicyEndpoints();
+        versionedGroup.MapNotificationRuleEndpoints();
+
+        return versionedGroup;
+    }
+
+    internal static RouteGroupBuilder MapApprovalsQueryEndpoints(this RouteGroupBuilder versionedGroup)
+    {
         versionedGroup.MapApprovalWorkflowQueryEndpoints();
         versionedGroup.MapApprovalRequestQueryEndpoints();
         versionedGroup.MapDocumentTypeQueryEndpoints();
         versionedGroup.MapUserDocumentQueryEndpoints();
         versionedGroup.MapAccessEnforcementPolicyQueryEndpoints();
         versionedGroup.MapNotificationRuleQueryEndpoints();
+
+        return versionedGroup;
+    }
+
+    internal static RouteGroupBuilder MapConfigurationCommandEndpoints(this RouteGroupBuilder versionedGroup)
+    {
+        versionedGroup.MapAppConfigurationEndpoints();
+        versionedGroup.MapFeatureFlagEndpoints();
+        versionedGroup.MapIdpConfigurationEndpoints();
+
+        return versionedGroup;
+    }
+
+    internal static RouteGroupBuilder MapConfigurationQueryEndpoints(this RouteGroupBuilder versionedGroup)
+    {
         versionedGroup.MapAppConfigurationQueryEndpoints();
         versionedGroup.MapFeatureFlagQueryEndpoints();
         versionedGroup.MapIdpConfigurationQueryEndpoints();
+
+        return versionedGroup;
+    }
+
+    internal static RouteGroupBuilder MapIgaCommandEndpoints(this RouteGroupBuilder versionedGroup)
+    {
+        versionedGroup.MapPromotionRequestEndpoints();
+        versionedGroup.MapRoleMaturityStatusEndpoints();
+
+        return versionedGroup;
+    }
+
+    internal static RouteGroupBuilder MapIgaQueryEndpoints(this RouteGroupBuilder versionedGroup)
+    {
         versionedGroup.MapPromotionRequestQueryEndpoints();
         versionedGroup.MapRoleMaturityStatusQueryEndpoints();
 
