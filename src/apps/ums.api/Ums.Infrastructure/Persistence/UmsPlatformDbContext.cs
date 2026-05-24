@@ -50,6 +50,15 @@ public sealed class UmsPlatformDbContext(
     public DbSet<UserAccountPasswordCredentialRecord> UserAccountPasswordCredentials => Set<UserAccountPasswordCredentialRecord>();
     public DbSet<ProfileRecord> Profiles => Set<ProfileRecord>();
     public DbSet<ProfilePermissionRecord> ProfilePermissions => Set<ProfilePermissionRecord>();
+    public DbSet<SystemSuiteRecord> SystemSuites => Set<SystemSuiteRecord>();
+    public DbSet<SystemSuiteModuleRecord> SystemSuiteModules => Set<SystemSuiteModuleRecord>();
+    public DbSet<SystemSuiteMenuRecord> SystemSuiteMenus => Set<SystemSuiteMenuRecord>();
+    public DbSet<SystemSuiteSubMenuRecord> SystemSuiteSubMenus => Set<SystemSuiteSubMenuRecord>();
+    public DbSet<SystemSuiteOptionRecord> SystemSuiteOptions => Set<SystemSuiteOptionRecord>();
+    public DbSet<SystemSuiteAppSettingRecord> SystemSuiteAppSettings => Set<SystemSuiteAppSettingRecord>();
+    public DbSet<SystemSuiteActionRecord> SystemSuiteActions => Set<SystemSuiteActionRecord>();
+    public DbSet<PermissionTemplateRecord> PermissionTemplates => Set<PermissionTemplateRecord>();
+    public DbSet<PermissionTemplateItemRecord> PermissionTemplateItems => Set<PermissionTemplateItemRecord>();
     public DbSet<UserManagementDelegationRecord> UserManagementDelegations => Set<UserManagementDelegationRecord>();
     public DbSet<AppConfigurationRecord> AppConfigurations => Set<AppConfigurationRecord>();
     public DbSet<FeatureFlagRecord> FeatureFlags => Set<FeatureFlagRecord>();
@@ -60,7 +69,7 @@ public sealed class UmsPlatformDbContext(
     public DbSet<ApprovalRequiredDocumentRecord> ApprovalRequiredDocuments => Set<ApprovalRequiredDocumentRecord>();
     public DbSet<ApprovalRequestRecord> ApprovalRequests => Set<ApprovalRequestRecord>();
     public DbSet<NotificationRuleRecord> NotificationRules => Set<NotificationRuleRecord>();
-    // TODO(api-aggregate-tracker): Add SQL-backed DbSets and mappings for SystemSuite, PermissionTemplate, and IGA aggregates.
+    // TODO(api-aggregate-tracker): Add SQL-backed DbSets and mappings for IGA aggregates.
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -76,6 +85,15 @@ public sealed class UmsPlatformDbContext(
         modelBuilder.ApplyConfiguration(new UserAccountPasswordCredentialRecordConfiguration());
         modelBuilder.ApplyConfiguration(new ProfileRecordConfiguration());
         modelBuilder.ApplyConfiguration(new ProfilePermissionRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new SystemSuiteRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new SystemSuiteModuleRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new SystemSuiteMenuRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new SystemSuiteSubMenuRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new SystemSuiteOptionRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new SystemSuiteAppSettingRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new SystemSuiteActionRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new PermissionTemplateRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new PermissionTemplateItemRecordConfiguration());
         modelBuilder.ApplyConfiguration(new UserManagementDelegationRecordConfiguration());
         modelBuilder.ApplyConfiguration(new AppConfigurationRecordConfiguration());
         modelBuilder.ApplyConfiguration(new FeatureFlagRecordConfiguration());
@@ -123,6 +141,16 @@ public sealed class UmsPlatformDbContext(
                 x.TenantId == tenantContext.OrganizationId));
 
         modelBuilder.Entity<ProfileRecord>()
+            .HasQueryFilter(x =>
+                !tenantContext.OrganizationId.HasValue ||
+                x.TenantId == tenantContext.OrganizationId);
+
+        modelBuilder.Entity<SystemSuiteRecord>()
+            .HasQueryFilter(x =>
+                !tenantContext.OrganizationId.HasValue ||
+                x.TenantId == tenantContext.OrganizationId);
+
+        modelBuilder.Entity<PermissionTemplateRecord>()
             .HasQueryFilter(x =>
                 !tenantContext.OrganizationId.HasValue ||
                 x.TenantId == tenantContext.OrganizationId);

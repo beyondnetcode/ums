@@ -180,11 +180,19 @@ public static class DependencyInjection
         if (persistence.Provider == PersistenceProvider.SqlServer && persistence.UseSqlServerAuthorizationStores)
         {
             services.AddScoped<IProfileRepository, SqlServerProfileRepository>();
+            services.AddScoped<ISystemSuiteRepository, SqlServerSystemSuiteRepository>();
+            services.AddScoped<IPermissionTemplateRepository, SqlServerPermissionTemplateRepository>();
         }
         else
         {
             services.AddSingleton<InMemoryProfileRepository>();
             services.AddSingleton<IProfileRepository>(sp => sp.GetRequiredService<InMemoryProfileRepository>());
+
+            services.AddSingleton<InMemorySystemSuiteRepository>();
+            services.AddSingleton<ISystemSuiteRepository>(sp => sp.GetRequiredService<InMemorySystemSuiteRepository>());
+
+            services.AddSingleton<InMemoryPermissionTemplateRepository>();
+            services.AddSingleton<IPermissionTemplateRepository>(sp => sp.GetRequiredService<InMemoryPermissionTemplateRepository>());
         }
 
         if (persistence.Provider == PersistenceProvider.SqlServer && persistence.UseSqlServerConfigurationStores)
@@ -204,13 +212,6 @@ public static class DependencyInjection
             services.AddSingleton<InMemoryIdpConfigurationRepository>();
             services.AddSingleton<IIdpConfigurationRepository>(sp => sp.GetRequiredService<InMemoryIdpConfigurationRepository>());
         }
-
-        // TODO(api-aggregate-tracker): Add SQL Server repositories for SystemSuite and PermissionTemplate.
-        services.AddSingleton<InMemorySystemSuiteRepository>();
-        services.AddSingleton<ISystemSuiteRepository>(sp => sp.GetRequiredService<InMemorySystemSuiteRepository>());
-
-        services.AddSingleton<InMemoryPermissionTemplateRepository>();
-        services.AddSingleton<IPermissionTemplateRepository>(sp => sp.GetRequiredService<InMemoryPermissionTemplateRepository>());
 
         // TODO(api-aggregate-tracker): Migrate Audit, Approvals, and IGA aggregate repositories from in-memory to SQL Server.
         if (persistence.Provider == PersistenceProvider.SqlServer)
