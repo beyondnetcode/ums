@@ -286,7 +286,6 @@ public static class UmsApiApplicationBuilderExtensions
         });
 
         app.UseGlobalExceptionHandler();
-        app.UseIdempotency();
         app.UseRateLimiter();
 
         if (app.Environment.IsDevelopment())
@@ -304,6 +303,7 @@ public static class UmsApiApplicationBuilderExtensions
         app.UseCulture();
         app.UseAuthentication();
         app.UseAuthorization();
+        app.UseIdempotency(); // FIX-07: Must run after auth so cached responses are never served to unauthenticated callers.
         app.UseDevAuth();
         app.UseTokenRevocation();
         app.UseHttpsRedirection();

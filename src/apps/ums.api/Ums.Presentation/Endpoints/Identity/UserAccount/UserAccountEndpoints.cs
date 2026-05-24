@@ -166,7 +166,22 @@ public static class UserAccountEndpoints
         .ProducesProblem(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status409Conflict);
 
-        // TODO(api-aggregate-tracker): Expose authentication-attempt commands for UserAccount.
+        group.MapPost("/{userAccountId:guid}/authentication-attempts", async (
+            Guid userAccountId,
+            RecordAuthenticationAttemptCommand command,
+            IMediator mediator,
+            HttpContext context,
+            CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command with { UserAccountId = userAccountId }, ct);
+            return result.ToNoContent(context);
+        })
+        .WithName("RecordAuthenticationAttempt")
+        .WithSummary("Record an authentication attempt (success or failure) for audit and rate-limiting purposes")
+        .Produces(StatusCodes.Status204NoContent)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status404NotFound);
+
         return app;
     }
 }
