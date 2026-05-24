@@ -1,0 +1,144 @@
+using Microsoft.EntityFrameworkCore;
+using Ums.Domain.Approvals;
+using Ums.Domain.Kernel;
+using Ums.Infrastructure.Persistence.Approvals.Entities;
+using Ums.Infrastructure.Persistence.Outbox;
+using Ums.Infrastructure.Persistence.Reflection;
+
+namespace Ums.Infrastructure.Persistence.Approvals;
+
+using ApprovalRequestAggregate = Ums.Domain.Approvals.ApprovalRequest.ApprovalRequest;
+
+public sealed class SqlServerApprovalRequestRepository : IApprovalRequestRepository, IUnitOfWork
+{
+    private readonly UmsPlatformDbContext _dbContext;
+    private readonly HashSet<ApprovalRequestAggregate> _trackedAggregates = [];
+
+    public SqlServerApprovalRequestRepository(UmsPlatformDbContext dbContext)
+    {
+        _dbContext = dbContext;
+    }
+
+    public IUnitOfWork UnitOfWork => this;
+
+    public async Task<ApprovalRequestAggregate?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var record = await _dbContext.Set<ApprovalRequestRecord>()
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+        return record is null ? null : Rehydrate(record);
+    }
+
+    public Task<ApprovalRequestAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
+        => GetByIdAsync(id, cancellationToken);
+
+    public async Task<IReadOnlyList<ApprovalRequestAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        var records = await _dbContext.Set<ApprovalRequestRecord>()
+            .ToListAsync(cancellationToken);
+
+        return records.Select(Rehydrate).ToList();
+    }
+
+    public async Task<IReadOnlyList<ApprovalRequestAggregate>> GetByTenantIdAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        // Join with ApprovalWorkflow to filter by TenantId
+        var records = await _dbContext.Set<ApprovalRequestRecord>()
+            .Join(_dbContext.Set<ApprovalWorkflowRecord>(),
+                  req => req.WorkflowId,
+                  wf => wf.Id,
+                  (req, wf) => new { req, wf })
+            .Where(x => x.wf.TenantId == tenantId)
+            .Select(x => x.req)
+            .ToListAsync(cancellationToken);
+
+        return records.Select(Rehydrate).ToList();
+    }
+
+    public Task AddAsync(ApprovalRequestAggregate aggregate, CancellationToken cancellationToken = default)
+    {
+        _dbContext.Set<ApprovalRequestRecord>().Add(ToRecord(aggregate));
+        _trackedAggregates.Add(aggregate);
+        return Task.CompletedTask;
+    }
+
+    public async Task UpdateAsync(ApprovalRequestAggregate aggregate, CancellationToken cancellationToken = default)
+    {
+        var existing = await _dbContext.Set<ApprovalRequestRecord>()
+            .FirstOrDefaultAsync(x => x.Id == aggregate.Props.Id.GetValue(), cancellationToken)
+            ?? throw new InvalidOperationException($"Approval request {aggregate.Props.Id.GetValue()} does not exist.");
+
+        Apply(existing, aggregate);
+        _trackedAggregates.Add(aggregate);
+    }
+
+    public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        => _dbContext.SaveChangesAsync(cancellationToken);
+
+    public async Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default)
+    {
+        foreach (var aggregate in _trackedAggregates)
+        {
+            _dbContext.OutboxMessages.AddRange(OutboxMessageFactory.CreateFromAggregate(aggregate));
+        }
+
+        try
+        {
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException ex)
+        {
+            var entry = ex.Entries.FirstOrDefault();
+            var id = (Guid)(entry?.Property("Id").CurrentValue ?? Guid.Empty);
+            throw new ConcurrencyConflictException(entry?.Metadata.Name ?? "Unknown", id);
+        }
+
+        foreach (var aggregate in _trackedAggregates)
+        {
+            aggregate.DomainEvents.MarkChangesAsCommitted();
+        }
+
+        _trackedAggregates.Clear();
+        return true;
+    }
+
+    public void Dispose()
+    {
+    }
+
+    private static ApprovalRequestAggregate Rehydrate(ApprovalRequestRecord record)
+        => ApprovalsAggregateFactory.RehydrateRequest(record);
+
+    private static ApprovalRequestRecord ToRecord(ApprovalRequestAggregate aggregate)
+    {
+        var audit = aggregate.Props.Audit.GetValue();
+        return new ApprovalRequestRecord
+        {
+            Id = aggregate.Props.Id.GetValue(),
+            WorkflowId = aggregate.WorkflowId.GetValue(),
+            TargetUserId = aggregate.TargetUserId.GetValue(),
+            TargetProfileId = aggregate.TargetProfileId?.GetValue(),
+            StatusId = aggregate.Status.Id,
+            CreatedBy = audit.CreatedBy,
+            CreatedAtUtc = audit.CreatedAt,
+            UpdatedBy = audit.UpdatedBy,
+            UpdatedAtUtc = audit.UpdatedAt,
+            AuditTimeSpan = audit.TimeSpan
+        };
+    }
+
+    private static void Apply(ApprovalRequestRecord target, ApprovalRequestAggregate source)
+    {
+        var replacement = ToRecord(source);
+
+        target.WorkflowId = replacement.WorkflowId;
+        target.TargetUserId = replacement.TargetUserId;
+        target.TargetProfileId = replacement.TargetProfileId;
+        target.StatusId = replacement.StatusId;
+        target.CreatedBy = replacement.CreatedBy;
+        target.CreatedAtUtc = replacement.CreatedAtUtc;
+        target.UpdatedBy = replacement.UpdatedBy;
+        target.UpdatedAtUtc = replacement.UpdatedAtUtc;
+        target.AuditTimeSpan = replacement.AuditTimeSpan;
+    }
+}

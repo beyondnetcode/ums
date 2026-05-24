@@ -1,0 +1,33 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Ums.Infrastructure.Persistence.Approvals.Entities;
+
+namespace Ums.Infrastructure.Persistence.Approvals.Configurations;
+
+public sealed class ApprovalWorkflowRecordConfiguration : IEntityTypeConfiguration<ApprovalWorkflowRecord>
+{
+    public const string Schema = "approvals";
+
+    public void Configure(EntityTypeBuilder<ApprovalWorkflowRecord> builder)
+    {
+        builder.ToTable("ApprovalWorkflows", Schema);
+        builder.HasKey(x => x.Id);
+
+        builder.Property(x => x.Code).HasMaxLength(12).IsRequired();
+        builder.Property(x => x.Name).HasMaxLength(100).IsRequired();
+        builder.Property(x => x.Description).HasMaxLength(255).IsRequired();
+        builder.Property(x => x.CreatedBy).HasMaxLength(100).IsRequired();
+        builder.Property(x => x.UpdatedBy).HasMaxLength(100);
+        builder.Property(x => x.AuditTimeSpan).HasMaxLength(100).IsRequired();
+        builder.Property(x => x.RowVersion).IsRowVersion();
+
+        builder.HasIndex(x => x.TenantId);
+        builder.HasIndex(x => x.Code);
+        builder.HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
+
+        builder.HasMany(x => x.RequiredDocuments)
+            .WithOne()
+            .HasForeignKey(x => x.WorkflowId)
+            .OnDelete(DeleteBehavior.Cascade);
+    }
+}

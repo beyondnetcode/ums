@@ -1,0 +1,24 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Ums.Infrastructure.Persistence.Approvals.Entities;
+
+namespace Ums.Infrastructure.Persistence.Approvals.Configurations;
+
+public sealed class NotificationRuleRecordConfiguration : IEntityTypeConfiguration<NotificationRuleRecord>
+{
+    public const string Schema = "approvals";
+
+    public void Configure(EntityTypeBuilder<NotificationRuleRecord> builder)
+    {
+        builder.ToTable("NotificationRules", Schema);
+        builder.HasKey(x => x.Id);
+
+        builder.Property(x => x.Recipient).HasMaxLength(255).IsRequired();
+        builder.Property(x => x.CreatedBy).HasMaxLength(100).IsRequired();
+        builder.Property(x => x.UpdatedBy).HasMaxLength(100);
+        builder.Property(x => x.AuditTimeSpan).HasMaxLength(100).IsRequired();
+        builder.Property(x => x.RowVersion).IsRowVersion();
+
+        builder.HasIndex(x => x.TenantId);
+    }
+}
