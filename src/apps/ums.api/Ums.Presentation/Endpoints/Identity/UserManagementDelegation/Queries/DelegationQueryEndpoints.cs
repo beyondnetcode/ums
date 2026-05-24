@@ -10,6 +10,15 @@ public static class DelegationQueryEndpoints
         var group = app.MapGroup("/delegations")
             .WithTags("Delegations - Queries");
 
+        group.MapGet("/", async (IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetAllDelegationsQuery(), ct);
+            return result.ToOk(context);
+        })
+        .WithName("GetAllDelegations")
+        .WithSummary("Get all delegations (admin-scoped by tenant via RLS)")
+        .Produces<IReadOnlyList<DelegationDto>>(StatusCodes.Status200OK);
+
         group.MapGet("/{delegationId:guid}", async (Guid delegationId, IMediator mediator, HttpContext context, CancellationToken ct) =>
         {
             var result = await mediator.Send(new GetDelegationByIdQuery(delegationId), ct);
