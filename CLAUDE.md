@@ -219,6 +219,7 @@ Configured via `AddUmsObservability()`. Set `OpenTelemetry:Endpoint` in appsetti
 - `Ums.Domain.Test` — domain aggregate unit tests (~382 tests)
 - `Ums.Application.Test` — command/query handler unit tests with Moq (~331 tests)
 - `Ums.Presentation.IntegrationTest` — HTTP integration tests via `WebApplicationFactory` (not in `Ums.sln`; run directly with `dotnet test Ums.Presentation.IntegrationTest`)
+- `Ums.ContractTest` — Pact consumer-driven contract tests (OPS-02). Not in `Ums.sln`; run directly: `dotnet test Ums.ContractTest`. Run consumer tests first to write pact files, then provider tests to verify. Requires `pacts/` directory to be pre-populated by consumer tests.
 
 ### Test Conventions
 
@@ -274,3 +275,41 @@ public XxxTests()
 | `Ums.Infrastructure/Persistence/Migrations/` | Idempotent SQL migration scripts (embedded resources, run in `ScriptOrder`) |
 | `Ums.Presentation.IntegrationTest/Infrastructure/SqlServerContainerFixture.cs` | Testcontainers SQL Server fixture — starts lazily, graceful skip if Docker absent |
 | `src/apps/ums.api/coverage.sh` | Coverage runner (run from `src/apps/ums.api/`) |
+| `Ums.Infrastructure/Services/RedisTokenRevocationStore.cs` | OPS-01: Redis-backed token revocation via `IDistributedCache`; registered when `Redis:Connection` is set in config |
+| `Ums.ContractTest/` | OPS-02: Pact contract tests — consumer (`Consumers/`) + provider (`Provider/`) |
+| `Ums.Presentation/Endpoints/PactProviderStateEndpoints.cs` | OPS-02: `/_pact/provider-states` endpoint (dev-only) — seeds InMemory stores for Pact state |
+| `scripts/anonymize-dev-db.sql` | OPS-03: SQL script that replaces PII with deterministic fake values in a dev DB copy |
+| `scripts/anonymize-dev-db.sh` | OPS-03: Shell wrapper — restore → anonymize → verify; see `docs/operations/runbooks/dev-db-anonymization.md` |
+
+### Token Revocation Store (OPS-01)
+
+Configuration switch in `appsettings.json`:
+
+```json
+{
+  "Redis": {
+    "Connection": "localhost:6379"   // Set this to enable Redis store; omit for InMemory
+  }
+}
+```
+
+When `Redis:Connection` is configured, `DependencyInjection.cs` registers:
+- `services.AddStackExchangeRedisCache(...)` with `InstanceName="ums:"`
+- `services.AddSingleton<ITokenRevocationStore, RedisTokenRevocationStore>()`
+
+Otherwise falls back to `InMemoryTokenRevocationStore` (fine for single-node, dev, and tests).
+
+### Dev DB Anonymization (OPS-03)
+
+```bash
+# Full restore + anonymize
+./scripts/anonymize-dev-db.sh \
+  --server localhost --user sa --password <pwd> \
+  --source ums --target ums_dev_20260523 \
+  --backup-file /tmp/backup.bak
+
+# Anonymize only (DB already exists)
+./scripts/anonymize-dev-db.sh --target ums_dev_20260523 --skip-restore
+```
+
+Safety: aborts if `--target` matches `ums`, `ums_prod`, `ums_staging`, or `ums_preprod`.
