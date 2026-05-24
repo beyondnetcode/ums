@@ -57,6 +57,7 @@ Especificaciones de Ingeniería y Ciclo de Vida del Producto para el User Manage
 - [ADR-0063: Middleware de Clave de Idempotencia](./architecture/adrs/0063-idempotency-middleware.md) _(⬆ candidato arc32)_
 - [Índice ADR](./architecture/adrs/index.md)
 - [Índice de Patrones Canónicos](./architecture/artifacts/canonical-patterns/index.md)
+- **Guías de Desarrollo de Librerías Shell** — [Visión General](./architecture/shell-libraries/README.md) · [DDD](./architecture/shell-libraries/ddd.md) · [Factory](./architecture/shell-libraries/factory.md) · [AOP](./architecture/shell-libraries/aop.md) · [Bootstrapper](./architecture/shell-libraries/bootstrapper.md) · [Uso Combinado](./architecture/shell-libraries/combined-usage.md) · [Aspectos del API](./architecture/shell-libraries/api-aspects.es.md)
 - [Decisiones de Diseno y Vacios](./governance/construction/ddd-design/12-design-decisions.md)
 - [Viewer Interactivo DDD](./governance/construction/ddd-design/interactive-ddd-viewer.html)
 

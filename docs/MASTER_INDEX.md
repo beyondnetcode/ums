@@ -69,7 +69,7 @@ Product Lifecycle and Engineering Specifications for the User Management System 
 - [ADR-0062: PII-Safe Serilog Configuration](./architecture/adrs/0062-pii-safe-serilog-configuration.md) _(⬆ arc32 candidate)_
 - [ADR-0063: Idempotency Key Middleware](./architecture/adrs/0063-idempotency-middleware.md) _(⬆ arc32 candidate)_
 - [ADR Registry](./architecture/adrs/index.md)
-- **Shell Library Developer Guides** — [Overview](./architecture/shell-libraries/README.md) · [DDD](./architecture/shell-libraries/ddd.md) · [Factory](./architecture/shell-libraries/factory.md) · [AOP](./architecture/shell-libraries/aop.md) · [Bootstrapper](./architecture/shell-libraries/bootstrapper.md) · [Combined Usage](./architecture/shell-libraries/combined-usage.md)
+- **Shell Library Developer Guides** — [Overview](./architecture/shell-libraries/README.md) · [DDD](./architecture/shell-libraries/ddd.md) · [Factory](./architecture/shell-libraries/factory.md) · [AOP](./architecture/shell-libraries/aop.md) · [Bootstrapper](./architecture/shell-libraries/bootstrapper.md) · [Combined Usage](./architecture/shell-libraries/combined-usage.md) · [API Aspects](./architecture/shell-libraries/api-aspects.md)
 - [Design Decisions & Gaps](./governance/construction/ddd-design/12-design-decisions.md)
 - [Interactive DDD Viewer](./governance/construction/ddd-design/interactive-ddd-viewer.html)
 

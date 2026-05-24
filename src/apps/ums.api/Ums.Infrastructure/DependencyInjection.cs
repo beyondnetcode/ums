@@ -275,7 +275,12 @@ public static class DependencyInjection
         // AddAopProxy<TService, TImpl>() wraps the concrete handler with a DispatchProxy.
         // It registers TImpl as itself AND replaces the TService registration; MediatR
         // resolves the proxy (last registration wins) and delegates to the concrete handler.
-        services.AddAop(builder => builder.AddAspect<AuditTrailAspect>());
+        services.AddAop(builder => 
+        {
+            builder.AddAspect<AuditTrailAspect>();
+            builder.AddAspect<TransactionAspect>();
+            builder.AddAspect<TenantValidationAspect>();
+        });
 
         services.AddKeyedTransient<Ums.Shell.Aop.Aspects.ILogger, Ums.Infrastructure.Aop.MelLogger>(
             typeof(Ums.Application.Common.Aop.IMelLogger));
