@@ -52,6 +52,7 @@ using Ums.Presentation.Endpoints.IGA.PromotionRequest.Queries;
 using Ums.Presentation.Endpoints.IGA.RoleMaturityStatus;
 using Ums.Presentation.Endpoints.IGA.RoleMaturityStatus.Queries;
 using Ums.Infrastructure.HealthChecks;
+using Ums.Presentation.Endpoints;
 using Ums.Presentation.Extensions;
 using Ums.Presentation.GraphQL;
 using Ums.Presentation.Middleware;
@@ -349,6 +350,11 @@ app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks
 })
 .WithName("GetHealth")
 .WithTags("Platform");
+
+// OPS-02: Pact provider state endpoint — Development only.
+// PactNet verifier calls this to set up preconditions before each interaction.
+if (app.Environment.IsDevelopment())
+    app.MapPactProviderStateEndpoints();
 
 versionedGroup.MapTenantEndpoints();
 versionedGroup.MapTenantBranchEndpoints();

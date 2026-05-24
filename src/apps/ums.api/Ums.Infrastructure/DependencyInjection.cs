@@ -42,11 +42,23 @@ public static class DependencyInjection
         services.AddScoped<IUserContext, UserContext>();
         services.AddScoped<ITenantContext, TenantContext>();
 
-        // HARDENING-03: Token revocation store — InMemory by default.
-        // In production multi-pod deployments replace with a Redis-backed implementation:
-        //   services.AddStackExchangeRedisCache(o => o.Configuration = config["Redis:Connection"]);
-        //   services.AddSingleton<ITokenRevocationStore, RedisTokenRevocationStore>();
-        services.AddSingleton<ITokenRevocationStore, InMemoryTokenRevocationStore>();
+        // OPS-01 / HARDENING-03: Token revocation store.
+        // When Redis:Connection is configured → use RedisTokenRevocationStore (all pods share state).
+        // Fallback → InMemoryTokenRevocationStore (fine for single-node / dev / tests).
+        var redisConnection = configuration["Redis:Connection"];
+        if (!string.IsNullOrWhiteSpace(redisConnection))
+        {
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration         = redisConnection;
+                options.InstanceName          = "ums:";   // Namespace prefix to avoid key collisions in shared Redis.
+            });
+            services.AddSingleton<ITokenRevocationStore, RedisTokenRevocationStore>();
+        }
+        else
+        {
+            services.AddSingleton<ITokenRevocationStore, InMemoryTokenRevocationStore>();
+        }
 
         // HARDENING-03: Register Infrastructure MediatR notification handlers (UserDeleted, UserBlocked → revoke tokens).
         // MediatR.AddApplication() only scans Ums.Application; Infrastructure handlers must be registered here.

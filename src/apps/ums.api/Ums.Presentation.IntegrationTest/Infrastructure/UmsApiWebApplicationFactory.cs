@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Ums.Application.Common.Interfaces;
 using Ums.Domain.Audit.AuditRecord;
+using Ums.Domain.Approvals;
 using Ums.Infrastructure.Persistence;
 using Ums.Infrastructure.Persistence.Audit;
 using Ums.Infrastructure.Persistence.Options;
@@ -64,6 +65,9 @@ public sealed class UmsApiWebApplicationFactory : WebApplicationFactory<Program>
             services.RemoveAll<IFeatureFlagRepository>();
             services.RemoveAll<IIdpConfigurationRepository>();
             services.RemoveAll<IAuditRecordRepository>();
+            services.RemoveAll<IApprovalWorkflowRepository>();
+            services.RemoveAll<IApprovalRequestRepository>();
+            services.RemoveAll<INotificationRuleRepository>();
             services.RemoveAll<IUnitOfWorkScope>();
 
             services.RemoveAll<InMemoryTenantRepository>();
@@ -74,6 +78,9 @@ public sealed class UmsApiWebApplicationFactory : WebApplicationFactory<Program>
             services.RemoveAll<InMemoryFeatureFlagRepository>();
             services.RemoveAll<InMemoryIdpConfigurationRepository>();
             services.RemoveAll<InMemoryAuditRecordRepository>();
+            services.RemoveAll<InMemoryApprovalWorkflowRepository>();
+            services.RemoveAll<InMemoryApprovalRequestRepository>();
+            services.RemoveAll<InMemoryNotificationRuleRepository>();
 
             services.AddSingleton<InMemoryTenantRepository>();
             services.AddSingleton<ITenantRepository>(sp => sp.GetRequiredService<InMemoryTenantRepository>());
@@ -98,6 +105,15 @@ public sealed class UmsApiWebApplicationFactory : WebApplicationFactory<Program>
 
             services.AddSingleton<InMemoryAuditRecordRepository>();
             services.AddSingleton<IAuditRecordRepository>(sp => sp.GetRequiredService<InMemoryAuditRecordRepository>());
+
+            services.AddSingleton<InMemoryApprovalWorkflowRepository>();
+            services.AddSingleton<IApprovalWorkflowRepository>(sp => sp.GetRequiredService<InMemoryApprovalWorkflowRepository>());
+
+            services.AddSingleton<InMemoryApprovalRequestRepository>();
+            services.AddSingleton<IApprovalRequestRepository>(sp => sp.GetRequiredService<InMemoryApprovalRequestRepository>());
+
+            services.AddSingleton<InMemoryNotificationRuleRepository>();
+            services.AddSingleton<INotificationRuleRepository>(sp => sp.GetRequiredService<InMemoryNotificationRuleRepository>());
 
             services.AddSingleton<IUnitOfWorkScope, NoOpUnitOfWorkScope>();
         });
