@@ -2,7 +2,7 @@
 
 **Type:** Canonical Pattern  
 **Status:** Accepted  
-**arc32 disposition:** Proposed for arc32 — no product-specific dependencies; portable to any Serilog + ASP.NET Core satellite  
+**Evolith disposition:** Proposed for Evolith — no product-specific dependencies; portable to any Serilog + ASP.NET Core satellite  
 **Related ADR:** [ADR-0062: PII-Safe Serilog Configuration](../../adrs/0062-pii-safe-serilog-configuration.md)
 
 ---

@@ -2,7 +2,7 @@
 
 **Type:** Canonical Pattern  
 **Status:** Accepted  
-**arc32 disposition:** Proposed for arc32 — no product-specific dependencies; portable to any ASP.NET Core satellite  
+**Evolith disposition:** Proposed for Evolith — no product-specific dependencies; portable to any ASP.NET Core satellite  
 **Related ADR:** [ADR-0063: Idempotency Middleware](../../adrs/0063-idempotency-middleware.md)
 
 ---

@@ -1,6 +1,6 @@
 # Estándar de Redacción de Historias Funcionales
 
-> **Fuente corporativa:** Este estándar local de UMS implementa el estándar base ARC32/BMAD-METHOD definido en [arc32_progresive_monolith/reference/governance/sdlc-es/03-documentation/functional-story-writing-standard.md](https://github.com/beyondnetcode/arc32_progresive_monolith/blob/main/reference/governance/sdlc-es/03-documentation/functional-story-writing-standard.md).
+> **Fuente corporativa:** Este estándar local de UMS implementa el estándar base EVOLITH/BMAD-METHOD definido en [evolith_arch32/reference/governance/sdlc-es/03-documentation/functional-story-writing-standard.md](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/governance/sdlc-es/03-documentation/functional-story-writing-standard.md).
 
 Este estándar define cómo deben redactarse las Historias Funcionales de UMS para que Product Owners, Analistas de Negocio, QA y Desarrolladores puedan usar el mismo documento sin mezclar intención de negocio con detalle de implementación.
 

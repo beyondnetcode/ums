@@ -10,7 +10,7 @@ Accepted
 
 ## Context
 
-arc32 ADR-0007 mandates OpenTelemetry (OTel) as the unified observability standard for all satellite products. UMS is a multi-tenant, multi-bounded-context system with cross-context saga flows (e.g., user promotion requiring approvals + authorization mutations). Without structured tracing, diagnosing latency and failures across context boundaries is impractical.
+Evolith ADR-0007 mandates OpenTelemetry (OTel) as the unified observability standard for all satellite products. UMS is a multi-tenant, multi-bounded-context system with cross-context saga flows (e.g., user promotion requiring approvals + authorization mutations). Without structured tracing, diagnosing latency and failures across context boundaries is impractical.
 
 Three pillars must be addressed:
 
@@ -285,4 +285,4 @@ Health check endpoint metrics are scraped by Prometheus and displayed in the Gra
 
 ---
 
-**[ADR Registry](./index.md)** | **[arc32 ADR-0007](https://github.com/beyondnetcode/arc32_progresive_monolith/blob/main/reference/architecture/adrs/nodejs/0007-observability-telemetry-loki-opentelemetry.md)**
+**[ADR Registry](./index.md)** | **[Evolith ADR-0007](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/nodejs/0007-observability-telemetry-loki-opentelemetry.md)**

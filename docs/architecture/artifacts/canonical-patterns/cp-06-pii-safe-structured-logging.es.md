@@ -2,7 +2,7 @@
 
 **Tipo:** Patrón Canónico  
 **Estado:** Aceptado  
-**Disposición arc32:** Propuesto para arc32 — sin dependencias específicas del producto; portable a cualquier satélite Serilog + ASP.NET Core  
+**Disposición Evolith:** Propuesto para Evolith — sin dependencias específicas del producto; portable a cualquier satélite Serilog + ASP.NET Core  
 **ADR relacionado:** [ADR-0062: Configuración Serilog Segura de PII](../../adrs/0062-pii-safe-serilog-configuration.md)
 
 ---

@@ -145,7 +145,7 @@ La separación en tiers es el *camino de escalada* — no el punto de partida. E
 
 Aquí es donde la historia se vuelve más interesante para equipos que gestionan múltiples repositorios.
 
-UMS está construido sobre una referencia de arquitectura corporativa — [arc32 Progressive Monolith](https://github.com/beyondnetcode/arc32_progresive_monolith) — que define decisiones base para todos los productos de la organización: convenciones de nombres, patrones de infraestructura, estrategia de API gateway, diseño de event bus, y más.
+UMS está construido sobre una referencia de arquitectura corporativa — [Evolith](https://github.com/beyondnetcode/evolith_arch32) — que define decisiones base para todos los productos de la organización: convenciones de nombres, patrones de infraestructura, estrategia de API gateway, diseño de event bus, y más.
 
 UMS hereda esta línea base. Pero UMS también toma sus propias decisiones que divergen de ella. La pregunta es: **¿cómo gestionas esa divergencia sin perder la referencia?**
 
@@ -179,7 +179,7 @@ Las decisiones de esta sesión produjeron cuatro artefactos, todos versionados e
 
 **Actualización del Architecture Portal** — El modelo de gobernanza (Adoptar / Extender / Anular) está documentado en el Architecture Portal para que cada nuevo desarrollador entienda el contrato de herencia desde el primer día.
 
-Y en el repositorio base arc32, se agregó una nueva sección al Child Repository Inheritance Guide usando UMS como implementación de referencia — para que los futuros equipos que arranquen productos satelite tengan un ejemplo real que seguir, no solo teoría.
+Y en el repositorio base Evolith, se agregó una nueva sección al Child Repository Inheritance Guide usando UMS como implementación de referencia — para que los futuros equipos que arranquen productos satelite tengan un ejemplo real que seguir, no solo teoría.
 
 ---
 
@@ -202,10 +202,10 @@ Y en el repositorio base arc32, se agregó una nueva sección al Child Repositor
 
 ## El repositorio
 
-UMS y arc32 son open source. Los ADRs, Technical Enablers y documentos de gobernanza referenciados en este artículo están disponibles públicamente:
+UMS y Evolith son open source. Los ADRs, Technical Enablers y documentos de gobernanza referenciados en este artículo están disponibles públicamente:
 
 - **UMS:** https://github.com/beyondnetcode/ums
-- **arc32 base:** https://github.com/beyondnetcode/arc32_progresive_monolith
+- **Evolith base:** https://github.com/beyondnetcode/evolith_arch32
 
 ---
 

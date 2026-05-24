@@ -2,7 +2,7 @@
 
 **Type:** Canonical Pattern  
 **Status:** Accepted  
-**arc32 disposition:** Proposed for arc32 — depends only on `Ums.Shell.Aop.Aspects.Logger.Serilog` (portable shell library)  
+**Evolith disposition:** Proposed for Evolith — depends only on `Ums.Shell.Aop.Aspects.Logger.Serilog` (portable shell library)  
 **Related ADRs:**
 - [ADR-0060: AOP Cross-Cutting Concern Strategy](../../adrs/0060-aop-cross-cutting-concern-strategy.md)
 - [ADR-0061: Execution Context Accessor](../../adrs/0061-execution-context-accessor.md)

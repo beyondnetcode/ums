@@ -3,7 +3,7 @@
 **Estado:** Aceptado  
 **Fecha:** 2026-05-24  
 **Responsable:** Arquitectura  
-**Disposición arc32:** Propuesto para adopción en arc32 — sin dependencias específicas de UMS; aplicable a cualquier satélite .NET  
+**Disposición Evolith:** Propuesto para adopción en Evolith — sin dependencias específicas de UMS; aplicable a cualquier satélite .NET  
 **Relacionados:**
 - [ADR-0053: Estrategia de Observabilidad con OpenTelemetry](./0053-opentelemetry-observability.md)
 - [ADR-0060: Estrategia AOP Cross-Cutting](./0060-aop-cross-cutting-concern-strategy.md)
@@ -138,7 +138,7 @@ services.AddScoped<IExecutionContextAccessor>(sp => sp.GetRequiredService<Reques
 
 ---
 
-## Checklist de Extracción arc32
+## Checklist de Extracción Evolith
 
 Los siguientes tipos están en `Ums.Shell.Aop.Aspects.Logger.Serilog` sin ningún import específico de UMS:
 - [ ] `ExecutionContextSnapshot` — record genérico, sin referencias de producto

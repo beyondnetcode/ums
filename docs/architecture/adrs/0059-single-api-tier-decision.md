@@ -8,13 +8,13 @@
 | **Status** | ACCEPTED |
 | **Date** | 2026-05-15 |
 | **Deciders** | Architecture Team |
-| **arc32 Relationship** | Override — UMS diverges from arc32 multi-tier API baseline |
+| **Evolith Relationship** | Override — UMS diverges from Evolith multi-tier API baseline |
 
 ---
 
 ## Context
 
-arc32 permits splitting query and command surfaces into separate API tiers when scale or team ownership justifies it (e.g., a dedicated GraphQL read-tier and a separate REST command-tier deployed independently). At current UMS maturity this split was evaluated and explicitly rejected.
+Evolith permits splitting query and command surfaces into separate API tiers when scale or team ownership justifies it (e.g., a dedicated GraphQL read-tier and a separate REST command-tier deployed independently). At current UMS maturity this split was evaluated and explicitly rejected.
 
 ## Decision
 
@@ -27,7 +27,7 @@ CQRS separation is maintained at the **protocol level** (GraphQL for reads, REST
 | Factor | Analysis |
 |---|---|
 | **Scale** | MVP and early production load does not justify the operational overhead of two independently deployed API surfaces |
-| **CQRS already enforced** | Protocol-level CQRS (GraphQL vs REST) provides the read/write isolation that arc32 intends, without infrastructure cost |
+| **CQRS already enforced** | Protocol-level CQRS (GraphQL vs REST) provides the read/write isolation that Evolith intends, without infrastructure cost |
 | **Team size** | A split tier requires separate CI/CD pipelines, separate health checks, and separate scaling policies — not cost-effective at current headcount |
 | **Multi-tenant risk** | Complex query risk is mitigated by gateway rate limiting (TE-07), timeout policies, and complexity limits on the GraphQL schema — not by tier isolation |
 

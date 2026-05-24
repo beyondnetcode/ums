@@ -10,7 +10,7 @@ Accepted
 
 ## Context
 
-arc32 ADR-0015 mandates an injectable messaging abstraction that decouples domain logic from any specific broker technology. UMS publishes domain events across 8 bounded contexts (identity, authorization, configuration, audit, approvals, IGA, compliance, console). Without a defined port, domain code would reference MassTransit or RabbitMQ APIs directly — violating the Hexagonal Architecture enforced by arc32 ADR-0011 and documented in UMS CP-01.
+Evolith ADR-0015 mandates an injectable messaging abstraction that decouples domain logic from any specific broker technology. UMS publishes domain events across 8 bounded contexts (identity, authorization, configuration, audit, approvals, IGA, compliance, console). Without a defined port, domain code would reference MassTransit or RabbitMQ APIs directly — violating the Hexagonal Architecture enforced by Evolith ADR-0011 and documented in UMS CP-01.
 
 Additionally, ADR-0050 defines the CloudEvents type convention (`ums.{bounded-context}.{entity}.{past-participle}`). This ADR defines the runtime port and adapter that publishes events using that convention.
 
@@ -18,8 +18,8 @@ Key constraints:
 
 - Domain layer **must not** reference any broker-specific type
 - Integration tests must run without a broker (in-memory transport)
-- CloudEvents 1.0 envelope is the wire format per arc32 ADR-0015 §4
-- MassTransit is the preferred .NET integration bus per arc32 tech radar
+- CloudEvents 1.0 envelope is the wire format per Evolith ADR-0015 §4
+- MassTransit is the preferred .NET integration bus per Evolith tech radar
 
 ---
 
@@ -224,4 +224,4 @@ This guarantees exactly-once delivery under database failure.
 
 ---
 
-**[ADR Registry](./index.md)** | **[arc32 ADR-0015](https://github.com/beyondnetcode/arc32_progresive_monolith/blob/main/reference/architecture/adrs/core/0015-event-driven-architecture-intra-domain.md)** | **[TE-04: Transactional Outbox](../blueprints/technical-enablers/te-04-transactional-outbox.md)**
+**[ADR Registry](./index.md)** | **[Evolith ADR-0015](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/core/0015-event-driven-architecture-intra-domain.md)** | **[TE-04: Transactional Outbox](../blueprints/technical-enablers/te-04-transactional-outbox.md)**

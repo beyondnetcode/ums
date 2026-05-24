@@ -2,7 +2,7 @@
 
 Canonical Patterns are reference implementations that demonstrate how UMS applies architectural decisions in code. Each pattern is a complete, copy-paste-ready blueprint for the corresponding concern.
 
-| CP ID | Title | Type | ADR | arc32 |
+| CP ID | Title | Type | ADR | Evolith |
 |-------|-------|------|-----|-------|
 | [CP-01](./cp-01-hexagonal-port-adapter.md) | Hexagonal Architecture — Port & Adapter | Structural | ADR-0002 | — |
 | [CP-02](./cp-02-aggregate-root-domain-event.md) | Aggregate Root & Domain Event | Tactical DDD | ADR-0029 | — |
@@ -13,7 +13,7 @@ Canonical Patterns are reference implementations that demonstrate how UMS applie
 | [CP-07](./cp-07-idempotency-middleware.md) | Idempotency Key Middleware | Reliability | ADR-0063 | ⬆ Proposed |
 | [CP-08](./cp-08-aop-logging-decorator.md) | AOP Logging Decorator with Observability Envelope | Cross-Cutting | ADR-0060 / ADR-0061 | ⬆ Proposed |
 
-> **⬆ Proposed** — marked for extraction to the arc32 parent architecture; these patterns have zero UMS-specific dependencies and are applicable to any .NET satellite.
+> **⬆ Proposed** — marked for extraction to the Evolith parent architecture; these patterns have zero UMS-specific dependencies and are applicable to any .NET satellite.
 
 ---
 

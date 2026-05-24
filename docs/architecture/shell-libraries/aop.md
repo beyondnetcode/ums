@@ -570,9 +570,9 @@ activity.SetBaggage(ObservabilityKeys.CorrelationId,     correlationId);
 activity.SetBaggage(ObservabilityKeys.SessionTrackingId, sessionId);
 ```
 
-### arc32 disposition
+### Evolith disposition
 
-All five types have **zero UMS-specific imports** and are proposed for arc32 adoption. See [CP-08: AOP Logging Decorator](../artifacts/canonical-patterns/cp-08-aop-logging-decorator.md).
+All five types have **zero UMS-specific imports** and are proposed for Evolith adoption. See [CP-08: AOP Logging Decorator](../artifacts/canonical-patterns/cp-08-aop-logging-decorator.md).
 
 ---
 

@@ -3,7 +3,7 @@
 **Status:** Accepted  
 **Date:** 2026-05-24  
 **Decision Owner:** Architecture  
-**arc32 disposition:** Proposed for arc32 adoption — HTTP-level request deduplication is runtime-neutral; applicable to any ASP.NET Core satellite  
+**Evolith disposition:** Proposed for Evolith adoption — HTTP-level request deduplication is runtime-neutral; applicable to any ASP.NET Core satellite  
 **Related:**
 - [ADR-0051: Event Bus Injectable Port](./0051-event-bus-injectable-port.md)
 - [CP-07: Idempotency Key Middleware](../artifacts/canonical-patterns/cp-07-idempotency-middleware.md)
@@ -97,7 +97,7 @@ Position after `UseGlobalExceptionHandler` ensures that exceptions during pipeli
 
 ---
 
-## arc32 Extraction Checklist
+## Evolith Extraction Checklist
 
 - [ ] `IdempotencyMiddleware` — no UMS-specific import; depends only on `IMemoryCache` and ASP.NET Core abstractions
 - [ ] `IdempotencyOptions` — simple POCO with TTL and enabled/disabled flag

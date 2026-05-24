@@ -2,7 +2,7 @@
 
 **Tipo:** Patrón Canónico  
 **Estado:** Aceptado  
-**Disposición arc32:** Propuesto para arc32 — sin dependencias específicas del producto  
+**Disposición Evolith:** Propuesto para Evolith — sin dependencias específicas del producto  
 **ADR relacionado:** [ADR-0061: Execution Context Accessor](../../adrs/0061-execution-context-accessor.md)
 
 ---

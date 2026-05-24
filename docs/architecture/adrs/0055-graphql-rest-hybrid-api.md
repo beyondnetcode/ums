@@ -112,5 +112,5 @@ Use GraphQL exclusively — queries and mutations — eliminating the REST layer
 
 - ADR-0056: Zustand + TanStack Query State Management
 - ADR-0058: API Gateway Evolution — YARP for Multi-Client SaaS
-- arc32 ADR-0012: API Gateway Pattern
+- Evolith ADR-0012: API Gateway Pattern
 - [TE-07: YARP API Gateway](../blueprints/technical-enablers/te-07-yarp-api-gateway.md)

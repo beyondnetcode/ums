@@ -145,7 +145,7 @@ Tier separation is the *escalation path* — not the starting point. This decisi
 
 Here's where the story gets more interesting for teams managing multiple repositories.
 
-UMS is built on top of a corporate architecture reference — [arc32 Progressive Monolith](https://github.com/beyondnetcode/arc32_progresive_monolith) — which defines baseline decisions for all products in the organization: naming conventions, infrastructure patterns, API gateway strategy, event bus design, and more.
+UMS is built on top of a corporate architecture reference — [Evolith](https://github.com/beyondnetcode/evolith_arch32) — which defines baseline decisions for all products in the organization: naming conventions, infrastructure patterns, API gateway strategy, event bus design, and more.
 
 UMS inherits this baseline. But UMS also makes its own decisions that diverge from it. The question is: **how do you manage that divergence without losing the reference?**
 
@@ -179,7 +179,7 @@ The decisions from this session produced four artifacts, all versioned in the re
 
 **Architecture Portal update** — The governance model (Adopt / Extend / Override) is documented in the Architecture Portal so every new developer understands the inheritance contract on day one.
 
-And in the arc32 base repository, a new section was added to the Child Repository Inheritance Guide using UMS as the reference implementation — so future teams bootstrapping satellite products have a real example to follow, not just theory.
+And in the Evolith base repository, a new section was added to the Child Repository Inheritance Guide using UMS as the reference implementation — so future teams bootstrapping satellite products have a real example to follow, not just theory.
 
 ---
 
@@ -202,10 +202,10 @@ And in the arc32 base repository, a new section was added to the Child Repositor
 
 ## The Repository
 
-UMS and arc32 are open source. The ADRs, Technical Enablers, and governance documents referenced in this article are all publicly available:
+UMS and Evolith are open source. The ADRs, Technical Enablers, and governance documents referenced in this article are all publicly available:
 
 - **UMS:** https://github.com/beyondnetcode/ums
-- **arc32 base:** https://github.com/beyondnetcode/arc32_progresive_monolith
+- **Evolith base:** https://github.com/beyondnetcode/evolith_arch32
 
 ---
 

@@ -3,7 +3,7 @@
 **Status:** Accepted  
 **Date:** 2026-05-24  
 **Decision Owner:** Architecture  
-**arc32 disposition:** Proposed for arc32 adoption — pattern is runtime-neutral; applicable to any .NET satellite using Serilog  
+**Evolith disposition:** Proposed for Evolith adoption — pattern is runtime-neutral; applicable to any .NET satellite using Serilog  
 **Related:**
 - [ADR-0053: OpenTelemetry Observability](./0053-opentelemetry-observability.md)
 - [ADR-0061: Execution Context Accessor](./0061-execution-context-accessor.md)
@@ -144,7 +144,7 @@ To ship logs to a remote sink (Seq, Elasticsearch, Application Insights, Loki):
 
 ---
 
-## arc32 Extraction Checklist
+## Evolith Extraction Checklist
 
 The following are UMS-namespaced but trivially portable:
 - [ ] `PiiMaskingPolicy` — no product import, depends only on `Serilog.Core`

@@ -2,7 +2,7 @@
 
 **Tipo:** Patrón Canónico  
 **Estado:** Aceptado  
-**Disposición arc32:** Propuesto para arc32 — sin dependencias específicas del producto; portable a cualquier satélite ASP.NET Core  
+**Disposición Evolith:** Propuesto para Evolith — sin dependencias específicas del producto; portable a cualquier satélite ASP.NET Core  
 **ADR relacionado:** [ADR-0063: Middleware de Idempotencia](../../adrs/0063-idempotency-middleware.md)
 
 ---

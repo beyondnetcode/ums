@@ -2,13 +2,13 @@
 
 > **Language:** [English](./traceability-matrix.md) | [Español](./traceability-matrix.es.md)
 
-This matrix links every **Functional Story (FS)** to its governing **Architectural Decision Records (ADRs)** — both from the UMS product context and the arc32 framework — and to the **Technical Enablers (TEs)** that implement those decisions.
+This matrix links every **Functional Story (FS)** to its governing **Architectural Decision Records (ADRs)** — both from the UMS product context and the Evolith framework — and to the **Technical Enablers (TEs)** that implement those decisions.
 
 ---
 
 ## 1. Forward Matrix — FS → ADR → TE
 
-| FS ID | Story Title | UMS ADR | arc32 ADR | Technical Enabler |
+| FS ID | Story Title | UMS ADR | Evolith ADR | Technical Enabler |
 |-------|-------------|---------|-----------|-------------------|
 | FS-01 | User Authentication | — | ADR-0020 (IdP Abstraction), ADR-0026 (MFA Adaptive) | TE-01 (JWT / OIDC flow) |
 | FS-02 | Create Authorization Template | — | ADR-0012 (RBAC/ABAC Guards), ADR-0021 (Auth Graph) | TE-02 (Permission Graph Compiler) |

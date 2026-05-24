@@ -1,4 +1,4 @@
-# ADR-0050: Naming & Taxonomy Standard — Adoption of arc32 ADR-0056
+# ADR-0050: Naming & Taxonomy Standard — Adoption of Evolith ADR-0056
 
 ## Status
 
@@ -10,17 +10,17 @@ Accepted
 
 ## Context
 
-UMS is a satellite product of the arc32 Progressive Monolith Architecture Reference. The parent reference defines a binding, automated-enforcement naming standard in [ADR-0056: Enterprise Naming & Design Conventions — Multi-Language, Multi-Platform](https://github.com/beyondnetcode/arc32_progresive_monolith/blob/main/reference/architecture/adrs/core/0056-enterprise-naming-design-conventions.md).
+UMS is a satellite product of the Evolith Architecture Reference. The parent reference defines a binding, automated-enforcement naming standard in [ADR-0056: Enterprise Naming & Design Conventions — Multi-Language, Multi-Platform](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/core/0056-enterprise-naming-design-conventions.md).
 
 UMS is a polyglot system spanning C# / .NET 8, SQL Server 2022, REST/OpenAPI, and CloudEvents. Without a formally adopted naming policy, integration bugs, onboarding friction, and security misconfigurations (field-name leaks) are predictable outcomes.
 
-A conformance audit conducted on 2026-05-15 identified a critical SQL naming violation in the current UMS schema design: all tables use `UPPER_SNAKE_CASE` singular identifiers (e.g., `USER_ACCOUNT`, `SYSTEM_SUITE`) which violates the `snake_case` plural noun mandate of arc32 ADR-0056 §5.5.
+A conformance audit conducted on 2026-05-15 identified a critical SQL naming violation in the current UMS schema design: all tables use `UPPER_SNAKE_CASE` singular identifiers (e.g., `USER_ACCOUNT`, `SYSTEM_SUITE`) which violates the `snake_case` plural noun mandate of Evolith ADR-0056 §5.5.
 
 ---
 
 ## Decision
 
-**Formally adopt arc32 ADR-0056 as the binding naming and taxonomy standard for all UMS artifacts** — code, SQL, API, events, files, and documentation.
+**Formally adopt Evolith ADR-0056 as the binding naming and taxonomy standard for all UMS artifacts** — code, SQL, API, events, files, and documentation.
 
 The full policy is defined in the parent document. This ADR records:
 1. Formal adoption with UMS-specific bindings
@@ -131,7 +131,7 @@ extended_capitalisation_policy = lower
 ## Consequences
 
 ### Positive
-- Full alignment with arc32 ADR-0056: single naming standard across the org
+- Full alignment with Evolith ADR-0056: single naming standard across the org
 - Eliminates integration mapping bugs between API, domain, and database layers
 - Automated enforcement via Roslyn Analyzers + sqlfluff from Sprint 1
 - CloudEvent type format enables reliable event routing and consumer contracts
@@ -142,4 +142,4 @@ extended_capitalisation_policy = lower
 
 ---
 
-**[ADR Registry](./index.md)** | **[arc32 ADR-0056](https://github.com/beyondnetcode/arc32_progresive_monolith/blob/main/reference/architecture/adrs/core/0056-enterprise-naming-design-conventions.md)**
+**[ADR Registry](./index.md)** | **[Evolith ADR-0056](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/core/0056-enterprise-naming-design-conventions.md)**

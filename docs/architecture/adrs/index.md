@@ -1,12 +1,12 @@
 # ADR Registry — UMS Architecture Decision Records
 
-> **Parent standard:** [arc32 Progressive Monolith — ADR Registry](https://github.com/beyondnetcode/arc32_progresive_monolith/blob/main/reference/architecture/adrs/README.md)
+> **Parent standard:** [Evolith — ADR Registry](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/README.md)
 
-All architectural decisions for the User Management System (UMS) are recorded here. Decisions inherit the mandatory baseline from the arc32 reference architecture and extend or specialize it for the UMS product context.
+All architectural decisions for the User Management System (UMS) are recorded here. Decisions inherit the mandatory baseline from the Evolith reference architecture and extend or specialize it for the UMS product context.
 
-UMS is a satellite repository of `arc32_progresive_monolith`. The parent repository defines the corporate architecture baseline; UMS ADRs must either adopt it by reference or document an explicit SQL Server / .NET adaptation where the parent example is runtime- or database-specific.
+UMS is a satellite repository of `evolith_arch32`. The parent repository defines the corporate architecture baseline; UMS ADRs must either adopt it by reference or document an explicit SQL Server / .NET adaptation where the parent example is runtime- or database-specific.
 
-> **Note:** ADRs 0001–0049 are inherited from the arc32 parent architecture baseline. Their governance and canonical text lives in the [arc32 ADR Registry](https://github.com/beyondnetcode/arc32_progresive_monolith/blob/main/reference/architecture/adrs/README.md). Only UMS-specific decisions (ADR-0050 onward) are maintained as physical files in this repository.
+> **Note:** ADRs 0001–0049 are inherited from the Evolith parent architecture baseline. Their governance and canonical text lives in the [Evolith ADR Registry](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/README.md). Only UMS-specific decisions (ADR-0050 onward) are maintained as physical files in this repository.
 
 ---
 
@@ -31,7 +31,7 @@ UMS is a satellite repository of `arc32_progresive_monolith`. The parent reposit
 
 | ADR | Title | Status |
 |-----|-------|--------|
-| [ADR-0050](./0050-naming-taxonomy-standard.md) | Naming & Taxonomy Standard — Adoption of arc32 ADR-0056 | Accepted |
+| [ADR-0050](./0050-naming-taxonomy-standard.md) | Naming & Taxonomy Standard — Adoption of Evolith ADR-0056 | Accepted |
 | [ADR-0051](./0051-event-bus-injectable-port.md) | Event Bus — Injectable Port Strategy (.NET / MassTransit) | Accepted |
 | [ADR-0052](./0052-immutable-audit-trail-enforcement.md) | Immutable Audit Trail — SQL Server Enforcement Strategy | Accepted |
 | [ADR-0053](./0053-opentelemetry-observability.md) | OpenTelemetry Observability Strategy | Accepted |
@@ -42,12 +42,12 @@ UMS is a satellite repository of `arc32_progresive_monolith`. The parent reposit
 | [ADR-0058](./0058-api-gateway-yarp-evolution.md) | API Gateway Evolution — YARP for Multi-Client SaaS | Proposed |
 | [ADR-0059](./0059-single-api-tier-decision.md) | Single API Tier Decision — co-location over split tiers | Accepted |
 | [ADR-0060](./0060-aop-cross-cutting-concern-strategy.md) | AOP Cross-Cutting Concern Strategy — DispatchProxy over MediatR Behaviors | Accepted |
-| [ADR-0061](./0061-execution-context-accessor.md) | Execution Context Accessor Pattern | Accepted · ⬆ arc32 candidate |
-| [ADR-0062](./0062-pii-safe-serilog-configuration.md) | PII-Safe Serilog Configuration (HARDENING-04) | Accepted · ⬆ arc32 candidate |
-| [ADR-0063](./0063-idempotency-middleware.md) | Idempotency Key Middleware (FIX-06 / RISK-05) | Accepted · ⬆ arc32 candidate |
+| [ADR-0061](./0061-execution-context-accessor.md) | Execution Context Accessor Pattern | Accepted · ⬆ Evolith candidate |
+| [ADR-0062](./0062-pii-safe-serilog-configuration.md) | PII-Safe Serilog Configuration (HARDENING-04) | Accepted · ⬆ Evolith candidate |
+| [ADR-0063](./0063-idempotency-middleware.md) | Idempotency Key Middleware (FIX-06 / RISK-05) | Accepted · ⬆ Evolith candidate |
 | [ADR-0064](./0064-lean-root-repository-taxonomy.md) | Lean Root Repository Taxonomy | Accepted |
 
-> **⬆ arc32 candidate** — ADR has zero UMS-specific dependencies and is proposed for extraction to the arc32 parent architecture baseline.
+> **⬆ Evolith candidate** — ADR has zero UMS-specific dependencies and is proposed for extraction to the Evolith parent architecture baseline.
 
 ---
 

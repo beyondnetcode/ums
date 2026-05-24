@@ -2,7 +2,7 @@
 
 **Type:** Canonical Pattern  
 **Status:** Accepted  
-**arc32 disposition:** Proposed for arc32 — zero product-specific dependencies  
+**Evolith disposition:** Proposed for Evolith — zero product-specific dependencies  
 **Related ADR:** [ADR-0061: Execution Context Accessor](../../adrs/0061-execution-context-accessor.md)
 
 ---

@@ -2,7 +2,7 @@
 
 **Estado del Documento:** Producción  
 **Alcance Autoritativo:** Arquitectura Global de la Plataforma  
-**Referencia del Marco de Trabajo Padre:** [arc32 Progressive Monolith Reference](https://github.com/beyondnetcode/arc32_progresive_monolith)
+**Referencia del Marco de Trabajo Padre:** [Evolith Architecture Reference](https://github.com/beyondnetcode/evolith_arch32)
 
 ---
 

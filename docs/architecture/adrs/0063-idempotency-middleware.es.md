@@ -3,7 +3,7 @@
 **Estado:** Aceptado  
 **Fecha:** 2026-05-24  
 **Responsable:** Arquitectura  
-**Disposición arc32:** Propuesto para adopción en arc32 — la deduplicación de requests a nivel HTTP es neutra en cuanto al runtime; aplicable a cualquier satélite ASP.NET Core  
+**Disposición Evolith:** Propuesto para adopción en Evolith — la deduplicación de requests a nivel HTTP es neutra en cuanto al runtime; aplicable a cualquier satélite ASP.NET Core  
 **Relacionados:**
 - [ADR-0051: Event Bus — Puerto Injectable](./0051-event-bus-injectable-port.md)
 - [CP-07: Middleware de Clave de Idempotencia](../artifacts/canonical-patterns/cp-07-idempotency-middleware.es.md)
@@ -97,7 +97,7 @@ La posición después de `UseGlobalExceptionHandler` garantiza que las excepcion
 
 ---
 
-## Checklist de Extracción arc32
+## Checklist de Extracción Evolith
 
 - [ ] `IdempotencyMiddleware` — sin import específico de UMS; depende solo de `IMemoryCache` y abstracciones de ASP.NET Core
 - [ ] `IdempotencyOptions` — POCO simple con TTL y flag habilitado/deshabilitado

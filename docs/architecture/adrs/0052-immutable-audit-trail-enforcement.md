@@ -10,7 +10,7 @@ Accepted
 
 ## Context
 
-arc32 ADR-0016 mandates that audit records be **physically immutable** — no UPDATE or DELETE can ever execute against audit trail tables, not even by service accounts or DBAs. UMS has a 10-column audit schema on every entity table and a dedicated event log table per bounded context. Without enforcement at the database layer, a misconfigured command, elevated-privilege script, or ORM misconfiguration can silently corrupt the audit trail.
+Evolith ADR-0016 mandates that audit records be **physically immutable** — no UPDATE or DELETE can ever execute against audit trail tables, not even by service accounts or DBAs. UMS has a 10-column audit schema on every entity table and a dedicated event log table per bounded context. Without enforcement at the database layer, a misconfigured command, elevated-privilege script, or ORM misconfiguration can silently corrupt the audit trail.
 
 Two layers of concern:
 
@@ -210,4 +210,4 @@ A migration lint step verifies that no new migration adds DROP TRIGGER, DISABLE 
 
 ---
 
-**[ADR Registry](./index.md)** | **[arc32 ADR-0016](https://github.com/beyondnetcode/arc32_progresive_monolith/blob/main/reference/architecture/adrs/core/0016-immutable-business-audit-trail.md)**
+**[ADR Registry](./index.md)** | **[Evolith ADR-0016](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/core/0016-immutable-business-audit-trail.md)**

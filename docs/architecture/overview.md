@@ -2,7 +2,7 @@
 
 **Document Status:** Production  
 **Authoritative Scope:** Global Platform Architecture  
-**Parent Framework Reference:** [arc32 Progressive Monolith Reference](https://github.com/beyondnetcode/arc32_progresive_monolith)
+**Parent Framework Reference:** [Evolith Architecture Reference](https://github.com/beyondnetcode/evolith_arch32)
 
 ---
 
