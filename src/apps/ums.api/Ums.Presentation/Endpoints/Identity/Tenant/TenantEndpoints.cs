@@ -75,7 +75,6 @@ public static class TenantEndpoints
         .ProducesProblem(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status409Conflict);
 
-        // TODO(api-aggregate-tracker): Expose tenant update, branch lifecycle, and identity-provider lifecycle commands for Tenant.
         return app;
     }
 }

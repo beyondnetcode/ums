@@ -61,7 +61,68 @@ public static class PermissionTemplateEndpoints
         .ProducesProblem(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status409Conflict);
 
-        // TODO(api-aggregate-tracker): Expose item lifecycle, effect overrides, activation toggles, and deprecate endpoint for PermissionTemplate.
+        group.MapPost("/{templateId:guid}/deprecate", async (Guid templateId, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new DeprecatePermissionTemplateCommand(templateId), ct);
+            return result.ToNoContent(context);
+        }).WithName("DeprecatePermissionTemplate")
+          .WithSummary("Deprecate a published permission template — prevents new profile assignments")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status404NotFound)
+          .ProducesProblem(StatusCodes.Status409Conflict);
+
+        group.MapPost("/{templateId:guid}/items", async (Guid templateId, AddTemplateItemCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command with { TemplateId = templateId }, ct);
+            return result.ToNoContent(context);
+        }).WithName("AddTemplateItem")
+          .WithSummary("Add a permission item (target + action + effect) to a draft template")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status400BadRequest)
+          .ProducesProblem(StatusCodes.Status404NotFound)
+          .ProducesProblem(StatusCodes.Status409Conflict);
+
+        group.MapDelete("/{templateId:guid}/items/{itemId:guid}", async (Guid templateId, Guid itemId, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new RemoveTemplateItemCommand(templateId, itemId), ct);
+            return result.ToNoContent(context);
+        }).WithName("RemoveTemplateItem")
+          .WithSummary("Remove a permission item from a draft template")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status404NotFound)
+          .ProducesProblem(StatusCodes.Status409Conflict);
+
+        group.MapPut("/{templateId:guid}/items/{itemId:guid}/effect", async (Guid templateId, Guid itemId, SetTemplateItemEffectCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command with { TemplateId = templateId, ItemId = itemId }, ct);
+            return result.ToNoContent(context);
+        }).WithName("SetTemplateItemEffect")
+          .WithSummary("Override the Allow/Deny/Neutral effect of a permission item")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status400BadRequest)
+          .ProducesProblem(StatusCodes.Status404NotFound)
+          .ProducesProblem(StatusCodes.Status409Conflict);
+
+        group.MapPost("/{templateId:guid}/items/{itemId:guid}/activate", async (Guid templateId, Guid itemId, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new ActivateTemplateItemCommand(templateId, itemId), ct);
+            return result.ToNoContent(context);
+        }).WithName("ActivateTemplateItem")
+          .WithSummary("Activate a deactivated permission item")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status404NotFound)
+          .ProducesProblem(StatusCodes.Status409Conflict);
+
+        group.MapPost("/{templateId:guid}/items/{itemId:guid}/deactivate", async (Guid templateId, Guid itemId, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new DeactivateTemplateItemCommand(templateId, itemId), ct);
+            return result.ToNoContent(context);
+        }).WithName("DeactivateTemplateItem")
+          .WithSummary("Deactivate an active permission item without removing it")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status404NotFound)
+          .ProducesProblem(StatusCodes.Status409Conflict);
+
         return app;
     }
 }
