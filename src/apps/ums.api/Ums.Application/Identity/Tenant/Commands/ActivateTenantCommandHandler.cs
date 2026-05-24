@@ -15,6 +15,7 @@ public sealed class ActivateTenantCommandHandler : ICommandHandler<ActivateTenan
         _userContext = userContext;
     }
 
+    [AuditTrail]
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result> Handle(ActivateTenantCommand request, CancellationToken cancellationToken)
     {

@@ -14,6 +14,7 @@ public sealed class ActivateDelegationCommandHandler : ICommandHandler<ActivateD
         _userContext = userContext;
     }
 
+    [AuditTrail]
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result> Handle(ActivateDelegationCommand request, CancellationToken cancellationToken)
     {

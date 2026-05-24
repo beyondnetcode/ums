@@ -15,6 +15,7 @@ public sealed class RegisterIdentityProviderCommandHandler : ICommandHandler<Reg
         _userContext = userContext;
     }
 
+    [AuditTrail]
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<RegisterIdentityProviderResponse>> Handle(
         RegisterIdentityProviderCommand request,

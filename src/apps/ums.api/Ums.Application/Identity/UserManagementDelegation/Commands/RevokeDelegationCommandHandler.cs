@@ -14,6 +14,7 @@ public sealed class RevokeDelegationCommandHandler : ICommandHandler<RevokeDeleg
         _userContext = userContext;
     }
 
+    [AuditTrail]
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result> Handle(RevokeDelegationCommand request, CancellationToken cancellationToken)
     {

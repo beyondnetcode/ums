@@ -15,6 +15,7 @@ public sealed class RemoveIdentityProviderCommandHandler : ICommandHandler<Remov
         _userContext = userContext;
     }
 
+    [AuditTrail]
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<RemoveIdentityProviderResponse>> Handle(
         RemoveIdentityProviderCommand request,

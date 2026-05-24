@@ -15,6 +15,7 @@ public sealed class RemoveBranchCommandHandler : ICommandHandler<RemoveBranchCom
         _userContext = userContext;
     }
 
+    [AuditTrail]
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<RemoveBranchResponse>> Handle(
         RemoveBranchCommand request,

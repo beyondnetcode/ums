@@ -16,6 +16,7 @@ public sealed class CreateApprovalRequestCommandHandler : ICommandHandler<Create
         _userContext = userContext;
     }
 
+    [AuditTrail]
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<CreateApprovalRequestResponse>> Handle(CreateApprovalRequestCommand request, CancellationToken cancellationToken)
     {

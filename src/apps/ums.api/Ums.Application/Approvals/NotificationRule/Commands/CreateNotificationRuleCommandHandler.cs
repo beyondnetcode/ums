@@ -24,6 +24,7 @@ public sealed class CreateNotificationRuleCommandHandler : ICommandHandler<Creat
         _recipientResolver = recipientResolver;
     }
 
+    [AuditTrail]
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<CreateNotificationRuleResponse>> Handle(CreateNotificationRuleCommand request, CancellationToken cancellationToken)
     {

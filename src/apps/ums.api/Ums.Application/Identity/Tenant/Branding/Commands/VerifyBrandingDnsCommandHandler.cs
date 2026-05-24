@@ -15,6 +15,7 @@ public sealed class VerifyBrandingDnsCommandHandler : ICommandHandler<VerifyBran
         _userContext = userContext;
     }
 
+    [AuditTrail]
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<VerifyBrandingDnsResponse>> Handle(
         VerifyBrandingDnsCommand request,

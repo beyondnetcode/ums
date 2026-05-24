@@ -18,6 +18,7 @@ public sealed class CreateUserAccountCommandHandler : ICommandHandler<CreateUser
         _userContext = userContext;
     }
 
+    [AuditTrail]
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<CreateUserAccountResponse>> Handle(
         CreateUserAccountCommand request,

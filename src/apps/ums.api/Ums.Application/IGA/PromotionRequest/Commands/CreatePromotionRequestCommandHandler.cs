@@ -17,6 +17,7 @@ public sealed class CreatePromotionRequestCommandHandler : ICommandHandler<Creat
         _userContext = userContext;
     }
 
+    [AuditTrail]
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<CreatePromotionRequestResponse>> Handle(CreatePromotionRequestCommand request, CancellationToken cancellationToken)
     {

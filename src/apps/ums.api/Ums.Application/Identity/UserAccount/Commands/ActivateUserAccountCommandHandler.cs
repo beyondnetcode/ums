@@ -15,6 +15,7 @@ public sealed class ActivateUserAccountCommandHandler : ICommandHandler<Activate
         _userContext = userContext;
     }
 
+    [AuditTrail]
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result> Handle(ActivateUserAccountCommand request, CancellationToken cancellationToken)
     {

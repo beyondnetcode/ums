@@ -17,6 +17,7 @@ public sealed class UpdateSystemSuiteCommandHandler : ICommandHandler<UpdateSyst
         _userContext = userContext;
     }
 
+    [AuditTrail]
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result> Handle(UpdateSystemSuiteCommand request, CancellationToken cancellationToken)
     {

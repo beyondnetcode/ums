@@ -15,6 +15,7 @@ public sealed class ValidateUserDocumentCommandHandler : ICommandHandler<Validat
         _userContext = userContext;
     }
 
+    [AuditTrail]
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result> Handle(ValidateUserDocumentCommand request, CancellationToken cancellationToken)
     {

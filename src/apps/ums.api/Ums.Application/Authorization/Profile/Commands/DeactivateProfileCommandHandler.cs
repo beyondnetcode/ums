@@ -17,6 +17,7 @@ public sealed class DeactivateProfileCommandHandler : ICommandHandler<Deactivate
         _userContext = userContext;
     }
 
+    [AuditTrail]
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result> Handle(DeactivateProfileCommand request, CancellationToken cancellationToken)
     {

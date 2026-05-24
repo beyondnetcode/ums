@@ -14,6 +14,7 @@ public sealed class ActivateFeatureFlagCommandHandler : ICommandHandler<Activate
         _userContext = userContext;
     }
 
+    [AuditTrail]
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result> Handle(ActivateFeatureFlagCommand request, CancellationToken cancellationToken)
     {

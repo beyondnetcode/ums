@@ -16,6 +16,7 @@ public sealed class CreateIdpConfigurationCommandHandler : ICommandHandler<Creat
         _userContext = userContext;
     }
 
+    [AuditTrail]
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<CreateIdpConfigurationResponse>> Handle(CreateIdpConfigurationCommand request, CancellationToken cancellationToken)
     {

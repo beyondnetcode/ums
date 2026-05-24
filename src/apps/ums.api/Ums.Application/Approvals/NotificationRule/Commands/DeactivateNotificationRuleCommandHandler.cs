@@ -15,6 +15,7 @@ public sealed class DeactivateNotificationRuleCommandHandler : ICommandHandler<D
         _userContext = userContext;
     }
 
+    [AuditTrail]
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result> Handle(DeactivateNotificationRuleCommand request, CancellationToken cancellationToken)
     {

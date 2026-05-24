@@ -18,6 +18,7 @@ public sealed class CreateAccessEnforcementPolicyCommandHandler : ICommandHandle
         _userContext = userContext;
     }
 
+    [AuditTrail]
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<CreateAccessEnforcementPolicyResponse>> Handle(CreateAccessEnforcementPolicyCommand request, CancellationToken cancellationToken)
     {

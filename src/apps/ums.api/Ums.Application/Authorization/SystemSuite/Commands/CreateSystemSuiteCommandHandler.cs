@@ -18,6 +18,7 @@ public sealed class CreateSystemSuiteCommandHandler : ICommandHandler<CreateSyst
         _userContext = userContext;
     }
 
+    [AuditTrail]
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<CreateSystemSuiteResponse>> Handle(
         CreateSystemSuiteCommand request,

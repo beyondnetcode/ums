@@ -15,6 +15,7 @@ public sealed class EvaluateFeatureFlagCommandHandler : ICommandHandler<Evaluate
         _userContext = userContext;
     }
 
+    [AuditTrail]
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<EvaluateFeatureFlagResponse>> Handle(EvaluateFeatureFlagCommand request, CancellationToken cancellationToken)
     {

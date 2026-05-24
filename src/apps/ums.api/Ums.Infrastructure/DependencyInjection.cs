@@ -53,6 +53,13 @@ public static class DependencyInjection
         services.AddScoped<IExecutionContextAccessor>(sp => sp.GetRequiredService<RequestContextAccessor>());
         services.AddScoped<IIdpConfigurationResolver, IdpConfigurationResolver>();
         services.AddScoped<INotificationRecipientResolver, NotificationRecipientResolver>();
+        services.AddSingleton(Channel.CreateUnbounded<AuditTrailEntry>(new UnboundedChannelOptions
+        {
+            SingleReader = true,
+            SingleWriter = false,
+            AllowSynchronousContinuations = false,
+        }));
+        services.AddSingleton<IAuditTrailSink, AuditTrailChannelSink>();
 
         services.AddFactory(builder => builder
             .AddTransient<EmailNotificationRecipientStrategy, EmailNotificationRecipientStrategy>()
@@ -94,6 +101,7 @@ public static class DependencyInjection
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly));
 
         services.AddHostedService<PersistenceRuntimeReporter>();
+        services.AddHostedService<AuditTrailPersistenceBackgroundService>();
         services.AddHostedService<OutboxDispatcherBackgroundService>(); // FIX-02: dispatch domain events from outbox
 
         var persistence = configuration.GetSection(PersistenceOptions.SectionName).Get<PersistenceOptions>() ?? new();
@@ -261,7 +269,7 @@ public static class DependencyInjection
         // AddAopProxy<TService, TImpl>() wraps the concrete handler with a DispatchProxy.
         // It registers TImpl as itself AND replaces the TService registration; MediatR
         // resolves the proxy (last registration wins) and delegates to the concrete handler.
-        services.AddAop();
+        services.AddAop(builder => builder.AddAspect<AuditTrailAspect>());
 
         services.AddKeyedTransient<Ums.Shell.Aop.Aspects.ILogger, Ums.Infrastructure.Aop.MelLogger>(
             typeof(Ums.Application.Common.Aop.IMelLogger));

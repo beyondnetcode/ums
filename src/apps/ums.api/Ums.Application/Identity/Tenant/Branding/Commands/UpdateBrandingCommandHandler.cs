@@ -17,6 +17,7 @@ public sealed class UpdateBrandingCommandHandler : ICommandHandler<UpdateBrandin
         _userContext = userContext;
     }
 
+    [AuditTrail]
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<UpdateBrandingResponse>> Handle(
         UpdateBrandingCommand request,

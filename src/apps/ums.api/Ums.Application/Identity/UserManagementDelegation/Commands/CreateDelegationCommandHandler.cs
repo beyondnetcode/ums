@@ -16,6 +16,7 @@ public sealed class CreateDelegationCommandHandler : ICommandHandler<CreateDeleg
         _userContext = userContext;
     }
 
+    [AuditTrail]
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<CreateDelegationResponse>> Handle(
         CreateDelegationCommand request,

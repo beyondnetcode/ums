@@ -15,6 +15,7 @@ public sealed class ActivateIdentityProviderCommandHandler : ICommandHandler<Act
         _userContext = userContext;
     }
 
+    [AuditTrail]
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<ActivateIdentityProviderResponse>> Handle(
         ActivateIdentityProviderCommand request,
