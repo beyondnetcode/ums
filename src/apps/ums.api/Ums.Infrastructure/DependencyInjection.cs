@@ -18,6 +18,7 @@ using Ums.Domain.Identity;
 using Ums.Infrastructure.Persistence.Audit;
 using Ums.Infrastructure.Persistence.Approvals;
 using Ums.Infrastructure.Persistence.Authorization;
+using Ums.Infrastructure.Persistence.IGA;
 using Ums.Infrastructure.Persistence.Configuration;
 using Ums.Infrastructure.Hosting;
 using Ums.Infrastructure.Persistence;
@@ -213,7 +214,6 @@ public static class DependencyInjection
             services.AddSingleton<IIdpConfigurationRepository>(sp => sp.GetRequiredService<InMemoryIdpConfigurationRepository>());
         }
 
-        // TODO(api-aggregate-tracker): Migrate Audit, Approvals, and IGA aggregate repositories from in-memory to SQL Server.
         if (persistence.Provider == PersistenceProvider.SqlServer)
         {
             services.AddScoped<IAuditRecordRepository, SqlServerAuditRecordRepository>();
@@ -224,7 +224,7 @@ public static class DependencyInjection
             services.AddSingleton<IAuditRecordRepository>(sp => sp.GetRequiredService<InMemoryAuditRecordRepository>());
         }
 
-        if (persistence.Provider == PersistenceProvider.SqlServer)
+        if (persistence.Provider == PersistenceProvider.SqlServer && persistence.UseSqlServerApprovalsStores)
         {
             services.AddScoped<IApprovalWorkflowRepository, SqlServerApprovalWorkflowRepository>();
             services.AddScoped<IApprovalRequestRepository, SqlServerApprovalRequestRepository>();
@@ -242,6 +242,22 @@ public static class DependencyInjection
             services.AddSingleton<INotificationRuleRepository>(sp => sp.GetRequiredService<InMemoryNotificationRuleRepository>());
         }
 
+        if (persistence.Provider == PersistenceProvider.SqlServer && persistence.UseSqlServerIgaStores)
+        {
+            services.AddScoped<IPromotionRequestRepository, SqlServerPromotionRequestRepository>();
+            services.AddScoped<IRoleMaturityStatusRepository, SqlServerRoleMaturityStatusRepository>();
+        }
+        else
+        {
+            services.AddSingleton<InMemoryPromotionRequestRepository>();
+            services.AddSingleton<IPromotionRequestRepository>(sp => sp.GetRequiredService<InMemoryPromotionRequestRepository>());
+
+            services.AddSingleton<InMemoryRoleMaturityStatusRepository>();
+            services.AddSingleton<IRoleMaturityStatusRepository>(sp => sp.GetRequiredService<InMemoryRoleMaturityStatusRepository>());
+        }
+
+        // DocumentType, UserDocument, AccessEnforcementPolicy: Approvals sub-entities without dedicated SQL repos yet.
+        // These remain InMemory until FS-11/FS-16 SQL persistence is added.
         services.AddSingleton<InMemoryDocumentTypeRepository>();
         services.AddSingleton<IDocumentTypeRepository>(sp => sp.GetRequiredService<InMemoryDocumentTypeRepository>());
 
@@ -250,14 +266,6 @@ public static class DependencyInjection
 
         services.AddSingleton<InMemoryAccessEnforcementPolicyRepository>();
         services.AddSingleton<IAccessEnforcementPolicyRepository>(sp => sp.GetRequiredService<InMemoryAccessEnforcementPolicyRepository>());
-
-        services.AddSingleton<InMemoryPromotionRequestRepository>();
-        services.AddSingleton<IPromotionRequestRepository>(sp => sp.GetRequiredService<InMemoryPromotionRequestRepository>());
-
-        services.AddSingleton<InMemoryRoleMaturityStatusRepository>();
-        services.AddSingleton<IRoleMaturityStatusRepository>(sp => sp.GetRequiredService<InMemoryRoleMaturityStatusRepository>());
-
-        // TODO(api-aggregate-tracker): Validate SQL Server runtime for Configuration context and add dev seed coverage if needed.
 
         // ── AOP: DispatchProxy aspect-oriented infrastructure ──────────────────────
         // AddAop() registers the built-in aspects (LoggerAspect, AdviceAspect, RetryAspect),

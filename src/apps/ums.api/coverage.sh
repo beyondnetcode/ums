@@ -8,7 +8,9 @@
 #
 # Usage:
 #   ./coverage.sh          Run all tests + generate HTML report
-#   ./coverage.sh --ci     Same, exit non-zero if combined < 80% line coverage
+#   ./coverage.sh --ci     Same, exit non-zero if combined < 80% line coverage;
+#                          writes coverage/coverage-summary.txt and GITHUB_OUTPUT
+#   ./coverage.sh --print  Print existing combined percentage without re-running tests
 #
 # First time:
 #   dotnet tool restore    (installs coverlet.console + reportgenerator)
@@ -26,10 +28,27 @@ cd "$SCRIPT_DIR"   # dotnet tool run requires the manifest directory to be CWD
 COVERAGE_DIR="$SCRIPT_DIR/coverage"
 REPORT_DIR="$COVERAGE_DIR/report"
 CI_MODE=false
+PRINT_ONLY=false
 
 for arg in "$@"; do
-  [[ "$arg" == "--ci" ]] && CI_MODE=true
+  [[ "$arg" == "--ci" ]]    && CI_MODE=true
+  [[ "$arg" == "--print" ]] && PRINT_ONLY=true
 done
+
+# ---------------------------------------------------------------------------
+# --print: read an existing merged report and exit without re-running tests
+# ---------------------------------------------------------------------------
+if $PRINT_ONLY; then
+  SUMMARY="$REPORT_DIR/Cobertura.xml"
+  if [[ ! -f "$SUMMARY" ]]; then
+    echo "No coverage report found at $SUMMARY — run ./coverage.sh first." >&2
+    exit 1
+  fi
+  COVERAGE=$(grep -oE 'line-rate="[0-9.]+"' "$SUMMARY" | head -1 | grep -oE '[0-9.]+')
+  COVERAGE_PCT=$(printf "%.1f" "$(echo "$COVERAGE * 100" | bc -l)")
+  echo "${COVERAGE_PCT}"
+  exit 0
+fi
 
 DOMAIN_PROJECT="$SCRIPT_DIR/Ums.Domain.Test/Ums.Domain.Test.csproj"
 APPLICATION_PROJECT="$SCRIPT_DIR/Ums.Application.Test/Ums.Application.Test.csproj"
@@ -115,6 +134,13 @@ if $CI_MODE; then
   SUMMARY="$REPORT_DIR/Cobertura.xml"
   COVERAGE=$(grep -oE 'line-rate="[0-9.]+"' "$SUMMARY" | head -1 | grep -oE '[0-9.]+')
   COVERAGE_PCT=$(printf "%.1f" "$(echo "$COVERAGE * 100" | bc -l)")
+
+  # Write a machine-readable summary for CI steps that need just the number
+  echo "${COVERAGE_PCT}" > "$COVERAGE_DIR/coverage-summary.txt"
+  # GitHub Actions output variable (no-op outside Actions)
+  if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
+    echo "coverage_pct=${COVERAGE_PCT}" >> "$GITHUB_OUTPUT"
+  fi
 
   echo "  Combined line coverage: ${COVERAGE_PCT}%"
 

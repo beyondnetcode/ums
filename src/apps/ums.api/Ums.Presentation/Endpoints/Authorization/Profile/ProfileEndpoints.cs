@@ -42,6 +42,16 @@ public static class ProfileEndpoints
         .WithSummary("Get profiles using server-side pagination")
         .Produces<PagedResult<ProfileDto>>(StatusCodes.Status200OK);
 
+        group.MapGet("/{profileId:guid}", async (Guid profileId, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetProfileByIdQuery(profileId), ct);
+            return result.ToOk(context);
+        })
+        .WithName("GetProfileById")
+        .WithSummary("Get a profile by ID")
+        .Produces<ProfileDto>(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status404NotFound);
+
         group.MapPost("/", async (CreateProfileCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
         {
             var result = await mediator.Send(command, ct);
@@ -75,7 +85,51 @@ public static class ProfileEndpoints
         .ProducesProblem(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status409Conflict);
 
-        // TODO(api-aggregate-tracker): Expose template assignment, permission override, and permission activation/deactivation commands for Profile.
+        group.MapPost("/{profileId:guid}/templates/{templateId:guid}", async (Guid profileId, Guid templateId, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new AssignProfileTemplateCommand(profileId, templateId), ct);
+            return result.ToNoContent(context);
+        })
+        .WithName("AssignProfileTemplate")
+        .WithSummary("Assign a published permission template to the profile")
+        .Produces(StatusCodes.Status204NoContent)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status409Conflict);
+
+        group.MapPost("/{profileId:guid}/permissions/{permissionId:guid}/override", async (Guid profileId, Guid permissionId, string effect, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new OverrideProfilePermissionCommand(profileId, permissionId, effect), ct);
+            return result.ToNoContent(context);
+        })
+        .WithName("OverrideProfilePermission")
+        .WithSummary("Override a profile permission effect")
+        .Produces(StatusCodes.Status204NoContent)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status409Conflict);
+
+        group.MapPost("/{profileId:guid}/permissions/{permissionId:guid}/activate", async (Guid profileId, Guid permissionId, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new SetProfilePermissionStatusCommand(profileId, permissionId, true), ct);
+            return result.ToNoContent(context);
+        })
+        .WithName("ActivateProfilePermission")
+        .WithSummary("Activate a profile permission")
+        .Produces(StatusCodes.Status204NoContent)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status409Conflict);
+
+        group.MapPost("/{profileId:guid}/permissions/{permissionId:guid}/deactivate", async (Guid profileId, Guid permissionId, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new SetProfilePermissionStatusCommand(profileId, permissionId, false), ct);
+            return result.ToNoContent(context);
+        })
+        .WithName("DeactivateProfilePermission")
+        .WithSummary("Deactivate a profile permission")
+        .Produces(StatusCodes.Status204NoContent)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status409Conflict);
+
         return app;
     }
 }

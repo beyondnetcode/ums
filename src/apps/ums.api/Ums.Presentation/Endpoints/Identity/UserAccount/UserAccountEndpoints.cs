@@ -40,6 +40,16 @@ public static class UserAccountEndpoints
         .WithSummary("Get user accounts using server-side pagination")
         .Produces<PagedResult<UserAccountDto>>(StatusCodes.Status200OK);
 
+        group.MapGet("/{userAccountId:guid}", async (Guid userAccountId, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetUserAccountByIdQuery(userAccountId), ct);
+            return result.ToOk(context);
+        })
+        .WithName("GetUserAccountById")
+        .WithSummary("Get a user account by ID")
+        .Produces<UserAccountDto>(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status404NotFound);
+
         group.MapPost("/", async (CreateUserAccountCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
         {
             var result = await mediator.Send(command, ct);
@@ -99,7 +109,64 @@ public static class UserAccountEndpoints
         .ProducesProblem(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status409Conflict);
 
-        // TODO(api-aggregate-tracker): Expose password lifecycle, MFA lifecycle, and authentication-attempt commands for UserAccount.
+        group.MapPost("/{userAccountId:guid}/passwords", async (Guid userAccountId, AddUserAccountPasswordCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command with { UserAccountId = userAccountId }, ct);
+            return result.ToCreated(r => $"/user-accounts/{userAccountId}/passwords/{r.CredentialId}", context);
+        })
+        .WithName("AddUserAccountPassword")
+        .WithSummary("Add a new password credential and make it active")
+        .Produces<AddUserAccountPasswordResponse>(StatusCodes.Status201Created)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status409Conflict);
+
+        group.MapPost("/{userAccountId:guid}/passwords/{credentialId:guid}/activate", async (Guid userAccountId, Guid credentialId, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new ActivateUserAccountPasswordCommand(userAccountId, credentialId), ct);
+            return result.ToNoContent(context);
+        })
+        .WithName("ActivateUserAccountPassword")
+        .WithSummary("Activate an existing password credential")
+        .Produces(StatusCodes.Status204NoContent)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status409Conflict);
+
+        group.MapDelete("/{userAccountId:guid}/passwords/{credentialId:guid}", async (Guid userAccountId, Guid credentialId, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new RemoveUserAccountPasswordCommand(userAccountId, credentialId), ct);
+            return result.ToNoContent(context);
+        })
+        .WithName("RemoveUserAccountPassword")
+        .WithSummary("Remove a password credential")
+        .Produces(StatusCodes.Status204NoContent)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status409Conflict);
+
+        group.MapPost("/{userAccountId:guid}/mfa-enrollments", async (Guid userAccountId, EnrollUserAccountMfaCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command with { UserAccountId = userAccountId }, ct);
+            return result.ToCreated(r => $"/user-accounts/{userAccountId}/mfa-enrollments/{r.EnrollmentId}", context);
+        })
+        .WithName("EnrollUserAccountMfa")
+        .WithSummary("Enroll an MFA method for the user account")
+        .Produces<EnrollUserAccountMfaResponse>(StatusCodes.Status201Created)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status409Conflict);
+
+        group.MapPost("/{userAccountId:guid}/mfa-enrollments/{enrollmentId:guid}/verify", async (Guid userAccountId, Guid enrollmentId, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new VerifyUserAccountMfaCommand(userAccountId, enrollmentId), ct);
+            return result.ToNoContent(context);
+        })
+        .WithName("VerifyUserAccountMfa")
+        .WithSummary("Verify a pending MFA enrollment")
+        .Produces(StatusCodes.Status204NoContent)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status409Conflict);
+
+        // TODO(api-aggregate-tracker): Expose authentication-attempt commands for UserAccount.
         return app;
     }
 }

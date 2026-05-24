@@ -11,6 +11,8 @@ using Ums.Infrastructure.Persistence.Outbox;
 using Ums.Infrastructure.Persistence.Outbox.Configurations;
 using Ums.Infrastructure.Persistence.Approvals.Configurations;
 using Ums.Infrastructure.Persistence.Approvals.Entities;
+using Ums.Infrastructure.Persistence.IGA.Configurations;
+using Ums.Infrastructure.Persistence.IGA.Entities;
 
 namespace Ums.Infrastructure.Persistence;
 
@@ -69,7 +71,9 @@ public sealed class UmsPlatformDbContext(
     public DbSet<ApprovalRequiredDocumentRecord> ApprovalRequiredDocuments => Set<ApprovalRequiredDocumentRecord>();
     public DbSet<ApprovalRequestRecord> ApprovalRequests => Set<ApprovalRequestRecord>();
     public DbSet<NotificationRuleRecord> NotificationRules => Set<NotificationRuleRecord>();
-    // TODO(api-aggregate-tracker): Add SQL-backed DbSets and mappings for IGA aggregates.
+    public DbSet<PromotionRequestRecord> PromotionRequests => Set<PromotionRequestRecord>();
+    public DbSet<PromotionImpactAnalysisRecord> PromotionImpactAnalyses => Set<PromotionImpactAnalysisRecord>();
+    public DbSet<RoleMaturityStatusRecord> RoleMaturityStatuses => Set<RoleMaturityStatusRecord>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -104,6 +108,9 @@ public sealed class UmsPlatformDbContext(
         modelBuilder.ApplyConfiguration(new ApprovalRequiredDocumentRecordConfiguration());
         modelBuilder.ApplyConfiguration(new ApprovalRequestRecordConfiguration());
         modelBuilder.ApplyConfiguration(new NotificationRuleRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new PromotionRequestRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new PromotionImpactAnalysisRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new RoleMaturityStatusRecordConfiguration());
 
         // -------------------------------------------------------------------------
         // FIX-05: Global query filters — primary tenant isolation mechanism.
