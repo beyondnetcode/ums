@@ -20,7 +20,7 @@ public sealed class CreateTenantCommandHandler : ICommandHandler<CreateTenantCom
         _userContext = userContext;
     }
 
-    [LoggerAspect(Type = typeof(IMelLogger), LogDuration = true, LogException = true, LogArguments = [])]
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<CreateTenantResponse>> Handle(
         CreateTenantCommand request,
         CancellationToken cancellationToken)

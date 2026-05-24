@@ -221,16 +221,26 @@ public static class DependencyInjection
         // AddAop() registers the built-in aspects (LoggerAspect, AdviceAspect, RetryAspect),
         // the PointCut, AspectExecutor and IFactory<ILogger> / IFactory<IAdvice> singletons.
         //
-        // MelLogger bridges AOP ILogger → Microsoft.Extensions.Logging.ILoggerFactory and is
-        // registered under the key typeof(IMelLogger) so handlers can reference it via
-        // [LoggerAspect(Type = typeof(IMelLogger))] without any Infrastructure coupling.
+        // Two ILogger adapters are available — select via [LoggerAspect(Type = typeof(...))] :
+        //
+        //   IMelLogger       → MelLogger (MEL, Debug level, PII-safe)
+        //                      Lightweight; ideal for dev and low-noise production paths.
+        //
+        //   IUmsLogger       → UmsSerilogLogger (Serilog, Information level, observability-aware)
+        //                      Enriches every line with TenantId, CorrelationId, TraceId, SpanId
+        //                      and BoundedContext; ships to OTel → Loki via Serilog OTel sink.
+        //                      Requires an active IUserContext (scoped) — use on command handlers.
         //
         // AddAopProxy<TService, TImpl>() wraps the concrete handler with a DispatchProxy.
         // It registers TImpl as itself AND replaces the TService registration; MediatR
         // resolves the proxy (last registration wins) and delegates to the concrete handler.
         services.AddAop();
+
         services.AddKeyedTransient<Ums.Shell.Aop.Aspects.ILogger, Ums.Infrastructure.Aop.MelLogger>(
             typeof(Ums.Application.Common.Aop.IMelLogger));
+
+        services.AddKeyedTransient<Ums.Shell.Aop.Aspects.ILogger, Ums.Infrastructure.Aop.UmsSerilogLogger>(
+            typeof(Ums.Application.Common.Aop.IUmsLogger));
 
         services.AddAopProxy<
             MediatR.IRequestHandler<
