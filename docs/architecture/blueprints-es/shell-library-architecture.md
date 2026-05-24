@@ -57,11 +57,6 @@ flowchart TD
     N --> P["Ums.Shell.Bootstrapper.AutoMapper"]
     N --> Q["Ums.Shell.Bootstrapper.Observability"]
 
-    %% Aislamiento upstream
-    R["csdevlib/ddd<br/>fuente original"] -. "aislada y renombrada" .-> E
-    R -. "aislada y renombrada" .-> F
-    S["csdevlib/factory-pattern<br/>fuente original"] -. "aislada y renombrada" .-> G
-
     subgraph Apps["src/apps/ums.api"]
       A
       B

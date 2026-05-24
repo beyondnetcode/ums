@@ -57,11 +57,6 @@ flowchart TD
     N --> P["Ums.Shell.Bootstrapper.AutoMapper"]
     N --> Q["Ums.Shell.Bootstrapper.Observability"]
 
-    %% Upstream isolation
-    R["csdevlib/ddd<br/>upstream source"] -. "isolated and renamed" .-> E
-    R -. "isolated and renamed" .-> F
-    S["csdevlib/factory-pattern<br/>upstream source"] -. "isolated and renamed" .-> G
-
     subgraph Apps["src/apps/ums.api"]
       A
       B
