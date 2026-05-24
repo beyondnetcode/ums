@@ -71,6 +71,10 @@ public sealed class UmsPlatformDbContext(
     public DbSet<ApprovalRequiredDocumentRecord> ApprovalRequiredDocuments => Set<ApprovalRequiredDocumentRecord>();
     public DbSet<ApprovalRequestRecord> ApprovalRequests => Set<ApprovalRequestRecord>();
     public DbSet<NotificationRuleRecord> NotificationRules => Set<NotificationRuleRecord>();
+    public DbSet<DocumentTypeRecord> DocumentTypes => Set<DocumentTypeRecord>();
+    public DbSet<UserDocumentRecord> UserDocuments => Set<UserDocumentRecord>();
+    public DbSet<AccessNotificationRecord> UserDocumentNotifications => Set<AccessNotificationRecord>();
+    public DbSet<AccessEnforcementPolicyRecord> AccessEnforcementPolicies => Set<AccessEnforcementPolicyRecord>();
     public DbSet<PromotionRequestRecord> PromotionRequests => Set<PromotionRequestRecord>();
     public DbSet<PromotionImpactAnalysisRecord> PromotionImpactAnalyses => Set<PromotionImpactAnalysisRecord>();
     public DbSet<RoleMaturityStatusRecord> RoleMaturityStatuses => Set<RoleMaturityStatusRecord>();
@@ -108,6 +112,10 @@ public sealed class UmsPlatformDbContext(
         modelBuilder.ApplyConfiguration(new ApprovalRequiredDocumentRecordConfiguration());
         modelBuilder.ApplyConfiguration(new ApprovalRequestRecordConfiguration());
         modelBuilder.ApplyConfiguration(new NotificationRuleRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new DocumentTypeRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new UserDocumentRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new AccessNotificationRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new AccessEnforcementPolicyRecordConfiguration());
         modelBuilder.ApplyConfiguration(new PromotionRequestRecordConfiguration());
         modelBuilder.ApplyConfiguration(new PromotionImpactAnalysisRecordConfiguration());
         modelBuilder.ApplyConfiguration(new RoleMaturityStatusRecordConfiguration());
@@ -187,6 +195,18 @@ public sealed class UmsPlatformDbContext(
                 x.TenantId == tenantContext.OrganizationId);
 
         modelBuilder.Entity<NotificationRuleRecord>()
+            .HasQueryFilter(x =>
+                !tenantContext.OrganizationId.HasValue ||
+                x.TenantId == tenantContext.OrganizationId);
+
+        modelBuilder.Entity<DocumentTypeRecord>()
+            .HasQueryFilter(x =>
+                !tenantContext.OrganizationId.HasValue ||
+                x.TenantId == tenantContext.OrganizationId);
+
+        // UserDocuments have UserId but no TenantId — filtered via join in queries; no global filter here.
+
+        modelBuilder.Entity<AccessEnforcementPolicyRecord>()
             .HasQueryFilter(x =>
                 !tenantContext.OrganizationId.HasValue ||
                 x.TenantId == tenantContext.OrganizationId);

@@ -5,6 +5,10 @@ using System.Reflection;
 using Ums.Domain.Approvals.ApprovalWorkflow;
 using Ums.Domain.Approvals.ApprovalWorkflow.ApprovalRequiredDocument;
 using Ums.Domain.Approvals.ApprovalRequest;
+using Ums.Domain.Approvals.DocumentType;
+using Ums.Domain.Approvals.UserDocument;
+using Ums.Domain.Approvals.UserDocument.AccessNotification;
+using Ums.Domain.Approvals.AccessEnforcementPolicy;
 using Ums.Domain.Approvals.NotificationRule;
 using Ums.Domain.Enums;
 using Ums.Domain.Kernel.ValueObjects;
@@ -17,6 +21,10 @@ namespace Ums.Infrastructure.Persistence.Reflection;
 using ApprovalWorkflowAggregate = Ums.Domain.Approvals.ApprovalWorkflow.ApprovalWorkflow;
 using ApprovalRequiredDocumentEntity = Ums.Domain.Approvals.ApprovalWorkflow.ApprovalRequiredDocument.ApprovalRequiredDocument;
 using ApprovalRequestAggregate = Ums.Domain.Approvals.ApprovalRequest.ApprovalRequest;
+using DocumentTypeAggregate = Ums.Domain.Approvals.DocumentType.DocumentType;
+using UserDocumentAggregate = Ums.Domain.Approvals.UserDocument.UserDocument;
+using AccessNotificationEntity = Ums.Domain.Approvals.UserDocument.AccessNotification.AccessNotification;
+using AccessEnforcementPolicyAggregate = Ums.Domain.Approvals.AccessEnforcementPolicy.AccessEnforcementPolicy;
 using NotificationRuleAggregate = Ums.Domain.Approvals.NotificationRule.NotificationRule;
 
 internal static class ApprovalsAggregateFactory
@@ -99,6 +107,95 @@ internal static class ApprovalsAggregateFactory
         rule.BrokenRules.Clear();
 
         return rule;
+    }
+
+    public static DocumentTypeAggregate RehydrateDocumentType(DocumentTypeRecord record)
+    {
+        var props = new DocumentTypeProps(
+            IdValueObject.Load(record.Id),
+            TenantId.Load(record.TenantId),
+            Code.Create(record.Code),
+            Name.Create(record.Name),
+            Description.Create(record.Description),
+            DomainEnumerationMapper.FromValue<DocumentCriticity>(record.CriticityId),
+            ActorId.Create(record.CreatedBy));
+
+        SetAudit(props, record.CreatedBy, record.CreatedAtUtc, record.UpdatedBy, record.UpdatedAtUtc, record.AuditTimeSpan);
+
+        var documentType = Construct<DocumentTypeAggregate, DocumentTypeProps>(props);
+        documentType.DomainEvents.MarkChangesAsCommitted();
+        documentType.BrokenRules.Clear();
+
+        return documentType;
+    }
+
+    public static UserDocumentAggregate RehydrateUserDocument(
+        UserDocumentRecord record,
+        IReadOnlyCollection<AccessNotificationRecord> notificationRecords)
+    {
+        var props = new UserDocumentProps(
+            IdValueObject.Load(record.Id),
+            UserId.Load(record.UserId),
+            DocumentTypeId.Load(record.DocumentTypeId),
+            record.IssueDate,
+            record.ExpirationDate,
+            DomainEnumerationMapper.FromValue<DocumentCriticity>(record.CriticityId),
+            TextValueObject.Create(record.FileStoragePath),
+            record.FileChecksum,
+            ActorId.Create(record.CreatedBy));
+
+        // Restore status (bypasses constructor invariant that always sets PendingReview)
+        var statusProp = props.GetType().GetProperty(nameof(UserDocumentProps.Status), InstanceFlags)!;
+        statusProp.SetValue(props, DomainEnumerationMapper.FromValue<DocumentStatus>(record.StatusId));
+
+        var notificationStepProp = props.GetType().GetProperty(nameof(UserDocumentProps.NotificationStep), InstanceFlags)!;
+        notificationStepProp.SetValue(props, record.NotificationStep);
+
+        SetAudit(props, record.CreatedBy, record.CreatedAtUtc, record.UpdatedBy, record.UpdatedAtUtc, record.AuditTimeSpan);
+
+        var document = Construct<UserDocumentAggregate, UserDocumentProps>(props);
+
+        var notifications = notificationRecords.Select(RehydrateAccessNotification).ToList();
+        SetField(document, "_notifications", notifications);
+
+        document.DomainEvents.MarkChangesAsCommitted();
+        document.BrokenRules.Clear();
+
+        return document;
+    }
+
+    private static AccessNotificationEntity RehydrateAccessNotification(AccessNotificationRecord record)
+    {
+        var props = new AccessNotificationProps(
+            IdValueObject.Load(record.Id),
+            record.Step,
+            DomainEnumerationMapper.FromValue<NotificationChannel>(record.ChannelId),
+            record.DaysRemaining);
+
+        // Restore persisted SentAt (not the auto-set UtcNow)
+        var sentAtProp = props.GetType().GetProperty(nameof(AccessNotificationProps.SentAt), InstanceFlags)!;
+        sentAtProp.SetValue(props, record.SentAt);
+
+        return Construct<AccessNotificationEntity, AccessNotificationProps>(props);
+    }
+
+    public static AccessEnforcementPolicyAggregate RehydrateAccessEnforcementPolicy(AccessEnforcementPolicyRecord record)
+    {
+        var props = new AccessEnforcementPolicyProps(
+            IdValueObject.Load(record.Id),
+            TenantId.Load(record.TenantId),
+            record.ProfileId.HasValue ? ProfileId.Load(record.ProfileId.Value) : null,
+            record.RoleId.HasValue ? RoleId.Load(record.RoleId.Value) : null,
+            DomainEnumerationMapper.FromValue<AccessEnforcementAction>(record.EnforcementActionId),
+            record.IsActive,
+            ActorId.Create(record.CreatedBy));
+
+        SetAudit(props, record.CreatedBy, record.CreatedAtUtc, record.UpdatedBy, record.UpdatedAtUtc, record.AuditTimeSpan);
+
+        var policy = Construct<AccessEnforcementPolicyAggregate, AccessEnforcementPolicyProps>(props);
+        policy.BrokenRules.Clear();
+
+        return policy;
     }
 
     private static TEntity Construct<TEntity, TProps>(TProps props)

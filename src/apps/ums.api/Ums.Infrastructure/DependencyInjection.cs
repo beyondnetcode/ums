@@ -229,6 +229,9 @@ public static class DependencyInjection
             services.AddScoped<IApprovalWorkflowRepository, SqlServerApprovalWorkflowRepository>();
             services.AddScoped<IApprovalRequestRepository, SqlServerApprovalRequestRepository>();
             services.AddScoped<INotificationRuleRepository, SqlServerNotificationRuleRepository>();
+            services.AddScoped<IDocumentTypeRepository, SqlServerDocumentTypeRepository>();
+            services.AddScoped<IUserDocumentRepository, SqlServerUserDocumentRepository>();
+            services.AddScoped<IAccessEnforcementPolicyRepository, SqlServerAccessEnforcementPolicyRepository>();
         }
         else
         {
@@ -240,6 +243,15 @@ public static class DependencyInjection
 
             services.AddSingleton<InMemoryNotificationRuleRepository>();
             services.AddSingleton<INotificationRuleRepository>(sp => sp.GetRequiredService<InMemoryNotificationRuleRepository>());
+
+            services.AddSingleton<InMemoryDocumentTypeRepository>();
+            services.AddSingleton<IDocumentTypeRepository>(sp => sp.GetRequiredService<InMemoryDocumentTypeRepository>());
+
+            services.AddSingleton<InMemoryUserDocumentRepository>();
+            services.AddSingleton<IUserDocumentRepository>(sp => sp.GetRequiredService<InMemoryUserDocumentRepository>());
+
+            services.AddSingleton<InMemoryAccessEnforcementPolicyRepository>();
+            services.AddSingleton<IAccessEnforcementPolicyRepository>(sp => sp.GetRequiredService<InMemoryAccessEnforcementPolicyRepository>());
         }
 
         if (persistence.Provider == PersistenceProvider.SqlServer && persistence.UseSqlServerIgaStores)
@@ -255,17 +267,6 @@ public static class DependencyInjection
             services.AddSingleton<InMemoryRoleMaturityStatusRepository>();
             services.AddSingleton<IRoleMaturityStatusRepository>(sp => sp.GetRequiredService<InMemoryRoleMaturityStatusRepository>());
         }
-
-        // DocumentType, UserDocument, AccessEnforcementPolicy: Approvals sub-entities without dedicated SQL repos yet.
-        // These remain InMemory until FS-11/FS-16 SQL persistence is added.
-        services.AddSingleton<InMemoryDocumentTypeRepository>();
-        services.AddSingleton<IDocumentTypeRepository>(sp => sp.GetRequiredService<InMemoryDocumentTypeRepository>());
-
-        services.AddSingleton<InMemoryUserDocumentRepository>();
-        services.AddSingleton<IUserDocumentRepository>(sp => sp.GetRequiredService<InMemoryUserDocumentRepository>());
-
-        services.AddSingleton<InMemoryAccessEnforcementPolicyRepository>();
-        services.AddSingleton<IAccessEnforcementPolicyRepository>(sp => sp.GetRequiredService<InMemoryAccessEnforcementPolicyRepository>());
 
         // ── AOP: DispatchProxy aspect-oriented infrastructure ──────────────────────
         // AddAop() registers the built-in aspects (LoggerAspect, AdviceAspect, RetryAspect),

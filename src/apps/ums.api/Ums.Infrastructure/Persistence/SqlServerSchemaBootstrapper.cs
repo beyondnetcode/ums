@@ -19,6 +19,7 @@ public static partial class SqlServerSchemaBootstrapper
         "20260523_soft_delete_gdpr.sql",                   // REC-16
         "20260523_outbox_dispatch_lease.sql",              // HARDENING-01
         "20260527_sqlserver_iga_aggregates.sql",           // IGA bounded context
+        "20260524_sqlserver_approvals_ep07_tables.sql",   // EP-07: DocumentType, UserDocument, AEP
     ];
 
     /// <summary>
