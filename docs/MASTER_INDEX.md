@@ -65,6 +65,9 @@ Product Lifecycle and Engineering Specifications for the User Management System 
 - [ADR-0054: Shell Library Isolation](./architecture/adrs/0054-shell-library-isolation.md) _(amended 2026-05-24 — scope extended to AOP + Bootstrapper, dep graph corrected)_
 - [ADR-0059: Single API Tier Decision](./architecture/adrs/0059-single-api-tier-decision.md)
 - [ADR-0060: AOP Cross-Cutting Concern Strategy](./architecture/adrs/0060-aop-cross-cutting-concern-strategy.md)
+- [ADR-0061: Execution Context Accessor Pattern](./architecture/adrs/0061-execution-context-accessor.md) _(⬆ arc32 candidate)_
+- [ADR-0062: PII-Safe Serilog Configuration](./architecture/adrs/0062-pii-safe-serilog-configuration.md) _(⬆ arc32 candidate)_
+- [ADR-0063: Idempotency Key Middleware](./architecture/adrs/0063-idempotency-middleware.md) _(⬆ arc32 candidate)_
 - [ADR Registry](./architecture/adrs/index.md)
 - **Shell Library Developer Guides** — [Overview](./architecture/shell-libraries/README.md) · [DDD](./architecture/shell-libraries/ddd.md) · [Factory](./architecture/shell-libraries/factory.md) · [AOP](./architecture/shell-libraries/aop.md) · [Bootstrapper](./architecture/shell-libraries/bootstrapper.md) · [Combined Usage](./architecture/shell-libraries/combined-usage.md)
 - [Design Decisions & Gaps](./governance/construction/ddd-design/12-design-decisions.md)

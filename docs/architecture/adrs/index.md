@@ -42,6 +42,11 @@ UMS is a satellite repository of `arc32_progresive_monolith`. The parent reposit
 | [ADR-0058](./0058-api-gateway-yarp-evolution.md) | API Gateway Evolution — YARP for Multi-Client SaaS | Proposed |
 | [ADR-0059](./0059-single-api-tier-decision.md) | Single API Tier Decision — co-location over split tiers | Accepted |
 | [ADR-0060](./0060-aop-cross-cutting-concern-strategy.md) | AOP Cross-Cutting Concern Strategy — DispatchProxy over MediatR Behaviors | Accepted |
+| [ADR-0061](./0061-execution-context-accessor.md) | Execution Context Accessor Pattern | Accepted · ⬆ arc32 candidate |
+| [ADR-0062](./0062-pii-safe-serilog-configuration.md) | PII-Safe Serilog Configuration (HARDENING-04) | Accepted · ⬆ arc32 candidate |
+| [ADR-0063](./0063-idempotency-middleware.md) | Idempotency Key Middleware (FIX-06 / RISK-05) | Accepted · ⬆ arc32 candidate |
+
+> **⬆ arc32 candidate** — ADR has zero UMS-specific dependencies and is proposed for extraction to the arc32 parent architecture baseline.
 
 ---
 

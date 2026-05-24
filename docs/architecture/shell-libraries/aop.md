@@ -479,9 +479,109 @@ Implement `GetOrder(IJoinPoint)` in your aspect class to return the appropriate 
 
 ---
 
+## 13. StructuredAopLoggerBase — Observability-Aware Logger Base
+
+`Ums.Shell.Aop.Aspects.Logger.Serilog` ships five additional types beyond `SerilogLogger` that form the foundation for production observability-aware logging adapters.
+
+### New types
+
+| Type | Kind | Purpose |
+|------|------|---------|
+| `ExecutionContextSnapshot` | `sealed record` | Immutable snapshot of CorrelationId, SessionTrackingId, TraceId, SpanId |
+| `IExecutionContextAccessor` | `interface` | Writable port for middleware to set the snapshot; read back by loggers |
+| `ObservabilityHeaders` | `static class` | HTTP header name constants: `X-Correlation-Id`, `X-Session-Tracking-Id` |
+| `ObservabilityKeys` | `static class` | OTel baggage/tag key constants: `correlation.id`, `session.tracking_id` |
+| `StructuredAopLoggerBase` | `abstract class : ILogger` | Base class for satellite-specific AOP loggers; resolves execution context and infers bounded context from type namespace |
+
+### StructuredAopLoggerBase — API
+
+```csharp
+public abstract class StructuredAopLoggerBase : ILogger
+{
+    // Inject IExecutionContextAccessor via constructor
+    protected StructuredAopLoggerBase(IExecutionContextAccessor accessor);
+
+    // Resolve full observability context for current request.
+    // Priority: IExecutionContextAccessor.Current → Activity.Current baggage → requestId → ""
+    protected ExecutionContextSnapshot ResolveExecutionContext(string requestId);
+
+    // Infer bounded context from type namespace.
+    // "Ums.Application.Identity.Tenant.Commands.*" → "Identity"
+    protected static string InferBoundedContext(Type targetType);
+
+    // Abstract — implement all six ILogger methods in your subclass
+    public abstract void OnEntry(IJoinPoint jp, Argument[] args, string requestId);
+    public abstract void OnExit(IJoinPoint jp, Return ret, string requestId, long duration);
+    public abstract void OnExit(IJoinPoint jp, string requestId, long duration);
+    public abstract void OnExit(IJoinPoint jp, Return ret, string requestId);
+    public abstract void OnExit(IJoinPoint jp, string requestId);
+    public abstract void OnException(IJoinPoint jp, string requestId, Exception ex);
+}
+```
+
+### Implementing a satellite-specific logger
+
+```csharp
+// 1. Application layer — marker interface (no Infrastructure import)
+public interface IMyServiceLogger : Ums.Shell.Aop.Aspects.ILogger;
+
+// 2. Infrastructure layer — concrete adapter
+public sealed class MyServiceLogger(
+    ILoggerFactory loggerFactory,
+    IUserContext userContext,
+    IExecutionContextAccessor accessor) : StructuredAopLoggerBase(accessor), IMyServiceLogger
+{
+    public override void OnEntry(IJoinPoint jp, Argument[] args, string requestId)
+    {
+        var ctx    = ResolveExecutionContext(requestId);
+        var bc     = InferBoundedContext(jp.TargetType);
+        var logger = loggerFactory.CreateLogger(jp.TargetType);
+
+        logger.LogInformation(
+            "→ {BC} {Handler}.{Method} | tenant={Tenant} cid={CorrelationId} sid={SessionId}",
+            bc, jp.TargetType.Name, jp.MethodInfo.Name,
+            userContext.TenantId ?? "system",
+            ctx.CorrelationId, ctx.SessionTrackingId);
+    }
+
+    // ... implement remaining abstract methods
+}
+
+// 3. DI registration
+services.AddKeyedTransient<Ums.Shell.Aop.Aspects.ILogger, MyServiceLogger>(
+    typeof(IMyServiceLogger));
+
+// 4. Handler decoration
+[LoggerAspect(Type = typeof(IMyServiceLogger), LogDuration = true, LogException = true, LogArguments = [])]
+public async Task<Result<MyResponse>> Handle(MyCommand request, CancellationToken ct) { ... }
+```
+
+### ObservabilityHeaders and ObservabilityKeys
+
+Use these constants instead of string literals in middleware and tests:
+
+```csharp
+// HTTP header names
+context.Response.Headers[ObservabilityHeaders.CorrelationId]     = correlationId;
+context.Response.Headers[ObservabilityHeaders.SessionTrackingId] = sessionId;
+
+// OTel Activity baggage / tag keys
+activity.SetBaggage(ObservabilityKeys.CorrelationId,     correlationId);
+activity.SetBaggage(ObservabilityKeys.SessionTrackingId, sessionId);
+```
+
+### arc32 disposition
+
+All five types have **zero UMS-specific imports** and are proposed for arc32 adoption. See [CP-08: AOP Logging Decorator](../artifacts/canonical-patterns/cp-08-aop-logging-decorator.md).
+
+---
+
 ## Related Docs
 
 - [DDD](ddd.md) — aggregates whose command handlers are wrapped with AOP
 - [Factory](factory.md) — factory-resolved services can also be wrapped
 - [Bootstrapper](bootstrapper.md) — `ObservabilityBootstrapper` provides OpenTelemetry tracing infrastructure
 - [Combined Usage](combined-usage.md) — all four libraries working together
+- [CP-05: Execution Context Propagation](../artifacts/canonical-patterns/cp-05-execution-context-propagation.md)
+- [CP-08: AOP Logging Decorator](../artifacts/canonical-patterns/cp-08-aop-logging-decorator.md)
+- [ADR-0061: Execution Context Accessor](../adrs/0061-execution-context-accessor.md)

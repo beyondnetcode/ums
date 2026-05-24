@@ -52,6 +52,11 @@ Especificaciones de Ingeniería y Ciclo de Vida del Producto para el User Manage
 - [Flujos Cross-Contexto](./governance/construction/ddd-design/10-cross-context-flows.md)
 - [Primitivas DDD](./governance/construction/ddd-design/11-ddd-primitives.md)
 - [ADR-0054: Aislamiento de Librerías Shell](./architecture/adrs/0054-shell-library-isolation.md)
+- [ADR-0061: Patrón Execution Context Accessor](./architecture/adrs/0061-execution-context-accessor.md) _(⬆ candidato arc32)_
+- [ADR-0062: Configuración Serilog Segura de PII](./architecture/adrs/0062-pii-safe-serilog-configuration.md) _(⬆ candidato arc32)_
+- [ADR-0063: Middleware de Clave de Idempotencia](./architecture/adrs/0063-idempotency-middleware.md) _(⬆ candidato arc32)_
+- [Índice ADR](./architecture/adrs/index.md)
+- [Índice de Patrones Canónicos](./architecture/artifacts/canonical-patterns/index.md)
 - [Decisiones de Diseno y Vacios](./governance/construction/ddd-design/12-design-decisions.md)
 - [Viewer Interactivo DDD](./governance/construction/ddd-design/interactive-ddd-viewer.html)
 
