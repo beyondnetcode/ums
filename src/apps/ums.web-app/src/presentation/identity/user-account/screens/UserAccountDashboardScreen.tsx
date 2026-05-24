@@ -7,7 +7,11 @@ import { UserAccountListPanel } from '../components/UserAccountListPanel';
 import { PageShell } from '@shared/layouts/PageShell';
 import { MasterDetailLayout } from '@shared/layouts/MasterDetailLayout';
 import { M3Dialog } from '@shared/components/M3Dialog';
+import { M3FormDialog } from '@shared/components/M3FormDialog';
+import { M3TextField } from '@shared/components/M3TextField';
+import { M3Button } from '@shared/components/M3Button';
 import { SortOption, FilterOption, QueryCriteriaOption } from '@shared/components/M3DataView';
+import { Lock } from 'lucide-react';
 
 export default function UserAccountDashboardScreen(): React.JSX.Element {
   const t = useI18n();
@@ -35,16 +39,42 @@ export default function UserAccountDashboardScreen(): React.JSX.Element {
         splitterLabel="Resize user account detail panel"
         overlay={
           <>
-            <M3Dialog
+            <M3FormDialog
               open={dashboard.showBlockDialog}
+              onClose={() => dashboard.setShowBlockDialog(false)}
               title={t.blockUserTitle}
-              message={t.blockUserMessage}
-              onScrimClick={() => dashboard.setShowBlockDialog(false)}
-              actions={[
-                { label: t.cancelBtn, variant: 'outlined', onClick: () => dashboard.setShowBlockDialog(false) },
-                { label: t.blockBtn, variant: 'filled', className: 'bg-m3-error hover:bg-m3-error/90 border-0', onClick: dashboard.confirmBlock },
-              ]}
-            />
+              icon={<Lock className="w-5 h-5 text-m3-error" />}
+              footer={
+                <>
+                  <M3Button variant="text" onClick={() => dashboard.setShowBlockDialog(false)} type="button">
+                    {t.cancelBtn}
+                  </M3Button>
+                  <M3Button
+                    variant="filled"
+                    onClick={dashboard.confirmBlock}
+                    disabled={!dashboard.blockReason.trim()}
+                    className="bg-m3-error hover:bg-m3-error/90 border-0"
+                  >
+                    {t.blockBtn}
+                  </M3Button>
+                </>
+              }
+            >
+              <div className="space-y-3 pt-2">
+                <p className="text-xs text-m3-secondary">
+                  {t.blockUserMessage}
+                </p>
+                <M3TextField
+                  label={t.blockReasonLabel || 'Reason for blocking'}
+                  required
+                  value={dashboard.blockReason}
+                  onChange={(e) => dashboard.setBlockReason(e.target.value)}
+                  placeholder="e.g. Security policy violation"
+                  helperText={t.blockReasonHelper || 'Please provide a justification for blocking this account'}
+                />
+              </div>
+            </M3FormDialog>
+
             <M3Dialog
               open={dashboard.showRestoreDialog}
               title={t.restoreUserTitle}
@@ -55,7 +85,12 @@ export default function UserAccountDashboardScreen(): React.JSX.Element {
                 { label: t.restoreBtn, variant: 'filled', onClick: dashboard.confirmRestore },
               ]}
             />
-            <UserAccountForm isOpen={dashboard.isCreateOpen} onClose={() => dashboard.setIsCreateOpen(false)} onSuccess={dashboard.handleCreateSuccess} />
+            <UserAccountForm
+              isOpen={dashboard.isCreateOpen}
+              onClose={() => dashboard.setIsCreateOpen(false)}
+              onSuccess={dashboard.handleCreateSuccess}
+              tenantId={dashboard.selectedTenantId}
+            />
           </>
         }
         master={
@@ -90,6 +125,9 @@ export default function UserAccountDashboardScreen(): React.JSX.Element {
             criteriaOptions={criteriaOptions}
             filterOptions={filterOptions}
             sortOptions={sortOptions}
+            tenants={dashboard.tenants}
+            selectedTenantId={dashboard.selectedTenantId}
+            onTenantChange={dashboard.setSelectedTenantId}
           />
         }
         detail={
@@ -99,9 +137,11 @@ export default function UserAccountDashboardScreen(): React.JSX.Element {
             onAccountActivate={dashboard.handleActivate}
             onAccountBlock={dashboard.handleBlockRequest}
             onAccountRestore={dashboard.handleRestoreRequest}
+            onAccountUpdate={dashboard.patchAccount}
           />
         }
       />
     </PageShell>
   );
-};
+}
+

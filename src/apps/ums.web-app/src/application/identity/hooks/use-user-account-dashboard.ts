@@ -4,15 +4,18 @@
  * Manages selection, search, pagination, dialogs, and mutations for the
  * UserAccount bounded context.
  */
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useGetAllUserAccounts, useActivateUserAccount, useBlockUserAccount, useRestoreUserAccount } from '@app/identity/hooks/use-user-account';
+import { useGetAllTenants } from '@app/identity/hooks/use-tenant';
 import { useLocalOverrides } from '@app/hooks/use-local-overrides';
 import { useNotificationStore } from '@app/stores/notification.store';
 import { UserAccount } from '@domain/identity/models/user-account.model';
+import { Tenant } from '@domain/identity/models/tenant.model';
 import { USER_ACCOUNT_PAGE_SIZE } from '@domain/identity/constants/user-account.constants';
 
 export interface UserAccountDashboardState {
   selectedId: string;
+  selectedTenantId: string;
   showBlockDialog: boolean;
   showRestoreDialog: boolean;
   isCreateOpen: boolean;
@@ -30,6 +33,7 @@ export interface UserAccountDashboardState {
 
 export interface UserAccountDashboardActions {
   setSelectedId: React.Dispatch<React.SetStateAction<string>>;
+  setSelectedTenantId: React.Dispatch<React.SetStateAction<string>>;
   setShowBlockDialog: React.Dispatch<React.SetStateAction<boolean>>;
   setShowRestoreDialog: React.Dispatch<React.SetStateAction<boolean>>;
   setIsCreateOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -51,6 +55,7 @@ export interface UserAccountDashboardActions {
   handleCreateSuccess: () => void;
   handleQuerySubmit: (e: React.FormEvent) => void;
   handleResetQuery: () => void;
+  patchAccount: (accountId: string, patch: Partial<UserAccount>) => void;
 }
 
 export function useUserAccountDashboard(): UserAccountDashboardState & UserAccountDashboardActions & {
@@ -61,8 +66,10 @@ export function useUserAccountDashboard(): UserAccountDashboardState & UserAccou
   totalItems: number;
   totalPages: number;
   startIndex: number;
+  tenants: Tenant[];
 } {
   const [selectedId, setSelectedId] = useState('');
+  const [selectedTenantId, setSelectedTenantId] = useState('');
   const [showBlockDialog, setShowBlockDialog] = useState(false);
   const [showRestoreDialog, setShowRestoreDialog] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -79,6 +86,15 @@ export function useUserAccountDashboard(): UserAccountDashboardState & UserAccou
 
   const addNotification = useNotificationStore((s) => s.addNotification);
 
+  const { data: tenantPage } = useGetAllTenants({ page: 1, pageSize: 100 });
+  const tenants = useMemo(() => tenantPage?.items ?? [], [tenantPage]);
+
+  useEffect(() => {
+    if (!selectedTenantId && tenants.length > 0) {
+      setSelectedTenantId(tenants[0].tenantId);
+    }
+  }, [tenants, selectedTenantId]);
+
   const { data: accountPage, isLoading: isLoadingList, error: listError } = useGetAllUserAccounts({
     page,
     pageSize,
@@ -87,9 +103,10 @@ export function useUserAccountDashboard(): UserAccountDashboardState & UserAccou
     status: activeFilter,
     sortBy,
     sortOrder,
+    tenantId: selectedTenantId || undefined,
   });
 
-  const { items: knownAccounts } = useLocalOverrides<UserAccount>(
+  const { items: knownAccounts, patchItem: patchLocalAccount } = useLocalOverrides<UserAccount>(
     accountPage?.items,
     'userAccountId',
   );
@@ -180,12 +197,17 @@ export function useUserAccountDashboard(): UserAccountDashboardState & UserAccou
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [knownAccounts]);
 
+  const patchAccount = useCallback((accountId: string, patch: Partial<UserAccount>) => {
+    patchLocalAccount(accountId, patch);
+  }, [patchLocalAccount]);
+
   const totalItems = accountPage?.totalItems ?? 0;
   const totalPages = accountPage?.totalPages ?? 0;
   const startIndex = (page - 1) * pageSize;
 
   return {
     selectedId, setSelectedId,
+    selectedTenantId, setSelectedTenantId,
     showBlockDialog, setShowBlockDialog,
     showRestoreDialog, setShowRestoreDialog,
     isCreateOpen, setIsCreateOpen,
@@ -208,6 +230,7 @@ export function useUserAccountDashboard(): UserAccountDashboardState & UserAccou
     handleCreateSuccess,
     handleQuerySubmit,
     handleResetQuery,
+    patchAccount,
     knownAccounts,
     isLoadingList,
     listError,
@@ -215,5 +238,6 @@ export function useUserAccountDashboard(): UserAccountDashboardState & UserAccou
     totalItems,
     totalPages,
     startIndex,
+    tenants,
   };
 }

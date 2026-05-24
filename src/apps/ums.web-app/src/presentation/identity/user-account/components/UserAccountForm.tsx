@@ -13,9 +13,10 @@ interface UserAccountFormProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  tenantId?: string;
 }
 
-export const UserAccountForm: React.FC<UserAccountFormProps> = ({ isOpen, onClose, onSuccess }) => {
+export const UserAccountForm: React.FC<UserAccountFormProps> = ({ isOpen, onClose, onSuccess, tenantId }) => {
   const createUserAccountMutation = useCreateUserAccount();
   const t = useI18n();
 
@@ -30,7 +31,7 @@ export const UserAccountForm: React.FC<UserAccountFormProps> = ({ isOpen, onClos
     setErrors({});
 
     const payload = {
-      tenantId: 'f3e2d1c0-b9a8-7f6e-5d4c-321098765432',
+      tenantId: tenantId || 'f3e2d1c0-b9a8-7f6e-5d4c-321098765432',
       branchId: null,
       email,
       category: category as 'Internal' | 'External' | 'B2B' | 'Partner' | 'ServiceAccount',

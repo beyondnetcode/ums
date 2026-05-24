@@ -101,7 +101,7 @@ export const DelegationListPanel: React.FC<DelegationListPanelProps> = ({
         }
         trailing={
           <div className="flex items-center gap-2">
-            <CodeBadge label={delegation.scopeType} />
+            <CodeBadge code={delegation.scopeType} />
             <StatusBadge status={delegation.status} label={getStatusLabel(delegation.status)} />
             <ArrowRight className={`w-4 h-4 ${isSelected ? 'text-m3-primary' : 'text-m3-outline'}`} />
           </div>

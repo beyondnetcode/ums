@@ -29,7 +29,7 @@ export const DelegationForm: React.FC<DelegationFormProps> = ({
   const createDelegationMutation = useCreateDelegation();
   const t = useI18n();
 
-  const [tenantId, setTenantId] = useState(defaultTenantId);
+  const [tenantId] = useState(defaultTenantId);
   const [delegatingAdminId, setDelegatingAdminId] = useState(defaultDelegatingAdminId);
   const [delegatedAdminId, setDelegatedAdminId] = useState('');
   const [scopeType, setScopeType] = useState<(typeof SCOPE_TYPES)[number]>('Tenant');

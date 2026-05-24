@@ -106,12 +106,26 @@ public static class DevDataSeeder
 
     private static IReadOnlyList<UserAccountAggregate> BuildSeedUserAccountsForTenant(TenantId tenantId, ActorId actor)
     {
-        return
-        [
-            BuildUserAccount(Guid.NewGuid(), tenantId, $"admin@{tenantId.GetValue().ToString().Replace("-", "")}.pe", UserCategory.Internal, actor),
-            BuildUserAccount(Guid.NewGuid(), tenantId, $"user@{tenantId.GetValue().ToString().Replace("-", "")}.pe", UserCategory.External, actor),
-        ];
+        var tenantStr = tenantId.GetValue().ToString().Replace("-", "")[..8];
+
+        var admin = BuildUserAccount(Guid.NewGuid(), tenantId, $"admin@{tenantStr}.pe", UserCategory.Internal, actor);
+        admin.Activate(actor);
+
+        var analyst = BuildUserAccount(Guid.NewGuid(), tenantId, $"analyst@{tenantStr}.pe", UserCategory.Internal, actor);
+        analyst.Activate(actor);
+
+        var pending = BuildUserAccount(Guid.NewGuid(), tenantId, $"external.pending@{tenantStr}.pe", UserCategory.External, actor);
+
+        var blocked = BuildUserAccount(Guid.NewGuid(), tenantId, $"blocked@{tenantStr}.pe", UserCategory.External, actor);
+        blocked.Activate(actor);
+        blocked.Block(Reason.Create("Violación de políticas de seguridad"), actor);
+
+        var partner = BuildUserAccount(Guid.NewGuid(), tenantId, $"partner@{tenantStr}.pe", UserCategory.Partner, actor);
+        partner.Activate(actor);
+
+        return [admin, analyst, pending, blocked, partner];
     }
+
 
     private static TenantAggregate BuildTenant(
         Guid id,

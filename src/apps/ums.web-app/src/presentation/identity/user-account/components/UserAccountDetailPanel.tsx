@@ -13,6 +13,7 @@ interface UserAccountDetailPanelProps {
   onAccountActivate: () => void;
   onAccountBlock: (userAccountId: string) => void;
   onAccountRestore: (userAccountId: string) => void;
+  onAccountUpdate: (accountId: string, patch: Partial<UserAccount>) => void;
 }
 
 export const UserAccountDetailPanel: React.FC<UserAccountDetailPanelProps> = ({
@@ -21,6 +22,7 @@ export const UserAccountDetailPanel: React.FC<UserAccountDetailPanelProps> = ({
   onAccountActivate,
   onAccountBlock,
   onAccountRestore,
+  onAccountUpdate,
 }) => {
   const t = useI18n();
   const [activeTab, setActiveTab] = useState<UserAccountTab>('overview');
@@ -63,6 +65,7 @@ export const UserAccountDetailPanel: React.FC<UserAccountDetailPanelProps> = ({
           onActivate={() => onAccountActivate()}
           onBlock={() => onAccountBlock(activeAccount.userAccountId)}
           onRestore={() => onAccountRestore(activeAccount.userAccountId)}
+          onAccountUpdate={onAccountUpdate}
         />
       }
     >

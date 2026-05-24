@@ -42,7 +42,7 @@ function isNetworkError(error: unknown): boolean {
 
 export const useGetAllUserAccounts = (params: UserAccountQueryParams) => {
   return useQuery<UserAccountPage>({
-    queryKey: ['user-accounts', params.page, params.pageSize, params.search, params.criteria, params.status, params.sortBy, params.sortOrder],
+    queryKey: ['user-accounts', params.page, params.pageSize, params.search, params.criteria, params.status, params.sortBy, params.sortOrder, params.tenantId],
     queryFn: () => userAccountService.getAllUserAccounts(params),
     staleTime: 30_000,
     retry: (failureCount, error: unknown) => {
