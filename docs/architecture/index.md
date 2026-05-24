@@ -59,6 +59,8 @@ Detailed engineering blueprints focusing on:
 - **[Interactive ER Viewer](./blueprints/interactive-er-viewer.html)**: Browser-based tool to explore the database structure.
 - **[Service Entity Map](./blueprints/service-entity-map.md)**: Logical mapping between system services and database entities.
 - **[Shell Library Architecture](./blueprints/shell-library-architecture.md)**: UMS-owned shell layer for inherited DDD and Factory patterns.
+- **[Shell Library Developer Guides](./shell-libraries/README.md)**: Comprehensive developer guides for all four shell libraries with independent and combined usage examples.
+  - [Ums.Shell.Ddd](./shell-libraries/ddd.md) · [Ums.Shell.Factory](./shell-libraries/factory.md) · [Ums.Shell.Aop](./shell-libraries/aop.md) · [Ums.Shell.Bootstrapper](./shell-libraries/bootstrapper.md) · [Combined Usage](./shell-libraries/combined-usage.md)
 
 ### [Traceability Matrix](./traceability-matrix.md)
 Cross-reference of all Functional Stories (FS-01..16) to ADRs and Technical Enablers.

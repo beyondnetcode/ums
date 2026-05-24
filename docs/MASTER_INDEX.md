@@ -62,8 +62,11 @@ Product Lifecycle and Engineering Specifications for the User Management System 
 - [ADR-0051: Event Bus Injectable Port](./architecture/adrs/0051-event-bus-injectable-port.md)
 - [ADR-0052: Immutable Audit Trail](./architecture/adrs/0052-immutable-audit-trail-enforcement.md)
 - [ADR-0053: OpenTelemetry Observability](./architecture/adrs/0053-opentelemetry-observability.md)
-- [ADR-0054: Shell Library Isolation](./architecture/adrs/0054-shell-library-isolation.md)
+- [ADR-0054: Shell Library Isolation](./architecture/adrs/0054-shell-library-isolation.md) _(amended 2026-05-24 — scope extended to AOP + Bootstrapper, dep graph corrected)_
+- [ADR-0059: Single API Tier Decision](./architecture/adrs/0059-single-api-tier-decision.md)
+- [ADR-0060: AOP Cross-Cutting Concern Strategy](./architecture/adrs/0060-aop-cross-cutting-concern-strategy.md)
 - [ADR Registry](./architecture/adrs/index.md)
+- **Shell Library Developer Guides** — [Overview](./architecture/shell-libraries/README.md) · [DDD](./architecture/shell-libraries/ddd.md) · [Factory](./architecture/shell-libraries/factory.md) · [AOP](./architecture/shell-libraries/aop.md) · [Bootstrapper](./architecture/shell-libraries/bootstrapper.md) · [Combined Usage](./architecture/shell-libraries/combined-usage.md)
 - [Design Decisions & Gaps](./governance/construction/ddd-design/12-design-decisions.md)
 - [Interactive DDD Viewer](./governance/construction/ddd-design/interactive-ddd-viewer.html)
 

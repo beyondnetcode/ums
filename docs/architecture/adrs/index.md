@@ -35,11 +35,13 @@ UMS is a satellite repository of `arc32_progresive_monolith`. The parent reposit
 | [ADR-0051](./0051-event-bus-injectable-port.md) | Event Bus — Injectable Port Strategy (.NET / MassTransit) | Accepted |
 | [ADR-0052](./0052-immutable-audit-trail-enforcement.md) | Immutable Audit Trail — SQL Server Enforcement Strategy | Accepted |
 | [ADR-0053](./0053-opentelemetry-observability.md) | OpenTelemetry Observability Strategy | Accepted |
-| [ADR-0054](./0054-shell-library-isolation.md) | Shell Library Isolation for DDD and Factory Patterns | Accepted |
+| [ADR-0054](./0054-shell-library-isolation.md) | Shell Library Isolation — DDD, Factory, AOP, Bootstrapper | Accepted · Amended 2026-05-24 |
 | [ADR-0055](./0055-graphql-rest-hybrid-api.md) | GraphQL/REST Hybrid API Pattern | Accepted |
 | [ADR-0056](./0056-clean-architecture-frontend.md) | Clean Architecture Layer Boundaries (Frontend) | Accepted |
 | [ADR-0057](./0057-zustand-tanstack-query-state.md) | Zustand + TanStack Query State Management | Accepted |
 | [ADR-0058](./0058-api-gateway-yarp-evolution.md) | API Gateway Evolution — YARP for Multi-Client SaaS | Proposed |
+| [ADR-0059](./0059-single-api-tier-decision.md) | Single API Tier Decision — co-location over split tiers | Accepted |
+| [ADR-0060](./0060-aop-cross-cutting-concern-strategy.md) | AOP Cross-Cutting Concern Strategy — DispatchProxy over MediatR Behaviors | Accepted |
 
 ---
 
