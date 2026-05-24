@@ -1,4 +1,5 @@
 using Ums.Application.Approvals.NotificationRule.DTOs;
+using Ums.Application.Approvals.NotificationRule.Services;
 
 namespace Ums.Application.Approvals.NotificationRule.Commands;
 
@@ -11,11 +12,16 @@ public sealed class CreateNotificationRuleCommandHandler : ICommandHandler<Creat
 {
     private readonly INotificationRuleRepository _repository;
     private readonly IUserContext _userContext;
+    private readonly INotificationRecipientResolver _recipientResolver;
 
-    public CreateNotificationRuleCommandHandler(INotificationRuleRepository repository, IUserContext userContext)
+    public CreateNotificationRuleCommandHandler(
+        INotificationRuleRepository repository,
+        IUserContext userContext,
+        INotificationRecipientResolver recipientResolver)
     {
         _repository = repository;
         _userContext = userContext;
+        _recipientResolver = recipientResolver;
     }
 
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
@@ -24,12 +30,18 @@ public sealed class CreateNotificationRuleCommandHandler : ICommandHandler<Creat
         if (string.IsNullOrWhiteSpace(_userContext.UserId))
             return Result<CreateNotificationRuleResponse>.Failure("Authenticated user is required.");
 
-        var channel = DomainEnumerationParser.FromName<NotificationChannel>(request.Channel)!;
+        var channel = DomainEnumerationParser.FromName<NotificationChannel>(request.Channel);
+        if (channel is null)
+            return Result<CreateNotificationRuleResponse>.Failure($"Notification channel '{request.Channel}' is not supported.");
+
+        var normalizedRecipient = _recipientResolver.Normalize(channel.Name, request.Recipient);
+        if (normalizedRecipient.IsFailure)
+            return Result<CreateNotificationRuleResponse>.Failure(normalizedRecipient.Error);
 
         var result = NotificationRule.Create(
             TenantId.Load(request.TenantId),
             channel,
-            TextValueObject.Create(request.Recipient),
+            TextValueObject.Create(normalizedRecipient.Value),
             ActorId.Create(_userContext.UserId));
 
         if (result.IsFailure) return Result<CreateNotificationRuleResponse>.Failure(result.Error);

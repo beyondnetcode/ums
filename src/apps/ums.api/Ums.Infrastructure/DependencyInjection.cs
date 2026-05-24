@@ -25,6 +25,8 @@ using Ums.Infrastructure.Persistence.Identity;
 using Ums.Infrastructure.Persistence.Interceptors;
 using Ums.Infrastructure.Persistence.Options;
 using Ums.Infrastructure.Services;
+using Ums.Application.Approvals.NotificationRule.Services;
+using Ums.Infrastructure.Approvals.NotificationRule;
 using Ums.Application.Configuration.IdpConfiguration.Services;
 using Ums.Infrastructure.Configuration.IdpResolution;
 using Ums.Shell.Factory.Installer.Extensions;
@@ -50,8 +52,12 @@ public static class DependencyInjection
         services.AddScoped<IRequestContext>(sp => sp.GetRequiredService<RequestContextAccessor>());
         services.AddScoped<IExecutionContextAccessor>(sp => sp.GetRequiredService<RequestContextAccessor>());
         services.AddScoped<IIdpConfigurationResolver, IdpConfigurationResolver>();
+        services.AddScoped<INotificationRecipientResolver, NotificationRecipientResolver>();
 
         services.AddFactory(builder => builder
+            .AddTransient<EmailNotificationRecipientStrategy, EmailNotificationRecipientStrategy>()
+            .AddTransient<SmsNotificationRecipientStrategy, SmsNotificationRecipientStrategy>()
+            .AddTransient<InAppNotificationRecipientStrategy, InAppNotificationRecipientStrategy>()
             .AddTransient<InternalBcryptIdpResolutionStrategy, InternalBcryptIdpResolutionStrategy>()
             .AddTransient<ZitadelIdpResolutionStrategy, ZitadelIdpResolutionStrategy>()
             .AddTransient<AzureAdIdpResolutionStrategy, AzureAdIdpResolutionStrategy>()
@@ -62,6 +68,7 @@ public static class DependencyInjection
             .AddTransient<LdapIdpResolutionStrategy, LdapIdpResolutionStrategy>()
             .AddTransient<Saml2IdpResolutionStrategy, Saml2IdpResolutionStrategy>()
             .AddTransient<GenericOidcIdpResolutionStrategy, GenericOidcIdpResolutionStrategy>()
+            .AddSource<NotificationRecipientStrategyFactorySetup>()
             .AddSource<IdpResolutionStrategyFactorySetup>());
 
         // OPS-01 / HARDENING-03: Token revocation store.

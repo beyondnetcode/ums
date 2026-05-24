@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Ums.Domain.Audit.AuditRecord;
 using Ums.Domain.Approvals;
+using Ums.Domain.Enums;
 using Ums.Infrastructure.Persistence;
 using Ums.Infrastructure.Persistence.Audit;
 using Ums.Infrastructure.Persistence.Options;
@@ -185,6 +186,18 @@ public sealed class UmsApiWebApplicationFactory : WebApplicationFactory<Program>
 
             idpConfiguration.Activate(actor);
             idpConfigurationRepository.Seed(idpConfiguration);
+        }
+
+        var notificationRuleRepository = scope.ServiceProvider.GetRequiredService<InMemoryNotificationRuleRepository>();
+        if (notificationRuleRepository.GetByTenantIdAsync(tenantId.GetValue()).GetAwaiter().GetResult().Count == 0)
+        {
+            var notificationRule = Ums.Domain.Approvals.NotificationRule.NotificationRule.Create(
+                tenantId,
+                NotificationChannel.Email,
+                TextValueObject.Create("alerts@beyondnet.com"),
+                actor).Value;
+
+            notificationRuleRepository.Seed(notificationRule);
         }
     }
 }
