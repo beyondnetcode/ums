@@ -1,6 +1,6 @@
+using Ums.Application.Common.Aop;
 using Ums.Application.Identity.Tenant.DTOs;
-
-
+using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.Identity.Tenant.Commands;
 
@@ -20,6 +20,7 @@ public sealed class CreateTenantCommandHandler : ICommandHandler<CreateTenantCom
         _userContext = userContext;
     }
 
+    [LoggerAspect(Type = typeof(IMelLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<CreateTenantResponse>> Handle(
         CreateTenantCommand request,
         CancellationToken cancellationToken)

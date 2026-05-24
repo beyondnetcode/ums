@@ -1,5 +1,6 @@
 namespace Ums.Infrastructure;
 
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.Http.Resilience;
 using Polly;
 using Ums.Application.Common.Interfaces;
 using Ums.Infrastructure.HealthChecks;
+using Ums.Shell.Aop.Microsoft.Extensions.DependencyInjection.Aspects.Installer;
 using Ums.Domain.Audit.AuditRecord;
 using Ums.Domain.Approvals;
 using Ums.Domain.Authorization;
@@ -214,6 +216,28 @@ public static class DependencyInjection
         services.AddSingleton<IRoleMaturityStatusRepository>(sp => sp.GetRequiredService<InMemoryRoleMaturityStatusRepository>());
 
         // TODO(api-aggregate-tracker): Validate SQL Server runtime for Configuration context and add dev seed coverage if needed.
+
+        // ── AOP: DispatchProxy aspect-oriented infrastructure ──────────────────────
+        // AddAop() registers the built-in aspects (LoggerAspect, AdviceAspect, RetryAspect),
+        // the PointCut, AspectExecutor and IFactory<ILogger> / IFactory<IAdvice> singletons.
+        //
+        // MelLogger bridges AOP ILogger → Microsoft.Extensions.Logging.ILoggerFactory and is
+        // registered under the key typeof(IMelLogger) so handlers can reference it via
+        // [LoggerAspect(Type = typeof(IMelLogger))] without any Infrastructure coupling.
+        //
+        // AddAopProxy<TService, TImpl>() wraps the concrete handler with a DispatchProxy.
+        // It registers TImpl as itself AND replaces the TService registration; MediatR
+        // resolves the proxy (last registration wins) and delegates to the concrete handler.
+        services.AddAop();
+        services.AddKeyedTransient<Ums.Shell.Aop.Aspects.ILogger, Ums.Infrastructure.Aop.MelLogger>(
+            typeof(Ums.Application.Common.Aop.IMelLogger));
+
+        services.AddAopProxy<
+            MediatR.IRequestHandler<
+                Ums.Application.Identity.Tenant.Commands.CreateTenantCommand,
+                Result<Ums.Application.Identity.Tenant.DTOs.CreateTenantResponse>>,
+            Ums.Application.Identity.Tenant.Commands.CreateTenantCommandHandler>();
+
         return services;
     }
 

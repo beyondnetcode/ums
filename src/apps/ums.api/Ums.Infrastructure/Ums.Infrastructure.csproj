@@ -4,6 +4,9 @@
     <ProjectReference Include="../Ums.Domain/Ums.Domain.csproj" />
     <ProjectReference Include="../Ums.Application/Ums.Application.csproj" />
     <ProjectReference Include="../Ums.Globalization/Ums.Globalization.csproj" />
+    <!-- AOP: DispatchProxy-based aspect-oriented infrastructure -->
+    <ProjectReference Include="../../../libs/shell/aop/src/Ums.Shell.Aop.Microsoft.Extensions.DependencyInjection.Aspects.Installer/Ums.Shell.Aop.Microsoft.Extensions.DependencyInjection.Aspects.Installer.csproj" />
+    <ProjectReference Include="../../../libs/shell/aop/src/Ums.Shell.Aop.Aspects.Logger.Serilog/Ums.Shell.Aop.Aspects.Logger.Serilog.csproj" />
   </ItemGroup>
 
   <ItemGroup>

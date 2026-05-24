@@ -3,6 +3,8 @@
   <ItemGroup>
     <ProjectReference Include="../Ums.Domain/Ums.Domain.csproj" />
     <ProjectReference Include="../Ums.Globalization/Ums.Globalization.csproj" />
+    <!-- AOP attribute contract (zero runtime overhead when no proxy is active) -->
+    <ProjectReference Include="../../../libs/shell/aop/src/Ums.Shell.Aop.Aspects/Ums.Shell.Aop.Aspects.csproj" />
   </ItemGroup>
 
   <ItemGroup>
