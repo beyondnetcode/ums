@@ -1,5 +1,4 @@
-﻿using Ums.Shell.Ddd.Factories;
-using Ums.Shell.Ddd.Interfaces;
+﻿using Ums.Shell.Ddd.Interfaces;
 using Ums.Shell.Ddd.Rules.Impl;
 using Ums.Shell.Ddd.Rules.PropertyChange;
 using Ums.Shell.Ddd.Services.Impl;
@@ -50,11 +49,11 @@ namespace Ums.Shell.Ddd
         {
             ArgumentNullException.ThrowIfNull(value, nameof(value));
 
-            BrokenRules = DddServiceFactory.CreateBrokenRulesManager();
+            BrokenRules = new BrokenRulesManager();
 
             ValidatorRules = new ValidatorRuleManager<AbstractRuleValidator<ValueObject<TValue>>>();
 
-            TrackingState = DddServiceFactory.CreateTrackingStateManager();
+            TrackingState = new TrackingStateManager();
 
             RegisterProperty(nameof(InternalValue), typeof(TValue), value, ValuePropertyChanged);
 

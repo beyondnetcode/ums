@@ -1,4 +1,4 @@
-﻿using Ums.Shell.Factory.Impl;
+using Ums.Shell.Factory.Impl;
 using Ums.Shell.Factory.Installer.Impl;
 using Ums.Shell.Factory.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,33 +8,32 @@ namespace Ums.Shell.Factory.Installer.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddFactory(this IServiceCollection servicecollection, Action<IFactoryBuilder> action = null)
+        /// <summary>
+        /// Registers the factory infrastructure into the DI container.
+        ///
+        /// <see cref="FactoryCreator"/> is wired with a <c>Func&lt;Type, object&gt;</c>
+        /// that delegates to <see cref="IServiceProvider.GetRequiredService(Type)"/>.
+        /// Every concrete implementation type that the factory may create must
+        /// therefore be registered in the same DI container.
+        /// </summary>
+        public static IServiceCollection AddFactory(
+            this IServiceCollection services,
+            Action<IFactoryBuilder>? action = null)
         {
-            servicecollection.AddServiceLocator();
+            // FactoryCreator receives a factory function backed by IServiceProvider.
+            // This is the accepted pattern for generic object factories in .NET:
+            // the factory is part of the composition root and is allowed to resolve
+            // services by type.
+            services.TryAddSingleton<IFactoryCreator>(sp =>
+                new FactoryCreator(sp.GetRequiredService));
 
-            servicecollection.TryAddSingleton<IFactory, Factory.Impl.Factory>();
+            services.TryAddSingleton<IFactory, Factory.Impl.Factory>();
 
-            servicecollection.TryAddSingleton<IFactoryCreator, FactoryCreator>();
+            services.TryAddSingleton<IFactorySetupProvider, FactorySetupProvider>();
 
-            servicecollection.TryAddSingleton<IFactorySetupProvider, FactorySetupProvider>();
+            action?.Invoke(new FactoryBuilder(services));
 
-            if (action != null)
-            {
-                action(new FactoryBuilder(servicecollection));
-            }
-
-            return servicecollection;
-        }
-
-        public static IServiceCollection AddServiceLocator(this IServiceCollection servicecollection)
-        {
-            servicecollection.TryAddSingleton<Factory.Impl.ServiceLocator>();
-
-            servicecollection.TryAddSingleton<IServiceLocator>(x => x.GetRequiredService<Factory.Impl.ServiceLocator>());
-
-            servicecollection.TryAddSingleton<IScopedServiceLocator>(x => x.GetRequiredService<Impl.ServiceLocator>());
-
-            return servicecollection;
+            return services;
         }
     }
 }
