@@ -1,4 +1,6 @@
 using Ums.Application.IGA.PromotionRequest.DTOs;
+using Ums.Application.Common.Aop;
+using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.IGA.PromotionRequest.Commands;
 
@@ -18,6 +20,7 @@ public sealed class CreatePromotionRequestCommandHandler : ICommandHandler<Creat
         _userContext = userContext;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<CreatePromotionRequestResponse>> Handle(CreatePromotionRequestCommand request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(_userContext.UserId))

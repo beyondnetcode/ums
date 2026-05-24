@@ -1,4 +1,6 @@
 using Ums.Application.Authorization.SystemSuite.DTOs;
+using Ums.Application.Common.Aop;
+using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.Authorization.SystemSuite.Commands;
 
@@ -18,6 +20,7 @@ public sealed class UpdateSystemSuiteCommandHandler : ICommandHandler<UpdateSyst
         _userContext = userContext;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result> Handle(UpdateSystemSuiteCommand request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(_userContext.UserId))

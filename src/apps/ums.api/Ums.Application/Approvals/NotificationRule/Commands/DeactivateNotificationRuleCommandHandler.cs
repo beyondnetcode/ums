@@ -1,4 +1,6 @@
 using Ums.Application.Approvals.NotificationRule.DTOs;
+using Ums.Application.Common.Aop;
+using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.Approvals.NotificationRule.Commands;
 
@@ -16,6 +18,7 @@ public sealed class DeactivateNotificationRuleCommandHandler : ICommandHandler<D
         _userContext = userContext;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result> Handle(DeactivateNotificationRuleCommand request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(_userContext.UserId))

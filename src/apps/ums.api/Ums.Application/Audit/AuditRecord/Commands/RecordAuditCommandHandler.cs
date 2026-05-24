@@ -1,4 +1,6 @@
 using Ums.Application.Audit.AuditRecord.DTOs;
+using Ums.Application.Common.Aop;
+using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.Audit.AuditRecord.Commands;
 
@@ -14,6 +16,7 @@ public sealed class RecordAuditCommandHandler : ICommandHandler<RecordAuditComma
         _auditRecordRepository = auditRecordRepository;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<RecordAuditResponse>> Handle(
         RecordAuditCommand request,
         CancellationToken cancellationToken)

@@ -1,4 +1,6 @@
 using Ums.Application.Configuration.FeatureFlag.DTOs;
+using Ums.Application.Common.Aop;
+using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.Configuration.FeatureFlag.Commands;
 
@@ -16,6 +18,7 @@ public sealed class EvaluateFeatureFlagCommandHandler : ICommandHandler<Evaluate
         _userContext = userContext;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<EvaluateFeatureFlagResponse>> Handle(EvaluateFeatureFlagCommand request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(_userContext.UserId))

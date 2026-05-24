@@ -1,4 +1,6 @@
 using Ums.Application.Approvals.AccessEnforcementPolicy.DTOs;
+using Ums.Application.Common.Aop;
+using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.Approvals.AccessEnforcementPolicy.Commands;
 
@@ -19,6 +21,7 @@ public sealed class CreateAccessEnforcementPolicyCommandHandler : ICommandHandle
         _userContext = userContext;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<CreateAccessEnforcementPolicyResponse>> Handle(CreateAccessEnforcementPolicyCommand request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(_userContext.UserId))

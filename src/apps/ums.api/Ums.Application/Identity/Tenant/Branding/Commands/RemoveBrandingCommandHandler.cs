@@ -1,4 +1,6 @@
 using Ums.Application.Identity.Tenant.Branding.DTOs;
+using Ums.Application.Common.Aop;
+using Ums.Shell.Aop.Aspects;
 
 
 
@@ -19,6 +21,7 @@ public sealed class RemoveBrandingCommandHandler : ICommandHandler<RemoveBrandin
         _userContext = userContext;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<RemoveBrandingResponse>> Handle(
         RemoveBrandingCommand request,
         CancellationToken cancellationToken)

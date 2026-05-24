@@ -1,4 +1,6 @@
 using Ums.Application.IGA.RoleMaturityStatus.DTOs;
+using Ums.Application.Common.Aop;
+using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.IGA.RoleMaturityStatus.Commands;
 
@@ -18,6 +20,7 @@ public sealed class UpdateRoleMaturityLevelCommandHandler : ICommandHandler<Upda
         _userContext = userContext;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result> Handle(UpdateRoleMaturityLevelCommand request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(_userContext.UserId))

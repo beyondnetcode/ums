@@ -1,4 +1,6 @@
 using Ums.Application.Authorization.SystemSuite.DTOs;
+using Ums.Application.Common.Aop;
+using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.Authorization.SystemSuite.Commands;
 
@@ -19,6 +21,7 @@ public sealed class CreateSystemSuiteCommandHandler : ICommandHandler<CreateSyst
         _userContext = userContext;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<CreateSystemSuiteResponse>> Handle(
         CreateSystemSuiteCommand request,
         CancellationToken cancellationToken)

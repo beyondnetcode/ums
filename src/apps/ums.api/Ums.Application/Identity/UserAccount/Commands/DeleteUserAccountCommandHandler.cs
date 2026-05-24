@@ -1,4 +1,6 @@
 using Ums.Application.Common.Interfaces;
+using Ums.Application.Common.Aop;
+using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.Identity.UserAccount.Commands;
 

@@ -1,4 +1,6 @@
 using Ums.Application.Identity.Tenant.Branch.DTOs;
+using Ums.Application.Common.Aop;
+using Ums.Shell.Aop.Aspects;
 
 
 
@@ -19,6 +21,7 @@ public sealed class AddBranchCommandHandler : ICommandHandler<AddBranchCommand, 
         _userContext = userContext;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<AddBranchResponse>> Handle(
         AddBranchCommand request,
         CancellationToken cancellationToken)

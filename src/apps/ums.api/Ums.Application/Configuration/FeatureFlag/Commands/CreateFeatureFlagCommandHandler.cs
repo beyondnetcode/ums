@@ -1,4 +1,6 @@
 using Ums.Application.Configuration.FeatureFlag.DTOs;
+using Ums.Application.Common.Aop;
+using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.Configuration.FeatureFlag.Commands;
 
@@ -18,6 +20,7 @@ public sealed class CreateFeatureFlagCommandHandler : ICommandHandler<CreateFeat
         _userContext = userContext;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<CreateFeatureFlagResponse>> Handle(CreateFeatureFlagCommand request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(_userContext.UserId))

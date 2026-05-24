@@ -1,4 +1,6 @@
 using Ums.Application.Approvals.DocumentType.DTOs;
+using Ums.Application.Common.Aop;
+using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.Approvals.DocumentType.Commands;
 
@@ -19,6 +21,7 @@ public sealed class CreateDocumentTypeCommandHandler : ICommandHandler<CreateDoc
         _userContext = userContext;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<CreateDocumentTypeResponse>> Handle(CreateDocumentTypeCommand request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(_userContext.UserId))

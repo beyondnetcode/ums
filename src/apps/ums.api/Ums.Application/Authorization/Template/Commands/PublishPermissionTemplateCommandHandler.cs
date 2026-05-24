@@ -1,4 +1,6 @@
 using Ums.Application.Authorization.Template.DTOs;
+using Ums.Application.Common.Aop;
+using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.Authorization.Template.Commands;
 
@@ -18,6 +20,7 @@ public sealed class PublishPermissionTemplateCommandHandler : ICommandHandler<Pu
         _userContext = userContext;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result> Handle(PublishPermissionTemplateCommand request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(_userContext.UserId))

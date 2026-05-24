@@ -1,4 +1,6 @@
 using Ums.Application.Authorization.Profile.DTOs;
+using Ums.Application.Common.Aop;
+using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.Authorization.Profile.Commands;
 
@@ -19,6 +21,7 @@ public sealed class CreateProfileCommandHandler : ICommandHandler<CreateProfileC
         _userContext = userContext;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<CreateProfileResponse>> Handle(
         CreateProfileCommand request,
         CancellationToken cancellationToken)

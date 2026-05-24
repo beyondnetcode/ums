@@ -1,4 +1,6 @@
 using Ums.Application.Identity.Tenant.Branding.DTOs;
+using Ums.Application.Common.Aop;
+using Ums.Shell.Aop.Aspects;
 
 
 
@@ -20,6 +22,7 @@ public sealed class SetBrandingCommandHandler : ICommandHandler<SetBrandingComma
         _userContext = userContext;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<SetBrandingResponse>> Handle(
         SetBrandingCommand request,
         CancellationToken cancellationToken)

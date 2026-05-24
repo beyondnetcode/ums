@@ -1,4 +1,6 @@
 using Ums.Application.Approvals.ApprovalWorkflow.DTOs;
+using Ums.Application.Common.Aop;
+using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.Approvals.ApprovalWorkflow.Commands;
 
@@ -19,6 +21,7 @@ public sealed class CreateApprovalWorkflowCommandHandler : ICommandHandler<Creat
         _userContext = userContext;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<CreateApprovalWorkflowResponse>> Handle(CreateApprovalWorkflowCommand request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(_userContext.UserId))

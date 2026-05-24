@@ -1,4 +1,6 @@
 using Ums.Application.Approvals.UserDocument.DTOs;
+using Ums.Application.Common.Aop;
+using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.Approvals.UserDocument.Commands;
 
@@ -19,6 +21,7 @@ public sealed class UploadUserDocumentCommandHandler : ICommandHandler<UploadUse
         _userContext = userContext;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<UploadUserDocumentResponse>> Handle(UploadUserDocumentCommand request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(_userContext.UserId))

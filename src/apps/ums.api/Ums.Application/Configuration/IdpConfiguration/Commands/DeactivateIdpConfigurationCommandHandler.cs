@@ -1,3 +1,6 @@
+using Ums.Application.Common.Aop;
+using Ums.Shell.Aop.Aspects;
+
 namespace Ums.Application.Configuration.IdpConfiguration.Commands;
 
 using Ums.Application.Common.Interfaces;
@@ -14,6 +17,7 @@ public sealed class DeactivateIdpConfigurationCommandHandler : ICommandHandler<D
         _userContext = userContext;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result> Handle(DeactivateIdpConfigurationCommand request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(_userContext.UserId))

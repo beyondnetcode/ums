@@ -1,4 +1,6 @@
 using Ums.Application.Authorization.Profile.DTOs;
+using Ums.Application.Common.Aop;
+using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.Authorization.Profile.Commands;
 
@@ -18,6 +20,7 @@ public sealed class DeactivateProfileCommandHandler : ICommandHandler<Deactivate
         _userContext = userContext;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result> Handle(DeactivateProfileCommand request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(_userContext.UserId))

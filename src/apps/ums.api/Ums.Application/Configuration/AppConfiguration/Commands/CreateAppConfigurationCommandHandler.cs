@@ -1,4 +1,6 @@
 using Ums.Application.Configuration.AppConfiguration.DTOs;
+using Ums.Application.Common.Aop;
+using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.Configuration.AppConfiguration.Commands;
 
@@ -16,6 +18,7 @@ public sealed class CreateAppConfigurationCommandHandler : ICommandHandler<Creat
         _userContext = userContext;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<CreateAppConfigurationResponse>> Handle(CreateAppConfigurationCommand request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(_userContext.UserId))

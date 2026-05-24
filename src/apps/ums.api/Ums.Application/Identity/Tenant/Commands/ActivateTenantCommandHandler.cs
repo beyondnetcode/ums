@@ -1,4 +1,6 @@
 using Ums.Application.Identity.Tenant.DTOs;
+using Ums.Application.Common.Aop;
+using Ums.Shell.Aop.Aspects;
 
 
 namespace Ums.Application.Identity.Tenant.Commands;
@@ -18,6 +20,7 @@ public sealed class ActivateTenantCommandHandler : ICommandHandler<ActivateTenan
         _userContext = userContext;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result> Handle(ActivateTenantCommand request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(_userContext.UserId))

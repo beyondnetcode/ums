@@ -1,5 +1,7 @@
 using Ums.Application.Common.Interfaces;
 using Ums.Application.Identity.UserManagementDelegation.DTOs;
+using Ums.Application.Common.Aop;
+using Ums.Shell.Aop.Aspects;
 using Ums.Domain.Identity.UserManagementDelegation;
 
 namespace Ums.Application.Identity.UserManagementDelegation.Commands;

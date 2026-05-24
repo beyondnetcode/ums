@@ -1,4 +1,6 @@
 using Ums.Application.Identity.Tenant.Branch.DTOs;
+using Ums.Application.Common.Aop;
+using Ums.Shell.Aop.Aspects;
 
 
 
@@ -19,6 +21,7 @@ public sealed class RemoveBranchCommandHandler : ICommandHandler<RemoveBranchCom
         _userContext = userContext;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<RemoveBranchResponse>> Handle(
         RemoveBranchCommand request,
         CancellationToken cancellationToken)

@@ -1,4 +1,6 @@
 using Ums.Application.Approvals.ApprovalRequest.DTOs;
+using Ums.Application.Common.Aop;
+using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.Approvals.ApprovalRequest.Commands;
 
@@ -16,6 +18,7 @@ public sealed class ApproveRequestCommandHandler : ICommandHandler<ApproveReques
         _userContext = userContext;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result> Handle(ApproveRequestCommand request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(_userContext.UserId))
