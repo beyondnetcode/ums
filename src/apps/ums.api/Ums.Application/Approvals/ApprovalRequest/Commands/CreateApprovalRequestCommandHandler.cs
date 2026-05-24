@@ -1,10 +1,7 @@
 using Ums.Application.Approvals.ApprovalRequest.DTOs;
-using Ums.Application.Common.Aop;
-using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.Approvals.ApprovalRequest.Commands;
 
-using Ums.Application.Common.Interfaces;
 using Ums.Domain.Approvals;
 using Ums.Domain.Approvals.ApprovalRequest;
 

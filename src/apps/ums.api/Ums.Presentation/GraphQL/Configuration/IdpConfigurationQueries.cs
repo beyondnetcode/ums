@@ -44,4 +44,20 @@ public sealed class IdpConfigurationQueries
         var result = await mediator.Send(new GetIdpConfigurationByIdQuery(id), cancellationToken);
         return result.UnwrapGraphQlOrNull();
     }
+
+    public async Task<ResolvedIdpConfigurationDto?> ResolveIdpConfigurationAsync(
+        Guid tenantId,
+        Guid? systemSuiteId,
+        string? emailDomain,
+        string? providerType,
+        [Service] IMediator mediator,
+        CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(new ResolveIdpConfigurationQuery(
+            tenantId,
+            systemSuiteId,
+            NormalizeSearch(emailDomain),
+            NormalizeSearch(providerType)), cancellationToken);
+        return result.UnwrapGraphQlOrNull();
+    }
 }

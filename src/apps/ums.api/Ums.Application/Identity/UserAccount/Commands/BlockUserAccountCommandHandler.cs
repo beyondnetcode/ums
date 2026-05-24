@@ -1,10 +1,6 @@
 using Ums.Application.Identity.UserAccount.DTOs;
-using Ums.Application.Common.Aop;
-using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.Identity.UserAccount.Commands;
-
-using Ums.Application.Common.Interfaces;
 
 public sealed class BlockUserAccountCommandHandler : ICommandHandler<BlockUserAccountCommand>
 {
@@ -19,6 +15,7 @@ public sealed class BlockUserAccountCommandHandler : ICommandHandler<BlockUserAc
         _userContext = userContext;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result> Handle(BlockUserAccountCommand request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(_userContext.UserId))

@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
-using Ums.Application.Common.Interfaces;
 
 namespace Ums.Infrastructure.Services;
 

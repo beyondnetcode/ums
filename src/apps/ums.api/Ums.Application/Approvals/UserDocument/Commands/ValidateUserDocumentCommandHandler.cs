@@ -1,10 +1,7 @@
 using Ums.Application.Approvals.UserDocument.DTOs;
-using Ums.Application.Common.Aop;
-using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.Approvals.UserDocument.Commands;
 
-using Ums.Application.Common.Interfaces;
 using Ums.Domain.Approvals;
 
 public sealed class ValidateUserDocumentCommandHandler : ICommandHandler<ValidateUserDocumentCommand>

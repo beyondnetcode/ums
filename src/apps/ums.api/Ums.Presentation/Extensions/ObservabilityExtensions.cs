@@ -1,5 +1,6 @@
 namespace Ums.Presentation.Extensions;
 
+using System.Diagnostics;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -28,8 +29,11 @@ public static class ObservabilityExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        var endpoint = configuration["OpenTelemetry:Endpoint"];
-        var version  = configuration["OpenTelemetry:ServiceVersion"] ?? "1.0.0";
+        var endpoint = configuration["Observability:Tracing:OtlpEndpoint"]
+            ?? configuration["OpenTelemetry:Endpoint"];
+        var version  = configuration["Observability:Tracing:ServiceVersion"]
+            ?? configuration["OpenTelemetry:ServiceVersion"]
+            ?? "1.0.0";
 
         var resourceBuilder = ResourceBuilder.CreateDefault()
             .AddService(
@@ -50,10 +54,32 @@ public static class ObservabilityExtensions
                         // Exclude health check noise from traces
                         opts.Filter = ctx =>
                             !ctx.Request.Path.StartsWithSegments("/health");
+                        opts.EnrichWithHttpRequest = (activity, request) =>
+                        {
+                            if (request.Headers.TryGetValue(ObservabilityHeaders.SessionTrackingId, out var sessionTrackingId)
+                                && !string.IsNullOrWhiteSpace(sessionTrackingId))
+                            {
+                                activity.SetTag(ObservabilityKeys.SessionTrackingId, sessionTrackingId.ToString());
+                            }
+
+                            if (request.Headers.TryGetValue(ObservabilityHeaders.CorrelationId, out var correlationId)
+                                && !string.IsNullOrWhiteSpace(correlationId))
+                            {
+                                activity.SetTag(ObservabilityKeys.CorrelationId, correlationId.ToString());
+                            }
+                        };
                     })
                     .AddHttpClientInstrumentation(opts =>
                     {
                         opts.RecordException = true;
+                        opts.EnrichWithHttpRequestMessage = (activity, _) =>
+                        {
+                            var sessionTrackingId = Activity.Current?.GetBaggageItem(ObservabilityKeys.SessionTrackingId);
+                            if (!string.IsNullOrWhiteSpace(sessionTrackingId))
+                            {
+                                activity.SetTag(ObservabilityKeys.SessionTrackingId, sessionTrackingId);
+                            }
+                        };
                     })
                     // EF Core SQL queries traced via activity source
                     .AddSource("Microsoft.EntityFrameworkCore");
@@ -75,6 +101,8 @@ public static class ObservabilityExtensions
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddRuntimeInstrumentation()
+                    // SessionTrackingId is intentionally not emitted as a metric dimension.
+                    // It is too high-cardinality for general-purpose metrics backends.
                     // Custom UMS meters (reserved for future instrumentation)
                     .AddMeter("UMS.Application")
                     .AddMeter("UMS.Infrastructure");

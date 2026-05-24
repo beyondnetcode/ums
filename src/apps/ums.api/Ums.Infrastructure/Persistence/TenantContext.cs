@@ -1,4 +1,3 @@
-using Ums.Application.Common.Interfaces;
 
 namespace Ums.Infrastructure.Persistence;
 

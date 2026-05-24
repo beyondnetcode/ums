@@ -1,4 +1,3 @@
-using Ums.Application.Common.Interfaces;
 using Ums.Application.Identity.Tenant.DTOs;
 using Ums.Domain.Identity;
 using static Ums.Application.Common.QueryRequestNormalizer;
@@ -13,6 +12,8 @@ public sealed class GetAllTenantsQueryHandler : IQueryHandler<GetAllTenantsQuery
     {
         _tenantRepository = tenantRepository;
     }
+
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
 
     public async Task<Result<PagedResult<TenantDto>>> Handle(
         GetAllTenantsQuery request,

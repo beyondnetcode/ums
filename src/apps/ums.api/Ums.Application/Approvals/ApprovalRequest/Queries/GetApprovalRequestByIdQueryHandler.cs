@@ -10,6 +10,8 @@ public sealed class GetApprovalRequestByIdQueryHandler : IQueryHandler<GetApprov
 
     public GetApprovalRequestByIdQueryHandler(IApprovalRequestRepository repository) => _repository = repository;
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
+
     public async Task<Result<ApprovalRequestDto>> Handle(GetApprovalRequestByIdQuery request, CancellationToken cancellationToken)
     {
         var entity = await _repository.GetByIdAsync(request.ApprovalRequestId, cancellationToken);

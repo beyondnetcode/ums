@@ -10,6 +10,8 @@ public sealed class GetAllIdpConfigurationsQueryHandler : IQueryHandler<GetAllId
 
     public GetAllIdpConfigurationsQueryHandler(IIdpConfigurationRepository repository) => _repository = repository;
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
+
     public async Task<Result<PagedResult<IdpConfigurationDto>>> Handle(GetAllIdpConfigurationsQuery request, CancellationToken cancellationToken)
     {
         var page = NormalizePage(request.Page);

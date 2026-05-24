@@ -1,4 +1,3 @@
-using Ums.Application.Common.Interfaces;
 using Ums.Application.Identity.UserAccount.DTOs;
 using Ums.Domain.Identity.UserAccount;
 
@@ -12,6 +11,8 @@ public sealed class GetUserAccountByIdQueryHandler : IQueryHandler<GetUserAccoun
     {
         _userAccountRepository = userAccountRepository;
     }
+
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
 
     public async Task<Result<UserAccountDto>> Handle(
         GetUserAccountByIdQuery request,

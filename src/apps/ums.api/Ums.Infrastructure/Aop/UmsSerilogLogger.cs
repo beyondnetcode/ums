@@ -1,13 +1,10 @@
 using System;
-using System.Diagnostics;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using Ums.Application.Common.Aop;
-using Ums.Application.Common.Interfaces;
 using Ums.Shell.Aop;
 using Ums.Shell.Aop.Aspects;
 
-using AopILogger         = Ums.Shell.Aop.Aspects.ILogger;
 using MelILoggerFactory  = Microsoft.Extensions.Logging.ILoggerFactory;
 using MelILogger         = Microsoft.Extensions.Logging.ILogger;
 
@@ -43,7 +40,8 @@ namespace Ums.Infrastructure.Aop;
 /// </summary>
 public sealed class UmsSerilogLogger(
     MelILoggerFactory loggerFactory,
-    IUserContext      userContext) : IUmsLogger
+    IUserContext userContext,
+    IExecutionContextAccessor executionContextAccessor) : StructuredAopLoggerBase(executionContextAccessor), IUmsLogger
 {
     // ── Helpers ───────────────────────────────────────────────────────────────────────────
 
@@ -54,58 +52,18 @@ public sealed class UmsSerilogLogger(
     private string TenantId() =>
         userContext.TenantId ?? "system";
 
-    /// <summary>
-    /// CorrelationId resolution order:
-    ///   1. W3C Activity baggage "correlation.id"  (set by CorrelationIdMiddleware via SetBaggage)
-    ///   2. requestId passed by the AOP framework (comes from the [LoggerAspect] attribute)
-    ///   3. Activity TraceId as fallback (already a global identifier)
-    ///   4. Empty string when no HTTP context exists (background services, tests)
-    /// </summary>
-    private static string CorrelationId(string requestId)
-    {
-        var activity = Activity.Current;
-
-        var fromBaggage = activity?.GetBaggageItem("correlation.id");
-        if (!string.IsNullOrWhiteSpace(fromBaggage)) return fromBaggage!;
-
-        if (!string.IsNullOrWhiteSpace(requestId)) return requestId;
-
-        var fromTrace = activity?.TraceId.ToString();
-        return string.IsNullOrWhiteSpace(fromTrace) ? string.Empty : fromTrace!;
-    }
-
-    /// <summary>
-    /// Infers the bounded context from the handler type's namespace.
-    /// <c>Ums.Application.Identity.Tenant.Commands.CreateTenantCommandHandler</c> → "Identity"
-    /// Falls back to the simple class name when the namespace does not match expectations.
-    /// </summary>
-    private static string BoundedContext(Type targetType)
-    {
-        // Namespace pattern: Ums.(Application|Domain).{BoundedContext}.*
-        var parts = targetType.Namespace?.Split('.') ?? [];
-        return parts.Length >= 3 ? parts[2] : targetType.Name;
-    }
-
-    /// <summary>Returns the current W3C TraceId as a hex string, or empty.</summary>
-    private static string TraceId() =>
-        Activity.Current?.TraceId.ToString() ?? string.Empty;
-
-    /// <summary>Returns the current W3C SpanId as a hex string, or empty.</summary>
-    private static string SpanId() =>
-        Activity.Current?.SpanId.ToString() ?? string.Empty;
+    private static string BoundedContext(Type targetType) => InferBoundedContext(targetType);
 
     // ── ILogger contract ─────────────────────────────────────────────────────────────────
 
     /// <inheritdoc/>
-    public void OnEntry(IJoinPoint joinPoint, Argument[] arguments, string requestId)
+    public override void OnEntry(IJoinPoint joinPoint, Argument[] arguments, string requestId)
     {
         var log           = Logger(joinPoint);
         if (!log.IsEnabled(LogLevel.Information)) return;
 
+        var executionContext = ResolveExecutionContext(requestId);
         var tenantId      = TenantId();
-        var correlationId = CorrelationId(requestId);
-        var traceId       = TraceId();
-        var spanId        = SpanId();
         var bc            = BoundedContext(joinPoint.TargetType);
 
         // PII-safe: only names + CLR types, never values.
@@ -116,98 +74,96 @@ public sealed class UmsSerilogLogger(
         if (string.IsNullOrEmpty(argSummary))
         {
             log.LogInformation(
-                "→ {BoundedContext} {Handler}.{Method} | tenant={TenantId} cid={CorrelationId} trace={TraceId} span={SpanId}",
+                "→ {BoundedContext} {Handler}.{Method} | tenant={TenantId} cid={CorrelationId} sid={SessionTrackingId} trace={TraceId} span={SpanId}",
                 bc, joinPoint.TargetType.Name, joinPoint.MethodInfo.Name,
-                tenantId, correlationId, traceId, spanId);
+                tenantId, executionContext.CorrelationId, executionContext.SessionTrackingId, executionContext.TraceId, executionContext.SpanId);
         }
         else
         {
             log.LogInformation(
-                "→ {BoundedContext} {Handler}.{Method} params=[{Params}] | tenant={TenantId} cid={CorrelationId} trace={TraceId} span={SpanId}",
+                "→ {BoundedContext} {Handler}.{Method} params=[{Params}] | tenant={TenantId} cid={CorrelationId} sid={SessionTrackingId} trace={TraceId} span={SpanId}",
                 bc, joinPoint.TargetType.Name, joinPoint.MethodInfo.Name, argSummary,
-                tenantId, correlationId, traceId, spanId);
+                tenantId, executionContext.CorrelationId, executionContext.SessionTrackingId, executionContext.TraceId, executionContext.SpanId);
         }
     }
 
     /// <inheritdoc/>
-    public void OnExit(IJoinPoint joinPoint, Return @return, string requestId, long duration)
+    public override void OnExit(IJoinPoint joinPoint, Return @return, string requestId, long duration)
     {
         var log           = Logger(joinPoint);
         if (!log.IsEnabled(LogLevel.Information)) return;
 
+        var executionContext = ResolveExecutionContext(requestId);
         var tenantId      = TenantId();
-        var correlationId = CorrelationId(requestId);
 
         log.LogInformation(
-            "← {BoundedContext} {Handler}.{Method} in {Duration}ms | tenant={TenantId} cid={CorrelationId}",
+            "← {BoundedContext} {Handler}.{Method} in {Duration}ms | tenant={TenantId} cid={CorrelationId} sid={SessionTrackingId} trace={TraceId} span={SpanId}",
             BoundedContext(joinPoint.TargetType),
             joinPoint.TargetType.Name, joinPoint.MethodInfo.Name,
-            duration, tenantId, correlationId);
+            duration, tenantId, executionContext.CorrelationId, executionContext.SessionTrackingId, executionContext.TraceId, executionContext.SpanId);
     }
 
     /// <inheritdoc/>
-    public void OnExit(IJoinPoint joinPoint, string requestId, long duration)
+    public override void OnExit(IJoinPoint joinPoint, string requestId, long duration)
     {
         var log           = Logger(joinPoint);
         if (!log.IsEnabled(LogLevel.Information)) return;
 
+        var executionContext = ResolveExecutionContext(requestId);
         var tenantId      = TenantId();
-        var correlationId = CorrelationId(requestId);
 
         log.LogInformation(
-            "← {BoundedContext} {Handler}.{Method} in {Duration}ms | tenant={TenantId} cid={CorrelationId}",
+            "← {BoundedContext} {Handler}.{Method} in {Duration}ms | tenant={TenantId} cid={CorrelationId} sid={SessionTrackingId} trace={TraceId} span={SpanId}",
             BoundedContext(joinPoint.TargetType),
             joinPoint.TargetType.Name, joinPoint.MethodInfo.Name,
-            duration, tenantId, correlationId);
+            duration, tenantId, executionContext.CorrelationId, executionContext.SessionTrackingId, executionContext.TraceId, executionContext.SpanId);
     }
 
     /// <inheritdoc/>
-    public void OnExit(IJoinPoint joinPoint, Return @return, string requestId)
+    public override void OnExit(IJoinPoint joinPoint, Return @return, string requestId)
     {
         var log           = Logger(joinPoint);
         if (!log.IsEnabled(LogLevel.Information)) return;
 
+        var executionContext = ResolveExecutionContext(requestId);
         var tenantId      = TenantId();
-        var correlationId = CorrelationId(requestId);
 
         log.LogInformation(
-            "← {BoundedContext} {Handler}.{Method} | tenant={TenantId} cid={CorrelationId}",
+            "← {BoundedContext} {Handler}.{Method} | tenant={TenantId} cid={CorrelationId} sid={SessionTrackingId} trace={TraceId} span={SpanId}",
             BoundedContext(joinPoint.TargetType),
             joinPoint.TargetType.Name, joinPoint.MethodInfo.Name,
-            tenantId, correlationId);
+            tenantId, executionContext.CorrelationId, executionContext.SessionTrackingId, executionContext.TraceId, executionContext.SpanId);
     }
 
     /// <inheritdoc/>
-    public void OnExit(IJoinPoint joinPoint, string requestId)
+    public override void OnExit(IJoinPoint joinPoint, string requestId)
     {
         var log           = Logger(joinPoint);
         if (!log.IsEnabled(LogLevel.Information)) return;
 
+        var executionContext = ResolveExecutionContext(requestId);
         var tenantId      = TenantId();
-        var correlationId = CorrelationId(requestId);
 
         log.LogInformation(
-            "← {BoundedContext} {Handler}.{Method} | tenant={TenantId} cid={CorrelationId}",
+            "← {BoundedContext} {Handler}.{Method} | tenant={TenantId} cid={CorrelationId} sid={SessionTrackingId} trace={TraceId} span={SpanId}",
             BoundedContext(joinPoint.TargetType),
             joinPoint.TargetType.Name, joinPoint.MethodInfo.Name,
-            tenantId, correlationId);
+            tenantId, executionContext.CorrelationId, executionContext.SessionTrackingId, executionContext.TraceId, executionContext.SpanId);
     }
 
     /// <inheritdoc/>
-    public void OnException(IJoinPoint joinPoint, string requestId, Exception ex)
+    public override void OnException(IJoinPoint joinPoint, string requestId, Exception ex)
     {
         var log           = Logger(joinPoint);
+        var executionContext = ResolveExecutionContext(requestId);
         var tenantId      = TenantId();
-        var correlationId = CorrelationId(requestId);
-        var traceId       = TraceId();
-        var spanId        = SpanId();
 
         log.LogError(
             ex,
-            "✗ {BoundedContext} {Handler}.{Method} threw {ExceptionType} | tenant={TenantId} cid={CorrelationId} trace={TraceId} span={SpanId}",
+            "✗ {BoundedContext} {Handler}.{Method} threw {ExceptionType} | tenant={TenantId} cid={CorrelationId} sid={SessionTrackingId} trace={TraceId} span={SpanId}",
             BoundedContext(joinPoint.TargetType),
             joinPoint.TargetType.Name, joinPoint.MethodInfo.Name,
             ex.GetType().Name,
-            tenantId, correlationId, traceId, spanId);
+            tenantId, executionContext.CorrelationId, executionContext.SessionTrackingId, executionContext.TraceId, executionContext.SpanId);
     }
 }

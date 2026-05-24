@@ -1,10 +1,7 @@
 using Ums.Application.Approvals.AccessEnforcementPolicy.DTOs;
-using Ums.Application.Common.Aop;
-using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.Approvals.AccessEnforcementPolicy.Commands;
 
-using Ums.Application.Common.Interfaces;
 using Ums.Domain.Approvals;
 
 public sealed class DeactivateAccessEnforcementPolicyCommandHandler : ICommandHandler<DeactivateAccessEnforcementPolicyCommand>

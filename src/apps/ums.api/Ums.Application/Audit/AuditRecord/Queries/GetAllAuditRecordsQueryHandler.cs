@@ -14,6 +14,8 @@ public sealed class GetAllAuditRecordsQueryHandler : IQueryHandler<GetAllAuditRe
         _auditRecordRepository = auditRecordRepository;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
+
     public async Task<Result<PagedResult<AuditRecordDto>>> Handle(
         GetAllAuditRecordsQuery request,
         CancellationToken cancellationToken)

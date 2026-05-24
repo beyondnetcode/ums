@@ -7,6 +7,7 @@
     <!-- AOP: DispatchProxy-based aspect-oriented infrastructure -->
     <ProjectReference Include="../../../libs/shell/aop/src/Ums.Shell.Aop.Microsoft.Extensions.DependencyInjection.Aspects.Installer/Ums.Shell.Aop.Microsoft.Extensions.DependencyInjection.Aspects.Installer.csproj" />
     <ProjectReference Include="../../../libs/shell/aop/src/Ums.Shell.Aop.Aspects.Logger.Serilog/Ums.Shell.Aop.Aspects.Logger.Serilog.csproj" />
+    <ProjectReference Include="../../../libs/shell/factory/src/Ums.Shell.Factory.Installer/Ums.Shell.Factory.Installer.csproj" />
   </ItemGroup>
 
   <ItemGroup>

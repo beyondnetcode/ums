@@ -10,6 +10,8 @@ public sealed class GetAllFeatureFlagsQueryHandler : IQueryHandler<GetAllFeature
 
     public GetAllFeatureFlagsQueryHandler(IFeatureFlagRepository repository) => _repository = repository;
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
+
     public async Task<Result<PagedResult<FeatureFlagDto>>> Handle(GetAllFeatureFlagsQuery request, CancellationToken cancellationToken)
     {
         var page = NormalizePage(request.Page);

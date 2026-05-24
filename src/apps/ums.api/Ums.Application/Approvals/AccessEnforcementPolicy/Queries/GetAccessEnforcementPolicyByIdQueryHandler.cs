@@ -10,6 +10,8 @@ public sealed class GetAccessEnforcementPolicyByIdQueryHandler : IQueryHandler<G
 
     public GetAccessEnforcementPolicyByIdQueryHandler(IAccessEnforcementPolicyRepository repository) => _repository = repository;
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
+
     public async Task<Result<AccessEnforcementPolicyDto>> Handle(GetAccessEnforcementPolicyByIdQuery request, CancellationToken cancellationToken)
     {
         var entity = await _repository.GetByIdAsync(request.AccessEnforcementPolicyId, cancellationToken);

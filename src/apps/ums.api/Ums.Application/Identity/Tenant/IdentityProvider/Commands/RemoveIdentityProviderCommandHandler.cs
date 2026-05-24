@@ -1,12 +1,6 @@
 using Ums.Application.Identity.Tenant.IdentityProvider.DTOs;
-using Ums.Application.Common.Aop;
-using Ums.Shell.Aop.Aspects;
-
-
 
 namespace Ums.Application.Identity.Tenant.IdentityProvider.Commands;
-
-using Ums.Application.Common.Interfaces;
 
 public sealed class RemoveIdentityProviderCommandHandler : ICommandHandler<RemoveIdentityProviderCommand, RemoveIdentityProviderResponse>
 {
@@ -21,6 +15,7 @@ public sealed class RemoveIdentityProviderCommandHandler : ICommandHandler<Remov
         _userContext = userContext;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<RemoveIdentityProviderResponse>> Handle(
         RemoveIdentityProviderCommand request,
         CancellationToken cancellationToken)

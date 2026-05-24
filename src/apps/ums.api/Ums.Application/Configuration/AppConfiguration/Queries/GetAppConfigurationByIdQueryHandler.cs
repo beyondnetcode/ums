@@ -10,6 +10,8 @@ public sealed class GetAppConfigurationByIdQueryHandler : IQueryHandler<GetAppCo
 
     public GetAppConfigurationByIdQueryHandler(IAppConfigurationRepository repository) => _repository = repository;
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
+
     public async Task<Result<AppConfigurationDto>> Handle(GetAppConfigurationByIdQuery request, CancellationToken cancellationToken)
     {
         var appConfiguration = await _repository.GetByIdAsync(request.AppConfigurationId, cancellationToken);

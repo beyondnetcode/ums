@@ -3,7 +3,6 @@ namespace Ums.Infrastructure.Persistence;
 using System.Collections.Concurrent;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Ums.Application.Common.Interfaces;
 using Ums.Domain.Identity;
 using Ums.Domain.Kernel;
 using TenantAggregate = Ums.Domain.Identity.Tenant.Tenant;

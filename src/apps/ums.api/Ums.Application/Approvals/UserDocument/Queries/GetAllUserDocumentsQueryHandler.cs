@@ -10,6 +10,8 @@ public sealed class GetAllUserDocumentsQueryHandler : IQueryHandler<GetAllUserDo
 
     public GetAllUserDocumentsQueryHandler(IUserDocumentRepository repository) => _repository = repository;
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
+
     public async Task<Result<PagedResult<UserDocumentDto>>> Handle(GetAllUserDocumentsQuery request, CancellationToken cancellationToken)
     {
         var page = NormalizePage(request.Page);

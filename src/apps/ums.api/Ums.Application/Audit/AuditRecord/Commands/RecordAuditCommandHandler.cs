@@ -1,6 +1,4 @@
 using Ums.Application.Audit.AuditRecord.DTOs;
-using Ums.Application.Common.Aop;
-using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.Audit.AuditRecord.Commands;
 

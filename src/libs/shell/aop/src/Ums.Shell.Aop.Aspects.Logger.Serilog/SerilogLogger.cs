@@ -1,4 +1,3 @@
-using System;
 using Serilog;
 
 namespace Ums.Shell.Aop.Aspects.Logger.Serilog

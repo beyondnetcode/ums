@@ -2,7 +2,6 @@ namespace Ums.Infrastructure.Persistence;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using Ums.Application.Common.Interfaces;
 
 /// <summary>
 /// REC-04: Implementación SQL Server de <see cref="IUnitOfWorkScope"/>.

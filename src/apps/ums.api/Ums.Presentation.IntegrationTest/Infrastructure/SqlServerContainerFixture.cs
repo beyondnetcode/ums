@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.MsSql;
-using Ums.Application.Common.Interfaces;
 using Ums.Infrastructure.Persistence;
 
 namespace Ums.Presentation.IntegrationTest.Infrastructure;

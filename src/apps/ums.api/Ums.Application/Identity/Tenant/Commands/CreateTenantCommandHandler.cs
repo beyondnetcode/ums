@@ -1,10 +1,7 @@
-using Ums.Application.Common.Aop;
 using Ums.Application.Identity.Tenant.DTOs;
-using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.Identity.Tenant.Commands;
 
-using Ums.Application.Common.Interfaces;
 using Ums.Domain.Identity.Tenant;
 
 public sealed class CreateTenantCommandHandler : ICommandHandler<CreateTenantCommand, CreateTenantResponse>

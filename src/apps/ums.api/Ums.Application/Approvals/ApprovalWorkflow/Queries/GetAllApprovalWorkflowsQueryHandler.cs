@@ -10,6 +10,8 @@ public sealed class GetAllApprovalWorkflowsQueryHandler : IQueryHandler<GetAllAp
 
     public GetAllApprovalWorkflowsQueryHandler(IApprovalWorkflowRepository repository) => _repository = repository;
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
+
     public async Task<Result<PagedResult<ApprovalWorkflowDto>>> Handle(GetAllApprovalWorkflowsQuery request, CancellationToken cancellationToken)
     {
         var page = NormalizePage(request.Page);

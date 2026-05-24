@@ -1,10 +1,7 @@
 using Ums.Application.IGA.PromotionRequest.DTOs;
-using Ums.Application.Common.Aop;
-using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.IGA.PromotionRequest.Commands;
 
-using Ums.Application.Common.Interfaces;
 using Ums.Domain;
 using Ums.Domain.IGA;
 using Ums.Domain.IGA.PromotionRequest;

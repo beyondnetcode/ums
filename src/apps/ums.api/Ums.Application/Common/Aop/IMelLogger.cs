@@ -1,4 +1,3 @@
-using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.Common.Aop;
 

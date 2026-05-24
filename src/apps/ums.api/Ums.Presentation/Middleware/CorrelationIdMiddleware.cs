@@ -20,9 +20,6 @@ using Microsoft.AspNetCore.Http;
 /// </summary>
 public sealed class CorrelationIdMiddleware
 {
-    private const string CorrelationIdHeader  = "X-Correlation-Id";
-    private const string BaggageKey           = "correlation.id";
-
     private readonly RequestDelegate _next;
     private readonly ILogger<CorrelationIdMiddleware> _logger;
 
@@ -37,16 +34,16 @@ public sealed class CorrelationIdMiddleware
     public async Task InvokeAsync(HttpContext context)
     {
         var correlationId = GetOrAddCorrelationId(context);
-        context.Response.Headers[CorrelationIdHeader] = correlationId;
+        context.Response.Headers[ObservabilityHeaders.CorrelationId] = correlationId;
 
         // Propagate into current OTEL Activity baggage so it travels
         // with all downstream HttpClient calls via W3C baggage header.
         var activity = Activity.Current;
         if (activity is not null)
         {
-            activity.SetBaggage(BaggageKey, correlationId);
+            activity.SetBaggage(ObservabilityKeys.CorrelationId, correlationId);
             // Also tag the root span so the ID appears in the trace UI.
-            activity.SetTag(BaggageKey, correlationId);
+            activity.SetTag(ObservabilityKeys.CorrelationId, correlationId);
         }
 
         // Enrich every log line emitted during this request.
@@ -61,7 +58,7 @@ public sealed class CorrelationIdMiddleware
 
     private static string GetOrAddCorrelationId(HttpContext context)
     {
-        if (context.Request.Headers.TryGetValue(CorrelationIdHeader, out var existingId)
+        if (context.Request.Headers.TryGetValue(ObservabilityHeaders.CorrelationId, out var existingId)
             && !string.IsNullOrWhiteSpace(existingId))
         {
             context.TraceIdentifier = existingId!;

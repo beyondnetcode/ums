@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Caching.Distributed;
-using Ums.Application.Common.Interfaces;
 
 namespace Ums.Infrastructure.Services;
 

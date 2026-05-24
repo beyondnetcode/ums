@@ -1,6 +1,5 @@
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Ums.Application.Common.Interfaces;
 
 namespace Ums.Infrastructure.Persistence.Interceptors;
 

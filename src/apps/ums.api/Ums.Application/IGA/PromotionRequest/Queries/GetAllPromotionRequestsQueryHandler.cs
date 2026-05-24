@@ -10,6 +10,8 @@ public sealed class GetAllPromotionRequestsQueryHandler : IQueryHandler<GetAllPr
 
     public GetAllPromotionRequestsQueryHandler(IPromotionRequestRepository repository) => _repository = repository;
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
+
     public async Task<Result<PagedResult<PromotionRequestDto>>> Handle(GetAllPromotionRequestsQuery request, CancellationToken cancellationToken)
     {
         var page = NormalizePage(request.Page);

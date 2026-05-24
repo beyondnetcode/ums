@@ -18,6 +18,22 @@ public static class IdpConfigurationQueryEndpoints
         .Produces<IdpConfigurationDto>(StatusCodes.Status200OK)
         .ProducesProblem(StatusCodes.Status404NotFound);
 
+        group.MapGet("/resolve", async (
+            Guid tenantId,
+            Guid? systemSuiteId,
+            string? emailDomain,
+            string? providerType,
+            IMediator mediator,
+            HttpContext context,
+            CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new ResolveIdpConfigurationQuery(tenantId, systemSuiteId, emailDomain, providerType), ct);
+            return result.ToOk(context);
+        })
+        .WithName("ResolveIdpConfiguration")
+        .Produces<ResolvedIdpConfigurationDto>(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status404NotFound);
+
         return app;
     }
 }

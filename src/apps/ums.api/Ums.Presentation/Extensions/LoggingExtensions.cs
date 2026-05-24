@@ -14,7 +14,7 @@ using Serilog.Formatting.Compact;
 ///
 /// Enrichers always attached:
 /// - MachineName, ThreadId — correlate logs from different pods/threads
-/// - CorrelationId — set by CorrelationIdMiddleware log scope (REC-17)
+/// - CorrelationId, SessionTrackingId — set by request middleware log scopes
 ///
 /// To ship logs to a remote sink (Seq, Elasticsearch, Application Insights):
 /// Add the sink package and configure the endpoint in appsettings.json under
@@ -33,35 +33,41 @@ public static class LoggingExtensions
         HostBuilderContext context)
     {
         var env = context.HostingEnvironment;
+        var loggingSection = context.Configuration.GetSection("Observability:Logging");
+        var consoleFormat = loggingSection["ConsoleFormat"] ?? (env.IsDevelopment() ? "Text" : "CompactJson");
+        var minimumLevel = loggingSection["MinimumLevel"] ?? (env.IsDevelopment() ? "Debug" : "Information");
+        var outputTemplate = loggingSection["OutputTemplate"]
+            ?? "[{Timestamp:HH:mm:ss} {Level:u3}] {CorrelationId} {SessionTrackingId} {SourceContext} {Message:lj}{NewLine}{Exception}";
 
         loggerConfig
             .ReadFrom.Configuration(context.Configuration)     // honour appsettings Serilog section
-            .Enrich.FromLogContext()                            // picks up BeginScope() key-values (e.g. CorrelationId)
+            .Enrich.FromLogContext()                            // picks up BeginScope() key-values (e.g. CorrelationId, SessionTrackingId)
             .Enrich.WithMachineName()
             .Enrich.WithThreadId()
             // HARDENING-04: Mask PII fields (email, password, token, etc.) before any sink sees them.
             .Enrich.With<PiiSanitizerEnricher>()
             .Destructure.With<PiiMaskingPolicy>()
+            .MinimumLevel.Is(ParseLevel(minimumLevel))
             .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
             .MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Information)
             .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", LogEventLevel.Warning);
 
-        if (env.IsDevelopment())
+        if (string.Equals(consoleFormat, "CompactJson", StringComparison.OrdinalIgnoreCase))
         {
-            // Human-readable output for local development
             loggerConfig
-                .MinimumLevel.Debug()
-                .WriteTo.Console(
-                    outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {CorrelationId} {SourceContext} {Message:lj}{NewLine}{Exception}");
+                .WriteTo.Console(new CompactJsonFormatter());
         }
         else
         {
-            // Compact JSON — ideal for container log aggregators
             loggerConfig
-                .MinimumLevel.Information()
-                .WriteTo.Console(new CompactJsonFormatter());
+                .WriteTo.Console(outputTemplate: outputTemplate);
         }
 
         return loggerConfig;
     }
+
+    private static LogEventLevel ParseLevel(string value)
+        => Enum.TryParse<LogEventLevel>(value, ignoreCase: true, out var parsed)
+            ? parsed
+            : LogEventLevel.Information;
 }

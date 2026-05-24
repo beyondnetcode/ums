@@ -13,6 +13,7 @@
     <ProjectReference Include="../Ums.Application/Ums.Application.csproj" />
     <ProjectReference Include="../Ums.Infrastructure/Ums.Infrastructure.csproj" />
     <ProjectReference Include="../Ums.Globalization/Ums.Globalization.csproj" />
+    <ProjectReference Include="../../../libs/shell/bootstrapper/src/Ums.Shell.Bootstrapper/Ums.Shell.Bootstrapper.csproj" />
   </ItemGroup>
 
   <ItemGroup>

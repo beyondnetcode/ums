@@ -10,6 +10,8 @@ public sealed class GetDocumentTypeByIdQueryHandler : IQueryHandler<GetDocumentT
 
     public GetDocumentTypeByIdQueryHandler(IDocumentTypeRepository repository) => _repository = repository;
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
+
     public async Task<Result<DocumentTypeDto>> Handle(GetDocumentTypeByIdQuery request, CancellationToken cancellationToken)
     {
         var entity = await _repository.GetByIdAsync(request.DocumentTypeId, cancellationToken);

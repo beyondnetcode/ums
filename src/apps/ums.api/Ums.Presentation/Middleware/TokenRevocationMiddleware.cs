@@ -2,7 +2,6 @@ namespace Ums.Presentation.Middleware;
 
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
-using Ums.Application.Common.Interfaces;
 
 /// <summary>
 /// HARDENING-03: Rejects requests from users whose tokens have been revoked.

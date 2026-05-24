@@ -1,4 +1,3 @@
-using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.Common.Aop;
 
@@ -11,6 +10,7 @@ namespace Ums.Application.Common.Aop;
 /// <list type="bullet">
 ///   <item><description><b>TenantId</b> — from <c>IUserContext</c> (multi-tenant dimension)</description></item>
 ///   <item><description><b>CorrelationId</b> — from <c>Activity.Current</c> baggage (set by <c>CorrelationIdMiddleware</c>)</description></item>
+///   <item><description><b>SessionTrackingId</b> — from request execution context, propagated from the client/API request</description></item>
 ///   <item><description><b>TraceId / SpanId</b> — from <c>Activity.Current</c> (W3C trace context)</description></item>
 ///   <item><description><b>BoundedContext</b> — derived from the handler type namespace</description></item>
 /// </list>

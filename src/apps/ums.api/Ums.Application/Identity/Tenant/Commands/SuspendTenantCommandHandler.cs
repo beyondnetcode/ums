@@ -1,11 +1,6 @@
 using Ums.Application.Identity.Tenant.DTOs;
-using Ums.Application.Common.Aop;
-using Ums.Shell.Aop.Aspects;
-
 
 namespace Ums.Application.Identity.Tenant.Commands;
-
-using Ums.Application.Common.Interfaces;
 
 public sealed class SuspendTenantCommandHandler : ICommandHandler<SuspendTenantCommand>
 {

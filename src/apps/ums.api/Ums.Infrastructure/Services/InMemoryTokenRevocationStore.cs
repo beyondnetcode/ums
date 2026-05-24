@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using Ums.Application.Common.Interfaces;
 
 namespace Ums.Infrastructure.Services;
 

@@ -10,6 +10,8 @@ public sealed class GetIdpConfigurationByIdQueryHandler : IQueryHandler<GetIdpCo
 
     public GetIdpConfigurationByIdQueryHandler(IIdpConfigurationRepository repository) => _repository = repository;
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
+
     public async Task<Result<IdpConfigurationDto>> Handle(GetIdpConfigurationByIdQuery request, CancellationToken cancellationToken)
     {
         var idpConfiguration = await _repository.GetByIdAsync(request.IdpConfigurationId, cancellationToken);

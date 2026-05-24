@@ -1,6 +1,3 @@
-using Ums.Application.Common.Interfaces;
-using Ums.Application.Common.Aop;
-using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.Identity.UserAccount.Commands;
 
@@ -30,6 +27,7 @@ public sealed class DeleteUserAccountCommandHandler : ICommandHandler<DeleteUser
         _userContext = userContext;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result> Handle(DeleteUserAccountCommand request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(_userContext.UserId))

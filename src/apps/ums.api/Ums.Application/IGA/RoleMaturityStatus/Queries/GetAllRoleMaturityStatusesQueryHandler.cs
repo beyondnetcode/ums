@@ -10,6 +10,8 @@ public sealed class GetAllRoleMaturityStatusesQueryHandler : IQueryHandler<GetAl
 
     public GetAllRoleMaturityStatusesQueryHandler(IRoleMaturityStatusRepository repository) => _repository = repository;
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
+
     public async Task<Result<PagedResult<RoleMaturityStatusDto>>> Handle(GetAllRoleMaturityStatusesQuery request, CancellationToken cancellationToken)
     {
         var page = NormalizePage(request.Page);

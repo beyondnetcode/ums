@@ -13,6 +13,8 @@ public sealed class GetSystemSuiteByIdQueryHandler : IQueryHandler<GetSystemSuit
         _systemSuiteRepository = systemSuiteRepository;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
+
     public async Task<Result<SystemSuiteDto>> Handle(
         GetSystemSuiteByIdQuery request,
         CancellationToken cancellationToken)

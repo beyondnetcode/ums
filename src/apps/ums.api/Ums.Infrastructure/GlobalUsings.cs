@@ -7,3 +7,4 @@ global using Microsoft.Extensions.DependencyInjection;
 global using Ums.Domain.Kernel;
 global using Ums.Domain.Identity;
 global using Ums.Application.Common.Interfaces;
+global using Ums.Shell.Aop.Aspects.Logger.Serilog;

@@ -10,6 +10,8 @@ public sealed class GetPromotionRequestByIdQueryHandler : IQueryHandler<GetPromo
 
     public GetPromotionRequestByIdQueryHandler(IPromotionRequestRepository repository) => _repository = repository;
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
+
     public async Task<Result<PromotionRequestDto>> Handle(GetPromotionRequestByIdQuery request, CancellationToken cancellationToken)
     {
         var entity = await _repository.GetByIdAsync(request.PromotionRequestId, cancellationToken);

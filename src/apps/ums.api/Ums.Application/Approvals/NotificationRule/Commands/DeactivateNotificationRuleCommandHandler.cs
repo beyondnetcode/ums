@@ -1,10 +1,7 @@
 using Ums.Application.Approvals.NotificationRule.DTOs;
-using Ums.Application.Common.Aop;
-using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.Approvals.NotificationRule.Commands;
 
-using Ums.Application.Common.Interfaces;
 using Ums.Domain.Approvals;
 
 public sealed class DeactivateNotificationRuleCommandHandler : ICommandHandler<DeactivateNotificationRuleCommand>

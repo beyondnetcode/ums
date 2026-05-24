@@ -1,12 +1,6 @@
 using Ums.Application.Identity.Tenant.Branch.DTOs;
-using Ums.Application.Common.Aop;
-using Ums.Shell.Aop.Aspects;
-
-
 
 namespace Ums.Application.Identity.Tenant.Branch.Commands;
-
-using Ums.Application.Common.Interfaces;
 
 public sealed class RemoveBranchCommandHandler : ICommandHandler<RemoveBranchCommand, RemoveBranchResponse>
 {

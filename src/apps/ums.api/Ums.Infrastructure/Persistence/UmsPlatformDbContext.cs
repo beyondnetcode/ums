@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Ums.Application.Common.Interfaces;
 using Ums.Infrastructure.Persistence.Audit.Configurations;
 using Ums.Infrastructure.Persistence.Audit.Entities;
 using Ums.Infrastructure.Persistence.Authorization.Configurations;

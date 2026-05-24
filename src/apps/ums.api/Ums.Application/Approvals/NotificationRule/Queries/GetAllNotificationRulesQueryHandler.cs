@@ -10,6 +10,8 @@ public sealed class GetAllNotificationRulesQueryHandler : IQueryHandler<GetAllNo
 
     public GetAllNotificationRulesQueryHandler(INotificationRuleRepository repository) => _repository = repository;
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
+
     public async Task<Result<PagedResult<NotificationRuleDto>>> Handle(GetAllNotificationRulesQuery request, CancellationToken cancellationToken)
     {
         var page = NormalizePage(request.Page);

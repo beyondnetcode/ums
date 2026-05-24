@@ -1,12 +1,12 @@
 namespace Ums.Infrastructure;
 
 using MediatR;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Http.Resilience;
 using Polly;
-using Ums.Application.Common.Interfaces;
 using Ums.Infrastructure.HealthChecks;
 using Ums.Shell.Aop.Microsoft.Extensions.DependencyInjection.Aspects.Installer;
 using Ums.Domain.Audit.AuditRecord;
@@ -25,6 +25,9 @@ using Ums.Infrastructure.Persistence.Identity;
 using Ums.Infrastructure.Persistence.Interceptors;
 using Ums.Infrastructure.Persistence.Options;
 using Ums.Infrastructure.Services;
+using Ums.Application.Configuration.IdpConfiguration.Services;
+using Ums.Infrastructure.Configuration.IdpResolution;
+using Ums.Shell.Factory.Installer.Extensions;
 
 public static class DependencyInjection
 {
@@ -43,6 +46,23 @@ public static class DependencyInjection
 
         services.AddScoped<IUserContext, UserContext>();
         services.AddScoped<ITenantContext, TenantContext>();
+        services.AddScoped<RequestContextAccessor>();
+        services.AddScoped<IRequestContext>(sp => sp.GetRequiredService<RequestContextAccessor>());
+        services.AddScoped<IExecutionContextAccessor>(sp => sp.GetRequiredService<RequestContextAccessor>());
+        services.AddScoped<IIdpConfigurationResolver, IdpConfigurationResolver>();
+
+        services.AddFactory(builder => builder
+            .AddTransient<InternalBcryptIdpResolutionStrategy, InternalBcryptIdpResolutionStrategy>()
+            .AddTransient<ZitadelIdpResolutionStrategy, ZitadelIdpResolutionStrategy>()
+            .AddTransient<AzureAdIdpResolutionStrategy, AzureAdIdpResolutionStrategy>()
+            .AddTransient<OktaIdpResolutionStrategy, OktaIdpResolutionStrategy>()
+            .AddTransient<KeycloakIdpResolutionStrategy, KeycloakIdpResolutionStrategy>()
+            .AddTransient<Auth0IdpResolutionStrategy, Auth0IdpResolutionStrategy>()
+            .AddTransient<GoogleIdpResolutionStrategy, GoogleIdpResolutionStrategy>()
+            .AddTransient<LdapIdpResolutionStrategy, LdapIdpResolutionStrategy>()
+            .AddTransient<Saml2IdpResolutionStrategy, Saml2IdpResolutionStrategy>()
+            .AddTransient<GenericOidcIdpResolutionStrategy, GenericOidcIdpResolutionStrategy>()
+            .AddSource<IdpResolutionStrategyFactorySetup>());
 
         // OPS-01 / HARDENING-03: Token revocation store.
         // When Redis:Connection is configured → use RedisTokenRevocationStore (all pods share state).
@@ -242,13 +262,40 @@ public static class DependencyInjection
         services.AddKeyedTransient<Ums.Shell.Aop.Aspects.ILogger, Ums.Infrastructure.Aop.UmsSerilogLogger>(
             typeof(Ums.Application.Common.Aop.IUmsLogger));
 
-        services.AddAopProxy<
-            MediatR.IRequestHandler<
-                Ums.Application.Identity.Tenant.Commands.CreateTenantCommand,
-                Result<Ums.Application.Identity.Tenant.DTOs.CreateTenantResponse>>,
-            Ums.Application.Identity.Tenant.Commands.CreateTenantCommandHandler>();
+        RegisterMediatRAopProxies(services, typeof(Ums.Application.DependencyInjection).Assembly);
 
         return services;
+    }
+
+    private static void RegisterMediatRAopProxies(IServiceCollection services, Assembly applicationAssembly)
+    {
+        var addAopProxyMethod = typeof(Ums.Shell.Aop.Microsoft.Extensions.DependencyInjection.Aspects.Installer.ServiceCollectionExtension)
+            .GetMethods(BindingFlags.Public | BindingFlags.Static)
+            .Single(method =>
+                method.Name == nameof(Ums.Shell.Aop.Microsoft.Extensions.DependencyInjection.Aspects.Installer.ServiceCollectionExtension.AddAopProxy)
+                && method.IsGenericMethodDefinition
+                && method.GetGenericArguments().Length == 2);
+
+        var handlerContracts = applicationAssembly
+            .DefinedTypes
+            .Where(type => type is { IsClass: true, IsAbstract: false })
+            .SelectMany(type => type.ImplementedInterfaces
+                .Where(implemented =>
+                    implemented.IsGenericType
+                    && implemented.GetGenericTypeDefinition() == typeof(IRequestHandler<,>))
+                .Select(implemented => new
+                {
+                    ServiceType = implemented,
+                    ImplementationType = type.AsType(),
+                }))
+            .ToList();
+
+        foreach (var contract in handlerContracts)
+        {
+            addAopProxyMethod
+                .MakeGenericMethod(contract.ServiceType, contract.ImplementationType)
+                .Invoke(null, [services, ServiceLifetime.Scoped]);
+        }
     }
 
     /// <summary>

@@ -12,6 +12,8 @@ public sealed class GetDelegationByIdQueryHandler : IQueryHandler<GetDelegationB
         _repository = repository;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
+
     public async Task<Result<DelegationDto>> Handle(
         GetDelegationByIdQuery request,
         CancellationToken cancellationToken)

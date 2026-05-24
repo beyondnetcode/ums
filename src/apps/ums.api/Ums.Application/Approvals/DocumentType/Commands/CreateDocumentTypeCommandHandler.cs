@@ -1,10 +1,7 @@
 using Ums.Application.Approvals.DocumentType.DTOs;
-using Ums.Application.Common.Aop;
-using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.Approvals.DocumentType.Commands;
 
-using Ums.Application.Common.Interfaces;
 using Ums.Domain;
 using Ums.Domain.Approvals;
 using Ums.Domain.Approvals.DocumentType;

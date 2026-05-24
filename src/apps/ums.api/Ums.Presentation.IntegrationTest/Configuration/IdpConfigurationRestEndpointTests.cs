@@ -98,4 +98,20 @@ public sealed class IdpConfigurationRestEndpointTests : IClassFixture<UmsApiWebA
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
+
+    [Fact]
+    public async Task ResolveIdpConfiguration_WithMatchingDomain_ShouldReturnEffectiveConfiguration()
+    {
+        var response = await _client.GetAsync(
+            "/api/v1/idp-configurations/resolve?tenantId=3fa85f64-5717-4562-b3fc-2c963f66afa6&systemSuiteId=11111111-1111-1111-1111-111111111111&emailDomain=beyondnet.com",
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        using var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
+        payload.RootElement.GetProperty("providerType").GetString().Should().Be("AZURE_AD");
+        payload.RootElement.GetProperty("protocol").GetString().Should().Be("OIDC");
+        payload.RootElement.GetProperty("domainMatched").GetBoolean().Should().BeTrue();
+        payload.RootElement.GetProperty("authority").GetString().Should().Be("https://login.microsoftonline.com/common");
+    }
 }

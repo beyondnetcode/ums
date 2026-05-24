@@ -10,6 +10,8 @@ public sealed class GetAllAppConfigurationsQueryHandler : IQueryHandler<GetAllAp
 
     public GetAllAppConfigurationsQueryHandler(IAppConfigurationRepository repository) => _repository = repository;
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
+
     public async Task<Result<PagedResult<AppConfigurationDto>>> Handle(GetAllAppConfigurationsQuery request, CancellationToken cancellationToken)
     {
         var page = NormalizePage(request.Page);

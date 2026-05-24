@@ -1,12 +1,6 @@
 using Ums.Application.Identity.Tenant.Branding.DTOs;
-using Ums.Application.Common.Aop;
-using Ums.Shell.Aop.Aspects;
-
-
 
 namespace Ums.Application.Identity.Tenant.Branding.Commands;
-
-using Ums.Application.Common.Interfaces;
 
 public sealed class FailBrandingDnsCommandHandler : ICommandHandler<FailBrandingDnsCommand, FailBrandingDnsResponse>
 {

@@ -10,6 +10,8 @@ public sealed class GetNotificationRuleByIdQueryHandler : IQueryHandler<GetNotif
 
     public GetNotificationRuleByIdQueryHandler(INotificationRuleRepository repository) => _repository = repository;
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
+
     public async Task<Result<NotificationRuleDto>> Handle(GetNotificationRuleByIdQuery request, CancellationToken cancellationToken)
     {
         var entity = await _repository.GetByIdAsync(request.NotificationRuleId, cancellationToken);

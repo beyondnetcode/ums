@@ -1,10 +1,7 @@
 using Ums.Application.Authorization.Template.DTOs;
-using Ums.Application.Common.Aop;
-using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.Authorization.Template.Commands;
 
-using Ums.Application.Common.Interfaces;
 using Ums.Domain.Authorization;
 
 public sealed class PublishPermissionTemplateCommandHandler : ICommandHandler<PublishPermissionTemplateCommand>

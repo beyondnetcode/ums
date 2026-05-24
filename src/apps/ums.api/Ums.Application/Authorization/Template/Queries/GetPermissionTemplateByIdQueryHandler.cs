@@ -13,6 +13,8 @@ public sealed class GetPermissionTemplateByIdQueryHandler : IQueryHandler<GetPer
         _templateRepository = templateRepository;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
+
     public async Task<Result<PermissionTemplateDto>> Handle(
         GetPermissionTemplateByIdQuery request,
         CancellationToken cancellationToken)

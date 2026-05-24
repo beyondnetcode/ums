@@ -10,6 +10,8 @@ public sealed class GetApprovalWorkflowByIdQueryHandler : IQueryHandler<GetAppro
 
     public GetApprovalWorkflowByIdQueryHandler(IApprovalWorkflowRepository repository) => _repository = repository;
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
+
     public async Task<Result<ApprovalWorkflowDto>> Handle(GetApprovalWorkflowByIdQuery request, CancellationToken cancellationToken)
     {
         var workflow = await _repository.GetByIdAsync(request.ApprovalWorkflowId, cancellationToken);

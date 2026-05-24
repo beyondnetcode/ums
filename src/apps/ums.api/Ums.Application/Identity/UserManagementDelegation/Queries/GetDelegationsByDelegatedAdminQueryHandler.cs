@@ -11,6 +11,8 @@ public sealed class GetDelegationsByDelegatedAdminQueryHandler : IQueryHandler<G
         _repository = repository;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
+
     public async Task<Result<IReadOnlyList<DelegationDto>>> Handle(
         GetDelegationsByDelegatedAdminQuery request,
         CancellationToken cancellationToken)

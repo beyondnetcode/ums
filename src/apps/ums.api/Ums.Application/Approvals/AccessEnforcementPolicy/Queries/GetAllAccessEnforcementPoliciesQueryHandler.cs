@@ -10,6 +10,8 @@ public sealed class GetAllAccessEnforcementPoliciesQueryHandler : IQueryHandler<
 
     public GetAllAccessEnforcementPoliciesQueryHandler(IAccessEnforcementPolicyRepository repository) => _repository = repository;
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
+
     public async Task<Result<PagedResult<AccessEnforcementPolicyDto>>> Handle(GetAllAccessEnforcementPoliciesQuery request, CancellationToken cancellationToken)
     {
         var page = NormalizePage(request.Page);

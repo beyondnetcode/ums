@@ -3,7 +3,6 @@ namespace Ums.Infrastructure.Persistence;
 using System.Collections.Concurrent;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Ums.Application.Common.Interfaces;
 using Ums.Domain.Authorization;
 using Ums.Domain.Kernel;
 using ProfileAggregate = Ums.Domain.Authorization.Profile.Profile;

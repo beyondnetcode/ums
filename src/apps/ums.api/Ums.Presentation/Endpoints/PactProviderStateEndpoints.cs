@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Ums.Application.Common.Interfaces;
 using Ums.Domain.Enums;
 using Ums.Domain.Identity;
 using Ums.Domain.Identity.Tenant;

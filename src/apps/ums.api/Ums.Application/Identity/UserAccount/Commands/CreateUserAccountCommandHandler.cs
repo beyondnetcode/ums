@@ -1,10 +1,7 @@
 using Ums.Application.Identity.UserAccount.DTOs;
-using Ums.Application.Common.Aop;
-using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.Identity.UserAccount.Commands;
 
-using Ums.Application.Common.Interfaces;
 using Ums.Domain.Identity.UserAccount;
 using Ums.Domain.Enums;
 
@@ -21,6 +18,7 @@ public sealed class CreateUserAccountCommandHandler : ICommandHandler<CreateUser
         _userContext = userContext;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
     public async Task<Result<CreateUserAccountResponse>> Handle(
         CreateUserAccountCommand request,
         CancellationToken cancellationToken)

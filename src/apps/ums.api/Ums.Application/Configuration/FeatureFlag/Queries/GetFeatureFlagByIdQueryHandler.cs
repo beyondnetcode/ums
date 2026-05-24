@@ -10,6 +10,8 @@ public sealed class GetFeatureFlagByIdQueryHandler : IQueryHandler<GetFeatureFla
 
     public GetFeatureFlagByIdQueryHandler(IFeatureFlagRepository repository) => _repository = repository;
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
+
     public async Task<Result<FeatureFlagDto>> Handle(GetFeatureFlagByIdQuery request, CancellationToken cancellationToken)
     {
         var featureFlag = await _repository.GetByIdAsync(request.FeatureFlagId, cancellationToken);

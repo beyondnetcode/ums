@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using Ums.Application.Common.Interfaces;
 using Ums.Domain.Audit.AuditRecord;
 using Ums.Domain.Approvals;
 using Ums.Infrastructure.Persistence;
@@ -184,6 +183,7 @@ public sealed class UmsApiWebApplicationFactory : WebApplicationFactory<Program>
                 null,
                 actor).Value;
 
+            idpConfiguration.Activate(actor);
             idpConfigurationRepository.Seed(idpConfiguration);
         }
     }

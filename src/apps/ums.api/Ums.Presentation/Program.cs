@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Threading.RateLimiting;
 using Asp.Versioning;
 using Serilog;
@@ -15,6 +16,7 @@ using Ums.Globalization.Access;
 using Ums.Infrastructure;
 using Ums.Infrastructure.Persistence;
 using Ums.Infrastructure.Persistence.Options;
+using Ums.Presentation.Bootstrapping;
 using Ums.Presentation.Endpoints.Identity.Tenant;
 using Ums.Presentation.Endpoints.Identity.Tenant.Queries;
 using Ums.Presentation.Endpoints.Identity.UserAccount;
@@ -70,23 +72,7 @@ builder.Host.UseSerilog((ctx, cfg) => cfg.ConfigureUmsSerilog(ctx));
 
 ConfigureSecrets(builder);
 
-builder.Services.AddApplication();
-builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddScoped<ILocalizationService, LocalizationService>();
-builder.Services.AddUmsGraphQl(builder.Environment);
-builder.Services.AddMemoryCache(); // required by IdempotencyMiddleware (FIX-06)
-
-// HARDENING-02: JWT Bearer authentication. Disabled in dev (DevAuthMiddleware handles it).
-// Production: set Authentication:Enabled=true and configure Authority + Audience.
-builder.Services.AddUmsAuthentication(builder.Configuration);
-
-builder.Services.AddApiVersioning(options =>
-{
-    options.DefaultApiVersion = new ApiVersion(1);
-    options.AssumeDefaultVersionWhenUnspecified = true;
-    options.ReportApiVersions = true;
-    options.ApiVersionReader = new UrlSegmentApiVersionReader();
-});
+builder.Services.AddUmsApiServiceBootstrappers(builder.Configuration, builder.Environment);
 
 var rateLimit = builder.Configuration.GetSection("ApiSettings:RateLimiting");
 var permitLimit = rateLimit.GetValue<int>("PermitLimit", 100);
@@ -175,50 +161,6 @@ builder.Services.AddRateLimiter(options =>
     };
 });
 
-builder.Services.AddProblemDetails();
-builder.Services.AddEndpointsApiExplorer();
-
-// REC-02: Real health checks — liveness + readiness + outbox backlog
-builder.Services.AddInfrastructureHealthChecks(builder.Configuration);
-
-// REC-06: OpenTelemetry — distributed tracing + metrics
-builder.Services.AddUmsObservability(builder.Configuration);
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "UMS Tenant API",
-        Version = "v1",
-        Description = "User Management System — modular monolith API with REST commands and GraphQL queries, prepared for SQL Server platform persistence.",
-    });
-
-    options.AddSecurityDefinition("DevUserId", new OpenApiSecurityScheme
-    {
-        Name = "X-User-Id",
-        Type = SecuritySchemeType.ApiKey,
-        In = ParameterLocation.Header,
-        Description = "Development-only header. Sets the authenticated user id used by command handlers.",
-    });
-
-    // HARDENING-02: JWT Bearer security definition for production Swagger UI
-    options.AddSwaggerBearerAuth();
-
-    options.OperationFilter<LanguageHeaderOperationFilter>();
-});
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("DefaultPolicy", policy =>
-    {
-        policy
-            .WithOrigins(builder.Configuration.GetValue<string>("AllowedOrigins")?.Split(',') ?? Array.Empty<string>())
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials()
-            .WithExposedHeaders("X-Correlation-Id", "api-supported-versions", "api-deprecated-versions");
-    });
-});
-
 var app = builder.Build();
 
 var persistenceOptions = app.Services.GetRequiredService<IOptions<PersistenceOptions>>().Value;
@@ -274,14 +216,19 @@ var versionedGroup = app.MapGroup("api/v{apiVersion:apiVersion}")
     .WithApiVersionSet(versionSet);
 
 app.UseCorrelationId();
+app.UseSessionTracking();
 // REC-14: Emit one structured log line per HTTP request (method, path, status, elapsed).
-// Placed after CorrelationId so the CorrelationId log scope is already active.
+// Placed after correlation/session middleware so the request-scoped observability envelope is active.
 app.UseSerilogRequestLogging(opts =>
 {
     opts.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
     {
+        var requestContext = httpContext.RequestServices.GetRequiredService<IRequestContext>();
         diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value ?? string.Empty);
         diagnosticContext.Set("CorrelationId", httpContext.TraceIdentifier);
+        diagnosticContext.Set("SessionTrackingId", requestContext.SessionTrackingId ?? string.Empty);
+        diagnosticContext.Set("TraceId", requestContext.TraceId ?? Activity.Current?.TraceId.ToString() ?? string.Empty);
+        diagnosticContext.Set("SpanId", requestContext.SpanId ?? Activity.Current?.SpanId.ToString() ?? string.Empty);
     };
     // Exclude health checks to avoid log noise
     opts.GetLevel = (ctx, _, _) =>

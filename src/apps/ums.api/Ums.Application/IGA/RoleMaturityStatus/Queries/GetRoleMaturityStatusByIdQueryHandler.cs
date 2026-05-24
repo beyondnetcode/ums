@@ -10,6 +10,8 @@ public sealed class GetRoleMaturityStatusByIdQueryHandler : IQueryHandler<GetRol
 
     public GetRoleMaturityStatusByIdQueryHandler(IRoleMaturityStatusRepository repository) => _repository = repository;
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
+
     public async Task<Result<RoleMaturityStatusDto>> Handle(GetRoleMaturityStatusByIdQuery request, CancellationToken cancellationToken)
     {
         var entity = await _repository.GetByIdAsync(request.RoleMaturityStatusId, cancellationToken);

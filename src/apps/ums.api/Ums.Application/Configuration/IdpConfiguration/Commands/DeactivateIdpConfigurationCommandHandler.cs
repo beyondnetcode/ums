@@ -1,9 +1,6 @@
-using Ums.Application.Common.Aop;
-using Ums.Shell.Aop.Aspects;
 
 namespace Ums.Application.Configuration.IdpConfiguration.Commands;
 
-using Ums.Application.Common.Interfaces;
 using Ums.Domain.Configuration;
 
 public sealed class DeactivateIdpConfigurationCommandHandler : ICommandHandler<DeactivateIdpConfigurationCommand>

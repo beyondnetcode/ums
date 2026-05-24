@@ -1,6 +1,5 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
-using Ums.Application.Common.Interfaces;
 using Ums.Domain.Events;
 using Ums.Shell.Ddd.Interfaces;
 

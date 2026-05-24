@@ -13,6 +13,8 @@ public sealed class GetProfileByIdQueryHandler : IQueryHandler<GetProfileByIdQue
         _profileRepository = profileRepository;
     }
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
+
     public async Task<Result<ProfileDto>> Handle(
         GetProfileByIdQuery request,
         CancellationToken cancellationToken)

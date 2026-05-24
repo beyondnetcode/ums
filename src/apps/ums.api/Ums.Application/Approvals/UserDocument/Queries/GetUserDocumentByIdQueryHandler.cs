@@ -10,6 +10,8 @@ public sealed class GetUserDocumentByIdQueryHandler : IQueryHandler<GetUserDocum
 
     public GetUserDocumentByIdQueryHandler(IUserDocumentRepository repository) => _repository = repository;
 
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
+
     public async Task<Result<UserDocumentDto>> Handle(GetUserDocumentByIdQuery request, CancellationToken cancellationToken)
     {
         var entity = await _repository.GetByIdAsync(request.UserDocumentId, cancellationToken);
