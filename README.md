@@ -1,13 +1,13 @@
 # UMS — Enterprise User Management System
 
-> **Standardized Modular Monolith for Unified Identity & Authorization.**
->
-> ![Status](https://img.shields.io/badge/Status-Active-success) ![Architecture](https://img.shields.io/badge/Architecture-Modular_Monolith-blue) ![Methodology](https://img.shields.io/badge/Methodology-BMAD--METHOD-success)
+> **[ 📚 OPEN MASTER INDEX ](./docs/MASTER_INDEX.md) • [ 🇪🇸 LEER EN ESPAÑOL ](./README.es.md) • [ ⚙️ ARCHITECTURE PORTAL ](./docs/architecture/index.md)**  
+> *Note: GitHub displays source files first. To skip the code and read the documentation, click the links above.*
 
 ---
 
-## Language / Bilingüe
-- **English** | [Español](./README.es.md)
+> **Standardized Modular Monolith for Unified Identity & Authorization.**
+>
+> ![Status](https://img.shields.io/badge/Status-Active-success) ![Architecture](https://img.shields.io/badge/Architecture-Modular_Monolith-blue) ![Methodology](https://img.shields.io/badge/Methodology-BMAD--METHOD-success)
 
 ---
 
