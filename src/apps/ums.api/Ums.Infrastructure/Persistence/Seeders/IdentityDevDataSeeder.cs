@@ -96,7 +96,13 @@ public static class IdentityDevDataSeeder
     private static IReadOnlyList<TenantAggregate> BuildSeedTenants(ActorId actor)
     {
         var ransa = BuildTenant(Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"), "RANSA_PERU", "Ransa Comercial S.A.", "RUC-20101024645", OrganizationType.INTERNAL, null, actor,
-            [("RANSA_LIM_NORTE", "Almacén Lima Norte — Independencia"), ("RANSA_LIM_SUR", "Almacén Lima Sur — Lurín"), ("RANSA_CALLAO_HQ", "Sede Principal Callao")]);
+            [
+                ("RANSA_CALLAO_HQ", "Sede Principal Callao"), 
+                ("RANSA_PAITA", "Sucursal Paita"), 
+                ("RANSA_PIURA", "Sucursal Piura"), 
+                ("RANSA_AREQUIPA", "Sucursal Arequipa"), 
+                ("RANSA_TRUJILLO", "Sucursal Trujillo")
+            ]);
         
         var neptunia = BuildTenant(Guid.Parse("c9b736b4-6a84-48f8-b34d-176bc5a6d542"), "NEPTUNIA", "Neptunia S.A. — Callao", "RUC-20330791684", OrganizationType.CLIENT, null, actor,
             [("NEP_CALLAO_DP1", "Depósito Portuario 1 — Av. Néstor Gambetta"), ("NEP_CALLAO_DP2", "Depósito Portuario 2 — Zona Industrial")]);

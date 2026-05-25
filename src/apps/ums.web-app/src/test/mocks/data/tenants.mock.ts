@@ -8,9 +8,11 @@ export const mockTenants = [
     companyReference: '20101024645',
     parentTenantId: null,
     branches: [
-      { branchId: 'b1000001-0000-4000-8000-000000000001', code: 'RANSA_LIM_NORTE', name: 'Almacén Lima Norte — Independencia', isActive: true, geofencingMetadata: null },
-      { branchId: 'b1000001-0000-4000-8000-000000000002', code: 'RANSA_LIM_SUR',   name: 'Almacén Lima Sur — Lurín',          isActive: true, geofencingMetadata: null },
-      { branchId: 'b1000001-0000-4000-8000-000000000003', code: 'RANSA_CALLAO_HQ', name: 'Sede Principal Callao',             isActive: true, geofencingMetadata: null },
+      { branchId: 'b1000001-0000-4000-8000-000000000001', code: 'RANSA_CALLAO_HQ', name: 'Sede Principal Callao', isActive: true, geofencingMetadata: null },
+      { branchId: 'b1000001-0000-4000-8000-000000000002', code: 'RANSA_PAITA',     name: 'Sucursal Paita',        isActive: true, geofencingMetadata: null },
+      { branchId: 'b1000001-0000-4000-8000-000000000003', code: 'RANSA_PIURA',     name: 'Sucursal Piura',        isActive: true, geofencingMetadata: null },
+      { branchId: 'b1000001-0000-4000-8000-000000000004', code: 'RANSA_AREQUIPA',  name: 'Sucursal Arequipa',     isActive: true, geofencingMetadata: null },
+      { branchId: 'b1000001-0000-4000-8000-000000000005', code: 'RANSA_TRUJILLO',  name: 'Sucursal Trujillo',     isActive: true, geofencingMetadata: null },
     ],
     identityProviders: [
       {
