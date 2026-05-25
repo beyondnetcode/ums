@@ -8,13 +8,13 @@ export const mockTenants = [
     companyReference: '20101024645',
     parentTenantId: null,
     branches: [
-      { branchId: 'b1000001-0000-0000-0000-000000000001', code: 'RANSA_LIM_NORTE', name: 'Almacén Lima Norte — Independencia', isActive: true, geofencingMetadata: null },
-      { branchId: 'b1000001-0000-0000-0000-000000000002', code: 'RANSA_LIM_SUR',   name: 'Almacén Lima Sur — Lurín',          isActive: true, geofencingMetadata: null },
-      { branchId: 'b1000001-0000-0000-0000-000000000003', code: 'RANSA_CALLAO_HQ', name: 'Sede Principal Callao',             isActive: true, geofencingMetadata: null },
+      { branchId: 'b1000001-0000-4000-8000-000000000001', code: 'RANSA_LIM_NORTE', name: 'Almacén Lima Norte — Independencia', isActive: true, geofencingMetadata: null },
+      { branchId: 'b1000001-0000-4000-8000-000000000002', code: 'RANSA_LIM_SUR',   name: 'Almacén Lima Sur — Lurín',          isActive: true, geofencingMetadata: null },
+      { branchId: 'b1000001-0000-4000-8000-000000000003', code: 'RANSA_CALLAO_HQ', name: 'Sede Principal Callao',             isActive: true, geofencingMetadata: null },
     ],
     identityProviders: [
       {
-        identityProviderId: 'e2000001-0000-0000-0000-000000000001',
+        identityProviderId: 'e1000001-0000-4000-8000-000000000001',
         code: 'ENTRA_ID',
         name: 'Azure AD Corporativo',
         description: 'Directorio principal Ransa',
@@ -43,10 +43,10 @@ export const mockTenants = [
     type: 'Client',
     status: 'Active',
     companyReference: '20330791684',
-    parentTenantId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+    parentTenantId: null,
     branches: [
-      { branchId: 'b2000001-0000-0000-0000-000000000001', code: 'NEP_CALLAO_DP1', name: 'Depósito Portuario 1 — Av. Néstor Gambetta', isActive: true, geofencingMetadata: null },
-      { branchId: 'b2000001-0000-0000-0000-000000000002', code: 'NEP_CALLAO_DP2', name: 'Depósito Portuario 2 — Zona Industrial',     isActive: true, geofencingMetadata: null },
+      { branchId: 'b1000001-0000-4000-8000-000000000001', code: 'NEP_CALLAO_DP1', name: 'Depósito Portuario 1 — Av. Néstor Gambetta', isActive: true, geofencingMetadata: null },
+      { branchId: 'b1000001-0000-4000-8000-000000000002', code: 'NEP_CALLAO_DP2', name: 'Depósito Portuario 2 — Zona Industrial',     isActive: true, geofencingMetadata: null },
     ],
     identityProviders: [
       {
@@ -79,9 +79,9 @@ export const mockTenants = [
     type: 'Client',
     status: 'Active',
     companyReference: '20516357498',
-    parentTenantId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+    parentTenantId: null,
     branches: [
-      { branchId: 'b3000001-0000-0000-0000-000000000001', code: 'APM_MUELLE_N', name: 'Muelle Norte — Terminal Contenedores', isActive: true, geofencingMetadata: null },
+      { branchId: 'b1000001-0000-4000-8000-000000000001', code: 'APM_MUELLE_N', name: 'Muelle Norte — Terminal Contenedores', isActive: true, geofencingMetadata: null },
     ],
     identityProviders: [],
     branding: null,
@@ -95,8 +95,8 @@ export const mockTenants = [
     companyReference: '20512180098',
     parentTenantId: null,
     branches: [
-      { branchId: 'b4000001-0000-0000-0000-000000000001', code: 'PAITA_MUELLE',  name: 'Muelle de Transferencia — Puerto Paita', isActive: true, geofencingMetadata: null },
-      { branchId: 'b4000001-0000-0000-0000-000000000002', code: 'PAITA_ALMACEN', name: 'Almacén General Paita',                  isActive: true, geofencingMetadata: null },
+      { branchId: 'b1000001-0000-4000-8000-000000000001', code: 'PAITA_MUELLE',  name: 'Muelle de Transferencia — Puerto Paita', isActive: true, geofencingMetadata: null },
+      { branchId: 'b1000001-0000-4000-8000-000000000002', code: 'PAITA_ALMACEN', name: 'Almacén General Paita',                  isActive: true, geofencingMetadata: null },
     ],
     identityProviders: [],
     branding: null,
@@ -110,8 +110,8 @@ export const mockTenants = [
     companyReference: '20101523381',
     parentTenantId: null,
     branches: [
-      { branchId: 'b5000001-0000-0000-0000-000000000001', code: 'UNI_MIRAFLORES', name: 'Oficina Miraflores — Av. Larco',   isActive: true, geofencingMetadata: null },
-      { branchId: 'b5000001-0000-0000-0000-000000000002', code: 'UNI_CALLAO_OP',  name: 'Operaciones Callao — Jr. Colón', isActive: true, geofencingMetadata: null },
+      { branchId: 'b1000001-0000-4000-8000-000000000001', code: 'UNI_MIRAFLORES', name: 'Oficina Miraflores — Av. Larco',   isActive: true, geofencingMetadata: null },
+      { branchId: 'b1000001-0000-4000-8000-000000000002', code: 'UNI_CALLAO_OP',  name: 'Operaciones Callao — Jr. Colón', isActive: true, geofencingMetadata: null },
     ],
     identityProviders: [],
     branding: null,
@@ -125,8 +125,8 @@ export const mockTenants = [
     companyReference: '20101041268',
     parentTenantId: null,
     branches: [
-      { branchId: 'b6000001-0000-0000-0000-000000000001', code: 'INTRA_SJL', name: 'Planta San Juan de Lurigancho',         isActive: true, geofencingMetadata: null },
-      { branchId: 'b6000001-0000-0000-0000-000000000002', code: 'INTRA_ATE', name: 'Almacén Ate Vitarte — Carretera Central', isActive: true, geofencingMetadata: null },
+      { branchId: 'b1000001-0000-4000-8000-000000000001', code: 'INTRA_SJL', name: 'Planta San Juan de Lurigancho',         isActive: true, geofencingMetadata: null },
+      { branchId: 'b1000001-0000-4000-8000-000000000002', code: 'INTRA_ATE', name: 'Almacén Ate Vitarte — Carretera Central', isActive: true, geofencingMetadata: null },
     ],
     identityProviders: [],
     branding: null,
