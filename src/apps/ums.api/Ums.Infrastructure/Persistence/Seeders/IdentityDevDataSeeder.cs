@@ -273,35 +273,49 @@ public static class IdentityDevDataSeeder
 
     private static IReadOnlyList<UserManagementDelegationAggregate> BuildSeedDelegations(ActorId actor)
     {
-        var ransaTenantId = TenantId.Load(Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"));
-        var ransaBaseGuidBytes = ransaTenantId.GetValue().ToByteArray();
-        Guid DeriveRansaGuid(byte index)
+        var unimarTenantId = TenantId.Load(Guid.Parse("5f4e3d2c-1b0a-9f8e-7d6c-543210987654"));
+        var unimarBaseBytes = unimarTenantId.GetValue().ToByteArray();
+        Guid DeriveUnimarGuid(byte index)
         {
-            var bytes = (byte[])ransaBaseGuidBytes.Clone();
+            var bytes = (byte[])unimarBaseBytes.Clone();
             bytes[0] = index;
             return new Guid(bytes);
         }
 
-        var neptuniaTenantId = TenantId.Load(Guid.Parse("c9b736b4-6a84-48f8-b34d-176bc5a6d542"));
-        var neptuniaBaseBytes = neptuniaTenantId.GetValue().ToByteArray();
-        var neptuniaDelegatedAdminId = new Guid(neptuniaBaseBytes.Select((b, i) => i == 0 ? (byte)2 : b).ToArray());
+        var adminId = UserAccountId.Load(DeriveUnimarGuid(1));
+        var analystId = UserAccountId.Load(DeriveUnimarGuid(2));
+        var partnerId = UserAccountId.Load(DeriveUnimarGuid(5));
 
-        var result = UserManagementDelegationAggregate.Create(
-            ransaTenantId,
-            UserAccountId.Load(DeriveRansaGuid(1)), // gerente operaciones ransa
-            UserAccountId.Load(neptuniaDelegatedAdminId), // analista inventario neptunia
-            DelegationScopeType.Tenant,
-            null,
+        // 1. Active Delegation
+        var activeDel = UserManagementDelegationAggregate.Create(
+            unimarTenantId, adminId, analystId, DelegationScopeType.Tenant, null,
             new[] { DelegatedAction.CreateUser, DelegatedAction.BlockUser },
-            DateTimeOffset.UtcNow.AddDays(-1),
-            DateTimeOffset.UtcNow.AddDays(30),
-            90, // maxDurationDays
-            false,
-            actor);
-            
-        var delegation = result.Value;
-        delegation.Activate(actor);
+            DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddDays(30), 90, false, actor).Value;
+        activeDel.Activate(actor);
 
-        return new[] { delegation };
+        // 2. Expired Delegation
+        var expiredDel = UserManagementDelegationAggregate.Create(
+            unimarTenantId, adminId, partnerId, DelegationScopeType.Tenant, null,
+            new[] { DelegatedAction.CreateUser },
+            DateTimeOffset.UtcNow.AddDays(-30), DateTimeOffset.UtcNow.AddDays(-1), 90, false, actor).Value;
+        expiredDel.Activate(actor);
+        expiredDel.Expire(actor);
+
+        // 3. Revoked Delegation
+        var revokedDel = UserManagementDelegationAggregate.Create(
+            unimarTenantId, analystId, adminId, DelegationScopeType.Tenant, null,
+            new[] { DelegatedAction.BlockUser },
+            DateTimeOffset.UtcNow.AddDays(-10), DateTimeOffset.UtcNow.AddDays(20), 90, false, actor).Value;
+        revokedDel.Activate(actor);
+        revokedDel.Revoke(Reason.Create("Cambio de rol"), actor);
+
+        // 4. Draft / Pending Approval
+        var draftDel = UserManagementDelegationAggregate.Create(
+            unimarTenantId, partnerId, analystId, DelegationScopeType.Tenant, null,
+            new[] { DelegatedAction.CreateUser },
+            DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.AddDays(15), 90, true, actor).Value;
+        // Not activated
+
+        return [activeDel, expiredDel, revokedDel, draftDel];
     }
 }
