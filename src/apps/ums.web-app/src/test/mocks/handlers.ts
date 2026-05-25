@@ -27,6 +27,36 @@ export const handlers = [
     });
   }),
   
+  graphql.query('UserAccounts', () => {
+    return HttpResponse.json({
+      data: {
+        getUserAccounts: {
+          items: [],
+          totalItems: 0,
+          totalPages: 1,
+          page: 1,
+          pageSize: 20,
+        },
+      },
+    });
+  }),
+  
+  graphql.query('DelegationsByDelegatedAdmin', () => {
+    return HttpResponse.json({
+      data: {
+        getDelegationsByDelegatedAdmin: [],
+      },
+    });
+  }),
+
+  graphql.query('DelegationsByDelegatingAdmin', () => {
+    return HttpResponse.json({
+      data: {
+        getDelegationsByDelegatingAdmin: [],
+      },
+    });
+  }),
+  
   // Catch-all for unmocked GraphQL queries to prevent 500 errors in Dev mode
   http.post('*/graphql', () => {
     return HttpResponse.json({
