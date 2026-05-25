@@ -52,7 +52,7 @@ If the client system requests an unapproved return location, UMS blocks the redi
 ## 8. Technical Requirements
 
 - Resolve branding and login behavior from system configuration.
-- Support configured IdP and native fallback strategies.
+- Support configured IdP and native fallback strategies, including the Magic Link fallback implementation.
 - Validate redirect/callback locations.
 - Issue approved session/token result after authentication.
 - Audit successful and failed hosted-login attempts.

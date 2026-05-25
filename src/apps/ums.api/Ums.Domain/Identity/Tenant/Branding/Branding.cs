@@ -18,6 +18,7 @@ public sealed class Branding : Entity<Branding, BrandingProps>
     public CustomDomain? CustomDomain => Props.CustomDomain;
     public DnsVerificationStatus DnsVerificationStatus => Props.DnsVerificationStatus;
     public DnsCnameTarget DnsCnameTarget => Props.DnsCnameTarget;
+    // TODO: Implement Magic Link Fallback logic in the authentication flow
     public bool MagicLinkFallbackEnabled => Props.MagicLinkFallbackEnabled;
 
     public BrandingId GetId() => BrandingId.Load(Props.Id.GetValue());
