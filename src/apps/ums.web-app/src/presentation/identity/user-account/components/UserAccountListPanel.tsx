@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Mail, Layers } from 'lucide-react';
+import { Mail, Layers, ArrowRight } from 'lucide-react';
 import { UserAccount } from '@domain/identity/models/user-account.model';
 import { Tenant } from '@domain/identity/models/tenant.model';
 import { StatusBadge } from '@shared/components/StatusBadge';
@@ -16,6 +16,7 @@ import { M3Card } from '@shared/components/M3Card';
 import { useI18n } from '@app/i18n/use-i18n';
 import { useStatusLabel } from '@app/hooks/use-status-label';
 import { TenantSelector } from '@presentation/identity/tenant/components/TenantSelector';
+import { ApiErrorBanner } from '@shared/components/ApiErrorBanner';
 
 
 interface UserAccountListPanelProps {
@@ -216,7 +217,7 @@ export const UserAccountListPanel: React.FC<UserAccountListPanelProps> = ({
           searchButtonLabel={t.searchBtn}
           renderList={() => (
             <>
-              {error && <ErrorBanner error={error} />}
+              {error && <ApiErrorBanner error={error} />}
               <div className="divide-y divide-m3-outline/10">
                 {accounts.map(renderAccountRow)}
               </div>

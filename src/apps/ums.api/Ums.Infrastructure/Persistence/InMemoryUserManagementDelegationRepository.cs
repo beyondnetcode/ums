@@ -89,6 +89,12 @@ public sealed class InMemoryUserManagementDelegationRepository : IUserManagement
         return Task.CompletedTask;
     }
 
+    public void Seed(UserManagementDelegationAggregate aggregate)
+    {
+        aggregate.DomainEvents.MarkChangesAsCommitted();
+        _store[aggregate.Props.Id.GetValue()] = aggregate;
+    }
+
     public Task UpdateAsync(UserManagementDelegationAggregate aggregate, CancellationToken cancellationToken = default)
     {
         _store[aggregate.Props.Id.GetValue()] = aggregate;

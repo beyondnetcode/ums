@@ -38,9 +38,9 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({ tenantId, isRootTe
     primaryButtonLabel: '',
     footerText: '',
     primaryColor: '#3b5bdb',
-    backgroundStyle: 'solid',
+    backgroundStyle: 'SolidColor',
     logo: '',
-    logoFormat: 'png',
+    logoFormat: 'Png',
     customDomain: '',
     magicLinkFallbackEnabled: false,
   });
@@ -153,9 +153,9 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({ tenantId, isRootTe
         </M3FieldsetWrapper>
 
         <M3Select compact label={t.brandBackground} value={fields.backgroundStyle} onChange={(e) => setField('backgroundStyle', e.target.value)}>
-          <option value="solid">{t.brandBgSolid}</option>
-          <option value="gradient-subtle">{t.brandBgGradientSubtle}</option>
-          <option value="gradient-bold">{t.brandBgGradientBold}</option>
+          <option value="SolidColor">{t.brandBgSolid}</option>
+          <option value="Gradient">{t.brandBgGradientSubtle}</option>
+          <option value="Image">{t.brandBgImage}</option>
         </M3Select>
 
         <div className="flex gap-2 items-start mb-3">
@@ -164,9 +164,8 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({ tenantId, isRootTe
           </div>
           <div className="w-24 flex-shrink-0">
             <M3Select compact label={t.brandLogoFormat} value={fields.logoFormat} onChange={(e) => setField('logoFormat', e.target.value)} className="mb-0">
-              <option value="png">PNG</option>
-              <option value="svg">SVG</option>
-              <option value="jpeg">JPEG</option>
+              <option value="Png">PNG</option>
+              <option value="Svg">SVG</option>
             </M3Select>
           </div>
         </div>

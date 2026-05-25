@@ -14,6 +14,7 @@ using Ums.Infrastructure;
 using Ums.Infrastructure.HealthChecks;
 using Ums.Infrastructure.Persistence;
 using Ums.Infrastructure.Persistence.Options;
+using Ums.Infrastructure.Persistence.Seeders;
 using Ums.Presentation.Endpoints;
 using Ums.Presentation.Endpoints.Approvals.AccessEnforcementPolicy;
 using Ums.Presentation.Endpoints.Approvals.AccessEnforcementPolicy.Queries;
@@ -314,37 +315,7 @@ public static class UmsApiApplicationBuilderExtensions
     private static async Task SeedDevelopmentDataAsync(this WebApplication app)
     {
         using var scope = app.Services.CreateScope();
-        var repository = scope.ServiceProvider.GetRequiredService<ITenantRepository>();
-
-        if (repository is InMemoryTenantRepository inMemoryTenantRepository)
-        {
-            DevDataSeeder.Seed(inMemoryTenantRepository);
-
-            var inMemoryUserAccountRepository = scope.ServiceProvider.GetService<InMemoryUserAccountRepository>();
-            if (inMemoryUserAccountRepository is not null)
-            {
-                DevDataSeeder.SeedUserAccounts(inMemoryUserAccountRepository);
-            }
-
-            return;
-        }
-
-        await DevDataSeeder.SeedAsync(repository);
-
-        var userAccountRepository = scope.ServiceProvider.GetService<IUserAccountRepository>();
-        if (userAccountRepository is null)
-        {
-            return;
-        }
-
-        foreach (var tenantCode in new[] { "RANSA_PERU", "NEPTUNIA", "APM_CALLAO" })
-        {
-            var tenant = await repository.GetByCodeAsync(tenantCode);
-            if (tenant is not null)
-            {
-                await DevDataSeeder.SeedUserAccountsAsync(userAccountRepository, tenant.Props.Id.GetValue());
-            }
-        }
+        await CoreDevDataSeeder.SeedAllAsync(scope.ServiceProvider);
     }
 
     public static WebApplication MapUmsApiSurface(this WebApplication app)

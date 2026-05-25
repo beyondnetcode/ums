@@ -1,4 +1,7 @@
 import { http, graphql, HttpResponse } from 'msw';
+import { mockTenants } from './data/tenants.mock';
+import { mockUserAccounts } from './data/user-accounts.mock';
+import { mockDelegations } from './data/delegations.mock';
 
 export const handlers = [
   // Example REST interception
@@ -17,8 +20,8 @@ export const handlers = [
     return HttpResponse.json({
       data: {
         getTenants: {
-          items: [],
-          totalItems: 0,
+          items: mockTenants,
+          totalItems: mockTenants.length,
           totalPages: 1,
           page: 1,
           pageSize: 20,
@@ -31,8 +34,8 @@ export const handlers = [
     return HttpResponse.json({
       data: {
         getUserAccounts: {
-          items: [],
-          totalItems: 0,
+          items: mockUserAccounts.items,
+          totalItems: mockUserAccounts.totalCount,
           totalPages: 1,
           page: 1,
           pageSize: 20,
@@ -44,7 +47,7 @@ export const handlers = [
   graphql.query('DelegationsByDelegatedAdmin', () => {
     return HttpResponse.json({
       data: {
-        getDelegationsByDelegatedAdmin: [],
+        getDelegationsByDelegatedAdmin: mockDelegations,
       },
     });
   }),
@@ -52,7 +55,67 @@ export const handlers = [
   graphql.query('DelegationsByDelegatingAdmin', () => {
     return HttpResponse.json({
       data: {
-        getDelegationsByDelegatingAdmin: [],
+        getDelegationsByDelegatingAdmin: mockDelegations,
+      },
+    });
+  }),
+  
+  graphql.query('Tenant', ({ variables }) => {
+    const { tenantId } = variables;
+    const tenant = mockTenants.find(t => t.tenantId === tenantId) || mockTenants[0];
+    return HttpResponse.json({
+      data: {
+        getTenantById: tenant,
+      },
+    });
+  }),
+  
+  graphql.query('TenantBranches', ({ variables }) => {
+    const { tenantId } = variables;
+    const tenant = mockTenants.find(t => t.tenantId === tenantId) || mockTenants[0];
+    return HttpResponse.json({
+      data: {
+        getTenantBranches: tenant.branches || [],
+      },
+    });
+  }),
+  
+  graphql.query('UserAccount', ({ variables }) => {
+    const { userAccountId } = variables;
+    const account = mockUserAccounts.items.find(u => u.userAccountId === userAccountId) || mockUserAccounts.items[0];
+    return HttpResponse.json({
+      data: {
+        getUserAccountById: account,
+      },
+    });
+  }),
+  
+  graphql.query('DelegationById', ({ variables }) => {
+    const { delegationId } = variables;
+    const delegation = mockDelegations.find(d => d.delegationId === delegationId) || mockDelegations[0];
+    return HttpResponse.json({
+      data: {
+        getDelegationById: delegation,
+      },
+    });
+  }),
+  
+  graphql.query('IdentityProviders', ({ variables }) => {
+    const { tenantId } = variables;
+    const tenant = mockTenants.find(t => t.tenantId === tenantId) || mockTenants[0];
+    return HttpResponse.json({
+      data: {
+        getTenantIdentityProviders: tenant.identityProviders || [],
+      },
+    });
+  }),
+  
+  graphql.query('Branding', ({ variables }) => {
+    const { tenantId } = variables;
+    const tenant = mockTenants.find(t => t.tenantId === tenantId) || mockTenants[0];
+    return HttpResponse.json({
+      data: {
+        getTenantBranding: tenant.branding || null,
       },
     });
   }),

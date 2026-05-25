@@ -457,7 +457,7 @@ public sealed class Tenant : AggregateRoot<Tenant, TenantProps>
 
     private Result<BranchEntity> FindBranch(IdValueObject branchId)
     {
-        var branch = _branches.FirstOrDefault(b => b.Id.GetValue() == branchId.GetValue());
+        var branch = _branches.FirstOrDefault(b => b.Props.Id.GetValue() == branchId.GetValue());
         if (branch is null)
             return Result<BranchEntity>.Failure(DomainErrors.Common.NotFound);
 
@@ -466,7 +466,7 @@ public sealed class Tenant : AggregateRoot<Tenant, TenantProps>
 
     private Result<IdentityProviderEntity> FindIdentityProvider(IdValueObject identityProviderId)
     {
-        var identityProvider = _identityProviders.FirstOrDefault(ip => ip.Id.GetValue() == identityProviderId.GetValue());
+        var identityProvider = _identityProviders.FirstOrDefault(ip => ip.Props.Id.GetValue() == identityProviderId.GetValue());
         if (identityProvider is null)
             return Result<IdentityProviderEntity>.Failure(DomainErrors.Common.NotFound);
 
