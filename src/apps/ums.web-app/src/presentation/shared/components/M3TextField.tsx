@@ -63,7 +63,8 @@ export const M3TextField: React.FC<M3TextFieldProps> = ({
       ? String(value).length > 0
       : defaultValue !== undefined && String(defaultValue).length > 0;
 
-  const isFloated = focused || hasValue;
+  const alwaysFloatTypes = ['date', 'datetime-local', 'time', 'month', 'week'];
+  const isFloated = focused || hasValue || alwaysFloatTypes.includes(inputProps.type || '');
 
   const borderClass = focused
     ? `border-2 ${error ? 'border-m3-error' : 'border-m3-primary'}`
