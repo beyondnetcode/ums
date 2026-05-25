@@ -85,4 +85,10 @@ Reference implementations for core architectural patterns:
 
 ---
 
+## Engineering Metrics
+
+- **[Solution Metrics Dashboard](../operations/metrics/index.md)**: Consolidated engineering metrics across all solutions (API, Web, Libs, Tests) organized by category: coding, security, quality, tests, and AI usage.
+
+---
+
 **[Back to Master Index](../MASTER_INDEX.md)** | **[Back to Root README](../../README.md)**

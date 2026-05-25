@@ -22,7 +22,7 @@ export default function App() {
   return (
     <div className={isDarkMode ? 'dark' : ''}>
       <AppErrorBoundary>
-        <BrowserRouter>
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <MainLayout>
             <Suspense fallback={<RouteLoader />}>
               <Routes>

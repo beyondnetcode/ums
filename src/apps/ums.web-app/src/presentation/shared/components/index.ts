@@ -83,3 +83,6 @@ export type { ErrorBoundaryProps } from './ErrorBoundary';
 
 export { RouteLoader } from './RouteLoader';
 export type { RouteLoaderProps } from './RouteLoader';
+
+export { ApiErrorBanner } from './ApiErrorBanner';
+export type { ApiErrorBannerProps } from './ApiErrorBanner';

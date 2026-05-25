@@ -1,0 +1,116 @@
+name: Update Metrics Dashboard
+
+on:
+  push:
+    branches: [main, develop]
+    paths-ignore:
+      - 'docs/operations/metrics/**'
+      - '**.md'
+
+permissions:
+  contents: write
+
+jobs:
+  update-metrics:
+    name: Collect and Update Metrics
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: src/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: src
+
+      - name: Restore .NET tools
+        run: dotnet tool restore
+        working-directory: src/apps/ums.api
+
+      - name: Build backend solution
+        run: dotnet build --no-restore --configuration Release
+        working-directory: src/apps/ums.api
+        continue-on-error: true
+
+      - name: Run backend tests with coverage
+        run: ./coverage.sh --ci
+        working-directory: src/apps/ums.api
+        continue-on-error: true
+
+      - name: Run frontend lint
+        run: npm run lint
+        working-directory: src/apps/ums.web-app
+        continue-on-error: true
+
+      - name: Run frontend tests
+        run: npm run test
+        working-directory: src/apps/ums.web-app
+        continue-on-error: true
+
+      - name: Run npm audit
+        run: npm audit --json > /tmp/npm-audit.json || true
+        working-directory: src/apps/ums.web-app
+        continue-on-error: true
+
+      - name: Run NuGet vulnerability audit
+        run: dotnet nuget verify --vulnerability-audit > /tmp/nuget-audit.txt || true
+        working-directory: src/apps/ums.api
+        continue-on-error: true
+
+      - name: Run CodeQL analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:csharp"
+        continue-on-error: true
+
+      - name: Collect metrics
+        run: |
+          chmod +x src/scripts/update-metrics.sh
+          src/scripts/update-metrics.sh --ci --dry-run
+        env:
+          CI: true
+
+      - name: Update metrics documents
+        run: |
+          chmod +x src/scripts/update-metrics.sh
+          src/scripts/update-metrics.sh --ci
+        env:
+          CI: true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run BMAD compliance checks
+        run: |
+          python3 .bmad-core/scripts/cleanup_markdown_encoding.py docs/operations/metrics/index.md || true
+          python3 .bmad-core/scripts/cleanup_markdown_encoding.py docs/operations/metrics/index.es.md || true
+          python3 .bmad-core/scripts/strip_emojis.py docs/operations/metrics/index.md || true
+          python3 .bmad-core/scripts/strip_emojis.py docs/operations/metrics/index.es.md || true
+          python3 .bmad-core/scripts/validate_mermaid.py docs/operations/metrics/index.md || true
+          python3 .bmad-core/scripts/validate_mermaid.py docs/operations/metrics/index.es.md || true
+
+      - name: Commit metrics updates
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/operations/metrics/index.md docs/operations/metrics/index.es.md
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "[ci skip] docs: update metrics dashboard ($(date -u +%Y-%m-%d))"
+            git push
+          fi

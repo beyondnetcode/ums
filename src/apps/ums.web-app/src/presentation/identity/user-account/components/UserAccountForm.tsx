@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useCreateUserAccount } from '@app/identity/hooks/use-user-account';
 import { useI18n } from '@app/i18n/use-i18n';
+import { useFormValidation } from '@app/hooks';
 import { M3Button } from '@shared/components/M3Button';
 import { M3TextField } from '@shared/components/M3TextField';
 import { M3Select } from '@shared/components/M3Select';
@@ -24,11 +25,11 @@ export const UserAccountForm: React.FC<UserAccountFormProps> = ({ isOpen, onClos
   const [category, setCategory] = useState('Internal');
   const [identityReference, setIdentityReference] = useState('');
   const [identityReferenceType, setIdentityReferenceType] = useState('HrId');
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  
+  const { errors, validate, clearErrors } = useFormValidation(CreateUserAccountPayloadSchema);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrors({});
 
     const payload = {
       tenantId: tenantId || 'f3e2d1c0-b9a8-7f6e-5d4c-321098765432',
@@ -39,19 +40,13 @@ export const UserAccountForm: React.FC<UserAccountFormProps> = ({ isOpen, onClos
       identityReferenceType: identityReference ? (identityReferenceType as 'HrId' | 'VendorCode' | 'GovernmentId' | 'PartnerRef') : undefined,
     };
 
-    const result = CreateUserAccountPayloadSchema.safeParse(payload);
-    if (!result.success) {
-      const fieldErrors: { [key: string]: string } = {};
-      const flattened = result.error.flatten();
-      if (flattened.fieldErrors.email?.[0]) fieldErrors.email = flattened.fieldErrors.email[0];
-      if (flattened.fieldErrors.category?.[0]) fieldErrors.category = flattened.fieldErrors.category[0];
-      setErrors(fieldErrors);
-      return;
-    }
+    const validData = validate(payload);
+    if (!validData) return;
 
     try {
-      await createUserAccountMutation.mutateAsync(payload);
+      await createUserAccountMutation.mutateAsync(validData);
       setEmail(''); setCategory('Internal'); setIdentityReference(''); setIdentityReferenceType('HrId');
+      clearErrors();
       onSuccess();
     } catch {
       // Handled by mutation hook

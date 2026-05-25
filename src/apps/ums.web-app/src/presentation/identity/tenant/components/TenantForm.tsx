@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useCreateTenant } from '@app/identity/hooks/use-tenant';
 import { useI18n } from '@app/i18n/use-i18n';
+import { useFormValidation } from '@app/hooks';
 import { M3Button } from '@shared/components/M3Button';
 import { M3TextField } from '@shared/components/M3TextField';
 import { M3Select } from '@shared/components/M3Select';
@@ -23,11 +24,11 @@ export const TenantForm: React.FC<TenantFormProps> = ({ isOpen, onClose, onSucce
   const [name, setName] = useState('');
   const [type, setType] = useState('INTERNAL');
   const [companyReference, setCompanyReference] = useState('');
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  
+  const { errors, validate, clearErrors } = useFormValidation(CreateTenantPayloadSchema);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrors({});
 
     const payload = {
       code,
@@ -36,25 +37,13 @@ export const TenantForm: React.FC<TenantFormProps> = ({ isOpen, onClose, onSucce
       companyReference: companyReference || undefined,
     };
 
-    const result = CreateTenantPayloadSchema.safeParse(payload);
-    if (!result.success) {
-      const fieldErrors: { [key: string]: string } = {};
-      const flattened = result.error.flatten();
-      if (flattened.fieldErrors.code?.[0]) fieldErrors.code = flattened.fieldErrors.code[0];
-      if (flattened.fieldErrors.name?.[0]) fieldErrors.name = flattened.fieldErrors.name[0];
-      if (flattened.fieldErrors.type?.[0]) fieldErrors.type = flattened.fieldErrors.type[0];
-      setErrors(fieldErrors);
-      return;
-    }
+    const validData = validate(payload);
+    if (!validData) return;
 
     try {
-      const response = await createTenantMutation.mutateAsync({
-        code,
-        name,
-        type,
-        companyReference: companyReference || undefined,
-      });
+      const response = await createTenantMutation.mutateAsync(validData);
       setCode(''); setName(''); setType('INTERNAL'); setCompanyReference('');
+      clearErrors();
       onSuccess(response.tenantId);
       onClose();
     } catch {

@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Mail, ArrowRight, Info, WifiOff, AlertTriangle, Layers } from 'lucide-react';
+import { Mail, Layers } from 'lucide-react';
 import { UserAccount } from '@domain/identity/models/user-account.model';
 import { Tenant } from '@domain/identity/models/tenant.model';
 import { StatusBadge } from '@shared/components/StatusBadge';
@@ -15,7 +15,8 @@ import { EntityCard } from '@shared/components/EntityCard';
 import { M3Card } from '@shared/components/M3Card';
 import { useI18n } from '@app/i18n/use-i18n';
 import { useStatusLabel } from '@app/hooks/use-status-label';
-import { GraphQlValidationError, GraphQlUnavailableError } from '@infra/http/graphqlClient';
+import { TenantSelector } from '@presentation/identity/tenant/components/TenantSelector';
+
 
 interface UserAccountListPanelProps {
   accounts: UserAccount[];
@@ -53,51 +54,7 @@ interface UserAccountListPanelProps {
   onTenantChange: (tenantId: string) => void;
 }
 
-function formatErrorMessage(error: Error): string {
-  if (error instanceof GraphQlValidationError) {
-    return error.details.join('. ');
-  }
-  return error.message;
-}
 
-function ErrorBanner({ error }: { error: Error }) {
-  const t = useI18n();
-  const isUnavailable = error instanceof GraphQlUnavailableError;
-  const isValidation = error instanceof GraphQlValidationError;
-
-  const icon = isUnavailable ? (
-    <WifiOff className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" />
-  ) : isValidation ? (
-    <AlertTriangle className="w-5 h-5 text-rose-500 mt-0.5 flex-shrink-0" />
-  ) : (
-    <Info className="w-5 h-5 text-rose-500 mt-0.5 flex-shrink-0" />
-  );
-
-  const title = isUnavailable
-    ? 'Backend API Unavailable'
-    : isValidation
-      ? 'Invalid Request'
-      : (t.error || 'Error');
-
-  const hint = isUnavailable
-    ? 'Start the backend API and refresh. Run: dotnet run in src/apps/ums.api/Ums.Presentation'
-    : isValidation
-      ? 'Check the request parameters and try again.'
-      : 'Ensure the backend API is running and try again.';
-
-  return (
-    <div className="mb-4 p-4 rounded-xl border border-rose-200 bg-rose-50">
-      <div className="flex items-start gap-3">
-        {icon}
-        <div>
-          <p className="text-sm font-medium text-rose-800">{title}</p>
-          <p className="text-xs text-rose-700 mt-1">{formatErrorMessage(error)}</p>
-          <p className="text-xs text-rose-600 mt-2">{hint}</p>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export const UserAccountListPanel: React.FC<UserAccountListPanelProps> = ({
   accounts,
@@ -208,26 +165,21 @@ export const UserAccountListPanel: React.FC<UserAccountListPanelProps> = ({
             </div>
             <div>
               <span className="text-xs font-semibold text-m3-secondary uppercase tracking-wider block">
-                {t.activeTenant || 'Active Tenant'}
+                {t.activeTenant}
               </span>
               <span className="text-[10px] text-m3-secondary/70">
-                {t.filterAccountsByTenant || 'Filter user accounts by organization'}
+                {t.filterAccountsByTenant}
               </span>
             </div>
           </div>
           <div className="w-full sm:w-72">
-            <select
-              value={selectedTenantId}
-              onChange={(e) => onTenantChange(e.target.value)}
-              aria-label={t.activeTenant || 'Active Tenant'}
-              className="w-full h-11 px-3 text-xs rounded-lg border border-m3-outline bg-m3-surface text-m3-on-surface focus:outline-none focus:border-m3-primary transition-colors cursor-pointer"
-            >
-              {tenants.map((tenant) => (
-                <option key={tenant.tenantId} value={tenant.tenantId}>
-                  {tenant.name} ({tenant.code})
-                </option>
-              ))}
-            </select>
+            <TenantSelector
+              tenants={tenants}
+              selectedTenantId={selectedTenantId}
+              onTenantChange={onTenantChange}
+              label={t.activeTenant}
+              className="mb-0"
+            />
           </div>
         </div>
       </M3Card>

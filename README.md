@@ -129,6 +129,7 @@ cd src/apps/ums.web-app && npm run dev
 | **Requirements** | [Requirements Index](./docs/governance/requirements/index.md) | Functional stories, business glossary, and conceptual data model. |
 | **Architecture** | [Architecture Portal](./docs/architecture/index.md) | Database ER design, entity maps, and interactive viewers. |
 | **Construction** | [Construction Portal](./docs/governance/construction/index.md) | DDD domain layer design (bounded contexts, aggregates, events, commands). |
+| **Metrics** | [Solution Metrics Dashboard](./docs/operations/metrics/index.md) | Engineering metrics by solution type: coding, security, quality, tests, AI usage. |
 
 ---
 

@@ -11,6 +11,10 @@ Step-by-step recovery and operational procedures:
 - **[RB-03: Cache Failure Recovery](./runbooks/rb-03-cache-failure-recovery.md)** — Redis failure diagnosis and recovery
 - **[RB-04: Database Failover](./runbooks/rb-04-database-failover.md)** — Primary failover, PITR, multi-tenant RLS verification
 
+## Engineering Metrics
+
+- **[Solution Metrics Dashboard](./metrics/index.md)** — Consolidated metrics across all solutions (API, Web, Libs, Tests) by category: coding, security, quality, tests, and AI usage. Auto-updated after each commit.
+
 ---
 
 **[Back to Master Index](../MASTER_INDEX.md)**

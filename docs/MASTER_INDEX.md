@@ -94,3 +94,12 @@ Product Lifecycle and Engineering Specifications for the User Management System 
 - [RB-02: Rollback Procedure](./operations/runbooks/rb-02-rollback-procedure.md)
 - [RB-03: Cache Failure Recovery](./operations/runbooks/rb-03-cache-failure-recovery.md)
 - [RB-04: Database Failover](./operations/runbooks/rb-04-database-failover.md)
+
+### Engineering Metrics
+
+- [Solution Metrics Dashboard](./operations/metrics/index.md)
+  - API Metrics (ums.api)
+  - Web Metrics (ums.web-app)
+  - Library Metrics (shell/*)
+  - Test Suite Metrics
+  - Aggregate Metrics by Category

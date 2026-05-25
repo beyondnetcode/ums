@@ -40,6 +40,15 @@ window.addEventListener('unhandledrejection', (event) => {
   event.preventDefault();
 });
 
+async function enableMocking() {
+  if (import.meta.env.DEV && import.meta.env.VITE_USE_MOCKS === 'true') {
+    const { worker } = await import('./test/mocks/browser');
+    return worker.start({
+      onUnhandledRequest: 'bypass',
+    });
+  }
+}
+
 const rootEl = document.getElementById('root');
 if (!rootEl) {
   throw new Error(
@@ -48,11 +57,13 @@ if (!rootEl) {
   );
 }
 
-ReactDOM.createRoot(rootEl).render(
-  <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <LocaleSync />
-      <App />
-    </QueryClientProvider>
-  </React.StrictMode>,
-)
+enableMocking().then(() => {
+  ReactDOM.createRoot(rootEl).render(
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <LocaleSync />
+        <App />
+      </QueryClientProvider>
+    </React.StrictMode>,
+  )
+});

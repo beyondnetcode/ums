@@ -48,7 +48,7 @@ export const tenantService = {
       sortOrder: params?.sortOrder,
     });
 
-    const pageResult = TenantPageSchema.safeParse(response.tenants);
+    const pageResult = TenantPageSchema.safeParse(response.getTenants);
     if (!pageResult.success) {
       logger.error('Invalid GraphQL response shape for tenants query', pageResult.error);
       throw new Error('Invalid GraphQL response shape for tenants query');
@@ -58,13 +58,13 @@ export const tenantService = {
 
   getTenantById: async (tenantId: string): Promise<Tenant> => {
     const response = await graphqlQueries.getTenantById(tenantId);
-    if (!response.tenantById) throw new Error('Tenant not found');
-    return TenantSchema.parse(response.tenantById);
+    if (!response.getTenantById) throw new Error('Tenant not found');
+    return TenantSchema.parse(response.getTenantById);
   },
 
   getBranches: async (tenantId: string): Promise<Branch[]> => {
     const response = await graphqlQueries.getTenantBranches(tenantId);
-    return BranchListSchema.parse(response.tenantBranches);
+    return BranchListSchema.parse(response.getTenantBranches);
   },
 
   // ── Commands (REST) ───────────────────────────────────────────────────────
