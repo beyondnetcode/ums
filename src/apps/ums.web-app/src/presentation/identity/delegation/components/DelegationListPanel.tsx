@@ -102,7 +102,7 @@ export const DelegationListPanel: React.FC<DelegationListPanelProps> = ({
             </div>
             <div>
               <span className="text-sm font-semibold text-m3-on-surface">
-                {delegation.delegationId.substring(0, 8)}...
+                Delegación de Acceso
               </span>
               <span className="ml-2 text-[10px] text-m3-secondary/70 font-mono">
                 {delegation.scopeType}
@@ -136,7 +136,7 @@ export const DelegationListPanel: React.FC<DelegationListPanelProps> = ({
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2">
             <Shield className={`w-5 h-5 ${isSelected ? 'text-m3-primary' : 'text-m3-secondary'}`} />
-            <span className="text-sm font-medium">{delegation.delegationId.substring(0, 8)}...</span>
+            <span className="text-sm font-medium">Delegación de Acceso</span>
           </div>
           <StatusBadge status={delegation.status} label={getStatusLabel(delegation.status)} />
         </div>

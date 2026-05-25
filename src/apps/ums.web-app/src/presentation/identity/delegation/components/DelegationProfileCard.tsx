@@ -72,7 +72,7 @@ export const DelegationProfileCard: React.FC<DelegationProfileCardProps> = ({
           </div>
           <div className="min-w-0">
             <h3 className="text-sm font-semibold text-m3-on-surface flex items-center gap-1.5 flex-wrap">
-              Delegation {delegation.delegationId.substring(0, 8)}
+              Delegación de Acceso
               <CodeBadge code={delegation.scopeType} />
             </h3>
             <p className="text-xs text-m3-secondary mt-0.5">
