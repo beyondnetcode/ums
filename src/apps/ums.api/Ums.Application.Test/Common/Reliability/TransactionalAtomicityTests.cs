@@ -111,7 +111,7 @@ public class TransactionalAtomicityTests
         // Simulate the SaveEntitiesAsync logic from SqlServerAppConfigurationRepository
         // (reproduced here because we cannot call the SQL repository without DB)
         var outboxMessages = config.DomainEvents.GetUncommittedChanges().ToList();
-        Assert.Equal(1, outboxMessages.Count); // outbox materialized
+        Assert.Single(outboxMessages); // outbox materialized
 
         // This is what the current code does BEFORE calling SaveChangesAsync:
         config.DomainEvents.MarkChangesAsCommitted(); // ← the bug: clears before save

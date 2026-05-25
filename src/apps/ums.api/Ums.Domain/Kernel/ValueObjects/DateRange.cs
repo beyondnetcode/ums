@@ -7,22 +7,22 @@ public record DateRange
 
     private DateRange(DateTimeOffset startsAt, DateTimeOffset? endsAt)
     {
-        if (endsAt.HasValue && endsAt.Value < startsAt)
-        {
-            throw new ArgumentException(DomainErrors.ValueObject.DateRangeInvalid);
-        }
         StartsAt = startsAt;
         EndsAt = endsAt;
     }
 
-    public static DateRange Create(DateTimeOffset startsAt, DateTimeOffset? endsAt = null)
+    public static Result<DateRange> Create(DateTimeOffset startsAt, DateTimeOffset? endsAt = null)
     {
-        return new DateRange(startsAt, endsAt);
+        if (endsAt.HasValue && endsAt.Value < startsAt)
+        {
+            return Result<DateRange>.Failure(DomainErrors.ValueObject.DateRangeInvalid);
+        }
+        return Result<DateRange>.Success(new DateRange(startsAt, endsAt));
     }
 
-    public static DateRange Default()
+    public static Result<DateRange> Default()
     {
-        return new DateRange(DateTimeOffset.MinValue, null);
+        return Result<DateRange>.Success(new DateRange(DateTimeOffset.MinValue, null));
     }
 
     public bool Contains(DateTimeOffset value) => value >= StartsAt && (!EndsAt.HasValue || value <= EndsAt.Value);

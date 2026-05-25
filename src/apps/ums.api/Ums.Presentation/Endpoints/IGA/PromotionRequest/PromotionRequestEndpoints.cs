@@ -28,14 +28,7 @@ public static class PromotionRequestEndpoints
           .WithSummary("Get promotion requests using server-side pagination")
           .Produces<PagedResult<PromotionRequestDto>>(StatusCodes.Status200OK);
 
-        group.MapGet("/{id:guid}", async (Guid id, IMediator mediator, HttpContext context, CancellationToken ct) =>
-        {
-            var result = await mediator.Send(new GetPromotionRequestByIdQuery(id), ct);
-            return result.ToOk(context);
-        }).WithName("GetPromotionRequestById")
-          .WithSummary("Get a promotion request by ID")
-          .Produces<PromotionRequestDto>(StatusCodes.Status200OK)
-          .ProducesProblem(StatusCodes.Status404NotFound);
+
 
         group.MapPost("/", async (CreatePromotionRequestCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
         {

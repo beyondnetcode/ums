@@ -20,7 +20,7 @@ public static class TenantQueryEndpoints
         group.MapGet("/{tenantId:guid}", async (
             Guid tenantId,
             IMediator mediator,
-            UmsPlatformDbContext dbContext,
+            IServiceProvider services,
             HttpContext context,
             CancellationToken ct) =>
         {
@@ -28,14 +28,18 @@ public static class TenantQueryEndpoints
 
             if (result.IsSuccess)
             {
-                var rv = await dbContext.Tenants
-                    .Where(x => x.Id == tenantId)
-                    .Select(x => x.RowVersion)
-                    .FirstOrDefaultAsync(ct);
+                var dbContext = services.GetService<UmsPlatformDbContext>();
+                if (dbContext != null)
+                {
+                    var rv = await dbContext.Tenants
+                        .Where(x => x.Id == tenantId)
+                        .Select(x => x.RowVersion)
+                        .FirstOrDefaultAsync(ct);
 
-                var etag = ETagHelper.Encode(rv);
-                if (etag is not null)
-                    context.Response.Headers.ETag = etag;
+                    var etag = ETagHelper.Encode(rv);
+                    if (etag is not null)
+                        context.Response.Headers.ETag = etag;
+                }
             }
 
             return result.ToOk(context);

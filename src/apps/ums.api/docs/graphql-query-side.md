@@ -98,14 +98,16 @@ query TenantMaintenance($tenantId: UUID!) {
 
 ## Current Coverage
 
-Current GraphQL query coverage follows the Application query handlers that exist today:
+GraphQL query coverage now includes 100% of the Domain aggregates across all Bounded Contexts:
 
-- Tenant aggregate list and detail.
-- Tenant branches.
-- Tenant branding.
-- Tenant identity providers.
+- **Identity**: Tenant, UserAccount, UserManagementDelegation
+- **Authorization**: Profile, SystemSuite, Template
+- **IGA**: PromotionRequest, RoleMaturityStatus
+- **Approvals**: AccessEnforcementPolicy, ApprovalRequest, ApprovalWorkflow, DocumentType, NotificationRule, UserDocument
+- **Configuration**: AppConfiguration, FeatureFlag, IdpConfiguration
+- **Audit**: AuditRecord
 
-The domain has additional aggregate roots (Authorization, Configuration, Approvals, IGA, Audit, UserAccount), but they do not yet expose Application query handlers/repositories in the API. They should be added to GraphQL only after their Application query contracts exist.
+All these aggregates currently expose their respective Application query handlers and are fully registered in the GraphQL schema via `GraphQlServiceCollectionExtensions.cs`.
 
 ## Safety Rules
 

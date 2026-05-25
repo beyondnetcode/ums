@@ -45,27 +45,42 @@ public sealed class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<
             return await next();
         }
 
-        return CreateValidationResult<TResponse>($"Validation.Failed: {string.Join("; ", errors)}");
+        return CreateValidationResult($"Validation.Failed: {string.Join("; ", errors)}");
     }
 
-    private static TResult CreateValidationResult<TResult>(string error)
+    private static readonly Func<string, TResponse>? _failureFactory = CreateFailureFactory();
+
+    private static Func<string, TResponse>? CreateFailureFactory()
     {
-        if (typeof(TResult) == typeof(Result))
+        if (typeof(TResponse) == typeof(Result))
         {
-            return (TResult)(object)Result.Failure(error);
+            return error => (TResponse)(object)Result.Failure(error);
         }
 
-        if (typeof(TResult).IsGenericType &&
-            typeof(TResult).GetGenericTypeDefinition() == typeof(Result<>))
+        if (typeof(TResponse).IsGenericType &&
+            typeof(TResponse).GetGenericTypeDefinition() == typeof(Result<>))
         {
-            var valueType = typeof(TResult).GetGenericArguments()[0];
+            var valueType = typeof(TResponse).GetGenericArguments()[0];
             var failureMethod = typeof(Result<>)
                 .MakeGenericType(valueType)
                 .GetMethod(nameof(Result.Failure), new[] { typeof(string) });
 
-            return (TResult)failureMethod!.Invoke(null, new object[] { error })!;
+            if (failureMethod is not null)
+            {
+                return (Func<string, TResponse>)Delegate.CreateDelegate(typeof(Func<string, TResponse>), failureMethod);
+            }
         }
 
-        throw new InvalidOperationException($"ValidationBehavior cannot create a failure result for '{typeof(TResult).Name}'.");
+        return null;
+    }
+
+    private static TResponse CreateValidationResult(string error)
+    {
+        if (_failureFactory is not null)
+        {
+            return _failureFactory(error);
+        }
+
+        throw new InvalidOperationException($"ValidationBehavior cannot create a failure result for '{typeof(TResponse).Name}'.");
     }
 }

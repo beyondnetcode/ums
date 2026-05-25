@@ -96,8 +96,8 @@ public class UserAccountQueryHandlerTests
              .ReturnsAsync(((IReadOnlyList<UserAccount>)users, users.Count));
 
         var query = new GetAllUserAccountsQuery(
-            TenantId: null, Page: 1, PageSize: 10, Criteria: null,
-            Status: "all", SortBy: null, SortOrder: null, Search: null);
+            TenantId: null, Page: 1, PageSize: 10, Criteria: null!,
+            Status: "all", SortBy: null!, SortOrder: null!, Search: null!);
 
         var handler = new GetAllUserAccountsQueryHandler(_repo.Object);
         var result = await handler.Handle(query, CancellationToken.None);
@@ -119,8 +119,8 @@ public class UserAccountQueryHandlerTests
              .ReturnsAsync(((IReadOnlyList<UserAccount>)users, users.Count));
 
         var query = new GetAllUserAccountsQuery(
-            TenantId: tenantId, Page: 1, PageSize: 10, Criteria: null,
-            Status: "all", SortBy: null, SortOrder: null, Search: null);
+            TenantId: tenantId, Page: 1, PageSize: 10, Criteria: null!,
+            Status: "all", SortBy: null!, SortOrder: null!, Search: null!);
 
         var handler = new GetAllUserAccountsQueryHandler(_repo.Object);
         var result = await handler.Handle(query, CancellationToken.None);
@@ -142,8 +142,8 @@ public class UserAccountQueryHandlerTests
              .ReturnsAsync(((IReadOnlyList<UserAccount>)users, users.Count));
 
         var query = new GetAllUserAccountsQuery(
-            TenantId: null, Page: 1, PageSize: 10, Criteria: null,
-            Status: "Active", SortBy: null, SortOrder: null, Search: null);
+            TenantId: null, Page: 1, PageSize: 10, Criteria: null!,
+            Status: "Active", SortBy: null!, SortOrder: null!, Search: null!);
 
         var handler = new GetAllUserAccountsQueryHandler(_repo.Object);
         var result = await handler.Handle(query, CancellationToken.None);
@@ -167,7 +167,7 @@ public class UserAccountQueryHandlerTests
 
         var query = new GetAllUserAccountsQuery(
             TenantId: null, Page: 1, PageSize: 10, Criteria: "email",
-            Status: "all", SortBy: null, SortOrder: null, Search: "target");
+            Status: "all", SortBy: null!, SortOrder: null!, Search: "target");
 
         var handler = new GetAllUserAccountsQueryHandler(_repo.Object);
         var result = await handler.Handle(query, CancellationToken.None);

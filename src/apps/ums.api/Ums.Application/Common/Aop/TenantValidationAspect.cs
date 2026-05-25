@@ -15,6 +15,8 @@ public sealed class TenantValidationAspect : AbstractAspect<TenantValidationAspe
         _userContext = userContext;
     }
 
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, PropertyInfo?> _tenantIdPropertyCache = new();
+
     public override void Apply(IJoinPoint joinPoint)
     {
         var attribute = GetAttribute(joinPoint);
@@ -27,7 +29,11 @@ public sealed class TenantValidationAspect : AbstractAspect<TenantValidationAspe
         var request = joinPoint.Arguments.FirstOrDefault(a => a is not System.Threading.CancellationToken);
         if (request is not null)
         {
-            var tenantIdProperty = request.GetType().GetProperty("TenantId", BindingFlags.Instance | BindingFlags.Public);
+            var requestType = request.GetType();
+            var tenantIdProperty = _tenantIdPropertyCache.GetOrAdd(
+                requestType,
+                type => type.GetProperty("TenantId", BindingFlags.Instance | BindingFlags.Public));
+
             if (tenantIdProperty is not null)
             {
                 var requestTenantId = tenantIdProperty.GetValue(request)?.ToString();
