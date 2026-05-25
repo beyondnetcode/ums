@@ -16,7 +16,29 @@
       "PowerShell(Get-Process -Name \"Ums.Presentation\" -ErrorAction SilentlyContinue)",
       "PowerShell(Stop-Process -Force)",
       "Bash(curl -sk https://localhost:7114/api/v1/tenants)",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(git -C \"D:\\\\Users\\\\aarroyo\\\\personal\\\\sources\\\\ums\" status --short)",
+      "Bash(xargs grep -l \"DataType\")",
+      "Bash(xargs grep -l \"IAppConfigurationRepository\\\\|IFeatureFlagRepository\\\\|IIdpConfigurationRepository\")",
+      "Bash(curl -s http://localhost:5293/health/live)",
+      "Bash(curl -s http://localhost:5293/health)",
+      "Bash(Invoke-RestMethod -Uri \"http://localhost:5293/health/live\" -Method GET)",
+      "Bash(ConvertTo-Json)",
+      "PowerShell(Invoke-RestMethod -Uri \"http://localhost:5293/health/live\")",
+      "Bash(node -e ' *)",
+      "Bash(netstat -ano)",
+      "Bash(findstr \"7114\\\\|5173\\\\|5293\")",
+      "Bash(xargs grep -l \"class AggregateRoot\\\\|class Entity\")",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(list\\(d.get\\('profiles',{}\\).keys\\(\\)\\)\\)\")",
+      "Bash(Select-String -Quiet \"Now listening\" \"C:\\\\Users\\\\aarroyo\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\D--Users-aarroyo-personal-sources-ums\\\\bc8b29b9-bd9c-4e30-8b4b-59d5cbd53b51\\\\tasks\\\\bexf2tk46.output\")",
+      "Bash(Start-Sleep -Seconds 3)",
+      "Bash(Get-Content \"C:\\\\Users\\\\aarroyo\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\D--Users-aarroyo-personal-sources-ums\\\\bc8b29b9-bd9c-4e30-8b4b-59d5cbd53b51\\\\tasks\\\\bexf2tk46.output\")",
+      "Bash(git -C \"D:\\\\Users\\\\aarroyo\\\\personal\\\\sources\\\\ums\" status)",
+      "Bash(git -C \"D:\\\\Users\\\\aarroyo\\\\personal\\\\sources\\\\ums\" diff --stat)",
+      "Bash(git -C \"D:\\\\Users\\\\aarroyo\\\\personal\\\\sources\\\\ums\" add src/apps/ums.web-app/src/test/mocks/data/tenants.mock.ts src/apps/ums.web-app/src/presentation/identity/tenant/components/BrandingPanel.tsx src/apps/ums.web-app/src/application/i18n/namespaces/identity.translations.ts)",
+      "Bash(git -C \"D:\\\\Users\\\\aarroyo\\\\personal\\\\sources\\\\ums\" diff --cached --stat)",
+      "Bash(git -C \"D:\\\\Users\\\\aarroyo\\\\personal\\\\sources\\\\ums\" add src/apps/ums.api/Ums.Domain/Identity/Tenant/Branding/Branding.cs docs/governance/requirements/functional-stories/fs-08-hosted-login-redirection.md)",
+      "Bash(git -C 'D:\\\\Users\\\\aarroyo\\\\personal\\\\sources\\\\ums' commit -m ' *)"
     ]
   }
 }

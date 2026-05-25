@@ -2,71 +2,67 @@
 
 > **Idioma:** [English](../domain/index.md) | [Español](./index.md)
 
-Documentos de arquitectura detallados para cada Aggregate Root y Entidad Propia del modelo de dominio UMS, organizados por Bounded Context. Cada documento cubre la estructura de 8 secciones: Descripcion del Agregado · Modelo de Objetos · Diagramas de Secuencia · Modelo ER · Modelo de Bounded Context · Contrato de API · Notas de Persistencia · Seguridad y Auditoria.
+Documentos de arquitectura detallados para cada Aggregate Root en el modelo de dominio UMS, organizados por Bounded Context. Las entidades hijas (Branch, Branding, IdentityProvider, PasswordCredential, MfaEnrollment, ProfilePermission, módulos/menús/opciones/acciones funcionales, bitácoras de evaluación de banderas, análisis de impacto de promoción, etc.) se documentan dentro de su respectivo documento de Agregado Raíz (Aggregate Root) — no como documentos independientes.
 
 ---
 
 ## Identity BC — `Ums.Domain.Identity`
 
-| Agregado / Entidad | Tipo | Documento |
+| Agregado Raíz | Documento | Entidades Hijas Propias (documentadas inline) |
 |---|---|---|
-| `Tenant` | Aggregate Root | [tenant.md](./identity/tenant.md) |
-| `Branch` | Entidad Propia (Tenant) | [branch.md](./identity/branch.md) |
-| `Branding` | Entidad Propia (Tenant) | [branding.md](./identity/branding.md) |
-| `IdentityProvider` | Entidad Propia (Tenant) | [identity-provider.md](./identity/identity-provider.md) |
-| `UserAccount` | Aggregate Root | [user-account.md](./identity/user-account.md) |
-| `PasswordCredential` | Entidad Propia (UserAccount) | [password-credential.md](./identity/password-credential.md) |
-| `MfaEnrollment` | Entidad Propia (UserAccount) | [mfa-enrollment.md](./identity/mfa-enrollment.md) |
-
-## Authorization BC — `Ums.Domain.Authorization`
-
-| Agregado / Entidad | Tipo | Documento |
-|---|---|---|
-| `SystemSuite` | Aggregate Root | [system-suite.md](./authorization/system-suite.md) |
-| `Module` | Entidad Propia (SystemSuite) | [module.md](./authorization/module.md) |
-| `Menu` | Entidad Propia (Module) | [menu.md](./authorization/menu.md) |
-| `SubMenu` | Entidad Propia (Menu) | [sub-menu.md](./authorization/sub-menu.md) |
-| `Option` | Entidad Propia (SubMenu) | [option.md](./authorization/option.md) |
-| `Action` | Entidad Propia (Option) | [action.md](./authorization/action.md) |
-| `PermissionTemplate` | Aggregate Root | [permission-template.md](./authorization/permission-template.md) |
-| `PermissionTemplateItem` | Entidad Propia (PermissionTemplate) | [permission-template-item.md](./authorization/permission-template-item.md) |
-| `Profile` | Aggregate Root | [profile.md](./authorization/profile.md) |
-| `ProfilePermission` | Entidad Propia (Profile) | [profile-permission.md](./authorization/profile-permission.md) |
-
-## Configuration BC — `Ums.Domain.Configuration`
-
-| `AppConfiguration` | Aggregate Root | [app-configuration.md](./configuration/app-configuration.md) |
-| `FeatureFlag` | Aggregate Root | [feature-flag.md](./configuration/feature-flag.md) |
-| `FlagEvaluationLog` | Entidad Propia (FeatureFlag) | [flag-evaluation-log.md](./configuration/flag-evaluation-log.md) |
-| `IdpConfiguration` | Aggregate Root | [idp-configuration.md](./configuration/idp-configuration.md) |
-
-## Approvals BC — `Ums.Domain.Approvals`
-
-| Agregado / Entidad | Tipo | Documento |
-|---|---|---|
-| `ApprovalWorkflow` | Aggregate Root | [approval-workflow.md](./approvals/approval-workflow.md) |
-| `ApprovalRequiredDocument` | Entidad Propia (ApprovalWorkflow) | [approval-required-document.md](./approvals/approval-required-document.md) |
-| `ApprovalRequest` | Aggregate Root | [approval-request.md](./approvals/approval-request.md) |
-| `DocumentType` | Aggregate Root | [document-type.md](./approvals/document-type.md) |
-| `NotificationRule` | Entidad Propia (DocumentType) | [notification-rule.md](./approvals/notification-rule.md) |
-| `UserDocument` | Aggregate Root | [user-document.md](./approvals/user-document.md) |
-| `AccessNotification` | Entidad Propia (UserDocument) | [access-notification.md](./approvals/access-notification.md) |
-| `AccessEnforcementPolicy` | Aggregate Root | [access-enforcement-policy.md](./approvals/access-enforcement-policy.md) |
-
-## IGA BC — `Ums.Domain.IGA`
-
-| Agregado / Entidad | Tipo | Documento |
-|---|---|---|
-| `PromotionRequest` | Aggregate Root | [promotion-request.md](./iga/promotion-request.md) |
-| `PromotionImpactAnalysis` | Entidad Propia (PromotionRequest) | [promotion-impact-analysis.md](./iga/promotion-impact-analysis.md) |
-| `RoleMaturityStatus` | Aggregate Root | [role-maturity-status.md](./iga/role-maturity-status.md) |
-
-## Audit BC — `Ums.Domain.Audit`
-
-| Agregado / Entidad | Tipo | Documento |
-|---|---|---|
-| `AuditRecord` | Aggregate Root | [audit-record.md](./audit/audit-record.md) |
+| `Tenant` | [tenant.md](./identity/tenant.md) | `Branch`, `Branding`, `IdentityProvider` |
+| `UserAccount` | [user-account.md](./identity/user-account.md) | `PasswordCredential`, `MfaEnrollment` |
+| `UserManagementDelegation` | [user-management-delegation.md](./identity/user-management-delegation.md) | Ninguna |
 
 ---
 
-**[Volver al Indice Maestro](../MASTER_INDEX.es.md)** | **[Portal DDD](../governance/construction/ddd-design/index.md)**
+## Authorization BC — `Ums.Domain.Authorization`
+
+| Agregado Raíz | Documento | Entidades Hijas Propias (documentadas inline) |
+|---|---|---|
+| `SystemSuite` | [system-suite.md](./authorization/system-suite.md) | `Module`, `Menu`, `SubMenu`, `Option`, `Action` |
+| `PermissionTemplate` | [permission-template.md](./authorization/permission-template.md) | `PermissionTemplateItem` |
+| `Profile` | [profile.md](./authorization/profile.md) | `ProfilePermission` |
+
+---
+
+## Configuration BC — `Ums.Domain.Configuration`
+
+| Agregado Raíz | Documento | Entidades Hijas Propias (documentadas inline) |
+|---|---|---|
+| `IdpConfiguration` | [idp-configuration.md](./configuration/idp-configuration.md) | Ninguna |
+| `AppConfiguration` | [app-configuration.md](./configuration/app-configuration.md) | Ninguna |
+| `FeatureFlag` | [feature-flag.md](./configuration/feature-flag.md) | `FlagEvaluationLog` |
+
+---
+
+## Approvals BC — `Ums.Domain.Approvals`
+
+| Agregado Raíz | Documento | Entidades Hijas Propias (documentadas inline) |
+|---|---|---|
+| `ApprovalWorkflow` | [approval-workflow.md](./approvals/approval-workflow.md) | `ApprovalRequiredDocument` |
+| `ApprovalRequest` | [approval-request.md](./approvals/approval-request.md) | `ApprovalLog` (inline) |
+| `DocumentType` | [document-type.md](./approvals/document-type.md) | `NotificationRule` |
+| `UserDocument` | [user-document.md](./approvals/user-document.md) | `AccessNotification` |
+| `AccessEnforcementPolicy` | [access-enforcement-policy.md](./approvals/access-enforcement-policy.md) | Ninguna |
+
+---
+
+## IGA BC — `Ums.Domain.IGA`
+
+| Agregado Raíz | Documento | Entidades Hijas Propias (documentadas inline) |
+|---|---|---|
+| `PromotionRequest` | [promotion-request.md](./iga/promotion-request.md) | `PromotionImpactAnalysis` |
+| `RoleMaturityStatus` | [role-maturity-status.md](./iga/role-maturity-status.md) | Ninguna |
+
+---
+
+## Audit BC — `Ums.Domain.Audit`
+
+| Agregado Raíz | Documento | Entidades Hijas Propias (documentadas inline) |
+|---|---|---|
+| `AuditRecord` | [audit-record.md](./audit/audit-record.md) | Ninguna (adición exclusiva) |
+
+---
+
+**[Volver al Índice Maestro](../MASTER_INDEX.es.md)** | **[Portal DDD](../governance/construction/ddd-design/index.md)**

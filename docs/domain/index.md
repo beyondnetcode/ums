@@ -2,125 +2,66 @@
 
 > **Language:** [English](./index.md) | [Español](../domain-es/index.md)
 
-Detailed architecture documents for every Aggregate Root and Owned Entity in the UMS domain model, organised by Bounded Context. Each document covers the full 8-section structure: Aggregate Overview · Object Model · Sequence Diagrams · ER Model · Bounded Context Model · API Contract · Persistence Notes · Security and Audit.
+Detailed architecture documents for every Aggregate Root in the UMS domain model, organised by Bounded Context. Child entities (Branch, Branding, IdentityProvider, PasswordCredential, MfaEnrollment, ProfilePermission, functional menus/modules/options/actions, flag evaluation logs, promotion impact analyses, etc.) are documented inside their respective parent Aggregate Root document — not as separate documents.
 
 ---
 
 ## Identity BC — `Ums.Domain.Identity`
 
-### Aggregate Roots
-
-| Aggregate Root | Document |
-|---|---|
-| `Tenant` | [tenant.md](./identity/tenant.md) |
-| `UserAccount` | [user-account.md](./identity/user-account.md) |
-| `UserManagementDelegation` | [user-management-delegation.md](./identity/user-management-delegation.md) |
-
-### Owned Entities (documented within their parent AR)
-
-| Owned Entity | Parent Aggregate | Document |
+| Aggregate Root | Document | Owned Child Entities (documented inline) |
 |---|---|---|
-| `Branch` | Tenant | [branch.md](./identity/branch.md) |
-| `Branding` | Tenant | [branding.md](./identity/branding.md) |
-| `IdentityProvider` | Tenant | [identity-provider.md](./identity/identity-provider.md) |
-| `PasswordCredential` | UserAccount | [password-credential.md](./identity/password-credential.md) |
-| `MfaEnrollment` | UserAccount | [mfa-enrollment.md](./identity/mfa-enrollment.md) |
-
-> `UserManagementDelegation` has no owned child entities — it references `UserAccount` (delegating and delegated admins) and optionally `ApprovalRequest` via FK only.
+| `Tenant` | [tenant.md](./identity/tenant.md) | `Branch`, `Branding`, `IdentityProvider` |
+| `UserAccount` | [user-account.md](./identity/user-account.md) | `PasswordCredential`, `MfaEnrollment` |
+| `UserManagementDelegation` | [user-management-delegation.md](./identity/user-management-delegation.md) | None |
 
 ---
 
 ## Authorization BC — `Ums.Domain.Authorization`
 
-### Aggregate Roots
-
-| Aggregate Root | Document |
-|---|---|
-| `SystemSuite` | [system-suite.md](./authorization/system-suite.md) |
-| `PermissionTemplate` | [permission-template.md](./authorization/permission-template.md) |
-| `Profile` | [profile.md](./authorization/profile.md) |
-
-### Owned Entities (documented within their parent AR)
-
-| Owned Entity | Parent Aggregate | Document |
+| Aggregate Root | Document | Owned Child Entities (documented inline) |
 |---|---|---|
-| `FunctionalModule` | SystemSuite | [module.md](./authorization/module.md) |
-| `FunctionalMenu` | FunctionalModule | [menu.md](./authorization/menu.md) |
-| `FunctionalSubMenu` | FunctionalMenu | [sub-menu.md](./authorization/sub-menu.md) |
-| `FunctionalOption` | FunctionalSubMenu | [option.md](./authorization/option.md) |
-| `Action` | SystemSuite / Module | [action.md](./authorization/action.md) |
-| `PermissionTemplateItem` | PermissionTemplate | [permission-template-item.md](./authorization/permission-template-item.md) |
-| `ProfilePermission` | Profile | [profile-permission.md](./authorization/profile-permission.md) |
+| `SystemSuite` | [system-suite.md](./authorization/system-suite.md) | `Module`, `Menu`, `SubMenu`, `Option`, `Action` |
+| `PermissionTemplate` | [permission-template.md](./authorization/permission-template.md) | `PermissionTemplateItem` |
+| `Profile` | [profile.md](./authorization/profile.md) | `ProfilePermission` |
 
 ---
 
 ## Configuration BC — `Ums.Domain.Configuration`
 
-### Aggregate Roots
-
-| Aggregate Root | Document |
-|---|---|
-| `IdpConfiguration` | [idp-configuration.md](./configuration/idp-configuration.md) |
-| `AppConfiguration` | [app-configuration.md](./configuration/app-configuration.md) |
-| `FeatureFlag` | [feature-flag.md](./configuration/feature-flag.md) |
-
-### Owned Entities (documented within their parent AR)
-
-| Owned Entity | Parent Aggregate | Document |
+| Aggregate Root | Document | Owned Child Entities (documented inline) |
 |---|---|---|
-| `FlagEvaluationLog` | FeatureFlag | [flag-evaluation-log.md](./configuration/flag-evaluation-log.md) |
+| `IdpConfiguration` | [idp-configuration.md](./configuration/idp-configuration.md) | None |
+| `AppConfiguration` | [app-configuration.md](./configuration/app-configuration.md) | None |
+| `FeatureFlag` | [feature-flag.md](./configuration/feature-flag.md) | `FlagEvaluationLog` |
 
 ---
 
 ## Approvals BC — `Ums.Domain.Approvals`
 
-### Aggregate Roots
-
-| Aggregate Root | Document |
-|---|---|
-| `ApprovalWorkflow` | [approval-workflow.md](./approvals/approval-workflow.md) |
-| `ApprovalRequest` | [approval-request.md](./approvals/approval-request.md) |
-| `DocumentType` | [document-type.md](./approvals/document-type.md) |
-| `UserDocument` | [user-document.md](./approvals/user-document.md) |
-
-### Owned Entities (documented within their parent AR)
-
-| Owned Entity | Parent Aggregate | Document |
+| Aggregate Root | Document | Owned Child Entities (documented inline) |
 |---|---|---|
-| `ApprovalRequiredDocument` | ApprovalWorkflow | [approval-required-document.md](./approvals/approval-required-document.md) |
-| `ApprovalLog` | ApprovalRequest | *(inline in approval-request.md)* |
-| `NotificationRule` | DocumentType | [notification-rule.md](./approvals/notification-rule.md) |
-| `AccessEnforcementPolicy` | DocumentType | [access-enforcement-policy.md](./approvals/access-enforcement-policy.md) |
-| `AccessNotification` | UserDocument | [access-notification.md](./approvals/access-notification.md) |
+| `ApprovalWorkflow` | [approval-workflow.md](./approvals/approval-workflow.md) | `ApprovalRequiredDocument` |
+| `ApprovalRequest` | [approval-request.md](./approvals/approval-request.md) | `ApprovalLog` (inline) |
+| `DocumentType` | [document-type.md](./approvals/document-type.md) | `NotificationRule` |
+| `UserDocument` | [user-document.md](./approvals/user-document.md) | `AccessNotification` |
+| `AccessEnforcementPolicy` | [access-enforcement-policy.md](./approvals/access-enforcement-policy.md) | None |
 
 ---
 
 ## IGA BC — `Ums.Domain.IGA`
 
-### Aggregate Roots
-
-| Aggregate Root | Document |
-|---|---|
-| `PromotionRequest` | [promotion-request.md](./iga/promotion-request.md) |
-| `RoleMaturityStatus` | [role-maturity-status.md](./iga/role-maturity-status.md) |
-
-### Owned Entities (documented within their parent AR)
-
-| Owned Entity | Parent Aggregate | Document |
+| Aggregate Root | Document | Owned Child Entities (documented inline) |
 |---|---|---|
-| `PromotionImpactAnalysis` | PromotionRequest | [promotion-impact-analysis.md](./iga/promotion-impact-analysis.md) |
+| `PromotionRequest` | [promotion-request.md](./iga/promotion-request.md) | `PromotionImpactAnalysis` |
+| `RoleMaturityStatus` | [role-maturity-status.md](./iga/role-maturity-status.md) | None |
 
 ---
 
 ## Audit BC — `Ums.Domain.Audit`
 
-### Aggregate Roots
-
-| Aggregate Root | Document |
-|---|---|
-| `AuditRecord` | [audit-record.md](./audit/audit-record.md) |
-
-> Append-only — no owned entities.
+| Aggregate Root | Document | Owned Child Entities (documented inline) |
+|---|---|---|
+| `AuditRecord` | [audit-record.md](./audit/audit-record.md) | None (Append-only) |
 
 ---
 

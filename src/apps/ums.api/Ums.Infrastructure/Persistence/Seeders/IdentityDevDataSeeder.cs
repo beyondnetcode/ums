@@ -307,7 +307,7 @@ public static class IdentityDevDataSeeder
             new[] { DelegatedAction.BlockUser },
             DateTimeOffset.UtcNow.AddDays(-10), DateTimeOffset.UtcNow.AddDays(20), 90, false, actor).Value;
         revokedDel.Activate(actor);
-        revokedDel.Revoke(Reason.Create("Cambio de rol"), actor);
+        revokedDel.Revoke("Cambio de rol", actor);
 
         // 4. Draft / Pending Approval
         var draftDel = UserManagementDelegationAggregate.Create(

@@ -37,13 +37,13 @@
 
 Documentos detallados por Aggregate Root con modelo de datos completo, secuencias, invariantes y contrato de API. Las entidades hijas se documentan dentro de la página de su AR padre. Ver [Índice de Dominio](../../../domain/index.md).
 
-| Contexto | Aggregate Roots | Entidades Propias (dentro de su AR) |
-|----------|-----------------|-------------------------------------|
-| Identity | [Tenant](../../../domain/identity/tenant.md) · [UserAccount](../../../domain/identity/user-account.md) · [UserManagementDelegation](../../../domain/identity/user-management-delegation.md) | Branch · Branding · IdentityProvider *(en Tenant)* · PasswordCredential · MfaEnrollment *(en UserAccount)* |
-| Authorization | [SystemSuite](../../../domain/authorization/system-suite.md) · [PermissionTemplate](../../../domain/authorization/permission-template.md) · [Profile](../../../domain/authorization/profile.md) | FunctionalModule · FunctionalMenu · FunctionalSubMenu · FunctionalOption · Action *(en SystemSuite)* · PermissionTemplateItem *(en PermissionTemplate)* · ProfilePermission *(en Profile)* |
-| Configuration | [IdpConfiguration](../../../domain/configuration/idp-configuration.md) · [AppConfiguration](../../../domain/configuration/app-configuration.md) · [FeatureFlag](../../../domain/configuration/feature-flag.md) | FlagEvaluationLog *(en FeatureFlag)* |
-| Approvals | [ApprovalWorkflow](../../../domain/approvals/approval-workflow.md) · [ApprovalRequest](../../../domain/approvals/approval-request.md) · [DocumentType](../../../domain/approvals/document-type.md) · [UserDocument](../../../domain/approvals/user-document.md) | ApprovalRequiredDocument *(en ApprovalWorkflow)* · ApprovalLog *(en ApprovalRequest)* · NotificationRule · AccessEnforcementPolicy *(en DocumentType)* · AccessNotification *(en UserDocument)* |
-| IGA | [PromotionRequest](../../../domain/iga/promotion-request.md) · [RoleMaturityStatus](../../../domain/iga/role-maturity-status.md) | PromotionImpactAnalysis *(en PromotionRequest)* |
+| Contexto | Agregados documentados (Hijas inline) |
+|----------|----------------------|
+| Identity | [Tenant](../../../domain/identity/tenant.md) *(Branch · Branding · IdP)* · [UserAccount](../../../domain/identity/user-account.md) *(Password · MFA)* |
+| Authorization | [SystemSuite](../../../domain/authorization/system-suite.md) *(Module · Menu · SubMenu · Option · Action)* · [PermissionTemplate](../../../domain/authorization/permission-template.md) *(TemplateItem)* · [Profile](../../../domain/authorization/profile.md) *(ProfilePermission)* |
+| Configuration | [AppConfiguration](../../../domain/configuration/app-configuration.md) · [FeatureFlag](../../../domain/configuration/feature-flag.md) *(FlagEvaluationLog)* · [IdpConfiguration](../../../domain/configuration/idp-configuration.md) |
+| Approvals | [ApprovalWorkflow](../../../domain/approvals/approval-workflow.md) *(RequiredDocument)* · [ApprovalRequest](../../../domain/approvals/approval-request.md) · [DocumentType](../../../domain/approvals/document-type.md) *(NotificationRule)* · [UserDocument](../../../domain/approvals/user-document.md) *(AccessNotification)* · [AccessEnforcementPolicy](../../../domain/approvals/access-enforcement-policy.md) |
+| IGA | [PromotionRequest](../../../domain/iga/promotion-request.md) *(ImpactAnalysis)* · [RoleMaturityStatus](../../../domain/iga/role-maturity-status.md) |
 | Audit | [AuditRecord](../../../domain/audit/audit-record.md) | *(ninguna — append-only)* |
 
 ### Artefactos Transversales

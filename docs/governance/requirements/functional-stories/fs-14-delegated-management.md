@@ -51,10 +51,6 @@ If the delegation creates a circular management chain or privilege escalation, t
 
 ## 8. Technical Requirements
 
-> [!WARNING]
-> **ESTADO DE IMPLEMENTACIÓN: DIFERIDO / FUERA DE ALCANCE**  
-> En la fase actual, la lógica transaccional de delegación administrativa de usuarios (`UserManagementDelegation`) está **diferida** y no está implementada dentro del proyecto principal de dominio de C#.
-
 - Enforce recursive scope validation logic at application level.
 - Support audit tracking on delegation lifecycle events.
 

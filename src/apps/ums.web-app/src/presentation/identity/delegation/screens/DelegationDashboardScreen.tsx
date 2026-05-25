@@ -1,96 +1,105 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useI18n } from '@app/i18n/use-i18n';
-import {
-  useGetDelegationsByDelegatedAdmin,
-  useGetDelegationsByDelegatingAdmin,
-} from '@app/identity/hooks/use-delegation';
-import { DelegationListPanel } from '../components/DelegationListPanel';
+import { useDelegationDashboard } from '@app/identity/hooks/use-delegation-dashboard';
 import { DelegationForm } from '../components/DelegationForm';
+import { DelegationDetailPanel } from '../components/DelegationDetailPanel';
+import { DelegationListPanel } from '../components/DelegationListPanel';
 import { PageShell } from '@shared/layouts/PageShell';
+import { MasterDetailLayout } from '@shared/layouts/MasterDetailLayout';
 import { M3Dialog } from '@shared/components/M3Dialog';
-
-// In a real app, these come from an auth context.
-const CURRENT_USER_ID = 'f3e2d1c0-b9a8-7f6e-5d4c-321098765432';
-const CURRENT_TENANT_ID = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
+import { SortOption, FilterOption, QueryCriteriaOption } from '@shared/components/M3DataView';
 
 export default function DelegationDashboardScreen(): React.JSX.Element {
   const t = useI18n();
+  const dashboard = useDelegationDashboard();
 
-  const [selectedId, setSelectedId] = useState('');
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [showRevokeDialog, setShowRevokeDialog] = useState(false);
-
-  const receivedQuery = useGetDelegationsByDelegatedAdmin(CURRENT_USER_ID, CURRENT_TENANT_ID);
-  const grantedQuery = useGetDelegationsByDelegatingAdmin(CURRENT_USER_ID, CURRENT_TENANT_ID);
-
-  const handleCreateSuccess = () => {
-    setIsCreateOpen(false);
-  };
+  const criteriaOptions: QueryCriteriaOption[] = [
+    { label: 'By ID', value: 'id' },
+    { label: 'By Scope', value: 'scope' },
+  ];
+  const filterOptions: FilterOption[] = [
+    { label: t.allStatuses ?? 'All Statuses', value: 'all' },
+    { label: t.active ?? 'Active', value: 'Active' },
+    { label: t.suspended ?? 'Suspended', value: 'Suspended' },
+    { label: 'Pending', value: 'Pending' },
+    { label: 'Revoked', value: 'Revoked' },
+  ];
+  const sortOptions: SortOption[] = [
+    { label: t.sortByStatus ?? 'Status', value: 'status' },
+    { label: 'Valid From', value: 'validFrom' },
+  ];
 
   return (
     <PageShell>
-      <div className="flex flex-col h-full gap-4 p-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-lg font-semibold text-m3-on-surface">Delegation Management</h1>
-          <button
-            onClick={() => setIsCreateOpen(true)}
-            className="px-4 py-1.5 text-sm rounded-full bg-m3-primary text-m3-on-primary hover:bg-m3-primary/90 transition-colors"
-            type="button"
-          >
-            New Delegation
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 min-h-0">
-          <div className="border border-m3-outline/20 rounded-2xl overflow-hidden bg-m3-surface">
-            <DelegationListPanel
-              delegations={receivedQuery.data ?? []}
-              selectedId={selectedId}
-              isLoading={receivedQuery.isLoading}
-              error={receivedQuery.error ?? null}
-              title="Delegations Received"
-              emptyLabel="No delegations have been granted to you."
-              onSelectDelegation={setSelectedId}
+      <MasterDetailLayout
+        splitterLabel="Resize delegation detail panel"
+        overlay={
+          <>
+            <M3Dialog
+              open={dashboard.showDiscardDialog}
+              title={t.unsavedChanges ?? 'Unsaved Changes'}
+              message={t.unsavedChangesMsg ?? 'You have unsaved changes. Are you sure you want to discard them?'}
+              onScrimClick={() => dashboard.setShowDiscardDialog(false)}
+              actions={[
+                { label: t.cancelEdit ?? 'Cancel', variant: 'outlined', onClick: () => dashboard.setShowDiscardDialog(false) },
+                { label: t.discardChanges ?? 'Discard', variant: 'filled', className: 'bg-m3-error hover:bg-m3-error/90 border-0', onClick: dashboard.confirmDiscard },
+              ]}
             />
-          </div>
-
-          <div className="border border-m3-outline/20 rounded-2xl overflow-hidden bg-m3-surface">
-            <DelegationListPanel
-              delegations={grantedQuery.data ?? []}
-              selectedId={selectedId}
-              isLoading={grantedQuery.isLoading}
-              error={grantedQuery.error ?? null}
-              title="Delegations Granted"
-              emptyLabel="You have not granted any delegations."
-              onSelectDelegation={setSelectedId}
-              onRegisterNew={() => setIsCreateOpen(true)}
+            <DelegationForm
+              isOpen={dashboard.isCreateOpen}
+              onClose={() => dashboard.setIsCreateOpen(false)}
+              onSuccess={dashboard.handleCreateSuccess}
+              defaultTenantId={dashboard.currentTenantId}
+              defaultDelegatingAdminId={dashboard.currentUserId}
             />
-          </div>
-        </div>
-      </div>
-
-      <M3Dialog
-        open={showRevokeDialog}
-        title="Revoke Delegation"
-        message="Are you sure you want to revoke this delegation? This action cannot be undone."
-        onScrimClick={() => setShowRevokeDialog(false)}
-        actions={[
-          { label: t.cancelBtn, variant: 'outlined', onClick: () => setShowRevokeDialog(false) },
-          {
-            label: 'Revoke',
-            variant: 'filled',
-            className: 'bg-m3-error hover:bg-m3-error/90 border-0',
-            onClick: () => setShowRevokeDialog(false),
-          },
-        ]}
-      />
-
-      <DelegationForm
-        isOpen={isCreateOpen}
-        onClose={() => setIsCreateOpen(false)}
-        onSuccess={handleCreateSuccess}
-        defaultTenantId={CURRENT_TENANT_ID}
-        defaultDelegatingAdminId={CURRENT_USER_ID}
+          </>
+        }
+        master={
+          <DelegationListPanel
+            delegations={dashboard.knownDelegations}
+            selectedId={dashboard.selectedId}
+            isLoading={dashboard.isLoadingList}
+            error={dashboard.listError}
+            viewMode={dashboard.viewMode}
+            onViewModeChange={dashboard.setViewMode}
+            searchCriteria={dashboard.searchCriteria}
+            onSearchCriteriaChange={dashboard.setSearchCriteria}
+            searchValue={dashboard.searchValue}
+            onSearchValueChange={dashboard.setSearchValue}
+            onSearchSubmit={dashboard.handleQuerySubmit}
+            onRegisterNew={() => dashboard.setIsCreateOpen(true)}
+            sortBy={dashboard.sortBy}
+            onSortByChange={dashboard.setSortBy}
+            sortOrder={dashboard.sortOrder}
+            onSortOrderToggle={() => dashboard.setSortOrder((o) => o === 'asc' ? 'desc' : 'asc')}
+            activeFilter={dashboard.activeFilter}
+            onFilterChange={(val) => { dashboard.setActiveFilter(val); dashboard.setPage(1); }}
+            page={dashboard.page}
+            pageSize={dashboard.pageSize}
+            totalItems={dashboard.totalItems}
+            totalPages={dashboard.totalPages}
+            startIndex={dashboard.startIndex}
+            appliedTerm={dashboard.appliedQuery.term}
+            onPageChange={dashboard.setPage}
+            onResetQuery={dashboard.handleResetQuery}
+            onSelectDelegation={dashboard.handleSelectDelegation}
+            criteriaOptions={criteriaOptions}
+            filterOptions={filterOptions}
+            sortOptions={sortOptions}
+            delegationViewType={dashboard.delegationViewType}
+            onDelegationViewTypeChange={dashboard.setDelegationViewType}
+          />
+        }
+        detail={
+          <DelegationDetailPanel
+            selectedId={dashboard.selectedId}
+            activeDelegation={dashboard.activeDelegation}
+            isLoading={dashboard.isLoadingList}
+            activeConsoleTab={dashboard.activeConsoleTab}
+            consoleTabs={dashboard.consoleTabs}
+            onConsoleTabChange={dashboard.setActiveConsoleTab}
+          />
+        }
       />
     </PageShell>
   );
