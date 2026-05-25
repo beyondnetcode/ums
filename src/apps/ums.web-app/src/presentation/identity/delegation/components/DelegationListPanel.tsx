@@ -210,6 +210,9 @@ export const DelegationListPanel: React.FC<DelegationListPanelProps> = ({
         isEmpty={totalItems === 0}
         emptyLabel={t.noRecords ?? 'No records found'}
         emptyTitle={t.dataViewEmptyTitle ?? 'No Results'}
+        emptyTooltip={delegationViewType === 'received' 
+          ? 'Es posible que no tengas delegaciones recibidas o que hayan expirado/sido revocadas. Revisa también tus delegaciones otorgadas.'
+          : 'Aún no has otorgado ninguna delegación a otros usuarios o las que otorgaste expiraron y se depuraron.'}
         loadingLabel={t.dataViewLoading ?? 'Loading...'}
         criteriaLabel={t.dataViewCriteriaLabel ?? 'Search by'}
         searchTermLabel={t.dataViewSearchTermLabel ?? 'Search term'}

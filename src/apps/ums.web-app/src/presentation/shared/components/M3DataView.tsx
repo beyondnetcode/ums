@@ -68,6 +68,7 @@ interface M3DataViewProps {
   isEmpty?: boolean;
   emptyLabel?: string;
   emptyTitle?: string;
+  emptyTooltip?: string;
   loadingLabel?: string;
   criteriaLabel?: string;
   searchTermLabel?: string;
@@ -106,6 +107,7 @@ export const M3DataView: React.FC<M3DataViewProps> = ({
   isEmpty = false,
   emptyLabel = 'No matching records found.',
   emptyTitle = 'No results found',
+  emptyTooltip,
   loadingLabel = 'Loading...',
   criteriaLabel = 'Criteria',
   searchTermLabel = 'Search term',
@@ -388,7 +390,7 @@ export const M3DataView: React.FC<M3DataViewProps> = ({
               {loadingLabel}
             </div>
           ) : isEmpty ? (
-            <EmptyState variant="card" title={emptyTitle} message={emptyLabel} />
+            <EmptyState variant="card" title={emptyTitle} message={emptyLabel} tooltip={emptyTooltip} />
           ) : (
             <div className="animate-fadeIn">
               {viewMode === 'list' ? renderList() : renderThumbnail()}

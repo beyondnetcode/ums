@@ -1,6 +1,7 @@
 import React from 'react';
 import { Info } from 'lucide-react';
 import { M3Card } from './M3Card';
+import { Tooltip } from './Tooltip';
 
 /**
  * EmptyState — standardised "no data" placeholder.
@@ -19,6 +20,8 @@ export interface EmptyStateProps {
   message: string;
   /** Visual style. @default "dashed" */
   variant?: 'dashed' | 'card';
+  /** Optional tooltip text to show an Info icon next to the title. */
+  tooltip?: string;
   /** Extra Tailwind classes. */
   className?: string;
 }
@@ -28,6 +31,7 @@ export const EmptyState: React.FC<EmptyStateProps> = React.memo(({
   title,
   message,
   variant = 'dashed',
+  tooltip,
   className = '',
 }) => {
   const iconNode =
@@ -47,7 +51,14 @@ export const EmptyState: React.FC<EmptyStateProps> = React.memo(({
           </div>
         )}
         {title && (
-          <h4 className="text-sm font-semibold text-m3-on-surface">{title}</h4>
+          <div className="flex items-center justify-center gap-1.5">
+            <h4 className="text-sm font-semibold text-m3-on-surface">{title}</h4>
+            {tooltip && (
+              <Tooltip content={tooltip}>
+                <Info className="w-4 h-4 text-m3-secondary hover:text-m3-primary cursor-help transition-colors" />
+              </Tooltip>
+            )}
+          </div>
         )}
         <p className="mt-1 text-xs font-normal leading-relaxed max-w-sm mx-auto text-m3-secondary">
           {message}
