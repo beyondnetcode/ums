@@ -60,7 +60,8 @@ export const NAV_MODULES = (deps: NavModulesFactoryDeps): NavModule[] => [
     members: [
       { id: 'tenants',     nameKey: 'tenant',              icon: <deps.Building2 className="w-4 h-4" /> },
       { id: 'users',       nameKey: 'userAccounts',        icon: <deps.Users className="w-4 h-4" /> },
-      { id: 'delegations', nameKey: 'delegationManagement', icon: <deps.GitMerge className="w-4 h-4" /> },
+      // TODO: Delegations - will be implemented later
+      // { id: 'delegations', nameKey: 'delegationManagement', icon: <deps.GitMerge className="w-4 h-4" /> },
     ],
   },
   {

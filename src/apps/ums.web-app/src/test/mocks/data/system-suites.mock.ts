@@ -1,0 +1,42 @@
+export const mockSystemSuites = [
+  {
+    systemSuiteId: 'a1b2c3d4-0001-4000-8000-000000000001',
+    tenantId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+    code: 'SUITE_CRM',
+    name: 'CRM System Suite',
+    description: 'Customer relationship management and sales tracking modules',
+    status: 'Active',
+  },
+  {
+    systemSuiteId: 'a1b2c3d4-0002-4000-8000-000000000002',
+    tenantId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+    code: 'SUITE_WMS',
+    name: 'Warehouse Management Suite',
+    description: 'Inventory control, warehouse routing, and logistics management',
+    status: 'Active',
+  },
+  {
+    systemSuiteId: 'a1b2c3d4-0003-4000-8000-000000000003',
+    tenantId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+    code: 'SUITE_HR',
+    name: 'Human Resources Suite',
+    description: 'Employee lifecycle, payroll, and benefits administration',
+    status: 'Maintenance',
+  },
+  {
+    systemSuiteId: 'a1b2c3d4-0004-4000-8000-000000000004',
+    tenantId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+    code: 'SUITE_FIN',
+    name: 'Financial Management Suite',
+    description: 'General ledger, accounts payable/receivable, and financial reporting',
+    status: 'Active',
+  },
+  {
+    systemSuiteId: 'a1b2c3d4-0005-4000-8000-000000000005',
+    tenantId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+    code: 'SUITE_LEGACY',
+    name: 'Legacy Billing System',
+    description: 'Deprecated billing module - replaced by SUITE_FIN',
+    status: 'Deprecated',
+  },
+];
