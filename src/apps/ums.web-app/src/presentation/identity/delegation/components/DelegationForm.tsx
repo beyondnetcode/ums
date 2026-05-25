@@ -11,6 +11,12 @@ import { Shield } from 'lucide-react';
 const SCOPE_TYPES = ['Tenant', 'Organization', 'Department', 'System', 'Team'] as const;
 const DELEGATED_ACTIONS = ['CreateUser', 'BlockUser', 'AssignProfile', 'ResetPassword', 'RevokeMfa'] as const;
 
+const UNIMAR_USERS: Record<string, string> = {
+  '5f4e3d01-1b0a-9f8e-7d6c-543210987654': 'Gerente UNIMAR',
+  '5f4e3d02-1b0a-9f8e-7d6c-543210987654': 'Analista UNIMAR',
+  '5f4e3d05-1b0a-9f8e-7d6c-543210987654': 'Socio UNIMAR',
+};
+
 interface DelegationFormProps {
   isOpen: boolean;
   onClose: () => void;
@@ -30,8 +36,9 @@ export const DelegationForm: React.FC<DelegationFormProps> = ({
   const t = useI18n();
 
   const [tenantId] = useState(defaultTenantId);
-  const [delegatingAdminId, setDelegatingAdminId] = useState(defaultDelegatingAdminId);
-  const [delegatedAdminId, setDelegatedAdminId] = useState('');
+  const [delegatingAdminId] = useState(defaultDelegatingAdminId);
+  // Default to first user in the list (excluding self if possible, but for mock any is fine)
+  const [delegatedAdminId, setDelegatedAdminId] = useState('5f4e3d02-1b0a-9f8e-7d6c-543210987654');
   const [scopeType, setScopeType] = useState<(typeof SCOPE_TYPES)[number]>('Tenant');
   const [validFrom, setValidFrom] = useState('');
   const [validUntil, setValidUntil] = useState('');
@@ -89,40 +96,33 @@ export const DelegationForm: React.FC<DelegationFormProps> = ({
     <M3FormDialog
       open={isOpen}
       onClose={onClose}
-      title="Create Delegation"
+      title={t.createDelegation ?? 'Crear Delegación'}
       icon={<Shield className="w-5 h-5" />}
       footer={
         <>
           <M3Button variant="text" onClick={onClose} type="button">
-            {t.cancelBtn}
+            {t.cancelBtn ?? 'Cancelar'}
           </M3Button>
           <M3Button variant="filled" onClick={handleSubmit} loading={createDelegationMutation.isPending}>
-            Create
+            {t.createBtn ?? 'Crear'}
           </M3Button>
         </>
       }
     >
-      <form onSubmit={handleSubmit} className="space-y-0">
-        <M3TextField
-          label="Delegating Admin ID"
-          required
-          value={delegatingAdminId}
-          onChange={(e) => setDelegatingAdminId(e.target.value)}
-          placeholder="UUID of the admin granting authority"
-          error={errors.delegatingAdminId}
-        />
-
-        <M3TextField
-          label="Delegated Admin ID"
-          required
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5 pt-2">
+        <M3Select
+          label={t.delegatedAdminId ?? 'Delegar a (Usuario)'}
           value={delegatedAdminId}
           onChange={(e) => setDelegatedAdminId(e.target.value)}
-          placeholder="UUID of the admin receiving authority"
-          error={errors.delegatedAdminId}
-        />
+        >
+          <option value="" disabled>Seleccione un usuario...</option>
+          {Object.entries(UNIMAR_USERS).map(([id, name]) => (
+            <option key={id} value={id}>{name}</option>
+          ))}
+        </M3Select>
 
         <M3Select
-          label="Scope Type"
+          label={t.scopeType ?? 'Alcance (Scope)'}
           value={scopeType}
           onChange={(e) => setScopeType(e.target.value as typeof scopeType)}
         >
@@ -133,7 +133,7 @@ export const DelegationForm: React.FC<DelegationFormProps> = ({
 
         <div className="grid grid-cols-2 gap-4">
           <M3TextField
-            label="Valid From"
+            label={t.validFrom ?? 'Válido desde'}
             required
             type="datetime-local"
             value={validFrom}
@@ -141,7 +141,7 @@ export const DelegationForm: React.FC<DelegationFormProps> = ({
             error={errors.validFrom}
           />
           <M3TextField
-            label="Valid Until"
+            label={t.validUntil ?? 'Válido hasta'}
             required
             type="datetime-local"
             value={validUntil}
@@ -150,18 +150,20 @@ export const DelegationForm: React.FC<DelegationFormProps> = ({
           />
         </div>
 
-        <div className="mt-4">
-          <p className="text-xs font-medium text-m3-on-surface-variant mb-2">Allowed Actions</p>
+        <div>
+          <p className="text-xs font-bold uppercase tracking-wider text-m3-secondary mb-3">
+            {t.allowedActions ?? 'Acciones Permitidas'}
+          </p>
           <div className="flex flex-wrap gap-2">
             {DELEGATED_ACTIONS.map((action) => (
               <button
                 key={action}
                 type="button"
                 onClick={() => toggleAction(action)}
-                className={`px-3 py-1 text-xs rounded-full border transition-colors ${
+                className={`px-3 py-1.5 text-xs rounded-full border transition-colors font-medium ${
                   selectedActions.includes(action)
-                    ? 'bg-m3-primary text-m3-on-primary border-m3-primary'
-                    : 'bg-transparent text-m3-secondary border-m3-outline'
+                    ? 'bg-m3-primary/10 text-m3-primary border-m3-primary/30'
+                    : 'bg-transparent text-m3-secondary border-m3-outline/30 hover:bg-m3-surface-variant'
                 }`}
               >
                 {action}
@@ -169,20 +171,20 @@ export const DelegationForm: React.FC<DelegationFormProps> = ({
             ))}
           </div>
           {errors.allowedActions && (
-            <p className="text-xs text-rose-600 mt-1">{errors.allowedActions}</p>
+            <p className="text-xs text-rose-600 mt-2">{errors.allowedActions}</p>
           )}
         </div>
 
-        <div className="flex items-center gap-2 mt-4">
+        <div className="flex items-center gap-3 mt-2 p-3 bg-m3-surface-container/30 rounded-xl border border-m3-outline/10">
           <input
             id="requiresApproval"
             type="checkbox"
             checked={requiresApproval}
             onChange={(e) => setRequiresApproval(e.target.checked)}
-            className="w-4 h-4"
+            className="w-4 h-4 text-m3-primary border-gray-300 rounded focus:ring-m3-primary"
           />
-          <label htmlFor="requiresApproval" className="text-sm text-m3-on-surface">
-            Requires Approval
+          <label htmlFor="requiresApproval" className="text-sm font-medium text-m3-on-surface cursor-pointer select-none">
+            {t.requiresApproval ?? 'Requiere Aprobación'}
           </label>
         </div>
       </form>
