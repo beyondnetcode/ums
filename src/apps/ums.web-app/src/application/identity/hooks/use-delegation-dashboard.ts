@@ -80,7 +80,7 @@ export function useDelegationDashboard(): DelegationDashboardState & DelegationD
   const [page, setPage] = useState(1);
   const [delegationViewType, setDelegationViewType] = useState<DelegationViewType>('received');
   
-  const pageSize = 10;
+  const pageSize = 2;
 
   const receivedQuery = useGetDelegationsByDelegatedAdmin(CURRENT_USER_ID, CURRENT_TENANT_ID);
   const grantedQuery = useGetDelegationsByDelegatingAdmin(CURRENT_USER_ID, CURRENT_TENANT_ID);
