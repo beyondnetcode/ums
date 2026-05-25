@@ -184,60 +184,62 @@ export const DelegationListPanel: React.FC<DelegationListPanelProps> = ({
           </button>
         </Tooltip>
       </div>
-      <M3DataView
-        title={'Delegation Management'}
-        subtitle={delegationViewType === 'received' ? 'Delegations granted to you' : 'Delegations you have granted to others'}
-        searchPlaceholder={t.searchPlaceholder ?? 'Search...'}
-        searchCriteria={criteriaOptions}
-        activeCriteria={searchCriteria}
-        onCriteriaChange={onSearchCriteriaChange}
-        searchValue={searchValue}
-        onSearchValueChange={onSearchValueChange}
-        onSearchSubmit={onSearchSubmit}
-        onRegisterNew={onRegisterNew}
-        registerLabel={t.newBtn ?? 'New'}
-        viewMode={viewMode}
-        onViewModeChange={onViewModeChange}
-        sortOptions={sortOptions}
-        sortBy={sortBy}
-        onSortByChange={onSortByChange}
-        sortOrder={sortOrder}
-        onSortOrderToggle={onSortOrderToggle}
-        filterOptions={filterOptions}
-        activeFilter={activeFilter}
-        onFilterChange={onFilterChange}
-        isLoading={isLoading}
-        isEmpty={totalItems === 0}
-        emptyLabel={t.noRecords ?? 'No records found'}
-        emptyTitle={t.dataViewEmptyTitle ?? 'No Results'}
-        emptyTooltip={delegationViewType === 'received' 
-          ? 'Es posible que no tengas delegaciones recibidas o que hayan expirado/sido revocadas. Revisa también tus delegaciones otorgadas.'
-          : 'Aún no has otorgado ninguna delegación a otros usuarios o las que otorgaste expiraron y se depuraron.'}
-        loadingLabel={t.dataViewLoading ?? 'Loading...'}
-        criteriaLabel={t.dataViewCriteriaLabel ?? 'Search by'}
-        searchTermLabel={t.dataViewSearchTermLabel ?? 'Search term'}
-        searchButtonLabel={t.dataViewSearchBtn ?? 'Search'}
-        renderList={() => (
-          <>
-            {error && <ApiErrorBanner error={error} />}
-            <div className="overflow-x-auto border border-m3-outline/25 rounded-xl bg-m3-surface-container/20">
-              <div className="divide-y divide-m3-outline/10 text-sm">
-                {delegations.map(renderDelegationRow)}
+      <div className="flex-1 min-h-0">
+        <M3DataView
+          title={'Delegation Management'}
+          subtitle={delegationViewType === 'received' ? 'Delegations granted to you' : 'Delegations you have granted to others'}
+          searchPlaceholder={t.searchPlaceholder ?? 'Search...'}
+          searchCriteria={criteriaOptions}
+          activeCriteria={searchCriteria}
+          onCriteriaChange={onSearchCriteriaChange}
+          searchValue={searchValue}
+          onSearchValueChange={onSearchValueChange}
+          onSearchSubmit={onSearchSubmit}
+          onRegisterNew={onRegisterNew}
+          registerLabel={t.newBtn ?? 'New'}
+          viewMode={viewMode}
+          onViewModeChange={onViewModeChange}
+          sortOptions={sortOptions}
+          sortBy={sortBy}
+          onSortByChange={onSortByChange}
+          sortOrder={sortOrder}
+          onSortOrderToggle={onSortOrderToggle}
+          filterOptions={filterOptions}
+          activeFilter={activeFilter}
+          onFilterChange={onFilterChange}
+          isLoading={isLoading}
+          isEmpty={totalItems === 0}
+          emptyLabel={t.noRecords ?? 'No records found'}
+          emptyTitle={t.dataViewEmptyTitle ?? 'No Results'}
+          emptyTooltip={delegationViewType === 'received' 
+            ? 'Es posible que no tengas delegaciones recibidas o que hayan expirado/sido revocadas. Revisa también tus delegaciones otorgadas.'
+            : 'Aún no has otorgado ninguna delegación a otros usuarios o las que otorgaste expiraron y se depuraron.'}
+          loadingLabel={t.dataViewLoading ?? 'Loading...'}
+          criteriaLabel={t.dataViewCriteriaLabel ?? 'Search by'}
+          searchTermLabel={t.dataViewSearchTermLabel ?? 'Search term'}
+          searchButtonLabel={t.dataViewSearchBtn ?? 'Search'}
+          renderList={() => (
+            <>
+              {error && <ApiErrorBanner error={error} />}
+              <div className="overflow-x-auto border border-m3-outline/25 rounded-xl bg-m3-surface-container/20">
+                <div className="divide-y divide-m3-outline/10 text-sm">
+                  {delegations.map(renderDelegationRow)}
+                </div>
               </div>
-            </div>
-          </>
-        )}
-        renderThumbnail={() => (
-          <>
-            {error && <ApiErrorBanner error={error} />}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {delegations.map(renderDelegationCard)}
-            </div>
-          </>
-        )}
-        pagination={{ page, pageSize, totalItems, totalPages, onPageChange }}
-        telemetryInfo={footerTelemetry}
-      />
+            </>
+          )}
+          renderThumbnail={() => (
+            <>
+              {error && <ApiErrorBanner error={error} />}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {delegations.map(renderDelegationCard)}
+              </div>
+            </>
+          )}
+          pagination={{ page, pageSize, totalItems, totalPages, onPageChange }}
+          telemetryInfo={footerTelemetry}
+        />
+      </div>
     </div>
   );
 };
