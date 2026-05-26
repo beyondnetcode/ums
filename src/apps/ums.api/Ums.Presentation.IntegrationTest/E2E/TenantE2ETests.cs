@@ -10,6 +10,10 @@ namespace Ums.Presentation.IntegrationTest.E2E;
 ///   - Branch sub-resource: Add / Deactivate / Reactivate / Remove
 ///   - Validation errors (400), Not-Found (404), Conflict (409)
 ///
+/// Architecture:
+///   - Commands  → REST API  (POST / PUT / DELETE)
+///   - Queries   → GraphQL   (POST /graphql)
+///
 /// Prerequisites: Docker must be running locally.
 /// Tests are automatically skipped when Docker is unavailable.
 /// </summary>
@@ -86,11 +90,11 @@ public sealed class TenantE2ETests
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // READ
+    // READ — via GraphQL
     // ─────────────────────────────────────────────────────────────────────────
 
     [Fact]
-    public async Task GetTenantById_ExistingTenant_Returns200WithCorrectData()
+    public async Task GetTenantById_ExistingTenant_GqlReturnsCorrectData()
     {
         if (!_fixture.IsAvailable) Assert.Skip("Docker required.");
         var ct = TestContext.Current.CancellationToken;
@@ -100,46 +104,48 @@ public sealed class TenantE2ETests
         createRes.StatusCode.Should().Be(HttpStatusCode.Created);
         var tenantId = await ReadGuidProperty(createRes, "tenantId", ct);
 
-        var getRes = await _client.GetAsync($"/api/v1/tenants/{tenantId}", ct);
+        using var doc = await GqlTenantByIdAsync(tenantId, ct);
+        var tenant = doc.RootElement.GetProperty("data").GetProperty("tenantById");
 
-        getRes.StatusCode.Should().Be(HttpStatusCode.OK);
-        using var doc = JsonDocument.Parse(await getRes.Content.ReadAsStringAsync(ct));
-        doc.RootElement.GetProperty("tenantId").GetGuid().Should().Be(tenantId);
-        doc.RootElement.GetProperty("code").GetString().Should().Be(payload.Code);
-        doc.RootElement.GetProperty("name").GetString().Should().Be(payload.Name);
-        doc.RootElement.GetProperty("type").GetString().Should().Be(payload.Type);
-        doc.RootElement.GetProperty("status").GetString().Should().NotBeNullOrWhiteSpace();
+        tenant.ValueKind.Should().NotBe(JsonValueKind.Null, because: "tenant should exist");
+        tenant.GetProperty("tenantId").GetGuid().Should().Be(tenantId);
+        tenant.GetProperty("code").GetString().Should().Be(payload.Code);
+        tenant.GetProperty("name").GetString().Should().Be(payload.Name);
+        tenant.GetProperty("type").GetString().Should().Be(payload.Type);
+        tenant.GetProperty("status").GetString().Should().NotBeNullOrWhiteSpace();
     }
 
     [Fact]
-    public async Task GetTenantById_NonExistent_Returns404()
+    public async Task GetTenantById_NonExistent_GqlReturnsNull()
     {
         if (!_fixture.IsAvailable) Assert.Skip("Docker required.");
         var ct = TestContext.Current.CancellationToken;
 
-        var res = await _client.GetAsync($"/api/v1/tenants/{Guid.NewGuid()}", ct);
+        using var doc = await GqlTenantByIdAsync(Guid.NewGuid(), ct);
+        var tenant = doc.RootElement.GetProperty("data").GetProperty("tenantById");
 
-        res.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        tenant.ValueKind.Should().Be(JsonValueKind.Null,
+            because: "querying a non-existent tenant ID should return null");
     }
 
     [Fact]
-    public async Task GetTenants_Pagination_ReturnsCorrectMetadata()
+    public async Task GetTenants_Pagination_GqlReturnsCorrectMetadata()
     {
         if (!_fixture.IsAvailable) Assert.Skip("Docker required.");
         var ct = TestContext.Current.CancellationToken;
 
-        var res = await _client.GetAsync("/api/v1/tenants?page=1&pageSize=5", ct);
+        const string gql = "{ tenants(page: 1, pageSize: 5) { page pageSize totalItems items { tenantId code } } }";
+        using var doc = await GqlQueryAsync(gql, ct);
 
-        res.StatusCode.Should().Be(HttpStatusCode.OK);
-        using var doc = JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
-        doc.RootElement.GetProperty("page").GetInt32().Should().Be(1);
-        doc.RootElement.GetProperty("pageSize").GetInt32().Should().Be(5);
-        doc.RootElement.GetProperty("totalItems").GetInt32().Should().BeGreaterThanOrEqualTo(0);
-        doc.RootElement.GetProperty("items").ValueKind.Should().Be(JsonValueKind.Array);
+        var list = doc.RootElement.GetProperty("data").GetProperty("tenants");
+        list.GetProperty("page").GetInt32().Should().Be(1);
+        list.GetProperty("pageSize").GetInt32().Should().Be(5);
+        list.GetProperty("totalItems").GetInt32().Should().BeGreaterThanOrEqualTo(0);
+        list.GetProperty("items").ValueKind.Should().Be(JsonValueKind.Array);
     }
 
     [Fact]
-    public async Task GetTenants_SearchByCode_FindsCreatedTenant()
+    public async Task GetTenants_SearchByCode_GqlFindsTenant()
     {
         if (!_fixture.IsAvailable) Assert.Skip("Docker required.");
         var ct = TestContext.Current.CancellationToken;
@@ -148,15 +154,13 @@ public sealed class TenantE2ETests
         (await _client.PostAsJsonAsync("/api/v1/tenants", payload, ct))
             .StatusCode.Should().Be(HttpStatusCode.Created);
 
-        var res = await _client.GetAsync($"/api/v1/tenants?page=1&pageSize=50&search={payload.Code}&criteria=code", ct);
-        res.StatusCode.Should().Be(HttpStatusCode.OK);
+        var gql = $"{{ tenants(page: 1, pageSize: 50, search: \"{payload.Code}\", criteria: \"code\") {{ items {{ tenantId code }} }} }}";
+        using var doc = await GqlQueryAsync(gql, ct);
 
-        using var doc = JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
-        var items = doc.RootElement.GetProperty("items");
+        var items = doc.RootElement.GetProperty("data").GetProperty("tenants").GetProperty("items");
         items.GetArrayLength().Should().BeGreaterThan(0);
-        var found = Enumerable.Range(0, items.GetArrayLength())
-            .Any(i => items[i].GetProperty("code").GetString() == payload.Code);
-        found.Should().BeTrue();
+        var found = items.EnumerateArray().Any(i => i.GetProperty("code").GetString() == payload.Code);
+        found.Should().BeTrue(because: "tenant should be findable by exact code search");
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -176,19 +180,23 @@ public sealed class TenantE2ETests
         suspendRes.StatusCode.Should().Be(HttpStatusCode.NoContent,
             because: "a newly created tenant should be suspendable");
 
-        // Verify status
-        var suspended = await GetTenantDoc(tenantId, ct);
-        suspended.RootElement.GetProperty("status").GetString().Should().Be("Suspended");
-        suspended.Dispose();
+        // Verify status via GraphQL
+        using (var afterSuspend = await GqlTenantByIdAsync(tenantId, ct))
+        {
+            afterSuspend.RootElement.GetProperty("data").GetProperty("tenantById")
+                .GetProperty("status").GetString().Should().Be("Suspended");
+        }
 
         // Activate
         var activateRes = await _client.PostAsync($"/api/v1/tenants/{tenantId}/activate", null, ct);
         activateRes.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-        // Verify restored status
-        var activated = await GetTenantDoc(tenantId, ct);
-        activated.RootElement.GetProperty("status").GetString().Should().Be("Active");
-        activated.Dispose();
+        // Verify restored status via GraphQL
+        using (var afterActivate = await GqlTenantByIdAsync(tenantId, ct))
+        {
+            afterActivate.RootElement.GetProperty("data").GetProperty("tenantById")
+                .GetProperty("status").GetString().Should().Be("Active");
+        }
     }
 
     [Fact]
@@ -229,19 +237,24 @@ public sealed class TenantE2ETests
     // ─────────────────────────────────────────────────────────────────────────
 
     [Fact]
-    public async Task AddBranch_ValidPayload_Returns201()
+    public async Task AddBranch_ValidPayload_Returns201AndAppearsInGqlBranches()
     {
         if (!_fixture.IsAvailable) Assert.Skip("Docker required.");
         var ct = TestContext.Current.CancellationToken;
 
         var tenantId = await CreateTenantAndGetId(ct);
-        var branchPayload = new { code = $"BR{Guid.NewGuid():N}"[..8], name = "Main Branch", geofencingMetadata = (string?)null };
+        var branchCode = $"BR{Guid.NewGuid():N}"[..8];
+        var branchPayload = new { code = branchCode, name = "Main Branch", geofencingMetadata = (string?)null };
 
         var res = await _client.PostAsJsonAsync($"/api/v1/tenants/{tenantId}/branches", branchPayload, ct);
-
         res.StatusCode.Should().Be(HttpStatusCode.Created);
-        using var doc = JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
-        doc.RootElement.GetProperty("tenantId").GetGuid().Should().Be(tenantId);
+
+        // Verify via GraphQL tenantBranches query
+        var gql = $"{{ tenantBranches(tenantId: \"{tenantId}\") {{ branchId code name isActive }} }}";
+        using var doc = await GqlQueryAsync(gql, ct);
+        var branches = doc.RootElement.GetProperty("data").GetProperty("tenantBranches");
+        var found = branches.EnumerateArray().Any(b => b.GetProperty("code").GetString() == branchCode);
+        found.Should().BeTrue(because: "the added branch should appear in tenantBranches query");
     }
 
     [Fact]
@@ -263,22 +276,33 @@ public sealed class TenantE2ETests
         var ct = TestContext.Current.CancellationToken;
 
         var tenantId = await CreateTenantAndGetId(ct);
-        var branchPayload = new { code = $"LF{Guid.NewGuid():N}"[..8], name = "Lifecycle Branch", geofencingMetadata = (string?)null };
+        var branchCode = $"LF{Guid.NewGuid():N}"[..8];
+        var branchPayload = new { code = branchCode, name = "Lifecycle Branch", geofencingMetadata = (string?)null };
+
         var addRes = await _client.PostAsJsonAsync($"/api/v1/tenants/{tenantId}/branches", branchPayload, ct);
         addRes.StatusCode.Should().Be(HttpStatusCode.Created);
-        var branchId = await ReadGuidProperty(addRes, "branchId", ct);
+
+        // Retrieve branchId via GraphQL (AddBranchResponse only contains tenantId)
+        var branchId = await GetBranchIdByCodeAsync(tenantId, branchCode, ct);
 
         // Deactivate
-        var deactivate = await _client.PostAsync($"/api/v1/tenants/{tenantId}/branches/{branchId}/deactivate", null, ct);
-        deactivate.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        (await _client.PostAsync($"/api/v1/tenants/{tenantId}/branches/{branchId}/deactivate", null, ct))
+            .StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         // Reactivate
-        var reactivate = await _client.PostAsync($"/api/v1/tenants/{tenantId}/branches/{branchId}/reactivate", null, ct);
-        reactivate.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        (await _client.PostAsync($"/api/v1/tenants/{tenantId}/branches/{branchId}/reactivate", null, ct))
+            .StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         // Remove
-        var remove = await _client.DeleteAsync($"/api/v1/tenants/{tenantId}/branches/{branchId}", ct);
-        remove.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        (await _client.DeleteAsync($"/api/v1/tenants/{tenantId}/branches/{branchId}", ct))
+            .StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        // Verify branch is gone via GraphQL
+        var gql = $"{{ tenantBranches(tenantId: \"{tenantId}\") {{ branchId code }} }}";
+        using var after = await GqlQueryAsync(gql, ct);
+        var branches = after.RootElement.GetProperty("data").GetProperty("tenantBranches");
+        var stillPresent = branches.EnumerateArray().Any(b => b.GetProperty("branchId").GetGuid() == branchId);
+        stillPresent.Should().BeFalse(because: "removed branch should not appear in branches list");
     }
 
     [Fact]
@@ -288,7 +312,8 @@ public sealed class TenantE2ETests
         var ct = TestContext.Current.CancellationToken;
 
         var tenantId = await CreateTenantAndGetId(ct);
-        var branchPayload = new { code = $"DUP{Guid.NewGuid():N}"[..8], name = "Dupe Branch", geofencingMetadata = (string?)null };
+        var branchCode = $"DUP{Guid.NewGuid():N}"[..8];
+        var branchPayload = new { code = branchCode, name = "Dupe Branch", geofencingMetadata = (string?)null };
 
         (await _client.PostAsJsonAsync($"/api/v1/tenants/{tenantId}/branches", branchPayload, ct))
             .StatusCode.Should().Be(HttpStatusCode.Created);
@@ -301,6 +326,37 @@ public sealed class TenantE2ETests
     // Helpers
     // ─────────────────────────────────────────────────────────────────────────
 
+    /// <summary>Sends a raw GraphQL query to POST /graphql and returns the parsed response.</summary>
+    private async Task<JsonDocument> GqlQueryAsync(string gql, CancellationToken ct)
+    {
+        var res = await _client.PostAsJsonAsync("/graphql", new { query = gql }, ct);
+        res.EnsureSuccessStatusCode();
+        var doc = JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
+        doc.RootElement.TryGetProperty("errors", out _).Should().BeFalse(
+            because: "GraphQL query should not return errors");
+        return doc;
+    }
+
+    /// <summary>Queries tenantById(tenantId) via GraphQL. Caller must dispose.</summary>
+    private Task<JsonDocument> GqlTenantByIdAsync(Guid tenantId, CancellationToken ct) =>
+        GqlQueryAsync(
+            $"{{ tenantById(tenantId: \"{tenantId}\") {{ tenantId code name type status }} }}",
+            ct);
+
+    /// <summary>
+    /// Retrieves the branchId for a given tenant+code via GraphQL.
+    /// Needed because AddBranchResponse only contains tenantId.
+    /// </summary>
+    private async Task<Guid> GetBranchIdByCodeAsync(Guid tenantId, string code, CancellationToken ct)
+    {
+        var gql = $"{{ tenantBranches(tenantId: \"{tenantId}\") {{ branchId code }} }}";
+        using var doc = await GqlQueryAsync(gql, ct);
+        var branches = doc.RootElement.GetProperty("data").GetProperty("tenantBranches");
+        return branches.EnumerateArray()
+            .First(b => b.GetProperty("code").GetString() == code)
+            .GetProperty("branchId").GetGuid();
+    }
+
     private static (string Code, string Name, string Type, string? IdpStrategy, string? CompanyReference) NewTenantPayload()
     {
         var uid = Guid.NewGuid().ToString("N")[..10].ToUpper();
@@ -312,13 +368,6 @@ public sealed class TenantE2ETests
         var res = await _client.PostAsJsonAsync("/api/v1/tenants", NewTenantPayload(), ct);
         res.StatusCode.Should().Be(HttpStatusCode.Created);
         return await ReadGuidProperty(res, "tenantId", ct);
-    }
-
-    private async Task<JsonDocument> GetTenantDoc(Guid tenantId, CancellationToken ct)
-    {
-        var res = await _client.GetAsync($"/api/v1/tenants/{tenantId}", ct);
-        res.StatusCode.Should().Be(HttpStatusCode.OK);
-        return JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
     }
 
     private static async Task<Guid> ReadGuidProperty(HttpResponseMessage response, string property, CancellationToken ct)

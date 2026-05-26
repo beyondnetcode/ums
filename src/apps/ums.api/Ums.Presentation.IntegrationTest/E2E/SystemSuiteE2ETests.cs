@@ -13,6 +13,10 @@ namespace Ums.Presentation.IntegrationTest.E2E;
 ///   - Action sub-resource: Register / Remove
 ///   - Validation errors (400), Not-Found (404), Conflict (409)
 ///
+/// Architecture:
+///   - Commands  → REST API  (POST / PUT / DELETE)
+///   - Queries   → GraphQL   (POST /graphql)
+///
 /// Each test creates its own Tenant + SystemSuite to guarantee isolation.
 /// Prerequisites: Docker must be running locally.
 /// </summary>
@@ -91,11 +95,11 @@ public sealed class SystemSuiteE2ETests
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // READ
+    // READ — via GraphQL
     // ─────────────────────────────────────────────────────────────────────────
 
     [Fact]
-    public async Task GetSystemSuiteById_ExistingSuite_Returns200WithCorrectFields()
+    public async Task GetSystemSuiteById_ExistingSuite_GqlReturnsCorrectFields()
     {
         if (!_fixture.IsAvailable) Assert.Skip("Docker required.");
         var ct = TestContext.Current.CancellationToken;
@@ -106,47 +110,50 @@ public sealed class SystemSuiteE2ETests
         createRes.StatusCode.Should().Be(HttpStatusCode.Created);
         var suiteId = await ReadGuid(createRes, "systemSuiteId", ct);
 
-        var getRes = await _client.GetAsync($"/api/v1/system-suites/{suiteId}", ct);
+        using var doc = await GqlSuiteByIdAsync(suiteId, ct);
+        var suite = doc.RootElement.GetProperty("data").GetProperty("systemSuiteById");
 
-        getRes.StatusCode.Should().Be(HttpStatusCode.OK);
-        using var doc = JsonDocument.Parse(await getRes.Content.ReadAsStringAsync(ct));
-        doc.RootElement.GetProperty("systemSuiteId").GetGuid().Should().Be(suiteId);
-        doc.RootElement.GetProperty("tenantId").GetGuid().Should().Be(tenantId);
-        doc.RootElement.GetProperty("code").GetString().Should().Be(payload.Code);
-        doc.RootElement.GetProperty("name").GetString().Should().Be(payload.Name);
-        doc.RootElement.GetProperty("status").GetString().Should().NotBeNullOrWhiteSpace();
-        doc.RootElement.GetProperty("modules").ValueKind.Should().Be(JsonValueKind.Array);
-        doc.RootElement.GetProperty("actions").ValueKind.Should().Be(JsonValueKind.Array);
+        suite.ValueKind.Should().NotBe(JsonValueKind.Null, because: "suite should exist");
+        suite.GetProperty("systemSuiteId").GetGuid().Should().Be(suiteId);
+        suite.GetProperty("tenantId").GetGuid().Should().Be(tenantId);
+        suite.GetProperty("code").GetString().Should().Be(payload.Code);
+        suite.GetProperty("name").GetString().Should().Be(payload.Name);
+        suite.GetProperty("status").GetString().Should().NotBeNullOrWhiteSpace();
+        suite.GetProperty("modules").ValueKind.Should().Be(JsonValueKind.Array);
+        suite.GetProperty("actions").ValueKind.Should().Be(JsonValueKind.Array);
     }
 
     [Fact]
-    public async Task GetSystemSuiteById_NonExistent_Returns404()
+    public async Task GetSystemSuiteById_NonExistent_GqlReturnsNull()
     {
         if (!_fixture.IsAvailable) Assert.Skip("Docker required.");
         var ct = TestContext.Current.CancellationToken;
 
-        var res = await _client.GetAsync($"/api/v1/system-suites/{Guid.NewGuid()}", ct);
-        res.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        using var doc = await GqlSuiteByIdAsync(Guid.NewGuid(), ct);
+        var suite = doc.RootElement.GetProperty("data").GetProperty("systemSuiteById");
+
+        suite.ValueKind.Should().Be(JsonValueKind.Null,
+            because: "querying a non-existent suite ID should return null");
     }
 
     [Fact]
-    public async Task GetSystemSuites_Pagination_ReturnsPageMetadata()
+    public async Task GetSystemSuites_Pagination_GqlReturnsPageMetadata()
     {
         if (!_fixture.IsAvailable) Assert.Skip("Docker required.");
         var ct = TestContext.Current.CancellationToken;
 
-        var res = await _client.GetAsync("/api/v1/system-suites?page=1&pageSize=5", ct);
+        const string gql = "{ systemSuites(page: 1, pageSize: 5) { page pageSize totalItems items { systemSuiteId code } } }";
+        using var doc = await GqlQueryAsync(gql, ct);
 
-        res.StatusCode.Should().Be(HttpStatusCode.OK);
-        using var doc = JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
-        doc.RootElement.GetProperty("page").GetInt32().Should().Be(1);
-        doc.RootElement.GetProperty("pageSize").GetInt32().Should().Be(5);
-        doc.RootElement.GetProperty("totalItems").GetInt32().Should().BeGreaterThanOrEqualTo(0);
-        doc.RootElement.GetProperty("items").ValueKind.Should().Be(JsonValueKind.Array);
+        var list = doc.RootElement.GetProperty("data").GetProperty("systemSuites");
+        list.GetProperty("page").GetInt32().Should().Be(1);
+        list.GetProperty("pageSize").GetInt32().Should().Be(5);
+        list.GetProperty("totalItems").GetInt32().Should().BeGreaterThanOrEqualTo(0);
+        list.GetProperty("items").ValueKind.Should().Be(JsonValueKind.Array);
     }
 
     [Fact]
-    public async Task GetSystemSuites_FilterByTenantId_OnlyReturnsTenantSuites()
+    public async Task GetSystemSuites_FilterByTenantId_GqlOnlyReturnsTenantSuites()
     {
         if (!_fixture.IsAvailable) Assert.Skip("Docker required.");
         var ct = TestContext.Current.CancellationToken;
@@ -155,15 +162,15 @@ public sealed class SystemSuiteE2ETests
         (await _client.PostAsJsonAsync("/api/v1/system-suites", NewSuitePayload(tenantId), ct))
             .StatusCode.Should().Be(HttpStatusCode.Created);
 
-        var res = await _client.GetAsync($"/api/v1/system-suites?page=1&pageSize=50&tenantId={tenantId}", ct);
-        res.StatusCode.Should().Be(HttpStatusCode.OK);
+        var gql = $"{{ systemSuites(page: 1, pageSize: 50, tenantId: \"{tenantId}\") {{ items {{ systemSuiteId tenantId code }} }} }}";
+        using var doc = await GqlQueryAsync(gql, ct);
 
-        using var doc = JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
-        var items = doc.RootElement.GetProperty("items");
+        var items = doc.RootElement.GetProperty("data").GetProperty("systemSuites").GetProperty("items");
         items.GetArrayLength().Should().BeGreaterThan(0);
         foreach (var item in items.EnumerateArray())
         {
-            item.GetProperty("tenantId").GetGuid().Should().Be(tenantId);
+            item.GetProperty("tenantId").GetGuid().Should().Be(tenantId,
+                because: "tenant filter should only return suites for that tenant");
         }
     }
 
@@ -183,10 +190,10 @@ public sealed class SystemSuiteE2ETests
         var updateRes = await _client.PutAsJsonAsync($"/api/v1/system-suites/{suiteId}", updatePayload, ct);
         updateRes.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-        var doc = await GetSuiteDoc(suiteId, ct);
-        doc.RootElement.GetProperty("name").GetString().Should().Be("Updated Suite Name");
-        doc.RootElement.GetProperty("description").GetString().Should().Be("Updated description for E2E test");
-        doc.Dispose();
+        using var doc = await GqlSuiteByIdAsync(suiteId, ct);
+        var suite = doc.RootElement.GetProperty("data").GetProperty("systemSuiteById");
+        suite.GetProperty("name").GetString().Should().Be("Updated Suite Name");
+        suite.GetProperty("description").GetString().Should().Be("Updated description for E2E test");
     }
 
     [Fact]
@@ -217,9 +224,9 @@ public sealed class SystemSuiteE2ETests
         var res = await _client.PostAsync($"/api/v1/system-suites/{suiteId}/status?status=Inactive", null, ct);
         res.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-        var doc = await GetSuiteDoc(suiteId, ct);
-        doc.RootElement.GetProperty("status").GetString().Should().Be("Inactive");
-        doc.Dispose();
+        using var doc = await GqlSuiteByIdAsync(suiteId, ct);
+        doc.RootElement.GetProperty("data").GetProperty("systemSuiteById")
+            .GetProperty("status").GetString().Should().Be("Inactive");
     }
 
     [Fact]
@@ -234,9 +241,9 @@ public sealed class SystemSuiteE2ETests
         var res = await _client.PostAsync($"/api/v1/system-suites/{suiteId}/status?status=Active", null, ct);
         res.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-        var doc = await GetSuiteDoc(suiteId, ct);
-        doc.RootElement.GetProperty("status").GetString().Should().Be("Active");
-        doc.Dispose();
+        using var doc = await GqlSuiteByIdAsync(suiteId, ct);
+        doc.RootElement.GetProperty("data").GetProperty("systemSuiteById")
+            .GetProperty("status").GetString().Should().Be("Active");
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -256,11 +263,10 @@ public sealed class SystemSuiteE2ETests
         var res = await _client.PostAsJsonAsync($"/api/v1/system-suites/{suiteId}/modules", payload, ct);
         res.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-        var doc = await GetSuiteDoc(suiteId, ct);
-        var modules = doc.RootElement.GetProperty("modules");
+        using var doc = await GqlSuiteByIdAsync(suiteId, ct);
+        var modules = doc.RootElement.GetProperty("data").GetProperty("systemSuiteById").GetProperty("modules");
         var found = modules.EnumerateArray().Any(m => m.GetProperty("code").GetString() == moduleCode);
         found.Should().BeTrue(because: "the module should appear in the suite after being added");
-        doc.Dispose();
     }
 
     [Fact]
@@ -274,22 +280,23 @@ public sealed class SystemSuiteE2ETests
         await _client.PostAsJsonAsync($"/api/v1/system-suites/{suiteId}/modules",
             new { systemSuiteId = suiteId, code = moduleCode, name = "Original", description = "Desc", sortOrder = 1 }, ct);
 
-        var doc = await GetSuiteDoc(suiteId, ct);
-        var moduleId = doc.RootElement.GetProperty("modules").EnumerateArray()
+        // Get moduleId via GraphQL
+        using var beforeDoc = await GqlSuiteByIdAsync(suiteId, ct);
+        var moduleId = beforeDoc.RootElement.GetProperty("data").GetProperty("systemSuiteById")
+            .GetProperty("modules").EnumerateArray()
             .First(m => m.GetProperty("code").GetString() == moduleCode)
             .GetProperty("id").GetGuid();
-        doc.Dispose();
 
         var updatePayload = new { systemSuiteId = suiteId, moduleId, name = "Updated Module", description = "New description", sortOrder = 2 };
         var res = await _client.PutAsJsonAsync($"/api/v1/system-suites/{suiteId}/modules/{moduleId}", updatePayload, ct);
         res.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-        var updated = await GetSuiteDoc(suiteId, ct);
-        var module = updated.RootElement.GetProperty("modules").EnumerateArray()
+        using var afterDoc = await GqlSuiteByIdAsync(suiteId, ct);
+        var module = afterDoc.RootElement.GetProperty("data").GetProperty("systemSuiteById")
+            .GetProperty("modules").EnumerateArray()
             .First(m => m.GetProperty("id").GetGuid() == moduleId);
         module.GetProperty("name").GetString().Should().Be("Updated Module");
         module.GetProperty("sortOrder").GetInt32().Should().Be(2);
-        updated.Dispose();
     }
 
     [Fact]
@@ -303,22 +310,25 @@ public sealed class SystemSuiteE2ETests
         await _client.PostAsJsonAsync($"/api/v1/system-suites/{suiteId}/modules",
             new { systemSuiteId = suiteId, code, name = "Lifecycle Module", description = "E2E lifecycle", sortOrder = 5 }, ct);
 
-        var doc = await GetSuiteDoc(suiteId, ct);
-        var moduleId = doc.RootElement.GetProperty("modules").EnumerateArray()
+        // Get moduleId via GraphQL
+        using var addedDoc = await GqlSuiteByIdAsync(suiteId, ct);
+        var moduleId = addedDoc.RootElement.GetProperty("data").GetProperty("systemSuiteById")
+            .GetProperty("modules").EnumerateArray()
             .First(m => m.GetProperty("code").GetString() == code)
             .GetProperty("id").GetGuid();
-        doc.Dispose();
 
         // Deactivate
         (await _client.PostAsync($"/api/v1/system-suites/{suiteId}/modules/{moduleId}/deactivate", null, ct))
             .StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-        // Verify deactivated
-        var deactivated = await GetSuiteDoc(suiteId, ct);
-        deactivated.RootElement.GetProperty("modules").EnumerateArray()
-            .First(m => m.GetProperty("id").GetGuid() == moduleId)
-            .GetProperty("status").GetString().Should().Be("Inactive");
-        deactivated.Dispose();
+        // Verify deactivated via GraphQL
+        using (var deactivatedDoc = await GqlSuiteByIdAsync(suiteId, ct))
+        {
+            deactivatedDoc.RootElement.GetProperty("data").GetProperty("systemSuiteById")
+                .GetProperty("modules").EnumerateArray()
+                .First(m => m.GetProperty("id").GetGuid() == moduleId)
+                .GetProperty("status").GetString().Should().Be("Inactive");
+        }
 
         // Activate
         (await _client.PostAsync($"/api/v1/system-suites/{suiteId}/modules/{moduleId}/activate", null, ct))
@@ -332,12 +342,12 @@ public sealed class SystemSuiteE2ETests
         (await _client.DeleteAsync($"/api/v1/system-suites/{suiteId}/modules/{moduleId}", ct))
             .StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-        // Verify gone
-        var after = await GetSuiteDoc(suiteId, ct);
-        var still = after.RootElement.GetProperty("modules").EnumerateArray()
+        // Verify gone via GraphQL
+        using var afterDoc = await GqlSuiteByIdAsync(suiteId, ct);
+        var still = afterDoc.RootElement.GetProperty("data").GetProperty("systemSuiteById")
+            .GetProperty("modules").EnumerateArray()
             .Any(m => m.GetProperty("id").GetGuid() == moduleId);
-        still.Should().BeFalse();
-        after.Dispose();
+        still.Should().BeFalse(because: "removed module should not appear in suite");
     }
 
     [Fact]
@@ -463,10 +473,10 @@ public sealed class SystemSuiteE2ETests
         var res = await _client.PostAsJsonAsync($"/api/v1/system-suites/{suiteId}/actions", payload, ct);
         res.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-        var doc = await GetSuiteDoc(suiteId, ct);
-        var actions = doc.RootElement.GetProperty("actions");
-        actions.EnumerateArray().Any(a => a.GetProperty("code").GetString() == code).Should().BeTrue();
-        doc.Dispose();
+        using var doc = await GqlSuiteByIdAsync(suiteId, ct);
+        var actions = doc.RootElement.GetProperty("data").GetProperty("systemSuiteById").GetProperty("actions");
+        actions.EnumerateArray().Any(a => a.GetProperty("code").GetString() == code).Should().BeTrue(
+            because: "registered action should appear in suite actions");
     }
 
     [Fact]
@@ -483,10 +493,11 @@ public sealed class SystemSuiteE2ETests
         var res = await _client.DeleteAsync($"/api/v1/system-suites/{suiteId}/actions/{code}", ct);
         res.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-        var doc = await GetSuiteDoc(suiteId, ct);
-        doc.RootElement.GetProperty("actions").EnumerateArray()
-            .Any(a => a.GetProperty("code").GetString() == code).Should().BeFalse();
-        doc.Dispose();
+        using var doc = await GqlSuiteByIdAsync(suiteId, ct);
+        doc.RootElement.GetProperty("data").GetProperty("systemSuiteById")
+            .GetProperty("actions").EnumerateArray()
+            .Any(a => a.GetProperty("code").GetString() == code).Should().BeFalse(
+                because: "removed action should not appear in suite");
     }
 
     [Fact]
@@ -521,6 +532,25 @@ public sealed class SystemSuiteE2ETests
     // Helpers
     // ─────────────────────────────────────────────────────────────────────────
 
+    /// <summary>Sends a raw GraphQL query to POST /graphql and returns the parsed response.</summary>
+    private async Task<JsonDocument> GqlQueryAsync(string gql, CancellationToken ct)
+    {
+        var res = await _client.PostAsJsonAsync("/graphql", new { query = gql }, ct);
+        res.EnsureSuccessStatusCode();
+        var doc = JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
+        doc.RootElement.TryGetProperty("errors", out _).Should().BeFalse(
+            because: "GraphQL query should not return errors");
+        return doc;
+    }
+
+    /// <summary>
+    /// Queries systemSuiteById(systemSuiteId) with full fields via GraphQL. Caller must dispose.
+    /// </summary>
+    private Task<JsonDocument> GqlSuiteByIdAsync(Guid suiteId, CancellationToken ct) =>
+        GqlQueryAsync(
+            $"{{ systemSuiteById(systemSuiteId: \"{suiteId}\") {{ systemSuiteId tenantId code name description status modules {{ id code name description status sortOrder }} actions {{ id code name }} }} }}",
+            ct);
+
     private static string UniqueCode(string prefix)
         => $"{prefix}{Guid.NewGuid():N}"[..Math.Min(20, prefix.Length + 32)];
 
@@ -545,13 +575,6 @@ public sealed class SystemSuiteE2ETests
         var res = await _client.PostAsJsonAsync("/api/v1/system-suites", NewSuitePayload(tenantId), ct);
         res.StatusCode.Should().Be(HttpStatusCode.Created);
         return await ReadGuid(res, "systemSuiteId", ct);
-    }
-
-    private async Task<JsonDocument> GetSuiteDoc(Guid suiteId, CancellationToken ct)
-    {
-        var res = await _client.GetAsync($"/api/v1/system-suites/{suiteId}", ct);
-        res.StatusCode.Should().Be(HttpStatusCode.OK);
-        return JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
     }
 
     private static async Task<Guid> ReadGuid(HttpResponseMessage response, string property, CancellationToken ct)

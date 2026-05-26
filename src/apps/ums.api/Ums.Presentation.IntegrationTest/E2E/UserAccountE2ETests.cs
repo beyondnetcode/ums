@@ -11,6 +11,10 @@ namespace Ums.Presentation.IntegrationTest.E2E;
 ///   - Authentication attempt recording (audit trail)
 ///   - Validation errors (400), Not-Found (404), Conflict (409)
 ///
+/// Architecture:
+///   - Commands  → REST API  (POST / PUT / DELETE)
+///   - Queries   → GraphQL   (POST /graphql)
+///
 /// Each test creates its own Tenant to guarantee isolation.
 /// Prerequisites: Docker must be running locally.
 /// </summary>
@@ -91,11 +95,11 @@ public sealed class UserAccountE2ETests
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // READ
+    // READ — via GraphQL
     // ─────────────────────────────────────────────────────────────────────────
 
     [Fact]
-    public async Task GetUserAccountById_ExistingAccount_Returns200WithCorrectFields()
+    public async Task GetUserAccountById_ExistingAccount_GqlReturnsCorrectFields()
     {
         if (!_fixture.IsAvailable) Assert.Skip("Docker required.");
         var ct = TestContext.Current.CancellationToken;
@@ -106,45 +110,48 @@ public sealed class UserAccountE2ETests
         createRes.StatusCode.Should().Be(HttpStatusCode.Created);
         var userId = await ReadGuid(createRes, "userAccountId", ct);
 
-        var getRes = await _client.GetAsync($"/api/v1/user-accounts/{userId}", ct);
+        using var doc = await GqlUserAccountByIdAsync(userId, ct);
+        var user = doc.RootElement.GetProperty("data").GetProperty("userAccountById");
 
-        getRes.StatusCode.Should().Be(HttpStatusCode.OK);
-        using var doc = JsonDocument.Parse(await getRes.Content.ReadAsStringAsync(ct));
-        doc.RootElement.GetProperty("userAccountId").GetGuid().Should().Be(userId);
-        doc.RootElement.GetProperty("tenantId").GetGuid().Should().Be(tenantId);
-        doc.RootElement.GetProperty("email").GetString().Should().Be(payload.Email);
-        doc.RootElement.GetProperty("category").GetString().Should().Be(payload.Category);
-        doc.RootElement.GetProperty("status").GetString().Should().NotBeNullOrWhiteSpace();
+        user.ValueKind.Should().NotBe(JsonValueKind.Null, because: "user account should exist");
+        user.GetProperty("userAccountId").GetGuid().Should().Be(userId);
+        user.GetProperty("tenantId").GetGuid().Should().Be(tenantId);
+        user.GetProperty("email").GetString().Should().Be(payload.Email);
+        user.GetProperty("category").GetString().Should().Be(payload.Category);
+        user.GetProperty("status").GetString().Should().NotBeNullOrWhiteSpace();
     }
 
     [Fact]
-    public async Task GetUserAccountById_NonExistent_Returns404()
+    public async Task GetUserAccountById_NonExistent_GqlReturnsNull()
     {
         if (!_fixture.IsAvailable) Assert.Skip("Docker required.");
         var ct = TestContext.Current.CancellationToken;
 
-        var res = await _client.GetAsync($"/api/v1/user-accounts/{Guid.NewGuid()}", ct);
-        res.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        using var doc = await GqlUserAccountByIdAsync(Guid.NewGuid(), ct);
+        var user = doc.RootElement.GetProperty("data").GetProperty("userAccountById");
+
+        user.ValueKind.Should().Be(JsonValueKind.Null,
+            because: "querying a non-existent user account ID should return null");
     }
 
     [Fact]
-    public async Task GetUserAccounts_Pagination_ReturnsPageMetadata()
+    public async Task GetUserAccounts_Pagination_GqlReturnsPageMetadata()
     {
         if (!_fixture.IsAvailable) Assert.Skip("Docker required.");
         var ct = TestContext.Current.CancellationToken;
 
-        var res = await _client.GetAsync("/api/v1/user-accounts?page=1&pageSize=5", ct);
+        const string gql = "{ userAccounts(page: 1, pageSize: 5) { page pageSize totalItems items { userAccountId email } } }";
+        using var doc = await GqlQueryAsync(gql, ct);
 
-        res.StatusCode.Should().Be(HttpStatusCode.OK);
-        using var doc = JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
-        doc.RootElement.GetProperty("page").GetInt32().Should().Be(1);
-        doc.RootElement.GetProperty("pageSize").GetInt32().Should().Be(5);
-        doc.RootElement.GetProperty("totalItems").GetInt32().Should().BeGreaterThanOrEqualTo(0);
-        doc.RootElement.GetProperty("items").ValueKind.Should().Be(JsonValueKind.Array);
+        var list = doc.RootElement.GetProperty("data").GetProperty("userAccounts");
+        list.GetProperty("page").GetInt32().Should().Be(1);
+        list.GetProperty("pageSize").GetInt32().Should().Be(5);
+        list.GetProperty("totalItems").GetInt32().Should().BeGreaterThanOrEqualTo(0);
+        list.GetProperty("items").ValueKind.Should().Be(JsonValueKind.Array);
     }
 
     [Fact]
-    public async Task GetUserAccounts_FilterByTenantId_ReturnsOnlyTenantUsers()
+    public async Task GetUserAccounts_FilterByTenantId_GqlReturnsOnlyTenantUsers()
     {
         if (!_fixture.IsAvailable) Assert.Skip("Docker required.");
         var ct = TestContext.Current.CancellationToken;
@@ -154,11 +161,10 @@ public sealed class UserAccountE2ETests
         (await _client.PostAsJsonAsync("/api/v1/user-accounts", payload, ct))
             .StatusCode.Should().Be(HttpStatusCode.Created);
 
-        var res = await _client.GetAsync($"/api/v1/user-accounts?page=1&pageSize=50&tenantId={tenantId}", ct);
-        res.StatusCode.Should().Be(HttpStatusCode.OK);
+        var gql = $"{{ userAccounts(page: 1, pageSize: 50, tenantId: \"{tenantId}\") {{ items {{ userAccountId tenantId email }} }} }}";
+        using var doc = await GqlQueryAsync(gql, ct);
 
-        using var doc = JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
-        var items = doc.RootElement.GetProperty("items");
+        var items = doc.RootElement.GetProperty("data").GetProperty("userAccounts").GetProperty("items");
         items.GetArrayLength().Should().BeGreaterThan(0);
         foreach (var item in items.EnumerateArray())
         {
@@ -168,7 +174,7 @@ public sealed class UserAccountE2ETests
     }
 
     [Fact]
-    public async Task GetUserAccounts_SearchByEmail_FindsCreatedUser()
+    public async Task GetUserAccounts_SearchByEmail_GqlFindsCreatedUser()
     {
         if (!_fixture.IsAvailable) Assert.Skip("Docker required.");
         var ct = TestContext.Current.CancellationToken;
@@ -179,14 +185,13 @@ public sealed class UserAccountE2ETests
             .StatusCode.Should().Be(HttpStatusCode.Created);
 
         var emailPrefix = payload.Email.Split('@')[0];
-        var res = await _client.GetAsync($"/api/v1/user-accounts?page=1&pageSize=50&search={emailPrefix}&criteria=email", ct);
-        res.StatusCode.Should().Be(HttpStatusCode.OK);
+        var gql = $"{{ userAccounts(page: 1, pageSize: 50, search: \"{emailPrefix}\", criteria: \"email\") {{ items {{ userAccountId email }} }} }}";
+        using var doc = await GqlQueryAsync(gql, ct);
 
-        using var doc = JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
-        var items = doc.RootElement.GetProperty("items");
+        var items = doc.RootElement.GetProperty("data").GetProperty("userAccounts").GetProperty("items");
         items.GetArrayLength().Should().BeGreaterThan(0);
         var found = items.EnumerateArray().Any(i => i.GetProperty("email").GetString() == payload.Email);
-        found.Should().BeTrue();
+        found.Should().BeTrue(because: "user should be findable by email prefix search");
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -204,9 +209,9 @@ public sealed class UserAccountE2ETests
         var res = await _client.PostAsync($"/api/v1/user-accounts/{userId}/activate", null, ct);
         res.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-        var doc = await GetUserDoc(userId, ct);
-        doc.RootElement.GetProperty("status").GetString().Should().Be("Active");
-        doc.Dispose();
+        using var doc = await GqlUserAccountByIdAsync(userId, ct);
+        doc.RootElement.GetProperty("data").GetProperty("userAccountById")
+            .GetProperty("status").GetString().Should().Be("Active");
     }
 
     [Fact]
@@ -222,9 +227,9 @@ public sealed class UserAccountE2ETests
         var res = await _client.PostAsync($"/api/v1/user-accounts/{userId}/block?reason=Policy+violation", null, ct);
         res.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-        var doc = await GetUserDoc(userId, ct);
-        doc.RootElement.GetProperty("status").GetString().Should().Be("Blocked");
-        doc.Dispose();
+        using var doc = await GqlUserAccountByIdAsync(userId, ct);
+        doc.RootElement.GetProperty("data").GetProperty("userAccountById")
+            .GetProperty("status").GetString().Should().Be("Blocked");
     }
 
     [Fact]
@@ -240,9 +245,9 @@ public sealed class UserAccountE2ETests
         var res = await _client.PostAsync($"/api/v1/user-accounts/{userId}/restore", null, ct);
         res.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-        var doc = await GetUserDoc(userId, ct);
-        doc.RootElement.GetProperty("status").GetString().Should().Be("Active");
-        doc.Dispose();
+        using var doc = await GqlUserAccountByIdAsync(userId, ct);
+        doc.RootElement.GetProperty("data").GetProperty("userAccountById")
+            .GetProperty("status").GetString().Should().Be("Active");
     }
 
     [Fact]
@@ -265,9 +270,10 @@ public sealed class UserAccountE2ETests
         (await _client.PostAsync($"/api/v1/user-accounts/{userId}/restore", null, ct))
             .StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-        var doc = await GetUserDoc(userId, ct);
-        doc.RootElement.GetProperty("status").GetString().Should().Be("Active");
-        doc.Dispose();
+        // Verify final state via GraphQL
+        using var doc = await GqlUserAccountByIdAsync(userId, ct);
+        doc.RootElement.GetProperty("data").GetProperty("userAccountById")
+            .GetProperty("status").GetString().Should().Be("Active");
     }
 
     [Fact]
@@ -299,7 +305,7 @@ public sealed class UserAccountE2ETests
     // ─────────────────────────────────────────────────────────────────────────
 
     [Fact]
-    public async Task DeleteUserAccount_ExistingAccount_Returns204AndAccountDisappears()
+    public async Task DeleteUserAccount_ExistingAccount_Returns204AndNotAccessibleViaGql()
     {
         if (!_fixture.IsAvailable) Assert.Skip("Docker required.");
         var ct = TestContext.Current.CancellationToken;
@@ -309,9 +315,11 @@ public sealed class UserAccountE2ETests
         var deleteRes = await _client.DeleteAsync($"/api/v1/user-accounts/{userId}", ct);
         deleteRes.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-        // After GDPR deletion the account should not be retrievable
-        var getRes = await _client.GetAsync($"/api/v1/user-accounts/{userId}", ct);
-        getRes.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        // After GDPR deletion the account should not be retrievable via GraphQL either
+        using var doc = await GqlUserAccountByIdAsync(userId, ct);
+        var user = doc.RootElement.GetProperty("data").GetProperty("userAccountById");
+        user.ValueKind.Should().Be(JsonValueKind.Null,
+            because: "soft-deleted accounts should not be returned by queries");
     }
 
     [Fact]
@@ -384,6 +392,23 @@ public sealed class UserAccountE2ETests
     // Helpers
     // ─────────────────────────────────────────────────────────────────────────
 
+    /// <summary>Sends a raw GraphQL query to POST /graphql and returns the parsed response.</summary>
+    private async Task<JsonDocument> GqlQueryAsync(string gql, CancellationToken ct)
+    {
+        var res = await _client.PostAsJsonAsync("/graphql", new { query = gql }, ct);
+        res.EnsureSuccessStatusCode();
+        var doc = JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
+        doc.RootElement.TryGetProperty("errors", out _).Should().BeFalse(
+            because: "GraphQL query should not return errors");
+        return doc;
+    }
+
+    /// <summary>Queries userAccountById(userAccountId) via GraphQL. Caller must dispose.</summary>
+    private Task<JsonDocument> GqlUserAccountByIdAsync(Guid userId, CancellationToken ct) =>
+        GqlQueryAsync(
+            $"{{ userAccountById(userAccountId: \"{userId}\") {{ userAccountId tenantId email category status }} }}",
+            ct);
+
     private static (Guid TenantId, Guid? BranchId, string Email, string Category, string? IdentityReference, string? IdentityReferenceType) NewUserPayload(Guid tenantId)
     {
         var uid = Guid.NewGuid().ToString("N")[..8];
@@ -405,13 +430,6 @@ public sealed class UserAccountE2ETests
         var res = await _client.PostAsJsonAsync("/api/v1/user-accounts", NewUserPayload(tenantId), ct);
         res.StatusCode.Should().Be(HttpStatusCode.Created);
         return await ReadGuid(res, "userAccountId", ct);
-    }
-
-    private async Task<JsonDocument> GetUserDoc(Guid userId, CancellationToken ct)
-    {
-        var res = await _client.GetAsync($"/api/v1/user-accounts/{userId}", ct);
-        res.StatusCode.Should().Be(HttpStatusCode.OK);
-        return JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
     }
 
     private static async Task<Guid> ReadGuid(HttpResponseMessage response, string property, CancellationToken ct)
