@@ -152,3 +152,6 @@ This document establishes the mandatory rule configuration for the AI agent harn
 *   **Scope**: `architect`, `dev`
 *   **Trigger Condition**: Any dependency update, stack modernization, tooling change, or agent configuration update.
 *   **Instruction**: Once a project version is adopted, it must be pinned explicitly in code and documented consistently in agent configs, architecture docs, and contribution guidance. Agent descriptions, prompts, and repo-level instructions must be updated whenever the stack changes materially.
+
+## UI Guidelines
+*   **UI Rule - No Raw GUIDs**: Raw GUIDs must NEVER be exposed or rendered in the User Interface (UI), unless explicitly requested. Always use semantic representations (e.g. Code, Name) instead. See ADR 0065 for details.

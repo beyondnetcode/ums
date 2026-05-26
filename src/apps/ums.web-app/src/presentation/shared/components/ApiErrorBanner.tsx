@@ -43,7 +43,7 @@ export const ApiErrorBanner: React.FC<ApiErrorBannerProps> = ({ error }) => {
           <p className="text-xs text-rose-700 mt-1">{hint}</p>
           {supportReferenceId && (
             <p className="text-xs text-rose-600 mt-2">
-              {t.errorSupportReference}: {supportReferenceId}
+              {t.errorSupportReference(supportReferenceId)}
             </p>
           )}
         </div>

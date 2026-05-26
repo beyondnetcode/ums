@@ -4,8 +4,10 @@ interface HttpErrorLike {
     status?: number;
     headers?: Record<string, unknown>;
     data?: {
+      errorId?: string;
       traceId?: string;
       supportReferenceId?: string;
+      userMessage?: string;
     };
   };
   graphQLErrors?: ReadonlyArray<{
@@ -31,8 +33,10 @@ export const asHttpError = (error: unknown): HttpErrorLike => {
           headers: isRecord(response.headers) ? response.headers : undefined,
           data: data
             ? {
+                errorId: typeof data.errorId === 'string' ? data.errorId : undefined,
                 traceId: typeof data.traceId === 'string' ? data.traceId : undefined,
                 supportReferenceId: typeof data.supportReferenceId === 'string' ? data.supportReferenceId : undefined,
+                userMessage: typeof data.userMessage === 'string' ? data.userMessage : undefined,
               }
             : undefined,
         }
@@ -46,17 +50,26 @@ export const getHttpStatus = (error: unknown): number | undefined =>
 
 export const getSupportReferenceId = (error: unknown): string | undefined => {
   const httpError = asHttpError(error);
+  const graphqlErrorId = httpError.graphQLErrors
+    ?.map((item) => item.extensions?.errorId)
+    .find((value): value is string => typeof value === 'string');
   const graphqlTraceId = httpError.graphQLErrors
     ?.map((item) => item.extensions?.traceId)
     .find((value): value is string => typeof value === 'string');
+  const headerErrorId = httpError.response?.headers?.['x-error-id']
+    ?? httpError.response?.headers?.['X-Error-Id'];
   const headerTraceId = httpError.response?.headers?.['x-correlation-id']
     ?? httpError.response?.headers?.['X-Correlation-Id'];
 
   return httpError.supportReferenceId
     ?? httpError.response?.data?.supportReferenceId
+    ?? httpError.response?.data?.errorId
+    ?? graphqlErrorId
+    ?? (typeof headerErrorId === 'string' ? headerErrorId : undefined)
     ?? httpError.response?.data?.traceId
     ?? graphqlTraceId
     ?? (typeof headerTraceId === 'string' ? headerTraceId : undefined);
 };
 
-export const getHttpErrorMessage = (_error: unknown, fallback: string): string => fallback;
+export const getHttpErrorMessage = (error: unknown, fallback: string): string =>
+  asHttpError(error).response?.data?.userMessage ?? fallback;

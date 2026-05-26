@@ -42,13 +42,14 @@ UMS is a satellite repository of `evolith_arch32`. The parent repository defines
 | [ADR-0058](./0058-api-gateway-yarp-evolution.md) | API Gateway Evolution — YARP for Multi-Client SaaS | Proposed |
 | [ADR-0059](./0059-single-api-tier-decision.md) | Single API Tier Decision — co-location over split tiers | Accepted |
 | [ADR-0060](./0060-aop-cross-cutting-concern-strategy.md) | AOP Cross-Cutting Concern Strategy — DispatchProxy over MediatR Behaviors | Accepted |
-| [ADR-0061](./0061-execution-context-accessor.md) | Execution Context Accessor Pattern | Accepted · ⬆ Evolith candidate |
-| [ADR-0062](./0062-pii-safe-serilog-configuration.md) | PII-Safe Serilog Configuration (HARDENING-04) | Accepted · ⬆ Evolith candidate |
-| [ADR-0063](./0063-idempotency-middleware.md) | Idempotency Key Middleware (FIX-06 / RISK-05) | Accepted · ⬆ Evolith candidate |
+| [ADR-0061](./0061-execution-context-accessor.md) | Execution Context Accessor Pattern | Accepted, Evolith candidate |
+| [ADR-0062](./0062-pii-safe-serilog-configuration.md) | PII-Safe Serilog Configuration (HARDENING-04) | Accepted, Evolith candidate |
+| [ADR-0063](./0063-idempotency-middleware.md) | Idempotency Key Middleware (FIX-06 / RISK-05) | Accepted, Evolith candidate |
 | [ADR-0064](./0064-lean-root-repository-taxonomy.md) | Lean Root Repository Taxonomy | Accepted |
-| [ADR-0065](./0065-no-raw-guids-in-ui.md) | Prohibition of Raw GUIDs in User Interfaces (UX / DDD) | Accepted · ⬆ Evolith candidate |
+| [ADR-0065](./0065-no-raw-guids-in-ui.md) | Prohibition of Raw GUIDs in User Interfaces (UX / DDD) | Accepted, Evolith candidate |
+| [ADR-0066](./0066-actionable-user-error-contract.md) | Actionable User Error Contract and Correlated Diagnostics | Accepted, Evolith candidate |
 
-> **⬆ Evolith candidate** — ADR has zero UMS-specific dependencies and is proposed for extraction to the Evolith parent architecture baseline.
+> **Evolith candidate** - ADR has zero UMS-specific dependencies and is proposed for extraction to the Evolith parent architecture baseline.
 
 ---
 

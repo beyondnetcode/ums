@@ -13,6 +13,7 @@ Detailed engineering specifications for the User Management System (UMS), with a
 ## Frontend Architecture
 
 - **[Notification & Feedback Architecture](./notification-feedback-architecture.md)**: Dual-visibility pattern — ephemeral toasts + persistent drawer, single error extraction point, mutation factory.
+- **[ADR-0066: Actionable User Error Contract](../adrs/0066-actionable-user-error-contract.md)**: Safe actionable feedback, tracking codes, and correlated technical diagnostics.
 
 ## Technical Enablers
 

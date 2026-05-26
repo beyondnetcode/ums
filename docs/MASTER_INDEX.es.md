@@ -34,6 +34,7 @@ Especificaciones de Ingeniería y Ciclo de Vida del Producto para el User Manage
 - [Diseño de Base de Datos ER](./architecture/blueprints-es/database-design-er.md)
 - [Formatos de Exportación ER](./architecture/blueprints-es/er-export-formats.md)
 - [Arquitectura de Librerías Shell](./architecture/blueprints-es/shell-library-architecture.md)
+- [Arquitectura de Notificaciones y Feedback](./architecture/blueprints-es/notification-feedback-architecture.md)
 - [Portal de Arquitectura](./architecture/index.es.md)
 
 ### Fase 04 -- Construccion y Diseño de Dominio
@@ -52,9 +53,10 @@ Especificaciones de Ingeniería y Ciclo de Vida del Producto para el User Manage
 - [Flujos Cross-Contexto](./governance/construction/ddd-design/10-cross-context-flows.md)
 - [Primitivas DDD](./governance/construction/ddd-design/11-ddd-primitives.md)
 - [ADR-0054: Aislamiento de Librerías Shell](./architecture/adrs/0054-shell-library-isolation.md)
-- [ADR-0061: Patrón Execution Context Accessor](./architecture/adrs/0061-execution-context-accessor.md) _(⬆ candidato Evolith)_
-- [ADR-0062: Configuración Serilog Segura de PII](./architecture/adrs/0062-pii-safe-serilog-configuration.md) _(⬆ candidato Evolith)_
-- [ADR-0063: Middleware de Clave de Idempotencia](./architecture/adrs/0063-idempotency-middleware.md) _(⬆ candidato Evolith)_
+- [ADR-0061: Patrón Execution Context Accessor](./architecture/adrs/0061-execution-context-accessor.md) _(candidato Evolith)_
+- [ADR-0062: Configuración Serilog Segura de PII](./architecture/adrs/0062-pii-safe-serilog-configuration.md) _(candidato Evolith)_
+- [ADR-0063: Middleware de Clave de Idempotencia](./architecture/adrs/0063-idempotency-middleware.md) _(candidato Evolith)_
+- [ADR-0066: Contrato de Errores Accionables](./architecture/adrs/0066-actionable-user-error-contract.es.md) _(candidato Evolith)_
 - [Índice ADR](./architecture/adrs/index.md)
 - [Índice de Patrones Canónicos](./architecture/artifacts/canonical-patterns/index.md)
 - **Guías de Desarrollo de Librerías Shell** — [Visión General](./architecture/shell-libraries/README.md) · [DDD](./architecture/shell-libraries/ddd.md) · [Factory](./architecture/shell-libraries/factory.md) · [AOP](./architecture/shell-libraries/aop.md) · [Bootstrapper](./architecture/shell-libraries/bootstrapper.md) · [Uso Combinado](./architecture/shell-libraries/combined-usage.md) · [Aspectos del API](./architecture/shell-libraries/api-aspects.es.md)

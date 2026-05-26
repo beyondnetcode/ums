@@ -31,7 +31,7 @@ public sealed class OutboxBacklogHealthCheck(
         CancellationToken cancellationToken = default)
     {
         // Skip when running InMemory — no outbox table
-        if (options.Value.Provider != PersistenceProvider.SqlServer)
+        if (options.Value.Provider != PersistenceProvider.SqlServer && options.Value.Provider != PersistenceProvider.Sqlite)
             return HealthCheckResult.Healthy("Outbox N/A (InMemory provider).");
 
         try

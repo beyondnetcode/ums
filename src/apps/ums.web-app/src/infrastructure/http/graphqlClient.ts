@@ -24,7 +24,7 @@ export interface GraphQlErrorResponse {
     message: string;
     locations?: Array<{ line: number; column: number }>;
     path?: string[];
-    extensions?: { code?: string; traceId?: string };
+    extensions?: { code?: string; errorId?: string; traceId?: string };
   }>;
   data?: null;
 }
@@ -96,7 +96,9 @@ async function executeGraphQl<T>(query: string, variables?: Record<string, unkno
     headers,
     body: JSON.stringify(body),
   });
-  const supportReferenceId = response.headers.get('X-Correlation-Id') ?? undefined;
+  const supportReferenceId = response.headers.get('X-Error-Id')
+    ?? response.headers.get('X-Correlation-Id')
+    ?? undefined;
 
   if (!response.ok) {
     if (response.status === 502 || response.status === 503 || response.status === 0) {
@@ -145,7 +147,7 @@ async function executeGraphQl<T>(query: string, variables?: Record<string, unkno
     throw new GraphQlValidationError(
       `GraphQL errors: ${messages.join('; ')}`,
       messages,
-      supportReferenceId ?? result.errors[0]?.extensions?.traceId,
+      supportReferenceId ?? result.errors[0]?.extensions?.errorId ?? result.errors[0]?.extensions?.traceId,
     );
   }
 

@@ -17,7 +17,8 @@ import {
   type QueryKey,
 } from '@tanstack/react-query';
 import { useNotificationStore } from '@app/stores/notification.store';
-import { getHttpErrorMessage } from '@app/errors/http-error';
+import { useI18n } from '@app/i18n/use-i18n';
+import { getHttpErrorMessage, getSupportReferenceId } from '@app/errors/http-error';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -57,6 +58,7 @@ export function useNotifiedMutation<TData = void, TVariables = void>({
 }: UseNotifiedMutationOptions<TData, TVariables>) {
   const queryClient = useQueryClient();
   const addNotification = useNotificationStore((s) => s.addNotification);
+  const t = useI18n();
 
   return useMutation<TData, unknown, TVariables>({
     mutationFn,
@@ -75,9 +77,13 @@ export function useNotifiedMutation<TData = void, TVariables = void>({
     },
     onError: (error: unknown) => {
       const notif = errorNotif(error);
+      const message = getHttpErrorMessage(error, notif.message);
+      const supportReferenceId = getSupportReferenceId(error);
       addNotification({
         title: notif.title,
-        message: getHttpErrorMessage(error, notif.message),
+        message: supportReferenceId
+          ? `${message}\n${t.errorSupportReference(supportReferenceId)}`
+          : message,
         type: notif.type ?? 'error',
       });
     },

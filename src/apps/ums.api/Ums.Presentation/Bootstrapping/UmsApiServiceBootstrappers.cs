@@ -33,6 +33,7 @@ using Ums.Presentation.Endpoints.Audit.AuditRecord.Queries;
 using Ums.Presentation.Endpoints.Authorization.Profile;
 using Ums.Presentation.Endpoints.Authorization.Profile.Queries;
 using Ums.Presentation.Endpoints.Authorization.SystemSuite;
+using Ums.Presentation.Extensions;
 using Ums.Presentation.Endpoints.Authorization.SystemSuite.Queries;
 using Ums.Presentation.Endpoints.Authorization.Template;
 using Ums.Presentation.Endpoints.Authorization.Template.Queries;
@@ -256,6 +257,12 @@ public static class UmsApiApplicationBuilderExtensions
             var platformDbContext = scope.ServiceProvider.GetRequiredService<UmsPlatformDbContext>();
             await SqlServerSchemaBootstrapper.InitializeAsync(platformDbContext);
         }
+        else if (persistenceOptions.Provider == PersistenceProvider.Sqlite)
+        {
+            using var scope = app.Services.CreateScope();
+            var platformDbContext = scope.ServiceProvider.GetRequiredService<UmsPlatformDbContext>();
+            await platformDbContext.Database.EnsureCreatedAsync();
+        }
 
         if (app.Environment.IsDevelopment() && persistenceOptions.SeedDevData)
         {
@@ -279,6 +286,7 @@ public static class UmsApiApplicationBuilderExtensions
                 diagnosticContext.Set("SessionTrackingId", requestContext.SessionTrackingId ?? string.Empty);
                 diagnosticContext.Set("TraceId", requestContext.TraceId ?? Activity.Current?.TraceId.ToString() ?? string.Empty);
                 diagnosticContext.Set("SpanId", requestContext.SpanId ?? Activity.Current?.SpanId.ToString() ?? string.Empty);
+                diagnosticContext.Set("ErrorId", UserFacingErrorContext.GetErrorId(httpContext) ?? string.Empty);
             };
             opts.GetLevel = (ctx, _, _) =>
                 ctx.Request.Path.StartsWithSegments("/health")
@@ -286,6 +294,7 @@ public static class UmsApiApplicationBuilderExtensions
                     : Serilog.Events.LogEventLevel.Information;
         });
 
+        app.UseCulture();
         app.UseGlobalExceptionHandler();
         app.UseRateLimiter();
 
@@ -301,7 +310,6 @@ public static class UmsApiApplicationBuilderExtensions
 
         app.UseCors("DefaultPolicy");
         app.UseSecurityHeaders();
-        app.UseCulture();
         app.UseAuthentication();
         app.UseAuthorization();
         app.UseIdempotency(); // FIX-07: Must run after auth so cached responses are never served to unauthenticated callers.

@@ -1,4 +1,5 @@
 using HotChocolate;
+using Ums.Globalization.Access;
 using Ums.Presentation.GraphQL;
 
 namespace Ums.Presentation.IntegrationTest.Platform;
@@ -15,10 +16,17 @@ public sealed class SafeGraphQlErrorFilterTests
             .SetCode("UMS_INTERNAL_ERROR")
             .Build();
 
-        var responseError = new SafeGraphQlErrorFilter().OnError(sourceError);
+        IError responseError;
+        using (CultureContext.Set("es"))
+        {
+            responseError = new SafeGraphQlErrorFilter().OnError(sourceError);
+        }
 
-        responseError.Message.Should().Be("The request could not be completed.");
+        responseError.Message.Should().Be(
+            "No se pudo completar la operación debido a un error inesperado. Intente nuevamente más tarde.");
         responseError.Code.Should().Be("UMS_INTERNAL_ERROR");
-        responseError.Extensions.Should().NotContainKey("stackTrace");
+        var extensions = responseError.Extensions!;
+        extensions.Should().NotContainKey("stackTrace");
+        Guid.TryParse(extensions["errorId"]?.ToString(), out _).Should().BeTrue();
     }
 }

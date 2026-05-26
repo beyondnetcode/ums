@@ -15,6 +15,7 @@ export const NavRail: React.FC<NavRailProps> = ({ collapsed }) => {
   const location = useLocation();
   const [expandedModules, setExpandedModules] = useState<{ [key: string]: boolean }>({
     identity: true,
+    authorization: true,
     system: true,
   });
 

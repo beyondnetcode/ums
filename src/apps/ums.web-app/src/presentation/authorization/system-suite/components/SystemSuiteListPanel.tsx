@@ -105,9 +105,6 @@ export const SystemSuiteListPanel: React.FC<SystemSuiteListPanelProps> = ({
             </div>
             <div>
               <span className="text-sm font-semibold text-m3-on-surface">{systemSuite.name}</span>
-              <span className="ml-2 text-[10px] text-m3-secondary/70 font-mono">
-                {systemSuite.systemSuiteId.substring(0, 8)}...
-              </span>
             </div>
           </div>
         </EntityRow>

@@ -44,6 +44,18 @@ describe('notification.store', () => {
     expect(useNotificationStore.getState().notifications[0].read).toBe(true);
   });
 
+  it('removes a notification when it is dismissed', () => {
+    useNotificationStore.getState().addNotification({
+      title: 'Dismiss',
+      message: 'Dismiss this message',
+      type: 'error',
+    });
+
+    useNotificationStore.getState().removeNotification('test-uuid-123');
+
+    expect(useNotificationStore.getState().notifications).toEqual([]);
+  });
+
   it('marks all notifications as read', () => {
     useNotificationStore.getState().addNotification({
       title: 'First',

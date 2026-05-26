@@ -24,7 +24,6 @@ public sealed class OutboxMessageConfiguration : IEntityTypeConfiguration<Outbox
             .IsRequired();
 
         builder.Property(x => x.Payload)
-            .HasColumnType("nvarchar(max)")
             .IsRequired();
 
         builder.Property(x => x.LastError)

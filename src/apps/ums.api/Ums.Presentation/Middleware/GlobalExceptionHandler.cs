@@ -3,7 +3,9 @@ namespace Ums.Presentation.Middleware;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
+using Ums.Globalization.Access;
 using Ums.Infrastructure.Persistence;
+using Ums.Presentation.Extensions;
 
 public sealed class GlobalExceptionHandler
 {
@@ -33,9 +35,10 @@ public sealed class GlobalExceptionHandler
     private async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
         var correlationId = context.TraceIdentifier;
-        var problemDetails = CreateProblemDetails(context, exception, correlationId);
+        var errorId = UserFacingErrorContext.GetOrCreateErrorId(context);
+        var problemDetails = CreateProblemDetails(context, exception, correlationId, errorId);
 
-        LogException(exception, correlationId);
+        LogException(exception, correlationId, errorId);
 
         context.Response.ContentType = "application/problem+json";
         context.Response.StatusCode = problemDetails.Status ?? StatusCodes.Status500InternalServerError;
@@ -48,18 +51,25 @@ public sealed class GlobalExceptionHandler
         await context.Response.WriteAsync(JsonSerializer.Serialize(problemDetails, options));
     }
 
-    private ProblemDetails CreateProblemDetails(HttpContext context, Exception exception, string correlationId)
+    private ProblemDetails CreateProblemDetails(
+        HttpContext context,
+        Exception exception,
+        string correlationId,
+        string errorId)
     {
+        var userMessage = GetErrorDetail(exception);
         var problemDetails = new ProblemDetails
         {
             Title = GetErrorTitle(exception),
-            Detail = GetErrorDetail(exception),
+            Detail = userMessage,
             Status = GetStatusCode(exception),
             Type = $"https://httpstatuses.io/{GetStatusCode(exception)}",
             Instance = $"{context.Request.Path}{context.Request.QueryString}",
             Extensions =
             {
                 ["traceId"] = correlationId,
+                ["errorId"] = errorId,
+                ["userMessage"] = userMessage,
                 ["timestamp"] = DateTimeOffset.UtcNow,
             },
         };
@@ -79,12 +89,11 @@ public sealed class GlobalExceptionHandler
 
     private string GetErrorDetail(Exception exception) => exception switch
     {
-        ConcurrencyConflictException => "The resource was updated by another operation. Please try again.",
-        UnauthorizedAccessException => "The request requires valid authentication credentials.",
-        System.Collections.Generic.KeyNotFoundException => "The requested resource was not found.",
-        InvalidOperationException => "The request could not be completed.",
-        ArgumentException => "The request is invalid.",
-        _ => "An unexpected error occurred. Please try again later.",
+        ConcurrencyConflictException => StringLocalizer.T("error.operation.conflict"),
+        UnauthorizedAccessException => StringLocalizer.T("error.authentication.required"),
+        System.Collections.Generic.KeyNotFoundException => StringLocalizer.T("error.resource.not_found"),
+        ArgumentException => StringLocalizer.T("error.request.invalid"),
+        _ => StringLocalizer.T("error.unexpected"),
     };
 
     private int GetStatusCode(Exception exception) => exception switch
@@ -97,11 +106,12 @@ public sealed class GlobalExceptionHandler
         _ => StatusCodes.Status500InternalServerError,
     };
 
-    private void LogException(Exception exception, string correlationId)
+    private void LogException(Exception exception, string correlationId, string errorId)
     {
         _logger.LogError(
             exception,
-            "Unhandled exception occurred. CorrelationId: {CorrelationId}, ExceptionType: {ExceptionType}, Message: {Message}",
+            "Unhandled exception occurred. ErrorId: {ErrorId}, CorrelationId: {CorrelationId}, ExceptionType: {ExceptionType}, Message: {Message}",
+            errorId,
             correlationId,
             exception.GetType().Name,
             exception.Message);

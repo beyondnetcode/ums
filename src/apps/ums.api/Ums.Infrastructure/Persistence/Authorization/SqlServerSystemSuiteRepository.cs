@@ -78,12 +78,23 @@ public sealed class SqlServerSystemSuiteRepository(UmsPlatformDbContext dbContex
 
     public async Task UpdateAsync(SystemSuiteAggregate aggregate, CancellationToken cancellationToken = default)
     {
-        var existing = await dbContext.SystemSuites
-            .Include(x => x.Modules).ThenInclude(x => x.Menus).ThenInclude(x => x.SubMenus).ThenInclude(x => x.Options)
-            .Include(x => x.AppSettings)
-            .Include(x => x.Actions)
-            .FirstOrDefaultAsync(x => x.Id == aggregate.Props.Id.GetValue(), cancellationToken)
-            ?? throw new InvalidOperationException($"System suite {aggregate.Props.Id.GetValue()} does not exist.");
+        var id = aggregate.Props.Id.GetValue();
+
+        // Prefer the already-tracked entity loaded by GetByIdAsync in the same request scope.
+        // Issuing a second query returns the same instances via EF Core's identity map, but
+        // the Clear()+Add(same-PK) pattern in Apply then creates a Deleted↔Added conflict in
+        // the change tracker that causes a false DbUpdateConcurrencyException.
+        var existing =
+            dbContext.ChangeTracker
+                .Entries<SystemSuiteRecord>()
+                .FirstOrDefault(e => e.Entity.Id == id)
+                ?.Entity
+            ?? await dbContext.SystemSuites
+                .Include(x => x.Modules).ThenInclude(x => x.Menus).ThenInclude(x => x.SubMenus).ThenInclude(x => x.Options)
+                .Include(x => x.AppSettings)
+                .Include(x => x.Actions)
+                .FirstOrDefaultAsync(x => x.Id == id, cancellationToken)
+            ?? throw new InvalidOperationException($"System suite {id} does not exist.");
 
         Apply(existing, aggregate);
         _trackedAggregates.Add(aggregate);
@@ -255,33 +266,111 @@ public sealed class SqlServerSystemSuiteRepository(UmsPlatformDbContext dbContex
     {
         var replacement = ToRecord(source);
 
-        target.TenantId = replacement.TenantId;
-        target.Code = replacement.Code;
-        target.Name = replacement.Name;
+        // ── Scalar properties ────────────────────────────────────────────────
+        target.TenantId    = replacement.TenantId;
+        target.Code        = replacement.Code;
+        target.Name        = replacement.Name;
         target.Description = replacement.Description;
-        target.StatusId = replacement.StatusId;
-        target.CreatedBy = replacement.CreatedBy;
+        target.StatusId    = replacement.StatusId;
+        target.CreatedBy   = replacement.CreatedBy;
         target.CreatedAtUtc = replacement.CreatedAtUtc;
-        target.UpdatedBy = replacement.UpdatedBy;
+        target.UpdatedBy   = replacement.UpdatedBy;
         target.UpdatedAtUtc = replacement.UpdatedAtUtc;
         target.AuditTimeSpan = replacement.AuditTimeSpan;
 
-        target.Modules.Clear();
-        foreach (var module in replacement.Modules)
+        // ── Modules ───────────────────────────────────────────────────────────
+        // Reconcile by Id to avoid the Clear()+Add(same-PK) anti-pattern.
+        // Clear() marks existing tracked entities as Deleted; adding new POCOs
+        // with the same PKs then creates a Deleted↔Added conflict in the EF
+        // change tracker, causing a false DbUpdateConcurrencyException.
+        ReconcileModules(target.Modules, replacement.Modules);
+
+        // ── AppSettings ───────────────────────────────────────────────────────
+        ReconcileById(
+            target.AppSettings,
+            replacement.AppSettings,
+            s => s.Id,
+            (existing, rep) =>
+            {
+                existing.ConfigKey   = rep.ConfigKey;
+                existing.ConfigValue = rep.ConfigValue;
+                existing.ScopeId     = rep.ScopeId;
+            });
+
+        // ── Actions ───────────────────────────────────────────────────────────
+        ReconcileById(
+            target.Actions,
+            replacement.Actions,
+            a => a.Id,
+            (existing, rep) =>
+            {
+                existing.Code        = rep.Code;
+                existing.Name        = rep.Name;
+                existing.ModuleId    = rep.ModuleId;
+                existing.UpdatedBy   = rep.UpdatedBy;
+                existing.UpdatedAtUtc = rep.UpdatedAtUtc;
+                existing.AuditTimeSpan = rep.AuditTimeSpan;
+            });
+    }
+
+    /// <summary>
+    /// Reconciles a tracked EF Core child collection against a replacement set using
+    /// <typeparamref name="TKey"/> as the identity. Existing children are updated
+    /// in-place (no Delete+Insert cycle); removed children are evicted; new children
+    /// are appended.
+    /// </summary>
+    private static void ReconcileById<TEntity, TKey>(
+        IList<TEntity> tracked,
+        IList<TEntity> replacement,
+        Func<TEntity, TKey> keySelector,
+        Action<TEntity, TEntity> update)
+        where TKey : notnull
+    {
+        var replacementById = replacement.ToDictionary(keySelector);
+        var trackedById     = tracked.ToDictionary(keySelector);
+
+        // Remove entities no longer present in the aggregate.
+        foreach (var (key, entity) in trackedById)
         {
-            target.Modules.Add(module);
+            if (!replacementById.ContainsKey(key))
+                tracked.Remove(entity);
         }
 
-        target.AppSettings.Clear();
-        foreach (var setting in replacement.AppSettings)
+        // Update existing or add new.
+        foreach (var (key, repEntity) in replacementById)
         {
-            target.AppSettings.Add(setting);
+            if (trackedById.TryGetValue(key, out var existingEntity))
+                update(existingEntity, repEntity);   // update in-place — no PK conflict
+            else
+                tracked.Add(repEntity);              // genuinely new — safe INSERT
         }
+    }
 
-        target.Actions.Clear();
-        foreach (var action in replacement.Actions)
-        {
-            target.Actions.Add(action);
-        }
+    /// <summary>
+    /// Reconciles the Modules collection, including in-place property updates.
+    /// Menu-level reconciliation is intentionally deferred to the AddMenu/RemoveMenu
+    /// command handlers which operate on an individual module scope.
+    /// </summary>
+    private static void ReconcileModules(
+        IList<SystemSuiteModuleRecord> tracked,
+        IList<SystemSuiteModuleRecord> replacement)
+    {
+        ReconcileById(
+            tracked,
+            replacement,
+            m => m.Id,
+            (existing, rep) =>
+            {
+                existing.Code        = rep.Code;
+                existing.Name        = rep.Name;
+                existing.Description = rep.Description;
+                existing.StatusId    = rep.StatusId;
+                existing.SortOrder   = rep.SortOrder;
+                existing.UpdatedBy   = rep.UpdatedBy;
+                existing.UpdatedAtUtc = rep.UpdatedAtUtc;
+                existing.AuditTimeSpan = rep.AuditTimeSpan;
+                // Menus are NOT touched here: they belong to the existing tracked
+                // collection and are managed by dedicated menu commands.
+            });
     }
 }

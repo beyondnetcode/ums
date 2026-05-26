@@ -211,6 +211,19 @@ public sealed class UmsPlatformDbContext(
                 !tenantContext.OrganizationId.HasValue ||
                 x.TenantId == tenantContext.OrganizationId);
 
+        if (Database.IsSqlite())
+        {
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                var rowVersionProperty = entityType.FindProperty("RowVersion");
+                if (rowVersionProperty != null && rowVersionProperty.ClrType == typeof(byte[]))
+                {
+                    rowVersionProperty.ValueGenerated = Microsoft.EntityFrameworkCore.Metadata.ValueGenerated.Never;
+                    rowVersionProperty.IsConcurrencyToken = false;
+                }
+            }
+        }
+
         base.OnModelCreating(modelBuilder);
     }
 }
