@@ -33,8 +33,6 @@ public static class HealthCheckResponseWriter
                 status    = e.Value.Status.ToString(),
                 duration  = e.Value.Duration.TotalMilliseconds,
                 description = e.Value.Description,
-                exception = e.Value.Exception?.Message,
-                data      = e.Value.Data.Count > 0 ? e.Value.Data : null,
                 tags      = e.Value.Tags,
             }),
         };

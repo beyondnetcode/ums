@@ -265,7 +265,7 @@ public static class IdentityDevDataSeeder
 
         if (result.IsFailure)
         {
-            throw new InvalidOperationException($"Unable to build dev user account seed {email}: {result.Error}");
+            throw new InvalidOperationException($"Unable to build dev user account seed: {result.Error}");
         }
 
         return result.Value;

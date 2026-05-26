@@ -1,14 +1,14 @@
 interface HttpErrorLike {
-  message?: string;
+  supportReferenceId?: string;
   response?: {
     status?: number;
+    headers?: Record<string, unknown>;
     data?: {
-      detail?: string;
-      message?: string;
+      traceId?: string;
+      supportReferenceId?: string;
     };
   };
   graphQLErrors?: ReadonlyArray<{
-    message?: string;
     extensions?: Record<string, unknown>;
   }>;
 }
@@ -24,14 +24,15 @@ export const asHttpError = (error: unknown): HttpErrorLike => {
     ? error.graphQLErrors
     : undefined;
   return {
-    message: typeof error.message === 'string' ? error.message : undefined,
+    supportReferenceId: typeof error.supportReferenceId === 'string' ? error.supportReferenceId : undefined,
     response: response
       ? {
           status: typeof response.status === 'number' ? response.status : undefined,
+          headers: isRecord(response.headers) ? response.headers : undefined,
           data: data
             ? {
-                detail: typeof data.detail === 'string' ? data.detail : undefined,
-                message: typeof data.message === 'string' ? data.message : undefined,
+                traceId: typeof data.traceId === 'string' ? data.traceId : undefined,
+                supportReferenceId: typeof data.supportReferenceId === 'string' ? data.supportReferenceId : undefined,
               }
             : undefined,
         }
@@ -43,18 +44,19 @@ export const asHttpError = (error: unknown): HttpErrorLike => {
 export const getHttpStatus = (error: unknown): number | undefined =>
   asHttpError(error).response?.status;
 
-export const getHttpErrorMessage = (error: unknown, fallback: string): string => {
+export const getSupportReferenceId = (error: unknown): string | undefined => {
   const httpError = asHttpError(error);
+  const graphqlTraceId = httpError.graphQLErrors
+    ?.map((item) => item.extensions?.traceId)
+    .find((value): value is string => typeof value === 'string');
+  const headerTraceId = httpError.response?.headers?.['x-correlation-id']
+    ?? httpError.response?.headers?.['X-Correlation-Id'];
 
-  // GraphQL errors
-  if (httpError.graphQLErrors?.length) {
-    const firstMessage = httpError.graphQLErrors[0]?.message;
-    if (firstMessage) return firstMessage;
-  }
-
-  // REST errors
-  return httpError.response?.data?.detail
-    ?? httpError.response?.data?.message
-    ?? httpError.message
-    ?? fallback;
+  return httpError.supportReferenceId
+    ?? httpError.response?.data?.supportReferenceId
+    ?? httpError.response?.data?.traceId
+    ?? graphqlTraceId
+    ?? (typeof headerTraceId === 'string' ? headerTraceId : undefined);
 };
+
+export const getHttpErrorMessage = (_error: unknown, fallback: string): string => fallback;

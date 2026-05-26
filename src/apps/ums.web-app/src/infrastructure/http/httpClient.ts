@@ -31,13 +31,10 @@ function createHttpClient(): AxiosInstance {
   client.interceptors.response.use(
     (response) => response,
     (error) => {
-      const message: string =
-        error.response?.data?.detail ??
-        error.response?.data?.message ??
-        error.message ??
-        'An unexpected error occurred';
       const status: number = error.response?.status ?? 0;
-      return Promise.reject(Object.assign(error, { normalised: { message, status } }));
+      return Promise.reject(Object.assign(error, {
+        normalised: { message: 'The request could not be completed.', status },
+      }));
     },
   );
 

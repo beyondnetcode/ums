@@ -42,6 +42,7 @@ export const sharedTranslations = {
     errorInvalidRequestTitle: 'Petición Inválida',
     errorInvalidRequestHint: 'Revise los parámetros de su petición e intente de nuevo.',
     errorGenericHint: 'Compruebe su conexión o reintente más tarde.',
+    errorSupportReference: 'Código de seguimiento',
   },
   en: {
     appName: 'UMS ENTERPRISE',
@@ -86,5 +87,6 @@ export const sharedTranslations = {
     errorInvalidRequestTitle: 'Invalid Request',
     errorInvalidRequestHint: 'Check the request parameters and try again.',
     errorGenericHint: 'Check your connection or try again later.',
+    errorSupportReference: 'Tracking code',
   },
 } as const;

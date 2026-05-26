@@ -24,7 +24,7 @@ internal static class ResultExtensions
         var problemDetails = new ProblemDetails
         {
             Title = title,
-            Detail = SanitizeErrorMessage(error),
+            Detail = GetSafeDetail(status),
             Status = status,
             Type = $"https://httpstatuses.io/{status}",
             Instance = context?.Request.Path,
@@ -42,16 +42,13 @@ internal static class ResultExtensions
         return Results.Problem(problemDetails);
     }
 
-    private static string SanitizeErrorMessage(string error)
+    private static string GetSafeDetail(int status) => status switch
     {
-        if (string.IsNullOrEmpty(error))
-            return "An error occurred processing the request.";
-
-        var sanitized = error
-            .Replace("System.", "", StringComparison.OrdinalIgnoreCase)
-            .Replace("Ums.", "", StringComparison.OrdinalIgnoreCase)
-            .Trim();
-
-        return sanitized.Length > 200 ? sanitized[..200] + "..." : sanitized;
-    }
+        StatusCodes.Status401Unauthorized => "Authentication is required to complete this request.",
+        StatusCodes.Status403Forbidden => "You do not have permission to complete this request.",
+        StatusCodes.Status404NotFound => "The requested resource was not found.",
+        StatusCodes.Status409Conflict => "The operation conflicts with the current resource state.",
+        StatusCodes.Status422UnprocessableEntity => "The submitted information is invalid.",
+        _ => "The request could not be completed.",
+    };
 }

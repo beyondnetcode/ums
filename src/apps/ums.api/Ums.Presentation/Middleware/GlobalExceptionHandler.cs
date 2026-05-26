@@ -1,8 +1,6 @@
 namespace Ums.Presentation.Middleware;
 
-using System.Diagnostics;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using Ums.Infrastructure.Persistence;
@@ -10,16 +8,13 @@ using Ums.Infrastructure.Persistence;
 public sealed class GlobalExceptionHandler
 {
     private readonly RequestDelegate _next;
-    private readonly IHostEnvironment _environment;
     private readonly ILogger<GlobalExceptionHandler> _logger;
 
     public GlobalExceptionHandler(
         RequestDelegate next,
-        IHostEnvironment environment,
         ILogger<GlobalExceptionHandler> logger)
     {
         _next = next;
-        _environment = environment;
         _logger = logger;
     }
 
@@ -69,12 +64,6 @@ public sealed class GlobalExceptionHandler
             },
         };
 
-        if (_environment.IsDevelopment())
-        {
-            problemDetails.Extensions["stackTrace"] = exception.StackTrace;
-            problemDetails.Extensions["exceptionType"] = exception.GetType().Name;
-        }
-
         return problemDetails;
     }
 
@@ -90,11 +79,11 @@ public sealed class GlobalExceptionHandler
 
     private string GetErrorDetail(Exception exception) => exception switch
     {
-        ConcurrencyConflictException ex => ex.Message,                       // FIX-03
+        ConcurrencyConflictException => "The resource was updated by another operation. Please try again.",
         UnauthorizedAccessException => "The request requires valid authentication credentials.",
         System.Collections.Generic.KeyNotFoundException => "The requested resource was not found.",
-        InvalidOperationException => exception.Message,
-        ArgumentException => exception.Message,
+        InvalidOperationException => "The request could not be completed.",
+        ArgumentException => "The request is invalid.",
         _ => "An unexpected error occurred. Please try again later.",
     };
 

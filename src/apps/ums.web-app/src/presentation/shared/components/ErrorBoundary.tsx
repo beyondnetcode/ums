@@ -2,6 +2,7 @@ import React from 'react';
 import { AlertTriangle, RefreshCw, ServerCrash } from 'lucide-react';
 import { useI18nStore } from '@app/stores/i18n.store';
 import translations from '@app/i18n/translations';
+import { getSupportReferenceId } from '@app/errors/http-error';
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -40,7 +41,7 @@ export class AppErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorB
     const t = translations[lang];
 
     let isNetworkError = false;
-    const errorMessage = error.message;
+    const supportReferenceId = getSupportReferenceId(error);
 
     // Detect GraphQL or Network errors
     if (error.message.includes('Network Error') || error.name === 'AxiosError') {
@@ -62,10 +63,10 @@ export class AppErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorB
             <h2 className="text-sm font-semibold text-m3-on-surface">{title}</h2>
             <p className="mt-1 text-xs text-m3-secondary leading-relaxed">{description}</p>
           </div>
-          {import.meta.env.DEV && (
-            <pre className="text-left text-[10px] font-mono bg-m3-surface-container rounded-lg p-3 overflow-auto max-h-32 text-m3-error/80 whitespace-pre-wrap">
-              {errorMessage}
-            </pre>
+          {supportReferenceId && (
+            <p className="text-xs text-m3-secondary">
+              {t.errorSupportReference}: {supportReferenceId}
+            </p>
           )}
           <button
             onClick={this.reset}
