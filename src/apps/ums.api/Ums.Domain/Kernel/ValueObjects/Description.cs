@@ -8,6 +8,8 @@ public class Description : StringValueObject
     public override void AddValidators()
     {
         base.AddValidators();
-        ValidatorRules.Add(new GenericStringValidator(this, nameof(Description)));
+        // Description is inherently optional at the domain level.
+        // Use-case validators (FluentValidation) enforce NotEmpty() where required.
+        ValidatorRules.Add(new GenericStringValidator(this, nameof(Description), isRequired: false));
     }
 }

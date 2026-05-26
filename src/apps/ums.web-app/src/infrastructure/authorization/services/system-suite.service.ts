@@ -71,6 +71,54 @@ export const systemSuiteService = {
   setSystemSuiteStatus: async (systemSuiteId: string, status: string): Promise<void> => {
     await httpClient.post(`/system-suites/${systemSuiteId}/status`, undefined, { params: { status } });
   },
+
+  // ── Module Lifecycle REST Commands ─────────────────────────────────────────
+
+  addModule: async (
+    systemSuiteId: string,
+    payload: { code: string; name: string; description?: string; sortOrder: number },
+  ): Promise<void> => {
+    await httpClient.post(`/system-suites/${systemSuiteId}/modules`, {
+      ...payload,
+      description: payload.description?.trim() ?? '',
+    });
+  },
+
+  updateModule: async (
+    systemSuiteId: string,
+    moduleId: string,
+    payload: { name: string; description?: string; sortOrder: number },
+  ): Promise<void> => {
+    await httpClient.put(`/system-suites/${systemSuiteId}/modules/${moduleId}`, {
+      ...payload,
+      description: payload.description?.trim() ?? '',
+    });
+  },
+
+  removeModule: async (systemSuiteId: string, moduleId: string): Promise<void> => {
+    await httpClient.delete(`/system-suites/${systemSuiteId}/modules/${moduleId}`);
+  },
+
+  activateModule: async (systemSuiteId: string, moduleId: string): Promise<void> => {
+    await httpClient.post(`/system-suites/${systemSuiteId}/modules/${moduleId}/activate`);
+  },
+
+  deactivateModule: async (systemSuiteId: string, moduleId: string): Promise<void> => {
+    await httpClient.post(`/system-suites/${systemSuiteId}/modules/${moduleId}/deactivate`);
+  },
+
+  // ── Action Registry REST Commands ─────────────────────────────────────────
+
+  registerAction: async (
+    systemSuiteId: string,
+    payload: { code: string; name: string },
+  ): Promise<void> => {
+    await httpClient.post(`/system-suites/${systemSuiteId}/actions`, payload);
+  },
+
+  removeAction: async (systemSuiteId: string, code: string): Promise<void> => {
+    await httpClient.delete(`/system-suites/${systemSuiteId}/actions/${code}`);
+  },
 };
 
 export default systemSuiteService;
