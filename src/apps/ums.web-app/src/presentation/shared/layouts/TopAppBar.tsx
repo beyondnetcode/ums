@@ -7,6 +7,7 @@ import { useI18nStore } from '@app/stores/i18n.store';
 import { useNotificationStore } from '@app/stores/notification.store';
 import { useI18n } from '@app/i18n/use-i18n';
 import { NotificationCenter } from '../components/NotificationCenter';
+import { ToastQueue } from '../components/ToastQueue';
 import { Tooltip } from '../components/Tooltip';
 
 export const TopAppBar: React.FC<{ onToggleNav: () => void }> = ({ onToggleNav }) => {
@@ -114,6 +115,7 @@ export const TopAppBar: React.FC<{ onToggleNav: () => void }> = ({ onToggleNav }
         </div>
       </header>
       <NotificationCenter />
+      <ToastQueue />
     </>
   );
 };

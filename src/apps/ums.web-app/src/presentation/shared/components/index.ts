@@ -59,6 +59,7 @@ export { HierarchicalList } from './HierarchicalList';
 export type { HierarchicalListProps, TreeNode } from './HierarchicalList';
 
 export { NotificationCenter } from './NotificationCenter';
+export { ToastQueue } from './ToastQueue';
 
 export { Tooltip, IconButton } from './Tooltip';
 export type { TooltipProps, IconButtonProps } from './Tooltip';
