@@ -10,6 +10,10 @@ Detailed engineering specifications for the User Management System (UMS), with a
 - **[Service Entity Map](./service-entity-map.md)**: Mapping between services and their database entities.
 - **[Shell Library Architecture](./shell-library-architecture.md)**: Dependency and inheritance model for the UMS-owned DDD and Factory shell libraries.
 
+## Frontend Architecture
+
+- **[Notification & Feedback Architecture](./notification-feedback-architecture.md)**: Dual-visibility pattern — ephemeral toasts + persistent drawer, single error extraction point, mutation factory.
+
 ## Technical Enablers
 
 - **[TE-04: Transactional Outbox Pattern](./technical-enablers/te-04-transactional-outbox.md)**: At-least-once event delivery via outbox table + relay worker.
