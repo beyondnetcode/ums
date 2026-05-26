@@ -1,6 +1,8 @@
 namespace Ums.Infrastructure.Persistence.Seeders;
 
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using Ums.Shell.Ddd;
 using Ums.Domain.Approvals;
 using Ums.Domain.Approvals.AccessEnforcementPolicy;
 using Ums.Domain.Approvals.ApprovalRequest;
@@ -18,6 +20,9 @@ using NotificationRuleAggregate = Ums.Domain.Approvals.NotificationRule.Notifica
 
 public static class ApprovalsDevDataSeeder
 {
+    // Fixed IDs expected by integration tests (ApprovalRequestRestEndpointTests)
+    public const string TestManualApprovalWorkflowId  = "88888888-1111-1111-1111-111111111111";
+    public const string TestAutoApproveWorkflowId     = "88888888-2222-2222-2222-222222222222";
     public static async Task SeedAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
     {
         var wfRepository = serviceProvider.GetService<IApprovalWorkflowRepository>();
@@ -144,7 +149,10 @@ public static class ApprovalsDevDataSeeder
     // ApprovalWorkflow.Create(TenantId, Code, Name, Description, UserCategory, bool requiresApproval, SystemSuiteId?, ActorId)
     private static IReadOnlyList<ApprovalWorkflowAggregate> BuildSeedWorkflows(TenantId tenantId, IReadOnlyList<DocumentTypeAggregate> docTypes, ActorId actor)
     {
-        var wf = ApprovalWorkflowAggregate.Create(
+        var results = new List<ApprovalWorkflowAggregate>();
+
+        // Primary onboarding workflow (dynamic ID)
+        var onboarding = ApprovalWorkflowAggregate.Create(
             tenantId,
             Code.Create("ONBOARDING"),
             Name.Create("Supplier Onboarding Workflow"),
@@ -154,14 +162,64 @@ public static class ApprovalsDevDataSeeder
             null,
             actor);
 
-        if (wf.IsSuccess)
+        if (onboarding.IsSuccess)
         {
             if (docTypes.Count > 0)
-                wf.Value.AddRequiredDocument(DocumentTypeId.Load(docTypes[0].Props.Id.GetValue()), true, actor);
-            return new[] { wf.Value };
+                onboarding.Value.AddRequiredDocument(DocumentTypeId.Load(docTypes[0].Props.Id.GetValue()), true, actor);
+            results.Add(onboarding.Value);
         }
 
-        return Array.Empty<ApprovalWorkflowAggregate>();
+        // Fixed-ID workflows required by ApprovalRequestRestEndpointTests
+        results.Add(CreateWorkflowWithFixedId(
+            Guid.Parse(TestManualApprovalWorkflowId),
+            tenantId, "MANUAL_REVIEW", "Manual Review Workflow",
+            "Requires explicit approver sign-off",
+            UserCategory.Internal, requiresApproval: true, actor));
+
+        results.Add(CreateWorkflowWithFixedId(
+            Guid.Parse(TestAutoApproveWorkflowId),
+            tenantId, "AUTO_APPROVE", "Auto-Approve Workflow",
+            "Approved immediately without human review",
+            UserCategory.Internal, requiresApproval: false, actor));
+
+        return results;
+    }
+
+    /// <summary>
+    /// Creates an ApprovalWorkflow with a specific ID using reflection (same pattern as
+    /// ApprovalsAggregateFactory.RehydrateWorkflow) so that integration tests can reference
+    /// workflows by well-known IDs without relying on dynamic GUIDs.
+    /// </summary>
+    private static ApprovalWorkflowAggregate CreateWorkflowWithFixedId(
+        Guid fixedId,
+        TenantId tenantId,
+        string code,
+        string name,
+        string description,
+        UserCategory category,
+        bool requiresApproval,
+        ActorId actor)
+    {
+        var props = new ApprovalWorkflowProps(
+            IdValueObject.Load(fixedId),
+            tenantId,
+            systemSuiteId: null,
+            Code.Create(code),
+            Name.Create(name),
+            Description.Create(description),
+            category,
+            requiresApproval,
+            actor);
+
+        // ApprovalWorkflow constructor is private — use reflection to instantiate
+        var ctor = typeof(ApprovalWorkflowAggregate)
+            .GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic)
+            .First(c => c.GetParameters().Length == 1);
+
+        var workflow = (ApprovalWorkflowAggregate)ctor.Invoke([props]);
+        workflow.DomainEvents.MarkChangesAsCommitted();
+        workflow.BrokenRules.Clear();
+        return workflow;
     }
 
     // ApprovalRequest.Create(ApprovalWorkflowId, UserId targetUserId, ProfileId?, ActorId)

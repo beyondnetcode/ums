@@ -71,18 +71,26 @@ public static class ConfigurationDevDataSeeder
     // AppConfiguration.Create(TenantId?, SystemSuiteId?, IdValueObject? moduleId, Code, ConfigurationValue, Description, bool isInheritable, bool isEncrypted, ActorId)
     private static IReadOnlyList<AppConfigurationAggregate> BuildSeedAppConfigurations(ActorId actor)
     {
-        var cfg = AppConfigurationAggregate.Create(
-            null,
-            null,
-            null,
+        var results = new List<AppConfigurationAggregate>();
+
+        // SESSION_TIMEOUT_MINUTES must come first — ConfigurationRestEndpointTests checks items[0].code
+        var sessionTimeout = AppConfigurationAggregate.Create(
+            null, null, null,
+            Code.Create("SESSION_TIMEOUT_MINUTES"),
+            ConfigurationValue.Create("30"),
+            Description.Create("Idle session timeout in minutes"),
+            true, false, actor);
+        if (sessionTimeout.IsSuccess) results.Add(sessionTimeout.Value);
+
+        var maxAttempts = AppConfigurationAggregate.Create(
+            null, null, null,
             Code.Create("MAX_LOGIN_ATTEMPTS"),
             ConfigurationValue.Create("5"),
             Description.Create("Maximum login attempts before locking out the user"),
-            true,
-            false,
-            actor);
+            true, false, actor);
+        if (maxAttempts.IsSuccess) results.Add(maxAttempts.Value);
 
-        return cfg.IsSuccess ? new[] { cfg.Value } : Array.Empty<AppConfigurationAggregate>();
+        return results;
     }
 
     // FeatureFlag.Create(string flagCode, FlagType, string flagTargets, LinkedResourceType?, IdValueObject?, int? rolloutPercentage, ActorId)
@@ -100,12 +108,18 @@ public static class ConfigurationDevDataSeeder
         return flag.IsSuccess ? new[] { flag.Value } : Array.Empty<FeatureFlagAggregate>();
     }
 
+    // Fixed system-suite ID used by IdpConfigurationRestEndpointTests and ConfigurationGraphQlTests
+    // to resolve IDP by domain "beyondnet.com".
+    private const string TestIdpSystemSuiteId = "11111111-1111-1111-1111-111111111111";
+
     // IdpConfiguration.Create(TenantId, SystemSuiteId, ProviderType, string[], string configPayload, string secretRef, int resolutionPriority, Guid? fallbackToId, ActorId)
     private static IReadOnlyList<IdpConfigurationAggregate> BuildSeedIdpConfigs(ActorId actor)
     {
         var ransaTenantId = TenantId.Load(Guid.Parse(CoreDevDataSeeder.RansaTenantId));
+        var results = new List<IdpConfigurationAggregate>();
 
-        var idp = IdpConfigurationAggregate.Create(
+        // Primary IDP for Ransa internal domain (Draft — standard dev seed)
+        var ransaIdp = IdpConfigurationAggregate.Create(
             ransaTenantId,
             SystemSuiteId.Load(Guid.Parse(CoreDevDataSeeder.DemoSystemSuiteId)),
             ProviderType.AzureAd,
@@ -115,7 +129,30 @@ public static class ConfigurationDevDataSeeder
             1,
             null,
             actor);
+        if (ransaIdp.IsSuccess) results.Add(ransaIdp.Value);
 
-        return idp.IsSuccess ? new[] { idp.Value } : Array.Empty<IdpConfigurationAggregate>();
+        // Active IDP required by IdpConfigurationRestEndpointTests.ResolveIdpConfiguration_*
+        // and ConfigurationGraphQlTests.GraphQlResolveIdpConfigurationQuery_*
+        // Uses fixed systemSuiteId and beyondnet.com domain to match test assertions.
+        var testIdp = IdpConfigurationAggregate.Create(
+            ransaTenantId,
+            SystemSuiteId.Load(Guid.Parse(TestIdpSystemSuiteId)),
+            ProviderType.AzureAd,
+            new[] { "beyondnet.com" },
+            "{\"authority\":\"https://login.microsoftonline.com/common\",\"clientId\":\"test-client-id\"}",
+            "keyvault://ums/beyondnet-entra-secret",
+            1,
+            null,
+            actor);
+
+        if (testIdp.IsSuccess)
+        {
+            // Activate so the resolver can select it (requires Active status)
+            testIdp.Value.Activate(actor);
+            testIdp.Value.DomainEvents.MarkChangesAsCommitted();
+            results.Add(testIdp.Value);
+        }
+
+        return results;
     }
 }

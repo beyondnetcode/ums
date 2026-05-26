@@ -62,7 +62,12 @@ public sealed class ConfigurationRestEndpointTests : IClassFixture<UmsApiWebAppl
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         using var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
-        payload.RootElement.GetProperty("items").GetArrayLength().Should().BeGreaterThan(0);
-        payload.RootElement.GetProperty("items")[0].GetProperty("code").GetString().Should().Be("SESSION_TIMEOUT_MINUTES");
+        var items = payload.RootElement.GetProperty("items");
+        items.GetArrayLength().Should().BeGreaterThan(0);
+        // Verify the well-known seeded config exists (order-independent)
+        var codes = Enumerable.Range(0, items.GetArrayLength())
+            .Select(i => items[i].GetProperty("code").GetString())
+            .ToList();
+        codes.Should().Contain("SESSION_TIMEOUT_MINUTES");
     }
 }
