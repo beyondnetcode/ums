@@ -59,6 +59,7 @@ public sealed class UmsPlatformDbContext(
     public DbSet<SystemSuiteOptionRecord> SystemSuiteOptions => Set<SystemSuiteOptionRecord>();
     public DbSet<SystemSuiteAppSettingRecord> SystemSuiteAppSettings => Set<SystemSuiteAppSettingRecord>();
     public DbSet<SystemSuiteActionRecord> SystemSuiteActions => Set<SystemSuiteActionRecord>();
+    public DbSet<SystemSuiteDomainResourceRecord> SystemSuiteDomainResources => Set<SystemSuiteDomainResourceRecord>();
     public DbSet<PermissionTemplateRecord> PermissionTemplates => Set<PermissionTemplateRecord>();
     public DbSet<PermissionTemplateItemRecord> PermissionTemplateItems => Set<PermissionTemplateItemRecord>();
     public DbSet<RoleRecord> Roles => Set<RoleRecord>();
@@ -101,6 +102,7 @@ public sealed class UmsPlatformDbContext(
         modelBuilder.ApplyConfiguration(new SystemSuiteOptionRecordConfiguration());
         modelBuilder.ApplyConfiguration(new SystemSuiteAppSettingRecordConfiguration());
         modelBuilder.ApplyConfiguration(new SystemSuiteActionRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new SystemSuiteDomainResourceRecordConfiguration());
         modelBuilder.ApplyConfiguration(new PermissionTemplateRecordConfiguration());
         modelBuilder.ApplyConfiguration(new PermissionTemplateItemRecordConfiguration());
         modelBuilder.ApplyConfiguration(new RoleRecordConfiguration());

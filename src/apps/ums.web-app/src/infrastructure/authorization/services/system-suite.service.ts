@@ -214,6 +214,27 @@ export const systemSuiteService = {
   removeAction: async (systemSuiteId: string, code: string): Promise<void> => {
     await httpClient.delete(`/system-suites/${systemSuiteId}/actions/${code}`);
   },
+
+  // ── Domain Resources REST Commands ────────────────────────────────────────
+
+  addDomainResource: async (
+    systemSuiteId: string,
+    payload: { moduleId?: string | null; type: 'Aggregate' | 'Entity'; code: string; name: string; description: string; },
+  ): Promise<void> => {
+    await httpClient.post(`/system-suites/${systemSuiteId}/domain-resources`, payload);
+  },
+
+  updateDomainResource: async (
+    systemSuiteId: string,
+    domainResourceId: string,
+    payload: { name: string; description: string; },
+  ): Promise<void> => {
+    await httpClient.put(`/system-suites/${systemSuiteId}/domain-resources/${domainResourceId}`, payload);
+  },
+
+  removeDomainResource: async (systemSuiteId: string, domainResourceId: string): Promise<void> => {
+    await httpClient.delete(`/system-suites/${systemSuiteId}/domain-resources/${domainResourceId}`);
+  },
 };
 
 export default systemSuiteService;

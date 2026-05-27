@@ -65,6 +65,12 @@ public sealed class InMemoryRoleRepository : IRoleRepository, IUnitOfWork
         return Task.FromResult<IReadOnlyList<RoleAggregate>>(roles);
     }
 
+    public void Seed(RoleAggregate aggregate)
+    {
+        aggregate.DomainEvents.MarkChangesAsCommitted();
+        _store[aggregate.Props.Id.GetValue()] = aggregate;
+    }
+
     public Task AddAsync(RoleAggregate aggregate, CancellationToken cancellationToken = default)
     {
         _store[aggregate.GetId().GetValue()] = aggregate;

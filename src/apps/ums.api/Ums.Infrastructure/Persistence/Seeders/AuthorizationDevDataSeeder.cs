@@ -4,11 +4,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Ums.Domain.Authorization;
 using Ums.Domain.Authorization.Profile;
 using Ums.Domain.Authorization.SystemSuite;
+using Ums.Domain.Authorization.SystemSuite.DomainResource;
 using Ums.Domain.Authorization.Template;
 using Ums.Domain.Kernel.ValueObjects;
 using ProfileAggregate = Ums.Domain.Authorization.Profile.Profile;
 using SystemSuiteAggregate = Ums.Domain.Authorization.SystemSuite.SystemSuite;
 using PermissionTemplateAggregate = Ums.Domain.Authorization.Template.PermissionTemplate;
+using RoleAggregate = Ums.Domain.Authorization.Role.Role;
 using Ums.Domain.Enums;
 
 public static class AuthorizationDevDataSeeder
@@ -17,6 +19,9 @@ public static class AuthorizationDevDataSeeder
     {
         var suiteRepository = serviceProvider.GetService<ISystemSuiteRepository>();
         var inMemorySuiteRepository = serviceProvider.GetService<InMemorySystemSuiteRepository>();
+
+        var roleRepository = serviceProvider.GetService<IRoleRepository>();
+        var inMemoryRoleRepository = serviceProvider.GetService<InMemoryRoleRepository>();
 
         var templateRepository = serviceProvider.GetService<IPermissionTemplateRepository>();
         var inMemoryTemplateRepository = serviceProvider.GetService<InMemoryPermissionTemplateRepository>();
@@ -43,8 +48,24 @@ public static class AuthorizationDevDataSeeder
             }
         }
 
+        // Seed Roles
+        var roles = BuildSeedRoles(ransaTenantId, suites, actor);
+        if (inMemoryRoleRepository is not null)
+        {
+            foreach (var role in roles) inMemoryRoleRepository.Seed(role);
+        }
+        else if (roleRepository is not null)
+        {
+            var existing = await roleRepository.GetByTenantIdAsync(ransaTenantId.GetValue(), cancellationToken);
+            if (existing.Count == 0)
+            {
+                foreach (var role in roles) await roleRepository.AddAsync(role, cancellationToken);
+                await roleRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+            }
+        }
+
         // Seed PermissionTemplates
-        var templates = BuildSeedPermissionTemplates(ransaTenantId, suites, actor);
+        var templates = BuildSeedPermissionTemplates(ransaTenantId, suites, roles, actor);
         if (inMemoryTemplateRepository is not null)
         {
             foreach (var template in templates) inMemoryTemplateRepository.Seed(template);
@@ -76,6 +97,47 @@ public static class AuthorizationDevDataSeeder
         }
     }
 
+    private static IReadOnlyList<RoleAggregate> BuildSeedRoles(TenantId tenantId, IReadOnlyList<SystemSuiteAggregate> suites, ActorId actor)
+    {
+        var roles = new List<RoleAggregate>();
+        if (suites.Count == 0) return roles;
+
+        // Core Suite Roles
+        var adminRoleResult = RoleAggregate.Create(tenantId, suites[0].GetId(), Code.Create("ADMIN"), Name.Create("System Administrator"), Description.Create("Full administrative access"), null, 0, 0, actor);
+        if (adminRoleResult.IsSuccess)
+        {
+            var role = adminRoleResult.Value;
+            role.Props.Id = RoleId.Load(Guid.Parse(CoreDevDataSeeder.DemoAdminRoleId));
+            roles.Add(role);
+        }
+
+        var supervisorRoleResult = RoleAggregate.Create(tenantId, suites[0].GetId(), Code.Create("SUPERVISOR"), Name.Create("Core Supervisor"), Description.Create("Supervises core operations"), null, 0, 0, actor);
+        if (supervisorRoleResult.IsSuccess) roles.Add(supervisorRoleResult.Value);
+
+        var auditorRoleResult = RoleAggregate.Create(tenantId, suites[0].GetId(), Code.Create("AUDITOR"), Name.Create("Compliance Auditor"), Description.Create("Read-only access for audits"), null, 0, 0, actor);
+        if (auditorRoleResult.IsSuccess) roles.Add(auditorRoleResult.Value);
+
+        // WMS Suite Roles
+        if (suites.Count > 1)
+        {
+            var operatorRoleResult = RoleAggregate.Create(tenantId, suites[1].GetId(), Code.Create("OPERATOR"), Name.Create("Warehouse Operator"), Description.Create("Standard warehouse operations"), null, 0, 0, actor);
+            if (operatorRoleResult.IsSuccess)
+            {
+                var role = operatorRoleResult.Value;
+                role.Props.Id = RoleId.Load(Guid.Parse(CoreDevDataSeeder.DemoOperatorRoleId));
+                roles.Add(role);
+            }
+
+            var inspectorRoleResult = RoleAggregate.Create(tenantId, suites[1].GetId(), Code.Create("INSPECTOR"), Name.Create("Quality Inspector"), Description.Create("Quality control and inspections"), null, 0, 0, actor);
+            if (inspectorRoleResult.IsSuccess) roles.Add(inspectorRoleResult.Value);
+            
+            var managerRoleResult = RoleAggregate.Create(tenantId, suites[1].GetId(), Code.Create("WMS_MANAGER"), Name.Create("Warehouse Manager"), Description.Create("Manages all warehouse operations"), null, 0, 0, actor);
+            if (managerRoleResult.IsSuccess) roles.Add(managerRoleResult.Value);
+        }
+
+        return roles;
+    }
+
     private static IReadOnlyList<SystemSuiteAggregate> BuildSeedSystemSuites(TenantId tenantId, ActorId actor)
     {
         var suites = new List<SystemSuiteAggregate>();
@@ -95,6 +157,19 @@ public static class AuthorizationDevDataSeeder
             suite.RegisterAction(ActionCode.Create("VIEW"), Name.Create("View Logistics Core"), actor);
             suite.RegisterAction(ActionCode.Create("MANAGE"), Name.Create("Manage Logistics Core"), actor);
             suite.RegisterAction(ActionCode.Create("APPROVE"), Name.Create("Approve Operations"), actor);
+
+            // Register standard domain actions
+            suite.RegisterAction(ActionCode.Create("CREATE"), Name.Create("Create Record"), actor);
+            suite.RegisterAction(ActionCode.Create("READ"), Name.Create("Read Record"), actor);
+            suite.RegisterAction(ActionCode.Create("UPDATE"), Name.Create("Update Record"), actor);
+            suite.RegisterAction(ActionCode.Create("DELETE"), Name.Create("Delete Record"), actor);
+            suite.RegisterAction(ActionCode.Create("SEARCH"), Name.Create("Search Records"), actor);
+
+            // Add domain resources
+            suite.AddDomainResource(null, DomainResourceType.Aggregate, Code.Create("USERS"), Name.Create("Users Aggregate"), Description.Create("User Management"), actor);
+            suite.AddDomainResource(null, DomainResourceType.Aggregate, Code.Create("INVENTORY"), Name.Create("Inventory Aggregate"), Description.Create("Inventory Management"), actor);
+            suite.AddDomainResource(null, DomainResourceType.Entity, Code.Create("AUDIT_LOG"), Name.Create("Audit Log Entity"), Description.Create("Audit Logs"), actor);
+            suite.AddDomainResource(null, DomainResourceType.Entity, Code.Create("STOCK_LEVEL"), Name.Create("Stock Level Entity"), Description.Create("Stock Levels"), actor);
 
             // Add app settings
             suite.AddAppSetting(
@@ -214,49 +289,139 @@ public static class AuthorizationDevDataSeeder
         return suites;
     }
 
-    private static IReadOnlyList<PermissionTemplateAggregate> BuildSeedPermissionTemplates(TenantId tenantId, IReadOnlyList<SystemSuiteAggregate> suites, ActorId actor)
+    private static IReadOnlyList<PermissionTemplateAggregate> BuildSeedPermissionTemplates(TenantId tenantId, IReadOnlyList<SystemSuiteAggregate> suites, IReadOnlyList<RoleAggregate> roles, ActorId actor)
     {
         var templates = new List<PermissionTemplateAggregate>();
-        if (suites.Count == 0) return templates;
+        if (suites.Count == 0 || roles.Count == 0) return templates;
 
-        // PermissionTemplate.Create(TenantId, RoleId, SystemSuiteId, ActorId)
-        var adminResult = PermissionTemplateAggregate.Create(
-            tenantId,
-            RoleId.Load(Guid.Parse(CoreDevDataSeeder.DemoAdminRoleId)),
-            suites[0].GetId(),
-            actor);
+        // Helper to find roles by code
+        var adminRole = roles.FirstOrDefault(r => r.Code.GetValue() == "ADMIN");
+        var operatorRole = roles.FirstOrDefault(r => r.Code.GetValue() == "OPERATOR");
+        var supervisorRole = roles.FirstOrDefault(r => r.Code.GetValue() == "SUPERVISOR");
+        var auditorRole = roles.FirstOrDefault(r => r.Code.GetValue() == "AUDITOR");
+        var inspectorRole = roles.FirstOrDefault(r => r.Code.GetValue() == "INSPECTOR");
+        var managerRole = roles.FirstOrDefault(r => r.Code.GetValue() == "WMS_MANAGER");
 
-        if (adminResult.IsSuccess)
+        var coreSuite = suites[0];
+        var wmsSuite = suites.Count > 1 ? suites[1] : null;
+
+        // 1. ADMIN - Multiple versions and states
+        if (adminRole != null)
         {
-            adminResult.Value.AddItem(
-                ExclusiveArcTarget.SystemSuite,
-                suites[0].GetId(),
-                ActionId.Create(),
-                true,
-                false,
-                actor);
-            templates.Add(adminResult.Value);
+            // V1 - Deprecated
+            var adminV1 = PermissionTemplateAggregate.Create(tenantId, adminRole.GetId(), coreSuite.GetId(), actor).Value;
+            adminV1.Props.Version = TemplateVersion.Create(1, 0, 0);
+            adminV1.Publish(actor);
+            adminV1.Deprecate(actor);
+            templates.Add(adminV1);
+
+            // V2 - Published (Current active)
+            var adminV2 = PermissionTemplateAggregate.Create(tenantId, adminRole.GetId(), coreSuite.GetId(), actor).Value;
+            adminV2.Props.Version = TemplateVersion.Create(2, 0, 0);
+            adminV2.AddItem(ExclusiveArcTarget.SystemSuite, coreSuite.GetId(), ActionId.Create(), true, false, actor);
+            adminV2.Publish(actor);
+            templates.Add(adminV2);
+
+            // V3 - Draft (Massive Graph Test for UI)
+            var adminV3 = PermissionTemplateAggregate.Create(tenantId, adminRole.GetId(), coreSuite.GetId(), actor).Value;
+            adminV3.Props.Version = TemplateVersion.Create(3, 0, 0);
+
+            // 1. Module Level
+            var secMod = coreSuite.Modules.First(m => m.Code.GetValue() == "SEC");
+            adminV3.AddItem(ExclusiveArcTarget.Module, secMod.Props.Id, ActionId.Create(), true, false, actor);
+
+            // 2. Menu Level (Mapped to Submodule in TargetType)
+            var usersMenu = secMod.Menus.First(m => m.Code.GetValue() == "USERS");
+            adminV3.AddItem(ExclusiveArcTarget.Submodule, usersMenu.Props.Id, ActionId.Create(), true, false, actor);
+            
+            var auditMenu = secMod.Menus.First(m => m.Code.GetValue() == "AUDIT");
+            adminV3.AddItem(ExclusiveArcTarget.Submodule, auditMenu.Props.Id, ActionId.Create(), false, true, actor); // Explicit Deny for Menu
+
+            // 3. SubMenu Level
+            var listSubMenu = usersMenu.SubMenus.First(sm => sm.Code.GetValue() == "LIST");
+            adminV3.AddItem(ExclusiveArcTarget.Option, listSubMenu.Props.Id, ActionId.Create(), true, false, actor); // Allow
+
+            var rolesSubMenu = usersMenu.SubMenus.First(sm => sm.Code.GetValue() == "ROLES");
+            adminV3.AddItem(ExclusiveArcTarget.Option, rolesSubMenu.Props.Id, ActionId.Create(), false, true, actor); // Deny
+
+            // 4. Option/Action Level
+            var viewUsersOpt = listSubMenu.Options.First(o => o.Code.GetValue() == "VIEW_USERS");
+            adminV3.AddItem(ExclusiveArcTarget.Option, viewUsersOpt.Props.Id, ActionId.Create(), true, false, actor); // Allow Action
+
+            var editUsersOpt = listSubMenu.Options.First(o => o.Code.GetValue() == "EDIT_USERS");
+            adminV3.AddItem(ExclusiveArcTarget.Option, editUsersOpt.Props.Id, ActionId.Create(), false, true, actor); // Deny Action
+
+            // Config Module (Mix of permissions)
+            var configMod = coreSuite.Modules.First(m => m.Code.GetValue() == "CONFIG");
+            adminV3.AddItem(ExclusiveArcTarget.Module, configMod.Props.Id, ActionId.Create(), true, false, actor);
+            
+            var settingsMenu = configMod.Menus.First(m => m.Code.GetValue() == "SETTINGS");
+            var paramsSubMenu = settingsMenu.SubMenus.First(sm => sm.Code.GetValue() == "PARAMS");
+            var viewParamsOpt = paramsSubMenu.Options.First(o => o.Code.GetValue() == "VIEW_PARAMS");
+            adminV3.AddItem(ExclusiveArcTarget.Option, viewParamsOpt.Props.Id, ActionId.Create(), true, false, actor);
+            
+            // Allow standard actions on global aggregates for Admin
+            var usersAgg = coreSuite.DomainResources.First(x => x.Code.GetValue() == "USERS");
+            var auditEnt = coreSuite.DomainResources.First(x => x.Code.GetValue() == "AUDIT_LOG");
+            adminV3.AddItem(ExclusiveArcTarget.Aggregate, usersAgg.Id, ActionId.Create(), true, false, actor);
+            adminV3.AddItem(ExclusiveArcTarget.Entity, auditEnt.Id, ActionId.Create(), true, false, actor);
+
+            adminV3.Publish(actor);
+
+            templates.Add(adminV3);
         }
 
-        if (suites.Count > 1)
+        // 2. SUPERVISOR - Published
+        if (supervisorRole != null)
         {
-            var operatorResult = PermissionTemplateAggregate.Create(
-                tenantId,
-                RoleId.Load(Guid.Parse(CoreDevDataSeeder.DemoAdminProfileId)),
-                suites[1].GetId(),
-                actor);
+            var supervisorTpl = PermissionTemplateAggregate.Create(tenantId, supervisorRole.GetId(), coreSuite.GetId(), actor).Value;
+            var secMod = coreSuite.Modules.First(m => m.Code.GetValue() == "SEC");
+            supervisorTpl.AddItem(ExclusiveArcTarget.Module, secMod.Props.Id, ActionId.Create(), true, false, actor);
+            supervisorTpl.Publish(actor);
+            templates.Add(supervisorTpl);
+        }
 
-            if (operatorResult.IsSuccess)
-            {
-                operatorResult.Value.AddItem(
-                    ExclusiveArcTarget.SystemSuite,
-                    suites[1].GetId(),
-                    ActionId.Create(),
-                    true,
-                    false,
-                    actor);
-                templates.Add(operatorResult.Value);
-            }
+        // 3. AUDITOR - Draft with multiple items
+        if (auditorRole != null)
+        {
+            var auditorTpl = PermissionTemplateAggregate.Create(tenantId, auditorRole.GetId(), coreSuite.GetId(), actor).Value;
+            var secMod = coreSuite.Modules.First(m => m.Code.GetValue() == "SEC");
+            var auditMenu = secMod.Menus.First(m => m.Code.GetValue() == "AUDIT");
+            var logsSubMenu = auditMenu.SubMenus.First(sm => sm.Code.GetValue() == "LOGS");
+            var viewLogsOpt = logsSubMenu.Options.First(o => o.Code.GetValue() == "VIEW_LOGS");
+            
+            auditorTpl.AddItem(ExclusiveArcTarget.Submodule, auditMenu.Props.Id, ActionId.Create(), true, false, actor);
+            auditorTpl.AddItem(ExclusiveArcTarget.Option, logsSubMenu.Props.Id, ActionId.Create(), true, false, actor);
+            auditorTpl.AddItem(ExclusiveArcTarget.Option, viewLogsOpt.Props.Id, ActionId.Create(), true, false, actor);
+            
+            templates.Add(auditorTpl);
+        }
+
+        // 4. OPERATOR - Draft (Empty, no items)
+        if (operatorRole != null && wmsSuite != null)
+        {
+            var operatorTpl = PermissionTemplateAggregate.Create(tenantId, operatorRole.GetId(), wmsSuite.GetId(), actor).Value;
+            templates.Add(operatorTpl);
+        }
+
+        // 5. INSPECTOR - Published with Deny rules
+        if (inspectorRole != null && wmsSuite != null)
+        {
+            var inspectorTpl = PermissionTemplateAggregate.Create(tenantId, inspectorRole.GetId(), wmsSuite.GetId(), actor).Value;
+            inspectorTpl.AddItem(ExclusiveArcTarget.Module, wmsSuite.Modules.First().Props.Id, ActionId.Create(), true, false, actor);
+            inspectorTpl.AddItem(ExclusiveArcTarget.Option, wmsSuite.Modules.First().Menus.First().SubMenus.First().Props.Id, ActionId.Create(), false, true, actor); // Deny rule
+            inspectorTpl.Publish(actor);
+            templates.Add(inspectorTpl);
+        }
+
+        // 6. WMS MANAGER - Deprecated
+        if (managerRole != null && wmsSuite != null)
+        {
+            var managerTpl = PermissionTemplateAggregate.Create(tenantId, managerRole.GetId(), wmsSuite.GetId(), actor).Value;
+            managerTpl.AddItem(ExclusiveArcTarget.SystemSuite, wmsSuite.GetId(), ActionId.Create(), true, false, actor);
+            managerTpl.Publish(actor);
+            managerTpl.Deprecate(actor);
+            templates.Add(managerTpl);
         }
 
         return templates;

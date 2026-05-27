@@ -3,6 +3,34 @@ export const authorizationTranslations = {
     // Context labels
     authorizationContext: 'Contexto de Autorización',
     systemSuites: 'Suites del Sistema',
+    permissionTemplates: 'Plantillas de Permisos',
+    permissionTemplateMaintenance: 'Plantillas de Permisos',
+    permissionTemplateMaintenanceSubtitle: 'Configure plantillas de permisos por rol y suite. Asigne efectos (Permitir/Denegar/Neutro) a cada recurso.',
+
+    // Template list
+    templateDraft: 'Borrador',
+    templatePublished: 'Publicada',
+    templateDeprecated: 'Descontinuada',
+    selectTemplateToView: 'Seleccione una plantilla para ver sus detalles.',
+    noPermissionTemplates: 'Sin plantillas de permisos',
+    noPermissionTemplatesMsg: 'Cree la primera plantilla para este contexto de autorización.',
+
+    // Template form
+    createTemplateTitle: 'Nueva Plantilla de Permisos',
+    createTemplateDraftNote: 'La plantilla se crea en estado Borrador. Agrega los ítems de permiso antes de publicarla.',
+
+    // Template detail
+    templateGeneral: 'General',
+    templateItems: 'Permisos',
+    templatePublishBtn: 'Publicar',
+    templateDeprecateBtn: 'Descontinuar',
+    templateItemsEmpty: 'Sin ítems de permiso.',
+    templateAddItem: 'Agregar ítem de permiso',
+
+    // Effects
+    effectAllow: 'Permitir',
+    effectDeny: 'Denegar',
+    effectNeutral: 'Neutro',
     systemSuiteMaintenance: 'Mantenimiento de Suites del Sistema',
     systemSuiteMaintenanceSubtitle: 'Explore y gestione los suites del sistema, sus módulos y catálogos de acciones.',
 
@@ -78,6 +106,34 @@ export const authorizationTranslations = {
     // Context labels
     authorizationContext: 'Authorization Context',
     systemSuites: 'System Suites',
+    permissionTemplates: 'Permission Templates',
+    permissionTemplateMaintenance: 'Permission Templates',
+    permissionTemplateMaintenanceSubtitle: 'Configure permission templates by role and system suite. Assign Allow/Deny/Neutral effects per resource.',
+
+    // Template list
+    templateDraft: 'Draft',
+    templatePublished: 'Published',
+    templateDeprecated: 'Deprecated',
+    selectTemplateToView: 'Select a template to view its details.',
+    noPermissionTemplates: 'No permission templates',
+    noPermissionTemplatesMsg: 'Create the first template for this authorization context.',
+
+    // Template form
+    createTemplateTitle: 'New Permission Template',
+    createTemplateDraftNote: 'The template is created in Draft state. Add permission items before publishing.',
+
+    // Template detail
+    templateGeneral: 'General',
+    templateItems: 'Permissions',
+    templatePublishBtn: 'Publish',
+    templateDeprecateBtn: 'Deprecate',
+    templateItemsEmpty: 'No permission items.',
+    templateAddItem: 'Add permission item',
+
+    // Effects
+    effectAllow: 'Allow',
+    effectDeny: 'Deny',
+    effectNeutral: 'Neutral',
     systemSuiteMaintenance: 'System Suite Maintenance',
     systemSuiteMaintenanceSubtitle: 'Explore and manage system suites, their modules, and action catalogs.',
 

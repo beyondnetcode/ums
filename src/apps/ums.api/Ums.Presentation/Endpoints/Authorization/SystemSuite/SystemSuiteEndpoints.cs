@@ -271,6 +271,37 @@ public static class SystemSuiteEndpoints
           .ProducesProblem(StatusCodes.Status404NotFound)
           .ProducesProblem(StatusCodes.Status409Conflict);
 
+        // ── Domain Resources ─────────────────────────────────────────────────
+
+        group.MapPost("/{systemSuiteId:guid}/domain-resources", async (Guid systemSuiteId, AddDomainResourceCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command with { SystemSuiteId = systemSuiteId }, ct);
+            return result.ToNoContent(context);
+        }).WithName("AddDomainResource")
+          .WithSummary("Add a domain resource (Aggregate or Entity) to the system suite")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status400BadRequest)
+          .ProducesProblem(StatusCodes.Status404NotFound)
+          .ProducesProblem(StatusCodes.Status409Conflict);
+
+        group.MapPut("/{systemSuiteId:guid}/domain-resources/{domainResourceId:guid}", async (Guid systemSuiteId, Guid domainResourceId, UpdateDomainResourceCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command with { SystemSuiteId = systemSuiteId, DomainResourceId = domainResourceId }, ct);
+            return result.ToNoContent(context);
+        }).WithName("UpdateDomainResource")
+          .WithSummary("Update a domain resource name or description")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status404NotFound);
+
+        group.MapDelete("/{systemSuiteId:guid}/domain-resources/{domainResourceId:guid}", async (Guid systemSuiteId, Guid domainResourceId, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new RemoveDomainResourceCommand(systemSuiteId, domainResourceId), ct);
+            return result.ToNoContent(context);
+        }).WithName("RemoveDomainResource")
+          .WithSummary("Remove a domain resource from the system suite")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status404NotFound);
+
         return app;
     }
 }

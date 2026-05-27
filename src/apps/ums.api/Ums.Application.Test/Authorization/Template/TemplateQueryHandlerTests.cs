@@ -4,6 +4,8 @@ using Ums.Application.Authorization.Template.Queries;
 using Ums.Application.Authorization.Template.DTOs;
 using Ums.Domain.Authorization.Template;
 using Ums.Domain.Authorization;
+using Ums.Domain.Authorization.Role;
+using Ums.Domain.Authorization.SystemSuite;
 using Ums.Domain.Kernel;
 using Moq;
 using Xunit;
@@ -15,6 +17,8 @@ using System.Threading.Tasks;
 public class TemplateQueryHandlerTests
 {
     private readonly Mock<IPermissionTemplateRepository> _repo = new();
+    private readonly Mock<IRoleRepository> _roleRepo = new();
+    private readonly Mock<ISystemSuiteRepository> _suiteRepo = new();
 
     private static PermissionTemplate MakeTemplate(TemplateStatus status)
     {
@@ -49,8 +53,13 @@ public class TemplateQueryHandlerTests
         _repo.Setup(r => r.GetByIdAsync(templateId, It.IsAny<CancellationToken>()))
              .ReturnsAsync(template);
 
+        _roleRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                 .ReturnsAsync((Role?)null);
+        _suiteRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                  .ReturnsAsync((SystemSuite?)null);
+
         var query = new GetPermissionTemplateByIdQuery(templateId);
-        var handler = new GetPermissionTemplateByIdQueryHandler(_repo.Object);
+        var handler = new GetPermissionTemplateByIdQueryHandler(_repo.Object, _roleRepo.Object, _suiteRepo.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -65,7 +74,7 @@ public class TemplateQueryHandlerTests
              .ReturnsAsync((PermissionTemplate?)null);
 
         var query = new GetPermissionTemplateByIdQuery(Guid.NewGuid());
-        var handler = new GetPermissionTemplateByIdQueryHandler(_repo.Object);
+        var handler = new GetPermissionTemplateByIdQueryHandler(_repo.Object, _roleRepo.Object, _suiteRepo.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -98,7 +107,12 @@ public class TemplateQueryHandlerTests
             Page: 1,
             PageSize: 10);
 
-        var handler = new GetAllPermissionTemplatesQueryHandler(_repo.Object);
+        _roleRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                 .ReturnsAsync((Role?)null);
+        _suiteRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                  .ReturnsAsync((SystemSuite?)null);
+
+        var handler = new GetAllPermissionTemplatesQueryHandler(_repo.Object, _roleRepo.Object, _suiteRepo.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -126,7 +140,12 @@ public class TemplateQueryHandlerTests
             Page: 1,
             PageSize: 10);
 
-        var handler = new GetAllPermissionTemplatesQueryHandler(_repo.Object);
+        _roleRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                 .ReturnsAsync((Role?)null);
+        _suiteRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                  .ReturnsAsync((SystemSuite?)null);
+
+        var handler = new GetAllPermissionTemplatesQueryHandler(_repo.Object, _roleRepo.Object, _suiteRepo.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -154,7 +173,12 @@ public class TemplateQueryHandlerTests
             Page: 1,
             PageSize: 10);
 
-        var handler = new GetAllPermissionTemplatesQueryHandler(_repo.Object);
+        _roleRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                 .ReturnsAsync((Role?)null);
+        _suiteRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                  .ReturnsAsync((SystemSuite?)null);
+
+        var handler = new GetAllPermissionTemplatesQueryHandler(_repo.Object, _roleRepo.Object, _suiteRepo.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);

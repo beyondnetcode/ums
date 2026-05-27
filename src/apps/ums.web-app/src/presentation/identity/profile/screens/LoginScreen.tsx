@@ -41,7 +41,7 @@ export default function LoginScreen(): React.JSX.Element {
     login({ id: p.id, username: p.username, email: p.email, role: p.role });
     addNotification({
       title: t.profileSwitched,
-      message: t.profileSwitchedMsg(p.name, p.id.substring(0, 8)),
+      message: `Sesión iniciada como ${p.name} (${p.role}).`,
       type: 'info',
     });
   };

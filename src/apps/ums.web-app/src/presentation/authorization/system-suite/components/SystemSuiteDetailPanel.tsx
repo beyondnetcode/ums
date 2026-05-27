@@ -31,8 +31,10 @@ import { IconButton } from '@shared/components/Tooltip';
 import { CodeBadge } from '@shared/components/CodeBadge';
 import { formatSystemCode } from '@app/utils/security';
 import { SystemSuiteRolesPanel } from './SystemSuiteRolesPanel';
+import { SystemSuiteDomainResourcesPanel } from './SystemSuiteDomainResourcesPanel';
+import { Database } from 'lucide-react';
 
-type SystemSuiteTab = 'overview' | 'modules' | 'actions' | 'roles';
+type SystemSuiteTab = 'overview' | 'modules' | 'domain-resources' | 'actions' | 'roles';
 
 interface SystemSuiteDetailPanelProps {
   activeSystemSuite: SystemSuite | undefined;
@@ -316,7 +318,7 @@ const SubMenuRow: React.FC<SubMenuRowProps> = ({
       )}
 
       {/* Options + add option form */}
-      {isExpanded && !isEditingSub && (
+      {isExpanded && !edit.isEditing(subMenu.id) && (
         <div className="pl-5 space-y-1.5 border-l border-m3-outline/10 ml-3 pt-0.5">
           {/* Add option inline form */}
           {isAddingOpt && (
@@ -530,6 +532,7 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
   const tabs: DetailTab<SystemSuiteTab>[] = [
     { key: 'overview', label: t.overview, icon: <Box className="w-4 h-4" /> },
     { key: 'modules',  label: t.modules,  icon: <Shield className="w-4 h-4" /> },
+    { key: 'domain-resources', label: 'Recursos de Dominio', icon: <Database className="w-4 h-4" /> },
     { key: 'actions',  label: t.actions,  icon: <Key className="w-4 h-4" /> },
     { key: 'roles', label: t.roles, icon: <Users className="w-4 h-4" /> },
   ];
@@ -723,6 +726,11 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
               )}
             </div>
           </div>
+        )}
+
+        {/* ── Domain Resources ── */}
+        {activeTab === 'domain-resources' && (
+          <SystemSuiteDomainResourcesPanel systemSuite={activeSystemSuite} />
         )}
 
         {/* ── Actions ── */}

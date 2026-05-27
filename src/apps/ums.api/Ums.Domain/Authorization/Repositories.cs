@@ -29,6 +29,7 @@ public interface IPermissionTemplateRepository : IAggregateRepository<Permission
     Task<PermissionTemplateAggregate?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<PermissionTemplateAggregate>> GetAllAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<PermissionTemplateAggregate>> GetByTenantIdAsync(Guid tenantId, CancellationToken cancellationToken = default);
+    Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 }
 
 public interface IRoleRepository : IAggregateRepository<RoleAggregate>

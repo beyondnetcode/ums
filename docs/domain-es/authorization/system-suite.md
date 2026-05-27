@@ -10,18 +10,18 @@
 ## 1. Visión General del Agregado
 
 ### Propósito
-El agregado `SystemSuite` representa una superficie de aplicacion perteneciente a un tenant y registrada en UMS. Define la topologia funcional consumida por los modelos de autorizacion aguas abajo y almacena configuraciones operativas a nivel de suite. En la implementacion actual, posee `Module`, topologia de menus, `AppSetting` y `Action`. El agregado independiente `Role` se mantiene en el contexto de la suite seleccionada y la referencia mediante `SystemSuiteId`.
+El agregado `SystemSuite` representa una superficie de aplicacion perteneciente a un tenant y registrada en UMS. Define la topologia funcional consumida por los modelos de autorizacion aguas abajo y almacena configuraciones operativas a nivel de suite. En la implementacion actual, posee `Module`, topologia de menus, `DomainResource` (Agregados y Entidades), `AppSetting` y `Action`. El agregado independiente `Role` se mantiene en el contexto de la suite seleccionada y la referencia mediante `SystemSuiteId`.
 
 ### Responsabilidad de Negocio
 - Registrar una suite de software asociada a un tenant.
 - Mantener la identidad de la suite: `Code`, `Name`, `Description`, `Status`.
-- Poseer módulos funcionales y configuraciones operativas de la suite.
+- Poseer módulos funcionales, recursos de dominio (Entidades/Agregados) y configuraciones operativas de la suite.
 - Exponer la superficie de acciones consumida por `PermissionTemplate` y por los flujos de autorización efectiva.
 - Definir el limite propietario del catalogo de roles mantenido por Autorizacion.
 - Controlar el estado de activación mediante `SystemStatus`.
 
 ### Raíz de Agregado
-`SystemSuite` es la raíz del agregado. Los cambios sobre identidad, módulos, configuraciones y estado deben pasar por la raíz.
+`SystemSuite` es la raíz del agregado. Los cambios sobre identidad, módulos, recursos de dominio, configuraciones y estado deben pasar por la raíz.
 
 ### Invariantes y Reglas de Consistencia
 1. `TenantId`, `Code`, `Name` y `Description` son obligatorios.
@@ -89,6 +89,7 @@ classDiagram
         +Description Description
         +SystemStatus Status
         +List~Module~ Modules
+        +List~DomainResource~ DomainResources
         +List~AppSetting~ AppSettings
         +List~Action~ Actions
         +Create(tenantId, code, name, description, actor)
@@ -99,6 +100,9 @@ classDiagram
         +ActivateModule(moduleId, actor)
         +DeactivateModule(moduleId, actor)
         +RemoveModule(moduleId, actor)
+        +AddDomainResource(moduleId, type, code, name, description, actor)
+        +UpdateDomainResource(resourceId, moduleId, type, code, name, description, actor)
+        +RemoveDomainResource(resourceId, actor)
         +AddAppSetting(key, value, scope, actor)
     }
     class Module {
@@ -110,6 +114,14 @@ classDiagram
         +int SortOrder
         +ModuleStatus Status
     }
+    class DomainResource {
+        +Guid Id
+        +Guid? ModuleId
+        +DomainResourceType Type
+        +Code Code
+        +Name Name
+        +Description Description
+    }
     class AppSetting {
         +Guid Id
         +ConfigurationKey Key
@@ -120,9 +132,10 @@ classDiagram
         +Guid Id
         +ActionCode Code
     }
-    SystemSuite "1" *-- "0..*" Module
-    SystemSuite "1" *-- "0..*" AppSetting
-    SystemSuite "1" *-- "0..*" Action
+    SystemSuite "1" *-- "0..*" Module : contiene
+    SystemSuite "1" *-- "0..*" DomainResource : posee
+    SystemSuite "1" *-- "0..*" AppSetting : configura
+    SystemSuite "1" *-- "0..*" Action : expone
 ```
 
 ---

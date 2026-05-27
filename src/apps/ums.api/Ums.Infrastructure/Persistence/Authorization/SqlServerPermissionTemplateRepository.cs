@@ -101,6 +101,17 @@ public sealed class SqlServerPermissionTemplateRepository(UmsPlatformDbContext d
         return true;
     }
 
+    public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var record = await dbContext.PermissionTemplates
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+        if (record is null) return false;
+
+        dbContext.PermissionTemplates.Remove(record);
+        return true;
+    }
+
     public void Dispose() => dbContext.Dispose();
 
     private static PermissionTemplateAggregate Rehydrate(PermissionTemplateRecord record)

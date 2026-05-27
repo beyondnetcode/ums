@@ -56,6 +56,15 @@ export const SystemSuiteModuleSchema = z.object({
   menus: z.array(SystemSuiteMenuSchema),
 });
 
+export const SystemSuiteDomainResourceSchema = z.object({
+  id: z.string().uuid(),
+  moduleId: z.string().uuid().nullable().optional(),
+  type: z.enum(['Aggregate', 'Entity']),
+  code: z.string(),
+  name: z.string(),
+  description: z.string(),
+});
+
 export const SystemSuiteSchema = z.object({
   systemSuiteId: GuidSchema,
   tenantId:      GuidSchema,
@@ -65,6 +74,7 @@ export const SystemSuiteSchema = z.object({
   status:        SystemStatusSchema,
   modules:       z.array(SystemSuiteModuleSchema).optional().default([]),
   actions:       z.array(SystemSuiteActionSchema).optional().default([]),
+  domainResources: z.array(SystemSuiteDomainResourceSchema).optional().default([]),
 });
 
 export const SystemSuiteListSchema = z.array(SystemSuiteSchema);
@@ -93,3 +103,4 @@ export type SystemSuitePage           = z.infer<typeof SystemSuitePageSchema>;
 export type SystemStatus              = z.infer<typeof SystemStatusSchema>;
 export type CreateSystemSuitePayload  = z.infer<typeof CreateSystemSuitePayloadSchema>;
 export type CreateSystemSuiteResponse = z.infer<typeof CreateSystemSuiteResponseSchema>;
+export type SystemSuiteDomainResource = z.infer<typeof SystemSuiteDomainResourceSchema>;

@@ -175,7 +175,7 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ tenantId }) => {
                   id={b.branchId}
                   isActive={b.isActive}
                   onDoubleClick={() => openBranchEdit(b)}
-                  actions={
+                  trailing={
                     <>
                       <IconButton tooltip={t.editBtn} onClick={() => openBranchEdit(b)} className="opacity-0 group-hover/row:opacity-100">
                         <Pencil className="w-3.5 h-3.5" />

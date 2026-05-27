@@ -48,7 +48,7 @@ export const identityTranslations = {
     // Tenant list columns / controls
     byName: 'Por Nombre',
     byCode: 'Por Código',
-    byTenantId: 'Por ID de Tenant (GUID)',
+    byTenantId: 'Por ID de Tenant',
     allStatuses: 'Todos los Estados',
     pending: 'Pendiente',
     sortByName: 'Ordenar: Nombre',
@@ -279,7 +279,7 @@ export const identityTranslations = {
     // Tenant list columns / controls
     byName: 'By Name',
     byCode: 'By Code',
-    byTenantId: 'By Tenant ID (GUID)',
+    byTenantId: 'By Tenant ID',
     allStatuses: 'All Statuses',
     pending: 'Pending',
     sortByName: 'Sort: Name',

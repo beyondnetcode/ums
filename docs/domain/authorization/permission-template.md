@@ -59,7 +59,7 @@ stateDiagram-v2
 | `SystemSuiteId` | Value Object | FK ref | The suite whose hierarchy the items reference |
 | `TemplateVersion` | Value Object | — | Semver string (`"0.1.0"`) — starts at `Initial()` |
 | `TemplateStatus` | Enumeration | — | `Draft(1) · Published(2) · Deprecated(3)` |
-| `ExclusiveArcTarget` | Enumeration | — | `SystemSuite(1) · Module(2) · Submodule(3) · Option(4)` |
+| `ExclusiveArcTarget` | Enumeration | — | `SystemSuite(1) · Module(2) · Submodule(3) · Option(4) · Aggregate(5) · Entity(6)` |
 | `ActionId` | Value Object | FK ref | The specific action granted or denied |
 | `AuditValueObject` | Value Object | — | `CreatedBy/At`, `UpdatedBy/At` on both AR and item |
 
@@ -113,7 +113,7 @@ PermissionTemplate (Aggregate Root)
         └── Props: PermissionTemplateItemProps
             ├── Id: IdValueObject
             ├── TemplateId: TemplateId
-            ├── TargetType: ExclusiveArcTarget   -- SystemSuite | Module | Submodule | Option
+            ├── TargetType: ExclusiveArcTarget   -- SystemSuite | Module | Submodule | Option | Aggregate | Entity
             ├── TargetId: IdValueObject           -- FK to the target entity
             ├── ActionId: ActionId                -- FK to the action catalog
             ├── IsAllowed: bool                   -- tri-state: IsAllowed=true,IsDenied=false → Allow
@@ -134,7 +134,7 @@ PermissionTemplate (Aggregate Root)
 | `Status` | PermissionTemplate | `TemplateStatus` | `Draft(1)·Published(2)·Deprecated(3)` |
 | `Id` | PermissionTemplateItem | `Guid` | PK |
 | `TemplateId` | PermissionTemplateItem | `Guid` | FK → PermissionTemplate |
-| `TargetType` | PermissionTemplateItem | `ExclusiveArcTarget` | `SystemSuite(1)·Module(2)·Submodule(3)·Option(4)` |
+| `TargetType` | PermissionTemplateItem | `ExclusiveArcTarget` | `SystemSuite(1)·Module(2)·Submodule(3)·Option(4)·Aggregate(5)·Entity(6)` |
 | `TargetId` | PermissionTemplateItem | `Guid` | FK to the target entity (arc target) |
 | `ActionId` | PermissionTemplateItem | `Guid` | FK to Action catalog |
 | `IsAllowed` | PermissionTemplateItem | `bool` | Explicit allow — mutually exclusive with `IsDenied` |
@@ -290,7 +290,7 @@ sequenceDiagram
 
 ## 5. Entity / Relationship Model
 
-> **Exclusive Arc:** `PERMISSION_TEMPLATE_ITEM.TargetId` is a polymorphic FK — it can reference a `SystemSuite`, `Module`, `Submodule`, or `Option` depending on `TargetTypeId`. This is the Exclusive Arc pattern: only one of the four possible references is valid per row, identified by `TargetTypeId`. No SQL foreign-key constraint spans all four targets; referential integrity is enforced at the application layer.
+> **Exclusive Arc:** `PERMISSION_TEMPLATE_ITEM.TargetId` is a polymorphic FK — it can reference a `SystemSuite`, `Module`, `Submodule`, `Option`, `Aggregate`, or `Entity` depending on `TargetTypeId`. This is the Exclusive Arc pattern: only one of the possible references is valid per row, identified by `TargetTypeId`. No SQL foreign-key constraint spans all targets; referential integrity is enforced at the application layer.
 
 ```mermaid
 erDiagram
@@ -317,7 +317,7 @@ erDiagram
     PERMISSION_TEMPLATE_ITEM {
         uniqueidentifier Id PK
         uniqueidentifier TemplateId FK
-        int TargetTypeId "1=SystemSuite 2=Module 3=Submodule 4=Option"
+        int TargetTypeId "1=SystemSuite 2=Module 3=Submodule 4=Option 5=Aggregate 6=Entity"
         uniqueidentifier TargetId "Exclusive Arc — points to entity of TargetTypeId"
         uniqueidentifier ActionId FK "→ Action catalog"
         bit IsAllowed "true = explicit Allow"

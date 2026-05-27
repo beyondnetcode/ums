@@ -299,3 +299,53 @@ export const useRemoveAction = (systemSuiteId: string) => {
     }),
   });
 };
+
+// ─── Domain Resources Mutations ──────────────────────────────────────────────
+
+export const useAddDomainResource = (systemSuiteId: string) => {
+  return useNotifiedMutation({
+    mutationFn: (payload: { moduleId?: string | null; type: 'Aggregate' | 'Entity'; code: string; name: string; description: string; }) =>
+      systemSuiteService.addDomainResource(systemSuiteId, payload),
+    invalidateKeys: [['system-suites', systemSuiteId], ['system-suites']],
+    successNotif: () => ({
+      title: 'Recurso de Dominio Registrado',
+      message: 'El recurso de dominio ha sido registrado correctamente.',
+    }),
+    errorNotif: () => ({
+      title: 'Error al Registrar Recurso de Dominio',
+      message: 'No se pudo registrar el recurso de dominio.',
+    }),
+  });
+};
+
+export const useUpdateDomainResource = (systemSuiteId: string) => {
+  return useNotifiedMutation({
+    mutationFn: (payload: { domainResourceId: string; name: string; description: string; }) =>
+      systemSuiteService.updateDomainResource(systemSuiteId, payload.domainResourceId, payload),
+    invalidateKeys: [['system-suites', systemSuiteId], ['system-suites']],
+    successNotif: () => ({
+      title: 'Recurso de Dominio Actualizado',
+      message: 'El recurso de dominio fue actualizado correctamente.',
+    }),
+    errorNotif: () => ({
+      title: 'Error al Actualizar Recurso de Dominio',
+      message: 'No se pudo actualizar el recurso de dominio.',
+    }),
+  });
+};
+
+export const useRemoveDomainResource = (systemSuiteId: string) => {
+  return useNotifiedMutation({
+    mutationFn: (domainResourceId: string) => systemSuiteService.removeDomainResource(systemSuiteId, domainResourceId),
+    invalidateKeys: [['system-suites', systemSuiteId], ['system-suites']],
+    successNotif: () => ({
+      title: 'Recurso de Dominio Removido',
+      message: 'El recurso de dominio fue eliminado correctamente.',
+      type: 'warning' as const,
+    }),
+    errorNotif: () => ({
+      title: 'Error al Remover Recurso de Dominio',
+      message: 'No se pudo remover el recurso de dominio.',
+    }),
+  });
+};

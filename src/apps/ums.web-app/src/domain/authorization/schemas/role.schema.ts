@@ -1,10 +1,12 @@
 import { z } from 'zod';
 
+const GuidSchema = z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/);
+
 export const RoleSchema = z.object({
-  roleId: z.string().uuid(),
-  tenantId: z.string().uuid(),
-  systemSuiteId: z.string().uuid(),
-  parentRoleId: z.string().uuid().nullable(),
+  roleId: GuidSchema,
+  tenantId: GuidSchema,
+  systemSuiteId: GuidSchema,
+  parentRoleId: GuidSchema.nullable(),
   code: z.string().min(1),
   value: z.string().min(1),
   description: z.string(),
@@ -16,7 +18,7 @@ export const RoleSchema = z.object({
 export const RoleListSchema = z.array(RoleSchema);
 
 export const CreateRoleResponseSchema = z.object({
-  roleId: z.string().uuid(),
+  roleId: GuidSchema,
 });
 
 export type Role = z.infer<typeof RoleSchema>;

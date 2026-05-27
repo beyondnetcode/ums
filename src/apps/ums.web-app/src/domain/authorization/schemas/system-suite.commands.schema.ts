@@ -52,6 +52,25 @@ export const RegisterActionCommandSchema = z.object({
   name: z.string().min(1, 'Nombre requerido').max(150, 'Máximo 150 caracteres'),
 });
 
+// ── Domain Resources ──────────────────────────────────────────────────────────
+
+export const AddDomainResourceCommandSchema = z.object({
+  moduleId: z.string().uuid().nullable().optional(),
+  type: z.enum(['Aggregate', 'Entity']),
+  code: z
+    .string()
+    .min(1, 'Código requerido')
+    .max(100, 'Máximo 100 caracteres')
+    .regex(codeRegex, 'Solo letras, dígitos y guiones bajos'),
+  name: z.string().min(1, 'Nombre requerido').max(150, 'Máximo 150 caracteres'),
+  description: z.string().min(1, 'Descripción requerida').max(500, 'Máximo 500 caracteres'),
+});
+
+export const UpdateDomainResourceCommandSchema = z.object({
+  name: z.string().min(1, 'Nombre requerido').max(150, 'Máximo 150 caracteres'),
+  description: z.string().min(1, 'Descripción requerida').max(500, 'Máximo 500 caracteres'),
+});
+
 // ── Inferred types ────────────────────────────────────────────────────────────
 
 export type CreateSystemSuiteCommand = z.infer<typeof CreateSystemSuiteCommandSchema>;
@@ -59,3 +78,5 @@ export type UpdateSystemSuiteCommand = z.infer<typeof UpdateSystemSuiteCommandSc
 export type AddModuleCommand = z.infer<typeof AddModuleCommandSchema>;
 export type UpdateModuleCommand = z.infer<typeof UpdateModuleCommandSchema>;
 export type RegisterActionCommand = z.infer<typeof RegisterActionCommandSchema>;
+export type AddDomainResourceCommand = z.infer<typeof AddDomainResourceCommandSchema>;
+export type UpdateDomainResourceCommand = z.infer<typeof UpdateDomainResourceCommandSchema>;

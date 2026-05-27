@@ -154,7 +154,7 @@ export const UserAccountProfileCard: React.FC<UserAccountProfileCardProps> = ({
           <div className="space-y-4">
             <SectionHeader
               title={account.email}
-              subtitle={account.userAccountId.substring(0, 8)}
+              subtitle={account.category}
               actions={
                 <div className="flex items-center gap-2">
                   {renderActions()}

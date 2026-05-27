@@ -9,6 +9,7 @@ const TenantDashboardScreen = lazy(() => import('./presentation/identity/tenant/
 const UserAccountDashboardScreen = lazy(() => import('./presentation/identity/user-account/screens/UserAccountDashboardScreen'));
 const DelegationDashboardScreen = lazy(() => import('./presentation/identity/delegation/screens/DelegationDashboardScreen'));
 const SystemSuiteDashboardScreen = lazy(() => import('./presentation/authorization/system-suite/screens/SystemSuiteDashboardScreen'));
+const PermissionTemplateDashboardScreen = lazy(() => import('./presentation/authorization/permission-template/screens/PermissionTemplateDashboardScreen'));
 const ProfileScreen = lazy(() => import('./presentation/identity/profile/screens/ProfileScreen'));
 const LoginScreen = lazy(() => import('./presentation/identity/profile/screens/LoginScreen'));
 
@@ -31,8 +32,9 @@ export default function App() {
                 <Route path="/tenants"      element={<TenantDashboardScreen />} />
                 <Route path="/users"        element={<UserAccountDashboardScreen />} />
                 <Route path="/delegations"  element={<DelegationDashboardScreen />} />
-                <Route path="/system-suites" element={<SystemSuiteDashboardScreen />} />
-                <Route path="/profile"      element={<ProfileScreen />} />
+                <Route path="/system-suites"         element={<SystemSuiteDashboardScreen />} />
+                <Route path="/permission-templates"  element={<PermissionTemplateDashboardScreen />} />
+                <Route path="/profile"               element={<ProfileScreen />} />
                 <Route path="/login"        element={<LoginScreen />} />
                 <Route path="*"             element={<Navigate to="/tenants" replace />} />
               </Routes>

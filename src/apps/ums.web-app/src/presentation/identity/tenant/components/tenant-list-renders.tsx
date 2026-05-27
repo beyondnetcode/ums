@@ -1,9 +1,10 @@
 import React from 'react';
-import { Building2, ArrowRight, Check, ChevronRight } from 'lucide-react';
+import { Building2, ArrowRight, ChevronRight, ChevronDown } from 'lucide-react';
 import { Tenant } from '@domain/identity/models/tenant.model';
 import { M3Card } from '@shared/components/M3Card';
 import { StatusBadge } from '@shared/components/StatusBadge';
-import { HierarchicalRow, HierarchicalExpandButton } from '@shared/components/HierarchicalList';
+import { CodeBadge } from '@shared/components/CodeBadge';
+import { EntityRow } from '@shared/components/EntityRow';
 import type { TreeNode } from '@app/hooks/use-tree-nodes';
 
 export const renderTenantParentRow = (
@@ -13,60 +14,48 @@ export const renderTenantParentRow = (
   onToggle: () => void,
   onSelectTenant: (id: string) => void,
   statusLabel: (status: string) => string,
-  t: Record<string, string>
+  _t: Record<string, string>
 ) => {
   const id = node.item.tenantId;
   const tenant = node.item;
   const hasChildren = node.children.length > 0;
 
   return (
-    <HierarchicalRow
+    <EntityRow
       key={id}
-      hasChildren={hasChildren}
-      isExpanded={isExpanded}
-      isChild={false}
-      onToggleExpand={onToggle}
+      id={id}
+      isActive={tenant.status === 'Active'}
+      selected={isSelected}
       onClick={() => onSelectTenant(id)}
-      isSelected={isSelected}
-    >
-      <td className="py-3.5 px-5">
-        <div className="flex items-center gap-3">
-          <HierarchicalExpandButton
-            hasChildren={hasChildren}
-            isExpanded={isExpanded}
-            onClick={(e) => { e.stopPropagation(); onToggle(); }}
-          />
-          <div className={`p-2 rounded-lg border transition-colors ${
-            isSelected
-              ? 'bg-m3-primary text-white border-m3-primary'
-              : 'bg-m3-surface-container/60 border-m3-outline/20 text-m3-secondary group-hover:text-m3-primary group-hover:border-m3-primary/30'
-          }`}>
-            <Building2 className="w-4 h-4" />
-          </div>
-          <div>
-            <p className="font-medium text-m3-on-surface">{tenant.name}</p>
-            <p className="text-xs text-m3-secondary/60 truncate max-w-[170px] md:max-w-xs">{tenant.companyReference || tenant.type}</p>
-          </div>
-        </div>
-      </td>
-      <td className="py-3.5 px-4 font-mono text-xs font-medium text-m3-on-surface">{tenant.code}</td>
-      <td className="py-3.5 px-4 text-xs">{tenant.type}</td>
-      <td className="py-3.5 px-4">
-        <StatusBadge status={tenant.status} label={statusLabel(tenant.status)} />
-      </td>
-      <td className="py-3.5 px-5 text-right">
-        <div className="flex items-center justify-end gap-1.5">
-          {isSelected && (
-            <span className="h-5 w-5 bg-m3-primary text-m3-on-primary rounded-full flex items-center justify-center">
-              <Check className="w-3 h-3" />
-            </span>
+      leading={
+        <div className="flex items-center gap-2">
+          {hasChildren ? (
+            <button
+              onClick={(e) => { e.stopPropagation(); onToggle(); }}
+              className={`p-0.5 rounded transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}
+            >
+              <ChevronRight className="w-3.5 h-3.5 text-m3-secondary" />
+            </button>
+          ) : (
+            <span className="w-4" />
           )}
-          <span className="text-xs font-medium text-m3-primary opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all flex items-center gap-1">
-            {t.manage} <ArrowRight className="w-3.5 h-3.5" />
-          </span>
+          <div className={`p-2 rounded-lg transition-colors ${isSelected ? 'bg-m3-primary/15' : 'bg-m3-surface-container/50'}`}>
+            <Building2 className={`w-4 h-4 ${isSelected ? 'text-m3-primary' : 'text-m3-secondary'}`} />
+          </div>
         </div>
-      </td>
-    </HierarchicalRow>
+      }
+      trailingColumns={[
+        { content: <CodeBadge code={tenant.code} />, width: 'w-20' },
+        { content: <CodeBadge code={tenant.type} />, width: 'w-20' },
+        { content: <StatusBadge status={tenant.status} label={statusLabel(tenant.status)} />, width: 'w-20' },
+        { content: <ArrowRight className={`w-4 h-4 transition-transform ${isSelected ? 'text-m3-primary translate-x-0.5' : 'text-m3-outline/30'}`} />, width: 'w-5' },
+      ]}
+    >
+      <span className="text-sm font-semibold text-m3-on-surface line-clamp-1">{tenant.name}</span>
+      {tenant.companyReference && (
+        <span className="text-[10px] text-m3-secondary/60 line-clamp-1 mt-0.5">{tenant.companyReference}</span>
+      )}
+    </EntityRow>
   );
 };
 
@@ -75,49 +64,36 @@ export const renderTenantChildRow = (
   isChildSelected: boolean,
   onSelectTenant: (id: string) => void,
   statusLabel: (status: string) => string,
-  t: Record<string, string>
+  _t: Record<string, string>
 ) => {
-  const hasChildren = false;
   return (
-    <HierarchicalRow
+    <EntityRow
       key={child.tenantId}
-      hasChildren={hasChildren}
-      isExpanded={false}
-      isChild={true}
-      onToggleExpand={() => {}}
+      id={child.tenantId}
+      isActive={child.status === 'Active'}
+      selected={isChildSelected}
       onClick={() => onSelectTenant(child.tenantId)}
-      isSelected={isChildSelected}
-    >
-      <td className="py-3.5 pl-10">
-        <div className="flex items-center gap-3">
+      className="ml-6 border-l-2 border-m3-outline/15 rounded-l-none"
+      leading={
+        <div className="flex items-center gap-2">
           <span className="w-4" />
-          <div className="p-2 rounded-lg border bg-m3-surface-container/40 border-m3-outline/15 text-m3-secondary/70">
+          <div className="p-2 rounded-lg bg-m3-surface-container/40 border border-m3-outline/15 text-m3-secondary/70">
             <Building2 className="w-4 h-4" />
           </div>
-          <div>
-            <p className="text-xs font-medium text-m3-on-surface">{child.name}</p>
-            <p className="text-[10px] text-m3-secondary/60 truncate max-w-[170px] md:max-w-xs">{child.companyReference || child.type}</p>
-          </div>
         </div>
-      </td>
-      <td className="py-3.5 px-4 font-mono text-[10px] font-medium text-m3-on-surface opacity-70">{child.code}</td>
-      <td className="py-3.5 px-4 text-[10px] opacity-70">{child.type}</td>
-      <td className="py-3.5 px-4">
-        <StatusBadge status={child.status} label={statusLabel(child.status)} />
-      </td>
-      <td className="py-3.5 px-5 text-right">
-        <div className="flex items-center justify-end gap-1.5">
-          {isChildSelected && (
-            <span className="h-5 w-5 bg-m3-primary text-m3-on-primary rounded-full flex items-center justify-center">
-              <Check className="w-3 h-3" />
-            </span>
-          )}
-          <span className="text-xs font-medium text-m3-primary opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all flex items-center gap-1">
-            {t.manage} <ArrowRight className="w-3.5 h-3.5" />
-          </span>
-        </div>
-      </td>
-    </HierarchicalRow>
+      }
+      trailingColumns={[
+        { content: <CodeBadge code={child.code} />, width: 'w-20' },
+        { content: <CodeBadge code={child.type} />, width: 'w-20' },
+        { content: <StatusBadge status={child.status} label={statusLabel(child.status)} />, width: 'w-20' },
+        { content: <ArrowRight className={`w-4 h-4 transition-transform ${isChildSelected ? 'text-m3-primary translate-x-0.5' : 'text-m3-outline/30'}`} />, width: 'w-5' },
+      ]}
+    >
+      <span className="text-xs font-medium text-m3-on-surface line-clamp-1">{child.name}</span>
+      {child.companyReference && (
+        <span className="text-[10px] text-m3-secondary/60 line-clamp-1 mt-0.5">{child.companyReference}</span>
+      )}
+    </EntityRow>
   );
 };
 

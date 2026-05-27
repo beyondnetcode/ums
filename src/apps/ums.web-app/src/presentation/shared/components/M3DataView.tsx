@@ -167,13 +167,13 @@ export const M3DataView: React.FC<M3DataViewProps> = ({
           {/* Right: + New  +  header collapse toggle */}
           <div className="flex items-center gap-2 flex-shrink-0">
             {onRegisterNew && (
-              <M3Button
-                variant="filled"
+              <button
+                type="button"
                 onClick={onRegisterNew}
-                className="shadow-md flex items-center gap-2"
+                className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-m3-primary/25 bg-m3-primary/10 px-3 text-xs font-medium text-m3-primary transition-colors hover:border-m3-primary/45 hover:bg-m3-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-primary focus-visible:ring-offset-1"
               >
-                <Plus className="w-4 h-4" /> {registerLabel}
-              </M3Button>
+                <Plus className="h-3.5 w-3.5" /> {registerLabel}
+              </button>
             )}
 
             {/* Header collapse / expand button — always reachable */}
@@ -216,19 +216,19 @@ export const M3DataView: React.FC<M3DataViewProps> = ({
         {/* Search form card */}
         <M3Card
           variant="elevated"
-          className="mt-4 p-5 border border-m3-outline/25 bg-m3-surface-container/20 shadow-sm flex-shrink-0"
+          className="mt-3 p-3 border border-m3-outline/25 bg-m3-surface-container/20 shadow-sm flex-shrink-0"
         >
-          <form onSubmit={onSearchSubmit} className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-start">
+          <form onSubmit={onSearchSubmit} className="flex flex-col gap-2 sm:flex-row sm:items-end">
             {searchCriteria && onCriteriaChange && activeCriteria && (
-              <div className="sm:col-span-3 relative flex flex-col w-full">
-                <label className="block text-xs font-medium text-m3-secondary mb-1 ml-1">
+              <div className="relative flex w-full flex-col sm:w-40 sm:flex-shrink-0">
+                <label className="block text-[11px] font-medium text-m3-secondary mb-1 ml-1">
                   {criteriaLabel}
                 </label>
                 <select
                   value={activeCriteria}
                   onChange={(e) => onCriteriaChange(e.target.value)}
                   aria-label={criteriaLabel}
-                  className="w-full h-14 px-4 text-sm rounded-[4px] border-[1.5px] border-m3-outline bg-m3-surface-container/30 dark:bg-m3-surface-container/20 text-m3-on-surface focus:outline-none focus:border-m3-primary transition-colors cursor-pointer"
+                  className="w-full h-10 px-3 text-xs rounded-lg border border-m3-outline bg-m3-surface-container/30 dark:bg-m3-surface-container/20 text-m3-on-surface focus:outline-none focus:border-m3-primary transition-colors cursor-pointer"
                 >
                   {searchCriteria.map((c) => (
                     <option key={c.value} value={c.value}>{c.label}</option>
@@ -237,43 +237,41 @@ export const M3DataView: React.FC<M3DataViewProps> = ({
               </div>
             )}
 
-            <div className={`${searchCriteria ? 'sm:col-span-6' : 'sm:col-span-9'}`}>
-              <div className="mt-6">
-                <M3TextField
-                  label={searchTermLabel}
-                  value={searchValue}
-                  onChange={(e) => onSearchValueChange(e.target.value)}
-                  placeholder={searchPlaceholder}
-                  className="mb-0"
-                />
-              </div>
+            <div className="w-full sm:min-w-0 sm:flex-1">
+              <M3TextField
+                dense
+                label={searchTermLabel}
+                value={searchValue}
+                onChange={(e) => onSearchValueChange(e.target.value)}
+                placeholder={searchPlaceholder}
+                className="mb-0"
+              />
             </div>
 
-            <div className="sm:col-span-3 mt-7">
-              <M3Button
-                variant="outlined"
+            <div className="flex items-center">
+              <button
                 type="submit"
-                className="w-full h-14 rounded-[4px] text-sm font-medium"
+                className="inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border border-m3-primary/25 bg-m3-primary/10 px-3 text-xs font-medium text-m3-primary transition-colors hover:border-m3-primary/45 hover:bg-m3-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-primary focus-visible:ring-offset-1"
               >
-                <Search className="w-4 h-4 mr-2" /> {searchButtonLabel}
-              </M3Button>
+                <Search className="h-3.5 w-3.5" /> {searchButtonLabel}
+              </button>
             </div>
           </form>
         </M3Card>
 
         {/* Control row: filter + sort + view mode */}
-        <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 bg-m3-surface-container/30 border border-m3-outline/20 rounded-xl p-3 flex-shrink-0">
-          <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 bg-m3-surface-container/30 border border-m3-outline/20 rounded-xl p-2 flex-shrink-0">
+          <div className="flex flex-wrap items-center gap-2">
             {filterOptions && onFilterChange && activeFilter !== undefined && (
               <div className="flex items-center gap-2">
-                <div className="p-1.5 bg-m3-primary/10 rounded-lg text-m3-primary border border-m3-primary/10">
+                <div className="p-1 bg-m3-primary/10 rounded-md text-m3-primary border border-m3-primary/10">
                   <Filter className="w-3.5 h-3.5" />
                 </div>
                 <select
                   value={activeFilter}
                   onChange={(e) => onFilterChange(e.target.value)}
                   aria-label="Filter"
-                  className="h-9 px-3 rounded-lg border border-m3-outline bg-m3-surface text-xs font-medium text-m3-secondary focus:outline-none focus:border-m3-primary transition-colors cursor-pointer"
+                  className="h-8 px-2.5 rounded-lg border border-m3-outline bg-m3-surface text-xs font-medium text-m3-secondary focus:outline-none focus:border-m3-primary transition-colors cursor-pointer"
                 >
                   {filterOptions.map((f) => (
                     <option key={f.value} value={f.value}>{f.label}</option>
@@ -284,14 +282,14 @@ export const M3DataView: React.FC<M3DataViewProps> = ({
 
             {sortOptions && onSortByChange && sortBy !== undefined && (
               <div className="flex items-center gap-2">
-                <div className="p-1.5 bg-m3-primary/10 rounded-lg text-m3-primary border border-m3-primary/10">
+                <div className="p-1 bg-m3-primary/10 rounded-md text-m3-primary border border-m3-primary/10">
                   <ArrowUpDown className="w-3.5 h-3.5" />
                 </div>
                 <select
                   value={sortBy}
                   onChange={(e) => onSortByChange(e.target.value)}
                   aria-label="Sort by"
-                  className="h-9 px-3 rounded-lg border border-m3-outline bg-m3-surface text-xs font-medium text-m3-secondary focus:outline-none focus:border-m3-primary transition-colors cursor-pointer"
+                  className="h-8 px-2.5 rounded-lg border border-m3-outline bg-m3-surface text-xs font-medium text-m3-secondary focus:outline-none focus:border-m3-primary transition-colors cursor-pointer"
                 >
                   {sortOptions.map((s) => (
                     <option key={s.value} value={s.value}>{s.label}</option>
@@ -302,7 +300,7 @@ export const M3DataView: React.FC<M3DataViewProps> = ({
                   <button
                     type="button"
                     onClick={onSortOrderToggle}
-                    className="h-9 w-9 flex items-center justify-center rounded-lg border border-m3-outline bg-m3-surface hover:bg-m3-primary/10 hover:border-m3-primary/30 transition-all text-m3-secondary"
+                    className="h-8 w-8 flex items-center justify-center rounded-lg border border-m3-outline bg-m3-surface hover:bg-m3-primary/10 hover:border-m3-primary/30 transition-all text-m3-secondary"
                     title={sortOrder === 'asc' ? 'Ascending' : 'Descending'}
                   >
                     <ArrowUpDown className={`w-3.5 h-3.5 transition-transform duration-200 ${sortOrder === 'desc' ? 'rotate-180 text-m3-primary' : ''}`} />
@@ -317,6 +315,7 @@ export const M3DataView: React.FC<M3DataViewProps> = ({
             options={VIEW_MODE_OPTIONS}
             value={viewMode}
             onChange={onViewModeChange}
+            size="sm"
             className="self-end sm:self-auto"
           />
         </div>

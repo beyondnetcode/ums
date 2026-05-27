@@ -25,6 +25,11 @@ public sealed class PermissionTemplateRecordConfiguration : IEntityTypeConfigura
             .HasForeignKey(x => x.SystemSuiteId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.HasOne<RoleRecord>()
+            .WithMany()
+            .HasForeignKey(x => x.RoleId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasMany(x => x.Items)
             .WithOne(x => x.Template)
             .HasForeignKey(x => x.TemplateId)

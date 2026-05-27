@@ -185,7 +185,7 @@ export const IdpPanel: React.FC<IdpPanelProps> = ({ tenantId }) => {
                 id={p.identityProviderId}
                 isActive={p.isActive}
                 onDoubleClick={() => edit.openEdit(p.identityProviderId, { name: p.name, code: p.code, description: p.description, strategy: p.strategy })}
-                actions={
+                trailing={
                   <>
                     <IconButton tooltip={t.editProvider} onClick={() => edit.openEdit(p.identityProviderId, { name: p.name, code: p.code, description: p.description, strategy: p.strategy })} className="opacity-0 group-hover/row:opacity-100">
                       <Pencil className="w-3.5 h-3.5" />

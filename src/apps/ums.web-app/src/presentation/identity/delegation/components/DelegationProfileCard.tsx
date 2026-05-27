@@ -33,7 +33,7 @@ const UNIMAR_USERS: Record<string, string> = {
 };
 
 const formatUserId = (id: string) => {
-  return UNIMAR_USERS[id] || `Usuario (${id.substring(0, 8)})`;
+  return UNIMAR_USERS[id] || 'Usuario';
 };
 
 export const DelegationProfileCard: React.FC<DelegationProfileCardProps> = ({

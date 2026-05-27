@@ -71,6 +71,17 @@ public static class PermissionTemplateEndpoints
           .ProducesProblem(StatusCodes.Status404NotFound)
           .ProducesProblem(StatusCodes.Status409Conflict);
 
+        group.MapDelete("/{templateId:guid}", async (Guid templateId, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new DeletePermissionTemplateCommand(templateId), ct);
+            return result.ToNoContent(context);
+        })
+        .WithName("DeletePermissionTemplate")
+        .WithSummary("Delete a draft permission template — only Draft status allowed")
+        .Produces(StatusCodes.Status204NoContent)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status409Conflict);
+
         group.MapPost("/{templateId:guid}/items", async (Guid templateId, AddTemplateItemCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
         {
             var result = await mediator.Send(command with { TemplateId = templateId }, ct);

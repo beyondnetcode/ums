@@ -10,18 +10,18 @@
 ## 1. Aggregate Overview
 
 ### Purpose
-The `SystemSuite` aggregate represents a tenant-owned application surface registered in UMS. It defines the functional topology used by downstream authorization models and stores suite-level operational settings. In the current implementation, it owns `Module`, menu topology, `AppSetting`, and `Action` children. The independent `Role` aggregate is maintained in the selected suite context and references it through `SystemSuiteId`.
+The `SystemSuite` aggregate represents a tenant-owned application surface registered in UMS. It defines the functional topology used by downstream authorization models and stores suite-level operational settings. In the current implementation, it owns `Module`, menu topology, `DomainResource` (Aggregates and Entities), `AppSetting`, and `Action` children. The independent `Role` aggregate is maintained in the selected suite context and references it through `SystemSuiteId`.
 
 ### Business Responsibility
 - Register a tenant-scoped software suite.
 - Maintain the suite identity: `Code`, `Name`, `Description`, `Status`.
-- Own functional modules and suite-level application settings.
+- Own functional modules, domain resources (Entities/Aggregates), and suite-level application settings.
 - Expose the action surface consumed by `PermissionTemplate` and effective authorization flows.
 - Define the ownership boundary for the role catalog maintained by Authorization.
 - Control activation state through `SystemStatus`.
 
 ### Aggregate Root
-`SystemSuite` is the aggregate root. Changes to suite identity, modules, app settings, and suite status must go through the aggregate root.
+`SystemSuite` is the aggregate root. Changes to suite identity, modules, domain resources, app settings, and suite status must go through the aggregate root.
 
 ### Invariants and Consistency Rules
 1. `TenantId`, `Code`, `Name`, and `Description` are mandatory.
@@ -90,6 +90,7 @@ classDiagram
         +Description Description
         +SystemStatus Status
         +List~Module~ Modules
+        +List~DomainResource~ DomainResources
         +List~AppSetting~ AppSettings
         +List~Action~ Actions
         +Create(tenantId, code, name, description, actor)
@@ -100,6 +101,9 @@ classDiagram
         +ActivateModule(moduleId, actor)
         +DeactivateModule(moduleId, actor)
         +RemoveModule(moduleId, actor)
+        +AddDomainResource(moduleId, type, code, name, description, actor)
+        +UpdateDomainResource(resourceId, moduleId, type, code, name, description, actor)
+        +RemoveDomainResource(resourceId, actor)
         +AddAppSetting(key, value, scope, actor)
     }
     class Module {
@@ -111,6 +115,14 @@ classDiagram
         +int SortOrder
         +ModuleStatus Status
     }
+    class DomainResource {
+        +Guid Id
+        +Guid? ModuleId
+        +DomainResourceType Type
+        +Code Code
+        +Name Name
+        +Description Description
+    }
     class AppSetting {
         +Guid Id
         +ConfigurationKey Key
@@ -121,9 +133,10 @@ classDiagram
         +Guid Id
         +ActionCode Code
     }
-    SystemSuite "1" *-- "0..*" Module
-    SystemSuite "1" *-- "0..*" AppSetting
-    SystemSuite "1" *-- "0..*" Action
+    SystemSuite "1" *-- "0..*" Module : contiene
+    SystemSuite "1" *-- "0..*" DomainResource : posee
+    SystemSuite "1" *-- "0..*" AppSetting : configura
+    SystemSuite "1" *-- "0..*" Action : expone
 ```
 
 ---
@@ -156,9 +169,10 @@ sequenceDiagram
 ```mermaid
 erDiagram
     TENANT ||--o{ SYSTEM_SUITE : "owns"
-    SYSTEM_SUITE ||--o{ MODULE : "contains"
-    SYSTEM_SUITE ||--o{ APP_SETTING : "defines"
-    SYSTEM_SUITE ||--o{ ACTION : "exposes"
+    SYSTEM_SUITE ||--o{ MODULE : "contiene"
+    SYSTEM_SUITE ||--o{ DOMAIN_RESOURCE : "posee"
+    SYSTEM_SUITE ||--o{ APP_SETTING : "configura"
+    SYSTEM_SUITE ||--o{ ACTION : "expone"
     SYSTEM_SUITE ||--o{ ROLE : "defines"
 
     SYSTEM_SUITE {
@@ -167,7 +181,18 @@ erDiagram
         nvarchar Code
         nvarchar Name
         nvarchar Description
-        int StatusId
+        int Status "Active(1) | Inactive(2)"
+    }
+    DOMAIN_RESOURCE {
+        uniqueidentifier ResourceId PK
+        uniqueidentifier SuiteId FK
+        uniqueidentifier ModuleId FK "Nullable"
+        int Type "Aggregate(1) | Entity(2)"
+        nvarchar Code "Unique within Suite"
+        nvarchar Name
+        nvarchar Description
+    }
+    MODULE {
         nvarchar CreatedBy
         datetime2 CreatedAtUtc
         nvarchar UpdatedBy

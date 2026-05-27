@@ -96,32 +96,25 @@ export const UserAccountListPanel: React.FC<UserAccountListPanelProps> = ({
   const renderAccountRow = useCallback((account: UserAccount) => {
     const isSelected = account.userAccountId === selectedId;
     return (
-      <div key={account.userAccountId} onClick={() => onSelectAccount(account.userAccountId)}>
-        <EntityRow
-          id={account.userAccountId}
-          isActive={account.status === 'Active'}
-          className={`${isSelected ? 'border-m3-primary bg-m3-primary/5' : ''} cursor-pointer`}
-          actions={
-            <div className="flex items-center gap-2">
-              <CodeBadge code={account.category} />
-              <StatusBadge status={account.status} label={getStatusLabel(account.status)} />
-              <ArrowRight className={`w-4 h-4 ${isSelected ? 'text-m3-primary' : 'text-m3-outline'}`} />
-            </div>
-          }
-        >
-          <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-lg ${isSelected ? 'bg-m3-primary/15' : 'bg-m3-surface-container/50'}`}>
-              <Mail className={`w-4 h-4 ${isSelected ? 'text-m3-primary' : 'text-m3-secondary'}`} />
-            </div>
-            <div>
-              <span className="text-sm font-semibold text-m3-on-surface">{account.email}</span>
-              <span className="ml-2 text-[10px] text-m3-secondary/70 font-mono">
-                {account.userAccountId.substring(0, 8)}...
-              </span>
-            </div>
+      <EntityRow
+        key={account.userAccountId}
+        id={account.userAccountId}
+        isActive={account.status === 'Active'}
+        selected={isSelected}
+        onClick={() => onSelectAccount(account.userAccountId)}
+        leading={
+          <div className={`p-2 rounded-lg transition-colors ${isSelected ? 'bg-m3-primary/15' : 'bg-m3-surface-container/50'}`}>
+            <Mail className={`w-4 h-4 ${isSelected ? 'text-m3-primary' : 'text-m3-secondary'}`} />
           </div>
-        </EntityRow>
-      </div>
+        }
+        trailingColumns={[
+          { content: <CodeBadge code={account.category} />, width: 'w-20' },
+          { content: <StatusBadge status={account.status} label={getStatusLabel(account.status)} />, width: 'w-20' },
+          { content: <ArrowRight className={`w-4 h-4 transition-transform ${isSelected ? 'text-m3-primary translate-x-0.5' : 'text-m3-outline/30'}`} />, width: 'w-5' },
+        ]}
+      >
+        <span className="text-sm font-semibold text-m3-on-surface line-clamp-1">{account.email}</span>
+      </EntityRow>
     );
   }, [selectedId, onSelectAccount, getStatusLabel]);
 
@@ -134,7 +127,7 @@ export const UserAccountListPanel: React.FC<UserAccountListPanelProps> = ({
         onClick={() => onSelectAccount(account.userAccountId)}
         icon={<Mail className="w-5 h-5" />}
         title={account.email}
-        subtitle={account.userAccountId.substring(0, 8)}
+        subtitle={account.category}
         badges={
           <>
             <CodeBadge code={account.category} />
@@ -218,7 +211,7 @@ export const UserAccountListPanel: React.FC<UserAccountListPanelProps> = ({
           renderList={() => (
             <>
               {error && <ApiErrorBanner error={error} />}
-              <div className="divide-y divide-m3-outline/10">
+              <div className="flex flex-col gap-0.5">
                 {accounts.map(renderAccountRow)}
               </div>
             </>

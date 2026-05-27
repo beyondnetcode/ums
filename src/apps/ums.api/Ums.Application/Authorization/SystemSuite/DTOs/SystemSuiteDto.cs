@@ -12,7 +12,8 @@ public sealed record SystemSuiteDto(
     string Description,
     string Status,
     IReadOnlyList<SystemSuiteModuleDto> Modules,
-    IReadOnlyList<SystemSuiteActionDto> Actions)
+    IReadOnlyList<SystemSuiteActionDto> Actions,
+    IReadOnlyList<SystemSuiteDomainResourceDto> DomainResources)
 {
     public static SystemSuiteDto Map(Ums.Domain.Authorization.SystemSuite.SystemSuite suite)
     {
@@ -57,6 +58,14 @@ public sealed record SystemSuiteDto(
                 a.Props.Id.GetValue(),          // Props.Id = stable DB GUID
                 a.Code.GetValue(),
                 a.Name.GetValue()
+            )).ToList(),
+            suite.DomainResources.Select(dr => new SystemSuiteDomainResourceDto(
+                dr.Props.Id.GetValue(),
+                dr.ModuleId?.GetValue(),
+                dr.Type.Name,
+                dr.Code.GetValue(),
+                dr.Name.GetValue(),
+                dr.Description.GetValue()
             )).ToList()
         );
     }
@@ -99,3 +108,11 @@ public sealed record SystemSuiteActionDto(
     Guid Id,
     string Code,
     string Name);
+
+public sealed record SystemSuiteDomainResourceDto(
+    Guid Id,
+    Guid? ModuleId,
+    string Type,
+    string Code,
+    string Name,
+    string Description);

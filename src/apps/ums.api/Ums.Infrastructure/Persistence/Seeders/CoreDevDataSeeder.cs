@@ -13,6 +13,7 @@ public static class CoreDevDataSeeder
 
     // Fixed placeholder GUIDs for cross-context dev references
     public const string DemoAdminRoleId = "aaaa0001-0000-0000-0000-000000000001";
+    public const string DemoOperatorRoleId = "aaaa0002-0000-0000-0000-000000000001";
     public const string DemoAdminProfileId = "bbbb0001-0000-0000-0000-000000000001";
     public const string RansaEntraIdProviderId = "cccc0001-0000-0000-0000-000000000001";
     public const string DemoSystemSuiteId = "dddd0001-0000-0000-0000-000000000001";

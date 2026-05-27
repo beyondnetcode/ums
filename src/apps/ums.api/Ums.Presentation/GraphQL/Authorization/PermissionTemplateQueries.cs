@@ -36,7 +36,7 @@ public sealed class PermissionTemplateQueries
         return result.UnwrapGraphQl();
     }
 
-    public async Task<PermissionTemplateDto?> GetPermissionTemplateByIdAsync(
+    public async Task<PermissionTemplateDetailDto?> GetPermissionTemplateByIdAsync(
         Guid templateId,
         [Service] IMediator mediator,
         CancellationToken cancellationToken)

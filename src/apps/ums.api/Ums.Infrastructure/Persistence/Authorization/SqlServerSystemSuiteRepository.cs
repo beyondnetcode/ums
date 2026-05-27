@@ -22,6 +22,7 @@ public sealed class SqlServerSystemSuiteRepository(UmsPlatformDbContext dbContex
             .Include(x => x.Modules).ThenInclude(x => x.Menus).ThenInclude(x => x.SubMenus).ThenInclude(x => x.Options)
             .Include(x => x.AppSettings)
             .Include(x => x.Actions)
+            .Include(x => x.DomainResources)
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
         return record is null ? null : Rehydrate(record);
@@ -37,6 +38,7 @@ public sealed class SqlServerSystemSuiteRepository(UmsPlatformDbContext dbContex
             .Include(x => x.Modules).ThenInclude(x => x.Menus).ThenInclude(x => x.SubMenus).ThenInclude(x => x.Options)
             .Include(x => x.AppSettings)
             .Include(x => x.Actions)
+            .Include(x => x.DomainResources)
             .FirstOrDefaultAsync(x => x.Code == code.GetValue(), cancellationToken);
 
         return record is null ? null : Rehydrate(record);
@@ -49,6 +51,7 @@ public sealed class SqlServerSystemSuiteRepository(UmsPlatformDbContext dbContex
             .Include(x => x.Modules).ThenInclude(x => x.Menus).ThenInclude(x => x.SubMenus).ThenInclude(x => x.Options)
             .Include(x => x.AppSettings)
             .Include(x => x.Actions)
+            .Include(x => x.DomainResources)
             .OrderBy(x => x.Code)
             .ToListAsync(cancellationToken);
 
@@ -62,6 +65,7 @@ public sealed class SqlServerSystemSuiteRepository(UmsPlatformDbContext dbContex
             .Include(x => x.Modules).ThenInclude(x => x.Menus).ThenInclude(x => x.SubMenus).ThenInclude(x => x.Options)
             .Include(x => x.AppSettings)
             .Include(x => x.Actions)
+            .Include(x => x.DomainResources)
             .Where(x => x.TenantId == tenantId)
             .OrderBy(x => x.Code)
             .ToListAsync(cancellationToken);
@@ -93,6 +97,7 @@ public sealed class SqlServerSystemSuiteRepository(UmsPlatformDbContext dbContex
                 .Include(x => x.Modules).ThenInclude(x => x.Menus).ThenInclude(x => x.SubMenus).ThenInclude(x => x.Options)
                 .Include(x => x.AppSettings)
                 .Include(x => x.Actions)
+                .Include(x => x.DomainResources)
                 .FirstOrDefaultAsync(x => x.Id == id, cancellationToken)
             ?? throw new InvalidOperationException($"System suite {id} does not exist.");
 
@@ -133,7 +138,7 @@ public sealed class SqlServerSystemSuiteRepository(UmsPlatformDbContext dbContex
     public void Dispose() => dbContext.Dispose();
 
     private static SystemSuiteAggregate Rehydrate(SystemSuiteRecord record)
-        => AuthorizationAggregateFactory.RehydrateSystemSuite(record, record.Modules, record.AppSettings, record.Actions);
+        => AuthorizationAggregateFactory.RehydrateSystemSuite(record, record.Modules, record.AppSettings, record.Actions, record.DomainResources);
 
     private static SystemSuiteRecord ToRecord(SystemSuiteAggregate aggregate)
     {
@@ -171,6 +176,25 @@ public sealed class SqlServerSystemSuiteRepository(UmsPlatformDbContext dbContex
                     ModuleId = x.Props.ModuleId?.GetValue(),
                     Code = x.Props.Code.GetValue(),
                     Name = x.Props.Name.GetValue(),
+                    CreatedBy = a.CreatedBy,
+                    CreatedAtUtc = a.CreatedAt,
+                    UpdatedBy = a.UpdatedBy,
+                    UpdatedAtUtc = a.UpdatedAt,
+                    AuditTimeSpan = a.TimeSpan,
+                };
+            }).ToList(),
+            DomainResources = aggregate.DomainResources.Select(x =>
+            {
+                var a = x.Props.Audit.GetValue();
+                return new SystemSuiteDomainResourceRecord
+                {
+                    Id = x.Props.Id.GetValue(),
+                    SystemSuiteId = x.Props.SystemSuiteId.GetValue(),
+                    ModuleId = x.Props.ModuleId?.GetValue(),
+                    Type = x.Props.Type.Name,
+                    Code = x.Props.Code.GetValue(),
+                    Name = x.Props.Name.GetValue(),
+                    Description = x.Props.Description.GetValue(),
                     CreatedBy = a.CreatedBy,
                     CreatedAtUtc = a.CreatedAt,
                     UpdatedBy = a.UpdatedBy,
@@ -308,6 +332,23 @@ public sealed class SqlServerSystemSuiteRepository(UmsPlatformDbContext dbContex
                 existing.Code        = rep.Code;
                 existing.Name        = rep.Name;
                 existing.ModuleId    = rep.ModuleId;
+                existing.UpdatedBy   = rep.UpdatedBy;
+                existing.UpdatedAtUtc = rep.UpdatedAtUtc;
+                existing.AuditTimeSpan = rep.AuditTimeSpan;
+            });
+
+        // ── DomainResources ───────────────────────────────────────────────────
+        ReconcileByKey(
+            target.DomainResources,
+            replacement.DomainResources,
+            d => d.Id,
+            (existing, rep) =>
+            {
+                existing.ModuleId    = rep.ModuleId;
+                existing.Type        = rep.Type;
+                existing.Code        = rep.Code;
+                existing.Name        = rep.Name;
+                existing.Description = rep.Description;
                 existing.UpdatedBy   = rep.UpdatedBy;
                 existing.UpdatedAtUtc = rep.UpdatedAtUtc;
                 existing.AuditTimeSpan = rep.AuditTimeSpan;

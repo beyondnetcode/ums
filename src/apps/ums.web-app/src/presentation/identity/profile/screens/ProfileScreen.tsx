@@ -81,8 +81,11 @@ export default function ProfileScreen(): React.JSX.Element {
               icon={<ShieldCheck className="w-3.5 h-3.5" />}
               label={t.xUserIdHeader}
               value={
-                <span className="font-mono text-m3-primary font-bold text-[11px] bg-m3-surface-container px-2 py-1 rounded border border-m3-outline/30 max-w-[200px] truncate" title={devUserId}>
-                  {devUserId}
+                <span
+                  className="font-mono text-m3-primary font-bold text-[11px] bg-m3-surface-container px-2 py-1 rounded border border-m3-outline/30 cursor-help select-all"
+                  title={devUserId}
+                >
+                  {devUserId.substring(0, 8)}…
                 </span>
               }
             />

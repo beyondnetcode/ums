@@ -7,10 +7,17 @@ namespace Ums.Application.Authorization.Template.Queries;
 public sealed class GetAllPermissionTemplatesQueryHandler : IQueryHandler<GetAllPermissionTemplatesQuery, PagedResult<PermissionTemplateDto>>
 {
     private readonly IPermissionTemplateRepository _templateRepository;
+    private readonly IRoleRepository _roleRepository;
+    private readonly ISystemSuiteRepository _systemSuiteRepository;
 
-    public GetAllPermissionTemplatesQueryHandler(IPermissionTemplateRepository templateRepository)
+    public GetAllPermissionTemplatesQueryHandler(
+        IPermissionTemplateRepository templateRepository,
+        IRoleRepository roleRepository,
+        ISystemSuiteRepository systemSuiteRepository)
     {
         _templateRepository = templateRepository;
+        _roleRepository = roleRepository;
+        _systemSuiteRepository = systemSuiteRepository;
     }
 
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
@@ -31,11 +38,31 @@ public sealed class GetAllPermissionTemplatesQueryHandler : IQueryHandler<GetAll
             ? await _templateRepository.GetByTenantIdAsync(request.TenantId.Value, cancellationToken)
             : await _templateRepository.GetAllAsync(cancellationToken);
 
+        // Build lookup dictionaries to avoid N+1 queries
+        var roleIds = templates.Select(t => t.Props.RoleId.GetValue()).Distinct().ToList();
+        var suiteIds = templates.Select(t => t.Props.SystemSuiteId.GetValue()).Distinct().ToList();
+
+        var roleNames = new Dictionary<Guid, string>();
+        foreach (var roleId in roleIds)
+        {
+            var role = await _roleRepository.GetByIdAsync(roleId, cancellationToken);
+            roleNames[roleId] = role?.Props.Value.GetValue() ?? roleId.ToString()[..8];
+        }
+
+        var suiteNames = new Dictionary<Guid, string>();
+        foreach (var suiteId in suiteIds)
+        {
+            var suite = await _systemSuiteRepository.GetByIdAsync(suiteId, cancellationToken);
+            suiteNames[suiteId] = suite?.Props.Name.GetValue() ?? suiteId.ToString()[..8];
+        }
+
         var query = templates.Select(t => new PermissionTemplateDto(
             t.Props.Id.GetValue(),
             t.Props.TenantId.GetValue(),
             t.Props.RoleId.GetValue(),
+            roleNames.GetValueOrDefault(t.Props.RoleId.GetValue(), "—"),
             t.Props.SystemSuiteId.GetValue(),
+            suiteNames.GetValueOrDefault(t.Props.SystemSuiteId.GetValue(), "—"),
             t.Props.Version.GetValue(),
             t.Props.Status.ToString()));
 

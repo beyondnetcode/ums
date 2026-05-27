@@ -4,15 +4,18 @@ using Ums.Domain.Authorization.SystemSuite.AppSetting;
 using Ums.Domain.Authorization.SystemSuite.Module;
 using Ums.Domain.Authorization.SystemSuite.Action;
 using Ums.Domain.Authorization.SystemSuite.Events;
+using Ums.Domain.Authorization.SystemSuite.DomainResource;
 using ModuleEntity = Ums.Domain.Authorization.SystemSuite.Module.Module;
 using AppSettingEntity = Ums.Domain.Authorization.SystemSuite.AppSetting.AppSetting;
 using ActionEntity = Ums.Domain.Authorization.SystemSuite.Action.Action;
+using DomainResourceEntity = Ums.Domain.Authorization.SystemSuite.DomainResource.DomainResource;
 
 public sealed class SystemSuite : AggregateRoot<SystemSuite, SystemSuiteProps>
 {
     private readonly List<ModuleEntity> _modules = new();
     private readonly List<AppSettingEntity> _appSettings = new();
     private readonly List<ActionEntity> _actions = new();
+    private readonly List<DomainResourceEntity> _domainResources = new();
 
     public new SystemSuiteDomainEventsManager DomainEvents { get; }
 
@@ -35,6 +38,7 @@ public sealed class SystemSuite : AggregateRoot<SystemSuite, SystemSuiteProps>
     public IReadOnlyCollection<ModuleEntity> Modules => _modules.AsReadOnly();
     public IReadOnlyCollection<AppSettingEntity> AppSettings => _appSettings.AsReadOnly();
     public IReadOnlyCollection<ActionEntity> Actions => _actions.AsReadOnly();
+    public IReadOnlyCollection<DomainResourceEntity> DomainResources => _domainResources.AsReadOnly();
 
     public SystemSuiteId GetId() => SystemSuiteId.Load(Props.Id.GetValue());
 
@@ -473,6 +477,75 @@ public sealed class SystemSuite : AggregateRoot<SystemSuite, SystemSuiteProps>
         return Result.Success();
     }
 
+    // ── Domain Resource lifecycle ─────────────────────────────────────────────
+
+    public Result AddDomainResource(ModuleId? moduleId, DomainResourceType type, Code code, Name name, Description description, ActorId createdBy)
+    {
+        if (_domainResources.Any(dr => dr.Code == code))
+        {
+            BrokenRules.Add(new BrokenRule(nameof(DomainResources), DomainErrors.Common.Duplicate)); // Alternatively, a specific error
+        }
+
+        if (!IsValid())
+        {
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+        }
+
+        var drResult = DomainResourceEntity.Create(GetId(), moduleId, type, code, name, description, createdBy);
+        if (drResult.IsFailure)
+        {
+            return Result.Failure(drResult.Error);
+        }
+
+        _domainResources.Add(drResult.Value);
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(createdBy.GetValue());
+        return Result.Success();
+    }
+
+    public Result UpdateDomainResource(IdValueObject resourceId, Name name, Description description, ActorId updatedBy)
+    {
+        var resource = FindDomainResource(resourceId);
+        if (resource.IsFailure)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(DomainResources), DomainErrors.Common.NotFound));
+        }
+
+        if (!IsValid())
+        {
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+        }
+
+        var updateResult = resource.Value.Update(name, description, updatedBy);
+        if (updateResult.IsFailure)
+        {
+            return Result.Failure(updateResult.Error);
+        }
+
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy.GetValue());
+        return Result.Success();
+    }
+
+    public Result RemoveDomainResource(IdValueObject resourceId, ActorId updatedBy)
+    {
+        var resource = FindDomainResource(resourceId);
+        if (resource.IsFailure)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(DomainResources), DomainErrors.Common.NotFound));
+        }
+
+        if (!IsValid())
+        {
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+        }
+
+        _domainResources.Remove(resource.Value);
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy.GetValue());
+        return Result.Success();
+    }
+
     private Result<ModuleEntity> FindModule(IdValueObject moduleId)
     {
         // Use Props.Id (stable database GUID). Entity.Id is a transient random GUID
@@ -497,5 +570,13 @@ public sealed class SystemSuite : AggregateRoot<SystemSuite, SystemSuiteProps>
         return action is null
             ? Result<ActionEntity>.Failure(DomainErrors.Common.NotFound)
             : Result<ActionEntity>.Success(action);
+    }
+
+    private Result<DomainResourceEntity> FindDomainResource(IdValueObject resourceId)
+    {
+        var resource = _domainResources.FirstOrDefault(r => r.Props.Id.GetValue() == resourceId.GetValue());
+        return resource is null
+            ? Result<DomainResourceEntity>.Failure(DomainErrors.Common.NotFound)
+            : Result<DomainResourceEntity>.Success(resource);
     }
 }
