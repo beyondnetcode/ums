@@ -69,6 +69,14 @@ const GET_SYSTEM_SUITES = `
           code
           name
         }
+        domainResources {
+          id
+          type
+          code
+          name
+          description
+          moduleId
+        }
       }
       page
       pageSize
@@ -122,6 +130,14 @@ const GET_SYSTEM_SUITE_BY_ID = `
         code
         name
       }
+      domainResources {
+        id
+        type
+        code
+        name
+        description
+        moduleId
+      }
     }
   }
 `;
@@ -130,6 +146,15 @@ export interface GraphqlSystemSuiteActionDto {
   id: string;
   code: string;
   name: string;
+}
+
+export interface GraphqlDomainResourceDto {
+  id: string;
+  type: 'Aggregate' | 'Entity';
+  code: string;
+  name: string;
+  description: string;
+  moduleId: string | null;
 }
 
 export interface GraphqlSystemSuiteOptionDto {
@@ -178,6 +203,7 @@ export interface GraphqlSystemSuiteDto {
   status: string;
   modules: GraphqlSystemSuiteModuleDto[];
   actions: GraphqlSystemSuiteActionDto[];
+  domainResources: GraphqlDomainResourceDto[];
 }
 
 export interface GraphqlSystemSuitePage {

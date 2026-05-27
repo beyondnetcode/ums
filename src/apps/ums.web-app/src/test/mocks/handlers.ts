@@ -2,6 +2,7 @@ import { http, graphql, HttpResponse } from 'msw';
 import { mockTenants } from './data/tenants.mock';
 import { mockUserAccounts } from './data/user-accounts.mock';
 import { mockDelegations } from './data/delegations.mock';
+import { mockSystemSuites } from './data/system-suites.mock';
 
 export const handlers = [
   // Example REST interception
@@ -116,6 +117,39 @@ export const handlers = [
     return HttpResponse.json({
       data: {
         getTenantBranding: tenant.branding || null,
+      },
+    });
+  }),
+
+  // ── Authorization / SystemSuite ────────────────────────────────────────────
+  graphql.query('SystemSuites', ({ variables }) => {
+    const { page = 1, pageSize = 20, status = 'all' } = variables || {};
+    let items = mockSystemSuites;
+    if (status && status !== 'all') {
+      items = items.filter(s => s.status === status);
+    }
+    const totalItems = items.length;
+    const totalPages = Math.ceil(totalItems / pageSize);
+    const pagedItems = items.slice((page - 1) * pageSize, page * pageSize);
+    return HttpResponse.json({
+      data: {
+        getSystemSuites: {
+          items: pagedItems,
+          page,
+          pageSize,
+          totalItems,
+          totalPages,
+        },
+      },
+    });
+  }),
+
+  graphql.query('SystemSuite', ({ variables }) => {
+    const { systemSuiteId } = variables;
+    const suite = mockSystemSuites.find(s => s.systemSuiteId === systemSuiteId) || mockSystemSuites[0];
+    return HttpResponse.json({
+      data: {
+        getSystemSuiteById: suite,
       },
     });
   }),
