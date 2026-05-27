@@ -58,16 +58,16 @@ Este documento registra el estado actual de implementacion de la API UMS por agr
 
 #### UserAccount
 - Capacidades API faltantes:
-  - agregar password
-  - activar password
-  - remover password
   - enrolar MFA
   - verificar challenge MFA
+- Capacidades API implementadas:
+  - establecer o rotar password local con hash BCrypt generado en servidor
+  - exponer estado de password activa y fecha de ultima rotacion sin retornar hashes
   - registrar intento de autenticacion
 - Persistencia:
   - SQL Server implementado
 - Siguiente paso recomendado:
-  - exponer el ciclo de vida de credenciales y MFA antes de agregar mas superficie de consulta
+  - exponer el ciclo de vida MFA; activar o remover passwords historicas permanece inhabilitado por diseno de auditoria
 
 ### 3.2 Authorization
 

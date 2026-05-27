@@ -37,6 +37,7 @@ using Ums.Presentation.Extensions;
 using Ums.Presentation.Endpoints.Authorization.SystemSuite.Queries;
 using Ums.Presentation.Endpoints.Authorization.Template;
 using Ums.Presentation.Endpoints.Authorization.Template.Queries;
+using Ums.Presentation.Endpoints.Authorization.Role;
 using Ums.Presentation.Endpoints.Configuration.AppConfiguration;
 using Ums.Presentation.Endpoints.Configuration.AppConfiguration.Queries;
 using Ums.Presentation.Endpoints.Configuration.FeatureFlag;
@@ -261,7 +262,7 @@ public static class UmsApiApplicationBuilderExtensions
         {
             using var scope = app.Services.CreateScope();
             var platformDbContext = scope.ServiceProvider.GetRequiredService<UmsPlatformDbContext>();
-            await platformDbContext.Database.EnsureCreatedAsync();
+            await SqliteSchemaBootstrapper.InitializeAsync(platformDbContext);
         }
 
         if (app.Environment.IsDevelopment() && persistenceOptions.SeedDevData)
@@ -455,6 +456,7 @@ public static class UmsApiApplicationBuilderExtensions
         versionedGroup.MapProfileEndpoints();
         versionedGroup.MapSystemSuiteEndpoints();
         versionedGroup.MapPermissionTemplateEndpoints();
+        versionedGroup.MapRoleEndpoints();
 
         return versionedGroup;
     }

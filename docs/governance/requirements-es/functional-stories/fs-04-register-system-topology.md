@@ -11,7 +11,7 @@ UMS debe permitir que los administradores registren sistemas cliente y describan
 | **Administrador de Seguridad Global** | Registra sistemas cliente y define su topología de menú. |
 | **Dueño del Sistema Cliente** | Proporciona la estructura del sistema y sus acciones de acceso. | ## 3. Precondiciones de Negocio
 
-- El administrador estáá autorizado para registrar sistemas.
+- El administrador esta autorizado para registrar sistemas.
 - El dueño del sistema ha proporcionado módulos, menús, opciones y acciones esperadas.
 
 ## 4. Flujo Funcional Principal
@@ -20,7 +20,7 @@ UMS debe permitir que los administradores registren sistemas cliente y describan
 2. El administrador ingresa nombre, código de negocio e información de enrutamiento.
 3. El sistema queda registrado y disponible para configurar su topología.
 4. El administrador define módulos, menús, opciones y acciones.
-5. El sistema valida que la topología estáé suficientemente completa para soportar plantillas de autorización.
+5. El sistema valida que la topologia esta suficientemente completa para soportar plantillas de autorizacion.
 6. La topología queda disponible para asignación de permisos y diagnóstico.
 
 ## 5. Flujos Alternativos y Excepciones
@@ -31,7 +31,7 @@ Si otro sistema ya usa el mismo código de negocio, UMS impide el registro y sol
 
 ### B. Topología Incompleta
 
-Si un nodo de topología estáá incompleto, UMS puede guardarlo como borrador pero impide usarlo en plantillas hasta definir las acciones requeridas.
+Si un nodo de topologia esta incompleto, UMS puede guardarlo como borrador pero impide usarlo en plantillas hasta definir las acciones requeridas.
 
 ## 6. Reglas de Negocio
 
@@ -50,8 +50,8 @@ Si un nodo de topología estáá incompleto, UMS puede guardarlo como borrador p
 ## 8. Requisitos Técnicos
 
 > [!WARNING]
-> **ESTADO DE IMPLEMENTACIÓN: DIFERIDO**  
-> En la fase actual, la gestión activa de la topología de recursos de sistemas (`SystemSuite`, `FunctionalModule`, etc.) está **diferida** en el dominio principal de C# y se maneja mediante referencias externas a nivel de Value Object ID (`SystemSuiteId`).
+> **ESTADO DE IMPLEMENTACION: ACTIVO**
+> `SystemSuite` y su topologia de menus estan implementados en el dominio de Autorizacion. El mantenimiento del catalogo de roles asociado a la suite seleccionada esta cubierto por FS-17.
 
 - Asegurar la persistencia del identificador y metadatos del sistema.
 - Asegurar la unicidad de los códigos de sistema.
@@ -59,6 +59,6 @@ Si un nodo de topología estáá incompleto, UMS puede guardarlo como borrador p
 
 ## 9. Trazabilidad
 
-- Entidades: `SystemSuite` (Referencia ID Diferida), `FunctionalModule` (Referencia ID Diferida)
+- Entidades: `SystemSuite`, `Module`, `Menu`, `SubMenu`, `Option`, `Action`
 - ADRs: ADR-0032, ADR-0034, ADR-0047
-- Historias relacionadas: FS-02, FS-07
+- Historias relacionadas: FS-02, FS-07, FS-17

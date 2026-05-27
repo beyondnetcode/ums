@@ -50,8 +50,8 @@ If a topology node is incomplete, UMS can save it as draft but prevents its use 
 ## 8. Technical Requirements
 
 > [!WARNING]
-> **ESTADO DE IMPLEMENTACIÓN: DIFERIDO**  
-> En la fase actual, la gestión activa de la topología de recursos de sistemas (`SystemSuite`, `FunctionalModule`, etc.) está **diferida** en el dominio principal de C# y se maneja mediante referencias externas a nivel de Value Object ID (`SystemSuiteId`).
+> **IMPLEMENTATION STATUS: ACTIVE**
+> `SystemSuite` and its menu topology are implemented in the Authorization domain. Role catalog maintenance associated with the selected suite is covered by FS-17.
 
 - Enforce system identifier and metadata persistence.
 - Enforce uniqueness for system codes.
@@ -59,6 +59,6 @@ If a topology node is incomplete, UMS can save it as draft but prevents its use 
 
 ## 9. Traceability
 
-- Entities: `SystemSuite` (Deferred ID Reference), `FunctionalModule` (Deferred ID Reference)
+- Entities: `SystemSuite`, `Module`, `Menu`, `SubMenu`, `Option`, `Action`
 - ADRs: ADR-0032, ADR-0034, ADR-0047
-- Related Stories: FS-02, FS-07
+- Related Stories: FS-02, FS-07, FS-17

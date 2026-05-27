@@ -33,15 +33,21 @@ public sealed class GetAllUserAccountsQueryHandler : IQueryHandler<GetAllUserAcc
             tenantId: request.TenantId,
             cancellationToken: cancellationToken);
 
-        var items = userAccounts.Select(u => new UserAccountDto(
-            u.Props.Id.GetValue(),
-            u.Props.TenantId.GetValue(),
-            u.Props.BranchId?.GetValue(),
-            u.Props.Email.GetValue(),
-            u.Props.Category.ToString(),
-            u.Props.Status.ToString(),
-            u.Props.IdentityReference?.GetValue(),
-            u.Props.IdentityReferenceType?.ToString()))
+        var items = userAccounts.Select(u =>
+        {
+            var activePassword = u.PasswordCredentials.SingleOrDefault(x => x.IsActive);
+            return new UserAccountDto(
+                u.Props.Id.GetValue(),
+                u.Props.TenantId.GetValue(),
+                u.Props.BranchId?.GetValue(),
+                u.Props.Email.GetValue(),
+                u.Props.Category.ToString(),
+                u.Props.Status.ToString(),
+                u.Props.IdentityReference?.GetValue(),
+                u.Props.IdentityReferenceType?.ToString(),
+                activePassword is not null,
+                activePassword?.Props.Audit.GetValue().UpdatedAt ?? activePassword?.Props.Audit.GetValue().CreatedAt);
+        })
             .ToList();
 
         var totalPages = totalItems == 0 ? 0 : (int)Math.Ceiling(totalItems / (double)pageSize);

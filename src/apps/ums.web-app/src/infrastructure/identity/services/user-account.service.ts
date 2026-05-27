@@ -17,6 +17,10 @@ import {
   type UserAccountPage,
   type CreateUserAccountPayload,
   type CreateUserAccountResponse,
+  SetUserAccountPasswordPayloadSchema,
+  SetUserAccountPasswordResponseSchema,
+  type SetUserAccountPasswordPayload,
+  type SetUserAccountPasswordResponse,
 } from '@domain/identity/schemas/user-account.schema';
 
 export interface UserAccountQueryParams {
@@ -76,6 +80,12 @@ export const userAccountService = {
 
   restoreUserAccount: async (userAccountId: string): Promise<void> => {
     await httpClient.post(`/user-accounts/${userAccountId}/restore`);
+  },
+
+  setUserAccountPassword: async (payload: SetUserAccountPasswordPayload): Promise<SetUserAccountPasswordResponse> => {
+    const validPayload = SetUserAccountPasswordPayloadSchema.parse(payload);
+    const { data } = await httpClient.post(`/user-accounts/${validPayload.userAccountId}/passwords`, validPayload);
+    return SetUserAccountPasswordResponseSchema.parse(data);
   },
 };
 

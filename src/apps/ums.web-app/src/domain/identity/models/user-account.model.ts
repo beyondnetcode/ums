@@ -6,4 +6,6 @@ export type {
   IdentityReferenceType,
   CreateUserAccountPayload,
   CreateUserAccountResponse,
+  SetUserAccountPasswordPayload,
+  SetUserAccountPasswordResponse,
 } from '../schemas/user-account.schema';

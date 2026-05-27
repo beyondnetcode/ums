@@ -142,3 +142,22 @@ export const useRestoreUserAccount = (userAccountId: string) => {
     }),
   });
 };
+
+export const useSetUserAccountPassword = (userAccountId: string) => {
+  const t = useI18n();
+  return useNotifiedMutation({
+    mutationFn: (password: string) => userAccountService.setUserAccountPassword({
+      userAccountId,
+      password,
+    }),
+    invalidateKeys: [['user-accounts'], ['user-accounts', userAccountId]],
+    successNotif: () => ({
+      title: t.notifPasswordUpdated,
+      message: t.notifPasswordUpdatedMsg,
+    }),
+    errorNotif: () => ({
+      title: t.notifPasswordUpdateFailed,
+      message: t.notifPasswordUpdateFailedMsg,
+    }),
+  });
+};

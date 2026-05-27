@@ -10,13 +10,14 @@
 ## 1. Aggregate Overview
 
 ### Purpose
-The `SystemSuite` aggregate represents a tenant-owned application surface registered in UMS. It defines the functional topology used by downstream authorization models and stores suite-level operational settings. In the current implementation, it owns `Module` and `AppSetting` child entities and exposes a flat `Action` catalog for permission-template targeting.
+The `SystemSuite` aggregate represents a tenant-owned application surface registered in UMS. It defines the functional topology used by downstream authorization models and stores suite-level operational settings. In the current implementation, it owns `Module`, menu topology, `AppSetting`, and `Action` children. The independent `Role` aggregate is maintained in the selected suite context and references it through `SystemSuiteId`.
 
 ### Business Responsibility
 - Register a tenant-scoped software suite.
 - Maintain the suite identity: `Code`, `Name`, `Description`, `Status`.
 - Own functional modules and suite-level application settings.
 - Expose the action surface consumed by `PermissionTemplate` and effective authorization flows.
+- Define the ownership boundary for the role catalog maintained by Authorization.
 - Control activation state through `SystemStatus`.
 
 ### Aggregate Root
@@ -36,6 +37,7 @@ The `SystemSuite` aggregate represents a tenant-owned application surface regist
 | `Module` | Entity | Owned | Functional subsystem inside the suite |
 | `AppSetting` | Entity | Owned | Suite-scoped configuration entry |
 | `Action` | Entity | Owned / catalogued | Action tokens exposed for authorization targeting |
+| `Role` | Aggregate Root | Related by `SystemSuiteId` | Responsibility catalog and hierarchy defined for the suite |
 | `TenantId` | Value Object | - | Tenant ownership boundary |
 | `Code` | Value Object | - | Technical identifier |
 | `Name` | Value Object | - | Display label |
@@ -157,6 +159,7 @@ erDiagram
     SYSTEM_SUITE ||--o{ MODULE : "contains"
     SYSTEM_SUITE ||--o{ APP_SETTING : "defines"
     SYSTEM_SUITE ||--o{ ACTION : "exposes"
+    SYSTEM_SUITE ||--o{ ROLE : "defines"
 
     SYSTEM_SUITE {
         uniqueidentifier Id PK
@@ -190,13 +193,15 @@ erDiagram
 - `CreateSystemSuiteCommand` -> Inputs: `TenantId, Code, Name, Description` -> Returns: `Guid`
 - `UpdateSystemSuiteCommand` -> Inputs: `SystemSuiteId, Name, Description` -> Returns: `void`
 - `SetSystemSuiteStatusCommand` -> Inputs: `SystemSuiteId, Status` -> Returns: `void`
-- Follow-up API work pending: module, app-setting, and deeper functional-topology endpoints are not fully exposed yet.
+- `CreateRoleCommand`, `UpdateRoleCommand`, and `SetRoleStatusCommand` operate on roles under the selected suite.
+- GraphQL exposes `rolesBySystemSuite(systemSuiteId)` for the Roles detail tab.
 
 ---
 
 ## 8. Infrastructure/Persistence
-- Current repository implementation remains transitional (`in-memory`) for this aggregate.
-- The domain shape is authoritative, but SQL Server persistence is still pending for `SystemSuite`.
+- SQL Server and in-memory repository implementations are available for suite and role development/runtime modes.
+- `[ums_authorization].[Roles]` references `[ums_authorization].[SystemSuites]` and supports a nullable parent-role FK.
+- Application-layer tenant filtering is the primary isolation mechanism.
 
 ---
 

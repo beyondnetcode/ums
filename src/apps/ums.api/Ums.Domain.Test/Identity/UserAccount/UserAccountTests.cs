@@ -235,6 +235,23 @@ public class UserAccountTests
     }
 
     [Fact]
+    public void AddPassword_WhenAccountIsFederated_ReturnsFailure()
+    {
+        var user = UserAccount.Create(
+            ValidTenantId,
+            ValidEmail,
+            ValidCategory,
+            IdentityReference.Create("EMP-100"),
+            IdentityReferenceType.HrId,
+            ValidActor).Value;
+
+        var result = user.AddPassword(ValidPasswordHash, ValidActor);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains(DomainErrors.UserAccount.FederatedCannotUseLocalPassword, result.Error);
+    }
+
+    [Fact]
     public void AddPassword_WithEmptyHash_ReturnsFailure()
     {
         var user = UserAccount.Create(ValidTenantId, ValidEmail, ValidCategory, null, null, ValidActor).Value;

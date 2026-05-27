@@ -28,6 +28,7 @@ public static class GraphQlServiceCollectionExtensions
             .AddTypeExtension<ProfileQueries>()
             .AddTypeExtension<SystemSuiteQueries>()
             .AddTypeExtension<PermissionTemplateQueries>()
+            .AddTypeExtension<RoleQueries>()
             .AddTypeExtension<AuditRecordQueries>()
             .AddTypeExtension<ApprovalWorkflowQueries>()
             .AddTypeExtension<ApprovalRequestQueries>()

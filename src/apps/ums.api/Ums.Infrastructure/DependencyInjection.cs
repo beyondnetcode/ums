@@ -51,6 +51,7 @@ public static class DependencyInjection
 
         services.AddScoped<IUserContext, UserContext>();
         services.AddScoped<ITenantContext, TenantContext>();
+        services.AddSingleton<IPasswordHashingService, BcryptPasswordHashingService>();
         services.AddScoped<RequestContextAccessor>();
         services.AddScoped<IRequestContext>(sp => sp.GetRequiredService<RequestContextAccessor>());
         services.AddScoped<IExecutionContextAccessor>(sp => sp.GetRequiredService<RequestContextAccessor>());
@@ -207,6 +208,7 @@ public static class DependencyInjection
             services.AddScoped<IProfileRepository, SqlServerProfileRepository>();
             services.AddScoped<ISystemSuiteRepository, SqlServerSystemSuiteRepository>();
             services.AddScoped<IPermissionTemplateRepository, SqlServerPermissionTemplateRepository>();
+            services.AddScoped<IRoleRepository, SqlServerRoleRepository>();
         }
         else
         {
@@ -218,6 +220,9 @@ public static class DependencyInjection
 
             services.AddSingleton<InMemoryPermissionTemplateRepository>();
             services.AddSingleton<IPermissionTemplateRepository>(sp => sp.GetRequiredService<InMemoryPermissionTemplateRepository>());
+
+            services.AddSingleton<InMemoryRoleRepository>();
+            services.AddSingleton<IRoleRepository>(sp => sp.GetRequiredService<InMemoryRoleRepository>());
         }
 
         if ((persistence.Provider == PersistenceProvider.SqlServer && persistence.UseSqlServerConfigurationStores) ||

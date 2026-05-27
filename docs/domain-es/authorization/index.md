@@ -3,7 +3,7 @@
 > **Idioma:** [English](../../domain/authorization/index.md) | [Español](./index.md)
 
 **Contexto Delimitado:** Autorización (`Ums.Domain.Authorization`)  
-**Raíces de Agregado (Aggregate Roots):** `SystemSuite`, `PermissionTemplate`, `Profile`
+**Raíces de Agregado (Aggregate Roots):** `SystemSuite`, `Role`, `PermissionTemplate`, `Profile`
 
 ---
 
@@ -15,6 +15,7 @@ La estructura de suites gobierna los menús de navegación y acciones en el sist
 - [SubMenu](./sub-menu.md) (Entidad Propia) — Bloques de submenús anidados.
 - [Option](./option.md) (Entidad Propia) — Anclajes específicos de configuración de vistas/pantallas.
 - [Action](./action.md) (Entidad Propia) — Tokens de acción granulares (ej. READ, WRITE, EXPORT) para asegurar comportamientos individuales.
+- [Role](./role.md) (Raíz de Agregado) - Catalogo de responsabilidades acotado por tenant y jerarquia opcional definida por una suite.
 
 ### Permisos y Plantillas
 - [PermissionTemplate](./permission-template.md) (Raíz de Agregado) — Paquetes de permisos reutilizables y estandarizados.

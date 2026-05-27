@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import {
-  Box, Shield, Key, ChevronDown, ChevronRight,
+  Box, Shield, Key, ChevronDown, ChevronRight, Users,
   Folder, FolderOpen, Layers, EyeOff, ShieldCheck, Trash2, KeyRound, Plus, Pencil,
   ChevronsUpDown, ChevronsDownUp,
 } from 'lucide-react';
@@ -30,8 +30,9 @@ import { InlineAddForm } from '@shared/components/InlineAddForm';
 import { IconButton } from '@shared/components/Tooltip';
 import { CodeBadge } from '@shared/components/CodeBadge';
 import { formatSystemCode } from '@app/utils/security';
+import { SystemSuiteRolesPanel } from './SystemSuiteRolesPanel';
 
-type SystemSuiteTab = 'overview' | 'modules' | 'actions';
+type SystemSuiteTab = 'overview' | 'modules' | 'actions' | 'roles';
 
 interface SystemSuiteDetailPanelProps {
   activeSystemSuite: SystemSuite | undefined;
@@ -530,6 +531,7 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
     { key: 'overview', label: t.overview, icon: <Box className="w-4 h-4" /> },
     { key: 'modules',  label: t.modules,  icon: <Shield className="w-4 h-4" /> },
     { key: 'actions',  label: t.actions,  icon: <Key className="w-4 h-4" /> },
+    { key: 'roles', label: t.roles, icon: <Users className="w-4 h-4" /> },
   ];
 
   const suiteId = activeSystemSuite?.systemSuiteId ?? '';
@@ -776,6 +778,10 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
               </div>
             )}
           </div>
+        )}
+
+        {activeTab === 'roles' && (
+          <SystemSuiteRolesPanel systemSuiteId={suiteId} />
         )}
       </div>
     </DetailPanelShell>

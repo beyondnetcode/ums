@@ -27,7 +27,7 @@ The `UserAccount` aggregate represents a user's identity within a tenant. It gov
 ### Invariants and Consistency Rules
 1. `Email` must be unique per `TenantId`.
 2. A `UserAccount` in status `Blocked` cannot authenticate.
-3. A `UserAccount` in status `Pending` has no active `PasswordCredential`.
+3. A `UserAccount` in status `Pending` cannot authenticate; a local password may be provisioned before activation.
 4. At most one `PasswordCredential` can be `IsActive = true` at any time.
 5. Setting a new password automatically deactivates the previous active credential.
 6. Historical credentials (IsActive = false) are retained for audit — never physically deleted.
@@ -77,8 +77,7 @@ The `UserAccount` aggregate represents a user's identity within a tenant. It gov
 | `ActivateUserCommand` | Activate a pending or blocked user |
 | `BlockUserCommand` | Block a user (compliance enforcement or manual) |
 | `RestoreUserCommand` | Restore a blocked user to Active |
-| `SetPasswordCommand` | Create or rotate the active password credential |
-| `DeactivatePasswordCommand` | Deactivate credential (e.g. on account federation) |
+| `AddUserAccountPasswordCommand` | Create or rotate the active local password credential using server-side hashing |
 | `LinkExternalIdentityCommand` | Associate an external authoritative-source identity reference |
 | `EnrollMfaCommand` | Enroll a new MFA method |
 | `VerifyMfaCommand` | Confirm MFA challenge (transitions Enrolled → Verified) |
@@ -164,12 +163,12 @@ sequenceDiagram
     participant U as UserAccount (AR)
     participant P as IPasswordHashingService
 
-    C->>H: SetPasswordCommand(userId, plainPassword, actorId)
+    C->>H: AddUserAccountPasswordCommand(userId, password)
     H->>R: GetById(userId)
     R-->>H: UserAccount
     H->>P: Hash(plainPassword)
     P-->>H: passwordHash
-    H->>U: userAccount.SetPassword(credentialId, passwordHash, actorId)
+    H->>U: userAccount.AddPassword(passwordHash, actorId)
     U->>U: Deactivate existing PasswordCredential
     U->>U: Create new PasswordCredential (IsActive = true)
     H->>R: Update(userAccount)
@@ -342,8 +341,7 @@ flowchart TD
 | `ActivateUserCommand` | `void` |
 | `BlockUserCommand` | `void` |
 | `RestoreUserCommand` | `void` |
-| `SetPasswordCommand` | `void` |
-| `DeactivatePasswordCommand` | `void` |
+| `AddUserAccountPasswordCommand` | `Guid credentialId`; accepted input is a temporary password, never a precomputed client hash |
 | `LinkExternalIdentityCommand` | `void` |
 | `EnrollMfaCommand` | `Guid enrollmentId, string setupToken` |
 | `VerifyMfaCommand` | `void` |
@@ -354,7 +352,7 @@ flowchart TD
 | `GetUserByIdQuery` | `UserAccountDetailDto` |
 | `GetUserByEmailQuery` | `UserAccountDetailDto?` |
 | `ListUsersQuery` | `PagedList<UserSummaryDto>` |
-| `GetUserCredentialStatusQuery` | `CredentialStatusDto` |
+| `GetUserAccountByIdQuery` | Includes `hasActivePassword` and `passwordUpdatedAtUtc`; never returns `PasswordHash` |
 | `GetUserMfaEnrollmentsQuery` | `List<MfaEnrollmentDto>` |
 
 ---
@@ -377,6 +375,7 @@ flowchart TD
 - `PasswordHash` column must never appear in query projections returned to clients.
 - `PasswordHash` must never appear in `AuditRecord.WhatChanged` payloads.
 - Column must be encrypted at rest (SQL Server Always Encrypted or TDE).
+- The web client sends a temporary password over secured transport; BCrypt hashing is performed by the API before persistence.
 
 ---
 

@@ -6,11 +6,16 @@ public sealed class AddUserAccountPasswordCommandHandler : ICommandHandler<AddUs
 {
     private readonly IUserAccountRepository _userAccountRepository;
     private readonly IUserContext _userContext;
+    private readonly IPasswordHashingService _passwordHashingService;
 
-    public AddUserAccountPasswordCommandHandler(IUserAccountRepository userAccountRepository, IUserContext userContext)
+    public AddUserAccountPasswordCommandHandler(
+        IUserAccountRepository userAccountRepository,
+        IUserContext userContext,
+        IPasswordHashingService passwordHashingService)
     {
         _userAccountRepository = userAccountRepository;
         _userContext = userContext;
+        _passwordHashingService = passwordHashingService;
     }
 
     [AuditTrail]
@@ -28,7 +33,14 @@ public sealed class AddUserAccountPasswordCommandHandler : ICommandHandler<AddUs
             return Result<AddUserAccountPasswordResponse>.Failure("User account was not found.");
         }
 
-        var result = userAccount.AddPassword(PasswordHash.Create(request.PasswordHash), ActorId.Create(_userContext.UserId));
+        if (userAccount.IdentityReference is not null)
+        {
+            return Result<AddUserAccountPasswordResponse>.Failure(
+                "No se pudo establecer la contraseña porque la cuenta usa autenticación federada. Gestione sus credenciales en el proveedor de identidad configurado.");
+        }
+
+        var passwordHash = _passwordHashingService.Hash(request.Password);
+        var result = userAccount.AddPassword(PasswordHash.Create(passwordHash), ActorId.Create(_userContext.UserId));
         if (result.IsFailure)
         {
             return Result<AddUserAccountPasswordResponse>.Failure(result.Error);

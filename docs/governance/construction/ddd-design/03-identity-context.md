@@ -2,9 +2,9 @@
 
 > **Idioma:** Español | *Versión en inglés no disponible*
 
-**Schema:** `[ums_identity]` · `[delegation]` | **Owner:** UMS Core API .NET 8  
+**Schema:** `[ums_identity]` · `[delegation]` | **Owner:** UMS Core API .NET 10
 **Misión:** Gestionar el ciclo de vida de principals (usuarios), estructuras organizacionales (tenants) y sub-unidades (branches). Delegar verificación de credenciales a adaptadores de IdP. Gobernar la autoridad administrativa delegada entre administradores.  
-**FS cubiertos:** FS-01, FS-03, FS-08, FS-09, FS-14  
+**FS cubiertos:** FS-01, FS-03, FS-08, FS-09, FS-14, FS-18
 **Versión:** 2.1 | **Fecha:** 2026-05-22
 
 > **Arquitectura de Agregados:** Modelo completo con diagramas, secuencias, ER y API:
@@ -189,13 +189,14 @@ ITenantRepository : IAggregateRepository<Tenant> {
 ## Aggregate: UserAccount
 
 **Aggregate Root:** `UserAccount`  
-**FS:** FS-01, FS-03, FS-09, FS-10
+**FS:** FS-01, FS-03, FS-09, FS-10, FS-18
 
 ### Entidades
 
 | Entidad | Descripción |
 |---------|-------------|
 | `UserAccount` (AR) | Principal autenticable en la plataforma |
+| `PasswordCredential` | Credencial local protegida e historica para cuentas internas (FS-18) |
 | `MfaEnrollment` | Metodo MFA o passwordless enrolado por el usuario (FS-09); ver gap V2 |
 
 ### Value Objects
@@ -254,7 +255,7 @@ classDiagram
         +bool IsActive
     }
     UserAccount "1" --> "0..*" MfaEnrollment : enrolls
-    UserAccount "1" --> "0..1" PasswordCredential : secures
+    UserAccount "1" --> "0..*" PasswordCredential : secures
 ```
 
 ### Máquina de Estado: UserAccount
@@ -278,7 +279,7 @@ stateDiagram-v2
 | `ActivateUserCommand` | Activa el usuario post-aprobacion o directamente si es INTERNAL |
 | `BlockUserCommand` | Bloquea el usuario (expiración documental o manual) |
 | `RestoreUserCommand` | Desbloquea y reactiva el usuario |
-| `UpdateCredentialsCommand` | Actualiza PasswordHash (solo INTERNAL_BCRYPT) |
+| `AddUserAccountPasswordCommand` | Establece o rota password local; la API genera el hash BCrypt y no lo expone (FS-18) |
 | `EnrollMfaCommand` | Registra metodo MFA/passwordless (FS-09) |
 | `VerifyMfaChallengeCommand` | Verifica challenge MFA en el flujo de autenticación |
 

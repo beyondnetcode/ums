@@ -8,6 +8,7 @@ using Ums.Domain.Authorization.SystemSuite.SubMenu;
 using Ums.Domain.Authorization.SystemSuite.Option;
 using Ums.Domain.Authorization.SystemSuite.Action;
 using Ums.Domain.Authorization.Template;
+using Ums.Domain.Authorization.Role;
 using Ums.Domain.Authorization.Template.PermissionTemplateItem;
 using Ums.Domain.Enums;
 using Ums.Domain.Kernel.ValueObjects;
@@ -19,6 +20,7 @@ namespace Ums.Infrastructure.Persistence.Reflection;
 
 using ProfileAggregate = Ums.Domain.Authorization.Profile.Profile;
 using PermissionTemplateAggregate = Ums.Domain.Authorization.Template.PermissionTemplate;
+using RoleAggregate = Ums.Domain.Authorization.Role.Role;
 using SystemSuiteAggregate = Ums.Domain.Authorization.SystemSuite.SystemSuite;
 using ModuleEntity = Ums.Domain.Authorization.SystemSuite.Module.Module;
 using MenuEntity = Ums.Domain.Authorization.SystemSuite.Menu.Menu;
@@ -129,6 +131,29 @@ internal static class AuthorizationAggregateFactory
         aggregate.DomainEvents.MarkChangesAsCommitted();
         aggregate.BrokenRules.Clear();
 
+        return aggregate;
+    }
+
+    public static RoleAggregate RehydrateRole(RoleRecord record)
+    {
+        var props = new RoleProps(
+            IdValueObject.Load(record.Id),
+            TenantId.Load(record.TenantId),
+            SystemSuiteId.Load(record.SystemSuiteId),
+            record.ParentRoleId.HasValue ? RoleId.Load(record.ParentRoleId.Value) : null,
+            Code.Create(record.Code),
+            Name.Create(record.Value),
+            Description.Create(record.Description),
+            record.HierarchyLevel,
+            record.PromotionOrder,
+            ActorId.Create(record.CreatedBy));
+
+        props.IsActive = record.IsActive;
+        SetAudit(props, record.CreatedBy, record.CreatedAtUtc, record.UpdatedBy, record.UpdatedAtUtc, record.AuditTimeSpan);
+
+        var aggregate = Construct<RoleAggregate, RoleProps>(props);
+        aggregate.DomainEvents.MarkChangesAsCommitted();
+        aggregate.BrokenRules.Clear();
         return aggregate;
     }
 

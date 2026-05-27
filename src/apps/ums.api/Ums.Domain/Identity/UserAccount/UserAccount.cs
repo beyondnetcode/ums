@@ -164,6 +164,11 @@ public sealed class UserAccount : AggregateRoot<UserAccount, UserAccountProps>
             BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.UserAccount.BlockedCannotUpdateCredentials));
         }
 
+        if (IdentityReference is not null)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(PasswordCredentials), DomainErrors.UserAccount.FederatedCannotUseLocalPassword));
+        }
+
         if (passwordHash.IsEmpty())
         {
             BrokenRules.Add(new BrokenRule(nameof(PasswordHash), DomainErrors.UserAccount.PasswordHashRequired));
@@ -197,6 +202,11 @@ public sealed class UserAccount : AggregateRoot<UserAccount, UserAccountProps>
         if (Status == UserStatus.Blocked)
         {
             BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.UserAccount.BlockedCannotUpdateCredentials));
+        }
+
+        if (IdentityReference is not null)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(PasswordCredentials), DomainErrors.UserAccount.FederatedCannotUseLocalPassword));
         }
 
         var credential = FindPasswordCredential(credentialId);

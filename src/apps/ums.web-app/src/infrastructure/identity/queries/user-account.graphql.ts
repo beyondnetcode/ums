@@ -6,9 +6,9 @@
  */
 import { graphqlClient, GraphQlValidationError } from '@infra/http/graphqlClient';
 
-const GET_USER_ACCOUNTS = 'query UserAccounts($page: Int!, $pageSize: Int!, $search: String, $criteria: String, $status: String, $sortBy: String, $sortOrder: String, $tenantId: UUID) { getUserAccounts: userAccounts(page: $page, pageSize: $pageSize, search: $search, criteria: $criteria, status: $status, sortBy: $sortBy, sortOrder: $sortOrder, tenantId: $tenantId) { items { userAccountId tenantId branchId email category status identityReference identityReferenceType } page pageSize totalItems totalPages } }';
+const GET_USER_ACCOUNTS = 'query UserAccounts($page: Int!, $pageSize: Int!, $search: String, $criteria: String, $status: String, $sortBy: String, $sortOrder: String, $tenantId: UUID) { getUserAccounts: userAccounts(page: $page, pageSize: $pageSize, search: $search, criteria: $criteria, status: $status, sortBy: $sortBy, sortOrder: $sortOrder, tenantId: $tenantId) { items { userAccountId tenantId branchId email category status identityReference identityReferenceType hasActivePassword passwordUpdatedAtUtc } page pageSize totalItems totalPages } }';
 
-const GET_USER_ACCOUNT_BY_ID = 'query UserAccount($userAccountId: UUID!) { getUserAccountById: userAccountById(userAccountId: $userAccountId) { userAccountId tenantId branchId email category status identityReference identityReferenceType } }';
+const GET_USER_ACCOUNT_BY_ID = 'query UserAccount($userAccountId: UUID!) { getUserAccountById: userAccountById(userAccountId: $userAccountId) { userAccountId tenantId branchId email category status identityReference identityReferenceType hasActivePassword passwordUpdatedAtUtc } }';
 
 export interface GraphqlUserAccountDto {
   userAccountId: string;
@@ -19,6 +19,8 @@ export interface GraphqlUserAccountDto {
   status: string;
   identityReference: string | null;
   identityReferenceType: string | null;
+  hasActivePassword: boolean;
+  passwordUpdatedAtUtc: string | null;
 }
 
 export interface GraphqlUserAccountPage {
