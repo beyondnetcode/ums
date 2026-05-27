@@ -58,16 +58,16 @@ This document captures the current implementation status of the UMS API by aggre
 
 #### UserAccount
 - Missing API capabilities:
-  - add password
-  - activate password
-  - remove password
   - enroll MFA
   - verify MFA challenge
+- Implemented API capabilities:
+  - set or rotate a local password through server-side BCrypt hashing
+  - expose active password status and latest rotation date without returning hashes
   - record authentication attempt
 - Persistence:
   - SQL Server implemented
 - Recommended next step:
-  - expose credential and MFA lifecycle commands before adding more query surface
+  - expose MFA lifecycle commands; historical password activation and deletion remain unavailable by audit design
 
 ### 3.2 Authorization
 

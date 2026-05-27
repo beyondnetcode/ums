@@ -28,6 +28,7 @@ public static class GraphQlServiceCollectionExtensions
             .AddTypeExtension<ProfileQueries>()
             .AddTypeExtension<SystemSuiteQueries>()
             .AddTypeExtension<PermissionTemplateQueries>()
+            .AddTypeExtension<RoleQueries>()
             .AddTypeExtension<AuditRecordQueries>()
             .AddTypeExtension<ApprovalWorkflowQueries>()
             .AddTypeExtension<ApprovalRequestQueries>()
@@ -40,11 +41,12 @@ public static class GraphQlServiceCollectionExtensions
             .AddTypeExtension<IdpConfigurationQueries>()
             .AddTypeExtension<PromotionRequestQueries>()
             .AddTypeExtension<RoleMaturityStatusQueries>()
+            .AddErrorFilter<SafeGraphQlErrorFilter>()
             .AddMaxExecutionDepthRule(12)
             .ModifyRequestOptions(options =>
             {
                 options.ExecutionTimeout = TimeSpan.FromSeconds(10);
-                options.IncludeExceptionDetails = environment.IsDevelopment();
+                options.IncludeExceptionDetails = false;
             });
 
         // REC-11: Disable introspection outside Development so attackers cannot

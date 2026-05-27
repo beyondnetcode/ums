@@ -25,6 +25,8 @@ public sealed class GetUserAccountByIdQueryHandler : IQueryHandler<GetUserAccoun
             return Result<UserAccountDto>.Failure("User account not found.");
         }
 
+        var activePassword = userAccount.PasswordCredentials.SingleOrDefault(x => x.IsActive);
+
         return Result<UserAccountDto>.Success(new UserAccountDto(
             userAccount.Props.Id.GetValue(),
             userAccount.Props.TenantId.GetValue(),
@@ -33,6 +35,8 @@ public sealed class GetUserAccountByIdQueryHandler : IQueryHandler<GetUserAccoun
             userAccount.Props.Category.ToString(),
             userAccount.Props.Status.ToString(),
             userAccount.Props.IdentityReference?.GetValue(),
-            userAccount.Props.IdentityReferenceType?.ToString()));
+            userAccount.Props.IdentityReferenceType?.ToString(),
+            activePassword is not null,
+            activePassword?.Props.Audit.GetValue().UpdatedAt ?? activePassword?.Props.Audit.GetValue().CreatedAt));
     }
 }

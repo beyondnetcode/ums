@@ -15,7 +15,7 @@ export const sharedTranslations = {
     dataViewCriteriaLabel: 'Criterio de búsqueda',
     dataViewSearchTermLabel: 'Término',
     dataViewSearchBtn: 'Buscar',
-    noRecords: 'No se encontraron registros. Limpie los filtros o consulte otro GUID.',
+    noRecords: 'No se encontraron registros. Limpie los filtros e intente otra búsqueda.',
     showing: 'Mostrando',
     of: 'de',
     clearFilter: 'Limpiar Filtro',
@@ -42,6 +42,8 @@ export const sharedTranslations = {
     errorInvalidRequestTitle: 'Petición Inválida',
     errorInvalidRequestHint: 'Revise los parámetros de su petición e intente de nuevo.',
     errorGenericHint: 'Compruebe su conexión o reintente más tarde.',
+    errorSupportReference: (errorId: string) =>
+      `Si necesitas más detalles, consulta con el administrador e indica este ID de error: ${errorId}.`,
   },
   en: {
     appName: 'UMS ENTERPRISE',
@@ -59,7 +61,7 @@ export const sharedTranslations = {
     dataViewCriteriaLabel: 'Search criteria',
     dataViewSearchTermLabel: 'Search term',
     dataViewSearchBtn: 'Search',
-    noRecords: 'No matching records were located in the workspace index. Clear filters or query another GUID.',
+    noRecords: 'No matching records were located. Clear filters and try another search term.',
     showing: 'Showing',
     of: 'of',
     clearFilter: 'Clear Criteria Filter',
@@ -86,5 +88,7 @@ export const sharedTranslations = {
     errorInvalidRequestTitle: 'Invalid Request',
     errorInvalidRequestHint: 'Check the request parameters and try again.',
     errorGenericHint: 'Check your connection or try again later.',
+    errorSupportReference: (errorId: string) =>
+      `If you need more details, contact an administrator and provide this error ID: ${errorId}.`,
   },
 } as const;

@@ -3,7 +3,7 @@
 > **Language:** [English](./index.md) | [Español](../../domain-es/authorization/index.md)
 
 **Bounded Context:** Authorization (`Ums.Domain.Authorization`)  
-**Aggregate Roots:** `SystemSuite`, `PermissionTemplate`, `Profile`
+**Aggregate Roots:** `SystemSuite`, `Role`, `PermissionTemplate`, `Profile`
 
 ---
 
@@ -15,6 +15,7 @@ The suite structures govern the navigational and action menus of the system:
 - [SubMenu](./sub-menu.md) (Owned Entity) — Nested submenu blocks.
 - [Option](./option.md) (Owned Entity) — Specific screen/view configuration anchors.
 - [Action](./action.md) (Owned Entity) — Fine-grained action tokens (e.g., READ, WRITE, EXPORT) to secure individual behaviors.
+- [Role](./role.md) (Aggregate Root) - Tenant-scoped responsibility catalog and optional hierarchy defined by a system suite.
 
 ### Permissions & Templates
 - [PermissionTemplate](./permission-template.md) (Aggregate Root) — Reusable, standardized permission packs.

@@ -36,5 +36,10 @@ public sealed class SystemSuiteRecordConfiguration : IEntityTypeConfiguration<Sy
             .WithOne(x => x.SystemSuite)
             .HasForeignKey(x => x.SystemSuiteId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(x => x.DomainResources)
+            .WithOne(x => x.SystemSuite)
+            .HasForeignKey(x => x.SystemSuiteId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

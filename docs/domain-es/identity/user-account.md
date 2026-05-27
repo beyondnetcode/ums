@@ -30,7 +30,7 @@
 1. **UserAccount**: `Email` debe ser unico dentro del mismo `TenantId`.
 2. **UserAccount**: Un usuario en estado `Blocked` no puede autenticarse.
 3. **UserAccount/PasswordCredential**: Un usuario federado (con `IdentityReference`) no debe tener `PasswordCredential` activa.
-4. **UserAccount/PasswordCredential**: Un usuario en estado `Pending` no debe tener una `PasswordCredential` activa.
+4. **UserAccount/PasswordCredential**: Un usuario en estado `Pending` no puede autenticarse; una contraseña local puede aprovisionarse antes de su activación.
 5. **PasswordCredential**: A lo sumo una `PasswordCredential` con `IsActive = true` por usuario.
 6. **PasswordCredential**: Establecer una nueva contrasena desactiva automaticamente la credencial activa anterior.
 7. **PasswordCredential**: `PasswordHash` debe ser un hash BCrypt valido. Las credenciales historicas se conservan para auditoria y no se eliminan.
@@ -71,8 +71,7 @@
 | `ActivateUserCommand` | Activar usuario pendiente o bloqueado |
 | `BlockUserCommand` | Bloquear usuario activo |
 | `RestoreUserCommand` | Restaurar usuario bloqueado |
-| `SetPasswordCommand` | Crear o rotar credencial de contrasena activa |
-| `DeactivatePasswordCommand` | Desactivar credencial (ej. en federacion de cuenta) |
+| `AddUserAccountPasswordCommand` | Crear o rotar la credencial local activa; el hash se genera en la API |
 | `EnrollMfaCommand` | Enrolar nuevo metodo MFA |
 | `VerifyMfaCommand` | Confirmar desafio MFA (Enrolled -> Verified) |
 | `LinkExternalIdentityCommand` | Vincular identidad federada |
@@ -173,12 +172,12 @@ sequenceDiagram
     participant U as UserAccount (AR)
     participant P as IPasswordHashingService
 
-    C->>H: SetPasswordCommand(userId, plainPassword, actorId)
+    C->>H: AddUserAccountPasswordCommand(userId, password)
     H->>R: GetById(userId)
     R-->>H: UserAccount
     H->>P: Hash(plainPassword)
     P-->>H: bcryptHash
-    H->>U: userAccount.SetPassword(credentialId, bcryptHash, actorId)
+    H->>U: userAccount.AddPassword(bcryptHash, actorId)
     U->>U: Buscar PasswordCredential activa
     U->>U: Establecer IsActive = false en existente
     U->>U: Crear nueva PasswordCredential (IsActive = true)
@@ -348,7 +347,7 @@ flowchart TD
 | `RegisterUserCommand` | `tenantId, email, category, createdBy` | `Guid userId` |
 | `ActivateUserCommand` | `userId, actorId` | `void` |
 | `BlockUserCommand` | `userId, reason, actorId` | `void` |
-| `SetPasswordCommand` | `userId, plainPassword, actorId` | `void` |
+| `AddUserAccountPasswordCommand` | `userId, password` | `Guid credentialId`; la API genera el hash, el cliente nunca lo suministra |
 | `EnrollMfaCommand` | `userId, method, actorId` | `Guid enrollmentId, setupToken` |
 | `VerifyMfaCommand` | `userId, enrollmentId, otp, actorId` | `void` |
 
@@ -356,6 +355,7 @@ flowchart TD
 | Consulta | Retorna |
 |---|---|
 | `GetUserMfaEnrollmentsQuery(userId)` | `List<MfaEnrollmentDto>` |
+| `GetUserAccountByIdQuery(userId)` | Estado `hasActivePassword` y `passwordUpdatedAtUtc`, nunca `PasswordHash` |
 
 ### Casos de Error
 | Codigo | Condicion |
@@ -386,6 +386,7 @@ flowchart TD
 - La columna `PasswordHash` nunca debe aparecer en proyecciones de consultas retornadas a clientes.
 - `PasswordHash` nunca debe aparecer en payloads `AuditRecord.WhatChanged`.
 - La columna debe estar encriptada en reposo (SQL Server Always Encrypted o TDE).
+- El cliente web entrega una contraseña temporal mediante transporte seguro; la API genera el hash BCrypt antes de persistir.
 
 ---
 

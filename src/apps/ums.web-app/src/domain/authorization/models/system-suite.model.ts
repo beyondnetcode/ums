@@ -9,4 +9,10 @@ export type {
   SystemStatus,
   CreateSystemSuitePayload,
   CreateSystemSuiteResponse,
+  SystemSuiteDomainResource,
 } from '../schemas/system-suite.schema';
+
+export type {
+  AddDomainResourceCommand,
+  UpdateDomainResourceCommand,
+} from '../schemas/system-suite.commands.schema';

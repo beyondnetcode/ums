@@ -39,8 +39,8 @@ export const useAddBranch = (tenantId: string) => {
       message: t.notifBranchAddedMsg(data.code),
     }),
     errorNotif: () => ({
-      title: t.notifBranchAdded,
-      message: t.notifBranchAdded,
+      title: t.notifBranchAddFailed ?? 'Error al Registrar Sucursal',
+      message: t.notifBranchAddFailedMsg ?? 'No se pudo registrar la sucursal.',
     }),
   });
 };
@@ -56,8 +56,8 @@ export const useRemoveBranch = (tenantId: string) => {
       type: 'warning' as const,
     }),
     errorNotif: () => ({
-      title: t.notifBranchRemoved,
-      message: t.notifBranchRemovedMsg,
+      title: t.notifBranchRemoveFailed ?? 'Error al Eliminar Sucursal',
+      message: t.notifBranchRemoveFailedMsg ?? 'No se pudo eliminar la sucursal.',
     }),
   });
 };
@@ -73,8 +73,8 @@ export const useDeactivateBranch = (tenantId: string) => {
       type: 'info' as const,
     }),
     errorNotif: () => ({
-      title: t.notifBranchDeactivated,
-      message: t.notifBranchDeactivatedMsg,
+      title: t.notifBranchDeactivateFailed ?? 'Error al Desactivar Sucursal',
+      message: t.notifBranchDeactivateFailedMsg ?? 'No se pudo desactivar la sucursal.',
     }),
   });
 };
@@ -89,8 +89,8 @@ export const useReactivateBranch = (tenantId: string) => {
       message: t.notifBranchReactivatedMsg,
     }),
     errorNotif: () => ({
-      title: t.notifBranchReactivated,
-      message: t.notifBranchReactivatedMsg,
+      title: t.notifBranchReactivateFailed ?? 'Error al Reactivar Sucursal',
+      message: t.notifBranchReactivateFailedMsg ?? 'No se pudo reactivar la sucursal.',
     }),
   });
 };

@@ -19,5 +19,23 @@
 
   "system.internal_error": "An internal system error occurred.",
   "system.validation_failed": "Validation failed for the request.",
-  "system.configuration_invalid": "System configuration is invalid."
+  "system.configuration_invalid": "System configuration is invalid.",
+
+  "error.authentication.required": "The operation could not be completed because you must sign in again.",
+  "error.authorization.forbidden": "The operation could not be completed because you do not have sufficient permission. Request access from an administrator.",
+  "error.resource.not_found": "The operation could not be completed because the requested record does not exist or is no longer available.",
+  "error.operation.conflict": "The operation could not be completed because the record changed or conflicts with a current rule. Refresh the information and try again.",
+  "error.validation.invalid": "The operation could not be completed because one or more fields are invalid. Review the entered data and try again.",
+  "error.request.invalid": "The operation could not be completed because the request contains invalid data. Review the information and try again.",
+  "error.unexpected": "The operation could not be completed due to an unexpected error. Try again later.",
+
+  "system_suite.module.suite_required": "The module could not be registered because you must select a system suite.",
+  "system_suite.module.code_required": "The module could not be registered because the Code field is required. Enter a valid code.",
+  "system_suite.module.code_too_long": "The module could not be registered because the Code field exceeds the 50-character maximum. Shorten it and try again.",
+  "system_suite.module.code_invalid_format": "The module could not be registered because the Code field has an invalid format. Use letters, numbers, and underscores only, for example REPORTS_01. Entered value: {0}.",
+  "system_suite.module.name_required": "The module could not be registered because the Name field is required. Enter a name.",
+  "system_suite.module.name_too_long": "The module could not be registered because the Name field exceeds the 150-character maximum. Shorten it and try again.",
+  "system_suite.module.description_too_long": "The module could not be registered because the Description field exceeds the 500-character maximum. Shorten it and try again.",
+  "system_suite.module.sort_order_invalid": "The module could not be registered because the Order field must be a positive integer. Enter a number greater than zero.",
+  "system_suite.module.code_not_unique": "The module could not be registered because another module already uses the same Code. Enter a different code."
 }

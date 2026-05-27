@@ -14,7 +14,7 @@
 | [Branding](./branding.md) | Entidad Propia (Tenant) | Produccion |
 | [IdentityProvider](./identity-provider.md) | Entidad Propia (Tenant) | Produccion |
 | [UserAccount](./user-account.md) | Aggregate Root | Produccion |
-| [PasswordCredential](./password-credential.md) | Entidad Propia (UserAccount) | Produccion |
+| [PasswordCredential](./password-credential.md) | Entidad Propia (UserAccount) | Mantenimiento activo (FS-18) |
 | [MfaEnrollment](./mfa-enrollment.md) | Entidad Propia (UserAccount) | Produccion |
 
 ---

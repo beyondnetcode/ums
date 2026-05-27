@@ -13,6 +13,7 @@ interface NotificationState {
   notifications: AppNotification[];
   isOpen: boolean;
   addNotification: (notification: Omit<AppNotification, 'id' | 'timestamp' | 'read'>) => void;
+  removeNotification: (id: string) => void;
   markAsRead: (id: string) => void;
   markAllAsRead: () => void;
   clearAll: () => void;
@@ -33,6 +34,9 @@ export const useNotificationStore = create<NotificationState>((set) => ({
       notifications: [newN, ...state.notifications].slice(0, 50), // Cap at 50 logs
     };
   }),
+  removeNotification: (id) => set((state) => ({
+    notifications: state.notifications.filter((notification) => notification.id !== id),
+  })),
   markAsRead: (id) => set((state) => ({
     notifications: state.notifications.map((n) => n.id === id ? { ...n, read: true } : n),
   })),

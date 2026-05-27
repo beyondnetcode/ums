@@ -67,7 +67,7 @@ export const TenantDetailPanel: React.FC<TenantDetailPanelProps> = ({
   ) : undefined;
 
   return (
-    <DetailPanelShell<ConsoleTab>
+    <DetailPanelShell
       isLoading={isLoading}
       isEmpty={!activeTenant}
       loadingLabel={t.loadingProfile}

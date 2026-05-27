@@ -44,13 +44,14 @@ public static class DependencyInjection
             .Validate(
                 options => options.Provider == PersistenceProvider.InMemory
                     || !string.IsNullOrWhiteSpace(configuration.GetConnectionString("DefaultConnection")),
-                "ConnectionStrings:DefaultConnection is required when Persistence.Provider is SqlServer.")
+                "ConnectionStrings:DefaultConnection is required when Persistence.Provider is SqlServer or Sqlite.")
             .ValidateOnStart();
 
         services.AddHttpContextAccessor();
 
         services.AddScoped<IUserContext, UserContext>();
         services.AddScoped<ITenantContext, TenantContext>();
+        services.AddSingleton<IPasswordHashingService, BcryptPasswordHashingService>();
         services.AddScoped<RequestContextAccessor>();
         services.AddScoped<IRequestContext>(sp => sp.GetRequiredService<RequestContextAccessor>());
         services.AddScoped<IExecutionContextAccessor>(sp => sp.GetRequiredService<RequestContextAccessor>());
@@ -114,7 +115,7 @@ public static class DependencyInjection
         var persistence = configuration.GetSection(PersistenceOptions.SectionName).Get<PersistenceOptions>() ?? new();
 
         // REC-04: Cross-aggregate transaction scope
-        if (persistence.Provider == PersistenceProvider.SqlServer)
+        if (persistence.Provider == PersistenceProvider.SqlServer || persistence.Provider == PersistenceProvider.Sqlite)
             services.AddScoped<IUnitOfWorkScope, UnitOfWorkScope>();
         else
             services.AddSingleton<IUnitOfWorkScope, NoOpUnitOfWorkScope>();
@@ -159,8 +160,31 @@ public static class DependencyInjection
                     serviceProvider.GetRequiredService<AuditSaveChangesInterceptor>());
             });
         }
+        else if (persistence.Provider == PersistenceProvider.Sqlite)
+        {
+            var connectionString = configuration.GetConnectionString("DefaultConnection")
+                ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection must be configured for SQLite persistence.");
 
-        if (persistence.Provider == PersistenceProvider.SqlServer && persistence.UseSqlServerIdentityStores)
+            if (connectionString.Contains("Server=", StringComparison.OrdinalIgnoreCase))
+            {
+                connectionString = "Data Source=umsdev.db";
+            }
+
+            services.AddScoped<OrganizationDbContextInterceptor>();
+            services.AddScoped<AuditSaveChangesInterceptor>(); // FIX-08: auto-stamp audit columns
+
+            services.AddDbContext<UmsPlatformDbContext>((serviceProvider, options) =>
+            {
+                options.UseSqlite(connectionString);
+
+                options.AddInterceptors(
+                    serviceProvider.GetRequiredService<OrganizationDbContextInterceptor>(),
+                    serviceProvider.GetRequiredService<AuditSaveChangesInterceptor>());
+            });
+        }
+
+        if ((persistence.Provider == PersistenceProvider.SqlServer && persistence.UseSqlServerIdentityStores) ||
+            (persistence.Provider == PersistenceProvider.Sqlite && persistence.UseSqliteIdentityStores))
         {
             services.AddScoped<ITenantRepository, SqlServerTenantRepository>();
             services.AddScoped<IUserAccountRepository, SqlServerUserAccountRepository>();
@@ -178,11 +202,13 @@ public static class DependencyInjection
             services.AddSingleton<IUserManagementDelegationRepository>(sp => sp.GetRequiredService<InMemoryUserManagementDelegationRepository>());
         }
 
-        if (persistence.Provider == PersistenceProvider.SqlServer && persistence.UseSqlServerAuthorizationStores)
+        if ((persistence.Provider == PersistenceProvider.SqlServer && persistence.UseSqlServerAuthorizationStores) ||
+            (persistence.Provider == PersistenceProvider.Sqlite && persistence.UseSqliteAuthorizationStores))
         {
             services.AddScoped<IProfileRepository, SqlServerProfileRepository>();
             services.AddScoped<ISystemSuiteRepository, SqlServerSystemSuiteRepository>();
             services.AddScoped<IPermissionTemplateRepository, SqlServerPermissionTemplateRepository>();
+            services.AddScoped<IRoleRepository, SqlServerRoleRepository>();
         }
         else
         {
@@ -194,9 +220,13 @@ public static class DependencyInjection
 
             services.AddSingleton<InMemoryPermissionTemplateRepository>();
             services.AddSingleton<IPermissionTemplateRepository>(sp => sp.GetRequiredService<InMemoryPermissionTemplateRepository>());
+
+            services.AddSingleton<InMemoryRoleRepository>();
+            services.AddSingleton<IRoleRepository>(sp => sp.GetRequiredService<InMemoryRoleRepository>());
         }
 
-        if (persistence.Provider == PersistenceProvider.SqlServer && persistence.UseSqlServerConfigurationStores)
+        if ((persistence.Provider == PersistenceProvider.SqlServer && persistence.UseSqlServerConfigurationStores) ||
+            (persistence.Provider == PersistenceProvider.Sqlite && persistence.UseSqliteConfigurationStores))
         {
             services.AddScoped<IAppConfigurationRepository, SqlServerAppConfigurationRepository>();
             services.AddScoped<IFeatureFlagRepository, SqlServerFeatureFlagRepository>();
@@ -214,7 +244,7 @@ public static class DependencyInjection
             services.AddSingleton<IIdpConfigurationRepository>(sp => sp.GetRequiredService<InMemoryIdpConfigurationRepository>());
         }
 
-        if (persistence.Provider == PersistenceProvider.SqlServer)
+        if (persistence.Provider == PersistenceProvider.SqlServer || persistence.Provider == PersistenceProvider.Sqlite)
         {
             services.AddScoped<IAuditRecordRepository, SqlServerAuditRecordRepository>();
         }
@@ -224,7 +254,8 @@ public static class DependencyInjection
             services.AddSingleton<IAuditRecordRepository>(sp => sp.GetRequiredService<InMemoryAuditRecordRepository>());
         }
 
-        if (persistence.Provider == PersistenceProvider.SqlServer && persistence.UseSqlServerApprovalsStores)
+        if ((persistence.Provider == PersistenceProvider.SqlServer && persistence.UseSqlServerApprovalsStores) ||
+            (persistence.Provider == PersistenceProvider.Sqlite && persistence.UseSqliteApprovalsStores))
         {
             services.AddScoped<IApprovalWorkflowRepository, SqlServerApprovalWorkflowRepository>();
             services.AddScoped<IApprovalRequestRepository, SqlServerApprovalRequestRepository>();
@@ -254,7 +285,8 @@ public static class DependencyInjection
             services.AddSingleton<IAccessEnforcementPolicyRepository>(sp => sp.GetRequiredService<InMemoryAccessEnforcementPolicyRepository>());
         }
 
-        if (persistence.Provider == PersistenceProvider.SqlServer && persistence.UseSqlServerIgaStores)
+        if ((persistence.Provider == PersistenceProvider.SqlServer && persistence.UseSqlServerIgaStores) ||
+            (persistence.Provider == PersistenceProvider.Sqlite && persistence.UseSqliteIgaStores))
         {
             services.AddScoped<IPromotionRequestRepository, SqlServerPromotionRequestRepository>();
             services.AddScoped<IRoleMaturityStatusRepository, SqlServerRoleMaturityStatusRepository>();
@@ -347,15 +379,18 @@ public static class DependencyInjection
 
         var builder = services.AddHealthChecks();
 
-        if (persistence.Provider == PersistenceProvider.SqlServer)
+        if (persistence.Provider == PersistenceProvider.SqlServer || persistence.Provider == PersistenceProvider.Sqlite)
         {
-            var connectionString = configuration.GetConnectionString("DefaultConnection");
-            if (!string.IsNullOrWhiteSpace(connectionString))
+            if (persistence.Provider == PersistenceProvider.SqlServer)
             {
-                builder.AddSqlServer(
-                    connectionString,
-                    name: "sql_server",
-                    tags: ["ready", "db"]);
+                var connectionString = configuration.GetConnectionString("DefaultConnection");
+                if (!string.IsNullOrWhiteSpace(connectionString))
+                {
+                    builder.AddSqlServer(
+                        connectionString,
+                        name: "sql_server",
+                        tags: ["ready", "db"]);
+                }
             }
 
             // Outbox backlog monitor — uses the scoped UmsPlatformDbContext

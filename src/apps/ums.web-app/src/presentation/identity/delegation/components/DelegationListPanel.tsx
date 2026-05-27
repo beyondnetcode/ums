@@ -93,31 +93,29 @@ export const DelegationListPanel: React.FC<DelegationListPanelProps> = ({
     return (
       <EntityRow
         key={delegation.delegationId}
+        id={delegation.delegationId}
         selected={isSelected}
         onClick={() => onSelectDelegation(delegation.delegationId)}
         leading={
-          <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-lg ${isSelected ? 'bg-m3-primary/15' : 'bg-m3-surface-container/50'}`}>
-              <Shield className={`w-4 h-4 ${isSelected ? 'text-m3-primary' : 'text-m3-secondary'}`} />
-            </div>
-            <div>
-              <span className="text-sm font-semibold text-m3-on-surface">
-                Delegación de Acceso
-              </span>
-              <span className="ml-2 text-[10px] text-m3-secondary/70 font-mono">
-                {delegation.scopeType}
-              </span>
-            </div>
+          <div className={`p-2 rounded-lg transition-colors ${isSelected ? 'bg-m3-primary/15' : 'bg-m3-surface-container/50'}`}>
+            <Shield className={`w-4 h-4 ${isSelected ? 'text-m3-primary' : 'text-m3-secondary'}`} />
           </div>
         }
-        trailing={
-          <div className="flex items-center gap-2">
-            <CodeBadge code={delegation.scopeType} />
-            <StatusBadge status={delegation.status} label={getStatusLabel(delegation.status)} />
-            <ArrowRight className={`w-4 h-4 ${isSelected ? 'text-m3-primary' : 'text-m3-outline'}`} />
-          </div>
-        }
-      />
+        trailingColumns={[
+          { content: <CodeBadge code={delegation.scopeType} />, width: 'w-24' },
+          { content: <StatusBadge status={delegation.status} label={getStatusLabel(delegation.status)} />, width: 'w-20' },
+          { content: <ArrowRight className={`w-4 h-4 transition-transform ${isSelected ? 'text-m3-primary translate-x-0.5' : 'text-m3-outline/30'}`} />, width: 'w-5' },
+        ]}
+      >
+        <div>
+          <span className="text-sm font-semibold text-m3-on-surface">
+            Delegación de Acceso
+          </span>
+          <span className="ml-2 text-[10px] text-m3-secondary/70 font-mono">
+            {delegation.scopeType}
+          </span>
+        </div>
+      </EntityRow>
     );
   }, [selectedId, onSelectDelegation, getStatusLabel]);
 
@@ -222,7 +220,7 @@ export const DelegationListPanel: React.FC<DelegationListPanelProps> = ({
             <>
               {error && <ApiErrorBanner error={error} />}
               <div className="overflow-x-auto border border-m3-outline/25 rounded-xl bg-m3-surface-container/20">
-                <div className="divide-y divide-m3-outline/10 text-sm">
+                <div className="flex flex-col gap-0.5 text-sm p-1">
                   {delegations.map(renderDelegationRow)}
                 </div>
               </div>

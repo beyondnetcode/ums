@@ -3,6 +3,34 @@ export const authorizationTranslations = {
     // Context labels
     authorizationContext: 'Contexto de Autorización',
     systemSuites: 'Suites del Sistema',
+    permissionTemplates: 'Plantillas de Permisos',
+    permissionTemplateMaintenance: 'Plantillas de Permisos',
+    permissionTemplateMaintenanceSubtitle: 'Configure plantillas de permisos por rol y suite. Asigne efectos (Permitir/Denegar/Neutro) a cada recurso.',
+
+    // Template list
+    templateDraft: 'Borrador',
+    templatePublished: 'Publicada',
+    templateDeprecated: 'Descontinuada',
+    selectTemplateToView: 'Seleccione una plantilla para ver sus detalles.',
+    noPermissionTemplates: 'Sin plantillas de permisos',
+    noPermissionTemplatesMsg: 'Cree la primera plantilla para este contexto de autorización.',
+
+    // Template form
+    createTemplateTitle: 'Nueva Plantilla de Permisos',
+    createTemplateDraftNote: 'La plantilla se crea en estado Borrador. Agrega los ítems de permiso antes de publicarla.',
+
+    // Template detail
+    templateGeneral: 'General',
+    templateItems: 'Permisos',
+    templatePublishBtn: 'Publicar',
+    templateDeprecateBtn: 'Descontinuar',
+    templateItemsEmpty: 'Sin ítems de permiso.',
+    templateAddItem: 'Agregar ítem de permiso',
+
+    // Effects
+    effectAllow: 'Permitir',
+    effectDeny: 'Denegar',
+    effectNeutral: 'Neutro',
     systemSuiteMaintenance: 'Mantenimiento de Suites del Sistema',
     systemSuiteMaintenanceSubtitle: 'Explore y gestione los suites del sistema, sus módulos y catálogos de acciones.',
 
@@ -24,8 +52,25 @@ export const authorizationTranslations = {
     // Tabs
     modules: 'Módulos',
     actions: 'Acciones',
+    roles: 'Roles',
     noModulesConfigured: 'No hay módulos configurados para este suite del sistema.',
     noActionsConfigured: 'No hay acciones configuradas para este suite del sistema.',
+    noRolesConfigured: 'No hay roles configurados para este suite del sistema.',
+    addRole: 'Agregar rol',
+    newRole: 'Nuevo rol',
+    saveRole: 'Guardar rol',
+    roleCode: 'Código',
+    roleValue: 'Nombre visible',
+    parentRole: 'Rol padre',
+    rootRole: 'Rol raíz',
+    roleLevel: 'Nivel',
+    promotionOrder: 'Orden de promoción',
+    roleCodeAndValueRequired: 'Código y nombre visible son requeridos.',
+    loading: 'Cargando...',
+    inactive: 'Inactivo',
+    noDescription: 'Sin descripción',
+    edit: 'Editar',
+    activate: 'Activar',
 
     // Status controls
     maintenanceBtn: 'Mantenimiento',
@@ -44,11 +89,51 @@ export const authorizationTranslations = {
     notifStatusChangeFailed: 'Error al Cambiar Estado',
     notifStatusChangeFailedMsg: 'No se pudo actualizar el estado del suite del sistema.',
     notifStatusSetTo: (status: string) => `Estado del suite actualizado a ${status}.`,
+    notifRoleCreated: 'Rol registrado',
+    notifRoleCreatedMsg: 'El rol fue registrado correctamente.',
+    notifRoleCreateFailed: 'Error al registrar rol',
+    notifRoleCreateFailedMsg: 'No se pudo registrar el rol. Revise el código y la jerarquía seleccionada.',
+    notifRoleUpdated: 'Rol actualizado',
+    notifRoleUpdatedMsg: 'Los datos del rol fueron actualizados.',
+    notifRoleUpdateFailed: 'Error al actualizar rol',
+    notifRoleUpdateFailedMsg: 'No se pudo actualizar el rol. Revise la jerarquía seleccionada.',
+    notifRoleStatusChanged: 'Estado del rol actualizado',
+    notifRoleStatusChangedMsg: 'El estado del rol fue actualizado correctamente.',
+    notifRoleStatusFailed: 'Error al cambiar estado del rol',
+    notifRoleStatusFailedMsg: 'No se pudo cambiar el estado del rol.',
   },
   en: {
     // Context labels
     authorizationContext: 'Authorization Context',
     systemSuites: 'System Suites',
+    permissionTemplates: 'Permission Templates',
+    permissionTemplateMaintenance: 'Permission Templates',
+    permissionTemplateMaintenanceSubtitle: 'Configure permission templates by role and system suite. Assign Allow/Deny/Neutral effects per resource.',
+
+    // Template list
+    templateDraft: 'Draft',
+    templatePublished: 'Published',
+    templateDeprecated: 'Deprecated',
+    selectTemplateToView: 'Select a template to view its details.',
+    noPermissionTemplates: 'No permission templates',
+    noPermissionTemplatesMsg: 'Create the first template for this authorization context.',
+
+    // Template form
+    createTemplateTitle: 'New Permission Template',
+    createTemplateDraftNote: 'The template is created in Draft state. Add permission items before publishing.',
+
+    // Template detail
+    templateGeneral: 'General',
+    templateItems: 'Permissions',
+    templatePublishBtn: 'Publish',
+    templateDeprecateBtn: 'Deprecate',
+    templateItemsEmpty: 'No permission items.',
+    templateAddItem: 'Add permission item',
+
+    // Effects
+    effectAllow: 'Allow',
+    effectDeny: 'Deny',
+    effectNeutral: 'Neutral',
     systemSuiteMaintenance: 'System Suite Maintenance',
     systemSuiteMaintenanceSubtitle: 'Explore and manage system suites, their modules, and action catalogs.',
 
@@ -70,8 +155,25 @@ export const authorizationTranslations = {
     // Tabs
     modules: 'Modules',
     actions: 'Actions',
+    roles: 'Roles',
     noModulesConfigured: 'No modules configured for this system suite.',
     noActionsConfigured: 'No actions configured for this system suite.',
+    noRolesConfigured: 'No roles configured for this system suite.',
+    addRole: 'Add role',
+    newRole: 'New role',
+    saveRole: 'Save role',
+    roleCode: 'Code',
+    roleValue: 'Display name',
+    parentRole: 'Parent role',
+    rootRole: 'Root role',
+    roleLevel: 'Level',
+    promotionOrder: 'Promotion order',
+    roleCodeAndValueRequired: 'Code and display name are required.',
+    loading: 'Loading...',
+    inactive: 'Inactive',
+    noDescription: 'No description',
+    edit: 'Edit',
+    activate: 'Activate',
 
     // Status controls
     maintenanceBtn: 'Maintenance',
@@ -90,5 +192,17 @@ export const authorizationTranslations = {
     notifStatusChangeFailed: 'Status Change Failed',
     notifStatusChangeFailedMsg: 'Could not update the system suite status.',
     notifStatusSetTo: (status: string) => `The system suite status was successfully set to ${status}.`,
+    notifRoleCreated: 'Role registered',
+    notifRoleCreatedMsg: 'The role was registered successfully.',
+    notifRoleCreateFailed: 'Could not register role',
+    notifRoleCreateFailedMsg: 'The role could not be registered. Check its code and selected hierarchy.',
+    notifRoleUpdated: 'Role updated',
+    notifRoleUpdatedMsg: 'The role details were updated.',
+    notifRoleUpdateFailed: 'Could not update role',
+    notifRoleUpdateFailedMsg: 'The role could not be updated. Check the selected hierarchy.',
+    notifRoleStatusChanged: 'Role status updated',
+    notifRoleStatusChangedMsg: 'The role status was updated successfully.',
+    notifRoleStatusFailed: 'Could not change role status',
+    notifRoleStatusFailedMsg: 'The role status could not be changed.',
   },
 } as const;

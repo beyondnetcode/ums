@@ -28,11 +28,11 @@ export const idpService = {
     tenantId: string,
     payload: RegisterIdentityProviderPayload,
   ): Promise<{ identityProviderId: string }> => {
-    const response = await httpClient.post<{ identityProviderId: string }>(
+    const { data } = await httpClient.post<{ identityProviderId: string }>(
       `/tenants/${tenantId}/identity-providers`,
       payload,
     );
-    return response;
+    return data;
   },
 
   activateIdentityProvider: async (tenantId: string, idpId: string): Promise<void> => {

@@ -1,14 +1,21 @@
 interface HttpErrorLike {
-  message?: string;
+  supportReferenceId?: string;
   response?: {
     status?: number;
+    headers?: Record<string, unknown>;
     data?: {
-      detail?: string;
-      message?: string;
+      // RFC 7807 Problem Details fields
+      detail?: string;         // transport detail; never display directly
+      title?: string;
+      // Approved, localized user-facing content
+      userMessage?: string;
+      // Correlation
+      errorId?: string;        // handle the user gives to support (look up in Loki)
+      traceId?: string;
+      supportReferenceId?: string;
     };
   };
   graphQLErrors?: ReadonlyArray<{
-    message?: string;
     extensions?: Record<string, unknown>;
   }>;
 }
@@ -24,14 +31,19 @@ export const asHttpError = (error: unknown): HttpErrorLike => {
     ? error.graphQLErrors
     : undefined;
   return {
-    message: typeof error.message === 'string' ? error.message : undefined,
+    supportReferenceId: typeof error.supportReferenceId === 'string' ? error.supportReferenceId : undefined,
     response: response
       ? {
           status: typeof response.status === 'number' ? response.status : undefined,
+          headers: isRecord(response.headers) ? response.headers : undefined,
           data: data
             ? {
-                detail: typeof data.detail === 'string' ? data.detail : undefined,
-                message: typeof data.message === 'string' ? data.message : undefined,
+                detail:             typeof data.detail === 'string' ? data.detail : undefined,
+                title:              typeof data.title === 'string' ? data.title : undefined,
+                errorId:            typeof data.errorId === 'string' ? data.errorId : undefined,
+                traceId:            typeof data.traceId === 'string' ? data.traceId : undefined,
+                supportReferenceId: typeof data.supportReferenceId === 'string' ? data.supportReferenceId : undefined,
+                userMessage:        typeof data.userMessage === 'string' ? data.userMessage : undefined,
               }
             : undefined,
         }
@@ -43,18 +55,40 @@ export const asHttpError = (error: unknown): HttpErrorLike => {
 export const getHttpStatus = (error: unknown): number | undefined =>
   asHttpError(error).response?.status;
 
-export const getHttpErrorMessage = (error: unknown, fallback: string): string => {
+export const getSupportReferenceId = (error: unknown): string | undefined => {
   const httpError = asHttpError(error);
+  const graphqlErrorId = httpError.graphQLErrors
+    ?.map((item) => item.extensions?.errorId)
+    .find((value): value is string => typeof value === 'string');
+  const graphqlTraceId = httpError.graphQLErrors
+    ?.map((item) => item.extensions?.traceId)
+    .find((value): value is string => typeof value === 'string');
+  const headerErrorId = httpError.response?.headers?.['x-error-id']
+    ?? httpError.response?.headers?.['X-Error-Id'];
+  const headerTraceId = httpError.response?.headers?.['x-correlation-id']
+    ?? httpError.response?.headers?.['X-Correlation-Id'];
 
-  // GraphQL errors
-  if (httpError.graphQLErrors?.length) {
-    const firstMessage = httpError.graphQLErrors[0]?.message;
-    if (firstMessage) return firstMessage;
-  }
+  return httpError.supportReferenceId
+    ?? httpError.response?.data?.supportReferenceId
+    ?? httpError.response?.data?.errorId
+    ?? graphqlErrorId
+    ?? (typeof headerErrorId === 'string' ? headerErrorId : undefined)
+    ?? httpError.response?.data?.traceId
+    ?? graphqlTraceId
+    ?? (typeof headerTraceId === 'string' ? headerTraceId : undefined);
+};
 
-  // REST errors
-  return httpError.response?.data?.detail
-    ?? httpError.response?.data?.message
-    ?? httpError.message
-    ?? fallback;
+/**
+ * Extracts the user-visible error message from an API error.
+ *
+ * Priority chain (OBS-01 contract):
+ *  1. `userMessage` — localized and approved by the backend
+ *  2. Caller-supplied fallback string
+ *
+ * Problem Details `detail`, stack traces and internal identifiers never appear here; they stay in
+ * Grafana Loki, keyed by the `errorId` returned by `getSupportReferenceId()`.
+ */
+export const getHttpErrorMessage = (error: unknown, fallback: string): string => {
+  const data = asHttpError(error).response?.data;
+  return data?.userMessage ?? fallback;
 };

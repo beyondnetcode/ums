@@ -26,6 +26,8 @@ Bienvenido al índice maestro de **Functional Stories** para el Sistema de Gesti
 *   **[FS-14: Delegar Gestión de Usuarios entre Administradores](./fs-14-delegated-management.md)**
 *   **[FS-15: Configurar Reglas de Notificación por Vencimiento](./fs-15-notification-rules.md)**
 *   **[FS-16: Definir Política de Acceso por Vencimiento](./fs-16-access-enforcement-policy.md)**
+*   **[FS-17: Mantener Roles de una Suite del Sistema](./fs-17-maintain-system-roles.md)**
+*   **[FS-18: Gestionar la Contraseña Local de un Usuario](./fs-18-manage-local-user-password.md)**
 
 ---
 

@@ -47,6 +47,12 @@ public sealed class InMemoryPermissionTemplateRepository : IPermissionTemplateRe
         return Task.CompletedTask;
     }
 
+    public Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var removed = _store.TryRemove(id, out _);
+        return Task.FromResult(removed);
+    }
+
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) => Task.FromResult(1);
     public Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default) => Task.FromResult(true);
 

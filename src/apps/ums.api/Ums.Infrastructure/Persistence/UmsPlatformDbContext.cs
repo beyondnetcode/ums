@@ -59,8 +59,10 @@ public sealed class UmsPlatformDbContext(
     public DbSet<SystemSuiteOptionRecord> SystemSuiteOptions => Set<SystemSuiteOptionRecord>();
     public DbSet<SystemSuiteAppSettingRecord> SystemSuiteAppSettings => Set<SystemSuiteAppSettingRecord>();
     public DbSet<SystemSuiteActionRecord> SystemSuiteActions => Set<SystemSuiteActionRecord>();
+    public DbSet<SystemSuiteDomainResourceRecord> SystemSuiteDomainResources => Set<SystemSuiteDomainResourceRecord>();
     public DbSet<PermissionTemplateRecord> PermissionTemplates => Set<PermissionTemplateRecord>();
     public DbSet<PermissionTemplateItemRecord> PermissionTemplateItems => Set<PermissionTemplateItemRecord>();
+    public DbSet<RoleRecord> Roles => Set<RoleRecord>();
     public DbSet<UserManagementDelegationRecord> UserManagementDelegations => Set<UserManagementDelegationRecord>();
     public DbSet<AppConfigurationRecord> AppConfigurations => Set<AppConfigurationRecord>();
     public DbSet<FeatureFlagRecord> FeatureFlags => Set<FeatureFlagRecord>();
@@ -100,8 +102,10 @@ public sealed class UmsPlatformDbContext(
         modelBuilder.ApplyConfiguration(new SystemSuiteOptionRecordConfiguration());
         modelBuilder.ApplyConfiguration(new SystemSuiteAppSettingRecordConfiguration());
         modelBuilder.ApplyConfiguration(new SystemSuiteActionRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new SystemSuiteDomainResourceRecordConfiguration());
         modelBuilder.ApplyConfiguration(new PermissionTemplateRecordConfiguration());
         modelBuilder.ApplyConfiguration(new PermissionTemplateItemRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new RoleRecordConfiguration());
         modelBuilder.ApplyConfiguration(new UserManagementDelegationRecordConfiguration());
         modelBuilder.ApplyConfiguration(new AppConfigurationRecordConfiguration());
         modelBuilder.ApplyConfiguration(new FeatureFlagRecordConfiguration());
@@ -160,6 +164,11 @@ public sealed class UmsPlatformDbContext(
                 !tenantContext.OrganizationId.HasValue ||
                 x.TenantId == tenantContext.OrganizationId);
 
+        modelBuilder.Entity<RoleRecord>()
+            .HasQueryFilter(x =>
+                !tenantContext.OrganizationId.HasValue ||
+                x.TenantId == tenantContext.OrganizationId);
+
         modelBuilder.Entity<SystemSuiteRecord>()
             .HasQueryFilter(x =>
                 !tenantContext.OrganizationId.HasValue ||
@@ -210,6 +219,19 @@ public sealed class UmsPlatformDbContext(
             .HasQueryFilter(x =>
                 !tenantContext.OrganizationId.HasValue ||
                 x.TenantId == tenantContext.OrganizationId);
+
+        if (Database.IsSqlite())
+        {
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                var rowVersionProperty = entityType.FindProperty("RowVersion");
+                if (rowVersionProperty != null && rowVersionProperty.ClrType == typeof(byte[]))
+                {
+                    rowVersionProperty.ValueGenerated = Microsoft.EntityFrameworkCore.Metadata.ValueGenerated.Never;
+                    rowVersionProperty.IsConcurrencyToken = false;
+                }
+            }
+        }
 
         base.OnModelCreating(modelBuilder);
     }

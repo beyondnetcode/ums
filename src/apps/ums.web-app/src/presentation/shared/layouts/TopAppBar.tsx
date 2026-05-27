@@ -52,9 +52,11 @@ export const TopAppBar: React.FC<{ onToggleNav: () => void }> = ({ onToggleNav }
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-m3-primary-container/20 rounded-xl border border-m3-primary-container/30 text-[11px] font-medium text-m3-primary">
-            <span>{t.devUser} {devUserId.substring(0, 8)}...</span>
-          </div>
+          {user && (
+            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-m3-primary-container/20 rounded-xl border border-m3-primary-container/30 text-[11px] font-medium text-m3-primary">
+              <span>{t.devUser} {user.username}</span>
+            </div>
+          )}
 
           <Tooltip content={t.toggleLanguage} placement="bottom">
             <button

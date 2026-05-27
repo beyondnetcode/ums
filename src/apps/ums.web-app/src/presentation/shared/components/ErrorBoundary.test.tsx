@@ -32,6 +32,7 @@ describe('ErrorBoundary', () => {
 
     // From i18n we expect "Algo salió mal" or "Something went wrong". We'll just check if the retry button is there.
     expect(screen.getByRole('button')).toBeInTheDocument();
+    expect(screen.queryByText('Explosion!')).not.toBeInTheDocument();
     
     console.error = originalConsoleError;
   });

@@ -17,12 +17,14 @@ public class UserAccountCommandHandlerTests
     private readonly Mock<IUserAccountRepository> _repo = new();
     private readonly Mock<IUnitOfWork>            _uow  = new();
     private readonly Mock<IUserContext>            _ctx  = new();
+    private readonly Mock<IPasswordHashingService> _passwordHashing = new();
 
     public UserAccountCommandHandlerTests()
     {
         _repo.Setup(r => r.UnitOfWork).Returns(_uow.Object);
         _uow.Setup(u => u.SaveEntitiesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(true);
         _ctx.Setup(u => u.UserId).Returns("user-001");
+        _passwordHashing.Setup(s => s.Hash(It.IsAny<string>())).Returns("$2a$12$server-generated-hash");
     }
 
     private static UserAccount MakeUserAccount()
@@ -313,6 +315,52 @@ public class UserAccountCommandHandlerTests
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
+    }
+
+    #endregion
+
+    #region Password management
+
+    [Fact]
+    public async Task SetPassword_WithNativeAccount_HashesOnServerAndActivatesCredential()
+    {
+        var user = MakeUserAccount();
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync(user);
+
+        var handler = new AddUserAccountPasswordCommandHandler(_repo.Object, _ctx.Object, _passwordHashing.Object);
+        var result = await handler.Handle(
+            new AddUserAccountPasswordCommand(Guid.NewGuid(), "Temporary!Pass123"),
+            CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        Assert.True(user.PasswordCredentials.Single().IsActive);
+        Assert.Equal("$2a$12$server-generated-hash", user.ActivePasswordHash?.GetValue());
+        _passwordHashing.Verify(s => s.Hash("Temporary!Pass123"), Times.Once);
+        _repo.Verify(r => r.UpdateAsync(user, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task SetPassword_WithFederatedAccount_ReturnsReadableFailureWithoutHashing()
+    {
+        var user = UserAccount.Create(
+            TenantId.Load(Guid.NewGuid()),
+            Email.Create("federated@test.com"),
+            UserCategory.Internal,
+            IdentityReference.Create("EMP-100"),
+            IdentityReferenceType.HrId,
+            ActorId.Create("user-001")).Value;
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync(user);
+
+        var handler = new AddUserAccountPasswordCommandHandler(_repo.Object, _ctx.Object, _passwordHashing.Object);
+        var result = await handler.Handle(
+            new AddUserAccountPasswordCommand(Guid.NewGuid(), "Temporary!Pass123"),
+            CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("autenticación federada", result.Error);
+        _passwordHashing.Verify(s => s.Hash(It.IsAny<string>()), Times.Never);
     }
 
     #endregion

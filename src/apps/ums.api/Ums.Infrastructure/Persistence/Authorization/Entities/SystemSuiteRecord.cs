@@ -18,4 +18,5 @@ public sealed class SystemSuiteRecord : IAuditableRecord
     public List<SystemSuiteModuleRecord> Modules { get; set; } = [];
     public List<SystemSuiteAppSettingRecord> AppSettings { get; set; } = [];
     public List<SystemSuiteActionRecord> Actions { get; set; } = [];
+    public List<SystemSuiteDomainResourceRecord> DomainResources { get; set; } = [];
 }

@@ -8,4 +8,6 @@ public sealed record UserAccountDto(
     string Category,
     string Status,
     string? IdentityReference,
-    string? IdentityReferenceType);
+    string? IdentityReferenceType,
+    bool HasActivePassword,
+    DateTime? PasswordUpdatedAtUtc);

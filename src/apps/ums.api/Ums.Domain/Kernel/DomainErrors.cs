@@ -49,6 +49,7 @@ public static class DomainErrors
         public const string AlreadyBlocked = "user_account.already_blocked";
         public const string CannotRestore = "user_account.cannot_restore";
         public const string BlockedCannotUpdateCredentials = "user_account.blocked_cannot_update_credentials";
+        public const string FederatedCannotUseLocalPassword = "user_account.federated_cannot_use_local_password";
         public const string PasswordHashRequired = "user_account.password_hash_required";
         public const string BlockedCannotEnrollMfa = "user_account.blocked_cannot_enroll_mfa";
         public const string MfaAlreadyEnrolled = "user_account.mfa_already_enrolled";
@@ -100,6 +101,10 @@ public static class DomainErrors
         public const string ProfileTemplateAlreadyLinked = "authorization.profile_template_already_linked";
         public const string RoleAlreadyActive = "authorization.role_already_active";
         public const string RoleAlreadyInactive = "authorization.role_already_inactive";
+        public const string RoleHierarchyLevelInvalid = "authorization.role_hierarchy_level_invalid";
+        public const string RootRoleHierarchyLevelInvalid = "authorization.root_role_hierarchy_level_invalid";
+        public const string ChildRoleHierarchyLevelInvalid = "authorization.child_role_hierarchy_level_invalid";
+        public const string RolePromotionOrderInvalid = "authorization.role_promotion_order_invalid";
         public const string ActionAlreadyGranted = "authorization.action_already_granted";
         public const string ActionNotGranted = "authorization.action_not_granted";
     }

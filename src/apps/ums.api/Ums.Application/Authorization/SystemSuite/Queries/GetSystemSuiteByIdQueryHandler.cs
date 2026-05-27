@@ -26,12 +26,6 @@ public sealed class GetSystemSuiteByIdQueryHandler : IQueryHandler<GetSystemSuit
             return Result<SystemSuiteDto>.Failure("System suite not found.");
         }
 
-        return Result<SystemSuiteDto>.Success(new SystemSuiteDto(
-            systemSuite.Props.Id.GetValue(),
-            systemSuite.Props.TenantId.GetValue(),
-            systemSuite.Props.Code.GetValue(),
-            systemSuite.Props.Name.GetValue(),
-            systemSuite.Props.Description.GetValue(),
-            systemSuite.Props.Status.ToString()));
+        return Result<SystemSuiteDto>.Success(SystemSuiteDto.Map(systemSuite));
     }
 }

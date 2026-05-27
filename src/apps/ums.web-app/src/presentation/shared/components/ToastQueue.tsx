@@ -92,6 +92,7 @@ ToastItem.displayName = 'ToastItem';
 
 export const ToastQueue: React.FC = React.memo(() => {
   const notifications = useNotificationStore((s) => s.notifications);
+  const removeNotification = useNotificationStore((s) => s.removeNotification);
   const [toasts, setToasts] = useState<ToastEntry[]>([]);
 
   // Track which notification IDs have already been shown so re-renders
@@ -150,6 +151,7 @@ export const ToastQueue: React.FC = React.memo(() => {
       timersRef.current.delete(id);
     }
 
+    removeNotification(id);
     setToasts((prev) =>
       prev.map((t) => (t.id === id ? { ...t, leaving: true } : t)),
     );
@@ -158,7 +160,7 @@ export const ToastQueue: React.FC = React.memo(() => {
       timersRef.current.delete(id + '_remove');
     }, LEAVE_ANIMATION_MS);
     timersRef.current.set(id + '_remove', removeTimer);
-  }, []);
+  }, [removeNotification]);
 
   if (toasts.length === 0) return null;
 

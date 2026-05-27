@@ -34,6 +34,41 @@ const GET_SYSTEM_SUITES = `
         name
         description
         status
+        modules {
+          id
+          code
+          name
+          description
+          status
+          sortOrder
+          menus {
+            id
+            code
+            label
+            description
+            sortOrder
+            subMenus {
+              id
+              code
+              label
+              description
+              sortOrder
+              options {
+                id
+                code
+                label
+                description
+                actionCode
+                sortOrder
+              }
+            }
+          }
+        }
+        actions {
+          id
+          code
+          name
+        }
       }
       page
       pageSize
@@ -52,9 +87,87 @@ const GET_SYSTEM_SUITE_BY_ID = `
       name
       description
       status
+      modules {
+        id
+        code
+        name
+        description
+        status
+        sortOrder
+        menus {
+          id
+          code
+          label
+          description
+          sortOrder
+          subMenus {
+            id
+            code
+            label
+            description
+            sortOrder
+            options {
+              id
+              code
+              label
+              description
+              actionCode
+              sortOrder
+            }
+          }
+        }
+      }
+      actions {
+        id
+        code
+        name
+      }
     }
   }
 `;
+
+export interface GraphqlSystemSuiteActionDto {
+  id: string;
+  code: string;
+  name: string;
+}
+
+export interface GraphqlSystemSuiteOptionDto {
+  id: string;
+  code: string;
+  label: string;
+  description: string;
+  actionCode: string;
+  sortOrder: number;
+}
+
+export interface GraphqlSystemSuiteSubMenuDto {
+  id: string;
+  code: string;
+  label: string;
+  description: string;
+  sortOrder: number;
+  options: GraphqlSystemSuiteOptionDto[];
+}
+
+export interface GraphqlSystemSuiteMenuDto {
+  id: string;
+  code: string;
+  label: string;
+  description: string;
+  sortOrder: number;
+  subMenus: GraphqlSystemSuiteSubMenuDto[];
+}
+
+export interface GraphqlSystemSuiteModuleDto {
+  id: string;
+  code: string;
+  name: string;
+  description: string;
+  status: string;
+  sortOrder: number;
+  menus: GraphqlSystemSuiteMenuDto[];
+}
 
 export interface GraphqlSystemSuiteDto {
   systemSuiteId: string;
@@ -63,6 +176,8 @@ export interface GraphqlSystemSuiteDto {
   name: string;
   description: string;
   status: string;
+  modules: GraphqlSystemSuiteModuleDto[];
+  actions: GraphqlSystemSuiteActionDto[];
 }
 
 export interface GraphqlSystemSuitePage {

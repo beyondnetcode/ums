@@ -4,15 +4,18 @@ using Ums.Domain.Authorization.SystemSuite.AppSetting;
 using Ums.Domain.Authorization.SystemSuite.Module;
 using Ums.Domain.Authorization.SystemSuite.Action;
 using Ums.Domain.Authorization.SystemSuite.Events;
+using Ums.Domain.Authorization.SystemSuite.DomainResource;
 using ModuleEntity = Ums.Domain.Authorization.SystemSuite.Module.Module;
 using AppSettingEntity = Ums.Domain.Authorization.SystemSuite.AppSetting.AppSetting;
 using ActionEntity = Ums.Domain.Authorization.SystemSuite.Action.Action;
+using DomainResourceEntity = Ums.Domain.Authorization.SystemSuite.DomainResource.DomainResource;
 
 public sealed class SystemSuite : AggregateRoot<SystemSuite, SystemSuiteProps>
 {
     private readonly List<ModuleEntity> _modules = new();
     private readonly List<AppSettingEntity> _appSettings = new();
     private readonly List<ActionEntity> _actions = new();
+    private readonly List<DomainResourceEntity> _domainResources = new();
 
     public new SystemSuiteDomainEventsManager DomainEvents { get; }
 
@@ -35,6 +38,7 @@ public sealed class SystemSuite : AggregateRoot<SystemSuite, SystemSuiteProps>
     public IReadOnlyCollection<ModuleEntity> Modules => _modules.AsReadOnly();
     public IReadOnlyCollection<AppSettingEntity> AppSettings => _appSettings.AsReadOnly();
     public IReadOnlyCollection<ActionEntity> Actions => _actions.AsReadOnly();
+    public IReadOnlyCollection<DomainResourceEntity> DomainResources => _domainResources.AsReadOnly();
 
     public SystemSuiteId GetId() => SystemSuiteId.Load(Props.Id.GetValue());
 
@@ -260,6 +264,174 @@ public sealed class SystemSuite : AggregateRoot<SystemSuite, SystemSuiteProps>
         return Result.Success();
     }
 
+    // ── Menu lifecycle ────────────────────────────────────────────────────────
+
+    public Result AddMenu(IdValueObject moduleId, Code code, Name label, Description description, int sortOrder, ActorId createdBy)
+    {
+        var module = FindModule(moduleId);
+        if (module.IsFailure)
+            return Result.Failure(module.Error);
+
+        var result = module.Value.AddMenu(code, label, description, sortOrder, createdBy);
+        if (result.IsFailure) return result;
+
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(createdBy.GetValue());
+        return Result.Success();
+    }
+
+    public Result UpdateMenu(IdValueObject moduleId, IdValueObject menuId, Name label, Description description, int sortOrder, ActorId updatedBy)
+    {
+        var module = FindModule(moduleId);
+        if (module.IsFailure)
+            return Result.Failure(module.Error);
+
+        var result = module.Value.UpdateMenu(menuId, label, description, sortOrder, updatedBy);
+        if (result.IsFailure) return result;
+
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy.GetValue());
+        return Result.Success();
+    }
+
+    public Result RemoveMenu(IdValueObject moduleId, IdValueObject menuId, ActorId updatedBy)
+    {
+        var module = FindModule(moduleId);
+        if (module.IsFailure)
+            return Result.Failure(module.Error);
+
+        var result = module.Value.RemoveMenu(menuId, updatedBy);
+        if (result.IsFailure) return result;
+
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy.GetValue());
+        return Result.Success();
+    }
+
+    // ── SubMenu lifecycle ─────────────────────────────────────────────────────
+
+    public Result AddSubMenu(IdValueObject moduleId, IdValueObject menuId, Code code, Name label, Description description, int sortOrder, ActorId createdBy)
+    {
+        var module = FindModule(moduleId);
+        if (module.IsFailure)
+            return Result.Failure(module.Error);
+
+        var menu = module.Value.Menus.FirstOrDefault(m => m.Props.Id.GetValue() == menuId.GetValue());
+        if (menu is null)
+            return Result.Failure(DomainErrors.Common.NotFound);
+
+        var result = menu.AddSubMenu(code, label, description, sortOrder, createdBy);
+        if (result.IsFailure) return result;
+
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(createdBy.GetValue());
+        return Result.Success();
+    }
+
+    public Result UpdateSubMenu(IdValueObject moduleId, IdValueObject menuId, IdValueObject subMenuId, Name label, Description description, int sortOrder, ActorId updatedBy)
+    {
+        var module = FindModule(moduleId);
+        if (module.IsFailure)
+            return Result.Failure(module.Error);
+
+        var menu = module.Value.Menus.FirstOrDefault(m => m.Props.Id.GetValue() == menuId.GetValue());
+        if (menu is null)
+            return Result.Failure(DomainErrors.Common.NotFound);
+
+        var result = menu.UpdateSubMenu(subMenuId, label, description, sortOrder, updatedBy);
+        if (result.IsFailure) return result;
+
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy.GetValue());
+        return Result.Success();
+    }
+
+    public Result RemoveSubMenu(IdValueObject moduleId, IdValueObject menuId, IdValueObject subMenuId, ActorId updatedBy)
+    {
+        var module = FindModule(moduleId);
+        if (module.IsFailure)
+            return Result.Failure(module.Error);
+
+        var menu = module.Value.Menus.FirstOrDefault(m => m.Props.Id.GetValue() == menuId.GetValue());
+        if (menu is null)
+            return Result.Failure(DomainErrors.Common.NotFound);
+
+        var result = menu.RemoveSubMenu(subMenuId, updatedBy);
+        if (result.IsFailure) return result;
+
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy.GetValue());
+        return Result.Success();
+    }
+
+    // ── Option lifecycle ──────────────────────────────────────────────────────
+
+    public Result AddOption(IdValueObject moduleId, IdValueObject menuId, IdValueObject subMenuId, Code code, Name label, Description description, ActionCode actionCode, int sortOrder, ActorId createdBy)
+    {
+        var module = FindModule(moduleId);
+        if (module.IsFailure)
+            return Result.Failure(module.Error);
+
+        var menu = module.Value.Menus.FirstOrDefault(m => m.Props.Id.GetValue() == menuId.GetValue());
+        if (menu is null)
+            return Result.Failure(DomainErrors.Common.NotFound);
+
+        var subMenu = menu.SubMenus.FirstOrDefault(sm => sm.Props.Id.GetValue() == subMenuId.GetValue());
+        if (subMenu is null)
+            return Result.Failure(DomainErrors.Common.NotFound);
+
+        var result = subMenu.AddOption(code, label, description, actionCode, sortOrder, createdBy);
+        if (result.IsFailure) return result;
+
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(createdBy.GetValue());
+        return Result.Success();
+    }
+
+    public Result UpdateOption(IdValueObject moduleId, IdValueObject menuId, IdValueObject subMenuId, IdValueObject optionId, Name label, Description description, ActionCode actionCode, int sortOrder, ActorId updatedBy)
+    {
+        var module = FindModule(moduleId);
+        if (module.IsFailure)
+            return Result.Failure(module.Error);
+
+        var menu = module.Value.Menus.FirstOrDefault(m => m.Props.Id.GetValue() == menuId.GetValue());
+        if (menu is null)
+            return Result.Failure(DomainErrors.Common.NotFound);
+
+        var subMenu = menu.SubMenus.FirstOrDefault(sm => sm.Props.Id.GetValue() == subMenuId.GetValue());
+        if (subMenu is null)
+            return Result.Failure(DomainErrors.Common.NotFound);
+
+        var result = subMenu.UpdateOption(optionId, label, description, actionCode, sortOrder, updatedBy);
+        if (result.IsFailure) return result;
+
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy.GetValue());
+        return Result.Success();
+    }
+
+    public Result RemoveOption(IdValueObject moduleId, IdValueObject menuId, IdValueObject subMenuId, IdValueObject optionId, ActorId updatedBy)
+    {
+        var module = FindModule(moduleId);
+        if (module.IsFailure)
+            return Result.Failure(module.Error);
+
+        var menu = module.Value.Menus.FirstOrDefault(m => m.Props.Id.GetValue() == menuId.GetValue());
+        if (menu is null)
+            return Result.Failure(DomainErrors.Common.NotFound);
+
+        var subMenu = menu.SubMenus.FirstOrDefault(sm => sm.Props.Id.GetValue() == subMenuId.GetValue());
+        if (subMenu is null)
+            return Result.Failure(DomainErrors.Common.NotFound);
+
+        var result = subMenu.RemoveOption(optionId, updatedBy);
+        if (result.IsFailure) return result;
+
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy.GetValue());
+        return Result.Success();
+    }
+
     public Result RegisterAction(ActionCode code, Name name, ActorId createdBy)
     {
         if (_actions.Any(a => a.Code == code))
@@ -305,9 +477,80 @@ public sealed class SystemSuite : AggregateRoot<SystemSuite, SystemSuiteProps>
         return Result.Success();
     }
 
+    // ── Domain Resource lifecycle ─────────────────────────────────────────────
+
+    public Result AddDomainResource(ModuleId? moduleId, DomainResourceType type, Code code, Name name, Description description, ActorId createdBy)
+    {
+        if (_domainResources.Any(dr => dr.Code == code))
+        {
+            BrokenRules.Add(new BrokenRule(nameof(DomainResources), DomainErrors.Common.Duplicate)); // Alternatively, a specific error
+        }
+
+        if (!IsValid())
+        {
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+        }
+
+        var drResult = DomainResourceEntity.Create(GetId(), moduleId, type, code, name, description, createdBy);
+        if (drResult.IsFailure)
+        {
+            return Result.Failure(drResult.Error);
+        }
+
+        _domainResources.Add(drResult.Value);
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(createdBy.GetValue());
+        return Result.Success();
+    }
+
+    public Result UpdateDomainResource(IdValueObject resourceId, Name name, Description description, ActorId updatedBy)
+    {
+        var resource = FindDomainResource(resourceId);
+        if (resource.IsFailure)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(DomainResources), DomainErrors.Common.NotFound));
+        }
+
+        if (!IsValid())
+        {
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+        }
+
+        var updateResult = resource.Value.Update(name, description, updatedBy);
+        if (updateResult.IsFailure)
+        {
+            return Result.Failure(updateResult.Error);
+        }
+
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy.GetValue());
+        return Result.Success();
+    }
+
+    public Result RemoveDomainResource(IdValueObject resourceId, ActorId updatedBy)
+    {
+        var resource = FindDomainResource(resourceId);
+        if (resource.IsFailure)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(DomainResources), DomainErrors.Common.NotFound));
+        }
+
+        if (!IsValid())
+        {
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+        }
+
+        _domainResources.Remove(resource.Value);
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy.GetValue());
+        return Result.Success();
+    }
+
     private Result<ModuleEntity> FindModule(IdValueObject moduleId)
     {
-        var module = _modules.FirstOrDefault(m => m.Id.GetValue() == moduleId.GetValue());
+        // Use Props.Id (stable database GUID). Entity.Id is a transient random GUID
+        // generated on each rehydration and must not be used for cross-request lookups.
+        var module = _modules.FirstOrDefault(m => m.Props.Id.GetValue() == moduleId.GetValue());
         return module is null
             ? Result<ModuleEntity>.Failure(DomainErrors.Common.NotFound)
             : Result<ModuleEntity>.Success(module);
@@ -327,5 +570,13 @@ public sealed class SystemSuite : AggregateRoot<SystemSuite, SystemSuiteProps>
         return action is null
             ? Result<ActionEntity>.Failure(DomainErrors.Common.NotFound)
             : Result<ActionEntity>.Success(action);
+    }
+
+    private Result<DomainResourceEntity> FindDomainResource(IdValueObject resourceId)
+    {
+        var resource = _domainResources.FirstOrDefault(r => r.Props.Id.GetValue() == resourceId.GetValue());
+        return resource is null
+            ? Result<DomainResourceEntity>.Failure(DomainErrors.Common.NotFound)
+            : Result<DomainResourceEntity>.Success(resource);
     }
 }

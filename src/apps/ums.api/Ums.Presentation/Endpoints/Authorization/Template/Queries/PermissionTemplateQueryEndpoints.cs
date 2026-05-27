@@ -16,8 +16,8 @@ public static class PermissionTemplateQueryEndpoints
             return result.ToOk(context);
         })
         .WithName("GetPermissionTemplateById")
-        .WithSummary("Get permission template by ID")
-        .Produces<PermissionTemplateDto>(StatusCodes.Status200OK)
+        .WithSummary("Get permission template by ID including all permission items")
+        .Produces<PermissionTemplateDetailDto>(StatusCodes.Status200OK)
         .ProducesProblem(StatusCodes.Status404NotFound);
 
         return app;

@@ -101,19 +101,25 @@ public static class UserAccountEndpoints
         .ProducesProblem(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status409Conflict);
 
-        // TODO: Implement the following endpoints in Application layer
-        // group.MapPost("/{userAccountId:guid}/passwords", async (Guid userAccountId, AddUserAccountPasswordCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
-        // {
-        //     var result = await mediator.Send(command with { UserAccountId = userAccountId }, ct);
-        //     return result.ToCreated(r => $"/user-accounts/{userAccountId}/passwords/{r.CredentialId}", context);
-        // })
-        // .WithName("AddUserAccountPassword")
-        // .WithSummary("Add a new password credential and make it active")
-        // .Produces<AddUserAccountPasswordResponse>(StatusCodes.Status201Created)
-        // .ProducesProblem(StatusCodes.Status400BadRequest)
-        // .ProducesProblem(StatusCodes.Status404NotFound)
-        // .ProducesProblem(StatusCodes.Status409Conflict);
+        group.MapPost("/{userAccountId:guid}/passwords", async (
+            Guid userAccountId,
+            AddUserAccountPasswordCommand command,
+            IMediator mediator,
+            HttpContext context,
+            CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command with { UserAccountId = userAccountId }, ct);
+            return result.ToCreated(r => $"/user-accounts/{userAccountId}/passwords/{r.CredentialId}", context);
+        })
+        .WithName("AddUserAccountPassword")
+        .WithSummary("Set or rotate a local password credential; hashing is performed by the API")
+        .Produces<AddUserAccountPasswordResponse>(StatusCodes.Status201Created)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status409Conflict);
 
+        // Historic credential reactivation and physical deletion remain intentionally
+        // unavailable: password rotation retains inactive entries for security audit.
         // group.MapPost("/{userAccountId:guid}/passwords/{credentialId:guid}/activate", async (Guid userAccountId, Guid credentialId, IMediator mediator, HttpContext context, CancellationToken ct) =>
         // {
         //     var result = await mediator.Send(new ActivateUserAccountPasswordCommand(userAccountId, credentialId), ct);

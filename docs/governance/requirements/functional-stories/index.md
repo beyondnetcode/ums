@@ -26,6 +26,8 @@ Welcome to the master **Functional Stories** index for the User Management Syste
 *   **[FS-14: Delegate User Management Between Administrators](./fs-14-delegated-management.md)**
 *   **[FS-15: Configure Expiration Notification Rules](./fs-15-notification-rules.md)**
 *   **[FS-16: Define Access Policy on Expiration](./fs-16-access-enforcement-policy.md)**
+*   **[FS-17: Maintain Roles for a System Suite](./fs-17-maintain-system-roles.md)**
+*   **[FS-18: Manage a User Local Password](./fs-18-manage-local-user-password.md)**
 
 ---
 

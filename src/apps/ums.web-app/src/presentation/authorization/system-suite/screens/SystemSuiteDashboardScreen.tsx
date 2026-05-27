@@ -16,7 +16,6 @@ export default function SystemSuiteDashboardScreen(): React.JSX.Element {
   const criteriaOptions: QueryCriteriaOption[] = [
     { label: t.byName, value: 'name' },
     { label: t.byCode, value: 'code' },
-    { label: t.bySystemSuiteId, value: 'id' },
   ];
   const filterOptions: FilterOption[] = [
     { label: t.allStatuses, value: 'all' },

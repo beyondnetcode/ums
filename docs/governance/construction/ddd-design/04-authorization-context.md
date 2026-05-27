@@ -2,7 +2,7 @@
 
 > **Idioma:** Español | *Versión en inglés no disponible*
 
-**Schema:** `[ums_authorization]` | **Owner:** UMS Core API .NET 10  
+**Schema:** `[ums_authorization]` | **Owner:** UMS Core API .NET 10
 **Misión:** Actuar como Policy Decisión Point (PDP). Compilar y resolver el grafo de autorización jerarquico. Gobernar la topologia de recursos (sistemas, modulos, acciones) y los perfiles de permisos.  
 **FS cubiertos:** FS-02, FS-04, FS-05, FS-06, FS-07  
 **Versión:** 2.0 | **Fecha:** 2026-05-15
@@ -15,14 +15,14 @@
 ## Agregados
 
 > [!NOTE]
-> En la implementación real de C# (base de código), **`Profile`** y **`PermissionTemplate`** son los únicos agregados locales de dominio activos. **`SystemSuite`**, **`Role`** y **`TemplateAssignmentRule`** están diferidos en esta fase y son consumidos mediante referencias desacopladas a nivel de Value Object ID (`SystemSuiteId`, `RoleId`).
+> En la implementacion C# actual, **`Profile`**, **`PermissionTemplate`**, **`SystemSuite`** y **`Role`** son agregados locales activos. **`TemplateAssignmentRule`** permanece diferido.
 
 | Agregado | Raiz | C# Status | Descripción |
 |---------|------|-----------|-------------|
 | [Profile](#aggregate-profile) | `Profile` | **Activo** | Colección de autorizaciónes de un usuario |
 | [PermissionTemplate](#aggregate-permissiontemplate) | `PermissionTemplate` | **Activo** | Blueprint de permisos reutilizable |
-| [SystemSuite](#aggregate-systemsuite) | `SystemSuite` | *Diferido (Ref ID)* | Aplicación cliente con topología de recursos |
-| [Role](#aggregate-role) | `Role` | *Diferido (Ref ID)* | Rol jerárquico dentro de un sistema |
+| [SystemSuite](#aggregate-systemsuite) | `SystemSuite` | **Activo** | Aplicacion cliente con topologia de recursos |
+| [Role](#aggregate-role) | `Role` | **Activo** | Catalogo de roles jerarquicos de una suite |
 | [TemplateAssignmentRule](#aggregate-templateassignmentrule) | `TemplateAssignmentRule` | *Diferido (Ref ID)* | Regla de auto-asignación de templates |
 
 ---
@@ -159,7 +159,7 @@ SystemRetiredEvent           { suiteId }
 ## Aggregate: Role
 
 **Aggregate Root:** `Role`  
-**FS:** FS-02, FS-05, FS-12
+**FS:** FS-02, FS-05, FS-12, FS-17
 
 ### Value Objects
 
@@ -167,6 +167,9 @@ SystemRetiredEvent           { suiteId }
 |-------------|------|-------|
 | `RoleHierarchyLevel` | int | Nivel jerarquico; inmutable post-asignacion |
 | `PromotionOrder` | int | Orden lineal de promoción dentro del suite |
+| `Code` | string | Codigo unico dentro de la suite |
+| `Value` | string | Valor visible requerido del catalogo |
+| `Description` | string | Descripcion funcional requerida por el estandar de catalogos |
 
 ### Invariantes
 
@@ -187,8 +190,9 @@ classDiagram
         +Guid Id
         +Guid SuiteId
         +Guid TenantId
-        +string Name
         +string Code
+        +string Value
+        +string Description
         +RoleHierarchyLevel HierarchyLevel
         +int PromotionOrder
         +Guid ParentRoleId
@@ -208,8 +212,9 @@ stateDiagram-v2
 ### Comandos y Eventos
 
 ```
-CreateRoleCommand          -> RoleCreatedEvent          { roleId, suiteId, parentRoleId? }
-UpdateRoleHierarchyCommand -> RoleHierarchyUpdatedEvent { roleId, oldParentRoleId, newParentRoleId }
+CreateRoleCommand    -> RoleCreatedEvent     { roleId, suiteId, parentRoleId? }
+UpdateRoleCommand    -> RoleUpdatedEvent     { roleId }
+SetRoleStatusCommand -> RoleActivatedEvent / RoleDeactivatedEvent { roleId }
 ```
 
 ---

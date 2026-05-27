@@ -105,8 +105,9 @@ erDiagram
         uniqueidentifier SuiteId FK
         uniqueidentifier TenantId FK "RLS"
         uniqueidentifier ParentRoleId FK "Self-Ref Nullable"
-        nvarchar Name
         nvarchar Code
+        nvarchar Value
+        nvarchar Description
         int HierarchyLevel
         int PromotionOrder
         bit IsActive
@@ -420,8 +421,9 @@ erDiagram
         uniqueidentifier SuiteId FK
         uniqueidentifier TenantId FK "RLS"
         uniqueidentifier ParentRoleId FK "Self-Ref Nullable"
-        nvarchar Name
         nvarchar Code
+        nvarchar Value
+        nvarchar Description
         int HierarchyLevel
         int PromotionOrder
         bit IsActive
@@ -757,5 +759,5 @@ erDiagram
 7.  **Aplicación Automática de Cumplimiento**: Workers en segundo plano escanean `USER_DOCUMENT`. Al vencer, se activa `ACCESS_ENFORCEMENT_POLICY`. Los documentos críticos transicionarán automáticamente el `USER_ACCOUNT` a estado `BLOCKED` o restringirán el contexto del `PROFILE`.
 8.  **Enrutamiento de Notificaciones por Tenant**: `NOTIFICATION_RULE` está modelado actualmente como un agregado de enrutamiento propiedad del tenant (`Channel`, `Recipient`, `IsActive`). Los calendarios más granulares orientados por tipo documental siguen siendo una extensión futura y deben introducirse explícitamente antes de documentarse como comportamiento implementado.
 9.  **Estándar de Catálogo Paramétrico Obligatorio**: Cada entidad de parámetro/configuración/catálogo DEBE incluir `Code`, `Value` y `Description`. `Description` debe documentar propósito, impacto funcional, comportamiento esperado y alcance aplicable. Todas estas entidades deben además definir unicidad por alcance, linaje de versiones, metadatos de auditoría, eventos de trazabilidad, estrategia de invalidación de caché y extensibilidad futura.
-10. **Aislamiento de Credenciales**: `PASSWORD_CREDENTIAL` y `MFA_ENROLLMENT` son entidades separadas propiedad de `USER_ACCOUNT`. Un usuario puede tener como máximo una `PASSWORD_CREDENTIAL` activa y múltiples registros `MFA_ENROLLMENT` (uno por método). Esto permite rotación limpia de credenciales y gestión de métodos multi-factor sin acoplamiento al registro de identidad principal.
+10. **Aislamiento de Credenciales**: `PASSWORD_CREDENTIAL` y `MFA_ENROLLMENT` son entidades separadas propiedad de `USER_ACCOUNT`. Un usuario puede tener como máximo una `PASSWORD_CREDENTIAL` activa y múltiples registros `MFA_ENROLLMENT` (uno por método). El mantenimiento de contraseña se ofrece desde la vista de credenciales del usuario seleccionado únicamente para cuentas internas; las consultas muestran estado y fecha de última rotación, nunca `PasswordHash`.
 11. **Doble Puerta de Aprobación IGA**: `PROMOTION_REQUEST` rastrea dos etapas de aprobación independientes — Manager y Seguridad — cada una con su propio estado y marca de tiempo. Ambas deben estar en `APPROVED` antes de que el `Status` pueda avanzar a `EXECUTED`. El registro `PROMOTION_IMPACT_ANALYSIS` se genera automáticamente y debe ser revisado antes de otorgar la aprobación de Seguridad.

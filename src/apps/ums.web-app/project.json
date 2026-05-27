@@ -4,10 +4,16 @@
   "sourceRoot": "src",
   "targets": {
     "build": {
-      "command": "vite build"
+      "command": "vite build",
+      "options": {
+        "cwd": "apps/ums.web-app"
+      }
     },
     "dev": {
-      "command": "vite"
+      "command": "vite",
+      "options": {
+        "cwd": "apps/ums.web-app"
+      }
     }
   }
 }

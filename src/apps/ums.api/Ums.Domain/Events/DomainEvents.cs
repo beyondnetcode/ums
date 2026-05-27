@@ -55,6 +55,7 @@ public sealed record ProfileDeactivatedEvent(Guid ProfileId) : AuthorizationDoma
 public sealed record ProfileActivatedEvent(Guid ProfileId) : AuthorizationDomainEvent;
 
 public sealed record RoleCreatedEvent(Guid RoleId, Guid TenantId, Guid SystemSuiteId, string Code, Guid? ParentRoleId) : AuthorizationDomainEvent;
+public sealed record RoleUpdatedEvent(Guid RoleId) : AuthorizationDomainEvent;
 public sealed record RoleActivatedEvent(Guid RoleId) : AuthorizationDomainEvent;
 public sealed record RoleDeactivatedEvent(Guid RoleId) : AuthorizationDomainEvent;
 public sealed record RoleActionGrantedEvent(Guid RoleId, string ActionCode) : AuthorizationDomainEvent;

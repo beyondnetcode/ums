@@ -7,7 +7,9 @@ using Ums.Domain.Authorization.SystemSuite.Menu;
 using Ums.Domain.Authorization.SystemSuite.SubMenu;
 using Ums.Domain.Authorization.SystemSuite.Option;
 using Ums.Domain.Authorization.SystemSuite.Action;
+using Ums.Domain.Authorization.SystemSuite.DomainResource;
 using Ums.Domain.Authorization.Template;
+using Ums.Domain.Authorization.Role;
 using Ums.Domain.Authorization.Template.PermissionTemplateItem;
 using Ums.Domain.Enums;
 using Ums.Domain.Kernel.ValueObjects;
@@ -19,12 +21,14 @@ namespace Ums.Infrastructure.Persistence.Reflection;
 
 using ProfileAggregate = Ums.Domain.Authorization.Profile.Profile;
 using PermissionTemplateAggregate = Ums.Domain.Authorization.Template.PermissionTemplate;
+using RoleAggregate = Ums.Domain.Authorization.Role.Role;
 using SystemSuiteAggregate = Ums.Domain.Authorization.SystemSuite.SystemSuite;
 using ModuleEntity = Ums.Domain.Authorization.SystemSuite.Module.Module;
 using MenuEntity = Ums.Domain.Authorization.SystemSuite.Menu.Menu;
 using SubMenuEntity = Ums.Domain.Authorization.SystemSuite.SubMenu.SubMenu;
 using OptionEntity = Ums.Domain.Authorization.SystemSuite.Option.Option;
 using ActionEntity = Ums.Domain.Authorization.SystemSuite.Action.Action;
+using DomainResourceEntity = Ums.Domain.Authorization.SystemSuite.DomainResource.DomainResource;
 using PermissionTemplateItemEntity = Ums.Domain.Authorization.Template.PermissionTemplateItem.PermissionTemplateItem;
 
 internal static class AuthorizationAggregateFactory
@@ -80,7 +84,8 @@ internal static class AuthorizationAggregateFactory
         SystemSuiteRecord systemSuiteRecord,
         IReadOnlyCollection<SystemSuiteModuleRecord> moduleRecords,
         IReadOnlyCollection<SystemSuiteAppSettingRecord> appSettingRecords,
-        IReadOnlyCollection<SystemSuiteActionRecord> actionRecords)
+        IReadOnlyCollection<SystemSuiteActionRecord> actionRecords,
+        IReadOnlyCollection<SystemSuiteDomainResourceRecord> domainResourceRecords)
     {
         var props = new Ums.Domain.Authorization.SystemSuite.SystemSuiteProps(
             IdValueObject.Load(systemSuiteRecord.Id),
@@ -97,10 +102,12 @@ internal static class AuthorizationAggregateFactory
         var modules = moduleRecords.OrderBy(x => x.SortOrder).Select(RehydrateModule).ToList();
         var appSettings = appSettingRecords.Select(RehydrateAppSetting).ToList();
         var actions = actionRecords.Select(RehydrateAction).ToList();
+        var domainResources = domainResourceRecords.Select(RehydrateDomainResource).ToList();
 
         SetField(aggregate, "_modules", modules);
         SetField(aggregate, "_appSettings", appSettings);
         SetField(aggregate, "_actions", actions);
+        SetField(aggregate, "_domainResources", domainResources);
         aggregate.DomainEvents.MarkChangesAsCommitted();
         aggregate.BrokenRules.Clear();
 
@@ -129,6 +136,29 @@ internal static class AuthorizationAggregateFactory
         aggregate.DomainEvents.MarkChangesAsCommitted();
         aggregate.BrokenRules.Clear();
 
+        return aggregate;
+    }
+
+    public static RoleAggregate RehydrateRole(RoleRecord record)
+    {
+        var props = new RoleProps(
+            IdValueObject.Load(record.Id),
+            TenantId.Load(record.TenantId),
+            SystemSuiteId.Load(record.SystemSuiteId),
+            record.ParentRoleId.HasValue ? RoleId.Load(record.ParentRoleId.Value) : null,
+            Code.Create(record.Code),
+            Name.Create(record.Value),
+            Description.Create(record.Description),
+            record.HierarchyLevel,
+            record.PromotionOrder,
+            ActorId.Create(record.CreatedBy));
+
+        props.IsActive = record.IsActive;
+        SetAudit(props, record.CreatedBy, record.CreatedAtUtc, record.UpdatedBy, record.UpdatedAtUtc, record.AuditTimeSpan);
+
+        var aggregate = Construct<RoleAggregate, RoleProps>(props);
+        aggregate.DomainEvents.MarkChangesAsCommitted();
+        aggregate.BrokenRules.Clear();
         return aggregate;
     }
 
@@ -223,6 +253,24 @@ internal static class AuthorizationAggregateFactory
         var action = Construct<ActionEntity, ActionProps>(props);
         action.BrokenRules.Clear();
         return action;
+    }
+
+    private static DomainResourceEntity RehydrateDomainResource(SystemSuiteDomainResourceRecord record)
+    {
+        var props = new DomainResourceProps(
+            IdValueObject.Load(record.Id),
+            SystemSuiteId.Load(record.SystemSuiteId),
+            record.ModuleId.HasValue ? ModuleId.Load(record.ModuleId.Value) : null,
+            DomainEnumerationMapper.FromName<DomainResourceType>(record.Type),
+            Code.Create(record.Code),
+            Name.Create(record.Name),
+            Description.Create(record.Description),
+            ActorId.Create(record.CreatedBy));
+
+        SetAudit(props, record.CreatedBy, record.CreatedAtUtc, record.UpdatedBy, record.UpdatedAtUtc, record.AuditTimeSpan);
+        var domainResource = Construct<DomainResourceEntity, DomainResourceProps>(props);
+        domainResource.BrokenRules.Clear();
+        return domainResource;
     }
 
     private static AppSetting RehydrateAppSetting(SystemSuiteAppSettingRecord record)

@@ -14,7 +14,7 @@
 | [Branding](./branding.md) | Owned Entity (Tenant) | Production |
 | [IdentityProvider](./identity-provider.md) | Owned Entity (Tenant) | Production |
 | [UserAccount](./user-account.md) | Aggregate Root | Production |
-| [PasswordCredential](./password-credential.md) | Owned Entity (UserAccount) | Production |
+| [PasswordCredential](./password-credential.md) | Owned Entity (UserAccount) | Active maintenance (FS-18) |
 | [MfaEnrollment](./mfa-enrollment.md) | Owned Entity (UserAccount) | Production |
 | [UserManagementDelegation](./user-management-delegation.md) | Aggregate Root | Production |
 

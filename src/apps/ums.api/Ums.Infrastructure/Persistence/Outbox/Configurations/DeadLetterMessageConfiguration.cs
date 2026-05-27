@@ -24,7 +24,6 @@ public sealed class DeadLetterMessageConfiguration : IEntityTypeConfiguration<De
             .IsRequired();
 
         builder.Property(x => x.Payload)
-            .HasColumnType("nvarchar(max)")
             .IsRequired();
 
         builder.Property(x => x.LastError)

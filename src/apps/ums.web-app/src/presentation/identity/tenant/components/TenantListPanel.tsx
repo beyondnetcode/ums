@@ -162,33 +162,20 @@ export const TenantListPanel: React.FC<TenantListPanelProps> = ({
       renderList={() => (
         <>
           {error && <ApiErrorBanner error={error} />}
-          <div className="overflow-x-auto border border-m3-outline/25 rounded-xl bg-m3-surface-container/20">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-m3-outline/20 text-xs font-medium text-m3-secondary bg-m3-surface-container/40">
-                <th className="py-3.5 px-5">{t.colTenantName}</th>
-                <th className="py-3.5 px-4">{t.colCode}</th>
-                <th className="py-3.5 px-4">{t.colCategory}</th>
-                <th className="py-3.5 px-4">{t.colStatus}</th>
-                <th className="py-3.5 px-5 text-right">{t.colAction}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-m3-outline/10 text-sm">
-              <HierarchicalList<Tenant>
-                items={tenants}
-                idKey="tenantId"
-                parentIdKey="parentTenantId"
-                selectedId={selectedId}
-                onSelect={onSelectTenant}
-                renderParentRow={renderParentRow}
-                renderChildRow={renderChildRow}
-                renderParentCard={renderParentCard}
-                renderChildCard={renderChildCard}
-                viewMode={viewMode}
-              />
-            </tbody>
-          </table>
-        </div>
+          <div className="flex flex-col gap-0.5">
+            <HierarchicalList<Tenant>
+              items={tenants}
+              idKey="tenantId"
+              parentIdKey="parentTenantId"
+              selectedId={selectedId}
+              onSelect={onSelectTenant}
+              renderParentRow={renderParentRow}
+              renderChildRow={renderChildRow}
+              renderParentCard={renderParentCard}
+              renderChildCard={renderChildCard}
+              viewMode={viewMode}
+            />
+          </div>
         </>
       )}
       renderThumbnail={() => (

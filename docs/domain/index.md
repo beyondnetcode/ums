@@ -21,6 +21,7 @@ Detailed architecture documents for every Aggregate Root in the UMS domain model
 | Aggregate Root | Document | Owned Child Entities (documented inline) |
 |---|---|---|
 | `SystemSuite` | [system-suite.md](./authorization/system-suite.md) | `Module`, `Menu`, `SubMenu`, `Option`, `Action` |
+| `Role` | [role.md](./authorization/role.md) | None |
 | `PermissionTemplate` | [permission-template.md](./authorization/permission-template.md) | `PermissionTemplateItem` |
 | `Profile` | [profile.md](./authorization/profile.md) | `ProfilePermission` |
 

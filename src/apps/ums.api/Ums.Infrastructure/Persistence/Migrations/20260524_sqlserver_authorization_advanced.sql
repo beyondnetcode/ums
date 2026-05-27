@@ -17,9 +17,7 @@ BEGIN
         [UpdatedBy] NVARCHAR(100) NULL,
         [UpdatedAtUtc] DATETIME2 NULL,
         [AuditTimeSpan] NVARCHAR(100) NOT NULL,
-        [RowVersion] ROWVERSION NOT NULL,
-        CONSTRAINT [FK_PermissionTemplates_SystemSuites]
-            FOREIGN KEY ([SystemSuiteId]) REFERENCES [ums_authorization].[SystemSuites]([Id])
+        [RowVersion] ROWVERSION NOT NULL
     );
 
     CREATE UNIQUE INDEX [UX_SystemSuites_Tenant_Code]
@@ -182,7 +180,9 @@ BEGIN
         [UpdatedBy] NVARCHAR(100) NULL,
         [UpdatedAtUtc] DATETIME2 NULL,
         [AuditTimeSpan] NVARCHAR(100) NOT NULL,
-        [RowVersion] ROWVERSION NOT NULL
+        [RowVersion] ROWVERSION NOT NULL,
+        CONSTRAINT [FK_PermissionTemplates_SystemSuites]
+            FOREIGN KEY ([SystemSuiteId]) REFERENCES [ums_authorization].[SystemSuites]([Id])
     );
 
     CREATE UNIQUE INDEX [UX_PermissionTemplates_Tenant_Role_Suite_Version]

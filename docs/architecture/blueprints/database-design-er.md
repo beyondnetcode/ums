@@ -105,8 +105,9 @@ erDiagram
         uniqueidentifier SuiteId FK
         uniqueidentifier TenantId FK "RLS"
         uniqueidentifier ParentRoleId FK "Self-Ref Nullable"
-        nvarchar Name
         nvarchar Code
+        nvarchar Value
+        nvarchar Description
         int HierarchyLevel
         int PromotionOrder
         bit IsActive
@@ -420,8 +421,9 @@ erDiagram
         uniqueidentifier SuiteId FK
         uniqueidentifier TenantId FK "RLS"
         uniqueidentifier ParentRoleId FK "Self-Ref Nullable"
-        nvarchar Name
         nvarchar Code
+        nvarchar Value
+        nvarchar Description
         int HierarchyLevel
         int PromotionOrder
         bit IsActive
@@ -757,5 +759,5 @@ erDiagram
 7.  **Automated Compliance Enforcement**: Background workers scan `USER_DOCUMENT`. Upon expiration, the `ACCESS_ENFORCEMENT_POLICY` is triggered. Critical documents will automatically transition the `USER_ACCOUNT` to a `BLOCKED` status or restrict specific `PROFILE` context.
 8.  **Tenant-Level Notification Routing**: `NOTIFICATION_RULE` is currently modeled as a tenant-owned routing aggregate (`Channel`, `Recipient`, `IsActive`). More granular document-type-driven schedules remain a future extension and must be introduced explicitly before being documented as implemented behavior.
 9.  **Mandatory Parametric Catalog Standard**: Every parameter/configuration/catalog entity MUST include `Code`, `Value`, and `Description`. `Description` must document purpose, functional impact, expected behavior, and applicable scope. All such entities must additionally define uniqueness by scope, versioning lineage, auditing metadata, traceability events, cache invalidation strategy, and forward extensibility.
-10. **Credential Isolation**: `PASSWORD_CREDENTIAL` and `MFA_ENROLLMENT` are separate entities owned by `USER_ACCOUNT`. A user may have at most one active `PASSWORD_CREDENTIAL` and multiple `MFA_ENROLLMENT` records (one per method). This enables clean credential rotation and multi-factor method management without coupling to the core identity record.
+10. **Credential Isolation**: `PASSWORD_CREDENTIAL` and `MFA_ENROLLMENT` are separate entities owned by `USER_ACCOUNT`. A user may have at most one active `PASSWORD_CREDENTIAL` and multiple `MFA_ENROLLMENT` records (one per method). Password maintenance is offered from the selected user's credential view only for internal accounts; queries expose status and last rotation date, never `PasswordHash`.
 11. **IGA Dual Approval Gate**: `PROMOTION_REQUEST` tracks two independent approval stages — Manager and Security — each with its own status and timestamp. Both must be `APPROVED` before `Status` can advance to `EXECUTED`. The `PROMOTION_IMPACT_ANALYSIS` record is generated automatically and must be reviewed before Security approval is granted.

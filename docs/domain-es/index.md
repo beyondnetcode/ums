@@ -21,6 +21,7 @@ Documentos de arquitectura detallados para cada Aggregate Root en el modelo de d
 | Agregado Raíz | Documento | Entidades Hijas Propias (documentadas inline) |
 |---|---|---|
 | `SystemSuite` | [system-suite.md](./authorization/system-suite.md) | `Module`, `Menu`, `SubMenu`, `Option`, `Action` |
+| `Role` | [role.md](./authorization/role.md) | Ninguna |
 | `PermissionTemplate` | [permission-template.md](./authorization/permission-template.md) | `PermissionTemplateItem` |
 | `Profile` | [profile.md](./authorization/profile.md) | `ProfilePermission` |
 

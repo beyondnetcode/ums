@@ -13,7 +13,7 @@ internal static class QueryResultExtensions
             return result.Value;
         }
 
-        throw CreateGraphQlException(result.Error, code);
+        throw CreateGraphQlException(code);
     }
 
     public static T? UnwrapGraphQlOrNull<T>(this Result<T> result)
@@ -21,11 +21,11 @@ internal static class QueryResultExtensions
         => result.IsSuccess ? result.Value : null;
 
     public static GraphQLException ToGraphQlException(this string message, string code = "UMS_QUERY_ERROR")
-        => CreateGraphQlException(message, code);
+        => CreateGraphQlException(code);
 
-    private static GraphQLException CreateGraphQlException(string message, string code)
+    private static GraphQLException CreateGraphQlException(string code)
         => new(ErrorBuilder.New()
-            .SetMessage(message)
+            .SetMessage("The request could not be completed.")
             .SetCode(code)
             .Build());
 }

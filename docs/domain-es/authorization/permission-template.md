@@ -139,6 +139,9 @@ sequenceDiagram
 ```mermaid
 erDiagram
     PERMISSION_TEMPLATE ||--o{ PERMISSION_TEMPLATE_ITEM : "contiene"
+    SYSTEM_SUITE ||--o{ PERMISSION_TEMPLATE_ITEM : "apunta a"
+    MODULE ||--o{ PERMISSION_TEMPLATE_ITEM : "apunta a"
+    DOMAIN_RESOURCE ||--o{ PERMISSION_TEMPLATE_ITEM : "apunta a"
     ACTION ||--o{ PERMISSION_TEMPLATE_ITEM : "referencia"
 
     PERMISSION_TEMPLATE {
@@ -151,6 +154,8 @@ erDiagram
     PERMISSION_TEMPLATE_ITEM {
         uniqueidentifier ItemId PK
         uniqueidentifier TemplateId FK
+        int TargetTypeId "1=SystemSuite 2=Module 3=Submodule 4=Option 5=Aggregate 6=Entity"
+        uniqueidentifier TargetId "Exclusive Arc"
         uniqueidentifier ActionId FK
         nvarchar PermissionKey
     }

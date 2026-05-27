@@ -36,3 +36,12 @@ export function sanitizeInput(input: string): string {
 export function sanitizeCode(input: string): string {
   return input.replace(/[^A-Z0-9_]/g, '').trim();
 }
+
+/**
+ * Format a raw string into a standard technical system code.
+ * Standardizes to uppercase, replaces whitespaces with underscores, and trims.
+ */
+export function formatSystemCode(input: string): string {
+  return input.trim().toUpperCase().replace(/\s+/g, '_');
+}
+

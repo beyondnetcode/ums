@@ -7,7 +7,7 @@
  */
 import React from 'react';
 
-export type NavItemId = 'tenants' | 'users' | 'delegations' | 'profile' | 'login';
+export type NavItemId = 'tenants' | 'users' | 'delegations' | 'systemSuites' | 'permissionTemplates' | 'profile' | 'login';
 
 export interface NavItem {
   id: NavItemId;
@@ -26,6 +26,8 @@ export const NAV_ROUTES: Record<NavItemId, string> = {
   tenants: '/tenants',
   users: '/users',
   delegations: '/delegations',
+  systemSuites: '/system-suites',
+  permissionTemplates: '/permission-templates',
   profile: '/profile',
   login: '/login',
 };
@@ -34,6 +36,8 @@ export const pathToTab = (pathname: string): NavItemId => {
   if (pathname.startsWith('/tenants')) return 'tenants';
   if (pathname.startsWith('/users')) return 'users';
   if (pathname.startsWith('/delegations')) return 'delegations';
+  if (pathname.startsWith('/system-suites')) return 'systemSuites';
+  if (pathname.startsWith('/permission-templates')) return 'permissionTemplates';
   if (pathname.startsWith('/profile')) return 'profile';
   if (pathname.startsWith('/login')) return 'login';
   return 'tenants';
@@ -62,6 +66,15 @@ export const NAV_MODULES = (deps: NavModulesFactoryDeps): NavModule[] => [
       { id: 'users',       nameKey: 'userAccounts',        icon: <deps.Users className="w-4 h-4" /> },
       // TODO: Delegations - will be implemented later
       // { id: 'delegations', nameKey: 'delegationManagement', icon: <deps.GitMerge className="w-4 h-4" /> },
+    ],
+  },
+  {
+    key: 'authorization',
+    nameKey: 'authorizationContext',
+    icon: <deps.ShieldCheck className={`w-5 h-5 ${deps.primaryColorClass}`} />,
+    members: [
+      { id: 'systemSuites',         nameKey: 'systemSuites',         icon: <deps.Cpu         className="w-4 h-4" /> },
+      { id: 'permissionTemplates',  nameKey: 'permissionTemplates',  icon: <deps.ShieldCheck className="w-4 h-4" /> },
     ],
   },
   {

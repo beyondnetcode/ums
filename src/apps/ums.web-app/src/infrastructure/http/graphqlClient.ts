@@ -24,7 +24,7 @@ export interface GraphQlErrorResponse {
     message: string;
     locations?: Array<{ line: number; column: number }>;
     path?: string[];
-    extensions?: { code: string };
+    extensions?: { code?: string; errorId?: string; traceId?: string };
   }>;
   data?: null;
 }
@@ -35,6 +35,7 @@ export class GraphQlError extends Error {
     public readonly status: number,
     public readonly responseErrors?: GraphQlErrorResponse['errors'],
     public readonly operationName?: string,
+    public readonly supportReferenceId?: string,
   ) {
     super(message);
     this.name = 'GraphQlError';
@@ -42,14 +43,14 @@ export class GraphQlError extends Error {
 }
 
 export class GraphQlUnavailableError extends Error {
-  constructor(public readonly status: number) {
+  constructor(public readonly status: number, public readonly supportReferenceId?: string) {
     super(status === 0 ? 'Network error: unable to reach the API' : `API unavailable (HTTP ${status})`);
     this.name = 'GraphQlUnavailableError';
   }
 }
 
 export class GraphQlValidationError extends Error {
-  constructor(message: string, public readonly details: string[]) {
+  constructor(message: string, public readonly details: string[], public readonly supportReferenceId?: string) {
     super(message);
     this.name = 'GraphQlValidationError';
   }
@@ -95,10 +96,13 @@ async function executeGraphQl<T>(query: string, variables?: Record<string, unkno
     headers,
     body: JSON.stringify(body),
   });
+  const supportReferenceId = response.headers.get('X-Error-Id')
+    ?? response.headers.get('X-Correlation-Id')
+    ?? undefined;
 
   if (!response.ok) {
     if (response.status === 502 || response.status === 503 || response.status === 0) {
-      throw new GraphQlUnavailableError(response.status);
+      throw new GraphQlUnavailableError(response.status, supportReferenceId);
     }
 
     let errorBody: GraphQlErrorResponse | null = null;
@@ -123,6 +127,7 @@ async function executeGraphQl<T>(query: string, variables?: Record<string, unkno
       throw new GraphQlValidationError(
         `GraphQL validation failed: ${messages.join('; ')}`,
         messages,
+        supportReferenceId,
       );
     }
 
@@ -131,6 +136,7 @@ async function executeGraphQl<T>(query: string, variables?: Record<string, unkno
       response.status,
       errorBody?.errors,
       operationName,
+      supportReferenceId,
     );
   }
 
@@ -141,11 +147,12 @@ async function executeGraphQl<T>(query: string, variables?: Record<string, unkno
     throw new GraphQlValidationError(
       `GraphQL errors: ${messages.join('; ')}`,
       messages,
+      supportReferenceId ?? result.errors[0]?.extensions?.errorId ?? result.errors[0]?.extensions?.traceId,
     );
   }
 
   if (!result.data) {
-    throw new GraphQlError('GraphQL response contained no data', 200, undefined, operationName);
+    throw new GraphQlError('GraphQL response contained no data', 200, undefined, operationName, supportReferenceId);
   }
 
   return result.data;

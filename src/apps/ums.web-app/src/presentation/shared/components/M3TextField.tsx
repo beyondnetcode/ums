@@ -11,6 +11,8 @@ interface M3TextFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
    * Use in dense settings panels or toolbars where vertical space is limited.
    */
   compact?: boolean;
+  /** dense – renders a 40 dp field for compact search and filter toolbars. */
+  dense?: boolean;
 }
 
 /**
@@ -36,6 +38,7 @@ export const M3TextField: React.FC<M3TextFieldProps> = ({
   icon,
   iconPosition = 'start',
   compact = false,
+  dense = false,
   className = '',
   id,
   ...props
@@ -53,7 +56,10 @@ export const M3TextField: React.FC<M3TextFieldProps> = ({
   const autoId = useId();
   const inputId = id || autoId;
   const hasMbClass = /\bmb-/.test(className);
-  const defaultMb = compact ? 'mb-3' : 'mb-4';
+  const defaultMb = compact || dense ? 'mb-3' : 'mb-4';
+  const fieldHeightClass = dense ? 'h-10' : compact ? 'h-12' : 'h-14';
+  const inputPaddingClass = dense ? 'px-3' : 'px-4';
+  const inputSpacingClass = dense ? 'pt-3 pb-1 text-xs' : `${compact ? 'pt-4 pb-1' : 'pt-5 pb-2'} text-sm`;
 
   const [focused, setFocused] = useState(false);
 
@@ -91,7 +97,7 @@ export const M3TextField: React.FC<M3TextFieldProps> = ({
       */}
       <fieldset
         className={[
-          `relative w-full ${compact ? 'h-12' : 'h-14'} m-0 p-0 min-w-0 rounded-[4px]`,
+          `relative w-full ${fieldHeightClass} m-0 p-0 min-w-0 rounded-[4px]`,
           'bg-m3-surface-container/30 dark:bg-m3-surface-container/20',
           'transition-colors duration-150',
           borderClass,
@@ -125,7 +131,7 @@ export const M3TextField: React.FC<M3TextFieldProps> = ({
           onBlur={(e)  => { setFocused(false); extOnBlur?.(e); }}
           className={[
             'peer absolute inset-0 w-full h-full bg-transparent rounded-[4px]',
-            `px-4 ${compact ? 'pt-4 pb-1' : 'pt-5 pb-2'} text-sm text-m3-on-surface`,
+            `${inputPaddingClass} ${inputSpacingClass} text-m3-on-surface`,
             'focus:outline-none',
             'disabled:opacity-50 disabled:cursor-not-allowed',
             icon && iconPosition === 'start' ? 'pl-10' : '',
@@ -142,7 +148,7 @@ export const M3TextField: React.FC<M3TextFieldProps> = ({
             'transition-all duration-150 ease-in-out',
             isFloated
               ? 'left-3 px-1 top-0 -translate-y-1/2 text-xs'
-              : 'left-4 top-1/2 -translate-y-1/2 text-sm',
+              : `${dense ? 'left-3 text-xs' : 'left-4 text-sm'} top-1/2 -translate-y-1/2`,
             labelColorClass,
           ].join(' ')}
         >
@@ -154,7 +160,7 @@ export const M3TextField: React.FC<M3TextFieldProps> = ({
         {hint && (
           <span
             className={[
-              'absolute left-4 right-4 text-sm text-m3-secondary/50',
+              `absolute ${dense ? 'left-3 right-3 text-xs' : 'left-4 right-4 text-sm'} text-m3-secondary/50`,
               'pointer-events-none select-none transition-opacity duration-150',
               focused && !hasValue ? 'opacity-100' : 'opacity-0',
             ].join(' ')}

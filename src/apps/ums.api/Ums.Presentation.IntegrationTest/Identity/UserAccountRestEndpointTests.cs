@@ -85,4 +85,32 @@ public sealed class UserAccountRestEndpointTests : IClassFixture<UmsApiWebApplic
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
+
+    [Fact]
+    public async Task SetLocalPassword_ForNativeUser_ShouldExposeStatusWithoutHash()
+    {
+        var createResponse = await _client.PostAsJsonAsync("/api/v1/user-accounts", new
+        {
+            tenantId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+            email = $"native.password.{Guid.NewGuid():N}@ums.local",
+            category = "Internal",
+        }, TestContext.Current.CancellationToken);
+
+        using var createdPayload = JsonDocument.Parse(await createResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
+        var userAccountId = createdPayload.RootElement.GetProperty("userAccountId").GetGuid();
+
+        var setPasswordResponse = await _client.PostAsJsonAsync($"/api/v1/user-accounts/{userAccountId}/passwords", new
+        {
+            userAccountId,
+            password = "Temporary!Pass123",
+        }, TestContext.Current.CancellationToken);
+
+        setPasswordResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+
+        var getResponse = await _client.GetAsync($"/api/v1/user-accounts/{userAccountId}", TestContext.Current.CancellationToken);
+        using var accountPayload = JsonDocument.Parse(await getResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
+        accountPayload.RootElement.GetProperty("hasActivePassword").GetBoolean().Should().BeTrue();
+        accountPayload.RootElement.GetProperty("passwordUpdatedAtUtc").ValueKind.Should().NotBe(JsonValueKind.Null);
+        accountPayload.RootElement.TryGetProperty("passwordHash", out _).Should().BeFalse();
+    }
 }

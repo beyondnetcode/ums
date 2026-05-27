@@ -121,7 +121,9 @@ public sealed class Menu : Entity<Menu, MenuProps>
 
     private Result<SubMenuEntity> FindSubMenu(IdValueObject subMenuId)
     {
-        var subMenu = _subMenus.FirstOrDefault(sm => sm.Id.GetValue() == subMenuId.GetValue());
+        // Use Props.Id (stable database GUID). Entity.Id is a transient random GUID
+        // generated on each rehydration and must not be used for cross-request lookups.
+        var subMenu = _subMenus.FirstOrDefault(sm => sm.Props.Id.GetValue() == subMenuId.GetValue());
         return subMenu is null
             ? Result<SubMenuEntity>.Failure(DomainErrors.Common.NotFound)
             : Result<SubMenuEntity>.Success(subMenu);

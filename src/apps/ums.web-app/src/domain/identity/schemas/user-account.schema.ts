@@ -26,6 +26,8 @@ export const UserAccountSchema = z.object({
   status:                 UserStatusSchema,
   identityReference:      z.string().nullable().optional().transform((v) => v ?? null),
   identityReferenceType:  IdentityReferenceTypeSchema.nullable().optional().transform((v) => v ?? null),
+  hasActivePassword:      z.boolean().optional().default(false),
+  passwordUpdatedAtUtc:   z.string().datetime().nullable().optional().transform((v) => v ?? null),
 });
 
 export const UserAccountListSchema = z.array(UserAccountSchema);
@@ -51,6 +53,15 @@ export const CreateUserAccountResponseSchema = z.object({
   userAccountId: z.string().uuid(),
 });
 
+export const SetUserAccountPasswordPayloadSchema = z.object({
+  userAccountId: z.string().uuid(),
+  password: z.string().min(12).max(128),
+});
+
+export const SetUserAccountPasswordResponseSchema = z.object({
+  credentialId: z.string().uuid(),
+});
+
 export type UserAccount                = z.infer<typeof UserAccountSchema>;
 export type UserAccountPage            = z.infer<typeof UserAccountPageSchema>;
 export type UserStatus                 = z.infer<typeof UserStatusSchema>;
@@ -58,3 +69,5 @@ export type UserCategory               = z.infer<typeof UserCategorySchema>;
 export type IdentityReferenceType      = z.infer<typeof IdentityReferenceTypeSchema>;
 export type CreateUserAccountPayload   = z.infer<typeof CreateUserAccountPayloadSchema>;
 export type CreateUserAccountResponse  = z.infer<typeof CreateUserAccountResponseSchema>;
+export type SetUserAccountPasswordPayload = z.infer<typeof SetUserAccountPasswordPayloadSchema>;
+export type SetUserAccountPasswordResponse = z.infer<typeof SetUserAccountPasswordResponseSchema>;

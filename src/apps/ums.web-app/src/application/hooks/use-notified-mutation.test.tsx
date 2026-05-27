@@ -3,6 +3,7 @@ import { renderHook, waitFor, act } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import { useNotifiedMutation } from './use-notified-mutation';
+import { useNotificationStore } from '@app/stores/notification.store';
 
 function createWrapper() {
   const queryClient = new QueryClient({
@@ -16,6 +17,7 @@ function createWrapper() {
 describe('useNotifiedMutation', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    useNotificationStore.setState({ notifications: [], isOpen: false });
   });
 
   it('calls mutationFn with provided variables', async () => {
@@ -90,6 +92,43 @@ describe('useNotifiedMutation', () => {
 
     await waitFor(() => {
       expect(result.current.isError).toBe(true);
+    });
+  });
+
+  it('shows an approved reason with its tracking code on failure', async () => {
+    const mutationFn = vi.fn().mockRejectedValue({
+      response: {
+        status: 422,
+        data: {
+          userMessage: 'La descripción del módulo no puede exceder 500 caracteres.',
+          errorId: 'db83c6dd-770d-4d92-b6b8-98e80c790e4a',
+          traceId: 'corr-module-123',
+        },
+      },
+    });
+    const wrapper = createWrapper();
+
+    const { result } = renderHook(
+      () =>
+        useNotifiedMutation({
+          mutationFn,
+          successNotif: () => ({ title: 'OK', message: 'Done' }),
+          errorNotif: () => ({ title: 'Error al Registrar Módulo', message: 'No se pudo registrar el módulo.' }),
+        }),
+      { wrapper }
+    );
+
+    await act(async () => {
+      result.current.mutate({});
+    });
+
+    await waitFor(() => {
+      expect(useNotificationStore.getState().notifications[0]?.message)
+        .toBe(
+          'La descripción del módulo no puede exceder 500 caracteres.\n'
+          + 'Si necesitas más detalles, consulta con el administrador e indica este ID de error: '
+          + 'db83c6dd-770d-4d92-b6b8-98e80c790e4a.',
+        );
     });
   });
 

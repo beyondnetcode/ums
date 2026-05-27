@@ -31,13 +31,7 @@ public sealed class GetAllSystemSuitesQueryHandler : IQueryHandler<GetAllSystemS
             ? await _systemSuiteRepository.GetByTenantIdAsync(request.TenantId.Value, cancellationToken)
             : await _systemSuiteRepository.GetAllAsync(cancellationToken);
 
-        var query = systemSuites.Select(s => new SystemSuiteDto(
-            s.Props.Id.GetValue(),
-            s.Props.TenantId.GetValue(),
-            s.Props.Code.GetValue(),
-            s.Props.Name.GetValue(),
-            s.Props.Description.GetValue(),
-            s.Props.Status.ToString()));
+        var query = systemSuites.Select(SystemSuiteDto.Map);
 
         if (!string.Equals(status, "all", StringComparison.OrdinalIgnoreCase))
         {

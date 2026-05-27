@@ -9,4 +9,10 @@ internal static class DomainEnumerationMapper
         return DomainEnumeration.FromValue<TEnum>(value)
             ?? throw new InvalidOperationException($"Enumeration {typeof(TEnum).Name} does not define value {value}.");
     }
+
+    public static TEnum FromName<TEnum>(string name) where TEnum : DomainEnumeration
+    {
+        return DomainEnumeration.FromDisplayName<TEnum>(name)
+            ?? throw new InvalidOperationException($"Enumeration {typeof(TEnum).Name} does not define name {name}.");
+    }
 }

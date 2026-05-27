@@ -1,0 +1,109 @@
+namespace Ums.Application.Test.Authorization.Role;
+
+using Ums.Application.Authorization.Role.Commands;
+using Ums.Application.Common.Interfaces;
+using Ums.Domain.Authorization;
+using Ums.Domain.Authorization.SystemSuite;
+using RoleAggregate = Ums.Domain.Authorization.Role.Role;
+using Moq;
+using Xunit;
+
+public sealed class RoleCommandHandlerTests
+{
+    private readonly Mock<IRoleRepository> _roles = new();
+    private readonly Mock<ISystemSuiteRepository> _suites = new();
+    private readonly Mock<IUnitOfWork> _unitOfWork = new();
+    private readonly Mock<IUserContext> _userContext = new();
+
+    public RoleCommandHandlerTests()
+    {
+        _roles.Setup(x => x.UnitOfWork).Returns(_unitOfWork.Object);
+        _unitOfWork.Setup(x => x.SaveEntitiesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(true);
+        _userContext.Setup(x => x.UserId).Returns("user-001");
+    }
+
+    private static SystemSuite MakeSuite() => SystemSuite.Create(
+        TenantId.Load(Guid.NewGuid()),
+        Code.Create("WMS"),
+        Name.Create("Warehouse Management"),
+        Description.Create("Warehouse"),
+        ActorId.Create("user-001")).Value;
+
+    [Fact]
+    public async Task Create_WithUniqueRootRole_ReturnsRoleId()
+    {
+        var suite = MakeSuite();
+        _suites.Setup(x => x.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(suite);
+        _roles.Setup(x => x.GetByCodeAsync(It.IsAny<Guid>(), It.IsAny<Code>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RoleAggregate?)null);
+        var handler = new CreateRoleCommandHandler(_roles.Object, _suites.Object, _userContext.Object);
+
+        var result = await handler.Handle(new CreateRoleCommand(
+            suite.GetId().GetValue(), "SECURITY_ADMIN", "Security Administrator", "Manages security", null, 0, 1),
+            CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        Assert.NotEqual(Guid.Empty, result.Value.RoleId);
+        _roles.Verify(x => x.AddAsync(It.IsAny<RoleAggregate>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Create_DuplicateCode_ReturnsHumanReadableCause()
+    {
+        var suite = MakeSuite();
+        var existing = RoleAggregate.Create(
+            suite.TenantId, suite.GetId(), Code.Create("SECURITY_ADMIN"), Name.Create("Admin"),
+            Description.Create(""), null, 0, 0, ActorId.Create("user-001")).Value;
+        _suites.Setup(x => x.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(suite);
+        _roles.Setup(x => x.GetByCodeAsync(It.IsAny<Guid>(), It.IsAny<Code>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existing);
+        var handler = new CreateRoleCommandHandler(_roles.Object, _suites.Object, _userContext.Object);
+
+        var result = await handler.Handle(new CreateRoleCommand(
+            suite.GetId().GetValue(), "SECURITY_ADMIN", "Other Admin", "", null, 0, 1),
+            CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("Código ya existe", result.Error);
+        Assert.Contains("SECURITY_ADMIN", result.Error);
+    }
+
+    [Fact]
+    public async Task SetStatus_Deactivate_UpdatesRole()
+    {
+        var suite = MakeSuite();
+        var role = RoleAggregate.Create(
+            suite.TenantId, suite.GetId(), Code.Create("OPERATOR"), Name.Create("Operator"),
+            Description.Create(""), null, 0, 0, ActorId.Create("user-001")).Value;
+        _roles.Setup(x => x.GetByIdAsync(role.GetId().GetValue(), It.IsAny<CancellationToken>())).ReturnsAsync(role);
+        var handler = new SetRoleStatusCommandHandler(_roles.Object, _userContext.Object);
+
+        var result = await handler.Handle(new SetRoleStatusCommand(role.GetId().GetValue(), false), CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        Assert.False(role.IsActive);
+        _roles.Verify(x => x.UpdateAsync(role, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Update_WhenParentIsDescendant_RejectsCycle()
+    {
+        var suite = MakeSuite();
+        var root = RoleAggregate.Create(
+            suite.TenantId, suite.GetId(), Code.Create("ROOT"), Name.Create("Root"),
+            Description.Create(""), null, 0, 0, ActorId.Create("user-001")).Value;
+        var child = RoleAggregate.Create(
+            suite.TenantId, suite.GetId(), Code.Create("CHILD"), Name.Create("Child"),
+            Description.Create(""), root.GetId(), 1, 1, ActorId.Create("user-001")).Value;
+        _roles.Setup(x => x.GetByIdAsync(root.GetId().GetValue(), It.IsAny<CancellationToken>())).ReturnsAsync(root);
+        _roles.Setup(x => x.GetByIdAsync(child.GetId().GetValue(), It.IsAny<CancellationToken>())).ReturnsAsync(child);
+        var handler = new UpdateRoleCommandHandler(_roles.Object, _userContext.Object);
+
+        var result = await handler.Handle(new UpdateRoleCommand(
+            root.GetId().GetValue(), "Root", "", child.GetId().GetValue(), 2, 0),
+            CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("ciclo", result.Error);
+    }
+}

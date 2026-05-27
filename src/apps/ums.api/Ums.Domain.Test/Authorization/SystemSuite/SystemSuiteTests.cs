@@ -1,6 +1,7 @@
-﻿namespace Ums.Domain.Test.Authorization.SystemSuite;
+namespace Ums.Domain.Test.Authorization.SystemSuite;
 
 using Ums.Domain.Authorization.SystemSuite;
+using Ums.Domain.Authorization.SystemSuite.DomainResource;
 using Xunit;
 
 public class SystemSuiteTests
@@ -503,6 +504,43 @@ public class SystemSuiteTests
         var events = suite.DomainEvents.GetUncommittedChanges().ToList();
         Assert.Contains(events, e => e is SystemSuiteActionRemovedEvent);
     }
+
+    #region Domain Resources
+    [Fact]
+    public void AddDomainResource_WithValidData_ReturnsSuccess()
+    {
+        var suite = SystemSuite.Create(
+            TenantId.Create(),
+            Code.Create("TEST"),
+            Name.Create("Test Suite"),
+            Description.Create("Test"),
+            ValidActor).Value;
+
+        var result = suite.AddDomainResource(
+            null,
+            DomainResourceType.Aggregate,
+            Code.Create("INVOICE"),
+            Name.Create("Invoice Aggregate"),
+            Description.Create("Manage invoices"),
+            ValidActor);
+
+        Assert.True(result.IsSuccess);
+        Assert.Single(suite.DomainResources);
+    }
+
+    [Fact]
+    public void RemoveDomainResource_WhenResourceExists_ReturnsSuccess()
+    {
+        var suite = SystemSuite.Create(TenantId.Create(), Code.Create("TEST"), Name.Create("Suite"), Description.Create("Desc"), ValidActor).Value;
+        suite.AddDomainResource(null, DomainResourceType.Aggregate, Code.Create("INV"), Name.Create("Invoice"), Description.Create("Desc"), ValidActor);
+        var resource = suite.DomainResources.First();
+
+        var result = suite.RemoveDomainResource(resource.Id, ValidActor);
+
+        Assert.True(result.IsSuccess);
+        Assert.Empty(suite.DomainResources);
+    }
+    #endregion
 
     #endregion
 }

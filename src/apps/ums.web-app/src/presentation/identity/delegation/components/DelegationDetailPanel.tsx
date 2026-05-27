@@ -58,7 +58,7 @@ export const DelegationDetailPanel: React.FC<DelegationDetailPanelProps> = ({
   }));
 
   return (
-    <DetailPanelShell<DelegationConsoleTab>
+    <DetailPanelShell
       isLoading={isLoading}
       isEmpty={!activeDelegation}
       loadingLabel={t.loadingProfile ?? 'Loading...'}

@@ -186,6 +186,53 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({ tenantId, isRootTe
 
         <M3TextField compact label={t.brandCustomDomain} value={fields.customDomain} onChange={(e) => setField('customDomain', e.target.value)} placeholder="e.g. auth.ransa.pe" />
 
+        {fields.customDomain && branding && (
+          <div className="mb-4 p-3 bg-m3-surface-container/40 rounded-xl border border-m3-outline/25 flex flex-col gap-2.5 animate-fadeIn">
+            <div className="flex justify-between items-center text-[10px]">
+              <span className="font-semibold text-m3-secondary uppercase tracking-wider">{t.brandDnsStatus || "Estado DNS"}</span>
+              <StatusBadge status={dns} label={dnsLabel} colorMap={DNS_COLOR_MAP} />
+            </div>
+            {dns !== 'Verified' && (
+              <div className="flex gap-2">
+                <M3Button
+                  variant="filled"
+                  type="button"
+                  onClick={async (e: React.MouseEvent) => {
+                    e.preventDefault();
+                    try {
+                      await brandingService.verifyDns(tenantId);
+                      addNotification({ title: t.brandDnsVerified, message: "DNS verificado correctamente", type: 'success' });
+                      await loadBranding();
+                    } catch {
+                      addNotification({ title: t.errorBackendUnavailableTitle, message: "Error al verificar DNS", type: 'error' });
+                    }
+                  }}
+                  className="flex-1 text-[9px] py-1 h-7 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white border-0 flex items-center justify-center"
+                >
+                  Verificar DNS
+                </M3Button>
+                <M3Button
+                  variant="outlined"
+                  type="button"
+                  onClick={async (e: React.MouseEvent) => {
+                    e.preventDefault();
+                    try {
+                      await brandingService.failDns(tenantId);
+                      addNotification({ title: t.brandDnsFailed, message: "Simulación de error DNS", type: 'warning' });
+                      await loadBranding();
+                    } catch {
+                      addNotification({ title: t.errorBackendUnavailableTitle, message: "Error", type: 'error' });
+                    }
+                  }}
+                  className="flex-1 text-[9px] py-1 h-7 font-semibold border-rose-500/40 text-rose-500 hover:bg-rose-500/10 flex items-center justify-center"
+                >
+                  Simular Fallo
+                </M3Button>
+              </div>
+            )}
+          </div>
+        )}
+
         <M3FieldsetWrapper label={t.brandMagicLink} compact className="mb-4">
           <div className="flex items-center justify-between w-full">
             <span className="text-sm text-m3-on-surface/70">{fields.magicLinkFallbackEnabled ? t.active : t.suspended}</span>

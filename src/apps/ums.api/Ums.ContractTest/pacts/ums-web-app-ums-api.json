@@ -1,0 +1,794 @@
+{
+  "consumer": {
+    "name": "ums-web-app"
+  },
+  "interactions": [
+    {
+      "description": "a create tenant request with valid data",
+      "pending": false,
+      "request": {
+        "body": {
+          "content": {
+            "code": "NEWCO",
+            "companyReference": "RUC-20101024645",
+            "idpStrategy": "InternalBcrypt",
+            "name": "New Company",
+            "type": "INTERNAL"
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json; charset=utf-8"
+          ],
+          "Idempotency-Key": [
+            "[0-9a-fA-F-]{36}"
+          ],
+          "X-User-Id": [
+            "dev-user"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$.code": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.companyReference": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.idpStrategy": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.name": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.type": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {
+            "Content-Type": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "Idempotency-Key": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                }
+              ]
+            },
+            "X-User-Id": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "method": "POST",
+        "path": "/api/v1/tenants"
+      },
+      "response": {
+        "body": {
+          "content": {
+            "tenantId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json.*"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$.tenantId": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {
+            "Content-Type": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "application/json; charset=utf-8"
+                }
+              ]
+            }
+          }
+        },
+        "status": 201
+      },
+      "type": "Synchronous/HTTP"
+    },
+    {
+      "description": "a delete request for a user account that does not exist",
+      "pending": false,
+      "providerStates": [
+        {
+          "name": "no user account with id 00000000-0000-0000-0000-000000000001 exists"
+        }
+      ],
+      "request": {
+        "headers": {
+          "X-User-Id": [
+            "dev-user"
+          ]
+        },
+        "matchingRules": {
+          "header": {
+            "X-User-Id": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "method": "DELETE",
+        "path": "/api/v1/user-accounts/00000000-0000-0000-0000-000000000001"
+      },
+      "response": {
+        "body": {
+          "content": {
+            "status": 404,
+            "title": "Not Found"
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/problem+json"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$.status": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.title": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {
+            "Content-Type": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 404
+      },
+      "type": "Synchronous/HTTP"
+    },
+    {
+      "description": "a delete request for an active user account",
+      "pending": false,
+      "providerStates": [
+        {
+          "name": "a user account with id 3fa85f64-5717-4562-b3fc-2c963f66afa6 is active"
+        }
+      ],
+      "request": {
+        "headers": {
+          "X-User-Id": [
+            "dev-user"
+          ]
+        },
+        "matchingRules": {
+          "header": {
+            "X-User-Id": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "method": "DELETE",
+        "path": "/api/v1/user-accounts/3fa85f64-5717-4562-b3fc-2c963f66afa6"
+      },
+      "response": {
+        "status": 204
+      },
+      "type": "Synchronous/HTTP"
+    },
+    {
+      "description": "a paginated list request for tenants",
+      "pending": false,
+      "providerStates": [
+        {
+          "name": "at least one tenant exists"
+        }
+      ],
+      "request": {
+        "headers": {
+          "X-User-Id": [
+            "dev-user"
+          ]
+        },
+        "matchingRules": {
+          "header": {
+            "X-User-Id": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "query": {
+            "page": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "equality"
+                }
+              ]
+            },
+            "pageSize": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "equality"
+                }
+              ]
+            }
+          }
+        },
+        "method": "GET",
+        "path": "/api/v1/tenants",
+        "query": {
+          "page": [
+            "1"
+          ],
+          "pageSize": [
+            "10"
+          ]
+        }
+      },
+      "response": {
+        "body": {
+          "content": {
+            "items": [
+              {
+                "code": "RANSA_PERU",
+                "name": "Ransa Comercial S.A.",
+                "status": "Active",
+                "tenantId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                "type": "INTERNAL"
+              }
+            ],
+            "page": 1,
+            "pageSize": 10,
+            "totalItems": 1,
+            "totalPages": 1
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json.*"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$.items": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type",
+                  "min": 1
+                }
+              ]
+            },
+            "$.items[*].code": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.items[*].name": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.items[*].status": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.items[*].tenantId": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.items[*].type": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.page": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.pageSize": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.totalItems": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.totalPages": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {
+            "Content-Type": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "application/json; charset=utf-8"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      },
+      "type": "Synchronous/HTTP"
+    },
+    {
+      "description": "a paginated list request for user accounts",
+      "pending": false,
+      "providerStates": [
+        {
+          "name": "at least one user account exists"
+        }
+      ],
+      "request": {
+        "headers": {
+          "X-User-Id": [
+            "dev-user"
+          ]
+        },
+        "matchingRules": {
+          "header": {
+            "X-User-Id": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "query": {
+            "page": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "equality"
+                }
+              ]
+            },
+            "pageSize": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "equality"
+                }
+              ]
+            }
+          }
+        },
+        "method": "GET",
+        "path": "/api/v1/user-accounts",
+        "query": {
+          "page": [
+            "1"
+          ],
+          "pageSize": [
+            "10"
+          ]
+        }
+      },
+      "response": {
+        "body": {
+          "content": {
+            "items": [
+              {
+                "email": "user@example.com",
+                "status": "Active",
+                "userAccountId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+              }
+            ],
+            "page": 1,
+            "pageSize": 10,
+            "totalItems": 1,
+            "totalPages": 1
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json.*"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$.items": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type",
+                  "min": 1
+                }
+              ]
+            },
+            "$.items[*].email": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.items[*].status": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.items[*].userAccountId": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.page": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.pageSize": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.totalItems": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.totalPages": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {
+            "Content-Type": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "application/json; charset=utf-8"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      },
+      "type": "Synchronous/HTTP"
+    },
+    {
+      "description": "a request for a specific tenant that exists",
+      "pending": false,
+      "providerStates": [
+        {
+          "name": "a tenant with id 3fa85f64-5717-4562-b3fc-2c963f66afa6 exists"
+        }
+      ],
+      "request": {
+        "headers": {
+          "X-User-Id": [
+            "dev-user"
+          ]
+        },
+        "matchingRules": {
+          "header": {
+            "X-User-Id": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "method": "GET",
+        "path": "/api/v1/tenants/3fa85f64-5717-4562-b3fc-2c963f66afa6"
+      },
+      "response": {
+        "body": {
+          "content": {
+            "code": "RANSA_PERU",
+            "name": "Ransa Comercial S.A.",
+            "status": "Active",
+            "tenantId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "type": "INTERNAL"
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json.*"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$.code": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.name": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.status": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.tenantId": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.type": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {
+            "Content-Type": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "application/json; charset=utf-8"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      },
+      "type": "Synchronous/HTTP"
+    },
+    {
+      "description": "a request for a tenant that does not exist",
+      "pending": false,
+      "providerStates": [
+        {
+          "name": "no tenant with id 00000000-0000-0000-0000-000000000000 exists"
+        }
+      ],
+      "request": {
+        "headers": {
+          "X-User-Id": [
+            "dev-user"
+          ]
+        },
+        "matchingRules": {
+          "header": {
+            "X-User-Id": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "method": "GET",
+        "path": "/api/v1/tenants/00000000-0000-0000-0000-000000000000"
+      },
+      "response": {
+        "body": {
+          "content": {
+            "status": 404,
+            "title": "Not Found"
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/problem+json"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$.status": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.title": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {
+            "Content-Type": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 404
+      },
+      "type": "Synchronous/HTTP"
+    }
+  ],
+  "metadata": {
+    "pactRust": {
+      "ffi": "0.4.23",
+      "models": "1.2.5"
+    },
+    "pactSpecification": {
+      "version": "4.0"
+    }
+  },
+  "provider": {
+    "name": "ums-api"
+  }
+}
