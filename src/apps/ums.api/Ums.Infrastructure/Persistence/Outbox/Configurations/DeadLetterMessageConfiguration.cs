@@ -7,7 +7,7 @@ public sealed class DeadLetterMessageConfiguration : IEntityTypeConfiguration<De
 {
     public void Configure(EntityTypeBuilder<DeadLetterMessage> builder)
     {
-        builder.ToTable("OutboxDeadLetters");
+        builder.ToTable("OutboxDeadLetters", UmsPlatformDbContext.DefaultSchema);
 
         builder.HasKey(x => x.Id);
 

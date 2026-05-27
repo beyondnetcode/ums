@@ -6,11 +6,11 @@ namespace Ums.Infrastructure.Persistence.Approvals.Configurations;
 
 public sealed class AccessNotificationRecordConfiguration : IEntityTypeConfiguration<AccessNotificationRecord>
 {
-    public const string Schema = "approvals";
+
 
     public void Configure(EntityTypeBuilder<AccessNotificationRecord> builder)
     {
-        builder.ToTable("UserDocumentNotifications", Schema);
+        builder.ToTable("UserDocumentNotifications", ApprovalsPersistenceConstants.Schema);
         builder.HasKey(x => x.Id);
 
         builder.HasIndex(x => x.UserDocumentId);

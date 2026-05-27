@@ -2,6 +2,7 @@ namespace Ums.Presentation.Middleware;
 
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Hosting;
 
 public sealed class DevAuthMiddleware
 {
@@ -11,20 +12,25 @@ public sealed class DevAuthMiddleware
     private const string UserNameHeader = "X-User-Name";
 
     private readonly RequestDelegate _next;
+    private readonly IHostEnvironment _environment;
 
-    public DevAuthMiddleware(RequestDelegate next) => _next = next;
+    public DevAuthMiddleware(RequestDelegate next, IHostEnvironment environment)
+    {
+        _next = next;
+        _environment = environment;
+    }
 
     public Task InvokeAsync(HttpContext context)
     {
+        if (!_environment.IsDevelopment())
+        {
+            return _next(context);
+        }
+
         if (context.User?.Identity?.IsAuthenticated != true)
         {
             var userId = context.Request.Headers[UserIdHeader].FirstOrDefault();
             var userName = context.Request.Headers[UserNameHeader].FirstOrDefault();
-
-            if (userId == null && Environment.GetEnvironmentVariable("Persistence__Provider") == "InMemory")
-            {
-                return _next(context);
-            }
 
             userId ??= DefaultUserId;
             userName ??= DefaultUserName;

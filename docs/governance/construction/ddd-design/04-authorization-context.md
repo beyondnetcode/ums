@@ -2,7 +2,7 @@
 
 > **Idioma:** Español | *Versión en inglés no disponible*
 
-**Schema:** `[ums_authz]` | **Owner:** UMS Core API .NET 8  
+**Schema:** `[ums_authorization]` | **Owner:** UMS Core API .NET 10  
 **Misión:** Actuar como Policy Decisión Point (PDP). Compilar y resolver el grafo de autorización jerarquico. Gobernar la topologia de recursos (sistemas, modulos, acciones) y los perfiles de permisos.  
 **FS cubiertos:** FS-02, FS-04, FS-05, FS-06, FS-07  
 **Versión:** 2.0 | **Fecha:** 2026-05-15

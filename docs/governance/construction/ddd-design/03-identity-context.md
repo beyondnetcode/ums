@@ -2,7 +2,7 @@
 
 > **Idioma:** Español | *Versión en inglés no disponible*
 
-**Schema:** `[ums_identity]` · `[delegation]` | **Owner:** UMS Core API .NET 8  
+**Schema:** `[ums_identity]` · `[delegation]` | **Owner:** UMS Core API .NET 10  
 **Misión:** Gestionar el ciclo de vida de principals (usuarios), estructuras organizacionales (tenants) y sub-unidades (branches). Delegar verificación de credenciales a adaptadores de IdP. Gobernar la autoridad administrativa delegada entre administradores.  
 **FS cubiertos:** FS-01, FS-03, FS-08, FS-09, FS-14  
 **Versión:** 2.1 | **Fecha:** 2026-05-22

@@ -6,11 +6,11 @@ namespace Ums.Infrastructure.Persistence.Approvals.Configurations;
 
 public sealed class NotificationRuleRecordConfiguration : IEntityTypeConfiguration<NotificationRuleRecord>
 {
-    public const string Schema = "approvals";
+
 
     public void Configure(EntityTypeBuilder<NotificationRuleRecord> builder)
     {
-        builder.ToTable("NotificationRules", Schema);
+        builder.ToTable("NotificationRules", ApprovalsPersistenceConstants.Schema);
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Recipient).HasMaxLength(255).IsRequired();

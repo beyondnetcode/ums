@@ -2,7 +2,7 @@
 
 > **Idioma:** Español | *Versión en inglés no disponible*
 
-**Schema:** `[ums_iga]` | **Owner:** UMS Core API .NET 8  
+**Schema:** `[iga]` | **Owner:** UMS Core API .NET 10  
 **Misión:** Gobernar el ciclo de vida de evolución de roles, procesos de promoción y seguimiento del nivel de madurez técnica y operativa de los usuarios dentro de la organización.  
 **FS cubiertos:** FS-12, FS-14  
 **Versión:** 3.0 | **Fecha:** 2026-05-18

@@ -1,8 +1,11 @@
-# BC-I — Compliance Context
+# BC-I — Compliance Context (Consolidated into Approvals)
 
 > **Idioma:** Español | *Versión en inglés no disponible*
 
-**Schema:** `[ums_compliance]` | **Owner:** UMS Core API .NET 8  
+> [!IMPORTANT]
+> **Consolidado:** Este contexto ha sido fusionado en el contexto de **Approvals** (`approvals`). No tiene un esquema de base de datos propio. Los agregados de Compliance residen bajo `Ums.Domain.Approvals` y las tablas correspondientes están en el esquema `approvals`. Este documento se mantiene como referencia histórica y de dominio.
+
+**Schema:** `approvals` (compartido con Approvals) | **Owner:** UMS Core API .NET 10  
 > [!NOTE]
 > En la implementación real de C# (base de código), los agregados de este contexto están consolidados junto con el contexto de Aprobaciones bajo el espacio de nombres unificado **Ums.Domain.Approvals**.
 

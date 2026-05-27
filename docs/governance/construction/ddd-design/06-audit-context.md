@@ -2,7 +2,7 @@
 
 > **Idioma:** Español | *Versión en inglés no disponible*
 
-**Schema:** `[ums_audit]` | **Owner:** UMS Core API .NET 8  
+**Schema:** `[audit]` | **Owner:** UMS Core API .NET 10  
 **Misión:** Mantener un ledger inmutable y a prueba de manipulaciones de todos los eventos de la plataforma.  
 **Patrón:** Conformist puro — solo recibe, nunca emite.  
 **Versión:** 2.0 | **Fecha:** 2026-05-15

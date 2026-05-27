@@ -305,7 +305,10 @@ public static class UmsApiApplicationBuilderExtensions
         app.UseAuthentication();
         app.UseAuthorization();
         app.UseIdempotency(); // FIX-07: Must run after auth so cached responses are never served to unauthenticated callers.
-        app.UseDevAuth();
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseDevAuth();
+        }
         app.UseTokenRevocation();
         app.UseHttpsRedirection();
 

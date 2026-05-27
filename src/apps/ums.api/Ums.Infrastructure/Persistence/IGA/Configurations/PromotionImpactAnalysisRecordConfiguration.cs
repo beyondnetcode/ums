@@ -6,11 +6,11 @@ namespace Ums.Infrastructure.Persistence.IGA.Configurations;
 
 public sealed class PromotionImpactAnalysisRecordConfiguration : IEntityTypeConfiguration<PromotionImpactAnalysisRecord>
 {
-    public const string Schema = "iga";
+
 
     public void Configure(EntityTypeBuilder<PromotionImpactAnalysisRecord> builder)
     {
-        builder.ToTable("PromotionImpactAnalyses", Schema);
+        builder.ToTable("PromotionImpactAnalyses", IgaPersistenceConstants.Schema);
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.RiskLevel).HasMaxLength(50).IsRequired();

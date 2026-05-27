@@ -38,7 +38,8 @@
       "Bash(git -C \"D:\\\\Users\\\\aarroyo\\\\personal\\\\sources\\\\ums\" add src/apps/ums.web-app/src/test/mocks/data/tenants.mock.ts src/apps/ums.web-app/src/presentation/identity/tenant/components/BrandingPanel.tsx src/apps/ums.web-app/src/application/i18n/namespaces/identity.translations.ts)",
       "Bash(git -C \"D:\\\\Users\\\\aarroyo\\\\personal\\\\sources\\\\ums\" diff --cached --stat)",
       "Bash(git -C \"D:\\\\Users\\\\aarroyo\\\\personal\\\\sources\\\\ums\" add src/apps/ums.api/Ums.Domain/Identity/Tenant/Branding/Branding.cs docs/governance/requirements/functional-stories/fs-08-hosted-login-redirection.md)",
-      "Bash(git -C 'D:\\\\Users\\\\aarroyo\\\\personal\\\\sources\\\\ums' commit -m ' *)"
+      "Bash(git -C 'D:\\\\Users\\\\aarroyo\\\\personal\\\\sources\\\\ums' commit -m ' *)",
+      "Bash(xargs ls)"
     ]
   }
 }

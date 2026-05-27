@@ -6,11 +6,11 @@ namespace Ums.Infrastructure.Persistence.IGA.Configurations;
 
 public sealed class RoleMaturityStatusRecordConfiguration : IEntityTypeConfiguration<RoleMaturityStatusRecord>
 {
-    public const string Schema = "iga";
+
 
     public void Configure(EntityTypeBuilder<RoleMaturityStatusRecord> builder)
     {
-        builder.ToTable("RoleMaturityStatuses", Schema);
+        builder.ToTable("RoleMaturityStatuses", IgaPersistenceConstants.Schema);
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.BlockingFactor).HasMaxLength(500);

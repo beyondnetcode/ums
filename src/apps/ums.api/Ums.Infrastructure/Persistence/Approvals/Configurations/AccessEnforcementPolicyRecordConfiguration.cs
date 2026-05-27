@@ -6,11 +6,11 @@ namespace Ums.Infrastructure.Persistence.Approvals.Configurations;
 
 public sealed class AccessEnforcementPolicyRecordConfiguration : IEntityTypeConfiguration<AccessEnforcementPolicyRecord>
 {
-    public const string Schema = "approvals";
+
 
     public void Configure(EntityTypeBuilder<AccessEnforcementPolicyRecord> builder)
     {
-        builder.ToTable("AccessEnforcementPolicies", Schema);
+        builder.ToTable("AccessEnforcementPolicies", ApprovalsPersistenceConstants.Schema);
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.CreatedBy).HasMaxLength(100).IsRequired();

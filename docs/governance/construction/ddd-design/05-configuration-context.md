@@ -2,7 +2,7 @@
 
 > **Idioma:** Español | *Versión en inglés no disponible*
 
-**Schema:** `[ums_config]` | **Owner:** UMS Core API .NET 8  
+**Schema:** `[ums_configuration]` | **Owner:** UMS Core API .NET 10  
 **Misión:** Gobernar el comportamiento dinamico de todos los sistemas integrados sin requerir redeployments. Tres pilares: Multi-IdP, Configuración de Sistemas, Feature Flags.  
 **FS cubiertos:** FS-08, FS-09, FS-13  
 **Versión:** 2.0 | **Fecha:** 2026-05-15

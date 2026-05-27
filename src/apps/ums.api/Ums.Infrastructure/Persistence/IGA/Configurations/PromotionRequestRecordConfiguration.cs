@@ -6,11 +6,11 @@ namespace Ums.Infrastructure.Persistence.IGA.Configurations;
 
 public sealed class PromotionRequestRecordConfiguration : IEntityTypeConfiguration<PromotionRequestRecord>
 {
-    public const string Schema = "iga";
+
 
     public void Configure(EntityTypeBuilder<PromotionRequestRecord> builder)
     {
-        builder.ToTable("PromotionRequests", Schema);
+        builder.ToTable("PromotionRequests", IgaPersistenceConstants.Schema);
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.RequestedBy).HasMaxLength(100).IsRequired();

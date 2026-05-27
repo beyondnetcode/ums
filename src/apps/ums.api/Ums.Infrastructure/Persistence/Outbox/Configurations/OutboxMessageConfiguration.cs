@@ -7,7 +7,7 @@ public sealed class OutboxMessageConfiguration : IEntityTypeConfiguration<Outbox
 {
     public void Configure(EntityTypeBuilder<OutboxMessage> builder)
     {
-        builder.ToTable("OutboxMessages");
+        builder.ToTable("OutboxMessages", UmsPlatformDbContext.DefaultSchema);
 
         builder.HasKey(x => x.Id);
 

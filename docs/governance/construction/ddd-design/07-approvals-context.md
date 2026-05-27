@@ -2,7 +2,7 @@
 
 > **Idioma:** Español | *Versión en inglés no disponible*
 
-**Schema:** `[ums_approval]` | **Owner:** UMS Core API .NET 8  
+**Schema:** `[approvals]` | **Owner:** UMS Core API .NET 10  
 > [!NOTE]
 > En la implementación real de C# (base de código), los agregados de este contexto están consolidados junto con el contexto de Cumplimiento (Compliance) bajo el espacio de nombres unificado **Ums.Domain.Approvals**.
 

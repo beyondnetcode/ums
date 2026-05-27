@@ -1,143 +1,82 @@
-# ADR 0066: Database Boundary Strategy — Schema per Module for UMS
+# ADR-0066: Database Schema Per Module
 
-## Status
+**Status:** Accepted  
+**Date:** 2026-05-27  
+**Decision Owner:** Architecture  
+**Parent:** [ADR-0067 — Modular Monolith Schema Per Domain](../../../reference/architecture/adrs/core/0067-modular-monolith-schema-per-domain.md)
 
-Accepted
+---
 
-## Parent Standard
+## Context
 
-This ADR specializes the Evolith parent decision:
+UMS is a modular monolith built on .NET 10 and SQL Server, implementing multiple bounded contexts (Identity, Authorization, Configuration, Audit, Approvals, IGA). The Evolith architecture baseline (ADR-0067) mandates that each bounded context must own its own database schema within a single physical database, enforcing logical separation and module ownership.
 
-- [Evolith ADR 0067: Modular Monolith Database Boundary — Schema per Domain](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/core/0067-modular-monolith-schema-per-domain.md)
+Prior to this decision, schema naming was inconsistent between documentation and code, and some entity configurations relied on the DbContext default schema fallback rather than explicitly declaring their schema. This created risks of:
 
-## Context and Problem Statement
-
-UMS is the official executable product reference for Evolith and is implemented in Phase 1 as a Modular Monolith using .NET 8 and SQL Server 2022.
-
-Because UMS starts as a modular monolith, it must avoid premature operational complexity while also preventing future data-level coupling that would make later microservice extraction difficult.
-
-The key decision is whether Phase 1 should use:
-
-1. A single shared database without logical separation.
-2. A single physical database with schema separation by module/domain.
-3. A dedicated physical database per module from the beginning.
-
-This decision directly impacts domain responsibility separation, module independence, future microservice migration, and Phase 1 ADR traceability.
+- Silent misplacement of tables into the wrong schema if the default changes.
+- Developer confusion when documentation schema names did not match the actual database.
+- Unclear module ownership at the database level.
 
 ## Decision
 
-UMS will use:
+**UMS uses a single physical SQL Server database with dedicated schemas per bounded context. Each module owns its schema and its tables. Cross-module database access is prohibited at the repository level.**
 
-```text
-Single physical SQL Server database + dedicated schemas per UMS module/domain
+### Schema Registry
+
+| Bounded Context | Code | Schema Name | Owner Module |
+|-----------------|------|-------------|--------------|
+| Identity | BC-A | `ums_identity` | `Ums.Infrastructure/Persistence/Identity/` |
+| Authorization | BC-B | `ums_authorization` | `Ums.Infrastructure/Persistence/Authorization/` |
+| Configuration | BC-C | `ums_configuration` | `Ums.Infrastructure/Persistence/Configuration/` |
+| Audit | BC-D | `audit` | `Ums.Infrastructure/Persistence/Audit/` |
+| Approvals | BC-F | `approvals` | `Ums.Infrastructure/Persistence/Approvals/` |
+| IGA | BC-H | `iga` | `Ums.Infrastructure/Persistence/IGA/` |
+| Platform/Outbox | Infra | `ums_platform` | `Ums.Infrastructure/Persistence/Outbox/` |
+
+### Rules
+
+1. **Single physical database.** All schemas coexist in one SQL Server instance.
+2. **Schema per module.** Each bounded context has exactly one schema. Tables belonging to a context are created in its schema only.
+3. **Explicit schema in EF Core.** Every `IEntityTypeConfiguration` must call `ToTable(tableName, schema)` with the module's schema constant. No entity may rely on `HasDefaultSchema()` fallback.
+4. **Centralized schema constants.** Each module declares its schema name in a `*PersistenceConstants.cs` file under its persistence folder.
+5. **Module ownership.** A module's repositories may only query DbSets belonging to its own bounded context. Cross-module access must use application services, domain services, read models, or integration events (Outbox pattern).
+6. **No `dbo` usage.** No table may be created in the default `dbo` schema.
+7. **Migration ownership.** Each SQL migration file creates or modifies tables within a single module's schema. Cross-schema migrations are prohibited.
+8. **Cross-module communication.** Modules communicate via the Outbox pattern (integration events), not via direct database joins across schemas.
+
+### DbContext Configuration
+
+`UmsPlatformDbContext` serves all bounded contexts but respects schema boundaries through explicit `ToTable(tableName, schema)` in each entity configuration:
+
+```csharp
+// Example: Authorization entity configuration
+builder.ToTable("SystemSuites", AuthorizationPersistenceConstants.Schema);
 ```
 
-UMS will not create multiple physical databases during Phase 1. However, it will also not place all module tables into a single unconstrained default schema.
-
-Each UMS bounded context or module must own its schema.
-
-Reference schema structure:
-
-```text
-ums_database
-├── identity_schema
-├── access_schema
-├── tenant_schema
-├── audit_schema
-└── notification_schema
-```
-
-Final schema names must be aligned with the official UMS bounded context map and database design artifacts.
-
-## Architectural Rules for UMS
-
-1. Each UMS module owns its schema and internal tables.
-2. A module must not directly modify tables owned by another module.
-3. Cross-module communication must happen through application services, explicit contracts, ports, domain services, or integration events.
-4. Cross-schema joins between different domains are discouraged and require documented architectural justification.
-5. EF Core mappings and migrations must preserve schema ownership.
-6. Exceptions for reporting, projections, or administrative read models must be explicitly documented.
-7. The database must not become an informal integration layer between modules.
-
-## Rationale
-
-This approach keeps Phase 1 simple because UMS still operates with a single SQL Server database. At the same time, it creates visible persistence boundaries that match the modular monolith design.
-
-Schema separation reduces the risk of hidden coupling through direct table access, unclear ownership, and cross-domain SQL dependencies.
-
-It also gives UMS a cleaner evolution path:
-
-```text
-UMS Modular Monolith with schemas per module
-        ↓
-Identify a module requiring extraction
-        ↓
-Move the module schema to a dedicated database
-        ↓
-Expose the module through APIs, events, or integration contracts
-```
-
-## Alternatives Considered
-
-### Alternative 1: Single database with no schema separation
-
-```text
-ums_database
-└── dbo / public / default_schema
-```
-
-This is simple initially, but it increases the risk of database-level coupling and makes ownership ambiguous.
-
-**Result:** Rejected.
-
-### Alternative 2: Dedicated physical database per module from Phase 1
-
-```text
-ums_identity_db
-ums_access_db
-ums_audit_db
-ums_notifications_db
-```
-
-This maximizes isolation but adds unnecessary deployment, transaction, backup, monitoring, and local-development complexity for Phase 1.
-
-**Result:** Rejected for Phase 1.
-
-### Alternative 3: Single physical database with schemas per module/domain
-
-```text
-ums_database
-├── identity_schema
-├── access_schema
-├── tenant_schema
-├── audit_schema
-└── notification_schema
-```
-
-This balances simplicity and architectural discipline.
-
-**Result:** Accepted.
+The default schema (`ums_platform`) is set as a fallback for infrastructure entities only (Outbox), but even these must explicitly declare their schema.
 
 ## Consequences
 
 ### Positive
 
-- Clear ownership of UMS persistence boundaries.
-- Better alignment between bounded contexts and database design.
-- Lower risk of hidden module coupling.
-- Easier future extraction toward microservices when justified.
-- Stronger compliance with Evolith inheritance rules.
-- Clear Phase 1 ADR traceability.
+- **Clear module ownership.** Each schema is owned by exactly one bounded context.
+- **Isolation at database level.** Modules cannot accidentally modify another module's tables.
+- **Auditability.** Schema boundaries make it easy to trace which module owns which data.
+- **Migration safety.** Migrations are scoped to a single schema, reducing conflict risk.
+- **Documentation alignment.** Schema names in code and docs are identical.
 
-### Negative / Trade-offs
+### Trade-offs
 
-- Requires schema naming and migration discipline.
-- Requires code reviews to prevent accidental cross-schema coupling.
-- Requires architectural governance for exceptional reporting/read-model cases.
-- Does not prevent coupling by itself if modules bypass application-level contracts.
+- **Single DbContext coupling.** All bounded contexts share one `UmsPlatformDbContext`, creating compile-time coupling. This is accepted for a modular monolith but would need refactoring if UMS evolves to a distributed architecture.
+- **Schema naming convention.** Not all schemas use the `ums_` prefix (`audit`, `approvals`, `iga`). This is a pragmatic choice to keep names concise; the `ums_` prefix is reserved for core business contexts.
 
 ## Compliance
 
-This ADR is mandatory for UMS Phase 1.
+- EF Core entity configurations must use `ToTable(tableName, schema)` with a constant from `*PersistenceConstants.cs`.
+- SQL migrations must create schemas explicitly (`CREATE SCHEMA`) and all tables within that schema.
+- The ADR index and bounded context map must reflect the canonical schema names listed in this document.
+- Architecture guard tests (NetArchTest or equivalent) enforce that repositories only access their own module's DbSets.
 
-Any exception allowing direct cross-schema access, shared mutable tables, or direct modification of another module's schema must be documented and approved through a dedicated ADR amendment or exception record.
+---
+
+**[ADR Index](./index.md)** | **[Parent ADR-0067](../../../reference/architecture/adrs/core/0067-modular-monolith-schema-per-domain.md)**

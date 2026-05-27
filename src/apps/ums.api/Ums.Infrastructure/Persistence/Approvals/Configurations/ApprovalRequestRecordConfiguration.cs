@@ -6,11 +6,11 @@ namespace Ums.Infrastructure.Persistence.Approvals.Configurations;
 
 public sealed class ApprovalRequestRecordConfiguration : IEntityTypeConfiguration<ApprovalRequestRecord>
 {
-    public const string Schema = "approvals";
+
 
     public void Configure(EntityTypeBuilder<ApprovalRequestRecord> builder)
     {
-        builder.ToTable("ApprovalRequests", Schema);
+        builder.ToTable("ApprovalRequests", ApprovalsPersistenceConstants.Schema);
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.CreatedBy).HasMaxLength(100).IsRequired();

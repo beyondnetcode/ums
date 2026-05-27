@@ -1,0 +1,6 @@
+namespace Ums.Infrastructure.Persistence.Approvals;
+
+internal static class ApprovalsPersistenceConstants
+{
+    public const string Schema = "approvals";
+}
