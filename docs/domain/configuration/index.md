@@ -11,6 +11,7 @@
 - [AppConfiguration](./app-configuration.md) (Aggregate Root) — Controls tenant-level application configuration parameters, session timeouts, MFA policies, and environment variables.
 - [FeatureFlag](./feature-flag.md) (Aggregate Root) — Defines platform-wide or tenant-scoped operational flags and release rules.
 - [FlagEvaluationLog](./flag-evaluation-log.md) (Owned Entity) — Tracks flag evaluation contexts and outcomes at runtime for troubleshooting and audit.
+- [FeatureFlagCriteria](./feature-flag-criteria.md) (Owned Entity) — Dynamic evaluation criteria that determine when a feature flag is active for a given context.
 
 ### Integration Configurations
 - [IdpConfiguration](./idp-configuration.md) (Aggregate Root) — Mappings of technical secrets, private keys, client IDs, and endpoints for federated Identity Providers (OIDC, SAML, WS-Fed).

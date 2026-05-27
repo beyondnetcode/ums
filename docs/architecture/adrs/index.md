@@ -48,6 +48,7 @@ UMS is a satellite repository of `evolith_arch32`. The parent repository defines
 | [ADR-0064](./0064-lean-root-repository-taxonomy.md) | Lean Root Repository Taxonomy | Accepted |
 | [ADR-0065](./0065-no-raw-guids-in-ui.md) | Prohibition of Raw GUIDs in User Interfaces (UX / DDD) | Accepted, Evolith candidate |
 | [ADR-0066](./0066-actionable-user-error-contract.md) | Actionable User Error Contract and Correlated Diagnostics | Accepted, Evolith candidate |
+| [ADR-0068](./0068-feature-flag-system-scope.md) | Feature Flag System Scope — SystemSuite ownership and dynamic criteria model | Accepted |
 
 > **Evolith candidate** - ADR has zero UMS-specific dependencies and is proposed for extraction to the Evolith parent architecture baseline.
 

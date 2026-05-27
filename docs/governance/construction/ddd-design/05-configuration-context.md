@@ -161,20 +161,24 @@ UpdateAppConfigCommand      -> AppConfigUpdatedEvent    { configId, code, newVer
 ## Aggregate: FeatureFlag
 
 **Aggregate Root:** `FeatureFlag`  
-**FS:** FS-08, FS-13
+**FS:** FS-08, FS-13  
+**Referencia completa:** [FeatureFlag](../../../domain/configuration/feature-flag.md) · [FeatureFlagCriteria](../../../domain/configuration/feature-flag-criteria.md)
 
 ### Entidades
 
 | Entidad | Descripción |
 |---------|-------------|
-| `FeatureFlag` (AR) | Toggle multi-dimension de funcionalidades |
-| `FlagEvaluationLog` | Registro de evaluaciónes; se proyecta tambien en Audit Context |
+| `FeatureFlag` (AR) | Toggle multi-dimension de funcionalidades, acotado a un SystemSuite |
+| `FeatureFlagCriteria` | Criterio de evaluación dinámico; colección vacía = activo para todos |
+| `FlagEvaluationLog` | Registro de evaluaciones; se proyecta también en Audit Context |
 
 ### Value Objects
 
 | Value Object | Tipo | Regla |
 |-------------|------|-------|
-| `FlagCode` | string | Único globalmente en la plataforma |
+| `SystemSuiteId` | Guid (ref BC-B) | Obligatorio e inmutable; scope del flag |
+| `TenantId` | Guid? | Scope de tenant opcional |
+| `FlagCode` | string | Único dentro de `(SystemSuiteId, FlagCode)` — no globalmente |
 | `FlagType` | enum | `BOOLEAN / VARIANT / PERCENTAGE` |
 | `FlagTargets` | JSON | `{systems, tenants, branches, roles, users, rollout_percentage}` |
 | `FlagStatus` | enum | `ACTIVE / INACTIVE / ARCHIVED` |
@@ -184,9 +188,12 @@ UpdateAppConfigCommand      -> AppConfigUpdatedEvent    { configId, code, newVer
 
 | ID | Regla | Fuente |
 |----|-------|--------|
-| INV-FF1 | `FlagCode` único globalmente | conceptual-data-model.md |
+| INV-FF1 | `FlagCode` único dentro de `(SystemSuiteId, FlagCode)` | ADR-0068 |
 | INV-FF2 | `PERCENTAGE` type: `rollout_percentage` entre 0 y 100 | FS-08 |
 | INV-FF3 | `ARCHIVED` no puede evaluarse ni reactivarse; debe crearse nueva versión | FS-08 |
+| INV-FF4 | `SystemSuiteId` obligatorio e inmutable una vez creado el flag | ADR-0068 |
+| INV-FF5 | Criterio `DateRange`: fecha de inicio estrictamente antes de la de fin | ADR-0068 |
+| INV-FF6 | No duplicar `(CriteriaType, Operator, Value)` en el mismo flag | ADR-0068 |
 
 ### Diagrama del Agregado
 
@@ -196,11 +203,22 @@ classDiagram
     class FeatureFlag {
         <<AggregateRoot>>
         +Guid Id
+        +Guid SystemSuiteId
+        +Guid TenantId
         +FlagCode Code
         +FlagType Type
         +JSON FlagTargets
         +FlagStatus Status
         +LinkedResourceType LinkedResourceType
+    }
+    class FeatureFlagCriteria {
+        <<Entity>>
+        +Guid Id
+        +Guid FeatureFlagId
+        +string CriteriaType
+        +string Operator
+        +string Value
+        +DateTimeOffset CreatedAtUtc
     }
     class FlagEvaluationLog {
         <<Entity>>
@@ -209,7 +227,18 @@ classDiagram
         +bool Result
         +DateTimeOffset EvaluatedAt
     }
+    FeatureFlag "1" --> "0..*" FeatureFlagCriteria : owns
     FeatureFlag "1" --> "0..*" FlagEvaluationLog : records
+```
+
+### Puertos (Ports)
+
+```csharp
+// Domain port — implemented in Infrastructure
+public interface IFeatureFlagEvaluator
+{
+    bool Evaluate(FeatureFlag flag, EvaluationContext context);
+}
 ```
 
 ### Máquina de Estado: FeatureFlag
@@ -224,15 +253,37 @@ stateDiagram-v2
     note right of ARCHIVED : Estado terminal — crear nueva version
 ```
 
+Los criterios (`FeatureFlagCriteria`) no tienen estados propios. Se agregan y eliminan mientras el flag está en `INACTIVE` o `ACTIVE`.
+
 ### Comandos y Eventos
 
 ```
-CreateFeatureFlagCommand    -> FeatureFlagCreatedEvent      { flagCode, type }
-ActivateFlagCommand         -> FeatureFlagActivatedEvent    { flagCode, targetScope }
-DeactivateFlagCommand       -> FeatureFlagDeactivatedEvent  { flagCode }
-ArchiveFlagCommand          -> FeatureFlagArchivedEvent     { flagCode }
-EvaluateFlagCommand         -> FlagEvaluatedEvent           { flagCode, result, context }
+CreateFeatureFlagCommand(systemSuiteId, tenantId, flagCode, type, actor)
+    -> FeatureFlagCreatedEvent { flagId, flagCode, systemSuiteId }
+
+UpdateFeatureFlagCommand(flagId, flagTargets, rolloutPercentage, actor)
+    -> (mutable properties updated)
+
+ActivateFlagCommand(flagId, actor)
+    -> FeatureFlagActivatedEvent { flagCode, targetScope }
+
+DeactivateFlagCommand(flagId, actor)
+    -> FeatureFlagDeactivatedEvent { flagCode }
+
+ArchiveFlagCommand(flagId, actor)
+    -> FeatureFlagArchivedEvent { flagCode }
+
+AddFeatureFlagCriteriaCommand(flagId, criteriaType, operator, value, actor)
+    -> FeatureFlagCriteriaAddedEvent { flagId, flagCode, criteriaType }
+
+RemoveFeatureFlagCriteriaCommand(flagId, criteriaId, actor)
+    -> FeatureFlagCriteriaRemovedEvent { flagId, flagCode, criteriaId }
+
+EvaluateFeatureFlagCommand(flagId, evaluationContext, evaluatedBy)
+    -> FlagEvaluatedEvent { flagCode, result, context }
+
 FeatureFlagStateChangedEvent { flagCode, newStatus, targetScope, changedBy }
+FeatureFlagTargetingRulesUpdatedEvent { flagId, flagCode, systemSuiteId }
 ```
 
 ---

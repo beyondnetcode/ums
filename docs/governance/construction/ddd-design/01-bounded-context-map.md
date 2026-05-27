@@ -33,6 +33,7 @@ graph TD
     end
 
     A -->|"Customer-Supplier\nUser + Org + Branch claims"| B
+    B -->|"Customer-Supplier\nSystemSuiteId ref para FeatureFlag scope"| C
     A -->|"Customer-Supplier\nTenant scope keys"| C
     A -->|"Customer-Supplier\nUserRegisteredEvent"| F
     A -->|"Customer-Supplier\nUserRegisteredEvent"| H
@@ -82,6 +83,7 @@ graph TD
 | Upstream | Downstream | Patron | Contrato |
 |----------|-----------|--------|----------|
 | Identity | Authorization | Customer-Supplier | User/Org/Branch claims via eventos o API |
+| Authorization | Configuration | Customer-Supplier | SystemSuite.Id como scope FK de FeatureFlag |
 | Identity | Configuration | Customer-Supplier | Tenant scope keys para aislamiento de config |
 | Identity | Approvals | Customer-Supplier | Registro de usuario externo desencadena workflow |
 | Identity | IGA | Customer-Supplier | `UserRegisteredEvent` para inicializar tracking |
