@@ -21,14 +21,15 @@ internal static class ResultExtensions
     private static IResult ToProblem(string error, HttpContext? context = null)
     {
         var (status, title) = DomainErrorStatusMapper.Map(error);
-        var userMessage = GetUserMessage(error, status);
 
         var problemDetails = new ProblemDetails
         {
-            Title = title,
-            Detail = GetSafeDetail(status),
-            Status = status,
-            Type = $"https://httpstatuses.io/{status}",
+            Title    = title,
+            // Detail is user-visible; GetSafeDetail returns a localized, action-oriented string.
+            // GetUserMessage is used only for domain-specific overrides (e.g. validation messages).
+            Detail   = GetUserMessage(error, status),
+            Status   = status,
+            Type     = $"https://httpstatuses.io/{status}",
             Instance = context?.Request.Path,
             Extensions =
             {
@@ -39,20 +40,22 @@ internal static class ResultExtensions
         if (context != null)
         {
             var errorId = UserFacingErrorContext.GetOrCreateErrorId(context);
-            problemDetails.Extensions["traceId"] = context.TraceIdentifier;
+            // errorId is the only handle exposed to the caller.
+            // traceId stays in logs — never in the response body.
             problemDetails.Extensions["errorId"] = errorId;
 
             context.RequestServices
                 .GetService<ILoggerFactory>()?
                 .CreateLogger("Ums.Presentation.ResultFailure")
                 .LogWarning(
-                    "Request returned an expected failure. ErrorId: {ErrorId}, StatusCode: {StatusCode}, ErrorCategory: {ErrorCategory}",
+                    "Domain failure [{ErrorCategory}] on {RequestMethod} {RequestPath}. " +
+                    "ErrorId: {ErrorId}, StatusCode: {StatusCode}",
+                    title,
+                    context.Request.Method,
+                    context.Request.Path,
                     errorId,
-                    status,
-                    title);
+                    status);
         }
-
-        problemDetails.Extensions["userMessage"] = userMessage;
 
         return Results.Problem(problemDetails);
     }

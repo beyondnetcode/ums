@@ -161,7 +161,9 @@ public sealed class Module : Entity<Module, ModuleProps>
 
     private Result<MenuEntity> FindMenu(IdValueObject menuId)
     {
-        var menu = _menus.FirstOrDefault(m => m.Id.GetValue() == menuId.GetValue());
+        // Use Props.Id (stable database GUID). Entity.Id is a transient random GUID
+        // generated on each rehydration and must not be used for cross-request lookups.
+        var menu = _menus.FirstOrDefault(m => m.Props.Id.GetValue() == menuId.GetValue());
         return menu is null
             ? Result<MenuEntity>.Failure(DomainErrors.Common.NotFound)
             : Result<MenuEntity>.Success(menu);

@@ -124,6 +124,99 @@ public static class SystemSuiteEndpoints
           .ProducesProblem(StatusCodes.Status404NotFound)
           .ProducesProblem(StatusCodes.Status409Conflict);
 
+        // ── Menu lifecycle ────────────────────────────────────────────────────
+
+        group.MapPost("/{systemSuiteId:guid}/modules/{moduleId:guid}/menus", async (Guid systemSuiteId, Guid moduleId, AddMenuCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command with { SystemSuiteId = systemSuiteId, ModuleId = moduleId }, ct);
+            return result.ToNoContent(context);
+        }).WithName("AddMenu")
+          .WithSummary("Add a menu to a module")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status400BadRequest)
+          .ProducesProblem(StatusCodes.Status404NotFound)
+          .ProducesProblem(StatusCodes.Status409Conflict);
+
+        group.MapPut("/{systemSuiteId:guid}/modules/{moduleId:guid}/menus/{menuId:guid}", async (Guid systemSuiteId, Guid moduleId, Guid menuId, UpdateMenuCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command with { SystemSuiteId = systemSuiteId, ModuleId = moduleId, MenuId = menuId }, ct);
+            return result.ToNoContent(context);
+        }).WithName("UpdateMenu")
+          .WithSummary("Update menu label, description, or sort order")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status404NotFound);
+
+        group.MapDelete("/{systemSuiteId:guid}/modules/{moduleId:guid}/menus/{menuId:guid}", async (Guid systemSuiteId, Guid moduleId, Guid menuId, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new RemoveMenuCommand(systemSuiteId, moduleId, menuId), ct);
+            return result.ToNoContent(context);
+        }).WithName("RemoveMenu")
+          .WithSummary("Remove a menu from a module")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status404NotFound);
+
+        // ── SubMenu lifecycle ─────────────────────────────────────────────────
+
+        group.MapPost("/{systemSuiteId:guid}/modules/{moduleId:guid}/menus/{menuId:guid}/submenus", async (Guid systemSuiteId, Guid moduleId, Guid menuId, AddSubMenuCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command with { SystemSuiteId = systemSuiteId, ModuleId = moduleId, MenuId = menuId }, ct);
+            return result.ToNoContent(context);
+        }).WithName("AddSubMenu")
+          .WithSummary("Add a submenu to a menu")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status400BadRequest)
+          .ProducesProblem(StatusCodes.Status404NotFound)
+          .ProducesProblem(StatusCodes.Status409Conflict);
+
+        group.MapPut("/{systemSuiteId:guid}/modules/{moduleId:guid}/menus/{menuId:guid}/submenus/{subMenuId:guid}", async (Guid systemSuiteId, Guid moduleId, Guid menuId, Guid subMenuId, UpdateSubMenuCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command with { SystemSuiteId = systemSuiteId, ModuleId = moduleId, MenuId = menuId, SubMenuId = subMenuId }, ct);
+            return result.ToNoContent(context);
+        }).WithName("UpdateSubMenu")
+          .WithSummary("Update submenu label, description, or sort order")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status404NotFound);
+
+        group.MapDelete("/{systemSuiteId:guid}/modules/{moduleId:guid}/menus/{menuId:guid}/submenus/{subMenuId:guid}", async (Guid systemSuiteId, Guid moduleId, Guid menuId, Guid subMenuId, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new RemoveSubMenuCommand(systemSuiteId, moduleId, menuId, subMenuId), ct);
+            return result.ToNoContent(context);
+        }).WithName("RemoveSubMenu")
+          .WithSummary("Remove a submenu from a menu")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status404NotFound);
+
+        // ── Option lifecycle ──────────────────────────────────────────────────
+
+        group.MapPost("/{systemSuiteId:guid}/modules/{moduleId:guid}/menus/{menuId:guid}/submenus/{subMenuId:guid}/options", async (Guid systemSuiteId, Guid moduleId, Guid menuId, Guid subMenuId, AddOptionCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command with { SystemSuiteId = systemSuiteId, ModuleId = moduleId, MenuId = menuId, SubMenuId = subMenuId }, ct);
+            return result.ToNoContent(context);
+        }).WithName("AddOption")
+          .WithSummary("Add an option to a submenu")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status400BadRequest)
+          .ProducesProblem(StatusCodes.Status404NotFound)
+          .ProducesProblem(StatusCodes.Status409Conflict);
+
+        group.MapPut("/{systemSuiteId:guid}/modules/{moduleId:guid}/menus/{menuId:guid}/submenus/{subMenuId:guid}/options/{optionId:guid}", async (Guid systemSuiteId, Guid moduleId, Guid menuId, Guid subMenuId, Guid optionId, UpdateOptionCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command with { SystemSuiteId = systemSuiteId, ModuleId = moduleId, MenuId = menuId, SubMenuId = subMenuId, OptionId = optionId }, ct);
+            return result.ToNoContent(context);
+        }).WithName("UpdateOption")
+          .WithSummary("Update option label, description, action code, or sort order")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status404NotFound);
+
+        group.MapDelete("/{systemSuiteId:guid}/modules/{moduleId:guid}/menus/{menuId:guid}/submenus/{subMenuId:guid}/options/{optionId:guid}", async (Guid systemSuiteId, Guid moduleId, Guid menuId, Guid subMenuId, Guid optionId, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new RemoveOptionCommand(systemSuiteId, moduleId, menuId, subMenuId, optionId), ct);
+            return result.ToNoContent(context);
+        }).WithName("RemoveOption")
+          .WithSummary("Remove an option from a submenu")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status404NotFound);
+
         // ── App settings ─────────────────────────────────────────────────────
 
         group.MapPost("/{systemSuiteId:guid}/app-settings", async (Guid systemSuiteId, AddAppSettingCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>

@@ -4,10 +4,15 @@ interface HttpErrorLike {
     status?: number;
     headers?: Record<string, unknown>;
     data?: {
-      errorId?: string;
+      // RFC 7807 Problem Details fields
+      detail?: string;         // transport detail; never display directly
+      title?: string;
+      // Approved, localized user-facing content
+      userMessage?: string;
+      // Correlation
+      errorId?: string;        // handle the user gives to support (look up in Loki)
       traceId?: string;
       supportReferenceId?: string;
-      userMessage?: string;
     };
   };
   graphQLErrors?: ReadonlyArray<{
@@ -33,10 +38,12 @@ export const asHttpError = (error: unknown): HttpErrorLike => {
           headers: isRecord(response.headers) ? response.headers : undefined,
           data: data
             ? {
-                errorId: typeof data.errorId === 'string' ? data.errorId : undefined,
-                traceId: typeof data.traceId === 'string' ? data.traceId : undefined,
+                detail:             typeof data.detail === 'string' ? data.detail : undefined,
+                title:              typeof data.title === 'string' ? data.title : undefined,
+                errorId:            typeof data.errorId === 'string' ? data.errorId : undefined,
+                traceId:            typeof data.traceId === 'string' ? data.traceId : undefined,
                 supportReferenceId: typeof data.supportReferenceId === 'string' ? data.supportReferenceId : undefined,
-                userMessage: typeof data.userMessage === 'string' ? data.userMessage : undefined,
+                userMessage:        typeof data.userMessage === 'string' ? data.userMessage : undefined,
               }
             : undefined,
         }
@@ -71,5 +78,17 @@ export const getSupportReferenceId = (error: unknown): string | undefined => {
     ?? (typeof headerTraceId === 'string' ? headerTraceId : undefined);
 };
 
-export const getHttpErrorMessage = (error: unknown, fallback: string): string =>
-  asHttpError(error).response?.data?.userMessage ?? fallback;
+/**
+ * Extracts the user-visible error message from an API error.
+ *
+ * Priority chain (OBS-01 contract):
+ *  1. `userMessage` — localized and approved by the backend
+ *  2. Caller-supplied fallback string
+ *
+ * Problem Details `detail`, stack traces and internal identifiers never appear here; they stay in
+ * Grafana Loki, keyed by the `errorId` returned by `getSupportReferenceId()`.
+ */
+export const getHttpErrorMessage = (error: unknown, fallback: string): string => {
+  const data = asHttpError(error).response?.data;
+  return data?.userMessage ?? fallback;
+};

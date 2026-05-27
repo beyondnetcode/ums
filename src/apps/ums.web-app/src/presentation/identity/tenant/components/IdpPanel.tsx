@@ -3,6 +3,7 @@ import { useI18n } from '@app/i18n/use-i18n';
 import { useInlineEdit } from '@app/hooks/use-inline-edit';
 import { useResetOnChange } from '@app/hooks/use-reset-on-change';
 import { useNotificationStore } from '@app/stores/notification.store';
+import { formatSystemCode } from '@app/utils/security';
 import { idpService } from '@infra/identity/services/idp.service';
 import type { IdentityProvider } from '@domain/identity/schemas/identity-provider.schema';
 import { M3Button } from '@shared/components/M3Button';
@@ -86,7 +87,7 @@ export const IdpPanel: React.FC<IdpPanelProps> = ({ tenantId }) => {
     try {
       await idpService.registerIdentityProvider(tenantId, {
         name: provName.trim(),
-        code: provCode.trim().toUpperCase() || provName.trim().toUpperCase().replace(/\s+/g, '_').substring(0, 20),
+        code: formatSystemCode(provCode) || formatSystemCode(provName).substring(0, 20),
         description: provDescription.trim(),
         strategy: provStrategy,
       });
@@ -134,6 +135,7 @@ export const IdpPanel: React.FC<IdpPanelProps> = ({ tenantId }) => {
         title={t.newProvider}
         cancelLabel={t.cancelEdit}
         submitLabel={t.saveProvider}
+        triggerEmphasis="quiet"
       >
         <M3TextField label={t.providerName} required value={provName} onChange={(e) => setProvName(e.target.value)} placeholder="e.g. Okta SSO" />
         <M3TextField label={t.providerCode} value={provCode} onChange={(e) => setProvCode(e.target.value.toUpperCase())} placeholder="e.g. OKTA_SSO" />

@@ -113,7 +113,7 @@ public static class AuthorizationDevDataSeeder
             if (modSec.IsSuccess)
             {
                 var module = suite.Modules.First(m => m.Code.GetValue() == "SEC");
-                suite.ActivateModule(module.Id, actor);
+                suite.ActivateModule(module.Props.Id, actor);
 
                 // Menu 1: Users
                 module.AddMenu(Code.Create("USERS"), Name.Create("Users Administration"), Description.Create("Manage user accounts and details"), 1, actor);
@@ -144,7 +144,7 @@ public static class AuthorizationDevDataSeeder
             if (modConfig.IsSuccess)
             {
                 var module = suite.Modules.First(m => m.Code.GetValue() == "CONFIG");
-                suite.ActivateModule(module.Id, actor);
+                suite.ActivateModule(module.Props.Id, actor);
 
                 // Menu 1: System Settings
                 module.AddMenu(Code.Create("SETTINGS"), Name.Create("Global Setup"), Description.Create("Configure global system variables"), 1, actor);
@@ -187,7 +187,7 @@ public static class AuthorizationDevDataSeeder
             if (modInv.IsSuccess)
             {
                 var module = suite.Modules.First(m => m.Code.GetValue() == "INV");
-                suite.ActivateModule(module.Id, actor);
+                suite.ActivateModule(module.Props.Id, actor);
 
                 // Menu 1: Stock levels
                 module.AddMenu(Code.Create("STOCK"), Name.Create("Stock Administration"), Description.Create("Stock levels and status"), 1, actor);

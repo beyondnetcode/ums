@@ -121,7 +121,9 @@ public sealed class SubMenu : Entity<SubMenu, SubMenuProps>
 
     private Result<OptionEntity> FindOption(IdValueObject optionId)
     {
-        var option = _options.FirstOrDefault(o => o.Id.GetValue() == optionId.GetValue());
+        // Use Props.Id (stable database GUID). Entity.Id is a transient random GUID
+        // generated on each rehydration and must not be used for cross-request lookups.
+        var option = _options.FirstOrDefault(o => o.Props.Id.GetValue() == optionId.GetValue());
         return option is null
             ? Result<OptionEntity>.Failure(DomainErrors.Common.NotFound)
             : Result<OptionEntity>.Success(option);

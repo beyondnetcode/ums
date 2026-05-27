@@ -107,6 +107,101 @@ export const systemSuiteService = {
     await httpClient.post(`/system-suites/${systemSuiteId}/modules/${moduleId}/deactivate`);
   },
 
+  // ── Menu Lifecycle REST Commands ──────────────────────────────────────────
+
+  addMenu: async (
+    systemSuiteId: string,
+    moduleId: string,
+    payload: { code: string; label: string; description?: string; sortOrder: number },
+  ): Promise<void> => {
+    await httpClient.post(`/system-suites/${systemSuiteId}/modules/${moduleId}/menus`, {
+      ...payload,
+      description: payload.description?.trim() ?? '',
+    });
+  },
+
+  updateMenu: async (
+    systemSuiteId: string,
+    moduleId: string,
+    menuId: string,
+    payload: { label: string; description?: string; sortOrder: number },
+  ): Promise<void> => {
+    await httpClient.put(`/system-suites/${systemSuiteId}/modules/${moduleId}/menus/${menuId}`, {
+      ...payload,
+      description: payload.description?.trim() ?? '',
+    });
+  },
+
+  removeMenu: async (systemSuiteId: string, moduleId: string, menuId: string): Promise<void> => {
+    await httpClient.delete(`/system-suites/${systemSuiteId}/modules/${moduleId}/menus/${menuId}`);
+  },
+
+  // ── SubMenu Lifecycle REST Commands ──────────────────────────────────────
+
+  addSubMenu: async (
+    systemSuiteId: string,
+    moduleId: string,
+    menuId: string,
+    payload: { code: string; label: string; description?: string; sortOrder: number },
+  ): Promise<void> => {
+    await httpClient.post(`/system-suites/${systemSuiteId}/modules/${moduleId}/menus/${menuId}/submenus`, {
+      ...payload,
+      description: payload.description?.trim() ?? '',
+    });
+  },
+
+  updateSubMenu: async (
+    systemSuiteId: string,
+    moduleId: string,
+    menuId: string,
+    subMenuId: string,
+    payload: { label: string; description?: string; sortOrder: number },
+  ): Promise<void> => {
+    await httpClient.put(
+      `/system-suites/${systemSuiteId}/modules/${moduleId}/menus/${menuId}/submenus/${subMenuId}`,
+      { ...payload, description: payload.description?.trim() ?? '' },
+    );
+  },
+
+  removeSubMenu: async (systemSuiteId: string, moduleId: string, menuId: string, subMenuId: string): Promise<void> => {
+    await httpClient.delete(`/system-suites/${systemSuiteId}/modules/${moduleId}/menus/${menuId}/submenus/${subMenuId}`);
+  },
+
+  // ── Option Lifecycle REST Commands ────────────────────────────────────────
+
+  addOption: async (
+    systemSuiteId: string,
+    moduleId: string,
+    menuId: string,
+    subMenuId: string,
+    payload: { code: string; label: string; description?: string; actionCode: string; sortOrder: number },
+  ): Promise<void> => {
+    await httpClient.post(
+      `/system-suites/${systemSuiteId}/modules/${moduleId}/menus/${menuId}/submenus/${subMenuId}/options`,
+      { ...payload, description: payload.description?.trim() ?? '' },
+    );
+  },
+
+  updateOption: async (
+    systemSuiteId: string,
+    moduleId: string,
+    menuId: string,
+    subMenuId: string,
+    optionId: string,
+    payload: { label: string; description?: string; actionCode: string; sortOrder: number },
+  ): Promise<void> => {
+    await httpClient.put(
+      `/system-suites/${systemSuiteId}/modules/${moduleId}/menus/${menuId}/submenus/${subMenuId}/options/${optionId}`,
+      { ...payload, description: payload.description?.trim() ?? '' },
+    );
+  },
+
+  removeOption: async (systemSuiteId: string, moduleId: string, menuId: string, subMenuId: string, optionId: string): Promise<void> => {
+    await httpClient.delete(
+      `/system-suites/${systemSuiteId}/modules/${moduleId}/menus/${menuId}/submenus/${subMenuId}/options/${optionId}`,
+    );
+  },
+
   // ── Action Registry REST Commands ─────────────────────────────────────────
 
   registerAction: async (

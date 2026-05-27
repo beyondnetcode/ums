@@ -24,26 +24,26 @@ public sealed record SystemSuiteDto(
             suite.Props.Description.GetValue(),
             suite.Props.Status.ToString(),
             suite.Modules.Select(m => new SystemSuiteModuleDto(
-                m.Id.GetValue(),
+                m.Props.Id.GetValue(),          // Props.Id = stable DB GUID (Entity.Id is transient per-rehydration)
                 m.Code.GetValue(),
                 m.Name.GetValue(),
                 m.Description.GetValue(),
                 m.Status.ToString(),
                 m.SortOrder,
                 m.Menus.Select(menu => new SystemSuiteMenuDto(
-                    menu.Id.GetValue(),
+                    menu.Props.Id.GetValue(),   // Props.Id = stable DB GUID
                     menu.Code.GetValue(),
                     menu.Label.GetValue(),
                     menu.Description.GetValue(),
                     menu.SortOrder,
                     menu.SubMenus.Select(sm => new SystemSuiteSubMenuDto(
-                        sm.Id.GetValue(),
+                        sm.Props.Id.GetValue(), // Props.Id = stable DB GUID
                         sm.Code.GetValue(),
                         sm.Label.GetValue(),
                         sm.Description.GetValue(),
                         sm.SortOrder,
                         sm.Options.Select(opt => new SystemSuiteOptionDto(
-                            opt.Id.GetValue(),
+                            opt.Props.Id.GetValue(), // Props.Id = stable DB GUID
                             opt.Code.GetValue(),
                             opt.Label.GetValue(),
                             opt.Description.GetValue(),
@@ -54,7 +54,7 @@ public sealed record SystemSuiteDto(
                 )).ToList()
             )).ToList(),
             suite.Actions.Select(a => new SystemSuiteActionDto(
-                a.Id.GetValue(),
+                a.Props.Id.GetValue(),          // Props.Id = stable DB GUID
                 a.Code.GetValue(),
                 a.Name.GetValue()
             )).ToList()

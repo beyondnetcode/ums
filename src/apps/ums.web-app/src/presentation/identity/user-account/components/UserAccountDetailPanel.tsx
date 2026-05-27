@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Shield, Key, CheckCircle2, ShieldAlert, Fingerprint, Calendar, Clock, Laptop, XCircle, LayoutGrid } from 'lucide-react';
+import { User, Shield, Key, CheckCircle2, Fingerprint, Clock, Laptop, XCircle, LayoutGrid } from 'lucide-react';
 import { UserAccount } from '@domain/identity/models/user-account.model';
 import { UserAccountProfileCard } from './UserAccountProfileCard';
 import { DetailPanelShell, DetailTab } from '@shared/components/DetailPanelShell';

@@ -9,6 +9,7 @@ import {
 import { useI18n } from '@app/i18n/use-i18n';
 import { useInlineEdit } from '@app/hooks/use-inline-edit';
 import { useNotificationStore } from '@app/stores/notification.store';
+import { formatSystemCode } from '@app/utils/security';
 import { M3Button } from '@shared/components/M3Button';
 import { M3TextField } from '@shared/components/M3TextField';
 import { StatusBadge } from '@shared/components/StatusBadge';
@@ -77,7 +78,7 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ tenantId }) => {
 
     try {
       await addBranchMutation.mutateAsync({
-        code: code.toUpperCase().replace(/\s+/g, '_'),
+        code: formatSystemCode(code),
         name,
         geofencingMetadata: geofencing || undefined,
       });
@@ -109,6 +110,7 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ tenantId }) => {
           cancelLabel={t.cancelEdit}
           submitLabel={t.saveLocation}
           isLoading={addBranchMutation.isPending}
+          triggerEmphasis="quiet"
           error={errorMsg || undefined}
         >
           <M3TextField

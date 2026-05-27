@@ -262,7 +262,7 @@ public sealed class SqlServerSystemSuiteRepository(UmsPlatformDbContext dbContex
         };
     }
 
-    private static void Apply(SystemSuiteRecord target, SystemSuiteAggregate source)
+    private void Apply(SystemSuiteRecord target, SystemSuiteAggregate source)
     {
         var replacement = ToRecord(source);
 
@@ -279,17 +279,18 @@ public sealed class SqlServerSystemSuiteRepository(UmsPlatformDbContext dbContex
         target.AuditTimeSpan = replacement.AuditTimeSpan;
 
         // ── Modules ───────────────────────────────────────────────────────────
-        // Reconcile by Id to avoid the Clear()+Add(same-PK) anti-pattern.
-        // Clear() marks existing tracked entities as Deleted; adding new POCOs
-        // with the same PKs then creates a Deleted↔Added conflict in the EF
-        // change tracker, causing a false DbUpdateConcurrencyException.
         ReconcileModules(target.Modules, replacement.Modules);
 
         // ── AppSettings ───────────────────────────────────────────────────────
-        ReconcileById(
+        // Key: (ConfigKey, ScopeId) — NOT Id.
+        // ToRecord() generates Id = Guid.NewGuid() on every call, so using Id
+        // as the key would always treat every existing setting as Deleted and every
+        // replacement as a new INSERT, causing DbUpdateConcurrencyException when
+        // EF Core finds a non-default GUID that doesn't exist in the database.
+        ReconcileByKey(
             target.AppSettings,
             replacement.AppSettings,
-            s => s.Id,
+            s => (s.ConfigKey, s.ScopeId),
             (existing, rep) =>
             {
                 existing.ConfigKey   = rep.ConfigKey;
@@ -298,7 +299,7 @@ public sealed class SqlServerSystemSuiteRepository(UmsPlatformDbContext dbContex
             });
 
         // ── Actions ───────────────────────────────────────────────────────────
-        ReconcileById(
+        ReconcileByKey(
             target.Actions,
             replacement.Actions,
             a => a.Id,
@@ -314,63 +315,143 @@ public sealed class SqlServerSystemSuiteRepository(UmsPlatformDbContext dbContex
     }
 
     /// <summary>
-    /// Reconciles a tracked EF Core child collection against a replacement set using
-    /// <typeparamref name="TKey"/> as the identity. Existing children are updated
-    /// in-place (no Delete+Insert cycle); removed children are evicted; new children
-    /// are appended.
+    /// Reconciles a tracked EF Core child collection against a replacement set.
+    ///
+    /// EF Core change-tracking subtlety (FIX-09):
+    /// When a new entity with a manually-set non-default GUID is added to a tracked
+    /// navigation collection, EF Core's <c>DetectChanges()</c> may assign
+    /// <c>EntityState.Modified</c> (assuming the GUID already exists in the database)
+    /// instead of <c>EntityState.Added</c>. This causes an UPDATE on a non-existent row
+    /// → 0 rows affected → false <c>DbUpdateConcurrencyException</c>.
+    ///
+    /// The fix: explicitly set <c>EntityState.Added</c> on every genuinely new entity
+    /// so EF Core always generates INSERT, never UPDATE.
     /// </summary>
-    private static void ReconcileById<TEntity, TKey>(
+    private void ReconcileByKey<TEntity, TKey>(
         IList<TEntity> tracked,
         IList<TEntity> replacement,
         Func<TEntity, TKey> keySelector,
         Action<TEntity, TEntity> update)
         where TKey : notnull
     {
-        var replacementById = replacement.ToDictionary(keySelector);
-        var trackedById     = tracked.ToDictionary(keySelector);
+        var replacementByKey = replacement.ToDictionary(keySelector);
+        var trackedByKey     = tracked.ToDictionary(keySelector);
 
         // Remove entities no longer present in the aggregate.
-        foreach (var (key, entity) in trackedById)
+        foreach (var (key, entity) in trackedByKey)
         {
-            if (!replacementById.ContainsKey(key))
+            if (!replacementByKey.ContainsKey(key))
                 tracked.Remove(entity);
         }
 
-        // Update existing or add new.
-        foreach (var (key, repEntity) in replacementById)
+        // Update existing in-place or explicitly INSERT new.
+        foreach (var (key, repEntity) in replacementByKey)
         {
-            if (trackedById.TryGetValue(key, out var existingEntity))
+            if (trackedByKey.TryGetValue(key, out var existingEntity))
+            {
                 update(existingEntity, repEntity);   // update in-place — no PK conflict
+            }
             else
-                tracked.Add(repEntity);              // genuinely new — safe INSERT
+            {
+                tracked.Add(repEntity);
+
+                // FIX-09: Force EntityState.Added so EF Core generates INSERT.
+                // DetectChanges() alone would assign Modified for entities with a
+                // pre-set non-default GUID, trying to UPDATE a row that does not exist.
+                dbContext.Entry(repEntity).State = EntityState.Added;
+            }
         }
     }
 
     /// <summary>
-    /// Reconciles the Modules collection, including in-place property updates.
-    /// Menu-level reconciliation is intentionally deferred to the AddMenu/RemoveMenu
-    /// command handlers which operate on an individual module scope.
+    /// Reconciles the Modules collection and recursively reconciles all
+    /// Menus → SubMenus → Options within each module.
     /// </summary>
-    private static void ReconcileModules(
+    private void ReconcileModules(
         IList<SystemSuiteModuleRecord> tracked,
         IList<SystemSuiteModuleRecord> replacement)
     {
-        ReconcileById(
+        ReconcileByKey(
             tracked,
             replacement,
             m => m.Id,
             (existing, rep) =>
             {
-                existing.Code        = rep.Code;
-                existing.Name        = rep.Name;
-                existing.Description = rep.Description;
-                existing.StatusId    = rep.StatusId;
-                existing.SortOrder   = rep.SortOrder;
-                existing.UpdatedBy   = rep.UpdatedBy;
-                existing.UpdatedAtUtc = rep.UpdatedAtUtc;
+                existing.Code          = rep.Code;
+                existing.Name          = rep.Name;
+                existing.Description   = rep.Description;
+                existing.StatusId      = rep.StatusId;
+                existing.SortOrder     = rep.SortOrder;
+                existing.UpdatedBy     = rep.UpdatedBy;
+                existing.UpdatedAtUtc  = rep.UpdatedAtUtc;
                 existing.AuditTimeSpan = rep.AuditTimeSpan;
-                // Menus are NOT touched here: they belong to the existing tracked
-                // collection and are managed by dedicated menu commands.
+
+                ReconcileMenus(existing.Menus, rep.Menus);
+            });
+    }
+
+    private void ReconcileMenus(
+        IList<SystemSuiteMenuRecord> tracked,
+        IList<SystemSuiteMenuRecord> replacement)
+    {
+        ReconcileByKey(
+            tracked,
+            replacement,
+            m => m.Id,
+            (existing, rep) =>
+            {
+                existing.Code          = rep.Code;
+                existing.Label         = rep.Label;
+                existing.Description   = rep.Description;
+                existing.SortOrder     = rep.SortOrder;
+                existing.UpdatedBy     = rep.UpdatedBy;
+                existing.UpdatedAtUtc  = rep.UpdatedAtUtc;
+                existing.AuditTimeSpan = rep.AuditTimeSpan;
+
+                ReconcileSubMenus(existing.SubMenus, rep.SubMenus);
+            });
+    }
+
+    private void ReconcileSubMenus(
+        IList<SystemSuiteSubMenuRecord> tracked,
+        IList<SystemSuiteSubMenuRecord> replacement)
+    {
+        ReconcileByKey(
+            tracked,
+            replacement,
+            sm => sm.Id,
+            (existing, rep) =>
+            {
+                existing.Code          = rep.Code;
+                existing.Label         = rep.Label;
+                existing.Description   = rep.Description;
+                existing.SortOrder     = rep.SortOrder;
+                existing.UpdatedBy     = rep.UpdatedBy;
+                existing.UpdatedAtUtc  = rep.UpdatedAtUtc;
+                existing.AuditTimeSpan = rep.AuditTimeSpan;
+
+                ReconcileOptions(existing.Options, rep.Options);
+            });
+    }
+
+    private void ReconcileOptions(
+        IList<SystemSuiteOptionRecord> tracked,
+        IList<SystemSuiteOptionRecord> replacement)
+    {
+        ReconcileByKey(
+            tracked,
+            replacement,
+            o => o.Id,
+            (existing, rep) =>
+            {
+                existing.Code          = rep.Code;
+                existing.Label         = rep.Label;
+                existing.Description   = rep.Description;
+                existing.ActionCode    = rep.ActionCode;
+                existing.SortOrder     = rep.SortOrder;
+                existing.UpdatedBy     = rep.UpdatedBy;
+                existing.UpdatedAtUtc  = rep.UpdatedAtUtc;
+                existing.AuditTimeSpan = rep.AuditTimeSpan;
             });
     }
 }
