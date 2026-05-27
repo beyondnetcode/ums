@@ -47,6 +47,7 @@ UMS is a satellite repository of `evolith_arch32`. The parent repository defines
 | [ADR-0063](./0063-idempotency-middleware.md) | Idempotency Key Middleware (FIX-06 / RISK-05) | Accepted · ⬆ Evolith candidate |
 | [ADR-0064](./0064-lean-root-repository-taxonomy.md) | Lean Root Repository Taxonomy | Accepted |
 | [ADR-0065](./0065-no-raw-guids-in-ui.md) | Prohibition of Raw GUIDs in User Interfaces (UX / DDD) | Accepted · ⬆ Evolith candidate |
+| [ADR-0066](./0066-database-schema-per-module.md) | Database Boundary Strategy — Schema per Module for UMS | Accepted |
 
 > **⬆ Evolith candidate** — ADR has zero UMS-specific dependencies and is proposed for extraction to the Evolith parent architecture baseline.
 
