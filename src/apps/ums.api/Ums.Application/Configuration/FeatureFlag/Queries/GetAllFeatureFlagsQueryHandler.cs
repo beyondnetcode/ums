@@ -26,13 +26,20 @@ public sealed class GetAllFeatureFlagsQueryHandler : IQueryHandler<GetAllFeature
         var query = (await _repository.GetAllAsync(cancellationToken))
             .Select(flag => new FeatureFlagDto(
                 flag.Props.Id.GetValue(),
+                flag.Props.SystemSuiteId.GetValue(),
                 flag.Props.FlagCode,
                 flag.Props.FlagType.Name,
                 flag.Props.FlagTargets,
                 flag.Props.Status.Name,
                 flag.Props.LinkedResourceType?.Name,
                 flag.Props.LinkedResourceId?.GetValue(),
-                flag.Props.RolloutPercentage));
+                flag.Props.RolloutPercentage,
+                flag.Criteria.Select(c => new FeatureFlagCriteriaDto(
+                    c.Props.Id.GetValue(),
+                    c.CriteriaType,
+                    c.Operator,
+                    c.Value,
+                    c.CreatedAtUtc)).ToList()));
 
         if (!string.IsNullOrWhiteSpace(search))
         {

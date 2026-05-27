@@ -19,5 +19,8 @@ public sealed class FeatureFlagRecord : IAuditableRecord
     public string AuditTimeSpan { get; set; } = string.Empty;
     public byte[] RowVersion { get; set; } = [];
 
+    public Guid SystemSuiteId { get; set; }
+    public Guid? TenantId { get; set; }
     public List<FeatureFlagEvaluationLogRecord> EvaluationLogs { get; set; } = [];
+    public List<FeatureFlagCriteriaRecord> Criteria { get; set; } = [];
 }

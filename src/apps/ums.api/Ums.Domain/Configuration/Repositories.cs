@@ -23,8 +23,11 @@ public interface IAppConfigurationRepository : IAggregateRepository<AppConfigura
 public interface IFeatureFlagRepository : IAggregateRepository<FeatureFlagAggregate>
 {
     Task<FeatureFlagAggregate?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    [Obsolete("Use GetBySystemSuiteAndCodeAsync instead. Global flag codes are no longer unique.")]
     Task<FeatureFlagAggregate?> GetByCodeAsync(string flagCode, CancellationToken cancellationToken = default);
+    Task<FeatureFlagAggregate?> GetBySystemSuiteAndCodeAsync(Guid systemSuiteId, string flagCode, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<FeatureFlagAggregate>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<FeatureFlagAggregate>> GetBySystemSuiteIdAsync(Guid systemSuiteId, CancellationToken cancellationToken = default);
 }
 
 public interface IIdpConfigurationRepository : IAggregateRepository<IdpConfigurationAggregate>

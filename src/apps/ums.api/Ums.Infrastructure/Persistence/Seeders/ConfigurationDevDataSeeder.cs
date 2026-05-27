@@ -1,6 +1,7 @@
 namespace Ums.Infrastructure.Persistence.Seeders;
 
 using Microsoft.Extensions.DependencyInjection;
+using Ums.Shell.Ddd;
 using Ums.Domain.Configuration;
 using Ums.Domain.Configuration.AppConfiguration;
 using Ums.Domain.Configuration.FeatureFlag;
@@ -93,10 +94,12 @@ public static class ConfigurationDevDataSeeder
         return results;
     }
 
-    // FeatureFlag.Create(string flagCode, FlagType, string flagTargets, LinkedResourceType?, IdValueObject?, int? rolloutPercentage, ActorId)
+    // FeatureFlag.Create(IdValueObject systemSuiteId, IdValueObject? tenantId, string flagCode, FlagType, string flagTargets, LinkedResourceType?, IdValueObject?, int? rolloutPercentage, ActorId)
     private static IReadOnlyList<FeatureFlagAggregate> BuildSeedFeatureFlags(ActorId actor)
     {
         var flag = FeatureFlagAggregate.Create(
+            IdValueObject.Load(Guid.Parse(CoreDevDataSeeder.DemoSystemSuiteId)),
+            null,
             "ENABLE_MFA",
             FlagType.Boolean,
             "*",

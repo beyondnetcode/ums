@@ -7,6 +7,10 @@ public sealed class CreateFeatureFlagCommandValidator : AbstractValidator<Create
 {
     public CreateFeatureFlagCommandValidator()
     {
+        RuleFor(command => command.SystemSuiteId)
+            .NotEmpty()
+            .WithMessage("SystemSuiteId is required.");
+
         RuleFor(command => command.FlagCode)
             .NotEmpty()
             .MaximumLength(100);

@@ -3,6 +3,8 @@ namespace Ums.Domain.Configuration.FeatureFlag;
 public class FeatureFlagProps : IProps
 {
     public IdValueObject Id { get; set; }
+    public IdValueObject SystemSuiteId { get; set; }
+    public IdValueObject? TenantId { get; set; }
     public string FlagCode { get; set; }
     public FlagType FlagType { get; set; }
     public string FlagTargets { get; set; }
@@ -14,6 +16,8 @@ public class FeatureFlagProps : IProps
 
     public FeatureFlagProps(
         IdValueObject id,
+        IdValueObject systemSuiteId,
+        IdValueObject? tenantId,
         string flagCode,
         FlagType flagType,
         string flagTargets,
@@ -23,6 +27,8 @@ public class FeatureFlagProps : IProps
         ActorId createdBy)
     {
         Id = id;
+        SystemSuiteId = systemSuiteId;
+        TenantId = tenantId;
         FlagCode = flagCode;
         FlagType = flagType;
         FlagTargets = flagTargets;

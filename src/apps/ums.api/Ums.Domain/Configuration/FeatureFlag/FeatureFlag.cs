@@ -1,12 +1,15 @@
 namespace Ums.Domain.Configuration.FeatureFlag;
 
+using Ums.Domain.Configuration.FeatureFlag.Criteria;
 using Ums.Domain.Configuration.FeatureFlag.Events;
 using Ums.Domain.Configuration.FeatureFlag.FlagEvaluationLog;
 using FlagEvaluationLogEntity = Ums.Domain.Configuration.FeatureFlag.FlagEvaluationLog.FlagEvaluationLog;
+using FeatureFlagCriteriaEntity = Ums.Domain.Configuration.FeatureFlag.Criteria.FeatureFlagCriteria;
 
 public sealed class FeatureFlag : AggregateRoot<FeatureFlag, FeatureFlagProps>
 {
     private readonly List<FlagEvaluationLogEntity> _evaluationLog = new();
+    private readonly List<FeatureFlagCriteriaEntity> _criteria = new();
 
     public new FeatureFlagDomainEventsManager DomainEvents { get; }
 
@@ -17,7 +20,7 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlag, FeatureFlagProps>
         if (TrackingState.IsNew)
         {
             DomainEvents.RaiseEvent(new FeatureFlagCreatedEvent(
-                props.Id.GetValue(), props.FlagCode, props.FlagType.Name));
+                props.Id.GetValue(), props.FlagCode, props.FlagType.Name, props.SystemSuiteId.GetValue()));
         }
     }
 
@@ -25,12 +28,16 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlag, FeatureFlagProps>
     public FlagType FlagType => Props.FlagType;
     public FlagStatus Status => Props.Status;
     public int? RolloutPercentage => Props.RolloutPercentage;
+    public Guid SystemSuiteId => Props.SystemSuiteId.GetValue();
 
     public IReadOnlyCollection<FlagEvaluationLogEntity> EvaluationLog => _evaluationLog.AsReadOnly();
+    public IReadOnlyCollection<FeatureFlagCriteriaEntity> Criteria => _criteria.AsReadOnly();
 
     public FeatureFlagId GetId() => FeatureFlagId.Load(Props.Id.GetValue());
 
     public static Result<FeatureFlag> Create(
+        IdValueObject systemSuiteId,
+        IdValueObject? tenantId,
         string flagCode,
         FlagType flagType,
         string flagTargets,
@@ -39,13 +46,18 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlag, FeatureFlagProps>
         int? rolloutPercentage,
         ActorId createdBy)
     {
+        if (systemSuiteId is null)
+        {
+            return Result<FeatureFlag>.Failure("SystemSuiteId is required.");
+        }
+
         if (flagType == FlagType.Percentage && (rolloutPercentage is null || rolloutPercentage < 0 || rolloutPercentage > 100))
         {
             return Result<FeatureFlag>.Failure(DomainErrors.Configuration.FlagPercentageOutOfRange);
         }
 
         var props = new FeatureFlagProps(
-            IdValueObject.Create(), flagCode, flagType, flagTargets,
+            IdValueObject.Create(), systemSuiteId, tenantId, flagCode, flagType, flagTargets,
             linkedResourceType, linkedResourceId, rolloutPercentage, createdBy);
 
         var flag = new FeatureFlag(props);
@@ -126,17 +138,69 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlag, FeatureFlagProps>
         return Result.Success();
     }
 
-    public Result<bool> Evaluate(Guid evaluatedBy, string context)
+    public Result AddCriteria(string criteriaType, string @operator, string value, ActorId updatedBy)
     {
         if (Status == FlagStatus.Archived)
-        {
-            return Result<bool>.Failure(DomainErrors.Configuration.FlagArchivedCannotChange);
-        }
+            return Result.Failure(DomainErrors.Configuration.FlagArchivedCannotChange);
 
-        var result = Status == FlagStatus.Active;
+        var duplicate = _criteria.Any(c =>
+            c.CriteriaType == criteriaType && c.Operator == @operator && c.Value == value);
+        if (duplicate)
+            return Result.Failure("Duplicate criteria (same type, operator and value) already exists.");
 
-        _evaluationLog.Add(FlagEvaluationLogEntity.Record(evaluatedBy, result, context));
-        DomainEvents.RaiseEvent(new FlagEvaluatedEvent(Props.Id.GetValue(), Props.FlagCode, result, context));
-        return Result<bool>.Success(result);
+        var criteriaResult = FeatureFlagCriteriaEntity.Create(criteriaType, @operator, value);
+        if (criteriaResult.IsFailure)
+            return Result.Failure(criteriaResult.Error);
+
+        _criteria.Add(criteriaResult.Value);
+        DomainEvents.RaiseEvent(new FeatureFlagCriteriaAddedEvent(Props.Id.GetValue(), Props.FlagCode, criteriaType));
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy.GetValue());
+        return Result.Success();
+    }
+
+    public Result RemoveCriteria(Guid criteriaId, ActorId updatedBy)
+    {
+        if (Status == FlagStatus.Archived)
+            return Result.Failure(DomainErrors.Configuration.FlagArchivedCannotChange);
+
+        var criteria = _criteria.FirstOrDefault(c => c.Props.Id.GetValue() == criteriaId);
+        if (criteria is null)
+            return Result.Failure("Criteria not found.");
+
+        _criteria.Remove(criteria);
+        DomainEvents.RaiseEvent(new FeatureFlagCriteriaRemovedEvent(Props.Id.GetValue(), Props.FlagCode, criteriaId));
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy.GetValue());
+        return Result.Success();
+    }
+
+    public Result UpdateTargeting(string flagTargets, int? rolloutPercentage, ActorId updatedBy)
+    {
+        if (Status == FlagStatus.Archived)
+            return Result.Failure(DomainErrors.Configuration.FlagArchivedCannotChange);
+        if (Props.FlagType == FlagType.Percentage && (rolloutPercentage is null || rolloutPercentage < 0 || rolloutPercentage > 100))
+            return Result.Failure(DomainErrors.Configuration.FlagPercentageOutOfRange);
+
+        Props.FlagTargets = flagTargets;
+        Props.RolloutPercentage = rolloutPercentage;
+        DomainEvents.RaiseEvent(new FeatureFlagTargetingRulesUpdatedEvent(Props.Id.GetValue(), Props.FlagCode, Props.SystemSuiteId.GetValue()));
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy.GetValue());
+        return Result.Success();
+    }
+
+    public Result<FlagEvaluationResult> Evaluate(Guid evaluatedBy, EvaluationContext context, IFeatureFlagEvaluator evaluator)
+    {
+        if (Status == FlagStatus.Archived)
+            return Result<FlagEvaluationResult>.Failure(DomainErrors.Configuration.FlagArchivedCannotChange);
+
+        var evalResult = evaluator.Evaluate(this, context);
+
+        _evaluationLog.Add(FlagEvaluationLogEntity.Record(evaluatedBy, evalResult.IsEnabled,
+            System.Text.Json.JsonSerializer.Serialize(context)));
+        DomainEvents.RaiseEvent(new FlagEvaluatedEvent(Props.Id.GetValue(), Props.FlagCode, evalResult.IsEnabled,
+            evalResult.Reason ?? string.Empty));
+        return Result<FlagEvaluationResult>.Success(evalResult);
     }
 }

@@ -50,6 +50,17 @@ public static class FeatureFlagEndpoints
         .ProducesProblem(StatusCodes.Status400BadRequest)
         .ProducesProblem(StatusCodes.Status409Conflict);
 
+        group.MapPut("/{featureFlagId:guid}", async (Guid featureFlagId, UpdateFeatureFlagRequest request, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new UpdateFeatureFlagCommand(featureFlagId, request.FlagTargets, request.RolloutPercentage), ct);
+            return result.ToNoContent(context);
+        })
+        .WithName("UpdateFeatureFlag")
+        .Produces(StatusCodes.Status204NoContent)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status409Conflict);
+
         group.MapPost("/{featureFlagId:guid}/activate", async (Guid featureFlagId, IMediator mediator, HttpContext context, CancellationToken ct) =>
         {
             var result = await mediator.Send(new ActivateFeatureFlagCommand(featureFlagId), ct);
@@ -82,7 +93,14 @@ public static class FeatureFlagEndpoints
 
         group.MapPost("/{featureFlagId:guid}/evaluate", async (Guid featureFlagId, EvaluateFeatureFlagRequest request, IMediator mediator, HttpContext context, CancellationToken ct) =>
         {
-            var result = await mediator.Send(new EvaluateFeatureFlagCommand(featureFlagId, request.Context), ct);
+            var result = await mediator.Send(new EvaluateFeatureFlagCommand(
+                featureFlagId,
+                request.TenantId,
+                request.BranchId,
+                request.ProfileId,
+                request.RoleCode,
+                request.Environment,
+                request.CustomAttributes), ct);
             return result.ToOk(context);
         })
         .WithName("EvaluateFeatureFlag")
@@ -90,10 +108,41 @@ public static class FeatureFlagEndpoints
         .ProducesProblem(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status409Conflict);
 
-        // DEFERRED: Targeting-rules update and rollout-strategy changes require
-        // FeatureFlag.UpdateTargetingRules() domain method — not yet implemented.
+        group.MapPost("/{featureFlagId:guid}/criteria", async (Guid featureFlagId, AddFeatureFlagCriteriaRequest request, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new AddFeatureFlagCriteriaCommand(
+                featureFlagId,
+                request.CriteriaType,
+                request.Operator,
+                request.Value), ct);
+            return result.ToCreated(r => $"/feature-flags/{featureFlagId}/criteria/{r.CriteriaId}", context);
+        })
+        .WithName("AddFeatureFlagCriteria")
+        .Produces<AddFeatureFlagCriteriaResponse>(StatusCodes.Status201Created)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status409Conflict);
+
+        group.MapDelete("/{featureFlagId:guid}/criteria/{criteriaId:guid}", async (Guid featureFlagId, Guid criteriaId, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new RemoveFeatureFlagCriteriaCommand(featureFlagId, criteriaId), ct);
+            return result.ToNoContent(context);
+        })
+        .WithName("RemoveFeatureFlagCriteria")
+        .Produces(StatusCodes.Status204NoContent)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status409Conflict);
+
         return app;
     }
 
-    public sealed record EvaluateFeatureFlagRequest(string Context);
+    public sealed record UpdateFeatureFlagRequest(string FlagTargets, int? RolloutPercentage);
+    public sealed record EvaluateFeatureFlagRequest(
+        Guid? TenantId = null,
+        Guid? BranchId = null,
+        Guid? ProfileId = null,
+        string? RoleCode = null,
+        string? Environment = null,
+        Dictionary<string, string>? CustomAttributes = null);
+    public sealed record AddFeatureFlagCriteriaRequest(string CriteriaType, string Operator, string Value);
 }

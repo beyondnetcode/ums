@@ -20,6 +20,7 @@ public sealed class SqlServerFeatureFlagRepository(UmsPlatformDbContext dbContex
         var record = await dbContext.FeatureFlags
             .AsSplitQuery()
             .Include(x => x.EvaluationLogs)
+            .Include(x => x.Criteria)
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
         return record is null ? null : Rehydrate(record);
@@ -33,7 +34,19 @@ public sealed class SqlServerFeatureFlagRepository(UmsPlatformDbContext dbContex
         var record = await dbContext.FeatureFlags
             .AsSplitQuery()
             .Include(x => x.EvaluationLogs)
+            .Include(x => x.Criteria)
             .FirstOrDefaultAsync(x => x.FlagCode == flagCode, cancellationToken);
+
+        return record is null ? null : Rehydrate(record);
+    }
+
+    public async Task<FeatureFlagAggregate?> GetBySystemSuiteAndCodeAsync(Guid systemSuiteId, string flagCode, CancellationToken cancellationToken = default)
+    {
+        var record = await dbContext.FeatureFlags
+            .AsSplitQuery()
+            .Include(x => x.EvaluationLogs)
+            .Include(x => x.Criteria)
+            .FirstOrDefaultAsync(x => x.SystemSuiteId == systemSuiteId && x.FlagCode == flagCode, cancellationToken);
 
         return record is null ? null : Rehydrate(record);
     }
@@ -43,6 +56,20 @@ public sealed class SqlServerFeatureFlagRepository(UmsPlatformDbContext dbContex
         var records = await dbContext.FeatureFlags
             .AsSplitQuery()
             .Include(x => x.EvaluationLogs)
+            .Include(x => x.Criteria)
+            .OrderBy(x => x.FlagCode)
+            .ToListAsync(cancellationToken);
+
+        return records.Select(Rehydrate).ToList();
+    }
+
+    public async Task<IReadOnlyList<FeatureFlagAggregate>> GetBySystemSuiteIdAsync(Guid systemSuiteId, CancellationToken cancellationToken = default)
+    {
+        var records = await dbContext.FeatureFlags
+            .AsSplitQuery()
+            .Include(x => x.EvaluationLogs)
+            .Include(x => x.Criteria)
+            .Where(x => x.SystemSuiteId == systemSuiteId)
             .OrderBy(x => x.FlagCode)
             .ToListAsync(cancellationToken);
 
@@ -60,6 +87,7 @@ public sealed class SqlServerFeatureFlagRepository(UmsPlatformDbContext dbContex
     {
         var existing = await dbContext.FeatureFlags
             .Include(x => x.EvaluationLogs)
+            .Include(x => x.Criteria)
             .FirstOrDefaultAsync(x => x.Id == aggregate.Props.Id.GetValue(), cancellationToken)
             ?? throw new InvalidOperationException($"FeatureFlag {aggregate.Props.Id.GetValue()} does not exist.");
 
@@ -101,7 +129,7 @@ public sealed class SqlServerFeatureFlagRepository(UmsPlatformDbContext dbContex
     public void Dispose() => dbContext.Dispose();
 
     private static FeatureFlagAggregate Rehydrate(FeatureFlagRecord record)
-        => ConfigurationAggregateFactory.RehydrateFeatureFlag(record, record.EvaluationLogs);
+        => ConfigurationAggregateFactory.RehydrateFeatureFlag(record, record.EvaluationLogs, record.Criteria);
 
     private static FeatureFlagRecord ToRecord(FeatureFlagAggregate aggregate)
     {
@@ -109,6 +137,8 @@ public sealed class SqlServerFeatureFlagRepository(UmsPlatformDbContext dbContex
         return new FeatureFlagRecord
         {
             Id = aggregate.Props.Id.GetValue(),
+            SystemSuiteId = aggregate.Props.SystemSuiteId.GetValue(),
+            TenantId = aggregate.Props.TenantId?.GetValue(),
             FlagCode = aggregate.Props.FlagCode,
             FlagTypeId = aggregate.Props.FlagType.Id,
             FlagTargets = aggregate.Props.FlagTargets,
@@ -130,6 +160,15 @@ public sealed class SqlServerFeatureFlagRepository(UmsPlatformDbContext dbContex
                 Context = log.Props.Context,
                 EvaluatedAtUtc = log.Props.EvaluatedAt,
             }).ToList(),
+            Criteria = aggregate.Criteria.Select(c => new FeatureFlagCriteriaRecord
+            {
+                Id = c.Props.Id.GetValue(),
+                FeatureFlagId = aggregate.Props.Id.GetValue(),
+                CriteriaType = c.CriteriaType,
+                Operator = c.Operator,
+                Value = c.Value,
+                CreatedAtUtc = c.CreatedAtUtc,
+            }).ToList(),
         };
     }
 
@@ -137,6 +176,8 @@ public sealed class SqlServerFeatureFlagRepository(UmsPlatformDbContext dbContex
     {
         var replacement = ToRecord(source);
 
+        target.SystemSuiteId = replacement.SystemSuiteId;
+        target.TenantId = replacement.TenantId;
         target.FlagCode = replacement.FlagCode;
         target.FlagTypeId = replacement.FlagTypeId;
         target.FlagTargets = replacement.FlagTargets;
@@ -154,6 +195,12 @@ public sealed class SqlServerFeatureFlagRepository(UmsPlatformDbContext dbContex
         foreach (var log in replacement.EvaluationLogs)
         {
             target.EvaluationLogs.Add(log);
+        }
+
+        target.Criteria.Clear();
+        foreach (var criterion in replacement.Criteria)
+        {
+            target.Criteria.Add(criterion);
         }
     }
 }

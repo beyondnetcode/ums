@@ -22,12 +22,19 @@ public sealed class GetFeatureFlagByIdQueryHandler : IQueryHandler<GetFeatureFla
 
         return Result<FeatureFlagDto>.Success(new FeatureFlagDto(
             featureFlag.Props.Id.GetValue(),
+            featureFlag.Props.SystemSuiteId.GetValue(),
             featureFlag.Props.FlagCode,
             featureFlag.Props.FlagType.Name,
             featureFlag.Props.FlagTargets,
             featureFlag.Props.Status.Name,
             featureFlag.Props.LinkedResourceType?.Name,
             featureFlag.Props.LinkedResourceId?.GetValue(),
-            featureFlag.Props.RolloutPercentage));
+            featureFlag.Props.RolloutPercentage,
+            featureFlag.Criteria.Select(c => new FeatureFlagCriteriaDto(
+                c.Props.Id.GetValue(),
+                c.CriteriaType,
+                c.Operator,
+                c.Value,
+                c.CreatedAtUtc)).ToList()));
     }
 }

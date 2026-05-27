@@ -1,0 +1,36 @@
+using Ums.Application.Configuration.FeatureFlag.DTOs;
+using Ums.Domain.Configuration;
+
+namespace Ums.Application.Configuration.FeatureFlag.Queries;
+
+public sealed class GetFeatureFlagsBySystemSuiteQueryHandler : IQueryHandler<GetFeatureFlagsBySystemSuiteQuery, IReadOnlyList<FeatureFlagDto>>
+{
+    private readonly IFeatureFlagRepository _repository;
+
+    public GetFeatureFlagsBySystemSuiteQueryHandler(IFeatureFlagRepository repository) => _repository = repository;
+
+    [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
+    public async Task<Result<IReadOnlyList<FeatureFlagDto>>> Handle(GetFeatureFlagsBySystemSuiteQuery request, CancellationToken cancellationToken)
+    {
+        var flags = await _repository.GetBySystemSuiteIdAsync(request.SystemSuiteId, cancellationToken);
+
+        var dtos = flags.Select(flag => new FeatureFlagDto(
+            flag.Props.Id.GetValue(),
+            flag.Props.SystemSuiteId.GetValue(),
+            flag.Props.FlagCode,
+            flag.Props.FlagType.Name,
+            flag.Props.FlagTargets,
+            flag.Props.Status.Name,
+            flag.Props.LinkedResourceType?.Name,
+            flag.Props.LinkedResourceId?.GetValue(),
+            flag.Props.RolloutPercentage,
+            flag.Criteria.Select(c => new FeatureFlagCriteriaDto(
+                c.Props.Id.GetValue(),
+                c.CriteriaType,
+                c.Operator,
+                c.Value,
+                c.CreatedAtUtc)).ToList())).ToList();
+
+        return Result<IReadOnlyList<FeatureFlagDto>>.Success(dtos);
+    }
+}

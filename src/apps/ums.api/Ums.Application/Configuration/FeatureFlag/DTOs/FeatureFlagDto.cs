@@ -2,10 +2,19 @@ namespace Ums.Application.Configuration.FeatureFlag.DTOs;
 
 public sealed record FeatureFlagDto(
     Guid FeatureFlagId,
+    Guid SystemSuiteId,
     string FlagCode,
     string FlagType,
     string FlagTargets,
     string Status,
     string? LinkedResourceType,
     Guid? LinkedResourceId,
-    int? RolloutPercentage);
+    int? RolloutPercentage,
+    IReadOnlyList<FeatureFlagCriteriaDto> Criteria);
+
+public sealed record FeatureFlagCriteriaDto(
+    Guid CriteriaId,
+    string CriteriaType,
+    string Operator,
+    string Value,
+    DateTime CreatedAtUtc);

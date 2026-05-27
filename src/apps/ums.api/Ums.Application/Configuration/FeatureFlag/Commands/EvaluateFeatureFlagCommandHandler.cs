@@ -3,16 +3,22 @@ using Ums.Application.Configuration.FeatureFlag.DTOs;
 namespace Ums.Application.Configuration.FeatureFlag.Commands;
 
 using Ums.Domain.Configuration;
+using Ums.Domain.Configuration.FeatureFlag;
 
 public sealed class EvaluateFeatureFlagCommandHandler : ICommandHandler<EvaluateFeatureFlagCommand, EvaluateFeatureFlagResponse>
 {
     private readonly IFeatureFlagRepository _repository;
     private readonly IUserContext _userContext;
+    private readonly IFeatureFlagEvaluator _evaluator;
 
-    public EvaluateFeatureFlagCommandHandler(IFeatureFlagRepository repository, IUserContext userContext)
+    public EvaluateFeatureFlagCommandHandler(
+        IFeatureFlagRepository repository,
+        IUserContext userContext,
+        IFeatureFlagEvaluator evaluator)
     {
         _repository = repository;
         _userContext = userContext;
+        _evaluator = evaluator;
     }
 
     [AuditTrail]
@@ -35,8 +41,15 @@ public sealed class EvaluateFeatureFlagCommandHandler : ICommandHandler<Evaluate
             return Result<EvaluateFeatureFlagResponse>.Failure("Feature flag was not found.");
         }
 
-        var context = request.Context.Trim();
-        var evaluation = featureFlag.Evaluate(evaluatedBy, context);
+        var context = new EvaluationContext(
+            TenantId: request.TenantId,
+            BranchId: request.BranchId,
+            ProfileId: request.ProfileId,
+            RoleCode: request.RoleCode,
+            Environment: request.Environment,
+            CustomAttributes: request.CustomAttributes);
+
+        var evaluation = featureFlag.Evaluate(evaluatedBy, context, _evaluator);
         if (evaluation.IsFailure)
         {
             return Result<EvaluateFeatureFlagResponse>.Failure(evaluation.Error);
@@ -48,7 +61,8 @@ public sealed class EvaluateFeatureFlagCommandHandler : ICommandHandler<Evaluate
         return Result<EvaluateFeatureFlagResponse>.Success(new EvaluateFeatureFlagResponse(
             featureFlag.Props.Id.GetValue(),
             featureFlag.Props.FlagCode,
-            evaluation.Value,
-            context));
+            evaluation.Value.IsEnabled,
+            evaluation.Value.MatchedCriteriaType,
+            evaluation.Value.Reason));
     }
 }

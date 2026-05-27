@@ -12,4 +12,7 @@ public class FeatureFlagDomainEventsManager : DomainEventsManager
     private void Apply(FeatureFlagArchivedEvent @event) { }
     private void Apply(FeatureFlagStateChangedEvent @event) { }
     private void Apply(FlagEvaluatedEvent @event) { }
+    private void Apply(FeatureFlagTargetingRulesUpdatedEvent @event) { }
+    private void Apply(FeatureFlagCriteriaAddedEvent @event) { }
+    private void Apply(FeatureFlagCriteriaRemovedEvent @event) { }
 }

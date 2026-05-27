@@ -15,6 +15,7 @@ namespace Ums.Infrastructure.Persistence.Reflection;
 using AppConfigurationAggregate = Ums.Domain.Configuration.AppConfiguration.AppConfiguration;
 using FeatureFlagAggregate = Ums.Domain.Configuration.FeatureFlag.FeatureFlag;
 using FeatureFlagEvaluationLogEntity = Ums.Domain.Configuration.FeatureFlag.FlagEvaluationLog.FlagEvaluationLog;
+using FeatureFlagCriteriaEntity = Ums.Domain.Configuration.FeatureFlag.Criteria.FeatureFlagCriteria;
 using IdpConfigurationAggregate = Ums.Domain.Configuration.IdpConfiguration.IdpConfiguration;
 
 internal static class ConfigurationAggregateFactory
@@ -76,10 +77,13 @@ internal static class ConfigurationAggregateFactory
 
     public static FeatureFlagAggregate RehydrateFeatureFlag(
         FeatureFlagRecord record,
-        IReadOnlyCollection<FeatureFlagEvaluationLogRecord> evaluationLogRecords)
+        IReadOnlyCollection<FeatureFlagEvaluationLogRecord> evaluationLogRecords,
+        IReadOnlyCollection<FeatureFlagCriteriaRecord>? criteriaRecords = null)
     {
         var props = new FeatureFlagProps(
             LoadTypedId(FeatureFlagIdType, record.Id),
+            IdValueObject.Load(record.SystemSuiteId),
+            record.TenantId.HasValue ? IdValueObject.Load(record.TenantId.Value) : null,
             record.FlagCode,
             DomainEnumerationMapper.FromValue<FlagType>(record.FlagTypeId),
             record.FlagTargets,
@@ -94,6 +98,11 @@ internal static class ConfigurationAggregateFactory
         var aggregate = Construct<FeatureFlagAggregate, FeatureFlagProps>(props);
         var logs = evaluationLogRecords.Select(RehydrateEvaluationLog).ToList();
         SetField(aggregate, "_evaluationLog", logs);
+
+        var criteria = (criteriaRecords ?? record.Criteria).Select(c =>
+            FeatureFlagCriteriaEntity.Load(c.Id, c.CriteriaType, c.Operator, c.Value, c.CreatedAtUtc)).ToList();
+        SetField(aggregate, "_criteria", criteria);
+
         aggregate.DomainEvents.MarkChangesAsCommitted();
         aggregate.BrokenRules.Clear();
         return aggregate;

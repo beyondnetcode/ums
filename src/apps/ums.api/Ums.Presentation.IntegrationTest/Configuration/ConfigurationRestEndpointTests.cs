@@ -34,6 +34,8 @@ public sealed class ConfigurationRestEndpointTests : IClassFixture<UmsApiWebAppl
     {
         var createResponse = await _client.PostAsJsonAsync("/api/v1/feature-flags", new
         {
+            systemSuiteId = "11111111-1111-1111-1111-111111111111",
+            tenantId = (string?)null,
             flagCode = $"tenant_feature_{Guid.NewGuid():N}",
             flagType = "Boolean",
             flagTargets = "tenant-console",

@@ -31,6 +31,8 @@ using Ums.Infrastructure.Approvals.ApprovalRequest;
 using Ums.Application.Approvals.NotificationRule.Services;
 using Ums.Infrastructure.Approvals.NotificationRule;
 using Ums.Application.Configuration.IdpConfiguration.Services;
+using Ums.Domain.Configuration.FeatureFlag;
+using Ums.Infrastructure.Configuration;
 using Ums.Infrastructure.Configuration.IdpResolution;
 using Ums.Shell.Factory.Installer.Extensions;
 
@@ -55,6 +57,7 @@ public static class DependencyInjection
         services.AddScoped<RequestContextAccessor>();
         services.AddScoped<IRequestContext>(sp => sp.GetRequiredService<RequestContextAccessor>());
         services.AddScoped<IExecutionContextAccessor>(sp => sp.GetRequiredService<RequestContextAccessor>());
+        services.AddScoped<IFeatureFlagEvaluator, FeatureFlagEvaluator>();
         services.AddScoped<IIdpConfigurationResolver, IdpConfigurationResolver>();
         services.AddScoped<INotificationRecipientResolver, NotificationRecipientResolver>();
         services.AddScoped<IApprovalRequestCreationPolicyResolver, ApprovalRequestCreationPolicyResolver>();

@@ -26,7 +26,7 @@ public sealed class CreateFeatureFlagCommandHandler : ICommandHandler<CreateFeat
             return Result<CreateFeatureFlagResponse>.Failure("Authenticated user is required.");
         }
 
-        var existingFlag = await _repository.GetByCodeAsync(request.FlagCode, cancellationToken);
+        var existingFlag = await _repository.GetBySystemSuiteAndCodeAsync(request.SystemSuiteId, request.FlagCode, cancellationToken);
         if (existingFlag is not null)
         {
             return Result<CreateFeatureFlagResponse>.Failure("Feature flag code already exists.");
@@ -48,6 +48,8 @@ public sealed class CreateFeatureFlagCommandHandler : ICommandHandler<CreateFeat
         }
 
         var result = FeatureFlag.Create(
+            IdValueObject.Load(request.SystemSuiteId),
+            request.TenantId.HasValue ? IdValueObject.Load(request.TenantId.Value) : null,
             request.FlagCode.Trim(),
             flagType,
             request.FlagTargets.Trim(),

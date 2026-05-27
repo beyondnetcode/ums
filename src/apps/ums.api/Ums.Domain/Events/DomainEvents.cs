@@ -73,12 +73,15 @@ public sealed record AppConfigPublishedEvent(Guid ConfigId, string Code, string 
 public sealed record AppConfigArchivedEvent(Guid ConfigId, string Code) : ConfigurationDomainEvent;
 public sealed record AppConfigUpdatedEvent(Guid ConfigId, string Code, string NewVersion) : ConfigurationDomainEvent;
 
-public sealed record FeatureFlagCreatedEvent(Guid FlagId, string FlagCode, string Type) : ConfigurationDomainEvent;
+public sealed record FeatureFlagCreatedEvent(Guid FlagId, string FlagCode, string Type, Guid SystemSuiteId) : ConfigurationDomainEvent;
 public sealed record FeatureFlagActivatedEvent(Guid FlagId, string FlagCode) : ConfigurationDomainEvent;
 public sealed record FeatureFlagDeactivatedEvent(Guid FlagId, string FlagCode) : ConfigurationDomainEvent;
 public sealed record FeatureFlagArchivedEvent(Guid FlagId, string FlagCode) : ConfigurationDomainEvent;
 public sealed record FeatureFlagStateChangedEvent(Guid FlagId, string FlagCode, string NewStatus) : ConfigurationDomainEvent;
 public sealed record FlagEvaluatedEvent(Guid FlagId, string FlagCode, bool Result, string Context) : ConfigurationDomainEvent;
+public sealed record FeatureFlagTargetingRulesUpdatedEvent(Guid FlagId, string FlagCode, Guid SystemSuiteId) : ConfigurationDomainEvent;
+public sealed record FeatureFlagCriteriaAddedEvent(Guid FlagId, string FlagCode, string CriteriaType) : ConfigurationDomainEvent;
+public sealed record FeatureFlagCriteriaRemovedEvent(Guid FlagId, string FlagCode, Guid CriteriaId) : ConfigurationDomainEvent;
 
 public abstract record ComplianceDomainEvent : DomainEvent;
 

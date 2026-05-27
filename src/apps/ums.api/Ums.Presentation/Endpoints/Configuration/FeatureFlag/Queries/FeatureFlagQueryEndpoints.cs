@@ -18,6 +18,15 @@ public static class FeatureFlagQueryEndpoints
         .Produces<FeatureFlagDto>(StatusCodes.Status200OK)
         .ProducesProblem(StatusCodes.Status404NotFound);
 
+        app.MapGroup("/system-suites").WithTags("FeatureFlags - Queries")
+            .MapGet("/{systemSuiteId:guid}/feature-flags", async (Guid systemSuiteId, IMediator mediator, HttpContext context, CancellationToken ct) =>
+            {
+                var result = await mediator.Send(new GetFeatureFlagsBySystemSuiteQuery(systemSuiteId), ct);
+                return result.ToOk(context);
+            })
+            .WithName("GetFeatureFlagsBySystemSuite")
+            .Produces<IReadOnlyList<FeatureFlagDto>>(StatusCodes.Status200OK);
+
         return app;
     }
 }

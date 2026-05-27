@@ -4,4 +4,5 @@ public sealed record EvaluateFeatureFlagResponse(
     Guid FeatureFlagId,
     string FlagCode,
     bool IsEnabled,
-    string Context);
+    string? MatchedCriteriaType,
+    string? Reason);

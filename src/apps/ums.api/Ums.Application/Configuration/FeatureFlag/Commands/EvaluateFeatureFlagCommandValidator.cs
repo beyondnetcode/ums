@@ -7,6 +7,5 @@ public sealed class EvaluateFeatureFlagCommandValidator : AbstractValidator<Eval
     public EvaluateFeatureFlagCommandValidator()
     {
         RuleFor(command => command.FeatureFlagId).NotEmpty();
-        RuleFor(command => command.Context).NotEmpty().MaximumLength(1000);
     }
 }

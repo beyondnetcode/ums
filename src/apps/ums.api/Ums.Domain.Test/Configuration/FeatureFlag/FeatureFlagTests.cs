@@ -3,6 +3,13 @@ namespace Ums.Domain.Test.Configuration.FeatureFlag;
 using Ums.Domain.Configuration.FeatureFlag;
 using Xunit;
 
+// Stub evaluator: returns IsEnabled=true when flag is Active, false otherwise.
+internal sealed class StubEvaluator : IFeatureFlagEvaluator
+{
+    public FlagEvaluationResult Evaluate(FeatureFlag flag, EvaluationContext context)
+        => new FlagEvaluationResult(flag.Status == FlagStatus.Active, null, null);
+}
+
 /// <summary>
 /// Domain tests for the <see cref="FeatureFlag"/> aggregate.
 ///
@@ -24,16 +31,19 @@ public class FeatureFlagTests
     private static readonly FlagType ValidFlagType = FlagType.Boolean;
     private static readonly string ValidFlagTargets = "all";
     private static readonly ActorId ValidActor = ActorId.Create("user-001");
+    private static readonly IdValueObject ValidSystemSuiteId = IdValueObject.Create();
+    private static readonly IFeatureFlagEvaluator Evaluator = new StubEvaluator();
+    private static readonly EvaluationContext DefaultContext = new EvaluationContext();
 
     // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
 
     private static FeatureFlag CreateBoolean() =>
-        FeatureFlag.Create(ValidFlagCode, FlagType.Boolean, ValidFlagTargets, null, null, null, ValidActor).Value;
+        FeatureFlag.Create(ValidSystemSuiteId, null, ValidFlagCode, FlagType.Boolean, ValidFlagTargets, null, null, null, ValidActor).Value;
 
     private static FeatureFlag CreatePercentage(int pct) =>
-        FeatureFlag.Create(ValidFlagCode, FlagType.Percentage, ValidFlagTargets, null, null, pct, ValidActor).Value;
+        FeatureFlag.Create(ValidSystemSuiteId, null, ValidFlagCode, FlagType.Percentage, ValidFlagTargets, null, null, pct, ValidActor).Value;
 
     private static FeatureFlag CreateActive()
     {
@@ -49,7 +59,7 @@ public class FeatureFlagTests
     [Fact]
     public void Create_WithValidBinaryFlag_ReturnsSuccess()
     {
-        var result = FeatureFlag.Create(ValidFlagCode, ValidFlagType, ValidFlagTargets, null, null, null, ValidActor);
+        var result = FeatureFlag.Create(ValidSystemSuiteId, null, ValidFlagCode, ValidFlagType, ValidFlagTargets, null, null, null, ValidActor);
 
         Assert.True(result.IsSuccess);
         Assert.Equal(ValidFlagCode, result.Value.FlagCode);
@@ -61,7 +71,7 @@ public class FeatureFlagTests
     [Fact]
     public void Create_WithValidPercentageFlag_ReturnsSuccess()
     {
-        var result = FeatureFlag.Create(ValidFlagCode, FlagType.Percentage, ValidFlagTargets, null, null, 50, ValidActor);
+        var result = FeatureFlag.Create(ValidSystemSuiteId, null, ValidFlagCode, FlagType.Percentage, ValidFlagTargets, null, null, 50, ValidActor);
 
         Assert.True(result.IsSuccess);
         Assert.Equal(50, result.Value.RolloutPercentage);
@@ -70,7 +80,7 @@ public class FeatureFlagTests
     [Fact]
     public void Create_WithPercentageFlagWithoutRollout_ReturnsFailure()
     {
-        var result = FeatureFlag.Create(ValidFlagCode, FlagType.Percentage, ValidFlagTargets, null, null, null, ValidActor);
+        var result = FeatureFlag.Create(ValidSystemSuiteId, null, ValidFlagCode, FlagType.Percentage, ValidFlagTargets, null, null, null, ValidActor);
 
         Assert.True(result.IsFailure);
         Assert.Contains(DomainErrors.Configuration.FlagPercentageOutOfRange, result.Error);
@@ -79,7 +89,7 @@ public class FeatureFlagTests
     [Fact]
     public void Create_WithPercentageOutOfRange_ReturnsFailure()
     {
-        var result = FeatureFlag.Create(ValidFlagCode, FlagType.Percentage, ValidFlagTargets, null, null, 150, ValidActor);
+        var result = FeatureFlag.Create(ValidSystemSuiteId, null, ValidFlagCode, FlagType.Percentage, ValidFlagTargets, null, null, 150, ValidActor);
 
         Assert.True(result.IsFailure);
         Assert.Contains(DomainErrors.Configuration.FlagPercentageOutOfRange, result.Error);
@@ -88,7 +98,7 @@ public class FeatureFlagTests
     [Fact]
     public void Create_WithNegativePercentage_ReturnsFailure()
     {
-        var result = FeatureFlag.Create(ValidFlagCode, FlagType.Percentage, ValidFlagTargets, null, null, -10, ValidActor);
+        var result = FeatureFlag.Create(ValidSystemSuiteId, null, ValidFlagCode, FlagType.Percentage, ValidFlagTargets, null, null, -10, ValidActor);
 
         Assert.True(result.IsFailure);
         Assert.Contains(DomainErrors.Configuration.FlagPercentageOutOfRange, result.Error);
@@ -97,7 +107,7 @@ public class FeatureFlagTests
     [Fact]
     public void Create_WithPercentageAtBoundaryZero_ReturnsSuccess()
     {
-        var result = FeatureFlag.Create(ValidFlagCode, FlagType.Percentage, ValidFlagTargets, null, null, 0, ValidActor);
+        var result = FeatureFlag.Create(ValidSystemSuiteId, null, ValidFlagCode, FlagType.Percentage, ValidFlagTargets, null, null, 0, ValidActor);
 
         Assert.True(result.IsSuccess);
         Assert.Equal(0, result.Value.RolloutPercentage);
@@ -106,7 +116,7 @@ public class FeatureFlagTests
     [Fact]
     public void Create_WithPercentageAtBoundaryHundred_ReturnsSuccess()
     {
-        var result = FeatureFlag.Create(ValidFlagCode, FlagType.Percentage, ValidFlagTargets, null, null, 100, ValidActor);
+        var result = FeatureFlag.Create(ValidSystemSuiteId, null, ValidFlagCode, FlagType.Percentage, ValidFlagTargets, null, null, 100, ValidActor);
 
         Assert.True(result.IsSuccess);
         Assert.Equal(100, result.Value.RolloutPercentage);
@@ -115,7 +125,7 @@ public class FeatureFlagTests
     [Fact]
     public void Create_WithVariantFlagType_NoPercentage_ReturnsSuccess()
     {
-        var result = FeatureFlag.Create(ValidFlagCode, FlagType.Variant, ValidFlagTargets, null, null, null, ValidActor);
+        var result = FeatureFlag.Create(ValidSystemSuiteId, null, ValidFlagCode, FlagType.Variant, ValidFlagTargets, null, null, null, ValidActor);
 
         Assert.True(result.IsSuccess);
         Assert.Equal(FlagType.Variant, result.Value.FlagType);
@@ -127,7 +137,7 @@ public class FeatureFlagTests
         var linkedId = IdValueObject.Create();
 
         var result = FeatureFlag.Create(
-            ValidFlagCode, FlagType.Boolean, ValidFlagTargets,
+            ValidSystemSuiteId, null, ValidFlagCode, FlagType.Boolean, ValidFlagTargets,
             LinkedResourceType.Module, linkedId, null, ValidActor);
 
         Assert.True(result.IsSuccess);
@@ -136,7 +146,7 @@ public class FeatureFlagTests
     [Fact]
     public void Create_RaisesFeatureFlagCreatedEvent()
     {
-        var result = FeatureFlag.Create(ValidFlagCode, ValidFlagType, ValidFlagTargets, null, null, null, ValidActor);
+        var result = FeatureFlag.Create(ValidSystemSuiteId, null, ValidFlagCode, ValidFlagType, ValidFlagTargets, null, null, null, ValidActor);
 
         Assert.True(result.IsSuccess);
         var events = result.Value.DomainEvents.GetUncommittedChanges().ToList();
@@ -326,10 +336,10 @@ public class FeatureFlagTests
     {
         var flag = CreateActive();
 
-        var result = flag.Evaluate(Guid.NewGuid(), "test context");
+        var result = flag.Evaluate(Guid.NewGuid(), DefaultContext, Evaluator);
 
         Assert.True(result.IsSuccess);
-        Assert.True(result.Value);
+        Assert.True(result.Value.IsEnabled);
     }
 
     [Fact]
@@ -337,10 +347,10 @@ public class FeatureFlagTests
     {
         var flag = CreateBoolean();
 
-        var result = flag.Evaluate(Guid.NewGuid(), "test context");
+        var result = flag.Evaluate(Guid.NewGuid(), DefaultContext, Evaluator);
 
         Assert.True(result.IsSuccess);
-        Assert.False(result.Value);
+        Assert.False(result.Value.IsEnabled);
     }
 
     [Fact]
@@ -349,7 +359,7 @@ public class FeatureFlagTests
         var flag = CreateBoolean();
         flag.Archive(ValidActor);
 
-        var result = flag.Evaluate(Guid.NewGuid(), "test context");
+        var result = flag.Evaluate(Guid.NewGuid(), DefaultContext, Evaluator);
 
         Assert.True(result.IsFailure);
         Assert.Contains(DomainErrors.Configuration.FlagArchivedCannotChange, result.Error);
@@ -360,13 +370,11 @@ public class FeatureFlagTests
     {
         var flag = CreateBoolean();
         var evaluatorId = Guid.NewGuid();
-        const string ctx = "tenant:abc";
 
-        flag.Evaluate(evaluatorId, ctx);
+        flag.Evaluate(evaluatorId, DefaultContext, Evaluator);
 
         Assert.Single(flag.EvaluationLog);
         Assert.Equal(evaluatorId, flag.EvaluationLog.First().EvaluatedBy);
-        Assert.Equal(ctx, flag.EvaluationLog.First().Context);
         Assert.False(flag.EvaluationLog.First().Result); // inactive → false
     }
 
@@ -375,9 +383,9 @@ public class FeatureFlagTests
     {
         var flag = CreateBoolean();
 
-        flag.Evaluate(Guid.NewGuid(), "ctx-1");
-        flag.Evaluate(Guid.NewGuid(), "ctx-2");
-        flag.Evaluate(Guid.NewGuid(), "ctx-3");
+        flag.Evaluate(Guid.NewGuid(), DefaultContext, Evaluator);
+        flag.Evaluate(Guid.NewGuid(), DefaultContext, Evaluator);
+        flag.Evaluate(Guid.NewGuid(), DefaultContext, Evaluator);
 
         Assert.Equal(3, flag.EvaluationLog.Count);
     }
@@ -387,7 +395,7 @@ public class FeatureFlagTests
     {
         var flag = CreateActive();
 
-        flag.Evaluate(Guid.NewGuid(), "ctx");
+        flag.Evaluate(Guid.NewGuid(), DefaultContext, Evaluator);
 
         Assert.True(flag.EvaluationLog.First().Result);
     }
@@ -396,7 +404,7 @@ public class FeatureFlagTests
     public void Evaluate_WhenArchivedAfterEvaluations_LogRetainsHistory()
     {
         var flag = CreateActive();
-        flag.Evaluate(Guid.NewGuid(), "before-archive");
+        flag.Evaluate(Guid.NewGuid(), DefaultContext, Evaluator);
         flag.Archive(ValidActor);
 
         // Log is still accessible even after archive
@@ -408,7 +416,7 @@ public class FeatureFlagTests
     {
         var flag = CreateBoolean();
 
-        flag.Evaluate(Guid.NewGuid(), "test context");
+        flag.Evaluate(Guid.NewGuid(), DefaultContext, Evaluator);
 
         var events = flag.DomainEvents.GetUncommittedChanges().ToList();
         Assert.Contains(events, e => e is FlagEvaluatedEvent);
@@ -421,7 +429,7 @@ public class FeatureFlagTests
         flag.Archive(ValidActor);
         var logCountBefore = flag.EvaluationLog.Count;
 
-        flag.Evaluate(Guid.NewGuid(), "ctx");
+        flag.Evaluate(Guid.NewGuid(), DefaultContext, Evaluator);
 
         Assert.Equal(logCountBefore, flag.EvaluationLog.Count);
     }

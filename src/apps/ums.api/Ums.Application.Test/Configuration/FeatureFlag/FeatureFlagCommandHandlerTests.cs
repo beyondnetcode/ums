@@ -28,17 +28,26 @@ public class FeatureFlagCommandHandlerTests
     // Shared mocks & helpers
     // -------------------------------------------------------------------------
 
-    private readonly Mock<IFeatureFlagRepository> _repo   = new();
-    private readonly Mock<IUnitOfWork>            _uow    = new();
-    private readonly Mock<IUserContext>           _ctx    = new();
+    private readonly Mock<IFeatureFlagRepository>  _repo      = new();
+    private readonly Mock<IUnitOfWork>             _uow       = new();
+    private readonly Mock<IUserContext>            _ctx       = new();
+    private readonly Mock<IFeatureFlagEvaluator>   _evaluator = new();
+
+    private static readonly Guid ValidSystemSuiteId = Guid.NewGuid();
+    private static readonly IdValueObject SystemSuiteIdVo = IdValueObject.Load(ValidSystemSuiteId);
 
     public FeatureFlagCommandHandlerTests()
     {
         _repo.Setup(r => r.UnitOfWork).Returns(_uow.Object);
         _uow.Setup(u => u.SaveEntitiesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(true);
+        _evaluator.Setup(e => e.Evaluate(It.IsAny<FeatureFlag>(), It.IsAny<EvaluationContext>()))
+                  .Returns((FeatureFlag f, EvaluationContext _) =>
+                      new FlagEvaluationResult(f.Status == FlagStatus.Active, null, null));
     }
 
     private static CreateFeatureFlagCommand ValidCreateCmd => new(
+        SystemSuiteId: ValidSystemSuiteId,
+        TenantId: null,
         FlagCode: "FLAG-001",
         FlagType: "Boolean",
         FlagTargets: "all",
@@ -47,7 +56,7 @@ public class FeatureFlagCommandHandlerTests
         RolloutPercentage: null);
 
     private static FeatureFlag MakeBoolean() =>
-        FeatureFlag.Create("FLAG-001", global::Ums.Domain.Enums.FlagType.Boolean, "all", null, null, null,
+        FeatureFlag.Create(SystemSuiteIdVo, null, "FLAG-001", global::Ums.Domain.Enums.FlagType.Boolean, "all", null, null, null,
             ActorId.Create("user-001")).Value;
 
     private static FeatureFlag MakeActive()
@@ -72,7 +81,7 @@ public class FeatureFlagCommandHandlerTests
     public async Task Create_WithValidCommand_ReturnsSuccess()
     {
         _ctx.Setup(u => u.UserId).Returns("user-001");
-        _repo.Setup(r => r.GetByCodeAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetBySystemSuiteAndCodeAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync((FeatureFlag?)null);
 
         var handler = new CreateFeatureFlagCommandHandler(_repo.Object, _ctx.Object);
@@ -86,7 +95,7 @@ public class FeatureFlagCommandHandlerTests
     public async Task Create_SavesAggregateToRepository()
     {
         _ctx.Setup(u => u.UserId).Returns("user-001");
-        _repo.Setup(r => r.GetByCodeAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetBySystemSuiteAndCodeAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync((FeatureFlag?)null);
 
         var handler = new CreateFeatureFlagCommandHandler(_repo.Object, _ctx.Object);
@@ -123,7 +132,7 @@ public class FeatureFlagCommandHandlerTests
     public async Task Create_WhenFlagCodeAlreadyExists_ReturnsFailure()
     {
         _ctx.Setup(u => u.UserId).Returns("user-001");
-        _repo.Setup(r => r.GetByCodeAsync("FLAG-001", It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetBySystemSuiteAndCodeAsync(ValidSystemSuiteId, "FLAG-001", It.IsAny<CancellationToken>()))
              .ReturnsAsync(MakeBoolean());
 
         var handler = new CreateFeatureFlagCommandHandler(_repo.Object, _ctx.Object);
@@ -137,7 +146,7 @@ public class FeatureFlagCommandHandlerTests
     public async Task Create_WithInvalidFlagType_ReturnsFailure()
     {
         _ctx.Setup(u => u.UserId).Returns("user-001");
-        _repo.Setup(r => r.GetByCodeAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetBySystemSuiteAndCodeAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync((FeatureFlag?)null);
         var cmd = ValidCreateCmd with { FlagType = "UNKNOWN_TYPE" };
 
@@ -152,7 +161,7 @@ public class FeatureFlagCommandHandlerTests
     public async Task Create_WithInvalidLinkedResourceType_ReturnsFailure()
     {
         _ctx.Setup(u => u.UserId).Returns("user-001");
-        _repo.Setup(r => r.GetByCodeAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetBySystemSuiteAndCodeAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync((FeatureFlag?)null);
         var cmd = ValidCreateCmd with { LinkedResourceType = "BOGUS" };
 
@@ -167,7 +176,7 @@ public class FeatureFlagCommandHandlerTests
     public async Task Create_PercentageFlagWithoutRollout_ReturnsFailure()
     {
         _ctx.Setup(u => u.UserId).Returns("user-001");
-        _repo.Setup(r => r.GetByCodeAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetBySystemSuiteAndCodeAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync((FeatureFlag?)null);
         var cmd = ValidCreateCmd with { FlagType = "Percentage", RolloutPercentage = null };
 
@@ -330,8 +339,8 @@ public class FeatureFlagCommandHandlerTests
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(MakeActive());
 
-        var handler = new EvaluateFeatureFlagCommandHandler(_repo.Object, _ctx.Object);
-        var result  = await handler.Handle(new EvaluateFeatureFlagCommand(Guid.NewGuid(), "ctx"), CancellationToken.None);
+        var handler = new EvaluateFeatureFlagCommandHandler(_repo.Object, _ctx.Object, _evaluator.Object);
+        var result  = await handler.Handle(new EvaluateFeatureFlagCommand(Guid.NewGuid()), CancellationToken.None);
 
         Assert.True(result.IsSuccess);
         Assert.True(result.Value.IsEnabled);
@@ -345,8 +354,8 @@ public class FeatureFlagCommandHandlerTests
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(MakeBoolean()); // inactive
 
-        var handler = new EvaluateFeatureFlagCommandHandler(_repo.Object, _ctx.Object);
-        var result  = await handler.Handle(new EvaluateFeatureFlagCommand(Guid.NewGuid(), "ctx"), CancellationToken.None);
+        var handler = new EvaluateFeatureFlagCommandHandler(_repo.Object, _ctx.Object, _evaluator.Object);
+        var result  = await handler.Handle(new EvaluateFeatureFlagCommand(Guid.NewGuid()), CancellationToken.None);
 
         Assert.True(result.IsSuccess);
         Assert.False(result.Value.IsEnabled);
@@ -359,8 +368,8 @@ public class FeatureFlagCommandHandlerTests
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync((FeatureFlag?)null);
 
-        var handler = new EvaluateFeatureFlagCommandHandler(_repo.Object, _ctx.Object);
-        var result  = await handler.Handle(new EvaluateFeatureFlagCommand(Guid.NewGuid(), "ctx"), CancellationToken.None);
+        var handler = new EvaluateFeatureFlagCommandHandler(_repo.Object, _ctx.Object, _evaluator.Object);
+        var result  = await handler.Handle(new EvaluateFeatureFlagCommand(Guid.NewGuid()), CancellationToken.None);
 
         Assert.True(result.IsFailure);
         Assert.Contains("not found", result.Error);
@@ -373,8 +382,8 @@ public class FeatureFlagCommandHandlerTests
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(MakeArchived());
 
-        var handler = new EvaluateFeatureFlagCommandHandler(_repo.Object, _ctx.Object);
-        var result  = await handler.Handle(new EvaluateFeatureFlagCommand(Guid.NewGuid(), "ctx"), CancellationToken.None);
+        var handler = new EvaluateFeatureFlagCommandHandler(_repo.Object, _ctx.Object, _evaluator.Object);
+        var result  = await handler.Handle(new EvaluateFeatureFlagCommand(Guid.NewGuid()), CancellationToken.None);
 
         Assert.True(result.IsFailure);
     }
@@ -386,8 +395,8 @@ public class FeatureFlagCommandHandlerTests
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(MakeActive());
 
-        var handler = new EvaluateFeatureFlagCommandHandler(_repo.Object, _ctx.Object);
-        var result  = await handler.Handle(new EvaluateFeatureFlagCommand(Guid.NewGuid(), "ctx"), CancellationToken.None);
+        var handler = new EvaluateFeatureFlagCommandHandler(_repo.Object, _ctx.Object, _evaluator.Object);
+        var result  = await handler.Handle(new EvaluateFeatureFlagCommand(Guid.NewGuid()), CancellationToken.None);
 
         Assert.True(result.IsFailure);
         Assert.Contains("valid GUID", result.Error);
@@ -398,8 +407,8 @@ public class FeatureFlagCommandHandlerTests
     {
         _ctx.Setup(u => u.UserId).Returns("");
 
-        var handler = new EvaluateFeatureFlagCommandHandler(_repo.Object, _ctx.Object);
-        var result  = await handler.Handle(new EvaluateFeatureFlagCommand(Guid.NewGuid(), "ctx"), CancellationToken.None);
+        var handler = new EvaluateFeatureFlagCommandHandler(_repo.Object, _ctx.Object, _evaluator.Object);
+        var result  = await handler.Handle(new EvaluateFeatureFlagCommand(Guid.NewGuid()), CancellationToken.None);
 
         Assert.True(result.IsFailure);
         Assert.Contains("Authenticated user is required", result.Error);
