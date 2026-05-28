@@ -1,6 +1,6 @@
 # UMS — Enterprise User Management System
 
-> **[ 📚 OPEN MASTER INDEX ](./docs/MASTER_INDEX.md) • [ 🇪🇸 LEER EN ESPAÑOL ](./docs/README.es.md) • [ ⚙️ ARCHITECTURE PORTAL ](./docs/architecture/index.md)**  
+> **[OPEN STANDARDS](./docs/STANDARDS.md) • [OPEN MASTER INDEX](./docs/MASTER_INDEX.md) • [LEER EN ESPAÑOL](./docs/README.es.md) • [ARCHITECTURE PORTAL](./docs/architecture/index.md)**
 > *Note: GitHub displays source files first. To skip the code and read the documentation, click the links above.*
 
 ---
@@ -11,6 +11,18 @@
 
 ---
 
+## Standards Quick Access
+
+| Need | Direct path |
+| :--- | :--- |
+| UMS applied React Web reference | [UMS React Web Applied Reference](./docs/architecture/web-frontend/ums-react-applied-reference.md) |
+| UMS applied .NET API reference | [UMS API .NET Applied Reference](./docs/architecture/api-dotnet/ums-api-dotnet-applied-reference.md) |
+| Upstream Evolith React standard | [Evolith React Web Frontend Standard](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/governance/standards/engineering/web-frontend/react/react-web-frontend-standard.md) |
+| Upstream Evolith .NET API standard | [Evolith .NET API Standard](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/governance/standards/engineering/api-dotnet/api-dotnet-standard.md) |
+| All standards in one page | [Standards Quick Access](./docs/STANDARDS.md) |
+
+---
+
 ## Master Navigation Index
 Start here if you are new to UMS. This index gives each reader a fast route into the repository without needing to know the folder structure.
 
@@ -18,8 +30,9 @@ Start here if you are new to UMS. This index gives each reader a fast route into
 
 | I am a… | Start here | Then read |
 | :--- | :--- | :--- |
-| **Backend Engineer** | [Construction Portal](./docs/governance/construction/index.md) · [Domain Aggregate Index](./docs/domain/index.md) | [DDD Design Portal](./docs/governance/construction/ddd-design/index.md) → [Bounded Context Map](./docs/governance/construction/ddd-design/01-bounded-context-map.md) |
-| **Architect** | [Architecture Portal](./docs/architecture/index.md) · [ADR Registry](./docs/architecture/adrs/index.md) | [Bounded Context Map](./docs/governance/construction/ddd-design/01-bounded-context-map.md) → [Traceability Matrix](./docs/architecture/traceability-matrix.md) |
+| **Backend Engineer** | [Standards Quick Access](./docs/STANDARDS.md) · [Construction Portal](./docs/governance/construction/index.md) · [Domain Aggregate Index](./docs/domain/index.md) | [UMS API .NET Applied Reference](./docs/architecture/api-dotnet/ums-api-dotnet-applied-reference.md) → [DDD Design Portal](./docs/governance/construction/ddd-design/index.md) |
+| **Frontend Engineer** | [Standards Quick Access](./docs/STANDARDS.md) · [UMS React Web Applied Reference](./docs/architecture/web-frontend/ums-react-applied-reference.md) | [Evolith React Web Frontend Standard](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/governance/standards/engineering/web-frontend/react/react-web-frontend-standard.md) |
+| **Architect** | [Architecture Portal](./docs/architecture/index.md) · [ADR Registry](./docs/architecture/adrs/index.md) | [Standards Quick Access](./docs/STANDARDS.md) → [Traceability Matrix](./docs/architecture/traceability-matrix.md) |
 | **Product Owner / QA** | [Master Index](./docs/MASTER_INDEX.md) · [Functional Stories](./docs/governance/requirements/functional-stories/index.md) | [MVP Backlog](./docs/governance/project/mvp-product-backlog.md) → [Glossary](./docs/governance/requirements/glossary.md) |
 | **DevOps / Ops** | [Operations Portal](./docs/operations/index.md) · [Runbooks](./docs/operations/runbooks/) | [ADR-0053 OpenTelemetry](./docs/architecture/adrs/0053-opentelemetry-observability.md) → [ADR-0054 Shell Library Isolation](./docs/architecture/adrs/0054-shell-library-isolation.md) |
 
@@ -27,6 +40,7 @@ Start here if you are new to UMS. This index gives each reader a fast route into
 
 | Goal | Start Here | Then Read |
 | :--- | :--- | :--- |
+| Find standards for React, Web, C# or .NET | [Standards Quick Access](./docs/STANDARDS.md) | [Architecture Portal](./docs/architecture/index.md) |
 | Understand the product | [Product Vision](./docs/governance/product/product-vision.md) | [Business Context](./docs/governance/product/business-context.md) → [Scope](./docs/governance/product/scope.md) |
 | See Epics & Priorities | [MVP Product Backlog](./docs/governance/project/mvp-product-backlog.md) | [Requirements Index](./docs/governance/requirements/index.md) → [Functional Stories](./docs/governance/requirements/functional-stories/index.md) |
 | Review functional requirements | [Requirements Index](./docs/governance/requirements/index.md) | [Functional Stories](./docs/governance/requirements/functional-stories/index.md) → [Glossary](./docs/governance/requirements/glossary.md) |
@@ -41,9 +55,9 @@ Start here if you are new to UMS. This index gives each reader a fast route into
 ### Technology Stack
 | Layer | Technology |
 | :--- | :--- |
-| **Backend** | .NET 8 LTS, HotChocolate (GraphQL), Minimal APIs (REST) |
+| **Backend** | .NET 10, HotChocolate (GraphQL), Minimal APIs (REST) |
 | **Frontend** | React 18, Vite 5, TypeScript, TailwindCSS, Zustand, TanStack Query |
-| **Database** | SQL Server 2022, Entity Framework Core 8 |
+| **Database** | SQL Server 2022, Entity Framework Core |
 | **Monorepo** | Nx, npm Workspaces |
 | **Methodology** | BMAD-METHOD, Clean Architecture (Hexagonal), DDD |
 
@@ -78,7 +92,7 @@ src/
 
 ### Prerequisites
 - Node.js 20+
-- .NET 8 SDK
+- .NET 10 SDK
 - SQL Server 2022 (or Docker: `docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=YourPassword123!" -p 1433:1433 mcr.microsoft.com/mssql/server:2022-latest`)
 
 ### Frontend
@@ -124,6 +138,7 @@ cd src/apps/ums.web-app && npm run dev
 ## Knowledge Hub
 | Domain | Portal Index | Contents |
 | :--- | :--- | :--- |
+| **Standards** | [Standards Quick Access](./docs/STANDARDS.md) | Direct links to Evolith standards and UMS applied references for React Web and .NET API. |
 | **Governance** | [Governance Portal](./docs/governance/index.md) | Product direction, business scope, and functional requirements. |
 | **Project Delivery** | [Project Backlog](./docs/governance/project/index.md) | MVP epics, user stories, and functional design of core modules. |
 | **Requirements** | [Requirements Index](./docs/governance/requirements/index.md) | Functional stories, business glossary, and conceptual data model. |
@@ -139,11 +154,3 @@ cd src/apps/ums.web-app && npm run dev
 - **CSRF Protection**: Double-submit cookie pattern with token refresh.
 - **Security Headers**: HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy via Nginx.
 - **Input Validation**: Zod schemas as single source of truth for runtime validation.
-
----
-
-## Contribution & Governance
-- **Workflow**: This repo uses [BMAD-METHOD](./AGENTS.md) for spec-driven documentation.
-- **Navigation**: Visit the [**Master Index**](./docs/MASTER_INDEX.md) for the full document tree.
-- **Code Standards**: ESLint + TypeScript strict mode. Zero errors required before commit.
-- **Testing**: Vitest with React Testing Library. Coverage thresholds: 60% lines/statements.
