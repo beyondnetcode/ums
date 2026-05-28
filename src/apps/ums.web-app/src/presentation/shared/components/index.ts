@@ -87,3 +87,10 @@ export type { RouteLoaderProps } from './RouteLoader';
 
 export { ApiErrorBanner } from './ApiErrorBanner';
 export type { ApiErrorBannerProps } from './ApiErrorBanner';
+
+export { ConfirmDialog } from './ConfirmDialog';
+export type { ConfirmDialogProps } from './ConfirmDialog';
+
+export { PageDashboardShell } from './PageDashboardShell';
+export type { PageDashboardShellProps } from './PageDashboardShell';
+

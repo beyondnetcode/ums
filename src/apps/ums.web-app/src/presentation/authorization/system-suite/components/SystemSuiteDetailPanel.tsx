@@ -15,6 +15,7 @@ import {
   useActivateModule,
   useDeactivateModule,
   useAddMenu,
+  useUpdateMenu,
   useRemoveMenu,
   useAddSubMenu,
   useUpdateSubMenu,
@@ -320,49 +321,47 @@ const SubMenuRow: React.FC<SubMenuRowProps> = ({
       )}
 
       {/* Options + add option form */}
-      {isExpanded && !edit.isEditing(subMenu.id) && (
-        <div className="pl-5 space-y-1.5 border-l border-m3-outline/10 ml-3 pt-0.5">
-          {/* Add option inline form */}
-          {isAddingOpt && (
-            <InlineAddForm
-              isOpen
-              onToggle={(open) => { setIsAddingOpt(open); if (!open) setOpt(emptyOpt()); }}
-              onSubmit={handleAddOption}
-              addLabel="Opción"
-              title="Nueva Opción"
-              cancelLabel="Cancelar"
-              submitLabel="Guardar Opción"
-              isLoading={addOptionMutation.isPending}
-              error={opt.error || undefined}
-            >
-              <M3TextField label="Código" required value={opt.code} onChange={(e) => setOpt(s => ({ ...s, code: e.target.value }))} placeholder="e.g. VIEW" />
-              <M3TextField label="Etiqueta" required value={opt.label} onChange={(e) => setOpt(s => ({ ...s, label: e.target.value }))} placeholder="e.g. Ver Usuarios" />
-              <M3TextField label="Descripción" value={opt.desc} onChange={(e) => setOpt(s => ({ ...s, desc: e.target.value }))} placeholder="Opcional" />
-              <M3TextField label="Código de Acción" required value={opt.actionCode} onChange={(e) => setOpt(s => ({ ...s, actionCode: e.target.value }))} placeholder="e.g. USER_VIEW" />
-              <M3TextField label="Orden" type="number" value={opt.sort} onChange={(e) => setOpt(s => ({ ...s, sort: e.target.value }))} placeholder="1" />
-            </InlineAddForm>
-          )}
+      <div className={`pl-4 space-y-2 border-l border-m3-primary/10 ml-3 pt-0.5 overflow-x-auto no-scrollbar pb-1 ${isExpanded && !edit.isEditing(subMenu.id) ? 'block' : 'hidden'}`}>
+        {/* Add option inline form */}
+        {isAddingOpt && (
+          <InlineAddForm
+            isOpen
+            onToggle={(open) => { setIsAddingOpt(open); if (!open) setOpt(emptyOpt()); }}
+            onSubmit={handleAddOption}
+            addLabel="Opción"
+            title="Nueva Opción"
+            cancelLabel="Cancelar"
+            submitLabel="Guardar Opción"
+            isLoading={addOptionMutation.isPending}
+            error={opt.error || undefined}
+          >
+            <M3TextField label="Código" required value={opt.code} onChange={(e) => setOpt(s => ({ ...s, code: e.target.value }))} placeholder="e.g. VIEW" />
+            <M3TextField label="Etiqueta" required value={opt.label} onChange={(e) => setOpt(s => ({ ...s, label: e.target.value }))} placeholder="e.g. Ver Usuarios" />
+            <M3TextField label="Descripción" value={opt.desc} onChange={(e) => setOpt(s => ({ ...s, desc: e.target.value }))} placeholder="Opcional" />
+            <M3TextField label="Código de Acción" required value={opt.actionCode} onChange={(e) => setOpt(s => ({ ...s, actionCode: e.target.value }))} placeholder="e.g. USER_VIEW" />
+            <M3TextField label="Orden" type="number" value={opt.sort} onChange={(e) => setOpt(s => ({ ...s, sort: e.target.value }))} placeholder="1" />
+          </InlineAddForm>
+        )}
 
-          {!subMenu.options || subMenu.options.length === 0 ? (
-            <p className="text-[9px] text-m3-secondary/40 italic">No hay opciones configuradas.</p>
-          ) : (
-            <div className="grid grid-cols-1 gap-1.5">
-              {subMenu.options.map((option) => (
-                <OptionRow
-                  key={option.id}
-                  suiteId={suiteId}
-                  moduleId={moduleId}
-                  menuId={menuId}
-                  subMenuId={subMenu.id}
-                  option={option}
-                  onRemove={() => removeOptionMutation.mutate(option.id)}
-                  isRemoving={removeOptionMutation.isPending}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+        {!subMenu.options || subMenu.options.length === 0 ? (
+          <p className="text-[9px] text-m3-secondary/40 italic">No hay opciones configuradas.</p>
+        ) : (
+          <div className="grid grid-cols-1 gap-1.5">
+            {subMenu.options.map((option) => (
+              <OptionRow
+                key={option.id}
+                suiteId={suiteId}
+                moduleId={moduleId}
+                menuId={menuId}
+                subMenuId={subMenu.id}
+                option={option}
+                onRemove={() => removeOptionMutation.mutate(option.id)}
+                isRemoving={removeOptionMutation.isPending}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
@@ -381,15 +380,25 @@ interface MenuRowProps {
   isRemovingMenu: boolean;
 }
 
+interface MenuDraft {
+  label: string;
+  description: string;
+  sortOrder: number;
+}
+
 const MenuRow: React.FC<MenuRowProps> = ({
   suiteId, moduleId, menu, isExpanded, isSubExpanded,
   onToggle, onToggleSub, onRemoveMenu, isRemovingMenu,
 }) => {
   const [isAddingSub, setIsAddingSub] = useState(false);
   const [sub, setSub] = useState<AddSubState>(emptySub);
+  const [editError, setEditError] = useState('');
 
   const addSubMenuMutation    = useAddSubMenu(suiteId, moduleId, menu.id);
   const removeSubMenuMutation = useRemoveSubMenu(suiteId, moduleId, menu.id);
+  const updateMenuMutation    = useUpdateMenu(suiteId, moduleId, menu.id);
+
+  const edit = useInlineEdit<MenuDraft>(['label', 'description', 'sortOrder']);
 
   const handleAddSubMenu = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -407,78 +416,125 @@ const MenuRow: React.FC<MenuRowProps> = ({
     } catch { /* handled by hook */ }
   };
 
+  const handleStartEditMenu = () => {
+    edit.openEdit(menu.id, {
+      label: menu.label,
+      description: menu.description ?? '',
+      sortOrder: menu.sortOrder ?? 1,
+    });
+    setEditError('');
+  };
+
+  const handleUpdateMenu = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const label = edit.draft.label?.trim() ?? '';
+    if (!label) { setEditError('Etiqueta requerida'); return; }
+    try {
+      await updateMenuMutation.mutateAsync({
+        label,
+        description: edit.draft.description?.trim() ?? '',
+        sortOrder: Number(edit.draft.sortOrder) || 1,
+      });
+      edit.cancelEdit();
+      setEditError('');
+    } catch { /* handled by hook */ }
+  };
+
+  const handleCancelEditMenu = () => {
+    edit.cancelEdit();
+    setEditError('');
+  };
+
   return (
     <div className="space-y-1.5 animate-fadeIn">
       {/* Menu header */}
-      <div className="flex items-center gap-1 group/mn">
-        <div
-          onClick={onToggle}
-          className="flex items-center gap-2 cursor-pointer py-1.5 px-2 rounded hover:bg-m3-surface-variant/20 transition-colors select-none flex-1"
-        >
-          {isExpanded ? <ChevronDown className="w-3.5 h-3.5 text-m3-secondary" /> : <ChevronRight className="w-3.5 h-3.5 text-m3-secondary" />}
-          {isExpanded ? <FolderOpen className="w-4 h-4 text-amber-500" /> : <Folder className="w-4 h-4 text-amber-500" />}
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs font-semibold text-m3-on-surface">{menu.label}</span>
-            <CodeBadge code={menu.code} size="xs" />
+      {edit.isEditing(menu.id) ? (
+        <form onSubmit={handleUpdateMenu} className="p-2.5 rounded-lg border border-m3-primary/30 bg-m3-surface-container/20 space-y-2 animate-fadeIn">
+          <div className="grid grid-cols-2 gap-1.5">
+            <M3TextField label="Etiqueta" required value={edit.draft.label ?? ''} onChange={(e) => edit.setField('label', e.target.value)} />
+            <M3TextField label="Orden" type="number" value={String(edit.draft.sortOrder ?? 1)} onChange={(e) => edit.setField('sortOrder', parseInt(e.target.value) || 1)} />
+          </div>
+          <M3TextField label="Descripción" value={edit.draft.description ?? ''} onChange={(e) => edit.setField('description', e.target.value)} />
+          {editError && <p className="text-[10px] text-m3-error">{editError}</p>}
+          <div className="flex gap-1.5 justify-end">
+            <button type="button" onClick={handleCancelEditMenu} className="text-[11px] px-2.5 py-1 rounded-md text-m3-secondary hover:bg-m3-surface-variant/20 transition-colors">Cancelar</button>
+            <button type="submit" disabled={updateMenuMutation.isPending} className="text-[11px] px-2.5 py-1 rounded-md bg-m3-primary text-m3-on-primary hover:bg-m3-primary/80 disabled:opacity-50 transition-colors">
+              {updateMenuMutation.isPending ? 'Guardando…' : 'Guardar'}
+            </button>
+          </div>
+        </form>
+      ) : (
+        <div className="flex items-center gap-1 group/mn">
+          <div
+            onClick={onToggle}
+            className="flex items-center gap-2 cursor-pointer py-1.5 px-2 rounded hover:bg-m3-surface-variant/20 transition-colors select-none flex-1"
+          >
+            {isExpanded ? <ChevronDown className="w-3.5 h-3.5 text-m3-secondary" /> : <ChevronRight className="w-3.5 h-3.5 text-m3-secondary" />}
+            {isExpanded ? <FolderOpen className="w-4 h-4 text-amber-500" /> : <Folder className="w-4 h-4 text-amber-500" />}
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-semibold text-m3-on-surface">{menu.label}</span>
+              <CodeBadge code={menu.code} size="xs" />
+            </div>
+          </div>
+          <div className="flex items-center gap-0.5 opacity-0 group-hover/mn:opacity-100 transition-opacity pr-1">
+            {isExpanded && (
+              <CompactAddButton label="Agregar Submenú" onClick={() => setIsAddingSub(true)} />
+            )}
+            <IconButton tooltip="Editar Menú" onClick={handleStartEditMenu} className="hover:text-m3-primary hover:bg-m3-primary/10">
+              <Pencil className="w-3 h-3" />
+            </IconButton>
+            <IconButton
+              tooltip="Eliminar Menú"
+              onClick={() => onRemoveMenu(menu.id)}
+              disabled={isRemovingMenu}
+              className="hover:text-m3-error hover:bg-m3-error/10"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </IconButton>
           </div>
         </div>
-        <div className="flex items-center gap-0.5 opacity-0 group-hover/mn:opacity-100 transition-opacity pr-1">
-          {isExpanded && (
-            <CompactAddButton label="Agregar Submenú" onClick={() => setIsAddingSub(true)} />
-          )}
-          <IconButton
-            tooltip="Eliminar Menú"
-            onClick={() => onRemoveMenu(menu.id)}
-            disabled={isRemovingMenu}
-            className="hover:text-m3-error hover:bg-m3-error/10"
-          >
-            <Trash2 className="w-3 h-3" />
-          </IconButton>
-        </div>
-      </div>
+      )}
 
       {/* SubMenus */}
-      {isExpanded && (
-        <div className="pl-6 space-y-2.5 border-l border-m3-outline/10 ml-4 pt-0.5">
-          {/* Add submenu inline form */}
-          {isAddingSub && (
-            <InlineAddForm
-              isOpen
-              onToggle={(open) => { setIsAddingSub(open); if (!open) setSub(emptySub()); }}
-              onSubmit={handleAddSubMenu}
-              addLabel="Submenú"
-              title="Nuevo Submenú"
-              cancelLabel="Cancelar"
-              submitLabel="Guardar Submenú"
-              isLoading={addSubMenuMutation.isPending}
-              error={sub.error || undefined}
-            >
-              <M3TextField label="Código" required value={sub.code} onChange={(e) => setSub(s => ({ ...s, code: e.target.value }))} placeholder="e.g. USERS" />
-              <M3TextField label="Etiqueta" required value={sub.label} onChange={(e) => setSub(s => ({ ...s, label: e.target.value }))} placeholder="e.g. Usuarios" />
-              <M3TextField label="Descripción" value={sub.desc} onChange={(e) => setSub(s => ({ ...s, desc: e.target.value }))} placeholder="Opcional" />
-              <M3TextField label="Orden" type="number" value={sub.sort} onChange={(e) => setSub(s => ({ ...s, sort: e.target.value }))} placeholder="1" />
-            </InlineAddForm>
-          )}
+      <div className={`pl-5 space-y-3 border-l border-m3-primary/10 ml-3.5 pt-0.5 overflow-x-auto no-scrollbar pb-1 ${isExpanded && !edit.isEditing(menu.id) ? 'block' : 'hidden'}`}>
+        {/* Add submenu inline form */}
+        {isAddingSub && (
+          <InlineAddForm
+            isOpen
+            onToggle={(open) => { setIsAddingSub(open); if (!open) setSub(emptySub()); }}
+            onSubmit={handleAddSubMenu}
+            addLabel="Submenú"
+            title="Nuevo Submenú"
+            cancelLabel="Cancelar"
+            submitLabel="Guardar Submenú"
+            isLoading={addSubMenuMutation.isPending}
+            error={sub.error || undefined}
+          >
+            <M3TextField label="Código" required value={sub.code} onChange={(e) => setSub(s => ({ ...s, code: e.target.value }))} placeholder="e.g. USERS" />
+            <M3TextField label="Etiqueta" required value={sub.label} onChange={(e) => setSub(s => ({ ...s, label: e.target.value }))} placeholder="e.g. Usuarios" />
+            <M3TextField label="Descripción" value={sub.desc} onChange={(e) => setSub(s => ({ ...s, desc: e.target.value }))} placeholder="Opcional" />
+            <M3TextField label="Orden" type="number" value={sub.sort} onChange={(e) => setSub(s => ({ ...s, sort: e.target.value }))} placeholder="1" />
+          </InlineAddForm>
+        )}
 
-          {!menu.subMenus || menu.subMenus.length === 0 ? (
-            <p className="text-[10px] text-m3-secondary/50 italic">No hay submenús configurados.</p>
-          ) : (
-            menu.subMenus.map((subMenu) => (
-              <SubMenuRow
-                key={subMenu.id}
-                suiteId={suiteId}
-                moduleId={moduleId}
-                menuId={menu.id}
-                subMenu={subMenu}
-                isExpanded={isSubExpanded(`submenu-${subMenu.id}`)}
-                onToggle={() => onToggleSub(`submenu-${subMenu.id}`)}
-                onRemoveSubMenu={(id) => removeSubMenuMutation.mutate(id)}
-                isRemovingSubMenu={removeSubMenuMutation.isPending}
-              />
-            ))
-          )}
-        </div>
-      )}
+        {!menu.subMenus || menu.subMenus.length === 0 ? (
+          <p className="text-[10px] text-m3-secondary/50 italic">No hay submenús configurados.</p>
+        ) : (
+          menu.subMenus.map((subMenu) => (
+            <SubMenuRow
+              key={subMenu.id}
+              suiteId={suiteId}
+              moduleId={moduleId}
+              menuId={menu.id}
+              subMenu={subMenu}
+              isExpanded={isSubExpanded(`submenu-${subMenu.id}`)}
+              onToggle={() => onToggleSub(`submenu-${subMenu.id}`)}
+              onRemoveSubMenu={(id) => removeSubMenuMutation.mutate(id)}
+              isRemovingSubMenu={removeSubMenuMutation.isPending}
+            />
+          ))
+        )}
+      </div>
     </div>
   );
 };
@@ -1046,54 +1102,52 @@ const ModuleCard: React.FC<ModuleCardProps> = ({
       </div>
 
       {/* Module body */}
-      {isExpanded && (
-        <div className="p-4 space-y-4">
-          {module.description && (
-            <p className="text-xs text-m3-secondary italic pl-1 border-l-2 border-m3-outline/20">{module.description}</p>
-          )}
+      <div className={`p-4 space-y-4 ${isExpanded ? 'block' : 'hidden'}`}>
+        {module.description && (
+          <p className="text-xs text-m3-secondary italic pl-1 border-l-2 border-m3-outline/20">{module.description}</p>
+        )}
 
-          {/* Add menu form */}
-          <InlineAddForm
-            isOpen={isAddingMenu}
-            onToggle={(open) => { setIsAddingMenu(open); if (!open) setMenu(emptyMenu()); }}
-            onSubmit={handleAddMenu}
-            addLabel="Menú"
-            title="Nuevo Menú"
-            cancelLabel="Cancelar"
-            submitLabel="Guardar Menú"
-            isLoading={addMenuMutation.isPending}
-            triggerEmphasis="quiet"
-            error={menu.error || undefined}
-          >
-            <M3TextField label="Código" required value={menu.code} onChange={(e) => setMenu(s => ({ ...s, code: e.target.value }))} placeholder="e.g. ADMIN" />
-            <M3TextField label="Etiqueta" required value={menu.label} onChange={(e) => setMenu(s => ({ ...s, label: e.target.value }))} placeholder="e.g. Administración" />
-            <M3TextField label="Descripción" value={menu.desc} onChange={(e) => setMenu(s => ({ ...s, desc: e.target.value }))} placeholder="Opcional" />
-            <M3TextField label="Orden" type="number" value={menu.sort} onChange={(e) => setMenu(s => ({ ...s, sort: e.target.value }))} placeholder="1" />
-          </InlineAddForm>
+        {/* Add menu form */}
+        <InlineAddForm
+          isOpen={isAddingMenu}
+          onToggle={(open) => { setIsAddingMenu(open); if (!open) setMenu(emptyMenu()); }}
+          onSubmit={handleAddMenu}
+          addLabel="Menú"
+          title="Nuevo Menú"
+          cancelLabel="Cancelar"
+          submitLabel="Guardar Menú"
+          isLoading={addMenuMutation.isPending}
+          triggerEmphasis="quiet"
+          error={menu.error || undefined}
+        >
+          <M3TextField label="Código" required value={menu.code} onChange={(e) => setMenu(s => ({ ...s, code: e.target.value }))} placeholder="e.g. ADMIN" />
+          <M3TextField label="Etiqueta" required value={menu.label} onChange={(e) => setMenu(s => ({ ...s, label: e.target.value }))} placeholder="e.g. Administración" />
+          <M3TextField label="Descripción" value={menu.desc} onChange={(e) => setMenu(s => ({ ...s, desc: e.target.value }))} placeholder="Opcional" />
+          <M3TextField label="Orden" type="number" value={menu.sort} onChange={(e) => setMenu(s => ({ ...s, sort: e.target.value }))} placeholder="1" />
+        </InlineAddForm>
 
-          {/* Menus tree */}
-          {!module.menus || module.menus.length === 0 ? (
-            <p className="text-xs text-m3-secondary/70 italic pl-4">No hay menús configurados.</p>
-          ) : (
-            <div className="relative pl-2 border-l border-m3-outline/15 space-y-3 ml-2">
-              {module.menus.map((menuItem) => (
-                <MenuRow
-                  key={menuItem.id}
-                  suiteId={suiteId}
-                  moduleId={module.id}
-                  menu={menuItem}
-                  isExpanded={isNodeExpanded(`menu-${menuItem.id}`)}
-                  isSubExpanded={isNodeExpanded}
-                  onToggle={() => onToggleNode(`menu-${menuItem.id}`)}
-                  onToggleSub={onToggleNode}
-                  onRemoveMenu={(id) => removeMenuMutation.mutate(id)}
-                  isRemovingMenu={removeMenuMutation.isPending}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+        {/* Menus tree */}
+        {!module.menus || module.menus.length === 0 ? (
+          <p className="text-xs text-m3-secondary/70 italic pl-4">No hay menús configurados.</p>
+        ) : (
+          <div className="relative pl-2.5 border-l border-m3-primary/15 space-y-3.5 ml-2 overflow-x-auto no-scrollbar pb-1.5 scroll-smooth">
+            {module.menus.map((menuItem) => (
+              <MenuRow
+                key={menuItem.id}
+                suiteId={suiteId}
+                moduleId={module.id}
+                menu={menuItem}
+                isExpanded={isNodeExpanded(`menu-${menuItem.id}`)}
+                isSubExpanded={isNodeExpanded}
+                onToggle={() => onToggleNode(`menu-${menuItem.id}`)}
+                onToggleSub={onToggleNode}
+                onRemoveMenu={(id) => removeMenuMutation.mutate(id)}
+                isRemovingMenu={removeMenuMutation.isPending}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
