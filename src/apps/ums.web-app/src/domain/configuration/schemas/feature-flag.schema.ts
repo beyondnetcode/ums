@@ -12,6 +12,13 @@
  */
 import { z } from 'zod';
 
+// Zod v4 enforces RFC 4122 variant bits in .uuid() — too strict for SQL Server
+// GUIDs which may not satisfy those bit constraints. Use a format-only check.
+const guidSchema = z.string().regex(
+  /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/,
+  'Invalid GUID format',
+);
+
 export const FlagTypeSchema = z.enum(['Boolean', 'Variant', 'Percentage']);
 export const FlagStatusSchema = z.enum(['Inactive', 'Active', 'Archived']);
 export const CriteriaTypeSchema = z.enum([
@@ -34,7 +41,7 @@ export const CriteriaOperatorSchema = z.enum([
 ]);
 
 export const FeatureFlagCriteriaSchema = z.object({
-  criteriaId:    z.string().uuid(),
+  criteriaId:    guidSchema,
   criteriaType:  CriteriaTypeSchema,
   operator:      CriteriaOperatorSchema,
   value:         z.string(),
@@ -42,14 +49,14 @@ export const FeatureFlagCriteriaSchema = z.object({
 });
 
 export const FeatureFlagSchema = z.object({
-  featureFlagId:      z.string().uuid(),
-  systemSuiteId:      z.string().uuid(),
+  featureFlagId:      guidSchema,
+  systemSuiteId:      guidSchema,
   flagCode:           z.string().min(1),
   flagType:           FlagTypeSchema,
   flagTargets:        z.string(),
   status:             FlagStatusSchema,
   linkedResourceType: z.string().nullable().optional(),
-  linkedResourceId:   z.string().uuid().nullable().optional(),
+  linkedResourceId:   guidSchema.nullable().optional(),
   rolloutPercentage:  z.number().int().min(0).max(100).nullable().optional(),
   criteria:           z.array(FeatureFlagCriteriaSchema).default([]),
 });
@@ -67,11 +74,11 @@ export const FeatureFlagPageSchema = z.object({
 // ── Response schemas ──────────────────────────────────────────────────────────
 
 export const CreateFeatureFlagResponseSchema = z.object({
-  featureFlagId: z.string().uuid(),
+  featureFlagId: guidSchema,
 });
 
 export const AddFeatureFlagCriteriaResponseSchema = z.object({
-  criteriaId: z.string().uuid(),
+  criteriaId: guidSchema,
 });
 
 // ── Type exports ──────────────────────────────────────────────────────────────

@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import {
   Box, Shield, Key, ChevronDown, ChevronRight, Users,
   Folder, FolderOpen, Layers, EyeOff, ShieldCheck, Trash2, KeyRound, Plus, Pencil,
-  ChevronsUpDown, ChevronsDownUp,
+  ChevronsUpDown, ChevronsDownUp, Flag,
 } from 'lucide-react';
 import { SystemSuite } from '@domain/authorization/models/system-suite.model';
 import { SystemSuiteProfileCard } from './SystemSuiteProfileCard';
@@ -32,10 +32,11 @@ import { CodeBadge } from '@shared/components/CodeBadge';
 import { formatSystemCode } from '@app/utils/security';
 import { SystemSuiteRolesPanel } from './SystemSuiteRolesPanel';
 import { SystemSuiteDomainResourcesPanel } from './SystemSuiteDomainResourcesPanel';
+import { SystemSuiteFeatureFlagsPanel } from './SystemSuiteFeatureFlagsPanel';
 import { Database } from 'lucide-react';
 import { ChildEntityToolbar } from '@shared/components/ChildEntityToolbar';
 
-type SystemSuiteTab = 'overview' | 'modules' | 'domain-resources' | 'actions' | 'roles';
+type SystemSuiteTab = 'overview' | 'modules' | 'domain-resources' | 'actions' | 'roles' | 'feature-flags';
 
 interface SystemSuiteDetailPanelProps {
   activeSystemSuite: SystemSuite | undefined;
@@ -547,6 +548,7 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
     { key: 'domain-resources', label: 'Recursos de Dominio', icon: <Database className="w-4 h-4" /> },
     { key: 'actions',  label: t.actions,  icon: <Key className="w-4 h-4" /> },
     { key: 'roles', label: t.roles, icon: <Users className="w-4 h-4" /> },
+    { key: 'feature-flags', label: 'Feature Flags', icon: <Flag className="w-4 h-4" /> },
   ];
 
   const suiteId = activeSystemSuite?.systemSuiteId ?? '';
@@ -948,6 +950,10 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
 
         {activeTab === 'roles' && (
           <SystemSuiteRolesPanel systemSuiteId={suiteId} />
+        )}
+
+        {activeTab === 'feature-flags' && (
+          <SystemSuiteFeatureFlagsPanel systemSuiteId={suiteId} />
         )}
       </div>
     </DetailPanelShell>
