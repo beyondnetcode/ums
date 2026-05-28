@@ -51,11 +51,36 @@ export const authorizationTranslations = {
 
     // Tabs
     modules: 'Módulos',
+    domainResources: 'Recursos de Dominio',
+    systemActions: 'Acciones de Sistema',
     actions: 'Acciones',
     roles: 'Roles',
     noModulesConfigured: 'No hay módulos configurados para este suite del sistema.',
+    noDomainResourcesConfigured: 'No hay recursos de dominio configurados para este suite del sistema.',
     noActionsConfigured: 'No hay acciones configuradas para este suite del sistema.',
     noRolesConfigured: 'No hay roles configurados para este suite del sistema.',
+
+    // Permission tree
+    inheritedPermission: 'Heredado',
+    directPermission: 'Directo',
+    partialPermission: 'Parcial',
+    noPermission: 'Sin configurar',
+    permissionLegend: 'Leyenda de permisos',
+    inheritedFromParent: 'Permiso heredado del padre',
+
+    // CRUD operations
+    crudCreate: 'Crear',
+    crudRead: 'Leer/Obtener',
+    crudSearch: 'Buscar/Listar',
+    crudUpdate: 'Actualizar',
+    crudDelete: 'Eliminar/Desactivar',
+
+    // Domain resources
+    aggregate: 'Agregado',
+    entity: 'Entidad',
+    crudOperations: 'Operaciones CRUD',
+    customActions: 'Acciones personalizadas',
+    parentResource: 'Recurso padre',
     addRole: 'Agregar rol',
     newRole: 'Nuevo rol',
     saveRole: 'Guardar rol',
@@ -154,11 +179,36 @@ export const authorizationTranslations = {
 
     // Tabs
     modules: 'Modules',
+    domainResources: 'Domain Resources',
+    systemActions: 'System Actions',
     actions: 'Actions',
     roles: 'Roles',
     noModulesConfigured: 'No modules configured for this system suite.',
+    noDomainResourcesConfigured: 'No domain resources configured for this system suite.',
     noActionsConfigured: 'No actions configured for this system suite.',
     noRolesConfigured: 'No roles configured for this system suite.',
+
+    // Permission tree
+    inheritedPermission: 'Inherited',
+    directPermission: 'Direct',
+    partialPermission: 'Partial',
+    noPermission: 'Not configured',
+    permissionLegend: 'Permission legend',
+    inheritedFromParent: 'Permission inherited from parent',
+
+    // CRUD operations
+    crudCreate: 'Create',
+    crudRead: 'Read/Get',
+    crudSearch: 'Search/List',
+    crudUpdate: 'Update',
+    crudDelete: 'Delete/Deactivate',
+
+    // Domain resources
+    aggregate: 'Aggregate',
+    entity: 'Entity',
+    crudOperations: 'CRUD Operations',
+    customActions: 'Custom Actions',
+    parentResource: 'Parent resource',
     addRole: 'Add role',
     newRole: 'New role',
     saveRole: 'Save role',
