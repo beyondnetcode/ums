@@ -457,7 +457,7 @@ interface DomainResourceDetailPanelProps {
   isDraft: boolean;
 }
 
-const DomainResourceDetailPanel: React.FC<DomainResourceDetailPanelProps> = ({ node, suite, items: _items, templateId, isDraft }) => {
+const DomainResourceDetailPanel: React.FC<DomainResourceDetailPanelProps> = ({ node, suite, templateId, isDraft }) => {
   const setEffect = useSetTemplateItemEffect(templateId);
   const removeItem = useRemoveTemplateItem(templateId);
   const addItem = useAddTemplateItem(templateId);

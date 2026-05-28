@@ -5,6 +5,8 @@ import { useState, useCallback } from 'react';
 import { useGetAllPermissionTemplates } from './use-permission-template';
 import { useGetPermissionTemplate } from './use-permission-template';
 import type { PermissionTemplate } from '@domain/authorization/models/permission-template.model';
+import { useQueryState } from '@app/shared/hooks/use-query-state';
+import { usePaginationState } from '@app/shared/hooks/use-pagination-state';
 
 const PAGE_SIZE = 20;
 
@@ -12,21 +14,25 @@ export function usePermissionTemplateDashboard(tenantId?: string) {
   const [selectedId, setSelectedId]         = useState('');
   const [isCreateOpen, setIsCreateOpen]     = useState(false);
   const [viewMode, setViewMode]             = useState<'list' | 'thumbnail'>('list');
-  const [searchValue, setSearchValue]       = useState('');
-  const [appliedSearch, setAppliedSearch]   = useState('');
-  const [activeFilter, setActiveFilter]     = useState('all');
-  const [sortBy, setSortBy]                 = useState('version');
-  const [sortOrder, setSortOrder]           = useState<'asc' | 'desc'>('asc');
-  const [page, setPage]                     = useState(1);
+
+  const queryState = useQueryState({
+    criteria: 'version',
+    filter: 'all',
+    sortBy: 'version',
+  });
+
+  const paginationState = usePaginationState({
+    initialPageSize: PAGE_SIZE,
+  });
 
   const { data: pageData, isLoading: isLoadingList, error: listError } =
     useGetAllPermissionTemplates({
-      page,
-      pageSize: PAGE_SIZE,
-      search: appliedSearch || undefined,
-      status: activeFilter !== 'all' ? activeFilter : undefined,
-      sortBy,
-      sortOrder,
+      page: paginationState.page,
+      pageSize: paginationState.pageSize,
+      search: queryState.appliedQuery.term || undefined,
+      status: queryState.activeFilter !== 'all' ? queryState.activeFilter : undefined,
+      sortBy: queryState.sortBy,
+      sortOrder: queryState.sortOrder,
       tenantId,
     });
 
@@ -41,17 +47,7 @@ export function usePermissionTemplateDashboard(tenantId?: string) {
     setSelectedId(id);
   }, []);
 
-  const handleQuerySubmit = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-    setAppliedSearch(searchValue);
-    setPage(1);
-  }, [searchValue]);
 
-  const handleResetQuery = useCallback(() => {
-    setSearchValue('');
-    setAppliedSearch('');
-    setPage(1);
-  }, []);
 
   const handleCreateSuccess = useCallback(() => {
     setIsCreateOpen(false);
@@ -64,17 +60,8 @@ export function usePermissionTemplateDashboard(tenantId?: string) {
     setIsCreateOpen,
     viewMode,
     setViewMode,
-    searchValue,
-    setSearchValue,
-    appliedSearch,
-    activeFilter,
-    setActiveFilter,
-    sortBy,
-    setSortBy,
-    sortOrder,
-    setSortOrder,
-    page,
-    setPage,
+    queryState,
+    paginationState,
 
     knownTemplates,
     isLoadingList,
@@ -85,8 +72,6 @@ export function usePermissionTemplateDashboard(tenantId?: string) {
     totalPages,
 
     handleSelect,
-    handleQuerySubmit,
-    handleResetQuery,
     handleCreateSuccess,
   };
 }

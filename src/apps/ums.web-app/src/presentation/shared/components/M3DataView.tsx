@@ -13,11 +13,11 @@ import {
   Database,
 } from 'lucide-react';
 import { M3Card } from './M3Card';
-import { M3Button } from './M3Button';
 import { M3TextField } from './M3TextField';
 import { EmptyState } from './EmptyState';
 import { M3SegmentedButton } from './M3SegmentedButton';
 import type { SegmentOption } from './M3SegmentedButton';
+import { M3SkeletonRow } from './M3Skeleton';
 import { useDragResize } from '@app/hooks/use-drag-resize';
 
 export interface SortOption { label: string; value: string; }
@@ -108,7 +108,6 @@ export const M3DataView: React.FC<M3DataViewProps> = ({
   emptyLabel = 'No matching records found.',
   emptyTitle = 'No results found',
   emptyTooltip,
-  loadingLabel = 'Loading...',
   criteriaLabel = 'Criteria',
   searchTermLabel = 'Search term',
   searchButtonLabel = 'Search',
@@ -381,12 +380,12 @@ export const M3DataView: React.FC<M3DataViewProps> = ({
         {/* List content */}
         <div className="flex-1 relative overflow-auto">
           {isLoading ? (
-            <div className="py-24 text-center text-sm text-m3-secondary">
-              <svg className="animate-spin h-8 w-8 text-m3-primary mx-auto mb-3" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-              </svg>
-              {loadingLabel}
+            <div className="flex flex-col space-y-4 px-2 py-4">
+              <M3SkeletonRow columns={viewMode === 'list' ? 4 : 2} />
+              <M3SkeletonRow columns={viewMode === 'list' ? 4 : 2} />
+              <M3SkeletonRow columns={viewMode === 'list' ? 4 : 2} />
+              <M3SkeletonRow columns={viewMode === 'list' ? 4 : 2} />
+              <M3SkeletonRow columns={viewMode === 'list' ? 4 : 2} />
             </div>
           ) : isEmpty ? (
             <EmptyState variant="card" title={emptyTitle} message={emptyLabel} tooltip={emptyTooltip} />

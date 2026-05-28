@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Flag, Plus, Trash2, ToggleLeft, ToggleRight, Archive,
-  CheckCircle2, XCircle, Info, ChevronDown, ChevronRight,
+  Info, ChevronDown, ChevronRight,
 } from 'lucide-react';
 import { useGetFeatureFlagsBySystemSuite } from '@app/configuration/hooks/use-feature-flag';
 import {
@@ -14,14 +14,13 @@ import {
 import { StatusBadge } from '@shared/components/StatusBadge';
 import { CodeBadge } from '@shared/components/CodeBadge';
 import { M3Button } from '@shared/components/M3Button';
-import { M3TextField } from '@shared/components/M3TextField';
 import { ChildEntityToolbar } from '@shared/components/ChildEntityToolbar';
 import {
   FLAG_TYPE_LABELS,
   CRITERIA_TYPE_LABELS,
   CRITERIA_OPERATOR_LABELS,
 } from '@domain/configuration/constants/feature-flag.constants';
-import type { FeatureFlag } from '@domain/configuration/models/feature-flag.model';
+import type { FeatureFlag, FeatureFlagCriteria } from '@domain/configuration/models/feature-flag.model';
 
 interface SystemSuiteFeatureFlagsPanelProps {
   systemSuiteId: string;
@@ -78,9 +77,7 @@ const CriteriaRow: React.FC<{
 
 const FlagRow: React.FC<{
   flag: FeatureFlag;
-  onCriteriaAdd: (flagId: string, criteriaType: string, operator: string, value: string) => void;
-  onCriteriaRemove: (flagId: string, criteriaId: string) => void;
-}> = ({ flag, onCriteriaAdd, onCriteriaRemove }) => {
+}> = ({ flag }) => {
   const [expanded, setExpanded] = useState(false);
   const [criteriaType, setCriteriaType] = useState('TenantId');
   const [criteriaOperator, setCriteriaOperator] = useState('Equals');
@@ -99,8 +96,8 @@ const FlagRow: React.FC<{
     if (!criteriaValue.trim()) return;
     try {
       await addCriteria.mutateAsync({
-        criteriaType: criteriaType as any,
-        operator: criteriaOperator as any,
+        criteriaType: criteriaType as FeatureFlagCriteria['criteriaType'],
+        operator: criteriaOperator as FeatureFlagCriteria['operator'],
         value: criteriaValue.trim(),
       });
       setCriteriaValue('');
@@ -337,8 +334,6 @@ export const SystemSuiteFeatureFlagsPanel: React.FC<SystemSuiteFeatureFlagsPanel
             <FlagRow
               key={flag.featureFlagId}
               flag={flag}
-              onCriteriaAdd={() => {}}
-              onCriteriaRemove={() => {}}
             />
           ))}
         </div>

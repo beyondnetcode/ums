@@ -4,7 +4,7 @@
  */
 import React, { useState } from 'react';
 import { ShieldPlus } from 'lucide-react';
-import { M3Button } from '@shared/components/M3Button';
+import { M3Button, M3Select } from '@shared/components';
 import { M3FormDialog } from '@shared/components/M3FormDialog';
 import { useCreatePermissionTemplate } from '@app/authorization/hooks/use-permission-template';
 import { useGetAllSystemSuites } from '@app/authorization/hooks/use-system-suite';
@@ -26,26 +26,23 @@ interface SelectProps {
   options:  { value: string; label: string }[];
   disabled?: boolean;
   required?: boolean;
+  error?:    string;
 }
 
-const FieldSelect: React.FC<SelectProps> = ({ label, value, onChange, options, disabled, required }) => (
-  <div className="flex flex-col gap-1">
-    <label className="text-xs font-medium text-m3-on-surface/70">
-      {label}{required && <span className="text-m3-error ml-0.5">*</span>}
-    </label>
-    <select
-      value={value}
-      onChange={e => onChange(e.target.value)}
-      disabled={disabled}
-      required={required}
-      className="w-full rounded-lg border border-m3-outline/40 bg-m3-surface-container/40 px-3 py-2 text-sm text-m3-on-surface focus:outline-none focus:ring-2 focus:ring-m3-primary/40 focus:border-m3-primary disabled:opacity-50 disabled:cursor-not-allowed"
-    >
-      <option value="">— Seleccionar —</option>
-      {options.map(o => (
-        <option key={o.value} value={o.value}>{o.label}</option>
-      ))}
-    </select>
-  </div>
+const FieldSelect: React.FC<SelectProps> = ({ label, value, onChange, options, disabled, required, error }) => (
+  <M3Select
+    label={label}
+    value={value}
+    onChange={e => onChange(e.target.value)}
+    disabled={disabled}
+    required={required}
+    error={error}
+  >
+    <option value="">— Seleccionar —</option>
+    {options.map(o => (
+      <option key={o.value} value={o.value}>{o.label}</option>
+    ))}
+  </M3Select>
 );
 
 // ── Main form ─────────────────────────────────────────────────────────────────

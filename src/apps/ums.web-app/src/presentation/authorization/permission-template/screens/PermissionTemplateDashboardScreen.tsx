@@ -17,8 +17,6 @@ import { MasterDetailLayout } from '@shared/layouts/MasterDetailLayout';
 export default function PermissionTemplateDashboardScreen(): React.JSX.Element {
   const d = usePermissionTemplateDashboard();
 
-  const startIndex = d.totalItems > 0 ? (d.page - 1) * 20 + 1 : 0;
-
   return (
     <PageShell>
       <PermissionTemplateForm
@@ -40,24 +38,13 @@ export default function PermissionTemplateDashboardScreen(): React.JSX.Element {
             error={d.listError}
             viewMode={d.viewMode}
             onViewModeChange={d.setViewMode}
-            searchValue={d.searchValue}
-            onSearchValueChange={d.setSearchValue}
-            onSearchSubmit={d.handleQuerySubmit}
+            queryState={d.queryState}
+            paginationState={{
+              ...d.paginationState,
+              totalItems: d.totalItems,
+              totalPages: d.totalPages,
+            }}
             onRegisterNew={() => d.setIsCreateOpen(true)}
-            activeFilter={d.activeFilter}
-            onFilterChange={(val) => { d.setActiveFilter(val); d.setPage(1); }}
-            sortBy={d.sortBy}
-            onSortByChange={d.setSortBy}
-            sortOrder={d.sortOrder}
-            onSortOrderToggle={() => d.setSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'))}
-            page={d.page}
-            pageSize={20}
-            totalItems={d.totalItems}
-            totalPages={d.totalPages}
-            startIndex={startIndex}
-            appliedTerm={d.appliedSearch}
-            onPageChange={d.setPage}
-            onResetQuery={d.handleResetQuery}
             onSelectTemplate={d.handleSelect}
           />
         }

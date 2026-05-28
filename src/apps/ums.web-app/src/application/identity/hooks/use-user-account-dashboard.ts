@@ -12,6 +12,8 @@ import { useNotificationStore } from '@app/stores/notification.store';
 import { UserAccount } from '@domain/identity/models/user-account.model';
 import { Tenant } from '@domain/identity/models/tenant.model';
 import { USER_ACCOUNT_PAGE_SIZE } from '@domain/identity/constants/user-account.constants';
+import { useQueryState } from '@app/shared/hooks/use-query-state';
+import { usePaginationState } from '@app/shared/hooks/use-pagination-state';
 
 export interface UserAccountDashboardState {
   selectedId: string;
@@ -20,15 +22,8 @@ export interface UserAccountDashboardState {
   showRestoreDialog: boolean;
   isCreateOpen: boolean;
   viewMode: 'list' | 'thumbnail';
-  searchCriteria: string;
-  searchValue: string;
-  appliedQuery: { criteria: string; term: string };
-  activeFilter: string;
-  sortBy: string;
-  sortOrder: 'asc' | 'desc';
-  page: number;
-  pageSize: number;
-  blockReason: string;
+  queryState: ReturnType<typeof useQueryState>;
+  paginationState: ReturnType<typeof usePaginationState>;
 }
 
 export interface UserAccountDashboardActions {
@@ -38,23 +33,13 @@ export interface UserAccountDashboardActions {
   setShowRestoreDialog: React.Dispatch<React.SetStateAction<boolean>>;
   setIsCreateOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setViewMode: React.Dispatch<React.SetStateAction<'list' | 'thumbnail'>>;
-  setSearchCriteria: React.Dispatch<React.SetStateAction<string>>;
-  setSearchValue: React.Dispatch<React.SetStateAction<string>>;
-  setAppliedQuery: React.Dispatch<React.SetStateAction<{ criteria: string; term: string }>>;
-  setActiveFilter: React.Dispatch<React.SetStateAction<string>>;
-  setSortBy: React.Dispatch<React.SetStateAction<string>>;
-  setSortOrder: React.Dispatch<React.SetStateAction<'asc' | 'desc'>>;
-  setPage: React.Dispatch<React.SetStateAction<number>>;
   setBlockReason: React.Dispatch<React.SetStateAction<string>>;
   handleSelectAccount: (id: string) => void;
   handleActivate: () => void;
   handleBlockRequest: (userAccountId: string) => void;
-  handleRestoreRequest: (userAccountId: string) => void;
   confirmBlock: () => void;
   confirmRestore: () => void;
   handleCreateSuccess: () => void;
-  handleQuerySubmit: (e: React.FormEvent) => void;
-  handleResetQuery: () => void;
   patchAccount: (accountId: string, patch: Partial<UserAccount>) => void;
 }
 
@@ -74,15 +59,17 @@ export function useUserAccountDashboard(): UserAccountDashboardState & UserAccou
   const [showRestoreDialog, setShowRestoreDialog] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('list');
-  const [searchCriteria, setSearchCriteria] = useState('email');
-  const [searchValue, setSearchValue] = useState('');
-  const [appliedQuery, setAppliedQuery] = useState<{ criteria: string; term: string }>({ criteria: 'email', term: '' });
-  const [activeFilter, setActiveFilter] = useState('all');
-  const [sortBy, setSortBy] = useState('email');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  const [page, setPage] = useState(1);
   const [blockReason, setBlockReason] = useState('');
-  const pageSize = USER_ACCOUNT_PAGE_SIZE;
+
+  const queryState = useQueryState({
+    criteria: 'email',
+    filter: 'all',
+    sortBy: 'email',
+  });
+
+  const paginationState = usePaginationState({
+    initialPageSize: USER_ACCOUNT_PAGE_SIZE,
+  });
 
   const addNotification = useNotificationStore((s) => s.addNotification);
 
@@ -96,13 +83,13 @@ export function useUserAccountDashboard(): UserAccountDashboardState & UserAccou
   }, [tenants, selectedTenantId]);
 
   const { data: accountPage, isLoading: isLoadingList, error: listError } = useGetAllUserAccounts({
-    page,
-    pageSize,
-    search: appliedQuery.term || undefined,
-    criteria: appliedQuery.criteria,
-    status: activeFilter,
-    sortBy,
-    sortOrder,
+    page: paginationState.page,
+    pageSize: paginationState.pageSize,
+    search: queryState.appliedQuery.term || undefined,
+    criteria: queryState.appliedQuery.criteria,
+    status: queryState.activeFilter,
+    sortBy: queryState.sortBy,
+    sortOrder: queryState.sortOrder,
     tenantId: selectedTenantId || undefined,
   });
 
@@ -172,23 +159,10 @@ export function useUserAccountDashboard(): UserAccountDashboardState & UserAccou
   }, [restoreMutation, addNotification]);
 
   const handleCreateSuccess = useCallback(() => {
-    setPage(1);
-    setAppliedQuery({ criteria: 'email', term: '' });
-    setSearchValue('');
+    paginationState.setPage(1);
+    queryState.handleResetQuery();
     setIsCreateOpen(false);
-  }, []);
-
-  const handleQuerySubmit = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-    setPage(1);
-    setAppliedQuery({ criteria: searchCriteria, term: searchValue });
-  }, [searchCriteria, searchValue]);
-
-  const handleResetQuery = useCallback(() => {
-    setSearchValue('');
-    setAppliedQuery({ criteria: 'email', term: '' });
-    setPage(1);
-  }, []);
+  }, [paginationState, queryState]);
 
   useEffect(() => {
     if (!selectedId && knownAccounts.length > 0) {
@@ -203,7 +177,6 @@ export function useUserAccountDashboard(): UserAccountDashboardState & UserAccou
 
   const totalItems = accountPage?.totalItems ?? 0;
   const totalPages = accountPage?.totalPages ?? 0;
-  const startIndex = (page - 1) * pageSize;
 
   return {
     selectedId, setSelectedId,
@@ -212,14 +185,8 @@ export function useUserAccountDashboard(): UserAccountDashboardState & UserAccou
     showRestoreDialog, setShowRestoreDialog,
     isCreateOpen, setIsCreateOpen,
     viewMode, setViewMode,
-    searchCriteria, setSearchCriteria,
-    searchValue, setSearchValue,
-    appliedQuery, setAppliedQuery,
-    activeFilter, setActiveFilter,
-    sortBy, setSortBy,
-    sortOrder, setSortOrder,
-    page, setPage,
-    pageSize,
+    queryState,
+    paginationState,
     blockReason, setBlockReason,
     handleSelectAccount,
     handleActivate,
@@ -228,8 +195,6 @@ export function useUserAccountDashboard(): UserAccountDashboardState & UserAccou
     confirmBlock,
     confirmRestore,
     handleCreateSuccess,
-    handleQuerySubmit,
-    handleResetQuery,
     patchAccount,
     knownAccounts,
     isLoadingList,
@@ -237,7 +202,7 @@ export function useUserAccountDashboard(): UserAccountDashboardState & UserAccou
     activeAccount,
     totalItems,
     totalPages,
-    startIndex,
+    startIndex: paginationState.startIndex,
     tenants,
   };
 }

@@ -94,3 +94,19 @@ export type { ConfirmDialogProps } from './ConfirmDialog';
 export { PageDashboardShell } from './PageDashboardShell';
 export type { PageDashboardShellProps } from './PageDashboardShell';
 
+export { M3Skeleton, M3SkeletonRow } from './M3Skeleton';
+
+export { M3Tabs } from './M3Tabs';
+export type { M3TabsProps, TabItem } from './M3Tabs';
+
+export { M3TreeAccordion } from './M3TreeAccordion';
+export type { M3TreeAccordionProps, TreeItem } from './M3TreeAccordion';
+
+// New Atomic Data View Components
+export { DataViewShell } from './layouts/DataViewShell';
+export { SearchBar } from './search/SearchBar';
+export type { QueryCriteriaOption as AtomicQueryCriteriaOption } from './search/SearchBar';
+export { FilterPanel } from './search/FilterPanel';
+export type { FilterOption as AtomicFilterOption, SortOption as AtomicSortOption } from './search/FilterPanel';
+export { DataList } from './data-display/DataList';
+export type { PaginationData as AtomicPaginationData } from './data-display/DataList';

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useGetAllProfiles, useGetProfile } from '@app/authorization/hooks/use-profile';
+import { useQueryState } from '@app/shared/hooks/use-query-state';
+import { usePaginationState } from '@app/shared/hooks/use-pagination-state';
 import { ProfileListPanel } from '../components/ProfileListPanel';
 import { ProfileDetailPanel } from '../components/ProfileDetailPanel';
 import { ProfileForm } from '../components/ProfileForm';
@@ -9,14 +11,18 @@ import { MasterDetailLayout } from '@shared/layouts/MasterDetailLayout';
 
 export default function ProfileDashboardScreen(): React.JSX.Element {
   const [selectedId, setSelectedId] = useState('');
-  const [searchValue, setSearchValue] = useState('');
-  const [appliedSearch, setAppliedSearch] = useState('');
-  const [page, setPage] = useState(1);
   const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('list');
-  const [activeFilter, setActiveFilter] = useState('all');
-  const [sortBy, setSortBy] = useState('userId');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  
+
+  const queryState = useQueryState({
+    criteria: 'userId',
+    filter: 'all',
+    sortBy: 'userId',
+  });
+
+  const paginationState = usePaginationState({
+    initialPageSize: 20,
+  });
+
   // Dialog Open States
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isGraphOpen, setIsGraphOpen] = useState(false);
@@ -24,34 +30,19 @@ export default function ProfileDashboardScreen(): React.JSX.Element {
 
   // Fetch paginated master list
   const { data: pageData, isLoading: loadingList, error: listError } = useGetAllProfiles({
-    page,
-    pageSize: 20,
-    search: appliedSearch || undefined,
+    page: paginationState.page,
+    pageSize: paginationState.pageSize,
+    search: queryState.appliedQuery.term || undefined,
     criteria: 'userId',
-    status: activeFilter,
-    sortBy,
-    sortOrder,
+    status: queryState.activeFilter,
+    sortBy: queryState.sortBy,
+    sortOrder: queryState.sortOrder,
   });
 
   // Fetch detail for selected profile
   const { data: activeProfile, isLoading: loadingDetail } = useGetProfile(selectedId || null);
 
-  const startIndex = pageData && pageData.totalItems > 0 ? (page - 1) * 20 + 1 : 0;
 
-  const handleQuerySubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setAppliedSearch(searchValue);
-    setPage(1);
-  };
-
-  const handleResetQuery = () => {
-    setSearchValue('');
-    setAppliedSearch('');
-    setActiveFilter('all');
-    setSortBy('userId');
-    setSortOrder('asc');
-    setPage(1);
-  };
 
   const handleOpenGraph = (profileId: string) => {
     setGraphProfileId(profileId);
@@ -90,24 +81,13 @@ export default function ProfileDashboardScreen(): React.JSX.Element {
             error={listError}
             viewMode={viewMode}
             onViewModeChange={setViewMode}
-            searchValue={searchValue}
-            onSearchValueChange={setSearchValue}
-            onSearchSubmit={handleQuerySubmit}
+            queryState={queryState}
+            paginationState={{
+              ...paginationState,
+              totalItems: pageData?.totalItems ?? 0,
+              totalPages: pageData?.totalPages ?? 0,
+            }}
             onRegisterNew={() => setIsCreateOpen(true)}
-            activeFilter={activeFilter}
-            onFilterChange={(val) => { setActiveFilter(val); setPage(1); }}
-            sortBy={sortBy}
-            onSortByChange={setSortBy}
-            sortOrder={sortOrder}
-            onSortOrderToggle={() => setSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'))}
-            page={page}
-            pageSize={20}
-            totalItems={pageData?.totalItems ?? 0}
-            totalPages={pageData?.totalPages ?? 0}
-            startIndex={startIndex}
-            appliedTerm={appliedSearch}
-            onPageChange={setPage}
-            onResetQuery={handleResetQuery}
             onSelectProfile={setSelectedId}
             onOpenGraph={handleOpenGraph}
           />

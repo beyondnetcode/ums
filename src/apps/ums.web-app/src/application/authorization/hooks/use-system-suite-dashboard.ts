@@ -5,6 +5,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useGetAllSystemSuites } from '@app/authorization/hooks/use-system-suite';
 import { useLocalOverrides } from '@app/hooks/use-local-overrides';
 import { SystemSuite } from '@domain/authorization/models/system-suite.model';
+import { useQueryState } from '@app/shared/hooks/use-query-state';
+import { usePaginationState } from '@app/shared/hooks/use-pagination-state';
 import { SYSTEM_SUITE_PAGE_SIZE } from '@domain/authorization/constants/system-suite.constants';
 
 export interface SystemSuiteDashboardState {
@@ -14,14 +16,8 @@ export interface SystemSuiteDashboardState {
   isEditing: boolean;
   isCreateOpen: boolean;
   viewMode: 'list' | 'thumbnail';
-  searchCriteria: string;
-  searchValue: string;
-  appliedQuery: { criteria: string; term: string };
-  activeFilter: string;
-  sortBy: string;
-  sortOrder: 'asc' | 'desc';
-  page: number;
-  pageSize: number;
+  queryState: ReturnType<typeof useQueryState<string, string>>;
+  paginationState: ReturnType<typeof usePaginationState>;
 }
 
 export interface SystemSuiteDashboardActions {
@@ -31,19 +27,11 @@ export interface SystemSuiteDashboardActions {
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
   setIsCreateOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setViewMode: React.Dispatch<React.SetStateAction<'list' | 'thumbnail'>>;
-  setSearchCriteria: React.Dispatch<React.SetStateAction<string>>;
-  setSearchValue: React.Dispatch<React.SetStateAction<string>>;
-  setAppliedQuery: React.Dispatch<React.SetStateAction<{ criteria: string; term: string }>>;
-  setActiveFilter: React.Dispatch<React.SetStateAction<string>>;
-  setSortBy: React.Dispatch<React.SetStateAction<string>>;
-  setSortOrder: React.Dispatch<React.SetStateAction<'asc' | 'desc'>>;
-  setPage: React.Dispatch<React.SetStateAction<number>>;
+
   handleSelectSystemSuite: (id: string) => void;
   confirmDiscard: () => void;
   patchSystemSuite: (id: string, patch: Partial<SystemSuite>) => void;
   handleCreateSuccess: () => void;
-  handleQuerySubmit: (e: React.FormEvent) => void;
-  handleResetQuery: () => void;
 }
 
 export function useSystemSuiteDashboard(): SystemSuiteDashboardState & SystemSuiteDashboardActions & {
@@ -61,23 +49,27 @@ export function useSystemSuiteDashboard(): SystemSuiteDashboardState & SystemSui
   const [isEditing, setIsEditing] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('list');
-  const [searchCriteria, setSearchCriteria] = useState('name');
-  const [searchValue, setSearchValue] = useState('');
-  const [appliedQuery, setAppliedQuery] = useState<{ criteria: string; term: string }>({ criteria: 'name', term: '' });
-  const [activeFilter, setActiveFilter] = useState('all');
-  const [sortBy, setSortBy] = useState('name');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  const [page, setPage] = useState(1);
-  const pageSize = SYSTEM_SUITE_PAGE_SIZE;
+
+  const queryState = useQueryState({
+    criteria: 'name',
+    filter: 'all',
+    sortBy: 'name',
+  });
+
+  const paginationState = usePaginationState({
+    initialPageSize: SYSTEM_SUITE_PAGE_SIZE,
+  });
+
+  const pageSize = paginationState.pageSize;
 
   const { data: systemSuitePage, isLoading: isLoadingList, error: listError } = useGetAllSystemSuites({
-    page,
-    pageSize,
-    search: appliedQuery.term,
-    criteria: appliedQuery.criteria,
-    status: activeFilter,
-    sortBy,
-    sortOrder,
+    page: paginationState.page,
+    pageSize: paginationState.pageSize,
+    search: queryState.appliedQuery.term,
+    criteria: queryState.appliedQuery.criteria,
+    status: queryState.activeFilter,
+    sortBy: queryState.sortBy,
+    sortOrder: queryState.sortOrder,
   });
 
   const { items: knownSystemSuites, patchItem: patchLocalSystemSuite } = useLocalOverrides<SystemSuite>(
@@ -122,24 +114,11 @@ export function useSystemSuiteDashboard(): SystemSuiteDashboardState & SystemSui
   }, [patchLocalSystemSuite]);
 
   const handleCreateSuccess = useCallback(() => {
-    setPage(1);
-    setAppliedQuery({ criteria: 'name', term: '' });
-    setSearchValue('');
+    paginationState.setPage(1);
+    queryState.setSearchValue('');
+    queryState.handleResetQuery();
     setIsCreateOpen(false);
-  }, []);
-
-  const handleQuerySubmit = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-    setPage(1);
-    if (searchCriteria === 'id' && searchValue.trim()) handleSelectSystemSuite(searchValue.trim());
-    setAppliedQuery({ criteria: searchCriteria, term: searchValue });
-  }, [searchCriteria, searchValue, handleSelectSystemSuite]);
-
-  const handleResetQuery = useCallback(() => {
-    setSearchValue('');
-    setAppliedQuery({ criteria: 'name', term: '' });
-    setPage(1);
-  }, []);
+  }, [paginationState, queryState]);
 
   const totalItems = systemSuitePage?.totalItems ?? 0;
   const totalPages = systemSuitePage?.totalPages ?? 0;
@@ -152,20 +131,12 @@ export function useSystemSuiteDashboard(): SystemSuiteDashboardState & SystemSui
     isEditing, setIsEditing,
     isCreateOpen, setIsCreateOpen,
     viewMode, setViewMode,
-    searchCriteria, setSearchCriteria,
-    searchValue, setSearchValue,
-    appliedQuery, setAppliedQuery,
-    activeFilter, setActiveFilter,
-    sortBy, setSortBy,
-    sortOrder, setSortOrder,
-    page, setPage,
-    pageSize,
+    queryState,
+    paginationState,
     handleSelectSystemSuite,
     confirmDiscard,
     patchSystemSuite,
     handleCreateSuccess,
-    handleQuerySubmit,
-    handleResetQuery,
     knownSystemSuites,
     isLoadingList,
     listError,

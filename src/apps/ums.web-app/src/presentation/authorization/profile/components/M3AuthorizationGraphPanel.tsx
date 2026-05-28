@@ -41,7 +41,7 @@ export const M3AuthorizationGraphPanel: React.FC<Props> = ({ isOpen, onClose, pr
         } else {
           setContent(res);
         }
-      } catch (err: any) {
+      } catch {
         setError('Error al generar el grafo en el servidor.');
       } finally {
         setLoading(false);

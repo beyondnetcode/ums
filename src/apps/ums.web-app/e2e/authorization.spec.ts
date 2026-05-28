@@ -11,12 +11,12 @@ test.describe('Authorization Flow', () => {
     await expect(page.getByLabel(/password/i)).toBeVisible();
   });
 
-  test('should navigate to tenants after login', async ({ page }) => {
+  test('should navigate to tenants after login', async () => {
     // TODO: Implement with real auth flow
     test.skip();
   });
 
-  test('should display authorization nav items', async ({ page }) => {
+  test('should display authorization nav items', async () => {
     // TODO: Verify Tenants, Users, Delegations appear in sidebar
     test.skip();
   });

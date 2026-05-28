@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useGetDelegationsByDelegatedAdmin, useGetDelegationsByDelegatingAdmin } from './use-delegation';
 import { Delegation } from '@domain/identity/models/delegation.model';
 import { useLocalOverrides } from '@app/hooks/use-local-overrides';
+import { useQueryState } from '@app/shared/hooks/use-query-state';
+import { usePaginationState } from '@app/shared/hooks/use-pagination-state';
 
 export type DelegationViewType = 'received' | 'granted';
 
@@ -17,14 +19,8 @@ export interface DelegationDashboardState {
   isEditing: boolean;
   isCreateOpen: boolean;
   viewMode: 'list' | 'thumbnail';
-  searchCriteria: string;
-  searchValue: string;
-  appliedQuery: { criteria: string; term: string };
-  activeFilter: string;
-  sortBy: string;
-  sortOrder: 'asc' | 'desc';
-  page: number;
-  pageSize: number;
+  queryState: ReturnType<typeof useQueryState<string, string>>;
+  paginationState: ReturnType<typeof usePaginationState>;
   delegationViewType: DelegationViewType;
 }
 
@@ -36,20 +32,12 @@ export interface DelegationDashboardActions {
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
   setIsCreateOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setViewMode: React.Dispatch<React.SetStateAction<'list' | 'thumbnail'>>;
-  setSearchCriteria: React.Dispatch<React.SetStateAction<string>>;
-  setSearchValue: React.Dispatch<React.SetStateAction<string>>;
-  setAppliedQuery: React.Dispatch<React.SetStateAction<{ criteria: string; term: string }>>;
-  setActiveFilter: React.Dispatch<React.SetStateAction<string>>;
-  setSortBy: React.Dispatch<React.SetStateAction<string>>;
-  setSortOrder: React.Dispatch<React.SetStateAction<'asc' | 'desc'>>;
-  setPage: React.Dispatch<React.SetStateAction<number>>;
   setDelegationViewType: React.Dispatch<React.SetStateAction<DelegationViewType>>;
   handleSelectDelegation: (id: string) => void;
   confirmDiscard: () => void;
   patchDelegation: (id: string, patch: Partial<Delegation>) => void;
   handleCreateSuccess: () => void;
-  handleQuerySubmit: (e: React.FormEvent) => void;
-  handleResetQuery: () => void;
+  handleCreateSuccess: () => void;
 }
 
 export function useDelegationDashboard(): DelegationDashboardState & DelegationDashboardActions & {
@@ -71,16 +59,20 @@ export function useDelegationDashboard(): DelegationDashboardState & DelegationD
   const [isEditing, setIsEditing] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('list');
-  const [searchCriteria, setSearchCriteria] = useState('id');
-  const [searchValue, setSearchValue] = useState('');
-  const [appliedQuery, setAppliedQuery] = useState<{ criteria: string; term: string }>({ criteria: 'id', term: '' });
-  const [activeFilter, setActiveFilter] = useState('all');
-  const [sortBy, setSortBy] = useState('status');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  const [page, setPage] = useState(1);
+  const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('list');
   const [delegationViewType, setDelegationViewType] = useState<DelegationViewType>('received');
-  
-  const pageSize = 2;
+
+  const queryState = useQueryState({
+    criteria: 'id',
+    filter: 'all',
+    sortBy: 'status',
+  });
+
+  const paginationState = usePaginationState({
+    initialPageSize: 2,
+  });
+
+  const pageSize = paginationState.pageSize;
 
   const receivedQuery = useGetDelegationsByDelegatedAdmin(CURRENT_USER_ID, CURRENT_TENANT_ID);
   const grantedQuery = useGetDelegationsByDelegatingAdmin(CURRENT_USER_ID, CURRENT_TENANT_ID);
@@ -92,15 +84,15 @@ export function useDelegationDashboard(): DelegationDashboardState & DelegationD
   // but we provide the properties so the UI component works correctly.
   let filteredItems = activeQuery.data ?? [];
   
-  if (appliedQuery.term) {
-    const term = appliedQuery.term.toLowerCase();
+  if (queryState.appliedQuery.term) {
+    const term = queryState.appliedQuery.term.toLowerCase();
     filteredItems = filteredItems.filter(d => 
       d.delegationId.toLowerCase().includes(term) || d.scopeType.toLowerCase().includes(term)
     );
   }
 
-  if (activeFilter !== 'all') {
-    filteredItems = filteredItems.filter(d => d.status === activeFilter);
+  if (queryState.activeFilter !== 'all') {
+    filteredItems = filteredItems.filter(d => d.status === queryState.activeFilter);
   }
 
   const { items: knownDelegations, patchItem: patchLocalDelegation } = useLocalOverrides<Delegation>(
@@ -148,27 +140,14 @@ export function useDelegationDashboard(): DelegationDashboardState & DelegationD
   const handleCreateSuccess = useCallback(() => {
     setIsCreateOpen(false);
     setDelegationViewType('granted'); // Usually after creating, you want to see granted.
-    setPage(1);
-    setAppliedQuery({ criteria: 'id', term: '' });
-    setSearchValue('');
-  }, []);
-
-  const handleQuerySubmit = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-    setPage(1);
-    if (searchCriteria === 'id' && searchValue.trim()) handleSelectDelegation(searchValue.trim());
-    setAppliedQuery({ criteria: searchCriteria, term: searchValue });
-  }, [searchCriteria, searchValue, handleSelectDelegation]);
-
-  const handleResetQuery = useCallback(() => {
-    setSearchValue('');
-    setAppliedQuery({ criteria: 'id', term: '' });
-    setPage(1);
-  }, []);
+    paginationState.setPage(1);
+    queryState.setSearchValue('');
+    queryState.handleResetQuery();
+  }, [paginationState, queryState]);
 
   const totalItems = knownDelegations.length;
   const totalPages = Math.ceil(totalItems / pageSize) || 1;
-  const startIndex = (page - 1) * pageSize;
+  const startIndex = (paginationState.page - 1) * pageSize;
   
   // Paginate local array
   const paginatedDelegations = knownDelegations.slice(startIndex, startIndex + pageSize);
@@ -181,21 +160,13 @@ export function useDelegationDashboard(): DelegationDashboardState & DelegationD
     isEditing, setIsEditing,
     isCreateOpen, setIsCreateOpen,
     viewMode, setViewMode,
-    searchCriteria, setSearchCriteria,
-    searchValue, setSearchValue,
-    appliedQuery, setAppliedQuery,
-    activeFilter, setActiveFilter,
-    sortBy, setSortBy,
-    sortOrder, setSortOrder,
-    page, setPage,
-    pageSize,
+    queryState,
+    paginationState,
     delegationViewType, setDelegationViewType,
     handleSelectDelegation,
     confirmDiscard,
     patchDelegation,
     handleCreateSuccess,
-    handleQuerySubmit,
-    handleResetQuery,
     knownDelegations: paginatedDelegations,
     isLoadingList: activeQuery.isLoading,
     listError: activeQuery.error ?? null,

@@ -31,7 +31,6 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = React.memo(({
   onConfirm,
   onCancel,
   variant = 'primary',
-  isLoading = false,
 }) => {
   const confirmClass = variant === 'danger'
     ? 'bg-m3-error hover:bg-m3-error/90 text-m3-on-error border-0'

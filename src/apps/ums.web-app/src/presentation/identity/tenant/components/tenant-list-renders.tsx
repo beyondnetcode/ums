@@ -1,5 +1,5 @@
 import React from 'react';
-import { Building2, ArrowRight, ChevronRight, ChevronDown } from 'lucide-react';
+import { Building2, ArrowRight, ChevronRight } from 'lucide-react';
 import { Tenant } from '@domain/identity/models/tenant.model';
 import { M3Card } from '@shared/components/M3Card';
 import { StatusBadge } from '@shared/components/StatusBadge';
@@ -14,7 +14,7 @@ export const renderTenantParentRow = (
   onToggle: () => void,
   onSelectTenant: (id: string) => void,
   statusLabel: (status: string) => string,
-  _t: Record<string, string>
+
 ) => {
   const id = node.item.tenantId;
   const tenant = node.item;
@@ -64,7 +64,7 @@ export const renderTenantChildRow = (
   isChildSelected: boolean,
   onSelectTenant: (id: string) => void,
   statusLabel: (status: string) => string,
-  _t: Record<string, string>
+
 ) => {
   return (
     <EntityRow

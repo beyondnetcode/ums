@@ -8,7 +8,7 @@ import {
   type PermissionTemplateDetail,
 } from '@domain/authorization/models/permission-template.model';
 import { getHttpStatus } from '@app/errors/http-error';
-import { GraphQlUnavailableError, GraphQlValidationError } from '@infra/http/graphqlClient';
+import { GraphQlValidationError } from '@infra/http/graphqlClient';
 
 // ─── Query params ────────────────────────────────────────────────────────────
 

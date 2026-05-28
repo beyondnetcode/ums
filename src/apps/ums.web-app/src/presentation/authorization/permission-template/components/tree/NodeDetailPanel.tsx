@@ -1,6 +1,6 @@
 import React from 'react';
 import { UITreeNodeData, computeEffectiveState } from './TreeNode';
-import { Shield, ShieldAlert, CheckCircle2, XCircle, MinusCircle, Info } from 'lucide-react';
+import { Shield, CheckCircle2, XCircle, MinusCircle, Info } from 'lucide-react';
 import { useSetTemplateItemEffect, useRemoveTemplateItem, useAddTemplateItem } from '@app/authorization/hooks/use-permission-template';
 import type { SystemSuite } from '@domain/authorization/models/system-suite.model';
 import type { ExclusiveArcTarget } from '@domain/authorization/models/permission-template.model';

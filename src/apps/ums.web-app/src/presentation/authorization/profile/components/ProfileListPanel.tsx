@@ -1,8 +1,18 @@
 import React, { useCallback } from 'react';
-import { UserCheck, Share2 } from 'lucide-react';
+import { UserCheck, Share2, Info, LayoutList, LayoutGrid } from 'lucide-react';
 import { type Profile } from '@domain/authorization/schemas/profile.schema';
 import { StatusBadge } from '@shared/components/StatusBadge';
-import { M3DataView, FilterOption, SortOption } from '@shared/components/M3DataView';
+import {
+  DataViewShell,
+  SearchBar,
+  FilterPanel,
+  DataList,
+  AtomicFilterOption,
+  AtomicSortOption,
+  AtomicQueryCriteriaOption,
+} from '@shared/components';
+import { useQueryState } from '@app/shared/hooks/use-query-state';
+import { usePaginationState } from '@app/shared/hooks/use-pagination-state';
 import { EntityRow } from '@shared/components/EntityRow';
 import { EntityCard } from '@shared/components/EntityCard';
 import { ApiErrorBanner } from '@shared/components/ApiErrorBanner';
@@ -24,24 +34,9 @@ interface Props {
   error: Error | null;
   viewMode: 'list' | 'thumbnail';
   onViewModeChange: (m: 'list' | 'thumbnail') => void;
-  searchValue: string;
-  onSearchValueChange: (v: string) => void;
-  onSearchSubmit: (e: React.FormEvent) => void;
+  queryState: ReturnType<typeof useQueryState<string, string>>;
+  paginationState: ReturnType<typeof usePaginationState> & { totalItems: number; totalPages: number };
   onRegisterNew: () => void;
-  activeFilter: string;
-  onFilterChange: (v: string) => void;
-  sortBy: string;
-  onSortByChange: (v: string) => void;
-  sortOrder: 'asc' | 'desc';
-  onSortOrderToggle: () => void;
-  page: number;
-  pageSize: number;
-  totalItems: number;
-  totalPages: number;
-  startIndex: number;
-  appliedTerm: string;
-  onPageChange: (p: number) => void;
-  onResetQuery: () => void;
   onSelectProfile: (id: string) => void;
   onOpenGraph: (id: string) => void;
 }
@@ -49,20 +44,21 @@ interface Props {
 export const ProfileListPanel: React.FC<Props> = ({
   profiles, selectedId, isLoading, error,
   viewMode, onViewModeChange,
-  searchValue, onSearchValueChange, onSearchSubmit,
-  onRegisterNew, activeFilter, onFilterChange,
-  sortBy, onSortByChange, sortOrder, onSortOrderToggle,
-  page, pageSize, totalItems, totalPages, startIndex,
-  appliedTerm, onPageChange, onResetQuery, onSelectProfile, onOpenGraph,
+  queryState, paginationState,
+  onRegisterNew, onSelectProfile, onOpenGraph,
 }) => {
 
-  const filterOptions: FilterOption[] = [
+  const criteriaOptions: AtomicQueryCriteriaOption[] = [
+    { label: 'Por Usuario', value: 'userId' },
+  ];
+
+  const filterOptions: AtomicFilterOption[] = [
     { label: 'Todos', value: 'all' },
     { label: 'Activos', value: 'active' },
     { label: 'Inactivos', value: 'inactive' },
   ];
 
-  const sortOptions: SortOption[] = [
+  const sortOptions: AtomicSortOption[] = [
     { label: 'Usuario', value: 'userId' },
     { label: 'Alcance', value: 'scope' },
   ];
@@ -168,46 +164,94 @@ export const ProfileListPanel: React.FC<Props> = ({
     );
   }, [selectedId, onSelectProfile, onOpenGraph]);
 
-  const pagination = totalItems > 0 ? {
-    page, pageSize, totalItems, totalPages, startIndex,
-    onPageChange,
+  const pagination = paginationState.totalPages > 0 ? {
+    page: paginationState.page,
+    pageSize: paginationState.pageSize,
+    totalItems: paginationState.totalItems,
+    totalPages: paginationState.totalPages,
+    onPageChange: paginationState.handlePageChange ?? paginationState.setPage,
   } : undefined;
+
+  const totalItems = paginationState.totalItems;
+  const startIndex = paginationState.startIndex ?? 0;
+  const pageSize = paginationState.pageSize;
+
+  const footerTelemetry = (
+    <div className="flex items-center gap-3">
+      <div className="flex items-center gap-1.5">
+        <span className="h-2 w-2 rounded-full bg-m3-primary animate-pulse" />
+        <span className="text-xs font-medium text-m3-secondary/80">
+          Mostrando {totalItems === 0 ? 0 : startIndex + 1}-{Math.min(startIndex + pageSize, totalItems)} de {totalItems} perfiles
+        </span>
+      </div>
+      {queryState.appliedQuery.term.trim() && (
+        <button onClick={queryState.handleResetQuery} className="text-xs font-medium text-rose-500 hover:underline flex items-center gap-1">
+          <Info className="w-3 h-3" /> Limpiar filtros
+        </button>
+      )}
+    </div>
+  );
 
   return (
     <div className="h-full flex flex-col">
       {error && <ApiErrorBanner error={error} className="mb-2" />}
-      <M3DataView
-        isLoading={isLoading}
-        items={profiles}
-        viewMode={viewMode}
-        onViewModeChange={onViewModeChange}
-        searchValue={searchValue}
-        onSearchValueChange={onSearchValueChange}
-        onSearchSubmit={onSearchSubmit}
+      <DataViewShell
+        title="Perfiles"
+        subtitle="Mantenimiento y consulta de perfiles de autorización."
         onRegisterNew={onRegisterNew}
-        filterOptions={filterOptions}
-        activeFilter={activeFilter}
-        onFilterChange={onFilterChange}
-        sortOptions={sortOptions}
-        sortBy={sortBy}
-        onSortByChange={onSortByChange}
-        sortOrder={sortOrder}
-        onSortOrderToggle={onSortOrderToggle}
-        appliedTerm={appliedTerm}
-        onResetQuery={onResetQuery}
-        pagination={pagination}
-        emptyTitle="Sin perfiles de autorización"
-        emptyMessage="Registre el primer perfil efectivo para iniciar la asignación de accesos."
-        renderList={() => (
-          <div className="flex flex-col gap-0.5">
-            {profiles.map(renderRow)}
-          </div>
-        )}
-        renderThumbnail={() => (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {profiles.map(renderCard)}
-          </div>
-        )}
+        registerLabel="Nuevo Perfil"
+        controls={
+          <>
+            <SearchBar
+              criteriaOptions={criteriaOptions}
+              activeCriteria={queryState.searchCriteria}
+              onCriteriaChange={queryState.setSearchCriteria}
+              searchValue={queryState.searchValue}
+              onSearchValueChange={queryState.setSearchValue}
+              onSubmit={queryState.handleQuerySubmit}
+              criteriaLabel="Criterio"
+              searchTermLabel="Término"
+              searchButtonLabel="Buscar"
+            />
+            <FilterPanel
+              filterOptions={filterOptions}
+              activeFilter={queryState.activeFilter}
+              onFilterChange={queryState.setActiveFilter}
+              sortOptions={sortOptions}
+              sortBy={queryState.sortBy}
+              onSortByChange={queryState.setSortBy}
+              sortOrder={queryState.sortOrder}
+              onSortOrderToggle={queryState.toggleSortOrder}
+              viewModeOptions={[
+                { value: 'list', label: <LayoutList className="w-4 h-4" /> },
+                { value: 'thumbnail', label: <LayoutGrid className="w-4 h-4" /> }
+              ]}
+              viewMode={viewMode}
+              onViewModeChange={onViewModeChange}
+            />
+          </>
+        }
+        content={
+          <DataList
+            isLoading={isLoading}
+            isEmpty={totalItems === 0}
+            emptyTitle="Sin perfiles de autorización"
+            emptyLabel="Registre el primer perfil efectivo para iniciar la asignación de accesos."
+            viewMode={viewMode}
+            renderList={() => (
+              <div className="flex flex-col gap-0.5">
+                {profiles.map(renderRow)}
+              </div>
+            )}
+            renderThumbnail={() => (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {profiles.map(renderCard)}
+              </div>
+            )}
+            pagination={pagination}
+            footerElement={footerTelemetry}
+          />
+        }
       />
     </div>
   );

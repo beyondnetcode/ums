@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
 import {
-  Flag, Trash2, Plus, CheckCircle2, XCircle, Archive,
-  ToggleLeft, ToggleRight, Info, Layers,
+  Flag, Trash2, Plus, CheckCircle2, Archive,
+  ToggleLeft, ToggleRight, Info,
 } from 'lucide-react';
 import type { FeatureFlag, FeatureFlagCriteria } from '@domain/configuration/models/feature-flag.model';
 import {
   FLAG_TYPE_LABELS,
-  FLAG_STATUS_LABELS,
   CRITERIA_TYPE_LABELS,
   CRITERIA_OPERATOR_LABELS,
 } from '@domain/configuration/constants/feature-flag.constants';
-import { StatusBadge } from '@shared/components/StatusBadge';
+
 import { CodeBadge } from '@shared/components/CodeBadge';
 import { KeyValueRow } from '@shared/components/KeyValueRow';
 import { M3Button } from '@shared/components/M3Button';
@@ -25,7 +24,6 @@ import {
 
 interface Props {
   flag: FeatureFlag | undefined;
-  isLoading: boolean;
 }
 
 const STATUS_LABEL: Record<string, string> = {
@@ -34,11 +32,6 @@ const STATUS_LABEL: Record<string, string> = {
   Archived: 'Archivado',
 };
 
-const STATUS_COLOR_MAP = {
-  Active:   { bg: 'bg-emerald-500/10', border: 'border-emerald-500/25', text: 'text-emerald-500' },
-  Inactive: { bg: 'bg-amber-500/10',   border: 'border-amber-500/25',   text: 'text-amber-500' },
-  Archived: { bg: 'bg-rose-500/10',    border: 'border-rose-500/25',    text: 'text-rose-500' },
-};
 
 const TYPE_COLOR: Record<string, string> = {
   Boolean:    'bg-blue-500/10 text-blue-500',
@@ -78,7 +71,7 @@ const CriteriaRow: React.FC<{
   </div>
 );
 
-export const FeatureFlagDetailPanel: React.FC<Props> = ({ flag, isLoading }) => {
+export const FeatureFlagDetailPanel: React.FC<Props> = ({ flag }) => {
   const [criteriaType, setCriteriaType] = useState('TenantId');
   const [criteriaOperator, setCriteriaOperator] = useState('Equals');
   const [criteriaValue, setCriteriaValue] = useState('');
@@ -113,8 +106,8 @@ export const FeatureFlagDetailPanel: React.FC<Props> = ({ flag, isLoading }) => 
     if (!criteriaValue.trim()) { setCriteriaError('Valor requerido'); return; }
     try {
       await addCriteria.mutateAsync({
-        criteriaType: criteriaType as any,
-        operator: criteriaOperator as any,
+        criteriaType: criteriaType as FeatureFlagCriteria['criteriaType'],
+        operator: criteriaOperator as FeatureFlagCriteria['operator'],
         value: criteriaValue.trim(),
       });
       setCriteriaValue('');

@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Shield, ArrowRight, Info } from 'lucide-react';
+import { Shield, ArrowRight, Info, LayoutList, LayoutGrid } from 'lucide-react';
 import type { Delegation } from '@domain/identity/models/delegation.model';
 import { StatusBadge } from '@shared/components/StatusBadge';
 import { CodeBadge } from '@shared/components/CodeBadge';
@@ -7,11 +7,16 @@ import { EntityRow } from '@shared/components/EntityRow';
 import { useI18n } from '@app/i18n/use-i18n';
 import { useStatusLabel } from '@app/hooks/use-status-label';
 import {
-  M3DataView,
-  SortOption,
-  FilterOption,
-  QueryCriteriaOption,
-} from '@shared/components/M3DataView';
+  DataViewShell,
+  SearchBar,
+  FilterPanel,
+  DataList,
+  AtomicSortOption,
+  AtomicFilterOption,
+  AtomicQueryCriteriaOption,
+} from '@shared/components';
+import { useQueryState } from '@app/shared/hooks/use-query-state';
+import { usePaginationState } from '@app/shared/hooks/use-pagination-state';
 import { ApiErrorBanner } from '@shared/components/ApiErrorBanner';
 import { DelegationViewType } from '@app/identity/hooks/use-delegation-dashboard';
 import { Tooltip } from '@shared/components/Tooltip';
@@ -23,30 +28,13 @@ interface DelegationListPanelProps {
   error: Error | null;
   viewMode: 'list' | 'thumbnail';
   onViewModeChange: (mode: 'list' | 'thumbnail') => void;
-  searchCriteria: string;
-  onSearchCriteriaChange: (criteria: string) => void;
-  searchValue: string;
-  onSearchValueChange: (value: string) => void;
-  onSearchSubmit: (event: React.FormEvent) => void;
+  queryState: ReturnType<typeof useQueryState<string, string>>;
+  paginationState: ReturnType<typeof usePaginationState> & { totalItems: number; totalPages: number };
   onRegisterNew: () => void;
-  sortBy: string;
-  onSortByChange: (value: string) => void;
-  sortOrder: 'asc' | 'desc';
-  onSortOrderToggle: () => void;
-  activeFilter: string;
-  onFilterChange: (value: string) => void;
-  page: number;
-  pageSize: number;
-  totalItems: number;
-  totalPages: number;
-  startIndex: number;
-  appliedTerm: string;
-  onPageChange: (page: number) => void;
-  onResetQuery: () => void;
   onSelectDelegation: (delegationId: string) => void;
-  criteriaOptions: QueryCriteriaOption[];
-  filterOptions: FilterOption[];
-  sortOptions: SortOption[];
+  criteriaOptions: AtomicQueryCriteriaOption[];
+  filterOptions: AtomicFilterOption[];
+  sortOptions: AtomicSortOption[];
   delegationViewType: DelegationViewType;
   onDelegationViewTypeChange: (type: DelegationViewType) => void;
 }
@@ -58,26 +46,9 @@ export const DelegationListPanel: React.FC<DelegationListPanelProps> = ({
   error,
   viewMode,
   onViewModeChange,
-  searchCriteria,
-  onSearchCriteriaChange,
-  searchValue,
-  onSearchValueChange,
-  onSearchSubmit,
+  queryState,
+  paginationState,
   onRegisterNew,
-  sortBy,
-  onSortByChange,
-  sortOrder,
-  onSortOrderToggle,
-  activeFilter,
-  onFilterChange,
-  page,
-  pageSize,
-  totalItems,
-  totalPages,
-  startIndex,
-  appliedTerm,
-  onPageChange,
-  onResetQuery,
   onSelectDelegation,
   criteriaOptions,
   filterOptions,
@@ -146,6 +117,18 @@ export const DelegationListPanel: React.FC<DelegationListPanelProps> = ({
     );
   }, [selectedId, onSelectDelegation, getStatusLabel]);
 
+  const totalItems = paginationState.totalItems;
+  const startIndex = paginationState.startIndex ?? 0;
+  const pageSize = paginationState.pageSize;
+
+  const pagination = paginationState.totalPages > 0 ? {
+    page: paginationState.page,
+    pageSize: paginationState.pageSize,
+    totalItems: paginationState.totalItems,
+    totalPages: paginationState.totalPages,
+    onPageChange: paginationState.handlePageChange ?? paginationState.setPage,
+  } : undefined;
+
   const footerTelemetry = (
     <div className="flex items-center gap-3">
       <div className="flex items-center gap-1.5">
@@ -154,8 +137,8 @@ export const DelegationListPanel: React.FC<DelegationListPanelProps> = ({
           {t.showing ?? 'Showing'} {totalItems === 0 ? 0 : startIndex + 1}-{Math.min(startIndex + pageSize, totalItems)} {t.of ?? 'of'} {totalItems} Delegations
         </span>
       </div>
-      {appliedTerm.trim() && (
-        <button onClick={onResetQuery} className="text-xs font-medium text-rose-500 hover:underline flex items-center gap-1">
+      {queryState.appliedQuery.term.trim() && (
+        <button onClick={queryState.handleResetQuery} className="text-xs font-medium text-rose-500 hover:underline flex items-center gap-1">
           <Info className="w-3 h-3" /> {t.clearFilter ?? 'Clear Filters'}
         </button>
       )}
@@ -183,59 +166,71 @@ export const DelegationListPanel: React.FC<DelegationListPanelProps> = ({
         </Tooltip>
       </div>
       <div className="flex-1 min-h-0">
-        <M3DataView
+        <DataViewShell
           title={'Delegation Management'}
           subtitle={delegationViewType === 'received' ? 'Delegations granted to you' : 'Delegations you have granted to others'}
-          searchPlaceholder={t.searchPlaceholder ?? 'Search...'}
-          searchCriteria={criteriaOptions}
-          activeCriteria={searchCriteria}
-          onCriteriaChange={onSearchCriteriaChange}
-          searchValue={searchValue}
-          onSearchValueChange={onSearchValueChange}
-          onSearchSubmit={onSearchSubmit}
           onRegisterNew={onRegisterNew}
           registerLabel={t.newBtn ?? 'New'}
-          viewMode={viewMode}
-          onViewModeChange={onViewModeChange}
-          sortOptions={sortOptions}
-          sortBy={sortBy}
-          onSortByChange={onSortByChange}
-          sortOrder={sortOrder}
-          onSortOrderToggle={onSortOrderToggle}
-          filterOptions={filterOptions}
-          activeFilter={activeFilter}
-          onFilterChange={onFilterChange}
-          isLoading={isLoading}
-          isEmpty={totalItems === 0}
-          emptyLabel={t.noRecords ?? 'No records found'}
-          emptyTitle={t.dataViewEmptyTitle ?? 'No Results'}
-          emptyTooltip={delegationViewType === 'received' 
-            ? 'Es posible que no tengas delegaciones recibidas o que hayan expirado/sido revocadas. Revisa también tus delegaciones otorgadas.'
-            : 'Aún no has otorgado ninguna delegación a otros usuarios o las que otorgaste expiraron y se depuraron.'}
-          loadingLabel={t.dataViewLoading ?? 'Loading...'}
-          criteriaLabel={t.dataViewCriteriaLabel ?? 'Search by'}
-          searchTermLabel={t.dataViewSearchTermLabel ?? 'Search term'}
-          searchButtonLabel={t.dataViewSearchBtn ?? 'Search'}
-          renderList={() => (
+          controls={
             <>
-              {error && <ApiErrorBanner error={error} />}
-              <div className="overflow-x-auto border border-m3-outline/25 rounded-xl bg-m3-surface-container/20">
-                <div className="flex flex-col gap-0.5 text-sm p-1">
-                  {delegations.map(renderDelegationRow)}
-                </div>
-              </div>
+              <SearchBar
+                criteriaOptions={criteriaOptions}
+                activeCriteria={queryState.searchCriteria}
+                onCriteriaChange={queryState.setSearchCriteria}
+                searchValue={queryState.searchValue}
+                onSearchValueChange={queryState.setSearchValue}
+                onSubmit={queryState.handleQuerySubmit}
+                criteriaLabel={t.dataViewCriteriaLabel ?? 'Search by'}
+                searchTermLabel={t.dataViewSearchTermLabel ?? 'Search term'}
+                searchButtonLabel={t.dataViewSearchBtn ?? 'Search'}
+              />
+              <FilterPanel
+                filterOptions={filterOptions}
+                activeFilter={queryState.activeFilter}
+                onFilterChange={queryState.setActiveFilter}
+                sortOptions={sortOptions}
+                sortBy={queryState.sortBy}
+                onSortByChange={queryState.setSortBy}
+                sortOrder={queryState.sortOrder}
+                onSortOrderToggle={queryState.toggleSortOrder}
+                viewModeOptions={[
+                  { value: 'list', label: <LayoutList className="w-4 h-4" /> },
+                  { value: 'thumbnail', label: <LayoutGrid className="w-4 h-4" /> }
+                ]}
+                viewMode={viewMode}
+                onViewModeChange={onViewModeChange}
+              />
             </>
-          )}
-          renderThumbnail={() => (
-            <>
-              {error && <ApiErrorBanner error={error} />}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {delegations.map(renderDelegationCard)}
-              </div>
-            </>
-          )}
-          pagination={{ page, pageSize, totalItems, totalPages, onPageChange }}
-          telemetryInfo={footerTelemetry}
+          }
+          content={
+            <DataList
+              isLoading={isLoading}
+              isEmpty={totalItems === 0}
+              emptyLabel={t.noRecords ?? 'No records found'}
+              emptyTitle={t.dataViewEmptyTitle ?? 'No Results'}
+              viewMode={viewMode}
+              renderList={() => (
+                <>
+                  {error && <ApiErrorBanner error={error} />}
+                  <div className="overflow-x-auto border border-m3-outline/25 rounded-xl bg-m3-surface-container/20">
+                    <div className="flex flex-col gap-0.5 text-sm p-1">
+                      {delegations.map(renderDelegationRow)}
+                    </div>
+                  </div>
+                </>
+              )}
+              renderThumbnail={() => (
+                <>
+                  {error && <ApiErrorBanner error={error} />}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {delegations.map(renderDelegationCard)}
+                  </div>
+                </>
+              )}
+              pagination={pagination}
+              footerElement={footerTelemetry}
+            />
+          }
         />
       </div>
     </div>

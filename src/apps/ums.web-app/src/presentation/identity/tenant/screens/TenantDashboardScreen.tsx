@@ -56,26 +56,13 @@ export default function TenantDashboardScreen(): React.JSX.Element {
             error={dashboard.listError}
             viewMode={dashboard.viewMode}
             onViewModeChange={dashboard.setViewMode}
-            searchCriteria={dashboard.searchCriteria}
-            onSearchCriteriaChange={dashboard.setSearchCriteria}
-            searchValue={dashboard.searchValue}
-            onSearchValueChange={dashboard.setSearchValue}
-            onSearchSubmit={dashboard.handleQuerySubmit}
+            queryState={dashboard.queryState}
+            paginationState={{
+              ...dashboard.paginationState,
+              totalItems: dashboard.totalItems,
+              totalPages: dashboard.totalPages,
+            }}
             onRegisterNew={() => dashboard.setIsCreateOpen(true)}
-            sortBy={dashboard.sortBy}
-            onSortByChange={dashboard.setSortBy}
-            sortOrder={dashboard.sortOrder}
-            onSortOrderToggle={() => dashboard.setSortOrder((o) => o === 'asc' ? 'desc' : 'asc')}
-            activeFilter={dashboard.activeFilter}
-            onFilterChange={(val) => { dashboard.setActiveFilter(val); dashboard.setPage(1); }}
-            page={dashboard.page}
-            pageSize={dashboard.pageSize}
-            totalItems={dashboard.totalItems}
-            totalPages={dashboard.totalPages}
-            startIndex={dashboard.startIndex}
-            appliedTerm={dashboard.appliedQuery.term}
-            onPageChange={dashboard.setPage}
-            onResetQuery={dashboard.handleResetQuery}
             onSelectTenant={dashboard.handleSelectTenant}
             criteriaOptions={criteriaOptions}
             filterOptions={filterOptions}

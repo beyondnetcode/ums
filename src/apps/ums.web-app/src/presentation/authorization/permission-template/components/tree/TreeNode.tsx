@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ChevronRight, ChevronDown, CheckCircle2, XCircle, MinusCircle } from 'lucide-react';
 import type { PermissionTemplateItem } from '@domain/authorization/models/permission-template.model';
 import { itemEffect } from '@domain/authorization/models/permission-template.model';

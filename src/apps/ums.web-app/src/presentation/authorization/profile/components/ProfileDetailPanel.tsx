@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Shield, ShieldAlert, ShieldCheck, ToggleLeft, ToggleRight, User, Key, Globe, Info, Loader2 } from 'lucide-react';
+import { Shield, ShieldAlert, ShieldCheck, ToggleLeft, ToggleRight, User } from 'lucide-react';
 import { type Profile } from '@domain/authorization/schemas/profile.schema';
 import { M3SegmentedButton } from '@shared/components/M3SegmentedButton';
-import { M3Button } from '@shared/components/M3Button';
+import { M3Button, M3Skeleton, M3SkeletonRow, M3Tabs } from '@shared/components';
 import { DetailPanelShell } from '@shared/components';
+import { LayoutGrid, Database, Zap } from 'lucide-react';
 import { useOverrideProfilePermission, useActivateProfilePermission, useDeactivateProfilePermission, useActivateProfile, useDeactivateProfile } from '@app/authorization/hooks/use-profile';
 
 interface Props {
@@ -24,9 +25,19 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
 
   if (isLoading) {
     return (
-      <div className="h-full flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-m3-primary" />
-      </div>
+      <DetailPanelShell title="Cargando perfil..." subtitle="Recuperando estado efectivo">
+        <div className="flex flex-col space-y-6 p-4">
+          <div className="flex justify-center mb-2">
+            <M3Skeleton variant="rectangular" width={240} height={32} className="rounded-full" />
+          </div>
+          <div className="space-y-4">
+            <M3SkeletonRow />
+            <M3SkeletonRow />
+            <M3SkeletonRow />
+            <M3SkeletonRow />
+          </div>
+        </div>
+      </DetailPanelShell>
     );
   }
 
@@ -59,6 +70,85 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
   const handleChangePermissionEffect = async (permissionId: string, newEffect: 'allow' | 'deny' | 'neutral') => {
     await overrideMutation.mutateAsync({ profileId: profile.profileId, permissionId, effect: newEffect });
   };
+
+  const renderPermissionRow = (p: {
+    permissionId: string;
+    targetName: string;
+    targetType: string;
+    isOverride: boolean;
+    actionName: string;
+    isAllowed: boolean;
+    isDenied: boolean;
+    isActive: boolean;
+  }) => (
+    <div key={p.permissionId} className="flex flex-col md:flex-row md:items-center justify-between gap-3 p-3 text-xs hover:bg-m3-surface-container/20 transition-colors">
+      <div className="space-y-0.5">
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="font-bold text-m3-on-surface">{p.targetName}</span>
+          <span className="text-[9px] uppercase font-bold text-m3-primary bg-m3-primary/10 px-1.5 py-0.2 rounded border border-m3-primary/20">
+            {p.targetType}
+          </span>
+          {p.isOverride && (
+            <span className="text-[8px] uppercase font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.2 rounded border border-amber-500/20">
+              Override
+            </span>
+          )}
+        </div>
+        <div className="text-[10px] text-m3-on-surface/60">
+          Acción: <span className="font-medium text-m3-secondary">{p.actionName}</span>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-4 self-end md:self-auto">
+        {/* Interactive Allow/Deny Selector in DB */}
+        <div className="flex items-center bg-m3-surface-container/60 rounded-lg p-0.5 border border-m3-outline/20">
+          <button
+            type="button"
+            onClick={() => handleChangePermissionEffect(p.permissionId, 'allow')}
+            disabled={overrideMutation.isPending}
+            className={`px-2 py-1 rounded-md text-[9px] font-bold transition-all ${p.isAllowed ? 'bg-emerald-500 text-white' : 'text-m3-on-surface/60 hover:text-m3-on-surface'}`}
+          >
+            <ShieldCheck className="w-3 h-3 inline mr-0.5" />
+            Allow
+          </button>
+          <button
+            type="button"
+            onClick={() => handleChangePermissionEffect(p.permissionId, 'neutral')}
+            disabled={overrideMutation.isPending}
+            className={`px-2 py-1 rounded-md text-[9px] font-bold transition-all ${!p.isAllowed && !p.isDenied ? 'bg-m3-outline/30 text-m3-on-surface' : 'text-m3-on-surface/60 hover:text-m3-on-surface'}`}
+          >
+            <Shield className="w-3 h-3 inline mr-0.5" />
+            Neutral
+          </button>
+          <button
+            type="button"
+            onClick={() => handleChangePermissionEffect(p.permissionId, 'deny')}
+            disabled={overrideMutation.isPending}
+            className={`px-2 py-1 rounded-md text-[9px] font-bold transition-all ${p.isDenied ? 'bg-rose-500 text-white' : 'text-m3-on-surface/60 hover:text-m3-on-surface'}`}
+          >
+            <ShieldAlert className="w-3 h-3 inline mr-0.5" />
+            Deny
+          </button>
+        </div>
+
+        {/* Interactive Toggle Switch in DB */}
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => handleTogglePermissionActive(p.permissionId, p.isActive)}
+            disabled={activatePermMutation.isPending || deactivatePermMutation.isPending}
+            className="text-m3-primary hover:opacity-85 transition-opacity focus:outline-none"
+          >
+            {p.isActive ? (
+              <ToggleRight className="w-6 h-6 text-emerald-500 fill-emerald-500/20" />
+            ) : (
+              <ToggleLeft className="w-6 h-6 text-m3-outline" />
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <DetailPanelShell
@@ -150,76 +240,50 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                   Ningún permiso materializado. Asocie una plantilla primero.
                 </div>
               ) : (
-                <div className="rounded-xl border border-m3-outline/10 bg-m3-surface-container/10 overflow-hidden divide-y divide-m3-outline/5">
-                  {profile.permissions.map((p) => (
-                    <div key={p.permissionId} className="flex flex-col md:flex-row md:items-center justify-between gap-3 p-3 text-xs hover:bg-m3-surface-container/20 transition-colors">
-                      <div className="space-y-0.5">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="font-bold text-m3-on-surface">{p.targetName}</span>
-                          <span className="text-[9px] uppercase font-bold text-m3-primary bg-m3-primary/10 px-1.5 py-0.2 rounded border border-m3-primary/20">
-                            {p.targetType}
-                          </span>
-                          {p.isOverride && (
-                            <span className="text-[8px] uppercase font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.2 rounded border border-amber-500/20">
-                              Override
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-[10px] text-m3-on-surface/60">
-                          Acción: <span className="font-medium text-m3-secondary">{p.actionName}</span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-4 self-end md:self-auto">
-                        {/* Interactive Allow/Deny Selector in DB */}
-                        <div className="flex items-center bg-m3-surface-container/60 rounded-lg p-0.5 border border-m3-outline/20">
-                          <button
-                            type="button"
-                            onClick={() => handleChangePermissionEffect(p.permissionId, 'allow')}
-                            disabled={overrideMutation.isPending}
-                            className={`px-2 py-1 rounded-md text-[9px] font-bold transition-all ${p.isAllowed ? 'bg-emerald-500 text-white' : 'text-m3-on-surface/60 hover:text-m3-on-surface'}`}
-                          >
-                            <ShieldCheck className="w-3 h-3 inline mr-0.5" />
-                            Allow
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleChangePermissionEffect(p.permissionId, 'neutral')}
-                            disabled={overrideMutation.isPending}
-                            className={`px-2 py-1 rounded-md text-[9px] font-bold transition-all ${!p.isAllowed && !p.isDenied ? 'bg-m3-outline/30 text-m3-on-surface' : 'text-m3-on-surface/60 hover:text-m3-on-surface'}`}
-                          >
-                            <Shield className="w-3 h-3 inline mr-0.5" />
-                            Neutral
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleChangePermissionEffect(p.permissionId, 'deny')}
-                            disabled={overrideMutation.isPending}
-                            className={`px-2 py-1 rounded-md text-[9px] font-bold transition-all ${p.isDenied ? 'bg-rose-500 text-white' : 'text-m3-on-surface/60 hover:text-m3-on-surface'}`}
-                          >
-                            <ShieldAlert className="w-3 h-3 inline mr-0.5" />
-                            Deny
-                          </button>
-                        </div>
-
-                        {/* Interactive Toggle Switch in DB */}
-                        <div className="flex items-center gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => handleTogglePermissionActive(p.permissionId, p.isActive)}
-                            disabled={activatePermMutation.isPending || deactivatePermMutation.isPending}
-                            className="text-m3-primary hover:opacity-85 transition-opacity focus:outline-none"
-                          >
-                            {p.isActive ? (
-                              <ToggleRight className="w-6 h-6 text-emerald-500 fill-emerald-500/20" />
-                            ) : (
-                              <ToggleLeft className="w-6 h-6 text-m3-outline" />
+                <div className="flex flex-col h-full min-h-[400px]">
+                  <M3Tabs
+                    tabs={[
+                      {
+                        id: 'modules',
+                        label: 'Navegación',
+                        icon: <LayoutGrid className="w-4 h-4" />,
+                        content: (
+                          <div className="rounded-xl border border-m3-outline/10 bg-m3-surface-container/10 overflow-hidden divide-y divide-m3-outline/5">
+                            {profile.permissions.filter(p => ['Module', 'SubModule', 'Page'].includes(p.targetType)).length === 0 && (
+                              <div className="py-6 text-center text-xs text-m3-on-surface/50">No hay permisos de este tipo.</div>
                             )}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                            {profile.permissions.filter(p => ['Module', 'SubModule', 'Page'].includes(p.targetType)).map((p) => renderPermissionRow(p))}
+                          </div>
+                        )
+                      },
+                      {
+                        id: 'domain',
+                        label: 'Recursos',
+                        icon: <Database className="w-4 h-4" />,
+                        content: (
+                          <div className="rounded-xl border border-m3-outline/10 bg-m3-surface-container/10 overflow-hidden divide-y divide-m3-outline/5">
+                            {profile.permissions.filter(p => p.targetType === 'DomainResource').length === 0 && (
+                              <div className="py-6 text-center text-xs text-m3-on-surface/50">No hay permisos de este tipo.</div>
+                            )}
+                            {profile.permissions.filter(p => p.targetType === 'DomainResource').map((p) => renderPermissionRow(p))}
+                          </div>
+                        )
+                      },
+                      {
+                        id: 'system',
+                        label: 'Acciones del Sistema',
+                        icon: <Zap className="w-4 h-4" />,
+                        content: (
+                          <div className="rounded-xl border border-m3-outline/10 bg-m3-surface-container/10 overflow-hidden divide-y divide-m3-outline/5">
+                            {profile.permissions.filter(p => p.targetType === 'SystemAction').length === 0 && (
+                              <div className="py-6 text-center text-xs text-m3-on-surface/50">No hay permisos de este tipo.</div>
+                            )}
+                            {profile.permissions.filter(p => p.targetType === 'SystemAction').map((p) => renderPermissionRow(p))}
+                          </div>
+                        )
+                      }
+                    ]}
+                  />
                 </div>
               )}
             </div>

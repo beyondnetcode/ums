@@ -11,7 +11,6 @@ import {
   PermissionTemplatePageSchema,
   PermissionTemplateDetailSchema,
   CreatePermissionTemplateResponseSchema,
-  type PermissionTemplate,
   type PermissionTemplatePage,
   type PermissionTemplateDetail,
   type CreatePermissionTemplatePayload,

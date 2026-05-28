@@ -50,7 +50,7 @@ export const useGetDelegation = (delegationId: string | null) => {
 export const useGetDelegationsByDelegatedAdmin = (delegatedAdminId: string | null, tenantId: string | null) => {
   return useQuery<Delegation[]>({
     queryKey: ['delegations', 'by-delegated-admin', delegatedAdminId, tenantId],
-    queryFn: () => delegationService.getDelegationsByDelegatedAdmin(delegatedAdminId!, tenantId!),
+    queryFn: () => delegationService.getDelegationsByDelegatedAdmin(delegatedAdminId as string, tenantId as string),
     enabled: !!delegatedAdminId && !!tenantId,
     staleTime: 30_000,
     retry: (failureCount, error: unknown) => {
@@ -64,7 +64,7 @@ export const useGetDelegationsByDelegatedAdmin = (delegatedAdminId: string | nul
 export const useGetDelegationsByDelegatingAdmin = (delegatingAdminId: string | null, tenantId: string | null) => {
   return useQuery<Delegation[]>({
     queryKey: ['delegations', 'by-delegating-admin', delegatingAdminId, tenantId],
-    queryFn: () => delegationService.getDelegationsByDelegatingAdmin(delegatingAdminId!, tenantId!),
+    queryFn: () => delegationService.getDelegationsByDelegatingAdmin(delegatingAdminId as string, tenantId as string),
     enabled: !!delegatingAdminId && !!tenantId,
     staleTime: 30_000,
     retry: (failureCount, error: unknown) => {

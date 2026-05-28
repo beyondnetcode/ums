@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import type { SystemSuite } from '@domain/authorization/models/system-suite.model';
 import type { PermissionTemplateItem } from '@domain/authorization/models/permission-template.model';
-import { TreeNode, UITreeNodeData, computeEffectiveState } from './TreeNode';
+import { TreeNode, UITreeNodeData } from './TreeNode';
 import { Search, FolderOpen, FolderClosed } from 'lucide-react';
 
 interface PermissionTreeProps {

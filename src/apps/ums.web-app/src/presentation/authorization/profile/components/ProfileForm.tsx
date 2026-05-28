@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { UserCheck, ShieldAlert, Shield, ShieldCheck, ToggleLeft, ToggleRight, Loader2 } from 'lucide-react';
-import { M3Button } from '@shared/components/M3Button';
+import { UserCheck, ShieldAlert, Shield, ShieldCheck, ToggleLeft, ToggleRight, Loader2, LayoutGrid, Database, Zap } from 'lucide-react';
+import { M3Button, M3Select, M3Tabs } from '@shared/components';
 import { M3FormDialog } from '@shared/components/M3FormDialog';
 import { useGetAllTenants } from '@app/identity/hooks/use-tenant';
 import { useGetAllUserAccounts } from '@app/identity/hooks/use-user-account';
@@ -35,26 +35,23 @@ interface SelectProps {
   options: { value: string; label: string }[];
   disabled?: boolean;
   required?: boolean;
+  error?: string;
 }
 
-const FieldSelect: React.FC<SelectProps> = ({ label, value, onChange, options, disabled, required }) => (
-  <div className="flex flex-col gap-1">
-    <label className="text-xs font-medium text-m3-on-surface/70">
-      {label}{required && <span className="text-m3-error ml-0.5">*</span>}
-    </label>
-    <select
-      value={value}
-      onChange={e => onChange(e.target.value)}
-      disabled={disabled}
-      required={required}
-      className="w-full rounded-lg border border-m3-outline/40 bg-m3-surface-container/40 px-3 py-2 text-sm text-m3-on-surface focus:outline-none focus:ring-2 focus:ring-m3-primary/40 focus:border-m3-primary disabled:opacity-50 disabled:cursor-not-allowed"
-    >
-      <option value="">— Seleccionar —</option>
-      {options.map(o => (
-        <option key={o.value} value={o.value}>{o.label}</option>
-      ))}
-    </select>
-  </div>
+const FieldSelect: React.FC<SelectProps> = ({ label, value, onChange, options, disabled, required, error }) => (
+  <M3Select
+    label={label}
+    value={value}
+    onChange={e => onChange(e.target.value)}
+    disabled={disabled}
+    required={required}
+    error={error}
+  >
+    <option value="">— Seleccionar —</option>
+    {options.map(o => (
+      <option key={o.value} value={o.value}>{o.label}</option>
+    ))}
+  </M3Select>
 );
 
 export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
@@ -191,13 +188,84 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => 
       }
 
       onSuccess(profileId);
-    } catch (err: any) {
+    } catch (err: unknown) {
       logger.error('Error persisting profile authorizations', err);
-      setError(err?.message || 'Error al persistir el perfil. Intente nuevamente.');
+      setError((err as Error)?.message || 'Error al persistir el perfil. Intente nuevamente.');
     } finally {
       setSaving(false);
     }
   };
+
+  const renderPermissionList = (items: { p: LocalPermissionState; idx: number }[]) => (
+    <div className="divide-y divide-m3-outline/5 h-full overflow-y-auto px-1">
+      {items.length === 0 && (
+        <div className="py-6 text-center text-xs text-m3-on-surface/50">No hay permisos de este tipo.</div>
+      )}
+      {items.map(({ p, idx }) => (
+        <div key={idx} className="flex flex-col md:flex-row md:items-center justify-between gap-3 px-3 py-2 text-xs hover:bg-m3-surface-container/30 transition-colors">
+          <div className="flex flex-col gap-0.5">
+            <div className="flex items-center gap-1.5">
+              <span className="font-semibold text-m3-on-surface">{p.targetName}</span>
+              <span className="text-[9px] uppercase font-bold text-m3-primary bg-m3-primary/10 px-1.5 py-0.2 rounded border border-m3-primary/20">
+                {p.targetType}
+              </span>
+            </div>
+            <div className="text-[10px] text-m3-on-surface/60">
+              Acción: <span className="font-medium text-m3-secondary">{p.actionName}</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4 self-end md:self-auto">
+            {/* Allowed/Denied Toggle */}
+            <div className="flex items-center bg-m3-surface-container/60 rounded-lg p-0.5 border border-m3-outline/20">
+              <button
+                type="button"
+                onClick={() => handleChangeEffect(idx, 'Allow')}
+                className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${p.isAllowed ? 'bg-emerald-500 text-white shadow-sm' : 'text-m3-on-surface/60 hover:text-m3-on-surface'}`}
+              >
+                <ShieldCheck className="w-3.5 h-3.5 inline mr-1" />
+                Allow
+              </button>
+              <button
+                type="button"
+                onClick={() => handleChangeEffect(idx, 'Neutral')}
+                className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${!p.isAllowed && !p.isDenied ? 'bg-m3-outline/30 text-m3-on-surface' : 'text-m3-on-surface/60 hover:text-m3-on-surface'}`}
+              >
+                <Shield className="w-3.5 h-3.5 inline mr-1" />
+                Neutral
+              </button>
+              <button
+                type="button"
+                onClick={() => handleChangeEffect(idx, 'Deny')}
+                className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${p.isDenied ? 'bg-rose-500 text-white shadow-sm' : 'text-m3-on-surface/60 hover:text-m3-on-surface'}`}
+              >
+                <ShieldAlert className="w-3.5 h-3.5 inline mr-1" />
+                Deny
+              </button>
+            </div>
+
+            {/* Active/Inactive Switch */}
+            <div className="flex items-center gap-1.5">
+              <span className={`text-[10px] font-medium ${p.isActive ? 'text-emerald-500' : 'text-m3-on-surface/40'}`}>
+                {p.isActive ? 'Activo' : 'Inactivo'}
+              </span>
+              <button
+                type="button"
+                onClick={() => handleToggleActive(idx)}
+                className="text-m3-primary hover:opacity-80 transition-opacity focus:outline-none"
+              >
+                {p.isActive ? (
+                  <ToggleRight className="w-6 h-6 text-emerald-500 fill-emerald-500/25" />
+                ) : (
+                  <ToggleLeft className="w-6 h-6 text-m3-outline" />
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 
   return (
     <M3FormDialog
@@ -302,76 +370,29 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => 
             ) : localPermissions.length === 0 ? (
               <div className="py-6 text-center text-xs text-m3-on-surface/50">La plantilla seleccionada no posee permisos asociados.</div>
             ) : (
-              <div className="divide-y divide-m3-outline/5 max-h-[300px] overflow-y-auto px-1">
-                {localPermissions.map((p, idx) => {
-                  let effectVal: 'Allow' | 'Deny' | 'Neutral' = 'Neutral';
-                  if (p.isAllowed) effectVal = 'Allow';
-                  else if (p.isDenied) effectVal = 'Deny';
-
-                  return (
-                    <div key={idx} className="flex flex-col md:flex-row md:items-center justify-between gap-3 px-3 py-2 text-xs hover:bg-m3-surface-container/30 transition-colors">
-                      <div className="flex flex-col gap-0.5">
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-semibold text-m3-on-surface">{p.targetName}</span>
-                          <span className="text-[9px] uppercase font-bold text-m3-primary bg-m3-primary/10 px-1.5 py-0.2 rounded border border-m3-primary/20">
-                            {p.targetType}
-                          </span>
-                        </div>
-                        <div className="text-[10px] text-m3-on-surface/60">
-                          Acción: <span className="font-medium text-m3-secondary">{p.actionName}</span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-4 self-end md:self-auto">
-                        {/* Allowed/Denied Toggle */}
-                        <div className="flex items-center bg-m3-surface-container/60 rounded-lg p-0.5 border border-m3-outline/20">
-                          <button
-                            type="button"
-                            onClick={() => handleChangeEffect(idx, 'Allow')}
-                            className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${p.isAllowed ? 'bg-emerald-500 text-white shadow-sm' : 'text-m3-on-surface/60 hover:text-m3-on-surface'}`}
-                          >
-                            <ShieldCheck className="w-3.5 h-3.5 inline mr-1" />
-                            Allow
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleChangeEffect(idx, 'Neutral')}
-                            className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${!p.isAllowed && !p.isDenied ? 'bg-m3-outline/30 text-m3-on-surface' : 'text-m3-on-surface/60 hover:text-m3-on-surface'}`}
-                          >
-                            <Shield className="w-3.5 h-3.5 inline mr-1" />
-                            Neutral
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleChangeEffect(idx, 'Deny')}
-                            className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${p.isDenied ? 'bg-rose-500 text-white shadow-sm' : 'text-m3-on-surface/60 hover:text-m3-on-surface'}`}
-                          >
-                            <ShieldAlert className="w-3.5 h-3.5 inline mr-1" />
-                            Deny
-                          </button>
-                        </div>
-
-                        {/* Active/Inactive Switch */}
-                        <div className="flex items-center gap-1.5">
-                          <span className={`text-[10px] font-medium ${p.isActive ? 'text-emerald-500' : 'text-m3-on-surface/40'}`}>
-                            {p.isActive ? 'Activo' : 'Inactivo'}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => handleToggleActive(idx)}
-                            className="text-m3-primary hover:opacity-80 transition-opacity focus:outline-none"
-                          >
-                            {p.isActive ? (
-                              <ToggleRight className="w-6 h-6 text-emerald-500 fill-emerald-500/25" />
-                            ) : (
-                              <ToggleLeft className="w-6 h-6 text-m3-outline" />
-                            )}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+              <div className="flex flex-col h-[350px]">
+                <M3Tabs
+                  tabs={[
+                    {
+                      id: 'modules',
+                      label: 'Navegación',
+                      icon: <LayoutGrid className="w-4 h-4" />,
+                      content: renderPermissionList(localPermissions.map((p, i) => ({ p, idx: i })).filter(x => ['Module', 'SubModule', 'Page'].includes(x.p.targetType)))
+                    },
+                    {
+                      id: 'domain',
+                      label: 'Recursos',
+                      icon: <Database className="w-4 h-4" />,
+                      content: renderPermissionList(localPermissions.map((p, i) => ({ p, idx: i })).filter(x => x.p.targetType === 'DomainResource'))
+                    },
+                    {
+                      id: 'system',
+                      label: 'Acciones del Sistema',
+                      icon: <Zap className="w-4 h-4" />,
+                      content: renderPermissionList(localPermissions.map((p, i) => ({ p, idx: i })).filter(x => x.p.targetType === 'SystemAction'))
+                    }
+                  ]}
+                />
               </div>
             )}
           </div>

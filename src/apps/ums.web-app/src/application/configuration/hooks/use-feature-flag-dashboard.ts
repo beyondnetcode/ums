@@ -7,6 +7,8 @@ import {
   useGetFeatureFlagById,
 } from '@app/configuration/hooks/use-feature-flag';
 import type { FeatureFlag } from '@domain/configuration/models/feature-flag.model';
+import { useQueryState } from '@app/shared/hooks/use-query-state';
+import { usePaginationState } from '@app/shared/hooks/use-pagination-state';
 
 const PAGE_SIZE = 20;
 
@@ -14,21 +16,24 @@ export function useFeatureFlagDashboard() {
   const [selectedId, setSelectedId]         = useState('');
   const [isCreateOpen, setIsCreateOpen]     = useState(false);
   const [viewMode, setViewMode]             = useState<'list' | 'thumbnail'>('list');
-  const [searchValue, setSearchValue]       = useState('');
-  const [appliedSearch, setAppliedSearch]   = useState('');
-  const [activeFilter, setActiveFilter]     = useState('all');
-  const [sortBy, setSortBy]                 = useState('flagCode');
-  const [sortOrder, setSortOrder]           = useState<'asc' | 'desc'>('asc');
-  const [page, setPage]                     = useState(1);
+  const queryState = useQueryState({
+    criteria: 'flagCode',
+    filter: 'all',
+    sortBy: 'flagCode',
+  });
+
+  const paginationState = usePaginationState({
+    initialPageSize: PAGE_SIZE,
+  });
 
   const { data: pageData, isLoading: isLoadingList, error: listError } =
     useGetAllFeatureFlags({
-      page,
-      pageSize: PAGE_SIZE,
-      search: appliedSearch || undefined,
-      status: activeFilter !== 'all' ? activeFilter : undefined,
-      sortBy,
-      sortOrder,
+      page: paginationState.page,
+      pageSize: paginationState.pageSize,
+      search: queryState.appliedQuery.term || undefined,
+      status: queryState.activeFilter !== 'all' ? queryState.activeFilter : undefined,
+      sortBy: queryState.sortBy,
+      sortOrder: queryState.sortOrder,
     });
 
   const { data: activeFlag, isLoading: isLoadingDetail } =
@@ -42,18 +47,6 @@ export function useFeatureFlagDashboard() {
     setSelectedId(id);
   }, []);
 
-  const handleQuerySubmit = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-    setAppliedSearch(searchValue);
-    setPage(1);
-  }, [searchValue]);
-
-  const handleResetQuery = useCallback(() => {
-    setSearchValue('');
-    setAppliedSearch('');
-    setPage(1);
-  }, []);
-
   const handleCreateSuccess = useCallback(() => {
     setIsCreateOpen(false);
   }, []);
@@ -65,17 +58,8 @@ export function useFeatureFlagDashboard() {
     setIsCreateOpen,
     viewMode,
     setViewMode,
-    searchValue,
-    setSearchValue,
-    appliedSearch,
-    activeFilter,
-    setActiveFilter,
-    sortBy,
-    setSortBy,
-    sortOrder,
-    setSortOrder,
-    page,
-    setPage,
+    queryState,
+    paginationState,
 
     knownFlags,
     isLoadingList,
@@ -86,8 +70,6 @@ export function useFeatureFlagDashboard() {
     totalPages,
 
     handleSelect,
-    handleQuerySubmit,
-    handleResetQuery,
     handleCreateSuccess,
   };
 }

@@ -4,6 +4,7 @@ const data = [{"roleId":"aaaa0001-0000-0000-0000-000000000001","tenantId":"3fa85
 
 try {
   const result = RoleListSchema.parse(data);
+  // eslint-disable-next-line no-console
   console.log("Success", result);
 } catch (e) {
   console.error("Zod Error:", e.errors || e);

@@ -13,7 +13,7 @@ import { Tooltip } from '../components/Tooltip';
 export const TopAppBar: React.FC<{ onToggleNav: () => void }> = ({ onToggleNav }) => {
   const { user, logout } = useAuthStore();
   const { isDarkMode, toggleDarkMode } = useThemeStore();
-  const { devUserId } = useDevToolsStore();
+  useDevToolsStore();
   const { language, setLanguage } = useI18nStore();
   const { notifications, setIsOpen, isOpen } = useNotificationStore();
   const t = useI18n();

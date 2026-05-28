@@ -8,6 +8,8 @@ import { useGetAllTenants } from '@app/identity/hooks/use-tenant';
 import { useLocalOverrides } from '@app/hooks/use-local-overrides';
 import { Tenant } from '@domain/identity/models/tenant.model';
 import { TENANT_PAGE_SIZE } from '@domain/identity/constants/tenant.constants';
+import { useQueryState } from '@app/shared/hooks/use-query-state';
+import { usePaginationState } from '@app/shared/hooks/use-pagination-state';
 
 export interface TenantDashboardState {
   selectedId: string;
@@ -17,14 +19,8 @@ export interface TenantDashboardState {
   isTenantEditing: boolean;
   isCreateOpen: boolean;
   viewMode: 'list' | 'thumbnail';
-  searchCriteria: string;
-  searchValue: string;
-  appliedQuery: { criteria: string; term: string };
-  activeFilter: string;
-  sortBy: string;
-  sortOrder: 'asc' | 'desc';
-  page: number;
-  pageSize: number;
+  queryState: ReturnType<typeof useQueryState>;
+  paginationState: ReturnType<typeof usePaginationState>;
 }
 
 export interface TenantDashboardActions {
@@ -35,19 +31,10 @@ export interface TenantDashboardActions {
   setIsTenantEditing: React.Dispatch<React.SetStateAction<boolean>>;
   setIsCreateOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setViewMode: React.Dispatch<React.SetStateAction<'list' | 'thumbnail'>>;
-  setSearchCriteria: React.Dispatch<React.SetStateAction<string>>;
-  setSearchValue: React.Dispatch<React.SetStateAction<string>>;
-  setAppliedQuery: React.Dispatch<React.SetStateAction<{ criteria: string; term: string }>>;
-  setActiveFilter: React.Dispatch<React.SetStateAction<string>>;
-  setSortBy: React.Dispatch<React.SetStateAction<string>>;
-  setSortOrder: React.Dispatch<React.SetStateAction<'asc' | 'desc'>>;
-  setPage: React.Dispatch<React.SetStateAction<number>>;
   handleSelectTenant: (id: string) => void;
   confirmDiscard: () => void;
   patchTenant: (tenantId: string, patch: Partial<Tenant>) => void;
   handleCreateSuccess: (newTenantId: string) => void;
-  handleQuerySubmit: (e: React.FormEvent) => void;
-  handleResetQuery: () => void;
 }
 
 export function useTenantDashboard(): TenantDashboardState & TenantDashboardActions & {
@@ -69,23 +56,25 @@ export function useTenantDashboard(): TenantDashboardState & TenantDashboardActi
   const [isTenantEditing, setIsTenantEditing] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('list');
-  const [searchCriteria, setSearchCriteria] = useState('name');
-  const [searchValue, setSearchValue] = useState('');
-  const [appliedQuery, setAppliedQuery] = useState<{ criteria: string; term: string }>({ criteria: 'name', term: '' });
-  const [activeFilter, setActiveFilter] = useState('all');
-  const [sortBy, setSortBy] = useState('name');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  const [page, setPage] = useState(1);
-  const pageSize = TENANT_PAGE_SIZE;
+
+  const queryState = useQueryState({
+    criteria: 'name',
+    filter: 'all',
+    sortBy: 'name',
+  });
+
+  const paginationState = usePaginationState({
+    initialPageSize: TENANT_PAGE_SIZE,
+  });
 
   const { data: tenantPage, isLoading: isLoadingList, error: listError } = useGetAllTenants({
-    page,
-    pageSize,
-    search: appliedQuery.term,
-    criteria: appliedQuery.criteria,
-    status: activeFilter,
-    sortBy,
-    sortOrder,
+    page: paginationState.page,
+    pageSize: paginationState.pageSize,
+    search: queryState.appliedQuery.term,
+    criteria: queryState.appliedQuery.criteria,
+    status: queryState.activeFilter,
+    sortBy: queryState.sortBy,
+    sortOrder: queryState.sortOrder,
   });
 
   const { items: knownTenants, patchItem: patchLocalTenant } = useLocalOverrides<Tenant>(
@@ -141,28 +130,20 @@ export function useTenantDashboard(): TenantDashboardState & TenantDashboardActi
   }, [patchLocalTenant]);
 
   const handleCreateSuccess = useCallback((newTenantId: string) => {
-    setPage(1);
-    setAppliedQuery({ criteria: 'name', term: '' });
-    setSearchValue('');
+    paginationState.setPage(1);
+    queryState.handleResetQuery();
     applyTenantSelection(newTenantId);
-  }, [applyTenantSelection]);
+  }, [applyTenantSelection, paginationState, queryState]);
 
-  const handleQuerySubmit = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-    setPage(1);
-    if (searchCriteria === 'id' && searchValue.trim()) handleSelectTenant(searchValue.trim());
-    setAppliedQuery({ criteria: searchCriteria, term: searchValue });
-  }, [searchCriteria, searchValue, handleSelectTenant]);
-
-  const handleResetQuery = useCallback(() => {
-    setSearchValue('');
-    setAppliedQuery({ criteria: 'name', term: '' });
-    setPage(1);
-  }, []);
+  // If search criteria is 'id', it triggers handleSelectTenant
+  useEffect(() => {
+    if (queryState.appliedQuery.criteria === 'id' && queryState.appliedQuery.term) {
+      handleSelectTenant(queryState.appliedQuery.term);
+    }
+  }, [queryState.appliedQuery, handleSelectTenant]);
 
   const totalItems = tenantPage?.totalItems ?? 0;
   const totalPages = tenantPage?.totalPages ?? 0;
-  const startIndex = (page - 1) * pageSize;
 
   return {
     selectedId, setSelectedId,
@@ -172,20 +153,12 @@ export function useTenantDashboard(): TenantDashboardState & TenantDashboardActi
     isTenantEditing, setIsTenantEditing,
     isCreateOpen, setIsCreateOpen,
     viewMode, setViewMode,
-    searchCriteria, setSearchCriteria,
-    searchValue, setSearchValue,
-    appliedQuery, setAppliedQuery,
-    activeFilter, setActiveFilter,
-    sortBy, setSortBy,
-    sortOrder, setSortOrder,
-    page, setPage,
-    pageSize,
+    queryState,
+    paginationState,
     handleSelectTenant,
     confirmDiscard,
     patchTenant,
     handleCreateSuccess,
-    handleQuerySubmit,
-    handleResetQuery,
     knownTenants,
     isLoadingList,
     listError,
@@ -195,6 +168,6 @@ export function useTenantDashboard(): TenantDashboardState & TenantDashboardActi
     consoleTabs,
     totalItems,
     totalPages,
-    startIndex,
+    startIndex: paginationState.startIndex,
   };
 }

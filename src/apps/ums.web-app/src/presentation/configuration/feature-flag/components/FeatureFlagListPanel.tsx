@@ -1,15 +1,24 @@
 import React, { useCallback } from 'react';
-import { Flag } from 'lucide-react';
+import { Flag, LayoutList, LayoutGrid } from 'lucide-react';
 import { type FeatureFlag } from '@domain/configuration/models/feature-flag.model';
 import { StatusBadge } from '@shared/components/StatusBadge';
-import { M3DataView, FilterOption, SortOption } from '@shared/components/M3DataView';
+import {
+  DataViewShell,
+  SearchBar,
+  FilterPanel,
+  DataList,
+  AtomicSortOption,
+  AtomicFilterOption,
+  AtomicQueryCriteriaOption,
+} from '@shared/components';
+import { useQueryState } from '@app/shared/hooks/use-query-state';
+import { usePaginationState } from '@app/shared/hooks/use-pagination-state';
 import { EntityRow } from '@shared/components/EntityRow';
 import { EntityCard } from '@shared/components/EntityCard';
 import { ApiErrorBanner } from '@shared/components/ApiErrorBanner';
 import { CodeBadge } from '@shared/components/CodeBadge';
 import {
   FLAG_TYPE_LABELS,
-  FLAG_STATUS_LABELS,
 } from '@domain/configuration/constants/feature-flag.constants';
 
 const STATUS_LABEL: Record<string, string> = {
@@ -37,47 +46,33 @@ interface Props {
   error:       Error | null;
   viewMode:    'list' | 'thumbnail';
   onViewModeChange: (m: 'list' | 'thumbnail') => void;
-  searchValue: string;
-  onSearchValueChange: (v: string) => void;
-  onSearchSubmit: (e: React.FormEvent) => void;
+  queryState: ReturnType<typeof useQueryState<string, string>>;
+  paginationState: ReturnType<typeof usePaginationState> & { totalItems: number; totalPages: number };
   onRegisterNew: () => void;
-  activeFilter: string;
-  onFilterChange: (v: string) => void;
-  sortBy: string;
-  onSortByChange: (v: string) => void;
-  sortOrder: 'asc' | 'desc';
-  onSortOrderToggle: () => void;
-  page: number;
-  pageSize: number;
-  totalItems: number;
-  totalPages: number;
-  startIndex: number;
-  appliedTerm: string;
-  onPageChange: (p: number) => void;
-  onResetQuery: () => void;
   onSelectFlag: (id: string) => void;
 }
 
 export const FeatureFlagListPanel: React.FC<Props> = ({
   flags, selectedId, isLoading, error,
   viewMode, onViewModeChange,
-  searchValue, onSearchValueChange, onSearchSubmit,
-  onRegisterNew, activeFilter, onFilterChange,
-  sortBy, onSortByChange, sortOrder, onSortOrderToggle,
-  page, pageSize, totalItems, totalPages, startIndex,
-  appliedTerm, onPageChange, onResetQuery, onSelectFlag,
+  queryState, paginationState,
+  onRegisterNew, onSelectFlag,
 }) => {
-  const filterOptions: FilterOption[] = [
+  const filterOptions: AtomicFilterOption[] = [
     { label: 'Todos', value: 'all' },
     { label: 'Activo', value: 'Active' },
     { label: 'Inactivo', value: 'Inactive' },
     { label: 'Archivado', value: 'Archived' },
   ];
 
-  const sortOptions: SortOption[] = [
+  const sortOptions: AtomicSortOption[] = [
     { label: 'Código', value: 'flagCode' },
     { label: 'Tipo', value: 'flagType' },
     { label: 'Estado', value: 'status' },
+  ];
+
+  const criteriaOptions: AtomicQueryCriteriaOption[] = [
+    { label: 'By Code', value: 'flagCode' },
   ];
 
   const renderRow = useCallback((flag: FeatureFlag) => {
@@ -170,46 +165,92 @@ export const FeatureFlagListPanel: React.FC<Props> = ({
     );
   }, [selectedId, onSelectFlag]);
 
-  const pagination = totalItems > 0 ? {
-    page, pageSize, totalItems, totalPages, startIndex,
-    onPageChange,
+  const totalItems = paginationState.totalItems;
+  const startIndex = paginationState.startIndex ?? 0;
+  const pageSize = paginationState.pageSize;
+
+  const pagination = paginationState.totalPages > 0 ? {
+    page: paginationState.page,
+    pageSize: paginationState.pageSize,
+    totalItems: paginationState.totalItems,
+    totalPages: paginationState.totalPages,
+    onPageChange: paginationState.handlePageChange ?? paginationState.setPage,
   } : undefined;
+
+  const footerTelemetry = (
+    <div className="flex items-center gap-3">
+      <div className="flex items-center gap-1.5">
+        <span className="h-2 w-2 rounded-full bg-m3-primary animate-pulse" />
+        <span className="text-xs font-medium text-m3-secondary/80">
+          Mostrando {totalItems === 0 ? 0 : startIndex + 1}-{Math.min(startIndex + pageSize, totalItems)} de {totalItems} Feature Flags
+        </span>
+      </div>
+      {queryState.appliedQuery.term.trim() && (
+        <button onClick={queryState.handleResetQuery} className="text-xs font-medium text-rose-500 hover:underline flex items-center gap-1">
+          <span className="w-3 h-3">Limpiar</span>
+        </button>
+      )}
+    </div>
+  );
 
   return (
     <div className="h-full flex flex-col">
       {error && <ApiErrorBanner error={error} className="mb-2" />}
-      <M3DataView
-        isLoading={isLoading}
-        items={flags}
-        viewMode={viewMode}
-        onViewModeChange={onViewModeChange}
-        searchValue={searchValue}
-        onSearchValueChange={onSearchValueChange}
-        onSearchSubmit={onSearchSubmit}
+      <DataViewShell
         onRegisterNew={onRegisterNew}
-        filterOptions={filterOptions}
-        activeFilter={activeFilter}
-        onFilterChange={onFilterChange}
-        sortOptions={sortOptions}
-        sortBy={sortBy}
-        onSortByChange={onSortByChange}
-        sortOrder={sortOrder}
-        onSortOrderToggle={onSortOrderToggle}
-        appliedTerm={appliedTerm}
-        onResetQuery={onResetQuery}
-        pagination={pagination}
-        emptyTitle="Sin feature flags"
-        emptyMessage="Cree el primer feature flag para controlar funcionalidades."
-        renderList={() => (
-          <div className="flex flex-col gap-0.5">
-            {flags.map(renderRow)}
-          </div>
-        )}
-        renderThumbnail={() => (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {flags.map(renderCard)}
-          </div>
-        )}
+        registerLabel="Nuevo"
+        controls={
+          <>
+            <SearchBar
+              criteriaOptions={criteriaOptions}
+              activeCriteria={queryState.searchCriteria}
+              onCriteriaChange={queryState.setSearchCriteria}
+              searchValue={queryState.searchValue}
+              onSearchValueChange={queryState.setSearchValue}
+              onSubmit={queryState.handleQuerySubmit}
+              criteriaLabel="Buscar por"
+              searchTermLabel="Término"
+              searchButtonLabel="Buscar"
+            />
+            <FilterPanel
+              filterOptions={filterOptions}
+              activeFilter={queryState.activeFilter}
+              onFilterChange={queryState.setActiveFilter}
+              sortOptions={sortOptions}
+              sortBy={queryState.sortBy}
+              onSortByChange={queryState.setSortBy}
+              sortOrder={queryState.sortOrder}
+              onSortOrderToggle={queryState.toggleSortOrder}
+              viewModeOptions={[
+                { value: 'list', label: <LayoutList className="w-4 h-4" /> },
+                { value: 'thumbnail', label: <LayoutGrid className="w-4 h-4" /> }
+              ]}
+              viewMode={viewMode}
+              onViewModeChange={onViewModeChange}
+            />
+          </>
+        }
+        content={
+          <DataList
+            isLoading={isLoading}
+            isEmpty={totalItems === 0}
+            emptyLabel="Sin feature flags"
+            emptyTitle="Cree el primer feature flag para controlar funcionalidades."
+            viewMode={viewMode}
+            renderList={() => (
+              <div className="flex flex-col gap-0.5">
+                {flags.map(renderRow)}
+              </div>
+            )}
+            renderThumbnail={() => (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {flags.map(renderCard)}
+              </div>
+            )}
+            pagination={pagination}
+            footerElement={footerTelemetry}
+          />
+        }
       />
     </div>
   );
