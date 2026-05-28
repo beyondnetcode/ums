@@ -89,15 +89,17 @@ export function DetailPanelShell<T extends string = string>({
 
       {/* Tab bar */}
       {tabs.length > 0 && (
-        <M3SegmentedButton
-          options={tabs.map((tab): SegmentOption<T> => ({
-            value: tab.key,
-            label: <span className="flex items-center gap-1.5">{tab.icon} {tab.label}</span>,
-          }))}
-          value={activeTab}
-          onChange={onTabChange}
-          size="md"
-        />
+        <div className="overflow-x-auto overflow-y-hidden scrollbar-thin -mx-5 px-5">
+          <M3SegmentedButton
+            options={tabs.map((tab): SegmentOption<T> => ({
+              value: tab.key,
+              label: <span className="flex items-center gap-1.5">{tab.icon} {tab.label}</span>,
+            }))}
+            value={activeTab}
+            onChange={onTabChange}
+            size="md"
+          />
+        </div>
       )}
 
       {/* Tab content */}

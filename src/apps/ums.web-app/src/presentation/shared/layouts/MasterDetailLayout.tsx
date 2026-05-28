@@ -184,7 +184,7 @@ export const MasterDetailLayout: React.FC<MasterDetailLayoutProps> = ({
       <div
         style={{ width: isRightCollapsed ? '0' : `${rightPct}%` }}
         className={[
-          'flex flex-col min-w-0 overflow-y-auto space-y-4 pr-0.5',
+          'flex flex-col min-w-0 overflow-auto space-y-4 pr-0.5',
           !isDragging ? 'transition-[width] duration-200 ease-in-out' : '',
           isRightCollapsed ? 'overflow-hidden opacity-0 pointer-events-none' : '',
         ].join(' ')}
