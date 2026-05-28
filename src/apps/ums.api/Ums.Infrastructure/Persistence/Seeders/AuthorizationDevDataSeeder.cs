@@ -46,6 +46,11 @@ public static class AuthorizationDevDataSeeder
                 foreach (var suite in suites) await suiteRepository.AddAsync(suite, cancellationToken);
                 await suiteRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
             }
+            else
+            {
+                // Ensure existing suites have domain resources
+                await EnsureDomainResourcesAsync(existing, ransaTenantId, actor, suiteRepository, cancellationToken);
+            }
         }
 
         // Seed Roles
@@ -115,7 +120,13 @@ public static class AuthorizationDevDataSeeder
         if (supervisorRoleResult.IsSuccess) roles.Add(supervisorRoleResult.Value);
 
         var auditorRoleResult = RoleAggregate.Create(tenantId, suites[0].GetId(), Code.Create("AUDITOR"), Name.Create("Compliance Auditor"), Description.Create("Read-only access for audits"), null, 0, 0, actor);
-        if (auditorRoleResult.IsSuccess) roles.Add(auditorRoleResult.Value);
+        if (auditorRoleResult.IsSuccess)
+        {
+            var auditorRole = auditorRoleResult.Value;
+            // GAP-2: Deactivate auditor role to test inactive role filter
+            auditorRole.Deactivate(actor);
+            roles.Add(auditorRole);
+        }
 
         // WMS Suite Roles
         if (suites.Count > 1)
@@ -129,7 +140,13 @@ public static class AuthorizationDevDataSeeder
             }
 
             var inspectorRoleResult = RoleAggregate.Create(tenantId, suites[1].GetId(), Code.Create("INSPECTOR"), Name.Create("Quality Inspector"), Description.Create("Quality control and inspections"), null, 0, 0, actor);
-            if (inspectorRoleResult.IsSuccess) roles.Add(inspectorRoleResult.Value);
+            if (inspectorRoleResult.IsSuccess)
+            {
+                var inspectorRole = inspectorRoleResult.Value;
+                // GAP-2: Deactivate inspector role to test inactive role filter in WMS
+                inspectorRole.Deactivate(actor);
+                roles.Add(inspectorRole);
+            }
             
             var managerRoleResult = RoleAggregate.Create(tenantId, suites[1].GetId(), Code.Create("WMS_MANAGER"), Name.Create("Warehouse Manager"), Description.Create("Manages all warehouse operations"), null, 0, 0, actor);
             if (managerRoleResult.IsSuccess) roles.Add(managerRoleResult.Value);
@@ -164,12 +181,6 @@ public static class AuthorizationDevDataSeeder
             suite.RegisterAction(ActionCode.Create("UPDATE"), Name.Create("Update Record"), actor);
             suite.RegisterAction(ActionCode.Create("DELETE"), Name.Create("Delete Record"), actor);
             suite.RegisterAction(ActionCode.Create("SEARCH"), Name.Create("Search Records"), actor);
-
-            // Add domain resources
-            suite.AddDomainResource(null, DomainResourceType.Aggregate, Code.Create("USERS"), Name.Create("Users Aggregate"), Description.Create("User Management"), actor);
-            suite.AddDomainResource(null, DomainResourceType.Aggregate, Code.Create("INVENTORY"), Name.Create("Inventory Aggregate"), Description.Create("Inventory Management"), actor);
-            suite.AddDomainResource(null, DomainResourceType.Entity, Code.Create("AUDIT_LOG"), Name.Create("Audit Log Entity"), Description.Create("Audit Logs"), actor);
-            suite.AddDomainResource(null, DomainResourceType.Entity, Code.Create("STOCK_LEVEL"), Name.Create("Stock Level Entity"), Description.Create("Stock Levels"), actor);
 
             // Add app settings
             suite.AddAppSetting(
@@ -233,7 +244,18 @@ public static class AuthorizationDevDataSeeder
                 menuSettings.AddSubMenu(Code.Create("SMTP"), Name.Create("SMTP Server Setup"), Description.Create("Email gateway and server connection"), 2, actor);
                 var subMenuSmtp = menuSettings.SubMenus.First(sm => sm.Code.GetValue() == "SMTP");
                 subMenuSmtp.AddOption(Code.Create("TEST_SMTP"), Name.Create("Test SMTP Gateway"), Description.Create("Permission to trigger email delivery test"), ActionCode.Create("APPROVE"), 1, actor);
+
+                // GAP-3: Deactivate CONFIG module to test inactive module filter
+                suite.DeactivateModule(module.Props.Id, actor);
             }
+
+            // GAP-4: Add domain resources linked to modules
+            var secMod = suite.Modules.First(m => m.Code.GetValue() == "SEC");
+            var configMod = suite.Modules.First(m => m.Code.GetValue() == "CONFIG");
+            suite.AddDomainResource(secMod.GetId(), DomainResourceType.Aggregate, Code.Create("USERS"), Name.Create("Users Aggregate"), Description.Create("User Management aggregate root"), actor);
+            suite.AddDomainResource(secMod.GetId(), DomainResourceType.Aggregate, Code.Create("INVENTORY"), Name.Create("Inventory Aggregate"), Description.Create("Inventory Management aggregate root"), actor);
+            suite.AddDomainResource(secMod.GetId(), DomainResourceType.Entity, Code.Create("AUDIT_LOG"), Name.Create("Audit Log Entity"), Description.Create("Audit log entity for tracking operations"), actor);
+            suite.AddDomainResource(configMod.GetId(), DomainResourceType.Entity, Code.Create("STOCK_LEVEL"), Name.Create("Stock Level Entity"), Description.Create("Stock level entity linked to config module"), actor);
 
             suites.Add(suite);
         }
@@ -251,6 +273,9 @@ public static class AuthorizationDevDataSeeder
 
             suite.RegisterAction(ActionCode.Create("INVENTORY_VIEW"), Name.Create("View Inventory"), actor);
             suite.RegisterAction(ActionCode.Create("INVENTORY_EDIT"), Name.Create("Edit Inventory"), actor);
+            suite.RegisterAction(ActionCode.Create("GENERATE_REPORT"), Name.Create("Generate Report"), actor);
+            suite.RegisterAction(ActionCode.Create("EXPORT_DATA"), Name.Create("Export Data"), actor);
+            suite.RegisterAction(ActionCode.Create("IMPORT_DATA"), Name.Create("Import Data"), actor);
 
             suite.AddAppSetting(
                 ConfigurationKey.Create("AllowNegativeStock"),
@@ -282,6 +307,41 @@ public static class AuthorizationDevDataSeeder
                 subMenuTransfers.AddOption(Code.Create("INITIATE_TRANSFER"), Name.Create("Initiate Stock Transfer"), Description.Create("Permission to draft and start a transfer request"), ActionCode.Create("INVENTORY_EDIT"), 1, actor);
                 subMenuTransfers.AddOption(Code.Create("APPROVE_TRANSFER"), Name.Create("Approve Location Transfer"), Description.Create("Permission to authorize inventory relocation"), ActionCode.Create("INVENTORY_EDIT"), 2, actor);
             }
+
+            // GAP-7: Add Reports module to WMS
+            var modReports = suite.AddModule(Code.Create("REPORTS"), Name.Create("Reports & Analytics"), Description.Create("Warehouse reporting and analytics"), 2, actor);
+            if (modReports.IsSuccess)
+            {
+                var module = suite.Modules.First(m => m.Code.GetValue() == "REPORTS");
+                suite.ActivateModule(module.Props.Id, actor);
+
+                // Menu 1: Inventory Reports
+                module.AddMenu(Code.Create("INV_REPORTS"), Name.Create("Inventory Reports"), Description.Create("Stock and inventory reports"), 1, actor);
+                var menuInvReports = module.Menus.First(m => m.Code.GetValue() == "INV_REPORTS");
+
+                menuInvReports.AddSubMenu(Code.Create("STOCK_SUMMARY"), Name.Create("Stock Summary"), Description.Create("Overall stock summary report"), 1, actor);
+                var subMenuStockSummary = menuInvReports.SubMenus.First(sm => sm.Code.GetValue() == "STOCK_SUMMARY");
+                subMenuStockSummary.AddOption(Code.Create("VIEW_STOCK_REPORT"), Name.Create("View Stock Report"), Description.Create("Permission to view stock summary"), ActionCode.Create("GENERATE_REPORT"), 1, actor);
+                subMenuStockSummary.AddOption(Code.Create("EXPORT_STOCK"), Name.Create("Export Stock Data"), Description.Create("Permission to export stock data"), ActionCode.Create("EXPORT_DATA"), 2, actor);
+
+                menuInvReports.AddSubMenu(Code.Create("MOVEMENT_REPORTS"), Name.Create("Movement Reports"), Description.Create("Stock movement history"), 2, actor);
+                var subMenuMovement = menuInvReports.SubMenus.First(sm => sm.Code.GetValue() == "MOVEMENT_REPORTS");
+                subMenuMovement.AddOption(Code.Create("VIEW_MOVEMENT"), Name.Create("View Movement Report"), Description.Create("Permission to view movement history"), ActionCode.Create("GENERATE_REPORT"), 1, actor);
+
+                // Menu 2: Import/Export
+                module.AddMenu(Code.Create("IO"), Name.Create("Import / Export"), Description.Create("Data import and export operations"), 2, actor);
+                var menuIO = module.Menus.First(m => m.Code.GetValue() == "IO");
+
+                menuIO.AddSubMenu(Code.Create("IMPORT"), Name.Create("Data Import"), Description.Create("Import inventory data from external sources"), 1, actor);
+                var subMenuImport = menuIO.SubMenus.First(sm => sm.Code.GetValue() == "IMPORT");
+                subMenuImport.AddOption(Code.Create("RUN_IMPORT"), Name.Create("Run Data Import"), Description.Create("Permission to execute data import"), ActionCode.Create("IMPORT_DATA"), 1, actor);
+            }
+
+            // Add domain resources for WMS
+            var invMod = suite.Modules.First(m => m.Code.GetValue() == "INV");
+            suite.AddDomainResource(invMod.GetId(), DomainResourceType.Aggregate, Code.Create("INVENTORY_WMS"), Name.Create("WMS Inventory Aggregate"), Description.Create("Warehouse Inventory Management"), actor);
+            suite.AddDomainResource(invMod.GetId(), DomainResourceType.Entity, Code.Create("STOCK_MOVEMENT"), Name.Create("Stock Movement Entity"), Description.Create("Stock Movement Tracking"), actor);
+            suite.AddDomainResource(invMod.GetId(), DomainResourceType.Entity, Code.Create("TRANSFER_ORDER"), Name.Create("Transfer Order Entity"), Description.Create("Warehouse Transfer Orders"), actor);
 
             suites.Add(suite);
         }
@@ -363,10 +423,23 @@ public static class AuthorizationDevDataSeeder
             // Allow standard actions on global aggregates for Admin
             var usersAgg = coreSuite.DomainResources.First(x => x.Code.GetValue() == "USERS");
             var auditEnt = coreSuite.DomainResources.First(x => x.Code.GetValue() == "AUDIT_LOG");
+            var inventoryAgg = coreSuite.DomainResources.First(x => x.Code.GetValue() == "INVENTORY");
+            var stockEnt = coreSuite.DomainResources.First(x => x.Code.GetValue() == "STOCK_LEVEL");
             adminV3.AddItem(ExclusiveArcTarget.Aggregate, usersAgg.Id, ActionId.Create(), true, false, actor);
             adminV3.AddItem(ExclusiveArcTarget.Entity, auditEnt.Id, ActionId.Create(), true, false, actor);
 
-            adminV3.Publish(actor);
+            // GAP-6: Add CRUD-level permission items for domain resources
+            // Allow Create on Users aggregate
+            adminV3.AddItem(ExclusiveArcTarget.Aggregate, usersAgg.Id, ActionId.Create(), true, false, actor);
+            // Deny Delete on Users aggregate
+            adminV3.AddItem(ExclusiveArcTarget.Aggregate, usersAgg.Id, ActionId.Create(), false, true, actor);
+            // Allow Read on Inventory aggregate
+            adminV3.AddItem(ExclusiveArcTarget.Aggregate, inventoryAgg.Id, ActionId.Create(), true, false, actor);
+            // Deny Update on Stock Level entity
+            adminV3.AddItem(ExclusiveArcTarget.Entity, stockEnt.Id, ActionId.Create(), false, true, actor);
+
+            // NOTE: Admin V3 kept as Draft (not published) for UI editing tests (GAP-1)
+            // adminV3.Publish(actor);  // <-- Intentionally commented out
 
             templates.Add(adminV3);
         }
@@ -397,10 +470,30 @@ public static class AuthorizationDevDataSeeder
             templates.Add(auditorTpl);
         }
 
-        // 4. OPERATOR - Draft (Empty, no items)
+        // 4. OPERATOR - Draft with some items (GAP-6: CRUD-level permissions)
         if (operatorRole != null && wmsSuite != null)
         {
             var operatorTpl = PermissionTemplateAggregate.Create(tenantId, operatorRole.GetId(), wmsSuite.GetId(), actor).Value;
+
+            // Allow access to INV module
+            var invMod = wmsSuite.Modules.First(m => m.Code.GetValue() == "INV");
+            operatorTpl.AddItem(ExclusiveArcTarget.Module, invMod.Props.Id, ActionId.Create(), true, false, actor);
+
+            // Allow stock levels submenu
+            var stockMenu = invMod.Menus.First(m => m.Code.GetValue() == "STOCK");
+            var levelsSubMenu = stockMenu.SubMenus.First(sm => sm.Code.GetValue() == "LEVELS");
+            operatorTpl.AddItem(ExclusiveArcTarget.Option, levelsSubMenu.Props.Id, ActionId.Create(), true, false, actor);
+
+            // Allow VIEW_STOCK option, deny ADJUST_STOCK
+            var viewStockOpt = levelsSubMenu.Options.First(o => o.Code.GetValue() == "VIEW_STOCK");
+            var adjustStockOpt = levelsSubMenu.Options.First(o => o.Code.GetValue() == "ADJUST_STOCK");
+            operatorTpl.AddItem(ExclusiveArcTarget.Option, viewStockOpt.Props.Id, ActionId.Create(), true, false, actor);
+            operatorTpl.AddItem(ExclusiveArcTarget.Option, adjustStockOpt.Props.Id, ActionId.Create(), false, true, actor);
+
+            // Allow read on WMS inventory aggregate
+            var invWms = wmsSuite.DomainResources.First(x => x.Code.GetValue() == "INVENTORY_WMS");
+            operatorTpl.AddItem(ExclusiveArcTarget.Aggregate, invWms.Id, ActionId.Create(), true, false, actor);
+
             templates.Add(operatorTpl);
         }
 
@@ -422,6 +515,33 @@ public static class AuthorizationDevDataSeeder
             managerTpl.Publish(actor);
             managerTpl.Deprecate(actor);
             templates.Add(managerTpl);
+
+            // 7. WMS MANAGER V2 - Draft with rich domain resource permissions (GAP-6)
+            var managerV2 = PermissionTemplateAggregate.Create(tenantId, managerRole.GetId(), wmsSuite.GetId(), actor).Value;
+            managerV2.Props.Version = TemplateVersion.Create(2, 0, 0);
+
+            // Allow Reports module
+            var reportsMod = wmsSuite.Modules.First(m => m.Code.GetValue() == "REPORTS");
+            managerV2.AddItem(ExclusiveArcTarget.Module, reportsMod.Props.Id, ActionId.Create(), true, false, actor);
+
+            // Allow all stock reports
+            var invReportsMenu = reportsMod.Menus.First(m => m.Code.GetValue() == "INV_REPORTS");
+            var stockSummarySubMenu = invReportsMenu.SubMenus.First(sm => sm.Code.GetValue() == "STOCK_SUMMARY");
+            managerV2.AddItem(ExclusiveArcTarget.Option, stockSummarySubMenu.Props.Id, ActionId.Create(), true, false, actor);
+
+            // Domain resource permissions
+            var invWms = wmsSuite.DomainResources.First(x => x.Code.GetValue() == "INVENTORY_WMS");
+            var stockMovement = wmsSuite.DomainResources.First(x => x.Code.GetValue() == "STOCK_MOVEMENT");
+            var transferOrder = wmsSuite.DomainResources.First(x => x.Code.GetValue() == "TRANSFER_ORDER");
+
+            // Allow full access to Inventory aggregate
+            managerV2.AddItem(ExclusiveArcTarget.Aggregate, invWms.Id, ActionId.Create(), true, false, actor);
+            // Allow read on Stock Movement entity
+            managerV2.AddItem(ExclusiveArcTarget.Entity, stockMovement.Id, ActionId.Create(), true, false, actor);
+            // Deny delete on Transfer Order entity
+            managerV2.AddItem(ExclusiveArcTarget.Entity, transferOrder.Id, ActionId.Create(), false, true, actor);
+
+            templates.Add(managerV2);
         }
 
         return templates;
@@ -442,5 +562,60 @@ public static class AuthorizationDevDataSeeder
             profiles.Add(adminProfile.Value);
 
         return profiles;
+    }
+
+    private static async Task EnsureDomainResourcesAsync(
+        IReadOnlyList<SystemSuiteAggregate> existingSuites,
+        TenantId tenantId,
+        ActorId actor,
+        ISystemSuiteRepository repository,
+        CancellationToken cancellationToken)
+    {
+        foreach (var suite in existingSuites)
+        {
+            var existingResources = suite.DomainResources;
+            var codesToAdd = GetDomainResourceCodesForSuite(suite);
+
+            foreach (var codeToAdd in codesToAdd)
+            {
+                if (!existingResources.Any(dr => dr.Code.GetValue() == codeToAdd.Code))
+                {
+                    suite.AddDomainResource(
+                        null,
+                        codeToAdd.Type,
+                        Code.Create(codeToAdd.Code),
+                        Name.Create(codeToAdd.Name),
+                        Description.Create(codeToAdd.Description),
+                        actor);
+                }
+            }
+
+            await repository.UpdateAsync(suite, cancellationToken);
+        }
+
+        await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+    }
+
+    private static IReadOnlyList<(string Code, string Name, string Description, DomainResourceType Type)> GetDomainResourceCodesForSuite(SystemSuiteAggregate suite)
+    {
+        var suiteCode = suite.Code.GetValue();
+
+        return suiteCode switch
+        {
+            "LOGISTICS_CORE" => new (string, string, string, DomainResourceType)[]
+            {
+                ("USERS", "Users Aggregate", "User Management", DomainResourceType.Aggregate),
+                ("INVENTORY", "Inventory Aggregate", "Inventory Management", DomainResourceType.Aggregate),
+                ("AUDIT_LOG", "Audit Log Entity", "Audit Logs", DomainResourceType.Entity),
+                ("STOCK_LEVEL", "Stock Level Entity", "Stock Levels", DomainResourceType.Entity),
+            },
+            "WMS" => new (string, string, string, DomainResourceType)[]
+            {
+                ("INVENTORY_WMS", "WMS Inventory Aggregate", "Warehouse Inventory Management", DomainResourceType.Aggregate),
+                ("STOCK_MOVEMENT", "Stock Movement Entity", "Stock Movement Tracking", DomainResourceType.Entity),
+                ("TRANSFER_ORDER", "Transfer Order Entity", "Warehouse Transfer Orders", DomainResourceType.Entity),
+            },
+            _ => Array.Empty<(string, string, string, DomainResourceType)>(),
+        };
     }
 }
