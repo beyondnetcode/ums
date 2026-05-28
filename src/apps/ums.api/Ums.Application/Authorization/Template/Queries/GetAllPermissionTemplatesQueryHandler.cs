@@ -38,6 +38,16 @@ public sealed class GetAllPermissionTemplatesQueryHandler : IQueryHandler<GetAll
             ? await _templateRepository.GetByTenantIdAsync(request.TenantId.Value, cancellationToken)
             : await _templateRepository.GetAllAsync(cancellationToken);
 
+        if (request.SystemSuiteId.HasValue)
+        {
+            templates = templates.Where(t => t.Props.SystemSuiteId.GetValue() == request.SystemSuiteId.Value).ToList();
+        }
+
+        if (request.RoleId.HasValue)
+        {
+            templates = templates.Where(t => t.Props.RoleId.GetValue() == request.RoleId.Value).ToList();
+        }
+
         // Build lookup dictionaries to avoid N+1 queries
         var roleIds = templates.Select(t => t.Props.RoleId.GetValue()).Distinct().ToList();
         var suiteIds = templates.Select(t => t.Props.SystemSuiteId.GetValue()).Distinct().ToList();

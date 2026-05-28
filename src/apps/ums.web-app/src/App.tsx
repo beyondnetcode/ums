@@ -10,6 +10,7 @@ const UserAccountDashboardScreen = lazy(() => import('./presentation/identity/us
 const DelegationDashboardScreen = lazy(() => import('./presentation/identity/delegation/screens/DelegationDashboardScreen'));
 const SystemSuiteDashboardScreen = lazy(() => import('./presentation/authorization/system-suite/screens/SystemSuiteDashboardScreen'));
 const PermissionTemplateDashboardScreen = lazy(() => import('./presentation/authorization/permission-template/screens/PermissionTemplateDashboardScreen'));
+const ProfileDashboardScreen = lazy(() => import('./presentation/authorization/profile/screens/ProfileDashboardScreen'));
 const FeatureFlagDashboardScreen = lazy(() => import('./presentation/configuration/feature-flag/screens/FeatureFlagDashboardScreen'));
 const ProfileScreen = lazy(() => import('./presentation/identity/profile/screens/ProfileScreen'));
 const LoginScreen = lazy(() => import('./presentation/identity/profile/screens/LoginScreen'));
@@ -35,6 +36,7 @@ export default function App() {
                 <Route path="/delegations"  element={<DelegationDashboardScreen />} />
                 <Route path="/system-suites"         element={<SystemSuiteDashboardScreen />} />
                 <Route path="/permission-templates"  element={<PermissionTemplateDashboardScreen />} />
+                <Route path="/profiles"              element={<ProfileDashboardScreen />} />
                 <Route path="/feature-flags"          element={<FeatureFlagDashboardScreen />} />
                 <Route path="/profile"               element={<ProfileScreen />} />
                 <Route path="/login"        element={<LoginScreen />} />

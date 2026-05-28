@@ -39,7 +39,9 @@
       "Bash(git -C \"D:\\\\Users\\\\aarroyo\\\\personal\\\\sources\\\\ums\" diff --cached --stat)",
       "Bash(git -C \"D:\\\\Users\\\\aarroyo\\\\personal\\\\sources\\\\ums\" add src/apps/ums.api/Ums.Domain/Identity/Tenant/Branding/Branding.cs docs/governance/requirements/functional-stories/fs-08-hosted-login-redirection.md)",
       "Bash(git -C 'D:\\\\Users\\\\aarroyo\\\\personal\\\\sources\\\\ums' commit -m ' *)",
-      "Bash(xargs ls)"
+      "Bash(xargs ls)",
+      "Bash(git add *)",
+      "Bash(dotnet test *)"
     ]
   }
 }

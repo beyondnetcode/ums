@@ -31,6 +31,8 @@ export const permissionTemplateService = {
     sortBy?: string;
     sortOrder?: string;
     tenantId?: string;
+    systemSuiteId?: string;
+    roleId?: string;
   }): Promise<PermissionTemplatePage> => {
     const response = await graphqlPermissionTemplateQueries.getPermissionTemplates({
       page: params?.page ?? 1,
@@ -41,6 +43,8 @@ export const permissionTemplateService = {
       sortBy: params?.sortBy,
       sortOrder: params?.sortOrder,
       tenantId: params?.tenantId,
+      systemSuiteId: params?.systemSuiteId,
+      roleId: params?.roleId,
     });
 
     const result = PermissionTemplatePageSchema.safeParse(

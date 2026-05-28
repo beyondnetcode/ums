@@ -35,6 +35,7 @@ using Ums.Domain.Configuration.FeatureFlag;
 using Ums.Infrastructure.Configuration;
 using Ums.Infrastructure.Configuration.IdpResolution;
 using Ums.Shell.Factory.Installer.Extensions;
+using Ums.Infrastructure.Persistence.Authorization.Exporters;
 
 public static class DependencyInjection
 {
@@ -85,9 +86,13 @@ public static class DependencyInjection
             .AddTransient<LdapIdpResolutionStrategy, LdapIdpResolutionStrategy>()
             .AddTransient<Saml2IdpResolutionStrategy, Saml2IdpResolutionStrategy>()
             .AddTransient<GenericOidcIdpResolutionStrategy, GenericOidcIdpResolutionStrategy>()
+            .AddTransient<ProfileJsonExporter, ProfileJsonExporter>()
+            .AddTransient<ProfileXmlExporter, ProfileXmlExporter>()
+            .AddTransient<ProfileCsvExporter, ProfileCsvExporter>()
             .AddSource<NotificationRecipientStrategyFactorySetup>()
             .AddSource<ApprovalRequestCreationStrategyFactorySetup>()
-            .AddSource<IdpResolutionStrategyFactorySetup>());
+            .AddSource<IdpResolutionStrategyFactorySetup>()
+            .AddSource<ProfileExportFactorySetup>());
 
         // OPS-01 / HARDENING-03: Token revocation store.
         // When Redis:Connection is configured → use RedisTokenRevocationStore (all pods share state).

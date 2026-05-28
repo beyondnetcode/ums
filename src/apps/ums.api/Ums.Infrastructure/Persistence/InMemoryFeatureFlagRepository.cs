@@ -28,9 +28,27 @@ public sealed class InMemoryFeatureFlagRepository : IFeatureFlagRepository, IUni
         return Task.FromResult(entity);
     }
 
+    public Task<FeatureFlagAggregate?> GetBySystemSuiteAndCodeAsync(Guid systemSuiteId, string flagCode, CancellationToken cancellationToken = default)
+    {
+        var entity = _store.Values.FirstOrDefault(item =>
+            item.Props.SystemSuiteId.GetValue() == systemSuiteId &&
+            string.Equals(item.Props.FlagCode, flagCode, StringComparison.OrdinalIgnoreCase));
+        entity?.BrokenRules.Clear();
+        return Task.FromResult(entity);
+    }
+
     public Task<IReadOnlyList<FeatureFlagAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         var items = _store.Values.ToList();
+        items.ForEach(item => item.BrokenRules.Clear());
+        return Task.FromResult<IReadOnlyList<FeatureFlagAggregate>>(items);
+    }
+
+    public Task<IReadOnlyList<FeatureFlagAggregate>> GetBySystemSuiteIdAsync(Guid systemSuiteId, CancellationToken cancellationToken = default)
+    {
+        var items = _store.Values
+            .Where(item => item.Props.SystemSuiteId.GetValue() == systemSuiteId)
+            .ToList();
         items.ForEach(item => item.BrokenRules.Clear());
         return Task.FromResult<IReadOnlyList<FeatureFlagAggregate>>(items);
     }

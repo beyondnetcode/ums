@@ -40,7 +40,8 @@ public sealed class GetAllProfilesQueryHandler : IQueryHandler<GetAllProfilesQue
             p.Props.RoleId.GetValue(),
             p.Props.BranchId?.GetValue(),
             p.Props.Scope.ToString(),
-            p.Props.IsActive));
+            p.Props.IsActive,
+            new List<ProfilePermissionDto>()));
 
         if (!string.Equals(status, "all", StringComparison.OrdinalIgnoreCase))
         {

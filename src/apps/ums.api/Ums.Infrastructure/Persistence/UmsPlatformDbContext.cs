@@ -67,6 +67,7 @@ public sealed class UmsPlatformDbContext(
     public DbSet<AppConfigurationRecord> AppConfigurations => Set<AppConfigurationRecord>();
     public DbSet<FeatureFlagRecord> FeatureFlags => Set<FeatureFlagRecord>();
     public DbSet<FeatureFlagEvaluationLogRecord> FeatureFlagEvaluationLogs => Set<FeatureFlagEvaluationLogRecord>();
+    public DbSet<FeatureFlagCriteriaRecord> FeatureFlagCriteria => Set<FeatureFlagCriteriaRecord>();
     public DbSet<IdpConfigurationRecord> IdpConfigurations => Set<IdpConfigurationRecord>();
     public DbSet<AuditRecordRecord> AuditRecords => Set<AuditRecordRecord>();
     public DbSet<ApprovalWorkflowRecord> ApprovalWorkflows => Set<ApprovalWorkflowRecord>();
@@ -110,6 +111,7 @@ public sealed class UmsPlatformDbContext(
         modelBuilder.ApplyConfiguration(new AppConfigurationRecordConfiguration());
         modelBuilder.ApplyConfiguration(new FeatureFlagRecordConfiguration());
         modelBuilder.ApplyConfiguration(new FeatureFlagEvaluationLogRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new FeatureFlagCriteriaRecordConfiguration());
         modelBuilder.ApplyConfiguration(new IdpConfigurationRecordConfiguration());
         modelBuilder.ApplyConfiguration(new AuditRecordRecordConfiguration());
         modelBuilder.ApplyConfiguration(new ApprovalWorkflowRecordConfiguration());

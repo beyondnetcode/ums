@@ -7,4 +7,6 @@ public sealed record ProfileDto(
     Guid RoleId,
     Guid? BranchId,
     string Scope,
-    bool IsActive);
+    bool IsActive,
+    IReadOnlyList<ProfilePermissionDto> Permissions);
+

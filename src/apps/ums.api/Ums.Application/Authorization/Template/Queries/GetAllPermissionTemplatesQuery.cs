@@ -10,4 +10,6 @@ public sealed record GetAllPermissionTemplatesQuery(
     string Status = "all",
     string SortBy = "version",
     string SortOrder = "asc",
-    Guid? TenantId = null) : IQuery<PagedResult<PermissionTemplateDto>>;
+    Guid? TenantId = null,
+    Guid? SystemSuiteId = null,
+    Guid? RoleId = null) : IQuery<PagedResult<PermissionTemplateDto>>;

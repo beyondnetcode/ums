@@ -7,7 +7,7 @@
  */
 import React from 'react';
 
-export type NavItemId = 'tenants' | 'users' | 'delegations' | 'systemSuites' | 'permissionTemplates' | 'featureFlags' | 'profile' | 'login';
+export type NavItemId = 'tenants' | 'users' | 'delegations' | 'systemSuites' | 'permissionTemplates' | 'featureFlags' | 'profiles' | 'profile' | 'login';
 
 export interface NavItem {
   id: NavItemId;
@@ -29,6 +29,7 @@ export const NAV_ROUTES: Record<NavItemId, string> = {
   systemSuites: '/system-suites',
   permissionTemplates: '/permission-templates',
   featureFlags: '/feature-flags',
+  profiles: '/profiles',
   profile: '/profile',
   login: '/login',
 };
@@ -40,6 +41,7 @@ export const pathToTab = (pathname: string): NavItemId => {
   if (pathname.startsWith('/system-suites')) return 'systemSuites';
   if (pathname.startsWith('/permission-templates')) return 'permissionTemplates';
   if (pathname.startsWith('/feature-flags')) return 'featureFlags';
+  if (pathname.startsWith('/profiles')) return 'profiles';
   if (pathname.startsWith('/profile')) return 'profile';
   if (pathname.startsWith('/login')) return 'login';
   return 'tenants';
@@ -78,6 +80,7 @@ export const NAV_MODULES = (deps: NavModulesFactoryDeps): NavModule[] => [
     members: [
       { id: 'systemSuites',         nameKey: 'systemSuites',         icon: <deps.Cpu         className="w-4 h-4" /> },
       { id: 'permissionTemplates',  nameKey: 'permissionTemplates',  icon: <deps.ShieldCheck className="w-4 h-4" /> },
+      { id: 'profiles',             nameKey: 'profilesHeader',       icon: <deps.ShieldCheck className="w-4 h-4" /> },
       { id: 'featureFlags',         nameKey: 'featureFlags',         icon: <deps.Flag        className="w-4 h-4" /> },
     ],
   },

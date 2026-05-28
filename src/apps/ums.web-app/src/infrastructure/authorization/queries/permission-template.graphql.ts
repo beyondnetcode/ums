@@ -14,6 +14,8 @@ const GET_PERMISSION_TEMPLATES = `
     $sortBy: String
     $sortOrder: String
     $tenantId: UUID
+    $systemSuiteId: UUID
+    $roleId: UUID
   ) {
     getPermissionTemplates: permissionTemplates(
       page: $page
@@ -24,6 +26,8 @@ const GET_PERMISSION_TEMPLATES = `
       sortBy: $sortBy
       sortOrder: $sortOrder
       tenantId: $tenantId
+      systemSuiteId: $systemSuiteId
+      roleId: $roleId
     ) {
       items {
         templateId
@@ -79,6 +83,8 @@ export const graphqlPermissionTemplateQueries = {
     sortBy?: string;
     sortOrder?: string;
     tenantId?: string;
+    systemSuiteId?: string;
+    roleId?: string;
   }) => {
     return graphqlClient.request<{ getPermissionTemplates: unknown }>(GET_PERMISSION_TEMPLATES, {
       page: params.page,
@@ -89,6 +95,8 @@ export const graphqlPermissionTemplateQueries = {
       sortBy: params.sortBy ?? 'version',
       sortOrder: params.sortOrder ?? 'asc',
       tenantId: params.tenantId ?? null,
+      systemSuiteId: params.systemSuiteId ?? null,
+      roleId: params.roleId ?? null,
     });
   },
 

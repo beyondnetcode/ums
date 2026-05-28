@@ -21,6 +21,8 @@ public static class PermissionTemplateEndpoints
             [FromQuery] string? sortBy,
             [FromQuery] string? sortOrder,
             [FromQuery] Guid? tenantId,
+            [FromQuery] Guid? systemSuiteId,
+            [FromQuery] Guid? roleId,
             IMediator mediator,
             HttpContext context,
             CancellationToken ct) =>
@@ -33,7 +35,9 @@ public static class PermissionTemplateEndpoints
                 string.IsNullOrWhiteSpace(status) ? "all" : status,
                 string.IsNullOrWhiteSpace(sortBy) ? "version" : sortBy,
                 string.IsNullOrWhiteSpace(sortOrder) ? "asc" : sortOrder,
-                tenantId), ct);
+                tenantId,
+                systemSuiteId,
+                roleId), ct);
             return result.ToOk(context);
         })
         .WithName("GetAllPermissionTemplates")

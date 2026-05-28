@@ -4,6 +4,7 @@ export const authorizationTranslations = {
     authorizationContext: 'Contexto de Autorización',
     systemSuites: 'Suites del Sistema',
     permissionTemplates: 'Plantillas de Permisos',
+    profilesHeader: 'Perfiles de Autorización',
     permissionTemplateMaintenance: 'Plantillas de Permisos',
     permissionTemplateMaintenanceSubtitle: 'Configure plantillas de permisos por rol y suite. Asigne efectos (Permitir/Denegar/Neutro) a cada recurso.',
 
@@ -158,6 +159,7 @@ export const authorizationTranslations = {
     authorizationContext: 'Authorization Context',
     systemSuites: 'System Suites',
     permissionTemplates: 'Permission Templates',
+    profilesHeader: 'Authorization Profiles',
     permissionTemplateMaintenance: 'Permission Templates',
     permissionTemplateMaintenanceSubtitle: 'Configure permission templates by role and system suite. Assign Allow/Deny/Neutral effects per resource.',
 

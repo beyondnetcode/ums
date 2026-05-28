@@ -21,6 +21,8 @@ export interface PermissionTemplateQueryParams {
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
   tenantId?: string;
+  systemSuiteId?: string;
+  roleId?: string;
 }
 
 function isNonRecoverable(error: unknown): boolean {

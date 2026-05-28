@@ -16,6 +16,8 @@ using System.Threading.Tasks;
 public class ProfileQueryHandlerTests
 {
     private readonly Mock<IProfileRepository> _repo = new();
+    private readonly Mock<IRoleRepository> _roleRepo = new();
+    private readonly Mock<ISystemSuiteRepository> _suiteRepo = new();
 
     private static Profile MakeProfile(bool isActive = true)
     {
@@ -45,7 +47,7 @@ public class ProfileQueryHandlerTests
              .ReturnsAsync(profile);
 
         var query = new GetProfileByIdQuery(Guid.NewGuid());
-        var handler = new GetProfileByIdQueryHandler(_repo.Object);
+        var handler = new GetProfileByIdQueryHandler(_repo.Object, _roleRepo.Object, _suiteRepo.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -59,7 +61,7 @@ public class ProfileQueryHandlerTests
              .ReturnsAsync((Profile?)null);
 
         var query = new GetProfileByIdQuery(Guid.NewGuid());
-        var handler = new GetProfileByIdQueryHandler(_repo.Object);
+        var handler = new GetProfileByIdQueryHandler(_repo.Object, _roleRepo.Object, _suiteRepo.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsFailure);

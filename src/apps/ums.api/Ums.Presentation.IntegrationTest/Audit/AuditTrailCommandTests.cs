@@ -23,6 +23,8 @@ public sealed class AuditTrailCommandTests : IClassFixture<UmsApiWebApplicationF
     {
         var createResponse = await _client.PostAsJsonAsync("/api/v1/feature-flags", new
         {
+            systemSuiteId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            tenantId = (Guid?)null,
             flagCode = $"audit_flag_{Guid.NewGuid():N}",
             flagType = "Boolean",
             flagTargets = "tenant-console",

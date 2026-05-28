@@ -20,6 +20,8 @@ public sealed class PermissionTemplateQueries
         string? sortBy,
         string? sortOrder,
         Guid? tenantId,
+        Guid? systemSuiteId,
+        Guid? roleId,
         [Service] IMediator mediator,
         CancellationToken cancellationToken)
     {
@@ -31,7 +33,9 @@ public sealed class PermissionTemplateQueries
             NormalizeText(status, "all"),
             NormalizeText(sortBy, "version"),
             NormalizeText(sortOrder, "asc"),
-            tenantId), cancellationToken);
+            tenantId,
+            systemSuiteId,
+            roleId), cancellationToken);
 
         return result.UnwrapGraphQl();
     }

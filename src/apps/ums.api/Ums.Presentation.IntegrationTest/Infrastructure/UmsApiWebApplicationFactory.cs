@@ -140,9 +140,11 @@ public sealed class UmsApiWebApplicationFactory : WebApplicationFactory<Program>
         var systemSuiteId = SystemSuiteId.Load(Guid.Parse("11111111-1111-1111-1111-111111111111"));
         var moduleId = IdValueObject.Load(Guid.Parse("22222222-2222-2222-2222-222222222222"));
 
-        if (featureFlagRepository.GetByCodeAsync("tenant_dashboard_enabled").GetAwaiter().GetResult() is null)
+        if (featureFlagRepository.GetBySystemSuiteAndCodeAsync(systemSuiteId.GetValue(), "tenant_dashboard_enabled").GetAwaiter().GetResult() is null)
         {
             var featureFlag = FeatureFlag.Create(
+                systemSuiteId,
+                null,
                 "tenant_dashboard_enabled",
                 FlagType.Boolean,
                 "tenant-console",
