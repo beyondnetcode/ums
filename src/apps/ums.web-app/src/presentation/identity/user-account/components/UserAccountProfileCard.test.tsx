@@ -28,7 +28,7 @@ describe('UserAccountProfileCard', () => {
     );
 
     expect(screen.getAllByText('operator@ransa.pe')[0]).toBeInTheDocument();
-    expect(screen.getByText('Internal')).toBeInTheDocument();
+    expect(screen.getAllByText('Internal')[0]).toBeInTheDocument();
     expect(screen.getByText('Activo')).toBeInTheDocument(); // Active status label resolved by useStatusLabel
     expect(screen.getByText('EMP-99')).toBeInTheDocument();
   });

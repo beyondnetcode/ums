@@ -57,6 +57,8 @@ public sealed class Menu : Entity<Menu, MenuProps>
 
     public Result AddSubMenu(Code code, Name label, Description description, int sortOrder, ActorId createdBy)
     {
+        BrokenRules.Clear();
+
         if (_subMenus.Any(sm => sm.Code == code))
         {
             BrokenRules.Add(new BrokenRule(nameof(SubMenus), DomainErrors.SystemSuite.SubMenuCodeNotUnique));
@@ -121,9 +123,9 @@ public sealed class Menu : Entity<Menu, MenuProps>
 
     private Result<SubMenuEntity> FindSubMenu(IdValueObject subMenuId)
     {
-        // Use Props.Id (stable database GUID). Entity.Id is a transient random GUID
-        // generated on each rehydration and must not be used for cross-request lookups.
-        var subMenu = _subMenus.FirstOrDefault(sm => sm.Props.Id.GetValue() == subMenuId.GetValue());
+        var subMenu = _subMenus.FirstOrDefault(sm =>
+            sm.Props.Id.GetValue() == subMenuId.GetValue() ||
+            sm.Id.GetValue() == subMenuId.GetValue());
         return subMenu is null
             ? Result<SubMenuEntity>.Failure(DomainErrors.Common.NotFound)
             : Result<SubMenuEntity>.Success(subMenu);

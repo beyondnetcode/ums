@@ -75,4 +75,59 @@ describe('useFocusTrap', () => {
     const { result } = renderHook(() => useFocusTrap());
     expect(result.current.containerRef).toBeDefined();
   });
+
+  it('sets tabindex on container when no focusable elements', () => {
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+
+    renderHook(() => useFocusTrap({ active: true }));
+
+    expect(container.getAttribute('tabindex')).toBe('-1');
+  });
+
+  it('focuses first focusable element when available', () => {
+    const container = document.createElement('div');
+    const button = document.createElement('button');
+    button.textContent = 'Click me';
+    container.appendChild(button);
+    document.body.appendChild(container);
+
+    renderHook(() => useFocusTrap({ active: true }));
+
+    expect(document.activeElement).toBe(button);
+  });
+
+  it('calls onEscape when Escape key is pressed', () => {
+    const onEscape = vi.fn();
+    const container = document.createElement('div');
+    container.setAttribute('tabindex', '-1');
+    document.body.appendChild(container);
+
+    renderHook(() => useFocusTrap({ active: true, onEscape }));
+
+    act(() => {
+      const escapeEvent = new KeyboardEvent('keydown', { key: 'Escape' });
+      document.dispatchEvent(escapeEvent);
+    });
+
+    expect(onEscape).toHaveBeenCalled();
+  });
+
+  it('handles Tab key cycling', () => {
+    const container = document.createElement('div');
+    const button1 = document.createElement('button');
+    const button2 = document.createElement('button');
+    container.appendChild(button1);
+    container.appendChild(button2);
+    document.body.appendChild(container);
+
+    renderHook(() => useFocusTrap({ active: true }));
+
+    act(() => {
+      const tabEvent = new KeyboardEvent('keydown', { key: 'Tab' });
+      document.dispatchEvent(tabEvent);
+    });
+
+    expect(document.activeElement).toBeDefined();
+  });
 });

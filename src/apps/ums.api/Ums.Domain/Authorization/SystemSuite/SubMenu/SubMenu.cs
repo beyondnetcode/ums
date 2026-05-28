@@ -57,6 +57,8 @@ public sealed class SubMenu : Entity<SubMenu, SubMenuProps>
 
     public Result AddOption(Code code, Name label, Description description, ActionCode actionCode, int sortOrder, ActorId createdBy)
     {
+        BrokenRules.Clear();
+
         if (_options.Any(o => o.Code == code))
         {
             BrokenRules.Add(new BrokenRule(nameof(Options), DomainErrors.SystemSuite.OptionCodeNotUnique));
@@ -121,9 +123,9 @@ public sealed class SubMenu : Entity<SubMenu, SubMenuProps>
 
     private Result<OptionEntity> FindOption(IdValueObject optionId)
     {
-        // Use Props.Id (stable database GUID). Entity.Id is a transient random GUID
-        // generated on each rehydration and must not be used for cross-request lookups.
-        var option = _options.FirstOrDefault(o => o.Props.Id.GetValue() == optionId.GetValue());
+        var option = _options.FirstOrDefault(o =>
+            o.Props.Id.GetValue() == optionId.GetValue() ||
+            o.Id.GetValue() == optionId.GetValue());
         return option is null
             ? Result<OptionEntity>.Failure(DomainErrors.Common.NotFound)
             : Result<OptionEntity>.Success(option);

@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import {
   useGetAllUserAccounts,
+  useGetUserAccount,
   useCreateUserAccount,
   useActivateUserAccount,
   useBlockUserAccount,
@@ -14,6 +15,7 @@ import userAccountService from '@infra/identity/services/user-account.service';
 vi.mock('@infra/identity/services/user-account.service', () => ({
   userAccountService: {
     getAllUserAccounts: vi.fn(),
+    getUserAccountById: vi.fn(),
     createUserAccount: vi.fn(),
     activateUserAccount: vi.fn(),
     blockUserAccount: vi.fn(),
@@ -21,6 +23,7 @@ vi.mock('@infra/identity/services/user-account.service', () => ({
   },
   default: {
     getAllUserAccounts: vi.fn(),
+    getUserAccountById: vi.fn(),
     createUserAccount: vi.fn(),
     activateUserAccount: vi.fn(),
     blockUserAccount: vi.fn(),
@@ -82,6 +85,48 @@ describe('UserAccount hooks', () => {
       pageSize: 20,
       tenantId: '87654321-4321-4321-4321-0987654321fe',
     });
+  });
+
+  it('useGetUserAccount returns user by id', async () => {
+    const mockUser = {
+      userAccountId: 'u1',
+      email: 'user@test.com',
+      status: 'Active',
+      category: 'Internal',
+    };
+    vi.mocked(userAccountService.getUserAccountById).mockResolvedValue(mockUser);
+
+    const wrapper = createWrapper();
+    const { result } = renderHook(() => useGetUserAccount('u1'), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true);
+    });
+
+    expect(result.current.data?.email).toBe('user@test.com');
+    expect(userAccountService.getUserAccountById).toHaveBeenCalledWith('u1');
+  });
+
+  it('useGetUserAccount returns null on 404', async () => {
+    const error = new Error('Not Found');
+    (error as any).response = { status: 404 };
+    vi.mocked(userAccountService.getUserAccountById).mockRejectedValue(error);
+
+    const wrapper = createWrapper();
+    const { result } = renderHook(() => useGetUserAccount('nonexistent'), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true);
+    });
+
+    expect(result.current.data).toBeNull();
+  });
+
+  it('useGetUserAccount is disabled when id is null', () => {
+    const wrapper = createWrapper();
+    const { result } = renderHook(() => useGetUserAccount(null), { wrapper });
+
+    expect(result.current.isFetching).toBe(false);
   });
 
   it('useCreateUserAccount calls service successfully', async () => {

@@ -166,7 +166,7 @@ public class TenantTests
         var branchCode = Code.Create("BR-001");
         var branchName = Name.Create("Branch One");
         tenant.AddBranch(branchCode, branchName, ValidActor);
-        var branchId = tenant.Branches.First().Id;
+        var branchId = tenant.Branches.First().GetId();
 
         var result = tenant.RemoveBranch(branchId, ValidActor);
 
@@ -181,7 +181,7 @@ public class TenantTests
         var branchCode = Code.Create("BR-001");
         var branchName = Name.Create("Branch One");
         tenant.AddBranch(branchCode, branchName, ValidActor);
-        var branchId = tenant.Branches.First().Id;
+        var branchId = tenant.Branches.First().GetId();
         tenant.DeactivateBranch(branchId, ValidActor);
 
         var result = tenant.RemoveBranch(branchId, ValidActor);
@@ -197,7 +197,7 @@ public class TenantTests
         var branchCode = Code.Create("BR-001");
         var branchName = Name.Create("Branch One");
         tenant.AddBranch(branchCode, branchName, ValidActor);
-        var branchId = tenant.Branches.First().Id;
+        var branchId = tenant.Branches.First().GetId();
         tenant.DeactivateBranch(branchId, ValidActor);
 
         tenant.RemoveBranch(branchId, ValidActor);
@@ -228,7 +228,7 @@ public class TenantTests
         var branchCode = Code.Create("BR-001");
         var branchName = Name.Create("Branch One");
         tenant.AddBranch(branchCode, branchName, ValidActor);
-        var branchId = tenant.Branches.First().Id;
+        var branchId = tenant.Branches.First().GetId();
 
         var result = tenant.DeactivateBranch(branchId, ValidActor);
 
@@ -243,7 +243,7 @@ public class TenantTests
         var branchCode = Code.Create("BR-001");
         var branchName = Name.Create("Branch One");
         tenant.AddBranch(branchCode, branchName, ValidActor);
-        var branchId = tenant.Branches.First().Id;
+        var branchId = tenant.Branches.First().GetId();
         tenant.DeactivateBranch(branchId, ValidActor);
 
         var result = tenant.DeactivateBranch(branchId, ValidActor);
@@ -258,7 +258,7 @@ public class TenantTests
         var branchCode = Code.Create("BR-001");
         var branchName = Name.Create("Branch One");
         tenant.AddBranch(branchCode, branchName, ValidActor);
-        var branchId = tenant.Branches.First().Id;
+        var branchId = tenant.Branches.First().GetId();
 
         tenant.DeactivateBranch(branchId, ValidActor);
 
@@ -277,7 +277,7 @@ public class TenantTests
         var branchCode = Code.Create("BR-001");
         var branchName = Name.Create("Branch One");
         tenant.AddBranch(branchCode, branchName, ValidActor);
-        var branchId = tenant.Branches.First().Id;
+        var branchId = tenant.Branches.First().GetId();
         tenant.DeactivateBranch(branchId, ValidActor);
 
         var result = tenant.ReactivateBranch(branchId, ValidActor);
@@ -293,7 +293,7 @@ public class TenantTests
         var branchCode = Code.Create("BR-001");
         var branchName = Name.Create("Branch One");
         tenant.AddBranch(branchCode, branchName, ValidActor);
-        var branchId = tenant.Branches.First().Id;
+        var branchId = tenant.Branches.First().GetId();
 
         var result = tenant.ReactivateBranch(branchId, ValidActor);
 
@@ -307,7 +307,7 @@ public class TenantTests
         var branchCode = Code.Create("BR-001");
         var branchName = Name.Create("Branch One");
         tenant.AddBranch(branchCode, branchName, ValidActor);
-        var branchId = tenant.Branches.First().Id;
+        var branchId = tenant.Branches.First().GetId();
         tenant.DeactivateBranch(branchId, ValidActor);
 
         tenant.ReactivateBranch(branchId, ValidActor);
@@ -455,7 +455,7 @@ public class TenantTests
         var tenant = Tenant.Create(ValidCode, ValidName, ValidType, ValidActor).Value;
         var description = Description.Create("Test");
         tenant.RegisterIdentityProvider(Code.Create("IDP-001"), Name.Create("Azure AD"), description, IdpStrategy.AzureAd, ValidActor);
-        var idpId = tenant.IdentityProviders.First().Id;
+        var idpId = tenant.IdentityProviders.First().GetId();
 
         var result = tenant.ActivateIdentityProvider(idpId, ValidActor);
 
@@ -481,7 +481,7 @@ public class TenantTests
         var tenant = Tenant.Create(ValidCode, ValidName, ValidType, ValidActor).Value;
         var description = Description.Create("Test");
         tenant.RegisterIdentityProvider(Code.Create("IDP-001"), Name.Create("Azure AD"), description, IdpStrategy.AzureAd, ValidActor);
-        var idpId = tenant.IdentityProviders.First().Id;
+        var idpId = tenant.IdentityProviders.First().GetId();
         tenant.ActivateIdentityProvider(idpId, ValidActor);
 
         var result = tenant.ActivateIdentityProvider(idpId, ValidActor);
@@ -499,7 +499,7 @@ public class TenantTests
         tenant.RegisterIdentityProvider(Code.Create("IDP-002"), Name.Create("Okta"), description, IdpStrategy.Okta, ValidActor);
         tenant.RegisterIdentityProvider(Code.Create("IDP-003"), Name.Create("Keycloak"), description, IdpStrategy.Keycloak, ValidActor);
 
-        var secondIdpId = tenant.IdentityProviders.Skip(1).First().Id;
+        var secondIdpId = tenant.IdentityProviders.Skip(1).First().GetId();
         tenant.ActivateIdentityProvider(secondIdpId, ValidActor);
 
         var activeCount = tenant.IdentityProviders.Count(ip => ip.IsActive);
@@ -513,7 +513,7 @@ public class TenantTests
         var tenant = Tenant.Create(ValidCode, ValidName, ValidType, ValidActor).Value;
         var description = Description.Create("Test");
         tenant.RegisterIdentityProvider(Code.Create("IDP-001"), Name.Create("Azure AD"), description, IdpStrategy.AzureAd, ValidActor);
-        var idpId = tenant.IdentityProviders.First().Id;
+        var idpId = tenant.IdentityProviders.First().GetId();
 
         tenant.ActivateIdentityProvider(idpId, ValidActor);
 
@@ -529,7 +529,7 @@ public class TenantTests
         tenant.RegisterIdentityProvider(Code.Create("IDP-001"), Name.Create("Azure AD"), description, IdpStrategy.AzureAd, ValidActor);
         tenant.RegisterIdentityProvider(Code.Create("IDP-002"), Name.Create("Okta"), description, IdpStrategy.Okta, ValidActor);
 
-        var secondIdpId = tenant.IdentityProviders.Skip(1).First().Id;
+        var secondIdpId = tenant.IdentityProviders.Skip(1).First().GetId();
         tenant.ActivateIdentityProvider(secondIdpId, ValidActor);
 
         var active = tenant.GetActiveIdentityProvider();
@@ -547,7 +547,7 @@ public class TenantTests
         var tenant = Tenant.Create(ValidCode, ValidName, ValidType, ValidActor).Value;
         var description = Description.Create("Test");
         tenant.RegisterIdentityProvider(Code.Create("IDP-001"), Name.Create("Azure AD"), description, IdpStrategy.AzureAd, ValidActor);
-        var idpId = tenant.IdentityProviders.First().Id;
+        var idpId = tenant.IdentityProviders.First().GetId();
         tenant.ActivateIdentityProvider(idpId, ValidActor);
 
         var result = tenant.DeactivateIdentityProvider(idpId, ValidActor);
@@ -574,7 +574,7 @@ public class TenantTests
         var tenant = Tenant.Create(ValidCode, ValidName, ValidType, ValidActor).Value;
         var description = Description.Create("Test");
         tenant.RegisterIdentityProvider(Code.Create("IDP-001"), Name.Create("Azure AD"), description, IdpStrategy.AzureAd, ValidActor);
-        var idpId = tenant.IdentityProviders.First().Id;
+        var idpId = tenant.IdentityProviders.First().GetId();
 
         var result = tenant.DeactivateIdentityProvider(idpId, ValidActor);
 
@@ -588,7 +588,7 @@ public class TenantTests
         var tenant = Tenant.Create(ValidCode, ValidName, ValidType, ValidActor).Value;
         var description = Description.Create("Test");
         tenant.RegisterIdentityProvider(Code.Create("IDP-001"), Name.Create("Azure AD"), description, IdpStrategy.AzureAd, ValidActor);
-        var idpId = tenant.IdentityProviders.First().Id;
+        var idpId = tenant.IdentityProviders.First().GetId();
         tenant.ActivateIdentityProvider(idpId, ValidActor);
 
         tenant.DeactivateIdentityProvider(idpId, ValidActor);
@@ -607,7 +607,7 @@ public class TenantTests
         var tenant = Tenant.Create(ValidCode, ValidName, ValidType, ValidActor).Value;
         var description = Description.Create("Test");
         tenant.RegisterIdentityProvider(Code.Create("IDP-001"), Name.Create("Azure AD"), description, IdpStrategy.AzureAd, ValidActor);
-        var idpId = tenant.IdentityProviders.First().Id;
+        var idpId = tenant.IdentityProviders.First().GetId();
 
         var result = tenant.RemoveIdentityProvider(idpId, ValidActor);
 
@@ -633,7 +633,7 @@ public class TenantTests
         var tenant = Tenant.Create(ValidCode, ValidName, ValidType, ValidActor).Value;
         var description = Description.Create("Test");
         tenant.RegisterIdentityProvider(Code.Create("IDP-001"), Name.Create("Azure AD"), description, IdpStrategy.AzureAd, ValidActor);
-        var idpId = tenant.IdentityProviders.First().Id;
+        var idpId = tenant.IdentityProviders.First().GetId();
         tenant.ActivateIdentityProvider(idpId, ValidActor);
 
         var result = tenant.RemoveIdentityProvider(idpId, ValidActor);
@@ -648,7 +648,7 @@ public class TenantTests
         var tenant = Tenant.Create(ValidCode, ValidName, ValidType, ValidActor).Value;
         var description = Description.Create("Test");
         tenant.RegisterIdentityProvider(Code.Create("IDP-001"), Name.Create("Azure AD"), description, IdpStrategy.AzureAd, ValidActor);
-        var idpId = tenant.IdentityProviders.First().Id;
+        var idpId = tenant.IdentityProviders.First().GetId();
 
         tenant.RemoveIdentityProvider(idpId, ValidActor);
 

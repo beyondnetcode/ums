@@ -1,6 +1,31 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import axios from 'axios';
+
+vi.mock('axios', () => ({
+  default: {
+    create: vi.fn(() => ({
+      interceptors: {
+        request: { use: vi.fn(), eject: vi.fn(), handlers: [{ fulfilled: vi.fn(), rejected: vi.fn() }] },
+        response: { use: vi.fn(), eject: vi.fn(), handlers: [{ fulfilled: vi.fn(), rejected: vi.fn() }] },
+      },
+      defaults: { baseURL: '/api' },
+      get: vi.fn(),
+      post: vi.fn(),
+      put: vi.fn(),
+      delete: vi.fn(),
+    })),
+  },
+}));
 
 describe('httpClient configuration', () => {
+  beforeEach(() => {
+    vi.resetModules();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('exports an httpClient instance', async () => {
     const { httpClient } = await import('./httpClient');
     expect(httpClient).toBeDefined();
@@ -25,5 +50,13 @@ describe('httpClient configuration', () => {
     const { httpClient } = await import('./httpClient');
     expect(httpClient.interceptors.response).toBeDefined();
     expect(httpClient.interceptors.response.handlers.length).toBeGreaterThan(0);
+  });
+
+  it('creates axios instance with correct baseURL', async () => {
+    await import('./httpClient');
+    expect(axios.create).toHaveBeenCalledWith(expect.objectContaining({
+      baseURL: expect.any(String),
+      headers: { 'Content-Type': 'application/json' },
+    }));
   });
 });

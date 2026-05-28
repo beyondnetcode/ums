@@ -58,6 +58,8 @@ public sealed class Module : Entity<Module, ModuleProps>
 
     public Result Activate(ActorId updatedBy)
     {
+        BrokenRules.Clear();
+
         if (Status == ModuleStatus.Active)
         {
             BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.SystemSuite.ModuleAlreadyActive));
@@ -75,6 +77,8 @@ public sealed class Module : Entity<Module, ModuleProps>
 
     public Result Deactivate(ActorId updatedBy)
     {
+        BrokenRules.Clear();
+
         if (Status == ModuleStatus.Inactive)
         {
             BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.SystemSuite.ModuleAlreadyInactive));
@@ -92,6 +96,8 @@ public sealed class Module : Entity<Module, ModuleProps>
 
     public Result AddMenu(Code code, Name label, Description description, int sortOrder, ActorId createdBy)
     {
+        BrokenRules.Clear();
+
         if (Status == ModuleStatus.Inactive)
         {
             BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.SystemSuite.ModuleInactiveCannotAddMenu));
@@ -161,9 +167,9 @@ public sealed class Module : Entity<Module, ModuleProps>
 
     private Result<MenuEntity> FindMenu(IdValueObject menuId)
     {
-        // Use Props.Id (stable database GUID). Entity.Id is a transient random GUID
-        // generated on each rehydration and must not be used for cross-request lookups.
-        var menu = _menus.FirstOrDefault(m => m.Props.Id.GetValue() == menuId.GetValue());
+        var menu = _menus.FirstOrDefault(m =>
+            m.Props.Id.GetValue() == menuId.GetValue() ||
+            m.Id.GetValue() == menuId.GetValue());
         return menu is null
             ? Result<MenuEntity>.Failure(DomainErrors.Common.NotFound)
             : Result<MenuEntity>.Success(menu);

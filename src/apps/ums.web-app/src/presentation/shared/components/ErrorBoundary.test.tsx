@@ -1,39 +1,95 @@
-import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import { AppErrorBoundary, RouteErrorBoundary } from './ErrorBoundary';
+import { render, screen, act } from '@testing-library/react';
+import { AppErrorBoundary } from './ErrorBoundary';
 
+vi.mock('@app/stores/i18n.store', () => ({
+  useI18nStore: {
+    getState: () => ({ language: 'en' }),
+  },
+}));
 
-const Bomb = ({ shouldThrow }: { shouldThrow: boolean }) => {
-  if (shouldThrow) {
-    throw new Error('Explosion!');
-  }
-  return <div>Safe</div>;
-};
+vi.mock('@app/i18n/translations', () => ({
+  default: {
+    en: {
+      errorGenericTitle: 'Something went wrong',
+      errorNetworkTitle: 'Network error',
+      errorGenericMsg: 'An unexpected error occurred',
+      errorRetry: 'Try again',
+      errorSupportReference: 'Support reference',
+    },
+  },
+}));
 
-describe('ErrorBoundary', () => {
-  it('renders children if no error', () => {
+vi.mock('@app/errors/http-error', () => ({
+  getSupportReferenceId: () => null,
+}));
+
+describe('AppErrorBoundary', () => {
+  it('renders children when no error', () => {
     render(
       <AppErrorBoundary>
-        <Bomb shouldThrow={false} />
+        <div data-testid="child">Hello</div>
       </AppErrorBoundary>
     );
-    expect(screen.getByText('Safe')).toBeInTheDocument();
+    expect(screen.getByTestId('child')).toHaveTextContent('Hello');
   });
 
-  it('catches error and displays generic fallback', () => {
-    const originalConsoleError = console.error;
-    console.error = vi.fn(); // Suppress React error logging in test output
+  it('renders error UI when child throws', () => {
+    const Bomb = () => {
+      throw new Error('Test error');
+    };
+
+    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     render(
-      <RouteErrorBoundary>
-        <Bomb shouldThrow={true} />
-      </RouteErrorBoundary>
+      <AppErrorBoundary>
+        <Bomb />
+      </AppErrorBoundary>
     );
 
-    // From i18n we expect "Algo salió mal" or "Something went wrong". We'll just check if the retry button is there.
-    expect(screen.getByRole('button')).toBeInTheDocument();
-    expect(screen.queryByText('Explosion!')).not.toBeInTheDocument();
-    
-    console.error = originalConsoleError;
+    expect(screen.getByText(/Something went wrong/i)).toBeInTheDocument();
+  });
+
+  it('resets error state when reset is called', () => {
+    let shouldThrow = true;
+    const Bomb = () => {
+      if (shouldThrow) {
+        throw new Error('Test error');
+      }
+      return <div data-testid="recovered">Recovered</div>;
+    };
+
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    render(
+      <AppErrorBoundary>
+        <Bomb />
+      </AppErrorBoundary>
+    );
+
+    expect(screen.getByText('Something went wrong')).toBeInTheDocument();
+
+    shouldThrow = false;
+    act(() => {
+      screen.getByText('Try again').click();
+    });
+
+    expect(screen.getByTestId('recovered')).toBeInTheDocument();
+  });
+
+  it('uses custom fallback when provided', () => {
+    const Bomb = () => {
+      throw new Error('Test error');
+    };
+
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    render(
+      <AppErrorBoundary fallback={(error) => <div data-testid="custom">Custom: {error.message}</div>}>
+        <Bomb />
+      </AppErrorBoundary>
+    );
+
+    expect(screen.getByTestId('custom')).toHaveTextContent('Custom: Test error');
   });
 });

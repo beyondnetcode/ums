@@ -153,7 +153,7 @@ public class SystemSuiteTests
         var moduleName = Name.Create("Test Module");
         var moduleDescription = Description.Create("A test module");
         suite.AddModule(moduleCode, moduleName, moduleDescription, 1, ValidActor);
-        var moduleId = suite.Modules.First().Id;
+        var moduleId = suite.Modules.First().GetId();
 
         var result = suite.RemoveModule(moduleId, ValidActor);
 
@@ -181,7 +181,7 @@ public class SystemSuiteTests
         var moduleName = Name.Create("Test Module");
         var moduleDescription = Description.Create("A test module");
         suite.AddModule(moduleCode, moduleName, moduleDescription, 1, ValidActor);
-        var moduleId = suite.Modules.First().Id;
+        var moduleId = suite.Modules.First().GetId();
 
         suite.RemoveModule(moduleId, ValidActor);
 
@@ -201,7 +201,7 @@ public class SystemSuiteTests
         var moduleName = Name.Create("Test Module");
         var moduleDescription = Description.Create("A test module");
         suite.AddModule(moduleCode, moduleName, moduleDescription, 1, ValidActor);
-        var moduleId = suite.Modules.First().Id;
+        var moduleId = suite.Modules.First().GetId();
         var newName = Name.Create("Updated Module");
         var newDescription = Description.Create("Updated description");
 
@@ -236,7 +236,7 @@ public class SystemSuiteTests
         var moduleName = Name.Create("Test Module");
         var moduleDescription = Description.Create("A test module");
         suite.AddModule(moduleCode, moduleName, moduleDescription, 1, ValidActor);
-        var moduleId = suite.Modules.First().Id;
+        var moduleId = suite.Modules.First().GetId();
 
         var result = suite.ActivateModule(moduleId, ValidActor);
 
@@ -263,7 +263,7 @@ public class SystemSuiteTests
         var moduleName = Name.Create("Test Module");
         var moduleDescription = Description.Create("A test module");
         suite.AddModule(moduleCode, moduleName, moduleDescription, 1, ValidActor);
-        var moduleId = suite.Modules.First().Id;
+        var moduleId = suite.Modules.First().GetId();
 
         suite.ActivateModule(moduleId, ValidActor);
 
@@ -283,8 +283,8 @@ public class SystemSuiteTests
         var moduleName = Name.Create("Test Module");
         var moduleDescription = Description.Create("A test module");
         suite.AddModule(moduleCode, moduleName, moduleDescription, 1, ValidActor);
-        suite.ActivateModule(suite.Modules.First().Id, ValidActor);
-        var moduleId = suite.Modules.First().Id;
+        suite.ActivateModule(suite.Modules.First().GetId(), ValidActor);
+        var moduleId = suite.Modules.First().GetId();
 
         var result = suite.DeactivateModule(moduleId, ValidActor);
 
@@ -299,8 +299,8 @@ public class SystemSuiteTests
         var moduleName = Name.Create("Test Module");
         var moduleDescription = Description.Create("A test module");
         suite.AddModule(moduleCode, moduleName, moduleDescription, 1, ValidActor);
-        suite.ActivateModule(suite.Modules.First().Id, ValidActor);
-        var moduleId = suite.Modules.First().Id;
+        suite.ActivateModule(suite.Modules.First().GetId(), ValidActor);
+        var moduleId = suite.Modules.First().GetId();
 
         suite.DeactivateModule(moduleId, ValidActor);
 
@@ -535,7 +535,7 @@ public class SystemSuiteTests
         suite.AddDomainResource(null, DomainResourceType.Aggregate, Code.Create("INV"), Name.Create("Invoice"), Description.Create("Desc"), ValidActor);
         var resource = suite.DomainResources.First();
 
-        var result = suite.RemoveDomainResource(resource.Id, ValidActor);
+        var result = suite.RemoveDomainResource(resource.GetId(), ValidActor);
 
         Assert.True(result.IsSuccess);
         Assert.Empty(suite.DomainResources);

@@ -123,7 +123,7 @@ public class IdentityProviderCommandHandlerTests
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(tenant);
 
-        var cmd = new ActivateIdentityProviderCommand(tenant.Props.Id.GetValue(), idp.Id.GetValue());
+        var cmd = new ActivateIdentityProviderCommand(tenant.Props.Id.GetValue(), idp.GetId().GetValue());
         var handler = new ActivateIdentityProviderCommandHandler(_repo.Object, _ctx.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
@@ -145,12 +145,12 @@ public class IdentityProviderCommandHandlerTests
         var tenant = MakeTenant();
         tenant.RegisterIdentityProvider(Code.Create("IDP-001"), Name.Create("Azure"), Description.Create("Azure"), IdpStrategy.AzureAd, ActorId.Create("user-001"));
         var idp = tenant.IdentityProviders.First();
-        tenant.ActivateIdentityProvider(idp.Id, ActorId.Create("user-001")); // make active
+        tenant.ActivateIdentityProvider(idp.GetId(), ActorId.Create("user-001")); // make active
 
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(tenant);
 
-        var cmd = new DeactivateIdentityProviderCommand(tenant.Props.Id.GetValue(), idp.Id.GetValue());
+        var cmd = new DeactivateIdentityProviderCommand(tenant.Props.Id.GetValue(), idp.GetId().GetValue());
         var handler = new DeactivateIdentityProviderCommandHandler(_repo.Object, _ctx.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
@@ -176,7 +176,7 @@ public class IdentityProviderCommandHandlerTests
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(tenant);
 
-        var cmd = new RemoveIdentityProviderCommand(tenant.Props.Id.GetValue(), idp.Id.GetValue());
+        var cmd = new RemoveIdentityProviderCommand(tenant.Props.Id.GetValue(), idp.GetId().GetValue());
         var handler = new RemoveIdentityProviderCommandHandler(_repo.Object, _ctx.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 

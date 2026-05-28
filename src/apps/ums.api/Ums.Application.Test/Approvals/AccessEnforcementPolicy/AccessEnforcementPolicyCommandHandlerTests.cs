@@ -165,4 +165,71 @@ public class AccessEnforcementPolicyCommandHandlerTests
     }
 
     #endregion
+
+    // =========================================================================
+    #region UpdateAccessEnforcementActionCommandHandler
+    // =========================================================================
+
+    [Fact]
+    public async Task UpdateAction_WithValidCommand_ReturnsSuccess()
+    {
+        _ctx.Setup(u => u.UserId).Returns("user-001");
+        var policy = MakePolicy();
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync(policy);
+
+        var cmd = new UpdateAccessEnforcementActionCommand(policy.Props.Id.GetValue(), "RestrictProfile");
+        var handler = new UpdateAccessEnforcementActionCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        _repo.Verify(r => r.UpdateAsync(policy, It.IsAny<CancellationToken>()), Times.Once);
+        _uow.Verify(u => u.SaveEntitiesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateAction_WhenNotFound_ReturnsFailure()
+    {
+        _ctx.Setup(u => u.UserId).Returns("user-001");
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync((AccessEnforcementPolicy?)null);
+
+        var cmd = new UpdateAccessEnforcementActionCommand(Guid.NewGuid(), "BlockUser");
+        var handler = new UpdateAccessEnforcementActionCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("policy not found", result.Error, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task UpdateAction_WhenUnauthenticated_ReturnsFailure()
+    {
+        _ctx.Setup(u => u.UserId).Returns("");
+
+        var cmd = new UpdateAccessEnforcementActionCommand(Guid.NewGuid(), "BlockUser");
+        var handler = new UpdateAccessEnforcementActionCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("authenticated user is required", result.Error, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task UpdateAction_WithInvalidAction_ReturnsFailure()
+    {
+        _ctx.Setup(u => u.UserId).Returns("user-001");
+        var policy = MakePolicy();
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync(policy);
+
+        var cmd = new UpdateAccessEnforcementActionCommand(policy.Props.Id.GetValue(), "InvalidAction");
+        var handler = new UpdateAccessEnforcementActionCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("Invalid action", result.Error, StringComparison.OrdinalIgnoreCase);
+    }
+
+    #endregion
 }

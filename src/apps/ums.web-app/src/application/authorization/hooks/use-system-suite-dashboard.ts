@@ -122,7 +122,7 @@ export function useSystemSuiteDashboard(): SystemSuiteDashboardState & SystemSui
 
   const totalItems = systemSuitePage?.totalItems ?? 0;
   const totalPages = systemSuitePage?.totalPages ?? 0;
-  const startIndex = (page - 1) * pageSize;
+  const startIndex = (paginationState.page - 1) * pageSize;
 
   return {
     selectedId, setSelectedId,

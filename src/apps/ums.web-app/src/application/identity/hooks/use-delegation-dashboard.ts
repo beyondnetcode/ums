@@ -37,7 +37,6 @@ export interface DelegationDashboardActions {
   confirmDiscard: () => void;
   patchDelegation: (id: string, patch: Partial<Delegation>) => void;
   handleCreateSuccess: () => void;
-  handleCreateSuccess: () => void;
 }
 
 export function useDelegationDashboard(): DelegationDashboardState & DelegationDashboardActions & {
@@ -58,7 +57,6 @@ export function useDelegationDashboard(): DelegationDashboardState & DelegationD
   const [activeConsoleTab, setActiveConsoleTab] = useState<'overview' | 'permissions'>('overview');
   const [isEditing, setIsEditing] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('list');
   const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('list');
   const [delegationViewType, setDelegationViewType] = useState<DelegationViewType>('received');
 

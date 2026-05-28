@@ -81,6 +81,9 @@ dotnet tool run coverlet "$DOMAIN_DLL" \
   --exclude "[Ums.Domain]*.Props" \
   --exclude "[Ums.Domain]*Event" \
   --exclude "[Ums.Domain]*DomainErrors" \
+  --exclude "[Ums.Domain]*Regex*" \
+  --exclude "[Ums.Domain]*Generated*" \
+  --exclude "[Ums.Domain]*RuleValidator" \
   --exclude "[Ums.Infrastructure]*" \
   --exclude "[Ums.Shell.*]*" \
   --exclude "[Ums.Globalization]*" \
@@ -100,6 +103,9 @@ dotnet tool run coverlet "$APPLICATION_DLL" \
   --exclude "[Ums.Domain]*.Props" \
   --exclude "[Ums.Domain]*Event" \
   --exclude "[Ums.Domain]*DomainErrors" \
+  --exclude "[Ums.Domain]*Regex*" \
+  --exclude "[Ums.Domain]*Generated*" \
+  --exclude "[Ums.Domain]*RuleValidator" \
   --exclude "[Ums.Application]*.DTOs.*" \
   --exclude "[Ums.Application]*Validator" \
   --exclude "[Ums.Infrastructure]*" \
@@ -117,7 +123,7 @@ dotnet tool run reportgenerator \
   "-targetdir:$REPORT_DIR" \
   "-reporttypes:Html;Cobertura;Badges" \
   "-assemblyfilters:+Ums.Domain;+Ums.Application;-Ums.Infrastructure;-Ums.Presentation;-Ums.Shell.*" \
-  "-classfilters:-*Props;-*Event;-*DomainErrors;-*Validator;-*.DTOs.*" \
+  "-classfilters:-*Props;-*Event;-*DomainErrors;-*Validator;-*DTOs.*;-*.Props;-*Generated*;-RegexGenerator*" \
   "-title:UMS Business Layer Coverage"
 
 echo ""

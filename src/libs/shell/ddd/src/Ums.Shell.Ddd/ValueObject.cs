@@ -102,7 +102,7 @@ namespace Ums.Shell.Ddd
 
         private void Validate()
         {
-            //BrokenRules.Clear();
+            BrokenRules.Clear();
 
             BrokenRules.Add(ValidatorRules.GetBrokenRules());
         }

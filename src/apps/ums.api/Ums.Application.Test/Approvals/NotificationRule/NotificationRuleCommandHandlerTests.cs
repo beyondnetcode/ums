@@ -153,4 +153,55 @@ public class NotificationRuleCommandHandlerTests
     }
 
     #endregion
+
+    // =========================================================================
+    #region UpdateNotificationRuleRecipientCommandHandler
+    // =========================================================================
+
+    [Fact]
+    public async Task UpdateRecipient_WithValidCommand_ReturnsSuccess()
+    {
+        _ctx.Setup(u => u.UserId).Returns("user-001");
+        var rule = MakeNotificationRule();
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync(rule);
+
+        var cmd = new UpdateNotificationRuleRecipientCommand(rule.Props.Id.GetValue(), "new-recipient@test.com");
+        var handler = new UpdateNotificationRuleRecipientCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        _repo.Verify(r => r.UpdateAsync(rule, It.IsAny<CancellationToken>()), Times.Once);
+        _uow.Verify(u => u.SaveEntitiesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateRecipient_WhenNotFound_ReturnsFailure()
+    {
+        _ctx.Setup(u => u.UserId).Returns("user-001");
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync((NotificationRule?)null);
+
+        var cmd = new UpdateNotificationRuleRecipientCommand(Guid.NewGuid(), "new-recipient@test.com");
+        var handler = new UpdateNotificationRuleRecipientCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("rule not found", result.Error, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task UpdateRecipient_WhenUnauthenticated_ReturnsFailure()
+    {
+        _ctx.Setup(u => u.UserId).Returns("");
+
+        var cmd = new UpdateNotificationRuleRecipientCommand(Guid.NewGuid(), "new-recipient@test.com");
+        var handler = new UpdateNotificationRuleRecipientCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("authenticated user is required", result.Error, StringComparison.OrdinalIgnoreCase);
+    }
+
+    #endregion
 }

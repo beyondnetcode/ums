@@ -1,54 +1,137 @@
-import { describe, expect, it } from 'vitest';
-import { getHttpErrorMessage, getHttpStatus, getSupportReferenceId } from './http-error';
+import { describe, it, expect } from 'vitest';
+import {
+  asHttpError,
+  getHttpStatus,
+  getSupportReferenceId,
+  getHttpErrorMessage,
+} from './http-error';
 
-describe('http-error helpers', () => {
-  it('does not expose REST error details and extracts the support reference', () => {
-    const error = {
-      message: 'Request failed',
-      response: {
-        status: 404,
-        data: {
-          detail: 'System.InvalidOperationException: private detail',
-          errorId: 'db83c6dd-770d-4d92-b6b8-98e80c790e4a',
-          traceId: 'corr-404',
-        },
-      },
-    };
-
-    expect(getHttpStatus(error)).toBe(404);
-    expect(getHttpErrorMessage(error, 'Could not load tenants.')).toBe('Could not load tenants.');
-    expect(getSupportReferenceId(error)).toBe('db83c6dd-770d-4d92-b6b8-98e80c790e4a');
+describe('asHttpError', () => {
+  it('returns empty object for non-object errors', () => {
+    expect(asHttpError('string error')).toEqual({});
+    expect(asHttpError(null)).toEqual({});
+    expect(asHttpError(undefined)).toEqual({});
+    expect(asHttpError(42)).toEqual({});
   });
 
-  it('extracts a GraphQL support reference without displaying its message', () => {
-    const error = {
-      graphQLErrors: [{
-        message: 'Sensitive internal failure',
-        extensions: { errorId: '3d8695ca-180b-44c2-9908-6683316cbf77', traceId: 'corr-gql' },
-      }],
-    };
-
-    expect(getHttpErrorMessage(error, 'Try again later.')).toBe('Try again later.');
-    expect(getSupportReferenceId(error)).toBe('3d8695ca-180b-44c2-9908-6683316cbf77');
+  it('extracts response status', () => {
+    const error = { response: { status: 404 } };
+    const result = asHttpError(error);
+    expect(result.response?.status).toBe(404);
   });
 
-  it('displays only an explicitly approved actionable API message', () => {
+  it('extracts data fields', () => {
     const error = {
       response: {
         status: 422,
         data: {
-          detail: 'Validation.Failed: private transport content',
-          userMessage: 'La descripción del módulo no puede exceder 500 caracteres.',
+          userMessage: 'Invalid input',
+          errorId: 'err-123',
+          traceId: 'trace-456',
+          detail: 'Internal detail',
+          title: 'Validation Error',
         },
       },
     };
-
-    expect(getHttpErrorMessage(error, 'No se pudo registrar el módulo.'))
-      .toBe('La descripción del módulo no puede exceder 500 caracteres.');
+    const result = asHttpError(error);
+    expect(result.response?.data?.userMessage).toBe('Invalid input');
+    expect(result.response?.data?.errorId).toBe('err-123');
+    expect(result.response?.data?.traceId).toBe('trace-456');
   });
 
-  it('falls back when the error shape is unknown', () => {
-    expect(getHttpStatus('boom')).toBeUndefined();
-    expect(getHttpErrorMessage('boom', 'Fallback')).toBe('Fallback');
+  it('extracts graphQLErrors', () => {
+    const error = {
+      graphQLErrors: [
+        { extensions: { errorId: 'gql-err-1' } },
+        { extensions: { code: 'INTERNAL_ERROR' } },
+      ],
+    };
+    const result = asHttpError(error);
+    expect(result.graphQLErrors).toHaveLength(2);
+  });
+
+  it('extracts supportReferenceId from root', () => {
+    const error = { supportReferenceId: 'ref-789' };
+    const result = asHttpError(error);
+    expect(result.supportReferenceId).toBe('ref-789');
+  });
+
+  it('handles malformed response gracefully', () => {
+    const error = { response: 'not an object' };
+    const result = asHttpError(error);
+    expect(result.response).toBeUndefined();
+  });
+});
+
+describe('getHttpStatus', () => {
+  it('returns status number', () => {
+    const error = { response: { status: 500 } };
+    expect(getHttpStatus(error)).toBe(500);
+  });
+
+  it('returns undefined for non-http errors', () => {
+    expect(getHttpStatus('error')).toBeUndefined();
+  });
+
+  it('returns undefined when no status', () => {
+    const error = { response: {} };
+    expect(getHttpStatus(error)).toBeUndefined();
+  });
+});
+
+describe('getSupportReferenceId', () => {
+  it('returns supportReferenceId from root', () => {
+    const error = { supportReferenceId: 'root-ref' };
+    expect(getSupportReferenceId(error)).toBe('root-ref');
+  });
+
+  it('returns supportReferenceId from response data', () => {
+    const error = { response: { data: { supportReferenceId: 'data-ref' } } };
+    expect(getSupportReferenceId(error)).toBe('data-ref');
+  });
+
+  it('returns errorId from response data', () => {
+    const error = { response: { data: { errorId: 'err-123' } } };
+    expect(getSupportReferenceId(error)).toBe('err-123');
+  });
+
+  it('returns traceId from response data', () => {
+    const error = { response: { data: { traceId: 'trace-456' } } };
+    expect(getSupportReferenceId(error)).toBe('trace-456');
+  });
+
+  it('returns errorId from graphQLErrors', () => {
+    const error = { graphQLErrors: [{ extensions: { errorId: 'gql-err' } }] };
+    expect(getSupportReferenceId(error)).toBe('gql-err');
+  });
+
+  it('returns traceId from graphQLErrors', () => {
+    const error = { graphQLErrors: [{ extensions: { traceId: 'gql-trace' } }] };
+    expect(getSupportReferenceId(error)).toBe('gql-trace');
+  });
+
+  it('returns undefined for empty error', () => {
+    expect(getSupportReferenceId({})).toBeUndefined();
+  });
+});
+
+describe('getHttpErrorMessage', () => {
+  it('returns userMessage when available', () => {
+    const error = { response: { data: { userMessage: 'Custom error' } } };
+    expect(getHttpErrorMessage(error, 'Default error')).toBe('Custom error');
+  });
+
+  it('returns fallback when no userMessage', () => {
+    const error = { response: { data: { detail: 'Internal' } } };
+    expect(getHttpErrorMessage(error, 'Fallback')).toBe('Fallback');
+  });
+
+  it('returns fallback for non-http errors', () => {
+    expect(getHttpErrorMessage('error', 'Fallback')).toBe('Fallback');
+  });
+
+  it('does not return detail field', () => {
+    const error = { response: { data: { detail: 'Internal detail' } } };
+    expect(getHttpErrorMessage(error, 'Fallback')).toBe('Fallback');
   });
 });

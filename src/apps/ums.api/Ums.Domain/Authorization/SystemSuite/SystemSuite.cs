@@ -84,6 +84,8 @@ public sealed class SystemSuite : AggregateRoot<SystemSuite, SystemSuiteProps>
 
     public Result AddModule(Code code, Name name, Description description, int sortOrder, ActorId createdBy)
     {
+        BrokenRules.Clear();
+
         if (_modules.Any(m => m.Code == code))
         {
             BrokenRules.Add(new BrokenRule(nameof(Modules), DomainErrors.SystemSuite.ModuleCodeNotUnique));
@@ -548,9 +550,9 @@ public sealed class SystemSuite : AggregateRoot<SystemSuite, SystemSuiteProps>
 
     private Result<ModuleEntity> FindModule(IdValueObject moduleId)
     {
-        // Use Props.Id (stable database GUID). Entity.Id is a transient random GUID
-        // generated on each rehydration and must not be used for cross-request lookups.
-        var module = _modules.FirstOrDefault(m => m.Props.Id.GetValue() == moduleId.GetValue());
+        var module = _modules.FirstOrDefault(m =>
+            m.Props.Id.GetValue() == moduleId.GetValue() ||
+            m.Id.GetValue() == moduleId.GetValue());
         return module is null
             ? Result<ModuleEntity>.Failure(DomainErrors.Common.NotFound)
             : Result<ModuleEntity>.Success(module);

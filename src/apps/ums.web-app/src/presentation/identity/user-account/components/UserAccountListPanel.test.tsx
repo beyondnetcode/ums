@@ -39,6 +39,30 @@ const mockAccounts: UserAccount[] = [
   },
 ];
 
+const mockQueryState = {
+  searchCriteria: 'email',
+  setSearchCriteria: () => {},
+  searchValue: '',
+  setSearchValue: () => {},
+  handleQuerySubmit: (e: React.FormEvent) => e.preventDefault(),
+  activeFilter: 'all',
+  setActiveFilter: () => {},
+  sortBy: 'email',
+  setSortBy: () => {},
+  sortOrder: 'asc' as const,
+  toggleSortOrder: () => {},
+  appliedQuery: { term: '' },
+};
+
+const mockPaginationState = {
+  page: 1,
+  pageSize: 20,
+  totalItems: 1,
+  totalPages: 1,
+  handlePageChange: () => {},
+  setPage: () => {},
+};
+
 describe('UserAccountListPanel', () => {
   it('renders title, search input, and active tenant selector dropdown', () => {
     const onTenantChange = vi.fn();
@@ -50,24 +74,9 @@ describe('UserAccountListPanel', () => {
         error={null}
         viewMode="list"
         onViewModeChange={() => {}}
-        searchCriteria="email"
-        onSearchCriteriaChange={() => {}}
-        searchValue=""
-        onSearchValueChange={() => {}}
-        onSearchSubmit={(e) => e.preventDefault()}
+        queryState={mockQueryState}
+        paginationState={mockPaginationState}
         onRegisterNew={() => {}}
-        sortBy="email"
-        onSortByChange={() => {}}
-        sortOrder="asc"
-        onSortOrderToggle={() => {}}
-        activeFilter="all"
-        onFilterChange={() => {}}
-        page={1}
-        pageSize={20}
-        totalItems={1}
-        totalPages={1}
-        appliedTerm=""
-        onPageChange={() => {}}
         onSelectAccount={() => {}}
         criteriaOptions={[{ label: 'Email', value: 'email' }]}
         filterOptions={[{ label: 'All', value: 'all' }]}
@@ -100,24 +109,9 @@ describe('UserAccountListPanel', () => {
         error={null}
         viewMode="list"
         onViewModeChange={() => {}}
-        searchCriteria="email"
-        onSearchCriteriaChange={() => {}}
-        searchValue=""
-        onSearchValueChange={() => {}}
-        onSearchSubmit={(e) => e.preventDefault()}
+        queryState={mockQueryState}
+        paginationState={mockPaginationState}
         onRegisterNew={() => {}}
-        sortBy="email"
-        onSortByChange={() => {}}
-        sortOrder="asc"
-        onSortOrderToggle={() => {}}
-        activeFilter="all"
-        onFilterChange={() => {}}
-        page={1}
-        pageSize={20}
-        totalItems={1}
-        totalPages={1}
-        appliedTerm=""
-        onPageChange={() => {}}
         onSelectAccount={() => {}}
         criteriaOptions={[{ label: 'Email', value: 'email' }]}
         filterOptions={[{ label: 'All', value: 'all' }]}
