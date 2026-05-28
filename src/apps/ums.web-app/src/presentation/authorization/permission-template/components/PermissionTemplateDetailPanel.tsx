@@ -282,6 +282,7 @@ export const PermissionTemplateDetailPanel: React.FC<Props> = ({ template, isLoa
       loadingLabel="Cargando plantilla…"
       emptyLabel="Seleccione una plantilla en el panel izquierdo para ver sus detalles."
       header={header}
+      headerCollapsible
       tabs={tabs}
       activeTab={activeTab}
       onTabChange={(tab) => { setActiveTab(tab); setShowDeleteConfirm(false); }}

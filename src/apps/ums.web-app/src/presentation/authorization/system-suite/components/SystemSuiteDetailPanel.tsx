@@ -634,6 +634,7 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
       activeTab={activeTab}
       onTabChange={setActiveTab}
       entityKey={activeSystemSuite.systemSuiteId}
+      headerCollapsible
       header={
         <SystemSuiteProfileCard
           systemSuite={activeSystemSuite}
