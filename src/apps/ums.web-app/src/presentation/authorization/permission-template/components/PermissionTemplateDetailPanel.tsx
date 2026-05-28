@@ -1,20 +1,22 @@
 /**
  * PermissionTemplateDetailPanel
  *
- * Full CRUD for the Permission Template aggregate:
- *   Create  → via DashboardScreen (PermissionTemplateForm)
- *   Read    → overview tab (metadata) + items tab (effect tree)
- *   Update  → lifecycle transitions (Publish / Deprecate) + item mutations
- *   Delete  → trash button (Draft only) with inline confirmation
+ * Three clearly separated permission sections at same hierarchy level:
+ *   1. Modules - Navigation/UI permission structure (Module > Menu > SubMenu > Option)
+ *   2. Domain Resources - Business/domain permission structure (Aggregates/Entities with CRUD + custom actions)
+ *   3. System Actions - General system-level actions not tied to modules or domain resources
  */
 import React, { useState, useCallback } from 'react';
 import {
   ShieldCheck, SendHorizonal, Ban, Trash2,
-  List, Info, AlertTriangle, Blocks
+  Info, AlertTriangle, Shield, Database, Blocks,
+  CheckCircle2, XCircle, MinusCircle, Layers, Component,
 } from 'lucide-react';
 import type {
-  PermissionTemplateDetail, ExclusiveArcTarget,
+  PermissionTemplateDetail,
+  ExclusiveArcTarget,
 } from '@domain/authorization/models/permission-template.model';
+import { itemEffect } from '@domain/authorization/models/permission-template.model';
 import { useGetSystemSuite } from '@app/authorization/hooks/use-system-suite';
 import { DetailPanelShell, type DetailTab } from '@shared/components/DetailPanelShell';
 import { StatusBadge } from '@shared/components/StatusBadge';
@@ -24,24 +26,24 @@ import {
   usePublishPermissionTemplate,
   useDeprecatePermissionTemplate,
   useDeletePermissionTemplate,
+  useSetTemplateItemEffect,
+  useRemoveTemplateItem,
+  useAddTemplateItem,
 } from '@app/authorization/hooks/use-permission-template';
+import type { SystemSuite } from '@domain/authorization/models/system-suite.model';
+import type { PermissionTemplateItem } from '@domain/authorization/models/permission-template.model';
 
-import { PermissionTree } from './tree/PermissionTree';
-import { NodeDetailPanel } from './tree/NodeDetailPanel';
+import { ModulePermissionsPanel, type ModulePermNode } from './tree/ModulePermissionsPanel';
+import { DomainResourcesPanel, type DomainResourceNode } from './tree/DomainResourcesPanel';
 import { SystemActionsPanel } from './tree/SystemActionsPanel';
-import type { UITreeNodeData } from './tree/TreeNode';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-type TemplateTab = 'overview' | 'tree' | 'actions';
+type TemplateTab = 'overview' | 'modules' | 'domain-resources' | 'actions';
 
 interface Props {
   template:    PermissionTemplateDetail | undefined;
   isLoading:   boolean;
-  onDeleted?:  () => void;   // called after a successful delete
+  onDeleted?:  () => void;
 }
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const STATUS_LABEL: Record<string, string> = {
   Draft:      'Borrador',
@@ -55,12 +57,11 @@ const STATUS_COLOR_MAP = {
   Draft:      { bg: 'bg-amber-500/10',   border: 'border-amber-500/25',   text: 'text-amber-500' },
 };
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
 export const PermissionTemplateDetailPanel: React.FC<Props> = ({ template, isLoading, onDeleted }) => {
   const [activeTab, setActiveTab] = useState<TemplateTab>('overview');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [selectedNode, setSelectedNode] = useState<UITreeNodeData | null>(null);
+  const [selectedModuleNode, setSelectedModuleNode] = useState<ModulePermNode | null>(null);
+  const [selectedDomainResourceNode, setSelectedDomainResourceNode] = useState<DomainResourceNode | null>(null);
 
   const publish    = usePublishPermissionTemplate(template?.templateId ?? '');
   const deprecate  = useDeprecatePermissionTemplate(template?.templateId ?? '');
@@ -72,9 +73,10 @@ export const PermissionTemplateDetailPanel: React.FC<Props> = ({ template, isLoa
   const isPublished = template?.status === 'Published';
 
   const tabs: DetailTab<TemplateTab>[] = [
-    { key: 'overview', label: 'General',  icon: <Info className="w-3.5 h-3.5" /> },
-    { key: 'tree',     label: 'Árbol de Permisos', icon: <List className="w-3.5 h-3.5" /> },
-    { key: 'actions',  label: 'Acciones de Sistema', icon: <Blocks className="w-3.5 h-3.5" /> },
+    { key: 'overview', label: 'General', icon: <Info className="w-3.5 h-3.5" /> },
+    { key: 'modules', label: 'Módulos', icon: <Shield className="w-3.5 h-3.5" /> },
+    { key: 'domain-resources', label: 'Recursos de Dominio', icon: <Database className="w-3.5 h-3.5" /> },
+    { key: 'actions', label: 'Acciones de Sistema', icon: <Blocks className="w-3.5 h-3.5" /> },
   ];
 
   const handleDelete = useCallback(async () => {
@@ -84,11 +86,8 @@ export const PermissionTemplateDetailPanel: React.FC<Props> = ({ template, isLoa
     onDeleted?.();
   }, [template, deleteTpl, onDeleted]);
 
-  // ── Header ─────────────────────────────────────────────────────────────────
-
   const header = template ? (
     <div className="p-4 rounded-xl border border-m3-outline/20 bg-m3-surface-container/30 space-y-3">
-      {/* Title + status */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="p-2 rounded-lg bg-m3-primary/10 shrink-0">
@@ -110,7 +109,6 @@ export const PermissionTemplateDetailPanel: React.FC<Props> = ({ template, isLoa
         />
       </div>
 
-      {/* Context chips */}
       <div className="flex flex-wrap gap-2">
         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-m3-surface-container/60 border border-m3-outline/20 text-[10px] text-m3-secondary">
           <span className="font-semibold text-[9px] uppercase tracking-wide">Rol</span>
@@ -122,7 +120,6 @@ export const PermissionTemplateDetailPanel: React.FC<Props> = ({ template, isLoa
         </span>
       </div>
 
-      {/* Lifecycle actions + delete */}
       <div className="flex items-center gap-2 flex-wrap pt-0.5">
         {isDraft && (
           <M3Button
@@ -147,10 +144,8 @@ export const PermissionTemplateDetailPanel: React.FC<Props> = ({ template, isLoa
           </M3Button>
         )}
 
-        {/* Spacer */}
         <span className="flex-1" />
 
-        {/* Delete — Draft only */}
         {isDraft && !showDeleteConfirm && (
           <button
             type="button"
@@ -163,7 +158,6 @@ export const PermissionTemplateDetailPanel: React.FC<Props> = ({ template, isLoa
           </button>
         )}
 
-        {/* Delete confirmation inline */}
         {isDraft && showDeleteConfirm && (
           <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-rose-500/10 border border-rose-500/25 text-[11px]">
             <AlertTriangle className="w-3.5 h-3.5 text-rose-500 shrink-0" />
@@ -189,8 +183,6 @@ export const PermissionTemplateDetailPanel: React.FC<Props> = ({ template, isLoa
     </div>
   ) : undefined;
 
-  // ── Tab content ─────────────────────────────────────────────────────────────
-
   const overviewContent = template ? (
     <dl className="space-y-0.5">
       <KeyValueRow label="Estado"   value={STATUS_LABEL[template.status] ?? template.status} />
@@ -201,27 +193,73 @@ export const PermissionTemplateDetailPanel: React.FC<Props> = ({ template, isLoa
     </dl>
   ) : null;
 
-  const treeContent = template ? (
+  const modulesContent = template ? (
     <div className="flex h-[500px] -mx-4 -mb-4 overflow-hidden rounded-b-xl border-t border-m3-outline/20">
-      <div className="w-[45%] h-full">
+      <div className="w-[50%] h-full border-r border-m3-outline/20">
         {loadingSuite ? (
           <div className="flex items-center justify-center h-full text-m3-secondary/50 text-xs">Cargando estructura...</div>
         ) : (
-          <PermissionTree
+          <ModulePermissionsPanel
             suite={suite}
             items={template.items}
-            selectedNodeId={selectedNode?.id ?? null}
-            onSelectNode={setSelectedNode}
+            templateId={template.templateId}
+            isDraft={isDraft}
+            onNodeSelect={setSelectedModuleNode}
+            selectedNodeId={selectedModuleNode?.id ?? null}
           />
         )}
       </div>
-      <div className="w-[55%] h-full bg-m3-surface-container/10 overflow-y-auto">
-        <NodeDetailPanel 
-          node={selectedNode} 
-          suite={suite}
-          templateId={template.templateId}
-          isDraft={isDraft}
-        />
+      <div className="w-[50%] h-full bg-m3-surface-container/10 overflow-y-auto">
+        {selectedModuleNode ? (
+          <ModuleNodeDetailPanel
+            node={selectedModuleNode}
+            suite={suite}
+            templateId={template.templateId}
+            isDraft={isDraft}
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full text-m3-secondary/50 p-6 text-center">
+            <Shield className="w-12 h-12 mb-3 opacity-20" />
+            <p className="text-sm font-medium">Seleccione un elemento del árbol</p>
+            <p className="text-xs mt-1 max-w-[250px]">Explore la jerarquía de módulos, menús, submenús y opciones para configurar permisos.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  ) : null;
+
+  const domainResourcesContent = template ? (
+    <div className="flex h-[500px] -mx-4 -mb-4 overflow-hidden rounded-b-xl border-t border-m3-outline/20">
+      <div className="w-[50%] h-full border-r border-m3-outline/20">
+        {loadingSuite ? (
+          <div className="flex items-center justify-center h-full text-m3-secondary/50 text-xs">Cargando recursos...</div>
+        ) : (
+          <DomainResourcesPanel
+            suite={suite}
+            items={template.items}
+            templateId={template.templateId}
+            isDraft={isDraft}
+            onResourceSelect={setSelectedDomainResourceNode}
+            selectedNodeId={selectedDomainResourceNode?.id ?? null}
+          />
+        )}
+      </div>
+      <div className="w-[50%] h-full bg-m3-surface-container/10 overflow-y-auto">
+        {selectedDomainResourceNode && suite ? (
+          <DomainResourceDetailPanel
+            node={selectedDomainResourceNode}
+            suite={suite}
+            items={template.items}
+            templateId={template.templateId}
+            isDraft={isDraft}
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full text-m3-secondary/50 p-6 text-center">
+            <Database className="w-12 h-12 mb-3 opacity-20" />
+            <p className="text-sm font-medium">Seleccione un recurso de dominio</p>
+            <p className="text-xs mt-1 max-w-[250px]">Los recursos de dominio (agregados y entidades) permiten controlar el acceso a nivel de datos con operaciones CRUD y acciones personalizadas.</p>
+          </div>
+        )}
       </div>
     </div>
   ) : null;
@@ -250,8 +288,301 @@ export const PermissionTemplateDetailPanel: React.FC<Props> = ({ template, isLoa
       entityKey={template?.templateId}
     >
       {activeTab === 'overview' && overviewContent}
-      {activeTab === 'tree' && treeContent}
+      {activeTab === 'modules' && modulesContent}
+      {activeTab === 'domain-resources' && domainResourcesContent}
       {activeTab === 'actions' && actionsContent}
     </DetailPanelShell>
+  );
+};
+
+// ─── Module Node Detail Panel ─────────────────────────────────────────────────
+
+interface ModuleNodeDetailPanelProps {
+  node: ModulePermNode;
+  suite: SystemSuite | undefined | null;
+  templateId: string;
+  isDraft: boolean;
+}
+
+const ModuleNodeDetailPanel: React.FC<ModuleNodeDetailPanelProps> = ({ node, suite, templateId, isDraft }) => {
+  const setEffect = useSetTemplateItemEffect(templateId);
+  const removeItem = useRemoveTemplateItem(templateId);
+  const addItem = useAddTemplateItem(templateId);
+
+  const selfItem = node.items[0];
+
+  const computeNodeEffectiveState = (): 'Allow' | 'Deny' | 'Partial' | 'Neutral' => {
+    const selfEffects = node.items.map(itemEffect);
+    const hasAllow = selfEffects.includes('Allow');
+    const hasDeny = selfEffects.includes('Deny');
+    if (hasAllow && !hasDeny) return 'Allow';
+    if (hasDeny && !hasAllow) return 'Deny';
+    return 'Neutral';
+  };
+  const effectiveState = computeNodeEffectiveState();
+
+  const StateIcon =
+    effectiveState === 'Allow' ? CheckCircle2 :
+    effectiveState === 'Deny' ? XCircle :
+    effectiveState === 'Partial' ? CheckCircle2 :
+    MinusCircle;
+
+  const stateColor =
+    effectiveState === 'Allow' ? 'text-emerald-500 bg-emerald-500/10' :
+    effectiveState === 'Deny' ? 'text-rose-500 bg-rose-500/10' :
+    effectiveState === 'Partial' ? 'text-amber-500 bg-amber-500/10' :
+    'text-m3-secondary bg-m3-surface-variant';
+
+  const stateLabel =
+    effectiveState === 'Allow' ? 'Permitido' :
+    effectiveState === 'Deny' ? 'Denegado' :
+    effectiveState === 'Partial' ? 'Permitido parcialmente' :
+    'No configurado (Heredado)';
+
+  const mapTypeToTarget = (type: string): ExclusiveArcTarget => {
+    if (type === 'Module') return 'Module';
+    if (type === 'Menu') return 'Submodule';
+    return 'Option';
+  };
+
+  const handleApplyEffect = async (effect: 'Allow' | 'Deny' | 'Neutral') => {
+    if (!isDraft) return;
+    if (effect === 'Neutral') {
+      if (selfItem) await removeItem.mutateAsync(selfItem.itemId);
+      return;
+    }
+    if (selfItem) {
+      await setEffect.mutateAsync({ itemId: selfItem.itemId, effect });
+    } else {
+      let actionId = '';
+      if (node.actionCode) {
+        const action = suite?.actions.find(a => a.code === node.actionCode);
+        if (action) actionId = action.id;
+      }
+      if (!actionId && suite && suite.actions.length > 0) {
+        actionId = suite.actions[0].id;
+      }
+      await addItem.mutateAsync({
+        targetType: mapTypeToTarget(node.type),
+        targetId: node.id,
+        actionId: actionId || '00000000-0000-0000-0000-000000000000',
+        isAllowed: effect === 'Allow',
+        isDenied: effect === 'Deny',
+      });
+    }
+  };
+
+  return (
+    <div className="p-5">
+      <div className="mb-6">
+        <h3 className="text-sm font-bold text-m3-on-surface flex items-center gap-2">
+          {node.label}
+          <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded border border-current ${stateColor}`}>
+            {node.type}
+          </span>
+        </h3>
+        {node.description && <p className="text-xs text-m3-secondary mt-1.5">{node.description}</p>}
+        <p className="text-[10px] font-mono text-m3-secondary/60 mt-1">{node.code}</p>
+      </div>
+
+      <div className="p-4 rounded-xl border border-m3-outline/20 bg-m3-surface-container/30 mb-6 flex items-start gap-3">
+        <StateIcon className={`w-6 h-6 shrink-0 mt-0.5 ${stateColor.split(' ')[0]}`} />
+        <div>
+          <p className="text-xs font-bold text-m3-on-surface">Estado efectivo: {stateLabel}</p>
+          <p className="text-[11px] text-m3-secondary mt-1 leading-relaxed">
+            {effectiveState === 'Partial'
+              ? 'Algunos elementos secundarios tienen configuraciones diferentes.'
+              : effectiveState === 'Neutral'
+              ? 'No hay reglas directas. El acceso depende de contenedores superiores.'
+              : `El acceso está ${effectiveState === 'Allow' ? 'permitido' : 'denegado'}.`}
+          </p>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <h4 className="text-xs font-bold uppercase tracking-wider text-m3-secondary">Regla Directa</h4>
+
+        {!isDraft && (
+          <div className="flex items-center gap-2 text-[11px] text-m3-secondary/70 bg-m3-surface-variant/30 p-2 rounded">
+            <Info className="w-3.5 h-3.5" />
+            Solo puedes modificar reglas en plantillas Borrador.
+          </div>
+        )}
+
+        <div className="flex gap-2">
+          <button
+            onClick={() => handleApplyEffect('Allow')}
+            disabled={!isDraft || addItem.isPending || setEffect.isPending}
+            className={`flex-1 py-2 px-3 rounded-lg border text-xs font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50
+              ${selfItem?.isAllowed && !selfItem?.isDenied
+                ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-600'
+                : 'bg-transparent border-m3-outline/20 text-m3-secondary hover:border-emerald-500/30 hover:text-emerald-600'}`}
+          >
+            <CheckCircle2 className="w-4 h-4" /> Permitir
+          </button>
+          <button
+            onClick={() => handleApplyEffect('Deny')}
+            disabled={!isDraft || addItem.isPending || setEffect.isPending}
+            className={`flex-1 py-2 px-3 rounded-lg border text-xs font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50
+              ${!selfItem?.isAllowed && selfItem?.isDenied
+                ? 'bg-rose-500/15 border-rose-500/30 text-rose-600'
+                : 'bg-transparent border-m3-outline/20 text-m3-secondary hover:border-rose-500/30 hover:text-rose-600'}`}
+          >
+            <XCircle className="w-4 h-4" /> Denegar
+          </button>
+          <button
+            onClick={() => handleApplyEffect('Neutral')}
+            disabled={!isDraft || !selfItem || removeItem.isPending}
+            className={`flex-1 py-2 px-3 rounded-lg border text-xs font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50
+              ${!selfItem
+                ? 'bg-m3-surface-variant border-m3-outline/20 text-m3-on-surface/80'
+                : 'bg-transparent border-m3-outline/20 text-m3-secondary hover:border-m3-outline/40 hover:text-m3-on-surface'}`}
+          >
+            <MinusCircle className="w-4 h-4" /> Heredar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─── Domain Resource Detail Panel ─────────────────────────────────────────────
+
+interface DomainResourceDetailPanelProps {
+  node: DomainResourceNode;
+  suite: SystemSuite;
+  items: PermissionTemplateItem[];
+  templateId: string;
+  isDraft: boolean;
+}
+
+const DomainResourceDetailPanel: React.FC<DomainResourceDetailPanelProps> = ({ node, suite, items: _items, templateId, isDraft }) => {
+  const setEffect = useSetTemplateItemEffect(templateId);
+  const removeItem = useRemoveTemplateItem(templateId);
+  const addItem = useAddTemplateItem(templateId);
+
+  const selfItem = node.items[0];
+  const effects = node.items.map(itemEffect);
+  const effectiveState = effects.includes('Allow') && !effects.includes('Deny') ? 'Allow'
+    : effects.includes('Deny') && !effects.includes('Allow') ? 'Deny'
+    : 'Neutral';
+
+  const StateIcon = effectiveState === 'Allow' ? CheckCircle2 : effectiveState === 'Deny' ? XCircle : MinusCircle;
+  const stateColor = effectiveState === 'Allow' ? 'text-emerald-500 bg-emerald-500/10'
+    : effectiveState === 'Deny' ? 'text-rose-500 bg-rose-500/10'
+    : 'text-m3-secondary bg-m3-surface-variant';
+  const stateLabel = effectiveState === 'Allow' ? 'Permitido' : effectiveState === 'Deny' ? 'Denegado' : 'No configurado';
+
+  const getIcon = () => {
+    if (node.type === 'Aggregate') return Layers;
+    if (node.type === 'Entity') return Component;
+    return Component;
+  };
+  const Icon = getIcon();
+
+  const mapTypeToTarget = (type: string): ExclusiveArcTarget => {
+    if (type === 'Aggregate') return 'Aggregate';
+    if (type === 'Entity') return 'Entity';
+    return 'Entity';
+  };
+
+  const handleApplyEffect = async (effect: 'Allow' | 'Deny' | 'Neutral') => {
+    if (!isDraft) return;
+    if (effect === 'Neutral') {
+      if (selfItem) await removeItem.mutateAsync(selfItem.itemId);
+      return;
+    }
+    if (selfItem) {
+      await setEffect.mutateAsync({ itemId: selfItem.itemId, effect });
+    } else {
+      const actionId = suite.actions[0]?.id || '00000000-0000-0000-0000-000000000000';
+      await addItem.mutateAsync({
+        targetType: mapTypeToTarget(node.type),
+        targetId: node.id,
+        actionId,
+        isAllowed: effect === 'Allow',
+        isDenied: effect === 'Deny',
+      });
+    }
+  };
+
+  const parentResource = node.parentId ? suite.domainResources?.find(r => r.id === node.parentId) : null;
+
+  return (
+    <div className="p-5">
+      <div className="mb-6">
+        <div className="flex items-center gap-2 mb-1">
+          <div className={`p-1.5 rounded ${
+            node.type === 'Aggregate' ? 'bg-purple-500/10 text-purple-500' :
+            node.type === 'Entity' ? 'bg-emerald-500/10 text-emerald-500' :
+            node.type === 'CrudOperation' ? 'bg-blue-500/10 text-blue-500' :
+            'bg-amber-500/10 text-amber-500'
+          }`}>
+            <Icon className="w-4 h-4" />
+          </div>
+          <h3 className="text-sm font-bold text-m3-on-surface">{node.label}</h3>
+        </div>
+        <p className="text-[10px] font-mono text-m3-secondary/60">{node.code}</p>
+        {node.description && <p className="text-xs text-m3-secondary mt-1.5">{node.description}</p>}
+        {parentResource && (
+          <p className="text-[10px] text-m3-secondary mt-1">
+            Recurso padre: <span className="font-semibold">{parentResource.name}</span>
+            <span className={`ml-1 text-[8px] font-bold uppercase px-1 py-0.5 rounded ${
+              parentResource.type === 'Aggregate' ? 'bg-purple-500/10 text-purple-500' : 'bg-emerald-500/10 text-emerald-500'
+            }`}>
+              {parentResource.type}
+            </span>
+          </p>
+        )}
+      </div>
+
+      <div className="p-4 rounded-xl border border-m3-outline/20 bg-m3-surface-container/30 mb-6 flex items-start gap-3">
+        <StateIcon className={`w-6 h-6 shrink-0 mt-0.5 ${stateColor.split(' ')[0]}`} />
+        <div>
+          <p className="text-xs font-bold text-m3-on-surface">Estado: {stateLabel}</p>
+          <p className="text-[11px] text-m3-secondary mt-1">
+            {effectiveState === 'Neutral'
+              ? 'No hay reglas asignadas. El acceso dependerá de permisos superiores.'
+              : `El acceso a este recurso está ${effectiveState === 'Allow' ? 'permitido' : 'denegado'}.`}
+          </p>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <h4 className="text-xs font-bold uppercase tracking-wider text-m3-secondary">Regla Directa</h4>
+        {!isDraft && (
+          <div className="flex items-center gap-2 text-[11px] text-m3-secondary/70 bg-m3-surface-variant/30 p-2 rounded">
+            <Info className="w-3.5 h-3.5" />
+            Solo puedes modificar reglas en plantillas Borrador.
+          </div>
+        )}
+        <div className="flex gap-2">
+          <button
+            onClick={() => handleApplyEffect('Allow')}
+            disabled={!isDraft || addItem.isPending || setEffect.isPending}
+            className={`flex-1 py-2 px-3 rounded-lg border text-xs font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50
+              ${selfItem?.isAllowed && !selfItem?.isDenied ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-600' : 'bg-transparent border-m3-outline/20 text-m3-secondary hover:border-emerald-500/30 hover:text-emerald-600'}`}
+          >
+            <CheckCircle2 className="w-4 h-4" /> Permitir
+          </button>
+          <button
+            onClick={() => handleApplyEffect('Deny')}
+            disabled={!isDraft || addItem.isPending || setEffect.isPending}
+            className={`flex-1 py-2 px-3 rounded-lg border text-xs font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50
+              ${!selfItem?.isAllowed && selfItem?.isDenied ? 'bg-rose-500/15 border-rose-500/30 text-rose-600' : 'bg-transparent border-m3-outline/20 text-m3-secondary hover:border-rose-500/30 hover:text-rose-600'}`}
+          >
+            <XCircle className="w-4 h-4" /> Denegar
+          </button>
+          <button
+            onClick={() => handleApplyEffect('Neutral')}
+            disabled={!isDraft || !selfItem || removeItem.isPending}
+            className={`flex-1 py-2 px-3 rounded-lg border text-xs font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50
+              ${!selfItem ? 'bg-m3-surface-variant border-m3-outline/20 text-m3-on-surface/80' : 'bg-transparent border-m3-outline/20 text-m3-secondary hover:border-m3-outline/40 hover:text-m3-on-surface'}`}
+          >
+            <MinusCircle className="w-4 h-4" /> Heredar
+          </button>
+        </div>
+      </div>
+    </div>
   );
 };
