@@ -62,6 +62,9 @@ Detailed engineering blueprints focusing on:
 - **[Shell Library Developer Guides](./shell-libraries/README.md)**: Comprehensive developer guides for all four shell libraries with independent and combined usage examples.
   - [Ums.Shell.Ddd](./shell-libraries/ddd.md) · [Ums.Shell.Factory](./shell-libraries/factory.md) · [Ums.Shell.Aop](./shell-libraries/aop.md) · [Ums.Shell.Bootstrapper](./shell-libraries/bootstrapper.md) · [Combined Usage](./shell-libraries/combined-usage.md)
 
+### [Web Frontend](./web-frontend/README.md)
+Applied React Web reference for UMS. This section maps current source evidence to the Evolith Web Frontend Standard - React while keeping product-specific implementation details local to UMS.
+
 ### [Traceability Matrix](./traceability-matrix.md)
 Cross-reference of all Functional Stories (FS-01..16) to ADRs and Technical Enablers.
 

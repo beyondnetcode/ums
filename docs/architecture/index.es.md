@@ -52,6 +52,9 @@ Planos detallados de ingeniería centrados en:
 - **[Formatos de Exportación ER](./blueprints-es/er-export-formats.md)**: Exportaciones SQL, Mermaid e imágenes del esquema.
 - **[Arquitectura de Librerías Shell](./blueprints-es/shell-library-architecture.md)**: Capa shell propia de UMS para patrones DDD y Factory heredados.
 
+### [Web Frontend](./web-frontend/README.es.md)
+Referencia aplicada React Web para UMS. Esta seccion mapea evidencia actual de codigo fuente contra el Estandar Web Frontend React de Evolith manteniendo los detalles especificos de producto dentro de UMS.
+
 ### Relacionado — Diseño de Capa de Dominio
 - **[Portal DDD](../governance/construction/ddd-design/index.md)**: Bounded contexts, agregados, value objects, comandos, eventos y maquinas de estado para el producto completo.
 - **[Primitivas DDD](../governance/construction/ddd-design/11-ddd-primitives.md)**: Primitivas de dominio implementadas mediante la capa de librerías shell de UMS.
