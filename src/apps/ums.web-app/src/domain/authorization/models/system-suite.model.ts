@@ -10,6 +10,8 @@ export type {
   CreateSystemSuitePayload,
   CreateSystemSuiteResponse,
   SystemSuiteDomainResource,
+  SystemSuiteCrudOperation,
+  SystemSuiteCustomAction,
 } from '../schemas/system-suite.schema';
 
 export type {

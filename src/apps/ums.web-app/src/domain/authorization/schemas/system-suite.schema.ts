@@ -56,6 +56,22 @@ export const SystemSuiteModuleSchema = z.object({
   menus: z.array(SystemSuiteMenuSchema),
 });
 
+export const SystemSuiteCrudOperationSchema = z.object({
+  id: z.string().uuid(),
+  code: z.string(),
+  name: z.string(),
+  description: z.string(),
+  sortOrder: z.number(),
+});
+
+export const SystemSuiteCustomActionSchema = z.object({
+  id: z.string().uuid(),
+  code: z.string(),
+  name: z.string(),
+  description: z.string(),
+  sortOrder: z.number(),
+});
+
 export const SystemSuiteDomainResourceSchema = z.object({
   id: z.string().uuid(),
   moduleId: z.string().uuid().nullable().optional(),
@@ -63,6 +79,8 @@ export const SystemSuiteDomainResourceSchema = z.object({
   code: z.string(),
   name: z.string(),
   description: z.string(),
+  crudOperations: z.array(SystemSuiteCrudOperationSchema).optional().default([]),
+  customActions: z.array(SystemSuiteCustomActionSchema).optional().default([]),
 });
 
 export const SystemSuiteSchema = z.object({
@@ -104,3 +122,5 @@ export type SystemStatus              = z.infer<typeof SystemStatusSchema>;
 export type CreateSystemSuitePayload  = z.infer<typeof CreateSystemSuitePayloadSchema>;
 export type CreateSystemSuiteResponse = z.infer<typeof CreateSystemSuiteResponseSchema>;
 export type SystemSuiteDomainResource = z.infer<typeof SystemSuiteDomainResourceSchema>;
+export type SystemSuiteCrudOperation  = z.infer<typeof SystemSuiteCrudOperationSchema>;
+export type SystemSuiteCustomAction   = z.infer<typeof SystemSuiteCustomActionSchema>;
