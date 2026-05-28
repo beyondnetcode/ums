@@ -20,6 +20,7 @@ import { SectionHeader } from '@shared/components/SectionHeader';
 import { CodeBadge } from '@shared/components/CodeBadge';
 import { IconButton } from '@shared/components/Tooltip';
 import { RefreshCw, MapPin, EyeOff, ShieldCheck, Trash2, Pencil, Save, X } from 'lucide-react';
+import { ChildEntityToolbar } from '@shared/components/ChildEntityToolbar';
 
 interface BranchManagerProps {
   tenantId: string;
@@ -46,6 +47,12 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ tenantId }) => {
   const [name, setName] = useState('');
   const [geofencing, setGeofencing] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+
+  // ── View controls ─────────────────────────────────────────────────────────
+  const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('list');
+  const [activeFilter, setActiveFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   // ── Inline edit ───────────────────────────────────────────────────────────
   const edit = useInlineEdit<BranchDraft>(['name', 'code', 'geofencingMetadata']);
@@ -88,16 +95,51 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ tenantId }) => {
     }
   };
 
+  let filteredBranches = branches;
+  if (activeFilter !== 'all') {
+    filteredBranches = filteredBranches.filter((b) => (activeFilter === 'active' ? b.isActive : !b.isActive));
+  }
+  filteredBranches = [...filteredBranches].sort((a, b) => {
+    let cmp = 0;
+    if (sortBy === 'name') cmp = a.name.localeCompare(b.name);
+    else if (sortBy === 'code') cmp = a.code.localeCompare(b.code);
+    return sortOrder === 'asc' ? cmp : -cmp;
+  });
+
   return (
     <div className="space-y-4 select-none">
-      <SectionHeader
-        title={t.subLocations}
-        subtitle={t.subLocationsSubtitle}
-        actions={
-          <IconButton tooltip={t.refreshBranches} onClick={() => refetch()} className={isFetching ? 'animate-spin' : ''}>
-            <RefreshCw className="w-3.5 h-3.5" />
-          </IconButton>
-        }
+      <div className="flex items-center justify-between">
+        <SectionHeader
+          title={t.subLocations}
+          subtitle={t.subLocationsSubtitle}
+          actions={
+            <IconButton tooltip={t.refreshBranches} onClick={() => refetch()} className={isFetching ? 'animate-spin' : ''}>
+              <RefreshCw className="w-3.5 h-3.5" />
+            </IconButton>
+          }
+        />
+      </div>
+
+      <ChildEntityToolbar
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        filterOptions={[
+          { label: 'Todas', value: 'all' },
+          { label: 'Activas', value: 'active' },
+          { label: 'Inactivas', value: 'inactive' },
+        ]}
+        activeFilter={activeFilter}
+        onFilterChange={setActiveFilter}
+        sortOptions={[
+          { label: 'Nombre', value: 'name' },
+          { label: 'Código', value: 'code' },
+        ]}
+        sortBy={sortBy}
+        onSortByChange={setSortBy}
+        sortOrder={sortOrder}
+        onSortOrderToggle={() => setSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'))}
+        itemCount={branches.length}
+        itemLabel="Sucursal"
       />
 
       <div className="grid grid-cols-1 gap-4">
@@ -143,8 +185,10 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ tenantId }) => {
             </div>
           ) : branches.length === 0 ? (
             <EmptyState icon={<MapPin className="w-6 h-6 text-m3-outline" />} message={t.noBranches} />
+          ) : filteredBranches.length === 0 ? (
+            <EmptyState icon={<MapPin className="w-6 h-6 text-m3-outline" />} message="No hay sucursales que coincidan con el filtro" />
           ) : (
-            branches.map((b) =>
+            filteredBranches.map((b) =>
               edit.isEditing(b.branchId) ? (
                 /* ── Inline edit form ── */
                 <div key={b.branchId} className="p-3.5 rounded-xl border border-m3-primary/40 bg-m3-surface-container/60 animate-fadeIn space-y-2.5">
