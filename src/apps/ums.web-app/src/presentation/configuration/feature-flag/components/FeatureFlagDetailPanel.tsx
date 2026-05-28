@@ -84,6 +84,13 @@ export const FeatureFlagDetailPanel: React.FC<Props> = ({ flag, isLoading }) => 
   const [criteriaValue, setCriteriaValue] = useState('');
   const [criteriaError, setCriteriaError] = useState('');
 
+  // Hooks must be called unconditionally at the top level
+  const activateFlag = useActivateFlag(flag?.featureFlagId ?? '');
+  const deactivateFlag = useDeactivateFlag(flag?.featureFlagId ?? '');
+  const archiveFlag = useArchiveFlag(flag?.featureFlagId ?? '');
+  const addCriteria = useAddFeatureFlagCriteria(flag?.featureFlagId ?? '');
+  const removeCriteria = useRemoveFeatureFlagCriteria(flag?.featureFlagId ?? '');
+
   if (!flag) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-m3-secondary/50 p-6 text-center">
@@ -99,12 +106,6 @@ export const FeatureFlagDetailPanel: React.FC<Props> = ({ flag, isLoading }) => 
   const stateColor = flag.status === 'Active' ? 'text-emerald-500 bg-emerald-500/10'
     : flag.status === 'Archived' ? 'text-rose-500 bg-rose-500/10'
     : 'text-amber-500 bg-amber-500/10';
-
-  const activateFlag = useActivateFlag(flag.featureFlagId);
-  const deactivateFlag = useDeactivateFlag(flag.featureFlagId);
-  const archiveFlag = useArchiveFlag(flag.featureFlagId);
-  const addCriteria = useAddFeatureFlagCriteria(flag.featureFlagId);
-  const removeCriteria = useRemoveFeatureFlagCriteria(flag.featureFlagId);
 
   const handleAddCriteria = async (e: React.FormEvent) => {
     e.preventDefault();

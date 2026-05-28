@@ -42,7 +42,7 @@ export function M3SegmentedButton<T extends string = string>({
 }: M3SegmentedButtonProps<T>) {
   return (
     <div
-      className={`flex items-center gap-1 bg-m3-surface-container rounded-lg p-1 border border-m3-outline/25 overflow-x-auto overflow-y-hidden scrollbar-thin ${className}`}
+      className={`flex flex-nowrap items-center gap-1 bg-m3-surface-container rounded-lg p-1 border border-m3-outline/25 overflow-x-auto overflow-y-hidden scrollbar-thin w-fit min-w-full ${className}`}
     >
       {options.map((opt) => {
         const isActive = opt.value === value;
