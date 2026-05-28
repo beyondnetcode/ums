@@ -33,6 +33,7 @@ import { formatSystemCode } from '@app/utils/security';
 import { SystemSuiteRolesPanel } from './SystemSuiteRolesPanel';
 import { SystemSuiteDomainResourcesPanel } from './SystemSuiteDomainResourcesPanel';
 import { Database } from 'lucide-react';
+import { ChildEntityToolbar } from '@shared/components/ChildEntityToolbar';
 
 type SystemSuiteTab = 'overview' | 'modules' | 'domain-resources' | 'actions' | 'roles';
 
@@ -493,6 +494,17 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
   const [activeTab, setActiveTab] = useState<SystemSuiteTab>('overview');
   const [expandedNodes, setExpandedNodes] = useState<Record<string, boolean>>({});
 
+  // ── Child entity view controls ─────────────────────────────────────────────
+  const [modulesViewMode, setModulesViewMode] = useState<'list' | 'thumbnail'>('list');
+  const [modulesFilter, setModulesFilter] = useState('all');
+  const [modulesSortBy, setModulesSortBy] = useState('name');
+  const [modulesSortOrder, setModulesSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  const [actionsViewMode, setActionsViewMode] = useState<'list' | 'thumbnail'>('thumbnail');
+  const [actionsFilter, setActionsFilter] = useState('all');
+  const [actionsSortBy, setActionsSortBy] = useState('name');
+  const [actionsSortOrder, setActionsSortOrder] = useState<'asc' | 'desc'>('asc');
+
   const toggleNode = (nodeId: string) => {
     setExpandedNodes((prev) => ({ ...prev, [nodeId]: !prev[nodeId] }));
   };
@@ -658,6 +670,29 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
         {/* ── Modules ── */}
         {activeTab === 'modules' && (
           <div className="space-y-4">
+            <ChildEntityToolbar
+              viewMode={modulesViewMode}
+              onViewModeChange={setModulesViewMode}
+              filterOptions={[
+                { label: 'Todos', value: 'all' },
+                { label: 'Activos', value: 'Active' },
+                { label: 'Inactivos', value: 'Inactive' },
+              ]}
+              activeFilter={modulesFilter}
+              onFilterChange={setModulesFilter}
+              sortOptions={[
+                { label: 'Nombre', value: 'name' },
+                { label: 'Código', value: 'code' },
+                { label: 'Orden', value: 'sortOrder' },
+              ]}
+              sortBy={modulesSortBy}
+              onSortByChange={setModulesSortBy}
+              sortOrder={modulesSortOrder}
+              onSortOrderToggle={() => setModulesSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'))}
+              itemCount={activeSystemSuite.modules?.length ?? 0}
+              itemLabel="Módulo"
+            />
+
             {/* Collapse / Expand all toggle */}
             {allModuleNodeIds.length > 0 && (
               <div className="flex justify-end">
@@ -694,37 +729,90 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
               <M3TextField label="Orden" type="number" value={modSort} onChange={(e) => setModSort(e.target.value)} placeholder="1" />
             </InlineAddForm>
 
-            <div className="space-y-3">
-              {!activeSystemSuite.modules || activeSystemSuite.modules.length === 0 ? (
-                <div className="flex flex-col items-center justify-center p-8 text-center border border-dashed border-m3-outline/25 rounded-xl bg-m3-surface-container/10 animate-fadeIn">
-                  <Shield className="w-8 h-8 text-m3-secondary/50 mb-2" />
-                  <p className="text-sm font-medium text-m3-on-surface">{t.noModulesConfigured}</p>
-                </div>
-              ) : (
-                activeSystemSuite.modules.map((module) => {
-                  const moduleNodeId  = `module-${module.id}`;
-                  const moduleExpanded = isExpanded(moduleNodeId);
+            {(() => {
+              let filteredModules = activeSystemSuite.modules ?? [];
+              if (modulesFilter !== 'all') {
+                filteredModules = filteredModules.filter((m) => m.status === modulesFilter);
+              }
+              filteredModules = [...filteredModules].sort((a, b) => {
+                let cmp = 0;
+                if (modulesSortBy === 'name') cmp = a.name.localeCompare(b.name);
+                else if (modulesSortBy === 'code') cmp = a.code.localeCompare(b.code);
+                else if (modulesSortBy === 'sortOrder') cmp = (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
+                return modulesSortOrder === 'asc' ? cmp : -cmp;
+              });
 
-                  return (
-                    <ModuleCard
-                      key={module.id}
-                      suiteId={suiteId}
-                      module={module}
-                      isExpanded={moduleExpanded}
-                      isNodeExpanded={isExpanded}
-                      onToggle={() => toggleNode(moduleNodeId)}
-                      onToggleNode={toggleNode}
-                      onDeactivate={() => deactivateModuleMutation.mutate(module.id)}
-                      onActivate={() => activateModuleMutation.mutate(module.id)}
-                      onRemove={() => removeModuleMutation.mutate(module.id)}
-                      isDeactivating={deactivateModuleMutation.isPending}
-                      isActivating={activateModuleMutation.isPending}
-                      isRemoving={removeModuleMutation.isPending}
-                    />
-                  );
-                })
-              )}
-            </div>
+              if (!activeSystemSuite.modules || activeSystemSuite.modules.length === 0) {
+                return (
+                  <div className="flex flex-col items-center justify-center p-8 text-center border border-dashed border-m3-outline/25 rounded-xl bg-m3-surface-container/10 animate-fadeIn">
+                    <Shield className="w-8 h-8 text-m3-secondary/50 mb-2" />
+                    <p className="text-sm font-medium text-m3-on-surface">{t.noModulesConfigured}</p>
+                  </div>
+                );
+              }
+
+              if (filteredModules.length === 0) {
+                return (
+                  <div className="flex flex-col items-center justify-center p-6 text-center border border-dashed border-m3-outline/25 rounded-xl bg-m3-surface-container/10 animate-fadeIn">
+                    <p className="text-sm font-medium text-m3-on-surface">No hay módulos que coincidan con el filtro</p>
+                  </div>
+                );
+              }
+
+              if (modulesViewMode === 'thumbnail') {
+                return (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 animate-fadeIn">
+                    {filteredModules.map((module) => {
+                      const moduleNodeId = `module-${module.id}`;
+                      const moduleExpanded = isExpanded(moduleNodeId);
+                      return (
+                        <ModuleCard
+                          key={module.id}
+                          suiteId={suiteId}
+                          module={module}
+                          isExpanded={moduleExpanded}
+                          isNodeExpanded={isExpanded}
+                          onToggle={() => toggleNode(moduleNodeId)}
+                          onToggleNode={toggleNode}
+                          onDeactivate={() => deactivateModuleMutation.mutate(module.id)}
+                          onActivate={() => activateModuleMutation.mutate(module.id)}
+                          onRemove={() => removeModuleMutation.mutate(module.id)}
+                          isDeactivating={deactivateModuleMutation.isPending}
+                          isActivating={activateModuleMutation.isPending}
+                          isRemoving={removeModuleMutation.isPending}
+                        />
+                      );
+                    })}
+                  </div>
+                );
+              }
+
+              return (
+                <div className="space-y-3 animate-fadeIn">
+                  {filteredModules.map((module) => {
+                    const moduleNodeId = `module-${module.id}`;
+                    const moduleExpanded = isExpanded(moduleNodeId);
+                    return (
+                      <ModuleCard
+                        key={module.id}
+                        suiteId={suiteId}
+                        module={module}
+                        isExpanded={moduleExpanded}
+                        isNodeExpanded={isExpanded}
+                        onToggle={() => toggleNode(moduleNodeId)}
+                        onToggleNode={toggleNode}
+                        onDeactivate={() => deactivateModuleMutation.mutate(module.id)}
+                        onActivate={() => activateModuleMutation.mutate(module.id)}
+                        onRemove={() => removeModuleMutation.mutate(module.id)}
+                        isDeactivating={deactivateModuleMutation.isPending}
+                        isActivating={activateModuleMutation.isPending}
+                        isRemoving={removeModuleMutation.isPending}
+                      />
+                    );
+                  })}
+                </div>
+              );
+            })()}
           </div>
         )}
 
@@ -736,6 +824,26 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
         {/* ── Actions ── */}
         {activeTab === 'actions' && (
           <div className="space-y-4">
+            <ChildEntityToolbar
+              viewMode={actionsViewMode}
+              onViewModeChange={setActionsViewMode}
+              filterOptions={[
+                { label: 'Todas', value: 'all' },
+              ]}
+              activeFilter={actionsFilter}
+              onFilterChange={setActionsFilter}
+              sortOptions={[
+                { label: 'Nombre', value: 'name' },
+                { label: 'Código', value: 'code' },
+              ]}
+              sortBy={actionsSortBy}
+              onSortByChange={setActionsSortBy}
+              sortOrder={actionsSortOrder}
+              onSortOrderToggle={() => setActionsSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'))}
+              itemCount={activeSystemSuite.actions?.length ?? 0}
+              itemLabel="Acción"
+            />
+
             <InlineAddForm
               isOpen={isAddingAction}
               onToggle={(open) => { setIsAddingAction(open); if (!open) setActError(''); }}
@@ -752,39 +860,89 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
               <M3TextField label="Nombre de la Acción" required value={actName} onChange={(e) => setActName(e.target.value)} placeholder="e.g. Eliminar Inventario" />
             </InlineAddForm>
 
-            {!activeSystemSuite.actions || activeSystemSuite.actions.length === 0 ? (
-              <div className="flex flex-col items-center justify-center p-8 text-center border border-dashed border-m3-outline/25 rounded-xl bg-m3-surface-container/10 animate-fadeIn">
-                <Key className="w-8 h-8 text-m3-secondary/50 mb-2" />
-                <p className="text-sm font-medium text-m3-on-surface">{t.noActionsConfigured}</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 animate-fadeIn">
-                {activeSystemSuite.actions.map((action) => (
-                  <div
-                    key={action.id}
-                    className="group/action flex items-center justify-between p-3 rounded-lg border border-m3-outline/15 bg-m3-surface-container/5 hover:bg-m3-surface-container/10 hover:border-m3-outline/30 hover:-translate-y-[1px] transition-all duration-200 shadow-sm"
-                  >
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className="p-2 rounded bg-m3-primary/10 text-m3-primary">
-                        <Key className="w-3.5 h-3.5" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-m3-on-surface truncate" title={action.name}>{action.name}</p>
-                        <p className="text-[10px] font-mono text-m3-secondary truncate">{action.code}</p>
-                      </div>
-                    </div>
-                    <IconButton
-                      tooltip="Remover Acción"
-                      onClick={() => removeActionMutation.mutate(action.code)}
-                      disabled={removeActionMutation.isPending}
-                      className="opacity-0 group-hover/action:opacity-100 transition-opacity hover:text-m3-error hover:bg-m3-error/10"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </IconButton>
+            {(() => {
+              let filteredActions = activeSystemSuite.actions ?? [];
+              if (actionsSortBy === 'name') {
+                filteredActions = [...filteredActions].sort((a, b) => {
+                  const cmp = a.name.localeCompare(b.name);
+                  return actionsSortOrder === 'asc' ? cmp : -cmp;
+                });
+              } else if (actionsSortBy === 'code') {
+                filteredActions = [...filteredActions].sort((a, b) => {
+                  const cmp = a.code.localeCompare(b.code);
+                  return actionsSortOrder === 'asc' ? cmp : -cmp;
+                });
+              }
+
+              if (!activeSystemSuite.actions || activeSystemSuite.actions.length === 0) {
+                return (
+                  <div className="flex flex-col items-center justify-center p-8 text-center border border-dashed border-m3-outline/25 rounded-xl bg-m3-surface-container/10 animate-fadeIn">
+                    <Key className="w-8 h-8 text-m3-secondary/50 mb-2" />
+                    <p className="text-sm font-medium text-m3-on-surface">{t.noActionsConfigured}</p>
                   </div>
-                ))}
-              </div>
-            )}
+                );
+              }
+
+              if (actionsViewMode === 'list') {
+                return (
+                  <div className="flex flex-col gap-1 animate-fadeIn">
+                    {filteredActions.map((action) => (
+                      <div
+                        key={action.id}
+                        className="group/action flex items-center justify-between p-2.5 rounded-lg border border-m3-outline/10 bg-m3-surface-container/5 hover:bg-m3-surface-container/10 hover:border-m3-outline/25 transition-all duration-150"
+                      >
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className="p-1.5 rounded bg-m3-primary/10 text-m3-primary">
+                            <Key className="w-3.5 h-3.5" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-semibold text-m3-on-surface truncate" title={action.name}>{action.name}</p>
+                            <p className="text-[10px] font-mono text-m3-secondary truncate">{action.code}</p>
+                          </div>
+                        </div>
+                        <IconButton
+                          tooltip="Remover Acción"
+                          onClick={() => removeActionMutation.mutate(action.code)}
+                          disabled={removeActionMutation.isPending}
+                          className="opacity-0 group-hover/action:opacity-100 transition-opacity hover:text-m3-error hover:bg-m3-error/10"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </IconButton>
+                      </div>
+                    ))}
+                  </div>
+                );
+              }
+
+              return (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 animate-fadeIn">
+                  {filteredActions.map((action) => (
+                    <div
+                      key={action.id}
+                      className="group/action flex items-center justify-between p-3 rounded-lg border border-m3-outline/15 bg-m3-surface-container/5 hover:bg-m3-surface-container/10 hover:border-m3-outline/30 hover:-translate-y-[1px] transition-all duration-200 shadow-sm"
+                    >
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className="p-2 rounded bg-m3-primary/10 text-m3-primary">
+                          <Key className="w-3.5 h-3.5" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-semibold text-m3-on-surface truncate" title={action.name}>{action.name}</p>
+                          <p className="text-[10px] font-mono text-m3-secondary truncate">{action.code}</p>
+                        </div>
+                      </div>
+                      <IconButton
+                        tooltip="Remover Acción"
+                        onClick={() => removeActionMutation.mutate(action.code)}
+                        disabled={removeActionMutation.isPending}
+                        className="opacity-0 group-hover/action:opacity-100 transition-opacity hover:text-m3-error hover:bg-m3-error/10"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </IconButton>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
           </div>
         )}
 

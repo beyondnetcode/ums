@@ -9,6 +9,7 @@ import { formatSystemCode } from '@app/utils/security';
 import { useI18n } from '@app/i18n/use-i18n';
 import { useCreateRole, useRolesBySystemSuite, useSetRoleActive, useUpdateRole } from '@app/authorization/hooks/use-role';
 import type { Role } from '@domain/authorization/schemas/role.schema';
+import { ChildEntityToolbar } from '@shared/components/ChildEntityToolbar';
 
 interface Props {
   systemSuiteId: string;
@@ -32,6 +33,11 @@ export const SystemSuiteRolesPanel: React.FC<Props> = ({ systemSuiteId }) => {
   const [code, setCode] = useState('');
   const [draft, setDraft] = useState<Draft>(blankDraft);
   const [error, setError] = useState('');
+
+  const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('list');
+  const [activeFilter, setActiveFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('value');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   const hierarchyLevelFor = (parentId: string) => {
     const parent = roles.find((role) => role.roleId === parentId);
@@ -64,8 +70,43 @@ export const SystemSuiteRolesPanel: React.FC<Props> = ({ systemSuiteId }) => {
     return <p className="text-sm text-m3-secondary">{t.loading}</p>;
   }
 
+  let filteredRoles = roles;
+  if (activeFilter !== 'all') {
+    filteredRoles = filteredRoles.filter((r) => (activeFilter === 'active' ? r.isActive : !r.isActive));
+  }
+  filteredRoles = [...filteredRoles].sort((a, b) => {
+    let cmp = 0;
+    if (sortBy === 'value') cmp = a.value.localeCompare(b.value);
+    else if (sortBy === 'code') cmp = a.code.localeCompare(b.code);
+    else if (sortBy === 'level') cmp = a.hierarchyLevel - b.hierarchyLevel;
+    return sortOrder === 'asc' ? cmp : -cmp;
+  });
+
   return (
     <div className="space-y-4">
+      <ChildEntityToolbar
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        filterOptions={[
+          { label: 'Todos', value: 'all' },
+          { label: 'Activos', value: 'active' },
+          { label: 'Inactivos', value: 'inactive' },
+        ]}
+        activeFilter={activeFilter}
+        onFilterChange={setActiveFilter}
+        sortOptions={[
+          { label: 'Valor', value: 'value' },
+          { label: 'Código', value: 'code' },
+          { label: 'Nivel', value: 'level' },
+        ]}
+        sortBy={sortBy}
+        onSortByChange={setSortBy}
+        sortOrder={sortOrder}
+        onSortOrderToggle={() => setSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'))}
+        itemCount={roles.length}
+        itemLabel="Rol"
+      />
+
       <InlineAddForm
         isOpen={adding}
         onToggle={(open) => { setAdding(open); if (!open) setError(''); }}
@@ -94,9 +135,26 @@ export const SystemSuiteRolesPanel: React.FC<Props> = ({ systemSuiteId }) => {
         <p className="rounded-lg border border-dashed border-m3-outline/25 p-6 text-center text-sm text-m3-secondary">
           {t.noRolesConfigured}
         </p>
+      ) : filteredRoles.length === 0 ? (
+        <p className="rounded-lg border border-dashed border-m3-outline/25 p-6 text-center text-sm text-m3-secondary">
+          No hay roles que coincidan con el filtro
+        </p>
+      ) : viewMode === 'list' ? (
+        <div className="flex flex-col gap-1">
+          {filteredRoles.map((role) => (
+            <RoleRow
+              key={role.roleId}
+              role={role}
+              roles={roles}
+              systemSuiteId={systemSuiteId}
+              onStatusChange={(isActive) => setActive.mutate({ roleId: role.roleId, isActive })}
+              changingStatus={setActive.isPending}
+            />
+          ))}
+        </div>
       ) : (
-        <div className="space-y-2">
-          {roles.map((role) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {filteredRoles.map((role) => (
             <RoleRow
               key={role.roleId}
               role={role}

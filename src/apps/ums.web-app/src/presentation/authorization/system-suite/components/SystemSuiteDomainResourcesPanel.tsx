@@ -13,6 +13,7 @@ import {
   useRemoveDomainResource,
   useUpdateDomainResource,
 } from '@app/authorization/hooks/use-system-suite';
+import { ChildEntityToolbar } from '@shared/components/ChildEntityToolbar';
 
 interface SystemSuiteDomainResourcesPanelProps {
   systemSuite: SystemSuite;
@@ -40,6 +41,11 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
   const [resName, setResName] = useState('');
   const [resDesc, setResDesc] = useState('');
   const [resError, setResError] = useState('');
+
+  const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('thumbnail');
+  const [activeFilter, setActiveFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   const edit = useInlineEdit<DomainResourceDraft>(['name', 'description']);
 
@@ -80,8 +86,43 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
 
   const domainResources = systemSuite.domainResources || [];
 
+  let filteredResources = domainResources;
+  if (activeFilter !== 'all') {
+    filteredResources = filteredResources.filter((r) => r.type === activeFilter);
+  }
+  filteredResources = [...filteredResources].sort((a, b) => {
+    let cmp = 0;
+    if (sortBy === 'name') cmp = a.name.localeCompare(b.name);
+    else if (sortBy === 'code') cmp = a.code.localeCompare(b.code);
+    else if (sortBy === 'type') cmp = a.type.localeCompare(b.type);
+    return sortOrder === 'asc' ? cmp : -cmp;
+  });
+
   return (
     <div className="space-y-4">
+      <ChildEntityToolbar
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        filterOptions={[
+          { label: 'Todos', value: 'all' },
+          { label: 'Agregados', value: 'Aggregate' },
+          { label: 'Entidades', value: 'Entity' },
+        ]}
+        activeFilter={activeFilter}
+        onFilterChange={setActiveFilter}
+        sortOptions={[
+          { label: 'Nombre', value: 'name' },
+          { label: 'Código', value: 'code' },
+          { label: 'Tipo', value: 'type' },
+        ]}
+        sortBy={sortBy}
+        onSortByChange={setSortBy}
+        sortOrder={sortOrder}
+        onSortOrderToggle={() => setSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'))}
+        itemCount={domainResources.length}
+        itemLabel="Recurso"
+      />
+
       <InlineAddForm
         isOpen={isAddingResource}
         onToggle={(open) => { setIsAddingResource(open); if (!open) setResError(''); }}
@@ -133,9 +174,101 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
             Los recursos de dominio (agregados y entidades) permiten controlar el acceso a nivel de datos y lógica de negocio, no solo navegación.
           </p>
         </div>
+      ) : filteredResources.length === 0 ? (
+        <div className="flex flex-col items-center justify-center p-6 text-center border border-dashed border-m3-outline/25 rounded-xl bg-m3-surface-container/10 animate-fadeIn">
+          <p className="text-sm font-medium text-m3-on-surface">No hay recursos que coincidan con el filtro</p>
+        </div>
+      ) : viewMode === 'list' ? (
+        <div className="flex flex-col gap-1 animate-fadeIn">
+          {filteredResources.map((res) => {
+            const isEditing = edit.isEditing(res.id);
+            const Icon = res.type === 'Aggregate' ? Layers : Component;
+
+            if (isEditing) {
+              return (
+                <form
+                  key={res.id}
+                  onSubmit={(e) => handleUpdateResource(e, res.id)}
+                  className="p-3 rounded-lg border border-m3-primary/30 bg-m3-surface-container/20 space-y-2 animate-fadeIn shadow-sm"
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <Icon className="w-4 h-4 text-m3-primary" />
+                    <span className="text-[11px] font-bold text-m3-on-surface">Editando {res.type === 'Aggregate' ? 'Agregado' : 'Entidad'}: {res.code}</span>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <M3TextField
+                      label="Nombre"
+                      required
+                      value={edit.draft.name ?? ''}
+                      onChange={(e) => edit.setField('name', e.target.value)}
+                    />
+                    <M3TextField
+                      label="Descripción"
+                      value={edit.draft.description ?? ''}
+                      onChange={(e) => edit.setField('description', e.target.value)}
+                    />
+                  </div>
+                  <div className="flex gap-1.5 justify-end mt-2">
+                    <button type="button" onClick={edit.cancelEdit} className="text-[11px] px-3 py-1.5 rounded-md text-m3-secondary hover:bg-m3-surface-variant/20 transition-colors">Cancelar</button>
+                    <button type="submit" disabled={updateDomainResourceMutation.isPending} className="text-[11px] px-3 py-1.5 rounded-md bg-m3-primary text-m3-on-primary hover:bg-m3-primary/80 disabled:opacity-50 transition-colors">
+                      {updateDomainResourceMutation.isPending ? 'Guardando…' : 'Guardar Cambios'}
+                    </button>
+                  </div>
+                </form>
+              );
+            }
+
+            return (
+              <div
+                key={res.id}
+                className="group/res flex items-start justify-between p-2.5 rounded-lg border border-m3-outline/10 bg-m3-surface-container/5 hover:bg-m3-surface-container/10 hover:border-m3-outline/25 transition-all duration-150"
+              >
+                <div className="flex items-start gap-3 flex-1 min-w-0">
+                  <div className={`p-1.5 rounded mt-0.5 ${res.type === 'Aggregate' ? 'bg-indigo-500/10 text-indigo-500' : 'bg-emerald-500/10 text-emerald-500'}`}>
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <p className="text-xs font-semibold text-m3-on-surface truncate" title={res.name}>{res.name}</p>
+                      <CodeBadge code={res.code} size="xs" />
+                      {res.moduleId && systemSuite.modules?.some(m => m.id === res.moduleId) && (
+                        <span className="text-[9px] font-medium text-m3-secondary bg-m3-surface-variant/50 px-1.5 py-0.5 rounded" title="Módulo Asignado">
+                          {systemSuite.modules.find(m => m.id === res.moduleId)?.code}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[10px] text-m3-secondary mt-1">{res.type === 'Aggregate' ? 'Agregado Root' : 'Entidad de Dominio'}</p>
+                    {res.description && (
+                      <p className="text-[10px] text-m3-secondary/80 mt-1 line-clamp-2" title={res.description}>{res.description}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1 items-end opacity-0 group-hover/res:opacity-100 transition-opacity pl-2">
+                  <IconButton
+                    tooltip="Editar Recurso"
+                    onClick={() => {
+                      edit.openEdit(res.id, { name: res.name, description: res.description });
+                    }}
+                    className="hover:text-m3-primary hover:bg-m3-primary/10"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                  </IconButton>
+                  <IconButton
+                    tooltip="Remover Recurso"
+                    onClick={() => removeDomainResourceMutation.mutate(res.id)}
+                    disabled={removeDomainResourceMutation.isPending}
+                    className="hover:text-m3-error hover:bg-m3-error/10"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </IconButton>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 animate-fadeIn">
-          {domainResources.map((res) => {
+          {filteredResources.map((res) => {
             const isEditing = edit.isEditing(res.id);
             const Icon = res.type === 'Aggregate' ? Layers : Component;
 
