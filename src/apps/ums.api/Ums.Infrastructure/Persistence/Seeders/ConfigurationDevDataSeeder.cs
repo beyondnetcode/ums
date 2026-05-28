@@ -7,6 +7,7 @@ using Ums.Domain.Configuration.AppConfiguration;
 using Ums.Domain.Configuration.FeatureFlag;
 using Ums.Domain.Configuration.IdpConfiguration;
 using Ums.Domain.Kernel.ValueObjects;
+using Ums.Domain.Authorization;
 using AppConfigurationAggregate = Ums.Domain.Configuration.AppConfiguration.AppConfiguration;
 using FeatureFlagAggregate = Ums.Domain.Configuration.FeatureFlag.FeatureFlag;
 using IdpConfigurationAggregate = Ums.Domain.Configuration.IdpConfiguration.IdpConfiguration;
@@ -41,7 +42,7 @@ public static class ConfigurationDevDataSeeder
         }
 
         // FeatureFlag
-        var flags = BuildSeedFeatureFlags(actor);
+        var flags = await BuildSeedFeatureFlagsAsync(serviceProvider, actor, cancellationToken);
         if (inMemoryFeatureFlagRepository is not null)
             foreach (var flag in flags) inMemoryFeatureFlagRepository.Seed(flag);
         else if (featureFlagRepository is not null)
@@ -95,20 +96,91 @@ public static class ConfigurationDevDataSeeder
     }
 
     // FeatureFlag.Create(IdValueObject systemSuiteId, IdValueObject? tenantId, string flagCode, FlagType, string flagTargets, LinkedResourceType?, IdValueObject?, int? rolloutPercentage, ActorId)
-    private static IReadOnlyList<FeatureFlagAggregate> BuildSeedFeatureFlags(ActorId actor)
+    private static async Task<IReadOnlyList<FeatureFlagAggregate>> BuildSeedFeatureFlagsAsync(IServiceProvider serviceProvider, ActorId actor, CancellationToken cancellationToken)
     {
-        var flag = FeatureFlagAggregate.Create(
-            IdValueObject.Load(Guid.Parse(CoreDevDataSeeder.DemoSystemSuiteId)),
-            null,
-            "ENABLE_MFA",
-            FlagType.Boolean,
-            "*",
-            null,
-            null,
-            null,
-            actor);
+        var results = new List<FeatureFlagAggregate>();
+        var suiteRepository = serviceProvider.GetService<ISystemSuiteRepository>();
 
-        return flag.IsSuccess ? new[] { flag.Value } : Array.Empty<FeatureFlagAggregate>();
+        // If we have the real suite repository, create flags for actual seeded suites
+        if (suiteRepository is not null)
+        {
+            var suites = await suiteRepository.GetAllAsync(cancellationToken);
+            foreach (var suite in suites)
+            {
+                var suiteId = IdValueObject.Load(suite.GetId().GetValue());
+                var suiteCode = suite.Code.GetValue();
+
+                // Create 2-3 flags per suite based on suite code
+                var flagsForSuite = suiteCode switch
+                {
+                    "LOGISTICS_CORE" => new (string Code, FlagType Type, string Targets, string Description, int? Rollout)[]
+                    {
+                        ("ENABLE_MFA", FlagType.Boolean, "*", "Multi-factor authentication for logistics users", null),
+                        ("DARK_MODE", FlagType.Boolean, "*", "Dark mode UI toggle", null),
+                        ("ADVANCED_REPORTING", FlagType.Boolean, "role:ADMIN,role:SUPERVISOR", "Advanced analytics dashboard", null),
+                    },
+                    "WMS" => new (string Code, FlagType Type, string Targets, string Description, int? Rollout)[]
+                    {
+                        ("BULK_PICKING", FlagType.Boolean, "*", "Bulk picking workflow", null),
+                        ("VOICE_PICKING", FlagType.Boolean, "role:OPERATOR", "Voice-directed picking", null),
+                        ("AUTO_REORDER", FlagType.Percentage, "*", "Automatic reorder point calculation", 50),
+                    },
+                    _ => Array.Empty<(string Code, FlagType Type, string Targets, string Description, int? Rollout)>()
+                };
+
+                foreach (var flagDef in flagsForSuite)
+                {
+                    var flag = FeatureFlagAggregate.Create(
+                        suiteId,
+                        null,
+                        flagDef.Code,
+                        flagDef.Type,
+                        flagDef.Targets,
+                        null,
+                        null,
+                        flagDef.Type == FlagType.Percentage ? flagDef.Rollout : null,
+                        actor);
+
+                    if (flag.IsSuccess)
+                    {
+                        // Activate some flags for demo purposes
+                        if (flagDef.Code == "DARK_MODE" || flagDef.Code == "BULK_PICKING")
+                        {
+                            flag.Value.Activate(actor);
+                            flag.Value.DomainEvents.MarkChangesAsCommitted();
+                        }
+
+                        // Add criteria for role-targeted flags
+                        if (flagDef.Targets.Contains("role:"))
+                        {
+                            var roleCode = flagDef.Targets.Split(':')[1].Split(',')[0];
+                            flag.Value.AddCriteria("RoleCode", "Equals", roleCode, actor);
+                            flag.Value.DomainEvents.MarkChangesAsCommitted();
+                        }
+
+                        results.Add(flag.Value);
+                    }
+                }
+            }
+        }
+        else
+        {
+            // Fallback: create a single flag with the demo system suite ID for tests
+            var flag = FeatureFlagAggregate.Create(
+                IdValueObject.Load(Guid.Parse(CoreDevDataSeeder.DemoSystemSuiteId)),
+                null,
+                "ENABLE_MFA",
+                FlagType.Boolean,
+                "*",
+                null,
+                null,
+                null,
+                actor);
+
+            if (flag.IsSuccess) results.Add(flag.Value);
+        }
+
+        return results;
     }
 
     // Fixed system-suite ID used by IdpConfigurationRestEndpointTests and ConfigurationGraphQlTests
