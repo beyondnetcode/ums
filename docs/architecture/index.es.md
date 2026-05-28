@@ -52,6 +52,9 @@ Planos detallados de ingeniería centrados en:
 - **[Formatos de Exportación ER](./blueprints-es/er-export-formats.md)**: Exportaciones SQL, Mermaid e imágenes del esquema.
 - **[Arquitectura de Librerías Shell](./blueprints-es/shell-library-architecture.md)**: Capa shell propia de UMS para patrones DDD y Factory heredados.
 
+### [API Dotnet](./api-dotnet/README.es.md)
+Referencia aplicada backend API para UMS. Esta seccion mapea evidencia actual de codigo fuente Dotnet contra el Estandar API Dotnet de Evolith manteniendo los detalles especificos de producto dentro de UMS.
+
 ### [Web Frontend](./web-frontend/README.es.md)
 Referencia aplicada React Web para UMS. Esta seccion mapea evidencia actual de codigo fuente contra el Estandar Web Frontend React de Evolith manteniendo los detalles especificos de producto dentro de UMS.
 
