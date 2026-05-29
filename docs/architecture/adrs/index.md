@@ -56,4 +56,24 @@ UMS is a satellite repository of `evolith_arch32`. The parent repository defines
 
 ---
 
+## Bilingual Coverage (R-01 Compliance)
+
+All ADRs (0050-0070) now have Spanish translations:
+
+| ADR | Spanish | ADR | Spanish |
+|-----|---------|-----|---------|
+| 0050 | ✅ | 0061 | ✅ |
+| 0051 | ✅ | 0062 | ✅ |
+| 0052 | ✅ | 0063 | ✅ |
+| 0053 | ✅ | 0064 | ✅ |
+| 0054 | ✅ | 0065 | ✅ |
+| 0055 | ✅ | 0066 | ✅ |
+| 0056 | ✅ | 0068 | ✅ |
+| 0057 | ✅ | 0069 | ✅ |
+| 0058 | ✅ | 0070 | ✅ |
+| 0059 | ✅ | — | — |
+| 0060 | ✅ | — | — |
+
+---
+
 **[Architecture Portal](../index.md)** | **[Master Index](../../MASTER_INDEX.md)**

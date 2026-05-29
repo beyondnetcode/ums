@@ -1,94 +1,94 @@
-# ADR-0068: Scope de Sistema para Feature Flags — Propiedad de SystemSuite y Modelo Dinámico de Criterios
+# ADR-0068: Alcance del Sistema de Feature Flags — Propiedad de SystemSuite y Modelo de Criterios Dinámicos
 
 **Estado:** Aceptado
 **Fecha:** 2026-05-27
-**Responsable de la Decisión:** Arquitectura
-**Relacionado con:**
-- [ADR-0054: Aislamiento de Shell Library](./0054-shell-library-isolation.md)
+**Responsable de Decisión:** Arquitectura
+**Relacionados:**
+- [ADR-0054: Aislamiento de Shell Libraries](./0054-shell-library-isolation.md)
 - [ADR-0061: Execution Context Accessor](./0061-execution-context-accessor.md)
-- [Dominio FeatureFlag](../../domain/configuration/feature-flag.md)
-- [Modelo FeatureFlagCriteria](../../domain/configuration/feature-flag-criteria.md)
-- [Contexto de Configuración BC](../../governance/construction/ddd-design/05-configuration-context.md)
+- [FeatureFlag Domain](../../domain/configuration/feature-flag.md)
+- [FeatureFlagCriteria Model](../../domain/configuration/feature-flag-criteria.md)
+- [BC Configuration Context](../../governance/construction/ddd-design/05-configuration-context.md)
 
 ---
 
 ## Contexto
 
-El agregado original `FeatureFlag` fue diseñado como un toggle global: `FlagCode` era único en toda la plataforma sin ningún scope de propiedad. Esto generó dos problemas operacionales:
+El aggregate `FeatureFlag` original fue diseñado como un toggle global: `FlagCode` era único a través de toda la plataforma sin ningún scope de propiedad. Esto creó dos problemas operacionales:
 
-1. **Sin aislamiento de sistema.** Una bandera activada globalmente podía afectar a tenants o system suites que no deberían estar incluidos en un rollout específico. No existía ningún mecanismo para limitar una bandera a un límite de sistema particular.
+1. **Sin aislamiento de sistema.** Un flag activado globalmente podía afectar a tenants o system suites que no deberían incluirse en un rollout específico. No había mecanismo para constrain un flag a una frontera de sistema particular.
 
-2. **Modelo de targeting rígido.** La propiedad original `FlagTargets` era una cadena JSON de forma libre que describía las reglas de targeting. Esto hacía imposible consultar, validar o evolucionar las condiciones de targeting sin parsear payloads opacos. Agregar o eliminar una única condición de targeting requería reemplazar todo el JSON.
+2. **Modelo de targeting rígido.** La propiedad `FlagTargets` original era un string JSON de forma libre que describía reglas de targeting. Esto hacía imposible querying, validar, o evolucionar condiciones de targeting sin parsear payloads opacos. Agregar o remover una única condición de targeting requería reemplazar todo el blob JSON.
 
-El contexto delimitado de Autorización (BC-B) ya modela `SystemSuite` como la unidad autoritativa de composición de funcionalidades — un system suite agrupa módulos, roles y permisos de un producto o sistema específico. Las feature flags pertenecen naturalmente a ese mismo límite: una bandera para "habilitar el nuevo módulo de exportación" solo tiene sentido dentro del suite que contiene ese módulo.
+El Authorization bounded context (BC-B) ya modela `SystemSuite` como la unidad autoritativa de composición de features — un system suite agrupa modules, roles, y permissions para un producto o sistema específico. Los feature flags pertenecen naturalmente a la misma frontera: un flag para "habilitar nuevo módulo de exportación" solo tiene sentido dentro del suite que contiene el módulo de exportación.
 
-Se requería una refactorización para introducir `SystemSuite` como el scope obligatorio de toda feature flag y reemplazar el JSON opaco de targeting con un modelo de criterios estructurado y consultable.
+Se necesitaba un refactoring para introducir `SystemSuite` como el scope obligatorio de cada feature flag y reemplazar el JSON de targeting opaco con un modelo de criterios estructurado y queryable.
 
 ---
 
 ## Decisión
 
-### 1. FeatureFlag permanece como Aggregate Root independiente en BC-C
+### 1. FeatureFlag permanece como un Aggregate Root independiente en BC-C
 
-`FeatureFlag` permanece como Aggregate Root en el contexto delimitado de Configuración (esquema `ums_configuration`). No se convierte en entidad hija del agregado `SystemSuite` en BC-B. El vínculo entre los dos agregados se expresa mediante una clave foránea: `FeatureFlag.SystemSuiteId → ums_authorization.SystemSuites.Id`.
+`FeatureFlag` permanece como un Aggregate Root en el Configuration bounded context (`ums_configuration` schema). No se convierte en una entidad hija del aggregate `SystemSuite` en BC-B. El enlace entre los dos aggregates se expresa a través de una foreign key: `FeatureFlag.SystemSuiteId → ums_authorization.SystemSuites.Id`.
 
-### 2. SystemSuiteId es el scope obligatorio e inmutable de cada bandera
+### 2. SystemSuiteId es el scope obligatorio e inmutable de cada flag
 
-Todo `FeatureFlag` debe crearse con un `SystemSuiteId` válido. Este valor se valida contra BC-B en el momento de la creación y es inmutable a partir de entonces. Una bandera no puede transferirse de un system suite a otro; si se necesita un scope diferente, debe crearse una nueva bandera.
+Cada `FeatureFlag` debe crearse con un `SystemSuiteId` válido. Este valor se valida contra BC-B en tiempo de creación y es inmutable después de eso. Un flag no puede transferirse de un system suite a otro; si se necesita un scope diferente, debe crearse un nuevo flag.
 
 ### 3. La unicidad de FlagCode cambia de global a (SystemSuiteId, FlagCode)
 
-La restricción de unicidad global previa sobre `FlagCode` se reemplaza por una restricción compuesta sobre `(SystemSuiteId, FlagCode)`. La misma cadena de código puede existir en diferentes system suites sin conflicto.
+La restricción de unicidad global previa en `FlagCode` se reemplaza por una restricción de unicidad compuesta en `(SystemSuiteId, FlagCode)`. La misma string de código puede existir en diferentes system suites sin conflicto.
 
-### 4. Los criterios reemplazan el JSON opaco de FlagTargets
+### 4. Los Criterios reemplazan el JSON opaco de FlagTargets
 
-Una nueva entidad propia `FeatureFlagCriteria` reemplaza el JSON de forma libre de `FlagTargets` para los propósitos de targeting. Cada criterio contiene:
-- `CriteriaType` — la dimensión a evaluar (`TenantId`, `BranchId`, `UserProfileId`, `RoleCode`, `Environment`, `DateRange`, `PercentageHash`, `CustomRule`)
+Una nueva entidad propia `FeatureFlagCriteria` reemplaza el JSON `FlagTargets` de forma libre para propósitos de targeting. Cada criterio lleva:
+- `CriteriaType` — la dimensión siendo evaluada (`TenantId`, `BranchId`, `UserProfileId`, `RoleCode`, `Environment`, `DateRange`, `PercentageHash`, `CustomRule`)
 - `Operator` — la comparación a aplicar (`Equals`, `NotEquals`, `In`, `Between`, `LessThanOrEqual`, `Matches`)
-- `Value` — el valor objetivo como cadena compatible con JSON
+- `Value` — el valor objetivo como string compatible con JSON
 
 La colección de criterios es **opcional y dinámica**:
-- Una colección vacía significa que la bandera está activa para todos los llamantes del sistema.
-- Los criterios pueden agregarse o eliminarse independientemente sin modificar las propiedades de la raíz de agregado.
+- Una colección vacía significa que el flag está activo para todos los llamadores en el sistema.
+- Los criterios pueden agregarse o removerse independientemente sin modificar las propiedades del aggregate root.
 - Cada cambio emite un evento de dominio discreto.
 
 ### 5. Semántica de evaluación: OR dentro del tipo, AND entre tipos
 
-El puerto `IFeatureFlagEvaluator` evalúa la colección de criterios usando las siguientes reglas:
+El port `IFeatureFlagEvaluator` evalúa la colección de criterios usando las siguientes reglas:
 - **Dentro del mismo CriteriaType:** los criterios se combinan con lógica **OR**.
-- **Entre diferentes grupos de CriteriaType:** los grupos se combinan con lógica **AND**.
+- **Entre grupos de CriteriaType diferentes:** los grupos se combinan con lógica **AND**.
 
-Si el contexto de evaluación no provee el dato requerido por un criterio, la evaluación retorna **`false`** (postura segura). Esto previene la activación inadvertida de funcionalidades cuando el contexto está parcialmente poblado.
+Si el contexto de evaluación no provee los datos requeridos por un criterio, la evaluación retorna **`false`** (postura segura). Esto previene la activación inadvertida de features cuando el contexto está parcialmente poblado.
 
 ---
 
-## Fundamentos
+## Justificación
 
 ### Por qué FeatureFlag no es hijo de SystemSuite
 
-Convertir `FeatureFlag` en una entidad hija del agregado `SystemSuite` fue considerado pero rechazado por cuatro razones:
+Convertir `FeatureFlag` en una entidad hija del aggregate `SystemSuite` fue considerado pero rechazado por cuatro razones:
 
-1. **Tamaño del agregado.** `SystemSuite` ya posee módulos, roles y plantillas de permisos. Agregar una colección no acotada de feature flags haría crecer el agregado a un tamaño inmanejable, perjudicando los tiempos de carga e incrementando el riesgo de conflictos de concurrencia.
+1. **Tamaño del aggregate.** `SystemSuite` ya posee modules, roles, y permission templates. Agregar una colección no acotada de feature flags crecería el aggregate a un tamaño inmanejable, dañando tiempos de carga e incrementando el riesgo de conflictos de concurrencia.
 
-2. **Ciclo de vida independiente.** Las feature flags transicionan a través de sus propios estados (`Inactive → Active → Archived`) en un calendario impulsado por la gestión de releases, no por el ciclo de vida del system suite. Archivar una bandera no afecta al system suite; deshabilitar un system suite no archiva sus banderas.
+2. **Ciclo de vida independiente.** Los feature flags transicionan a través de sus propios estados (`Inactive → Active → Archived`) en un schedule驱动 por release management, no por el ciclo de vida del system suite. Archivar un flag no afecta al system suite; deshabilitar un system suite no archiva sus flags.
 
-3. **Patrón existente.** `AppConfiguration` e `IdpConfiguration` en BC-C demuestran que los agregados de configuración referencian identificadores de BC-B y BC-A como FKs sin convertirse en hijos de esos agregados. `FeatureFlag` sigue el mismo patrón establecido.
+3. **Patrón existente.** `AppConfiguration` e `IdpConfiguration` en BC-C demuestran que los aggregates de configuración referencian identificadores de BC-B y BC-A como FKs sin convertirse en hijos de esos aggregates. `FeatureFlag` sigue el mismo patrón establecido.
 
-4. **Separación de contextos delimitados.** La gestión de feature flags es una responsabilidad de configuración (BC-C). Moverla a BC-B fusionaría dos subdominios distintos y violaría el principio de responsabilidad única a nivel de contexto delimitado.
+4. **Separación de bounded context.** La gestión de feature flags es una responsabilidad de configuración (BC-C). Moverla a BC-B mergearía dos subdominios distintos y violaría el principio de responsabilidad única a nivel de bounded context.
 
-### Por qué un modelo de criterios estructurado en lugar de JSON libre
+### Por qué un modelo de criterios estructurado en lugar de JSON de forma libre
 
-El JSON opaco de `FlagTargets` hacía imposible:
-- Consultar banderas por condición de targeting (por ejemplo, "¿qué banderas tienen como objetivo al tenant T1?")
-- Validar las reglas de targeting en el límite del dominio
-- Emitir eventos de dominio significativos cuando cambia una regla de targeting
-- Agregar o eliminar una única condición sin reemplazar todo el payload
+El JSON opaco `FlagTargets` hacía imposible:
+- Query flags por condición de targeting (ej., "¿qué flags targetean al tenant T1?")
+- Validar reglas de targeting en el límite de dominio
+- Emitir eventos de dominio significativos cuando una regla de targeting cambia
+- Agregar o remover una única condición sin reemplazar todo el payload
 
-Una colección estructurada de entidades `FeatureFlagCriteria` resuelve los cuatro problemas al costo de un esquema ligeramente más complejo.
+Una colección de entidad `FeatureFlagCriteria` estructurada aborda las cuatro preocupaciones al costo de un schema ligeramente más complejo.
 
-### Por qué la postura segura es false ante contexto faltante
+### Por qué la postura segura es false en contexto faltante
 
-Un valor de contexto ausente generalmente indica un llamante anónimo, una solicitud de servicio sin contexto de tenant, o un cliente que aún no ha migrado para proveer el campo de contexto requerido. En todos los casos, activar una funcionalidad con targeting para un llamante no identificado sería incorrecto. La regla false-ante-contexto-faltante garantiza que se puedan agregar nuevos tipos de criterios a una bandera en producción sin riesgo de activación amplia no intencionada.
+Un valor de contexto ausente más comúnmente indica un llamador anónimo, un request de servicio sin contexto de tenant, o un cliente que aún no ha migrado para proporcionar el campo de contexto requerido. En todos los casos, activar una feature targeted para un llamador no identificado sería incorrecto. La regla false-on-missing-context asegura que nuevos tipos de criterios puedan agregarse a un flag live sin riesgo de activación broad inadvertida.
 
 ---
 
@@ -96,50 +96,27 @@ Un valor de contexto ausente generalmente indica un llamante anónimo, una solic
 
 ### Positivas
 
-- Cada feature flag tiene un scope de propiedad explícito y consultable, alineado con el límite del sistema que controla.
-- Las condiciones de targeting son individualmente direccionables: pueden consultarse, agregarse, eliminarse y auditarse sin modificar la raíz del agregado.
-- Los eventos de dominio para cambios de criterios proporcionan un rastro de auditoría detallado para cumplimiento normativo.
-- El puerto `IFeatureFlagEvaluator` mantiene la lógica de evaluación extensible y testeable de forma aislada.
-- El mismo código de bandera puede reutilizarse en diferentes system suites sin conflictos de nombres.
+- Cada feature flag tiene un scope de propiedad explícito y queryable alineado con la frontera de sistema que controla.
+- Las condiciones de targeting son individualmente direccionables: pueden queryarse, agregarse, removerse, y auditarse sin tocar el aggregate root.
+- El modelo de criterios estructurado permite dashboards de "flags por tenant" o "flags por environment" sin parsing de JSON.
+- La inmutabilidad de SystemSuiteId simplifica el razonamiento sobre el alcance de un flag — no hay riesgo de drift accidental de scope.
+- Los eventos de dominio discretos por cambio de criterio permiten auditoría completa de cambios de targeting.
 
-### Compromisos (Trade-offs)
+### Negativas
 
-- La FK entre esquemas (`ums_configuration → ums_authorization`) introduce un acoplamiento a nivel de base de datos entre dos contextos delimitados. Se trata de una restricción intencional que refuerza la integridad referencial en la capa de persistencia.
-- Crear una bandera ahora requiere un `SystemSuiteId` válido, lo que significa que el llamante debe resolver la identidad del suite antes de emitir el comando.
-- La colección de criterios introduce una nueva tabla (`FeatureFlagCriteria`) y requiere operaciones JOIN para lecturas completas de banderas. Se recomienda una proyección de modelo de lectura para caminos de evaluación de alta frecuencia.
+- El composite unique constraint `(SystemSuiteId, FlagCode)` requiere que los migrations validen duplicados antes de aplicar.
+- El modelo de criterios con operadores definidos requiere que el `FeatureFlagEvaluator` implemente la lógica de evaluación completa — no es un simple JSON parse.
+- La postura false-on-missing-context puede causar que flags activos no se activen si el llamador no proporciona contexto completo — requiere que los clientes proporcionen context fields completos.
 
----
+### Neutrales
 
-## Alternativas Consideradas
-
-### Alternativa A — FeatureFlag como entidad hija de SystemSuite
-
-`FeatureFlag` se convertiría en una entidad dentro del agregado `SystemSuite`, gestionada a través de los comandos de `SystemSuite`.
-
-**Rechazada.** Como se argumenta en la sección de Fundamentos, esto inflaría el agregado `SystemSuite`, acoplaría dos límites de ciclo de vida diferentes y violaría la separación de contextos delimitados. El patrón de agregado independiente ya está establecido para otras entidades de configuración en BC-C.
-
-### Alternativa B — Servicio de feature flags externo (LaunchDarkly / Unleash)
-
-Reemplazar el modelo de dominio interno con un proveedor SaaS de feature flags y exponerlo a través de la capa anti-corrupción `IFeatureFlagPort` ya definida en el mapa de contextos.
-
-**Fuera de alcance.** La entrada ACL `IFeatureFlagPort` en el mapa de contextos delimitados contempla esta posibilidad. La decisión de mantener las feature flags de forma interna es una decisión de alcance de producto, no arquitectónica. Este ADR rige el diseño del modelo interno; la ruta de integración externa permanece disponible a través del puerto ACL sin requerir cambios en esta decisión.
+- `FeatureFlag` sigue siendo un aggregate root, no un entity hijo — el código existente que crea o usa `FeatureFlag` no requiere cambios de estructura.
+- El foreign key `SystemSuiteId` ya existe en el schema; la restricción unique es el único cambio de schema requerido.
 
 ---
 
-## Mapeo de Implementación
+## Referencias
 
-| Concern | Ubicación |
-|---|---|
-| Raíz de agregado | `Ums.Domain.Configuration.FeatureFlag` |
-| Entidad de criterios | `Ums.Domain.Configuration.FeatureFlagCriteria` |
-| Puerto evaluador | `Ums.Domain.Configuration.Ports.IFeatureFlagEvaluator` |
-| Implementación evaluador | `Ums.Infrastructure.Configuration.FeatureFlagEvaluator` |
-| Tabla `FeatureFlags` | `ums_configuration.FeatureFlags` — AGREGAR `SystemSuiteId` FK, `TenantId`; CAMBIAR UK |
-| Tabla `FeatureFlagCriteria` | `ums_configuration.FeatureFlagCriteria` (nueva tabla) |
-| Nuevos comandos | `AddFeatureFlagCriteriaCommand`, `RemoveFeatureFlagCriteriaCommand`, `UpdateFeatureFlagCommand` |
-| Comandos modificados | `CreateFeatureFlagCommand` (+ `SystemSuiteId`, `TenantId`), `EvaluateFeatureFlagCommand` (EvaluationContext tipado) |
-| Nuevas queries | `GetFeatureFlagsBySystemSuiteQuery`, `GetFeatureFlagCriteriaQuery` |
-
----
-
-**[Registro de ADRs](./index.md)** | **[Dominio FeatureFlag](../../domain/configuration/feature-flag.md)** | **[FeatureFlagCriteria](../../domain/configuration/feature-flag-criteria.md)**
+- [FeatureFlag Domain Documentación](../../domain/configuration/feature-flag.md)
+- [FeatureFlagCriteria Model](../../domain/configuration/feature-flag-criteria.md)
+- [BC Configuration Context DDD Design](../../governance/construction/ddd-design/05-configuration-context.md)
