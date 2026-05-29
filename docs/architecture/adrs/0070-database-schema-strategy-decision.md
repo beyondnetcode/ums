@@ -1,4 +1,4 @@
-# ADR-0066: Database Schema Per Module
+# ADR-0070: Database Schema Per Module Strategy
 
 **Status:** Accepted  
 **Date:** 2026-05-27  
