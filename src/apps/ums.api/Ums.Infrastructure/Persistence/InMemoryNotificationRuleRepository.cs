@@ -16,8 +16,8 @@ public sealed class InMemoryNotificationRuleRepository : INotificationRuleReposi
     public Task<NotificationRuleAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
         => GetByIdAsync(id, cancellationToken);
 
-    public Task<IReadOnlyList<NotificationRuleAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
-    { var all = _store.Values.ToList(); all.ForEach(e => e.BrokenRules.Clear()); return Task.FromResult<IReadOnlyList<NotificationRuleAggregate>>(all); }
+    public Task<IReadOnlyList<NotificationRuleAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
+    { var all = tenantId.HasValue ? _store.Values.Where(e => e.Props.TenantId.GetValue() == tenantId.Value).ToList() : _store.Values.ToList(); all.ForEach(e => e.BrokenRules.Clear()); return Task.FromResult<IReadOnlyList<NotificationRuleAggregate>>(all); }
 
     public Task<IReadOnlyList<NotificationRuleAggregate>> GetByTenantIdAsync(Guid tenantId, CancellationToken cancellationToken = default)
     { var f = _store.Values.Where(e => e.Props.TenantId.GetValue() == tenantId).ToList(); f.ForEach(e => e.BrokenRules.Clear()); return Task.FromResult<IReadOnlyList<NotificationRuleAggregate>>(f); }

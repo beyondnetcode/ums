@@ -85,7 +85,7 @@ public class ApprovalRequestQueryHandlerTests
         var r2 = MakeApprovalRequest(ApprovalStatus.Approved);
         var list = new List<ApprovalRequest> { r1, r2 };
 
-        _repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(list);
 
         var query = new GetAllApprovalRequestsQuery(
@@ -139,7 +139,7 @@ public class ApprovalRequestQueryHandlerTests
         var r2 = MakeApprovalRequest(ApprovalStatus.Approved);
         var list = new List<ApprovalRequest> { r1, r2 };
 
-        _repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(list);
 
         var query = new GetAllApprovalRequestsQuery(

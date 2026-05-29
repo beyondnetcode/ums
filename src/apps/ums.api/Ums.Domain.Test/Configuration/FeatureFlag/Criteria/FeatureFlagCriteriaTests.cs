@@ -22,7 +22,7 @@ public class FeatureFlagCriteriaTests
         var result = FeatureFlagCriteria.Create("", "Equals", "admins");
 
         Assert.True(result.IsFailure);
-        Assert.Contains("Criteria type is required", result.Error);
+        Assert.Contains("configuration.criteria_type_required", result.Error);
     }
 
     [Fact]
@@ -39,7 +39,7 @@ public class FeatureFlagCriteriaTests
         var result = FeatureFlagCriteria.Create("UserGroup", "", "admins");
 
         Assert.True(result.IsFailure);
-        Assert.Contains("Operator is required", result.Error);
+        Assert.Contains("configuration.criteria_operator_required", result.Error);
     }
 
     [Fact]
@@ -48,7 +48,7 @@ public class FeatureFlagCriteriaTests
         var result = FeatureFlagCriteria.Create("UserGroup", "Equals", "");
 
         Assert.True(result.IsFailure);
-        Assert.Contains("Criteria value is required", result.Error);
+        Assert.Contains("configuration.criteria_value_required", result.Error);
     }
 
     [Fact]

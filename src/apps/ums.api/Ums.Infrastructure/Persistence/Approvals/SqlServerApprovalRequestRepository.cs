@@ -32,10 +32,21 @@ public sealed class SqlServerApprovalRequestRepository : IApprovalRequestReposit
     public Task<ApprovalRequestAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
         => GetByIdAsync(id, cancellationToken);
 
-    public async Task<IReadOnlyList<ApprovalRequestAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<ApprovalRequestAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
-        var records = await _dbContext.Set<ApprovalRequestRecord>()
-            .ToListAsync(cancellationToken);
+        var query = _dbContext.Set<ApprovalRequestRecord>().AsQueryable();
+
+        if (tenantId.HasValue)
+        {
+            query = query.Join(_dbContext.Set<ApprovalWorkflowRecord>(),
+                req => req.WorkflowId,
+                wf => wf.Id,
+                (req, wf) => req)
+            .Where(x => _dbContext.Set<ApprovalWorkflowRecord>()
+                .Any(wf => wf.Id == x.WorkflowId && wf.TenantId == tenantId.Value));
+        }
+
+        var records = await query.ToListAsync(cancellationToken);
 
         return records.Select(Rehydrate).ToList();
     }

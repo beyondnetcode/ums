@@ -32,10 +32,16 @@ public sealed class SqlServerNotificationRuleRepository : INotificationRuleRepos
     public Task<NotificationRuleAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
         => GetByIdAsync(id, cancellationToken);
 
-    public async Task<IReadOnlyList<NotificationRuleAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<NotificationRuleAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
-        var records = await _dbContext.Set<NotificationRuleRecord>()
-            .ToListAsync(cancellationToken);
+        IQueryable<NotificationRuleRecord> query = _dbContext.Set<NotificationRuleRecord>();
+
+        if (tenantId.HasValue)
+        {
+            query = query.Where(x => x.TenantId == tenantId.Value);
+        }
+
+        var records = await query.ToListAsync(cancellationToken);
 
         return records.Select(Rehydrate).ToList();
     }

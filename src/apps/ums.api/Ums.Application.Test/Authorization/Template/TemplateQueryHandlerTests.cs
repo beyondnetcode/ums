@@ -7,6 +7,7 @@ using Ums.Domain.Authorization;
 using Ums.Domain.Authorization.Role;
 using Ums.Domain.Authorization.SystemSuite;
 using Ums.Domain.Kernel;
+using Ums.Application.Common.Interfaces;
 using Moq;
 using Xunit;
 using System;
@@ -19,6 +20,7 @@ public class TemplateQueryHandlerTests
     private readonly Mock<IPermissionTemplateRepository> _repo = new();
     private readonly Mock<IRoleRepository> _roleRepo = new();
     private readonly Mock<ISystemSuiteRepository> _suiteRepo = new();
+    private readonly Mock<IUserContext> _userContext = new();
 
     private static PermissionTemplate MakeTemplate(TemplateStatus status)
     {
@@ -94,7 +96,7 @@ public class TemplateQueryHandlerTests
         var t2 = MakeTemplate(TemplateStatus.Published);
         var list = new List<PermissionTemplate> { t1, t2 };
 
-        _repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(list);
 
         var query = new GetAllPermissionTemplatesQuery(
@@ -112,7 +114,7 @@ public class TemplateQueryHandlerTests
         _suiteRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
                   .ReturnsAsync((SystemSuite?)null);
 
-        var handler = new GetAllPermissionTemplatesQueryHandler(_repo.Object, _roleRepo.Object, _suiteRepo.Object);
+        var handler = new GetAllPermissionTemplatesQueryHandler(_repo.Object, _roleRepo.Object, _suiteRepo.Object, _userContext.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -145,7 +147,7 @@ public class TemplateQueryHandlerTests
         _suiteRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
                   .ReturnsAsync((SystemSuite?)null);
 
-        var handler = new GetAllPermissionTemplatesQueryHandler(_repo.Object, _roleRepo.Object, _suiteRepo.Object);
+        var handler = new GetAllPermissionTemplatesQueryHandler(_repo.Object, _roleRepo.Object, _suiteRepo.Object, _userContext.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -160,7 +162,7 @@ public class TemplateQueryHandlerTests
         var t2 = MakeTemplate(TemplateStatus.Published);
         var list = new List<PermissionTemplate> { t1, t2 };
 
-        _repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(list);
 
         var query = new GetAllPermissionTemplatesQuery(
@@ -178,7 +180,7 @@ public class TemplateQueryHandlerTests
         _suiteRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
                   .ReturnsAsync((SystemSuite?)null);
 
-        var handler = new GetAllPermissionTemplatesQueryHandler(_repo.Object, _roleRepo.Object, _suiteRepo.Object);
+        var handler = new GetAllPermissionTemplatesQueryHandler(_repo.Object, _roleRepo.Object, _suiteRepo.Object, _userContext.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);

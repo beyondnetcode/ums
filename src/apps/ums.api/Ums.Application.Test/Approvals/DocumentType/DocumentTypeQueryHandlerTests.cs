@@ -78,7 +78,7 @@ public class DocumentTypeQueryHandlerTests
             MakeDocumentType("DOCTYPE-002")
         };
 
-        _repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(list);
 
         var query = new GetAllDocumentTypesQuery(

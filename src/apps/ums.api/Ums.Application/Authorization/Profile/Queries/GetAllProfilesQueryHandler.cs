@@ -54,9 +54,9 @@ public sealed class GetAllProfilesQueryHandler : IQueryHandler<GetAllProfilesQue
             ? await _profileRepository.GetByUserIdAsync(request.UserId.Value, cancellationToken)
             : effectiveTenantId.HasValue
                 ? await _profileRepository.GetByTenantIdAsync(effectiveTenantId.Value, cancellationToken)
-                : await _profileRepository.GetAllAsync(cancellationToken);
+                : await _profileRepository.GetAllAsync(effectiveTenantId, cancellationToken);
 
-        var allTenants = await _tenantRepository.GetAllAsync(cancellationToken);
+        var allTenants = await _tenantRepository.GetAllAsync(null, cancellationToken);
         var profileRoleIds = profiles.Select(p => p.Props.RoleId.GetValue()).Distinct().ToList();
         var profileTenantIds = profiles.Select(p => p.Props.TenantId.GetValue()).Distinct().ToList();
 
@@ -67,7 +67,7 @@ public sealed class GetAllProfilesQueryHandler : IQueryHandler<GetAllProfilesQue
             allRoles.AddRange(tenantRoles);
         }
 
-        var allUsers = await _userAccountRepository.GetAllAsync(cancellationToken);
+        var allUsers = await _userAccountRepository.GetAllAsync(effectiveTenantId, cancellationToken);
 
         var roleSystemSuiteIds = allRoles.Select(r => r.Props.SystemSuiteId.GetValue()).Distinct().ToList();
         var allSuites = new List<Ums.Domain.Authorization.SystemSuite.SystemSuite>();

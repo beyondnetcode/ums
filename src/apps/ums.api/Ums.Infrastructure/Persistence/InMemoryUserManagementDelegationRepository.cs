@@ -72,10 +72,9 @@ public sealed class InMemoryUserManagementDelegationRepository : IUserManagement
         return Task.FromResult<IReadOnlyList<UserManagementDelegationAggregate>>(result);
     }
 
-    public Task<IReadOnlyList<UserManagementDelegationAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<UserManagementDelegationAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
-        // REC-05: filter by tenant when a request context is available
-        var tid = CurrentTenantId;
+        var tid = tenantId ?? CurrentTenantId;
         var all = (tid.HasValue
             ? _store.Values.Where(d => d.Props.TenantId.GetValue() == tid.Value)
             : _store.Values).ToList();

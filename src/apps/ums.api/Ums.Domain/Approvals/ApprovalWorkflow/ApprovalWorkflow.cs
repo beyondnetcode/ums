@@ -1,10 +1,12 @@
 namespace Ums.Domain.Approvals.ApprovalWorkflow;
 
 using Ums.Domain.Approvals.ApprovalWorkflow.ApprovalRequiredDocument;
+using Ums.Domain.Approvals.ApprovalWorkflow.Events;
 using ApprovalRequiredDocumentEntity = Ums.Domain.Approvals.ApprovalWorkflow.ApprovalRequiredDocument.ApprovalRequiredDocument;
 
 public sealed class ApprovalWorkflow : AggregateRoot<ApprovalWorkflow, ApprovalWorkflowProps>
 {
+    public new ApprovalWorkflowDomainEventsManager DomainEvents { get; }
     private readonly List<ApprovalRequiredDocumentEntity> _requiredDocuments = new();
 
     public ApprovalWorkflowId GetId() => ApprovalWorkflowId.Load(Props.Id.GetValue());
@@ -21,6 +23,7 @@ public sealed class ApprovalWorkflow : AggregateRoot<ApprovalWorkflow, ApprovalW
 
     private ApprovalWorkflow(ApprovalWorkflowProps props) : base(props)
     {
+        DomainEvents = new ApprovalWorkflowDomainEventsManager(this);
     }
 
     public static Result<ApprovalWorkflow> Create(
@@ -63,6 +66,10 @@ public sealed class ApprovalWorkflow : AggregateRoot<ApprovalWorkflow, ApprovalW
         }
 
         _requiredDocuments.Add(documentResult.Value);
+        DomainEvents.RaiseEvent(new ApprovalWorkflowDocumentAddedEvent(
+            Props.Id.GetValue(),
+            documentTypeId.GetValue(),
+            isMandatory));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(createdBy.GetValue());
         return Result.Success();
@@ -81,7 +88,11 @@ public sealed class ApprovalWorkflow : AggregateRoot<ApprovalWorkflow, ApprovalW
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
+        var documentTypeId = document.Value.DocumentTypeId;
         _requiredDocuments.Remove(document.Value);
+        DomainEvents.RaiseEvent(new ApprovalWorkflowDocumentRemovedEvent(
+            Props.Id.GetValue(),
+            documentTypeId.GetValue()));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(updatedBy.GetValue());
         return Result.Success();

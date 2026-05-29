@@ -5,6 +5,7 @@ using Ums.Application.Authorization.SystemSuite.DTOs;
 using Ums.Domain.Authorization.SystemSuite;
 using Ums.Domain.Authorization;
 using Ums.Domain.Kernel;
+using Ums.Application.Common.Interfaces;
 using Moq;
 using Xunit;
 using System;
@@ -15,6 +16,7 @@ using System.Threading.Tasks;
 public class SystemSuiteQueryHandlerTests
 {
     private readonly Mock<ISystemSuiteRepository> _repo = new();
+    private readonly Mock<IUserContext> _userContext = new();
 
     private static SystemSuite MakeSystemSuite(string code, string name, string statusName)
     {
@@ -84,7 +86,7 @@ public class SystemSuiteQueryHandlerTests
         var s2 = MakeSystemSuite("SUITE-02", "Suite Beta", "Maintenance");
         var list = new List<SystemSuite> { s1, s2 };
 
-        _repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(list);
 
         var query = new GetAllSystemSuitesQuery(
@@ -97,7 +99,7 @@ public class SystemSuiteQueryHandlerTests
             Page: 1,
             PageSize: 10);
 
-        var handler = new GetAllSystemSuitesQueryHandler(_repo.Object);
+        var handler = new GetAllSystemSuitesQueryHandler(_repo.Object, _userContext.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -125,7 +127,7 @@ public class SystemSuiteQueryHandlerTests
             Page: 1,
             PageSize: 10);
 
-        var handler = new GetAllSystemSuitesQueryHandler(_repo.Object);
+        var handler = new GetAllSystemSuitesQueryHandler(_repo.Object, _userContext.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -140,7 +142,7 @@ public class SystemSuiteQueryHandlerTests
         var s2 = MakeSystemSuite("SUITE-02", "Suite Beta", "Maintenance");
         var list = new List<SystemSuite> { s1, s2 };
 
-        _repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(list);
 
         var query = new GetAllSystemSuitesQuery(
@@ -153,7 +155,7 @@ public class SystemSuiteQueryHandlerTests
             Page: 1,
             PageSize: 10);
 
-        var handler = new GetAllSystemSuitesQueryHandler(_repo.Object);
+        var handler = new GetAllSystemSuitesQueryHandler(_repo.Object, _userContext.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -168,7 +170,7 @@ public class SystemSuiteQueryHandlerTests
         var s2 = MakeSystemSuite("SUITE-02", "Suite Beta", "Active");
         var list = new List<SystemSuite> { s1, s2 };
 
-        _repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(list);
 
         var query = new GetAllSystemSuitesQuery(
@@ -181,7 +183,7 @@ public class SystemSuiteQueryHandlerTests
             Page: 1,
             PageSize: 10);
 
-        var handler = new GetAllSystemSuitesQueryHandler(_repo.Object);
+        var handler = new GetAllSystemSuitesQueryHandler(_repo.Object, _userContext.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);

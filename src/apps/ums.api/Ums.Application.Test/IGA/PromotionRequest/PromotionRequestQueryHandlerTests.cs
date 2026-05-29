@@ -94,7 +94,7 @@ public class PromotionRequestQueryHandlerTests
         var r2 = MakePromotionRequest(PromotionStatus.Rejected);
         var list = new List<PromotionRequest> { r1, r2 };
 
-        _repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(list);
 
         var query = new GetAllPromotionRequestsQuery(
@@ -148,7 +148,7 @@ public class PromotionRequestQueryHandlerTests
         var r2 = MakePromotionRequest(PromotionStatus.Rejected);
         var list = new List<PromotionRequest> { r1, r2 };
 
-        _repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(list);
 
         var query = new GetAllPromotionRequestsQuery(

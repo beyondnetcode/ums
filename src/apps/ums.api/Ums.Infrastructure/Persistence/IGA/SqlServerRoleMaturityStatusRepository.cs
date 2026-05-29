@@ -32,10 +32,16 @@ public sealed class SqlServerRoleMaturityStatusRepository : IRoleMaturityStatusR
     public Task<RoleMaturityStatusAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
         => GetByIdAsync(id, cancellationToken);
 
-    public async Task<IReadOnlyList<RoleMaturityStatusAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<RoleMaturityStatusAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
-        var records = await _dbContext.Set<RoleMaturityStatusRecord>()
-            .ToListAsync(cancellationToken);
+        IQueryable<RoleMaturityStatusRecord> query = _dbContext.Set<RoleMaturityStatusRecord>();
+
+        if (tenantId.HasValue)
+        {
+            query = query.Where(x => x.TenantId == tenantId.Value);
+        }
+
+        var records = await query.ToListAsync(cancellationToken);
 
         return records.Select(IgaAggregateFactory.RehydrateRoleMaturityStatus).ToList();
     }

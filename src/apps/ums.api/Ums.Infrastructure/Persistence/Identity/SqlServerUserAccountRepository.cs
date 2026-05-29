@@ -43,14 +43,18 @@ public sealed class SqlServerUserAccountRepository(UmsPlatformDbContext dbContex
         return record is null ? null : Rehydrate(record);
     }
 
-    public async Task<IReadOnlyList<UserAccountAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<UserAccountAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
-        var records = await dbContext.UserAccounts
-            .AsSplitQuery()
+        IQueryable<UserAccountRecord> query = dbContext.UserAccounts.AsSplitQuery()
             .Include(x => x.MfaEnrollments)
-            .Include(x => x.PasswordCredentials)
-            .OrderBy(x => x.Email)
-            .ToListAsync(cancellationToken);
+            .Include(x => x.PasswordCredentials);
+
+        if (tenantId.HasValue)
+        {
+            query = query.Where(x => x.TenantId == tenantId.Value);
+        }
+
+        var records = await query.OrderBy(x => x.Email).ToListAsync(cancellationToken);
 
         return records.Select(Rehydrate).ToList();
     }

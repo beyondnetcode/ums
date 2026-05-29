@@ -16,7 +16,7 @@ public sealed class InMemoryApprovalRequestRepository : IApprovalRequestReposito
     public Task<ApprovalRequestAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
         => GetByIdAsync(id, cancellationToken);
 
-    public Task<IReadOnlyList<ApprovalRequestAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<ApprovalRequestAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
     { var all = _store.Values.ToList(); all.ForEach(e => e.BrokenRules.Clear()); return Task.FromResult<IReadOnlyList<ApprovalRequestAggregate>>(all); }
 
     public Task<IReadOnlyList<ApprovalRequestAggregate>> GetByTenantIdAsync(Guid tenantId, CancellationToken cancellationToken = default)

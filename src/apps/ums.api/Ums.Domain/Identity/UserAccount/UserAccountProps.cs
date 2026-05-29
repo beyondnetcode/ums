@@ -2,14 +2,14 @@ namespace Ums.Domain.Identity.UserAccount;
 
 public class UserAccountProps : IProps
 {
-    public IdValueObject Id { get; set; }
-    public TenantId TenantId { get; set; }
-    public BranchId? BranchId { get; set; }
-    public Email Email { get; set; }
-    public UserCategory Category { get; set; }
-    public UserStatus Status { get; set; }
-    public IdentityReference? IdentityReference { get; set; }
-    public IdentityReferenceType? IdentityReferenceType { get; set; }
+    public IdValueObject Id { get; private set; }
+    public TenantId TenantId { get; private set; }
+    public BranchId? BranchId { get; private set; }
+    public Email Email { get; private set; }
+    public UserCategory Category { get; private set; }
+    public UserStatus Status { get; private set; }
+    public IdentityReference? IdentityReference { get; private set; }
+    public IdentityReferenceType? IdentityReferenceType { get; private set; }
     public AuditValueObject Audit { get; private set; }
 
     public UserAccountProps(
@@ -31,6 +31,35 @@ public class UserAccountProps : IProps
         IdentityReference = identityReference;
         IdentityReferenceType = identityReferenceType;
         Audit = AuditValueObject.Create(createdBy.GetValue());
+    }
+
+    public UserAccountProps(
+        IdValueObject id,
+        TenantId tenantId,
+        BranchId? branchId,
+        Email email,
+        UserCategory category,
+        UserStatus status,
+        IdentityReference? identityReference,
+        IdentityReferenceType? identityReferenceType,
+        AuditValueObject audit)
+    {
+        Id = id;
+        TenantId = tenantId;
+        BranchId = branchId;
+        Email = email;
+        Category = category;
+        Status = status;
+        IdentityReference = identityReference;
+        IdentityReferenceType = identityReferenceType;
+        Audit = audit;
+    }
+
+    public UserAccountProps WithStatus(UserStatus status)
+    {
+        var clone = (UserAccountProps)MemberwiseClone();
+        clone.Status = status;
+        return clone;
     }
 
     public object Clone() => MemberwiseClone();

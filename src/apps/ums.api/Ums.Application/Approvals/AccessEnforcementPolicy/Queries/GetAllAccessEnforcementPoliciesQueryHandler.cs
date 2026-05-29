@@ -22,7 +22,7 @@ public sealed class GetAllAccessEnforcementPoliciesQueryHandler : IQueryHandler<
 
         var items = request.TenantId.HasValue
             ? await _repository.GetByTenantIdAsync(request.TenantId.Value, cancellationToken)
-            : await _repository.GetAllAsync(cancellationToken);
+            : await _repository.GetAllAsync(request.TenantId, cancellationToken);
 
         var query = items.Select(p => new AccessEnforcementPolicyDto(
             p.Props.Id.GetValue(), p.Props.TenantId.GetValue(), p.Props.ProfileId?.GetValue(),

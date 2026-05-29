@@ -27,12 +27,16 @@ public sealed class SqlServerIdpConfigurationRepository(UmsPlatformDbContext dbC
     public Task<IdpConfigurationAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
         => GetByIdAsync(id, cancellationToken);
 
-    public async Task<IReadOnlyList<IdpConfigurationAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<IdpConfigurationAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
-        var records = await dbContext.IdpConfigurations
-            .OrderBy(x => x.TenantId)
-            .ThenBy(x => x.ResolutionPriority)
-            .ToListAsync(cancellationToken);
+        IQueryable<IdpConfigurationRecord> query = dbContext.IdpConfigurations;
+
+        if (tenantId.HasValue)
+        {
+            query = query.Where(x => x.TenantId == tenantId.Value);
+        }
+
+        var records = await query.OrderBy(x => x.TenantId).ThenBy(x => x.ResolutionPriority).ToListAsync(cancellationToken);
 
         return records.Select(Rehydrate).ToList();
     }

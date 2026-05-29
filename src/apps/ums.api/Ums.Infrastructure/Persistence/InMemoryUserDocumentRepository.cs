@@ -16,7 +16,7 @@ public sealed class InMemoryUserDocumentRepository : IUserDocumentRepository, IU
     public Task<UserDocumentAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
         => GetByIdAsync(id, cancellationToken);
 
-    public Task<IReadOnlyList<UserDocumentAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<UserDocumentAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
     { var all = _store.Values.ToList(); all.ForEach(e => e.BrokenRules.Clear()); return Task.FromResult<IReadOnlyList<UserDocumentAggregate>>(all); }
 
     public Task<IReadOnlyList<UserDocumentAggregate>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)

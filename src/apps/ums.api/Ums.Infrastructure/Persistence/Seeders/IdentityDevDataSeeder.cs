@@ -77,7 +77,7 @@ public static class IdentityDevDataSeeder
         var delegations = BuildSeedDelegations(actor);
         if (inMemoryDelegationRepository is null && delegationRepository is not null)
         {
-            var alreadySeeded = await delegationRepository.GetAllAsync(cancellationToken);
+            var alreadySeeded = await delegationRepository.GetAllAsync(null, cancellationToken);
             if (alreadySeeded.Count == 0)
             {
                 foreach (var delegation in delegations)
@@ -242,7 +242,7 @@ public static class IdentityDevDataSeeder
             {
                 var hash = PasswordHash.Create(passwordHasher.Hash(CoreDevDataSeeder.SuperAdminPassword));
                 superAdmin.AddPassword(hash, actor);
-                superAdmin.ActivatePassword(superAdmin.Props.PasswordCredentials.First(c => c.IsActive).GetId(), actor);
+                superAdmin.ActivatePassword(superAdmin.PasswordCredentials.First(c => c.IsActive).GetId(), actor);
             }
             result.Add(superAdmin);
         }

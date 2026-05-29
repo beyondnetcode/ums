@@ -32,10 +32,16 @@ public sealed class SqlServerDocumentTypeRepository : IDocumentTypeRepository, I
     public Task<DocumentTypeAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
         => GetByIdAsync(id, cancellationToken);
 
-    public async Task<IReadOnlyList<DocumentTypeAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<DocumentTypeAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
-        var records = await _dbContext.Set<DocumentTypeRecord>()
-            .ToListAsync(cancellationToken);
+        IQueryable<DocumentTypeRecord> query = _dbContext.Set<DocumentTypeRecord>();
+
+        if (tenantId.HasValue)
+        {
+            query = query.Where(x => x.TenantId == tenantId.Value);
+        }
+
+        var records = await query.ToListAsync(cancellationToken);
 
         return records.Select(Rehydrate).ToList();
     }

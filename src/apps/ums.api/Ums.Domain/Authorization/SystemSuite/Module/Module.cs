@@ -43,9 +43,7 @@ public sealed class Module : Entity<Module, ModuleProps>
 
     public Result Update(Name name, Description description, int sortOrder, ActorId updatedBy)
     {
-        Props.Name = name;
-        Props.Description = description;
-        Props.SortOrder = sortOrder;
+        SetProps(Props.WithName(name).WithDescription(description).WithSortOrder(sortOrder));
 
         if (!IsValid())
         {
@@ -70,7 +68,7 @@ public sealed class Module : Entity<Module, ModuleProps>
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        Props.Status = ModuleStatus.Active;
+        SetProps(Props.WithStatus(ModuleStatus.Active));
         Props.Audit.Update(updatedBy.GetValue());
         return Result.Success();
     }
@@ -89,7 +87,7 @@ public sealed class Module : Entity<Module, ModuleProps>
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        Props.Status = ModuleStatus.Inactive;
+        SetProps(Props.WithStatus(ModuleStatus.Inactive));
         Props.Audit.Update(updatedBy.GetValue());
         return Result.Success();
     }

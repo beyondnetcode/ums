@@ -83,7 +83,7 @@ public class AccessEnforcementPolicyQueryHandlerTests
         var p2 = MakePolicy(AccessEnforcementAction.LogOnly, false);
         var list = new List<AccessEnforcementPolicy> { p1, p2 };
 
-        _repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(list);
 
         var query = new GetAllAccessEnforcementPoliciesQuery(
@@ -135,7 +135,7 @@ public class AccessEnforcementPolicyQueryHandlerTests
         var p2 = MakePolicy(AccessEnforcementAction.LogOnly, false);
         var list = new List<AccessEnforcementPolicy> { p1, p2 };
 
-        _repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(list);
 
         var query = new GetAllAccessEnforcementPoliciesQuery(

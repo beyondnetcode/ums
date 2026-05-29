@@ -1,12 +1,16 @@
 namespace Ums.Infrastructure.Persistence.Seeders;
 
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Ums.Domain.Authorization;
 using Ums.Domain.Authorization.Profile;
+using Ums.Domain.Authorization.Role;
 using Ums.Domain.Authorization.SystemSuite;
 using Ums.Domain.Authorization.SystemSuite.DomainResource;
 using Ums.Domain.Authorization.Template;
 using Ums.Domain.Kernel.ValueObjects;
+using Ums.Infrastructure.Persistence.Authorization.Entities;
+using Ums.Infrastructure.Persistence.Reflection;
 using ProfileAggregate = Ums.Domain.Authorization.Profile.Profile;
 using SystemSuiteAggregate = Ums.Domain.Authorization.SystemSuite.SystemSuite;
 using PermissionTemplateAggregate = Ums.Domain.Authorization.Template.PermissionTemplate;
@@ -102,6 +106,16 @@ public static class AuthorizationDevDataSeeder
         }
     }
 
+    private static readonly BindingFlags PrivateInstanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
+
+    private static void SetRoleId(RoleAggregate role, Guid id)
+    {
+        var propsField = typeof(RoleAggregate).GetField("_props", PrivateInstanceFlags);
+        var props = propsField?.GetValue(role) as RoleProps;
+        var idProperty = typeof(RoleProps).GetProperty("Id", PrivateInstanceFlags);
+        idProperty?.SetValue(props, RoleId.Load(id));
+    }
+
     private static IReadOnlyList<RoleAggregate> BuildSeedRoles(TenantId tenantId, IReadOnlyList<SystemSuiteAggregate> suites, ActorId actor)
     {
         var roles = new List<RoleAggregate>();
@@ -121,7 +135,7 @@ public static class AuthorizationDevDataSeeder
         if (globalAdminRoleResult.IsSuccess)
         {
             var role = globalAdminRoleResult.Value;
-            role.Props.Id = RoleId.Load(Guid.Parse(CoreDevDataSeeder.GlobalAdminRoleId));
+            SetRoleId(role, Guid.Parse(CoreDevDataSeeder.GlobalAdminRoleId));
             roles.Add(role);
         }
 
@@ -130,7 +144,7 @@ public static class AuthorizationDevDataSeeder
         if (adminRoleResult.IsSuccess)
         {
             var role = adminRoleResult.Value;
-            role.Props.Id = RoleId.Load(Guid.Parse(CoreDevDataSeeder.DemoAdminRoleId));
+            SetRoleId(role, Guid.Parse(CoreDevDataSeeder.DemoAdminRoleId));
             roles.Add(role);
         }
 
@@ -153,7 +167,7 @@ public static class AuthorizationDevDataSeeder
             if (operatorRoleResult.IsSuccess)
             {
                 var role = operatorRoleResult.Value;
-                role.Props.Id = RoleId.Load(Guid.Parse(CoreDevDataSeeder.DemoOperatorRoleId));
+                SetRoleId(role, Guid.Parse(CoreDevDataSeeder.DemoOperatorRoleId));
                 roles.Add(role);
             }
 
@@ -562,9 +576,9 @@ public static class AuthorizationDevDataSeeder
             {
                 foreach (var domainRes in suite.DomainResources)
                 {
-                    if (domainRes.Props.ResourceType == DomainResourceType.Aggregate)
+                    if (domainRes.Props.Type == DomainResourceType.Aggregate)
                         globalAdminTpl.AddItem(ExclusiveArcTarget.Aggregate, domainRes.Id, ActionId.Create(), true, false, actor);
-                    else if (domainRes.Props.ResourceType == DomainResourceType.Entity)
+                    else if (domainRes.Props.Type == DomainResourceType.Entity)
                         globalAdminTpl.AddItem(ExclusiveArcTarget.Entity, domainRes.Id, ActionId.Create(), true, false, actor);
                 }
             }

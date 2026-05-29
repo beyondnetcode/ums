@@ -5,4 +5,5 @@ public class DocumentTypeDomainEventsManager : DomainEventsManager
     public DocumentTypeDomainEventsManager(IAggregateRoot aggregateRoot) : base(aggregateRoot) { }
 
     private void Apply(DocumentTypeRegisteredEvent @event) { }
+    private void Apply(DocumentTypeUpdatedEvent @event) { }
 }

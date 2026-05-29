@@ -3,8 +3,8 @@ namespace Ums.Presentation.Endpoints.Authorization.Profile;
 using Ums.Application.Common;
 using Ums.Application.Authorization.Profile.Commands;
 using Ums.Application.Authorization.Profile.DTOs;
-using Ums.Application.Authorization.Profile.Queries;
 using Ums.Application.Authorization.Profile.Exporters;
+using Ums.Application.Authorization.Profile.Queries;
 using Ums.Shell.Factory.Interfaces;
 
 public static class ProfileEndpoints
@@ -124,10 +124,48 @@ public static class ProfileEndpoints
         .ProducesProblem(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status409Conflict);
 
+        group.MapGet("/{profileId:guid}/permission-graph", async (
+            Guid profileId,
+            IMediator mediator,
+            ITenantExportConfigurationProvider configProvider,
+            HttpContext context,
+            CancellationToken ct) =>
+        {
+            var profileResult = await mediator.Send(new GetProfileByIdQuery(profileId), ct);
+            if (profileResult.IsFailure)
+            {
+                return Results.BadRequest(new { error = profileResult.Error, errorId = Guid.NewGuid() });
+            }
+
+            var profile = profileResult.Value;
+            var tenantId = profile.TenantId;
+            var config = await configProvider.GetConfigurationAsync(tenantId, ct);
+
+            var criteria = new ProfileExportCriteria(config.DefaultFormat);
+            var factory = context.RequestServices.GetRequiredService<IFactory>();
+            var exporters = factory.Create<ProfileExportCriteria, IProfileExporter>(criteria);
+
+            if (exporters.Length == 0)
+            {
+                return Results.BadRequest(new { error = $"No exporter found for format '{config.DefaultFormat}'", errorId = Guid.NewGuid() });
+            }
+
+            var exporter = exporters[0];
+            var content = exporter.Export(profile, config);
+
+            return Results.Text(content, exporter.ContentType, System.Text.Encoding.UTF8);
+        })
+        .WithName("GetProfilePermissionGraphPreview")
+        .WithSummary("Preview the profile authorization graph using tenant-configured default format")
+        .Produces(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status404NotFound);
+
         group.MapGet("/{profileId:guid}/export", async (
             Guid profileId,
             [FromQuery] string format,
             IMediator mediator,
+            ITenantExportConfigurationProvider configProvider,
             IFactory factory,
             HttpContext context,
             CancellationToken ct) =>
@@ -135,31 +173,40 @@ public static class ProfileEndpoints
             var profileResult = await mediator.Send(new GetProfileByIdQuery(profileId), ct);
             if (profileResult.IsFailure)
             {
-                return Results.BadRequest(profileResult.Error);
+                return Results.BadRequest(new { error = profileResult.Error, errorId = Guid.NewGuid() });
             }
 
-            var criteria = new ProfileExportCriteria(format.ToUpperInvariant());
+            var profile = profileResult.Value;
+            var tenantId = profile.TenantId;
+            var config = await configProvider.GetConfigurationAsync(tenantId, ct);
+
+            var upperFormat = format.ToUpperInvariant();
+            if (!config.AllowedFormats.Contains(upperFormat))
+            {
+                return Results.BadRequest(new
+                {
+                    error = $"Format '{format}' is not allowed. Allowed formats: {string.Join(", ", config.AllowedFormats)}",
+                    errorId = Guid.NewGuid(),
+                    allowedFormats = config.AllowedFormats
+                });
+            }
+
+            var criteria = new ProfileExportCriteria(upperFormat);
             var exporters = factory.Create<ProfileExportCriteria, IProfileExporter>(criteria);
+
             if (exporters.Length == 0)
             {
-                return Results.BadRequest($"Export format '{format}' is not supported.");
+                return Results.BadRequest(new { error = $"Export format '{format}' is not supported.", errorId = Guid.NewGuid() });
             }
 
             var exporter = exporters[0];
-            var exportResult = exporter.Export(profileResult.Value);
+            var content = exporter.Export(profile, config);
 
-            var contentType = format.ToLowerInvariant() switch
-            {
-                "xml" => "application/xml",
-                "csv" => "text/csv",
-                _ => "application/json"
-            };
-
-            var fileName = $"profile_{profileId}.{format.ToLowerInvariant()}";
-            return Results.File(System.Text.Encoding.UTF8.GetBytes(exportResult), contentType, fileName);
+            var fileName = $"profile_{profileId}.{exporter.FileExtension}";
+            return Results.File(System.Text.Encoding.UTF8.GetBytes(content), exporter.ContentType, fileName);
         })
         .WithName("ExportProfileGraph")
-        .WithSummary("Export the materialized profile authorization graph in JSON, XML or CSV formats using our corporate factory.")
+        .WithSummary("Export the materialized profile authorization graph in JSON, XML, YAML, or CSV formats using our corporate factory.")
         .Produces(StatusCodes.Status200OK)
         .ProducesProblem(StatusCodes.Status400BadRequest)
         .ProducesProblem(StatusCodes.Status404NotFound);

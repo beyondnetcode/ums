@@ -86,7 +86,7 @@ public sealed class UserAccount : AggregateRoot<UserAccount, UserAccountProps>
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        Props.Status = UserStatus.Active;
+        SetProps(Props.WithStatus(UserStatus.Active));
         DomainEvents.RaiseEvent(new UserActivatedEvent(Props.Id.GetValue(), Props.TenantId.GetValue()));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(updatedBy.GetValue());
@@ -105,7 +105,7 @@ public sealed class UserAccount : AggregateRoot<UserAccount, UserAccountProps>
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        Props.Status = UserStatus.Blocked;
+        SetProps(Props.WithStatus(UserStatus.Blocked));
         DomainEvents.RaiseEvent(new UserBlockedEvent(
             Props.Id.GetValue(),
             Props.TenantId.GetValue(),
@@ -127,7 +127,7 @@ public sealed class UserAccount : AggregateRoot<UserAccount, UserAccountProps>
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        Props.Status = UserStatus.Active;
+        SetProps(Props.WithStatus(UserStatus.Active));
         DomainEvents.RaiseEvent(new UserRestoredEvent(Props.Id.GetValue(), Props.TenantId.GetValue()));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(updatedBy.GetValue());
@@ -150,7 +150,7 @@ public sealed class UserAccount : AggregateRoot<UserAccount, UserAccountProps>
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        Props.Status = UserStatus.Deleted;
+        SetProps(Props.WithStatus(UserStatus.Deleted));
         DomainEvents.RaiseEvent(new UserDeletedEvent(Props.Id.GetValue(), Props.TenantId.GetValue()));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(deletedBy.GetValue());

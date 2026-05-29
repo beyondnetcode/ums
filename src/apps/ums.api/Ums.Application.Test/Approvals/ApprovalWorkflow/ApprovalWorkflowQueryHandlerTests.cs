@@ -79,7 +79,7 @@ public class ApprovalWorkflowQueryHandlerTests
         var wf2 = MakeWorkflow("WF-002", "Workflow B");
         var list = new List<ApprovalWorkflow> { wf1, wf2 };
 
-        _repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(list);
 
         var query = new GetAllApprovalWorkflowsQuery(
@@ -123,7 +123,7 @@ public class ApprovalWorkflowQueryHandlerTests
         Assert.True(result.IsSuccess);
         Assert.Equal(1, result.Value.TotalItems);
         _repo.Verify(r => r.GetByTenantIdAsync(tenantId, It.IsAny<CancellationToken>()), Times.Once);
-        _repo.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Never);
+        _repo.Verify(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -133,7 +133,7 @@ public class ApprovalWorkflowQueryHandlerTests
         var wf2 = MakeWorkflow("WF-002", "Workflow Beta");
         var list = new List<ApprovalWorkflow> { wf1, wf2 };
 
-        _repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(list);
 
         var query = new GetAllApprovalWorkflowsQuery(
@@ -159,7 +159,7 @@ public class ApprovalWorkflowQueryHandlerTests
         var wf2 = MakeWorkflow("WF-002", "Workflow B");
         var list = new List<ApprovalWorkflow> { wf1, wf2 };
 
-        _repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(list);
 
         var query = new GetAllApprovalWorkflowsQuery(

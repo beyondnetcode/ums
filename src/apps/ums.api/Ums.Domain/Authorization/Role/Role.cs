@@ -71,11 +71,7 @@ public sealed class Role : AggregateRoot<Role, RoleProps>
         int promotionOrder,
         ActorId updatedBy)
     {
-        Props.Value = value;
-        Props.Description = description;
-        Props.ParentRoleId = parentRoleId;
-        Props.HierarchyLevel = hierarchyLevel;
-        Props.PromotionOrder = promotionOrder;
+        SetProps(Props.WithValue(value).WithDescription(description).WithParentRoleId(parentRoleId).WithHierarchyLevel(hierarchyLevel).WithPromotionOrder(promotionOrder));
         ValidateHierarchy();
 
         if (!IsValid())
@@ -101,7 +97,7 @@ public sealed class Role : AggregateRoot<Role, RoleProps>
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        Props.IsActive = true;
+        SetProps(Props.WithIsActive(true));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(updatedBy.GetValue());
         DomainEvents.RaiseEvent(new RoleActivatedEvent(Props.Id.GetValue()));
@@ -120,7 +116,7 @@ public sealed class Role : AggregateRoot<Role, RoleProps>
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        Props.IsActive = false;
+        SetProps(Props.WithIsActive(false));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(updatedBy.GetValue());
         DomainEvents.RaiseEvent(new RoleDeactivatedEvent(Props.Id.GetValue()));

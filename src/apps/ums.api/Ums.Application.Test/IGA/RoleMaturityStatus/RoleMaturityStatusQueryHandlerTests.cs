@@ -75,7 +75,7 @@ public class RoleMaturityStatusQueryHandlerTests
         var r2 = MakeRoleMaturityStatus(RoleMaturityLevel.Senior);
         var list = new List<RoleMaturityStatus> { r1, r2 };
 
-        _repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(list);
 
         var query = new GetAllRoleMaturityStatusesQuery(

@@ -23,7 +23,7 @@ public sealed class GetAllFeatureFlagsQueryHandler : IQueryHandler<GetAllFeature
         var flagType = NormalizeSearch(request.FlagType);
         var linkedResourceType = NormalizeSearch(request.LinkedResourceType);
 
-        var query = (await _repository.GetAllAsync(cancellationToken))
+        var query = (await _repository.GetAllAsync(null, cancellationToken))
             .Select(flag => new FeatureFlagDto(
                 flag.Props.Id.GetValue(),
                 flag.Props.SystemSuiteId.GetValue(),

@@ -25,16 +25,26 @@ public sealed class SqlServerProfileRepository(UmsPlatformDbContext dbContext) :
         return record is null ? null : Rehydrate(record);
     }
 
-    public Task<ProfileAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
-        => GetByIdAsync(id, cancellationToken);
-
-    public async Task<IReadOnlyList<ProfileAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<ProfileAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
     {
-        var records = await dbContext.Profiles
+        var record = await dbContext.Profiles
             .AsSplitQuery()
             .Include(x => x.Permissions)
-            .OrderBy(x => x.UserId)
-            .ToListAsync(cancellationToken);
+            .FirstOrDefaultAsync(x => x.TenantId == tenantId && x.Id == id, cancellationToken);
+
+        return record is null ? null : Rehydrate(record);
+    }
+
+    public async Task<IReadOnlyList<ProfileAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
+    {
+        IQueryable<ProfileRecord> query = dbContext.Profiles.AsSplitQuery().Include(x => x.Permissions);
+
+        if (tenantId.HasValue)
+        {
+            query = query.Where(x => x.TenantId == tenantId.Value);
+        }
+
+        var records = await query.OrderBy(x => x.UserId).ToListAsync(cancellationToken);
 
         return records.Select(Rehydrate).ToList();
     }

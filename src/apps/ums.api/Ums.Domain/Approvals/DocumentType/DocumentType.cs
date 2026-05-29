@@ -46,14 +46,19 @@ public sealed class DocumentType : AggregateRoot<DocumentType, DocumentTypeProps
 
     public Result Update(Name name, Description description, ActorId updatedBy)
     {
-        Props.Name = name;
-        Props.Description = description;
+        var oldName = Props.Name.GetValue();
+        SetProps(Props.WithName(name).WithDescription(description));
 
         if (!IsValid())
         {
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
+        DomainEvents.RaiseEvent(new DocumentTypeUpdatedEvent(
+            Props.Id.GetValue(),
+            oldName,
+            name.GetValue(),
+            updatedBy.GetValue()));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(updatedBy.GetValue());
         return Result.Success();

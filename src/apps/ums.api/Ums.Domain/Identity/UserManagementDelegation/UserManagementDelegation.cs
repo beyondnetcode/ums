@@ -113,7 +113,7 @@ public sealed class UserManagementDelegation : AggregateRoot<UserManagementDeleg
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        Props.Status = DelegationStatus.Active;
+        SetProps(Props.WithStatus(DelegationStatus.Active));
         DomainEvents.RaiseEvent(new DelegationActivatedEvent(
             Props.Id.GetValue(),
             Props.TenantId.GetValue(),
@@ -136,8 +136,7 @@ public sealed class UserManagementDelegation : AggregateRoot<UserManagementDeleg
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        Props.ApprovalRequestId = approvalRequestId;
-        Props.Status = DelegationStatus.PendingApproval;
+        SetProps(Props.WithApprovalRequestId(approvalRequestId).WithStatus(DelegationStatus.PendingApproval));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(actorId.GetValue());
         return Result.Success();
@@ -155,7 +154,7 @@ public sealed class UserManagementDelegation : AggregateRoot<UserManagementDeleg
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        Props.Status = DelegationStatus.Active;
+        SetProps(Props.WithStatus(DelegationStatus.Active));
         DomainEvents.RaiseEvent(new DelegationActivatedEvent(
             Props.Id.GetValue(),
             Props.TenantId.GetValue(),
@@ -183,8 +182,7 @@ public sealed class UserManagementDelegation : AggregateRoot<UserManagementDeleg
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        Props.Status = DelegationStatus.Rejected;
-        Props.RevocationReason = reason;
+        SetProps(Props.WithStatus(DelegationStatus.Rejected).WithRevocationReason(reason));
         DomainEvents.RaiseEvent(new DelegationRejectedEvent(
             Props.Id.GetValue(),
             Props.TenantId.GetValue(),
@@ -211,10 +209,8 @@ public sealed class UserManagementDelegation : AggregateRoot<UserManagementDeleg
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        Props.Status = DelegationStatus.Revoked;
-        Props.RevokedAt = DateTimeOffset.UtcNow;
-        Props.RevokedBy = Guid.TryParse(actorId.GetValue(), out var revokedBy) ? revokedBy : (Guid?)null;
-        Props.RevocationReason = reason;
+        var revokedByValue = Guid.TryParse(actorId.GetValue(), out var revokedBy) ? revokedBy : (Guid?)null;
+        SetProps(Props.WithStatus(DelegationStatus.Revoked).WithRevokedAt(DateTimeOffset.UtcNow).WithRevokedBy(revokedByValue).WithRevocationReason(reason));
         DomainEvents.RaiseEvent(new DelegationRevokedEvent(
             Props.Id.GetValue(),
             Props.TenantId.GetValue(),
@@ -237,7 +233,7 @@ public sealed class UserManagementDelegation : AggregateRoot<UserManagementDeleg
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        Props.Status = DelegationStatus.Expired;
+        SetProps(Props.WithStatus(DelegationStatus.Expired));
         DomainEvents.RaiseEvent(new DelegationExpiredEvent(
             Props.Id.GetValue(),
             Props.TenantId.GetValue(),
@@ -259,7 +255,7 @@ public sealed class UserManagementDelegation : AggregateRoot<UserManagementDeleg
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        Props.Status = DelegationStatus.Completed;
+        SetProps(Props.WithStatus(DelegationStatus.Completed));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(actorId.GetValue());
         return Result.Success();
@@ -279,7 +275,7 @@ public sealed class UserManagementDelegation : AggregateRoot<UserManagementDeleg
         }
 
         var previousStatus = Props.Status.Name;
-        Props.Status = DelegationStatus.Archived;
+        SetProps(Props.WithStatus(DelegationStatus.Archived));
         DomainEvents.RaiseEvent(new DelegationArchivedEvent(
             Props.Id.GetValue(),
             Props.TenantId.GetValue(),

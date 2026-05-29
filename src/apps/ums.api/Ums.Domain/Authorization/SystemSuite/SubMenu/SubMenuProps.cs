@@ -5,12 +5,12 @@ using OptionEntity = Ums.Domain.Authorization.SystemSuite.Option.Option;
 
 public class SubMenuProps : IProps
 {
-    public IdValueObject Id { get; set; }
-    public MenuId MenuId { get; set; }
-    public Code Code { get; set; }
-    public Name Label { get; set; }
-    public Description Description { get; set; }
-    public int SortOrder { get; set; }
+    public IdValueObject Id { get; private set; }
+    public MenuId MenuId { get; private set; }
+    public Code Code { get; private set; }
+    public Name Label { get; private set; }
+    public Description Description { get; private set; }
+    public int SortOrder { get; private set; }
     public AuditValueObject Audit { get; private set; }
 
     public SubMenuProps(
@@ -29,6 +29,27 @@ public class SubMenuProps : IProps
         Description = description;
         SortOrder = sortOrder;
         Audit = AuditValueObject.Create(createdBy.GetValue());
+    }
+
+    public SubMenuProps WithLabel(Name label)
+    {
+        var clone = (SubMenuProps)MemberwiseClone();
+        clone.Label = label;
+        return clone;
+    }
+
+    public SubMenuProps WithDescription(Description description)
+    {
+        var clone = (SubMenuProps)MemberwiseClone();
+        clone.Description = description;
+        return clone;
+    }
+
+    public SubMenuProps WithSortOrder(int sortOrder)
+    {
+        var clone = (SubMenuProps)MemberwiseClone();
+        clone.SortOrder = sortOrder;
+        return clone;
     }
 
     public object Clone() => MemberwiseClone();

@@ -37,10 +37,7 @@ public sealed class Option : Entity<Option, OptionProps>
 
     public Result Update(Name label, Description description, ActionCode actionCode, int sortOrder, ActorId updatedBy)
     {
-        Props.Label = label;
-        Props.Description = description;
-        Props.ActionCode = actionCode;
-        Props.SortOrder = sortOrder;
+        SetProps(Props.WithLabel(label).WithDescription(description).WithActionCode(actionCode).WithSortOrder(sortOrder));
 
         if (!IsValid())
         {

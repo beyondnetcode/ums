@@ -25,17 +25,26 @@ public sealed class SqlServerPermissionTemplateRepository(UmsPlatformDbContext d
         return record is null ? null : Rehydrate(record);
     }
 
-    public Task<PermissionTemplateAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
-        => GetByIdAsync(id, cancellationToken);
-
-    public async Task<IReadOnlyList<PermissionTemplateAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<PermissionTemplateAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
     {
-        var records = await dbContext.PermissionTemplates
+        var record = await dbContext.PermissionTemplates
             .AsSplitQuery()
             .Include(x => x.Items)
-            .OrderBy(x => x.RoleId)
-            .ThenBy(x => x.Version)
-            .ToListAsync(cancellationToken);
+            .FirstOrDefaultAsync(x => x.TenantId == tenantId && x.Id == id, cancellationToken);
+
+        return record is null ? null : Rehydrate(record);
+    }
+
+    public async Task<IReadOnlyList<PermissionTemplateAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
+    {
+        IQueryable<PermissionTemplateRecord> query = dbContext.PermissionTemplates.AsSplitQuery().Include(x => x.Items);
+
+        if (tenantId.HasValue)
+        {
+            query = query.Where(x => x.TenantId == tenantId.Value);
+        }
+
+        var records = await query.OrderBy(x => x.RoleId).ThenBy(x => x.Version).ToListAsync(cancellationToken);
 
         return records.Select(Rehydrate).ToList();
     }

@@ -10,7 +10,7 @@ public interface ITenantRepository : IAggregateRepository<TenantAggregate>
 {
     Task<TenantAggregate?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<TenantAggregate?> GetByCodeAsync(string code, CancellationToken cancellationToken = default);
-    Task<IReadOnlyList<TenantAggregate>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<TenantAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default);
     /// <summary>
     /// REC-12: Server-side paginated query. SQL implementations use Skip/Take at the DB level.
     /// InMemory implementations call GetAllAsync then apply in-memory pagination.
@@ -31,7 +31,7 @@ public interface IUserAccountRepository : IAggregateRepository<UserAccountAggreg
 {
     Task<UserAccountAggregate?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<UserAccountAggregate?> GetByEmailAsync(Email email, CancellationToken cancellationToken = default);
-    Task<IReadOnlyList<UserAccountAggregate>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<UserAccountAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<UserAccountAggregate>> GetByTenantIdAsync(Guid tenantId, CancellationToken cancellationToken = default);
     /// <summary>
     /// REC-12: Server-side paginated query. SQL implementations use Skip/Take at the DB level.
@@ -56,5 +56,5 @@ public interface IUserManagementDelegationRepository : IAggregateRepository<User
     Task<IReadOnlyList<UserManagementDelegationAggregate>> GetByDelegatingAdminAsync(Guid delegatingAdminId, Guid tenantId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<UserManagementDelegationAggregate>> GetActiveAsync(Guid tenantId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<UserManagementDelegationAggregate>> GetExpiredActiveAsync(DateTimeOffset asOf, CancellationToken cancellationToken = default);
-    Task<IReadOnlyList<UserManagementDelegationAggregate>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<UserManagementDelegationAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default);
 }

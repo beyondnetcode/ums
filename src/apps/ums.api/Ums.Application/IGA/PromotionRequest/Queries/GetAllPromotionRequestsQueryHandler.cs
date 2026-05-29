@@ -24,7 +24,7 @@ public sealed class GetAllPromotionRequestsQueryHandler : IQueryHandler<GetAllPr
             ? await _repository.GetByUserIdAsync(request.UserId.Value, cancellationToken)
             : request.TenantId.HasValue
                 ? await _repository.GetByTenantIdAsync(request.TenantId.Value, cancellationToken)
-                : await _repository.GetAllAsync(cancellationToken);
+                : await _repository.GetAllAsync(request.TenantId, cancellationToken);
 
         var query = items.Select(r => new PromotionRequestDto(
             r.Props.Id.GetValue(), r.Props.TenantId.GetValue(), r.Props.UserId.GetValue(),

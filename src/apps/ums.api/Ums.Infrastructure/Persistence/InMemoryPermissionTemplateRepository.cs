@@ -21,9 +21,11 @@ public sealed class InMemoryPermissionTemplateRepository : IPermissionTemplateRe
     public Task<PermissionTemplateAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
         => GetByIdAsync(id, cancellationToken);
 
-    public Task<IReadOnlyList<PermissionTemplateAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<PermissionTemplateAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
-        var all = _store.Values.ToList();
+        var all = tenantId.HasValue
+            ? _store.Values.Where(t => t.Props.TenantId.GetValue() == tenantId.Value).ToList()
+            : _store.Values.ToList();
         all.ForEach(t => t.BrokenRules.Clear());
         return Task.FromResult<IReadOnlyList<PermissionTemplateAggregate>>(all);
     }

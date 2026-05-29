@@ -70,11 +70,16 @@ public sealed class SqlServerUserManagementDelegationRepository(UmsPlatformDbCon
         return records.Select(Rehydrate).ToList();
     }
 
-    public async Task<IReadOnlyList<UserManagementDelegationAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<UserManagementDelegationAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
-        var records = await dbContext.UserManagementDelegations
-            .OrderByDescending(x => x.CreatedAtUtc)
-            .ToListAsync(cancellationToken);
+        IQueryable<UserManagementDelegationRecord> query = dbContext.UserManagementDelegations;
+
+        if (tenantId.HasValue)
+        {
+            query = query.Where(x => x.TenantId == tenantId.Value);
+        }
+
+        var records = await query.OrderByDescending(x => x.CreatedAtUtc).ToListAsync(cancellationToken);
 
         return records.Select(Rehydrate).ToList();
     }

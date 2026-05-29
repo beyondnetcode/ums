@@ -12,4 +12,16 @@ public sealed record ProfilePermissionDto(
     bool IsAllowed,
     bool IsDenied,
     bool IsActive,
-    bool IsOverride);
+    bool IsOverride,
+    TemplateItemOriginalDto? OriginalFromTemplate);
+
+public sealed record TemplateItemOriginalDto(
+    Guid ItemId,
+    string TargetType,
+    Guid TargetId,
+    string TargetName,
+    Guid ActionId,
+    string ActionName,
+    bool IsAllowed,
+    bool IsDenied,
+    bool IsActive);

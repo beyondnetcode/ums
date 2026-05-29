@@ -34,9 +34,8 @@ public sealed class InMemoryTenantRepository : ITenantRepository, IUnitOfWork
     public Task<TenantAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
         => GetByIdAsync(id, cancellationToken);
 
-    public Task<IReadOnlyList<TenantAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<TenantAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
-        // REC-05: Tenants are the roots themselves; no per-tenant filter needed.
         var all = _store.Values.ToList();
         all.ForEach(t => t.BrokenRules.Clear());
         return Task.FromResult<IReadOnlyList<TenantAggregate>>(all);
@@ -47,7 +46,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository, IUnitOfWork
         int page, int pageSize, string? search, string? status, string sortBy, string sortOrder,
         CancellationToken cancellationToken = default)
     {
-        var all = await GetAllAsync(cancellationToken);
+        var all = await GetAllAsync(null, cancellationToken);
         var query = all.AsEnumerable();
 
         if (!string.IsNullOrWhiteSpace(search))

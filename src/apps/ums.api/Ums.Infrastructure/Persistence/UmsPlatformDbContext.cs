@@ -47,6 +47,7 @@ public sealed class UmsPlatformDbContext(
     public DbSet<TenantBranchRecord> TenantBranches => Set<TenantBranchRecord>();
     public DbSet<TenantIdentityProviderRecord> TenantIdentityProviders => Set<TenantIdentityProviderRecord>();
     public DbSet<TenantBrandingRecord> TenantBrandings => Set<TenantBrandingRecord>();
+    public DbSet<TenantParameterRecord> TenantParameters => Set<TenantParameterRecord>();
     public DbSet<UserAccountRecord> UserAccounts => Set<UserAccountRecord>();
     public DbSet<UserAccountMfaEnrollmentRecord> UserAccountMfaEnrollments => Set<UserAccountMfaEnrollmentRecord>();
     public DbSet<UserAccountPasswordCredentialRecord> UserAccountPasswordCredentials => Set<UserAccountPasswordCredentialRecord>();
@@ -91,6 +92,7 @@ public sealed class UmsPlatformDbContext(
         modelBuilder.ApplyConfiguration(new TenantBranchRecordConfiguration());
         modelBuilder.ApplyConfiguration(new TenantIdentityProviderRecordConfiguration());
         modelBuilder.ApplyConfiguration(new TenantBrandingRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new TenantParameterRecordConfiguration());
         modelBuilder.ApplyConfiguration(new UserAccountRecordConfiguration());
         modelBuilder.ApplyConfiguration(new UserAccountMfaEnrollmentRecordConfiguration());
         modelBuilder.ApplyConfiguration(new UserAccountPasswordCredentialRecordConfiguration());
@@ -146,6 +148,11 @@ public sealed class UmsPlatformDbContext(
                 x.TenantId == tenantContext.OrganizationId);
 
         modelBuilder.Entity<TenantBrandingRecord>()
+            .HasQueryFilter(x =>
+                !tenantContext.OrganizationId.HasValue ||
+                x.TenantId == tenantContext.OrganizationId);
+
+        modelBuilder.Entity<TenantParameterRecord>()
             .HasQueryFilter(x =>
                 !tenantContext.OrganizationId.HasValue ||
                 x.TenantId == tenantContext.OrganizationId);

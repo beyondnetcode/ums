@@ -22,6 +22,11 @@ public sealed record BrandingRemovedEvent(Guid TenantId, Guid BrandingId) : UmsD
 public sealed record BrandingDnsVerifiedEvent(Guid TenantId, Guid BrandingId) : UmsDomainEvent(TenantId);
 public sealed record BrandingDnsFailedEvent(Guid TenantId, Guid BrandingId) : UmsDomainEvent(TenantId);
 
+public sealed record TenantParameterCreatedEvent(Guid TenantId, Guid ParameterId, string Code, string Category) : UmsDomainEvent(TenantId);
+public sealed record TenantParameterUpdatedEvent(Guid TenantId, Guid ParameterId, string Code, string OldValue, string NewValue) : UmsDomainEvent(TenantId);
+public sealed record TenantParameterDeactivatedEvent(Guid TenantId, Guid ParameterId, string Code) : UmsDomainEvent(TenantId);
+public sealed record TenantParameterReactivatedEvent(Guid TenantId, Guid ParameterId, string Code) : UmsDomainEvent(TenantId);
+
 public sealed record UserRegisteredEvent(Guid UserId, Guid TenantId, Guid? BranchId, string Category, string? IdentityReference) : UmsDomainEvent(TenantId);
 public sealed record UserActivatedEvent(Guid UserId, Guid TenantId) : UmsDomainEvent(TenantId);
 public sealed record UserBlockedEvent(Guid UserId, Guid TenantId, string Reason) : UmsDomainEvent(TenantId);
@@ -93,6 +98,20 @@ public sealed record DocumentRejectedEvent(Guid DocumentId, Guid UserId, string 
 public sealed record DocumentExpiredEvent(Guid DocumentId, Guid UserId, Guid DocumentTypeId, string Criticity) : ComplianceDomainEvent;
 public sealed record DocumentNearExpirationEvent(Guid DocumentId, Guid UserId, Guid DocumentTypeId, int DaysRemaining, int Step) : ComplianceDomainEvent;
 public sealed record EnforcementExecutedEvent(Guid DocumentId, Guid UserId, string Action, DateTime ExecutedAt) : ComplianceDomainEvent;
+
+public abstract record ApprovalDomainEvent : DomainEvent;
+
+public sealed record ApprovalRequestApprovedEvent(Guid RequestId, Guid WorkflowId, string ApprovedBy, DateTime ApprovedAt) : ApprovalDomainEvent;
+public sealed record ApprovalRequestRejectedEvent(Guid RequestId, Guid WorkflowId, string RejectedBy, string Reason, DateTime RejectedAt) : ApprovalDomainEvent;
+public sealed record ApprovalRequestCancelledEvent(Guid RequestId, Guid WorkflowId, string CancelledBy, string Reason, DateTime CancelledAt) : ApprovalDomainEvent;
+
+public sealed record ApprovalWorkflowCreatedEvent(Guid WorkflowId, Guid TenantId, string Code, string Name, string TargetUserCategory) : ApprovalDomainEvent;
+public sealed record ApprovalWorkflowDocumentAddedEvent(Guid WorkflowId, Guid DocumentTypeId, bool IsRequired) : ApprovalDomainEvent;
+public sealed record ApprovalWorkflowDocumentRemovedEvent(Guid WorkflowId, Guid DocumentTypeId) : ApprovalDomainEvent;
+public sealed record ApprovalWorkflowActivatedEvent(Guid WorkflowId) : ApprovalDomainEvent;
+public sealed record ApprovalWorkflowDeactivatedEvent(Guid WorkflowId) : ApprovalDomainEvent;
+
+public sealed record DocumentTypeUpdatedEvent(Guid DocumentTypeId, string OldName, string NewName, string UpdatedBy) : ComplianceDomainEvent;
 
 public abstract record IdentityDelegationDomainEvent(Guid TenantId) : UmsDomainEvent(TenantId);
 public sealed record DelegationCreatedEvent(Guid DelegationId, Guid TenantId, Guid DelegatingAdminId, Guid DelegatedAdminId, string ScopeType, string AllowedActions) : IdentityDelegationDomainEvent(TenantId);

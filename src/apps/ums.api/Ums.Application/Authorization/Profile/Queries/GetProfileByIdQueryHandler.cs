@@ -1,6 +1,9 @@
 using Ums.Application.Authorization.Profile.DTOs;
 using Ums.Domain.Authorization;
 using Ums.Domain.Authorization.Profile;
+using Ums.Domain.Authorization.Profile.ProfilePermission;
+using Ums.Domain.Authorization.Template;
+using Ums.Domain.Authorization.Template.PermissionTemplateItem;
 using Ums.Domain.Identity;
 using Ums.Domain.Identity.UserAccount;
 using SystemSuiteAggregate = Ums.Domain.Authorization.SystemSuite.SystemSuite;
@@ -10,6 +13,7 @@ namespace Ums.Application.Authorization.Profile.Queries;
 public sealed class GetProfileByIdQueryHandler : IQueryHandler<GetProfileByIdQuery, ProfileDto>
 {
     private readonly IProfileRepository _profileRepository;
+    private readonly IPermissionTemplateRepository _templateRepository;
     private readonly IRoleRepository _roleRepository;
     private readonly ISystemSuiteRepository _systemSuiteRepository;
     private readonly ITenantRepository _tenantRepository;
@@ -17,12 +21,14 @@ public sealed class GetProfileByIdQueryHandler : IQueryHandler<GetProfileByIdQue
 
     public GetProfileByIdQueryHandler(
         IProfileRepository profileRepository,
+        IPermissionTemplateRepository templateRepository,
         IRoleRepository roleRepository,
         ISystemSuiteRepository systemSuiteRepository,
         ITenantRepository tenantRepository,
         IUserAccountRepository userAccountRepository)
     {
         _profileRepository = profileRepository;
+        _templateRepository = templateRepository;
         _roleRepository = roleRepository;
         _systemSuiteRepository = systemSuiteRepository;
         _tenantRepository = tenantRepository;
@@ -54,6 +60,46 @@ public sealed class GetProfileByIdQueryHandler : IQueryHandler<GetProfileByIdQue
 
         var targetLookup = BuildTargetNameLookup(suite);
 
+        var templateIds = profile.Permissions
+            .Select(p => p.Props.TemplateId.GetValue())
+            .Distinct()
+            .ToList();
+
+        var templates = new Dictionary<Guid, PermissionTemplate>();
+        foreach (var templateId in templateIds)
+        {
+            var template = await _templateRepository.GetByIdAsync(templateId, cancellationToken);
+            if (template is not null)
+            {
+                templates[templateId] = template;
+            }
+        }
+
+        TemplateItemOriginalDto? FindOriginalItem(ProfilePermission p)
+        {
+            if (!templates.TryGetValue(p.Props.TemplateId.GetValue(), out var template))
+                return null;
+
+            var item = template.Items.FirstOrDefault(i =>
+                i.TargetType.Name == p.TargetType.Name &&
+                i.TargetId.GetValue() == p.TargetId.GetValue() &&
+                i.ActionId.GetValue() == p.ActionId.GetValue());
+
+            if (item is null)
+                return null;
+
+            return new TemplateItemOriginalDto(
+                item.GetId().GetValue(),
+                item.TargetType.Name,
+                item.TargetId.GetValue(),
+                targetLookup.GetValueOrDefault(item.TargetId.GetValue(), "—"),
+                item.ActionId.GetValue(),
+                actionLookup.GetValueOrDefault(item.ActionId.GetValue(), "—"),
+                item.IsAllowed,
+                item.IsDenied,
+                item.IsActive);
+        }
+
         var permissions = profile.Permissions
             .Select(p => new ProfilePermissionDto(
                 p.Props.Id.GetValue(),
@@ -67,7 +113,8 @@ public sealed class GetProfileByIdQueryHandler : IQueryHandler<GetProfileByIdQue
                 p.IsAllowed,
                 p.IsDenied,
                 p.IsActive,
-                p.IsOverride))
+                p.IsOverride,
+                FindOriginalItem(p)))
             .ToList();
 
         return Result<ProfileDto>.Success(new ProfileDto(

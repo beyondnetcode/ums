@@ -48,7 +48,7 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlag, FeatureFlagProps>
     {
         if (systemSuiteId is null)
         {
-            return Result<FeatureFlag>.Failure("SystemSuiteId is required.");
+            return Result<FeatureFlag>.Failure(DomainErrors.Configuration.SystemSuiteIdRequired);
         }
 
         if (flagType == FlagType.Percentage && (rolloutPercentage is null || rolloutPercentage < 0 || rolloutPercentage > 100))
@@ -86,7 +86,7 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlag, FeatureFlagProps>
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        Props.Status = FlagStatus.Active;
+        SetProps(Props.WithStatus(FlagStatus.Active));
         DomainEvents.RaiseEvent(new FeatureFlagActivatedEvent(Props.Id.GetValue(), Props.FlagCode));
         DomainEvents.RaiseEvent(new FeatureFlagStateChangedEvent(Props.Id.GetValue(), Props.FlagCode, FlagStatus.Active.Name));
         TrackingState.MarkAsDirty();
@@ -110,7 +110,7 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlag, FeatureFlagProps>
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        Props.Status = FlagStatus.Inactive;
+        SetProps(Props.WithStatus(FlagStatus.Inactive));
         DomainEvents.RaiseEvent(new FeatureFlagDeactivatedEvent(Props.Id.GetValue(), Props.FlagCode));
         DomainEvents.RaiseEvent(new FeatureFlagStateChangedEvent(Props.Id.GetValue(), Props.FlagCode, FlagStatus.Inactive.Name));
         TrackingState.MarkAsDirty();
@@ -130,7 +130,7 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlag, FeatureFlagProps>
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        Props.Status = FlagStatus.Archived;
+        SetProps(Props.WithStatus(FlagStatus.Archived));
         DomainEvents.RaiseEvent(new FeatureFlagArchivedEvent(Props.Id.GetValue(), Props.FlagCode));
         DomainEvents.RaiseEvent(new FeatureFlagStateChangedEvent(Props.Id.GetValue(), Props.FlagCode, FlagStatus.Archived.Name));
         TrackingState.MarkAsDirty();
@@ -146,7 +146,7 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlag, FeatureFlagProps>
         var duplicate = _criteria.Any(c =>
             c.CriteriaType == criteriaType && c.Operator == @operator && c.Value == value);
         if (duplicate)
-            return Result.Failure("Duplicate criteria (same type, operator and value) already exists.");
+            return Result.Failure(DomainErrors.Configuration.DuplicateCriteria);
 
         var criteriaResult = FeatureFlagCriteriaEntity.Create(criteriaType, @operator, value);
         if (criteriaResult.IsFailure)
@@ -166,7 +166,7 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlag, FeatureFlagProps>
 
         var criteria = _criteria.FirstOrDefault(c => c.Props.Id.GetValue() == criteriaId);
         if (criteria is null)
-            return Result.Failure("Criteria not found.");
+            return Result.Failure(DomainErrors.Configuration.CriteriaNotFound);
 
         _criteria.Remove(criteria);
         DomainEvents.RaiseEvent(new FeatureFlagCriteriaRemovedEvent(Props.Id.GetValue(), Props.FlagCode, criteriaId));
@@ -182,8 +182,7 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlag, FeatureFlagProps>
         if (Props.FlagType == FlagType.Percentage && (rolloutPercentage is null || rolloutPercentage < 0 || rolloutPercentage > 100))
             return Result.Failure(DomainErrors.Configuration.FlagPercentageOutOfRange);
 
-        Props.FlagTargets = flagTargets;
-        Props.RolloutPercentage = rolloutPercentage;
+        SetProps(Props.WithFlagTargets(flagTargets).WithRolloutPercentage(rolloutPercentage));
         DomainEvents.RaiseEvent(new FeatureFlagTargetingRulesUpdatedEvent(Props.Id.GetValue(), Props.FlagCode, Props.SystemSuiteId.GetValue()));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(updatedBy.GetValue());

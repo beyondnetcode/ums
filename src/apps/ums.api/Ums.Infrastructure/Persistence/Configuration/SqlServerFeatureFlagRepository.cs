@@ -51,14 +51,18 @@ public sealed class SqlServerFeatureFlagRepository(UmsPlatformDbContext dbContex
         return record is null ? null : Rehydrate(record);
     }
 
-    public async Task<IReadOnlyList<FeatureFlagAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<FeatureFlagAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
-        var records = await dbContext.FeatureFlags
-            .AsSplitQuery()
+        IQueryable<FeatureFlagRecord> query = dbContext.FeatureFlags.AsSplitQuery()
             .Include(x => x.EvaluationLogs)
-            .Include(x => x.Criteria)
-            .OrderBy(x => x.FlagCode)
-            .ToListAsync(cancellationToken);
+            .Include(x => x.Criteria);
+
+        if (tenantId.HasValue)
+        {
+            query = query.Where(x => x.TenantId == tenantId.Value);
+        }
+
+        var records = await query.OrderBy(x => x.FlagCode).ToListAsync(cancellationToken);
 
         return records.Select(Rehydrate).ToList();
     }

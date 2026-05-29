@@ -34,10 +34,9 @@ public sealed class InMemoryProfileRepository : IProfileRepository, IUnitOfWork
     public Task<ProfileAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
         => GetByIdAsync(id, cancellationToken);
 
-    public Task<IReadOnlyList<ProfileAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<ProfileAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
-        // REC-05: filter by tenant when a request context is available
-        var tid = CurrentTenantId;
+        var tid = tenantId ?? CurrentTenantId;
         var all = (tid.HasValue
             ? _store.Values.Where(p => p.Props.TenantId.GetValue() == tid.Value)
             : _store.Values).ToList();

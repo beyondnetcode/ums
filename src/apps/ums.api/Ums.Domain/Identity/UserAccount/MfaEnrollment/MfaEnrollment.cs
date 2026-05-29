@@ -35,7 +35,7 @@ public sealed class MfaEnrollment : Entity<MfaEnrollment, MfaEnrollmentProps>
             return Result.Failure(DomainErrors.UserAccount.MfaAlreadyVerified);
         }
 
-        Props.Status = MfaEnrollmentStatus.Verified;
+        SetProps(Props.WithStatus(MfaEnrollmentStatus.Verified));
         Props.Audit.Update(updatedBy.GetValue());
         return Result.Success();
     }

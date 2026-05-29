@@ -33,7 +33,7 @@ public sealed class SqlServerUserDocumentRepository : IUserDocumentRepository, I
     public Task<UserDocumentAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
         => GetByIdAsync(id, cancellationToken);
 
-    public async Task<IReadOnlyList<UserDocumentAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<UserDocumentAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
         var records = await _dbContext.Set<UserDocumentRecord>()
             .Include(x => x.Notifications)

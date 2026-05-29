@@ -35,11 +35,11 @@ public sealed class PasswordCredential : Entity<PasswordCredential, PasswordCred
 
     internal void ActivateInternal()
     {
-        Props.IsActive = true;
+        SetProps(Props.WithIsActive(true));
     }
 
     internal void DeactivateInternal()
     {
-        Props.IsActive = false;
+        SetProps(Props.WithIsActive(false));
     }
 }

@@ -23,7 +23,7 @@ public sealed class GetAllRoleMaturityStatusesQueryHandler : IQueryHandler<GetAl
             ? await _repository.GetByUserIdAsync(request.UserId.Value, cancellationToken)
             : request.TenantId.HasValue
                 ? await _repository.GetByTenantIdAsync(request.TenantId.Value, cancellationToken)
-                : await _repository.GetAllAsync(cancellationToken);
+                : await _repository.GetAllAsync(request.TenantId, cancellationToken);
 
         var query = items.Select(r => new RoleMaturityStatusDto(
             r.Props.Id.GetValue(), r.Props.TenantId.GetValue(), r.Props.UserId.GetValue(),

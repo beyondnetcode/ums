@@ -16,8 +16,8 @@ public sealed class InMemoryPromotionRequestRepository : IPromotionRequestReposi
     public Task<PromotionRequestAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
         => GetByIdAsync(id, cancellationToken);
 
-    public Task<IReadOnlyList<PromotionRequestAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
-    { var all = _store.Values.ToList(); all.ForEach(e => e.BrokenRules.Clear()); return Task.FromResult<IReadOnlyList<PromotionRequestAggregate>>(all); }
+    public Task<IReadOnlyList<PromotionRequestAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
+    { var all = tenantId.HasValue ? _store.Values.Where(e => e.Props.TenantId.GetValue() == tenantId.Value).ToList() : _store.Values.ToList(); all.ForEach(e => e.BrokenRules.Clear()); return Task.FromResult<IReadOnlyList<PromotionRequestAggregate>>(all); }
 
     public Task<IReadOnlyList<PromotionRequestAggregate>> GetByTenantIdAsync(Guid tenantId, CancellationToken cancellationToken = default)
     { var f = _store.Values.Where(e => e.Props.TenantId.GetValue() == tenantId).ToList(); f.ForEach(e => e.BrokenRules.Clear()); return Task.FromResult<IReadOnlyList<PromotionRequestAggregate>>(f); }

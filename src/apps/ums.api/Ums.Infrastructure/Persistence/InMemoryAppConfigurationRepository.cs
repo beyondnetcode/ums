@@ -31,9 +31,11 @@ public sealed class InMemoryAppConfigurationRepository : IAppConfigurationReposi
         return Task.FromResult(entity);
     }
 
-    public Task<IReadOnlyList<AppConfigurationAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<AppConfigurationAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
-        var items = _store.Values.ToList();
+        var items = tenantId.HasValue
+            ? _store.Values.Where(item => item.Props.TenantId?.GetValue() == tenantId.Value).ToList()
+            : _store.Values.ToList();
         items.ForEach(item => item.BrokenRules.Clear());
         return Task.FromResult<IReadOnlyList<AppConfigurationAggregate>>(items);
     }

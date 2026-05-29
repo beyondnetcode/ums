@@ -38,11 +38,16 @@ public sealed class SqlServerAppConfigurationRepository(UmsPlatformDbContext dbC
         return record is null ? null : Rehydrate(record);
     }
 
-    public async Task<IReadOnlyList<AppConfigurationAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<AppConfigurationAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
-        var records = await dbContext.AppConfigurations
-            .OrderBy(x => x.Code)
-            .ToListAsync(cancellationToken);
+        IQueryable<AppConfigurationRecord> query = dbContext.AppConfigurations;
+
+        if (tenantId.HasValue)
+        {
+            query = query.Where(x => x.TenantId == tenantId.Value);
+        }
+
+        var records = await query.OrderBy(x => x.Code).ToListAsync(cancellationToken);
 
         return records.Select(Rehydrate).ToList();
     }

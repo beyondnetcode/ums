@@ -7,8 +7,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Ums.Application.Common.Interfaces;
+using Ums.Domain.Authorization;
+using Ums.Domain.Identity;
 using Ums.Domain.Kernel.ValueObjects;
-using Ums.Infrastructure.Persistence.Repositories;
 using Ums.Presentation.Services;
 using ProfileAggregate = Ums.Domain.Authorization.Profile.Profile;
 using TenantAggregate = Ums.Domain.Identity.Tenant.Tenant;
@@ -62,7 +63,7 @@ public static class AuthEndpoints
             return Results.BadRequest(new LoginErrorResponse(
                 ErrorCodes.ValidationError,
                 "Tenant code, username and password are required.",
-                supportReferenceId: null));
+                SupportReferenceId: null));
         }
 
         // Find tenant by code
@@ -72,7 +73,7 @@ public static class AuthEndpoints
             return Results.NotFound(new LoginErrorResponse(
                 ErrorCodes.TenantNotFound,
                 $"Tenant '{request.TenantCode}' was not found.",
-                supportReferenceId: null));
+                SupportReferenceId: null));
         }
 
         var tenant = tenantResult;
@@ -83,21 +84,20 @@ public static class AuthEndpoints
             return Results.BadRequest(new LoginErrorResponse(
                 ErrorCodes.TenantInactive,
                 $"Tenant '{request.TenantCode}' is not active.",
-                supportReferenceId: null));
+                SupportReferenceId: null));
         }
 
         // Find user by email (username = email in this system)
         var userResult = await userAccountRepository.GetByEmailAsync(
             Email.Create(request.Username),
-            tenant.Props.Id.GetValue(),
-            cancellationToken: default);
+            default);
 
         if (userResult is null)
         {
-            return Results.Unauthorized(new LoginErrorResponse(
+            return Results.Json(new LoginErrorResponse(
                 ErrorCodes.InvalidCredentials,
                 "Invalid username or password.",
-                supportReferenceId: null));
+                SupportReferenceId: null), statusCode: 401);
         }
 
         var user = userResult;
@@ -105,29 +105,29 @@ public static class AuthEndpoints
         // Check if user is active
         if (user.Props.Status != Domain.Enums.UserStatus.Active)
         {
-            return Results.Unauthorized(new LoginErrorResponse(
+            return Results.Json(new LoginErrorResponse(
                 ErrorCodes.UserNotActive,
                 "User account is not active. Please contact your administrator.",
-                supportReferenceId: null));
+                SupportReferenceId: null), statusCode: 401);
         }
 
         // Verify password
-        var activeCredential = user.Props.PasswordCredentials.FirstOrDefault(c => c.IsActive);
-        if (activeCredential is null || !passwordHasher.Verify(request.Password, activeCredential.PasswordHash.Value))
+        var activeCredential = user.PasswordCredentials.FirstOrDefault(c => c.Props.IsActive);
+        if (activeCredential is null || !passwordHasher.Verify(request.Password, activeCredential.Props.PasswordHash.GetValue()))
         {
             // Record failed attempt
-            user.RecordAuthenticationAttempt(false, "Invalid password", "127.0.0.1");
+            user.RecordAuthenticationAttempt(false, "Invalid password", "127.0.0.1", ActorId.Create("auth:system"));
             await userAccountRepository.UpdateAsync(user, default);
             await userAccountRepository.UnitOfWork.SaveEntitiesAsync(default);
 
-            return Results.Unauthorized(new LoginErrorResponse(
+            return Results.Json(new LoginErrorResponse(
                 ErrorCodes.InvalidCredentials,
                 "Invalid username or password.",
-                supportReferenceId: null));
+                SupportReferenceId: null), statusCode: 401);
         }
 
         // Record successful authentication
-        user.RecordAuthenticationAttempt(true, "Login successful", "127.0.0.1");
+        user.RecordAuthenticationAttempt(true, "Login successful", "127.0.0.1", ActorId.Create("auth:system"));
         await userAccountRepository.UpdateAsync(user, default);
         await userAccountRepository.UnitOfWork.SaveEntitiesAsync(default);
 
@@ -140,16 +140,16 @@ public static class AuthEndpoints
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, user.Props.Id.GetValue().ToString()),
-            new(ClaimTypes.Name, user.Props.Email.Value),
+            new(ClaimTypes.Name, user.Props.Email.GetValue()),
             new("tenant_id", tenant.Props.Id.GetValue().ToString()),
-            new("tenant_code", tenant.Props.Code.Value),
-            new("username", user.Props.IdentityReference?.Value ?? user.Props.Email.Value),
+            new("tenant_code", tenant.Props.Code.GetValue()),
+            new("username", user.Props.IdentityReference?.GetValue() ?? user.Props.Email.GetValue()),
         };
 
         if (role != null)
         {
-            claims.Add(new Claim(ClaimTypes.Role, role.Props.Code.Value));
-            claims.Add(new Claim("role_name", role.Props.Value.Value));
+            claims.Add(new Claim(ClaimTypes.Role, role.Props.Code.GetValue()));
+            claims.Add(new Claim("role_name", role.Props.Value.GetValue()));
         }
 
         if (profile != null)
@@ -161,12 +161,12 @@ public static class AuthEndpoints
         var sessionTrackingId = Guid.NewGuid().ToString();
         var jwtToken = jwtTokenService.GenerateToken(new TokenGenerationRequest(
             UserId: user.Props.Id.GetValue().ToString(),
-            Email: user.Props.Email.Value,
-            Username: user.Props.IdentityReference?.Value ?? user.Props.Email.Value,
+            Email: user.Props.Email.GetValue(),
+            Username: user.Props.IdentityReference?.GetValue() ?? user.Props.Email.GetValue(),
             TenantId: tenant.Props.Id.GetValue(),
-            TenantCode: tenant.Props.Code.Value,
-            Role: role?.Props.Code.Value,
-            RoleName: role?.Props.Value.Value,
+            TenantCode: tenant.Props.Code.GetValue(),
+            Role: role?.Props.Code.GetValue(),
+            RoleName: role?.Props.Value.GetValue(),
             ProfileId: profile?.Props.Id.GetValue().ToString(),
             Permissions: Array.Empty<string>(),
             Language: "en"
@@ -191,23 +191,23 @@ public static class AuthEndpoints
         var sessionId = Guid.NewGuid().ToString();
 
         return Results.Ok(new LoginSuccessResponse(
-            sessionId: sessionId,
-            sessionTrackingId: sessionTrackingId,
-            userId: user.Props.Id.GetValue().ToString(),
-            username: user.Props.IdentityReference?.Value ?? user.Props.Email.Value,
-            email: user.Props.Email.Value,
-            tenantId: tenant.Props.Id.GetValue().ToString(),
-            tenantCode: tenant.Props.Code.Value,
-            tenantName: tenant.Props.Name.Value,
-            role: role?.Props.Code.Value,
-            roleName: role?.Props.Value.Value,
-            profileId: profile?.Props.Id.GetValue().ToString(),
-            permissions: Array.Empty<string>(),
-            language: "en",
-            token: jwtToken,
-            tokenType: "Bearer",
-            expiresIn: 3600,
-            refreshExpiresIn: request.RememberMe ? 604800 : 86400
+            SessionId: sessionId,
+            SessionTrackingId: sessionTrackingId,
+            UserId: user.Props.Id.GetValue().ToString(),
+            Username: user.Props.IdentityReference?.GetValue() ?? user.Props.Email.GetValue(),
+            Email: user.Props.Email.GetValue(),
+            TenantId: tenant.Props.Id.GetValue().ToString(),
+            TenantCode: tenant.Props.Code.GetValue(),
+            TenantName: tenant.Props.Name.GetValue(),
+            Role: role?.Props.Code.GetValue(),
+            RoleName: role?.Props.Value.GetValue(),
+            ProfileId: profile?.Props.Id.GetValue().ToString(),
+            Permissions: Array.Empty<string>(),
+            Language: "en",
+            Token: jwtToken,
+            TokenType: "Bearer",
+            ExpiresIn: 3600,
+            RefreshExpiresIn: request.RememberMe ? 604800 : 86400
         ));
     }
 
@@ -217,10 +217,10 @@ public static class AuthEndpoints
     {
         if (!httpContext.User.Identity?.IsAuthenticated ?? true)
         {
-            return Results.Unauthorized(new LoginErrorResponse(
+            return Results.Json(new LoginErrorResponse(
                 ErrorCodes.SessionExpired,
                 "Session expired or invalid",
-                supportReferenceId: null));
+                SupportReferenceId: null), statusCode: 401);
         }
 
         var userId = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -253,11 +253,11 @@ public static class AuthEndpoints
         var sessionTrackingId = httpContext.User.FindFirstValue("session_tracking_id") ?? Guid.NewGuid().ToString();
 
         return Results.Ok(new RefreshTokenResponse(
-            token: newToken,
-            tokenType: "Bearer",
-            expiresIn: 3600,
-            refreshExpiresIn: 604800,
-            sessionTrackingId: sessionTrackingId
+            Token: newToken,
+            TokenType: "Bearer",
+            ExpiresIn: 3600,
+            RefreshExpiresIn: 604800,
+            SessionTrackingId: sessionTrackingId
         ));
     }
 
@@ -285,22 +285,23 @@ public static class AuthEndpoints
         var sessionTrackingId = httpContext.User.FindFirstValue("session_tracking_id") ?? Guid.NewGuid().ToString();
 
         return Results.Ok(new LoginSuccessResponse(
-            sessionId: Guid.NewGuid().ToString(),
-            sessionTrackingId: sessionTrackingId,
-            userId: userId ?? "",
-            username: httpContext.User.FindFirstValue("username") ?? email ?? "",
-            email: email ?? "",
-            tenantId: tenantId ?? "",
-            tenantCode: tenantCode ?? "",
-            tenantName: tenantName ?? "",
-            role: role,
-            roleName: roleName,
-            profileId: profileId,
-            permissions: Array.Empty<string>(),
-            language: "en",
-            token: null,
-            tokenType: null,
-            expiresIn: null
+            SessionId: Guid.NewGuid().ToString(),
+            SessionTrackingId: sessionTrackingId,
+            UserId: userId ?? "",
+            Username: httpContext.User.FindFirstValue("username") ?? email ?? "",
+            Email: email ?? "",
+            TenantId: tenantId ?? "",
+            TenantCode: tenantCode ?? "",
+            TenantName: tenantName ?? "",
+            Role: role,
+            RoleName: roleName,
+            ProfileId: profileId,
+            Permissions: Array.Empty<string>(),
+            Language: "en",
+            Token: null,
+            TokenType: null,
+            ExpiresIn: null,
+            RefreshExpiresIn: null
         ));
     }
 }

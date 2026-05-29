@@ -5,6 +5,7 @@ using Ums.Domain.Authorization.Profile.ProfilePermission;
 using Ums.Domain.Authorization.Template;
 using ProfilePermissionEntity = Ums.Domain.Authorization.Profile.ProfilePermission.ProfilePermission;
 using PermissionTemplateEntity = Ums.Domain.Authorization.Template.PermissionTemplate;
+using EffectConst = Ums.Domain.Authorization.Profile.PermissionEffectConstants;
 
 public sealed class Profile : AggregateRoot<Profile, ProfileProps>
 {
@@ -119,27 +120,27 @@ public sealed class Profile : AggregateRoot<Profile, ProfileProps>
 
     public Result OverridePermissionAllow(IdValueObject permissionId, ActorId updatedBy)
     {
-        return ExecuteOnPermission(permissionId, p => p.OverrideAllow(updatedBy), updatedBy, "ALLOW");
+        return ExecuteOnPermission(permissionId, p => p.OverrideAllow(updatedBy), updatedBy, EffectConst.Allow);
     }
 
     public Result OverridePermissionDeny(IdValueObject permissionId, ActorId updatedBy)
     {
-        return ExecuteOnPermission(permissionId, p => p.OverrideDeny(updatedBy), updatedBy, "DENY");
+        return ExecuteOnPermission(permissionId, p => p.OverrideDeny(updatedBy), updatedBy, EffectConst.Deny);
     }
 
     public Result OverridePermissionNeutral(IdValueObject permissionId, ActorId updatedBy)
     {
-        return ExecuteOnPermission(permissionId, p => p.OverrideNeutral(updatedBy), updatedBy, "NEUTRAL");
+        return ExecuteOnPermission(permissionId, p => p.OverrideNeutral(updatedBy), updatedBy, EffectConst.Neutral);
     }
 
     public Result DeactivatePermission(IdValueObject permissionId, ActorId updatedBy)
     {
-        return ExecuteOnPermission(permissionId, p => p.Deactivate(updatedBy), updatedBy, "DEACTIVATED");
+        return ExecuteOnPermission(permissionId, p => p.Deactivate(updatedBy), updatedBy, EffectConst.Deactivated);
     }
 
     public Result ActivatePermission(IdValueObject permissionId, ActorId updatedBy)
     {
-        return ExecuteOnPermission(permissionId, p => p.Activate(updatedBy), updatedBy, "ACTIVATED");
+        return ExecuteOnPermission(permissionId, p => p.Activate(updatedBy), updatedBy, EffectConst.Activated);
     }
 
     private Result ExecuteOnPermission(IdValueObject permissionId, Func<ProfilePermissionEntity, Result> action, ActorId updatedBy, string eventType)
@@ -187,7 +188,7 @@ public sealed class Profile : AggregateRoot<Profile, ProfileProps>
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        Props.IsActive = false;
+        SetProps(Props.WithIsActive(false));
         DomainEvents.RaiseEvent(new ProfileDeactivatedEvent(Props.Id.GetValue()));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(updatedBy.GetValue());
@@ -206,7 +207,7 @@ public sealed class Profile : AggregateRoot<Profile, ProfileProps>
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        Props.IsActive = true;
+        SetProps(Props.WithIsActive(true));
         DomainEvents.RaiseEvent(new ProfileActivatedEvent(Props.Id.GetValue()));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(updatedBy.GetValue());

@@ -33,11 +33,16 @@ public sealed class SqlServerPromotionRequestRepository : IPromotionRequestRepos
     public Task<PromotionRequestAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
         => GetByIdAsync(id, cancellationToken);
 
-    public async Task<IReadOnlyList<PromotionRequestAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<PromotionRequestAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
-        var records = await _dbContext.Set<PromotionRequestRecord>()
-            .Include(x => x.ImpactAnalyses)
-            .ToListAsync(cancellationToken);
+        IQueryable<PromotionRequestRecord> query = _dbContext.Set<PromotionRequestRecord>().Include(x => x.ImpactAnalyses);
+
+        if (tenantId.HasValue)
+        {
+            query = query.Where(x => x.TenantId == tenantId.Value);
+        }
+
+        var records = await query.ToListAsync(cancellationToken);
 
         return records.Select(r => IgaAggregateFactory.RehydratePromotionRequest(r, r.ImpactAnalyses)).ToList();
     }

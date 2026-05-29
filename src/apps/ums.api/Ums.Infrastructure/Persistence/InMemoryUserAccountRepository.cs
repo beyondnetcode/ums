@@ -35,10 +35,9 @@ public sealed class InMemoryUserAccountRepository : IUserAccountRepository, IUni
     public Task<UserAccountAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
         => GetByIdAsync(id, cancellationToken);
 
-    public Task<IReadOnlyList<UserAccountAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<UserAccountAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
-        // REC-05: filter by tenant when a request context is available
-        var tid = CurrentTenantId;
+        var tid = tenantId ?? CurrentTenantId;
         var all = (tid.HasValue
             ? _store.Values.Where(u => u.Props.TenantId.GetValue() == tid.Value)
             : _store.Values).ToList();
@@ -65,7 +64,7 @@ public sealed class InMemoryUserAccountRepository : IUserAccountRepository, IUni
         int page, int pageSize, string? search, string? status, string sortBy, string sortOrder,
         Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
-        var all = await GetAllAsync(cancellationToken);
+        var all = await GetAllAsync(null, cancellationToken);
         var query = tenantId.HasValue
             ? all.Where(u => u.Props.TenantId.GetValue() == tenantId.Value)
             : all.AsEnumerable();

@@ -5,13 +5,13 @@ using MenuEntity = Ums.Domain.Authorization.SystemSuite.Menu.Menu;
 
 public class ModuleProps : IProps
 {
-    public IdValueObject Id { get; set; }
-    public SystemId SystemId { get; set; }
-    public Code Code { get; set; }
-    public Name Name { get; set; }
-    public Description Description { get; set; }
-    public ModuleStatus Status { get; set; }
-    public int SortOrder { get; set; }
+    public IdValueObject Id { get; private set; }
+    public SystemId SystemId { get; private set; }
+    public Code Code { get; private set; }
+    public Name Name { get; private set; }
+    public Description Description { get; private set; }
+    public ModuleStatus Status { get; private set; }
+    public int SortOrder { get; private set; }
     public AuditValueObject Audit { get; private set; }
 
     public ModuleProps(
@@ -32,6 +32,34 @@ public class ModuleProps : IProps
         Status = status;
         SortOrder = sortOrder;
         Audit = AuditValueObject.Create(createdBy.GetValue());
+    }
+
+    public ModuleProps WithName(Name name)
+    {
+        var clone = (ModuleProps)MemberwiseClone();
+        clone.Name = name;
+        return clone;
+    }
+
+    public ModuleProps WithDescription(Description description)
+    {
+        var clone = (ModuleProps)MemberwiseClone();
+        clone.Description = description;
+        return clone;
+    }
+
+    public ModuleProps WithSortOrder(int sortOrder)
+    {
+        var clone = (ModuleProps)MemberwiseClone();
+        clone.SortOrder = sortOrder;
+        return clone;
+    }
+
+    public ModuleProps WithStatus(ModuleStatus status)
+    {
+        var clone = (ModuleProps)MemberwiseClone();
+        clone.Status = status;
+        return clone;
     }
 
     public object Clone() => MemberwiseClone();

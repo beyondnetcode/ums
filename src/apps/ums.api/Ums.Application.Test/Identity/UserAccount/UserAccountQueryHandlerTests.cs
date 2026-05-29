@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 public class UserAccountQueryHandlerTests
 {
     private readonly Mock<IUserAccountRepository> _repo = new();
+    private readonly Mock<IUserContext> _userContext = new();
 
     private static UserAccount MakeUserAccount(string email = "test@test.com", UserStatus status = null)
     {
@@ -99,7 +100,7 @@ public class UserAccountQueryHandlerTests
             TenantId: null, Page: 1, PageSize: 10, Criteria: null!,
             Status: "all", SortBy: null!, SortOrder: null!, Search: null!);
 
-        var handler = new GetAllUserAccountsQueryHandler(_repo.Object);
+        var handler = new GetAllUserAccountsQueryHandler(_repo.Object, _userContext.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -122,7 +123,7 @@ public class UserAccountQueryHandlerTests
             TenantId: tenantId, Page: 1, PageSize: 10, Criteria: null!,
             Status: "all", SortBy: null!, SortOrder: null!, Search: null!);
 
-        var handler = new GetAllUserAccountsQueryHandler(_repo.Object);
+        var handler = new GetAllUserAccountsQueryHandler(_repo.Object, _userContext.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -145,7 +146,7 @@ public class UserAccountQueryHandlerTests
             TenantId: null, Page: 1, PageSize: 10, Criteria: null!,
             Status: "Active", SortBy: null!, SortOrder: null!, Search: null!);
 
-        var handler = new GetAllUserAccountsQueryHandler(_repo.Object);
+        var handler = new GetAllUserAccountsQueryHandler(_repo.Object, _userContext.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -169,7 +170,7 @@ public class UserAccountQueryHandlerTests
             TenantId: null, Page: 1, PageSize: 10, Criteria: "email",
             Status: "all", SortBy: null!, SortOrder: null!, Search: "target");
 
-        var handler = new GetAllUserAccountsQueryHandler(_repo.Object);
+        var handler = new GetAllUserAccountsQueryHandler(_repo.Object, _userContext.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);

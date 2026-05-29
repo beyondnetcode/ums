@@ -28,8 +28,18 @@ public sealed class SqlServerSystemSuiteRepository(UmsPlatformDbContext dbContex
         return record is null ? null : Rehydrate(record);
     }
 
-    public Task<SystemSuiteAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
-        => GetByIdAsync(id, cancellationToken);
+    public async Task<SystemSuiteAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
+    {
+        var record = await dbContext.SystemSuites
+            .AsSplitQuery()
+            .Include(x => x.Modules).ThenInclude(x => x.Menus).ThenInclude(x => x.SubMenus).ThenInclude(x => x.Options)
+            .Include(x => x.AppSettings)
+            .Include(x => x.Actions)
+            .Include(x => x.DomainResources)
+            .FirstOrDefaultAsync(x => x.TenantId == tenantId && x.Id == id, cancellationToken);
+
+        return record is null ? null : Rehydrate(record);
+    }
 
     public async Task<SystemSuiteAggregate?> GetByCodeAsync(Code code, CancellationToken cancellationToken = default)
     {
@@ -44,16 +54,20 @@ public sealed class SqlServerSystemSuiteRepository(UmsPlatformDbContext dbContex
         return record is null ? null : Rehydrate(record);
     }
 
-    public async Task<IReadOnlyList<SystemSuiteAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<SystemSuiteAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
-        var records = await dbContext.SystemSuites
-            .AsSplitQuery()
+        IQueryable<SystemSuiteRecord> query = dbContext.SystemSuites.AsSplitQuery()
             .Include(x => x.Modules).ThenInclude(x => x.Menus).ThenInclude(x => x.SubMenus).ThenInclude(x => x.Options)
             .Include(x => x.AppSettings)
             .Include(x => x.Actions)
-            .Include(x => x.DomainResources)
-            .OrderBy(x => x.Code)
-            .ToListAsync(cancellationToken);
+            .Include(x => x.DomainResources);
+
+        if (tenantId.HasValue)
+        {
+            query = query.Where(x => x.TenantId == tenantId.Value);
+        }
+
+        var records = await query.OrderBy(x => x.Code).ToListAsync(cancellationToken);
 
         return records.Select(Rehydrate).ToList();
     }

@@ -62,8 +62,7 @@ public sealed class SystemSuite : AggregateRoot<SystemSuite, SystemSuiteProps>
 
     public Result Update(Name name, Description description, ActorId updatedBy)
     {
-        Props.Name = name;
-        Props.Description = description;
+        SetProps(Props.WithName(name).WithDescription(description));
 
         if (!IsValid())
         {
@@ -76,7 +75,7 @@ public sealed class SystemSuite : AggregateRoot<SystemSuite, SystemSuiteProps>
 
     public Result SetStatus(SystemStatus status, ActorId updatedBy)
     {
-        Props.Status = status;
+        SetProps(Props.WithStatus(status));
         DomainEvents.RaiseEvent(new SystemSuiteStatusChangedEvent(Props.Id.GetValue(), status.Name));
         Props.Audit.Update(updatedBy.GetValue());
         return Result.Success();

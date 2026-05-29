@@ -12,11 +12,11 @@ public sealed class FeatureFlagCriteria : Entity<FeatureFlagCriteria, FeatureFla
     public static Result<FeatureFlagCriteria> Create(string criteriaType, string @operator, string value)
     {
         if (string.IsNullOrWhiteSpace(criteriaType))
-            return Result<FeatureFlagCriteria>.Failure("Criteria type is required.");
+            return Result<FeatureFlagCriteria>.Failure(DomainErrors.Configuration.CriteriaTypeRequired);
         if (string.IsNullOrWhiteSpace(@operator))
-            return Result<FeatureFlagCriteria>.Failure("Operator is required.");
+            return Result<FeatureFlagCriteria>.Failure(DomainErrors.Configuration.CriteriaOperatorRequired);
         if (string.IsNullOrWhiteSpace(value))
-            return Result<FeatureFlagCriteria>.Failure("Criteria value is required.");
+            return Result<FeatureFlagCriteria>.Failure(DomainErrors.Configuration.CriteriaValueRequired);
 
         var props = new FeatureFlagCriteriaProps(IdValueObject.Create(), criteriaType, @operator, value);
         return Result<FeatureFlagCriteria>.Success(new FeatureFlagCriteria(props));

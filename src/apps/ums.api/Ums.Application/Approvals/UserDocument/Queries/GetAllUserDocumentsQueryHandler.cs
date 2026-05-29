@@ -23,7 +23,7 @@ public sealed class GetAllUserDocumentsQueryHandler : IQueryHandler<GetAllUserDo
 
         var items = request.UserId.HasValue
             ? await _repository.GetByUserIdAsync(request.UserId.Value, cancellationToken)
-            : await _repository.GetAllAsync(cancellationToken);
+            : await _repository.GetAllAsync(null, cancellationToken);
 
         var query = items.Select(d => new UserDocumentDto(
             d.Props.Id.GetValue(), d.Props.UserId.GetValue(), d.Props.DocumentTypeId.GetValue(),

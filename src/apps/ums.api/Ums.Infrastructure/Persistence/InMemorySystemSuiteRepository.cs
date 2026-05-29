@@ -22,9 +22,11 @@ public sealed class InMemorySystemSuiteRepository : ISystemSuiteRepository, IUni
     public Task<SystemSuiteAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
         => GetByIdAsync(id, cancellationToken);
 
-    public Task<IReadOnlyList<SystemSuiteAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<SystemSuiteAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
-        var all = _store.Values.ToList();
+        var all = tenantId.HasValue
+            ? _store.Values.Where(s => s.Props.TenantId.GetValue() == tenantId.Value).ToList()
+            : _store.Values.ToList();
         all.ForEach(s => s.BrokenRules.Clear());
         return Task.FromResult<IReadOnlyList<SystemSuiteAggregate>>(all);
     }

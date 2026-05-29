@@ -32,10 +32,16 @@ public sealed class SqlServerAccessEnforcementPolicyRepository : IAccessEnforcem
     public Task<AccessEnforcementPolicyAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
         => GetByIdAsync(id, cancellationToken);
 
-    public async Task<IReadOnlyList<AccessEnforcementPolicyAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<AccessEnforcementPolicyAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
-        var records = await _dbContext.Set<AccessEnforcementPolicyRecord>()
-            .ToListAsync(cancellationToken);
+        IQueryable<AccessEnforcementPolicyRecord> query = _dbContext.Set<AccessEnforcementPolicyRecord>();
+
+        if (tenantId.HasValue)
+        {
+            query = query.Where(x => x.TenantId == tenantId.Value);
+        }
+
+        var records = await query.ToListAsync(cancellationToken);
 
         return records.Select(Rehydrate).ToList();
     }

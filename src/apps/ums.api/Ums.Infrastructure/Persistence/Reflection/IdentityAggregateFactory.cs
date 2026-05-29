@@ -5,6 +5,7 @@ using Ums.Domain.Identity.Tenant;
 using Ums.Domain.Identity.Tenant.Branding;
 using Ums.Domain.Identity.Tenant.Branch;
 using Ums.Domain.Identity.Tenant.IdentityProvider;
+using Ums.Domain.Identity.Tenant.TenantParameter;
 using Ums.Domain.Identity.UserAccount;
 using Ums.Domain.Identity.UserAccount.MfaEnrollment;
 using Ums.Domain.Identity.UserAccount.PasswordCredential;
@@ -16,6 +17,7 @@ using Ums.Shell.Ddd.ValueObjects.Audit;
 namespace Ums.Infrastructure.Persistence.Reflection;
 
 using TenantAggregate = Ums.Domain.Identity.Tenant.Tenant;
+using TenantParameterAggregate = Ums.Domain.Identity.Tenant.TenantParameter.TenantParameter;
 using UserAccountAggregate = Ums.Domain.Identity.UserAccount.UserAccount;
 using UserManagementDelegationAggregate = Ums.Domain.Identity.UserManagementDelegation.UserManagementDelegation;
 
@@ -29,6 +31,15 @@ internal static class IdentityAggregateFactory
         IReadOnlyCollection<TenantIdentityProviderRecord> providerRecords,
         TenantBrandingRecord? brandingRecord)
     {
+        var audit = AuditValueObject.Load(new AuditProps
+        {
+            CreatedBy = tenantRecord.CreatedBy,
+            CreatedAt = tenantRecord.CreatedAtUtc,
+            UpdatedBy = tenantRecord.UpdatedBy,
+            UpdatedAt = tenantRecord.UpdatedAtUtc,
+            TimeSpan = tenantRecord.AuditTimeSpan
+        });
+
         var props = new TenantProps(
             TenantId.Load(tenantRecord.Id),
             Code.Create(tenantRecord.Code),
@@ -37,10 +48,8 @@ internal static class IdentityAggregateFactory
             DomainEnumerationMapper.FromValue<IdpStrategy>(tenantRecord.IdpStrategyId),
             string.IsNullOrWhiteSpace(tenantRecord.CompanyReference) ? null : CompanyReference.Create(tenantRecord.CompanyReference),
             tenantRecord.ParentTenantId.HasValue ? TenantId.Load(tenantRecord.ParentTenantId.Value) : null,
-            ActorId.Create(tenantRecord.CreatedBy));
-
-        props.Status = DomainEnumerationMapper.FromValue<TenantStatus>(tenantRecord.StatusId);
-        SetAudit(props, tenantRecord.CreatedBy, tenantRecord.CreatedAtUtc, tenantRecord.UpdatedBy, tenantRecord.UpdatedAtUtc, tenantRecord.AuditTimeSpan);
+            DomainEnumerationMapper.FromValue<TenantStatus>(tenantRecord.StatusId),
+            audit);
 
         var tenant = Construct<TenantAggregate, TenantProps>(props);
 
@@ -62,18 +71,25 @@ internal static class IdentityAggregateFactory
         IReadOnlyCollection<UserAccountMfaEnrollmentRecord> enrollmentRecords,
         IReadOnlyCollection<UserAccountPasswordCredentialRecord> passwordRecords)
     {
+        var audit = AuditValueObject.Load(new AuditProps
+        {
+            CreatedBy = record.CreatedBy,
+            CreatedAt = record.CreatedAtUtc,
+            UpdatedBy = record.UpdatedBy,
+            UpdatedAt = record.UpdatedAtUtc,
+            TimeSpan = record.AuditTimeSpan
+        });
+
         var props = new UserAccountProps(
             UserAccountId.Load(record.Id),
             TenantId.Load(record.TenantId),
+            record.BranchId.HasValue ? BranchId.Load(record.BranchId.Value) : null,
             Email.Create(record.Email),
             DomainEnumerationMapper.FromValue<UserCategory>(record.CategoryId),
+            DomainEnumerationMapper.FromValue<UserStatus>(record.StatusId),
             string.IsNullOrWhiteSpace(record.IdentityReference) ? null : IdentityReference.Create(record.IdentityReference),
             record.IdentityReferenceTypeId.HasValue ? DomainEnumerationMapper.FromValue<IdentityReferenceType>(record.IdentityReferenceTypeId.Value) : null,
-            ActorId.Create(record.CreatedBy));
-
-        props.BranchId = record.BranchId.HasValue ? BranchId.Load(record.BranchId.Value) : null;
-        props.Status = DomainEnumerationMapper.FromValue<UserStatus>(record.StatusId);
-        SetAudit(props, record.CreatedBy, record.CreatedAtUtc, record.UpdatedBy, record.UpdatedAtUtc, record.AuditTimeSpan);
+            audit);
 
         var account = Construct<UserAccountAggregate, UserAccountProps>(props);
 
@@ -95,6 +111,15 @@ internal static class IdentityAggregateFactory
             .Select(id => DomainEnumerationMapper.FromValue<DelegatedAction>(id))
             .ToList();
 
+        var audit = AuditValueObject.Load(new AuditProps
+        {
+            CreatedBy = record.CreatedBy,
+            CreatedAt = record.CreatedAtUtc,
+            UpdatedBy = record.UpdatedBy,
+            UpdatedAt = record.UpdatedAtUtc,
+            TimeSpan = record.AuditTimeSpan
+        });
+
         var props = new UserManagementDelegationProps(
             DelegationId.Load(record.Id),
             TenantId.Load(record.TenantId),
@@ -107,20 +132,48 @@ internal static class IdentityAggregateFactory
             record.ValidUntil,
             record.MaxDurationDays,
             record.RequiresApproval,
-            ActorId.Create(record.CreatedBy));
-
-        props.Status = DomainEnumerationMapper.FromValue<DelegationStatus>(record.StatusId);
-        props.ApprovalRequestId = record.ApprovalRequestId;
-        props.RevokedAt = record.RevokedAt;
-        props.RevokedBy = record.RevokedBy;
-        props.RevocationReason = record.RevocationReason;
-        SetAudit(props, record.CreatedBy, record.CreatedAtUtc, record.UpdatedBy, record.UpdatedAtUtc, record.AuditTimeSpan);
+            DomainEnumerationMapper.FromValue<DelegationStatus>(record.StatusId),
+            record.ApprovalRequestId,
+            record.RevokedAt,
+            record.RevokedBy,
+            record.RevocationReason,
+            audit);
 
         var delegation = Construct<UserManagementDelegationAggregate, UserManagementDelegationProps>(props);
         delegation.DomainEvents.MarkChangesAsCommitted();
         delegation.BrokenRules.Clear();
 
         return delegation;
+    }
+
+    public static TenantParameterAggregate RehydrateTenantParameter(TenantParameterRecord record)
+    {
+        var props = new TenantParameterProps(
+            TenantParameterId.Load(record.Id),
+            TenantId.Load(record.TenantId),
+            Code.Create(record.Code),
+            Description.Create(record.Description),
+            record.Value,
+            DomainEnumerationMapper.FromValue<TenantParameterValueType>(record.ValueTypeId),
+            DomainEnumerationMapper.FromValue<TenantParameterCategory>(record.CategoryId),
+            record.IsActive,
+            record.IsSensitive,
+            record.DefaultValue,
+            record.AllowedValues,
+            AuditValueObject.Load(new AuditProps
+            {
+                CreatedBy = record.CreatedBy,
+                CreatedAt = record.CreatedAtUtc,
+                UpdatedBy = record.UpdatedBy,
+                UpdatedAt = record.UpdatedAtUtc,
+                TimeSpan = record.AuditTimeSpan
+            }));
+
+        var parameter = Construct<TenantParameterAggregate, TenantParameterProps>(props);
+        parameter.DomainEvents.MarkChangesAsCommitted();
+        parameter.BrokenRules.Clear();
+
+        return parameter;
     }
 
     private static Branch RehydrateBranch(TenantBranchRecord record)
@@ -158,6 +211,15 @@ internal static class IdentityAggregateFactory
 
     private static Branding RehydrateBranding(TenantBrandingRecord record)
     {
+        var audit = AuditValueObject.Load(new AuditProps
+        {
+            CreatedBy = record.CreatedBy,
+            CreatedAt = record.CreatedAtUtc,
+            UpdatedBy = record.UpdatedBy,
+            UpdatedAt = record.UpdatedAtUtc,
+            TimeSpan = record.AuditTimeSpan
+        });
+
         var props = new BrandingProps(
             BrandingId.Load(record.Id),
             TenantId.Load(record.TenantId),
@@ -170,40 +232,52 @@ internal static class IdentityAggregateFactory
             LoginText.Create(record.PrimaryButtonLabel),
             LoginText.Create(record.FooterText),
             string.IsNullOrWhiteSpace(record.CustomDomain) ? null : CustomDomain.Create(record.CustomDomain),
+            DomainEnumerationMapper.FromValue<DnsVerificationStatus>(record.DnsVerificationStatusId),
             DnsCnameTarget.Create(),
             record.MagicLinkFallbackEnabled,
-            ActorId.Create(record.CreatedBy));
-
-        props.DnsVerificationStatus = DomainEnumerationMapper.FromValue<DnsVerificationStatus>(record.DnsVerificationStatusId);
-        SetAudit(props, record.CreatedBy, record.CreatedAtUtc, record.UpdatedBy, record.UpdatedAtUtc, record.AuditTimeSpan);
+            audit);
 
         return Construct<Branding, BrandingProps>(props);
     }
 
     private static MfaEnrollment RehydrateEnrollment(UserAccountMfaEnrollmentRecord record)
     {
+        var audit = AuditValueObject.Load(new AuditProps
+        {
+            CreatedBy = record.CreatedBy,
+            CreatedAt = record.CreatedAtUtc,
+            UpdatedBy = record.UpdatedBy,
+            UpdatedAt = record.UpdatedAtUtc,
+            TimeSpan = record.AuditTimeSpan
+        });
+
         var props = new MfaEnrollmentProps(
             MfaEnrollmentId.Load(record.Id),
             UserAccountId.Load(record.UserAccountId),
             DomainEnumerationMapper.FromValue<MfaMethod>(record.MethodId),
-            ActorId.Create(record.CreatedBy));
-
-        props.Status = DomainEnumerationMapper.FromValue<MfaEnrollmentStatus>(record.StatusId);
-        SetAudit(props, record.CreatedBy, record.CreatedAtUtc, record.UpdatedBy, record.UpdatedAtUtc, record.AuditTimeSpan);
+            DomainEnumerationMapper.FromValue<MfaEnrollmentStatus>(record.StatusId),
+            audit);
 
         return Construct<MfaEnrollment, MfaEnrollmentProps>(props);
     }
 
     private static PasswordCredential RehydratePasswordCredential(UserAccountPasswordCredentialRecord record)
     {
+        var audit = AuditValueObject.Load(new AuditProps
+        {
+            CreatedBy = record.CreatedBy,
+            CreatedAt = record.CreatedAtUtc,
+            UpdatedBy = record.UpdatedBy,
+            UpdatedAt = record.UpdatedAtUtc,
+            TimeSpan = record.AuditTimeSpan
+        });
+
         var props = new PasswordCredentialProps(
             PasswordCredentialId.Load(record.Id),
             UserAccountId.Load(record.UserAccountId),
             PasswordHash.Create(record.PasswordHash),
-            ActorId.Create(record.CreatedBy));
-
-        props.IsActive = record.IsActive;
-        SetAudit(props, record.CreatedBy, record.CreatedAtUtc, record.UpdatedBy, record.UpdatedAtUtc, record.AuditTimeSpan);
+            record.IsActive,
+            audit);
 
         return Construct<PasswordCredential, PasswordCredentialProps>(props);
     }

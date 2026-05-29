@@ -2,15 +2,18 @@ namespace Ums.Domain.Identity.Tenant;
 using Ums.Domain.Identity.Tenant.Branch;
 using Ums.Domain.Identity.Tenant.IdentityProvider;
 using Ums.Domain.Identity.Tenant.Branding;
+using Ums.Domain.Identity.Tenant.TenantParameter;
 using Ums.Domain.Identity.Tenant.Events;
 using BranchEntity = Ums.Domain.Identity.Tenant.Branch.Branch;
 using IdentityProviderEntity = Ums.Domain.Identity.Tenant.IdentityProvider.IdentityProvider;
 using BrandingEntity = Ums.Domain.Identity.Tenant.Branding.Branding;
+using TenantParameterEntity = Ums.Domain.Identity.Tenant.TenantParameter.TenantParameter;
 
 public sealed class Tenant : AggregateRoot<Tenant, TenantProps>
 {
     private readonly List<BranchEntity> _branches = new();
     private readonly List<IdentityProviderEntity> _identityProviders = new();
+    private readonly List<TenantParameterEntity> _parameters = new();
     private BrandingEntity? _branding;
 
     public new TenantDomainEventsManager DomainEvents { get; }
@@ -36,6 +39,7 @@ public sealed class Tenant : AggregateRoot<Tenant, TenantProps>
     public IReadOnlyCollection<BranchEntity> Branches => _branches.AsReadOnly();
     public IReadOnlyCollection<IdentityProviderEntity> IdentityProviders => _identityProviders.AsReadOnly();
     public BrandingEntity? Branding => _branding;
+    public IReadOnlyCollection<TenantParameterEntity> Parameters => _parameters.AsReadOnly();
 
     public IdentityProviderEntity? GetActiveIdentityProvider()
     {
@@ -407,6 +411,127 @@ public sealed class Tenant : AggregateRoot<Tenant, TenantProps>
         return Result.Success();
     }
 
+    public Result AddParameter(
+        string code,
+        string description,
+        string value,
+        TenantParameterValueType valueType,
+        TenantParameterCategory category,
+        bool isSensitive,
+        string? defaultValue,
+        string? allowedValues,
+        ActorId createdBy)
+    {
+        if (_parameters.Any(p => p.Code.GetValue() == code && p.IsActive))
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Parameters), DomainErrors.TenantParameter.CodeNotUnique));
+        }
+
+        if (!IsValid())
+        {
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+        }
+
+        var parameterResult = TenantParameterEntity.Create(
+            TenantId.Load(Props.Id.GetValue()),
+            code,
+            description,
+            value,
+            valueType,
+            category,
+            isSensitive,
+            defaultValue,
+            allowedValues,
+            createdBy);
+
+        if (parameterResult.IsFailure)
+        {
+            return Result.Failure(parameterResult.Error);
+        }
+
+        _parameters.Add(parameterResult.Value);
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(createdBy.GetValue());
+        return Result.Success();
+    }
+
+    public Result UpdateParameter(string code, string newValue, ActorId updatedBy)
+    {
+        var parameter = FindParameter(code);
+        if (parameter.IsFailure)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Parameters), DomainErrors.TenantParameter.NotFound));
+        }
+
+        if (!IsValid())
+        {
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+        }
+
+        var updateResult = parameter.Value.UpdateValue(newValue, updatedBy);
+        if (updateResult.IsFailure)
+        {
+            return Result.Failure(updateResult.Error);
+        }
+
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy.GetValue());
+        return Result.Success();
+    }
+
+    public Result DeactivateParameter(string code, ActorId updatedBy)
+    {
+        var parameter = FindActiveParameter(code);
+        if (parameter.IsFailure)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Parameters), DomainErrors.TenantParameter.NotFound));
+        }
+
+        if (!IsValid())
+        {
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+        }
+
+        var deactivateResult = parameter.Value.Deactivate(updatedBy);
+        if (deactivateResult.IsFailure)
+        {
+            return Result.Failure(deactivateResult.Error);
+        }
+
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy.GetValue());
+        return Result.Success();
+    }
+
+    public TenantParameterEntity? GetParameter(string code)
+    {
+        return _parameters.FirstOrDefault(p => p.Code.GetValue() == code && p.IsActive);
+    }
+
+    public T? GetTypedParameter<T>(string code, Func<string, T?> parser, T? defaultValue = default)
+    {
+        var parameter = GetParameter(code);
+        if (parameter is null) return defaultValue;
+
+        return parser(parameter.Value);
+    }
+
+    private Result<TenantParameterEntity> FindParameter(string code)
+    {
+        var parameter = _parameters.FirstOrDefault(p => p.Code.GetValue() == code);
+        return parameter is null
+            ? Result<TenantParameterEntity>.Failure(DomainErrors.TenantParameter.NotFound)
+            : Result<TenantParameterEntity>.Success(parameter);
+    }
+
+    private Result<TenantParameterEntity> FindActiveParameter(string code)
+    {
+        var parameter = _parameters.FirstOrDefault(p => p.Code.GetValue() == code && p.IsActive);
+        return parameter is null
+            ? Result<TenantParameterEntity>.Failure(DomainErrors.TenantParameter.NotFound)
+            : Result<TenantParameterEntity>.Success(parameter);
+    }
+
     public Result Suspend(ActorId updatedBy)
     {
         if (Props.Status == TenantStatus.Archived)
@@ -424,7 +549,7 @@ public sealed class Tenant : AggregateRoot<Tenant, TenantProps>
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        Props.Status = TenantStatus.Suspended;
+        SetProps(Props.WithStatus(TenantStatus.Suspended));
         DomainEvents.RaiseEvent(new TenantSuspendedEvent(Props.Id.GetValue()));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(updatedBy.GetValue());
@@ -448,7 +573,7 @@ public sealed class Tenant : AggregateRoot<Tenant, TenantProps>
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        Props.Status = TenantStatus.Active;
+        SetProps(Props.WithStatus(TenantStatus.Active));
         DomainEvents.RaiseEvent(new TenantActivatedEvent(Props.Id.GetValue()));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(updatedBy.GetValue());

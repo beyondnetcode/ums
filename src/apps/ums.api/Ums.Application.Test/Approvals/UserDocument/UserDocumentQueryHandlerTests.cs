@@ -95,7 +95,7 @@ public class UserDocumentQueryHandlerTests
         var d2 = MakeUserDocument(DocumentStatus.Valid);
         var list = new List<UserDocument> { d1, d2 };
 
-        _repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(list);
 
         var query = new GetAllUserDocumentsQuery(
@@ -149,7 +149,7 @@ public class UserDocumentQueryHandlerTests
         var d2 = MakeUserDocument(DocumentStatus.Valid);
         var list = new List<UserDocument> { d1, d2 };
 
-        _repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(list);
 
         var query = new GetAllUserDocumentsQuery(

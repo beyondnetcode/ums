@@ -6,6 +6,7 @@ using Ums.Application.Authorization.Profile.DTOs;
 using Ums.Domain.Authorization.Profile;
 using Ums.Domain.Kernel;
 using Ums.Domain.Authorization;
+using Ums.Domain.Identity;
 using Moq;
 using Xunit;
 using System;
@@ -18,6 +19,23 @@ public class ProfileQueryHandlerTests
     private readonly Mock<IProfileRepository> _repo = new();
     private readonly Mock<IRoleRepository> _roleRepo = new();
     private readonly Mock<ISystemSuiteRepository> _suiteRepo = new();
+    private readonly Mock<ITenantRepository> _tenantRepo = new();
+    private readonly Mock<IUserAccountRepository> _userAccountRepo = new();
+    private readonly Mock<IUserContext> _userContext = new();
+
+    public ProfileQueryHandlerTests()
+    {
+        _roleRepo.Setup(r => r.GetByTenantIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(new List<Ums.Domain.Authorization.Role.Role>());
+        _tenantRepo.Setup(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+                   .ReturnsAsync(new List<Ums.Domain.Identity.Tenant.Tenant>());
+        _userAccountRepo.Setup(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+                        .ReturnsAsync(new List<Ums.Domain.Identity.UserAccount.UserAccount>());
+        _suiteRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                  .ReturnsAsync((Ums.Domain.Authorization.SystemSuite.SystemSuite?)null);
+        _userContext.Setup(c => c.TenantId).Returns(Guid.NewGuid().ToString());
+        _userContext.Setup(c => c.UserId).Returns(Guid.NewGuid().ToString());
+    }
 
     private static Profile MakeProfile(bool isActive = true)
     {
@@ -47,7 +65,7 @@ public class ProfileQueryHandlerTests
              .ReturnsAsync(profile);
 
         var query = new GetProfileByIdQuery(Guid.NewGuid());
-        var handler = new GetProfileByIdQueryHandler(_repo.Object, _roleRepo.Object, _suiteRepo.Object);
+        var handler = new GetProfileByIdQueryHandler(_repo.Object, null, _roleRepo.Object, _suiteRepo.Object, _tenantRepo.Object, _userAccountRepo.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -61,7 +79,7 @@ public class ProfileQueryHandlerTests
              .ReturnsAsync((Profile?)null);
 
         var query = new GetProfileByIdQuery(Guid.NewGuid());
-        var handler = new GetProfileByIdQueryHandler(_repo.Object, _roleRepo.Object, _suiteRepo.Object);
+        var handler = new GetProfileByIdQueryHandler(_repo.Object, null, _roleRepo.Object, _suiteRepo.Object, _tenantRepo.Object, _userAccountRepo.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -83,7 +101,9 @@ public class ProfileQueryHandlerTests
             MakeProfile(false)
         };
 
-        _repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync(profiles);
+        _repo.Setup(r => r.GetByTenantIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(profiles);
 
         var query = new GetAllProfilesQuery(
@@ -97,7 +117,7 @@ public class ProfileQueryHandlerTests
             SortOrder: null,
             Search: null);
 
-        var handler = new GetAllProfilesQueryHandler(_repo.Object);
+        var handler = new GetAllProfilesQueryHandler(_repo.Object, _roleRepo.Object, _suiteRepo.Object, _tenantRepo.Object, _userAccountRepo.Object, _userContext.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -127,7 +147,7 @@ public class ProfileQueryHandlerTests
             SortOrder: null,
             Search: null);
 
-        var handler = new GetAllProfilesQueryHandler(_repo.Object);
+        var handler = new GetAllProfilesQueryHandler(_repo.Object, _roleRepo.Object, _suiteRepo.Object, _tenantRepo.Object, _userAccountRepo.Object, _userContext.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -157,7 +177,7 @@ public class ProfileQueryHandlerTests
             SortOrder: null,
             Search: null);
 
-        var handler = new GetAllProfilesQueryHandler(_repo.Object);
+        var handler = new GetAllProfilesQueryHandler(_repo.Object, _roleRepo.Object, _suiteRepo.Object, _tenantRepo.Object, _userAccountRepo.Object, _userContext.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -173,7 +193,9 @@ public class ProfileQueryHandlerTests
             MakeProfile(false)
         };
 
-        _repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync(profiles);
+        _repo.Setup(r => r.GetByTenantIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(profiles);
 
         var query = new GetAllProfilesQuery(
@@ -187,7 +209,7 @@ public class ProfileQueryHandlerTests
             SortOrder: null,
             Search: null);
 
-        var handler = new GetAllProfilesQueryHandler(_repo.Object);
+        var handler = new GetAllProfilesQueryHandler(_repo.Object, _roleRepo.Object, _suiteRepo.Object, _tenantRepo.Object, _userAccountRepo.Object, _userContext.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);

@@ -42,9 +42,7 @@ public sealed class Menu : Entity<Menu, MenuProps>
 
     public Result Update(Name label, Description description, int sortOrder, ActorId updatedBy)
     {
-        Props.Label = label;
-        Props.Description = description;
-        Props.SortOrder = sortOrder;
+        SetProps(Props.WithLabel(label).WithDescription(description).WithSortOrder(sortOrder));
 
         if (!IsValid())
         {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Shield, ShieldAlert, ShieldCheck, ToggleLeft, ToggleRight, User, Key, Globe, Info } from 'lucide-react';
-import { type Profile } from '@domain/authorization/schemas/profile.schema';
+import { Shield, ShieldAlert, ShieldCheck, ToggleLeft, ToggleRight, User, Key, Globe, Info, GitCompare, ChevronDown, ChevronRight } from 'lucide-react';
+import { type Profile, type ProfilePermission as ProfilePermissionType } from '@domain/authorization/schemas/profile.schema';
 import { M3SegmentedButton } from '@shared/components/M3SegmentedButton';
 import { M3Button, M3Skeleton, M3SkeletonRow, M3Tabs } from '@shared/components';
 import { DetailPanelShell } from '@shared/components';
@@ -14,8 +14,21 @@ interface Props {
 
 type DetailTab = 'overview' | 'permissions';
 
+const getEffectLabel = (isAllowed: boolean, isDenied: boolean): string => {
+  if (isAllowed) return 'Allow';
+  if (isDenied) return 'Deny';
+  return 'Neutral';
+};
+
+const getEffectColor = (isAllowed: boolean, isDenied: boolean): string => {
+  if (isAllowed) return 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20';
+  if (isDenied) return 'text-rose-500 bg-rose-500/10 border-rose-500/20';
+  return 'text-m3-outline bg-m3-outline/10 border-m3-outline/20';
+};
+
 export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
   const [activeTab, setActiveTab] = useState<DetailTab>('overview');
+  const [expandedPermissions, setExpandedPermissions] = useState<Set<string>>(new Set());
 
   const overrideMutation = useOverrideProfilePermission();
   const activatePermMutation = useActivateProfilePermission();
@@ -71,84 +84,155 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
     await overrideMutation.mutateAsync({ profileId: profile.profileId, permissionId, effect: newEffect });
   };
 
-  const renderPermissionRow = (p: {
-    permissionId: string;
-    targetName: string;
-    targetType: string;
-    isOverride: boolean;
-    actionName: string;
-    isAllowed: boolean;
-    isDenied: boolean;
-    isActive: boolean;
-  }) => (
-    <div key={p.permissionId} className="flex flex-col md:flex-row md:items-center justify-between gap-3 p-3 text-xs hover:bg-m3-surface-container/20 transition-colors">
-      <div className="space-y-0.5">
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="font-bold text-m3-on-surface">{p.targetName}</span>
-          <span className="text-[9px] uppercase font-bold text-m3-primary bg-m3-primary/10 px-1.5 py-0.2 rounded border border-m3-primary/20">
-            {p.targetType}
-          </span>
-          {p.isOverride && (
-            <span className="text-[8px] uppercase font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.2 rounded border border-amber-500/20">
-              Override
-            </span>
-          )}
-        </div>
-        <div className="text-[10px] text-m3-on-surface/60">
-          Acción: <span className="font-medium text-m3-secondary">{p.actionName}</span>
-        </div>
-      </div>
+  const toggleExpanded = (permissionId: string) => {
+    setExpandedPermissions(prev => {
+      const next = new Set(prev);
+      if (next.has(permissionId)) {
+        next.delete(permissionId);
+      } else {
+        next.add(permissionId);
+      }
+      return next;
+    });
+  };
 
-      <div className="flex items-center gap-4 self-end md:self-auto">
-        {/* Interactive Allow/Deny Selector in DB */}
-        <div className="flex items-center bg-m3-surface-container/60 rounded-lg p-0.5 border border-m3-outline/20">
-          <button
-            type="button"
-            onClick={() => handleChangePermissionEffect(p.permissionId, 'allow')}
-            disabled={overrideMutation.isPending}
-            className={`px-2 py-1 rounded-md text-[9px] font-bold transition-all ${p.isAllowed ? 'bg-emerald-500 text-white' : 'text-m3-on-surface/60 hover:text-m3-on-surface'}`}
-          >
-            <ShieldCheck className="w-3 h-3 inline mr-0.5" />
-            Allow
-          </button>
-          <button
-            type="button"
-            onClick={() => handleChangePermissionEffect(p.permissionId, 'neutral')}
-            disabled={overrideMutation.isPending}
-            className={`px-2 py-1 rounded-md text-[9px] font-bold transition-all ${!p.isAllowed && !p.isDenied ? 'bg-m3-outline/30 text-m3-on-surface' : 'text-m3-on-surface/60 hover:text-m3-on-surface'}`}
-          >
-            <Shield className="w-3 h-3 inline mr-0.5" />
-            Neutral
-          </button>
-          <button
-            type="button"
-            onClick={() => handleChangePermissionEffect(p.permissionId, 'deny')}
-            disabled={overrideMutation.isPending}
-            className={`px-2 py-1 rounded-md text-[9px] font-bold transition-all ${p.isDenied ? 'bg-rose-500 text-white' : 'text-m3-on-surface/60 hover:text-m3-on-surface'}`}
-          >
-            <ShieldAlert className="w-3 h-3 inline mr-0.5" />
-            Deny
-          </button>
-        </div>
+  const hasChanges = (p: ProfilePermissionType): boolean => {
+    if (!p.originalFromTemplate) return false;
+    return p.isOverride && (
+      p.originalFromTemplate.isAllowed !== p.isAllowed ||
+      p.originalFromTemplate.isDenied !== p.isDenied ||
+      p.originalFromTemplate.isActive !== p.isActive
+    );
+  };
 
-        {/* Interactive Toggle Switch in DB */}
-        <div className="flex items-center gap-1.5">
-          <button
-            type="button"
-            onClick={() => handleTogglePermissionActive(p.permissionId, p.isActive)}
-            disabled={activatePermMutation.isPending || deactivatePermMutation.isPending}
-            className="text-m3-primary hover:opacity-85 transition-opacity focus:outline-none"
-          >
-            {p.isActive ? (
-              <ToggleRight className="w-6 h-6 text-emerald-500 fill-emerald-500/20" />
-            ) : (
-              <ToggleLeft className="w-6 h-6 text-m3-outline" />
+  const renderPermissionRow = (p: ProfilePermissionType) => {
+    const isExpanded = expandedPermissions.has(p.permissionId);
+    const showDiff = !!p.originalFromTemplate;
+    const hasChangesFlag = hasChanges(p);
+
+    return (
+      <div key={p.permissionId} className="divide-y divide-m3-outline/5">
+        <div className={`flex flex-col md:flex-row md:items-center justify-between gap-3 p-3 text-xs transition-colors ${hasChangesFlag ? 'bg-amber-500/5 hover:bg-amber-500/10' : 'hover:bg-m3-surface-container/20'}`}>
+          <div className="flex items-start gap-2">
+            {showDiff && (
+              <button
+                type="button"
+                onClick={() => toggleExpanded(p.permissionId)}
+                className="mt-0.5 text-m3-secondary hover:text-m3-primary transition-colors"
+              >
+                {isExpanded ? (
+                  <ChevronDown className="w-4 h-4" />
+                ) : (
+                  <ChevronRight className="w-4 h-4" />
+                )}
+              </button>
             )}
-          </button>
+            <div className="space-y-0.5">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="font-bold text-m3-on-surface">{p.targetName}</span>
+                <span className="text-[9px] uppercase font-bold text-m3-primary bg-m3-primary/10 px-1.5 py-0.2 rounded border border-m3-primary/20">
+                  {p.targetType}
+                </span>
+                {p.isOverride && (
+                  <span className="text-[8px] uppercase font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.2 rounded border border-amber-500/20">
+                    Override
+                  </span>
+                )}
+                {showDiff && hasChangesFlag && (
+                  <span className="text-[8px] uppercase font-bold text-cyan-600 bg-cyan-600/10 px-1.5 py-0.2 rounded border border-cyan-600/20 flex items-center gap-0.5">
+                    <GitCompare className="w-3 h-3" />
+                    Diff
+                  </span>
+                )}
+              </div>
+              <div className="text-[10px] text-m3-on-surface/60">
+                Acción: <span className="font-medium text-m3-secondary">{p.actionName}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4 self-end md:self-auto">
+            <div className="flex items-center bg-m3-surface-container/60 rounded-lg p-0.5 border border-m3-outline/20">
+              <button
+                type="button"
+                onClick={() => handleChangePermissionEffect(p.permissionId, 'allow')}
+                disabled={overrideMutation.isPending}
+                className={`px-2 py-1 rounded-md text-[9px] font-bold transition-all ${p.isAllowed ? 'bg-emerald-500 text-white' : 'text-m3-on-surface/60 hover:text-m3-on-surface'}`}
+              >
+                <ShieldCheck className="w-3 h-3 inline mr-0.5" />
+                Allow
+              </button>
+              <button
+                type="button"
+                onClick={() => handleChangePermissionEffect(p.permissionId, 'neutral')}
+                disabled={overrideMutation.isPending}
+                className={`px-2 py-1 rounded-md text-[9px] font-bold transition-all ${!p.isAllowed && !p.isDenied ? 'bg-m3-outline/30 text-m3-on-surface' : 'text-m3-on-surface/60 hover:text-m3-on-surface'}`}
+              >
+                <Shield className="w-3 h-3 inline mr-0.5" />
+                Neutral
+              </button>
+              <button
+                type="button"
+                onClick={() => handleChangePermissionEffect(p.permissionId, 'deny')}
+                disabled={overrideMutation.isPending}
+                className={`px-2 py-1 rounded-md text-[9px] font-bold transition-all ${p.isDenied ? 'bg-rose-500 text-white' : 'text-m3-on-surface/60 hover:text-m3-on-surface'}`}
+              >
+                <ShieldAlert className="w-3 h-3 inline mr-0.5" />
+                Deny
+              </button>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => handleTogglePermissionActive(p.permissionId, p.isActive)}
+                disabled={activatePermMutation.isPending || deactivatePermMutation.isPending}
+                className="text-m3-primary hover:opacity-85 transition-opacity focus:outline-none"
+              >
+                {p.isActive ? (
+                  <ToggleRight className="w-6 h-6 text-emerald-500 fill-emerald-500/20" />
+                ) : (
+                  <ToggleLeft className="w-6 h-6 text-m3-outline" />
+                )}
+              </button>
+            </div>
+          </div>
         </div>
+
+        {isExpanded && p.originalFromTemplate && (
+          <div className="bg-m3-surface-container/5 p-3 pl-8 space-y-2">
+            <div className="text-[10px] uppercase font-bold text-m3-secondary/60 mb-2">Comparación: Original vs Actual</div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className={`rounded-lg p-2.5 border ${getEffectColor(p.originalFromTemplate.isAllowed, p.originalFromTemplate.isDenied)}`}>
+                <div className="text-[9px] uppercase font-bold mb-1 opacity-70">Original (Plantilla)</div>
+                <div className="text-xs font-semibold">{getEffectLabel(p.originalFromTemplate.isAllowed, p.originalFromTemplate.isDenied)}</div>
+                <div className="text-[10px] mt-1 opacity-70">
+                  Activo: {p.originalFromTemplate.isActive ? 'Sí' : 'No'}
+                </div>
+              </div>
+
+              <div className={`rounded-lg p-2.5 border ${getEffectColor(p.isAllowed, p.isDenied)}`}>
+                <div className="text-[9px] uppercase font-bold mb-1 opacity-70">Actual (Perfil)</div>
+                <div className="text-xs font-semibold">{getEffectLabel(p.isAllowed, p.isDenied)}</div>
+                <div className="text-[10px] mt-1 opacity-70">
+                  Activo: {p.isActive ? 'Sí' : 'No'}
+                </div>
+              </div>
+            </div>
+
+            {(p.originalFromTemplate.isAllowed !== p.isAllowed ||
+              p.originalFromTemplate.isDenied !== p.isDenied ||
+              p.originalFromTemplate.isActive !== p.isActive) && (
+              <div className="text-[10px] text-amber-600 bg-amber-500/10 rounded px-2 py-1">
+                Este permiso fue modificado respecto a su configuración original en la plantilla.
+              </div>
+            )}
+          </div>
+        )}
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <DetailPanelShell

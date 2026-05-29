@@ -89,9 +89,16 @@ export const profileService = {
     await httpClient.post(`/profiles/${profileId}/deactivate`);
   },
 
-  exportGraph: async (profileId: string, format: 'json' | 'xml' | 'csv'): Promise<string> => {
+  exportGraph: async (profileId: string, format: 'json' | 'xml' | 'yaml' | 'csv'): Promise<string> => {
     const { data } = await httpClient.get(`/profiles/${profileId}/export`, {
       params: { format },
+      responseType: 'text',
+    });
+    return data as string;
+  },
+
+  previewGraph: async (profileId: string): Promise<string> => {
+    const { data } = await httpClient.get(`/profiles/${profileId}/permission-graph`, {
       responseType: 'text',
     });
     return data as string;

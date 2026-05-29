@@ -22,7 +22,7 @@ public sealed class GetAllDocumentTypesQueryHandler : IQueryHandler<GetAllDocume
 
         var items = request.TenantId.HasValue
             ? await _repository.GetByTenantIdAsync(request.TenantId.Value, cancellationToken)
-            : await _repository.GetAllAsync(cancellationToken);
+            : await _repository.GetAllAsync(request.TenantId, cancellationToken);
 
         var query = items.Select(d => new DocumentTypeDto(
             d.Props.Id.GetValue(), d.Props.TenantId.GetValue(), d.Props.Code.GetValue(),

@@ -83,7 +83,7 @@ public class NotificationRuleQueryHandlerTests
         var r2 = MakeNotificationRule(NotificationChannel.Sms, false);
         var list = new List<NotificationRule> { r1, r2 };
 
-        _repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(list);
 
         var query = new GetAllNotificationRulesQuery(
@@ -135,7 +135,7 @@ public class NotificationRuleQueryHandlerTests
         var r2 = MakeNotificationRule(NotificationChannel.Sms, false);
         var list = new List<NotificationRule> { r1, r2 };
 
-        _repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(list);
 
         var query = new GetAllNotificationRulesQuery(

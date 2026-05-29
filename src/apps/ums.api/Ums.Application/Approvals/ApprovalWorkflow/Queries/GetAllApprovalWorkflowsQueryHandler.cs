@@ -22,7 +22,7 @@ public sealed class GetAllApprovalWorkflowsQueryHandler : IQueryHandler<GetAllAp
 
         var items = request.TenantId.HasValue
             ? await _repository.GetByTenantIdAsync(request.TenantId.Value, cancellationToken)
-            : await _repository.GetAllAsync(cancellationToken);
+            : await _repository.GetAllAsync(request.TenantId, cancellationToken);
 
         var query = items.Select(w => new ApprovalWorkflowDto(
             w.Props.Id.GetValue(), w.Props.TenantId.GetValue(), w.Props.SystemSuiteId?.GetValue(),

@@ -80,6 +80,15 @@ internal static class ConfigurationAggregateFactory
         IReadOnlyCollection<FeatureFlagEvaluationLogRecord> evaluationLogRecords,
         IReadOnlyCollection<FeatureFlagCriteriaRecord>? criteriaRecords = null)
     {
+        var audit = AuditValueObject.Load(new AuditProps
+        {
+            CreatedBy = record.CreatedBy,
+            CreatedAt = record.CreatedAtUtc,
+            UpdatedBy = record.UpdatedBy,
+            UpdatedAt = record.UpdatedAtUtc,
+            TimeSpan = record.AuditTimeSpan
+        });
+
         var props = new FeatureFlagProps(
             LoadTypedId(FeatureFlagIdType, record.Id),
             IdValueObject.Load(record.SystemSuiteId),
@@ -87,13 +96,11 @@ internal static class ConfigurationAggregateFactory
             record.FlagCode,
             DomainEnumerationMapper.FromValue<FlagType>(record.FlagTypeId),
             record.FlagTargets,
+            DomainEnumerationMapper.FromValue<FlagStatus>(record.StatusId),
             record.LinkedResourceTypeId.HasValue ? DomainEnumerationMapper.FromValue<LinkedResourceType>(record.LinkedResourceTypeId.Value) : null,
             record.LinkedResourceId.HasValue ? IdValueObject.Load(record.LinkedResourceId.Value) : null,
             record.RolloutPercentage,
-            ActorId.Create(record.CreatedBy));
-
-        props.Status = DomainEnumerationMapper.FromValue<FlagStatus>(record.StatusId);
-        SetAudit(props, record.CreatedBy, record.CreatedAtUtc, record.UpdatedBy, record.UpdatedAtUtc, record.AuditTimeSpan);
+            audit);
 
         var aggregate = Construct<FeatureFlagAggregate, FeatureFlagProps>(props);
         var logs = evaluationLogRecords.Select(RehydrateEvaluationLog).ToList();

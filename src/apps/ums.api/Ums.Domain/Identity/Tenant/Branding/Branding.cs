@@ -57,21 +57,18 @@ public sealed class Branding : Entity<Branding, BrandingProps>
     {
         var domainChanged = Props.CustomDomain?.GetValue() != settings.CustomDomain?.GetValue();
 
-        Props.Logo = settings.Logo;
-        Props.LogoFormat = settings.LogoFormat;
-        Props.PrimaryColor = settings.PrimaryColor;
-        Props.BackgroundStyle = settings.BackgroundStyle;
-        Props.HeadlineText = settings.HeadlineText;
-        Props.SecondaryText = settings.SecondaryText;
-        Props.PrimaryButtonLabel = settings.PrimaryButtonLabel;
-        Props.FooterText = settings.FooterText;
-        Props.CustomDomain = settings.CustomDomain;
-        Props.MagicLinkFallbackEnabled = settings.MagicLinkFallbackEnabled;
-
-        if (domainChanged)
-        {
-            Props.DnsVerificationStatus = DnsVerificationStatus.Pending;
-        }
+        SetProps(Props
+            .WithLogo(settings.Logo)
+            .WithLogoFormat(settings.LogoFormat)
+            .WithPrimaryColor(settings.PrimaryColor)
+            .WithBackgroundStyle(settings.BackgroundStyle)
+            .WithHeadlineText(settings.HeadlineText)
+            .WithSecondaryText(settings.SecondaryText)
+            .WithPrimaryButtonLabel(settings.PrimaryButtonLabel)
+            .WithFooterText(settings.FooterText)
+            .WithCustomDomain(settings.CustomDomain)
+            .WithMagicLinkFallbackEnabled(settings.MagicLinkFallbackEnabled)
+            .WithDnsVerificationStatus(domainChanged ? DnsVerificationStatus.Pending : Props.DnsVerificationStatus));
 
         if (!IsValid())
         {
@@ -94,7 +91,7 @@ public sealed class Branding : Entity<Branding, BrandingProps>
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        Props.DnsVerificationStatus = DnsVerificationStatus.Verified;
+        SetProps(Props.WithDnsVerificationStatus(DnsVerificationStatus.Verified));
         Props.Audit.Update(updatedBy.GetValue());
         return Result.Success();
     }
@@ -111,7 +108,7 @@ public sealed class Branding : Entity<Branding, BrandingProps>
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        Props.DnsVerificationStatus = DnsVerificationStatus.Failed;
+        SetProps(Props.WithDnsVerificationStatus(DnsVerificationStatus.Failed));
         Props.Audit.Update(updatedBy.GetValue());
         return Result.Success();
     }

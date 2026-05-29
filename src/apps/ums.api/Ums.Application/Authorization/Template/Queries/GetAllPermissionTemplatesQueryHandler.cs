@@ -44,7 +44,7 @@ public sealed class GetAllPermissionTemplatesQueryHandler : IQueryHandler<GetAll
 
         var templates = effectiveTenantId.HasValue
             ? await _templateRepository.GetByTenantIdAsync(effectiveTenantId.Value, cancellationToken)
-            : await _templateRepository.GetAllAsync(cancellationToken);
+            : await _templateRepository.GetAllAsync(effectiveTenantId, cancellationToken);
 
         if (request.SystemSuiteId.HasValue)
         {

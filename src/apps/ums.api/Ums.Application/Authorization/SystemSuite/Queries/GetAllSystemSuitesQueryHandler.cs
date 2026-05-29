@@ -36,7 +36,7 @@ public sealed class GetAllSystemSuitesQueryHandler : IQueryHandler<GetAllSystemS
 
         var systemSuites = effectiveTenantId.HasValue
             ? await _systemSuiteRepository.GetByTenantIdAsync(effectiveTenantId.Value, cancellationToken)
-            : await _systemSuiteRepository.GetAllAsync(cancellationToken);
+            : await _systemSuiteRepository.GetAllAsync(effectiveTenantId, cancellationToken);
 
         var query = systemSuites.Select(SystemSuiteDto.Map);
 

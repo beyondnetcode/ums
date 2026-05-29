@@ -22,7 +22,7 @@ public sealed class GetAllNotificationRulesQueryHandler : IQueryHandler<GetAllNo
 
         var items = request.TenantId.HasValue
             ? await _repository.GetByTenantIdAsync(request.TenantId.Value, cancellationToken)
-            : await _repository.GetAllAsync(cancellationToken);
+            : await _repository.GetAllAsync(request.TenantId, cancellationToken);
 
         var query = items.Select(r => new NotificationRuleDto(
             r.Props.Id.GetValue(), r.Props.TenantId.GetValue(), r.Props.Channel.ToString(),

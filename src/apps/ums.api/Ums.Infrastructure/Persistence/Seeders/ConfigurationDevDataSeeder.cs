@@ -33,7 +33,7 @@ public static class ConfigurationDevDataSeeder
             foreach (var cfg in configs) inMemoryAppConfigRepository.Seed(cfg);
         else if (appConfigRepository is not null)
         {
-            var existing = await appConfigRepository.GetAllAsync(cancellationToken);
+            var existing = await appConfigRepository.GetAllAsync(null, cancellationToken);
             if (existing.Count == 0)
             {
                 foreach (var cfg in configs) await appConfigRepository.AddAsync(cfg, cancellationToken);
@@ -47,7 +47,7 @@ public static class ConfigurationDevDataSeeder
             foreach (var flag in flags) inMemoryFeatureFlagRepository.Seed(flag);
         else if (featureFlagRepository is not null)
         {
-            var existing = await featureFlagRepository.GetAllAsync(cancellationToken);
+            var existing = await featureFlagRepository.GetAllAsync(null, cancellationToken);
             if (existing.Count == 0)
             {
                 foreach (var flag in flags) await featureFlagRepository.AddAsync(flag, cancellationToken);
@@ -61,7 +61,7 @@ public static class ConfigurationDevDataSeeder
             foreach (var idp in idpConfigs) inMemoryIdpConfigRepository.Seed(idp);
         else if (idpConfigRepository is not null)
         {
-            var existing = await idpConfigRepository.GetAllAsync(cancellationToken);
+            var existing = await idpConfigRepository.GetAllAsync(null, cancellationToken);
             if (existing.Count == 0)
             {
                 foreach (var idp in idpConfigs) await idpConfigRepository.AddAsync(idp, cancellationToken);
@@ -104,7 +104,7 @@ public static class ConfigurationDevDataSeeder
         // If we have the real suite repository, create flags for actual seeded suites
         if (suiteRepository is not null)
         {
-            var suites = await suiteRepository.GetAllAsync(cancellationToken);
+            var suites = await suiteRepository.GetAllAsync(null, cancellationToken);
             foreach (var suite in suites)
             {
                 var suiteId = IdValueObject.Load(suite.GetId().GetValue());

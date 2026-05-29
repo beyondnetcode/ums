@@ -16,8 +16,8 @@ public sealed class InMemoryApprovalWorkflowRepository : IApprovalWorkflowReposi
     public Task<ApprovalWorkflowAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
         => GetByIdAsync(id, cancellationToken);
 
-    public Task<IReadOnlyList<ApprovalWorkflowAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
-    { var all = _store.Values.ToList(); all.ForEach(e => e.BrokenRules.Clear()); return Task.FromResult<IReadOnlyList<ApprovalWorkflowAggregate>>(all); }
+    public Task<IReadOnlyList<ApprovalWorkflowAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
+    { var all = tenantId.HasValue ? _store.Values.Where(e => e.Props.TenantId.GetValue() == tenantId.Value).ToList() : _store.Values.ToList(); all.ForEach(e => e.BrokenRules.Clear()); return Task.FromResult<IReadOnlyList<ApprovalWorkflowAggregate>>(all); }
 
     public Task<IReadOnlyList<ApprovalWorkflowAggregate>> GetByTenantIdAsync(Guid tenantId, CancellationToken cancellationToken = default)
     { var f = _store.Values.Where(e => e.Props.TenantId.GetValue() == tenantId).ToList(); f.ForEach(e => e.BrokenRules.Clear()); return Task.FromResult<IReadOnlyList<ApprovalWorkflowAggregate>>(f); }

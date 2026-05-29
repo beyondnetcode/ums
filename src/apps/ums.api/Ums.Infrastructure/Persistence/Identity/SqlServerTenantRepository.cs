@@ -42,7 +42,7 @@ public sealed class SqlServerTenantRepository(UmsPlatformDbContext dbContext) : 
         return record is null ? null : Rehydrate(record);
     }
 
-    public async Task<IReadOnlyList<TenantAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<TenantAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
         var records = await dbContext.Tenants
             .AsSplitQuery()

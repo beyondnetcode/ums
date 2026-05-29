@@ -24,7 +24,7 @@ public sealed class GetAllIdpConfigurationsQueryHandler : IQueryHandler<GetAllId
 
         var query = (request.TenantId.HasValue
                 ? await _repository.GetByTenantIdAsync(request.TenantId.Value, cancellationToken)
-                : await _repository.GetAllAsync(cancellationToken))
+                : await _repository.GetAllAsync(request.TenantId, cancellationToken))
             .Select(configuration => new IdpConfigurationDto(
                 configuration.Props.Id.GetValue(),
                 configuration.Props.TenantId.GetValue(),

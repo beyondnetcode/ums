@@ -15,6 +15,7 @@ using Ums.Domain.Authorization;
 using Ums.Domain.Configuration;
 using Ums.Domain.IGA;
 using Ums.Domain.Identity;
+using Ums.Domain.Identity.Repositories.TenantParameter;
 using Ums.Infrastructure.Persistence.Audit;
 using Ums.Infrastructure.Persistence.Approvals;
 using Ums.Infrastructure.Persistence.Authorization;
@@ -23,10 +24,13 @@ using Ums.Infrastructure.Persistence.Configuration;
 using Ums.Infrastructure.Hosting;
 using Ums.Infrastructure.Persistence;
 using Ums.Infrastructure.Persistence.Identity;
+using Ums.Infrastructure.Persistence.Identity.TenantParameter;
 using Ums.Infrastructure.Persistence.Interceptors;
 using Ums.Infrastructure.Persistence.Options;
 using Ums.Infrastructure.Services;
 using Ums.Application.Approvals.ApprovalRequest.Services;
+using Ums.Application.Identity.Tenant.TenantParameter.Services;
+using Ums.Application.Authorization.Profile.Exporters;
 using Ums.Infrastructure.Approvals.ApprovalRequest;
 using Ums.Application.Approvals.NotificationRule.Services;
 using Ums.Infrastructure.Approvals.NotificationRule;
@@ -88,11 +92,15 @@ public static class DependencyInjection
             .AddTransient<GenericOidcIdpResolutionStrategy, GenericOidcIdpResolutionStrategy>()
             .AddTransient<ProfileJsonExporter, ProfileJsonExporter>()
             .AddTransient<ProfileXmlExporter, ProfileXmlExporter>()
+            .AddTransient<ProfileYamlExporter, ProfileYamlExporter>()
             .AddTransient<ProfileCsvExporter, ProfileCsvExporter>()
             .AddSource<NotificationRecipientStrategyFactorySetup>()
             .AddSource<ApprovalRequestCreationStrategyFactorySetup>()
             .AddSource<IdpResolutionStrategyFactorySetup>()
             .AddSource<ProfileExportFactorySetup>());
+
+        services.AddScoped<ITenantParameterProvider, TenantParameterProvider>();
+        services.AddScoped<ITenantExportConfigurationProvider, TenantExportConfigurationProvider>();
 
         // OPS-01 / HARDENING-03: Token revocation store.
         // When Redis:Connection is configured → use RedisTokenRevocationStore (all pods share state).
@@ -195,6 +203,7 @@ public static class DependencyInjection
             (persistence.Provider == PersistenceProvider.Sqlite && persistence.UseSqliteIdentityStores))
         {
             services.AddScoped<ITenantRepository, SqlServerTenantRepository>();
+            services.AddScoped<ITenantParameterRepository, SqlServerTenantParameterRepository>();
             services.AddScoped<IUserAccountRepository, SqlServerUserAccountRepository>();
             services.AddScoped<IUserManagementDelegationRepository, SqlServerUserManagementDelegationRepository>();
         }
@@ -202,6 +211,9 @@ public static class DependencyInjection
         {
             services.AddSingleton<InMemoryTenantRepository>();
             services.AddSingleton<ITenantRepository>(sp => sp.GetRequiredService<InMemoryTenantRepository>());
+
+            services.AddSingleton<InMemoryTenantParameterRepository>();
+            services.AddSingleton<ITenantParameterRepository>(sp => sp.GetRequiredService<InMemoryTenantParameterRepository>());
 
             services.AddSingleton<InMemoryUserAccountRepository>();
             services.AddSingleton<IUserAccountRepository>(sp => sp.GetRequiredService<InMemoryUserAccountRepository>());

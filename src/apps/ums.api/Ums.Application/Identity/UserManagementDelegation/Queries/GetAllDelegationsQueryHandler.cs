@@ -17,7 +17,7 @@ public sealed class GetAllDelegationsQueryHandler : IQueryHandler<GetAllDelegati
         GetAllDelegationsQuery request,
         CancellationToken cancellationToken)
     {
-        var delegations = await _repository.GetAllAsync(cancellationToken);
+        var delegations = await _repository.GetAllAsync(null, cancellationToken);
         var dtos = delegations.Select(GetDelegationByIdQueryHandler.ToDto).ToList();
         return Result<IReadOnlyList<DelegationDto>>.Success(dtos);
     }

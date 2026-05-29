@@ -37,8 +37,7 @@ public sealed class DomainResource : Entity<DomainResource, DomainResourceProps>
 
     public Result Update(Name name, Description description, ActorId updatedBy)
     {
-        Props.Name = name;
-        Props.Description = description;
+        SetProps(Props.WithName(name).WithDescription(description));
 
         if (!IsValid())
         {

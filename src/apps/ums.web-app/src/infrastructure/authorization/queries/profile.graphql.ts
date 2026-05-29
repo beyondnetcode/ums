@@ -83,6 +83,17 @@ const GET_PROFILE_BY_ID = `
         isDenied
         isActive
         isOverride
+        originalFromTemplate {
+          itemId
+          targetType
+          targetId
+          targetName
+          actionId
+          actionName
+          isAllowed
+          isDenied
+          isActive
+        }
       }
     }
   }

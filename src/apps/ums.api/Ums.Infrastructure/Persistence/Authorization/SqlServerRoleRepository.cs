@@ -21,8 +21,12 @@ public sealed class SqlServerRoleRepository(UmsPlatformDbContext dbContext) : IR
         return record is null ? null : AuthorizationAggregateFactory.RehydrateRole(record);
     }
 
-    public Task<RoleAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
-        => GetByIdAsync(id, cancellationToken);
+    public async Task<RoleAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
+    {
+        var record = await dbContext.Roles.FirstOrDefaultAsync(
+            x => x.TenantId == tenantId && x.Id == id, cancellationToken);
+        return record is null ? null : AuthorizationAggregateFactory.RehydrateRole(record);
+    }
 
     public async Task<RoleAggregate?> GetByCodeAsync(Guid systemSuiteId, Code code, CancellationToken cancellationToken = default)
     {

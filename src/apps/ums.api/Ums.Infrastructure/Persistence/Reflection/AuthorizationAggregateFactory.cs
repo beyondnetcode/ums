@@ -39,6 +39,15 @@ internal static class AuthorizationAggregateFactory
         ProfileRecord profileRecord,
         IReadOnlyCollection<ProfilePermissionRecord> permissionRecords)
     {
+        var audit = AuditValueObject.Load(new AuditProps
+        {
+            CreatedBy = profileRecord.CreatedBy,
+            CreatedAt = profileRecord.CreatedAtUtc,
+            UpdatedBy = profileRecord.UpdatedBy,
+            UpdatedAt = profileRecord.UpdatedAtUtc,
+            TimeSpan = profileRecord.AuditTimeSpan
+        });
+
         var props = new ProfileProps(
             ProfileId.Load(profileRecord.Id),
             TenantId.Load(profileRecord.TenantId),
@@ -46,10 +55,8 @@ internal static class AuthorizationAggregateFactory
             RoleId.Load(profileRecord.RoleId),
             profileRecord.BranchId.HasValue ? BranchId.Load(profileRecord.BranchId.Value) : null,
             DomainEnumerationMapper.FromValue<ProfileScope>(profileRecord.ScopeId),
-            ActorId.Create(profileRecord.CreatedBy));
-
-        props.IsActive = profileRecord.IsActive;
-        SetAudit(props, profileRecord.CreatedBy, profileRecord.CreatedAtUtc, profileRecord.UpdatedBy, profileRecord.UpdatedAtUtc, profileRecord.AuditTimeSpan);
+            profileRecord.IsActive,
+            audit);
 
         var profile = Construct<ProfileAggregate, ProfileProps>(props);
         var permissions = permissionRecords.Select(RehydratePermission).ToList();
@@ -141,6 +148,15 @@ internal static class AuthorizationAggregateFactory
 
     public static RoleAggregate RehydrateRole(RoleRecord record)
     {
+        var audit = AuditValueObject.Load(new AuditProps
+        {
+            CreatedBy = record.CreatedBy,
+            CreatedAt = record.CreatedAtUtc,
+            UpdatedBy = record.UpdatedBy,
+            UpdatedAt = record.UpdatedAtUtc,
+            TimeSpan = record.AuditTimeSpan
+        });
+
         var props = new RoleProps(
             IdValueObject.Load(record.Id),
             TenantId.Load(record.TenantId),
@@ -151,10 +167,8 @@ internal static class AuthorizationAggregateFactory
             Description.Create(record.Description),
             record.HierarchyLevel,
             record.PromotionOrder,
-            ActorId.Create(record.CreatedBy));
-
-        props.IsActive = record.IsActive;
-        SetAudit(props, record.CreatedBy, record.CreatedAtUtc, record.UpdatedBy, record.UpdatedAtUtc, record.AuditTimeSpan);
+            record.IsActive,
+            audit);
 
         var aggregate = Construct<RoleAggregate, RoleProps>(props);
         aggregate.DomainEvents.MarkChangesAsCommitted();

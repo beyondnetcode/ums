@@ -16,8 +16,8 @@ public sealed class InMemoryRoleMaturityStatusRepository : IRoleMaturityStatusRe
     public Task<RoleMaturityStatusAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
         => GetByIdAsync(id, cancellationToken);
 
-    public Task<IReadOnlyList<RoleMaturityStatusAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
-    { var all = _store.Values.ToList(); all.ForEach(e => e.BrokenRules.Clear()); return Task.FromResult<IReadOnlyList<RoleMaturityStatusAggregate>>(all); }
+    public Task<IReadOnlyList<RoleMaturityStatusAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
+    { var all = tenantId.HasValue ? _store.Values.Where(e => e.Props.TenantId.GetValue() == tenantId.Value).ToList() : _store.Values.ToList(); all.ForEach(e => e.BrokenRules.Clear()); return Task.FromResult<IReadOnlyList<RoleMaturityStatusAggregate>>(all); }
 
     public Task<IReadOnlyList<RoleMaturityStatusAggregate>> GetByTenantIdAsync(Guid tenantId, CancellationToken cancellationToken = default)
     { var f = _store.Values.Where(e => e.Props.TenantId.GetValue() == tenantId).ToList(); f.ForEach(e => e.BrokenRules.Clear()); return Task.FromResult<IReadOnlyList<RoleMaturityStatusAggregate>>(f); }

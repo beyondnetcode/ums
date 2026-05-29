@@ -47,7 +47,7 @@ public class DelegationQueryHandlerTests
     {
         var d1 = MakeDelegation();
         var d2 = MakeDelegation();
-        _repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(new List<UserManagementDelegation> { d1, d2 });
 
         var handler = new GetAllDelegationsQueryHandler(_repo.Object);
@@ -55,13 +55,13 @@ public class DelegationQueryHandlerTests
 
         Assert.True(result.IsSuccess);
         Assert.Equal(2, result.Value.Count);
-        _repo.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _repo.Verify(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task GetAll_WhenEmpty_ReturnsEmptyList()
     {
-        _repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(new List<UserManagementDelegation>());
 
         var handler = new GetAllDelegationsQueryHandler(_repo.Object);

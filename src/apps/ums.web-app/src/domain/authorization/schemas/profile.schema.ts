@@ -5,6 +5,18 @@ const guidSchema = z.string().regex(
   'Invalid GUID format',
 );
 
+export const TemplateItemOriginalSchema = z.object({
+  itemId: guidSchema,
+  targetType: z.string(),
+  targetId: guidSchema,
+  targetName: z.string(),
+  actionId: guidSchema,
+  actionName: z.string(),
+  isAllowed: z.boolean(),
+  isDenied: z.boolean(),
+  isActive: z.boolean(),
+});
+
 export const ProfilePermissionSchema = z.object({
   permissionId: guidSchema,
   profileId: guidSchema,
@@ -18,6 +30,7 @@ export const ProfilePermissionSchema = z.object({
   isDenied: z.boolean(),
   isActive: z.boolean(),
   isOverride: z.boolean(),
+  originalFromTemplate: TemplateItemOriginalSchema.nullable().optional(),
 });
 
 export const ProfileSchema = z.object({

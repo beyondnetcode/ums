@@ -22,7 +22,7 @@ public sealed class GetAllAppConfigurationsQueryHandler : IQueryHandler<GetAllAp
         var sortOrder = NormalizeText(request.SortOrder, "asc").ToLowerInvariant();
         var scope = NormalizeSearch(request.Scope);
 
-        var query = (await _repository.GetAllAsync(cancellationToken))
+        var query = (await _repository.GetAllAsync(null, cancellationToken))
             .Select(configuration => new AppConfigurationDto(
                 configuration.Props.Id.GetValue(),
                 configuration.Props.TenantId?.GetValue(),

@@ -11,7 +11,7 @@ interface Props {
   profileId: string;
 }
 
-type ExportFormat = 'JSON' | 'XML' | 'CSV';
+type ExportFormat = 'JSON' | 'XML' | 'YAML' | 'CSV';
 
 export const M3AuthorizationGraphPanel: React.FC<Props> = ({ isOpen, onClose, profileId }) => {
   const [format, setFormat] = useState<ExportFormat>('JSON');
@@ -27,10 +27,9 @@ export const M3AuthorizationGraphPanel: React.FC<Props> = ({ isOpen, onClose, pr
       setLoading(true);
       setError('');
       try {
-        const rawFormat = format.toLowerCase() as 'json' | 'xml' | 'csv';
+        const rawFormat = format.toLowerCase() as 'json' | 'xml' | 'yaml' | 'csv';
         const res = await profileService.exportGraph(profileId, rawFormat);
-        
-        // If JSON, format nicely just in case
+
         if (format === 'JSON') {
           try {
             const parsed = JSON.parse(res);
@@ -41,8 +40,9 @@ export const M3AuthorizationGraphPanel: React.FC<Props> = ({ isOpen, onClose, pr
         } else {
           setContent(res);
         }
-      } catch {
-        setError('Error al generar el grafo en el servidor.');
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Error al generar el grafo en el servidor.';
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -60,7 +60,14 @@ export const M3AuthorizationGraphPanel: React.FC<Props> = ({ isOpen, onClose, pr
 
   const handleDownload = () => {
     if (!content) return;
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const mimeTypes: Record<string, string> = {
+      json: 'application/json',
+      xml: 'application/xml',
+      yaml: 'application/x-yaml',
+      csv: 'text/csv',
+    };
+    const mimeType = mimeTypes[format.toLowerCase()] || 'text/plain';
+    const blob = new Blob([content], { type: `${mimeType};charset=utf-8` });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -75,7 +82,7 @@ export const M3AuthorizationGraphPanel: React.FC<Props> = ({ isOpen, onClose, pr
     <M3FormDialog
       open={isOpen}
       onClose={onClose}
-      title="Grafo de Autorización Efectiva (AOP Factory)"
+      title="Grafo de Autorización Efectiva"
       icon={<Share2 className="w-4 h-4 text-m3-primary" />}
       maxWidth="max-w-4xl"
       footer={
@@ -119,20 +126,19 @@ export const M3AuthorizationGraphPanel: React.FC<Props> = ({ isOpen, onClose, pr
           Este grafo consolidado y jerárquico representa las asignaciones de acceso efectivas resueltas dinámicamente en el servidor backend mediante nuestro framework corporativo <span className="font-bold">Ums.Shell.Factory</span>.
         </p>
 
-        {/* Format Selector using our standard segment bar */}
         <div className="flex justify-center">
           <M3SegmentedButton
             segments={[
-              { id: 'JSON', label: 'JSON Graph' },
-              { id: 'XML', label: 'XML Tree' },
-              { id: 'CSV', label: 'CSV Tabular' },
+              { id: 'JSON', label: 'JSON' },
+              { id: 'XML', label: 'XML' },
+              { id: 'YAML', label: 'YAML' },
+              { id: 'CSV', label: 'CSV' },
             ]}
             activeId={format}
             onChange={(id) => setFormat(id as ExportFormat)}
           />
         </div>
 
-        {/* Preview Screen */}
         <div className="relative rounded-xl border border-m3-outline/20 bg-zinc-950 p-4 font-mono text-xs text-zinc-300 min-h-[250px] max-h-[400px] overflow-auto shadow-inner">
           {loading ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-zinc-950/80">
@@ -142,7 +148,7 @@ export const M3AuthorizationGraphPanel: React.FC<Props> = ({ isOpen, onClose, pr
           ) : error ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-4 text-center text-rose-500 bg-zinc-950/80">
               <FileCode className="w-8 h-8 opacity-40" />
-              <span>{error}</span>
+              <span className="text-xs">{error}</span>
             </div>
           ) : !content ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-500 bg-zinc-950/80">

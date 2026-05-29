@@ -20,9 +20,11 @@ public sealed class InMemoryIdpConfigurationRepository : IIdpConfigurationReposi
     public Task<IdpConfigurationAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
         => GetByIdAsync(id, cancellationToken);
 
-    public Task<IReadOnlyList<IdpConfigurationAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<IdpConfigurationAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
-        var items = _store.Values.ToList();
+        var items = tenantId.HasValue
+            ? _store.Values.Where(item => item.Props.TenantId.GetValue() == tenantId.Value).ToList()
+            : _store.Values.ToList();
         items.ForEach(item => item.BrokenRules.Clear());
         return Task.FromResult<IReadOnlyList<IdpConfigurationAggregate>>(items);
     }

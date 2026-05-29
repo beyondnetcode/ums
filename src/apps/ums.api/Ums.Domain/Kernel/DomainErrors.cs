@@ -133,6 +133,12 @@ public static class DomainErrors
         public const string FlagAlreadyActive           = "configuration.flag_already_active";
         public const string FlagAlreadyInactive         = "configuration.flag_already_inactive";
         public const string FlagPercentageOutOfRange    = "configuration.flag_percentage_out_of_range";
+        public const string SystemSuiteIdRequired       = "configuration.system_suite_id_required";
+        public const string DuplicateCriteria           = "configuration.duplicate_criteria";
+        public const string CriteriaNotFound            = "configuration.criteria_not_found";
+        public const string CriteriaTypeRequired        = "configuration.criteria_type_required";
+        public const string CriteriaOperatorRequired    = "configuration.criteria_operator_required";
+        public const string CriteriaValueRequired       = "configuration.criteria_value_required";
     }
 
     public static class Audit
@@ -172,6 +178,16 @@ public static class DomainErrors
         public const string PromotionAlreadyExecuted = "iga.promotion_already_executed";
         public const string PromotionAlreadyRejected = "iga.promotion_already_rejected";
         public const string ImpactAnalysisAlreadyExists = "iga.impact_analysis_already_exists";
+    }
+
+    public static class TenantParameter
+    {
+        public const string CodeNotUnique = "tenant_parameter.code_not_unique";
+        public const string NotFound = "tenant_parameter.not_found";
+        public const string InvalidValueType = "tenant_parameter.invalid_value_type";
+        public const string ValueNotInAllowedList = "tenant_parameter.value_not_in_allowed_list";
+        public const string CannotDeactivateActive = "tenant_parameter.cannot_deactivate_active";
+        public const string CannotDeleteWithChildren = "tenant_parameter.cannot_delete_with_children";
     }
 
     public static class ValueObject
