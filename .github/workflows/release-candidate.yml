@@ -1,0 +1,253 @@
+name: Release Candidate Pipeline
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'release/**'
+  push:
+    branches: [main]
+    paths:
+      - 'release/**'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., v1.2.0)'
+        required: true
+        type: string
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  DOTNET_VERSION: '10.x'
+  NODE_VERSION: '20'
+
+jobs:
+  pre-release-validation:
+    name: Pre-Release Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version from branch
+        run: |
+          BRANCH_NAME=${GITHUB_REF#refs/heads/}
+          VERSION=${BRANCH_NAME#release/v}
+          echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Release version: $VERSION"
+
+      - name: Verify version format
+        run: |
+          if ! echo "$RELEASE_VERSION" | grep -qE '^v?[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "ERROR: Invalid version format: $RELEASE_VERSION"
+            exit 1
+          fi
+
+      - name: Check release checklist exists
+        run: |
+          if [ ! -f ".github/RELEASE_CHECKLIST.md" ]; then
+            echo "WARNING: .github/RELEASE_CHECKLIST.md not found"
+          else
+            echo "Release checklist found"
+          fi
+
+  full-build:
+    name: Full Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Build backend
+        run: |
+          dotnet restore src/apps/ums.api/Ums.sln
+          dotnet build src/apps/ums.api/Ums.sln --configuration Release --no-restore
+
+      - name: Build frontend
+        run: |
+          npm ci
+          npx nx run-many --target=build --configuration=release
+
+      - name: Run all tests
+        run: |
+          dotnet test src/apps/ums.api/Ums.sln --configuration Release --no-build --logger "console;verbosity=minimal"
+          npx nx run-many --target=test --configuration=release
+
+  security-validation:
+    name: Security Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run security pipeline
+        uses: ./.github/workflows/security.yml
+        with:
+          ref: ${{ github.ref }}
+
+  documentation-version-log:
+    name: Documentation Version Log Update
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check documentation version log
+        run: |
+          if [ -f "docs/VERSION_LOG.md" ]; then
+            echo "Documentation version log found"
+            # Add entry for this release
+            echo "## Release $RELEASE_VERSION ($(date -u))" >> docs/VERSION_LOG.md
+            echo "- Commit: $GITHUB_SHA" >> docs/VERSION_LOG.md
+            echo "- Author: $GITHUB_ACTOR" >> docs/VERSION_LOG.md
+          else
+            echo "WARNING: docs/VERSION_LOG.md not found - please create one"
+          fi
+
+  changelog-validation:
+    name: Changelog Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check CHANGELOG.md
+        run: |
+          if [ -f "CHANGELOG.md" ]; then
+            echo "CHANGELOG.md found"
+
+            # Verify this version is documented
+            if ! grep -q "$RELEASE_VERSION" CHANGELOG.md; then
+              echo "ERROR: Version $RELEASE_VERSION not found in CHANGELOG.md"
+              exit 1
+            fi
+          else
+            echo "WARNING: CHANGELOG.md not found"
+          fi
+
+  release-artifacts:
+    name: Prepare Release Artifacts
+    runs-on: ubuntu-latest
+    needs: [full-build]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create release directory
+        run: |
+          mkdir -p release-artifacts
+
+      - name: Copy build artifacts
+        run: |
+          cp -r src/apps/ums.api/bin/Release release-artifacts/backend 2>/dev/null || true
+          cp -r src/apps/ums.web-app/dist release-artifacts/frontend 2>/dev/null || true
+
+      - name: Create version manifest
+        run: |
+          cat > release-artifacts/VERSION.json << EOF
+          {
+            "version": "$RELEASE_VERSION",
+            "commit": "$GITHUB_SHA",
+            "date": "$(date -u)",
+            "author": "$GITHUB_ACTOR",
+            "repository": "$GITHUB_REPOSITORY"
+          }
+          EOF
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-artifacts-${{ env.RELEASE_VERSION }}
+          path: release-artifacts/
+          retention-days: 30
+
+  release-checklist:
+    name: Release Checklist Review
+    runs-on: ubuntu-latest
+    steps:
+      - name: Display release checklist
+        run: |
+          echo "# Release Checklist for $RELEASE_VERSION"
+          echo ""
+          echo "## Pre-Release (Must Complete)"
+          echo "- [ ] All tests passing in this pipeline"
+          echo "- [ ] Security scan clean"
+          echo "- [ ] Documentation version log updated"
+          echo "- [ ] CHANGELOG.md updated"
+          echo "- [ ] Version numbers bumped"
+          echo ""
+          echo "## Validation"
+          echo "- [ ] Integration tests passed"
+          echo "- [ ] Performance benchmarks passed (if applicable)"
+          echo "- [ ] Migration scripts tested"
+          echo ""
+          echo "## Approval"
+          echo "- [ ] Architecture team review"
+          echo "- [ ] Security team review"
+          echo "- [ ] Product owner sign-off"
+          echo ""
+          echo "## Release"
+          echo "- [ ] Git tag created: git tag $RELEASE_VERSION"
+          echo "- [ ] GitHub Release created with release notes"
+          echo "- [ ] Announcement sent to stakeholders"
+
+  release-approval:
+    name: Release Approval Gate
+    runs-on: ubuntu-latest
+    needs: [pre-release-validation, full-build, security-validation, changelog-validation]
+    if: always()
+    steps:
+      - name: Evaluate release gates
+        run: |
+          FAILED=0
+
+          if [ "${{ needs.pre-release-validation.result }}" == "failure" ]; then
+            echo "❌ Pre-release validation failed"
+            FAILED=1
+          fi
+
+          if [ "${{ needs.full-build.result }}" == "failure" ]; then
+            echo "❌ Full build failed"
+            FAILED=1
+          fi
+
+          if [ "${{ needs.security-validation.result }}" == "failure" ]; then
+            echo "❌ Security validation failed"
+            FAILED=1
+          fi
+
+          if [ "${{ needs.changelog-validation.result }}" == "failure" ]; then
+            echo "❌ Changelog validation failed"
+            FAILED=1
+          fi
+
+          if [ $FAILED -eq 1 ]; then
+            echo "Release approval gates FAILED"
+            exit 1
+          fi
+
+          echo "✅ All release approval gates passed"
+          echo ""
+          echo "Ready to create release tag and GitHub Release"
+          echo "Version: $RELEASE_VERSION"
+          echo "Commit: $GITHUB_SHA"

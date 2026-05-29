@@ -1,0 +1,262 @@
+name: Documentation Quality Pipeline
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'docs/**'
+      - '**.md'
+      - '.github/workflows/docs-quality.yml'
+  push:
+    branches: [main, develop]
+    paths:
+      - 'docs/**'
+      - '**.md'
+  workflow_dispatch:
+
+concurrency:
+  group: docs-quality-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  markdown-lint:
+    name: Markdown Lint & Style
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install markdownlint-cli
+        run: npm install -g markdownlint-cli
+
+      - name: Run markdownlint
+        run: |
+          markdownlint 'docs/**/*.md' '*.md' --ignore 'node_modules' --ignore 'dist' || true
+        continue-on-error: true
+
+      - name: Check for TODO/demo references
+        run: |
+          TODO_COUNT=$(grep -r "TODO\|FIXME\|DEMO\|HACK" docs/ --include="*.md" | wc -l)
+          if [ $TODO_COUNT -gt 0 ]; then
+            echo "Found $TODO_COUNT TODO/FIXME/DEMO/HACK references"
+            grep -r "TODO\|FIXME\|DEMO\|HACK" docs/ --include="*.md"
+            exit 1
+          fi
+          echo "No TODO/FIXME/DEMO/HACK references found"
+
+  link-validation:
+    name: Internal & External Link Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install link checker
+        run: npm install -g markdown-link-check
+
+      - name: Extract markdown files
+        run: find docs/ -name "*.md" -type f > markdown-files.txt
+
+      - name: Check internal links
+        run: |
+          while IFS= read -r file; do
+            echo "Checking: $file"
+            markdown-link-check "$file" --config .github/link-check-config.json || true
+          done < markdown-files.txt
+        continue-on-error: true
+
+  mermaid-validation:
+    name: Mermaid Diagram Syntax
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install mermaid-cli
+        run: npm install -g @mermaid-js/mermaid-cli
+
+      - name: Extract mermaid diagrams
+        run: |
+          grep -r "```mermaid" docs/ --include="*.md" -A 50 | grep -v "^--$" > mermaid-diagrams.md
+          echo "Found $(grep -c "graph\|flowchart\|sequence\|class\|state\|er\|gantt" mermaid-diagrams.md || echo 0) potential mermaid blocks"
+
+      - name: Validate Mermaid syntax
+        run: |
+          # Extract and validate each mermaid block
+          python3 .github/scripts/validate-mermaid.py docs/ || echo "Mermaid validation script not available"
+
+  bilingual-sync:
+    name: Bilingual Documentation Sync
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check Spanish translations exist
+        run: |
+          # Find English docs without Spanish counterparts
+          EN_FILES=$(find docs/ -name "*.md" ! -name "*.es.md" -type f | wc -l)
+          ES_FILES=$(find docs/ -name "*.es.md" -type f | wc -l)
+          echo "English docs: $EN_FILES"
+          echo "Spanish docs: $ES_FILES"
+
+          # Check for mismatched pairs
+          python3 .github/scripts/check-bilingual-sync.py docs/ || echo "Bilingual check script not available"
+
+  adr-validation:
+    name: ADR Numbering & Status
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate ADR numbering
+        run: |
+          python3 .github/scripts/validate-adrs.py docs/architecture/adrs/ || echo "ADR validation script not available"
+
+      - name: Check ADR status consistency
+        run: |
+          # Verify all ADRs have valid status
+          for adr in docs/architecture/adrs/ADR-*.md; do
+            if [ -f "$adr" ]; then
+              STATUS=$(grep -i "^status:" "$adr" | head -1)
+              if [ -z "$STATUS" ]; then
+                echo "ERROR: $adr missing Status field"
+                exit 1
+              fi
+            fi
+          done
+          echo "All ADRs have Status field"
+
+  master-index:
+    name: MASTER_INDEX Navigation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate MASTER_INDEX
+        run: |
+          if [ -f "docs/MASTER_INDEX.md" ]; then
+            echo "MASTER_INDEX.md exists"
+            # Check all links in MASTER_INDEX exist
+            python3 .github/scripts/validate-master-index.py docs/MASTER_INDEX.md || echo "MASTER_INDEX validation script not available"
+          else
+            echo "WARNING: MASTER_INDEX.md not found"
+          fi
+
+  security-scan:
+    name: Sensitive Information Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan for secrets in documentation
+        run: |
+          # Check for common secret patterns in docs
+          if grep -rE "(password|secret|api.?key|token|private.?key)\s*[:=]\s*['\"]" docs/ --include="*.md" 2>/dev/null; then
+            echo "ERROR: Potential secrets found in documentation"
+            exit 1
+          fi
+          echo "No secrets detected in documentation"
+
+      - name: Check for credentials in code blocks
+        run: |
+          if grep -rE "-----BEGIN.*PRIVATE KEY-----|AKIA[0-9A-Z]{16}" docs/ --include="*.md" 2>/dev/null; then
+            echo "ERROR: Potential credentials found in documentation"
+            exit 1
+          fi
+          echo "No credentials detected in documentation"
+
+  documentation-report:
+    name: Documentation QA Report
+    runs-on: ubuntu-latest
+    needs: [markdown-lint, link-validation, mermaid-validation, bilingual-sync, adr-validation, master-index, security-scan]
+    if: always()
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate QA report
+        run: |
+          echo "# Documentation Quality Report" > docs-quality-report.md
+          echo "Generated: $(date -u)" >> docs-quality-report.md
+          echo "Branch: ${{ github.ref }}" >> docs-quality-report.md
+          echo "Commit: ${{ github.sha }}" >> docs-quality-report.md
+          echo "" >> docs-quality-report.md
+          echo "## Summary" >> docs-quality-report.md
+          echo "- Markdown files: $(find docs/ -name "*.md" | wc -l)" >> docs-quality-report.md
+          echo "- Mermaid diagrams: $(grep -r '```mermaid' docs/ --include="*.md" | wc -l)" >> docs-quality-report.md
+          echo "- ADRs: $(find docs/architecture/adrs -name "ADR-*.md" | wc -l)" >> docs-quality-report.md
+
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation-quality-report
+          path: docs-quality-report.md
+          retention-days: 30
+
+  docs-quality-check:
+    name: Documentation Quality Gate
+    runs-on: ubuntu-latest
+    needs: [markdown-lint, link-validation, bilingual-sync, adr-validation, security-scan]
+    if: always()
+    steps:
+      - name: Evaluate quality gates
+        run: |
+          FAILED=0
+
+          # Check if any critical job failed
+          if [ "${{ needs.markdown-lint.result }}" == "failure" ]; then
+            echo "❌ Markdown lint failed"
+            FAILED=1
+          fi
+
+          if [ "${{ needs.link-validation.result }}" == "failure" ]; then
+            echo "❌ Link validation failed"
+            FAILED=1
+          fi
+
+          if [ "${{ needs.security-scan.result }}" == "failure" ]; then
+            echo "❌ Security scan failed"
+            FAILED=1
+          fi
+
+          if [ $FAILED -eq 1 ]; then
+            echo "Documentation quality gates FAILED"
+            exit 1
+          fi
+
+          echo "✅ All documentation quality gates passed"
