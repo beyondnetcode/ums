@@ -13,12 +13,17 @@
  */
 import { useAuthStore } from '@app/stores/auth.store';
 
+export const CSRF_TOKEN_KEY = 'ums_csrf_token' as const;
+
+const DEFAULT_CSP = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none';";
+
 const SECURITY_HEADERS = {
   'X-Content-Type-Options': 'nosniff',
   'X-Frame-Options': 'DENY',
   'X-XSS-Protection': '1; mode=block',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
   'Permissions-Policy': 'geolocation=(), microphone=(), camera=()',
+  'Content-Security-Policy': DEFAULT_CSP,
 } as const;
 
 export interface SecurityInterceptorConfig {
@@ -57,14 +62,14 @@ class SecurityInterceptor {
 
   private storeCsrfToken(token: string): void {
     try {
-      sessionStorage.setItem('ums_csrf_token', token);
+      sessionStorage.setItem(CSRF_TOKEN_KEY, token);
     } catch {
     }
   }
 
   private getStoredCsrfToken(): string | null {
     try {
-      return sessionStorage.getItem('ums_csrf_token');
+      return sessionStorage.getItem(CSRF_TOKEN_KEY);
     } catch {
       return null;
     }
@@ -121,19 +126,19 @@ class SecurityInterceptor {
       const parsed = new URL(url, this.baseUrl);
 
       if (import.meta.env.PROD && parsed.protocol !== 'https:') {
-        console.error('Security: Insecure URL in production:', url);
+        console.warn('Security: Insecure URL blocked in production');
         return false;
       }
 
       const allowedOrigins = [this.baseUrl];
       if (!allowedOrigins.some((origin) => parsed.origin === origin)) {
-        console.error('Security: Unauthorized origin:', parsed.origin);
+        console.warn('Security: Unauthorized origin blocked');
         return false;
       }
 
       return true;
     } catch {
-      console.error('Security: Invalid URL:', url);
+      console.warn('Security: Invalid URL format rejected');
       return false;
     }
   }

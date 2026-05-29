@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 public class ProfileQueryHandlerTests
 {
     private readonly Mock<IProfileRepository> _repo = new();
+    private readonly Mock<IPermissionTemplateRepository> _templateRepo = new();
     private readonly Mock<IRoleRepository> _roleRepo = new();
     private readonly Mock<ISystemSuiteRepository> _suiteRepo = new();
     private readonly Mock<ITenantRepository> _tenantRepo = new();
@@ -33,6 +34,8 @@ public class ProfileQueryHandlerTests
                         .ReturnsAsync(new List<Ums.Domain.Identity.UserAccount.UserAccount>());
         _suiteRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
                   .ReturnsAsync((Ums.Domain.Authorization.SystemSuite.SystemSuite?)null);
+        _templateRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                     .ReturnsAsync((Ums.Domain.Authorization.Template.PermissionTemplate?)null);
         _userContext.Setup(c => c.TenantId).Returns(Guid.NewGuid().ToString());
         _userContext.Setup(c => c.UserId).Returns(Guid.NewGuid().ToString());
     }
@@ -65,7 +68,7 @@ public class ProfileQueryHandlerTests
              .ReturnsAsync(profile);
 
         var query = new GetProfileByIdQuery(Guid.NewGuid());
-        var handler = new GetProfileByIdQueryHandler(_repo.Object, null, _roleRepo.Object, _suiteRepo.Object, _tenantRepo.Object, _userAccountRepo.Object);
+        var handler = new GetProfileByIdQueryHandler(_repo.Object, _templateRepo.Object, _roleRepo.Object, _suiteRepo.Object, _tenantRepo.Object, _userAccountRepo.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -79,7 +82,7 @@ public class ProfileQueryHandlerTests
              .ReturnsAsync((Profile?)null);
 
         var query = new GetProfileByIdQuery(Guid.NewGuid());
-        var handler = new GetProfileByIdQueryHandler(_repo.Object, null, _roleRepo.Object, _suiteRepo.Object, _tenantRepo.Object, _userAccountRepo.Object);
+        var handler = new GetProfileByIdQueryHandler(_repo.Object, _templateRepo.Object, _roleRepo.Object, _suiteRepo.Object, _tenantRepo.Object, _userAccountRepo.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsFailure);
