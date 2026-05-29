@@ -29,6 +29,13 @@ public sealed class CreateUserAccountCommandHandler : ICommandHandler<CreateUser
             return Result<CreateUserAccountResponse>.Failure("Authenticated user is required to create a user account.");
         }
 
+        if (!string.IsNullOrWhiteSpace(_userContext.TenantId) &&
+            !string.Equals(request.TenantId.ToString(), _userContext.TenantId, StringComparison.OrdinalIgnoreCase))
+        {
+            return Result<CreateUserAccountResponse>.Failure(
+                $"Tenant mismatch. User belongs to tenant '{_userContext.TenantId}', but request targets '{request.TenantId}'.");
+        }
+
         var email = Email.Create(request.Email);
         var existingUser = await _userAccountRepository.GetByEmailAsync(email, cancellationToken);
         if (existingUser is not null)

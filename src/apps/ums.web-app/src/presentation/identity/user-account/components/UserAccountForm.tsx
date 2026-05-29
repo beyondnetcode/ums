@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useCreateUserAccount } from '@app/identity/hooks/use-user-account';
 import { useI18n } from '@app/i18n/use-i18n';
 import { useFormValidation } from '@app/hooks';
+import { useAuthStore } from '@app/stores/auth.store';
 import { M3Button } from '@shared/components/M3Button';
 import { M3TextField } from '@shared/components/M3TextField';
 import { SearchableSelect } from '@shared/components/SearchableSelect';
@@ -21,18 +22,25 @@ export const UserAccountForm: React.FC<UserAccountFormProps> = ({ isOpen, onClos
   const createUserAccountMutation = useCreateUserAccount();
   const t = useI18n();
 
+  const sessionTenantId = useAuthStore((state) => state.user?.tenantId);
+  const effectiveTenantId = tenantId || sessionTenantId;
+
   const [email, setEmail] = useState('');
   const [category, setCategory] = useState('Internal');
   const [identityReference, setIdentityReference] = useState('');
   const [identityReferenceType, setIdentityReferenceType] = useState('HrId');
-  
+
   const { errors, validate, clearErrors } = useFormValidation(CreateUserAccountPayloadSchema);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!effectiveTenantId) {
+      return;
+    }
+
     const payload = {
-      tenantId: tenantId || 'f3e2d1c0-b9a8-7f6e-5d4c-321098765432',
+      tenantId: effectiveTenantId,
       branchId: null,
       email,
       category: category as 'Internal' | 'External' | 'B2B' | 'Partner' | 'ServiceAccount',

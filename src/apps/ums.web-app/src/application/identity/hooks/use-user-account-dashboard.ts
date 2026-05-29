@@ -42,7 +42,7 @@ export interface UserAccountDashboardActions {
   patchAccount: (accountId: string, patch: Partial<UserAccount>) => void;
 }
 
-export function useUserAccountDashboard(): UserAccountDashboardState & UserAccountDashboardActions & {
+export function useUserAccountDashboard(sessionTenantId?: string): UserAccountDashboardState & UserAccountDashboardActions & {
   knownAccounts: UserAccount[];
   isLoadingList: boolean;
   listError: Error | null;
@@ -54,7 +54,7 @@ export function useUserAccountDashboard(): UserAccountDashboardState & UserAccou
   requiresFilter: boolean;
 } {
   const [selectedId, setSelectedId] = useState('');
-  const [selectedTenantId, setSelectedTenantId] = useState('');
+  const [selectedTenantId, setSelectedTenantId] = useState(sessionTenantId || '');
   const [showBlockDialog, setShowBlockDialog] = useState(false);
   const [showRestoreDialog, setShowRestoreDialog] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -79,7 +79,9 @@ export function useUserAccountDashboard(): UserAccountDashboardState & UserAccou
   const shouldFetch = queryState.appliedQuery.filterApplied;
 
   useEffect(() => {
-    if (!selectedTenantId && tenants.length > 0) {
+    if (sessionTenantId && !selectedTenantId) {
+      setSelectedTenantId(sessionTenantId);
+    } else if (!selectedTenantId && tenants.length > 0) {
       setSelectedTenantId(tenants[0].tenantId);
     }
   }, [tenants, selectedTenantId]);

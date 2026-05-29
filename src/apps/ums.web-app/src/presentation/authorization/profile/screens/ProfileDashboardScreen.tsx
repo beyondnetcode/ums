@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuthStore } from '@app/stores/auth.store';
 import { useGetAllProfiles, useGetProfile } from '@app/authorization/hooks/use-profile';
 import { useQueryState } from '@app/shared/hooks/use-query-state';
 import { usePaginationState } from '@app/shared/hooks/use-pagination-state';
@@ -13,6 +14,8 @@ export default function ProfileDashboardScreen(): React.JSX.Element {
   const [selectedId, setSelectedId] = useState('');
   const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('list');
 
+  const sessionTenantId = useAuthStore((state) => state.user?.tenantId);
+
   const queryState = useQueryState({
     criteria: 'user',
     filter: 'all',
@@ -23,15 +26,12 @@ export default function ProfileDashboardScreen(): React.JSX.Element {
     initialPageSize: 10,
   });
 
-  // Dialog Open States
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isGraphOpen, setIsGraphOpen] = useState(false);
   const [graphProfileId, setGraphProfileId] = useState('');
 
-  // Only fetch when a filter has been applied
   const shouldFetch = queryState.appliedQuery.filterApplied;
 
-  // Fetch paginated master list
   const { data: pageData, isLoading: loadingList, error: listError } = useGetAllProfiles(
     shouldFetch
       ? {
@@ -42,6 +42,7 @@ export default function ProfileDashboardScreen(): React.JSX.Element {
           status: queryState.activeFilter,
           sortBy: queryState.sortBy,
           sortOrder: queryState.sortOrder,
+          tenantId: sessionTenantId,
         }
       : null,
   );

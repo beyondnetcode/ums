@@ -29,6 +29,13 @@ public sealed class CreatePermissionTemplateCommandHandler : ICommandHandler<Cre
             return Result<CreatePermissionTemplateResponse>.Failure("Authenticated user is required to create a permission template.");
         }
 
+        if (!string.IsNullOrWhiteSpace(_userContext.TenantId) &&
+            !string.Equals(request.TenantId.ToString(), _userContext.TenantId, StringComparison.OrdinalIgnoreCase))
+        {
+            return Result<CreatePermissionTemplateResponse>.Failure(
+                $"Tenant mismatch. User belongs to tenant '{_userContext.TenantId}', but request targets '{request.TenantId}'.");
+        }
+
         var templateResult = PermissionTemplate.Create(
             TenantId.Load(request.TenantId),
             RoleId.Load(request.RoleId),

@@ -7,10 +7,12 @@ namespace Ums.Application.Authorization.SystemSuite.Queries;
 public sealed class GetAllSystemSuitesQueryHandler : IQueryHandler<GetAllSystemSuitesQuery, PagedResult<SystemSuiteDto>>
 {
     private readonly ISystemSuiteRepository _systemSuiteRepository;
+    private readonly IUserContext _userContext;
 
-    public GetAllSystemSuitesQueryHandler(ISystemSuiteRepository systemSuiteRepository)
+    public GetAllSystemSuitesQueryHandler(ISystemSuiteRepository systemSuiteRepository, IUserContext userContext)
     {
         _systemSuiteRepository = systemSuiteRepository;
+        _userContext = userContext;
     }
 
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
@@ -27,8 +29,13 @@ public sealed class GetAllSystemSuitesQueryHandler : IQueryHandler<GetAllSystemS
         var sortOrder = NormalizeText(request.SortOrder, "asc").ToLowerInvariant();
         var search = NormalizeSearch(request.Search);
 
-        var systemSuites = request.TenantId.HasValue
-            ? await _systemSuiteRepository.GetByTenantIdAsync(request.TenantId.Value, cancellationToken)
+        var effectiveTenantId = request.TenantId ?? (
+            !string.IsNullOrWhiteSpace(_userContext.TenantId) && Guid.TryParse(_userContext.TenantId, out var ctxTenantId)
+                ? ctxTenantId
+                : (Guid?)null);
+
+        var systemSuites = effectiveTenantId.HasValue
+            ? await _systemSuiteRepository.GetByTenantIdAsync(effectiveTenantId.Value, cancellationToken)
             : await _systemSuiteRepository.GetAllAsync(cancellationToken);
 
         var query = systemSuites.Select(SystemSuiteDto.Map);

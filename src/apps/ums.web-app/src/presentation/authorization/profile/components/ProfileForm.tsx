@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { UserCheck, ShieldAlert, Shield, ShieldCheck, ToggleLeft, ToggleRight, Loader2, LayoutGrid, Database, Zap } from 'lucide-react';
+import { UserCheck, ShieldAlert, Shield, ShieldCheck, ToggleLeft, ToggleRight, Loader2, LayoutGrid, Database, Zap, Building2 } from 'lucide-react';
 import { M3Button, M3Select, M3Tabs } from '@shared/components';
 import { M3FormDialog } from '@shared/components/M3FormDialog';
-import { useGetAllTenants } from '@app/identity/hooks/use-tenant';
+import { useAuthStore } from '@app/stores/auth.store';
 import { useGetAllUserAccounts } from '@app/identity/hooks/use-user-account';
 import { useGetAllSystemSuites } from '@app/authorization/hooks/use-system-suite';
 import { useRolesBySystemSuite } from '@app/authorization/hooks/use-role';
@@ -27,7 +27,6 @@ interface LocalPermission {
   isActive: boolean;
 }
 
-// Reusable Select Field
 interface SelectProps {
   label: string;
   value: string;
@@ -55,7 +54,10 @@ const FieldSelect: React.FC<SelectProps> = ({ label, value, onChange, options, d
 );
 
 export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
-  const [tenantId, setTenantId] = useState('');
+  const sessionTenantId = useAuthStore((state) => state.user?.tenantId);
+  const sessionTenantName = useAuthStore((state) => state.user?.tenantName);
+  const effectiveTenantId = sessionTenantId;
+
   const [userId, setUserId] = useState('');
   const [systemSuiteId, setSystemSuiteId] = useState('');
   const [roleId, setRoleId] = useState('');
@@ -64,15 +66,13 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
-  // Load Queries
-  const { data: tenantPage, isLoading: loadingTenants } = useGetAllTenants({ page: 1, pageSize: 100 });
-  const { data: userPage, isLoading: loadingUsers } = useGetAllUserAccounts({ page: 1, pageSize: 100, tenantId: tenantId || undefined });
+  const { data: userPage, isLoading: loadingUsers } = useGetAllUserAccounts({ page: 1, pageSize: 100, tenantId: effectiveTenantId || undefined });
   const { data: suitesPage, isLoading: loadingSuites } = useGetAllSystemSuites({ page: 1, pageSize: 100 });
   const { data: roles = [], isLoading: loadingRoles } = useRolesBySystemSuite(systemSuiteId);
   const { data: templatesPage, isLoading: loadingTemplates } = useGetAllPermissionTemplates({
     page: 1,
     pageSize: 100,
-    tenantId: tenantId || undefined,
+    tenantId: effectiveTenantId || undefined,
     systemSuiteId: systemSuiteId || undefined,
     roleId: roleId || undefined,
     status: 'Published'
@@ -86,8 +86,6 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => 
   const activatePermMutation = useActivateProfilePermission();
   const deactivatePermMutation = useDeactivateProfilePermission();
 
-  // Populate Options
-  const tenantOptions = (tenantPage?.items ?? []).map(t => ({ value: t.tenantId, label: t.name }));
   const userOptions = (userPage?.items ?? []).map(u => ({ value: u.userId, label: `${u.userName} (${u.email})` }));
   const suiteOptions = (suitesPage?.items ?? []).map(s => ({ value: s.systemSuiteId, label: s.name }));
   const roleOptions = roles.map(r => ({ value: r.roleId, label: r.value }));
@@ -136,7 +134,7 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => 
     e.preventDefault();
     setError('');
 
-    if (!tenantId) { setError('Inquilino es requerido'); return; }
+    if (!effectiveTenantId) { setError('Tenant context no disponible'); return; }
     if (!userId) { setError('Usuario es requerido'); return; }
     if (!systemSuiteId) { setError('Sistema es requerido'); return; }
     if (!roleId) { setError('Rol es requerido'); return; }
@@ -144,9 +142,8 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => 
 
     setSaving(true);
     try {
-      // 1. Create the profile aggregate in backend
       const createRes = await createMutation.mutateAsync({
-        tenantId,
+        tenantId: effectiveTenantId,
         userId,
         roleId,
         branchId: null
@@ -304,21 +301,22 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => 
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FieldSelect
-            label={loadingTenants ? 'Cargando inquilinos…' : 'Inquilino (Tenant)'}
-            value={tenantId}
-            onChange={(v) => { setTenantId(v); setUserId(''); setRoleId(''); setTemplateId(''); }}
-            options={tenantOptions}
-            disabled={loadingTenants || saving}
-            required
-          />
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-m3-on-surface/70 ml-1">Inquilino (Tenant)</label>
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-m3-outline/30 bg-m3-surface-container/30 text-sm">
+              <Building2 className="w-4 h-4 text-m3-primary" />
+              <span className="font-medium text-m3-on-surface">{sessionTenantName || 'No disponible'}</span>
+              <span className="text-[10px] text-m3-secondary/60 font-mono ml-auto">{effectiveTenantId?.substring(0, 8)}...</span>
+            </div>
+            <span className="text-[10px] text-m3-secondary/60 ml-1">Contexto de sesión (solo lectura)</span>
+          </div>
 
           <FieldSelect
-            label={!tenantId ? 'Usuario (seleccione un Inquilino primero)' : loadingUsers ? 'Cargando usuarios…' : 'Usuario'}
+            label={!effectiveTenantId ? 'Usuario (sin contexto de tenant)' : loadingUsers ? 'Cargando usuarios…' : 'Usuario'}
             value={userId}
-            onChange={setUserId}
+            onChange={(v) => { setUserId(v); setRoleId(''); setTemplateId(''); }}
             options={userOptions}
-            disabled={!tenantId || loadingUsers || saving}
+            disabled={!effectiveTenantId || loadingUsers || saving}
             required
           />
 
@@ -341,7 +339,7 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => 
           />
         </div>
 
-        {tenantId && systemSuiteId && roleId && (
+        {effectiveTenantId && systemSuiteId && roleId && (
           <div className="pt-2">
             <FieldSelect
               label={loadingTemplates ? 'Cargando plantillas…' : 'Seleccionar Plantilla de Permisos'}

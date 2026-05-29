@@ -35,6 +35,13 @@ public sealed class CreateRoleCommandHandler : ICommandHandler<CreateRoleCommand
             return Result<CreateRoleResponse>.Failure("No se pudo registrar el rol porque la suite seleccionada no existe.");
         }
 
+        if (!string.IsNullOrWhiteSpace(_userContext.TenantId) &&
+            !string.Equals(suite.TenantId.GetValue().ToString(), _userContext.TenantId, StringComparison.OrdinalIgnoreCase))
+        {
+            return Result<CreateRoleResponse>.Failure(
+                $"Tenant mismatch. User belongs to tenant '{_userContext.TenantId}', but the system suite belongs to tenant '{suite.TenantId.GetValue()}'.");
+        }
+
         if (await _roleRepository.GetByCodeAsync(request.SystemSuiteId, Code.Create(request.Code), cancellationToken) is not null)
         {
             return Result<CreateRoleResponse>.Failure($"No se pudo registrar el rol porque el campo Código ya existe en esta suite. Valor ingresado: {request.Code}.");

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useCreateSystemSuite } from '@app/authorization/hooks/use-system-suite';
 import { useI18n } from '@app/i18n/use-i18n';
 import { useFormValidation } from '@app/hooks';
+import { useAuthStore } from '@app/stores/auth.store';
 import { M3Button } from '@shared/components/M3Button';
 import { M3TextField } from '@shared/components/M3TextField';
 import { M3FormDialog } from '@shared/components/M3FormDialog';
@@ -19,6 +20,9 @@ export const SystemSuiteForm: React.FC<SystemSuiteFormProps> = ({ isOpen, onClos
   const createSystemSuiteMutation = useCreateSystemSuite();
   const t = useI18n();
 
+  const sessionTenantId = useAuthStore((state) => state.user?.tenantId);
+  const effectiveTenantId = tenantId || sessionTenantId;
+
   const [code, setCode] = useState('');
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -28,8 +32,12 @@ export const SystemSuiteForm: React.FC<SystemSuiteFormProps> = ({ isOpen, onClos
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!effectiveTenantId) {
+      return;
+    }
+
     const payload = {
-      tenantId: tenantId || 'f3e2d1c0-b9a8-7f6e-5d4c-321098765432',
+      tenantId: effectiveTenantId,
       code,
       name,
       description: description || undefined,

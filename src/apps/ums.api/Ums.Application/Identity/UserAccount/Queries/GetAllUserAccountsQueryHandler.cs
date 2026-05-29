@@ -7,10 +7,12 @@ namespace Ums.Application.Identity.UserAccount.Queries;
 public sealed class GetAllUserAccountsQueryHandler : IQueryHandler<GetAllUserAccountsQuery, PagedResult<UserAccountDto>>
 {
     private readonly IUserAccountRepository _userAccountRepository;
+    private readonly IUserContext _userContext;
 
-    public GetAllUserAccountsQueryHandler(IUserAccountRepository userAccountRepository)
+    public GetAllUserAccountsQueryHandler(IUserAccountRepository userAccountRepository, IUserContext userContext)
     {
         _userAccountRepository = userAccountRepository;
+        _userContext = userContext;
     }
 
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
@@ -27,10 +29,14 @@ public sealed class GetAllUserAccountsQueryHandler : IQueryHandler<GetAllUserAcc
         var sortOrder = NormalizeText(request.SortOrder, "asc").ToLowerInvariant();
         var search = NormalizeSearch(request.Search);
 
-        // REC-12: Use GetPagedAsync so SQL implementations push Skip/Take to the DB.
+        var effectiveTenantId = request.TenantId ?? (
+            !string.IsNullOrWhiteSpace(_userContext.TenantId) && Guid.TryParse(_userContext.TenantId, out var ctxTenantId)
+                ? ctxTenantId
+                : (Guid?)null);
+
         var (userAccounts, totalItems) = await _userAccountRepository.GetPagedAsync(
             page, pageSize, search, status, sortBy, sortOrder,
-            tenantId: request.TenantId,
+            tenantId: effectiveTenantId,
             cancellationToken: cancellationToken);
 
         var items = userAccounts.Select(u =>

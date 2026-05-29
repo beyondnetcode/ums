@@ -9,6 +9,7 @@ import { M3FormDialog } from '@shared/components/M3FormDialog';
 import { useCreatePermissionTemplate } from '@app/authorization/hooks/use-permission-template';
 import { useGetAllSystemSuites } from '@app/authorization/hooks/use-system-suite';
 import { useRolesBySystemSuite } from '@app/authorization/hooks/use-role';
+import { useAuthStore } from '@app/stores/auth.store';
 
 interface Props {
   isOpen:    boolean;
@@ -16,8 +17,6 @@ interface Props {
   onSuccess: (templateId: string) => void;
   tenantId?: string;
 }
-
-// ── Small reusable select ─────────────────────────────────────────────────────
 
 interface SelectProps {
   label:    string;
@@ -45,22 +44,21 @@ const FieldSelect: React.FC<SelectProps> = ({ label, value, onChange, options, d
   </M3Select>
 );
 
-// ── Main form ─────────────────────────────────────────────────────────────────
-
 export const PermissionTemplateForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenantId }) => {
-  const [tenantIdVal,      setTenantIdVal]      = useState(tenantId ?? '');
+  const sessionTenantId = useAuthStore((state) => state.user?.tenantId);
+  const effectiveTenantId = tenantId || sessionTenantId;
+
   const [systemSuiteIdVal, setSystemSuiteIdVal] = useState('');
   const [roleIdVal,        setRoleIdVal]        = useState('');
   const [error,            setError]            = useState('');
 
   const createMutation = useCreatePermissionTemplate();
 
-  // Load suites (large page to get all available)
   const { data: suitesPage, isLoading: loadingSuites } = useGetAllSystemSuites({
     page: 1, pageSize: 100,
+    tenantId: effectiveTenantId,
   });
 
-  // Load roles for the selected suite
   const { data: roles = [], isLoading: loadingRoles } = useRolesBySystemSuite(systemSuiteIdVal);
 
   const suiteOptions = (suitesPage?.items ?? []).map(s => ({
@@ -70,12 +68,12 @@ export const PermissionTemplateForm: React.FC<Props> = ({ isOpen, onClose, onSuc
 
   const roleOptions = roles.map(r => ({
     value: r.roleId,
-    label: r.value,   // role display name
+    label: r.value,
   }));
 
   const handleSuiteChange = (id: string) => {
     setSystemSuiteIdVal(id);
-    setRoleIdVal('');   // reset role when suite changes
+    setRoleIdVal('');
     setError('');
   };
 
@@ -83,13 +81,13 @@ export const PermissionTemplateForm: React.FC<Props> = ({ isOpen, onClose, onSuc
     e.preventDefault();
     setError('');
 
-    if (!tenantIdVal.trim())      { setError('Tenant ID es requerido');        return; }
+    if (!effectiveTenantId)     { setError('Tenant context no disponible'); return; }
     if (!systemSuiteIdVal.trim()) { setError('Suite del Sistema es requerida'); return; }
     if (!roleIdVal.trim())        { setError('Rol es requerido');               return; }
 
     try {
       const result = await createMutation.mutateAsync({
-        tenantId:      tenantIdVal.trim(),
+        tenantId:      effectiveTenantId,
         systemSuiteId: systemSuiteIdVal.trim(),
         roleId:        roleIdVal.trim(),
       });
@@ -125,23 +123,6 @@ export const PermissionTemplateForm: React.FC<Props> = ({ isOpen, onClose, onSuc
           La plantilla se crea en estado <span className="font-bold text-amber-500">Borrador</span>.
           Agrega los ítems de permiso antes de publicarla.
         </p>
-
-        {/* Tenant ID — text field only when not pre-supplied */}
-        {!tenantId && (
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-m3-on-surface/70">
-              Tenant ID<span className="text-m3-error ml-0.5">*</span>
-            </label>
-            <input
-              type="text"
-              required
-              value={tenantIdVal}
-              onChange={e => { setTenantIdVal(e.target.value); setError(''); }}
-              placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-              className="w-full rounded-lg border border-m3-outline/40 bg-m3-surface-container/40 px-3 py-2 text-sm text-m3-on-surface focus:outline-none focus:ring-2 focus:ring-m3-primary/40 focus:border-m3-primary font-mono"
-            />
-          </div>
-        )}
 
         <FieldSelect
           label={loadingSuites ? 'Cargando suites…' : 'Suite del Sistema'}

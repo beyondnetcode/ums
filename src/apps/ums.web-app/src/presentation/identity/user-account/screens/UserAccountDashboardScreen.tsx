@@ -1,5 +1,6 @@
 import React from 'react';
 import { useI18n } from '@app/i18n/use-i18n';
+import { useAuthStore } from '@app/stores/auth.store';
 import { useUserAccountDashboard } from '@app/identity/hooks/use-user-account-dashboard';
 import { UserAccountForm } from '../components/UserAccountForm';
 import { UserAccountDetailPanel } from '../components/UserAccountDetailPanel';
@@ -18,7 +19,9 @@ import { Lock } from 'lucide-react';
 
 export default function UserAccountDashboardScreen(): React.JSX.Element {
   const t = useI18n();
-  const dashboard = useUserAccountDashboard();
+  const sessionTenantId = useAuthStore((state) => state.user?.tenantId);
+  const sessionTenantName = useAuthStore((state) => state.user?.tenantName);
+  const dashboard = useUserAccountDashboard(sessionTenantId);
 
   const criteriaOptions: QueryCriteriaOption[] = [
     { label: t.byEmail, value: 'email' },
@@ -88,7 +91,7 @@ export default function UserAccountDashboardScreen(): React.JSX.Element {
         isOpen={dashboard.isCreateOpen}
         onClose={() => dashboard.setIsCreateOpen(false)}
         onSuccess={dashboard.handleCreateSuccess}
-        tenantId={dashboard.selectedTenantId}
+        tenantId={sessionTenantId}
       />
     </>
   );
@@ -119,6 +122,7 @@ export default function UserAccountDashboardScreen(): React.JSX.Element {
           tenants={dashboard.tenants}
           selectedTenantId={dashboard.selectedTenantId}
           onTenantChange={dashboard.setSelectedTenantId}
+          sessionTenantName={sessionTenantName}
           requiresFilter={dashboard.requiresFilter}
         />
       }

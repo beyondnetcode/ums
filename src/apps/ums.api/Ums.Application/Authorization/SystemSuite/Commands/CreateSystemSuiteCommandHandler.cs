@@ -29,6 +29,13 @@ public sealed class CreateSystemSuiteCommandHandler : ICommandHandler<CreateSyst
             return Result<CreateSystemSuiteResponse>.Failure("Authenticated user is required to create a system suite.");
         }
 
+        if (!string.IsNullOrWhiteSpace(_userContext.TenantId) &&
+            !string.Equals(request.TenantId.ToString(), _userContext.TenantId, StringComparison.OrdinalIgnoreCase))
+        {
+            return Result<CreateSystemSuiteResponse>.Failure(
+                $"Tenant mismatch. User belongs to tenant '{_userContext.TenantId}', but request targets '{request.TenantId}'.");
+        }
+
         var code = Code.Create(request.Code);
         var existingSuite = await _systemSuiteRepository.GetByCodeAsync(code, cancellationToken);
         if (existingSuite is not null)

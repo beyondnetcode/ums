@@ -9,15 +9,18 @@ public sealed class GetAllPermissionTemplatesQueryHandler : IQueryHandler<GetAll
     private readonly IPermissionTemplateRepository _templateRepository;
     private readonly IRoleRepository _roleRepository;
     private readonly ISystemSuiteRepository _systemSuiteRepository;
+    private readonly IUserContext _userContext;
 
     public GetAllPermissionTemplatesQueryHandler(
         IPermissionTemplateRepository templateRepository,
         IRoleRepository roleRepository,
-        ISystemSuiteRepository systemSuiteRepository)
+        ISystemSuiteRepository systemSuiteRepository,
+        IUserContext userContext)
     {
         _templateRepository = templateRepository;
         _roleRepository = roleRepository;
         _systemSuiteRepository = systemSuiteRepository;
+        _userContext = userContext;
     }
 
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
@@ -34,8 +37,13 @@ public sealed class GetAllPermissionTemplatesQueryHandler : IQueryHandler<GetAll
         var sortOrder = NormalizeText(request.SortOrder, "asc").ToLowerInvariant();
         var search = NormalizeSearch(request.Search);
 
-        var templates = request.TenantId.HasValue
-            ? await _templateRepository.GetByTenantIdAsync(request.TenantId.Value, cancellationToken)
+        var effectiveTenantId = request.TenantId ?? (
+            !string.IsNullOrWhiteSpace(_userContext.TenantId) && Guid.TryParse(_userContext.TenantId, out var ctxTenantId)
+                ? ctxTenantId
+                : (Guid?)null);
+
+        var templates = effectiveTenantId.HasValue
+            ? await _templateRepository.GetByTenantIdAsync(effectiveTenantId.Value, cancellationToken)
             : await _templateRepository.GetAllAsync(cancellationToken);
 
         if (request.SystemSuiteId.HasValue)

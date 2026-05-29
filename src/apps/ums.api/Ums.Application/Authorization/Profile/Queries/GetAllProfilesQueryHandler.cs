@@ -13,19 +13,22 @@ public sealed class GetAllProfilesQueryHandler : IQueryHandler<GetAllProfilesQue
     private readonly ISystemSuiteRepository _systemSuiteRepository;
     private readonly ITenantRepository _tenantRepository;
     private readonly IUserAccountRepository _userAccountRepository;
+    private readonly IUserContext _userContext;
 
     public GetAllProfilesQueryHandler(
         IProfileRepository profileRepository,
         IRoleRepository roleRepository,
         ISystemSuiteRepository systemSuiteRepository,
         ITenantRepository tenantRepository,
-        IUserAccountRepository userAccountRepository)
+        IUserAccountRepository userAccountRepository,
+        IUserContext userContext)
     {
         _profileRepository = profileRepository;
         _roleRepository = roleRepository;
         _systemSuiteRepository = systemSuiteRepository;
         _tenantRepository = tenantRepository;
         _userAccountRepository = userAccountRepository;
+        _userContext = userContext;
     }
 
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
@@ -42,10 +45,15 @@ public sealed class GetAllProfilesQueryHandler : IQueryHandler<GetAllProfilesQue
         var sortOrder = NormalizeText(request.SortOrder, "asc").ToLowerInvariant();
         var search = NormalizeSearch(request.Search);
 
+        var effectiveTenantId = request.TenantId ?? (
+            !string.IsNullOrWhiteSpace(_userContext.TenantId) && Guid.TryParse(_userContext.TenantId, out var ctxTenantId)
+                ? ctxTenantId
+                : (Guid?)null);
+
         var profiles = request.UserId.HasValue
             ? await _profileRepository.GetByUserIdAsync(request.UserId.Value, cancellationToken)
-            : request.TenantId.HasValue
-                ? await _profileRepository.GetByTenantIdAsync(request.TenantId.Value, cancellationToken)
+            : effectiveTenantId.HasValue
+                ? await _profileRepository.GetByTenantIdAsync(effectiveTenantId.Value, cancellationToken)
                 : await _profileRepository.GetAllAsync(cancellationToken);
 
         var allTenants = await _tenantRepository.GetAllAsync(cancellationToken);

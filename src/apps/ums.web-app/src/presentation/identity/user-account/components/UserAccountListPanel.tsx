@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Mail, Layers, ArrowRight, LayoutList, LayoutGrid, Info } from 'lucide-react';
+import { Mail, Layers, ArrowRight, LayoutList, LayoutGrid, Info, Building2 } from 'lucide-react';
 import { UserAccount } from '@domain/identity/models/user-account.model';
 import { Tenant } from '@domain/identity/models/tenant.model';
 import { StatusBadge } from '@shared/components/StatusBadge';
@@ -38,9 +38,10 @@ interface UserAccountListPanelProps {
   criteriaOptions: AtomicQueryCriteriaOption[];
   filterOptions: AtomicFilterOption[];
   sortOptions: AtomicSortOption[];
-  tenants: Tenant[];
-  selectedTenantId: string;
-  onTenantChange: (tenantId: string) => void;
+  tenants?: Tenant[];
+  selectedTenantId?: string;
+  onTenantChange?: (tenantId: string) => void;
+  sessionTenantName?: string;
   requiresFilter?: boolean;
 }
 
@@ -63,6 +64,7 @@ export const UserAccountListPanel: React.FC<UserAccountListPanelProps> = ({
   tenants,
   selectedTenantId,
   onTenantChange,
+  sessionTenantName,
   requiresFilter = false,
 }) => {
   const t = useI18n();
@@ -148,18 +150,28 @@ export const UserAccountListPanel: React.FC<UserAccountListPanelProps> = ({
                 {t.activeTenant}
               </span>
               <span className="text-[10px] text-m3-secondary/70">
-                {t.filterAccountsByTenant}
+                {onTenantChange ? t.filterAccountsByTenant : t.sessionTenantContext}
               </span>
             </div>
           </div>
           <div className="w-full sm:w-72">
-            <TenantSelector
-              tenants={tenants}
-              selectedTenantId={selectedTenantId}
-              onTenantChange={onTenantChange}
-              label={t.activeTenant}
-              className="mb-0"
-            />
+            {onTenantChange && tenants ? (
+              <TenantSelector
+                tenants={tenants}
+                selectedTenantId={selectedTenantId}
+                onTenantChange={onTenantChange}
+                label={t.activeTenant}
+                className="mb-0"
+              />
+            ) : (
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-m3-outline/30 bg-m3-surface-container/30">
+                <Building2 className="w-4 h-4 text-m3-primary" />
+                <span className="text-sm font-medium text-m3-on-surface">
+                  {sessionTenantName || selectedTenantId?.substring(0, 8) || 'No disponible'}
+                </span>
+                <span className="text-[10px] text-m3-secondary/60 ml-auto">Solo lectura</span>
+              </div>
+            )}
           </div>
         </div>
       </M3Card>

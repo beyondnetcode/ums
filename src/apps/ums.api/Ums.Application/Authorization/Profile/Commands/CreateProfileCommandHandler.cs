@@ -29,6 +29,13 @@ public sealed class CreateProfileCommandHandler : ICommandHandler<CreateProfileC
             return Result<CreateProfileResponse>.Failure("Authenticated user is required to create a profile.");
         }
 
+        if (!string.IsNullOrWhiteSpace(_userContext.TenantId) &&
+            !string.Equals(request.TenantId.ToString(), _userContext.TenantId, StringComparison.OrdinalIgnoreCase))
+        {
+            return Result<CreateProfileResponse>.Failure(
+                $"Tenant mismatch. User belongs to tenant '{_userContext.TenantId}', but request targets '{request.TenantId}'.");
+        }
+
         var profileResult = Profile.Create(
             TenantId.Load(request.TenantId),
             UserId.Load(request.UserId),
