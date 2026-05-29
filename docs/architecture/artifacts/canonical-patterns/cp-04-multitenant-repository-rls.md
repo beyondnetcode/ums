@@ -4,7 +4,7 @@
 |-------|-------|
 | **Pattern ID** | CP-04 |
 | **Type** | Data Access / Security |
-| **ADR Reference** | [ADR-0010: Multi-Tenancy RLS Strategy](../../../../../reference/architecture/adrs/core/0010-multi-tenancy-architecture-strategy.md) |
+| **ADR Reference** | [ADR-0010: Multi-Tenancy RLS Strategy](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/core/0010-multi-tenancy-architecture-strategy.md) |
 | **Language** | TypeScript / NestJS / TypeORM + PostgreSQL |
 | **Last Review** | 2026-05-15 |
 

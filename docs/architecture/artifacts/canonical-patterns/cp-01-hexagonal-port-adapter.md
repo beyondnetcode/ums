@@ -4,7 +4,7 @@
 |-------|-------|
 | **Pattern ID** | CP-01 |
 | **Type** | Structural / Architectural |
-| **ADR Reference** | [ADR-0002: Clean Architecture NestJS](../../../../../reference/architecture/adrs/nodejs/0002-clean-architecture-nestjs.md) |
+| **ADR Reference** | [ADR-0002: Clean Architecture NestJS](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/nodejs/0002-clean-architecture-nestjs.md) |
 | **Language** | TypeScript / NestJS |
 | **Last Review** | 2026-05-15 |
 

@@ -4,7 +4,7 @@
 |-------|-------|
 | **TE ID** | TE-06 |
 | **Status** | Approved |
-| **ADR Reference** | [ADR-0034: CQRS Applicability](../../../../../reference/architecture/adrs/core/0034-cqrs-pattern-applicability-matrix.md) |
+| **ADR Reference** | [ADR-0034: CQRS Applicability](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/core/0034-cqrs-pattern-applicability-matrix.md) |
 | **Satisfies** | FS-04 (Register System Topology), FS-07 (Visual Graph Resolver), FS-13 (Hierarchical Configuration) |
 | **Owner** | Platform Team |
 | **Date** | 2026-05-15 |

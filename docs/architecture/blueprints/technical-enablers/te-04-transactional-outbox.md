@@ -4,7 +4,7 @@
 |-------|-------|
 | **TE ID** | TE-04 |
 | **Status** | Approved |
-| **ADR Reference** | [ADR-0033: Transactional Outbox](../../../../../reference/architecture/adrs/core/0033-transactional-outbox-pattern.md) |
+| **ADR Reference** | [ADR-0033: Transactional Outbox](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/core/0033-transactional-outbox-pattern.md) |
 | **Satisfies** | FS-06 (Auto-Assign), FS-11 (Document Upload), FS-15 (Notification Rules) |
 | **Owner** | Platform Team |
 | **Date** | 2026-05-15 |

@@ -3,7 +3,7 @@
 **Status:** Accepted  
 **Date:** 2026-05-27  
 **Decision Owner:** Architecture  
-**Parent:** [ADR-0067 — Modular Monolith Schema Per Domain](../../../reference/architecture/adrs/core/0067-modular-monolith-schema-per-domain.md)
+**Parent:** [ADR-0067 — Modular Monolith Schema Per Domain](./0067-modular-monolith-schema-per-domain.md)
 
 ---
 
@@ -79,4 +79,4 @@ The default schema (`ums_platform`) is set as a fallback for infrastructure enti
 
 ---
 
-**[ADR Index](./index.md)** | **[Parent ADR-0067](../../../reference/architecture/adrs/core/0067-modular-monolith-schema-per-domain.md)**
+**[ADR Index](./index.md)** | **[Parent ADR-0067](./0067-modular-monolith-schema-per-domain.md)**

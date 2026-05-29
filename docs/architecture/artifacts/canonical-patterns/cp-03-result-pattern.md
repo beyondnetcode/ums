@@ -4,7 +4,7 @@
 |-------|-------|
 | **Pattern ID** | CP-03 |
 | **Type** | Error Handling / Functional |
-| **ADR Reference** | [ADR-0038: Result Pattern TS Implementation](../../../../../reference/architecture/adrs/nodejs/0038-error-handling-result-pattern-strategy.md) |
+| **ADR Reference** | [ADR-0038: Result Pattern TS Implementation](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/nodejs/0038-error-handling-result-pattern-strategy.md) |
 | **Language** | TypeScript / NestJS |
 | **Last Review** | 2026-05-15 |
 

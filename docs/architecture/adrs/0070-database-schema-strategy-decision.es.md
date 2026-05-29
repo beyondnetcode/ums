@@ -3,7 +3,7 @@
 **Estado:** Aceptado
 **Fecha:** 2026-05-27
 **Responsable de Decisión:** Arquitectura
-**Padre:** [ADR-0067 — Modular Monolith Schema Per Domain](../../../reference/architecture/adrs/core/0067-modular-monolith-schema-per-domain.md)
+**Padre:** [ADR-0067 — Modular Monolith Schema Per Domain](./0067-modular-monolith-schema-per-domain.md)
 
 ---
 
@@ -79,4 +79,4 @@ El esquema default (`ums_platform`) está configurado como fallback para entidad
 
 ---
 
-**[Índice ADR](./index.md)** | **[ADR Padre-0067](../../../reference/architecture/adrs/core/0067-modular-monolith-schema-per-domain.md)**
+**[Índice ADR](./index.md)** | **[ADR Padre-0067](./0067-modular-monolith-schema-per-domain.md)**

@@ -4,7 +4,7 @@
 |-------|-------|
 | **TE ID** | TE-05 |
 | **Status** | Approved |
-| **ADR Reference** | [ADR-0035: Distributed Sagas](../../../../../reference/architecture/adrs/core/0035-distributed-saga-pattern-strategy.md) |
+| **ADR Reference** | [ADR-0035: Distributed Sagas](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/core/0035-distributed-saga-pattern-strategy.md) |
 | **Satisfies** | FS-10 (External B2B Access Request/Approval), FS-12 (Role Promotion Process) |
 | **Owner** | Platform Team |
 | **Date** | 2026-05-15 |
