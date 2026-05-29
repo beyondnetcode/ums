@@ -20,8 +20,8 @@ export const brandingService = {
 
   getBranding: async (tenantId: string): Promise<Branding | null> => {
     const response = await graphqlBrandingQueries.getBranding(tenantId);
-    if (!response.getTenantBranding) return null;
-    return BrandingSchema.parse(response.getTenantBranding);
+    if (!response.tenantBranding) return null;
+    return BrandingSchema.parse(response.tenantBranding);
   },
 
   // ── Commands (REST) ───────────────────────────────────────────────────────

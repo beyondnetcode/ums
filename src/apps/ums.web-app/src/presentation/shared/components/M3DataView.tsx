@@ -3,13 +3,7 @@ import {
   Search,
   LayoutList,
   LayoutGrid,
-  ChevronLeft,
-  ChevronRight,
-  ChevronsUp,
-  ChevronsDown,
   Plus,
-  ArrowUpDown,
-  Filter,
   Database,
 } from 'lucide-react';
 import { M3Card } from './M3Card';
@@ -19,6 +13,9 @@ import { M3SegmentedButton } from './M3SegmentedButton';
 import type { SegmentOption } from './M3SegmentedButton';
 import { M3SkeletonRow } from './M3Skeleton';
 import { useDragResize } from '@app/hooks/use-drag-resize';
+import { FilterBar } from './data-view/FilterBar';
+import { SortDropdown } from './data-view/SortDropdown';
+import { PaginationFooter } from './data-view/PaginationControls';
 
 export interface SortOption { label: string; value: string; }
 export interface FilterOption { label: string; value: string; }
@@ -127,9 +124,7 @@ export const M3DataView: React.FC<M3DataViewProps> = ({
     toggleCollapse: toggleHeader,
   } = useDragResize();
 
-  // ── Footer collapse ────────────────────────────────────────────────────────
-  const [isFooterCollapsed, setIsFooterCollapsed] = useState(false);
-  const toggleFooter = useCallback(() => setIsFooterCollapsed((v) => !v), []);
+  
 
   return (
     <div
@@ -261,52 +256,19 @@ export const M3DataView: React.FC<M3DataViewProps> = ({
         {/* Control row: filter + sort + view mode */}
         <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 bg-m3-surface-container/30 border border-m3-outline/20 rounded-xl p-2 flex-shrink-0">
           <div className="flex flex-wrap items-center gap-2">
-            {filterOptions && onFilterChange && activeFilter !== undefined && (
-              <div className="flex items-center gap-2">
-                <div className="p-1 bg-m3-primary/10 rounded-md text-m3-primary border border-m3-primary/10">
-                  <Filter className="w-3.5 h-3.5" />
-                </div>
-                <select
-                  value={activeFilter}
-                  onChange={(e) => onFilterChange(e.target.value)}
-                  aria-label="Filter"
-                  className="h-8 px-2.5 rounded-lg border border-m3-outline bg-m3-surface text-xs font-medium text-m3-secondary focus:outline-none focus:border-m3-primary transition-colors cursor-pointer"
-                >
-                  {filterOptions.map((f) => (
-                    <option key={f.value} value={f.value}>{f.label}</option>
-                  ))}
-                </select>
-              </div>
-            )}
+            <FilterBar
+              filterOptions={filterOptions}
+              activeFilter={activeFilter}
+              onFilterChange={onFilterChange}
+            />
 
-            {sortOptions && onSortByChange && sortBy !== undefined && (
-              <div className="flex items-center gap-2">
-                <div className="p-1 bg-m3-primary/10 rounded-md text-m3-primary border border-m3-primary/10">
-                  <ArrowUpDown className="w-3.5 h-3.5" />
-                </div>
-                <select
-                  value={sortBy}
-                  onChange={(e) => onSortByChange(e.target.value)}
-                  aria-label="Sort by"
-                  className="h-8 px-2.5 rounded-lg border border-m3-outline bg-m3-surface text-xs font-medium text-m3-secondary focus:outline-none focus:border-m3-primary transition-colors cursor-pointer"
-                >
-                  {sortOptions.map((s) => (
-                    <option key={s.value} value={s.value}>{s.label}</option>
-                  ))}
-                </select>
-
-                {onSortOrderToggle && sortOrder && (
-                  <button
-                    type="button"
-                    onClick={onSortOrderToggle}
-                    className="h-8 w-8 flex items-center justify-center rounded-lg border border-m3-outline bg-m3-surface hover:bg-m3-primary/10 hover:border-m3-primary/30 transition-all text-m3-secondary"
-                    title={sortOrder === 'asc' ? 'Ascending' : 'Descending'}
-                  >
-                    <ArrowUpDown className={`w-3.5 h-3.5 transition-transform duration-200 ${sortOrder === 'desc' ? 'rotate-180 text-m3-primary' : ''}`} />
-                  </button>
-                )}
-              </div>
-            )}
+            <SortDropdown
+              sortOptions={sortOptions}
+              sortBy={sortBy}
+              onSortByChange={onSortByChange}
+              sortOrder={sortOrder}
+              onSortOrderToggle={onSortOrderToggle}
+            />
           </div>
 
           {/* View mode segmented control */}
@@ -396,95 +358,15 @@ export const M3DataView: React.FC<M3DataViewProps> = ({
           )}
         </div>
 
-        {/* Footer: permanent slim strip + collapsible pagination */}
-        {(pagination || telemetryInfo) && (
-          <div className="flex-shrink-0 bg-m3-surface-container/20 border border-m3-outline/20 rounded-xl overflow-hidden">
-
-            {/* Always-visible strip: record count + footer toggle */}
-            <div className="flex items-center justify-between px-3 h-9 gap-3">
-              <div className="flex items-center gap-2 min-w-0 flex-1 text-xs font-medium text-m3-secondary">
-                {telemetryInfo ?? (
-                  pagination && (
-                    <div className="flex items-center gap-1.5">
-                      <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
-                      <span className="text-xs text-m3-secondary/70 truncate">
-                        {pagination.totalItems} records · {pagination.pageSize} per page
-                      </span>
-                    </div>
-                  )
-                )}
-              </div>
-
-              {/* Footer collapse toggle — only shown when pagination exists */}
-              {pagination && pagination.totalPages > 1 && (
-                <button
-                  type="button"
-                  title={isFooterCollapsed ? 'Show pagination' : 'Hide pagination'}
-                  onClick={toggleFooter}
-                  className={[
-                    'flex-shrink-0 p-1.5 rounded-lg border transition-all duration-150',
-                    isFooterCollapsed
-                      ? 'bg-m3-primary/10 border-m3-primary/40 text-m3-primary'
-                      : 'bg-m3-surface-container/60 border-m3-outline/40 text-m3-secondary hover:bg-m3-primary/10 hover:border-m3-primary/40 hover:text-m3-primary',
-                  ].join(' ')}
-                >
-                  {isFooterCollapsed
-                    ? <ChevronsUp   className="w-3.5 h-3.5" />
-                    : <ChevronsDown className="w-3.5 h-3.5" />
-                  }
-                </button>
-              )}
-            </div>
-
-            {/* Collapsible pagination row */}
-            {pagination && pagination.totalPages > 1 && (
-              <div
-                style={{ maxHeight: isFooterCollapsed ? 0 : '3.5rem' }}
-                className="overflow-hidden transition-[max-height] duration-200 ease-in-out"
-              >
-                <div className="flex justify-end items-center gap-2 px-3 pb-2.5">
-                  <button
-                    type="button"
-                    onClick={() => pagination.onPageChange(Math.max(1, pagination.page - 1))}
-                    disabled={pagination.page === 1}
-                    className="p-1.5 rounded-lg border border-m3-outline bg-m3-surface text-m3-secondary disabled:opacity-40 disabled:cursor-not-allowed hover:bg-m3-primary/10 hover:text-m3-primary transition-all"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-
-                  <div className="flex items-center gap-1 select-none">
-                    {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((p) => {
-                      const isActive = p === pagination.page;
-                      return (
-                        <button
-                          key={p}
-                          type="button"
-                          onClick={() => pagination.onPageChange(p)}
-                          className={`h-7 min-w-7 px-2 text-xs font-medium rounded-lg flex items-center justify-center transition-all ${
-                            isActive
-                              ? 'bg-m3-primary text-m3-on-primary shadow-sm'
-                              : 'border border-m3-outline bg-m3-surface hover:bg-m3-primary/10 text-m3-secondary'
-                          }`}
-                        >
-                          {p}
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => pagination.onPageChange(Math.min(pagination.totalPages, pagination.page + 1))}
-                    disabled={pagination.page === pagination.totalPages}
-                    className="p-1.5 rounded-lg border border-m3-outline bg-m3-surface text-m3-secondary disabled:opacity-40 disabled:cursor-not-allowed hover:bg-m3-primary/10 hover:text-m3-primary transition-all"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            )}
-
-          </div>
+        {pagination && (
+          <PaginationFooter
+            page={pagination.page}
+            pageSize={pagination.pageSize}
+            totalItems={pagination.totalItems}
+            totalPages={pagination.totalPages}
+            onPageChange={pagination.onPageChange}
+            telemetryInfo={telemetryInfo}
+          />
         )}
 
       </div>{/* end bottom zone */}

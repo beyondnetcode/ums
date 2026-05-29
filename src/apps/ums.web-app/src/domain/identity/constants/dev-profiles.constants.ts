@@ -10,6 +10,7 @@ export interface DevProfile {
   role: string;
   email: string;
   username: string;
+  tenantId: string;
 }
 
 export const DEV_PROFILES: DevProfile[] = [
@@ -19,6 +20,7 @@ export const DEV_PROFILES: DevProfile[] = [
     role: 'admin',
     email: 'admin@ransa.pe',
     username: 'admin_root',
+    tenantId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
   },
   {
     nameKey: 'devProfile2',
@@ -26,6 +28,7 @@ export const DEV_PROFILES: DevProfile[] = [
     role: 'moderator',
     email: 'operaciones@ransa.pe',
     username: 'gerente_ops',
+    tenantId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
   },
   {
     nameKey: 'devProfile3',
@@ -33,5 +36,6 @@ export const DEV_PROFILES: DevProfile[] = [
     role: 'user',
     email: 'auditoria@ransa.pe',
     username: 'auditor_est',
+    tenantId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
   },
 ];

@@ -119,6 +119,7 @@ export default function UserAccountDashboardScreen(): React.JSX.Element {
           tenants={dashboard.tenants}
           selectedTenantId={dashboard.selectedTenantId}
           onTenantChange={dashboard.setSelectedTenantId}
+          requiresFilter={dashboard.requiresFilter}
         />
       }
       detail={

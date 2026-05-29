@@ -17,7 +17,7 @@ const GET_FEATURE_FLAGS = `
     $sortOrder: String
     $flagType: String
   ) {
-    getFeatureFlags: featureFlags(
+    featureFlags(
       page: $page
       pageSize: $pageSize
       search: $search
@@ -53,7 +53,7 @@ const GET_FEATURE_FLAGS = `
 
 const GET_FEATURE_FLAG_BY_ID = `
   query FeatureFlagById($id: UUID!) {
-    getFeatureFlagById: featureFlagById(id: $id) {
+    featureFlagById(id: $id) {
       featureFlagId
       systemSuiteId
       flagCode
@@ -102,11 +102,11 @@ export interface GraphqlFeatureFlagPage {
 }
 
 export interface GetFeatureFlagsResponse {
-  getFeatureFlags: GraphqlFeatureFlagPage;
+  featureFlags: GraphqlFeatureFlagPage;
 }
 
 export interface GetFeatureFlagByIdResponse {
-  getFeatureFlagById: GraphqlFeatureFlagDto | null;
+  featureFlagById: GraphqlFeatureFlagDto | null;
 }
 
 function validatePageParams(params: { page: number; pageSize: number }): void {

@@ -29,21 +29,22 @@ function isNonRecoverable(error: unknown): boolean {
 
 // ─── Queries ─────────────────────────────────────────────────────────────────
 
-export const useGetAllProfiles = (params: ProfileQueryParams) =>
+export const useGetAllProfiles = (params: ProfileQueryParams | null) =>
   useQuery<ProfilePage>({
     queryKey: [
       'profiles',
-      params.page,
-      params.pageSize,
-      params.search,
-      params.criteria,
-      params.status,
-      params.sortBy,
-      params.sortOrder,
-      params.tenantId,
-      params.userId,
+      params?.page,
+      params?.pageSize,
+      params?.search,
+      params?.criteria,
+      params?.status,
+      params?.sortBy,
+      params?.sortOrder,
+      params?.tenantId,
+      params?.userId,
     ],
-    queryFn: () => profileService.getAll(params),
+    queryFn: () => profileService.getAll(params!),
+    enabled: !!params,
     staleTime: 30_000,
     retry: (failureCount, error) => {
       if (isNonRecoverable(error)) return false;

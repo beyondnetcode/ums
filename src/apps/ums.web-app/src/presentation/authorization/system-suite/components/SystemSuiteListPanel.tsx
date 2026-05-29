@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Box, ArrowRight, LayoutList, LayoutGrid } from 'lucide-react';
+import { Box, ArrowRight, Info, LayoutList, LayoutGrid } from 'lucide-react';
 import { SystemSuite } from '@domain/authorization/models/system-suite.model';
 import { StatusBadge } from '@shared/components/StatusBadge';
 import { CodeBadge } from '@shared/components/CodeBadge';
@@ -34,6 +34,7 @@ interface SystemSuiteListPanelProps {
   criteriaOptions: AtomicQueryCriteriaOption[];
   filterOptions: AtomicFilterOption[];
   sortOptions: AtomicSortOption[];
+  requiresFilter?: boolean;
 }
 
 export const SystemSuiteListPanel: React.FC<SystemSuiteListPanelProps> = ({
@@ -50,6 +51,7 @@ export const SystemSuiteListPanel: React.FC<SystemSuiteListPanelProps> = ({
   criteriaOptions,
   filterOptions,
   sortOptions,
+  requiresFilter = false,
 }) => {
   const t = useI18n();
   const getStatusLabel = useStatusLabel();
@@ -109,7 +111,18 @@ export const SystemSuiteListPanel: React.FC<SystemSuiteListPanelProps> = ({
     totalItems: paginationState.totalItems,
     totalPages: paginationState.totalPages,
     onPageChange: paginationState.handlePageChange ?? paginationState.setPage,
+    onPageSizeChange: paginationState.handlePageSizeChange,
   } : undefined;
+
+  const filterPrompt = requiresFilter ? (
+    <div className="flex flex-col items-center justify-center h-full text-center py-16">
+      <div className="p-4 rounded-2xl bg-m3-primary/5 border border-m3-primary/10 mb-4">
+        <Info className="w-8 h-8 text-m3-primary/60" />
+      </div>
+      <h3 className="text-sm font-semibold text-m3-on-surface mb-1">{t.applyFilterTitle}</h3>
+      <p className="text-xs text-m3-secondary/70 max-w-xs">{t.applyFilterMessage}</p>
+    </div>
+  ) : null;
 
   const footerTelemetry = (
     <div className="flex items-center gap-3">
@@ -165,6 +178,9 @@ export const SystemSuiteListPanel: React.FC<SystemSuiteListPanelProps> = ({
         </>
       }
       content={
+        requiresFilter && !queryState.appliedQuery.filterApplied ? (
+          filterPrompt
+        ) : (
         <DataList
           isLoading={isLoading}
           isEmpty={!isLoading && systemSuites.length === 0}
@@ -187,6 +203,7 @@ export const SystemSuiteListPanel: React.FC<SystemSuiteListPanelProps> = ({
           pagination={pagination}
           footerElement={footerTelemetry}
         />
+        )
       }
     />
   );

@@ -8,8 +8,6 @@ import type { PermissionTemplate } from '@domain/authorization/models/permission
 import { useQueryState } from '@app/shared/hooks/use-query-state';
 import { usePaginationState } from '@app/shared/hooks/use-pagination-state';
 
-const PAGE_SIZE = 20;
-
 export function usePermissionTemplateDashboard(tenantId?: string) {
   const [selectedId, setSelectedId]         = useState('');
   const [isCreateOpen, setIsCreateOpen]     = useState(false);
@@ -22,19 +20,25 @@ export function usePermissionTemplateDashboard(tenantId?: string) {
   });
 
   const paginationState = usePaginationState({
-    initialPageSize: PAGE_SIZE,
+    initialPageSize: 10,
   });
 
+  const shouldFetch = queryState.appliedQuery.filterApplied;
+
   const { data: pageData, isLoading: isLoadingList, error: listError } =
-    useGetAllPermissionTemplates({
-      page: paginationState.page,
-      pageSize: paginationState.pageSize,
-      search: queryState.appliedQuery.term || undefined,
-      status: queryState.activeFilter !== 'all' ? queryState.activeFilter : undefined,
-      sortBy: queryState.sortBy,
-      sortOrder: queryState.sortOrder,
-      tenantId,
-    });
+    useGetAllPermissionTemplates(
+      shouldFetch
+        ? {
+            page: paginationState.page,
+            pageSize: paginationState.pageSize,
+            search: queryState.appliedQuery.term || undefined,
+            status: queryState.activeFilter !== 'all' ? queryState.activeFilter : undefined,
+            sortBy: queryState.sortBy,
+            sortOrder: queryState.sortOrder,
+            tenantId,
+          }
+        : null,
+    );
 
   const { data: activeTemplate, isLoading: isLoadingDetail } =
     useGetPermissionTemplate(selectedId || null);
@@ -73,5 +77,6 @@ export function usePermissionTemplateDashboard(tenantId?: string) {
 
     handleSelect,
     handleCreateSuccess,
+    requiresFilter: !shouldFetch,
   };
 }

@@ -7,7 +7,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useGetAllTenants } from '@app/identity/hooks/use-tenant';
 import { useLocalOverrides } from '@app/hooks/use-local-overrides';
 import { Tenant } from '@domain/identity/models/tenant.model';
-import { TENANT_PAGE_SIZE } from '@domain/identity/constants/tenant.constants';
 import { useQueryState } from '@app/shared/hooks/use-query-state';
 import { usePaginationState } from '@app/shared/hooks/use-pagination-state';
 
@@ -48,6 +47,7 @@ export function useTenantDashboard(): TenantDashboardState & TenantDashboardActi
   totalItems: number;
   totalPages: number;
   startIndex: number;
+  requiresFilter: boolean;
 } {
   const [selectedId, setSelectedId] = useState('');
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
@@ -64,18 +64,24 @@ export function useTenantDashboard(): TenantDashboardState & TenantDashboardActi
   });
 
   const paginationState = usePaginationState({
-    initialPageSize: TENANT_PAGE_SIZE,
+    initialPageSize: 10,
   });
 
-  const { data: tenantPage, isLoading: isLoadingList, error: listError } = useGetAllTenants({
-    page: paginationState.page,
-    pageSize: paginationState.pageSize,
-    search: queryState.appliedQuery.term,
-    criteria: queryState.appliedQuery.criteria,
-    status: queryState.activeFilter,
-    sortBy: queryState.sortBy,
-    sortOrder: queryState.sortOrder,
-  });
+  const shouldFetch = queryState.appliedQuery.filterApplied;
+
+  const { data: tenantPage, isLoading: isLoadingList, error: listError } = useGetAllTenants(
+    shouldFetch
+      ? {
+          page: paginationState.page,
+          pageSize: paginationState.pageSize,
+          search: queryState.appliedQuery.term,
+          criteria: queryState.appliedQuery.criteria,
+          status: queryState.activeFilter,
+          sortBy: queryState.sortBy,
+          sortOrder: queryState.sortOrder,
+        }
+      : null,
+  );
 
   const { items: knownTenants, patchItem: patchLocalTenant } = useLocalOverrides<Tenant>(
     tenantPage?.items,
@@ -169,5 +175,6 @@ export function useTenantDashboard(): TenantDashboardState & TenantDashboardActi
     totalItems,
     totalPages,
     startIndex: paginationState.startIndex,
+    requiresFilter: !shouldFetch,
   };
 }

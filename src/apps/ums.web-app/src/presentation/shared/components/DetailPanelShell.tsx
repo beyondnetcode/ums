@@ -22,6 +22,11 @@ export interface DetailPanelShellProps<T extends string = string> {
   loadingLabel?: string;
   emptyLabel?: string;
 
+  // ── Header bar ─────────────────────────────────────────────────────────────
+  title?: string;
+  subtitle?: string;
+  headerActions?: React.ReactNode;
+
   // ─ Profile / header section ───────────────────────────────────────────────
   /** Slot rendered above the tab bar (e.g. a profile card, summary strip). */
   header?: React.ReactNode;
@@ -31,38 +36,9 @@ export interface DetailPanelShellProps<T extends string = string> {
   banner?: React.ReactNode;
 
   // ── Tabs ───────────────────────────────────────────────────────────────────
-  tabs: DetailTab<T>[];
-  activeTab: T;
-  onTabChange: (tab: T) => void;
-
-  // ── Tab content ────────────────────────────────────────────────────────────
-  /** Renders the body for the currently-active tab. */
-  children: React.ReactNode;
-
-  /** Unique key to reset animation when the selected entity changes. */
-  entityKey?: string;
-}
-
-export interface DetailPanelShellProps<T extends string = string> {
-  // ── State ──────────────────────────────────────────────────────────────────
-  isLoading: boolean;
-  /** True when no entity is currently selected. */
-  isEmpty: boolean;
-
-  // ── Customisable labels ────────────────────────────────────────────────────
-  loadingLabel?: string;
-  emptyLabel?: string;
-
-  // ── Profile / header section ───────────────────────────────────────────────
-  /** Slot rendered above the tab bar (e.g. a profile card, summary strip). */
-  header?: React.ReactNode;
-  /** Optional informational banner between header and tabs. */
-  banner?: React.ReactNode;
-
-  // ── Tabs ───────────────────────────────────────────────────────────────────
-  tabs: DetailTab<T>[];
-  activeTab: T;
-  onTabChange: (tab: T) => void;
+  tabs?: DetailTab<T>[];
+  activeTab?: T;
+  onTabChange?: (tab: T) => void;
 
   // ── Tab content ────────────────────────────────────────────────────────────
   /** Renders the body for the currently-active tab. */
@@ -79,10 +55,13 @@ export function DetailPanelShell<T extends string = string>({
   isEmpty,
   loadingLabel = 'Loading...',
   emptyLabel = 'Select an item to view details.',
+  title,
+  subtitle,
+  headerActions,
   header,
   headerCollapsible = false,
   banner,
-  tabs,
+  tabs = [],
   activeTab,
   onTabChange,
   children,
@@ -115,6 +94,17 @@ export function DetailPanelShell<T extends string = string>({
 
   return (
     <div key={entityKey} className="space-y-4">
+      {/* Title bar */}
+      {(title || subtitle || headerActions) && (
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1">
+            {title && <h2 className="text-lg font-bold text-m3-on-surface">{title}</h2>}
+            {subtitle && <p className="text-xs text-m3-secondary mt-0.5">{subtitle}</p>}
+          </div>
+          {headerActions && <div className="shrink-0">{headerActions}</div>}
+        </div>
+      )}
+
       {/* Profile / header slot */}
       {header && (
         <div className={`overflow-hidden transition-all duration-200 ${headerCollapsed ? 'max-h-0 opacity-0' : 'max-h-[600px] opacity-100'}`}>

@@ -86,7 +86,7 @@ public static class AuthorizationDevDataSeeder
         }
 
         // Seed Profiles
-        var profiles = BuildSeedProfiles(ransaTenantId, actor);
+        var profiles = BuildSeedProfiles(ransaTenantId, roles, templates, actor);
         if (inMemoryProfileRepository is not null)
         {
             foreach (var profile in profiles) inMemoryProfileRepository.Seed(profile);
@@ -107,7 +107,25 @@ public static class AuthorizationDevDataSeeder
         var roles = new List<RoleAggregate>();
         if (suites.Count == 0) return roles;
 
-        // Core Suite Roles
+        // ── GlobalAdmin Role (global administration, no system suite bound) ──────
+        var globalAdminRoleResult = RoleAggregate.Create(
+            tenantId,
+            null, // No system suite — this role applies globally
+            Code.Create("GLOBAL_ADMIN"),
+            Name.Create("Global Administrator"),
+            Description.Create("Full administrative access to all system suites, modules, and resources"),
+            null,
+            0,
+            0,
+            actor);
+        if (globalAdminRoleResult.IsSuccess)
+        {
+            var role = globalAdminRoleResult.Value;
+            role.Props.Id = RoleId.Load(Guid.Parse(CoreDevDataSeeder.GlobalAdminRoleId));
+            roles.Add(role);
+        }
+
+        // ── Core Suite Roles ─────────────────────────────────────────────────────
         var adminRoleResult = RoleAggregate.Create(tenantId, suites[0].GetId(), Code.Create("ADMIN"), Name.Create("System Administrator"), Description.Create("Full administrative access"), null, 0, 0, actor);
         if (adminRoleResult.IsSuccess)
         {
@@ -120,15 +138,15 @@ public static class AuthorizationDevDataSeeder
         if (supervisorRoleResult.IsSuccess) roles.Add(supervisorRoleResult.Value);
 
         var auditorRoleResult = RoleAggregate.Create(tenantId, suites[0].GetId(), Code.Create("AUDITOR"), Name.Create("Compliance Auditor"), Description.Create("Read-only access for audits"), null, 0, 0, actor);
-        if (auditorRoleResult.IsSuccess)
-        {
-            var auditorRole = auditorRoleResult.Value;
-            // GAP-2: Deactivate auditor role to test inactive role filter
-            auditorRole.Deactivate(actor);
-            roles.Add(auditorRole);
-        }
+        if (auditorRoleResult.IsSuccess) roles.Add(auditorRoleResult.Value);
 
-        // WMS Suite Roles
+        var readonlyRoleResult = RoleAggregate.Create(tenantId, suites[0].GetId(), Code.Create("READONLY"), Name.Create("Read Only Viewer"), Description.Create("View-only access, no modifications"), null, 0, 0, actor);
+        if (readonlyRoleResult.IsSuccess) roles.Add(readonlyRoleResult.Value);
+
+        var dataEntryRoleResult = RoleAggregate.Create(tenantId, suites[0].GetId(), Code.Create("DATA_ENTRY"), Name.Create("Data Entry Clerk"), Description.Create("Create and update records only"), null, 0, 0, actor);
+        if (dataEntryRoleResult.IsSuccess) roles.Add(dataEntryRoleResult.Value);
+
+        // ── WMS Suite Roles ──────────────────────────────────────────────
         if (suites.Count > 1)
         {
             var operatorRoleResult = RoleAggregate.Create(tenantId, suites[1].GetId(), Code.Create("OPERATOR"), Name.Create("Warehouse Operator"), Description.Create("Standard warehouse operations"), null, 0, 0, actor);
@@ -140,16 +158,16 @@ public static class AuthorizationDevDataSeeder
             }
 
             var inspectorRoleResult = RoleAggregate.Create(tenantId, suites[1].GetId(), Code.Create("INSPECTOR"), Name.Create("Quality Inspector"), Description.Create("Quality control and inspections"), null, 0, 0, actor);
-            if (inspectorRoleResult.IsSuccess)
-            {
-                var inspectorRole = inspectorRoleResult.Value;
-                // GAP-2: Deactivate inspector role to test inactive role filter in WMS
-                inspectorRole.Deactivate(actor);
-                roles.Add(inspectorRole);
-            }
+            if (inspectorRoleResult.IsSuccess) roles.Add(inspectorRoleResult.Value);
             
             var managerRoleResult = RoleAggregate.Create(tenantId, suites[1].GetId(), Code.Create("WMS_MANAGER"), Name.Create("Warehouse Manager"), Description.Create("Manages all warehouse operations"), null, 0, 0, actor);
             if (managerRoleResult.IsSuccess) roles.Add(managerRoleResult.Value);
+
+            var dispatcherRoleResult = RoleAggregate.Create(tenantId, suites[1].GetId(), Code.Create("DISPATCHER"), Name.Create("Dispatch Coordinator"), Description.Create("Manages stock transfers and dispatches"), null, 0, 0, actor);
+            if (dispatcherRoleResult.IsSuccess) roles.Add(dispatcherRoleResult.Value);
+
+            var reporterRoleResult = RoleAggregate.Create(tenantId, suites[1].GetId(), Code.Create("REPORTER"), Name.Create("Report Analyst"), Description.Create("Generates and exports warehouse reports"), null, 0, 0, actor);
+            if (reporterRoleResult.IsSuccess) roles.Add(reporterRoleResult.Value);
         }
 
         return roles;
@@ -354,97 +372,31 @@ public static class AuthorizationDevDataSeeder
         var templates = new List<PermissionTemplateAggregate>();
         if (suites.Count == 0 || roles.Count == 0) return templates;
 
-        // Helper to find roles by code
         var adminRole = roles.FirstOrDefault(r => r.Code.GetValue() == "ADMIN");
-        var operatorRole = roles.FirstOrDefault(r => r.Code.GetValue() == "OPERATOR");
         var supervisorRole = roles.FirstOrDefault(r => r.Code.GetValue() == "SUPERVISOR");
         var auditorRole = roles.FirstOrDefault(r => r.Code.GetValue() == "AUDITOR");
+        var readonlyRole = roles.FirstOrDefault(r => r.Code.GetValue() == "READONLY");
+        var dataEntryRole = roles.FirstOrDefault(r => r.Code.GetValue() == "DATA_ENTRY");
+        var operatorRole = roles.FirstOrDefault(r => r.Code.GetValue() == "OPERATOR");
         var inspectorRole = roles.FirstOrDefault(r => r.Code.GetValue() == "INSPECTOR");
         var managerRole = roles.FirstOrDefault(r => r.Code.GetValue() == "WMS_MANAGER");
+        var dispatcherRole = roles.FirstOrDefault(r => r.Code.GetValue() == "DISPATCHER");
+        var reporterRole = roles.FirstOrDefault(r => r.Code.GetValue() == "REPORTER");
 
         var coreSuite = suites[0];
         var wmsSuite = suites.Count > 1 ? suites[1] : null;
 
-        // 1. ADMIN - Multiple versions and states
+        // ── 1. ADMIN V2 — Published, full suite access ────────────────────
         if (adminRole != null)
         {
-            // V1 - Deprecated
-            var adminV1 = PermissionTemplateAggregate.Create(tenantId, adminRole.GetId(), coreSuite.GetId(), actor).Value;
-            adminV1.Props.Version = TemplateVersion.Create(1, 0, 0);
-            adminV1.Publish(actor);
-            adminV1.Deprecate(actor);
-            templates.Add(adminV1);
-
-            // V2 - Published (Current active)
             var adminV2 = PermissionTemplateAggregate.Create(tenantId, adminRole.GetId(), coreSuite.GetId(), actor).Value;
             adminV2.Props.Version = TemplateVersion.Create(2, 0, 0);
             adminV2.AddItem(ExclusiveArcTarget.SystemSuite, coreSuite.GetId(), ActionId.Create(), true, false, actor);
             adminV2.Publish(actor);
             templates.Add(adminV2);
-
-            // V3 - Draft (Massive Graph Test for UI)
-            var adminV3 = PermissionTemplateAggregate.Create(tenantId, adminRole.GetId(), coreSuite.GetId(), actor).Value;
-            adminV3.Props.Version = TemplateVersion.Create(3, 0, 0);
-
-            // 1. Module Level
-            var secMod = coreSuite.Modules.First(m => m.Code.GetValue() == "SEC");
-            adminV3.AddItem(ExclusiveArcTarget.Module, secMod.Props.Id, ActionId.Create(), true, false, actor);
-
-            // 2. Menu Level (Mapped to Submodule in TargetType)
-            var usersMenu = secMod.Menus.First(m => m.Code.GetValue() == "USERS");
-            adminV3.AddItem(ExclusiveArcTarget.Submodule, usersMenu.Props.Id, ActionId.Create(), true, false, actor);
-            
-            var auditMenu = secMod.Menus.First(m => m.Code.GetValue() == "AUDIT");
-            adminV3.AddItem(ExclusiveArcTarget.Submodule, auditMenu.Props.Id, ActionId.Create(), false, true, actor); // Explicit Deny for Menu
-
-            // 3. SubMenu Level
-            var listSubMenu = usersMenu.SubMenus.First(sm => sm.Code.GetValue() == "LIST");
-            adminV3.AddItem(ExclusiveArcTarget.Option, listSubMenu.Props.Id, ActionId.Create(), true, false, actor); // Allow
-
-            var rolesSubMenu = usersMenu.SubMenus.First(sm => sm.Code.GetValue() == "ROLES");
-            adminV3.AddItem(ExclusiveArcTarget.Option, rolesSubMenu.Props.Id, ActionId.Create(), false, true, actor); // Deny
-
-            // 4. Option/Action Level
-            var viewUsersOpt = listSubMenu.Options.First(o => o.Code.GetValue() == "VIEW_USERS");
-            adminV3.AddItem(ExclusiveArcTarget.Option, viewUsersOpt.Props.Id, ActionId.Create(), true, false, actor); // Allow Action
-
-            var editUsersOpt = listSubMenu.Options.First(o => o.Code.GetValue() == "EDIT_USERS");
-            adminV3.AddItem(ExclusiveArcTarget.Option, editUsersOpt.Props.Id, ActionId.Create(), false, true, actor); // Deny Action
-
-            // Config Module (Mix of permissions)
-            var configMod = coreSuite.Modules.First(m => m.Code.GetValue() == "CONFIG");
-            adminV3.AddItem(ExclusiveArcTarget.Module, configMod.Props.Id, ActionId.Create(), true, false, actor);
-            
-            var settingsMenu = configMod.Menus.First(m => m.Code.GetValue() == "SETTINGS");
-            var paramsSubMenu = settingsMenu.SubMenus.First(sm => sm.Code.GetValue() == "PARAMS");
-            var viewParamsOpt = paramsSubMenu.Options.First(o => o.Code.GetValue() == "VIEW_PARAMS");
-            adminV3.AddItem(ExclusiveArcTarget.Option, viewParamsOpt.Props.Id, ActionId.Create(), true, false, actor);
-            
-            // Allow standard actions on global aggregates for Admin
-            var usersAgg = coreSuite.DomainResources.First(x => x.Code.GetValue() == "USERS");
-            var auditEnt = coreSuite.DomainResources.First(x => x.Code.GetValue() == "AUDIT_LOG");
-            var inventoryAgg = coreSuite.DomainResources.First(x => x.Code.GetValue() == "INVENTORY");
-            var stockEnt = coreSuite.DomainResources.First(x => x.Code.GetValue() == "STOCK_LEVEL");
-            adminV3.AddItem(ExclusiveArcTarget.Aggregate, usersAgg.Id, ActionId.Create(), true, false, actor);
-            adminV3.AddItem(ExclusiveArcTarget.Entity, auditEnt.Id, ActionId.Create(), true, false, actor);
-
-            // GAP-6: Add CRUD-level permission items for domain resources
-            // Allow Create on Users aggregate
-            adminV3.AddItem(ExclusiveArcTarget.Aggregate, usersAgg.Id, ActionId.Create(), true, false, actor);
-            // Deny Delete on Users aggregate
-            adminV3.AddItem(ExclusiveArcTarget.Aggregate, usersAgg.Id, ActionId.Create(), false, true, actor);
-            // Allow Read on Inventory aggregate
-            adminV3.AddItem(ExclusiveArcTarget.Aggregate, inventoryAgg.Id, ActionId.Create(), true, false, actor);
-            // Deny Update on Stock Level entity
-            adminV3.AddItem(ExclusiveArcTarget.Entity, stockEnt.Id, ActionId.Create(), false, true, actor);
-
-            // NOTE: Admin V3 kept as Draft (not published) for UI editing tests (GAP-1)
-            // adminV3.Publish(actor);  // <-- Intentionally commented out
-
-            templates.Add(adminV3);
         }
 
-        // 2. SUPERVISOR - Published
+        // ── 2. SUPERVISOR — Published, module-level access ────────────────
         if (supervisorRole != null)
         {
             var supervisorTpl = PermissionTemplateAggregate.Create(tenantId, supervisorRole.GetId(), coreSuite.GetId(), actor).Value;
@@ -454,7 +406,7 @@ public static class AuthorizationDevDataSeeder
             templates.Add(supervisorTpl);
         }
 
-        // 3. AUDITOR - Draft with multiple items
+        // ── 3. AUDITOR — Published, read-only on audit logs ───────────────
         if (auditorRole != null)
         {
             var auditorTpl = PermissionTemplateAggregate.Create(tenantId, auditorRole.GetId(), coreSuite.GetId(), actor).Value;
@@ -462,104 +414,247 @@ public static class AuthorizationDevDataSeeder
             var auditMenu = secMod.Menus.First(m => m.Code.GetValue() == "AUDIT");
             var logsSubMenu = auditMenu.SubMenus.First(sm => sm.Code.GetValue() == "LOGS");
             var viewLogsOpt = logsSubMenu.Options.First(o => o.Code.GetValue() == "VIEW_LOGS");
-            
+
             auditorTpl.AddItem(ExclusiveArcTarget.Submodule, auditMenu.Props.Id, ActionId.Create(), true, false, actor);
             auditorTpl.AddItem(ExclusiveArcTarget.Option, logsSubMenu.Props.Id, ActionId.Create(), true, false, actor);
             auditorTpl.AddItem(ExclusiveArcTarget.Option, viewLogsOpt.Props.Id, ActionId.Create(), true, false, actor);
-            
+            auditorTpl.Publish(actor);
             templates.Add(auditorTpl);
         }
 
-        // 4. OPERATOR - Draft with some items (GAP-6: CRUD-level permissions)
+        // ── 4. READONLY — Published, view-only on users list ──────────────
+        if (readonlyRole != null)
+        {
+            var readonlyTpl = PermissionTemplateAggregate.Create(tenantId, readonlyRole.GetId(), coreSuite.GetId(), actor).Value;
+            var secMod = coreSuite.Modules.First(m => m.Code.GetValue() == "SEC");
+            var usersMenu = secMod.Menus.First(m => m.Code.GetValue() == "USERS");
+            var listSubMenu = usersMenu.SubMenus.First(sm => sm.Code.GetValue() == "LIST");
+            var viewUsersOpt = listSubMenu.Options.First(o => o.Code.GetValue() == "VIEW_USERS");
+
+            readonlyTpl.AddItem(ExclusiveArcTarget.Option, viewUsersOpt.Props.Id, ActionId.Create(), true, false, actor);
+            readonlyTpl.Publish(actor);
+            templates.Add(readonlyTpl);
+        }
+
+        // ── 5. DATA_ENTRY — Published, create/update on users ─────────────
+        if (dataEntryRole != null)
+        {
+            var dataEntryTpl = PermissionTemplateAggregate.Create(tenantId, dataEntryRole.GetId(), coreSuite.GetId(), actor).Value;
+            var secMod = coreSuite.Modules.First(m => m.Code.GetValue() == "SEC");
+            var usersMenu = secMod.Menus.First(m => m.Code.GetValue() == "USERS");
+            var listSubMenu = usersMenu.SubMenus.First(sm => sm.Code.GetValue() == "LIST");
+            var editUsersOpt = listSubMenu.Options.First(o => o.Code.GetValue() == "EDIT_USERS");
+
+            dataEntryTpl.AddItem(ExclusiveArcTarget.Option, listSubMenu.Props.Id, ActionId.Create(), true, false, actor);
+            dataEntryTpl.AddItem(ExclusiveArcTarget.Option, editUsersOpt.Props.Id, ActionId.Create(), true, false, actor);
+            dataEntryTpl.Publish(actor);
+            templates.Add(dataEntryTpl);
+        }
+
+        // ── 6. OPERATOR — Published, stock view + deny adjust ─────────────
         if (operatorRole != null && wmsSuite != null)
         {
             var operatorTpl = PermissionTemplateAggregate.Create(tenantId, operatorRole.GetId(), wmsSuite.GetId(), actor).Value;
-
-            // Allow access to INV module
             var invMod = wmsSuite.Modules.First(m => m.Code.GetValue() == "INV");
-            operatorTpl.AddItem(ExclusiveArcTarget.Module, invMod.Props.Id, ActionId.Create(), true, false, actor);
-
-            // Allow stock levels submenu
             var stockMenu = invMod.Menus.First(m => m.Code.GetValue() == "STOCK");
             var levelsSubMenu = stockMenu.SubMenus.First(sm => sm.Code.GetValue() == "LEVELS");
-            operatorTpl.AddItem(ExclusiveArcTarget.Option, levelsSubMenu.Props.Id, ActionId.Create(), true, false, actor);
-
-            // Allow VIEW_STOCK option, deny ADJUST_STOCK
             var viewStockOpt = levelsSubMenu.Options.First(o => o.Code.GetValue() == "VIEW_STOCK");
             var adjustStockOpt = levelsSubMenu.Options.First(o => o.Code.GetValue() == "ADJUST_STOCK");
+            var invWms = wmsSuite.DomainResources.First(x => x.Code.GetValue() == "INVENTORY_WMS");
+
+            operatorTpl.AddItem(ExclusiveArcTarget.Module, invMod.Props.Id, ActionId.Create(), true, false, actor);
+            operatorTpl.AddItem(ExclusiveArcTarget.Option, levelsSubMenu.Props.Id, ActionId.Create(), true, false, actor);
             operatorTpl.AddItem(ExclusiveArcTarget.Option, viewStockOpt.Props.Id, ActionId.Create(), true, false, actor);
             operatorTpl.AddItem(ExclusiveArcTarget.Option, adjustStockOpt.Props.Id, ActionId.Create(), false, true, actor);
-
-            // Allow read on WMS inventory aggregate
-            var invWms = wmsSuite.DomainResources.First(x => x.Code.GetValue() == "INVENTORY_WMS");
             operatorTpl.AddItem(ExclusiveArcTarget.Aggregate, invWms.Id, ActionId.Create(), true, false, actor);
-
+            operatorTpl.Publish(actor);
             templates.Add(operatorTpl);
         }
 
-        // 5. INSPECTOR - Published with Deny rules
+        // ── 7. INSPECTOR — Published, quality control with deny rules ─────
         if (inspectorRole != null && wmsSuite != null)
         {
             var inspectorTpl = PermissionTemplateAggregate.Create(tenantId, inspectorRole.GetId(), wmsSuite.GetId(), actor).Value;
-            inspectorTpl.AddItem(ExclusiveArcTarget.Module, wmsSuite.Modules.First().Props.Id, ActionId.Create(), true, false, actor);
-            inspectorTpl.AddItem(ExclusiveArcTarget.Option, wmsSuite.Modules.First().Menus.First().SubMenus.First().Props.Id, ActionId.Create(), false, true, actor); // Deny rule
+            var invMod = wmsSuite.Modules.First(m => m.Code.GetValue() == "INV");
+            var stockMenu = invMod.Menus.First(m => m.Code.GetValue() == "STOCK");
+            var levelsSubMenu = stockMenu.SubMenus.First(sm => sm.Code.GetValue() == "LEVELS");
+            var viewStockOpt = levelsSubMenu.Options.First(o => o.Code.GetValue() == "VIEW_STOCK");
+
+            inspectorTpl.AddItem(ExclusiveArcTarget.Module, invMod.Props.Id, ActionId.Create(), true, false, actor);
+            inspectorTpl.AddItem(ExclusiveArcTarget.Option, levelsSubMenu.Props.Id, ActionId.Create(), true, false, actor);
+            inspectorTpl.AddItem(ExclusiveArcTarget.Option, viewStockOpt.Props.Id, ActionId.Create(), true, false, actor);
             inspectorTpl.Publish(actor);
             templates.Add(inspectorTpl);
         }
 
-        // 6. WMS MANAGER - Deprecated
+        // ── 8. WMS_MANAGER — Published, full WMS access ───────────────────
         if (managerRole != null && wmsSuite != null)
         {
             var managerTpl = PermissionTemplateAggregate.Create(tenantId, managerRole.GetId(), wmsSuite.GetId(), actor).Value;
             managerTpl.AddItem(ExclusiveArcTarget.SystemSuite, wmsSuite.GetId(), ActionId.Create(), true, false, actor);
             managerTpl.Publish(actor);
-            managerTpl.Deprecate(actor);
             templates.Add(managerTpl);
+        }
 
-            // 7. WMS MANAGER V2 - Draft with rich domain resource permissions (GAP-6)
-            var managerV2 = PermissionTemplateAggregate.Create(tenantId, managerRole.GetId(), wmsSuite.GetId(), actor).Value;
-            managerV2.Props.Version = TemplateVersion.Create(2, 0, 0);
-
-            // Allow Reports module
-            var reportsMod = wmsSuite.Modules.First(m => m.Code.GetValue() == "REPORTS");
-            managerV2.AddItem(ExclusiveArcTarget.Module, reportsMod.Props.Id, ActionId.Create(), true, false, actor);
-
-            // Allow all stock reports
-            var invReportsMenu = reportsMod.Menus.First(m => m.Code.GetValue() == "INV_REPORTS");
-            var stockSummarySubMenu = invReportsMenu.SubMenus.First(sm => sm.Code.GetValue() == "STOCK_SUMMARY");
-            managerV2.AddItem(ExclusiveArcTarget.Option, stockSummarySubMenu.Props.Id, ActionId.Create(), true, false, actor);
-
-            // Domain resource permissions
-            var invWms = wmsSuite.DomainResources.First(x => x.Code.GetValue() == "INVENTORY_WMS");
-            var stockMovement = wmsSuite.DomainResources.First(x => x.Code.GetValue() == "STOCK_MOVEMENT");
+        // ── 9. DISPATCHER — Published, transfers only ─────────────────────
+        if (dispatcherRole != null && wmsSuite != null)
+        {
+            var dispatcherTpl = PermissionTemplateAggregate.Create(tenantId, dispatcherRole.GetId(), wmsSuite.GetId(), actor).Value;
+            var invMod = wmsSuite.Modules.First(m => m.Code.GetValue() == "INV");
+            var opsMenu = invMod.Menus.First(m => m.Code.GetValue() == "OPS");
+            var transfersSubMenu = opsMenu.SubMenus.First(sm => sm.Code.GetValue() == "TRANSFERS");
+            var initiateOpt = transfersSubMenu.Options.First(o => o.Code.GetValue() == "INITIATE_TRANSFER");
+            var approveOpt = transfersSubMenu.Options.First(o => o.Code.GetValue() == "APPROVE_TRANSFER");
             var transferOrder = wmsSuite.DomainResources.First(x => x.Code.GetValue() == "TRANSFER_ORDER");
 
-            // Allow full access to Inventory aggregate
-            managerV2.AddItem(ExclusiveArcTarget.Aggregate, invWms.Id, ActionId.Create(), true, false, actor);
-            // Allow read on Stock Movement entity
-            managerV2.AddItem(ExclusiveArcTarget.Entity, stockMovement.Id, ActionId.Create(), true, false, actor);
-            // Deny delete on Transfer Order entity
-            managerV2.AddItem(ExclusiveArcTarget.Entity, transferOrder.Id, ActionId.Create(), false, true, actor);
+            dispatcherTpl.AddItem(ExclusiveArcTarget.Submodule, opsMenu.Props.Id, ActionId.Create(), true, false, actor);
+            dispatcherTpl.AddItem(ExclusiveArcTarget.Option, transfersSubMenu.Props.Id, ActionId.Create(), true, false, actor);
+            dispatcherTpl.AddItem(ExclusiveArcTarget.Option, initiateOpt.Props.Id, ActionId.Create(), true, false, actor);
+            dispatcherTpl.AddItem(ExclusiveArcTarget.Option, approveOpt.Props.Id, ActionId.Create(), true, false, actor);
+            dispatcherTpl.AddItem(ExclusiveArcTarget.Entity, transferOrder.Id, ActionId.Create(), true, false, actor);
+            dispatcherTpl.Publish(actor);
+            templates.Add(dispatcherTpl);
+        }
 
-            templates.Add(managerV2);
+        // ── 10. REPORTER — Published, reports module only ─────────────────
+        if (reporterRole != null && wmsSuite != null)
+        {
+            var reporterTpl = PermissionTemplateAggregate.Create(tenantId, reporterRole.GetId(), wmsSuite.GetId(), actor).Value;
+            var reportsMod = wmsSuite.Modules.First(m => m.Code.GetValue() == "REPORTS");
+            var invReportsMenu = reportsMod.Menus.First(m => m.Code.GetValue() == "INV_REPORTS");
+            var stockSummarySubMenu = invReportsMenu.SubMenus.First(sm => sm.Code.GetValue() == "STOCK_SUMMARY");
+            var viewReportOpt = stockSummarySubMenu.Options.First(o => o.Code.GetValue() == "VIEW_STOCK_REPORT");
+            var exportOpt = stockSummarySubMenu.Options.First(o => o.Code.GetValue() == "EXPORT_STOCK");
+
+            reporterTpl.AddItem(ExclusiveArcTarget.Module, reportsMod.Props.Id, ActionId.Create(), true, false, actor);
+            reporterTpl.AddItem(ExclusiveArcTarget.Option, stockSummarySubMenu.Props.Id, ActionId.Create(), true, false, actor);
+            reporterTpl.AddItem(ExclusiveArcTarget.Option, viewReportOpt.Props.Id, ActionId.Create(), true, false, actor);
+            reporterTpl.AddItem(ExclusiveArcTarget.Option, exportOpt.Props.Id, ActionId.Create(), true, false, actor);
+            reporterTpl.Publish(actor);
+            templates.Add(reporterTpl);
+        }
+
+        // ── 11. GLOBAL_ADMIN — Full access to all suites and resources ─────────
+        var globalAdminRole = roles.FirstOrDefault(r => r.Code.GetValue() == "GLOBAL_ADMIN");
+        if (globalAdminRole != null && suites.Count > 0)
+        {
+            // GlobalAdmin template targets the first suite (LOGISTICS_CORE) as primary
+            // but grants SystemSuite-level Allow for ALL suites
+            var globalAdminTpl = PermissionTemplateAggregate.Create(tenantId, globalAdminRole.GetId(), suites[0].GetId(), actor).Value;
+
+            // Full access at SystemSuite level for ALL suites
+            foreach (var suite in suites)
+            {
+                globalAdminTpl.AddItem(ExclusiveArcTarget.SystemSuite, suite.GetId(), ActionId.Create(), true, false, actor);
+            }
+
+            // Module-level access for all modules in all suites
+            foreach (var suite in suites)
+            {
+                foreach (var mod in suite.Modules)
+                {
+                    globalAdminTpl.AddItem(ExclusiveArcTarget.Module, mod.Props.Id, ActionId.Create(), true, false, actor);
+                }
+            }
+
+            // All domain resources (aggregates and entities)
+            foreach (var suite in suites)
+            {
+                foreach (var domainRes in suite.DomainResources)
+                {
+                    if (domainRes.Props.ResourceType == DomainResourceType.Aggregate)
+                        globalAdminTpl.AddItem(ExclusiveArcTarget.Aggregate, domainRes.Id, ActionId.Create(), true, false, actor);
+                    else if (domainRes.Props.ResourceType == DomainResourceType.Entity)
+                        globalAdminTpl.AddItem(ExclusiveArcTarget.Entity, domainRes.Id, ActionId.Create(), true, false, actor);
+                }
+            }
+
+            globalAdminTpl.Publish(actor);
+            templates.Add(globalAdminTpl);
         }
 
         return templates;
     }
 
-    private static IReadOnlyList<ProfileAggregate> BuildSeedProfiles(TenantId tenantId, ActorId actor)
+    private static IReadOnlyList<ProfileAggregate> BuildSeedProfiles(TenantId tenantId, IReadOnlyList<RoleAggregate> roles, IReadOnlyList<PermissionTemplateAggregate> templates, ActorId actor)
     {
         var profiles = new List<ProfileAggregate>();
 
-        var adminProfile = ProfileAggregate.Create(
-            tenantId,
-            UserId.Load(Guid.Parse(CoreDevDataSeeder.RansaAdminUserId)),
-            RoleId.Load(Guid.Parse(CoreDevDataSeeder.DemoAdminRoleId)),
-            null,
-            actor);
+        var ransaBaseBytes = tenantId.GetValue().ToByteArray();
+        Guid UserGuid(byte idx)
+        {
+            var b = (byte[])ransaBaseBytes.Clone();
+            b[0] = idx;
+            return new Guid(b);
+        }
 
-        if (adminProfile.IsSuccess)
-            profiles.Add(adminProfile.Value);
+        var globalAdminRole = roles.FirstOrDefault(r => r.Code.GetValue() == "GLOBAL_ADMIN");
+        var adminRole = roles.FirstOrDefault(r => r.Code.GetValue() == "ADMIN");
+        var supervisorRole = roles.FirstOrDefault(r => r.Code.GetValue() == "SUPERVISOR");
+        var auditorRole = roles.FirstOrDefault(r => r.Code.GetValue() == "AUDITOR");
+        var readonlyRole = roles.FirstOrDefault(r => r.Code.GetValue() == "READONLY");
+        var dataEntryRole = roles.FirstOrDefault(r => r.Code.GetValue() == "DATA_ENTRY");
+        var operatorRole = roles.FirstOrDefault(r => r.Code.GetValue() == "OPERATOR");
+        var inspectorRole = roles.FirstOrDefault(r => r.Code.GetValue() == "INSPECTOR");
+        var managerRole = roles.FirstOrDefault(r => r.Code.GetValue() == "WMS_MANAGER");
+        var dispatcherRole = roles.FirstOrDefault(r => r.Code.GetValue() == "DISPATCHER");
+        var reporterRole = roles.FirstOrDefault(r => r.Code.GetValue() == "REPORTER");
+
+        var globalAdminTpl = templates.FirstOrDefault(t => t.RoleId.Equals(globalAdminRole?.GetId()) && t.Status == TemplateStatus.Published);
+        var adminTpl = templates.FirstOrDefault(t => t.RoleId.Equals(adminRole?.GetId()) && t.Props.Version.GetValue() == "2.0.0" && t.Status == TemplateStatus.Published);
+        var supervisorTpl = templates.FirstOrDefault(t => t.RoleId.Equals(supervisorRole?.GetId()) && t.Status == TemplateStatus.Published);
+        var auditorTpl = templates.FirstOrDefault(t => t.RoleId.Equals(auditorRole?.GetId()) && t.Status == TemplateStatus.Published);
+        var readonlyTpl = templates.FirstOrDefault(t => t.RoleId.Equals(readonlyRole?.GetId()) && t.Status == TemplateStatus.Published);
+        var dataEntryTpl = templates.FirstOrDefault(t => t.RoleId.Equals(dataEntryRole?.GetId()) && t.Status == TemplateStatus.Published);
+        var operatorTpl = templates.FirstOrDefault(t => t.RoleId.Equals(operatorRole?.GetId()) && t.Status == TemplateStatus.Published);
+        var inspectorTpl = templates.FirstOrDefault(t => t.RoleId.Equals(inspectorRole?.GetId()) && t.Status == TemplateStatus.Published);
+        var managerTpl = templates.FirstOrDefault(t => t.RoleId.Equals(managerRole?.GetId()) && t.Status == TemplateStatus.Published);
+        var dispatcherTpl = templates.FirstOrDefault(t => t.RoleId.Equals(dispatcherRole?.GetId()) && t.Status == TemplateStatus.Published);
+        var reporterTpl = templates.FirstOrDefault(t => t.RoleId.Equals(reporterRole?.GetId()) && t.Status == TemplateStatus.Published);
+
+        void AddProfile(Guid userId, RoleAggregate? role, PermissionTemplateAggregate? tpl)
+        {
+            if (role == null) return;
+            var p = ProfileAggregate.Create(tenantId, UserId.Load(userId), role.GetId(), null, actor);
+            if (p.IsSuccess)
+            {
+                if (tpl != null) p.Value.AssignTemplate(tpl, actor);
+                profiles.Add(p.Value);
+            }
+        }
+
+        // 0. SuperAdmin — full global administration
+        AddProfile(Guid.Parse(CoreDevDataSeeder.SuperAdminUserId), globalAdminRole, globalAdminTpl);
+
+        // 1. Admin — full suite access (ADMIN V2)
+        AddProfile(UserGuid(1), adminRole, adminTpl);
+
+        // 2. Supervisor — module-level access to Security
+        AddProfile(UserGuid(6), supervisorRole, supervisorTpl);
+
+        // 3. Auditor — read-only on audit logs
+        AddProfile(UserGuid(11), auditorRole, auditorTpl);
+
+        // 4. Read Only — view users list only
+        AddProfile(UserGuid(12), readonlyRole, readonlyTpl);
+
+        // 5. Data Entry — create/update users
+        AddProfile(UserGuid(2), dataEntryRole, dataEntryTpl);
+
+        // 6. Warehouse Operator — stock view, deny adjust
+        AddProfile(UserGuid(7), operatorRole, operatorTpl);
+
+        // 7. Quality Inspector — stock view only
+        AddProfile(UserGuid(9), inspectorRole, inspectorTpl);
+
+        // 8. Warehouse Manager — full WMS access
+        AddProfile(UserGuid(10), managerRole, managerTpl);
+
+        // 9. Dispatch Coordinator — transfers only
+        AddProfile(UserGuid(8), dispatcherRole, dispatcherTpl);
+
+        // 10. Report Analyst — reports module only
+        AddProfile(UserGuid(3), reporterRole, reporterTpl);
 
         return profiles;
     }

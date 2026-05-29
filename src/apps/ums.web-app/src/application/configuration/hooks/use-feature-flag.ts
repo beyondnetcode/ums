@@ -41,11 +41,12 @@ function isNetworkError(error: unknown): boolean {
 
 // ── Queries ──────────────────────────────────────────────────────────────────
 
-export const useGetAllFeatureFlags = (params: FeatureFlagQueryParams) =>
+export const useGetAllFeatureFlags = (params: FeatureFlagQueryParams | null) =>
   useQuery<FeatureFlagPage>({
-    queryKey: ['feature-flags', params.page, params.pageSize, params.search, params.criteria,
-                params.status, params.sortBy, params.sortOrder, params.flagType],
-    queryFn:  () => featureFlagService.getAllFeatureFlags(params),
+    queryKey: ['feature-flags', params?.page, params?.pageSize, params?.search, params?.criteria,
+                params?.status, params?.sortBy, params?.sortOrder, params?.flagType],
+    queryFn:  () => featureFlagService.getAllFeatureFlags(params!),
+    enabled:  !!params,
     staleTime: 30_000,
     retry: (count, err) => {
       if (isNonRecoverable(err)) return false;

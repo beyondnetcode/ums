@@ -31,10 +31,11 @@ function isNetworkError(error: unknown): boolean {
 
 // ─── Queries ────────────────────────────────────────────────────────────────
 
-export const useGetAllTenants = (params: TenantQueryParams) => {
+export const useGetAllTenants = (params: TenantQueryParams | null) => {
   return useQuery<TenantPage>({
-    queryKey: ['tenants', params.page, params.pageSize, params.search, params.criteria, params.status, params.sortBy, params.sortOrder],
-    queryFn: () => tenantService.getAllTenants(params),
+    queryKey: ['tenants', params?.page, params?.pageSize, params?.search, params?.criteria, params?.status, params?.sortBy, params?.sortOrder],
+    queryFn: () => tenantService.getAllTenants(params!),
+    enabled: !!params,
     staleTime: 30_000,
     retry: (failureCount, error: unknown) => {
       if (isNonRecoverableError(error)) return false;

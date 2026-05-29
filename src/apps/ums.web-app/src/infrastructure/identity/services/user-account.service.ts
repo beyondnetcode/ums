@@ -49,7 +49,7 @@ export const userAccountService = {
       tenantId: params?.tenantId,
     });
 
-    const pageResult = UserAccountPageSchema.safeParse(response.getUserAccounts);
+    const pageResult = UserAccountPageSchema.safeParse(response.userAccounts);
     if (!pageResult.success) {
       logger.error('Invalid GraphQL response shape for userAccounts query', pageResult.error);
       throw new Error('Invalid GraphQL response shape for userAccounts query');
@@ -59,8 +59,8 @@ export const userAccountService = {
 
   getUserAccountById: async (userAccountId: string): Promise<UserAccount> => {
     const response = await graphqlQueries.getUserAccountById(userAccountId);
-    if (!response.getUserAccountById) throw new Error('User account not found');
-    return UserAccountSchema.parse(response.getUserAccountById);
+    if (!response.userAccountById) throw new Error('User account not found');
+    return UserAccountSchema.parse(response.userAccountById);
   },
 
   // ── Commands (REST) ───────────────────────────────────────────────────────

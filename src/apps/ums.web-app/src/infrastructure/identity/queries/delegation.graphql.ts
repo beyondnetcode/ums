@@ -7,13 +7,13 @@
 import { graphqlClient, GraphQlValidationError } from '@infra/http/graphqlClient';
 
 const GET_DELEGATION_BY_ID =
-  'query DelegationById($delegationId: UUID!) { getDelegationById: delegationById(delegationId: $delegationId) { delegationId tenantId delegatingAdminId delegatedAdminId scopeType scopeId allowedActions validFrom validUntil maxDurationDays requiresApproval approvalRequestId status revokedAt revokedBy revocationReason } }';
+  'query DelegationById($delegationId: UUID!) { delegationById(delegationId: $delegationId) { delegationId tenantId delegatingAdminId delegatedAdminId scopeType scopeId allowedActions validFrom validUntil maxDurationDays requiresApproval approvalRequestId status revokedAt revokedBy revocationReason } }';
 
 const GET_DELEGATIONS_BY_DELEGATED_ADMIN =
-  'query DelegationsByDelegatedAdmin($delegatedAdminId: UUID!, $tenantId: UUID!) { getDelegationsByDelegatedAdmin: delegationsByDelegatedAdmin(delegatedAdminId: $delegatedAdminId, tenantId: $tenantId) { delegationId tenantId delegatingAdminId delegatedAdminId scopeType scopeId allowedActions validFrom validUntil maxDurationDays requiresApproval approvalRequestId status revokedAt revokedBy revocationReason } }';
+  'query DelegationsByDelegatedAdmin($delegatedAdminId: UUID!, $tenantId: UUID!) { delegationsByDelegatedAdmin(delegatedAdminId: $delegatedAdminId, tenantId: $tenantId) { delegationId tenantId delegatingAdminId delegatedAdminId scopeType scopeId allowedActions validFrom validUntil maxDurationDays requiresApproval approvalRequestId status revokedAt revokedBy revocationReason } }';
 
 const GET_DELEGATIONS_BY_DELEGATING_ADMIN =
-  'query DelegationsByDelegatingAdmin($delegatingAdminId: UUID!, $tenantId: UUID!) { getDelegationsByDelegatingAdmin: delegationsByDelegatingAdmin(delegatingAdminId: $delegatingAdminId, tenantId: $tenantId) { delegationId tenantId delegatingAdminId delegatedAdminId scopeType scopeId allowedActions validFrom validUntil maxDurationDays requiresApproval approvalRequestId status revokedAt revokedBy revocationReason } }';
+  'query DelegationsByDelegatingAdmin($delegatingAdminId: UUID!, $tenantId: UUID!) { delegationsByDelegatingAdmin(delegatingAdminId: $delegatingAdminId, tenantId: $tenantId) { delegationId tenantId delegatingAdminId delegatedAdminId scopeType scopeId allowedActions validFrom validUntil maxDurationDays requiresApproval approvalRequestId status revokedAt revokedBy revocationReason } }';
 
 export interface GraphqlDelegationDto {
   delegationId: string;
@@ -35,15 +35,15 @@ export interface GraphqlDelegationDto {
 }
 
 export interface GetDelegationByIdResponse {
-  getDelegationById: GraphqlDelegationDto | null;
+  delegationById: GraphqlDelegationDto | null;
 }
 
 export interface GetDelegationsByDelegatedAdminResponse {
-  getDelegationsByDelegatedAdmin: GraphqlDelegationDto[];
+  delegationsByDelegatedAdmin: GraphqlDelegationDto[];
 }
 
 export interface GetDelegationsByDelegatingAdminResponse {
-  getDelegationsByDelegatingAdmin: GraphqlDelegationDto[];
+  delegationsByDelegatingAdmin: GraphqlDelegationDto[];
 }
 
 export const graphqlDelegationQueries = {

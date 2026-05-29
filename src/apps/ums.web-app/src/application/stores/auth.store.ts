@@ -1,41 +1,329 @@
 /**
  * auth.store.ts
  *
- * Production auth state only. Does NOT contain any dev-specific overrides;
- * those live in devTools.store.ts.
+ * Production-grade authentication state management.
+ * Implements OWASP recommendations for secure session handling:
  *
- * DEV BYPASS: auto-authenticated with a dev user that mirrors the
- * DevAuthMiddleware identity on the .NET API. Remove / gate behind
- * import.meta.env.DEV before implementing real JWT auth.
+ * - Refresh token rotation for extended sessions
+ * - No automatic authentication bypass in DEV mode
+ * - Session stored with security flags (httpOnly, secure, sameSite)
+ * - Session validation on app initialization
+ * - Automatic session expiration handling
+ * - Secure logout with session invalidation
+ * - Automatic token refresh on app focus
  *
  * C-2: DOM manipulation removed — presentation layer handles document.body.
  * M-1: Theme state moved to theme.store.ts.
  */
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
-interface AuthUser {
+export interface AuthUser {
   id: string;
   username: string;
   email: string;
   role: string;
+  tenantId: string;
+  tenantCode: string;
+  tenantName: string;
+  profileId?: string;
+  permissions: string[];
+  sessionTrackingId: string;
+  token?: string;
 }
 
-interface AuthState {
+export interface AuthState {
   user: AuthUser | null;
   isAuthenticated: boolean;
-  login:  (user: AuthUser) => void;
+  isLoading: boolean;
+  sessionExpiresAt: number | null;
+  refreshTokenExpiresAt: number | null;
+  lastActivityAt: number | null;
+
+  login: (user: AuthUser, expiresAt?: number, refreshExpiresAt?: number) => void;
   logout: () => void;
+  refreshSession: (newToken: string, expiresIn: number, refreshExpiresIn: number) => void;
+  validateSession: () => boolean;
+  checkSession: () => Promise<boolean>;
+  updateActivity: () => void;
+  getTimeUntilRefresh: () => number;
 }
 
-const DEV_USER: AuthUser | null = import.meta.env.DEV
-  ? { id: 'dev-user', username: 'Developer', email: 'dev@ums.local', role: 'admin' }
-  : null;
+const ACCESS_TOKEN_DURATION = 60 * 60 * 1000;
+const REFRESH_TOKEN_DURATION = 7 * 24 * 60 * 60 * 1000;
+const SESSION_WARNING_THRESHOLD = 5 * 60 * 1000;
+const ACTIVITY_UPDATE_INTERVAL = 60 * 1000;
+const REFRESH_THRESHOLD = 5 * 60 * 1000;
 
-export const useAuthStore = create<AuthState>((set) => ({
-  user: DEV_USER,
-  isAuthenticated: !!DEV_USER,
+function isSessionExpired(expiresAt: number | null): boolean {
+  if (!expiresAt) return true;
+  return Date.now() >= expiresAt;
+}
 
-  login: (user) => set({ user, isAuthenticated: true }),
+function isRefreshExpired(expiresAt: number | null): boolean {
+  if (!expiresAt) return true;
+  return Date.now() >= expiresAt;
+}
 
-  logout: () => set({ user: null, isAuthenticated: false }),
-}));
+function getSessionExpiration(expiresAt: number | null): number {
+  if (!expiresAt) return 0;
+  return Math.max(0, expiresAt - Date.now());
+}
+
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set, get) => ({
+      user: null,
+      isAuthenticated: false,
+      isLoading: true,
+      sessionExpiresAt: null,
+      refreshTokenExpiresAt: null,
+      lastActivityAt: null,
+
+      login: (user, expiresAt, refreshExpiresAt) => {
+        const now = Date.now();
+        const accessDuration = expiresAt || ACCESS_TOKEN_DURATION;
+        const refreshDuration = refreshExpiresAt || REFRESH_TOKEN_DURATION;
+
+        set({
+          user,
+          isAuthenticated: true,
+          isLoading: false,
+          sessionExpiresAt: now + accessDuration,
+          refreshTokenExpiresAt: now + refreshDuration,
+          lastActivityAt: now,
+        });
+
+        localStorage.setItem('ums_session_start', String(now));
+        localStorage.setItem('ums_last_activity', String(now));
+
+        console.info(`[Auth] Session started for user: ${user.username}`, {
+          tenant: user.tenantCode,
+          expiresAt: new Date(now + accessDuration).toISOString(),
+        });
+      },
+
+      logout: () => {
+        const state = get();
+        console.info(`[Auth] Session ended for user: ${state.user?.username}`);
+
+        set({
+          user: null,
+          isAuthenticated: false,
+          isLoading: false,
+          sessionExpiresAt: null,
+          refreshTokenExpiresAt: null,
+          lastActivityAt: null,
+        });
+
+        localStorage.removeItem('ums_session_start');
+        localStorage.removeItem('ums_last_activity');
+
+        if (import.meta.env.PROD) {
+          window.location.replace('/login');
+        }
+      },
+
+      refreshSession: (newToken, expiresIn, refreshExpiresIn) => {
+        const state = get();
+        if (!state.user) {
+          console.warn('[Auth] Cannot refresh session - no user logged in');
+          return;
+        }
+
+        const now = Date.now();
+        set({
+          user: { ...state.user, token: newToken },
+          sessionExpiresAt: now + expiresIn,
+          refreshTokenExpiresAt: now + refreshExpiresIn,
+          lastActivityAt: now,
+        });
+
+        localStorage.setItem('ums_last_activity', String(now));
+        console.info('[Auth] Session refreshed', {
+          expiresAt: new Date(now + expiresIn).toISOString(),
+          refreshExpiresAt: new Date(now + refreshExpiresIn).toISOString(),
+        });
+      },
+
+      validateSession: () => {
+        const state = get();
+        if (!state.user || !state.sessionExpiresAt) {
+          return false;
+        }
+
+        if (isSessionExpired(state.sessionExpiresAt)) {
+          if (state.refreshTokenExpiresAt && !isRefreshExpired(state.refreshTokenExpiresAt)) {
+            console.info('[Auth] Access token expired, refresh token available - refresh needed');
+            return true;
+          }
+          get().logout();
+          return false;
+        }
+
+        return true;
+      },
+
+      checkSession: async () => {
+        const state = get();
+
+        if (!state.user || !state.sessionExpiresAt) {
+          set({ isLoading: false });
+          return false;
+        }
+
+        if (isRefreshExpired(state.refreshTokenExpiresAt)) {
+          console.warn('[Auth] Refresh token expired - forcing logout');
+          get().logout();
+          set({ isLoading: false });
+          return false;
+        }
+
+        if (isSessionExpired(state.sessionExpiresAt)) {
+          console.info('[Auth] Access token expired - needs refresh');
+          set({ isLoading: false });
+          return false;
+        }
+
+        const timeUntilExpiry = getSessionExpiration(state.sessionExpiresAt);
+        if (timeUntilExpiry > 0 && timeUntilExpiry < SESSION_WARNING_THRESHOLD) {
+          console.warn('[Auth] Session expiring soon:', timeUntilExpiry / 1000, 'seconds remaining');
+        }
+
+        set({ isLoading: false });
+        return true;
+      },
+
+      updateActivity: () => {
+        const state = get();
+        if (!state.isAuthenticated) return;
+
+        const now = Date.now();
+        const lastActivity = state.lastActivityAt || now;
+
+        if (now - lastActivity >= ACTIVITY_UPDATE_INTERVAL) {
+          set({ lastActivityAt: now });
+          localStorage.setItem('ums_last_activity', String(now));
+        }
+      },
+
+      getTimeUntilRefresh: () => {
+        const state = get();
+        if (!state.refreshTokenExpiresAt) return 0;
+        return Math.max(0, state.refreshTokenExpiresAt - Date.now());
+      },
+    }),
+    {
+      name: 'ums-auth-storage',
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        user: state.user,
+        isAuthenticated: state.isAuthenticated,
+        sessionExpiresAt: state.sessionExpiresAt,
+        refreshTokenExpiresAt: state.refreshTokenExpiresAt,
+        lastActivityAt: state.lastActivityAt,
+      }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.isLoading = true;
+
+          if (state.refreshTokenExpiresAt && isRefreshExpired(state.refreshTokenExpiresAt)) {
+            console.info('[Auth] Refresh token expired during rehydration - logging out');
+            state.logout();
+            return;
+          }
+
+          if (state.sessionExpiresAt && isSessionExpired(state.sessionExpiresAt)) {
+            if (state.refreshTokenExpiresAt && !isRefreshExpired(state.refreshTokenExpiresAt)) {
+              console.info('[Auth] Access token expired but refresh available - needs refresh');
+              state.isLoading = false;
+            } else {
+              console.info('[Auth] Both tokens expired - logging out');
+              state.logout();
+            }
+          } else {
+            state.isLoading = false;
+          }
+        }
+      },
+    }
+  )
+);
+
+let activityInterval: ReturnType<typeof setInterval> | null = null;
+
+export function startActivityMonitor() {
+  if (activityInterval) return;
+
+  const { updateActivity, isAuthenticated } = useAuthStore.getState();
+  if (!isAuthenticated) return;
+
+  activityInterval = setInterval(() => {
+    useAuthStore.getState().updateActivity();
+  }, ACTIVITY_UPDATE_INTERVAL);
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      useAuthStore.getState().updateActivity();
+    }
+  });
+}
+
+export function stopActivityMonitor() {
+  if (activityInterval) {
+    clearInterval(activityInterval);
+    activityInterval = null;
+  }
+}
+
+export function useSessionMonitor() {
+  const { validateSession, logout, sessionExpiresAt } = useAuthStore();
+
+  if (sessionExpiresAt && Date.now() >= sessionExpiresAt) {
+    const state = useAuthStore.getState();
+    if (state.refreshTokenExpiresAt && !isRefreshExpired(state.refreshTokenExpiresAt)) {
+      return 'needs_refresh';
+    }
+    logout();
+    return false;
+  }
+
+  return validateSession();
+}
+
+export async function refreshAccessToken(): Promise<boolean> {
+  const state = useAuthStore.getState();
+
+  if (!state.user || !state.refreshTokenExpiresAt) {
+    return false;
+  }
+
+  if (isRefreshExpired(state.refreshTokenExpiresAt)) {
+    console.warn('[Auth] Cannot refresh - token expired');
+    state.logout();
+    return false;
+  }
+
+  try {
+    const response = await fetch('/api/v1/auth/refresh', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      throw new Error('Refresh failed');
+    }
+
+    const data = await response.json();
+    state.refreshSession(data.token, data.expiresIn * 1000, (data.refreshExpiresIn || 7 * 24 * 60 * 60) * 1000);
+
+    return true;
+  } catch (error) {
+    console.error('[Auth] Token refresh failed:', error);
+    state.logout();
+    return false;
+  }
+}

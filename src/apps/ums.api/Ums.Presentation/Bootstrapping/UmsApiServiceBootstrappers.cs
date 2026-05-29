@@ -110,6 +110,9 @@ internal sealed class UmsCoreApplicationBootstrapper : IBootstrapper<IServiceCol
         // HARDENING-02: JWT Bearer authentication. Disabled in dev (DevAuthMiddleware handles it).
         // Production: set Authentication:Enabled=true and configure Authority + Audience.
         Result.AddUmsAuthentication(_configuration);
+
+        // JWT Token Service for session management
+        Result.AddSingleton<IJwtTokenService, JwtTokenService>();
     }
 }
 
@@ -336,6 +339,7 @@ public static class UmsApiApplicationBuilderExtensions
 
         app.MapGraphQlSurface(versionedGroup);
         app.MapHealthSurface();
+        app.MapAuthEndpoints();
 
         if (app.Environment.IsDevelopment())
         {

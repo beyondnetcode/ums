@@ -10,8 +10,6 @@ import type { FeatureFlag } from '@domain/configuration/models/feature-flag.mode
 import { useQueryState } from '@app/shared/hooks/use-query-state';
 import { usePaginationState } from '@app/shared/hooks/use-pagination-state';
 
-const PAGE_SIZE = 20;
-
 export function useFeatureFlagDashboard() {
   const [selectedId, setSelectedId]         = useState('');
   const [isCreateOpen, setIsCreateOpen]     = useState(false);
@@ -23,18 +21,24 @@ export function useFeatureFlagDashboard() {
   });
 
   const paginationState = usePaginationState({
-    initialPageSize: PAGE_SIZE,
+    initialPageSize: 10,
   });
 
+  const shouldFetch = queryState.appliedQuery.filterApplied;
+
   const { data: pageData, isLoading: isLoadingList, error: listError } =
-    useGetAllFeatureFlags({
-      page: paginationState.page,
-      pageSize: paginationState.pageSize,
-      search: queryState.appliedQuery.term || undefined,
-      status: queryState.activeFilter !== 'all' ? queryState.activeFilter : undefined,
-      sortBy: queryState.sortBy,
-      sortOrder: queryState.sortOrder,
-    });
+    useGetAllFeatureFlags(
+      shouldFetch
+        ? {
+            page: paginationState.page,
+            pageSize: paginationState.pageSize,
+            search: queryState.appliedQuery.term || undefined,
+            status: queryState.activeFilter !== 'all' ? queryState.activeFilter : undefined,
+            sortBy: queryState.sortBy,
+            sortOrder: queryState.sortOrder,
+          }
+        : null,
+    );
 
   const { data: activeFlag, isLoading: isLoadingDetail } =
     useGetFeatureFlagById(selectedId || null);
@@ -71,5 +75,6 @@ export function useFeatureFlagDashboard() {
 
     handleSelect,
     handleCreateSuccess,
+    requiresFilter: !shouldFetch,
   };
 }

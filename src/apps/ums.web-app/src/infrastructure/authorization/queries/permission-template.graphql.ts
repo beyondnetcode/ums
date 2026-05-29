@@ -17,7 +17,7 @@ const GET_PERMISSION_TEMPLATES = `
     $systemSuiteId: UUID
     $roleId: UUID
   ) {
-    getPermissionTemplates: permissionTemplates(
+    permissionTemplates(
       page: $page
       pageSize: $pageSize
       search: $search
@@ -49,7 +49,7 @@ const GET_PERMISSION_TEMPLATES = `
 
 const GET_PERMISSION_TEMPLATE_BY_ID = `
   query PermissionTemplateById($templateId: UUID!) {
-    getPermissionTemplateById: permissionTemplateById(templateId: $templateId) {
+    permissionTemplateById(templateId: $templateId) {
       templateId
       tenantId
       roleId
@@ -86,7 +86,7 @@ export const graphqlPermissionTemplateQueries = {
     systemSuiteId?: string;
     roleId?: string;
   }) => {
-    return graphqlClient.request<{ getPermissionTemplates: unknown }>(GET_PERMISSION_TEMPLATES, {
+    return graphqlClient.request<{ permissionTemplates: unknown }>(GET_PERMISSION_TEMPLATES, {
       page: params.page,
       pageSize: params.pageSize,
       search: params.search ?? null,
@@ -101,7 +101,7 @@ export const graphqlPermissionTemplateQueries = {
   },
 
   getPermissionTemplateById: async (templateId: string) => {
-    return graphqlClient.request<{ getPermissionTemplateById: unknown }>(GET_PERMISSION_TEMPLATE_BY_ID, {
+    return graphqlClient.request<{ permissionTemplateById: unknown }>(GET_PERMISSION_TEMPLATE_BY_ID, {
       templateId,
     });
   },

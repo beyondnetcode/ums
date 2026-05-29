@@ -9,6 +9,8 @@ import React from 'react';
 
 export type NavItemId = 'tenants' | 'users' | 'delegations' | 'systemSuites' | 'permissionTemplates' | 'featureFlags' | 'profiles' | 'profile' | 'login';
 
+export type UserRole = 'admin' | 'moderator' | 'user' | 'super_admin';
+
 export interface NavItem {
   id: NavItemId;
   nameKey: string;
@@ -69,8 +71,6 @@ export const NAV_MODULES = (deps: NavModulesFactoryDeps): NavModule[] => [
     members: [
       { id: 'tenants',     nameKey: 'tenant',              icon: <deps.Building2 className="w-4 h-4" /> },
       { id: 'users',       nameKey: 'userAccounts',        icon: <deps.Users className="w-4 h-4" /> },
-      // TODO: Delegations - will be implemented later
-      // { id: 'delegations', nameKey: 'delegationManagement', icon: <deps.GitMerge className="w-4 h-4" /> },
     ],
   },
   {
@@ -90,7 +90,6 @@ export const NAV_MODULES = (deps: NavModulesFactoryDeps): NavModule[] => [
     icon: <deps.Cpu className={`w-5 h-5 ${deps.indigoColorClass}`} />,
     members: [
       { id: 'profile', nameKey: 'profileStats', icon: <deps.User className="w-4 h-4" /> },
-      { id: 'login', nameKey: 'developerSession', icon: <deps.LogOut className="w-4 h-4" /> },
     ],
   },
 ];

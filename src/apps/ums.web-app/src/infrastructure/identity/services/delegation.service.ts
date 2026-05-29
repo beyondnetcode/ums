@@ -23,13 +23,13 @@ export const delegationService = {
 
   getDelegationById: async (delegationId: string): Promise<Delegation> => {
     const response = await graphqlDelegationQueries.getDelegationById(delegationId);
-    if (!response.getDelegationById) throw new Error('Delegation not found');
-    return DelegationSchema.parse(response.getDelegationById);
+    if (!response.delegationById) throw new Error('Delegation not found');
+    return DelegationSchema.parse(response.delegationById);
   },
 
   getDelegationsByDelegatedAdmin: async (delegatedAdminId: string, tenantId: string): Promise<Delegation[]> => {
     const response = await graphqlDelegationQueries.getDelegationsByDelegatedAdmin(delegatedAdminId, tenantId);
-    const result = DelegationListSchema.safeParse(response.getDelegationsByDelegatedAdmin);
+    const result = DelegationListSchema.safeParse(response.delegationsByDelegatedAdmin);
     if (!result.success) {
       logger.error('Invalid GraphQL response shape for delegationsByDelegatedAdmin query', result.error);
       throw new Error('Invalid GraphQL response shape for delegationsByDelegatedAdmin query');
@@ -39,7 +39,7 @@ export const delegationService = {
 
   getDelegationsByDelegatingAdmin: async (delegatingAdminId: string, tenantId: string): Promise<Delegation[]> => {
     const response = await graphqlDelegationQueries.getDelegationsByDelegatingAdmin(delegatingAdminId, tenantId);
-    const result = DelegationListSchema.safeParse(response.getDelegationsByDelegatingAdmin);
+    const result = DelegationListSchema.safeParse(response.delegationsByDelegatingAdmin);
     if (!result.success) {
       logger.error('Invalid GraphQL response shape for delegationsByDelegatingAdmin query', result.error);
       throw new Error('Invalid GraphQL response shape for delegationsByDelegatingAdmin query');

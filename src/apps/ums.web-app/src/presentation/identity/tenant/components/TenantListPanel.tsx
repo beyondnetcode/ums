@@ -40,6 +40,7 @@ interface TenantListPanelProps {
   criteriaOptions: AtomicQueryCriteriaOption[];
   filterOptions: AtomicFilterOption[];
   sortOptions: AtomicSortOption[];
+  requiresFilter?: boolean;
 }
 
 export const TenantListPanel: React.FC<TenantListPanelProps> = ({
@@ -56,6 +57,7 @@ export const TenantListPanel: React.FC<TenantListPanelProps> = ({
   criteriaOptions,
   filterOptions,
   sortOptions,
+  requiresFilter = false,
 }) => {
   const t = useI18n();
   const statusLabel = useStatusLabel();
@@ -110,7 +112,18 @@ export const TenantListPanel: React.FC<TenantListPanelProps> = ({
     totalItems: paginationState.totalItems,
     totalPages: paginationState.totalPages,
     onPageChange: paginationState.handlePageChange ?? paginationState.setPage,
+    onPageSizeChange: paginationState.handlePageSizeChange,
   } : undefined;
+
+  const filterPrompt = requiresFilter ? (
+    <div className="flex flex-col items-center justify-center h-full text-center py-16">
+      <div className="p-4 rounded-2xl bg-m3-primary/5 border border-m3-primary/10 mb-4">
+        <Info className="w-8 h-8 text-m3-primary/60" />
+      </div>
+      <h3 className="text-sm font-semibold text-m3-on-surface mb-1">{t.applyFilterTitle}</h3>
+      <p className="text-xs text-m3-secondary/70 max-w-xs">{t.applyFilterMessage}</p>
+    </div>
+  ) : null;
 
   return (
     <DataViewShell
@@ -150,35 +163,36 @@ export const TenantListPanel: React.FC<TenantListPanelProps> = ({
         </>
       }
       content={
-        <DataList
-          isLoading={isLoading}
-          isEmpty={totalItems === 0}
-          emptyLabel={t.noRecords}
-          emptyTitle={t.dataViewEmptyTitle}
-          viewMode={viewMode}
-          renderList={() => (
-            <>
-              {error && <ApiErrorBanner error={error} />}
-              <div className="flex flex-col gap-0.5">
-                <HierarchicalList<Tenant>
-                  items={tenants}
-                  idKey="tenantId"
-                  parentIdKey="parentTenantId"
-                  selectedId={selectedId}
-                  onSelect={onSelectTenant}
-                  renderParentRow={renderParentRow}
-                  renderChildRow={renderChildRow}
-                  renderParentCard={renderParentCard}
-                  renderChildCard={renderChildCard}
-                  viewMode={viewMode}
-                />
-              </div>
-            </>
-          )}
-          renderThumbnail={() => (
-            <HierarchicalList<Tenant>
-              items={tenants}
-              idKey="tenantId"
+        requiresFilter ? filterPrompt : (
+          <DataList
+            isLoading={isLoading}
+            isEmpty={totalItems === 0}
+            emptyLabel={t.noRecords}
+            emptyTitle={t.dataViewEmptyTitle}
+            viewMode={viewMode}
+            renderList={() => (
+              <>
+                {error && <ApiErrorBanner error={error} />}
+                <div className="flex flex-col gap-0.5">
+                  <HierarchicalList<Tenant>
+                    items={tenants}
+                    idKey="tenantId"
+                    parentIdKey="parentTenantId"
+                    selectedId={selectedId}
+                    onSelect={onSelectTenant}
+                    renderParentRow={renderParentRow}
+                    renderChildRow={renderChildRow}
+                    renderParentCard={renderParentCard}
+                    renderChildCard={renderChildCard}
+                    viewMode={viewMode}
+                  />
+                </div>
+              </>
+            )}
+            renderThumbnail={() => (
+              <HierarchicalList<Tenant>
+                items={tenants}
+                idKey="tenantId"
               parentIdKey="parentTenantId"
               selectedId={selectedId}
               onSelect={onSelectTenant}
@@ -189,9 +203,10 @@ export const TenantListPanel: React.FC<TenantListPanelProps> = ({
               viewMode={viewMode}
             />
           )}
-          pagination={pagination}
-          footerElement={footerTelemetry}
-        />
+            pagination={pagination}
+            footerElement={footerTelemetry}
+          />
+        )
       }
     />
   );

@@ -9,7 +9,7 @@
  *
  * In development mode, logs the outgoing payload for debugging.
  */
-import { getRequestContext, DEV_TENANT_ID } from './request-context';
+import { getRequestContext, DEFAULT_TENANT_ID } from './request-context';
 import { logger } from '@app/utils/logger';
 
 function getGraphqlUrl(): string {
@@ -63,7 +63,7 @@ function extractOperationName(query: string): string | undefined {
 
 async function executeGraphQl<T>(query: string, variables?: Record<string, unknown>): Promise<T> {
   const url = getGraphqlUrl();
-  const { userId, language } = getRequestContext();
+  const { userId, language, tenantId } = getRequestContext();
 
   const body: Record<string, unknown> = { query };
   if (variables && Object.keys(variables).length > 0) {
@@ -76,7 +76,7 @@ async function executeGraphQl<T>(query: string, variables?: Record<string, unkno
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    'X-Tenant-Id': DEV_TENANT_ID,
+    'X-Tenant-Id': tenantId || DEFAULT_TENANT_ID,
   };
   if (userId)   headers['X-User-Id'] = userId;
   if (language) headers['X-Language'] = language;

@@ -67,6 +67,7 @@ export default function TenantDashboardScreen(): React.JSX.Element {
             criteriaOptions={criteriaOptions}
             filterOptions={filterOptions}
             sortOptions={sortOptions}
+            requiresFilter={dashboard.requiresFilter}
           />
         }
         detail={

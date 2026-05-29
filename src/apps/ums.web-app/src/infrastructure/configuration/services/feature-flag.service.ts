@@ -51,7 +51,7 @@ export const featureFlagService = {
       flagType:  params?.flagType,
     });
 
-    const result = FeatureFlagPageSchema.safeParse(response.getFeatureFlags);
+    const result = FeatureFlagPageSchema.safeParse(response.featureFlags);
     if (!result.success) {
       logger.error('Invalid GraphQL response shape for feature flags query', result.error);
       throw new Error('Invalid GraphQL response shape for feature flags query');
@@ -61,8 +61,8 @@ export const featureFlagService = {
 
   getFeatureFlagById: async (featureFlagId: string): Promise<FeatureFlag> => {
     const response = await graphqlFeatureFlagQueries.getFeatureFlagById(featureFlagId);
-    if (!response.getFeatureFlagById) throw new Error('FeatureFlag not found');
-    return FeatureFlagSchema.parse(response.getFeatureFlagById);
+    if (!response.featureFlagById) throw new Error('FeatureFlag not found');
+    return FeatureFlagSchema.parse(response.featureFlagById);
   },
 
   /** REST: returns all flags scoped to a given SystemSuite (no pagination). */

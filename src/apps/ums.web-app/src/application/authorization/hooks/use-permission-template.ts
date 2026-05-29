@@ -33,11 +33,12 @@ function isNonRecoverable(error: unknown): boolean {
 
 // ─── Queries ─────────────────────────────────────────────────────────────────
 
-export const useGetAllPermissionTemplates = (params: PermissionTemplateQueryParams) =>
+export const useGetAllPermissionTemplates = (params: PermissionTemplateQueryParams | null) =>
   useQuery<PermissionTemplatePage>({
-    queryKey: ['permission-templates', params.page, params.pageSize, params.search,
-               params.criteria, params.status, params.sortBy, params.sortOrder, params.tenantId],
-    queryFn: () => permissionTemplateService.getAll(params),
+    queryKey: ['permission-templates', params?.page, params?.pageSize, params?.search,
+               params?.criteria, params?.status, params?.sortBy, params?.sortOrder, params?.tenantId],
+    queryFn: () => permissionTemplateService.getAll(params!),
+    enabled: !!params,
     staleTime: 30_000,
     retry: (failureCount, error) => {
       if (isNonRecoverable(error)) return false;

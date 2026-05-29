@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Flag, LayoutList, LayoutGrid } from 'lucide-react';
+import { Flag, Info, LayoutList, LayoutGrid } from 'lucide-react';
 import { type FeatureFlag } from '@domain/configuration/models/feature-flag.model';
 import { StatusBadge } from '@shared/components/StatusBadge';
 import {
@@ -50,6 +50,7 @@ interface Props {
   paginationState: ReturnType<typeof usePaginationState> & { totalItems: number; totalPages: number };
   onRegisterNew: () => void;
   onSelectFlag: (id: string) => void;
+  requiresFilter?: boolean;
 }
 
 export const FeatureFlagListPanel: React.FC<Props> = ({
@@ -57,6 +58,7 @@ export const FeatureFlagListPanel: React.FC<Props> = ({
   viewMode, onViewModeChange,
   queryState, paginationState,
   onRegisterNew, onSelectFlag,
+  requiresFilter = false,
 }) => {
   const filterOptions: AtomicFilterOption[] = [
     { label: 'Todos', value: 'all' },
@@ -175,7 +177,18 @@ export const FeatureFlagListPanel: React.FC<Props> = ({
     totalItems: paginationState.totalItems,
     totalPages: paginationState.totalPages,
     onPageChange: paginationState.handlePageChange ?? paginationState.setPage,
+    onPageSizeChange: paginationState.handlePageSizeChange,
   } : undefined;
+
+  const filterPrompt = requiresFilter ? (
+    <div className="flex flex-col items-center justify-center h-full text-center py-16">
+      <div className="p-4 rounded-2xl bg-m3-primary/5 border border-m3-primary/10 mb-4">
+        <Info className="w-8 h-8 text-m3-primary/60" />
+      </div>
+      <h3 className="text-sm font-semibold text-m3-on-surface mb-1">Aplica un filtro para cargar</h3>
+      <p className="text-xs text-m3-secondary/70 max-w-xs">Selecciona un estado o ingresa un término de búsqueda para visualizar los feature flags.</p>
+    </div>
+  ) : null;
 
   const footerTelemetry = (
     <div className="flex items-center gap-3">
@@ -231,6 +244,9 @@ export const FeatureFlagListPanel: React.FC<Props> = ({
           </>
         }
         content={
+          requiresFilter && !queryState.appliedQuery.filterApplied ? (
+            filterPrompt
+          ) : (
           <DataList
             isLoading={isLoading}
             isEmpty={totalItems === 0}
@@ -250,6 +266,7 @@ export const FeatureFlagListPanel: React.FC<Props> = ({
             pagination={pagination}
             footerElement={footerTelemetry}
           />
+          )
         }
       />
     </div>

@@ -12,7 +12,7 @@ const GET_PROFILES = `
     $tenantId: UUID
     $userId: UUID
   ) {
-    getProfiles(
+    profiles(
       page: $page
       pageSize: $pageSize
       search: $search
@@ -26,11 +26,21 @@ const GET_PROFILES = `
       items {
         profileId
         tenantId
+        tenantCode
+        tenantName
         userId
+        userEmail
         roleId
+        roleCode
+        roleName
+        systemSuiteId
+        systemSuiteCode
+        systemSuiteName
         branchId
+        branchName
         scope
         isActive
+        permissionCount
       }
       page
       pageSize
@@ -42,14 +52,24 @@ const GET_PROFILES = `
 
 const GET_PROFILE_BY_ID = `
   query GetProfileById($profileId: UUID!) {
-    getProfileById(profileId: $profileId) {
+    profileById(profileId: $profileId) {
       profileId
       tenantId
+      tenantCode
+      tenantName
       userId
+      userEmail
       roleId
+      roleCode
+      roleName
+      systemSuiteId
+      systemSuiteCode
+      systemSuiteName
       branchId
+      branchName
       scope
       isActive
+      permissionCount
       permissions {
         permissionId
         profileId
@@ -80,7 +100,7 @@ export const graphqlProfileQueries = {
     tenantId?: string;
     userId?: string;
   }) => {
-    return graphqlClient.request<{ getProfiles: unknown }>(GET_PROFILES, {
+    return graphqlClient.request<{ profiles: unknown }>(GET_PROFILES, {
       page: params.page,
       pageSize: params.pageSize,
       search: params.search ?? null,
@@ -94,7 +114,7 @@ export const graphqlProfileQueries = {
   },
 
   getProfileById: async (profileId: string) => {
-    return graphqlClient.request<{ getProfileById: unknown }>(GET_PROFILE_BY_ID, {
+    return graphqlClient.request<{ profileById: unknown }>(GET_PROFILE_BY_ID, {
       profileId,
     });
   },

@@ -2,13 +2,16 @@ import React, { useState, useCallback } from 'react';
 import { EmptyState } from '../EmptyState';
 import { M3SkeletonRow } from '../M3Skeleton';
 import { ChevronLeft, ChevronRight, ChevronsUp, ChevronsDown } from 'lucide-react';
+import { PageSizeSelector } from './PageSizeSelector';
+import type { PageSizeOption } from '@app/shared/hooks/use-pagination-state';
 
 export interface PaginationData {
   page: number;
-  pageSize: number;
+  pageSize: PageSizeOption;
   totalItems: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  onPageSizeChange?: (size: PageSizeOption) => void;
 }
 
 interface DataListProps {
@@ -97,44 +100,50 @@ export const DataList: React.FC<DataListProps> = ({
               style={{ maxHeight: isFooterCollapsed ? 0 : '3.5rem' }}
               className="overflow-hidden transition-[max-height] duration-200 ease-in-out"
             >
-              <div className="flex justify-end items-center gap-2 px-3 pb-2.5">
-                <button
-                  type="button"
-                  onClick={() => pagination.onPageChange(Math.max(1, pagination.page - 1))}
-                  disabled={pagination.page === 1}
-                  className="p-1.5 rounded-lg border border-m3-outline bg-m3-surface text-m3-secondary disabled:opacity-40 disabled:cursor-not-allowed hover:bg-m3-primary/10 hover:text-m3-primary transition-all"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
+              <div className="flex justify-between items-center gap-2 px-3 pb-2.5">
+                {pagination.onPageSizeChange && (
+                  <PageSizeSelector value={pagination.pageSize} onChange={pagination.onPageSizeChange} />
+                )}
 
-                <div className="flex items-center gap-1 select-none">
-                  {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((p) => {
-                    const isActive = p === pagination.page;
-                    return (
-                      <button
-                        key={p}
-                        type="button"
-                        onClick={() => pagination.onPageChange(p)}
-                        className={`h-7 min-w-7 px-2 text-xs font-medium rounded-lg flex items-center justify-center transition-all ${
-                          isActive
-                            ? 'bg-m3-primary text-m3-on-primary shadow-sm'
-                            : 'border border-m3-outline bg-m3-surface hover:bg-m3-primary/10 text-m3-secondary'
-                        }`}
-                      >
-                        {p}
-                      </button>
-                    );
-                  })}
+                <div className="flex items-center gap-2 ml-auto">
+                  <button
+                    type="button"
+                    onClick={() => pagination.onPageChange(Math.max(1, pagination.page - 1))}
+                    disabled={pagination.page === 1}
+                    className="p-1.5 rounded-lg border border-m3-outline bg-m3-surface text-m3-secondary disabled:opacity-40 disabled:cursor-not-allowed hover:bg-m3-primary/10 hover:text-m3-primary transition-all"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+
+                  <div className="flex items-center gap-1 select-none">
+                    {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((p) => {
+                      const isActive = p === pagination.page;
+                      return (
+                        <button
+                          key={p}
+                          type="button"
+                          onClick={() => pagination.onPageChange(p)}
+                          className={`h-7 min-w-7 px-2 text-xs font-medium rounded-lg flex items-center justify-center transition-all ${
+                            isActive
+                              ? 'bg-m3-primary text-m3-on-primary shadow-sm'
+                              : 'border border-m3-outline bg-m3-surface hover:bg-m3-primary/10 text-m3-secondary'
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => pagination.onPageChange(Math.min(pagination.totalPages, pagination.page + 1))}
+                    disabled={pagination.page === pagination.totalPages}
+                    className="p-1.5 rounded-lg border border-m3-outline bg-m3-surface text-m3-secondary disabled:opacity-40 disabled:cursor-not-allowed hover:bg-m3-primary/10 hover:text-m3-primary transition-all"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={() => pagination.onPageChange(Math.min(pagination.totalPages, pagination.page + 1))}
-                  disabled={pagination.page === pagination.totalPages}
-                  className="p-1.5 rounded-lg border border-m3-outline bg-m3-surface text-m3-secondary disabled:opacity-40 disabled:cursor-not-allowed hover:bg-m3-primary/10 hover:text-m3-primary transition-all"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
               </div>
             </div>
           )}

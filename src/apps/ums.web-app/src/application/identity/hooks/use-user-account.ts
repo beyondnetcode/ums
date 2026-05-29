@@ -40,10 +40,11 @@ function isNetworkError(error: unknown): boolean {
 
 // ─── Queries ────────────────────────────────────────────────────────────────
 
-export const useGetAllUserAccounts = (params: UserAccountQueryParams) => {
+export const useGetAllUserAccounts = (params: UserAccountQueryParams | null) => {
   return useQuery<UserAccountPage>({
-    queryKey: ['user-accounts', params.page, params.pageSize, params.search, params.criteria, params.status, params.sortBy, params.sortOrder, params.tenantId],
-    queryFn: () => userAccountService.getAllUserAccounts(params),
+    queryKey: ['user-accounts', params?.page, params?.pageSize, params?.search, params?.criteria, params?.status, params?.sortBy, params?.sortOrder, params?.tenantId],
+    queryFn: () => userAccountService.getAllUserAccounts(params!),
+    enabled: !!params,
     staleTime: 30_000,
     retry: (failureCount, error: unknown) => {
       if (isNonRecoverableError(error)) return false;

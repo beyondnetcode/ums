@@ -1,5 +1,5 @@
-import React from 'react';
-import { Database, Menu, Sun, Moon, Bell, Globe, LogOut } from 'lucide-react';
+import React, { useState } from 'react';
+import { Database, Menu, Sun, Moon, Bell, Globe, User } from 'lucide-react';
 import { useAuthStore } from '@app/stores/auth.store';
 import { useThemeStore } from '@app/stores/theme.store';
 import { useDevToolsStore } from '@app/stores/devTools.store';
@@ -9,6 +9,7 @@ import { useI18n } from '@app/i18n/use-i18n';
 import { NotificationCenter } from '../components/NotificationCenter';
 import { ToastQueue } from '../components/ToastQueue';
 import { Tooltip } from '../components/Tooltip';
+import { ConnectedUserDrawer } from '../components/ConnectedUserDrawer';
 
 export const TopAppBar: React.FC<{ onToggleNav: () => void }> = ({ onToggleNav }) => {
   const { user, logout } = useAuthStore();
@@ -18,10 +19,26 @@ export const TopAppBar: React.FC<{ onToggleNav: () => void }> = ({ onToggleNav }
   const { notifications, setIsOpen, isOpen } = useNotificationStore();
   const t = useI18n();
 
+  const [isUserDrawerOpen, setIsUserDrawerOpen] = useState(false);
+
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   const handleLanguageToggle = () => {
     setLanguage(language === 'en' ? 'es' : 'en');
+  };
+
+  const handleLogout = () => {
+    logout();
+  };
+
+  const getUserInitials = () => {
+    if (!user?.username) return '??';
+    return user.username.substring(0, 2).toUpperCase();
+  };
+
+  const getTooltipMessage = () => {
+    if (!user) return 'Not logged in';
+    return `${user.username}\n${user.email}\nTenant: ${user.tenantCode || 'N/A'}`;
   };
 
   return (
@@ -100,24 +117,38 @@ export const TopAppBar: React.FC<{ onToggleNav: () => void }> = ({ onToggleNav }
 
           {user && (
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-m3-primary/15 border border-m3-primary/30 flex items-center justify-center font-bold text-xs text-m3-primary">
-                {user.username.substring(0, 2).toUpperCase()}
-              </div>
-              <Tooltip content={t.logoutBtn} placement="bottom">
+              <Tooltip
+                content={
+                  <div className="text-center">
+                    <p className="font-bold">{user.username}</p>
+                    <p className="text-xs opacity-75">{user.email}</p>
+                    <p className="text-xs opacity-75 mt-1">Tenant: {user.tenantCode || 'N/A'}</p>
+                    <p className="text-[10px] mt-2 opacity-60">Click to view session details</p>
+                  </div>
+                }
+                placement="bottom"
+              >
                 <button
-                  onClick={logout}
-                  aria-label="Log out"
-                  className="p-2 rounded-full hover:bg-m3-error/15 text-m3-secondary hover:text-m3-error transition-all"
+                  onClick={() => setIsUserDrawerOpen(true)}
+                  aria-label="View connected user details"
+                  className="w-9 h-9 rounded-full bg-m3-primary/15 border-2 border-m3-primary/30 flex items-center justify-center font-bold text-xs text-m3-primary hover:bg-m3-primary/25 hover:border-m3-primary/50 transition-all cursor-pointer"
                 >
-                  <LogOut className="w-4 h-4" />
+                  {getUserInitials()}
                 </button>
               </Tooltip>
             </div>
           )}
         </div>
       </header>
+
       <NotificationCenter />
       <ToastQueue />
+
+      <ConnectedUserDrawer
+        isOpen={isUserDrawerOpen}
+        onClose={() => setIsUserDrawerOpen(false)}
+        onLogout={handleLogout}
+      />
     </>
   );
 };

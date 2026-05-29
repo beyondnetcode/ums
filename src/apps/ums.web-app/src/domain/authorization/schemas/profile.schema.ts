@@ -23,12 +23,22 @@ export const ProfilePermissionSchema = z.object({
 export const ProfileSchema = z.object({
   profileId: guidSchema,
   tenantId: guidSchema,
+  tenantCode: z.string(),
+  tenantName: z.string(),
   userId: guidSchema,
+  userEmail: z.string(),
   roleId: guidSchema,
+  roleCode: z.string(),
+  roleName: z.string(),
+  systemSuiteId: guidSchema,
+  systemSuiteCode: z.string(),
+  systemSuiteName: z.string(),
   branchId: guidSchema.nullable().optional(),
+  branchName: z.string().nullable().optional(),
   scope: z.string(),
   isActive: z.boolean(),
-  permissions: z.array(ProfilePermissionSchema),
+  permissionCount: z.number().int().min(0).default(0),
+  permissions: z.array(ProfilePermissionSchema).optional().default([]),
 });
 
 export const ProfilePageSchema = z.object({

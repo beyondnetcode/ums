@@ -80,6 +80,9 @@ export class AppErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorB
   }
 }
 
+export { AppErrorBoundary as ErrorBoundary };
+export type { ErrorBoundaryProps };
+
 export const RouteErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <AppErrorBoundary>{children}</AppErrorBoundary>
 );

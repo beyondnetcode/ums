@@ -5,6 +5,7 @@ import App from './App.tsx'
 import './index.css'
 import { useDevToolsStore } from './application/stores/devTools.store'
 import { useI18nStore } from './application/stores/i18n.store'
+import { useAuthStore } from './application/stores/auth.store'
 import { configureRequestContext } from './infrastructure/http/request-context'
 
 const queryClient = new QueryClient({
@@ -19,8 +20,9 @@ const queryClient = new QueryClient({
 const devContextProvider = () => {
   if (!import.meta.env.DEV) return {};
   const { devUserId, devLanguage } = useDevToolsStore.getState();
+  const { user } = useAuthStore.getState();
   useI18nStore.getState().setLanguage(devLanguage);
-  return { userId: devUserId, language: devLanguage };
+  return { userId: devUserId, language: devLanguage, tenantId: user?.tenantId };
 };
 
 configureRequestContext(devContextProvider);

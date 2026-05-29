@@ -19,7 +19,7 @@ export const idpService = {
 
   getByIdentityProviders: async (tenantId: string): Promise<IdentityProvider[]> => {
     const response = await graphqlIdpQueries.getIdentityProviders(tenantId);
-    return IdentityProviderListSchema.parse(response.getTenantIdentityProviders);
+    return IdentityProviderListSchema.parse(response.tenantIdentityProviders);
   },
 
   // ── Commands (REST) ───────────────────────────────────────────────────────

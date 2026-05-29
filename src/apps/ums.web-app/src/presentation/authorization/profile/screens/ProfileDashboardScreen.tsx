@@ -14,13 +14,13 @@ export default function ProfileDashboardScreen(): React.JSX.Element {
   const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('list');
 
   const queryState = useQueryState({
-    criteria: 'userId',
+    criteria: 'user',
     filter: 'all',
-    sortBy: 'userId',
+    sortBy: 'user',
   });
 
   const paginationState = usePaginationState({
-    initialPageSize: 20,
+    initialPageSize: 10,
   });
 
   // Dialog Open States
@@ -28,21 +28,26 @@ export default function ProfileDashboardScreen(): React.JSX.Element {
   const [isGraphOpen, setIsGraphOpen] = useState(false);
   const [graphProfileId, setGraphProfileId] = useState('');
 
+  // Only fetch when a filter has been applied
+  const shouldFetch = queryState.appliedQuery.filterApplied;
+
   // Fetch paginated master list
-  const { data: pageData, isLoading: loadingList, error: listError } = useGetAllProfiles({
-    page: paginationState.page,
-    pageSize: paginationState.pageSize,
-    search: queryState.appliedQuery.term || undefined,
-    criteria: 'userId',
-    status: queryState.activeFilter,
-    sortBy: queryState.sortBy,
-    sortOrder: queryState.sortOrder,
-  });
+  const { data: pageData, isLoading: loadingList, error: listError } = useGetAllProfiles(
+    shouldFetch
+      ? {
+          page: paginationState.page,
+          pageSize: paginationState.pageSize,
+          search: queryState.appliedQuery.term || undefined,
+          criteria: queryState.appliedQuery.criteria,
+          status: queryState.activeFilter,
+          sortBy: queryState.sortBy,
+          sortOrder: queryState.sortOrder,
+        }
+      : null,
+  );
 
   // Fetch detail for selected profile
   const { data: activeProfile, isLoading: loadingDetail } = useGetProfile(selectedId || null);
-
-
 
   const handleOpenGraph = (profileId: string) => {
     setGraphProfileId(profileId);
@@ -90,6 +95,7 @@ export default function ProfileDashboardScreen(): React.JSX.Element {
             onRegisterNew={() => setIsCreateOpen(true)}
             onSelectProfile={setSelectedId}
             onOpenGraph={handleOpenGraph}
+            requiresFilter={!shouldFetch}
           />
         }
         detail={

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, ShieldAlert, ShieldCheck, ToggleLeft, ToggleRight, User } from 'lucide-react';
+import { Shield, ShieldAlert, ShieldCheck, ToggleLeft, ToggleRight, User, Key, Globe, Info } from 'lucide-react';
 import { type Profile } from '@domain/authorization/schemas/profile.schema';
 import { M3SegmentedButton } from '@shared/components/M3SegmentedButton';
 import { M3Button, M3Skeleton, M3SkeletonRow, M3Tabs } from '@shared/components';
@@ -153,7 +153,7 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
   return (
     <DetailPanelShell
       title={`Perfil Efectivo`}
-      subtitle={`Usuario: ${profile.userId.slice(0, 8)}... · ${profile.scope}`}
+      subtitle={`${profile.systemSuiteCode} · ${profile.tenantCode} · ${profile.roleCode} · ${profile.scope}`}
       headerActions={
         <M3Button
           type="button"
@@ -169,11 +169,11 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
         {/* Navigation Tabs using Segmented Buttons */}
         <div className="flex justify-center my-3 px-4">
           <M3SegmentedButton
-            segments={[
-              { id: 'overview', label: 'Resumen' },
-              { id: 'permissions', label: 'Permisos Efectivos' },
+            options={[
+              { value: 'overview', label: 'Resumen' },
+              { value: 'permissions', label: 'Permisos Efectivos' },
             ]}
-            activeId={activeTab}
+            value={activeTab}
             onChange={(id) => setActiveTab(id as DetailTab)}
           />
         </div>
@@ -187,9 +187,9 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                   <div className="p-2 rounded-lg bg-m3-primary/10 text-m3-primary">
                     <User className="w-5 h-5" />
                   </div>
-                  <div>
-                    <span className="text-[10px] uppercase font-bold text-m3-secondary/50">ID del Usuario</span>
-                    <p className="text-sm font-semibold text-m3-on-surface font-mono">{profile.userId}</p>
+                  <div className="flex-1">
+                    <span className="text-[10px] uppercase font-bold text-m3-secondary/50">Usuario</span>
+                    <p className="text-sm font-semibold text-m3-on-surface">{profile.userEmail}</p>
                   </div>
                 </div>
 
@@ -197,9 +197,19 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                   <div className="p-2 rounded-lg bg-m3-primary/10 text-m3-primary">
                     <Key className="w-5 h-5" />
                   </div>
-                  <div>
-                    <span className="text-[10px] uppercase font-bold text-m3-secondary/50">ID del Rol Asociado</span>
-                    <p className="text-sm font-semibold text-m3-on-surface font-mono">{profile.roleId}</p>
+                  <div className="flex-1">
+                    <span className="text-[10px] uppercase font-bold text-m3-secondary/50">Rol Asociado</span>
+                    <p className="text-sm font-semibold text-m3-on-surface">{profile.roleCode} — {profile.roleName}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-m3-primary/10 text-m3-primary">
+                    <LayoutGrid className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1">
+                    <span className="text-[10px] uppercase font-bold text-m3-secondary/50">Sistema</span>
+                    <p className="text-sm font-semibold text-m3-on-surface">{profile.systemSuiteCode} — {profile.systemSuiteName}</p>
                   </div>
                 </div>
 
@@ -207,9 +217,9 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                   <div className="p-2 rounded-lg bg-m3-primary/10 text-m3-primary">
                     <Globe className="w-5 h-5" />
                   </div>
-                  <div>
-                    <span className="text-[10px] uppercase font-bold text-m3-secondary/50">Inquilino (Tenant ID)</span>
-                    <p className="text-sm font-semibold text-m3-on-surface font-mono">{profile.tenantId}</p>
+                  <div className="flex-1">
+                    <span className="text-[10px] uppercase font-bold text-m3-secondary/50">Inquilino</span>
+                    <p className="text-sm font-semibold text-m3-on-surface">{profile.tenantCode} — {profile.tenantName}</p>
                   </div>
                 </div>
 
@@ -217,11 +227,21 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                   <div className="p-2 rounded-lg bg-m3-primary/10 text-m3-primary">
                     <Info className="w-5 h-5" />
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <span className="text-[10px] uppercase font-bold text-m3-secondary/50">Estado / Alcance</span>
                     <p className="text-sm font-semibold text-m3-on-surface">
                       {profile.isActive ? 'Activo' : 'Inactivo'} · <span className="font-medium text-m3-primary">{profile.scope}</span>
                     </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-m3-primary/10 text-m3-primary">
+                    <Shield className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1">
+                    <span className="text-[10px] uppercase font-bold text-m3-secondary/50">Permisos Materializados</span>
+                    <p className="text-sm font-semibold text-m3-on-surface">{profile.permissionCount} permisos efectivos</p>
                   </div>
                 </div>
               </div>

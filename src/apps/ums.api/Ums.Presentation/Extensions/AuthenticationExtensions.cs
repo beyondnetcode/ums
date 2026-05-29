@@ -1,5 +1,6 @@
 namespace Ums.Presentation.Extensions;
 
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
@@ -44,13 +45,35 @@ public static class AuthenticationExtensions
         {
             // Authentication is disabled (dev/test mode). DevAuthMiddleware handles identity.
             // Still register AddAuthentication so UseAuthentication() does not throw.
-            services.AddAuthentication();
+            services.AddAuthentication()
+                .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+                {
+                    options.Cookie.Name = "ums.session";
+                    options.Cookie.HttpOnly = true;
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                    options.ExpireTimeSpan = TimeSpan.FromHours(1);
+                    options.SlidingExpiration = true;
+                    options.LoginPath = "/api/v1/auth/login";
+                    options.AccessDeniedPath = "/api/v1/auth/denied";
+                });
             services.AddAuthorization();
             return services;
         }
 
         services
-            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddAuthentication(cfg =>
+            {
+                cfg.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                cfg.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+            {
+                options.Cookie.Name = "ums.session";
+                options.Cookie.HttpOnly = true;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                options.ExpireTimeSpan = TimeSpan.FromHours(1);
+                options.SlidingExpiration = true;
+            })
             .AddJwtBearer(options =>
             {
                 options.Authority = authority;

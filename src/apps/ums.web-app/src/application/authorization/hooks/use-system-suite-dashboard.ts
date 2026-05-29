@@ -1,13 +1,9 @@
-/**
- * useSystemSuiteDashboard.ts — Orchestrates state and API calls for SystemSuiteDashboardScreen.
- */
 import React, { useState, useEffect, useCallback } from 'react';
 import { useGetAllSystemSuites } from '@app/authorization/hooks/use-system-suite';
 import { useLocalOverrides } from '@app/hooks/use-local-overrides';
 import { SystemSuite } from '@domain/authorization/models/system-suite.model';
 import { useQueryState } from '@app/shared/hooks/use-query-state';
 import { usePaginationState } from '@app/shared/hooks/use-pagination-state';
-import { SYSTEM_SUITE_PAGE_SIZE } from '@domain/authorization/constants/system-suite.constants';
 
 export interface SystemSuiteDashboardState {
   selectedId: string;
@@ -42,6 +38,7 @@ export function useSystemSuiteDashboard(): SystemSuiteDashboardState & SystemSui
   totalItems: number;
   totalPages: number;
   startIndex: number;
+  requiresFilter: boolean;
 } {
   const [selectedId, setSelectedId] = useState('');
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
@@ -57,20 +54,24 @@ export function useSystemSuiteDashboard(): SystemSuiteDashboardState & SystemSui
   });
 
   const paginationState = usePaginationState({
-    initialPageSize: SYSTEM_SUITE_PAGE_SIZE,
+    initialPageSize: 10,
   });
 
-  const pageSize = paginationState.pageSize;
+  const shouldFetch = queryState.appliedQuery.filterApplied;
 
-  const { data: systemSuitePage, isLoading: isLoadingList, error: listError } = useGetAllSystemSuites({
-    page: paginationState.page,
-    pageSize: paginationState.pageSize,
-    search: queryState.appliedQuery.term,
-    criteria: queryState.appliedQuery.criteria,
-    status: queryState.activeFilter,
-    sortBy: queryState.sortBy,
-    sortOrder: queryState.sortOrder,
-  });
+  const { data: systemSuitePage, isLoading: isLoadingList, error: listError } = useGetAllSystemSuites(
+    shouldFetch
+      ? {
+          page: paginationState.page,
+          pageSize: paginationState.pageSize,
+          search: queryState.appliedQuery.term,
+          criteria: queryState.appliedQuery.criteria,
+          status: queryState.activeFilter,
+          sortBy: queryState.sortBy,
+          sortOrder: queryState.sortOrder,
+        }
+      : null,
+  );
 
   const { items: knownSystemSuites, patchItem: patchLocalSystemSuite } = useLocalOverrides<SystemSuite>(
     systemSuitePage?.items,
@@ -122,7 +123,7 @@ export function useSystemSuiteDashboard(): SystemSuiteDashboardState & SystemSui
 
   const totalItems = systemSuitePage?.totalItems ?? 0;
   const totalPages = systemSuitePage?.totalPages ?? 0;
-  const startIndex = (paginationState.page - 1) * pageSize;
+  const startIndex = (paginationState.page - 1) * paginationState.pageSize;
 
   return {
     selectedId, setSelectedId,
@@ -144,5 +145,6 @@ export function useSystemSuiteDashboard(): SystemSuiteDashboardState & SystemSui
     totalItems,
     totalPages,
     startIndex,
+    requiresFilter: !shouldFetch,
   };
 }

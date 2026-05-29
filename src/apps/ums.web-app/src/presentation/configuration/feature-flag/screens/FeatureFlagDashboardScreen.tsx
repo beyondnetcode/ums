@@ -46,6 +46,7 @@ export default function FeatureFlagDashboardScreen(): React.JSX.Element {
             }}
             onRegisterNew={() => d.setIsCreateOpen(true)}
             onSelectFlag={d.handleSelect}
+            requiresFilter={d.requiresFilter}
           />
         }
         detail={

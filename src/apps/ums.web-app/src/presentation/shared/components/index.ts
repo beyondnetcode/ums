@@ -28,6 +28,16 @@ export type { SegmentOption } from './M3SegmentedButton';
 export { M3Select } from './M3Select';
 export type { M3SelectProps } from './M3Select';
 
+export { SearchableSelect } from './SearchableSelect';
+export type {
+  SearchableSelectProps,
+  SearchableSelectOption,
+  SearchCriteria,
+} from './SearchableSelect';
+
+export { TenantSelect } from './TenantSelect';
+export type { TenantOption } from './TenantSelect';
+
 export { M3Switch } from './M3Switch';
 export type { M3SwitchProps } from './M3Switch';
 

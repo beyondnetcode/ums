@@ -4,7 +4,7 @@ import { useI18n } from '@app/i18n/use-i18n';
 import { useFormValidation } from '@app/hooks';
 import { M3Button } from '@shared/components/M3Button';
 import { M3TextField } from '@shared/components/M3TextField';
-import { M3Select } from '@shared/components/M3Select';
+import { SearchableSelect } from '@shared/components/SearchableSelect';
 import { M3FormDialog } from '@shared/components/M3FormDialog';
 import { USER_CATEGORIES, IDENTITY_REFERENCE_TYPES } from '@domain/identity/constants/user-account.constants';
 import { CreateUserAccountPayloadSchema } from '@domain/identity/schemas/user-account.schema';
@@ -82,27 +82,23 @@ export const UserAccountForm: React.FC<UserAccountFormProps> = ({ isOpen, onClos
         />
 
         <div className="grid grid-cols-2 gap-4">
-          <M3Select
+          <SearchableSelect
             label={t.userCategory}
             value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            onChange={(val) => setCategory(val || 'Internal')}
+            options={USER_CATEGORIES.map((c) => ({ value: c, label: c }))}
+            placeholder="Seleccionar categoría..."
             className="mb-0"
-          >
-            {USER_CATEGORIES.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </M3Select>
+          />
 
-          <M3Select
+          <SearchableSelect
             label={t.identityReferenceType}
             value={identityReferenceType}
-            onChange={(e) => setIdentityReferenceType(e.target.value)}
+            onChange={(val) => setIdentityReferenceType(val || 'HrId')}
+            options={IDENTITY_REFERENCE_TYPES.map((t) => ({ value: t, label: t }))}
+            placeholder="Seleccionar tipo..."
             className="mb-0"
-          >
-            {IDENTITY_REFERENCE_TYPES.map((t) => (
-              <option key={t} value={t}>{t}</option>
-            ))}
-          </M3Select>
+          />
         </div>
 
         <M3TextField

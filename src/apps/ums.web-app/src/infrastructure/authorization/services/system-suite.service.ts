@@ -43,7 +43,7 @@ export const systemSuiteService = {
       tenantId: params?.tenantId,
     });
 
-    const pageResult = SystemSuitePageSchema.safeParse(response.getSystemSuites);
+    const pageResult = SystemSuitePageSchema.safeParse(response.systemSuites);
     if (!pageResult.success) {
       logger.error('Invalid GraphQL response shape for system suites query', pageResult.error);
       throw new Error('Invalid GraphQL response shape for system suites query');
@@ -53,8 +53,8 @@ export const systemSuiteService = {
 
   getSystemSuiteById: async (systemSuiteId: string): Promise<SystemSuite> => {
     const response = await graphqlSystemSuiteQueries.getSystemSuiteById(systemSuiteId);
-    if (!response.getSystemSuiteById) throw new Error('SystemSuite not found');
-    return SystemSuiteSchema.parse(response.getSystemSuiteById);
+    if (!response.systemSuiteById) throw new Error('SystemSuite not found');
+    return SystemSuiteSchema.parse(response.systemSuiteById);
   },
 
   // ── Commands (REST) ───────────────────────────────────────────────────────

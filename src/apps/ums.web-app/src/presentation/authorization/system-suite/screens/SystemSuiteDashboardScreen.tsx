@@ -75,6 +75,7 @@ export default function SystemSuiteDashboardScreen(): React.JSX.Element {
           criteriaOptions={criteriaOptions}
           filterOptions={filterOptions}
           sortOptions={sortOptions}
+          requiresFilter={dashboard.requiresFilter}
         />
       }
       detail={

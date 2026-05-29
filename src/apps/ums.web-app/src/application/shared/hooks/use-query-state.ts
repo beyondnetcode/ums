@@ -12,20 +12,27 @@ export function useQueryState<TFilter extends string, TSort extends string>(init
   const [activeFilter, setActiveFilter] = useState<TFilter>(initials.filter);
   const [sortBy, setSortBy] = useState<TSort>(initials.sortBy);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  const [appliedQuery, setAppliedQuery] = useState<{ criteria: string; term: string }>({
+  const [appliedQuery, setAppliedQuery] = useState<{ criteria: string; term: string; filterApplied: boolean }>({
     criteria: initials.criteria,
     term: '',
+    filterApplied: false,
   });
 
   const handleQuerySubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
-    setAppliedQuery({ criteria: searchCriteria, term: searchValue.trim() });
+    setAppliedQuery({ criteria: searchCriteria, term: searchValue.trim(), filterApplied: true });
   }, [searchCriteria, searchValue]);
+
+  const handleFilterChange = useCallback((filter: TFilter) => {
+    setActiveFilter(filter);
+    setAppliedQuery((prev) => ({ ...prev, filterApplied: true }));
+  }, []);
 
   const handleResetQuery = useCallback(() => {
     setSearchValue('');
-    setAppliedQuery({ criteria: initials.criteria, term: '' });
-  }, [initials.criteria]);
+    setAppliedQuery({ criteria: initials.criteria, term: '', filterApplied: false });
+    setActiveFilter(initials.filter);
+  }, [initials.criteria, initials.filter]);
 
   const toggleSortOrder = useCallback(() => {
     setSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'));
@@ -37,7 +44,7 @@ export function useQueryState<TFilter extends string, TSort extends string>(init
     searchValue,
     setSearchValue,
     activeFilter,
-    setActiveFilter,
+    setActiveFilter: handleFilterChange,
     sortBy,
     setSortBy,
     sortOrder,

@@ -4,12 +4,9 @@ import { Delegation } from '@domain/identity/models/delegation.model';
 import { useLocalOverrides } from '@app/hooks/use-local-overrides';
 import { useQueryState } from '@app/shared/hooks/use-query-state';
 import { usePaginationState } from '@app/shared/hooks/use-pagination-state';
+import { useAuthStore } from '@app/stores/auth.store';
 
 export type DelegationViewType = 'received' | 'granted';
-
-// In a real app, these come from an auth context.
-const CURRENT_USER_ID = '5f4e3d01-1b0a-9f8e-7d6c-543210987654'; // UNIMAR admin
-const CURRENT_TENANT_ID = '5f4e3d2c-1b0a-9f8e-7d6c-543210987654'; // UNIMAR tenant
 
 export interface DelegationDashboardState {
   selectedId: string;
@@ -51,6 +48,10 @@ export function useDelegationDashboard(): DelegationDashboardState & DelegationD
   currentUserId: string;
   currentTenantId: string;
 } {
+  const { user } = useAuthStore();
+  const currentUserId = user?.id ?? '';
+  const currentTenantId = user?.tenantId ?? '';
+
   const [selectedId, setSelectedId] = useState('');
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
   const [pendingNavigationId, setPendingNavigationId] = useState<string | null>(null);
@@ -67,24 +68,22 @@ export function useDelegationDashboard(): DelegationDashboardState & DelegationD
   });
 
   const paginationState = usePaginationState({
-    initialPageSize: 2,
+    initialPageSize: 10,
   });
 
-  const pageSize = paginationState.pageSize;
+  const shouldFetch = queryState.appliedQuery.filterApplied && !!currentTenantId;
 
-  const receivedQuery = useGetDelegationsByDelegatedAdmin(CURRENT_USER_ID, CURRENT_TENANT_ID);
-  const grantedQuery = useGetDelegationsByDelegatingAdmin(CURRENT_USER_ID, CURRENT_TENANT_ID);
+  const receivedQuery = useGetDelegationsByDelegatedAdmin(currentUserId, currentTenantId);
+  const grantedQuery = useGetDelegationsByDelegatingAdmin(currentUserId, currentTenantId);
 
   const isReceived = delegationViewType === 'received';
   const activeQuery = isReceived ? receivedQuery : grantedQuery;
 
-  // We are not handling pagination locally for the mocked hook array here to keep it simple,
-  // but we provide the properties so the UI component works correctly.
-  let filteredItems = activeQuery.data ?? [];
-  
+  let filteredItems = shouldFetch ? (activeQuery.data ?? []) : [];
+
   if (queryState.appliedQuery.term) {
     const term = queryState.appliedQuery.term.toLowerCase();
-    filteredItems = filteredItems.filter(d => 
+    filteredItems = filteredItems.filter(d =>
       d.delegationId.toLowerCase().includes(term) || d.scopeType.toLowerCase().includes(term)
     );
   }
@@ -137,18 +136,17 @@ export function useDelegationDashboard(): DelegationDashboardState & DelegationD
 
   const handleCreateSuccess = useCallback(() => {
     setIsCreateOpen(false);
-    setDelegationViewType('granted'); // Usually after creating, you want to see granted.
+    setDelegationViewType('granted');
     paginationState.setPage(1);
     queryState.setSearchValue('');
     queryState.handleResetQuery();
   }, [paginationState, queryState]);
 
   const totalItems = knownDelegations.length;
-  const totalPages = Math.ceil(totalItems / pageSize) || 1;
-  const startIndex = (paginationState.page - 1) * pageSize;
-  
-  // Paginate local array
-  const paginatedDelegations = knownDelegations.slice(startIndex, startIndex + pageSize);
+  const totalPages = Math.ceil(totalItems / paginationState.pageSize) || 1;
+  const startIndex = (paginationState.page - 1) * paginationState.pageSize;
+
+  const paginatedDelegations = knownDelegations.slice(startIndex, startIndex + paginationState.pageSize);
 
   return {
     selectedId, setSelectedId,
@@ -173,7 +171,8 @@ export function useDelegationDashboard(): DelegationDashboardState & DelegationD
     totalItems,
     totalPages,
     startIndex,
-    currentUserId: CURRENT_USER_ID,
-    currentTenantId: CURRENT_TENANT_ID,
+    currentUserId,
+    currentTenantId,
+    requiresFilter: !shouldFetch,
   };
 }

@@ -16,7 +16,7 @@ const GET_TENANTS = `
     $sortBy: String
     $sortOrder: String
   ) {
-    getTenants: tenants(
+    tenants(
       page: $page
       pageSize: $pageSize
       search: $search
@@ -44,7 +44,7 @@ const GET_TENANTS = `
 
 const GET_TENANT_BY_ID = `
   query Tenant($tenantId: UUID!) {
-    getTenantById: tenantById(tenantId: $tenantId) {
+    tenantById(tenantId: $tenantId) {
       tenantId
       code
       name
@@ -58,7 +58,7 @@ const GET_TENANT_BY_ID = `
 
 const GET_TENANT_BRANCHES = `
   query TenantBranches($tenantId: UUID!) {
-    getTenantBranches: tenantBranches(tenantId: $tenantId) {
+    tenantBranches(tenantId: $tenantId) {
       branchId
       code
       name
@@ -95,15 +95,15 @@ export interface GraphqlBranchDto {
 }
 
 export interface GetTenantsResponse {
-  getTenants: GraphqlTenantPage;
+  tenants: GraphqlTenantPage;
 }
 
 export interface GetTenantByIdResponse {
-  getTenantById: GraphqlTenantDto | null;
+  tenantById: GraphqlTenantDto | null;
 }
 
 export interface GetTenantBranchesResponse {
-  getTenantBranches: GraphqlBranchDto[];
+  tenantBranches: GraphqlBranchDto[];
 }
 
 function validateGetTenantsParams(params: {

@@ -46,6 +46,7 @@ export default function PermissionTemplateDashboardScreen(): React.JSX.Element {
             }}
             onRegisterNew={() => d.setIsCreateOpen(true)}
             onSelectTemplate={d.handleSelect}
+            requiresFilter={d.requiresFilter}
           />
         }
         detail={

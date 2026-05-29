@@ -11,7 +11,6 @@ import { useLocalOverrides } from '@app/hooks/use-local-overrides';
 import { useNotificationStore } from '@app/stores/notification.store';
 import { UserAccount } from '@domain/identity/models/user-account.model';
 import { Tenant } from '@domain/identity/models/tenant.model';
-import { USER_ACCOUNT_PAGE_SIZE } from '@domain/identity/constants/user-account.constants';
 import { useQueryState } from '@app/shared/hooks/use-query-state';
 import { usePaginationState } from '@app/shared/hooks/use-pagination-state';
 
@@ -52,6 +51,7 @@ export function useUserAccountDashboard(): UserAccountDashboardState & UserAccou
   totalPages: number;
   startIndex: number;
   tenants: Tenant[];
+  requiresFilter: boolean;
 } {
   const [selectedId, setSelectedId] = useState('');
   const [selectedTenantId, setSelectedTenantId] = useState('');
@@ -68,7 +68,7 @@ export function useUserAccountDashboard(): UserAccountDashboardState & UserAccou
   });
 
   const paginationState = usePaginationState({
-    initialPageSize: USER_ACCOUNT_PAGE_SIZE,
+    initialPageSize: 10,
   });
 
   const addNotification = useNotificationStore((s) => s.addNotification);
@@ -76,22 +76,28 @@ export function useUserAccountDashboard(): UserAccountDashboardState & UserAccou
   const { data: tenantPage } = useGetAllTenants({ page: 1, pageSize: 100 });
   const tenants = useMemo(() => tenantPage?.items ?? [], [tenantPage]);
 
+  const shouldFetch = queryState.appliedQuery.filterApplied;
+
   useEffect(() => {
     if (!selectedTenantId && tenants.length > 0) {
       setSelectedTenantId(tenants[0].tenantId);
     }
   }, [tenants, selectedTenantId]);
 
-  const { data: accountPage, isLoading: isLoadingList, error: listError } = useGetAllUserAccounts({
-    page: paginationState.page,
-    pageSize: paginationState.pageSize,
-    search: queryState.appliedQuery.term || undefined,
-    criteria: queryState.appliedQuery.criteria,
-    status: queryState.activeFilter,
-    sortBy: queryState.sortBy,
-    sortOrder: queryState.sortOrder,
-    tenantId: selectedTenantId || undefined,
-  });
+  const { data: accountPage, isLoading: isLoadingList, error: listError } = useGetAllUserAccounts(
+    shouldFetch
+      ? {
+          page: paginationState.page,
+          pageSize: paginationState.pageSize,
+          search: queryState.appliedQuery.term || undefined,
+          criteria: queryState.appliedQuery.criteria,
+          status: queryState.activeFilter,
+          sortBy: queryState.sortBy,
+          sortOrder: queryState.sortOrder,
+          tenantId: selectedTenantId || undefined,
+        }
+      : null,
+  );
 
   const { items: knownAccounts, patchItem: patchLocalAccount } = useLocalOverrides<UserAccount>(
     accountPage?.items,
@@ -204,5 +210,6 @@ export function useUserAccountDashboard(): UserAccountDashboardState & UserAccou
     totalPages,
     startIndex: paginationState.startIndex,
     tenants,
+    requiresFilter: !shouldFetch,
   };
 }

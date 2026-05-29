@@ -6,6 +6,22 @@ public static class CoreDevDataSeeder
 {
     public const string SystemActorId = "00000000-0000-0000-0000-000000000001";
 
+    // ── Internal Admin Tenant (global administration) ─────────────────────────
+    public const string InternalAdminTenantId = "11111111-1111-1111-1111-111111111111";
+    public const string InternalAdminTenantCode = "INTERNAL_ADMIN";
+    public const string InternalAdminTenantName = "Internal Admin Tenant";
+
+    // ── SuperAdmin User (global admin) ─────────────────────────────────────────
+    public const string SuperAdminUserId = "22222222-2222-2222-2222-222222222222";
+    public const string SuperAdminUsername = "admin";
+    public const string SuperAdminPassword = "Admin@123"; // Change in production!
+
+    // ── GlobalAdmin Role & Profile ─────────────────────────────────────────────
+    public const string GlobalAdminRoleId = "33333333-3333-3333-3333-333333333333";
+    public const string GlobalAdminProfileId = "44444444-4444-4444-4444-444444444444";
+    public const string GlobalAdminTemplateId = "55555555-5555-5555-5555-555555555555";
+
+    // ── Ransa Tenant (existing commercial tenant) ─────────────────────────────
     public const string RansaTenantId = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
     // Derived from RansaTenantId bytes: bytes[0] replaced by index (little-endian Data1)
     public const string RansaAdminUserId = "3fa85f01-5717-4562-b3fc-2c963f66afa6";   // gerente.operaciones — DeriveGuid(1)
@@ -20,10 +36,10 @@ public static class CoreDevDataSeeder
 
     public static async Task SeedAllAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
     {
-        // 1. Identity
+        // 1. Identity (tenants, users, delegations)
         await IdentityDevDataSeeder.SeedAsync(serviceProvider, cancellationToken);
 
-        // 2. Authorization
+        // 2. Authorization (system suites, roles, templates, profiles)
         await AuthorizationDevDataSeeder.SeedAsync(serviceProvider, cancellationToken);
 
         // 3. Approvals

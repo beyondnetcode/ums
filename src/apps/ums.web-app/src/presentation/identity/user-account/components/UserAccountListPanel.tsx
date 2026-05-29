@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Mail, Layers, ArrowRight, LayoutList, LayoutGrid } from 'lucide-react';
+import { Mail, Layers, ArrowRight, LayoutList, LayoutGrid, Info } from 'lucide-react';
 import { UserAccount } from '@domain/identity/models/user-account.model';
 import { Tenant } from '@domain/identity/models/tenant.model';
 import { StatusBadge } from '@shared/components/StatusBadge';
@@ -41,6 +41,7 @@ interface UserAccountListPanelProps {
   tenants: Tenant[];
   selectedTenantId: string;
   onTenantChange: (tenantId: string) => void;
+  requiresFilter?: boolean;
 }
 
 
@@ -62,6 +63,7 @@ export const UserAccountListPanel: React.FC<UserAccountListPanelProps> = ({
   tenants,
   selectedTenantId,
   onTenantChange,
+  requiresFilter = false,
 }) => {
   const t = useI18n();
   const getStatusLabel = useStatusLabel();
@@ -117,7 +119,18 @@ export const UserAccountListPanel: React.FC<UserAccountListPanelProps> = ({
     totalItems: paginationState.totalItems,
     totalPages: paginationState.totalPages ?? 1,
     onPageChange: paginationState.handlePageChange ?? paginationState.setPage,
+    onPageSizeChange: paginationState.handlePageSizeChange,
   } : undefined;
+
+  const filterPrompt = requiresFilter ? (
+    <div className="flex flex-col items-center justify-center h-full text-center py-16">
+      <div className="p-4 rounded-2xl bg-m3-primary/5 border border-m3-primary/10 mb-4">
+        <Info className="w-8 h-8 text-m3-primary/60" />
+      </div>
+      <h3 className="text-sm font-semibold text-m3-on-surface mb-1">{t.applyFilterTitle}</h3>
+      <p className="text-xs text-m3-secondary/70 max-w-xs">{t.applyFilterMessage}</p>
+    </div>
+  ) : null;
 
   return (
     <div className="flex flex-col h-full gap-4">
@@ -189,27 +202,29 @@ export const UserAccountListPanel: React.FC<UserAccountListPanelProps> = ({
             </>
           }
           content={
-            <DataList
-              isLoading={isLoading}
-              isEmpty={!isLoading && accounts.length === 0}
-              emptyLabel={queryState.appliedQuery.term ? t.noResultsFound : t.noAccountsFound}
-              emptyTitle={queryState.appliedQuery.term ? t.noResultsTitle : t.noAccountsTitle}
-              viewMode={viewMode}
-              renderList={() => (
-                <>
-                  {error && <ApiErrorBanner error={error} />}
-                  <div className="flex flex-col gap-0.5">
-                    {accounts.map(renderAccountRow)}
+            requiresFilter ? filterPrompt : (
+              <DataList
+                isLoading={isLoading}
+                isEmpty={!isLoading && accounts.length === 0}
+                emptyLabel={queryState.appliedQuery.term ? t.noResultsFound : t.noAccountsFound}
+                emptyTitle={queryState.appliedQuery.term ? t.noResultsTitle : t.noAccountsTitle}
+                viewMode={viewMode}
+                renderList={() => (
+                  <>
+                    {error && <ApiErrorBanner error={error} />}
+                    <div className="flex flex-col gap-0.5">
+                      {accounts.map(renderAccountRow)}
+                    </div>
+                  </>
+                )}
+                renderThumbnail={() => (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {accounts.map(renderAccountCard)}
                   </div>
-                </>
-              )}
-              renderThumbnail={() => (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {accounts.map(renderAccountCard)}
-                </div>
-              )}
-              pagination={pagination}
-            />
+                )}
+                pagination={pagination}
+              />
+            )
           }
         />
       </div>

@@ -37,6 +37,7 @@ interface DelegationListPanelProps {
   sortOptions: AtomicSortOption[];
   delegationViewType: DelegationViewType;
   onDelegationViewTypeChange: (type: DelegationViewType) => void;
+  requiresFilter?: boolean;
 }
 
 export const DelegationListPanel: React.FC<DelegationListPanelProps> = ({
@@ -55,6 +56,7 @@ export const DelegationListPanel: React.FC<DelegationListPanelProps> = ({
   sortOptions,
   delegationViewType,
   onDelegationViewTypeChange,
+  requiresFilter = false,
 }) => {
   const t = useI18n();
   const getStatusLabel = useStatusLabel();
@@ -127,7 +129,18 @@ export const DelegationListPanel: React.FC<DelegationListPanelProps> = ({
     totalItems: paginationState.totalItems,
     totalPages: paginationState.totalPages,
     onPageChange: paginationState.handlePageChange ?? paginationState.setPage,
+    onPageSizeChange: paginationState.handlePageSizeChange,
   } : undefined;
+
+  const filterPrompt = requiresFilter ? (
+    <div className="flex flex-col items-center justify-center h-full text-center py-16">
+      <div className="p-4 rounded-2xl bg-m3-primary/5 border border-m3-primary/10 mb-4">
+        <Info className="w-8 h-8 text-m3-primary/60" />
+      </div>
+      <h3 className="text-sm font-semibold text-m3-on-surface mb-1">Aplica un filtro para cargar</h3>
+      <p className="text-xs text-m3-secondary/70 max-w-xs">Selecciona un estado o ingresa un término de búsqueda para visualizar las delegaciones.</p>
+    </div>
+  ) : null;
 
   const footerTelemetry = (
     <div className="flex items-center gap-3">
@@ -203,6 +216,9 @@ export const DelegationListPanel: React.FC<DelegationListPanelProps> = ({
             </>
           }
           content={
+            requiresFilter && !queryState.appliedQuery.filterApplied ? (
+              filterPrompt
+            ) : (
             <DataList
               isLoading={isLoading}
               isEmpty={totalItems === 0}
@@ -230,6 +246,7 @@ export const DelegationListPanel: React.FC<DelegationListPanelProps> = ({
               pagination={pagination}
               footerElement={footerTelemetry}
             />
+            )
           }
         />
       </div>

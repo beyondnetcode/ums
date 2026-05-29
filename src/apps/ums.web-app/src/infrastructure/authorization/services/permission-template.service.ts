@@ -47,7 +47,7 @@ export const permissionTemplateService = {
     });
 
     const result = PermissionTemplatePageSchema.safeParse(
-      (response as Record<string, unknown>).getPermissionTemplates,
+      (response as Record<string, unknown>).permissionTemplates,
     );
     if (!result.success) {
       logger.error('Invalid GraphQL response for permission templates', result.error);
@@ -58,7 +58,7 @@ export const permissionTemplateService = {
 
   getById: async (templateId: string): Promise<PermissionTemplateDetail> => {
     const response = await graphqlPermissionTemplateQueries.getPermissionTemplateById(templateId);
-    const raw = (response as Record<string, unknown>).getPermissionTemplateById;
+    const raw = (response as Record<string, unknown>).permissionTemplateById;
     if (!raw) throw new Error('Permission template not found');
     return PermissionTemplateDetailSchema.parse(raw);
   },

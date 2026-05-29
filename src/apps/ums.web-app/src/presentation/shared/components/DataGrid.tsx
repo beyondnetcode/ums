@@ -153,3 +153,4 @@ function DataGrid<T extends Record<string, unknown>>({
 }
 
 export default DataGrid;
+export { DataGrid };

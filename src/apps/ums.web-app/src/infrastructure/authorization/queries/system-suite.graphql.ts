@@ -17,7 +17,7 @@ const GET_SYSTEM_SUITES = `
     $sortOrder: String
     $tenantId: UUID
   ) {
-    getSystemSuites: systemSuites(
+    systemSuites(
       page: $page
       pageSize: $pageSize
       search: $search
@@ -88,7 +88,7 @@ const GET_SYSTEM_SUITES = `
 
 const GET_SYSTEM_SUITE_BY_ID = `
   query SystemSuite($systemSuiteId: UUID!) {
-    getSystemSuiteById: systemSuiteById(systemSuiteId: $systemSuiteId) {
+    systemSuiteById(systemSuiteId: $systemSuiteId) {
       systemSuiteId
       tenantId
       code
@@ -215,11 +215,11 @@ export interface GraphqlSystemSuitePage {
 }
 
 export interface GetSystemSuitesResponse {
-  getSystemSuites: GraphqlSystemSuitePage;
+  systemSuites: GraphqlSystemSuitePage;
 }
 
 export interface GetSystemSuiteByIdResponse {
-  getSystemSuiteById: GraphqlSystemSuiteDto | null;
+  systemSuiteById: GraphqlSystemSuiteDto | null;
 }
 
 function validateGetSystemSuitesParams(params: {

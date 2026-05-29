@@ -8,7 +8,7 @@ import { graphqlClient, GraphQlValidationError } from '@infra/http/graphqlClient
 
 const GET_BRANDING = `
   query Branding($tenantId: UUID!) {
-    getTenantBranding: tenantBranding(tenantId: $tenantId) {
+    tenantBranding(tenantId: $tenantId) {
       logo
       logoFormat
       primaryColor
@@ -39,7 +39,7 @@ export interface GraphqlBrandingDto {
 }
 
 export interface GetBrandingResponse {
-  getTenantBranding: GraphqlBrandingDto | null;
+  tenantBranding: GraphqlBrandingDto | null;
 }
 
 export const graphqlBrandingQueries = {

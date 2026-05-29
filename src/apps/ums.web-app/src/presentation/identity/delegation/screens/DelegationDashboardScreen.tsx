@@ -75,6 +75,7 @@ export default function DelegationDashboardScreen(): React.JSX.Element {
             sortOptions={sortOptions}
             delegationViewType={dashboard.delegationViewType}
             onDelegationViewTypeChange={dashboard.setDelegationViewType}
+            requiresFilter={dashboard.requiresFilter}
           />
         }
         detail={

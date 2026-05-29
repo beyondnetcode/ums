@@ -38,7 +38,7 @@ export const profileService = {
     });
 
     const result = ProfilePageSchema.safeParse(
-      (response as Record<string, unknown>).getProfiles,
+      (response as Record<string, unknown>).profiles,
     );
     if (!result.success) {
       logger.error('Invalid GraphQL response for profiles', result.error);
@@ -49,7 +49,7 @@ export const profileService = {
 
   getById: async (profileId: string): Promise<Profile> => {
     const response = await graphqlProfileQueries.getProfileById(profileId);
-    const raw = (response as Record<string, unknown>).getProfileById;
+    const raw = (response as Record<string, unknown>).profileById;
     if (!raw) throw new Error('Profile not found');
     return ProfileSchema.parse(raw);
   },

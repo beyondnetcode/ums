@@ -32,10 +32,11 @@ function isNetworkError(error: unknown): boolean {
 
 // ─── Queries ────────────────────────────────────────────────────────────────
 
-export const useGetAllSystemSuites = (params: SystemSuiteQueryParams) => {
+export const useGetAllSystemSuites = (params: SystemSuiteQueryParams | null) => {
   return useQuery<SystemSuitePage>({
-    queryKey: ['system-suites', params.page, params.pageSize, params.search, params.criteria, params.status, params.sortBy, params.sortOrder, params.tenantId],
-    queryFn: () => systemSuiteService.getAllSystemSuites(params),
+    queryKey: ['system-suites', params?.page, params?.pageSize, params?.search, params?.criteria, params?.status, params?.sortBy, params?.sortOrder, params?.tenantId],
+    queryFn: () => systemSuiteService.getAllSystemSuites(params!),
+    enabled: !!params,
     staleTime: 30_000,
     retry: (failureCount, error: unknown) => {
       if (isNonRecoverableError(error)) return false;

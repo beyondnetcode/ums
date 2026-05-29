@@ -44,15 +44,15 @@ interface Props {
   paginationState: ReturnType<typeof usePaginationState> & { totalItems: number; totalPages: number };
   onRegisterNew: () => void;
   onSelectTemplate: (id: string) => void;
+  requiresFilter?: boolean;
 }
 
 export const PermissionTemplateListPanel: React.FC<Props> = ({
   templates, selectedId, isLoading, error,
   viewMode, onViewModeChange,
-  templates, selectedId, isLoading, error,
-  viewMode, onViewModeChange,
   queryState, paginationState,
   onRegisterNew, onSelectTemplate,
+  requiresFilter = false,
 }) => {
 
   const criteriaOptions: AtomicQueryCriteriaOption[] = [
@@ -143,7 +143,18 @@ export const PermissionTemplateListPanel: React.FC<Props> = ({
     totalItems: paginationState.totalItems,
     totalPages: paginationState.totalPages,
     onPageChange: paginationState.handlePageChange ?? paginationState.setPage,
+    onPageSizeChange: paginationState.handlePageSizeChange,
   } : undefined;
+
+  const filterPrompt = requiresFilter ? (
+    <div className="flex flex-col items-center justify-center h-full text-center py-16">
+      <div className="p-4 rounded-2xl bg-m3-primary/5 border border-m3-primary/10 mb-4">
+        <Info className="w-8 h-8 text-m3-primary/60" />
+      </div>
+      <h3 className="text-sm font-semibold text-m3-on-surface mb-1">Aplica un filtro para cargar</h3>
+      <p className="text-xs text-m3-secondary/70 max-w-xs">Selecciona un estado o ingresa un término de búsqueda para visualizar las plantillas.</p>
+    </div>
+  ) : null;
 
   const totalItems = paginationState.totalItems;
   const startIndex = paginationState.startIndex ?? 0;
@@ -205,6 +216,9 @@ export const PermissionTemplateListPanel: React.FC<Props> = ({
           </>
         }
         content={
+          requiresFilter && !queryState.appliedQuery.filterApplied ? (
+            filterPrompt
+          ) : (
           <DataList
             isLoading={isLoading}
             isEmpty={totalItems === 0}
@@ -224,6 +238,7 @@ export const PermissionTemplateListPanel: React.FC<Props> = ({
             pagination={pagination}
             footerElement={footerTelemetry}
           />
+          )
         }
       />
     </div>

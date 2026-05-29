@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { MainLayout } from './presentation/shared/layouts/MainLayout';
 import { AppErrorBoundary } from './presentation/shared/components/ErrorBoundary';
 import { RouteLoader } from './presentation/shared/components/RouteLoader';
+import { ProtectedRoute } from './presentation/shared/components/ProtectedRoute';
 import { useThemeStore } from './application/stores/theme.store';
 
 const TenantDashboardScreen = lazy(() => import('./presentation/identity/tenant/screens/TenantDashboardScreen'));
@@ -30,17 +31,17 @@ export default function App() {
           <MainLayout>
             <Suspense fallback={<RouteLoader />}>
               <Routes>
-                <Route path="/"             element={<Navigate to="/tenants" replace />} />
-                <Route path="/tenants"      element={<TenantDashboardScreen />} />
-                <Route path="/users"        element={<UserAccountDashboardScreen />} />
-                <Route path="/delegations"  element={<DelegationDashboardScreen />} />
-                <Route path="/system-suites"         element={<SystemSuiteDashboardScreen />} />
-                <Route path="/permission-templates"  element={<PermissionTemplateDashboardScreen />} />
-                <Route path="/profiles"              element={<ProfileDashboardScreen />} />
-                <Route path="/feature-flags"          element={<FeatureFlagDashboardScreen />} />
-                <Route path="/profile"               element={<ProfileScreen />} />
+                <Route path="/"             element={<Navigate to="/login" replace />} />
                 <Route path="/login"        element={<LoginScreen />} />
-                <Route path="*"             element={<Navigate to="/tenants" replace />} />
+                <Route path="/tenants"      element={<ProtectedRoute><TenantDashboardScreen /></ProtectedRoute>} />
+                <Route path="/users"        element={<ProtectedRoute><UserAccountDashboardScreen /></ProtectedRoute>} />
+                <Route path="/delegations"  element={<ProtectedRoute><DelegationDashboardScreen /></ProtectedRoute>} />
+                <Route path="/system-suites"         element={<ProtectedRoute><SystemSuiteDashboardScreen /></ProtectedRoute>} />
+                <Route path="/permission-templates"  element={<ProtectedRoute><PermissionTemplateDashboardScreen /></ProtectedRoute>} />
+                <Route path="/profiles"              element={<ProtectedRoute><ProfileDashboardScreen /></ProtectedRoute>} />
+                <Route path="/feature-flags"         element={<ProtectedRoute><FeatureFlagDashboardScreen /></ProtectedRoute>} />
+                <Route path="/profile"               element={<ProtectedRoute><ProfileScreen /></ProtectedRoute>} />
+                <Route path="*"             element={<Navigate to="/login" replace />} />
               </Routes>
             </Suspense>
           </MainLayout>

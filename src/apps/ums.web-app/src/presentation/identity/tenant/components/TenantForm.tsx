@@ -4,7 +4,7 @@ import { useI18n } from '@app/i18n/use-i18n';
 import { useFormValidation } from '@app/hooks';
 import { M3Button } from '@shared/components/M3Button';
 import { M3TextField } from '@shared/components/M3TextField';
-import { M3Select } from '@shared/components/M3Select';
+import { SearchableSelect } from '@shared/components/SearchableSelect';
 import { M3FormDialog } from '@shared/components/M3FormDialog';
 import { TENANT_TYPES } from '@domain/identity/constants/tenant.constants';
 import { CreateTenantPayloadSchema } from '@domain/identity/schemas/tenant.schema';
@@ -98,16 +98,14 @@ export const TenantForm: React.FC<TenantFormProps> = ({ isOpen, onClose, onSucce
             className="mb-0"
           />
 
-          <M3Select
+          <SearchableSelect
             label={t.tenantType}
             value={type}
-            onChange={(e) => setType(e.target.value)}
+            onChange={(val) => setType(val || 'INTERNAL')}
+            options={TENANT_TYPES.map((tp) => ({ value: tp, label: tp }))}
+            placeholder="Seleccionar tipo..."
             className="mb-0"
-          >
-            {TENANT_TYPES.map((tp) => (
-              <option key={tp} value={tp}>{tp}</option>
-            ))}
-          </M3Select>
+          />
         </div>
       </form>
     </M3FormDialog>
