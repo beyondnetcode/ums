@@ -16,6 +16,7 @@ import { SectionHeader } from '@shared/components/SectionHeader';
 import { CodeBadge } from '@shared/components/CodeBadge';
 import { IconButton, Tooltip } from '@shared/components/Tooltip';
 import { Key, Pencil, Save, Check, Trash2, X } from 'lucide-react';
+import { ListToolbar } from '@shared/components/ListToolbar';
 import { IDP_STRATEGIES } from '@domain/identity/constants/idp.constants';
 import type { IdpStrategy } from '@domain/identity/constants/idp.constants';
 
@@ -150,6 +151,12 @@ export const IdpPanel: React.FC<IdpPanelProps> = ({ tenantId }) => {
     <div className="space-y-4">
       <SectionHeader title={t.identityProviders} subtitle={t.idpSubtitle} />
 
+      <ListToolbar
+        itemCount={providers.length}
+        itemLabel="proveedor"
+        onAdd={() => setIsAddingProvider(true)}
+      />
+
       <InlineAddForm
         isOpen={isAddingProvider}
         onToggle={setIsAddingProvider}
@@ -158,7 +165,7 @@ export const IdpPanel: React.FC<IdpPanelProps> = ({ tenantId }) => {
         title={t.newProvider}
         cancelLabel={t.cancelEdit}
         submitLabel={t.saveProvider}
-        triggerEmphasis="quiet"
+        triggerEmphasis="none"
       >
         <M3TextField
           label={t.providerName}

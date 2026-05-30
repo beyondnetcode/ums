@@ -1,14 +1,5 @@
 import React, { useState } from 'react';
-import {
-  LayoutList,
-  LayoutGrid,
-  Search,
-  X,
-  SlidersHorizontal,
-  ChevronsUp,
-  ChevronsDown,
-  Plus,
-} from 'lucide-react';
+import { LayoutList, LayoutGrid, Search, X, ChevronsUp, ChevronsDown, Plus } from 'lucide-react';
 import { M3SegmentedButton } from './M3SegmentedButton';
 import type { SegmentOption } from './M3SegmentedButton';
 
@@ -136,16 +127,18 @@ export const ListToolbar: React.FC<ListToolbarProps> = ({
             {itemCount} {itemLabel}
             {itemCount !== 1 ? 's' : ''}
           </span>
-          {searchOptions && (
-            <button
-              type="button"
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="p-1 rounded text-m3-secondary/60 hover:text-m3-primary hover:bg-m3-primary/10 transition-colors"
-              title={isExpanded ? 'Ocultar filtros' : 'Mostrar filtros'}
-            >
-              <SlidersHorizontal className="w-3.5 h-3.5" />
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="p-1 rounded text-m3-secondary/60 hover:text-m3-primary hover:bg-m3-primary/10 transition-colors"
+            title={isExpanded ? 'Ocultar' : 'Mostrar'}
+          >
+            {isExpanded ? (
+              <ChevronsUp className="w-3.5 h-3.5" />
+            ) : (
+              <ChevronsDown className="w-3.5 h-3.5" />
+            )}
+          </button>
         </div>
         <div className="flex items-center gap-3">
           {onAdd && <AddButton onClick={onAdd} title={addLabel} />}
@@ -156,25 +149,6 @@ export const ListToolbar: React.FC<ListToolbarProps> = ({
               onChange={onViewModeChange}
               size="sm"
             />
-          )}
-          {isExpanded ? (
-            <button
-              type="button"
-              onClick={() => setIsExpanded(false)}
-              className="p-1 rounded text-m3-secondary/60 hover:text-m3-primary hover:bg-m3-primary/10 transition-colors"
-              title="Colapsar"
-            >
-              <ChevronsUp className="w-3.5 h-3.5" />
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setIsExpanded(true)}
-              className="p-1 rounded text-m3-secondary/60 hover:text-m3-primary hover:bg-m3-primary/10 transition-colors"
-              title="Expandir"
-            >
-              <ChevronsDown className="w-3.5 h-3.5" />
-            </button>
           )}
         </div>
       </div>
