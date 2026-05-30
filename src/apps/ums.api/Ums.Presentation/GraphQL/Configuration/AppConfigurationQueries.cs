@@ -38,7 +38,11 @@ public sealed class AppConfigurationQueries
             tenantId,
             systemSuiteId,
             moduleId), cancellationToken);
-        return result.UnwrapGraphQl();
+        if (result.IsFailure)
+{
+    throw new Exception(result.Error);
+}
+return result.Value;
     }
 
     public async Task<AppConfigurationDto?> GetAppConfigurationByIdAsync(Guid id, [Service] IMediator mediator, CancellationToken cancellationToken)

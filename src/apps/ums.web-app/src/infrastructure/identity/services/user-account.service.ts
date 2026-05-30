@@ -37,7 +37,7 @@ export interface UserAccountQueryParams {
 export const userAccountService = {
   // ── Queries (GraphQL) ─────────────────────────────────────────────────────
 
-  getAllUserAccounts: async (params?: UserAccountQueryParams): Promise<UserAccountPage> => {
+  getAll: async (params?: UserAccountQueryParams): Promise<UserAccountPage> => {
     const response = await graphqlQueries.getUserAccounts({
       page: params?.page ?? 1,
       pageSize: params?.pageSize ?? 20,
@@ -57,7 +57,7 @@ export const userAccountService = {
     return pageResult.data;
   },
 
-  getUserAccountById: async (userAccountId: string): Promise<UserAccount> => {
+  getById: async (userAccountId: string): Promise<UserAccount> => {
     const response = await graphqlQueries.getUserAccountById(userAccountId);
     if (!response.userAccountById) throw new Error('User account not found');
     return UserAccountSchema.parse(response.userAccountById);

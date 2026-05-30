@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { useCreateDelegation } from '@app/identity/hooks/use-delegation';
 import { useI18n } from '@app/i18n/use-i18n';
-import { M3Button } from '@shared/components/M3Button';
-import { M3TextField } from '@shared/components/M3TextField';
-import { M3Select } from '@shared/components/M3Select';
-import { M3FormDialog } from '@shared/components/M3FormDialog';
+import { M3Dialog } from '@shared/components/M3Dialog';
+import { FormField, FormInput, FormSelect, FormButton, FieldSelect } from '@shared/components';
 import { CreateDelegationPayloadSchema } from '@domain/identity/schemas/delegation.schema';
 import { Shield } from 'lucide-react';
 
@@ -37,7 +35,6 @@ export const DelegationForm: React.FC<DelegationFormProps> = ({
 
   const [tenantId] = useState(defaultTenantId);
   const [delegatingAdminId] = useState(defaultDelegatingAdminId);
-  // Default to first user in the list (excluding self if possible, but for mock any is fine)
   const [delegatedAdminId, setDelegatedAdminId] = useState('5f4e3d02-1b0a-9f8e-7d6c-543210987654');
   const [scopeType, setScopeType] = useState<(typeof SCOPE_TYPES)[number]>('Tenant');
   const [validFrom, setValidFrom] = useState('');
@@ -92,75 +89,63 @@ export const DelegationForm: React.FC<DelegationFormProps> = ({
     }
   };
 
+  const userOptions = Object.entries(UNIMAR_USERS).map(([id, name]) => ({ value: id, label: name }));
+  const scopeOptions = SCOPE_TYPES.map(s => ({ value: s, label: s }));
+
   return (
-    <M3FormDialog
+    <M3Dialog
       open={isOpen}
-      onClose={onClose}
+      onScrimClick={onClose}
       title={t.createDelegation ?? 'Crear Delegación'}
-      icon={<Shield className="w-5 h-5" />}
-      footer={
-        <>
-          <M3Button variant="text" onClick={onClose} type="button">
-            {t.cancelBtn ?? 'Cancelar'}
-          </M3Button>
-          <M3Button variant="filled" onClick={handleSubmit} loading={createDelegationMutation.isPending}>
-            {t.createBtn ?? 'Crear'}
-          </M3Button>
-        </>
-      }
+      actions={[
+        { label: t.cancelBtn ?? 'Cancelar', variant: 'outlined', onClick: onClose },
+        { label: t.createBtn ?? 'Crear', variant: 'filled', onClick: handleSubmit, loading: createDelegationMutation.isPending },
+      ]}
     >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5 pt-2">
-        <M3Select
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4 pt-2">
+        <FieldSelect
           label={t.delegatedAdminId ?? 'Delegar a (Usuario)'}
+          options={userOptions}
+          placeholder="Seleccione un usuario..."
           value={delegatedAdminId}
-          onChange={(e) => setDelegatedAdminId(e.target.value)}
-        >
-          <option value="" disabled>Seleccione un usuario...</option>
-          {Object.entries(UNIMAR_USERS).map(([id, name]) => (
-            <option key={id} value={id}>{name}</option>
-          ))}
-        </M3Select>
+          onChange={setDelegatedAdminId}
+        />
 
-        <M3Select
+        <FieldSelect
           label={t.scopeType ?? 'Alcance (Scope)'}
+          options={scopeOptions}
           value={scopeType}
-          onChange={(e) => setScopeType(e.target.value as typeof scopeType)}
-        >
-          {SCOPE_TYPES.map((s) => (
-            <option key={s} value={s}>{s}</option>
-          ))}
-        </M3Select>
+          onChange={(v) => setScopeType(v as typeof scopeType)}
+        />
 
-        <div className="grid grid-cols-2 gap-4">
-          <M3TextField
-            label={t.validFrom ?? 'Válido desde'}
-            required
-            type="datetime-local"
-            value={validFrom}
-            onChange={(e) => setValidFrom(e.target.value)}
-            error={errors.validFrom}
-          />
-          <M3TextField
-            label={t.validUntil ?? 'Válido hasta'}
-            required
-            type="datetime-local"
-            value={validUntil}
-            onChange={(e) => setValidUntil(e.target.value)}
-            error={errors.validUntil}
-          />
+        <div className="grid grid-cols-2 gap-3">
+          <FormField label={t.validFrom ?? 'Válido desde'} required error={errors.validFrom}>
+            <FormInput
+              type="datetime-local"
+              value={validFrom}
+              onChange={(e) => setValidFrom(e.target.value)}
+            />
+          </FormField>
+          <FormField label={t.validUntil ?? 'Válido hasta'} required error={errors.validUntil}>
+            <FormInput
+              type="datetime-local"
+              value={validUntil}
+              onChange={(e) => setValidUntil(e.target.value)}
+            />
+          </FormField>
         </div>
 
         <div>
-          <p className="text-xs font-bold uppercase tracking-wider text-m3-secondary mb-3">
+          <p className="text-[10px] font-medium text-m3-on-surface-variant uppercase tracking-wide mb-2">
             {t.allowedActions ?? 'Acciones Permitidas'}
           </p>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5">
             {DELEGATED_ACTIONS.map((action) => (
               <button
                 key={action}
                 type="button"
                 onClick={() => toggleAction(action)}
-                className={`px-3 py-1.5 text-xs rounded-full border transition-colors font-medium ${
+                className={`px-2.5 py-1 text-[10px] rounded-full border transition-colors font-medium ${
                   selectedActions.includes(action)
                     ? 'bg-m3-primary/10 text-m3-primary border-m3-primary/30'
                     : 'bg-transparent text-m3-secondary border-m3-outline/30 hover:bg-m3-surface-variant'
@@ -171,23 +156,23 @@ export const DelegationForm: React.FC<DelegationFormProps> = ({
             ))}
           </div>
           {errors.allowedActions && (
-            <p className="text-xs text-rose-600 mt-2">{errors.allowedActions}</p>
+            <p className="text-[10px] text-rose-500 mt-1">{errors.allowedActions}</p>
           )}
         </div>
 
-        <div className="flex items-center gap-3 mt-2 p-3 bg-m3-surface-container/30 rounded-xl border border-m3-outline/10">
+        <div className="flex items-center gap-2 p-2.5 bg-m3-surface-container/30 rounded-lg border border-m3-outline/10">
           <input
             id="requiresApproval"
             type="checkbox"
             checked={requiresApproval}
             onChange={(e) => setRequiresApproval(e.target.checked)}
-            className="w-4 h-4 text-m3-primary border-gray-300 rounded focus:ring-m3-primary"
+            className="w-3.5 h-3.5 text-m3-primary border-m3-outline/30 rounded focus:ring-m3-primary/40"
           />
-          <label htmlFor="requiresApproval" className="text-sm font-medium text-m3-on-surface cursor-pointer select-none">
+          <label htmlFor="requiresApproval" className="text-[11px] font-medium text-m3-on-surface cursor-pointer select-none">
             {t.requiresApproval ?? 'Requiere Aprobación'}
           </label>
         </div>
       </form>
-    </M3FormDialog>
+    </M3Dialog>
   );
 };

@@ -1,5 +1,8 @@
 /**
  * feature-flag.constants.ts — Domain constants for Feature Flags.
+ *
+ * Following Configuration Catalog Standard (R-13):
+ * All configurable entities must follow code/value/description pattern.
  */
 
 export const FEATURE_FLAG_PAGE_SIZE = 20;
@@ -15,6 +18,17 @@ export const FLAG_STATUS_LABELS: Record<string, string> = {
   Active:   'Active',
   Archived: 'Archived',
 };
+
+export const ROLLOUT_CONSTRAINTS = {
+  MIN: 0,
+  MAX: 100,
+  STEP: 1,
+} as const;
+
+export const FLAG_TARGETS = {
+  ALL: '*',
+  NONE: 'none',
+} as const;
 
 export const CRITERIA_TYPE_LABELS: Record<string, string> = {
   TenantId:       'Tenant',

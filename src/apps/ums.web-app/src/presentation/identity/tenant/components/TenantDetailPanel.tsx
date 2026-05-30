@@ -1,14 +1,15 @@
 import React from 'react';
-import { MapPin, Key, Palette, GitBranch } from 'lucide-react';
+import { MapPin, Key, Palette, GitBranch, Settings } from 'lucide-react';
 import { Tenant } from '@domain/identity/models/tenant.model';
 import { DetailPanelShell, DetailTab } from '@shared/components/DetailPanelShell';
 import { BranchManager } from './BranchManager';
 import { BrandingPanel } from './BrandingPanel';
 import { IdpPanel } from './IdpPanel';
 import { TenantProfileCard } from './TenantProfileCard';
+import { TenantConfigurationsPanel } from './TenantConfigurationsPanel';
 import { useI18n } from '@app/i18n/use-i18n';
 
-export type ConsoleTab = 'branches' | 'providers' | 'branding';
+export type ConsoleTab = 'branches' | 'providers' | 'branding' | 'configurations';
 
 interface TenantDetailPanelProps {
   selectedId: string;
@@ -41,12 +42,14 @@ export const TenantDetailPanel: React.FC<TenantDetailPanelProps> = ({
     branches: <MapPin className="w-3.5 h-3.5" />,
     providers: <Key className="w-3.5 h-3.5" />,
     branding: <Palette className="w-3.5 h-3.5" />,
+    configurations: <Settings className="w-3.5 h-3.5" />,
   };
 
   const labels: Record<ConsoleTab, string> = {
     branches: t.tabLocations,
     providers: t.tabAuthIdps,
     branding: t.tabBranding,
+    configurations: t.tabConfigurations,
   };
 
   const tabs: DetailTab<ConsoleTab>[] = consoleTabs.map((tab) => ({
@@ -98,6 +101,13 @@ export const TenantDetailPanel: React.FC<TenantDetailPanelProps> = ({
 
       {activeConsoleTab === 'branding' && isRootTenant && activeTenant && (
         <BrandingPanel tenantId={activeTenant.tenantId} isRootTenant={isRootTenant} />
+      )}
+
+      {activeConsoleTab === 'configurations' && activeTenant && (
+        <TenantConfigurationsPanel
+          tenantId={activeTenant.tenantId}
+          tenantName={activeTenant.name}
+        />
       )}
     </DetailPanelShell>
   );

@@ -12,6 +12,8 @@ import {
   AtomicQueryCriteriaOption,
   AtomicFilterOption,
   AtomicSortOption,
+  PaginationFooter,
+  RequiresFilterPrompt,
 } from '@shared/components';
 import { EntityRow } from '@shared/components/EntityRow';
 import { EntityCard } from '@shared/components/EntityCard';
@@ -125,13 +127,10 @@ export const UserAccountListPanel: React.FC<UserAccountListPanelProps> = ({
   } : undefined;
 
   const filterPrompt = requiresFilter ? (
-    <div className="flex flex-col items-center justify-center h-full text-center py-16">
-      <div className="p-4 rounded-2xl bg-m3-primary/5 border border-m3-primary/10 mb-4">
-        <Info className="w-8 h-8 text-m3-primary/60" />
-      </div>
-      <h3 className="text-sm font-semibold text-m3-on-surface mb-1">{t.applyFilterTitle}</h3>
-      <p className="text-xs text-m3-secondary/70 max-w-xs">{t.applyFilterMessage}</p>
-    </div>
+    <RequiresFilterPrompt
+      title={t.applyFilterTitle}
+      message={t.applyFilterMessage}
+    />
   ) : null;
 
   return (

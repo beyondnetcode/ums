@@ -28,7 +28,14 @@ public sealed class SqlServerAppConfigurationRepository(UmsPlatformDbContext dbC
 
     public async Task<AppConfigurationAggregate?> GetByScopeAndCodeAsync(Guid? tenantId, Guid? systemSuiteId, Guid? moduleId, string code, CancellationToken cancellationToken = default)
     {
-        var record = await dbContext.AppConfigurations
+        IQueryable<AppConfigurationRecord> query = dbContext.AppConfigurations;
+
+        if (tenantId.HasValue)
+        {
+            query = query.IgnoreQueryFilters();
+        }
+
+        var record = await query
             .FirstOrDefaultAsync(x =>
                 x.TenantId == tenantId
                 && x.SystemSuiteId == systemSuiteId
@@ -44,7 +51,7 @@ public sealed class SqlServerAppConfigurationRepository(UmsPlatformDbContext dbC
 
         if (tenantId.HasValue)
         {
-            query = query.Where(x => x.TenantId == tenantId.Value);
+            query = query.IgnoreQueryFilters().Where(x => x.TenantId == tenantId.Value);
         }
 
         var records = await query.OrderBy(x => x.Code).ToListAsync(cancellationToken);

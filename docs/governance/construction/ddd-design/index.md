@@ -53,6 +53,7 @@ Documentos detallados por Aggregate Root con modelo de datos completo, secuencia
 | 10 | [Cross-Context Flows](./10-cross-context-flows.md) | B2B Onboarding · Document Expiration · Role Promotion · Tabla de enrutamiento |
 | 11 | [DDD Primitives](./11-ddd-primitives.md) | Entity / AggregateRoot / ValueObject / Result&lt;T&gt; · Librerías shell `BeyondNetCode.Shell.*` |
 | 12 | [Design Decisiones & Gaps](./12-design-decisions.md) | 8 decisiones justificadas · 6 vacíos de validación (V1-V6) |
+| 13 | [Parameterization System](./parameterization-system-spec.md) | Sistema de parametrización Global/Tenant · Loader · Provider · Precedencia · Auditoría · Preparación Redis |
 
 ---
 

@@ -17,8 +17,9 @@ export interface M3DialogProps {
   message?: string;
   icon?: React.ReactNode | null;
   iconColor?: string;
-  actions: M3DialogAction[];
+  actions?: M3DialogAction[];
   onScrimClick?: () => void;
+  children?: React.ReactNode;
 }
 
 export const M3Dialog: React.FC<M3DialogProps> = React.memo(({
@@ -29,6 +30,7 @@ export const M3Dialog: React.FC<M3DialogProps> = React.memo(({
   iconColor = 'bg-amber-500/15 text-amber-500',
   actions,
   onScrimClick,
+  children,
 }) => {
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const { containerRef: focusTrapRef } = useFocusTrap({
@@ -68,32 +70,70 @@ export const M3Dialog: React.FC<M3DialogProps> = React.memo(({
       <M3Card
         ref={dialogRef}
         variant="elevated"
-        className="p-6 max-w-sm w-full mx-4 border border-m3-outline/30 shadow-2xl space-y-4 animate-fadeIn outline-none"
+        className={`p-6 w-full mx-4 border border-m3-outline/30 shadow-2xl animate-fadeIn outline-none ${children ? 'max-w-md' : 'max-w-sm space-y-4'}`}
         tabIndex={-1}
       >
-        <div className="flex items-start gap-3">
-          {iconNode}
-          <div>
-            <h3 id="m3-dialog-title" className="text-sm font-semibold text-m3-on-surface">{title}</h3>
-            {message && (
-              <p id="m3-dialog-message" className="text-xs text-m3-secondary mt-1 leading-relaxed">{message}</p>
-            )}
-          </div>
-        </div>
+        {children ? (
+          <>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                {iconNode}
+                <h3 id="m3-dialog-title" className="text-sm font-semibold text-m3-on-surface">{title}</h3>
+              </div>
+              {onScrimClick && (
+                <button
+                  onClick={onScrimClick}
+                  className="p-1 rounded hover:bg-m3-surface-variant text-m3-secondary hover:text-m3-on-surface transition-colors"
+                  aria-label="Close"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
+            {children}
+          </>
+        ) : (
+          <>
+            <div className="flex items-start gap-3">
+              {iconNode}
+              <div className="flex-1">
+                <div className="flex items-center justify-between">
+                  <h3 id="m3-dialog-title" className="text-sm font-semibold text-m3-on-surface">{title}</h3>
+                  {onScrimClick && (
+                    <button
+                      onClick={onScrimClick}
+                      className="p-1 rounded hover:bg-m3-surface-variant text-m3-secondary hover:text-m3-on-surface transition-colors"
+                      aria-label="Close"
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+                {message && (
+                  <p id="m3-dialog-message" className="text-xs text-m3-secondary mt-1 leading-relaxed">{message}</p>
+                )}
+              </div>
+            </div>
 
-        {actions.length > 0 && (
-          <div className="flex gap-2.5 pt-1" role="group" aria-label="Dialog actions">
-            {actions.map((action) => (
-              <M3Button
-                key={action.label}
-                variant={action.variant ?? 'outlined'}
-                onClick={action.onClick}
-                className={`flex-1 ${action.className ?? ''}`}
-              >
-                {action.label}
-              </M3Button>
-            ))}
-          </div>
+            {actions && actions.length > 0 && (
+              <div className="flex gap-2.5 pt-1" role="group" aria-label="Dialog actions">
+                {actions.map((action) => (
+                  <M3Button
+                    key={action.label}
+                    variant={action.variant ?? 'outlined'}
+                    onClick={action.onClick}
+                    className={`flex-1 ${action.className ?? ''}`}
+                  >
+                    {action.label}
+                  </M3Button>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </M3Card>
     </div>

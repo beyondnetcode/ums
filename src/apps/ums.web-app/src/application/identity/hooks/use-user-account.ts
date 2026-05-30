@@ -13,8 +13,8 @@ import {
   UserAccount,
   UserAccountPage,
 } from '@domain/identity/models/user-account.model';
-import { getHttpStatus } from '@app/errors/http-error';
-import { GraphQlValidationError, GraphQlUnavailableError } from '@infra/http/graphqlClient';
+import { CONTEXT_QUERY_CONFIG } from '@app/shared/config/query.config';
+import { getHttpStatus, isNonRecoverable, isNetworkError, getRetryOptions } from '@app/utils/error-utils';
 
 export interface UserAccountQueryParams {
   page: number;
@@ -27,31 +27,15 @@ export interface UserAccountQueryParams {
   tenantId?: string;
 }
 
-function isNonRecoverableError(error: unknown): boolean {
-  if (error instanceof GraphQlValidationError) return true;
-  const status = getHttpStatus(error);
-  if (status === 400 || status === 401 || status === 403 || status === 404 || status === 422) return true;
-  return false;
-}
-
-function isNetworkError(error: unknown): boolean {
-  return error instanceof GraphQlUnavailableError;
-}
-
 // ─── Queries ────────────────────────────────────────────────────────────────
 
 export const useGetAllUserAccounts = (params: UserAccountQueryParams | null) => {
   return useQuery<UserAccountPage>({
     queryKey: ['user-accounts', params?.page, params?.pageSize, params?.search, params?.criteria, params?.status, params?.sortBy, params?.sortOrder, params?.tenantId],
-    queryFn: () => userAccountService.getAllUserAccounts(params!),
+    queryFn: () => userAccountService.getAll(params!),
     enabled: !!params,
-    staleTime: 30_000,
-    retry: (failureCount, error: unknown) => {
-      if (isNonRecoverableError(error)) return false;
-      if (isNetworkError(error)) return failureCount < 2;
-      return failureCount < 1;
-    },
-    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 5000),
+    ...CONTEXT_QUERY_CONFIG.USER_ACCOUNT,
+    ...getRetryOptions({ maxRetries: 1, networkErrorMaxRetries: 2 }),
   });
 };
 
@@ -61,19 +45,15 @@ export const useGetUserAccount = (userAccountId: string | null) => {
     queryFn: async () => {
       if (!userAccountId) throw new Error('User account ID required');
       try {
-        return await userAccountService.getUserAccountById(userAccountId);
+        return await userAccountService.getById(userAccountId);
       } catch (err: unknown) {
         if (getHttpStatus(err) === 404) return null;
         throw err;
       }
     },
     enabled: !!userAccountId,
-    retry: (failureCount, error: unknown) => {
-      if (isNonRecoverableError(error)) return false;
-      if (isNetworkError(error)) return failureCount < 2;
-      if (getHttpStatus(error) === 404) return false;
-      return failureCount < 1;
-    },
+    ...CONTEXT_QUERY_CONFIG.USER_ACCOUNT,
+    ...getRetryOptions({ maxRetries: 1, networkErrorMaxRetries: 2 }),
   });
 };
 

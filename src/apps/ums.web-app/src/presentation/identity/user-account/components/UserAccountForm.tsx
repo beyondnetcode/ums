@@ -1,15 +1,17 @@
+/**
+ * UserAccountForm
+ * Create new user account - minimalist professional design
+ */
 import React, { useState } from 'react';
 import { useCreateUserAccount } from '@app/identity/hooks/use-user-account';
 import { useI18n } from '@app/i18n/use-i18n';
 import { useFormValidation } from '@app/hooks';
 import { useAuthStore } from '@app/stores/auth.store';
-import { M3Button } from '@shared/components/M3Button';
-import { M3TextField } from '@shared/components/M3TextField';
-import { SearchableSelect } from '@shared/components/SearchableSelect';
 import { M3FormDialog } from '@shared/components/M3FormDialog';
+import { FormField, FormInput, FormSelect, FormButton } from '@shared/components/form';
 import { USER_CATEGORIES, IDENTITY_REFERENCE_TYPES } from '@domain/identity/constants/user-account.constants';
 import { CreateUserAccountPayloadSchema } from '@domain/identity/schemas/user-account.schema';
-import { UserPlus } from 'lucide-react';
+import { UserPlus, Check } from 'lucide-react';
 
 interface UserAccountFormProps {
   isOpen: boolean;
@@ -34,10 +36,7 @@ export const UserAccountForm: React.FC<UserAccountFormProps> = ({ isOpen, onClos
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!effectiveTenantId) {
-      return;
-    }
+    if (!effectiveTenantId) return;
 
     const payload = {
       tenantId: effectiveTenantId,
@@ -56,9 +55,8 @@ export const UserAccountForm: React.FC<UserAccountFormProps> = ({ isOpen, onClos
       setEmail(''); setCategory('Internal'); setIdentityReference(''); setIdentityReferenceType('HrId');
       clearErrors();
       onSuccess();
-    } catch {
-      // Handled by mutation hook
-    }
+      onClose();
+    } catch { }
   };
 
   return (
@@ -66,56 +64,53 @@ export const UserAccountForm: React.FC<UserAccountFormProps> = ({ isOpen, onClos
       open={isOpen}
       onClose={onClose}
       title={t.createUserAccountTitle}
-      icon={<UserPlus className="w-5 h-5" />}
+      icon={<UserPlus className="w-4 h-4 text-m3-primary" />}
       footer={
-        <>
-          <M3Button variant="text" onClick={onClose} type="button">
+        <div className="flex items-center gap-2">
+          <FormButton variant="text" onClick={onClose} type="button">
             {t.cancelBtn}
-          </M3Button>
-          <M3Button variant="filled" onClick={handleSubmit} loading={createUserAccountMutation.isPending}>
+          </FormButton>
+          <FormButton variant="filled" onClick={handleSubmit} loading={createUserAccountMutation.isPending} icon={<Check className="w-3.5 h-3.5" />}>
             {t.createUserBtn}
-          </M3Button>
-        </>
+          </FormButton>
+        </div>
       }
     >
-      <form onSubmit={handleSubmit} className="space-y-0">
-        <M3TextField
-          label={t.userEmail}
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value.toLowerCase())}
-          placeholder="e.g. user@company.com"
-          error={errors.email}
-          helperText={t.userEmailHelper}
-        />
-
-        <div className="grid grid-cols-2 gap-4">
-          <SearchableSelect
-            label={t.userCategory}
-            value={category}
-            onChange={(val) => setCategory(val || 'Internal')}
-            options={USER_CATEGORIES.map((c) => ({ value: c, label: c }))}
-            placeholder="Seleccionar categoría..."
-            className="mb-0"
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <FormField label={t.userEmail} required error={errors.email}>
+          <FormInput
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value.toLowerCase())}
+            placeholder="user@company.com"
           />
+        </FormField>
 
-          <SearchableSelect
-            label={t.identityReferenceType}
-            value={identityReferenceType}
-            onChange={(val) => setIdentityReferenceType(val || 'HrId')}
-            options={IDENTITY_REFERENCE_TYPES.map((t) => ({ value: t, label: t }))}
-            placeholder="Seleccionar tipo..."
-            className="mb-0"
-          />
+        <div className="grid grid-cols-2 gap-3">
+          <FormField label={t.userCategory} error={errors.category}>
+            <FormSelect value={category} onChange={(e) => setCategory(e.target.value)}>
+              {USER_CATEGORIES.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </FormSelect>
+          </FormField>
+
+          <FormField label={t.identityReferenceType} error={errors.identityReferenceType}>
+            <FormSelect value={identityReferenceType} onChange={(e) => setIdentityReferenceType(e.target.value)}>
+              {IDENTITY_REFERENCE_TYPES.map((type) => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </FormSelect>
+          </FormField>
         </div>
 
-        <M3TextField
-          label={t.identityReference}
-          value={identityReference}
-          onChange={(e) => setIdentityReference(e.target.value)}
-          placeholder="e.g. EMP-12345"
-          className="mt-4"
-        />
+        <FormField label={t.identityReference} error={errors.identityReference}>
+          <FormInput
+            value={identityReference}
+            onChange={(e) => setIdentityReference(e.target.value)}
+            placeholder="EMP-12345"
+          />
+        </FormField>
       </form>
     </M3FormDialog>
   );

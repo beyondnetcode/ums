@@ -1,13 +1,16 @@
+/**
+ * SystemSuiteForm
+ * Create new system suite - minimalist professional design
+ */
 import React, { useState } from 'react';
 import { useCreateSystemSuite } from '@app/authorization/hooks/use-system-suite';
 import { useI18n } from '@app/i18n/use-i18n';
 import { useFormValidation } from '@app/hooks';
-import { useAuthStore } from '@app/stores/auth.store';
-import { M3Button } from '@shared/components/M3Button';
-import { M3TextField } from '@shared/components/M3TextField';
+import { useEffectiveTenant } from '@app/shared/hooks/use-effective-tenant';
 import { M3FormDialog } from '@shared/components/M3FormDialog';
+import { FormField, FormInput, FormButton } from '@shared/components/form';
 import { CreateSystemSuitePayloadSchema } from '@domain/authorization/schemas/system-suite.schema';
-import { Box } from 'lucide-react';
+import { Box, Check } from 'lucide-react';
 
 interface SystemSuiteFormProps {
   isOpen: boolean;
@@ -20,8 +23,7 @@ export const SystemSuiteForm: React.FC<SystemSuiteFormProps> = ({ isOpen, onClos
   const createSystemSuiteMutation = useCreateSystemSuite();
   const t = useI18n();
 
-  const sessionTenantId = useAuthStore((state) => state.user?.tenantId);
-  const effectiveTenantId = tenantId || sessionTenantId;
+  const effectiveTenantId = useEffectiveTenant(tenantId);
 
   const [code, setCode] = useState('');
   const [name, setName] = useState('');
@@ -31,18 +33,9 @@ export const SystemSuiteForm: React.FC<SystemSuiteFormProps> = ({ isOpen, onClos
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!effectiveTenantId) return;
 
-    if (!effectiveTenantId) {
-      return;
-    }
-
-    const payload = {
-      tenantId: effectiveTenantId,
-      code,
-      name,
-      description: description || undefined,
-    };
-
+    const payload = { tenantId: effectiveTenantId, code, name, description: description || undefined };
     const validData = validate(payload);
     if (!validData) return;
 
@@ -52,9 +45,7 @@ export const SystemSuiteForm: React.FC<SystemSuiteFormProps> = ({ isOpen, onClos
       clearErrors();
       onSuccess();
       onClose();
-    } catch {
-      // Handled by mutation hook
-    }
+    } catch { }
   };
 
   return (
@@ -62,46 +53,42 @@ export const SystemSuiteForm: React.FC<SystemSuiteFormProps> = ({ isOpen, onClos
       open={isOpen}
       onClose={onClose}
       title={t.createSystemSuiteTitle}
-      icon={<Box className="w-5 h-5" />}
+      icon={<Box className="w-4 h-4 text-m3-primary" />}
       footer={
-        <>
-          <M3Button variant="text" onClick={onClose} type="button">
+        <div className="flex items-center gap-2">
+          <FormButton variant="text" onClick={onClose} type="button">
             {t.cancelBtn}
-          </M3Button>
-          <M3Button variant="filled" onClick={handleSubmit} loading={createSystemSuiteMutation.isPending}>
+          </FormButton>
+          <FormButton variant="filled" onClick={handleSubmit} loading={createSystemSuiteMutation.isPending} icon={<Check className="w-3.5 h-3.5" />}>
             {t.registerSystemSuiteBtn}
-          </M3Button>
-        </>
+          </FormButton>
+        </div>
       }
     >
-      <form onSubmit={handleSubmit} className="space-y-0">
-        <M3TextField
-          label={t.systemSuiteCode}
-          required
-          value={code}
-          onChange={(e) => setCode(e.target.value.toUpperCase())}
-          placeholder="e.g. SUITE_CRM"
-          error={errors.code}
-          helperText={t.systemSuiteCodeHelper}
-        />
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <FormField label={t.systemSuiteCode} required error={errors.code}>
+          <FormInput
+            value={code}
+            onChange={(e) => setCode(e.target.value.toUpperCase())}
+            placeholder="SUITE_CRM"
+          />
+        </FormField>
 
-        <M3TextField
-          label={t.systemSuiteName}
-          required
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="e.g. CRM System Suite"
-          error={errors.name}
-          helperText={t.systemSuiteNameHelper}
-        />
+        <FormField label={t.systemSuiteName} required error={errors.name}>
+          <FormInput
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="CRM System Suite"
+          />
+        </FormField>
 
-        <M3TextField
-          label={t.description}
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="e.g. Customer relationship management module"
-          className="mt-4"
-        />
+        <FormField label={t.description} error={errors.description}>
+          <FormInput
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Customer relationship management module"
+          />
+        </FormField>
       </form>
     </M3FormDialog>
   );

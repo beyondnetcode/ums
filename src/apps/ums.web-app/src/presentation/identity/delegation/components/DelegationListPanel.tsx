@@ -14,6 +14,8 @@ import {
   AtomicSortOption,
   AtomicFilterOption,
   AtomicQueryCriteriaOption,
+  PaginationFooter,
+  RequiresFilterPrompt,
 } from '@shared/components';
 import { useQueryState } from '@app/shared/hooks/use-query-state';
 import { usePaginationState } from '@app/shared/hooks/use-pagination-state';
@@ -133,29 +135,21 @@ export const DelegationListPanel: React.FC<DelegationListPanelProps> = ({
   } : undefined;
 
   const filterPrompt = requiresFilter ? (
-    <div className="flex flex-col items-center justify-center h-full text-center py-16">
-      <div className="p-4 rounded-2xl bg-m3-primary/5 border border-m3-primary/10 mb-4">
-        <Info className="w-8 h-8 text-m3-primary/60" />
-      </div>
-      <h3 className="text-sm font-semibold text-m3-on-surface mb-1">Aplica un filtro para cargar</h3>
-      <p className="text-xs text-m3-secondary/70 max-w-xs">Selecciona un estado o ingresa un término de búsqueda para visualizar las delegaciones.</p>
-    </div>
+    <RequiresFilterPrompt
+      title="Aplica un filtro para cargar"
+      message="Selecciona un estado o ingresa un término de búsqueda para visualizar las delegaciones."
+    />
   ) : null;
 
   const footerTelemetry = (
-    <div className="flex items-center gap-3">
-      <div className="flex items-center gap-1.5">
-        <span className="h-2 w-2 rounded-full bg-m3-primary animate-pulse" />
-        <span className="text-xs font-medium text-m3-secondary/80">
-          {t.showing ?? 'Showing'} {totalItems === 0 ? 0 : startIndex + 1}-{Math.min(startIndex + pageSize, totalItems)} {t.of ?? 'of'} {totalItems} Delegations
-        </span>
-      </div>
-      {queryState.appliedQuery.term.trim() && (
-        <button onClick={queryState.handleResetQuery} className="text-xs font-medium text-rose-500 hover:underline flex items-center gap-1">
-          <Info className="w-3 h-3" /> {t.clearFilter ?? 'Clear Filters'}
-        </button>
-      )}
-    </div>
+    <PaginationFooter
+      totalItems={paginationState.totalItems}
+      startIndex={paginationState.startIndex ?? 0}
+      pageSize={paginationState.pageSize}
+      itemLabel="Delegations"
+      onClear={queryState.handleResetQuery}
+      searchTerm={queryState.appliedQuery.term}
+    />
   );
 
   return (

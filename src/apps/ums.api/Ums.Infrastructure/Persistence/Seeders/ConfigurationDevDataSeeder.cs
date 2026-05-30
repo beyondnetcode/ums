@@ -29,16 +29,42 @@ public static class ConfigurationDevDataSeeder
 
         // AppConfiguration
         var configs = BuildSeedAppConfigurations(actor);
+        var tenantConfigs = BuildTenantSpecificConfigurations(actor);
         if (inMemoryAppConfigRepository is not null)
+        {
             foreach (var cfg in configs) inMemoryAppConfigRepository.Seed(cfg);
+            foreach (var cfg in tenantConfigs) inMemoryAppConfigRepository.Seed(cfg);
+        }
         else if (appConfigRepository is not null)
         {
-            var existing = await appConfigRepository.GetAllAsync(null, cancellationToken);
-            if (existing.Count == 0)
+            var allExisting = await appConfigRepository.GetAllAsync(null, cancellationToken);
+
+            var existingGlobalCodes = allExisting
+                .Where(c => c.Props.TenantId is null)
+                .Select(c => c.Code.GetValue())
+                .ToHashSet();
+
+            foreach (var cfg in configs.Where(c => !existingGlobalCodes.Contains(c.Code.GetValue())))
             {
-                foreach (var cfg in configs) await appConfigRepository.AddAsync(cfg, cancellationToken);
-                await appConfigRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+                await appConfigRepository.AddAsync(cfg, cancellationToken);
             }
+
+            var tenantIds = tenantConfigs.Select(c => c.Props.TenantId!.GetValue()).Distinct();
+            foreach (var tenantId in tenantIds)
+            {
+                var existingTenantCodes = allExisting
+                    .Where(c => c.Props.TenantId?.GetValue() == tenantId)
+                    .Select(c => c.Code.GetValue())
+                    .ToHashSet();
+                var configsForTenant = tenantConfigs.Where(c => c.Props.TenantId?.GetValue() == tenantId);
+
+                foreach (var cfg in configsForTenant.Where(c => !existingTenantCodes.Contains(c.Code.GetValue())))
+                {
+                    await appConfigRepository.AddAsync(cfg, cancellationToken);
+                }
+            }
+
+            await appConfigRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
         }
 
         // FeatureFlag
@@ -92,6 +118,97 @@ public static class ConfigurationDevDataSeeder
             true, false, actor);
         if (maxAttempts.IsSuccess) results.Add(maxAttempts.Value);
 
+        var accessTokenDuration = AppConfigurationAggregate.Create(
+            null, null, null,
+            Code.Create("ACCESS_TOKEN_DURATION_MS"),
+            ConfigurationValue.Create("3600000"),
+            Description.Create("Access token lifetime in milliseconds (default: 1 hour)"),
+            true, false, actor);
+        if (accessTokenDuration.IsSuccess) results.Add(accessTokenDuration.Value);
+
+        var refreshTokenDuration = AppConfigurationAggregate.Create(
+            null, null, null,
+            Code.Create("REFRESH_TOKEN_DURATION_MS"),
+            ConfigurationValue.Create("604800000"),
+            Description.Create("Refresh token lifetime in milliseconds (default: 7 days)"),
+            true, false, actor);
+        if (refreshTokenDuration.IsSuccess) results.Add(refreshTokenDuration.Value);
+
+        var minPasswordLength = AppConfigurationAggregate.Create(
+            null, null, null,
+            Code.Create("MIN_PASSWORD_LENGTH"),
+            ConfigurationValue.Create("12"),
+            Description.Create("Minimum required password length"),
+            true, false, actor);
+        if (minPasswordLength.IsSuccess) results.Add(minPasswordLength.Value);
+
+        var maxValidityPeriod = AppConfigurationAggregate.Create(
+            null, null, null,
+            Code.Create("MAX_VALIDITY_PERIOD_DAYS"),
+            ConfigurationValue.Create("365"),
+            Description.Create("Maximum user account validity period in days"),
+            true, false, actor);
+        if (maxValidityPeriod.IsSuccess) results.Add(maxValidityPeriod.Value);
+
+        var configTransport = AppConfigurationAggregate.Create(
+            null, null, null,
+            Code.Create("FRONTEND_CONFIG_TRANSPORT"),
+            ConfigurationValue.Create("graphql"),
+            Description.Create("Transport mode for frontend config queries: 'graphql' or 'rest'"),
+            true, false, actor);
+        if (configTransport.IsSuccess) results.Add(configTransport.Value);
+
+        return results;
+    }
+
+    private static IReadOnlyList<AppConfigurationAggregate> BuildTenantSpecificConfigurations(ActorId actor)
+    {
+        var results = new List<AppConfigurationAggregate>();
+
+        // All tenant IDs from the database
+        var tenantConfigs = new (Guid TenantId, string Code, string Value, string Description)[]
+        {
+            // RANSA_PERU (3fa85f64-5717-4562-b3fc-2c963f66afa6)
+            (Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"), "SESSION_TIMEOUT_MINUTES", "45", "Session timeout for Ransa logistics operations"),
+            (Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"), "MFA_REQUIRED_FOR_ADMIN", "true", "Require MFA for Ransa admin users"),
+            (Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"), "UI_CUSTOM_BRANDING_ENABLED", "true", "Enable custom branding for Ransa"),
+
+            // APM_CALLAO (A3F5B9D2-7C3D-4C8E-A9B0-123456789ABC)
+            (Guid.Parse("A3F5B9D2-7C3D-4C8E-A9B0-123456789ABC"), "SESSION_TIMEOUT_MINUTES", "20", "Short session timeout for APM port security"),
+            (Guid.Parse("A3F5B9D2-7C3D-4C8E-A9B0-123456789ABC"), "MAX_LOGIN_ATTEMPTS", "3", "Strict login attempt limit for APM terminals"),
+            (Guid.Parse("A3F5B9D2-7C3D-4C8E-A9B0-123456789ABC"), "MFA_REQUIRED_FOR_ADMIN", "true", "Require MFA for all APM users"),
+
+            // NEPTUNIA (C9B736B4-6A84-48F8-B34D-176BC5A6D542)
+            (Guid.Parse("C9B736B4-6A84-48F8-B34D-176BC5A6D542"), "SESSION_TIMEOUT_MINUTES", "60", "Extended session timeout for Neptunia industrial operations"),
+            (Guid.Parse("C9B736B4-6A84-48F8-B34D-176BC5A6D542"), "MIN_PASSWORD_LENGTH", "14", "Extended password requirement for Neptunia"),
+
+            // UNIMAR (5F4E3D2C-1B0A-9F8E-7D6C-543210987654) - Maritime university
+            (Guid.Parse("5F4E3D2C-1B0A-9F8E-7D6C-543210987654"), "SESSION_TIMEOUT_MINUTES", "30", "Standard session timeout for university users"),
+            (Guid.Parse("5F4E3D2C-1B0A-9F8E-7D6C-543210987654"), "MAX_LOGIN_ATTEMPTS", "5", "Standard login attempt limit"),
+            (Guid.Parse("5F4E3D2C-1B0A-9F8E-7D6C-543210987654"), "MFA_REQUIRED_FOR_ADMIN", "false", "MFA optional for UNIMAR"),
+
+            // PAITA_PORT (9E8D7C6B-5A4F-3E2D-1C0B-9876543210FE) - Port authority
+            (Guid.Parse("9E8D7C6B-5A4F-3E2D-1C0B-9876543210FE"), "SESSION_TIMEOUT_MINUTES", "15", "Short session for port security"),
+            (Guid.Parse("9E8D7C6B-5A4F-3E2D-1C0B-9876543210FE"), "MAX_LOGIN_ATTEMPTS", "3", "Strict login attempts for port"),
+            (Guid.Parse("9E8D7C6B-5A4F-3E2D-1C0B-9876543210FE"), "MFA_REQUIRED_FOR_ADMIN", "true", "Require MFA for port admins"),
+
+            // INTRADEVCO (F3E2D1C0-B9A8-7F6E-5D4C-321098765432) - Trading company
+            (Guid.Parse("F3E2D1C0-B9A8-7F6E-5D4C-321098765432"), "SESSION_TIMEOUT_MINUTES", "40", "Extended session for trading operations"),
+            (Guid.Parse("F3E2D1C0-B9A8-7F6E-5D4C-321098765432"), "MAX_LOGIN_ATTEMPTS", "5", "Standard login attempt limit"),
+            (Guid.Parse("F3E2D1C0-B9A8-7F6E-5D4C-321098765432"), "MIN_PASSWORD_LENGTH", "10", "Standard password length"),
+        };
+
+        foreach (var (tenantId, code, value, description) in tenantConfigs)
+        {
+            var config = AppConfigurationAggregate.Create(
+                TenantId.Load(tenantId), null, null,
+                Code.Create(code),
+                ConfigurationValue.Create(value),
+                Description.Create(description),
+                true, false, actor);
+            if (config.IsSuccess) results.Add(config.Value);
+        }
+
         return results;
     }
 
@@ -118,6 +235,8 @@ public static class ConfigurationDevDataSeeder
                         ("ENABLE_MFA", FlagType.Boolean, "*", "Multi-factor authentication for logistics users", null),
                         ("DARK_MODE", FlagType.Boolean, "*", "Dark mode UI toggle", null),
                         ("ADVANCED_REPORTING", FlagType.Boolean, "role:ADMIN,role:SUPERVISOR", "Advanced analytics dashboard", null),
+                        ("ALLOW_PASSWORD_RESET_BY_ADMIN", FlagType.Boolean, "*", "Allow admin to reset user passwords", null),
+                        ("ALLOW_VALIDITY_PERIOD_MODIFICATION", FlagType.Boolean, "*", "Allow admin to modify user validity periods", null),
                     },
                     "WMS" => new (string Code, FlagType Type, string Targets, string Description, int? Rollout)[]
                     {

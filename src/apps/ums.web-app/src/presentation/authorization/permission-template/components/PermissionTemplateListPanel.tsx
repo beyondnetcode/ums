@@ -10,25 +10,22 @@ import {
   AtomicFilterOption,
   AtomicSortOption,
   AtomicQueryCriteriaOption,
+  PaginationFooter,
+  RequiresFilterPrompt,
 } from '@shared/components';
 import { useQueryState } from '@app/shared/hooks/use-query-state';
 import { usePaginationState } from '@app/shared/hooks/use-pagination-state';
 import { EntityRow } from '@shared/components/EntityRow';
 import { EntityCard } from '@shared/components/EntityCard';
 import { ApiErrorBanner } from '@shared/components/ApiErrorBanner';
+import { STATUS_COLORS, getStatusLabel } from '@shared/utils/status-utils';
 
 // ─── Status helpers ───────────────────────────────────────────────────────────
 
-const STATUS_LABEL: Record<string, string> = {
-  Draft:      'Borrador',
-  Published:  'Publicada',
-  Deprecated: 'Descontinuada',
-};
-
 const STATUS_COLOR_MAP = {
-  Published:  { bg: 'bg-emerald-500/10', border: 'border-emerald-500/25', text: 'text-emerald-500' },
-  Deprecated: { bg: 'bg-rose-500/10',    border: 'border-rose-500/25',    text: 'text-rose-500' },
-  Draft:      { bg: 'bg-amber-500/10',   border: 'border-amber-500/25',   text: 'text-amber-500' },
+  Published:  STATUS_COLORS.Published,
+  Deprecated: STATUS_COLORS.Deprecated,
+  Draft:      STATUS_COLORS.Draft,
 };
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -88,7 +85,7 @@ export const PermissionTemplateListPanel: React.FC<Props> = ({
             content: (
               <StatusBadge
                 status={tpl.status}
-                label={STATUS_LABEL[tpl.status] ?? tpl.status}
+                label={getStatusLabel(tpl.status)}
                 colorMap={STATUS_COLOR_MAP}
               />
             ),
@@ -129,7 +126,7 @@ export const PermissionTemplateListPanel: React.FC<Props> = ({
         badges={
           <StatusBadge
             status={tpl.status}
-            label={STATUS_LABEL[tpl.status] ?? tpl.status}
+            label={getStatusLabel(tpl.status)}
             colorMap={STATUS_COLOR_MAP}
           />
         }
@@ -147,33 +144,21 @@ export const PermissionTemplateListPanel: React.FC<Props> = ({
   } : undefined;
 
   const filterPrompt = requiresFilter ? (
-    <div className="flex flex-col items-center justify-center h-full text-center py-16">
-      <div className="p-4 rounded-2xl bg-m3-primary/5 border border-m3-primary/10 mb-4">
-        <Info className="w-8 h-8 text-m3-primary/60" />
-      </div>
-      <h3 className="text-sm font-semibold text-m3-on-surface mb-1">Aplica un filtro para cargar</h3>
-      <p className="text-xs text-m3-secondary/70 max-w-xs">Selecciona un estado o ingresa un término de búsqueda para visualizar las plantillas.</p>
-    </div>
+    <RequiresFilterPrompt
+      title="Aplica un filtro para cargar"
+      message="Selecciona un estado o ingresa un término de búsqueda para visualizar las plantillas."
+    />
   ) : null;
 
-  const totalItems = paginationState.totalItems;
-  const startIndex = paginationState.startIndex ?? 0;
-  const pageSize = paginationState.pageSize;
-
   const footerTelemetry = (
-    <div className="flex items-center gap-3">
-      <div className="flex items-center gap-1.5">
-        <span className="h-2 w-2 rounded-full bg-m3-primary animate-pulse" />
-        <span className="text-xs font-medium text-m3-secondary/80">
-          Mostrando {totalItems === 0 ? 0 : startIndex + 1}-{Math.min(startIndex + pageSize, totalItems)} de {totalItems} plantillas
-        </span>
-      </div>
-      {queryState.appliedQuery.term.trim() && (
-        <button onClick={queryState.handleResetQuery} className="text-xs font-medium text-rose-500 hover:underline flex items-center gap-1">
-          <Info className="w-3 h-3" /> Limpiar filtros
-        </button>
-      )}
-    </div>
+    <PaginationFooter
+      totalItems={paginationState.totalItems}
+      startIndex={paginationState.startIndex ?? 0}
+      pageSize={paginationState.pageSize}
+      itemLabel="plantillas"
+      onClear={queryState.handleResetQuery}
+      searchTerm={queryState.appliedQuery.term}
+    />
   );
 
   return (

@@ -20,7 +20,7 @@ import { M3Card } from '@shared/components/M3Card';
 import { M3Button } from '@shared/components/M3Button';
 import { M3TextField } from '@shared/components/M3TextField';
 import { TenantSelect } from '@shared/components/TenantSelect';
-import { Key, Building2, ShieldCheck, AlertCircle } from 'lucide-react';
+import { Key, Building2, ShieldCheck, AlertCircle, Info } from 'lucide-react';
 import { useNotificationStore } from '@app/stores/notification.store';
 import { DEV_TENANTS } from '@domain/identity/constants/tenant.constants';
 
@@ -39,6 +39,7 @@ export default function LoginScreen(): React.JSX.Element {
   const [error, setError] = useState('');
   const [attempts, setAttempts] = useState(0);
   const [lockoutUntil, setLockoutUntil] = useState<number | null>(null);
+  const [showInfoPopup, setShowInfoPopup] = useState(false);
 
   const showSessionExpired = new URLSearchParams(location.search).get('showSessionExpired') === 'true';
   const redirectTo = new URLSearchParams(location.search).get('redirect');
@@ -93,12 +94,24 @@ export default function LoginScreen(): React.JSX.Element {
       const simulatedDelay = 300 + Math.random() * 400;
       await new Promise((resolve) => setTimeout(resolve, simulatedDelay));
 
-      const isValidCredentials = (
-        (trimmedUsername === 'operador_callao' && trimmedPassword === 'Admin@123') ||
-        (trimmedUsername === 'admin_neptunia' && trimmedPassword === 'Admin@123') ||
-        (trimmedUsername === 'usuario_apm' && trimmedPassword === 'Admin@123') ||
-        (trimmedUsername === 'operador_unimar' && trimmedPassword === 'Admin@123')
-      ) && selectedTenant.code;
+      const DEV_CREDENTIALS: Record<string, { username: string; password: string }> = {
+        'INTERNAL_ADMIN': { username: 'admin@ums.local', password: 'Admin@123' },
+        'TECHNO': { username: 'admin@techno.io', password: 'Techno123!' },
+        'LOGISTICA': { username: 'admin@logistica.io', password: 'Logistica123!' },
+        'RETAIL': { username: 'admin@retail.io', password: 'Retail123!' },
+        'SALUD': { username: 'admin@salud.io', password: 'Salud123!' },
+        'EDU': { username: 'admin@edu.io', password: 'Edu123!' },
+        'FINANCE': { username: 'admin@finance.io', password: 'Finance123!' },
+        'MEDIA': { username: 'admin@media.io', password: 'Media123!' },
+        'AGILE': { username: 'admin@agile.io', password: 'Agile123!' },
+        'NEXTGEN': { username: 'admin@nextgen.io', password: 'Nextgen123!' },
+        'QUANTUM': { username: 'admin@quantum.io', password: 'Quantum123!' },
+      };
+
+      const tenantCreds = DEV_CREDENTIALS[selectedTenant.code];
+      const isValidCredentials = tenantCreds &&
+        trimmedUsername === tenantCreds.username &&
+        trimmedPassword === tenantCreds.password;
 
       if (!isValidCredentials) {
         const newAttempts = attempts + 1;
@@ -122,16 +135,19 @@ export default function LoginScreen(): React.JSX.Element {
       setDevUserId(generatedId);
       setAttempts(0);
 
+      const isInternalAdmin = selectedTenant.code === 'INTERNAL_ADMIN';
+
       login({
         id: generatedId,
         username: trimmedUsername,
-        email: `${trimmedUsername}@${selectedTenant.code.toLowerCase()}.com`,
-        role: trimmedUsername.startsWith('admin') ? 'admin' : 'user',
+        email: trimmedUsername,
+        role: 'admin',
         tenantId,
         tenantCode: selectedTenant.code,
         tenantName: selectedTenant.name,
         sessionTrackingId: crypto.randomUUID(),
         permissions: [],
+        isInternalAdmin,
       });
 
       addNotification({
@@ -244,20 +260,59 @@ export default function LoginScreen(): React.JSX.Element {
           </form>
         </M3Card>
 
-        <div className="mt-6 p-4 rounded-xl border border-m3-outline/20 bg-m3-surface-container/10">
-          <div className="flex items-center gap-2 mb-2">
-            <ShieldCheck className="w-3 h-3 text-m3-secondary" />
-            <p className="text-[10px] font-bold text-m3-secondary uppercase tracking-wider">
-              Datos de acceso (Desarrollo)
-            </p>
-          </div>
-          <div className="space-y-1 text-[10px] text-m3-secondary/70 font-mono">
-            <p>RANSA_PERU | operador_callao | Admin@123</p>
-            <p>NEPTUNIA | admin_neptunia | Admin@123</p>
-            <p>APM_CALLAO | usuario_apm | Admin@123</p>
-            <p>UNIMAR | operador_unimar | Admin@123</p>
-          </div>
+        <div className="mt-4 text-center">
+          <button
+            type="button"
+            onClick={() => setShowInfoPopup(true)}
+            className="flex items-center gap-1 text-[10px] text-m3-secondary/60 hover:text-m3-secondary transition-colors mx-auto"
+          >
+            <Info className="w-3 h-3" />
+            <span>Datos de prueba</span>
+          </button>
         </div>
+
+        {showInfoPopup && (
+          <>
+            <div
+              className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+              onClick={() => setShowInfoPopup(false)}
+            />
+            <div className="fixed z-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm p-4 rounded-xl border border-m3-outline/30 bg-m3-surface-container/95 shadow-2xl">
+              <div className="flex items-center justify-between mb-3 pb-2 border-b border-m3-outline/20">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-m3-primary" />
+                  <p className="text-sm font-bold text-m3-on-surface">
+                    Credenciales de Prueba
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowInfoPopup(false)}
+                  className="text-m3-secondary hover:text-m3-on-surface transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="space-y-2 text-xs max-h-80 overflow-y-auto">
+                <div className="p-2 rounded-lg bg-m3-primary-container/30 border border-m3-primary/20">
+                  <p className="font-bold text-m3-primary mb-1">Admin Internal (ve todos los tenants)</p>
+                  <p className="text-m3-secondary font-mono">Tenant: INTERNAL_ADMIN</p>
+                  <p className="text-m3-secondary font-mono">Usuario: admin@ums.local</p>
+                  <p className="text-m3-secondary font-mono">Password: Admin@123</p>
+                </div>
+                <p className="font-semibold text-m3-on-surface mt-3 mb-1">Tenants Regulares:</p>
+                {DEV_TENANTS.filter(t => t.code !== 'INTERNAL_ADMIN').map(t => (
+                  <div key={t.id} className="p-2 rounded bg-m3-surface/50 border border-m3-outline/10">
+                    <p className="font-bold text-m3-primary">{t.name}</p>
+                    <p className="text-m3-secondary font-mono">Tenant: {t.code}</p>
+                    <p className="text-m3-secondary font-mono">Usuario: admin@{t.code.toLowerCase()}.io</p>
+                    <p className="text-m3-secondary font-mono">Password: {t.code.toLowerCase()}123!</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
 
         <div className="mt-4 text-center">
           <p className="text-[10px] text-m3-secondary/50">

@@ -29,7 +29,7 @@ import {
 export const tenantService = {
   // ── Queries (GraphQL) ─────────────────────────────────────────────────────
 
-  getAllTenants: async (params?: {
+  getAll: async (params?: {
     page?: number;
     pageSize?: number;
     search?: string;
@@ -56,7 +56,7 @@ export const tenantService = {
     return pageResult.data;
   },
 
-  getTenantById: async (tenantId: string): Promise<Tenant> => {
+  getById: async (tenantId: string): Promise<Tenant> => {
     const response = await graphqlQueries.getTenantById(tenantId);
     if (!response.tenantById) throw new Error('Tenant not found');
     return TenantSchema.parse(response.tenantById);

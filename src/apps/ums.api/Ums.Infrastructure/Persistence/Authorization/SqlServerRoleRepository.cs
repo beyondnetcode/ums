@@ -99,24 +99,30 @@ public sealed class SqlServerRoleRepository(UmsPlatformDbContext dbContext) : IR
 
     private static RoleRecord ToRecord(RoleAggregate aggregate)
     {
-        var audit = aggregate.Props.Audit.GetValue();
+        var props = aggregate.Props;
+        if (props == null) throw new InvalidOperationException("Role aggregate has null Props");
+
+        var audit = props.Audit?.GetValue();
+        var roleId = props.Id?.GetValue() ?? Guid.Empty;
+        var now = DateTime.UtcNow;
+
         return new RoleRecord
         {
-            Id = aggregate.Props.Id.GetValue(),
-            TenantId = aggregate.TenantId.GetValue(),
-            SystemSuiteId = aggregate.SystemSuiteId.GetValue(),
+            Id = props.Id?.GetValue() ?? Guid.Empty,
+            TenantId = aggregate.TenantId?.GetValue() ?? Guid.Empty,
+            SystemSuiteId = aggregate.SystemSuiteId?.GetValue() ?? Guid.Empty,
             ParentRoleId = aggregate.ParentRoleId?.GetValue(),
-            Code = aggregate.Code.GetValue(),
-            Value = aggregate.Value.GetValue(),
-            Description = aggregate.Description.GetValue(),
+            Code = aggregate.Code?.GetValue() ?? string.Empty,
+            Value = aggregate.Value?.GetValue() ?? string.Empty,
+            Description = aggregate.Description?.GetValue() ?? string.Empty,
             HierarchyLevel = aggregate.HierarchyLevel,
             PromotionOrder = aggregate.PromotionOrder,
             IsActive = aggregate.IsActive,
-            CreatedBy = audit.CreatedBy,
-            CreatedAtUtc = audit.CreatedAt,
-            UpdatedBy = audit.UpdatedBy,
-            UpdatedAtUtc = audit.UpdatedAt,
-            AuditTimeSpan = audit.TimeSpan,
+            CreatedBy = audit?.CreatedBy ?? "system",
+            CreatedAtUtc = audit?.CreatedAt ?? now,
+            UpdatedBy = audit?.UpdatedBy ?? "system",
+            UpdatedAtUtc = audit?.UpdatedAt ?? now,
+            AuditTimeSpan = audit?.TimeSpan ?? "00:00:00",
         };
     }
 

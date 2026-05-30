@@ -7,8 +7,8 @@ import {
   type PermissionTemplatePage,
   type PermissionTemplateDetail,
 } from '@domain/authorization/models/permission-template.model';
-import { getHttpStatus } from '@app/errors/http-error';
-import { GraphQlValidationError } from '@infra/http/graphqlClient';
+import { getHttpStatus, getRetryOptions } from '@app/utils/error-utils';
+import { CONTEXT_QUERY_CONFIG } from '@app/shared/config/query.config';
 
 // ─── Query params ────────────────────────────────────────────────────────────
 
@@ -25,25 +25,25 @@ export interface PermissionTemplateQueryParams {
   roleId?: string;
 }
 
-function isNonRecoverable(error: unknown): boolean {
-  if (error instanceof GraphQlValidationError) return true;
-  const s = getHttpStatus(error);
-  return s === 400 || s === 401 || s === 403 || s === 404 || s === 422;
-}
-
 // ─── Queries ─────────────────────────────────────────────────────────────────
 
 export const useGetAllPermissionTemplates = (params: PermissionTemplateQueryParams | null) =>
   useQuery<PermissionTemplatePage>({
-    queryKey: ['permission-templates', params?.page, params?.pageSize, params?.search,
-               params?.criteria, params?.status, params?.sortBy, params?.sortOrder, params?.tenantId],
+    queryKey: [
+      'permission-templates',
+      params?.page,
+      params?.pageSize,
+      params?.search,
+      params?.criteria,
+      params?.status,
+      params?.sortBy,
+      params?.sortOrder,
+      params?.tenantId,
+    ],
     queryFn: () => permissionTemplateService.getAll(params!),
     enabled: !!params,
-    staleTime: 30_000,
-    retry: (failureCount, error) => {
-      if (isNonRecoverable(error)) return false;
-      return failureCount < 1;
-    },
+    ...CONTEXT_QUERY_CONFIG.PERMISSION_TEMPLATE,
+    ...getRetryOptions({ maxRetries: 1 }),
   });
 
 export const useGetPermissionTemplate = (templateId: string | null) =>
@@ -51,14 +51,16 @@ export const useGetPermissionTemplate = (templateId: string | null) =>
     queryKey: ['permission-templates', templateId],
     queryFn: async () => {
       if (!templateId) throw new Error('Template ID required');
-      try { return await permissionTemplateService.getById(templateId); }
-      catch (err) { if (getHttpStatus(err) === 404) return null; throw err; }
+      try {
+        return await permissionTemplateService.getById(templateId);
+      } catch (err) {
+        if (getHttpStatus(err) === 404) return null;
+        throw err;
+      }
     },
     enabled: !!templateId,
-    retry: (failureCount, error) => {
-      if (isNonRecoverable(error)) return false;
-      return failureCount < 1;
-    },
+    ...CONTEXT_QUERY_CONFIG.PERMISSION_TEMPLATE,
+    ...getRetryOptions({ maxRetries: 1 }),
   });
 
 // ─── Template lifecycle mutations ─────────────────────────────────────────────
@@ -118,7 +120,8 @@ export const useDeletePermissionTemplate = () =>
     }),
     errorNotif: () => ({
       title: 'Error al Eliminar',
-      message: 'No se pudo eliminar la plantilla. Solo se pueden eliminar plantillas en estado Borrador.',
+      message:
+        'No se pudo eliminar la plantilla. Solo se pueden eliminar plantillas en estado Borrador.',
     }),
   });
 
@@ -159,8 +162,14 @@ export const useSetTemplateItemEffect = (templateId: string) =>
     mutationFn: ({ itemId, effect }: { itemId: string; effect: 'Allow' | 'Deny' | 'Neutral' }) =>
       permissionTemplateService.setItemEffect(templateId, itemId, effect),
     invalidateKeys: [['permission-templates', templateId]],
-    successNotif: () => ({ title: 'Efecto Actualizado', message: 'El efecto del permiso fue actualizado.' }),
-    errorNotif:   () => ({ title: 'Error al Actualizar Efecto', message: 'No se pudo actualizar el efecto.' }),
+    successNotif: () => ({
+      title: 'Efecto Actualizado',
+      message: 'El efecto del permiso fue actualizado.',
+    }),
+    errorNotif: () => ({
+      title: 'Error al Actualizar Efecto',
+      message: 'No se pudo actualizar el efecto.',
+    }),
   });
 
 export const useActivateTemplateItem = (templateId: string) =>
@@ -168,13 +177,17 @@ export const useActivateTemplateItem = (templateId: string) =>
     mutationFn: (itemId: string) => permissionTemplateService.activateItem(templateId, itemId),
     invalidateKeys: [['permission-templates', templateId]],
     successNotif: () => ({ title: 'Ítem Activado', message: 'El ítem de permiso fue activado.' }),
-    errorNotif:   () => ({ title: 'Error al Activar', message: 'No se pudo activar el ítem.' }),
+    errorNotif: () => ({ title: 'Error al Activar', message: 'No se pudo activar el ítem.' }),
   });
 
 export const useDeactivateTemplateItem = (templateId: string) =>
   useNotifiedMutation({
     mutationFn: (itemId: string) => permissionTemplateService.deactivateItem(templateId, itemId),
     invalidateKeys: [['permission-templates', templateId]],
-    successNotif: () => ({ title: 'Ítem Desactivado', message: 'El ítem de permiso fue desactivado.', type: 'info' as const }),
-    errorNotif:   () => ({ title: 'Error al Desactivar', message: 'No se pudo desactivar el ítem.' }),
+    successNotif: () => ({
+      title: 'Ítem Desactivado',
+      message: 'El ítem de permiso fue desactivado.',
+      type: 'info' as const,
+    }),
+    errorNotif: () => ({ title: 'Error al Desactivar', message: 'No se pudo desactivar el ítem.' }),
   });

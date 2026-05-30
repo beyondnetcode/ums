@@ -30,6 +30,9 @@ export interface AuthUser {
   permissions: string[];
   sessionTrackingId: string;
   token?: string;
+  isInternalAdmin: boolean;
+  originalTenantId?: string;
+  crossTenantAccessEnabled: boolean;
 }
 
 export interface AuthState {
@@ -39,6 +42,7 @@ export interface AuthState {
   sessionExpiresAt: number | null;
   refreshTokenExpiresAt: number | null;
   lastActivityAt: number | null;
+  availableTenants: Array<{ id: string; code: string; name: string }>;
 
   login: (user: AuthUser, expiresAt?: number, refreshExpiresAt?: number) => void;
   logout: () => void;
@@ -47,6 +51,8 @@ export interface AuthState {
   checkSession: () => Promise<boolean>;
   updateActivity: () => void;
   getTimeUntilRefresh: () => number;
+  switchTenant: (tenantId: string, enableCrossTenantAccess?: boolean) => Promise<boolean>;
+  setAvailableTenants: (tenants: Array<{ id: string; code: string; name: string }>) => void;
 }
 
 const ACCESS_TOKEN_DURATION = 60 * 60 * 1000;
@@ -79,6 +85,7 @@ export const useAuthStore = create<AuthState>()(
       sessionExpiresAt: null,
       refreshTokenExpiresAt: null,
       lastActivityAt: null,
+      availableTenants: [],
 
       login: (user, expiresAt, refreshExpiresAt) => {
         const now = Date.now();
@@ -86,7 +93,12 @@ export const useAuthStore = create<AuthState>()(
         const refreshDuration = refreshExpiresAt || REFRESH_TOKEN_DURATION;
 
         set({
-          user,
+          user: {
+            ...user,
+            isInternalAdmin: user.isInternalAdmin || false,
+            crossTenantAccessEnabled: false,
+            originalTenantId: user.tenantId,
+          },
           isAuthenticated: true,
           isLoading: false,
           sessionExpiresAt: now + accessDuration,
@@ -99,6 +111,7 @@ export const useAuthStore = create<AuthState>()(
 
         console.info(`[Auth] Session started for user: ${user.username}`, {
           tenant: user.tenantCode,
+          isInternalAdmin: user.isInternalAdmin,
           expiresAt: new Date(now + accessDuration).toISOString(),
         });
       },
@@ -212,6 +225,62 @@ export const useAuthStore = create<AuthState>()(
         if (!state.refreshTokenExpiresAt) return 0;
         return Math.max(0, state.refreshTokenExpiresAt - Date.now());
       },
+
+      switchTenant: async (tenantId: string, enableCrossTenantAccess = false) => {
+        const state = get();
+        if (!state.user?.isInternalAdmin) {
+          console.warn('[Auth] Non-admin users cannot switch tenants');
+          return false;
+        }
+
+        try {
+          const response = await fetch('/api/v1/auth/switch-tenant', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${state.user.token}`,
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+              tenantId,
+              enableCrossTenantAccess,
+            }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            console.error('[Auth] Tenant switch failed:', error);
+            return false;
+          }
+
+          const data = await response.json();
+
+          set({
+            user: {
+              ...state.user,
+              tenantId: data.currentTenantId,
+              tenantCode: data.currentTenantCode,
+              tenantName: data.currentTenantName,
+              crossTenantAccessEnabled: data.crossTenantAccessEnabled,
+            },
+          });
+
+          console.info('[Auth] Tenant switched successfully', {
+            previousTenantId: data.previousTenantId,
+            currentTenantId: data.currentTenantId,
+            crossTenantAccessEnabled: data.crossTenantAccessEnabled,
+          });
+
+          return true;
+        } catch (error) {
+          console.error('[Auth] Tenant switch error:', error);
+          return false;
+        }
+      },
+
+      setAvailableTenants: (tenants) => {
+        set({ availableTenants: tenants });
+      },
     }),
     {
       name: 'ums-auth-storage',
@@ -222,6 +291,7 @@ export const useAuthStore = create<AuthState>()(
         sessionExpiresAt: state.sessionExpiresAt,
         refreshTokenExpiresAt: state.refreshTokenExpiresAt,
         lastActivityAt: state.lastActivityAt,
+        availableTenants: state.availableTenants,
       }),
       onRehydrateStorage: () => (state) => {
         if (state) {

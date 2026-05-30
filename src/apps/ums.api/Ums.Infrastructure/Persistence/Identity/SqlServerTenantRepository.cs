@@ -18,7 +18,7 @@ public sealed class SqlServerTenantRepository(UmsPlatformDbContext dbContext) : 
     public async Task<TenantAggregate?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var record = await dbContext.Tenants
-            .AsSplitQuery()
+            .AsSingleQuery()
             .Include(x => x.Branches)
             .Include(x => x.IdentityProviders)
             .Include(x => x.Branding)
@@ -33,7 +33,6 @@ public sealed class SqlServerTenantRepository(UmsPlatformDbContext dbContext) : 
     public async Task<TenantAggregate?> GetByCodeAsync(string code, CancellationToken cancellationToken = default)
     {
         var record = await dbContext.Tenants
-            .AsSplitQuery()
             .Include(x => x.Branches)
             .Include(x => x.IdentityProviders)
             .Include(x => x.Branding)

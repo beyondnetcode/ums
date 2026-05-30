@@ -18,12 +18,19 @@ public class OrganizationDbContextInterceptor : DbConnectionInterceptor
 
     /// <summary>
     /// Sets the SQL Server session context immediately after the connection is opened.
+    /// Skipped for SQLite since sp_set_session_context is SQL Server-specific.
     /// </summary>
     public override async Task ConnectionOpenedAsync(
         DbConnection connection,
         ConnectionEndEventData eventData,
         CancellationToken cancellationToken = default)
     {
+        if (connection is Microsoft.Data.Sqlite.SqliteConnection)
+        {
+            await base.ConnectionOpenedAsync(connection, eventData, cancellationToken);
+            return;
+        }
+
         if (_tenantContext.OrganizationId.HasValue)
         {
             using var command = connection.CreateCommand();
@@ -44,6 +51,12 @@ public class OrganizationDbContextInterceptor : DbConnectionInterceptor
         DbConnection connection,
         ConnectionEndEventData eventData)
     {
+        if (connection is Microsoft.Data.Sqlite.SqliteConnection)
+        {
+            base.ConnectionOpened(connection, eventData);
+            return;
+        }
+
         if (_tenantContext.OrganizationId.HasValue)
         {
             using var command = connection.CreateCommand();

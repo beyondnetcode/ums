@@ -3,7 +3,8 @@ import tenantService from '@infra/identity/services/tenant.service';
 import { useNotifiedMutation } from '@app/hooks/use-notified-mutation';
 import { useI18n } from '@app/i18n/use-i18n';
 import { AddBranchPayload, Branch } from '@domain/identity/models/branch.model';
-import { getHttpStatus } from '@app/errors/http-error';
+import { getHttpStatus, getRetryOptions } from '@app/utils/error-utils';
+import { CONTEXT_QUERY_CONFIG } from '@app/shared/config/query.config';
 
 // ─── Query ──────────────────────────────────────────────────────────────────
 
@@ -20,10 +21,8 @@ export const useGetBranches = (tenantId: string | null) => {
       }
     },
     enabled: !!tenantId,
-    retry: (failureCount, error: unknown) => {
-      if (getHttpStatus(error) === 404) return false;
-      return failureCount < 1;
-    },
+    ...CONTEXT_QUERY_CONFIG.BRANCH,
+    ...getRetryOptions({ maxRetries: 1 }),
   });
 };
 
@@ -34,7 +33,7 @@ export const useAddBranch = (tenantId: string) => {
   return useNotifiedMutation({
     mutationFn: (payload: AddBranchPayload) => tenantService.addBranch(tenantId, payload),
     invalidateKeys: [['tenants', tenantId, 'branches']],
-    successNotif: (data) => ({
+    successNotif: data => ({
       title: t.notifBranchAdded,
       message: t.notifBranchAddedMsg(data.code),
     }),

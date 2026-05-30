@@ -4,6 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using Ums.Application.Configuration.Services;
 
 public interface IJwtTokenService
 {
@@ -22,21 +23,22 @@ public record TokenGenerationRequest(
     string? RoleName,
     string? ProfileId,
     string[] Permissions,
-    string Language = "en");
+    string Language = "en",
+    bool IsInternalAdmin = false);
 
 public class JwtTokenService : IJwtTokenService
 {
     private readonly string _secret;
     private readonly string _issuer;
     private readonly string _audience;
-    private readonly int _expirationMinutes;
+    private readonly IConfigurationProvider _configProvider;
 
-    public JwtTokenService(IConfiguration configuration)
+    public JwtTokenService(IConfiguration configuration, IConfigurationProvider configProvider)
     {
         _secret = configuration["Jwt:Secret"] ?? throw new ArgumentNullException("Jwt:Secret is not configured");
         _issuer = configuration["Jwt:Issuer"] ?? "ums-api";
         _audience = configuration["Jwt:Audience"] ?? "ums-web-app";
-        _expirationMinutes = int.TryParse(configuration["Jwt:ExpirationMinutes"], out var min) ? min : 60;
+        _configProvider = configProvider;
     }
 
     public string GenerateToken(TokenGenerationRequest request)
@@ -76,12 +78,20 @@ public class JwtTokenService : IJwtTokenService
         }
 
         claims.Add(new Claim("language", request.Language));
+        claims.Add(new Claim("is_internal_admin", request.IsInternalAdmin ? "true" : "false"));
+
+        var accessTokenDurationMs = _configProvider.GetValueAs<int>(
+            "ACCESS_TOKEN_DURATION_MS",
+            request.TenantId,
+            3600000);
+
+        var expires = DateTime.UtcNow.AddMilliseconds(accessTokenDurationMs);
 
         var token = new JwtSecurityToken(
             issuer: _issuer,
             audience: _audience,
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(_expirationMinutes),
+            expires: expires,
             signingCredentials: credentials);
 
         return new JwtSecurityTokenHandler().WriteToken(token);

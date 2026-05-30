@@ -13,6 +13,7 @@ export default defineConfig(({ mode }) => {
         '@app':          path.resolve(__dirname, 'src/application'),
         '@domain':       path.resolve(__dirname, 'src/domain'),
         '@infra':        path.resolve(__dirname, 'src/infrastructure'),
+        '@infrastructure': path.resolve(__dirname, 'src/infrastructure'),
         '@presentation': path.resolve(__dirname, 'src/presentation'),
         '@shared':       path.resolve(__dirname, 'src/presentation/shared'),
       },
@@ -50,10 +51,18 @@ export default defineConfig(({ mode }) => {
       minify: 'esbuild',
       rollupOptions: {
         output: {
-          manualChunks: {
-            'react-vendor': ['react', 'react-dom'],
-            'tanstack-query': ['@tanstack/react-query'],
-            'lucide-icons': ['lucide-react'],
+          manualChunks: (id) => {
+            if (id.includes('node_modules')) {
+              if (id.includes('react-dom')) return 'react-dom';
+              if (id.includes('react') && !id.includes('react-dom')) return 'react';
+              if (id.includes('@tanstack')) return 'tanstack-query';
+              if (id.includes('lucide-react')) return 'lucide-icons';
+              if (id.includes('zustand')) return 'zustand';
+              if (id.includes('zod')) return 'zod';
+            }
+            if (id.includes('@domain/identity/schemas')) return 'identity-schemas';
+            if (id.includes('@domain/authorization/schemas')) return 'authorization-schemas';
+            if (id.includes('@domain/configuration/schemas')) return 'configuration-schemas';
           },
         },
       },

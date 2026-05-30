@@ -2,13 +2,10 @@
  * feature-flag.service.ts
  *
  * Infrastructure service for the Configuration / FeatureFlag bounded context.
- * Queries use GraphQL (paginated list, single flag).
- * Scoped list by SystemSuite uses REST (no GraphQL resolver).
- * Commands use REST via httpClient.
+ * All queries and commands use REST via httpClient.
  * All responses are validated with Zod before returning.
  */
 import { httpClient } from '@infra/http/httpClient';
-import { graphqlFeatureFlagQueries } from '@infra/configuration/queries/feature-flag.graphql';
 import { logger } from '@app/utils/logger';
 import {
   FeatureFlagSchema,
@@ -27,10 +24,32 @@ import type {
   AddFeatureFlagCriteriaPayload,
 } from '@domain/configuration/schemas/feature-flag.commands.schema';
 
-export const featureFlagService = {
-  // ── Queries ────────────────────────────────────────────────────────────────
+function buildQueryString(params?: {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  criteria?: string;
+  status?: string;
+  sortBy?: string;
+  sortOrder?: string;
+  flagType?: string;
+}): string {
+  const p = new URLSearchParams();
+  if (params) {
+    p.set('page', String(params.page ?? 1));
+    p.set('pageSize', String(params.pageSize ?? 20));
+    if (params.search) p.set('search', params.search);
+    if (params.criteria) p.set('criteria', params.criteria);
+    if (params.status) p.set('status', params.status);
+    if (params.sortBy) p.set('sortBy', params.sortBy);
+    if (params.sortOrder) p.set('sortOrder', params.sortOrder);
+    if (params.flagType) p.set('flagType', params.flagType);
+  }
+  return p.toString();
+}
 
-  getAllFeatureFlags: async (params?: {
+export const featureFlagService = {
+  getAll: async (params?: {
     page?: number;
     pageSize?: number;
     search?: string;
@@ -40,29 +59,19 @@ export const featureFlagService = {
     sortOrder?: string;
     flagType?: string;
   }): Promise<FeatureFlagPage> => {
-    const response = await graphqlFeatureFlagQueries.getFeatureFlags({
-      page:      params?.page ?? 1,
-      pageSize:  params?.pageSize ?? 20,
-      search:    params?.search,
-      criteria:  params?.criteria,
-      status:    params?.status,
-      sortBy:    params?.sortBy,
-      sortOrder: params?.sortOrder,
-      flagType:  params?.flagType,
-    });
-
-    const result = FeatureFlagPageSchema.safeParse(response.featureFlags);
+    const qs = buildQueryString(params);
+    const { data } = await httpClient.get<{ items: FeatureFlag[]; totalItems: number; totalPages: number }>(`/feature-flags?${qs}`);
+    const result = FeatureFlagPageSchema.safeParse(data);
     if (!result.success) {
-      logger.error('Invalid GraphQL response shape for feature flags query', result.error);
-      throw new Error('Invalid GraphQL response shape for feature flags query');
+      logger.error('Invalid REST response shape for feature flags query', result.error);
+      throw new Error('Invalid REST response shape for feature flags query');
     }
     return result.data;
   },
 
-  getFeatureFlagById: async (featureFlagId: string): Promise<FeatureFlag> => {
-    const response = await graphqlFeatureFlagQueries.getFeatureFlagById(featureFlagId);
-    if (!response.featureFlagById) throw new Error('FeatureFlag not found');
-    return FeatureFlagSchema.parse(response.featureFlagById);
+  getById: async (featureFlagId: string): Promise<FeatureFlag> => {
+    const { data } = await httpClient.get<FeatureFlag>(`/feature-flags/${featureFlagId}`);
+    return FeatureFlagSchema.parse(data);
   },
 
   /** REST: returns all flags scoped to a given SystemSuite (no pagination). */
@@ -75,8 +84,6 @@ export const featureFlagService = {
     }
     return result.data;
   },
-
-  // ── Commands ───────────────────────────────────────────────────────────────
 
   createFeatureFlag: async (payload: CreateFeatureFlagPayload): Promise<CreateFeatureFlagResponse> => {
     const { data } = await httpClient.post('/feature-flags', payload);

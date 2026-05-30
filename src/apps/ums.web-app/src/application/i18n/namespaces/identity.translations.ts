@@ -69,6 +69,8 @@ export const identityTranslations = {
     tabLocations: 'Ubicaciones',
     tabAuthIdps: 'Prov. Identidad',
     tabBranding: 'Identidad Visual',
+    tabConfigurations: 'Parámetros',
+    configurationsForTenant: 'Configuraciones del Tenant',
 
     // Branch Manager
     subLocations: 'Sub-Ubicaciones',
@@ -182,6 +184,24 @@ export const identityTranslations = {
     notifBranchUpdatedMsg: (name: string) => `La sucursal '${name}' fue actualizada correctamente.`,
     notifProviderUpdated: 'Proveedor Actualizado',
     notifProviderUpdatedMsg: (name: string) => `El proveedor '${name}' fue actualizado correctamente.`,
+
+    // Configuration Parameters
+    notifConfigLoadFailed: 'Error al Cargar Parámetros',
+    notifConfigUpdated: 'Parámetro Actualizado',
+    notifConfigUpdateFailed: 'Error al Actualizar Parámetro',
+    notifConfigCreated: 'Parámetro Creado',
+    notifConfigCreateFailed: 'Error al Crear Parámetro',
+    addParameter: 'Agregar Parámetro',
+    addingNewParameter: 'Nuevo Parámetro',
+    parameterCode: 'Código',
+    parameterValue: 'Valor',
+    parameterValuePlaceholder: 'Ingrese el valor del parámetro',
+    noConfigsForTenant: 'Sin parámetros configurados',
+    noConfigsForTenantDesc: 'Este tenant aún no tiene parámetros específicos configurados.',
+    override: 'Override',
+    global: 'Global',
+    cancel: 'Cancelar',
+    save: 'Guardar',
 
     // User Accounts
     createUserAccountTitle: 'Crear Nueva Cuenta de Usuario',
@@ -300,6 +320,8 @@ export const identityTranslations = {
     tabLocations: 'Locations',
     tabAuthIdps: 'Auth IDPs',
     tabBranding: 'Branding',
+    tabConfigurations: 'Configuration',
+    configurationsForTenant: 'Tenant Configuration',
 
     // Branch Manager
     subLocations: 'Sub-Locations',
@@ -413,6 +435,24 @@ export const identityTranslations = {
     notifBranchUpdatedMsg: (name: string) => `Branch '${name}' was updated successfully.`,
     notifProviderUpdated: 'Provider Updated',
     notifProviderUpdatedMsg: (name: string) => `Provider '${name}' was updated successfully.`,
+
+    // Configuration Parameters
+    notifConfigLoadFailed: 'Failed to Load Parameters',
+    notifConfigUpdated: 'Parameter Updated',
+    notifConfigUpdateFailed: 'Failed to Update Parameter',
+    notifConfigCreated: 'Parameter Created',
+    notifConfigCreateFailed: 'Failed to Create Parameter',
+    addParameter: 'Add Parameter',
+    addingNewParameter: 'New Parameter',
+    parameterCode: 'Code',
+    parameterValue: 'Value',
+    parameterValuePlaceholder: 'Enter the parameter value',
+    noConfigsForTenant: 'No parameters configured',
+    noConfigsForTenantDesc: 'This tenant does not have specific parameters configured yet.',
+    override: 'Override',
+    global: 'Global',
+    cancel: 'Cancel',
+    save: 'Save',
 
     // User Accounts
     createUserAccountTitle: 'Create New User Account',

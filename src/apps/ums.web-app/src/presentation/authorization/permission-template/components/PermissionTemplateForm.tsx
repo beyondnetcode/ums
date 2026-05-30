@@ -1,15 +1,14 @@
 /**
  * PermissionTemplateForm — creates a new permission template (Draft).
- * Wrapped in M3FormDialog; uses suite/role dropdowns — no raw GUIDs.
+ * Uses M3Dialog with shared form components.
  */
 import React, { useState } from 'react';
 import { ShieldPlus } from 'lucide-react';
-import { M3Button, M3Select } from '@shared/components';
-import { M3FormDialog } from '@shared/components/M3FormDialog';
+import { M3Dialog, FieldSelect } from '@shared/components';
 import { useCreatePermissionTemplate } from '@app/authorization/hooks/use-permission-template';
 import { useGetAllSystemSuites } from '@app/authorization/hooks/use-system-suite';
 import { useRolesBySystemSuite } from '@app/authorization/hooks/use-role';
-import { useAuthStore } from '@app/stores/auth.store';
+import { useEffectiveTenant } from '@app/shared/hooks/use-effective-tenant';
 
 interface Props {
   isOpen:    boolean;
@@ -18,35 +17,8 @@ interface Props {
   tenantId?: string;
 }
 
-interface SelectProps {
-  label:    string;
-  value:    string;
-  onChange: (v: string) => void;
-  options:  { value: string; label: string }[];
-  disabled?: boolean;
-  required?: boolean;
-  error?:    string;
-}
-
-const FieldSelect: React.FC<SelectProps> = ({ label, value, onChange, options, disabled, required, error }) => (
-  <M3Select
-    label={label}
-    value={value}
-    onChange={e => onChange(e.target.value)}
-    disabled={disabled}
-    required={required}
-    error={error}
-  >
-    <option value="">— Seleccionar —</option>
-    {options.map(o => (
-      <option key={o.value} value={o.value}>{o.label}</option>
-    ))}
-  </M3Select>
-);
-
 export const PermissionTemplateForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenantId }) => {
-  const sessionTenantId = useAuthStore((state) => state.user?.tenantId);
-  const effectiveTenantId = tenantId || sessionTenantId;
+  const effectiveTenantId = useEffectiveTenant(tenantId);
 
   const [systemSuiteIdVal, setSystemSuiteIdVal] = useState('');
   const [roleIdVal,        setRoleIdVal]        = useState('');
@@ -77,8 +49,7 @@ export const PermissionTemplateForm: React.FC<Props> = ({ isOpen, onClose, onSuc
     setError('');
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setError('');
 
     if (!effectiveTenantId)     { setError('Tenant context no disponible'); return; }
@@ -96,29 +67,16 @@ export const PermissionTemplateForm: React.FC<Props> = ({ isOpen, onClose, onSuc
   };
 
   return (
-    <M3FormDialog
+    <M3Dialog
       open={isOpen}
-      onClose={onClose}
+      onScrimClick={onClose}
       title="Nueva Plantilla de Permisos"
-      icon={<ShieldPlus className="w-4 h-4" />}
-      maxWidth="max-w-md"
-      footer={
-        <>
-          <M3Button type="button" variant="text" onClick={onClose} disabled={createMutation.isPending}>
-            Cancelar
-          </M3Button>
-          <M3Button
-            type="submit"
-            form="permission-template-form"
-            variant="filled"
-            disabled={createMutation.isPending}
-          >
-            {createMutation.isPending ? 'Creando…' : 'Crear Plantilla'}
-          </M3Button>
-        </>
-      }
+      actions={[
+        { label: 'Cancelar', variant: 'outlined', onClick: onClose, disabled: createMutation.isPending },
+        { label: createMutation.isPending ? 'Creando…' : 'Crear Plantilla', variant: 'filled', onClick: handleSubmit, loading: createMutation.isPending },
+      ]}
     >
-      <form id="permission-template-form" onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4">
         <p className="text-[11px] text-m3-secondary">
           La plantilla se crea en estado <span className="font-bold text-amber-500">Borrador</span>.
           Agrega los ítems de permiso antes de publicarla.
@@ -129,6 +87,7 @@ export const PermissionTemplateForm: React.FC<Props> = ({ isOpen, onClose, onSuc
           value={systemSuiteIdVal}
           onChange={handleSuiteChange}
           options={suiteOptions}
+          placeholder="— Seleccionar —"
           disabled={loadingSuites}
           required
         />
@@ -144,12 +103,13 @@ export const PermissionTemplateForm: React.FC<Props> = ({ isOpen, onClose, onSuc
           value={roleIdVal}
           onChange={v => { setRoleIdVal(v); setError(''); }}
           options={roleOptions}
+          placeholder="— Seleccionar —"
           disabled={!systemSuiteIdVal || loadingRoles}
           required
         />
 
         {error && <p className="text-[11px] text-m3-error">{error}</p>}
       </form>
-    </M3FormDialog>
+    </M3Dialog>
   );
 };

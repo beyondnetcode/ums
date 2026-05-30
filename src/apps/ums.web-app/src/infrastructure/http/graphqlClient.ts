@@ -11,6 +11,7 @@
  */
 import { getRequestContext, DEFAULT_TENANT_ID } from './request-context';
 import { logger } from '@app/utils/logger';
+import { useAuthStore } from '@app/stores/auth.store';
 
 function getGraphqlUrl(): string {
   if (typeof window !== 'undefined') {
@@ -35,7 +36,7 @@ export class GraphQlError extends Error {
     public readonly status: number,
     public readonly responseErrors?: GraphQlErrorResponse['errors'],
     public readonly operationName?: string,
-    public readonly supportReferenceId?: string,
+    public readonly supportReferenceId?: string
   ) {
     super(message);
     this.name = 'GraphQlError';
@@ -43,14 +44,23 @@ export class GraphQlError extends Error {
 }
 
 export class GraphQlUnavailableError extends Error {
-  constructor(public readonly status: number, public readonly supportReferenceId?: string) {
-    super(status === 0 ? 'Network error: unable to reach the API' : `API unavailable (HTTP ${status})`);
+  constructor(
+    public readonly status: number,
+    public readonly supportReferenceId?: string
+  ) {
+    super(
+      status === 0 ? 'Network error: unable to reach the API' : `API unavailable (HTTP ${status})`
+    );
     this.name = 'GraphQlUnavailableError';
   }
 }
 
 export class GraphQlValidationError extends Error {
-  constructor(message: string, public readonly details: string[], public readonly supportReferenceId?: string) {
+  constructor(
+    message: string,
+    public readonly details: string[],
+    public readonly supportReferenceId?: string
+  ) {
     super(message);
     this.name = 'GraphQlValidationError';
   }
@@ -74,12 +84,18 @@ async function executeGraphQl<T>(query: string, variables?: Record<string, unkno
     body.operationName = operationName;
   }
 
+  const authState = useAuthStore.getState();
+  const token = authState.user?.token;
+  const isInternalAdmin = authState.user?.isInternalAdmin;
+
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     'X-Tenant-Id': tenantId || DEFAULT_TENANT_ID,
   };
-  if (userId)   headers['X-User-Id'] = userId;
+  if (userId) headers['X-User-Id'] = userId;
   if (language) headers['X-Language'] = language;
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (isInternalAdmin) headers['X-Is-Internal-Admin'] = 'true';
 
   const isDev = typeof import.meta !== 'undefined' && import.meta.env?.DEV;
   if (isDev) {
@@ -87,7 +103,11 @@ async function executeGraphQl<T>(query: string, variables?: Record<string, unkno
       url,
       operationName,
       variables: variables ?? {},
-      headers: { 'X-Tenant-Id': headers['X-Tenant-Id'], 'X-User-Id': headers['X-User-Id'], 'X-Language': headers['X-Language'] },
+      headers: {
+        'X-Tenant-Id': headers['X-Tenant-Id'],
+        'X-User-Id': headers['X-User-Id'],
+        'X-Language': headers['X-Language'],
+      },
     });
   }
 
@@ -95,10 +115,10 @@ async function executeGraphQl<T>(query: string, variables?: Record<string, unkno
     method: 'POST',
     headers,
     body: JSON.stringify(body),
+    credentials: 'include',
   });
-  const supportReferenceId = response.headers.get('X-Error-Id')
-    ?? response.headers.get('X-Correlation-Id')
-    ?? undefined;
+  const supportReferenceId =
+    response.headers.get('X-Error-Id') ?? response.headers.get('X-Correlation-Id') ?? undefined;
 
   if (!response.ok) {
     if (response.status === 502 || response.status === 503 || response.status === 0) {
@@ -123,11 +143,11 @@ async function executeGraphQl<T>(query: string, variables?: Record<string, unkno
     }
 
     if (response.status === 400 && errorBody?.errors) {
-      const messages = errorBody.errors.map((e) => e.message);
+      const messages = errorBody.errors.map(e => e.message);
       throw new GraphQlValidationError(
         `GraphQL validation failed: ${messages.join('; ')}`,
         messages,
-        supportReferenceId,
+        supportReferenceId
       );
     }
 
@@ -136,23 +156,31 @@ async function executeGraphQl<T>(query: string, variables?: Record<string, unkno
       response.status,
       errorBody?.errors,
       operationName,
-      supportReferenceId,
+      supportReferenceId
     );
   }
 
-  const result = await response.json() as { data?: T; errors?: GraphQlErrorResponse['errors'] };
+  const result = (await response.json()) as { data?: T; errors?: GraphQlErrorResponse['errors'] };
 
   if (result.errors && result.errors.length > 0) {
-    const messages = result.errors.map((e) => e.message);
+    const messages = result.errors.map(e => e.message);
     throw new GraphQlValidationError(
       `GraphQL errors: ${messages.join('; ')}`,
       messages,
-      supportReferenceId ?? result.errors[0]?.extensions?.errorId ?? result.errors[0]?.extensions?.traceId,
+      supportReferenceId ??
+        result.errors[0]?.extensions?.errorId ??
+        result.errors[0]?.extensions?.traceId
     );
   }
 
   if (!result.data) {
-    throw new GraphQlError('GraphQL response contained no data', 200, undefined, operationName, supportReferenceId);
+    throw new GraphQlError(
+      'GraphQL response contained no data',
+      200,
+      undefined,
+      operationName,
+      supportReferenceId
+    );
   }
 
   return result.data;

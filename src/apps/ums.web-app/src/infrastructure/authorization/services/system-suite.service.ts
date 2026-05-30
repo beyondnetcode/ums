@@ -22,7 +22,7 @@ import {
 export const systemSuiteService = {
   // ── Queries (GraphQL) ─────────────────────────────────────────────────────
 
-  getAllSystemSuites: async (params?: {
+  getAll: async (params?: {
     page?: number;
     pageSize?: number;
     search?: string;
@@ -51,7 +51,7 @@ export const systemSuiteService = {
     return pageResult.data;
   },
 
-  getSystemSuiteById: async (systemSuiteId: string): Promise<SystemSuite> => {
+  getById: async (systemSuiteId: string): Promise<SystemSuite> => {
     const response = await graphqlSystemSuiteQueries.getSystemSuiteById(systemSuiteId);
     if (!response.systemSuiteById) throw new Error('SystemSuite not found');
     return SystemSuiteSchema.parse(response.systemSuiteById);

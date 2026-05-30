@@ -1,3 +1,4 @@
+using Ums.Application.Common;
 using Ums.Application.Configuration.AppConfiguration.DTOs;
 using Ums.Domain.Configuration;
 using static Ums.Application.Common.QueryRequestNormalizer;
@@ -7,8 +8,13 @@ namespace Ums.Application.Configuration.AppConfiguration.Queries;
 public sealed class GetAllAppConfigurationsQueryHandler : IQueryHandler<GetAllAppConfigurationsQuery, PagedResult<AppConfigurationDto>>
 {
     private readonly IAppConfigurationRepository _repository;
+    private readonly ITenantContext _tenantContext;
 
-    public GetAllAppConfigurationsQueryHandler(IAppConfigurationRepository repository) => _repository = repository;
+    public GetAllAppConfigurationsQueryHandler(IAppConfigurationRepository repository, ITenantContext tenantContext)
+    {
+        _repository = repository;
+        _tenantContext = tenantContext;
+    }
 
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
 
@@ -22,7 +28,29 @@ public sealed class GetAllAppConfigurationsQueryHandler : IQueryHandler<GetAllAp
         var sortOrder = NormalizeText(request.SortOrder, "asc").ToLowerInvariant();
         var scope = NormalizeSearch(request.Scope);
 
-        var query = (await _repository.GetAllAsync(null, cancellationToken))
+        var isInternalAdmin = _tenantContext.IsInternalAdmin;
+        var userTenantId = _tenantContext.OrganizationId;
+
+        // Determine which configs to fetch:
+        // 1. Request has tenantId -> fetch that specific tenant's configs
+        // 2. Request has no tenantId and user is not internal admin -> fetch user's tenant
+        // 3. Internal admin with no tenantId requested -> fetch all
+        Guid? targetTenantId = null;
+
+        if (request.TenantId.HasValue)
+        {
+            // Normalize to uppercase for case-insensitive comparison
+            targetTenantId = Guid.Parse(request.TenantId.Value.ToString().ToUpperInvariant());
+        }
+        else if (!isInternalAdmin && userTenantId.HasValue)
+        {
+            targetTenantId = userTenantId;
+        }
+        // else (internal admin, no tenant specified) -> null means all
+
+        var allConfigs = await _repository.GetAllAsync(targetTenantId, cancellationToken);
+
+        var query = allConfigs
             .Select(configuration => new AppConfigurationDto(
                 configuration.Props.Id.GetValue(),
                 configuration.Props.TenantId?.GetValue(),
@@ -35,7 +63,28 @@ public sealed class GetAllAppConfigurationsQueryHandler : IQueryHandler<GetAllAp
                 configuration.Props.IsInheritable,
                 configuration.Props.IsEncrypted,
                 configuration.Props.Version,
-                configuration.Props.Status.Name));
+                configuration.Props.Status.Name))
+            .AsEnumerable()  // Client-side filtering after repository query
+            .AsQueryable();
+
+        // Apply authorization filter: non-internal admins cannot see global configurations
+        // EXCEPT when viewing a specific tenant's configs (to see base defaults + tenant overrides)
+        if (!isInternalAdmin)
+        {
+            if (request.TenantId.HasValue)
+            {
+                // When viewing specific tenant, show: Global (base defaults) + Tenant (overrides)
+                query = query.Where(configuration =>
+                    configuration.Scope == "Global" ||
+                    configuration.Scope == "Tenant");
+            }
+            else
+            {
+                // No specific tenant requested, show only tenant's own configs
+                query = query.Where(configuration =>
+                    configuration.Scope == "Tenant");
+            }
+        }
 
         if (!string.IsNullOrWhiteSpace(search))
         {
@@ -55,9 +104,9 @@ public sealed class GetAllAppConfigurationsQueryHandler : IQueryHandler<GetAllAp
             query = query.Where(configuration => string.Equals(configuration.Scope, scope, StringComparison.OrdinalIgnoreCase));
         }
 
-        if (request.TenantId.HasValue)
+        if (targetTenantId.HasValue)
         {
-            query = query.Where(configuration => configuration.TenantId == request.TenantId.Value);
+            query = query.Where(configuration => configuration.TenantId == targetTenantId.Value);
         }
 
         if (request.SystemSuiteId.HasValue)

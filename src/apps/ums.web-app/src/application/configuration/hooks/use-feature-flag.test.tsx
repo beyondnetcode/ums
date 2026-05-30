@@ -15,22 +15,28 @@ import featureFlagService from '@infra/configuration/services/feature-flag.servi
 
 vi.mock('@infra/configuration/services/feature-flag.service', () => ({
   featureFlagService: {
-    getAllFeatureFlags: vi.fn(),
+    getAll: vi.fn(),
+    getById: vi.fn(),
     getFeatureFlagsBySystemSuite: vi.fn(),
-    getFeatureFlagById: vi.fn(),
     createFeatureFlag: vi.fn(),
+    updateFeatureFlag: vi.fn(),
     activateFlag: vi.fn(),
     deactivateFlag: vi.fn(),
     archiveFlag: vi.fn(),
+    addCriteria: vi.fn(),
+    removeCriteria: vi.fn(),
   },
   default: {
-    getAllFeatureFlags: vi.fn(),
+    getAll: vi.fn(),
+    getById: vi.fn(),
     getFeatureFlagsBySystemSuite: vi.fn(),
-    getFeatureFlagById: vi.fn(),
     createFeatureFlag: vi.fn(),
+    updateFeatureFlag: vi.fn(),
     activateFlag: vi.fn(),
     deactivateFlag: vi.fn(),
     archiveFlag: vi.fn(),
+    addCriteria: vi.fn(),
+    removeCriteria: vi.fn(),
   },
 }));
 
@@ -59,7 +65,7 @@ describe('use-feature-flag hooks', () => {
       totalPages: 1,
     };
 
-    vi.mocked(featureFlagService.getAllFeatureFlags).mockResolvedValue(mockPage);
+    vi.mocked(featureFlagService.getAll).mockResolvedValue(mockPage);
 
     const wrapper = createWrapper();
     const { result } = renderHook(
@@ -72,7 +78,7 @@ describe('use-feature-flag hooks', () => {
     });
 
     expect(result.current.data?.items[0].name).toBe('Flag 1');
-    expect(featureFlagService.getAllFeatureFlags).toHaveBeenCalledWith({ page: 1, pageSize: 20 });
+    expect(featureFlagService.getAll).toHaveBeenCalledWith({ page: 1, pageSize: 20 });
   });
 
   it('useGetFeatureFlagsBySystemSuite returns flags list', async () => {
@@ -104,7 +110,7 @@ describe('use-feature-flag hooks', () => {
       criteria: [],
     };
 
-    vi.mocked(featureFlagService.getFeatureFlagById).mockResolvedValue(mockFlag);
+    vi.mocked(featureFlagService.getById).mockResolvedValue(mockFlag);
 
     const wrapper = createWrapper();
     const { result } = renderHook(() => useGetFeatureFlagById('f1'), { wrapper });
@@ -114,13 +120,13 @@ describe('use-feature-flag hooks', () => {
     });
 
     expect(result.current.data?.flagCode).toBe('FLAG_1');
-    expect(featureFlagService.getFeatureFlagById).toHaveBeenCalledWith('f1');
+    expect(featureFlagService.getById).toHaveBeenCalledWith('f1');
   });
 
   it('useGetFeatureFlagById returns null on 404', async () => {
     const error = new Error('Not Found');
     (error as any).response = { status: 404 };
-    vi.mocked(featureFlagService.getFeatureFlagById).mockRejectedValue(error);
+    vi.mocked(featureFlagService.getById).mockRejectedValue(error);
 
     const wrapper = createWrapper();
     const { result } = renderHook(() => useGetFeatureFlagById('nonexistent'), { wrapper });

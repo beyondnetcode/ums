@@ -7,6 +7,7 @@ import { getSupportReferenceId } from '@app/errors/http-error';
 interface ErrorBoundaryProps {
   children: React.ReactNode;
   fallback?: (error: Error, reset: () => void) => React.ReactNode;
+  onRetry?: () => void;
 }
 
 interface ErrorBoundaryState {
@@ -27,7 +28,11 @@ export class AppErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorB
     console.error('[UMS ErrorBoundary]', error, info.componentStack);
   }
 
-  reset = () => this.setState({ error: null });
+  reset = () => {
+    const { onRetry } = this.props;
+    onRetry?.();
+    this.setState({ error: null });
+  };
 
   render() {
     const { error } = this.state;
@@ -43,7 +48,6 @@ export class AppErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorB
     let isNetworkError = false;
     const supportReferenceId = getSupportReferenceId(error);
 
-    // Detect GraphQL or Network errors
     if (error.message.includes('Network Error') || error.name === 'AxiosError') {
       isNetworkError = true;
     } else if (error.message.includes('GraphQL')) {
@@ -57,7 +61,11 @@ export class AppErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorB
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="max-w-md w-full rounded-2xl border border-m3-error/30 bg-m3-error-container/10 p-8 text-center space-y-4 shadow-lg">
           <div className="w-14 h-14 bg-m3-error/10 border border-m3-error/20 text-m3-error rounded-full flex items-center justify-center mx-auto">
-            {isNetworkError ? <ServerCrash className="w-7 h-7" /> : <AlertTriangle className="w-7 h-7" />}
+            {isNetworkError ? (
+              <ServerCrash className="w-7 h-7" />
+            ) : (
+              <AlertTriangle className="w-7 h-7" />
+            )}
           </div>
           <div>
             <h2 className="text-sm font-semibold text-m3-on-surface">{title}</h2>

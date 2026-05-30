@@ -9,19 +9,8 @@ import delegationService from '@infra/identity/services/delegation.service';
 import { useNotifiedMutation } from '@app/hooks/use-notified-mutation';
 import { useI18n } from '@app/i18n/use-i18n';
 import type { CreateDelegationPayload, Delegation } from '@domain/identity/models/delegation.model';
-import { getHttpStatus } from '@app/errors/http-error';
-import { GraphQlValidationError, GraphQlUnavailableError } from '@infra/http/graphqlClient';
-
-function isNonRecoverableError(error: unknown): boolean {
-  if (error instanceof GraphQlValidationError) return true;
-  const status = getHttpStatus(error);
-  if (status === 400 || status === 401 || status === 403 || status === 404 || status === 422) return true;
-  return false;
-}
-
-function isNetworkError(error: unknown): boolean {
-  return error instanceof GraphQlUnavailableError;
-}
+import { getHttpStatus, isNonRecoverable, isNetworkError, getRetryOptions } from '@app/utils/error-utils';
+import { CONTEXT_QUERY_CONFIG } from '@app/shared/config/query.config';
 
 // ─── Queries ────────────────────────────────────────────────────────────────
 
@@ -38,12 +27,8 @@ export const useGetDelegation = (delegationId: string | null) => {
       }
     },
     enabled: !!delegationId,
-    retry: (failureCount, error: unknown) => {
-      if (isNonRecoverableError(error)) return false;
-      if (isNetworkError(error)) return failureCount < 2;
-      if (getHttpStatus(error) === 404) return false;
-      return failureCount < 1;
-    },
+    ...CONTEXT_QUERY_CONFIG.DELEGATION,
+    ...getRetryOptions({ maxRetries: 1, networkErrorMaxRetries: 2 }),
   });
 };
 
@@ -52,12 +37,8 @@ export const useGetDelegationsByDelegatedAdmin = (delegatedAdminId: string | nul
     queryKey: ['delegations', 'by-delegated-admin', delegatedAdminId, tenantId],
     queryFn: () => delegationService.getDelegationsByDelegatedAdmin(delegatedAdminId as string, tenantId as string),
     enabled: !!delegatedAdminId && !!tenantId,
-    staleTime: 30_000,
-    retry: (failureCount, error: unknown) => {
-      if (isNonRecoverableError(error)) return false;
-      if (isNetworkError(error)) return failureCount < 2;
-      return failureCount < 1;
-    },
+    ...CONTEXT_QUERY_CONFIG.DELEGATION,
+    ...getRetryOptions({ maxRetries: 1, networkErrorMaxRetries: 2 }),
   });
 };
 
@@ -66,12 +47,8 @@ export const useGetDelegationsByDelegatingAdmin = (delegatingAdminId: string | n
     queryKey: ['delegations', 'by-delegating-admin', delegatingAdminId, tenantId],
     queryFn: () => delegationService.getDelegationsByDelegatingAdmin(delegatingAdminId as string, tenantId as string),
     enabled: !!delegatingAdminId && !!tenantId,
-    staleTime: 30_000,
-    retry: (failureCount, error: unknown) => {
-      if (isNonRecoverableError(error)) return false;
-      if (isNetworkError(error)) return failureCount < 2;
-      return failureCount < 1;
-    },
+    ...CONTEXT_QUERY_CONFIG.DELEGATION,
+    ...getRetryOptions({ maxRetries: 1, networkErrorMaxRetries: 2 }),
   });
 };
 

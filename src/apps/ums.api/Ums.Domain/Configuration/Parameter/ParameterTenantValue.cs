@@ -1,0 +1,125 @@
+namespace Ums.Domain.Configuration.Parameter;
+
+public sealed class ParameterTenantValue : AggregateRoot<ParameterTenantValue, ParameterTenantValueProps>
+{
+    private ParameterTenantValue(ParameterTenantValueProps props) : base(props)
+    {
+    }
+
+    public TenantId TenantId => Props.TenantId;
+    public IdValueObject ParameterDefinitionId => Props.ParameterDefinitionId;
+    public OverrideValue Value => Props.Value;
+    public ConfigStatus Status => Props.Status;
+    public new string Version => Props.Version;
+
+    public ParameterTenantValueId GetId() => ParameterTenantValueId.Load(Props.Id.GetValue());
+
+    public static Result<ParameterTenantValue> Create(
+        TenantId tenantId,
+        IdValueObject parameterDefinitionId,
+        OverrideValue value,
+        ActorId createdBy)
+    {
+        if (tenantId is null)
+            return Result<ParameterTenantValue>.Failure("Tenant ID is required");
+
+        if (parameterDefinitionId is null)
+            return Result<ParameterTenantValue>.Failure("Parameter definition ID is required");
+
+        var props = new ParameterTenantValueProps(
+            IdValueObject.Create(),
+            tenantId,
+            parameterDefinitionId,
+            value ?? OverrideValue.Create(string.Empty),
+            ConfigStatus.Draft,
+            createdBy);
+
+        var entity = new ParameterTenantValue(props);
+
+        if (!entity.IsValid())
+        {
+            return Result<ParameterTenantValue>.Failure(entity.BrokenRules.GetBrokenRulesAsString());
+        }
+
+        return Result<ParameterTenantValue>.Success(entity);
+    }
+
+    public Result UpdateValue(OverrideValue newValue, ActorId updatedBy)
+    {
+        if (Status == ConfigStatus.Archived)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Status), "Archived configuration cannot be modified"));
+        }
+
+        SetProps(Props
+            .WithValue(newValue ?? OverrideValue.Create(string.Empty))
+            .WithVersion(BumpMinorVersion(Props.Version)));
+
+        if (!IsValid())
+        {
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+        }
+
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy.GetValue());
+        return Result.Success();
+    }
+
+    public Result Publish(ActorId updatedBy)
+    {
+        if (Status != ConfigStatus.Draft)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Status), "Only draft configurations can be published"));
+        }
+
+        if (!IsValid())
+        {
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+        }
+
+        SetProps(Props
+            .WithStatus(ConfigStatus.Published)
+            .WithVersion(BumpMinorVersion(Props.Version)));
+
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy.GetValue());
+        return Result.Success();
+    }
+
+    public Result Archive(ActorId updatedBy)
+    {
+        if (Status != ConfigStatus.Published)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Status), "Only published configurations can be archived"));
+        }
+
+        SetProps(Props.WithStatus(ConfigStatus.Archived));
+
+        if (!IsValid())
+        {
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+        }
+
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy.GetValue());
+        return Result.Success();
+    }
+
+    private static string BumpMinorVersion(string semver)
+    {
+        if (System.Version.TryParse(semver, out var v))
+            return $"{v.Major}.{v.Minor + 1}.0";
+        return semver;
+    }
+}
+
+public sealed class ParameterTenantValueId
+{
+    public Guid Value { get; }
+
+    private ParameterTenantValueId(Guid value) => Value = value;
+
+    public static ParameterTenantValueId Create(Guid value) => new(value);
+    public static ParameterTenantValueId Load(Guid value) => new(value);
+    public static ParameterTenantValueId New() => new(Guid.NewGuid());
+}

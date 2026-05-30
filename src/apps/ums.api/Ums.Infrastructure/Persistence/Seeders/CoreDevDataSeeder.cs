@@ -36,22 +36,12 @@ public static class CoreDevDataSeeder
 
     public static async Task SeedAllAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
     {
-        // 1. Identity (tenants, users, delegations)
-        await IdentityDevDataSeeder.SeedAsync(serviceProvider, cancellationToken);
-
-        // 2. Authorization (system suites, roles, templates, profiles)
-        await AuthorizationDevDataSeeder.SeedAsync(serviceProvider, cancellationToken);
-
-        // 3. Approvals
-        await ApprovalsDevDataSeeder.SeedAsync(serviceProvider, cancellationToken);
-
-        // 4. Configuration
-        await ConfigurationDevDataSeeder.SeedAsync(serviceProvider, cancellationToken);
-
-        // 5. IGA
-        await IgaDevDataSeeder.SeedAsync(serviceProvider, cancellationToken);
-
-        // 6. Audit
-        await AuditDevDataSeeder.SeedAsync(serviceProvider, cancellationToken);
+        try { await ConfigurationDevDataSeeder.SeedAsync(serviceProvider, cancellationToken); } catch (Exception ex) { Console.WriteLine($"Configuration seeder failed: {ex.Message}"); }
+        try { await ParameterCatalogSeeder.SeedAsync(serviceProvider, cancellationToken); } catch (Exception ex) { Console.WriteLine($"Parameter catalog seeder failed: {ex.Message}"); }
+        try { await IdentityDevDataSeeder.SeedAsync(serviceProvider, cancellationToken); } catch (Exception ex) { Console.WriteLine($"Identity seeder failed: {ex.Message}"); }
+        try { await AuthorizationDevDataSeeder.SeedAsync(serviceProvider, cancellationToken); } catch (Exception ex) { Console.WriteLine($"Authorization seeder failed: {ex.Message}"); }
+        try { await ApprovalsDevDataSeeder.SeedAsync(serviceProvider, cancellationToken); } catch (Exception ex) { Console.WriteLine($"Approvals seeder failed: {ex.Message}"); }
+        try { await IgaDevDataSeeder.SeedAsync(serviceProvider, cancellationToken); } catch (Exception ex) { Console.WriteLine($"IGA seeder failed: {ex.Message}"); }
+        try { await AuditDevDataSeeder.SeedAsync(serviceProvider, cancellationToken); } catch (Exception ex) { Console.WriteLine($"Audit seeder failed: {ex.Message}"); }
     }
 }

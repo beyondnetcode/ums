@@ -6,7 +6,8 @@ import {
   type ProfilePage,
   type Profile,
 } from '@domain/authorization/schemas/profile.schema';
-import { getHttpStatus } from '@app/errors/http-error';
+import { getHttpStatus, getRetryOptions } from '@app/utils/error-utils';
+import { CONTEXT_QUERY_CONFIG } from '@app/shared/config/query.config';
 
 // ─── Query params ────────────────────────────────────────────────────────────
 
@@ -20,11 +21,6 @@ export interface ProfileQueryParams {
   sortOrder?: 'asc' | 'desc';
   tenantId?: string;
   userId?: string;
-}
-
-function isNonRecoverable(error: unknown): boolean {
-  const s = getHttpStatus(error);
-  return s === 400 || s === 401 || s === 403 || s === 404 || s === 422;
 }
 
 // ─── Queries ─────────────────────────────────────────────────────────────────
@@ -45,11 +41,8 @@ export const useGetAllProfiles = (params: ProfileQueryParams | null) =>
     ],
     queryFn: () => profileService.getAll(params!),
     enabled: !!params,
-    staleTime: 30_000,
-    retry: (failureCount, error) => {
-      if (isNonRecoverable(error)) return false;
-      return failureCount < 1;
-    },
+    ...CONTEXT_QUERY_CONFIG.PROFILE,
+    ...getRetryOptions({ maxRetries: 1 }),
   });
 
 export const useGetProfile = (profileId: string | null) =>
@@ -65,10 +58,8 @@ export const useGetProfile = (profileId: string | null) =>
       }
     },
     enabled: !!profileId,
-    retry: (failureCount, error) => {
-      if (isNonRecoverable(error)) return false;
-      return failureCount < 1;
-    },
+    ...CONTEXT_QUERY_CONFIG.PROFILE,
+    ...getRetryOptions({ maxRetries: 1 }),
   });
 
 // ─── Mutations ───────────────────────────────────────────────────────────────

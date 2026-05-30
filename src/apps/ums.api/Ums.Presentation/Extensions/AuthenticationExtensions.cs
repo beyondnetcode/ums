@@ -108,8 +108,8 @@ public static class AuthenticationExtensions
                     },
                     OnTokenValidated = ctx =>
                     {
-                        // Populate ITenantContext from the 'tenant_id' custom claim.
-                        // This runs after signature validation, so the claim is trusted.
+                        // Populate ITenantContext from the JWT claims.
+                        // This runs after signature validation, so the claims are trusted.
                         var tenantContext = ctx.HttpContext.RequestServices
                             .GetService<Ums.Application.Common.Interfaces.ITenantContext>();
 
@@ -118,9 +118,12 @@ public static class AuthenticationExtensions
                         var tenantIdClaim = ctx.Principal?.FindFirst("tenant_id")?.Value
                                          ?? ctx.Principal?.FindFirst("org_id")?.Value;
 
+                        var isInternalAdminClaim = ctx.Principal?.FindFirst("is_internal_admin")?.Value;
+
                         if (Guid.TryParse(tenantIdClaim, out var tenantId))
                         {
-                            tenantContext.SetOrganizationId(tenantId);
+                            var isInternalAdmin = isInternalAdminClaim?.ToLower() == "true";
+                            tenantContext.Initialize(tenantId, isInternalAdmin);
                         }
 
                         return Task.CompletedTask;

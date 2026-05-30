@@ -1,0 +1,115 @@
+namespace Ums.Presentation.Endpoints.Configuration.ParameterCatalog.Queries;
+
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Ums.Application.Common;
+using Ums.Application.Configuration.ParameterCatalog.DTOs;
+using Ums.Infrastructure.Persistence;
+using Ums.Infrastructure.Persistence.Configuration.Entities;
+
+public static class ParameterCatalogQueryEndpoints
+{
+    public static IEndpointRouteBuilder MapParameterCatalogQueryEndpoints(this IEndpointRouteBuilder app)
+    {
+        var group = app.MapGroup("/parameter-definitions").WithTags("Parameter Catalog - Queries");
+
+        group.MapGet("/", async (
+            [FromServices] UmsPlatformDbContext dbContext,
+            [FromQuery] string? search,
+            [FromQuery] int? scopeId,
+            [FromQuery] bool? isActive,
+            CancellationToken ct) =>
+        {
+            var query = dbContext.ParameterDefinitions.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var searchLower = search.ToLower();
+                query = query.Where(x =>
+                    x.Code.ToLower().Contains(searchLower) ||
+                    x.Name.ToLower().Contains(searchLower));
+            }
+
+            if (scopeId.HasValue)
+                query = query.Where(x => x.ScopeId == scopeId.Value);
+
+            if (isActive.HasValue)
+                query = query.Where(x => x.IsActive == isActive.Value);
+
+            var items = await query
+                .OrderBy(x => x.DisplayOrder)
+                .ThenBy(x => x.Code)
+                .Select(x => new ParameterDefinitionDto(
+                    x.Id,
+                    x.Code,
+                    x.Name,
+                    x.Description,
+                    x.DataTypeId,
+                    GetDataTypeName(x.DataTypeId),
+                    x.DefaultValue,
+                    x.ScopeId,
+                    GetScopeName(x.ScopeId),
+                    x.IsActive,
+                    x.IsMandatory,
+                    x.DisplayOrder,
+                    x.Version))
+                .ToListAsync(ct);
+
+            return Results.Ok(new { items, totalItems = items.Count });
+        })
+        .WithName("GetParameterDefinitions")
+        .Produces<ParameterDefinitionDto>(StatusCodes.Status200OK);
+
+        group.MapGet("/{id:guid}", async (
+            Guid id,
+            [FromServices] UmsPlatformDbContext dbContext,
+            CancellationToken ct) =>
+        {
+            var record = await dbContext.ParameterDefinitions
+                .FirstOrDefaultAsync(x => x.Id == id, ct);
+
+            if (record is null)
+                return Results.NotFound();
+
+            var dto = new ParameterDefinitionDto(
+                record.Id,
+                record.Code,
+                record.Name,
+                record.Description,
+                record.DataTypeId,
+                GetDataTypeName(record.DataTypeId),
+                record.DefaultValue,
+                record.ScopeId,
+                GetScopeName(record.ScopeId),
+                record.IsActive,
+                record.IsMandatory,
+                record.DisplayOrder,
+                record.Version);
+
+            return Results.Ok(dto);
+        })
+        .WithName("GetParameterDefinitionById")
+        .Produces<ParameterDefinitionDto>(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status404NotFound);
+
+        return app;
+    }
+
+    private static string GetDataTypeName(int dataTypeId) => dataTypeId switch
+    {
+        1 => "String",
+        2 => "Number",
+        3 => "Boolean",
+        4 => "Json",
+        _ => "Unknown"
+    };
+
+    private static string GetScopeName(int scopeId) => scopeId switch
+    {
+        1 => "GlobalOnly",
+        2 => "TenantOnly",
+        3 => "GlobalAndTenant",
+        _ => "Unknown"
+    };
+}

@@ -10,7 +10,10 @@ public sealed class Role : AggregateRoot<Role, RoleProps>
     {
         DomainEvents = new RoleDomainEventsManager(this);
 
-        if (TrackingState.IsNew)
+        if (Props == null || TrackingState == null || Props.Id == null) return;
+        if (!TrackingState.IsNew) return;
+
+        try
         {
             DomainEvents.RaiseEvent(new RoleCreatedEvent(
                 Props.Id.GetValue(),
@@ -18,6 +21,10 @@ public sealed class Role : AggregateRoot<Role, RoleProps>
                 Props.SystemSuiteId.GetValue(),
                 Props.Code.GetValue(),
                 Props.ParentRoleId?.GetValue()));
+        }
+        catch
+        {
+            // Suppress domain event creation errors during construction
         }
     }
 

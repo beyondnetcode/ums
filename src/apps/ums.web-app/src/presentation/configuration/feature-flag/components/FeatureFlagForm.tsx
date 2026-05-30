@@ -1,13 +1,14 @@
+/**
+ * FeatureFlagForm
+ * Create new feature flag - minimalist professional design
+ */
 import React, { useState } from 'react';
-import { Flag } from 'lucide-react';
-import { M3Button, M3Select } from '@shared/components';
+import { Flag, Check } from 'lucide-react';
 import { M3FormDialog } from '@shared/components/M3FormDialog';
-import { M3TextField } from '@shared/components/M3TextField';
+import { FormField, FormInput, FormSelect, FormButton } from '@shared/components/form';
 import { useCreateFeatureFlag } from '@app/configuration/hooks/use-feature-flag';
 import { useGetAllSystemSuites } from '@app/authorization/hooks/use-system-suite';
-import {
-  FLAG_TYPE_LABELS,
-} from '@domain/configuration/constants/feature-flag.constants';
+import { FLAG_TYPE_LABELS } from '@domain/configuration/constants/feature-flag.constants';
 import type { CreateFeatureFlagPayload, FlagType } from '@domain/configuration/models/feature-flag.model';
 
 interface Props {
@@ -15,32 +16,6 @@ interface Props {
   onClose:   () => void;
   onSuccess: (featureFlagId: string) => void;
 }
-
-interface SelectProps {
-  label:    string;
-  value:    string;
-  onChange: (v: string) => void;
-  options:  { value: string; label: string }[];
-  disabled?: boolean;
-  required?: boolean;
-  error?:    string;
-}
-
-const FieldSelect: React.FC<SelectProps> = ({ label, value, onChange, options, disabled, required, error }) => (
-  <M3Select
-    label={label}
-    value={value}
-    onChange={e => onChange(e.target.value)}
-    disabled={disabled}
-    required={required}
-    error={error}
-  >
-    <option value="">— Seleccionar —</option>
-    {options.map(o => (
-      <option key={o.value} value={o.value}>{o.label}</option>
-    ))}
-  </M3Select>
-);
 
 export const FeatureFlagForm: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
   const [flagCode, setFlagCode] = useState('');
@@ -51,21 +26,15 @@ export const FeatureFlagForm: React.FC<Props> = ({ isOpen, onClose, onSuccess })
   const [error, setError] = useState('');
 
   const createMutation = useCreateFeatureFlag();
-  const { data: suitesPage, isLoading: loadingSuites } = useGetAllSystemSuites({
-    page: 1, pageSize: 100,
-  });
+  const { data: suitesPage, isLoading: loadingSuites } = useGetAllSystemSuites({ page: 1, pageSize: 100 });
 
-  const suiteOptions = (suitesPage?.items ?? []).map(s => ({
-    value: s.systemSuiteId,
-    label: `${s.name} (${s.code})`,
-  }));
+  const suiteOptions = (suitesPage?.items ?? []).map(s => ({ value: s.systemSuiteId, label: `${s.name} (${s.code})` }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-
     if (!flagCode.trim()) { setError('Código requerido'); return; }
-    if (!systemSuiteId.trim()) { setError('Suite del Sistema requerida'); return; }
+    if (!systemSuiteId.trim()) { setError('Suite requerida'); return; }
 
     const payload: CreateFeatureFlagPayload = {
       flagCode: flagCode.trim(),
@@ -83,7 +52,8 @@ export const FeatureFlagForm: React.FC<Props> = ({ isOpen, onClose, onSuccess })
       setSystemSuiteId('');
       setFlagTargets('*');
       setRolloutPercentage('');
-    } catch { /* handled by hook */ }
+      onClose();
+    } catch { }
   };
 
   return (
@@ -91,71 +61,78 @@ export const FeatureFlagForm: React.FC<Props> = ({ isOpen, onClose, onSuccess })
       open={isOpen}
       onClose={onClose}
       title="Nuevo Feature Flag"
-      icon={<Flag className="w-4 h-4" />}
+      icon={<Flag className="w-4 h-4 text-m3-primary" />}
       maxWidth="max-w-md"
       footer={
-        <>
-          <M3Button type="button" variant="text" onClick={onClose} disabled={createMutation.isPending}>
+        <div className="flex items-center gap-2">
+          <FormButton type="button" variant="text" onClick={onClose} disabled={createMutation.isPending}>
             Cancelar
-          </M3Button>
-          <M3Button
+          </FormButton>
+          <FormButton
             type="submit"
             form="feature-flag-form"
             variant="filled"
-            disabled={createMutation.isPending}
+            loading={createMutation.isPending}
+            icon={<Check className="w-3.5 h-3.5" />}
           >
-            {createMutation.isPending ? 'Creando…' : 'Crear Flag'}
-          </M3Button>
-        </>
+            {createMutation.isPending ? 'Creando…' : 'Crear'}
+          </FormButton>
+        </div>
       }
     >
       <form id="feature-flag-form" onSubmit={handleSubmit} className="space-y-4">
         <p className="text-[11px] text-m3-secondary">
-          El flag se crea en estado <span className="font-bold text-amber-500">Inactivo</span>.
-          Active después de configurar targeting y criterios.
+          El flag se crea en estado <span className="font-medium text-amber-500">Inactivo</span>. Active después de configurar targeting.
         </p>
 
-        <M3TextField
-          label="Código del Flag"
-          required
-          value={flagCode}
-          onChange={e => { setFlagCode(e.target.value); setError(''); }}
-          placeholder="e.g. dark-mode, new-checkout"
-        />
+        <FormField label="Código del Flag" required error={!flagCode && error ? error : undefined}>
+          <FormInput
+            value={flagCode}
+            onChange={e => { setFlagCode(e.target.value); setError(''); }}
+            placeholder="dark-mode, new-checkout"
+          />
+        </FormField>
 
-        <FieldSelect
-          label="Tipo de Flag"
-          value={flagType}
-          onChange={v => setFlagType(v as FlagType)}
-          options={Object.entries(FLAG_TYPE_LABELS).map(([k, v]) => ({ value: k, label: v }))}
-          required
-        />
+        <div className="grid grid-cols-2 gap-3">
+          <FormField label="Tipo">
+            <FormSelect value={flagType} onChange={e => setFlagType(e.target.value as FlagType)}>
+              {Object.entries(FLAG_TYPE_LABELS).map(([k, v]) => (
+                <option key={k} value={k}>{v}</option>
+              ))}
+            </FormSelect>
+          </FormField>
 
-        <FieldSelect
-          label={loadingSuites ? 'Cargando suites…' : 'Suite del Sistema'}
-          value={systemSuiteId}
-          onChange={v => { setSystemSuiteId(v); setError(''); }}
-          options={suiteOptions}
-          disabled={loadingSuites}
-          required
-        />
+          <FormField label={loadingSuites ? 'Cargando…' : 'Suite del Sistema'} required error={!systemSuiteId && error ? error : undefined}>
+            <FormSelect value={systemSuiteId} onChange={e => { setSystemSuiteId(e.target.value); setError(''); }} disabled={loadingSuites}>
+              <option value="">— Seleccionar —</option>
+              {suiteOptions.map(o => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </FormSelect>
+          </FormField>
+        </div>
 
-        <M3TextField
-          label="Targeting Rules"
-          value={flagTargets}
-          onChange={e => setFlagTargets(e.target.value)}
-          placeholder="e.g. * (all), role:admin, tenant:xyz"
-        />
+        <FormField label="Targeting Rules">
+          <FormInput
+            value={flagTargets}
+            onChange={e => setFlagTargets(e.target.value)}
+            placeholder="* (all), role:admin"
+          />
+        </FormField>
 
-        <M3TextField
-          label="Rollout Percentage (0-100, opcional)"
-          type="number"
-          value={rolloutPercentage}
-          onChange={e => setRolloutPercentage(e.target.value)}
-          placeholder="e.g. 50"
-        />
+        <FormField label="Rollout % (0-100)">
+          <FormInput
+            type="number"
+            value={rolloutPercentage}
+            onChange={e => setRolloutPercentage(e.target.value)}
+            placeholder="50"
+            className="w-20"
+            min={0}
+            max={100}
+          />
+        </FormField>
 
-        {error && <p className="text-[11px] text-m3-error">{error}</p>}
+        {error && <p className="text-[10px] text-rose-500">{error}</p>}
       </form>
     </M3FormDialog>
   );

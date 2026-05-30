@@ -1,11 +1,15 @@
 namespace Ums.Presentation.Endpoints.Identity.Auth;
 
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Ums.Application.Common.Interfaces;
 using Ums.Domain.Authorization;
 using Ums.Domain.Identity;
@@ -43,6 +47,12 @@ public static class AuthEndpoints
             .WithName("GetSession")
             .WithSummary("Get current authenticated session information")
             .RequireAuthorization();
+
+        // Switch tenant context (internal admins only)
+        group.MapPost("/switch-tenant", HandleSwitchTenantAsync)
+            .WithName("SwitchTenant")
+            .WithSummary("Switch current tenant context (internal admins only)");
+            // No RequireAuthorization() - we validate the JWT token directly in the handler
     }
 
     private static async Task<IResult> HandleLoginAsync(
@@ -159,6 +169,7 @@ public static class AuthEndpoints
 
         // Generate JWT token for API access
         var sessionTrackingId = Guid.NewGuid().ToString();
+        var isInternalAdmin = tenant.Props.Code.GetValue() == "INTERNAL_ADMIN";
         var jwtToken = jwtTokenService.GenerateToken(new TokenGenerationRequest(
             UserId: user.Props.Id.GetValue().ToString(),
             Email: user.Props.Email.GetValue(),
@@ -169,7 +180,8 @@ public static class AuthEndpoints
             RoleName: role?.Props.Value.GetValue(),
             ProfileId: profile?.Props.Id.GetValue().ToString(),
             Permissions: Array.Empty<string>(),
-            Language: "en"
+            Language: "en",
+            IsInternalAdmin: isInternalAdmin
         ));
 
         // Sign in using cookie authentication (for web frontend)
@@ -207,7 +219,8 @@ public static class AuthEndpoints
             Token: jwtToken,
             TokenType: "Bearer",
             ExpiresIn: 3600,
-            RefreshExpiresIn: request.RememberMe ? 604800 : 86400
+            RefreshExpiresIn: request.RememberMe ? 604800 : 86400,
+            IsInternalAdmin: isInternalAdmin
         ));
     }
 
@@ -267,7 +280,7 @@ public static class AuthEndpoints
         return Results.Ok(new { message = "Logged out successfully" });
     }
 
-    private static IResult HandleGetSessionAsync(HttpContext httpContext)
+    private static IResult HandleGetSessionAsync(HttpContext httpContext, ITenantContext tenantContext)
     {
         if (!httpContext.User.Identity?.IsAuthenticated ?? true)
         {
@@ -283,6 +296,7 @@ public static class AuthEndpoints
         var roleName = httpContext.User.FindFirstValue("role_name");
         var profileId = httpContext.User.FindFirstValue("profile_id");
         var sessionTrackingId = httpContext.User.FindFirstValue("session_tracking_id") ?? Guid.NewGuid().ToString();
+        var isInternalAdmin = httpContext.User.FindFirstValue("is_internal_admin")?.ToLower() == "true";
 
         return Results.Ok(new LoginSuccessResponse(
             SessionId: Guid.NewGuid().ToString(),
@@ -301,7 +315,126 @@ public static class AuthEndpoints
             Token: null,
             TokenType: null,
             ExpiresIn: null,
-            RefreshExpiresIn: null
+            RefreshExpiresIn: null,
+            IsInternalAdmin: isInternalAdmin
+        ));
+    }
+
+    private static async Task<IResult> HandleSwitchTenantAsync(
+        SwitchTenantRequest request,
+        ITenantContext tenantContext,
+        ITenantRepository tenantRepository,
+        IConfiguration configuration,
+        HttpContext httpContext)
+    {
+        // Extract JWT token from Authorization header and validate it directly
+        // This works regardless of whether ASP.NET Core JWT authentication is configured
+        var authHeader = httpContext.Request.Headers["Authorization"].FirstOrDefault();
+        if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+        {
+            return Results.Unauthorized();
+        }
+
+        var tokenString = authHeader.Substring("Bearer ".Length).Trim();
+        var secret = configuration["Jwt:Secret"] ?? throw new InvalidOperationException("Jwt:Secret is not configured");
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var validationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.FromMinutes(5)
+        };
+
+        try
+        {
+            tokenHandler.ValidateToken(tokenString, validationParameters, out var validatedToken);
+        }
+        catch (SecurityTokenException)
+        {
+            return Results.Unauthorized();
+        }
+
+        var jwtToken = tokenHandler.ReadJwtToken(tokenString);
+        var isInternalAdmin = jwtToken.Claims.FirstOrDefault(c => c.Type == "is_internal_admin")?.Value?.ToLower() == "true";
+        
+        // Initialize TenantContext from JWT claims (this is normally done by authentication middleware)
+        var tenantIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "tenant_id")?.Value;
+        if (Guid.TryParse(tenantIdClaim, out var userTenantId))
+        {
+            tenantContext.Initialize(userTenantId, isInternalAdmin);
+        }
+        else
+        {
+            return Results.Unauthorized();
+        }
+
+        if (!isInternalAdmin)
+        {
+            return Results.Json(new LoginErrorResponse(
+                ErrorCodes.AccessDenied,
+                "Only internal administrators can switch tenant context.",
+                SupportReferenceId: null), statusCode: 403);
+        }
+
+        if (!Guid.TryParse(request.TenantId, out var tenantId))
+        {
+            return Results.BadRequest(new LoginErrorResponse(
+                ErrorCodes.ValidationError,
+                "Invalid tenant ID format.",
+                SupportReferenceId: null));
+        }
+
+        var tenantResult = await tenantRepository.GetByIdAsync(tenantId, default);
+        if (tenantResult is null)
+        {
+            return Results.NotFound(new LoginErrorResponse(
+                ErrorCodes.TenantNotFound,
+                $"Tenant with ID '{request.TenantId}' was not found.",
+                SupportReferenceId: null));
+        }
+
+        var tenant = tenantResult;
+
+        if (tenant.Props.Status != Domain.Enums.TenantStatus.Active)
+        {
+            return Results.BadRequest(new LoginErrorResponse(
+                ErrorCodes.TenantInactive,
+                $"Tenant '{tenant.Props.Code.GetValue()}' is not active.",
+                SupportReferenceId: null));
+        }
+
+        try
+        {
+            if (request.EnableCrossTenantAccess)
+            {
+                tenantContext.EnableCrossTenantAccess();
+            }
+            else
+            {
+                tenantContext.SetOrganizationId(tenantId);
+            }
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Results.Json(new LoginErrorResponse(
+                ErrorCodes.AccessDenied,
+                ex.Message,
+                SupportReferenceId: null), statusCode: 403);
+        }
+
+        var sessionTrackingId = jwtToken.Claims.FirstOrDefault(c => c.Type == "session_tracking_id")?.Value ?? Guid.NewGuid().ToString();
+
+        return Results.Ok(new TenantSwitchResponse(
+            PreviousTenantId: tenantContext.OriginalTenantId?.ToString() ?? "",
+            CurrentTenantId: tenantId.ToString(),
+            CurrentTenantCode: tenant.Props.Code.GetValue(),
+            CurrentTenantName: tenant.Props.Name.GetValue(),
+            CrossTenantAccessEnabled: request.EnableCrossTenantAccess,
+            SessionTrackingId: sessionTrackingId
         ));
     }
 }
@@ -331,7 +464,8 @@ public record LoginSuccessResponse(
     string? Token,
     string? TokenType,
     int? ExpiresIn,
-    int? RefreshExpiresIn);
+    int? RefreshExpiresIn,
+    bool IsInternalAdmin = false);
 
 public record LoginErrorResponse(
     string Code,
@@ -345,6 +479,18 @@ public record RefreshTokenResponse(
     int RefreshExpiresIn,
     string SessionTrackingId);
 
+public record SwitchTenantRequest(
+    string TenantId,
+    bool EnableCrossTenantAccess = false);
+
+public record TenantSwitchResponse(
+    string PreviousTenantId,
+    string CurrentTenantId,
+    string CurrentTenantCode,
+    string CurrentTenantName,
+    bool CrossTenantAccessEnabled,
+    string SessionTrackingId);
+
 // ─── Error Codes ───────────────────────────────────────────────────────────────
 
 public static class ErrorCodes
@@ -356,4 +502,17 @@ public static class ErrorCodes
     public const string UserNotActive = "AUTH_005";
     public const string InvalidCredentials = "AUTH_006";
     public const string SessionExpired = "AUTH_007";
+    public const string AccessDenied = "AUTH_008";
+    public const string AdminLacksPermission = "AUTH_009";
+    public const string TargetUserOutsideScope = "AUTH_010";
+}
+
+public static class UserAccountErrorCodes
+{
+    public const string FederatedUserPasswordReset = "USER_015";
+}
+
+public static class ConfigurationErrorCodes
+{
+    public const string ValidityPeriodExceedsMaximum = "CONFIG_003";
 }

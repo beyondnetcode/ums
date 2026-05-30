@@ -1,0 +1,50 @@
+import { GraphQlValidationError, GraphQlUnavailableError } from '@infra/http/graphqlClient';
+
+export const HTTP_NON_RECOVERABLE_STATUSES = [400, 401, 403, 404, 422] as const;
+
+export function getHttpStatus(error: unknown): number {
+  if (typeof error === 'object' && error !== null && 'status' in error) {
+    return (error as { status: number }).status;
+  }
+  return 0;
+}
+
+export function isHttpNonRecoverable(error: unknown): boolean {
+  const status = getHttpStatus(error);
+  return HTTP_NON_RECOVERABLE_STATUSES.includes(status as (typeof HTTP_NON_RECOVERABLE_STATUSES)[number]);
+}
+
+export function isGraphQlValidationError(error: unknown): boolean {
+  return error instanceof GraphQlValidationError;
+}
+
+export function isGraphQlUnavailableError(error: unknown): boolean {
+  return error instanceof GraphQlUnavailableError;
+}
+
+export function isNetworkError(error: unknown): boolean {
+  return error instanceof GraphQlUnavailableError;
+}
+
+export function isNonRecoverable(error: unknown): boolean {
+  if (isGraphQlValidationError(error)) return true;
+  return isHttpNonRecoverable(error);
+}
+
+export interface RetryConfig {
+  maxRetries?: number;
+  networkErrorMaxRetries?: number;
+}
+
+export function getRetryOptions(config: RetryConfig = {}) {
+  const { maxRetries = 1, networkErrorMaxRetries = 2 } = config;
+
+  return {
+    retry: (failureCount: number, error: unknown) => {
+      if (isNonRecoverable(error)) return false;
+      if (isNetworkError(error)) return failureCount < networkErrorMaxRetries;
+      return failureCount < maxRetries;
+    },
+    retryDelay: (attempt: number) => Math.min(1000 * 2 ** attempt, 5000),
+  };
+}

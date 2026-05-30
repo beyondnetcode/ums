@@ -3,15 +3,18 @@ namespace Ums.Presentation.Middleware;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
+using Ums.Application.Common.Interfaces;
 
 public sealed class DevAuthMiddleware
 {
     private const string DefaultUserId = "dev-user";
     private const string DefaultUserName = "Developer";
-    private const string DefaultTenantId = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
+    private const string DefaultTenantId = "11111111-1111-1111-1111-111111111111";
+    private const string InternalAdminTenantId = "11111111-1111-1111-1111-111111111111";
     private const string UserIdHeader = "X-User-Id";
     private const string UserNameHeader = "X-User-Name";
     private const string TenantIdHeader = "X-Tenant-Id";
+    private const string IsInternalAdminHeader = "X-Is-Internal-Admin";
 
     private readonly RequestDelegate _next;
     private readonly IHostEnvironment _environment;
@@ -22,11 +25,12 @@ public sealed class DevAuthMiddleware
         _environment = environment;
     }
 
-    public Task InvokeAsync(HttpContext context)
+    public async Task InvokeAsync(HttpContext context, ITenantContext tenantContext)
     {
         if (!_environment.IsDevelopment())
         {
-            return _next(context);
+            await _next(context);
+            return;
         }
 
         if (context.User?.Identity?.IsAuthenticated != true)
@@ -34,22 +38,33 @@ public sealed class DevAuthMiddleware
             var userId = context.Request.Headers[UserIdHeader].FirstOrDefault();
             var userName = context.Request.Headers[UserNameHeader].FirstOrDefault();
             var tenantId = context.Request.Headers[TenantIdHeader].FirstOrDefault();
+            var isInternalAdminHeader = context.Request.Headers[IsInternalAdminHeader].FirstOrDefault();
 
             userId ??= DefaultUserId;
             userName ??= DefaultUserName;
             tenantId ??= DefaultTenantId;
 
-            var claims = new[]
+            var isInternalAdmin = isInternalAdminHeader?.ToLower() == "true"
+                || tenantId == InternalAdminTenantId;
+
+            var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, userId),
-                new Claim(ClaimTypes.Name, userName),
-                new Claim("tenant_id", tenantId),
+                new(ClaimTypes.NameIdentifier, userId),
+                new(ClaimTypes.Name, userName),
+                new("tenant_id", tenantId),
+                new("is_internal_admin", isInternalAdmin.ToString().ToLower()),
             };
+
             var identity = new ClaimsIdentity(claims, "Dev");
             context.User = new ClaimsPrincipal(identity);
+
+            if (Guid.TryParse(tenantId, out var parsedTenantId))
+            {
+                tenantContext.Initialize(parsedTenantId, isInternalAdmin);
+            }
         }
 
-        return _next(context);
+        await _next(context);
     }
 }
 

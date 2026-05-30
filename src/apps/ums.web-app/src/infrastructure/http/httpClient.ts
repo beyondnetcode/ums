@@ -119,9 +119,13 @@ function createHttpClient(): AxiosInstance {
           );
 
         default:
+          const data = error.response?.data;
           const errorMessage =
-            error.response?.data && typeof error.response.data === 'object' && 'message' in error.response.data
-              ? (error.response.data as { message: string }).message
+            data && typeof data === 'object'
+              ? ('message' in data ? (data as { message: string }).message :
+                 'detail' in data ? (data as { detail: string }).detail :
+                 'title' in data ? (data as { title: string }).title :
+                 JSON.stringify(data).slice(0, 200))
               : 'Error de comunicación';
 
           return Promise.reject(

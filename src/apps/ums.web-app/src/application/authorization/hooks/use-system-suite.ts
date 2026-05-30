@@ -3,8 +3,8 @@ import systemSuiteService from '@infra/authorization/services/system-suite.servi
 import { useNotifiedMutation } from '@app/hooks/use-notified-mutation';
 import { useI18n } from '@app/i18n/use-i18n';
 import { CreateSystemSuitePayload, SystemSuite, SystemSuitePage } from '@domain/authorization/models/system-suite.model';
-import { getHttpStatus } from '@app/errors/http-error';
-import { GraphQlUnavailableError, GraphQlValidationError } from '@infra/http/graphqlClient';
+import { getHttpStatus, isNonRecoverable, isNetworkError, getRetryOptions } from '@app/utils/error-utils';
+import { CONTEXT_QUERY_CONFIG } from '@app/shared/config/query.config';
 
 // ─── Query params ───────────────────────────────────────────────────────────
 
@@ -19,31 +19,15 @@ export interface SystemSuiteQueryParams {
   tenantId?: string;
 }
 
-function isNonRecoverableError(error: unknown): boolean {
-  if (error instanceof GraphQlValidationError) return true;
-  const status = getHttpStatus(error);
-  if (status === 400 || status === 401 || status === 403 || status === 404 || status === 422) return true;
-  return false;
-}
-
-function isNetworkError(error: unknown): boolean {
-  return error instanceof GraphQlUnavailableError;
-}
-
 // ─── Queries ────────────────────────────────────────────────────────────────
 
 export const useGetAllSystemSuites = (params: SystemSuiteQueryParams | null) => {
   return useQuery<SystemSuitePage>({
     queryKey: ['system-suites', params?.page, params?.pageSize, params?.search, params?.criteria, params?.status, params?.sortBy, params?.sortOrder, params?.tenantId],
-    queryFn: () => systemSuiteService.getAllSystemSuites(params!),
+    queryFn: () => systemSuiteService.getAll(params!),
     enabled: !!params,
-    staleTime: 30_000,
-    retry: (failureCount, error: unknown) => {
-      if (isNonRecoverableError(error)) return false;
-      if (isNetworkError(error)) return failureCount < 2;
-      return failureCount < 1;
-    },
-    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 5000),
+    ...CONTEXT_QUERY_CONFIG.SYSTEM_SUITE,
+    ...getRetryOptions({ maxRetries: 1, networkErrorMaxRetries: 2 }),
   });
 };
 
@@ -53,19 +37,15 @@ export const useGetSystemSuite = (systemSuiteId: string | null) => {
     queryFn: async () => {
       if (!systemSuiteId) throw new Error('SystemSuite ID required');
       try {
-        return await systemSuiteService.getSystemSuiteById(systemSuiteId);
+        return await systemSuiteService.getById(systemSuiteId);
       } catch (err: unknown) {
         if (getHttpStatus(err) === 404) return null;
         throw err;
       }
     },
     enabled: !!systemSuiteId,
-    retry: (failureCount, error: unknown) => {
-      if (isNonRecoverableError(error)) return false;
-      if (isNetworkError(error)) return failureCount < 2;
-      if (getHttpStatus(error) === 404) return false;
-      return failureCount < 1;
-    },
+    ...CONTEXT_QUERY_CONFIG.SYSTEM_SUITE,
+    ...getRetryOptions({ maxRetries: 1, networkErrorMaxRetries: 2 }),
   });
 };
 

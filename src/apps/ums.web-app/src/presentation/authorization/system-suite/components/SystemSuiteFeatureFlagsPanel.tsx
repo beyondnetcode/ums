@@ -21,27 +21,16 @@ import {
   CRITERIA_OPERATOR_LABELS,
 } from '@domain/configuration/constants/feature-flag.constants';
 import type { FeatureFlag, FeatureFlagCriteria } from '@domain/configuration/models/feature-flag.model';
+import { STATUS_COLORS, getStatusLabel } from '@shared/utils/status-utils';
 
 interface SystemSuiteFeatureFlagsPanelProps {
   systemSuiteId: string;
 }
 
-const STATUS_LABEL: Record<string, string> = {
-  Inactive: 'Inactivo',
-  Active:   'Activo',
-  Archived: 'Archivado',
-};
-
 const STATUS_COLOR_MAP = {
-  Active:   { bg: 'bg-emerald-500/10', border: 'border-emerald-500/25', text: 'text-emerald-500' },
-  Inactive: { bg: 'bg-amber-500/10',   border: 'border-amber-500/25',   text: 'text-amber-500' },
-  Archived: { bg: 'bg-rose-500/10',    border: 'border-rose-500/25',    text: 'text-rose-500' },
-};
-
-const TYPE_COLOR: Record<string, string> = {
-  Boolean:    'bg-blue-500/10 text-blue-500',
-  Variant:    'bg-purple-500/10 text-purple-500',
-  Percentage: 'bg-emerald-500/10 text-emerald-500',
+  Active:   STATUS_COLORS.Active,
+  Inactive: STATUS_COLORS.Inactive,
+  Archived: STATUS_COLORS.Archived,
 };
 
 const CriteriaRow: React.FC<{
@@ -139,7 +128,7 @@ const FlagRow: React.FC<{
         </div>
         <StatusBadge
           status={flag.status}
-          label={STATUS_LABEL[flag.status] ?? flag.status}
+          label={getStatusLabel(flag.status)}
           colorMap={STATUS_COLOR_MAP}
         />
         <div className="w-4 h-4 flex items-center justify-center text-m3-secondary/50">

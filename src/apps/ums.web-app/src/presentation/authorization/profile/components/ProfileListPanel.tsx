@@ -10,21 +10,19 @@ import {
   AtomicFilterOption,
   AtomicSortOption,
   AtomicQueryCriteriaOption,
+  PaginationFooter,
+  RequiresFilterPrompt,
 } from '@shared/components';
 import { useQueryState } from '@app/shared/hooks/use-query-state';
 import { usePaginationState } from '@app/shared/hooks/use-pagination-state';
 import { EntityRow } from '@shared/components/EntityRow';
 import { EntityCard } from '@shared/components/EntityCard';
 import { ApiErrorBanner } from '@shared/components/ApiErrorBanner';
-
-const STATUS_LABEL: Record<string, string> = {
-  active: 'Activo',
-  inactive: 'Inactivo',
-};
+import { STATUS_COLORS, getStatusLabel } from '@shared/utils/status-utils';
 
 const STATUS_COLOR_MAP = {
-  active: { bg: 'bg-emerald-500/10', border: 'border-emerald-500/25', text: 'text-emerald-500' },
-  inactive: { bg: 'bg-rose-500/10', border: 'border-rose-500/25', text: 'text-rose-500' },
+  active: STATUS_COLORS.Active,
+  inactive: STATUS_COLORS.Inactive,
 };
 
 interface Props {
@@ -94,7 +92,7 @@ export const ProfileListPanel: React.FC<Props> = ({
                 </span>
                 <StatusBadge
                   status={statusKey}
-                  label={STATUS_LABEL[statusKey] ?? statusKey}
+                  label={getStatusLabel(statusKey)}
                   colorMap={STATUS_COLOR_MAP}
                 />
                 <button
@@ -170,7 +168,7 @@ export const ProfileListPanel: React.FC<Props> = ({
           <div className="flex items-center gap-2">
             <StatusBadge
               status={statusKey}
-              label={STATUS_LABEL[statusKey] ?? statusKey}
+              label={getStatusLabel(statusKey)}
               colorMap={STATUS_COLOR_MAP}
             />
             <button
@@ -204,31 +202,21 @@ export const ProfileListPanel: React.FC<Props> = ({
   const pageSize = paginationState.pageSize;
 
   const filterPrompt = requiresFilter ? (
-    <div className="flex flex-col items-center justify-center h-full text-center py-16">
-      <div className="p-4 rounded-2xl bg-m3-primary/5 border border-m3-primary/10 mb-4">
-        <Info className="w-8 h-8 text-m3-primary/60" />
-      </div>
-      <h3 className="text-sm font-semibold text-m3-on-surface mb-1">Aplica un filtro para cargar datos</h3>
-      <p className="text-xs text-m3-secondary/70 max-w-xs">
-        Selecciona un estado, ingresa un término de búsqueda o cambia el criterio para ver los perfiles.
-      </p>
-    </div>
+    <RequiresFilterPrompt
+      title="Aplica un filtro para cargar datos"
+      message="Selecciona un estado, ingresa un término de búsqueda o cambia el criterio para ver los perfiles."
+    />
   ) : null;
 
   const footerTelemetry = (
-    <div className="flex items-center gap-3">
-      <div className="flex items-center gap-1.5">
-        <span className="h-2 w-2 rounded-full bg-m3-primary animate-pulse" />
-        <span className="text-xs font-medium text-m3-secondary/80">
-          Mostrando {totalItems === 0 ? 0 : startIndex + 1}-{Math.min(startIndex + pageSize, totalItems)} de {totalItems} perfiles
-        </span>
-      </div>
-      {queryState.appliedQuery.term.trim() && (
-        <button onClick={queryState.handleResetQuery} className="text-xs font-medium text-rose-500 hover:underline flex items-center gap-1">
-          <Info className="w-3 h-3" /> Limpiar filtros
-        </button>
-      )}
-    </div>
+    <PaginationFooter
+      totalItems={paginationState.totalItems}
+      startIndex={paginationState.startIndex ?? 0}
+      pageSize={paginationState.pageSize}
+      itemLabel="perfiles"
+      onClear={queryState.handleResetQuery}
+      searchTerm={queryState.appliedQuery.term}
+    />
   );
 
   return (

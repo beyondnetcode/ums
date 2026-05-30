@@ -66,6 +66,9 @@ public sealed class UmsPlatformDbContext(
     public DbSet<RoleRecord> Roles => Set<RoleRecord>();
     public DbSet<UserManagementDelegationRecord> UserManagementDelegations => Set<UserManagementDelegationRecord>();
     public DbSet<AppConfigurationRecord> AppConfigurations => Set<AppConfigurationRecord>();
+    public DbSet<ParameterDefinitionRecord> ParameterDefinitions => Set<ParameterDefinitionRecord>();
+    public DbSet<ParameterGlobalValueRecord> ParameterGlobalValues => Set<ParameterGlobalValueRecord>();
+    public DbSet<ParameterTenantValueRecord> ParameterTenantValues => Set<ParameterTenantValueRecord>();
     public DbSet<FeatureFlagRecord> FeatureFlags => Set<FeatureFlagRecord>();
     public DbSet<FeatureFlagEvaluationLogRecord> FeatureFlagEvaluationLogs => Set<FeatureFlagEvaluationLogRecord>();
     public DbSet<FeatureFlagCriteriaRecord> FeatureFlagCriteria => Set<FeatureFlagCriteriaRecord>();
@@ -111,6 +114,9 @@ public sealed class UmsPlatformDbContext(
         modelBuilder.ApplyConfiguration(new RoleRecordConfiguration());
         modelBuilder.ApplyConfiguration(new UserManagementDelegationRecordConfiguration());
         modelBuilder.ApplyConfiguration(new AppConfigurationRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new ParameterDefinitionRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new ParameterGlobalValueRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new ParameterTenantValueRecordConfiguration());
         modelBuilder.ApplyConfiguration(new FeatureFlagRecordConfiguration());
         modelBuilder.ApplyConfiguration(new FeatureFlagEvaluationLogRecordConfiguration());
         modelBuilder.ApplyConfiguration(new FeatureFlagCriteriaRecordConfiguration());
@@ -205,6 +211,12 @@ public sealed class UmsPlatformDbContext(
             .HasQueryFilter(x =>
                 !tenantContext.OrganizationId.HasValue ||
                 x.TenantId == null ||
+                x.TenantId == tenantContext.OrganizationId);
+
+        // ParameterTenantValue: tenant-specific parameter overrides
+        modelBuilder.Entity<ParameterTenantValueRecord>()
+            .HasQueryFilter(x =>
+                !tenantContext.OrganizationId.HasValue ||
                 x.TenantId == tenantContext.OrganizationId);
 
         modelBuilder.Entity<ApprovalWorkflowRecord>()

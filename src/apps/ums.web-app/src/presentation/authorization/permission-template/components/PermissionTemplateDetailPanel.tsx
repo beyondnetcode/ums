@@ -36,6 +36,7 @@ import type { PermissionTemplateItem } from '@domain/authorization/models/permis
 import { ModulePermissionsPanel, type ModulePermNode } from './tree/ModulePermissionsPanel';
 import { DomainResourcesPanel, type DomainResourceNode } from './tree/DomainResourcesPanel';
 import { SystemActionsPanel } from './tree/SystemActionsPanel';
+import { STATUS_COLORS, getStatusLabel } from '@shared/utils/status-utils';
 
 type TemplateTab = 'overview' | 'modules' | 'domain-resources' | 'actions';
 
@@ -45,16 +46,10 @@ interface Props {
   onDeleted?:  () => void;
 }
 
-const STATUS_LABEL: Record<string, string> = {
-  Draft:      'Borrador',
-  Published:  'Publicada',
-  Deprecated: 'Descontinuada',
-};
-
 const STATUS_COLOR_MAP = {
-  Published:  { bg: 'bg-emerald-500/10', border: 'border-emerald-500/25', text: 'text-emerald-500' },
-  Deprecated: { bg: 'bg-rose-500/10',    border: 'border-rose-500/25',    text: 'text-rose-500' },
-  Draft:      { bg: 'bg-amber-500/10',   border: 'border-amber-500/25',   text: 'text-amber-500' },
+  Published:  STATUS_COLORS.Published,
+  Deprecated: STATUS_COLORS.Deprecated,
+  Draft:      STATUS_COLORS.Draft,
 };
 
 export const PermissionTemplateDetailPanel: React.FC<Props> = ({ template, isLoading, onDeleted }) => {
@@ -104,7 +99,7 @@ export const PermissionTemplateDetailPanel: React.FC<Props> = ({ template, isLoa
         </div>
         <StatusBadge
           status={template.status}
-          label={STATUS_LABEL[template.status] ?? template.status}
+          label={getStatusLabel(template.status)}
           colorMap={STATUS_COLOR_MAP}
         />
       </div>

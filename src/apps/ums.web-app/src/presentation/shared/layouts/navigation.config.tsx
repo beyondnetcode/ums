@@ -7,7 +7,7 @@
  */
 import React from 'react';
 
-export type NavItemId = 'tenants' | 'users' | 'delegations' | 'systemSuites' | 'permissionTemplates' | 'featureFlags' | 'profiles' | 'profile' | 'login';
+export type NavItemId = 'tenants' | 'users' | 'delegations' | 'systemSuites' | 'permissionTemplates' | 'featureFlags' | 'appConfigurations' | 'parameterCatalog' | 'profiles' | 'profile' | 'login';
 
 export type UserRole = 'admin' | 'moderator' | 'user' | 'super_admin';
 
@@ -31,6 +31,8 @@ export const NAV_ROUTES: Record<NavItemId, string> = {
   systemSuites: '/system-suites',
   permissionTemplates: '/permission-templates',
   featureFlags: '/feature-flags',
+  appConfigurations: '/app-configurations',
+  parameterCatalog: '/parameter-catalog',
   profiles: '/profiles',
   profile: '/profile',
   login: '/login',
@@ -43,6 +45,8 @@ export const pathToTab = (pathname: string): NavItemId => {
   if (pathname.startsWith('/system-suites')) return 'systemSuites';
   if (pathname.startsWith('/permission-templates')) return 'permissionTemplates';
   if (pathname.startsWith('/feature-flags')) return 'featureFlags';
+  if (pathname.startsWith('/app-configurations')) return 'appConfigurations';
+  if (pathname.startsWith('/parameter-catalog')) return 'parameterCatalog';
   if (pathname.startsWith('/profiles')) return 'profiles';
   if (pathname.startsWith('/profile')) return 'profile';
   if (pathname.startsWith('/login')) return 'login';
@@ -58,6 +62,7 @@ interface NavModulesFactoryDeps {
   Flag: React.ComponentType<{ className?: string }>;
   User: React.ComponentType<{ className?: string }>;
   LogOut: React.ComponentType<{ className?: string }>;
+  Settings: React.ComponentType<{ className?: string }>;
   primaryColorClass: string;
   indigoColorClass: string;
   t: Record<string, string>;
@@ -89,6 +94,8 @@ export const NAV_MODULES = (deps: NavModulesFactoryDeps): NavModule[] => [
     nameKey: 'systemDiagnostics',
     icon: <deps.Cpu className={`w-5 h-5 ${deps.indigoColorClass}`} />,
     members: [
+      { id: 'appConfigurations', nameKey: 'systemParameters', icon: <deps.Settings className="w-4 h-4" /> },
+      { id: 'parameterCatalog', nameKey: 'parameterCatalog', icon: <deps.Settings className="w-4 h-4" /> },
       { id: 'profile', nameKey: 'profileStats', icon: <deps.User className="w-4 h-4" /> },
     ],
   },

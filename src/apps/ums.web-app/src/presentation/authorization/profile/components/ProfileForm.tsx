@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { UserCheck, ShieldAlert, Shield, ShieldCheck, ToggleLeft, ToggleRight, Loader2, LayoutGrid, Database, Zap, Building2 } from 'lucide-react';
-import { M3Button, M3Select, M3Tabs } from '@shared/components';
-import { M3FormDialog } from '@shared/components/M3FormDialog';
+import { M3Dialog, M3Tabs, FieldSelect, FormButton } from '@shared/components';
+import { useEffectiveTenant } from '@app/shared/hooks/use-effective-tenant';
 import { useAuthStore } from '@app/stores/auth.store';
 import { useGetAllUserAccounts } from '@app/identity/hooks/use-user-account';
 import { useGetAllSystemSuites } from '@app/authorization/hooks/use-system-suite';
@@ -14,6 +14,7 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: (profileId: string) => void;
+  tenantId?: string;
 }
 
 interface LocalPermission {
@@ -27,36 +28,9 @@ interface LocalPermission {
   isActive: boolean;
 }
 
-interface SelectProps {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  options: { value: string; label: string }[];
-  disabled?: boolean;
-  required?: boolean;
-  error?: string;
-}
-
-const FieldSelect: React.FC<SelectProps> = ({ label, value, onChange, options, disabled, required, error }) => (
-  <M3Select
-    label={label}
-    value={value}
-    onChange={e => onChange(e.target.value)}
-    disabled={disabled}
-    required={required}
-    error={error}
-  >
-    <option value="">— Seleccionar —</option>
-    {options.map(o => (
-      <option key={o.value} value={o.value}>{o.label}</option>
-    ))}
-  </M3Select>
-);
-
-export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
-  const sessionTenantId = useAuthStore((state) => state.user?.tenantId);
+export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenantId }) => {
+  const effectiveTenantId = useEffectiveTenant(tenantId);
   const sessionTenantName = useAuthStore((state) => state.user?.tenantName);
-  const effectiveTenantId = sessionTenantId;
 
   const [userId, setUserId] = useState('');
   const [systemSuiteId, setSystemSuiteId] = useState('');
@@ -130,8 +104,7 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => 
     }));
   };
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = async () => {
     setError('');
 
     if (!effectiveTenantId) { setError('Tenant context no disponible'); return; }
@@ -265,34 +238,16 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => 
   );
 
   return (
-    <M3FormDialog
+    <M3Dialog
       open={isOpen}
-      onClose={onClose}
+      onScrimClick={onClose}
       title="Nuevo Perfil de Autorización"
-      icon={<UserCheck className="w-4 h-4" />}
-      maxWidth="max-w-3xl"
-      footer={
-        <>
-          <M3Button type="button" variant="text" onClick={onClose} disabled={saving}>
-            Cancelar
-          </M3Button>
-          <M3Button
-            type="submit"
-            form="profile-form"
-            variant="filled"
-            disabled={saving || loadingTemplateDetail}
-          >
-            {saving ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin mr-1.5" />
-                Persistiendo...
-              </>
-            ) : 'Crear & Persistir'}
-          </M3Button>
-        </>
-      }
+      actions={[
+        { label: 'Cancelar', variant: 'outlined', onClick: onClose, disabled: saving },
+        { label: saving ? 'Persistiendo...' : 'Crear & Persistir', variant: 'filled', onClick: handleSave, loading: saving, disabled: saving || loadingTemplateDetail },
+      ]}
     >
-      <form id="profile-form" onSubmit={handleSave} className="space-y-4">
+      <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-4">
         {error && (
           <div className="flex items-center gap-2 rounded-lg bg-m3-error-container/30 p-3 text-xs text-m3-error border border-m3-error/20">
             <ShieldAlert className="w-4 h-4 flex-shrink-0" />
@@ -396,6 +351,6 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => 
           </div>
         )}
       </form>
-    </M3FormDialog>
+    </M3Dialog>
   );
 };

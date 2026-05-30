@@ -14,16 +14,16 @@ import userAccountService from '@infra/identity/services/user-account.service';
 
 vi.mock('@infra/identity/services/user-account.service', () => ({
   userAccountService: {
-    getAllUserAccounts: vi.fn(),
-    getUserAccountById: vi.fn(),
+    getAll: vi.fn(),
+    getById: vi.fn(),
     createUserAccount: vi.fn(),
     activateUserAccount: vi.fn(),
     blockUserAccount: vi.fn(),
     restoreUserAccount: vi.fn(),
   },
   default: {
-    getAllUserAccounts: vi.fn(),
-    getUserAccountById: vi.fn(),
+    getAll: vi.fn(),
+    getById: vi.fn(),
     createUserAccount: vi.fn(),
     activateUserAccount: vi.fn(),
     blockUserAccount: vi.fn(),
@@ -62,7 +62,7 @@ describe('UserAccount hooks', () => {
       totalPages: 1,
     };
 
-    vi.mocked(userAccountService.getAllUserAccounts).mockResolvedValue(mockPage);
+    vi.mocked(userAccountService.getAll).mockResolvedValue(mockPage);
 
     const wrapper = createWrapper();
     const { result } = renderHook(
@@ -80,7 +80,7 @@ describe('UserAccount hooks', () => {
     });
 
     expect(result.current.data?.items[0].email).toBe('admin@ransa.pe');
-    expect(userAccountService.getAllUserAccounts).toHaveBeenCalledWith({
+    expect(userAccountService.getAll).toHaveBeenCalledWith({
       page: 1,
       pageSize: 20,
       tenantId: '87654321-4321-4321-4321-0987654321fe',
@@ -94,7 +94,7 @@ describe('UserAccount hooks', () => {
       status: 'Active',
       category: 'Internal',
     };
-    vi.mocked(userAccountService.getUserAccountById).mockResolvedValue(mockUser);
+    vi.mocked(userAccountService.getById).mockResolvedValue(mockUser);
 
     const wrapper = createWrapper();
     const { result } = renderHook(() => useGetUserAccount('u1'), { wrapper });
@@ -104,13 +104,13 @@ describe('UserAccount hooks', () => {
     });
 
     expect(result.current.data?.email).toBe('user@test.com');
-    expect(userAccountService.getUserAccountById).toHaveBeenCalledWith('u1');
+    expect(userAccountService.getById).toHaveBeenCalledWith('u1');
   });
 
   it('useGetUserAccount returns null on 404', async () => {
     const error = new Error('Not Found');
     (error as any).response = { status: 404 };
-    vi.mocked(userAccountService.getUserAccountById).mockRejectedValue(error);
+    vi.mocked(userAccountService.getById).mockRejectedValue(error);
 
     const wrapper = createWrapper();
     const { result } = renderHook(() => useGetUserAccount('nonexistent'), { wrapper });

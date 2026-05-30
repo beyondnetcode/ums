@@ -14,7 +14,7 @@ export interface TenantDashboardState {
   selectedId: string;
   showDiscardDialog: boolean;
   pendingNavigationId: string | null;
-  activeConsoleTab: 'branches' | 'providers' | 'branding';
+  activeConsoleTab: 'branches' | 'providers' | 'branding' | 'configurations';
   isTenantEditing: boolean;
   isCreateOpen: boolean;
   viewMode: 'list' | 'thumbnail';
@@ -26,7 +26,7 @@ export interface TenantDashboardActions {
   setSelectedId: React.Dispatch<React.SetStateAction<string>>;
   setShowDiscardDialog: React.Dispatch<React.SetStateAction<boolean>>;
   setPendingNavigationId: React.Dispatch<React.SetStateAction<string | null>>;
-  setActiveConsoleTab: React.Dispatch<React.SetStateAction<'branches' | 'providers' | 'branding'>>;
+  setActiveConsoleTab: React.Dispatch<React.SetStateAction<'branches' | 'providers' | 'branding' | 'configurations'>>;
   setIsTenantEditing: React.Dispatch<React.SetStateAction<boolean>>;
   setIsCreateOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setViewMode: React.Dispatch<React.SetStateAction<'list' | 'thumbnail'>>;
@@ -43,7 +43,7 @@ export function useTenantDashboard(): TenantDashboardState & TenantDashboardActi
   activeTenant: Tenant | undefined;
   parentTenant: Tenant | null;
   isRootTenant: boolean;
-  consoleTabs: Array<'branches' | 'providers' | 'branding'>;
+  consoleTabs: Array<'branches' | 'providers' | 'branding' | 'configurations'>;
   totalItems: number;
   totalPages: number;
   startIndex: number;
@@ -52,7 +52,7 @@ export function useTenantDashboard(): TenantDashboardState & TenantDashboardActi
   const [selectedId, setSelectedId] = useState('');
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
   const [pendingNavigationId, setPendingNavigationId] = useState<string | null>(null);
-  const [activeConsoleTab, setActiveConsoleTab] = useState<'branches' | 'providers' | 'branding'>('branches');
+  const [activeConsoleTab, setActiveConsoleTab] = useState<'branches' | 'providers' | 'branding' | 'configurations'>('branches');
   const [isTenantEditing, setIsTenantEditing] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('list');
@@ -92,7 +92,7 @@ export function useTenantDashboard(): TenantDashboardState & TenantDashboardActi
   const isRootTenant = activeTenant?.parentTenantId === null;
 
   const consoleTabs = (
-    ['branches', 'providers', 'branding'] as Array<'branches' | 'providers' | 'branding'>
+    ['branches', 'providers', 'branding', 'configurations'] as Array<'branches' | 'providers' | 'branding' | 'configurations'>
   ).filter((tab) => tab !== 'branding' || isRootTenant);
 
   const parentTenant = activeTenant?.parentTenantId

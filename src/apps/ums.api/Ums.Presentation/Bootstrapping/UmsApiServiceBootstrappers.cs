@@ -42,10 +42,11 @@ using Ums.Presentation.Endpoints.Authorization.Role;
 using Ums.Presentation.Endpoints.Configuration.AppConfiguration;
 using Ums.Presentation.Endpoints.Configuration.AppConfiguration.Queries;
 using Ums.Presentation.Endpoints.Configuration.FeatureFlag;
-using Ums.Presentation.Endpoints.Identity.Auth;
 using Ums.Presentation.Endpoints.Configuration.FeatureFlag.Queries;
 using Ums.Presentation.Endpoints.Configuration.IdpConfiguration;
 using Ums.Presentation.Endpoints.Configuration.IdpConfiguration.Queries;
+using Ums.Presentation.Endpoints.Configuration.ParameterCatalog.Queries;
+using Ums.Presentation.Endpoints.Identity.Auth;
 using Ums.Presentation.Endpoints.Identity.Tenant;
 using Ums.Presentation.Endpoints.Identity.Tenant.Queries;
 using Ums.Presentation.Endpoints.Identity.UserAccount;
@@ -58,6 +59,7 @@ using Ums.Presentation.Endpoints.IGA.RoleMaturityStatus;
 using Ums.Presentation.Endpoints.IGA.RoleMaturityStatus.Queries;
 using Ums.Presentation.GraphQL;
 using Ums.Presentation.Middleware;
+using Ums.Presentation.Bootstrapping.Bootstrappers;
 using BeyondNetCode.Shell.Bootstrapper.Impl;
 using BeyondNetCode.Shell.Bootstrapper.Interface;
 using Serilog;
@@ -76,6 +78,7 @@ public static class UmsApiServiceBootstrappers
             .Add(new UmsApiPlatformBootstrapper(services, configuration))
             .Add(new UmsApiRateLimitingBootstrapper(services, configuration))
             .Add(new UmsApiDocumentationBootstrapper(services, configuration))
+            .Add(new ConfigurationBootstrapper(services))
             .Run();
 
         return services;
@@ -323,6 +326,7 @@ public static class UmsApiApplicationBuilderExtensions
         {
             app.UseDevAuth();
         }
+        app.UseTenantContext();
         app.UseTokenRevocation();
         app.UseHttpsRedirection();
 
@@ -529,6 +533,7 @@ public static class UmsApiApplicationBuilderExtensions
         versionedGroup.MapAppConfigurationQueryEndpoints();
         versionedGroup.MapFeatureFlagQueryEndpoints();
         versionedGroup.MapIdpConfigurationQueryEndpoints();
+        versionedGroup.MapParameterCatalogQueryEndpoints();
 
         return versionedGroup;
     }

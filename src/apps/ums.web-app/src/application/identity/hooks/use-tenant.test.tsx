@@ -13,15 +13,17 @@ import tenantService from '@infra/identity/services/tenant.service';
 
 vi.mock('@infra/identity/services/tenant.service', () => ({
   tenantService: {
-    getAllTenants: vi.fn(),
-    getTenantById: vi.fn(),
+    getAll: vi.fn(),
+    getById: vi.fn(),
+    getBranches: vi.fn(),
     createTenant: vi.fn(),
     activateTenant: vi.fn(),
     suspendTenant: vi.fn(),
   },
   default: {
-    getAllTenants: vi.fn(),
-    getTenantById: vi.fn(),
+    getAll: vi.fn(),
+    getById: vi.fn(),
+    getBranches: vi.fn(),
     createTenant: vi.fn(),
     activateTenant: vi.fn(),
     suspendTenant: vi.fn(),
@@ -53,7 +55,7 @@ describe('use-tenant hooks', () => {
       totalPages: 1,
     };
 
-    vi.mocked(tenantService.getAllTenants).mockResolvedValue(mockPage);
+    vi.mocked(tenantService.getAll).mockResolvedValue(mockPage);
 
     const wrapper = createWrapper();
     const { result } = renderHook(
@@ -66,7 +68,7 @@ describe('use-tenant hooks', () => {
     });
 
     expect(result.current.data?.items[0].name).toBe('Tenant 1');
-    expect(tenantService.getAllTenants).toHaveBeenCalledWith({ page: 1, pageSize: 20 });
+    expect(tenantService.getAll).toHaveBeenCalledWith({ page: 1, pageSize: 20 });
   });
 
   it('useGetTenant returns tenant by id', async () => {
@@ -78,7 +80,7 @@ describe('use-tenant hooks', () => {
       createdAt: '2024-01-01',
     };
 
-    vi.mocked(tenantService.getTenantById).mockResolvedValue(mockTenant);
+    vi.mocked(tenantService.getById).mockResolvedValue(mockTenant);
 
     const wrapper = createWrapper();
     const { result } = renderHook(() => useGetTenant('t1'), { wrapper });
@@ -88,13 +90,13 @@ describe('use-tenant hooks', () => {
     });
 
     expect(result.current.data?.name).toBe('Tenant 1');
-    expect(tenantService.getTenantById).toHaveBeenCalledWith('t1');
+    expect(tenantService.getById).toHaveBeenCalledWith('t1');
   });
 
   it('useGetTenant returns null on 404', async () => {
     const error = new Error('Not Found');
     (error as any).response = { status: 404 };
-    vi.mocked(tenantService.getTenantById).mockRejectedValue(error);
+    vi.mocked(tenantService.getById).mockRejectedValue(error);
 
     const wrapper = createWrapper();
     const { result } = renderHook(() => useGetTenant('nonexistent'), { wrapper });
