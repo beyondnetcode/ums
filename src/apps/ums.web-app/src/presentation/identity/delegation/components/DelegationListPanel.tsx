@@ -230,6 +230,7 @@ export const DelegationListPanel: React.FC<DelegationListPanelProps> = ({
               onSortByChange={queryState.setSortBy}
               sortOrder={queryState.sortOrder}
               onSortOrderToggle={queryState.toggleSortOrder}
+              onAdd={onRegisterNew}
             />
           }
           content={

@@ -257,6 +257,7 @@ export function ParameterCatalogListPanel({
             onSortByChange={queryState.setSortBy}
             sortOrder={queryState.sortOrder}
             onSortOrderToggle={queryState.toggleSortOrder}
+            onAdd={onRegisterNew}
           />
         }
         content={

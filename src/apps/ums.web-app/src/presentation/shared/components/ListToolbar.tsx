@@ -7,6 +7,7 @@ import {
   SlidersHorizontal,
   ChevronsUp,
   ChevronsDown,
+  Plus,
 } from 'lucide-react';
 import { M3SegmentedButton } from './M3SegmentedButton';
 import type { SegmentOption } from './M3SegmentedButton';
@@ -47,6 +48,8 @@ interface ListToolbarProps {
   itemCount: number;
   itemLabel: string;
   secondaryActions?: React.ReactNode;
+  onAdd?: () => void;
+  addLabel?: string;
 }
 
 const VIEW_MODE_OPTIONS: SegmentOption<'list' | 'thumbnail'>[] = [
@@ -80,6 +83,24 @@ const SelectField: React.FC<{
   </select>
 );
 
+const AddButton: React.FC<{ onClick: () => void; title?: string }> = ({
+  onClick,
+  title = 'Agregar',
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    title={title}
+    className="inline-flex items-center justify-center w-8 h-8 rounded-full
+      border border-m3-outline/30 text-m3-secondary
+      hover:border-m3-primary/50 hover:text-m3-primary hover:bg-m3-primary/10
+      transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-primary
+      active:scale-95"
+  >
+    <Plus className="w-4 h-4" />
+  </button>
+);
+
 export const ListToolbar: React.FC<ListToolbarProps> = ({
   viewMode = 'list',
   onViewModeChange,
@@ -101,12 +122,14 @@ export const ListToolbar: React.FC<ListToolbarProps> = ({
   itemCount,
   itemLabel,
   secondaryActions,
+  onAdd,
+  addLabel = 'Agregar',
 }) => {
   const [isExpanded, setIsExpanded] = useState(true);
 
   return (
     <div className="bg-m3-surface-container/5 border-b border-m3-outline/10">
-      {/* Header row: always visible, toggle for expand/collapse */}
+      {/* Header row: always visible */}
       <div className="flex items-center justify-between px-4 py-2">
         <div className="flex items-center gap-4">
           <span className="text-xs font-medium text-m3-secondary">
@@ -124,7 +147,8 @@ export const ListToolbar: React.FC<ListToolbarProps> = ({
             </button>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          {onAdd && <AddButton onClick={onAdd} title={addLabel} />}
           {onViewModeChange && (
             <M3SegmentedButton
               options={VIEW_MODE_OPTIONS}
@@ -133,7 +157,7 @@ export const ListToolbar: React.FC<ListToolbarProps> = ({
               size="sm"
             />
           )}
-          {isExpanded && (
+          {isExpanded ? (
             <button
               type="button"
               onClick={() => setIsExpanded(false)}
@@ -141,6 +165,15 @@ export const ListToolbar: React.FC<ListToolbarProps> = ({
               title="Colapsar"
             >
               <ChevronsUp className="w-3.5 h-3.5" />
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setIsExpanded(true)}
+              className="p-1 rounded text-m3-secondary/60 hover:text-m3-primary hover:bg-m3-primary/10 transition-colors"
+              title="Expandir"
+            >
+              <ChevronsDown className="w-3.5 h-3.5" />
             </button>
           )}
         </div>
