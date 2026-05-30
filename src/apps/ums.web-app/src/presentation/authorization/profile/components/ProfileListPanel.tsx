@@ -246,8 +246,6 @@ export const ProfileListPanel: React.FC<Props> = ({
       <DataViewShell
         title="Perfiles"
         subtitle="Mantenimiento y consulta de perfiles de autorización."
-        onRegisterNew={onRegisterNew}
-        registerLabel="Nuevo Perfil"
         controls={
           <ListToolbar
             itemCount={totalItems}

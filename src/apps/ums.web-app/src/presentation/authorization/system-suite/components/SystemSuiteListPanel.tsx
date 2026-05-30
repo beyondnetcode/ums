@@ -165,8 +165,6 @@ export const SystemSuiteListPanel: React.FC<SystemSuiteListPanelProps> = ({
     <DataViewShell
       title={t.systemSuiteMaintenance}
       subtitle={t.systemSuiteMaintenanceSubtitle}
-      onRegisterNew={onRegisterNew}
-      registerLabel={t.newBtn}
       controls={
         <ListToolbar
           itemCount={totalItems}

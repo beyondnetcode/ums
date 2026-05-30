@@ -1,14 +1,11 @@
 import React from 'react';
 import { M3Card } from '../M3Card';
-import { Database, Plus, ChevronsUp, ChevronsDown } from 'lucide-react';
+import { Database, ChevronsUp, ChevronsDown } from 'lucide-react';
 import { useDragResize } from '@app/hooks/use-drag-resize';
-import { AddButton } from '../AddButton';
 
 interface DataViewShellProps {
   title: string;
   subtitle?: string;
-  onRegisterNew?: () => void;
-  registerLabel?: string;
   headerIcon?: React.ReactNode;
   controls: React.ReactNode;
   content: React.ReactNode;
@@ -17,9 +14,7 @@ interface DataViewShellProps {
 export const DataViewShell: React.FC<DataViewShellProps> = ({
   title,
   subtitle,
-  onRegisterNew,
-  registerLabel = 'New',
-  headerIcon = <Database className="w-5 h-5 text-m3-primary flex-shrink-0" />,
+  headerIcon = <Database className="w-4 h-4 text-m3-primary flex-shrink-0" />,
   controls,
   content,
 }) => {
@@ -39,52 +34,31 @@ export const DataViewShell: React.FC<DataViewShellProps> = ({
       ref={dvContainerRef}
       className={`flex flex-col h-full${isDraggingH ? ' select-none cursor-row-resize' : ''}`}
     >
-      {/* ZONE A — Title bar */}
-      <M3Card
-        variant="elevated"
-        className="flex-shrink-0 border border-m3-outline/25 bg-m3-surface-container/20 shadow-sm"
-      >
-        <div className="px-5 py-4 flex items-center justify-between gap-3">
-          <div className="min-w-0 flex-1 space-y-0.5">
-            <h2 className="text-base font-semibold text-m3-on-surface flex items-center gap-2">
-              {headerIcon}
-              <span className="truncate">{title}</span>
-            </h2>
-            {subtitle && (
-              <p className="text-xs text-m3-secondary font-normal pl-7 truncate">{subtitle}</p>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {onRegisterNew && (
-              <AddButton
-                onClick={onRegisterNew}
-                title={registerLabel}
-              />
-            )}
-
-            <button
-              type="button"
-              title={isHeaderCollapsed ? 'Show search & filters' : 'Hide search & filters'}
-              onClick={toggleHeader}
-              className={[
-                'p-1.5 rounded-lg border transition-all duration-150',
-                isHeaderCollapsed
-                  ? 'bg-m3-primary/10 border-m3-primary/40 text-m3-primary'
-                  : 'bg-m3-surface-container/60 border-m3-outline/40 text-m3-secondary hover:bg-m3-primary/10 hover:border-m3-primary/40 hover:text-m3-primary',
-              ].join(' ')}
-            >
-              {isHeaderCollapsed ? (
-                <ChevronsDown className="w-3.5 h-3.5" />
-              ) : (
-                <ChevronsUp className="w-3.5 h-3.5" />
-              )}
-            </button>
+      {/* ZONE A — Minimal title bar */}
+      <div className="px-4 py-2 border-b border-m3-outline/15 flex items-center justify-between gap-3 bg-m3-surface/50">
+        <div className="flex items-center gap-2 min-w-0">
+          {headerIcon}
+          <div className="min-w-0">
+            <h2 className="text-sm font-semibold text-m3-on-surface truncate">{title}</h2>
+            {subtitle && <p className="text-[10px] text-m3-secondary truncate">{subtitle}</p>}
           </div>
         </div>
-      </M3Card>
 
-      {/* ZONE B — Search form + control row */}
+        <button
+          type="button"
+          title={isHeaderCollapsed ? 'Mostrar filtros' : 'Ocultar filtros'}
+          onClick={toggleHeader}
+          className="p-1 rounded text-m3-secondary/60 hover:text-m3-primary hover:bg-m3-primary/10 transition-colors"
+        >
+          {isHeaderCollapsed ? (
+            <ChevronsDown className="w-4 h-4" />
+          ) : (
+            <ChevronsUp className="w-4 h-4" />
+          )}
+        </button>
+      </div>
+
+      {/* ZONE B — Collapsible controls */}
       <div
         ref={searchZoneRef}
         style={topPx !== null ? { height: topPx } : undefined}
@@ -95,52 +69,6 @@ export const DataViewShell: React.FC<DataViewShellProps> = ({
         ].join(' ')}
       >
         {controls}
-      </div>
-
-      {/* SPLITTER */}
-      <div
-        onMouseDown={handleHSplitterMouseDown}
-        onKeyDown={handleHSplitterKeyDown}
-        role="separator"
-        tabIndex={0}
-        aria-orientation="horizontal"
-        className={[
-          'relative flex-shrink-0 h-1.5 w-full flex items-center justify-center group cursor-row-resize z-10 mt-1',
-          isDraggingH
-            ? 'bg-m3-primary/20'
-            : 'hover:bg-m3-primary/10 transition-colors duration-150',
-        ].join(' ')}
-      >
-        <div
-          className={[
-            'h-px w-full transition-colors duration-150',
-            isDraggingH ? 'bg-m3-primary/60' : 'bg-m3-outline/30 group-hover:bg-m3-primary/40',
-          ].join(' ')}
-        />
-        <button
-          type="button"
-          onClick={e => {
-            e.stopPropagation();
-            toggleHeader();
-          }}
-          onMouseDown={e => e.stopPropagation()}
-          className={[
-            'absolute left-1/2 -translate-x-1/2 -translate-y-px',
-            'h-4 w-12 rounded-full flex items-center justify-center gap-0.5',
-            'border shadow-sm transition-all duration-150 text-[10px] font-medium',
-            isDraggingH
-              ? 'bg-m3-primary text-white border-m3-primary'
-              : isHeaderCollapsed
-                ? 'bg-m3-primary/15 border-m3-primary/50 text-m3-primary hover:bg-m3-primary/25'
-                : 'bg-m3-surface-container border-m3-outline/50 text-m3-secondary hover:bg-m3-primary/10 hover:border-m3-primary/40 hover:text-m3-primary',
-          ].join(' ')}
-        >
-          {isHeaderCollapsed ? (
-            <ChevronsDown className="w-3 h-3" />
-          ) : (
-            <ChevronsUp className="w-3 h-3" />
-          )}
-        </button>
       </div>
 
       {/* ZONE C — Content */}

@@ -138,10 +138,8 @@ export const TenantListPanel: React.FC<TenantListPanelProps> = ({
 
   return (
     <DataViewShell
-      title={t.tenantMaintenance}
-      subtitle={t.tenantMaintenanceSubtitle}
-      onRegisterNew={onRegisterNew}
-      registerLabel={t.newBtn}
+      title={t.tenants}
+      subtitle={t.tenantManagementSubtitle}
       controls={
         <ListToolbar
           itemCount={totalItems}

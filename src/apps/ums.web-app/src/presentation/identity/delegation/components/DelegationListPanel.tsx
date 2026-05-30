@@ -207,8 +207,6 @@ export const DelegationListPanel: React.FC<DelegationListPanelProps> = ({
               ? 'Delegations granted to you'
               : 'Delegations you have granted to others'
           }
-          onRegisterNew={onRegisterNew}
-          registerLabel={t.newBtn ?? 'New'}
           controls={
             <ListToolbar
               itemCount={totalItems}

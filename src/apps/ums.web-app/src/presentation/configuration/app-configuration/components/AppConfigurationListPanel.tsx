@@ -208,8 +208,6 @@ export function AppConfigurationListPanel({
     <div className="h-full flex flex-col">
       {error && <ApiErrorBanner error={error} className="mb-2" />}
       <DataViewShell
-        onRegisterNew={onRegisterNew}
-        registerLabel="Nuevo"
         controls={
           <ListToolbar
             itemCount={totalItems}

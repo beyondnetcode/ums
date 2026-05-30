@@ -202,8 +202,6 @@ export const UserAccountListPanel: React.FC<UserAccountListPanelProps> = ({
         <DataViewShell
           title={t.userAccounts}
           subtitle={t.userAccountMaintenanceSubtitle}
-          onRegisterNew={onRegisterNew}
-          registerLabel={t.registerNew}
           controls={
             <ListToolbar
               itemCount={totalItems}

@@ -189,8 +189,6 @@ export const PermissionTemplateListPanel: React.FC<Props> = ({
       <DataViewShell
         title="Plantillas"
         subtitle="Mantenimiento de plantillas de permisos."
-        onRegisterNew={onRegisterNew}
-        registerLabel="Nueva Plantilla"
         controls={
           <ListToolbar
             itemCount={totalItems}
