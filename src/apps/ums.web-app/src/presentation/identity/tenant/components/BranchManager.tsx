@@ -20,7 +20,7 @@ import { SectionHeader } from '@shared/components/SectionHeader';
 import { CodeBadge } from '@shared/components/CodeBadge';
 import { IconButton } from '@shared/components/Tooltip';
 import { RefreshCw, MapPin, EyeOff, ShieldCheck, Trash2, Pencil, Save, X } from 'lucide-react';
-import { ChildEntityToolbar } from '@shared/components/ChildEntityToolbar';
+import { ListToolbar } from '@shared/components/ListToolbar';
 
 interface BranchManagerProps {
   tenantId: string;
@@ -120,7 +120,7 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ tenantId }) => {
         />
       </div>
 
-      <ChildEntityToolbar
+      <ListToolbar
         viewMode={viewMode}
         onViewModeChange={setViewMode}
         filterOptions={[

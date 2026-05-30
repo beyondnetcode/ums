@@ -7,7 +7,7 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import { useI18n } from '@app/i18n/use-i18n';
 import { useNotificationStore } from '@app/stores/notification.store';
-import { Plus, Globe, Building2, Edit2, X, Check, LayoutList, LayoutGrid } from 'lucide-react';
+import { Plus, Globe, Building2, Edit2, X, Check } from 'lucide-react';
 import { appConfigurationService } from '@infra/configuration/services/app-configuration.service';
 import { graphqlClient } from '@infra/http/graphqlClient';
 import { EmptyState } from '@presentation/shared/components/EmptyState';
@@ -16,12 +16,7 @@ import { CodeBadge } from '@presentation/shared/components/CodeBadge';
 import { IconButton } from '@presentation/shared/components/Tooltip';
 import { SmartConfigInput } from '@presentation/shared/components/SmartConfigInput';
 import { ConfigValueDisplay } from '@presentation/shared/components/ConfigValueDisplay';
-import {
-  SearchBar,
-  FilterPanel,
-  AtomicSortOption,
-  AtomicFilterOption,
-} from '@shared/components';
+import { ListToolbar } from '@shared/components/ListToolbar';
 import { StatusBadge } from '@shared/components/StatusBadge';
 import { M3Dialog } from '@shared/components/M3Dialog';
 import { FormField, FormInput, FormButton } from '@shared/components/form';
@@ -43,7 +38,9 @@ interface GraphQLAppConfigurationsResponse {
   };
 }
 
-async function fetchTenantConfigsViaGraphQL(tenantId: string): Promise<GraphQLAppConfigurationsResponse> {
+async function fetchTenantConfigsViaGraphQL(
+  tenantId: string
+): Promise<GraphQLAppConfigurationsResponse> {
   const query = `
     query GetTenantConfigs($tenantId: UUID!) {
       appConfigurations(page: 1, pageSize: 100, tenantId: $tenantId) {
@@ -82,7 +79,7 @@ export const TenantConfigurationsPanel: React.FC<TenantConfigurationsPanelProps>
   tenantName,
 }) => {
   const t = useI18n();
-  const addNotification = useNotificationStore((s) => s.addNotification);
+  const addNotification = useNotificationStore(s => s.addNotification);
 
   const [configs, setConfigs] = useState<ConfigParameter[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -133,18 +130,27 @@ export const TenantConfigurationsPanel: React.FC<TenantConfigurationsPanelProps>
     }
   }, [tenantId, addNotification, t]);
 
-  useEffect(() => { loadConfigs(); }, [loadConfigs]);
+  useEffect(() => {
+    loadConfigs();
+  }, [loadConfigs]);
 
   const handleSearchSubmit = useCallback(() => {
     setAppliedSearchTerm(searchValue);
   }, [searchValue]);
 
+  const handleSearchClear = useCallback(() => {
+    setSearchValue('');
+    setAppliedSearchTerm('');
+  }, []);
+
   const filteredConfigs = configs
     .filter(config => {
       const term = appliedSearchTerm.toLowerCase();
-      const matchesSearch = !appliedSearchTerm ||
-        (searchCriteria === 'code' ? config.code.toLowerCase().includes(term) :
-          config.description.toLowerCase().includes(term));
+      const matchesSearch =
+        !appliedSearchTerm ||
+        (searchCriteria === 'code'
+          ? config.code.toLowerCase().includes(term)
+          : config.description.toLowerCase().includes(term));
       const matchesStatus = statusFilter === 'all' || config.status === statusFilter;
       return matchesSearch && matchesStatus;
     })
@@ -165,7 +171,10 @@ export const TenantConfigurationsPanel: React.FC<TenantConfigurationsPanelProps>
   const handleSaveEdit = async () => {
     if (!editingId) return;
     try {
-      await appConfigurationService.updateAppConfiguration(editingId, { value: editValue, description: '' });
+      await appConfigurationService.updateAppConfiguration(editingId, {
+        value: editValue,
+        description: '',
+      });
       addNotification({ title: t.success, message: t.notifConfigUpdated, type: 'success' });
       setEditingId(null);
       loadConfigs();
@@ -205,8 +214,8 @@ export const TenantConfigurationsPanel: React.FC<TenantConfigurationsPanelProps>
     try {
       const result = await parameterCatalogService.getParameterDefinitions({});
       // Filter: only Tenant Only (scopeId === 2) and not already linked
-      const available = result.items.filter(p =>
-        p.scopeId === 2 && !existingCodes.includes(p.code)
+      const available = result.items.filter(
+        p => p.scopeId === 2 && !existingCodes.includes(p.code)
       );
       setPickerParams(available);
     } catch {
@@ -238,16 +247,21 @@ export const TenantConfigurationsPanel: React.FC<TenantConfigurationsPanelProps>
     }
   };
 
-  const filterOptions: AtomicFilterOption[] = [
+  const filterOptions = [
     { label: 'Todos', value: 'all' },
     { label: 'Published', value: 'Published' },
     { label: 'Draft', value: 'Draft' },
     { label: 'Archived', value: 'Archived' },
   ];
 
-  const sortOptions: AtomicSortOption[] = [
+  const sortOptions = [
     { label: 'Código', value: 'code' },
     { label: 'Estado', value: 'status' },
+  ];
+
+  const searchOptions = [
+    { label: 'Código', value: 'code' },
+    { label: 'Descripción', value: 'description' },
   ];
 
   const scopeIcons: Record<string, React.ReactNode> = {
@@ -272,8 +286,17 @@ export const TenantConfigurationsPanel: React.FC<TenantConfigurationsPanelProps>
         title={t.selectTenantParameter ?? 'Select Tenant Parameter'}
         message={t.onlyTenantParameters ?? 'Only Tenant-scoped parameters can be added'}
         actions={[
-          { label: t.cancelBtn ?? 'Cancel', variant: 'outlined', onClick: () => setIsPickerOpen(false) },
-          { label: t.addParameter ?? 'Add', variant: 'filled', onClick: handlePickerSelect, disabled: !pickerSelectedId },
+          {
+            label: t.cancelBtn ?? 'Cancel',
+            variant: 'outlined',
+            onClick: () => setIsPickerOpen(false),
+          },
+          {
+            label: t.addParameter ?? 'Add',
+            variant: 'filled',
+            onClick: handlePickerSelect,
+            disabled: !pickerSelectedId,
+          },
         ]}
       >
         <div className="space-y-3">
@@ -284,14 +307,22 @@ export const TenantConfigurationsPanel: React.FC<TenantConfigurationsPanelProps>
           />
           <div className="border border-m3-outline/20 rounded-lg overflow-hidden max-h-[250px] overflow-y-auto">
             {pickerLoading ? (
-              <div className="p-4 text-center text-[11px] text-m3-secondary">{t.loading ?? 'Loading...'}</div>
-            ) : pickerParams.length === 0 ? (
-              <div className="p-4 text-center text-[11px] text-m3-secondary">
-                {t.noTenantParametersAvailable ?? 'No tenant parameters available'}
+              <div className="p-4 text-center text-xs text-m3-secondary">
+                {t.loading ?? 'Cargando...'}
               </div>
+            ) : pickerParams.length === 0 ? (
+              <EmptyState
+                icon={<Building2 className="w-5 h-5" />}
+                message={t.noTenantParametersAvailable ?? 'No hay parámetros de tenant disponibles'}
+                variant="dashed"
+              />
             ) : (
               pickerParams
-                .filter(p => p.name.toLowerCase().includes(pickerSearch.toLowerCase()) || p.code.toLowerCase().includes(pickerSearch.toLowerCase()))
+                .filter(
+                  p =>
+                    p.name.toLowerCase().includes(pickerSearch.toLowerCase()) ||
+                    p.code.toLowerCase().includes(pickerSearch.toLowerCase())
+                )
                 .map(param => (
                   <button
                     key={param.id}
@@ -300,10 +331,16 @@ export const TenantConfigurationsPanel: React.FC<TenantConfigurationsPanelProps>
                       pickerSelectedId === param.id ? 'bg-m3-primary/10' : ''
                     }`}
                   >
-                    <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
-                      pickerSelectedId === param.id ? 'bg-m3-primary border-m3-primary' : 'border-m3-outline'
-                    }`}>
-                      {pickerSelectedId === param.id && <Check className="w-2.5 h-2.5 text-white" />}
+                    <div
+                      className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
+                        pickerSelectedId === param.id
+                          ? 'bg-m3-primary border-m3-primary'
+                          : 'border-m3-outline'
+                      }`}
+                    >
+                      {pickerSelectedId === param.id && (
+                        <Check className="w-2.5 h-2.5 text-white" />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">
@@ -311,7 +348,9 @@ export const TenantConfigurationsPanel: React.FC<TenantConfigurationsPanelProps>
                         <CodeBadge code={param.code} size="xs" />
                       </div>
                       {param.description && (
-                        <span className="text-[10px] text-m3-secondary truncate block">{param.description}</span>
+                        <span className="text-[10px] text-m3-secondary truncate block">
+                          {param.description}
+                        </span>
                       )}
                     </div>
                   </button>
@@ -326,47 +365,53 @@ export const TenantConfigurationsPanel: React.FC<TenantConfigurationsPanelProps>
         open={deleteDialogOpen}
         onScrimClick={() => setDeleteDialogOpen(false)}
         title={t.deleteConfiguration ?? 'Delete Configuration'}
-        message={t.deleteConfigurationConfirm ?? 'Are you sure you want to delete this configuration?'}
+        message={
+          t.deleteConfigurationConfirm ?? 'Are you sure you want to delete this configuration?'
+        }
         actions={[
-          { label: t.cancelBtn ?? 'Cancel', variant: 'outlined', onClick: () => setDeleteDialogOpen(false) },
-          { label: t.deleteBtn ?? 'Delete', variant: 'filled', className: '!bg-rose-500 hover:!bg-rose-600', onClick: handleDeleteConfirm },
+          {
+            label: t.cancelBtn ?? 'Cancel',
+            variant: 'outlined',
+            onClick: () => setDeleteDialogOpen(false),
+          },
+          {
+            label: t.deleteBtn ?? 'Delete',
+            variant: 'filled',
+            className: '!bg-rose-500 hover:!bg-rose-600',
+            onClick: handleDeleteConfirm,
+          },
         ]}
       />
 
       <SectionHeader
-        title={t.configurationsForTenant?.replace('{0}', tenantName) ?? `Configurations for ${tenantName}`}
-        subtitle={`${filteredConfigs.length} ${filteredConfigs.length === 1 ? 'parameter' : 'parameters'}`}
+        title={
+          t.configurationsForTenant?.replace('{0}', tenantName) ??
+          `Configurations for ${tenantName}`
+        }
+        subtitle={`${configs.length} ${configs.length === 1 ? 'configuración' : 'configuraciones'}`}
         actions={
-          <IconButton tooltip={t.addParameter ?? 'Add Parameter'} onClick={openPicker} className="hover:bg-m3-primary/10">
+          <IconButton
+            tooltip={t.addParameter ?? 'Add Parameter'}
+            onClick={openPicker}
+            className="hover:bg-m3-primary/10"
+          >
             <Plus className="w-4 h-4" />
           </IconButton>
         }
       />
 
-      <div className="flex items-center gap-2 px-3 py-2 border-b border-m3-outline/10">
-        <div className="flex-1">
-          <SearchBar
-            criteriaOptions={[{ label: 'Código', value: 'code' }, { label: 'Descripción', value: 'description' }]}
-            activeCriteria={searchCriteria}
-            onCriteriaChange={setSearchCriteria}
-            searchValue={searchValue}
-            onSearchValueChange={setSearchValue}
-            onSubmit={handleSearchSubmit}
-            criteriaLabel="Buscar por"
-            searchTermLabel="Término"
-            searchButtonLabel="Buscar"
-          />
-        </div>
-        <div className="flex items-center gap-1">
-          <button onClick={() => setViewMode('list')} className={`p-1.5 rounded transition-colors ${viewMode === 'list' ? 'bg-m3-primary/10 text-m3-primary' : 'text-m3-secondary hover:bg-m3-surface-variant'}`}>
-            <LayoutList className="w-4 h-4" />
-          </button>
-          <button onClick={() => setViewMode('thumbnail')} className={`p-1.5 rounded transition-colors ${viewMode === 'thumbnail' ? 'bg-m3-primary/10 text-m3-primary' : 'text-m3-secondary hover:bg-m3-surface-variant'}`}>
-            <LayoutGrid className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-      <FilterPanel
+      <ListToolbar
+        itemCount={configs.length}
+        itemLabel="configuración"
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        searchOptions={searchOptions}
+        activeSearchCriteria={searchCriteria}
+        onSearchCriteriaChange={setSearchCriteria}
+        searchValue={searchValue}
+        onSearchValueChange={setSearchValue}
+        onSearchSubmit={handleSearchSubmit}
+        onSearchClear={handleSearchClear}
         filterOptions={filterOptions}
         activeFilter={statusFilter}
         onFilterChange={setStatusFilter}
@@ -374,7 +419,7 @@ export const TenantConfigurationsPanel: React.FC<TenantConfigurationsPanelProps>
         sortBy={sortBy}
         onSortByChange={setSortBy}
         sortOrder={sortOrder}
-        onSortOrderToggle={() => setSortOrder(o => o === 'asc' ? 'desc' : 'asc')}
+        onSortOrderToggle={() => setSortOrder(o => (o === 'asc' ? 'desc' : 'asc'))}
       />
 
       <div className="flex-1 overflow-auto p-2">
@@ -389,10 +434,14 @@ export const TenantConfigurationsPanel: React.FC<TenantConfigurationsPanelProps>
           />
         ) : viewMode === 'list' ? (
           <div className="space-y-1">
-            {filteredConfigs.map((config) => (
+            {filteredConfigs.map(config => (
               <div
                 key={config.appConfigurationId}
-                onClick={() => setSelectedId(selectedId === config.appConfigurationId ? null : config.appConfigurationId)}
+                onClick={() =>
+                  setSelectedId(
+                    selectedId === config.appConfigurationId ? null : config.appConfigurationId
+                  )
+                }
                 className={`p-2.5 rounded-lg border cursor-pointer transition-colors ${
                   selectedId === config.appConfigurationId
                     ? 'border-m3-primary/30 bg-m3-primary/5'
@@ -401,16 +450,35 @@ export const TenantConfigurationsPanel: React.FC<TenantConfigurationsPanelProps>
               >
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1.5 min-w-0">
-                    {scopeIcons[config.scope] ?? <Building2 className="w-3.5 h-3.5 text-green-500" />}
-                    <span className="text-[11px] font-semibold text-m3-on-surface truncate">{config.code}</span>
+                    {scopeIcons[config.scope] ?? (
+                      <Building2 className="w-3.5 h-3.5 text-green-500" />
+                    )}
+                    <span className="text-[11px] font-semibold text-m3-on-surface truncate">
+                      {config.code}
+                    </span>
                     <CodeBadge code={config.scope} size="xs" />
                     <StatusBadge status={config.status} label={config.status} size="xs" />
                   </div>
                   <div className="flex items-center gap-0.5">
-                    <IconButton tooltip={t.editBtn ?? 'Edit'} onClick={(e) => { e.stopPropagation(); handleEdit(config.appConfigurationId, config.value); }} size="small">
+                    <IconButton
+                      tooltip={t.editBtn ?? 'Edit'}
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleEdit(config.appConfigurationId, config.value);
+                      }}
+                      size="small"
+                    >
                       <Edit2 className="w-3.5 h-3.5" />
                     </IconButton>
-                    <IconButton tooltip={t.deleteBtn ?? 'Delete'} onClick={(e) => { e.stopPropagation(); handleDeleteRequest(config.appConfigurationId); }} size="small" className="hover:text-rose-500">
+                    <IconButton
+                      tooltip={t.deleteBtn ?? 'Delete'}
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleDeleteRequest(config.appConfigurationId);
+                      }}
+                      size="small"
+                      className="hover:text-rose-500"
+                    >
                       <X className="w-3.5 h-3.5" />
                     </IconButton>
                   </div>
@@ -420,12 +488,22 @@ export const TenantConfigurationsPanel: React.FC<TenantConfigurationsPanelProps>
                     {editingId === config.appConfigurationId ? (
                       <div className="flex items-center gap-1.5">
                         <div className="w-56">
-                          <SmartConfigInput code={config.code} value={editValue} onChange={setEditValue} />
+                          <SmartConfigInput
+                            code={config.code}
+                            value={editValue}
+                            onChange={setEditValue}
+                          />
                         </div>
-                        <button onClick={handleSaveEdit} className="h-6 px-2.5 text-[10px] font-medium bg-m3-primary text-white rounded hover:bg-m3-primary/90">
+                        <button
+                          onClick={handleSaveEdit}
+                          className="h-6 px-2.5 text-[10px] font-medium bg-m3-primary text-white rounded hover:bg-m3-primary/90"
+                        >
                           {t.save ?? 'Save'}
                         </button>
-                        <button onClick={handleCancelEdit} className="h-6 px-2.5 text-[10px] font-medium text-m3-secondary hover:bg-m3-surface-variant rounded">
+                        <button
+                          onClick={handleCancelEdit}
+                          className="h-6 px-2.5 text-[10px] font-medium text-m3-secondary hover:bg-m3-surface-variant rounded"
+                        >
                           {t.cancel ?? 'Cancel'}
                         </button>
                       </div>
@@ -442,10 +520,14 @@ export const TenantConfigurationsPanel: React.FC<TenantConfigurationsPanelProps>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-2">
-            {filteredConfigs.map((config) => (
+            {filteredConfigs.map(config => (
               <div
                 key={config.appConfigurationId}
-                onClick={() => setSelectedId(selectedId === config.appConfigurationId ? null : config.appConfigurationId)}
+                onClick={() =>
+                  setSelectedId(
+                    selectedId === config.appConfigurationId ? null : config.appConfigurationId
+                  )
+                }
                 className={`p-2.5 rounded-lg border cursor-pointer transition-colors ${
                   selectedId === config.appConfigurationId
                     ? 'border-m3-primary/30 bg-m3-primary/5'
@@ -454,14 +536,31 @@ export const TenantConfigurationsPanel: React.FC<TenantConfigurationsPanelProps>
               >
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-1.5">
-                    {scopeIcons[config.scope] ?? <Building2 className="w-3.5 h-3.5 text-green-500" />}
+                    {scopeIcons[config.scope] ?? (
+                      <Building2 className="w-3.5 h-3.5 text-green-500" />
+                    )}
                     <span className="text-[11px] font-semibold truncate">{config.code}</span>
                   </div>
                   <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <IconButton tooltip={t.editBtn ?? 'Edit'} onClick={(e) => { e.stopPropagation(); handleEdit(config.appConfigurationId, config.value); }} size="small">
+                    <IconButton
+                      tooltip={t.editBtn ?? 'Edit'}
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleEdit(config.appConfigurationId, config.value);
+                      }}
+                      size="small"
+                    >
                       <Edit2 className="w-3 h-3" />
                     </IconButton>
-                    <IconButton tooltip={t.deleteBtn ?? 'Delete'} onClick={(e) => { e.stopPropagation(); handleDeleteRequest(config.appConfigurationId); }} size="small" className="hover:text-rose-500">
+                    <IconButton
+                      tooltip={t.deleteBtn ?? 'Delete'}
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleDeleteRequest(config.appConfigurationId);
+                      }}
+                      size="small"
+                      className="hover:text-rose-500"
+                    >
                       <X className="w-3 h-3" />
                     </IconButton>
                   </div>
@@ -480,19 +579,41 @@ export const TenantConfigurationsPanel: React.FC<TenantConfigurationsPanelProps>
                   <div className="mt-2 pt-2 border-t border-m3-outline/10">
                     <div className="flex items-center gap-1.5">
                       <div className="w-48">
-                        <SmartConfigInput code={config.code} value={editingId === config.appConfigurationId ? editValue : config.value} onChange={setEditValue} />
+                        <SmartConfigInput
+                          code={config.code}
+                          value={editingId === config.appConfigurationId ? editValue : config.value}
+                          onChange={setEditValue}
+                        />
                       </div>
                       {editingId === config.appConfigurationId ? (
                         <>
-                          <button onClick={(e) => { e.stopPropagation(); handleSaveEdit(); }} className="h-6 px-2 text-[10px] font-medium bg-m3-primary text-white rounded">
+                          <button
+                            onClick={e => {
+                              e.stopPropagation();
+                              handleSaveEdit();
+                            }}
+                            className="h-6 px-2 text-[10px] font-medium bg-m3-primary text-white rounded"
+                          >
                             {t.save ?? 'Save'}
                           </button>
-                          <button onClick={(e) => { e.stopPropagation(); handleCancelEdit(); }} className="h-6 px-2 text-[10px] font-medium text-m3-secondary hover:bg-m3-surface-variant rounded">
+                          <button
+                            onClick={e => {
+                              e.stopPropagation();
+                              handleCancelEdit();
+                            }}
+                            className="h-6 px-2 text-[10px] font-medium text-m3-secondary hover:bg-m3-surface-variant rounded"
+                          >
                             {t.cancel ?? 'Cancel'}
                           </button>
                         </>
                       ) : (
-                        <button onClick={(e) => { e.stopPropagation(); handleEdit(config.appConfigurationId, config.value); }} className="h-6 px-2 text-[10px] font-medium text-m3-secondary hover:bg-m3-surface-variant rounded">
+                        <button
+                          onClick={e => {
+                            e.stopPropagation();
+                            handleEdit(config.appConfigurationId, config.value);
+                          }}
+                          className="h-6 px-2 text-[10px] font-medium text-m3-secondary hover:bg-m3-surface-variant rounded"
+                        >
                           {t.editBtn ?? 'Edit'}
                         </button>
                       )}

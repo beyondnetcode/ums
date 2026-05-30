@@ -1,11 +1,9 @@
 import React, { useCallback } from 'react';
-import { Settings, Key, Lock, Globe, Building2, Cog, Info, LayoutList, LayoutGrid } from 'lucide-react';
+import { Settings, Key, Lock, Globe, Building2, Cog, Info } from 'lucide-react';
 import type { AppConfiguration } from '@domain/configuration/schemas/app-configuration.schema';
 import { useI18n } from '@app/i18n/use-i18n';
 import {
   DataViewShell,
-  SearchBar,
-  FilterPanel,
   DataList,
   AtomicSortOption,
   AtomicFilterOption,
@@ -13,6 +11,7 @@ import {
   PaginationFooter,
   RequiresFilterPrompt,
 } from '@shared/components';
+import { ListToolbar } from '@shared/components/ListToolbar';
 import { StatusBadge } from '@shared/components/StatusBadge';
 import { CodeBadge } from '@shared/components/CodeBadge';
 import { ConfigValueDisplay } from '@presentation/shared/components/ConfigValueDisplay';
@@ -85,93 +84,107 @@ export function AppConfigurationListPanel({
     { label: 'By Description', value: 'description' },
   ];
 
-  const renderRow = useCallback((config: AppConfiguration) => {
-    const isSelected = config.appConfigurationId === selectedId;
-    return (
-      <EntityRow
-        key={config.appConfigurationId}
-        selected={isSelected}
-        onClick={() => onSelectConfig(config.appConfigurationId)}
-        leading={
-          <div className={`p-2 rounded-lg shrink-0 transition-colors ${isSelected ? 'bg-m3-primary/15' : 'bg-m3-surface-container/50'}`}>
-            {SCOPE_ICON_MAP[config.scope] ?? <Settings className="w-4 h-4 text-m3-secondary" />}
+  const renderRow = useCallback(
+    (config: AppConfiguration) => {
+      const isSelected = config.appConfigurationId === selectedId;
+      return (
+        <EntityRow
+          key={config.appConfigurationId}
+          selected={isSelected}
+          onClick={() => onSelectConfig(config.appConfigurationId)}
+          leading={
+            <div
+              className={`p-2 rounded-lg shrink-0 transition-colors ${isSelected ? 'bg-m3-primary/15' : 'bg-m3-surface-container/50'}`}
+            >
+              {SCOPE_ICON_MAP[config.scope] ?? <Settings className="w-4 h-4 text-m3-secondary" />}
+            </div>
+          }
+          trailingColumns={[
+            {
+              content: <CodeBadge code={config.scope} size="xs" />,
+              width: 'w-20',
+            },
+            {
+              content: (
+                <StatusBadge
+                  status={config.status}
+                  label={getStatusLabel(config.status)}
+                  colorMap={STATUS_COLOR_MAP}
+                />
+              ),
+              width: 'w-24',
+            },
+            {
+              content: config.isEncrypted ? <Lock className="w-3 h-3 text-amber-500" /> : null,
+              width: 'w-8',
+            },
+          ]}
+        >
+          <span className="text-sm font-bold text-m3-on-surface">{config.code}</span>
+          <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+            <ConfigValueDisplay value={config.value} truncateAt={40} />
+            {config.description && (
+              <>
+                <span className="text-[9px] text-m3-secondary/30">·</span>
+                <span className="text-[10px] text-m3-secondary/70 truncate max-w-[120px]">
+                  {config.description}
+                </span>
+              </>
+            )}
           </div>
-        }
-        trailingColumns={[
-          {
-            content: <CodeBadge code={config.scope} size="xs" />,
-            width: 'w-20',
-          },
-          {
-            content: (
+        </EntityRow>
+      );
+    },
+    [selectedId, onSelectConfig]
+  );
+
+  const renderCard = useCallback(
+    (config: AppConfiguration) => {
+      const isSelected = config.appConfigurationId === selectedId;
+      return (
+        <EntityCard
+          key={config.appConfigurationId}
+          selected={isSelected}
+          onClick={() => onSelectConfig(config.appConfigurationId)}
+          icon={SCOPE_ICON_MAP[config.scope] ?? <Settings className="w-5 h-5" />}
+          title={config.code}
+          subtitle={
+            <span className="text-[10px] text-m3-secondary/60">
+              {config.scope} ·{' '}
+              {config.description ? config.description.slice(0, 30) : 'Sin descripción'}
+            </span>
+          }
+          badges={
+            <div className="flex items-center gap-1">
               <StatusBadge
                 status={config.status}
                 label={getStatusLabel(config.status)}
                 colorMap={STATUS_COLOR_MAP}
               />
-            ),
-            width: 'w-24',
-          },
-          {
-            content: config.isEncrypted ? <Lock className="w-3 h-3 text-amber-500" /> : null,
-            width: 'w-8',
-          },
-        ]}
-      >
-        <span className="text-sm font-bold text-m3-on-surface">{config.code}</span>
-        <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-          <ConfigValueDisplay value={config.value} truncateAt={40} />
-          {config.description && (
-            <>
-              <span className="text-[9px] text-m3-secondary/30">·</span>
-              <span className="text-[10px] text-m3-secondary/70 truncate max-w-[120px]">{config.description}</span>
-            </>
-          )}
-        </div>
-      </EntityRow>
-    );
-  }, [selectedId, onSelectConfig]);
-
-  const renderCard = useCallback((config: AppConfiguration) => {
-    const isSelected = config.appConfigurationId === selectedId;
-    return (
-      <EntityCard
-        key={config.appConfigurationId}
-        selected={isSelected}
-        onClick={() => onSelectConfig(config.appConfigurationId)}
-        icon={SCOPE_ICON_MAP[config.scope] ?? <Settings className="w-5 h-5" />}
-        title={config.code}
-        subtitle={
-          <span className="text-[10px] text-m3-secondary/60">
-            {config.scope} · {config.description ? config.description.slice(0, 30) : 'Sin descripción'}
-          </span>
-        }
-        badges={
-          <div className="flex items-center gap-1">
-            <StatusBadge
-              status={config.status}
-              label={getStatusLabel(config.status)}
-              colorMap={STATUS_COLOR_MAP}
-            />
-            {config.isEncrypted && <Lock className="w-3 h-3 text-amber-500" />}
-          </div>
-        }
-      />
-    );
-  }, [selectedId, onSelectConfig]);
+              {config.isEncrypted && <Lock className="w-3 h-3 text-amber-500" />}
+            </div>
+          }
+        />
+      );
+    },
+    [selectedId, onSelectConfig]
+  );
 
   const totalItems = paginationState.totalItems;
   const startIndex = paginationState.startIndex ?? 0;
   const pageSize = paginationState.pageSize;
 
-  const pagination = paginationState.totalPages > 0 ? {
-    page: paginationState.page,
-    pageSize: paginationState.pageSize,
-    totalItems: paginationState.totalItems,
-    totalPages: paginationState.totalPages,
-    onPageChange: paginationState.setPage,
-    onPageSizeChange: paginationState.setPageSize,
-  } : undefined;
+  const pagination =
+    paginationState.totalPages > 0
+      ? {
+          page: paginationState.page,
+          pageSize: paginationState.pageSize,
+          totalItems: paginationState.totalItems,
+          totalPages: paginationState.totalPages,
+          onPageChange: paginationState.setPage,
+          onPageSizeChange: paginationState.setPageSize,
+        }
+      : undefined;
 
   const filterPrompt = requiresFilter ? (
     <RequiresFilterPrompt
@@ -198,35 +211,27 @@ export function AppConfigurationListPanel({
         onRegisterNew={onRegisterNew}
         registerLabel="Nuevo"
         controls={
-          <>
-            <SearchBar
-              criteriaOptions={criteriaOptions}
-              activeCriteria={queryState.searchCriteria}
-              onCriteriaChange={queryState.setSearchCriteria}
-              searchValue={queryState.searchValue}
-              onSearchValueChange={queryState.setSearchValue}
-              onSubmit={queryState.handleQuerySubmit}
-              criteriaLabel="Buscar por"
-              searchTermLabel="Término"
-              searchButtonLabel="Buscar"
-            />
-            <FilterPanel
-              filterOptions={filterOptions}
-              activeFilter={queryState.activeFilter}
-              onFilterChange={queryState.setActiveFilter}
-              sortOptions={sortOptions}
-              sortBy={queryState.sortBy}
-              onSortByChange={queryState.setSortBy}
-              sortOrder={queryState.sortOrder}
-              onSortOrderToggle={queryState.toggleSortOrder}
-              viewModeOptions={[
-                { value: 'list', label: <LayoutList className="w-4 h-4" /> },
-                { value: 'thumbnail', label: <LayoutGrid className="w-4 h-4" /> }
-              ]}
-              viewMode={viewMode}
-              onViewModeChange={onViewModeChange}
-            />
-          </>
+          <ListToolbar
+            itemCount={totalItems}
+            itemLabel="configuración"
+            viewMode={viewMode}
+            onViewModeChange={onViewModeChange}
+            searchOptions={criteriaOptions}
+            activeSearchCriteria={queryState.searchCriteria}
+            onSearchCriteriaChange={queryState.setSearchCriteria}
+            searchValue={queryState.searchValue}
+            onSearchValueChange={queryState.setSearchValue}
+            onSearchSubmit={queryState.handleQuerySubmit}
+            onSearchClear={queryState.handleResetQuery}
+            filterOptions={filterOptions}
+            activeFilter={queryState.activeFilter}
+            onFilterChange={queryState.setActiveFilter}
+            sortOptions={sortOptions}
+            sortBy={queryState.sortBy}
+            onSortByChange={queryState.setSortBy}
+            sortOrder={queryState.sortOrder}
+            onSortOrderToggle={queryState.toggleSortOrder}
+          />
         }
         content={
           requiresFilter && !queryState.appliedQuery.filterApplied ? (
@@ -239,9 +244,7 @@ export function AppConfigurationListPanel({
               emptyTitle="Cree la primera configuración de aplicación."
               viewMode={viewMode}
               renderList={() => (
-                <div className="flex flex-col gap-0.5">
-                  {configs.map(renderRow)}
-                </div>
+                <div className="flex flex-col gap-0.5">{configs.map(renderRow)}</div>
               )}
               renderThumbnail={() => (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">

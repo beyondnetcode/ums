@@ -10,6 +10,8 @@ import { StatusBadge } from '@shared/components/StatusBadge';
 import { CodeBadge } from '@shared/components/CodeBadge';
 import { M3Button } from '@shared/components/M3Button';
 import { SmartConfigInput } from '@presentation/shared/components/SmartConfigInput';
+import { IconButton } from '@shared/components/Tooltip';
+import { DetailSection } from '@shared/components/DetailSection';
 import { appConfigurationService } from '@infra/configuration/services/app-configuration.service';
 import {
   usePublishAppConfiguration,
@@ -133,109 +135,92 @@ export function AppConfigurationDetailPanel({
       isEmpty={false}
       entityKey={config.appConfigurationId}
       header={
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded bg-m3-surface-container">
-              <Settings className="w-4 h-4 text-m3-primary" />
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-m3-surface-container">
+              <Settings className="w-5 h-5 text-m3-primary" />
             </div>
             <div className="min-w-0">
-              <h2 className="font-semibold text-[12px] truncate">{config.code}</h2>
-              <div className="flex items-center gap-1 mt-0.5">
+              <h2 className="text-sm font-semibold text-m3-on-surface truncate">{config.code}</h2>
+              <div className="flex items-center gap-2 mt-1">
                 <CodeBadge code={config.scope} size="xs" />
                 <StatusBadge status={config.status} label={config.status} size="xs" />
-                {config.isEncrypted && (
-                  <Lock className="w-3 h-3 text-amber-500" />
-                )}
+                {config.isEncrypted && <Lock className="w-4 h-4 text-amber-500" />}
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-0.5">
+          <div className="flex items-center gap-1">
             {onEdit && (
-              <button
-                onClick={onEdit}
-                className="p-1 rounded hover:bg-m3-surface-variant text-m3-secondary hover:text-m3-primary transition-colors"
-                title={t.editBtn ?? 'Edit'}
-              >
-                <Edit2 className="w-3.5 h-3.5" />
-              </button>
+              <IconButton tooltip={t.editBtn ?? 'Edit'} onClick={onEdit}>
+                <Edit2 className="w-4 h-4" />
+              </IconButton>
             )}
             {onDelete && (
-              <button
+              <IconButton
+                tooltip={t.deleteBtn ?? 'Delete'}
                 onClick={onDelete}
-                className="p-1 rounded hover:bg-rose-50 text-m3-secondary hover:text-rose-500 transition-colors"
-                title={t.deleteBtn ?? 'Delete'}
+                className="hover:text-rose-500 hover:bg-rose-500/10"
               >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
+                <Trash2 className="w-4 h-4" />
+              </IconButton>
             )}
           </div>
         </div>
       }
     >
-      <div className="space-y-3 p-3">
+      <div className="space-y-4 p-4">
         {/* Description */}
-        <div className="text-[10px] text-m3-on-surface-variant">
-          {config.description || '-'}
-        </div>
+        <p className="text-xs text-m3-secondary">{config.description || '-'}</p>
 
         {/* Value */}
-        <div>
-          <h3 className="text-[10px] font-semibold text-m3-on-surface-variant uppercase mb-1">
-            {t.value ?? 'Value'}
-          </h3>
-          {config.isEncrypted ? (
-            <div className="flex items-center gap-1 text-amber-600">
-              <Lock className="w-3 h-3" />
-              <span className="text-[10px]">[Encrypted]</span>
-            </div>
-          ) : isEditingValue ? (
-            <div className="flex items-center gap-1.5">
-              <SmartConfigInput
-                code={config.code}
-                value={editValue}
-                onChange={setEditValue}
-              />
-              <button
-                onClick={handleSaveValue}
-                className="h-6 px-2.5 text-[10px] font-medium bg-m3-primary text-white rounded hover:bg-m3-primary/90 transition-colors"
+        <DetailSection
+          title={t.value ?? 'Value'}
+          noPadding
+          content={
+            config.isEncrypted ? (
+              <div className="flex items-center gap-2 text-amber-600">
+                <Lock className="w-4 h-4" />
+                <span className="text-xs">[Encrypted]</span>
+              </div>
+            ) : isEditingValue ? (
+              <div className="flex items-center gap-2">
+                <SmartConfigInput code={config.code} value={editValue} onChange={setEditValue} />
+                <M3Button variant="filled" size="sm" onClick={handleSaveValue}>
+                  {t.save ?? 'Save'}
+                </M3Button>
+                <M3Button variant="text" size="sm" onClick={handleCancelEditValue}>
+                  {t.cancel ?? 'Cancel'}
+                </M3Button>
+              </div>
+            ) : (
+              <div
+                className="inline-flex items-center gap-2 bg-m3-surface-container px-3 py-2 rounded-lg cursor-pointer hover:bg-m3-surface-container-low transition-colors"
+                onClick={handleStartEditValue}
               >
-                {t.save ?? 'Save'}
-              </button>
-              <button
-                onClick={handleCancelEditValue}
-                className="h-6 px-2.5 text-[10px] font-medium text-m3-secondary hover:bg-m3-surface-variant rounded transition-colors"
-              >
-                {t.cancel ?? 'Cancel'}
-              </button>
-            </div>
-          ) : (
-            <div
-              className="inline-flex items-center gap-1.5 bg-m3-surface-container px-2 py-0.5 rounded cursor-pointer hover:bg-m3-surface-container-low transition-colors"
-              onClick={handleStartEditValue}
-            >
-              <span className="text-[12px] text-m3-on-surface truncate w-56">{config.value}</span>
-              <Edit2 className="w-3.5 h-3.5 text-m3-outline flex-shrink-0" />
-            </div>
-          )}
-        </div>
+                <span className="text-sm text-m3-on-surface truncate w-48">{config.value}</span>
+                <Edit2 className="w-4 h-4 text-m3-outline flex-shrink-0" />
+              </div>
+            )
+          }
+        />
 
         {/* Metadata */}
-        <div className="flex gap-4 text-[10px]">
-          <div className="flex items-center gap-1">
-            <Clock className="w-3 h-3 text-m3-secondary" />
-            <span className="text-m3-on-surface-variant">v</span>
-            <span className="text-m3-on-surface">{config.version}</span>
+        <div className="flex gap-4 text-xs">
+          <div className="flex items-center gap-1.5">
+            <Clock className="w-4 h-4 text-m3-secondary" />
+            <span className="text-m3-secondary">v</span>
+            <span className="font-medium text-m3-on-surface">{config.version}</span>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             {config.isInheritable ? (
               <>
-                <Link className="w-3 h-3 text-green-600" />
-                <span className="text-green-600">Inheritable</span>
+                <Link className="w-4 h-4 text-emerald-500" />
+                <span className="text-emerald-600 font-medium">Inheritable</span>
               </>
             ) : (
               <>
-                <ShieldCheck className="w-3 h-3 text-m3-outline" />
-                <span className="text-m3-outline">Local</span>
+                <ShieldCheck className="w-4 h-4 text-m3-outline" />
+                <span className="text-m3-secondary">Local</span>
               </>
             )}
           </div>
@@ -243,43 +228,36 @@ export function AppConfigurationDetailPanel({
 
         {/* Tenant/Suite/Module info */}
         {(config.tenantId || config.systemSuiteId || config.moduleId) && (
-          <div>
-            <h3 className="text-[10px] font-semibold text-m3-on-surface-variant uppercase mb-1">
-              {t.scopeDetails ?? 'Scope Details'}
-            </h3>
-            <div className="flex flex-wrap gap-1.5">
-              {config.tenantId && (
-                <CodeBadge code={`Tenant: ${config.tenantId.substring(0, 8)}...`} size="sm" />
-              )}
-              {config.systemSuiteId && (
-                <CodeBadge code={`Suite: ${config.systemSuiteId.substring(0, 8)}...`} size="sm" />
-              )}
-              {config.moduleId && (
-                <CodeBadge code={`Module: ${config.moduleId.substring(0, 8)}...`} size="sm" />
-              )}
-            </div>
-          </div>
+          <DetailSection
+            title={t.scopeDetails ?? 'Scope Details'}
+            noPadding
+            content={
+              <div className="flex flex-wrap gap-2">
+                {config.tenantId && (
+                  <CodeBadge code={`Tenant: ${config.tenantId.substring(0, 8)}...`} size="sm" />
+                )}
+                {config.systemSuiteId && (
+                  <CodeBadge code={`Suite: ${config.systemSuiteId.substring(0, 8)}...`} size="sm" />
+                )}
+                {config.moduleId && (
+                  <CodeBadge code={`Module: ${config.moduleId.substring(0, 8)}...`} size="sm" />
+                )}
+              </div>
+            }
+          />
         )}
 
         {/* Actions */}
-        <div className="flex gap-1.5 pt-2 border-t border-m3-outline/20">
+        <div className="flex gap-2 pt-2 border-t border-m3-outline/10">
           {config.status === 'Draft' && (
-            <button
-              onClick={handlePublish}
-              disabled={isLoading}
-              className="h-6 px-3 text-[10px] font-medium bg-m3-primary text-white rounded hover:bg-m3-primary/90 disabled:opacity-50 transition-colors"
-            >
+            <M3Button variant="filled" size="sm" onClick={handlePublish} disabled={isLoading}>
               {t.publish ?? 'Publish'}
-            </button>
+            </M3Button>
           )}
           {config.status === 'Published' && (
-            <button
-              onClick={handleArchive}
-              disabled={isLoading}
-              className="h-6 px-3 text-[10px] font-medium text-m3-secondary border border-m3-outline/30 rounded hover:bg-m3-surface-variant disabled:opacity-50 transition-colors"
-            >
+            <M3Button variant="outlined" size="sm" onClick={handleArchive} disabled={isLoading}>
               {t.archive ?? 'Archive'}
-            </button>
+            </M3Button>
           )}
         </div>
       </div>

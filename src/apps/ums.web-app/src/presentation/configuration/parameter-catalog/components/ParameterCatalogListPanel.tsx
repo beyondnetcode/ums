@@ -1,12 +1,13 @@
 import React, { useCallback } from 'react';
-import { Tag, Info, LayoutList, LayoutGrid } from 'lucide-react';
+import { Tag, Info } from 'lucide-react';
 import type { ParameterDefinition } from '@domain/configuration/schemas/parameter-catalog/parameter-definition.schema';
 import { useI18n } from '@app/i18n/use-i18n';
-import { DataTypeLabels, ScopeLabels } from '@domain/configuration/schemas/parameter-catalog/parameter-definition.schema';
+import {
+  DataTypeLabels,
+  ScopeLabels,
+} from '@domain/configuration/schemas/parameter-catalog/parameter-definition.schema';
 import {
   DataViewShell,
-  SearchBar,
-  FilterPanel,
   DataList,
   AtomicSortOption,
   AtomicFilterOption,
@@ -14,6 +15,7 @@ import {
   PaginationFooter,
   RequiresFilterPrompt,
 } from '@shared/components';
+import { ListToolbar } from '@shared/components/ListToolbar';
 import { StatusBadge } from '@shared/components/StatusBadge';
 import { CodeBadge } from '@shared/components/CodeBadge';
 import { EntityRow } from '@shared/components/EntityRow';
@@ -89,105 +91,126 @@ export function ParameterCatalogListPanel({
     { label: 'By Description', value: 'description' },
   ];
 
-  const renderRow = useCallback((param: ParameterDefinition) => {
-    const isSelected = param.id === selectedId;
-    return (
-      <EntityRow
-        key={param.id}
-        selected={isSelected}
-        onClick={() => onSelectParameter(param.id)}
-        leading={
-          <div className={`p-2 rounded-lg shrink-0 transition-colors ${isSelected ? 'bg-m3-primary/15' : 'bg-m3-surface-container/50'}`}>
-            <Tag className={`w-4 h-4 ${isSelected ? 'text-m3-primary' : 'text-m3-secondary'}`} />
+  const renderRow = useCallback(
+    (param: ParameterDefinition) => {
+      const isSelected = param.id === selectedId;
+      return (
+        <EntityRow
+          key={param.id}
+          selected={isSelected}
+          onClick={() => onSelectParameter(param.id)}
+          leading={
+            <div
+              className={`p-2 rounded-lg shrink-0 transition-colors ${isSelected ? 'bg-m3-primary/15' : 'bg-m3-surface-container/50'}`}
+            >
+              <Tag className={`w-4 h-4 ${isSelected ? 'text-m3-primary' : 'text-m3-secondary'}`} />
+            </div>
+          }
+          trailingColumns={[
+            {
+              content: (
+                <span
+                  className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${SCOPE_COLOR[param.scopeId] ?? 'bg-m3-surface-variant'}`}
+                >
+                  {ScopeLabels[param.scopeId] ?? 'Scope'}
+                </span>
+              ),
+              width: 'w-20',
+            },
+            {
+              content: (
+                <span
+                  className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${TYPE_COLOR[param.dataTypeId] ?? 'bg-m3-surface-variant'}`}
+                >
+                  {DataTypeLabels[param.dataTypeId] ?? 'Type'}
+                </span>
+              ),
+              width: 'w-20',
+            },
+            {
+              content: (
+                <StatusBadge
+                  status={param.isActive ? 'Active' : 'Inactive'}
+                  label={param.isActive ? 'Activo' : 'Inactivo'}
+                  colorMap={STATUS_COLOR_MAP}
+                />
+              ),
+              width: 'w-20',
+            },
+            {
+              content: param.isMandatory ? (
+                <span className="text-[10px] text-orange-500 font-bold">*</span>
+              ) : null,
+              width: 'w-8',
+            },
+          ]}
+        >
+          <span className="text-sm font-bold text-m3-on-surface">{param.name}</span>
+          <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+            <CodeBadge code={param.code} size="xs" />
+            {param.description && (
+              <>
+                <span className="text-[9px] text-m3-secondary/30">·</span>
+                <span className="text-[10px] text-m3-secondary/70 truncate max-w-[120px]">
+                  {param.description}
+                </span>
+              </>
+            )}
           </div>
-        }
-        trailingColumns={[
-          {
-            content: (
-              <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${SCOPE_COLOR[param.scopeId] ?? 'bg-m3-surface-variant'}`}>
-                {ScopeLabels[param.scopeId] ?? 'Scope'}
-              </span>
-            ),
-            width: 'w-20',
-          },
-          {
-            content: (
-              <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${TYPE_COLOR[param.dataTypeId] ?? 'bg-m3-surface-variant'}`}>
-                {DataTypeLabels[param.dataTypeId] ?? 'Type'}
-              </span>
-            ),
-            width: 'w-20',
-          },
-          {
-            content: (
+        </EntityRow>
+      );
+    },
+    [selectedId, onSelectParameter]
+  );
+
+  const renderCard = useCallback(
+    (param: ParameterDefinition) => {
+      const isSelected = param.id === selectedId;
+      return (
+        <EntityCard
+          key={param.id}
+          selected={isSelected}
+          onClick={() => onSelectParameter(param.id)}
+          icon={<Tag className="w-5 h-5" />}
+          title={param.name}
+          subtitle={
+            <span className="text-[10px] text-m3-secondary/60">
+              {param.code} · {ScopeLabels[param.scopeId]} · {DataTypeLabels[param.dataTypeId]}
+            </span>
+          }
+          badges={
+            <div className="flex items-center gap-1">
               <StatusBadge
                 status={param.isActive ? 'Active' : 'Inactive'}
                 label={param.isActive ? 'Activo' : 'Inactivo'}
                 colorMap={STATUS_COLOR_MAP}
               />
-            ),
-            width: 'w-20',
-          },
-          {
-            content: param.isMandatory ? <span className="text-[10px] text-orange-500 font-bold">*</span> : null,
-            width: 'w-8',
-          },
-        ]}
-      >
-        <span className="text-sm font-bold text-m3-on-surface">{param.name}</span>
-        <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-          <CodeBadge code={param.code} size="xs" />
-          {param.description && (
-            <>
-              <span className="text-[9px] text-m3-secondary/30">·</span>
-              <span className="text-[10px] text-m3-secondary/70 truncate max-w-[120px]">{param.description}</span>
-            </>
-          )}
-        </div>
-      </EntityRow>
-    );
-  }, [selectedId, onSelectParameter]);
-
-  const renderCard = useCallback((param: ParameterDefinition) => {
-    const isSelected = param.id === selectedId;
-    return (
-      <EntityCard
-        key={param.id}
-        selected={isSelected}
-        onClick={() => onSelectParameter(param.id)}
-        icon={<Tag className="w-5 h-5" />}
-        title={param.name}
-        subtitle={
-          <span className="text-[10px] text-m3-secondary/60">
-            {param.code} · {ScopeLabels[param.scopeId]} · {DataTypeLabels[param.dataTypeId]}
-          </span>
-        }
-        badges={
-          <div className="flex items-center gap-1">
-            <StatusBadge
-              status={param.isActive ? 'Active' : 'Inactive'}
-              label={param.isActive ? 'Activo' : 'Inactivo'}
-              colorMap={STATUS_COLOR_MAP}
-            />
-            {param.isMandatory && <span className="text-[10px] text-orange-500 font-bold">*</span>}
-          </div>
-        }
-      />
-    );
-  }, [selectedId, onSelectParameter]);
+              {param.isMandatory && (
+                <span className="text-[10px] text-orange-500 font-bold">*</span>
+              )}
+            </div>
+          }
+        />
+      );
+    },
+    [selectedId, onSelectParameter]
+  );
 
   const totalItems = paginationState.totalItems;
   const startIndex = paginationState.startIndex ?? 0;
   const pageSize = paginationState.pageSize;
 
-  const pagination = paginationState.totalPages > 0 ? {
-    page: paginationState.page,
-    pageSize: paginationState.pageSize,
-    totalItems: paginationState.totalItems,
-    totalPages: paginationState.totalPages,
-    onPageChange: paginationState.setPage,
-    onPageSizeChange: paginationState.setPageSize,
-  } : undefined;
+  const pagination =
+    paginationState.totalPages > 0
+      ? {
+          page: paginationState.page,
+          pageSize: paginationState.pageSize,
+          totalItems: paginationState.totalItems,
+          totalPages: paginationState.totalPages,
+          onPageChange: paginationState.setPage,
+          onPageSizeChange: paginationState.setPageSize,
+        }
+      : undefined;
 
   const filterPrompt = requiresFilter ? (
     <RequiresFilterPrompt
@@ -214,35 +237,27 @@ export function ParameterCatalogListPanel({
         onRegisterNew={onRegisterNew}
         registerLabel="Nuevo"
         controls={
-          <>
-            <SearchBar
-              criteriaOptions={criteriaOptions}
-              activeCriteria={queryState.searchCriteria}
-              onCriteriaChange={queryState.setSearchCriteria}
-              searchValue={queryState.searchValue}
-              onSearchValueChange={queryState.setSearchValue}
-              onSubmit={queryState.handleQuerySubmit}
-              criteriaLabel="Buscar por"
-              searchTermLabel="Término"
-              searchButtonLabel="Buscar"
-            />
-            <FilterPanel
-              filterOptions={filterOptions}
-              activeFilter={queryState.activeFilter}
-              onFilterChange={queryState.setActiveFilter}
-              sortOptions={sortOptions}
-              sortBy={queryState.sortBy}
-              onSortByChange={queryState.setSortBy}
-              sortOrder={queryState.sortOrder}
-              onSortOrderToggle={queryState.toggleSortOrder}
-              viewModeOptions={[
-                { value: 'list', label: <LayoutList className="w-4 h-4" /> },
-                { value: 'thumbnail', label: <LayoutGrid className="w-4 h-4" /> }
-              ]}
-              viewMode={viewMode}
-              onViewModeChange={onViewModeChange}
-            />
-          </>
+          <ListToolbar
+            itemCount={totalItems}
+            itemLabel="parámetro"
+            viewMode={viewMode}
+            onViewModeChange={onViewModeChange}
+            searchOptions={criteriaOptions}
+            activeSearchCriteria={queryState.searchCriteria}
+            onSearchCriteriaChange={queryState.setSearchCriteria}
+            searchValue={queryState.searchValue}
+            onSearchValueChange={queryState.setSearchValue}
+            onSearchSubmit={queryState.handleQuerySubmit}
+            onSearchClear={queryState.handleResetQuery}
+            filterOptions={filterOptions}
+            activeFilter={queryState.activeFilter}
+            onFilterChange={queryState.setActiveFilter}
+            sortOptions={sortOptions}
+            sortBy={queryState.sortBy}
+            onSortByChange={queryState.setSortBy}
+            sortOrder={queryState.sortOrder}
+            onSortOrderToggle={queryState.toggleSortOrder}
+          />
         }
         content={
           requiresFilter && !queryState.appliedQuery.filterApplied ? (
@@ -255,9 +270,7 @@ export function ParameterCatalogListPanel({
               emptyTitle="Cree el primer parámetro del catálogo."
               viewMode={viewMode}
               renderList={() => (
-                <div className="flex flex-col gap-0.5">
-                  {parameters.map(renderRow)}
-                </div>
+                <div className="flex flex-col gap-0.5">{parameters.map(renderRow)}</div>
               )}
               renderThumbnail={() => (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">

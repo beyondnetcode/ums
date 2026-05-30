@@ -1,11 +1,33 @@
 import React, { useState } from 'react';
-import { Shield, ShieldAlert, ShieldCheck, ToggleLeft, ToggleRight, User, Key, Globe, Info, GitCompare, ChevronDown, ChevronRight } from 'lucide-react';
-import { type Profile, type ProfilePermission as ProfilePermissionType } from '@domain/authorization/schemas/profile.schema';
+import {
+  Shield,
+  ShieldAlert,
+  ShieldCheck,
+  ToggleLeft,
+  ToggleRight,
+  User,
+  Key,
+  Globe,
+  Info,
+  GitCompare,
+  ChevronDown,
+  ChevronRight,
+} from 'lucide-react';
+import {
+  type Profile,
+  type ProfilePermission as ProfilePermissionType,
+} from '@domain/authorization/schemas/profile.schema';
 import { M3SegmentedButton } from '@shared/components/M3SegmentedButton';
 import { M3Button, M3Skeleton, M3SkeletonRow, M3Tabs } from '@shared/components';
 import { DetailPanelShell } from '@shared/components';
 import { LayoutGrid, Database, Zap } from 'lucide-react';
-import { useOverrideProfilePermission, useActivateProfilePermission, useDeactivateProfilePermission, useActivateProfile, useDeactivateProfile } from '@app/authorization/hooks/use-profile';
+import {
+  useOverrideProfilePermission,
+  useActivateProfilePermission,
+  useDeactivateProfilePermission,
+  useActivateProfile,
+  useDeactivateProfile,
+} from '@app/authorization/hooks/use-profile';
 
 interface Props {
   profile: Profile | null;
@@ -59,7 +81,10 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
       <div className="h-full flex flex-col items-center justify-center p-6 text-center text-m3-on-surface/40">
         <User className="w-12 h-12 mb-3 stroke-[1.5] text-m3-primary/30" />
         <h3 className="text-sm font-bold text-m3-on-surface/70">Ningún perfil seleccionado</h3>
-        <p className="text-xs max-w-xs mt-1">Seleccione un perfil del panel izquierdo para visualizar su configuración y grafo de autorización.</p>
+        <p className="text-xs max-w-xs mt-1">
+          Seleccione un perfil del panel izquierdo para visualizar su configuración y grafo de
+          autorización.
+        </p>
       </div>
     );
   }
@@ -80,8 +105,15 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
     }
   };
 
-  const handleChangePermissionEffect = async (permissionId: string, newEffect: 'allow' | 'deny' | 'neutral') => {
-    await overrideMutation.mutateAsync({ profileId: profile.profileId, permissionId, effect: newEffect });
+  const handleChangePermissionEffect = async (
+    permissionId: string,
+    newEffect: 'allow' | 'deny' | 'neutral'
+  ) => {
+    await overrideMutation.mutateAsync({
+      profileId: profile.profileId,
+      permissionId,
+      effect: newEffect,
+    });
   };
 
   const toggleExpanded = (permissionId: string) => {
@@ -98,10 +130,11 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
 
   const hasChanges = (p: ProfilePermissionType): boolean => {
     if (!p.originalFromTemplate) return false;
-    return p.isOverride && (
-      p.originalFromTemplate.isAllowed !== p.isAllowed ||
-      p.originalFromTemplate.isDenied !== p.isDenied ||
-      p.originalFromTemplate.isActive !== p.isActive
+    return (
+      p.isOverride &&
+      (p.originalFromTemplate.isAllowed !== p.isAllowed ||
+        p.originalFromTemplate.isDenied !== p.isDenied ||
+        p.originalFromTemplate.isActive !== p.isActive)
     );
   };
 
@@ -112,7 +145,9 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
 
     return (
       <div key={p.permissionId} className="divide-y divide-m3-outline/5">
-        <div className={`flex flex-col md:flex-row md:items-center justify-between gap-3 p-3 text-xs transition-colors ${hasChangesFlag ? 'bg-amber-500/5 hover:bg-amber-500/10' : 'hover:bg-m3-surface-container/20'}`}>
+        <div
+          className={`flex flex-col md:flex-row md:items-center justify-between gap-3 p-3 text-xs transition-colors ${hasChangesFlag ? 'bg-amber-500/5 hover:bg-amber-500/10' : 'hover:bg-m3-surface-container/20'}`}
+        >
           <div className="flex items-start gap-2">
             {showDiff && (
               <button
@@ -201,20 +236,35 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
 
         {isExpanded && p.originalFromTemplate && (
           <div className="bg-m3-surface-container/5 p-3 pl-8 space-y-2">
-            <div className="text-[10px] uppercase font-bold text-m3-secondary/60 mb-2">Comparación: Original vs Actual</div>
+            <div className="text-[10px] uppercase font-bold text-m3-secondary/60 mb-2">
+              Comparación: Original vs Actual
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className={`rounded-lg p-2.5 border ${getEffectColor(p.originalFromTemplate.isAllowed, p.originalFromTemplate.isDenied)}`}>
-                <div className="text-[9px] uppercase font-bold mb-1 opacity-70">Original (Plantilla)</div>
-                <div className="text-xs font-semibold">{getEffectLabel(p.originalFromTemplate.isAllowed, p.originalFromTemplate.isDenied)}</div>
+              <div
+                className={`rounded-lg p-2.5 border ${getEffectColor(p.originalFromTemplate.isAllowed, p.originalFromTemplate.isDenied)}`}
+              >
+                <div className="text-[9px] uppercase font-bold mb-1 opacity-70">
+                  Original (Plantilla)
+                </div>
+                <div className="text-xs font-semibold">
+                  {getEffectLabel(
+                    p.originalFromTemplate.isAllowed,
+                    p.originalFromTemplate.isDenied
+                  )}
+                </div>
                 <div className="text-[10px] mt-1 opacity-70">
                   Activo: {p.originalFromTemplate.isActive ? 'Sí' : 'No'}
                 </div>
               </div>
 
               <div className={`rounded-lg p-2.5 border ${getEffectColor(p.isAllowed, p.isDenied)}`}>
-                <div className="text-[9px] uppercase font-bold mb-1 opacity-70">Actual (Perfil)</div>
-                <div className="text-xs font-semibold">{getEffectLabel(p.isAllowed, p.isDenied)}</div>
+                <div className="text-[9px] uppercase font-bold mb-1 opacity-70">
+                  Actual (Perfil)
+                </div>
+                <div className="text-xs font-semibold">
+                  {getEffectLabel(p.isAllowed, p.isDenied)}
+                </div>
                 <div className="text-[10px] mt-1 opacity-70">
                   Activo: {p.isActive ? 'Sí' : 'No'}
                 </div>
@@ -258,7 +308,7 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
               { value: 'permissions', label: 'Permisos Efectivos' },
             ]}
             value={activeTab}
-            onChange={(id) => setActiveTab(id as DetailTab)}
+            onChange={id => setActiveTab(id as DetailTab)}
           />
         </div>
 
@@ -272,7 +322,9 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                     <User className="w-5 h-5" />
                   </div>
                   <div className="flex-1">
-                    <span className="text-[10px] uppercase font-bold text-m3-secondary/50">Usuario</span>
+                    <span className="text-[10px] uppercase font-bold text-m3-secondary/50">
+                      Usuario
+                    </span>
                     <p className="text-sm font-semibold text-m3-on-surface">{profile.userEmail}</p>
                   </div>
                 </div>
@@ -282,8 +334,12 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                     <Key className="w-5 h-5" />
                   </div>
                   <div className="flex-1">
-                    <span className="text-[10px] uppercase font-bold text-m3-secondary/50">Rol Asociado</span>
-                    <p className="text-sm font-semibold text-m3-on-surface">{profile.roleCode} — {profile.roleName}</p>
+                    <span className="text-[10px] uppercase font-bold text-m3-secondary/50">
+                      Rol Asociado
+                    </span>
+                    <p className="text-sm font-semibold text-m3-on-surface">
+                      {profile.roleCode} — {profile.roleName}
+                    </p>
                   </div>
                 </div>
 
@@ -292,8 +348,12 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                     <LayoutGrid className="w-5 h-5" />
                   </div>
                   <div className="flex-1">
-                    <span className="text-[10px] uppercase font-bold text-m3-secondary/50">Sistema</span>
-                    <p className="text-sm font-semibold text-m3-on-surface">{profile.systemSuiteCode} — {profile.systemSuiteName}</p>
+                    <span className="text-[10px] uppercase font-bold text-m3-secondary/50">
+                      Sistema
+                    </span>
+                    <p className="text-sm font-semibold text-m3-on-surface">
+                      {profile.systemSuiteCode} — {profile.systemSuiteName}
+                    </p>
                   </div>
                 </div>
 
@@ -302,8 +362,12 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                     <Globe className="w-5 h-5" />
                   </div>
                   <div className="flex-1">
-                    <span className="text-[10px] uppercase font-bold text-m3-secondary/50">Inquilino</span>
-                    <p className="text-sm font-semibold text-m3-on-surface">{profile.tenantCode} — {profile.tenantName}</p>
+                    <span className="text-[10px] uppercase font-bold text-m3-secondary/50">
+                      Inquilino
+                    </span>
+                    <p className="text-sm font-semibold text-m3-on-surface">
+                      {profile.tenantCode} — {profile.tenantName}
+                    </p>
                   </div>
                 </div>
 
@@ -312,9 +376,12 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                     <Info className="w-5 h-5" />
                   </div>
                   <div className="flex-1">
-                    <span className="text-[10px] uppercase font-bold text-m3-secondary/50">Estado / Alcance</span>
+                    <span className="text-[10px] uppercase font-bold text-m3-secondary/50">
+                      Estado / Alcance
+                    </span>
                     <p className="text-sm font-semibold text-m3-on-surface">
-                      {profile.isActive ? 'Activo' : 'Inactivo'} · <span className="font-medium text-m3-primary">{profile.scope}</span>
+                      {profile.isActive ? 'Activo' : 'Inactivo'} ·{' '}
+                      <span className="font-medium text-m3-primary">{profile.scope}</span>
                     </p>
                   </div>
                 </div>
@@ -324,21 +391,27 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                     <Shield className="w-5 h-5" />
                   </div>
                   <div className="flex-1">
-                    <span className="text-[10px] uppercase font-bold text-m3-secondary/50">Permisos Materializados</span>
-                    <p className="text-sm font-semibold text-m3-on-surface">{profile.permissionCount} permisos efectivos</p>
+                    <span className="text-[10px] uppercase font-bold text-m3-secondary/50">
+                      Permisos Materializados
+                    </span>
+                    <p className="text-sm font-semibold text-m3-on-surface">
+                      {profile.permissionCount} permisos efectivos
+                    </p>
                   </div>
                 </div>
               </div>
 
-              <div className="rounded-xl border border-amber-500/10 bg-amber-500/5 p-4 text-xs text-amber-500/90 leading-relaxed">
-                <span className="font-bold block mb-1">Nota del Auditor</span>
-                Los permisos listados en la siguiente pestaña representan el conjunto materializado definitivo de privilegios del usuario, fusionando las reglas de la plantilla por defecto con cualquier anulación manual (Override) grabada en caliente.
+              <div className="rounded-xl border border-amber-500/10 bg-amber-500/5 p-4">
+                <p className="text-xs font-semibold text-amber-600">Nota del Auditor</p>
+                Los permisos listados en la siguiente pestaña representan el conjunto materializado
+                definitivo de privilegios del usuario, fusionando las reglas de la plantilla por
+                defecto con cualquier anulación manual (Override) grabada en caliente.
               </div>
             </div>
           )}
 
           {activeTab === 'permissions' && (
-            <div className="space-y-3">
+            <div className="p-4 space-y-4">
               {profile.permissions.length === 0 ? (
                 <div className="text-center py-10 text-xs text-m3-on-surface/50">
                   Ningún permiso materializado. Asocie una plantilla primero.
@@ -353,12 +426,18 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                         icon: <LayoutGrid className="w-4 h-4" />,
                         content: (
                           <div className="rounded-xl border border-m3-outline/10 bg-m3-surface-container/10 overflow-hidden divide-y divide-m3-outline/5">
-                            {profile.permissions.filter(p => ['Module', 'SubModule', 'Page'].includes(p.targetType)).length === 0 && (
-                              <div className="py-6 text-center text-xs text-m3-on-surface/50">No hay permisos de este tipo.</div>
+                            {profile.permissions.filter(p =>
+                              ['Module', 'SubModule', 'Page'].includes(p.targetType)
+                            ).length === 0 && (
+                              <div className="py-6 text-center text-xs text-m3-on-surface/50">
+                                No hay permisos de este tipo.
+                              </div>
                             )}
-                            {profile.permissions.filter(p => ['Module', 'SubModule', 'Page'].includes(p.targetType)).map((p) => renderPermissionRow(p))}
+                            {profile.permissions
+                              .filter(p => ['Module', 'SubModule', 'Page'].includes(p.targetType))
+                              .map(p => renderPermissionRow(p))}
                           </div>
-                        )
+                        ),
                       },
                       {
                         id: 'domain',
@@ -366,12 +445,17 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                         icon: <Database className="w-4 h-4" />,
                         content: (
                           <div className="rounded-xl border border-m3-outline/10 bg-m3-surface-container/10 overflow-hidden divide-y divide-m3-outline/5">
-                            {profile.permissions.filter(p => p.targetType === 'DomainResource').length === 0 && (
-                              <div className="py-6 text-center text-xs text-m3-on-surface/50">No hay permisos de este tipo.</div>
+                            {profile.permissions.filter(p => p.targetType === 'DomainResource')
+                              .length === 0 && (
+                              <div className="py-6 text-center text-xs text-m3-on-surface/50">
+                                No hay permisos de este tipo.
+                              </div>
                             )}
-                            {profile.permissions.filter(p => p.targetType === 'DomainResource').map((p) => renderPermissionRow(p))}
+                            {profile.permissions
+                              .filter(p => p.targetType === 'DomainResource')
+                              .map(p => renderPermissionRow(p))}
                           </div>
-                        )
+                        ),
                       },
                       {
                         id: 'system',
@@ -379,13 +463,18 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                         icon: <Zap className="w-4 h-4" />,
                         content: (
                           <div className="rounded-xl border border-m3-outline/10 bg-m3-surface-container/10 overflow-hidden divide-y divide-m3-outline/5">
-                            {profile.permissions.filter(p => p.targetType === 'SystemAction').length === 0 && (
-                              <div className="py-6 text-center text-xs text-m3-on-surface/50">No hay permisos de este tipo.</div>
+                            {profile.permissions.filter(p => p.targetType === 'SystemAction')
+                              .length === 0 && (
+                              <div className="py-6 text-center text-xs text-m3-on-surface/50">
+                                No hay permisos de este tipo.
+                              </div>
                             )}
-                            {profile.permissions.filter(p => p.targetType === 'SystemAction').map((p) => renderPermissionRow(p))}
+                            {profile.permissions
+                              .filter(p => p.targetType === 'SystemAction')
+                              .map(p => renderPermissionRow(p))}
                           </div>
-                        )
-                      }
+                        ),
+                      },
                     ]}
                   />
                 </div>

@@ -13,8 +13,7 @@ export const renderTenantParentRow = (
   isExpanded: boolean,
   onToggle: () => void,
   onSelectTenant: (id: string) => void,
-  statusLabel: (status: string) => string,
-
+  statusLabel: (status: string) => string
 ) => {
   const id = node.item.tenantId;
   const tenant = node.item;
@@ -31,7 +30,10 @@ export const renderTenantParentRow = (
         <div className="flex items-center gap-2">
           {hasChildren ? (
             <button
-              onClick={(e) => { e.stopPropagation(); onToggle(); }}
+              onClick={e => {
+                e.stopPropagation();
+                onToggle();
+              }}
               className={`p-0.5 rounded transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}
             >
               <ChevronRight className="w-3.5 h-3.5 text-m3-secondary" />
@@ -39,21 +41,37 @@ export const renderTenantParentRow = (
           ) : (
             <span className="w-4" />
           )}
-          <div className={`p-2 rounded-lg transition-colors ${isSelected ? 'bg-m3-primary/15' : 'bg-m3-surface-container/50'}`}>
-            <Building2 className={`w-4 h-4 ${isSelected ? 'text-m3-primary' : 'text-m3-secondary'}`} />
+          <div
+            className={`p-2 rounded-lg transition-colors ${isSelected ? 'bg-m3-primary/15' : 'bg-m3-surface-container/50'}`}
+          >
+            <Building2
+              className={`w-4 h-4 ${isSelected ? 'text-m3-primary' : 'text-m3-secondary'}`}
+            />
           </div>
         </div>
       }
       trailingColumns={[
         { content: <CodeBadge code={tenant.code} />, width: 'w-20' },
         { content: <CodeBadge code={tenant.type} />, width: 'w-20' },
-        { content: <StatusBadge status={tenant.status} label={statusLabel(tenant.status)} />, width: 'w-20' },
-        { content: <ArrowRight className={`w-4 h-4 transition-transform ${isSelected ? 'text-m3-primary translate-x-0.5' : 'text-m3-outline/30'}`} />, width: 'w-5' },
+        {
+          content: <StatusBadge status={tenant.status} label={statusLabel(tenant.status)} />,
+          width: 'w-20',
+        },
+        {
+          content: (
+            <ArrowRight
+              className={`w-4 h-4 transition-transform ${isSelected ? 'text-m3-primary translate-x-0.5' : 'text-m3-outline/30'}`}
+            />
+          ),
+          width: 'w-5',
+        },
       ]}
     >
       <span className="text-sm font-semibold text-m3-on-surface line-clamp-1">{tenant.name}</span>
       {tenant.companyReference && (
-        <span className="text-[10px] text-m3-secondary/60 line-clamp-1 mt-0.5">{tenant.companyReference}</span>
+        <span className="text-[10px] text-m3-secondary/60 line-clamp-1 mt-0.5">
+          {tenant.companyReference}
+        </span>
       )}
     </EntityRow>
   );
@@ -63,8 +81,7 @@ export const renderTenantChildRow = (
   child: Tenant,
   isChildSelected: boolean,
   onSelectTenant: (id: string) => void,
-  statusLabel: (status: string) => string,
-
+  statusLabel: (status: string) => string
 ) => {
   return (
     <EntityRow
@@ -85,13 +102,25 @@ export const renderTenantChildRow = (
       trailingColumns={[
         { content: <CodeBadge code={child.code} />, width: 'w-20' },
         { content: <CodeBadge code={child.type} />, width: 'w-20' },
-        { content: <StatusBadge status={child.status} label={statusLabel(child.status)} />, width: 'w-20' },
-        { content: <ArrowRight className={`w-4 h-4 transition-transform ${isChildSelected ? 'text-m3-primary translate-x-0.5' : 'text-m3-outline/30'}`} />, width: 'w-5' },
+        {
+          content: <StatusBadge status={child.status} label={statusLabel(child.status)} />,
+          width: 'w-20',
+        },
+        {
+          content: (
+            <ArrowRight
+              className={`w-4 h-4 transition-transform ${isChildSelected ? 'text-m3-primary translate-x-0.5' : 'text-m3-outline/30'}`}
+            />
+          ),
+          width: 'w-5',
+        },
       ]}
     >
-      <span className="text-xs font-medium text-m3-on-surface line-clamp-1">{child.name}</span>
+      <span className="text-sm font-medium text-m3-on-surface line-clamp-1">{child.name}</span>
       {child.companyReference && (
-        <span className="text-[10px] text-m3-secondary/60 line-clamp-1 mt-0.5">{child.companyReference}</span>
+        <span className="text-xs text-m3-secondary/60 line-clamp-1 mt-0.5">
+          {child.companyReference}
+        </span>
       )}
     </EntityRow>
   );
@@ -117,12 +146,16 @@ export const renderTenantParentCard = (
       onClick={() => onSelectTenant(id)}
       variant={isSelected ? 'elevated' : 'filled'}
       className={`p-5 cursor-pointer border transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md ${
-        isSelected ? 'border-m3-primary bg-m3-primary-container/15' : 'border-m3-outline/25 hover:border-m3-primary/30'
+        isSelected
+          ? 'border-m3-primary bg-m3-primary-container/15'
+          : 'border-m3-outline/25 hover:border-m3-primary/30'
       }`}
     >
       <div className="flex justify-between items-start gap-4">
         <div className="flex gap-3 flex-1">
-          <div className={`p-2.5 rounded-lg border ${isSelected ? 'bg-m3-primary text-white border-m3-primary' : 'bg-m3-primary/10 text-m3-primary border-m3-primary/10'}`}>
+          <div
+            className={`p-2.5 rounded-lg border ${isSelected ? 'bg-m3-primary text-white border-m3-primary' : 'bg-m3-primary/10 text-m3-primary border-m3-primary/10'}`}
+          >
             <Building2 className="w-5 h-5" />
           </div>
           <div className="flex-1 min-w-0">
@@ -134,7 +167,10 @@ export const renderTenantParentCard = (
           <StatusBadge status={tenant.status} label={statusLabel(tenant.status)} />
           {hasChildren && (
             <button
-              onClick={(e) => { e.stopPropagation(); onToggle(); }}
+              onClick={e => {
+                e.stopPropagation();
+                onToggle();
+              }}
               className="p-1 rounded transition-transform duration-200"
             >
               <ChevronRight className="w-4 h-4 text-m3-secondary" />
@@ -149,7 +185,9 @@ export const renderTenantParentCard = (
         </div>
         <div>
           <p className="text-m3-secondary font-medium">{t.ref}</p>
-          <p className="font-medium text-m3-on-surface truncate mt-0.5">{tenant.companyReference || '-'}</p>
+          <p className="font-medium text-m3-on-surface truncate mt-0.5">
+            {tenant.companyReference || '-'}
+          </p>
         </div>
       </div>
       {hasChildren && (
@@ -173,12 +211,16 @@ export const renderTenantChildCard = (
     onClick={() => onSelectTenant(child.tenantId)}
     variant={isChildSelected ? 'elevated' : 'outlined'}
     className={`p-4 cursor-pointer border transition-all duration-150 ${
-      isChildSelected ? 'border-m3-primary bg-m3-primary-container/10' : 'border-m3-outline/15 hover:border-m3-primary/20'
+      isChildSelected
+        ? 'border-m3-primary bg-m3-primary-container/10'
+        : 'border-m3-outline/15 hover:border-m3-primary/20'
     }`}
   >
     <div className="flex justify-between items-start gap-3">
       <div className="flex gap-2.5">
-        <div className={`p-2 rounded-lg border ${isChildSelected ? 'bg-m3-primary/80 text-white border-m3-primary/80' : 'bg-m3-surface-container/40 border-m3-outline/15 text-m3-secondary/70'}`}>
+        <div
+          className={`p-2 rounded-lg border ${isChildSelected ? 'bg-m3-primary/80 text-white border-m3-primary/80' : 'bg-m3-surface-container/40 border-m3-outline/15 text-m3-secondary/70'}`}
+        >
           <Building2 className="w-4 h-4" />
         </div>
         <div>
@@ -195,7 +237,9 @@ export const renderTenantChildCard = (
       </div>
       <div>
         <p className="text-m3-secondary font-medium">{t.ref}</p>
-        <p className="font-medium text-m3-on-surface truncate mt-0.5">{child.companyReference || '-'}</p>
+        <p className="font-medium text-m3-on-surface truncate mt-0.5">
+          {child.companyReference || '-'}
+        </p>
       </div>
     </div>
   </M3Card>

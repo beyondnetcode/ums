@@ -1,7 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import {
-  Box, Shield, Key, Users, Trash2, Flag, Database, Plus,
-} from 'lucide-react';
+import { Box, Shield, Key, Users, Trash2, Flag, Database, Plus } from 'lucide-react';
 import { SystemSuite } from '@domain/authorization/models/system-suite.model';
 import { SystemSuiteProfileCard } from './SystemSuiteProfileCard';
 import { DetailPanelShell, DetailTab } from '@shared/components/DetailPanelShell';
@@ -22,10 +20,16 @@ import { formatSystemCode } from '@app/utils/security';
 import { SystemSuiteRolesPanel } from './SystemSuiteRolesPanel';
 import { SystemSuiteDomainResourcesPanel } from './SystemSuiteDomainResourcesPanel';
 import { SystemSuiteFeatureFlagsPanel } from './SystemSuiteFeatureFlagsPanel';
-import { ChildEntityToolbar } from '@shared/components/ChildEntityToolbar';
+import { ListToolbar } from '@shared/components/ListToolbar';
 import { ModuleCard } from './hierarchy';
 
-type SystemSuiteTab = 'overview' | 'modules' | 'domain-resources' | 'actions' | 'roles' | 'feature-flags';
+type SystemSuiteTab =
+  | 'overview'
+  | 'modules'
+  | 'domain-resources'
+  | 'actions'
+  | 'roles'
+  | 'feature-flags';
 
 interface SystemSuiteDetailPanelProps {
   activeSystemSuite: SystemSuite | undefined;
@@ -58,7 +62,7 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
   const [actionsSortOrder, setActionsSortOrder] = useState<'asc' | 'desc'>('asc');
 
   const toggleNode = (nodeId: string) => {
-    setExpandedNodes((prev) => ({ ...prev, [nodeId]: !prev[nodeId] }));
+    setExpandedNodes(prev => ({ ...prev, [nodeId]: !prev[nodeId] }));
   };
 
   const isExpanded = (nodeId: string) => expandedNodes[nodeId] !== false;
@@ -79,7 +83,7 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
     return ids;
   }, [activeSystemSuite?.modules]);
 
-  const anyCollapsed = allModuleNodeIds.some((id) => expandedNodes[id] === false);
+  const anyCollapsed = allModuleNodeIds.some(id => expandedNodes[id] === false);
 
   const handleToggleAll = () => {
     if (anyCollapsed) {
@@ -88,29 +92,35 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
     } else {
       // Collapse all: set every known node to false
       const collapsed: Record<string, boolean> = {};
-      allModuleNodeIds.forEach((id) => { collapsed[id] = false; });
+      allModuleNodeIds.forEach(id => {
+        collapsed[id] = false;
+      });
       setExpandedNodes(collapsed);
     }
   };
 
   const tabs: DetailTab<SystemSuiteTab>[] = [
-    { key: 'overview', label: t.overview, icon: <Box className="w-4 h-4" /> },
-    { key: 'modules',  label: t.modules,  icon: <Shield className="w-4 h-4" /> },
-    { key: 'domain-resources', label: 'Recursos de Dominio', icon: <Database className="w-4 h-4" /> },
-    { key: 'actions',  label: t.actions,  icon: <Key className="w-4 h-4" /> },
-    { key: 'roles', label: t.roles, icon: <Users className="w-4 h-4" /> },
-    { key: 'feature-flags', label: 'Feature Flags', icon: <Flag className="w-4 h-4" /> },
+    { key: 'overview', label: t.overview, icon: <Box className="w-3.5 h-3.5" /> },
+    { key: 'modules', label: t.modules, icon: <Shield className="w-3.5 h-3.5" /> },
+    {
+      key: 'domain-resources',
+      label: 'Recursos de Dominio',
+      icon: <Database className="w-3.5 h-3.5" />,
+    },
+    { key: 'actions', label: t.actions, icon: <Key className="w-3.5 h-3.5" /> },
+    { key: 'roles', label: t.roles, icon: <Users className="w-3.5 h-3.5" /> },
+    { key: 'feature-flags', label: 'Feature Flags', icon: <Flag className="w-3.5 h-3.5" /> },
   ];
 
   const suiteId = activeSystemSuite?.systemSuiteId ?? '';
 
   // Module mutations
-  const addModuleMutation        = useAddModule(suiteId);
-  const removeModuleMutation     = useRemoveModule(suiteId);
-  const activateModuleMutation   = useActivateModule(suiteId);
+  const addModuleMutation = useAddModule(suiteId);
+  const removeModuleMutation = useRemoveModule(suiteId);
+  const activateModuleMutation = useActivateModule(suiteId);
   const deactivateModuleMutation = useDeactivateModule(suiteId);
-  const registerActionMutation   = useRegisterAction(suiteId);
-  const removeActionMutation     = useRemoveAction(suiteId);
+  const registerActionMutation = useRegisterAction(suiteId);
+  const removeActionMutation = useRemoveAction(suiteId);
 
   // Module add form state
   const [isAddingModule, setIsAddingModule] = useState(false);
@@ -129,8 +139,14 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
   const handleAddModule = async (e: React.FormEvent) => {
     e.preventDefault();
     setModError('');
-    if (!modCode.trim()) { setModError('Código requerido'); return; }
-    if (!modName.trim()) { setModError('Nombre requerido'); return; }
+    if (!modCode.trim()) {
+      setModError('Código requerido');
+      return;
+    }
+    if (!modName.trim()) {
+      setModError('Nombre requerido');
+      return;
+    }
     try {
       await addModuleMutation.mutateAsync({
         code: formatSystemCode(modCode),
@@ -138,24 +154,38 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
         description: modDesc.trim(),
         sortOrder: parseInt(modSort) || 1,
       });
-      setModCode(''); setModName(''); setModDesc(''); setModSort('1');
+      setModCode('');
+      setModName('');
+      setModDesc('');
+      setModSort('1');
       setIsAddingModule(false);
-    } catch { /* handled by hook */ }
+    } catch {
+      /* handled by hook */
+    }
   };
 
   const handleRegisterAction = async (e: React.FormEvent) => {
     e.preventDefault();
     setActError('');
-    if (!actCode.trim()) { setActError('Código requerido'); return; }
-    if (!actName.trim()) { setActError('Nombre requerido'); return; }
+    if (!actCode.trim()) {
+      setActError('Código requerido');
+      return;
+    }
+    if (!actName.trim()) {
+      setActError('Nombre requerido');
+      return;
+    }
     try {
       await registerActionMutation.mutateAsync({
         code: formatSystemCode(actCode),
         name: actName.trim(),
       });
-      setActCode(''); setActName('');
+      setActCode('');
+      setActName('');
       setIsAddingAction(false);
-    } catch { /* handled by hook */ }
+    } catch {
+      /* handled by hook */
+    }
   };
 
   if (isLoading || !activeSystemSuite) {
@@ -168,7 +198,9 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
         onTabChange={setActiveTab}
         header={
           <div className="flex items-center justify-center h-32">
-            <p className="text-sm text-m3-secondary">{t.selectSystemSuiteToView || 'Select system suite'}</p>
+            <p className="text-sm text-m3-secondary">
+              {t.selectSystemSuiteToView || 'Select system suite'}
+            </p>
           </div>
         }
       >
@@ -194,8 +226,7 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
         />
       }
     >
-      <div className="space-y-4">
-
+      <div className="p-4 space-y-4">
         {/* ── Overview ── */}
         {activeTab === 'overview' && (
           <div>
@@ -223,8 +254,8 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
 
         {/* ── Modules ── */}
         {activeTab === 'modules' && (
-          <div className="space-y-4">
-            <ChildEntityToolbar
+          <div className="p-4 space-y-4">
+            <ListToolbar
               viewMode={modulesViewMode}
               onViewModeChange={setModulesViewMode}
               filterOptions={[
@@ -242,7 +273,7 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
               sortBy={modulesSortBy}
               onSortByChange={setModulesSortBy}
               sortOrder={modulesSortOrder}
-              onSortOrderToggle={() => setModulesSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'))}
+              onSortOrderToggle={() => setModulesSortOrder(o => (o === 'asc' ? 'desc' : 'asc'))}
               itemCount={activeSystemSuite.modules?.length ?? 0}
               itemLabel="Módulo"
             />
@@ -257,9 +288,13 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
                   title={anyCollapsed ? 'Expandir todos los nodos' : 'Colapsar todos los nodos'}
                 >
                   {anyCollapsed ? (
-                    <><ChevronsUpDown className="w-3.5 h-3.5" /> Expandir Todo</>
+                    <>
+                      <ChevronsUpDown className="w-3.5 h-3.5" /> Expandir Todo
+                    </>
                   ) : (
-                    <><ChevronsDownUp className="w-3.5 h-3.5" /> Colapsar Todo</>
+                    <>
+                      <ChevronsDownUp className="w-3.5 h-3.5" /> Colapsar Todo
+                    </>
                   )}
                 </button>
               </div>
@@ -267,7 +302,10 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
 
             <InlineAddForm
               isOpen={isAddingModule}
-              onToggle={(open) => { setIsAddingModule(open); if (!open) setModError(''); }}
+              onToggle={open => {
+                setIsAddingModule(open);
+                if (!open) setModError('');
+              }}
               onSubmit={handleAddModule}
               addLabel="Agregar Módulo"
               title="Nuevo Módulo Estructural"
@@ -277,22 +315,46 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
               triggerEmphasis="quiet"
               error={modError || undefined}
             >
-              <M3TextField label="Código del Módulo" required value={modCode} onChange={(e) => setModCode(e.target.value)} placeholder="e.g. SEC" />
-              <M3TextField label="Nombre del Módulo" required value={modName} onChange={(e) => setModName(e.target.value)} placeholder="e.g. Seguridad" />
-              <M3TextField label="Descripción" value={modDesc} onChange={(e) => setModDesc(e.target.value)} placeholder="e.g. Módulo de administración de seguridad" />
-              <M3TextField label="Orden" type="number" value={modSort} onChange={(e) => setModSort(e.target.value)} placeholder="1" />
+              <M3TextField
+                label="Código del Módulo"
+                required
+                value={modCode}
+                onChange={e => setModCode(e.target.value)}
+                placeholder="e.g. SEC"
+              />
+              <M3TextField
+                label="Nombre del Módulo"
+                required
+                value={modName}
+                onChange={e => setModName(e.target.value)}
+                placeholder="e.g. Seguridad"
+              />
+              <M3TextField
+                label="Descripción"
+                value={modDesc}
+                onChange={e => setModDesc(e.target.value)}
+                placeholder="e.g. Módulo de administración de seguridad"
+              />
+              <M3TextField
+                label="Orden"
+                type="number"
+                value={modSort}
+                onChange={e => setModSort(e.target.value)}
+                placeholder="1"
+              />
             </InlineAddForm>
 
             {(() => {
               let filteredModules = activeSystemSuite.modules ?? [];
               if (modulesFilter !== 'all') {
-                filteredModules = filteredModules.filter((m) => m.status === modulesFilter);
+                filteredModules = filteredModules.filter(m => m.status === modulesFilter);
               }
               filteredModules = [...filteredModules].sort((a, b) => {
                 let cmp = 0;
                 if (modulesSortBy === 'name') cmp = a.name.localeCompare(b.name);
                 else if (modulesSortBy === 'code') cmp = a.code.localeCompare(b.code);
-                else if (modulesSortBy === 'sortOrder') cmp = (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
+                else if (modulesSortBy === 'sortOrder')
+                  cmp = (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
                 return modulesSortOrder === 'asc' ? cmp : -cmp;
               });
 
@@ -300,7 +362,9 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
                 return (
                   <div className="flex flex-col items-center justify-center p-8 text-center border border-dashed border-m3-outline/25 rounded-xl bg-m3-surface-container/10 animate-fadeIn">
                     <Shield className="w-8 h-8 text-m3-secondary/50 mb-2" />
-                    <p className="text-sm font-medium text-m3-on-surface">{t.noModulesConfigured}</p>
+                    <p className="text-sm font-medium text-m3-on-surface">
+                      {t.noModulesConfigured}
+                    </p>
                   </div>
                 );
               }
@@ -308,7 +372,9 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
               if (filteredModules.length === 0) {
                 return (
                   <div className="flex flex-col items-center justify-center p-6 text-center border border-dashed border-m3-outline/25 rounded-xl bg-m3-surface-container/10 animate-fadeIn">
-                    <p className="text-sm font-medium text-m3-on-surface">No hay módulos que coincidan con el filtro</p>
+                    <p className="text-sm font-medium text-m3-on-surface">
+                      No hay módulos que coincidan con el filtro
+                    </p>
                   </div>
                 );
               }
@@ -316,7 +382,7 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
               if (modulesViewMode === 'thumbnail') {
                 return (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 animate-fadeIn">
-                    {filteredModules.map((module) => {
+                    {filteredModules.map(module => {
                       const moduleNodeId = `module-${module.id}`;
                       const moduleExpanded = isExpanded(moduleNodeId);
                       return (
@@ -343,7 +409,7 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
 
               return (
                 <div className="space-y-3 animate-fadeIn">
-                  {filteredModules.map((module) => {
+                  {filteredModules.map(module => {
                     const moduleNodeId = `module-${module.id}`;
                     const moduleExpanded = isExpanded(moduleNodeId);
                     return (
@@ -377,13 +443,11 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
 
         {/* ── Actions ── */}
         {activeTab === 'actions' && (
-          <div className="space-y-4">
-            <ChildEntityToolbar
+          <div className="p-4 space-y-4">
+            <ListToolbar
               viewMode={actionsViewMode}
               onViewModeChange={setActionsViewMode}
-              filterOptions={[
-                { label: 'Todas', value: 'all' },
-              ]}
+              filterOptions={[{ label: 'Todas', value: 'all' }]}
               activeFilter={actionsFilter}
               onFilterChange={setActionsFilter}
               sortOptions={[
@@ -393,14 +457,17 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
               sortBy={actionsSortBy}
               onSortByChange={setActionsSortBy}
               sortOrder={actionsSortOrder}
-              onSortOrderToggle={() => setActionsSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'))}
+              onSortOrderToggle={() => setActionsSortOrder(o => (o === 'asc' ? 'desc' : 'asc'))}
               itemCount={activeSystemSuite.actions?.length ?? 0}
               itemLabel="Acción"
             />
 
             <InlineAddForm
               isOpen={isAddingAction}
-              onToggle={(open) => { setIsAddingAction(open); if (!open) setActError(''); }}
+              onToggle={open => {
+                setIsAddingAction(open);
+                if (!open) setActError('');
+              }}
               onSubmit={handleRegisterAction}
               addLabel="Registrar Acción"
               title="Nueva Acción del Sistema"
@@ -410,8 +477,20 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
               triggerEmphasis="quiet"
               error={actError || undefined}
             >
-              <M3TextField label="Código de Acción" required value={actCode} onChange={(e) => setActCode(e.target.value)} placeholder="e.g. INVENTORY_DELETE" />
-              <M3TextField label="Nombre de la Acción" required value={actName} onChange={(e) => setActName(e.target.value)} placeholder="e.g. Eliminar Inventario" />
+              <M3TextField
+                label="Código de Acción"
+                required
+                value={actCode}
+                onChange={e => setActCode(e.target.value)}
+                placeholder="e.g. INVENTORY_DELETE"
+              />
+              <M3TextField
+                label="Nombre de la Acción"
+                required
+                value={actName}
+                onChange={e => setActName(e.target.value)}
+                placeholder="e.g. Eliminar Inventario"
+              />
             </InlineAddForm>
 
             {(() => {
@@ -432,7 +511,9 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
                 return (
                   <div className="flex flex-col items-center justify-center p-8 text-center border border-dashed border-m3-outline/25 rounded-xl bg-m3-surface-container/10 animate-fadeIn">
                     <Key className="w-8 h-8 text-m3-secondary/50 mb-2" />
-                    <p className="text-sm font-medium text-m3-on-surface">{t.noActionsConfigured}</p>
+                    <p className="text-sm font-medium text-m3-on-surface">
+                      {t.noActionsConfigured}
+                    </p>
                   </div>
                 );
               }
@@ -440,7 +521,7 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
               if (actionsViewMode === 'list') {
                 return (
                   <div className="flex flex-col gap-1 animate-fadeIn">
-                    {filteredActions.map((action) => (
+                    {filteredActions.map(action => (
                       <div
                         key={action.id}
                         className="group/action flex items-center justify-between p-2.5 rounded-lg border border-m3-outline/10 bg-m3-surface-container/5 hover:bg-m3-surface-container/10 hover:border-m3-outline/25 transition-all duration-150"
@@ -450,8 +531,15 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
                             <Key className="w-3.5 h-3.5" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-semibold text-m3-on-surface truncate" title={action.name}>{action.name}</p>
-                            <p className="text-[10px] font-mono text-m3-secondary truncate">{action.code}</p>
+                            <p
+                              className="text-xs font-semibold text-m3-on-surface truncate"
+                              title={action.name}
+                            >
+                              {action.name}
+                            </p>
+                            <p className="text-[10px] font-mono text-m3-secondary truncate">
+                              {action.code}
+                            </p>
                           </div>
                         </div>
                         <IconButton
@@ -470,7 +558,7 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
 
               return (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 animate-fadeIn">
-                  {filteredActions.map((action) => (
+                  {filteredActions.map(action => (
                     <div
                       key={action.id}
                       className="group/action flex items-center justify-between p-3 rounded-lg border border-m3-outline/15 bg-m3-surface-container/5 hover:bg-m3-surface-container/10 hover:border-m3-outline/30 hover:-translate-y-[1px] transition-all duration-200 shadow-sm"
@@ -480,8 +568,15 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
                           <Key className="w-3.5 h-3.5" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-semibold text-m3-on-surface truncate" title={action.name}>{action.name}</p>
-                          <p className="text-[10px] font-mono text-m3-secondary truncate">{action.code}</p>
+                          <p
+                            className="text-xs font-semibold text-m3-on-surface truncate"
+                            title={action.name}
+                          >
+                            {action.name}
+                          </p>
+                          <p className="text-[10px] font-mono text-m3-secondary truncate">
+                            {action.code}
+                          </p>
                         </div>
                       </div>
                       <IconButton
@@ -500,13 +595,9 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
           </div>
         )}
 
-        {activeTab === 'roles' && (
-          <SystemSuiteRolesPanel systemSuiteId={suiteId} />
-        )}
+        {activeTab === 'roles' && <SystemSuiteRolesPanel systemSuiteId={suiteId} />}
 
-        {activeTab === 'feature-flags' && (
-          <SystemSuiteFeatureFlagsPanel systemSuiteId={suiteId} />
-        )}
+        {activeTab === 'feature-flags' && <SystemSuiteFeatureFlagsPanel systemSuiteId={suiteId} />}
       </div>
     </DetailPanelShell>
   );

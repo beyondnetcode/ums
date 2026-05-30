@@ -1,7 +1,14 @@
 import React, { useState } from 'react';
 import {
-  Flag, Plus, Trash2, ToggleLeft, ToggleRight, Archive,
-  Info, ChevronDown, ChevronRight,
+  Flag,
+  Plus,
+  Trash2,
+  ToggleLeft,
+  ToggleRight,
+  Archive,
+  Info,
+  ChevronDown,
+  ChevronRight,
 } from 'lucide-react';
 import { useGetFeatureFlagsBySystemSuite } from '@app/configuration/hooks/use-feature-flag';
 import {
@@ -14,13 +21,17 @@ import {
 import { StatusBadge } from '@shared/components/StatusBadge';
 import { CodeBadge } from '@shared/components/CodeBadge';
 import { M3Button } from '@shared/components/M3Button';
-import { ChildEntityToolbar } from '@shared/components/ChildEntityToolbar';
+import { ListToolbar } from '@shared/components/ListToolbar';
+import { EmptyState } from '@shared/components/EmptyState';
 import {
   FLAG_TYPE_LABELS,
   CRITERIA_TYPE_LABELS,
   CRITERIA_OPERATOR_LABELS,
 } from '@domain/configuration/constants/feature-flag.constants';
-import type { FeatureFlag, FeatureFlagCriteria } from '@domain/configuration/models/feature-flag.model';
+import type {
+  FeatureFlag,
+  FeatureFlagCriteria,
+} from '@domain/configuration/models/feature-flag.model';
 import { STATUS_COLORS, getStatusLabel } from '@shared/utils/status-utils';
 
 interface SystemSuiteFeatureFlagsPanelProps {
@@ -28,7 +39,7 @@ interface SystemSuiteFeatureFlagsPanelProps {
 }
 
 const STATUS_COLOR_MAP = {
-  Active:   STATUS_COLORS.Active,
+  Active: STATUS_COLORS.Active,
   Inactive: STATUS_COLORS.Inactive,
   Archived: STATUS_COLORS.Archived,
 };
@@ -42,15 +53,21 @@ const CriteriaRow: React.FC<{
   <div className="flex items-center gap-3 p-1.5 rounded border border-m3-outline/10 bg-m3-surface-container/5">
     <div className="flex-1 grid grid-cols-3 gap-2 text-[10px]">
       <div>
-        <span className="text-[8px] font-semibold uppercase tracking-wide text-m3-secondary/50">Tipo</span>
+        <span className="text-[8px] font-semibold uppercase tracking-wide text-m3-secondary/50">
+          Tipo
+        </span>
         <p className="text-m3-on-surface">{CRITERIA_TYPE_LABELS[criteriaType] ?? criteriaType}</p>
       </div>
       <div>
-        <span className="text-[8px] font-semibold uppercase tracking-wide text-m3-secondary/50">Operador</span>
+        <span className="text-[8px] font-semibold uppercase tracking-wide text-m3-secondary/50">
+          Operador
+        </span>
         <p className="text-m3-on-surface">{CRITERIA_OPERATOR_LABELS[operator] ?? operator}</p>
       </div>
       <div>
-        <span className="text-[8px] font-semibold uppercase tracking-wide text-m3-secondary/50">Valor</span>
+        <span className="text-[8px] font-semibold uppercase tracking-wide text-m3-secondary/50">
+          Valor
+        </span>
         <CodeBadge code={value} size="xs" />
       </div>
     </div>
@@ -91,7 +108,9 @@ const FlagRow: React.FC<{
       });
       setCriteriaValue('');
       setShowCriteriaForm(false);
-    } catch { /* handled by hook */ }
+    } catch {
+      /* handled by hook */
+    }
   };
 
   return (
@@ -106,7 +125,9 @@ const FlagRow: React.FC<{
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold text-m3-on-surface">{flag.flagCode}</span>
-            <span className={`text-[9px] font-bold uppercase px-1 py-0.5 rounded ${TYPE_COLOR[flag.flagType]}`}>
+            <span
+              className={`text-[9px] font-bold uppercase px-1 py-0.5 rounded ${TYPE_COLOR[flag.flagType]}`}
+            >
               {FLAG_TYPE_LABELS[flag.flagType]}
             </span>
           </div>
@@ -115,13 +136,17 @@ const FlagRow: React.FC<{
             {flag.rolloutPercentage != null && (
               <>
                 <span className="text-[8px] text-m3-secondary/30">·</span>
-                <span className="text-[10px] text-m3-secondary">Rollout: {flag.rolloutPercentage}%</span>
+                <span className="text-[10px] text-m3-secondary">
+                  Rollout: {flag.rolloutPercentage}%
+                </span>
               </>
             )}
             {flag.criteria.length > 0 && (
               <>
                 <span className="text-[8px] text-m3-secondary/30">·</span>
-                <span className="text-[10px] text-m3-secondary">{flag.criteria.length} criterio{flag.criteria.length > 1 ? 's' : ''}</span>
+                <span className="text-[10px] text-m3-secondary">
+                  {flag.criteria.length} criterio{flag.criteria.length > 1 ? 's' : ''}
+                </span>
               </>
             )}
           </div>
@@ -132,7 +157,11 @@ const FlagRow: React.FC<{
           colorMap={STATUS_COLOR_MAP}
         />
         <div className="w-4 h-4 flex items-center justify-center text-m3-secondary/50">
-          {expanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+          {expanded ? (
+            <ChevronDown className="w-3.5 h-3.5" />
+          ) : (
+            <ChevronRight className="w-3.5 h-3.5" />
+          )}
         </div>
       </div>
 
@@ -143,14 +172,20 @@ const FlagRow: React.FC<{
             {flag.status === 'Inactive' && (
               <>
                 <button
-                  onClick={(e) => { e.stopPropagation(); activateFlag.mutate(); }}
+                  onClick={e => {
+                    e.stopPropagation();
+                    activateFlag.mutate();
+                  }}
                   disabled={activateFlag.isPending}
                   className="flex items-center gap-1 py-1 px-2 rounded border border-emerald-500/30 text-[10px] font-semibold text-emerald-600 bg-emerald-500/10 hover:bg-emerald-500/20 transition-colors disabled:opacity-50"
                 >
                   <ToggleRight className="w-3 h-3" /> Activar
                 </button>
                 <button
-                  onClick={(e) => { e.stopPropagation(); archiveFlag.mutate(); }}
+                  onClick={e => {
+                    e.stopPropagation();
+                    archiveFlag.mutate();
+                  }}
                   disabled={archiveFlag.isPending}
                   className="flex items-center gap-1 py-1 px-2 rounded border border-rose-500/30 text-[10px] font-semibold text-rose-600 bg-rose-500/10 hover:bg-rose-500/20 transition-colors disabled:opacity-50"
                 >
@@ -160,7 +195,10 @@ const FlagRow: React.FC<{
             )}
             {flag.status === 'Active' && (
               <button
-                onClick={(e) => { e.stopPropagation(); deactivateFlag.mutate(); }}
+                onClick={e => {
+                  e.stopPropagation();
+                  deactivateFlag.mutate();
+                }}
                 disabled={deactivateFlag.isPending}
                 className="flex items-center gap-1 py-1 px-2 rounded border border-amber-500/30 text-[10px] font-semibold text-amber-600 bg-amber-500/10 hover:bg-amber-500/20 transition-colors disabled:opacity-50"
               >
@@ -168,7 +206,9 @@ const FlagRow: React.FC<{
               </button>
             )}
             {flag.status === 'Archived' && (
-              <span className="text-[10px] text-m3-secondary/50 py-1 px-2">Archivado — acción terminal</span>
+              <span className="text-[10px] text-m3-secondary/50 py-1 px-2">
+                Archivado — acción terminal
+              </span>
             )}
           </div>
 
@@ -180,7 +220,10 @@ const FlagRow: React.FC<{
               </h5>
               {isDraft && (
                 <button
-                  onClick={(e) => { e.stopPropagation(); setShowCriteriaForm(!showCriteriaForm); }}
+                  onClick={e => {
+                    e.stopPropagation();
+                    setShowCriteriaForm(!showCriteriaForm);
+                  }}
                   className="flex items-center gap-1 text-[10px] text-m3-primary hover:text-m3-primary/80"
                 >
                   <Plus className="w-3 h-3" /> Agregar
@@ -206,7 +249,10 @@ const FlagRow: React.FC<{
             ))}
 
             {showCriteriaForm && isDraft && (
-              <form onSubmit={handleAddCriteria} className="p-2 rounded border border-m3-outline/20 bg-m3-surface/50 space-y-1.5">
+              <form
+                onSubmit={handleAddCriteria}
+                className="p-2 rounded border border-m3-outline/20 bg-m3-surface/50 space-y-1.5"
+              >
                 <div className="grid grid-cols-2 gap-1.5">
                   <select
                     value={criteriaType}
@@ -214,7 +260,9 @@ const FlagRow: React.FC<{
                     className="w-full h-7 px-1.5 rounded bg-m3-surface border border-m3-outline/20 text-[10px] focus:border-m3-primary outline-none"
                   >
                     {Object.entries(CRITERIA_TYPE_LABELS).map(([k, v]) => (
-                      <option key={k} value={k}>{v}</option>
+                      <option key={k} value={k}>
+                        {v}
+                      </option>
                     ))}
                   </select>
                   <select
@@ -223,7 +271,9 @@ const FlagRow: React.FC<{
                     className="w-full h-7 px-1.5 rounded bg-m3-surface border border-m3-outline/20 text-[10px] focus:border-m3-primary outline-none"
                   >
                     {Object.entries(CRITERIA_OPERATOR_LABELS).map(([k, v]) => (
-                      <option key={k} value={k}>{v}</option>
+                      <option key={k} value={k}>
+                        {v}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -235,7 +285,12 @@ const FlagRow: React.FC<{
                     placeholder="Valor..."
                     className="flex-1 h-7 px-1.5 rounded bg-m3-surface border border-m3-outline/20 text-[10px] focus:border-m3-primary outline-none"
                   />
-                  <M3Button type="submit" variant="filled" size="sm" disabled={addCriteria.isPending || !criteriaValue.trim()}>
+                  <M3Button
+                    type="submit"
+                    variant="filled"
+                    size="sm"
+                    disabled={addCriteria.isPending || !criteriaValue.trim()}
+                  >
                     {addCriteria.isPending ? '...' : 'Agregar'}
                   </M3Button>
                 </div>
@@ -248,7 +303,9 @@ const FlagRow: React.FC<{
   );
 };
 
-export const SystemSuiteFeatureFlagsPanel: React.FC<SystemSuiteFeatureFlagsPanelProps> = ({ systemSuiteId }) => {
+export const SystemSuiteFeatureFlagsPanel: React.FC<SystemSuiteFeatureFlagsPanelProps> = ({
+  systemSuiteId,
+}) => {
   const { data: flags = [], isLoading, error } = useGetFeatureFlagsBySystemSuite(systemSuiteId);
   const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('list');
   const [activeFilter, setActiveFilter] = useState('all');
@@ -285,7 +342,7 @@ export const SystemSuiteFeatureFlagsPanel: React.FC<SystemSuiteFeatureFlagsPanel
 
   return (
     <div className="space-y-3">
-      <ChildEntityToolbar
+      <ListToolbar
         viewMode={viewMode}
         onViewModeChange={setViewMode}
         filterOptions={[
@@ -304,26 +361,21 @@ export const SystemSuiteFeatureFlagsPanel: React.FC<SystemSuiteFeatureFlagsPanel
         sortBy={sortBy}
         onSortByChange={setSortBy}
         sortOrder={sortOrder}
-        onSortOrderToggle={() => setSortOrder(o => o === 'asc' ? 'desc' : 'asc')}
+        onSortOrderToggle={() => setSortOrder(o => (o === 'asc' ? 'desc' : 'asc'))}
         itemCount={flags.length}
         itemLabel="flag"
       />
 
       {filteredFlags.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-8 text-center">
-          <Flag className="w-8 h-8 text-m3-secondary/30 mb-2" />
-          <p className="text-xs font-medium text-m3-on-surface">No hay feature flags para este suite</p>
-          <p className="text-[10px] text-m3-secondary mt-1 max-w-sm">
-            Cree feature flags desde la sección de Feature Flags para controlar funcionalidades de este suite.
-          </p>
-        </div>
+        <EmptyState
+          icon={<Flag className="w-6 h-6" />}
+          message="No hay feature flags para este suite"
+          tooltip="Cree feature flags desde la sección de Feature Flags para controlar funcionalidades de este suite."
+        />
       ) : (
         <div className="space-y-2">
           {filteredFlags.map(flag => (
-            <FlagRow
-              key={flag.featureFlagId}
-              flag={flag}
-            />
+            <FlagRow key={flag.featureFlagId} flag={flag} />
           ))}
         </div>
       )}

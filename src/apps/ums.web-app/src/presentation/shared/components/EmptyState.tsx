@@ -26,54 +26,45 @@ export interface EmptyStateProps {
   className?: string;
 }
 
-export const EmptyState: React.FC<EmptyStateProps> = React.memo(({
-  icon,
-  title,
-  message,
-  variant = 'dashed',
-  tooltip,
-  className = '',
-}) => {
-  const iconNode =
-    icon === null
-      ? null
-      : icon ?? <Info className={variant === 'card' ? 'w-6 h-6' : 'w-6 h-6 text-m3-outline'} />;
+export const EmptyState: React.FC<EmptyStateProps> = React.memo(
+  ({ icon, title, message, variant = 'dashed', tooltip, className = '' }) => {
+    const defaultIcon = <Info className="w-5 h-5" />;
+    const iconNode = icon === null ? null : (icon ?? defaultIcon);
 
-  if (variant === 'card') {
+    if (variant === 'card') {
+      return (
+        <M3Card
+          variant="elevated"
+          className={`p-6 flex flex-col items-center justify-center text-center border border-m3-outline/20 bg-m3-surface-container/10 ${className}`}
+        >
+          {iconNode && (
+            <div className="w-10 h-10 bg-m3-primary/10 border border-m3-primary/20 text-m3-primary rounded-full flex items-center justify-center mb-3">
+              {iconNode}
+            </div>
+          )}
+          {title && (
+            <div className="flex items-center justify-center gap-1.5 mb-1">
+              <h4 className="text-xs font-semibold text-m3-on-surface">{title}</h4>
+              {tooltip && (
+                <Tooltip content={tooltip}>
+                  <Info className="w-3.5 h-3.5 text-m3-secondary/60 hover:text-m3-primary cursor-help transition-colors" />
+                </Tooltip>
+              )}
+            </div>
+          )}
+          <p className="text-xs text-m3-secondary/70 leading-relaxed max-w-xs">{message}</p>
+        </M3Card>
+      );
+    }
+
+    // "dashed" variant — lightweight inline empty state
     return (
-      <M3Card
-        variant="elevated"
-        className={`p-8 text-center text-sm text-m3-secondary border border-m3-outline/20 bg-m3-surface-container/10 ${className}`}
+      <div
+        className={`py-6 px-4 flex flex-col items-center justify-center gap-2 border border-dashed border-m3-outline/20 rounded-xl ${className}`}
       >
-        {iconNode && (
-          <div className="w-12 h-12 bg-m3-primary/10 border border-m3-primary/20 text-m3-primary rounded-full flex items-center justify-center mx-auto mb-3.5">
-            {iconNode}
-          </div>
-        )}
-        {title && (
-          <div className="flex items-center justify-center gap-1.5">
-            <h4 className="text-sm font-semibold text-m3-on-surface">{title}</h4>
-            {tooltip && (
-              <Tooltip content={tooltip}>
-                <Info className="w-4 h-4 text-m3-secondary hover:text-m3-primary cursor-help transition-colors" />
-              </Tooltip>
-            )}
-          </div>
-        )}
-        <p className="mt-1 text-xs font-normal leading-relaxed max-w-sm mx-auto text-m3-secondary">
-          {message}
-        </p>
-      </M3Card>
+        {iconNode && <div className="text-m3-secondary/40 mb-1">{iconNode}</div>}
+        <p className="text-xs text-m3-secondary/60 text-center leading-relaxed">{message}</p>
+      </div>
     );
   }
-
-  // "dashed" variant — lightweight inline empty state
-  return (
-    <div
-      className={`py-8 text-center text-[10px] text-m3-secondary/75 flex flex-col items-center justify-center gap-1.5 border border-dashed border-m3-outline/25 rounded-2xl p-4 ${className}`}
-    >
-      {iconNode}
-      {message}
-    </div>
-  );
-});
+);

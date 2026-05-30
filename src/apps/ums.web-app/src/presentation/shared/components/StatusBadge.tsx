@@ -11,9 +11,9 @@ export interface StatusBadgeColorSet {
 }
 
 const DEFAULT_COLOR_MAP: Record<string, StatusBadgeColorSet> = {
-  Active:    { bg: 'bg-emerald-500/10', border: 'border-emerald-500/25', text: 'text-emerald-500' },
-  Suspended: { bg: 'bg-rose-500/10',    border: 'border-rose-500/25',    text: 'text-rose-500' },
-  Pending:   { bg: 'bg-amber-500/10',   border: 'border-amber-500/25',   text: 'text-amber-500' },
+  Active: { bg: 'bg-emerald-500/10', border: 'border-emerald-500/25', text: 'text-emerald-500' },
+  Suspended: { bg: 'bg-rose-500/10', border: 'border-rose-500/25', text: 'text-rose-500' },
+  Pending: { bg: 'bg-amber-500/10', border: 'border-amber-500/25', text: 'text-amber-500' },
 };
 
 const FALLBACK: StatusBadgeColorSet = {
@@ -35,20 +35,17 @@ export interface StatusBadgeProps {
   className?: string;
 }
 
-export const StatusBadge: React.FC<StatusBadgeProps> = React.memo(({
-  status,
-  label,
-  colorMap,
-  className = '',
-}) => {
-  const map = colorMap ?? DEFAULT_COLOR_MAP;
-  const { bg, border, text } = map[status] ?? FALLBACK;
+export const StatusBadge: React.FC<StatusBadgeProps> = React.memo(
+  ({ status, label, colorMap, className = '' }) => {
+    const map = colorMap ?? DEFAULT_COLOR_MAP;
+    const { bg, border, text } = map[status] ?? FALLBACK;
 
-  return (
-    <span
-      className={`text-[10px] font-medium px-2.5 py-0.5 rounded-full border ${bg} ${border} ${text} ${className}`}
-    >
-      {label ?? status}
-    </span>
-  );
-});
+    return (
+      <span
+        className={`text-[10px] font-medium px-2.5 py-0.5 rounded-full border ${bg} ${border} ${text} ${className}`}
+      >
+        {label ?? status}
+      </span>
+    );
+  }
+);

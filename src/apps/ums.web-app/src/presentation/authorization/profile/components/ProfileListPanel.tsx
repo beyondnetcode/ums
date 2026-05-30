@@ -1,11 +1,9 @@
 import React, { useCallback } from 'react';
-import { UserCheck, Share2, Info, LayoutList, LayoutGrid, Building2, Shield, Key } from 'lucide-react';
+import { UserCheck, Share2, Info, Building2, Shield, Key } from 'lucide-react';
 import { type Profile } from '@domain/authorization/schemas/profile.schema';
 import { StatusBadge } from '@shared/components/StatusBadge';
 import {
   DataViewShell,
-  SearchBar,
-  FilterPanel,
   DataList,
   AtomicFilterOption,
   AtomicSortOption,
@@ -13,6 +11,7 @@ import {
   PaginationFooter,
   RequiresFilterPrompt,
 } from '@shared/components';
+import { ListToolbar } from '@shared/components/ListToolbar';
 import { useQueryState } from '@app/shared/hooks/use-query-state';
 import { usePaginationState } from '@app/shared/hooks/use-pagination-state';
 import { EntityRow } from '@shared/components/EntityRow';
@@ -33,7 +32,10 @@ interface Props {
   viewMode: 'list' | 'thumbnail';
   onViewModeChange: (m: 'list' | 'thumbnail') => void;
   queryState: ReturnType<typeof useQueryState<string, string>>;
-  paginationState: ReturnType<typeof usePaginationState> & { totalItems: number; totalPages: number };
+  paginationState: ReturnType<typeof usePaginationState> & {
+    totalItems: number;
+    totalPages: number;
+  };
   onRegisterNew: () => void;
   onSelectProfile: (id: string) => void;
   onOpenGraph: (id: string) => void;
@@ -41,13 +43,19 @@ interface Props {
 }
 
 export const ProfileListPanel: React.FC<Props> = ({
-  profiles, selectedId, isLoading, error,
-  viewMode, onViewModeChange,
-  queryState, paginationState,
-  onRegisterNew, onSelectProfile, onOpenGraph,
+  profiles,
+  selectedId,
+  isLoading,
+  error,
+  viewMode,
+  onViewModeChange,
+  queryState,
+  paginationState,
+  onRegisterNew,
+  onSelectProfile,
+  onOpenGraph,
   requiresFilter = false,
 }) => {
-
   const criteriaOptions: AtomicQueryCriteriaOption[] = [
     { label: 'Por Usuario', value: 'user' },
     { label: 'Por Rol', value: 'role' },
@@ -69,133 +77,146 @@ export const ProfileListPanel: React.FC<Props> = ({
     { label: 'Alcance', value: 'scope' },
   ];
 
-  const renderRow = useCallback((prof: Profile) => {
-    const isSelected = prof.profileId === selectedId;
-    const statusKey = prof.isActive ? 'active' : 'inactive';
+  const renderRow = useCallback(
+    (prof: Profile) => {
+      const isSelected = prof.profileId === selectedId;
+      const statusKey = prof.isActive ? 'active' : 'inactive';
 
-    return (
-      <EntityRow
-        key={prof.profileId}
-        selected={isSelected}
-        onClick={() => onSelectProfile(prof.profileId)}
-        leading={
-          <div className={`p-2 rounded-lg shrink-0 transition-colors ${isSelected ? 'bg-m3-primary/15' : 'bg-m3-surface-container/50'}`}>
-            <UserCheck className={`w-4 h-4 ${isSelected ? 'text-m3-primary' : 'text-m3-secondary'}`} />
-          </div>
-        }
-        trailingColumns={[
-          {
-            content: (
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-medium text-m3-secondary/70 bg-m3-surface-container/40 px-2 py-0.5 rounded-full">
-                  {prof.permissionCount} permisos
-                </span>
-                <StatusBadge
-                  status={statusKey}
-                  label={getStatusLabel(statusKey)}
-                  colorMap={STATUS_COLOR_MAP}
-                />
-                <button
-                  type="button"
-                  title="Ver Grafo de Autorización"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onOpenGraph(prof.profileId);
-                  }}
-                  className="p-1 rounded-lg border border-m3-outline/20 hover:bg-m3-surface-container/80 transition-colors"
-                >
-                  <Share2 className="w-3.5 h-3.5 text-m3-primary" />
-                </button>
-              </div>
-            ),
-            width: 'w-40',
-          },
-        ]}
-      >
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-bold text-m3-on-surface">{prof.userEmail}</span>
-          <span className="text-[9px] text-m3-secondary/30">·</span>
-          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-m3-primary bg-m3-primary/10 px-1.5 py-0.5 rounded">
-            {prof.systemSuiteCode}
-          </span>
-        </div>
-        <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-          <span className="inline-flex items-center gap-1 text-[10px] text-m3-secondary/70">
-            <Shield className="w-3 h-3 text-m3-secondary/50" />
-            <span className="font-medium">{prof.roleCode}</span>
-            <span className="text-m3-secondary/50">— {prof.roleName}</span>
-          </span>
-          <span className="text-[9px] text-m3-secondary/30">·</span>
-          <span className="inline-flex items-center gap-1 text-[10px] text-m3-secondary/70">
-            <Building2 className="w-3 h-3 text-m3-secondary/50" />
-            <span>{prof.tenantCode}</span>
-          </span>
-          <span className="text-[9px] text-m3-secondary/30">·</span>
-          <span className="inline-flex items-center gap-1 text-[10px] text-m3-secondary/70">
-            <Key className="w-3 h-3 text-m3-secondary/50" />
-            <span>{prof.scope}</span>
-          </span>
-        </div>
-      </EntityRow>
-    );
-  }, [selectedId, onSelectProfile, onOpenGraph]);
-
-  const renderCard = useCallback((prof: Profile) => {
-    const isSelected = prof.profileId === selectedId;
-    const statusKey = prof.isActive ? 'active' : 'inactive';
-
-    return (
-      <EntityCard
-        key={prof.profileId}
-        selected={isSelected}
-        onClick={() => onSelectProfile(prof.profileId)}
-        icon={<UserCheck className="w-5 h-5" />}
-        title={prof.userEmail}
-        subtitle={
-          <div className="flex flex-col gap-0.5">
-            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-m3-primary">
-              {prof.systemSuiteCode} — {prof.systemSuiteName}
-            </span>
-            <span className="text-[10px] text-m3-secondary/60">
-              {prof.tenantCode} · {prof.roleCode} · {prof.scope}
-            </span>
-            <span className="text-[10px] text-m3-secondary/50">
-              {prof.permissionCount} permisos
-            </span>
-          </div>
-        }
-        badges={
-          <div className="flex items-center gap-2">
-            <StatusBadge
-              status={statusKey}
-              label={getStatusLabel(statusKey)}
-              colorMap={STATUS_COLOR_MAP}
-            />
-            <button
-              type="button"
-              title="Ver Grafo"
-              onClick={(e) => {
-                e.stopPropagation();
-                onOpenGraph(prof.profileId);
-              }}
-              className="p-1 rounded-lg border border-m3-outline/20 hover:bg-m3-surface-container/80 transition-colors"
+      return (
+        <EntityRow
+          key={prof.profileId}
+          selected={isSelected}
+          onClick={() => onSelectProfile(prof.profileId)}
+          leading={
+            <div
+              className={`p-2 rounded-lg shrink-0 transition-colors ${isSelected ? 'bg-m3-primary/15' : 'bg-m3-surface-container/50'}`}
             >
-              <Share2 className="w-3.5 h-3.5 text-m3-primary" />
-            </button>
+              <UserCheck
+                className={`w-4 h-4 ${isSelected ? 'text-m3-primary' : 'text-m3-secondary'}`}
+              />
+            </div>
+          }
+          trailingColumns={[
+            {
+              content: (
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-medium text-m3-secondary/70 bg-m3-surface-container/40 px-2 py-0.5 rounded-full">
+                    {prof.permissionCount} permisos
+                  </span>
+                  <StatusBadge
+                    status={statusKey}
+                    label={getStatusLabel(statusKey)}
+                    colorMap={STATUS_COLOR_MAP}
+                  />
+                  <button
+                    type="button"
+                    title="Ver Grafo de Autorización"
+                    onClick={e => {
+                      e.stopPropagation();
+                      onOpenGraph(prof.profileId);
+                    }}
+                    className="p-1 rounded-lg border border-m3-outline/20 hover:bg-m3-surface-container/80 transition-colors"
+                  >
+                    <Share2 className="w-3.5 h-3.5 text-m3-primary" />
+                  </button>
+                </div>
+              ),
+              width: 'w-40',
+            },
+          ]}
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-bold text-m3-on-surface">{prof.userEmail}</span>
+            <span className="text-[9px] text-m3-secondary/30">·</span>
+            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-m3-primary bg-m3-primary/10 px-1.5 py-0.5 rounded">
+              {prof.systemSuiteCode}
+            </span>
           </div>
-        }
-      />
-    );
-  }, [selectedId, onSelectProfile, onOpenGraph]);
+          <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+            <span className="inline-flex items-center gap-1 text-[10px] text-m3-secondary/70">
+              <Shield className="w-3 h-3 text-m3-secondary/50" />
+              <span className="font-medium">{prof.roleCode}</span>
+              <span className="text-m3-secondary/50">— {prof.roleName}</span>
+            </span>
+            <span className="text-[9px] text-m3-secondary/30">·</span>
+            <span className="inline-flex items-center gap-1 text-[10px] text-m3-secondary/70">
+              <Building2 className="w-3 h-3 text-m3-secondary/50" />
+              <span>{prof.tenantCode}</span>
+            </span>
+            <span className="text-[9px] text-m3-secondary/30">·</span>
+            <span className="inline-flex items-center gap-1 text-[10px] text-m3-secondary/70">
+              <Key className="w-3 h-3 text-m3-secondary/50" />
+              <span>{prof.scope}</span>
+            </span>
+          </div>
+        </EntityRow>
+      );
+    },
+    [selectedId, onSelectProfile, onOpenGraph]
+  );
 
-  const pagination = paginationState.totalPages > 0 ? {
-    page: paginationState.page,
-    pageSize: paginationState.pageSize,
-    totalItems: paginationState.totalItems,
-    totalPages: paginationState.totalPages,
-    onPageChange: paginationState.handlePageChange ?? paginationState.setPage,
-    onPageSizeChange: paginationState.handlePageSizeChange,
-  } : undefined;
+  const renderCard = useCallback(
+    (prof: Profile) => {
+      const isSelected = prof.profileId === selectedId;
+      const statusKey = prof.isActive ? 'active' : 'inactive';
+
+      return (
+        <EntityCard
+          key={prof.profileId}
+          selected={isSelected}
+          onClick={() => onSelectProfile(prof.profileId)}
+          icon={<UserCheck className="w-5 h-5" />}
+          title={prof.userEmail}
+          subtitle={
+            <div className="flex flex-col gap-0.5">
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-m3-primary">
+                {prof.systemSuiteCode} — {prof.systemSuiteName}
+              </span>
+              <span className="text-[10px] text-m3-secondary/60">
+                {prof.tenantCode} · {prof.roleCode} · {prof.scope}
+              </span>
+              <span className="text-[10px] text-m3-secondary/50">
+                {prof.permissionCount} permisos
+              </span>
+            </div>
+          }
+          badges={
+            <div className="flex items-center gap-2">
+              <StatusBadge
+                status={statusKey}
+                label={getStatusLabel(statusKey)}
+                colorMap={STATUS_COLOR_MAP}
+              />
+              <button
+                type="button"
+                title="Ver Grafo"
+                onClick={e => {
+                  e.stopPropagation();
+                  onOpenGraph(prof.profileId);
+                }}
+                className="p-1 rounded-lg border border-m3-outline/20 hover:bg-m3-surface-container/80 transition-colors"
+              >
+                <Share2 className="w-3.5 h-3.5 text-m3-primary" />
+              </button>
+            </div>
+          }
+        />
+      );
+    },
+    [selectedId, onSelectProfile, onOpenGraph]
+  );
+
+  const pagination =
+    paginationState.totalPages > 0
+      ? {
+          page: paginationState.page,
+          pageSize: paginationState.pageSize,
+          totalItems: paginationState.totalItems,
+          totalPages: paginationState.totalPages,
+          onPageChange: paginationState.handlePageChange ?? paginationState.setPage,
+          onPageSizeChange: paginationState.handlePageSizeChange,
+        }
+      : undefined;
 
   const totalItems = paginationState.totalItems;
   const startIndex = paginationState.startIndex ?? 0;
@@ -228,34 +249,32 @@ export const ProfileListPanel: React.FC<Props> = ({
         onRegisterNew={onRegisterNew}
         registerLabel="Nuevo Perfil"
         controls={
-          <>
-            <SearchBar
-              criteriaOptions={criteriaOptions}
-              activeCriteria={queryState.searchCriteria}
-              onCriteriaChange={queryState.setSearchCriteria}
-              searchValue={queryState.searchValue}
-              onSearchValueChange={queryState.setSearchValue}
-              onSubmit={queryState.handleQuerySubmit}
-              criteriaLabel="Criterio"
-              searchTermLabel="Término"
-              searchButtonLabel="Buscar"
-            />
-            <FilterPanel
-              filterOptions={filterOptions}
-              activeFilter={queryState.activeFilter}
-              onFilterChange={queryState.setActiveFilter}
-              sortOptions={sortOptions}
-              sortBy={queryState.sortBy}
-              onSortByChange={queryState.setSortBy}
-              sortOrder={queryState.sortOrder}
-              onSortOrderToggle={queryState.toggleSortOrder}
-              viewMode={viewMode}
-              onViewModeChange={onViewModeChange}
-            />
-          </>
+          <ListToolbar
+            itemCount={totalItems}
+            itemLabel="perfil"
+            viewMode={viewMode}
+            onViewModeChange={onViewModeChange}
+            searchOptions={criteriaOptions}
+            activeSearchCriteria={queryState.searchCriteria}
+            onSearchCriteriaChange={queryState.setSearchCriteria}
+            searchValue={queryState.searchValue}
+            onSearchValueChange={queryState.setSearchValue}
+            onSearchSubmit={queryState.handleQuerySubmit}
+            onSearchClear={queryState.handleResetQuery}
+            filterOptions={filterOptions}
+            activeFilter={queryState.activeFilter}
+            onFilterChange={queryState.setActiveFilter}
+            sortOptions={sortOptions}
+            sortBy={queryState.sortBy}
+            onSortByChange={queryState.setSortBy}
+            sortOrder={queryState.sortOrder}
+            onSortOrderToggle={queryState.toggleSortOrder}
+          />
         }
         content={
-          requiresFilter ? filterPrompt : (
+          requiresFilter ? (
+            filterPrompt
+          ) : (
             <DataList
               isLoading={isLoading}
               isEmpty={totalItems === 0}
@@ -263,9 +282,7 @@ export const ProfileListPanel: React.FC<Props> = ({
               emptyLabel="Registre el primer perfil efectivo para iniciar la asignación de accesos."
               viewMode={viewMode}
               renderList={() => (
-                <div className="flex flex-col gap-0.5">
-                  {profiles.map(renderRow)}
-                </div>
+                <div className="flex flex-col gap-0.5">{profiles.map(renderRow)}</div>
               )}
               renderThumbnail={() => (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">

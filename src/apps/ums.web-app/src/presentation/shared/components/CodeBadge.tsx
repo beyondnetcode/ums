@@ -17,18 +17,16 @@ export interface CodeBadgeProps {
 }
 
 const SIZE_CLASSES: Record<string, string> = {
-  xs: 'text-[8px] px-1.5 py-0.5',
-  sm: 'text-xs px-1.5 py-0.5',
+  xs: 'text-[9px] px-1.5 py-0.5',
+  sm: 'text-[10px] px-2 py-0.5',
 };
 
-export const CodeBadge: React.FC<CodeBadgeProps> = React.memo(({
-  code,
-  size = 'sm',
-  className = '',
-}) => (
-  <span
-    className={`font-medium rounded bg-m3-outline/30 text-m3-secondary font-mono ${SIZE_CLASSES[size]} ${className}`}
-  >
-    {code}
-  </span>
-));
+export const CodeBadge: React.FC<CodeBadgeProps> = React.memo(
+  ({ code, size = 'sm', className = '' }) => (
+    <span
+      className={`font-medium rounded bg-m3-outline/30 text-m3-secondary font-mono ${SIZE_CLASSES[size]} ${className}`}
+    >
+      {code}
+    </span>
+  )
+);

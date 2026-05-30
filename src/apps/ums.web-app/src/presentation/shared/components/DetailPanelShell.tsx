@@ -53,8 +53,8 @@ export interface DetailPanelShellProps<T extends string = string> {
 export function DetailPanelShell<T extends string = string>({
   isLoading,
   isEmpty,
-  loadingLabel = 'Loading...',
-  emptyLabel = 'Select an item to view details.',
+  loadingLabel = 'Cargando...',
+  emptyLabel = 'Seleccione un elemento para ver los detalles.',
   title,
   subtitle,
   headerActions,
@@ -73,10 +73,10 @@ export function DetailPanelShell<T extends string = string>({
     return (
       <M3Card
         variant="elevated"
-        className="py-24 text-center text-sm text-m3-secondary border border-m3-outline/20"
+        className="flex flex-col items-center justify-center min-h-[200px] border border-m3-outline/20 bg-m3-surface-container/10"
       >
-        <RefreshCw className="w-8 h-8 animate-spin text-m3-primary mx-auto mb-3" />
-        {loadingLabel}
+        <RefreshCw className="w-6 h-6 animate-spin text-m3-primary mb-3" />
+        <p className="text-xs text-m3-secondary">{loadingLabel}</p>
       </M3Card>
     );
   }
@@ -85,9 +85,9 @@ export function DetailPanelShell<T extends string = string>({
     return (
       <M3Card
         variant="elevated"
-        className="p-6 text-center text-sm text-m3-secondary border border-m3-outline/20 bg-m3-surface-container/10"
+        className="flex flex-col items-center justify-center min-h-[200px] border border-m3-outline/20 bg-m3-surface-container/10"
       >
-        {emptyLabel}
+        <p className="text-xs text-m3-secondary/60">{emptyLabel}</p>
       </M3Card>
     );
   }
@@ -96,10 +96,10 @@ export function DetailPanelShell<T extends string = string>({
     <div key={entityKey} className="space-y-4">
       {/* Title bar */}
       {(title || subtitle || headerActions) && (
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1">
-            {title && <h2 className="text-lg font-bold text-m3-on-surface">{title}</h2>}
-            {subtitle && <p className="text-xs text-m3-secondary mt-0.5">{subtitle}</p>}
+        <div className="flex items-start justify-between gap-4 px-1">
+          <div className="flex-1 min-w-0">
+            {title && <h2 className="text-sm font-semibold text-m3-on-surface">{title}</h2>}
+            {subtitle && <p className="text-[11px] text-m3-secondary mt-0.5">{subtitle}</p>}
           </div>
           {headerActions && <div className="shrink-0">{headerActions}</div>}
         </div>
@@ -107,25 +107,34 @@ export function DetailPanelShell<T extends string = string>({
 
       {/* Profile / header slot */}
       {header && (
-        <div className={`overflow-hidden transition-all duration-200 ${headerCollapsed ? 'max-h-0 opacity-0' : 'max-h-[600px] opacity-100'}`}>
+        <div
+          className={`overflow-hidden transition-all duration-200 ${
+            headerCollapsed ? 'max-h-0 opacity-0' : 'max-h-[600px] opacity-100'
+          }`}
+        >
           {header}
         </div>
       )}
 
       {/* Splitter / toggle between header and tabs */}
       {header && headerCollapsible && (
-        <div className="flex items-center gap-2 -mx-5 px-5">
-          <div className="flex-1 h-px bg-m3-outline/20" />
+        <div className="flex items-center gap-2 -mx-4 px-4">
+          <div className="flex-1 h-px bg-m3-outline/15" />
           <button
             type="button"
             onClick={() => setHeaderCollapsed(!headerCollapsed)}
-            className="flex items-center gap-1 text-[10px] text-m3-secondary/60 hover:text-m3-primary transition-colors px-2 py-1 rounded-md hover:bg-m3-primary/10"
+            className="flex items-center gap-1 text-[10px] text-m3-secondary/60 hover:text-m3-primary
+              transition-colors px-2 py-1 rounded-md hover:bg-m3-primary/10"
             title={headerCollapsed ? 'Mostrar cabecera' : 'Ocultar cabecera'}
           >
-            {headerCollapsed ? <ChevronDown className="w-3 h-3" /> : <ChevronUp className="w-3 h-3" />}
+            {headerCollapsed ? (
+              <ChevronDown className="w-3 h-3" />
+            ) : (
+              <ChevronUp className="w-3 h-3" />
+            )}
             {headerCollapsed ? 'Mostrar' : 'Ocultar'}
           </button>
-          <div className="flex-1 h-px bg-m3-outline/20" />
+          <div className="flex-1 h-px bg-m3-outline/15" />
         </div>
       )}
 
@@ -134,12 +143,18 @@ export function DetailPanelShell<T extends string = string>({
 
       {/* Tab bar */}
       {tabs.length > 0 && (
-        <div className="-mx-5 px-5">
+        <div className="-mx-4 px-4">
           <M3SegmentedButton
-            options={tabs.map((tab): SegmentOption<T> => ({
-              value: tab.key,
-              label: <span className="flex items-center gap-1.5">{tab.icon} {tab.label}</span>,
-            }))}
+            options={tabs.map(
+              (tab): SegmentOption<T> => ({
+                value: tab.key,
+                label: (
+                  <span className="flex items-center gap-1.5">
+                    {tab.icon} {tab.label}
+                  </span>
+                ),
+              })
+            )}
             value={activeTab}
             onChange={onTabChange}
             size="md"
@@ -150,7 +165,7 @@ export function DetailPanelShell<T extends string = string>({
       {/* Tab content */}
       <M3Card
         variant="elevated"
-        className="p-5 border border-m3-outline/25 bg-m3-surface-container/20 shadow-sm"
+        className="p-4 border border-m3-outline/20 bg-m3-surface-container/10"
       >
         {children}
       </M3Card>

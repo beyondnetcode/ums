@@ -13,7 +13,7 @@ import {
   useRemoveDomainResource,
   useUpdateDomainResource,
 } from '@app/authorization/hooks/use-system-suite';
-import { ChildEntityToolbar } from '@shared/components/ChildEntityToolbar';
+import { ListToolbar } from '@shared/components/ListToolbar';
 
 interface SystemSuiteDomainResourcesPanelProps {
   systemSuite: SystemSuite;
@@ -100,7 +100,7 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
 
   return (
     <div className="space-y-4">
-      <ChildEntityToolbar
+      <ListToolbar
         viewMode={viewMode}
         onViewModeChange={setViewMode}
         filterOptions={[

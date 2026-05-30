@@ -1,13 +1,11 @@
 import React, { useCallback } from 'react';
-import { Mail, Layers, ArrowRight, LayoutList, LayoutGrid, Info, Building2 } from 'lucide-react';
+import { Mail, Layers, ArrowRight, Info, Building2 } from 'lucide-react';
 import { UserAccount } from '@domain/identity/models/user-account.model';
 import { Tenant } from '@domain/identity/models/tenant.model';
 import { StatusBadge } from '@shared/components/StatusBadge';
 import { CodeBadge } from '@shared/components/CodeBadge';
 import {
   DataViewShell,
-  SearchBar,
-  FilterPanel,
   DataList,
   AtomicQueryCriteriaOption,
   AtomicFilterOption,
@@ -15,6 +13,7 @@ import {
   PaginationFooter,
   RequiresFilterPrompt,
 } from '@shared/components';
+import { ListToolbar } from '@shared/components/ListToolbar';
 import { EntityRow } from '@shared/components/EntityRow';
 import { EntityCard } from '@shared/components/EntityCard';
 import { M3Card } from '@shared/components/M3Card';
@@ -25,7 +24,6 @@ import { ApiErrorBanner } from '@shared/components/ApiErrorBanner';
 import { useQueryState } from '@app/shared/hooks/use-query-state';
 import { usePaginationState } from '@app/shared/hooks/use-pagination-state';
 
-
 interface UserAccountListPanelProps {
   accounts: UserAccount[];
   selectedId: string;
@@ -34,7 +32,10 @@ interface UserAccountListPanelProps {
   viewMode: 'list' | 'thumbnail';
   onViewModeChange: (mode: 'list' | 'thumbnail') => void;
   queryState: ReturnType<typeof useQueryState<string, string>>;
-  paginationState: ReturnType<typeof usePaginationState> & { totalItems: number; totalPages: number };
+  paginationState: ReturnType<typeof usePaginationState> & {
+    totalItems: number;
+    totalPages: number;
+  };
   onRegisterNew: () => void;
   onSelectAccount: (accountId: string) => void;
   criteriaOptions: AtomicQueryCriteriaOption[];
@@ -46,8 +47,6 @@ interface UserAccountListPanelProps {
   sessionTenantName?: string;
   requiresFilter?: boolean;
 }
-
-
 
 export const UserAccountListPanel: React.FC<UserAccountListPanelProps> = ({
   accounts,
@@ -72,65 +71,89 @@ export const UserAccountListPanel: React.FC<UserAccountListPanelProps> = ({
   const t = useI18n();
   const getStatusLabel = useStatusLabel();
 
-  const renderAccountRow = useCallback((account: UserAccount) => {
-    const isSelected = account.userAccountId === selectedId;
-    return (
-      <EntityRow
-        key={account.userAccountId}
-        id={account.userAccountId}
-        isActive={account.status === 'Active'}
-        selected={isSelected}
-        onClick={() => onSelectAccount(account.userAccountId)}
-        leading={
-          <div className={`p-2 rounded-lg transition-colors ${isSelected ? 'bg-m3-primary/15' : 'bg-m3-surface-container/50'}`}>
-            <Mail className={`w-4 h-4 ${isSelected ? 'text-m3-primary' : 'text-m3-secondary'}`} />
-          </div>
-        }
-        trailingColumns={[
-          { content: <CodeBadge code={account.category} />, width: 'w-20' },
-          { content: <StatusBadge status={account.status} label={getStatusLabel(account.status)} />, width: 'w-20' },
-          { content: <ArrowRight className={`w-4 h-4 transition-transform ${isSelected ? 'text-m3-primary translate-x-0.5' : 'text-m3-outline/30'}`} />, width: 'w-5' },
-        ]}
-      >
-        <span className="text-sm font-semibold text-m3-on-surface line-clamp-1">{account.email}</span>
-      </EntityRow>
-    );
-  }, [selectedId, onSelectAccount, getStatusLabel]);
+  const renderAccountRow = useCallback(
+    (account: UserAccount) => {
+      const isSelected = account.userAccountId === selectedId;
+      return (
+        <EntityRow
+          key={account.userAccountId}
+          id={account.userAccountId}
+          isActive={account.status === 'Active'}
+          selected={isSelected}
+          onClick={() => onSelectAccount(account.userAccountId)}
+          leading={
+            <div
+              className={`p-2 rounded-lg transition-colors ${isSelected ? 'bg-m3-primary/15' : 'bg-m3-surface-container/50'}`}
+            >
+              <Mail className={`w-4 h-4 ${isSelected ? 'text-m3-primary' : 'text-m3-secondary'}`} />
+            </div>
+          }
+          trailingColumns={[
+            { content: <CodeBadge code={account.category} />, width: 'w-20' },
+            {
+              content: (
+                <StatusBadge status={account.status} label={getStatusLabel(account.status)} />
+              ),
+              width: 'w-20',
+            },
+            {
+              content: (
+                <ArrowRight
+                  className={`w-4 h-4 transition-transform ${isSelected ? 'text-m3-primary translate-x-0.5' : 'text-m3-outline/30'}`}
+                />
+              ),
+              width: 'w-5',
+            },
+          ]}
+        >
+          <span className="text-sm font-semibold text-m3-on-surface line-clamp-1">
+            {account.email}
+          </span>
+        </EntityRow>
+      );
+    },
+    [selectedId, onSelectAccount, getStatusLabel]
+  );
 
-  const renderAccountCard = useCallback((account: UserAccount) => {
-    const isSelected = account.userAccountId === selectedId;
-    return (
-      <EntityCard
-        key={account.userAccountId}
-        selected={isSelected}
-        onClick={() => onSelectAccount(account.userAccountId)}
-        icon={<Mail className="w-5 h-5" />}
-        title={account.email}
-        subtitle={account.category}
-        badges={
-          <>
-            <CodeBadge code={account.category} />
-            <StatusBadge status={account.status} label={getStatusLabel(account.status)} />
-          </>
-        }
-      />
-    );
-  }, [selectedId, onSelectAccount, getStatusLabel]);
+  const renderAccountCard = useCallback(
+    (account: UserAccount) => {
+      const isSelected = account.userAccountId === selectedId;
+      return (
+        <EntityCard
+          key={account.userAccountId}
+          selected={isSelected}
+          onClick={() => onSelectAccount(account.userAccountId)}
+          icon={<Mail className="w-5 h-5" />}
+          title={account.email}
+          subtitle={account.category}
+          badges={
+            <>
+              <CodeBadge code={account.category} />
+              <StatusBadge status={account.status} label={getStatusLabel(account.status)} />
+            </>
+          }
+        />
+      );
+    },
+    [selectedId, onSelectAccount, getStatusLabel]
+  );
 
-  const pagination = paginationState.totalItems && paginationState.totalItems > 0 ? {
-    page: paginationState.page,
-    pageSize: paginationState.pageSize,
-    totalItems: paginationState.totalItems,
-    totalPages: paginationState.totalPages ?? 1,
-    onPageChange: paginationState.handlePageChange ?? paginationState.setPage,
-    onPageSizeChange: paginationState.handlePageSizeChange,
-  } : undefined;
+  const totalItems = paginationState.totalItems;
+
+  const pagination =
+    totalItems > 0
+      ? {
+          page: paginationState.page,
+          pageSize: paginationState.pageSize,
+          totalItems,
+          totalPages: paginationState.totalPages ?? 1,
+          onPageChange: paginationState.handlePageChange ?? paginationState.setPage,
+          onPageSizeChange: paginationState.handlePageSizeChange,
+        }
+      : undefined;
 
   const filterPrompt = requiresFilter ? (
-    <RequiresFilterPrompt
-      title={t.applyFilterTitle}
-      message={t.applyFilterMessage}
-    />
+    <RequiresFilterPrompt title={t.applyFilterTitle} message={t.applyFilterMessage} />
   ) : null;
 
   return (
@@ -182,38 +205,32 @@ export const UserAccountListPanel: React.FC<UserAccountListPanelProps> = ({
           onRegisterNew={onRegisterNew}
           registerLabel={t.registerNew}
           controls={
-            <>
-              <SearchBar
-                criteriaOptions={criteriaOptions}
-                activeCriteria={queryState.searchCriteria}
-                onCriteriaChange={queryState.setSearchCriteria}
-                searchValue={queryState.searchValue}
-                onSearchValueChange={queryState.setSearchValue}
-                onSubmit={queryState.handleQuerySubmit}
-                criteriaLabel={t.criteria}
-                searchTermLabel={t.searchTerm}
-                searchButtonLabel={t.searchBtn}
-              />
-              <FilterPanel
-                filterOptions={filterOptions}
-                activeFilter={queryState.activeFilter}
-                onFilterChange={queryState.setActiveFilter}
-                sortOptions={sortOptions}
-                sortBy={queryState.sortBy}
-                onSortByChange={queryState.setSortBy}
-                sortOrder={queryState.sortOrder}
-                onSortOrderToggle={queryState.toggleSortOrder}
-                viewModeOptions={[
-                  { value: 'list', label: <LayoutList className="w-4 h-4" /> },
-                  { value: 'thumbnail', label: <LayoutGrid className="w-4 h-4" /> }
-                ]}
-                viewMode={viewMode}
-                onViewModeChange={onViewModeChange}
-              />
-            </>
+            <ListToolbar
+              itemCount={totalItems}
+              itemLabel="cuenta"
+              viewMode={viewMode}
+              onViewModeChange={onViewModeChange}
+              searchOptions={criteriaOptions}
+              activeSearchCriteria={queryState.searchCriteria}
+              onSearchCriteriaChange={queryState.setSearchCriteria}
+              searchValue={queryState.searchValue}
+              onSearchValueChange={queryState.setSearchValue}
+              onSearchSubmit={queryState.handleQuerySubmit}
+              onSearchClear={queryState.handleResetQuery}
+              filterOptions={filterOptions}
+              activeFilter={queryState.activeFilter}
+              onFilterChange={queryState.setActiveFilter}
+              sortOptions={sortOptions}
+              sortBy={queryState.sortBy}
+              onSortByChange={queryState.setSortBy}
+              sortOrder={queryState.sortOrder}
+              onSortOrderToggle={queryState.toggleSortOrder}
+            />
           }
           content={
-            requiresFilter ? filterPrompt : (
+            requiresFilter ? (
+              filterPrompt
+            ) : (
               <DataList
                 isLoading={isLoading}
                 isEmpty={!isLoading && accounts.length === 0}
@@ -223,9 +240,7 @@ export const UserAccountListPanel: React.FC<UserAccountListPanelProps> = ({
                 renderList={() => (
                   <>
                     {error && <ApiErrorBanner error={error} />}
-                    <div className="flex flex-col gap-0.5">
-                      {accounts.map(renderAccountRow)}
-                    </div>
+                    <div className="flex flex-col gap-0.5">{accounts.map(renderAccountRow)}</div>
                   </>
                 )}
                 renderThumbnail={() => (

@@ -1,9 +1,8 @@
 import React, { useCallback } from 'react';
 import { Info, LayoutList, LayoutGrid } from 'lucide-react';
+import { ListToolbar } from '@shared/components/ListToolbar';
 import { Tenant } from '@domain/identity/models/tenant.model';
-import {
-  HierarchicalList,
-} from '@shared/components/HierarchicalList';
+import { HierarchicalList } from '@shared/components/HierarchicalList';
 import {
   renderTenantParentRow,
   renderTenantChildRow,
@@ -13,8 +12,6 @@ import {
 import type { TreeNode } from '@app/hooks/use-tree-nodes';
 import {
   DataViewShell,
-  SearchBar,
-  FilterPanel,
   DataList,
   AtomicQueryCriteriaOption,
   AtomicFilterOption,
@@ -36,7 +33,10 @@ interface TenantListPanelProps {
   viewMode: 'list' | 'thumbnail';
   onViewModeChange: (mode: 'list' | 'thumbnail') => void;
   queryState: ReturnType<typeof useQueryState<string, string>>;
-  paginationState: ReturnType<typeof usePaginationState> & { totalItems: number; totalPages: number };
+  paginationState: ReturnType<typeof usePaginationState> & {
+    totalItems: number;
+    totalPages: number;
+  };
   onRegisterNew: () => void;
   onSelectTenant: (tenantId: string) => void;
   criteriaOptions: AtomicQueryCriteriaOption[];
@@ -65,25 +65,33 @@ export const TenantListPanel: React.FC<TenantListPanelProps> = ({
   const statusLabel = useStatusLabel();
 
   const renderParentRow = useCallback(
-    (node: TreeNode<Tenant>, isSelected: boolean, isExpanded: boolean, onToggle: () => void) => 
+    (node: TreeNode<Tenant>, isSelected: boolean, isExpanded: boolean, onToggle: () => void) =>
       renderTenantParentRow(node, isSelected, isExpanded, onToggle, onSelectTenant, statusLabel, t),
     [onSelectTenant, statusLabel, t]
   );
 
   const renderChildRow = useCallback(
-    (child: Tenant, isChildSelected: boolean) => 
+    (child: Tenant, isChildSelected: boolean) =>
       renderTenantChildRow(child, isChildSelected, onSelectTenant, statusLabel, t),
     [onSelectTenant, statusLabel, t]
   );
 
   const renderParentCard = useCallback(
-    (node: TreeNode<Tenant>, isSelected: boolean, isExpanded: boolean, onToggle: () => void) => 
-      renderTenantParentCard(node, isSelected, isExpanded, onToggle, onSelectTenant, statusLabel, t),
+    (node: TreeNode<Tenant>, isSelected: boolean, isExpanded: boolean, onToggle: () => void) =>
+      renderTenantParentCard(
+        node,
+        isSelected,
+        isExpanded,
+        onToggle,
+        onSelectTenant,
+        statusLabel,
+        t
+      ),
     [onSelectTenant, statusLabel, t]
   );
 
   const renderChildCard = useCallback(
-    (child: Tenant, isChildSelected: boolean) => 
+    (child: Tenant, isChildSelected: boolean) =>
       renderTenantChildCard(child, isChildSelected, onSelectTenant, statusLabel, t),
     [onSelectTenant, statusLabel, t]
   );
@@ -97,31 +105,35 @@ export const TenantListPanel: React.FC<TenantListPanelProps> = ({
       <div className="flex items-center gap-1.5">
         <span className="h-2 w-2 rounded-full bg-m3-primary animate-pulse" />
         <span className="text-xs font-medium text-m3-secondary/80">
-          {t.showing} {totalItems === 0 ? 0 : startIndex + 1}-{Math.min(startIndex + pageSize, totalItems)} {t.of} {totalItems} {t.tenants}
+          {t.showing} {totalItems === 0 ? 0 : startIndex + 1}-
+          {Math.min(startIndex + pageSize, totalItems)} {t.of} {totalItems} {t.tenants}
         </span>
       </div>
       {queryState.appliedQuery.term.trim() && (
-        <button onClick={queryState.handleResetQuery} className="text-xs font-medium text-rose-500 hover:underline flex items-center gap-1">
+        <button
+          onClick={queryState.handleResetQuery}
+          className="text-xs font-medium text-rose-500 hover:underline flex items-center gap-1"
+        >
           <Info className="w-3 h-3" /> {t.clearFilter}
         </button>
       )}
     </div>
   );
 
-  const pagination = paginationState.totalPages > 0 ? {
-    page: paginationState.page,
-    pageSize: paginationState.pageSize,
-    totalItems: paginationState.totalItems,
-    totalPages: paginationState.totalPages,
-    onPageChange: paginationState.handlePageChange ?? paginationState.setPage,
-    onPageSizeChange: paginationState.handlePageSizeChange,
-  } : undefined;
+  const pagination =
+    paginationState.totalPages > 0
+      ? {
+          page: paginationState.page,
+          pageSize: paginationState.pageSize,
+          totalItems: paginationState.totalItems,
+          totalPages: paginationState.totalPages,
+          onPageChange: paginationState.handlePageChange ?? paginationState.setPage,
+          onPageSizeChange: paginationState.handlePageSizeChange,
+        }
+      : undefined;
 
   const filterPrompt = requiresFilter ? (
-    <RequiresFilterPrompt
-      title={t.applyFilterTitle}
-      message={t.applyFilterMessage}
-    />
+    <RequiresFilterPrompt title={t.applyFilterTitle} message={t.applyFilterMessage} />
   ) : null;
 
   return (
@@ -131,38 +143,32 @@ export const TenantListPanel: React.FC<TenantListPanelProps> = ({
       onRegisterNew={onRegisterNew}
       registerLabel={t.newBtn}
       controls={
-        <>
-          <SearchBar
-            criteriaOptions={criteriaOptions}
-            activeCriteria={queryState.searchCriteria}
-            onCriteriaChange={queryState.setSearchCriteria}
-            searchValue={queryState.searchValue}
-            onSearchValueChange={queryState.setSearchValue}
-            onSubmit={queryState.handleQuerySubmit}
-            criteriaLabel={t.dataViewCriteriaLabel}
-            searchTermLabel={t.dataViewSearchTermLabel}
-            searchButtonLabel={t.dataViewSearchBtn}
-          />
-          <FilterPanel
-            filterOptions={filterOptions}
-            activeFilter={queryState.activeFilter}
-            onFilterChange={queryState.setActiveFilter}
-            sortOptions={sortOptions}
-            sortBy={queryState.sortBy}
-            onSortByChange={queryState.setSortBy}
-            sortOrder={queryState.sortOrder}
-            onSortOrderToggle={queryState.toggleSortOrder}
-            viewModeOptions={[
-              { value: 'list', label: <LayoutList className="w-4 h-4" /> },
-              { value: 'thumbnail', label: <LayoutGrid className="w-4 h-4" /> }
-            ]}
-            viewMode={viewMode}
-            onViewModeChange={onViewModeChange}
-          />
-        </>
+        <ListToolbar
+          itemCount={totalItems}
+          itemLabel="tenant"
+          viewMode={viewMode}
+          onViewModeChange={onViewModeChange}
+          searchOptions={criteriaOptions}
+          activeSearchCriteria={queryState.searchCriteria}
+          onSearchCriteriaChange={queryState.setSearchCriteria}
+          searchValue={queryState.searchValue}
+          onSearchValueChange={queryState.setSearchValue}
+          onSearchSubmit={queryState.handleQuerySubmit}
+          onSearchClear={queryState.handleResetQuery}
+          filterOptions={filterOptions}
+          activeFilter={queryState.activeFilter}
+          onFilterChange={queryState.setActiveFilter}
+          sortOptions={sortOptions}
+          sortBy={queryState.sortBy}
+          onSortByChange={queryState.setSortBy}
+          sortOrder={queryState.sortOrder}
+          onSortOrderToggle={queryState.toggleSortOrder}
+        />
       }
       content={
-        requiresFilter ? filterPrompt : (
+        requiresFilter ? (
+          filterPrompt
+        ) : (
           <DataList
             isLoading={isLoading}
             isEmpty={totalItems === 0}
@@ -192,16 +198,16 @@ export const TenantListPanel: React.FC<TenantListPanelProps> = ({
               <HierarchicalList<Tenant>
                 items={tenants}
                 idKey="tenantId"
-              parentIdKey="parentTenantId"
-              selectedId={selectedId}
-              onSelect={onSelectTenant}
-              renderParentRow={renderParentRow}
-              renderChildRow={renderChildRow}
-              renderParentCard={renderParentCard}
-              renderChildCard={renderChildCard}
-              viewMode={viewMode}
-            />
-          )}
+                parentIdKey="parentTenantId"
+                selectedId={selectedId}
+                onSelect={onSelectTenant}
+                renderParentRow={renderParentRow}
+                renderChildRow={renderChildRow}
+                renderParentCard={renderParentCard}
+                renderChildCard={renderChildCard}
+                viewMode={viewMode}
+              />
+            )}
             pagination={pagination}
             footerElement={footerTelemetry}
           />

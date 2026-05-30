@@ -19,21 +19,18 @@ export interface SectionHeaderProps {
   className?: string;
 }
 
-export const SectionHeader: React.FC<SectionHeaderProps> = React.memo(({
-  title,
-  subtitle,
-  actions,
-  className = '',
-}) => (
-  <div
-    className={`flex justify-between items-center border-b border-m3-outline/10 pb-3 ${className}`}
-  >
-    <div>
-      <h3 className="text-xs font-semibold text-m3-on-surface">{title}</h3>
-      {subtitle && (
-        <p className="text-[9px] text-m3-secondary font-bold">{subtitle}</p>
-      )}
+export const SectionHeader: React.FC<SectionHeaderProps> = React.memo(
+  ({ title, subtitle, actions, className = '' }) => (
+    <div
+      className={`flex justify-between items-center pb-3 border-b border-m3-outline/15 ${className}`}
+    >
+      <div>
+        <h3 className="text-[11px] font-semibold text-m3-on-surface uppercase tracking-wide">
+          {title}
+        </h3>
+        {subtitle && <p className="text-[10px] text-m3-secondary mt-0.5">{subtitle}</p>}
+      </div>
+      {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
     </div>
-    {actions && <div className="flex items-center gap-2">{actions}</div>}
-  </div>
-));
+  )
+);

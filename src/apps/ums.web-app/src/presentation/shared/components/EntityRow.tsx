@@ -77,15 +77,15 @@ export const EntityRow: React.FC<EntityRowProps> = ({
       onClick={onClick}
       onDoubleClick={onDoubleClick}
       className={[
-        'group/row flex items-center px-3 py-2.5 min-h-[3.5rem] mx-2 my-0.5 rounded-xl',
+        'group/row flex items-center px-4 py-2.5 min-h-[3rem]',
         'transition-all duration-200 outline-none',
         isInteractive ? 'cursor-pointer' : 'cursor-default',
         isActive ? 'opacity-100' : 'opacity-65',
         selected
-          ? 'bg-m3-primary/10 border border-m3-primary/10'
+          ? 'bg-m3-primary/10 border border-m3-primary/20'
           : isInteractive
-          ? 'bg-transparent hover:bg-m3-surface-container/30 border border-transparent hover:border-m3-outline/5'
-          : 'bg-transparent border border-transparent',
+            ? 'bg-transparent hover:bg-m3-surface-container/20 border border-transparent hover:border-m3-outline/5'
+            : 'bg-transparent border border-transparent',
         className,
       ].join(' ')}
     >
@@ -111,9 +111,7 @@ export const EntityRow: React.FC<EntityRowProps> = ({
 
       {/* Legacy freeform trailing — only when no structured columns */}
       {!hasStructuredTrailing && hasFreeformTrailing && (
-        <div className="flex items-center gap-2 shrink-0 ml-4">
-          {trailing || actions}
-        </div>
+        <div className="flex items-center gap-2 shrink-0 ml-4">{trailing || actions}</div>
       )}
     </div>
   );

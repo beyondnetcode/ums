@@ -50,9 +50,7 @@ export const DataViewShell: React.FC<DataViewShellProps> = ({
               <span className="truncate">{title}</span>
             </h2>
             {subtitle && (
-              <p className="text-xs text-m3-secondary font-normal pl-7 truncate">
-                {subtitle}
-              </p>
+              <p className="text-xs text-m3-secondary font-normal pl-7 truncate">{subtitle}</p>
             )}
           </div>
 
@@ -78,7 +76,11 @@ export const DataViewShell: React.FC<DataViewShellProps> = ({
                   : 'bg-m3-surface-container/60 border-m3-outline/40 text-m3-secondary hover:bg-m3-primary/10 hover:border-m3-primary/40 hover:text-m3-primary',
               ].join(' ')}
             >
-              {isHeaderCollapsed ? <ChevronsDown className="w-3.5 h-3.5" /> : <ChevronsUp className="w-3.5 h-3.5" />}
+              {isHeaderCollapsed ? (
+                <ChevronsDown className="w-3.5 h-3.5" />
+              ) : (
+                <ChevronsUp className="w-3.5 h-3.5" />
+              )}
             </button>
           </div>
         </div>
@@ -89,7 +91,7 @@ export const DataViewShell: React.FC<DataViewShellProps> = ({
         ref={searchZoneRef}
         style={topPx !== null ? { height: topPx } : undefined}
         className={[
-          'flex flex-col gap-3 flex-shrink-0',
+          'flex flex-col flex-shrink-0 bg-m3-surface-container/5',
           topPx !== null ? 'overflow-hidden' : 'overflow-visible',
           topPx !== null && !isDraggingH ? 'transition-[height] duration-200 ease-in-out' : '',
         ].join(' ')}
@@ -106,14 +108,24 @@ export const DataViewShell: React.FC<DataViewShellProps> = ({
         aria-orientation="horizontal"
         className={[
           'relative flex-shrink-0 h-1.5 w-full flex items-center justify-center group cursor-row-resize z-10 mt-1',
-          isDraggingH ? 'bg-m3-primary/20' : 'hover:bg-m3-primary/10 transition-colors duration-150',
+          isDraggingH
+            ? 'bg-m3-primary/20'
+            : 'hover:bg-m3-primary/10 transition-colors duration-150',
         ].join(' ')}
       >
-        <div className={['h-px w-full transition-colors duration-150', isDraggingH ? 'bg-m3-primary/60' : 'bg-m3-outline/30 group-hover:bg-m3-primary/40'].join(' ')} />
+        <div
+          className={[
+            'h-px w-full transition-colors duration-150',
+            isDraggingH ? 'bg-m3-primary/60' : 'bg-m3-outline/30 group-hover:bg-m3-primary/40',
+          ].join(' ')}
+        />
         <button
           type="button"
-          onClick={(e) => { e.stopPropagation(); toggleHeader(); }}
-          onMouseDown={(e) => e.stopPropagation()}
+          onClick={e => {
+            e.stopPropagation();
+            toggleHeader();
+          }}
+          onMouseDown={e => e.stopPropagation()}
           className={[
             'absolute left-1/2 -translate-x-1/2 -translate-y-px',
             'h-4 w-12 rounded-full flex items-center justify-center gap-0.5',
@@ -125,14 +137,16 @@ export const DataViewShell: React.FC<DataViewShellProps> = ({
                 : 'bg-m3-surface-container border-m3-outline/50 text-m3-secondary hover:bg-m3-primary/10 hover:border-m3-primary/40 hover:text-m3-primary',
           ].join(' ')}
         >
-          {isHeaderCollapsed ? <ChevronsDown className="w-3 h-3" /> : <ChevronsUp className="w-3 h-3" />}
+          {isHeaderCollapsed ? (
+            <ChevronsDown className="w-3 h-3" />
+          ) : (
+            <ChevronsUp className="w-3 h-3" />
+          )}
         </button>
       </div>
 
       {/* ZONE C — Content */}
-      <div className="flex-1 flex flex-col gap-3 min-h-0 overflow-hidden pt-1">
-        {content}
-      </div>
+      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">{content}</div>
     </div>
   );
 };

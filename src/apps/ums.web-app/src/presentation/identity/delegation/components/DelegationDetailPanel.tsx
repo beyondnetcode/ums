@@ -1,21 +1,23 @@
 import React from 'react';
-import { Shield, Key } from 'lucide-react';
+import { Shield, Key, Calendar, AlertCircle } from 'lucide-react';
 import { Delegation } from '@domain/identity/models/delegation.model';
-import { DetailPanelShell, DetailTab } from '@shared/components/DetailPanelShell';
+import { DetailPanelShell, DetailTab, DetailSection } from '@shared/components';
 import { DelegationProfileCard } from './DelegationProfileCard';
 import { useI18n } from '@app/i18n/use-i18n';
 import { KeyValueRow } from '@shared/components/KeyValueRow';
 import { CodeBadge } from '@shared/components/CodeBadge';
-import { Calendar, AlertCircle } from 'lucide-react';
 
 export type DelegationConsoleTab = 'overview' | 'permissions';
 
 const formatDate = (isoString: string | null) => {
   if (!isoString) return 'Indefinido';
   try {
-    return new Intl.DateTimeFormat('es-PE', { 
-      year: 'numeric', month: 'short', day: 'numeric', 
-      hour: '2-digit', minute: '2-digit' 
+    return new Intl.DateTimeFormat('es-PE', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     }).format(new Date(isoString));
   } catch {
     return isoString;
@@ -51,7 +53,7 @@ export const DelegationDetailPanel: React.FC<DelegationDetailPanelProps> = ({
     permissions: t.permissions ?? 'Permisos',
   };
 
-  const tabs: DetailTab<DelegationConsoleTab>[] = consoleTabs.map((tab) => ({
+  const tabs: DetailTab<DelegationConsoleTab>[] = consoleTabs.map(tab => ({
     key: tab,
     label: labels[tab],
     icon: icons[tab],
@@ -68,46 +70,51 @@ export const DelegationDetailPanel: React.FC<DelegationDetailPanelProps> = ({
       activeTab={activeConsoleTab}
       onTabChange={onConsoleTabChange}
       header={
-        activeDelegation ? (
-          <DelegationProfileCard
-            delegation={activeDelegation}
-          />
-        ) : undefined
+        activeDelegation ? <DelegationProfileCard delegation={activeDelegation} /> : undefined
       }
     >
-      {activeConsoleTab === 'overview' && activeDelegation && (
-        <div className="p-5 flex flex-col gap-3">
-          <KeyValueRow
-            icon={<Calendar className="w-3.5 h-3.5" />}
-            label={t.validFrom ?? 'Válido desde'}
-            value={formatDate(activeDelegation.validFrom)}
-          />
-          <KeyValueRow
-            icon={<Calendar className="w-3.5 h-3.5" />}
-            label={t.validUntil ?? 'Válido hasta'}
-            value={formatDate(activeDelegation.validUntil)}
-          />
-          <KeyValueRow
-            icon={<AlertCircle className="w-3.5 h-3.5" />}
-            label={t.requiresApproval ?? 'Requiere Aprobación'}
-            value={activeDelegation.requiresApproval ? (t.yes ?? 'Sí') : (t.no ?? 'No')}
-            bordered={false}
-          />
-        </div>
-      )}
+      <div className="p-4 space-y-4">
+        {activeConsoleTab === 'overview' && activeDelegation && (
+          <>
+            <DetailSection
+              title="Período de Validez"
+              content={
+                <div className="space-y-2">
+                  <KeyValueRow
+                    icon={<Calendar className="w-4 h-4" />}
+                    label={t.validFrom ?? 'Válido desde'}
+                    value={formatDate(activeDelegation.validFrom)}
+                  />
+                  <KeyValueRow
+                    icon={<Calendar className="w-4 h-4" />}
+                    label={t.validUntil ?? 'Válido hasta'}
+                    value={formatDate(activeDelegation.validUntil)}
+                  />
+                  <KeyValueRow
+                    icon={<AlertCircle className="w-4 h-4" />}
+                    label={t.requiresApproval ?? 'Requiere Aprobación'}
+                    value={activeDelegation.requiresApproval ? (t.yes ?? 'Sí') : (t.no ?? 'No')}
+                    bordered={false}
+                  />
+                </div>
+              }
+            />
+          </>
+        )}
 
-      {activeConsoleTab === 'permissions' && activeDelegation && (
-        <div className="p-5">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-m3-secondary mb-3">
-            {t.allowedActions ?? 'Acciones Permitidas'}
-          </h4>
-          <div className="flex flex-wrap gap-2">
-            {activeDelegation.allowedActions.map((action) => (
-              <CodeBadge key={action} code={action} />
-            ))}
-          </div>
-        </div>
-      )}
+        {activeConsoleTab === 'permissions' && activeDelegation && (
+          <DetailSection
+            title={t.allowedActions ?? 'Acciones Permitidas'}
+            content={
+              <div className="flex flex-wrap gap-2">
+                {activeDelegation.allowedActions.map(action => (
+                  <CodeBadge key={action} code={action} />
+                ))}
+              </div>
+            }
+          />
+        )}
+      </div>
     </DetailPanelShell>
   );
 };
