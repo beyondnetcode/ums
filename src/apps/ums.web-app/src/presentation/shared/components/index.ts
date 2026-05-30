@@ -133,3 +133,5 @@ export type { FieldSelectOption } from './form';
 
 export { ListToolbar } from './ListToolbar';
 export type { ListToolbarSortOption, ListToolbarFilterOption, ListToolbarSearchOption } from './ListToolbar';
+
+export { AddButton, AddButtonInline } from './AddButton';

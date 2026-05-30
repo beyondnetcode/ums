@@ -23,6 +23,7 @@ import { CodeBadge } from '@shared/components/CodeBadge';
 import { M3Button } from '@shared/components/M3Button';
 import { ListToolbar } from '@shared/components/ListToolbar';
 import { EmptyState } from '@shared/components/EmptyState';
+import { AddButtonInline } from '@shared/components/AddButton';
 import {
   FLAG_TYPE_LABELS,
   CRITERIA_TYPE_LABELS,
@@ -219,15 +220,13 @@ const FlagRow: React.FC<{
                 Criterios ({flag.criteria.length})
               </h5>
               {isDraft && (
-                <button
+                <AddButtonInline
                   onClick={e => {
                     e.stopPropagation();
                     setShowCriteriaForm(!showCriteriaForm);
                   }}
-                  className="flex items-center gap-1 text-[10px] text-m3-primary hover:text-m3-primary/80"
-                >
-                  <Plus className="w-4 h-4" />
-                </button>
+                  title="Agregar criterio"
+                />
               )}
             </div>
 

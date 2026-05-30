@@ -18,6 +18,7 @@ import { SmartConfigInput } from '@presentation/shared/components/SmartConfigInp
 import { ConfigValueDisplay } from '@presentation/shared/components/ConfigValueDisplay';
 import { ListToolbar } from '@shared/components/ListToolbar';
 import { StatusBadge } from '@shared/components/StatusBadge';
+import { AddButton } from '@shared/components/AddButton';
 import { M3Dialog } from '@shared/components/M3Dialog';
 import { FormField, FormInput, FormButton } from '@shared/components/form';
 import { parameterCatalogService } from '@infra/configuration/services/parameter-catalog/parameter-catalog.service';
@@ -390,13 +391,10 @@ export const TenantConfigurationsPanel: React.FC<TenantConfigurationsPanelProps>
         }
         subtitle={`${configs.length} ${configs.length === 1 ? 'configuración' : 'configuraciones'}`}
         actions={
-          <IconButton
-            tooltip={t.addParameter ?? 'Add Parameter'}
+          <AddButton
             onClick={openPicker}
-            className="hover:bg-m3-primary/10"
-          >
-            <Plus className="w-4 h-4" />
-          </IconButton>
+            title={t.addParameter ?? 'Add Parameter'}
+          />
         }
       />
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { M3Card } from '../M3Card';
 import { Database, Plus, ChevronsUp, ChevronsDown } from 'lucide-react';
 import { useDragResize } from '@app/hooks/use-drag-resize';
+import { AddButton } from '../AddButton';
 
 interface DataViewShellProps {
   title: string;
@@ -56,13 +57,10 @@ export const DataViewShell: React.FC<DataViewShellProps> = ({
 
           <div className="flex items-center gap-2 flex-shrink-0">
             {onRegisterNew && (
-              <button
-                type="button"
+              <AddButton
                 onClick={onRegisterNew}
-                className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-m3-primary/25 bg-m3-primary/10 px-3 text-xs font-medium text-m3-primary transition-colors hover:border-m3-primary/45 hover:bg-m3-primary/15"
-              >
-                <Plus className="h-3.5 w-3.5" /> {registerLabel}
-              </button>
+                title={registerLabel}
+              />
             )}
 
             <button

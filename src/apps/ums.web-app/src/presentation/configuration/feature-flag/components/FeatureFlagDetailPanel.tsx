@@ -25,7 +25,8 @@ import { M3Button } from '@shared/components/M3Button';
 import { M3TextField } from '@shared/components/M3TextField';
 import { EmptyDetailState } from '@shared/components/EmptyDetailState';
 import { DetailSection } from '@shared/components/DetailSection';
-import { IconButton } from '@shared/components/Tooltip';
+import { IconButton, Tooltip } from '@shared/components/Tooltip';
+import { AddButtonInline } from '@shared/components/AddButton';
 import { STATUS_COLORS } from '@shared/utils/status-utils';
 import {
   useActivateFlag,
@@ -243,7 +244,11 @@ export const FeatureFlagDetailPanel: React.FC<Props> = ({ flag }) => {
       <DetailSection
         title={`Criterios de Evaluación (${flag.criteria.length})`}
         actions={
-          isDraft && <M3Button variant="text" size="sm" icon={<Plus className="w-4 h-4" />} />
+          isDraft && (
+            <Tooltip content="Agregar criterio">
+              <AddButtonInline onClick={() => {}} />
+            </Tooltip>
+          )
         }
         content={
           <>
