@@ -159,7 +159,8 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ tenantId }) => {
         sortOrder={sortOrder}
         onSortOrderToggle={() => setSortOrder(o => (o === 'asc' ? 'desc' : 'asc'))}
         itemCount={branches.length}
-        itemLabel="Sucursal"
+        itemLabel="sucursal"
+        onAdd={() => setIsAdding(true)}
       />
 
       <div className="grid grid-cols-1 gap-4">
@@ -175,7 +176,7 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ tenantId }) => {
           cancelLabel={t.cancelEdit}
           submitLabel={t.saveLocation}
           isLoading={addBranchMutation.isPending}
-          triggerEmphasis="quiet"
+          triggerEmphasis="none"
           error={errorMsg || undefined}
         >
           <M3TextField

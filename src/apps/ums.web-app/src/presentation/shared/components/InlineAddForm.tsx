@@ -7,7 +7,7 @@ import { IconButton } from './Tooltip';
 /**
  * InlineAddForm — collapsible card for adding new entities inline.
  *
- * When closed, renders a minimal "+" button (or a quiet pill with just icon).
+ * When closed, renders a trigger button (or hidden if triggerEmphasis='none').
  * When open, renders an outlined card with header, children (form fields),
  * and a submit button aligned to the bottom right.
  */
@@ -19,7 +19,7 @@ export interface InlineAddFormProps {
   onToggle: (open: boolean) => void;
   /** Form submit handler (receives the form event). */
   onSubmit: (e: React.FormEvent) => void;
-  /** Label shown on the closed-state button. Use "+" for icon-only. */
+  /** Label shown on the closed-state button. Use "+" for icon-only. Use "" to hide trigger. */
   addLabel: string;
   /** Title shown in the open-state header. */
   title: string;
@@ -35,8 +35,9 @@ export interface InlineAddFormProps {
   error?: string;
   /** Form field children. */
   children: React.ReactNode;
-  /** Visual emphasis for the closed-state trigger button. */
-  triggerEmphasis?: 'normal' | 'quiet';
+  /** Visual emphasis for the closed-state trigger button.
+   * 'normal' = full button, 'quiet' = smaller pill, 'none' = hidden (use external trigger) */
+  triggerEmphasis?: 'normal' | 'quiet' | 'none';
   /** Whether the closed-state trigger should span the full width. */
   fullWidth?: boolean;
 }
@@ -61,6 +62,11 @@ export const InlineAddForm: React.FC<InlineAddFormProps> = ({
   const iconOnly = isIconOnly(addLabel);
 
   if (!isOpen) {
+    // No trigger when triggerEmphasis='none' - rely on external button (e.g., ListToolbar)
+    if (triggerEmphasis === 'none') {
+      return null;
+    }
+
     if (triggerEmphasis === 'quiet') {
       return (
         <div className="flex justify-start my-1 animate-fadeIn">
