@@ -45,12 +45,18 @@ export const IdpPanel: React.FC<IdpPanelProps> = ({ tenantId }) => {
   const [provCode, setProvCode] = React.useState('');
   const [provDescription, setProvDescription] = React.useState('');
   const [provStrategy, setProvStrategy] = React.useState<IdpStrategy>('OIDC');
+  const [viewMode, setViewMode] = React.useState<'list' | 'thumbnail'>('list');
+  const [activeFilter, setActiveFilter] = React.useState('all');
+  const [sortBy, setSortBy] = React.useState('name');
+  const [sortOrder, setSortOrder] = React.useState<'asc' | 'desc'>('asc');
 
   useResetOnChange(tenantId, () => {
     setIsAddingProvider(false);
     setProvName('');
     setProvCode('');
     setProvDescription('');
+    setViewMode('list');
+    setActiveFilter('all');
     edit.cancelEdit();
   });
 
@@ -147,11 +153,43 @@ export const IdpPanel: React.FC<IdpPanelProps> = ({ tenantId }) => {
     }
   };
 
+  const filteredProviders = [...providers]
+    .filter(p =>
+      activeFilter === 'active' ? p.isActive : activeFilter === 'inactive' ? !p.isActive : true
+    )
+    .sort((a, b) => {
+      const cmp =
+        sortBy === 'name'
+          ? a.name.localeCompare(b.name)
+          : sortBy === 'strategy'
+            ? a.strategy.localeCompare(b.strategy)
+            : a.code.localeCompare(b.code);
+      return sortOrder === 'asc' ? cmp : -cmp;
+    });
+
   return (
     <div className="space-y-4">
       <SectionHeader title={t.identityProviders} subtitle={t.idpSubtitle} />
 
       <ListToolbar
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        filterOptions={[
+          { label: 'Todos', value: 'all' },
+          { label: 'Activos', value: 'active' },
+          { label: 'Inactivos', value: 'inactive' },
+        ]}
+        activeFilter={activeFilter}
+        onFilterChange={setActiveFilter}
+        sortOptions={[
+          { label: 'Nombre', value: 'name' },
+          { label: 'Código', value: 'code' },
+          { label: 'Protocolo', value: 'strategy' },
+        ]}
+        sortBy={sortBy}
+        onSortByChange={setSortBy}
+        sortOrder={sortOrder}
+        onSortOrderToggle={() => setSortOrder(o => (o === 'asc' ? 'desc' : 'asc'))}
         itemCount={providers.length}
         itemLabel="proveedor"
         onAdd={() => setIsAddingProvider(true)}
@@ -204,10 +242,10 @@ export const IdpPanel: React.FC<IdpPanelProps> = ({ tenantId }) => {
       <div className="space-y-2.5">
         {isLoading ? (
           <div className="py-8 text-center text-sm text-m3-secondary">{t.loading}</div>
-        ) : providers.length === 0 ? (
+        ) : filteredProviders.length === 0 ? (
           <EmptyState icon={<Key className="w-5 h-5 text-m3-outline" />} message={t.noIdps} />
         ) : (
-          providers.map(p =>
+          filteredProviders.map(p =>
             edit.isEditing(p.identityProviderId) ? (
               <div
                 key={p.identityProviderId}
