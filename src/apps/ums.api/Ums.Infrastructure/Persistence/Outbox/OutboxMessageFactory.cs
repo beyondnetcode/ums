@@ -1,6 +1,6 @@
 using System.Text.Json;
 using Ums.Infrastructure.Persistence.Reflection;
-using Ums.Shell.Ddd.Interfaces;
+using BeyondNetCode.Shell.Ddd.Interfaces;
 
 namespace Ums.Infrastructure.Persistence.Outbox;
 

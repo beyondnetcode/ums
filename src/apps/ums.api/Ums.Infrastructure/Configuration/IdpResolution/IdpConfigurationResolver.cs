@@ -3,7 +3,7 @@ using Ums.Application.Configuration.IdpConfiguration.Services;
 using Ums.Domain.Configuration;
 using Ums.Domain.Configuration.IdpConfiguration;
 using Ums.Domain.Enums;
-using Ums.Shell.Factory.Interfaces;
+using BeyondNetCode.Shell.Factory.Interfaces;
 
 namespace Ums.Infrastructure.Configuration.IdpResolution;
 

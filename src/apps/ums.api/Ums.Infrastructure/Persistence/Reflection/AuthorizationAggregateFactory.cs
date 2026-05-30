@@ -14,8 +14,8 @@ using Ums.Domain.Authorization.Template.PermissionTemplateItem;
 using Ums.Domain.Enums;
 using Ums.Domain.Kernel.ValueObjects;
 using Ums.Infrastructure.Persistence.Authorization.Entities;
-using Ums.Shell.Ddd;
-using Ums.Shell.Ddd.ValueObjects.Audit;
+using BeyondNetCode.Shell.Ddd;
+using BeyondNetCode.Shell.Ddd.ValueObjects.Audit;
 
 namespace Ums.Infrastructure.Persistence.Reflection;
 

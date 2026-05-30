@@ -2,23 +2,23 @@ using System;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using Ums.Application.Common.Aop;
-using Ums.Shell.Aop;
-using Ums.Shell.Aop.Aspects;
+using BeyondNetCode.Shell.Aop;
+using BeyondNetCode.Shell.Aop.Aspects;
 
-using AopILogger = Ums.Shell.Aop.Aspects.ILogger;
+using AopILogger = BeyondNetCode.Shell.Aop.Aspects.ILogger;
 using MelILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 
 namespace Ums.Infrastructure.Aop;
 
 /// <summary>
-/// Microsoft.Extensions.Logging adapter for <see cref="Ums.Shell.Aop.Aspects.ILogger"/>.
+/// Microsoft.Extensions.Logging adapter for <see cref="BeyondNetCode.Shell.Aop.Aspects.ILogger"/>.
 ///
 /// Registered in DI as a keyed service with key <c>typeof(<see cref="IMelLogger"/>)</c> so that
 /// handlers annotated with <c>[LoggerAspect(Type = typeof(IMelLogger), ...)]</c> resolve this
 /// implementation without any direct Infrastructure dependency in the Application layer.
 ///
 /// PII safety: argument <em>values</em> are never emitted — only parameter names and CLR types
-/// appear in log output.  Use <see cref="Ums.Shell.Aop.Aspects.Logger.Serilog.SerilogLogger"/>
+/// appear in log output.  Use <see cref="BeyondNetCode.Shell.Aop.Aspects.Logger.Serilog.SerilogLogger"/>
 /// with structured destructuring if value capture is explicitly required and a PII review has
 /// been performed.
 /// </summary>

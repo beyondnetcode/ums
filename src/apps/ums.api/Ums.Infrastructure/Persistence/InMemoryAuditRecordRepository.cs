@@ -2,7 +2,7 @@ namespace Ums.Infrastructure.Persistence;
 
 using System.Collections.Concurrent;
 using Ums.Domain.Audit.AuditRecord;
-using Ums.Shell.Ddd.Interfaces;
+using BeyondNetCode.Shell.Ddd.Interfaces;
 using AuditRecordAggregate = Ums.Domain.Audit.AuditRecord.AuditRecord;
 
 public sealed class InMemoryAuditRecordRepository : IAuditRecordRepository, IUnitOfWork

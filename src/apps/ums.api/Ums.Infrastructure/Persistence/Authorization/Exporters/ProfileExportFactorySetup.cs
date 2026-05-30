@@ -1,4 +1,4 @@
-using Ums.Shell.Factory.Impl;
+using BeyondNetCode.Shell.Factory.Impl;
 using Ums.Application.Authorization.Profile.Exporters;
 
 namespace Ums.Infrastructure.Persistence.Authorization.Exporters;

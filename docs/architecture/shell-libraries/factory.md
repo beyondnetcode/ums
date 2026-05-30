@@ -1,10 +1,10 @@
-# Ums.Shell.Factory — Developer Guide
+# BeyondNetCode.Shell.Factory — Developer Guide
 
 > **Part of:** [Shell Libraries](README.md)  
-> **Projects:** `Ums.Shell.Factory` · `Ums.Shell.Factory.Installer`  
+> **Projects:** `BeyondNetCode.Shell.Factory` · `BeyondNetCode.Shell.DI`  
 > **Dependencies:** None (pure BCL)
 
-`Ums.Shell.Factory` is a **selector-based abstract factory** with a fluent DSL. Given a context object (the "target") and a service interface, it evaluates a set of registered predicate rules and instantiates the subset of implementations whose `When(...)` condition matches.
+`BeyondNetCode.Shell.Factory` is a **selector-based abstract factory** with a fluent DSL. Given a context object (the "target") and a service interface, it evaluates a set of registered predicate rules and instantiates the subset of implementations whose `When(...)` condition matches.
 
 ---
 
@@ -25,7 +25,7 @@
 
 ## 1. When to Use
 
-Use `Ums.Shell.Factory` when:
+Use `BeyondNetCode.Shell.Factory` when:
 
 - You need to pick a different **strategy / handler / loader** based on the runtime state of a domain object.
 - The set of implementations is **open-closed** — new ones can be added without modifying the factory.
@@ -41,7 +41,7 @@ Do **not** use it when:
 ## 2. Project Structure
 
 ```
-Ums.Shell.Factory/
+BeyondNetCode.Shell.Factory/
 ├── Interface/
 │   ├── IFactory.cs                ← main entry point
 │   ├── IFactoryCreator.cs         ← instantiation delegate
@@ -64,7 +64,7 @@ Ums.Shell.Factory/
     ├── Setup.cs                        ← List<SetupItem>
     └── SetupItem.cs                    ← (TargetType, ImplType, ServiceType, Name, Selector)
 
-Ums.Shell.Factory.Installer/
+BeyondNetCode.Shell.DI/
 ├── Extensions/
 │   ├── ServiceCollectionExtensions.cs ← AddFactory(Action<IFactoryBuilder>?)
 │   └── ServiceProviderExtensions.cs   ← GetFactory()
@@ -119,7 +119,7 @@ No DI required. Wire everything manually (perfect for unit tests or console tool
 ### Step 1 — Define a setup source
 
 ```csharp
-using Ums.Shell.Factory.Impl;
+using BeyondNetCode.Shell.Factory.Impl;
 
 // Domain context
 public record Discount(int CustomerAge, bool IsPremium);
@@ -155,8 +155,8 @@ public class DiscountFactorySetup : AbstractFactorySetupSource
 ### Step 2 — Build the factory
 
 ```csharp
-using Ums.Shell.Factory.Impl;
-using Ums.Shell.Factory.Interfaces;
+using BeyondNetCode.Shell.Factory.Impl;
+using BeyondNetCode.Shell.Factory.Interfaces;
 
 // FactoryCreator uses Activator for zero-DI scenarios
 var creator = new FactoryCreator(

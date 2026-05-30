@@ -37,7 +37,7 @@ RequestContextAccessor (scoped)  ← fuente única de verdad para el scope del r
 
 ## Tipos
 
-### Shell library (`Ums.Shell.Aop.Aspects.Logger.Serilog`)
+### Shell library (`BeyondNetCode.Shell.Logger.Serilog`)
 
 ```csharp
 // Snapshot inmutable — escrito una vez por request

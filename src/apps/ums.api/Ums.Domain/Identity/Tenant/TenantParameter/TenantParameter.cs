@@ -1,7 +1,7 @@
 namespace Ums.Domain.Identity.Tenant.TenantParameter;
 
-using Ums.Shell.Ddd;
-using Ums.Shell.Ddd.Rules.Impl;
+using BeyondNetCode.Shell.Ddd;
+using BeyondNetCode.Shell.Ddd.Rules.Impl;
 using Ums.Domain.Kernel.ValueObjects;
 using Ums.Domain.Identity.Tenant.TenantParameter.Events;
 using CodeEntity = Ums.Domain.Kernel.ValueObjects.Code;
@@ -167,7 +167,7 @@ public class TenantParameterCodeValidator : AbstractRuleValidator<TenantParamete
 {
     public TenantParameterCodeValidator(TenantParameter subject) : base(subject) { }
 
-    public override void AddRules(Ums.Shell.Ddd.Rules.RuleContext? context)
+    public override void AddRules(BeyondNetCode.Shell.Ddd.Rules.RuleContext? context)
     {
         if (string.IsNullOrWhiteSpace(Subject.Code.GetValue()))
         {

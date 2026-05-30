@@ -1,17 +1,18 @@
-# Ums.Shell.Ddd — Guía de Desarrollo
+# BeyondNetCode.Shell.Ddd — Guía de Desarrollo
 
 > **Parte de:** [Shell Libraries](README.md)
-> **Proyectos:** `Ums.Shell.Ddd` · `Ums.Shell.Ddd.ValueObjects`
+> **Paquetes NuGet:** `BeyondNetCode.Shell.Ddd` · `BeyondNetCode.Shell.Ddd.ValueObjects`
 > **Dependencias:** `MediatR` (para `INotification` en domain events)
+> **Repositorio:** `github.com/beyondnetcode/Shell.Ddd`
 
-`Ums.Shell.Ddd` es la fundación DDD para cada aggregate, entity y value object en el dominio UMS. Proporciona los tipos building-block que enforce **invariants at construction time**, **domain event sourcing**, **tracking state**, y **broken-rule collection** sin dependencias NuGet runtime más allá de MediatR.
+`BeyondNetCode.Shell.Ddd` es la fundación DDD para cada aggregate, entity y value object en el dominio UMS. Proporciona los tipos building-block que enforce **invariants at construction time**, **domain event sourcing**, **tracking state**, y **broken-rule collection** sin dependencias NuGet runtime más allá de MediatR.
 
 ---
 
-## 1. Estructura de Proyectos
+## 1. Estructura de Paquetes
 
 ```
-Ums.Shell.Ddd/
+BeyondNetCode.Shell.Ddd/
 ├── AggregateRoot.cs             ← abstract AggregateRoot<TAgg, TProps>
 ├── Entity.cs                    ← abstract Entity<TEntity, TProps>
 ├── ValueObject.cs               ← abstract ValueObject<TValue>
@@ -39,7 +40,7 @@ Ums.Shell.Ddd/
         ├── DomainEventsManager.cs
         └── TrackingStateManager.cs
 
-Ums.Shell.Ddd.ValueObjects/
+BeyondNetCode.Shell.Ddd.ValueObjects/
 ├── Audit/
 │   └── AuditValueObject.cs      ← (CreatedBy, CreatedAt, UpdatedBy?, UpdatedAt?)
 └── Common/

@@ -1,4 +1,4 @@
-using Ums.Shell.Aop.Aspects;
+using BeyondNetCode.Shell.Aop.Aspects;
 
 namespace Ums.Application.Common.Aop;
 

@@ -22,7 +22,7 @@ public partial class TemplateVersionValidator : AbstractRuleValidator<ValueObjec
 {
     public TemplateVersionValidator(ValueObject<string> subject) : base(subject) { }
 
-    public override void AddRules(Ums.Shell.Ddd.Rules.RuleContext? context)
+    public override void AddRules(BeyondNetCode.Shell.Ddd.Rules.RuleContext? context)
     {
         var value = Subject.GetValue();
 

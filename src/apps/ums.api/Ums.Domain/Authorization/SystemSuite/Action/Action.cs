@@ -1,6 +1,6 @@
 namespace Ums.Domain.Authorization.SystemSuite.Action;
 
-using Ums.Shell.Ddd.Rules.Impl;
+using BeyondNetCode.Shell.Ddd.Rules.Impl;
 
 public sealed class Action : Entity<Action, ActionProps>
 {
@@ -46,7 +46,7 @@ public class ActionXorValidator : AbstractRuleValidator<Action>
 {
     public ActionXorValidator(Action subject) : base(subject) { }
 
-    public override void AddRules(Ums.Shell.Ddd.Rules.RuleContext? context)
+    public override void AddRules(BeyondNetCode.Shell.Ddd.Rules.RuleContext? context)
     {
         var hasSuite = Subject.Props.SystemSuiteId is not null;
         var hasModule = Subject.Props.ModuleId is not null;

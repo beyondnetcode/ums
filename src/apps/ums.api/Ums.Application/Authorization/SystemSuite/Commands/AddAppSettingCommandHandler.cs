@@ -2,7 +2,7 @@ namespace Ums.Application.Authorization.SystemSuite.Commands;
 
 using Ums.Domain.Authorization;
 using Ums.Domain.Enums;
-using Ums.Shell.Ddd;
+using BeyondNetCode.Shell.Ddd;
 
 public sealed class AddAppSettingCommandHandler : ICommandHandler<AddAppSettingCommand>
 {

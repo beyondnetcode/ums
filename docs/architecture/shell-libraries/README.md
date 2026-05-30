@@ -12,10 +12,10 @@ Shell libraries are internal .NET libraries shared across all UMS bounded contex
 
 | Library | Projects | Purpose | Status in UMS API |
 |---|---|---|---|
-| [`Ums.Shell.Ddd`](ddd.md) | `Ums.Shell.Ddd` · `Ums.Shell.Ddd.ValueObjects` | DDD base types: Entity, AggregateRoot, ValueObject, DomainEvent, BrokenRules | ✅ **Core foundation** — every aggregate extends it |
-| [`Ums.Shell.Factory`](factory.md) | `Ums.Shell.Factory` · `Ums.Shell.Factory.Installer` | Selector-based abstract factory with fluent DSL | ✅ **Active** — transitive via Ums.Shell.Ddd; available to all layers |
-| [`Ums.Shell.Aop`](aop.md) | `Ums.Shell.Aop` · `Ums.Shell.Aop.DispatchProxy` · `Ums.Shell.Aop.Aspects` · `Ums.Shell.Aop.Aspects.Logger.Serilog` · `Ums.Shell.Aop.Microsoft.Extensions.DependencyInjection.Aspects.Installer` | DispatchProxy-based AOP: logging, retry, advice aspects | ✅ **Active** — wired to `CreateTenantCommandHandler`; expand to other handlers |
-| [`Ums.Shell.Bootstrapper`](bootstrapper.md) | `Ums.Shell.Bootstrapper` · `Ums.Shell.Bootstrapper.DependencyInjection` · `Ums.Shell.Bootstrapper.AutoMapper` · `Ums.Shell.Bootstrapper.Observability` | Composable initialization pipeline (Composite pattern) | 🔵 **Available** — use for complex multi-step startup chains |
+| [`BeyondNetCode.Shell.Ddd`](ddd.md) | `BeyondNetCode.Shell.Ddd` · `BeyondNetCode.Shell.Ddd.ValueObjects` | DDD base types: Entity, AggregateRoot, ValueObject, DomainEvent, BrokenRules | ✅ **Core foundation** — every aggregate extends it |
+| [`BeyondNetCode.Shell.Factory`](factory.md) | `BeyondNetCode.Shell.Factory` · `BeyondNetCode.Shell.DI` | Selector-based abstract factory with fluent DSL | ✅ **Active** — transitive via BeyondNetCode.Shell.Ddd; available to all layers |
+| [`BeyondNetCode.Shell.Aop`](aop.md) | `BeyondNetCode.Shell.Aop` · `BeyondNetCode.Shell.DispatchProxy` · `BeyondNetCode.Shell.Aspects` · `BeyondNetCode.Shell.Logger.Serilog` · `BeyondNetCode.Shell.DI` | DispatchProxy-based AOP: logging, retry, advice aspects | ✅ **Active** — wired to `CreateTenantCommandHandler`; expand to other handlers |
+| [`BeyondNetCode.Shell.Bootstrapper`](bootstrapper.md) | `BeyondNetCode.Shell.Bootstrapper` · `BeyondNetCode.Shell.DI` · `BeyondNetCode.Shell.AutoMapper` · `BeyondNetCode.Shell.Observability` | Composable initialization pipeline (Composite pattern) | 🔵 **Available** — use for complex multi-step startup chains |
 
 ---
 
@@ -25,31 +25,31 @@ Shell libraries are internal .NET libraries shared across all UMS bounded contex
 src/libs/shell/
 ├── ddd/
 │   └── src/
-│       ├── Ums.Shell.Ddd/                   ← Entity, AggregateRoot, ValueObject, DomainEvent, DomainEnumeration
-│       ├── Ums.Shell.Ddd.ValueObjects/      ← AuditValueObject, StringValueObject, IntValueObject, BoolValueObject, DecimalValueObject
-│       └── Ums.Shell.Ddd.Test/
+│       ├── BeyondNetCode.Shell.Ddd/                   ← Entity, AggregateRoot, ValueObject, DomainEvent, DomainEnumeration
+│       ├── BeyondNetCode.Shell.Ddd.ValueObjects/      ← AuditValueObject, StringValueObject, IntValueObject, BoolValueObject, DecimalValueObject
+│       └── BeyondNetCode.Shell.Ddd.Test/
 ├── factory/
 │   └── src/
-│       ├── Ums.Shell.Factory/               ← IFactory, AbstractFactorySetupSource, fluent DSL
-│       ├── Ums.Shell.Factory.Installer/     ← AddFactory() DI extension
-│       ├── Ums.Shell.Factory.Test/
-│       └── Ums.Shell.Factory.Demo/
+│       ├── BeyondNetCode.Shell.Factory/               ← IFactory, AbstractFactorySetupSource, fluent DSL
+│       ├── BeyondNetCode.Shell.DI/     ← AddFactory() DI extension
+│       ├── BeyondNetCode.Shell.Factory.Test/
+│       └── BeyondNetCode.Shell.Factory.Demo/
 ├── aop/
 │   └── src/
-│       ├── Ums.Shell.Aop/                   ← IAspect, IJoinPoint, IPointCut, OnMethodBoundaryAspect, OnRetryAspect
-│       ├── Ums.Shell.Aop.DispatchProxy/     ← AopProxy<TService,TImpl>, AopProxyCreator
-│       ├── Ums.Shell.Aop.Aspects/           ← LoggerAspect, AdviceAspect, RetryAspect + attributes
-│       ├── Ums.Shell.Aop.Aspects.Logger/    ← ISerializer, SensitiveDataResolver
-│       ├── Ums.Shell.Aop.Aspects.Logger.Serilog/ ← SerilogLogger : ILogger (AOP)
-│       ├── Ums.Shell.Aop.Microsoft.Extensions.DependencyInjection.Aspects.Installer/
-│       └── Ums.Shell.Aop.Tests/
+│       ├── BeyondNetCode.Shell.Aop/                   ← IAspect, IJoinPoint, IPointCut, OnMethodBoundaryAspect, OnRetryAspect
+│       ├── BeyondNetCode.Shell.DispatchProxy/     ← AopProxy<TService,TImpl>, AopProxyCreator
+│       ├── BeyondNetCode.Shell.Aspects/           ← LoggerAspect, AdviceAspect, RetryAspect + attributes
+│       ├── BeyondNetCode.Shell.Aspects.Logger/    ← ISerializer, SensitiveDataResolver
+│       ├── BeyondNetCode.Shell.Logger.Serilog/ ← SerilogLogger : ILogger (AOP)
+│       ├── BeyondNetCode.Shell.DI/
+│       └── BeyondNetCode.Shell.Aop.Tests/
 └── bootstrapper/
     └── src/
-        ├── Ums.Shell.Bootstrapper/          ← IBootstrapper, IBootstrapperAsync, CompositeBootstrapper
-        ├── Ums.Shell.Bootstrapper.DependencyInjection/  ← DependencyInjectionBootstrapper
-        ├── Ums.Shell.Bootstrapper.AutoMapper/            ← AutoMapperBootstrapper
-        ├── Ums.Shell.Bootstrapper.Observability/         ← ObservabilityBootstrapper + ObservabilityConfiguration
-        └── Ums.Shell.Bootstrapper.Tests/
+        ├── BeyondNetCode.Shell.Bootstrapper/          ← IBootstrapper, IBootstrapperAsync, CompositeBootstrapper
+        ├── BeyondNetCode.Shell.DI/  ← DependencyInjectionBootstrapper
+        ├── BeyondNetCode.Shell.AutoMapper/            ← AutoMapperBootstrapper
+        ├── BeyondNetCode.Shell.Observability/         ← ObservabilityBootstrapper + ObservabilityConfiguration
+        └── BeyondNetCode.Shell.Bootstrapper.Tests/
 ```
 
 ---
@@ -58,18 +58,18 @@ src/libs/shell/
 
 ```
 Ums.Domain
-  └── Ums.Shell.Ddd              ← Entity, AggregateRoot
-        └── Ums.Shell.Factory    ← IFactory (transitive)
-              └── Ums.Shell.Ddd.ValueObjects  ← AuditValueObject
+  └── BeyondNetCode.Shell.Ddd              ← Entity, AggregateRoot
+        └── BeyondNetCode.Shell.Factory    ← IFactory (transitive)
+              └── BeyondNetCode.Shell.Ddd.ValueObjects  ← AuditValueObject
 
 Ums.Application
   ├── Ums.Domain (above)
-  └── Ums.Shell.Aop.Aspects      ← [LoggerAspect], [RetryAspect] attribute contract
+  └── BeyondNetCode.Shell.Aspects      ← [LoggerAspect], [RetryAspect] attribute contract
 
 Ums.Infrastructure
   ├── Ums.Application (above)
-  ├── Ums.Shell.Aop.Microsoft.Extensions.DependencyInjection.Aspects.Installer ← AddAop(), AddAopProxy<>()
-  └── Ums.Shell.Aop.Aspects.Logger.Serilog ← SerilogLogger
+  ├── BeyondNetCode.Shell.DI ← AddAop(), AddAopProxy<>()
+  └── BeyondNetCode.Shell.Logger.Serilog ← SerilogLogger
 ```
 
 ---
@@ -134,26 +134,23 @@ Implement `IAspect.GetOrder(IJoinPoint)` in each aspect to return the appropriat
 | Concern | Mechanism | File |
 |---|---|---|
 | PII in logs | `MelLogger`: log parameter names/types only, never values | `Ums.Infrastructure/Aop/MelLogger.cs` |
-| PII in Serilog | `SensitiveDataResolver` + `[Sensitive]` attribute | `Ums.Shell.Aop.Aspects.Logger/` |
+| PII in Serilog | `SensitiveDataResolver` + `[Sensitive]` attribute | `BeyondNetCode.Shell.Aspects.Logger/` |
 | Domain purity | `Ums.Domain.csproj` has zero NuGet references | AGENTS.md |
-| Factory ordering | `FactorySetupProvider` evaluates predicates in declaration order | `Ums.Shell.Factory/Impl/FactorySetupProvider.cs` |
-| Async aspects | `OnMethodBoundaryAspect` unwraps `Task`/`Task<T>` via continuation | `Ums.Shell.Aop/Impl/OnMethodBoundaryAspect.cs` |
+| Factory ordering | `FactorySetupProvider` evaluates predicates in declaration order | `BeyondNetCode.Shell.Factory/Impl/FactorySetupProvider.cs` |
+| Async aspects | `OnMethodBoundaryAspect` unwraps `Task`/`Task<T>` via continuation | `BeyondNetCode.Shell.Aop/Impl/OnMethodBoundaryAspect.cs` |
 
 ---
 
 ## Validation Checklist
 
-Run these before any PR that touches a shell library:
+Run these before any PR to the UMS API:
 
 ```bash
-# From repo root
-dotnet build src/apps/ums.api/Ums.sln
-dotnet test  src/apps/ums.api/Ums.sln --verbosity minimal
-
-dotnet test src/libs/shell/aop/src/Ums.Shell.Aop.Tests/Ums.Shell.Aop.Tests.csproj --verbosity minimal
-dotnet test src/libs/shell/factory/src/Ums.Shell.Factory.Test/Ums.Shell.Factory.Test.csproj --verbosity minimal
-dotnet test src/libs/shell/ddd/src/Ums.Shell.Ddd.Test/Ums.Shell.Ddd.Test.csproj --verbosity minimal
-dotnet test src/libs/shell/bootstrapper/src/Ums.Shell.Bootstrapper.Tests/Ums.Shell.Bootstrapper.Tests.csproj --verbosity minimal
+# From src/apps/ums.api/
+dotnet build Ums.sln
+dotnet test Ums.sln --verbosity minimal
 ```
+
+Shell library tests run in their own repositories at `github.com/beyondnetcode/Shell.*`.
 
 Expected: **0 build errors**, **0 test failures** across all suites.

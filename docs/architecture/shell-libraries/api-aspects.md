@@ -1,6 +1,6 @@
 # API AOP Implementations
 
-This document details the concrete Aspect-Oriented Programming (AOP) implementations used in the UMS API. These aspects are built on top of the `Ums.Shell.Aop` library and serve to decouple cross-cutting concerns from the core business logic (Commands and Queries) in the Application layer.
+This document details the concrete Aspect-Oriented Programming (AOP) implementations used in the UMS API. These aspects are built on top of the `BeyondNetCode.Shell.Aop` library and serve to decouple cross-cutting concerns from the core business logic (Commands and Queries) in the Application layer.
 
 ---
 

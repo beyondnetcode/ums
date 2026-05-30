@@ -314,10 +314,10 @@ Este documento proporciona una vista consolidada de las metricas de ingenieria e
 
 | Libreria | LOC | Archivos | Complejidad | Mantenibilidad |
 |----------|-----|----------|-------------|----------------|
-| Ums.Shell.Ddd | *auto* | *auto* | *auto* | *auto* |
-| Ums.Shell.Factory | *auto* | *auto* | *auto* | *auto* |
-| Ums.Shell.Aop | *auto* | *auto* | *auto* | *auto* |
-| Ums.Shell.Bootstrapper | *auto* | *auto* | *auto* | *auto* |
+| BeyondNetCode.Shell.Ddd | *auto* | *auto* | *auto* | *auto* |
+| BeyondNetCode.Shell.Factory | *auto* | *auto* | *auto* | *auto* |
+| BeyondNetCode.Shell.Aop | *auto* | *auto* | *auto* | *auto* |
+| BeyondNetCode.Shell.Bootstrapper | *auto* | *auto* | *auto* | *auto* |
 
 **Estandares de Librerias:**
 - ADR-0054: Aislamiento de Librerias Shell
@@ -347,10 +347,10 @@ Este documento proporciona una vista consolidada de las metricas de ingenieria e
 
 | Libreria | Cobertura | Advertencias Compilacion | Estabilidad API |
 |----------|-----------|--------------------------|-----------------|
-| Ums.Shell.Ddd | *auto* | *auto* | *auto* |
-| Ums.Shell.Factory | *auto* | *auto* | *auto* |
-| Ums.Shell.Aop | *auto* | *auto* | *auto* |
-| Ums.Shell.Bootstrapper | *auto* | *auto* | *auto* |
+| BeyondNetCode.Shell.Ddd | *auto* | *auto* | *auto* |
+| BeyondNetCode.Shell.Factory | *auto* | *auto* | *auto* |
+| BeyondNetCode.Shell.Aop | *auto* | *auto* | *auto* |
+| BeyondNetCode.Shell.Bootstrapper | *auto* | *auto* | *auto* |
 
 </details>
 
@@ -361,10 +361,10 @@ Este documento proporciona una vista consolidada de las metricas de ingenieria e
 
 | Libreria | Pruebas Unitarias | Pruebas Integracion | Tiempo Prom Ejec |
 |----------|-------------------|---------------------|------------------|
-| Ums.Shell.Ddd | *auto* | *auto* | *auto* |
-| Ums.Shell.Factory | *auto* | *auto* | *auto* |
-| Ums.Shell.Aop | *auto* | *auto* | *auto* |
-| Ums.Shell.Bootstrapper | *auto* | *auto* | *auto* |
+| BeyondNetCode.Shell.Ddd | *auto* | *auto* | *auto* |
+| BeyondNetCode.Shell.Factory | *auto* | *auto* | *auto* |
+| BeyondNetCode.Shell.Aop | *auto* | *auto* | *auto* |
+| BeyondNetCode.Shell.Bootstrapper | *auto* | *auto* | *auto* |
 
 </details>
 

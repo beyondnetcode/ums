@@ -1,6 +1,6 @@
 namespace Ums.Domain.Configuration.FeatureFlag.Events;
 
-using Ums.Shell.Ddd.Services.Impl;
+using BeyondNetCode.Shell.Ddd.Services.Impl;
 
 public class FeatureFlagDomainEventsManager : DomainEventsManager
 {

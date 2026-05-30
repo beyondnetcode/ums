@@ -15,7 +15,7 @@ Architecture
 ## Related
 
 - [ADR-0053: OpenTelemetry Observability](./0053-opentelemetry-observability.md) — defines the signals that AOP aspects must emit
-- [ADR-0054: Shell Library Isolation](./0054-shell-library-isolation.md) — governs how `Ums.Shell.Aop` is consumed
+- [ADR-0054: Shell Library Isolation](./0054-shell-library-isolation.md) — governs how `BeyondNetCode.Shell.Aop` is consumed
 - [Shell Libraries — AOP Guide](../shell-libraries/aop.md) — implementation reference
 - [Shell Libraries — Combined Usage](../shell-libraries/combined-usage.md) — end-to-end walkthrough
 
@@ -39,7 +39,7 @@ UMS already uses MediatR `IPipelineBehavior<TRequest, TResponse>` for **uniform*
 | **A** | MediatR `IPipelineBehavior<,>` | ❌ all-or-nothing per type | ✅ | ❌ | Rejected for cross-cutting |
 | **B** | Decorator classes per handler | ✅ manual | ✅ | ❌ | Rejected — O(n) boilerplate |
 | **C** | Castle.DynamicProxy / Autofac interceptors | ✅ | ✅ | ❌ new NuGet required | Rejected — stack pollution |
-| **D** | `Ums.Shell.Aop` + `System.Reflection.DispatchProxy` | ✅ attribute-driven | ✅ (after fix) | ❌ owned shell lib | **Adopted** |
+| **D** | `BeyondNetCode.Shell.Aop` + `System.Reflection.DispatchProxy` | ✅ attribute-driven | ✅ (after fix) | ❌ owned shell lib | **Adopted** |
 
 #### Why MediatR `IPipelineBehavior` was not sufficient
 
@@ -49,11 +49,11 @@ UMS already uses MediatR `IPipelineBehavior<TRequest, TResponse>` for **uniform*
 - Conditional behavior logic (`if request is X then log, else skip`) is an anti-pattern that defeats the purpose of the pipeline abstraction.
 - MediatR behaviors run inside a single request scope — they cannot distinguish between a handler that should emit Serilog structured logs versus one that should emit only MEL Debug logs.
 
-**Resolution:** MediatR behaviors remain the canonical mechanism for uniform pipeline concerns. `Ums.Shell.Aop` is the canonical mechanism for selective, per-method decoration.
+**Resolution:** MediatR behaviors remain the canonical mechanism for uniform pipeline concerns. `BeyondNetCode.Shell.Aop` is the canonical mechanism for selective, per-method decoration.
 
-#### Why `Ums.Shell.Aop` was chosen over a new NuGet dependency
+#### Why `BeyondNetCode.Shell.Aop` was chosen over a new NuGet dependency
 
-- `Ums.Shell.Aop` is an **owned** shell library — no external package management, no upstream breaking changes, no additional CVE surface.
+- `BeyondNetCode.Shell.Aop` is an **owned** shell library — no external package management, no upstream breaking changes, no additional CVE surface.
 - The library already implements `DispatchProxy`, `AspectExecutor`, `PointCut`, `IAspect` chain, `OnMethodBoundaryAspect`, `LoggerAspect`, `RetryAspect`, and `AdviceAspect`.
 - DI integration via `AddAop()` + `AddAopProxy<TService, TImpl>()` is already built and tested.
 - The only missing capability was async-correctness (see below).
@@ -62,7 +62,7 @@ UMS already uses MediatR `IPipelineBehavior<TRequest, TResponse>` for **uniform*
 
 ## Decision
 
-**Adopt `Ums.Shell.Aop` with `System.Reflection.DispatchProxy` as the mechanism for selective, per-method cross-cutting concerns in UMS command handlers.**
+**Adopt `BeyondNetCode.Shell.Aop` with `System.Reflection.DispatchProxy` as the mechanism for selective, per-method cross-cutting concerns in UMS command handlers.**
 
 ### 1. Separation of responsibilities
 
@@ -70,16 +70,16 @@ UMS already uses MediatR `IPipelineBehavior<TRequest, TResponse>` for **uniform*
 |---|---|---|
 | Input validation | `ValidationBehavior` (MediatR) | All commands uniformly |
 | Idempotency | `IdempotencyMiddleware` (HTTP) | All mutating endpoints |
-| Logging (selective) | `LoggerAspect` via `Ums.Shell.Aop` | Per-handler, opt-in via `[LoggerAspect]` |
-| Tracing (Phase 2) | `TracingAspect` via `Ums.Shell.Aop` | Per-handler, opt-in via `[Tracing]` |
-| Metrics (Phase 2) | `MetricsAspect` via `Ums.Shell.Aop` | Per-handler, opt-in via `[Metrics]` |
-| Retry (selective) | `RetryAspect` via `Ums.Shell.Aop` | Per-method, opt-in via `[RetryAspect]` |
+| Logging (selective) | `LoggerAspect` via `BeyondNetCode.Shell.Aop` | Per-handler, opt-in via `[LoggerAspect]` |
+| Tracing (Phase 2) | `TracingAspect` via `BeyondNetCode.Shell.Aop` | Per-handler, opt-in via `[Tracing]` |
+| Metrics (Phase 2) | `MetricsAspect` via `BeyondNetCode.Shell.Aop` | Per-handler, opt-in via `[Metrics]` |
+| Retry (selective) | `RetryAspect` via `BeyondNetCode.Shell.Aop` | Per-method, opt-in via `[RetryAspect]` |
 
 ### 2. Async proxy fix — mandatory prerequisite
 
 `System.Reflection.DispatchProxy.Invoke` is synchronous. Prior to this ADR, `OnMethodBoundaryAspect.OnSuccess` and `OnExit` fired when a `Task` was *returned*, not when it *completed*. This caused hooks to observe incomplete state.
 
-**Fix (implemented in `Ums.Shell.Aop/Impl/OnMethodBoundaryAspect.cs`):** After `joinPoint.Proceed()`, detect `Task` / `Task<TResult>` return types and wrap them in continuation tasks via `ConfigureAwait(false)`. The original `Task<TResult>` path is handled via a cached generic `MethodInfo` (`WrapAsyncOfT<TResult>`) to preserve the result value. The synchronous `finally { OnExit() }` block is skipped for async paths to prevent double-firing.
+**Fix (implemented in `BeyondNetCode.Shell.Aop/Impl/OnMethodBoundaryAspect.cs`):** After `joinPoint.Proceed()`, detect `Task` / `Task<TResult>` return types and wrap them in continuation tasks via `ConfigureAwait(false)`. The original `Task<TResult>` path is handled via a cached generic `MethodInfo` (`WrapAsyncOfT<TResult>`) to preserve the result value. The synchronous `finally { OnExit() }` block is skipped for async paths to prevent double-firing.
 
 ### 3. Adoption scope
 
@@ -115,14 +115,14 @@ UMS already uses MediatR `IPipelineBehavior<TRequest, TResponse>` for **uniform*
 
 ```
 Ums.Application.csproj
-  └── Ums.Shell.Aop.Aspects   ← attribute contract only ([LoggerAspect], etc.)
+  └── BeyondNetCode.Shell.Aspects   ← attribute contract only ([LoggerAspect], etc.)
 
 Ums.Infrastructure.csproj
-  ├── Ums.Shell.Aop.Microsoft.Extensions.DependencyInjection.Aspects.Installer ← AddAop(), AddAopProxy<>()
-  └── Ums.Shell.Aop.Aspects.Logger.Serilog ← SerilogLogger adapter
+  ├── BeyondNetCode.Shell.DI ← AddAop(), AddAopProxy<>()
+  └── BeyondNetCode.Shell.Logger.Serilog ← SerilogLogger adapter
 ```
 
-`Ums.Domain` does **not** reference any `Ums.Shell.Aop` project. Domain purity is preserved.
+`Ums.Domain` does **not** reference any `BeyondNetCode.Shell.Aop` project. Domain purity is preserved.
 
 ---
 
@@ -162,10 +162,10 @@ dotnet build src/apps/ums.api/Ums.sln
 
 # Run all test suites
 dotnet test src/apps/ums.api/Ums.sln --verbosity minimal
-dotnet test src/libs/shell/aop/src/Ums.Shell.Aop.Tests/Ums.Shell.Aop.Tests.csproj --verbosity minimal
+dotnet test src/libs/shell/aop/src/BeyondNetCode.Shell.Aop.Tests/BeyondNetCode.Shell.Aop.Tests.csproj --verbosity minimal
 
 # Verify no Domain purity violation
-grep -r "Ums.Shell.Aop" src/apps/ums.api/Ums.Domain/ --include="*.csproj"
+grep -r "BeyondNetCode.Shell.Aop" src/apps/ums.api/Ums.Domain/ --include="*.csproj"
 # Expected: no output
 ```
 

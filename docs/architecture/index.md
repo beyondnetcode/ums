@@ -60,7 +60,7 @@ Detailed engineering blueprints focusing on:
 - **[Service Entity Map](./blueprints/service-entity-map.md)**: Logical mapping between system services and database entities.
 - **[Shell Library Architecture](./blueprints/shell-library-architecture.md)**: UMS-owned shell layer for inherited DDD and Factory patterns.
 - **[Shell Library Developer Guides](./shell-libraries/README.md)**: Comprehensive developer guides for all four shell libraries with independent and combined usage examples.
-  - [Ums.Shell.Ddd](./shell-libraries/ddd.md) · [Ums.Shell.Factory](./shell-libraries/factory.md) · [Ums.Shell.Aop](./shell-libraries/aop.md) · [Ums.Shell.Bootstrapper](./shell-libraries/bootstrapper.md) · [Combined Usage](./shell-libraries/combined-usage.md)
+  - [BeyondNetCode.Shell.Ddd](./shell-libraries/ddd.md) · [BeyondNetCode.Shell.Factory](./shell-libraries/factory.md) · [BeyondNetCode.Shell.Aop](./shell-libraries/aop.md) · [BeyondNetCode.Shell.Bootstrapper](./shell-libraries/bootstrapper.md) · [Combined Usage](./shell-libraries/combined-usage.md)
 
 ### [API .NET](./api-dotnet/README.md)
 Applied backend API reference for UMS. This section maps current .NET API source evidence to the Evolith API Standard - .NET while keeping product-specific implementation details local to UMS.

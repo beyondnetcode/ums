@@ -14,7 +14,7 @@
 
 Encapsulate business invariants in an **Aggregate Root** and communicate state changes via **Domain Events** — ensuring consistency within the aggregate boundary and decoupling downstream side effects.
 
-For the UMS .NET implementation, these primitives are provided by `Ums.Shell.Ddd` and consumed by `Ums.Domain`. The code examples below remain conceptual pattern examples; application code must use the UMS shell namespace and must not import upstream pattern libraries directly.
+For the UMS .NET implementation, these primitives are provided by `BeyondNetCode.Shell.Ddd` and consumed by `Ums.Domain`. The code examples below remain conceptual pattern examples; application code must use the UMS shell namespace and must not import upstream pattern libraries directly.
 
 ---
 

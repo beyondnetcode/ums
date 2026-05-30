@@ -61,7 +61,7 @@ Planos detallados de ingenieria centrados en:
 - **[Mapa de Entidades de Servicio](./blueprints/service-entity-map.md)**: Mapeo logico entre servicios del sistema y entidades de base de datos.
 - **[Arquitectura de Librerias Shell](./blueprints-es/shell-library-architecture.md)**: Capa shell propia de UMS para patrones DDD y Factory heredados.
 - **[Guias de Desarrollo de Librerias Shell](./shell-libraries/README.es.md)**: Guías completas para las cuatro librerias shell con ejemplos de uso independiente y combinado.
-  - [Ums.Shell.Ddd](./shell-libraries/ddd.es.md) · [Ums.Shell.Factory](./shell-libraries/factory.md) · [Ums.Shell.Aop](./shell-libraries/aop.es.md) · [Ums.Shell.Bootstrapper](./shell-libraries/bootstrapper.md) · [Uso Combinado](./shell-libraries/combined-usage.md)
+  - [BeyondNetCode.Shell.Ddd](./shell-libraries/ddd.es.md) · [BeyondNetCode.Shell.Factory](./shell-libraries/factory.es.md) · [BeyondNetCode.Shell.Aop](./shell-libraries/aop.es.md) · [BeyondNetCode.Shell.Bootstrapper](./shell-libraries/bootstrapper.es.md) · [Uso Combinado](./shell-libraries/combined-usage.md)
 
 ### [API Dotnet](./api-dotnet/README.es.md)
 

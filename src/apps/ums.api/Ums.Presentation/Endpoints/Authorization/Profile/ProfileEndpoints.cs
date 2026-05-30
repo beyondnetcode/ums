@@ -5,7 +5,7 @@ using Ums.Application.Authorization.Profile.Commands;
 using Ums.Application.Authorization.Profile.DTOs;
 using Ums.Application.Authorization.Profile.Exporters;
 using Ums.Application.Authorization.Profile.Queries;
-using Ums.Shell.Factory.Interfaces;
+using BeyondNetCode.Shell.Factory.Interfaces;
 
 public static class ProfileEndpoints
 {

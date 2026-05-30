@@ -1,7 +1,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Ums.Domain.Events;
-using Ums.Shell.Ddd.Interfaces;
+using BeyondNetCode.Shell.Ddd.Interfaces;
 
 namespace Ums.Infrastructure.Hosting.EventHandlers;
 

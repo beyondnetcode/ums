@@ -1,6 +1,6 @@
 namespace Ums.Domain.Audit.AuditRecord;
 
-using Ums.Shell.Ddd.Interfaces;
+using BeyondNetCode.Shell.Ddd.Interfaces;
 
 public interface IAuditRecordRepository : IRepository<AuditRecord>
 {

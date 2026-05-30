@@ -1,5 +1,5 @@
 using Ums.Application.Approvals.NotificationRule.Services;
-using Ums.Shell.Factory.Interfaces;
+using BeyondNetCode.Shell.Factory.Interfaces;
 
 namespace Ums.Infrastructure.Approvals.NotificationRule;
 

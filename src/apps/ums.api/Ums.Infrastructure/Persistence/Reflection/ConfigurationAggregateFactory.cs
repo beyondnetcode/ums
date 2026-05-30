@@ -7,8 +7,8 @@ using Ums.Domain.Configuration.IdpConfiguration;
 using Ums.Domain.Enums;
 using Ums.Domain.Kernel.ValueObjects;
 using Ums.Infrastructure.Persistence.Configuration.Entities;
-using Ums.Shell.Ddd;
-using Ums.Shell.Ddd.ValueObjects.Audit;
+using BeyondNetCode.Shell.Ddd;
+using BeyondNetCode.Shell.Ddd.ValueObjects.Audit;
 
 namespace Ums.Infrastructure.Persistence.Reflection;
 

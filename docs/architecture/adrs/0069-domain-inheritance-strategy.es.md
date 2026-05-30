@@ -9,13 +9,13 @@
 
 ## Contexto
 
-El Domain layer de UMS (`Ums.Domain`) actualmente hereda de clases base `AggregateRoot<T>` y `Entity<T>` proporcionadas por `Ums.Shell.Ddd`. Esto crea una dependencia transitiva hacia **MediatR** (v12.3.0) a través de la librería shell.
+El Domain layer de UMS (`Ums.Domain`) actualmente hereda de clases base `AggregateRoot<T>` y `Entity<T>` proporcionadas por `BeyondNetCode.Shell.Ddd`. Esto crea una dependencia transitiva hacia **MediatR** (v12.3.0) a través de la librería shell.
 
 ### Arquitectura Actual
 
 ```
 Ums.Domain (Proyecto)
-    └── ProjectReference → Ums.Shell.Ddd
+    └── ProjectReference → BeyondNetCode.Shell.Ddd
                             └── PackageReference → MediatR (12.3.0)
 ```
 
@@ -29,7 +29,7 @@ public sealed class Profile : AggregateRoot<Profile, ProfileProps>
 }
 ```
 
-**Clase Base del Shell** (`libs/shell/ddd/src/Ums.Shell.Ddd/`):
+**Clase Base del Shell** (`libs/shell/ddd/src/BeyondNetCode.Shell.Ddd/`):
 ```csharp
 public abstract class AggregateRoot<T, TProps> : Entity<T, TProps>
     where TProps : Props
@@ -43,7 +43,7 @@ public abstract class AggregateRoot<T, TProps> : Entity<T, TProps>
 
 ## Decisión
 
-**Opción A (ACTUAL):** Continuar usando herencia de las clases base de `Ums.Shell.Ddd`.
+**Opción A (ACTUAL):** Continuar usando herencia de las clases base de `BeyondNetCode.Shell.Ddd`.
 
 **Opción B:** Refactorizar a diseño basado en composición, removiendo herencia del shell.
 

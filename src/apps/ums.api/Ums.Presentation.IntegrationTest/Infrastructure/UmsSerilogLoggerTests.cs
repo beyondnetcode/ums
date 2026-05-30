@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Ums.Infrastructure.Aop;
 using Ums.Infrastructure.Services;
-using Ums.Shell.Aop;
+using BeyondNetCode.Shell.Aop;
 
 namespace Ums.Presentation.IntegrationTest.Infrastructure;
 

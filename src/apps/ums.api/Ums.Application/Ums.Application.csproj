@@ -1,24 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <ItemGroup>
-    <ProjectReference Include="../Ums.Domain/Ums.Domain.csproj" />
-    <ProjectReference Include="../Ums.Globalization/Ums.Globalization.csproj" />
-    <!-- AOP attribute contract (zero runtime overhead when no proxy is active) -->
-    <ProjectReference Include="../../../libs/shell/aop/src/Ums.Shell.Aop.Aspects/Ums.Shell.Aop.Aspects.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="FluentValidation" Version="12.0.0" />
-    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.0.0" />
-    <PackageReference Include="MediatR" Version="12.4.1" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
-  </ItemGroup>
-
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Ums.Domain/Ums.Domain.csproj" />
+    <ProjectReference Include="../Ums.Globalization/Ums.Globalization.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- AOP attribute contract (zero runtime overhead when no proxy is active) -->
+    <PackageReference Include="BeyondNetCode.Shell.Aop.Aspects" Version="1.0.0" />
+    <PackageReference Include="FluentValidation" Version="12.0.0" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.0.0" />
+    <PackageReference Include="MediatR" Version="12.4.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
+  </ItemGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="Ums.Application.Test" />

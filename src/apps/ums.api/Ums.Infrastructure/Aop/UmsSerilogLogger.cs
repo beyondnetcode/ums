@@ -2,8 +2,8 @@ using System;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using Ums.Application.Common.Aop;
-using Ums.Shell.Aop;
-using Ums.Shell.Aop.Aspects;
+using BeyondNetCode.Shell.Aop;
+using BeyondNetCode.Shell.Aop.Aspects;
 
 using MelILoggerFactory  = Microsoft.Extensions.Logging.ILoggerFactory;
 using MelILogger         = Microsoft.Extensions.Logging.ILogger;

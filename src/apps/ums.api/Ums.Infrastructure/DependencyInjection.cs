@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Http.Resilience;
 using Polly;
 using Ums.Infrastructure.HealthChecks;
-using Ums.Shell.Aop.Microsoft.Extensions.DependencyInjection.Aspects.Installer;
+using BeyondNetCode.Shell.Aop.Microsoft.Extensions.DependencyInjection.Aspects.Installer;
 using Ums.Domain.Audit.AuditRecord;
 using Ums.Domain.Approvals;
 using Ums.Domain.Authorization;
@@ -38,7 +38,7 @@ using Ums.Application.Configuration.IdpConfiguration.Services;
 using Ums.Domain.Configuration.FeatureFlag;
 using Ums.Infrastructure.Configuration;
 using Ums.Infrastructure.Configuration.IdpResolution;
-using Ums.Shell.Factory.Installer.Extensions;
+using BeyondNetCode.Shell.Factory.Installer.Extensions;
 using Ums.Infrastructure.Persistence.Authorization.Exporters;
 
 public static class DependencyInjection
@@ -344,10 +344,10 @@ public static class DependencyInjection
             builder.AddAspect<TenantValidationAspect>();
         });
 
-        services.AddKeyedTransient<Ums.Shell.Aop.Aspects.ILogger, Ums.Infrastructure.Aop.MelLogger>(
+        services.AddKeyedTransient<BeyondNetCode.Shell.Aop.Aspects.ILogger, Ums.Infrastructure.Aop.MelLogger>(
             typeof(Ums.Application.Common.Aop.IMelLogger));
 
-        services.AddKeyedTransient<Ums.Shell.Aop.Aspects.ILogger, Ums.Infrastructure.Aop.UmsSerilogLogger>(
+        services.AddKeyedTransient<BeyondNetCode.Shell.Aop.Aspects.ILogger, Ums.Infrastructure.Aop.UmsSerilogLogger>(
             typeof(Ums.Application.Common.Aop.IUmsLogger));
 
         RegisterMediatRAopProxies(services, typeof(Ums.Application.DependencyInjection).Assembly);
@@ -357,10 +357,10 @@ public static class DependencyInjection
 
     private static void RegisterMediatRAopProxies(IServiceCollection services, Assembly applicationAssembly)
     {
-        var addAopProxyMethod = typeof(Ums.Shell.Aop.Microsoft.Extensions.DependencyInjection.Aspects.Installer.ServiceCollectionExtension)
+        var addAopProxyMethod = typeof(BeyondNetCode.Shell.Aop.Microsoft.Extensions.DependencyInjection.Aspects.Installer.ServiceCollectionExtension)
             .GetMethods(BindingFlags.Public | BindingFlags.Static)
             .Single(method =>
-                method.Name == nameof(Ums.Shell.Aop.Microsoft.Extensions.DependencyInjection.Aspects.Installer.ServiceCollectionExtension.AddAopProxy)
+                method.Name == nameof(BeyondNetCode.Shell.Aop.Microsoft.Extensions.DependencyInjection.Aspects.Installer.ServiceCollectionExtension.AddAopProxy)
                 && method.IsGenericMethodDefinition
                 && method.GetGenericArguments().Length == 2);
 

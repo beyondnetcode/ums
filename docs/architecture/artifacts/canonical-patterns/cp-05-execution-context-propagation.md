@@ -37,7 +37,7 @@ RequestContextAccessor (scoped)  ← single source of truth for the request scop
 
 ## Types
 
-### Shell library (`Ums.Shell.Aop.Aspects.Logger.Serilog`)
+### Shell library (`BeyondNetCode.Shell.Logger.Serilog`)
 
 ```csharp
 // Immutable snapshot — written once per request

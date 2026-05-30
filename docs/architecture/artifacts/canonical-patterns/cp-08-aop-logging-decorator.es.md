@@ -2,7 +2,7 @@
 
 **Tipo:** Patrón Canónico  
 **Estado:** Aceptado  
-**Disposición Evolith:** Propuesto para Evolith — depende solo de `Ums.Shell.Aop.Aspects.Logger.Serilog` (shell library portable)  
+**Disposición Evolith:** Propuesto para Evolith — depende solo de `BeyondNetCode.Shell.Logger.Serilog` (shell library portable)  
 **ADRs relacionados:**
 - [ADR-0060: Estrategia AOP Cross-Cutting](../../adrs/0060-aop-cross-cutting-concern-strategy.md)
 - [ADR-0061: Execution Context Accessor](../../adrs/0061-execution-context-accessor.md)
@@ -45,7 +45,7 @@ PiiSanitizerEnricher → Sinks (Console / OTel / Loki)
 ## Clase Base de la Shell Library
 
 ```csharp
-// Ums.Shell.Aop.Aspects.Logger.Serilog
+// BeyondNetCode.Shell.Logger.Serilog
 public abstract class StructuredAopLoggerBase : ILogger
 {
     private readonly IExecutionContextAccessor _accessor;
@@ -131,7 +131,7 @@ public sealed class UmsSerilogLogger(
 ```csharp
 // Ums.Application/Common/Aop/IUmsLogger.cs
 // Marcador — cero código en tiempo de ejecución; selecciona el servicio DI con clave
-public interface IUmsLogger : ILogger; // ILogger = Ums.Shell.Aop.Aspects.ILogger
+public interface IUmsLogger : ILogger; // ILogger = BeyondNetCode.Shell.Aspects.ILogger
 ```
 
 ---
@@ -143,7 +143,7 @@ public interface IUmsLogger : ILogger; // ILogger = Ums.Shell.Aop.Aspects.ILogge
 services.AddAop();
 
 // Registrar adaptador de logger bajo clave de interfaz marcador
-services.AddKeyedTransient<Ums.Shell.Aop.Aspects.ILogger, UmsSerilogLogger>(
+services.AddKeyedTransient<BeyondNetCode.Shell.Aspects.ILogger, UmsSerilogLogger>(
     typeof(IUmsLogger));
 
 // Envolver handler con DispatchProxy — debe ir DESPUÉS de AddMediatR()

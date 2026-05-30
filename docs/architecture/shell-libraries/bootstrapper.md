@@ -1,10 +1,10 @@
-# Ums.Shell.Bootstrapper — Developer Guide
+# BeyondNetCode.Shell.Bootstrapper — Developer Guide
 
 > **Part of:** [Shell Libraries](README.md)  
-> **Projects:** `Ums.Shell.Bootstrapper` · `Ums.Shell.Bootstrapper.DependencyInjection` · `Ums.Shell.Bootstrapper.AutoMapper` · `Ums.Shell.Bootstrapper.Observability`  
+> **Projects:** `BeyondNetCode.Shell.Bootstrapper` · `BeyondNetCode.Shell.DI` · `BeyondNetCode.Shell.AutoMapper` · `BeyondNetCode.Shell.Observability`  
 > **Dependencies:** `Microsoft.Extensions.DependencyInjection` · `AutoMapper` · `Serilog.Sinks.OpenTelemetry` · `OpenTelemetry`
 
-`Ums.Shell.Bootstrapper` implements the **Composite Bootstrapper pattern** — a structured, testable way to decompose complex application startup into small, independently-runnable units that compose into a pipeline.
+`BeyondNetCode.Shell.Bootstrapper` implements the **Composite Bootstrapper pattern** — a structured, testable way to decompose complex application startup into small, independently-runnable units that compose into a pipeline.
 
 ---
 
@@ -25,7 +25,7 @@
 
 ## 1. When to Use
 
-Use `Ums.Shell.Bootstrapper` when:
+Use `BeyondNetCode.Shell.Bootstrapper` when:
 
 - Startup has **multiple independent phases** that should be testable in isolation.
 - You want a **fluent, composable** way to describe the initialization order.
@@ -40,23 +40,23 @@ Prefer `IHostedService` or `IStartupFilter` for:
 ## 2. Project Structure
 
 ```
-Ums.Shell.Bootstrapper/
+BeyondNetCode.Shell.Bootstrapper/
 └── src/
-    ├── Ums.Shell.Bootstrapper/
+    ├── BeyondNetCode.Shell.Bootstrapper/
     │   ├── Interface/
     │   │   ├── IBootstrapper.cs          ← IBootstrapper + IBootstrapper<out T>
     │   │   └── IBootstrapperAsync.cs     ← IBootstrapperAsync + IBootstrapperAsync<out T>
     │   └── Impl/
     │       ├── CompositeBootstrapper.cs       ← sequential sync runner
     │       └── CompositeBootstrapperAsync.cs  ← sequential async runner
-    ├── Ums.Shell.Bootstrapper.DependencyInjection/
+    ├── BeyondNetCode.Shell.DI/
     │   └── DependencyInjectionBootstrapper.cs ← wraps IServiceCollection configuration
-    ├── Ums.Shell.Bootstrapper.AutoMapper/
+    ├── BeyondNetCode.Shell.AutoMapper/
     │   └── AutoMapperBootstrapper.cs          ← wraps AutoMapper configuration
-    ├── Ums.Shell.Bootstrapper.Observability/
+    ├── BeyondNetCode.Shell.Observability/
     │   ├── ObservabilityBootstrapper.cs       ← Serilog + OpenTelemetry wiring
     │   └── ObservabilityConfiguration.cs      ← OTLP endpoint, service name/version, resource attributes
-    └── Ums.Shell.Bootstrapper.Tests/
+    └── BeyondNetCode.Shell.Bootstrapper.Tests/
 ```
 
 ---
@@ -313,9 +313,9 @@ Each bootstrapper receives the same `CancellationToken` — handle cancellation 
 ### Example A — DI + AutoMapper pipeline (no host)
 
 ```csharp
-using Ums.Shell.Bootstrapper.Impl;
-using Ums.Shell.Bootstrapper.DependencyInjection;
-using Ums.Shell.Bootstrapper.AutoMapper;
+using BeyondNetCode.Shell.Bootstrapper.Impl;
+using BeyondNetCode.Shell.DI;
+using BeyondNetCode.Shell.AutoMapper;
 
 var services = new ServiceCollection();
 

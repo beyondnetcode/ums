@@ -12,15 +12,15 @@ UMS implementa sus primitivas DDD mediante librerías shell propias bajo `src/li
 
 La regla vigente no es "no usar librerías". La regla vigente es:
 
-> `Ums.Domain` puede depender de `Ums.Shell.*`, pero no puede depender directamente de librerías externas, infraestructura, persistencia, brokers, frameworks web ni SDKs de proveedor.
+> `Ums.Domain` puede depender de `BeyondNetCode.Shell.*`, pero no puede depender directamente de librerías externas, infraestructura, persistencia, brokers, frameworks web ni SDKs de proveedor.
 
 ## Herencia y Encapsulación
 
 ```mermaid
 flowchart TD
-    Domain["Ums.Domain<br/>Modelo de dominio UMS"] --> Ddd["Ums.Shell.Ddd<br/>Primitivas DDD"]
-    Domain --> ValueObjects["Ums.Shell.Ddd.ValueObjects<br/>Value Objects reutilizables"]
-    Domain --> Factory["Ums.Shell.Factory<br/>Factory pattern"]
+    Domain["Ums.Domain<br/>Modelo de dominio UMS"] --> Ddd["BeyondNetCode.Shell.Ddd<br/>Primitivas DDD"]
+    Domain --> ValueObjects["BeyondNetCode.Shell.Ddd.ValueObjects<br/>Value Objects reutilizables"]
+    Domain --> Factory["BeyondNetCode.Shell.Factory<br/>Factory pattern"]
 
     ValueObjects --> Ddd
     Ddd --> Factory
@@ -34,9 +34,9 @@ flowchart TD
 
 | Librería | Rol funcional | Uso en UMS |
 |----------|---------------|------------|
-| `Ums.Shell.Ddd` | Encapsula patrones DDD tácticos: entidad, agregado, eventos de dominio, validación, especificaciones y reglas base. | Base para modelar agregados y comportamiento de dominio. |
-| `Ums.Shell.Ddd.ValueObjects` | Centraliza patrones reutilizables de value objects. | Evita duplicación y asegura igualdad/validación consistente. |
-| `Ums.Shell.Factory` | Encapsula el patrón Factory y soporte de resolución/creación. | Usado por `Ums.Shell.Ddd` y por dominio cuando se requiera creación controlada. |
+| `BeyondNetCode.Shell.Ddd` | Encapsula patrones DDD tácticos: entidad, agregado, eventos de dominio, validación, especificaciones y reglas base. | Base para modelar agregados y comportamiento de dominio. |
+| `BeyondNetCode.Shell.Ddd.ValueObjects` | Centraliza patrones reutilizables de value objects. | Evita duplicación y asegura igualdad/validación consistente. |
+| `BeyondNetCode.Shell.Factory` | Encapsula el patrón Factory y soporte de resolución/creación. | Usado por `BeyondNetCode.Shell.Ddd` y por dominio cuando se requiera creación controlada. |
 
 ## Clases Base Esperadas
 
@@ -109,11 +109,11 @@ src/
     shell/
       ddd/
         src/
-          Ums.Shell.Ddd/
-          Ums.Shell.Ddd.ValueObjects/
+          BeyondNetCode.Shell.Ddd/
+          BeyondNetCode.Shell.Ddd.ValueObjects/
       factory/
         src/
-          Ums.Shell.Factory/
+          BeyondNetCode.Shell.Factory/
 ```
 
 Las carpetas de dominio por contexto se mantienen enfocadas en reglas de negocio. Las primitivas compartidas viven en `libs/shell` y se consumen por referencia de proyecto.
@@ -145,11 +145,11 @@ Ums.Domain/
 
 | Regla | Detalle |
 |-------|---------|
-| Primitivas via shell | Entity, AggregateRoot, ValueObject, Result y patrones relacionados se consumen desde `Ums.Shell.*` cuando aplique |
-| Sin dependencia externa directa | `Ums.Domain` no puede depender directamente de paquetes o namespaces externos para patrones tácticos; debe pasar por `Ums.Shell.*` |
+| Primitivas via shell | Entity, AggregateRoot, ValueObject, Result y patrones relacionados se consumen desde `BeyondNetCode.Shell.*` cuando aplique |
+| Sin dependencia externa directa | `Ums.Domain` no puede depender directamente de paquetes o namespaces externos para patrones tácticos; debe pasar por `BeyondNetCode.Shell.*` |
 | Namespace propio | No se permite `BeyondNet.*`, `csdevlib.*` u otro namespace heredado en código de aplicación UMS |
 | Runtime único | API y shell libraries compilan sobre `net10.0` estable |
-| Factory encapsulado | El uso de Factory pattern queda centralizado en `Ums.Shell.Factory` y puede ser reutilizado por `Ums.Shell.Ddd` |
+| Factory encapsulado | El uso de Factory pattern queda centralizado en `BeyondNetCode.Shell.Factory` y puede ser reutilizado por `BeyondNetCode.Shell.Ddd` |
 | Value Objects son records | Igualdad estructural automatica via `record`; inmutabilidad via propiedades `init` |
 | IDs como Guid | Todos los IDs son `Guid`; nunca `int` ni `string` en Aggregate Roots |
 | Composite PK en persistencia | `(Id, RootTenantId)` en todas las tablas; mandatorio para RLS + particionado |
@@ -162,8 +162,8 @@ La adopción de shell libraries exige que estas compilaciones pasen antes de pro
 
 ```bash
 dotnet build src/apps/app-api-dotnet/Ums.Presentation/Ums.Presentation.csproj
-dotnet build src/libs/shell/factory/src/Ums.Shell.Factory.sln
-dotnet build src/libs/shell/ddd/src/Ums.Shell.Ddd/Ums.Shell.Ddd.sln
+dotnet build src/libs/shell/factory/src/BeyondNetCode.Shell.Factory.sln
+dotnet build src/libs/shell/ddd/src/BeyondNetCode.Shell.Ddd/BeyondNetCode.Shell.Ddd.sln
 ```
 
 ---

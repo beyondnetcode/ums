@@ -1,10 +1,11 @@
-# Ums.Shell.Factory -- Guia del Desarrollador
+# BeyondNetCode.Shell.Factory — Guía del Desarrollador
 
-> **Parte de:** [Shell Libraries](README.es.md)  
-> **Proyectos:** `Ums.Shell.Factory` · `Ums.Shell.Factory.Installer`  
+> **Parte de:** [Shell Libraries](README.es.md)
+> **Paquetes NuGet:** `BeyondNetCode.Shell.Factory` · `BeyondNetCode.Shell.DI`
 > **Dependencias:** Ninguna (BCL pura)
+> **Repositorio:** `github.com/beyondnetcode/Shell.Factory`
 
-`Ums.Shell.Factory` es una **fabrica abstracta basada en selectores** con un DSL fluido. Dado un objeto de contexto (el "objetivo") y una interfaz de servicio, evalua un conjunto de reglas predicate registradas e instancia el subconjunto de implementaciones cuya condicion `When(...)` coincide.
+`BeyondNetCode.Shell.Factory` es una **fabrica abstracta basada en selectores** con un DSL fluido. Dado un objeto de contexto (el "objetivo") y una interfaz de servicio, evalua un conjunto de reglas predicate registradas e instancia el subconjunto de implementaciones cuya condicion `When(...)` coincide.
 
 ---
 
@@ -25,7 +26,7 @@
 
 ## 1. Cuando Usar
 
-Usa `Ums.Shell.Factory` cuando:
+Usa `BeyondNetCode.Shell.Factory` cuando:
 
 - Necesitas elegir una **estrategia / handler / loader** diferente basada en el estado runtime de un objeto de dominio.
 - El conjunto de implementaciones es **open-closed** -- se pueden agregar nuevas sin modificar la fabrica.
@@ -38,10 +39,10 @@ Usa `Ums.Shell.Factory` cuando:
 
 ---
 
-## 2. Estructura del Proyecto
+## 2. Estructura de Paquetes
 
 ```
-Ums.Shell.Factory/
+BeyondNetCode.Shell.Factory/
 ├── Interface/
 │   ├── IFactory.cs                ← punto de entrada principal
 │   ├── IFactoryCreator.cs         ← delegado de instanciacion
@@ -64,7 +65,7 @@ Ums.Shell.Factory/
     ├── Setup.cs                        ← List<SetupItem>
     └── SetupItem.cs                    ← (TargetType, ImplType, ServiceType, Name, Selector)
 
-Ums.Shell.Factory.Installer/
+BeyondNetCode.Shell.DI/
 ├── Extensions/
 │   ├── ServiceCollectionExtensions.cs ← AddFactory(Action<IFactoryBuilder>?)
 │   └── ServiceProviderExtensions.cs   ← GetFactory()
@@ -119,7 +120,7 @@ No requiere DI. Cablea todo manualmente (perfecto para tests unitarios o herrami
 ### Paso 1 -- Define una fuente de setup
 
 ```csharp
-using Ums.Shell.Factory.Impl;
+using BeyondNetCode.Shell.Factory.Impl;
 
 // Contexto de dominio
 public record Discount(int CustomerAge, bool IsPremium);
@@ -155,8 +156,8 @@ public class DiscountFactorySetup : AbstractFactorySetupSource
 ### Paso 2 -- Construye la fabrica
 
 ```csharp
-using Ums.Shell.Factory.Impl;
-using Ums.Shell.Factory.Interfaces;
+using BeyondNetCode.Shell.Factory.Impl;
+using BeyondNetCode.Shell.Factory.Interfaces;
 
 // FactoryCreator usa Activator para escenarios sin DI
 var creator = new FactoryCreator(

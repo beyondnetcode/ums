@@ -1,7 +1,7 @@
 namespace Ums.Application.Approvals.AccessEnforcementPolicy.Commands;
 using Ums.Domain.Approvals;
 using Ums.Domain.Enums;
-using Ums.Shell.Ddd;
+using BeyondNetCode.Shell.Ddd;
 public sealed class UpdateAccessEnforcementActionCommandHandler : ICommandHandler<UpdateAccessEnforcementActionCommand>
 {
     private readonly IAccessEnforcementPolicyRepository _repository;

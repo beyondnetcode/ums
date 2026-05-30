@@ -18,9 +18,9 @@ global using Ums.Infrastructure.Persistence;
 global using Ums.Infrastructure.Persistence.Authorization;
 global using Ums.Infrastructure.Persistence.Configuration;
 global using Ums.Infrastructure.Persistence.Identity;
-global using Ums.Shell.Aop.Aspects;
-global using Ums.Shell.Aop.Aspects.Logger.Serilog;
-global using Ums.Shell.Ddd;
+global using BeyondNetCode.Shell.Aop.Aspects;
+global using BeyondNetCode.Shell.Aop.Aspects.Logger.Serilog;
+global using BeyondNetCode.Shell.Ddd;
 global using Xunit;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]

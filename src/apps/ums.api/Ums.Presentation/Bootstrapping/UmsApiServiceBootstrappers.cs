@@ -58,8 +58,8 @@ using Ums.Presentation.Endpoints.IGA.RoleMaturityStatus;
 using Ums.Presentation.Endpoints.IGA.RoleMaturityStatus.Queries;
 using Ums.Presentation.GraphQL;
 using Ums.Presentation.Middleware;
-using Ums.Shell.Bootstrapper.Impl;
-using Ums.Shell.Bootstrapper.Interface;
+using BeyondNetCode.Shell.Bootstrapper.Impl;
+using BeyondNetCode.Shell.Bootstrapper.Interface;
 using Serilog;
 
 namespace Ums.Presentation.Bootstrapping;

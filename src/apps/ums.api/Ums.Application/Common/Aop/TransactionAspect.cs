@@ -1,6 +1,6 @@
 using System.Reflection;
 using Ums.Application.Common.Interfaces;
-using Ums.Shell.Aop;
+using BeyondNetCode.Shell.Aop;
 
 namespace Ums.Application.Common.Aop;
 

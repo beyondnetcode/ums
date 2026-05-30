@@ -51,7 +51,7 @@ Documentos detallados por Aggregate Root con modelo de datos completo, secuencia
 | # | Documento | Contenido |
 |---|-----------|-----------|
 | 10 | [Cross-Context Flows](./10-cross-context-flows.md) | B2B Onboarding · Document Expiration · Role Promotion · Tabla de enrutamiento |
-| 11 | [DDD Primitives](./11-ddd-primitives.md) | Entity / AggregateRoot / ValueObject / Result&lt;T&gt; · Librerías shell `Ums.Shell.*` |
+| 11 | [DDD Primitives](./11-ddd-primitives.md) | Entity / AggregateRoot / ValueObject / Result&lt;T&gt; · Librerías shell `BeyondNetCode.Shell.*` |
 | 12 | [Design Decisiones & Gaps](./12-design-decisions.md) | 8 decisiones justificadas · 6 vacíos de validación (V1-V6) |
 
 ---

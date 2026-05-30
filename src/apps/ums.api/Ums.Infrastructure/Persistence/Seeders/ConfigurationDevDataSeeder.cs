@@ -1,7 +1,7 @@
 namespace Ums.Infrastructure.Persistence.Seeders;
 
 using Microsoft.Extensions.DependencyInjection;
-using Ums.Shell.Ddd;
+using BeyondNetCode.Shell.Ddd;
 using Ums.Domain.Configuration;
 using Ums.Domain.Configuration.AppConfiguration;
 using Ums.Domain.Configuration.FeatureFlag;

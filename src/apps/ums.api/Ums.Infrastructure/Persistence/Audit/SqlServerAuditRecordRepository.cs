@@ -7,13 +7,13 @@ using Microsoft.EntityFrameworkCore;
 using Ums.Domain.Audit.AuditRecord;
 using Ums.Infrastructure.Persistence.Audit.Entities;
 using Ums.Infrastructure.Persistence.Reflection;
-using Ums.Shell.Ddd.Interfaces;
+using BeyondNetCode.Shell.Ddd.Interfaces;
 
 namespace Ums.Infrastructure.Persistence.Audit;
 
 using AuditRecordAggregate = Ums.Domain.Audit.AuditRecord.AuditRecord;
 
-public sealed class SqlServerAuditRecordRepository : IAuditRecordRepository, Ums.Shell.Ddd.Interfaces.IUnitOfWork
+public sealed class SqlServerAuditRecordRepository : IAuditRecordRepository, BeyondNetCode.Shell.Ddd.Interfaces.IUnitOfWork
 {
     private readonly UmsPlatformDbContext _dbContext;
     private readonly HashSet<AuditRecordAggregate> _trackedAggregates = [];
@@ -23,7 +23,7 @@ public sealed class SqlServerAuditRecordRepository : IAuditRecordRepository, Ums
         _dbContext = dbContext;
     }
 
-    Ums.Shell.Ddd.Interfaces.IUnitOfWork IRepository<AuditRecord>.UnitOfWork => this;
+    BeyondNetCode.Shell.Ddd.Interfaces.IUnitOfWork IRepository<AuditRecord>.UnitOfWork => this;
 
     public async Task<AuditRecordAggregate?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {

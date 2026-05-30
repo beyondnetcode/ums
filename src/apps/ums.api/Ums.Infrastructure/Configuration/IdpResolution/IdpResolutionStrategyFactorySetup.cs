@@ -1,4 +1,4 @@
-using Ums.Shell.Factory.Impl;
+using BeyondNetCode.Shell.Factory.Impl;
 using Ums.Domain.Enums;
 
 namespace Ums.Infrastructure.Configuration.IdpResolution;

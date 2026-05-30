@@ -1,6 +1,6 @@
 namespace Ums.Infrastructure.Approvals.ApprovalRequest;
 
-using Ums.Shell.Factory.Impl;
+using BeyondNetCode.Shell.Factory.Impl;
 
 internal sealed class ApprovalRequestCreationStrategyFactorySetup : AbstractFactorySetupSource
 {

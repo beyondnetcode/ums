@@ -1,55 +1,46 @@
-# UMS Shell Libraries — Referencia de Arquitectura
+# BeyondNetCode.Shell Libraries — Referencia de Arquitectura
 
 > **Estado:** Production-ready · Adoptado activamente
-> **Última revisión:** 2026-05-24
+> **Última revisión:** 2026-05-30
 > **Responsable:** Equipo de arquitectura
 
-Las shell libraries son librerías .NET internas compartidas a través de todos los bounded contexts de UMS. Viven en `src/libs/shell/` y se consumen como project references — nunca como paquetes NuGet.
+Las shell libraries son paquetes NuGet internos compartidos a través de todos los bounded contexts de UMS. Se consumen como `PackageReference` desde `github.com/beyondnetcode/Shell.*` — nunca como project references locales.
 
 ---
 
 ## Catálogo de Librerías
 
-| Librería | Proyectos | Propósito | Estado en UMS API |
+| Librería | Paquetes NuGet | Propósito | Estado en UMS API |
 |---|---|---|---|
-| [`Ums.Shell.Ddd`](ddd.md) | `Ums.Shell.Ddd` · `Ums.Shell.Ddd.ValueObjects` | Tipos base DDD: Entity, AggregateRoot, ValueObject, DomainEvent, BrokenRules | ✅ **Fundación core** — cada aggregate la extiende |
-| [`Ums.Shell.Factory`](factory.md) | `Ums.Shell.Factory` · `Ums.Shell.Factory.Installer` | Abstract factory basada en selector con DSL fluente | ✅ **Activo** — transitivo vía Ums.Shell.Ddd; disponible para todas las capas |
-| [`Ums.Shell.Aop`](aop.md) | `Ums.Shell.Aop` · `Ums.Shell.Aop.DispatchProxy` · `Ums.Shell.Aop.Aspects` · `Ums.Shell.Aop.Aspects.Logger.Serilog` · `Ums.Shell.Aop.Microsoft.Extensions.DependencyInjection.Aspects.Installer` | AOP basado en DispatchProxy: logging, retry, advice aspects | ✅ **Activo** — wireado a `CreateTenantCommandHandler`; expandir a otros handlers |
-| [`Ums.Shell.Bootstrapper`](bootstrapper.md) | `Ums.Shell.Bootstrapper` · `Ums.Shell.Bootstrapper.DependencyInjection` · `Ums.Shell.Bootstrapper.AutoMapper` · `Ums.Shell.Bootstrapper.Observability` | Pipeline de inicialización composable (patrón Composite) | 🔵 **Disponible** — usar para cadenas de startup multi-paso complejas |
+| [`BeyondNetCode.Shell.Ddd`](ddd.md) | `BeyondNetCode.Shell.Ddd` · `BeyondNetCode.Shell.Ddd.ValueObjects` | Tipos base DDD: Entity, AggregateRoot, ValueObject, DomainEvent, BrokenRules | ✅ **Fundación core** — cada aggregate la extiende |
+| [`BeyondNetCode.Shell.Factory`](factory.md) | `BeyondNetCode.Shell.Factory` · `BeyondNetCode.Shell.DI` | Abstract factory basada en selector con DSL fluente | ✅ **Activo** — transitivo vía BeyondNetCode.Shell.Ddd; disponible para todas las capas |
+| [`BeyondNetCode.Shell.Aop`](aop.md) | `BeyondNetCode.Shell.Aop` · `BeyondNetCode.Shell.DispatchProxy` · `BeyondNetCode.Shell.Aspects` · `BeyondNetCode.Shell.Logger.Serilog` · `BeyondNetCode.Shell.DI` | AOP basado en DispatchProxy: logging, retry, advice aspects | ✅ **Activo** — wireado a `CreateTenantCommandHandler`; expandir a otros handlers |
+| [`BeyondNetCode.Shell.Bootstrapper`](bootstrapper.md) | `BeyondNetCode.Shell.Bootstrapper` · `BeyondNetCode.Shell.DI` · `BeyondNetCode.Shell.Observability` | Pipeline de inicialización composable (patrón Composite) | 🔵 **Disponible** — usar para cadenas de startup multi-paso complejas |
 
 ---
 
-## Layout Físico
+## Layout de Paquetes NuGet
 
 ```
-src/libs/shell/
-├── ddd/
-│   └── src/
-│       ├── Ums.Shell.Ddd/                   ← Entity, AggregateRoot, ValueObject, DomainEvent, DomainEnumeration
-│       ├── Ums.Shell.Ddd.ValueObjects/      ← AuditValueObject, StringValueObject, IntValueObject, BoolValueObject, DecimalValueObject
-│       └── Ums.Shell.Ddd.Test/
-├── factory/
-│   └── src/
-│       ├── Ums.Shell.Factory/               ← IFactory, AbstractFactorySetupSource, fluent DSL
-│       ├── Ums.Shell.Factory.Installer/     ← AddFactory() DI extension
-│       ├── Ums.Shell.Factory.Test/
-│       └── Ums.Shell.Factory.Demo/
-├── aop/
-│   └── src/
-│       ├── Ums.Shell.Aop/                   ← IAspect, IJoinPoint, IPointCut, OnMethodBoundaryAspect, OnRetryAspect
-│       ├── Ums.Shell.Aop.DispatchProxy/     ← AopProxy<TService,TImpl>, AopProxyCreator
-│       ├── Ums.Shell.Aop.Aspects/           ← LoggerAspect, AdviceAspect, RetryAspect + attributes
-│       ├── Ums.Shell.Aop.Aspects.Logger/    ← ISerializer, SensitiveDataResolver
-│       ├── Ums.Shell.Aop.Aspects.Logger.Serilog/ ← SerilogLogger : ILogger (AOP)
-│       ├── Ums.Shell.Aop.Microsoft.Extensions.DependencyInjection.Aspects.Installer/
-│       └── Ums.Shell.Aop.Tests/
-└── bootstrapper/
-    └── src/
-        ├── Ums.Shell.Bootstrapper/          ← IBootstrapper, IBootstrapperAsync, CompositeBootstrapper
-        ├── Ums.Shell.Bootstrapper.DependencyInjection/  ← DependencyInjectionBootstrapper
-        ├── Ums.Shell.Bootstrapper.AutoMapper/            ← AutoMapperBootstrapper
-        ├── Ums.Shell.Bootstrapper.Observability/         ← ObservabilityBootstrapper + ObservabilityConfiguration
-        └── Ums.Shell.Bootstrapper.Tests/
+github.com/beyondnetcode/Shell.Ddd/
+├── BeyondNetCode.Shell.Ddd              ← Entity, AggregateRoot, ValueObject, DomainEvent, DomainEnumeration
+├── BeyondNetCode.Shell.Ddd.ValueObjects ← AuditValueObject, StringValueObject, IntValueObject, BoolValueObject, DecimalValueObject
+
+github.com/beyondnetcode/Shell.Factory/
+├── BeyondNetCode.Shell.Factory          ← IFactory, AbstractFactorySetupSource, fluent DSL
+├── BeyondNetCode.Shell.DI               ← AddFactory() DI extension
+
+github.com/beyondnetcode/Shell.Aop/
+├── BeyondNetCode.Shell.Aop              ← IAspect, IJoinPoint, IPointCut, OnMethodBoundaryAspect, OnRetryAspect
+├── BeyondNetCode.Shell.DispatchProxy    ← AopProxy<TService,TImpl>, AopProxyCreator
+├── BeyondNetCode.Shell.Aspects          ← LoggerAspect, AdviceAspect, RetryAspect + attributes
+├── BeyondNetCode.Shell.Logger.Serilog   ← SerilogLogger : ILogger (AOP)
+├── BeyondNetCode.Shell.DI               ← AddAop(), AddAopProxy<>()
+
+github.com/beyondnetcode/Shell.Bootstrapper/
+├── BeyondNetCode.Shell.Bootstrapper     ← IBootstrapper, IBootstrapperAsync, CompositeBootstrapper
+├── BeyondNetCode.Shell.DI               ← DependencyInjectionBootstrapper
+├── BeyondNetCode.Shell.Observability    ← ObservabilityBootstrapper + ObservabilityConfiguration
 ```
 
 ---
@@ -58,18 +49,18 @@ src/libs/shell/
 
 ```
 Ums.Domain
-  └── Ums.Shell.Ddd              ← Entity, AggregateRoot
-        └── Ums.Shell.Factory    ← IFactory (transitivo)
-              └── Ums.Shell.Ddd.ValueObjects  ← AuditValueObject
+  └── BeyondNetCode.Shell.Ddd              ← Entity, AggregateRoot
+        └── BeyondNetCode.Shell.Factory    ← IFactory (transitivo)
+              └── BeyondNetCode.Shell.Ddd.ValueObjects  ← AuditValueObject
 
 Ums.Application
   ├── Ums.Domain (arriba)
-  └── Ums.Shell.Aop.Aspects      ← [LoggerAspect], [RetryAspect] contrato de atributos
+  └── BeyondNetCode.Shell.Aspects          ← [LoggerAspect], [RetryAspect] contrato de atributos
 
 Ums.Infrastructure
   ├── Ums.Application (arriba)
-  ├── Ums.Shell.Aop.Microsoft.Extensions.DependencyInjection.Aspects.Installer ← AddAop(), AddAopProxy<>()
-  └── Ums.Shell.Aop.Aspects.Logger.Serilog ← SerilogLogger
+  ├── BeyondNetCode.Shell.DI               ← AddAop(), AddAopProxy<>()
+  └── BeyondNetCode.Shell.Logger.Serilog   ← SerilogLogger
 ```
 
 ---
@@ -106,7 +97,7 @@ Un ejemplo completo end-to-end combinando las cuatro librerías está en **[comb
 | [ddd.md](ddd.md) | Entity · AggregateRoot · ValueObject · DomainEvent · DomainEnumeration · BrokenRules · TrackingState |
 | [factory.md](factory.md) | AbstractFactorySetupSource · fluent DSL · IFactoryInterceptor · DI wiring · Patrones UMS |
 | [aop.md](aop.md) | Cadena IAspect · OnMethodBoundaryAspect · LoggerAspect · async proxy gap fix · MelLogger · DI wiring |
-| [bootstrapper.md](bootstrapper.md) | IBootstrapper · CompositeBootstrapper · DI/AutoMapper/Observability bootstrappers |
+| [bootstrapper.md](bootstrapper.md) | IBootstrapper · CompositeBootstrapper · DI/Observability bootstrappers |
 | [combined-usage.md](combined-usage.md) | Ejemplo completo: Aggregate Fulfillment + factory routing + AOP logging + startup bootstrapped |
 
 ---
@@ -134,26 +125,22 @@ Implementar `IAspect.GetOrder(IJoinPoint)` en cada aspecto para retornar la cons
 | Concern | Mecanismo | Archivo |
 |---|---|---|
 | PII en logs | `MelLogger`: log nombres/tipos de parámetros solo, nunca valores | `Ums.Infrastructure/Aop/MelLogger.cs` |
-| PII en Serilog | `SensitiveDataResolver` + atributo `[Sensitive]` | `Ums.Shell.Aop.Aspects.Logger/` |
-| Pureza de Domain | `Ums.Domain.csproj` tiene cero referencias NuGet | AGENTS.md |
-| Orden de Factory | `FactorySetupProvider` evalúa predicados en orden de declaración | `Ums.Shell.Factory/Impl/FactorySetupProvider.cs` |
-| Aspectos async | `OnMethodBoundaryAspect` unwraps `Task`/`Task<T>` vía continuación | `Ums.Shell.Aop/Impl/OnMethodBoundaryAspect.cs` |
+| PII en Serilog | `SensitiveDataResolver` + atributo `[Sensitive]` | `BeyondNetCode.Shell.Logger.Serilog` |
+| Pureza de Domain | `Ums.Domain.csproj` tiene cero referencias NuGet de dominio | AGENTS.md |
+| Orden de Factory | `FactorySetupProvider` evalúa predicados en orden de declaración | `BeyondNetCode.Shell.Factory/Impl/FactorySetupProvider.cs` |
+| Aspectos async | `OnMethodBoundaryAspect` unwraps `Task`/`Task<T>` vía continuación | `BeyondNetCode.Shell.Aop/Impl/OnMethodBoundaryAspect.cs` |
 
 ---
 
 ## Checklist de Validación
 
-Ejecutar esto antes de cualquier PR que toque una shell library:
+Ejecutar esto antes de cualquier PR que toque código que use las shell libraries:
 
 ```bash
-# Desde raíz del repo
-dotnet build src/apps/ums.api/Ums.sln
-dotnet test  src/apps/ums.api/Ums.sln --verbosity minimal
-
-dotnet test src/libs/shell/aop/src/Ums.Shell.Aop.Tests/Ums.Shell.Aop.Tests.csproj --verbosity minimal
-dotnet test src/libs/shell/factory/src/Ums.Shell.Factory.Test/Ums.Shell.Factory.Test.csproj --verbosity minimal
-dotnet test src/libs/shell/ddd/src/Ums.Shell.Ddd.Test/Ums.Shell.Ddd.Test.csproj --verbosity minimal
-dotnet test src/libs/shell/bootstrapper/src/Ums.Shell.Bootstrapper.Tests/Ums.Shell.Bootstrapper.Tests.csproj --verbosity minimal
+# Desde src/
+cd apps/ums.api
+dotnet build Ums.sln
+dotnet test Ums.sln --verbosity minimal
 ```
 
 Esperado: **0 errores de build**, **0 fallos de tests** en todas las suites.

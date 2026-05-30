@@ -1,10 +1,10 @@
-# Ums.Shell.Aop — Developer Guide
+# BeyondNetCode.Shell.Aop — Developer Guide
 
 > **Part of:** [Shell Libraries](README.md)  
-> **Projects:** `Ums.Shell.Aop` · `Ums.Shell.Aop.DispatchProxy` · `Ums.Shell.Aop.Aspects` · `Ums.Shell.Aop.Aspects.Logger.Serilog` · `Ums.Shell.Aop.Microsoft.Extensions.DependencyInjection.Aspects.Installer`  
+> **Projects:** `BeyondNetCode.Shell.Aop` · `BeyondNetCode.Shell.DispatchProxy` · `BeyondNetCode.Shell.Aspects` · `BeyondNetCode.Shell.Logger.Serilog` · `BeyondNetCode.Shell.DI`  
 > **Dependencies:** `Microsoft.Extensions.DependencyInjection` · `Serilog` (optional) · `System.Linq.Dynamic.Core`
 
-`Ums.Shell.Aop` provides **non-invasive aspect-oriented programming** via `System.Reflection.DispatchProxy`. Cross-cutting concerns (logging, retry, advice) are applied as an ordered chain of `IAspect` objects around any interface-backed service — with no modification to the service implementation.
+`BeyondNetCode.Shell.Aop` provides **non-invasive aspect-oriented programming** via `System.Reflection.DispatchProxy`. Cross-cutting concerns (logging, retry, advice) are applied as an ordered chain of `IAspect` objects around any interface-backed service — with no modification to the service implementation.
 
 ---
 
@@ -57,7 +57,7 @@ Key design decisions:
 ## 2. Project Structure
 
 ```
-Ums.Shell.Aop/
+BeyondNetCode.Shell.Aop/
 ├── Interface/
 │   ├── IAspect.cs           ← void Apply(IJoinPoint), SetNext/GetNext, GetOrder
 │   ├── IAspectExecutor.cs   ← void Execute(IJoinPoint)
@@ -72,11 +72,11 @@ Ums.Shell.Aop/
     ├── JoinPoint.cs                   ← IJoinPoint implementation
     └── PointCut.cs                    ← attribute-based CanApply with cache
 
-Ums.Shell.Aop.DispatchProxy/
+BeyondNetCode.Shell.DispatchProxy/
 ├── AopProxy.cs              ← System.Reflection.DispatchProxy subclass
 └── AopProxyCreator.cs       ← static Create<TService,TImpl>(target, executor)
 
-Ums.Shell.Aop.Aspects/
+BeyondNetCode.Shell.Aspects/
 ├── Impl/
 │   ├── LoggerAspect.cs          ← OnMethodBoundaryAspect<LoggerAspectAttribute>
 │   ├── LoggerAspectAttribute.cs ← Type, LogArguments[], LogReturn, LogDuration, LogException, Expression
@@ -93,10 +93,10 @@ Ums.Shell.Aop.Aspects/
     ├── IFactory.cs              ← T Create(Type)
     └── ILogger.cs               ← AOP logger contract (not MEL ILogger)
 
-Ums.Shell.Aop.Aspects.Logger.Serilog/
+BeyondNetCode.Shell.Logger.Serilog/
 └── SerilogLogger.cs         ← ILogger (AOP) backed by Serilog static Log.*
 
-Ums.Shell.Aop.Microsoft.Extensions.DependencyInjection.Aspects.Installer/
+BeyondNetCode.Shell.DI/
 ├── AopAspectsBuilder.cs         ← AddAspect<T>(), AddAdvice<T>(), AddLogger<T>()
 └── ServiceCollectionExtension.cs ← AddAop(configure?), AddAopProxy<TService,TImpl>()
 ```
@@ -108,10 +108,10 @@ Ums.Shell.Aop.Microsoft.Extensions.DependencyInjection.Aspects.Installer/
 Use when writing unit tests or console tools without a full DI container.
 
 ```csharp
-using Ums.Shell.Aop;
-using Ums.Shell.Aop.Aspects;
-using Ums.Shell.Aop.DispatchProxy;
-using Ums.Shell.Aop.Impl;
+using BeyondNetCode.Shell.Aop;
+using BeyondNetCode.Shell.Aspects;
+using BeyondNetCode.Shell.DispatchProxy;
+using BeyondNetCode.Shell.Aop.Impl;
 
 // ──── 1. Define service
 public interface ICalculator { int Add(int a, int b); }
@@ -196,7 +196,7 @@ services.AddAopProxy<
 ### Decorating the handler
 
 ```csharp
-// In Ums.Application (references Ums.Shell.Aop.Aspects only — no Infrastructure dep)
+// In Ums.Application (references BeyondNetCode.Shell.Aspects only — no Infrastructure dep)
 public sealed class CreateTenantCommandHandler
     : ICommandHandler<CreateTenantCommand, CreateTenantResponse>
 {
@@ -472,7 +472,7 @@ Implement `GetOrder(IJoinPoint)` in your aspect class to return the appropriate 
 |---|---|---|
 | Aspect never fires | Method doesn't have the attribute | Add `[YourAttribute]` to the concrete method (not the interface) |
 | `InvalidCastException` in proxy | `TService` must be an interface or abstract class | DispatchProxy requires interface/abstract target |
-| `OnSuccess` fires before task completes | Old `OnMethodBoundaryAspect` (pre Phase 0-C) | Update to latest `Ums.Shell.Aop` — fix already applied |
+| `OnSuccess` fires before task completes | Old `OnMethodBoundaryAspect` (pre Phase 0-C) | Update to latest `BeyondNetCode.Shell.Aop` — fix already applied |
 | Keyed service not found | Logger type not registered | Add `builder.AddLogger<MyLogger>()` in `AddAop()` callback |
 | `ArgumentException: Singleton not supported` | Called `AddAopProxy<,>(ServiceLifetime.Singleton)` | Use `Scoped` (default) or `Transient` |
 | `LoggerAspect.Init`: `Type should not be null` | Missing `Type` property on attribute | Always set `Type = typeof(IMyLogger)` in the attribute |
@@ -481,7 +481,7 @@ Implement `GetOrder(IJoinPoint)` in your aspect class to return the appropriate 
 
 ## 13. StructuredAopLoggerBase — Observability-Aware Logger Base
 
-`Ums.Shell.Aop.Aspects.Logger.Serilog` ships five additional types beyond `SerilogLogger` that form the foundation for production observability-aware logging adapters.
+`BeyondNetCode.Shell.Logger.Serilog` ships five additional types beyond `SerilogLogger` that form the foundation for production observability-aware logging adapters.
 
 ### New types
 
@@ -523,7 +523,7 @@ public abstract class StructuredAopLoggerBase : ILogger
 
 ```csharp
 // 1. Application layer — marker interface (no Infrastructure import)
-public interface IMyServiceLogger : Ums.Shell.Aop.Aspects.ILogger;
+public interface IMyServiceLogger : BeyondNetCode.Shell.Aspects.ILogger;
 
 // 2. Infrastructure layer — concrete adapter
 public sealed class MyServiceLogger(
@@ -548,7 +548,7 @@ public sealed class MyServiceLogger(
 }
 
 // 3. DI registration
-services.AddKeyedTransient<Ums.Shell.Aop.Aspects.ILogger, MyServiceLogger>(
+services.AddKeyedTransient<BeyondNetCode.Shell.Aspects.ILogger, MyServiceLogger>(
     typeof(IMyServiceLogger));
 
 // 4. Handler decoration

@@ -1,6 +1,6 @@
 namespace Ums.Application.Common;
 
-using Ums.Shell.Ddd;
+using BeyondNetCode.Shell.Ddd;
 
 internal static class DomainEnumerationParser
 {

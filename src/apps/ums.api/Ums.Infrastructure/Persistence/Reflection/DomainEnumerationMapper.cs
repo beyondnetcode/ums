@@ -1,4 +1,4 @@
-using Ums.Shell.Ddd;
+using BeyondNetCode.Shell.Ddd;
 
 namespace Ums.Infrastructure.Persistence.Reflection;
 

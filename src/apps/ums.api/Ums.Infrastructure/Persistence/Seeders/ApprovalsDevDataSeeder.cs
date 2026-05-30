@@ -2,7 +2,7 @@ namespace Ums.Infrastructure.Persistence.Seeders;
 
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using Ums.Shell.Ddd;
+using BeyondNetCode.Shell.Ddd;
 using Ums.Domain.Approvals;
 using Ums.Domain.Approvals.AccessEnforcementPolicy;
 using Ums.Domain.Approvals.ApprovalRequest;

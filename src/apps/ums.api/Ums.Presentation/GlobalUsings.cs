@@ -10,4 +10,4 @@ global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.AspNetCore.Routing;
 global using Ums.Application.Common.Interfaces;
 global using Ums.Presentation.Extensions;
-global using Ums.Shell.Aop.Aspects.Logger.Serilog;
+global using BeyondNetCode.Shell.Aop.Aspects.Logger.Serilog;

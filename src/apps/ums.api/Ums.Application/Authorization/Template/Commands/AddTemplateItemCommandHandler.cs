@@ -2,7 +2,7 @@ namespace Ums.Application.Authorization.Template.Commands;
 
 using Ums.Domain.Authorization;
 using Ums.Domain.Enums;
-using Ums.Shell.Ddd;
+using BeyondNetCode.Shell.Ddd;
 
 public sealed class AddTemplateItemCommandHandler : ICommandHandler<AddTemplateItemCommand>
 {

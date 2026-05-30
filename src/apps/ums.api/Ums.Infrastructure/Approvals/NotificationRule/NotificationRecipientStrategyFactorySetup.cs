@@ -1,5 +1,5 @@
 using Ums.Domain.Enums;
-using Ums.Shell.Factory.Impl;
+using BeyondNetCode.Shell.Factory.Impl;
 
 namespace Ums.Infrastructure.Approvals.NotificationRule;
 

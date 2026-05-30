@@ -6,7 +6,7 @@ using Ums.Application.Audit.AuditRecord.DTOs;
 using Ums.Domain.Audit.AuditRecord;
 using Ums.Domain.Enums;
 using Ums.Domain.Kernel;
-using Ums.Shell.Ddd.Interfaces;
+using BeyondNetCode.Shell.Ddd.Interfaces;
 using Moq;
 using Xunit;
 using System;
@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 public class AuditRecordCommandHandlerTests
 {
     private readonly Mock<IAuditRecordRepository>             _repo = new();
-    private readonly Mock<Ums.Shell.Ddd.Interfaces.IUnitOfWork> _uow  = new();
+    private readonly Mock<BeyondNetCode.Shell.Ddd.Interfaces.IUnitOfWork> _uow  = new();
 
     public AuditRecordCommandHandlerTests()
     {

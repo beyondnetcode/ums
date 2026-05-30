@@ -1,6 +1,6 @@
 namespace Ums.Domain.Authorization.Template.PermissionTemplateItem;
 
-using Ums.Shell.Ddd.Rules.Impl;
+using BeyondNetCode.Shell.Ddd.Rules.Impl;
 using Ums.Domain.Kernel.ValueObjects;
 
 public sealed class PermissionTemplateItem : Entity<PermissionTemplateItem, PermissionTemplateItemProps>
@@ -99,7 +99,7 @@ public class ExclusiveArcValidator : AbstractRuleValidator<PermissionTemplateIte
 {
     public ExclusiveArcValidator(PermissionTemplateItem subject) : base(subject) { }
 
-    public override void AddRules(Ums.Shell.Ddd.Rules.RuleContext? context)
+    public override void AddRules(BeyondNetCode.Shell.Ddd.Rules.RuleContext? context)
     {
         if (Subject.Props.TargetId is null)
         {
@@ -112,7 +112,7 @@ public class PermissionEffectValidator : AbstractRuleValidator<PermissionTemplat
 {
     public PermissionEffectValidator(PermissionTemplateItem subject) : base(subject) { }
 
-    public override void AddRules(Ums.Shell.Ddd.Rules.RuleContext? context)
+    public override void AddRules(BeyondNetCode.Shell.Ddd.Rules.RuleContext? context)
     {
         if (Subject.Props.IsAllowed && Subject.Props.IsDenied)
         {

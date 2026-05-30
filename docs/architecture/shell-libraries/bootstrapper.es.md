@@ -1,10 +1,11 @@
-# Ums.Shell.Bootstrapper -- Guia del Desarrollador
+# BeyondNetCode.Shell.Bootstrapper — Guía del Desarrollador
 
-> **Parte de:** [Shell Libraries](README.es.md)  
-> **Proyectos:** `Ums.Shell.Bootstrapper` · `Ums.Shell.Bootstrapper.DependencyInjection` · `Ums.Shell.Bootstrapper.AutoMapper` · `Ums.Shell.Bootstrapper.Observability`  
-> **Dependencias:** `Microsoft.Extensions.DependencyInjection` · `AutoMapper` · `Serilog.Sinks.OpenTelemetry` · `OpenTelemetry`
+> **Parte de:** [Shell Libraries](README.es.md)
+> **Paquetes NuGet:** `BeyondNetCode.Shell.Bootstrapper` · `BeyondNetCode.Shell.DI` · `BeyondNetCode.Shell.Observability`
+> **Dependencias:** `Microsoft.Extensions.DependencyInjection` · `Serilog.Sinks.OpenTelemetry` · `OpenTelemetry`
+> **Repositorio:** `github.com/beyondnetcode/Shell.Bootstrapper`
 
-`Ums.Shell.Bootstrapper` implementa el **Patron Composite Bootstrapper** -- una forma estructurada y testeable de descomponer el inicio complejo de una aplicacion en pequenas unidades independientes que se componen en un pipeline.
+`BeyondNetCode.Shell.Bootstrapper` implementa el **Patron Composite Bootstrapper** — una forma estructurada y testeable de descomponer el inicio complejo de una aplicacion en pequenas unidades independientes que se pueden composicionar en un pipeline.
 
 ---
 
@@ -25,7 +26,7 @@
 
 ## 1. Cuando Usar
 
-Usa `Ums.Shell.Bootstrapper` cuando:
+Usa `BeyondNetCode.Shell.Bootstrapper` cuando:
 
 - El inicio tiene **multiples fases independientes** que deben ser testeables en aislamiento.
 - Quires una forma **fluente y composable** de describir el orden de inicializacion.
@@ -37,26 +38,23 @@ Prefiere `IHostedService` o `IStartupFilter` para:
 
 ---
 
-## 2. Estructura del Proyecto
+## 2. Estructura de Paquetes
 
 ```
-Ums.Shell.Bootstrapper/
-└── src/
-    ├── Ums.Shell.Bootstrapper/
-    │   ├── Interface/
-    │   │   ├── IBootstrapper.cs          ← IBootstrapper + IBootstrapper<out T>
-    │   │   └── IBootstrapperAsync.cs     ← IBootstrapperAsync + IBootstrapperAsync<out T>
-    │   └── Impl/
-    │       ├── CompositeBootstrapper.cs       ← runner sync secuencial
-    │       └── CompositeBootstrapperAsync.cs  ← runner async secuencial
-    ├── Ums.Shell.Bootstrapper.DependencyInjection/
-    │   └── DependencyInjectionBootstrapper.cs ← envuelve configuracion de IServiceCollection
-    ├── Ums.Shell.Bootstrapper.AutoMapper/
-    │   └── AutoMapperBootstrapper.cs          ← envuelve configuracion de AutoMapper
-    ├── Ums.Shell.Bootstrapper.Observability/
-    │   ├── ObservabilityBootstrapper.cs       ← cableado de Serilog + OpenTelemetry
-    │   └── ObservabilityConfiguration.cs      ← endpoint OTLP, nombre/servicio/version, atributos de recurso
-    └── Ums.Shell.Bootstrapper.Tests/
+BeyondNetCode.Shell.Bootstrapper/
+├── Interface/
+│   ├── IBootstrapper.cs          ← IBootstrapper + IBootstrapper<out T>
+│   └── IBootstrapperAsync.cs     ← IBootstrapperAsync + IBootstrapperAsync<out T>
+└── Impl/
+    ├── CompositeBootstrapper.cs       ← runner sync secuencial
+    └── CompositeBootstrapperAsync.cs  ← runner async secuencial
+
+BeyondNetCode.Shell.DI/
+└── DependencyInjectionBootstrapper.cs ← envuelve configuracion de IServiceCollection
+
+BeyondNetCode.Shell.Observability/
+├── ObservabilityBootstrapper.cs       ← cableado de Serilog + OpenTelemetry
+└── ObservabilityConfiguration.cs      ← endpoint OTLP, nombre/servicio/version, atributos de recurso
 ```
 
 ---
@@ -309,12 +307,12 @@ Cada bootstrapper recibe el mismo `CancellationToken` -- maneja la cancelacion e
 
 ## 8. Ejemplos de Uso Standalone
 
-### Ejemplo A -- Pipeline DI + AutoMapper (sin host)
+### Ejemplo A — Pipeline DI + Observability (sin host)
 
 ```csharp
-using Ums.Shell.Bootstrapper.Impl;
-using Ums.Shell.Bootstrapper.DependencyInjection;
-using Ums.Shell.Bootstrapper.AutoMapper;
+using BeyondNetCode.Shell.Bootstrapper.Impl;
+using BeyondNetCode.Shell.DI;
+using BeyondNetCode.Shell.Observability;
 
 var services = new ServiceCollection();
 

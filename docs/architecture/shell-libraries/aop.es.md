@@ -1,10 +1,11 @@
-# Ums.Shell.Aop — Guía de Desarrollo
+# BeyondNetCode.Shell.Aop — Guía de Desarrollo
 
 > **Parte de:** [Shell Libraries](README.md)
-> **Proyectos:** `Ums.Shell.Aop` · `Ums.Shell.Aop.DispatchProxy` · `Ums.Shell.Aop.Aspects` · `Ums.Shell.Aop.Aspects.Logger.Serilog` · `Ums.Shell.Aop.Microsoft.Extensions.DependencyInjection.Aspects.Installer`
+> **Paquetes NuGet:** `BeyondNetCode.Shell.Aop` · `BeyondNetCode.Shell.DispatchProxy` · `BeyondNetCode.Shell.Aspects` · `BeyondNetCode.Shell.Logger.Serilog` · `BeyondNetCode.Shell.DI`
 > **Dependencias:** `Microsoft.Extensions.DependencyInjection` · `Serilog` (opcional) · `System.Linq.Dynamic.Core`
+> **Repositorio:** `github.com/beyondnetcode/Shell.Aop`
 
-`Ums.Shell.Aop` proporciona **programación orientada a aspectos no invasiva** vía `System.Reflection.DispatchProxy`. Los concerns cross-cutting (logging, retry, advice) se aplican como una cadena ordenada de objetos `IAspect` alrededor de cualquier servicio basado en interfaces — sin modificación a la implementación del servicio.
+`BeyondNetCode.Shell.Aop` proporciona **programación orientada a aspectos no invasiva** vía `System.Reflection.DispatchProxy`. Los concerns cross-cutting (logging, retry, advice) se aplican como una cadena ordenada de objetos `IAspect` alrededor de cualquier servicio basado en interfaces — sin modificación a la implementación del servicio.
 
 ---
 
@@ -37,10 +38,10 @@ return value (Task or sync)
 
 ---
 
-## 2. Estructura de Proyectos
+## 2. Estructura de Paquetes
 
 ```
-Ums.Shell.Aop/
+BeyondNetCode.Shell.Aop/
 ├── Interface/
 │   ├── IAspect.cs           ← void Apply(IJoinPoint), SetNext/GetNext, GetOrder
 │   ├── IAspectExecutor.cs   ← void Execute(IJoinPoint)
@@ -55,11 +56,11 @@ Ums.Shell.Aop/
     ├── JoinPoint.cs                   ← IJoinPoint implementation
     └── PointCut.cs                    ← attribute-based CanApply with cache
 
-Ums.Shell.Aop.DispatchProxy/
+BeyondNetCode.Shell.DispatchProxy/
 ├── AopProxy.cs              ← System.Reflection.DispatchProxy subclass
 └── AopProxyCreator.cs       ← static Create<TService,TImpl>(target, executor)
 
-Ums.Shell.Aop.Aspects/
+BeyondNetCode.Shell.Aspects/
 ├── Impl/
 │   ├── LoggerAspect.cs      ← [LoggerAspect] attribute + OnMethodBoundaryAspect
 │   ├── AdviceAspect.cs      ← [AdviceAspect] — advice around method
@@ -69,7 +70,7 @@ Ums.Shell.Aop.Aspects/
     ├── AdviceAspectAttribute.cs
     └── RetryAspectAttribute.cs
 
-Ums.Shell.Aop.Microsoft.Extensions.DependencyInjection.Aspects.Installer/
+BeyondNetCode.Shell.DI/
 └── DIAopInstaller.cs        ← AddAop(), AddAopProxy<TService, TImpl>(lifetime)
 ```
 

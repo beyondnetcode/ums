@@ -1,6 +1,6 @@
 # Implementaciones AOP de la API
 
-Este documento detalla las implementaciones concretas de Programación Orientada a Aspectos (AOP) utilizadas en la API de UMS. Estos aspectos se construyen sobre la librería `Ums.Shell.Aop` y sirven para desacoplar las preocupaciones transversales de la lógica de negocio central (Comandos y Consultas) en la capa de Aplicación.
+Este documento detalla las implementaciones concretas de Programación Orientada a Aspectos (AOP) utilizadas en la API de UMS. Estos aspectos se construyen sobre la librería `BeyondNetCode.Shell.Aop` y sirven para desacoplar las preocupaciones transversales de la lógica de negocio central (Comandos y Consultas) en la capa de Aplicación.
 
 ---
 

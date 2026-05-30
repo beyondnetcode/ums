@@ -1,6 +1,6 @@
 namespace Ums.Domain.Kernel.ValueObjects;
 
-using Ums.Shell.Ddd;
+using BeyondNetCode.Shell.Ddd;
 
 public class TenantId : IdValueObject
 {

@@ -1,10 +1,10 @@
-# Ums.Shell.Ddd — Developer Guide
+# BeyondNetCode.Shell.Ddd — Developer Guide
 
 > **Part of:** [Shell Libraries](README.md)  
-> **Projects:** `Ums.Shell.Ddd` · `Ums.Shell.Ddd.ValueObjects`  
+> **Projects:** `BeyondNetCode.Shell.Ddd` · `BeyondNetCode.Shell.Ddd.ValueObjects`  
 > **Dependencies:** `MediatR` (for `INotification` on domain events)
 
-`Ums.Shell.Ddd` is the DDD foundation for every aggregate, entity and value object in the UMS domain. It provides the building-block types that enforce **invariants at construction time**, **domain event sourcing**, **tracking state**, and **broken-rule collection** with no NuGet runtime dependencies beyond MediatR.
+`BeyondNetCode.Shell.Ddd` is the DDD foundation for every aggregate, entity and value object in the UMS domain. It provides the building-block types that enforce **invariants at construction time**, **domain event sourcing**, **tracking state**, and **broken-rule collection** with no NuGet runtime dependencies beyond MediatR.
 
 ---
 
@@ -27,7 +27,7 @@
 ## 1. Project Structure
 
 ```
-Ums.Shell.Ddd/
+BeyondNetCode.Shell.Ddd/
 ├── AggregateRoot.cs             ← abstract AggregateRoot<TAgg, TProps>
 ├── Entity.cs                    ← abstract Entity<TEntity, TProps>
 ├── ValueObject.cs               ← abstract ValueObject<TValue>
@@ -57,7 +57,7 @@ Ums.Shell.Ddd/
         ├── DomainEventsManager.cs
         └── TrackingStateManager.cs
 
-Ums.Shell.Ddd.ValueObjects/
+BeyondNetCode.Shell.Ddd.ValueObjects/
 ├── Audit/
 │   └── AuditValueObject.cs      ← (CreatedBy, CreatedAt, UpdatedBy?, UpdatedAt?)
 └── Common/
@@ -533,6 +533,6 @@ var audit = AuditValueObject.Create(actorId.GetValue()); // stamps CreatedBy + C
 
 ## Related Docs
 
-- [Factory](factory.md) — `Ums.Shell.Factory` uses `AbstractFactorySetupSource` to dispatch based on aggregate state
+- [Factory](factory.md) — `BeyondNetCode.Shell.Factory` uses `AbstractFactorySetupSource` to dispatch based on aggregate state
 - [AOP](aop.md) — handlers that operate on aggregates are decorated with `[LoggerAspect]`
 - [Combined Usage](combined-usage.md) — full walkthrough with DDD + Factory + AOP + Bootstrapper

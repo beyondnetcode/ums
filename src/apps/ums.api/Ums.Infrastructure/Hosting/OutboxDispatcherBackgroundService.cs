@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 using Ums.Infrastructure.Persistence;
 using Ums.Infrastructure.Persistence.Options;
 using Ums.Infrastructure.Persistence.Outbox;
-using Ums.Shell.Ddd.Interfaces;
+using BeyondNetCode.Shell.Ddd.Interfaces;
 
 namespace Ums.Infrastructure.Hosting;
 

@@ -1,6 +1,6 @@
 namespace Ums.Domain.Configuration.IdpConfiguration.Events;
 
-using Ums.Shell.Ddd.Services.Impl;
+using BeyondNetCode.Shell.Ddd.Services.Impl;
 
 public class IdpConfigurationDomainEventsManager : DomainEventsManager
 {

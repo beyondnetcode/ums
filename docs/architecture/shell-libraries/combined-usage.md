@@ -1,7 +1,7 @@
-# Shell Libraries — Combined Usage Guide
+# BeyondNetCode.Shell Libraries — Combined Usage Guide
 
-> **Part of:** [Shell Libraries](README.md)  
-> **Demonstrates:** `Ums.Shell.Ddd` + `Ums.Shell.Factory` + `Ums.Shell.Aop` + `Ums.Shell.Bootstrapper` in a single coherent example
+> **Part of:** [Shell Libraries](README.md)
+> **Demonstrates:** `BeyondNetCode.Shell.Ddd` + `BeyondNetCode.Shell.Factory` + `BeyondNetCode.Shell.Aop` + `BeyondNetCode.Shell.Bootstrapper` in a single coherent example
 
 This guide walks through a self-contained vertical slice of a **Fulfillment** bounded context. The example is deliberately separate from the existing UMS Identity/Authorization contexts so it is easy to follow without prior domain knowledge.
 
@@ -183,7 +183,7 @@ public class FulfillmentFactorySetup : AbstractFactorySetupSource
 
 ```csharp
 // Application/Common/Aop/IMelLogger.cs
-using Ums.Shell.Aop.Aspects;
+using BeyondNetCode.Shell.Aspects;
 
 public interface IMelLogger : ILogger;  // marker for keyed-service resolution
 ```
@@ -252,7 +252,7 @@ public class DispatchOrderCommandHandler(
 
 ```csharp
 // Infrastructure/Aop/MelLogger.cs
-using AopILogger = Ums.Shell.Aop.Aspects.ILogger;
+using AopILogger = BeyondNetCode.Shell.Aspects.ILogger;
 
 public sealed class MelLogger(ILoggerFactory loggerFactory) : IMelLogger
 {
@@ -312,7 +312,7 @@ public static IServiceCollection AddFulfillmentInfrastructure(
     services.AddAop();
 
     // MelLogger registered under typeof(IMelLogger) — matches [LoggerAspect(Type=typeof(IMelLogger))]
-    services.AddKeyedTransient<Ums.Shell.Aop.Aspects.ILogger, MelLogger>(typeof(IMelLogger));
+    services.AddKeyedTransient<BeyondNetCode.Shell.Aspects.ILogger, MelLogger>(typeof(IMelLogger));
 
     // Wrap the command handler: MediatR resolves the proxy (last registration wins)
     services.AddAopProxy<
@@ -417,10 +417,10 @@ else
 
 | Library | Role in This Example |
 |---|---|
-| **Ums.Shell.Ddd** | `Order` (aggregate root), `ChannelType` (domain enumeration), `OrderDispatched` (domain event), `Result<T>` (discriminated union) |
-| **Ums.Shell.Factory** | `FulfillmentFactorySetup` (predicate rules), `IFactory.Create<Order, IFulfillmentStrategy>()` (runtime dispatch), `FactoryCreator` backed by DI |
-| **Ums.Shell.Aop** | `[LoggerAspect]` on `Handle`, `AopProxy<IRequestHandler<...>, DispatchOrderCommandHandler>` (DispatchProxy), `MelLogger` (MEL adapter), `OnMethodBoundaryAspect` async-aware hooks |
-| **Ums.Shell.Bootstrapper** | `DependencyInjectionBootstrapper` (DI phase), `ObservabilityBootstrapper` (Serilog + OTLP), `CompositeBootstrapper` (pipeline orchestration) |
+| **BeyondNetCode.Shell.Ddd** | `Order` (aggregate root), `ChannelType` (domain enumeration), `OrderDispatched` (domain event), `Result<T>` (discriminated union) |
+| **BeyondNetCode.Shell.Factory** | `FulfillmentFactorySetup` (predicate rules), `IFactory.Create<Order, IFulfillmentStrategy>()` (runtime dispatch), `FactoryCreator` backed by DI |
+| **BeyondNetCode.Shell.Aop** | `[LoggerAspect]` on `Handle`, `AopProxy<IRequestHandler<...>, DispatchOrderCommandHandler>` (DispatchProxy), `MelLogger` (MEL adapter), `OnMethodBoundaryAspect` async-aware hooks |
+| **BeyondNetCode.Shell.Bootstrapper** | `DependencyInjectionBootstrapper` (DI phase), `ObservabilityBootstrapper` (Serilog + OTLP), `CompositeBootstrapper` (pipeline orchestration) |
 
 ### Dependency chain
 
@@ -436,10 +436,10 @@ Program.cs
 MediatR.Send(DispatchOrderCommand)
   └── AopProxy<IRequestHandler<...>, DispatchOrderCommandHandler>.Invoke()
         └── AspectExecutor → LoggerAspect → DispatchOrderCommandHandler.Handle()
-              └── Order.Place()                    [Ums.Shell.Ddd]
-              └── factory.Create<Order, IFulfillmentStrategy>()  [Ums.Shell.Factory]
+              └── Order.Place()                    [BeyondNetCode.Shell.Ddd]
+              └── factory.Create<Order, IFulfillmentStrategy>()  [BeyondNetCode.Shell.Factory]
               └── DigitalFulfillment.ExecuteAsync() [Factory-resolved]
-              └── order.Dispatch()                 [Ums.Shell.Ddd]
+              └── order.Dispatch()                 [BeyondNetCode.Shell.Ddd]
 ```
 
 ---

@@ -12,7 +12,7 @@ using Ums.Domain.Identity.UserAccount.PasswordCredential;
 using Ums.Domain.Identity.UserManagementDelegation;
 using Ums.Domain.Kernel.ValueObjects;
 using Ums.Infrastructure.Persistence.Identity.Entities;
-using Ums.Shell.Ddd.ValueObjects.Audit;
+using BeyondNetCode.Shell.Ddd.ValueObjects.Audit;
 
 namespace Ums.Infrastructure.Persistence.Reflection;
 

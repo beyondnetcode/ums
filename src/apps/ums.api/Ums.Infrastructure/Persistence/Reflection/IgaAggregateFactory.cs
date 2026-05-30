@@ -6,8 +6,8 @@ using Ums.Domain.IGA.PromotionRequest.PromotionImpactAnalysis;
 using Ums.Domain.IGA.RoleMaturityStatus;
 using Ums.Domain.Kernel.ValueObjects;
 using Ums.Infrastructure.Persistence.IGA.Entities;
-using Ums.Shell.Ddd;
-using Ums.Shell.Ddd.ValueObjects.Audit;
+using BeyondNetCode.Shell.Ddd;
+using BeyondNetCode.Shell.Ddd.ValueObjects.Audit;
 
 namespace Ums.Infrastructure.Persistence.Reflection;
 

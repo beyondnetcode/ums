@@ -4,7 +4,7 @@ using Ums.Domain.Audit.AuditRecord;
 using Ums.Domain.Enums;
 using Ums.Domain.Kernel.ValueObjects;
 using Ums.Infrastructure.Persistence.Audit.Entities;
-using Ums.Shell.Ddd;
+using BeyondNetCode.Shell.Ddd;
 
 namespace Ums.Infrastructure.Persistence.Reflection;
 

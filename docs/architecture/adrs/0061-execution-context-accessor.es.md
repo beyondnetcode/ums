@@ -44,7 +44,7 @@ Esto generaba tres problemas:
 ### Tipos
 
 ```
-Ums.Shell.Aop.Aspects.Logger.Serilog   (shell library — genérica, sin dependencia de UMS)
+BeyondNetCode.Shell.Logger.Serilog   (shell library — genérica, sin dependencia de UMS)
 ├── ExecutionContextSnapshot            record(CorrelationId, SessionTrackingId, TraceId, SpanId)
 ├── IExecutionContextAccessor           interface { Current; Set(snapshot) }
 ├── ObservabilityHeaders                clase estática — constantes de nombres de headers HTTP
@@ -140,7 +140,7 @@ services.AddScoped<IExecutionContextAccessor>(sp => sp.GetRequiredService<Reques
 
 ## Checklist de Extracción Evolith
 
-Los siguientes tipos están en `Ums.Shell.Aop.Aspects.Logger.Serilog` sin ningún import específico de UMS:
+Los siguientes tipos están en `BeyondNetCode.Shell.Logger.Serilog` sin ningún import específico de UMS:
 - [ ] `ExecutionContextSnapshot` — record genérico, sin referencias de producto
 - [ ] `IExecutionContextAccessor` — interfaz genérica
 - [ ] `ObservabilityHeaders` — constantes, renombrar prefijo según corresponda

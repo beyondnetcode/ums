@@ -1,7 +1,7 @@
 namespace Ums.Infrastructure.Approvals.ApprovalRequest;
 
 using Ums.Application.Approvals.ApprovalRequest.Services;
-using Ums.Shell.Factory.Interfaces;
+using BeyondNetCode.Shell.Factory.Interfaces;
 using ApprovalWorkflowAggregate = Ums.Domain.Approvals.ApprovalWorkflow.ApprovalWorkflow;
 using ApprovalRequestAggregate = Ums.Domain.Approvals.ApprovalRequest.ApprovalRequest;
 
