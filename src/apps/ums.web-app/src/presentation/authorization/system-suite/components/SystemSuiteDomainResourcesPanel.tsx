@@ -52,8 +52,14 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
   const handleAddResource = async (e: React.FormEvent) => {
     e.preventDefault();
     setResError('');
-    if (!resCode.trim()) { setResError('Código requerido'); return; }
-    if (!resName.trim()) { setResError('Nombre requerido'); return; }
+    if (!resCode.trim()) {
+      setResError('Código requerido');
+      return;
+    }
+    if (!resName.trim()) {
+      setResError('Nombre requerido');
+      return;
+    }
 
     try {
       await addDomainResourceMutation.mutateAsync({
@@ -63,9 +69,14 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
         name: resName.trim(),
         description: resDesc.trim(),
       });
-      setResCode(''); setResName(''); setResDesc(''); setResModuleId('');
+      setResCode('');
+      setResName('');
+      setResDesc('');
+      setResModuleId('');
       setIsAddingResource(false);
-    } catch { /* handled by hook */ }
+    } catch {
+      /* handled by hook */
+    }
   };
 
   const handleUpdateResource = async (e: React.FormEvent, resourceId: string) => {
@@ -81,14 +92,16 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
         description,
       });
       edit.cancelEdit();
-    } catch { /* handled by hook */ }
+    } catch {
+      /* handled by hook */
+    }
   };
 
   const domainResources = systemSuite.domainResources || [];
 
   let filteredResources = domainResources;
   if (activeFilter !== 'all') {
-    filteredResources = filteredResources.filter((r) => r.type === activeFilter);
+    filteredResources = filteredResources.filter(r => r.type === activeFilter);
   }
   filteredResources = [...filteredResources].sort((a, b) => {
     let cmp = 0;
@@ -118,16 +131,19 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
         sortBy={sortBy}
         onSortByChange={setSortBy}
         sortOrder={sortOrder}
-        onSortOrderToggle={() => setSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'))}
+        onSortOrderToggle={() => setSortOrder(o => (o === 'asc' ? 'desc' : 'asc'))}
         itemCount={domainResources.length}
         itemLabel="Recurso"
       />
 
       <InlineAddForm
         isOpen={isAddingResource}
-        onToggle={(open) => { setIsAddingResource(open); if (!open) setResError(''); }}
+        onToggle={open => {
+          setIsAddingResource(open);
+          if (!open) setResError('');
+        }}
         onSubmit={handleAddResource}
-        addLabel="Agregar Recurso de Dominio"
+        addLabel="+"
         title="Nuevo Recurso de Dominio (Entidad/Agregado)"
         cancelLabel={t.cancelEdit}
         submitLabel="Guardar Recurso"
@@ -140,7 +156,7 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
             <label className="text-[11px] font-medium text-m3-on-surface">Tipo de Recurso</label>
             <select
               value={resType}
-              onChange={(e) => setResType(e.target.value as 'Aggregate' | 'Entity')}
+              onChange={e => setResType(e.target.value as 'Aggregate' | 'Entity')}
               className="w-full h-10 px-3 rounded-lg bg-m3-surface border border-m3-outline/20 text-sm focus:border-m3-primary focus:ring-1 focus:ring-m3-primary outline-none"
             >
               <option value="Aggregate">Agregado (Aggregate Root)</option>
@@ -151,36 +167,60 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
             <label className="text-[11px] font-medium text-m3-on-surface">Módulo (Opcional)</label>
             <select
               value={resModuleId}
-              onChange={(e) => setResModuleId(e.target.value)}
+              onChange={e => setResModuleId(e.target.value)}
               className="w-full h-10 px-3 rounded-lg bg-m3-surface border border-m3-outline/20 text-sm focus:border-m3-primary focus:ring-1 focus:ring-m3-primary outline-none"
             >
               <option value="">[Sin Módulo / Global]</option>
-              {systemSuite.modules?.map((m) => (
-                <option key={m.id} value={m.id}>{m.name} ({m.code})</option>
+              {systemSuite.modules?.map(m => (
+                <option key={m.id} value={m.id}>
+                  {m.name} ({m.code})
+                </option>
               ))}
             </select>
           </div>
         </div>
-        <M3TextField label="Código" required value={resCode} onChange={(e) => setResCode(e.target.value)} placeholder="e.g. INVOICE" />
-        <M3TextField label="Nombre del Recurso" required value={resName} onChange={(e) => setResName(e.target.value)} placeholder="e.g. Facturas" />
-        <M3TextField label="Descripción" value={resDesc} onChange={(e) => setResDesc(e.target.value)} placeholder="e.g. Gestión de facturas y pagos" />
+        <M3TextField
+          label="Código"
+          required
+          value={resCode}
+          onChange={e => setResCode(e.target.value)}
+          placeholder="e.g. INVOICE"
+        />
+        <M3TextField
+          label="Nombre del Recurso"
+          required
+          value={resName}
+          onChange={e => setResName(e.target.value)}
+          placeholder="e.g. Facturas"
+        />
+        <M3TextField
+          label="Descripción"
+          value={resDesc}
+          onChange={e => setResDesc(e.target.value)}
+          placeholder="e.g. Gestión de facturas y pagos"
+        />
       </InlineAddForm>
 
       {domainResources.length === 0 ? (
         <div className="flex flex-col items-center justify-center p-8 text-center border border-dashed border-m3-outline/25 rounded-xl bg-m3-surface-container/10 animate-fadeIn">
           <Database className="w-8 h-8 text-m3-secondary/50 mb-2" />
-          <p className="text-sm font-medium text-m3-on-surface">No hay recursos de dominio configurados</p>
+          <p className="text-sm font-medium text-m3-on-surface">
+            No hay recursos de dominio configurados
+          </p>
           <p className="text-xs text-m3-secondary mt-1 max-w-sm">
-            Los recursos de dominio (agregados y entidades) permiten controlar el acceso a nivel de datos y lógica de negocio, no solo navegación.
+            Los recursos de dominio (agregados y entidades) permiten controlar el acceso a nivel de
+            datos y lógica de negocio, no solo navegación.
           </p>
         </div>
       ) : filteredResources.length === 0 ? (
         <div className="flex flex-col items-center justify-center p-6 text-center border border-dashed border-m3-outline/25 rounded-xl bg-m3-surface-container/10 animate-fadeIn">
-          <p className="text-sm font-medium text-m3-on-surface">No hay recursos que coincidan con el filtro</p>
+          <p className="text-sm font-medium text-m3-on-surface">
+            No hay recursos que coincidan con el filtro
+          </p>
         </div>
       ) : viewMode === 'list' ? (
         <div className="flex flex-col gap-1 animate-fadeIn">
-          {filteredResources.map((res) => {
+          {filteredResources.map(res => {
             const isEditing = edit.isEditing(res.id);
             const Icon = res.type === 'Aggregate' ? Layers : Component;
 
@@ -188,29 +228,41 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
               return (
                 <form
                   key={res.id}
-                  onSubmit={(e) => handleUpdateResource(e, res.id)}
+                  onSubmit={e => handleUpdateResource(e, res.id)}
                   className="p-3 rounded-lg border border-m3-primary/30 bg-m3-surface-container/20 space-y-2 animate-fadeIn shadow-sm"
                 >
                   <div className="flex items-center gap-2 mb-2">
                     <Icon className="w-4 h-4 text-m3-primary" />
-                    <span className="text-[11px] font-bold text-m3-on-surface">Editando {res.type === 'Aggregate' ? 'Agregado' : 'Entidad'}: {res.code}</span>
+                    <span className="text-[11px] font-bold text-m3-on-surface">
+                      Editando {res.type === 'Aggregate' ? 'Agregado' : 'Entidad'}: {res.code}
+                    </span>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <M3TextField
                       label="Nombre"
                       required
                       value={edit.draft.name ?? ''}
-                      onChange={(e) => edit.setField('name', e.target.value)}
+                      onChange={e => edit.setField('name', e.target.value)}
                     />
                     <M3TextField
                       label="Descripción"
                       value={edit.draft.description ?? ''}
-                      onChange={(e) => edit.setField('description', e.target.value)}
+                      onChange={e => edit.setField('description', e.target.value)}
                     />
                   </div>
                   <div className="flex gap-1.5 justify-end mt-2">
-                    <button type="button" onClick={edit.cancelEdit} className="text-[11px] px-3 py-1.5 rounded-md text-m3-secondary hover:bg-m3-surface-variant/20 transition-colors">Cancelar</button>
-                    <button type="submit" disabled={updateDomainResourceMutation.isPending} className="text-[11px] px-3 py-1.5 rounded-md bg-m3-primary text-m3-on-primary hover:bg-m3-primary/80 disabled:opacity-50 transition-colors">
+                    <button
+                      type="button"
+                      onClick={edit.cancelEdit}
+                      className="text-[11px] px-3 py-1.5 rounded-md text-m3-secondary hover:bg-m3-surface-variant/20 transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={updateDomainResourceMutation.isPending}
+                      className="text-[11px] px-3 py-1.5 rounded-md bg-m3-primary text-m3-on-primary hover:bg-m3-primary/80 disabled:opacity-50 transition-colors"
+                    >
                       {updateDomainResourceMutation.isPending ? 'Guardando…' : 'Guardar Cambios'}
                     </button>
                   </div>
@@ -224,22 +276,39 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
                 className="group/res flex items-start justify-between p-2.5 rounded-lg border border-m3-outline/10 bg-m3-surface-container/5 hover:bg-m3-surface-container/10 hover:border-m3-outline/25 transition-all duration-150"
               >
                 <div className="flex items-start gap-3 flex-1 min-w-0">
-                  <div className={`p-1.5 rounded mt-0.5 ${res.type === 'Aggregate' ? 'bg-indigo-500/10 text-indigo-500' : 'bg-emerald-500/10 text-emerald-500'}`}>
+                  <div
+                    className={`p-1.5 rounded mt-0.5 ${res.type === 'Aggregate' ? 'bg-indigo-500/10 text-indigo-500' : 'bg-emerald-500/10 text-emerald-500'}`}
+                  >
                     <Icon className="w-4 h-4" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <p className="text-xs font-semibold text-m3-on-surface truncate" title={res.name}>{res.name}</p>
+                      <p
+                        className="text-xs font-semibold text-m3-on-surface truncate"
+                        title={res.name}
+                      >
+                        {res.name}
+                      </p>
                       <CodeBadge code={res.code} size="xs" />
                       {res.moduleId && systemSuite.modules?.some(m => m.id === res.moduleId) && (
-                        <span className="text-[9px] font-medium text-m3-secondary bg-m3-surface-variant/50 px-1.5 py-0.5 rounded" title="Módulo Asignado">
+                        <span
+                          className="text-[9px] font-medium text-m3-secondary bg-m3-surface-variant/50 px-1.5 py-0.5 rounded"
+                          title="Módulo Asignado"
+                        >
                           {systemSuite.modules.find(m => m.id === res.moduleId)?.code}
                         </span>
                       )}
                     </div>
-                    <p className="text-[10px] text-m3-secondary mt-1">{res.type === 'Aggregate' ? 'Agregado Root' : 'Entidad de Dominio'}</p>
+                    <p className="text-[10px] text-m3-secondary mt-1">
+                      {res.type === 'Aggregate' ? 'Agregado Root' : 'Entidad de Dominio'}
+                    </p>
                     {res.description && (
-                      <p className="text-[10px] text-m3-secondary/80 mt-1 line-clamp-2" title={res.description}>{res.description}</p>
+                      <p
+                        className="text-[10px] text-m3-secondary/80 mt-1 line-clamp-2"
+                        title={res.description}
+                      >
+                        {res.description}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -268,7 +337,7 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 animate-fadeIn">
-          {filteredResources.map((res) => {
+          {filteredResources.map(res => {
             const isEditing = edit.isEditing(res.id);
             const Icon = res.type === 'Aggregate' ? Layers : Component;
 
@@ -276,29 +345,41 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
               return (
                 <form
                   key={res.id}
-                  onSubmit={(e) => handleUpdateResource(e, res.id)}
+                  onSubmit={e => handleUpdateResource(e, res.id)}
                   className="p-3 rounded-lg border border-m3-primary/30 bg-m3-surface-container/20 space-y-2 animate-fadeIn shadow-sm col-span-1 md:col-span-2"
                 >
                   <div className="flex items-center gap-2 mb-2">
                     <Icon className="w-4 h-4 text-m3-primary" />
-                    <span className="text-[11px] font-bold text-m3-on-surface">Editando {res.type === 'Aggregate' ? 'Agregado' : 'Entidad'}: {res.code}</span>
+                    <span className="text-[11px] font-bold text-m3-on-surface">
+                      Editando {res.type === 'Aggregate' ? 'Agregado' : 'Entidad'}: {res.code}
+                    </span>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <M3TextField
                       label="Nombre"
                       required
                       value={edit.draft.name ?? ''}
-                      onChange={(e) => edit.setField('name', e.target.value)}
+                      onChange={e => edit.setField('name', e.target.value)}
                     />
                     <M3TextField
                       label="Descripción"
                       value={edit.draft.description ?? ''}
-                      onChange={(e) => edit.setField('description', e.target.value)}
+                      onChange={e => edit.setField('description', e.target.value)}
                     />
                   </div>
                   <div className="flex gap-1.5 justify-end mt-2">
-                    <button type="button" onClick={edit.cancelEdit} className="text-[11px] px-3 py-1.5 rounded-md text-m3-secondary hover:bg-m3-surface-variant/20 transition-colors">Cancelar</button>
-                    <button type="submit" disabled={updateDomainResourceMutation.isPending} className="text-[11px] px-3 py-1.5 rounded-md bg-m3-primary text-m3-on-primary hover:bg-m3-primary/80 disabled:opacity-50 transition-colors">
+                    <button
+                      type="button"
+                      onClick={edit.cancelEdit}
+                      className="text-[11px] px-3 py-1.5 rounded-md text-m3-secondary hover:bg-m3-surface-variant/20 transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={updateDomainResourceMutation.isPending}
+                      className="text-[11px] px-3 py-1.5 rounded-md bg-m3-primary text-m3-on-primary hover:bg-m3-primary/80 disabled:opacity-50 transition-colors"
+                    >
                       {updateDomainResourceMutation.isPending ? 'Guardando…' : 'Guardar Cambios'}
                     </button>
                   </div>
@@ -312,22 +393,39 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
                 className="group/res flex items-start justify-between p-3 rounded-lg border border-m3-outline/15 bg-m3-surface-container/5 hover:bg-m3-surface-container/10 hover:border-m3-outline/30 hover:-translate-y-[1px] transition-all duration-200 shadow-sm"
               >
                 <div className="flex items-start gap-3 flex-1 min-w-0">
-                  <div className={`p-2 rounded mt-0.5 ${res.type === 'Aggregate' ? 'bg-indigo-500/10 text-indigo-500' : 'bg-emerald-500/10 text-emerald-500'}`}>
+                  <div
+                    className={`p-2 rounded mt-0.5 ${res.type === 'Aggregate' ? 'bg-indigo-500/10 text-indigo-500' : 'bg-emerald-500/10 text-emerald-500'}`}
+                  >
                     <Icon className="w-4 h-4" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <p className="text-xs font-semibold text-m3-on-surface truncate" title={res.name}>{res.name}</p>
+                      <p
+                        className="text-xs font-semibold text-m3-on-surface truncate"
+                        title={res.name}
+                      >
+                        {res.name}
+                      </p>
                       <CodeBadge code={res.code} size="xs" />
                       {res.moduleId && systemSuite.modules?.some(m => m.id === res.moduleId) && (
-                        <span className="text-[9px] font-medium text-m3-secondary bg-m3-surface-variant/50 px-1.5 py-0.5 rounded" title="Módulo Asignado">
+                        <span
+                          className="text-[9px] font-medium text-m3-secondary bg-m3-surface-variant/50 px-1.5 py-0.5 rounded"
+                          title="Módulo Asignado"
+                        >
                           {systemSuite.modules.find(m => m.id === res.moduleId)?.code}
                         </span>
                       )}
                     </div>
-                    <p className="text-[10px] text-m3-secondary mt-1">{res.type === 'Aggregate' ? 'Agregado Root' : 'Entidad de Dominio'}</p>
+                    <p className="text-[10px] text-m3-secondary mt-1">
+                      {res.type === 'Aggregate' ? 'Agregado Root' : 'Entidad de Dominio'}
+                    </p>
                     {res.description && (
-                      <p className="text-[10px] text-m3-secondary/80 mt-1 line-clamp-2" title={res.description}>{res.description}</p>
+                      <p
+                        className="text-[10px] text-m3-secondary/80 mt-1 line-clamp-2"
+                        title={res.description}
+                      >
+                        {res.description}
+                      </p>
                     )}
                   </div>
                 </div>

@@ -39,7 +39,7 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ tenantId }) => {
   const deactivateBranchMutation = useDeactivateBranch(tenantId);
   const reactivateBranchMutation = useReactivateBranch(tenantId);
   const t = useI18n();
-  const addNotification = useNotificationStore((s) => s.addNotification);
+  const addNotification = useNotificationStore(s => s.addNotification);
 
   // ── Add form ──────────────────────────────────────────────────────────────
   const [isAdding, setIsAdding] = useState(false);
@@ -57,7 +57,12 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ tenantId }) => {
   // ── Inline edit ───────────────────────────────────────────────────────────
   const edit = useInlineEdit<BranchDraft>(['name', 'code', 'geofencingMetadata']);
 
-  const openBranchEdit = (b: { branchId: string; name: string; code: string; geofencingMetadata?: string | null }) => {
+  const openBranchEdit = (b: {
+    branchId: string;
+    name: string;
+    code: string;
+    geofencingMetadata?: string | null;
+  }) => {
     edit.openEdit(b.branchId, {
       name: b.name,
       code: b.code,
@@ -80,8 +85,14 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ tenantId }) => {
     e.preventDefault();
     setErrorMsg('');
 
-    if (code.length < 3) { setErrorMsg(t.branchCodeHelper); return; }
-    if (name.length < 3) { setErrorMsg(t.branchNameHelper); return; }
+    if (code.length < 3) {
+      setErrorMsg(t.branchCodeHelper);
+      return;
+    }
+    if (name.length < 3) {
+      setErrorMsg(t.branchNameHelper);
+      return;
+    }
 
     try {
       await addBranchMutation.mutateAsync({
@@ -89,7 +100,10 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ tenantId }) => {
         name,
         geofencingMetadata: geofencing || undefined,
       });
-      setCode(''); setName(''); setGeofencing(''); setIsAdding(false);
+      setCode('');
+      setName('');
+      setGeofencing('');
+      setIsAdding(false);
     } catch {
       // Handled in mutation hook
     }
@@ -97,7 +111,9 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ tenantId }) => {
 
   let filteredBranches = branches;
   if (activeFilter !== 'all') {
-    filteredBranches = filteredBranches.filter((b) => (activeFilter === 'active' ? b.isActive : !b.isActive));
+    filteredBranches = filteredBranches.filter(b =>
+      activeFilter === 'active' ? b.isActive : !b.isActive
+    );
   }
   filteredBranches = [...filteredBranches].sort((a, b) => {
     let cmp = 0;
@@ -113,7 +129,11 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ tenantId }) => {
           title={t.subLocations}
           subtitle={t.subLocationsSubtitle}
           actions={
-            <IconButton tooltip={t.refreshBranches} onClick={() => refetch()} className={isFetching ? 'animate-spin' : ''}>
+            <IconButton
+              tooltip={t.refreshBranches}
+              onClick={() => refetch()}
+              className={isFetching ? 'animate-spin' : ''}
+            >
               <RefreshCw className="w-3.5 h-3.5" />
             </IconButton>
           }
@@ -137,7 +157,7 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ tenantId }) => {
         sortBy={sortBy}
         onSortByChange={setSortBy}
         sortOrder={sortOrder}
-        onSortOrderToggle={() => setSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'))}
+        onSortOrderToggle={() => setSortOrder(o => (o === 'asc' ? 'desc' : 'asc'))}
         itemCount={branches.length}
         itemLabel="Sucursal"
       />
@@ -145,9 +165,12 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ tenantId }) => {
       <div className="grid grid-cols-1 gap-4">
         <InlineAddForm
           isOpen={isAdding}
-          onToggle={(open) => { setIsAdding(open); if (!open) setErrorMsg(''); }}
+          onToggle={open => {
+            setIsAdding(open);
+            if (!open) setErrorMsg('');
+          }}
           onSubmit={handleSubmit}
-          addLabel={t.addLocation}
+          addLabel="+"
           title={t.addingLocation}
           cancelLabel={t.cancelEdit}
           submitLabel={t.saveLocation}
@@ -159,20 +182,20 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ tenantId }) => {
             label={t.branchCode}
             required
             value={code}
-            onChange={(e) => setCode(e.target.value)}
+            onChange={e => setCode(e.target.value)}
             placeholder="e.g. SUC_MIRAFLORES"
           />
           <M3TextField
             label={t.branchName}
             required
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={e => setName(e.target.value)}
             placeholder="e.g. Sucursal Miraflores"
           />
           <M3TextField
             label={t.geofencingMeta}
             value={geofencing}
-            onChange={(e) => setGeofencing(e.target.value)}
+            onChange={e => setGeofencing(e.target.value)}
             placeholder="e.g. -12.1191,-77.0291;r=500"
           />
         </InlineAddForm>
@@ -184,14 +207,23 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ tenantId }) => {
               {t.loadingProfile}
             </div>
           ) : branches.length === 0 ? (
-            <EmptyState icon={<MapPin className="w-6 h-6 text-m3-outline" />} message={t.noBranches} />
+            <EmptyState
+              icon={<MapPin className="w-6 h-6 text-m3-outline" />}
+              message={t.noBranches}
+            />
           ) : filteredBranches.length === 0 ? (
-            <EmptyState icon={<MapPin className="w-6 h-6 text-m3-outline" />} message="No hay sucursales que coincidan con el filtro" />
+            <EmptyState
+              icon={<MapPin className="w-6 h-6 text-m3-outline" />}
+              message="No hay sucursales que coincidan con el filtro"
+            />
           ) : (
-            filteredBranches.map((b) =>
+            filteredBranches.map(b =>
               edit.isEditing(b.branchId) ? (
                 /* ── Inline edit form ── */
-                <div key={b.branchId} className="p-3.5 rounded-xl border border-m3-primary/40 bg-m3-surface-container/60 animate-fadeIn space-y-2.5">
+                <div
+                  key={b.branchId}
+                  className="p-3.5 rounded-xl border border-m3-primary/40 bg-m3-surface-container/60 animate-fadeIn space-y-2.5"
+                >
                   <div className="flex justify-between items-center border-b border-m3-outline/15 pb-2">
                     <span className="text-[10px] font-semibold text-m3-primary flex items-center gap-1">
                       <Pencil className="w-3 h-3" /> {t.editBranch}
@@ -200,14 +232,35 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ tenantId }) => {
                       <X className="w-3.5 h-3.5" />
                     </IconButton>
                   </div>
-                  <M3TextField label={t.branchName} value={edit.draft.name ?? ''} onChange={(e) => edit.setField('name', e.target.value)} />
-                  <M3TextField label={t.branchCode} value={edit.draft.code ?? ''} onChange={(e) => edit.setField('code', e.target.value)} />
-                  <M3TextField label={t.geofencingMeta} value={edit.draft.geofencingMetadata ?? ''} onChange={(e) => edit.setField('geofencingMetadata', e.target.value)} placeholder="e.g. -12.1191,-77.0291;r=500" />
+                  <M3TextField
+                    label={t.branchName}
+                    value={edit.draft.name ?? ''}
+                    onChange={e => edit.setField('name', e.target.value)}
+                  />
+                  <M3TextField
+                    label={t.branchCode}
+                    value={edit.draft.code ?? ''}
+                    onChange={e => edit.setField('code', e.target.value)}
+                  />
+                  <M3TextField
+                    label={t.geofencingMeta}
+                    value={edit.draft.geofencingMetadata ?? ''}
+                    onChange={e => edit.setField('geofencingMetadata', e.target.value)}
+                    placeholder="e.g. -12.1191,-77.0291;r=500"
+                  />
                   <div className="flex gap-2 pt-1">
-                    <M3Button variant="filled" onClick={saveBranchEdit} className="flex-1 text-[10px] py-1.5 h-8 font-semibold flex items-center justify-center gap-1">
+                    <M3Button
+                      variant="filled"
+                      onClick={saveBranchEdit}
+                      className="flex-1 text-[10px] py-1.5 h-8 font-semibold flex items-center justify-center gap-1"
+                    >
                       <Save className="w-3 h-3" /> {t.saveBtn}
                     </M3Button>
-                    <M3Button variant="outlined" onClick={edit.cancelEdit} className="flex-1 text-[10px] py-1.5 h-8 font-semibold">
+                    <M3Button
+                      variant="outlined"
+                      onClick={edit.cancelEdit}
+                      className="flex-1 text-[10px] py-1.5 h-8 font-semibold"
+                    >
                       {t.cancelEdit}
                     </M3Button>
                   </div>
@@ -221,19 +274,36 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ tenantId }) => {
                   onDoubleClick={() => openBranchEdit(b)}
                   trailing={
                     <>
-                      <IconButton tooltip={t.editBtn} onClick={() => openBranchEdit(b)} className="opacity-0 group-hover/row:opacity-100">
+                      <IconButton
+                        tooltip={t.editBtn}
+                        onClick={() => openBranchEdit(b)}
+                        className="opacity-0 group-hover/row:opacity-100"
+                      >
                         <Pencil className="w-3.5 h-3.5" />
                       </IconButton>
                       {b.isActive ? (
-                        <IconButton tooltip={t.deactivate} onClick={() => deactivateBranchMutation.mutate(b.branchId)} disabled={deactivateBranchMutation.isPending}>
+                        <IconButton
+                          tooltip={t.deactivate}
+                          onClick={() => deactivateBranchMutation.mutate(b.branchId)}
+                          disabled={deactivateBranchMutation.isPending}
+                        >
                           <EyeOff className="w-3.5 h-3.5" />
                         </IconButton>
                       ) : (
-                        <IconButton tooltip={t.reactivate} onClick={() => reactivateBranchMutation.mutate(b.branchId)} disabled={reactivateBranchMutation.isPending}>
+                        <IconButton
+                          tooltip={t.reactivate}
+                          onClick={() => reactivateBranchMutation.mutate(b.branchId)}
+                          disabled={reactivateBranchMutation.isPending}
+                        >
                           <ShieldCheck className="w-3.5 h-3.5" />
                         </IconButton>
                       )}
-                      <IconButton tooltip={t.removeLocation} onClick={() => removeBranchMutation.mutate(b.branchId)} disabled={removeBranchMutation.isPending} className="hover:text-m3-error hover:bg-m3-error/10">
+                      <IconButton
+                        tooltip={t.removeLocation}
+                        onClick={() => removeBranchMutation.mutate(b.branchId)}
+                        disabled={removeBranchMutation.isPending}
+                        className="hover:text-m3-error hover:bg-m3-error/10"
+                      >
                         <Trash2 className="w-3.5 h-3.5" />
                       </IconButton>
                     </>
@@ -249,12 +319,15 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ tenantId }) => {
                     />
                   </div>
                   {b.geofencingMetadata && (
-                    <p className="text-[9px] text-indigo-400 font-bold flex items-center gap-0.5 truncate" title={b.geofencingMetadata}>
+                    <p
+                      className="text-[9px] text-indigo-400 font-bold flex items-center gap-0.5 truncate"
+                      title={b.geofencingMetadata}
+                    >
                       <MapPin className="w-3 h-3 text-indigo-400" /> {b.geofencingMetadata}
                     </p>
                   )}
                 </EntityRow>
-              ),
+              )
             )
           )}
         </div>
@@ -262,4 +335,3 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ tenantId }) => {
     </div>
   );
 };
-

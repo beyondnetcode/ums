@@ -307,7 +307,7 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
                 if (!open) setModError('');
               }}
               onSubmit={handleAddModule}
-              addLabel="Agregar Módulo"
+              addLabel="+"
               title="Nuevo Módulo Estructural"
               cancelLabel={t.cancelEdit}
               submitLabel="Guardar Módulo"
@@ -469,7 +469,7 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
                 if (!open) setActError('');
               }}
               onSubmit={handleRegisterAction}
-              addLabel="Registrar Acción"
+              addLabel="+"
               title="Nueva Acción del Sistema"
               cancelLabel={t.cancelEdit}
               submitLabel="Guardar Acción"

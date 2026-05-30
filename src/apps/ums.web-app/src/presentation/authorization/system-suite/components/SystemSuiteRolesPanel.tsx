@@ -130,7 +130,7 @@ export const SystemSuiteRolesPanel: React.FC<Props> = ({ systemSuiteId }) => {
           if (!open) setError('');
         }}
         onSubmit={handleCreate}
-        addLabel={t.addRole}
+        addLabel="+"
         title={t.newRole}
         cancelLabel={t.cancelEdit}
         submitLabel={t.saveRole}

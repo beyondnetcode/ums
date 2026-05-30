@@ -243,11 +243,7 @@ export const FeatureFlagDetailPanel: React.FC<Props> = ({ flag }) => {
       <DetailSection
         title={`Criterios de Evaluación (${flag.criteria.length})`}
         actions={
-          isDraft && (
-            <M3Button variant="text" size="sm" icon={<Plus className="w-4 h-4" />}>
-              Agregar
-            </M3Button>
-          )
+          isDraft && <M3Button variant="text" size="sm" icon={<Plus className="w-4 h-4" />} />
         }
         content={
           <>
@@ -274,8 +270,8 @@ export const FeatureFlagDetailPanel: React.FC<Props> = ({ flag }) => {
                 onSubmit={handleAddCriteria}
                 className="mt-3 p-3 rounded-lg border border-m3-outline/10 bg-m3-surface-container/10 space-y-3"
               >
-                <p className="text-xs font-semibold text-m3-on-surface flex items-center gap-1.5">
-                  <Plus className="w-4 h-4" /> Agregar Criterio
+                <p className="text-xs font-semibold text-m3-primary flex items-center gap-1.5">
+                  <Plus className="w-4 h-4" />
                 </p>
                 <div className="grid grid-cols-2 gap-2">
                   <select
@@ -319,7 +315,7 @@ export const FeatureFlagDetailPanel: React.FC<Props> = ({ flag }) => {
                     size="sm"
                     disabled={addCriteria.isPending || !criteriaValue.trim()}
                   >
-                    {addCriteria.isPending ? 'Agregando…' : 'Agregar'}
+                    {addCriteria.isPending ? '...' : '+'}
                   </M3Button>
                 </div>
               </form>

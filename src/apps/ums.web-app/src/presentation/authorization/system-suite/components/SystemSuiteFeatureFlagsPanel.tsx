@@ -226,7 +226,7 @@ const FlagRow: React.FC<{
                   }}
                   className="flex items-center gap-1 text-[10px] text-m3-primary hover:text-m3-primary/80"
                 >
-                  <Plus className="w-3 h-3" /> Agregar
+                  <Plus className="w-4 h-4" />
                 </button>
               )}
             </div>
@@ -291,7 +291,7 @@ const FlagRow: React.FC<{
                     size="sm"
                     disabled={addCriteria.isPending || !criteriaValue.trim()}
                   >
-                    {addCriteria.isPending ? '...' : 'Agregar'}
+                    {addCriteria.isPending ? '...' : '+'}
                   </M3Button>
                 </div>
               </form>
