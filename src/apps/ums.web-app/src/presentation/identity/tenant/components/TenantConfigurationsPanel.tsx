@@ -18,7 +18,6 @@ import { SmartConfigInput } from '@presentation/shared/components/SmartConfigInp
 import { ConfigValueDisplay } from '@presentation/shared/components/ConfigValueDisplay';
 import { ListToolbar } from '@shared/components/ListToolbar';
 import { StatusBadge } from '@shared/components/StatusBadge';
-import { AddButton } from '@shared/components/AddButton';
 import { M3Dialog } from '@shared/components/M3Dialog';
 import { FormField, FormInput, FormButton } from '@shared/components/form';
 import { parameterCatalogService } from '@infra/configuration/services/parameter-catalog/parameter-catalog.service';
@@ -390,12 +389,6 @@ export const TenantConfigurationsPanel: React.FC<TenantConfigurationsPanelProps>
           `Configurations for ${tenantName}`
         }
         subtitle={`${configs.length} ${configs.length === 1 ? 'configuración' : 'configuraciones'}`}
-        actions={
-          <AddButton
-            onClick={openPicker}
-            title={t.addParameter ?? 'Add Parameter'}
-          />
-        }
       />
 
       <ListToolbar
@@ -418,6 +411,8 @@ export const TenantConfigurationsPanel: React.FC<TenantConfigurationsPanelProps>
         onSortByChange={setSortBy}
         sortOrder={sortOrder}
         onSortOrderToggle={() => setSortOrder(o => (o === 'asc' ? 'desc' : 'asc'))}
+        onAdd={openPicker}
+        addLabel={t.addParameter ?? 'Add Parameter'}
       />
 
       <div className="flex-1 overflow-auto p-2">
