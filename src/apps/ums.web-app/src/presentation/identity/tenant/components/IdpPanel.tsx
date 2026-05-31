@@ -291,24 +291,19 @@ export const IdpPanel: React.FC<IdpPanelProps> = ({ tenantId }) => {
         </div>
       </div>
 
-      {!useExternalIdp ? (
-        <div className="p-8 rounded-2xl border border-dashed border-m3-outline/30 bg-m3-surface-container/30 flex flex-col items-center text-center max-w-lg mx-auto my-6 space-y-4 animate-fadeIn">
-          <div className="p-4 rounded-full bg-m3-primary/10 text-m3-primary animate-pulse">
-            <Cpu className="w-8 h-8" />
-          </div>
-          <div className="space-y-2">
-            <h4 className="font-semibold text-base text-m3-on-surface">Modo Local Activo</h4>
-            <p className="text-sm text-m3-secondary">
-              El inquilino está configurado en **Modo Local**. Las credenciales de acceso se administran de manera interna mediante nuestro esquema de contraseñas.
-            </p>
-            <p className="text-xs text-m3-secondary/80">
-              Para habilitar la autenticación federada y configurar proveedores de identidad externos (OIDC, SAML2, OAuth2), active el interruptor de **Modo IDPs** arriba.
-            </p>
-          </div>
+      {/* Informational banner when in local mode — IDPs can still be pre-configured */}
+      {!useExternalIdp && (
+        <div className="flex items-start gap-3 px-4 py-3 rounded-xl border border-amber-500/20 bg-amber-500/5 text-xs text-amber-700 dark:text-amber-400">
+          <Cpu className="w-4 h-4 shrink-0 mt-0.5 text-amber-500" />
+          <span>
+            <span className="font-semibold">Modo Local activo.</span> Los IDPs configurados aquí no se usan para autenticación hasta activar el modo IDPs.
+            Puede pre-configurarlos con anticipación.
+          </span>
         </div>
-      ) : (
-        <>
-          <ListToolbar
+      )}
+
+      <>
+        <ListToolbar
             viewMode={viewMode}
             onViewModeChange={setViewMode}
             filterOptions={[
@@ -518,8 +513,7 @@ export const IdpPanel: React.FC<IdpPanelProps> = ({ tenantId }) => {
               )
             )}
           </div>
-        </>
-      )}
+      </>
     </div>
   );
 };
