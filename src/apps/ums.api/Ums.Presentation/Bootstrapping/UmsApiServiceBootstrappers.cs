@@ -107,7 +107,7 @@ internal sealed class UmsCoreApplicationBootstrapper : IBootstrapper<IServiceCol
         ArgumentNullException.ThrowIfNull(Result);
 
         Result.AddApplication();
-        Result.AddInfrastructure(_configuration);
+        Result.AddInfrastructure(_configuration, _environment);
         Result.AddScoped<ILocalizationService, LocalizationService>();
         Result.AddUmsGraphQl(_environment);
         Result.AddMemoryCache(); // required by IdempotencyMiddleware (FIX-06)

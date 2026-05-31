@@ -43,7 +43,10 @@ using Ums.Infrastructure.Persistence.Authorization.Exporters;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructure(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        IHostEnvironment? environment = null)
     {
         services
             .AddOptions<PersistenceOptions>()
@@ -99,14 +102,23 @@ public static class DependencyInjection
             .AddTransient<Authorization.Graph.XmlAuthorizationGraphSerializer,  Authorization.Graph.XmlAuthorizationGraphSerializer>()
             .AddTransient<Authorization.Graph.YamlAuthorizationGraphSerializer, Authorization.Graph.YamlAuthorizationGraphSerializer>()
             .AddTransient<Authorization.Graph.CsvAuthorizationGraphSerializer,  Authorization.Graph.CsvAuthorizationGraphSerializer>()
-            // IDP auth adapters — StubIdpAuthAdapter for all non-Production environments
-            .AddTransient<Identity.Auth.StubIdpAuthAdapter, Identity.Auth.StubIdpAuthAdapter>()
             .AddSource<NotificationRecipientStrategyFactorySetup>()
             .AddSource<ApprovalRequestCreationStrategyFactorySetup>()
             .AddSource<IdpResolutionStrategyFactorySetup>()
             .AddSource<ProfileExportFactorySetup>()
             .AddSource<Authorization.Graph.AuthorizationGraphSerializerFactorySetup>()
+            // Production IDP adapters (empty until real adapters are implemented)
             .AddSource<Identity.Auth.IdpAuthAdapterFactorySetup>());
+
+        // Stub IDP adapters — registered per-strategy for non-Production only.
+        // In Production, real adapters are registered in IdpAuthAdapterFactorySetup.
+        var isNotProduction = environment is null || !environment.IsProduction();
+        if (isNotProduction)
+        {
+            services.AddFactory(b => b
+                .AddTransient<Identity.Auth.StubIdpAuthAdapter, Identity.Auth.StubIdpAuthAdapter>()
+                .AddSource<Identity.Auth.IdpAuthAdapterStubFactorySetup>());
+        }
 
         services.AddScoped<ITenantParameterProvider, TenantParameterProvider>();
         services.AddScoped<ITenantExportConfigurationProvider, TenantExportConfigurationProvider>();
