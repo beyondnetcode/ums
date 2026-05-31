@@ -246,11 +246,13 @@ public static class ConfigurationDevDataSeeder
                 {
                     "LOGISTICS_CORE" => new (string Code, FlagType Type, string Targets, string Description, int? Rollout)[]
                     {
-                        ("ENABLE_MFA", FlagType.Boolean, "*", "Multi-factor authentication for logistics users", null),
-                        ("DARK_MODE", FlagType.Boolean, "*", "Dark mode UI toggle", null),
-                        ("ADVANCED_REPORTING", FlagType.Boolean, "role:ADMIN,role:SUPERVISOR", "Advanced analytics dashboard", null),
-                        ("ALLOW_PASSWORD_RESET_BY_ADMIN", FlagType.Boolean, "*", "Allow admin to reset user passwords", null),
-                        ("ALLOW_VALIDITY_PERIOD_MODIFICATION", FlagType.Boolean, "*", "Allow admin to modify user validity periods", null),
+                        ("ENABLE_MFA",                        FlagType.Boolean,     "*",                      "Multi-factor authentication for logistics users",      null),
+                        ("DARK_MODE",                         FlagType.Boolean,     "*",                      "Dark mode UI toggle",                                  null),
+                        ("ADVANCED_REPORTING",                FlagType.Boolean,     "role:ADMIN,role:SUPERVISOR", "Advanced analytics dashboard",                    null),
+                        ("ALLOW_PASSWORD_RESET_BY_ADMIN",     FlagType.Boolean,     "*",                      "Allow admin to reset user passwords",                  null),
+                        ("ALLOW_VALIDITY_PERIOD_MODIFICATION",FlagType.Boolean,     "*",                      "Allow admin to modify user validity periods",          null),
+                        ("NEW_AUDIT_DASHBOARD",               FlagType.Boolean,     "*",                      "New audit trail visualization (2026 rollout)",         null),
+                        ("PREMIUM_REPORTS",                   FlagType.Boolean,     "*",                      "Premium analytics reports — Ransa admins only",        null),
                     },
                     "WMS" => new (string Code, FlagType Type, string Targets, string Description, int? Rollout)[]
                     {
@@ -283,11 +285,42 @@ public static class ConfigurationDevDataSeeder
                             flag.Value.DomainEvents.MarkChangesAsCommitted();
                         }
 
-                        // Add criteria for role-targeted flags
+                        // Add criteria for role-targeted flags (single role code from "role:CODE" targets)
                         if (flagDef.Targets.Contains("role:"))
                         {
                             var roleCode = flagDef.Targets.Split(':')[1].Split(',')[0];
                             flag.Value.AddCriteria("RoleCode", "Equals", roleCode, actor);
+                            flag.Value.DomainEvents.MarkChangesAsCommitted();
+                        }
+
+                        // ── Criteria showcase flags ──────────────────────────────────────
+
+                        // ENABLE_MFA — TenantId criteria (tenant-scoped MFA rollout)
+                        if (flagDef.Code == "ENABLE_MFA")
+                        {
+                            flag.Value.AddCriteria("TenantId", "Equals", CoreDevDataSeeder.RansaTenantId, actor);
+                            flag.Value.DomainEvents.MarkChangesAsCommitted();
+                            flag.Value.Activate(actor);
+                            flag.Value.DomainEvents.MarkChangesAsCommitted();
+                        }
+
+                        // NEW_AUDIT_DASHBOARD — DateRange criteria (time-boxed rollout)
+                        if (flagDef.Code == "NEW_AUDIT_DASHBOARD")
+                        {
+                            flag.Value.AddCriteria("DateRange", "Between",
+                                "{\"from\":\"2026-01-01T00:00:00Z\",\"to\":\"2026-12-31T23:59:59Z\"}", actor);
+                            flag.Value.DomainEvents.MarkChangesAsCommitted();
+                            flag.Value.Activate(actor);
+                            flag.Value.DomainEvents.MarkChangesAsCommitted();
+                        }
+
+                        // PREMIUM_REPORTS — Multi-type AND: TenantId + RoleCode (demonstrates OR-within / AND-across)
+                        if (flagDef.Code == "PREMIUM_REPORTS")
+                        {
+                            flag.Value.AddCriteria("TenantId", "Equals", CoreDevDataSeeder.RansaTenantId, actor);
+                            flag.Value.AddCriteria("RoleCode", "In", "[\"ADMIN\",\"SUPERVISOR\"]", actor);
+                            flag.Value.DomainEvents.MarkChangesAsCommitted();
+                            flag.Value.Activate(actor);
                             flag.Value.DomainEvents.MarkChangesAsCommitted();
                         }
 
