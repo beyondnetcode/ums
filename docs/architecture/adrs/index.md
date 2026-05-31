@@ -51,6 +51,8 @@ UMS is a satellite repository of `evolith_arch32`. The parent repository defines
 | [ADR-0068](./0068-feature-flag-system-scope.md) | Feature Flag System Scope — SystemSuite ownership and dynamic criteria model | Accepted |
 | [ADR-0069](./0069-domain-inheritance-strategy.md) | Domain Layer Inheritance Strategy — AggregateRoot Base Class and MediatR Dependency | Accepted |
 | [ADR-0070](./0070-database-schema-strategy-decision.md) | Database Schema Per Module Strategy — SQL Server Modular Monolith Schema Ownership | Accepted |
+| [ADR-0071](./0071-auth-graph-engine.md) | Authorization Graph Engine — Motor Central de Autenticación y Autorización | Accepted |
+| [ADR-0072](./0072-dynamic-auth-method-resolution.md) | Dynamic Auth Method Resolution — From Configuration, Not Code | Accepted |
 
 > **Evolith candidate** - ADR has zero UMS-specific dependencies and is proposed for extraction to the Evolith parent architecture baseline.
 
