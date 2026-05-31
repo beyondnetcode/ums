@@ -38,7 +38,7 @@ public sealed class PiiMaskingPolicy : IDestructuringPolicy
         "ssn", "nationalid", "taxid",
     };
 
-    public bool TryDestructure(object value, ILogEventPropertyValueFactory _, out LogEventPropertyValue? result)
+    public bool TryDestructure(object value, ILogEventPropertyValueFactory propertyValueFactory, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out LogEventPropertyValue? result)
     {
         // This policy is called once per value; we cannot inspect the property name here.
         // Property-name–based masking is handled by PiiSanitizerEnricher (log event level).

@@ -28,7 +28,7 @@ describe('brandingService', () => {
   describe('getBranding', () => {
     it('returns null when no branding exists', async () => {
       vi.mocked(graphqlBrandingQueriesModule.graphqlBrandingQueries.getBranding).mockResolvedValue({
-        getTenantBranding: null,
+        tenantBranding: null,
       });
 
       const result = await brandingService.getBranding('3fa85f64-5717-4562-b3fc-2c963f66afa6');
@@ -38,7 +38,7 @@ describe('brandingService', () => {
 
     it('returns parsed branding when available', async () => {
       vi.mocked(graphqlBrandingQueriesModule.graphqlBrandingQueries.getBranding).mockResolvedValue({
-        getTenantBranding: {
+        tenantBranding: {
           logo: 'data:image/png;base64,...',
           logoFormat: 'png',
           primaryColor: '#3b82f6',

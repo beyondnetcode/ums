@@ -32,7 +32,7 @@ public static class AuthEndpoints
             .WithSummary("Authenticate user with tenant, username and password");
 
         // Logout endpoint
-        group.MapPost("/logout", HandleLogoutAsync)
+        group.MapPost("/logout", (Delegate)HandleLogoutAsync)
             .WithName("Logout")
             .WithSummary("Terminate the current session");
 
@@ -144,7 +144,7 @@ public static class AuthEndpoints
         // Get profile and role
         var profiles = await profileRepository.GetByUserIdAsync(user.Props.Id.GetValue(), default);
         var profile = profiles.FirstOrDefault();
-        var role = profile != null ? await roleRepository.GetByIdAsync(profile.Props.RoleId.GetValue(), default) : null;
+        var role = profile is not null ? await roleRepository.GetByIdAsync(profile.Props.RoleId.GetValue(), default) : null;
 
         // Create claims for the authenticated user
         var claims = new List<Claim>
@@ -156,13 +156,13 @@ public static class AuthEndpoints
             new("username", user.Props.IdentityReference?.GetValue() ?? user.Props.Email.GetValue()),
         };
 
-        if (role != null)
+        if (role is not null)
         {
             claims.Add(new Claim(ClaimTypes.Role, role.Props.Code.GetValue()));
             claims.Add(new Claim("role_name", role.Props.Value.GetValue()));
         }
 
-        if (profile != null)
+        if (profile is not null)
         {
             claims.Add(new Claim("profile_id", profile.Props.Id.GetValue().ToString()));
         }

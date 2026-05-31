@@ -23,10 +23,10 @@ describe('userAccountService', () => {
     vi.mocked(graphqlQueriesModule.graphqlQueries.getUserAccountById).mockClear();
   });
 
-  describe('getAllUserAccounts', () => {
+  describe('getAll', () => {
     it('returns parsed user accounts page', async () => {
       vi.mocked(graphqlQueriesModule.graphqlQueries.getUserAccounts).mockResolvedValue({
-        getUserAccounts: {
+        userAccounts: {
           items: [],
           page: 1,
           pageSize: 20,
@@ -35,7 +35,7 @@ describe('userAccountService', () => {
         },
       });
 
-      const result = await userAccountService.getAllUserAccounts();
+      const result = await userAccountService.getAll();
 
       expect(result.page).toBe(1);
       expect(result.items).toEqual([]);
@@ -43,7 +43,7 @@ describe('userAccountService', () => {
 
     it('uses default pagination', async () => {
       vi.mocked(graphqlQueriesModule.graphqlQueries.getUserAccounts).mockResolvedValue({
-        getUserAccounts: {
+        userAccounts: {
           items: [],
           page: 1,
           pageSize: 20,
@@ -52,7 +52,7 @@ describe('userAccountService', () => {
         },
       });
 
-      await userAccountService.getAllUserAccounts();
+      await userAccountService.getAll();
 
       expect(graphqlQueriesModule.graphqlQueries.getUserAccounts).toHaveBeenCalledWith(
         expect.objectContaining({ page: 1, pageSize: 20 }),
@@ -61,7 +61,7 @@ describe('userAccountService', () => {
 
     it('passes custom pagination', async () => {
       vi.mocked(graphqlQueriesModule.graphqlQueries.getUserAccounts).mockResolvedValue({
-        getUserAccounts: {
+        userAccounts: {
           items: [],
           page: 2,
           pageSize: 10,
@@ -70,7 +70,7 @@ describe('userAccountService', () => {
         },
       });
 
-      await userAccountService.getAllUserAccounts({ page: 2, pageSize: 10 });
+      await userAccountService.getAll({ page: 2, pageSize: 10 });
 
       expect(graphqlQueriesModule.graphqlQueries.getUserAccounts).toHaveBeenCalledWith(
         expect.objectContaining({ page: 2, pageSize: 10 }),
@@ -78,18 +78,18 @@ describe('userAccountService', () => {
     });
   });
 
-  describe('getUserAccountById', () => {
+  describe('getById', () => {
     it('throws when user account not found', async () => {
       vi.mocked(graphqlQueriesModule.graphqlQueries.getUserAccountById).mockResolvedValue({
-        getUserAccountById: null,
+        userAccountById: null,
       });
 
-      await expect(userAccountService.getUserAccountById('3fa85f64-5717-4562-b3fc-2c963f66afa6')).rejects.toThrow('User account not found');
+      await expect(userAccountService.getById('3fa85f64-5717-4562-b3fc-2c963f66afa6')).rejects.toThrow('User account not found');
     });
 
     it('returns parsed user account', async () => {
       vi.mocked(graphqlQueriesModule.graphqlQueries.getUserAccountById).mockResolvedValue({
-        getUserAccountById: {
+        userAccountById: {
           userAccountId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
           tenantId: '3fa85f64-5717-4562-b3fc-2c963f66afa7',
           branchId: null,
@@ -101,7 +101,7 @@ describe('userAccountService', () => {
         },
       });
 
-      const result = await userAccountService.getUserAccountById('3fa85f64-5717-4562-b3fc-2c963f66afa6');
+      const result = await userAccountService.getById('3fa85f64-5717-4562-b3fc-2c963f66afa6');
 
       expect(result.email).toBe('test@example.com');
     });

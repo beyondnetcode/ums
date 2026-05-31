@@ -39,10 +39,10 @@ describe('tenantService', () => {
     vi.mocked(loggerModule.logger.error).mockClear();
   });
 
-  describe('getAllTenants', () => {
+  describe('getAll', () => {
     it('calls graphql with default params', async () => {
       vi.mocked(graphqlQueriesModule.graphqlQueries.getTenants).mockResolvedValue({
-        getTenants: {
+        tenants: {
           items: [],
           page: 1,
           pageSize: 20,
@@ -51,7 +51,7 @@ describe('tenantService', () => {
         },
       });
 
-      const result = await tenantService.getAllTenants();
+      const result = await tenantService.getAll();
 
       expect(result.items).toHaveLength(0);
       expect(graphqlQueriesModule.graphqlQueries.getTenants).toHaveBeenCalledWith({
@@ -67,7 +67,7 @@ describe('tenantService', () => {
 
     it('passes custom params', async () => {
       vi.mocked(graphqlQueriesModule.graphqlQueries.getTenants).mockResolvedValue({
-        getTenants: {
+        tenants: {
           items: [{ tenantId: '12345678-1234-1234-1234-123456789012', code: 'T1', name: 'Tenant 1', type: 'Enterprise', status: 'Active', parentTenantId: null }],
           page: 2,
           pageSize: 10,
@@ -76,7 +76,7 @@ describe('tenantService', () => {
         },
       });
 
-      const result = await tenantService.getAllTenants({ page: 2, pageSize: 10, search: 'test' });
+      const result = await tenantService.getAll({ page: 2, pageSize: 10, search: 'test' });
 
       expect(result.items).toHaveLength(1);
       expect(result.page).toBe(2);
@@ -84,18 +84,18 @@ describe('tenantService', () => {
 
     it('throws on invalid response', async () => {
       vi.mocked(graphqlQueriesModule.graphqlQueries.getTenants).mockResolvedValue({
-        getTenants: { invalid: 'shape' },
+        tenants: { invalid: 'shape' },
       });
 
-      await expect(tenantService.getAllTenants()).rejects.toThrow('Invalid GraphQL response shape');
+      await expect(tenantService.getAll()).rejects.toThrow('Invalid GraphQL response shape');
       expect(loggerModule.logger.error).toHaveBeenCalled();
     });
   });
 
-  describe('getTenantById', () => {
+  describe('getById', () => {
     it('returns parsed tenant', async () => {
       vi.mocked(graphqlQueriesModule.graphqlQueries.getTenantById).mockResolvedValue({
-        getTenantById: {
+        tenantById: {
           tenantId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
           code: 'T1',
           name: 'Tenant 1',
@@ -105,24 +105,24 @@ describe('tenantService', () => {
         },
       });
 
-      const result = await tenantService.getTenantById('3fa85f64-5717-4562-b3fc-2c963f66afa6');
+      const result = await tenantService.getById('3fa85f64-5717-4562-b3fc-2c963f66afa6');
 
       expect(result.tenantId).toBe('3fa85f64-5717-4562-b3fc-2c963f66afa6');
     });
 
     it('throws when tenant not found', async () => {
       vi.mocked(graphqlQueriesModule.graphqlQueries.getTenantById).mockResolvedValue({
-        getTenantById: null,
+        tenantById: null,
       });
 
-      await expect(tenantService.getTenantById('nonexistent')).rejects.toThrow('Tenant not found');
+      await expect(tenantService.getById('nonexistent')).rejects.toThrow('Tenant not found');
     });
   });
 
   describe('getBranches', () => {
     it('returns parsed branches', async () => {
       vi.mocked(graphqlQueriesModule.graphqlQueries.getTenantBranches).mockResolvedValue({
-        getTenantBranches: [
+        tenantBranches: [
           { branchId: '3fa85f64-5717-4562-b3fc-2c963f66afa6', code: 'B1', name: 'Branch 1', isActive: true },
         ],
       });
