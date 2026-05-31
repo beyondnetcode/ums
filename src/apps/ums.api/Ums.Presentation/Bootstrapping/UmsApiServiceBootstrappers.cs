@@ -346,6 +346,7 @@ public static class UmsApiApplicationBuilderExtensions
         app.MapGraphQlSurface(versionedGroup);
         app.MapHealthSurface();
         app.MapAuthEndpoints();
+        app.MapClientAuthEndpoints();
 
         if (app.Environment.IsDevelopment())
         {

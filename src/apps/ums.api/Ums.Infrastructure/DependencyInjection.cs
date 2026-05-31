@@ -94,13 +94,39 @@ public static class DependencyInjection
             .AddTransient<ProfileXmlExporter, ProfileXmlExporter>()
             .AddTransient<ProfileYamlExporter, ProfileYamlExporter>()
             .AddTransient<ProfileCsvExporter, ProfileCsvExporter>()
+            // Auth Graph serializers (JSON/XML/YAML/CSV)
+            .AddTransient<Authorization.Graph.JsonAuthorizationGraphSerializer, Authorization.Graph.JsonAuthorizationGraphSerializer>()
+            .AddTransient<Authorization.Graph.XmlAuthorizationGraphSerializer,  Authorization.Graph.XmlAuthorizationGraphSerializer>()
+            .AddTransient<Authorization.Graph.YamlAuthorizationGraphSerializer, Authorization.Graph.YamlAuthorizationGraphSerializer>()
+            .AddTransient<Authorization.Graph.CsvAuthorizationGraphSerializer,  Authorization.Graph.CsvAuthorizationGraphSerializer>()
+            // IDP auth adapters — StubIdpAuthAdapter for all non-Production environments
+            .AddTransient<Identity.Auth.StubIdpAuthAdapter, Identity.Auth.StubIdpAuthAdapter>()
             .AddSource<NotificationRecipientStrategyFactorySetup>()
             .AddSource<ApprovalRequestCreationStrategyFactorySetup>()
             .AddSource<IdpResolutionStrategyFactorySetup>()
-            .AddSource<ProfileExportFactorySetup>());
+            .AddSource<ProfileExportFactorySetup>()
+            .AddSource<Authorization.Graph.AuthorizationGraphSerializerFactorySetup>()
+            .AddSource<Identity.Auth.IdpAuthAdapterFactorySetup>());
 
         services.AddScoped<ITenantParameterProvider, TenantParameterProvider>();
         services.AddScoped<ITenantExportConfigurationProvider, TenantExportConfigurationProvider>();
+
+        // Auth Graph Engine services
+        services.AddScoped<Ums.Domain.Authorization.Graph.IAuthorizationGraphBuilder,
+                           Ums.Application.Authorization.Graph.AuthorizationGraphBuilderService>();
+        services.AddScoped<Ums.Application.Authorization.Graph.IAuthGraphFormatProvider,
+                           Ums.Application.Authorization.Graph.AuthGraphFormatProvider>();
+        services.AddScoped<Ums.Domain.Identity.Auth.IAuthMethodResolver,
+                           Ums.Application.Identity.Auth.AuthMethodResolverService>();
+        services.AddScoped<Ums.Domain.Identity.Auth.ILocalAuthStrategy,
+                           Ums.Application.Identity.Auth.LocalAuthStrategyService>();
+        services.AddScoped<Ums.Domain.Identity.Auth.IIdpAuthStrategy,
+                           Ums.Infrastructure.Identity.Auth.IdpAuthStrategyDispatcher>();
+        services.AddScoped<Ums.Application.Common.Interfaces.IAuthAuditService,
+                           Ums.Infrastructure.Identity.Auth.AuthAuditService>();
+        // Default serializer (JSON) — injected directly into CommandHandler
+        services.AddTransient<Ums.Application.Authorization.Graph.Serializers.IAuthorizationGraphSerializer,
+                              Ums.Infrastructure.Authorization.Graph.JsonAuthorizationGraphSerializer>();
 
         // OPS-01 / HARDENING-03: Token revocation store.
         // When Redis:Connection is configured → use RedisTokenRevocationStore (all pods share state).

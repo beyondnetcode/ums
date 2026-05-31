@@ -9,6 +9,13 @@ using Ums.Application.Configuration.Services;
 public interface IJwtTokenService
 {
     string GenerateToken(TokenGenerationRequest request);
+
+    /// <summary>
+    /// Generates a JWT token that embeds the full AuthorizationGraph as claims.
+    /// Used by /client/authenticate — the token IS the auth graph for the client system.
+    /// </summary>
+    string GenerateGraphToken(Ums.Domain.Authorization.Graph.AuthorizationGraph graph);
+
     string GenerateRefreshToken();
     DateTime GetTokenExpiration(string token);
 }
@@ -92,6 +99,63 @@ public class JwtTokenService : IJwtTokenService
             audience: _audience,
             claims: claims,
             expires: expires,
+            signingCredentials: credentials);
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    public string GenerateGraphToken(Ums.Domain.Authorization.Graph.AuthorizationGraph graph)
+    {
+        var securityKey  = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secret));
+        var credentials  = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+        var ctx    = graph.Context;
+        var claims = new List<Claim>
+        {
+            new(JwtRegisteredClaimNames.Sub,   ctx.User.Id.ToString()),
+            new(JwtRegisteredClaimNames.Email, ctx.User.Email),
+            new(JwtRegisteredClaimNames.Name,  ctx.User.Username),
+            new("tenant_id",                   ctx.Tenant.Id.ToString()),
+            new("tenant_code",                 ctx.Tenant.Code),
+            new("sys_suite",                   ctx.SystemSuite.Code),
+            new(ClaimTypes.Role,               ctx.Role.Code),
+            new("role_name",                   ctx.Role.Name),
+            new("profile_id",                  ctx.Profile.Id.ToString()),
+            new("auth_method",                 graph.Authentication.Method),
+            new("graph_generated_at",          graph.GeneratedAt.ToString("O")),
+            new("graph_valid_until",           graph.ValidUntil.ToString("O")),
+            new("session_tracking_id",         Guid.NewGuid().ToString()),
+            new(JwtRegisteredClaimNames.Jti,   Guid.NewGuid().ToString()),
+        };
+
+        if (ctx.Branch is not null)
+            claims.Add(new Claim("branch_id", ctx.Branch.Id.ToString()));
+
+        if (graph.Authentication.Provider is not null)
+            claims.Add(new Claim("idp_provider", graph.Authentication.Provider.Name));
+
+        // Embed permissions as compact claims: "TargetCode:ActionCode:Effect"
+        foreach (var module in graph.MenuAccess)
+        foreach (var menu   in module.Menus)
+        foreach (var sub    in menu.SubMenus)
+        foreach (var opt    in sub.Options)
+            claims.Add(new Claim("perm", $"{opt.Code}:{opt.ActionCode}:{opt.Effect}"));
+
+        foreach (var res in graph.DomainPermissions)
+        foreach (var act in res.Actions)
+            claims.Add(new Claim("domain_perm", $"{res.ResourceCode}:{act.ActionCode}:{act.Effect}"));
+
+        foreach (var scope in graph.Scopes)
+            claims.Add(new Claim("scope", scope));
+
+        foreach (var flag in graph.FeatureFlags.Where(f => f.IsEnabled))
+            claims.Add(new Claim("feature", flag.FlagCode));
+
+        var token = new JwtSecurityToken(
+            issuer:            _issuer,
+            audience:          _audience,
+            claims:            claims,
+            expires:           graph.ValidUntil,
             signingCredentials: credentials);
 
         return new JwtSecurityTokenHandler().WriteToken(token);

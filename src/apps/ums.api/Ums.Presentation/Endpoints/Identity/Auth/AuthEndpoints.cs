@@ -11,13 +11,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Ums.Application.Common.Interfaces;
+using Ums.Application.Identity.Auth.Commands;
 using Ums.Domain.Authorization;
+using Ums.Domain.Authorization.Graph;
 using Ums.Domain.Identity;
 using Ums.Domain.Kernel.ValueObjects;
 using Ums.Presentation.Services;
-using ProfileAggregate = Ums.Domain.Authorization.Profile.Profile;
-using TenantAggregate = Ums.Domain.Identity.Tenant.Tenant;
-using UserAccountAggregate = Ums.Domain.Identity.UserAccount.UserAccount;
 
 public static class AuthEndpoints
 {
@@ -55,19 +54,20 @@ public static class AuthEndpoints
             // No RequireAuthorization() - we validate the JWT token directly in the handler
     }
 
+    /// <summary>
+    /// Delegates authentication to AuthenticateUserCommandHandler (full graph engine).
+    /// Sets a session cookie for the web frontend and returns the full AuthorizationGraph
+    /// in the response body so the UI can build its navigation and permission model.
+    /// </summary>
     private static async Task<IResult> HandleLoginAsync(
-        LoginRequest request,
-        IPasswordHashingService passwordHasher,
-        ITenantRepository tenantRepository,
-        IUserAccountRepository userAccountRepository,
-        IProfileRepository profileRepository,
-        IRoleRepository roleRepository,
+        LoginRequest  request,
+        IMediator     mediator,
         IJwtTokenService jwtTokenService,
-        HttpContext httpContext)
+        HttpContext   httpContext,
+        CancellationToken cancellationToken)
     {
-        // Validate request
         if (string.IsNullOrWhiteSpace(request.TenantCode) ||
-            string.IsNullOrWhiteSpace(request.Username) ||
+            string.IsNullOrWhiteSpace(request.Username)   ||
             string.IsNullOrWhiteSpace(request.Password))
         {
             return Results.BadRequest(new LoginErrorResponse(
@@ -76,153 +76,108 @@ public static class AuthEndpoints
                 SupportReferenceId: null));
         }
 
-        // Find tenant by code
-        var tenantResult = await tenantRepository.GetByCodeAsync(request.TenantCode.ToUpperInvariant());
-        if (tenantResult is null)
+        var clientIp = httpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1";
+
+        var command = new AuthenticateUserCommand(
+            TenantCode: request.TenantCode.Trim().ToUpperInvariant(),
+            Username:   request.Username.Trim(),
+            Password:   request.Password,
+            ClientIp:   clientIp,
+            RememberMe: request.RememberMe);
+
+        var result = await mediator.Send(command, cancellationToken);
+
+        if (result.IsFailure)
         {
-            return Results.NotFound(new LoginErrorResponse(
-                ErrorCodes.TenantNotFound,
-                $"Tenant '{request.TenantCode}' was not found.",
-                SupportReferenceId: null));
+            return MapAuthError(result.Error);
         }
 
-        var tenant = tenantResult;
+        var authResult = result.Value;
+        var graph      = authResult.Graph;
+        var ctx        = graph.Context;
 
-        // Check if tenant is active
-        if (tenant.Props.Status != Domain.Enums.TenantStatus.Active)
+        // Generate graph JWT
+        var jwtToken = jwtTokenService.GenerateGraphToken(graph);
+
+        // Set session cookie for web frontend
+        var isInternalAdmin = ctx.Tenant.Code == "INTERNAL_ADMIN";
+        var cookieClaims = new List<Claim>
         {
-            return Results.BadRequest(new LoginErrorResponse(
-                ErrorCodes.TenantInactive,
-                $"Tenant '{request.TenantCode}' is not active.",
-                SupportReferenceId: null));
-        }
-
-        // Find user by email (username = email in this system)
-        var userResult = await userAccountRepository.GetByEmailAsync(
-            Email.Create(request.Username),
-            default);
-
-        if (userResult is null)
-        {
-            return Results.Json(new LoginErrorResponse(
-                ErrorCodes.InvalidCredentials,
-                "Invalid username or password.",
-                SupportReferenceId: null), statusCode: 401);
-        }
-
-        var user = userResult;
-
-        // Check if user is active
-        if (user.Props.Status != Domain.Enums.UserStatus.Active)
-        {
-            return Results.Json(new LoginErrorResponse(
-                ErrorCodes.UserNotActive,
-                "User account is not active. Please contact your administrator.",
-                SupportReferenceId: null), statusCode: 401);
-        }
-
-        // Verify password
-        var activeCredential = user.PasswordCredentials.FirstOrDefault(c => c.Props.IsActive);
-        if (activeCredential is null || !passwordHasher.Verify(request.Password, activeCredential.Props.PasswordHash.GetValue()))
-        {
-            // Record failed attempt
-            user.RecordAuthenticationAttempt(false, "Invalid password", "127.0.0.1", ActorId.Create("auth:system"));
-            await userAccountRepository.UpdateAsync(user, default);
-            await userAccountRepository.UnitOfWork.SaveEntitiesAsync(default);
-
-            return Results.Json(new LoginErrorResponse(
-                ErrorCodes.InvalidCredentials,
-                "Invalid username or password.",
-                SupportReferenceId: null), statusCode: 401);
-        }
-
-        // Record successful authentication
-        user.RecordAuthenticationAttempt(true, "Login successful", "127.0.0.1", ActorId.Create("auth:system"));
-        await userAccountRepository.UpdateAsync(user, default);
-        await userAccountRepository.UnitOfWork.SaveEntitiesAsync(default);
-
-        // Get profile and role
-        var profiles = await profileRepository.GetByUserIdAsync(user.Props.Id.GetValue(), default);
-        var profile = profiles.FirstOrDefault();
-        var role = profile is not null ? await roleRepository.GetByIdAsync(profile.Props.RoleId.GetValue(), default) : null;
-
-        // Create claims for the authenticated user
-        var claims = new List<Claim>
-        {
-            new(ClaimTypes.NameIdentifier, user.Props.Id.GetValue().ToString()),
-            new(ClaimTypes.Name, user.Props.Email.GetValue()),
-            new("tenant_id", tenant.Props.Id.GetValue().ToString()),
-            new("tenant_code", tenant.Props.Code.GetValue()),
-            new("username", user.Props.IdentityReference?.GetValue() ?? user.Props.Email.GetValue()),
+            new(ClaimTypes.NameIdentifier, ctx.User.Id.ToString()),
+            new(ClaimTypes.Name,           ctx.User.Email),
+            new("tenant_id",               ctx.Tenant.Id.ToString()),
+            new("tenant_code",             ctx.Tenant.Code),
+            new("username",                ctx.User.Username),
+            new(ClaimTypes.Role,           ctx.Role.Code),
+            new("role_name",               ctx.Role.Name),
+            new("profile_id",              ctx.Profile.Id.ToString()),
+            new("sys_suite",               ctx.SystemSuite.Code),
+            new("auth_method",             graph.Authentication.Method),
+            new("is_internal_admin",       isInternalAdmin ? "true" : "false"),
         };
+        if (ctx.Branch is not null)
+            cookieClaims.Add(new Claim("branch_id", ctx.Branch.Id.ToString()));
 
-        if (role is not null)
-        {
-            claims.Add(new Claim(ClaimTypes.Role, role.Props.Code.GetValue()));
-            claims.Add(new Claim("role_name", role.Props.Value.GetValue()));
-        }
-
-        if (profile is not null)
-        {
-            claims.Add(new Claim("profile_id", profile.Props.Id.GetValue().ToString()));
-        }
-
-        // Generate JWT token for API access
-        var sessionTrackingId = Guid.NewGuid().ToString();
-        var isInternalAdmin = tenant.Props.Code.GetValue() == "INTERNAL_ADMIN";
-        var jwtToken = jwtTokenService.GenerateToken(new TokenGenerationRequest(
-            UserId: user.Props.Id.GetValue().ToString(),
-            Email: user.Props.Email.GetValue(),
-            Username: user.Props.IdentityReference?.GetValue() ?? user.Props.Email.GetValue(),
-            TenantId: tenant.Props.Id.GetValue(),
-            TenantCode: tenant.Props.Code.GetValue(),
-            Role: role?.Props.Code.GetValue(),
-            RoleName: role?.Props.Value.GetValue(),
-            ProfileId: profile?.Props.Id.GetValue().ToString(),
-            Permissions: Array.Empty<string>(),
-            Language: "en",
-            IsInternalAdmin: isInternalAdmin
-        ));
-
-        // Sign in using cookie authentication (for web frontend)
-        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+        var identity  = new ClaimsIdentity(cookieClaims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var principal = new ClaimsPrincipal(identity);
 
         await httpContext.SignInAsync(
             CookieAuthenticationDefaults.AuthenticationScheme,
-            claimsPrincipal,
+            principal,
             new AuthenticationProperties
             {
                 IsPersistent = request.RememberMe,
-                ExpiresUtc = request.RememberMe
+                ExpiresUtc   = request.RememberMe
                     ? DateTimeOffset.UtcNow.AddDays(7)
-                    : DateTimeOffset.UtcNow.AddHours(1)
+                    : DateTimeOffset.UtcNow.AddHours(1),
             });
 
-        // Build session ID for response
-        var sessionId = Guid.NewGuid().ToString();
+        // Build enriched permissions array from Allow options for backward compat
+        var permissions = graph.MenuAccess
+            .SelectMany(m => m.Menus)
+            .SelectMany(m => m.SubMenus)
+            .SelectMany(s => s.Options)
+            .Where(o => o.Effect == AccessEffect.Allow)
+            .Select(o => $"{o.Code}:{o.ActionCode}")
+            .ToArray();
 
         return Results.Ok(new LoginSuccessResponse(
-            SessionId: sessionId,
-            SessionTrackingId: sessionTrackingId,
-            UserId: user.Props.Id.GetValue().ToString(),
-            Username: user.Props.IdentityReference?.GetValue() ?? user.Props.Email.GetValue(),
-            Email: user.Props.Email.GetValue(),
-            TenantId: tenant.Props.Id.GetValue().ToString(),
-            TenantCode: tenant.Props.Code.GetValue(),
-            TenantName: tenant.Props.Name.GetValue(),
-            Role: role?.Props.Code.GetValue(),
-            RoleName: role?.Props.Value.GetValue(),
-            ProfileId: profile?.Props.Id.GetValue().ToString(),
-            Permissions: Array.Empty<string>(),
-            Language: "en",
-            Token: jwtToken,
-            TokenType: "Bearer",
-            ExpiresIn: 3600,
+            SessionId:        Guid.NewGuid().ToString(),
+            SessionTrackingId: Guid.NewGuid().ToString(),
+            UserId:           ctx.User.Id.ToString(),
+            Username:         ctx.User.Username,
+            Email:            ctx.User.Email,
+            TenantId:         ctx.Tenant.Id.ToString(),
+            TenantCode:       ctx.Tenant.Code,
+            TenantName:       ctx.Tenant.Name,
+            Role:             ctx.Role.Code,
+            RoleName:         ctx.Role.Name,
+            ProfileId:        ctx.Profile.Id.ToString(),
+            Permissions:      permissions,
+            Language:         "en",
+            Token:            jwtToken,
+            TokenType:        "Bearer",
+            ExpiresIn:        authResult.ExpiresIn,
             RefreshExpiresIn: request.RememberMe ? 604800 : 86400,
-            IsInternalAdmin: isInternalAdmin
-        ));
+            IsInternalAdmin:  isInternalAdmin,
+            AuthorizationGraph: graph,
+            GraphFormat:      authResult.GraphFormat));
     }
+
+    private static IResult MapAuthError(string error) => error switch
+    {
+        var e when e.StartsWith("AUTH_002") => Results.NotFound(new LoginErrorResponse(
+            ErrorCodes.TenantNotFound, e[(e.IndexOf(':') + 1)..].Trim(), null)),
+        var e when e.StartsWith("AUTH_003") => Results.BadRequest(new LoginErrorResponse(
+            ErrorCodes.TenantInactive, e[(e.IndexOf(':') + 1)..].Trim(), null)),
+        var e when e.StartsWith("AUTH_004") => Results.NotFound(new LoginErrorResponse(
+            ErrorCodes.UserNotFound, e[(e.IndexOf(':') + 1)..].Trim(), null)),
+        var e when e.StartsWith("AUTH_005") => Results.Json(new LoginErrorResponse(
+            ErrorCodes.UserNotActive, e[(e.IndexOf(':') + 1)..].Trim(), null), statusCode: 401),
+        var e when e.StartsWith("AUTH_006") => Results.Json(new LoginErrorResponse(
+            ErrorCodes.InvalidCredentials, e[(e.IndexOf(':') + 1)..].Trim(), null), statusCode: 401),
+        _ => Results.Json(new LoginErrorResponse("AUTH_000", error, null), statusCode: 401),
+    };
 
     private static async Task<IResult> HandleRefreshTokenAsync(
         IJwtTokenService jwtTokenService,
@@ -465,7 +420,10 @@ public record LoginSuccessResponse(
     string? TokenType,
     int? ExpiresIn,
     int? RefreshExpiresIn,
-    bool IsInternalAdmin = false);
+    bool IsInternalAdmin = false,
+    // ── Graph fields (new — null when called from refresh/session endpoints) ──
+    Ums.Domain.Authorization.Graph.AuthorizationGraph? AuthorizationGraph = null,
+    string? GraphFormat = null);
 
 public record LoginErrorResponse(
     string Code,
