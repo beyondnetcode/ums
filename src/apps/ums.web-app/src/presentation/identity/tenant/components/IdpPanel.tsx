@@ -17,7 +17,8 @@ import { EmptyState } from '@shared/components/EmptyState';
 import { SectionHeader } from '@shared/components/SectionHeader';
 import { CodeBadge } from '@shared/components/CodeBadge';
 import { IconButton, Tooltip } from '@shared/components/Tooltip';
-import { Key, Pencil, Save, Check, Trash2, X, ShieldAlert, Cpu } from 'lucide-react';
+import { Key, Pencil, Save, Check, Trash2, X, ShieldAlert, Cpu, AlertTriangle } from 'lucide-react';
+import { M3Dialog } from '@shared/components/M3Dialog';
 import { ListToolbar } from '@shared/components/ListToolbar';
 import { IDP_STRATEGIES } from '@domain/identity/constants/idp.constants';
 import type { IdpStrategy } from '@domain/identity/constants/idp.constants';
@@ -51,6 +52,7 @@ export const IdpPanel: React.FC<IdpPanelProps> = ({ tenantId }) => {
   const [activeFilter, setActiveFilter] = useState('all');
   const [sortBy, setSortBy] = useState('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [showAuthModeConfirm, setShowAuthModeConfirm] = useState(false);
 
   // Load tenant parameters/configs
   const { data: configsPage } = useGetAllAppConfigurations({
@@ -97,7 +99,14 @@ export const IdpPanel: React.FC<IdpPanelProps> = ({ tenantId }) => {
     OAuth2: t.strategyOAuth2,
   };
 
-  const handleToggleAuthMode = async () => {
+  const handleToggleAuthMode = () => {
+    if (!configItem) return;
+    // Show confirmation before committing — toggling auth mode affects all users of this tenant.
+    setShowAuthModeConfirm(true);
+  };
+
+  const confirmToggleAuthMode = async () => {
+    setShowAuthModeConfirm(false);
     if (!configItem) return;
     try {
       await updateConfigMutation.mutateAsync({
@@ -213,8 +222,48 @@ export const IdpPanel: React.FC<IdpPanelProps> = ({ tenantId }) => {
       return sortOrder === 'asc' ? cmp : -cmp;
     });
 
+  const nextMode = useExternalIdp ? 'Esquema Local (BCrypt)' : 'Proveedores de Identidad (IDPs)';
+  const currentMode = useExternalIdp ? 'Proveedores de Identidad (IDPs)' : 'Esquema Local (BCrypt)';
+
   return (
     <div className="space-y-4">
+      <M3Dialog
+        open={showAuthModeConfirm}
+        title="Cambiar Modo de Autenticación"
+        icon={<AlertTriangle className="w-5 h-5" />}
+        iconColor="bg-amber-500/15 text-amber-500"
+        onScrimClick={() => setShowAuthModeConfirm(false)}
+        actions={[
+          {
+            label: 'Cancelar',
+            variant: 'outlined',
+            onClick: () => setShowAuthModeConfirm(false),
+          },
+          {
+            label: 'Confirmar Cambio',
+            variant: 'filled',
+            className: 'bg-m3-primary hover:bg-m3-primary/90 border-0',
+            onClick: confirmToggleAuthMode,
+          },
+        ]}
+      >
+        <div className="space-y-3 text-sm text-m3-on-surface">
+          <p>
+            Está por cambiar el modo de autenticación de este inquilino de{' '}
+            <span className="font-semibold">{currentMode}</span> a{' '}
+            <span className="font-semibold text-m3-primary">{nextMode}</span>.
+          </p>
+          <p className="text-m3-secondary text-xs leading-relaxed">
+            {useExternalIdp
+              ? 'Al cambiar a modo local, los usuarios deberán autenticarse con sus credenciales internas (contraseña BCrypt). Los proveedores de identidad externos configurados quedarán inactivos.'
+              : 'Al activar el modo IDP, los usuarios se autenticarán a través de los proveedores de identidad externos configurados (OIDC, SAML2, OAuth2). Asegúrese de tener al menos un IDP activo.'}
+          </p>
+          <p className="text-xs text-amber-600 dark:text-amber-400 font-medium">
+            Este cambio afecta inmediatamente a todos los usuarios del inquilino.
+          </p>
+        </div>
+      </M3Dialog>
+
       <SectionHeader title={t.identityProviders} subtitle={t.idpSubtitle} />
 
       {/* Selector de Modo de Autenticación */}
