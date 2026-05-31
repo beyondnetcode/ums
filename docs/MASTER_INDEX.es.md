@@ -71,6 +71,8 @@ Especificaciones de Ingenieria y Ciclo de Vida del Producto para el User Managem
 - [ADR-0066: Contrato de Errores Accionables](./architecture/adrs/0066-actionable-user-error-contract.es.md) _(candidato Evolith)_
 - [ADR-0071: Motor del Grafo de Autorizacion](./architecture/adrs/0071-auth-graph-engine.es.md)
 - [ADR-0072: Resolucion Dinamica del Metodo de Autenticacion](./architecture/adrs/0072-dynamic-auth-method-resolution.es.md)
+- [ADR-0073: UMS SDK Multi-Runtime](./architecture/adrs/0073-ums-sdk-multi-runtime.es.md)
+- [ADR-0074: Politica de Versionado del Schema del Grafo](./architecture/adrs/0074-auth-graph-schema-versioning.es.md)
 - [Indice ADR](./architecture/adrs/index.md)
 - **Guias de Desarrollo de Librerias Shell** -- [Vision General](./architecture/shell-libraries/README.es.md) · [DDD](./architecture/shell-libraries/ddd.es.md) · [Factory](./architecture/shell-libraries/factory.md) · [AOP](./architecture/shell-libraries/aop.es.md) · [Bootstrapper](./architecture/shell-libraries/bootstrapper.md) · [Uso Combinado](./architecture/shell-libraries/combined-usage.md) · [Aspectos del API](./architecture/shell-libraries/api-aspects.es.md)
 - [Decisiones de Diseno y Vacios](./governance/construction/ddd-design/12-design-decisions.md)
@@ -89,6 +91,16 @@ Especificaciones de Ingenieria y Ciclo de Vida del Producto para el User Managem
 - **Audit BC:** [AuditRecord](./domain-es/audit/audit-record.md)
 
 > Las entidades hijas (Branch, Branding, IdentityProvider, MfaEnrollment, PasswordCredential, ProfilePermission, NotificationRule, AccessEnforcementPolicy, etc.) se documentan dentro de la pagina de su agregado raiz. Inventario completo: [Indice de Agregados de Dominio](./domain-es/index.md).
+
+### Fase 06 -- UMS SDK
+
+> El UMS SDK es la superficie oficial de integracion cliente, distribuida en tres runtimes (.NET, TypeScript, NestJS) compartiendo un unico contrato canonico — el JSON Schema del `AuthorizationGraph`. El codigo fuente vive bajo `src/libs/sdk/`. Ver [ADR-0073](./architecture/adrs/0073-ums-sdk-multi-runtime.es.md) y [ADR-0074](./architecture/adrs/0074-auth-graph-schema-versioning.es.md).
+
+- [Portal SDK](./sdk-es/index.md)
+- **Contratos:** [Schema Overview](./sdk-es/contracts/schema-overview.md) · [Codigos de Error](./sdk-es/contracts/error-codes.md) · [Politica de Versionado](./sdk-es/contracts/versioning.md) · [Fixtures](./sdk-es/contracts/fixtures.md) · [Matriz de Compatibilidad](./sdk-es/contracts/compatibility-matrix.md)
+- **.NET:** [README](./sdk-es/dotnet/README.md) · [Quickstart](./sdk-es/dotnet/quickstart.md)
+- **TypeScript:** [README](./sdk-es/typescript/README.md) · [Quickstart](./sdk-es/typescript/quickstart.md)
+- **NestJS:** [README](./sdk-es/nestjs/README.md) · [Quickstart](./sdk-es/nestjs/quickstart.md)
 
 ### Fase 05 -- Operaciones
 

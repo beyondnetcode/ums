@@ -72,6 +72,8 @@ Product Lifecycle and Engineering Specifications for the User Management System 
 - [ADR-0066: Actionable User Error Contract](./architecture/adrs/0066-actionable-user-error-contract.md) _(Evolith candidate)_
 - [ADR-0071: Authorization Graph Engine](./architecture/adrs/0071-auth-graph-engine.md)
 - [ADR-0072: Dynamic Auth Method Resolution](./architecture/adrs/0072-dynamic-auth-method-resolution.md)
+- [ADR-0073: UMS SDK Multi-Runtime](./architecture/adrs/0073-ums-sdk-multi-runtime.md)
+- [ADR-0074: Auth Graph Schema Versioning Policy](./architecture/adrs/0074-auth-graph-schema-versioning.md)
 - [ADR Registry](./architecture/adrs/index.md)
 - **Shell Library Developer Guides** — [Overview](./architecture/shell-libraries/README.md) · [DDD](./architecture/shell-libraries/ddd.md) · [Factory](./architecture/shell-libraries/factory.md) · [AOP](./architecture/shell-libraries/aop.md) · [Bootstrapper](./architecture/shell-libraries/bootstrapper.md) · [Combined Usage](./architecture/shell-libraries/combined-usage.md) · [API Aspects](./architecture/shell-libraries/api-aspects.md)
 - [Design Decisions & Gaps](./governance/construction/ddd-design/12-design-decisions.md)
@@ -90,6 +92,16 @@ Product Lifecycle and Engineering Specifications for the User Management System 
 - **Audit BC:** [AuditRecord](./domain/audit/audit-record.md)
 
 > Owned child entities (Branch, Branding, IdentityProvider, MfaEnrollment, PasswordCredential, ProfilePermission, NotificationRule, AccessEnforcementPolicy, etc.) are documented within their parent aggregate's page. Full entity inventory: [Domain Aggregate Index](./domain/index.md).
+
+### Phase 06 -- UMS SDK
+
+> The UMS SDK is the official client integration surface, distributed across three runtimes (.NET, TypeScript, NestJS) sharing a single canonical contract — the `AuthorizationGraph` JSON Schema. Source lives under `src/libs/sdk/`. See [ADR-0073](./architecture/adrs/0073-ums-sdk-multi-runtime.md) and [ADR-0074](./architecture/adrs/0074-auth-graph-schema-versioning.md).
+
+- [SDK Portal](./sdk/index.md)
+- **Contracts:** [Schema Overview](./sdk/contracts/schema-overview.md) · [Error Codes](./sdk/contracts/error-codes.md) · [Versioning Policy](./sdk/contracts/versioning.md) · [Fixtures](./sdk/contracts/fixtures.md) · [Compatibility Matrix](./sdk/contracts/compatibility-matrix.md)
+- **.NET:** [README](./sdk/dotnet/README.md) · [Quickstart](./sdk/dotnet/quickstart.md)
+- **TypeScript:** [README](./sdk/typescript/README.md) · [Quickstart](./sdk/typescript/quickstart.md)
+- **NestJS:** [README](./sdk/nestjs/README.md) · [Quickstart](./sdk/nestjs/quickstart.md)
 
 ### Phase 05 -- Operations
 

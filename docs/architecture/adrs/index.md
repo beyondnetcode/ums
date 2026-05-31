@@ -53,6 +53,8 @@ UMS is a satellite repository of `evolith_arch32`. The parent repository defines
 | [ADR-0070](./0070-database-schema-strategy-decision.md) | Database Schema Per Module Strategy — SQL Server Modular Monolith Schema Ownership | Accepted |
 | [ADR-0071](./0071-auth-graph-engine.md) | Authorization Graph Engine — Motor Central de Autenticación y Autorización | Accepted |
 | [ADR-0072](./0072-dynamic-auth-method-resolution.md) | Dynamic Auth Method Resolution — From Configuration, Not Code | Accepted |
+| [ADR-0073](./0073-ums-sdk-multi-runtime.md) | UMS SDK — Multi-Runtime Client Integration Surface (.NET / TypeScript / NestJS) | Accepted |
+| [ADR-0074](./0074-auth-graph-schema-versioning.md) | Auth Graph Schema Versioning Policy | Accepted |
 
 > **Evolith candidate** - ADR has zero UMS-specific dependencies and is proposed for extraction to the Evolith parent architecture baseline.
 
@@ -75,6 +77,8 @@ All ADRs (0050-0070) now have Spanish translations:
 | 0058 | ✅ | 0070 | ✅ |
 | 0059 | ✅ | 0071 | ✅ |
 | 0060 | ✅ | 0072 | ✅ |
+| —    | — | 0073 | ✅ |
+| —    | — | 0074 | ✅ |
 
 ---
 
