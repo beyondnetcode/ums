@@ -114,3 +114,13 @@ Todas las pantallas React de frontend deben pasar esta lista de verificacion aut
 - `[ ]` **Navegacion por Teclado:** Los bucles de tabulacion fluyen secuencialmente. Los modales capturan el enfoque hasta que se cierran.
 - `[ ]` **Contraste Visual:** Todo el contenido de texto satisface una relacion de contraste minima de 4.5:1 contra los paneles de fondo.
 - `[ ]` **Indicadores de Enfoque:** Los estados focus-visible activan bordes solidos de alto contraste sin contornos ocultos.
+
+---
+
+## 7. Notas Arquitectónicas de CQRS y Pendientes (TODOs)
+
+> [!IMPORTANT]
+> **Estrategia de Migración REST vs GraphQL (TODO):**
+> Como se decidió, todas las operaciones de consulta CQRS en los servicios del frontend se redirigen temporalmente a través de endpoints REST (mediante `httpClient`) en lugar de endpoints de GraphQL. Esta medida temporal se implementa para evitar problemas activos de esquema/infraestructura.
+> - **TODO:** Volver a analizar el rendimiento de las consultas y la alineación del esquema de GraphQL en una fase posterior para migrar las lecturas de regreso a GraphQL donde sea apropiado.
+> - **Componentes afectados:** `userAccountService` y otros envoltorios de consultas de identidad principales.

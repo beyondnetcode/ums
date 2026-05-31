@@ -177,6 +177,23 @@ public static class ParameterCatalogSeeder
                 CreatedBy = systemActorId,
                 CreatedAtUtc = DateTime.UtcNow,
                 AuditTimeSpan = DateTime.UtcNow.ToString("O")
+            },
+            new()
+            {
+                Id = Guid.Parse("11111111-1111-1111-1111-111111111110"),
+                Code = "AUTH_USE_EXTERNAL_IDP",
+                Name = "Use External IDP",
+                Description = "Whether the tenant uses external Identity Providers instead of local password credentials",
+                DataTypeId = 3,
+                DefaultValue = "false",
+                ScopeId = 3,
+                IsActive = true,
+                IsMandatory = false,
+                DisplayOrder = 10,
+                Version = "1.0.0",
+                CreatedBy = systemActorId,
+                CreatedAtUtc = DateTime.UtcNow,
+                AuditTimeSpan = DateTime.UtcNow.ToString("O")
             }
         };
 
@@ -349,6 +366,114 @@ public static class ParameterCatalogSeeder
             new()
             {
                 Id = Guid.NewGuid(),
+                TenantId = ransaId,
+                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111102"),
+                OverrideValue = "5",
+                StatusId = 2,
+                Version = "1.0.0",
+                CreatedBy = systemActorId,
+                CreatedAtUtc = DateTime.UtcNow,
+                AuditTimeSpan = DateTime.UtcNow.ToString("O")
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                TenantId = ransaId,
+                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111110"),
+                OverrideValue = "true",
+                StatusId = 2,
+                Version = "1.0.0",
+                CreatedBy = systemActorId,
+                CreatedAtUtc = DateTime.UtcNow,
+                AuditTimeSpan = DateTime.UtcNow.ToString("O")
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                TenantId = apmId,
+                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111101"),
+                OverrideValue = "20",
+                StatusId = 2,
+                Version = "1.0.0",
+                CreatedBy = systemActorId,
+                CreatedAtUtc = DateTime.UtcNow,
+                AuditTimeSpan = DateTime.UtcNow.ToString("O")
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                TenantId = apmId,
+                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111102"),
+                OverrideValue = "3",
+                StatusId = 2,
+                Version = "1.0.0",
+                CreatedBy = systemActorId,
+                CreatedAtUtc = DateTime.UtcNow,
+                AuditTimeSpan = DateTime.UtcNow.ToString("O")
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                TenantId = apmId,
+                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111106"),
+                OverrideValue = "true",
+                StatusId = 2,
+                Version = "1.0.0",
+                CreatedBy = systemActorId,
+                CreatedAtUtc = DateTime.UtcNow,
+                AuditTimeSpan = DateTime.UtcNow.ToString("O")
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                TenantId = apmId,
+                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111110"),
+                OverrideValue = "false",
+                StatusId = 2,
+                Version = "1.0.0",
+                CreatedBy = systemActorId,
+                CreatedAtUtc = DateTime.UtcNow,
+                AuditTimeSpan = DateTime.UtcNow.ToString("O")
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                TenantId = neptuniaId,
+                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111101"),
+                OverrideValue = "60",
+                StatusId = 2,
+                Version = "1.0.0",
+                CreatedBy = systemActorId,
+                CreatedAtUtc = DateTime.UtcNow,
+                AuditTimeSpan = DateTime.UtcNow.ToString("O")
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                TenantId = neptuniaId,
+                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111105"),
+                OverrideValue = "14",
+                StatusId = 2,
+                Version = "1.0.0",
+                CreatedBy = systemActorId,
+                CreatedAtUtc = DateTime.UtcNow,
+                AuditTimeSpan = DateTime.UtcNow.ToString("O")
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                TenantId = neptuniaId,
+                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111110"),
+                OverrideValue = "true",
+                StatusId = 2,
+                Version = "1.0.0",
+                CreatedBy = systemActorId,
+                CreatedAtUtc = DateTime.UtcNow,
+                AuditTimeSpan = DateTime.UtcNow.ToString("O")
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
                 TenantId = unimarId,
                 ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111102"),
                 OverrideValue = "5",
@@ -361,9 +486,21 @@ public static class ParameterCatalogSeeder
             new()
             {
                 Id = Guid.NewGuid(),
+                TenantId = unimarId,
+                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111110"),
+                OverrideValue = "false",
+                StatusId = 2,
+                Version = "1.0.0",
+                CreatedBy = systemActorId,
+                CreatedAtUtc = DateTime.UtcNow,
+                AuditTimeSpan = DateTime.UtcNow.ToString("O")
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
                 TenantId = paitaId,
-                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111102"),
-                OverrideValue = "5",
+                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111110"),
+                OverrideValue = "true",
                 StatusId = 2,
                 Version = "1.0.0",
                 CreatedBy = systemActorId,
@@ -374,8 +511,8 @@ public static class ParameterCatalogSeeder
             {
                 Id = Guid.NewGuid(),
                 TenantId = intradevcoId,
-                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111102"),
-                OverrideValue = "5",
+                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111110"),
+                OverrideValue = "true",
                 StatusId = 2,
                 Version = "1.0.0",
                 CreatedBy = systemActorId,

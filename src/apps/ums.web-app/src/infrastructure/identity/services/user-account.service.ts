@@ -35,32 +35,34 @@ export interface UserAccountQueryParams {
 }
 
 export const userAccountService = {
-  // ── Queries (GraphQL) ─────────────────────────────────────────────────────
+  // ── Queries (REST) ────────────────────────────────────────────────────────
+  // TODO: Changed from GraphQL to REST due to planned GraphQL migration/issues. Revisit GraphQL implementation later.
 
   getAll: async (params?: UserAccountQueryParams): Promise<UserAccountPage> => {
-    const response = await graphqlQueries.getUserAccounts({
-      page: params?.page ?? 1,
-      pageSize: params?.pageSize ?? 20,
-      search: params?.search,
-      criteria: params?.criteria,
-      status: params?.status,
-      sortBy: params?.sortBy,
-      sortOrder: params?.sortOrder,
-      tenantId: params?.tenantId,
+    const { data } = await httpClient.get('/user-accounts', {
+      params: {
+        page: params?.page ?? 1,
+        pageSize: params?.pageSize ?? 20,
+        search: params?.search,
+        criteria: params?.criteria,
+        status: params?.status,
+        sortBy: params?.sortBy,
+        sortOrder: params?.sortOrder,
+        tenantId: params?.tenantId,
+      }
     });
 
-    const pageResult = UserAccountPageSchema.safeParse(response.userAccounts);
+    const pageResult = UserAccountPageSchema.safeParse(data);
     if (!pageResult.success) {
-      logger.error('Invalid GraphQL response shape for userAccounts query', pageResult.error);
-      throw new Error('Invalid GraphQL response shape for userAccounts query');
+      logger.error('Invalid REST response shape for userAccounts query', pageResult.error);
+      throw new Error('Invalid REST response shape for userAccounts query');
     }
     return pageResult.data;
   },
 
   getById: async (userAccountId: string): Promise<UserAccount> => {
-    const response = await graphqlQueries.getUserAccountById(userAccountId);
-    if (!response.userAccountById) throw new Error('User account not found');
-    return UserAccountSchema.parse(response.userAccountById);
+    const { data } = await httpClient.get(`/user-accounts/${userAccountId}`);
+    return UserAccountSchema.parse(data);
   },
 
   // ── Commands (REST) ───────────────────────────────────────────────────────

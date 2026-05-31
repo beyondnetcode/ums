@@ -6,6 +6,36 @@ import { StatusBadge } from '@shared/components/StatusBadge';
 import { CodeBadge } from '@shared/components/CodeBadge';
 import { EntityRow } from '@shared/components/EntityRow';
 import type { TreeNode } from '@app/hooks/use-tree-nodes';
+import { useGetAllAppConfigurations } from '@app/configuration/hooks/use-app-configuration';
+
+export const AuthModeBadge: React.FC<{ tenantId: string; tenantCode?: string }> = ({ tenantId, tenantCode }) => {
+  const code = tenantCode?.toUpperCase();
+  const id = tenantId.toLowerCase();
+
+  const isExternalIdp =
+    code === 'RANSA_PERU' ||
+    code === 'NEPTUNIA' ||
+    code === 'PAITA_PORT' ||
+    code === 'INTRADEVCO' ||
+    id === '3fa85f64-5717-4562-b3fc-2c963f66afa6' ||
+    id === 'c9b736b4-6a84-48f8-b34d-176bc5a6d542' ||
+    id === '9e8d7c6b-5a4f-3e2d-1c0b-9876543210fe' ||
+    id === 'f3e2d1c0-b9a8-7f6e-5d4c-321098765432';
+
+  if (isExternalIdp) {
+    return (
+      <span className="inline-flex items-center text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 border border-emerald-500/20">
+        IDP Mode
+      </span>
+    );
+  }
+
+  return (
+    <span className="inline-flex items-center text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-500/10 text-slate-600 dark:bg-slate-500/20 dark:text-slate-400 border border-slate-500/20">
+      Modo Local
+    </span>
+  );
+};
 
 export const renderTenantParentRow = (
   node: TreeNode<Tenant>,
@@ -67,7 +97,10 @@ export const renderTenantParentRow = (
         },
       ]}
     >
-      <span className="text-[12px] font-medium text-m3-on-surface line-clamp-1">{tenant.name}</span>
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-[12px] font-medium text-m3-on-surface line-clamp-1">{tenant.name}</span>
+        <AuthModeBadge tenantId={tenant.tenantId} tenantCode={tenant.code} />
+      </div>
       {tenant.companyReference && (
         <span className="text-[11px] text-m3-secondary/60 line-clamp-1 mt-0.5">
           {tenant.companyReference}
@@ -116,7 +149,10 @@ export const renderTenantChildRow = (
         },
       ]}
     >
-      <span className="text-[12px] font-medium text-m3-on-surface line-clamp-1">{child.name}</span>
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-[12px] font-medium text-m3-on-surface line-clamp-1">{child.name}</span>
+        <AuthModeBadge tenantId={child.tenantId} tenantCode={child.code} />
+      </div>
       {child.companyReference && (
         <span className="text-[11px] text-m3-secondary/60 line-clamp-1 mt-0.5">
           {child.companyReference}
@@ -159,7 +195,10 @@ export const renderTenantParentCard = (
             <Building2 className="w-5 h-5" />
           </div>
           <div className="flex-1 min-w-0">
-            <h4 className="text-[12px] font-medium text-m3-on-surface line-clamp-1">{tenant.name}</h4>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h4 className="text-[12px] font-medium text-m3-on-surface line-clamp-1">{tenant.name}</h4>
+              <AuthModeBadge tenantId={tenant.tenantId} tenantCode={tenant.code} />
+            </div>
             <p className="font-mono text-[11px] text-m3-secondary/70 mt-0.5">{tenant.code}</p>
           </div>
         </div>
@@ -224,7 +263,10 @@ export const renderTenantChildCard = (
           <Building2 className="w-4 h-4" />
         </div>
         <div>
-          <h4 className="text-[12px] font-medium text-m3-on-surface">{child.name}</h4>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h4 className="text-[12px] font-medium text-m3-on-surface">{child.name}</h4>
+            <AuthModeBadge tenantId={child.tenantId} tenantCode={child.code} />
+          </div>
           <p className="font-mono text-[11px] text-m3-secondary/60 mt-0.5">{child.code}</p>
         </div>
       </div>

@@ -153,10 +153,18 @@ public static class ConfigurationDevDataSeeder
         var configTransport = AppConfigurationAggregate.Create(
             null, null, null,
             Code.Create("FRONTEND_CONFIG_TRANSPORT"),
-            ConfigurationValue.Create("graphql"),
+            ConfigurationValue.Create("rest"),
             Description.Create("Transport mode for frontend config queries: 'graphql' or 'rest'"),
             true, false, actor);
         if (configTransport.IsSuccess) results.Add(configTransport.Value);
+
+        var useExternalIdp = AppConfigurationAggregate.Create(
+            null, null, null,
+            Code.Create("AUTH_USE_EXTERNAL_IDP"),
+            ConfigurationValue.Create("false"),
+            Description.Create("Whether the tenant uses external Identity Providers instead of local password credentials"),
+            true, false, actor);
+        if (useExternalIdp.IsSuccess) results.Add(useExternalIdp.Value);
 
         return results;
     }
@@ -172,30 +180,36 @@ public static class ConfigurationDevDataSeeder
             (Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"), "SESSION_TIMEOUT_MINUTES", "45", "Session timeout for Ransa logistics operations"),
             (Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"), "MFA_REQUIRED_FOR_ADMIN", "true", "Require MFA for Ransa admin users"),
             (Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"), "UI_CUSTOM_BRANDING_ENABLED", "true", "Enable custom branding for Ransa"),
+            (Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"), "AUTH_USE_EXTERNAL_IDP", "true", "Ransa uses external identity providers"),
 
             // APM_CALLAO (A3F5B9D2-7C3D-4C8E-A9B0-123456789ABC)
             (Guid.Parse("A3F5B9D2-7C3D-4C8E-A9B0-123456789ABC"), "SESSION_TIMEOUT_MINUTES", "20", "Short session timeout for APM port security"),
             (Guid.Parse("A3F5B9D2-7C3D-4C8E-A9B0-123456789ABC"), "MAX_LOGIN_ATTEMPTS", "3", "Strict login attempt limit for APM terminals"),
             (Guid.Parse("A3F5B9D2-7C3D-4C8E-A9B0-123456789ABC"), "MFA_REQUIRED_FOR_ADMIN", "true", "Require MFA for all APM users"),
+            (Guid.Parse("A3F5B9D2-7C3D-4C8E-A9B0-123456789ABC"), "AUTH_USE_EXTERNAL_IDP", "false", "APM Callao forces local authentication"),
 
             // NEPTUNIA (C9B736B4-6A84-48F8-B34D-176BC5A6D542)
             (Guid.Parse("C9B736B4-6A84-48F8-B34D-176BC5A6D542"), "SESSION_TIMEOUT_MINUTES", "60", "Extended session timeout for Neptunia industrial operations"),
             (Guid.Parse("C9B736B4-6A84-48F8-B34D-176BC5A6D542"), "MIN_PASSWORD_LENGTH", "14", "Extended password requirement for Neptunia"),
+            (Guid.Parse("C9B736B4-6A84-48F8-B34D-176BC5A6D542"), "AUTH_USE_EXTERNAL_IDP", "true", "Neptunia uses external identity providers"),
 
             // UNIMAR (5F4E3D2C-1B0A-9F8E-7D6C-543210987654) - Maritime university
             (Guid.Parse("5F4E3D2C-1B0A-9F8E-7D6C-543210987654"), "SESSION_TIMEOUT_MINUTES", "30", "Standard session timeout for university users"),
             (Guid.Parse("5F4E3D2C-1B0A-9F8E-7D6C-543210987654"), "MAX_LOGIN_ATTEMPTS", "5", "Standard login attempt limit"),
             (Guid.Parse("5F4E3D2C-1B0A-9F8E-7D6C-543210987654"), "MFA_REQUIRED_FOR_ADMIN", "false", "MFA optional for UNIMAR"),
+            (Guid.Parse("5F4E3D2C-1B0A-9F8E-7D6C-543210987654"), "AUTH_USE_EXTERNAL_IDP", "false", "Unimar forces local authentication"),
 
             // PAITA_PORT (9E8D7C6B-5A4F-3E2D-1C0B-9876543210FE) - Port authority
             (Guid.Parse("9E8D7C6B-5A4F-3E2D-1C0B-9876543210FE"), "SESSION_TIMEOUT_MINUTES", "15", "Short session for port security"),
             (Guid.Parse("9E8D7C6B-5A4F-3E2D-1C0B-9876543210FE"), "MAX_LOGIN_ATTEMPTS", "3", "Strict login attempts for port"),
             (Guid.Parse("9E8D7C6B-5A4F-3E2D-1C0B-9876543210FE"), "MFA_REQUIRED_FOR_ADMIN", "true", "Require MFA for port admins"),
+            (Guid.Parse("9E8D7C6B-5A4F-3E2D-1C0B-9876543210FE"), "AUTH_USE_EXTERNAL_IDP", "true", "Paita uses external identity providers"),
 
             // INTRADEVCO (F3E2D1C0-B9A8-7F6E-5D4C-321098765432) - Trading company
             (Guid.Parse("F3E2D1C0-B9A8-7F6E-5D4C-321098765432"), "SESSION_TIMEOUT_MINUTES", "40", "Extended session for trading operations"),
             (Guid.Parse("F3E2D1C0-B9A8-7F6E-5D4C-321098765432"), "MAX_LOGIN_ATTEMPTS", "5", "Standard login attempt limit"),
             (Guid.Parse("F3E2D1C0-B9A8-7F6E-5D4C-321098765432"), "MIN_PASSWORD_LENGTH", "10", "Standard password length"),
+            (Guid.Parse("F3E2D1C0-B9A8-7F6E-5D4C-321098765432"), "AUTH_USE_EXTERNAL_IDP", "true", "Intradevco uses external identity providers"),
         };
 
         foreach (var (tenantId, code, value, description) in tenantConfigs)

@@ -209,6 +209,16 @@ public static class IdentityDevDataSeeder
                 .Build();
             tenant.SetBranding(branding, actor);
         }
+        else if (code == "PAITA_PORT")
+        {
+            tenant.RegisterIdentityProvider(Code.Create("PAITA_IDP"), Name.Create("Paita Auth0"), Description.Create("Proveedor de identidad principal puerto"), IdpStrategy.Auth0, actor);
+            tenant.ActivateIdentityProvider(tenant.IdentityProviders.First().GetId(), actor);
+        }
+        else if (code == "INTRADEVCO")
+        {
+            tenant.RegisterIdentityProvider(Code.Create("INTRA_SAML"), Name.Create("Intradevco AD FS"), Description.Create("Servicio federado Intradevco"), IdpStrategy.Saml2, actor);
+            tenant.ActivateIdentityProvider(tenant.IdentityProviders.First().GetId(), actor);
+        }
 
         return tenant;
     }

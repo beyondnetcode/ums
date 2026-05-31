@@ -114,3 +114,13 @@ All frontend React screens must pass this automated and manual checklist prior t
 - `[ ]` **Keyboard Navigation:** Tab loops flow sequentially. Modals capture focus until closed.
 - `[ ]` **Visual Contrast:** All text content satisfies a minimum contrast ratio of 4.5:1 against backdrop panels.
 - `[ ]` **Focus Indicators:** Focus-visible states trigger solid high-contrast borders with no hidden outlines.
+
+---
+
+## 7. CQRS Architectural Notes and TODOs
+
+> [!IMPORTANT]
+> **REST vs GraphQL Migration Strategy (TODO):**
+> As decided, all CQRS query operations in frontend services are temporarily routed through REST endpoints (via `httpClient`) instead of GraphQL endpoints. This temporary measure is put in place to avoid active schema/infrastructure issues.
+> - **TODO:** Revisit GraphQL query performance and schema alignment at a later phase to migrate reads back to GraphQL where appropriate.
+> - **Affected components:** `userAccountService` and other core identity query wrappers.

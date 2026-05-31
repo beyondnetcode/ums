@@ -158,45 +158,36 @@ export const UserAccountListPanel: React.FC<UserAccountListPanelProps> = ({
 
   return (
     <div className="flex flex-col h-full gap-4">
-      <M3Card
-        variant="elevated"
-        className="flex-shrink-0 border border-m3-outline/25 bg-m3-surface-container/20 shadow-sm p-4"
-      >
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 bg-m3-primary/10 rounded-lg text-m3-primary border border-m3-primary/10 flex-shrink-0">
-              <Layers className="w-4 h-4" />
+      {onTenantChange && tenants && (
+        <div
+          className="flex-shrink-0 rounded-xl p-4 bg-m3-surface-container/20 border border-m3-outline/25 shadow-sm relative overflow-visible transition-all duration-300"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-m3-primary/10 rounded-lg text-m3-primary border border-m3-primary/10 flex-shrink-0">
+                <Layers className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="text-[11px] font-medium text-m3-secondary uppercase tracking-wider block">
+                  {t.activeTenant}
+                </span>
+                <span className="text-[11px] text-m3-secondary/70">
+                  {t.filterAccountsByTenant}
+                </span>
+              </div>
             </div>
-            <div>
-              <span className="text-[11px] font-medium text-m3-secondary uppercase tracking-wider block">
-                {t.activeTenant}
-              </span>
-              <span className="text-[11px] text-m3-secondary/70">
-                {onTenantChange ? t.filterAccountsByTenant : t.sessionTenantContext}
-              </span>
-            </div>
-          </div>
-          <div className="w-full sm:w-72">
-            {onTenantChange && tenants ? (
+            <div className="w-full sm:w-72">
               <TenantSelector
                 tenants={tenants}
                 selectedTenantId={selectedTenantId}
                 onTenantChange={onTenantChange}
                 label={t.activeTenant}
-                className="mb-0"
+                className="mb-0 text-left"
               />
-            ) : (
-              <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-m3-outline/30 bg-m3-surface-container/30">
-                <Building2 className="w-4 h-4 text-m3-primary" />
-                <span className="text-sm font-medium text-m3-on-surface">
-                  {sessionTenantName || selectedTenantId?.substring(0, 8) || 'No disponible'}
-                </span>
-                <span className="text-[10px] text-m3-secondary/60 ml-auto">Solo lectura</span>
-              </div>
-            )}
+            </div>
           </div>
         </div>
-      </M3Card>
+      )}
 
       <div className="flex-1 min-h-0">
         <DataViewShell

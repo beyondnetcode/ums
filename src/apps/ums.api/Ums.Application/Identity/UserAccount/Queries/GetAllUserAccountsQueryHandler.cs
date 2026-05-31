@@ -1,5 +1,6 @@
 using Ums.Application.Identity.UserAccount.DTOs;
 using Ums.Domain.Identity;
+using Ums.Application.Common.Interfaces;
 using static Ums.Application.Common.QueryRequestNormalizer;
 
 namespace Ums.Application.Identity.UserAccount.Queries;
@@ -8,11 +9,16 @@ public sealed class GetAllUserAccountsQueryHandler : IQueryHandler<GetAllUserAcc
 {
     private readonly IUserAccountRepository _userAccountRepository;
     private readonly IUserContext _userContext;
+    private readonly ITenantContext? _tenantContext;
 
-    public GetAllUserAccountsQueryHandler(IUserAccountRepository userAccountRepository, IUserContext userContext)
+    public GetAllUserAccountsQueryHandler(
+        IUserAccountRepository userAccountRepository,
+        IUserContext userContext,
+        ITenantContext? tenantContext = null)
     {
         _userAccountRepository = userAccountRepository;
         _userContext = userContext;
+        _tenantContext = tenantContext;
     }
 
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
@@ -29,10 +35,30 @@ public sealed class GetAllUserAccountsQueryHandler : IQueryHandler<GetAllUserAcc
         var sortOrder = NormalizeText(request.SortOrder, "asc").ToLowerInvariant();
         var search = NormalizeSearch(request.Search);
 
-        var effectiveTenantId = request.TenantId ?? (
-            !string.IsNullOrWhiteSpace(_userContext.TenantId) && Guid.TryParse(_userContext.TenantId, out var ctxTenantId)
-                ? ctxTenantId
-                : (Guid?)null);
+        var isInternalAdmin = _tenantContext?.IsInternalAdmin ?? false;
+        Guid? effectiveTenantId = null;
+
+        if (isInternalAdmin)
+        {
+            // Internal admin sees all users from all tenants if TenantId is null
+            effectiveTenantId = request.TenantId;
+            if (effectiveTenantId == null)
+            {
+                _tenantContext?.EnableCrossTenantAccess();
+            }
+            else
+            {
+                _tenantContext?.SetOrganizationId(effectiveTenantId.Value);
+            }
+        }
+        else
+        {
+            // Regular user is restricted to their own tenant
+            effectiveTenantId = request.TenantId ?? (
+                !string.IsNullOrWhiteSpace(_userContext.TenantId) && Guid.TryParse(_userContext.TenantId, out var ctxTenantId)
+                    ? ctxTenantId
+                    : (Guid?)null);
+        }
 
         var (userAccounts, totalItems) = await _userAccountRepository.GetPagedAsync(
             page, pageSize, search, status, sortBy, sortOrder,

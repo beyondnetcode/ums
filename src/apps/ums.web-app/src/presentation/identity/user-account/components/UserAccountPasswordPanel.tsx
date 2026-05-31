@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { KeyRound, ShieldCheck } from 'lucide-react';
 import { useSetUserAccountPassword } from '@app/identity/hooks/use-user-account';
+import { useGetAllAppConfigurations } from '@app/configuration/hooks/use-app-configuration';
 import { useI18n } from '@app/i18n/use-i18n';
 import { UserAccount } from '@domain/identity/models/user-account.model';
 import { InlineAddForm } from '@shared/components/InlineAddForm';
@@ -17,7 +18,18 @@ export const UserAccountPasswordPanel: React.FC<UserAccountPasswordPanelProps> =
   const [confirmation, setConfirmation] = useState('');
   const [validationError, setValidationError] = useState<string>();
   const mutation = useSetUserAccountPassword(account.userAccountId);
-  const isFederated = Boolean(account.identityReference);
+
+  const { data: configsPage } = useGetAllAppConfigurations({
+    page: 1,
+    pageSize: 50,
+    tenantId: account.tenantId,
+  });
+
+  const useExternalIdp = configsPage?.items?.some(
+    (c) => c.code === 'AUTH_USE_EXTERNAL_IDP' && c.value.toLowerCase() === 'true'
+  ) ?? false;
+
+  const isFederated = Boolean(account.identityReference) || useExternalIdp;
 
   const closeForm = () => {
     setIsOpen(false);

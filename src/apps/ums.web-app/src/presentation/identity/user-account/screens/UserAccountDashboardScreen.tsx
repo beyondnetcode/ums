@@ -21,6 +21,7 @@ export default function UserAccountDashboardScreen(): React.JSX.Element {
   const t = useI18n();
   const sessionTenantId = useAuthStore((state) => state.user?.tenantId);
   const sessionTenantName = useAuthStore((state) => state.user?.tenantName);
+  const isInternalAdmin = useAuthStore((state) => state.user?.isInternalAdmin);
   const dashboard = useUserAccountDashboard(sessionTenantId);
 
   const criteriaOptions: QueryCriteriaOption[] = [
@@ -119,9 +120,9 @@ export default function UserAccountDashboardScreen(): React.JSX.Element {
           criteriaOptions={criteriaOptions}
           filterOptions={filterOptions}
           sortOptions={sortOptions}
-          tenants={dashboard.tenants}
+          tenants={isInternalAdmin ? dashboard.tenants : undefined}
           selectedTenantId={dashboard.selectedTenantId}
-          onTenantChange={dashboard.setSelectedTenantId}
+          onTenantChange={isInternalAdmin ? dashboard.setSelectedTenantId : undefined}
           sessionTenantName={sessionTenantName}
           requiresFilter={dashboard.requiresFilter}
         />

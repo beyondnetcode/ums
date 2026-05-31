@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, Shield, Key, LayoutGrid } from 'lucide-react';
 import { UserAccount } from '@domain/identity/models/user-account.model';
 import { UserAccountProfileCard } from './UserAccountProfileCard';
@@ -6,6 +6,7 @@ import { UserAccountPasswordPanel } from './UserAccountPasswordPanel';
 import { DetailPanelShell, EmptyDetailState, StatusBadge } from '@shared/components';
 import type { DetailTab } from '@shared/components/DetailPanelShell';
 import { useI18n } from '@app/i18n/use-i18n';
+import { useGetAllAppConfigurations } from '@app/configuration/hooks/use-app-configuration';
 
 type UserAccountTab = 'overview' | 'permissions' | 'credentials';
 
@@ -29,10 +30,27 @@ export const UserAccountDetailPanel: React.FC<UserAccountDetailPanelProps> = ({
   const t = useI18n();
   const [activeTab, setActiveTab] = useState<UserAccountTab>('overview');
 
+  const { data: configsPage } = useGetAllAppConfigurations({
+    page: 1,
+    pageSize: 50,
+    tenantId: activeAccount?.tenantId,
+  });
+
+  const configItem = configsPage?.items?.find((c) => c.code === 'AUTH_USE_EXTERNAL_IDP');
+  const useExternalIdp = configItem?.value?.toLowerCase() === 'true';
+
+  useEffect(() => {
+    if (useExternalIdp && activeTab === 'credentials') {
+      setActiveTab('overview');
+    }
+  }, [useExternalIdp, activeTab]);
+
   const tabs: DetailTab<UserAccountTab>[] = [
     { key: 'overview', label: t.overview, icon: <User className="w-3.5 h-3.5" /> },
     { key: 'permissions', label: t.permissions, icon: <Shield className="w-3.5 h-3.5" /> },
-    { key: 'credentials', label: t.credentials, icon: <Key className="w-3.5 h-3.5" /> },
+    ...(!useExternalIdp
+      ? [{ key: 'credentials', label: t.credentials, icon: <Key className="w-3.5 h-3.5" /> }]
+      : []),
   ];
 
   if (isLoading) {

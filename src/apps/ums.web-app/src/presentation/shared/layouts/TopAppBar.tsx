@@ -70,8 +70,13 @@ export const TopAppBar: React.FC<{ onToggleNav: () => void }> = ({ onToggleNav }
 
         <div className="flex items-center gap-3">
           {user && (
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-m3-primary-container/20 rounded-xl border border-m3-primary-container/30 text-[11px] font-medium text-m3-primary">
-              <span>{t.devUser} {user.username}</span>
+            <div className="flex items-center gap-2">
+              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-m3-primary-container/20 rounded-xl border border-m3-primary-container/30 text-[11px] font-medium text-m3-primary">
+                <span>{t.devUser} {user.username}</span>
+              </div>
+              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/30 rounded-xl border border-indigo-200 dark:border-indigo-800 text-[11px] font-semibold text-indigo-600 dark:text-indigo-400">
+                <span>{user.isInternalAdmin ? 'Admin Local' : (user.tenantName || 'Tenant N/A')}</span>
+              </div>
             </div>
           )}
 

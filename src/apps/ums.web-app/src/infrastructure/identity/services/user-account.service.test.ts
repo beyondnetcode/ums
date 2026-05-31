@@ -5,6 +5,7 @@ import * as graphqlQueriesModule from '@infra/identity/queries/user-account.grap
 
 vi.mock('@infra/http/httpClient', () => ({
   httpClient: {
+    get: vi.fn(),
     post: vi.fn(),
   },
 }));
@@ -18,6 +19,7 @@ vi.mock('@infra/identity/queries/user-account.graphql', () => ({
 
 describe('userAccountService', () => {
   beforeEach(() => {
+    vi.mocked(httpClientModule.httpClient.get).mockClear();
     vi.mocked(httpClientModule.httpClient.post).mockClear();
     vi.mocked(graphqlQueriesModule.graphqlQueries.getUserAccounts).mockClear();
     vi.mocked(graphqlQueriesModule.graphqlQueries.getUserAccountById).mockClear();
@@ -25,8 +27,8 @@ describe('userAccountService', () => {
 
   describe('getAll', () => {
     it('returns parsed user accounts page', async () => {
-      vi.mocked(graphqlQueriesModule.graphqlQueries.getUserAccounts).mockResolvedValue({
-        userAccounts: {
+      vi.mocked(httpClientModule.httpClient.get).mockResolvedValue({
+        data: {
           items: [],
           page: 1,
           pageSize: 20,
@@ -42,8 +44,8 @@ describe('userAccountService', () => {
     });
 
     it('uses default pagination', async () => {
-      vi.mocked(graphqlQueriesModule.graphqlQueries.getUserAccounts).mockResolvedValue({
-        userAccounts: {
+      vi.mocked(httpClientModule.httpClient.get).mockResolvedValue({
+        data: {
           items: [],
           page: 1,
           pageSize: 20,
@@ -54,14 +56,17 @@ describe('userAccountService', () => {
 
       await userAccountService.getAll();
 
-      expect(graphqlQueriesModule.graphqlQueries.getUserAccounts).toHaveBeenCalledWith(
-        expect.objectContaining({ page: 1, pageSize: 20 }),
+      expect(httpClientModule.httpClient.get).toHaveBeenCalledWith(
+        '/user-accounts',
+        expect.objectContaining({
+          params: expect.objectContaining({ page: 1, pageSize: 20 }),
+        }),
       );
     });
 
     it('passes custom pagination', async () => {
-      vi.mocked(graphqlQueriesModule.graphqlQueries.getUserAccounts).mockResolvedValue({
-        userAccounts: {
+      vi.mocked(httpClientModule.httpClient.get).mockResolvedValue({
+        data: {
           items: [],
           page: 2,
           pageSize: 10,
@@ -72,24 +77,19 @@ describe('userAccountService', () => {
 
       await userAccountService.getAll({ page: 2, pageSize: 10 });
 
-      expect(graphqlQueriesModule.graphqlQueries.getUserAccounts).toHaveBeenCalledWith(
-        expect.objectContaining({ page: 2, pageSize: 10 }),
+      expect(httpClientModule.httpClient.get).toHaveBeenCalledWith(
+        '/user-accounts',
+        expect.objectContaining({
+          params: expect.objectContaining({ page: 2, pageSize: 10 }),
+        }),
       );
     });
   });
 
   describe('getById', () => {
-    it('throws when user account not found', async () => {
-      vi.mocked(graphqlQueriesModule.graphqlQueries.getUserAccountById).mockResolvedValue({
-        userAccountById: null,
-      });
-
-      await expect(userAccountService.getById('3fa85f64-5717-4562-b3fc-2c963f66afa6')).rejects.toThrow('User account not found');
-    });
-
     it('returns parsed user account', async () => {
-      vi.mocked(graphqlQueriesModule.graphqlQueries.getUserAccountById).mockResolvedValue({
-        userAccountById: {
+      vi.mocked(httpClientModule.httpClient.get).mockResolvedValue({
+        data: {
           userAccountId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
           tenantId: '3fa85f64-5717-4562-b3fc-2c963f66afa7',
           branchId: null,
