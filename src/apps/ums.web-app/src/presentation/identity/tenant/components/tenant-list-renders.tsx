@@ -67,9 +67,9 @@ export const renderTenantParentRow = (
         },
       ]}
     >
-      <span className="text-sm font-semibold text-m3-on-surface line-clamp-1">{tenant.name}</span>
+      <span className="text-[12px] font-medium text-m3-on-surface line-clamp-1">{tenant.name}</span>
       {tenant.companyReference && (
-        <span className="text-[10px] text-m3-secondary/60 line-clamp-1 mt-0.5">
+        <span className="text-[11px] text-m3-secondary/60 line-clamp-1 mt-0.5">
           {tenant.companyReference}
         </span>
       )}
@@ -116,9 +116,9 @@ export const renderTenantChildRow = (
         },
       ]}
     >
-      <span className="text-sm font-medium text-m3-on-surface line-clamp-1">{child.name}</span>
+      <span className="text-[12px] font-medium text-m3-on-surface line-clamp-1">{child.name}</span>
       {child.companyReference && (
-        <span className="text-xs text-m3-secondary/60 line-clamp-1 mt-0.5">
+        <span className="text-[11px] text-m3-secondary/60 line-clamp-1 mt-0.5">
           {child.companyReference}
         </span>
       )}
@@ -159,8 +159,8 @@ export const renderTenantParentCard = (
             <Building2 className="w-5 h-5" />
           </div>
           <div className="flex-1 min-w-0">
-            <h4 className="text-sm font-medium text-m3-on-surface line-clamp-1">{tenant.name}</h4>
-            <p className="font-mono text-xs text-m3-secondary/70 mt-0.5">{tenant.code}</p>
+            <h4 className="text-[12px] font-medium text-m3-on-surface line-clamp-1">{tenant.name}</h4>
+            <p className="font-mono text-[11px] text-m3-secondary/70 mt-0.5">{tenant.code}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -178,7 +178,7 @@ export const renderTenantParentCard = (
           )}
         </div>
       </div>
-      <div className="mt-4 pt-3 border-t border-m3-outline/10 grid grid-cols-2 gap-2 text-xs">
+      <div className="mt-4 pt-3 border-t border-m3-outline/10 grid grid-cols-2 gap-2 text-[11px]">
         <div>
           <p className="text-m3-secondary font-medium">{t.colCategory}</p>
           <p className="font-medium text-m3-on-surface mt-0.5">{tenant.type}</p>
@@ -191,7 +191,7 @@ export const renderTenantParentCard = (
         </div>
       </div>
       {hasChildren && (
-        <div className="mt-2 text-[10px] text-m3-secondary/60">
+        <div className="mt-2 text-[11px] text-m3-secondary/60">
           {children.length} {children.length === 1 ? t.tenant : t.tenants}
         </div>
       )}
@@ -224,13 +224,13 @@ export const renderTenantChildCard = (
           <Building2 className="w-4 h-4" />
         </div>
         <div>
-          <h4 className="text-xs font-medium text-m3-on-surface">{child.name}</h4>
-          <p className="font-mono text-[10px] text-m3-secondary/60 mt-0.5">{child.code}</p>
+          <h4 className="text-[12px] font-medium text-m3-on-surface">{child.name}</h4>
+          <p className="font-mono text-[11px] text-m3-secondary/60 mt-0.5">{child.code}</p>
         </div>
       </div>
       <StatusBadge status={child.status} label={statusLabel(child.status)} />
     </div>
-    <div className="mt-3 pt-2 border-t border-m3-outline/10 grid grid-cols-2 gap-2 text-[10px]">
+    <div className="mt-3 pt-2 border-t border-m3-outline/10 grid grid-cols-2 gap-2 text-[11px]">
       <div>
         <p className="text-m3-secondary font-medium">{t.colCategory}</p>
         <p className="font-medium text-m3-on-surface mt-0.5">{child.type}</p>

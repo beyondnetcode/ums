@@ -4,6 +4,7 @@ import { useAddMenu, useRemoveMenu, useActivateModule, useDeactivateModule } fro
 import { InlineAddForm } from '@shared/components/InlineAddForm';
 import { IconButton } from '@shared/components/Tooltip';
 import { CodeBadge } from '@shared/components/CodeBadge';
+import { StatusBadge } from '@shared/components/StatusBadge';
 import { M3TextField } from '@shared/components/M3TextField';
 import { formatSystemCode } from '@app/utils/security';
 import { MenuRow } from './MenuRow';
@@ -93,9 +94,7 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full ${module.status === 'Active' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'}`}>
-            {module.status}
-          </span>
+          <StatusBadge status={module.status} label={module.status} />
           <span className="text-xs text-m3-secondary">Ord: {module.sortOrder}</span>
           <div className="flex items-center gap-0.5 opacity-0 group-hover/module:opacity-100 transition-opacity">
             {module.status === 'Active' ? (

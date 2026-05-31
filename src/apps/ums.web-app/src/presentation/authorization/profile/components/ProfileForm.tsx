@@ -169,14 +169,14 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenan
   const renderPermissionList = (items: { p: LocalPermissionState; idx: number }[]) => (
     <div className="divide-y divide-m3-outline/5 h-full overflow-y-auto px-1">
       {items.length === 0 && (
-        <div className="py-6 text-center text-xs text-m3-on-surface/50">No hay permisos de este tipo.</div>
+        <div className="py-6 text-center text-[12px] text-m3-on-surface/50">No hay permisos de este tipo.</div>
       )}
       {items.map(({ p, idx }) => (
-        <div key={idx} className="flex flex-col md:flex-row md:items-center justify-between gap-3 px-3 py-2 text-xs hover:bg-m3-surface-container/30 transition-colors">
+        <div key={idx} className="flex flex-col md:flex-row md:items-center justify-between gap-3 px-3 py-2 text-[11px] hover:bg-m3-surface-container/30 transition-colors">
           <div className="flex flex-col gap-0.5">
             <div className="flex items-center gap-1.5">
               <span className="font-semibold text-m3-on-surface">{p.targetName}</span>
-              <span className="text-[9px] uppercase font-bold text-m3-primary bg-m3-primary/10 px-1.5 py-0.2 rounded border border-m3-primary/20">
+              <span className="text-[10px] uppercase font-semibold text-m3-primary bg-m3-primary/10 px-2 py-0.5 rounded-full border border-m3-primary/20">
                 {p.targetType}
               </span>
             </div>
@@ -249,7 +249,7 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenan
     >
       <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-4">
         {error && (
-          <div className="flex items-center gap-2 rounded-lg bg-m3-error-container/30 p-3 text-xs text-m3-error border border-m3-error/20">
+          <div className="flex items-center gap-2 rounded-lg bg-m3-error-container/30 p-3 text-[12px] text-m3-error border border-m3-error/20">
             <ShieldAlert className="w-4 h-4 flex-shrink-0" />
             <span>{error}</span>
           </div>
@@ -257,8 +257,8 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenan
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-m3-on-surface/70 ml-1">Inquilino (Tenant)</label>
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-m3-outline/30 bg-m3-surface-container/30 text-sm">
+            <label className="text-[11px] font-medium text-m3-on-surface/70 ml-1">Inquilino (Tenant)</label>
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-m3-outline/30 bg-m3-surface-container/30 text-[12px]">
               <Building2 className="w-4 h-4 text-m3-primary" />
               <span className="font-medium text-m3-on-surface">{sessionTenantName || 'No disponible'}</span>
               <span className="text-[10px] text-m3-secondary/60 font-mono ml-auto">{effectiveTenantId?.substring(0, 8)}...</span>
@@ -311,17 +311,17 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenan
         {templateId && (
           <div className="mt-4 rounded-xl border border-m3-outline/20 bg-m3-surface-container/20 overflow-hidden">
             <div className="border-b border-m3-outline/10 bg-m3-surface-container/40 px-4 py-2.5 flex items-center justify-between">
-              <span className="text-xs font-semibold text-m3-on-surface">Vista Previa Local de Permisos (Sin Persistir)</span>
+              <span className="text-[12px] font-medium text-m3-on-surface">Vista Previa Local de Permisos (Sin Persistir)</span>
               <span className="text-[10px] text-amber-500 font-bold bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">Edición en Caliente</span>
             </div>
 
             {loadingTemplateDetail ? (
               <div className="flex flex-col items-center justify-center py-10 gap-2">
                 <Loader2 className="w-6 h-6 animate-spin text-m3-primary" />
-                <span className="text-xs text-m3-on-surface/60">Cargando árbol de permisos...</span>
+                <span className="text-[12px] text-m3-on-surface/60">Cargando árbol de permisos...</span>
               </div>
             ) : localPermissions.length === 0 ? (
-              <div className="py-6 text-center text-xs text-m3-on-surface/50">La plantilla seleccionada no posee permisos asociados.</div>
+              <div className="py-6 text-center text-[12px] text-m3-on-surface/50">La plantilla seleccionada no posee permisos asociados.</div>
             ) : (
               <div className="flex flex-col h-[350px]">
                 <M3Tabs

@@ -44,7 +44,7 @@ export const EmptyState: React.FC<EmptyStateProps> = React.memo(
           )}
           {title && (
             <div className="flex items-center justify-center gap-1.5 mb-1">
-              <h4 className="text-xs font-semibold text-m3-on-surface">{title}</h4>
+              <h4 className="text-[12px] font-medium text-m3-on-surface">{title}</h4>
               {tooltip && (
                 <Tooltip content={tooltip}>
                   <Info className="w-3.5 h-3.5 text-m3-secondary/60 hover:text-m3-primary cursor-help transition-colors" />
@@ -52,7 +52,7 @@ export const EmptyState: React.FC<EmptyStateProps> = React.memo(
               )}
             </div>
           )}
-          <p className="text-xs text-m3-secondary/70 leading-relaxed max-w-xs">{message}</p>
+          <p className="text-[12px] text-m3-secondary/70 leading-relaxed max-w-xs">{message}</p>
         </M3Card>
       );
     }

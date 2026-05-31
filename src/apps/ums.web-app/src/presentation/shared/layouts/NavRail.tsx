@@ -80,14 +80,14 @@ export const NavRail: React.FC<NavRailProps> = ({ collapsed }) => {
                       key={tab.id}
                       onClick={() => navigate(NAV_ROUTES[tab.id])}
                       onMouseOver={() => prefetchById(tab.id)}
-                      className={`p-3.5 rounded-2xl transition-all duration-200 text-center ${
+                      className={`p-2.5 rounded-xl transition-all duration-200 text-center ${
                         isActive
-                          ? 'bg-m3-primary-container text-m3-on-primary-container font-extrabold elevation-1'
+                          ? 'bg-m3-primary-container text-m3-on-primary-container font-semibold'
                           : 'text-m3-secondary hover:bg-m3-primary/10 hover:text-m3-primary'
                       }`}
                       title={(t as Record<string, string>)[tab.nameKey] ?? tab.nameKey}
                     >
-                      <span className={isActive ? 'text-m3-primary scale-110' : ''}>
+                      <span className={isActive ? 'text-m3-primary' : ''}>
                         {tab.icon}
                       </span>
                     </button>
@@ -112,18 +112,18 @@ export const NavRail: React.FC<NavRailProps> = ({ collapsed }) => {
                   onClick={() => toggleModule(mod.key)}
                   aria-expanded={isExpanded}
                   aria-controls={`nav-module-${mod.key}`}
-                  className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-m3-primary/5 transition-all text-left"
+                  className="w-full flex items-center justify-between px-2.5 py-2 rounded-lg hover:bg-m3-primary/5 transition-all text-left"
                 >
-                  <div className="flex items-center gap-2.5">
+                  <div className="flex items-center gap-2">
                     {mod.icon}
-                    <span className="text-xs font-semibold text-m3-on-surface/80">
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-m3-on-surface/70">
                       {(t as Record<string, string>)[mod.nameKey] ?? mod.nameKey}
                     </span>
                   </div>
                   {isExpanded ? (
-                    <ChevronDown className="w-4 h-4 text-m3-secondary transition-transform duration-200" />
+                    <ChevronDown className="w-3.5 h-3.5 text-m3-secondary transition-transform duration-200" />
                   ) : (
-                    <ChevronRight className="w-4 h-4 text-m3-secondary transition-transform duration-200" />
+                    <ChevronRight className="w-3.5 h-3.5 text-m3-secondary transition-transform duration-200" />
                   )}
                 </button>
 
@@ -139,13 +139,13 @@ export const NavRail: React.FC<NavRailProps> = ({ collapsed }) => {
                           key={tab.id}
                           onClick={() => navigate(NAV_ROUTES[tab.id])}
                           onMouseOver={() => prefetchById(tab.id)}
-                          className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-150 text-left font-medium text-sm ${
+                          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all duration-150 text-left font-medium text-[12px] ${
                             isActive
-                              ? 'bg-m3-primary-container text-m3-on-primary-container font-extrabold elevation-1'
+                              ? 'bg-m3-primary-container text-m3-on-primary-container font-semibold'
                               : 'text-m3-secondary hover:bg-m3-primary/10 hover:text-m3-primary'
                           }`}
                         >
-                          <span className={isActive ? 'text-m3-primary' : 'text-m3-secondary'}>
+                          <span className={isActive ? 'text-m3-primary' : 'text-m3-secondary/70'}>
                             {tab.icon}
                           </span>
                           <span>{(t as Record<string, string>)[tab.nameKey] ?? tab.nameKey}</span>

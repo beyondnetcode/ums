@@ -180,61 +180,75 @@ export const TenantProfileCard: React.FC<TenantProfileCardProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center justify-between text-xs">
+            <div className="flex items-center justify-between text-[11px]">
               <div className="flex items-center gap-1.5 text-m3-secondary font-medium">
                 <Sliders className="w-3.5 h-3.5" />
                 <span>{t.stateControls}</span>
               </div>
               {tenant.status === 'Active' ? (
-                <M3Button
-                  variant="outlined"
+                <button
+                  type="button"
                   onClick={() => handleToggleStatus('Suspended')}
-                  loading={isPendingMutation}
-                  className="text-rose-500 border-rose-500/30 hover:bg-rose-500/10"
+                  disabled={isPendingMutation}
+                  className="h-7 px-3 rounded-full border border-rose-500/30 text-rose-500 text-[11px] font-medium flex items-center gap-1.5 hover:bg-rose-500/10 transition-colors disabled:opacity-50"
                 >
-                  <ShieldAlert className="w-3.5 h-3.5 mr-1.5" /> {t.suspendBtn}
-                </M3Button>
+                  <ShieldAlert className="w-3 h-3" />
+                  {t.suspendBtn}
+                </button>
               ) : (
-                <M3Button
-                  variant="filled"
+                <button
+                  type="button"
                   onClick={() => handleToggleStatus('Active')}
-                  loading={isPendingMutation}
-                  className="bg-emerald-600 hover:bg-emerald-500"
+                  disabled={isPendingMutation}
+                  className="h-7 px-3 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-medium flex items-center gap-1.5 transition-colors disabled:opacity-50"
                 >
-                  <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" /> {t.activateBtn}
-                </M3Button>
+                  <CheckCircle2 className="w-3 h-3" />
+                  {t.activateBtn}
+                </button>
               )}
             </div>
 
             <p className="text-xs text-m3-secondary/50 mt-3 text-center">{t.doubleClickToEdit}</p>
           </>
         ) : (
-          /* Tenant inline-edit form */
-          <div className="space-y-0 animate-fadeIn">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-sm font-medium text-m3-primary flex items-center gap-1.5">
-                <Pencil className="w-3.5 h-3.5" /> {t.editTenant}
+          <div className="animate-fadeIn">
+            <div className="flex items-center justify-between mb-2.5 pb-1.5 border-b border-m3-outline/10">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-m3-primary flex items-center gap-1">
+                <Pencil className="w-2.5 h-2.5" /> {t.editTenant}
               </span>
-              <IconButton tooltip={t.cancelEdit} onClick={cancelTenantEdit}>
-                <X className="w-3.5 h-3.5" />
-              </IconButton>
+              <button
+                type="button"
+                onClick={cancelTenantEdit}
+                className="p-0.5 rounded text-m3-secondary/60 hover:text-m3-primary hover:bg-m3-primary/10 transition-colors"
+              >
+                <X className="w-3 h-3" />
+              </button>
             </div>
 
-            <M3TextField label={t.tenantName} required value={edit.draft.name ?? ''} onChange={(e) => edit.setField('name', e.target.value)} />
-            <M3TextField label={t.tenantCode} required value={edit.draft.code ?? ''} onChange={(e) => edit.setField('code', e.target.value.toUpperCase())} />
-            <M3TextField label={t.companyReference} value={edit.draft.companyReference ?? ''} onChange={(e) => edit.setField('companyReference', e.target.value)} />
+            <div className="space-y-3">
+              <M3TextField label={t.tenantName} required value={edit.draft.name ?? ''} onChange={(e) => edit.setField('name', e.target.value)} compact />
+              <M3TextField label={t.tenantCode} required value={edit.draft.code ?? ''} onChange={(e) => edit.setField('code', e.target.value.toUpperCase())} compact />
+              <M3TextField label={t.companyReference} value={edit.draft.companyReference ?? ''} onChange={(e) => edit.setField('companyReference', e.target.value)} compact />
+              <M3Select label={t.tenantType} value={edit.draft.type ?? ''} onChange={(e) => edit.setField('type', e.target.value)} compact>
+                {TENANT_TYPES.map((tp) => <option key={tp} value={tp}>{tp}</option>)}
+              </M3Select>
+            </div>
 
-            <M3Select label={t.tenantType} value={edit.draft.type ?? ''} onChange={(e) => edit.setField('type', e.target.value)}>
-              {TENANT_TYPES.map((tp) => <option key={tp} value={tp}>{tp}</option>)}
-            </M3Select>
-
-            <div className="flex gap-2 pt-1">
-              <M3Button variant="filled" onClick={saveTenantEdit} className="flex-1 flex items-center justify-center gap-1.5">
-                <Save className="w-3.5 h-3.5" /> {t.saveBtn}
-              </M3Button>
-              <M3Button variant="outlined" onClick={cancelTenantEdit} className="flex-1">
+            <div className="flex justify-end gap-2 mt-2.5 pt-2 border-t border-m3-outline/10">
+              <button
+                type="button"
+                onClick={saveTenantEdit}
+                className="h-7 px-4 rounded-full bg-m3-primary text-white text-[10px] font-medium flex items-center justify-center gap-1.5 hover:bg-m3-primary/90 transition-colors"
+              >
+                <Save className="w-2.5 h-2.5" /> {t.saveBtn}
+              </button>
+              <button
+                type="button"
+                onClick={cancelTenantEdit}
+                className="h-7 px-3 rounded-full border border-m3-outline/30 text-m3-secondary text-[10px] font-medium hover:bg-m3-surface-variant transition-colors"
+              >
                 {t.cancelEdit}
-              </M3Button>
+              </button>
             </div>
           </div>
         )}

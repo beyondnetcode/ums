@@ -307,7 +307,7 @@ export const TenantConfigurationsPanel: React.FC<TenantConfigurationsPanelProps>
           />
           <div className="border border-m3-outline/20 rounded-lg overflow-hidden max-h-[250px] overflow-y-auto">
             {pickerLoading ? (
-              <div className="p-4 text-center text-xs text-m3-secondary">
+              <div className="p-4 text-center text-[12px] text-m3-secondary">
                 {t.loading ?? 'Cargando...'}
               </div>
             ) : pickerParams.length === 0 ? (
@@ -344,11 +344,11 @@ export const TenantConfigurationsPanel: React.FC<TenantConfigurationsPanelProps>
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-[11px] font-medium">{param.name}</span>
+                        <span className="text-[12px] font-medium">{param.name}</span>
                         <CodeBadge code={param.code} size="xs" />
                       </div>
                       {param.description && (
-                        <span className="text-[10px] text-m3-secondary truncate block">
+                        <span className="text-[11px] text-m3-secondary truncate block">
                           {param.description}
                         </span>
                       )}
@@ -446,7 +446,7 @@ export const TenantConfigurationsPanel: React.FC<TenantConfigurationsPanelProps>
                     {scopeIcons[config.scope] ?? (
                       <Building2 className="w-3.5 h-3.5 text-green-500" />
                     )}
-                    <span className="text-[11px] font-semibold text-m3-on-surface truncate">
+                    <span className="text-[12px] font-medium text-m3-on-surface truncate">
                       {config.code}
                     </span>
                     <CodeBadge code={config.scope} size="xs" />
@@ -502,7 +502,7 @@ export const TenantConfigurationsPanel: React.FC<TenantConfigurationsPanelProps>
                       </div>
                     ) : (
                       <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] text-m3-secondary">{t.value ?? 'Value'}:</span>
+                        <span className="text-[11px] text-m3-secondary">{t.value ?? 'Value'}:</span>
                         <ConfigValueDisplay value={config.value} />
                       </div>
                     )}
@@ -532,7 +532,7 @@ export const TenantConfigurationsPanel: React.FC<TenantConfigurationsPanelProps>
                     {scopeIcons[config.scope] ?? (
                       <Building2 className="w-3.5 h-3.5 text-green-500" />
                     )}
-                    <span className="text-[11px] font-semibold truncate">{config.code}</span>
+                    <span className="text-[12px] font-medium truncate">{config.code}</span>
                   </div>
                   <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                     <IconButton
@@ -566,7 +566,7 @@ export const TenantConfigurationsPanel: React.FC<TenantConfigurationsPanelProps>
                   <ConfigValueDisplay value={config.value} />
                 </div>
                 {config.description && (
-                  <p className="text-[10px] text-m3-secondary truncate">{config.description}</p>
+                  <p className="text-[11px] text-m3-secondary truncate">{config.description}</p>
                 )}
                 {selectedId === config.appConfigurationId && (
                   <div className="mt-2 pt-2 border-t border-m3-outline/10">

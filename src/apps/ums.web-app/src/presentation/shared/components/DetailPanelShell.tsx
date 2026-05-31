@@ -76,7 +76,7 @@ export function DetailPanelShell<T extends string = string>({
         className="flex flex-col items-center justify-center min-h-[200px] border border-m3-outline/20 bg-m3-surface-container/10"
       >
         <RefreshCw className="w-6 h-6 animate-spin text-m3-primary mb-3" />
-        <p className="text-xs text-m3-secondary">{loadingLabel}</p>
+        <p className="text-[12px] text-m3-secondary">{loadingLabel}</p>
       </M3Card>
     );
   }
@@ -87,7 +87,7 @@ export function DetailPanelShell<T extends string = string>({
         variant="elevated"
         className="flex flex-col items-center justify-center min-h-[200px] border border-m3-outline/20 bg-m3-surface-container/10"
       >
-        <p className="text-xs text-m3-secondary/60">{emptyLabel}</p>
+        <p className="text-[12px] text-m3-secondary/60">{emptyLabel}</p>
       </M3Card>
     );
   }
@@ -98,7 +98,7 @@ export function DetailPanelShell<T extends string = string>({
       {(title || subtitle || headerActions) && (
         <div className="flex items-start justify-between gap-4 px-1">
           <div className="flex-1 min-w-0">
-            {title && <h2 className="text-sm font-semibold text-m3-on-surface">{title}</h2>}
+            {title && <h2 className="text-[12px] font-semibold text-m3-on-surface">{title}</h2>}
             {subtitle && <p className="text-[11px] text-m3-secondary mt-0.5">{subtitle}</p>}
           </div>
           {headerActions && <div className="shrink-0">{headerActions}</div>}

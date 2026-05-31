@@ -198,7 +198,7 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
         onTabChange={setActiveTab}
         header={
           <div className="flex items-center justify-center h-32">
-            <p className="text-sm text-m3-secondary">
+            <p className="text-[12px] text-m3-secondary">
               {t.selectSystemSuiteToView || 'Select system suite'}
             </p>
           </div>
@@ -230,11 +230,11 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
         {/* ── Overview ── */}
         {activeTab === 'overview' && (
           <div>
-            <h3 className="text-sm font-medium text-m3-on-surface mb-2">{t.systemSuiteDetails}</h3>
-            <dl className="space-y-2 text-sm">
+            <h3 className="text-[12px] font-medium text-m3-on-surface mb-2">{t.systemSuiteDetails}</h3>
+            <dl className="space-y-2 text-[11px]">
               <div className="flex justify-between">
                 <dt className="text-m3-secondary">{t.code}</dt>
-                <dd className="text-m3-on-surface font-mono text-xs">{activeSystemSuite.code}</dd>
+                <dd className="text-m3-on-surface font-mono">{activeSystemSuite.code}</dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-m3-secondary">{t.name}</dt>
@@ -362,7 +362,7 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
                 return (
                   <div className="flex flex-col items-center justify-center p-8 text-center border border-dashed border-m3-outline/25 rounded-xl bg-m3-surface-container/10 animate-fadeIn">
                     <Shield className="w-8 h-8 text-m3-secondary/50 mb-2" />
-                    <p className="text-sm font-medium text-m3-on-surface">
+                    <p className="text-[12px] font-medium text-m3-on-surface">
                       {t.noModulesConfigured}
                     </p>
                   </div>
@@ -372,7 +372,7 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
               if (filteredModules.length === 0) {
                 return (
                   <div className="flex flex-col items-center justify-center p-6 text-center border border-dashed border-m3-outline/25 rounded-xl bg-m3-surface-container/10 animate-fadeIn">
-                    <p className="text-sm font-medium text-m3-on-surface">
+                    <p className="text-[12px] font-medium text-m3-on-surface">
                       No hay módulos que coincidan con el filtro
                     </p>
                   </div>
@@ -511,7 +511,7 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
                 return (
                   <div className="flex flex-col items-center justify-center p-8 text-center border border-dashed border-m3-outline/25 rounded-xl bg-m3-surface-container/10 animate-fadeIn">
                     <Key className="w-8 h-8 text-m3-secondary/50 mb-2" />
-                    <p className="text-sm font-medium text-m3-on-surface">
+                    <p className="text-[12px] font-medium text-m3-on-surface">
                       {t.noActionsConfigured}
                     </p>
                   </div>
@@ -532,7 +532,7 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
                           </div>
                           <div className="flex-1 min-w-0">
                             <p
-                              className="text-xs font-semibold text-m3-on-surface truncate"
+                              className="text-[12px] font-medium text-m3-on-surface truncate"
                               title={action.name}
                             >
                               {action.name}
@@ -569,7 +569,7 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
                         </div>
                         <div className="flex-1 min-w-0">
                           <p
-                            className="text-xs font-semibold text-m3-on-surface truncate"
+                            className="text-[12px] font-medium text-m3-on-surface truncate"
                             title={action.name}
                           >
                             {action.name}

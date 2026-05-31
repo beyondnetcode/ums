@@ -46,7 +46,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             value={activeFilter}
             onChange={(e) => onFilterChange(e.target.value)}
             aria-label="Filter"
-            className="h-7 px-2 rounded border border-m3-outline/20 bg-m3-surface text-[11px] text-m3-on-surface focus:outline-none focus:border-m3-primary/40 cursor-pointer"
+            className="h-7 px-2 rounded border border-m3-outline/20 bg-m3-surface text-[12px] text-m3-on-surface focus:outline-none focus:border-m3-primary/40 cursor-pointer"
           >
             {filterOptions?.map((f) => (
               <option key={f.value} value={f.value}>{f.label}</option>
@@ -73,7 +73,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             value={activeSort}
             onChange={(e) => onSortChange(e.target.value)}
             aria-label="Sort by"
-            className="h-7 px-2 rounded border border-m3-outline/20 bg-m3-surface text-[11px] text-m3-on-surface focus:outline-none focus:border-m3-primary/40 cursor-pointer"
+            className="h-7 px-2 rounded border border-m3-outline/20 bg-m3-surface text-[12px] text-m3-on-surface focus:outline-none focus:border-m3-primary/40 cursor-pointer"
           >
             {sortOptions?.map((s) => (
               <option key={s.value} value={s.value}>{s.label}</option>

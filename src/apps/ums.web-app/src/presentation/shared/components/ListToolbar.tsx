@@ -57,7 +57,7 @@ const SelectField: React.FC<{
   <select
     value={value}
     onChange={onChange}
-    className={`h-8 pl-2.5 pr-8 rounded-md border border-m3-outline/30 bg-m3-surface text-xs font-medium
+    className={`h-8 pl-2.5 pr-8 rounded-md border border-m3-outline/30 bg-m3-surface text-[12px] font-medium
       text-m3-secondary cursor-pointer appearance-none bg-no-repeat
       hover:border-m3-outline/50 focus:outline-none focus:ring-1 focus:ring-m3-primary/40 transition-colors
       ${className}`}
@@ -123,7 +123,7 @@ export const ListToolbar: React.FC<ListToolbarProps> = ({
       {/* Header row: always visible */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-m3-outline/10">
         <div className="flex items-center gap-3">
-          <span className="text-xs font-semibold text-m3-on-surface">
+          <span className="text-[12px] font-medium text-m3-on-surface">
             {itemCount} {itemLabel}
             {itemCount !== 1 ? 's' : ''}
           </span>
@@ -160,7 +160,7 @@ export const ListToolbar: React.FC<ListToolbarProps> = ({
                 <select
                   value={activeSearchCriteria}
                   onChange={e => onSearchCriteriaChange(e.target.value)}
-                  className="h-6 w-auto bg-transparent text-xs font-medium text-m3-secondary cursor-pointer focus:outline-none border-none"
+                  className="h-6 w-auto bg-transparent text-[12px] font-medium text-m3-secondary cursor-pointer focus:outline-none border-none"
                 >
                   {searchOptions.map(f => (
                     <option key={f.value} value={f.value}>
@@ -183,7 +183,7 @@ export const ListToolbar: React.FC<ListToolbarProps> = ({
                     }
                   }}
                   placeholder="Buscar..."
-                  className="h-6 flex-1 min-w-0 bg-transparent text-xs text-m3-on-surface
+                  className="h-6 flex-1 min-w-0 bg-transparent text-[12px] text-m3-on-surface
                     placeholder:text-m3-secondary/40 focus:outline-none"
                 />
                 {searchValue && onSearchClear && (
@@ -199,7 +199,7 @@ export const ListToolbar: React.FC<ListToolbarProps> = ({
               <button
                 type="button"
                 onClick={onSearchSubmit}
-                className="h-8 px-3 rounded-md bg-m3-primary text-white text-xs font-medium
+                className="h-8 px-3 rounded-md bg-m3-primary text-white text-[12px] font-medium
                   hover:bg-m3-primary/90 transition-colors shrink-0"
               >
                 Buscar
@@ -231,7 +231,7 @@ export const ListToolbar: React.FC<ListToolbarProps> = ({
                   type="button"
                   onClick={onSortOrderToggle}
                   className="h-8 px-2 rounded-md border border-m3-outline/30 bg-m3-surface text-m3-secondary
-                    hover:text-m3-primary hover:bg-m3-primary/10 transition-colors text-xs"
+                    hover:text-m3-primary hover:bg-m3-primary/10 transition-colors text-[12px]"
                   title={sortOrder === 'asc' ? 'Ascendente' : 'Descendente'}
                 >
                   {sortOrder === 'asc' ? 'A-Z' : 'Z-A'}

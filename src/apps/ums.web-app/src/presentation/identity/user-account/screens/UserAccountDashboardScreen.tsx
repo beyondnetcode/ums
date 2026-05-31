@@ -63,9 +63,9 @@ export default function UserAccountDashboardScreen(): React.JSX.Element {
         }
       >
         <div className="space-y-3 pt-2">
-          <p className="text-xs text-m3-secondary">
-            {t.blockUserMessage}
-          </p>
+<p className="text-[12px] text-m3-secondary">
+             {t.blockUserMessage}
+           </p>
           <M3TextField
             label={t.blockReasonLabel || 'Reason for blocking'}
             required

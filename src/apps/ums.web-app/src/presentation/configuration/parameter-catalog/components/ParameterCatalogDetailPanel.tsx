@@ -38,7 +38,7 @@ export const ParameterCatalogDetailPanel: React.FC<ParameterCatalogDetailPanelPr
   if (!activeParameter) {
     return (
       <div className="h-full flex items-center justify-center p-8">
-        <p className="text-sm text-m3-secondary">{t.selectParameterToView ?? 'Select a parameter to view details'}</p>
+        <p className="text-[12px] text-m3-secondary">{t.selectParameterToView ?? 'Select a parameter to view details'}</p>
       </div>
     );
   }
@@ -47,7 +47,7 @@ export const ParameterCatalogDetailPanel: React.FC<ParameterCatalogDetailPanelPr
     <div className="h-full flex flex-col">
       <div className="flex items-center justify-between px-4 py-3 border-b border-m3-outline/10">
         <div className="flex items-center gap-3 min-w-0">
-          <span className="text-sm font-semibold text-m3-on-surface truncate">{activeParameter.name}</span>
+          <span className="text-[12px] font-medium text-m3-on-surface truncate">{activeParameter.name}</span>
           <span className={`text-[10px] px-1.5 py-0.5 rounded shrink-0 ${
             activeParameter.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
           }`}>
@@ -77,46 +77,46 @@ export const ParameterCatalogDetailPanel: React.FC<ParameterCatalogDetailPanelPr
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        <div className="text-xs text-m3-secondary font-mono">
+        <div className="text-[11px] text-m3-secondary font-mono">
           {activeParameter.code}
         </div>
 
         {activeParameter.description && (
-          <p className="text-sm text-m3-on-surface-variant">{activeParameter.description}</p>
+          <p className="text-[12px] text-m3-on-surface-variant">{activeParameter.description}</p>
         )}
 
         <div className="flex flex-wrap gap-4">
           <div>
             <span className="text-[10px] text-m3-secondary/60 uppercase">Type</span>
-            <p className="text-sm font-medium text-m3-on-surface">
+            <p className="text-[12px] font-medium text-m3-on-surface">
               {DataTypeLabels[activeParameter.dataTypeId] ?? String(activeParameter.dataTypeId)}
             </p>
           </div>
           <div>
             <span className="text-[10px] text-m3-secondary/60 uppercase">Scope</span>
-            <p className="text-sm font-medium text-m3-on-surface">
+            <p className="text-[12px] font-medium text-m3-on-surface">
               {ScopeLabels[activeParameter.scopeId] ?? String(activeParameter.scopeId)}
             </p>
           </div>
           <div>
             <span className="text-[10px] text-m3-secondary/60 uppercase">Default</span>
-            <p className="text-sm font-mono text-m3-on-surface">{activeParameter.defaultValue || '-'}</p>
+            <p className="text-[12px] font-mono text-m3-on-surface">{activeParameter.defaultValue || '-'}</p>
           </div>
         </div>
 
         <div className="flex gap-6 pt-2 border-t border-m3-outline/10">
           <div>
             <span className="text-[10px] text-m3-secondary/60 uppercase">Order</span>
-            <p className="text-sm text-m3-on-surface">{activeParameter.displayOrder}</p>
+            <p className="text-[12px] text-m3-on-surface">{activeParameter.displayOrder}</p>
           </div>
           <div>
             <span className="text-[10px] text-m3-secondary/60 uppercase">Version</span>
-            <p className="text-sm text-m3-on-surface font-mono">{activeParameter.version}</p>
+            <p className="text-[12px] text-m3-on-surface font-mono">{activeParameter.version}</p>
           </div>
           {activeParameter.isMandatory && (
             <div>
               <span className="text-[10px] text-m3-secondary/60 uppercase">Required</span>
-              <p className="text-sm text-orange-600">Yes</p>
+              <p className="text-[12px] text-orange-600">Yes</p>
             </div>
           )}
         </div>

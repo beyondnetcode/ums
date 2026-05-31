@@ -37,7 +37,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
               key={p}
               type="button"
               onClick={() => onPageChange(p)}
-              className={`h-7 min-w-7 px-2 text-xs font-medium rounded-lg flex items-center justify-center transition-all ${
+              className={`h-7 min-w-7 px-2 text-[12px] font-medium rounded-lg flex items-center justify-center transition-all ${
                 isActive
                   ? 'bg-m3-primary text-m3-on-primary shadow-sm'
                   : 'border border-m3-outline bg-m3-surface hover:bg-m3-primary/10 text-m3-secondary'

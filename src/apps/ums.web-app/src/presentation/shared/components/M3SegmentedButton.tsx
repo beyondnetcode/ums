@@ -31,8 +31,8 @@ export interface M3SegmentedButtonProps<T extends string = string> {
 }
 
 const SIZE_CLASSES: Record<'sm' | 'md', string> = {
-  sm: 'p-1.5 text-xs',
-  md: 'p-2 text-sm',
+  sm: 'p-1.5 text-[10px]',
+  md: 'p-2 text-[11px]',
 } as const;
 
 export function M3SegmentedButton<T extends string = string>({

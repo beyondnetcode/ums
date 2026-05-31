@@ -120,7 +120,7 @@ export function AppConfigurationListPanel({
             },
           ]}
         >
-          <span className="text-sm font-bold text-m3-on-surface">{config.code}</span>
+          <span className="text-[12px] font-medium text-m3-on-surface">{config.code}</span>
           <div className="flex items-center gap-2 mt-0.5 flex-wrap">
             <ConfigValueDisplay value={config.value} truncateAt={40} />
             {config.description && (

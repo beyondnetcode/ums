@@ -132,7 +132,7 @@ export function ParameterDefinitionPickerDialog({
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
             placeholder={t.searchParameters ?? 'Search parameters...'}
-            className="w-full pl-10 pr-4 py-2.5 text-sm border border-m3-outline/30 rounded-lg bg-m3-surface focus:outline-none focus:ring-2 focus:ring-m3-primary/30"
+            className="w-full pl-10 pr-4 py-2.5 text-[12px] border border-m3-outline/30 rounded-lg bg-m3-surface focus:outline-none focus:ring-2 focus:ring-m3-primary/30"
           />
         </div>
 
@@ -140,7 +140,7 @@ export function ParameterDefinitionPickerDialog({
           <select
             value={dataTypeFilter}
             onChange={e => setDataTypeFilter(e.target.value)}
-            className="text-xs px-2 py-1.5 border border-m3-outline/30 rounded-lg bg-m3-surface"
+            className="text-[11px] px-2 py-1.5 border border-m3-outline/30 rounded-lg bg-m3-surface"
           >
             <option value="all">{t.allDataTypes ?? 'All Types'}</option>
             <option value="1">{DataTypeLabels[1]}</option>
@@ -152,7 +152,7 @@ export function ParameterDefinitionPickerDialog({
           <select
             value={statusFilter}
             onChange={e => setStatusFilter(e.target.value)}
-            className="text-xs px-2 py-1.5 border border-m3-outline/30 rounded-lg bg-m3-surface"
+            className="text-[11px] px-2 py-1.5 border border-m3-outline/30 rounded-lg bg-m3-surface"
           >
             <option value="all">{t.allStatuses ?? 'All Statuses'}</option>
             <option value="true">{t.active ?? 'Active'}</option>
@@ -160,17 +160,17 @@ export function ParameterDefinitionPickerDialog({
           </select>
         </div>
 
-        <div className="text-xs text-m3-secondary">
+        <div className="text-[12px] text-m3-secondary">
           {t.onlyGlobalParameters ?? 'Only Global and Global&Tenant parameters can be selected'}
         </div>
 
         <div className="border border-m3-outline/20 rounded-lg overflow-hidden max-h-[320px] overflow-y-auto">
           {isLoading ? (
-            <div className="p-8 text-center text-sm text-m3-secondary">
+            <div className="p-8 text-center text-[12px] text-m3-secondary">
               {t.loading ?? 'Loading...'}
             </div>
           ) : selectableParams.length === 0 ? (
-            <div className="p-8 text-center text-sm text-m3-secondary">
+            <div className="p-8 text-center text-[12px] text-m3-secondary">
               {paramsWithoutDefault.length > 0
                 ? (t.parametersNeedDefaultValue ?? 'Some parameters need a default value defined first')
                 : hasLinkedParams
@@ -202,7 +202,7 @@ export function ParameterDefinitionPickerDialog({
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-sm font-medium text-m3-on-surface">
+                          <span className="text-[12px] font-medium text-m3-on-surface">
                             {param.name}
                           </span>
                           <CodeBadge code={param.code} size="xs" />
@@ -219,7 +219,7 @@ export function ParameterDefinitionPickerDialog({
                           />
                         </div>
                         {param.description && (
-                          <p className="text-xs text-m3-on-surface-variant mt-0.5 truncate">
+                          <p className="text-[12px] text-m3-on-surface-variant mt-0.5 truncate">
                             {param.description}
                           </p>
                         )}

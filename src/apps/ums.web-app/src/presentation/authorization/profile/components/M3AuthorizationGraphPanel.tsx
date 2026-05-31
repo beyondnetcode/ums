@@ -139,16 +139,16 @@ export const M3AuthorizationGraphPanel: React.FC<Props> = ({ isOpen, onClose, pr
           />
         </div>
 
-        <div className="relative rounded-xl border border-m3-outline/20 bg-zinc-950 p-4 font-mono text-xs text-zinc-300 min-h-[250px] max-h-[400px] overflow-auto shadow-inner">
+        <div className="relative rounded-xl border border-m3-outline/20 bg-zinc-950 p-4 font-mono text-[11px] text-zinc-300 min-h-[250px] max-h-[400px] overflow-auto shadow-inner">
           {loading ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-zinc-950/80">
               <Loader2 className="w-7 h-7 animate-spin text-m3-primary" />
-              <span className="text-zinc-400 text-xs">Invocando AOP Factory...</span>
+              <span className="text-zinc-400 text-[11px]">Invocando AOP Factory...</span>
             </div>
           ) : error ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-4 text-center text-rose-500 bg-zinc-950/80">
               <FileCode className="w-8 h-8 opacity-40" />
-              <span className="text-xs">{error}</span>
+              <span className="text-[11px]">{error}</span>
             </div>
           ) : !content ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-500 bg-zinc-950/80">

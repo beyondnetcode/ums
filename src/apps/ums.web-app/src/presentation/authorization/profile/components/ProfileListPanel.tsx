@@ -100,7 +100,7 @@ export const ProfileListPanel: React.FC<Props> = ({
             {
               content: (
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-medium text-m3-secondary/70 bg-m3-surface-container/40 px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] font-medium text-m3-secondary/70 bg-m3-surface-container/40 px-2.5 py-0.5 rounded-full border border-m3-outline/20">
                     {prof.permissionCount} permisos
                   </span>
                   <StatusBadge
@@ -126,7 +126,7 @@ export const ProfileListPanel: React.FC<Props> = ({
           ]}
         >
           <div className="flex items-center gap-2">
-            <span className="text-sm font-bold text-m3-on-surface">{prof.userEmail}</span>
+            <span className="text-[12px] font-medium text-m3-on-surface">{prof.userEmail}</span>
             <span className="text-[9px] text-m3-secondary/30">·</span>
             <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-m3-primary bg-m3-primary/10 px-1.5 py-0.5 rounded">
               {prof.systemSuiteCode}

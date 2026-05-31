@@ -25,10 +25,10 @@ export const SectionHeader: React.FC<SectionHeaderProps> = React.memo(
       className={`flex justify-between items-center pb-3 border-b border-m3-outline/15 ${className}`}
     >
       <div>
-        <h3 className="text-[11px] font-semibold text-m3-on-surface uppercase tracking-wide">
+        <h3 className="text-[12px] font-semibold text-m3-on-surface uppercase tracking-wide">
           {title}
         </h3>
-        {subtitle && <p className="text-[10px] text-m3-secondary mt-0.5">{subtitle}</p>}
+        {subtitle && <p className="text-[11px] text-m3-secondary mt-0.5">{subtitle}</p>}
       </div>
       {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
     </div>

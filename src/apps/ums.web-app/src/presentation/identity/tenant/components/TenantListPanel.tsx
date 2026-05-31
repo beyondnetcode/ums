@@ -104,7 +104,7 @@ export const TenantListPanel: React.FC<TenantListPanelProps> = ({
     <div className="flex items-center gap-3">
       <div className="flex items-center gap-1.5">
         <span className="h-2 w-2 rounded-full bg-m3-primary animate-pulse" />
-        <span className="text-xs font-medium text-m3-secondary/80">
+        <span className="text-[12px] font-medium text-m3-secondary/80">
           {t.showing} {totalItems === 0 ? 0 : startIndex + 1}-
           {Math.min(startIndex + pageSize, totalItems)} {t.of} {totalItems} {t.tenants}
         </span>

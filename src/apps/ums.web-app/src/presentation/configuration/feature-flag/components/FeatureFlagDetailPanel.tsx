@@ -52,7 +52,7 @@ const CriteriaRow: React.FC<{
   isDraft: boolean;
 }> = ({ criteria, onRemove, isDraft }) => (
   <div className="flex items-center gap-3 p-3 rounded-lg border border-m3-outline/10 bg-m3-surface-container/5">
-    <div className="flex-1 grid grid-cols-3 gap-3 text-xs">
+    <div className="flex-1 grid grid-cols-3 gap-3 text-[11px]">
       <div>
         <span className="text-[10px] font-semibold text-m3-secondary/60 uppercase tracking-wider">
           Tipo
@@ -162,8 +162,8 @@ export const FeatureFlagDetailPanel: React.FC<Props> = ({ flag }) => {
       <div className={`p-4 rounded-xl border flex items-start gap-3 ${statusColor}`}>
         <StatusIcon className="w-5 h-5 shrink-0 mt-0.5" />
         <div>
-          <p className="text-sm font-semibold text-m3-on-surface">Estado: {flag.status}</p>
-          <p className="text-xs text-m3-secondary mt-0.5">
+          <p className="text-[12px] font-medium text-m3-on-surface">Estado: {flag.status}</p>
+          <p className="text-[12px] text-m3-secondary mt-0.5">
             {flag.status === 'Active' && 'El flag está activo y evaluando targeting rules.'}
             {flag.status === 'Inactive' && 'El flag está inactivo. Puede ser activado o archivado.'}
             {flag.status === 'Archived' &&
@@ -232,7 +232,7 @@ export const FeatureFlagDetailPanel: React.FC<Props> = ({ flag }) => {
               </M3Button>
             )}
             {flag.status === 'Archived' && (
-              <div className="flex-1 py-2.5 px-4 rounded-full border border-m3-outline/20 text-xs text-m3-secondary/50 text-center">
+              <div className="flex-1 py-2.5 px-4 rounded-full border border-m3-outline/20 text-[11px] text-m3-secondary/50 text-center">
                 Archivado — acción terminal
               </div>
             )}
@@ -253,7 +253,7 @@ export const FeatureFlagDetailPanel: React.FC<Props> = ({ flag }) => {
         content={
           <>
             {flag.criteria.length === 0 && (
-              <div className="flex items-center gap-2 text-xs text-m3-secondary/70 bg-m3-surface-variant/20 p-3 rounded-lg">
+              <div className="flex items-center gap-2 text-[11px] text-m3-secondary/70 bg-m3-surface-variant/20 p-3 rounded-lg">
                 <Info className="w-4 h-4" />
                 Sin criterios. El flag se evalúa solo por targeting rules.
               </div>
@@ -275,14 +275,14 @@ export const FeatureFlagDetailPanel: React.FC<Props> = ({ flag }) => {
                 onSubmit={handleAddCriteria}
                 className="mt-3 p-3 rounded-lg border border-m3-outline/10 bg-m3-surface-container/10 space-y-3"
               >
-                <p className="text-xs font-semibold text-m3-primary flex items-center gap-1.5">
+                <p className="text-[12px] font-medium text-m3-primary flex items-center gap-1.5">
                   <Plus className="w-4 h-4" />
                 </p>
                 <div className="grid grid-cols-2 gap-2">
                   <select
                     value={criteriaType}
                     onChange={e => setCriteriaType(e.target.value)}
-                    className="w-full h-9 px-3 rounded-lg bg-m3-surface border border-m3-outline/20 text-xs focus:border-m3-primary outline-none"
+                    className="w-full h-9 px-3 rounded-lg bg-m3-surface border border-m3-outline/20 text-[11px] focus:border-m3-primary outline-none"
                   >
                     {Object.entries(CRITERIA_TYPE_LABELS).map(([k, v]) => (
                       <option key={k} value={k}>
@@ -293,7 +293,7 @@ export const FeatureFlagDetailPanel: React.FC<Props> = ({ flag }) => {
                   <select
                     value={criteriaOperator}
                     onChange={e => setCriteriaOperator(e.target.value)}
-                    className="w-full h-9 px-3 rounded-lg bg-m3-surface border border-m3-outline/20 text-xs focus:border-m3-primary outline-none"
+                    className="w-full h-9 px-3 rounded-lg bg-m3-surface border border-m3-outline/20 text-[11px] focus:border-m3-primary outline-none"
                   >
                     {Object.entries(CRITERIA_OPERATOR_LABELS).map(([k, v]) => (
                       <option key={k} value={k}>
@@ -312,7 +312,7 @@ export const FeatureFlagDetailPanel: React.FC<Props> = ({ flag }) => {
                   placeholder="e.g. tenant-id, role-code, percentage"
                   size="sm"
                 />
-                {criteriaError && <p className="text-xs text-m3-error">{criteriaError}</p>}
+                {criteriaError && <p className="text-[11px] text-m3-error">{criteriaError}</p>}
                 <div className="flex justify-end">
                   <M3Button
                     type="submit"

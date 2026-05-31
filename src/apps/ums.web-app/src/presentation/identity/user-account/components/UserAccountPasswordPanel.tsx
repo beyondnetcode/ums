@@ -50,13 +50,13 @@ export const UserAccountPasswordPanel: React.FC<UserAccountPasswordPanelProps> =
       <div className="p-3.5 rounded-xl border border-m3-outline/20 bg-m3-surface-container/5 space-y-3">
         <div className="flex items-center gap-2 border-b border-m3-outline/10 pb-2">
           <ShieldCheck className="w-4 h-4 text-m3-primary" />
-          <span className="text-xs font-semibold text-m3-on-surface">{t.passwordManagement}</span>
+          <span className="text-[12px] font-medium text-m3-on-surface">{t.passwordManagement}</span>
         </div>
 
         {isFederated ? (
-          <p className="text-xs text-m3-secondary">{t.federatedPasswordManagedExternally}</p>
+          <p className="text-[12px] text-m3-secondary">{t.federatedPasswordManagedExternally}</p>
         ) : (
-          <dl className="space-y-2 text-xs">
+          <dl className="space-y-2 text-[11px]">
             <div className="flex items-center justify-between">
               <dt className="text-m3-secondary">{t.localPassword}</dt>
               <dd className={account.hasActivePassword ? 'text-emerald-500 font-semibold' : 'text-m3-secondary'}>

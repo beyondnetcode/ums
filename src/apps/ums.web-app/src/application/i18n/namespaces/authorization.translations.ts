@@ -1,7 +1,7 @@
 export const authorizationTranslations = {
   es: {
     // Context labels
-    authorizationContext: 'Contexto de Autorización',
+    authorizationContext: 'Autorización',
     systemSuites: 'Suites del Sistema',
     permissionTemplates: 'Plantillas de Permisos',
     profilesHeader: 'Perfiles de Autorización',
@@ -156,7 +156,7 @@ export const authorizationTranslations = {
   },
   en: {
     // Context labels
-    authorizationContext: 'Authorization Context',
+    authorizationContext: 'Authorization',
     systemSuites: 'System Suites',
     permissionTemplates: 'Permission Templates',
     profilesHeader: 'Authorization Profiles',

@@ -81,7 +81,7 @@ export const SystemSuiteRolesPanel: React.FC<Props> = ({ systemSuiteId }) => {
   };
 
   if (isLoading) {
-    return <p className="text-sm text-m3-secondary">{t.loading}</p>;
+    return <p className="text-[12px] text-m3-secondary">{t.loading}</p>;
   }
 
   let filteredRoles = roles;
@@ -294,7 +294,7 @@ const RoleRow: React.FC<RowProps> = ({
         <div className="flex justify-end gap-2">
           <button
             type="button"
-            className="px-3 py-1 text-xs text-m3-secondary"
+            className="px-3 py-1 text-[11px] text-m3-secondary"
             onClick={() => setEditing(false)}
           >
             {t.cancelEdit}
@@ -302,7 +302,7 @@ const RoleRow: React.FC<RowProps> = ({
           <button
             type="submit"
             disabled={updateRole.isPending}
-            className="rounded-md bg-m3-primary px-3 py-1 text-xs text-m3-on-primary"
+            className="rounded-md bg-m3-primary px-3 py-1 text-[11px] text-m3-on-primary"
           >
             {t.saveRole}
           </button>
@@ -315,10 +315,10 @@ const RoleRow: React.FC<RowProps> = ({
     <div className="group flex items-start justify-between rounded-lg border border-m3-outline/15 bg-m3-surface-container/10 p-3">
       <div className="min-w-0 space-y-1">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-m3-on-surface">{role.value}</span>
+          <span className="text-[12px] font-medium text-m3-on-surface">{role.value}</span>
           <CodeBadge code={role.code} size="xs" />
           <span
-            className={`rounded px-1.5 py-0.5 text-[9px] font-semibold ${role.isActive ? 'bg-m3-tertiary/10 text-m3-tertiary' : 'bg-m3-outline/10 text-m3-secondary'}`}
+            className={`rounded-full px-2.5 py-0.5 text-[10px] font-medium ${role.isActive ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-m3-outline/10 text-m3-secondary border border-m3-outline/20'}`}
           >
             {role.isActive ? t.active : t.inactive}
           </span>

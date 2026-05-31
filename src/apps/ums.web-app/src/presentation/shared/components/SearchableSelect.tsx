@@ -248,7 +248,7 @@ export function SearchableSelect<T extends string = string>({
                 <button
                   type="button"
                   onClick={toggleAdvanced}
-                  className={`text-[10px] font-medium px-2 py-1 rounded-full transition-colors ${
+                  className={`text-[10px] font-medium px-2.5 py-0.5 rounded-full transition-colors ${
                     showAdvanced
                       ? 'bg-m3-primary text-m3-on-primary'
                       : 'bg-m3-surface-container/50 text-m3-secondary hover:bg-m3-primary/10'

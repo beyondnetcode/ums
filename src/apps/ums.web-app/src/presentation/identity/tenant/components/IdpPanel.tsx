@@ -249,54 +249,70 @@ export const IdpPanel: React.FC<IdpPanelProps> = ({ tenantId }) => {
             edit.isEditing(p.identityProviderId) ? (
               <div
                 key={p.identityProviderId}
-                className="p-4 rounded-xl border border-m3-primary/30 bg-m3-surface-container/50 space-y-0 animate-fadeIn"
+                className="p-3.5 rounded-xl border border-m3-primary/30 bg-m3-surface-container/50 animate-fadeIn"
               >
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm font-medium text-m3-primary flex items-center gap-1.5">
-                    <Pencil className="w-3.5 h-3.5" /> {t.editProvider}
+                <div className="flex items-center justify-between mb-2.5 pb-1.5 border-b border-m3-outline/10">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-m3-primary flex items-center gap-1">
+                    <Pencil className="w-2.5 h-2.5" /> {t.editProvider}
                   </span>
-                  <IconButton tooltip={t.cancelEdit} onClick={edit.cancelEdit}>
-                    <X className="w-3.5 h-3.5" />
-                  </IconButton>
-                </div>
-                <M3TextField
-                  label={t.providerName}
-                  required
-                  value={edit.draft.name ?? ''}
-                  onChange={e => edit.setField('name', e.target.value)}
-                />
-                <M3TextField
-                  label={t.providerCode}
-                  value={edit.draft.code ?? ''}
-                  onChange={e => edit.setField('code', e.target.value.toUpperCase())}
-                />
-                <M3Select
-                  label={t.protocolType}
-                  value={edit.draft.strategy ?? 'OIDC'}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                    edit.setField('strategy', e.target.value)
-                  }
-                >
-                  <option value="OIDC">{t.strategyOIDC}</option>
-                  <option value="SAML2">{t.strategySAML2}</option>
-                  <option value="OAuth2">{t.strategyOAuth2}</option>
-                </M3Select>
-                <M3TextField
-                  label={t.providerDescription}
-                  value={edit.draft.description ?? ''}
-                  onChange={e => edit.setField('description', e.target.value)}
-                />
-                <div className="flex gap-2 pt-1">
-                  <M3Button
-                    variant="filled"
-                    onClick={saveProviderEdit}
-                    className="flex-1 flex items-center justify-center gap-1.5"
+                  <button
+                    type="button"
+                    onClick={edit.cancelEdit}
+                    className="p-0.5 rounded text-m3-secondary/60 hover:text-m3-primary hover:bg-m3-primary/10 transition-colors"
                   >
-                    <Save className="w-3.5 h-3.5" /> {t.saveBtn}
-                  </M3Button>
-                  <M3Button variant="outlined" onClick={edit.cancelEdit} className="flex-1">
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  <M3TextField
+                    label={t.providerName}
+                    required
+                    value={edit.draft.name ?? ''}
+                    onChange={e => edit.setField('name', e.target.value)}
+                    compact
+                  />
+                  <M3TextField
+                    label={t.providerCode}
+                    value={edit.draft.code ?? ''}
+                    onChange={e => edit.setField('code', e.target.value.toUpperCase())}
+                    compact
+                  />
+                  <M3Select
+                    label={t.protocolType}
+                    value={edit.draft.strategy ?? 'OIDC'}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                      edit.setField('strategy', e.target.value)
+                    }
+                    compact
+                  >
+                    <option value="OIDC">{t.strategyOIDC}</option>
+                    <option value="SAML2">{t.strategySAML2}</option>
+                    <option value="OAuth2">{t.strategyOAuth2}</option>
+                  </M3Select>
+                  <M3TextField
+                    label={t.providerDescription}
+                    value={edit.draft.description ?? ''}
+                    onChange={e => edit.setField('description', e.target.value)}
+                    compact
+                  />
+                </div>
+
+                <div className="flex justify-end gap-2 mt-2.5 pt-2 border-t border-m3-outline/10">
+                  <button
+                    type="button"
+                    onClick={saveProviderEdit}
+                    className="h-7 px-4 rounded-full bg-m3-primary text-white text-[10px] font-medium flex items-center justify-center gap-1.5 hover:bg-m3-primary/90 transition-colors"
+                  >
+                    <Save className="w-2.5 h-2.5" /> {t.saveBtn}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={edit.cancelEdit}
+                    className="h-7 px-3 rounded-full border border-m3-outline/30 text-m3-secondary text-[10px] font-medium hover:bg-m3-surface-variant transition-colors"
+                  >
                     {t.cancelEdit}
-                  </M3Button>
+                  </button>
                 </div>
               </div>
             ) : (

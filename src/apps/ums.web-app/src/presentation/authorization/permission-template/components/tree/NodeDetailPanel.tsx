@@ -96,7 +96,7 @@ export const NodeDetailPanel: React.FC<NodeDetailPanelProps> = ({ node, suite, t
       <div className="mb-6">
         <h3 className="text-sm font-bold text-m3-on-surface flex items-center gap-2">
           {node.label}
-          <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded border border-current ${stateColor}`}>
+          <span className={`text-[10px] font-semibold uppercase px-2.5 py-0.5 rounded-full border border-current ${stateColor}`}>
             {node.type}
           </span>
         </h3>

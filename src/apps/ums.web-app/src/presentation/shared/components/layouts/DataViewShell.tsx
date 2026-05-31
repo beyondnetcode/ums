@@ -39,8 +39,8 @@ export const DataViewShell: React.FC<DataViewShellProps> = ({
         <div className="flex items-center gap-2 min-w-0">
           {headerIcon}
           <div className="min-w-0">
-            <h2 className="text-sm font-semibold text-m3-on-surface truncate">{title}</h2>
-            {subtitle && <p className="text-[10px] text-m3-secondary truncate">{subtitle}</p>}
+            <h2 className="text-[12px] font-semibold text-m3-on-surface truncate">{title}</h2>
+            {subtitle && <p className="text-[11px] text-m3-secondary truncate">{subtitle}</p>}
           </div>
         </div>
 

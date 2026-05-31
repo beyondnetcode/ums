@@ -30,7 +30,7 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({
         value={sortBy}
         onChange={(e) => onSortByChange(e.target.value)}
         aria-label="Sort by"
-        className="h-8 px-2.5 rounded-lg border border-m3-outline bg-m3-surface text-xs font-medium text-m3-secondary focus:outline-none focus:border-m3-primary transition-colors cursor-pointer"
+        className="h-8 px-2.5 rounded-lg border border-m3-outline bg-m3-surface text-[12px] font-medium text-m3-secondary focus:outline-none focus:border-m3-primary transition-colors cursor-pointer"
       >
         {sortOptions.map((s) => (
           <option key={s.value} value={s.value}>{s.label}</option>

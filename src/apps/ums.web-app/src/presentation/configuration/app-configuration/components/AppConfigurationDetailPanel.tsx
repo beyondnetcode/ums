@@ -141,7 +141,7 @@ export function AppConfigurationDetailPanel({
               <Settings className="w-5 h-5 text-m3-primary" />
             </div>
             <div className="min-w-0">
-              <h2 className="text-sm font-semibold text-m3-on-surface truncate">{config.code}</h2>
+              <h2 className="text-[12px] font-medium text-m3-on-surface truncate">{config.code}</h2>
               <div className="flex items-center gap-2 mt-1">
                 <CodeBadge code={config.scope} size="xs" />
                 <StatusBadge status={config.status} label={config.status} size="xs" />
@@ -170,7 +170,7 @@ export function AppConfigurationDetailPanel({
     >
       <div className="space-y-4 p-4">
         {/* Description */}
-        <p className="text-xs text-m3-secondary">{config.description || '-'}</p>
+        <p className="text-[12px] text-m3-secondary">{config.description || '-'}</p>
 
         {/* Value */}
         <DetailSection
@@ -180,7 +180,7 @@ export function AppConfigurationDetailPanel({
             config.isEncrypted ? (
               <div className="flex items-center gap-2 text-amber-600">
                 <Lock className="w-4 h-4" />
-                <span className="text-xs">[Encrypted]</span>
+                <span className="text-[10px]">[Encrypted]</span>
               </div>
             ) : isEditingValue ? (
               <div className="flex items-center gap-2">
@@ -197,7 +197,7 @@ export function AppConfigurationDetailPanel({
                 className="inline-flex items-center gap-2 bg-m3-surface-container px-3 py-2 rounded-lg cursor-pointer hover:bg-m3-surface-container-low transition-colors"
                 onClick={handleStartEditValue}
               >
-                <span className="text-sm text-m3-on-surface truncate w-48">{config.value}</span>
+                <span className="text-[12px] text-m3-on-surface truncate w-48">{config.value}</span>
                 <Edit2 className="w-4 h-4 text-m3-outline flex-shrink-0" />
               </div>
             )
@@ -205,7 +205,7 @@ export function AppConfigurationDetailPanel({
         />
 
         {/* Metadata */}
-        <div className="flex gap-4 text-xs">
+        <div className="flex gap-4 text-[11px]">
           <div className="flex items-center gap-1.5">
             <Clock className="w-4 h-4 text-m3-secondary" />
             <span className="text-m3-secondary">v</span>

@@ -58,7 +58,7 @@ export const ParameterDefinitionProfileCard: React.FC<ParameterDefinitionProfile
                 colorMap={STATUS_COLOR_MAP}
               />
               {parameter.isMandatory && (
-                <span className="text-[10px] font-medium text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full border border-orange-200">
+                <span className="text-[10px] font-medium text-orange-600 bg-orange-50 px-2.5 py-0.5 rounded-full border border-orange-200">
                   {t.mandatory ?? 'Required'}
                 </span>
               )}
@@ -77,7 +77,7 @@ export const ParameterDefinitionProfileCard: React.FC<ParameterDefinitionProfile
       </div>
 
       {parameter.description && (
-        <p className="mt-3 text-sm text-m3-on-surface-variant">{parameter.description}</p>
+        <p className="mt-3 text-[12px] text-m3-on-surface-variant">{parameter.description}</p>
       )}
 
       <div className="flex items-center gap-3 mt-4 pt-3 border-t border-m3-outline/20 flex-wrap">

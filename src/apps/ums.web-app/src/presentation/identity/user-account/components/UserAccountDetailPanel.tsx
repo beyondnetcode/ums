@@ -3,7 +3,7 @@ import { User, Shield, Key, LayoutGrid } from 'lucide-react';
 import { UserAccount } from '@domain/identity/models/user-account.model';
 import { UserAccountProfileCard } from './UserAccountProfileCard';
 import { UserAccountPasswordPanel } from './UserAccountPasswordPanel';
-import { DetailPanelShell, EmptyDetailState } from '@shared/components';
+import { DetailPanelShell, EmptyDetailState, StatusBadge } from '@shared/components';
 import type { DetailTab } from '@shared/components/DetailPanelShell';
 import { useI18n } from '@app/i18n/use-i18n';
 
@@ -152,16 +152,14 @@ export const UserAccountDetailPanel: React.FC<UserAccountDetailPanelProps> = ({
               <div className="flex justify-between items-center border-b border-m3-outline/10 pb-2">
                 <div className="flex items-center gap-2">
                   <Shield className="w-4 h-4 text-m3-primary" />
-                  <span className="text-xs font-semibold text-m3-on-surface">
+                  <span className="text-[12px] font-medium text-m3-on-surface">
                     Perfil de Seguridad Activo
                   </span>
                 </div>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                  Asignado
-                </span>
+                <StatusBadge status="Active" label="Asignado" />
               </div>
 
-              <div className="space-y-2 text-xs">
+              <div className="space-y-2 text-[11px]">
                 <div className="flex justify-between">
                   <span className="text-m3-secondary">Rol Funcional</span>
                   <span className="font-semibold text-m3-on-surface">{userRoleName}</span>
@@ -175,7 +173,7 @@ export const UserAccountDetailPanel: React.FC<UserAccountDetailPanelProps> = ({
 
             {/* Mapped Permission Suite Graph */}
             <div className="space-y-2">
-              <span className="text-[10px] font-bold text-m3-secondary uppercase tracking-wider block">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-m3-secondary/70 block">
                 Permisos en Suites del Sistema
               </span>
 
@@ -188,23 +186,23 @@ export const UserAccountDetailPanel: React.FC<UserAccountDetailPanelProps> = ({
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
                         <LayoutGrid className="w-3.5 h-3.5 text-m3-secondary" />
-                        <span className="text-xs font-semibold text-m3-on-surface">
+                        <span className="text-[12px] font-medium text-m3-on-surface">
                           {suite.name}
                         </span>
-                        <span className="text-[9px] font-mono px-1 rounded bg-m3-surface-variant text-m3-on-surface-variant">
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-m3-surface-variant/50 text-m3-on-surface-variant">
                           {suite.code}
                         </span>
                       </div>
-                      <span className="text-[9px] text-m3-secondary/50">Herencia Directa</span>
+                      <span className="text-[10px] text-m3-secondary/60">Herencia Directa</span>
                     </div>
 
                     <div className="flex flex-wrap gap-1.5 pt-1">
                       {suite.actions.map(act => (
                         <span
                           key={act}
-                          className="flex items-center gap-1 text-[9px] font-mono font-semibold px-2 py-0.5 rounded bg-m3-primary/10 text-m3-primary border border-m3-primary/20"
+                          className="flex items-center gap-1 text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-m3-primary/10 text-m3-primary border border-m3-primary/20"
                         >
-                          <Key className="w-2.5 h-2.5" />
+                          <Key className="w-3 h-3" />
                           {act}
                         </span>
                       ))}

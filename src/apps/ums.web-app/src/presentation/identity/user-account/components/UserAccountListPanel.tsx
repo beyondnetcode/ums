@@ -106,7 +106,7 @@ export const UserAccountListPanel: React.FC<UserAccountListPanelProps> = ({
             },
           ]}
         >
-          <span className="text-sm font-semibold text-m3-on-surface line-clamp-1">
+          <span className="text-[12px] font-medium text-m3-on-surface line-clamp-1">
             {account.email}
           </span>
         </EntityRow>
@@ -168,10 +168,10 @@ export const UserAccountListPanel: React.FC<UserAccountListPanelProps> = ({
               <Layers className="w-4 h-4" />
             </div>
             <div>
-              <span className="text-xs font-semibold text-m3-secondary uppercase tracking-wider block">
+              <span className="text-[11px] font-medium text-m3-secondary uppercase tracking-wider block">
                 {t.activeTenant}
               </span>
-              <span className="text-[10px] text-m3-secondary/70">
+              <span className="text-[11px] text-m3-secondary/70">
                 {onTenantChange ? t.filterAccountsByTenant : t.sessionTenantContext}
               </span>
             </div>

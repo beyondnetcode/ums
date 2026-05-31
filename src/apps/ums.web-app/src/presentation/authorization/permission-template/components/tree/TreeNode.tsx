@@ -111,7 +111,7 @@ export const TreeNode: React.FC<TreeNodeProps> = ({
         </div>
         
         <div className="flex-1 min-w-0 py-1.5 pr-2 flex items-center gap-2">
-          <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${typeColorMap[node.type]}`}>
+          <span className={`text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${typeColorMap[node.type]}`}>
             {node.type}
           </span>
           <span className={`text-xs truncate ${isSelected ? 'font-semibold text-m3-primary' : 'text-m3-on-surface/80'}`}>

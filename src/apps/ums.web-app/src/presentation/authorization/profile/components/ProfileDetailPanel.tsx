@@ -80,8 +80,8 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
     return (
       <div className="h-full flex flex-col items-center justify-center p-6 text-center text-m3-on-surface/40">
         <User className="w-12 h-12 mb-3 stroke-[1.5] text-m3-primary/30" />
-        <h3 className="text-sm font-bold text-m3-on-surface/70">Ningún perfil seleccionado</h3>
-        <p className="text-xs max-w-xs mt-1">
+        <h3 className="text-[12px] font-medium text-m3-on-surface/70">Ningún perfil seleccionado</h3>
+        <p className="text-[12px] max-w-xs mt-1">
           Seleccione un perfil del panel izquierdo para visualizar su configuración y grafo de
           autorización.
         </p>
@@ -146,7 +146,7 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
     return (
       <div key={p.permissionId} className="divide-y divide-m3-outline/5">
         <div
-          className={`flex flex-col md:flex-row md:items-center justify-between gap-3 p-3 text-xs transition-colors ${hasChangesFlag ? 'bg-amber-500/5 hover:bg-amber-500/10' : 'hover:bg-m3-surface-container/20'}`}
+          className={`flex flex-col md:flex-row md:items-center justify-between gap-3 p-3 text-[11px] transition-colors ${hasChangesFlag ? 'bg-amber-500/5 hover:bg-amber-500/10' : 'hover:bg-m3-surface-container/20'}`}
         >
           <div className="flex items-start gap-2">
             {showDiff && (
@@ -165,22 +165,22 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
             <div className="space-y-0.5">
               <div className="flex items-center gap-1.5 flex-wrap">
                 <span className="font-bold text-m3-on-surface">{p.targetName}</span>
-                <span className="text-[9px] uppercase font-bold text-m3-primary bg-m3-primary/10 px-1.5 py-0.2 rounded border border-m3-primary/20">
+                <span className="text-[10px] uppercase font-semibold text-m3-primary bg-m3-primary/10 px-2 py-0.5 rounded-full border border-m3-primary/20">
                   {p.targetType}
                 </span>
                 {p.isOverride && (
-                  <span className="text-[8px] uppercase font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.2 rounded border border-amber-500/20">
+                  <span className="text-[10px] uppercase font-semibold text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
                     Override
                   </span>
                 )}
                 {showDiff && hasChangesFlag && (
-                  <span className="text-[8px] uppercase font-bold text-cyan-600 bg-cyan-600/10 px-1.5 py-0.2 rounded border border-cyan-600/20 flex items-center gap-0.5">
+                  <span className="text-[10px] uppercase font-semibold text-cyan-600 bg-cyan-600/10 px-2 py-0.5 rounded-full border border-cyan-600/20 flex items-center gap-0.5">
                     <GitCompare className="w-3 h-3" />
                     Diff
                   </span>
                 )}
               </div>
-              <div className="text-[10px] text-m3-on-surface/60">
+              <div className="text-[11px] text-m3-on-surface/60">
                 Acción: <span className="font-medium text-m3-secondary">{p.actionName}</span>
               </div>
             </div>
@@ -192,7 +192,7 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                 type="button"
                 onClick={() => handleChangePermissionEffect(p.permissionId, 'allow')}
                 disabled={overrideMutation.isPending}
-                className={`px-2 py-1 rounded-md text-[9px] font-bold transition-all ${p.isAllowed ? 'bg-emerald-500 text-white' : 'text-m3-on-surface/60 hover:text-m3-on-surface'}`}
+                className={`px-2 py-1 rounded-md text-[10px] font-semibold transition-all ${p.isAllowed ? 'bg-emerald-500 text-white' : 'text-m3-on-surface/60 hover:text-m3-on-surface'}`}
               >
                 <ShieldCheck className="w-3 h-3 inline mr-0.5" />
                 Allow
@@ -201,7 +201,7 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                 type="button"
                 onClick={() => handleChangePermissionEffect(p.permissionId, 'neutral')}
                 disabled={overrideMutation.isPending}
-                className={`px-2 py-1 rounded-md text-[9px] font-bold transition-all ${!p.isAllowed && !p.isDenied ? 'bg-m3-outline/30 text-m3-on-surface' : 'text-m3-on-surface/60 hover:text-m3-on-surface'}`}
+                className={`px-2 py-1 rounded-md text-[10px] font-semibold transition-all ${!p.isAllowed && !p.isDenied ? 'bg-m3-outline/30 text-m3-on-surface' : 'text-m3-on-surface/60 hover:text-m3-on-surface'}`}
               >
                 <Shield className="w-3 h-3 inline mr-0.5" />
                 Neutral
@@ -210,7 +210,7 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                 type="button"
                 onClick={() => handleChangePermissionEffect(p.permissionId, 'deny')}
                 disabled={overrideMutation.isPending}
-                className={`px-2 py-1 rounded-md text-[9px] font-bold transition-all ${p.isDenied ? 'bg-rose-500 text-white' : 'text-m3-on-surface/60 hover:text-m3-on-surface'}`}
+                className={`px-2 py-1 rounded-md text-[10px] font-semibold transition-all ${p.isDenied ? 'bg-rose-500 text-white' : 'text-m3-on-surface/60 hover:text-m3-on-surface'}`}
               >
                 <ShieldAlert className="w-3 h-3 inline mr-0.5" />
                 Deny
@@ -244,28 +244,28 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
               <div
                 className={`rounded-lg p-2.5 border ${getEffectColor(p.originalFromTemplate.isAllowed, p.originalFromTemplate.isDenied)}`}
               >
-                <div className="text-[9px] uppercase font-bold mb-1 opacity-70">
+                <div className="text-[10px] uppercase tracking-wider font-medium mb-1 opacity-70">
                   Original (Plantilla)
                 </div>
-                <div className="text-xs font-semibold">
+                <div className="text-[12px] font-medium">
                   {getEffectLabel(
                     p.originalFromTemplate.isAllowed,
                     p.originalFromTemplate.isDenied
                   )}
                 </div>
-                <div className="text-[10px] mt-1 opacity-70">
+                <div className="text-[11px] mt-1 opacity-70">
                   Activo: {p.originalFromTemplate.isActive ? 'Sí' : 'No'}
                 </div>
               </div>
 
               <div className={`rounded-lg p-2.5 border ${getEffectColor(p.isAllowed, p.isDenied)}`}>
-                <div className="text-[9px] uppercase font-bold mb-1 opacity-70">
+                <div className="text-[10px] uppercase tracking-wider font-medium mb-1 opacity-70">
                   Actual (Perfil)
                 </div>
-                <div className="text-xs font-semibold">
+                <div className="text-[12px] font-medium">
                   {getEffectLabel(p.isAllowed, p.isDenied)}
                 </div>
-                <div className="text-[10px] mt-1 opacity-70">
+                <div className="text-[11px] mt-1 opacity-70">
                   Activo: {p.isActive ? 'Sí' : 'No'}
                 </div>
               </div>
@@ -322,10 +322,10 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                     <User className="w-5 h-5" />
                   </div>
                   <div className="flex-1">
-                    <span className="text-[10px] uppercase font-bold text-m3-secondary/50">
+                    <span className="text-[11px] uppercase tracking-wider font-medium text-m3-secondary/50">
                       Usuario
                     </span>
-                    <p className="text-sm font-semibold text-m3-on-surface">{profile.userEmail}</p>
+                    <p className="text-[12px] font-medium text-m3-on-surface">{profile.userEmail}</p>
                   </div>
                 </div>
 
@@ -334,10 +334,10 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                     <Key className="w-5 h-5" />
                   </div>
                   <div className="flex-1">
-                    <span className="text-[10px] uppercase font-bold text-m3-secondary/50">
+                    <span className="text-[11px] uppercase tracking-wider font-medium text-m3-secondary/50">
                       Rol Asociado
                     </span>
-                    <p className="text-sm font-semibold text-m3-on-surface">
+                    <p className="text-[12px] font-medium text-m3-on-surface">
                       {profile.roleCode} — {profile.roleName}
                     </p>
                   </div>
@@ -348,10 +348,10 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                     <LayoutGrid className="w-5 h-5" />
                   </div>
                   <div className="flex-1">
-                    <span className="text-[10px] uppercase font-bold text-m3-secondary/50">
+                    <span className="text-[11px] uppercase tracking-wider font-medium text-m3-secondary/50">
                       Sistema
                     </span>
-                    <p className="text-sm font-semibold text-m3-on-surface">
+                    <p className="text-[12px] font-medium text-m3-on-surface">
                       {profile.systemSuiteCode} — {profile.systemSuiteName}
                     </p>
                   </div>
@@ -362,10 +362,10 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                     <Globe className="w-5 h-5" />
                   </div>
                   <div className="flex-1">
-                    <span className="text-[10px] uppercase font-bold text-m3-secondary/50">
+                    <span className="text-[11px] uppercase tracking-wider font-medium text-m3-secondary/50">
                       Inquilino
                     </span>
-                    <p className="text-sm font-semibold text-m3-on-surface">
+                    <p className="text-[12px] font-medium text-m3-on-surface">
                       {profile.tenantCode} — {profile.tenantName}
                     </p>
                   </div>
@@ -376,10 +376,10 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                     <Info className="w-5 h-5" />
                   </div>
                   <div className="flex-1">
-                    <span className="text-[10px] uppercase font-bold text-m3-secondary/50">
+                    <span className="text-[11px] uppercase tracking-wider font-medium text-m3-secondary/50">
                       Estado / Alcance
                     </span>
-                    <p className="text-sm font-semibold text-m3-on-surface">
+                    <p className="text-[12px] font-medium text-m3-on-surface">
                       {profile.isActive ? 'Activo' : 'Inactivo'} ·{' '}
                       <span className="font-medium text-m3-primary">{profile.scope}</span>
                     </p>
@@ -391,10 +391,10 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                     <Shield className="w-5 h-5" />
                   </div>
                   <div className="flex-1">
-                    <span className="text-[10px] uppercase font-bold text-m3-secondary/50">
+                    <span className="text-[11px] uppercase tracking-wider font-medium text-m3-secondary/50">
                       Permisos Materializados
                     </span>
-                    <p className="text-sm font-semibold text-m3-on-surface">
+                    <p className="text-[12px] font-medium text-m3-on-surface">
                       {profile.permissionCount} permisos efectivos
                     </p>
                   </div>
@@ -402,7 +402,7 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
               </div>
 
               <div className="rounded-xl border border-amber-500/10 bg-amber-500/5 p-4">
-                <p className="text-xs font-semibold text-amber-600">Nota del Auditor</p>
+                <p className="text-[11px] font-medium text-amber-600">Nota del Auditor</p>
                 Los permisos listados en la siguiente pestaña representan el conjunto materializado
                 definitivo de privilegios del usuario, fusionando las reglas de la plantilla por
                 defecto con cualquier anulación manual (Override) grabada en caliente.
@@ -413,7 +413,7 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
           {activeTab === 'permissions' && (
             <div className="p-4 space-y-4">
               {profile.permissions.length === 0 ? (
-                <div className="text-center py-10 text-xs text-m3-on-surface/50">
+                <div className="text-center py-10 text-[12px] text-m3-on-surface/50">
                   Ningún permiso materializado. Asocie una plantilla primero.
                 </div>
               ) : (
@@ -429,7 +429,7 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                             {profile.permissions.filter(p =>
                               ['Module', 'SubModule', 'Page'].includes(p.targetType)
                             ).length === 0 && (
-                              <div className="py-6 text-center text-xs text-m3-on-surface/50">
+                              <div className="py-6 text-center text-[12px] text-m3-on-surface/50">
                                 No hay permisos de este tipo.
                               </div>
                             )}
@@ -447,7 +447,7 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                           <div className="rounded-xl border border-m3-outline/10 bg-m3-surface-container/10 overflow-hidden divide-y divide-m3-outline/5">
                             {profile.permissions.filter(p => p.targetType === 'DomainResource')
                               .length === 0 && (
-                              <div className="py-6 text-center text-xs text-m3-on-surface/50">
+                              <div className="py-6 text-center text-[12px] text-m3-on-surface/50">
                                 No hay permisos de este tipo.
                               </div>
                             )}
@@ -465,7 +465,7 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                           <div className="rounded-xl border border-m3-outline/10 bg-m3-surface-container/10 overflow-hidden divide-y divide-m3-outline/5">
                             {profile.permissions.filter(p => p.targetType === 'SystemAction')
                               .length === 0 && (
-                              <div className="py-6 text-center text-xs text-m3-on-surface/50">
+                              <div className="py-6 text-center text-[12px] text-m3-on-surface/50">
                                 No hay permisos de este tipo.
                               </div>
                             )}

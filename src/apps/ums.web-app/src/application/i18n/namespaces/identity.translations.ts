@@ -1,7 +1,7 @@
 export const identityTranslations = {
   es: {
     // Context labels
-    identityContext: 'Contexto de Identidad',
+    identityContext: 'Identidad',
     tenant: 'Tenant',
     tenants: 'Tenants',
     userAccounts: 'Cuentas de Usuario',
@@ -22,7 +22,7 @@ export const identityTranslations = {
     records: 'Registros',
     perPage: 'por página',
     delegationManagement: 'Delegaciones',
-    systemDiagnostics: 'Diagnóstico del Sistema',
+    systemDiagnostics: 'Configuración',
     profileStats: 'Estadísticas de Perfil',
     developerSession: 'Sesión de Desarrollador',
     devProfile1: 'Administrador del Sistema',
@@ -252,7 +252,7 @@ export const identityTranslations = {
   },
   en: {
     // Context labels
-    identityContext: 'Identity Context',
+    identityContext: 'Identity',
     tenant: 'Tenant',
     tenants: 'Tenants',
     userAccounts: 'User Accounts',
@@ -273,7 +273,7 @@ export const identityTranslations = {
     records: 'Records',
     perPage: 'per page',
     delegationManagement: 'Delegations',
-    systemDiagnostics: 'System Diagnostics',
+    systemDiagnostics: 'Configuration',
     profileStats: 'Profile Statistics',
     developerSession: 'Developer Session',
     devProfile1: 'System Admin (Root)',

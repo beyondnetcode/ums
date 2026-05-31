@@ -101,36 +101,36 @@ export const SystemSuiteProfileCard: React.FC<SystemSuiteProfileCardProps> = ({
     switch (systemSuite.status) {
       case 'Active':
         return (
-          <M3Button
-            variant="outlined"
+          <button
+            type="button"
             onClick={() => handleToggleStatus('Maintenance')}
-            loading={isPendingMutation}
-            className="text-amber-500 border-amber-500/30 hover:bg-amber-500/10"
+            disabled={isPendingMutation}
+            className="h-7 px-3 rounded-full border border-amber-500/30 text-amber-500 text-[11px] font-medium flex items-center gap-1.5 hover:bg-amber-500/10 transition-colors disabled:opacity-50"
           >
-            <Wrench className="w-3.5 h-3.5 mr-1.5" /> {t.maintenanceBtn}
-          </M3Button>
+            <Wrench className="w-3 h-3" /> {t.maintenanceBtn}
+          </button>
         );
       case 'Maintenance':
         return (
-          <M3Button
-            variant="filled"
+          <button
+            type="button"
             onClick={() => handleToggleStatus('Active')}
-            loading={isPendingMutation}
-            className="bg-emerald-600 hover:bg-emerald-500"
+            disabled={isPendingMutation}
+            className="h-7 px-3 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-medium flex items-center gap-1.5 transition-colors disabled:opacity-50"
           >
-            <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" /> {t.activateBtn}
-          </M3Button>
+            <CheckCircle2 className="w-3 h-3" /> {t.activateBtn}
+          </button>
         );
       case 'Deprecated':
         return (
-          <M3Button
-            variant="outlined"
+          <button
+            type="button"
             onClick={() => handleToggleStatus('Active')}
-            loading={isPendingMutation}
-            className="text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/10"
+            disabled={isPendingMutation}
+            className="h-7 px-3 rounded-full border border-emerald-500/30 text-emerald-500 text-[11px] font-medium flex items-center gap-1.5 hover:bg-emerald-500/10 transition-colors disabled:opacity-50"
           >
-            <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" /> {t.activateBtn}
-          </M3Button>
+            <CheckCircle2 className="w-3 h-3" /> {t.activateBtn}
+          </button>
         );
       default:
         return null;
@@ -199,21 +199,21 @@ export const SystemSuiteProfileCard: React.FC<SystemSuiteProfileCardProps> = ({
               )}
             </div>
 
-            <div className="flex items-center justify-between text-xs pt-2 border-t border-m3-outline/15">
+            <div className="flex items-center justify-between text-[11px] pt-2 border-t border-m3-outline/15">
               <div className="flex items-center gap-1.5 text-m3-secondary font-medium">
                 <ShieldAlert className="w-3.5 h-3.5" />
                 <span>{t.stateControls}</span>
               </div>
               <div className="flex items-center gap-2">
                 {systemSuite.status !== 'Deprecated' && (
-                  <M3Button
-                    variant="text"
+                  <button
+                    type="button"
                     onClick={() => handleToggleStatus('Deprecated')}
-                    loading={isPendingMutation}
-                    className="text-m3-error hover:bg-m3-error/10"
+                    disabled={isPendingMutation}
+                    className="h-7 px-3 rounded-full text-rose-500 text-[11px] font-medium hover:bg-rose-500/10 transition-colors disabled:opacity-50"
                   >
                     {t.deprecateBtn}
-                  </M3Button>
+                  </button>
                 )}
               </div>
             </div>

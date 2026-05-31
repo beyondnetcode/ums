@@ -110,7 +110,7 @@ export const FeatureFlagListPanel: React.FC<Props> = ({
             },
           ]}
         >
-          <span className="text-sm font-bold text-m3-on-surface">{flag.flagCode}</span>
+          <span className="text-[12px] font-medium text-m3-on-surface">{flag.flagCode}</span>
           <div className="flex items-center gap-2 mt-0.5 flex-wrap">
             <span className="inline-flex items-center gap-1 text-[10px] text-m3-secondary/70">
               <span className="text-[9px] font-semibold uppercase tracking-wide text-m3-secondary/50">

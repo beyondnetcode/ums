@@ -125,9 +125,9 @@ const FlagRow: React.FC<{
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-m3-on-surface">{flag.flagCode}</span>
+            <span className="text-[12px] font-medium text-m3-on-surface">{flag.flagCode}</span>
             <span
-              className={`text-[9px] font-bold uppercase px-1 py-0.5 rounded ${TYPE_COLOR[flag.flagType]}`}
+              className={`text-[10px] font-semibold uppercase px-2.5 py-0.5 rounded-full ${TYPE_COLOR[flag.flagType]}`}
             >
               {FLAG_TYPE_LABELS[flag.flagType]}
             </span>
@@ -325,7 +325,7 @@ export const SystemSuiteFeatureFlagsPanel: React.FC<SystemSuiteFeatureFlagsPanel
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-8 text-m3-secondary/50 text-xs">
+      <div className="flex items-center justify-center py-8 text-m3-secondary/50 text-[12px]">
         Cargando feature flags...
       </div>
     );
@@ -333,7 +333,7 @@ export const SystemSuiteFeatureFlagsPanel: React.FC<SystemSuiteFeatureFlagsPanel
 
   if (error) {
     return (
-      <div className="flex items-center justify-center py-8 text-rose-500 text-xs">
+      <div className="flex items-center justify-center py-8 text-rose-500 text-[12px]">
         Error al cargar feature flags: {error.message}
       </div>
     );

@@ -17,8 +17,8 @@ export interface CodeBadgeProps {
 }
 
 const SIZE_CLASSES: Record<string, string> = {
-  xs: 'text-[9px] px-1.5 py-0.5',
-  sm: 'text-[10px] px-2 py-0.5',
+  xs: 'text-[10px] px-1.5 py-0.5',
+  sm: 'text-[11px] px-2 py-0.5',
 };
 
 export const CodeBadge: React.FC<CodeBadgeProps> = React.memo(

@@ -22,7 +22,7 @@ export const FormField = ({
       {label}{required && <span className="text-rose-500 ml-0.5">*</span>}
     </label>
     {children}
-    {error && <span className="text-[9px] text-rose-500">{error}</span>}
+    {error && <span className="text-[10px] text-rose-500">{error}</span>}
   </div>
 );
 

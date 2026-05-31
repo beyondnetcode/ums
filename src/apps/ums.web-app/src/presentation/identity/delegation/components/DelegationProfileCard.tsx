@@ -85,29 +85,29 @@ export const DelegationProfileCard: React.FC<DelegationProfileCardProps> = ({
         </div>
       </div>
 
-      <div className="flex items-center justify-between text-xs">
+      <div className="flex items-center justify-between text-[11px]">
         <div className="flex items-center gap-1.5 text-m3-secondary font-medium">
           <Sliders className="w-3.5 h-3.5" />
           <span>{t.stateControls}</span>
         </div>
         {delegation.status === 'Active' ? (
-          <M3Button
-            variant="outlined"
+          <button
+            type="button"
             onClick={() => handleToggleStatus('Revoked')}
-            loading={isPendingMutation}
-            className="text-rose-500 border-rose-500/30 hover:bg-rose-500/10"
+            disabled={isPendingMutation}
+            className="h-7 px-3 rounded-full border border-rose-500/30 text-rose-500 text-[11px] font-medium flex items-center gap-1.5 hover:bg-rose-500/10 transition-colors disabled:opacity-50"
           >
-            <ShieldAlert className="w-3.5 h-3.5 mr-1.5" /> Revoke
-          </M3Button>
+            <ShieldAlert className="w-3 h-3" /> Revoke
+          </button>
         ) : delegation.status === 'Pending' ? (
-          <M3Button
-            variant="filled"
+          <button
+            type="button"
             onClick={() => handleToggleStatus('Active')}
-            loading={isPendingMutation}
-            className="bg-emerald-600 hover:bg-emerald-500"
+            disabled={isPendingMutation}
+            className="h-7 px-3 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-medium flex items-center gap-1.5 transition-colors disabled:opacity-50"
           >
-            <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" /> {t.activateBtn}
-          </M3Button>
+            <CheckCircle2 className="w-3 h-3" /> {t.activateBtn}
+          </button>
         ) : null}
       </div>
     </M3Card>

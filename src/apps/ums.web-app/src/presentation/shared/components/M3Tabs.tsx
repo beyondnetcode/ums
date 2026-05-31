@@ -36,7 +36,7 @@ export const M3Tabs: React.FC<M3TabsProps> = ({ tabs, defaultTabId, onChange, cl
               key={tab.id}
               onClick={() => handleTabClick(tab.id)}
               className={[
-                'relative flex items-center justify-center gap-2 min-w-max px-4 py-3 text-sm font-medium transition-colors',
+                'relative flex items-center justify-center gap-1.5 min-w-max px-3 py-2 text-[11px] font-medium transition-colors',
                 isActive ? 'text-m3-primary' : 'text-m3-secondary hover:text-m3-on-surface hover:bg-m3-surface-container/40',
               ].join(' ')}
               role="tab"

@@ -145,7 +145,7 @@ export function ParameterCatalogListPanel({
             },
           ]}
         >
-          <span className="text-sm font-bold text-m3-on-surface">{param.name}</span>
+          <span className="text-[12px] font-medium text-m3-on-surface">{param.name}</span>
           <div className="flex items-center gap-2 mt-0.5 flex-wrap">
             <CodeBadge code={param.code} size="xs" />
             {param.description && (

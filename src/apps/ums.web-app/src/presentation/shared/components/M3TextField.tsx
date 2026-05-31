@@ -132,6 +132,7 @@ export const M3TextField: React.FC<M3TextFieldProps> = ({
           className={[
             'peer absolute inset-0 w-full h-full bg-transparent rounded-[4px]',
             `${inputPaddingClass} ${inputSpacingClass} text-m3-on-surface`,
+            compact ? 'text-[11px]' : '',
             'focus:outline-none',
             'disabled:opacity-50 disabled:cursor-not-allowed',
             icon && iconPosition === 'start' ? 'pl-10' : '',
