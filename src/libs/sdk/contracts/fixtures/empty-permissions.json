@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "1.0.0",
+  "context": {
+    "user": {
+      "id": "7a1d4e22-0005-4f00-9a00-100000000005",
+      "email": "newbie@logistics-corp.example",
+      "username": "newbie",
+      "displayName": "New User",
+      "status": "ACTIVE"
+    },
+    "tenant": {
+      "id": "11111111-1111-4111-8111-111111111111",
+      "code": "LOGISTICS_CORE",
+      "name": "Logistics Corp",
+      "status": "ACTIVE"
+    },
+    "systemSuite": {
+      "id": "22222222-2222-4222-8222-222222222222",
+      "code": "WMS_SUITE",
+      "name": "Warehouse Management Suite",
+      "status": "PUBLISHED"
+    },
+    "role": {
+      "id": "33333333-3333-4333-8333-333333333335",
+      "code": "READ_ONLY_VIEWER",
+      "name": "Read-Only Viewer",
+      "hierarchyLevel": 1,
+      "parentRoleId": null
+    },
+    "profile": {
+      "id": "44444444-4444-4444-8444-444444444448",
+      "scope": "OrgWide",
+      "isActive": true
+    },
+    "branch": null
+  },
+  "authentication": {
+    "method": "Local",
+    "provider": null,
+    "mfaRequired": false,
+    "issuedAt": "2026-05-31T14:30:00Z",
+    "sessionExpiresAt": "2026-05-31T15:30:00Z"
+  },
+  "actions": [],
+  "menuAccess": [],
+  "domainPermissions": [],
+  "featureFlags": [],
+  "effectiveConfig": {
+    "sessionTimeoutMinutes": 60,
+    "maxLoginAttempts": 5,
+    "minPasswordLength": 12,
+    "mfaRequiredForAdmin": true,
+    "accessTokenDurationMs": 3600000,
+    "authUseExternalIdp": false
+  },
+  "scopes": [],
+  "generatedAt": "2026-05-31T14:30:00Z",
+  "validUntil": "2026-05-31T15:30:00Z"
+}

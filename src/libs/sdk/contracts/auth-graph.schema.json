@@ -1,0 +1,348 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ums.beyondnetcode.io/schemas/auth-graph/1.0.0",
+  "title": "AuthorizationGraph",
+  "description": "Canonical schema for the UMS AuthorizationGraph payload returned by POST /api/v1/client/authenticate. See ADR-0071 and ADR-0073.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "context",
+    "authentication",
+    "actions",
+    "menuAccess",
+    "domainPermissions",
+    "featureFlags",
+    "effectiveConfig",
+    "scopes",
+    "generatedAt",
+    "validUntil"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "const": "1.0.0",
+      "description": "Semver of the graph payload schema. See ADR-0074."
+    },
+    "context": { "$ref": "#/$defs/PrincipalContext" },
+    "authentication": { "$ref": "#/$defs/AuthenticationMetadata" },
+    "actions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Action" }
+    },
+    "menuAccess": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/MenuModule" }
+    },
+    "domainPermissions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/DomainResourcePermissions" }
+    },
+    "featureFlags": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/FeatureFlagState" }
+    },
+    "effectiveConfig": { "$ref": "#/$defs/EffectiveConfig" },
+    "scopes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z0-9_]+\\.[A-Z0-9_]+$"
+      }
+    },
+    "generatedAt": { "$ref": "#/$defs/IsoTimestamp" },
+    "validUntil": { "$ref": "#/$defs/IsoTimestamp" }
+  },
+  "$defs": {
+    "Uuid": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    },
+    "IsoTimestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "PrincipalContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["user", "tenant", "systemSuite", "role", "profile", "branch"],
+      "properties": {
+        "user": { "$ref": "#/$defs/UserSummary" },
+        "tenant": { "$ref": "#/$defs/TenantSummary" },
+        "systemSuite": { "$ref": "#/$defs/SystemSuiteSummary" },
+        "role": { "$ref": "#/$defs/RoleSummary" },
+        "profile": { "$ref": "#/$defs/ProfileSummary" },
+        "branch": {
+          "oneOf": [
+            { "$ref": "#/$defs/BranchSummary" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "UserSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "email", "username", "displayName", "status"],
+      "properties": {
+        "id": { "$ref": "#/$defs/Uuid" },
+        "email": { "type": "string", "format": "email" },
+        "username": { "type": "string", "minLength": 1 },
+        "displayName": { "type": "string" },
+        "status": { "type": "string", "enum": ["ACTIVE", "PENDING", "BLOCKED"] }
+      }
+    },
+    "TenantSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "code", "name", "status"],
+      "properties": {
+        "id": { "$ref": "#/$defs/Uuid" },
+        "code": { "type": "string", "pattern": "^[A-Z0-9_]+$" },
+        "name": { "type": "string" },
+        "status": { "type": "string", "enum": ["ACTIVE", "SUSPENDED", "ARCHIVED"] }
+      }
+    },
+    "SystemSuiteSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "code", "name", "status"],
+      "properties": {
+        "id": { "$ref": "#/$defs/Uuid" },
+        "code": { "type": "string", "pattern": "^[A-Z0-9_]+$" },
+        "name": { "type": "string" },
+        "status": { "type": "string", "enum": ["DRAFT", "PUBLISHED", "RETIRED"] }
+      }
+    },
+    "RoleSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "code", "name", "hierarchyLevel", "parentRoleId"],
+      "properties": {
+        "id": { "$ref": "#/$defs/Uuid" },
+        "code": { "type": "string", "pattern": "^[A-Z0-9_]+$" },
+        "name": { "type": "string" },
+        "hierarchyLevel": { "type": "integer", "minimum": 0 },
+        "parentRoleId": {
+          "oneOf": [{ "$ref": "#/$defs/Uuid" }, { "type": "null" }]
+        }
+      }
+    },
+    "ProfileSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "scope", "isActive"],
+      "properties": {
+        "id": { "$ref": "#/$defs/Uuid" },
+        "scope": { "type": "string", "enum": ["OrgWide", "BranchScoped"] },
+        "isActive": { "type": "boolean" }
+      }
+    },
+    "BranchSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "code", "name"],
+      "properties": {
+        "id": { "$ref": "#/$defs/Uuid" },
+        "code": { "type": "string" },
+        "name": { "type": "string" }
+      }
+    },
+    "AuthenticationMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "provider", "mfaRequired", "issuedAt", "sessionExpiresAt"],
+      "properties": {
+        "method": { "type": "string", "enum": ["Local", "IDP"] },
+        "provider": {
+          "oneOf": [
+            { "$ref": "#/$defs/IdpProviderRef" },
+            { "type": "null" }
+          ]
+        },
+        "mfaRequired": { "type": "boolean" },
+        "issuedAt": { "$ref": "#/$defs/IsoTimestamp" },
+        "sessionExpiresAt": { "$ref": "#/$defs/IsoTimestamp" }
+      }
+    },
+    "IdpProviderRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "code", "strategy"],
+      "properties": {
+        "name": { "type": "string" },
+        "code": { "type": "string" },
+        "strategy": {
+          "type": "string",
+          "description": "Matches IdpStrategyHint from BC-A. Open enumeration."
+        }
+      }
+    },
+    "Action": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "code", "name"],
+      "properties": {
+        "id": { "$ref": "#/$defs/Uuid" },
+        "code": { "type": "string" },
+        "name": { "type": "string" }
+      }
+    },
+    "AccessEffect": {
+      "type": "string",
+      "enum": ["Allow", "Deny", "NotGranted"]
+    },
+    "PermissionSource": {
+      "type": "string",
+      "enum": ["Template", "Override"]
+    },
+    "MenuModule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["module", "menus"],
+      "properties": {
+        "module": { "$ref": "#/$defs/ModuleSummary" },
+        "menus": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Menu" }
+        }
+      }
+    },
+    "ModuleSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "code", "name", "sortOrder", "status"],
+      "properties": {
+        "id": { "$ref": "#/$defs/Uuid" },
+        "code": { "type": "string" },
+        "name": { "type": "string" },
+        "sortOrder": { "type": "integer", "minimum": 0 },
+        "status": { "type": "string", "enum": ["DRAFT", "PUBLISHED", "RETIRED"] }
+      }
+    },
+    "Menu": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "code", "label", "sortOrder", "subMenus"],
+      "properties": {
+        "id": { "$ref": "#/$defs/Uuid" },
+        "code": { "type": "string" },
+        "label": { "type": "string" },
+        "sortOrder": { "type": "integer", "minimum": 0 },
+        "subMenus": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/SubMenu" }
+        }
+      }
+    },
+    "SubMenu": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "code", "label", "sortOrder", "options"],
+      "properties": {
+        "id": { "$ref": "#/$defs/Uuid" },
+        "code": { "type": "string" },
+        "label": { "type": "string" },
+        "sortOrder": { "type": "integer", "minimum": 0 },
+        "options": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/MenuOption" }
+        }
+      }
+    },
+    "MenuOption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "code", "label", "actionCode", "effect", "source"],
+      "properties": {
+        "id": { "$ref": "#/$defs/Uuid" },
+        "code": { "type": "string" },
+        "label": { "type": "string" },
+        "actionCode": { "type": "string" },
+        "effect": { "$ref": "#/$defs/AccessEffect" },
+        "source": { "$ref": "#/$defs/PermissionSource" }
+      }
+    },
+    "DomainResourcePermissions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resource", "actions"],
+      "properties": {
+        "resource": { "$ref": "#/$defs/DomainResource" },
+        "actions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/DomainActionResolution" }
+        }
+      }
+    },
+    "DomainResource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "code", "name", "moduleId"],
+      "properties": {
+        "id": { "$ref": "#/$defs/Uuid" },
+        "type": { "type": "string", "enum": ["Aggregate", "Entity"] },
+        "code": { "type": "string" },
+        "name": { "type": "string" },
+        "moduleId": {
+          "oneOf": [{ "$ref": "#/$defs/Uuid" }, { "type": "null" }]
+        }
+      }
+    },
+    "DomainActionResolution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["actionId", "actionCode", "actionName", "effect", "source"],
+      "properties": {
+        "actionId": { "$ref": "#/$defs/Uuid" },
+        "actionCode": { "type": "string" },
+        "actionName": { "type": "string" },
+        "effect": { "$ref": "#/$defs/AccessEffect" },
+        "source": { "$ref": "#/$defs/PermissionSource" }
+      }
+    },
+    "FeatureFlagState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["flagCode", "systemSuiteId", "isEnabled", "matchedCriteriaType"],
+      "properties": {
+        "flagCode": { "type": "string" },
+        "systemSuiteId": { "$ref": "#/$defs/Uuid" },
+        "isEnabled": { "type": "boolean" },
+        "matchedCriteriaType": {
+          "oneOf": [
+            {
+              "type": "string",
+              "enum": [
+                "TenantId", "BranchId", "UserProfileId", "RoleCode",
+                "Environment", "DateRange", "PercentageHash", "CustomRule"
+              ]
+            },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "EffectiveConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sessionTimeoutMinutes",
+        "maxLoginAttempts",
+        "minPasswordLength",
+        "mfaRequiredForAdmin",
+        "accessTokenDurationMs",
+        "authUseExternalIdp"
+      ],
+      "properties": {
+        "sessionTimeoutMinutes": { "type": "integer", "minimum": 1 },
+        "maxLoginAttempts": { "type": "integer", "minimum": 1 },
+        "minPasswordLength": { "type": "integer", "minimum": 1 },
+        "mfaRequiredForAdmin": { "type": "boolean" },
+        "accessTokenDurationMs": { "type": "integer", "minimum": 1 },
+        "authUseExternalIdp": { "type": "boolean" }
+      }
+    }
+  }
+}
