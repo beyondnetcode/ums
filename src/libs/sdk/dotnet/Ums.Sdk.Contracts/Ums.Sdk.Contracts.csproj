@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>true</IsPackable>
+    <PackageId>Ums.Sdk.Contracts</PackageId>
+    <Version>1.0.0</Version>
+    <Description>UMS SDK — Typed contracts (DTOs) for the AuthorizationGraph payload, error code constants and schema version metadata. See ADR-0073 and ADR-0074.</Description>
+    <Authors>BeyondNetCode</Authors>
+    <PackageProjectUrl>https://github.com/beyondnetcode/ums</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>ums;sdk;authorization;contracts</PackageTags>
+    <UmsSchemaCompatibility>&gt;=1.0.0 &lt;2.0.0</UmsSchemaCompatibility>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Ums.Sdk.Authorization" />
+    <InternalsVisibleTo Include="Ums.Sdk.Authorization.Aop" />
+    <InternalsVisibleTo Include="Ums.Sdk.Authorization.Testing" />
+    <InternalsVisibleTo Include="Ums.Sdk.Tests" />
+  </ItemGroup>
+
+</Project>

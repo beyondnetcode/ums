@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Ums.Sdk.Contracts/Ums.Sdk.Contracts.csproj" />
+    <ProjectReference Include="../Ums.Sdk.Authorization/Ums.Sdk.Authorization.csproj" />
+    <ProjectReference Include="../Ums.Sdk.Authorization.Aop/Ums.Sdk.Authorization.Aop.csproj" />
+    <ProjectReference Include="../Ums.Sdk.Authorization.Testing/Ums.Sdk.Authorization.Testing.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+    <PackageReference Include="FluentAssertions" Version="6.12.2" />
+    <PackageReference Include="coverlet.collector" Version="6.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../contracts/fixtures/*.json"
+          Link="Fixtures/%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>
