@@ -69,6 +69,8 @@ Especificaciones de Ingenieria y Ciclo de Vida del Producto para el User Managem
 - [ADR-0062: Configuracion Serilog Segura de PII](./architecture/adrs/0062-pii-safe-serilog-configuration.md) _(candidato Evolith)_
 - [ADR-0063: Middleware de Clave de Idempotencia](./architecture/adrs/0063-idempotency-middleware.md) _(candidato Evolith)_
 - [ADR-0066: Contrato de Errores Accionables](./architecture/adrs/0066-actionable-user-error-contract.es.md) _(candidato Evolith)_
+- [ADR-0071: Motor del Grafo de Autorizacion](./architecture/adrs/0071-auth-graph-engine.es.md)
+- [ADR-0072: Resolucion Dinamica del Metodo de Autenticacion](./architecture/adrs/0072-dynamic-auth-method-resolution.es.md)
 - [Indice ADR](./architecture/adrs/index.md)
 - **Guias de Desarrollo de Librerias Shell** -- [Vision General](./architecture/shell-libraries/README.es.md) · [DDD](./architecture/shell-libraries/ddd.es.md) · [Factory](./architecture/shell-libraries/factory.md) · [AOP](./architecture/shell-libraries/aop.es.md) · [Bootstrapper](./architecture/shell-libraries/bootstrapper.md) · [Uso Combinado](./architecture/shell-libraries/combined-usage.md) · [Aspectos del API](./architecture/shell-libraries/api-aspects.es.md)
 - [Decisiones de Diseno y Vacios](./governance/construction/ddd-design/12-design-decisions.md)
@@ -79,7 +81,7 @@ Especificaciones de Ingenieria y Ciclo de Vida del Producto para el User Managem
 > La Fase 04b documenta cada Aggregate Root con 8 secciones estructuradas: Vision del Agregado · Modelo de Objeto · Diagramas de Secuencia · Modelo ER · Modelo de Bounded Context · Contrato API · Notas de Persistencia · Seguridad y Auditoria. Las entidades hijas (Branch, Branding, IdentityProvider, etc.) se documentan dentro de la pagina de su Aggregate Root padre -- no como documentos separados.
 
 - [Indice de Agregados de Dominio](./domain-es/index.md)
-- **Identity BC:** [Tenant](./domain-es/identity/tenant.md) · [UserAccount](./domain-es/identity/user-account.md)
+- **Identity BC:** [Tenant](./domain-es/identity/tenant.md) · [UserAccount](./domain-es/identity/user-account.md) · [Grafo de Autorizacion](./domain-es/identity/auth-graph.md) · [Resolucion del Metodo de Autenticacion](./domain-es/identity/auth-method-resolution.md)
 - **Authorization BC:** [SystemSuite](./domain-es/authorization/system-suite.md) · [PermissionTemplate](./domain-es/authorization/permission-template.md) · [Profile](./domain-es/authorization/profile.md)
 - **Configuration BC:** [IdpConfiguration](./domain-es/configuration/idp-configuration.md) · [AppConfiguration](./domain-es/configuration/app-configuration.md) · [FeatureFlag](./domain-es/configuration/feature-flag.md)
 - **Approvals BC:** [ApprovalWorkflow](./domain-es/approvals/approval-workflow.md) · [ApprovalRequest](./domain-es/approvals/approval-request.md) · [DocumentType](./domain-es/approvals/document-type.md) · [UserDocument](./domain-es/approvals/user-document.md)

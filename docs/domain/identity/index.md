@@ -20,4 +20,13 @@
 
 ---
 
+## Cross-Cutting Identity Documentation
+
+| Document | Description |
+|---|---|
+| [Authorization Graph](./auth-graph.md) | Structure and semantics of the `AuthorizationGraph` returned at login |
+| [Auth Method Resolution](./auth-method-resolution.md) | How UMS dynamically resolves the authentication strategy (Local vs IDP) per tenant |
+
+---
+
 **[Back to Domain Index](../index.md)**

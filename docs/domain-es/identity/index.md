@@ -19,4 +19,13 @@
 
 ---
 
+## Documentacion Transversal de Identity
+
+| Documento | Descripcion |
+|---|---|
+| [Grafo de Autorizacion](./auth-graph.md) | Estructura y semantica del `AuthorizationGraph` retornado en el login |
+| [Resolucion del Metodo de Autenticacion](./auth-method-resolution.md) | Como UMS resuelve dinamicamente la estrategia de autenticacion (Local vs IDP) por tenant |
+
+---
+
 **[Volver al Indice de Dominio](../index.md)**

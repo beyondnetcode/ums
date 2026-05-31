@@ -70,6 +70,8 @@ Product Lifecycle and Engineering Specifications for the User Management System 
 - [ADR-0062: PII-Safe Serilog Configuration](./architecture/adrs/0062-pii-safe-serilog-configuration.md) _(Evolith candidate)_
 - [ADR-0063: Idempotency Key Middleware](./architecture/adrs/0063-idempotency-middleware.md) _(Evolith candidate)_
 - [ADR-0066: Actionable User Error Contract](./architecture/adrs/0066-actionable-user-error-contract.md) _(Evolith candidate)_
+- [ADR-0071: Authorization Graph Engine](./architecture/adrs/0071-auth-graph-engine.md)
+- [ADR-0072: Dynamic Auth Method Resolution](./architecture/adrs/0072-dynamic-auth-method-resolution.md)
 - [ADR Registry](./architecture/adrs/index.md)
 - **Shell Library Developer Guides** — [Overview](./architecture/shell-libraries/README.md) · [DDD](./architecture/shell-libraries/ddd.md) · [Factory](./architecture/shell-libraries/factory.md) · [AOP](./architecture/shell-libraries/aop.md) · [Bootstrapper](./architecture/shell-libraries/bootstrapper.md) · [Combined Usage](./architecture/shell-libraries/combined-usage.md) · [API Aspects](./architecture/shell-libraries/api-aspects.md)
 - [Design Decisions & Gaps](./governance/construction/ddd-design/12-design-decisions.md)
@@ -80,7 +82,7 @@ Product Lifecycle and Engineering Specifications for the User Management System 
 > Phase 04b documents each Aggregate Root with 8 structured sections: Aggregate Overview · Object Model · Sequence Diagrams · ER Model · Bounded Context Model · API Contract · Persistence Notes · Security & Audit. Owned child entities (Branch, Branding, IdentityProvider, etc.) are documented within their parent Aggregate Root page — not as separate documents.
 
 - [Domain Aggregate Index](./domain/index.md)
-- **Identity BC:** [Tenant](./domain/identity/tenant.md) · [UserAccount](./domain/identity/user-account.md) · [UserManagementDelegation](./domain/identity/user-management-delegation.md)
+- **Identity BC:** [Tenant](./domain/identity/tenant.md) · [UserAccount](./domain/identity/user-account.md) · [UserManagementDelegation](./domain/identity/user-management-delegation.md) · [Authorization Graph](./domain/identity/auth-graph.md) · [Auth Method Resolution](./domain/identity/auth-method-resolution.md)
 - **Authorization BC:** [SystemSuite](./domain/authorization/system-suite.md) · [PermissionTemplate](./domain/authorization/permission-template.md) · [Profile](./domain/authorization/profile.md)
 - **Configuration BC:** [IdpConfiguration](./domain/configuration/idp-configuration.md) · [AppConfiguration](./domain/configuration/app-configuration.md) · [FeatureFlag](./domain/configuration/feature-flag.md)
 - **Approvals BC:** [ApprovalWorkflow](./domain/approvals/approval-workflow.md) · [ApprovalRequest](./domain/approvals/approval-request.md) · [DocumentType](./domain/approvals/document-type.md) · [UserDocument](./domain/approvals/user-document.md)

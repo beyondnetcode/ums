@@ -5,10 +5,29 @@
 **Schema:** `[ums_authorization]` | **Owner:** UMS Core API .NET 10
 **Misión:** Actuar como Policy Decisión Point (PDP). Compilar y resolver el grafo de autorización jerarquico. Gobernar la topologia de recursos (sistemas, modulos, acciones) y los perfiles de permisos.  
 **FS cubiertos:** FS-02, FS-04, FS-05, FS-06, FS-07  
-**Versión:** 2.0 | **Fecha:** 2026-05-15
+**Versión:** 2.1 | **Fecha:** 2026-05-31
 
 > **Arquitectura de Agregados:** Modelo completo con diagramas, secuencias, ER y API:
 > [SystemSuite](../../../domain/authorization/system-suite.md) · [PermissionTemplate](../../../domain/authorization/permission-template.md) · [Profile](../../../domain/authorization/profile.md)
+
+> **Documentación Transversal:** [Authorization Graph](../../../domain/identity/auth-graph.md)
+
+---
+
+## Construcción del Grafo de Autorización
+
+Tras la autenticación coordinada por BC-A, el Authorization Context es el responsable de **construir, validar y serializar** el `AuthorizationGraph` que UMS entrega al sistema cliente (ADR-0071). Este grafo es el artefacto autocontenido e inmutable que reemplaza al payload de permisos vacío del login legacy.
+
+| Responsabilidad | Descripción |
+|---|---|
+| **Consumo del Profile** | A partir del `Profile` activo (resuelto por BC-A) y sus `ProfilePermission`, materializa los permisos efectivos aplicando los Axiomas A1–A4 y la precedencia de overrides (`IsOverride = true` gana sobre el TemplateItem original). |
+| **Roles, permisos y scopes** | Resuelve el `Role` del Profile, los permisos `Allow`/`Deny`/`NotGranted` por `(TargetType, TargetId, ActionId)` y los traduce a scopes OAuth2-style `resourceCode.actionCode` para la sección `scopes[]` del grafo. |
+| **Topología de menús y dominio** | Recorre el árbol `Module→Submodule→Option` del `SystemSuite` para producir `menuAccess[]`, y emite `domainPermissions[]` para recursos de dominio (Aggregate/Entity) con sus acciones. |
+| **Reglas y parametrizaciones efectivas** | Incorpora `featureFlags[]` evaluados al momento de autenticación contra el contexto del usuario (ADR-0068) y `effectiveConfig` con los parámetros resueltos del tenant (timeout de sesión, MFA, duración de tokens). |
+| **Validación del grafo** | Aplica los axiomas: Deny-by-Default (A1), Permissive Union (A2), Explicit Deny Dominance (A3), Branch Scope Precedence (A4). Un `Deny` en cualquier Profile invalida todos los `Allow` del usuario. |
+| **Serialización dinámica** | Selecciona el formato (`JSON`/`XML`/`YAML`/`CSV`) según `AUTH_GRAPH_DEFAULT_FORMAT` del tenant u override del cliente, vía Shell.Factory (`AuthorizationGraphSerializerFactorySetup`). |
+
+Ver [auth-graph.md](../../../domain/identity/auth-graph.md) para la estructura completa del grafo, reglas de resolución y endpoints (`POST /api/v1/auth/login`, `POST /api/v1/client/authenticate`).
 
 ---
 

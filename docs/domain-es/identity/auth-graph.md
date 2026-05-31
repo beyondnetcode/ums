@@ -1,10 +1,10 @@
-# Authorization Graph — Estructura y Semántica
+# Grafo de Autorización — Estructura y Semántica
 
-> **Language:** English | [Español](#)
+> **Idioma:** [English](../../domain/identity/auth-graph.md) | [Español](./auth-graph.md)
 
-**Bounded Context:** Cross-cutting — Identity (auth) + Authorization (graph)
-**Owner:** `AuthorizationGraphBuilderService` (Application layer)
-**Status:** Production
+**Bounded Context:** Transversal — Identity (auth) + Authorization (grafo)
+**Propietario:** `AuthorizationGraphBuilderService` (capa Application)
+**Estado:** Producción
 
 ---
 
@@ -125,7 +125,7 @@ Para sistemas cliente externos. Sin cookie. JWT inline con claims del grafo.
   "tenantCode": "LOGISTICS_CORE",
   "username": "user@ransa.pe",
   "password": "...",
-  "format": "JSON"          // opcional — override del default del tenant
+  "format": "JSON"
 }
 ```
 
@@ -137,8 +137,8 @@ Para sistemas cliente externos. Sin cookie. JWT inline con claims del grafo.
   "expiresIn": 3600,
   "issuedAt": "2026-05-31T12:00:00Z",
   "format": "JSON",
-  "graph": "{...}",          // grafo serializado
-  "requestId": "uuid"        // correlaciona con el registro de auditoría
+  "graph": "{...}",
+  "requestId": "uuid"
 }
 ```
 
@@ -164,7 +164,7 @@ El grafo es un **snapshot autocontenido** del universo de autorización de un us
             │                 │                  │
             ▼                 ▼                  ▼
      ┌───────────┐     ┌────────────┐    ┌──────────────────┐
-     │   User    │     │ AuthMethod │    │ effectiveConfig  │
+     │  Usuario  │     │ AuthMethod │    │ effectiveConfig  │
      │ (autenti- │     │  (Local /  │    │  global + tenant │
      │  cado)    │     │   IDP)     │    │   (resuelto)     │
      └─────┬─────┘     └────────────┘    └──────────────────┘
@@ -179,11 +179,11 @@ El grafo es un **snapshot autocontenido** del universo de autorización de un us
      │  Scoped)  │
      └─────┬─────┘
            │
-           │ permission resolution rules (override > template, deny > allow)
+           │ reglas de resolución (override > template, deny > allow)
            ▼
      ┌────────────────────────────────────────────────────┐
      │  Permisos efectivos                                │
-     │    • menuAccess[]      (UI tree)                   │
+     │    • menuAccess[]      (árbol UI)                  │
      │    • domainPermissions[] (Aggregate/Entity)        │
      │    • scopes[]          ("resourceCode.actionCode") │
      └────────────────────────────────────────────────────┘
@@ -206,8 +206,8 @@ El grafo es un **snapshot autocontenido** del universo de autorización de un us
 | **Permisos** | Resultado de aplicar las reglas Deny-wins/Override-precedence sobre los `ProfilePermission` del Profile. Se exponen en dos vistas: `menuAccess[]` (UI) y `domainPermissions[]` (recursos de dominio). | `menuAccess[]`, `domainPermissions[]` |
 | **Scopes** | Traducción OAuth2-style de los permisos `Allow` a strings `resourceCode.actionCode`, listos para validación rápida en el cliente. | `scopes[]` |
 | **Reglas de autorización** | Feature flags evaluados contra el contexto del usuario al momento de autenticación (no después). | `featureFlags[]` |
-| **Parametrización global efectiva** | Defaults de plataforma para parámetros del `ParameterCatalog` con `TenantId = NULL`. | `effectiveConfig` (merged) |
-| **Parametrización específica del tenant** | Overrides del tenant sobre los defaults globales. Mayor precedencia. | `effectiveConfig` (merged) |
+| **Parametrización global efectiva** | Defaults de plataforma para parámetros del `ParameterCatalog` con `TenantId = NULL`. | `effectiveConfig` (merge) |
+| **Parametrización específica del tenant** | Overrides del tenant sobre los defaults globales. Mayor precedencia. | `effectiveConfig` (merge) |
 
 El cliente recibe **un único documento** que es suficiente para tomar todas sus decisiones de acceso durante la vigencia de la sesión.
 
@@ -458,13 +458,13 @@ hasAnyActionOn(graph.scopes, "PURCHASE_ORDER"); // true
 ```ts
 function assertTenant(graph: AuthGraph, expectedTenantCode: string): void {
   if (graph.context.tenant.code !== expectedTenantCode) {
-    throw new Error("Tenant mismatch — request rejected");
+    throw new Error("Tenant mismatch — request rechazado");
   }
   if (graph.context.tenant.status !== "ACTIVE") {
-    throw new Error("Tenant not active");
+    throw new Error("Tenant no activo");
   }
   if (new Date(graph.validUntil) < new Date()) {
-    throw new Error("Auth graph expired — re-authenticate");
+    throw new Error("Auth graph expirado — re-autenticar");
   }
 }
 ```
@@ -486,7 +486,7 @@ El grafo está diseñado para ser **seguro de exponer al sistema cliente**, pero
 
 | Regla | Detalle |
 |---|---|
-| **No exponer secretos** | El grafo NUNCA debe incluir `PasswordHash`, `ApiCredentialHash`, JWT signing keys, secretos de cliente OAuth, ni ningún material criptográfico. |
+| **No exponer secretos** | El grafo NUNCA debe incluir `PasswordHash`, `ApiCredentialHash`, claves de firma JWT, secretos de cliente OAuth, ni ningún material criptográfico. |
 | **No exponer tokens de proveedores IDP** | `id_token`, `access_token`, `refresh_token` o assertions SAML del IDP externo se consumen únicamente dentro de UMS durante la autenticación y se descartan. No deben aparecer en `authentication.provider`. |
 | **No exponer credenciales** | Ni en plano ni hasheadas. El campo `authentication.method` indica `Local` o `IDP` pero nunca acompaña el secreto utilizado. |
 | **No exponer configuración sensible** | `effectiveConfig` sólo expone parámetros operacionales del sistema cliente (timeouts, longitudes mínimas, flags booleanos). Connection strings, claves de servicios externos, endpoints internos y secretos de infraestructura están explícitamente excluidos. |
@@ -501,8 +501,8 @@ El grafo está diseñado para ser **seguro de exponer al sistema cliente**, pero
 
 ## 11. Referencias
 
-- [ADR-0071: Auth Graph Engine](../../architecture/adrs/0071-auth-graph-engine.md)
-- [ADR-0072: Dynamic Auth Method Resolution](../../architecture/adrs/0072-dynamic-auth-method-resolution.md)
-- [Auth Method Resolution](./auth-method-resolution.md)
+- [ADR-0071: Motor del Grafo de Autorización](../../architecture/adrs/0071-auth-graph-engine.es.md)
+- [ADR-0072: Resolución Dinámica del Método de Autenticación](../../architecture/adrs/0072-dynamic-auth-method-resolution.es.md)
+- [Resolución del Método de Autenticación](./auth-method-resolution.md)
 - [AuthorizationGraphBuilderService](../../../src/apps/ums.api/Ums.Application/Authorization/Graph/AuthorizationGraphBuilderService.cs)
 - [ClientAuthEndpoints](../../../src/apps/ums.api/Ums.Presentation/Endpoints/Identity/Auth/ClientAuthEndpoints.cs)
