@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ums.Sdk.Authorization.Testi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ums.Sdk.Tests", "Ums.Sdk.Tests\Ums.Sdk.Tests.csproj", "{A1000001-0000-4000-8000-000000000005}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ums.Sdk.Client", "Ums.Sdk.Client\Ums.Sdk.Client.csproj", "{A1000001-0000-4000-8000-000000000006}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ums.Sdk.Authorization.AspNetCore", "Ums.Sdk.Authorization.AspNetCore\Ums.Sdk.Authorization.AspNetCore.csproj", "{A1000001-0000-4000-8000-000000000007}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,5 +41,13 @@ Global
 		{A1000001-0000-4000-8000-000000000005}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A1000001-0000-4000-8000-000000000005}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1000001-0000-4000-8000-000000000005}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1000001-0000-4000-8000-000000000006}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1000001-0000-4000-8000-000000000006}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1000001-0000-4000-8000-000000000006}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1000001-0000-4000-8000-000000000006}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1000001-0000-4000-8000-000000000007}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1000001-0000-4000-8000-000000000007}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1000001-0000-4000-8000-000000000007}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1000001-0000-4000-8000-000000000007}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

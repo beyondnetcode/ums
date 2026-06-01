@@ -13,6 +13,8 @@
     <ProjectReference Include="../Ums.Sdk.Authorization/Ums.Sdk.Authorization.csproj" />
     <ProjectReference Include="../Ums.Sdk.Authorization.Aop/Ums.Sdk.Authorization.Aop.csproj" />
     <ProjectReference Include="../Ums.Sdk.Authorization.Testing/Ums.Sdk.Authorization.Testing.csproj" />
+    <ProjectReference Include="../Ums.Sdk.Client/Ums.Sdk.Client.csproj" />
+    <ProjectReference Include="../Ums.Sdk.Authorization.AspNetCore/Ums.Sdk.Authorization.AspNetCore.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,6 +23,7 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
     <PackageReference Include="FluentAssertions" Version="6.12.2" />
     <PackageReference Include="coverlet.collector" Version="6.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="10.0.0" />
   </ItemGroup>
 
   <ItemGroup>

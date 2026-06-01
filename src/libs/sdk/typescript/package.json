@@ -7,7 +7,9 @@
   "workspaces": [
     "sdk-contracts",
     "sdk-authorization",
-    "sdk-testing"
+    "sdk-testing",
+    "sdk-client",
+    "sdk-express"
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
