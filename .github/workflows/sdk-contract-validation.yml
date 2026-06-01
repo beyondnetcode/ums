@@ -1,0 +1,157 @@
+name: SDK Contract Validation
+
+on:
+  push:
+    paths:
+      - 'src/libs/sdk/**'
+      - '.github/workflows/sdk-contract-validation.yml'
+  pull_request:
+    paths:
+      - 'src/libs/sdk/**'
+      - '.github/workflows/sdk-contract-validation.yml'
+
+jobs:
+  json-schema:
+    name: JSON Schema + Golden Fixtures
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Ajv
+        run: |
+          mkdir -p /tmp/ajv-validate
+          cd /tmp/ajv-validate
+          npm init -y >/dev/null
+          npm install --no-save ajv ajv-formats >/dev/null
+
+      - name: Validate every fixture against auth-graph.schema.json
+        run: |
+          node - <<'EOF'
+          const Ajv2020 = require('/tmp/ajv-validate/node_modules/ajv/dist/2020');
+          const addFormats = require('/tmp/ajv-validate/node_modules/ajv-formats');
+          const fs = require('fs');
+          const path = require('path');
+
+          const base = 'src/libs/sdk/contracts';
+          const schema = JSON.parse(fs.readFileSync(`${base}/auth-graph.schema.json`, 'utf8'));
+          const ajv = new Ajv2020({ strict: false, allErrors: true });
+          addFormats(ajv);
+          const validate = ajv.compile(schema);
+
+          const valid = [
+            'local-auth-success', 'idp-auth-success', 'deny-wins', 'override-allow',
+            'empty-permissions', 'expired-graph', 'feature-flag-matched',
+            'feature-flag-missed-context', 'multi-tenant-rejection'
+          ];
+          const invalid = [
+            'schema-unsupported-major', 'schema-minor-ahead', 'schema-missing'
+          ];
+
+          let failures = 0;
+          for (const name of valid) {
+            const fixture = JSON.parse(fs.readFileSync(path.join(base, 'fixtures', `${name}.json`), 'utf8'));
+            if (!validate(fixture)) {
+              console.error(`✘ ${name} — UNEXPECTED schema rejection`);
+              console.error(JSON.stringify(validate.errors, null, 2));
+              failures++;
+            } else {
+              console.log(`✓ ${name}`);
+            }
+          }
+          for (const name of invalid) {
+            const fixture = JSON.parse(fs.readFileSync(path.join(base, 'fixtures', `${name}.json`), 'utf8'));
+            if (validate(fixture)) {
+              console.error(`✘ ${name} — UNEXPECTED schema acceptance (should be rejected)`);
+              failures++;
+            } else {
+              console.log(`✓ ${name} (correctly rejected: ${validate.errors[0].message})`);
+            }
+          }
+          if (failures > 0) process.exit(1);
+          console.log(`\nAll ${valid.length + invalid.length} fixtures behave as documented.`);
+          EOF
+
+  dotnet-sdk:
+    name: .NET SDK build + test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+          dotnet-quality: 'preview'
+
+      - name: dotnet restore
+        working-directory: src/libs/sdk/dotnet
+        run: dotnet restore Ums.Sdk.sln
+
+      - name: dotnet build
+        working-directory: src/libs/sdk/dotnet
+        run: dotnet build Ums.Sdk.sln --no-restore --configuration Release
+
+      - name: dotnet test
+        working-directory: src/libs/sdk/dotnet
+        run: dotnet test Ums.Sdk.sln --no-build --configuration Release --logger "trx;LogFileName=test-results.trx"
+
+      - name: Upload .NET test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dotnet-sdk-test-results
+          path: 'src/libs/sdk/dotnet/**/TestResults/test-results.trx'
+
+  typescript-sdk:
+    name: TypeScript SDK build + test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install workspace
+        working-directory: src/libs/sdk/typescript
+        run: npm ci
+
+      - name: Build
+        working-directory: src/libs/sdk/typescript
+        run: npm run build
+
+      - name: Test
+        working-directory: src/libs/sdk/typescript
+        run: npm test
+
+  nestjs-sdk:
+    name: NestJS SDK build + test
+    runs-on: ubuntu-latest
+    needs: typescript-sdk
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build TS workspace first (needed for file: references)
+        working-directory: src/libs/sdk/typescript
+        run: |
+          npm ci
+          npm run build
+
+      - name: Install NestJS workspace
+        working-directory: src/libs/sdk/nestjs
+        run: npm ci
+
+      - name: Build
+        working-directory: src/libs/sdk/nestjs
+        run: npm run build
+
+      - name: Test
+        working-directory: src/libs/sdk/nestjs
+        run: npm test
