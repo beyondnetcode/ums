@@ -44,8 +44,8 @@ Start here if you are new to UMS. This index gives each reader a fast route into
 | Understand the product | [Product Vision](./docs/governance/product/product-vision.md) | [Business Context](./docs/governance/product/business-context.md) → [Scope](./docs/governance/product/scope.md) |
 | See Epics & Priorities | [MVP Product Backlog](./docs/governance/project/mvp-product-backlog.md) | [Requirements Index](./docs/governance/requirements/index.md) → [Functional Stories](./docs/governance/requirements/functional-stories/index.md) |
 | Review functional requirements | [Requirements Index](./docs/governance/requirements/index.md) | [Functional Stories](./docs/governance/requirements/functional-stories/index.md) → [Glossary](./docs/governance/requirements/glossary.md) |
-| Validate the data and domain model | [Conceptual Data Model](./docs/governance/requirements/conceptual-data-model.md) | [ER Export Formats](./docs/architecture/blueprints/er-export-formats.md) → [Database Design ER](./docs/architecture/blueprints/database-design-er.md) |
-| Understand the architecture | [Architecture Portal](./docs/architecture/index.md) | [Database Design ER](./docs/architecture/blueprints/database-design-er.md) |
+| Validate the data and domain model | [Conceptual Data Model](./docs/governance/requirements/conceptual-data-model.md) | [Data Model Consistency Review](./docs/architecture/blueprints/data-model-consistency-review.md) → [Database Design ER](./docs/architecture/blueprints/database-design-er.md) |
+| Understand the architecture | [Architecture Portal](./docs/architecture/index.md) | [Architecture Overview](./docs/architecture/overview.md) → [Database Design ER](./docs/architecture/blueprints/database-design-er.md) |
 | Browse everything | [Master Index](./docs/MASTER_INDEX.md) | Complete document tree by lifecycle phase. |
 
 ---
@@ -66,13 +66,13 @@ Start here if you are new to UMS. This index gives each reader a fast route into
 src/
 ├── apps/
 │   ├── ums.api/                    # .NET Backend (Clean Architecture)
-│   │   ├── Domain/                 # Pure POCOs, zero NuGet references
+│   │   ├── Domain/                 # Pure DDD model: Aggregate Roots, Entities, Value Objects, Domain Events; zero framework dependencies
 │   │   ├── Application/            # Use cases, interfaces
 │   │   ├── Infrastructure/         # EF Core, external services
 │   │   └── Presentation/           # GraphQL/REST endpoints
 │   └── ums.web-app/                # React Frontend (Clean Architecture)
 │       ├── src/
-│       │   ├── domain/             # Enterprise entities, value objects
+│       │   ├── domain/             # Client-side domain types, value objects, and UI-facing business model
 │       │   ├── application/        # Hooks, stores, use cases
 │       │   ├── infrastructure/     # HTTP clients, GraphQL client
 │       │   └── presentation/       # Components, screens, layouts
@@ -82,9 +82,9 @@ src/
 
 ### Key Architectural Decisions
 - **GraphQL for Queries, REST for Commands**: All read operations use HotChocolate GraphQL; writes use REST Minimal APIs for transactional clarity.
-- **Clean Architecture**: Strict layer boundaries. Domain layer is pure (no external dependencies). Application layer contains use cases and interfaces. Infrastructure handles external concerns.
+- **Clean Architecture + DDD**: Strict layer boundaries. The Domain layer contains the pure DDD model — Aggregate Roots, Entities, Value Objects, Domain Events, and invariants — with zero framework dependencies. Application contains use cases and ports. Infrastructure handles persistence and external concerns.
 - **Result Pattern**: No exceptions for flow control. All operations return `Result<T>` for explicit error handling.
-- **Bounded Contexts**: Identity, Access, Audit, etc. Each context has its own aggregates, services, and presentation modules.
+- **Bounded Contexts**: Identity, Authorization, Configuration, Approvals, Compliance, IGA, Audit, Cache, and Console. Each context owns its aggregate model, contracts, and integration rules.
 
 ---
 
@@ -142,7 +142,7 @@ cd src/apps/ums.web-app && npm run dev
 | **Governance** | [Governance Portal](./docs/governance/index.md) | Product direction, business scope, and functional requirements. |
 | **Project Delivery** | [Project Backlog](./docs/governance/project/index.md) | MVP epics, user stories, and functional design of core modules. |
 | **Requirements** | [Requirements Index](./docs/governance/requirements/index.md) | Functional stories, business glossary, and conceptual data model. |
-| **Architecture** | [Architecture Portal](./docs/architecture/index.md) | Database ER design, entity maps, and interactive viewers. |
+| **Architecture** | [Architecture Portal](./docs/architecture/index.md) | Database ER design, entity maps, data-model consistency review, and interactive viewers. |
 | **Construction** | [Construction Portal](./docs/governance/construction/index.md) | DDD domain layer design (bounded contexts, aggregates, events, commands). |
 | **Metrics** | [Solution Metrics Dashboard](./docs/operations/metrics/index.md) | Engineering metrics by solution type: coding, security, quality, tests, AI usage. |
 
