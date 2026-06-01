@@ -11,7 +11,7 @@
  */
 import { z } from 'zod';
 
-export const UserStatusSchema = z.enum(['Pending', 'Active', 'Blocked']);
+export const UserStatusSchema = z.enum(['Pending', 'Active', 'Blocked', 'Deleted', 'Denied']);
 export const UserCategorySchema = z.enum(['Internal', 'External', 'B2B', 'Partner', 'ServiceAccount']);
 export const IdentityReferenceTypeSchema = z.enum(['HrId', 'VendorCode', 'GovernmentId', 'PartnerRef']);
 
@@ -28,7 +28,7 @@ export const UserAccountSchema = z.object({
   identityReference:      z.string().nullable().optional().transform((v) => v ?? null),
   identityReferenceType:  IdentityReferenceTypeSchema.nullable().optional().transform((v) => v ?? null),
   hasActivePassword:      z.boolean().optional().default(false),
-  passwordUpdatedAtUtc:   z.string().datetime().nullable().optional().transform((v) => v ?? null),
+  passwordUpdatedAtUtc:   z.string().nullable().optional().transform((v) => v ?? null),
 });
 
 export const UserAccountListSchema = z.array(UserAccountSchema);
