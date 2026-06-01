@@ -27,7 +27,7 @@ UMS serves as an authorization and identity gateway that can either function as 
                     ▼                               │
        ┌────────────────────────────────────────────┴────────────┐
        │                      Domain Layer                       │
-       │     Pure POCO Aggregates / Value Objects / Events       │
+       │  Pure DDD Model: Aggregates / Entities / VOs / Events   │
        └────────────▲───────────────────────────────┬────────────┘
                     │ Implements                    │ Integrates
                     │                               ▼
@@ -38,7 +38,8 @@ UMS serves as an authorization and identity gateway that can either function as 
 ```
 
 ### Shared Architectural Principles
-1. **Domain Purity**: The Domain layer (`{BoundedContext}.Domain`) consists of pure C# objects (POCOs) with zero external library references, ensuring business logic remains unpolluted.
+
+1. **Domain Purity**: The Domain layer (`{BoundedContext}.Domain`) contains the pure DDD model — Aggregate Roots, Entities, Value Objects, Domain Events, invariants, and domain services — with zero external framework references.
 2. **Explicit Boundaries**: Cross-context interactions are strictly decoupled using event-driven communication (Transactional Outbox) or explicit Application-layer Anti-Corruption Layers (ACLs). Direct cross-context database joins are strictly prohibited.
 3. **Tenant Isolation**: High-security multi-tenancy is enforced natively in the Application layer, with SQL Server Row-Level Security (RLS) serving as an infrastructure-level secondary failsafe (R-10).
 4. **Command-Query Responsibility Segregation (CQRS)**: Read models are highly optimized and separated from write models. Writes are strictly transaction-safe, while reads leverage efficient flat projections or direct GraphQL execution.
@@ -78,17 +79,19 @@ graph TD
 
 ## 3. High-Level Bounded Context Map
 
-UMS is partitioned into **nine Bounded Contexts** (seven with owned entities, plus Cache and Console support contexts). Two contexts — Approvals and Compliance — are unified under `Ums.Domain.Approvals` in the codebase for implementation simplicity:
+UMS is partitioned into **nine logical Bounded Contexts**. Seven own domain entities directly; Cache and Console are support contexts. The Compliance logical context is implemented under the Approvals namespace for implementation simplicity, but remains conceptually distinct for business language and governance.
 
-1. **Identity BC** (`ums_identity`): Governs tenant registration, organizational branches, white-label branding, identity providers, and user account lifecycles.
-2. **Authorization BC** (`ums_authz`): Manages application suites, functional modules, granular options, profiles/roles, and dynamic permission matrices.
-3. **Configuration BC** (`ums_config`): Controls application behavior dynamically via feature flags and custom Identity Provider configuration.
-4. **Approvals BC** (`ums_approval`): Coordinates multi-step human-in-the-loop workflows for access elevation and tenant transitions.
-5. **Compliance BC** (`ums_compliance`, unified with Approvals in code): Enforces document-based access policies, expiration notifications, and automated enforcement.
-6. **IGA BC** (`ums_iga`): Evaluates role maturity, promotion request impacts, and separation of duties.
-7. **Audit BC** (`ums_audit`): Collects immutable, non-repudiable logs of all critical platform transitions.
-8. **Cache BC** (`ums_cache`): Distributed caching layer for configuration, session data, and feature flags.
-9. **Console BC** (`ums_console`): Administrative console context for platform-level operations.
+| Logical Bounded Context | Persistence / Schema | Implementation Namespace | Notes |
+|---|---|---|---|
+| Identity | `ums_identity` | `Ums.Domain.Identity` | Tenant, branch, branding, IdP, user lifecycle. |
+| Authorization | `ums_authz` | `Ums.Domain.Authorization` | Suites, modules, menus, options, roles, profiles, permission templates. |
+| Configuration | `ums_config` | `Ums.Domain.Configuration` | IdP config, app configuration, feature flags, parameterization. |
+| Approvals | `ums_approval` | `Ums.Domain.Approvals` | Human-in-the-loop workflow and approval request lifecycle. |
+| Compliance | `ums_compliance` | `Ums.Domain.Approvals` | Logical compliance model implemented inside Approvals: document types, user documents, enforcement policies. |
+| IGA | `ums_iga` | `Ums.Domain.IGA` | Promotion request analysis, role maturity, separation of duties. |
+| Audit | `ums_audit` | `Ums.Domain.Audit` | Immutable audit records. |
+| Cache | `ums_cache` | Infrastructure / support | Distributed caching layer for configuration, session data, and feature flags. |
+| Console | `ums_console` | Presentation / support | Administrative console for platform-level operations. |
 
 See [Bounded Context Map](../governance/construction/ddd-design/01-bounded-context-map.md) for full relationship detail.
 
@@ -98,6 +101,7 @@ flowchart TD
     Authorization["Authorization BC"]
     Configuration["Configuration BC"]
     Approvals["Approvals BC"]
+    Compliance["Compliance BC"]
     IGA["IGA BC"]
     Audit["Audit BC"]
 
@@ -107,13 +111,15 @@ flowchart TD
     Identity -->|Provide Identity Context| Audit
     
     Authorization -->|Enforce Access Context| Approvals
-    Authorization -->|Consume for Elevation Analyis| IGA
+    Authorization -->|Consume for Elevation Analysis| IGA
     Authorization -->|Publish: Profile/Permission Events| Audit
 
     Configuration -->|Feature Flags & IdP parameters| Identity
     
     Approvals -->|Elevate Roles / Approve Changes| Authorization
     Approvals -->|Trigger Notifications| Audit
+    Compliance -->|Document Policy Inputs| Approvals
+    Compliance -->|Enforcement Events| Audit
     
     IGA -->|Request Promotion / Role Recertification| Approvals
     
@@ -130,33 +136,25 @@ flowchart TD
 | **Configuration** | **Identity** | Upstream-Downstream | Conformist (Dynamic flags regulate features) |
 | **Authorization** | **IGA** | Upstream-Downstream | Partnership (IGA evaluates role structures) |
 | **IGA** | **Approvals** | Upstream-Downstream | Customer-Supplier (Promotion requests trigger approvals) |
+| **Compliance** | **Approvals** | Upstream-Downstream | Customer-Supplier (document policy feeds approval and access workflows) |
 | **All Contexts** | **Audit** | Downstream | Publish-Subscribe (Transactional Outbox events) |
 
 ---
 
 ## 4. Aggregate Root Catalog
 
-All domain rules, invariants, and architectural diagrams are consolidated within each Aggregate Root's dedicated documentation file. Owned child entities are documented within their parent AR's page — they do not have separate top-level entries.
+The authoritative aggregate-root inventory is maintained in the [Domain Aggregate Index](../domain/index.md). This overview intentionally summarizes rather than duplicating all entity detail.
 
-See [Domain Aggregate Index](../domain/index.md) for the full inventory.
+| Bounded Context | Aggregate Roots |
+|---|---|
+| **Identity** | [Tenant](../domain/identity/tenant.md), [UserAccount](../domain/identity/user-account.md), [UserManagementDelegation](../domain/identity/user-management-delegation.md) |
+| **Authorization** | [SystemSuite](../domain/authorization/system-suite.md), [Role](../domain/authorization/role.md), [PermissionTemplate](../domain/authorization/permission-template.md), [Profile](../domain/authorization/profile.md) |
+| **Configuration** | [IdpConfiguration](../domain/configuration/idp-configuration.md), [AppConfiguration](../domain/configuration/app-configuration.md), [FeatureFlag](../domain/configuration/feature-flag.md) |
+| **Approvals / Compliance** | [ApprovalWorkflow](../domain/approvals/approval-workflow.md), [ApprovalRequest](../domain/approvals/approval-request.md), [DocumentType](../domain/approvals/document-type.md), [UserDocument](../domain/approvals/user-document.md), [AccessEnforcementPolicy](../domain/approvals/access-enforcement-policy.md) |
+| **IGA** | [PromotionRequest](../domain/iga/promotion-request.md), [RoleMaturityStatus](../domain/iga/role-maturity-status.md) |
+| **Audit** | [AuditRecord](../domain/audit/audit-record.md) |
 
-| BC | Aggregate Root | Owned Entities (documented within AR) |
-|---|---|---|
-| **Identity** | [Tenant](../domain/identity/tenant.md) | Branch · Branding · IdentityProvider |
-| **Identity** | [UserAccount](../domain/identity/user-account.md) | PasswordCredential · MfaEnrollment |
-| **Authorization** | [SystemSuite](../domain/authorization/system-suite.md) | FunctionalModule · FunctionalMenu · FunctionalSubMenu · FunctionalOption · Action |
-| **Authorization** | [PermissionTemplate](../domain/authorization/permission-template.md) | PermissionTemplateItem |
-| **Authorization** | [Profile](../domain/authorization/profile.md) | ProfilePermission |
-| **Configuration** | [IdpConfiguration](../domain/configuration/idp-configuration.md) | *(none)* |
-| **Configuration** | [AppConfiguration](../domain/configuration/app-configuration.md) | *(none)* |
-| **Configuration** | [FeatureFlag](../domain/configuration/feature-flag.md) | FlagEvaluationLog |
-| **Approvals** | [ApprovalWorkflow](../domain/approvals/approval-workflow.md) | ApprovalRequiredDocument |
-| **Approvals** | [ApprovalRequest](../domain/approvals/approval-request.md) | ApprovalLog |
-| **Compliance** | [DocumentType](../domain/approvals/document-type.md) | NotificationRule · AccessEnforcementPolicy |
-| **Compliance** | [UserDocument](../domain/approvals/user-document.md) | AccessNotification |
-| **IGA** | [PromotionRequest](../domain/iga/promotion-request.md) | PromotionImpactAnalysis |
-| **IGA** | [RoleMaturityStatus](../domain/iga/role-maturity-status.md) | *(none)* |
-| **Audit** | [AuditRecord](../domain/audit/audit-record.md) | *(none — append-only)* |
+> **Counting rule:** The Domain Aggregate Index is the source of truth for aggregate count and ownership. Architecture summaries must not define independent aggregate totals.
 
 ---
 
@@ -165,21 +163,39 @@ See [Domain Aggregate Index](../domain/index.md) for the full inventory.
 To preserve DDD bounded context purity while maintaining system cohesion, the following integration standards must be strictly followed:
 
 ### 1. The Transactional Outbox Pattern
+
 Every state-changing operation within an aggregate must publish events to a local outbox table **in the same database transaction**. An asynchronous dispatcher reads these entries and forwards them to Dapr PubSub for cross-context delivery. This ensures reliable eventual consistency without distributed 2PC transactions.
 
 ### 2. Integration via Core Identifiers
+
 Aggregates in downstream contexts must NEVER reference entities of upstream contexts directly. Instead, they reference only their global identifier (`TenantId`, `UserId`, `BranchId`, etc.) stored as strong Value Objects.
 
 ### 3. Anti-Corruption Layers (ACL)
-When a context integrates with external directories or Legacy HR Systems, an explicit Anti-Corruption Layer (consisting of Adapters, Translators, and Facades) is built inside the infrastructure layer to prevent external concepts from bleeding into the pure Domain model.
+
+When a context integrates with external directories or legacy HR systems, an explicit Anti-Corruption Layer (consisting of Adapters, Translators, and Facades) is built inside the infrastructure layer to prevent external concepts from bleeding into the pure Domain model.
 
 ---
 
-## 6. Shared Architectural Rules
+## 6. Data Model Governance
 
-- **Zero NuGet References in Domain**: The Domain project is 100% pure C#. 
+UMS has three complementary data-model views:
+
+| View | Source | Purpose |
+|---|---|---|
+| Conceptual | [Conceptual Data Model](../governance/requirements/conceptual-data-model.md) | Business-readable language and early requirements validation. |
+| Domain | [Domain Aggregate Index](../domain/index.md) | DDD Aggregate Roots, owned entities, invariants, and behavioral model. |
+| Physical | [Database Design ER](./blueprints/database-design-er.md) | Authoritative SQL Server / EF Core-aligned physical entity-relationship model. |
+
+Use [Data Model Consistency Review](./blueprints/data-model-consistency-review.md) when validating alignment across conceptual names, DDD aggregates, ER diagrams, and EF Core persistence records.
+
+---
+
+## 7. Shared Architectural Rules
+
+- **Zero Framework References in Domain**: The Domain project is pure C# and must not reference EF Core, ASP.NET, HotChocolate, Dapr, or infrastructure libraries.
+- **DDD-first Language**: Architecture documents should use Aggregate Root, Entity, Value Object, Domain Event, Invariant, and Bounded Context as the dominant vocabulary. Technical .NET terms may be used only when clarifying implementation constraints.
 - **Result Pattern**: Application flows do not throw control exceptions. All business validations return a `Result<T>` structure mapping out failure cases clearly.
-- **Single Source of Truth**: Business invariants and entity schemas belong strictly in their respective aggregate files listed in Section 4. Do not copy ER schemas or diagrams into any other architectural indexes.
+- **Single Source of Truth**: Business invariants and domain entity schemas belong in their respective aggregate files listed in the Domain Aggregate Index. Physical schema belongs in the Database Design ER.
 
 ---
 
