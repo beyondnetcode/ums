@@ -10,13 +10,15 @@
 ## 1. Aggregate Overview
 
 ### Purpose
-The `UserAccount` aggregate represents a user's identity within a tenant. It governs registration, activation, blocking, external IdP linkage, password credential management, and MFA enrollment. It is the primary identity object referenced by all other bounded contexts. It fully owns the `PasswordCredential` and `MfaEnrollment` child entities.
+The `UserAccount` aggregate represents a user's identity within a tenant. It governs registration, activation, blocking, soft deletion, external IdP linkage, password credential management, and MFA enrollment. It is the primary identity object referenced by all other bounded contexts. It fully owns the `PasswordCredential` and `MfaEnrollment` child entities.
 
 > **Delegated Administration:** A `UserAccount` with an administrative role may receive a `UserManagementDelegation` from another administrator, granting them the authority to manage a restricted set of users within a defined scope (tenant, organization, department, system, or team). This authority is enforced at the application layer by checking for an `ACTIVE` delegation before processing restricted commands. See [`UserManagementDelegation`](./user-management-delegation.md) · [FS-14](../../governance/requirements/functional-stories/fs-14-delegated-management.md).
 
 ### Business Responsibility
-- Register users within a tenant, assigning them a category and email.
-- Track lifecycle: Pending → Active → Blocked → Active.
+- Register users within a tenant, assigning them a category, email, and optional display name.
+- Track the implemented lifecycle: Pending -> Active -> Blocked -> Active, plus Deleted as a terminal soft-delete state.
+- Support Phase 3 user signup by representing signup requests as `Pending` user accounts.
+- Support the onboarding lobby as a derived state when a user is `Active` but has no active `Profile`.
 - Link users to an external identity reference from an authoritative source system (HR, vendor, government, partner), while authentication protocol selection remains governed by tenant/provider strategy.
 - Own `PasswordCredential` and `MfaEnrollment` child entities.
 - Emit authentication-related domain events (auth attempted, MFA enrolled/verified).
@@ -36,7 +38,7 @@ The `UserAccount` aggregate represents a user's identity within a tenant. It gov
 9. A `FEDERATED` user (has `IdentityReference`) should not have an active `PasswordCredential`.
 10. Multiple `MfaEnrollment` records may exist (one per method), but each method may only be enrolled once per user.
 11. MFA enrollment status values follow the implemented model: `NotEnrolled`, `Enrolled`, `Verified`. New enrollments start in `Enrolled` and move to `Verified` once the challenge is confirmed.
-12. `UserAccount.Status` must not be `Blocked` to enroll a new MFA method.
+12. `UserAccount.Status` must not be `Blocked` or `Deleted` to enroll a new MFA method.
 13. At least one enrolled MFA method must remain if the tenant requires MFA.
 14. A `UserAccount` acting as a delegated admin may only execute management commands (`RegisterUserCommand`, `BlockUserCommand`, `AssignProfileCommand`) on users within their `ACTIVE` delegation scope — validated by `IDelegationScopeValidator` at application layer.
 15. A `UserAccount` cannot delegate authority it does not itself possess (`no-elevation` rule — INV-DEL1).
@@ -51,7 +53,7 @@ The `UserAccount` aggregate represents a user's identity within a tenant. It gov
 | `Email` | Value Object | Validated email |
 | `UserCategory` | Enum | INTERNAL · EXTERNAL · B2B · PARTNER |
 | `DelegationId` | Value Object | Reference to `UserManagementDelegation` — set in application context, not stored on aggregate |
-| `UserStatus` | Enum | Pending · Active · Blocked |
+| `UserStatus` | Enum | Pending · Active · Blocked · Deleted |
 | `IdentityReference` | Value Object | External master-data reference from the authoritative source system |
 | `IdentityReferenceType` | Enum | HR_ID · VENDOR_CODE · GOVERNMENT_ID · PARTNER_REF |
 | `PasswordHash` | Value Object | Validated BCrypt hash string |
@@ -66,6 +68,7 @@ The `UserAccount` aggregate represents a user's identity within a tenant. It gov
 | `UserActivatedEvent` | User moved from Pending or Blocked to Active |
 | `UserBlockedEvent` | User blocked (compliance or manual action) |
 | `UserRestoredEvent` | Blocked user restored to Active |
+| `UserDeletedEvent` | User soft-deleted and deactivated |
 | `MfaEnrolledEvent` | New MFA method enrolled |
 | `MfaVerifiedEvent` | MFA challenge successfully verified |
 | `AuthenticationAttemptedEvent` | Login attempt recorded (success or failure) |
@@ -77,6 +80,7 @@ The `UserAccount` aggregate represents a user's identity within a tenant. It gov
 | `ActivateUserCommand` | Activate a pending or blocked user |
 | `BlockUserCommand` | Block a user (compliance enforcement or manual) |
 | `RestoreUserCommand` | Restore a blocked user to Active |
+| `DeleteUserCommand` | Soft-delete the account and anonymize PII through repository persistence |
 | `AddUserAccountPasswordCommand` | Create or rotate the active local password credential using server-side hashing |
 | `LinkExternalIdentityCommand` | Associate an external authoritative-source identity reference |
 | `EnrollMfaCommand` | Enroll a new MFA method |
@@ -102,6 +106,7 @@ UserAccount (Aggregate Root)
 │   ├── TenantId: TenantId
 │   ├── BranchId?: BranchId
 │   ├── Email: Email
+│   ├── DisplayName?: Name
 │   ├── Category: UserCategory
 │   ├── Status: UserStatus
 │   ├── IdentityReference?: IdentityReference
@@ -122,6 +127,7 @@ UserAccount (Aggregate Root)
 | `TenantId` | UserAccount | `Guid` | FK — RLS scope |
 | `BranchId` | UserAccount | `Guid?` | Optional branch scope |
 | `Email` | UserAccount | `string` | Unique per tenant |
+| `DisplayName` | UserAccount | `string?` | Optional display name shown in administration and onboarding views |
 | `Category` | UserAccount | `UserCategory` | Classification |
 | `Status` | UserAccount | `UserStatus` | Lifecycle state |
 | `IdentityReference` | UserAccount | `string?` | External master-data reference |
@@ -217,14 +223,21 @@ erDiagram
         uniqueidentifier TenantId FK "RLS"
         uniqueidentifier BranchId FK "Nullable"
         nvarchar Email "Unique per TenantId"
-        nvarchar Category "INTERNAL-EXTERNAL-B2B-PARTNER"
-        nvarchar Status "PENDING-ACTIVE-BLOCKED"
+        nvarchar DisplayName "Nullable"
+        int CategoryId "UserCategory"
+        int StatusId "1=Pending, 2=Active, 3=Blocked, 4=Deleted"
         nvarchar IdentityReference "Nullable"
-        nvarchar IdentityReferenceType "Nullable - HR_ID-VENDOR_CODE-GOVERNMENT_ID-PARTNER_REF"
-        datetime2 CreatedAt
-        uniqueidentifier CreatedBy
-        datetime2 UpdatedAt
-        uniqueidentifier UpdatedBy
+        int IdentityReferenceTypeId "Nullable"
+        nvarchar CreatedBy
+        datetime2 CreatedAtUtc
+        nvarchar UpdatedBy "Nullable"
+        datetime2 UpdatedAtUtc "Nullable"
+        nvarchar AuditTimeSpan
+        rowversion RowVersion
+        bit IsDeleted
+        datetime2 DeletedAtUtc "Nullable"
+        nvarchar DeletedBy "Nullable"
+        datetime2 AnonymizedAtUtc "Nullable"
     }
 
     PASSWORD_CREDENTIAL {
@@ -362,11 +375,19 @@ flowchart TD
 ### Transaction Boundary
 `UserAccount`, `PasswordCredential`, and `MfaEnrollment` are saved in a single `SaveChanges()` call.
 
+### Onboarding State Mapping
+| Business Concept | Stored State | Notes |
+|---|---|---|
+| User signup request pending approval | `UserStatus.Pending` | The Phase 3 public signup flow creates a pending `UserAccount`. |
+| User signup approved | `UserStatus.Active` | Approval is implemented through activation. |
+| User active without profile | `UserStatus.Active` plus no active `Profile` | This is a derived lobby state, not a persisted `UserStatus`. |
+| User signup denied | Required EP-09 outcome | A dedicated denial command and lifecycle reason are still required; current code has `Blocked` but it is not semantically identical to signup denial. |
+
 ### Indexes
 | Index | Columns | Type |
 |---|---|---|
 | `IX_UserAccount_TenantId_Email` | `TenantId, Email` | Unique |
-| `IX_UserAccount_TenantId_Status` | `TenantId, Status` | Non-unique |
+| `IX_UserAccount_TenantId_Status` | `TenantId, StatusId` | Non-unique, documented target; current EF indexes `TenantId` and `TenantId, Email` |
 | `IX_UserAccount_IdentityReference` | `IdentityReference, TenantId` | Non-unique |
 | `IX_PasswordCredential_UserAccountId_IsActive` | `UserAccountId, IsActive` | Non-unique |
 | `IX_MfaEnrollment_UserAccountId_Method` | `UserAccountId, Method` | Unique |
@@ -394,6 +415,6 @@ flowchart TD
 > **Delegation Gate:** When present, the handler also accepts requests from a `UserAccount` holding an `ACTIVE` `UserManagementDelegation` that covers the target user and the listed action. Validated by `IDelegationScopeValidator` before the command reaches the aggregate. See [`UserManagementDelegation`](./user-management-delegation.md).
 
 ### Audit Events
-- `USER_REGISTERED`, `USER_ACTIVATED`, `USER_BLOCKED`, `USER_RESTORED`
+- `USER_REGISTERED`, `USER_ACTIVATED`, `USER_BLOCKED`, `USER_RESTORED`, `USER_DELETED`
 - `PASSWORD_SET`, `MFA_ENROLLED`, `MFA_VERIFIED`
 - `AUTHENTICATION_ATTEMPTED` (with `AuditResult: SUCCESS/FAILURE`)

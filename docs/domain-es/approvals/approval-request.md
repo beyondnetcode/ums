@@ -10,12 +10,13 @@
 ## 1. Visión General del Agregado
 
 ### Propósito
-El agregado `ApprovalRequest` representa una ejecución concreta en tiempo de ejecución de un proceso de aprobación. Cuando un usuario solicita una acción administrativa de altos privilegios (como una promoción de perfil o una modificación de configuración de seguridad), UMS instancia una `ApprovalRequest` vinculada a un `ApprovalWorkflow` específico para rastrear el estado, las aprobaciones, los rechazos y los detalles de auditoría de esa decisión operativa.
+El agregado `ApprovalRequest` representa una ejecucion concreta en tiempo de ejecucion de un proceso de aprobacion. Cuando un usuario solicita una accion sensible, como asignacion de perfil, promocion de perfil o modificacion de configuracion de seguridad, UMS instancia una `ApprovalRequest` vinculada a un `ApprovalWorkflow` especifico para rastrear el estado y los detalles de auditoria de esa decision operativa.
 
 ### Responsabilidad de Negocio
 - Registrar y rastrear las solicitudes de aprobación dinámicas.
 - Prevenir la doble ejecución o transiciones de estado una vez resueltas.
 - Autorizar transiciones de `Pending` a `Approved` o `Rejected` mediante firmas autenticadas.
+- Soportar solicitudes de acceso a perfil de EP-09 usando `Rejected` como estado implementado que mapea al resultado de negocio `Denied`.
 - Vincular la cuenta del usuario de destino y el perfil de destino.
 
 ### Raíz de Agregado
@@ -31,7 +32,7 @@ El agregado `ApprovalRequest` representa una ejecución concreta en tiempo de ej
 | Entidad / VO | Tipo | Propietario |
 |---|---|---|
 | `ApprovalRequestId` | Objeto de Valor | Identificador de raíz de agregado basado en Guid |
-| `ApprovalStatus` | Enumerado | PENDING · APPROVED · REJECTED |
+| `ApprovalStatus` | Enumerado | Pending · Approved · Rejected |
 | `AuditValueObject` | Objeto de Valor | Rastrea metadatos de creación y modificación |
 
 ### Eventos de Dominio
@@ -39,14 +40,14 @@ El agregado `ApprovalRequest` representa una ejecución concreta en tiempo de ej
 |---|---|
 | `ApprovalRequestCreatedEvent` | Se registra una nueva solicitud de aprobación y se establece en Pendiente |
 | `ApprovalRequestApprovedEvent` | La solicitud se marca como Aprobada, activando despliegues aguas abajo |
-| `ApprovalRequestRejectedEvent` | La solicitud se marca como Rechazada, abortando los despliegues aguas abajo |
+| `ApprovalRequestRejectedEvent` | La solicitud se marca como Rejected. En solicitudes de perfil EP-09 se expone al usuario como Denegado |
 
 ### Comandos / Casos de Uso
 | Comando | Descripción |
 |---|---|
 | `CreateApprovalRequestCommand` | Instanciar una solicitud de aprobación para una acción del usuario |
 | `ApproveRequestCommand` | Aprobar una solicitud pendiente con el identificador del actor autorizado |
-| `RejectRequestCommand` | Rechazar una solicitud pendiente y cancelar la elevación propuesta |
+| `RejectRequestCommand` | Rechazar una solicitud pendiente. Los flujos de onboarding exponen este resultado final como Denegado |
 
 ### Límites de Repositorio / Servicio
 - `IApprovalRequestRepository` — Gestiona el ciclo de vida de las solicitudes.
@@ -87,9 +88,9 @@ classDiagram
     }
     class ApprovalStatus {
         <<enumeration>>
-        PENDING
-        APPROVED
-        REJECTED
+        Pending
+        Approved
+        Rejected
     }
     ApprovalRequest "1" *-- "1" ApprovalStatus
 ```
@@ -106,6 +107,7 @@ sequenceDiagram
     participant R as IApprovalRequestRepository
     participant A as ApprovalRequest (AR)
     participant E as EventPublisher
+    participant Admin as Aprobador
 
     U->>H: CreateApprovalRequestCommand(workflowId, targetUserId, targetProfileId)
     H->>A: ApprovalRequest.Create(workflowId, targetUserId, targetProfileId, actorId)
@@ -127,6 +129,27 @@ sequenceDiagram
     H->>E: Publicar ApprovalRequestApprovedEvent
 ```
 
+### Mapeo de Onboarding de Solicitud de Perfil
+```mermaid
+sequenceDiagram
+    participant Usuario as Usuario en Lobby
+    participant H as ProfileRequestHandler
+    participant R as IApprovalRequestRepository
+    participant A as ApprovalRequest (AR)
+    participant Admin as Aprobador de Tenant o Sucursal
+    participant Notify as Servicio de Notificacion
+
+    Usuario->>H: Solicitar acceso a perfil
+    H->>A: ApprovalRequest.Create(workflowId, userId, targetProfileId)
+    A->>A: Asignar Status = Pending
+    H->>R: Guardar solicitud
+    R-->>Admin: Solicitud pendiente disponible en bandeja con alcance
+    Admin->>H: Aprobar o denegar resultado final
+    H->>A: Approve() o Reject()
+    A->>A: Guardar Approved o Rejected
+    H->>Notify: Notificar al usuario con resultado Aprobado o Denegado
+```
+
 ---
 
 ## 5. Modelo ER
@@ -138,18 +161,26 @@ erDiagram
     PROFILE ||--o{ APPROVAL_REQUEST : "eleva-a"
 
     APPROVAL_REQUEST {
-        uniqueidentifier RequestId PK
+        uniqueidentifier Id PK
         uniqueidentifier WorkflowId FK
         uniqueidentifier TargetUserId FK
         uniqueidentifier TargetProfileId FK "Nullable"
-        nvarchar Status "PENDING-APPROVED-REJECTED"
-        datetime2 UpdatedAt
-        uniqueidentifier UpdatedBy
+        int StatusId "1=Pending, 2=Approved, 3=Rejected"
+        nvarchar CreatedBy
+        datetime2 CreatedAtUtc
+        nvarchar UpdatedBy "Nullable"
+        datetime2 UpdatedAtUtc "Nullable"
+        nvarchar AuditTimeSpan
+        rowversion RowVersion
     }
 ```
 
 ### Reglas de Aislamiento de Inquilinos
 - Evaluado mediante la cuenta del usuario de destino y los alcances del flujo de trabajo. Las operaciones se filtran por el límite del inquilino activo en la capa de repositorio.
+- La aprobacion de solicitudes de perfil permanece limitada al tenant o sucursal delegada mediante verificaciones de autorizacion en capa de aplicacion.
+
+### Extension Requerida por EP-09
+El record `ApprovalRequest` implementado aun no guarda rol solicitado, rol otorgado, motivo de decision ni resultado explicito de notificacion final. FS-23 y FS-24 requieren estos campos o una extension equivalente de ciclo de vida/auditoria antes de completar la aprobacion de solicitudes de perfil.
 
 ---
 

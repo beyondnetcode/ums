@@ -32,6 +32,18 @@ All entities (except append-only logs) implement the standard audit schema — f
 
 Append-only entities (`AUDIT_RECORD`, `FLAG_EVALUATION_LOG`, `ACCESS_NOTIFICATION`) do not include update columns — they are immutable by design.
 
+## 2.1 Onboarding Data Alignment
+
+The onboarding model is split across existing bounded contexts:
+
+| Flow | Implemented Persistence Source | Current Code Status | EP-09 Business Outcome |
+|---|---|---|---|
+| Tenant signup | `identity.TenantSignupRequests` | Implemented with `Pending`, `Approved`, `Rejected` status values; approval command implemented. | Global request can be approved; denial uses the reserved `Rejected` value until a dedicated command is added. |
+| User signup | `identity.UserAccounts` with `StatusId = Pending` | Implemented as pending user account; activation command implemented. | Tenant Admin must close as Approved or Denied; denial command and lifecycle reason are required extensions. |
+| Profile access request | `approvals.ApprovalRequests` | Implemented generic request with `Pending`, `Approved`, `Rejected`. | `Rejected` maps to the business outcome `Denied`; requested/granted role separation is a required extension for FS-23/FS-24. |
+
+`ActiveWithoutProfile` is not a stored `UserStatus`. It is a derived login state: `UserAccount.Status = Active` and no active `Profile` exists for the resolved authorization scope.
+
 ---
 
 ## 3. Modular Domain Views
@@ -44,6 +56,7 @@ erDiagram
     TENANT ||--o{ SYSTEM_SUITE : "owns"
     TENANT ||--o{ BRANCH : "operates"
     TENANT ||--o{ USER_ACCOUNT : "owns"
+    TENANT_SIGNUP_REQUEST }o--o| TENANT : "approved_as"
     TENANT ||--o{ IDENTITY_PROVIDER : "registers"
     TENANT ||--o| BRANDING : "configures"
     TENANT ||--o{ IDP_CONFIGURATION : "routes_identity"
@@ -293,6 +306,7 @@ Management of user lifecycle, credential management, delegated administration, d
 ```mermaid
 erDiagram
     TENANT ||--o{ USER_ACCOUNT : "owns"
+    TENANT_SIGNUP_REQUEST }o--o| TENANT : "approved_as"
     TENANT ||--o{ BRANCH : "operates"
     TENANT ||--o{ IDENTITY_PROVIDER : "registers"
     TENANT ||--o| BRANDING : "configures"
@@ -331,19 +345,42 @@ erDiagram
         uniqueidentifier UpdatedBy
     }
 
+    TENANT_SIGNUP_REQUEST {
+        uniqueidentifier Id PK
+        nvarchar CompanyName
+        nvarchar CompanyReference "Unique"
+        nvarchar ContactName
+        nvarchar ContactEmail
+        int StatusId "1=Pending, 2=Approved, 3=Rejected"
+        uniqueidentifier ApprovedTenantId FK "Nullable"
+        nvarchar CreatedBy
+        datetime2 CreatedAtUtc
+        nvarchar UpdatedBy "Nullable"
+        datetime2 UpdatedAtUtc "Nullable"
+        nvarchar AuditTimeSpan
+        rowversion RowVersion
+    }
+
     USER_ACCOUNT {
-        uniqueidentifier UserId PK
+        uniqueidentifier Id PK
         uniqueidentifier TenantId FK "RLS"
         uniqueidentifier BranchId FK "Nullable"
         nvarchar Email
-        nvarchar Category "INTERNAL-EXTERNAL-B2B-PARTNER"
-        nvarchar Status "PENDING-ACTIVE-BLOCKED"
-        nvarchar IdentityReference "Nullable - External IdP Subject ID"
-        nvarchar IdentityReferenceType "Nullable - HR_ID-VENDOR_CODE-GOVERNMENT_ID-PARTNER_REF"
-        datetime2 CreatedAt
-        uniqueidentifier CreatedBy
-        datetime2 UpdatedAt
-        uniqueidentifier UpdatedBy
+        nvarchar DisplayName "Nullable"
+        int CategoryId "UserCategory"
+        int StatusId "1=Pending, 2=Active, 3=Blocked, 4=Deleted"
+        nvarchar IdentityReference "Nullable - external authoritative reference"
+        int IdentityReferenceTypeId "Nullable"
+        nvarchar CreatedBy
+        datetime2 CreatedAtUtc
+        nvarchar UpdatedBy "Nullable"
+        datetime2 UpdatedAtUtc "Nullable"
+        nvarchar AuditTimeSpan
+        rowversion RowVersion
+        bit IsDeleted
+        datetime2 DeletedAtUtc "Nullable"
+        nvarchar DeletedBy "Nullable"
+        datetime2 AnonymizedAtUtc "Nullable"
     }
 
     BRANCH {
@@ -489,15 +526,17 @@ erDiagram
     }
 
     APPROVAL_REQUEST {
-        uniqueidentifier RequestId PK
+        uniqueidentifier Id PK
         uniqueidentifier WorkflowId FK
         uniqueidentifier TargetUserId FK
         uniqueidentifier TargetProfileId FK "Nullable"
-        nvarchar Status "PENDING-APPROVED-REJECTED"
-        datetime2 CreatedAt
-        uniqueidentifier CreatedBy
-        datetime2 UpdatedAt
-        uniqueidentifier UpdatedBy
+        int StatusId "1=Pending, 2=Approved, 3=Rejected"
+        nvarchar CreatedBy
+        datetime2 CreatedAtUtc
+        nvarchar UpdatedBy "Nullable"
+        datetime2 UpdatedAtUtc "Nullable"
+        nvarchar AuditTimeSpan
+        rowversion RowVersion
     }
 
     DOCUMENT_TYPE {
@@ -657,18 +696,25 @@ erDiagram
     }
 
     USER_ACCOUNT {
-        uniqueidentifier UserId PK
+        uniqueidentifier Id PK
         uniqueidentifier TenantId FK "RLS"
         uniqueidentifier BranchId FK "Nullable"
         nvarchar Email
-        nvarchar Category "INTERNAL-EXTERNAL-B2B-PARTNER"
-        nvarchar Status "PENDING-ACTIVE-BLOCKED"
-        nvarchar IdentityReference "Nullable - External IdP Subject ID"
-        nvarchar IdentityReferenceType "Nullable - HR_ID-VENDOR_CODE-GOVERNMENT_ID-PARTNER_REF"
-        datetime2 CreatedAt
-        uniqueidentifier CreatedBy
-        datetime2 UpdatedAt
-        uniqueidentifier UpdatedBy
+        nvarchar DisplayName "Nullable"
+        int CategoryId "UserCategory"
+        int StatusId "1=Pending, 2=Active, 3=Blocked, 4=Deleted"
+        nvarchar IdentityReference "Nullable - external authoritative reference"
+        int IdentityReferenceTypeId "Nullable"
+        nvarchar CreatedBy
+        datetime2 CreatedAtUtc
+        nvarchar UpdatedBy "Nullable"
+        datetime2 UpdatedAtUtc "Nullable"
+        nvarchar AuditTimeSpan
+        rowversion RowVersion
+        bit IsDeleted
+        datetime2 DeletedAtUtc "Nullable"
+        nvarchar DeletedBy "Nullable"
+        datetime2 AnonymizedAtUtc "Nullable"
     }
 
     APP_CONFIGURATION {

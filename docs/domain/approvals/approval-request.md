@@ -10,12 +10,13 @@
 ## 1. Aggregate Overview
 
 ### Purpose
-The `ApprovalRequest` aggregate represents a concrete runtime execution of an approval process. When a user requests a high-privilege administrative action (like a profile promotion or security configuration modification), UMS instantiates an `ApprovalRequest` linked to a specific `ApprovalWorkflow` to track the state, approvals, rejections, and audit details of that operational decision.
+The `ApprovalRequest` aggregate represents a concrete runtime execution of an approval process. When a user requests a sensitive action, such as profile assignment, profile promotion, or security configuration modification, UMS instantiates an `ApprovalRequest` linked to a specific `ApprovalWorkflow` to track status and audit details of that operational decision.
 
 ### Business Responsibility
 - Register and track dynamic approval requests.
 - Prevent double execution or state transitions once resolved.
 - Authorize transitions from `Pending` to `Approved` or `Rejected` through authenticated signatures.
+- Support EP-09 profile access requests by using `Rejected` as the implemented status that maps to the business outcome `Denied`.
 - Bind the target user account and target profile.
 
 ### Aggregate Root
@@ -31,7 +32,7 @@ The `ApprovalRequest` aggregate represents a concrete runtime execution of an ap
 | Entity / VO | Type | Ownership |
 |---|---|---|
 | `ApprovalRequestId` | Value Object | Guid-based aggregate root identifier |
-| `ApprovalStatus` | Enum | PENDING · APPROVED · REJECTED |
+| `ApprovalStatus` | Enum | Pending · Approved · Rejected |
 | `AuditValueObject` | Value Object | Tracks creation and modification metadata |
 
 ### Domain Events
@@ -39,14 +40,14 @@ The `ApprovalRequest` aggregate represents a concrete runtime execution of an ap
 |---|---|
 | `ApprovalRequestCreatedEvent` | A new approval request is registered and set to Pending |
 | `ApprovalRequestApprovedEvent` | The request is marked as Approved, triggering downstream activations |
-| `ApprovalRequestRejectedEvent` | The request is marked as Rejected, aborting downstream activations |
+| `ApprovalRequestRejectedEvent` | The request is marked as Rejected. For EP-09 profile requests this is exposed to users as Denied |
 
 ### Commands / Use Cases
 | Command | Description |
 |---|---|
 | `CreateApprovalRequestCommand` | Instantiate an approval request instance for a user action |
 | `ApproveRequestCommand` | Approve a pending request with the authorized actor ID |
-| `RejectRequestCommand` | Reject a pending request and cancel the target elevation |
+| `RejectRequestCommand` | Reject a pending request. User-facing onboarding flows expose this final outcome as Denied |
 
 ### Repository / Service Boundaries
 - `IApprovalRequestRepository` — Manages request lifecycles.
@@ -87,9 +88,9 @@ classDiagram
     }
     class ApprovalStatus {
         <<enumeration>>
-        PENDING
-        APPROVED
-        REJECTED
+        Pending
+        Approved
+        Rejected
     }
     ApprovalRequest "1" *-- "1" ApprovalStatus
 ```
@@ -106,6 +107,7 @@ sequenceDiagram
     participant R as IApprovalRequestRepository
     participant A as ApprovalRequest (AR)
     participant E as EventPublisher
+    participant Admin as Approver
 
     U->>H: CreateApprovalRequestCommand(workflowId, targetUserId, targetProfileId)
     H->>A: ApprovalRequest.Create(workflowId, targetUserId, targetProfileId, actorId)
@@ -127,6 +129,27 @@ sequenceDiagram
     H->>E: Publish ApprovalRequestApprovedEvent
 ```
 
+### Profile Request Onboarding Mapping
+```mermaid
+sequenceDiagram
+    participant User as Lobby User
+    participant H as ProfileRequestHandler
+    participant R as IApprovalRequestRepository
+    participant A as ApprovalRequest (AR)
+    participant Admin as Tenant or Branch Approver
+    participant Notify as Notification Service
+
+    User->>H: Request profile access
+    H->>A: ApprovalRequest.Create(workflowId, userId, targetProfileId)
+    A->>A: Set Status = Pending
+    H->>R: Save(request)
+    R-->>Admin: Pending profile request available in scoped inbox
+    Admin->>H: Approve or deny final outcome
+    H->>A: Approve() or Reject()
+    A->>A: Store Approved or Rejected
+    H->>Notify: Notify user with Approved or Denied business outcome
+```
+
 ---
 
 ## 5. ER Model
@@ -138,18 +161,26 @@ erDiagram
     PROFILE ||--o{ APPROVAL_REQUEST : "elevates-to"
 
     APPROVAL_REQUEST {
-        uniqueidentifier RequestId PK
+        uniqueidentifier Id PK
         uniqueidentifier WorkflowId FK
         uniqueidentifier TargetUserId FK
         uniqueidentifier TargetProfileId FK "Nullable"
-        nvarchar Status "PENDING-APPROVED-REJECTED"
-        datetime2 UpdatedAt
-        uniqueidentifier UpdatedBy
+        int StatusId "1=Pending, 2=Approved, 3=Rejected"
+        nvarchar CreatedBy
+        datetime2 CreatedAtUtc
+        nvarchar UpdatedBy "Nullable"
+        datetime2 UpdatedAtUtc "Nullable"
+        nvarchar AuditTimeSpan
+        rowversion RowVersion
     }
 ```
 
 ### Tenant Isolation Rules
 - Evaluated via target user account and workflow scopes. Operations are filtered by the active tenant boundary at the repository layer.
+- Profile request approval remains tenant-scoped or delegated branch-scoped through application-layer authorization checks.
+
+### EP-09 Required Extension
+The implemented `ApprovalRequest` record does not yet store requested role, granted role, decision reason, or explicit final notification result. FS-23 and FS-24 require these fields or an equivalent lifecycle/audit extension before profile request approval is complete.
 
 ---
 

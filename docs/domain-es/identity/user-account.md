@@ -12,10 +12,12 @@
 ## 1. Descripcion del Agregado
 
 ### Proposito
-`UserAccount` representa la identidad digital de un usuario dentro de un Tenant. Es el punto central de autenticacion, gestion del ciclo de vida de credenciales y configuracion de MFA. Posee `PasswordCredential` y `MfaEnrollment` como entidades propias.
+`UserAccount` representa la identidad digital de un usuario dentro de un Tenant. Es el punto central de autenticacion, gestion del ciclo de vida, borrado logico, credenciales y configuracion de MFA. Posee `PasswordCredential` y `MfaEnrollment` como entidades propias.
 
 ### Responsabilidad de Negocio
-- Gestionar el ciclo de vida del usuario: registro, activacion, bloqueo y restauracion.
+- Gestionar el ciclo de vida implementado del usuario: Pending -> Active -> Blocked -> Active, mas Deleted como estado terminal de borrado logico.
+- Soportar Phase 3 user signup representando solicitudes de alta como cuentas `Pending`.
+- Soportar el lobby de onboarding como estado derivado cuando el usuario esta `Active` pero no tiene `Profile` activo.
 - Proveer la identidad central para autenticacion local y federada.
 - Controlar credenciales de contrasena (`PasswordCredential`) con historial de rotacion y asegurar rotacion segura.
 - Administrar metodos MFA (`MfaEnrollment`) enrollados por el usuario de forma independiente (TOTP, SMS, Email, WebAuthn).
@@ -36,7 +38,7 @@
 7. **PasswordCredential**: `PasswordHash` debe ser un hash BCrypt valido. Las credenciales historicas se conservan para auditoria y no se eliminan.
 8. **MfaEnrollment**: Un usuario puede enrolar cada `MfaMethod` a lo sumo una vez — sin metodos duplicados.
 9. **MfaEnrollment**: Los estados siguen el modelo implementado `NotEnrolled`, `Enrolled`, `Verified`. Un nuevo enrolamiento inicia en `Enrolled` y pasa a `Verified` al confirmar el desafio.
-10. **MfaEnrollment**: `UserAccount.Status` no debe estar en `Blocked` para enrolar un nuevo metodo MFA.
+10. **MfaEnrollment**: `UserAccount.Status` no debe estar en `Blocked` ni `Deleted` para enrolar un nuevo metodo MFA.
 11. **MfaEnrollment**: Al menos un metodo enrolado debe permanecer si el tenant requiere MFA.
 
 ### Entidades Relacionadas / Value Objects
@@ -46,7 +48,7 @@
 | `BranchId` | Value Object | FK opcional a Branch. Ya esta soportado en props, persistencia, contratos de aplicacion y flujo de creacion del agregado. |
 | `Email` | Value Object | Unico por TenantId |
 | `UserCategory` | Enum | INTERNAL · EXTERNAL · B2B · PARTNER |
-| `UserStatus` | Enum | Pending · Active · Blocked |
+| `UserStatus` | Enum | Pending · Active · Blocked · Deleted |
 | `IdentityReference` | Value Object | Referencia maestra externa del sistema fuente autorizado (nullable) |
 | `IdentityReferenceType` | Enum | HR_ID · VENDOR_CODE · GOVERNMENT_ID · PARTNER_REF (nullable) |
 | `AuditValueObject` | Value Object | CreatedAt/By, UpdatedAt/By |
@@ -58,6 +60,7 @@
 | `UserActivatedEvent` | Usuario activado (Pending o Blocked -> Active) |
 | `UserBlockedEvent` | Usuario bloqueado |
 | `UserRestoredEvent` | Usuario restaurado desde bloqueado |
+| `UserDeletedEvent` | Usuario borrado logicamente y desactivado |
 | `MfaEnrolledEvent` | Nuevo metodo MFA enrollado |
 | `MfaVerifiedEvent` | Desafio MFA completado exitosamente |
 | `AuthenticationAttemptedEvent` | Intento de autenticacion registrado |
@@ -71,6 +74,7 @@
 | `ActivateUserCommand` | Activar usuario pendiente o bloqueado |
 | `BlockUserCommand` | Bloquear usuario activo |
 | `RestoreUserCommand` | Restaurar usuario bloqueado |
+| `DeleteUserCommand` | Borrar logicamente la cuenta y anonimizar PII mediante persistencia del repositorio |
 | `AddUserAccountPasswordCommand` | Crear o rotar la credencial local activa; el hash se genera en la API |
 | `EnrollMfaCommand` | Enrolar nuevo metodo MFA |
 | `VerifyMfaCommand` | Confirmar desafio MFA (Enrolled -> Verified) |
@@ -87,6 +91,7 @@ UserAccount (Aggregate Root)
 │   ├── TenantId: TenantId
 │   ├── BranchId?: BranchId
 │   ├── Email: Email
+│   ├── DisplayName?: Name
 │   ├── Category: UserCategory
 │   ├── Status: UserStatus
 │   ├── IdentityReference?: IdentityReference
@@ -111,7 +116,8 @@ UserAccount (Aggregate Root)
 ### Ciclo de Vida
 **UserAccount**:
 ```
-Pending ──► Active ──► Blocked ──► Active
+Pending -> Active -> Blocked -> Active
+Active -> Deleted
 ```
 **PasswordCredential**:
 ```
@@ -256,18 +262,25 @@ erDiagram
     USER_ACCOUNT ||--o{ MFA_ENROLLMENT : "enrolla_mfa"
 
     USER_ACCOUNT {
-        uniqueidentifier UserId PK
+        uniqueidentifier Id PK
         uniqueidentifier TenantId FK
         uniqueidentifier BranchId "Nullable FK"
         nvarchar Email "Unico por TenantId"
-        nvarchar UserCategory "INTERNAL-EXTERNAL-B2B-PARTNER"
-        nvarchar Status "PENDING-ACTIVE-BLOCKED"
+        nvarchar DisplayName "Nullable"
+        int CategoryId "UserCategory"
+        int StatusId "1=Pending, 2=Active, 3=Blocked, 4=Deleted"
         nvarchar IdentityReference "Nullable"
-        nvarchar IdentityReferenceType "Nullable - HR_ID-VENDOR_CODE-GOVERNMENT_ID-PARTNER_REF"
-        datetime2 CreatedAt
-        uniqueidentifier CreatedBy
-        datetime2 UpdatedAt
-        uniqueidentifier UpdatedBy
+        int IdentityReferenceTypeId "Nullable"
+        nvarchar CreatedBy
+        datetime2 CreatedAtUtc
+        nvarchar UpdatedBy "Nullable"
+        datetime2 UpdatedAtUtc "Nullable"
+        nvarchar AuditTimeSpan
+        rowversion RowVersion
+        bit IsDeleted
+        datetime2 DeletedAtUtc "Nullable"
+        nvarchar DeletedBy "Nullable"
+        datetime2 AnonymizedAtUtc "Nullable"
     }
 
     PASSWORD_CREDENTIAL {
@@ -373,6 +386,14 @@ flowchart TD
 
 ## 7. Notas de Persistencia
 
+### Mapeo de Estado de Onboarding
+| Concepto de Negocio | Estado Persistido | Notas |
+|---|---|---|
+| Solicitud de alta de usuario pendiente | `UserStatus.Pending` | El flujo publico de Phase 3 crea un `UserAccount` pendiente. |
+| Alta de usuario aprobada | `UserStatus.Active` | La aprobacion se implementa mediante activacion. |
+| Usuario activo sin perfil | `UserStatus.Active` mas ausencia de `Profile` activo | Es un estado derivado de lobby, no un `UserStatus` persistido. |
+| Alta de usuario denegada | Resultado requerido por EP-09 | Aun se requiere comando dedicado de denegacion y motivo de ciclo de vida; `Blocked` existe pero no es semanticamente identico a denegacion de signup. |
+
 ### Indices
 | Indice | Columnas | Tipo |
 |---|---|---|
@@ -408,7 +429,7 @@ flowchart TD
 - `Email` es PII — enmascarado en logs.
 
 ### Eventos de Auditoria
-- `USER_REGISTERED`, `USER_ACTIVATED`, `USER_BLOCKED`, `USER_RESTORED`
+- `USER_REGISTERED`, `USER_ACTIVATED`, `USER_BLOCKED`, `USER_RESTORED`, `USER_DELETED`
 - `PASSWORD_SET` — registrado con `actorId`, `userId`, timestamp. Hash nunca registrado.
 - `MFA_ENROLLED`, `MFA_VERIFIED`
 

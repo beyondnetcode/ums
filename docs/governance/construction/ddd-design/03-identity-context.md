@@ -4,11 +4,11 @@
 
 **Schema:** `[ums_identity]` · `[delegation]` | **Owner:** UMS Core API .NET 10
 **Misión:** Gestionar el ciclo de vida de principals (usuarios), estructuras organizacionales (tenants) y sub-unidades (branches). Delegar verificación de credenciales a adaptadores de IdP. Gobernar la autoridad administrativa delegada entre administradores.  
-**FS cubiertos:** FS-01, FS-03, FS-08, FS-09, FS-14, FS-18
-**Versión:** 2.2 | **Fecha:** 2026-05-31
+**FS cubiertos:** FS-01, FS-03, FS-08, FS-09, FS-14, FS-18, FS-21, FS-22
+**Versión:** 2.3 | **Fecha:** 2026-06-01
 
 > **Arquitectura de Agregados:** Modelo completo con diagramas, secuencias, ER y API:
-> [Tenant](../../../domain/identity/tenant.md) · [UserAccount](../../../domain/identity/user-account.md) · [UserManagementDelegation](../../../domain/identity/user-management-delegation.md)
+> [Tenant](../../../domain/identity/tenant.md) · [TenantSignupRequest](../../../domain/identity/tenant-signup-request.md) · [UserAccount](../../../domain/identity/user-account.md) · [UserManagementDelegation](../../../domain/identity/user-management-delegation.md)
 
 > **Documentación Transversal:** [Authorization Graph](../../../domain/identity/auth-graph.md) · [Auth Method Resolution](../../../domain/identity/auth-method-resolution.md)
 
@@ -35,6 +35,7 @@ El grafo final lo construye y serializa BC-B (Authorization), pero **sin la info
 | Agregado | Raiz | Descripción |
 |---------|------|-------------|
 | [Tenant](#aggregate-tenant) | `Tenant` | Nodo organizacional jerárquico y sus branches/proveedores de identidad |
+| [TenantSignupRequest](#aggregate-tenantsignuprequest) | `TenantSignupRequest` | Solicitud global de alta de empresa antes de crear el tenant |
 | [UserAccount](#aggregate-useraccount) | `UserAccount` | Principal autenticable con sus métodos de autenticación |
 | [UserManagementDelegation](#aggregate-usermanagementdelegation) | `UserManagementDelegation` | Autoridad administrativa delegada con scope, acciones y vigencia temporal |
 
@@ -204,10 +205,72 @@ ITenantRepository : IAggregateRepository<Tenant> {
 
 ---
 
+## Aggregate: TenantSignupRequest
+
+**Aggregate Root:** `TenantSignupRequest`
+**FS:** FS-21
+
+### Responsabilidad
+
+`TenantSignupRequest` captura solicitudes publicas de alta de empresa antes de que exista el tenant. La solicitud es global, no tenant-scoped, y solo despues de aprobarse queda vinculada al `Tenant` creado mediante `ApprovedTenantId`.
+
+### Value Objects y Estados
+
+| Elemento | Tipo | Regla |
+|---|---|---|
+| `CompanyName` | `Name` | Nombre comercial informado por el contacto |
+| `CompanyReference` | `CompanyReference` | RUC/codigo unico; indice unico en persistencia |
+| `ContactName` | `Name` | Persona solicitante |
+| `ContactEmail` | `Email` | Correo para notificaciones |
+| `TenantSignupRequestStatus` | enum | `Pending / Approved / Rejected` |
+| `ApprovedTenantId` | `TenantId?` | Nullable hasta que se aprueba y se crea el tenant |
+
+### Diagrama del Agregado
+
+```mermaid
+classDiagram
+    direction TB
+    class TenantSignupRequest {
+        <<AggregateRoot>>
+        +Guid Id
+        +Name CompanyName
+        +CompanyReference CompanyReference
+        +Name ContactName
+        +Email ContactEmail
+        +TenantSignupRequestStatus Status
+        +TenantId? ApprovedTenantId
+        +Approve(tenantId, updatedBy)
+    }
+    class TenantSignupRequestStatus {
+        <<enumeration>>
+        Pending
+        Approved
+        Rejected
+    }
+    TenantSignupRequest "1" --> "0..1" Tenant : approved_as
+```
+
+### Máquina de Estado
+
+```mermaid
+stateDiagram-v2
+    [*] --> Pending : RequestTenantSignup
+    Pending --> Approved : ApproveTenantSignup
+    Pending --> Rejected : DenyTenantSignup (reserved)
+```
+
+### Persistencia Implementada
+
+| Tabla | Columnas Clave | Indices |
+|---|---|---|
+| `identity.TenantSignupRequests` | `Id`, `CompanyName`, `CompanyReference`, `ContactName`, `ContactEmail`, `StatusId`, `ApprovedTenantId`, audit, `RowVersion` | `StatusId`, `CompanyReference` unico, `ContactEmail` |
+
+---
+
 ## Aggregate: UserAccount
 
 **Aggregate Root:** `UserAccount`  
-**FS:** FS-01, FS-03, FS-09, FS-10, FS-18
+**FS:** FS-01, FS-03, FS-09, FS-10, FS-18, FS-22
 
 ### Entidades
 
@@ -223,7 +286,7 @@ ITenantRepository : IAggregateRepository<Tenant> {
 |-------------|-----------|-------|
 | `Email` | string | Formato RFC 5321; único dentro del tenant |
 | `UserCategory` | enum | `INTERNAL / EXTERNAL / B2B / PARTNER / SERVICE_ACCOUNT` |
-| `UserStatus` | enum | `PENDING / ACTIVE / BLOCKED` |
+| `UserStatus` | enum | `PENDING / ACTIVE / BLOCKED / DELETED` |
 | `IdentityReference` | string | Referencia externa al sistema origen (HR/ERP/vendor) |
 | `IdentityReferenceType` | enum | `HR_ID / VENDOR_CODE / GOVERNMENT_ID / PARTNER_REF` |
 | `PasswordHash` | string | Nullable; null cuando autenticación delegada a IdP externo |
@@ -238,7 +301,7 @@ ITenantRepository : IAggregateRepository<Tenant> {
 | INV-U2 | `PasswordHash` solo NOT NULL cuando `IdpStrategy == INTERNAL_BCRYPT` | ADR-0031 |
 | INV-U3 | `INTERNAL` users deben tener `IdentityReferenceType == HR_ID` | ADR-0031 |
 | INV-U4 | `UserAccount BLOCKED` no puede recibir asignacion de nuevos Profiles | ADR-0044 |
-| INV-U5 | `PENDING -> ACTIVE` solo tras `ApprovalRequest ONBOARDING` aprobado para `EXTERNAL/B2B/PARTNER` | ADR-0044, FS-10 |
+| INV-U5 | `PENDING -> ACTIVE` ocurre por activacion aprobada; en Phase 3 representa aprobacion de solicitud de alta de usuario | ADR-0075, FS-22 |
 | INV-U6 | `SERVICE_ACCOUNT` creado directamente en `ACTIVE` por admin; sin flujo de aprobacion | FS-01 |
 | INV-U7 | Sesion no puede iniciarse si `UserStatus != ACTIVE` | FS-01 |
 | INV-U8 | Fallo de IdP no concede acceso silencioso | FS-01 |
@@ -257,6 +320,7 @@ classDiagram
         +Email Email
         +UserCategory Category
         +UserStatus Status
+        +string DisplayName
         +string IdentityReference
         +IdentityReferenceType RefType
     }
@@ -283,11 +347,13 @@ classDiagram
 ```mermaid
 stateDiagram-v2
     [*] --> PENDING : RegisterUser
-    PENDING --> ACTIVE : ActivateUser (ONBOARDING aprobado o INTERNAL directo)
+    PENDING --> ACTIVE : ActivateUser (signup aprobado o INTERNAL directo)
     ACTIVE --> BLOCKED : BlockUser (DocumentExpired CRITICAL / bloqueo manual)
     BLOCKED --> ACTIVE : RestoreUser (renovacion documental + desbloqueo)
-    PENDING --> [*] : ApprovalRequest REJECTED
+    ACTIVE --> DELETED : DeleteUser (soft-delete + anonymization)
 ```
+
+> `ActiveWithoutProfile` es un estado derivado: `UserStatus = ACTIVE` y ausencia de `Profile` activo para el alcance resuelto. No es un valor persistido de `UserStatus`.
 
 ### Comandos
 
@@ -308,6 +374,7 @@ UserRegisteredEvent          { userId, tenantId, branchId?, userCategory, identi
 UserActivatedEvent           { userId, tenantId }
 UserBlockedEvent             { userId, tenantId, reason, enforcementAction }
 UserRestoredEvent            { userId, tenantId }
+UserDeletedEvent             { userId, tenantId }
 MfaEnrolledEvent             { userId, tenantId, method }
 MfaVerifiedEvent             { userId, tenantId, method, riskScore }
 AuthenticationAttemptedEvent { userId?, tenantId, outcome, reason, ipAddress }

@@ -88,36 +88,33 @@ RemoveRequiredDocumentCommand  -> RequiredDocumentRemovedEvent   { workflowId, d
 ## Aggregate: ApprovalRequest
 
 **Aggregate Root:** `ApprovalRequest`  
-**FS:** FS-10, FS-12
+**FS:** FS-10, FS-12, FS-23, FS-24
 
 ### Entidades
 
 | Entidad | Descripción |
 |---------|-------------|
-| `ApprovalRequest` (AR) | Solicitud con estado y evidencia adjunta |
-| `ApprovalLog` | Registro inmutable de cada decisión tomada |
+| `ApprovalRequest` (AR) | Solicitud con estado para aprobaciones operativas |
 
 ### Value Objects
 
 | Value Object | Tipo | Regla |
 |-------------|------|-------|
-| `RequestStatus` | enum | `PENDING / APPROVED / REJECTED / CANCELLED / EXPIRED` |
-| `RequestType` | enum | `ONBOARDING / PROFILE_ASSIGNMENT / ROLE_PROMOTION / DOCUMENT_VALIDATION` |
-| `ApprovalActionTaken` | enum | `APPROVED / REJECTED / ESCALATED / DELEGATED / COMMENTED` |
-| `SlaDeadline` | DateTimeOffset | Calculado en creación; vence `PENDING -> EXPIRED` |
-| `Justification` | string | Razon de negocio; obligatorio para `ONBOARDING` y `PROFILE_ASSIGNMENT` |
+| `ApprovalStatus` | enum | Implementado: `Pending / Approved / Rejected` |
+| `WorkflowId` | Guid | Enlaza con `ApprovalWorkflow` |
+| `TargetUserId` | Guid | Usuario objetivo de la solicitud |
+| `TargetProfileId` | Guid? | Perfil objetivo opcional |
+| `AuditValueObject` | value object | Metadata de creacion y actualizacion |
 
 ### Invariantes
 
 | ID | Regla | Fuente |
 |----|-------|--------|
-| INV-AR1 | Solo solicitudes `PENDING` pueden recibir acciones de decisión | glossary.md |
-| INV-AR2 | `APPROVED` y `REJECTED` son estados terminales | glossary.md |
+| INV-AR1 | Solo solicitudes `Pending` pueden recibir acciones de decision | glossary.md |
+| INV-AR2 | `Approved` y `Rejected` son estados terminales implementados | glossary.md |
 | INV-AR3 | Accion de aprobacion solo ejecutable por usuario con rol aprobador configurado en el workflow | ADR-0044 |
-| INV-AR4 | Entradas del `ApprovalLog` son inmutables una vez escritas | ADR-0044 |
-| INV-AR5 | `EXPIRED` lo ejecuta Background Worker, no una accion humana | glossary.md |
-| INV-AR6 | `CANCELLED` solo por solicitante original o admin del tenant | FS-10 |
-| INV-AR7 | Profile marcado `INTERNAL_ONLY` no puede ser el objetivo de una solicitud `ONBOARDING` external | FS-10 |
+| INV-AR4 | Para FS-23/FS-24, `Rejected` se expone como resultado de negocio `Denied` | ADR-0075 |
+| INV-AR5 | Profile marcado `INTERNAL_ONLY` no puede ser el objetivo de una solicitud `ONBOARDING` external | FS-10 |
 
 ### Diagrama del Agregado
 
@@ -130,20 +127,10 @@ classDiagram
         +Guid WorkflowId
         +Guid TargetUserId
         +Guid TargetProfileId
-        +RequestType Type
-        +RequestStatus Status
-        +string Justification
-        +DateTimeOffset SlaDeadline
+        +ApprovalStatus Status
+        +Approve(actorId)
+        +Reject(actorId)
     }
-    class ApprovalLog {
-        <<Entity>>
-        +Guid Id
-        +Guid ActorId
-        +ApprovalActionTaken Action
-        +string Reason
-        +DateTimeOffset OccurredAt
-    }
-    ApprovalRequest "1" --> "1..*" ApprovalLog : records
 ```
 
 ### Máquina de Estado: ApprovalRequest
@@ -155,9 +142,9 @@ stateDiagram-v2
     [*] --> PENDING : SubmitApprovalRequest
     PENDING --> APPROVED : ApproveRequest (rol aprobador)
     PENDING --> REJECTED : RejectRequest (rol aprobador)
-    PENDING --> CANCELLED : CancelRequest (solicitante/admin)
-    PENDING --> EXPIRED : SLA vencido (Background Worker)
 ```
+
+> En EP-09, `REJECTED` se traduce como `Denied` para usuarios y auditores de onboarding. El almacenamiento actual conserva el valor implementado `Rejected`.
 
 ### Comandos
 
@@ -165,9 +152,7 @@ stateDiagram-v2
 |---------|-------------|
 | `SubmitApprovalRequestCommand` | Crea solicitud de aprobacion con tipo, objetivo y justificacion |
 | `ApproveRequestCommand` | Aprueba la solicitud con razon; desencadena provisioning |
-| `RejectRequestCommand` | Rechaza la solicitud con razon |
-| `CancelRequestCommand` | Cancela la solicitud |
-| `ExpireRequestCommand` | Vence la solicitud por timeout SLA (comando interno de background) |
+| `RejectRequestCommand` | Rechaza la solicitud; en onboarding se presenta como denegacion |
 
 ### Eventos de Dominio
 
@@ -175,9 +160,11 @@ stateDiagram-v2
 ApprovalRequestSubmittedEvent { requestId, workflowId, targetUserId, targetProfileId?, requestType }
 ApprovalRequestApprovedEvent  { requestId, decision, approvedBy, reason }
 ApprovalRequestRejectedEvent  { requestId, rejectionReason, rejectedBy }
-ApprovalRequestCancelledEvent { requestId, cancelledBy }
-ApprovalRequestExpiredEvent   { requestId, workflowId, targetUserId }
 ```
+
+### Brecha EP-09
+
+El modelo implementado no persiste aun `RequestedRoleId`, `GrantedRoleId`, `DecisionReason` ni resultado de notificacion final para solicitudes de perfil. FS-23 y FS-24 requieren agregar estos datos o una extension equivalente de auditoria antes de considerar completo el onboarding granular de perfiles.
 
 ---
 

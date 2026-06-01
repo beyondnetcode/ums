@@ -2,6 +2,8 @@
 
 This document details the database schema, entity structures, relationships, and Entity-Relationship diagrams for the **User Management System (UMS)** under the **spec-driven AI strategy BMAD-METHOD**.
 
+> **Authoritative implementation note:** The code-aligned physical ER model is maintained in [database-design-er.md](../../architecture/blueprints/database-design-er.md). This conceptual model uses business names and must be read with the onboarding alignment introduced by EP-09.
+
 ---
 
 ## 1. Entity-Relationship Diagram
@@ -14,6 +16,8 @@ erDiagram
     ORGANIZATION ||--o{ EXTERNAL_ACCESS_REQUEST : targets
     ORGANIZATION ||--o{ USER : contains
     ORGANIZATION ||--o{ PROFILE : owns
+    TENANT_SIGNUP_REQUEST }o--o| ORGANIZATION : approved_as
+    USER ||--o{ PROFILE_ACCESS_REQUEST : requests
 
     BRANCH ||--o{ PROFILE : scoped_to
     BRANCH ||--o{ USER_PROFILES : restricts
@@ -44,6 +48,16 @@ erDiagram
     FEATURE_FLAG ||--o{ FLAG_EVALUATION_LOG : produces
 ```
 
+### Onboarding Conceptual Alignment
+
+| Conceptual Entity | Implemented Source | Purpose |
+|---|---|---|
+| `TENANT_SIGNUP_REQUEST` | `identity.TenantSignupRequests` | Tracks public company signup before tenant creation. |
+| `USER` with pending status | `identity.UserAccounts.StatusId = Pending` | Tracks user signup requests for an existing tenant. |
+| `PROFILE_ACCESS_REQUEST` | `approvals.ApprovalRequests` | Tracks profile access requests from lobby users. |
+
+The final business outcomes for user signup and profile access requests are `Approved` and `Denied`. Current implemented persistence stores profile denial as `ApprovalStatus.Rejected`, which must be translated to `Denied` at application and UI boundaries.
+
 ---
 
 ## 2. Entity Attributes Specification
@@ -55,7 +69,7 @@ erDiagram
 - `password_hash` (string, **Nullable**): Populated **only** when the Internal Bcrypt Strategy adapter is active for the organization. `NULL` when authentication is delegated to an external IdP.
 - `identity_reference` (string): External unique ID linking to corporate HR/ERP records.
 - `status` (enum): `ACTIVE`, `SUSPENDED`, or `TERMINATED`.
-- `created_at` (timestaamp): Record creation timestaamp.
+- `created_at` (datetime2): Record creation timestamp.
 
 ### B. Organization Entity
 > [!IMPORTANT]
@@ -78,7 +92,7 @@ erDiagram
 - `organization_id` (UUID, FK): Owning tenant organization.
 - `name` (string): Human-readable branch name (e.g., `Callao Terminal`).
 - `code` (string, Unique within org): Short code for the branch (e.g., `BRANCH_CALLAO`).
-- `geofencing_metadata` (jsonb, Nullable): Optional geofencing constraints applied to access policies (e.g., `{ "radius_km": 10, "center_lat": -12.05, "center_lng": -77.12 }`).
+- `geofencing_metadata` (nvarchar(max) JSON, Nullable): Optional geofencing constraints applied to access policies (e.g., `{ "radius_km": 10, "center_lat": -12.05, "center_lng": -77.12 }`).
 - `status` (enum): `ACTIVE` or `SUSPENDED`.
 
 ### D. Profile Entity
@@ -102,7 +116,7 @@ erDiagram
 - `version` (string): Semantic version (e.g., `1.0.0`).
 - `system_id` (UUID, FK): The target client system this template is designed for.
 - `created_by` (UUID, FK): Admin user who created the template.
-- `created_at` (timestaamp).
+- `created_at` (datetime2).
 
 ### G. System Entity
 - `id` (UUID, PK): Unique identifier for the application/sub-portal.
@@ -126,12 +140,12 @@ erDiagram
 - `tenant_id` (UUID, FK → ORGANIZATION)
 - `system_id` (UUID, FK, Nullable → SYSTEM): `NULL` means applies to all systems for the tenant
 - `code` (string, Unique by scope): Stable technical key for the IdP configuration record.
-- `value` (jsonb): Operational configuration payload consumed by runtime.
+- `value` (nvarchar(max) JSON): Operational configuration payload consumed by runtime.
 - `description` (text): Functional purpose, impact, expected behavior, and applicable scope.
 - `provider_type` (enum): `INTERNAL_BCRYPT`, `ZITADEL`, `AZURE_AD`, `OKTA`, `KEYCLOAK`, `AUTH0`, `GOOGLE`, `LDAP`, `SAML2`, `GENERIC_OIDC`
 - `priority` (integer): Resolution order (lower = higher priority)
 - `fallback_to` (UUID, FK, Nullable → IDP_CONFIGURATION)
-- `config_payload` (jsonb, encrypted): Authority URL, client_id, scopes, claim mappings
+- `config_payload` (nvarchar(max) JSON, encrypted): Authority URL, client_id, scopes, claim mappings
 - `config_secret_ref` (string): Vault path for encrypted credentials (e.g., `vault://ums/secrets/{tenant}/client_secret`)
 - `domain_hints` (text[]): Email domain patterns for IdP routing (e.g., `@logisticscorp.com`)
 - `mfa_enforced` (boolean)
@@ -143,28 +157,28 @@ erDiagram
 - `system_id` (UUID, FK → SYSTEM)
 - `tenant_id` (UUID, FK → ORGANIZATION)
 - `code` (string, Unique by scope): Stable technical key for the configuration parameter.
-- `value` (jsonb): Operational value used by the system at runtime.
+- `value` (nvarchar(max) JSON): Operational value used by the system at runtime.
 - `description` (text): Functional purpose, impact, expected behavior, and scope.
 - `version` (string): Semantic version (e.g., `2.1.0`)
-- `config_payload` (jsonb): Full behavioral config (auth, session, MFA, onboarding, branding, modules)
+- `config_payload` (nvarchar(max) JSON): Full behavioral config (auth, session, MFA, onboarding, branding, modules)
 - `status` (enum): `ACTIVE`, `ARCHIVED`, `DRAFT`
-- `published_at` (timestaamp)
+- `published_at` (datetime2)
 - `published_by` (UUID, FK → USER)
 
 ### K. FEATURE_FLAG Entity *(NEW — Configuration Context)*
 - `id` (UUID, PK)
 - `code` (string, Unique globally): Canonical feature flag identifier (alias of `flag_code` for catalog consistency).
-- `value` (jsonb): Effective operational flag value/payload (`enabled`, variant, or rollout object).
+- `value` (nvarchar(max) JSON): Effective operational flag value/payload (`enabled`, variant, or rollout object).
 - `description` (text): Functional purpose, impact, expected behavior, and scope.
 - `flag_code` (string, Unique globally): Machine-readable identifier (e.g., `FLEET_DISPATCH_NEW_UI_V2`)
 - `type` (enum): `BOOLEAN`, `VARIANT`, `PERCENTAGE`
-- `targets` (jsonb): Scoping rules `{ systems, tenants, organizations, branches, roles, users, environments, rollout_percentage }`
+- `targets` (nvarchar(max) JSON): Scoping rules `{ systems, tenants, organizations, branches, roles, users, environments, rollout_percentage }`
 - `status` (enum): `ACTIVE`, `INACTIVE`, `ARCHIVED`
 - `linked_resource_type` (string, Nullable): `menu`, `module`, `endpoint`, `workflow`
 - `linked_resource_id` (UUID, Nullable)
 - `version` (string)
 - `created_by` (UUID, FK → USER)
-- `created_at` (timestaamp)
+- `created_at` (datetime2)
 
 ### L. FLAG_EVALUATION_LOG Entity *(NEW — Audit Context)*
 - `id` (UUID, PK)
@@ -172,7 +186,7 @@ erDiagram
 - `evaluated_for_type` (string): `user`, `tenant`, `organization`
 - `evaluated_for_id` (UUID)
 - `result` (boolean or variant value)
-- `evaluated_at` (timestaamp)
+- `evaluated_at` (datetime2)
 
 ### M. EXTERNAL_ACCESS_REQUEST Entity *(NEW — B2B Approval Context)*
 - `id` (UUID, PK)

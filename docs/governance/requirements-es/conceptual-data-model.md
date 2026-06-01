@@ -1,54 +1,66 @@
->  **Nota de Arquitectura:** Este documento se encuentra actualmente en su versión original (Inglés) y estáá programado para traducción oficial en la hoja de ruta.
+# Modelo Conceptual de Datos
 
-# Conceptual Data Model
+Este documento detalla el esquema de datos conceptual, estructuras de entidades, relaciones y diagramas Entidad-Relacion para el **User Management System (UMS)** bajo la estrategia spec-driven AI BMAD-METHOD.
 
-This document details the database schema, entity structures, relationships, and Entity-Relationship diagrams for the **User Management System (UMS)** under the **spec-driven AI strategy BMAD-METHOD**.
+> **Nota de implementacion autoritativa:** El modelo ER fisico alineado al codigo se mantiene en [database-design-er.md](../../architecture/blueprints-es/database-design-er.md). Este modelo conceptual usa nombres de negocio y debe leerse con el alineamiento de onboarding introducido por EP-09.
 
 ---
 
-## 1. Entity-Relationship Diagram
+## 1. Diagrama Entidad-Relacion
 
 ```mermaid
 erDiagram
-    ORGANIZATION ||--o{ BRANCH : has
-    ORGANIZATION ||--o{ ORGANIZATION : parent_hierarchy
-    USER ||--o{ EXTERNAL_ACCESS_REQUEST : sponsors
-    ORGANIZATION ||--o{ EXTERNAL_ACCESS_REQUEST : targets
-    ORGANIZATION ||--o{ USER : contains
-    ORGANIZATION ||--o{ PROFILE : owns
+    ORGANIZATION ||--o{ BRANCH : tiene
+    ORGANIZATION ||--o{ ORGANIZATION : jerarquia_padre
+    USER ||--o{ EXTERNAL_ACCESS_REQUEST : patrocina
+    ORGANIZATION ||--o{ EXTERNAL_ACCESS_REQUEST : recibe
+    ORGANIZATION ||--o{ USER : contiene
+    ORGANIZATION ||--o{ PROFILE : posee
+    TENANT_SIGNUP_REQUEST }o--o| ORGANIZATION : aprobado_como
+    USER ||--o{ PROFILE_ACCESS_REQUEST : solicita
 
-    BRANCH ||--o{ PROFILE : scoped_to
-    BRANCH ||--o{ USER_PROFILES : restricts
+    BRANCH ||--o{ PROFILE : delimita
+    BRANCH ||--o{ USER_PROFILES : restringe
 
-    USER ||--o{ USER_PROFILES : assigned
-    PROFILE ||--o{ USER_PROFILES : holds
+    USER ||--o{ USER_PROFILES : asignado
+    PROFILE ||--o{ USER_PROFILES : contiene
 
-    PROFILE }o--o| AUTH_TEMPLATE : implements
-    PROFILE ||--o{ AUTHORIZATION : declares
-    AUTH_TEMPLATE ||--o{ AUTHORIZATION : templates
+    PROFILE }o--o| AUTH_TEMPLATE : implementa
+    PROFILE ||--o{ AUTHORIZATION : declara
+    AUTH_TEMPLATE ||--o{ AUTHORIZATION : plantilla
 
-    SYSTEM ||--o{ MODULE : contains
-    MODULE ||--o{ MENU : contains
-    MENU ||--o{ OPTION : contains
-    OPTION ||--o{ ACTION : contains
-    SYSTEM ||--o{ ACTION : declares
-    MODULE ||--o{ ACTION : declares
-    MENU ||--o{ ACTION : declares
+    SYSTEM ||--o{ MODULE : contiene
+    MODULE ||--o{ MENU : contiene
+    MENU ||--o{ OPTION : contiene
+    OPTION ||--o{ ACTION : contiene
+    SYSTEM ||--o{ ACTION : declara
+    MODULE ||--o{ ACTION : declara
+    MENU ||--o{ ACTION : declara
 
-    AUTHORIZATION }o--|| ACTION : targets
-    NETWORK ||--o{ PROFILE : restricts
+    AUTHORIZATION }o--|| ACTION : apunta_a
+    NETWORK ||--o{ PROFILE : restringe
 
-    SYSTEM ||--o{ IDP_CONFIGURATION : uses
-    ORGANIZATION ||--o{ IDP_CONFIGURATION : configures
-    SYSTEM ||--o{ SYSTEM_CONFIGURATION : has
-    ORGANIZATION ||--o{ SYSTEM_CONFIGURATION : scopes
-    SYSTEM ||--o{ FEATURE_FLAG : governs
-    FEATURE_FLAG ||--o{ FLAG_EVALUATION_LOG : produces
+    SYSTEM ||--o{ IDP_CONFIGURATION : usa
+    ORGANIZATION ||--o{ IDP_CONFIGURATION : configura
+    SYSTEM ||--o{ SYSTEM_CONFIGURATION : tiene
+    ORGANIZATION ||--o{ SYSTEM_CONFIGURATION : delimita
+    SYSTEM ||--o{ FEATURE_FLAG : gobierna
+    FEATURE_FLAG ||--o{ FLAG_EVALUATION_LOG : produce
 ```
+
+### Alineamiento Conceptual de Onboarding
+
+| Entidad Conceptual | Fuente Implementada | Proposito |
+|---|---|---|
+| `TENANT_SIGNUP_REQUEST` | `identity.TenantSignupRequests` | Traza el alta publica de empresa antes de crear el tenant. |
+| `USER` con estado pendiente | `identity.UserAccounts.StatusId = Pending` | Traza solicitudes de alta de usuario para un tenant existente. |
+| `PROFILE_ACCESS_REQUEST` | `approvals.ApprovalRequests` | Traza solicitudes de perfil desde usuarios en lobby. |
+
+Los resultados finales de negocio para alta de usuario y solicitud de perfil son `Approved` y `Denied`. La persistencia implementada actualmente guarda la denegacion de perfil como `ApprovalStatus.Rejected`, que debe traducirse a `Denied` en boundaries de aplicacion y UI.
 
 ---
 
-## 2. Entity Attributes Specification
+## 2. Especificacion de Atributos de Entidades
 
 ### A. User Entity
 - `id` (UUID, PK): Unique identifier for the user.
@@ -57,14 +69,14 @@ erDiagram
 - `password_hash` (string, **Nullable**): Populated **only** when the Internal Bcrypt Strategy adapter is active for the organization. `NULL` when authentication is delegated to an external IdP.
 - `identity_reference` (string): External unique ID linking to corporate HR/ERP records.
 - `status` (enum): `ACTIVE`, `SUSPENDED`, or `TERMINATED`.
-- `created_at` (timestaamp): Record creation timestaamp.
+- `created_at` (datetime2): Marca de tiempo de creacion del registro.
 
 ### B. Entidad Organization (Organización)
 > [!IMPORTANT]
 > Esta entidad representa un nodo empresarial. Una organización puede ser el Tenant corporativo principal (`INTERNAL`), o un actor externo como un `CLIENT` o `SUPPLIER` B2B.
 
 - `id` (UUID, PK): Identificador único de la organización.
-- `tenant_id` (UUID, FK): El tenant maestáro general al que pertenece está organización.
+- `tenant_id` (UUID, FK): El tenant maestro general al que pertenece esta organizacion.
 - `parent_organization_id` (UUID, FK, Nullable): Enlace autorreferencial para agrupación jerárquica (Ej. Grupo Matriz -> Subsidiaria).
 - `type` (enum): `INTERNAL`, `CLIENT`, `SUPPLIER`, `PARTNER`.
 - `name` (string): Nombre legal corporativo de la empresa.
@@ -80,7 +92,7 @@ erDiagram
 - `organization_id` (UUID, FK): Owning tenant organization.
 - `name` (string): Human-readable branch name (e.g., `Callao Terminal`).
 - `code` (string, Unique within org): Short code for the branch (e.g., `BRANCH_CALLAO`).
-- `geofencing_metadata` (jsonb, Nullable): Optional geofencing constraints applied to access policies (e.g., `{ "radius_km": 10, "center_lat": -12.05, "center_lng": -77.12 }`).
+- `geofencing_metadata` (nvarchar(max) JSON, Nullable): Restricciones opcionales de geofencing aplicadas a politicas de acceso (ej. `{ "radius_km": 10, "center_lat": -12.05, "center_lng": -77.12 }`).
 - `status` (enum): `ACTIVE` or `SUSPENDED`.
 
 ### D. Profile Entity
@@ -104,7 +116,7 @@ erDiagram
 - `version` (string): Semantic version (e.g., `1.0.0`).
 - `system_id` (UUID, FK): The target client system this template is designed for.
 - `created_by` (UUID, FK): Admin user who created the template.
-- `created_at` (timestaamp).
+- `created_at` (datetime2).
 
 ### G. System Entity
 - `id` (UUID, PK): Unique identifier for the application/sub-portal.
@@ -128,12 +140,12 @@ erDiagram
 - `tenant_id` (UUID, FK → ORGANIZATION)
 - `system_id` (UUID, FK, Nullable → SYSTEM): `NULL` means applies to all systems for the tenant
 - `code` (string, Unique por alcance): Clave técnica estable del registro de configuración IdP.
-- `value` (jsonb): Payload operativo de configuración consumido en runtime.
+- `value` (nvarchar(max) JSON): Payload operativo de configuracion consumido en runtime.
 - `description` (text): Propósito funcional, impacto, comportamiento esperado y alcance aplicable.
 - `provider_type` (enum): `INTERNAL_BCRYPT`, `ZITADEL`, `AZURE_AD`, `OKTA`, `KEYCLOAK`, `AUTH0`, `GOOGLE`, `LDAP`, `SAML2`, `GENERIC_OIDC`
 - `priority` (integer): Resolution order (lower = higher priority)
 - `fallback_to` (UUID, FK, Nullable → IDP_CONFIGURATION)
-- `config_payload` (jsonb, encrypted): Authority URL, client_id, scopes, claim mappings
+- `config_payload` (nvarchar(max) JSON, encrypted): Authority URL, client_id, scopes, claim mappings
 - `config_secret_ref` (string): Vault path for encrypted credentials (e.g., `vault://ums/secrets/{tenant}/client_secret`)
 - `domain_hints` (text[]): Email domain patterns for IdP routing (e.g., `@logisticscorp.com`)
 - `mfa_enforced` (boolean)
@@ -145,28 +157,28 @@ erDiagram
 - `system_id` (UUID, FK → SYSTEM)
 - `tenant_id` (UUID, FK → ORGANIZATION)
 - `code` (string, Unique por alcance): Clave técnica estable del parámetro.
-- `value` (jsonb): Valor operativo usado por el sistema en runtime.
+- `value` (nvarchar(max) JSON): Valor operativo usado por el sistema en runtime.
 - `description` (text): Propósito funcional, impacto, comportamiento esperado y alcance.
 - `version` (string): Semantic version (e.g., `2.1.0`)
-- `config_payload` (jsonb): Full behavioral config (auth, session, MFA, onboarding, branding, modules)
+- `config_payload` (nvarchar(max) JSON): Configuracion completa de comportamiento (auth, session, MFA, onboarding, branding, modules)
 - `status` (enum): `ACTIVE`, `ARCHIVED`, `DRAFT`
-- `published_at` (timestaamp)
+- `published_at` (datetime2)
 - `published_by` (UUID, FK → USER)
 
 ### K. FEATURE_FLAG Entity *(NEW — Configuration Context)*
 - `id` (UUID, PK)
 - `code` (string, Unique global): Identificador canónico de la bandera (alias de `flag_code` para consistencia de catálogo).
-- `value` (jsonb): Valor/payload operativo efectivo (`enabled`, variante o rollout object).
+- `value` (nvarchar(max) JSON): Valor/payload operativo efectivo (`enabled`, variante o rollout object).
 - `description` (text): Propósito funcional, impacto, comportamiento esperado y alcance.
 - `flag_code` (string, Unique globally): Machine-readable identifier (e.g., `FLEET_DISPATCH_NEW_UI_V2`)
 - `type` (enum): `BOOLEAN`, `VARIANT`, `PERCENTAGE`
-- `targets` (jsonb): Scoping rules `{ systems, tenants, organizations, branches, roles, users, environments, rollout_percentage }`
+- `targets` (nvarchar(max) JSON): Reglas de alcance `{ systems, tenants, organizations, branches, roles, users, environments, rollout_percentage }`
 - `status` (enum): `ACTIVE`, `INACTIVE`, `ARCHIVED`
 - `linked_resource_type` (string, Nullable): `menu`, `module`, `endpoint`, `workflow`
 - `linked_resource_id` (UUID, Nullable)
 - `version` (string)
 - `created_by` (UUID, FK → USER)
-- `created_at` (timestaamp)
+- `created_at` (datetime2)
 
 ### L. FLAG_EVALUATION_LOG Entity *(NEW — Audit Context)*
 - `id` (UUID, PK)
@@ -174,7 +186,7 @@ erDiagram
 - `evaluated_for_type` (string): `user`, `tenant`, `organization`
 - `evaluated_for_id` (UUID)
 - `result` (boolean or variant value)
-- `evaluated_at` (timestaamp)
+- `evaluated_at` (datetime2)
 
 ### M. Entidad EXTERNAL_ACCESS_REQUEST *(NUEVO — Contexto de Aprobación B2B)*
 - `id` (UUID, PK)
@@ -205,7 +217,7 @@ Todas las entidades de parámetros/configuración/catálogos DEBEN incluir como 
 
 Este estándar aplica a parámetros globales, por tenant y por system/suite; feature flags; políticas; configuraciones de seguridad; workflows; reglas de negocio; y configuraciones de notificación/aprobación.
 
-Además, estáas entidades deben definir:
+Ademas, estas entidades deben definir:
 
 - constraints únicos por alcance,
 - estrategia de versionado,

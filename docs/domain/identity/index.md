@@ -3,13 +3,14 @@
 > **Language:** [English](./index.md) | [Español](../../domain-es/identity/index.md)
 
 **Bounded Context:** Identity (`Ums.Domain.Identity`)  
-**Aggregate Roots:** `Tenant`, `UserAccount`, `UserManagementDelegation`
+**Aggregate Roots:** `Tenant`, `TenantSignupRequest`, `UserAccount`, `UserManagementDelegation`
 
 ---
 
 | Aggregate / Entity | Type | Status |
 |---|---|---|
 | [Tenant](./tenant.md) | Aggregate Root | Production |
+| [TenantSignupRequest](./tenant-signup-request.md) | Aggregate Root | Implemented for tenant onboarding |
 | [Branch](./branch.md) | Owned Entity (Tenant) | Production |
 | [Branding](./branding.md) | Owned Entity (Tenant) | Production |
 | [IdentityProvider](./identity-provider.md) | Owned Entity (Tenant) | Production |
