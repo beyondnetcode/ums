@@ -23,6 +23,7 @@ import { TenantSelect } from '@shared/components/TenantSelect';
 import { Key, Building2, ShieldCheck, AlertCircle, Info } from 'lucide-react';
 import { useNotificationStore } from '@app/stores/notification.store';
 import { DEV_TENANTS } from '@domain/identity/constants/tenant.constants';
+import { ForgotPasswordForm } from '../components/ForgotPasswordForm';
 
 export default function LoginScreen(): React.JSX.Element {
   const navigate = useNavigate();
@@ -40,6 +41,7 @@ export default function LoginScreen(): React.JSX.Element {
   const [attempts, setAttempts] = useState(0);
   const [lockoutUntil, setLockoutUntil] = useState<number | null>(null);
   const [showInfoPopup, setShowInfoPopup] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   const showSessionExpired = new URLSearchParams(location.search).get('showSessionExpired') === 'true';
   const redirectTo = new URLSearchParams(location.search).get('redirect');
@@ -95,17 +97,13 @@ export default function LoginScreen(): React.JSX.Element {
       await new Promise((resolve) => setTimeout(resolve, simulatedDelay));
 
       const DEV_CREDENTIALS: Record<string, { username: string; password: string }> = {
-        'INTERNAL_ADMIN': { username: 'admin@ums.local', password: 'Admin@123' },
-        'TECHNO': { username: 'admin@techno.io', password: 'Techno123!' },
-        'LOGISTICA': { username: 'admin@logistica.io', password: 'Logistica123!' },
-        'RETAIL': { username: 'admin@retail.io', password: 'Retail123!' },
-        'SALUD': { username: 'admin@salud.io', password: 'Salud123!' },
-        'EDU': { username: 'admin@edu.io', password: 'Edu123!' },
-        'FINANCE': { username: 'admin@finance.io', password: 'Finance123!' },
-        'MEDIA': { username: 'admin@media.io', password: 'Media123!' },
-        'AGILE': { username: 'admin@agile.io', password: 'Agile123!' },
-        'NEXTGEN': { username: 'admin@nextgen.io', password: 'Nextgen123!' },
-        'QUANTUM': { username: 'admin@quantum.io', password: 'Quantum123!' },
+        'INTERNAL_ADMIN': { username: 'admin@internal_admin.ums.local', password: 'Admin@123' },
+        'RANSA_PERU':     { username: 'gerente.operaciones@ransa.pe',          password: 'Admin@123' },
+        'NEPTUNIA':       { username: 'gerente.operaciones@neptunia.pe',        password: 'Admin@123' },
+        'APM_CALLAO':     { username: 'gerente.operaciones@apmterminals.com',   password: 'Admin@123' },
+        'PAITA_PORT':     { username: 'gerente.operaciones@tpp-paita.com.pe',   password: 'Admin@123' },
+        'UNIMAR':         { username: 'gerente.operaciones@unimar.com.pe',      password: 'Admin@123' },
+        'INTRADEVCO':     { username: 'gerente.operaciones@intradevco.com.pe',  password: 'Admin@123' },
       };
 
       const tenantCreds = DEV_CREDENTIALS[selectedTenant.code];
@@ -190,74 +188,90 @@ export default function LoginScreen(): React.JSX.Element {
         )}
 
         <M3Card variant="elevated" className="p-6 border border-m3-outline/25 bg-m3-surface-container/30">
-          <div className="flex items-center gap-2 text-m3-primary mb-5">
-            <Key className="w-5 h-5" />
-            <h2 className="text-sm font-extrabold uppercase tracking-widest text-m3-on-surface">
-              Iniciar Sesión
-            </h2>
-          </div>
-
-          <form onSubmit={handleLogin} className="space-y-4">
-            <TenantSelect
-              label="Tenant"
-              value={tenantId}
-              onChange={setTenantId}
-              tenants={DEV_TENANTS}
-              placeholder="Buscar por código o nombre..."
-              disabled={isLoading || isLocked}
-            />
-
-            <M3TextField
-              label="Usuario"
-              required
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="nombre.usuario"
-              autoComplete="username"
-              disabled={isLoading || isLocked}
-              error={error && error.includes('usuario') ? error : undefined}
-            />
-
-            <M3TextField
-              label="Contraseña"
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              autoComplete="current-password"
-              disabled={isLoading || isLocked}
-              error={error && error.includes('contraseña') ? error : undefined}
-            />
-
-            {error && !error.includes('usuario') && !error.includes('contraseña') && (
-              <div className="p-3 rounded-lg bg-m3-error-container/30 border border-m3-error/20 flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 text-m3-error flex-shrink-0" />
-                <p className="text-xs text-m3-error">{error}</p>
+          {showForgotPassword ? (
+            <ForgotPasswordForm onBack={() => setShowForgotPassword(false)} />
+          ) : (
+            <>
+              <div className="flex items-center gap-2 text-m3-primary mb-5">
+                <Key className="w-5 h-5" />
+                <h2 className="text-sm font-extrabold uppercase tracking-widest text-m3-on-surface">
+                  Iniciar Sesión
+                </h2>
               </div>
-            )}
 
-            <M3Button
-              variant="filled"
-              className="w-full"
-              type="submit"
-              disabled={isLoading || isLocked}
-            >
-              {isLoading ? (
-                <span className="flex items-center gap-2">
-                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  Verificando...
-                </span>
-              ) : isLocked ? (
-                'Bloqueado'
-              ) : (
-                'Ingresar'
-              )}
-            </M3Button>
-          </form>
+              <form onSubmit={handleLogin} className="space-y-4">
+                <TenantSelect
+                  label="Tenant"
+                  value={tenantId}
+                  onChange={setTenantId}
+                  tenants={DEV_TENANTS}
+                  placeholder="Buscar por código o nombre..."
+                  disabled={isLoading || isLocked}
+                />
+
+                <M3TextField
+                  label="Usuario"
+                  required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="nombre.usuario"
+                  autoComplete="username"
+                  disabled={isLoading || isLocked}
+                  error={error && error.includes('usuario') ? error : undefined}
+                />
+
+                <M3TextField
+                  label="Contraseña"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                  disabled={isLoading || isLocked}
+                  error={error && error.includes('contraseña') ? error : undefined}
+                />
+
+                {error && !error.includes('usuario') && !error.includes('contraseña') && (
+                  <div className="p-3 rounded-lg bg-m3-error-container/30 border border-m3-error/20 flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 text-m3-error flex-shrink-0" />
+                    <p className="text-xs text-m3-error">{error}</p>
+                  </div>
+                )}
+
+                <M3Button
+                  variant="filled"
+                  className="w-full"
+                  type="submit"
+                  disabled={isLoading || isLocked}
+                >
+                  {isLoading ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      Verificando...
+                    </span>
+                  ) : isLocked ? (
+                    'Bloqueado'
+                  ) : (
+                    'Ingresar'
+                  )}
+                </M3Button>
+
+                <div className="text-center">
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotPassword(true)}
+                    className="text-xs text-m3-primary/70 hover:text-m3-primary transition-colors"
+                  >
+                    ¿Olvidaste tu contraseña?
+                  </button>
+                </div>
+              </form>
+            </>
+          )}
         </M3Card>
 
         <div className="mt-4 text-center">
@@ -297,16 +311,16 @@ export default function LoginScreen(): React.JSX.Element {
                 <div className="p-2 rounded-lg bg-m3-primary-container/30 border border-m3-primary/20">
                   <p className="font-bold text-m3-primary mb-1">Admin Internal (ve todos los tenants)</p>
                   <p className="text-m3-secondary font-mono">Tenant: INTERNAL_ADMIN</p>
-                  <p className="text-m3-secondary font-mono">Usuario: admin@ums.local</p>
+                  <p className="text-m3-secondary font-mono">Usuario: admin@internal_admin.ums.local</p>
                   <p className="text-m3-secondary font-mono">Password: Admin@123</p>
                 </div>
-                <p className="font-semibold text-m3-on-surface mt-3 mb-1">Tenants Regulares:</p>
+                <p className="font-semibold text-m3-on-surface mt-3 mb-1">Tenants Comerciales:</p>
                 {DEV_TENANTS.filter(t => t.code !== 'INTERNAL_ADMIN').map(t => (
                   <div key={t.id} className="p-2 rounded bg-m3-surface/50 border border-m3-outline/10">
                     <p className="font-bold text-m3-primary">{t.name}</p>
                     <p className="text-m3-secondary font-mono">Tenant: {t.code}</p>
-                    <p className="text-m3-secondary font-mono">Usuario: admin@{t.code.toLowerCase()}.io</p>
-                    <p className="text-m3-secondary font-mono">Password: {t.code.toLowerCase()}123!</p>
+                    <p className="text-m3-secondary font-mono">Usuario: gerente.operaciones@...</p>
+                    <p className="text-m3-secondary font-mono">Password: Admin@123</p>
                   </div>
                 ))}
               </div>

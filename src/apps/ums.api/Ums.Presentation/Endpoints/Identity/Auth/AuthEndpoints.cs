@@ -1,5 +1,6 @@
 namespace Ums.Presentation.Endpoints.Identity.Auth;
 
+using Ums.Application.Identity.Auth.Commands;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -52,6 +53,21 @@ public static class AuthEndpoints
             .WithName("SwitchTenant")
             .WithSummary("Switch current tenant context (internal admins only)");
             // No RequireAuthorization() - we validate the JWT token directly in the handler
+
+        // Forgot password — public, no auth required
+        group.MapPost("/forgot-password", async (
+            ForgotPasswordCommand command,
+            IMediator mediator,
+            HttpContext context,
+            CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            return result.ToOk(context);
+        })
+        .WithName("ForgotPassword")
+        .WithSummary("Request a password reset. Always returns 200 to prevent user enumeration.")
+        .AllowAnonymous()
+        .Produces<ForgotPasswordResponse>(StatusCodes.Status200OK);
     }
 
     /// <summary>

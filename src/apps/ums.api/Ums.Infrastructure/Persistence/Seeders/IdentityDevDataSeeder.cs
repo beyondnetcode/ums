@@ -238,7 +238,7 @@ public static class IdentityDevDataSeeder
         // ── 0. SuperAdmin User (Internal Admin Tenant) ─────────────────────────
         var superAdminResult = UserAccountAggregate.Create(
             internalAdminTenantId,
-            Email.Create($"admin@{CoreDevDataSeeder.InternalAdminTenantCode.ToLower()}.ums.local"),
+            Email.Create("admin@ums.local"),
             UserCategory.Internal,
             null,
             null,
@@ -263,17 +263,17 @@ public static class IdentityDevDataSeeder
         }
 
         // ── Commercial Tenant Users ─────────────────────────────────────────────
-        result.AddRange(BuildSeedUserAccountsForTenant(ransaTenantId, actor));
-        result.AddRange(BuildSeedUserAccountsForTenant(neptuniaTenantId, actor));
-        result.AddRange(BuildSeedUserAccountsForTenant(apmTenantId, actor));
-        result.AddRange(BuildSeedUserAccountsForTenant(paitaTenantId, actor));
-        result.AddRange(BuildSeedUserAccountsForTenant(unimarTenantId, actor));
-        result.AddRange(BuildSeedUserAccountsForTenant(intradevcoTenantId, actor));
+        result.AddRange(BuildSeedUserAccountsForTenant(ransaTenantId, actor, passwordHasher));
+        result.AddRange(BuildSeedUserAccountsForTenant(neptuniaTenantId, actor, passwordHasher));
+        result.AddRange(BuildSeedUserAccountsForTenant(apmTenantId, actor, passwordHasher));
+        result.AddRange(BuildSeedUserAccountsForTenant(paitaTenantId, actor, passwordHasher));
+        result.AddRange(BuildSeedUserAccountsForTenant(unimarTenantId, actor, passwordHasher));
+        result.AddRange(BuildSeedUserAccountsForTenant(intradevcoTenantId, actor, passwordHasher));
 
         return result;
     }
 
-    private static IReadOnlyList<UserAccountAggregate> BuildSeedUserAccountsForTenant(TenantId tenantId, ActorId actor)
+    private static IReadOnlyList<UserAccountAggregate> BuildSeedUserAccountsForTenant(TenantId tenantId, ActorId actor, IPasswordHashingService? passwordHasher = null)
     {
         var baseGuidBytes = tenantId.GetValue().ToByteArray();
         Guid DeriveGuid(byte index)
@@ -293,6 +293,11 @@ public static class IdentityDevDataSeeder
 
         var admin = BuildUserAccount(DeriveGuid(1), tenantId, $"gerente.operaciones@{domain}", UserCategory.Internal, actor, "EMP-001");
         admin.Activate(actor);
+        if (passwordHasher != null)
+        {
+            var hash = PasswordHash.Create(passwordHasher.Hash(CoreDevDataSeeder.SuperAdminPassword));
+            admin.AddPassword(hash, actor);
+        }
 
         var analyst = BuildUserAccount(DeriveGuid(2), tenantId, $"analista.inventario@{domain}", UserCategory.Internal, actor, "EMP-002");
         analyst.Activate(actor);
