@@ -28,6 +28,12 @@ Welcome to the master **Functional Stories** index for the User Management Syste
 *   **[FS-16: Define Access Policy on Expiration](./fs-16-access-enforcement-policy.md)**
 *   **[FS-17: Maintain Roles for a System Suite](./fs-17-maintain-system-roles.md)**
 *   **[FS-18: Manage a User Local Password](./fs-18-manage-local-user-password.md)**
+*   **[FS-19: Manage Admin Password Reset Validity](./fs-19-admin-password-reset-validity-management.md)**
+*   **[FS-20: Manage System Parameters](./fs-20-system-parameter-management.md)**
+*   **[FS-21: Tenant Signup Request and Approval](./fs-21-tenant-signup-request-approval.md)**
+*   **[FS-22: User Signup Request and Approval](./fs-22-user-signup-request-approval.md)**
+*   **[FS-23: Profile Access Request from Lobby User](./fs-23-profile-access-request.md)**
+*   **[FS-24: Profile Request Approval and Manual Assignment](./fs-24-profile-request-approval.md)**
 
 ---
 

@@ -60,6 +60,10 @@ export const M3TextField: React.FC<M3TextFieldProps> = ({
   const fieldHeightClass = dense ? 'h-10' : compact ? 'h-12' : 'h-14';
   const inputPaddingClass = dense ? 'px-3' : 'px-4';
   const inputSpacingClass = dense ? 'pt-3 pb-1 text-xs' : `${compact ? 'pt-4 pb-1' : 'pt-5 pb-2'} text-sm`;
+  const hasStartIcon = !!icon && iconPosition === 'start';
+  const startIconInsetClass = dense ? 'left-2.5' : 'left-3';
+  const labelStartOffsetClass = hasStartIcon ? (dense ? 'left-9' : 'left-10') : dense ? 'left-3' : 'left-4';
+  const hintStartOffsetClass = hasStartIcon ? (dense ? 'left-9 right-3' : 'left-10 right-4') : dense ? 'left-3 right-3' : 'left-4 right-4';
 
   const [focused, setFocused] = useState(false);
 
@@ -116,8 +120,8 @@ export const M3TextField: React.FC<M3TextFieldProps> = ({
           {label}{req && ' *'}
         </legend>
 
-        {icon && iconPosition === 'start' && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-m3-secondary pointer-events-none z-10">
+        {hasStartIcon && (
+          <div className={`absolute ${startIconInsetClass} top-1/2 -translate-y-1/2 text-m3-secondary pointer-events-none z-10`}>
             {icon}
           </div>
         )}
@@ -135,7 +139,7 @@ export const M3TextField: React.FC<M3TextFieldProps> = ({
             compact ? 'text-[11px]' : '',
             'focus:outline-none',
             'disabled:opacity-50 disabled:cursor-not-allowed',
-            icon && iconPosition === 'start' ? 'pl-10' : '',
+            hasStartIcon ? 'pl-10' : '',
             icon && iconPosition === 'end'   ? 'pr-10' : '',
           ].join(' ')}
           {...inputProps}
@@ -148,8 +152,8 @@ export const M3TextField: React.FC<M3TextFieldProps> = ({
             'absolute pointer-events-none font-normal',
             'transition-all duration-150 ease-in-out',
             isFloated
-              ? 'left-3 px-1 top-0 -translate-y-1/2 text-xs'
-              : `${dense ? 'left-3 text-xs' : 'left-4 text-sm'} top-1/2 -translate-y-1/2`,
+              ? `${labelStartOffsetClass} px-1 top-0 -translate-y-1/2 text-xs`
+              : `${labelStartOffsetClass} ${dense ? 'text-xs' : 'text-sm'} top-1/2 -translate-y-1/2`,
             labelColorClass,
           ].join(' ')}
         >
@@ -161,7 +165,7 @@ export const M3TextField: React.FC<M3TextFieldProps> = ({
         {hint && (
           <span
             className={[
-              `absolute ${dense ? 'left-3 right-3 text-xs' : 'left-4 right-4 text-sm'} text-m3-secondary/50`,
+              `absolute ${hintStartOffsetClass} ${dense ? 'text-xs' : 'text-sm'} text-m3-secondary/50`,
               'pointer-events-none select-none transition-opacity duration-150',
               focused && !hasValue ? 'opacity-100' : 'opacity-0',
             ].join(' ')}

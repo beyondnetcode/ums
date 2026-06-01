@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Building2, Check, Copy, Mail, UserPlus } from 'lucide-react';
+import { ArrowLeft, Check, Mail, User, UserPlus } from 'lucide-react';
 import { M3Button } from '@shared/components/M3Button';
 import { M3TextField } from '@shared/components/M3TextField';
 import { TenantSelect } from '@shared/components/TenantSelect';
@@ -121,7 +121,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onBack }) => {
         placeholder="Nombre y apellido"
         autoComplete="name"
         disabled={isLoading}
-        icon={<Building2 className="w-4 h-4" />}
+        icon={<User className="w-4 h-4" />}
       />
 
       <M3TextField

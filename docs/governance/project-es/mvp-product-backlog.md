@@ -24,7 +24,10 @@ El backlog está orientado a Product Owner, Analista de Negocio, Direccion Ejecu
 | EP-05 | Experiencia y Diagnostico de Acceso | Diagnostico por grafo y experiencia de login hospedado | Estabilizacion MVP |
 | EP-06 | Seguridad, Acceso Externo y Delegacion | MFA/passwordless, acceso B2B, administracion delegada | Post-MVP |
 | EP-07 | Ciclo de Vida de Cumplimiento | Documentos de usuario, notificaciones de expiracion, politica de acceso por expiracion | Post-MVP |
-| EP-08 | Automatizacion IGA Avanzada | Promocion de roles y madurez de gobierno | Posterior | ## Backlog Priorizado de Historias de Usuario
+| EP-08 | Automatizacion IGA Avanzada | Promocion de roles y madurez de gobierno | Posterior |
+| EP-09 | Bandeja de Aprobacion de Onboarding | Solicitudes de alta de empresa, solicitudes de alta de usuario, aprobaciones por alcance, preparacion futura para verificacion de pago | Preparacion de Lanzamiento MVP |
+
+## Backlog Priorizado de Historias de Usuario
 
 | Orden | ID Historia | Epica | FS Origen | Fase | Historia de Usuario | Resultado de Negocio | Enfoque Inicial de Aceptacion |
 |---:|---|---|---|---|---|---|---|
@@ -60,7 +63,13 @@ El backlog está orientado a Product Owner, Analista de Negocio, Direccion Ejecu
 | 30 | US-030 | EP-03 | FS-06 | Automatizacion Posterior | Como Product Owner, quiero que las reglas de autoasignacion sean transparentes para confiar en decisiones automaticas de acceso. | El acceso automatizado sigue siendo entendible. | El resultado explica que regla aplico y por que. |
 | 31 | US-031 | EP-08 | FS-12 | IGA Avanzado Posterior | Como Administrador IGA, quiero promover un rol mediante un proceso gobernado para evolucionar roles sin cambios no controlados. | El gobierno de roles madura de forma controlada. | La solicitud captura rol actual, estado objetivo, razon, revision y aprobacion. |
 | 32 | US-032 | EP-08 | FS-12 | IGA Avanzado Posterior | Como Aprobador, quiero revisar el impacto de una promocion de rol para no aprobar cambios riesgosos a ciegas. | Los cambios de rol consideran riesgo e impacto. | La revision muestra perfiles, permisos, sistemas e impacto de negocio esperado. |
-| 33 | TE-07 | INFRA | ADR-0058 | Evolucion SaaS — Deuda Tecnica | Como Arquitecto de Plataforma, quiero introducir un API Gateway centralizado con YARP para que todos los clientes futuros (web, movil) compartan un unico punto de entrada gobernado para politicas de seguridad y enrutamiento. | UMS puede escalar a multiples superficies de cliente sin duplicar configuracion de seguridad. | El gateway enruta `/api/**` y `/graphql` hacia `ums-api`; cabeceras de seguridad centralizadas; nginx reducido a servidor de archivos estaticos; el cliente movil puede conectarse sin configuracion especial. | ## Linea de Corte MVP
+| 33 | TE-07 | INFRA | ADR-0058 | Evolucion SaaS — Deuda Tecnica | Como Arquitecto de Plataforma, quiero introducir un API Gateway centralizado con YARP para que todos los clientes futuros (web, movil) compartan un unico punto de entrada gobernado para politicas de seguridad y enrutamiento. | UMS puede escalar a multiples superficies de cliente sin duplicar configuracion de seguridad. | El gateway enruta `/api/**` y `/graphql` hacia `ums-api`; cabeceras de seguridad centralizadas; nginx reducido a servidor de archivos estaticos; el cliente movil puede conectarse sin configuracion especial. |
+| 34 | US-033 | EP-09 | FS-21 | Preparacion de Lanzamiento MVP | Como Administrador del Sistema, quiero una unica bandeja de onboarding para solicitudes de alta de empresa para que las nuevas companias puedan revisarse y aprobarse en un solo lugar. | El onboarding de companias queda gobernado centralmente. | La solicitud se ve como pendiente, solo los aprobadores globales pueden revisarla y la aprobacion crea el tenant mas la primera cuenta administradora. |
+| 35 | US-034 | EP-09 | FS-22 | Preparacion de Lanzamiento MVP | Como Administrador de Tenant, quiero una bandeja de onboarding con alcance del tenant para solicitudes de alta de usuario para poder aprobar o denegar accesos de mi propia organizacion. | El onboarding de usuarios permanece local al tenant y llega a un resultado final. | La solicitud solo es visible dentro del tenant, el Tenant Admin la cierra como aprobada o denegada y el solicitante recibe notificacion del resultado final. |
+| 36 | US-035 | EP-09 | FS-23 | Preparacion de Lanzamiento MVP | Como usuario autenticado sin perfil, quiero solicitar acceso a sistema, sucursal y rol desde el lobby para que los administradores sepan que acceso necesito. | La admision al tenant permanece separada de la asignacion de entitlements. | El usuario ve un lobby, envia una solicitud de perfil, no recibe menus operativos antes de la aprobacion y puede seguir la solicitud hasta su cierre final. |
+| 37 | US-036 | EP-09 | FS-24 | Preparacion de Lanzamiento MVP | Como aprobador de tenant o sucursal, quiero aprobar, modificar o denegar solicitudes de perfil para que los usuarios reciban solo el acceso apropiado. | La asignacion de perfiles queda gobernada, auditable y cerrada. | La decision registra aprobador, fecha, rol solicitado, rol otorgado cuando se aprueba, resultado final, motivo cuando exista y resultado de notificacion. |
+
+## Linea de Corte MVP
 
 El backlog MVP recomendado incluye `US-001` hasta `US-012` como alcance core.
 
@@ -68,3 +77,4 @@ El backlog MVP recomendado incluye `US-001` hasta `US-012` como alcance core.
 
 `US-017` en adelante debe planificarse despues del MVP, salvo que el cliente de lanzamiento requiera seguridad reforzada, acceso externo o cumplimiento desde el primer dia.
 
+`US-033` a `US-036` deben tratarse como preparacion de lanzamiento para onboarding. Si el onboarding autoservicio entra en produccion, estas historias se convierten en condicion de salida porque controlan la admision de companias, la activacion de cuentas por tenant y la asignacion de entitlements.

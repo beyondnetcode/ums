@@ -55,6 +55,7 @@ UMS is a satellite repository of `evolith_arch32`. The parent repository defines
 | [ADR-0072](./0072-dynamic-auth-method-resolution.md) | Dynamic Auth Method Resolution — From Configuration, Not Code | Accepted |
 | [ADR-0073](./0073-ums-sdk-multi-runtime.md) | UMS SDK — Multi-Runtime Client Integration Surface (.NET / TypeScript / NestJS) | Accepted |
 | [ADR-0074](./0074-auth-graph-schema-versioning.md) | Auth Graph Schema Versioning Policy | Accepted |
+| [ADR-0075](./0075-onboarding-approval-inbox-and-scope-based-authorization.md) | Onboarding Approval Inbox and Scope-Based Authorization | Accepted |
 
 > **Evolith candidate** - ADR has zero UMS-specific dependencies and is proposed for extraction to the Evolith parent architecture baseline.
 

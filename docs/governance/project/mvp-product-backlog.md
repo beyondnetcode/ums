@@ -24,7 +24,10 @@ The backlog is intended for Product Owner, Business Analyst, Executive, and Deli
 | EP-05 | Access Experience and Diagnosis | Permission graph diagnosis and hosted login experience | MVP Stabilization |
 | EP-06 | Security, External Access, and Delegation | MFA/passwordless, B2B access, delegated administration | Post-MVP |
 | EP-07 | Compliance Lifecycle | User documents, expiration notifications, expiration-based access policy | Post-MVP |
-| EP-08 | Advanced IGA Automation | Role promotion and governance maturity automation | Later | ## Prioritized User Story Backlog
+| EP-08 | Advanced IGA Automation | Role promotion and governance maturity automation | Later |
+| EP-09 | Onboarding Approval Inbox | Tenant signup requests, user signup requests, scoped approvals, future payment-verification readiness | MVP Launch Readiness |
+
+## Prioritized User Story Backlog
 
 | Rank | Story ID | Epic | Source FS | Phase | User Story | Business Outcome | Initial Acceptance Focus |
 |---:|---|---|---|---|---|---|---|
@@ -60,7 +63,13 @@ The backlog is intended for Product Owner, Business Analyst, Executive, and Deli
 | 30 | US-030 | EP-03 | FS-06 | Later Automation | As a Product Owner, I want auto-assignment rules to be transparent so that business owners trust automated access decisions. | Automated access remains understandable. | Auto-assignment outcome explains which rule matched and why. |
 | 31 | US-031 | EP-08 | FS-12 | Later Advanced IGA | As an IGA Administrator, I want to promote a role through a governed process so that role maturity evolves without uncontrolled changes. | Role governance becomes mature and controlled. | Promotion request captures current role, target state, reason, review, and approval. |
 | 32 | US-032 | EP-08 | FS-12 | Later Advanced IGA | As an Approver, I want to review role promotion impact so that risky role changes are not promoted blindly. | Role changes are risk-aware. | Review shows affected profiles, permissions, systems, and expected business impact. |
-| 33 | TE-07 | INFRA | ADR-0058 | SaaS Evolution — Technical Debt | As a Platform Architect, I want to introduce a centralized YARP API Gateway so that all future clients (web, mobile) share a single, governed entry point for security policy and routing. | UMS can scale to multiple client surfaces without duplicating security configuration. | Gateway routes `/api/**` and `/graphql` to `ums-api`; security headers centralized; nginx reduced to static file server; mobile client can connect without special configuration. | ## MVP Cut Line
+| 33 | TE-07 | INFRA | ADR-0058 | SaaS Evolution — Technical Debt | As a Platform Architect, I want to introduce a centralized YARP API Gateway so that all future clients (web, mobile) share a single, governed entry point for security policy and routing. | UMS can scale to multiple client surfaces without duplicating security configuration. | Gateway routes `/api/**` and `/graphql` to `ums-api`; security headers centralized; nginx reduced to static file server; mobile client can connect without special configuration. |
+| 34 | US-033 | EP-09 | FS-21 | MVP Launch Readiness | As a System Admin, I want a single onboarding inbox for tenant signup requests so that new companies can be reviewed and approved in one place. | Company onboarding is governed centrally. | Request is visible as pending, only global approvers can review it, and approval creates the tenant plus the first admin account. |
+| 35 | US-034 | EP-09 | FS-22 | MVP Launch Readiness | As a Tenant Admin, I want a tenant-scoped onboarding inbox for user signup requests so that I can approve or deny access for my own tenant. | User onboarding stays local to the tenant and reaches a final outcome. | Request is visible only inside the tenant, the Tenant Admin closes it as approved or denied, and the applicant is notified of the final result. |
+| 36 | US-035 | EP-09 | FS-23 | MVP Launch Readiness | As an authenticated user without a profile, I want to request system, branch, and role access from the lobby so that administrators know what access I need. | Tenant admission stays separate from entitlement assignment. | The user sees a lobby, submits a profile request, receives no operational menus before approval, and can track the request until final closure. |
+| 37 | US-036 | EP-09 | FS-24 | MVP Launch Readiness | As a Tenant or Branch Approver, I want to approve, modify, or deny profile requests so that users receive only appropriate access. | Profile assignment becomes governed, auditable, and closed. | The decision records approver, date, requested role, granted role when approved, final outcome, reason when provided, and notification result. |
+
+## MVP Cut Line
 
 The recommended MVP backlog includes `US-001` through `US-012` as core scope.
 
@@ -68,3 +77,4 @@ The recommended MVP backlog includes `US-001` through `US-012` as core scope.
 
 `US-017` onward should be planned after the MVP unless the launch customer requires stronger security, external access, or compliance gating from day one.
 
+`US-033` through `US-036` should be treated as launch readiness for onboarding. If self-service onboarding goes live, these stories become a release gate because they control company admission, tenant-scoped account activation, and entitlement assignment.

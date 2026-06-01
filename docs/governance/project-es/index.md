@@ -8,6 +8,7 @@ Alcance MVP, priorización y diseños funcionales detallados.
 - [EP-06: Diseño Detallado de Aprobaciones](./ep-06-approvals-detailed-design.md)
 - [EP-07: Diseño Detallado de Cumplimiento](./ep-07-compliance-detailed-design.md)
 - [EP-08: Diseño Detallado de IGA](./ep-08-iga-detailed-design.md)
+- [EP-09: Diseno Detallado de la Bandeja de Aprobacion de Onboarding](./ep-09-onboarding-workflow-detailed-design.es.md)
 
 ---
 **[Volver al Portal de Gobernanza](../index.es.md)** | **[Volver al Índice Maestro](../../MASTER_INDEX.es.md)**
