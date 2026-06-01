@@ -8,9 +8,12 @@ using Ums.Domain.Identity.Tenant.Branding;
 using Ums.Domain.Identity.UserAccount;
 using Ums.Domain.Identity.UserManagementDelegation;
 using Ums.Domain.Kernel.ValueObjects;
+using Ums.Domain.Identity.TenantSignupRequest;
+using Ums.Infrastructure.Persistence.Identity;
 using TenantAggregate = Ums.Domain.Identity.Tenant.Tenant;
 using UserAccountAggregate = Ums.Domain.Identity.UserAccount.UserAccount;
 using UserManagementDelegationAggregate = Ums.Domain.Identity.UserManagementDelegation.UserManagementDelegation;
+using TenantSignupRequestAggregate = Ums.Domain.Identity.TenantSignupRequest.TenantSignupRequest;
 
 public static class IdentityDevDataSeeder
 {
@@ -24,6 +27,9 @@ public static class IdentityDevDataSeeder
 
         var delegationRepository = serviceProvider.GetService<IUserManagementDelegationRepository>();
         var inMemoryDelegationRepository = serviceProvider.GetService<InMemoryUserManagementDelegationRepository>();
+
+        var signupRequestRepository = serviceProvider.GetService<ITenantSignupRequestRepository>();
+        var inMemorySignupRequestRepository = serviceProvider.GetService<InMemoryTenantSignupRequestRepository>();
 
         var passwordHasher = serviceProvider.GetService<IPasswordHashingService>();
 
@@ -92,6 +98,28 @@ public static class IdentityDevDataSeeder
             foreach (var delegation in delegations)
             {
                 inMemoryDelegationRepository.Seed(delegation);
+            }
+        }
+
+        // Seed TenantSignupRequests (EP-09 onboarding inbox)
+        var signupRequests = BuildSeedTenantSignupRequests(actor);
+        if (inMemorySignupRequestRepository is null && signupRequestRepository is not null)
+        {
+            var alreadySeeded = await signupRequestRepository.GetAllAsync(cancellationToken);
+            if (alreadySeeded.Count == 0)
+            {
+                foreach (var req in signupRequests)
+                {
+                    await signupRequestRepository.AddAsync(req, cancellationToken);
+                }
+                await signupRequestRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+            }
+        }
+        else if (inMemorySignupRequestRepository is not null)
+        {
+            foreach (var req in signupRequests)
+            {
+                inMemorySignupRequestRepository.Seed(req);
             }
         }
     }
@@ -291,7 +319,12 @@ public static class IdentityDevDataSeeder
                      tenantId.GetValue().ToString().StartsWith("f3e2") ? "intradevco.com.pe" :
                      "logistics.pe";
 
-        var admin = BuildUserAccount(DeriveGuid(1), tenantId, $"gerente.operaciones@{domain}", UserCategory.Internal, actor, "EMP-001");
+        // Admin uses local password — no IdentityReference so the federated-user invariant doesn't block AddPassword
+        var adminResult = UserAccountAggregate.Create(
+            tenantId, Email.Create($"gerente.operaciones@{domain}"),
+            UserCategory.Internal, null, null, actor,
+            userAccountId: UserAccountId.Load(DeriveGuid(1)));
+        var admin = adminResult.Value;
         admin.Activate(actor);
         if (passwordHasher != null)
         {
@@ -410,5 +443,43 @@ public static class IdentityDevDataSeeder
         // Not activated
 
         return [activeDel, expiredDel, revokedDel, draftDel];
+    }
+
+    private static IReadOnlyList<TenantSignupRequestAggregate> BuildSeedTenantSignupRequests(ActorId actor)
+    {
+        var results = new List<TenantSignupRequestAggregate>();
+
+        // 1. Pending — shows in global onboarding inbox
+        var techstart = TenantSignupRequestAggregate.Create(
+            Name.Create("TechStart SRL"),
+            CompanyReference.Create("RUC-20601234567"),
+            Name.Create("Carlos Mendoza"),
+            Email.Create("cmendoza@techstart.pe"),
+            actor);
+        if (techstart.IsSuccess) results.Add(techstart.Value);
+
+        // 2. Pending — shows in global onboarding inbox
+        var globalPartners = TenantSignupRequestAggregate.Create(
+            Name.Create("Global Partners SA"),
+            CompanyReference.Create("RUC-20507654321"),
+            Name.Create("Ana Flores"),
+            Email.Create("aflores@globalpartners.com.pe"),
+            actor);
+        if (globalPartners.IsSuccess) results.Add(globalPartners.Value);
+
+        // 3. Approved — historical record (already processed)
+        var acmeCorp = TenantSignupRequestAggregate.Create(
+            Name.Create("Acme Corp Peru SAC"),
+            CompanyReference.Create("RUC-20123456789"),
+            Name.Create("Roberto Vidal"),
+            Email.Create("rvidal@acmecorp.pe"),
+            actor);
+        if (acmeCorp.IsSuccess)
+        {
+            acmeCorp.Value.Approve(TenantId.Load(Guid.Parse(CoreDevDataSeeder.RansaTenantId)), actor);
+            results.Add(acmeCorp.Value);
+        }
+
+        return results;
     }
 }

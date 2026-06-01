@@ -226,17 +226,72 @@ public static class ApprovalsDevDataSeeder
     {
         if (wfs.Count == 0) return Array.Empty<ApprovalRequestAggregate>();
 
-        var req = ApprovalRequestAggregate.Create(
-            wfs[0].GetId(),
-            requesterId,
-            ProfileId.Load(Guid.Parse(CoreDevDataSeeder.DemoAdminProfileId)),
-            SystemSuiteId.Load(Guid.Parse(CoreDevDataSeeder.DemoSystemSuiteId)),
-            null,
-            RoleId.Load(Guid.Parse(CoreDevDataSeeder.DemoAdminRoleId)),
-            "Seed profile request",
-            actor);
+        var workflowId = wfs[0].GetId();
+        var systemId   = SystemSuiteId.Load(Guid.Parse(CoreDevDataSeeder.DemoSystemSuiteId));
+        var adminRole  = RoleId.Load(Guid.Parse(CoreDevDataSeeder.DemoAdminRoleId));
+        var opRole     = RoleId.Load(Guid.Parse(CoreDevDataSeeder.DemoOperatorRoleId));
 
-        return req.IsSuccess ? new[] { req.Value } : Array.Empty<ApprovalRequestAggregate>();
+        // Ransa pending user (coordinador.flota) — DeriveGuid(3)
+        var ransaTenantBytes = Guid.Parse(CoreDevDataSeeder.RansaTenantId).ToByteArray();
+        ransaTenantBytes[0] = 3;
+        var pendingUserId = UserId.Load(new Guid(ransaTenantBytes));
+
+        var results = new List<ApprovalRequestAggregate>();
+
+        // 1. Pending — pending user requests admin role, org-wide (shows in inbox)
+        var pending1 = ApprovalRequestAggregate.Create(
+            workflowId, pendingUserId, null,
+            systemId, null, adminRole,
+            "Necesito acceso para gestionar onboarding del equipo.",
+            actor);
+        if (pending1.IsSuccess) results.Add(pending1.Value);
+
+        // 2. Pending — pending user requests operator role, org-wide (second request, different role)
+        var pending2 = ApprovalRequestAggregate.Create(
+            workflowId, pendingUserId, null,
+            systemId, null, opRole,
+            "Solicito perfil operativo para seguimiento de flota.",
+            actor);
+        if (pending2.IsSuccess) results.Add(pending2.Value);
+
+        // 3. Approved — admin user, requested operator but granted admin (shows role modification)
+        var approved1 = ApprovalRequestAggregate.Create(
+            workflowId, requesterId,
+            ProfileId.Load(Guid.Parse(CoreDevDataSeeder.DemoAdminProfileId)),
+            systemId, null, opRole,
+            "Acceso para reportes de operaciones.",
+            actor);
+        if (approved1.IsSuccess)
+        {
+            approved1.Value.Approve(actor, adminRole, "Rol elevado por política interna — perfil admin asignado.");
+            results.Add(approved1.Value);
+        }
+
+        // 4. Approved — admin user, same role granted as requested
+        var approved2 = ApprovalRequestAggregate.Create(
+            workflowId, requesterId, null,
+            systemId, null, opRole,
+            "Acceso operativo módulo despacho.",
+            actor);
+        if (approved2.IsSuccess)
+        {
+            approved2.Value.Approve(actor, opRole);
+            results.Add(approved2.Value);
+        }
+
+        // 5. Rejected — with explicit reason
+        var rejected = ApprovalRequestAggregate.Create(
+            workflowId, pendingUserId, null,
+            systemId, null, adminRole,
+            "Solicitud duplicada por error.",
+            actor);
+        if (rejected.IsSuccess)
+        {
+            rejected.Value.Reject(actor, "Solicitud duplicada. El usuario ya tiene una solicitud pendiente para este scope.");
+            results.Add(rejected.Value);
+        }
+
+        return results;
     }
 
     // UserDocument.Upload(UserId, DocumentTypeId, DateTime issueDate, DateTime expiration, DocumentCriticity, TextValueObject fileStoragePath, string fileChecksum, ActorId)

@@ -37,6 +37,7 @@ public static class AuthorizationDevDataSeeder
 
         var allTenantIds = new[]
         {
+            TenantId.Load(Guid.Parse(CoreDevDataSeeder.InternalAdminTenantId)),           // INTERNAL_ADMIN
             TenantId.Load(Guid.Parse(CoreDevDataSeeder.RansaTenantId)),                  // RANSA_PERU
             TenantId.Load(Guid.Parse("c9b736b4-6a84-48f8-b34d-176bc5a6d542")),           // NEPTUNIA
             TenantId.Load(Guid.Parse("a3f5b9d2-7c3d-4c8e-a9b0-123456789abc")),           // APM_CALLAO
@@ -599,6 +600,11 @@ public static class AuthorizationDevDataSeeder
                 profiles.Add(p.Value);
             }
         }
+
+        // SuperAdmin (INTERNAL_ADMIN tenant only) — fixed UserId 22222222-...
+        var internalAdminTenantId = Guid.Parse(CoreDevDataSeeder.InternalAdminTenantId);
+        if (tenantId.GetValue() == internalAdminTenantId)
+            AddProfile(Guid.Parse(CoreDevDataSeeder.SuperAdminUserId), adminRole, adminTpl);
 
         // 1. Admin — full suite access (ADMIN V2)
         AddProfile(UserGuid(1), adminRole, adminTpl);
