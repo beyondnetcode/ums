@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { tenantService } from './tenant.service';
 import * as httpClientModule from '@infra/http/httpClient';
+import * as queryTransportModule from '@infra/configuration/services/query-transport.service';
 import * as graphqlQueriesModule from '@infra/identity/queries/tenant.graphql';
 import * as loggerModule from '@app/utils/logger';
 
@@ -21,9 +22,17 @@ vi.mock('@infra/identity/queries/tenant.graphql', () => ({
   },
 }));
 
+vi.mock('@infra/configuration/services/query-transport.service', () => ({
+  queryTransportService: {
+    getQueryTransport: vi.fn(),
+    resetCache: vi.fn(),
+  },
+}));
+
 vi.mock('@app/utils/logger', () => ({
   logger: {
     error: vi.fn(),
+    warn: vi.fn(),
   },
 }));
 
@@ -36,6 +45,7 @@ describe('tenantService', () => {
     vi.mocked(graphqlQueriesModule.graphqlQueries.getTenants).mockClear();
     vi.mocked(graphqlQueriesModule.graphqlQueries.getTenantById).mockClear();
     vi.mocked(graphqlQueriesModule.graphqlQueries.getTenantBranches).mockClear();
+    vi.mocked(queryTransportModule.queryTransportService.getQueryTransport).mockResolvedValue('graphql');
     vi.mocked(loggerModule.logger.error).mockClear();
   });
 
@@ -89,6 +99,25 @@ describe('tenantService', () => {
 
       await expect(tenantService.getAll()).rejects.toThrow('Invalid GraphQL response shape');
       expect(loggerModule.logger.error).toHaveBeenCalled();
+    });
+
+    it('uses REST when configured transport is rest', async () => {
+      vi.mocked(queryTransportModule.queryTransportService.getQueryTransport).mockResolvedValue('rest');
+      vi.mocked(httpClientModule.httpClient.get).mockResolvedValue({
+        data: {
+          items: [],
+          page: 1,
+          pageSize: 20,
+          totalItems: 0,
+          totalPages: 0,
+        },
+      });
+
+      const result = await tenantService.getAll();
+
+      expect(result.items).toHaveLength(0);
+      expect(httpClientModule.httpClient.get).toHaveBeenCalledWith('/tenants?page=1&pageSize=20');
+      expect(graphqlQueriesModule.graphqlQueries.getTenants).not.toHaveBeenCalled();
     });
   });
 

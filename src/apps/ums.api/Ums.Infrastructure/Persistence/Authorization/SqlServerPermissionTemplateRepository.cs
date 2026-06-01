@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Ums.Domain.Authorization;
 using Ums.Domain.Kernel;
+using Ums.Infrastructure.Persistence;
 using Ums.Infrastructure.Persistence.Authorization.Entities;
 using Ums.Infrastructure.Persistence.Outbox;
 using Ums.Infrastructure.Persistence.Reflection;
@@ -165,7 +166,7 @@ public sealed class SqlServerPermissionTemplateRepository(UmsPlatformDbContext d
         };
     }
 
-    private static void Apply(PermissionTemplateRecord target, PermissionTemplateAggregate source)
+    private void Apply(PermissionTemplateRecord target, PermissionTemplateAggregate source)
     {
         var replacement = ToRecord(source);
 
@@ -180,10 +181,27 @@ public sealed class SqlServerPermissionTemplateRepository(UmsPlatformDbContext d
         target.UpdatedAtUtc = replacement.UpdatedAtUtc;
         target.AuditTimeSpan = replacement.AuditTimeSpan;
 
-        target.Items.Clear();
-        foreach (var item in replacement.Items)
-        {
-            target.Items.Add(item);
-        }
+        EfChildCollectionReconciler.ReconcileById(
+            dbContext,
+            target.Items,
+            replacement.Items,
+            item => item.Id,
+            UpdateItem);
+    }
+
+    private static void UpdateItem(PermissionTemplateItemRecord target, PermissionTemplateItemRecord source)
+    {
+        target.TemplateId = source.TemplateId;
+        target.TargetTypeId = source.TargetTypeId;
+        target.TargetId = source.TargetId;
+        target.ActionId = source.ActionId;
+        target.IsAllowed = source.IsAllowed;
+        target.IsDenied = source.IsDenied;
+        target.IsActive = source.IsActive;
+        target.CreatedBy = source.CreatedBy;
+        target.CreatedAtUtc = source.CreatedAtUtc;
+        target.UpdatedBy = source.UpdatedBy;
+        target.UpdatedAtUtc = source.UpdatedAtUtc;
+        target.AuditTimeSpan = source.AuditTimeSpan;
     }
 }

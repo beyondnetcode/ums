@@ -71,7 +71,7 @@ public sealed class Tenant : AggregateRoot<Tenant, TenantProps>
         return Result<Tenant>.Success(tenant);
     }
 
-    public Result AddBranch(Code code, Name name, ActorId createdBy, Value? geofencingMetadata = null)
+    public Result<BranchEntity> AddBranch(Code code, Name name, ActorId createdBy, Value? geofencingMetadata = null)
     {
         if (_branches.Any(b => b.Code.Equals(code)))
         {
@@ -80,20 +80,20 @@ public sealed class Tenant : AggregateRoot<Tenant, TenantProps>
 
         if (!IsValid())
         {
-            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+            return Result<BranchEntity>.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
         var branchResult = BranchEntity.Create(TenantId.Load(Props.Id.GetValue()), code, name, createdBy, geofencingMetadata);
         if (branchResult.IsFailure)
         {
-            return Result.Failure(branchResult.Error);
+            return Result<BranchEntity>.Failure(branchResult.Error);
         }
 
         _branches.Add(branchResult.Value);
         DomainEvents.RaiseEvent(new BranchCreatedEvent(Props.Id.GetValue(), branchResult.Value.GetId().GetValue(), code.GetValue()));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(createdBy.GetValue());
-        return Result.Success();
+        return Result<BranchEntity>.Success(branchResult.Value);
     }
 
     public Result RemoveBranch(IdValueObject branchId, ActorId updatedBy)

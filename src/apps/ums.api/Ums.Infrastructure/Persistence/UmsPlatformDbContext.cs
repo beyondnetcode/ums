@@ -250,6 +250,8 @@ public sealed class UmsPlatformDbContext(
                 {
                     rowVersionProperty.ValueGenerated = Microsoft.EntityFrameworkCore.Metadata.ValueGenerated.Never;
                     rowVersionProperty.IsConcurrencyToken = false;
+                    rowVersionProperty.SetBeforeSaveBehavior(Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior.Save);
+                    rowVersionProperty.SetAfterSaveBehavior(Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior.Save);
                 }
             }
         }

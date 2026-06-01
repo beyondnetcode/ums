@@ -132,6 +132,45 @@ describe('useNotifiedMutation', () => {
     });
   });
 
+  it('shows problem details reason with its tracking code on failure', async () => {
+    const mutationFn = vi.fn().mockRejectedValue({
+      response: {
+        status: 409,
+        data: {
+          detail: 'El código de sucursal debe ser único dentro del inquilino.',
+          errorId: 'efb21f91-c524-4181-99c0-edda60c3772b',
+        },
+      },
+    });
+    const wrapper = createWrapper();
+
+    const { result } = renderHook(
+      () =>
+        useNotifiedMutation({
+          mutationFn,
+          successNotif: () => ({ title: 'OK', message: 'Done' }),
+          errorNotif: () => ({
+            title: 'Error al Registrar Sucursal',
+            message: 'No se pudo registrar la sucursal.',
+          }),
+        }),
+      { wrapper }
+    );
+
+    await act(async () => {
+      result.current.mutate({});
+    });
+
+    await waitFor(() => {
+      expect(useNotificationStore.getState().notifications[0]?.message)
+        .toBe(
+          'El código de sucursal debe ser único dentro del inquilino.\n'
+          + 'Si necesitas más detalles, consulta con el administrador e indica este ID de error: '
+          + 'efb21f91-c524-4181-99c0-edda60c3772b.',
+        );
+    });
+  });
+
   it('returns mutation state properties', () => {
     const mutationFn = vi.fn().mockResolvedValue({});
     const wrapper = createWrapper();

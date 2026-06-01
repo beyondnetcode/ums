@@ -36,12 +36,31 @@ public static class CoreDevDataSeeder
 
     public static async Task SeedAllAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
     {
-        try { await ConfigurationDevDataSeeder.SeedAsync(serviceProvider, cancellationToken); } catch (Exception ex) { Console.WriteLine($"Configuration seeder failed: {ex.Message}"); }
-        try { await ParameterCatalogSeeder.SeedAsync(serviceProvider, cancellationToken); } catch (Exception ex) { Console.WriteLine($"Parameter catalog seeder failed: {ex.Message}"); }
-        try { await IdentityDevDataSeeder.SeedAsync(serviceProvider, cancellationToken); } catch (Exception ex) { Console.WriteLine($"Identity seeder failed: {ex.Message}"); }
-        try { await AuthorizationDevDataSeeder.SeedAsync(serviceProvider, cancellationToken); } catch (Exception ex) { Console.WriteLine($"Authorization seeder failed: {ex.Message}"); }
-        try { await ApprovalsDevDataSeeder.SeedAsync(serviceProvider, cancellationToken); } catch (Exception ex) { Console.WriteLine($"Approvals seeder failed: {ex.Message}"); }
-        try { await IgaDevDataSeeder.SeedAsync(serviceProvider, cancellationToken); } catch (Exception ex) { Console.WriteLine($"IGA seeder failed: {ex.Message}"); }
-        try { await AuditDevDataSeeder.SeedAsync(serviceProvider, cancellationToken); } catch (Exception ex) { Console.WriteLine($"Audit seeder failed: {ex.Message}"); }
+        await RunSeederAsync(serviceProvider, "Configuration", ConfigurationDevDataSeeder.SeedAsync, cancellationToken);
+        await RunSeederAsync(serviceProvider, "Parameter catalog", ParameterCatalogSeeder.SeedAsync, cancellationToken);
+        await RunSeederAsync(serviceProvider, "Identity", IdentityDevDataSeeder.SeedAsync, cancellationToken);
+        await RunSeederAsync(serviceProvider, "Authorization", AuthorizationDevDataSeeder.SeedAsync, cancellationToken);
+        await RunSeederAsync(serviceProvider, "Approvals", ApprovalsDevDataSeeder.SeedAsync, cancellationToken);
+        await RunSeederAsync(serviceProvider, "IGA", IgaDevDataSeeder.SeedAsync, cancellationToken);
+        await RunSeederAsync(serviceProvider, "Audit", AuditDevDataSeeder.SeedAsync, cancellationToken);
+    }
+
+    private static async Task RunSeederAsync(
+        IServiceProvider serviceProvider,
+        string seederName,
+        Func<IServiceProvider, CancellationToken, Task> seedAsync,
+        CancellationToken cancellationToken)
+    {
+        var scopeFactory = serviceProvider.GetRequiredService<IServiceScopeFactory>();
+        using var scope = scopeFactory.CreateScope();
+
+        try
+        {
+            await seedAsync(scope.ServiceProvider, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"{seederName} seeder failed: {ex.Message}");
+        }
     }
 }

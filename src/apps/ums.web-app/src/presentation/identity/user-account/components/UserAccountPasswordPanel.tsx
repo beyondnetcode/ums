@@ -11,6 +11,14 @@ interface UserAccountPasswordPanelProps {
   account: UserAccount;
 }
 
+export function usesExternalIdentityProvider(
+  configsPage?: { items?: Array<{ code: string; value: string }> }
+): boolean {
+  return configsPage?.items?.some(
+    (c) => c.code === 'AUTH_USE_EXTERNAL_IDP' && c.value.toLowerCase() === 'true'
+  ) ?? false;
+}
+
 export const UserAccountPasswordPanel: React.FC<UserAccountPasswordPanelProps> = ({ account }) => {
   const t = useI18n();
   const [isOpen, setIsOpen] = useState(false);
@@ -25,11 +33,7 @@ export const UserAccountPasswordPanel: React.FC<UserAccountPasswordPanelProps> =
     tenantId: account.tenantId,
   });
 
-  const useExternalIdp = configsPage?.items?.some(
-    (c) => c.code === 'AUTH_USE_EXTERNAL_IDP' && c.value.toLowerCase() === 'true'
-  ) ?? false;
-
-  const isFederated = Boolean(account.identityReference) || useExternalIdp;
+  const isFederated = usesExternalIdentityProvider(configsPage);
 
   const closeForm = () => {
     setIsOpen(false);

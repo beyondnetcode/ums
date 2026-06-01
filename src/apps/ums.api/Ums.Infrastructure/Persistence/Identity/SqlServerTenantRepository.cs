@@ -1,6 +1,8 @@
+using System.Data;
 using Microsoft.EntityFrameworkCore;
 using Ums.Domain.Identity;
 using Ums.Domain.Kernel;
+using Ums.Infrastructure.Persistence;
 using Ums.Infrastructure.Persistence.Identity.Entities;
 using Ums.Infrastructure.Persistence.Outbox;
 using Ums.Infrastructure.Persistence.Reflection;
@@ -24,6 +26,11 @@ public sealed class SqlServerTenantRepository(UmsPlatformDbContext dbContext) : 
             .Include(x => x.Branding)
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
+        if (record is not null)
+        {
+            await LoadSqliteTenantChildrenAsync(record, cancellationToken);
+        }
+
         return record is null ? null : Rehydrate(record);
     }
 
@@ -37,6 +44,11 @@ public sealed class SqlServerTenantRepository(UmsPlatformDbContext dbContext) : 
             .Include(x => x.IdentityProviders)
             .Include(x => x.Branding)
             .FirstOrDefaultAsync(x => x.Code == code, cancellationToken);
+
+        if (record is not null)
+        {
+            await LoadSqliteTenantChildrenAsync(record, cancellationToken);
+        }
 
         return record is null ? null : Rehydrate(record);
     }
@@ -187,6 +199,73 @@ public sealed class SqlServerTenantRepository(UmsPlatformDbContext dbContext) : 
     private static TenantAggregate Rehydrate(TenantRecord record)
         => IdentityAggregateFactory.RehydrateTenant(record, record.Branches, record.IdentityProviders, record.Branding);
 
+    private async Task LoadSqliteTenantChildrenAsync(TenantRecord record, CancellationToken cancellationToken)
+    {
+        if (!dbContext.Database.IsSqlite())
+        {
+            return;
+        }
+
+        var tenantId = record.Id.ToString();
+
+        record.Branches = await LoadSqliteTenantBranchesAsync(tenantId, cancellationToken);
+
+        record.IdentityProviders = await dbContext.TenantIdentityProviders
+            .FromSqlInterpolated($"SELECT * FROM TenantIdentityProviders WHERE lower(TenantId) = lower({tenantId})")
+            .ToListAsync(cancellationToken);
+
+        record.Branding = await dbContext.TenantBrandings
+            .FromSqlInterpolated($"SELECT * FROM TenantBrandings WHERE lower(TenantId) = lower({tenantId})")
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    private async Task<List<TenantBranchRecord>> LoadSqliteTenantBranchesAsync(
+        string tenantId,
+        CancellationToken cancellationToken)
+    {
+        var connection = dbContext.Database.GetDbConnection();
+        if (connection.State != ConnectionState.Open)
+        {
+            await connection.OpenAsync(cancellationToken);
+        }
+
+        await using var command = connection.CreateCommand();
+        command.CommandText = """
+            SELECT Id, TenantId, Code, Name, GeofencingMetadata, IsActive, CreatedBy, CreatedAtUtc, UpdatedBy, UpdatedAtUtc, AuditTimeSpan
+            FROM TenantBranches
+            WHERE lower(TenantId) = lower($tenantId)
+            ORDER BY Code
+            """;
+
+        var parameter = command.CreateParameter();
+        parameter.ParameterName = "$tenantId";
+        parameter.Value = tenantId;
+        command.Parameters.Add(parameter);
+
+        var branches = new List<TenantBranchRecord>();
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            branches.Add(new TenantBranchRecord
+            {
+                Id = Guid.Parse(reader.GetString(0)),
+                TenantId = Guid.Parse(reader.GetString(1)),
+                Code = reader.GetString(2),
+                Name = reader.GetString(3),
+                GeofencingMetadata = reader.IsDBNull(4) ? null : reader.GetString(4),
+                IsActive = reader.GetBoolean(5),
+                CreatedBy = reader.GetString(6),
+                CreatedAtUtc = reader.GetDateTime(7),
+                UpdatedBy = reader.IsDBNull(8) ? null : reader.GetString(8),
+                UpdatedAtUtc = reader.IsDBNull(9) ? null : reader.GetDateTime(9),
+                AuditTimeSpan = reader.GetString(10),
+            });
+        }
+
+        return branches;
+    }
+
     private static TenantRecord ToRecord(TenantAggregate aggregate)
     {
         var audit = aggregate.Props.Audit.GetValue();
@@ -274,7 +353,7 @@ public sealed class SqlServerTenantRepository(UmsPlatformDbContext dbContext) : 
         };
     }
 
-    private static void Apply(TenantRecord target, TenantAggregate source)
+    private void Apply(TenantRecord target, TenantAggregate source)
     {
         var replacement = ToRecord(source);
 
@@ -291,18 +370,58 @@ public sealed class SqlServerTenantRepository(UmsPlatformDbContext dbContext) : 
         target.UpdatedAtUtc = replacement.UpdatedAtUtc;
         target.AuditTimeSpan = replacement.AuditTimeSpan;
 
-        target.Branches.Clear();
-        foreach (var branch in replacement.Branches)
-        {
-            target.Branches.Add(branch);
-        }
-
-        target.IdentityProviders.Clear();
-        foreach (var provider in replacement.IdentityProviders)
-        {
-            target.IdentityProviders.Add(provider);
-        }
+        UpsertBranches(target.Branches, replacement.Branches);
+        UpsertIdentityProviders(target.IdentityProviders, replacement.IdentityProviders);
 
         target.Branding = replacement.Branding;
+    }
+
+    private void UpsertBranches(ICollection<TenantBranchRecord> target, IEnumerable<TenantBranchRecord> source)
+    {
+        EfChildCollectionReconciler.ReconcileById(
+            dbContext,
+            target,
+            source,
+            branch => branch.Id,
+            UpdateBranch);
+    }
+
+    private void UpsertIdentityProviders(ICollection<TenantIdentityProviderRecord> target, IEnumerable<TenantIdentityProviderRecord> source)
+    {
+        EfChildCollectionReconciler.ReconcileById(
+            dbContext,
+            target,
+            source,
+            provider => provider.Id,
+            UpdateIdentityProvider);
+    }
+
+    private static void UpdateBranch(TenantBranchRecord target, TenantBranchRecord source)
+    {
+        target.TenantId = source.TenantId;
+        target.Code = source.Code;
+        target.Name = source.Name;
+        target.GeofencingMetadata = source.GeofencingMetadata;
+        target.IsActive = source.IsActive;
+        target.CreatedBy = source.CreatedBy;
+        target.CreatedAtUtc = source.CreatedAtUtc;
+        target.UpdatedBy = source.UpdatedBy;
+        target.UpdatedAtUtc = source.UpdatedAtUtc;
+        target.AuditTimeSpan = source.AuditTimeSpan;
+    }
+
+    private static void UpdateIdentityProvider(TenantIdentityProviderRecord target, TenantIdentityProviderRecord source)
+    {
+        target.TenantId = source.TenantId;
+        target.Code = source.Code;
+        target.Name = source.Name;
+        target.Description = source.Description;
+        target.StrategyId = source.StrategyId;
+        target.IsActive = source.IsActive;
+        target.CreatedBy = source.CreatedBy;
+        target.CreatedAtUtc = source.CreatedAtUtc;
+        target.UpdatedBy = source.UpdatedBy;
+        target.UpdatedAtUtc = source.UpdatedAtUtc;
+        target.AuditTimeSpan = source.AuditTimeSpan;
     }
 }
