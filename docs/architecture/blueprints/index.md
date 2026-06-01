@@ -1,10 +1,11 @@
 # Architecture Blueprints
 
-Detailed engineering specifications for the User Management System (UMS), with a primary focus on the database design and entity relationships.
+Detailed engineering specifications for the User Management System (UMS), with a primary focus on database design, DDD alignment, entity relationships, and implementation traceability.
 
 ## Key Documents
 
-- **[Database Design ER](./database-design-er.md)**: The definitive entity-relationship diagram and documentation.
+- **[Database Design ER](./database-design-er.md)**: The authoritative physical entity-relationship diagram and SQL Server / EF Core-aligned documentation.
+- **[Data Model Consistency Review](./data-model-consistency-review.md)**: Cross-view validation between conceptual names, DDD aggregates, ER diagrams, and EF Core persistence records.
 - **[ER Export Formats](./er-export-formats.md)**: Different representations (SQL, Mermaid, PNG) of the data model.
 - **[Interactive ER Viewer](./interactive-er-viewer.html)**: Interactive tool for database exploration.
 - **[Service Entity Map](./service-entity-map.md)**: Mapping between services and their database entities.
