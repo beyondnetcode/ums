@@ -89,6 +89,11 @@ export const userAccountService = {
     const { data } = await httpClient.post(`/user-accounts/${validPayload.userAccountId}/passwords`, validPayload);
     return SetUserAccountPasswordResponseSchema.parse(data);
   },
+
+  forcePasswordReset: async (userAccountId: string): Promise<{ temporaryPassword: string }> => {
+    const { data } = await httpClient.post(`/user-accounts/${userAccountId}/passwords/force-reset`);
+    return data as { temporaryPassword: string };
+  },
 };
 
 export default userAccountService;

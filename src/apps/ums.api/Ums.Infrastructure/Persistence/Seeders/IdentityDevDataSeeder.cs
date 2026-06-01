@@ -229,7 +229,9 @@ public static class IdentityDevDataSeeder
         var ransaTenantId = TenantId.Load(Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"));
         var neptuniaTenantId = TenantId.Load(Guid.Parse("c9b736b4-6a84-48f8-b34d-176bc5a6d542"));
         var apmTenantId = TenantId.Load(Guid.Parse("a3f5b9d2-7c3d-4c8e-a9b0-123456789abc"));
+        var paitaTenantId = TenantId.Load(Guid.Parse("9e8d7c6b-5a4f-3e2d-1c0b-9876543210fe"));
         var unimarTenantId = TenantId.Load(Guid.Parse("5f4e3d2c-1b0a-9f8e-7d6c-543210987654"));
+        var intradevcoTenantId = TenantId.Load(Guid.Parse("f3e2d1c0-b9a8-7f6e-5d4c-321098765432"));
 
         var result = new List<UserAccountAggregate>();
 
@@ -264,7 +266,9 @@ public static class IdentityDevDataSeeder
         result.AddRange(BuildSeedUserAccountsForTenant(ransaTenantId, actor));
         result.AddRange(BuildSeedUserAccountsForTenant(neptuniaTenantId, actor));
         result.AddRange(BuildSeedUserAccountsForTenant(apmTenantId, actor));
+        result.AddRange(BuildSeedUserAccountsForTenant(paitaTenantId, actor));
         result.AddRange(BuildSeedUserAccountsForTenant(unimarTenantId, actor));
+        result.AddRange(BuildSeedUserAccountsForTenant(intradevcoTenantId, actor));
 
         return result;
     }
@@ -282,7 +286,9 @@ public static class IdentityDevDataSeeder
         var domain = tenantId.GetValue().ToString().StartsWith("3fa8") ? "ransa.pe" :
                      tenantId.GetValue().ToString().StartsWith("c9b7") ? "neptunia.pe" :
                      tenantId.GetValue().ToString().StartsWith("a3f5") ? "apmterminals.com" :
+                     tenantId.GetValue().ToString().StartsWith("9e8d") ? "tpp-paita.com.pe" :
                      tenantId.GetValue().ToString().StartsWith("5f4e") ? "unimar.com.pe" :
+                     tenantId.GetValue().ToString().StartsWith("f3e2") ? "intradevco.com.pe" :
                      "logistics.pe";
 
         var admin = BuildUserAccount(DeriveGuid(1), tenantId, $"gerente.operaciones@{domain}", UserCategory.Internal, actor, "EMP-001");

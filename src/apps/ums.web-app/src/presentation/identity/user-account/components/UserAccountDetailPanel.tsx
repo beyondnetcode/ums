@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { User, Shield, Key, LayoutGrid } from 'lucide-react';
+import React, { useState } from 'react';
+import { User, Shield, Key } from 'lucide-react';
 import { UserAccount } from '@domain/identity/models/user-account.model';
 import { UserAccountProfileCard } from './UserAccountProfileCard';
 import { UserAccountPasswordPanel } from './UserAccountPasswordPanel';
-import { DetailPanelShell, EmptyDetailState, StatusBadge } from '@shared/components';
+import { UserAccountAccessView } from './UserAccountAccessView';
+import { DetailPanelShell, EmptyDetailState } from '@shared/components';
 import type { DetailTab } from '@shared/components/DetailPanelShell';
 import { useI18n } from '@app/i18n/use-i18n';
-import { useGetAllAppConfigurations } from '@app/configuration/hooks/use-app-configuration';
 
-type UserAccountTab = 'overview' | 'permissions' | 'credentials';
+type UserAccountTab = 'overview' | 'accesos' | 'credentials';
 
 interface UserAccountDetailPanelProps {
   activeAccount: UserAccount | undefined;
@@ -30,27 +30,10 @@ export const UserAccountDetailPanel: React.FC<UserAccountDetailPanelProps> = ({
   const t = useI18n();
   const [activeTab, setActiveTab] = useState<UserAccountTab>('overview');
 
-  const { data: configsPage } = useGetAllAppConfigurations({
-    page: 1,
-    pageSize: 50,
-    tenantId: activeAccount?.tenantId,
-  });
-
-  const configItem = configsPage?.items?.find((c) => c.code === 'AUTH_USE_EXTERNAL_IDP');
-  const useExternalIdp = configItem?.value?.toLowerCase() === 'true';
-
-  useEffect(() => {
-    if (useExternalIdp && activeTab === 'credentials') {
-      setActiveTab('overview');
-    }
-  }, [useExternalIdp, activeTab]);
-
   const tabs: DetailTab<UserAccountTab>[] = [
     { key: 'overview', label: t.overview, icon: <User className="w-3.5 h-3.5" /> },
-    { key: 'permissions', label: t.permissions, icon: <Shield className="w-3.5 h-3.5" /> },
-    ...(!useExternalIdp
-      ? [{ key: 'credentials', label: t.credentials, icon: <Key className="w-3.5 h-3.5" /> }]
-      : []),
+    { key: 'accesos', label: 'Accesos', icon: <Shield className="w-3.5 h-3.5" /> },
+    { key: 'credentials', label: t.credentials, icon: <Key className="w-3.5 h-3.5" /> },
   ];
 
   if (isLoading) {
@@ -86,43 +69,6 @@ export const UserAccountDetailPanel: React.FC<UserAccountDetailPanelProps> = ({
       </DetailPanelShell>
     );
   }
-
-  // Determine realistic mock role and permissions based on user email/category
-  const isManager =
-    activeAccount.email.includes('gerente') || activeAccount.email.includes('admin');
-  const isAnalyst =
-    activeAccount.email.includes('analista') || activeAccount.email.includes('inventario');
-
-  const userRoleName = isManager
-    ? 'Administrador Global (SysAdmin)'
-    : isAnalyst
-      ? 'Analista de Operaciones WMS'
-      : 'Visualizador Externo (Partner)';
-
-  const userRoleScope = isManager
-    ? 'Corporativo (Todos los inquilinos)'
-    : isAnalyst
-      ? 'Sucursal Callao HQ (RANSA_CALLAO_HQ)'
-      : 'Acceso Restringido a Sede';
-
-  const userSuites = isManager
-    ? [
-        { code: 'LOGISTICS_CORE', name: 'Logistics Core', actions: ['VIEW', 'MANAGE', 'APPROVE'] },
-        {
-          code: 'WMS',
-          name: 'Warehouse Management',
-          actions: ['INVENTORY_VIEW', 'INVENTORY_EDIT'],
-        },
-      ]
-    : isAnalyst
-      ? [
-          {
-            code: 'WMS',
-            name: 'Warehouse Management',
-            actions: ['INVENTORY_VIEW', 'INVENTORY_EDIT'],
-          },
-        ]
-      : [{ code: 'LOGISTICS_CORE', name: 'Logistics Core', actions: ['VIEW'] }];
 
   return (
     <DetailPanelShell
@@ -163,73 +109,11 @@ export const UserAccountDetailPanel: React.FC<UserAccountDetailPanelProps> = ({
           </div>
         )}
 
-        {activeTab === 'permissions' && (
-          <div className="space-y-4 animate-fadeIn">
-            {/* Active Security Profile Card */}
-            <div className="p-3.5 rounded-xl border border-m3-outline/20 bg-m3-surface-container/5 space-y-3">
-              <div className="flex justify-between items-center border-b border-m3-outline/10 pb-2">
-                <div className="flex items-center gap-2">
-                  <Shield className="w-4 h-4 text-m3-primary" />
-                  <span className="text-[12px] font-medium text-m3-on-surface">
-                    Perfil de Seguridad Activo
-                  </span>
-                </div>
-                <StatusBadge status="Active" label="Asignado" />
-              </div>
-
-              <div className="space-y-2 text-[11px]">
-                <div className="flex justify-between">
-                  <span className="text-m3-secondary">Rol Funcional</span>
-                  <span className="font-semibold text-m3-on-surface">{userRoleName}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-m3-secondary">Alcance de Autorización</span>
-                  <span className="font-mono text-m3-on-surface">{userRoleScope}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Mapped Permission Suite Graph */}
-            <div className="space-y-2">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-m3-secondary/70 block">
-                Permisos en Suites del Sistema
-              </span>
-
-              <div className="space-y-2.5">
-                {userSuites.map(suite => (
-                  <div
-                    key={suite.code}
-                    className="p-3 rounded-lg border border-m3-outline/15 bg-m3-surface-container/5 space-y-2 hover:border-m3-outline/30 transition-colors"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5">
-                        <LayoutGrid className="w-3.5 h-3.5 text-m3-secondary" />
-                        <span className="text-[12px] font-medium text-m3-on-surface">
-                          {suite.name}
-                        </span>
-                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-m3-surface-variant/50 text-m3-on-surface-variant">
-                          {suite.code}
-                        </span>
-                      </div>
-                      <span className="text-[10px] text-m3-secondary/60">Herencia Directa</span>
-                    </div>
-
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      {suite.actions.map(act => (
-                        <span
-                          key={act}
-                          className="flex items-center gap-1 text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-m3-primary/10 text-m3-primary border border-m3-primary/20"
-                        >
-                          <Key className="w-3 h-3" />
-                          {act}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+        {activeTab === 'accesos' && (
+          <UserAccountAccessView
+            userId={activeAccount.userAccountId}
+            tenantId={activeAccount.tenantId}
+          />
         )}
 
         {activeTab === 'credentials' && <UserAccountPasswordPanel account={activeAccount} />}

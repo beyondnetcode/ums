@@ -34,74 +34,94 @@ public static class AuthorizationDevDataSeeder
         var inMemoryProfileRepository = serviceProvider.GetService<InMemoryProfileRepository>();
 
         var actor = ActorId.Create(CoreDevDataSeeder.SystemActorId);
-        var ransaTenantId = TenantId.Load(Guid.Parse(CoreDevDataSeeder.RansaTenantId));
 
-        // Seed SystemSuites
-        var suites = BuildSeedSystemSuites(ransaTenantId, actor);
-        if (inMemorySuiteRepository is not null)
+        var allTenantIds = new[]
         {
-            foreach (var suite in suites) inMemorySuiteRepository.Seed(suite);
-        }
-        else if (suiteRepository is not null)
-        {
-            var existing = await suiteRepository.GetByTenantIdAsync(ransaTenantId.GetValue(), cancellationToken);
-            if (existing.Count == 0)
-            {
-                foreach (var suite in suites) await suiteRepository.AddAsync(suite, cancellationToken);
-                await suiteRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
-            }
-            else
-            {
-                // Ensure existing suites have domain resources
-                await EnsureDomainResourcesAsync(existing, ransaTenantId, actor, suiteRepository, cancellationToken);
-            }
-        }
+            TenantId.Load(Guid.Parse(CoreDevDataSeeder.RansaTenantId)),                  // RANSA_PERU
+            TenantId.Load(Guid.Parse("c9b736b4-6a84-48f8-b34d-176bc5a6d542")),           // NEPTUNIA
+            TenantId.Load(Guid.Parse("a3f5b9d2-7c3d-4c8e-a9b0-123456789abc")),           // APM_CALLAO
+            TenantId.Load(Guid.Parse("9e8d7c6b-5a4f-3e2d-1c0b-9876543210fe")),           // PAITA_PORT
+            TenantId.Load(Guid.Parse("5f4e3d2c-1b0a-9f8e-7d6c-543210987654")),           // UNIMAR
+            TenantId.Load(Guid.Parse("f3e2d1c0-b9a8-7f6e-5d4c-321098765432")),           // INTRADEVCO
+        };
 
-        // Seed Roles
-        var roles = BuildSeedRoles(ransaTenantId, suites, actor);
-        if (inMemoryRoleRepository is not null)
+        foreach (var tenantId in allTenantIds)
         {
-            foreach (var role in roles) inMemoryRoleRepository.Seed(role);
-        }
-        else if (roleRepository is not null)
-        {
-            var existing = await roleRepository.GetByTenantIdAsync(ransaTenantId.GetValue(), cancellationToken);
-            if (existing.Count == 0)
+            // Seed SystemSuites
+            var suites = BuildSeedSystemSuites(tenantId, actor);
+            if (inMemorySuiteRepository is not null)
             {
-                foreach (var role in roles) await roleRepository.AddAsync(role, cancellationToken);
-                await roleRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+                foreach (var suite in suites) inMemorySuiteRepository.Seed(suite);
             }
-        }
-
-        // Seed PermissionTemplates
-        var templates = BuildSeedPermissionTemplates(ransaTenantId, suites, roles, actor);
-        if (inMemoryTemplateRepository is not null)
-        {
-            foreach (var template in templates) inMemoryTemplateRepository.Seed(template);
-        }
-        else if (templateRepository is not null)
-        {
-            var existing = await templateRepository.GetByTenantIdAsync(ransaTenantId.GetValue(), cancellationToken);
-            if (existing.Count == 0)
+            else if (suiteRepository is not null)
             {
-                foreach (var template in templates) await templateRepository.AddAsync(template, cancellationToken);
-                await templateRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+                var existing = await suiteRepository.GetByTenantIdAsync(tenantId.GetValue(), cancellationToken);
+                if (existing.Count == 0)
+                {
+                    foreach (var suite in suites) await suiteRepository.AddAsync(suite, cancellationToken);
+                    await suiteRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+                }
+                else
+                {
+                    await EnsureDomainResourcesAsync(existing, tenantId, actor, suiteRepository, cancellationToken);
+                    suites = existing; // use persisted suites so IDs match for roles/templates
+                }
             }
-        }
 
-        // Seed Profiles
-        var profiles = BuildSeedProfiles(ransaTenantId, roles, templates, actor);
-        if (inMemoryProfileRepository is not null)
-        {
-            foreach (var profile in profiles) inMemoryProfileRepository.Seed(profile);
-        }
-        else if (profileRepository is not null)
-        {
-            var existing = await profileRepository.GetByTenantIdAsync(ransaTenantId.GetValue(), cancellationToken);
-            if (existing.Count == 0)
+            // Seed Roles
+            var roles = BuildSeedRoles(tenantId, suites, actor);
+            if (inMemoryRoleRepository is not null)
             {
-                foreach (var profile in profiles) await profileRepository.AddAsync(profile, cancellationToken);
-                await profileRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+                foreach (var role in roles) inMemoryRoleRepository.Seed(role);
+            }
+            else if (roleRepository is not null)
+            {
+                var existing = await roleRepository.GetByTenantIdAsync(tenantId.GetValue(), cancellationToken);
+                if (existing.Count == 0)
+                {
+                    foreach (var role in roles) await roleRepository.AddAsync(role, cancellationToken);
+                    await roleRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+                }
+                else
+                {
+                    roles = existing;
+                }
+            }
+
+            // Seed PermissionTemplates
+            var templates = BuildSeedPermissionTemplates(tenantId, suites, roles, actor);
+            if (inMemoryTemplateRepository is not null)
+            {
+                foreach (var template in templates) inMemoryTemplateRepository.Seed(template);
+            }
+            else if (templateRepository is not null)
+            {
+                var existing = await templateRepository.GetByTenantIdAsync(tenantId.GetValue(), cancellationToken);
+                if (existing.Count == 0)
+                {
+                    foreach (var template in templates) await templateRepository.AddAsync(template, cancellationToken);
+                    await templateRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+                }
+                else
+                {
+                    templates = existing;
+                }
+            }
+
+            // Seed Profiles
+            var profiles = BuildSeedProfiles(tenantId, roles, templates, actor);
+            if (inMemoryProfileRepository is not null)
+            {
+                foreach (var profile in profiles) inMemoryProfileRepository.Seed(profile);
+            }
+            else if (profileRepository is not null)
+            {
+                var existing = await profileRepository.GetByTenantIdAsync(tenantId.GetValue(), cancellationToken);
+                if (existing.Count == 0)
+                {
+                    foreach (var profile in profiles) await profileRepository.AddAsync(profile, cancellationToken);
+                    await profileRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+                }
             }
         }
     }
@@ -121,30 +141,13 @@ public static class AuthorizationDevDataSeeder
         var roles = new List<RoleAggregate>();
         if (suites.Count == 0) return roles;
 
-        // ── GlobalAdmin Role (global administration, no system suite bound) ──────
-        var globalAdminRoleResult = RoleAggregate.Create(
-            tenantId,
-            null, // No system suite — this role applies globally
-            Code.Create("GLOBAL_ADMIN"),
-            Name.Create("Global Administrator"),
-            Description.Create("Full administrative access to all system suites, modules, and resources"),
-            null,
-            0,
-            0,
-            actor);
-        if (globalAdminRoleResult.IsSuccess)
-        {
-            var role = globalAdminRoleResult.Value;
-            SetRoleId(role, Guid.Parse(CoreDevDataSeeder.GlobalAdminRoleId));
-            roles.Add(role);
-        }
-
         // ── Core Suite Roles ─────────────────────────────────────────────────────
         var adminRoleResult = RoleAggregate.Create(tenantId, suites[0].GetId(), Code.Create("ADMIN"), Name.Create("System Administrator"), Description.Create("Full administrative access"), null, 0, 0, actor);
         if (adminRoleResult.IsSuccess)
         {
             var role = adminRoleResult.Value;
-            SetRoleId(role, Guid.Parse(CoreDevDataSeeder.DemoAdminRoleId));
+            if (tenantId.GetValue() == Guid.Parse(CoreDevDataSeeder.RansaTenantId))
+                SetRoleId(role, Guid.Parse(CoreDevDataSeeder.DemoAdminRoleId));
             roles.Add(role);
         }
 
@@ -167,7 +170,8 @@ public static class AuthorizationDevDataSeeder
             if (operatorRoleResult.IsSuccess)
             {
                 var role = operatorRoleResult.Value;
-                SetRoleId(role, Guid.Parse(CoreDevDataSeeder.DemoOperatorRoleId));
+                if (tenantId.GetValue() == Guid.Parse(CoreDevDataSeeder.RansaTenantId))
+                    SetRoleId(role, Guid.Parse(CoreDevDataSeeder.DemoOperatorRoleId));
                 roles.Add(role);
             }
 
@@ -548,45 +552,6 @@ public static class AuthorizationDevDataSeeder
             templates.Add(reporterTpl);
         }
 
-        // ── 11. GLOBAL_ADMIN — Full access to all suites and resources ─────────
-        var globalAdminRole = roles.FirstOrDefault(r => r.Code.GetValue() == "GLOBAL_ADMIN");
-        if (globalAdminRole != null && suites.Count > 0)
-        {
-            // GlobalAdmin template targets the first suite (LOGISTICS_CORE) as primary
-            // but grants SystemSuite-level Allow for ALL suites
-            var globalAdminTpl = PermissionTemplateAggregate.Create(tenantId, globalAdminRole.GetId(), suites[0].GetId(), actor).Value;
-
-            // Full access at SystemSuite level for ALL suites
-            foreach (var suite in suites)
-            {
-                globalAdminTpl.AddItem(ExclusiveArcTarget.SystemSuite, suite.GetId(), ActionId.Create(), true, false, actor);
-            }
-
-            // Module-level access for all modules in all suites
-            foreach (var suite in suites)
-            {
-                foreach (var mod in suite.Modules)
-                {
-                    globalAdminTpl.AddItem(ExclusiveArcTarget.Module, mod.Props.Id, ActionId.Create(), true, false, actor);
-                }
-            }
-
-            // All domain resources (aggregates and entities)
-            foreach (var suite in suites)
-            {
-                foreach (var domainRes in suite.DomainResources)
-                {
-                    if (domainRes.Props.Type == DomainResourceType.Aggregate)
-                        globalAdminTpl.AddItem(ExclusiveArcTarget.Aggregate, domainRes.Id, ActionId.Create(), true, false, actor);
-                    else if (domainRes.Props.Type == DomainResourceType.Entity)
-                        globalAdminTpl.AddItem(ExclusiveArcTarget.Entity, domainRes.Id, ActionId.Create(), true, false, actor);
-                }
-            }
-
-            globalAdminTpl.Publish(actor);
-            templates.Add(globalAdminTpl);
-        }
-
         return templates;
     }
 
@@ -594,15 +559,14 @@ public static class AuthorizationDevDataSeeder
     {
         var profiles = new List<ProfileAggregate>();
 
-        var ransaBaseBytes = tenantId.GetValue().ToByteArray();
+        var baseBytes = tenantId.GetValue().ToByteArray();
         Guid UserGuid(byte idx)
         {
-            var b = (byte[])ransaBaseBytes.Clone();
+            var b = (byte[])baseBytes.Clone();
             b[0] = idx;
             return new Guid(b);
         }
 
-        var globalAdminRole = roles.FirstOrDefault(r => r.Code.GetValue() == "GLOBAL_ADMIN");
         var adminRole = roles.FirstOrDefault(r => r.Code.GetValue() == "ADMIN");
         var supervisorRole = roles.FirstOrDefault(r => r.Code.GetValue() == "SUPERVISOR");
         var auditorRole = roles.FirstOrDefault(r => r.Code.GetValue() == "AUDITOR");
@@ -614,7 +578,6 @@ public static class AuthorizationDevDataSeeder
         var dispatcherRole = roles.FirstOrDefault(r => r.Code.GetValue() == "DISPATCHER");
         var reporterRole = roles.FirstOrDefault(r => r.Code.GetValue() == "REPORTER");
 
-        var globalAdminTpl = templates.FirstOrDefault(t => t.RoleId.Equals(globalAdminRole?.GetId()) && t.Status == TemplateStatus.Published);
         var adminTpl = templates.FirstOrDefault(t => t.RoleId.Equals(adminRole?.GetId()) && t.Props.Version.GetValue() == "2.0.0" && t.Status == TemplateStatus.Published);
         var supervisorTpl = templates.FirstOrDefault(t => t.RoleId.Equals(supervisorRole?.GetId()) && t.Status == TemplateStatus.Published);
         var auditorTpl = templates.FirstOrDefault(t => t.RoleId.Equals(auditorRole?.GetId()) && t.Status == TemplateStatus.Published);
@@ -636,9 +599,6 @@ public static class AuthorizationDevDataSeeder
                 profiles.Add(p.Value);
             }
         }
-
-        // 0. SuperAdmin — full global administration
-        AddProfile(Guid.Parse(CoreDevDataSeeder.SuperAdminUserId), globalAdminRole, globalAdminTpl);
 
         // 1. Admin — full suite access (ADMIN V2)
         AddProfile(UserGuid(1), adminRole, adminTpl);

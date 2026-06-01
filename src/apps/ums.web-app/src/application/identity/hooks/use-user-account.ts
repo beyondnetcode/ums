@@ -142,3 +142,17 @@ export const useSetUserAccountPassword = (userAccountId: string) => {
     }),
   });
 };
+
+export const useForcePasswordReset = (userAccountId: string) =>
+  useNotifiedMutation({
+    mutationFn: () => userAccountService.forcePasswordReset(userAccountId),
+    invalidateKeys: [['user-accounts'], ['user-accounts', userAccountId]],
+    successNotif: () => ({
+      title: 'Reseteo Forzado',
+      message: 'Se generó una contraseña temporal. Compártala de forma segura con el usuario.',
+    }),
+    errorNotif: () => ({
+      title: 'Error al resetear',
+      message: 'No se pudo forzar el reseteo de contraseña.',
+    }),
+  });

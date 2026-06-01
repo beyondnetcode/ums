@@ -118,6 +118,21 @@ public static class UserAccountEndpoints
         .ProducesProblem(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status409Conflict);
 
+        group.MapPost("/{userAccountId:guid}/passwords/force-reset", async (
+            Guid userAccountId,
+            IMediator mediator,
+            HttpContext context,
+            CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new ForcePasswordResetCommand(userAccountId), ct);
+            return result.ToOk(context);
+        })
+        .WithName("ForcePasswordReset")
+        .WithSummary("Force a password reset: generates and sets a temporary password that the admin shares with the user")
+        .Produces<ForcePasswordResetResponse>(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status409Conflict);
+
         // Historic credential reactivation and physical deletion remain intentionally
         // unavailable: password rotation retains inactive entries for security audit.
         // group.MapPost("/{userAccountId:guid}/passwords/{credentialId:guid}/activate", async (Guid userAccountId, Guid credentialId, IMediator mediator, HttpContext context, CancellationToken ct) =>

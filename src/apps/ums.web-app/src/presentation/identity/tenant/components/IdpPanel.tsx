@@ -108,6 +108,20 @@ export const IdpPanel: React.FC<IdpPanelProps> = ({ tenantId }) => {
   const confirmToggleAuthMode = async () => {
     setShowAuthModeConfirm(false);
     if (!configItem) return;
+
+    // Switching TO IdP mode: require at least one active IdP
+    if (!useExternalIdp) {
+      const hasActiveIdp = providers.some(p => p.isActive);
+      if (!hasActiveIdp) {
+        addNotification({
+          title: 'Requisito no cumplido',
+          message: 'Debe haber al menos un proveedor de identidad activo antes de cambiar al modo IDPs.',
+          type: 'error',
+        });
+        return;
+      }
+    }
+
     try {
       await updateConfigMutation.mutateAsync({
         id: configItem.appConfigurationId,
@@ -171,6 +185,16 @@ export const IdpPanel: React.FC<IdpPanelProps> = ({ tenantId }) => {
   };
 
   const handleToggleProvider = async (provider: IdentityProvider) => {
+    // In Local mode, IdPs must remain inactive
+    if (!provider.isActive && !useExternalIdp) {
+      addNotification({
+        title: 'Activación no permitida',
+        message: 'Los IDPs no pueden activarse mientras el modo de autenticación sea Local.',
+        type: 'warning',
+      });
+      return;
+    }
+
     try {
       if (provider.isActive) {
         await idpService.deactivateIdentityProvider(tenantId, provider.identityProviderId);
@@ -256,8 +280,14 @@ export const IdpPanel: React.FC<IdpPanelProps> = ({ tenantId }) => {
           <p className="text-m3-secondary text-xs leading-relaxed">
             {useExternalIdp
               ? 'Al cambiar a modo local, los usuarios deberán autenticarse con sus credenciales internas (contraseña BCrypt). Los proveedores de identidad externos configurados quedarán inactivos.'
-              : 'Al activar el modo IDP, los usuarios se autenticarán a través de los proveedores de identidad externos configurados (OIDC, SAML2, OAuth2). Asegúrese de tener al menos un IDP activo.'}
+              : 'Al activar el modo IDP, los usuarios se autenticarán a través de los proveedores de identidad externos configurados (OIDC, SAML2, OAuth2). Se requiere al menos un proveedor de identidad activo para completar este cambio.'}
           </p>
+          {!useExternalIdp && !providers.some(p => p.isActive) && (
+            <p className="text-xs text-m3-error font-medium flex items-center gap-1.5">
+              <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
+              No hay ningún IDP activo. Active al menos uno antes de cambiar el modo.
+            </p>
+          )}
           <p className="text-xs text-amber-600 dark:text-amber-400 font-medium">
             Este cambio afecta inmediatamente a todos los usuarios del inquilino.
           </p>
@@ -476,13 +506,20 @@ export const IdpPanel: React.FC<IdpPanelProps> = ({ tenantId }) => {
                         >
                           <Pencil className="w-3.5 h-3.5" />
                         </IconButton>
-                        <Tooltip content={p.isActive ? t.deactivate : t.reactivate}>
+                        <Tooltip content={
+                          !p.isActive && !useExternalIdp
+                            ? 'Activación bloqueada en modo Local'
+                            : p.isActive ? t.deactivate : t.reactivate
+                        }>
                           <button
                             onClick={() => handleToggleProvider(p)}
+                            disabled={!p.isActive && !useExternalIdp}
                             className={`p-1.5 rounded-full transition-all border ${
-                              p.isActive
-                                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/20'
-                                : 'bg-rose-500/10 border-rose-500/20 text-rose-500 hover:bg-rose-500/20'
+                              !p.isActive && !useExternalIdp
+                                ? 'bg-m3-surface-variant border-m3-outline/20 text-m3-outline cursor-not-allowed opacity-50'
+                                : p.isActive
+                                  ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/20'
+                                  : 'bg-rose-500/10 border-rose-500/20 text-rose-500 hover:bg-rose-500/20'
                             }`}
                           >
                             <Check className="w-3.5 h-3.5" />

@@ -3,9 +3,10 @@
   "configurations": [
     {
       "name": "ums-web",
-      "runtimeExecutable": "docker",
-      "runtimeArgs": ["exec", "ums-web", "echo", "already running"],
-      "port": 5173
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["nx", "run", "app-web:dev"],
+      "port": 5173,
+      "cwd": "/Users/beyondnet/Source/ums/src"
     }
   ]
 }

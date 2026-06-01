@@ -40,6 +40,8 @@ using Ums.Infrastructure.Configuration;
 using Ums.Infrastructure.Configuration.IdpResolution;
 using BeyondNetCode.Shell.Factory.Installer.Extensions;
 using Ums.Infrastructure.Persistence.Authorization.Exporters;
+using Ums.Application.Common.Interfaces;
+using Ums.Infrastructure.Services.Notifications;
 
 public static class DependencyInjection
 {
@@ -68,6 +70,7 @@ public static class DependencyInjection
         services.AddScoped<IFeatureFlagEvaluator, FeatureFlagEvaluator>();
         services.AddScoped<IIdpConfigurationResolver, IdpConfigurationResolver>();
         services.AddScoped<INotificationRecipientResolver, NotificationRecipientResolver>();
+        services.AddScoped<INotificationService, SimulatedNotificationAdapter>();
         services.AddScoped<IApprovalRequestCreationPolicyResolver, ApprovalRequestCreationPolicyResolver>();
         services.AddSingleton(Channel.CreateUnbounded<AuditTrailEntry>(new UnboundedChannelOptions
         {

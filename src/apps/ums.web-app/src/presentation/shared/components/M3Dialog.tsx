@@ -93,6 +93,20 @@ export const M3Dialog: React.FC<M3DialogProps> = React.memo(({
               )}
             </div>
             {children}
+            {actions && actions.length > 0 && (
+              <div className="flex gap-2.5 pt-4" role="group" aria-label="Dialog actions">
+                {actions.map((action) => (
+                  <M3Button
+                    key={action.label}
+                    variant={action.variant ?? 'outlined'}
+                    onClick={action.onClick}
+                    className={`flex-1 ${action.className ?? ''}`}
+                  >
+                    {action.label}
+                  </M3Button>
+                ))}
+              </div>
+            )}
           </>
         ) : (
           <>
