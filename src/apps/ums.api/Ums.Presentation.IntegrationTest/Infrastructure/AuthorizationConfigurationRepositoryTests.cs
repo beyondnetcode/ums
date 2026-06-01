@@ -130,8 +130,13 @@ public class AuthorizationRepositoryTests
 
     private class TestTenantContext(Guid tenantId) : ITenantContext
     {
-        public Guid? OrganizationId => tenantId;
+        public Guid? OrganizationId  => tenantId;
+        public Guid? OriginalTenantId => tenantId;
+        public bool  IsInternalAdmin  => false;
+        public void Initialize(Guid userTenantId, bool isInternalAdmin) { }
         public void SetOrganizationId(Guid organizationId) { }
+        public void EnableCrossTenantAccess() { }
+        public void DisableCrossTenantAccess() { }
     }
 }
 
@@ -287,7 +292,12 @@ public class ConfigurationRepositoryTests
 
     private class TestTenantContext(Guid tenantId) : ITenantContext
     {
-        public Guid? OrganizationId => tenantId;
+        public Guid? OrganizationId  => tenantId;
+        public Guid? OriginalTenantId => tenantId;
+        public bool  IsInternalAdmin  => false;
+        public void Initialize(Guid userTenantId, bool isInternalAdmin) { }
         public void SetOrganizationId(Guid organizationId) { }
+        public void EnableCrossTenantAccess() { }
+        public void DisableCrossTenantAccess() { }
     }
 }

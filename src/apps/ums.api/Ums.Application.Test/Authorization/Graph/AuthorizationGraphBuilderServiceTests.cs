@@ -220,7 +220,8 @@ public class AuthorizationGraphBuilderServiceTests
             Name.Create("Test Tenant"),
             Ums.Domain.Enums.OrganizationType.INTERNAL,
             actor,
-            Ums.Domain.Enums.IdpStrategy.AzureAd).Value;
+            Ums.Domain.Enums.IdpStrategy.AzureAd,
+            tenantId: TenantId.Load(TenantGuid)).Value;
         tenant.DomainEvents.MarkChangesAsCommitted();
         _tenantRepo.Setup(r => r.GetByIdAsync(TenantGuid, It.IsAny<CancellationToken>()))
                    .ReturnsAsync(tenant);
@@ -258,7 +259,7 @@ public class AuthorizationGraphBuilderServiceTests
             Code.Create("ADMIN"),
             Name.Create("Administrator"),
             Description.Create(""),
-            null, 1, 1,
+            null, 0, 1,
             ActorId.Create("test")).Value;
         role.DomainEvents.MarkChangesAsCommitted();
         _roleRepo.Setup(r => r.GetByIdAsync(roleId, It.IsAny<CancellationToken>()))

@@ -57,7 +57,8 @@ export function useSystemSuiteDashboard(): SystemSuiteDashboardState & SystemSui
     initialPageSize: 10,
   });
 
-  const shouldFetch = queryState.appliedQuery.filterApplied;
+  // System suites are few in number — load automatically without requiring a filter first
+  const shouldFetch = true;
 
   const { data: systemSuitePage, isLoading: isLoadingList, error: listError } = useGetAllSystemSuites(
     shouldFetch

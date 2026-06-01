@@ -74,7 +74,12 @@ public sealed class SqlServerContainerFixture : IAsyncLifetime
     // ─────────────────────────────────────────────────────────────────────────
     private sealed class SystemTenantContext : ITenantContext
     {
-        public Guid? OrganizationId => null;
-        public void SetOrganizationId(Guid organizationId) { /* no-op for system context */ }
+        public Guid? OrganizationId  => null;
+        public Guid? OriginalTenantId => null;
+        public bool  IsInternalAdmin  => true;
+        public void Initialize(Guid userTenantId, bool isInternalAdmin) { }
+        public void SetOrganizationId(Guid organizationId) { }
+        public void EnableCrossTenantAccess() { }
+        public void DisableCrossTenantAccess() { }
     }
 }

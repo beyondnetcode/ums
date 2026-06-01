@@ -59,7 +59,7 @@ public sealed class ConfigurationRestEndpointTests : IClassFixture<UmsApiWebAppl
     [Fact]
     public async Task GetAppConfigurations_ShouldReturnSeededConfiguration()
     {
-        var response = await _client.GetAsync("/api/v1/app-configurations?page=1&pageSize=10", TestContext.Current.CancellationToken);
+        var response = await _client.GetAsync("/api/v1/app-configurations?page=1&pageSize=100", TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 

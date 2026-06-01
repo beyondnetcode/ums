@@ -584,4 +584,69 @@ public class UserAccountTests
     }
 
     #endregion
+
+    #region Deny (EP-09)
+
+    [Fact]
+    public void Deny_WhenPending_TransitionsToDenied()
+    {
+        var user = UserAccount.Create(ValidTenantId, ValidEmail, ValidCategory, null, null, ValidActor).Value;
+
+        var result = user.Deny(ValidActor);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(UserStatus.Denied, user.Status);
+    }
+
+    [Fact]
+    public void Deny_WhenNotPending_ReturnsFailure()
+    {
+        var user = UserAccount.Create(ValidTenantId, ValidEmail, ValidCategory, null, null, ValidActor).Value;
+        user.Activate(ValidActor);
+
+        var result = user.Deny(ValidActor);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains(DomainErrors.UserAccount.CannotDeny, result.Error);
+    }
+
+    [Fact]
+    public void Deny_RaisesUserSignupDeniedEvent()
+    {
+        var user = UserAccount.Create(ValidTenantId, ValidEmail, ValidCategory, null, null, ValidActor).Value;
+        user.DomainEvents.MarkChangesAsCommitted();
+
+        user.Deny(ValidActor, "Duplicate request");
+
+        var evt = user.DomainEvents.GetUncommittedChanges()
+            .OfType<UserSignupDeniedEvent>()
+            .Single();
+
+        Assert.Equal(ValidTenantId.GetValue(), evt.TenantId);
+        Assert.Equal("Duplicate request", evt.Reason);
+    }
+
+    [Fact]
+    public void Deny_WithoutReason_StillSucceeds()
+    {
+        var user = UserAccount.Create(ValidTenantId, ValidEmail, ValidCategory, null, null, ValidActor).Value;
+
+        var result = user.Deny(ValidActor);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(UserStatus.Denied, user.Status);
+    }
+
+    [Fact]
+    public void Deny_DeniedIsTerminalState_CannotBeActivated()
+    {
+        var user = UserAccount.Create(ValidTenantId, ValidEmail, ValidCategory, null, null, ValidActor).Value;
+        user.Deny(ValidActor);
+
+        var activate = user.Activate(ValidActor);
+
+        Assert.True(activate.IsFailure);
+    }
+
+    #endregion
 }

@@ -15,6 +15,7 @@ public sealed class ProfileRestEndpointTests : IClassFixture<UmsApiWebApplicatio
         });
         _client.DefaultRequestHeaders.Add("X-User-Id", "00000000-0000-0000-0000-000000000123");
         _client.DefaultRequestHeaders.Add("X-User-Name", "Integration Tester");
+        _client.DefaultRequestHeaders.Add("X-Tenant-Id", "3fa85f64-5717-4562-b3fc-2c963f66afa6");
     }
 
     [Fact]

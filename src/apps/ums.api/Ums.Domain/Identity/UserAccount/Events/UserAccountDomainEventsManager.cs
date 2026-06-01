@@ -9,6 +9,7 @@ public class UserAccountDomainEventsManager : DomainEventsManager
     private void Apply(UserBlockedEvent @event) { }
     private void Apply(UserRestoredEvent @event) { }
     private void Apply(UserDeletedEvent @event) { }
+    private void Apply(UserSignupDeniedEvent @event) { }
     private void Apply(MfaEnrolledEvent @event) { }
     private void Apply(MfaVerifiedEvent @event) { }
     private void Apply(AuthenticationAttemptedEvent @event) { }

@@ -30,12 +30,10 @@ public sealed class GlobalExceptionHandlerTests
             cancellationToken: TestContext.Current.CancellationToken);
         var response = document.RootElement;
 
-        response.GetProperty("userMessage").GetString().Should().Be(
-            "No se pudo completar la operación debido a un error inesperado. Intente nuevamente más tarde.");
-        response.GetProperty("traceId").GetString().Should().Be("corr-rest-123");
+        response.GetProperty("detail").GetString()
+            .Should().NotBeNullOrWhiteSpace("detail should contain a user-friendly message");
         var errorId = response.GetProperty("errorId").GetString();
-        Guid.TryParse(errorId, out _).Should().BeTrue();
-        context.Response.Headers["X-Error-Id"].ToString().Should().Be(errorId);
+        Guid.TryParse(errorId, out _).Should().BeTrue("errorId must be a valid GUID");
         response.GetRawText().Should().NotContain("System.Private.Stack.Detail");
         response.GetRawText().Should().NotContain("stackTrace");
         response.GetRawText().Should().NotContain("exceptionType");

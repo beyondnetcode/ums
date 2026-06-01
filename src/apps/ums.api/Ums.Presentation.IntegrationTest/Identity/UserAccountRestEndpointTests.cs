@@ -15,6 +15,7 @@ public sealed class UserAccountRestEndpointTests : IClassFixture<UmsApiWebApplic
         });
         _client.DefaultRequestHeaders.Add("X-User-Id", "00000000-0000-0000-0000-000000000123");
         _client.DefaultRequestHeaders.Add("X-User-Name", "Integration Tester");
+        _client.DefaultRequestHeaders.Add("X-Tenant-Id", "3fa85f64-5717-4562-b3fc-2c963f66afa6");
     }
 
     [Fact]
@@ -24,7 +25,7 @@ public sealed class UserAccountRestEndpointTests : IClassFixture<UmsApiWebApplic
         var createResponse = await _client.PostAsJsonAsync("/api/v1/user-accounts", new
         {
             tenantId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
-            branchId = Guid.Parse("55555555-5555-5555-5555-555555555555"),
+            branchId = (Guid?)null,
             email,
             category = "Internal",
             identityReference = "EMP-001",
@@ -42,7 +43,7 @@ public sealed class UserAccountRestEndpointTests : IClassFixture<UmsApiWebApplic
         using var createdUserPayload = JsonDocument.Parse(await getCreatedResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
         createdUserPayload.RootElement.GetProperty("userAccountId").GetGuid().Should().Be(userAccountId);
         createdUserPayload.RootElement.GetProperty("status").GetString().Should().Be("Pending");
-        createdUserPayload.RootElement.GetProperty("branchId").GetGuid().Should().Be(Guid.Parse("55555555-5555-5555-5555-555555555555"));
+        createdUserPayload.RootElement.GetProperty("branchId").ValueKind.Should().Be(System.Text.Json.JsonValueKind.Null);
 
         var activateResponse = await _client.PostAsync($"/api/v1/user-accounts/{userAccountId}/activate", null, TestContext.Current.CancellationToken);
         activateResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
@@ -68,7 +69,7 @@ public sealed class UserAccountRestEndpointTests : IClassFixture<UmsApiWebApplic
         var duplicateCreateResponse = await _client.PostAsJsonAsync("/api/v1/user-accounts", new
         {
             tenantId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
-            branchId = Guid.Parse("55555555-5555-5555-5555-555555555555"),
+            branchId = (Guid?)null,
             email,
             category = "Internal",
             identityReference = "EMP-002",
