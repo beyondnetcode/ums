@@ -4,6 +4,7 @@ using Ums.Application.Approvals.ApprovalRequest.Queries;
 using Ums.Application.Approvals.ApprovalRequest.DTOs;
 using Ums.Domain.Approvals.ApprovalRequest;
 using Ums.Domain.Approvals;
+using Ums.Domain.Kernel.ValueObjects;
 using Ums.Domain.Enums;
 using Ums.Domain.Kernel;
 using Moq;
@@ -17,22 +18,22 @@ public class ApprovalRequestQueryHandlerTests
 {
     private readonly Mock<IApprovalRequestRepository> _repo = new();
 
+    private static readonly SystemSuiteId ValidSystemId = SystemSuiteId.Load(Guid.NewGuid());
+    private static readonly RoleId ValidRoleId          = RoleId.Load(Guid.NewGuid());
+
     private static ApprovalRequest MakeApprovalRequest(ApprovalStatus status)
     {
         var req = ApprovalRequest.Create(
             ApprovalWorkflowId.Load(Guid.NewGuid()),
             UserId.Load(Guid.NewGuid()),
             ProfileId.Load(Guid.NewGuid()),
+            ValidSystemId, null, ValidRoleId, null,
             ActorId.Create("user-001")).Value;
 
         if (status == ApprovalStatus.Approved)
-        {
-            req.Approve(ActorId.Create("user-001"));
-        }
+            req.Approve(ActorId.Create("user-001"), ValidRoleId);
         else if (status == ApprovalStatus.Rejected)
-        {
             req.Reject(ActorId.Create("user-001"));
-        }
 
         return req;
     }

@@ -4,6 +4,7 @@ namespace Ums.Application.Approvals.ApprovalRequest.Commands;
 
 using Ums.Domain.Approvals;
 using Ums.Domain.Approvals.ApprovalRequest;
+using Ums.Domain.Kernel.ValueObjects;
 using Ums.Application.Approvals.ApprovalRequest.Services;
 
 public sealed class CreateApprovalRequestCommandHandler : ICommandHandler<CreateApprovalRequestCommand, CreateApprovalRequestResponse>
@@ -36,10 +37,20 @@ public sealed class CreateApprovalRequestCommandHandler : ICommandHandler<Create
         if (workflow is null)
             return Result<CreateApprovalRequestResponse>.Failure("Approval workflow not found.");
 
+        var duplicatePending = await _repository.ExistsPendingForScopeAsync(
+            request.TargetUserId, request.RequestedSystemId, request.RequestedBranchId, cancellationToken);
+        if (duplicatePending)
+            return Result<CreateApprovalRequestResponse>.Failure(
+                "A pending profile request already exists for this user, system, and branch.");
+
         var result = _creationPolicyResolver.Create(
             workflow,
             UserId.Load(request.TargetUserId),
             request.TargetProfileId.HasValue ? ProfileId.Load(request.TargetProfileId.Value) : null,
+            SystemSuiteId.Load(request.RequestedSystemId),
+            request.RequestedBranchId.HasValue ? BranchId.Load(request.RequestedBranchId.Value) : null,
+            RoleId.Load(request.RequestedRoleId),
+            request.Justification,
             ActorId.Create(_userContext.UserId));
 
         if (result.IsFailure) return Result<CreateApprovalRequestResponse>.Failure(result.Error);

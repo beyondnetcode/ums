@@ -62,6 +62,8 @@ public static class DomainErrors
         public const string CannotRemoveLastPassword = "user_account.cannot_remove_last_password";
         // REC-16: soft-delete + GDPR
         public const string AlreadyDeleted = "user_account.already_deleted";
+        // EP-09: explicit denial of pending signup request
+        public const string CannotDeny = "user_account.cannot_deny";
     }
 
     public static class SystemSuite

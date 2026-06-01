@@ -9,5 +9,9 @@ public interface IApprovalRequestCreationPolicyResolver
         ApprovalWorkflowAggregate workflow,
         UserId targetUserId,
         ProfileId? targetProfileId,
+        SystemSuiteId requestedSystemId,
+        BranchId? requestedBranchId,
+        RoleId requestedRoleId,
+        string? justification,
         ActorId actorId);
 }

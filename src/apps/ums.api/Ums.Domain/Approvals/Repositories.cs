@@ -24,6 +24,7 @@ public interface IApprovalRequestRepository : IAggregateRepository<ApprovalReque
     Task<ApprovalRequestAggregate?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<ApprovalRequestAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<ApprovalRequestAggregate>> GetByTenantIdAsync(Guid tenantId, CancellationToken cancellationToken = default);
+    Task<bool> ExistsPendingForScopeAsync(Guid userId, Guid systemId, Guid? branchId, CancellationToken cancellationToken = default);
 }
 
 public interface IDocumentTypeRepository : IAggregateRepository<DocumentTypeAggregate>

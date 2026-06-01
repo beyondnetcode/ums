@@ -97,6 +97,57 @@ public static class NotificationTemplates
                 """
         );
 
+    public static UmsNotification UserSignupDenied(string applicantEmail, string recipientName, string tenantName, string? reason = null) =>
+        new(
+            Recipient: applicantEmail,
+            Subject: $"Solicitud de acceso denegada — {tenantName}",
+            Body: $"""
+                Hola {recipientName},
+
+                Su solicitud de acceso a {tenantName} fue denegada.
+                {(reason is not null ? $"\nMotivo: {reason}\n" : string.Empty)}
+                Si considera que esto es un error, comuníquese con el administrador de su organización.
+
+                — Equipo UMS
+                """,
+            RecipientName: recipientName
+        );
+
+    public static UmsNotification ProfileRequestApproved(string applicantEmail, string recipientName, string tenantName, string systemName, string grantedRole) =>
+        new(
+            Recipient: applicantEmail,
+            Subject: $"Perfil asignado — {tenantName}",
+            Body: $"""
+                Hola {recipientName},
+
+                Su solicitud de perfil en {tenantName} fue aprobada.
+
+                    Sistema: {systemName}
+                    Rol    : {grantedRole}
+
+                Ya puede acceder al sistema con los permisos asignados.
+
+                — Equipo UMS
+                """,
+            RecipientName: recipientName
+        );
+
+    public static UmsNotification ProfileRequestDenied(string applicantEmail, string recipientName, string tenantName, string systemName, string? reason = null) =>
+        new(
+            Recipient: applicantEmail,
+            Subject: $"Solicitud de perfil denegada — {tenantName}",
+            Body: $"""
+                Hola {recipientName},
+
+                Su solicitud de perfil en {tenantName} para el sistema {systemName} fue denegada.
+                {(reason is not null ? $"\nMotivo: {reason}\n" : string.Empty)}
+                Puede enviar una nueva solicitud desde el portal o comunicarse con su administrador.
+
+                — Equipo UMS
+                """,
+            RecipientName: recipientName
+        );
+
     public static UmsNotification TenantSignupApproved(string contactEmail, string companyName, string adminEmail, string temporaryPassword) =>
         new(
             Recipient: contactEmail,

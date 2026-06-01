@@ -2,6 +2,7 @@ namespace Ums.Infrastructure.Persistence;
 
 using System.Collections.Concurrent;
 using Ums.Domain.Approvals;
+using Ums.Domain.Approvals.ApprovalRequest;
 using Ums.Domain.Kernel;
 using ApprovalRequestAggregate = Ums.Domain.Approvals.ApprovalRequest.ApprovalRequest;
 
@@ -21,6 +22,16 @@ public sealed class InMemoryApprovalRequestRepository : IApprovalRequestReposito
 
     public Task<IReadOnlyList<ApprovalRequestAggregate>> GetByTenantIdAsync(Guid tenantId, CancellationToken cancellationToken = default)
     { var f = _store.Values.ToList(); f.ForEach(e => e.BrokenRules.Clear()); return Task.FromResult<IReadOnlyList<ApprovalRequestAggregate>>(f); }
+
+    public Task<bool> ExistsPendingForScopeAsync(Guid userId, Guid systemId, Guid? branchId, CancellationToken cancellationToken = default)
+    {
+        var exists = _store.Values.Any(x =>
+            x.TargetUserId.GetValue() == userId &&
+            x.RequestedSystemId.GetValue() == systemId &&
+            x.RequestedBranchId?.GetValue() == branchId &&
+            x.Status == ApprovalStatus.Pending);
+        return Task.FromResult(exists);
+    }
 
     public Task AddAsync(ApprovalRequestAggregate a, CancellationToken c = default) { _store[a.Props.Id.GetValue()] = a; return Task.CompletedTask; }
     public Task UpdateAsync(ApprovalRequestAggregate a, CancellationToken c = default) { _store[a.Props.Id.GetValue()] = a; return Task.CompletedTask; }

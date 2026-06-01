@@ -6,6 +6,7 @@ using Ums.Application.Approvals.ApprovalRequest.DTOs;
 using Ums.Application.Approvals.ApprovalRequest.Services;
 using Ums.Domain.Approvals.ApprovalRequest;
 using Ums.Domain.Approvals;
+using Ums.Domain.Kernel.ValueObjects;
 using ApprovalWorkflowAggregate = Ums.Domain.Approvals.ApprovalWorkflow.ApprovalWorkflow;
 using Ums.Domain.Enums;
 using Ums.Domain.Kernel;
@@ -30,12 +31,16 @@ public class ApprovalRequestCommandHandlerTests
         _ctx.Setup(u => u.UserId).Returns("user-001");
     }
 
+    private static readonly SystemSuiteId ValidSystemId = SystemSuiteId.Load(Guid.NewGuid());
+    private static readonly RoleId ValidRoleId          = RoleId.Load(Guid.NewGuid());
+
     private static ApprovalRequest MakeApprovalRequest()
     {
         return ApprovalRequest.Create(
             ApprovalWorkflowId.Load(Guid.NewGuid()),
             UserId.Load(Guid.NewGuid()),
             ProfileId.Load(Guid.NewGuid()),
+            ValidSystemId, null, ValidRoleId, null,
             ActorId.Create("user-001")).Value;
     }
 
@@ -64,15 +69,24 @@ public class ApprovalRequestCommandHandlerTests
         var cmd = new CreateApprovalRequestCommand(
             WorkflowId: Guid.NewGuid(),
             TargetUserId: Guid.NewGuid(),
-            TargetProfileId: Guid.NewGuid());
+            TargetProfileId: Guid.NewGuid(),
+            RequestedSystemId: Guid.NewGuid(),
+            RequestedBranchId: null,
+            RequestedRoleId: Guid.NewGuid(),
+            Justification: null);
 
         var workflow = MakeWorkflow();
         var createdRequest = MakeApprovalRequest();
         _workflowRepo.Setup(r => r.GetByIdAsync(cmd.WorkflowId, It.IsAny<CancellationToken>())).ReturnsAsync(workflow);
+        _repo.Setup(r => r.ExistsPendingForScopeAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);
         _creationPolicyResolver.Setup(r => r.Create(
                 workflow,
                 It.IsAny<UserId>(),
                 It.IsAny<ProfileId?>(),
+                It.IsAny<SystemSuiteId>(),
+                It.IsAny<BranchId?>(),
+                It.IsAny<RoleId>(),
+                It.IsAny<string?>(),
                 It.IsAny<ActorId>()))
             .Returns(Result<ApprovalRequest>.Success(createdRequest));
 
@@ -93,7 +107,11 @@ public class ApprovalRequestCommandHandlerTests
         var cmd = new CreateApprovalRequestCommand(
             WorkflowId: Guid.NewGuid(),
             TargetUserId: Guid.NewGuid(),
-            TargetProfileId: Guid.NewGuid());
+            TargetProfileId: Guid.NewGuid(),
+            RequestedSystemId: Guid.NewGuid(),
+            RequestedBranchId: null,
+            RequestedRoleId: Guid.NewGuid(),
+            Justification: null);
 
         var handler = new CreateApprovalRequestCommandHandler(_repo.Object, _workflowRepo.Object, _creationPolicyResolver.Object, _ctx.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
@@ -108,7 +126,11 @@ public class ApprovalRequestCommandHandlerTests
         var cmd = new CreateApprovalRequestCommand(
             WorkflowId: Guid.NewGuid(),
             TargetUserId: Guid.NewGuid(),
-            TargetProfileId: Guid.NewGuid());
+            TargetProfileId: Guid.NewGuid(),
+            RequestedSystemId: Guid.NewGuid(),
+            RequestedBranchId: null,
+            RequestedRoleId: Guid.NewGuid(),
+            Justification: null);
 
         _workflowRepo.Setup(r => r.GetByIdAsync(cmd.WorkflowId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((ApprovalWorkflowAggregate?)null);
@@ -134,7 +156,7 @@ public class ApprovalRequestCommandHandlerTests
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(req);
 
-        var cmd = new ApproveRequestCommand(req.Props.Id.GetValue());
+        var cmd = new ApproveRequestCommand(req.Props.Id.GetValue(), ValidRoleId.GetValue());
         var handler = new ApproveRequestCommandHandler(_repo.Object, _ctx.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
@@ -151,7 +173,7 @@ public class ApprovalRequestCommandHandlerTests
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync((ApprovalRequest?)null);
 
-        var cmd = new ApproveRequestCommand(Guid.NewGuid());
+        var cmd = new ApproveRequestCommand(Guid.NewGuid(), ValidRoleId.GetValue());
         var handler = new ApproveRequestCommandHandler(_repo.Object, _ctx.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
@@ -164,7 +186,7 @@ public class ApprovalRequestCommandHandlerTests
     {
         _ctx.Setup(u => u.UserId).Returns("");
 
-        var cmd = new ApproveRequestCommand(Guid.NewGuid());
+        var cmd = new ApproveRequestCommand(Guid.NewGuid(), ValidRoleId.GetValue());
         var handler = new ApproveRequestCommandHandler(_repo.Object, _ctx.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
@@ -177,12 +199,12 @@ public class ApprovalRequestCommandHandlerTests
     {
         _ctx.Setup(u => u.UserId).Returns("user-001");
         var req = MakeApprovalRequest();
-        req.Approve(ActorId.Create("user-001")); // Set to approved
+        req.Approve(ActorId.Create("user-001"), ValidRoleId); // Set to approved
 
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(req);
 
-        var cmd = new ApproveRequestCommand(req.Props.Id.GetValue());
+        var cmd = new ApproveRequestCommand(req.Props.Id.GetValue(), ValidRoleId.GetValue());
         var handler = new ApproveRequestCommandHandler(_repo.Object, _ctx.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 

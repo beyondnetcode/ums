@@ -18,6 +18,10 @@ internal sealed class ApprovalRequestCreationPolicyResolver : IApprovalRequestCr
         ApprovalWorkflowAggregate workflow,
         UserId targetUserId,
         ProfileId? targetProfileId,
+        SystemSuiteId requestedSystemId,
+        BranchId? requestedBranchId,
+        RoleId requestedRoleId,
+        string? justification,
         ActorId actorId)
     {
         var strategy = _factory.Create<ApprovalRequestCreationStrategyCriteria, IApprovalRequestCreationStrategy>(
@@ -30,6 +34,8 @@ internal sealed class ApprovalRequestCreationPolicyResolver : IApprovalRequestCr
                 $"No approval request creation strategy is registered for workflow '{workflow.Code.GetValue()}'.");
         }
 
-        return strategy.Create(new ApprovalRequestCreationContext(workflow, targetUserId, targetProfileId, actorId));
+        return strategy.Create(new ApprovalRequestCreationContext(
+            workflow, targetUserId, targetProfileId,
+            requestedSystemId, requestedBranchId, requestedRoleId, justification, actorId));
     }
 }

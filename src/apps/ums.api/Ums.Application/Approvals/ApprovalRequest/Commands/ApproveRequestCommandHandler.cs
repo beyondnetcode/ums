@@ -3,6 +3,7 @@ using Ums.Application.Approvals.ApprovalRequest.DTOs;
 namespace Ums.Application.Approvals.ApprovalRequest.Commands;
 
 using Ums.Domain.Approvals;
+using Ums.Domain.Kernel.ValueObjects;
 
 public sealed class ApproveRequestCommandHandler : ICommandHandler<ApproveRequestCommand>
 {
@@ -25,7 +26,7 @@ public sealed class ApproveRequestCommandHandler : ICommandHandler<ApproveReques
         var entity = await _repository.GetByIdAsync(request.ApprovalRequestId, cancellationToken);
         if (entity is null) return Result.Failure("Approval request not found.");
 
-        var result = entity.Approve(ActorId.Create(_userContext.UserId));
+        var result = entity.Approve(ActorId.Create(_userContext.UserId), RoleId.Load(request.GrantedRoleId), request.DecisionReason);
         if (result.IsFailure) return result;
 
         await _repository.UpdateAsync(entity, cancellationToken);

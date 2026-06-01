@@ -10,6 +10,10 @@ internal sealed class ManualApprovalRequestCreationStrategy : IApprovalRequestCr
             context.Workflow.GetId(),
             context.TargetUserId,
             context.TargetProfileId,
+            context.RequestedSystemId,
+            context.RequestedBranchId,
+            context.RequestedRoleId,
+            context.Justification,
             context.ActorId);
     }
 }
@@ -22,18 +26,18 @@ internal sealed class AutoApproveApprovalRequestCreationStrategy : IApprovalRequ
             context.Workflow.GetId(),
             context.TargetUserId,
             context.TargetProfileId,
+            context.RequestedSystemId,
+            context.RequestedBranchId,
+            context.RequestedRoleId,
+            context.Justification,
             context.ActorId);
 
         if (created.IsFailure)
-        {
             return created;
-        }
 
-        var approval = created.Value.Approve(context.ActorId);
+        var approval = created.Value.Approve(context.ActorId, context.RequestedRoleId);
         if (approval.IsFailure)
-        {
             return Result<ApprovalRequestAggregate>.Failure(approval.Error);
-        }
 
         return created;
     }

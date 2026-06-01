@@ -13,6 +13,8 @@ public sealed class ApprovalRequestRecordConfiguration : IEntityTypeConfiguratio
         builder.ToTable("ApprovalRequests", ApprovalsPersistenceConstants.Schema);
         builder.HasKey(x => x.Id);
 
+        builder.Property(x => x.Justification).HasMaxLength(1000);
+        builder.Property(x => x.DecisionReason).HasMaxLength(1000);
         builder.Property(x => x.CreatedBy).HasMaxLength(100).IsRequired();
         builder.Property(x => x.UpdatedBy).HasMaxLength(100);
         builder.Property(x => x.AuditTimeSpan).HasMaxLength(100).IsRequired();
@@ -21,5 +23,6 @@ public sealed class ApprovalRequestRecordConfiguration : IEntityTypeConfiguratio
         builder.HasIndex(x => x.WorkflowId);
         builder.HasIndex(x => x.TargetUserId);
         builder.HasIndex(x => x.TargetProfileId);
+        builder.HasIndex(x => new { x.TargetUserId, x.RequestedSystemId, x.RequestedBranchId, x.StatusId });
     }
 }

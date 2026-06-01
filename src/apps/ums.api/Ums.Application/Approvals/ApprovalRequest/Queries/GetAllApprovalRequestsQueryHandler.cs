@@ -27,7 +27,9 @@ public sealed class GetAllApprovalRequestsQueryHandler : IQueryHandler<GetAllApp
 
         var query = items.Select(r => new ApprovalRequestDto(
             r.Props.Id.GetValue(), r.Props.WorkflowId.GetValue(), r.Props.TargetUserId.GetValue(),
-            r.Props.TargetProfileId?.GetValue(), r.Props.Status.ToString()));
+            r.Props.TargetProfileId?.GetValue(), r.Props.Status.ToString(),
+            r.RequestedSystemId.GetValue(), r.RequestedBranchId?.GetValue(), r.RequestedRoleId.GetValue(),
+            r.Justification, r.GrantedRoleId?.GetValue(), r.DecisionReason));
 
         if (!string.Equals(status, "all", StringComparison.OrdinalIgnoreCase))
             query = query.Where(r => string.Equals(r.Status, status, StringComparison.OrdinalIgnoreCase));

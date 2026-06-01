@@ -32,18 +32,34 @@ public static class ApprovalRequestEndpoints
             return result.ToCreated(r => $"/approval-requests/{r.ApprovalRequestId}", context);
         }).WithName("CreateApprovalRequest").Produces<CreateApprovalRequestResponse>(StatusCodes.Status201Created).ProducesProblem(StatusCodes.Status400BadRequest);
 
-        group.MapPost("/{id:guid}/approve", async (Guid id, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        group.MapPost("/{id:guid}/approve", async (
+            Guid id, ApproveRequestBody body, IMediator mediator, HttpContext context, CancellationToken ct) =>
         {
-            var result = await mediator.Send(new ApproveRequestCommand(id), ct);
+            var result = await mediator.Send(new ApproveRequestCommand(id, body.GrantedRoleId, body.DecisionReason), ct);
             return result.ToNoContent(context);
-        }).WithName("ApproveRequest").Produces(StatusCodes.Status204NoContent).ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status409Conflict);
+        })
+        .WithName("ApproveRequest")
+        .WithSummary("Approve a pending profile request, assigning a final role (may differ from the requested one).")
+        .Produces(StatusCodes.Status204NoContent)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status409Conflict);
 
-        group.MapPost("/{id:guid}/reject", async (Guid id, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        group.MapPost("/{id:guid}/reject", async (
+            Guid id, RejectRequestBody body, IMediator mediator, HttpContext context, CancellationToken ct) =>
         {
-            var result = await mediator.Send(new RejectRequestCommand(id), ct);
+            var result = await mediator.Send(new RejectRequestCommand(id, body.DecisionReason), ct);
             return result.ToNoContent(context);
-        }).WithName("RejectRequest").Produces(StatusCodes.Status204NoContent).ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status409Conflict);
+        })
+        .WithName("RejectRequest")
+        .WithSummary("Deny a pending profile request with an optional reason.")
+        .Produces(StatusCodes.Status204NoContent)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status409Conflict);
 
         return app;
     }
 }
+
+public sealed record ApproveRequestBody(Guid GrantedRoleId, string? DecisionReason = null);
+public sealed record RejectRequestBody(string? DecisionReason = null);

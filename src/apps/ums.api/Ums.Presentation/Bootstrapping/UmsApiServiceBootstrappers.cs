@@ -53,6 +53,7 @@ using Ums.Presentation.Endpoints.Identity.UserAccount;
 using Ums.Presentation.Endpoints.Identity.UserAccount.Queries;
 using Ums.Presentation.Endpoints.Identity.UserManagementDelegation;
 using Ums.Presentation.Endpoints.Identity.UserManagementDelegation.Queries;
+using Ums.Presentation.Endpoints.Identity.Onboarding;
 using Ums.Presentation.Endpoints.IGA.PromotionRequest;
 using Ums.Presentation.Endpoints.IGA.PromotionRequest.Queries;
 using Ums.Presentation.Endpoints.IGA.RoleMaturityStatus;
@@ -449,6 +450,7 @@ public static class UmsApiApplicationBuilderExtensions
         versionedGroup.MapTenantBrandingEndpoints();
         versionedGroup.MapUserAccountEndpoints();
         versionedGroup.MapDelegationEndpoints();
+        versionedGroup.MapOnboardingInboxEndpoints();
 
         return versionedGroup;
     }

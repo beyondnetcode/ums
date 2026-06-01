@@ -222,7 +222,6 @@ public static class ApprovalsDevDataSeeder
         return workflow;
     }
 
-    // ApprovalRequest.Create(ApprovalWorkflowId, UserId targetUserId, ProfileId?, ActorId)
     private static IReadOnlyList<ApprovalRequestAggregate> BuildSeedRequests(UserId requesterId, IReadOnlyList<ApprovalWorkflowAggregate> wfs, ActorId actor)
     {
         if (wfs.Count == 0) return Array.Empty<ApprovalRequestAggregate>();
@@ -231,6 +230,10 @@ public static class ApprovalsDevDataSeeder
             wfs[0].GetId(),
             requesterId,
             ProfileId.Load(Guid.Parse(CoreDevDataSeeder.DemoAdminProfileId)),
+            SystemSuiteId.Load(Guid.Parse(CoreDevDataSeeder.DemoSystemSuiteId)),
+            null,
+            RoleId.Load(Guid.Parse(CoreDevDataSeeder.DemoAdminRoleId)),
+            "Seed profile request",
             actor);
 
         return req.IsSuccess ? new[] { req.Value } : Array.Empty<ApprovalRequestAggregate>();

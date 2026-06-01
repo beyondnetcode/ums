@@ -19,6 +19,8 @@ public sealed class GetApprovalRequestByIdQueryHandler : IQueryHandler<GetApprov
 
         return Result<ApprovalRequestDto>.Success(new ApprovalRequestDto(
             entity.Props.Id.GetValue(), entity.Props.WorkflowId.GetValue(), entity.Props.TargetUserId.GetValue(),
-            entity.Props.TargetProfileId?.GetValue(), entity.Props.Status.ToString()));
+            entity.Props.TargetProfileId?.GetValue(), entity.Props.Status.ToString(),
+            entity.RequestedSystemId.GetValue(), entity.RequestedBranchId?.GetValue(), entity.RequestedRoleId.GetValue(),
+            entity.Justification, entity.GrantedRoleId?.GetValue(), entity.DecisionReason));
     }
 }

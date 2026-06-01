@@ -25,7 +25,7 @@ public sealed class RejectRequestCommandHandler : ICommandHandler<RejectRequestC
         var entity = await _repository.GetByIdAsync(request.ApprovalRequestId, cancellationToken);
         if (entity is null) return Result.Failure("Approval request not found.");
 
-        var result = entity.Reject(ActorId.Create(_userContext.UserId));
+        var result = entity.Reject(ActorId.Create(_userContext.UserId), request.DecisionReason);
         if (result.IsFailure) return result;
 
         await _repository.UpdateAsync(entity, cancellationToken);

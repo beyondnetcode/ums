@@ -86,6 +86,24 @@ public static class UserAccountEndpoints
         .ProducesProblem(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status409Conflict);
 
+        group.MapPost("/{userAccountId:guid}/deny-signup", async (
+            Guid userAccountId,
+            DenyUserSignupRequest body,
+            IMediator mediator,
+            HttpContext context,
+            CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new DenyUserSignupCommand(userAccountId, body.Reason), ct);
+            return result.ToNoContent(context);
+        })
+        .WithName("DenyUserSignup")
+        .WithSummary("Deny a pending user signup request. Sends a denial notification to the applicant.")
+        .RequireAuthorization()
+        .Produces(StatusCodes.Status204NoContent)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status409Conflict);
+
         // REC-16: Soft-delete + GDPR anonymization. Irreversible — raises UserDeletedEvent
         // which also revokes any active tokens via HARDENING-03 TokenRevocationMiddleware.
         group.MapDelete("/{userAccountId:guid}", async (
@@ -199,3 +217,5 @@ public static class UserAccountEndpoints
         return app;
     }
 }
+
+public sealed record DenyUserSignupRequest(string? Reason = null);

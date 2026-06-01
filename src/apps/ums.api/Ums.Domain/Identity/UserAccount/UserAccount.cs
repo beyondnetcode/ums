@@ -96,6 +96,21 @@ public sealed class UserAccount : AggregateRoot<UserAccount, UserAccountProps>
         return Result.Success();
     }
 
+    public Result Deny(ActorId updatedBy, string? reason = null)
+    {
+        if (Status != UserStatus.Pending)
+            BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.UserAccount.CannotDeny));
+
+        if (!IsValid())
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+
+        SetProps(Props.WithStatus(UserStatus.Denied));
+        DomainEvents.RaiseEvent(new UserSignupDeniedEvent(Props.Id.GetValue(), Props.TenantId.GetValue(), reason));
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy.GetValue());
+        return Result.Success();
+    }
+
     public Result Block(Reason reason, ActorId updatedBy)
     {
         if (Status == UserStatus.Blocked)

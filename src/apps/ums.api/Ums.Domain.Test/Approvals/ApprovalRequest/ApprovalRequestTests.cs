@@ -1,6 +1,7 @@
 namespace Ums.Domain.Test.Approvals.ApprovalRequest;
 
 using Ums.Domain.Approvals.ApprovalRequest;
+using Ums.Domain.Kernel.ValueObjects;
 using Xunit;
 
 /// <summary>
@@ -27,6 +28,8 @@ public class ApprovalRequestTests
     private static readonly ApprovalWorkflowId ValidWorkflowId = ApprovalWorkflowId.Load(Guid.NewGuid().ToString());
     private static readonly UserId ValidUserId                 = UserId.Load(Guid.NewGuid().ToString());
     private static readonly ProfileId? ValidProfileId          = ProfileId.Load(Guid.NewGuid().ToString());
+    private static readonly SystemSuiteId ValidSystemId        = SystemSuiteId.Load(Guid.NewGuid());
+    private static readonly RoleId ValidRoleId                 = RoleId.Load(Guid.NewGuid());
     private static readonly ActorId ValidActor                 = ActorId.Create("user-001");
     private static readonly ActorId ApproverActor             = ActorId.Create("approver-002");
     private static readonly ActorId RejecterActor             = ActorId.Create("rejecter-003");
@@ -36,7 +39,8 @@ public class ApprovalRequestTests
     // -------------------------------------------------------------------------
 
     private static ApprovalRequest MakePending(ProfileId? profileId = null) =>
-        ApprovalRequest.Create(ValidWorkflowId, ValidUserId, profileId ?? ValidProfileId, ValidActor).Value;
+        ApprovalRequest.Create(ValidWorkflowId, ValidUserId, profileId ?? ValidProfileId,
+            ValidSystemId, null, ValidRoleId, null, ValidActor).Value;
 
     // =========================================================================
     #region Create
@@ -45,7 +49,8 @@ public class ApprovalRequestTests
     [Fact]
     public void Create_WithValidData_ReturnsSuccess()
     {
-        var result = ApprovalRequest.Create(ValidWorkflowId, ValidUserId, ValidProfileId, ValidActor);
+        var result = ApprovalRequest.Create(ValidWorkflowId, ValidUserId, ValidProfileId,
+            ValidSystemId, null, ValidRoleId, null, ValidActor);
 
         Assert.True(result.IsSuccess);
         Assert.Equal(ValidWorkflowId, result.Value.WorkflowId);
@@ -57,7 +62,8 @@ public class ApprovalRequestTests
     [Fact]
     public void Create_WithoutProfileId_TargetProfileIdIsNull()
     {
-        var result = ApprovalRequest.Create(ValidWorkflowId, ValidUserId, null, ValidActor);
+        var result = ApprovalRequest.Create(ValidWorkflowId, ValidUserId, null,
+            ValidSystemId, null, ValidRoleId, null, ValidActor);
 
         Assert.True(result.IsSuccess);
         Assert.Null(result.Value.TargetProfileId);
@@ -74,11 +80,9 @@ public class ApprovalRequestTests
     [Fact]
     public void Create_RaisesNoDomainEvents()
     {
-        // ApprovalRequest intentionally does not raise events at domain level.
-        // The parent ApprovalWorkflow handles event dispatch.
-        var result = ApprovalRequest.Create(ValidWorkflowId, ValidUserId, ValidProfileId, ValidActor);
+        var result = ApprovalRequest.Create(ValidWorkflowId, ValidUserId, ValidProfileId,
+            ValidSystemId, null, ValidRoleId, null, ValidActor);
 
-        // No DomainEventsManager is exposed — the aggregate uses base class only.
         Assert.True(result.IsSuccess);
     }
 
@@ -93,7 +97,7 @@ public class ApprovalRequestTests
     {
         var request = MakePending();
 
-        var result = request.Approve(ApproverActor);
+        var result = request.Approve(ApproverActor, ValidRoleId);
 
         Assert.True(result.IsSuccess);
         Assert.Equal(ApprovalStatus.Approved, request.Status);
@@ -103,9 +107,9 @@ public class ApprovalRequestTests
     public void Approve_WhenAlreadyApproved_ReturnsFailure()
     {
         var request = MakePending();
-        request.Approve(ApproverActor);
+        request.Approve(ApproverActor, ValidRoleId);
 
-        var result = request.Approve(ApproverActor);
+        var result = request.Approve(ApproverActor, ValidRoleId);
 
         Assert.True(result.IsFailure);
         Assert.Contains(DomainErrors.Approvals.RequestNotPending, result.Error);
@@ -117,7 +121,7 @@ public class ApprovalRequestTests
         var request = MakePending();
         request.Reject(RejecterActor);
 
-        var result = request.Approve(ApproverActor);
+        var result = request.Approve(ApproverActor, ValidRoleId);
 
         Assert.True(result.IsFailure);
         Assert.Contains(DomainErrors.Approvals.RequestNotPending, result.Error);
@@ -128,7 +132,7 @@ public class ApprovalRequestTests
     {
         var request = MakePending();
 
-        request.Approve(ApproverActor);
+        request.Approve(ApproverActor, ValidRoleId);
 
         Assert.Equal(ValidWorkflowId, request.WorkflowId);
     }
@@ -138,7 +142,7 @@ public class ApprovalRequestTests
     {
         var request = MakePending();
 
-        request.Approve(ApproverActor);
+        request.Approve(ApproverActor, ValidRoleId);
 
         Assert.Equal(ValidUserId, request.TargetUserId);
     }
@@ -148,7 +152,7 @@ public class ApprovalRequestTests
     {
         var request = MakePending();
 
-        request.Approve(ApproverActor);
+        request.Approve(ApproverActor, ValidRoleId);
 
         Assert.Equal(ValidProfileId, request.TargetProfileId);
     }
@@ -186,7 +190,7 @@ public class ApprovalRequestTests
     public void Reject_WhenApproved_ReturnsFailure()
     {
         var request = MakePending();
-        request.Approve(ApproverActor);
+        request.Approve(ApproverActor, ValidRoleId);
 
         var result = request.Reject(RejecterActor);
 
@@ -209,7 +213,8 @@ public class ApprovalRequestTests
     {
         // Create explicitly with null profileId — cannot use MakePending() helper
         // because its default `profileId ?? ValidProfileId` would substitute the non-null static.
-        var request = ApprovalRequest.Create(ValidWorkflowId, ValidUserId, null, ValidActor).Value;
+        var request = ApprovalRequest.Create(ValidWorkflowId, ValidUserId, null,
+            ValidSystemId, null, ValidRoleId, null, ValidActor).Value;
 
         request.Reject(RejecterActor);
 
@@ -226,9 +231,9 @@ public class ApprovalRequestTests
     public void DoubleApprove_SecondCallFails_WithRequestNotPendingError()
     {
         var request = MakePending();
-        request.Approve(ApproverActor);
+        request.Approve(ApproverActor, ValidRoleId);
 
-        var second = request.Approve(ApproverActor);
+        var second = request.Approve(ApproverActor, ValidRoleId);
 
         Assert.True(second.IsFailure);
         Assert.Contains(DomainErrors.Approvals.RequestNotPending, second.Error);
@@ -250,9 +255,9 @@ public class ApprovalRequestTests
     public void ApprovedRequest_IsTerminal_CannotTransitionToAnyOtherStatus()
     {
         var request = MakePending();
-        request.Approve(ApproverActor);
+        request.Approve(ApproverActor, ValidRoleId);
 
-        var approveAgain = request.Approve(ApproverActor);
+        var approveAgain = request.Approve(ApproverActor, ValidRoleId);
         var reject       = request.Reject(RejecterActor);
 
         Assert.True(approveAgain.IsFailure);
@@ -266,7 +271,7 @@ public class ApprovalRequestTests
         request.Reject(RejecterActor);
 
         var rejectAgain = request.Reject(RejecterActor);
-        var approve     = request.Approve(ApproverActor);
+        var approve     = request.Approve(ApproverActor, ValidRoleId);
 
         Assert.True(rejectAgain.IsFailure);
         Assert.True(approve.IsFailure);

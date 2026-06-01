@@ -31,6 +31,8 @@ public sealed record UserRegisteredEvent(Guid UserId, Guid TenantId, Guid? Branc
 public sealed record UserActivatedEvent(Guid UserId, Guid TenantId) : UmsDomainEvent(TenantId);
 public sealed record UserBlockedEvent(Guid UserId, Guid TenantId, string Reason) : UmsDomainEvent(TenantId);
 public sealed record UserRestoredEvent(Guid UserId, Guid TenantId) : UmsDomainEvent(TenantId);
+// EP-09: raised when a tenant admin explicitly denies a pending user signup request
+public sealed record UserSignupDeniedEvent(Guid UserId, Guid TenantId, string? Reason) : UmsDomainEvent(TenantId);
 // REC-16: GDPR — raised when a user account is soft-deleted and PII is scheduled for anonymization
 public sealed record UserDeletedEvent(Guid UserId, Guid TenantId) : UmsDomainEvent(TenantId);
 public sealed record MfaEnrolledEvent(Guid UserId, Guid TenantId, string Method) : UmsDomainEvent(TenantId);

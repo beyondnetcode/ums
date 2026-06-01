@@ -120,6 +120,18 @@ public sealed class SqlServerApprovalRequestRepository : IApprovalRequestReposit
     private static ApprovalRequestAggregate Rehydrate(ApprovalRequestRecord record)
         => ApprovalsAggregateFactory.RehydrateRequest(record);
 
+    public async Task<bool> ExistsPendingForScopeAsync(
+        Guid userId, Guid systemId, Guid? branchId, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Set<ApprovalRequestRecord>()
+            .AnyAsync(x =>
+                x.TargetUserId == userId &&
+                x.RequestedSystemId == systemId &&
+                x.RequestedBranchId == branchId &&
+                x.StatusId == ApprovalStatus.Pending.Id,
+                cancellationToken);
+    }
+
     private static ApprovalRequestRecord ToRecord(ApprovalRequestAggregate aggregate)
     {
         var audit = aggregate.Props.Audit.GetValue();
@@ -130,6 +142,12 @@ public sealed class SqlServerApprovalRequestRepository : IApprovalRequestReposit
             TargetUserId = aggregate.TargetUserId.GetValue(),
             TargetProfileId = aggregate.TargetProfileId?.GetValue(),
             StatusId = aggregate.Status.Id,
+            RequestedSystemId = aggregate.RequestedSystemId.GetValue(),
+            RequestedBranchId = aggregate.RequestedBranchId?.GetValue(),
+            RequestedRoleId = aggregate.RequestedRoleId.GetValue(),
+            Justification = aggregate.Justification,
+            GrantedRoleId = aggregate.GrantedRoleId?.GetValue(),
+            DecisionReason = aggregate.DecisionReason,
             CreatedBy = audit.CreatedBy,
             CreatedAtUtc = audit.CreatedAt,
             UpdatedBy = audit.UpdatedBy,
@@ -146,6 +164,12 @@ public sealed class SqlServerApprovalRequestRepository : IApprovalRequestReposit
         target.TargetUserId = replacement.TargetUserId;
         target.TargetProfileId = replacement.TargetProfileId;
         target.StatusId = replacement.StatusId;
+        target.RequestedSystemId = replacement.RequestedSystemId;
+        target.RequestedBranchId = replacement.RequestedBranchId;
+        target.RequestedRoleId = replacement.RequestedRoleId;
+        target.Justification = replacement.Justification;
+        target.GrantedRoleId = replacement.GrantedRoleId;
+        target.DecisionReason = replacement.DecisionReason;
         target.CreatedBy = replacement.CreatedBy;
         target.CreatedAtUtc = replacement.CreatedAtUtc;
         target.UpdatedBy = replacement.UpdatedBy;

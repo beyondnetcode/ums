@@ -79,7 +79,23 @@ internal static class ApprovalsAggregateFactory
             UserId.Load(record.TargetUserId),
             record.TargetProfileId.HasValue ? ProfileId.Load(record.TargetProfileId.Value) : null,
             DomainEnumerationMapper.FromValue<ApprovalStatus>(record.StatusId),
+            SystemSuiteId.Load(record.RequestedSystemId),
+            record.RequestedBranchId.HasValue ? BranchId.Load(record.RequestedBranchId.Value) : null,
+            RoleId.Load(record.RequestedRoleId),
+            record.Justification,
             ActorId.Create(record.CreatedBy));
+
+        if (record.GrantedRoleId.HasValue)
+        {
+            var grantedRoleProp = props.GetType().GetProperty(nameof(ApprovalRequestProps.GrantedRoleId), InstanceFlags)!;
+            grantedRoleProp.SetValue(props, RoleId.Load(record.GrantedRoleId.Value));
+        }
+
+        if (record.DecisionReason is not null)
+        {
+            var decisionReasonProp = props.GetType().GetProperty(nameof(ApprovalRequestProps.DecisionReason), InstanceFlags)!;
+            decisionReasonProp.SetValue(props, record.DecisionReason);
+        }
 
         SetAudit(props, record.CreatedBy, record.CreatedAtUtc, record.UpdatedBy, record.UpdatedAtUtc, record.AuditTimeSpan);
 
