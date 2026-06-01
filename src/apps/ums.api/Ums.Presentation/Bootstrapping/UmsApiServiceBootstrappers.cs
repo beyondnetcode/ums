@@ -329,7 +329,8 @@ public static class UmsApiApplicationBuilderExtensions
         }
         app.UseTenantContext();
         app.UseTokenRevocation();
-        app.UseHttpsRedirection();
+        if (!app.Environment.IsDevelopment())
+            app.UseHttpsRedirection();
 
         return app;
     }
