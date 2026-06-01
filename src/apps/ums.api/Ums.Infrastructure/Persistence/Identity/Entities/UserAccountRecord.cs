@@ -8,6 +8,7 @@ public sealed class UserAccountRecord : IAuditableRecord
     public Guid TenantId { get; set; }
     public Guid? BranchId { get; set; }
     public string Email { get; set; } = string.Empty;
+    public string? DisplayName { get; set; }
     public int CategoryId { get; set; }
     public int StatusId { get; set; }
     public string? IdentityReference { get; set; }

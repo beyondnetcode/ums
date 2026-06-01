@@ -3,6 +3,9 @@ namespace Ums.Presentation.Endpoints.Identity.Tenant;
 using Ums.Application.Common;
 using Ums.Application.Identity.Tenant.Commands;
 using Ums.Application.Identity.Tenant.DTOs;
+using Ums.Application.Identity.Tenant.SignupRequests.Commands;
+using Ums.Application.Identity.Tenant.SignupRequests.DTOs;
+using Ums.Application.Identity.Tenant.SignupRequests.Queries;
 using Ums.Application.Identity.Tenant.Queries;
 
 public static class TenantEndpoints
@@ -74,6 +77,41 @@ public static class TenantEndpoints
         .Produces(StatusCodes.Status204NoContent)
         .ProducesProblem(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status409Conflict);
+
+        group.MapGet("/signup-requests", async (
+            IMediator mediator,
+            HttpContext context,
+            CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetPendingTenantSignupRequestsQuery(), ct);
+            return result.ToOk(context);
+        })
+        .WithName("GetPendingTenantSignupRequests")
+        .WithSummary("Get pending tenant signup requests for the internal admin.")
+        .RequireAuthorization()
+        .Produces<IReadOnlyList<TenantSignupRequestDto>>(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status401Unauthorized)
+        .ProducesProblem(StatusCodes.Status403Forbidden);
+
+        group.MapPost("/signup-requests/{tenantSignupRequestId:guid}/approve", async (
+            Guid tenantSignupRequestId,
+            IMediator mediator,
+            HttpContext context,
+            CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new ApproveTenantSignupCommand(tenantSignupRequestId), ct);
+            return result.ToCreated(r => $"/tenants/{r.TenantId}", context);
+        })
+        .WithName("ApproveTenantSignupRequest")
+        .WithSummary("Approve a pending tenant signup request.")
+        .RequireAuthorization()
+        .Produces<ApproveTenantSignupResponse>(StatusCodes.Status201Created)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status401Unauthorized)
+        .ProducesProblem(StatusCodes.Status403Forbidden)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status409Conflict)
+        .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
 
         return app;
     }

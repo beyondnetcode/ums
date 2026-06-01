@@ -9,6 +9,15 @@ public class TenantStatus : DomainEnumeration
     private TenantStatus(int id, string name) : base(id, name) { }
 }
 
+public class TenantSignupRequestStatus : DomainEnumeration
+{
+    public static readonly TenantSignupRequestStatus Pending = new(1, nameof(Pending));
+    public static readonly TenantSignupRequestStatus Approved = new(2, nameof(Approved));
+    public static readonly TenantSignupRequestStatus Rejected = new(3, nameof(Rejected));
+
+    private TenantSignupRequestStatus(int id, string name) : base(id, name) { }
+}
+
 public class IdpStrategy : DomainEnumeration
 {
     public static readonly IdpStrategy InternalBcrypt = new(1, nameof(InternalBcrypt));

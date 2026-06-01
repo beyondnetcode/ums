@@ -5,6 +5,7 @@ public sealed record UserAccountDto(
     Guid TenantId,
     Guid? BranchId,
     string Email,
+    string? DisplayName,
     string Category,
     string Status,
     string? IdentityReference,

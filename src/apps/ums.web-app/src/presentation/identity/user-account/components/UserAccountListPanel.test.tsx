@@ -31,6 +31,7 @@ const mockAccounts: UserAccount[] = [
     userAccountId: 'user-1',
     tenantId: 'tenant-1',
     branchId: null,
+    displayName: 'Admin Ransa',
     email: 'admin@ransa.pe',
     category: 'Internal',
     status: 'Active',

@@ -48,6 +48,7 @@ public sealed class UmsPlatformDbContext(
     public DbSet<TenantIdentityProviderRecord> TenantIdentityProviders => Set<TenantIdentityProviderRecord>();
     public DbSet<TenantBrandingRecord> TenantBrandings => Set<TenantBrandingRecord>();
     public DbSet<TenantParameterRecord> TenantParameters => Set<TenantParameterRecord>();
+    public DbSet<TenantSignupRequestRecord> TenantSignupRequests => Set<TenantSignupRequestRecord>();
     public DbSet<UserAccountRecord> UserAccounts => Set<UserAccountRecord>();
     public DbSet<UserAccountMfaEnrollmentRecord> UserAccountMfaEnrollments => Set<UserAccountMfaEnrollmentRecord>();
     public DbSet<UserAccountPasswordCredentialRecord> UserAccountPasswordCredentials => Set<UserAccountPasswordCredentialRecord>();
@@ -96,6 +97,7 @@ public sealed class UmsPlatformDbContext(
         modelBuilder.ApplyConfiguration(new TenantIdentityProviderRecordConfiguration());
         modelBuilder.ApplyConfiguration(new TenantBrandingRecordConfiguration());
         modelBuilder.ApplyConfiguration(new TenantParameterRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new TenantSignupRequestRecordConfiguration());
         modelBuilder.ApplyConfiguration(new UserAccountRecordConfiguration());
         modelBuilder.ApplyConfiguration(new UserAccountMfaEnrollmentRecordConfiguration());
         modelBuilder.ApplyConfiguration(new UserAccountPasswordCredentialRecordConfiguration());

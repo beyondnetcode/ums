@@ -1,6 +1,7 @@
 namespace Ums.Application.Test.Identity.UserAccount;
 
 using Ums.Application.Common.Interfaces;
+using Ums.Application.Common.Notifications;
 using Ums.Application.Identity.UserAccount.Commands;
 using Ums.Domain.Identity;
 using Ums.Domain.Identity.UserAccount;
@@ -17,6 +18,8 @@ public class UserAccountCommandHandlerTests
     private readonly Mock<IUserAccountRepository> _repo = new();
     private readonly Mock<IUnitOfWork>            _uow  = new();
     private readonly Mock<IUserContext>            _ctx  = new();
+    private readonly Mock<ITenantRepository>       _tenantRepo = new();
+    private readonly Mock<INotificationService>    _notifications = new();
     private readonly Mock<IPasswordHashingService> _passwordHashing = new();
 
     public UserAccountCommandHandlerTests()
@@ -25,6 +28,8 @@ public class UserAccountCommandHandlerTests
         _uow.Setup(u => u.SaveEntitiesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(true);
         _ctx.Setup(u => u.UserId).Returns("user-001");
         _passwordHashing.Setup(s => s.Hash(It.IsAny<string>())).Returns("$2a$12$server-generated-hash");
+        _tenantRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.FromResult<Ums.Domain.Identity.Tenant.Tenant?>(null));
     }
 
     private static UserAccount MakeUserAccount()
@@ -124,7 +129,7 @@ public class UserAccountCommandHandlerTests
              .ReturnsAsync(user);
 
         var cmd = new ActivateUserAccountCommand(Guid.NewGuid());
-        var handler = new ActivateUserAccountCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new ActivateUserAccountCommandHandler(_repo.Object, _ctx.Object, _tenantRepo.Object, _notifications.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -141,7 +146,7 @@ public class UserAccountCommandHandlerTests
              .ReturnsAsync((UserAccount?)null);
 
         var cmd = new ActivateUserAccountCommand(Guid.NewGuid());
-        var handler = new ActivateUserAccountCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new ActivateUserAccountCommandHandler(_repo.Object, _ctx.Object, _tenantRepo.Object, _notifications.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -154,7 +159,7 @@ public class UserAccountCommandHandlerTests
         _ctx.Setup(u => u.UserId).Returns("");
 
         var cmd = new ActivateUserAccountCommand(Guid.NewGuid());
-        var handler = new ActivateUserAccountCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new ActivateUserAccountCommandHandler(_repo.Object, _ctx.Object, _tenantRepo.Object, _notifications.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -172,7 +177,7 @@ public class UserAccountCommandHandlerTests
              .ReturnsAsync(user);
 
         var cmd = new ActivateUserAccountCommand(Guid.NewGuid());
-        var handler = new ActivateUserAccountCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new ActivateUserAccountCommandHandler(_repo.Object, _ctx.Object, _tenantRepo.Object, _notifications.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);

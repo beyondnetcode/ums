@@ -125,6 +125,7 @@ export default function UserAccountDashboardScreen(): React.JSX.Element {
           onTenantChange={isInternalAdmin ? dashboard.setSelectedTenantId : undefined}
           sessionTenantName={sessionTenantName}
           requiresFilter={dashboard.requiresFilter}
+          onApproveAccount={dashboard.handleApproveAccount}
         />
       }
       detail={

@@ -21,6 +21,7 @@ export const UserAccountSchema = z.object({
   userAccountId:          GuidSchema,
   tenantId:               GuidSchema,
   branchId:               GuidSchema.nullable().optional().transform((v) => v ?? null),
+  displayName:            z.string().min(1).nullable().optional().transform((v) => v ?? null),
   email:                  z.string().email(),
   category:               UserCategorySchema,
   status:                 UserStatusSchema,

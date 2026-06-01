@@ -6,6 +6,7 @@ public class UserAccountProps : IProps
     public TenantId TenantId { get; private set; }
     public BranchId? BranchId { get; private set; }
     public Email Email { get; private set; }
+    public Name? DisplayName { get; private set; }
     public UserCategory Category { get; private set; }
     public UserStatus Status { get; private set; }
     public IdentityReference? IdentityReference { get; private set; }
@@ -20,12 +21,14 @@ public class UserAccountProps : IProps
         IdentityReference? identityReference,
         IdentityReferenceType? identityReferenceType,
         ActorId createdBy,
-        BranchId? branchId = null)
+        BranchId? branchId = null,
+        Name? displayName = null)
     {
         Id = id;
         TenantId = tenantId;
         BranchId = branchId;
         Email = email;
+        DisplayName = displayName;
         Category = category;
         Status = UserStatus.Pending;
         IdentityReference = identityReference;
@@ -42,12 +45,14 @@ public class UserAccountProps : IProps
         UserStatus status,
         IdentityReference? identityReference,
         IdentityReferenceType? identityReferenceType,
-        AuditValueObject audit)
+        AuditValueObject audit,
+        Name? displayName = null)
     {
         Id = id;
         TenantId = tenantId;
         BranchId = branchId;
         Email = email;
+        DisplayName = displayName;
         Category = category;
         Status = status;
         IdentityReference = identityReference;

@@ -1,4 +1,8 @@
 using Ums.Application.Identity.UserAccount.DTOs;
+using Ums.Application.Common.Interfaces;
+using Ums.Application.Common.Notifications;
+using Ums.Domain.Identity;
+using NotificationTemplates = Ums.Application.Common.Notifications.NotificationTemplates;
 
 namespace Ums.Application.Identity.UserAccount.Commands;
 
@@ -6,13 +10,19 @@ public sealed class ActivateUserAccountCommandHandler : ICommandHandler<Activate
 {
     private readonly IUserAccountRepository _userAccountRepository;
     private readonly IUserContext _userContext;
+    private readonly ITenantRepository _tenantRepository;
+    private readonly INotificationService _notificationService;
 
     public ActivateUserAccountCommandHandler(
         IUserAccountRepository userAccountRepository,
-        IUserContext userContext)
+        IUserContext userContext,
+        ITenantRepository tenantRepository,
+        INotificationService notificationService)
     {
         _userAccountRepository = userAccountRepository;
         _userContext = userContext;
+        _tenantRepository = tenantRepository;
+        _notificationService = notificationService;
     }
 
     [AuditTrail]
@@ -38,6 +48,18 @@ public sealed class ActivateUserAccountCommandHandler : ICommandHandler<Activate
 
         await _userAccountRepository.UpdateAsync(userAccount, cancellationToken);
         await _userAccountRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+
+        var tenant = await _tenantRepository.GetByIdAsync(userAccount.TenantId.GetValue(), cancellationToken);
+        if (tenant is not null)
+        {
+            var recipientName = userAccount.DisplayName?.GetValue() ?? userAccount.Email.GetValue().Split('@')[0];
+            await _notificationService.SendAsync(
+                NotificationTemplates.UserSignupApproved(
+                    userAccount.Email.GetValue(),
+                    recipientName,
+                    tenant.Name.GetValue()),
+                cancellationToken);
+        }
 
         return Result.Success();
     }

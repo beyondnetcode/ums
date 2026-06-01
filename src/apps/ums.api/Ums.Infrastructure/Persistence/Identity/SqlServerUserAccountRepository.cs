@@ -221,6 +221,7 @@ public sealed class SqlServerUserAccountRepository(UmsPlatformDbContext dbContex
             TenantId = aggregate.Props.TenantId.GetValue(),
             BranchId = aggregate.Props.BranchId?.GetValue(),
             Email = aggregate.Email.GetValue(),
+            DisplayName = aggregate.DisplayName?.GetValue(),
             CategoryId = aggregate.Category.Id,
             StatusId = aggregate.Status.Id,
             IdentityReference = aggregate.IdentityReference?.GetValue(),
@@ -272,6 +273,7 @@ public sealed class SqlServerUserAccountRepository(UmsPlatformDbContext dbContex
         target.TenantId = replacement.TenantId;
         target.BranchId = replacement.BranchId;
         target.Email = replacement.Email;
+        target.DisplayName = replacement.DisplayName;
         target.CategoryId = replacement.CategoryId;
         target.StatusId = replacement.StatusId;
         target.IdentityReference = replacement.IdentityReference;

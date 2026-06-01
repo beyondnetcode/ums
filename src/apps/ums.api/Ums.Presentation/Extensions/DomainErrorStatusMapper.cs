@@ -30,7 +30,7 @@ internal static class DomainErrorStatusMapper
             return (StatusCodes.Status404NotFound, "Not Found");
         }
 
-        if (ContainsAny(error, DomainErrors.Common.Duplicate, DomainErrors.Tenant.BranchCodeNotUnique, DomainErrors.Tenant.IdpCodeNotUnique, DomainErrors.UserAccount.EmailNotUnique, DomainErrors.SystemSuite.OptionCodeNotUnique, DomainErrors.SystemSuite.SubMenuCodeNotUnique, DomainErrors.SystemSuite.MenuCodeNotUnique, DomainErrors.SystemSuite.ModuleCodeNotUnique, DomainErrors.SystemSuite.ConfigurationKeyAlreadyExists, DomainErrors.Authorization.TemplateItemTargetAlreadyExists, DomainErrors.Authorization.PermissionAlreadyExists, DomainErrors.Compliance.DocumentAlreadyExpired))
+        if (ContainsAny(error, DomainErrors.Common.Duplicate, DomainErrors.Tenant.SignupRequestAlreadyExists, DomainErrors.Tenant.BranchCodeNotUnique, DomainErrors.Tenant.IdpCodeNotUnique, DomainErrors.UserAccount.EmailNotUnique, DomainErrors.SystemSuite.OptionCodeNotUnique, DomainErrors.SystemSuite.SubMenuCodeNotUnique, DomainErrors.SystemSuite.MenuCodeNotUnique, DomainErrors.SystemSuite.ModuleCodeNotUnique, DomainErrors.SystemSuite.ConfigurationKeyAlreadyExists, DomainErrors.Authorization.TemplateItemTargetAlreadyExists, DomainErrors.Authorization.PermissionAlreadyExists, DomainErrors.Compliance.DocumentAlreadyExpired))
         {
             return (StatusCodes.Status409Conflict, "Conflict");
         }
@@ -45,7 +45,7 @@ internal static class DomainErrorStatusMapper
             return (StatusCodes.Status422UnprocessableEntity, "Validation Error");
         }
 
-        if (ContainsAny(error, DomainErrors.Common.Invalid, DomainErrors.UserAccount.InvalidEmail, DomainErrors.Branding.InvalidHexColor, DomainErrors.Branding.InvalidCustomDomain, DomainErrors.Branding.InvalidCnameTarget, DomainErrors.Branding.InvalidLogoFormat, DomainErrors.Configuration.IdpConfigPayloadInvalid, DomainErrors.Configuration.FlagPercentageOutOfRange, DomainErrors.Configuration.AppConfigNotDraft, DomainErrors.Configuration.AppConfigNotPublished, DomainErrors.Configuration.FlagArchivedCannotChange, DomainErrors.Configuration.AppConfigAlreadyArchived, DomainErrors.Compliance.ExpirationBeforeIssueDate, DomainErrors.Compliance.DocumentCannotTransition, DomainErrors.Compliance.DocumentNotPendingReview, DomainErrors.IGA.InvalidPerformanceScore, DomainErrors.ValueObject.DateRangeInvalid))
+        if (ContainsAny(error, DomainErrors.Common.Invalid, DomainErrors.UserAccount.InvalidEmail, DomainErrors.Tenant.SignupRequestNotPending, DomainErrors.Tenant.SignupRequestAlreadyProcessed, DomainErrors.Branding.InvalidHexColor, DomainErrors.Branding.InvalidCustomDomain, DomainErrors.Branding.InvalidCnameTarget, DomainErrors.Branding.InvalidLogoFormat, DomainErrors.Configuration.IdpConfigPayloadInvalid, DomainErrors.Configuration.FlagPercentageOutOfRange, DomainErrors.Configuration.AppConfigNotDraft, DomainErrors.Configuration.AppConfigNotPublished, DomainErrors.Configuration.FlagArchivedCannotChange, DomainErrors.Configuration.AppConfigAlreadyArchived, DomainErrors.Compliance.ExpirationBeforeIssueDate, DomainErrors.Compliance.DocumentCannotTransition, DomainErrors.Compliance.DocumentNotPendingReview, DomainErrors.IGA.InvalidPerformanceScore, DomainErrors.ValueObject.DateRangeInvalid))
         {
             return (StatusCodes.Status422UnprocessableEntity, "Validation Error");
         }

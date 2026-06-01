@@ -73,6 +73,7 @@ public sealed class GetAllUserAccountsQueryHandler : IQueryHandler<GetAllUserAcc
                 u.Props.TenantId.GetValue(),
                 u.Props.BranchId?.GetValue(),
                 u.Props.Email.GetValue(),
+                u.Props.DisplayName?.GetValue(),
                 u.Props.Category.ToString(),
                 u.Props.Status.ToString(),
                 u.Props.IdentityReference?.GetValue(),

@@ -17,6 +17,7 @@ import { ListToolbar } from '@shared/components/ListToolbar';
 import { EntityRow } from '@shared/components/EntityRow';
 import { EntityCard } from '@shared/components/EntityCard';
 import { M3Card } from '@shared/components/M3Card';
+import { M3Button } from '@shared/components/M3Button';
 import { useI18n } from '@app/i18n/use-i18n';
 import { useStatusLabel } from '@app/hooks/use-status-label';
 import { TenantSelector } from '@presentation/identity/tenant/components/TenantSelector';
@@ -38,6 +39,7 @@ interface UserAccountListPanelProps {
   };
   onRegisterNew: () => void;
   onSelectAccount: (accountId: string) => void;
+  onApproveAccount?: (accountId: string) => void;
   criteriaOptions: AtomicQueryCriteriaOption[];
   filterOptions: AtomicFilterOption[];
   sortOptions: AtomicSortOption[];
@@ -59,6 +61,7 @@ export const UserAccountListPanel: React.FC<UserAccountListPanelProps> = ({
   paginationState,
   onRegisterNew,
   onSelectAccount,
+  onApproveAccount,
   criteriaOptions,
   filterOptions,
   sortOptions,
@@ -96,6 +99,24 @@ export const UserAccountListPanel: React.FC<UserAccountListPanelProps> = ({
               ),
               width: 'w-20',
             },
+            ...(account.status === 'Pending' && onApproveAccount
+              ? [{
+                  content: (
+                    <M3Button
+                      type="button"
+                      variant="text"
+                      className="px-2 py-1 text-[11px] text-m3-primary"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onApproveAccount(account.userAccountId);
+                      }}
+                    >
+                      Aprobar
+                    </M3Button>
+                  ),
+                  width: 'w-20',
+                }]
+              : []),
             {
               content: (
                 <ArrowRight
@@ -112,7 +133,7 @@ export const UserAccountListPanel: React.FC<UserAccountListPanelProps> = ({
         </EntityRow>
       );
     },
-    [selectedId, onSelectAccount, getStatusLabel]
+    [selectedId, onSelectAccount, onApproveAccount, getStatusLabel]
   );
 
   const renderAccountCard = useCallback(

@@ -245,6 +245,7 @@ public static class DependencyInjection
         {
             services.AddScoped<ITenantRepository, SqlServerTenantRepository>();
             services.AddScoped<ITenantParameterRepository, SqlServerTenantParameterRepository>();
+            services.AddScoped<ITenantSignupRequestRepository, SqlServerTenantSignupRequestRepository>();
             services.AddScoped<IUserAccountRepository, SqlServerUserAccountRepository>();
             services.AddScoped<IUserManagementDelegationRepository, SqlServerUserManagementDelegationRepository>();
         }
@@ -255,6 +256,9 @@ public static class DependencyInjection
 
             services.AddSingleton<InMemoryTenantParameterRepository>();
             services.AddSingleton<ITenantParameterRepository>(sp => sp.GetRequiredService<InMemoryTenantParameterRepository>());
+
+            services.AddSingleton<InMemoryTenantSignupRequestRepository>();
+            services.AddSingleton<ITenantSignupRequestRepository>(sp => sp.GetRequiredService<InMemoryTenantSignupRequestRepository>());
 
             services.AddSingleton<InMemoryUserAccountRepository>();
             services.AddSingleton<IUserAccountRepository>(sp => sp.GetRequiredService<InMemoryUserAccountRepository>());

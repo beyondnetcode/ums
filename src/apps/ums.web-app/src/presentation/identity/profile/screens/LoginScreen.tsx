@@ -24,6 +24,8 @@ import { Key, Building2, ShieldCheck, AlertCircle, Info } from 'lucide-react';
 import { useNotificationStore } from '@app/stores/notification.store';
 import { DEV_TENANTS } from '@domain/identity/constants/tenant.constants';
 import { ForgotPasswordForm } from '../components/ForgotPasswordForm';
+import { SignupForm } from '../components/SignupForm';
+import { TenantSignupForm } from '../components/TenantSignupForm';
 
 export default function LoginScreen(): React.JSX.Element {
   const navigate = useNavigate();
@@ -41,7 +43,7 @@ export default function LoginScreen(): React.JSX.Element {
   const [attempts, setAttempts] = useState(0);
   const [lockoutUntil, setLockoutUntil] = useState<number | null>(null);
   const [showInfoPopup, setShowInfoPopup] = useState(false);
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [authView, setAuthView] = useState<'login' | 'forgot' | 'signup' | 'tenant-signup'>('login');
 
   const showSessionExpired = new URLSearchParams(location.search).get('showSessionExpired') === 'true';
   const redirectTo = new URLSearchParams(location.search).get('redirect');
@@ -188,8 +190,12 @@ export default function LoginScreen(): React.JSX.Element {
         )}
 
         <M3Card variant="elevated" className="p-6 border border-m3-outline/25 bg-m3-surface-container/30">
-          {showForgotPassword ? (
-            <ForgotPasswordForm onBack={() => setShowForgotPassword(false)} />
+          {authView === 'forgot' ? (
+            <ForgotPasswordForm onBack={() => setAuthView('login')} />
+          ) : authView === 'signup' ? (
+            <SignupForm onBack={() => setAuthView('login')} />
+          ) : authView === 'tenant-signup' ? (
+            <TenantSignupForm onBack={() => setAuthView('login')} />
           ) : (
             <>
               <div className="flex items-center gap-2 text-m3-primary mb-5">
@@ -263,10 +269,27 @@ export default function LoginScreen(): React.JSX.Element {
                 <div className="text-center">
                   <button
                     type="button"
-                    onClick={() => setShowForgotPassword(true)}
+                    onClick={() => setAuthView('forgot')}
                     className="text-xs text-m3-primary/70 hover:text-m3-primary transition-colors"
                   >
                     ¿Olvidaste tu contraseña?
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setAuthView('signup')}
+                    className="rounded-lg border border-m3-outline/20 bg-m3-surface/40 px-3 py-2 text-xs text-m3-on-surface hover:border-m3-primary/40 hover:bg-m3-primary/5 transition-colors"
+                  >
+                    ¿Eres nuevo? Solicitar acceso
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAuthView('tenant-signup')}
+                    className="rounded-lg border border-m3-outline/20 bg-m3-surface/40 px-3 py-2 text-xs text-m3-on-surface hover:border-m3-primary/40 hover:bg-m3-primary/5 transition-colors"
+                  >
+                    ¿Eres una empresa? Regístrate
                   </button>
                 </div>
               </form>

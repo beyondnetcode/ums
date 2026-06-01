@@ -89,7 +89,8 @@ internal static class IdentityAggregateFactory
             DomainEnumerationMapper.FromValue<UserStatus>(record.StatusId),
             string.IsNullOrWhiteSpace(record.IdentityReference) ? null : IdentityReference.Create(record.IdentityReference),
             record.IdentityReferenceTypeId.HasValue ? DomainEnumerationMapper.FromValue<IdentityReferenceType>(record.IdentityReferenceTypeId.Value) : null,
-            audit);
+            audit,
+            string.IsNullOrWhiteSpace(record.DisplayName) ? null : Name.Create(record.DisplayName));
 
         var account = Construct<UserAccountAggregate, UserAccountProps>(props);
 

@@ -31,6 +31,7 @@ public sealed class UserAccount : AggregateRoot<UserAccount, UserAccountProps>
     public TenantId TenantId => Props.TenantId;
     public BranchId? BranchId => Props.BranchId;
     public Email Email => Props.Email;
+    public Name? DisplayName => Props.DisplayName;
     public UserCategory Category => Props.Category;
     public UserStatus Status => Props.Status;
     public IdentityReference? IdentityReference => Props.IdentityReference;
@@ -51,7 +52,8 @@ public sealed class UserAccount : AggregateRoot<UserAccount, UserAccountProps>
         IdentityReferenceType? identityReferenceType,
         ActorId createdBy,
         BranchId? branchId = null,
-        UserAccountId? userAccountId = null)
+        UserAccountId? userAccountId = null,
+        Name? displayName = null)
     {
         var id = userAccountId ?? UserAccountId.Load(IdValueObject.Create().GetValue());
         var props = new UserAccountProps(
@@ -62,7 +64,8 @@ public sealed class UserAccount : AggregateRoot<UserAccount, UserAccountProps>
             identityReference,
             identityReferenceType,
             createdBy,
-            branchId);
+            branchId,
+            displayName);
 
         var userAccount = new UserAccount(props);
 

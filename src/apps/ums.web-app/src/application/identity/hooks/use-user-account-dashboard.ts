@@ -9,10 +9,12 @@ import { useGetAllUserAccounts, useActivateUserAccount, useBlockUserAccount, use
 import { useGetAllTenants } from '@app/identity/hooks/use-tenant';
 import { useLocalOverrides } from '@app/hooks/use-local-overrides';
 import { useNotificationStore } from '@app/stores/notification.store';
+import { useNotifiedMutation } from '@app/hooks/use-notified-mutation';
 import { UserAccount } from '@domain/identity/models/user-account.model';
 import { Tenant } from '@domain/identity/models/tenant.model';
 import { useQueryState } from '@app/shared/hooks/use-query-state';
 import { usePaginationState } from '@app/shared/hooks/use-pagination-state';
+import userAccountService from '@infra/identity/services/user-account.service';
 
 export interface UserAccountDashboardState {
   selectedId: string;
@@ -35,6 +37,7 @@ export interface UserAccountDashboardActions {
   setBlockReason: React.Dispatch<React.SetStateAction<string>>;
   handleSelectAccount: (id: string) => void;
   handleActivate: () => void;
+  handleApproveAccount: (userAccountId: string) => void;
   handleBlockRequest: (userAccountId: string) => void;
   confirmBlock: () => void;
   confirmRestore: () => void;
@@ -111,6 +114,18 @@ export function useUserAccountDashboard(sessionTenantId?: string): UserAccountDa
   const activateMutation = useActivateUserAccount(selectedId);
   const blockMutation = useBlockUserAccount(selectedId);
   const restoreMutation = useRestoreUserAccount(selectedId);
+  const approveMutation = useNotifiedMutation<void, string>({
+    mutationFn: (userAccountId: string) => userAccountService.activateUserAccount(userAccountId),
+    invalidateKeys: [['user-accounts']],
+    successNotif: () => ({
+      title: 'Cuenta aprobada',
+      message: 'La cuenta fue aprobada y activada correctamente.',
+    }),
+    errorNotif: () => ({
+      title: 'Error al aprobar',
+      message: 'No se pudo aprobar la cuenta de usuario.',
+    }),
+  });
 
   const handleSelectAccount = useCallback((id: string) => {
     setSelectedId(id);
@@ -127,6 +142,10 @@ export function useUserAccountDashboard(sessionTenantId?: string): UserAccountDa
       },
     });
   }, [activateMutation, addNotification]);
+
+  const handleApproveAccount = useCallback((userAccountId: string) => {
+    approveMutation.mutate(userAccountId);
+  }, [approveMutation]);
 
   const handleBlockRequest = useCallback((userAccountId: string) => {
     setSelectedId(userAccountId);
@@ -198,6 +217,7 @@ export function useUserAccountDashboard(sessionTenantId?: string): UserAccountDa
     blockReason, setBlockReason,
     handleSelectAccount,
     handleActivate,
+    handleApproveAccount,
     handleBlockRequest,
     handleRestoreRequest,
     confirmBlock,

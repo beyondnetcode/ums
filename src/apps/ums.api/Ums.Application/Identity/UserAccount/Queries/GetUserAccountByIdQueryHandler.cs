@@ -32,6 +32,7 @@ public sealed class GetUserAccountByIdQueryHandler : IQueryHandler<GetUserAccoun
             userAccount.Props.TenantId.GetValue(),
             userAccount.Props.BranchId?.GetValue(),
             userAccount.Props.Email.GetValue(),
+            userAccount.Props.DisplayName?.GetValue(),
             userAccount.Props.Category.ToString(),
             userAccount.Props.Status.ToString(),
             userAccount.Props.IdentityReference?.GetValue(),

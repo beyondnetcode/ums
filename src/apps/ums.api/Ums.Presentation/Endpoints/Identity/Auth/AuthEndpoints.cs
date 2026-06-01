@@ -12,7 +12,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Ums.Application.Common.Interfaces;
-using Ums.Application.Identity.Auth.Commands;
 using Ums.Domain.Authorization;
 using Ums.Domain.Authorization.Graph;
 using Ums.Domain.Identity;
@@ -68,6 +67,40 @@ public static class AuthEndpoints
         .WithSummary("Request a password reset. Always returns 200 to prevent user enumeration.")
         .AllowAnonymous()
         .Produces<ForgotPasswordResponse>(StatusCodes.Status200OK);
+
+        group.MapPost("/user-signup", async (
+            SignupUserCommand command,
+            IMediator mediator,
+            HttpContext context,
+            CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            return result.ToCreated(r => "/api/v1/auth/user-signup", context);
+        })
+        .WithName("UserSignup")
+        .WithSummary("Request access to an existing tenant.")
+        .AllowAnonymous()
+        .Produces<UserSignupResponse>(StatusCodes.Status201Created)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status409Conflict)
+        .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
+
+        group.MapPost("/tenant-signup", async (
+            Ums.Application.Identity.Tenant.SignupRequests.Commands.RequestTenantSignupCommand command,
+            IMediator mediator,
+            HttpContext context,
+            CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            return result.ToCreated(r => "/api/v1/auth/tenant-signup", context);
+        })
+        .WithName("TenantSignup")
+        .WithSummary("Request onboarding for a new tenant.")
+        .AllowAnonymous()
+        .Produces<Ums.Application.Identity.Tenant.SignupRequests.DTOs.RequestTenantSignupResponse>(StatusCodes.Status201Created)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status409Conflict)
+        .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
     }
 
     /// <summary>

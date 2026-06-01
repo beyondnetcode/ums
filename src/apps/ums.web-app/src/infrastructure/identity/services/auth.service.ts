@@ -1,12 +1,4 @@
-import axios from 'axios';
-import { BASE_URL } from '@infra/http/request-context';
-
-// Public client — no X-Tenant-Id or auth headers (used for anonymous endpoints like forgot-password)
-const publicClient = axios.create({
-  baseURL: BASE_URL,
-  headers: { 'Content-Type': 'application/json' },
-  withCredentials: false,
-});
+import { publicClient } from '@infra/http/publicClient';
 
 export interface ForgotPasswordPayload {
   tenantCode: string;
@@ -18,6 +10,30 @@ export interface ForgotPasswordResponse {
   simulatedTemporaryPassword: string | null;
 }
 
+export interface SignupUserPayload {
+  tenantCode: string;
+  displayName: string;
+  email: string;
+  password: string;
+}
+
+export interface SignupUserResponse {
+  userAccountId: string;
+  message: string;
+}
+
+export interface TenantSignupPayload {
+  companyName: string;
+  companyReference: string;
+  contactName: string;
+  contactEmail: string;
+}
+
+export interface TenantSignupResponse {
+  tenantSignupRequestId: string;
+  message: string;
+}
+
 const authService = {
   forgotPassword: async (payload: ForgotPasswordPayload): Promise<ForgotPasswordResponse> => {
     const { data } = await publicClient.post('/auth/forgot-password', {
@@ -25,6 +41,26 @@ const authService = {
       email: payload.email,
     });
     return data as ForgotPasswordResponse;
+  },
+
+  signupUser: async (payload: SignupUserPayload): Promise<SignupUserResponse> => {
+    const { data } = await publicClient.post('/auth/user-signup', {
+      tenantCode: payload.tenantCode,
+      displayName: payload.displayName,
+      email: payload.email,
+      password: payload.password,
+    });
+    return data as SignupUserResponse;
+  },
+
+  signupTenant: async (payload: TenantSignupPayload): Promise<TenantSignupResponse> => {
+    const { data } = await publicClient.post('/auth/tenant-signup', {
+      companyName: payload.companyName,
+      companyReference: payload.companyReference,
+      contactName: payload.contactName,
+      contactEmail: payload.contactEmail,
+    });
+    return data as TenantSignupResponse;
   },
 };
 

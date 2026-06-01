@@ -14,6 +14,9 @@ public static class DomainErrors
     {
         public const string Required = "user.tenant.required";
         public const string NotFound = "user.tenant.not_found";
+        public const string SignupRequestNotPending = "tenant.signup_request_not_pending";
+        public const string SignupRequestAlreadyProcessed = "tenant.signup_request_already_processed";
+        public const string SignupRequestAlreadyExists = "tenant.signup_request_already_exists";
         public const string BranchCodeNotUnique = "tenant.branch_code_not_unique";
         public const string BranchNotFound = "tenant.branch_not_found";
         public const string BranchActive = "tenant.branch_active";

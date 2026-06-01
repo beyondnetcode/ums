@@ -19,8 +19,8 @@ vi.mock('@domain/identity/constants/user-account.constants', () => ({
 }));
 
 const mockAccounts = [
-  { userAccountId: 'u-1', email: 'user1@test.com', category: 'Internal', status: 'Active', tenantId: 't-1', branchId: null, identityReference: null, identityReferenceType: null, hasActivePassword: true, passwordUpdatedAtUtc: null },
-  { userAccountId: 'u-2', email: 'user2@test.com', category: 'External', status: 'Pending', tenantId: 't-1', branchId: null, identityReference: null, identityReferenceType: null, hasActivePassword: false, passwordUpdatedAtUtc: null },
+  { userAccountId: 'u-1', displayName: 'Admin One', email: 'user1@test.com', category: 'Internal', status: 'Active', tenantId: 't-1', branchId: null, identityReference: null, identityReferenceType: null, hasActivePassword: true, passwordUpdatedAtUtc: null },
+  { userAccountId: 'u-2', displayName: 'Pending User', email: 'user2@test.com', category: 'External', status: 'Pending', tenantId: 't-1', branchId: null, identityReference: null, identityReferenceType: null, hasActivePassword: false, passwordUpdatedAtUtc: null },
 ];
 
 const mockTenants = [
