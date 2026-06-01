@@ -71,6 +71,9 @@ Applied backend API reference for UMS. This section maps current .NET API source
 ### [Web Frontend](./web-frontend/README.md)
 Applied React Web reference for UMS. This section maps current source evidence to the Evolith Web Frontend Standard - React while keeping product-specific implementation details local to UMS.
 
+### [Web Frontend](./web-frontend/README.md)
+Applied React Web reference for UMS. This section maps current source evidence to the Evolith Web Frontend Standard - React while keeping product-specific implementation details local to UMS.
+
 ### [Traceability Matrix](./traceability-matrix.md)
 Cross-reference of all Functional Stories (FS-01..16) to ADRs and Technical Enablers.
 
