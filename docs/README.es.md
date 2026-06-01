@@ -1,7 +1,7 @@
-# UMS — Sistema de Gestión de Usuarios Empresarial
+# UMS — Sistema Empresarial de Gestión de Usuarios
 
-> **[ABRIR ÍNDICE MAESTRO](./MASTER_INDEX.es.md) • [READ IN ENGLISH](../README.md) • [PORTAL DE ARQUITECTURA](./architecture/index.es.md)**
-> *Nota: GitHub muestra los archivos de código primero. Para saltar el código y leer la documentación, haz clic en los enlaces de arriba.*
+> **[ABRIR ESTÁNDARES](./STANDARDS.md) • [ABRIR ÍNDICE MAESTRO](./MASTER_INDEX.es.md) • [READ IN ENGLISH](../README.md) • [PORTAL DE ARQUITECTURA](./architecture/index.md)**
+> *Nota: GitHub muestra los archivos fuente primero. Para saltar el código y leer la documentación, haz clic en los enlaces superiores.*
 
 ---
 
@@ -11,24 +11,49 @@
 
 ---
 
-## Índice maestro de navegación
+## Acceso Rápido a Estándares
 
-Comience aquí si es nuevo en UMS. Este índice ofrece a cada lector una ruta rápida al repositorio sin necesidad de conocer la estructura de carpetas.
+| Necesidad | Ruta directa |
+| :--- | :--- |
+| Referencia aplicada React Web de UMS | [UMS React Web Applied Reference](./architecture/web-frontend/ums-react-applied-reference.md) |
+| Referencia aplicada .NET API de UMS | [UMS API .NET Applied Reference](./architecture/api-dotnet/ums-api-dotnet-applied-reference.md) |
+| Estándar React upstream de Evolith | [Evolith React Web Frontend Standard](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/governance/standards/engineering/web-frontend/react/react-web-frontend-standard.md) |
+| Estándar .NET API upstream de Evolith | [Evolith .NET API Standard](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/governance/standards/engineering/api-dotnet/api-dotnet-standard.md) |
+| Todos los estándares en una página | [Standards Quick Access](./STANDARDS.md) |
 
-| Quiero... | Empezar aquí | Luego leer |
+---
+
+## Índice Maestro de Navegación
+
+Comienza aquí si eres nuevo en UMS. Este índice ofrece a cada lector una ruta rápida dentro del repositorio sin necesidad de conocer la estructura de carpetas.
+
+### Ruta rápida por persona
+
+| Soy… | Empiezo aquí | Luego leo |
 | :--- | :--- | :--- |
+| **Backend Engineer** | [Standards Quick Access](./STANDARDS.md) · [Portal de Construcción](./governance/construction/index.md) · [Índice de Agregados de Dominio](./domain/index.md) | [UMS API .NET Applied Reference](./architecture/api-dotnet/ums-api-dotnet-applied-reference.md) → [Portal de Diseño DDD](./governance/construction/ddd-design/index.md) |
+| **Frontend Engineer** | [Standards Quick Access](./STANDARDS.md) · [UMS React Web Applied Reference](./architecture/web-frontend/ums-react-applied-reference.md) | [Evolith React Web Frontend Standard](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/governance/standards/engineering/web-frontend/react/react-web-frontend-standard.md) |
+| **Arquitecto** | [Portal de Arquitectura](./architecture/index.md) · [Registro ADR](./architecture/adrs/index.md) | [Standards Quick Access](./STANDARDS.md) → [Matriz de Trazabilidad](./architecture/traceability-matrix.md) |
+| **Product Owner / QA** | [Índice Maestro](./MASTER_INDEX.es.md) · [Historias Funcionales](./governance/requirements/functional-stories/index.md) | [MVP Backlog](./governance/project/mvp-product-backlog.md) → [Glosario](./governance/requirements/glossary.md) |
+| **DevOps / Ops** | [Portal de Operaciones](./operations/index.md) · [Runbooks](./operations/runbooks/) | [ADR-0053 OpenTelemetry](./architecture/adrs/0053-opentelemetry-observability.md) → [ADR-0054 Shell Library Isolation](./architecture/adrs/0054-shell-library-isolation.md) |
+
+### Quiero…
+
+| Objetivo | Empiezo aquí | Luego leo |
+| :--- | :--- | :--- |
+| Encontrar estándares para React, Web, C# o .NET | [Standards Quick Access](./STANDARDS.md) | [Portal de Arquitectura](./architecture/index.md) |
 | Entender el producto | [Visión del Producto](./governance/product-es/product-vision.md) | [Contexto de Negocio](./governance/product-es/business-context.md) → [Alcance](./governance/product-es/scope.md) |
-| Ver épicas y prioridades | [MVP Product Backlog](./governance/project-es/mvp-product-backlog.md) | [Índice de Requerimientos](./governance/requirements-es/index.md) → [Historias Funcionales](./governance/requirements-es/functional-stories/index.md) |
-| Revisar requerimientos funcionales | [Índice de Requerimientos](./governance/requirements-es/index.md) | [Historias Funcionales](./governance/requirements-es/functional-stories/index.md) → [Glosario](./governance/requirements-es/glossary.md) |
-| Validar el modelo de datos y dominio | [Modelo de Datos Conceptual](./governance/requirements-es/conceptual-data-model.md) | [Formatos de Exportación ER](./architecture/blueprints-es/er-export-formats.md) → [Diseño de Base de Datos ER](./architecture/blueprints-es/database-design-er.md) |
-| Entender la arquitectura | [Portal de Arquitectura](./architecture/index.es.md) | [Diseño de Base de Datos ER](./architecture/blueprints-es/database-design-er.md) |
+| Ver épicas y prioridades | [MVP Product Backlog](./governance/project-es/mvp-product-backlog.md) | [Índice de Requerimientos](./governance/requirements/index.md) → [Historias Funcionales](./governance/requirements/functional-stories/index.md) |
+| Revisar requerimientos funcionales | [Índice de Requerimientos](./governance/requirements/index.md) | [Historias Funcionales](./governance/requirements/functional-stories/index.md) → [Glosario](./governance/requirements/glossary.md) |
+| Validar el modelo de datos y dominio | [Modelo de Datos Conceptual](./governance/requirements/conceptual-data-model.md) | [Revisión de Consistencia del Modelo de Datos](./architecture/blueprints/data-model-consistency-review.md) → [Diseño de Base de Datos ER](./architecture/blueprints/database-design-er.md) |
+| Entender la arquitectura | [Portal de Arquitectura](./architecture/index.md) | [Overview de Arquitectura](./architecture/overview.md) → [Diseño de Base de Datos ER](./architecture/blueprints/database-design-er.md) |
 | Explorar todo | [Índice Maestro](./MASTER_INDEX.es.md) | Árbol completo de documentos por fase del ciclo de vida. |
 
 ---
 
-## Resumen de arquitectura
+## Resumen de Arquitectura
 
-### Stack tecnológico
+### Stack Tecnológico
 
 | Capa | Tecnología |
 | :--- | :--- |
@@ -38,19 +63,19 @@ Comience aquí si es nuevo en UMS. Este índice ofrece a cada lector una ruta r�
 | **Monorepo** | Nx, npm Workspaces |
 | **Metodología** | BMAD-METHOD, Arquitectura Limpia (Hexagonal), DDD |
 
-### Estructura del proyecto
+### Estructura del Proyecto
 
 ```text
 src/
 ├── apps/
 │   ├── ums.api/                    # Backend .NET (Arquitectura Limpia)
-│   │   ├── Domain/                 # POCOs puros, sin referencias NuGet
+│   │   ├── Domain/                 # Modelo DDD puro: Aggregate Roots, Entities, Value Objects, Domain Events; cero dependencias de framework
 │   │   ├── Application/            # Casos de uso, interfaces
 │   │   ├── Infrastructure/         # EF Core, servicios externos
 │   │   └── Presentation/           # Endpoints GraphQL/REST
 │   └── ums.web-app/                # Frontend React (Arquitectura Limpia)
 │       ├── src/
-│       │   ├── domain/             # Entidades empresariales, value objects
+│       │   ├── domain/             # Tipos de dominio cliente, value objects y modelo de negocio orientado a UI
 │       │   ├── application/        # Hooks, stores, casos de uso
 │       │   ├── infrastructure/     # Clientes HTTP, cliente GraphQL
 │       │   └── presentation/       # Componentes, pantallas, layouts
@@ -58,16 +83,16 @@ src/
 └── ...
 ```
 
-### Decisiones arquitectónicas clave
+### Decisiones Arquitectónicas Clave
 
 - **GraphQL para consultas, REST para comandos**: Todas las operaciones de lectura usan HotChocolate GraphQL; las escrituras usan REST Minimal APIs para claridad transaccional.
-- **Arquitectura limpia**: Límites estrictos entre capas. La capa de dominio es pura, sin dependencias externas.
-- **Patrón Result**: Sin excepciones para control de flujo. Todas las operaciones retornan `Result<T>`.
-- **Bounded Contexts**: Identity, Access, Audit, etc. Cada contexto tiene sus propios agregados, servicios y módulos de presentación.
+- **Arquitectura Limpia + DDD**: Límites estrictos entre capas. La capa de Dominio contiene el modelo DDD puro — Aggregate Roots, Entities, Value Objects, Domain Events e invariantes — sin dependencias de framework. Application contiene casos de uso y puertos. Infrastructure gestiona persistencia y preocupaciones externas.
+- **Patrón Result**: Sin excepciones para control de flujo. Todas las operaciones retornan `Result<T>` para manejo explícito de errores.
+- **Bounded Contexts**: Identity, Authorization, Configuration, Approvals, Compliance, IGA, Audit, Cache y Console. Cada contexto gobierna su modelo de agregados, contratos y reglas de integración.
 
 ---
 
-## Inicio rápido (Engine Room)
+## Inicio Rápido (Engine Room)
 
 ### Prerrequisitos
 
@@ -95,57 +120,59 @@ dotnet build
 dotnet run
 ```
 
-### Full stack (Frontend + Backend)
+### Full Stack (Frontend + Backend)
 
 ```bash
 # Terminal 1 — Backend (puerto 7114)
 cd src/apps/ums.api && dotnet run
 
 # Terminal 2 — Frontend (puerto 5173)
-cd src/apps/ums.web-app && npm install && npm run dev
+cd src/apps/ums.web-app && npm run dev
 ```
 
 ---
 
-## Comandos de desarrollo
+## Comandos de Desarrollo
 
 | Comando | Descripción |
 | :--- | :--- |
-| `npm install` | Instalar dependencias frontend desde `src/apps/ums.web-app` |
+| `npm install` | Instalar todas las dependencias frontend desde `src/apps/ums.web-app` |
 | `npm run dev` | Iniciar servidor de desarrollo frontend (puerto 5173) |
 | `npm run build` | Compilar frontend para producción |
 | `npm run lint` | Ejecutar ESLint |
 | `npm run test` | Ejecutar tests Vitest |
-| `dotnet build` | Compilar backend desde `src/apps/ums.api` |
+| `dotnet build` | Compilar solución backend desde `src/apps/ums.api` |
 | `dotnet test` | Ejecutar tests backend |
 | `dotnet run` | Iniciar API backend (puerto 7114) |
 
 ---
 
-## Centro de conocimiento
+## Centro de Conocimiento
 
 | Dominio | Índice del portal | Contenido |
 | :--- | :--- | :--- |
-| **Gobernanza** | [Portal de Gobernanza](./governance/index.es.md) | Dirección del producto, alcance de negocio y requerimientos funcionales. |
-| **Entrega del proyecto** | [Backlog del Proyecto](./governance/project-es/index.md) | Épicas MVP, historias de usuario y diseño funcional de módulos core. |
-| **Requerimientos** | [Índice de Requerimientos](./governance/requirements-es/index.md) | Historias funcionales, glosario de negocio y modelo de datos conceptual. |
-| **Arquitectura** | [Portal de Arquitectura](./architecture/index.es.md) | Diseño ER de base de datos, mapas de entidades y visores interactivos. |
-| **Construcción** | [Portal de Construcción](./governance/construction/index.es.md) | Diseño DDD de la capa de dominio: bounded contexts, agregados, eventos y comandos. |
+| **Estándares** | [Standards Quick Access](./STANDARDS.md) | Enlaces directos a estándares Evolith y referencias aplicadas UMS para React Web y .NET API. |
+| **Gobernanza** | [Portal de Gobernanza](./governance/index.md) | Dirección del producto, alcance de negocio y requerimientos funcionales. |
+| **Entrega del proyecto** | [Backlog del Proyecto](./governance/project/index.md) | Épicas MVP, historias de usuario y diseño funcional de módulos core. |
+| **Requerimientos** | [Índice de Requerimientos](./governance/requirements/index.md) | Historias funcionales, glosario de negocio y modelo de datos conceptual. |
+| **Arquitectura** | [Portal de Arquitectura](./architecture/index.md) | Diseño ER de base de datos, mapas de entidades, revisión de consistencia de datos y visores interactivos. |
+| **Construcción** | [Portal de Construcción](./governance/construction/index.md) | Diseño DDD de la capa de dominio: bounded contexts, agregados, eventos y comandos. |
+| **Métricas** | [Dashboard de Métricas de Solución](./operations/metrics/index.md) | Métricas de ingeniería por tipo de solución: código, seguridad, calidad, pruebas y uso de IA. |
 
 ---
 
-## Seguridad y cumplimiento
+## Seguridad y Cumplimiento
 
-- **Content Security Policy**: CSP restrictiva sin `unsafe-eval`, lista para producción.
+- **Content Security Policy**: CSP restrictiva con `unsafe-eval` removido, lista para producción.
 - **Protección CSRF**: Patrón double-submit cookie con refresco de token.
 - **Headers de seguridad**: HSTS, X-Frame-Options, X-Content-Type-Options y Referrer-Policy vía Nginx.
 - **Validación de inputs**: Schemas Zod como fuente única de verdad para validación runtime.
 
 ---
 
-## Contribución y gobernanza
+## Contribución y Gobernanza
 
 - **Flujo de trabajo**: Este repositorio utiliza [BMAD-METHOD](../AGENTS.md) para documentación orientada a especificaciones.
-- **Navegación**: Visite el [Índice Maestro](./MASTER_INDEX.es.md) para el árbol completo de documentos.
+- **Navegación**: Visita el [Índice Maestro](./MASTER_INDEX.es.md) para el árbol completo de documentos.
 - **Estándares de código**: ESLint + TypeScript strict mode. Cero errores requeridos antes de commit.
-- **Testing**: Vitest con React Testing Library. Umbrales de cobertura: 60% líneas/sentencias.
+- **Testing**: Vitest con React Testing Library. Los umbrales se gobiernan por los quality gates activos del proyecto.
