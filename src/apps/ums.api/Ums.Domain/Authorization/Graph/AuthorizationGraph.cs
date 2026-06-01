@@ -16,6 +16,13 @@ namespace Ums.Domain.Authorization.Graph;
 /// </summary>
 public sealed record AuthorizationGraph
 {
+    /// <summary>
+    /// Schema version of this payload. Governed by ADR-0074 and aligned with the canonical
+    /// `auth-graph.schema.json` in <c>src/libs/sdk/contracts/</c>. Defaults to the value
+    /// constant declared by <c>Ums.Sdk.Contracts.SchemaVersion.Current</c>.
+    /// </summary>
+    public string SchemaVersion { get; init; } = global::Ums.Sdk.Contracts.SchemaVersion.Current;
+
     /// <summary>Who is authenticated and in which context (tenant, suite, role, branch).</summary>
     public GraphContext Context { get; init; }
 
@@ -79,6 +86,7 @@ public sealed record AuthorizationGraph
 
         return new AuthorizationGraph
         {
+            SchemaVersion     = global::Ums.Sdk.Contracts.SchemaVersion.Current,
             Context           = context,
             Authentication    = authentication,
             Actions           = actions,

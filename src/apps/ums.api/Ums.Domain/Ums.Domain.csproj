@@ -12,6 +12,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="../../../libs/sdk/dotnet/Ums.Sdk.Contracts/Ums.Sdk.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <InternalsVisibleTo Include="Ums.Domain.Test" />
   </ItemGroup>
 
