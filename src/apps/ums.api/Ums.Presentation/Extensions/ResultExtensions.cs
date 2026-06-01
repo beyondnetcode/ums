@@ -78,6 +78,11 @@ internal static class ResultExtensions
             return StringLocalizer.T("system_suite.module.code_not_unique");
         }
 
+        if (error.Contains(DomainErrors.Tenant.BranchCodeNotUnique, StringComparison.OrdinalIgnoreCase))
+        {
+            return StringLocalizer.T(DomainErrors.Tenant.BranchCodeNotUnique);
+        }
+
         return status switch
         {
             StatusCodes.Status401Unauthorized => StringLocalizer.T("error.authentication.required"),

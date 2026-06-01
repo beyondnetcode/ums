@@ -261,9 +261,9 @@ public static class ParameterCatalogSeeder
         var ransaId = Guid.Parse("3FA85F64-5717-4562-B3FC-2C963F66AFA6");
         var apmId = Guid.Parse("A3F5B9D2-7C3D-4C8E-A9B0-123456789ABC");
         var neptuniaId = Guid.Parse("C9B736B4-6A84-48F8-B34D-176BC5A6D542");
-        var unimarId = Guid.Parse("F3E2D1C0-B9A8-7F6E-5D4C-321098765432");
+        var unimarId = Guid.Parse("5F4E3D2C-1B0A-9F8E-7D6C-543210987654");
         var paitaId = Guid.Parse("9E8D7C6B-5A4F-3E2D-1C0B-9876543210FE");
-        var intradevcoId = Guid.Parse("5F4E3D2C-1B0A-9F8E-7D6C-543210987654");
+        var intradevcoId = Guid.Parse("F3E2D1C0-B9A8-7F6E-5D4C-321098765432");
 
         var tenantValues = new List<ParameterTenantValueRecord>
         {
@@ -391,42 +391,6 @@ public static class ParameterCatalogSeeder
             {
                 Id = Guid.NewGuid(),
                 TenantId = apmId,
-                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111101"),
-                OverrideValue = "20",
-                StatusId = 2,
-                Version = "1.0.0",
-                CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                TenantId = apmId,
-                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111102"),
-                OverrideValue = "3",
-                StatusId = 2,
-                Version = "1.0.0",
-                CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                TenantId = apmId,
-                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111106"),
-                OverrideValue = "true",
-                StatusId = 2,
-                Version = "1.0.0",
-                CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                TenantId = apmId,
                 ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111110"),
                 OverrideValue = "false",
                 StatusId = 2,
@@ -521,7 +485,12 @@ public static class ParameterCatalogSeeder
             }
         };
 
-        await dbContext.ParameterTenantValues.AddRangeAsync(tenantValues, cancellationToken);
+        var uniqueTenantValues = tenantValues
+            .GroupBy(value => new { value.TenantId, value.ParameterDefinitionId })
+            .Select(group => group.First())
+            .ToList();
+
+        await dbContext.ParameterTenantValues.AddRangeAsync(uniqueTenantValues, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 }

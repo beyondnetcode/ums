@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Ums.Domain.Identity;
 using Ums.Domain.Kernel;
 using Ums.Domain.Kernel.ValueObjects;
+using Ums.Infrastructure.Persistence;
 using Ums.Infrastructure.Persistence.Identity.Entities;
 using Ums.Infrastructure.Persistence.Outbox;
 using Ums.Infrastructure.Persistence.Reflection;
@@ -264,7 +265,7 @@ public sealed class SqlServerUserAccountRepository(UmsPlatformDbContext dbContex
         };
     }
 
-    private static void Apply(UserAccountRecord target, UserAccountAggregate source)
+    private void Apply(UserAccountRecord target, UserAccountAggregate source)
     {
         var replacement = ToRecord(source);
 
@@ -281,16 +282,42 @@ public sealed class SqlServerUserAccountRepository(UmsPlatformDbContext dbContex
         target.UpdatedAtUtc = replacement.UpdatedAtUtc;
         target.AuditTimeSpan = replacement.AuditTimeSpan;
 
-        target.MfaEnrollments.Clear();
-        foreach (var enrollment in replacement.MfaEnrollments)
-        {
-            target.MfaEnrollments.Add(enrollment);
-        }
+        EfChildCollectionReconciler.ReconcileById(
+            dbContext,
+            target.MfaEnrollments,
+            replacement.MfaEnrollments,
+            enrollment => enrollment.Id,
+            UpdateMfaEnrollment);
 
-        target.PasswordCredentials.Clear();
-        foreach (var credential in replacement.PasswordCredentials)
-        {
-            target.PasswordCredentials.Add(credential);
-        }
+        EfChildCollectionReconciler.ReconcileById(
+            dbContext,
+            target.PasswordCredentials,
+            replacement.PasswordCredentials,
+            credential => credential.Id,
+            UpdatePasswordCredential);
+    }
+
+    private static void UpdateMfaEnrollment(UserAccountMfaEnrollmentRecord target, UserAccountMfaEnrollmentRecord source)
+    {
+        target.UserAccountId = source.UserAccountId;
+        target.MethodId = source.MethodId;
+        target.StatusId = source.StatusId;
+        target.CreatedBy = source.CreatedBy;
+        target.CreatedAtUtc = source.CreatedAtUtc;
+        target.UpdatedBy = source.UpdatedBy;
+        target.UpdatedAtUtc = source.UpdatedAtUtc;
+        target.AuditTimeSpan = source.AuditTimeSpan;
+    }
+
+    private static void UpdatePasswordCredential(UserAccountPasswordCredentialRecord target, UserAccountPasswordCredentialRecord source)
+    {
+        target.UserAccountId = source.UserAccountId;
+        target.PasswordHash = source.PasswordHash;
+        target.IsActive = source.IsActive;
+        target.CreatedBy = source.CreatedBy;
+        target.CreatedAtUtc = source.CreatedAtUtc;
+        target.UpdatedBy = source.UpdatedBy;
+        target.UpdatedAtUtc = source.UpdatedAtUtc;
+        target.AuditTimeSpan = source.AuditTimeSpan;
     }
 }

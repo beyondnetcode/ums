@@ -93,6 +93,42 @@ public static class ParameterCatalogQueryEndpoints
         .Produces<ParameterDefinitionDto>(StatusCodes.Status200OK)
         .ProducesProblem(StatusCodes.Status404NotFound);
 
+        group.MapGet("/resolved/{code}", async (
+            string code,
+            [FromServices] UmsPlatformDbContext dbContext,
+            CancellationToken ct) =>
+        {
+            if (string.IsNullOrWhiteSpace(code))
+                return Results.BadRequest(new { error = "Parameter code is required." });
+
+            var normalizedCode = code.Trim().ToUpperInvariant();
+            var resolved = await (
+                from definition in dbContext.ParameterDefinitions
+                join globalValue in dbContext.ParameterGlobalValues
+                    on definition.Id equals globalValue.ParameterDefinitionId into globalValues
+                from globalValue in globalValues.DefaultIfEmpty()
+                where definition.Code == normalizedCode && definition.IsActive
+                select new ResolvedParameterDto(
+                    definition.Id,
+                    definition.Code,
+                    definition.Name,
+                    definition.Description ?? string.Empty,
+                    definition.DataTypeId,
+                    GetDataTypeName(definition.DataTypeId),
+                    globalValue != null ? globalValue.EffectiveValue : definition.DefaultValue,
+                    definition.DefaultValue,
+                    definition.ScopeId,
+                    GetScopeName(definition.ScopeId),
+                    globalValue != null,
+                    "Active"))
+                .FirstOrDefaultAsync(ct);
+
+            return resolved is null ? Results.NotFound() : Results.Ok(resolved);
+        })
+        .WithName("ResolveParameterByCode")
+        .Produces<ResolvedParameterDto>(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status404NotFound);
+
         return app;
     }
 

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Ums.Domain.Approvals;
 using Ums.Domain.Kernel;
+using Ums.Infrastructure.Persistence;
 using Ums.Infrastructure.Persistence.Approvals.Entities;
 using Ums.Infrastructure.Persistence.Outbox;
 using Ums.Infrastructure.Persistence.Reflection;
@@ -149,7 +150,7 @@ public sealed class SqlServerApprovalWorkflowRepository : IApprovalWorkflowRepos
         };
     }
 
-    private static void Apply(ApprovalWorkflowRecord target, ApprovalWorkflowAggregate source)
+    private void Apply(ApprovalWorkflowRecord target, ApprovalWorkflowAggregate source)
     {
         var replacement = ToRecord(source);
 
@@ -166,10 +167,23 @@ public sealed class SqlServerApprovalWorkflowRepository : IApprovalWorkflowRepos
         target.UpdatedAtUtc = replacement.UpdatedAtUtc;
         target.AuditTimeSpan = replacement.AuditTimeSpan;
 
-        target.RequiredDocuments.Clear();
-        foreach (var doc in replacement.RequiredDocuments)
-        {
-            target.RequiredDocuments.Add(doc);
-        }
+        EfChildCollectionReconciler.ReconcileById(
+            _dbContext,
+            target.RequiredDocuments,
+            replacement.RequiredDocuments,
+            document => document.Id,
+            UpdateRequiredDocument);
+    }
+
+    private static void UpdateRequiredDocument(ApprovalRequiredDocumentRecord target, ApprovalRequiredDocumentRecord source)
+    {
+        target.WorkflowId = source.WorkflowId;
+        target.DocumentTypeId = source.DocumentTypeId;
+        target.IsMandatory = source.IsMandatory;
+        target.CreatedBy = source.CreatedBy;
+        target.CreatedAtUtc = source.CreatedAtUtc;
+        target.UpdatedBy = source.UpdatedBy;
+        target.UpdatedAtUtc = source.UpdatedAtUtc;
+        target.AuditTimeSpan = source.AuditTimeSpan;
     }
 }

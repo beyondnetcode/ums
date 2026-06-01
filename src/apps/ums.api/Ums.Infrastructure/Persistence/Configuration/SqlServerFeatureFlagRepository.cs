@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Ums.Domain.Configuration;
 using Ums.Domain.Kernel;
+using Ums.Infrastructure.Persistence;
 using Ums.Infrastructure.Persistence.Configuration.Entities;
 using Ums.Infrastructure.Persistence.Outbox;
 using Ums.Infrastructure.Persistence.Reflection;
@@ -176,7 +177,7 @@ public sealed class SqlServerFeatureFlagRepository(UmsPlatformDbContext dbContex
         };
     }
 
-    private static void Apply(FeatureFlagRecord target, FeatureFlagAggregate source)
+    private void Apply(FeatureFlagRecord target, FeatureFlagAggregate source)
     {
         var replacement = ToRecord(source);
 
@@ -195,16 +196,36 @@ public sealed class SqlServerFeatureFlagRepository(UmsPlatformDbContext dbContex
         target.UpdatedAtUtc = replacement.UpdatedAtUtc;
         target.AuditTimeSpan = replacement.AuditTimeSpan;
 
-        target.EvaluationLogs.Clear();
-        foreach (var log in replacement.EvaluationLogs)
-        {
-            target.EvaluationLogs.Add(log);
-        }
+        EfChildCollectionReconciler.ReconcileById(
+            dbContext,
+            target.EvaluationLogs,
+            replacement.EvaluationLogs,
+            log => log.Id,
+            UpdateEvaluationLog);
 
-        target.Criteria.Clear();
-        foreach (var criterion in replacement.Criteria)
-        {
-            target.Criteria.Add(criterion);
-        }
+        EfChildCollectionReconciler.ReconcileById(
+            dbContext,
+            target.Criteria,
+            replacement.Criteria,
+            criterion => criterion.Id,
+            UpdateCriterion);
+    }
+
+    private static void UpdateEvaluationLog(FeatureFlagEvaluationLogRecord target, FeatureFlagEvaluationLogRecord source)
+    {
+        target.FeatureFlagId = source.FeatureFlagId;
+        target.EvaluatedBy = source.EvaluatedBy;
+        target.Result = source.Result;
+        target.Context = source.Context;
+        target.EvaluatedAtUtc = source.EvaluatedAtUtc;
+    }
+
+    private static void UpdateCriterion(FeatureFlagCriteriaRecord target, FeatureFlagCriteriaRecord source)
+    {
+        target.FeatureFlagId = source.FeatureFlagId;
+        target.CriteriaType = source.CriteriaType;
+        target.Operator = source.Operator;
+        target.Value = source.Value;
+        target.CreatedAtUtc = source.CreatedAtUtc;
     }
 }

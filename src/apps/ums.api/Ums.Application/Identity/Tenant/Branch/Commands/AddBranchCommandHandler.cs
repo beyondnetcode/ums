@@ -46,6 +46,10 @@ public sealed class AddBranchCommandHandler : ICommandHandler<AddBranchCommand, 
         await _tenantRepository.UpdateAsync(tenant, cancellationToken);
         await _tenantRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
 
-        return Result<AddBranchResponse>.Success(new AddBranchResponse(request.TenantId));
+        var branch = result.Value;
+        return Result<AddBranchResponse>.Success(new AddBranchResponse(
+            request.TenantId,
+            branch.GetId().GetValue(),
+            branch.Code.GetValue()));
     }
 }

@@ -5,7 +5,7 @@ interface HttpErrorLike {
     headers?: Record<string, unknown>;
     data?: {
       // RFC 7807 Problem Details fields
-      detail?: string;         // transport detail; never display directly
+      detail?: string;         // RFC 7807 user-safe detail provided by the API
       title?: string;
       // Approved, localized user-facing content
       userMessage?: string;
@@ -83,12 +83,13 @@ export const getSupportReferenceId = (error: unknown): string | undefined => {
  *
  * Priority chain (OBS-01 contract):
  *  1. `userMessage` — localized and approved by the backend
- *  2. Caller-supplied fallback string
+ *  2. Problem Details `detail` — user-safe API message for RFC 7807 responses
+ *  3. Caller-supplied fallback string
  *
- * Problem Details `detail`, stack traces and internal identifiers never appear here; they stay in
- * Grafana Loki, keyed by the `errorId` returned by `getSupportReferenceId()`.
+ * Stack traces and internal identifiers never appear here; they stay in Grafana Loki,
+ * keyed by the `errorId` returned by `getSupportReferenceId()`.
  */
 export const getHttpErrorMessage = (error: unknown, fallback: string): string => {
   const data = asHttpError(error).response?.data;
-  return data?.userMessage ?? fallback;
+  return data?.userMessage ?? data?.detail ?? fallback;
 };

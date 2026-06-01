@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Ums.Domain.IGA;
 using Ums.Domain.Kernel;
+using Ums.Infrastructure.Persistence;
 using Ums.Infrastructure.Persistence.IGA.Entities;
 using Ums.Infrastructure.Persistence.Outbox;
 using Ums.Infrastructure.Persistence.Reflection;
@@ -171,7 +172,7 @@ public sealed class SqlServerPromotionRequestRepository : IPromotionRequestRepos
         };
     }
 
-    private static void Apply(PromotionRequestRecord target, PromotionRequestAggregate source)
+    private void Apply(PromotionRequestRecord target, PromotionRequestAggregate source)
     {
         var replacement = ToRecord(source);
 
@@ -197,10 +198,31 @@ public sealed class SqlServerPromotionRequestRepository : IPromotionRequestRepos
         target.UpdatedAtUtc = replacement.UpdatedAtUtc;
         target.AuditTimeSpan = replacement.AuditTimeSpan;
 
-        target.ImpactAnalyses.Clear();
-        foreach (var analysis in replacement.ImpactAnalyses)
-        {
-            target.ImpactAnalyses.Add(analysis);
-        }
+        EfChildCollectionReconciler.ReconcileById(
+            _dbContext,
+            target.ImpactAnalyses,
+            replacement.ImpactAnalyses,
+            analysis => analysis.Id,
+            UpdateImpactAnalysis);
+    }
+
+    private static void UpdateImpactAnalysis(PromotionImpactAnalysisRecord target, PromotionImpactAnalysisRecord source)
+    {
+        target.PromotionRequestId = source.PromotionRequestId;
+        target.RiskScore = source.RiskScore;
+        target.RiskLevel = source.RiskLevel;
+        target.NewPermissionsCount = source.NewPermissionsCount;
+        target.RemovedPermissionsCount = source.RemovedPermissionsCount;
+        target.AffectedSystemsCount = source.AffectedSystemsCount;
+        target.ConflictingPermissions = source.ConflictingPermissions;
+        target.RiskFactors = source.RiskFactors;
+        target.SuggestedMitigations = source.SuggestedMitigations;
+        target.AnalyzedAt = source.AnalyzedAt;
+        target.AnalyzedBy = source.AnalyzedBy;
+        target.CreatedBy = source.CreatedBy;
+        target.CreatedAtUtc = source.CreatedAtUtc;
+        target.UpdatedBy = source.UpdatedBy;
+        target.UpdatedAtUtc = source.UpdatedAtUtc;
+        target.AuditTimeSpan = source.AuditTimeSpan;
     }
 }

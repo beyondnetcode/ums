@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Ums.Domain.Authorization;
 using Ums.Domain.Kernel;
+using Ums.Infrastructure.Persistence;
 using Ums.Infrastructure.Persistence.Authorization.Entities;
 using Ums.Infrastructure.Persistence.Outbox;
 using Ums.Infrastructure.Persistence.Reflection;
@@ -169,7 +170,7 @@ public sealed class SqlServerProfileRepository(UmsPlatformDbContext dbContext) :
         };
     }
 
-    private static void Apply(ProfileRecord target, ProfileAggregate source)
+    private void Apply(ProfileRecord target, ProfileAggregate source)
     {
         var replacement = ToRecord(source);
 
@@ -185,10 +186,29 @@ public sealed class SqlServerProfileRepository(UmsPlatformDbContext dbContext) :
         target.UpdatedAtUtc = replacement.UpdatedAtUtc;
         target.AuditTimeSpan = replacement.AuditTimeSpan;
 
-        target.Permissions.Clear();
-        foreach (var permission in replacement.Permissions)
-        {
-            target.Permissions.Add(permission);
-        }
+        EfChildCollectionReconciler.ReconcileById(
+            dbContext,
+            target.Permissions,
+            replacement.Permissions,
+            permission => permission.Id,
+            UpdatePermission);
+    }
+
+    private static void UpdatePermission(ProfilePermissionRecord target, ProfilePermissionRecord source)
+    {
+        target.ProfileId = source.ProfileId;
+        target.TemplateId = source.TemplateId;
+        target.TargetTypeId = source.TargetTypeId;
+        target.TargetId = source.TargetId;
+        target.ActionId = source.ActionId;
+        target.IsAllowed = source.IsAllowed;
+        target.IsDenied = source.IsDenied;
+        target.IsActive = source.IsActive;
+        target.IsOverride = source.IsOverride;
+        target.CreatedBy = source.CreatedBy;
+        target.CreatedAtUtc = source.CreatedAtUtc;
+        target.UpdatedBy = source.UpdatedBy;
+        target.UpdatedAtUtc = source.UpdatedAtUtc;
+        target.AuditTimeSpan = source.AuditTimeSpan;
     }
 }

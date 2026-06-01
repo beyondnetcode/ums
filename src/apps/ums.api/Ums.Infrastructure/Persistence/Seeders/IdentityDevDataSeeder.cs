@@ -55,7 +55,7 @@ public static class IdentityDevDataSeeder
         var userAccounts = BuildSeedUserAccounts(actor, passwordHasher);
         if (inMemoryUserAccountRepository is null && userAccountRepository is not null)
         {
-            var alreadySeeded = await userAccountRepository.GetByTenantIdAsync(tenants[0].Props.Id.GetValue(), cancellationToken);
+            var alreadySeeded = await userAccountRepository.GetAllAsync(null, cancellationToken);
             if (alreadySeeded.Count == 0)
             {
                 foreach (var userAccount in userAccounts)
@@ -238,8 +238,8 @@ public static class IdentityDevDataSeeder
             internalAdminTenantId,
             Email.Create($"admin@{CoreDevDataSeeder.InternalAdminTenantCode.ToLower()}.ums.local"),
             UserCategory.Internal,
-            IdentityReference.Create(CoreDevDataSeeder.SuperAdminUsername),
-            IdentityReferenceType.HrId,
+            null,
+            null,
             actor,
             userAccountId: UserAccountId.Load(Guid.Parse(CoreDevDataSeeder.SuperAdminUserId)));
 
@@ -251,8 +251,11 @@ public static class IdentityDevDataSeeder
             if (passwordHasher != null)
             {
                 var hash = PasswordHash.Create(passwordHasher.Hash(CoreDevDataSeeder.SuperAdminPassword));
-                superAdmin.AddPassword(hash, actor);
-                superAdmin.ActivatePassword(superAdmin.PasswordCredentials.First(c => c.IsActive).GetId(), actor);
+                var passwordResult = superAdmin.AddPassword(hash, actor);
+                if (passwordResult.IsFailure)
+                {
+                    throw new InvalidOperationException($"Unable to seed super admin password: {passwordResult.Error}");
+                }
             }
             result.Add(superAdmin);
         }
