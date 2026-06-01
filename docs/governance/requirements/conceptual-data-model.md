@@ -1,12 +1,38 @@
 # Conceptual Data Model
 
-This document details the database schema, entity structures, relationships, and Entity-Relationship diagrams for the **User Management System (UMS)** under the **spec-driven AI strategy BMAD-METHOD**.
+This document describes the **business-readable conceptual data model** for the User Management System (UMS).
 
-> **Authoritative implementation note:** The code-aligned physical ER model is maintained in [database-design-er.md](../../architecture/blueprints/database-design-er.md). This conceptual model uses business names and must be read with the onboarding alignment introduced by EP-09.
+It intentionally uses business-friendly names, but every concept must map to the DDD aggregate model and to the physical ER model.
+
+> **Authoritative implementation note:** The code-aligned physical ER model is maintained in [Database Design ER](../../architecture/blueprints/database-design-er.md). The DDD aggregate catalog is maintained in the [Domain Aggregate Index](../../domain/index.md). Use [Data Model Consistency Review](../../architecture/blueprints/data-model-consistency-review.md) to validate alignment across conceptual, domain, physical, and persistence views.
 
 ---
 
-## 1. Entity-Relationship Diagram
+## 1. Conceptual-to-Physical Mapping
+
+The following table prevents ambiguity between early business terminology and the current DDD / physical model.
+
+| Conceptual Name | DDD / Physical Name | Notes |
+|---|---|---|
+| `ORGANIZATION` | `TENANT` / `Tenant` | Business organization maps to the tenant aggregate and tenant-scoped persistence model. |
+| `USER` | `USER_ACCOUNT` / `UserAccount` | User identity and lifecycle are governed by the UserAccount aggregate. |
+| `BRANCH` | `BRANCH` / `Tenant.Branch` | Branch is an owned child entity inside Tenant. |
+| `PROFILE` | `PROFILE` / `Profile` | User role assignment and scoped authorization profile. |
+| `AUTH_TEMPLATE` | `PERMISSION_TEMPLATE` / `PermissionTemplate` | Template-based permission blueprint. |
+| `AUTHORIZATION` | `PERMISSION_TEMPLATE_ITEM` / `PROFILE_PERMISSION` | Authorization is materialized through template items and profile permissions. |
+| `SYSTEM` | `SYSTEM_SUITE` / `SystemSuite` | Application suite or product surface governed by Authorization BC. |
+| `MODULE` | `FUNCTIONAL_MODULE` / `SystemSuite.Module` | Functional module under a system suite. |
+| `MENU` | `FUNCTIONAL_MENU` / `SystemSuite.Menu` | Functional menu under a module. |
+| `SUBMENU` | `FUNCTIONAL_SUBMENU` / `SystemSuite.SubMenu` | Required level in the physical and DDD hierarchy. |
+| `OPTION` | `FUNCTIONAL_OPTION` / `SystemSuite.Option` | Functional option under a submenu. |
+| `ACTION` | `ACTION` / `SystemSuite.Action` | Action can be attached to the functional hierarchy according to the authorization graph rules. |
+| `SYSTEM_CONFIGURATION` | `APP_CONFIGURATION` / `AppConfiguration` | Runtime configuration with global, tenant, or system scope. |
+| `PROFILE_ACCESS_REQUEST` | `APPROVAL_REQUEST` / `ApprovalRequest` | Profile request is implemented through the generic approval request model. |
+| `EXTERNAL_ACCESS_REQUEST` | `APPROVAL_REQUEST` / `ApprovalRequest` | B2B access request is modeled as an approval workflow unless a dedicated record is introduced by ADR. |
+
+---
+
+## 2. Entity-Relationship Diagram
 
 ```mermaid
 erDiagram
@@ -31,11 +57,13 @@ erDiagram
 
     SYSTEM ||--o{ MODULE : contains
     MODULE ||--o{ MENU : contains
-    MENU ||--o{ OPTION : contains
-    OPTION ||--o{ ACTION : contains
+    MENU ||--o{ SUBMENU : contains
+    SUBMENU ||--o{ OPTION : contains
     SYSTEM ||--o{ ACTION : declares
     MODULE ||--o{ ACTION : declares
     MENU ||--o{ ACTION : declares
+    SUBMENU ||--o{ ACTION : declares
+    OPTION ||--o{ ACTION : declares
 
     AUTHORIZATION }o--|| ACTION : targets
     NETWORK ||--o{ PROFILE : restricts
@@ -60,9 +88,12 @@ The final business outcomes for user signup and profile access requests are `App
 
 ---
 
-## 2. Entity Attributes Specification
+## 3. Entity Attributes Specification
 
 ### A. User Entity
+
+> Physical / DDD mapping: `USER_ACCOUNT` / `UserAccount`.
+
 - `id` (UUID, PK): Unique identifier for the user.
 - `organization_id` (UUID, FK): Owning tenant organization.
 - `email` (string, Unique): Corporate email address.
@@ -72,38 +103,46 @@ The final business outcomes for user signup and profile access requests are `App
 - `created_at` (datetime2): Record creation timestamp.
 
 ### B. Organization Entity
-> [!IMPORTANT]
-> This entity represents a company node. An organization can be the primary corporate Tenant (`INTERNAL`), or an external actor such as a B2B `CLIENT` or `SUPPLIER`.
+
+> Physical / DDD mapping: `TENANT` / `Tenant`.
+
+This entity represents a company node. An organization can be the primary corporate Tenant (`INTERNAL`), or an external actor such as a B2B `CLIENT` or `SUPPLIER`.
 
 - `id` (UUID, PK): Unique identifier for the organization.
 - `tenant_id` (UUID, FK): The overarching master tenant this organization belongs to.
-- `parent_organization_id` (UUID, FK, Nullable): Self-referencing link for hierarchical grouping (e.g., Parent Group -> Subsidiary).
+- `parent_organization_id` (UUID, FK, Nullable): Self-referencing link for hierarchical grouping.
 - `type` (enum): `INTERNAL`, `CLIENT`, `SUPPLIER`, `PARTNER`.
 - `name` (string): Corporate legal company name.
-- `company_reference` (string): External company code linking to corporate ERP (e.g., SAP code).
+- `company_reference` (string): External company code linking to corporate ERP.
 - `idp_strategy` (enum): `INTERNAL_BCRYPT`, `ZITADEL`, `AZURE_AD`, `OKTA`, `SAML2`, `GENERIC_OIDC`.
 - `status` (enum): `ACTIVE` or `BLOCKED`.
 
-### C. Branch Entity (Sedes)
-> [!IMPORTANT]
-> This entity represents a physical or logical sub-unit of an Organization (e.g., *Callao Port Terminal*, *Lurin Warehouse*). It is the **branch context** used for hierarchical, context-aware authorization routing.
+### C. Branch Entity
+
+> Physical / DDD mapping: `BRANCH` / `Tenant.Branch`.
 
 - `id` (UUID, PK): Unique identifier for the branch.
 - `organization_id` (UUID, FK): Owning tenant organization.
-- `name` (string): Human-readable branch name (e.g., `Callao Terminal`).
-- `code` (string, Unique within org): Short code for the branch (e.g., `BRANCH_CALLAO`).
-- `geofencing_metadata` (nvarchar(max) JSON, Nullable): Optional geofencing constraints applied to access policies (e.g., `{ "radius_km": 10, "center_lat": -12.05, "center_lng": -77.12 }`).
+- `name` (string): Human-readable branch name.
+- `code` (string, Unique within organization): Short branch code.
+- `geofencing_metadata` (nvarchar(max) JSON, Nullable): Optional geofencing constraints.
 - `status` (enum): `ACTIVE` or `SUSPENDED`.
 
 ### D. Profile Entity
+
+> Physical / DDD mapping: `PROFILE` / `Profile`.
+
 - `id` (UUID, PK): Unique identifier for the profile.
 - `organization_id` (UUID, FK): The owning tenant organization.
-- `branch_id` (UUID, FK, **Nullable**): Optional scoping to a specific branch. `NULL` means profile applies org-wide.
-- `name` (string): Human-readable profile name (e.g., `PortOperator_Callao`).
-- `template_id` (UUID, FK, Nullable): Optional linked Authorization Template (auto-assigned or manually attached).
-- `auto_assigned` (boolean): `true` if template was assigned via the Automatic Rule-Based Engine.
+- `branch_id` (UUID, FK, **Nullable**): Optional branch scope. `NULL` means profile applies organization-wide.
+- `name` (string): Human-readable profile name.
+- `template_id` (UUID, FK, Nullable): Optional linked Authorization Template.
+- `auto_assigned` (boolean): `true` if assigned via the automatic rule-based engine.
 
 ### E. Authorization Entity
+
+> Physical / DDD mapping: `PERMISSION_TEMPLATE_ITEM` and `PROFILE_PERMISSION`.
+
 - `id` (UUID, PK): Unique identifier for the authorization record.
 - `profile_id` (UUID, FK, Nullable): Linked profile if customized locally.
 - `template_id` (UUID, FK, Nullable): Linked template if inherited from a blueprint.
@@ -111,31 +150,54 @@ The final business outcomes for user signup and profile access requests are `App
 - `effect` (enum): `ALLOW` or `DENY`.
 
 ### F. Auth Template Entity
+
+> Physical / DDD mapping: `PERMISSION_TEMPLATE` / `PermissionTemplate`.
+
 - `id` (UUID, PK): Unique identifier for the template.
-- `name` (string): Human-readable template name (e.g., `Analyst_Baseline_v1`).
-- `version` (string): Semantic version (e.g., `1.0.0`).
+- `name` (string): Human-readable template name.
+- `version` (string): Semantic version.
 - `system_id` (UUID, FK): The target client system this template is designed for.
 - `created_by` (UUID, FK): Admin user who created the template.
 - `created_at` (datetime2).
 
 ### G. System Entity
+
+> Physical / DDD mapping: `SYSTEM_SUITE` / `SystemSuite`.
+
 - `id` (UUID, PK): Unique identifier for the application/sub-portal.
-- `name` (string, Unique): Application name (e.g., `Route Planner`).
-- `system_code` (string, Unique): Machine-readable slug (e.g., `route_planner`).
+- `name` (string, Unique): Application name.
+- `system_code` (string, Unique): Machine-readable slug.
 - `base_url` (string): Base physical URL for routing.
 - `api_credential_hash` (string): Hashed M2M credential for gateway validation.
 
-### H. Module / Menu / Option / Action Entities
-> [!NOTE]
-> These form the hierarchical navigation topology compiled into the Authorization Graph.
-> The resource hierarchy is: `System → Module → Menu → Option`. Actions can be attached at any level (System, Module, Menu, or Option).
+### H. Module / Menu / SubMenu / Option / Action Entities
 
-- `Module`: `module_id` (UUID, PK), `system_id` (UUID, FK → System), `name` (string, unique per system), `code` (string, machine-readable), `description` (text, optional), `is_active` (boolean)
-- `Menu`: `id`, `module_id (FK)`, `label`, `order`, `icon_code`
-- `Option`: `id`, `menu_id (FK)`, `label`, `route_path`
-- `Actions`: `action_id` (UUID, PK), `action_name` (string), `action_code` (string), `level` (enum: system, module, menu, option), `level_id` (UUID - FK to the respective level entity), `is_active` (boolean)
+> Physical / DDD mapping: `FUNCTIONAL_MODULE`, `FUNCTIONAL_MENU`, `FUNCTIONAL_SUBMENU`, `FUNCTIONAL_OPTION`, `ACTION` inside `SystemSuite`.
 
-### I. IDP_CONFIGURATION Entity *(NEW — Configuration Context)*
+These form the hierarchical navigation topology compiled into the Authorization Graph.
+
+The resource hierarchy is:
+
+```text
+System → Module → Menu → SubMenu → Option
+```
+
+Actions may be attached at any level according to the physical model and authorization graph contract:
+
+```text
+System / Module / Menu / SubMenu / Option
+```
+
+- `Module`: `module_id` (UUID, PK), `system_id` (UUID, FK → System), `name`, `code`, `description`, `is_active`.
+- `Menu`: `id`, `module_id (FK)`, `label`, `order`, `icon_code`.
+- `SubMenu`: `id`, `menu_id (FK)`, `label`, `order`, `icon_code`.
+- `Option`: `id`, `submenu_id (FK)`, `label`, `route_path`.
+- `Action`: `action_id` (UUID, PK), `action_name`, `action_code`, `level`, `level_id`, `is_active`.
+
+### I. IDP_CONFIGURATION Entity
+
+> Physical / DDD mapping: `IDP_CONFIGURATION` / `IdpConfiguration`.
+
 - `id` (UUID, PK)
 - `tenant_id` (UUID, FK → ORGANIZATION)
 - `system_id` (UUID, FK, Nullable → SYSTEM): `NULL` means applies to all systems for the tenant
@@ -143,44 +205,53 @@ The final business outcomes for user signup and profile access requests are `App
 - `value` (nvarchar(max) JSON): Operational configuration payload consumed by runtime.
 - `description` (text): Functional purpose, impact, expected behavior, and applicable scope.
 - `provider_type` (enum): `INTERNAL_BCRYPT`, `ZITADEL`, `AZURE_AD`, `OKTA`, `KEYCLOAK`, `AUTH0`, `GOOGLE`, `LDAP`, `SAML2`, `GENERIC_OIDC`
-- `priority` (integer): Resolution order (lower = higher priority)
+- `priority` (integer): Resolution order.
 - `fallback_to` (UUID, FK, Nullable → IDP_CONFIGURATION)
 - `config_payload` (nvarchar(max) JSON, encrypted): Authority URL, client_id, scopes, claim mappings
-- `config_secret_ref` (string): Vault path for encrypted credentials (e.g., `vault://ums/secrets/{tenant}/client_secret`)
-- `domain_hints` (text[]): Email domain patterns for IdP routing (e.g., `@logisticscorp.com`)
+- `config_secret_ref` (string): Vault path for encrypted credentials
+- `domain_hints` (text[]): Email domain patterns for IdP routing
 - `mfa_enforced` (boolean)
 - `status` (enum): `ACTIVE`, `INACTIVE`, `DRAFT`
 - `version` (string): Semantic version of this config record
 
-### J. SYSTEM_CONFIGURATION Entity *(NEW — Configuration Context)*
+### J. SYSTEM_CONFIGURATION Entity
+
+> Physical / DDD mapping: `APP_CONFIGURATION` / `AppConfiguration`.
+
 - `id` (UUID, PK)
 - `system_id` (UUID, FK → SYSTEM)
 - `tenant_id` (UUID, FK → ORGANIZATION)
 - `code` (string, Unique by scope): Stable technical key for the configuration parameter.
 - `value` (nvarchar(max) JSON): Operational value used by the system at runtime.
 - `description` (text): Functional purpose, impact, expected behavior, and scope.
-- `version` (string): Semantic version (e.g., `2.1.0`)
-- `config_payload` (nvarchar(max) JSON): Full behavioral config (auth, session, MFA, onboarding, branding, modules)
+- `version` (string): Semantic version.
+- `config_payload` (nvarchar(max) JSON): Full behavioral config.
 - `status` (enum): `ACTIVE`, `ARCHIVED`, `DRAFT`
 - `published_at` (datetime2)
 - `published_by` (UUID, FK → USER)
 
-### K. FEATURE_FLAG Entity *(NEW — Configuration Context)*
+### K. FEATURE_FLAG Entity
+
+> Physical / DDD mapping: `FEATURE_FLAG` / `FeatureFlag`.
+
 - `id` (UUID, PK)
-- `code` (string, Unique globally): Canonical feature flag identifier (alias of `flag_code` for catalog consistency).
-- `value` (nvarchar(max) JSON): Effective operational flag value/payload (`enabled`, variant, or rollout object).
+- `code` (string, Unique globally): Canonical feature flag identifier.
+- `value` (nvarchar(max) JSON): Effective operational flag value/payload.
 - `description` (text): Functional purpose, impact, expected behavior, and scope.
-- `flag_code` (string, Unique globally): Machine-readable identifier (e.g., `FLEET_DISPATCH_NEW_UI_V2`)
+- `flag_code` (string, Unique globally): Machine-readable identifier.
 - `type` (enum): `BOOLEAN`, `VARIANT`, `PERCENTAGE`
-- `targets` (nvarchar(max) JSON): Scoping rules `{ systems, tenants, organizations, branches, roles, users, environments, rollout_percentage }`
+- `targets` (nvarchar(max) JSON): Scoping rules.
 - `status` (enum): `ACTIVE`, `INACTIVE`, `ARCHIVED`
-- `linked_resource_type` (string, Nullable): `menu`, `module`, `endpoint`, `workflow`
+- `linked_resource_type` (string, Nullable)
 - `linked_resource_id` (UUID, Nullable)
 - `version` (string)
 - `created_by` (UUID, FK → USER)
 - `created_at` (datetime2)
 
-### L. FLAG_EVALUATION_LOG Entity *(NEW — Audit Context)*
+### L. FLAG_EVALUATION_LOG Entity
+
+> Physical / DDD mapping: `FLAG_EVALUATION_LOG` / `FeatureFlag.FlagEvaluationLog`.
+
 - `id` (UUID, PK)
 - `flag_id` (UUID, FK → FEATURE_FLAG)
 - `evaluated_for_type` (string): `user`, `tenant`, `organization`
@@ -188,7 +259,10 @@ The final business outcomes for user signup and profile access requests are `App
 - `result` (boolean or variant value)
 - `evaluated_at` (datetime2)
 
-### M. EXTERNAL_ACCESS_REQUEST Entity *(NEW — B2B Approval Context)*
+### M. EXTERNAL_ACCESS_REQUEST Entity
+
+> Physical / DDD mapping: currently represented by `ApprovalRequest` unless a dedicated B2B request persistence record is introduced by ADR.
+
 - `id` (UUID, PK)
 - `sponsor_user_id` (UUID, FK → USER): Internal user requesting access for a third party.
 - `target_organization_id` (UUID, FK, Nullable → ORGANIZATION): The external B2B client/supplier organization.
@@ -196,11 +270,11 @@ The final business outcomes for user signup and profile access requests are `App
 - `requested_profile_id` (UUID, FK → PROFILE): Suggested role for the external user.
 - `justification` (text): Business rationale for granting access.
 - `status` (enum): `DRAFT`, `PENDING_APPROVAL`, `APPROVED`, `REJECTED`.
-- `approved_by` (UUID, FK, Nullable → USER): PAP Admin who authorized the request.
+- `approved_by` (UUID, FK, Nullable → USER): Admin who authorized the request.
 
 ---
 
-## 3.1 Mandatory Parametric Catalog Standard
+## 4. Mandatory Parametric Catalog Standard
 
 All parameter/configuration/catalog entities MUST include, at minimum:
 
@@ -228,9 +302,21 @@ All these entities must also define:
 
 ---
 
-## 4. Key Precedence Axioms (Engine Rules)
+## 5. Key Precedence Axioms (Engine Rules)
 
 1. **Deny-by-Default**: An action is blocked until an explicit `ALLOW` is declared by a profile or template.
 2. **Permissive Union**: If no `DENY` is present, the user inherits all active `ALLOW` blocks from all assigned profiles.
 3. **Explicit Deny Dominance**: A `DENY` from *any* active profile instantly invalidates matching `ALLOW` blocks across all other profiles.
-4. **Branch Scope Precedence**: Branch-scoped profiles override org-wide profiles for the matching branch context.
+4. **Branch Scope Precedence**: Branch-scoped profiles override organization-wide profiles for the matching branch context.
+
+---
+
+## 6. Reading Guidance
+
+Use this document to discuss the business model with product, QA, and stakeholders. Use the following documents for implementation validation:
+
+| Need | Authoritative Source |
+|---|---|
+| DDD aggregate ownership and invariants | [Domain Aggregate Index](../../domain/index.md) |
+| Physical ER and SQL Server model | [Database Design ER](../../architecture/blueprints/database-design-er.md) |
+| Cross-view consistency | [Data Model Consistency Review](../../architecture/blueprints/data-model-consistency-review.md) |
