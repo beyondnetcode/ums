@@ -65,6 +65,9 @@ Detailed engineering blueprints focusing on:
 ### [API .NET](./api-dotnet/README.md)
 Applied backend API reference for UMS. This section maps current .NET API source evidence to the Evolith API Standard - .NET while keeping product-specific implementation details local to UMS.
 
+### [API .NET](./api-dotnet/README.md)
+Applied backend API reference for UMS. This section maps current .NET API source evidence to the Evolith API Standard - .NET while keeping product-specific implementation details local to UMS.
+
 ### [Web Frontend](./web-frontend/README.md)
 Applied React Web reference for UMS. This section maps current source evidence to the Evolith Web Frontend Standard - React while keeping product-specific implementation details local to UMS.
 
