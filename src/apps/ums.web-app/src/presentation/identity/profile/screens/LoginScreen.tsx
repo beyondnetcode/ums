@@ -82,7 +82,7 @@ export default function LoginScreen(): React.JSX.Element {
     const trimmedPassword = password.trim();
 
     if (!trimmedUsername) {
-      setError('Ingrese su usuario');
+      setError('Ingrese su correo electrónico');
       return;
     }
     if (!trimmedPassword) {
@@ -91,7 +91,7 @@ export default function LoginScreen(): React.JSX.Element {
     }
 
     if (trimmedUsername.length < 2 || trimmedUsername.length > 100) {
-      setError('Usuario inválido');
+      setError('Correo electrónico inválido');
       return;
     }
 
@@ -222,14 +222,14 @@ export default function LoginScreen(): React.JSX.Element {
                 />
 
                 <M3TextField
-                  label="Usuario"
+                  label="Correo electrónico"
                   required
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="nombre.usuario"
-                  autoComplete="username"
+                  placeholder="usuario@empresa.com"
+                  autoComplete="email"
                   disabled={isLoading || isLocked}
-                  error={error && error.includes('usuario') ? error : undefined}
+                  error={error && (error.includes('correo') || error.includes('usuario') || error.includes('email')) ? error : undefined}
                 />
 
                 <M3TextField
