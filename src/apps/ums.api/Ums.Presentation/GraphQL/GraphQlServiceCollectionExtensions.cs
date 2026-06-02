@@ -21,6 +21,7 @@ public static class GraphQlServiceCollectionExtensions
     {
         var builder = services
             .AddGraphQLServer()
+            .AddHttpRequestInterceptor<TenantContextGraphQlInterceptor>()
             .AddQueryType(d => d.Name("Query"))
             .AddTypeExtension<TenantQueries>()
             .AddTypeExtension<UserAccountQueries>()
