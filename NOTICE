@@ -1,0 +1,22 @@
+# NOTICE
+
+UMS — Enterprise User Management System  
+Copyright (c) 2026 BeyondNet Tech / BeyondNet Code.  
+Author: Alberto Arroyo Raygada.  
+All rights reserved except as expressly granted under the applicable license.
+
+UMS is a real corporate/enterprise reference application built on top of Evolith ARCH32. UMS is an applied implementation example of Evolith architectural principles, governance, patterns, standards, security, multi-tenancy, parametrization, authentication, authorization, and documentation practices.
+
+UMS does not represent the entirety of Evolith ARCH32 and must not be interpreted as the only possible system derived from Evolith.
+
+The following names and assets must be preserved in attribution notices where applicable:
+
+- BeyondNet Tech
+- BeyondNet Code
+- Evolith ARCH32
+- UMS
+- Alberto Arroyo Raygada
+
+This NOTICE file must be retained in copies, distributions, and derivative works where required by the applicable license.
+
+Attribution must not imply endorsement, sponsorship, partnership, commercial authorization, or ownership transfer unless explicitly granted in writing by BeyondNet Tech.
