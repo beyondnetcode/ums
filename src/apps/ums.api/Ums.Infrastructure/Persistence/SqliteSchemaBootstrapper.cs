@@ -7,6 +7,7 @@ public static class SqliteSchemaBootstrapper
     public static async Task InitializeAsync(UmsPlatformDbContext dbContext, CancellationToken cancellationToken = default)
     {
         await dbContext.Database.EnsureCreatedAsync(cancellationToken);
+        await EnsureTenantManagementOwnerColumnAsync(dbContext, cancellationToken);
 
         await dbContext.Database.ExecuteSqlRawAsync(
             """
@@ -47,5 +48,49 @@ public static class SqliteSchemaBootstrapper
         await dbContext.Database.ExecuteSqlRawAsync(
             """CREATE UNIQUE INDEX IF NOT EXISTS "IX_Roles_SystemSuiteId_Code" ON "Roles" ("SystemSuiteId", "Code");""",
             cancellationToken);
+    }
+
+    private static async Task EnsureTenantManagementOwnerColumnAsync(
+        UmsPlatformDbContext dbContext,
+        CancellationToken cancellationToken)
+    {
+        var connection = dbContext.Database.GetDbConnection();
+        var shouldClose = connection.State != System.Data.ConnectionState.Open;
+
+        if (shouldClose)
+        {
+            await connection.OpenAsync(cancellationToken);
+        }
+
+        try
+        {
+            await using var command = connection.CreateCommand();
+            command.CommandText = """
+                SELECT 1
+                FROM pragma_table_info('Tenants')
+                WHERE name = 'IsManagementOwner'
+                LIMIT 1;
+                """;
+
+            var exists = await command.ExecuteScalarAsync(cancellationToken);
+            if (exists is not null)
+            {
+                return;
+            }
+
+            await dbContext.Database.ExecuteSqlRawAsync(
+                """
+                ALTER TABLE "Tenants"
+                ADD COLUMN "IsManagementOwner" INTEGER NOT NULL DEFAULT 0;
+                """,
+                cancellationToken);
+        }
+        finally
+        {
+            if (shouldClose)
+            {
+                await connection.CloseAsync();
+            }
+        }
     }
 }

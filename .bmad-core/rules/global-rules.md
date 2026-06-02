@@ -158,5 +158,10 @@ This document establishes the mandatory rule configuration for the AI agent harn
 *   **Trigger Condition**: Any complex, cross-cutting, architectural, or evolutionary change that affects business rules, public contracts, bounded contexts, authentication flows, tenancy, configuration catalogs, diagrams, ADRs, or release behavior.
 *   **Instruction**: Complex or evolutionary changes MUST carry an explicit documentation impact check and update plan before completion. The change is not considered complete until the affected documentation artifacts are updated in both languages, impacted diagrams are synchronized and validated, traceability links are refreshed, and any new or changed decision is captured in the appropriate ADR or functional story. If no documentation change is needed, the agent must state that explicitly and record the rationale.
 
+### R-22: Schema, Seed, and Migration Synchronization
+*   **Scope**: `architect`, `dev`, `qa`
+*   **Trigger Condition**: Any change to domain entities, EF Core mappings, persistence records, database schema, seeds, bootstrap scripts, or local development databases.
+*   **Instruction**: Whenever a model, entity, or persistence mapping changes, the corresponding database schema, migration path, seed data, bootstrap logic, and local dev database strategy must be updated in the same execution. A code change is incomplete if it can leave an existing local database, seeded dataset, or bootstrap path incompatible with the new model. Developers must either provide an idempotent schema upgrade path or explicitly document a safe recreation strategy for local development databases.
+
 ## UI Guidelines
 *   **UI Rule - No Raw GUIDs**: Raw GUIDs must NEVER be exposed or rendered in the User Interface (UI), unless explicitly requested. Always use semantic representations (e.g. Code, Name) instead. See ADR 0065 for details.
