@@ -17,6 +17,10 @@ public sealed class RequestContextAccessor : IRequestContext, IExecutionContextA
 
     public string? SpanId => string.IsNullOrWhiteSpace(_current.SpanId) ? null : _current.SpanId;
 
+    private string? _clientTimezone;
+    public string? ClientTimezone => _clientTimezone;
+    public void SetClientTimezone(string? timezone) => _clientTimezone = timezone;
+
     public ExecutionContextSnapshot Current => _current;
 
     public void Set(ExecutionContextSnapshot snapshot)

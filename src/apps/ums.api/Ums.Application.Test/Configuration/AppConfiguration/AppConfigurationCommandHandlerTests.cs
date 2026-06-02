@@ -2,6 +2,7 @@ namespace Ums.Application.Test.Configuration.AppConfiguration;
 
 using Ums.Application.Common.Interfaces;
 using Ums.Application.Configuration.AppConfiguration.Commands;
+using Ums.Application.Configuration.Services;
 using Ums.Domain.Configuration;
 using Xunit;
 
@@ -29,14 +30,17 @@ public class AppConfigurationCommandHandlerTests
     // Shared mocks & helpers
     // -------------------------------------------------------------------------
 
-    private readonly Mock<IAppConfigurationRepository> _repo = new();
-    private readonly Mock<IUnitOfWork>                 _uow  = new();
-    private readonly Mock<IUserContext>                _ctx  = new();
+    private readonly Mock<IAppConfigurationRepository> _repo           = new();
+    private readonly Mock<IUnitOfWork>                 _uow            = new();
+    private readonly Mock<IUserContext>                _ctx            = new();
+    private readonly Mock<IConfigurationProvider>      _configProvider = new();
 
     public AppConfigurationCommandHandlerTests()
     {
         _repo.Setup(r => r.UnitOfWork).Returns(_uow.Object);
         _uow.Setup(u => u.SaveEntitiesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(true);
+        _configProvider.Setup(p => p.ReloadAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        _configProvider.Setup(p => p.ReloadTenantAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
     }
 
     private static CreateAppConfigurationCommand ValidCreateCmd => new(
@@ -178,7 +182,7 @@ public class AppConfigurationCommandHandlerTests
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(config);
 
-        var handler = new PublishAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new PublishAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object);
         var result  = await handler.Handle(new PublishAppConfigurationCommand(Guid.NewGuid()), CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -193,7 +197,7 @@ public class AppConfigurationCommandHandlerTests
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync((AppConfigurationAggregate?)null);
 
-        var handler = new PublishAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new PublishAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object);
         var result  = await handler.Handle(new PublishAppConfigurationCommand(Guid.NewGuid()), CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -207,7 +211,7 @@ public class AppConfigurationCommandHandlerTests
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(MakePublished());
 
-        var handler = new PublishAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new PublishAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object);
         var result  = await handler.Handle(new PublishAppConfigurationCommand(Guid.NewGuid()), CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -221,7 +225,7 @@ public class AppConfigurationCommandHandlerTests
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(MakeArchived());
 
-        var handler = new PublishAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new PublishAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object);
         var result  = await handler.Handle(new PublishAppConfigurationCommand(Guid.NewGuid()), CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -233,7 +237,7 @@ public class AppConfigurationCommandHandlerTests
     {
         _ctx.Setup(u => u.UserId).Returns("");
 
-        var handler = new PublishAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new PublishAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object);
         var result  = await handler.Handle(new PublishAppConfigurationCommand(Guid.NewGuid()), CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -254,7 +258,7 @@ public class AppConfigurationCommandHandlerTests
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(config);
 
-        var handler = new ArchiveAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new ArchiveAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object);
         var result  = await handler.Handle(new ArchiveAppConfigurationCommand(Guid.NewGuid()), CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -268,7 +272,7 @@ public class AppConfigurationCommandHandlerTests
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync((AppConfigurationAggregate?)null);
 
-        var handler = new ArchiveAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new ArchiveAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object);
         var result  = await handler.Handle(new ArchiveAppConfigurationCommand(Guid.NewGuid()), CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -283,7 +287,7 @@ public class AppConfigurationCommandHandlerTests
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(MakeDraft());
 
-        var handler = new ArchiveAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new ArchiveAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object);
         var result  = await handler.Handle(new ArchiveAppConfigurationCommand(Guid.NewGuid()), CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -297,7 +301,7 @@ public class AppConfigurationCommandHandlerTests
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(MakeArchived());
 
-        var handler = new ArchiveAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new ArchiveAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object);
         var result  = await handler.Handle(new ArchiveAppConfigurationCommand(Guid.NewGuid()), CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -309,7 +313,7 @@ public class AppConfigurationCommandHandlerTests
     {
         _ctx.Setup(u => u.UserId).Returns("");
 
-        var handler = new ArchiveAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new ArchiveAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object);
         var result  = await handler.Handle(new ArchiveAppConfigurationCommand(Guid.NewGuid()), CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -330,7 +334,7 @@ public class AppConfigurationCommandHandlerTests
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(config);
 
-        var handler = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object);
         var result  = await handler.Handle(
             new UpdateAppConfigurationCommand(Guid.NewGuid(), "newvalue", "Updated description"),
             CancellationToken.None);
@@ -347,7 +351,7 @@ public class AppConfigurationCommandHandlerTests
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync((AppConfigurationAggregate?)null);
 
-        var handler = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object);
         var result  = await handler.Handle(
             new UpdateAppConfigurationCommand(Guid.NewGuid(), "v", "d"),
             CancellationToken.None);
@@ -363,7 +367,7 @@ public class AppConfigurationCommandHandlerTests
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(MakePublished());
 
-        var handler = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object);
         var result  = await handler.Handle(
             new UpdateAppConfigurationCommand(Guid.NewGuid(), "v", "d"),
             CancellationToken.None);
@@ -379,7 +383,7 @@ public class AppConfigurationCommandHandlerTests
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(MakeArchived());
 
-        var handler = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object);
         var result  = await handler.Handle(
             new UpdateAppConfigurationCommand(Guid.NewGuid(), "v", "d"),
             CancellationToken.None);
@@ -393,7 +397,7 @@ public class AppConfigurationCommandHandlerTests
     {
         _ctx.Setup(u => u.UserId).Returns("");
 
-        var handler = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object);
         var result  = await handler.Handle(
             new UpdateAppConfigurationCommand(Guid.NewGuid(), "v", "d"),
             CancellationToken.None);

@@ -1,17 +1,23 @@
 
 namespace Ums.Application.Configuration.AppConfiguration.Commands;
 
+using Ums.Application.Configuration.Services;
 using Ums.Domain.Configuration;
 
 public sealed class UpdateAppConfigurationCommandHandler : ICommandHandler<UpdateAppConfigurationCommand>
 {
     private readonly IAppConfigurationRepository _repository;
     private readonly IUserContext _userContext;
+    private readonly IConfigurationProvider _configProvider;
 
-    public UpdateAppConfigurationCommandHandler(IAppConfigurationRepository repository, IUserContext userContext)
+    public UpdateAppConfigurationCommandHandler(
+        IAppConfigurationRepository repository,
+        IUserContext userContext,
+        IConfigurationProvider configProvider)
     {
         _repository = repository;
         _userContext = userContext;
+        _configProvider = configProvider;
     }
 
     [AuditTrail]
@@ -40,10 +46,17 @@ public sealed class UpdateAppConfigurationCommandHandler : ICommandHandler<Updat
         }
 
         // REC-10: Pass RowVersion from If-Match header to enforce ETag-based optimistic locking.
-        // The repository sets EF Core's original value so DbUpdateConcurrencyException is raised
-        // if a concurrent modification occurred since the client fetched the ETag.
         await _repository.UpdateAsync(appConfiguration, request.RowVersion, cancellationToken);
         await _repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+
+        // Invalidate the in-memory cache so the updated value is reflected immediately.
+        // For tenant-scoped configs reload only that tenant; global configs reload all.
+        var tenantId = appConfiguration.Props.TenantId?.GetValue();
+        if (tenantId.HasValue)
+            await _configProvider.ReloadTenantAsync(tenantId.Value, cancellationToken);
+        else
+            await _configProvider.ReloadAsync(cancellationToken);
+
         return Result.Success();
     }
 }

@@ -6,6 +6,7 @@ import { usePaginationState } from '@app/shared/hooks/use-pagination-state';
 import { ProfileListPanel } from '../components/ProfileListPanel';
 import { ProfileDetailPanel } from '../components/ProfileDetailPanel';
 import { ProfileForm } from '../components/ProfileForm';
+import { ProfileRequestsInboxPanel } from '../components/ProfileRequestsInboxPanel';
 import { M3AuthorizationGraphPanel } from '../components/M3AuthorizationGraphPanel';
 import { PageShell } from '@shared/layouts/PageShell';
 import { MasterDetailLayout } from '@shared/layouts/MasterDetailLayout';
@@ -57,7 +58,6 @@ export default function ProfileDashboardScreen(): React.JSX.Element {
 
   return (
     <PageShell>
-      {/* Create Dialog Form */}
       <ProfileForm
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
@@ -67,7 +67,6 @@ export default function ProfileDashboardScreen(): React.JSX.Element {
         }}
       />
 
-      {/* Multi-format Graph Exporter Dialog */}
       <M3AuthorizationGraphPanel
         isOpen={isGraphOpen}
         onClose={() => {
@@ -77,7 +76,9 @@ export default function ProfileDashboardScreen(): React.JSX.Element {
         profileId={graphProfileId}
       />
 
-      <MasterDetailLayout
+      <div className="flex h-full min-h-0 flex-col gap-4">
+        <ProfileRequestsInboxPanel />
+        <MasterDetailLayout
         splitterLabel="Resize profile detail panel"
         master={
           <ProfileListPanel
@@ -105,7 +106,8 @@ export default function ProfileDashboardScreen(): React.JSX.Element {
             isLoading={loadingDetail}
           />
         }
-      />
+        />
+      </div>
     </PageShell>
   );
 }

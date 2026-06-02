@@ -2,6 +2,7 @@ namespace Ums.Application.Test.Common.Reliability;
 
 using Ums.Application.Common.Interfaces;
 using Ums.Application.Configuration.AppConfiguration.Commands;
+using Ums.Application.Configuration.Services;
 using Ums.Domain.Configuration;
 using Xunit;
 
@@ -26,9 +27,10 @@ public class TransactionalAtomicityTests
     // Shared fixtures
     // -------------------------------------------------------------------------
 
-    private readonly Mock<IAppConfigurationRepository> _repo = new();
-    private readonly Mock<IUnitOfWork>                 _uow  = new();
-    private readonly Mock<IUserContext>                _ctx  = new();
+    private readonly Mock<IAppConfigurationRepository> _repo           = new();
+    private readonly Mock<IUnitOfWork>                 _uow            = new();
+    private readonly Mock<IUserContext>                _ctx            = new();
+    private readonly Mock<IConfigurationProvider>      _configProvider = new();
 
     private static readonly TenantId     ValidTenant = TenantId.Load(Guid.NewGuid());
     private static readonly SystemSuiteId ValidSuite  = SystemSuiteId.Load(Guid.NewGuid());
@@ -38,6 +40,8 @@ public class TransactionalAtomicityTests
     {
         _repo.Setup(r => r.UnitOfWork).Returns(_uow.Object);
         _ctx.Setup(u => u.UserId).Returns("user-001");
+        _configProvider.Setup(p => p.ReloadAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        _configProvider.Setup(p => p.ReloadTenantAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
     }
 
     private static CreateAppConfigurationCommand ValidCreateCmd => new(
@@ -145,7 +149,7 @@ public class TransactionalAtomicityTests
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(MakePublishedConfig()); // Published → Update is forbidden
 
-        var handler = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object);
         var result  = await handler.Handle(
             new UpdateAppConfigurationCommand(Guid.NewGuid(), "new-value", "new-desc"),
             CancellationToken.None);
@@ -223,7 +227,7 @@ public class TransactionalAtomicityTests
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(MakeArchivedConfig());
 
-        var handler = new PublishAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new PublishAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object);
         var result  = await handler.Handle(
             new PublishAppConfigurationCommand(Guid.NewGuid()),
             CancellationToken.None);
@@ -253,8 +257,8 @@ public class TransactionalAtomicityTests
              .ReturnsAsync(sharedConfig); // both "requests" load same aggregate
         _uow.Setup(u => u.SaveEntitiesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
-        var handlerA = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
-        var handlerB = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handlerA = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object);
+        var handlerB = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object);
         var id = Guid.NewGuid();
 
         // Both requests fire "concurrently" (sequential here but same loaded state)
@@ -319,7 +323,7 @@ public class TransactionalAtomicityTests
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync((AppConfigurationAggregate?)null);
 
-        var handler = new PublishAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new PublishAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object);
         var result  = await handler.Handle(
             new PublishAppConfigurationCommand(Guid.NewGuid()),
             CancellationToken.None);

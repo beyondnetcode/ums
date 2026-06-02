@@ -2,6 +2,7 @@ import React from 'react';
 import {
   useActivateTenant,
   useSuspendTenant,
+  useSetManagementOwner,
 } from '@app/identity/hooks/use-tenant';
 import { useI18n } from '@app/i18n/use-i18n';
 import { useStatusLabel } from '@app/hooks/use-status-label';
@@ -19,6 +20,7 @@ import {
   Save,
   X,
   GitBranch,
+  ShieldCheck,
 } from 'lucide-react';
 import { M3Card } from '@shared/components/M3Card';
 import { M3Button } from '@shared/components/M3Button';
@@ -61,7 +63,8 @@ export const TenantProfileCard: React.FC<TenantProfileCardProps> = ({
 
   const activateMutation = useActivateTenant(tenant.tenantId);
   const suspendMutation = useSuspendTenant(tenant.tenantId);
-  const isPendingMutation = activateMutation.isPending || suspendMutation.isPending;
+  const managementOwnerMutation = useSetManagementOwner(tenant.tenantId);
+  const isPendingMutation = activateMutation.isPending || suspendMutation.isPending || managementOwnerMutation.isPending;
 
   const edit = useInlineEdit<TenantDraft>(['name', 'code', 'companyReference', 'type']);
   const [showDiscardDialog, setShowDiscardDialog] = React.useState(false);
@@ -206,6 +209,26 @@ export const TenantProfileCard: React.FC<TenantProfileCardProps> = ({
                   {t.activateBtn}
                 </button>
               )}
+            </div>
+
+            <div className="flex items-center justify-between text-[11px] mt-2">
+              <div className="flex items-center gap-1.5 text-m3-secondary font-medium">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>UMS Management</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => managementOwnerMutation.mutate(!tenant.isManagementOwner)}
+                disabled={isPendingMutation}
+                className={`h-7 px-3 rounded-full text-[11px] font-medium flex items-center gap-1.5 transition-colors disabled:opacity-50 ${
+                  tenant.isManagementOwner
+                    ? 'bg-m3-primary/10 border border-m3-primary/30 text-m3-primary hover:bg-m3-primary/20'
+                    : 'border border-m3-outline/30 text-m3-secondary hover:bg-m3-surface-variant'
+                }`}
+              >
+                <ShieldCheck className="w-3 h-3" />
+                {tenant.isManagementOwner ? 'Owner' : 'Not owner'}
+              </button>
             </div>
 
             <p className="text-xs text-m3-secondary/50 mt-3 text-center">{t.doubleClickToEdit}</p>

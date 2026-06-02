@@ -30,6 +30,7 @@ import { authService } from '@app/identity/services/auth.service';
 import { getHttpErrorMessage, getSupportReferenceId } from '@app/errors/http-error';
 import { SignupForm } from '../components/SignupForm';
 import { TenantSignupForm } from '../components/TenantSignupForm';
+import { ProfileRequestForm } from '../components/ProfileRequestForm';
 
 export default function LoginScreen(): React.JSX.Element {
   const navigate = useNavigate();
@@ -48,7 +49,7 @@ export default function LoginScreen(): React.JSX.Element {
   const [attempts, setAttempts] = useState(0);
   const [lockoutUntil, setLockoutUntil] = useState<number | null>(null);
   const [showInfoPopup, setShowInfoPopup] = useState(false);
-  const [authView, setAuthView] = useState<'login' | 'forgot' | 'signup' | 'tenant-signup'>('login');
+  const [authView, setAuthView] = useState<'login' | 'forgot' | 'signup' | 'tenant-signup' | 'profile-request'>('login');
 
   const showSessionExpired = new URLSearchParams(location.search).get('showSessionExpired') === 'true';
   const redirectTo = new URLSearchParams(location.search).get('redirect');
@@ -177,35 +178,89 @@ export default function LoginScreen(): React.JSX.Element {
 
   const isLocked = lockoutUntil !== null && Date.now() < lockoutUntil;
 
+  // ── Registration options shown on the right panel ──────────────────────────
+  const REGISTRATION_OPTIONS = [
+    {
+      id: 'tenant-signup' as const,
+      icon: <Building2 className="w-6 h-6" />,
+      color: 'text-m3-primary',
+      bg: 'bg-m3-primary/10 border-m3-primary/20',
+      activeBg: 'bg-m3-primary/15 border-m3-primary/40',
+      title: 'Registrar empresa',
+      description: 'Registra tu empresa en UMS para iniciar el proceso de onboarding y obtener acceso al sistema.',
+      cta: 'Registrar mi empresa',
+    },
+    {
+      id: 'signup' as const,
+      icon: <Key className="w-6 h-6" />,
+      color: 'text-emerald-600',
+      bg: 'bg-emerald-500/10 border-emerald-500/20',
+      activeBg: 'bg-emerald-500/15 border-emerald-500/40',
+      title: 'Crear usuario',
+      description: 'Solicita una cuenta de usuario en un tenant existente. El administrador aprobará tu acceso.',
+      cta: 'Solicitar acceso',
+    },
+    {
+      id: 'profile-request' as const,
+      icon: <ShieldCheck className="w-6 h-6" />,
+      color: 'text-violet-600',
+      bg: 'bg-violet-500/10 border-violet-500/20',
+      activeBg: 'bg-violet-500/15 border-violet-500/40',
+      title: 'Solicitar perfil',
+      description: 'Solicita acceso a un perfil o rol dentro de tu tenant para obtener permisos en el sistema.',
+      cta: 'Solicitar perfil',
+    },
+  ] as const;
+
+  const isSecondaryView = authView !== 'login';
+  const isRegistrationView = authView === 'signup' || authView === 'tenant-signup' || authView === 'profile-request';
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-m3-surface via-m3-surface-container/30 to-m3-surface-container/50">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-m3-primary/10 border border-m3-primary/20 flex items-center justify-center mx-auto mb-4">
-            <Building2 className="w-8 h-8 text-m3-primary" />
+      <div className="w-full max-w-4xl">
+
+        {/* ── Brand header ──────────────────────────────────────────────────── */}
+        <div className="text-center mb-6">
+          <div className="w-14 h-14 rounded-2xl bg-m3-primary/10 border border-m3-primary/20 flex items-center justify-center mx-auto mb-3">
+            <Building2 className="w-7 h-7 text-m3-primary" />
           </div>
           <h1 className="text-2xl font-bold text-m3-on-surface tracking-tight">UMS</h1>
-          <p className="text-sm text-m3-secondary mt-1">User Management System</p>
+          <p className="text-sm text-m3-secondary mt-0.5">User Management System</p>
         </div>
 
         {showSessionExpired && (
-          <div className="mb-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center gap-2">
+          <div className="mb-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center gap-2 max-w-md mx-auto">
             <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0" />
             <p className="text-xs text-amber-500">Su sesión ha expirado. Inicie sesión nuevamente.</p>
           </div>
         )}
 
-        <M3Card variant="elevated" className="p-6 border border-m3-outline/25 bg-m3-surface-container/30">
-          {authView === 'forgot' ? (
-            <ForgotPasswordForm onBack={() => setAuthView('login')} />
-          ) : authView === 'signup' ? (
-            <SignupForm onBack={() => setAuthView('login')} />
-          ) : authView === 'tenant-signup' ? (
-            <TenantSignupForm onBack={() => setAuthView('login')} />
-          ) : (
-            <>
-              <div className="flex items-center gap-2 text-m3-primary mb-5">
-                <Key className="w-5 h-5" />
+        {/* ── Main two-column layout ─────────────────────────────────────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+
+          {/* ── LEFT: Login form (or forgot password) ─────────────────────── */}
+          <M3Card variant="elevated" className="p-6 border border-m3-outline/25 bg-m3-surface-container/30">
+            {authView === 'forgot' ? (
+              <ForgotPasswordForm onBack={() => setAuthView('login')} />
+            ) : isRegistrationView ? (
+              // On mobile: show the selected form in the left card too
+              <div className="lg:hidden">
+                {authView === 'signup'          && <SignupForm onBack={() => setAuthView('login')} />}
+                {authView === 'tenant-signup'   && <TenantSignupForm onBack={() => setAuthView('login')} />}
+                {authView === 'profile-request' && (
+                  <ProfileRequestForm
+                    onBack={() => setAuthView('login')}
+                    onGoToLogin={() => setAuthView('login')}
+                    onGoToSignup={() => setAuthView('signup')}
+                  />
+                )}
+              </div>
+            ) : null}
+
+            {/* Always show login form content (hidden on mobile when registration is active) */}
+            <div className={isRegistrationView ? 'hidden lg:block' : ''}>
+              <div className="flex items-center gap-2 mb-5">
+                <Key className="w-5 h-5 text-m3-primary" />
                 <h2 className="text-sm font-extrabold uppercase tracking-widest text-m3-on-surface">
                   Iniciar Sesión
                 </h2>
@@ -251,12 +306,7 @@ export default function LoginScreen(): React.JSX.Element {
                   </div>
                 )}
 
-                <M3Button
-                  variant="filled"
-                  className="w-full"
-                  type="submit"
-                  disabled={isLoading || isLocked}
-                >
+                <M3Button variant="filled" className="w-full" type="submit" disabled={isLoading || isLocked}>
                   {isLoading ? (
                     <span className="flex items-center gap-2">
                       <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
@@ -265,14 +315,10 @@ export default function LoginScreen(): React.JSX.Element {
                       </svg>
                       Verificando...
                     </span>
-                  ) : isLocked ? (
-                    'Bloqueado'
-                  ) : (
-                    'Ingresar'
-                  )}
+                  ) : isLocked ? 'Bloqueado' : 'Ingresar'}
                 </M3Button>
 
-                <div className="text-center">
+                <div className="text-center pt-1">
                   <button
                     type="button"
                     onClick={() => setAuthView('forgot')}
@@ -281,60 +327,98 @@ export default function LoginScreen(): React.JSX.Element {
                     ¿Olvidaste tu contraseña?
                   </button>
                 </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setAuthView('signup')}
-                    className="rounded-lg border border-m3-outline/20 bg-m3-surface/40 px-3 py-2 text-xs text-m3-on-surface hover:border-m3-primary/40 hover:bg-m3-primary/5 transition-colors"
-                  >
-                    ¿Eres nuevo? Solicitar acceso
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setAuthView('tenant-signup')}
-                    className="rounded-lg border border-m3-outline/20 bg-m3-surface/40 px-3 py-2 text-xs text-m3-on-surface hover:border-m3-primary/40 hover:bg-m3-primary/5 transition-colors"
-                  >
-                    ¿Eres una empresa? Regístrate
-                  </button>
-                </div>
               </form>
-            </>
-          )}
-        </M3Card>
+            </div>
+          </M3Card>
 
-        <div className="mt-4 text-center">
+          {/* ── RIGHT: Registration options or selected form ───────────────── */}
+          <div className="space-y-3">
+            {/* On desktop: show the active form in the right column */}
+            {isRegistrationView && (
+              <M3Card variant="elevated" className="p-6 border border-m3-outline/25 bg-m3-surface-container/30 hidden lg:block animate-fadeIn">
+                {authView === 'signup'          && <SignupForm onBack={() => setAuthView('login')} />}
+                {authView === 'tenant-signup'   && <TenantSignupForm onBack={() => setAuthView('login')} />}
+                {authView === 'profile-request' && (
+                  <ProfileRequestForm
+                    onBack={() => setAuthView('login')}
+                    onGoToLogin={() => setAuthView('login')}
+                    onGoToSignup={() => setAuthView('signup')}
+                  />
+                )}
+              </M3Card>
+            )}
+
+            {/* Registration options — always shown or collapsed */}
+            <div>
+              {!isRegistrationView && (
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-m3-secondary mb-2 px-1">
+                  ¿Qué necesitas?
+                </p>
+              )}
+              <div className="space-y-2">
+                {REGISTRATION_OPTIONS.map((opt) => {
+                  const isActive = authView === opt.id;
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => setAuthView(isActive ? 'login' : opt.id)}
+                      className={[
+                        'w-full flex items-start gap-4 p-4 rounded-2xl border text-left transition-all duration-200',
+                        isActive
+                          ? opt.activeBg
+                          : 'border-m3-outline/20 bg-m3-surface-container/30 hover:border-m3-outline/40 hover:bg-m3-surface-container/50',
+                      ].join(' ')}
+                    >
+                      <div className={`p-2.5 rounded-xl border ${isActive ? opt.activeBg : opt.bg} ${opt.color} shrink-0`}>
+                        {opt.icon}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className={`text-sm font-semibold ${isActive ? opt.color : 'text-m3-on-surface'}`}>
+                          {opt.title}
+                        </p>
+                        <p className="text-xs text-m3-secondary mt-0.5 leading-relaxed">
+                          {opt.description}
+                        </p>
+                        <span className={`inline-flex items-center gap-1 mt-2 text-[11px] font-medium ${isActive ? opt.color : 'text-m3-secondary/70'}`}>
+                          {isActive ? '← Volver al login' : `→ ${opt.cta}`}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Footer ────────────────────────────────────────────────────────── */}
+        <div className="mt-5 flex items-center justify-center gap-4">
           <button
             type="button"
             onClick={() => setShowInfoPopup(true)}
-            className="flex items-center gap-1 text-[10px] text-m3-secondary/60 hover:text-m3-secondary transition-colors mx-auto"
+            className="flex items-center gap-1 text-[10px] text-m3-secondary/60 hover:text-m3-secondary transition-colors"
           >
             <Info className="w-3 h-3" />
             <span>Datos de prueba</span>
           </button>
+          <span className="text-[10px] text-m3-secondary/30">·</span>
+          <p className="text-[10px] text-m3-secondary/50">
+            Sistema protegido contra accesos no autorizados
+          </p>
         </div>
 
+        {/* ── Dev credentials popup ──────────────────────────────────────────── */}
         {showInfoPopup && (
           <>
-            <div
-              className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
-              onClick={() => setShowInfoPopup(false)}
-            />
+            <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" onClick={() => setShowInfoPopup(false)} />
             <div className="fixed z-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm p-4 rounded-xl border border-m3-outline/30 bg-m3-surface-container/95 shadow-2xl">
               <div className="flex items-center justify-between mb-3 pb-2 border-b border-m3-outline/20">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-m3-primary" />
-                  <p className="text-sm font-bold text-m3-on-surface">
-                    Credenciales de Prueba
-                  </p>
+                  <p className="text-sm font-bold text-m3-on-surface">Credenciales de Prueba</p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setShowInfoPopup(false)}
-                  className="text-m3-secondary hover:text-m3-on-surface transition-colors"
-                >
-                  ✕
-                </button>
+                <button type="button" onClick={() => setShowInfoPopup(false)} className="text-m3-secondary hover:text-m3-on-surface transition-colors">✕</button>
               </div>
               <div className="space-y-2 text-xs max-h-80 overflow-y-auto">
                 <div className="p-2 rounded-lg bg-m3-primary-container/30 border border-m3-primary/20">
@@ -356,12 +440,6 @@ export default function LoginScreen(): React.JSX.Element {
             </div>
           </>
         )}
-
-        <div className="mt-4 text-center">
-          <p className="text-[10px] text-m3-secondary/50">
-            Sistema protegido contra accesos no autorizados
-          </p>
-        </div>
       </div>
     </div>
   );

@@ -6,23 +6,9 @@ import { DelegationProfileCard } from './DelegationProfileCard';
 import { useI18n } from '@app/i18n/use-i18n';
 import { KeyValueRow } from '@shared/components/KeyValueRow';
 import { CodeBadge } from '@shared/components/CodeBadge';
+import { useDateFormat } from '@app/formatting/use-date-format';
 
 export type DelegationConsoleTab = 'overview' | 'permissions';
-
-const formatDate = (isoString: string | null) => {
-  if (!isoString) return 'Indefinido';
-  try {
-    return new Intl.DateTimeFormat('es-PE', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(new Date(isoString));
-  } catch {
-    return isoString;
-  }
-};
 
 interface DelegationDetailPanelProps {
   selectedId: string;
@@ -42,6 +28,7 @@ export const DelegationDetailPanel: React.FC<DelegationDetailPanelProps> = ({
   onConsoleTabChange,
 }) => {
   const t = useI18n();
+  const { formatDateTime } = useDateFormat();
 
   const icons: Record<DelegationConsoleTab, React.ReactNode> = {
     overview: <Shield className="w-3.5 h-3.5" />,
@@ -83,12 +70,12 @@ export const DelegationDetailPanel: React.FC<DelegationDetailPanelProps> = ({
                   <KeyValueRow
                     icon={<Calendar className="w-4 h-4" />}
                     label={t.validFrom ?? 'Válido desde'}
-                    value={formatDate(activeDelegation.validFrom)}
+                    value={formatDateTime(activeDelegation.validFrom) ?? 'Indefinido'}
                   />
                   <KeyValueRow
                     icon={<Calendar className="w-4 h-4" />}
                     label={t.validUntil ?? 'Válido hasta'}
-                    value={formatDate(activeDelegation.validUntil)}
+                    value={formatDateTime(activeDelegation.validUntil) ?? 'Indefinido'}
                   />
                   <KeyValueRow
                     icon={<AlertCircle className="w-4 h-4" />}

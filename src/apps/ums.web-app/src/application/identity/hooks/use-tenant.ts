@@ -98,3 +98,20 @@ export const useSuspendTenant = (tenantId: string) => {
     }),
   });
 };
+
+export const useSetManagementOwner = (tenantId: string) => {
+  return useNotifiedMutation({
+    mutationFn: (value: boolean) => tenantService.setManagementOwner(tenantId, value),
+    invalidateKeys: [['tenants', tenantId], ['tenants']],
+    successNotif: (_, variables) => ({
+      title: variables ? 'Management access granted' : 'Management access revoked',
+      message: variables
+        ? 'Tenant can now manage the UMS portal.'
+        : 'Tenant no longer has UMS management access.',
+    }),
+    errorNotif: () => ({
+      title: 'Failed to update management access',
+      message: 'Could not update management ownership. Try again.',
+    }),
+  });
+};

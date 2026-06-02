@@ -13,13 +13,14 @@ export const TenantStatusSchema = z.enum(['Active', 'Suspended', 'Pending']);
 const GuidSchema = z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/);
 
 export const TenantSchema = z.object({
-  tenantId:          GuidSchema,
-  code:              z.string().min(1),
-  name:              z.string().min(1),
-  type:              z.string().min(1),
-  status:            TenantStatusSchema,
-  parentTenantId:    GuidSchema.nullable(),
-  companyReference:  z.string().nullable().optional().transform((v) => v ?? null),
+  tenantId:           GuidSchema,
+  code:               z.string().min(1),
+  name:               z.string().min(1),
+  type:               z.string().min(1),
+  status:             TenantStatusSchema,
+  parentTenantId:     GuidSchema.nullable(),
+  companyReference:   z.string().nullable().optional().transform((v) => v ?? null),
+  isManagementOwner:  z.boolean().default(false),
 });
 
 export const TenantListSchema = z.array(TenantSchema);

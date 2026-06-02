@@ -5,16 +5,18 @@ import { useUserAccountDashboard } from '@app/identity/hooks/use-user-account-da
 import { UserAccountForm } from '../components/UserAccountForm';
 import { UserAccountDetailPanel } from '../components/UserAccountDetailPanel';
 import { UserAccountListPanel } from '../components/UserAccountListPanel';
+import { UserSignupsInboxPanel } from '../components/UserSignupsInboxPanel';
 import {
   M3FormDialog,
   M3TextField,
   M3Button,
   ConfirmDialog,
-  PageDashboardShell,
   SortOption,
   FilterOption,
   QueryCriteriaOption,
 } from '@shared/components';
+import { PageShell } from '@shared/layouts/PageShell';
+import { MasterDetailLayout } from '@shared/layouts/MasterDetailLayout';
 import { Lock } from 'lucide-react';
 
 export default function UserAccountDashboardScreen(): React.JSX.Element {
@@ -98,10 +100,13 @@ export default function UserAccountDashboardScreen(): React.JSX.Element {
   );
 
   return (
-    <PageDashboardShell
-      splitterLabel="Resize user account detail panel"
-      overlay={modalOverlays}
-      master={
+    <PageShell>
+      {modalOverlays}
+      <div className="flex h-full min-h-0 flex-col gap-4">
+        {!isInternalAdmin && <UserSignupsInboxPanel />}
+        <MasterDetailLayout
+          splitterLabel="Resize user account detail panel"
+          master={
         <UserAccountListPanel
           accounts={dashboard.knownAccounts}
           selectedId={dashboard.selectedId}
@@ -128,16 +133,18 @@ export default function UserAccountDashboardScreen(): React.JSX.Element {
           onApproveAccount={dashboard.handleApproveAccount}
         />
       }
-      detail={
-        <UserAccountDetailPanel
-          activeAccount={dashboard.activeAccount}
-          isLoading={dashboard.isLoadingList}
-          onAccountActivate={dashboard.handleActivate}
-          onAccountBlock={dashboard.handleBlockRequest}
-          onAccountRestore={dashboard.handleRestoreRequest}
-          onAccountUpdate={dashboard.patchAccount}
+          detail={
+            <UserAccountDetailPanel
+              activeAccount={dashboard.activeAccount}
+              isLoading={dashboard.isLoadingList}
+              onAccountActivate={dashboard.handleActivate}
+              onAccountBlock={dashboard.handleBlockRequest}
+              onAccountRestore={dashboard.handleRestoreRequest}
+              onAccountUpdate={dashboard.patchAccount}
+            />
+          }
         />
-      }
-    />
+      </div>
+    </PageShell>
   );
 }

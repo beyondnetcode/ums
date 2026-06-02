@@ -123,6 +123,10 @@ export const tenantService = {
     await httpClient.post(`/tenants/${tenantId}/activate`);
   },
 
+  setManagementOwner: async (tenantId: string, value: boolean): Promise<void> => {
+    await httpClient.post(`/tenants/${tenantId}/set-management-owner`, { value });
+  },
+
   suspendTenant: async (tenantId: string): Promise<void> => {
     await httpClient.post(`/tenants/${tenantId}/suspend`);
   },

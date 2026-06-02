@@ -8,6 +8,8 @@ using Ums.Application.Identity.Tenant.SignupRequests.DTOs;
 using Ums.Application.Identity.Tenant.SignupRequests.Queries;
 using Ums.Application.Identity.Tenant.Queries;
 
+public sealed record SetManagementOwnerRequest(bool Value);
+
 public static class TenantEndpoints
 {
     public static IEndpointRouteBuilder MapTenantEndpoints(this IEndpointRouteBuilder app)
@@ -77,6 +79,22 @@ public static class TenantEndpoints
         .Produces(StatusCodes.Status204NoContent)
         .ProducesProblem(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status409Conflict);
+
+        group.MapPost("/{tenantId:guid}/set-management-owner", async (
+            Guid tenantId,
+            SetManagementOwnerRequest body,
+            IMediator mediator,
+            HttpContext context,
+            CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new SetManagementOwnerCommand(tenantId, body.Value), ct);
+            return result.ToNoContent(context);
+        })
+        .WithName("SetManagementOwner")
+        .WithSummary("Grant or revoke UMS management ownership for a tenant")
+        .Produces(StatusCodes.Status204NoContent)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status400BadRequest);
 
         group.MapGet("/signup-requests", async (
             IMediator mediator,

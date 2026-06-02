@@ -33,4 +33,25 @@ public sealed class RequestContextAccessorTests
         accessor.TraceId.Should().BeNull();
         accessor.SpanId.Should().BeNull();
     }
+
+    [Fact]
+    public void SetClientTimezone_ShouldExposeThroughClientTimezoneProperty()
+    {
+        var accessor = new RequestContextAccessor();
+
+        accessor.SetClientTimezone("America/Lima");
+
+        accessor.ClientTimezone.Should().Be("America/Lima");
+    }
+
+    [Fact]
+    public void SetClientTimezone_WithNull_ShouldReturnNull()
+    {
+        var accessor = new RequestContextAccessor();
+        accessor.SetClientTimezone("America/Lima");
+
+        accessor.SetClientTimezone(null);
+
+        accessor.ClientTimezone.Should().BeNull();
+    }
 }

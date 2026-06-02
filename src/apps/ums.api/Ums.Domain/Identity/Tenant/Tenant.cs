@@ -567,6 +567,14 @@ public sealed class Tenant : AggregateRoot<Tenant, TenantProps>
         return Result.Success();
     }
 
+    public Result SetManagementOwner(bool value, ActorId updatedBy)
+    {
+        SetProps(Props.WithManagementOwner(value));
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy.GetValue());
+        return Result.Success();
+    }
+
     public Result Activate(ActorId updatedBy)
     {
         if (Props.Status == TenantStatus.Archived)

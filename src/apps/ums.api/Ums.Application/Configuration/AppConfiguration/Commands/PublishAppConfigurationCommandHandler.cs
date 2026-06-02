@@ -1,17 +1,23 @@
 
 namespace Ums.Application.Configuration.AppConfiguration.Commands;
 
+using Ums.Application.Configuration.Services;
 using Ums.Domain.Configuration;
 
 public sealed class PublishAppConfigurationCommandHandler : ICommandHandler<PublishAppConfigurationCommand>
 {
     private readonly IAppConfigurationRepository _repository;
     private readonly IUserContext _userContext;
+    private readonly IConfigurationProvider _configProvider;
 
-    public PublishAppConfigurationCommandHandler(IAppConfigurationRepository repository, IUserContext userContext)
+    public PublishAppConfigurationCommandHandler(
+        IAppConfigurationRepository repository,
+        IUserContext userContext,
+        IConfigurationProvider configProvider)
     {
         _repository = repository;
         _userContext = userContext;
+        _configProvider = configProvider;
     }
 
     [AuditTrail]
@@ -37,6 +43,14 @@ public sealed class PublishAppConfigurationCommandHandler : ICommandHandler<Publ
 
         await _repository.UpdateAsync(appConfiguration, cancellationToken);
         await _repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+
+        // Publishing activates the new value — invalidate in-memory cache immediately.
+        var tenantId = appConfiguration.Props.TenantId?.GetValue();
+        if (tenantId.HasValue)
+            await _configProvider.ReloadTenantAsync(tenantId.Value, cancellationToken);
+        else
+            await _configProvider.ReloadAsync(cancellationToken);
+
         return Result.Success();
     }
 }

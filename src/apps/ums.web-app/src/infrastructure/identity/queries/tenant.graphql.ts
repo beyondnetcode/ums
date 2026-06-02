@@ -33,6 +33,7 @@ const GET_TENANTS = `
         status
         parentTenantId
         companyReference
+        isManagementOwner
       }
       page
       pageSize
@@ -52,6 +53,7 @@ const GET_TENANT_BY_ID = `
       status
       parentTenantId
       companyReference
+      isManagementOwner
     }
   }
 `;
@@ -76,6 +78,7 @@ export interface GraphqlTenantDto {
   status: string;
   parentTenantId: string | null;
   companyReference: string | null;
+  isManagementOwner: boolean;
 }
 
 export interface GraphqlTenantPage {

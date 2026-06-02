@@ -1,17 +1,23 @@
 
 namespace Ums.Application.Configuration.AppConfiguration.Commands;
 
+using Ums.Application.Configuration.Services;
 using Ums.Domain.Configuration;
 
 public sealed class ArchiveAppConfigurationCommandHandler : ICommandHandler<ArchiveAppConfigurationCommand>
 {
     private readonly IAppConfigurationRepository _repository;
     private readonly IUserContext _userContext;
+    private readonly IConfigurationProvider _configProvider;
 
-    public ArchiveAppConfigurationCommandHandler(IAppConfigurationRepository repository, IUserContext userContext)
+    public ArchiveAppConfigurationCommandHandler(
+        IAppConfigurationRepository repository,
+        IUserContext userContext,
+        IConfigurationProvider configProvider)
     {
         _repository = repository;
         _userContext = userContext;
+        _configProvider = configProvider;
     }
 
     [AuditTrail]
@@ -37,6 +43,14 @@ public sealed class ArchiveAppConfigurationCommandHandler : ICommandHandler<Arch
 
         await _repository.UpdateAsync(appConfiguration, cancellationToken);
         await _repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+
+        // Archiving removes the value from the active configuration — evict from cache.
+        var tenantId = appConfiguration.Props.TenantId?.GetValue();
+        if (tenantId.HasValue)
+            await _configProvider.ReloadTenantAsync(tenantId.Value, cancellationToken);
+        else
+            await _configProvider.ReloadAsync(cancellationToken);
+
         return Result.Success();
     }
 }

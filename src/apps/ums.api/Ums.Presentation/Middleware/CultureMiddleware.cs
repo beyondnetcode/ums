@@ -1,5 +1,6 @@
 using System.Globalization;
 using Ums.Globalization.Access;
+using Ums.Infrastructure.Services;
 
 namespace Ums.Presentation.Middleware;
 
@@ -8,10 +9,14 @@ public class CultureMiddleware(RequestDelegate next)
     private const string DefaultCulture = "en";
     private const string CultureHeader = "X-Language";
     private const string AcceptLanguageHeader = "Accept-Language";
+    private const string TimezoneHeader = "X-Timezone";
 
-    public async Task InvokeAsync(HttpContext context)
+    public async Task InvokeAsync(HttpContext context, RequestContextAccessor requestContextAccessor)
     {
         var culture = ResolveCulture(context);
+
+        var timezone = context.Request.Headers[TimezoneHeader].FirstOrDefault();
+        requestContextAccessor.SetClientTimezone(string.IsNullOrWhiteSpace(timezone) ? null : timezone);
 
         using (CultureContext.Set(culture))
         {
