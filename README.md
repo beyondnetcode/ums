@@ -11,17 +11,9 @@
 
 ---
 
-## License and Intellectual Property
+## License
 
-UMS is distributed under the [UMS Dual License](./LICENSE), with attribution notices in [NOTICE](./NOTICE).
-
-UMS is a real corporate/enterprise reference application built on top of Evolith ARCH32. It is an applied implementation example of Evolith architectural principles, governance, patterns, standards, security, multi-tenancy, parametrization, authentication, authorization, and documentation practices. UMS does not represent the entirety of Evolith ARCH32.
-
-Selected components may be explicitly designated as open source components. Unless a file, folder, example, or component is expressly marked as open source, all rights remain reserved by BeyondNet Tech / BeyondNet Code.
-
-Commercial, enterprise, SaaS, proprietary, consulting, hosted service, derivative framework, identity platform, authorization engine, or productized use requires prior written authorization from BeyondNet Tech.
-
-Attribution to BeyondNet Tech / BeyondNet Code and Alberto Arroyo Raygada must be preserved according to the applicable license terms.
+Dual licensed. See [LICENSE](./LICENSE) and [NOTICE](./NOTICE).
 
 ---
 
