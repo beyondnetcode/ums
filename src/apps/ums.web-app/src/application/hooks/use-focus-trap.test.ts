@@ -57,7 +57,9 @@ describe('useFocusTrap', () => {
     outsideButton.focus();
     expect(document.activeElement).toBe(outsideButton);
 
-    const { unmount } = renderHook(() => useFocusTrap({ active: true }));
+    const { result, rerender, unmount } = renderHook(() => useFocusTrap({ active: true }));
+    result.current.containerRef.current = container;
+    rerender();
 
     act(() => {
       unmount();
@@ -80,7 +82,9 @@ describe('useFocusTrap', () => {
     const container = document.createElement('div');
     document.body.appendChild(container);
 
-    renderHook(() => useFocusTrap({ active: true }));
+    const { result, rerender } = renderHook(() => useFocusTrap({ active: true }));
+    result.current.containerRef.current = container;
+    rerender();
 
     expect(container.getAttribute('tabindex')).toBe('-1');
   });
@@ -92,7 +96,9 @@ describe('useFocusTrap', () => {
     container.appendChild(button);
     document.body.appendChild(container);
 
-    renderHook(() => useFocusTrap({ active: true }));
+    const { result, rerender } = renderHook(() => useFocusTrap({ active: true }));
+    result.current.containerRef.current = container;
+    rerender();
 
     expect(document.activeElement).toBe(button);
   });
@@ -103,7 +109,9 @@ describe('useFocusTrap', () => {
     container.setAttribute('tabindex', '-1');
     document.body.appendChild(container);
 
-    renderHook(() => useFocusTrap({ active: true, onEscape }));
+    const { result, rerender } = renderHook(() => useFocusTrap({ active: true, onEscape }));
+    result.current.containerRef.current = container;
+    rerender();
 
     act(() => {
       const escapeEvent = new KeyboardEvent('keydown', { key: 'Escape' });
@@ -121,7 +129,9 @@ describe('useFocusTrap', () => {
     container.appendChild(button2);
     document.body.appendChild(container);
 
-    renderHook(() => useFocusTrap({ active: true }));
+    const { result, rerender } = renderHook(() => useFocusTrap({ active: true }));
+    result.current.containerRef.current = container;
+    rerender();
 
     act(() => {
       const tabEvent = new KeyboardEvent('keydown', { key: 'Tab' });

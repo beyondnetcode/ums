@@ -63,7 +63,7 @@ export const NavRail: React.FC<NavRailProps> = ({ collapsed }) => {
 
   if (collapsed) {
     return (
-      <aside className="bg-m3-surface border-r border-m3-outline/25 select-none transition-all duration-300 w-20 lg:block hidden">
+      <aside data-testid="nav-rail" className="bg-m3-surface border-r border-m3-outline/25 select-none transition-all duration-300 w-20 lg:block hidden">
         <div className="flex flex-col h-full py-6 justify-between">
           <nav
             role="navigation"
@@ -101,7 +101,7 @@ export const NavRail: React.FC<NavRailProps> = ({ collapsed }) => {
   }
 
   return (
-    <aside className="bg-m3-surface border-r border-m3-outline/25 select-none transition-all duration-300 w-64 lg:block hidden">
+    <aside data-testid="nav-rail" className="bg-m3-surface border-r border-m3-outline/25 select-none transition-all duration-300 w-64 lg:block hidden">
       <div className="flex flex-col h-full py-6 justify-between">
         <nav role="navigation" aria-label="Main navigation" className="space-y-4 px-3 select-none">
           {modules.map(mod => {

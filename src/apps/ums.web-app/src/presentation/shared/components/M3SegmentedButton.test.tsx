@@ -60,7 +60,7 @@ describe('M3SegmentedButton', () => {
       />
     );
     const button = screen.getByText('List');
-    expect(button).toHaveClass('text-xs');
+    expect(button).toHaveClass('text-[10px]');
   });
 
   it('applies md size by default', () => {
@@ -72,7 +72,7 @@ describe('M3SegmentedButton', () => {
       />
     );
     const button = screen.getByText('List');
-    expect(button).toHaveClass('text-sm');
+    expect(button).toHaveClass('text-[11px]');
   });
 
   it('applies custom className', () => {

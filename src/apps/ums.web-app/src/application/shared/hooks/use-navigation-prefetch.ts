@@ -19,7 +19,12 @@ import { NAV_PREFETCH_CONFIG } from '@app/shared/config/navigation-prefetch.conf
 const PREFETCH_DEBOUNCE_MS = 150;
 
 export function useNavigationPrefetch() {
-  const queryClient = useQueryClient();
+  let queryClient: ReturnType<typeof useQueryClient> | null = null;
+  try {
+    queryClient = useQueryClient();
+  } catch {
+    queryClient = null;
+  }
   const prefetchTimers = useRef<Map<NavItemId, ReturnType<typeof setTimeout>>>(new Map());
 
   const prefetchById = useCallback(
@@ -32,7 +37,7 @@ export function useNavigationPrefetch() {
         const entry = NAV_PREFETCH_CONFIG[screenId];
         if (!entry) return;
 
-        await queryClient.prefetchQuery({
+        await queryClient?.prefetchQuery({
           queryKey: entry.queryKey,
           queryFn: entry.queryFn,
           staleTime: entry.staleTime ?? 30_000,

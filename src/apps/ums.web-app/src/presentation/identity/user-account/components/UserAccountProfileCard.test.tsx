@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { UserAccountProfileCard } from './UserAccountProfileCard';
 import { UserAccount } from '@domain/identity/models/user-account.model';
@@ -35,6 +36,7 @@ describe('UserAccountProfileCard', () => {
 
   it('triggers inline editing mode on double click', async () => {
     const onAccountUpdate = vi.fn();
+    const user = userEvent.setup();
     render(
       <UserAccountProfileCard
         account={mockAccount}
@@ -59,11 +61,12 @@ describe('UserAccountProfileCard', () => {
     expect(emailInput.value).toBe('operator@ransa.pe');
 
     // Change email
-    fireEvent.change(emailInput, { target: { value: 'supervisor@ransa.pe' } });
+    await user.clear(emailInput);
+    await user.type(emailInput, 'supervisor@ransa.pe');
 
     // Click save
     const saveButton = screen.getByText(/Guardar/i);
-    fireEvent.click(saveButton);
+    await user.click(saveButton);
 
     expect(onAccountUpdate).toHaveBeenCalledWith('user-12345', {
       email: 'supervisor@ransa.pe',
@@ -71,4 +74,3 @@ describe('UserAccountProfileCard', () => {
     });
   });
 });
-

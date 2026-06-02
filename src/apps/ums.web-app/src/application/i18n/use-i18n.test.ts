@@ -84,7 +84,7 @@ describe('useI18n', () => {
     const { result } = renderHook(() => useI18n());
     const t = result.current;
 
-    expect(t.authorizationContext).toBe('Authorization Context');
+    expect(t.authorizationContext).toBe('Authorization');
   });
 
   it('returns featureFlags translation', () => {

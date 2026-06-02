@@ -55,8 +55,11 @@ describe('httpClient configuration', () => {
   it('creates axios instance with correct baseURL', async () => {
     await import('./httpClient');
     expect(axios.create).toHaveBeenCalledWith(expect.objectContaining({
-      baseURL: expect.any(String),
-      headers: { 'Content-Type': 'application/json' },
+      baseURL: '/api/v1',
+      headers: expect.objectContaining({
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      }),
     }));
   });
 });

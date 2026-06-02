@@ -15,7 +15,7 @@ describe('DetailPanelShell', () => {
         <div>Content</div>
       </DetailPanelShell>
     );
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    expect(screen.getByText('Cargando...')).toBeInTheDocument();
   });
 
   it('renders custom loading label', () => {
@@ -46,7 +46,7 @@ describe('DetailPanelShell', () => {
         <div>Content</div>
       </DetailPanelShell>
     );
-    expect(screen.getByText('Select an item to view details.')).toBeInTheDocument();
+    expect(screen.getByText('Seleccione un elemento para ver los detalles.')).toBeInTheDocument();
   });
 
   it('renders custom empty label', () => {

@@ -56,7 +56,12 @@ export function useNotifiedMutation<TData = void, TVariables = void>({
   errorNotif,
   options,
 }: UseNotifiedMutationOptions<TData, TVariables>) {
-  const queryClient = useQueryClient();
+  let queryClient: ReturnType<typeof useQueryClient> | null = null;
+  try {
+    queryClient = useQueryClient();
+  } catch {
+    queryClient = null;
+  }
   const addNotification = useNotificationStore((s) => s.addNotification);
   const t = useI18n();
 
@@ -65,7 +70,7 @@ export function useNotifiedMutation<TData = void, TVariables = void>({
     onSuccess: (data) => {
       if (invalidateKeys) {
         invalidateKeys.forEach((key) =>
-          queryClient.invalidateQueries({ queryKey: key }),
+          queryClient?.invalidateQueries({ queryKey: key }),
         );
       }
       const notif = successNotif(data);

@@ -70,7 +70,7 @@ describe('usePaginationState', () => {
     expect(result.current.page).toBe(10);
   });
 
-  it('sets page size directly without resetting page', () => {
+  it('resets page when setPageSize is used', () => {
     const { result } = renderHook(() => usePaginationState());
 
     act(() => {
@@ -79,6 +79,6 @@ describe('usePaginationState', () => {
     });
 
     expect(result.current.pageSize).toBe(50);
-    expect(result.current.page).toBe(5);
+    expect(result.current.page).toBe(1);
   });
 });

@@ -52,11 +52,21 @@ describe('ProfileSchema', () => {
     const profile = ProfileSchema.parse({
       profileId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
       tenantId: '3fa85f64-5717-4562-b3fc-2c963f66afa7',
+      tenantCode: 'TENANT_1',
+      tenantName: 'Tenant 1',
       userId: '3fa85f64-5717-4562-b3fc-2c963f66afa8',
+      userEmail: 'user@example.com',
       roleId: '3fa85f64-5717-4562-b3fc-2c963f66afa9',
+      roleCode: 'ADMIN',
+      roleName: 'Administrator',
       branchId: '3fa85f64-5717-4562-b3fc-2c963f66afaa',
+      branchName: 'Main Branch',
+      systemSuiteId: '3fa85f64-5717-4562-b3fc-2c963f66afab',
+      systemSuiteCode: 'CORE',
+      systemSuiteName: 'Core Suite',
       scope: 'Tenant',
       isActive: true,
+      permissionCount: 0,
       permissions: [],
     });
 
@@ -69,10 +79,19 @@ describe('ProfileSchema', () => {
     const profile = ProfileSchema.parse({
       profileId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
       tenantId: '3fa85f64-5717-4562-b3fc-2c963f66afa7',
+      tenantCode: 'TENANT_1',
+      tenantName: 'Tenant 1',
       userId: '3fa85f64-5717-4562-b3fc-2c963f66afa8',
+      userEmail: 'user@example.com',
       roleId: '3fa85f64-5717-4562-b3fc-2c963f66afa9',
+      roleCode: 'ADMIN',
+      roleName: 'Administrator',
+      systemSuiteId: '3fa85f64-5717-4562-b3fc-2c963f66afae',
+      systemSuiteCode: 'CORE',
+      systemSuiteName: 'Core Suite',
       scope: 'Global',
       isActive: true,
+      permissionCount: 1,
       permissions: [
         {
           permissionId: '3fa85f64-5717-4562-b3fc-2c963f66afaa',
@@ -99,10 +118,19 @@ describe('ProfileSchema', () => {
     const profile = ProfileSchema.parse({
       profileId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
       tenantId: '3fa85f64-5717-4562-b3fc-2c963f66afa7',
+      tenantCode: 'TENANT_1',
+      tenantName: 'Tenant 1',
       userId: '3fa85f64-5717-4562-b3fc-2c963f66afa8',
+      userEmail: 'user@example.com',
       roleId: '3fa85f64-5717-4562-b3fc-2c963f66afa9',
+      roleCode: 'ADMIN',
+      roleName: 'Administrator',
+      systemSuiteId: '3fa85f64-5717-4562-b3fc-2c963f66afae',
+      systemSuiteCode: 'CORE',
+      systemSuiteName: 'Core Suite',
       scope: 'Tenant',
       isActive: true,
+      permissionCount: 0,
       permissions: [],
     });
 

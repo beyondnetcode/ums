@@ -378,6 +378,7 @@ public sealed class SqlServerTenantRepository(UmsPlatformDbContext dbContext) : 
         target.IdpStrategyId = replacement.IdpStrategyId;
         target.CompanyReference = replacement.CompanyReference;
         target.ParentTenantId = replacement.ParentTenantId;
+        target.IsManagementOwner = replacement.IsManagementOwner;
         target.StatusId = replacement.StatusId;
         target.CreatedBy = replacement.CreatedBy;
         target.CreatedAtUtc = replacement.CreatedAtUtc;

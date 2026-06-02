@@ -92,8 +92,9 @@ describe('UserAccountListPanel', () => {
     expect(screen.getByText('Cuentas de Usuario')).toBeInTheDocument();
 
     // Verify active tenant selector is rendered
-    expect(screen.getByLabelText(/Inquilino Activo/i)).toBeInTheDocument();
-    expect(screen.getByText('Ransa Comercial (RANSA)')).toBeInTheDocument();
+    expect(screen.getAllByText('Inquilino Activo').length).toBeGreaterThan(0);
+    expect(screen.getByRole('button', { name: 'Ransa Comercial (RANSA)' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Ransa Comercial (RANSA)' }));
     expect(screen.getByText('Neptunia S.A. (NEPTUNIA)')).toBeInTheDocument();
 
     // Verify account row renders
@@ -123,8 +124,8 @@ describe('UserAccountListPanel', () => {
       />
     );
 
-    const select = screen.getByLabelText(/Inquilino Activo/i);
-    fireEvent.change(select, { target: { value: 'tenant-2' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Ransa Comercial (RANSA)' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Neptunia S.A. (NEPTUNIA)' }));
 
     expect(onTenantChange).toHaveBeenCalledWith('tenant-2');
   });

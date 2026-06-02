@@ -13,6 +13,7 @@ export interface UseFormValidationOptions<T> {
 
 export interface UseFormValidationReturn<T> {
   errors: FieldErrors;
+  setErrors: React.Dispatch<React.SetStateAction<FieldErrors>>;
   fieldErrors: FieldErrors;
   touchedFields: Set<string>;
   isDirty: boolean;
@@ -198,6 +199,7 @@ export function useFormValidation<T extends z.ZodTypeAny>(
 
   return {
     errors,
+    setErrors,
     fieldErrors,
     touchedFields,
     isDirty,

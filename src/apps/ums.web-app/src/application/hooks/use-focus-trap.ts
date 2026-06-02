@@ -68,12 +68,13 @@ export function useFocusTrap({
     }
   }, [active, onEscape]);
 
+  const container = containerRef.current;
+
   useEffect(() => {
     if (!active) return;
 
     previousActiveElementRef.current = document.activeElement;
 
-    const container = containerRef.current;
     if (!container) return;
 
     const focusable = container.querySelector<HTMLElement>(FOCUSABLE_SELECTORS);
@@ -95,7 +96,7 @@ export function useFocusTrap({
         previousActiveElementRef.current.focus();
       }
     };
-  }, [active, trapFocus]);
+  }, [active, trapFocus, container]);
 
   return { containerRef };
 }

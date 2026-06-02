@@ -164,7 +164,7 @@ describe('InlineAddForm', () => {
         <input />
       </InlineAddForm>
     );
-    const submitBtn = screen.getByText('Save');
+    const submitBtn = screen.getByRole('button', { name: /Guardando/i });
     expect(submitBtn).toBeDisabled();
   });
 

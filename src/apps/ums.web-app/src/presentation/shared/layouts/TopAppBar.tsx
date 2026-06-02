@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Database, Menu, Sun, Moon, Bell, Globe, User } from 'lucide-react';
+import { Database, Menu, Sun, Moon, Bell, Globe, User, LogOut } from 'lucide-react';
 import { useAuthStore } from '@app/stores/auth.store';
 import { useThemeStore } from '@app/stores/theme.store';
 import { useDevToolsStore } from '@app/stores/devTools.store';
@@ -43,7 +43,11 @@ export const TopAppBar: React.FC<{ onToggleNav: () => void }> = ({ onToggleNav }
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-m3-surface/85 backdrop-blur-md border-b border-m3-outline/25 h-16 px-6 flex items-center justify-between select-none">
+      <header
+        role="banner"
+        data-testid="top-app-bar"
+        className="sticky top-0 z-40 bg-m3-surface/85 backdrop-blur-md border-b border-m3-outline/25 h-16 px-6 flex items-center justify-between select-none"
+      >
         <div className="flex items-center gap-3">
           <button
             onClick={onToggleNav}
@@ -78,6 +82,18 @@ export const TopAppBar: React.FC<{ onToggleNav: () => void }> = ({ onToggleNav }
                 <span>{user.isInternalAdmin ? 'Admin Local' : (user.tenantName || 'Tenant N/A')}</span>
               </div>
             </div>
+          )}
+
+          {user && (
+            <Tooltip content={t.logoutBtn} placement="bottom">
+              <button
+                onClick={handleLogout}
+                aria-label={t.logoutBtn}
+                className="p-2.5 rounded-full hover:bg-m3-primary/10 text-m3-secondary hover:text-m3-primary transition-all border border-m3-outline/30"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </Tooltip>
           )}
 
           <Tooltip content={t.toggleLanguage} placement="bottom">

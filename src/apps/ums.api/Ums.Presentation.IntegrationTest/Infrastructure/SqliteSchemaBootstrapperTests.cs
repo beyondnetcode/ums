@@ -66,6 +66,64 @@ public sealed class SqliteSchemaBootstrapperTests
         columnExists.Should().BeTrue();
     }
 
+    [Fact]
+    public async Task InitializeAsync_WhenInternalAdminTenantExistsWithFalseFlag_RepairsItToTrue()
+    {
+        await using var connection = new SqliteConnection("Data Source=file:ums-bootstrap-repair?mode=memory&cache=shared");
+        await connection.OpenAsync();
+
+        await using (var setup = connection.CreateCommand())
+        {
+            setup.CommandText = """
+                CREATE TABLE IF NOT EXISTS "Tenants" (
+                    "Id" TEXT NOT NULL CONSTRAINT "PK_Tenants" PRIMARY KEY,
+                    "Code" TEXT NOT NULL,
+                    "Name" TEXT NOT NULL,
+                    "StatusId" INTEGER NOT NULL,
+                    "CreatedBy" TEXT NOT NULL,
+                    "CreatedAtUtc" TEXT NOT NULL,
+                    "AuditTimeSpan" TEXT NOT NULL,
+                    "IsDeleted" INTEGER NOT NULL DEFAULT 0,
+                    "IsManagementOwner" INTEGER NOT NULL DEFAULT 0
+                );
+                INSERT INTO "Tenants" (
+                    "Id", "Code", "Name", "StatusId", "CreatedBy", "CreatedAtUtc", "AuditTimeSpan", "IsDeleted", "IsManagementOwner"
+                ) VALUES (
+                    '11111111-1111-1111-1111-111111111111',
+                    'INTERNAL_ADMIN',
+                    'Internal Admin Tenant',
+                    1,
+                    '00000000-0000-0000-0000-000000000001',
+                    '2026-06-02T00:00:00Z',
+                    '0:00:00',
+                    0,
+                    0
+                );
+                """;
+            await setup.ExecuteNonQueryAsync();
+        }
+
+        var options = new DbContextOptionsBuilder<UmsPlatformDbContext>()
+            .UseSqlite(connection)
+            .Options;
+
+        await using var context = new UmsPlatformDbContext(options, new SystemTenantContext());
+
+        await SqliteSchemaBootstrapper.InitializeAsync(context);
+
+        await using var verify = connection.CreateCommand();
+        verify.CommandText = """
+            SELECT "IsManagementOwner"
+            FROM "Tenants"
+            WHERE upper("Code") = 'INTERNAL_ADMIN'
+            LIMIT 1;
+            """;
+
+        var value = await verify.ExecuteScalarAsync();
+        value.Should().NotBeNull();
+        Convert.ToInt32(value).Should().Be(1);
+    }
+
     private static async Task<bool> ColumnExistsAsync(
         SqliteConnection connection,
         string tableName,

@@ -51,11 +51,25 @@ export const systemSuiteService = {
     return pageResult.data;
   },
 
+  // Backward-compatible aliases used by existing hooks/tests while the UI migrates.
+  getAllSystemSuites: async (params?: {
+    page?: number;
+    pageSize?: number;
+    search?: string;
+    criteria?: string;
+    status?: string;
+    sortBy?: string;
+    sortOrder?: string;
+    tenantId?: string;
+  }): Promise<SystemSuitePage> => systemSuiteService.getAll(params),
+
   getById: async (systemSuiteId: string): Promise<SystemSuite> => {
     const response = await graphqlSystemSuiteQueries.getSystemSuiteById(systemSuiteId);
     if (!response.systemSuiteById) throw new Error('SystemSuite not found');
     return SystemSuiteSchema.parse(response.systemSuiteById);
   },
+
+  getSystemSuiteById: async (systemSuiteId: string): Promise<SystemSuite> => systemSuiteService.getById(systemSuiteId),
 
   // ── Commands (REST) ───────────────────────────────────────────────────────
 

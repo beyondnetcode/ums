@@ -111,7 +111,7 @@ describe('TopAppBar', () => {
     } as any);
 
     render(<TopAppBar onToggleNav={mockOnToggleNav} />);
-    const logoutButton = screen.getByLabelText('Log out');
+    const logoutButton = screen.getByLabelText('Logout');
     fireEvent.click(logoutButton);
     expect(logout).toHaveBeenCalled();
   });

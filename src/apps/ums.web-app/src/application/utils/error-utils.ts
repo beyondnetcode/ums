@@ -3,8 +3,15 @@ import { GraphQlValidationError, GraphQlUnavailableError } from '@infra/http/gra
 export const HTTP_NON_RECOVERABLE_STATUSES = [400, 401, 403, 404, 422] as const;
 
 export function getHttpStatus(error: unknown): number {
-  if (typeof error === 'object' && error !== null && 'status' in error) {
-    return (error as { status: number }).status;
+  if (typeof error === 'object' && error !== null) {
+    if ('status' in error && typeof (error as { status?: unknown }).status === 'number') {
+      return (error as { status: number }).status;
+    }
+
+    const response = (error as { response?: { status?: unknown } }).response;
+    if (response && typeof response.status === 'number') {
+      return response.status;
+    }
   }
   return 0;
 }

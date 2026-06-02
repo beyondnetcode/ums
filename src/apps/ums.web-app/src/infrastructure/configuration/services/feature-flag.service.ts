@@ -35,16 +35,14 @@ function buildQueryString(params?: {
   flagType?: string;
 }): string {
   const p = new URLSearchParams();
-  if (params) {
-    p.set('page', String(params.page ?? 1));
-    p.set('pageSize', String(params.pageSize ?? 20));
-    if (params.search) p.set('search', params.search);
-    if (params.criteria) p.set('criteria', params.criteria);
-    if (params.status) p.set('status', params.status);
-    if (params.sortBy) p.set('sortBy', params.sortBy);
-    if (params.sortOrder) p.set('sortOrder', params.sortOrder);
-    if (params.flagType) p.set('flagType', params.flagType);
-  }
+  p.set('page', String(params?.page ?? 1));
+  p.set('pageSize', String(params?.pageSize ?? 20));
+  if (params?.search) p.set('search', params.search);
+  if (params?.criteria) p.set('criteria', params.criteria);
+  if (params?.status) p.set('status', params.status);
+  if (params?.sortBy) p.set('sortBy', params.sortBy);
+  if (params?.sortOrder) p.set('sortOrder', params.sortOrder);
+  if (params?.flagType) p.set('flagType', params.flagType);
   return p.toString();
 }
 
@@ -69,10 +67,25 @@ export const featureFlagService = {
     return result.data;
   },
 
+  // Backward-compatible aliases used by hooks/tests during the REST migration.
+  getAllFeatureFlags: async (params?: {
+    page?: number;
+    pageSize?: number;
+    search?: string;
+    criteria?: string;
+    status?: string;
+    sortBy?: string;
+    sortOrder?: string;
+    flagType?: string;
+  }): Promise<FeatureFlagPage> => featureFlagService.getAll(params),
+
   getById: async (featureFlagId: string): Promise<FeatureFlag> => {
     const { data } = await httpClient.get<FeatureFlag>(`/feature-flags/${featureFlagId}`);
+    if (!data) throw new Error('FeatureFlag not found');
     return FeatureFlagSchema.parse(data);
   },
+
+  getFeatureFlagById: async (featureFlagId: string): Promise<FeatureFlag> => featureFlagService.getById(featureFlagId),
 
   /** REST: returns all flags scoped to a given SystemSuite (no pagination). */
   getFeatureFlagsBySystemSuite: async (systemSuiteId: string): Promise<FeatureFlag[]> => {

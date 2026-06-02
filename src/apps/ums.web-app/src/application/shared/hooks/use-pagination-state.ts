@@ -27,7 +27,7 @@ export function usePaginationState(options: UsePaginationStateOptions = {}) {
     page,
     setPage,
     pageSize,
-    setPageSize,
+    setPageSize: handlePageSizeChange,
     startIndex,
     handlePageChange,
     handlePageSizeChange,

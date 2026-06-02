@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useDelegationDashboard } from './use-delegation-dashboard';
+import { useAuthStore } from '@app/stores/auth.store';
 import * as useDelegationModule from './use-delegation';
 import * as useLocalOverridesModule from '@app/hooks/use-local-overrides';
 import * as useQueryStateModule from '@app/shared/hooks/use-query-state';
@@ -10,6 +11,9 @@ vi.mock('./use-delegation');
 vi.mock('@app/hooks/use-local-overrides');
 vi.mock('@app/shared/hooks/use-query-state');
 vi.mock('@app/shared/hooks/use-pagination-state');
+vi.mock('@app/stores/auth.store', () => ({
+  useAuthStore: vi.fn(),
+}));
 
 const mockDelegations = [
   { delegationId: 'd-1', scopeType: 'Tenant', status: 'Active', delegatedAdminId: 'u-1', delegatingAdminId: 'u-2', tenantId: 't-1' },
@@ -19,6 +23,15 @@ const mockDelegations = [
 describe('useDelegationDashboard', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    vi.mocked(useAuthStore).mockImplementation((selector?: never) => {
+      const state = {
+        user: {
+          id: '5f4e3d01-1b0a-9f8e-7d6c-543210987654',
+          tenantId: '5f4e3d2c-1b0a-9f8e-7d6c-543210987654',
+        },
+      };
+      return typeof selector === 'function' ? selector(state as never) : (state as never);
+    });
 
     vi.mocked(useDelegationModule.useGetDelegationsByDelegatedAdmin).mockReturnValue({
       data: mockDelegations,

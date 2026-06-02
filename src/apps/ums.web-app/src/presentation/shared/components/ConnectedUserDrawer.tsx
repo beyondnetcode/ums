@@ -86,7 +86,7 @@ function CopyButton({ value, label = 'Copy' }: { value: string; label?: string }
 }
 
 function UserInitialsAvatar({ username, size = 'large' }: { username: string; size?: 'large' | 'small' }) {
-  const initials = username.substring(0, 2).toUpperCase();
+  const initials = (username || '??').substring(0, 2).toUpperCase();
   const sizeClasses = size === 'large' ? 'w-16 h-16 text-xl' : 'w-8 h-8 text-xs';
 
   return (
@@ -131,7 +131,7 @@ export function ConnectedUserDrawer({ isOpen, onClose, onLogout }: ConnectedUser
             <h3 className="text-base font-extrabold text-m3-on-surface truncate">{user.username}</h3>
             <p className="text-[11px] text-m3-secondary truncate">{user.email}</p>
             <div className="flex items-center gap-2 mt-1">
-              <CodeBadge code={user.role.toUpperCase()} />
+              <CodeBadge code={(user.role || 'N/A').toUpperCase()} />
               {user.tenantCode && (
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-m3-secondary-container/30 text-m3-on-secondary-container font-medium">
                   {user.tenantCode}
@@ -156,8 +156,10 @@ export function ConnectedUserDrawer({ isOpen, onClose, onLogout }: ConnectedUser
               <div className="flex items-center justify-between">
                 <span className="text-m3-secondary">User ID</span>
                 <div className="flex items-center gap-1">
-                  <span className="font-mono text-m3-primary text-[10px]">{user.id.substring(0, 8)}...</span>
-                  <CopyButton value={user.id} label="ID" />
+                  <span className="font-mono text-m3-primary text-[10px]">
+                    {user.id ? `${user.id.substring(0, 8)}...` : 'N/A'}
+                  </span>
+                  {user.id && <CopyButton value={user.id} label="ID" />}
                 </div>
               </div>
               <div className="flex items-center justify-between">
@@ -183,8 +185,10 @@ export function ConnectedUserDrawer({ isOpen, onClose, onLogout }: ConnectedUser
               <div className="flex items-center justify-between">
                 <span className="text-m3-secondary">Tenant ID</span>
                 <div className="flex items-center gap-1">
-                  <span className="font-mono text-m3-primary text-[10px]">{user.tenantId.substring(0, 8)}...</span>
-                  <CopyButton value={user.tenantId} label="ID" />
+                  <span className="font-mono text-m3-primary text-[10px]">
+                    {user.tenantId ? `${user.tenantId.substring(0, 8)}...` : 'N/A'}
+                  </span>
+                  {user.tenantId && <CopyButton value={user.tenantId} label="ID" />}
                 </div>
               </div>
             </div>
@@ -199,14 +203,14 @@ export function ConnectedUserDrawer({ isOpen, onClose, onLogout }: ConnectedUser
                 <span className="text-m3-secondary">Profile ID</span>
                 <div className="flex items-center gap-1">
                   <span className="font-mono text-m3-primary text-[10px]">
-                    {user.profileId ? user.profileId.substring(0, 8) + '...' : 'N/A'}
+                    {user.profileId ? `${user.profileId.substring(0, 8)}...` : 'N/A'}
                   </span>
                   {user.profileId && <CopyButton value={user.profileId} label="ID" />}
                 </div>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-m3-secondary">Role</span>
-                <CodeBadge code={user.role} />
+                <CodeBadge code={user.role || 'N/A'} />
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-m3-secondary">Permissions</span>
@@ -226,7 +230,7 @@ export function ConnectedUserDrawer({ isOpen, onClose, onLogout }: ConnectedUser
                 <span className="text-m3-secondary">Session Tracking ID</span>
                 <div className="flex items-center gap-1">
                   <span className="font-mono text-m3-primary text-[10px]">
-                    {user.sessionTrackingId ? user.sessionTrackingId.substring(0, 8) + '...' : 'N/A'}
+                    {user.sessionTrackingId ? `${user.sessionTrackingId.substring(0, 8)}...` : 'N/A'}
                   </span>
                   {user.sessionTrackingId && <CopyButton value={user.sessionTrackingId} label="Session" />}
                 </div>
@@ -295,7 +299,7 @@ export function ConnectedUserDrawer({ isOpen, onClose, onLogout }: ConnectedUser
                   userId: user.id,
                   username: user.username,
                   email: user.email,
-                  role: user.role,
+                  role: user.role || null,
                   tenantId: user.tenantId,
                   tenantCode: user.tenantCode,
                   profileId: user.profileId,

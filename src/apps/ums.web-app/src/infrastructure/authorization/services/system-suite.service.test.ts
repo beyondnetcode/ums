@@ -40,7 +40,7 @@ describe('systemSuiteService', () => {
   describe('getAllSystemSuites', () => {
     it('calls graphql with default params', async () => {
       vi.mocked(graphqlSystemSuiteQueriesModule.graphqlSystemSuiteQueries.getSystemSuites).mockResolvedValue({
-        getSystemSuites: {
+        systemSuites: {
           items: [],
           page: 1,
           pageSize: 20,
@@ -56,7 +56,7 @@ describe('systemSuiteService', () => {
 
     it('passes custom params', async () => {
       vi.mocked(graphqlSystemSuiteQueriesModule.graphqlSystemSuiteQueries.getSystemSuites).mockResolvedValue({
-        getSystemSuites: {
+        systemSuites: {
           items: [{ systemSuiteId: '12345678-1234-1234-1234-123456789012', tenantId: '12345678-1234-1234-1234-123456789012', code: 'S1', name: 'Suite 1', description: '', status: 'Active', modules: [], actions: [], domainResources: [] }],
           page: 2,
           pageSize: 10,
@@ -73,7 +73,7 @@ describe('systemSuiteService', () => {
 
     it('throws on invalid response', async () => {
       vi.mocked(graphqlSystemSuiteQueriesModule.graphqlSystemSuiteQueries.getSystemSuites).mockResolvedValue({
-        getSystemSuites: { invalid: 'shape' },
+        systemSuites: { invalid: 'shape' },
       });
 
       await expect(systemSuiteService.getAllSystemSuites()).rejects.toThrow('Invalid GraphQL response shape');
@@ -84,7 +84,7 @@ describe('systemSuiteService', () => {
   describe('getSystemSuiteById', () => {
     it('returns parsed system suite', async () => {
       vi.mocked(graphqlSystemSuiteQueriesModule.graphqlSystemSuiteQueries.getSystemSuiteById).mockResolvedValue({
-        getSystemSuiteById: {
+        systemSuiteById: {
           systemSuiteId: '12345678-1234-1234-1234-123456789012',
           tenantId: '12345678-1234-1234-1234-123456789012',
           code: 'S1',
@@ -104,7 +104,7 @@ describe('systemSuiteService', () => {
 
     it('throws when not found', async () => {
       vi.mocked(graphqlSystemSuiteQueriesModule.graphqlSystemSuiteQueries.getSystemSuiteById).mockResolvedValue({
-        getSystemSuiteById: null,
+        systemSuiteById: null,
       });
 
       await expect(systemSuiteService.getSystemSuiteById('nonexistent')).rejects.toThrow('SystemSuite not found');

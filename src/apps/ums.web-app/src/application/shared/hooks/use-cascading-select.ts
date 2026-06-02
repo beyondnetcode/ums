@@ -69,7 +69,7 @@ export function useCascadingSelect<T extends string>(
     if (keyIndex === -1) return;
     setValues(prev => {
       const next = { ...prev };
-      for (let i = keyIndex + 1; i < keys.length; i++) {
+      for (let i = keyIndex; i < keys.length; i++) {
         next[keys[i]] = '';
       }
       return next;

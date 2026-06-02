@@ -26,8 +26,8 @@ import systemSuiteService from '@infra/authorization/services/system-suite.servi
 
 vi.mock('@infra/authorization/services/system-suite.service', () => ({
   systemSuiteService: {
-    getAllSystemSuites: vi.fn(),
-    getSystemSuiteById: vi.fn(),
+    getAll: vi.fn(),
+    getById: vi.fn(),
     createSystemSuite: vi.fn(),
     setSystemSuiteStatus: vi.fn(),
     addModule: vi.fn(),
@@ -46,8 +46,8 @@ vi.mock('@infra/authorization/services/system-suite.service', () => ({
     removeDomainResource: vi.fn(),
   },
   default: {
-    getAllSystemSuites: vi.fn(),
-    getSystemSuiteById: vi.fn(),
+    getAll: vi.fn(),
+    getById: vi.fn(),
     createSystemSuite: vi.fn(),
     setSystemSuiteStatus: vi.fn(),
     addModule: vi.fn(),
@@ -92,7 +92,7 @@ describe('use-system-suite hooks', () => {
       totalPages: 1,
     };
 
-    vi.mocked(systemSuiteService.getAllSystemSuites).mockResolvedValue(mockPage);
+    vi.mocked(systemSuiteService.getAll).mockResolvedValue(mockPage);
 
     const wrapper = createWrapper();
     const { result } = renderHook(
@@ -105,7 +105,7 @@ describe('use-system-suite hooks', () => {
     });
 
     expect(result.current.data?.items[0].name).toBe('Suite 1');
-    expect(systemSuiteService.getAllSystemSuites).toHaveBeenCalledWith({ page: 1, pageSize: 20 });
+    expect(systemSuiteService.getAll).toHaveBeenCalledWith({ page: 1, pageSize: 20 });
   });
 
   it('useGetSystemSuite returns suite by id', async () => {
@@ -117,7 +117,7 @@ describe('use-system-suite hooks', () => {
       createdAt: '2024-01-01',
     };
 
-    vi.mocked(systemSuiteService.getSystemSuiteById).mockResolvedValue(mockSuite);
+    vi.mocked(systemSuiteService.getById).mockResolvedValue(mockSuite);
 
     const wrapper = createWrapper();
     const { result } = renderHook(() => useGetSystemSuite('s1'), { wrapper });
@@ -127,13 +127,13 @@ describe('use-system-suite hooks', () => {
     });
 
     expect(result.current.data?.name).toBe('Suite 1');
-    expect(systemSuiteService.getSystemSuiteById).toHaveBeenCalledWith('s1');
+    expect(systemSuiteService.getById).toHaveBeenCalledWith('s1');
   });
 
   it('useGetSystemSuite returns null on 404', async () => {
     const error = new Error('Not Found');
     (error as any).response = { status: 404 };
-    vi.mocked(systemSuiteService.getSystemSuiteById).mockRejectedValue(error);
+    vi.mocked(systemSuiteService.getById).mockRejectedValue(error);
 
     const wrapper = createWrapper();
     const { result } = renderHook(() => useGetSystemSuite('nonexistent'), { wrapper });

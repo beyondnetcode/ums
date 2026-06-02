@@ -2,12 +2,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Ums.Infrastructure.Persistence;
 
+using Ums.Infrastructure.Persistence.Seeders;
+
 public static class SqliteSchemaBootstrapper
 {
     public static async Task InitializeAsync(UmsPlatformDbContext dbContext, CancellationToken cancellationToken = default)
     {
         await dbContext.Database.EnsureCreatedAsync(cancellationToken);
         await EnsureTenantManagementOwnerColumnAsync(dbContext, cancellationToken);
+        await EnsureInternalAdminTenantManagementOwnerAsync(dbContext, cancellationToken);
 
         await dbContext.Database.ExecuteSqlRawAsync(
             """
@@ -92,5 +95,24 @@ public static class SqliteSchemaBootstrapper
                 await connection.CloseAsync();
             }
         }
+    }
+
+    private static async Task EnsureInternalAdminTenantManagementOwnerAsync(
+        UmsPlatformDbContext dbContext,
+        CancellationToken cancellationToken)
+    {
+        if (!dbContext.Database.IsSqlite())
+        {
+            return;
+        }
+
+        await dbContext.Database.ExecuteSqlRawAsync(
+            $"""
+            UPDATE "Tenants"
+            SET "IsManagementOwner" = 1
+            WHERE upper("Code") = '{CoreDevDataSeeder.InternalAdminTenantCode}'
+              AND COALESCE("IsManagementOwner", 0) = 0;
+            """,
+            cancellationToken);
     }
 }

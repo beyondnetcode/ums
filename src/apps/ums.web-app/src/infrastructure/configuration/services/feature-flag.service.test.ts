@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { featureFlagService } from './feature-flag.service';
 import * as httpClientModule from '@infra/http/httpClient';
-import * as graphqlFeatureFlagQueriesModule from '@infra/configuration/queries/feature-flag.graphql';
 import * as loggerModule from '@app/utils/logger';
 
 vi.mock('@infra/http/httpClient', () => ({
@@ -32,15 +31,13 @@ describe('featureFlagService', () => {
     vi.mocked(httpClientModule.httpClient.post).mockClear();
     vi.mocked(httpClientModule.httpClient.put).mockClear();
     vi.mocked(httpClientModule.httpClient.delete).mockClear();
-    vi.mocked(graphqlFeatureFlagQueriesModule.graphqlFeatureFlagQueries.getFeatureFlags).mockClear();
-    vi.mocked(graphqlFeatureFlagQueriesModule.graphqlFeatureFlagQueries.getFeatureFlagById).mockClear();
     vi.mocked(loggerModule.logger.error).mockClear();
   });
 
   describe('getAllFeatureFlags', () => {
-    it('calls graphql queries with default params', async () => {
-      vi.mocked(graphqlFeatureFlagQueriesModule.graphqlFeatureFlagQueries.getFeatureFlags).mockResolvedValue({
-        getFeatureFlags: {
+    it('calls REST endpoint with default params', async () => {
+      vi.mocked(httpClientModule.httpClient.get).mockResolvedValue({
+        data: {
           items: [],
           page: 1,
           pageSize: 20,
@@ -52,21 +49,12 @@ describe('featureFlagService', () => {
       const result = await featureFlagService.getAllFeatureFlags();
 
       expect(result.items).toHaveLength(0);
-      expect(graphqlFeatureFlagQueriesModule.graphqlFeatureFlagQueries.getFeatureFlags).toHaveBeenCalledWith({
-        page: 1,
-        pageSize: 20,
-        search: undefined,
-        criteria: undefined,
-        status: undefined,
-        sortBy: undefined,
-        sortOrder: undefined,
-        flagType: undefined,
-      });
+      expect(httpClientModule.httpClient.get).toHaveBeenCalledWith('/feature-flags?page=1&pageSize=20');
     });
 
-    it('passes custom params to graphql query', async () => {
-      vi.mocked(graphqlFeatureFlagQueriesModule.graphqlFeatureFlagQueries.getFeatureFlags).mockResolvedValue({
-        getFeatureFlags: {
+    it('passes custom params to REST query', async () => {
+      vi.mocked(httpClientModule.httpClient.get).mockResolvedValue({
+        data: {
           items: [{ featureFlagId: '12345678-1234-1234-1234-123456789012', systemSuiteId: '12345678-1234-1234-1234-123456789012', flagCode: 'FLAG_1', flagType: 'Boolean', flagTargets: 'all', status: 'Active', criteria: [] }],
           page: 2,
           pageSize: 10,
@@ -79,22 +67,23 @@ describe('featureFlagService', () => {
 
       expect(result.items).toHaveLength(1);
       expect(result.page).toBe(2);
+      expect(httpClientModule.httpClient.get).toHaveBeenCalledWith('/feature-flags?page=2&pageSize=10&search=test');
     });
 
     it('throws on invalid response shape', async () => {
-      vi.mocked(graphqlFeatureFlagQueriesModule.graphqlFeatureFlagQueries.getFeatureFlags).mockResolvedValue({
-        getFeatureFlags: { invalid: 'shape' },
+      vi.mocked(httpClientModule.httpClient.get).mockResolvedValue({
+        data: { invalid: 'shape' },
       });
 
-      await expect(featureFlagService.getAllFeatureFlags()).rejects.toThrow('Invalid GraphQL response shape');
+      await expect(featureFlagService.getAllFeatureFlags()).rejects.toThrow('Invalid REST response shape for feature flags query');
       expect(loggerModule.logger.error).toHaveBeenCalled();
     });
   });
 
   describe('getFeatureFlagById', () => {
     it('returns parsed feature flag', async () => {
-      vi.mocked(graphqlFeatureFlagQueriesModule.graphqlFeatureFlagQueries.getFeatureFlagById).mockResolvedValue({
-        getFeatureFlagById: {
+      vi.mocked(httpClientModule.httpClient.get).mockResolvedValue({
+        data: {
           featureFlagId: '12345678-1234-1234-1234-123456789012',
           systemSuiteId: '12345678-1234-1234-1234-123456789012',
           flagCode: 'FLAG_1',
@@ -111,8 +100,8 @@ describe('featureFlagService', () => {
     });
 
     it('throws when flag not found', async () => {
-      vi.mocked(graphqlFeatureFlagQueriesModule.graphqlFeatureFlagQueries.getFeatureFlagById).mockResolvedValue({
-        getFeatureFlagById: null,
+      vi.mocked(httpClientModule.httpClient.get).mockResolvedValue({
+        data: null,
       });
 
       await expect(featureFlagService.getFeatureFlagById('nonexistent')).rejects.toThrow('FeatureFlag not found');

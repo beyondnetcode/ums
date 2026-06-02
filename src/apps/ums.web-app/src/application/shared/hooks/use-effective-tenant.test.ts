@@ -9,9 +9,9 @@ vi.mock('@app/stores/auth.store', () => ({
 
 describe('useEffectiveTenant', () => {
   it('returns session tenant when no override provided', () => {
-    vi.mocked(useAuthStore).mockImplementation(() => ({
-      user: { tenantId: 'session-tenant' },
-    } as never));
+    vi.mocked(useAuthStore).mockImplementation((selector?: never) =>
+      selector({ user: { tenantId: 'session-tenant' } } as never)
+    );
 
     const { result } = renderHook(() => useEffectiveTenant());
 
@@ -19,9 +19,9 @@ describe('useEffectiveTenant', () => {
   });
 
   it('returns override tenant when provided', () => {
-    vi.mocked(useAuthStore).mockImplementation(() => ({
-      user: { tenantId: 'session-tenant' },
-    } as never));
+    vi.mocked(useAuthStore).mockImplementation((selector?: never) =>
+      selector({ user: { tenantId: 'session-tenant' } } as never)
+    );
 
     const { result } = renderHook(() => useEffectiveTenant('override-tenant'));
 
@@ -29,9 +29,9 @@ describe('useEffectiveTenant', () => {
   });
 
   it('returns undefined when no tenant in session and no override', () => {
-    vi.mocked(useAuthStore).mockImplementation(() => ({
-      user: { tenantId: undefined },
-    } as never));
+    vi.mocked(useAuthStore).mockImplementation((selector?: never) =>
+      selector({ user: { tenantId: undefined } } as never)
+    );
 
     const { result } = renderHook(() => useEffectiveTenant());
 
@@ -39,9 +39,9 @@ describe('useEffectiveTenant', () => {
   });
 
   it('prefers override even if session tenant exists', () => {
-    vi.mocked(useAuthStore).mockImplementation(() => ({
-      user: { tenantId: 'session-tenant' },
-    } as never));
+    vi.mocked(useAuthStore).mockImplementation((selector?: never) =>
+      selector({ user: { tenantId: 'session-tenant' } } as never)
+    );
 
     const { result } = renderHook(() => useEffectiveTenant('override-tenant'));
 

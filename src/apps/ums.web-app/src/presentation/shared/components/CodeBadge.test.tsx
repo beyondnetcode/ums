@@ -11,13 +11,13 @@ describe('CodeBadge', () => {
   it('renders with default sm size', () => {
     render(<CodeBadge code="CODE" />);
     const badge = screen.getByText('CODE');
-    expect(badge).toHaveClass('text-xs');
+    expect(badge).toHaveClass('text-[11px]');
   });
 
   it('renders with xs size', () => {
     render(<CodeBadge code="CODE" size="xs" />);
     const badge = screen.getByText('CODE');
-    expect(badge).toHaveClass('text-[8px]');
+    expect(badge).toHaveClass('text-[10px]');
   });
 
   it('applies custom className', () => {

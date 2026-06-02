@@ -4,7 +4,7 @@ import { identityTranslations } from './identity.translations';
 describe('identityTranslations', () => {
   describe('spanish', () => {
     it('has identityContext', () => {
-      expect(identityTranslations.es.identityContext).toBe('Contexto de Identidad');
+      expect(identityTranslations.es.identityContext).toBe('Identidad');
     });
 
     it('has tenant and tenants', () => {
@@ -135,7 +135,7 @@ describe('identityTranslations', () => {
 
   describe('english', () => {
     it('has identityContext', () => {
-      expect(identityTranslations.en.identityContext).toBe('Identity Context');
+      expect(identityTranslations.en.identityContext).toBe('Identity');
     });
 
     it('has tenant and tenants', () => {

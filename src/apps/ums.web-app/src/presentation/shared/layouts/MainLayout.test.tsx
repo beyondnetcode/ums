@@ -22,6 +22,7 @@ describe('MainLayout', () => {
     vi.mocked(authStoreModule.useAuthStore).mockReturnValue({
       user: { id: 'u-1', email: 'test@test.com' },
       logout: vi.fn(),
+      isAuthenticated: true,
     } as any);
 
     vi.mocked(notificationStoreModule.useNotificationStore).mockImplementation((selector: any) => {
@@ -72,6 +73,7 @@ describe('MainLayout', () => {
     vi.mocked(authStoreModule.useAuthStore).mockReturnValue({
       user: null,
       logout: vi.fn(),
+      isAuthenticated: false,
     } as any);
 
     render(<MainLayout><div>Content</div></MainLayout>);

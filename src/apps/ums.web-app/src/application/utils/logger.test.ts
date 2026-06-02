@@ -3,14 +3,25 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { logger, setLoggerConfig } from './logger';
 
 describe('logger', () => {
+  const originalConsole = {
+    debug: console.debug,
+    info: console.info,
+    warn: console.warn,
+    error: console.error,
+  };
+
   beforeEach(() => {
-    vi.spyOn(console, 'debug').mockImplementation(() => {});
-    vi.spyOn(console, 'info').mockImplementation(() => {});
-    vi.spyOn(console, 'warn').mockImplementation(() => {});
-    vi.spyOn(console, 'error').mockImplementation(() => {});
+    console.debug = vi.fn();
+    console.info = vi.fn();
+    console.warn = vi.fn();
+    console.error = vi.fn();
   });
 
   afterEach(() => {
+    console.debug = originalConsole.debug;
+    console.info = originalConsole.info;
+    console.warn = originalConsole.warn;
+    console.error = originalConsole.error;
     vi.restoreAllMocks();
   });
 

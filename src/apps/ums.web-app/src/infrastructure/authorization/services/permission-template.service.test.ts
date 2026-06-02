@@ -40,7 +40,7 @@ describe('permissionTemplateService', () => {
   describe('getAll', () => {
     it('calls graphql with default params', async () => {
       vi.mocked(graphqlPermissionTemplateQueriesModule.graphqlPermissionTemplateQueries.getPermissionTemplates).mockResolvedValue({
-        getPermissionTemplates: {
+        permissionTemplates: {
           items: [],
           page: 1,
           pageSize: 20,
@@ -56,7 +56,7 @@ describe('permissionTemplateService', () => {
 
     it('passes custom params', async () => {
       vi.mocked(graphqlPermissionTemplateQueriesModule.graphqlPermissionTemplateQueries.getPermissionTemplates).mockResolvedValue({
-        getPermissionTemplates: {
+        permissionTemplates: {
           items: [{ templateId: '12345678-1234-1234-1234-123456789012', tenantId: '12345678-1234-1234-1234-123456789012', roleId: '12345678-1234-1234-1234-123456789012', roleName: 'Admin', systemSuiteId: '12345678-1234-1234-1234-123456789012', systemSuiteName: 'Suite 1', version: '1.0', status: 'Draft' }],
           page: 2,
           pageSize: 10,
@@ -73,7 +73,7 @@ describe('permissionTemplateService', () => {
 
     it('throws on invalid response', async () => {
       vi.mocked(graphqlPermissionTemplateQueriesModule.graphqlPermissionTemplateQueries.getPermissionTemplates).mockResolvedValue({
-        getPermissionTemplates: { invalid: 'shape' },
+        permissionTemplates: { invalid: 'shape' },
       });
 
       await expect(permissionTemplateService.getAll()).rejects.toThrow('Invalid response shape');
@@ -84,7 +84,7 @@ describe('permissionTemplateService', () => {
   describe('getById', () => {
     it('returns parsed template detail', async () => {
       vi.mocked(graphqlPermissionTemplateQueriesModule.graphqlPermissionTemplateQueries.getPermissionTemplateById).mockResolvedValue({
-        getPermissionTemplateById: {
+        permissionTemplateById: {
           templateId: '12345678-1234-1234-1234-123456789012',
           tenantId: '12345678-1234-1234-1234-123456789012',
           roleId: '12345678-1234-1234-1234-123456789012',
@@ -104,7 +104,7 @@ describe('permissionTemplateService', () => {
 
     it('throws when not found', async () => {
       vi.mocked(graphqlPermissionTemplateQueriesModule.graphqlPermissionTemplateQueries.getPermissionTemplateById).mockResolvedValue({
-        getPermissionTemplateById: null,
+        permissionTemplateById: null,
       });
 
       await expect(permissionTemplateService.getById('nonexistent')).rejects.toThrow('Permission template not found');

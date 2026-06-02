@@ -40,7 +40,7 @@ describe('profileService', () => {
   describe('getAll', () => {
     it('calls graphql with default params', async () => {
       vi.mocked(graphqlProfileQueriesModule.graphqlProfileQueries.getProfiles).mockResolvedValue({
-        getProfiles: {
+        profiles: {
           items: [],
           page: 1,
           pageSize: 20,
@@ -56,8 +56,8 @@ describe('profileService', () => {
 
     it('passes custom params', async () => {
       vi.mocked(graphqlProfileQueriesModule.graphqlProfileQueries.getProfiles).mockResolvedValue({
-        getProfiles: {
-          items: [{ profileId: '12345678-1234-1234-1234-123456789012', tenantId: '12345678-1234-1234-1234-123456789012', userId: '12345678-1234-1234-1234-123456789012', roleId: '12345678-1234-1234-1234-123456789012', scope: 'Tenant', isActive: true, permissions: [] }],
+        profiles: {
+          items: [{ profileId: '12345678-1234-1234-1234-123456789012', tenantId: '12345678-1234-1234-1234-123456789012', tenantCode: 'TENANT', tenantName: 'Tenant', userId: '12345678-1234-1234-1234-123456789012', userEmail: 'user@example.com', roleId: '12345678-1234-1234-1234-123456789012', roleCode: 'ADMIN', roleName: 'Admin', systemSuiteId: '12345678-1234-1234-1234-123456789012', systemSuiteCode: 'CORE', systemSuiteName: 'Core', branchId: null, branchName: null, scope: 'Tenant', isActive: true, permissionCount: 0, permissions: [] }],
           page: 2,
           pageSize: 10,
           totalItems: 1,
@@ -73,7 +73,7 @@ describe('profileService', () => {
 
     it('throws on invalid response', async () => {
       vi.mocked(graphqlProfileQueriesModule.graphqlProfileQueries.getProfiles).mockResolvedValue({
-        getProfiles: { invalid: 'shape' },
+        profiles: { invalid: 'shape' },
       });
 
       await expect(profileService.getAll()).rejects.toThrow('Invalid response shape');
@@ -84,14 +84,23 @@ describe('profileService', () => {
   describe('getById', () => {
     it('returns parsed profile', async () => {
       vi.mocked(graphqlProfileQueriesModule.graphqlProfileQueries.getProfileById).mockResolvedValue({
-        getProfileById: {
+        profileById: {
           profileId: '12345678-1234-1234-1234-123456789012',
           tenantId: '12345678-1234-1234-1234-123456789012',
+          tenantCode: 'TENANT',
+          tenantName: 'Tenant',
           userId: '12345678-1234-1234-1234-123456789012',
+          userEmail: 'user@example.com',
           roleId: '12345678-1234-1234-1234-123456789012',
+          roleCode: 'ADMIN',
+          roleName: 'Admin',
           scope: 'Tenant',
           isActive: true,
+          permissionCount: 0,
           permissions: [],
+          systemSuiteId: '12345678-1234-1234-1234-123456789012',
+          systemSuiteCode: 'CORE',
+          systemSuiteName: 'Core',
         },
       });
 
@@ -102,7 +111,7 @@ describe('profileService', () => {
 
     it('throws when not found', async () => {
       vi.mocked(graphqlProfileQueriesModule.graphqlProfileQueries.getProfileById).mockResolvedValue({
-        getProfileById: null,
+        profileById: null,
       });
 
       await expect(profileService.getById('nonexistent')).rejects.toThrow('Profile not found');

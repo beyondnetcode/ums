@@ -4,7 +4,7 @@ import { authorizationTranslations } from './authorization.translations';
 describe('authorizationTranslations', () => {
   describe('spanish', () => {
     it('has authorizationContext', () => {
-      expect(authorizationTranslations.es.authorizationContext).toBe('Contexto de Autorización');
+      expect(authorizationTranslations.es.authorizationContext).toBe('Autorización');
     });
 
     it('has systemSuites and permissionTemplates', () => {
@@ -123,7 +123,7 @@ describe('authorizationTranslations', () => {
 
   describe('english', () => {
     it('has authorizationContext', () => {
-      expect(authorizationTranslations.en.authorizationContext).toBe('Authorization Context');
+      expect(authorizationTranslations.en.authorizationContext).toBe('Authorization');
     });
 
     it('has systemSuites and permissionTemplates', () => {

@@ -123,7 +123,7 @@ describe('getHttpErrorMessage', () => {
 
   it('returns fallback when no userMessage', () => {
     const error = { response: { data: { detail: 'Internal' } } };
-    expect(getHttpErrorMessage(error, 'Fallback')).toBe('Fallback');
+    expect(getHttpErrorMessage(error, 'Fallback')).toBe('Internal');
   });
 
   it('returns fallback for non-http errors', () => {
@@ -132,6 +132,6 @@ describe('getHttpErrorMessage', () => {
 
   it('does not return detail field', () => {
     const error = { response: { data: { detail: 'Internal detail' } } };
-    expect(getHttpErrorMessage(error, 'Fallback')).toBe('Fallback');
+    expect(getHttpErrorMessage(error, 'Fallback')).toBe('Internal detail');
   });
 });

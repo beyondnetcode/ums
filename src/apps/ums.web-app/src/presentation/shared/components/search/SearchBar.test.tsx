@@ -12,7 +12,7 @@ describe('SearchBar', () => {
         onSubmit={() => {}}
       />
     );
-    expect(screen.getByLabelText('Search term')).toBeInTheDocument();
+    expect(screen.getByLabelText('Término de búsqueda')).toBeInTheDocument();
   });
 
   it('renders search button', () => {
@@ -23,7 +23,7 @@ describe('SearchBar', () => {
         onSubmit={() => {}}
       />
     );
-    expect(screen.getByText('Search')).toBeInTheDocument();
+    expect(screen.getByText('Buscar')).toBeInTheDocument();
   });
 
   it('calls onSearchValueChange when input changes', async () => {
@@ -37,7 +37,7 @@ describe('SearchBar', () => {
       />
     );
 
-    const input = screen.getByLabelText('Search term');
+    const input = screen.getByLabelText('Término de búsqueda');
     await user.type(input, 'test');
 
     expect(handleChange).toHaveBeenCalled();
@@ -54,7 +54,7 @@ describe('SearchBar', () => {
       />
     );
 
-    const button = screen.getByText('Search');
+    const button = screen.getByText('Buscar');
     await user.click(button);
 
     expect(handleSubmit).toHaveBeenCalled();
@@ -74,7 +74,7 @@ describe('SearchBar', () => {
         onCriteriaChange={() => {}}
       />
     );
-    expect(screen.getByLabelText('Criteria')).toBeInTheDocument();
+    expect(screen.getByLabelText('Criterio')).toBeInTheDocument();
   });
 
   it('uses custom placeholder', () => {
