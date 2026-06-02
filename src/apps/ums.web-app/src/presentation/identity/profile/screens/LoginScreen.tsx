@@ -13,7 +13,9 @@
  */
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuthStore } from '@app/stores/auth.store';
+import { useAuthStore, detectBrowserTimezone } from '@app/stores/auth.store';
+import { useI18nStore } from '@app/stores/i18n.store';
+import type { SupportedLanguage } from '@app/stores/i18n.store';
 import { useDevToolsStore } from '@app/stores/devTools.store';
 import { useI18n } from '@app/i18n/use-i18n';
 import { M3Card } from '@shared/components/M3Card';
@@ -32,6 +34,7 @@ export default function LoginScreen(): React.JSX.Element {
   const navigate = useNavigate();
   const location = useLocation();
   const { login, isAuthenticated } = useAuthStore();
+  const { setLanguage } = useI18nStore();
   const { setDevUserId } = useDevToolsStore();
   const addNotification = useNotificationStore((state) => state.addNotification);
   const t = useI18n();
@@ -106,6 +109,16 @@ export default function LoginScreen(): React.JSX.Element {
       setAttempts(0);
       setDevUserId(data.userId);
 
+      // ADR-0076: Detect browser timezone (D2) and resolve language (D3).
+      // Browser timezone wins over tenant default; browser Accept-Language (already applied
+      // server-side) is reflected in data.language which wins over tenant parameter default.
+      const browserTimezone = detectBrowserTimezone(
+        data.sessionParameters?.defaultTimezone ?? 'America/Lima'
+      );
+      const resolvedParams = data.sessionParameters
+        ? { ...data.sessionParameters, defaultTimezone: browserTimezone }
+        : null;
+
       login({
         id: data.userId,
         username: data.username,
@@ -120,8 +133,16 @@ export default function LoginScreen(): React.JSX.Element {
         token: data.token,
         isInternalAdmin: data.isInternalAdmin,
         crossTenantAccessEnabled: false,
-        sessionParameters: data.sessionParameters,
+        sessionParameters: resolvedParams,
       }, data.expiresIn * 1000, data.refreshExpiresIn * 1000);
+
+      // ADR-0076 D3: Initialize UI language from server-resolved language
+      // (backend already applied Accept-Language > tenant param > default chain).
+      const supportedLangs: SupportedLanguage[] = ['es', 'en'];
+      const lang = data.language as SupportedLanguage;
+      if (supportedLangs.includes(lang)) {
+        setLanguage(lang);
+      }
 
       addNotification({
         title: 'Bienvenido',

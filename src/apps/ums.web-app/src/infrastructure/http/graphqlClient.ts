@@ -87,6 +87,7 @@ async function executeGraphQl<T>(query: string, variables?: Record<string, unkno
   const authState = useAuthStore.getState();
   const token = authState.user?.token;
   const isInternalAdmin = authState.user?.isInternalAdmin;
+  const sessionTimezone = authState.user?.sessionParameters?.defaultTimezone;
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -94,6 +95,8 @@ async function executeGraphQl<T>(query: string, variables?: Record<string, unkno
   };
   if (userId) headers['X-User-Id'] = userId;
   if (language) headers['X-Language'] = language;
+  // ADR-0076 D2: propagate browser-detected timezone for server-side date operations
+  if (sessionTimezone) headers['X-Timezone'] = sessionTimezone;
   if (token) headers['Authorization'] = `Bearer ${token}`;
   if (isInternalAdmin) headers['X-Is-Internal-Admin'] = 'true';
 

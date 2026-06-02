@@ -22,6 +22,9 @@ import { persist, createJSONStorage } from 'zustand/middleware';
  * Tenant-specific configuration values resolved at login from the backend's in-memory
  * parameter cache. Stored in the session so the frontend never needs a separate round-trip.
  * TD-003: When Redis is adopted on the backend, these values still arrive here unchanged.
+ *
+ * ADR-0076: defaultLanguage and defaultTimezone follow the priority chain:
+ *   browser detection > tenant parameter > platform default.
  */
 export interface SessionParameters {
   sessionTimeoutMinutes: number;
@@ -33,6 +36,18 @@ export interface SessionParameters {
   customBrandingEnabled: boolean;
   defaultLanguage: string;
   defaultTimezone: string;
+}
+
+/**
+ * ADR-0076: Detects the browser's IANA timezone.
+ * Returns the browser timezone if available, falls back to sessionParameters.defaultTimezone.
+ */
+export function detectBrowserTimezone(fallback = 'America/Lima'): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || fallback;
+  } catch {
+    return fallback;
+  }
 }
 
 export interface AuthUser {

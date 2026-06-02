@@ -44,6 +44,12 @@ function createHttpClient(): AxiosInstance {
         config.headers.set('X-Language', language);
       }
 
+      // ADR-0076 D2: Send browser timezone so server-side operations (reports, emails) use it
+      const sessionTimezone = useAuthStore.getState().user?.sessionParameters?.defaultTimezone;
+      if (sessionTimezone) {
+        config.headers.set('X-Timezone', sessionTimezone);
+      }
+
       config.headers.set('X-Tenant-Id', tenantId || DEFAULT_TENANT_ID);
       config.headers.set('X-Request-ID', crypto.randomUUID());
 
