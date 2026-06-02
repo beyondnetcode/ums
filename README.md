@@ -7,7 +7,21 @@
 
 > **Standardized Modular Monolith for Unified Identity & Authorization.**
 >
-> ![Status](https://img.shields.io/badge/Status-Active-success) ![Architecture](https://img.shields.io/badge/Architecture-Modular_Monolith-blue) ![Methodology](https://img.shields.io/badge/Methodology-BMAD--METHOD-success)
+> ![Status](https://img.shields.io/badge/Status-Active-success) ![Architecture](https://img.shields.io/badge/Architecture-Modular_Monolith-blue) ![Methodology](https://img.shields.io/badge/Methodology-BMAD--METHOD-success) [![License](https://img.shields.io/badge/License-Dual%20License-informational)](./LICENSE)
+
+---
+
+## License and Intellectual Property
+
+UMS is distributed under the [UMS Dual License](./LICENSE), with attribution notices in [NOTICE](./NOTICE).
+
+UMS is a real corporate/enterprise reference application built on top of Evolith ARCH32. It is an applied implementation example of Evolith architectural principles, governance, patterns, standards, security, multi-tenancy, parametrization, authentication, authorization, and documentation practices. UMS does not represent the entirety of Evolith ARCH32.
+
+Selected components may be explicitly designated as open source components. Unless a file, folder, example, or component is expressly marked as open source, all rights remain reserved by BeyondNet Tech / BeyondNet Code.
+
+Commercial, enterprise, SaaS, proprietary, consulting, hosted service, derivative framework, identity platform, authorization engine, or productized use requires prior written authorization from BeyondNet Tech.
+
+Attribution to BeyondNet Tech / BeyondNet Code and Alberto Arroyo Raygada must be preserved according to the applicable license terms.
 
 ---
 
