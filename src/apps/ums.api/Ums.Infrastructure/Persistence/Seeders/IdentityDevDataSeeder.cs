@@ -57,25 +57,23 @@ public static class IdentityDevDataSeeder
             }
         }
 
-        // Seed User Accounts (including SuperAdmin)
+        // Seed / sync User Accounts (including SuperAdmin) so local password logins stay valid
+        // even when the DB already contains an older dev snapshot.
         var userAccounts = BuildSeedUserAccounts(actor, passwordHasher);
         if (inMemoryUserAccountRepository is null && userAccountRepository is not null)
         {
-            var alreadySeeded = await userAccountRepository.GetAllAsync(null, cancellationToken);
-            if (alreadySeeded.Count == 0)
+            foreach (var userAccount in userAccounts)
             {
-                foreach (var userAccount in userAccounts)
-                {
-                    await userAccountRepository.AddAsync(userAccount, cancellationToken);
-                }
-                await userAccountRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+                await UpsertUserAccountAsync(userAccountRepository, userAccount, actor, cancellationToken);
             }
+
+            await userAccountRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
         }
         else if (inMemoryUserAccountRepository is not null)
         {
             foreach (var userAccount in userAccounts)
             {
-                inMemoryUserAccountRepository.Seed(userAccount);
+                await UpsertUserAccountAsync(inMemoryUserAccountRepository, userAccount, actor, cancellationToken);
             }
         }
 
@@ -492,5 +490,81 @@ public static class IdentityDevDataSeeder
         }
 
         return results;
+    }
+
+    private static async Task UpsertUserAccountAsync(
+        IUserAccountRepository userAccountRepository,
+        UserAccountAggregate seedUserAccount,
+        ActorId actor,
+        CancellationToken cancellationToken)
+    {
+        var existing = await userAccountRepository.GetByEmailAsync(seedUserAccount.Email, cancellationToken);
+
+        if (existing is null)
+        {
+            await userAccountRepository.AddAsync(seedUserAccount, cancellationToken);
+            return;
+        }
+
+        await SyncLocalPasswordAsync(existing, seedUserAccount, actor);
+        await userAccountRepository.UpdateAsync(existing, cancellationToken);
+    }
+
+    private static async Task UpsertUserAccountAsync(
+        InMemoryUserAccountRepository userAccountRepository,
+        UserAccountAggregate seedUserAccount,
+        ActorId actor,
+        CancellationToken cancellationToken)
+    {
+        var existing = await userAccountRepository.GetByEmailAsync(seedUserAccount.Email, cancellationToken);
+
+        if (existing is null)
+        {
+            userAccountRepository.Seed(seedUserAccount);
+            return;
+        }
+
+        await SyncLocalPasswordAsync(existing, seedUserAccount, actor);
+        await userAccountRepository.UpdateAsync(existing, cancellationToken);
+    }
+
+    private static Task SyncLocalPasswordAsync(
+        UserAccountAggregate existingUserAccount,
+        UserAccountAggregate seedUserAccount,
+        ActorId actor)
+    {
+        if (seedUserAccount.Status == UserStatus.Active)
+        {
+            if (existingUserAccount.Status == UserStatus.Pending)
+            {
+                var activateResult = existingUserAccount.Activate(actor);
+                if (activateResult.IsFailure)
+                {
+                    throw new InvalidOperationException(
+                        $"Unable to activate dev user account {seedUserAccount.Email.GetValue()}: {activateResult.Error}");
+                }
+            }
+            else if (existingUserAccount.Status == UserStatus.Blocked)
+            {
+                var restoreResult = existingUserAccount.Restore(actor);
+                if (restoreResult.IsFailure)
+                {
+                    throw new InvalidOperationException(
+                        $"Unable to restore dev user account {seedUserAccount.Email.GetValue()}: {restoreResult.Error}");
+                }
+            }
+        }
+
+        if (seedUserAccount.ActivePasswordHash is not null)
+        {
+            var passwordResult = existingUserAccount.AddPassword(seedUserAccount.ActivePasswordHash, actor);
+            if (passwordResult.IsFailure)
+            {
+                throw new InvalidOperationException(
+                    $"Unable to sync dev password for {seedUserAccount.Email.GetValue()}: {passwordResult.Error}");
+            }
+        }
+
+        return Task.CompletedTask;
     }
 }

@@ -212,8 +212,9 @@ export default function LoginScreen(): React.JSX.Element {
     },
   ] as const;
 
-  const isSecondaryView = authView !== 'login';
   const isRegistrationView = authView === 'signup' || authView === 'tenant-signup' || authView === 'profile-request';
+  const isForgotPasswordView = authView === 'forgot';
+  const showLoginForm = authView === 'login';
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-m3-surface via-m3-surface-container/30 to-m3-surface-container/50">
@@ -240,7 +241,7 @@ export default function LoginScreen(): React.JSX.Element {
 
           {/* ── LEFT: Login form (or forgot password) ─────────────────────── */}
           <M3Card variant="elevated" className="p-6 border border-m3-outline/25 bg-m3-surface-container/30">
-            {authView === 'forgot' ? (
+            {isForgotPasswordView ? (
               <ForgotPasswordForm onBack={() => setAuthView('login')} />
             ) : isRegistrationView ? (
               // On mobile: show the selected form in the left card too
@@ -257,78 +258,80 @@ export default function LoginScreen(): React.JSX.Element {
               </div>
             ) : null}
 
-            {/* Always show login form content (hidden on mobile when registration is active) */}
-            <div className={isRegistrationView ? 'hidden lg:block' : ''}>
-              <div className="flex items-center gap-2 mb-5">
-                <Key className="w-5 h-5 text-m3-primary" />
-                <h2 className="text-sm font-extrabold uppercase tracking-widest text-m3-on-surface">
-                  Iniciar Sesión
-                </h2>
-              </div>
-
-              <form onSubmit={handleLogin} className="space-y-4">
-                <TenantSelect
-                  label="Tenant"
-                  value={tenantId}
-                  onChange={setTenantId}
-                  tenants={DEV_TENANTS}
-                  placeholder="Buscar por código o nombre..."
-                  disabled={isLoading || isLocked}
-                />
-
-                <M3TextField
-                  label="Correo electrónico"
-                  required
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="usuario@empresa.com"
-                  autoComplete="email"
-                  disabled={isLoading || isLocked}
-                  error={error && (error.includes('correo') || error.includes('usuario') || error.includes('email')) ? error : undefined}
-                />
-
-                <M3TextField
-                  label="Contraseña"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  autoComplete="current-password"
-                  disabled={isLoading || isLocked}
-                  error={error && error.includes('contraseña') ? error : undefined}
-                />
-
-                {error && !error.includes('usuario') && !error.includes('contraseña') && (
-                  <div className="p-3 rounded-lg bg-m3-error-container/30 border border-m3-error/20 flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 text-m3-error flex-shrink-0" />
-                    <p className="text-xs text-m3-error">{error}</p>
-                  </div>
-                )}
-
-                <M3Button variant="filled" className="w-full" type="submit" disabled={isLoading || isLocked}>
-                  {isLoading ? (
-                    <span className="flex items-center gap-2">
-                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                      </svg>
-                      Verificando...
-                    </span>
-                  ) : isLocked ? 'Bloqueado' : 'Ingresar'}
-                </M3Button>
-
-                <div className="text-center pt-1">
-                  <button
-                    type="button"
-                    onClick={() => setAuthView('forgot')}
-                    className="text-xs text-m3-primary/70 hover:text-m3-primary transition-colors"
-                  >
-                    ¿Olvidaste tu contraseña?
-                  </button>
+            {/* Show the login form only in the explicit login state */}
+            {showLoginForm && (
+              <div>
+                <div className="flex items-center gap-2 mb-5">
+                  <Key className="w-5 h-5 text-m3-primary" />
+                  <h2 className="text-sm font-extrabold uppercase tracking-widest text-m3-on-surface">
+                    Iniciar Sesión
+                  </h2>
                 </div>
-              </form>
-            </div>
+
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <TenantSelect
+                    label="Tenant"
+                    value={tenantId}
+                    onChange={setTenantId}
+                    tenants={DEV_TENANTS}
+                    placeholder="Buscar por código o nombre..."
+                    disabled={isLoading || isLocked}
+                  />
+
+                  <M3TextField
+                    label="Correo electrónico"
+                    required
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="usuario@empresa.com"
+                    autoComplete="email"
+                    disabled={isLoading || isLocked}
+                    error={error && (error.includes('correo') || error.includes('usuario') || error.includes('email')) ? error : undefined}
+                  />
+
+                  <M3TextField
+                    label="Contraseña"
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    autoComplete="current-password"
+                    disabled={isLoading || isLocked}
+                    error={error && error.includes('contraseña') ? error : undefined}
+                  />
+
+                  {error && !error.includes('usuario') && !error.includes('contraseña') && (
+                    <div className="p-3 rounded-lg bg-m3-error-container/30 border border-m3-error/20 flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 text-m3-error flex-shrink-0" />
+                      <p className="text-xs text-m3-error">{error}</p>
+                    </div>
+                  )}
+
+                  <M3Button variant="filled" className="w-full" type="submit" disabled={isLoading || isLocked}>
+                    {isLoading ? (
+                      <span className="flex items-center gap-2">
+                        <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                        Verificando...
+                      </span>
+                    ) : isLocked ? 'Bloqueado' : 'Ingresar'}
+                  </M3Button>
+
+                  <div className="text-center pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setAuthView('forgot')}
+                      className="text-xs text-m3-primary/70 hover:text-m3-primary transition-colors"
+                    >
+                      ¿Olvidaste tu contraseña?
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
           </M3Card>
 
           {/* ── RIGHT: Registration options or selected form ───────────────── */}
