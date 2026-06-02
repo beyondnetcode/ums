@@ -8,6 +8,7 @@ import {
   useCreateTenant,
   useActivateTenant,
   useSuspendTenant,
+  useSetManagementOwner,
 } from './use-tenant';
 import tenantService from '@infra/identity/services/tenant.service';
 
@@ -19,6 +20,7 @@ vi.mock('@infra/identity/services/tenant.service', () => ({
     createTenant: vi.fn(),
     activateTenant: vi.fn(),
     suspendTenant: vi.fn(),
+    setManagementOwner: vi.fn(),
   },
   default: {
     getAll: vi.fn(),
@@ -27,6 +29,7 @@ vi.mock('@infra/identity/services/tenant.service', () => ({
     createTenant: vi.fn(),
     activateTenant: vi.fn(),
     suspendTenant: vi.fn(),
+    setManagementOwner: vi.fn(),
   },
 }));
 
@@ -157,5 +160,22 @@ describe('use-tenant hooks', () => {
     });
 
     expect(tenantService.suspendTenant).toHaveBeenCalledWith('t1');
+  });
+
+  it('useSetManagementOwner calls service successfully', async () => {
+    vi.mocked(tenantService.setManagementOwner).mockResolvedValue();
+
+    const wrapper = createWrapper();
+    const { result } = renderHook(() => useSetManagementOwner('t1'), { wrapper });
+
+    await act(async () => {
+      result.current.mutate(true);
+    });
+
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true);
+    });
+
+    expect(tenantService.setManagementOwner).toHaveBeenCalledWith('t1', true);
   });
 });
