@@ -24,6 +24,16 @@ import { Key, Building2, ShieldCheck, AlertCircle, Info } from 'lucide-react';
 import { useNotificationStore } from '@app/stores/notification.store';
 import { DEV_TENANTS } from '@domain/identity/constants/tenant.constants';
 import { ForgotPasswordForm } from '../components/ForgotPasswordForm';
+
+const DEV_CREDENTIALS: Record<string, { username: string; password: string }> = {
+  'INTERNAL_ADMIN': { username: 'admin@ums.local',                             password: 'Admin@123' },
+  'RANSA_PERU':     { username: 'gerente.operaciones@ransa.pe',                 password: 'Admin@123' },
+  'NEPTUNIA':       { username: 'gerente.operaciones@neptunia.pe',              password: 'Admin@123' },
+  'APM_CALLAO':     { username: 'gerente.operaciones@apmterminals.com',         password: 'Admin@123' },
+  'PAITA_PORT':     { username: 'gerente.operaciones@tpp-paita.com.pe',         password: 'Admin@123' },
+  'UNIMAR':         { username: 'gerente.operaciones@unimar.com.pe',            password: 'Admin@123' },
+  'INTRADEVCO':     { username: 'gerente.operaciones@intradevco.com.pe',        password: 'Admin@123' },
+};
 import { SignupForm } from '../components/SignupForm';
 import { TenantSignupForm } from '../components/TenantSignupForm';
 
@@ -97,16 +107,6 @@ export default function LoginScreen(): React.JSX.Element {
 
       const simulatedDelay = 300 + Math.random() * 400;
       await new Promise((resolve) => setTimeout(resolve, simulatedDelay));
-
-      const DEV_CREDENTIALS: Record<string, { username: string; password: string }> = {
-        'INTERNAL_ADMIN': { username: 'admin@internal_admin.ums.local', password: 'Admin@123' },
-        'RANSA_PERU':     { username: 'gerente.operaciones@ransa.pe',          password: 'Admin@123' },
-        'NEPTUNIA':       { username: 'gerente.operaciones@neptunia.pe',        password: 'Admin@123' },
-        'APM_CALLAO':     { username: 'gerente.operaciones@apmterminals.com',   password: 'Admin@123' },
-        'PAITA_PORT':     { username: 'gerente.operaciones@tpp-paita.com.pe',   password: 'Admin@123' },
-        'UNIMAR':         { username: 'gerente.operaciones@unimar.com.pe',      password: 'Admin@123' },
-        'INTRADEVCO':     { username: 'gerente.operaciones@intradevco.com.pe',  password: 'Admin@123' },
-      };
 
       const tenantCreds = DEV_CREDENTIALS[selectedTenant.code];
       const isValidCredentials = tenantCreds &&
@@ -334,7 +334,7 @@ export default function LoginScreen(): React.JSX.Element {
                 <div className="p-2 rounded-lg bg-m3-primary-container/30 border border-m3-primary/20">
                   <p className="font-bold text-m3-primary mb-1">Admin Internal (ve todos los tenants)</p>
                   <p className="text-m3-secondary font-mono">Tenant: INTERNAL_ADMIN</p>
-                  <p className="text-m3-secondary font-mono">Usuario: admin@internal_admin.ums.local</p>
+                  <p className="text-m3-secondary font-mono">Usuario: admin@ums.local</p>
                   <p className="text-m3-secondary font-mono">Password: Admin@123</p>
                 </div>
                 <p className="font-semibold text-m3-on-surface mt-3 mb-1">Tenants Comerciales:</p>
@@ -342,7 +342,7 @@ export default function LoginScreen(): React.JSX.Element {
                   <div key={t.id} className="p-2 rounded bg-m3-surface/50 border border-m3-outline/10">
                     <p className="font-bold text-m3-primary">{t.name}</p>
                     <p className="text-m3-secondary font-mono">Tenant: {t.code}</p>
-                    <p className="text-m3-secondary font-mono">Usuario: gerente.operaciones@...</p>
+                    <p className="text-m3-secondary font-mono break-all">Usuario: {DEV_CREDENTIALS[t.code]?.username ?? 'gerente.operaciones@' + t.code.toLowerCase() + '.pe'}</p>
                     <p className="text-m3-secondary font-mono">Password: Admin@123</p>
                   </div>
                 ))}
