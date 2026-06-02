@@ -2,11 +2,11 @@ using Ums.Presentation.IntegrationTest.Infrastructure;
 
 namespace Ums.Presentation.IntegrationTest.Configuration;
 
-public sealed class ConfigurationGraphQlTests : IClassFixture<UmsApiWebApplicationFactory>
+public sealed class ConfigurationRestTests : IClassFixture<UmsApiWebApplicationFactory>
 {
     private readonly HttpClient _client;
 
-    public ConfigurationGraphQlTests(UmsApiWebApplicationFactory factory)
+    public ConfigurationRestTests(UmsApiWebApplicationFactory factory)
     {
         _client = factory.CreateClient(new WebApplicationFactoryClientOptions
         {
@@ -16,110 +16,45 @@ public sealed class ConfigurationGraphQlTests : IClassFixture<UmsApiWebApplicati
     }
 
     [Fact]
-    public async Task GraphQlTenantsQuery_ShouldReturnSeededTenants()
+    public async Task GetTenants_ShouldReturnSeededTenants()
     {
-        var request = new
-        {
-            query = """
-                query {
-                  tenants(page: 1, pageSize: 10) {
-                    items {
-                      tenantId
-                      code
-                      name
-                    }
-                  }
-                }
-                """
-        };
-
-        var response = await _client.PostAsJsonAsync("/graphql", request, TestContext.Current.CancellationToken);
+        var response = await _client.GetAsync("/api/v1/tenants?page=1&pageSize=10", TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         using var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
-        payload.RootElement.TryGetProperty("errors", out _).Should().BeFalse();
-        payload.RootElement.GetProperty("data").GetProperty("tenants").GetProperty("items").GetArrayLength().Should().BeGreaterThan(0);
+        payload.RootElement.GetProperty("items").GetArrayLength().Should().BeGreaterThan(0);
     }
 
     [Fact]
-    public async Task GraphQlFeatureFlagsQuery_ShouldReturnSeededFlag()
+    public async Task GetFeatureFlags_ShouldReturnSeededFlags()
     {
-        var request = new
-        {
-            query = """
-                query {
-                  featureFlags(page: 1, pageSize: 10) {
-                    items {
-                      featureFlagId
-                      flagCode
-                      status
-                    }
-                  }
-                }
-                """
-        };
-
-        var response = await _client.PostAsJsonAsync("/graphql", request, TestContext.Current.CancellationToken);
+        var response = await _client.GetAsync("/api/v1/feature-flags?page=1&pageSize=10", TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         using var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
-        payload.RootElement.TryGetProperty("errors", out _).Should().BeFalse();
-        payload.RootElement.GetProperty("data").GetProperty("featureFlags").GetProperty("items").GetArrayLength().Should().BeGreaterThan(0);
+        payload.RootElement.GetProperty("items").GetArrayLength().Should().BeGreaterThan(0);
     }
 
     [Fact]
-    public async Task GraphQlIdpConfigurationsQuery_ShouldReturnSeededConfiguration()
+    public async Task GetIdpConfigurations_ShouldReturnSeededConfigurations()
     {
-        var request = new
-        {
-            query = """
-                query {
-                  idpConfigurations(page: 1, pageSize: 10) {
-                    items {
-                      idpConfigurationId
-                      providerType
-                      status
-                    }
-                  }
-                }
-                """
-        };
-
-        var response = await _client.PostAsJsonAsync("/graphql", request, TestContext.Current.CancellationToken);
+        var response = await _client.GetAsync("/api/v1/idp-configurations?page=1&pageSize=10", TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         using var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
-        payload.RootElement.TryGetProperty("errors", out _).Should().BeFalse();
-        payload.RootElement.GetProperty("data").GetProperty("idpConfigurations").GetProperty("items").GetArrayLength().Should().BeGreaterThan(0);
+        payload.RootElement.GetProperty("items").GetArrayLength().Should().BeGreaterThan(0);
     }
 
     [Fact]
-    public async Task GraphQlResolveIdpConfigurationQuery_ShouldReturnResolvedProvider()
+    public async Task ResolveIdpConfiguration_ShouldReturnResolvedProvider()
     {
-        var request = new
-        {
-            query = """
-                query {
-                  resolveIdpConfiguration(
-                    tenantId: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
-                    systemSuiteId: "11111111-1111-1111-1111-111111111111"
-                    emailDomain: "beyondnet.com"
-                  ) {
-                    providerType
-                    protocol
-                    domainMatched
-                    authority
-                  }
-                }
-                """
-        };
-
-        var response = await _client.PostAsJsonAsync("/graphql", request, TestContext.Current.CancellationToken);
+        var response = await _client.GetAsync(
+            "/api/v1/idp-configurations/resolve?tenantId=3fa85f64-5717-4562-b3fc-2c963f66afa6&systemSuiteId=11111111-1111-1111-1111-111111111111&emailDomain=beyondnet.com",
+            TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         using var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
-        payload.RootElement.TryGetProperty("errors", out _).Should().BeFalse();
-        var resolved = payload.RootElement.GetProperty("data").GetProperty("resolveIdpConfiguration");
+        var resolved = payload.RootElement;
         resolved.GetProperty("providerType").GetString().Should().Be("AZURE_AD");
         resolved.GetProperty("protocol").GetString().Should().Be("OIDC");
         resolved.GetProperty("domainMatched").GetBoolean().Should().BeTrue();

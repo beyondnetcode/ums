@@ -2,11 +2,11 @@ using Ums.Presentation.IntegrationTest.Infrastructure;
 
 namespace Ums.Presentation.IntegrationTest.Identity;
 
-public sealed class IdentityAndAuthorizationGraphQlTests : IClassFixture<UmsApiWebApplicationFactory>
+public sealed class IdentityAndAuthorizationRestTests : IClassFixture<UmsApiWebApplicationFactory>
 {
     private readonly HttpClient _client;
 
-    public IdentityAndAuthorizationGraphQlTests(UmsApiWebApplicationFactory factory)
+    public IdentityAndAuthorizationRestTests(UmsApiWebApplicationFactory factory)
     {
         _client = factory.CreateClient(new WebApplicationFactoryClientOptions
         {
@@ -16,54 +16,22 @@ public sealed class IdentityAndAuthorizationGraphQlTests : IClassFixture<UmsApiW
     }
 
     [Fact]
-    public async Task GraphQlUserAccountsQuery_ShouldReturnItems()
+    public async Task GetUserAccounts_ShouldReturnItems()
     {
-        var request = new
-        {
-            query = """
-                query {
-                  userAccounts(page: 1, pageSize: 10) {
-                    items {
-                      userAccountId
-                      email
-                      status
-                    }
-                  }
-                }
-                """
-        };
-
-        var response = await _client.PostAsJsonAsync("/graphql", request, TestContext.Current.CancellationToken);
+        var response = await _client.GetAsync("/api/v1/user-accounts?page=1&pageSize=10", TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         using var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
-        payload.RootElement.TryGetProperty("errors", out _).Should().BeFalse();
-        payload.RootElement.GetProperty("data").GetProperty("userAccounts").GetProperty("items").GetArrayLength().Should().BeGreaterThan(0);
+        payload.RootElement.GetProperty("items").GetArrayLength().Should().BeGreaterThan(0);
     }
 
     [Fact]
-    public async Task GraphQlProfilesQuery_ShouldReturnPayload()
+    public async Task GetProfiles_ShouldReturnPayload()
     {
-        var request = new
-        {
-            query = """
-                query {
-                  profiles(page: 1, pageSize: 10) {
-                    items {
-                      profileId
-                      scope
-                      isActive
-                    }
-                  }
-                }
-                """
-        };
-
-        var response = await _client.PostAsJsonAsync("/graphql", request, TestContext.Current.CancellationToken);
+        var response = await _client.GetAsync("/api/v1/profiles?page=1&pageSize=10", TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         using var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
-        payload.RootElement.TryGetProperty("errors", out _).Should().BeFalse();
-        payload.RootElement.GetProperty("data").GetProperty("profiles").GetProperty("items").ValueKind.Should().Be(JsonValueKind.Array);
+        payload.RootElement.GetProperty("items").ValueKind.Should().Be(JsonValueKind.Array);
     }
 }

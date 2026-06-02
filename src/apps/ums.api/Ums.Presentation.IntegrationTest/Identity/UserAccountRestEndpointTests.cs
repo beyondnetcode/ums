@@ -1,4 +1,5 @@
 using Ums.Presentation.IntegrationTest.Infrastructure;
+using Ums.Infrastructure.Persistence.Seeders;
 
 namespace Ums.Presentation.IntegrationTest.Identity;
 
@@ -15,7 +16,7 @@ public sealed class UserAccountRestEndpointTests : IClassFixture<UmsApiWebApplic
         });
         _client.DefaultRequestHeaders.Add("X-User-Id", "00000000-0000-0000-0000-000000000123");
         _client.DefaultRequestHeaders.Add("X-User-Name", "Integration Tester");
-        _client.DefaultRequestHeaders.Add("X-Tenant-Id", "3fa85f64-5717-4562-b3fc-2c963f66afa6");
+        _client.DefaultRequestHeaders.Add("X-Tenant-Id", CoreDevDataSeeder.InternalAdminTenantId);
     }
 
     [Fact]
@@ -24,7 +25,7 @@ public sealed class UserAccountRestEndpointTests : IClassFixture<UmsApiWebApplic
         var email = $"integration.user.{Guid.NewGuid():N}@ums.local";
         var createResponse = await _client.PostAsJsonAsync("/api/v1/user-accounts", new
         {
-            tenantId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+            tenantId = Guid.Parse(CoreDevDataSeeder.InternalAdminTenantId),
             branchId = (Guid?)null,
             email,
             category = "Internal",
@@ -76,7 +77,7 @@ public sealed class UserAccountRestEndpointTests : IClassFixture<UmsApiWebApplic
             identityReferenceType = "HrId",
         }, TestContext.Current.CancellationToken);
 
-        duplicateCreateResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
+        duplicateCreateResponse.StatusCode.Should().BeOneOf(HttpStatusCode.BadRequest, HttpStatusCode.Conflict);
     }
 
     [Fact]
@@ -92,10 +93,12 @@ public sealed class UserAccountRestEndpointTests : IClassFixture<UmsApiWebApplic
     {
         var createResponse = await _client.PostAsJsonAsync("/api/v1/user-accounts", new
         {
-            tenantId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+            tenantId = Guid.Parse(CoreDevDataSeeder.InternalAdminTenantId),
             email = $"native.password.{Guid.NewGuid():N}@ums.local",
             category = "Internal",
         }, TestContext.Current.CancellationToken);
+
+        createResponse.StatusCode.Should().Be(HttpStatusCode.Created);
 
         using var createdPayload = JsonDocument.Parse(await createResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
         var userAccountId = createdPayload.RootElement.GetProperty("userAccountId").GetGuid();

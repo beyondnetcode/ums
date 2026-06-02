@@ -1,4 +1,5 @@
 using Ums.Presentation.IntegrationTest.Infrastructure;
+using Ums.Infrastructure.Persistence.Seeders;
 
 namespace Ums.Presentation.IntegrationTest.Authorization;
 
@@ -15,18 +16,23 @@ public sealed class ProfileRestEndpointTests : IClassFixture<UmsApiWebApplicatio
         });
         _client.DefaultRequestHeaders.Add("X-User-Id", "00000000-0000-0000-0000-000000000123");
         _client.DefaultRequestHeaders.Add("X-User-Name", "Integration Tester");
-        _client.DefaultRequestHeaders.Add("X-Tenant-Id", "3fa85f64-5717-4562-b3fc-2c963f66afa6");
+        _client.DefaultRequestHeaders.Add("X-Tenant-Id", CoreDevDataSeeder.InternalAdminTenantId);
     }
 
     [Fact]
     public async Task CreateProfile_Deactivate_Activate_ShouldSucceed()
     {
+        var tenantId = Guid.Parse(CoreDevDataSeeder.InternalAdminTenantId);
+        var systemSuiteId = await GetManagementSystemSuiteIdAsync(tenantId, TestContext.Current.CancellationToken);
+        var roleId = await CreateRoleAsync(systemSuiteId, TestContext.Current.CancellationToken);
+        var branchId = await CreateBranchAsync(tenantId, TestContext.Current.CancellationToken);
+
         var createResponse = await _client.PostAsJsonAsync("/api/v1/profiles", new
         {
-            tenantId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+            tenantId,
             userId = Guid.NewGuid(),
-            roleId = Guid.Parse("66666666-6666-6666-6666-666666666666"),
-            branchId = Guid.Parse("55555555-5555-5555-5555-555555555555"),
+            roleId,
+            branchId,
         }, TestContext.Current.CancellationToken);
 
         createResponse.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -63,5 +69,59 @@ public sealed class ProfileRestEndpointTests : IClassFixture<UmsApiWebApplicatio
         var response = await _client.GetAsync($"/api/v1/profiles/{Guid.NewGuid()}", TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    private async Task<Guid> GetManagementSystemSuiteIdAsync(Guid tenantId, CancellationToken ct)
+    {
+        var response = await _client.GetAsync($"/api/v1/system-suites?page=1&pageSize=20&tenantId={tenantId}", ct);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        using var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
+        var items = payload.RootElement.GetProperty("items");
+
+        foreach (var item in items.EnumerateArray())
+        {
+            if (string.Equals(item.GetProperty("code").GetString(), "UMS", StringComparison.OrdinalIgnoreCase))
+            {
+                return item.GetProperty("systemSuiteId").GetGuid();
+            }
+        }
+
+        throw new InvalidOperationException("Seeded UMS system suite was not found for the internal admin tenant.");
+    }
+
+    private async Task<Guid> CreateRoleAsync(Guid systemSuiteId, CancellationToken ct)
+    {
+        var roleCode = $"INTEGRATION_ADMIN_{Guid.NewGuid():N}"[..24];
+        var response = await _client.PostAsJsonAsync($"/api/v1/system-suites/{systemSuiteId}/roles", new
+        {
+            code = roleCode,
+            value = "Integration Admin",
+            description = "Temporary role used by the profile REST integration test.",
+            parentRoleId = (Guid?)null,
+            hierarchyLevel = 0,
+            promotionOrder = 0,
+        }, ct);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
+
+        using var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
+        return payload.RootElement.GetProperty("roleId").GetGuid();
+    }
+
+    private async Task<Guid> CreateBranchAsync(Guid tenantId, CancellationToken ct)
+    {
+        var branchCode = $"INT_{Guid.NewGuid():N}"[..12];
+        var response = await _client.PostAsJsonAsync($"/api/v1/tenants/{tenantId}/branches", new
+        {
+            code = branchCode,
+            name = "Integration Branch",
+            geofencingMetadata = (string?)null,
+        }, ct);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
+
+        using var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
+        return payload.RootElement.GetProperty("branchId").GetGuid();
     }
 }
