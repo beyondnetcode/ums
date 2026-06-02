@@ -18,6 +18,23 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
+/**
+ * Tenant-specific configuration values resolved at login from the backend's in-memory
+ * parameter cache. Stored in the session so the frontend never needs a separate round-trip.
+ * TD-003: When Redis is adopted on the backend, these values still arrive here unchanged.
+ */
+export interface SessionParameters {
+  sessionTimeoutMinutes: number;
+  accessTokenDurationMs: number;
+  refreshTokenDurationMs: number;
+  maxLoginAttempts: number;
+  minPasswordLength: number;
+  mfaRequiredForAdmin: boolean;
+  customBrandingEnabled: boolean;
+  defaultLanguage: string;
+  defaultTimezone: string;
+}
+
 export interface AuthUser {
   id: string;
   username: string;
@@ -33,6 +50,8 @@ export interface AuthUser {
   isInternalAdmin: boolean;
   originalTenantId?: string;
   crossTenantAccessEnabled: boolean;
+  /** Tenant-effective parameters loaded at login. Null only for legacy sessions. */
+  sessionParameters: SessionParameters | null;
 }
 
 export interface AuthState {

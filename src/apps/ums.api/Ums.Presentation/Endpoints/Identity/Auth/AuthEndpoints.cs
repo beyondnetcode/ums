@@ -12,6 +12,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Ums.Application.Common.Interfaces;
+using Ums.Application.Configuration.Services;
+using MsConfigProvider = Microsoft.Extensions.Configuration.IConfigurationProvider;
 using Ums.Domain.Authorization;
 using Ums.Domain.Authorization.Graph;
 using Ums.Domain.Identity;
@@ -112,6 +114,7 @@ public static class AuthEndpoints
         LoginRequest  request,
         IMediator     mediator,
         IJwtTokenService jwtTokenService,
+        Ums.Application.Configuration.Services.IConfigurationProvider configProvider,
         HttpContext   httpContext,
         CancellationToken cancellationToken)
     {
@@ -181,6 +184,21 @@ public static class AuthEndpoints
                     : DateTimeOffset.UtcNow.AddHours(1),
             });
 
+        // Resolve tenant-specific parameters from the in-memory cache (loaded at startup).
+        // These are included in the session so the frontend never needs a separate round-trip.
+        var tenantId = ctx.Tenant.Id;
+        var cfg = configProvider.ForTenant(tenantId);
+        var sessionParams = new SessionParameters(
+            SessionTimeoutMinutes:  cfg.SessionTimeoutMinutes,
+            AccessTokenDurationMs:  cfg.AccessTokenDurationMs,
+            RefreshTokenDurationMs: cfg.RefreshTokenDurationMs,
+            MaxLoginAttempts:       cfg.MaxLoginAttempts,
+            MinPasswordLength:      cfg.MinPasswordLength,
+            MfaRequiredForAdmin:    cfg.MfaRequiredForAdmin,
+            CustomBrandingEnabled:  cfg.CustomBrandingEnabled,
+            DefaultLanguage:        cfg.DefaultLanguage,
+            DefaultTimezone:        cfg.DefaultTimezone);
+
         // Build enriched permissions array from Allow options for backward compat
         var permissions = graph.MenuAccess
             .SelectMany(m => m.Menus)
@@ -196,19 +214,20 @@ public static class AuthEndpoints
             UserId:           ctx.User.Id.ToString(),
             Username:         ctx.User.Username,
             Email:            ctx.User.Email,
-            TenantId:         ctx.Tenant.Id.ToString(),
+            TenantId:         tenantId.ToString(),
             TenantCode:       ctx.Tenant.Code,
             TenantName:       ctx.Tenant.Name,
             Role:             ctx.Role.Code,
             RoleName:         ctx.Role.Name,
             ProfileId:        ctx.Profile.Id.ToString(),
             Permissions:      permissions,
-            Language:         "en",
+            Language:         sessionParams.DefaultLanguage,
             Token:            jwtToken,
             TokenType:        "Bearer",
             ExpiresIn:        authResult.ExpiresIn,
             RefreshExpiresIn: request.RememberMe ? 604800 : 86400,
             IsInternalAdmin:  isInternalAdmin,
+            SessionParameters: sessionParams,
             AuthorizationGraph: graph,
             GraphFormat:      authResult.GraphFormat));
     }
@@ -451,6 +470,23 @@ public record LoginRequest(
     string Password,
     bool RememberMe = false);
 
+/// <summary>
+/// Effective configuration values for the authenticated tenant, resolved at login time
+/// from the in-memory parameter cache (loaded at startup by ConfigurationLoaderHostedService).
+/// The frontend uses these values for the entire session without additional API calls.
+/// TD-003: When Redis is adopted, the underlying cache swaps transparently.
+/// </summary>
+public record SessionParameters(
+    int    SessionTimeoutMinutes,
+    int    AccessTokenDurationMs,
+    int    RefreshTokenDurationMs,
+    int    MaxLoginAttempts,
+    int    MinPasswordLength,
+    bool   MfaRequiredForAdmin,
+    bool   CustomBrandingEnabled,
+    string DefaultLanguage,
+    string DefaultTimezone);
+
 public record LoginSuccessResponse(
     string SessionId,
     string SessionTrackingId,
@@ -470,7 +506,8 @@ public record LoginSuccessResponse(
     int? ExpiresIn,
     int? RefreshExpiresIn,
     bool IsInternalAdmin = false,
-    // ── Graph fields (new — null when called from refresh/session endpoints) ──
+    SessionParameters? SessionParameters = null,
+    // ── Graph fields (null when called from refresh/session endpoints) ──────
     Ums.Domain.Authorization.Graph.AuthorizationGraph? AuthorizationGraph = null,
     string? GraphFormat = null);
 

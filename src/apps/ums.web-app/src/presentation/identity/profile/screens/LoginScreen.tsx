@@ -24,16 +24,7 @@ import { Key, Building2, ShieldCheck, AlertCircle, Info } from 'lucide-react';
 import { useNotificationStore } from '@app/stores/notification.store';
 import { DEV_TENANTS } from '@domain/identity/constants/tenant.constants';
 import { ForgotPasswordForm } from '../components/ForgotPasswordForm';
-
-const DEV_CREDENTIALS: Record<string, { username: string; password: string }> = {
-  'INTERNAL_ADMIN': { username: 'admin@ums.local',                             password: 'Admin@123' },
-  'RANSA_PERU':     { username: 'gerente.operaciones@ransa.pe',                 password: 'Admin@123' },
-  'NEPTUNIA':       { username: 'gerente.operaciones@neptunia.pe',              password: 'Admin@123' },
-  'APM_CALLAO':     { username: 'gerente.operaciones@apmterminals.com',         password: 'Admin@123' },
-  'PAITA_PORT':     { username: 'gerente.operaciones@tpp-paita.com.pe',         password: 'Admin@123' },
-  'UNIMAR':         { username: 'gerente.operaciones@unimar.com.pe',            password: 'Admin@123' },
-  'INTRADEVCO':     { username: 'gerente.operaciones@intradevco.com.pe',        password: 'Admin@123' },
-};
+import { authService } from '@app/identity/services/auth.service';
 import { SignupForm } from '../components/SignupForm';
 import { TenantSignupForm } from '../components/TenantSignupForm';
 
@@ -105,61 +96,52 @@ export default function LoginScreen(): React.JSX.Element {
     try {
       const selectedTenant = DEV_TENANTS.find((tn) => tn.id === tenantId) ?? DEV_TENANTS[0];
 
-      const simulatedDelay = 300 + Math.random() * 400;
-      await new Promise((resolve) => setTimeout(resolve, simulatedDelay));
+      const data = await authService.login({
+        tenantCode: selectedTenant.code,
+        username: trimmedUsername,
+        password: trimmedPassword,
+        rememberMe: false,
+      });
 
-      const tenantCreds = DEV_CREDENTIALS[selectedTenant.code];
-      const isValidCredentials = tenantCreds &&
-        trimmedUsername === tenantCreds.username &&
-        trimmedPassword === tenantCreds.password;
-
-      if (!isValidCredentials) {
-        const newAttempts = attempts + 1;
-        setAttempts(newAttempts);
-
-        if (newAttempts >= 5) {
-          const lockDuration = Math.min(30 * 1000, 10 * 1000 * Math.pow(2, Math.floor(newAttempts / 5)));
-          setLockoutUntil(Date.now() + lockDuration);
-          setError(`Demasiados intentos fallidos. Bloqueado por ${lockDuration / 1000} segundos`);
-        } else if (newAttempts >= 3) {
-          setError(`Credenciales inválidas. ${5 - newAttempts} intentos restantes`);
-        } else {
-          setError('Usuario o contraseña incorrectos');
-        }
-
-        setIsLoading(false);
-        return;
-      }
-
-      const generatedId = crypto.randomUUID();
-      setDevUserId(generatedId);
       setAttempts(0);
-
-      const isInternalAdmin = selectedTenant.code === 'INTERNAL_ADMIN';
+      setDevUserId(data.userId);
 
       login({
-        id: generatedId,
-        username: trimmedUsername,
-        email: trimmedUsername,
-        role: 'admin',
-        tenantId,
-        tenantCode: selectedTenant.code,
-        tenantName: selectedTenant.name,
-        sessionTrackingId: crypto.randomUUID(),
-        permissions: [],
-        isInternalAdmin,
-      });
+        id: data.userId,
+        username: data.username,
+        email: data.email,
+        role: data.role ?? '',
+        tenantId: data.tenantId,
+        tenantCode: data.tenantCode,
+        tenantName: data.tenantName,
+        profileId: data.profileId ?? undefined,
+        sessionTrackingId: data.sessionTrackingId,
+        permissions: data.permissions,
+        token: data.token,
+        isInternalAdmin: data.isInternalAdmin,
+        crossTenantAccessEnabled: false,
+        sessionParameters: data.sessionParameters,
+      }, data.expiresIn * 1000, data.refreshExpiresIn * 1000);
 
       addNotification({
         title: 'Bienvenido',
-        message: `Sesión iniciada en ${selectedTenant.code}`,
+        message: `Sesión iniciada en ${data.tenantCode}`,
         type: 'success',
       });
 
       const destination = redirectTo || '/tenants';
       navigate(destination, { replace: true });
-    } catch {
-      setError('Error de conexión. Intente nuevamente');
+    } catch (err) {
+      const newAttempts = attempts + 1;
+      setAttempts(newAttempts);
+
+      if (newAttempts >= 5) {
+        const lockDuration = Math.min(30 * 1000, 10 * 1000 * Math.pow(2, Math.floor(newAttempts / 5)));
+        setLockoutUntil(Date.now() + lockDuration);
+        setError(`Demasiados intentos fallidos. Bloqueado por ${lockDuration / 1000} segundos`);
+      } else {
+        setError(err instanceof Error ? err.message : 'Usuario o contraseña incorrectos');
+      }
     } finally {
       setIsLoading(false);
     }

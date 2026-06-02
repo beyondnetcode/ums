@@ -19,6 +19,18 @@ export interface LoginCredentials {
   rememberMe?: boolean;
 }
 
+export interface AuthSessionParameters {
+  sessionTimeoutMinutes: number;
+  accessTokenDurationMs: number;
+  refreshTokenDurationMs: number;
+  maxLoginAttempts: number;
+  minPasswordLength: number;
+  mfaRequiredForAdmin: boolean;
+  customBrandingEnabled: boolean;
+  defaultLanguage: string;
+  defaultTimezone: string;
+}
+
 export interface AuthResponse {
   sessionId: string;
   sessionTrackingId: string;
@@ -36,6 +48,9 @@ export interface AuthResponse {
   token: string;
   tokenType: string;
   expiresIn: number;
+  refreshExpiresIn: number;
+  isInternalAdmin: boolean;
+  sessionParameters: AuthSessionParameters | null;
 }
 
 export interface AuthError {
@@ -172,10 +187,13 @@ class AuthService {
         roleName: data.roleName,
         profileId: data.profileId,
         permissions: data.permissions || [],
-        language: data.language || 'en',
+        language: data.language || 'es',
         token: data.token,
         tokenType: data.tokenType || 'Bearer',
         expiresIn: data.expiresIn || 3600,
+        refreshExpiresIn: data.refreshExpiresIn || 86400,
+        isInternalAdmin: data.isInternalAdmin || false,
+        sessionParameters: data.sessionParameters ?? null,
       };
 
       return authResponse;
