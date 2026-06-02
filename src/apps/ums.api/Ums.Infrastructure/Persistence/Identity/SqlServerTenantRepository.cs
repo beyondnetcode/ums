@@ -55,7 +55,15 @@ public sealed class SqlServerTenantRepository(UmsPlatformDbContext dbContext) : 
 
     public async Task<IReadOnlyList<TenantAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
-        var records = await dbContext.Tenants
+        var baseQuery = dbContext.Tenants.AsQueryable();
+
+        if (tenantId.HasValue)
+        {
+            // Scope to the tenant itself and any direct child tenants
+            baseQuery = baseQuery.Where(t => t.Id == tenantId.Value || t.ParentTenantId == tenantId.Value);
+        }
+
+        var records = await baseQuery
             .AsSplitQuery()
             .Include(x => x.Branches)
             .Include(x => x.IdentityProviders)
@@ -69,10 +77,16 @@ public sealed class SqlServerTenantRepository(UmsPlatformDbContext dbContext) : 
     /// <inheritdoc/>
     public async Task<(IReadOnlyList<TenantAggregate> Items, int TotalCount)> GetPagedAsync(
         int page, int pageSize, string? search, string? status, string sortBy, string sortOrder,
-        CancellationToken cancellationToken = default)
+        Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
         // REC-12: Apply all filtering at the DB level before Skip/Take to avoid loading full tables.
         var query = dbContext.Tenants.AsQueryable();
+
+        // Tenant isolation: scope to the tenant itself and its direct children
+        if (tenantId.HasValue)
+        {
+            query = query.Where(t => t.Id == tenantId.Value || t.ParentTenantId == tenantId.Value);
+        }
 
         // --- Filtering ---
         if (!string.IsNullOrWhiteSpace(search))

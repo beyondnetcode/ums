@@ -1,4 +1,5 @@
 using Ums.Application.Approvals.NotificationRule.DTOs;
+using Ums.Application.Common.Interfaces;
 using Ums.Domain.Approvals;
 using static Ums.Application.Common.QueryRequestNormalizer;
 
@@ -7,8 +8,13 @@ namespace Ums.Application.Approvals.NotificationRule.Queries;
 public sealed class GetAllNotificationRulesQueryHandler : IQueryHandler<GetAllNotificationRulesQuery, PagedResult<NotificationRuleDto>>
 {
     private readonly INotificationRuleRepository _repository;
+    private readonly ITenantContext? _tenantContext;
 
-    public GetAllNotificationRulesQueryHandler(INotificationRuleRepository repository) => _repository = repository;
+    public GetAllNotificationRulesQueryHandler(INotificationRuleRepository repository, ITenantContext? tenantContext = null)
+    {
+        _repository = repository;
+        _tenantContext = tenantContext;
+    }
 
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
 
@@ -20,9 +26,13 @@ public sealed class GetAllNotificationRulesQueryHandler : IQueryHandler<GetAllNo
         var sortBy = NormalizeText(request.SortBy, "channel").ToLowerInvariant();
         var sortOrder = NormalizeText(request.SortOrder, "asc").ToLowerInvariant();
 
-        var items = request.TenantId.HasValue
-            ? await _repository.GetByTenantIdAsync(request.TenantId.Value, cancellationToken)
-            : await _repository.GetAllAsync(request.TenantId, cancellationToken);
+        var effectiveTenantId = (_tenantContext?.IsInternalAdmin == true)
+            ? request.TenantId
+            : _tenantContext?.OrganizationId;
+
+        var items = effectiveTenantId.HasValue
+            ? await _repository.GetByTenantIdAsync(effectiveTenantId.Value, cancellationToken)
+            : await _repository.GetAllAsync(null, cancellationToken);
 
         var query = items.Select(r => new NotificationRuleDto(
             r.Props.Id.GetValue(), r.Props.TenantId.GetValue(), r.Props.Channel.ToString(),

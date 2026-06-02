@@ -15,10 +15,12 @@ public interface ITenantRepository : IAggregateRepository<TenantAggregate>
     /// REC-12: Server-side paginated query. SQL implementations use Skip/Take at the DB level.
     /// InMemory implementations call GetAllAsync then apply in-memory pagination.
     /// Returns (items in the current page, total matching items).
+    /// When tenantId is provided, only returns the matching tenant and its direct children (ParentTenantId == tenantId).
+    /// Null tenantId means cross-tenant access (internal admins only).
     /// </summary>
     Task<(IReadOnlyList<TenantAggregate> Items, int TotalCount)> GetPagedAsync(
         int page, int pageSize, string? search, string? status, string sortBy, string sortOrder,
-        CancellationToken cancellationToken = default);
+        Guid? tenantId = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// REC-16: Soft-delete a tenant by ID. Marks IsDeleted=true and records who deleted it.

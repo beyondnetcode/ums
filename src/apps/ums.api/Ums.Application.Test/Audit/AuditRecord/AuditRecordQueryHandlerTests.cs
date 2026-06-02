@@ -124,7 +124,9 @@ public class AuditRecordQueryHandlerTests
             Page: 1,
             PageSize: 10);
 
-        var handler = new GetAllAuditRecordsQueryHandler(_repo.Object);
+        var adminCtx = new Mock<Ums.Application.Common.Interfaces.ITenantContext>();
+        adminCtx.Setup(t => t.IsInternalAdmin).Returns(true);
+        var handler = new GetAllAuditRecordsQueryHandler(_repo.Object, adminCtx.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -154,7 +156,9 @@ public class AuditRecordQueryHandlerTests
             Page: 1,
             PageSize: 10);
 
-        var handler = new GetAllAuditRecordsQueryHandler(_repo.Object);
+        var adminCtx = new Mock<Ums.Application.Common.Interfaces.ITenantContext>();
+        adminCtx.Setup(t => t.IsInternalAdmin).Returns(true);
+        var handler = new GetAllAuditRecordsQueryHandler(_repo.Object, adminCtx.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);

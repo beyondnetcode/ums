@@ -1,4 +1,5 @@
 using Ums.Application.Authorization.Profile.DTOs;
+using Ums.Application.Common.Interfaces;
 using Ums.Domain.Authorization;
 using Ums.Domain.Identity;
 using Ums.Domain.Identity.UserAccount;
@@ -14,6 +15,7 @@ public sealed class GetAllProfilesQueryHandler : IQueryHandler<GetAllProfilesQue
     private readonly ITenantRepository _tenantRepository;
     private readonly IUserAccountRepository _userAccountRepository;
     private readonly IUserContext _userContext;
+    private readonly ITenantContext? _tenantContext;
 
     public GetAllProfilesQueryHandler(
         IProfileRepository profileRepository,
@@ -21,7 +23,8 @@ public sealed class GetAllProfilesQueryHandler : IQueryHandler<GetAllProfilesQue
         ISystemSuiteRepository systemSuiteRepository,
         ITenantRepository tenantRepository,
         IUserAccountRepository userAccountRepository,
-        IUserContext userContext)
+        IUserContext userContext,
+        ITenantContext? tenantContext = null)
     {
         _profileRepository = profileRepository;
         _roleRepository = roleRepository;
@@ -29,6 +32,7 @@ public sealed class GetAllProfilesQueryHandler : IQueryHandler<GetAllProfilesQue
         _tenantRepository = tenantRepository;
         _userAccountRepository = userAccountRepository;
         _userContext = userContext;
+        _tenantContext = tenantContext;
     }
 
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
@@ -45,10 +49,19 @@ public sealed class GetAllProfilesQueryHandler : IQueryHandler<GetAllProfilesQue
         var sortOrder = NormalizeText(request.SortOrder, "asc").ToLowerInvariant();
         var search = NormalizeSearch(request.Search);
 
-        var effectiveTenantId = request.TenantId ?? (
-            !string.IsNullOrWhiteSpace(_userContext.TenantId) && Guid.TryParse(_userContext.TenantId, out var ctxTenantId)
-                ? ctxTenantId
-                : (Guid?)null);
+        // Tenant isolation: ITenantContext is authoritative. Admins may use request.TenantId;
+        // regular users are always scoped to their own tenant.
+        Guid? effectiveTenantId;
+        if (_tenantContext?.IsInternalAdmin == true)
+        {
+            effectiveTenantId = request.TenantId;
+        }
+        else
+        {
+            effectiveTenantId = _tenantContext?.OrganizationId ?? (
+                !string.IsNullOrWhiteSpace(_userContext.TenantId) && Guid.TryParse(_userContext.TenantId, out var ctxTenantId)
+                    ? ctxTenantId : (Guid?)null);
+        }
 
         var profiles = request.UserId.HasValue
             ? await _profileRepository.GetByUserIdAsync(request.UserId.Value, cancellationToken)

@@ -37,6 +37,16 @@ public sealed class InMemoryTenantRepository : ITenantRepository, IUnitOfWork
     public Task<IReadOnlyList<TenantAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
         var all = _store.Values.ToList();
+
+        if (tenantId.HasValue)
+        {
+            // Scope to the tenant itself and any direct child tenants
+            all = all
+                .Where(t => t.Props.Id.GetValue() == tenantId.Value
+                         || t.Props.ParentTenantId?.GetValue() == tenantId.Value)
+                .ToList();
+        }
+
         all.ForEach(t => t.BrokenRules.Clear());
         return Task.FromResult<IReadOnlyList<TenantAggregate>>(all);
     }
@@ -44,9 +54,9 @@ public sealed class InMemoryTenantRepository : ITenantRepository, IUnitOfWork
     // REC-12: InMemory — delegate to in-memory filter (acceptable for test/dev data volumes)
     public async Task<(IReadOnlyList<TenantAggregate> Items, int TotalCount)> GetPagedAsync(
         int page, int pageSize, string? search, string? status, string sortBy, string sortOrder,
-        CancellationToken cancellationToken = default)
+        Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
-        var all = await GetAllAsync(null, cancellationToken);
+        var all = await GetAllAsync(tenantId, cancellationToken);
         var query = all.AsEnumerable();
 
         if (!string.IsNullOrWhiteSpace(search))

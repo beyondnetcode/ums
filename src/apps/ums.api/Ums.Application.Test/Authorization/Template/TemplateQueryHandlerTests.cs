@@ -147,7 +147,9 @@ public class TemplateQueryHandlerTests
         _suiteRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
                   .ReturnsAsync((SystemSuite?)null);
 
-        var handler = new GetAllPermissionTemplatesQueryHandler(_repo.Object, _roleRepo.Object, _suiteRepo.Object, _userContext.Object);
+        var adminCtx = new Mock<Ums.Application.Common.Interfaces.ITenantContext>();
+        adminCtx.Setup(t => t.IsInternalAdmin).Returns(true);
+        var handler = new GetAllPermissionTemplatesQueryHandler(_repo.Object, _roleRepo.Object, _suiteRepo.Object, _userContext.Object, adminCtx.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);

@@ -1,4 +1,5 @@
 using Ums.Application.Audit.AuditRecord.DTOs;
+using Ums.Application.Common.Interfaces;
 using Ums.Domain.Audit.AuditRecord;
 using AuditRecordAggregate = Ums.Domain.Audit.AuditRecord.AuditRecord;
 using static Ums.Application.Common.QueryRequestNormalizer;
@@ -8,10 +9,12 @@ namespace Ums.Application.Audit.AuditRecord.Queries;
 public sealed class GetAllAuditRecordsQueryHandler : IQueryHandler<GetAllAuditRecordsQuery, PagedResult<AuditRecordDto>>
 {
     private readonly IAuditRecordRepository _auditRecordRepository;
+    private readonly ITenantContext? _tenantContext;
 
-    public GetAllAuditRecordsQueryHandler(IAuditRecordRepository auditRecordRepository)
+    public GetAllAuditRecordsQueryHandler(IAuditRecordRepository auditRecordRepository, ITenantContext? tenantContext = null)
     {
         _auditRecordRepository = auditRecordRepository;
+        _tenantContext = tenantContext;
     }
 
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
@@ -26,6 +29,11 @@ public sealed class GetAllAuditRecordsQueryHandler : IQueryHandler<GetAllAuditRe
         var from = request.From ?? DateTime.UtcNow.AddDays(-30);
         var to = request.To ?? DateTime.UtcNow;
 
+        // Tenant isolation: regular users can only query their own tenant's audit records
+        var effectiveTenantId = (_tenantContext?.IsInternalAdmin == true)
+            ? (request.TenantId ?? Guid.Empty)
+            : (_tenantContext?.OrganizationId ?? Guid.Empty);
+
         IReadOnlyList<AuditRecordAggregate> records;
 
         if (request.ActorId.HasValue)
@@ -34,15 +42,15 @@ public sealed class GetAllAuditRecordsQueryHandler : IQueryHandler<GetAllAuditRe
         }
         else if (request.EntityId.HasValue && !string.IsNullOrWhiteSpace(request.EntityType))
         {
-            records = await _auditRecordRepository.QueryByEntityAsync(request.EntityId.Value, request.EntityType, request.TenantId ?? Guid.Empty, from, to, cancellationToken);
+            records = await _auditRecordRepository.QueryByEntityAsync(request.EntityId.Value, request.EntityType, effectiveTenantId, from, to, cancellationToken);
         }
         else if (!string.IsNullOrWhiteSpace(request.EventType))
         {
-            records = await _auditRecordRepository.QueryByEventTypeAsync(request.EventType, request.TenantId ?? Guid.Empty, from, to, cancellationToken);
+            records = await _auditRecordRepository.QueryByEventTypeAsync(request.EventType, effectiveTenantId, from, to, cancellationToken);
         }
         else
         {
-            records = await _auditRecordRepository.QueryByEventTypeAsync("*", request.TenantId ?? Guid.Empty, from, to, cancellationToken);
+            records = await _auditRecordRepository.QueryByEventTypeAsync("*", effectiveTenantId, from, to, cancellationToken);
         }
 
         var query = records.Select(r => new AuditRecordDto(

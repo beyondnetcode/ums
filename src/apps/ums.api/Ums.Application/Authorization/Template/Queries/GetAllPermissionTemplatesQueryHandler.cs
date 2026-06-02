@@ -1,4 +1,5 @@
 using Ums.Application.Authorization.Template.DTOs;
+using Ums.Application.Common.Interfaces;
 using Ums.Domain.Authorization;
 using static Ums.Application.Common.QueryRequestNormalizer;
 
@@ -10,17 +11,20 @@ public sealed class GetAllPermissionTemplatesQueryHandler : IQueryHandler<GetAll
     private readonly IRoleRepository _roleRepository;
     private readonly ISystemSuiteRepository _systemSuiteRepository;
     private readonly IUserContext _userContext;
+    private readonly ITenantContext? _tenantContext;
 
     public GetAllPermissionTemplatesQueryHandler(
         IPermissionTemplateRepository templateRepository,
         IRoleRepository roleRepository,
         ISystemSuiteRepository systemSuiteRepository,
-        IUserContext userContext)
+        IUserContext userContext,
+        ITenantContext? tenantContext = null)
     {
         _templateRepository = templateRepository;
         _roleRepository = roleRepository;
         _systemSuiteRepository = systemSuiteRepository;
         _userContext = userContext;
+        _tenantContext = tenantContext;
     }
 
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
@@ -37,14 +41,21 @@ public sealed class GetAllPermissionTemplatesQueryHandler : IQueryHandler<GetAll
         var sortOrder = NormalizeText(request.SortOrder, "asc").ToLowerInvariant();
         var search = NormalizeSearch(request.Search);
 
-        var effectiveTenantId = request.TenantId ?? (
-            !string.IsNullOrWhiteSpace(_userContext.TenantId) && Guid.TryParse(_userContext.TenantId, out var ctxTenantId)
-                ? ctxTenantId
-                : (Guid?)null);
+        Guid? effectiveTenantId;
+        if (_tenantContext?.IsInternalAdmin == true)
+        {
+            effectiveTenantId = request.TenantId;
+        }
+        else
+        {
+            effectiveTenantId = _tenantContext?.OrganizationId ?? (
+                !string.IsNullOrWhiteSpace(_userContext.TenantId) && Guid.TryParse(_userContext.TenantId, out var ctxTenantId)
+                    ? ctxTenantId : (Guid?)null);
+        }
 
         var templates = effectiveTenantId.HasValue
             ? await _templateRepository.GetByTenantIdAsync(effectiveTenantId.Value, cancellationToken)
-            : await _templateRepository.GetAllAsync(effectiveTenantId, cancellationToken);
+            : await _templateRepository.GetAllAsync(null, cancellationToken);
 
         if (request.SystemSuiteId.HasValue)
         {

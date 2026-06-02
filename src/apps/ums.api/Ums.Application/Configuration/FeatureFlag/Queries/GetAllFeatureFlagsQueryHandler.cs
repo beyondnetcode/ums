@@ -1,3 +1,4 @@
+using Ums.Application.Common.Interfaces;
 using Ums.Application.Configuration.FeatureFlag.DTOs;
 using Ums.Domain.Configuration;
 using static Ums.Application.Common.QueryRequestNormalizer;
@@ -7,8 +8,13 @@ namespace Ums.Application.Configuration.FeatureFlag.Queries;
 public sealed class GetAllFeatureFlagsQueryHandler : IQueryHandler<GetAllFeatureFlagsQuery, PagedResult<FeatureFlagDto>>
 {
     private readonly IFeatureFlagRepository _repository;
+    private readonly ITenantContext? _tenantContext;
 
-    public GetAllFeatureFlagsQueryHandler(IFeatureFlagRepository repository) => _repository = repository;
+    public GetAllFeatureFlagsQueryHandler(IFeatureFlagRepository repository, ITenantContext? tenantContext = null)
+    {
+        _repository = repository;
+        _tenantContext = tenantContext;
+    }
 
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
 
@@ -23,7 +29,12 @@ public sealed class GetAllFeatureFlagsQueryHandler : IQueryHandler<GetAllFeature
         var flagType = NormalizeSearch(request.FlagType);
         var linkedResourceType = NormalizeSearch(request.LinkedResourceType);
 
-        var query = (await _repository.GetAllAsync(null, cancellationToken))
+        // Feature flags are tenant-scoped; internal admins see all flags (null = no filter)
+        var effectiveTenantId = (_tenantContext?.IsInternalAdmin == true)
+            ? (Guid?)null
+            : _tenantContext?.OrganizationId;
+
+        var query = (await _repository.GetAllAsync(effectiveTenantId, cancellationToken))
             .Select(flag => new FeatureFlagDto(
                 flag.Props.Id.GetValue(),
                 flag.Props.SystemSuiteId.GetValue(),

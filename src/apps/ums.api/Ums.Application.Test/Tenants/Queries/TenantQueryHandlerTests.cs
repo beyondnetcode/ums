@@ -99,7 +99,7 @@ public class TenantQueryHandlerTests
         _repo.Setup(r => r.GetPagedAsync(
                 It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>(),
                 It.IsAny<string?>(), It.IsAny<string>(), It.IsAny<string>(),
-                It.IsAny<CancellationToken>()))
+                It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(((IReadOnlyList<Tenant>)tenants, tenants.Count));
 
         var query = new GetAllTenantsQuery(Page: 1, PageSize: 10);
@@ -119,7 +119,7 @@ public class TenantQueryHandlerTests
         _repo.Setup(r => r.GetPagedAsync(
                 2, 5, It.IsAny<string?>(), It.IsAny<string?>(),
                 It.IsAny<string>(), It.IsAny<string>(),
-                It.IsAny<CancellationToken>()))
+                It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(((IReadOnlyList<Tenant>)tenants, 1));
 
         var query = new GetAllTenantsQuery(Page: 2, PageSize: 5);
@@ -139,7 +139,7 @@ public class TenantQueryHandlerTests
         _repo.Setup(r => r.GetPagedAsync(
                 It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>(),
                 "Active", It.IsAny<string>(), It.IsAny<string>(),
-                It.IsAny<CancellationToken>()))
+                It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(((IReadOnlyList<Tenant>)tenants, tenants.Count));
 
         var query = new GetAllTenantsQuery(Status: "Active");
@@ -159,7 +159,7 @@ public class TenantQueryHandlerTests
         _repo.Setup(r => r.GetPagedAsync(
                 It.IsAny<int>(), It.IsAny<int>(), "target",
                 It.IsAny<string?>(), It.IsAny<string>(), It.IsAny<string>(),
-                It.IsAny<CancellationToken>()))
+                It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(((IReadOnlyList<Tenant>)tenants, tenants.Count));
 
         var query = new GetAllTenantsQuery(Search: "target");
@@ -178,7 +178,7 @@ public class TenantQueryHandlerTests
         _repo.Setup(r => r.GetPagedAsync(
                 It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>(),
                 It.IsAny<string?>(), It.IsAny<string>(), It.IsAny<string>(),
-                It.IsAny<CancellationToken>()))
+                It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(((IReadOnlyList<Tenant>)tenants, 0));
 
         var query = new GetAllTenantsQuery(Page: 1, PageSize: 10);
@@ -198,7 +198,7 @@ public class TenantQueryHandlerTests
         _repo.Setup(r => r.GetPagedAsync(
                 It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>(),
                 It.IsAny<string?>(), "code", "desc",
-                It.IsAny<CancellationToken>()))
+                It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(((IReadOnlyList<Tenant>)tenants, tenants.Count));
 
         var query = new GetAllTenantsQuery(SortBy: "code", SortOrder: "desc");

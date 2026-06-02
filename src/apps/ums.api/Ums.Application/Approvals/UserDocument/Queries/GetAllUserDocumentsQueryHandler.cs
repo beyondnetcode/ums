@@ -1,4 +1,5 @@
 using Ums.Application.Approvals.UserDocument.DTOs;
+using Ums.Application.Common.Interfaces;
 using Ums.Domain.Approvals;
 using static Ums.Application.Common.QueryRequestNormalizer;
 
@@ -7,8 +8,13 @@ namespace Ums.Application.Approvals.UserDocument.Queries;
 public sealed class GetAllUserDocumentsQueryHandler : IQueryHandler<GetAllUserDocumentsQuery, PagedResult<UserDocumentDto>>
 {
     private readonly IUserDocumentRepository _repository;
+    private readonly ITenantContext? _tenantContext;
 
-    public GetAllUserDocumentsQueryHandler(IUserDocumentRepository repository) => _repository = repository;
+    public GetAllUserDocumentsQueryHandler(IUserDocumentRepository repository, ITenantContext? tenantContext = null)
+    {
+        _repository = repository;
+        _tenantContext = tenantContext;
+    }
 
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
 
@@ -21,9 +27,12 @@ public sealed class GetAllUserDocumentsQueryHandler : IQueryHandler<GetAllUserDo
         var sortOrder = NormalizeText(request.SortOrder, "asc").ToLowerInvariant();
         var search = NormalizeSearch(request.Search);
 
+        // Always fetch scoped to the user's tenant; then optionally filter by UserId
+        var effectiveTenantId = (_tenantContext?.IsInternalAdmin == true) ? (Guid?)null : _tenantContext?.OrganizationId;
+        var allForTenant = await _repository.GetAllAsync(effectiveTenantId, cancellationToken);
         var items = request.UserId.HasValue
-            ? await _repository.GetByUserIdAsync(request.UserId.Value, cancellationToken)
-            : await _repository.GetAllAsync(null, cancellationToken);
+            ? allForTenant.Where(d => d.Props.UserId.GetValue() == request.UserId.Value).ToList()
+            : allForTenant.ToList();
 
         var query = items.Select(d => new UserDocumentDto(
             d.Props.Id.GetValue(), d.Props.UserId.GetValue(), d.Props.DocumentTypeId.GetValue(),

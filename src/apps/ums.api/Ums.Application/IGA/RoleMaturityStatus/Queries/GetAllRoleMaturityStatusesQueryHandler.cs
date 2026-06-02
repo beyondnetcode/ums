@@ -1,3 +1,4 @@
+using Ums.Application.Common.Interfaces;
 using Ums.Application.IGA.RoleMaturityStatus.DTOs;
 using Ums.Domain.IGA;
 using static Ums.Application.Common.QueryRequestNormalizer;
@@ -7,8 +8,13 @@ namespace Ums.Application.IGA.RoleMaturityStatus.Queries;
 public sealed class GetAllRoleMaturityStatusesQueryHandler : IQueryHandler<GetAllRoleMaturityStatusesQuery, PagedResult<RoleMaturityStatusDto>>
 {
     private readonly IRoleMaturityStatusRepository _repository;
+    private readonly ITenantContext? _tenantContext;
 
-    public GetAllRoleMaturityStatusesQueryHandler(IRoleMaturityStatusRepository repository) => _repository = repository;
+    public GetAllRoleMaturityStatusesQueryHandler(IRoleMaturityStatusRepository repository, ITenantContext? tenantContext = null)
+    {
+        _repository = repository;
+        _tenantContext = tenantContext;
+    }
 
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
 
@@ -19,11 +25,15 @@ public sealed class GetAllRoleMaturityStatusesQueryHandler : IQueryHandler<GetAl
         var sortBy = NormalizeText(request.SortBy, "level").ToLowerInvariant();
         var sortOrder = NormalizeText(request.SortOrder, "asc").ToLowerInvariant();
 
+        var effectiveTenantId = (_tenantContext?.IsInternalAdmin == true)
+            ? request.TenantId
+            : _tenantContext?.OrganizationId;
+
         var items = request.UserId.HasValue
             ? await _repository.GetByUserIdAsync(request.UserId.Value, cancellationToken)
-            : request.TenantId.HasValue
-                ? await _repository.GetByTenantIdAsync(request.TenantId.Value, cancellationToken)
-                : await _repository.GetAllAsync(request.TenantId, cancellationToken);
+            : effectiveTenantId.HasValue
+                ? await _repository.GetByTenantIdAsync(effectiveTenantId.Value, cancellationToken)
+                : await _repository.GetAllAsync(null, cancellationToken);
 
         var query = items.Select(r => new RoleMaturityStatusDto(
             r.Props.Id.GetValue(), r.Props.TenantId.GetValue(), r.Props.UserId.GetValue(),

@@ -1,4 +1,5 @@
 using Ums.Application.Authorization.SystemSuite.DTOs;
+using Ums.Application.Common.Interfaces;
 using Ums.Domain.Authorization;
 using static Ums.Application.Common.QueryRequestNormalizer;
 
@@ -8,11 +9,13 @@ public sealed class GetAllSystemSuitesQueryHandler : IQueryHandler<GetAllSystemS
 {
     private readonly ISystemSuiteRepository _systemSuiteRepository;
     private readonly IUserContext _userContext;
+    private readonly ITenantContext? _tenantContext;
 
-    public GetAllSystemSuitesQueryHandler(ISystemSuiteRepository systemSuiteRepository, IUserContext userContext)
+    public GetAllSystemSuitesQueryHandler(ISystemSuiteRepository systemSuiteRepository, IUserContext userContext, ITenantContext? tenantContext = null)
     {
         _systemSuiteRepository = systemSuiteRepository;
         _userContext = userContext;
+        _tenantContext = tenantContext;
     }
 
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
@@ -29,14 +32,23 @@ public sealed class GetAllSystemSuitesQueryHandler : IQueryHandler<GetAllSystemS
         var sortOrder = NormalizeText(request.SortOrder, "asc").ToLowerInvariant();
         var search = NormalizeSearch(request.Search);
 
-        var effectiveTenantId = request.TenantId ?? (
-            !string.IsNullOrWhiteSpace(_userContext.TenantId) && Guid.TryParse(_userContext.TenantId, out var ctxTenantId)
-                ? ctxTenantId
-                : (Guid?)null);
+        // Tenant isolation: ITenantContext is authoritative. Admins may use request.TenantId or null
+        // for all; regular users are always scoped to their own tenant (request.TenantId is ignored).
+        Guid? effectiveTenantId;
+        if (_tenantContext?.IsInternalAdmin == true)
+        {
+            effectiveTenantId = request.TenantId;
+        }
+        else
+        {
+            effectiveTenantId = _tenantContext?.OrganizationId ?? (
+                !string.IsNullOrWhiteSpace(_userContext.TenantId) && Guid.TryParse(_userContext.TenantId, out var ctxTenantId)
+                    ? ctxTenantId : (Guid?)null);
+        }
 
         var systemSuites = effectiveTenantId.HasValue
             ? await _systemSuiteRepository.GetByTenantIdAsync(effectiveTenantId.Value, cancellationToken)
-            : await _systemSuiteRepository.GetAllAsync(effectiveTenantId, cancellationToken);
+            : await _systemSuiteRepository.GetAllAsync(null, cancellationToken);
 
         var query = systemSuites.Select(SystemSuiteDto.Map);
 

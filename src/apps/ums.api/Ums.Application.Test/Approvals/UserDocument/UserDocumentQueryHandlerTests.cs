@@ -118,12 +118,15 @@ public class UserDocumentQueryHandlerTests
     [Fact]
     public async Task GetAll_WithUserIdFilter_ReturnsUserItems()
     {
-        var userId = Guid.NewGuid();
+        // Handler now uses GetAllAsync + in-memory UserId filter (no longer GetByUserIdAsync).
+        // Use the document's own UserId as the query filter to ensure match.
         var d1 = MakeUserDocument(DocumentStatus.PendingReview);
-        var list = new List<UserDocument> { d1 };
+        var userId = d1.Props.UserId.GetValue();
+        var other = MakeUserDocument(DocumentStatus.PendingReview); // different user
+        var list = new List<UserDocument> { d1, other };
 
-        _repo.Setup(r => r.GetByUserIdAsync(userId, It.IsAny<CancellationToken>()))
-             .ReturnsAsync(list);
+        _repo.Setup(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync((IReadOnlyList<UserDocument>)list);
 
         var query = new GetAllUserDocumentsQuery(
             UserId: userId,
@@ -139,7 +142,7 @@ public class UserDocumentQueryHandlerTests
 
         Assert.True(result.IsSuccess);
         Assert.Equal(1, result.Value.TotalItems);
-        _repo.Verify(r => r.GetByUserIdAsync(userId, It.IsAny<CancellationToken>()), Times.Once);
+        _repo.Verify(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

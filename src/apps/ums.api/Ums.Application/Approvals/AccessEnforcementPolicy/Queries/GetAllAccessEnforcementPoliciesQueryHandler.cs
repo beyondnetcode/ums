@@ -1,4 +1,5 @@
 using Ums.Application.Approvals.AccessEnforcementPolicy.DTOs;
+using Ums.Application.Common.Interfaces;
 using Ums.Domain.Approvals;
 using static Ums.Application.Common.QueryRequestNormalizer;
 
@@ -7,8 +8,13 @@ namespace Ums.Application.Approvals.AccessEnforcementPolicy.Queries;
 public sealed class GetAllAccessEnforcementPoliciesQueryHandler : IQueryHandler<GetAllAccessEnforcementPoliciesQuery, PagedResult<AccessEnforcementPolicyDto>>
 {
     private readonly IAccessEnforcementPolicyRepository _repository;
+    private readonly ITenantContext? _tenantContext;
 
-    public GetAllAccessEnforcementPoliciesQueryHandler(IAccessEnforcementPolicyRepository repository) => _repository = repository;
+    public GetAllAccessEnforcementPoliciesQueryHandler(IAccessEnforcementPolicyRepository repository, ITenantContext? tenantContext = null)
+    {
+        _repository = repository;
+        _tenantContext = tenantContext;
+    }
 
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
 
@@ -20,9 +26,13 @@ public sealed class GetAllAccessEnforcementPoliciesQueryHandler : IQueryHandler<
         var sortBy = NormalizeText(request.SortBy, "enforcementaction").ToLowerInvariant();
         var sortOrder = NormalizeText(request.SortOrder, "asc").ToLowerInvariant();
 
-        var items = request.TenantId.HasValue
-            ? await _repository.GetByTenantIdAsync(request.TenantId.Value, cancellationToken)
-            : await _repository.GetAllAsync(request.TenantId, cancellationToken);
+        var effectiveTenantId = (_tenantContext?.IsInternalAdmin == true)
+            ? request.TenantId
+            : _tenantContext?.OrganizationId;
+
+        var items = effectiveTenantId.HasValue
+            ? await _repository.GetByTenantIdAsync(effectiveTenantId.Value, cancellationToken)
+            : await _repository.GetAllAsync(null, cancellationToken);
 
         var query = items.Select(p => new AccessEnforcementPolicyDto(
             p.Props.Id.GetValue(), p.Props.TenantId.GetValue(), p.Props.ProfileId?.GetValue(),

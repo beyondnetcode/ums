@@ -1,3 +1,4 @@
+using Ums.Application.Common.Interfaces;
 using Ums.Application.Configuration.IdpConfiguration.DTOs;
 using Ums.Domain.Configuration;
 using static Ums.Application.Common.QueryRequestNormalizer;
@@ -7,8 +8,13 @@ namespace Ums.Application.Configuration.IdpConfiguration.Queries;
 public sealed class GetAllIdpConfigurationsQueryHandler : IQueryHandler<GetAllIdpConfigurationsQuery, PagedResult<IdpConfigurationDto>>
 {
     private readonly IIdpConfigurationRepository _repository;
+    private readonly ITenantContext? _tenantContext;
 
-    public GetAllIdpConfigurationsQueryHandler(IIdpConfigurationRepository repository) => _repository = repository;
+    public GetAllIdpConfigurationsQueryHandler(IIdpConfigurationRepository repository, ITenantContext? tenantContext = null)
+    {
+        _repository = repository;
+        _tenantContext = tenantContext;
+    }
 
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
 
@@ -22,9 +28,13 @@ public sealed class GetAllIdpConfigurationsQueryHandler : IQueryHandler<GetAllId
         var sortOrder = NormalizeText(request.SortOrder, "asc").ToLowerInvariant();
         var providerType = NormalizeSearch(request.ProviderType);
 
-        var query = (request.TenantId.HasValue
-                ? await _repository.GetByTenantIdAsync(request.TenantId.Value, cancellationToken)
-                : await _repository.GetAllAsync(request.TenantId, cancellationToken))
+        var effectiveTenantId = (_tenantContext?.IsInternalAdmin == true)
+            ? request.TenantId
+            : _tenantContext?.OrganizationId;
+
+        var query = (effectiveTenantId.HasValue
+                ? await _repository.GetByTenantIdAsync(effectiveTenantId.Value, cancellationToken)
+                : await _repository.GetAllAsync(null, cancellationToken))
             .Select(configuration => new IdpConfigurationDto(
                 configuration.Props.Id.GetValue(),
                 configuration.Props.TenantId.GetValue(),

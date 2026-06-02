@@ -1,4 +1,5 @@
 using Ums.Application.Approvals.ApprovalRequest.DTOs;
+using Ums.Application.Common.Interfaces;
 using Ums.Domain.Approvals;
 using static Ums.Application.Common.QueryRequestNormalizer;
 
@@ -7,8 +8,13 @@ namespace Ums.Application.Approvals.ApprovalRequest.Queries;
 public sealed class GetAllApprovalRequestsQueryHandler : IQueryHandler<GetAllApprovalRequestsQuery, PagedResult<ApprovalRequestDto>>
 {
     private readonly IApprovalRequestRepository _repository;
+    private readonly ITenantContext? _tenantContext;
 
-    public GetAllApprovalRequestsQueryHandler(IApprovalRequestRepository repository) => _repository = repository;
+    public GetAllApprovalRequestsQueryHandler(IApprovalRequestRepository repository, ITenantContext? tenantContext = null)
+    {
+        _repository = repository;
+        _tenantContext = tenantContext;
+    }
 
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
 
@@ -21,9 +27,13 @@ public sealed class GetAllApprovalRequestsQueryHandler : IQueryHandler<GetAllApp
         var sortOrder = NormalizeText(request.SortOrder, "asc").ToLowerInvariant();
         var search = NormalizeSearch(request.Search);
 
-        var items = request.TenantId.HasValue
-            ? await _repository.GetByTenantIdAsync(request.TenantId.Value, cancellationToken)
-            : await _repository.GetAllAsync(request.TenantId, cancellationToken);
+        var effectiveTenantId = (_tenantContext?.IsInternalAdmin == true)
+            ? request.TenantId
+            : _tenantContext?.OrganizationId;
+
+        var items = effectiveTenantId.HasValue
+            ? await _repository.GetByTenantIdAsync(effectiveTenantId.Value, cancellationToken)
+            : await _repository.GetAllAsync(null, cancellationToken);
 
         var query = items.Select(r => new ApprovalRequestDto(
             r.Props.Id.GetValue(), r.Props.WorkflowId.GetValue(), r.Props.TargetUserId.GetValue(),

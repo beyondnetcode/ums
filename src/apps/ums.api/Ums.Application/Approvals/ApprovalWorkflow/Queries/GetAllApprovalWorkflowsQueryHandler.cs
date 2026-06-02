@@ -1,4 +1,5 @@
 using Ums.Application.Approvals.ApprovalWorkflow.DTOs;
+using Ums.Application.Common.Interfaces;
 using Ums.Domain.Approvals;
 using static Ums.Application.Common.QueryRequestNormalizer;
 
@@ -7,8 +8,13 @@ namespace Ums.Application.Approvals.ApprovalWorkflow.Queries;
 public sealed class GetAllApprovalWorkflowsQueryHandler : IQueryHandler<GetAllApprovalWorkflowsQuery, PagedResult<ApprovalWorkflowDto>>
 {
     private readonly IApprovalWorkflowRepository _repository;
+    private readonly ITenantContext? _tenantContext;
 
-    public GetAllApprovalWorkflowsQueryHandler(IApprovalWorkflowRepository repository) => _repository = repository;
+    public GetAllApprovalWorkflowsQueryHandler(IApprovalWorkflowRepository repository, ITenantContext? tenantContext = null)
+    {
+        _repository = repository;
+        _tenantContext = tenantContext;
+    }
 
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
 
@@ -20,9 +26,15 @@ public sealed class GetAllApprovalWorkflowsQueryHandler : IQueryHandler<GetAllAp
         var sortOrder = NormalizeText(request.SortOrder, "asc").ToLowerInvariant();
         var search = NormalizeSearch(request.Search);
 
-        var items = request.TenantId.HasValue
-            ? await _repository.GetByTenantIdAsync(request.TenantId.Value, cancellationToken)
-            : await _repository.GetAllAsync(request.TenantId, cancellationToken);
+        // Tenant isolation: admins may filter by any tenant (or null for all); regular users are
+        // always scoped to their own tenant regardless of what request.TenantId says.
+        var effectiveTenantId = (_tenantContext?.IsInternalAdmin == true)
+            ? request.TenantId
+            : _tenantContext?.OrganizationId;
+
+        var items = effectiveTenantId.HasValue
+            ? await _repository.GetByTenantIdAsync(effectiveTenantId.Value, cancellationToken)
+            : await _repository.GetAllAsync(null, cancellationToken);
 
         var query = items.Select(w => new ApprovalWorkflowDto(
             w.Props.Id.GetValue(), w.Props.TenantId.GetValue(), w.Props.SystemSuiteId?.GetValue(),

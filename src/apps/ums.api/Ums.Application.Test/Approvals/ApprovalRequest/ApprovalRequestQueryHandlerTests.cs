@@ -125,7 +125,9 @@ public class ApprovalRequestQueryHandlerTests
             Page: 1,
             PageSize: 10);
 
-        var handler = new GetAllApprovalRequestsQueryHandler(_repo.Object);
+        var adminCtx = new Mock<Ums.Application.Common.Interfaces.ITenantContext>();
+        adminCtx.Setup(t => t.IsInternalAdmin).Returns(true);
+        var handler = new GetAllApprovalRequestsQueryHandler(_repo.Object, adminCtx.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
