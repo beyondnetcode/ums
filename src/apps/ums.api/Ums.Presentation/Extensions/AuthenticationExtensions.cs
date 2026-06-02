@@ -43,9 +43,10 @@ public static class AuthenticationExtensions
 
         if (!enabled || string.IsNullOrWhiteSpace(authority))
         {
-            // Authentication is disabled (dev/test mode). DevAuthMiddleware handles identity.
-            // Still register AddAuthentication so UseAuthentication() does not throw.
-            services.AddAuthentication()
+            // Dev/test mode: JWT Bearer is disabled. Cookie auth is the default scheme so that
+            // UseAuthentication() reads ums.session cookies set by the login endpoint.
+            // DevAuthMiddleware then only activates for truly unauthenticated requests (no cookie).
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
                 {
                     options.Cookie.Name = "ums.session";
