@@ -324,7 +324,7 @@ export default function LoginScreen(): React.JSX.Element {
                   <div key={t.id} className="p-2 rounded bg-m3-surface/50 border border-m3-outline/10">
                     <p className="font-bold text-m3-primary">{t.name}</p>
                     <p className="text-m3-secondary font-mono">Tenant: {t.code}</p>
-                    <p className="text-m3-secondary font-mono break-all">Usuario: {DEV_CREDENTIALS[t.code]?.username ?? 'gerente.operaciones@' + t.code.toLowerCase() + '.pe'}</p>
+                    <p className="text-m3-secondary font-mono break-all">Usuario: gerente.operaciones@{t.code.toLowerCase().replace('_peru', '').replace('_', '.')}.pe</p>
                     <p className="text-m3-secondary font-mono">Password: Admin@123</p>
                   </div>
                 ))}
