@@ -14,6 +14,7 @@ public class TenantRepositoryBasicTests
     [Fact]
     public async Task AddAndRetrieveTenant_ReturnsCorrectData()
     {
+        var ct = TestContext.Current.CancellationToken;
         var options = new DbContextOptionsBuilder<UmsPlatformDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
@@ -31,10 +32,10 @@ public class TenantRepositoryBasicTests
             AuditTimeSpan = ""
         };
 
-        await context.Tenants.AddAsync(tenant);
-        await context.SaveChangesAsync();
+        await context.Tenants.AddAsync(tenant, ct);
+        await context.SaveChangesAsync(ct);
 
-        var retrieved = await context.Tenants.FindAsync(tenant.Id);
+        var retrieved = await context.Tenants.FindAsync([tenant.Id], ct);
 
         retrieved.Should().NotBeNull();
         retrieved!.Code.Should().Be("TEST-001");
@@ -44,6 +45,7 @@ public class TenantRepositoryBasicTests
     [Fact]
     public async Task QueryMultipleTenants_ReturnsAll()
     {
+        var ct = TestContext.Current.CancellationToken;
         var options = new DbContextOptionsBuilder<UmsPlatformDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
@@ -64,9 +66,9 @@ public class TenantRepositoryBasicTests
                 AuditTimeSpan = ""
             }
         );
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(ct);
 
-        var tenants = await context.Tenants.ToListAsync();
+        var tenants = await context.Tenants.ToListAsync(ct);
 
         tenants.Should().HaveCount(2);
     }
@@ -96,6 +98,7 @@ public class UserAccountRepositoryBasicTests
     [Fact]
     public async Task AddAndRetrieveUserAccount_ReturnsCorrectData()
     {
+        var ct = TestContext.Current.CancellationToken;
         var options = new DbContextOptionsBuilder<UmsPlatformDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
@@ -113,10 +116,10 @@ public class UserAccountRepositoryBasicTests
             AuditTimeSpan = ""
         };
 
-        await context.UserAccounts.AddAsync(user);
-        await context.SaveChangesAsync();
+        await context.UserAccounts.AddAsync(user, ct);
+        await context.SaveChangesAsync(ct);
 
-        var retrieved = await context.UserAccounts.FindAsync(user.Id);
+        var retrieved = await context.UserAccounts.FindAsync([user.Id], ct);
 
         retrieved.Should().NotBeNull();
         retrieved!.Email.Should().Be("test@example.com");
@@ -126,6 +129,7 @@ public class UserAccountRepositoryBasicTests
     [Fact]
     public async Task QueryByEmail_ReturnsCorrectUser()
     {
+        var ct = TestContext.Current.CancellationToken;
         var options = new DbContextOptionsBuilder<UmsPlatformDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
@@ -143,11 +147,11 @@ public class UserAccountRepositoryBasicTests
             AuditTimeSpan = ""
         };
 
-        await context.UserAccounts.AddAsync(user);
-        await context.SaveChangesAsync();
+        await context.UserAccounts.AddAsync(user, ct);
+        await context.SaveChangesAsync(ct);
 
         var found = await context.UserAccounts
-            .FirstOrDefaultAsync(u => u.Email == "findme@example.com");
+            .FirstOrDefaultAsync(u => u.Email == "findme@example.com", ct);
 
         found.Should().NotBeNull();
         found!.Id.Should().Be(user.Id);
@@ -156,6 +160,7 @@ public class UserAccountRepositoryBasicTests
     [Fact]
     public async Task QueryByTenant_ReturnsTenantUsers()
     {
+        var ct = TestContext.Current.CancellationToken;
         var options = new DbContextOptionsBuilder<UmsPlatformDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
@@ -185,11 +190,11 @@ public class UserAccountRepositoryBasicTests
                 AuditTimeSpan = ""
             }
         );
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(ct);
 
         var tenantUsers = await context.UserAccounts
             .Where(u => u.TenantId == _testTenantId)
-            .ToListAsync();
+            .ToListAsync(ct);
 
         tenantUsers.Should().HaveCount(2);
         tenantUsers.All(u => u.TenantId == _testTenantId).Should().BeTrue();

@@ -33,6 +33,15 @@ public sealed class DevAuthMiddleware
             return;
         }
 
+        // Public authentication endpoints must execute with the real anonymous context.
+        // Default dev claims would force the internal admin tenant and break tenant-scoped
+        // login, signup, forgot-password, and session bootstrap flows.
+        if (context.Request.Path.StartsWithSegments("/api/v1/auth"))
+        {
+            await _next(context);
+            return;
+        }
+
         if (context.User?.Identity?.IsAuthenticated != true)
         {
             var userId = context.Request.Headers[UserIdHeader].FirstOrDefault();

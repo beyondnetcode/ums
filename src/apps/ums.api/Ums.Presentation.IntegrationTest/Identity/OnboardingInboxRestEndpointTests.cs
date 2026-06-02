@@ -49,7 +49,8 @@ public sealed class OnboardingInboxRestEndpointTests : IClassFixture<UmsApiWebAp
         var items = payload.RootElement.EnumerateArray().ToList();
 
         items.Should().NotBeEmpty();
-        items.Should().Contain(item =>
-            item.GetProperty("justification").GetString()?.Contains("administrador interno", StringComparison.OrdinalIgnoreCase) == true);
+        items.Any(item =>
+            item.GetProperty("justification").GetString()?.Contains("administrador interno", StringComparison.OrdinalIgnoreCase) == true)
+            .Should().BeTrue();
     }
 }

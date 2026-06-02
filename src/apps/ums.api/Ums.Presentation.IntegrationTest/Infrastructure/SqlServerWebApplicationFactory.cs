@@ -34,6 +34,11 @@ public sealed class SqlServerWebApplicationFactory(string connectionString)
                 ["Persistence:SeedDevData"] = bool.FalseString,
                 ["Persistence:EnableOutbox"] = bool.FalseString,
                 ["Persistence:InitializePlatformStoreOnStartup"] = bool.FalseString,
+                ["Jwt:Secret"] = "INTEGRATION_TEST_JWT_SECRET_KEY_CHANGE_ME_MIN_32_CHARS",
+                ["Jwt:Issuer"] = "ums-api",
+                ["Jwt:Audience"] = "ums-web-app",
+                ["Jwt:ExpirationMinutes"] = "60",
+                ["Jwt:RefreshTokenExpirationDays"] = "7",
 
                 // Connection
                 ["ConnectionStrings:DefaultConnection"] = connectionString,

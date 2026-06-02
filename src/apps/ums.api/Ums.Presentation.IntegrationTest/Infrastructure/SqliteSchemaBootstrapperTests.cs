@@ -11,8 +11,10 @@ public sealed class SqliteSchemaBootstrapperTests
     [Fact]
     public async Task InitializeAsync_WhenTenantsTableMissesManagementOwnerColumn_AddsItWithoutFailing()
     {
+        var ct = TestContext.Current.CancellationToken;
+
         await using var connection = new SqliteConnection("Data Source=file:ums-bootstrap-test?mode=memory&cache=shared");
-        await connection.OpenAsync();
+        await connection.OpenAsync(ct);
 
         await using (var setup = connection.CreateCommand())
         {
@@ -28,7 +30,7 @@ public sealed class SqliteSchemaBootstrapperTests
                     "IsDeleted" INTEGER NOT NULL DEFAULT 0
                 );
                 """;
-            await setup.ExecuteNonQueryAsync();
+            await setup.ExecuteNonQueryAsync(ct);
         }
 
         var options = new DbContextOptionsBuilder<UmsPlatformDbContext>()
@@ -41,7 +43,7 @@ public sealed class SqliteSchemaBootstrapperTests
             .GetMethod("EnsureTenantManagementOwnerColumnAsync", BindingFlags.NonPublic | BindingFlags.Static)
             ?? throw new InvalidOperationException("Bootstrapper helper method was not found.");
 
-        var task = (Task)bootstrapper.Invoke(null, new object[] { context, CancellationToken.None })!;
+        var task = (Task)bootstrapper.Invoke(null, new object[] { context, TestContext.Current.CancellationToken })!;
         await task;
 
         var columnExists = await ColumnExistsAsync(connection, "Tenants", "IsManagementOwner");
@@ -51,8 +53,10 @@ public sealed class SqliteSchemaBootstrapperTests
     [Fact]
     public async Task InitializeAsync_OnFreshDatabase_CreatesTenantManagementOwnerColumn()
     {
+        var ct = TestContext.Current.CancellationToken;
+
         await using var connection = new SqliteConnection("Data Source=file:ums-bootstrap-fresh?mode=memory&cache=shared");
-        await connection.OpenAsync();
+        await connection.OpenAsync(ct);
 
         var options = new DbContextOptionsBuilder<UmsPlatformDbContext>()
             .UseSqlite(connection)
@@ -60,7 +64,7 @@ public sealed class SqliteSchemaBootstrapperTests
 
         await using var context = new UmsPlatformDbContext(options, new SystemTenantContext());
 
-        await SqliteSchemaBootstrapper.InitializeAsync(context);
+        await SqliteSchemaBootstrapper.InitializeAsync(context, ct);
 
         var columnExists = await ColumnExistsAsync(connection, "Tenants", "IsManagementOwner");
         columnExists.Should().BeTrue();
@@ -69,8 +73,10 @@ public sealed class SqliteSchemaBootstrapperTests
     [Fact]
     public async Task InitializeAsync_WhenInternalAdminTenantExistsWithFalseFlag_RepairsItToTrue()
     {
+        var ct = TestContext.Current.CancellationToken;
+
         await using var connection = new SqliteConnection("Data Source=file:ums-bootstrap-repair?mode=memory&cache=shared");
-        await connection.OpenAsync();
+        await connection.OpenAsync(ct);
 
         await using (var setup = connection.CreateCommand())
         {
@@ -100,7 +106,7 @@ public sealed class SqliteSchemaBootstrapperTests
                     0
                 );
                 """;
-            await setup.ExecuteNonQueryAsync();
+            await setup.ExecuteNonQueryAsync(ct);
         }
 
         var options = new DbContextOptionsBuilder<UmsPlatformDbContext>()
@@ -109,7 +115,7 @@ public sealed class SqliteSchemaBootstrapperTests
 
         await using var context = new UmsPlatformDbContext(options, new SystemTenantContext());
 
-        await SqliteSchemaBootstrapper.InitializeAsync(context);
+        await SqliteSchemaBootstrapper.InitializeAsync(context, ct);
 
         await using var verify = connection.CreateCommand();
         verify.CommandText = """
@@ -119,7 +125,7 @@ public sealed class SqliteSchemaBootstrapperTests
             LIMIT 1;
             """;
 
-        var value = await verify.ExecuteScalarAsync();
+        var value = await verify.ExecuteScalarAsync(ct);
         value.Should().NotBeNull();
         Convert.ToInt32(value).Should().Be(1);
     }
@@ -129,6 +135,8 @@ public sealed class SqliteSchemaBootstrapperTests
         string tableName,
         string columnName)
     {
+        var ct = TestContext.Current.CancellationToken;
+
         await using var command = connection.CreateCommand();
         command.CommandText = $"""
             SELECT 1
@@ -137,7 +145,7 @@ public sealed class SqliteSchemaBootstrapperTests
             LIMIT 1;
             """;
 
-        var result = await command.ExecuteScalarAsync();
+        var result = await command.ExecuteScalarAsync(ct);
         return result is not null;
     }
 

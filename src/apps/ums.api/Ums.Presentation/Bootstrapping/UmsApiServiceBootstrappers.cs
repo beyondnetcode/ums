@@ -320,13 +320,13 @@ public static class UmsApiApplicationBuilderExtensions
 
         app.UseCors("DefaultPolicy");
         app.UseSecurityHeaders();
-        app.UseAuthentication();
-        app.UseAuthorization();
-        app.UseIdempotency(); // FIX-07: Must run after auth so cached responses are never served to unauthenticated callers.
         if (app.Environment.IsDevelopment())
         {
             app.UseDevAuth();
         }
+        app.UseAuthentication();
+        app.UseAuthorization();
+        app.UseIdempotency(); // FIX-07: Must run after auth so cached responses are never served to unauthenticated callers.
         app.UseTenantContext();
         app.UseTokenRevocation();
         if (!app.Environment.IsDevelopment())

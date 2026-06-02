@@ -44,6 +44,11 @@ public sealed class UmsApiWebApplicationFactory : WebApplicationFactory<Program>
                 ["Persistence:SeedDevData"] = bool.TrueString,
                 ["Persistence:EnableOutbox"] = bool.FalseString,
                 ["Persistence:InitializePlatformStoreOnStartup"] = bool.FalseString,
+                ["Jwt:Secret"] = "INTEGRATION_TEST_JWT_SECRET_KEY_CHANGE_ME_MIN_32_CHARS",
+                ["Jwt:Issuer"] = "ums-api",
+                ["Jwt:Audience"] = "ums-web-app",
+                ["Jwt:ExpirationMinutes"] = "60",
+                ["Jwt:RefreshTokenExpirationDays"] = "7",
                 ["Secrets:Source"] = "AppSettings",
                 ["AllowedOrigins"] = "https://localhost",
             });

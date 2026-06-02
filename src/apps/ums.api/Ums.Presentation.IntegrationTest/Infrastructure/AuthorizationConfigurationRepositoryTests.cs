@@ -16,6 +16,7 @@ public class AuthorizationRepositoryTests
     [Fact]
     public async Task SystemSuite_CrudOperations_WorkCorrectly()
     {
+        var ct = TestContext.Current.CancellationToken;
         var options = new DbContextOptionsBuilder<UmsPlatformDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
@@ -35,23 +36,24 @@ public class AuthorizationRepositoryTests
             AuditTimeSpan = ""
         };
 
-        await context.SystemSuites.AddAsync(systemSuite);
-        await context.SaveChangesAsync();
+        await context.SystemSuites.AddAsync(systemSuite, ct);
+        await context.SaveChangesAsync(ct);
 
-        var retrieved = await context.SystemSuites.FindAsync(_testSystemSuiteId);
+        var retrieved = await context.SystemSuites.FindAsync([_testSystemSuiteId], ct);
         retrieved.Should().NotBeNull();
         retrieved!.Code.Should().Be("UMS-SYSTEM");
 
         retrieved.Name = "Updated System Suite";
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(ct);
 
-        var updated = await context.SystemSuites.FindAsync(_testSystemSuiteId);
+        var updated = await context.SystemSuites.FindAsync([_testSystemSuiteId], ct);
         updated!.Name.Should().Be("Updated System Suite");
     }
 
     [Fact]
     public async Task Role_CrudOperations_WorkCorrectly()
     {
+        var ct = TestContext.Current.CancellationToken;
         var options = new DbContextOptionsBuilder<UmsPlatformDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
@@ -74,20 +76,21 @@ public class AuthorizationRepositoryTests
             AuditTimeSpan = ""
         };
 
-        await context.Roles.AddAsync(role);
-        await context.SaveChangesAsync();
+        await context.Roles.AddAsync(role, ct);
+        await context.SaveChangesAsync(ct);
 
-        var retrieved = await context.Roles.FindAsync(role.Id);
+        var retrieved = await context.Roles.FindAsync([role.Id], ct);
         retrieved.Should().NotBeNull();
         retrieved!.Code.Should().Be("ADMIN-ROLE");
 
-        var allRoles = await context.Roles.Where(r => r.TenantId == _testTenantId).ToListAsync();
+        var allRoles = await context.Roles.Where(r => r.TenantId == _testTenantId).ToListAsync(ct);
         allRoles.Should().HaveCount(1);
     }
 
     [Fact]
     public async Task Profile_CrudOperations_WorkCorrectly()
     {
+        var ct = TestContext.Current.CancellationToken;
         var options = new DbContextOptionsBuilder<UmsPlatformDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
@@ -110,15 +113,15 @@ public class AuthorizationRepositoryTests
             AuditTimeSpan = ""
         };
 
-        await context.Profiles.AddAsync(profile);
-        await context.SaveChangesAsync();
+        await context.Profiles.AddAsync(profile, ct);
+        await context.SaveChangesAsync(ct);
 
-        var retrieved = await context.Profiles.FindAsync(profile.Id);
+        var retrieved = await context.Profiles.FindAsync([profile.Id], ct);
         retrieved.Should().NotBeNull();
         retrieved!.UserId.Should().Be(userId);
         retrieved.IsActive.Should().BeTrue();
 
-        var profilesByUser = await context.Profiles.Where(p => p.UserId == userId).ToListAsync();
+        var profilesByUser = await context.Profiles.Where(p => p.UserId == userId).ToListAsync(ct);
         profilesByUser.Should().HaveCount(1);
     }
 
@@ -148,6 +151,7 @@ public class ConfigurationRepositoryTests
     [Fact]
     public async Task FeatureFlag_CrudOperations_WorkCorrectly()
     {
+        var ct = TestContext.Current.CancellationToken;
         var options = new DbContextOptionsBuilder<UmsPlatformDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
@@ -168,23 +172,24 @@ public class ConfigurationRepositoryTests
             AuditTimeSpan = ""
         };
 
-        await context.FeatureFlags.AddAsync(flag);
-        await context.SaveChangesAsync();
+        await context.FeatureFlags.AddAsync(flag, ct);
+        await context.SaveChangesAsync(ct);
 
-        var retrieved = await context.FeatureFlags.FindAsync(flag.Id);
+        var retrieved = await context.FeatureFlags.FindAsync([flag.Id], ct);
         retrieved.Should().NotBeNull();
         retrieved!.FlagCode.Should().Be("NEW_FEATURE");
 
         retrieved.StatusId = 1;
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(ct);
 
-        var updated = await context.FeatureFlags.FindAsync(flag.Id);
+        var updated = await context.FeatureFlags.FindAsync([flag.Id], ct);
         updated!.StatusId.Should().Be(1);
     }
 
     [Fact]
     public async Task FeatureFlag_QueryBySystemSuite_ReturnsCorrectFlags()
     {
+        var ct = TestContext.Current.CancellationToken;
         var options = new DbContextOptionsBuilder<UmsPlatformDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
@@ -229,11 +234,11 @@ public class ConfigurationRepositoryTests
                 AuditTimeSpan = ""
             }
         );
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(ct);
 
         var suiteFlags = await context.FeatureFlags
             .Where(f => f.SystemSuiteId == _testSystemSuiteId)
-            .ToListAsync();
+            .ToListAsync(ct);
 
         suiteFlags.Should().HaveCount(2);
     }
@@ -241,6 +246,7 @@ public class ConfigurationRepositoryTests
     [Fact]
     public async Task FeatureFlagCriteria_AddAndRetrieve_WorkCorrectly()
     {
+        var ct = TestContext.Current.CancellationToken;
         var options = new DbContextOptionsBuilder<UmsPlatformDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
@@ -261,7 +267,7 @@ public class ConfigurationRepositoryTests
             AuditTimeSpan = ""
         };
 
-        await context.FeatureFlags.AddAsync(flag);
+        await context.FeatureFlags.AddAsync(flag, ct);
 
         var criteria = new FeatureFlagCriteriaRecord
         {
@@ -273,12 +279,12 @@ public class ConfigurationRepositoryTests
             CreatedAtUtc = DateTime.UtcNow
         };
 
-        await context.FeatureFlagCriteria.AddAsync(criteria);
-        await context.SaveChangesAsync();
+        await context.FeatureFlagCriteria.AddAsync(criteria, ct);
+        await context.SaveChangesAsync(ct);
 
         var retrievedCriteria = await context.FeatureFlagCriteria
             .Where(c => c.FeatureFlagId == flagId)
-            .ToListAsync();
+            .ToListAsync(ct);
 
         retrievedCriteria.Should().HaveCount(1);
         retrievedCriteria.First().Value.Should().Be("test-value");

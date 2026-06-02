@@ -1,4 +1,5 @@
 using Ums.Presentation.IntegrationTest.Infrastructure;
+using Ums.Infrastructure.Persistence.Seeders;
 
 namespace Ums.Presentation.IntegrationTest.Approvals;
 
@@ -15,6 +16,7 @@ public sealed class NotificationRuleRestEndpointTests : IClassFixture<UmsApiWebA
         });
         _client.DefaultRequestHeaders.Add("X-User-Id", "00000000-0000-0000-0000-000000000123");
         _client.DefaultRequestHeaders.Add("X-User-Name", "Integration Tester");
+        _client.DefaultRequestHeaders.Add("X-Tenant-Id", CoreDevDataSeeder.InternalAdminTenantId);
     }
 
     [Fact]
@@ -22,7 +24,7 @@ public sealed class NotificationRuleRestEndpointTests : IClassFixture<UmsApiWebA
     {
         var createResponse = await _client.PostAsJsonAsync("/api/v1/notification-rules", new
         {
-            tenantId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+            tenantId = Guid.Parse(CoreDevDataSeeder.InternalAdminTenantId),
             channel = "Email",
             recipient = "  Alerts@BeyondNet.Com "
         }, TestContext.Current.CancellationToken);
@@ -45,7 +47,7 @@ public sealed class NotificationRuleRestEndpointTests : IClassFixture<UmsApiWebA
     {
         var response = await _client.PostAsJsonAsync("/api/v1/notification-rules", new
         {
-            tenantId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+            tenantId = Guid.Parse(CoreDevDataSeeder.InternalAdminTenantId),
             channel = "Sms",
             recipient = "invalid-recipient"
         }, TestContext.Current.CancellationToken);
