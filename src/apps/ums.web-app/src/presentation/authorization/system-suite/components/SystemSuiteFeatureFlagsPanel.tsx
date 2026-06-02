@@ -24,6 +24,7 @@ import { M3Button } from '@shared/components/M3Button';
 import { ListToolbar } from '@shared/components/ListToolbar';
 import { EmptyState } from '@shared/components/EmptyState';
 import { AddButtonInline } from '@shared/components/AddButton';
+import { getHttpErrorMessage, getSupportReferenceId } from '@app/errors/http-error';
 import {
   FLAG_TYPE_LABELS,
   CRITERIA_TYPE_LABELS,
@@ -332,9 +333,12 @@ export const SystemSuiteFeatureFlagsPanel: React.FC<SystemSuiteFeatureFlagsPanel
   }
 
   if (error) {
+    const errorMessage = getHttpErrorMessage(error, 'No se pudieron cargar los feature flags. Intente nuevamente.');
+    const supportReferenceId = getSupportReferenceId(error);
+
     return (
       <div className="flex items-center justify-center py-8 text-rose-500 text-[12px]">
-        Error al cargar feature flags: {error.message}
+        {supportReferenceId ? `${errorMessage} Referencia: ${supportReferenceId}` : errorMessage}
       </div>
     );
   }

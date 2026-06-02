@@ -27,6 +27,7 @@ import { useNotificationStore } from '@app/stores/notification.store';
 import { DEV_TENANTS } from '@domain/identity/constants/tenant.constants';
 import { ForgotPasswordForm } from '../components/ForgotPasswordForm';
 import { authService } from '@app/identity/services/auth.service';
+import { getHttpErrorMessage, getSupportReferenceId } from '@app/errors/http-error';
 import { SignupForm } from '../components/SignupForm';
 import { TenantSignupForm } from '../components/TenantSignupForm';
 
@@ -161,7 +162,9 @@ export default function LoginScreen(): React.JSX.Element {
         setLockoutUntil(Date.now() + lockDuration);
         setError(`Demasiados intentos fallidos. Bloqueado por ${lockDuration / 1000} segundos`);
       } else {
-        setError(err instanceof Error ? err.message : 'Usuario o contraseña incorrectos');
+        const supportReferenceId = getSupportReferenceId(err);
+        const message = getHttpErrorMessage(err, 'No pudimos iniciar sesión. Verifique sus credenciales.');
+        setError(supportReferenceId ? `${message} Referencia: ${supportReferenceId}` : message);
       }
     } finally {
       setIsLoading(false);

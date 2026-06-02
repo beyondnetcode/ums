@@ -3,6 +3,7 @@ import { Share2, FileCode, Clipboard, Download, Check, Loader2 } from 'lucide-re
 import { M3Button } from '@shared/components/M3Button';
 import { M3FormDialog } from '@shared/components/M3FormDialog';
 import { M3SegmentedButton } from '@shared/components/M3SegmentedButton';
+import { getHttpErrorMessage, getSupportReferenceId } from '@app/errors/http-error';
 import { profileService } from '@infra/authorization/services/profile.service';
 
 interface Props {
@@ -41,8 +42,9 @@ export const M3AuthorizationGraphPanel: React.FC<Props> = ({ isOpen, onClose, pr
           setContent(res);
         }
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Error al generar el grafo en el servidor.';
-        setError(errorMessage);
+        const errorMessage = getHttpErrorMessage(err, 'Error al generar el grafo en el servidor.');
+        const supportReferenceId = getSupportReferenceId(err);
+        setError(supportReferenceId ? `${errorMessage} Referencia: ${supportReferenceId}` : errorMessage);
       } finally {
         setLoading(false);
       }

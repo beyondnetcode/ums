@@ -8,6 +8,7 @@ import { useGetAllSystemSuites } from '@app/authorization/hooks/use-system-suite
 import { useRolesBySystemSuite } from '@app/authorization/hooks/use-role';
 import { useGetAllPermissionTemplates, useGetPermissionTemplate } from '@app/authorization/hooks/use-permission-template';
 import { useCreateProfile, useAssignProfileTemplate, useOverrideProfilePermission, useActivateProfilePermission, useDeactivateProfilePermission } from '@app/authorization/hooks/use-profile';
+import { getHttpErrorMessage, getSupportReferenceId } from '@app/errors/http-error';
 import profileService from '@infra/authorization/services/profile.service';
 
 interface Props {
@@ -160,7 +161,9 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenan
       onSuccess(profileId);
     } catch (err: unknown) {
       logger.error('Error persisting profile authorizations', err);
-      setError((err as Error)?.message || 'Error al persistir el perfil. Intente nuevamente.');
+      const message = getHttpErrorMessage(err, 'Error al persistir el perfil. Intente nuevamente.');
+      const supportReferenceId = getSupportReferenceId(err);
+      setError(supportReferenceId ? `${message} Referencia: ${supportReferenceId}` : message);
     } finally {
       setSaving(false);
     }

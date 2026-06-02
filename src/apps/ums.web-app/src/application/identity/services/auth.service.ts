@@ -59,6 +59,8 @@ export interface AuthError {
   supportReferenceId: string | null;
 }
 
+type ErrorWithSupportReference = Error & { supportReferenceId?: string };
+
 // In dev the Vite proxy handles /api → backend, so no absolute URL is needed.
 // VITE_API_URL should only be set in production (e.g. https://api.ums.example.com).
 const API_BASE_URL = import.meta.env.VITE_API_URL || '';
@@ -145,33 +147,43 @@ class AuthService {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => null) as AuthError | null;
+        const supportReferenceId =
+          errorData?.supportReferenceId
+          ?? response.headers.get('x-correlation-id')
+          ?? response.headers.get('x-error-id');
+
+        const fail = (message: string): never => {
+          const error = new Error(message) as ErrorWithSupportReference;
+          error.supportReferenceId = supportReferenceId ?? undefined;
+          throw error;
+        };
 
         if (errorData) {
           switch (errorData.code) {
             case AUTH_ERROR_CODES.INVALID_CREDENTIALS:
-              throw new Error('Usuario o contraseña incorrectos');
+              fail('No pudimos iniciar sesión. Verifique su usuario y contraseña.');
             case AUTH_ERROR_CODES.TENANT_NOT_FOUND:
-              throw new Error('Tenant no encontrado');
+              fail('No pudimos iniciar sesión. Verifique el código del tenant.');
             case AUTH_ERROR_CODES.TENANT_INACTIVE:
-              throw new Error('Tenant inactivo');
+              fail('El tenant no está activo. Contacte al administrador.');
             case AUTH_ERROR_CODES.USER_NOT_ACTIVE:
-              throw new Error('Usuario inactivo. Contacte al administrador');
+              fail('Su cuenta no está activa. Contacte al administrador.');
             case AUTH_ERROR_CODES.SESSION_EXPIRED:
-              throw new Error('Sesión expirada');
+              fail('La sesión expiró. Vuelva a iniciar sesión.');
             default:
-              throw new Error(errorData.message || 'Error de autenticación');
+              fail(errorData.message || 'No pudimos iniciar sesión. Intente nuevamente.');
           }
         }
 
         if (response.status === 401) {
-          throw new Error('Usuario o contraseña incorrectos');
+          fail('No pudimos iniciar sesión. Verifique sus credenciales.');
         }
 
         if (response.status === 429) {
-          throw new Error('Demasiados intentos. Espere unos minutos');
+          fail('Demasiados intentos fallidos. Espere unos minutos.');
         }
 
-        throw new Error('Error de autenticación. Intente nuevamente');
+        fail('No pudimos iniciar sesión. Intente nuevamente.');
       }
 
       const data = await response.json();

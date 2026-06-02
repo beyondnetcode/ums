@@ -118,6 +118,8 @@ public static class AuthEndpoints
         HttpContext   httpContext,
         CancellationToken cancellationToken)
     {
+        var supportReferenceId = httpContext.TraceIdentifier;
+
         if (string.IsNullOrWhiteSpace(request.TenantCode) ||
             string.IsNullOrWhiteSpace(request.Username)   ||
             string.IsNullOrWhiteSpace(request.Password))
@@ -125,7 +127,7 @@ public static class AuthEndpoints
             return Results.BadRequest(new LoginErrorResponse(
                 ErrorCodes.ValidationError,
                 "Tenant code, username and password are required.",
-                SupportReferenceId: null));
+                SupportReferenceId: supportReferenceId));
         }
 
         var clientIp = httpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1";
@@ -142,7 +144,7 @@ public static class AuthEndpoints
 
         if (result.IsFailure)
         {
-            return MapAuthError(result.Error);
+            return MapAuthError(result.Error, supportReferenceId);
         }
 
         var authResult = result.Value;
@@ -233,19 +235,19 @@ public static class AuthEndpoints
             GraphFormat:      authResult.GraphFormat));
     }
 
-    private static IResult MapAuthError(string error) => error switch
+    private static IResult MapAuthError(string error, string supportReferenceId) => error switch
     {
         var e when e.StartsWith("AUTH_002") => Results.NotFound(new LoginErrorResponse(
-            ErrorCodes.TenantNotFound, e[(e.IndexOf(':') + 1)..].Trim(), null)),
+            ErrorCodes.TenantNotFound, "No pudimos iniciar sesión. Verifique el código del tenant.", supportReferenceId)),
         var e when e.StartsWith("AUTH_003") => Results.BadRequest(new LoginErrorResponse(
-            ErrorCodes.TenantInactive, e[(e.IndexOf(':') + 1)..].Trim(), null)),
+            ErrorCodes.TenantInactive, "El tenant no está activo. Contacte al administrador.", supportReferenceId)),
         var e when e.StartsWith("AUTH_004") => Results.NotFound(new LoginErrorResponse(
-            ErrorCodes.UserNotFound, e[(e.IndexOf(':') + 1)..].Trim(), null)),
+            ErrorCodes.UserNotFound, "No pudimos iniciar sesión. Verifique sus credenciales.", supportReferenceId)),
         var e when e.StartsWith("AUTH_005") => Results.Json(new LoginErrorResponse(
-            ErrorCodes.UserNotActive, e[(e.IndexOf(':') + 1)..].Trim(), null), statusCode: 401),
+            ErrorCodes.UserNotActive, "Su cuenta no está activa. Contacte al administrador.", supportReferenceId), statusCode: 401),
         var e when e.StartsWith("AUTH_006") => Results.Json(new LoginErrorResponse(
-            ErrorCodes.InvalidCredentials, e[(e.IndexOf(':') + 1)..].Trim(), null), statusCode: 401),
-        _ => Results.Json(new LoginErrorResponse("AUTH_000", error, null), statusCode: 401),
+            ErrorCodes.InvalidCredentials, "No pudimos iniciar sesión. Verifique sus credenciales.", supportReferenceId), statusCode: 401),
+        _ => Results.Json(new LoginErrorResponse("AUTH_000", "No pudimos iniciar sesión. Intente nuevamente.", supportReferenceId), statusCode: 401),
     };
 
     private static async Task<IResult> HandleRefreshTokenAsync(

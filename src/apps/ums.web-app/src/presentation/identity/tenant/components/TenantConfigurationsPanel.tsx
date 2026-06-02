@@ -22,6 +22,7 @@ import { M3Dialog } from '@shared/components/M3Dialog';
 import { FormField, FormInput, FormButton } from '@shared/components/form';
 import { parameterCatalogService } from '@infra/configuration/services/parameter-catalog/parameter-catalog.service';
 import type { ParameterDefinition } from '@domain/configuration/schemas/parameter-catalog/parameter-definition.schema';
+import { getHttpErrorMessage, getSupportReferenceId } from '@app/errors/http-error';
 
 interface GraphQLAppConfigurationsResponse {
   appConfigurations: {
@@ -83,7 +84,7 @@ export const TenantConfigurationsPanel: React.FC<TenantConfigurationsPanelProps>
 
   const [configs, setConfigs] = useState<ConfigParameter[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
   const [searchValue, setSearchValue] = useState('');
@@ -122,8 +123,12 @@ export const TenantConfigurationsPanel: React.FC<TenantConfigurationsPanelProps>
       }));
       setConfigs(mapped);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      setError(new Error(errorMessage));
+      const errorMessage = getHttpErrorMessage(
+        err,
+        'No se pudieron cargar las configuraciones del tenant. Intente nuevamente.'
+      );
+      const supportReferenceId = getSupportReferenceId(err);
+      setError(supportReferenceId ? `${errorMessage} Referencia: ${supportReferenceId}` : errorMessage);
       addNotification({ title: t.error, message: t.notifConfigLoadFailed, type: 'error' });
     } finally {
       setIsLoading(false);
@@ -272,7 +277,7 @@ export const TenantConfigurationsPanel: React.FC<TenantConfigurationsPanelProps>
   if (error) {
     return (
       <div className="flex-1 flex items-center justify-center p-4">
-        <div className="text-center text-m3-error">{error.message}</div>
+        <div className="text-center text-m3-error">{error}</div>
       </div>
     );
   }
