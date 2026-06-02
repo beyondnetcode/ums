@@ -6,6 +6,7 @@
 **Relacionados:**
 - [ADR-0071: Motor del Grafo de Autorización](./0071-auth-graph-engine.es.md)
 - [ADR-0054: Aislamiento de Shell Libraries](./0054-shell-library-isolation.md)
+- [ADR-0077: Frontera de Autorizacion para Gestion del Portal del Tenant](./0077-tenant-portal-management-authorization-boundary.es.md)
 
 ---
 

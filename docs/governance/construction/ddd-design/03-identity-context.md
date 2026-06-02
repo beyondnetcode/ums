@@ -29,6 +29,7 @@ El Identity Context es el punto de entrada del flujo de autenticación de UMS y 
 El grafo final lo construye y serializa BC-B (Authorization), pero **sin la información base que provee BC-A no puede generarse**: identidad del principal, método de autenticación resuelto, tenant, branch, proveedor IDP activo y configuración efectiva.
 
 Para evitar mezclar responsabilidades, el portal interno de UMS se autentica y autoriza mediante el scope de gestión local, mientras que la API pública externa mantiene la resolución federada por tenant cuando corresponde.
+La frontera arquitectónica de esa separación está formalizada en [ADR-0077](../../../architecture/adrs/0077-tenant-portal-management-authorization-boundary.md).
 
 ---
 

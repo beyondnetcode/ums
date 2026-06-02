@@ -56,6 +56,8 @@ UMS is a satellite repository of `evolith_arch32`. The parent repository defines
 | [ADR-0073](./0073-ums-sdk-multi-runtime.md) | UMS SDK — Multi-Runtime Client Integration Surface (.NET / TypeScript / NestJS) | Accepted |
 | [ADR-0074](./0074-auth-graph-schema-versioning.md) | Auth Graph Schema Versioning Policy | Accepted |
 | [ADR-0075](./0075-onboarding-approval-inbox-and-scope-based-authorization.md) | Onboarding Approval Inbox and Scope-Based Authorization | Accepted |
+| [ADR-0076](./0076-utc-dates-timezone-language-resolution.md) | UTC Dates, Timezone and Language Resolution | Accepted |
+| [ADR-0077](./0077-tenant-portal-management-authorization-boundary.md) | Tenant Portal Management Authorization Boundary and Scope Policy | Accepted |
 
 > **Evolith candidate** - ADR has zero UMS-specific dependencies and is proposed for extraction to the Evolith parent architecture baseline.
 
@@ -63,7 +65,7 @@ UMS is a satellite repository of `evolith_arch32`. The parent repository defines
 
 ## Bilingual Coverage (R-01 Compliance)
 
-All ADRs (0050-0070) now have Spanish translations:
+All ADRs (0050-0077) now have Spanish translations:
 
 | ADR | Spanish | ADR | Spanish |
 |-----|---------|-----|---------|
@@ -80,6 +82,9 @@ All ADRs (0050-0070) now have Spanish translations:
 | 0060 | ✅ | 0072 | ✅ |
 | —    | — | 0073 | ✅ |
 | —    | — | 0074 | ✅ |
+| —    | — | 0075 | ✅ |
+| —    | — | 0076 | ✅ |
+| —    | — | 0077 | ✅ |
 
 ---
 

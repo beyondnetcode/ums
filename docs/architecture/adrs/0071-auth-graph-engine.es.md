@@ -8,6 +8,7 @@
 - [ADR-0061: Execution Context Accessor](./0061-execution-context-accessor.md)
 - [ADR-0068: Alcance del Sistema de Feature Flags](./0068-feature-flag-system-scope.md)
 - [ADR-0072: Resolución Dinámica del Método de Autenticación](./0072-dynamic-auth-method-resolution.es.md)
+- [ADR-0077: Frontera de Autorizacion para Gestion del Portal del Tenant](./0077-tenant-portal-management-authorization-boundary.es.md)
 
 ---
 

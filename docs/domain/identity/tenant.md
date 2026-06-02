@@ -21,6 +21,7 @@ The `Tenant` aggregate represents the top-level organizational unit in the UMS m
 
 ### Internal Management Access
 The internal UMS portal uses its own authorization path for tenant administrators. This path is separate from the external API authentication flow and is governed by tenant scope, roles, permissions, and `IsManagementOwner`.
+This boundary is formalized in [ADR-0077](../../architecture/adrs/0077-tenant-portal-management-authorization-boundary.md).
 
 | Scenario | Rule |
 |---|---|

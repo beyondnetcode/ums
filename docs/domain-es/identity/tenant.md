@@ -23,6 +23,7 @@
 
 ### Acceso de Gestion Interna
 El portal interno de UMS utiliza su propia ruta de autorizacion para los administradores del tenant. Esta ruta es distinta del flujo externo de autenticacion por API y se gobierna por scope de tenant, roles, permisos e `IsManagementOwner`.
+Esta frontera se formaliza en [ADR-0077](../../architecture/adrs/0077-tenant-portal-management-authorization-boundary.es.md).
 
 | Escenario | Regla |
 |---|---|

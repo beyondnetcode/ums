@@ -6,6 +6,7 @@
 **Related:**
 - [ADR-0071: Auth Graph Engine](./0071-auth-graph-engine.md)
 - [ADR-0054: Shell Library Isolation](./0054-shell-library-isolation.md)
+- [ADR-0077: Tenant Portal Management Authorization Boundary](./0077-tenant-portal-management-authorization-boundary.md)
 
 ---
 

@@ -32,6 +32,7 @@ The parameter `AUTH_USE_EXTERNAL_IDP` (Boolean, tenant-scoped) governs method se
 | `true` + no active IDP | `Result.Failure("AUTH_011")` — configuration error |
 
 For `AuthAccessScope.PortalManagement`, the resolver always returns `AuthMethod.Local()` and does not require the tenant IDP configuration.
+The authorization boundary that keeps portal management local is defined in [ADR-0077](../../architecture/adrs/0077-tenant-portal-management-authorization-boundary.md).
 
 This parameter lives in the `ParameterCatalog` and is loaded into `IConfigurationProvider` at application startup. Changes applied via the IdpPanel UI are persisted to the database and trigger a provider refresh — the new method takes effect on the **next login** without a service restart.
 
