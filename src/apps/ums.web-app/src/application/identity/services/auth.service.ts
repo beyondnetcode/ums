@@ -59,7 +59,9 @@ export interface AuthError {
   supportReferenceId: string | null;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://localhost:7114';
+// In dev the Vite proxy handles /api → backend, so no absolute URL is needed.
+// VITE_API_URL should only be set in production (e.g. https://api.ums.example.com).
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
 const AUTH_ERROR_CODES = {
   VALIDATION_ERROR: 'AUTH_001',
