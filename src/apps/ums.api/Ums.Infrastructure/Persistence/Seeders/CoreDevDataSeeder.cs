@@ -15,6 +15,7 @@ public static class CoreDevDataSeeder
     public const string SuperAdminUserId = "22222222-2222-2222-2222-222222222222";
     public const string SuperAdminUsername = "admin";
     public const string SuperAdminPassword = "Admin@123"; // Change in production!
+    public const string InternalAdminPendingUserId = "11111103-1111-1111-1111-111111111111";
 
     // ── GlobalAdmin Role & Profile ─────────────────────────────────────────────
     public const string GlobalAdminRoleId = "33333333-3333-3333-3333-333333333333";
@@ -33,6 +34,7 @@ public static class CoreDevDataSeeder
     public const string DemoAdminProfileId = "bbbb0001-0000-0000-0000-000000000001";
     public const string RansaEntraIdProviderId = "cccc0001-0000-0000-0000-000000000001";
     public const string DemoSystemSuiteId = "dddd0001-0000-0000-0000-000000000001";
+    public const string InternalAdminInboxWorkflowId = "88888888-3333-3333-3333-333333333333";
 
     public static async Task SeedAllAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
     {

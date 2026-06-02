@@ -45,7 +45,9 @@ public static class ApprovalsDevDataSeeder
 
         var actor = ActorId.Create(CoreDevDataSeeder.SystemActorId);
         var ransaTenantId = TenantId.Load(Guid.Parse(CoreDevDataSeeder.RansaTenantId));
+        var internalAdminTenantId = TenantId.Load(Guid.Parse(CoreDevDataSeeder.InternalAdminTenantId));
         var adminUserId = UserId.Load(Guid.Parse(CoreDevDataSeeder.RansaAdminUserId));
+        var internalAdminUserId = UserId.Load(Guid.Parse(CoreDevDataSeeder.SuperAdminUserId));
 
         // Document Types
         var docTypes = BuildSeedDocumentTypes(ransaTenantId, actor);
@@ -85,6 +87,33 @@ public static class ApprovalsDevDataSeeder
             if (existing.Count == 0)
             {
                 foreach (var req in requests) await reqRepository.AddAsync(req, cancellationToken);
+                await reqRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+            }
+        }
+
+        // Internal Admin inbox demo data
+        var internalAdminWorkflows = BuildInternalAdminSeedWorkflows(internalAdminTenantId, actor);
+        if (inMemoryWfRepository is not null)
+            foreach (var wf in internalAdminWorkflows) inMemoryWfRepository.Seed(wf);
+        else if (wfRepository is not null)
+        {
+            var existing = await wfRepository.GetByTenantIdAsync(internalAdminTenantId.GetValue(), cancellationToken);
+            if (existing.Count == 0)
+            {
+                foreach (var wf in internalAdminWorkflows) await wfRepository.AddAsync(wf, cancellationToken);
+                await wfRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+            }
+        }
+
+        var internalAdminRequests = BuildInternalAdminSeedRequests(internalAdminUserId, internalAdminWorkflows, actor);
+        if (inMemoryReqRepository is not null)
+            foreach (var req in internalAdminRequests) inMemoryReqRepository.Seed(req);
+        else if (reqRepository is not null)
+        {
+            var existing = await reqRepository.GetByTenantIdAsync(internalAdminTenantId.GetValue(), cancellationToken);
+            if (existing.Count == 0)
+            {
+                foreach (var req in internalAdminRequests) await reqRepository.AddAsync(req, cancellationToken);
                 await reqRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
             }
         }
@@ -130,6 +159,47 @@ public static class ApprovalsDevDataSeeder
                 await notificationRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
             }
         }
+    }
+
+    private static IReadOnlyList<ApprovalWorkflowAggregate> BuildInternalAdminSeedWorkflows(TenantId tenantId, ActorId actor)
+    {
+        var systemId = SystemSuiteId.Load(Guid.Parse(CoreDevDataSeeder.DemoSystemSuiteId));
+
+        var workflow = ApprovalWorkflowAggregate.Create(
+            tenantId,
+            Code.Create("INTERNAL_ADMIN_REVIEW"),
+            Name.Create("Internal Admin Review Workflow"),
+            Description.Create("Workflow para aprobar solicitudes internas del portal UMS"),
+            UserCategory.Internal,
+            true,
+            systemId,
+            actor);
+
+        return workflow.IsSuccess ? new[] { workflow.Value } : Array.Empty<ApprovalWorkflowAggregate>();
+    }
+
+    private static IReadOnlyList<ApprovalRequestAggregate> BuildInternalAdminSeedRequests(
+        UserId requesterId,
+        IReadOnlyList<ApprovalWorkflowAggregate> workflows,
+        ActorId actor)
+    {
+        if (workflows.Count == 0) return Array.Empty<ApprovalRequestAggregate>();
+
+        var workflowId = workflows[0].GetId();
+        var systemId   = SystemSuiteId.Load(Guid.Parse(CoreDevDataSeeder.DemoSystemSuiteId));
+        var adminRole  = RoleId.Load(Guid.Parse(CoreDevDataSeeder.DemoAdminRoleId));
+
+        var pending = ApprovalRequestAggregate.Create(
+            workflowId,
+            requesterId,
+            null,
+            systemId,
+            null,
+            adminRole,
+            "Solicito revisión de accesos para el administrador interno.",
+            actor);
+
+        return pending.IsSuccess ? new[] { pending.Value } : Array.Empty<ApprovalRequestAggregate>();
     }
 
     // DocumentType.Create(TenantId, Code, Name, Description, DocumentCriticity, ActorId)

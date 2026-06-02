@@ -291,6 +291,16 @@ public static class IdentityDevDataSeeder
             result.Add(superAdmin);
         }
 
+        // ── Internal Admin Inbox Demo User ────────────────────────────────────
+        var internalAdminInboxUser = BuildUserAccount(
+            Guid.Parse(CoreDevDataSeeder.InternalAdminPendingUserId),
+            internalAdminTenantId,
+            "bandeja.admin@ums.local",
+            UserCategory.External,
+            actor,
+            "EXT-201");
+        result.Add(internalAdminInboxUser);
+
         // ── Commercial Tenant Users ─────────────────────────────────────────────
         result.AddRange(BuildSeedUserAccountsForTenant(ransaTenantId, actor, passwordHasher));
         result.AddRange(BuildSeedUserAccountsForTenant(neptuniaTenantId, actor, passwordHasher));
