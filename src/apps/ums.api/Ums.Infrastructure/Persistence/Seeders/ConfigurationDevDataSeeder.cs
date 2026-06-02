@@ -244,7 +244,7 @@ public static class ConfigurationDevDataSeeder
                 // Create 2-3 flags per suite based on suite code
                 var flagsForSuite = suiteCode switch
                 {
-                    "LOGISTICS_CORE" => new (string Code, FlagType Type, string Targets, string Description, int? Rollout)[]
+                    "UMS" => new (string Code, FlagType Type, string Targets, string Description, int? Rollout)[]
                     {
                         ("ENABLE_MFA",                        FlagType.Boolean,     "*",                      "Multi-factor authentication for logistics users",      null),
                         ("DARK_MODE",                         FlagType.Boolean,     "*",                      "Dark mode UI toggle",                                  null),

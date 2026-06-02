@@ -17,6 +17,7 @@ public class SystemSuiteQueryHandlerTests
 {
     private readonly Mock<ISystemSuiteRepository> _repo = new();
     private readonly Mock<IUserContext> _userContext = new();
+    private readonly Mock<ITenantScopePolicy> _scopePolicy = new();
 
     private static SystemSuite MakeSystemSuite(string code, string name, string statusName)
     {
@@ -99,7 +100,9 @@ public class SystemSuiteQueryHandlerTests
             Page: 1,
             PageSize: 10);
 
-        var handler = new GetAllSystemSuitesQueryHandler(_repo.Object, _userContext.Object);
+        _scopePolicy.Setup(p => p.ResolveQueryScope()).Returns((Guid?)null);
+
+        var handler = new GetAllSystemSuitesQueryHandler(_repo.Object, _scopePolicy.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -127,9 +130,8 @@ public class SystemSuiteQueryHandlerTests
             Page: 1,
             PageSize: 10);
 
-        var adminCtx = new Mock<Ums.Application.Common.Interfaces.ITenantContext>();
-        adminCtx.Setup(t => t.IsInternalAdmin).Returns(true);
-        var handler = new GetAllSystemSuitesQueryHandler(_repo.Object, _userContext.Object, adminCtx.Object);
+        _scopePolicy.Setup(p => p.ResolveQueryScope()).Returns(tenantId);
+        var handler = new GetAllSystemSuitesQueryHandler(_repo.Object, _scopePolicy.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -157,7 +159,8 @@ public class SystemSuiteQueryHandlerTests
             Page: 1,
             PageSize: 10);
 
-        var handler = new GetAllSystemSuitesQueryHandler(_repo.Object, _userContext.Object);
+        _scopePolicy.Setup(p => p.ResolveQueryScope()).Returns((Guid?)null);
+        var handler = new GetAllSystemSuitesQueryHandler(_repo.Object, _scopePolicy.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -185,7 +188,8 @@ public class SystemSuiteQueryHandlerTests
             Page: 1,
             PageSize: 10);
 
-        var handler = new GetAllSystemSuitesQueryHandler(_repo.Object, _userContext.Object);
+        _scopePolicy.Setup(p => p.ResolveQueryScope()).Returns((Guid?)null);
+        var handler = new GetAllSystemSuitesQueryHandler(_repo.Object, _scopePolicy.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);

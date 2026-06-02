@@ -88,6 +88,9 @@ VALUES
 ('00000009-0000-0000-0000-000000000001', 'NEXTGEN', 'NextGenTech', 1, 1, 'NEXT001', NULL, 1, '00000000-0000-0000-0000-000000000001', datetime('now'), NULL, NULL, 'PT0S', X'0000000000000001', 0, NULL, NULL),
 ('0000000a-0000-0000-0000-000000000001', 'QUANTUM', 'QuantumLabs', 2, 3, 'QNTM001', NULL, 1, '00000000-0000-0000-0000-000000000001', datetime('now'), NULL, NULL, 'PT0S', X'0000000000000001', 0, NULL, NULL);
 
+UPDATE Tenants
+SET IsManagementOwner = CASE WHEN Code = 'INTERNAL_ADMIN' THEN 1 ELSE 0 END;
+
 -- =============================================================================
 -- 4. TENANT BRANCHES (2-3 per tenant)
 -- =============================================================================

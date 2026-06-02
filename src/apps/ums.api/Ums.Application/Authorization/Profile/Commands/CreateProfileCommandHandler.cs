@@ -9,13 +9,16 @@ public sealed class CreateProfileCommandHandler : ICommandHandler<CreateProfileC
 {
     private readonly IProfileRepository _profileRepository;
     private readonly IUserContext _userContext;
+    private readonly ITenantScopePolicy _tenantScopePolicy;
 
     public CreateProfileCommandHandler(
         IProfileRepository profileRepository,
-        IUserContext userContext)
+        IUserContext userContext,
+        ITenantScopePolicy tenantScopePolicy)
     {
         _profileRepository = profileRepository;
         _userContext = userContext;
+        _tenantScopePolicy = tenantScopePolicy;
     }
 
     [AuditTrail]
@@ -29,11 +32,10 @@ public sealed class CreateProfileCommandHandler : ICommandHandler<CreateProfileC
             return Result<CreateProfileResponse>.Failure("Authenticated user is required to create a profile.");
         }
 
-        if (!string.IsNullOrWhiteSpace(_userContext.TenantId) &&
-            !string.Equals(request.TenantId.ToString(), _userContext.TenantId, StringComparison.OrdinalIgnoreCase))
+        var scopeResult = await _tenantScopePolicy.EnsureManagementOwnerScopeAsync(request.TenantId, cancellationToken);
+        if (scopeResult.IsFailure)
         {
-            return Result<CreateProfileResponse>.Failure(
-                $"Tenant mismatch. User belongs to tenant '{_userContext.TenantId}', but request targets '{request.TenantId}'.");
+            return Result<CreateProfileResponse>.Failure(scopeResult.Error);
         }
 
         var profileResult = Profile.Create(

@@ -293,6 +293,7 @@ public sealed class SqlServerTenantRepository(UmsPlatformDbContext dbContext) : 
             IdpStrategyId = aggregate.IdpStrategy.Id,
             CompanyReference = aggregate.CompanyReference?.GetValue(),
             ParentTenantId = aggregate.ParentTenantId?.GetValue(),
+            IsManagementOwner = aggregate.IsManagementOwner,
             StatusId = aggregate.Status.Id,
             CreatedBy = audit.CreatedBy,
             CreatedAtUtc = audit.CreatedAt,

@@ -2,22 +2,23 @@
 
 ## 1. Business Purpose
 
-UMS must allow authorized administrators to reset user passwords and modify user account validity periods, with scope restrictions enforced by the administrator's type (internal vs. tenant-specific) and their operational scope. All such actions must be recorded in the audit trail to ensure accountability and compliance with security policies.
+UMS must allow authorized administrators to reset user passwords and modify user account validity periods, with scope restrictions enforced by the administrator's portal management scope, tenant ownership, and permissions. The internal UMS portal uses its own authorization path, while external tenant IDP resolution remains reserved for the public API. All such actions must be recorded in the audit trail to ensure accountability and compliance with security policies.
 
 ## 2. Actors
 
 | Actor | Responsibility |
 | :--- | :--- |
-| **Internal Platform Administrator** | Manages passwords and validity periods for users across any tenant in the system. Has cross-tenant operational scope. |
-| **Tenant Administrator** | Manages passwords and validity periods for users within their own tenant only. Has tenant-scoped operational scope. |
+| **Internal Platform Administrator** | Manages passwords and validity periods for users across any tenant in the system through the internal management scope. |
+| **Tenant Administrator** | Manages passwords and validity periods for users within their own tenant only when that tenant is allowed to administer its own UMS scope. |
 | **Affected User** | Subject of the password reset or validity period modification. Receives notification of the action taken. |
 
 ## 3. Business Preconditions
 
-- The administrator performing the action is authenticated and holds an ADMIN role in their operational scope.
+- The administrator performing the action is authenticated in the internal UMS portal or a trusted administrative session and holds an ADMIN role in their operational scope.
 - The target user account exists and belongs to a tenant within the administrator's operational scope.
 - The administrator has the required permission (`CAN_RESET_PASSWORD` and/or `CAN_MODIFY_VALIDITY_PERIOD`) assigned to their role.
 - The feature flags controlling these capabilities are enabled for the system or tenant.
+- Tenant-scoped administrative actions are only allowed when the tenant is marked as `IsManagementOwner=true`.
 
 ## 4. Main Functional Flow
 
@@ -79,8 +80,8 @@ If the operation cannot be completed due to a system error, UMS shows a clear re
 
 ## 6. Business Rules
 
-1. **Internal ADMIN scope**: Users with the internal ADMIN role (belonging to `INTERNAL_ADMIN` tenant) can perform password resets and validity period modifications on any user account in the system.
-2. **Tenant ADMIN scope**: Users with tenant-specific ADMIN roles can only perform these actions on users within their own tenant.
+1. **Internal ADMIN scope**: Users with the internal ADMIN role or platform management scope can perform password resets and validity period modifications on any user account in the system.
+2. **Tenant ADMIN scope**: Users with tenant-specific ADMIN roles can only perform these actions on users within their own tenant when that tenant is marked as a management owner.
 3. **Permission requirements**: The administrator must have `CAN_RESET_PASSWORD` permission to reset passwords, and `CAN_MODIFY_VALIDITY_PERIOD` permission to modify validity periods. These permissions are assigned via role-based authorization.
 4. **Audit requirement**: Every password reset and validity period modification MUST generate an immutable audit record.
 5. **Cross-tenant denial**: Tenant-specific administrators MUST NOT be able to view, modify, or administer users from other tenants.
@@ -106,10 +107,12 @@ If the operation cannot be completed due to a system error, UMS shows a clear re
 
 ### 8.1 Authorization
 
-- The `ITenantContext.IsInternalAdmin` flag determines if an admin has cross-tenant scope.
-- The `ITenantContext.OrganizationId` determines the tenant scope for non-internal admins.
+- The portal management flow must resolve authorization through the internal UMS scope, not through the tenant's external API IDP flow.
+- The `ITenantContext.OrganizationId` determines the tenant scope for tenant-admin operations.
+- The `Tenant.IsManagementOwner` flag determines whether the tenant can perform its own internal management actions.
 - Authorization checks in handlers must validate:
-  - `IsInternalAdmin == true` OR `targetUser.TenantId == OrganizationId`
+  - `targetUser.TenantId == OrganizationId` for tenant-scoped operations
+  - platform-managed users can operate cross-tenant through the internal portal scope
   - Admin role has required permissions (`CAN_RESET_PASSWORD`, `CAN_MODIFY_VALIDITY_PERIOD`)
 - Feature flags for these capabilities are stored in `FeatureFlags` table with keys `ALLOW_PASSWORD_RESET_BY_ADMIN` and `ALLOW_VALIDITY_PERIOD_MODIFICATION`.
 

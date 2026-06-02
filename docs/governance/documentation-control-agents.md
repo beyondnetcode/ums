@@ -130,6 +130,7 @@ These rules apply specifically to UMS documentation:
 2. **Evolith Links**: All upstream standards link to Evolith repository with correct language variant
 3. **Product Scope**: UMS-specific decisions remain local; do not generalize to Evolith without ADR
 4. **Promotion Process**: Patterns with zero UMS dependencies should be proposed to Evolith via ADR
+5. **Complex Change Documentation Gate**: Any complex, cross-cutting, architectural, or evolutionary change must include a documented impact check, a documentation update plan, and synchronized English/Spanish updates before the change can be considered complete.
 
 ## Validation Checklist
 
@@ -145,6 +146,7 @@ Before any documentation commit, verify:
 - [ ] Terminology is appropriate for each language
 - [ ] UMS/Evolith separation is clear
 - [ ] Configuration catalogs follow `code`, `value`, `description` standard
+- [ ] Complex or evolutionary changes include a documentation impact check and updated artifacts in both languages
 
 ## Repository Map for Documentation
 
@@ -153,6 +155,7 @@ Before any documentation commit, verify:
 | Standards | `docs/STANDARDS*.md` | Quick access to Evolith standards and UMS applied references |
 | Architecture | `docs/architecture/index*.md` | ADRs, blueprints, applied references, traceability |
 | Governance | `docs/governance/index*.md` | Product vision, requirements, delivery documentation |
+| Documentation Control | `docs/governance/documentation-control-agents*.md` | Documentation governance, validation workflow, bilingual sync |
 | Construction | `docs/governance/construction/index*.md` | DDD design, bounded contexts, aggregates |
 | Operations | `docs/operations/index.md` | Metrics, runbooks, operational documentation |
 | Master Index | `docs/MASTER_INDEX*.md` | Complete document tree |
@@ -174,6 +177,7 @@ When updating documentation:
 3. Run validation checklist
 4. If adding a new pattern applicable to other satellites, propose to Evolith via ADR
 5. Update MASTER_INDEX if adding new top-level documents
+6. For complex or evolutionary changes, add or update the corresponding ADR, functional story, or architecture note before closing the work
 
 ---
 

@@ -16,12 +16,14 @@ public class SystemSuiteCommandHandlerTests
     private readonly Mock<ISystemSuiteRepository> _repo = new();
     private readonly Mock<IUnitOfWork>             _uow  = new();
     private readonly Mock<IUserContext>            _ctx  = new();
+    private readonly Mock<ITenantScopePolicy>      _scopePolicy = new();
 
     public SystemSuiteCommandHandlerTests()
     {
         _repo.Setup(r => r.UnitOfWork).Returns(_uow.Object);
         _uow.Setup(u => u.SaveEntitiesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(true);
         _ctx.Setup(u => u.UserId).Returns("user-001");
+        _scopePolicy.Setup(p => p.ResolveQueryScope()).Returns((Guid?)null);
     }
 
     private static SystemSuite MakeSystemSuite()
@@ -44,6 +46,8 @@ public class SystemSuiteCommandHandlerTests
         _ctx.Setup(u => u.UserId).Returns("user-001");
         _repo.Setup(r => r.GetByCodeAsync(It.IsAny<Code>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync((SystemSuite?)null);
+        _scopePolicy.Setup(p => p.EnsureManagementOwnerScopeAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success());
 
         var cmd = new CreateSystemSuiteCommand(
             TenantId: Guid.NewGuid(),
@@ -51,7 +55,7 @@ public class SystemSuiteCommandHandlerTests
             Name: "Test Suite",
             Description: "Test Suite Description");
 
-        var handler = new CreateSystemSuiteCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new CreateSystemSuiteCommandHandler(_repo.Object, _ctx.Object, _scopePolicy.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -66,6 +70,8 @@ public class SystemSuiteCommandHandlerTests
         _ctx.Setup(u => u.UserId).Returns("user-001");
         _repo.Setup(r => r.GetByCodeAsync(It.IsAny<Code>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(MakeSystemSuite());
+        _scopePolicy.Setup(p => p.EnsureManagementOwnerScopeAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success());
 
         var cmd = new CreateSystemSuiteCommand(
             TenantId: Guid.NewGuid(),
@@ -73,7 +79,7 @@ public class SystemSuiteCommandHandlerTests
             Name: "Test Suite",
             Description: "Test Suite Description");
 
-        var handler = new CreateSystemSuiteCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new CreateSystemSuiteCommandHandler(_repo.Object, _ctx.Object, _scopePolicy.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -84,6 +90,8 @@ public class SystemSuiteCommandHandlerTests
     public async Task Create_WhenUnauthenticated_ReturnsFailure()
     {
         _ctx.Setup(u => u.UserId).Returns("");
+        _scopePolicy.Setup(p => p.EnsureManagementOwnerScopeAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success());
 
         var cmd = new CreateSystemSuiteCommand(
             TenantId: Guid.NewGuid(),
@@ -91,10 +99,33 @@ public class SystemSuiteCommandHandlerTests
             Name: "Test Suite",
             Description: "Test Suite Description");
 
-        var handler = new CreateSystemSuiteCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new CreateSystemSuiteCommandHandler(_repo.Object, _ctx.Object, _scopePolicy.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
+    }
+
+    [Fact]
+    public async Task Create_WhenTenantIsNotManagementOwner_ReturnsFailure()
+    {
+        _ctx.Setup(u => u.UserId).Returns("user-001");
+        _repo.Setup(r => r.GetByCodeAsync(It.IsAny<Code>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync((SystemSuite?)null);
+        _scopePolicy.Setup(p => p.EnsureManagementOwnerScopeAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Failure("AUTH_015: Tenant is not marked as management owner."));
+
+        var cmd = new CreateSystemSuiteCommand(
+            TenantId: Guid.NewGuid(),
+            Code: "SUITE-001",
+            Name: "Test Suite",
+            Description: "Test Suite Description");
+
+        var handler = new CreateSystemSuiteCommandHandler(_repo.Object, _ctx.Object, _scopePolicy.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("management owner", result.Error, StringComparison.OrdinalIgnoreCase);
+        _repo.Verify(r => r.AddAsync(It.IsAny<SystemSuite>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     #endregion

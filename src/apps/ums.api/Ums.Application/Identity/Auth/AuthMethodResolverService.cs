@@ -24,8 +24,16 @@ public sealed class AuthMethodResolverService : IAuthMethodResolver
         _tenantRepo = tenantRepo;
     }
 
-    public async Task<Result<AuthMethod>> ResolveAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    public async Task<Result<AuthMethod>> ResolveAsync(
+        Guid tenantId,
+        AuthAccessScope scope,
+        CancellationToken cancellationToken = default)
     {
+        if (scope == AuthAccessScope.PortalManagement)
+        {
+            return Result<AuthMethod>.Success(AuthMethod.Local());
+        }
+
         var useExternalIdp = _config.GetValueAs<bool>("AUTH_USE_EXTERNAL_IDP", tenantId, false);
 
         if (!useExternalIdp)

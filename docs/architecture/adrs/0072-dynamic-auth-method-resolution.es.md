@@ -11,7 +11,7 @@
 
 ## Contexto
 
-UMS soporta autenticación Local (BCrypt) e IDP externo por tenant. Anteriormente, el endpoint de login usaba únicamente BCrypt de forma incondicional — una estrategia hardcodeada que no reflejaba el método de autenticación configurado del tenant.
+UMS soporta autenticación Local (BCrypt) e IDP externo por tenant. Anteriormente, el endpoint de login usaba únicamente BCrypt de forma incondicional — una estrategia hardcodeada que no reflejaba el método de autenticación configurado del tenant. Ahora el flujo de gestion del portal y el flujo de la API externa requieren comportamientos distintos aunque pertenezcan al mismo tenant.
 
 El método de autenticación del tenant está controlado por `AUTH_USE_EXTERNAL_IDP` (un parámetro en el ParameterCatalog, con scope de tenant). Cuando es `true`, el tenant usa Proveedores de Identidad externos (Azure AD, Okta, etc.); cuando es `false`, se usa BCrypt local. Este cambio de configuración debe tomar efecto sin desplegar nuevo código.
 
@@ -21,10 +21,12 @@ El método de autenticación del tenant está controlado por `AUTH_USE_EXTERNAL_
 
 ### 1. Puerto IAuthMethodResolver
 
-`IAuthMethodResolver.ResolveAsync(tenantId)` lee `AUTH_USE_EXTERNAL_IDP` desde `IConfigurationProvider` (ya en memoria) — **cero consultas a la BD por request**. Retorna:
+`IAuthMethodResolver.ResolveAsync(tenantId, scope)` lee `AUTH_USE_EXTERNAL_IDP` desde `IConfigurationProvider` (ya en memoria) — **cero consultas a la BD por request**. Retorna:
 - `AuthMethod.Local()` cuando es false
 - `AuthMethod.Idp(activeProvider)` cuando es true y existe un IDP activo
 - `Result.Failure("AUTH_011")` cuando es true pero no hay IDP activo configurado
+
+Para `AuthAccessScope.PortalManagement`, el resolver siempre devuelve `AuthMethod.Local()` y no requiere la configuracion IDP del tenant.
 
 El resolver es un servicio de aplicación puro — sin dependencias de infraestructura.
 
@@ -77,6 +79,7 @@ Hardcodear crea un acoplamiento implícito entre el flujo de autenticación y un
 - Los cambios de método de autenticación toman efecto inmediatamente sin despliegue de código
 - El adaptador stub habilita pruebas completas del flujo IDP en desarrollo
 - El método de autenticación queda registrado en el audit trail para trazabilidad
+- El acceso de gestion del portal sigue siendo utilizable aunque la configuracion externa IDP del tenant cambie o este temporalmente indisponible
 
 ### Compromisos
 

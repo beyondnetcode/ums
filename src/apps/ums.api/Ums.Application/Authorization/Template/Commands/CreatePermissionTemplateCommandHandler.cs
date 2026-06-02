@@ -9,13 +9,16 @@ public sealed class CreatePermissionTemplateCommandHandler : ICommandHandler<Cre
 {
     private readonly IPermissionTemplateRepository _templateRepository;
     private readonly IUserContext _userContext;
+    private readonly ITenantScopePolicy _tenantScopePolicy;
 
     public CreatePermissionTemplateCommandHandler(
         IPermissionTemplateRepository templateRepository,
-        IUserContext userContext)
+        IUserContext userContext,
+        ITenantScopePolicy tenantScopePolicy)
     {
         _templateRepository = templateRepository;
         _userContext = userContext;
+        _tenantScopePolicy = tenantScopePolicy;
     }
 
     [AuditTrail]
@@ -29,11 +32,10 @@ public sealed class CreatePermissionTemplateCommandHandler : ICommandHandler<Cre
             return Result<CreatePermissionTemplateResponse>.Failure("Authenticated user is required to create a permission template.");
         }
 
-        if (!string.IsNullOrWhiteSpace(_userContext.TenantId) &&
-            !string.Equals(request.TenantId.ToString(), _userContext.TenantId, StringComparison.OrdinalIgnoreCase))
+        var scopeResult = await _tenantScopePolicy.EnsureManagementOwnerScopeAsync(request.TenantId, cancellationToken);
+        if (scopeResult.IsFailure)
         {
-            return Result<CreatePermissionTemplateResponse>.Failure(
-                $"Tenant mismatch. User belongs to tenant '{_userContext.TenantId}', but request targets '{request.TenantId}'.");
+            return Result<CreatePermissionTemplateResponse>.Failure(scopeResult.Error);
         }
 
         var templateResult = PermissionTemplate.Create(

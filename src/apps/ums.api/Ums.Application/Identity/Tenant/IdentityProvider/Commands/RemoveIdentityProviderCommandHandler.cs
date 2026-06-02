@@ -6,13 +6,16 @@ public sealed class RemoveIdentityProviderCommandHandler : ICommandHandler<Remov
 {
     private readonly ITenantRepository _tenantRepository;
     private readonly IUserContext _userContext;
+    private readonly ITenantScopePolicy _tenantScopePolicy;
 
     public RemoveIdentityProviderCommandHandler(
         ITenantRepository tenantRepository,
-        IUserContext userContext)
+        IUserContext userContext,
+        ITenantScopePolicy tenantScopePolicy)
     {
         _tenantRepository = tenantRepository;
         _userContext = userContext;
+        _tenantScopePolicy = tenantScopePolicy;
     }
 
     [AuditTrail]
@@ -30,6 +33,12 @@ public sealed class RemoveIdentityProviderCommandHandler : ICommandHandler<Remov
         if (tenant is null)
         {
             return Result<RemoveIdentityProviderResponse>.Failure("Tenant was not found.");
+        }
+
+        var scopeResult = await _tenantScopePolicy.EnsureManagementOwnerScopeAsync(request.TenantId, cancellationToken);
+        if (scopeResult.IsFailure)
+        {
+            return Result<RemoveIdentityProviderResponse>.Failure(scopeResult.Error);
         }
 
         var result = tenant.RemoveIdentityProvider(

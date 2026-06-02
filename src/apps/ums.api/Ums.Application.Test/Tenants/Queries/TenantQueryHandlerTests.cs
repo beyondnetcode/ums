@@ -10,6 +10,7 @@ using Ums.Domain.Kernel;
 public class TenantQueryHandlerTests
 {
     private readonly Mock<ITenantRepository> _repo = new();
+    private readonly Mock<ITenantScopePolicy> _scopePolicy = new();
 
     private static Tenant MakeTenant(string code = "TEN-001", string name = "Test Tenant")
     {
@@ -103,7 +104,8 @@ public class TenantQueryHandlerTests
              .ReturnsAsync(((IReadOnlyList<Tenant>)tenants, tenants.Count));
 
         var query = new GetAllTenantsQuery(Page: 1, PageSize: 10);
-        var handler = new GetAllTenantsQueryHandler(_repo.Object);
+        _scopePolicy.Setup(p => p.ResolveQueryScope()).Returns((Guid?)null);
+        var handler = new GetAllTenantsQueryHandler(_repo.Object, _scopePolicy.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -123,7 +125,8 @@ public class TenantQueryHandlerTests
              .ReturnsAsync(((IReadOnlyList<Tenant>)tenants, 1));
 
         var query = new GetAllTenantsQuery(Page: 2, PageSize: 5);
-        var handler = new GetAllTenantsQueryHandler(_repo.Object);
+        _scopePolicy.Setup(p => p.ResolveQueryScope()).Returns((Guid?)null);
+        var handler = new GetAllTenantsQueryHandler(_repo.Object, _scopePolicy.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -143,7 +146,8 @@ public class TenantQueryHandlerTests
              .ReturnsAsync(((IReadOnlyList<Tenant>)tenants, tenants.Count));
 
         var query = new GetAllTenantsQuery(Status: "Active");
-        var handler = new GetAllTenantsQueryHandler(_repo.Object);
+        _scopePolicy.Setup(p => p.ResolveQueryScope()).Returns((Guid?)null);
+        var handler = new GetAllTenantsQueryHandler(_repo.Object, _scopePolicy.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -163,7 +167,8 @@ public class TenantQueryHandlerTests
              .ReturnsAsync(((IReadOnlyList<Tenant>)tenants, tenants.Count));
 
         var query = new GetAllTenantsQuery(Search: "target");
-        var handler = new GetAllTenantsQueryHandler(_repo.Object);
+        _scopePolicy.Setup(p => p.ResolveQueryScope()).Returns((Guid?)null);
+        var handler = new GetAllTenantsQueryHandler(_repo.Object, _scopePolicy.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -182,7 +187,8 @@ public class TenantQueryHandlerTests
              .ReturnsAsync(((IReadOnlyList<Tenant>)tenants, 0));
 
         var query = new GetAllTenantsQuery(Page: 1, PageSize: 10);
-        var handler = new GetAllTenantsQueryHandler(_repo.Object);
+        _scopePolicy.Setup(p => p.ResolveQueryScope()).Returns((Guid?)null);
+        var handler = new GetAllTenantsQueryHandler(_repo.Object, _scopePolicy.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -202,7 +208,8 @@ public class TenantQueryHandlerTests
              .ReturnsAsync(((IReadOnlyList<Tenant>)tenants, tenants.Count));
 
         var query = new GetAllTenantsQuery(SortBy: "code", SortOrder: "desc");
-        var handler = new GetAllTenantsQueryHandler(_repo.Object);
+        _scopePolicy.Setup(p => p.ResolveQueryScope()).Returns((Guid?)null);
+        var handler = new GetAllTenantsQueryHandler(_repo.Object, _scopePolicy.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);

@@ -16,7 +16,7 @@
 UMS's primary objective is to serve as the **central authentication and authorization engine** for multi-tenant client systems. Prior to this decision, the login endpoint (`POST /api/v1/auth/login`) returned an empty `Permissions: []` array and performed only BCrypt validation. Client systems received a JWT with no actionable authorization data, forcing them to implement their own permission logic or re-query UMS on every request.
 
 The system needs to:
-1. Authenticate users via Local (BCrypt) or external IDP depending on tenant configuration
+1. Authenticate users via Local (BCrypt) or external IDP depending on tenant configuration, while keeping portal management access local and the external API flow tenant-IDP aware
 2. Build a complete, self-contained authorization graph from the user's profile
 3. Return the graph to the client so it can operate autonomously without further UMS queries
 

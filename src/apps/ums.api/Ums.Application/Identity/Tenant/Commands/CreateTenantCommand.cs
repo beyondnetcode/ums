@@ -10,8 +10,8 @@ public sealed record CreateTenantCommand(
     string Name,
     string Type,
     string? IdpStrategy,
-    string? CompanyReference) : ICommand<CreateTenantResponse>;
-
+    string? CompanyReference,
+    bool IsManagementOwner = false) : ICommand<CreateTenantResponse>;
 
 
 

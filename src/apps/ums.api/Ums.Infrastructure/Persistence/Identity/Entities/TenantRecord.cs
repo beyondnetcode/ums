@@ -11,6 +11,7 @@ public sealed class TenantRecord : IAuditableRecord
     public int IdpStrategyId { get; set; }
     public string? CompanyReference { get; set; }
     public Guid? ParentTenantId { get; set; }
+    public bool IsManagementOwner { get; set; }
     public int StatusId { get; set; }
     public string CreatedBy { get; set; } = string.Empty;
     public DateTime CreatedAtUtc { get; set; }

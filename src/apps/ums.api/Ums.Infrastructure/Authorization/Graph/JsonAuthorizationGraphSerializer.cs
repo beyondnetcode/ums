@@ -34,7 +34,7 @@ public sealed class JsonAuthorizationGraphSerializer : IAuthorizationGraphSerial
             context = new
             {
                 user        = new { id = includeMeta ? g.Context.User.Id.ToString() : null, g.Context.User.Email, g.Context.User.Username, g.Context.User.Status },
-                tenant      = new { id = includeMeta ? g.Context.Tenant.Id.ToString() : null, g.Context.Tenant.Code, g.Context.Tenant.Name, g.Context.Tenant.Status },
+                tenant      = new { id = includeMeta ? g.Context.Tenant.Id.ToString() : null, g.Context.Tenant.Code, g.Context.Tenant.Name, g.Context.Tenant.Status, g.Context.Tenant.IsManagementOwner },
                 systemSuite = new { id = includeMeta ? g.Context.SystemSuite.Id.ToString() : null, g.Context.SystemSuite.Code, g.Context.SystemSuite.Name },
                 role        = new { id = includeMeta ? g.Context.Role.Id.ToString() : null, g.Context.Role.Code, g.Context.Role.Name, g.Context.Role.HierarchyLevel },
                 profile     = new { id = includeMeta ? g.Context.Profile.Id.ToString() : null, g.Context.Profile.Scope, g.Context.Profile.IsActive },

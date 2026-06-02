@@ -1,17 +1,17 @@
-# ADR-0070: Dynamic Auth Method Resolution — From Configuration, Not Code
+# ADR-0072: Dynamic Auth Method Resolution — From Configuration, Not Code
 
 **Status:** Accepted
 **Date:** 2026-05-31
 **Decision Owner:** Architecture
 **Related:**
-- [ADR-0069: Auth Graph Engine](./0069-auth-graph-engine.md)
+- [ADR-0071: Auth Graph Engine](./0071-auth-graph-engine.md)
 - [ADR-0054: Shell Library Isolation](./0054-shell-library-isolation.md)
 
 ---
 
 ## Context
 
-UMS supports both Local (BCrypt) and external IDP authentication per tenant. Previously, the login endpoint used only BCrypt unconditionally — a hardcoded strategy that did not reflect the tenant's configured authentication method.
+UMS supports both Local (BCrypt) and external IDP authentication per tenant. Previously, the login endpoint used only BCrypt unconditionally — a hardcoded strategy that did not reflect the tenant's configured authentication method. The portal management flow and the external API flow now need different behavior even when they belong to the same tenant.
 
 The tenant's auth method is controlled by `AUTH_USE_EXTERNAL_IDP` (a parameter in the ParameterCatalog, tenant-scoped). When `true`, the tenant uses external Identity Providers (Azure AD, Okta, etc.); when `false`, local BCrypt is used. This configuration change must take effect without deploying new code.
 
@@ -21,10 +21,12 @@ The tenant's auth method is controlled by `AUTH_USE_EXTERNAL_IDP` (a parameter i
 
 ### 1. IAuthMethodResolver Port
 
-`IAuthMethodResolver.ResolveAsync(tenantId)` reads `AUTH_USE_EXTERNAL_IDP` from `IConfigurationProvider` (already in memory) — **zero DB queries per request**. Returns:
+`IAuthMethodResolver.ResolveAsync(tenantId, scope)` reads `AUTH_USE_EXTERNAL_IDP` from `IConfigurationProvider` (already in memory) — **zero DB queries per request**. Returns:
 - `AuthMethod.Local()` when false
 - `AuthMethod.Idp(activeProvider)` when true and an active IDP exists
 - `Result.Failure("AUTH_011")` when true but no active IDP is configured
+
+For `AuthAccessScope.PortalManagement`, the resolver always returns `AuthMethod.Local()` and does not require the tenant IDP configuration.
 
 The resolver is a pure application service — no infrastructure dependencies.
 
@@ -77,6 +79,7 @@ Hardcoding creates implicit coupling between the auth flow and a specific implem
 - Auth method changes take effect immediately without code deployment
 - The stub adapter enables complete IDP flow testing in development
 - Auth method is recorded in the audit trail for traceability
+- Portal management access remains usable even when the tenant external IDP configuration changes or is temporarily unavailable
 
 ### Trade-offs
 

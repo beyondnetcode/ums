@@ -8,13 +8,16 @@ public sealed class SetBrandingCommandHandler : ICommandHandler<SetBrandingComma
 {
     private readonly ITenantRepository _tenantRepository;
     private readonly IUserContext _userContext;
+    private readonly ITenantScopePolicy _tenantScopePolicy;
 
     public SetBrandingCommandHandler(
         ITenantRepository tenantRepository,
-        IUserContext userContext)
+        IUserContext userContext,
+        ITenantScopePolicy tenantScopePolicy)
     {
         _tenantRepository = tenantRepository;
         _userContext = userContext;
+        _tenantScopePolicy = tenantScopePolicy;
     }
 
     [AuditTrail]
@@ -32,6 +35,12 @@ public sealed class SetBrandingCommandHandler : ICommandHandler<SetBrandingComma
         if (tenant is null)
         {
             return Result<SetBrandingResponse>.Failure("Tenant was not found.");
+        }
+
+        var scopeResult = await _tenantScopePolicy.EnsureManagementOwnerScopeAsync(request.TenantId, cancellationToken);
+        if (scopeResult.IsFailure)
+        {
+            return Result<SetBrandingResponse>.Failure(scopeResult.Error);
         }
 
         var logoFormat = DomainEnumerationParser.FromName<LogoFormat>(request.LogoFormat);

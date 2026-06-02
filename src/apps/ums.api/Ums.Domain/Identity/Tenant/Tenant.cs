@@ -34,6 +34,7 @@ public sealed class Tenant : AggregateRoot<Tenant, TenantProps>
     public IdpStrategy IdpStrategy => Props.IdpStrategy;
     public CompanyReference? CompanyReference => Props.CompanyReference;
     public TenantId? ParentTenantId => Props.ParentTenantId;
+    public bool IsManagementOwner => Props.IsManagementOwner;
     public TenantStatus Status => Props.Status;
 
     public IReadOnlyCollection<BranchEntity> Branches => _branches.AsReadOnly();
@@ -54,12 +55,22 @@ public sealed class Tenant : AggregateRoot<Tenant, TenantProps>
         IdpStrategy idpStrategy = null!,
         CompanyReference? companyReference = null,
         TenantId? parentTenantId = null,
-        TenantId? tenantId = null)
+        TenantId? tenantId = null,
+        bool isManagementOwner = false)
     {
         idpStrategy ??= IdpStrategy.InternalBcrypt;
 
         var id = tenantId ?? IdValueObject.Create();
-        var props = new TenantProps(id, code, name, type, idpStrategy, companyReference, parentTenantId, createdBy);
+        var props = new TenantProps(
+            id,
+            code,
+            name,
+            type,
+            idpStrategy,
+            companyReference,
+            parentTenantId,
+            isManagementOwner,
+            createdBy);
 
         var tenant = new Tenant(props);
 

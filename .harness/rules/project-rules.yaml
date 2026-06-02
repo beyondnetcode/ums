@@ -124,3 +124,10 @@ rules:
     trigger: "Any dependency update, stack modernization, tooling change, or agent configuration update."
     instruction: "Once a project version is adopted, it must be pinned explicitly in code and documented consistently in agent configs, architecture docs, and contribution guidance. Agent descriptions, prompts, and repo-level instructions must be updated whenever the stack changes materially."
     severity: "warning"
+
+  - id: "R-21"
+    title: "Complex Change Documentation Gate"
+    agents: ["po", "architect", "dev", "qa", "analyst", "sm"]
+    trigger: "Any complex, cross-cutting, architectural, or evolutionary change that affects business rules, public contracts, bounded contexts, authentication flows, tenancy, configuration catalogs, diagrams, ADRs, or release behavior."
+    instruction: "Complex or evolutionary changes MUST carry an explicit documentation impact check and update plan before completion. The change is not considered complete until the affected documentation artifacts are updated in both languages, impacted diagrams are synchronized and validated, traceability links are refreshed, and any new or changed decision is captured in the appropriate ADR or functional story. If no documentation change is needed, the agent must state that explicitly and record the rationale."
+    severity: "critical"

@@ -23,7 +23,8 @@ public sealed record GraphTenant(
     Guid   Id,
     string Code,
     string Name,
-    string Status);
+    string Status,
+    bool   IsManagementOwner);
 
 public sealed record GraphSystemSuite(
     Guid   Id,

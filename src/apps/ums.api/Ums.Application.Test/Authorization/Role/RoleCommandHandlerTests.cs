@@ -14,12 +14,15 @@ public sealed class RoleCommandHandlerTests
     private readonly Mock<ISystemSuiteRepository> _suites = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
     private readonly Mock<IUserContext> _userContext = new();
+    private readonly Mock<ITenantScopePolicy> _scopePolicy = new();
 
     public RoleCommandHandlerTests()
     {
         _roles.Setup(x => x.UnitOfWork).Returns(_unitOfWork.Object);
         _unitOfWork.Setup(x => x.SaveEntitiesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(true);
         _userContext.Setup(x => x.UserId).Returns("user-001");
+        _scopePolicy.Setup(x => x.EnsureManagementOwnerScopeAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success());
     }
 
     private static SystemSuite MakeSuite() => SystemSuite.Create(
@@ -36,7 +39,7 @@ public sealed class RoleCommandHandlerTests
         _suites.Setup(x => x.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(suite);
         _roles.Setup(x => x.GetByCodeAsync(It.IsAny<Guid>(), It.IsAny<Code>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((RoleAggregate?)null);
-        var handler = new CreateRoleCommandHandler(_roles.Object, _suites.Object, _userContext.Object);
+        var handler = new CreateRoleCommandHandler(_roles.Object, _suites.Object, _userContext.Object, _scopePolicy.Object);
 
         var result = await handler.Handle(new CreateRoleCommand(
             suite.GetId().GetValue(), "SECURITY_ADMIN", "Security Administrator", "Manages security", null, 0, 1),
@@ -57,7 +60,7 @@ public sealed class RoleCommandHandlerTests
         _suites.Setup(x => x.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(suite);
         _roles.Setup(x => x.GetByCodeAsync(It.IsAny<Guid>(), It.IsAny<Code>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(existing);
-        var handler = new CreateRoleCommandHandler(_roles.Object, _suites.Object, _userContext.Object);
+        var handler = new CreateRoleCommandHandler(_roles.Object, _suites.Object, _userContext.Object, _scopePolicy.Object);
 
         var result = await handler.Handle(new CreateRoleCommand(
             suite.GetId().GetValue(), "SECURITY_ADMIN", "Other Admin", "", null, 0, 1),
@@ -66,6 +69,26 @@ public sealed class RoleCommandHandlerTests
         Assert.True(result.IsFailure);
         Assert.Contains("Código ya existe", result.Error);
         Assert.Contains("SECURITY_ADMIN", result.Error);
+    }
+
+    [Fact]
+    public async Task Create_WhenTenantIsNotManagementOwner_ReturnsFailure()
+    {
+        var suite = MakeSuite();
+        _suites.Setup(x => x.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(suite);
+        _roles.Setup(x => x.GetByCodeAsync(It.IsAny<Guid>(), It.IsAny<Code>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RoleAggregate?)null);
+        _scopePolicy.Setup(x => x.EnsureManagementOwnerScopeAsync(suite.TenantId.GetValue(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Failure("AUTH_015: Tenant is not marked as management owner."));
+        var handler = new CreateRoleCommandHandler(_roles.Object, _suites.Object, _userContext.Object, _scopePolicy.Object);
+
+        var result = await handler.Handle(new CreateRoleCommand(
+            suite.GetId().GetValue(), "SECURITY_ADMIN", "Security Administrator", "Manages security", null, 0, 1),
+            CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("management owner", result.Error, StringComparison.OrdinalIgnoreCase);
+        _roles.Verify(x => x.AddAsync(It.IsAny<RoleAggregate>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]

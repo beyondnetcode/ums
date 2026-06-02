@@ -2,29 +2,29 @@
 
 ## 1. Business Purpose
 
-UMS must provide a secure, configurable, and auditable mechanism for managing system-wide and tenant-specific parameters. Internal platform administrators can manage global parameters and tenant-specific parameters, while tenant administrators can only manage parameters within their own tenant scope. All parameter changes must be tracked for compliance and debugging.
+UMS must provide a secure, configurable, and auditable mechanism for managing system-wide and tenant-specific parameters. Internal platform administrators can manage global parameters and tenant-specific parameters through the internal UMS management scope, while tenant administrators can only manage parameters within their own tenant scope when the tenant is responsible for managing itself. All parameter changes must be tracked for compliance and debugging.
 
 ## 2. Actors
 
 | Actor | Responsibility |
 | :--- | :--- |
-| **Internal Platform Administrator** | Manages global system parameters and tenant-specific parameters for any tenant. Has full configuration visibility. |
-| **Tenant Administrator** | Manages parameters within their own tenant scope only. Cannot access global configurations or other tenants' configurations. |
+| **Internal Platform Administrator** | Manages global system parameters and tenant-specific parameters for any tenant through the internal portal scope. |
+| **Tenant Administrator** | Manages parameters within their own tenant scope only when the tenant is allowed to manage its own UMS scope. Cannot access global configurations or other tenants' configurations. |
 | **System** | Consumes configured parameters to determine behavior, rules, limits, and permissions. |
 
 ## 3. Business Preconditions
 
-- The administrator is authenticated and holds a valid session.
+- The administrator is authenticated and holds a valid session in the internal UMS portal or a trusted management session.
 - The administrator has the `CAN_MANAGE_GLOBAL_CONFIGURATION` permission (for global config) or `CAN_MANAGE_TENANT_CONFIGURATION` permission (for tenant-specific config).
-- For internal admins, `isInternalAdmin=true` in the JWT claims.
+- For portal-managed tenant operations, `Tenant.IsManagementOwner=true`.
 - For tenant admins, `OrganizationId` matches the target tenant for tenant-specific operations.
 
 ## 4. Main Functional Flow
 
 ### 4.1 Access Global Configuration (Internal Admin Only)
 
-1. The internal administrator navigates to the System Configuration section.
-2. UMS validates that `IsInternalAdmin=true` and the user has `CAN_MANAGE_GLOBAL_CONFIGURATION`.
+1. The portal administrator navigates to the System Configuration section.
+2. UMS validates that the administrator has internal portal scope and the user has `CAN_MANAGE_GLOBAL_CONFIGURATION`.
 3. UMS displays all global parameters (where `Scope = Global`).
 4. The administrator can create, modify, publish, or archive global parameters.
 5. Changes are audited with full traceability.
@@ -32,8 +32,8 @@ UMS must provide a secure, configurable, and auditable mechanism for managing sy
 ### 4.2 Access Tenant Configuration
 
 1. An administrator (internal or tenant) navigates to a tenant's Configuration section.
-2. For internal admins: UMS allows viewing/managing any tenant's parameters.
-3. For tenant admins: UMS validates that `OrganizationId == targetTenantId`.
+2. For internal portal administrators: UMS allows viewing/managing any tenant's parameters.
+3. For tenant admins: UMS validates that `OrganizationId == targetTenantId` and that the tenant is allowed to manage its own scope.
 4. UMS displays parameters where `Scope = Tenant` and `TenantId = targetTenant`.
 5. The administrator can create, modify, publish, or archive tenant-specific parameters.
 
@@ -60,7 +60,7 @@ UMS must provide a secure, configurable, and auditable mechanism for managing sy
 
 ### A. Unauthorized Access Attempt
 
-If a tenant administrator attempts to access global configuration, UMS returns a 403 error with message "Global configuration is only accessible to internal administrators."
+If a tenant administrator attempts to access global configuration, UMS returns a 403 error with message "Global configuration is only accessible through the internal management scope."
 
 ### B. Cross-Tenant Access Attempt
 
@@ -84,8 +84,8 @@ If an internal admin tries to create a Tenant-scoped parameter without specifyin
 
 ## 6. Business Rules
 
-1. **Global Configuration Scope**: Parameters with no `TenantId`, no `SystemSuiteId`, and no `ModuleId` are Global. Only internal admins can manage them.
-2. **Tenant Configuration Scope**: Parameters with `TenantId` are tenant-specific. Both internal and tenant admins can manage them (admins limited to their tenant).
+1. **Global Configuration Scope**: Parameters with no `TenantId`, no `SystemSuiteId`, and no `ModuleId` are Global. Only internal portal administrators can manage them.
+2. **Tenant Configuration Scope**: Parameters with `TenantId` are tenant-specific. Both internal and tenant admins can manage them when the tenant is marked as a management owner (admins limited to their tenant).
 3. **Inheritance**: If `IsInheritable=true`, child configurations can override the parameter.
 4. **Encryption**: If `IsEncrypted=true`, the value is stored encrypted and decrypted only when consumed.
 5. **Versioning**: Parameters use semantic versioning (`Major.Minor.Patch`). Updates to Draft bump the minor version.
@@ -101,11 +101,11 @@ If an internal admin tries to create a Tenant-scoped parameter without specifyin
 
 ## 7. Acceptance Criteria
 
-1. Internal administrators can view and manage all global parameters.
+1. Internal administrators can view and manage all global parameters through the internal portal scope.
 2. Tenant administrators cannot see or access global configuration.
 3. Tenant administrators can view and manage parameters within their own tenant.
 4. Tenant administrators cannot access other tenants' configurations.
-5. Internal administrators can access any tenant's configuration.
+5. Internal administrators can access any tenant's configuration through the internal portal scope.
 6. All parameter changes (create, update, publish, archive) generate audit records.
 7. The system uses parameter values from AppConfiguration instead of hardcoded constants.
 8. Parameters support versioning and status lifecycle (Draft → Published → Archived).
@@ -121,11 +121,11 @@ In all AppConfiguration endpoints, add `ITenantContext` injection and verify:
 
 ```csharp
 // For global configs
-if (scope == "Global" && !isInternalAdmin)
+if (scope == "Global" && !hasInternalPortalScope)
     return Results.Forbid();
 
 // For tenant configs
-if (targetTenantId != organizationId && !isInternalAdmin)
+if (targetTenantId != organizationId && !hasInternalPortalScope)
     return Results.Forbid();
 ```
 
@@ -135,7 +135,7 @@ if (targetTenantId != organizationId && !isInternalAdmin)
 |--------|----------|-------------|---------------|
 | GET | `/app-configurations` | List configurations (filtered by scope and user permissions) | Based on scope |
 | GET | `/app-configurations/{id}` | Get single configuration | Based on scope and ownership |
-| POST | `/app-configurations` | Create new configuration | Internal admin or tenant admin for own tenant |
+| POST | `/app-configurations` | Create new configuration | Internal admin or tenant admin for own tenant management scope |
 | PUT | `/app-configurations/{id}` | Update draft configuration | Same as create |
 | POST | `/app-configurations/{id}/publish` | Publish configuration | Same as create |
 | POST | `/app-configurations/{id}/archive` | Archive configuration | Same as create |
@@ -144,8 +144,8 @@ if (targetTenantId != organizationId && !isInternalAdmin)
 
 | Parameter | Behavior |
 |-----------|----------|
-| `scope=Global` | Only internal admins can query; returns all global configs |
-| `scope=Tenant&tenantId={id}` | Internal admins get all tenant configs; tenant admins get only their tenant |
+| `scope=Global` | Only internal portal administrators can query; returns all global configs |
+| `scope=Tenant&tenantId={id}` | Internal portal administrators get all tenant configs; tenant admins get only their tenant when allowed |
 | No scope filter | Returns configs based on user's permissions |
 
 ### 8.4 Key Hardcoded Values to Migrate

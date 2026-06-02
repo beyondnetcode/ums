@@ -9,13 +9,16 @@ public sealed class CreateUserAccountCommandHandler : ICommandHandler<CreateUser
 {
     private readonly IUserAccountRepository _userAccountRepository;
     private readonly IUserContext _userContext;
+    private readonly ITenantScopePolicy _tenantScopePolicy;
 
     public CreateUserAccountCommandHandler(
         IUserAccountRepository userAccountRepository,
-        IUserContext userContext)
+        IUserContext userContext,
+        ITenantScopePolicy tenantScopePolicy)
     {
         _userAccountRepository = userAccountRepository;
         _userContext = userContext;
+        _tenantScopePolicy = tenantScopePolicy;
     }
 
     [AuditTrail]
@@ -29,11 +32,10 @@ public sealed class CreateUserAccountCommandHandler : ICommandHandler<CreateUser
             return Result<CreateUserAccountResponse>.Failure("Authenticated user is required to create a user account.");
         }
 
-        if (!string.IsNullOrWhiteSpace(_userContext.TenantId) &&
-            !string.Equals(request.TenantId.ToString(), _userContext.TenantId, StringComparison.OrdinalIgnoreCase))
+        var scopeResult = await _tenantScopePolicy.EnsureManagementOwnerScopeAsync(request.TenantId, cancellationToken);
+        if (scopeResult.IsFailure)
         {
-            return Result<CreateUserAccountResponse>.Failure(
-                $"Tenant mismatch. User belongs to tenant '{_userContext.TenantId}', but request targets '{request.TenantId}'.");
+            return Result<CreateUserAccountResponse>.Failure(scopeResult.Error);
         }
 
         var email = Email.Create(request.Email);

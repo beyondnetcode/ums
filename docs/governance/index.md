@@ -10,6 +10,7 @@ Welcome to the **Governance Portal** for the User Management System (UMS). This 
 | **[Requirements](./requirements/index.md)** | Functional stories, ubiquitous language, and conceptual data model. |
 | **[Project Backlog](./project/index.md)** | MVP backlog, epic designs (Approvals, Compliance, IGA). |
 | **[Construction](./construction/index.md)** | DDD domain layer design, technical stories, implementation plans. |
+| **[Documentation Control](./documentation-control-agents.md)** | Documentation governance, bilingual sync, and validation workflow. |
 
 ---
 

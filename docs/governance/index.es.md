@@ -10,6 +10,7 @@ Bienvenido al **Portal de Gobernanza** del User Management System (UMS). Esta se
 | **[Requerimientos](./requirements-es/index.md)** | Historias funcionales, lenguaje ubicuo y modelo de datos conceptual. |
 | **[Backlog del Proyecto](./project-es/index.md)** | Backlog MVP, diseños de épicas (Aprobaciones, Cumplimiento, IGA). |
 | **[Construccion](./construction/index.es.md)** | Diseño DDD de la capa de dominio, historias tecnicas, planes de implementacion. |
+| **[Control de Documentacion](./documentation-control-agents.es.md)** | Gobernanza documental, sincronizacion bilingue y flujo de validacion. |
 
 ---
 

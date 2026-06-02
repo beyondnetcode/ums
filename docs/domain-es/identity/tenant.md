@@ -12,13 +12,25 @@
 ## 1. Descripcion del Agregado
 
 ### Proposito
-`Tenant` es la unidad organizativa raiz del sistema. Representa a una empresa o division que usa UMS como plataforma de gestion de identidades. Agrupa a todos los usuarios, ramas (`Branch`), configuraciones de branding (`Branding`) y proveedores de identidad (`IdentityProvider`) bajo un espacio de nombres unico y aislado.
+`Tenant` es la unidad organizativa raiz del sistema. Representa a una empresa o division que usa UMS como plataforma de gestion de identidades. Agrupa a todos los usuarios, ramas (`Branch`), configuraciones de branding (`Branding`) y proveedores de identidad (`IdentityProvider`) bajo un espacio de nombres unico y aislado, y tambien indica si el tenant es el responsable de gestion de su propio portal interno de UMS.
 
 ### Responsabilidad de Negocio
 - Proveer aislamiento multi-tenant para todos los datos del sistema.
 - Gestionar el ciclo de vida del tenant: registro, suspension y activacion.
 - Ser el propietario de `Branch`, `Branding` e `IdentityProvider` como entidades propias.
 - Definir la estrategia de autenticacion (`IdpStrategy`) a nivel de dominio.
+- Marcar si el tenant es el propietario principal de la gestion interna del portal UMS.
+
+### Acceso de Gestion Interna
+El portal interno de UMS utiliza su propia ruta de autorizacion para los administradores del tenant. Esta ruta es distinta del flujo externo de autenticacion por API y se gobierna por scope de tenant, roles, permisos e `IsManagementOwner`.
+
+| Escenario | Regla |
+|---|---|
+| Un administrador del tenant entra al portal de UMS | Permitido solo si pertenece al tenant y tiene el conjunto de roles/permisos requerido |
+| Un administrador modifica datos dentro de su propio tenant | Permitido solo dentro del scope del tenant y solo cuando `IsManagementOwner = true` |
+| Un administrador intenta modificar datos de otro tenant | Rechazado aunque tenga acceso al portal |
+| Un cliente de API externa se autentica | Usa el flujo de resolucion IDP del tenant y el grafo de autorizacion |
+| Auditoria | Toda mutacion interna de tenant debe registrarse |
 
 **Branch**: Representa una unidad de ubicacion fisica o logica. Provee un ambito geográfico u organizacional. Aplica reglas de geocercado y habilita delegación de administración.
 **Branding**: Contiene la configuración de identidad visual (logo, colores, textos) y dominio personalizado con verificación DNS. Controla cómo se renderiza el portal de login.
@@ -44,6 +56,7 @@
 14. **IdentityProvider**: Un `IdentityProvider` debe ser desactivado antes de ser eliminado.
 15. **IdentityProvider**: Desactivar un `IdentityProvider` que es el unico IdP activo para un tenant Federado no esta permitido a menos que se cambie primero el `IdpStrategy`.
 16. **IdentityProvider**: `Strategy` no puede cambiarse despues del registro — es inmutable una vez establecida.
+17. **Tenant**: `IsManagementOwner` identifica los tenants que pueden administrar su propio scope interno de UMS sin depender obligatoriamente del flujo IDP de la API externa.
 
 ### Entidades Relacionadas / Value Objects
 | Entidad / VO | Tipo | Notas |
@@ -52,6 +65,7 @@
 | `Name` | Value Object | Nombre para mostrar |
 | `OrganizationType` | Enum | COMPANY · DIVISION · BRANCH_OFFICE |
 | `IdpStrategy` | Enum | LOCAL · FEDERATED · HYBRID |
+| `IsManagementOwner` | Flag | Identifica el tenant responsable de la gestion interna de UMS |
 | `CompanyReference` | Value Object | Referencia al sistema ERP (nullable) |
 | `TenantStatus` | Enum | Active · Suspended · Inactive |
 | `AuditValueObject` | Value Object | CreatedAt/By, UpdatedAt/By |
@@ -115,6 +129,7 @@ Tenant (Aggregate Root)
 │   ├── Name: Name
 │   ├── OrganizationType: OrganizationType
 │   ├── IdpStrategy: IdpStrategy
+│   ├── IsManagementOwner: bool
 │   ├── CompanyReference?: CompanyReference
 │   ├── ParentTenantId?: TenantId
 │   ├── Status: TenantStatus

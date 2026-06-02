@@ -135,6 +135,7 @@ public static class AuthEndpoints
             Username:   request.Username.Trim(),
             Password:   request.Password,
             ClientIp:   clientIp,
+            AccessScope: Ums.Domain.Identity.Auth.AuthAccessScope.PortalManagement,
             RememberMe: request.RememberMe);
 
         var result = await mediator.Send(command, cancellationToken);
@@ -152,7 +153,7 @@ public static class AuthEndpoints
         var jwtToken = jwtTokenService.GenerateGraphToken(graph);
 
         // Set session cookie for web frontend
-        var isInternalAdmin = ctx.Tenant.Code == "INTERNAL_ADMIN";
+        var isInternalAdmin = ctx.Tenant.IsManagementOwner;
         var cookieClaims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, ctx.User.Id.ToString()),

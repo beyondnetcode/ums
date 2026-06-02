@@ -9,13 +9,16 @@ public sealed class CreateSystemSuiteCommandHandler : ICommandHandler<CreateSyst
 {
     private readonly ISystemSuiteRepository _systemSuiteRepository;
     private readonly IUserContext _userContext;
+    private readonly ITenantScopePolicy _tenantScopePolicy;
 
     public CreateSystemSuiteCommandHandler(
         ISystemSuiteRepository systemSuiteRepository,
-        IUserContext userContext)
+        IUserContext userContext,
+        ITenantScopePolicy tenantScopePolicy)
     {
         _systemSuiteRepository = systemSuiteRepository;
         _userContext = userContext;
+        _tenantScopePolicy = tenantScopePolicy;
     }
 
     [AuditTrail]
@@ -29,11 +32,10 @@ public sealed class CreateSystemSuiteCommandHandler : ICommandHandler<CreateSyst
             return Result<CreateSystemSuiteResponse>.Failure("Authenticated user is required to create a system suite.");
         }
 
-        if (!string.IsNullOrWhiteSpace(_userContext.TenantId) &&
-            !string.Equals(request.TenantId.ToString(), _userContext.TenantId, StringComparison.OrdinalIgnoreCase))
+        var scopeResult = await _tenantScopePolicy.EnsureManagementOwnerScopeAsync(request.TenantId, cancellationToken);
+        if (scopeResult.IsFailure)
         {
-            return Result<CreateSystemSuiteResponse>.Failure(
-                $"Tenant mismatch. User belongs to tenant '{_userContext.TenantId}', but request targets '{request.TenantId}'.");
+            return Result<CreateSystemSuiteResponse>.Failure(scopeResult.Error);
         }
 
         var code = Code.Create(request.Code);

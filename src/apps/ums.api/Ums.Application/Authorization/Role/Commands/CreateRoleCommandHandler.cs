@@ -9,15 +9,18 @@ public sealed class CreateRoleCommandHandler : ICommandHandler<CreateRoleCommand
     private readonly IRoleRepository _roleRepository;
     private readonly ISystemSuiteRepository _suiteRepository;
     private readonly IUserContext _userContext;
+    private readonly ITenantScopePolicy _tenantScopePolicy;
 
     public CreateRoleCommandHandler(
         IRoleRepository roleRepository,
         ISystemSuiteRepository suiteRepository,
-        IUserContext userContext)
+        IUserContext userContext,
+        ITenantScopePolicy tenantScopePolicy)
     {
         _roleRepository = roleRepository;
         _suiteRepository = suiteRepository;
         _userContext = userContext;
+        _tenantScopePolicy = tenantScopePolicy;
     }
 
     [AuditTrail]
@@ -35,11 +38,10 @@ public sealed class CreateRoleCommandHandler : ICommandHandler<CreateRoleCommand
             return Result<CreateRoleResponse>.Failure("No se pudo registrar el rol porque la suite seleccionada no existe.");
         }
 
-        if (!string.IsNullOrWhiteSpace(_userContext.TenantId) &&
-            !string.Equals(suite.TenantId.GetValue().ToString(), _userContext.TenantId, StringComparison.OrdinalIgnoreCase))
+        var scopeResult = await _tenantScopePolicy.EnsureManagementOwnerScopeAsync(suite.TenantId.GetValue(), cancellationToken);
+        if (scopeResult.IsFailure)
         {
-            return Result<CreateRoleResponse>.Failure(
-                $"Tenant mismatch. User belongs to tenant '{_userContext.TenantId}', but the system suite belongs to tenant '{suite.TenantId.GetValue()}'.");
+            return Result<CreateRoleResponse>.Failure(scopeResult.Error);
         }
 
         if (await _roleRepository.GetByCodeAsync(request.SystemSuiteId, Code.Create(request.Code), cancellationToken) is not null)

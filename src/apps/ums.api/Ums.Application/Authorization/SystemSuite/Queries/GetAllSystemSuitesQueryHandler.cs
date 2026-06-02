@@ -8,14 +8,14 @@ namespace Ums.Application.Authorization.SystemSuite.Queries;
 public sealed class GetAllSystemSuitesQueryHandler : IQueryHandler<GetAllSystemSuitesQuery, PagedResult<SystemSuiteDto>>
 {
     private readonly ISystemSuiteRepository _systemSuiteRepository;
-    private readonly IUserContext _userContext;
-    private readonly ITenantContext? _tenantContext;
+    private readonly ITenantScopePolicy _tenantScopePolicy;
 
-    public GetAllSystemSuitesQueryHandler(ISystemSuiteRepository systemSuiteRepository, IUserContext userContext, ITenantContext? tenantContext = null)
+    public GetAllSystemSuitesQueryHandler(
+        ISystemSuiteRepository systemSuiteRepository,
+        ITenantScopePolicy tenantScopePolicy)
     {
         _systemSuiteRepository = systemSuiteRepository;
-        _userContext = userContext;
-        _tenantContext = tenantContext;
+        _tenantScopePolicy = tenantScopePolicy;
     }
 
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
@@ -32,19 +32,7 @@ public sealed class GetAllSystemSuitesQueryHandler : IQueryHandler<GetAllSystemS
         var sortOrder = NormalizeText(request.SortOrder, "asc").ToLowerInvariant();
         var search = NormalizeSearch(request.Search);
 
-        // Tenant isolation: ITenantContext is authoritative. Admins may use request.TenantId or null
-        // for all; regular users are always scoped to their own tenant (request.TenantId is ignored).
-        Guid? effectiveTenantId;
-        if (_tenantContext?.IsInternalAdmin == true)
-        {
-            effectiveTenantId = request.TenantId;
-        }
-        else
-        {
-            effectiveTenantId = _tenantContext?.OrganizationId ?? (
-                !string.IsNullOrWhiteSpace(_userContext.TenantId) && Guid.TryParse(_userContext.TenantId, out var ctxTenantId)
-                    ? ctxTenantId : (Guid?)null);
-        }
+        var effectiveTenantId = _tenantScopePolicy.ResolveQueryScope();
 
         var systemSuites = effectiveTenantId.HasValue
             ? await _systemSuiteRepository.GetByTenantIdAsync(effectiveTenantId.Value, cancellationToken)

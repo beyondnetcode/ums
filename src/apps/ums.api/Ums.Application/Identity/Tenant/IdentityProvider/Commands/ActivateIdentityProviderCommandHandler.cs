@@ -6,13 +6,16 @@ public sealed class ActivateIdentityProviderCommandHandler : ICommandHandler<Act
 {
     private readonly ITenantRepository _tenantRepository;
     private readonly IUserContext _userContext;
+    private readonly ITenantScopePolicy _tenantScopePolicy;
 
     public ActivateIdentityProviderCommandHandler(
         ITenantRepository tenantRepository,
-        IUserContext userContext)
+        IUserContext userContext,
+        ITenantScopePolicy tenantScopePolicy)
     {
         _tenantRepository = tenantRepository;
         _userContext = userContext;
+        _tenantScopePolicy = tenantScopePolicy;
     }
 
     [AuditTrail]
@@ -30,6 +33,12 @@ public sealed class ActivateIdentityProviderCommandHandler : ICommandHandler<Act
         if (tenant is null)
         {
             return Result<ActivateIdentityProviderResponse>.Failure("Tenant was not found.");
+        }
+
+        var scopeResult = await _tenantScopePolicy.EnsureManagementOwnerScopeAsync(request.TenantId, cancellationToken);
+        if (scopeResult.IsFailure)
+        {
+            return Result<ActivateIdentityProviderResponse>.Failure(scopeResult.Error);
         }
 
         var result = tenant.ActivateIdentityProvider(

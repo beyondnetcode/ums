@@ -138,7 +138,8 @@ public sealed class AuthorizationGraphBuilderService : IAuthorizationGraphBuilde
                 tenant.Props.Id.GetValue(),
                 tenant.Props.Code.GetValue(),
                 tenant.Props.Name.GetValue(),
-                tenant.Props.Status.ToString()),
+                tenant.Props.Status.ToString(),
+                tenant.IsManagementOwner),
             SystemSuite: new GraphSystemSuite(
                 suite.Props.Id.GetValue(),
                 suite.Props.Code.GetValue(),

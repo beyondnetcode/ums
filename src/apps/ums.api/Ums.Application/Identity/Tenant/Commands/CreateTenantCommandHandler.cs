@@ -49,7 +49,9 @@ public sealed class CreateTenantCommandHandler : ICommandHandler<CreateTenantCom
             ActorId.Create(_userContext.UserId),
             idpStrategy,
             companyReference,
-            parentTenantId);
+            parentTenantId,
+            tenantId: null,
+            isManagementOwner: request.IsManagementOwner);
 
         if (tenantResult.IsFailure)
         {

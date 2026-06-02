@@ -82,7 +82,10 @@ public sealed class AuthenticateUserCommandHandler
             tenantId = tenant.Props.Id.GetValue();
 
             // ── 2. Auth method resolution ──────────────────────────────────────
-            var methodResult = await _methodResolver.ResolveAsync(tenantId, cancellationToken);
+            var methodResult = await _methodResolver.ResolveAsync(
+                tenantId,
+                command.AccessScope,
+                cancellationToken);
             if (methodResult.IsFailure)
             {
                 await RecordFailureAsync(tenantId, userId, command, methodResult.Error,

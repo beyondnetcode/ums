@@ -29,6 +29,7 @@ public sealed class YamlAuthorizationGraphSerializer : IAuthorizationGraphSerial
         sb.AppendLine($"  tenant:");
         sb.AppendLine($"    code: {g.Context.Tenant.Code}");
         sb.AppendLine($"    name: {g.Context.Tenant.Name}");
+        sb.AppendLine($"    isManagementOwner: {g.Context.Tenant.IsManagementOwner.ToString().ToLower()}");
         sb.AppendLine($"  systemSuite:");
         sb.AppendLine($"    code: {g.Context.SystemSuite.Code}");
         sb.AppendLine($"    name: {g.Context.SystemSuite.Name}");

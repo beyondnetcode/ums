@@ -21,12 +21,14 @@ El Identity Context es el punto de entrada del flujo de autenticación de UMS y 
 | Responsabilidad | Descripción |
 |---|---|
 | **Autenticación del principal** | Resolver el `UserAccount` por email/username dentro del `Tenant`. Validar `UserStatus = ACTIVE` (INV-U7) antes de continuar. |
-| **Resolución del método de autenticación** | `IAuthMethodResolver` lee el parámetro `AUTH_USE_EXTERNAL_IDP` del tenant desde `IConfigurationProvider` y selecciona `AuthMethod.Local` o `AuthMethod.Idp(activeProvider)` sin tocar la BD por request (ADR-0072). Ver [auth-method-resolution.md](../../../domain/identity/auth-method-resolution.md). |
+| **Resolución del método de autenticación** | `IAuthMethodResolver` resuelve por scope. Para `AuthAccessScope.PortalManagement` devuelve siempre `AuthMethod.Local`; para `AuthAccessScope.ExternalApi` lee `AUTH_USE_EXTERNAL_IDP` del tenant desde `IConfigurationProvider` y selecciona `AuthMethod.Local` o `AuthMethod.Idp(activeProvider)` sin tocar la BD por request (ADR-0072). Ver [auth-method-resolution.md](../../../domain/identity/auth-method-resolution.md). |
 | **Resolución de profile** | Identificar el Profile activo del usuario para el `SystemSuite` solicitado — punto de partida para la materialización de permisos en el grafo (consumido por BC-B). |
 | **Provisión de contexto del tenant** | Exponer `Tenant`, `Branch` activo, `IdentityProvider` activo y configuración efectiva del tenant que se incluye en la sección `context` y `authentication` del grafo. |
 | **Registro de auditoría** | Emitir `AuthenticationAttemptedEvent` con método (`Local`/`IDP`), resultado y `ipAddress` para el audit trail inmutable. |
 
 El grafo final lo construye y serializa BC-B (Authorization), pero **sin la información base que provee BC-A no puede generarse**: identidad del principal, método de autenticación resuelto, tenant, branch, proveedor IDP activo y configuración efectiva.
+
+Para evitar mezclar responsabilidades, el portal interno de UMS se autentica y autoriza mediante el scope de gestión local, mientras que la API pública externa mantiene la resolución federada por tenant cuando corresponde.
 
 ---
 

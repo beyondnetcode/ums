@@ -10,7 +10,7 @@
 ## 1. Visión General del Agregado
 
 ### Propósito
-El agregado `SystemSuite` representa una superficie de aplicacion perteneciente a un tenant y registrada en UMS. Define la topologia funcional consumida por los modelos de autorizacion aguas abajo y almacena configuraciones operativas a nivel de suite. En la implementacion actual, posee `Module`, topologia de menus, `DomainResource` (Agregados y Entidades), `AppSetting` y `Action`. El agregado independiente `Role` se mantiene en el contexto de la suite seleccionada y la referencia mediante `SystemSuiteId`.
+El agregado `SystemSuite` representa una superficie de aplicacion perteneciente a un tenant y registrada en UMS. Define la topologia funcional consumida por los modelos de autorizacion aguas abajo y almacena configuraciones operativas a nivel de suite. En la implementacion actual, posee `Module`, topologia de menus, `DomainResource` (Agregados y Entidades), `AppSetting` y `Action`. El agregado independiente `Role` se mantiene en el contexto de la suite seleccionada y la referencia mediante `SystemSuiteId`. Durante el bootstrap, `UMS` es la suite base canonica para la superficie de gestion del tenant.
 
 ### Responsabilidad de Negocio
 - Registrar una suite de software asociada a un tenant.

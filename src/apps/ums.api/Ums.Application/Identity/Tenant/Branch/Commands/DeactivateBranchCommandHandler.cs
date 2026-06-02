@@ -6,13 +6,16 @@ public sealed class DeactivateBranchCommandHandler : ICommandHandler<DeactivateB
 {
     private readonly ITenantRepository _tenantRepository;
     private readonly IUserContext _userContext;
+    private readonly ITenantScopePolicy _tenantScopePolicy;
 
     public DeactivateBranchCommandHandler(
         ITenantRepository tenantRepository,
-        IUserContext userContext)
+        IUserContext userContext,
+        ITenantScopePolicy tenantScopePolicy)
     {
         _tenantRepository = tenantRepository;
         _userContext = userContext;
+        _tenantScopePolicy = tenantScopePolicy;
     }
 
     [AuditTrail]
@@ -30,6 +33,12 @@ public sealed class DeactivateBranchCommandHandler : ICommandHandler<DeactivateB
         if (tenant is null)
         {
             return Result<DeactivateBranchResponse>.Failure("Tenant was not found.");
+        }
+
+        var scopeResult = await _tenantScopePolicy.EnsureManagementOwnerScopeAsync(request.TenantId, cancellationToken);
+        if (scopeResult.IsFailure)
+        {
+            return Result<DeactivateBranchResponse>.Failure(scopeResult.Error);
         }
 
         var result = tenant.DeactivateBranch(

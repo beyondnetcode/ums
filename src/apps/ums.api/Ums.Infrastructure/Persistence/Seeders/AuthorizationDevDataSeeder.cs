@@ -142,7 +142,7 @@ public static class AuthorizationDevDataSeeder
         var roles = new List<RoleAggregate>();
         if (suites.Count == 0) return roles;
 
-        // ── Core Suite Roles ─────────────────────────────────────────────────────
+        // ── UMS Suite Roles ──────────────────────────────────────────────────────
         var adminRoleResult = RoleAggregate.Create(tenantId, suites[0].GetId(), Code.Create("ADMIN"), Name.Create("System Administrator"), Description.Create("Full administrative access"), null, 0, 0, actor);
         if (adminRoleResult.IsSuccess)
         {
@@ -198,9 +198,9 @@ public static class AuthorizationDevDataSeeder
 
         var coreResult = SystemSuiteAggregate.Create(
             tenantId,
-            Code.Create("LOGISTICS_CORE"),
-            Name.Create("Logistics Core"),
-            Description.Create("Core operations and user management"),
+            Code.Create("UMS"),
+            Name.Create("User Management System"),
+            Description.Create("Core UMS functionality"),
             actor);
 
         if (coreResult.IsSuccess)
@@ -677,7 +677,7 @@ public static class AuthorizationDevDataSeeder
 
         return suiteCode switch
         {
-            "LOGISTICS_CORE" => new (string, string, string, DomainResourceType)[]
+            "UMS" => new (string, string, string, DomainResourceType)[]
             {
                 ("USERS", "Users Aggregate", "User Management", DomainResourceType.Aggregate),
                 ("INVENTORY", "Inventory Aggregate", "Inventory Management", DomainResourceType.Aggregate),

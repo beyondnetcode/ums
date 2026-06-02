@@ -4,6 +4,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Ums.Application.Common.Behaviors;
+using Ums.Application.Common.Interfaces;
 
 public static class DependencyInjection
 {
@@ -14,6 +15,7 @@ public static class DependencyInjection
         services.AddMediatR(configuration => configuration.RegisterServicesFromAssembly(assembly));
         services.AddValidatorsFromAssembly(assembly);
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+        services.AddScoped<ITenantScopePolicy, TenantScopePolicy>();
 
         return services;
     }

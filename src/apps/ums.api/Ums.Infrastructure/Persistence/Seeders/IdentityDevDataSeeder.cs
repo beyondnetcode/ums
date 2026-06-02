@@ -135,7 +135,8 @@ public static class IdentityDevDataSeeder
             IdpStrategy.InternalBcrypt,
             null,
             null,
-            TenantId.Load(Guid.Parse(CoreDevDataSeeder.InternalAdminTenantId)));
+            TenantId.Load(Guid.Parse(CoreDevDataSeeder.InternalAdminTenantId)),
+            isManagementOwner: true);
 
         if (internalAdminTenantResult.IsFailure)
         {
@@ -144,7 +145,7 @@ public static class IdentityDevDataSeeder
         var internalAdminTenant = internalAdminTenantResult.Value;
 
         // ── Commercial Tenants ───────────────────────────────────────────────────
-        var ransa = BuildTenant(Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"), "RANSA_PERU", "Ransa Comercial S.A.", "RUC-20101024645", OrganizationType.INTERNAL, null, actor,
+        var ransa = BuildTenant(Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"), "RANSA_PERU", "Ransa Comercial S.A.", "RUC-20101024645", OrganizationType.INTERNAL, null, false, actor,
             [
                 ("RANSA_CALLAO_HQ", "Sede Principal Callao"),
                 ("RANSA_PAITA", "Sucursal Paita"),
@@ -153,19 +154,19 @@ public static class IdentityDevDataSeeder
                 ("RANSA_TRUJILLO", "Sucursal Trujillo")
             ]);
 
-        var neptunia = BuildTenant(Guid.Parse("c9b736b4-6a84-48f8-b34d-176bc5a6d542"), "NEPTUNIA", "Neptunia S.A. — Callao", "RUC-20330791684", OrganizationType.CLIENT, null, actor,
+        var neptunia = BuildTenant(Guid.Parse("c9b736b4-6a84-48f8-b34d-176bc5a6d542"), "NEPTUNIA", "Neptunia S.A. — Callao", "RUC-20330791684", OrganizationType.CLIENT, null, false, actor,
             [("NEP_CALLAO_DP1", "Depósito Portuario 1 — Av. Néstor Gambetta"), ("NEP_CALLAO_DP2", "Depósito Portuario 2 — Zona Industrial")]);
 
-        var apm = BuildTenant(Guid.Parse("a3f5b9d2-7c3d-4c8e-a9b0-123456789abc"), "APM_CALLAO", "APM Terminals Callao S.A.", "RUC-20516357498", OrganizationType.CLIENT, null, actor,
+        var apm = BuildTenant(Guid.Parse("a3f5b9d2-7c3d-4c8e-a9b0-123456789abc"), "APM_CALLAO", "APM Terminals Callao S.A.", "RUC-20516357498", OrganizationType.CLIENT, null, false, actor,
             [("APM_MUELLE_N", "Muelle Norte — Terminal Contenedores")]);
 
-        var paita = BuildTenant(Guid.Parse("9e8d7c6b-5a4f-3e2d-1c0b-9876543210fe"), "PAITA_PORT", "Terminal Portuario de Paita S.A.", "RUC-20512180098", OrganizationType.CLIENT, null, actor,
+        var paita = BuildTenant(Guid.Parse("9e8d7c6b-5a4f-3e2d-1c0b-9876543210fe"), "PAITA_PORT", "Terminal Portuario de Paita S.A.", "RUC-20512180098", OrganizationType.CLIENT, null, false, actor,
             [("PAITA_MUELLE", "Muelle de Transferencia — Puerto Paita"), ("PAITA_ALMACEN", "Almacén General Paita")]);
 
-        var unimar = BuildTenant(Guid.Parse("5f4e3d2c-1b0a-9f8e-7d6c-543210987654"), "UNIMAR", "Unimar S.A. — Lima", "RUC-20101523381", OrganizationType.SUPPLIER, null, actor,
+        var unimar = BuildTenant(Guid.Parse("5f4e3d2c-1b0a-9f8e-7d6c-543210987654"), "UNIMAR", "Unimar S.A. — Lima", "RUC-20101523381", OrganizationType.SUPPLIER, null, false, actor,
             [("UNI_MIRAFLORES", "Oficina Miraflores — Av. Larco"), ("UNI_CALLAO_OP", "Operaciones Callao — Jr. Colón")]);
 
-        var intradevco = BuildTenant(Guid.Parse("f3e2d1c0-b9a8-7f6e-5d4c-321098765432"), "INTRADEVCO", "Intradevco Industrial S.A.", "RUC-20101041268", OrganizationType.SUPPLIER, null, actor,
+        var intradevco = BuildTenant(Guid.Parse("f3e2d1c0-b9a8-7f6e-5d4c-321098765432"), "INTRADEVCO", "Intradevco Industrial S.A.", "RUC-20101041268", OrganizationType.SUPPLIER, null, false, actor,
             [("INTRA_SJL", "Planta San Juan de Lurigancho"), ("INTRA_ATE", "Almacén Ate Vitarte — Carretera Central")]);
 
         return [internalAdminTenant, ransa, neptunia, apm, paita, unimar, intradevco];
@@ -178,6 +179,7 @@ public static class IdentityDevDataSeeder
         string companyRef,
         OrganizationType type,
         Guid? parentId,
+        bool isManagementOwner,
         ActorId actor,
         (string Code, string Name)[] branches)
     {
@@ -192,7 +194,8 @@ public static class IdentityDevDataSeeder
             IdpStrategy.InternalBcrypt,
             companyReference,
             parentTenantId,
-            TenantId.Load(id));
+            TenantId.Load(id),
+            isManagementOwner);
 
         if (result.IsFailure)
         {

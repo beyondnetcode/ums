@@ -6,13 +6,16 @@ public sealed class RegisterIdentityProviderCommandHandler : ICommandHandler<Reg
 {
     private readonly ITenantRepository _tenantRepository;
     private readonly IUserContext _userContext;
+    private readonly ITenantScopePolicy _tenantScopePolicy;
 
     public RegisterIdentityProviderCommandHandler(
         ITenantRepository tenantRepository,
-        IUserContext userContext)
+        IUserContext userContext,
+        ITenantScopePolicy tenantScopePolicy)
     {
         _tenantRepository = tenantRepository;
         _userContext = userContext;
+        _tenantScopePolicy = tenantScopePolicy;
     }
 
     [AuditTrail]
@@ -30,6 +33,12 @@ public sealed class RegisterIdentityProviderCommandHandler : ICommandHandler<Reg
         if (tenant is null)
         {
             return Result<RegisterIdentityProviderResponse>.Failure("Tenant was not found.");
+        }
+
+        var scopeResult = await _tenantScopePolicy.EnsureManagementOwnerScopeAsync(request.TenantId, cancellationToken);
+        if (scopeResult.IsFailure)
+        {
+            return Result<RegisterIdentityProviderResponse>.Failure(scopeResult.Error);
         }
 
         var strategy = DomainEnumerationParser.FromName<IdpStrategy>(request.Strategy);

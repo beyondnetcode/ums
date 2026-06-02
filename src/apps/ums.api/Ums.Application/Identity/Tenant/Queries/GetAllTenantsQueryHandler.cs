@@ -8,12 +8,12 @@ namespace Ums.Application.Identity.Tenant.Queries;
 public sealed class GetAllTenantsQueryHandler : IQueryHandler<GetAllTenantsQuery, PagedResult<TenantDto>>
 {
     private readonly ITenantRepository _tenantRepository;
-    private readonly ITenantContext? _tenantContext;
+    private readonly ITenantScopePolicy _tenantScopePolicy;
 
-    public GetAllTenantsQueryHandler(ITenantRepository tenantRepository, ITenantContext? tenantContext = null)
+    public GetAllTenantsQueryHandler(ITenantRepository tenantRepository, ITenantScopePolicy tenantScopePolicy)
     {
         _tenantRepository = tenantRepository;
-        _tenantContext = tenantContext;
+        _tenantScopePolicy = tenantScopePolicy;
     }
 
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
@@ -30,11 +30,7 @@ public sealed class GetAllTenantsQueryHandler : IQueryHandler<GetAllTenantsQuery
         var sortOrder = NormalizeText(request.SortOrder, "asc").ToLowerInvariant();
         var search = NormalizeSearch(request.Search);
 
-        // Tenant isolation: internal admins see all tenants; regular users see only their own tenant
-        // (and any child tenants). This is enforced in the repository via the tenantId filter.
-        Guid? effectiveTenantId = _tenantContext?.IsInternalAdmin == true
-            ? null                          // null → cross-tenant access (no filter)
-            : _tenantContext?.OrganizationId; // user's own tenant only
+        var effectiveTenantId = _tenantScopePolicy.ResolveQueryScope();
 
         // REC-12: Push filtering/sorting/pagination to the repository so SQL
         // implementations use DB-level Skip/Take instead of loading all rows.
@@ -48,7 +44,8 @@ public sealed class GetAllTenantsQueryHandler : IQueryHandler<GetAllTenantsQuery
             t.Props.Type.ToString(),
             t.Props.Status.ToString(),
             t.Props.ParentTenantId?.GetValue(),
-            t.Props.CompanyReference?.GetValue()))
+            t.Props.CompanyReference?.GetValue(),
+            t.Props.IsManagementOwner))
             .ToList();
 
         var totalPages = totalItems == 0 ? 0 : (int)Math.Ceiling(totalItems / (double)pageSize);

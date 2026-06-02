@@ -2,18 +2,21 @@
 
 ## 1. Propósito de Negocio
 
-UMS debe permitir que administradores de seguridad incorporen una nueva organización y definan cómo se autenticarán sus usuarios. Esto da a cada tenant una estrategia clara de identidad manteniendo el registro gobernado y auditable.
+UMS debe permitir que administradores de seguridad incorporen una nueva organización y definan cómo se autenticarán sus usuarios. Esto da a cada tenant una estrategia clara de identidad manteniendo el registro gobernado, auditable y listo para la gestión interna del portal cuando el tenant sea su propio responsable de gestión.
 
 ## 2. Actores
 
 | Actor | Responsabilidad |
 | :--- | :--- |
 | **Administrador de Seguridad Global** | Registra organizaciones y elige su estrategia de identidad. |
-| **Administrador de Organización** | Podrá gestionar sedes, usuarios y configuraciones locales posteriormente. | ## 3. Precondiciones de Negocio
+| **Administrador de Organización** | Podrá gestionar sedes, usuarios y configuraciones locales dentro del scope de gestión interna propio del tenant. |
+
+## 3. Precondiciones de Negocio
 
 - El actor estáá autenticado como administrador global.
 - La organización estáá aprobada para onboarding.
 - La información empresarial requerida estáá disponible.
+- El tenant se crea o se marca con `IsManagementOwner=true` cuando debe administrar su propio scope interno de UMS.
 
 ## 4. Flujo Funcional Principal
 
@@ -41,6 +44,7 @@ Si la referencia empresarial ya existe, el sistema evita crear una organización
 2. La estrategia de autenticación debe seleccionarse explícitamente.
 3. La creación de organización debe ser auditable.
 4. El registro de sedes depende de una organización activa.
+5. Los tenants que administran su propio scope interno de UMS deben quedar marcados con `IsManagementOwner=true` para que la administración del portal no dependa del flujo IDP externo de la API pública.
 
 ## 7. Criterios de Aceptación
 
@@ -48,11 +52,13 @@ Si la referencia empresarial ya existe, el sistema evita crear una organización
 2. Las referencias empresariales duplicadas son rechazadas.
 3. Una configuración IdP inválida impide la activación.
 4. Una organización registrada puede usarse para onboarding de sedes y usuarios.
+5. Una organización destinada a la gestión interna del portal se crea con el flag de responsable de gestión habilitado.
 
 ## 8. Requisitos Técnicos
 
 - Persistir datos del tenant en el Agregado Root `Tenant`.
 - Persistir configuración de proveedor de identidad en la Entidad hija `IdentityProvider`.
+- Persistir el flag de responsable de gestión en `Tenant` e inicializarlo para tenants que administrarán su propio scope de UMS.
 - Aplicar unicidad para referencias externas de compañía.
 - Emitir `TenantCreatedEvent`.
 - Validar configuración IdP según el tipo de proveedor seleccionado.

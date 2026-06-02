@@ -2375,6 +2375,11 @@ namespace Ums.Infrastructure.Migrations
                     b.Property<int>("IdpStrategyId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("IsManagementOwner")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false);
+
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER")

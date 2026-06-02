@@ -48,6 +48,7 @@ internal static class IdentityAggregateFactory
             DomainEnumerationMapper.FromValue<IdpStrategy>(tenantRecord.IdpStrategyId),
             string.IsNullOrWhiteSpace(tenantRecord.CompanyReference) ? null : CompanyReference.Create(tenantRecord.CompanyReference),
             tenantRecord.ParentTenantId.HasValue ? TenantId.Load(tenantRecord.ParentTenantId.Value) : null,
+            tenantRecord.IsManagementOwner,
             DomainEnumerationMapper.FromValue<TenantStatus>(tenantRecord.StatusId),
             audit);
 

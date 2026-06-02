@@ -23,7 +23,7 @@ AuthorizationGraph
 │
 ├── context                          ← Contexto del principal
 │   ├── user    { id, email, username, displayName, status }
-│   ├── tenant  { id, code, name, status }
+│   ├── tenant  { id, code, name, status, isManagementOwner }
 │   ├── systemSuite { id, code, name, status }
 │   ├── role    { id, code, name, hierarchyLevel, parentRoleId? }
 │   ├── profile { id, scope: "OrgWide"|"BranchScoped", isActive }
@@ -105,11 +105,11 @@ Nuevos formatos se agregan registrando un `IAuthorizationGraphSerializer` en `Au
 ## 5. Endpoints
 
 ### `POST /api/v1/auth/login`
-Para el frontend web UMS. Retorna cookie de sesión + respuesta enriquecida con el grafo.
+Para el frontend web UMS. Retorna cookie de sesión + respuesta enriquecida con el grafo. Este flujo se resuelve con `AuthAccessScope.PortalManagement`, por lo que siempre usa autenticación local incluso cuando la API externa del tenant está federada.
 
 **Request:**
 ```json
-{ "tenantCode": "LOGISTICS_CORE", "username": "user@ransa.pe", "password": "...", "rememberMe": false }
+{ "tenantCode": "INTERNAL_ADMIN", "username": "admin@ums.local", "password": "...", "rememberMe": false }
 ```
 
 **Response:** `LoginSuccessResponse` con campo `authorizationGraph`.
@@ -117,12 +117,12 @@ Para el frontend web UMS. Retorna cookie de sesión + respuesta enriquecida con 
 ---
 
 ### `POST /api/v1/client/authenticate`
-Para sistemas cliente externos. Sin cookie. JWT inline con claims del grafo.
+Para sistemas cliente externos. Sin cookie. JWT inline con claims del grafo. Este flujo se resuelve con `AuthAccessScope.ExternalApi`, por lo que puede honrar el IDP configurado por tenant sin afectar el acceso de gestión del portal.
 
 **Request:**
 ```json
 {
-  "tenantCode": "LOGISTICS_CORE",
+  "tenantCode": "TECHNO",
   "username": "user@ransa.pe",
   "password": "...",
   "format": "JSON"
@@ -157,7 +157,7 @@ El grafo es un **snapshot autocontenido** del universo de autorización de un us
 ```
                     ┌──────────────────────┐
                     │       Tenant         │  ← raíz organizacional
-                    │  (LOGISTICS_CORE)    │     define aislamiento
+                    │   (INTERNAL_ADMIN)   │     define aislamiento
                     └─────────┬────────────┘
                               │
             ┌─────────────────┼──────────────────┐
@@ -236,7 +236,7 @@ Ejemplo representativo de `POST /api/v1/client/authenticate` para una autenticac
       },
       "tenant": {
         "id": "11111111-1111-4111-8111-111111111111",
-        "code": "LOGISTICS_CORE",
+        "code": "INTERNAL_ADMIN",
         "name": "Logistics Corp",
         "status": "ACTIVE"
       },
@@ -411,7 +411,7 @@ El cliente típicamente extrae sólo lo necesario para tomar decisiones rápidas
 
 ```json
 {
-  "tenantCode": "LOGISTICS_CORE",
+  "tenantCode": "TECHNO",
   "userId": "7a1d4e22-0001-4f00-9a00-100000000001",
   "roleCode": "WAREHOUSE_SUPERVISOR",
   "scopes": [

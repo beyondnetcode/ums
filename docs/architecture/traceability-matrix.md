@@ -26,6 +26,14 @@ This matrix links every **Functional Story (FS)** to its governing **Architectur
 | FS-14 | Delegated Management | — | ADR-0023 (Centralized Kernel), ADR-0012 (RBAC/ABAC) | TE-02 (Permission Graph), TE-03 (Tenant Provisioning) |
 | FS-15 | Notification Rules | — | ADR-0015 (Event Bus), ADR-0036 (Message Bus FIFO/DLQ) | TE-04 (Transactional Outbox) |
 | FS-16 | Access Enforcement Policy | — | ADR-0012 (RBAC/ABAC), ADR-0016 (Immutable Audit Trail) | TE-02 (Permission Graph), TE-03 (Tenant Provisioning) |
+| FS-17 | Maintain Roles for a System Suite | — | ADR-0012 (RBAC/ABAC Guards), ADR-0021 (Auth Graph) | TE-02 (Permission Graph Compiler) |
+| FS-18 | Manage Local User Password | — | ADR-0020 (IdP Abstraction), ADR-0016 (Immutable Audit Trail) | TE-01 (JWT / OIDC flow) |
+| FS-19 | Admin Password Reset and User Validity Period Management | — | ADR-0012 (RBAC/ABAC Guards), ADR-0016 (Immutable Audit Trail) | TE-01 (JWT / OIDC flow), TE-04 (Transactional Outbox) |
+| FS-20 | System Parameter Management | — | ADR-0024 (Config & Feature Platform), ADR-0034 (CQRS), ADR-0012 (RBAC/ABAC) | TE-06 (CQRS Projection Rebuild) |
+| FS-21 | Tenant Signup Request / Approval | ADR-0075 | ADR-0035 (Distributed Sagas), ADR-0015 (Event Bus) | TE-05 (Distributed Saga with Dapr), TE-04 (Transactional Outbox) |
+| FS-22 | User Signup Request / Approval | ADR-0075 | ADR-0035 (Distributed Sagas), ADR-0015 (Event Bus) | TE-05 (Distributed Saga with Dapr), TE-04 (Transactional Outbox) |
+| FS-23 | Profile Access Request | ADR-0075, ADR-0071 | ADR-0012 (RBAC/ABAC), ADR-0016 (Immutable Audit Trail) | TE-02 (Permission Graph Compiler), TE-04 (Transactional Outbox) |
+| FS-24 | Profile Request Approval / Manual Assignment | ADR-0075, ADR-0071 | ADR-0012 (RBAC/ABAC), ADR-0016 (Immutable Audit Trail) | TE-02 (Permission Graph Compiler), TE-04 (Transactional Outbox) |
 
 ---
 
@@ -51,6 +59,9 @@ This matrix links every **Functional Story (FS)** to its governing **Architectur
 | ADR-0034 | CQRS Applicability | FS-04, FS-13 |
 | ADR-0035 | Distributed Sagas | FS-10, FS-12 |
 | ADR-0036 | Message Bus Delivery Strategy | FS-15 |
+| ADR-0071 | Auth Graph Engine | FS-01, FS-05, FS-07, FS-08, FS-09, FS-23, FS-24 |
+| ADR-0072 | Dynamic Auth Method Resolution | FS-01, FS-08, FS-09, FS-18, FS-19 |
+| ADR-0075 | Tenant and Signup Request Approval | FS-21, FS-22, FS-23, FS-24 |
 
 ---
 
@@ -71,11 +82,11 @@ This matrix links every **Functional Story (FS)** to its governing **Architectur
 
 | Bounded Context | Primary FS | Primary ADRs | Primary TEs |
 |-----------------|-----------|-------------|------------|
-| Identity | FS-01, FS-08, FS-09 | ADR-0020, ADR-0026 | TE-01 |
-| Authorization | FS-02, FS-05, FS-07, FS-16 | ADR-0012, ADR-0021, ADR-0022 | TE-02 |
-| Tenant / Org | FS-03, FS-04, FS-14 | ADR-0010, ADR-0031 | TE-03, TE-06 |
+| Identity | FS-01, FS-08, FS-09, FS-18, FS-19 | ADR-0020, ADR-0026, ADR-0072 | TE-01 |
+| Authorization | FS-02, FS-05, FS-07, FS-16, FS-17, FS-23, FS-24 | ADR-0012, ADR-0021, ADR-0022, ADR-0071 | TE-02 |
+| Tenant / Org | FS-03, FS-04, FS-14, FS-21, FS-22 | ADR-0010, ADR-0031, ADR-0075 | TE-03, TE-05, TE-06 |
 | Approvals / Workflow | FS-10, FS-12 | ADR-0035 | TE-05 |
-| Configuration | FS-13 | ADR-0024, ADR-0034 | TE-06 |
+| Configuration | FS-13, FS-20 | ADR-0024, ADR-0034 | TE-06 |
 | Audit / Compliance | FS-11, FS-15 | ADR-0016, ADR-0033 | TE-04 |
 
 ---
@@ -84,10 +95,9 @@ This matrix links every **Functional Story (FS)** to its governing **Architectur
 
 | Gap | Description | Recommended Action |
 |-----|-------------|-------------------|
-| No FS-level acceptance tests linked | FSes have no test coverage pointer | Add "Acceptance Tests" section to each FS |
-| BC-C / BC-D / BC-I domain code missing | Configuration, Audit, Compliance contexts have no C# domain model | Implement domain layers before Sprint 1 |
-| Application layer empty | No commands or handlers implemented | Begin with Identity context commands |
-| Design decisions V1, V3–V6 open | See [12-design-decisions.md](../../governance/construction/ddd-design/12-design-decisions.md) | Resolve in technical workshop before Sprint 1 |
+| No FS-level acceptance tests linked | FSes do not expose a standardized acceptance-test pointer | Add an "Acceptance Tests" section to each FS |
+| BC-C / BC-D / BC-I coverage still incomplete | Configuration, Audit, and Compliance contexts still need the same level of completeness as the core bounded contexts | Continue closing the remaining domain and application gaps in those contexts |
+| Design decisions V1, V3–V6 open | See [12-design-decisions.md](../../governance/construction/ddd-design/12-design-decisions.md) | Resolve in technical workshop before each dependent change |
 
 ---
 

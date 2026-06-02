@@ -153,5 +153,10 @@ This document establishes the mandatory rule configuration for the AI agent harn
 *   **Trigger Condition**: Any dependency update, stack modernization, tooling change, or agent configuration update.
 *   **Instruction**: Once a project version is adopted, it must be pinned explicitly in code and documented consistently in agent configs, architecture docs, and contribution guidance. Agent descriptions, prompts, and repo-level instructions must be updated whenever the stack changes materially.
 
+### R-21: Complex Change Documentation Gate
+*   **Scope**: `po`, `architect`, `dev`, `qa`, `analyst`, `sm`
+*   **Trigger Condition**: Any complex, cross-cutting, architectural, or evolutionary change that affects business rules, public contracts, bounded contexts, authentication flows, tenancy, configuration catalogs, diagrams, ADRs, or release behavior.
+*   **Instruction**: Complex or evolutionary changes MUST carry an explicit documentation impact check and update plan before completion. The change is not considered complete until the affected documentation artifacts are updated in both languages, impacted diagrams are synchronized and validated, traceability links are refreshed, and any new or changed decision is captured in the appropriate ADR or functional story. If no documentation change is needed, the agent must state that explicitly and record the rationale.
+
 ## UI Guidelines
 *   **UI Rule - No Raw GUIDs**: Raw GUIDs must NEVER be exposed or rendered in the User Interface (UI), unless explicitly requested. Always use semantic representations (e.g. Code, Name) instead. See ADR 0065 for details.

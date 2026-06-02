@@ -16,7 +16,7 @@
 El objetivo principal de UMS es actuar como el **motor central de autenticación y autorización** para los sistemas cliente multi-tenant. Antes de esta decisión, el endpoint de login (`POST /api/v1/auth/login`) retornaba un array vacío `Permissions: []` y realizaba únicamente validación BCrypt. Los sistemas cliente recibían un JWT sin datos de autorización accionables, obligándolos a implementar su propia lógica de permisos o re-consultar UMS en cada request.
 
 El sistema necesita:
-1. Autenticar usuarios vía Local (BCrypt) o IDP externo según la configuración del tenant
+1. Autenticar usuarios vía Local (BCrypt) o IDP externo según la configuración del tenant, manteniendo el acceso de gestion del portal en modo local y el flujo de API externa alineado con el IDP del tenant
 2. Construir un grafo de autorización completo y autocontenido desde el profile del usuario
 3. Retornar el grafo al cliente para que pueda operar de forma autónoma sin consultas adicionales a UMS
 

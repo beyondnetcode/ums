@@ -61,6 +61,7 @@ public static class ClientAuthEndpoints
             Username:   request.Username.Trim(),
             Password:   request.Password,
             ClientIp:   clientIp,
+            AccessScope: Ums.Domain.Identity.Auth.AuthAccessScope.ExternalApi,
             RememberMe: false);
 
         var result = await mediator.Send(command, cancellationToken);

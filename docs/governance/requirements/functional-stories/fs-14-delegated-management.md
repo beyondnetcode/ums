@@ -4,17 +4,22 @@
 
 Organizations need to delegate user management without giving unrestricted administrative power. UMS must let an administrator assign limited management responsibility while preserving ownership, scope, and revocability.
 
+This applies to the internal UMS management scope, not to external API authentication flows.
+
 ## 2. Actors
 
 | Actor | Responsibility |
 | :--- | :--- |
 | **Delegating Administrator** | Grants a limited management scope to another administrator. |
 | **Receiving Administrator** | Manages only the delegated users and scope. |
-| **Superior Administrator** | Can supervise or revoke delegated authority. | ## 3. Business Preconditions
+| **Superior Administrator** | Can supervise or revoke delegated authority. |
+
+## 3. Business Preconditions
 
 - Both administrators belong to an authorized tenant context.
 - The delegating administrator owns or controls the users and scope being delegated.
 - The receiving administrator is eligible to manage users.
+- The tenant is allowed to administer its own internal UMS scope when the delegation is tenant-scoped.
 
 ## 4. Main Functional Flow
 
@@ -52,6 +57,7 @@ If the delegation creates a circular management chain or privilege escalation, t
 ## 8. Technical Requirements
 
 - Enforce recursive scope validation logic at application level.
+- Ensure delegation checks respect the internal portal management scope and never expand beyond the delegator's tenant ownership.
 - Support audit tracking on delegation lifecycle events.
 
 ## 9. Traceability

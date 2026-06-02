@@ -17,12 +17,15 @@ public class TemplateCommandHandlerTests
     private readonly Mock<IPermissionTemplateRepository> _repo = new();
     private readonly Mock<IUnitOfWork>                 _uow  = new();
     private readonly Mock<IUserContext>                _ctx  = new();
+    private readonly Mock<ITenantScopePolicy>          _scopePolicy = new();
 
     public TemplateCommandHandlerTests()
     {
         _repo.Setup(r => r.UnitOfWork).Returns(_uow.Object);
         _uow.Setup(u => u.SaveEntitiesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(true);
         _ctx.Setup(u => u.UserId).Returns("user-001");
+        _scopePolicy.Setup(s => s.EnsureManagementOwnerScopeAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success());
     }
 
     private static PermissionTemplate MakeTemplate()
@@ -48,7 +51,7 @@ public class TemplateCommandHandlerTests
             RoleId: Guid.NewGuid(),
             SystemSuiteId: Guid.NewGuid());
 
-        var handler = new CreatePermissionTemplateCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new CreatePermissionTemplateCommandHandler(_repo.Object, _ctx.Object, _scopePolicy.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -67,11 +70,31 @@ public class TemplateCommandHandlerTests
             RoleId: Guid.NewGuid(),
             SystemSuiteId: Guid.NewGuid());
 
-        var handler = new CreatePermissionTemplateCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new CreatePermissionTemplateCommandHandler(_repo.Object, _ctx.Object, _scopePolicy.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
         Assert.Contains("authenticated user is required", result.Error, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task Create_WhenTenantIsNotManagementOwner_ReturnsFailure()
+    {
+        _ctx.Setup(u => u.UserId).Returns("user-001");
+        _scopePolicy.Setup(s => s.EnsureManagementOwnerScopeAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Failure("AUTH_015: Tenant is not marked as management owner."));
+
+        var cmd = new CreatePermissionTemplateCommand(
+            TenantId: Guid.NewGuid(),
+            RoleId: Guid.NewGuid(),
+            SystemSuiteId: Guid.NewGuid());
+
+        var handler = new CreatePermissionTemplateCommandHandler(_repo.Object, _ctx.Object, _scopePolicy.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("management owner", result.Error, StringComparison.OrdinalIgnoreCase);
+        _repo.Verify(r => r.AddAsync(It.IsAny<PermissionTemplate>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     #endregion

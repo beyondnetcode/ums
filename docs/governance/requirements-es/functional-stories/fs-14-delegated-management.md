@@ -4,17 +4,22 @@
 
 Las organizaciones necesitan delegar gestión de usuarios sin entregar poder administrativo irrestricto. UMS debe permitir asignar responsabilidad limitada de gestión preservando propiedad, alcance y revocabilidad.
 
+Esto aplica al scope interno de gestión de UMS, no a los flujos externos de autenticación por API.
+
 ## 2. Actores
 
 | Actor | Responsabilidad |
 | :--- | :--- |
 | **Administrador Delegante** | Otorga un alcance limitado de gestión a otro administrador. |
 | **Administrador Receptor** | Gestiona solo los usuarios y alcance delegados. |
-| **Administrador Superior** | Puede supervisar o revocar la autoridad delegada. | ## 3. Precondiciones de Negocio
+| **Administrador Superior** | Puede supervisar o revocar la autoridad delegada. |
+
+## 3. Precondiciones de Negocio
 
 - Ambos administradores pertenecen a un contexto de tenant autorizado.
 - El administrador delegante posee o controla los usuarios y el alcance delegado.
 - El administrador receptor es elegible para gestionar usuarios.
+- El tenant puede administrar su propio scope interno de UMS cuando la delegación sea limitada al tenant.
 
 ## 4. Flujo Funcional Principal
 
@@ -56,6 +61,7 @@ Si la delegación crea una cadena circular de gestión o escalamiento de privile
 > En la fase actual, la lógica transaccional de delegación administrativa de usuarios (`UserManagementDelegation`) está **diferida** y no está implementada dentro del proyecto principal de dominio de C#.
 
 - Hacer cumplir la lógica de validación recursiva de alcance a nivel de aplicación.
+- Asegurar que las validaciones de delegación respeten el scope interno del portal y nunca amplíen el alcance más allá de la propiedad del tenant del delegante.
 - Soportar el rastreo de auditoría en eventos del ciclo de vida de la delegación.
 
 ## 9. Trazabilidad

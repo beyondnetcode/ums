@@ -31,7 +31,7 @@ public class AuthMethodResolverTests
     {
         SetupAuthUseExternalIdp(false);
 
-        var result = await CreateSut().ResolveAsync(_tenantId);
+        var result = await CreateSut().ResolveAsync(_tenantId, AuthAccessScope.ExternalApi);
 
         Assert.True(result.IsSuccess);
         Assert.Equal(AuthMethodType.Local, result.Value.Type);
@@ -43,7 +43,7 @@ public class AuthMethodResolverTests
     {
         SetupAuthUseExternalIdp(false);
 
-        await CreateSut().ResolveAsync(_tenantId);
+        await CreateSut().ResolveAsync(_tenantId, AuthAccessScope.ExternalApi);
 
         _tenantRepo.Verify(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
             Times.Never);
@@ -58,7 +58,7 @@ public class AuthMethodResolverTests
         _tenantRepo.Setup(r => r.GetByIdAsync(_tenantId, It.IsAny<CancellationToken>()))
                    .ReturnsAsync(BuildTenantWithActiveIdp());
 
-        var result = await CreateSut().ResolveAsync(_tenantId);
+        var result = await CreateSut().ResolveAsync(_tenantId, AuthAccessScope.ExternalApi);
 
         Assert.True(result.IsSuccess);
         Assert.Equal(AuthMethodType.IDP, result.Value.Type);
@@ -72,7 +72,7 @@ public class AuthMethodResolverTests
         _tenantRepo.Setup(r => r.GetByIdAsync(_tenantId, It.IsAny<CancellationToken>()))
                    .ReturnsAsync(BuildTenantWithNoActiveIdp());
 
-        var result = await CreateSut().ResolveAsync(_tenantId);
+        var result = await CreateSut().ResolveAsync(_tenantId, AuthAccessScope.ExternalApi);
 
         Assert.True(result.IsFailure);
         Assert.Contains("AUTH_011", result.Error);
@@ -84,14 +84,27 @@ public class AuthMethodResolverTests
         // The key invariant: the resolver delegates to config, not hardcoded logic.
         // Changing the config value changes the method — no code change needed.
         SetupAuthUseExternalIdp(false);
-        var local = await CreateSut().ResolveAsync(_tenantId);
+        var local = await CreateSut().ResolveAsync(_tenantId, AuthAccessScope.ExternalApi);
         Assert.Equal(AuthMethodType.Local, local.Value.Type);
 
         SetupAuthUseExternalIdp(true);
         _tenantRepo.Setup(r => r.GetByIdAsync(_tenantId, It.IsAny<CancellationToken>()))
                    .ReturnsAsync(BuildTenantWithActiveIdp());
-        var idp = await CreateSut().ResolveAsync(_tenantId);
+        var idp = await CreateSut().ResolveAsync(_tenantId, AuthAccessScope.ExternalApi);
         Assert.Equal(AuthMethodType.IDP, idp.Value.Type);
+    }
+
+    [Fact]
+    public async Task ResolveAsync_PortalManagementAlwaysReturnsLocal()
+    {
+        SetupAuthUseExternalIdp(true);
+
+        var result = await CreateSut().ResolveAsync(_tenantId, AuthAccessScope.PortalManagement);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(AuthMethodType.Local, result.Value.Type);
+        Assert.Null(result.Value.Provider);
+        _tenantRepo.Verify(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     // ── Helpers ────────────────────────────────────────────────────────────────

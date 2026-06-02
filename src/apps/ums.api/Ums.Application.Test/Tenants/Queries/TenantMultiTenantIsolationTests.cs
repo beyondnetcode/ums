@@ -18,7 +18,7 @@ using Ums.Domain.Identity.Tenant;
 public class TenantMultiTenantIsolationTests
 {
     private readonly Mock<ITenantRepository> _repo = new();
-    private readonly Mock<ITenantContext> _tenantContext = new();
+    private readonly Mock<ITenantScopePolicy> _scopePolicy = new();
 
     private static Tenant MakeTenant(string code, string name)
         => Tenant.Create(
@@ -48,12 +48,11 @@ public class TenantMultiTenantIsolationTests
     {
         var ransaId = Guid.NewGuid();
         var ransaTenant = MakeTenant("RANSA", "Ransa Corp");
-        _tenantContext.Setup(t => t.IsInternalAdmin).Returns(false);
-        _tenantContext.Setup(t => t.OrganizationId).Returns(ransaId);
+        _scopePolicy.Setup(p => p.ResolveQueryScope()).Returns(ransaId);
         SetupRepoForTenant(ransaId, [ransaTenant]);
 
         var query = new GetAllTenantsQuery(Page: 1, PageSize: 20);
-        var handler = new GetAllTenantsQueryHandler(_repo.Object, _tenantContext.Object);
+        var handler = new GetAllTenantsQueryHandler(_repo.Object, _scopePolicy.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -70,15 +69,14 @@ public class TenantMultiTenantIsolationTests
         var ransaId = Guid.NewGuid();
         var acmeId = Guid.NewGuid();
 
-        _tenantContext.Setup(t => t.IsInternalAdmin).Returns(false);
-        _tenantContext.Setup(t => t.OrganizationId).Returns(ransaId);
+        _scopePolicy.Setup(p => p.ResolveQueryScope()).Returns(ransaId);
 
         // Repo is only set up to return RANSA data when asked for ransaId
         SetupRepoForTenant(ransaId, [MakeTenant("RANSA", "Ransa Corp")]);
 
         // A regular user queries — no matter the context, scope must be ransaId
         var query = new GetAllTenantsQuery(Page: 1, PageSize: 20);
-        var handler = new GetAllTenantsQueryHandler(_repo.Object, _tenantContext.Object);
+        var handler = new GetAllTenantsQueryHandler(_repo.Object, _scopePolicy.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -102,14 +100,13 @@ public class TenantMultiTenantIsolationTests
         var ransaTenant = MakeTenant("RANSA", "Ransa Corp");
         var acmeTenant = MakeTenant("ACME", "Acme Corp");
 
-        _tenantContext.Setup(t => t.IsInternalAdmin).Returns(false);
-        _tenantContext.Setup(t => t.OrganizationId).Returns(ransaId);
+        _scopePolicy.Setup(p => p.ResolveQueryScope()).Returns(ransaId);
 
         // Repository correctly scoped to RANSA returns only RANSA
         SetupRepoForTenant(ransaId, [ransaTenant]);
 
         var query = new GetAllTenantsQuery(Page: 1, PageSize: 20);
-        var handler = new GetAllTenantsQueryHandler(_repo.Object, _tenantContext.Object);
+        var handler = new GetAllTenantsQueryHandler(_repo.Object, _scopePolicy.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -135,14 +132,13 @@ public class TenantMultiTenantIsolationTests
             MakeTenant("XYZ", "XYZ Inc"),
         };
 
-        _tenantContext.Setup(t => t.IsInternalAdmin).Returns(true);
-        _tenantContext.Setup(t => t.OrganizationId).Returns(adminTenantId);
+        _scopePolicy.Setup(p => p.ResolveQueryScope()).Returns((Guid?)null);
 
         // Admin: null filter means all tenants
         SetupRepoForTenant(null, allTenants);
 
         var query = new GetAllTenantsQuery(Page: 1, PageSize: 20);
-        var handler = new GetAllTenantsQueryHandler(_repo.Object, _tenantContext.Object);
+        var handler = new GetAllTenantsQueryHandler(_repo.Object, _scopePolicy.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -157,7 +153,7 @@ public class TenantMultiTenantIsolationTests
     [Fact]
     public async Task InternalAdmin_WithNoTenantContext_FallsBackToNoFilter()
     {
-        // Handler with null tenantContext (no HTTP context / test scenario)
+        // Handler with null tenant scope (no HTTP context / test scenario)
         var allTenants = new List<Tenant>
         {
             MakeTenant("RANSA", "Ransa Corp"),
@@ -167,7 +163,8 @@ public class TenantMultiTenantIsolationTests
         SetupRepoForTenant(null, allTenants);
 
         var query = new GetAllTenantsQuery(Page: 1, PageSize: 20);
-        var handler = new GetAllTenantsQueryHandler(_repo.Object, tenantContext: null);
+        _scopePolicy.Setup(p => p.ResolveQueryScope()).Returns((Guid?)null);
+        var handler = new GetAllTenantsQueryHandler(_repo.Object, _scopePolicy.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -184,15 +181,14 @@ public class TenantMultiTenantIsolationTests
     public async Task RegularUser_TenantContextNotInitialized_ReturnsNoData()
     {
         // OrganizationId is null when context is not initialized for the user
-        _tenantContext.Setup(t => t.IsInternalAdmin).Returns(false);
-        _tenantContext.Setup(t => t.OrganizationId).Returns((Guid?)null);
+        _scopePolicy.Setup(p => p.ResolveQueryScope()).Returns((Guid?)null);
 
         // When effectiveTenantId is null for a non-admin, repo is called with null
         // The repository itself handles null (returns nothing or all, depending on implementation)
         SetupRepoForTenant(null, []);
 
         var query = new GetAllTenantsQuery(Page: 1, PageSize: 20);
-        var handler = new GetAllTenantsQueryHandler(_repo.Object, _tenantContext.Object);
+        var handler = new GetAllTenantsQueryHandler(_repo.Object, _scopePolicy.Object);
         var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -209,14 +205,12 @@ public class TenantMultiTenantIsolationTests
         var acmeTenant = MakeTenant("ACME", "Acme Corp");
 
         // Setup RANSA context
-        var ransaContext = new Mock<ITenantContext>();
-        ransaContext.Setup(t => t.IsInternalAdmin).Returns(false);
-        ransaContext.Setup(t => t.OrganizationId).Returns(ransaId);
+        var ransaScope = new Mock<ITenantScopePolicy>();
+        ransaScope.Setup(p => p.ResolveQueryScope()).Returns(ransaId);
 
-        // Setup ACME context
-        var acmeContext = new Mock<ITenantContext>();
-        acmeContext.Setup(t => t.IsInternalAdmin).Returns(false);
-        acmeContext.Setup(t => t.OrganizationId).Returns(acmeId);
+        // Setup ACME scope
+        var acmeScope = new Mock<ITenantScopePolicy>();
+        acmeScope.Setup(p => p.ResolveQueryScope()).Returns(acmeId);
 
         var repoRansa = new Mock<ITenantRepository>();
         repoRansa.Setup(r => r.GetPagedAsync(
@@ -232,8 +226,8 @@ public class TenantMultiTenantIsolationTests
 
         var query = new GetAllTenantsQuery(Page: 1, PageSize: 20);
 
-        var ransaHandler = new GetAllTenantsQueryHandler(repoRansa.Object, ransaContext.Object);
-        var acmeHandler = new GetAllTenantsQueryHandler(repoAcme.Object, acmeContext.Object);
+        var ransaHandler = new GetAllTenantsQueryHandler(repoRansa.Object, ransaScope.Object);
+        var acmeHandler = new GetAllTenantsQueryHandler(repoAcme.Object, acmeScope.Object);
 
         var ransaResult = await ransaHandler.Handle(query, CancellationToken.None);
         var acmeResult = await acmeHandler.Handle(query, CancellationToken.None);

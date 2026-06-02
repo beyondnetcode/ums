@@ -24,7 +24,7 @@ public class AuthorizationGraphTests
     {
         var context = new GraphContext(
             User:        new GraphUser(Guid.NewGuid(), "user@test.com", "user@test.com", "Test User", "Active"),
-            Tenant:      new GraphTenant(Guid.NewGuid(), "TEST", "Test Tenant", "Active"),
+            Tenant:      new GraphTenant(Guid.NewGuid(), "TEST", "Test Tenant", "Active", false),
             SystemSuite: new GraphSystemSuite(Guid.NewGuid(), "CORE", "Core System", "Active"),
             Role:        new GraphRole(Guid.NewGuid(), "ADMIN", "Administrator", 1, null),
             Profile:     new GraphProfile(Guid.NewGuid(), "OrgWide", true),
@@ -114,7 +114,7 @@ public class AuthorizationGraphTests
     {
         var context = new GraphContext(
             User:        new GraphUser(Guid.NewGuid(), "u@test.com", "u@test.com", "U", "Active"),
-            Tenant:      new GraphTenant(Guid.NewGuid(), "T", "T", "Active"),
+            Tenant:      new GraphTenant(Guid.NewGuid(), "T", "T", "Active", false),
             SystemSuite: new GraphSystemSuite(Guid.NewGuid(), "S", "S", "Active"),
             Role:        new GraphRole(Guid.NewGuid(), "R", "R", 1, null),
             Profile:     new GraphProfile(Guid.NewGuid(), "OrgWide", true),
@@ -153,7 +153,7 @@ public class AuthorizationGraphTests
         var branchId = Guid.NewGuid();
         var context = new GraphContext(
             User:        new GraphUser(Guid.NewGuid(), "u@test.com", "u@test.com", "U", "Active"),
-            Tenant:      new GraphTenant(Guid.NewGuid(), "T", "T", "Active"),
+            Tenant:      new GraphTenant(Guid.NewGuid(), "T", "T", "Active", false),
             SystemSuite: new GraphSystemSuite(Guid.NewGuid(), "S", "S", "Active"),
             Role:        new GraphRole(Guid.NewGuid(), "R", "R", 1, null),
             Profile:     new GraphProfile(Guid.NewGuid(), "BranchScoped", true),

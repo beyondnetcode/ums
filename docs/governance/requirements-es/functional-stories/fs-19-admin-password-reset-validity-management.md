@@ -2,22 +2,23 @@
 
 ## 1. Propósito de Negocio
 
-UMS debe permitir que administradores autorizados puedan restablecer contraseñas de usuarios y modificar períodos de vigencia de cuentas, con restricciones de alcance según el tipo de administrador (interno vs. específico de tenant) y su alcance operativo. Todas estas acciones deben quedar registradas en el historial de auditoría para garantizar responsabilidad y cumplimiento de políticas de seguridad.
+UMS debe permitir que administradores autorizados puedan restablecer contraseñas de usuarios y modificar períodos de vigencia de cuentas, con restricciones de alcance según el scope de gestión del portal, la propiedad del tenant y los permisos. El portal interno de UMS usa su propia ruta de autorización, mientras que la resolución IDP del tenant queda reservada para la API pública externa. Todas estas acciones deben quedar registradas en el historial de auditoría para garantizar responsabilidad y cumplimiento de políticas de seguridad.
 
 ## 2. Actores
 
 | Actor | Responsabilidad |
 | :--- | :--- |
-| **Administrador de Plataforma Interno** | Gestiona contraseñas y períodos de vigencia de usuarios en cualquier tenant del sistema. Tiene alcance operativo cross-tenant. |
-| **Administrador de Tenant** | Gestiona contraseñas y períodos de vigencia de usuarios solo dentro de su propio tenant. Tiene alcance operativo limitado al tenant. |
+| **Administrador de Plataforma Interno** | Gestiona contraseñas y períodos de vigencia de usuarios en cualquier tenant del sistema a través del scope de gestión interna. |
+| **Administrador de Tenant** | Gestiona contraseñas y períodos de vigencia de usuarios solo dentro de su propio tenant cuando ese tenant puede administrar su propio scope de UMS. |
 | **Usuario Afectado** | Sujeto del reset de contraseña o modificación de período de vigencia. Recibe notificación de la acción realizada. |
 
 ## 3. Precondiciones de Negocio
 
-- El administrador que realiza la acción está autenticado y tiene un rol ADMIN en su alcance operativo.
+- El administrador que realiza la acción está autenticado en el portal interno de UMS o en una sesión administrativa confiable y tiene un rol ADMIN en su alcance operativo.
 - La cuenta de usuario objetivo existe y pertenece a un tenant dentro del alcance operativo del administrador.
 - El administrador tiene el permiso requerido (`CAN_RESET_PASSWORD` y/o `CAN_MODIFY_VALIDITY_PERIOD`) asignado a su rol.
 - Los feature flags que controlan estas capacidades están habilitados para el sistema o tenant.
+- Las acciones administrativas limitadas al tenant solo están permitidas cuando el tenant está marcado como `IsManagementOwner=true`.
 
 ## 4. Flujo Funcional Principal
 
@@ -79,8 +80,8 @@ Si la operación no puede completarse debido a un error del sistema, UMS muestra
 
 ## 6. Reglas de Negocio
 
-1. **Alcance de ADMIN Interno**: Usuarios con rol de ADMIN interno (pertenecientes al tenant `INTERNAL_ADMIN`) pueden realizar resets de contraseña y modificaciones de vigencia en cualquier cuenta de usuario del sistema.
-2. **Alcance de ADMIN de Tenant**: Usuarios con roles de ADMIN específicos de tenant solo pueden realizar estas acciones en usuarios de su propio tenant.
+1. **Alcance de ADMIN Interno**: Usuarios con rol de ADMIN interno o scope de gestión de plataforma pueden realizar resets de contraseña y modificaciones de vigencia en cualquier cuenta de usuario del sistema.
+2. **Alcance de ADMIN de Tenant**: Usuarios con roles de ADMIN específicos de tenant solo pueden realizar estas acciones en usuarios de su propio tenant cuando ese tenant está marcado como responsable de gestión.
 3. **Requisitos de Permiso**: El administrador debe tener el permiso `CAN_RESET_PASSWORD` para restablecer contraseñas, y `CAN_MODIFY_VALIDITY_PERIOD` para modificar períodos de vigencia. Estos permisos se asignan vía autorización basada en roles.
 4. **Requisito de Auditoría**: Cada reset de contraseña y modificación de período de vigencia DEBE generar un registro de auditoría inmutable.
 5. **Denegación Cross-Tenant**: Los administradores específicos de tenant NO DEBEN poder ver, modificar o administrar usuarios de otros tenants.
@@ -106,10 +107,12 @@ Si la operación no puede completarse debido a un error del sistema, UMS muestra
 
 ### 8.1 Autorización
 
-- El flag `ITenantContext.IsInternalAdmin` determina si un admin tiene alcance cross-tenant.
-- `ITenantContext.OrganizationId` determina el alcance de tenant para admins no internos.
+- El flujo de gestión del portal debe resolver la autorización mediante el scope interno de UMS, no mediante el flujo IDP externo del tenant.
+- `ITenantContext.OrganizationId` determina el alcance de tenant para operaciones limitadas al tenant.
+- El flag `Tenant.IsManagementOwner` determina si el tenant puede realizar sus propias acciones de gestión interna.
 - Las verificaciones de autorización en handlers deben validar:
-  - `IsInternalAdmin == true` OR `targetUser.TenantId == OrganizationId`
+  - `targetUser.TenantId == OrganizationId` para operaciones limitadas al tenant
+  - el scope de plataforma permite operaciones cross-tenant desde el portal interno
   - El rol admin tiene los permisos requeridos (`CAN_RESET_PASSWORD`, `CAN_MODIFY_VALIDITY_PERIOD`)
 - Feature flags para estas capacidades se almacenan en tabla `FeatureFlags` con claves `ALLOW_PASSWORD_RESET_BY_ADMIN` y `ALLOW_VALIDITY_PERIOD_MODIFICATION`.
 

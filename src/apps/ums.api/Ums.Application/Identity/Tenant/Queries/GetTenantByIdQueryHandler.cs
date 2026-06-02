@@ -32,6 +32,7 @@ public sealed class GetTenantByIdQueryHandler : IQueryHandler<GetTenantByIdQuery
             tenant.Props.Type.ToString(),
             tenant.Props.Status.ToString(),
             tenant.Props.ParentTenantId?.GetValue(),
-            tenant.Props.CompanyReference?.GetValue()));
+            tenant.Props.CompanyReference?.GetValue(),
+            tenant.Props.IsManagementOwner));
     }
 }

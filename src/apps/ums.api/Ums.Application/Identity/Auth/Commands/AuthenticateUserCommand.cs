@@ -1,3 +1,4 @@
+using Ums.Domain.Identity.Auth;
 using Ums.Domain.Authorization.Graph;
 
 namespace Ums.Application.Identity.Auth.Commands;
@@ -11,6 +12,7 @@ public sealed record AuthenticateUserCommand(
     string  Username,
     string  Password,
     string  ClientIp,
+    AuthAccessScope AccessScope,
     bool    RememberMe = false) : ICommand<AuthenticateUserResult>;
 
 /// <summary>Result of a successful authentication — graph + raw JWT.</summary>

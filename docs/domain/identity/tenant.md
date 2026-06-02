@@ -10,13 +10,25 @@
 ## 1. Aggregate Overview
 
 ### Purpose
-The `Tenant` aggregate represents the top-level organizational unit in the UMS multi-tenant model. Every resource in the system is scoped to a Tenant. It governs onboarding, lifecycle status, hierarchical structure (parent/child tenants), and the strategy used to authenticate its users (local, federated, or hybrid). It also fully owns and manages `Branch`, `Branding`, and `IdentityProvider` configurations.
+The `Tenant` aggregate represents the top-level organizational unit in the UMS multi-tenant model. Every resource in the system is scoped to a Tenant. It governs onboarding, lifecycle status, hierarchical structure (parent/child tenants), the strategy used to authenticate its users (local, federated, or hybrid), and whether it is the management owner for its own internal UMS portal scope. It also fully owns and manages `Branch`, `Branding`, and `IdentityProvider` configurations.
 
 ### Business Responsibility
 - Register and manage organizations (tenants) that operate on the UMS platform.
 - Control tenant lifecycle: active, suspended, inactive.
 - Define the Identity Provider strategy for the tenant.
+- Mark whether the tenant is the primary management owner for internal UMS administration.
 - Manage child entities: `Branch`, `Branding`, `IdentityProvider` — all owned by and accessed through the Tenant aggregate root.
+
+### Internal Management Access
+The internal UMS portal uses its own authorization path for tenant administrators. This path is separate from the external API authentication flow and is governed by tenant scope, roles, permissions, and `IsManagementOwner`.
+
+| Scenario | Rule |
+|---|---|
+| Tenant admin opens the UMS portal | Allowed only if the user belongs to the tenant and has the required role/permission set |
+| Tenant admin changes data inside their own tenant | Allowed only within the tenant scope and only when `IsManagementOwner = true` |
+| Tenant admin changes another tenant's data | Rejected regardless of portal access |
+| External API client authenticates | Uses the tenant IDP resolution flow and the auth graph |
+| Audit trail | Every internal tenant mutation must be recorded |
 
 ### Aggregate Root
 `Tenant` is the aggregate root. All operations on `Branch`, `Branding`, and `IdentityProvider` must go through `Tenant` commands. No external aggregate should hold a direct reference to `Branch` — only a `BranchId` value object.
@@ -39,6 +51,7 @@ The `Tenant` aggregate represents the top-level organizational unit in the UMS m
 15. An `IdentityProvider` must be deactivated before it can be removed.
 16. Deactivating an `IdentityProvider` that is the sole active IdP for a Federated tenant is not allowed unless the tenant's `IdpStrategy` is changed first.
 17. IdentityProvider `Strategy` cannot be changed after registration — it is immutable once set.
+18. `IsManagementOwner` identifies tenants that can manage their own internal UMS scope without depending on the external API IDP flow.
 
 ### Related Entities / Value Objects
 | Entity / VO | Type | Ownership |
@@ -51,6 +64,7 @@ The `Tenant` aggregate represents the top-level organizational unit in the UMS m
 | `OrganizationType` | Enum | ENTERPRISE · SMB · GOVERNMENT · PARTNER |
 | `IdpStrategy` | Enum | LOCAL · FEDERATED · HYBRID |
 | `TenantStatus` | Enum | Active · Suspended · Inactive |
+| `IsManagementOwner` | Flag | Identifies the tenant responsible for internal UMS management access |
 | `Logo` | Value Object | URI storage path |
 | `LogoFormat` | Enum | PNG · SVG · JPEG |
 | `HexColor` | Value Object | Validated hex color |
@@ -122,6 +136,7 @@ Tenant (Aggregate Root)
 │   ├── Name: Name
 │   ├── Type: OrganizationType
 │   ├── IdpStrategy: IdpStrategy
+│   ├── IsManagementOwner: bool
 │   ├── CompanyReference?: CompanyReference
 │   ├── ParentTenantId?: TenantId
 │   ├── Status: TenantStatus
@@ -145,6 +160,7 @@ Tenant (Aggregate Root)
 | `Type` | Tenant | `OrganizationType` | Organization classification |
 | `IdpStrategy` | Tenant | `IdpStrategy` | Authentication strategy |
 | `Status` | Tenant | `TenantStatus` | Active / Suspended / Inactive |
+| `IsManagementOwner` | Tenant | `bool` | Internal management access flag |
 | `Code` | Branch | `string` | Unique per tenant |
 | `Name` | Branch | `string` | Display name |
 | `GeofencingMetadata` | Branch | `string?` | JSON polygon/coordinates |

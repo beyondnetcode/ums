@@ -11,6 +11,7 @@ public class AddBranchCommandHandlerTests
     private readonly Mock<ITenantRepository> _tenantRepositoryMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly Mock<IUserContext> _userContextMock;
+    private readonly Mock<ITenantScopePolicy> _scopePolicyMock;
     private readonly AddBranchCommandHandler _handler;
 
     public AddBranchCommandHandlerTests()
@@ -19,7 +20,10 @@ public class AddBranchCommandHandlerTests
         _unitOfWorkMock = new Mock<IUnitOfWork>();
         _tenantRepositoryMock.Setup(r => r.UnitOfWork).Returns(_unitOfWorkMock.Object);
         _userContextMock = new Mock<IUserContext>();
-        _handler = new AddBranchCommandHandler(_tenantRepositoryMock.Object, _userContextMock.Object);
+        _scopePolicyMock = new Mock<ITenantScopePolicy>();
+        _scopePolicyMock.Setup(s => s.EnsureManagementOwnerScopeAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success());
+        _handler = new AddBranchCommandHandler(_tenantRepositoryMock.Object, _userContextMock.Object, _scopePolicyMock.Object);
     }
 
     private static AddBranchCommand ValidCommand => new(
@@ -168,6 +172,25 @@ public class AddBranchCommandHandlerTests
         var result = await _handler.Handle(command, CancellationToken.None);
 
         Assert.True(result.IsFailure);
+    }
+
+    [Fact]
+    public async Task Handle_WhenTenantIsNotManagementOwner_ReturnsFailure()
+    {
+        var tenantId = Guid.NewGuid();
+        _userContextMock.Setup(u => u.UserId).Returns("user-001");
+        _scopePolicyMock.Setup(s => s.EnsureManagementOwnerScopeAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Failure("AUTH_015: Tenant is not marked as management owner."));
+        var tenant = CreateTenant();
+        _tenantRepositoryMock.Setup(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(tenant);
+        var command = ValidCommand with { TenantId = tenantId };
+
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("management owner", result.Error, StringComparison.OrdinalIgnoreCase);
+        _tenantRepositoryMock.Verify(r => r.UpdateAsync(It.IsAny<Tenant>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     #endregion

@@ -7,4 +7,5 @@ public sealed record TenantDto(
     string Type,
     string Status,
     Guid? ParentTenantId,
-    string? CompanyReference);
+    string? CompanyReference,
+    bool IsManagementOwner);

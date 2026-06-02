@@ -90,6 +90,25 @@ Every documentation change must include:
 | No Sensitive Data | No passwords/keys/tokens | Automated scan |
 | No Obsolete Refs | No TODO/FIXME/DEMO | Automated check |
 
+### 2.2.1 Complex Change Documentation Gate
+
+When a code or architecture change is complex, cross-cutting, or evolutionary, the change must not be considered complete until the documentation impact has been checked and the affected artifacts are updated in both languages.
+
+Examples of complex or evolutionary changes:
+- Auth or authorization flow changes
+- Tenant scope or multi-tenant isolation changes
+- Public contract or SDK changes
+- Configuration catalog or feature flag changes
+- ADR-impacting architectural changes
+- Sequence diagram or ERD changes
+
+Required documentation output:
+- Updated English and Spanish artifacts
+- Updated diagrams, if the flow changed
+- Updated ADR or functional story when the decision or business rule changed
+- Updated traceability references and indexes
+- A short rationale when no documentation change was needed
+
 ### 2.3 Checklist Before Committing Documentation
 
 ```bash

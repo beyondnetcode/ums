@@ -10,26 +10,28 @@
 
 ## 1. Descripción General
 
-UMS soporta dos métodos de autenticación por tenant:
+UMS soporta dos métodos de autenticación por tenant, pero no se aplican de forma uniforme a todos los puntos de entrada:
 
 | Método | Descripción |
 |---|---|
-| **Local** | Validación de credencial BCrypt. Hash de contraseña almacenado en la entidad `PasswordCredential`. |
-| **IDP** | Autenticación federada delegada a un Proveedor de Identidad externo (Azure AD, Okta, SAML2, etc.). |
+| **Local** | Validación de credencial BCrypt. Hash de contraseña almacenado en la entidad `PasswordCredential`. Se usa principalmente para el acceso de gestión del portal. |
+| **IDP** | Autenticación federada delegada a un Proveedor de Identidad externo (Azure AD, Okta, SAML2, etc.). Se usa principalmente para la autenticación de la API externa. |
 
-El método aplicable para un tenant dado se **resuelve en tiempo de login desde configuración**, nunca está hardcodeado. Esto significa que el método de autenticación puede cambiar sin redesplegar la aplicación.
+El método aplicable para un tenant dado se **resuelve en tiempo de login desde configuración**, nunca está hardcodeado. El resolver también recibe un `AuthAccessScope` para que el flujo de gestión del portal pueda permanecer local mientras el flujo de API externa sigue respetando la configuración IDP del tenant. Esto significa que el método de autenticación puede cambiar sin redesplegar la aplicación.
 
 ---
 
 ## 2. Parámetro de Control
 
-El parámetro `AUTH_USE_EXTERNAL_IDP` (Booleano, con scope de tenant) gobierna la selección del método:
+El parámetro `AUTH_USE_EXTERNAL_IDP` (Booleano, con scope de tenant) gobierna la selección del método solo para el scope de API externa:
 
 | Valor | Resultado |
 |---|---|
 | `false` | `AuthMethod.Local()` — validación BCrypt |
 | `true` + IDP activo | `AuthMethod.Idp(activeProvider)` — autenticación federada |
 | `true` + sin IDP activo | `Result.Failure("AUTH_011")` — error de configuración |
+
+Para `AuthAccessScope.PortalManagement`, el resolver siempre devuelve `AuthMethod.Local()` y no requiere la configuración IDP del tenant.
 
 Este parámetro reside en el `ParameterCatalog` y se carga en `IConfigurationProvider` al iniciar la aplicación. Los cambios aplicados mediante la UI del IdpPanel se persisten en la base de datos y disparan un refresco del proveedor — el nuevo método toma efecto en el **siguiente login** sin reiniciar el servicio.
 
@@ -41,7 +43,7 @@ Este parámetro reside en el `ParameterCatalog` y se carga en `IConfigurationPro
 LoginCommand recibido
         │
         ▼
-IAuthMethodResolver.ResolveAsync(tenantId)
+IAuthMethodResolver.ResolveAsync(tenantId, scope)
         │
         ├─ lee AUTH_USE_EXTERNAL_IDP desde IConfigurationProvider (en memoria)
         │
@@ -70,7 +72,7 @@ IAuthMethodResolver.ResolveAsync(tenantId)
 Servicio de aplicación puro. Lee `IConfigurationProvider` — **sin consulta a BD por request**.
 
 ```csharp
-Task<Result<AuthMethod>> ResolveAsync(Guid tenantId, CancellationToken ct);
+Task<Result<AuthMethod>> ResolveAsync(Guid tenantId, AuthAccessScope scope, CancellationToken ct);
 ```
 
 ### `ILocalAuthStrategy`

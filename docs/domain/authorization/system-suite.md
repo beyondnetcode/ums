@@ -10,7 +10,7 @@
 ## 1. Aggregate Overview
 
 ### Purpose
-The `SystemSuite` aggregate represents a tenant-owned application surface registered in UMS. It defines the functional topology used by downstream authorization models and stores suite-level operational settings. In the current implementation, it owns `Module`, menu topology, `DomainResource` (Aggregates and Entities), `AppSetting`, and `Action` children. The independent `Role` aggregate is maintained in the selected suite context and references it through `SystemSuiteId`.
+The `SystemSuite` aggregate represents a tenant-owned application surface registered in UMS. It defines the functional topology used by downstream authorization models and stores suite-level operational settings. In the current implementation, it owns `Module`, menu topology, `DomainResource` (Aggregates and Entities), `AppSetting`, and `Action` children. The independent `Role` aggregate is maintained in the selected suite context and references it through `SystemSuiteId`. During bootstrap, `UMS` is the canonical base suite for the tenant-management surface.
 
 ### Business Responsibility
 - Register a tenant-scoped software suite.

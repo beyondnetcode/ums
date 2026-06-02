@@ -18,6 +18,7 @@ public class UserAccountCommandHandlerTests
     private readonly Mock<IUserAccountRepository> _repo = new();
     private readonly Mock<IUnitOfWork>            _uow  = new();
     private readonly Mock<IUserContext>            _ctx  = new();
+    private readonly Mock<ITenantScopePolicy>      _scopePolicy = new();
     private readonly Mock<ITenantRepository>       _tenantRepo = new();
     private readonly Mock<INotificationService>    _notifications = new();
     private readonly Mock<IPasswordHashingService> _passwordHashing = new();
@@ -28,6 +29,8 @@ public class UserAccountCommandHandlerTests
         _uow.Setup(u => u.SaveEntitiesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(true);
         _ctx.Setup(u => u.UserId).Returns("user-001");
         _passwordHashing.Setup(s => s.Hash(It.IsAny<string>())).Returns("$2a$12$server-generated-hash");
+        _scopePolicy.Setup(s => s.EnsureManagementOwnerScopeAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success());
         _tenantRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .Returns(Task.FromResult<Ums.Domain.Identity.Tenant.Tenant?>(null));
     }
@@ -63,7 +66,7 @@ public class UserAccountCommandHandlerTests
             IdentityReference: null,
             IdentityReferenceType: null);
 
-        var handler = new CreateUserAccountCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new CreateUserAccountCommandHandler(_repo.Object, _ctx.Object, _scopePolicy.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -87,7 +90,7 @@ public class UserAccountCommandHandlerTests
             IdentityReference: null,
             IdentityReferenceType: null);
 
-        var handler = new CreateUserAccountCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new CreateUserAccountCommandHandler(_repo.Object, _ctx.Object, _scopePolicy.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -107,11 +110,34 @@ public class UserAccountCommandHandlerTests
             IdentityReference: null,
             IdentityReferenceType: null);
 
-        var handler = new CreateUserAccountCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new CreateUserAccountCommandHandler(_repo.Object, _ctx.Object, _scopePolicy.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
         Assert.Contains("authenticated user is required", result.Error, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task Create_WhenTenantIsNotManagementOwner_ReturnsFailure()
+    {
+        _ctx.Setup(u => u.UserId).Returns("user-001");
+        _scopePolicy.Setup(s => s.EnsureManagementOwnerScopeAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Failure("AUTH_015: Tenant is not marked as management owner."));
+
+        var cmd = new CreateUserAccountCommand(
+            TenantId: Guid.NewGuid(),
+            BranchId: null,
+            Email: "newuser@test.com",
+            Category: "Internal",
+            IdentityReference: null,
+            IdentityReferenceType: null);
+
+        var handler = new CreateUserAccountCommandHandler(_repo.Object, _ctx.Object, _scopePolicy.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("management owner", result.Error, StringComparison.OrdinalIgnoreCase);
+        _repo.Verify(r => r.AddAsync(It.IsAny<UserAccount>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     #endregion
