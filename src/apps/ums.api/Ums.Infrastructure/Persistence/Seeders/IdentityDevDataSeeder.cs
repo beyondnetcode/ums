@@ -211,8 +211,9 @@ public static class IdentityDevDataSeeder
 
         if (code == "RANSA_PERU")
         {
+            // IDP registered but NOT activated — dev mode uses InternalBcrypt (local password login).
+            // Activate in production/staging when Azure AD SSO is configured.
             tenant.RegisterIdentityProvider(Code.Create("ENTRA_ID"), Name.Create("Azure AD Corporativo"), Description.Create("Directorio principal Ransa"), IdpStrategy.AzureAd, actor);
-            tenant.ActivateIdentityProvider(tenant.IdentityProviders.First().GetId(), actor);
             
             var branding = BrandingSettings.CreateBuilder()
                 .WithLogo(Logo.Create("base64_ransa_logo_data"), LogoFormat.Png)
@@ -226,7 +227,6 @@ public static class IdentityDevDataSeeder
         else if (code == "NEPTUNIA")
         {
             tenant.RegisterIdentityProvider(Code.Create("OKTA_CORP"), Name.Create("Okta Neptunia"), Description.Create("Directorio subsidiarias"), IdpStrategy.Okta, actor);
-            tenant.ActivateIdentityProvider(tenant.IdentityProviders.First().GetId(), actor);
             
             var branding = BrandingSettings.CreateBuilder()
                 .WithLogo(Logo.Create("base64_neptunia_logo_data"), LogoFormat.Png)
@@ -240,12 +240,10 @@ public static class IdentityDevDataSeeder
         else if (code == "PAITA_PORT")
         {
             tenant.RegisterIdentityProvider(Code.Create("PAITA_IDP"), Name.Create("Paita Auth0"), Description.Create("Proveedor de identidad principal puerto"), IdpStrategy.Auth0, actor);
-            tenant.ActivateIdentityProvider(tenant.IdentityProviders.First().GetId(), actor);
         }
         else if (code == "INTRADEVCO")
         {
             tenant.RegisterIdentityProvider(Code.Create("INTRA_SAML"), Name.Create("Intradevco AD FS"), Description.Create("Servicio federado Intradevco"), IdpStrategy.Saml2, actor);
-            tenant.ActivateIdentityProvider(tenant.IdentityProviders.First().GetId(), actor);
         }
 
         return tenant;
