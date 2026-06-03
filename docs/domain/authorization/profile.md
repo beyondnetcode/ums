@@ -237,7 +237,7 @@ erDiagram
 
 ## 7. Application Layer
 - `CreateProfileCommand` -> Inputs: `TenantId, UserId, RoleId, BranchId?` -> Returns: `Guid`
-- Follow-up API work still pending: template assignment and permission override commands are implemented in the domain but not fully exposed in endpoints yet.
+- Template assignment, permission overrides, and permission status changes are exposed through REST endpoints alongside the core profile lifecycle commands.
 
 ---
 

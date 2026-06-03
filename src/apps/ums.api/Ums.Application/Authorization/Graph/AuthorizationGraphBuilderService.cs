@@ -3,6 +3,7 @@ using Ums.Domain.Authorization;
 using Ums.Domain.Authorization.Graph;
 using Ums.Domain.Authorization.Template;
 using Ums.Domain.Configuration;
+using Ums.Domain.Configuration.AppConfiguration;
 using Ums.Domain.Configuration.FeatureFlag;
 using Ums.Domain.Identity;
 using Ums.Domain.Identity.Auth;
@@ -159,7 +160,7 @@ public sealed class AuthorizationGraphBuilderService : IAuthorizationGraphBuilde
                     branch.Props.Name.GetValue()));
 
         // ── 11. Authentication node ────────────────────────────────────────────
-        var mfaRequired  = _configProvider.GetValueAs<bool>("MFA_REQUIRED_FOR_ADMIN", tenantId, false);
+        var mfaRequired  = _configProvider.GetValueAs<bool>(AppConfigurationCodes.MfaRequiredForAdmin, tenantId, AppConfigurationDefaults.MfaRequiredForAdmin);
         GraphIdpProvider? idpProvider = authMethod.Provider is not null
             ? new GraphIdpProvider(
                 authMethod.Provider.GetId().GetValue(),
@@ -381,12 +382,12 @@ public sealed class AuthorizationGraphBuilderService : IAuthorizationGraphBuilde
 
     private GraphEffectiveConfig BuildEffectiveConfig(Guid tenantId)
         => new(
-            SessionTimeoutMinutes: _configProvider.GetValueAs<int>("SESSION_TIMEOUT_MINUTES",  tenantId, 30),
-            MaxLoginAttempts:      _configProvider.GetValueAs<int>("MAX_LOGIN_ATTEMPTS",        tenantId, 5),
-            MinPasswordLength:     _configProvider.GetValueAs<int>("MIN_PASSWORD_LENGTH",       tenantId, 12),
-            MfaRequiredForAdmin:   _configProvider.GetValueAs<bool>("MFA_REQUIRED_FOR_ADMIN",   tenantId, false),
-            AccessTokenDurationMs: _configProvider.GetValueAs<int>("ACCESS_TOKEN_DURATION_MS", tenantId, 3600000),
-            AuthUseExternalIdp:    _configProvider.GetValueAs<bool>("AUTH_USE_EXTERNAL_IDP",   tenantId, false));
+            SessionTimeoutMinutes: _configProvider.GetValueAs<int>(AppConfigurationCodes.SessionTimeoutMinutes, tenantId, AppConfigurationDefaults.SessionTimeoutMinutes),
+            MaxLoginAttempts:      _configProvider.GetValueAs<int>(AppConfigurationCodes.MaxLoginAttempts, tenantId, AppConfigurationDefaults.MaxLoginAttempts),
+            MinPasswordLength:     _configProvider.GetValueAs<int>(AppConfigurationCodes.MinPasswordLength, tenantId, AppConfigurationDefaults.MinPasswordLength),
+            MfaRequiredForAdmin:   _configProvider.GetValueAs<bool>(AppConfigurationCodes.MfaRequiredForAdmin, tenantId, AppConfigurationDefaults.MfaRequiredForAdmin),
+            AccessTokenDurationMs: _configProvider.GetValueAs<int>(AppConfigurationCodes.AccessTokenDurationMs, tenantId, AppConfigurationDefaults.AccessTokenDurationMs),
+            AuthUseExternalIdp:    _configProvider.GetValueAs<bool>(AppConfigurationCodes.AuthUseExternalIdp, tenantId, AppConfigurationDefaults.AuthUseExternalIdp));
 
     private static IReadOnlyList<string> DeriveScopes(
         IReadOnlyList<GraphMenuModule>       menuAccess,

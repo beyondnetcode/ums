@@ -34,6 +34,7 @@ interface AppConfigurationListPanelProps {
   onRegisterNew: () => void;
   onSelectConfig: (id: string) => void;
   requiresFilter: boolean;
+  filterOptions?: AtomicFilterOption[];
 }
 
 const SCOPE_ICON_MAP: Record<string, React.ReactNode> = {
@@ -61,10 +62,11 @@ export function AppConfigurationListPanel({
   onRegisterNew,
   onSelectConfig,
   requiresFilter,
+  filterOptions,
 }: AppConfigurationListPanelProps): React.JSX.Element {
   const t = useI18n();
 
-  const filterOptions: AtomicFilterOption[] = [
+  const defaultFilterOptions: AtomicFilterOption[] = [
     { label: 'Todos', value: 'all' },
     { label: 'Borrador', value: 'Draft' },
     { label: 'Publicado', value: 'Published' },
@@ -221,7 +223,7 @@ export function AppConfigurationListPanel({
             onSearchValueChange={queryState.setSearchValue}
             onSearchSubmit={queryState.handleQuerySubmit}
             onSearchClear={queryState.handleResetQuery}
-            filterOptions={filterOptions}
+            filterOptions={filterOptions ?? defaultFilterOptions}
             activeFilter={queryState.activeFilter}
             onFilterChange={queryState.setActiveFilter}
             sortOptions={sortOptions}

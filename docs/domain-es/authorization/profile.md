@@ -237,7 +237,7 @@ erDiagram
 
 ## 7. Capa de Aplicación
 - `CreateProfileCommand` -> Entradas: `TenantId, UserId, RoleId, BranchId?` -> Retorna: `Guid`
-- Trabajo pendiente en API: la asignación de plantillas y las anulaciones de permisos ya existen en dominio, pero todavía no están expuestas completamente en endpoints.
+- La asignación de plantillas, las anulaciones de permisos y los cambios de estado de permisos se exponen por endpoints REST junto con los comandos centrales del ciclo de vida del perfil.
 
 ---
 

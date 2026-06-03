@@ -158,12 +158,12 @@ erDiagram
 ---
 
 ## 7. Application Layer
-- The domain aggregate exists, but API/application implementation is still pending in the current codebase.
+- The domain aggregate is exposed through application commands and REST endpoints for create, update, activate, deactivate, and resolve flows.
 
 ---
 
 ## 8. Infrastructure/Persistence
-- Persistence and API exposure are still pending for this aggregate.
+- Persistence is implemented in SQL Server, and the presentation layer exposes the REST endpoints for this context.
 
 ---
 

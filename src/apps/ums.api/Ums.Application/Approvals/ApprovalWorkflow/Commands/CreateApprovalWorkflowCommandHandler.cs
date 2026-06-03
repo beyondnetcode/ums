@@ -35,7 +35,8 @@ public sealed class CreateApprovalWorkflowCommandHandler : ICommandHandler<Creat
             category,
             request.RequiresApproval,
             request.SystemSuiteId.HasValue ? SystemSuiteId.Load(request.SystemSuiteId.Value) : null,
-            ActorId.Create(_userContext.UserId));
+            ActorId.Create(_userContext.UserId),
+            request.RequiresApproval ? 1 : 0);
 
         if (result.IsFailure)
             return Result<CreateApprovalWorkflowResponse>.Failure(result.Error);

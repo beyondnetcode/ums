@@ -24,6 +24,7 @@ public static class DomainErrors
         public const string ArchivedCannotActivate = "tenant.archived_cannot_activate";
         public const string AlreadyActive = "tenant.already_active";
         public const string AlreadySuspended = "tenant.already_suspended";
+        public const string ArchivedCannotArchive = "tenant.archived_cannot_archive";
         // ── Dependency guard errors ──────────────────────────────────────────
         public const string HasActiveUsers      = "TENANT_HAS_ACTIVE_USERS";
         public const string HasActiveBranches   = "TENANT_HAS_ACTIVE_BRANCHES";
@@ -101,6 +102,7 @@ public static class DomainErrors
         public const string TemplateNotPublished = "authorization.template_not_published";
         public const string TemplateAlreadyPublished = "authorization.template_already_published";
         public const string TemplateAlreadyDeprecated = "authorization.template_already_deprecated";
+        public const string TemplateNotDeletable = "authorization.template_not_deletable";
         public const string TemplateItemTargetAlreadyExists = "authorization.template_item_target_already_exists";
         public const string InvalidPermissionEffect = "authorization.invalid_permission_effect";
         public const string ProfileAlreadyActive = "authorization.profile_already_active";
@@ -128,6 +130,7 @@ public static class DomainErrors
         public const string TemplateHasActiveProfiles    = "TEMPLATE_HAS_ACTIVE_PROFILES";
         public const string DomainResourceHasTemplateItems = "DOMAIN_RESOURCE_HAS_TEMPLATE_ITEMS";
         public const string ModuleHasActiveMenus         = "MODULE_HAS_ACTIVE_MENUS";
+        public const string TemplateItemsRequired        = "authorization.template_items_required";
     }
 
     public static class Approvals
@@ -138,6 +141,7 @@ public static class DomainErrors
         public const string PolicyRequiresProfileOrRole = "approvals.policy_requires_profile_or_role";
         public const string PolicyAlreadyInactive = "approvals.policy_already_inactive";
         public const string RuleAlreadyInactive = "approvals.rule_already_inactive";
+        public const string RequiresDocumentsIfApprovalRequired = "approvals.requires_documents_if_approval_required";
     }
 
     public static class Configuration
@@ -160,6 +164,11 @@ public static class DomainErrors
         public const string CriteriaTypeRequired        = "configuration.criteria_type_required";
         public const string CriteriaOperatorRequired    = "configuration.criteria_operator_required";
         public const string CriteriaValueRequired       = "configuration.criteria_value_required";
+        public const string ParameterCodeNotUnique      = "configuration.parameter_code_not_unique";
+        public const string ParameterHasActiveValues    = "configuration.parameter_has_active_values";
+        public const string ParameterValueInvalidType   = "configuration.parameter_value_invalid_type";
+        public const string ParameterOverrideNotAllowed = "configuration.parameter_override_not_allowed";
+        public const string ParameterGlobalValueInUse   = "configuration.parameter_global_value_in_use";
     }
 
     public static class Audit

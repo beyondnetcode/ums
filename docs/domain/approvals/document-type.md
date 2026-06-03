@@ -20,7 +20,7 @@ The `DocumentType` aggregate governs the classifications, rules, and policy sche
 - Map expiration warning rules to specific document categories and define alert transmission channels.
 
 ### Aggregate Root
-`DocumentType` is the aggregate root. Defining enforcement actions or configuring notification alerts (`NotificationRule`) must go through it to enforce invariants. `NotificationRule` is an owned entity and cannot exist or undergo state transitions outside the lifecycle constraints of `DocumentType`.
+`DocumentType` is the aggregate root. Defining enforcement actions must go through it to enforce invariants. `NotificationRule` is an independent Aggregate Root in the Approvals BC. `DocumentType` may reference `NotificationRule` entities by ID but does not own their lifecycle.
 
 ### Invariants and Consistency Rules
 1. Every `DocumentType` must possess a unique `Code` within its `TenantId` namespace.
@@ -28,16 +28,14 @@ The `DocumentType` aggregate governs the classifications, rules, and policy sche
 3. **Critical Mandates (INV-DT1)**: If a `DocumentType` is set to `Critical`, it must have exactly one active `EnforcementPolicy` defined to secure system compliance.
 4. **Single Policy (INV-DT3)**: Only one active `EnforcementPolicy` is permitted per `DocumentType`.
 5. **Criticity Matching (INV-DT4)**: Non-critical/high document types cannot apply `BlockUser` or `RestrictProfile` enforcement actions.
-6. `NotificationRule.DaysBefore` must be a positive integer strictly greater than zero.
-7. The `NotificationRule.Channels` collection must contain at least one valid notification channel (Email, SMS, WebPortal) and cannot be null or empty.
-8. Life cycle of `NotificationRule` is fully controlled by the parent `DocumentType`.
+6. Referenced `NotificationRule` aggregates must exist and be active before being associated with a `DocumentType`.
 
 ### Related Entities / Value Objects
 | Entity / VO | Type | Ownership |
 |---|---|---|
 | `DocumentTypeId` | Value Object | Guid-based aggregate root identifier |
 | `DocumentCriticity` | Enum | LOW · MEDIUM · HIGH · CRITICAL |
-| `NotificationRule` | Entity | Owned |
+| `NotificationRule` | Entity | Related Aggregate Root (external reference by ID) |
 | `NotificationRuleId` | Value Object | Entity unique identifier |
 | `NotificationChannel` | Enum | EMAIL · SMS · IN_APP · WEB_PUSH |
 | `EnforcementPolicy` | Entity | Owned child detailing grace periods and blocks |
@@ -209,7 +207,7 @@ erDiagram
 
 ### Tenant Isolation Rules
 - Classified schemas are partitioned strictly by `TenantId`. All verification routing queries enforce isolation limits.
-- `NOTIFICATION_RULE` is scoped via its parent aggregate `DocumentType`. Inherits all platform multi-tenant database filtering constraints.
+- `NotificationRule` is an independent Aggregate Root with its own `TenantId` scope. It is not owned by `DocumentType`.
 
 ---
 
@@ -241,7 +239,7 @@ erDiagram
 ---
 
 ## 10. Technical Decisions
-- Consolidating the pre-alert `NotificationRule` and `EnforcementPolicy` models as child elements inside the `DocumentType` aggregate protects domain boundaries from split constraints.
+- `EnforcementPolicy` is modelled as an owned child entity inside `DocumentType` to protect domain boundaries. `NotificationRule` is an independent Aggregate Root referenced by ID, enabling reuse across multiple document types.
 - Storing allowed communication channels as a serialized array (`ChannelsJson`) within a single database column guarantees database flexibility without massive schema join overheads.
 
 ---

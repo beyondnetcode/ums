@@ -105,7 +105,27 @@ interface ParameterStore {
 
 ---
 
-## 4. Configuration Provider Service
+## 4. Parameter Domain Model
+
+The configuration system is modeled as three Aggregate Roots so that schema, default value, and tenant override evolve independently while still following the mandatory `code`, `value`, `description` contract.
+
+| Aggregate Root | Role |
+|---|---|
+| `ParameterDefinition` | Defines the schema and business meaning of a configurable parameter |
+| `ParameterGlobalValue` | Stores the default system-wide value for the parameter |
+| `ParameterTenantValue` | Stores the tenant-specific override when policy allows it |
+
+### Shared Contract
+
+- `code` identifies the parameter.
+- `value` stores the current effective content.
+- `description` explains purpose, scope, and business impact.
+- `ParameterTenantValue` must always reference a `ParameterDefinition`.
+- `ParameterGlobalValue` acts as the baseline when no tenant override exists.
+
+---
+
+## 5. Configuration Provider Service
 
 ### 4.1 Interface
 
@@ -151,7 +171,7 @@ function getWithPrecedence(key: string, tenantId?: Guid): AppConfiguration | und
 
 ---
 
-## 5. Parameter Structure
+## 6. Parameter Structure
 
 ### 5.1 AppConfiguration Entity
 
@@ -201,7 +221,7 @@ function getWithPrecedence(key: string, tenantId?: Guid): AppConfiguration | und
 
 ---
 
-## 6. Audit Logging
+## 7. Audit Logging
 
 ### 6.1 Audited Operations
 
@@ -232,9 +252,9 @@ interface ConfigurationAuditRecord {
 
 ---
 
-## 7. API Endpoints
+## 8. API Endpoints
 
-### 7.1 Global Parameters (Internal Admin Only)
+### 8.1 Global Parameters (Internal Admin Only)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -322,6 +342,10 @@ interface ConfigurationAuditRecord {
 3. **ConfigurationAuditService**
    - Logs all configuration changes
    - Queries audit records
+
+4. **ConfigurationValues**
+   - Typed facade over `IConfigurationProvider` for login, session, and password consumers
+   - Keeps configuration lookups centralized in handlers and validators
 
 ### 9.2 TODO: Future Redis Migration
 

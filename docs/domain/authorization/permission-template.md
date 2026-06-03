@@ -19,6 +19,7 @@
 - Manage the template lifecycle: `Draft → Published → Deprecated`.
 - Own a collection of `PermissionTemplateItem` entries, each targeting one hierarchy level of a SystemSuite with a specific permission effect.
 - Enforce that items can only be added, mutated, or removed while the template is in `Draft` status.
+- Allow deletion only from `Draft` or `Deprecated` states, and block deletion while active profile dependencies still exist.
 - Provide the canonical rule set consumed by downstream `Profile` provisioning.
 
 ### Aggregate Root
@@ -71,6 +72,7 @@ stateDiagram-v2
 | `PermissionTemplatePublishedEvent` | Template published | `templateId, version` |
 | `PermissionTemplateMutatedEvent` | Item added, removed, or effect changed | `templateId, version` |
 | `PermissionTemplateDeprecatedEvent` | Template deprecated | `templateId, version` |
+| `PermissionTemplateDeletedEvent` | Template deleted | `templateId, version` |
 
 > **Note:** A single `PermissionTemplateMutatedEvent` covers all item-level changes (add, remove, allow/deny/neutral toggle, activate/deactivate). Downstream consumers react to any mutation on the template version, not to individual item operations.
 
@@ -88,6 +90,7 @@ stateDiagram-v2
 | `DeactivateItemCommand` | Set `IsActive=false` | Status = Draft |
 | `RemoveTemplateItemCommand` | Remove an item from the template | Status = Draft |
 | `DeprecatePermissionTemplateCommand` | Transition `Published → Deprecated` | Status = Published |
+| `DeletePermissionTemplateCommand` | Remove a template from storage | Status = Draft or Deprecated; no active profile dependencies |
 
 ### Repository / Service Boundaries
 
@@ -169,6 +172,7 @@ classDiagram
         +ActivateItem(itemId, updatedBy) Result
         +DeactivateItem(itemId, updatedBy) Result
         +RemoveItem(itemId, updatedBy) Result
+        +Delete(deletedBy, activeProfileCount) Result
     }
 
     class PermissionTemplateItem {

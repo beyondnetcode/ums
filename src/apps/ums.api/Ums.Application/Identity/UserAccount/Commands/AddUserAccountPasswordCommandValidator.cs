@@ -6,7 +6,7 @@ public sealed class AddUserAccountPasswordCommandValidator : AbstractValidator<A
 {
     public AddUserAccountPasswordCommandValidator(IConfigurationProvider configProvider)
     {
-        var minLength = configProvider.GetValueAs<int>("MIN_PASSWORD_LENGTH", null, 12);
+        var minLength = configProvider.Global().MinPasswordLength;
 
         RuleFor(x => x.UserAccountId).NotEmpty();
         RuleFor(x => x.Password)

@@ -4,6 +4,7 @@ export interface QueryStateInitials<TFilter extends string, TSort extends string
   criteria: string;
   filter: TFilter;
   sortBy: TSort;
+  appliedFilter?: boolean;
 }
 
 export function useQueryState<TFilter extends string, TSort extends string>(initials: QueryStateInitials<TFilter, TSort>) {
@@ -15,7 +16,7 @@ export function useQueryState<TFilter extends string, TSort extends string>(init
   const [appliedQuery, setAppliedQuery] = useState<{ criteria: string; term: string; filterApplied: boolean }>({
     criteria: initials.criteria,
     term: '',
-    filterApplied: false,
+    filterApplied: initials.appliedFilter ?? false,
   });
 
   const handleQuerySubmit = useCallback((e: React.FormEvent) => {
@@ -30,9 +31,9 @@ export function useQueryState<TFilter extends string, TSort extends string>(init
 
   const handleResetQuery = useCallback(() => {
     setSearchValue('');
-    setAppliedQuery({ criteria: initials.criteria, term: '', filterApplied: false });
+    setAppliedQuery({ criteria: initials.criteria, term: '', filterApplied: initials.appliedFilter ?? false });
     setActiveFilter(initials.filter);
-  }, [initials.criteria, initials.filter]);
+  }, [initials.appliedFilter, initials.criteria, initials.filter]);
 
   const toggleSortOrder = useCallback(() => {
     setSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'));

@@ -120,7 +120,8 @@ All frontend React screens must pass this automated and manual checklist prior t
 ## 7. CQRS Architectural Notes and TODOs
 
 > [!IMPORTANT]
-> **REST vs GraphQL Migration Strategy (TODO):**
-> As decided, all CQRS query operations in frontend services are temporarily routed through REST endpoints (via `httpClient`) instead of GraphQL endpoints. This temporary measure is put in place to avoid active schema/infrastructure issues.
-> - **TODO:** Revisit GraphQL query performance and schema alignment at a later phase to migrate reads back to GraphQL where appropriate.
-> - **Affected components:** `userAccountService` and other core identity query wrappers.
+> **REST vs GraphQL Transport Strategy:**
+> The frontend uses a mixed transport model. Some bounded contexts are intentionally REST-only, while others still use GraphQL for reads where that remains the active implementation.
+> - Configuration reads that are currently REST-only are handled through `httpClient`.
+> - GraphQL-backed bounded contexts remain in place for areas such as authorization and identity.
+> - Any future migration back to GraphQL should be evaluated per bounded context, not as a blanket frontend-wide rule.

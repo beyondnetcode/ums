@@ -27,8 +27,8 @@ public static class ConfigurationLoaderExtensions
 {
     public static IServiceCollection AddConfigurationProvider(this IServiceCollection services)
     {
-        // TD-003: Register IConfigurationCache first. Swap InMemoryConfigurationCache for
-        // RedisConfigurationCache here when Redis infrastructure is ready — no other changes needed.
+        // TODO(TD-003): Swap InMemoryConfigurationCache for a Redis-backed IConfigurationCache
+        // when distributed cache infrastructure is available.
         services.AddSingleton<IConfigurationCache, InMemoryConfigurationCache>();
         services.AddSingleton<IConfigurationProvider, ConfigurationProvider>();
         services.AddHostedService<ConfigurationLoaderHostedService>();

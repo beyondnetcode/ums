@@ -5,6 +5,7 @@ public abstract record UmsDomainEvent(Guid TenantId) : DomainEvent;
 public sealed record TenantCreatedEvent(Guid TenantId, string Code, string Name) : UmsDomainEvent(TenantId);
 public sealed record TenantSuspendedEvent(Guid TenantId) : UmsDomainEvent(TenantId);
 public sealed record TenantActivatedEvent(Guid TenantId) : UmsDomainEvent(TenantId);
+public sealed record TenantArchivedEvent(Guid TenantId) : UmsDomainEvent(TenantId);
 
 public sealed record BranchCreatedEvent(Guid TenantId, Guid BranchId, string Code) : UmsDomainEvent(TenantId);
 public sealed record BranchRemovedEvent(Guid TenantId, Guid BranchId) : UmsDomainEvent(TenantId);
@@ -53,6 +54,7 @@ public sealed record PermissionTemplateCreatedEvent(Guid TemplateId, Guid Tenant
 public sealed record PermissionTemplatePublishedEvent(Guid TemplateId, string Version) : AuthorizationDomainEvent;
 public sealed record PermissionTemplateMutatedEvent(Guid TemplateId, string Version) : AuthorizationDomainEvent;
 public sealed record PermissionTemplateDeprecatedEvent(Guid TemplateId, string Version) : AuthorizationDomainEvent;
+public sealed record PermissionTemplateDeletedEvent(Guid TemplateId, string Version) : AuthorizationDomainEvent;
 
 public sealed record ProfileCreatedEvent(Guid ProfileId, Guid TenantId, Guid UserId, Guid RoleId, Guid? BranchId) : AuthorizationDomainEvent;
 public sealed record TemplateLinkedToProfileEvent(Guid ProfileId, Guid TemplateId) : AuthorizationDomainEvent;

@@ -108,12 +108,17 @@ public sealed class SystemSuite : AggregateRoot<SystemSuite, SystemSuiteProps>
         return Result.Success();
     }
 
-    public Result RemoveModule(IdValueObject moduleId, ActorId updatedBy)
+    public Result RemoveModule(IdValueObject moduleId, ActorId updatedBy, int activeMenuCount = 0)
     {
         var module = FindModule(moduleId);
         if (module.IsFailure)
         {
             BrokenRules.Add(new BrokenRule(nameof(Modules), DomainErrors.Common.NotFound));
+        }
+
+        if (activeMenuCount > 0)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Modules), DomainErrors.Authorization.ModuleHasActiveMenus));
         }
 
         if (!IsValid())
@@ -569,12 +574,17 @@ public sealed class SystemSuite : AggregateRoot<SystemSuite, SystemSuiteProps>
         return Result.Success();
     }
 
-    public Result RemoveDomainResource(IdValueObject resourceId, ActorId updatedBy)
+    public Result RemoveDomainResource(IdValueObject resourceId, ActorId updatedBy, int templateItemCount = 0)
     {
         var resource = FindDomainResource(resourceId);
         if (resource.IsFailure)
         {
             BrokenRules.Add(new BrokenRule(nameof(DomainResources), DomainErrors.Common.NotFound));
+        }
+
+        if (templateItemCount > 0)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(DomainResources), DomainErrors.Authorization.DomainResourceHasTemplateItems));
         }
 
         if (!IsValid())

@@ -105,7 +105,27 @@ interface ParameterStore {
 
 ---
 
-## 4. Servicio Proveedor de Configuración
+## 4. Modelo de Dominio de Parámetros
+
+El sistema de configuración se modela como tres Aggregate Roots para que el esquema, el valor por defecto y el override por tenant evolucionen de forma independiente, manteniendo al mismo tiempo el contrato obligatorio `code`, `value`, `description`.
+
+| Aggregate Root | Rol |
+|---|---|
+| `ParameterDefinition` | Define el esquema y el significado de negocio de un parámetro configurable |
+| `ParameterGlobalValue` | Almacena el valor por defecto a nivel sistema |
+| `ParameterTenantValue` | Almacena el override específico de tenant cuando la política lo permite |
+
+### Contrato Compartido
+
+- `code` identifica el parámetro.
+- `value` almacena el contenido efectivo actual.
+- `description` explica propósito, alcance e impacto de negocio.
+- `ParameterTenantValue` siempre debe referenciar un `ParameterDefinition`.
+- `ParameterGlobalValue` actúa como línea base cuando no existe override de tenant.
+
+---
+
+## 5. Servicio Proveedor de Configuración
 
 ### 4.1 Interfaz
 
@@ -151,7 +171,7 @@ function getWithPrecedence(key: string, tenantId?: Guid): AppConfiguration | und
 
 ---
 
-## 5. Estructura de Parámetros
+## 6. Estructura de Parámetros
 
 ### 5.1 Entidad AppConfiguration
 
@@ -201,7 +221,7 @@ function getWithPrecedence(key: string, tenantId?: Guid): AppConfiguration | und
 
 ---
 
-## 6. Registro de Auditoría
+## 7. Registro de Auditoría
 
 ### 6.1 Operaciones Auditadas
 
@@ -232,9 +252,9 @@ interface ConfigurationAuditRecord {
 
 ---
 
-## 7. Endpoints de API
+## 8. Endpoints de API
 
-### 7.1 Parámetros Globales (Solo Admin Interno)
+### 8.1 Parámetros Globales (Solo Admin Interno)
 
 | Método | Endpoint | Descripción |
 |--------|----------|-------------|
@@ -322,6 +342,10 @@ interface ConfigurationAuditRecord {
 3. **ConfigurationAuditService**
    - Registra todos los cambios de configuración
    - Consulta registros de auditoría
+
+4. **ConfigurationValues**
+   - Fachada tipada sobre `IConfigurationProvider` para consumidores de login, sesión y contraseña
+   - Mantiene centralizadas las consultas de configuración en handlers y validadores
 
 ### 9.2 TODO: Migración Futura a Redis
 

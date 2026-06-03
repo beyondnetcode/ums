@@ -34,6 +34,9 @@ Documentos de arquitectura detallados para cada Aggregate Root en el modelo de d
 | `IdpConfiguration` | [idp-configuration.md](./configuration/idp-configuration.md) | Ninguna |
 | `AppConfiguration` | [app-configuration.md](./configuration/app-configuration.md) | Ninguna |
 | `FeatureFlag` | [feature-flag.md](./configuration/feature-flag.md) | `FlagEvaluationLog` |
+| `ParameterDefinition` | [parameter-definition.md](./configuration/parameter-definition.md) | Ninguna |
+| `ParameterGlobalValue` | [parameter-global-value.md](./configuration/parameter-global-value.md) | Ninguna |
+| `ParameterTenantValue` | [parameter-tenant-value.md](./configuration/parameter-tenant-value.md) | Ninguna |
 
 ---
 
@@ -43,7 +46,8 @@ Documentos de arquitectura detallados para cada Aggregate Root en el modelo de d
 |---|---|---|
 | `ApprovalWorkflow` | [approval-workflow.md](./approvals/approval-workflow.md) | `ApprovalRequiredDocument` |
 | `ApprovalRequest` | [approval-request.md](./approvals/approval-request.md) | `ApprovalLog` (inline) |
-| `DocumentType` | [document-type.md](./approvals/document-type.md) | `NotificationRule` |
+| `DocumentType` | [document-type.md](./approvals/document-type.md) | `EnforcementPolicy` |
+| `NotificationRule` | [notification-rule.md](./approvals/notification-rule.md) | Ninguna |
 | `UserDocument` | [user-document.md](./approvals/user-document.md) | `AccessNotification` |
 | `AccessEnforcementPolicy` | [access-enforcement-policy.md](./approvals/access-enforcement-policy.md) | Ninguna |
 
@@ -63,6 +67,14 @@ Documentos de arquitectura detallados para cada Aggregate Root en el modelo de d
 | Agregado Raíz | Documento | Entidades Hijas Propias (documentadas inline) |
 |---|---|---|
 | `AuditRecord` | [audit-record.md](./audit/audit-record.md) | Ninguna (adición exclusiva) |
+
+---
+
+## Consistency Rules
+
+Reglas de consistencia por Bounded Context, registro de broken rules y riesgos de orfandad:
+
+**[Portal de Reglas de Consistencia →](./consistency-rules/index.md)**
 
 ---
 

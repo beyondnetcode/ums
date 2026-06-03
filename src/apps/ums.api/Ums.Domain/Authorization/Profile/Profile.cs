@@ -188,6 +188,11 @@ public sealed class Profile : AggregateRoot<Profile, ProfileProps>
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
+        foreach (var permission in _permissions.Where(p => p.IsActive))
+        {
+            permission.Deactivate(updatedBy);
+        }
+
         SetProps(Props.WithIsActive(false));
         DomainEvents.RaiseEvent(new ProfileDeactivatedEvent(Props.Id.GetValue()));
         TrackingState.MarkAsDirty();

@@ -205,12 +205,33 @@ public class ProfileTests
     {
         var profile = Profile.Create(ValidTenantId, ValidUserId, ValidRoleId, ValidBranchId, ValidActor).Value;
         var template = PermissionTemplate.Create(ValidTenantId, ValidRoleId, SystemSuiteId.Load(Guid.NewGuid().ToString()), ValidActor).Value;
+        template.AddItem(ExclusiveArcTarget.Module, IdValueObject.Create(), ActionId.Load(Guid.NewGuid().ToString()), true, false, ValidActor);
         template.Publish(ValidActor);
 
         profile.AssignTemplate(template, ValidActor);
 
         var events = profile.DomainEvents.GetUncommittedChanges().ToList();
         Assert.Contains(events, e => e is TemplateLinkedToProfileEvent);
+    }
+
+    [Fact]
+    public void Deactivate_CascadesToAllActivePermissions()
+    {
+        var profile = Profile.Create(ValidTenantId, ValidUserId, ValidRoleId, ValidBranchId, ValidActor).Value;
+        var template = PermissionTemplate.Create(ValidTenantId, ValidRoleId, SystemSuiteId.Load(Guid.NewGuid().ToString()), ValidActor).Value;
+        template.AddItem(ExclusiveArcTarget.Module, IdValueObject.Create(), ActionId.Load(Guid.NewGuid().ToString()), true, false, ValidActor);
+        template.AddItem(ExclusiveArcTarget.Module, IdValueObject.Create(), ActionId.Load(Guid.NewGuid().ToString()), false, true, ValidActor);
+        template.Publish(ValidActor);
+
+        var assignResult = profile.AssignTemplate(template, ValidActor);
+
+        Assert.True(assignResult.IsSuccess);
+        Assert.All(profile.Permissions, permission => Assert.True(permission.IsActive));
+
+        var deactivateResult = profile.Deactivate(ValidActor);
+
+        Assert.True(deactivateResult.IsSuccess);
+        Assert.All(profile.Permissions, permission => Assert.False(permission.IsActive));
     }
 
     #endregion

@@ -1,5 +1,7 @@
 namespace Ums.Domain.Configuration.Parameter;
 
+using Ums.Domain.Configuration.Parameter.ValueObjects;
+
 public sealed class ParameterTenantValue : AggregateRoot<ParameterTenantValue, ParameterTenantValueProps>
 {
     private ParameterTenantValue(ParameterTenantValueProps props) : base(props)
@@ -18,6 +20,8 @@ public sealed class ParameterTenantValue : AggregateRoot<ParameterTenantValue, P
         TenantId tenantId,
         IdValueObject parameterDefinitionId,
         OverrideValue value,
+        ParameterDataType dataType,
+        ParameterScope scope,
         ActorId createdBy)
     {
         if (tenantId is null)
@@ -25,6 +29,16 @@ public sealed class ParameterTenantValue : AggregateRoot<ParameterTenantValue, P
 
         if (parameterDefinitionId is null)
             return Result<ParameterTenantValue>.Failure("Parameter definition ID is required");
+
+        if (!scope.SupportsTenant)
+        {
+            return Result<ParameterTenantValue>.Failure(DomainErrors.Configuration.ParameterOverrideNotAllowed);
+        }
+
+        if (!ParameterValueValidation.IsValid(value?.Value, dataType))
+        {
+            return Result<ParameterTenantValue>.Failure(DomainErrors.Configuration.ParameterValueInvalidType);
+        }
 
         var props = new ParameterTenantValueProps(
             IdValueObject.Create(),
@@ -44,11 +58,28 @@ public sealed class ParameterTenantValue : AggregateRoot<ParameterTenantValue, P
         return Result<ParameterTenantValue>.Success(entity);
     }
 
-    public Result UpdateValue(OverrideValue newValue, ActorId updatedBy)
+    public static Result<ParameterTenantValue> Create(
+        TenantId tenantId,
+        IdValueObject parameterDefinitionId,
+        OverrideValue value,
+        ActorId createdBy)
+        => Create(tenantId, parameterDefinitionId, value, ParameterDataType.String, ParameterScope.GlobalAndTenant, createdBy);
+
+    public Result UpdateValue(OverrideValue newValue, ParameterDataType dataType, ParameterScope scope, ActorId updatedBy)
     {
         if (Status == ConfigStatus.Archived)
         {
             BrokenRules.Add(new BrokenRule(nameof(Status), "Archived configuration cannot be modified"));
+        }
+
+        if (!scope.SupportsTenant)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(ParameterDefinitionId), DomainErrors.Configuration.ParameterOverrideNotAllowed));
+        }
+
+        if (!ParameterValueValidation.IsValid(newValue?.Value, dataType))
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Value), DomainErrors.Configuration.ParameterValueInvalidType));
         }
 
         SetProps(Props
@@ -64,6 +95,9 @@ public sealed class ParameterTenantValue : AggregateRoot<ParameterTenantValue, P
         Props.Audit.Update(updatedBy.GetValue());
         return Result.Success();
     }
+
+    public Result UpdateValue(OverrideValue newValue, ActorId updatedBy)
+        => UpdateValue(newValue, ParameterDataType.String, ParameterScope.GlobalAndTenant, updatedBy);
 
     public Result Publish(ActorId updatedBy)
     {

@@ -26,7 +26,7 @@ The `ApprovalWorkflow` aggregate establishes dynamic routing rules and document 
 ### Invariants and Consistency Rules
 1. Every `ApprovalWorkflow` must follow the code-name-description corporate template.
 2. The `Code` parameter must be unique within the active `TenantId`.
-3. If `RequiresApproval` is true, the workflow must have at least one valid approver group or checklist criteria defined.
+3. If `RequiresApproval` is true, the workflow must declare at least one required document at creation time.
 4. Each required document type mapping must be unique; a workflow cannot duplicate required document types.
 5. `ApprovalRequiredDocument` must contain a valid `WorkflowId` and `DocumentTypeId`.
 6. `ApprovalRequiredDocument` must have a valid `Id` (Guid-based `ApprovalRequiredDocumentId`).
@@ -52,7 +52,7 @@ The `ApprovalWorkflow` aggregate establishes dynamic routing rules and document 
 ### Commands / Use Cases
 | Command | Description |
 |---|---|
-| `CreateApprovalWorkflowCommand` | Initialize a new approval workflow mapping |
+| `CreateApprovalWorkflowCommand` | Initialize a new approval workflow mapping | `RequiresApproval = false` or at least one required document declared |
 | `AddRequiredDocumentToWorkflowCommand` | Bind a DocumentType as a mandate to complete the workflow |
 | `RemoveRequiredDocumentFromWorkflowCommand` | Remove a DocumentType constraint from the checklist |
 

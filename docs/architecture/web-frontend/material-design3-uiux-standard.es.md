@@ -120,7 +120,8 @@ Todas las pantallas React de frontend deben pasar esta lista de verificacion aut
 ## 7. Notas Arquitectónicas de CQRS y Pendientes (TODOs)
 
 > [!IMPORTANT]
-> **Estrategia de Migración REST vs GraphQL (TODO):**
-> Como se decidió, todas las operaciones de consulta CQRS en los servicios del frontend se redirigen temporalmente a través de endpoints REST (mediante `httpClient`) en lugar de endpoints de GraphQL. Esta medida temporal se implementa para evitar problemas activos de esquema/infraestructura.
-> - **TODO:** Volver a analizar el rendimiento de las consultas y la alineación del esquema de GraphQL en una fase posterior para migrar las lecturas de regreso a GraphQL donde sea apropiado.
-> - **Componentes afectados:** `userAccountService` y otros envoltorios de consultas de identidad principales.
+> **Estrategia de transporte REST vs GraphQL:**
+> El frontend usa un modelo de transporte mixto. Algunos contextos delimitados son intencionalmente solo REST, mientras que otros siguen usando GraphQL para lecturas donde esa sigue siendo la implementación activa.
+> - Las lecturas de configuración que hoy son solo REST se manejan mediante `httpClient`.
+> - Los contextos delimitados que siguen respaldados por GraphQL permanecen activos en áreas como autorización e identidad.
+> - Cualquier migración futura de regreso a GraphQL debe evaluarse por contexto delimitado, no como una regla global para todo el frontend.

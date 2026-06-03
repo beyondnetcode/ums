@@ -173,7 +173,8 @@ public static class ApprovalsDevDataSeeder
             UserCategory.Internal,
             true,
             systemId,
-            actor);
+            actor,
+            requiredDocumentCount: 1);
 
         return workflow.IsSuccess ? new[] { workflow.Value } : Array.Empty<ApprovalWorkflowAggregate>();
     }
@@ -230,7 +231,8 @@ public static class ApprovalsDevDataSeeder
             UserCategory.External,
             true,
             null,
-            actor);
+            actor,
+            requiredDocumentCount: 1);
 
         if (onboarding.IsSuccess)
         {
@@ -244,7 +246,7 @@ public static class ApprovalsDevDataSeeder
             Guid.Parse(TestManualApprovalWorkflowId),
             tenantId, "MANUAL_REVIEW", "Manual Review Workflow",
             "Requires explicit approver sign-off",
-            UserCategory.Internal, requiresApproval: true, actor));
+            UserCategory.Internal, requiresApproval: true, actor, requiredDocumentCount: 1));
 
         results.Add(CreateWorkflowWithFixedId(
             Guid.Parse(TestAutoApproveWorkflowId),
@@ -268,7 +270,8 @@ public static class ApprovalsDevDataSeeder
         string description,
         UserCategory category,
         bool requiresApproval,
-        ActorId actor)
+        ActorId actor,
+        int requiredDocumentCount = 0)
     {
         var props = new ApprovalWorkflowProps(
             IdValueObject.Load(fixedId),
@@ -279,7 +282,8 @@ public static class ApprovalsDevDataSeeder
             Description.Create(description),
             category,
             requiresApproval,
-            actor);
+            actor,
+            requiredDocumentCount);
 
         // ApprovalWorkflow constructor is private — use reflection to instantiate
         var ctor = typeof(ApprovalWorkflowAggregate)

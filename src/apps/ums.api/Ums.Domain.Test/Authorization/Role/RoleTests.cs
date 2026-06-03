@@ -68,4 +68,44 @@ public sealed class RoleTests
         Assert.False(role.IsActive);
         Assert.Contains(role.DomainEvents.GetUncommittedChanges(), item => item is RoleDeactivatedEvent);
     }
+
+    [Fact]
+    public void Deactivate_WhenHasActiveProfiles_ReturnsFailure()
+    {
+        var role = Role.Create(
+            ValidTenantId,
+            ValidSuiteId,
+            Code.Create("OPERATOR"),
+            Name.Create("Operator"),
+            Description.Create(""),
+            null,
+            0,
+            0,
+            ValidActor).Value;
+
+        var result = role.Deactivate(ValidActor, activeProfileCount: 1);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains(DomainErrors.Authorization.RoleHasActiveProfiles, result.Error);
+    }
+
+    [Fact]
+    public void Deactivate_WhenHasActiveChildRoles_ReturnsFailure()
+    {
+        var role = Role.Create(
+            ValidTenantId,
+            ValidSuiteId,
+            Code.Create("OPERATOR"),
+            Name.Create("Operator"),
+            Description.Create(""),
+            null,
+            0,
+            0,
+            ValidActor).Value;
+
+        var result = role.Deactivate(ValidActor, activeChildRoleCount: 1);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains(DomainErrors.Authorization.RoleHasActiveChildRoles, result.Error);
+    }
 }

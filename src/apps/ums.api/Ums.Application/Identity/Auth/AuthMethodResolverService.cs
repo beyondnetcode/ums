@@ -1,4 +1,5 @@
 using Ums.Application.Configuration.Services;
+using Ums.Domain.Configuration.AppConfiguration;
 using Ums.Domain.Identity;
 using Ums.Domain.Identity.Auth;
 
@@ -7,8 +8,9 @@ namespace Ums.Application.Identity.Auth;
 /// <summary>
 /// Resolves the authentication method for a tenant.
 /// Reads AUTH_USE_EXTERNAL_IDP from the in-memory IConfigurationProvider
-/// (zero DB hits per request — the provider loads once and caches in memory).
+/// (zero DB hits per request - the provider loads once and caches in memory).
 ///
+/// - missing configuration → failure
 /// - false → AuthMethod.Local()
 /// - true + active IDP → AuthMethod.Idp(provider)
 /// - true + no active IDP → Result.Failure("AUTH_011")
@@ -34,7 +36,18 @@ public sealed class AuthMethodResolverService : IAuthMethodResolver
             return Result<AuthMethod>.Success(AuthMethod.Local());
         }
 
-        var useExternalIdp = _config.GetValueAs<bool>("AUTH_USE_EXTERNAL_IDP", tenantId, false);
+        var configured = _config.GetWithPrecedence(AppConfigurationCodes.AuthUseExternalIdp, tenantId);
+        if (configured is null)
+        {
+            return Result<AuthMethod>.Failure(
+                $"REQUIRED_PARAMETER_NOT_CONFIGURED: Parameter '{AppConfigurationCodes.AuthUseExternalIdp}' is not configured for tenant '{tenantId}'.");
+        }
+
+        if (!bool.TryParse(configured.Props.Value.GetValue(), out var useExternalIdp))
+        {
+            return Result<AuthMethod>.Failure(
+                $"INVALID_PARAMETER_VALUE: Parameter '{AppConfigurationCodes.AuthUseExternalIdp}' must be a boolean value for tenant '{tenantId}'.");
+        }
 
         if (!useExternalIdp)
             return Result<AuthMethod>.Success(AuthMethod.Local());

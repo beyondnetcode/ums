@@ -21,6 +21,7 @@
 |---------|------|-------------|
 | [ApprovalWorkflow](#aggregate-approvalworkflow) | `ApprovalWorkflow` | Configuración de routing y reglas del flujo |
 | [ApprovalRequest](#aggregate-approvalrequest) | `ApprovalRequest` | Solicitud con estado, historial y SLA |
+| [NotificationRule](#aggregate-notificationrule) | `NotificationRule` | Regla independiente de notificación reutilizable |
 
 ---
 
@@ -82,6 +83,17 @@ ConfigureWorkflowCommand       -> WorkflowConfiguredEvent        { workflowId, t
 AddRequiredDocumentCommand     -> RequiredDocumentAddedEvent     { workflowId, documentTypeId }
 RemoveRequiredDocumentCommand  -> RequiredDocumentRemovedEvent   { workflowId, documentTypeId }
 ```
+
+---
+
+## Aggregate: NotificationRule
+
+**Aggregate Root:** `NotificationRule`
+
+`NotificationRule` es un Aggregate Root independiente que define el canal, la ventana temporal y la audiencia de una notificación. No es una entidad hija de `DocumentType`; puede reutilizarse y evolucionar sin acoplar su ciclo de vida al catálogo documental.
+
+- `DocumentType` puede referenciar `NotificationRule` por identificador.
+- `DocumentType` no administra el ciclo de vida de `NotificationRule`.
 
 ---
 

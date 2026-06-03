@@ -2,6 +2,7 @@ namespace Ums.Infrastructure.Persistence.Seeders;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Ums.Domain.Configuration.AppConfiguration;
 using Ums.Domain.Identity.Tenant.TenantParameter;
 using Ums.Infrastructure.Persistence;
 using Ums.Infrastructure.Persistence.Configuration.Entities;
@@ -57,9 +58,9 @@ public static class ParameterCatalogSeeder
         var systemActorId = "SYSTEM";
         var globalValues = new List<ParameterGlobalValueRecord>();
 
-        AddGlobalValue(globalValues, existingDefinitionIds, "11111111-1111-1111-1111-111111111103", "3600000", systemActorId, now);
-        AddGlobalValue(globalValues, existingDefinitionIds, "11111111-1111-1111-1111-111111111104", "604800000", systemActorId, now);
-        AddGlobalValue(globalValues, existingDefinitionIds, "11111111-1111-1111-1111-111111111108", "rest", systemActorId, now);
+        AddGlobalValue(globalValues, existingDefinitionIds, "11111111-1111-1111-1111-111111111103", AppConfigurationDefaults.AccessTokenDurationMs.ToString(), systemActorId, now);
+        AddGlobalValue(globalValues, existingDefinitionIds, "11111111-1111-1111-1111-111111111104", AppConfigurationDefaults.RefreshTokenDurationMs.ToString(), systemActorId, now);
+        AddGlobalValue(globalValues, existingDefinitionIds, "11111111-1111-1111-1111-111111111108", AppConfigurationDefaults.FrontendConfigTransport, systemActorId, now);
 
         if (globalValues.Count == 0)
         {
@@ -136,11 +137,11 @@ public static class ParameterCatalogSeeder
             new ParameterDefinitionRecord
             {
                 Id = Guid.Parse("11111111-1111-1111-1111-111111111101"),
-                Code = "SESSION_TIMEOUT_MINUTES",
+                Code = AppConfigurationCodes.SessionTimeoutMinutes,
                 Name = "Session Timeout",
                 Description = "Idle session timeout in minutes",
                 DataTypeId = 2,
-                DefaultValue = "30",
+                DefaultValue = AppConfigurationDefaults.SessionTimeoutMinutes.ToString(),
                 ScopeId = 3,
                 IsActive = true,
                 IsMandatory = true,
@@ -153,11 +154,11 @@ public static class ParameterCatalogSeeder
             new ParameterDefinitionRecord
             {
                 Id = Guid.Parse("11111111-1111-1111-1111-111111111102"),
-                Code = "MAX_LOGIN_ATTEMPTS",
+                Code = AppConfigurationCodes.MaxLoginAttempts,
                 Name = "Max Login Attempts",
                 Description = "Maximum login attempts before lockout",
                 DataTypeId = 2,
-                DefaultValue = "5",
+                DefaultValue = AppConfigurationDefaults.MaxLoginAttempts.ToString(),
                 ScopeId = 3,
                 IsActive = true,
                 IsMandatory = true,
@@ -170,11 +171,11 @@ public static class ParameterCatalogSeeder
             new ParameterDefinitionRecord
             {
                 Id = Guid.Parse("11111111-1111-1111-1111-111111111103"),
-                Code = "ACCESS_TOKEN_DURATION_MS",
+                Code = AppConfigurationCodes.AccessTokenDurationMs,
                 Name = "Access Token Duration",
                 Description = "Access token lifetime in milliseconds",
                 DataTypeId = 2,
-                DefaultValue = "3600000",
+                DefaultValue = AppConfigurationDefaults.AccessTokenDurationMs.ToString(),
                 ScopeId = 1,
                 IsActive = true,
                 IsMandatory = true,
@@ -187,11 +188,11 @@ public static class ParameterCatalogSeeder
             new ParameterDefinitionRecord
             {
                 Id = Guid.Parse("11111111-1111-1111-1111-111111111104"),
-                Code = "REFRESH_TOKEN_DURATION_MS",
+                Code = AppConfigurationCodes.RefreshTokenDurationMs,
                 Name = "Refresh Token Duration",
                 Description = "Refresh token lifetime in milliseconds (7 days)",
                 DataTypeId = 2,
-                DefaultValue = "604800000",
+                DefaultValue = AppConfigurationDefaults.RefreshTokenDurationMs.ToString(),
                 ScopeId = 1,
                 IsActive = true,
                 IsMandatory = true,
@@ -204,11 +205,11 @@ public static class ParameterCatalogSeeder
             new ParameterDefinitionRecord
             {
                 Id = Guid.Parse("11111111-1111-1111-1111-111111111105"),
-                Code = "MIN_PASSWORD_LENGTH",
+                Code = AppConfigurationCodes.MinPasswordLength,
                 Name = "Min Password Length",
                 Description = "Minimum required password length",
                 DataTypeId = 2,
-                DefaultValue = "12",
+                DefaultValue = AppConfigurationDefaults.MinPasswordLength.ToString(),
                 ScopeId = 3,
                 IsActive = true,
                 IsMandatory = true,
@@ -221,11 +222,11 @@ public static class ParameterCatalogSeeder
             new ParameterDefinitionRecord
             {
                 Id = Guid.Parse("11111111-1111-1111-1111-111111111106"),
-                Code = "MFA_REQUIRED_FOR_ADMIN",
+                Code = AppConfigurationCodes.MfaRequiredForAdmin,
                 Name = "MFA Required for Admin",
                 Description = "Require MFA for admin users",
                 DataTypeId = 3,
-                DefaultValue = "false",
+                DefaultValue = AppConfigurationDefaults.MfaRequiredForAdmin.ToString().ToLowerInvariant(),
                 ScopeId = 3,
                 IsActive = true,
                 IsMandatory = false,
@@ -238,11 +239,11 @@ public static class ParameterCatalogSeeder
             new ParameterDefinitionRecord
             {
                 Id = Guid.Parse("11111111-1111-1111-1111-111111111107"),
-                Code = "UI_CUSTOM_BRANDING_ENABLED",
+                Code = AppConfigurationCodes.UiCustomBrandingEnabled,
                 Name = "Custom Branding Enabled",
                 Description = "Enable custom tenant branding",
                 DataTypeId = 3,
-                DefaultValue = "false",
+                DefaultValue = AppConfigurationDefaults.UiCustomBrandingEnabled.ToString().ToLowerInvariant(),
                 ScopeId = 3,
                 IsActive = true,
                 IsMandatory = false,
@@ -255,11 +256,11 @@ public static class ParameterCatalogSeeder
             new ParameterDefinitionRecord
             {
                 Id = Guid.Parse("11111111-1111-1111-1111-111111111108"),
-                Code = "FRONTEND_CONFIG_TRANSPORT",
+                Code = AppConfigurationCodes.FrontendConfigTransport,
                 Name = "Frontend Config Transport",
                 Description = "Transport mode for frontend config: graphql or rest",
                 DataTypeId = 1,
-                DefaultValue = "rest",
+                DefaultValue = AppConfigurationDefaults.FrontendConfigTransport,
                 ScopeId = 1,
                 IsActive = true,
                 IsMandatory = false,
@@ -272,11 +273,11 @@ public static class ParameterCatalogSeeder
             new ParameterDefinitionRecord
             {
                 Id = Guid.Parse("11111111-1111-1111-1111-111111111109"),
-                Code = "MAX_VALIDITY_PERIOD_DAYS",
+                Code = AppConfigurationCodes.MaxValidityPeriodDays,
                 Name = "Max Validity Period Days",
                 Description = "Maximum user account validity period in days",
                 DataTypeId = 2,
-                DefaultValue = "365",
+                DefaultValue = AppConfigurationDefaults.MaxValidityPeriodDays.ToString(),
                 ScopeId = 3,
                 IsActive = true,
                 IsMandatory = false,
@@ -289,11 +290,11 @@ public static class ParameterCatalogSeeder
             new ParameterDefinitionRecord
             {
                 Id = Guid.Parse("11111111-1111-1111-1111-111111111110"),
-                Code = "AUTH_USE_EXTERNAL_IDP",
+                Code = AppConfigurationCodes.AuthUseExternalIdp,
                 Name = "Use External IDP",
                 Description = "Whether the tenant uses external Identity Providers instead of local password credentials",
                 DataTypeId = 3,
-                DefaultValue = "false",
+                DefaultValue = AppConfigurationDefaults.AuthUseExternalIdp.ToString().ToLowerInvariant(),
                 ScopeId = 3,
                 IsActive = true,
                 IsMandatory = false,
@@ -310,16 +311,16 @@ public static class ParameterCatalogSeeder
     {
         return
         [
-            (TenantParameterCodes.ExportProfilePermissionGraphAllowedFormats, "JSON,XML,YAML,CSV"),
-            (TenantParameterCodes.ExportProfilePermissionGraphDefaultFormat, "JSON"),
-            (TenantParameterCodes.ExportProfilePermissionGraphIncludeTechnicalMetadata, "true"),
-            (TenantParameterCodes.ExportProfilePermissionGraphMaskGuids, "false"),
-            (TenantParameterCodes.ExportProfilePermissionGraphIncludeFeatureFlags, "true"),
-            (TenantParameterCodes.ExportProfilePermissionGraphIncludeEffectivePermissionsSummary, "true"),
-            (TenantParameterCodes.ExportProfilePermissionGraphMaxItems, "10000"),
-            (TenantParameterCodes.AuthGraphDefaultFormat, "JSON"),
-            (TenantParameterCodes.AuthGraphAllowedFormats, "JSON,XML,YAML,CSV"),
-            (TenantParameterCodes.AuthGraphIncludeTechnicalMetadata, "true"),
+            (TenantParameterCodes.ExportProfilePermissionGraphAllowedFormats, string.Join(",", TenantParameterDefaults.ExportProfilePermissionGraphAllowedFormats)),
+            (TenantParameterCodes.ExportProfilePermissionGraphDefaultFormat, TenantParameterDefaults.ExportProfilePermissionGraphDefaultFormat),
+            (TenantParameterCodes.ExportProfilePermissionGraphIncludeTechnicalMetadata, TenantParameterDefaults.ExportProfilePermissionGraphIncludeTechnicalMetadata.ToString().ToLowerInvariant()),
+            (TenantParameterCodes.ExportProfilePermissionGraphMaskGuids, TenantParameterDefaults.ExportProfilePermissionGraphMaskGuids.ToString().ToLowerInvariant()),
+            (TenantParameterCodes.ExportProfilePermissionGraphIncludeFeatureFlags, TenantParameterDefaults.ExportProfilePermissionGraphIncludeFeatureFlags.ToString().ToLowerInvariant()),
+            (TenantParameterCodes.ExportProfilePermissionGraphIncludeEffectivePermissionsSummary, TenantParameterDefaults.ExportProfilePermissionGraphIncludeEffectivePermissionsSummary.ToString().ToLowerInvariant()),
+            (TenantParameterCodes.ExportProfilePermissionGraphMaxItems, TenantParameterDefaults.ExportProfilePermissionGraphMaxItems.ToString()),
+            (TenantParameterCodes.AuthGraphDefaultFormat, TenantParameterDefaults.AuthGraphDefaultFormat),
+            (TenantParameterCodes.AuthGraphAllowedFormats, string.Join(",", TenantParameterDefaults.AuthGraphAllowedFormats)),
+            (TenantParameterCodes.AuthGraphIncludeTechnicalMetadata, TenantParameterDefaults.AuthGraphIncludeTechnicalMetadata.ToString().ToLowerInvariant()),
         ];
     }
 

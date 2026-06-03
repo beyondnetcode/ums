@@ -555,6 +555,18 @@ public class UserAccountTests
     }
 
     [Fact]
+    public void Delete_WhenHasActiveProfiles_ReturnsFailure()
+    {
+        var user = UserAccount.Create(ValidTenantId, ValidEmail, ValidCategory, null, null, ValidActor).Value;
+        user.Activate(ValidActor);
+
+        var result = user.Delete(ValidActor, activeProfileCount: 1);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains(DomainErrors.UserAccount.HasActiveProfiles, result.Error);
+    }
+
+    [Fact]
     public void Delete_RaisesUserDeletedEvent()
     {
         var user = UserAccount.Create(ValidTenantId, ValidEmail, ValidCategory, null, null, ValidActor).Value;

@@ -3,7 +3,7 @@
 > **Idioma:** [English](../../domain/approvals/index.md) | [Español](./index.md)
 
 **Contexto Delimitado:** Aprobaciones (`Ums.Domain.Approvals`)  
-**Raíces de Agregado (Aggregate Roots):** `ApprovalWorkflow`, `ApprovalRequest`, `DocumentType`, `UserDocument`, `AccessEnforcementPolicy`
+**Raíces de Agregado (Aggregate Roots):** `ApprovalWorkflow`, `ApprovalRequest`, `DocumentType`, `NotificationRule`, `UserDocument`, `AccessEnforcementPolicy`
 
 ---
 
@@ -15,7 +15,7 @@ Los elementos centrales de los flujos de trabajo gobiernan el enrutamiento diná
 
 ### Clasificación y Políticas de Documentos
 - [DocumentType](./document-type.md) (Raíz de Agregado) — Clasificación de documentos de verificación (ej., Identificación, Comprobante de Domicilio).
-- [NotificationRule](./notification-rule.md) (Entidad Propia) — Define los días previos a la expiración, los canales (correo electrónico, SMS) y las frecuencias para activar alertas de notificación.
+- [NotificationRule](./notification-rule.md) (Raíz de Agregado) — Define los días previos a la expiración, los canales y la audiencia de notificación.
 - [UserDocument](./user-document.md) (Raíz de Agregado) — El registro físico del archivo subido que pertenece a un usuario, almacenando su estado de verificación.
 - [AccessNotification](./access-notification.md) (Entidad Propia) — Historial de alertas enviadas para el cumplimiento de documentos.
 - [AccessEnforcementPolicy](./access-enforcement-policy.md) (Raíz de Agregado) — Define los bloqueos automáticos de cuentas o rebajas de perfiles de seguridad ante el incumplimiento de documentos.

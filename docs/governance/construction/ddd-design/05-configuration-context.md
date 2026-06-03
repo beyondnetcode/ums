@@ -19,6 +19,30 @@
 | [IdpConfiguration](#aggregate-idpconfiguration) | `IdpConfiguration` | Config de proveedor de identidad por tenant/sistema |
 | [AppConfiguration](#aggregate-appconfiguration) | `AppConfiguration` | Parametros jerarquicos de configuración |
 | [FeatureFlag](#aggregate-featureflag) | `FeatureFlag` | Toggles de funcionalidad multi-dimension |
+| [ParameterDefinition](#aggregate-parameterdomainmodel) | `ParameterDefinition` | Esquema canónico de parámetro configurable |
+| [ParameterGlobalValue](#aggregate-parameterdomainmodel) | `ParameterGlobalValue` | Valor global por defecto del parámetro |
+| [ParameterTenantValue](#aggregate-parameterdomainmodel) | `ParameterTenantValue` | Override del parámetro a nivel tenant |
+
+## Aggregate: Parameter Domain Model
+
+**Aggregate Roots:** `ParameterDefinition`, `ParameterGlobalValue`, `ParameterTenantValue`
+
+### Intención del Modelo
+
+El sistema de parametrización se modela como tres Aggregate Roots separados para mantener la trazabilidad y el ciclo de vida explícito:
+
+| Aggregate Root | Rol funcional |
+|---|---|
+| `ParameterDefinition` | Define el esquema, tipo, alcance permitido y semántica de un parámetro |
+| `ParameterGlobalValue` | Publica el valor global por defecto para todos los tenants |
+| `ParameterTenantValue` | Sobrescribe el valor global para un tenant específico cuando la política lo permite |
+
+### Reglas Clave
+
+- `ParameterDefinition` gobierna `code`, `value` y `description` como contrato mínimo.
+- `ParameterGlobalValue` representa el valor base del sistema.
+- `ParameterTenantValue` solo puede existir cuando el tenant tiene permiso de override.
+- La documentación y el modelo físico deben evolucionar juntos para estos tres ARs.
 
 ---
 

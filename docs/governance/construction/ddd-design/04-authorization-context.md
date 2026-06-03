@@ -34,7 +34,7 @@ Ver [auth-graph.md](../../../domain/identity/auth-graph.md) para la estructura c
 ## Agregados
 
 > [!NOTE]
-> En la implementacion C# actual, **`Profile`**, **`PermissionTemplate`**, **`SystemSuite`** y **`Role`** son agregados locales activos. **`TemplateAssignmentRule`** permanece diferido.
+> En la implementacion C# actual, **`Profile`**, **`PermissionTemplate`**, **`SystemSuite`** y **`Role`** son agregados locales activos. **`TemplateAssignmentRule`** permanece diferido a V2.
 
 | Agregado | Raiz | C# Status | Descripción |
 |---------|------|-----------|-------------|
@@ -42,7 +42,7 @@ Ver [auth-graph.md](../../../domain/identity/auth-graph.md) para la estructura c
 | [PermissionTemplate](#aggregate-permissiontemplate) | `PermissionTemplate` | **Activo** | Blueprint de permisos reutilizable |
 | [SystemSuite](#aggregate-systemsuite) | `SystemSuite` | **Activo** | Aplicacion cliente con topologia de recursos |
 | [Role](#aggregate-role) | `Role` | **Activo** | Catalogo de roles jerarquicos de una suite |
-| [TemplateAssignmentRule](#aggregate-templateassignmentrule) | `TemplateAssignmentRule` | *Diferido (Ref ID)* | Regla de auto-asignación de templates |
+| [TemplateAssignmentRule](#aggregate-templateassignmentrule) | `TemplateAssignmentRule` | *Diferido a V2 (Ref ID)* | Regla de auto-asignación de templates |
 
 ---
 

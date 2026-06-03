@@ -7,6 +7,7 @@ public class TenantDomainEventsManager : DomainEventsManager
     private void Apply(TenantCreatedEvent @event) { }
     private void Apply(TenantSuspendedEvent @event) { }
     private void Apply(TenantActivatedEvent @event) { }
+    private void Apply(TenantArchivedEvent @event) { }
     private void Apply(BranchCreatedEvent @event) { }
     private void Apply(BranchRemovedEvent @event) { }
     private void Apply(BranchDeactivatedEvent @event) { }

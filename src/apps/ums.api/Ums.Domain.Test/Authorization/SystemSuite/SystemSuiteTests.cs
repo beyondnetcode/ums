@@ -189,6 +189,22 @@ public class SystemSuiteTests
         Assert.Contains(events, e => e is SystemSuiteModuleRemovedEvent);
     }
 
+    [Fact]
+    public void RemoveModule_WhenModuleHasActiveMenus_ReturnsFailure()
+    {
+        var suite = SystemSuite.Create(ValidTenantId, ValidCode, ValidName, ValidDescription, ValidActor).Value;
+        var moduleCode = Code.Create("MOD-001");
+        var moduleName = Name.Create("Test Module");
+        var moduleDescription = Description.Create("A test module");
+        suite.AddModule(moduleCode, moduleName, moduleDescription, 1, ValidActor);
+        var moduleId = suite.Modules.First().GetId();
+
+        var result = suite.RemoveModule(moduleId, ValidActor, activeMenuCount: 1);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains(DomainErrors.Authorization.ModuleHasActiveMenus, result.Error);
+    }
+
     #endregion
 
     #region UpdateModule
@@ -540,6 +556,19 @@ public class SystemSuiteTests
 
         Assert.True(result.IsSuccess);
         Assert.Empty(suite.DomainResources);
+    }
+
+    [Fact]
+    public void RemoveDomainResource_WhenTemplateItemsRemain_ReturnsFailure()
+    {
+        var suite = SystemSuite.Create(TenantId.Create(), Code.Create("TEST"), Name.Create("Suite"), Description.Create("Desc"), ValidActor).Value;
+        suite.AddDomainResource(null, null, DomainResourceType.Aggregate, Code.Create("INV"), Name.Create("Invoice"), Description.Create("Desc"), ValidActor);
+        var resource = suite.DomainResources.First();
+
+        var result = suite.RemoveDomainResource(resource.GetId(), ValidActor, templateItemCount: 1);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains(DomainErrors.Authorization.DomainResourceHasTemplateItems, result.Error);
     }
 
     [Fact]

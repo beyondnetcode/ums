@@ -31,11 +31,11 @@ export function useGetAllAppConfigurations(params?: {
   tenantId?: string;
   systemSuiteId?: string;
   moduleId?: string;
-}) {
+}, enabled = true) {
   return useQuery<AppConfigurationPage, Error>({
     queryKey: ['app-configurations', 'list', params],
     queryFn: () => appConfigurationService.getAll(params),
-    enabled: !!params?.page,
+    enabled: enabled && !!params?.page,
     ...CONTEXT_QUERY_CONFIG.APP_CONFIGURATION,
   });
 }

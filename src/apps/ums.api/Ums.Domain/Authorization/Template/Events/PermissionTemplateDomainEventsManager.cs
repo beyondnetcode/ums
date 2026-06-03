@@ -8,4 +8,5 @@ public class PermissionTemplateDomainEventsManager : DomainEventsManager
     private void Apply(PermissionTemplatePublishedEvent @event) { }
     private void Apply(PermissionTemplateMutatedEvent @event) { }
     private void Apply(PermissionTemplateDeprecatedEvent @event) { }
+    private void Apply(PermissionTemplateDeletedEvent @event) { }
 }

@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Ums.Application.Configuration.Services;
+using Ums.Domain.Configuration.AppConfiguration;
 
 public interface IJwtTokenService
 {
@@ -88,9 +89,9 @@ public class JwtTokenService : IJwtTokenService
         claims.Add(new Claim("is_internal_admin", request.IsInternalAdmin ? "true" : "false"));
 
         var accessTokenDurationMs = _configProvider.GetValueAs<int>(
-            "ACCESS_TOKEN_DURATION_MS",
+            AppConfigurationCodes.AccessTokenDurationMs,
             request.TenantId,
-            3600000);
+            AppConfigurationDefaults.AccessTokenDurationMs);
 
         var expires = DateTime.UtcNow.AddMilliseconds(accessTokenDurationMs);
 

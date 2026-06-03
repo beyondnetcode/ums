@@ -5,9 +5,6 @@ namespace Ums.Application.Authorization.Graph;
 
 public sealed class AuthGraphFormatProvider : IAuthGraphFormatProvider
 {
-    private static readonly string[] _defaultAllowed = ["JSON", "XML", "YAML", "CSV"];
-    private const string DefaultFormat = "JSON";
-
     private readonly ITenantParameterProvider _parameters;
 
     public AuthGraphFormatProvider(ITenantParameterProvider parameters)
@@ -20,7 +17,7 @@ public sealed class AuthGraphFormatProvider : IAuthGraphFormatProvider
         var raw = await _parameters.GetValueAsync(
             tenantId,
             TenantParameterCodes.AuthGraphDefaultFormat,
-            cancellationToken) ?? DefaultFormat;
+            cancellationToken) ?? TenantParameterDefaults.AuthGraphDefaultFormat;
         return raw.Trim().ToUpperInvariant();
     }
 
@@ -29,7 +26,7 @@ public sealed class AuthGraphFormatProvider : IAuthGraphFormatProvider
         var allowed = await _parameters.GetStringListValueAsync(
             tenantId,
             TenantParameterCodes.AuthGraphAllowedFormats,
-            _defaultAllowed,
+            TenantParameterDefaults.AuthGraphAllowedFormats,
             cancellationToken);
         return allowed.Select(f => f.Trim().ToUpperInvariant()).ToList();
     }

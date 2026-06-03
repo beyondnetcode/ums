@@ -46,6 +46,7 @@ public class PermissionTemplateTests
     public void Publish_WhenDraft_ReturnsSuccess()
     {
         var template = PermissionTemplate.Create(ValidTenantId, ValidRoleId, ValidSystemSuiteId, ValidActor).Value;
+        template.AddItem(ValidTargetType, ValidTargetId, ValidActionId, true, false, ValidActor);
 
         var result = template.Publish(ValidActor);
 
@@ -54,9 +55,21 @@ public class PermissionTemplateTests
     }
 
     [Fact]
+    public void Publish_WhenDraftWithNoItems_ReturnsFailure()
+    {
+        var template = PermissionTemplate.Create(ValidTenantId, ValidRoleId, ValidSystemSuiteId, ValidActor).Value;
+
+        var result = template.Publish(ValidActor);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains(DomainErrors.Authorization.TemplateItemsRequired, result.Error);
+    }
+
+    [Fact]
     public void Publish_WhenNotDraft_ReturnsFailure()
     {
         var template = PermissionTemplate.Create(ValidTenantId, ValidRoleId, ValidSystemSuiteId, ValidActor).Value;
+        template.AddItem(ValidTargetType, ValidTargetId, ValidActionId, true, false, ValidActor);
         template.Publish(ValidActor);
 
         var result = template.Publish(ValidActor);
@@ -69,6 +82,7 @@ public class PermissionTemplateTests
     public void Publish_RaisesPermissionTemplatePublishedEvent()
     {
         var template = PermissionTemplate.Create(ValidTenantId, ValidRoleId, ValidSystemSuiteId, ValidActor).Value;
+        template.AddItem(ValidTargetType, ValidTargetId, ValidActionId, true, false, ValidActor);
 
         template.Publish(ValidActor);
 
@@ -84,6 +98,7 @@ public class PermissionTemplateTests
     public void Deprecate_WhenPublished_ReturnsSuccess()
     {
         var template = PermissionTemplate.Create(ValidTenantId, ValidRoleId, ValidSystemSuiteId, ValidActor).Value;
+        template.AddItem(ValidTargetType, ValidTargetId, ValidActionId, true, false, ValidActor);
         template.Publish(ValidActor);
 
         var result = template.Deprecate(ValidActor);
@@ -119,12 +134,75 @@ public class PermissionTemplateTests
     public void Deprecate_RaisesPermissionTemplateDeprecatedEvent()
     {
         var template = PermissionTemplate.Create(ValidTenantId, ValidRoleId, ValidSystemSuiteId, ValidActor).Value;
+        template.AddItem(ValidTargetType, ValidTargetId, ValidActionId, true, false, ValidActor);
         template.Publish(ValidActor);
 
         template.Deprecate(ValidActor);
 
         var events = template.DomainEvents.GetUncommittedChanges().ToList();
         Assert.Contains(events, e => e is PermissionTemplateDeprecatedEvent);
+    }
+
+    #endregion
+
+    #region Delete
+
+    [Fact]
+    public void Delete_WhenDraft_ReturnsSuccess()
+    {
+        var template = PermissionTemplate.Create(ValidTenantId, ValidRoleId, ValidSystemSuiteId, ValidActor).Value;
+
+        var result = template.Delete(ValidActor);
+
+        Assert.True(result.IsSuccess);
+    }
+
+    [Fact]
+    public void Delete_WhenDeprecated_ReturnsSuccess()
+    {
+        var template = PermissionTemplate.Create(ValidTenantId, ValidRoleId, ValidSystemSuiteId, ValidActor).Value;
+        template.AddItem(ValidTargetType, ValidTargetId, ValidActionId, true, false, ValidActor);
+        template.Publish(ValidActor);
+        template.Deprecate(ValidActor);
+
+        var result = template.Delete(ValidActor);
+
+        Assert.True(result.IsSuccess);
+    }
+
+    [Fact]
+    public void Delete_WhenPublished_ReturnsFailure()
+    {
+        var template = PermissionTemplate.Create(ValidTenantId, ValidRoleId, ValidSystemSuiteId, ValidActor).Value;
+        template.AddItem(ValidTargetType, ValidTargetId, ValidActionId, true, false, ValidActor);
+        template.Publish(ValidActor);
+
+        var result = template.Delete(ValidActor);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains(DomainErrors.Authorization.TemplateNotDeletable, result.Error);
+    }
+
+    [Fact]
+    public void Delete_WhenHasActiveProfiles_ReturnsFailure()
+    {
+        var template = PermissionTemplate.Create(ValidTenantId, ValidRoleId, ValidSystemSuiteId, ValidActor).Value;
+
+        var result = template.Delete(ValidActor, activeProfileCount: 1);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains(DomainErrors.Authorization.TemplateHasActiveProfiles, result.Error);
+    }
+
+    [Fact]
+    public void Delete_RaisesPermissionTemplateDeletedEvent()
+    {
+        var template = PermissionTemplate.Create(ValidTenantId, ValidRoleId, ValidSystemSuiteId, ValidActor).Value;
+
+        template.Delete(ValidActor);
+
+        var events = template.DomainEvents.GetUncommittedChanges().ToList();
+        Assert.Contains(events, e => e is PermissionTemplateDeletedEvent);
     }
 
     #endregion
@@ -146,9 +224,11 @@ public class PermissionTemplateTests
     public void AddItem_WhenNotDraft_ReturnsFailure()
     {
         var template = PermissionTemplate.Create(ValidTenantId, ValidRoleId, ValidSystemSuiteId, ValidActor).Value;
+        template.AddItem(ValidTargetType, ValidTargetId, ValidActionId, true, false, ValidActor);
         template.Publish(ValidActor);
+        var secondTargetId = IdValueObject.Create();
 
-        var result = template.AddItem(ValidTargetType, ValidTargetId, ValidActionId, true, false, ValidActor);
+        var result = template.AddItem(ValidTargetType, secondTargetId, ValidActionId, true, false, ValidActor);
 
         Assert.True(result.IsFailure);
         Assert.Contains(DomainErrors.Authorization.TemplateNotDraft, result.Error);

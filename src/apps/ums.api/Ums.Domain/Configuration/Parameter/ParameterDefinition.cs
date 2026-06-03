@@ -31,7 +31,8 @@ public sealed class ParameterDefinition : AggregateRoot<ParameterDefinition, Par
         bool isActive,
         bool isMandatory,
         int displayOrder,
-        ActorId createdBy)
+        ActorId createdBy,
+        int existingDefinitionCount = 0)
     {
         if (code is null)
             return Result<ParameterDefinition>.Failure("Parameter code is required");
@@ -41,6 +42,11 @@ public sealed class ParameterDefinition : AggregateRoot<ParameterDefinition, Par
 
         if (defaultValue is null)
             return Result<ParameterDefinition>.Failure("Default value is required");
+
+        if (existingDefinitionCount > 0)
+        {
+            return Result<ParameterDefinition>.Failure(DomainErrors.Configuration.ParameterCodeNotUnique);
+        }
 
         var props = new ParameterDefinitionProps(
             IdValueObject.Create(), code, name, description,
@@ -81,6 +87,24 @@ public sealed class ParameterDefinition : AggregateRoot<ParameterDefinition, Par
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy.GetValue());
+        return Result.Success();
+    }
+
+    public Result Archive(ActorId updatedBy, int globalValueCount = 0, int tenantValueCount = 0)
+    {
+        if (globalValueCount > 0 || tenantValueCount > 0)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Props.Id), DomainErrors.Configuration.ParameterHasActiveValues));
+        }
+
+        if (!IsValid())
+        {
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+        }
+
+        SetProps(Props.WithIsActive(false).WithVersion(BumpMinorVersion(Props.Version)));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(updatedBy.GetValue());
         return Result.Success();

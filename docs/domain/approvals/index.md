@@ -3,7 +3,7 @@
 > **Language:** [English](./index.md) | [Español](../../domain-es/approvals/index.md)
 
 **Bounded Context:** Approvals (`Ums.Domain.Approvals`)  
-**Aggregate Roots:** `ApprovalWorkflow`, `ApprovalRequest`, `DocumentType`, `UserDocument`, `AccessEnforcementPolicy`
+**Aggregate Roots:** `ApprovalWorkflow`, `ApprovalRequest`, `DocumentType`, `NotificationRule`, `UserDocument`, `AccessEnforcementPolicy`
 
 ---
 
@@ -15,7 +15,7 @@ The core workflow elements govern dynamic approval routing and verification even
 
 ### Document Classification & Policies
 - [DocumentType](./document-type.md) (Aggregate Root) — Classification of verification documents (e.g., Identification, Address Proof).
-- [NotificationRule](./notification-rule.md) (Owned Entity) — Defines days before expiration, channels (email, SMS), and frequencies to trigger alert notifications.
+- [NotificationRule](./notification-rule.md) (Aggregate Root) — Defines notification channel and recipient for a notification event; independently managed and reusable across document types.
 - [UserDocument](./user-document.md) (Aggregate Root) — The uploaded physical file record belonging to a user, storing verification state.
 - [AccessNotification](./access-notification.md) (Owned Entity) — History of alerts sent for document compliance.
 - [AccessEnforcementPolicy](./access-enforcement-policy.md) (Aggregate Root) — Defines automatic account lockouts or security profile downgrades on document non-compliance.

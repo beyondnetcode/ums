@@ -16,9 +16,10 @@
 | `UserDocument` AR separado de `DocumentType` | DocumentType es catalogo (admin); UserDocument es instancia de cumplimiento (usuario/revisor) |
 | `TenantClosure` excluida del dominio | Es proyeccion de infraestructura mantenida por trigger SQL Server; el dominio la consume como servicio de repositorio |
 | Eventos de dominio con ID como referencia (no navigation properties) | Desacoplamiento entre contextos; los agregados solo conocen IDs de otros contextos |
-| `TemplateAssignmentRule` como AR | Tiene su propio ciclo de vida, prioridad y estado; no es parte de Profile ni de Template |
+| `TemplateAssignmentRule` diferido a V2 | 2026-06-03: el modelo actual no lo requiere para la primera entrega; se posterga hasta que exista una necesidad funcional explícita y el modelo físico lo soporte sin introducir acoplamientos prematuros |
 | `Result<T>` implementado localmente en `Ums.Domain.Kernel` | `BeyondNetCode.Shell.Ddd` no expone `Result<T>` en su version actual. La implementacion local es aceptada como solucion pragmatica hasta que la shell library agregue soporte nativo. Cuando ocurra, migrar `Kernel/Result.cs` a la shell y eliminar la duplicacion. |
 | `SystemSuite` AR lleva `TenantId` (registro por tenant) | INV-S1 documenta `SystemCode` unico globalmente, pero la implementacion actual vincula cada SystemSuite a un tenant para aplicar RLS. **Pendiente resolucion**: definir si SystemSuite es catalogo global (sin TenantId) o registro por tenant. Si es global, eliminar `TenantId` de `SystemSuiteProps` y requerir un esquema separado fuera del contexto RLS. |
+| `TenantParameter` como Entity hija de `Tenant` | Tiene identidad propia dentro del agregado, pero no ciclo de vida independiente; se mantiene como entidad interna del Tenant para preservar la cohesión del contexto de identidad. |
 
 ---
 
@@ -28,7 +29,7 @@ Estos puntos requieren resolucion en workshop tecnico antes del Sprint 1.
 
 | ID | Pregunta | Impacto | Responsable |
 |----|---------|---------|-------------|
-| V1 | `TemplateAssignmentRule` no existe en `database-design-er.md`. Se necesita agregar la entidad al modelo fisico para implementar FS-06 | Alto — bloquea el sprint que incluya FS-06 | Arquitecto + DBA |
+| V1 | `TemplateAssignmentRule` no existe en `database-design-er.md`. Se pospone su incorporación al modelo físico hasta V2 para evitar una entidad prematura que no está respaldada por una necesidad funcional inmediata | Medio — no bloquea la entrega actual, pero sigue siendo un gap de diseño a cerrar en V2 | Arquitecto + DBA |
 | V2 | `MfaEnrollment` no aparece en el E/R actual. Se necesita tabla para persistir metodos MFA enrolados por usuario (FS-09) | Resuelto | Implementado en el código dentro de UserAccount como Entidad hija |
 | V3 | `PROFILE_INTERNAL_ONLY` flag no esta en el modelo actual. Sin el es imposible aplicar INV-P8 de FS-10 (externos no reciben profiles internos) | Alto — riesgo de seguridad si no se implementa | Product Owner + Arquitecto |
 | V4 | La herencia de politicas de ADR-0035 (MANDATORY/DEFAULT/OPT_IN/NONE) no tiene entidades `Policy` / `PolicyBinding` en el E/R. El modelo actual solo cubre permisos a nivel de template/profile. ¿Se incluye en el producto completo o es una evolucion futura? | Medio — afecta complejidad de Authorization Context | Arquitecto Principal |

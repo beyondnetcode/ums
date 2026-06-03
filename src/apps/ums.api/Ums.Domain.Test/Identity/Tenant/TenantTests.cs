@@ -342,6 +342,28 @@ public class TenantTests
         Assert.Contains(events, e => e is TenantSuspendedEvent);
     }
 
+    [Fact]
+    public void Suspend_WhenHasActiveUsers_ReturnsFailure()
+    {
+        var tenant = Tenant.Create(ValidCode, ValidName, ValidType, ValidActor).Value;
+
+        var result = tenant.Suspend(ValidActor, activeUserCount: 1);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains(DomainErrors.Tenant.HasActiveUsers, result.Error);
+    }
+
+    [Fact]
+    public void Suspend_WhenHasActiveBranches_ReturnsFailure()
+    {
+        var tenant = Tenant.Create(ValidCode, ValidName, ValidType, ValidActor).Value;
+
+        var result = tenant.Suspend(ValidActor, activeBranchCount: 1);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains(DomainErrors.Tenant.HasActiveBranches, result.Error);
+    }
+
     #endregion
 
     #region Activate
@@ -368,6 +390,44 @@ public class TenantTests
 
         var events = tenant.DomainEvents.GetUncommittedChanges().ToList();
         Assert.Contains(events, e => e is TenantActivatedEvent);
+    }
+
+    #endregion
+
+    #region Archive
+
+    [Fact]
+    public void Archive_WhenActive_ReturnsSuccess()
+    {
+        var tenant = Tenant.Create(ValidCode, ValidName, ValidType, ValidActor).Value;
+
+        var result = tenant.Archive(ValidActor);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(TenantStatus.Archived, tenant.Status);
+    }
+
+    [Fact]
+    public void Archive_WhenAlreadyArchived_ReturnsFailure()
+    {
+        var tenant = Tenant.Create(ValidCode, ValidName, ValidType, ValidActor).Value;
+        tenant.Archive(ValidActor);
+
+        var result = tenant.Archive(ValidActor);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains(DomainErrors.Tenant.ArchivedCannotArchive, result.Error);
+    }
+
+    [Fact]
+    public void Archive_WhenHasActiveIdp_ReturnsFailure()
+    {
+        var tenant = Tenant.Create(ValidCode, ValidName, ValidType, ValidActor).Value;
+
+        var result = tenant.Archive(ValidActor, activeIdpCount: 1);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains(DomainErrors.Tenant.HasActiveIdpConfig, result.Error);
     }
 
     #endregion

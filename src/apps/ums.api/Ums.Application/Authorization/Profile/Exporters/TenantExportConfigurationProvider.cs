@@ -17,49 +17,47 @@ public sealed class TenantExportConfigurationProvider : ITenantExportConfigurati
         var allowedFormats = await _parameterProvider.GetStringListValueAsync(
             tenantId,
             TenantParameterCodes.ExportProfilePermissionGraphAllowedFormats,
-            ["JSON", "XML", "YAML", "CSV"],
+            TenantParameterDefaults.ExportProfilePermissionGraphAllowedFormats,
             cancellationToken);
 
         var defaultFormatRaw = await _parameterProvider.GetValueAsync(
             tenantId,
             TenantParameterCodes.ExportProfilePermissionGraphDefaultFormat,
-            cancellationToken) ?? "JSON";
+            cancellationToken) ?? TenantParameterDefaults.ExportProfilePermissionGraphDefaultFormat;
 
         var includeTechnicalMetadata = await _parameterProvider.GetBoolValueAsync(
             tenantId,
             TenantParameterCodes.ExportProfilePermissionGraphIncludeTechnicalMetadata,
-            true,
+            TenantParameterDefaults.ExportProfilePermissionGraphIncludeTechnicalMetadata,
             cancellationToken);
 
         var maskGuids = await _parameterProvider.GetBoolValueAsync(
             tenantId,
             TenantParameterCodes.ExportProfilePermissionGraphMaskGuids,
-            false,
+            TenantParameterDefaults.ExportProfilePermissionGraphMaskGuids,
             cancellationToken);
 
         var includeFeatureFlags = await _parameterProvider.GetBoolValueAsync(
             tenantId,
             TenantParameterCodes.ExportProfilePermissionGraphIncludeFeatureFlags,
-            true,
+            TenantParameterDefaults.ExportProfilePermissionGraphIncludeFeatureFlags,
             cancellationToken);
 
         var includeEffectivePermissionsSummary = await _parameterProvider.GetBoolValueAsync(
             tenantId,
             TenantParameterCodes.ExportProfilePermissionGraphIncludeEffectivePermissionsSummary,
-            true,
+            TenantParameterDefaults.ExportProfilePermissionGraphIncludeEffectivePermissionsSummary,
             cancellationToken);
 
         var maxItems = await _parameterProvider.GetIntValueAsync(
             tenantId,
             TenantParameterCodes.ExportProfilePermissionGraphMaxItems,
-            10000,
+            TenantParameterDefaults.ExportProfilePermissionGraphMaxItems,
             cancellationToken);
 
         var defaultFormat = defaultFormatRaw.ToUpperInvariant();
         if (!allowedFormats.Any(f => f.Equals(defaultFormat, StringComparison.OrdinalIgnoreCase)))
-        {
-            defaultFormat = "JSON";
-        }
+            defaultFormat = TenantParameterDefaults.ExportProfilePermissionGraphDefaultFormat;
 
         return new ExportConfiguration(
             allowedFormats,

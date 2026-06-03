@@ -13,7 +13,7 @@
 - **Status**: Open
 
 ### Problem
-GraphQL endpoint `/graphql` for `appConfigurations` query returns empty results (`items: []`, `totalItems: 0`) while REST endpoint `/api/v1/app-configurations` returns correct data (7 items).
+GraphQL endpoint `/graphql` for `appConfigurations` query returns empty results (`items: []`, `totalItems: 0`) while the REST-backed configuration reads return correct data.
 
 ### Observations
 - Handler executes successfully in ~25ms (no errors)
@@ -29,7 +29,7 @@ GraphQL endpoint `/graphql` for `appConfigurations` query returns empty results 
 - `src/apps/ums.api/Ums.Presentation/Middleware/DevAuthMiddleware.cs`
 
 ### Workaround
-Use `FRONTEND_CONFIG_TRANSPORT = "rest"` in AppConfigurations table (current default).
+Use the REST configuration read path for AppConfigurations in the frontend. GraphQL for this bounded context remains unresolved in the backend resolver.
 
 ### Next Steps
 1. Add debug logging to HotChocolate resolver execution
@@ -48,20 +48,19 @@ Use `FRONTEND_CONFIG_TRANSPORT = "rest"` in AppConfigurations table (current def
 - **Type**: Code Cleanup
 - **Created**: 2026-05-30
 - **Bounded Context**: Configuration (Frontend)
-- **Status**: Open
+- **Status**: Completed
 
 ### Problem
-The frontend `app-configuration.service.ts` contains dual-transport logic (GraphQL + REST) but the system is configured to use REST 100% via `FRONTEND_CONFIG_TRANSPORT = "rest"`. The GraphQL code path is dead code.
+The frontend `app-configuration.service.ts` previously contained dual-transport logic (GraphQL + REST) even though the service had already standardized on REST. The GraphQL code path was dead code.
 
 ### Affected Files
 - `src/apps/ums.web-app/src/infrastructure/configuration/services/app-configuration.service.ts`
-- `src/apps/ums.web-app/src/infrastructure/configuration/queries/app-configuration.graphql.ts`
+
+### Resolution
+The service now uses REST exclusively, and the stale GraphQL path has been removed from the frontend codebase.
 
 ### Next Steps
-1. Simplify service to use REST only
-2. Remove GraphQL query imports and functions
-3. Remove transport mode detection and caching logic
-4. Clean up related GraphQL query files if not used elsewhere
+No further action required.
 
 ---
 
@@ -116,7 +115,11 @@ See: [Parameterization System Specification](../construction/ddd-design/paramete
    - Provides strongly-typed access to: SessionTimeout, MaxLoginAttempts, MinPasswordLength, etc.
    - Supports tenant-specific overrides with precedence logic
 
-7. **Tenant-Specific Parameters Seeded**
+7. **Configuration consumers already wired**
+   - `AddUserAccountPasswordCommandValidator` reads `MIN_PASSWORD_LENGTH` through `ConfigurationValues`
+   - `AuthEndpoints` resolves login session parameters through the typed wrapper
+
+8. **Tenant-Specific Parameters Seeded**
    - RANSA_PERU: SESSION_TIMEOUT=45min, MFA_REQUIRED=true, CUSTOM_BRANDING=true
    - APM_CALLAO: SESSION_TIMEOUT=20min, MAX_LOGIN_ATTEMPTS=3, MFA_REQUIRED=true
    - NEPTUNIA: SESSION_TIMEOUT=60min, MIN_PASSWORD_LENGTH=14
@@ -135,11 +138,9 @@ See: [Parameterization System Specification](../construction/ddd-design/paramete
    - Configuration parameter UI strings (EN/ES)
 
 ### Remaining Work
-1. Create global configuration admin screen (Admin-only)
-2. Add parameter-level authorization (Internal Admin vs Tenant Admin)
-3. Implement cache invalidation when parameters are updated via API
-4. **Integrate ConfigurationValues into actual system logic** (handlers, middleware, validators)
-5. Add Redis migration preparation (TD-003)
+1. Add Redis migration preparation (TD-003)
+2. Expand `ConfigurationValues` consumers to any remaining handlers or validators as new parameterized behaviors are added
+3. Add parameter-level authorization where future policies require it
 
 ### Related Technical Debt
 - [TD-003](./technical-debt.md#td-003-prepare-configuration-system-for-redis)
@@ -152,7 +153,7 @@ See: [Parameterization System Specification](../construction/ddd-design/paramete
 - **Type**: Feature Implementation
 - **Created**: 2026-05-30
 - **Bounded Context**: Configuration
-- **Status**: Open
+- **Status**: Completed
 
 ### Problem
 Internal Admin needs a dedicated screen to view and manage system-wide (Global) parameters separate from tenant-specific parameters.
@@ -170,8 +171,10 @@ Internal Admin needs a dedicated screen to view and manage system-wide (Global) 
 - Backend: Global configuration API endpoints
 - UI: Standalone configuration management screen (not in tenant context)
 
+### Resolution
+- The global screen now exists at `/app-configurations/global`.
+- Access is restricted to internal admins in the frontend, while the backend still enforces the same rule at the endpoint layer.
+- The detail panel includes audit history backed by the REST `/audit-records` endpoint.
+
 ### Next Steps
-1. Create global configurations service (reuse existing AppConfigurationService)
-2. Create GlobalConfigurationsScreen component
-3. Add route protection for Internal Admin only
-4. Add audit trail view for parameters
+No further action required.

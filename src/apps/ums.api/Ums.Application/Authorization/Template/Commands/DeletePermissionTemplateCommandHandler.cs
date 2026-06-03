@@ -6,10 +6,14 @@ using Ums.Domain.Authorization.Template;
 public sealed class DeletePermissionTemplateCommandHandler : ICommandHandler<DeletePermissionTemplateCommand>
 {
     private readonly IPermissionTemplateRepository _templateRepository;
+    private readonly IUserContext _userContext;
 
-    public DeletePermissionTemplateCommandHandler(IPermissionTemplateRepository templateRepository)
+    public DeletePermissionTemplateCommandHandler(
+        IPermissionTemplateRepository templateRepository,
+        IUserContext userContext)
     {
         _templateRepository = templateRepository;
+        _userContext = userContext;
     }
 
     [AuditTrail]
@@ -22,9 +26,15 @@ public sealed class DeletePermissionTemplateCommandHandler : ICommandHandler<Del
             return Result.Failure("Template was not found.");
         }
 
-        if (template.Status != TemplateStatus.Draft)
+        if (string.IsNullOrWhiteSpace(_userContext.UserId))
         {
-            return Result.Failure(DomainErrors.Authorization.TemplateNotDraft);
+            return Result.Failure("Authenticated user is required.");
+        }
+
+        var deleteResult = template.Delete(ActorId.Create(_userContext.UserId));
+        if (deleteResult.IsFailure)
+        {
+            return deleteResult;
         }
 
         var deleted = await _templateRepository.DeleteAsync(request.TemplateId, cancellationToken);

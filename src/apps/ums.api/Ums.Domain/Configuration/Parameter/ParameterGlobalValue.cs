@@ -1,5 +1,7 @@
 namespace Ums.Domain.Configuration.Parameter;
 
+using Ums.Domain.Configuration.Parameter.ValueObjects;
+
 public sealed class ParameterGlobalValue : AggregateRoot<ParameterGlobalValue, ParameterGlobalValueProps>
 {
     private ParameterGlobalValue(ParameterGlobalValueProps props) : base(props)
@@ -16,10 +18,16 @@ public sealed class ParameterGlobalValue : AggregateRoot<ParameterGlobalValue, P
     public static Result<ParameterGlobalValue> Create(
         IdValueObject parameterDefinitionId,
         EffectiveValue value,
+        ParameterDataType dataType,
         ActorId createdBy)
     {
         if (parameterDefinitionId is null)
             return Result<ParameterGlobalValue>.Failure("Parameter definition ID is required");
+
+        if (!ParameterValueValidation.IsValid(value?.Value, dataType))
+        {
+            return Result<ParameterGlobalValue>.Failure(DomainErrors.Configuration.ParameterValueInvalidType);
+        }
 
         var props = new ParameterGlobalValueProps(
             IdValueObject.Create(),
@@ -38,11 +46,22 @@ public sealed class ParameterGlobalValue : AggregateRoot<ParameterGlobalValue, P
         return Result<ParameterGlobalValue>.Success(entity);
     }
 
-    public Result UpdateValue(EffectiveValue newValue, ActorId updatedBy)
+    public static Result<ParameterGlobalValue> Create(
+        IdValueObject parameterDefinitionId,
+        EffectiveValue value,
+        ActorId createdBy)
+        => Create(parameterDefinitionId, value, ParameterDataType.String, createdBy);
+
+    public Result UpdateValue(EffectiveValue newValue, ParameterDataType dataType, ActorId updatedBy)
     {
         if (Status == ConfigStatus.Archived)
         {
             BrokenRules.Add(new BrokenRule(nameof(Status), "Archived configuration cannot be modified"));
+        }
+
+        if (!ParameterValueValidation.IsValid(newValue?.Value, dataType))
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Value), DomainErrors.Configuration.ParameterValueInvalidType));
         }
 
         SetProps(Props
@@ -58,6 +77,9 @@ public sealed class ParameterGlobalValue : AggregateRoot<ParameterGlobalValue, P
         Props.Audit.Update(updatedBy.GetValue());
         return Result.Success();
     }
+
+    public Result UpdateValue(EffectiveValue newValue, ActorId updatedBy)
+        => UpdateValue(newValue, ParameterDataType.String, updatedBy);
 
     public Result Publish(ActorId updatedBy)
     {
@@ -82,9 +104,19 @@ public sealed class ParameterGlobalValue : AggregateRoot<ParameterGlobalValue, P
 
     public Result Archive(ActorId updatedBy)
     {
+        return Archive(updatedBy, 0);
+    }
+
+    public Result Archive(ActorId updatedBy, int activeTenantValueCount)
+    {
         if (Status != ConfigStatus.Published)
         {
             BrokenRules.Add(new BrokenRule(nameof(Status), "Only published configurations can be archived"));
+        }
+
+        if (activeTenantValueCount > 0)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(ParameterDefinitionId), DomainErrors.Configuration.ParameterGlobalValueInUse));
         }
 
         SetProps(Props.WithStatus(ConfigStatus.Archived));

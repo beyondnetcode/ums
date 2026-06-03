@@ -230,7 +230,8 @@ public sealed class UmsApiWebApplicationFactory : WebApplicationFactory<Program>
             UserCategory.Internal,
             true,
             null,
-            actor).Value;
+            actor,
+            requiredDocumentCount: 1).Value;
         SetAggregateId(manualWorkflow.Props, Guid.Parse("88888888-1111-1111-1111-111111111111"));
         workflowRepository.Seed(manualWorkflow);
 

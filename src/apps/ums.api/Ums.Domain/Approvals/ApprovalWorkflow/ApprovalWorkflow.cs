@@ -34,10 +34,16 @@ public sealed class ApprovalWorkflow : AggregateRoot<ApprovalWorkflow, ApprovalW
         UserCategory targetUserCategory,
         bool requiresApproval,
         SystemSuiteId? systemSuiteId,
-        ActorId createdBy)
+        ActorId createdBy,
+        int requiredDocumentCount = 0)
     {
         var props = new ApprovalWorkflowProps(IdValueObject.Create(), tenantId, systemSuiteId, code, name, description, targetUserCategory, requiresApproval, createdBy);
         var workflow = new ApprovalWorkflow(props);
+
+        if (requiresApproval && requiredDocumentCount <= 0)
+        {
+            workflow.BrokenRules.Add(new BrokenRule(nameof(RequiredDocuments), DomainErrors.Approvals.RequiresDocumentsIfApprovalRequired));
+        }
 
         if (!workflow.IsValid())
         {
@@ -81,6 +87,12 @@ public sealed class ApprovalWorkflow : AggregateRoot<ApprovalWorkflow, ApprovalW
         if (document.IsFailure)
         {
             BrokenRules.Add(new BrokenRule(nameof(RequiredDocuments), DomainErrors.Common.NotFound));
+        }
+
+        // If RequiresApproval is true, at least one document must remain after removal
+        if (Props.RequiresApproval && _requiredDocuments.Count <= 1)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(RequiredDocuments), DomainErrors.Approvals.RequiresDocumentsIfApprovalRequired));
         }
 
         if (!IsValid())

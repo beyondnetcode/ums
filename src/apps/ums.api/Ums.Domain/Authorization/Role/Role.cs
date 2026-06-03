@@ -111,11 +111,21 @@ public sealed class Role : AggregateRoot<Role, RoleProps>
         return Result.Success();
     }
 
-    public Result Deactivate(ActorId updatedBy)
+    public Result Deactivate(ActorId updatedBy, int activeProfileCount = 0, int activeChildRoleCount = 0)
     {
         if (!IsActive)
         {
             BrokenRules.Add(new BrokenRule(nameof(IsActive), DomainErrors.Authorization.RoleAlreadyInactive));
+        }
+
+        if (activeProfileCount > 0)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(IsActive), DomainErrors.Authorization.RoleHasActiveProfiles));
+        }
+
+        if (activeChildRoleCount > 0)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(IsActive), DomainErrors.Authorization.RoleHasActiveChildRoles));
         }
 
         if (!IsValid())

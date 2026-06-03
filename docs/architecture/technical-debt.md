@@ -39,9 +39,8 @@
 - **Workaround**: Use `FRONTEND_CONFIG_TRANSPORT = "rest"` flag in BD (current default).
 - **Target Resolution**: Investigate HotChocolate resolver execution context, DataLoader caching, or any middleware that could affect GraphQL resolution differently from REST.
 - **Related Files**:
-  - `src/apps/ums.api/Ums.Presentation/GraphQL/Configuration/AppConfigurationQueries.cs`
-  - `src/apps/ums.api/Ums.Application/Configuration/AppConfiguration/Queries/GetAllAppConfigurationsQueryHandler.cs`
-  - `src/apps/ums.web-app/src/infrastructure/configuration/services/app-configuration.service.ts`
+- `src/apps/ums.api/Ums.Presentation/GraphQL/Configuration/AppConfigurationQueries.cs`
+- `src/apps/ums.api/Ums.Application/Configuration/AppConfiguration/Queries/GetAllAppConfigurationsQueryHandler.cs`
 
 ---
 
@@ -50,16 +49,17 @@
 - **Status**: Proposed
 - **Severity**: Low
 - **Component**: `Ums.Infrastructure/Configuration/`, `Ums.Application/Configuration/`
-- **Description**: The parameterization system is being designed with in-memory storage. The design must include an abstraction layer (IConfigurationCache) to facilitate future migration to Redis without requiring deep changes to business logic.
-- **Rationale**: Initial implementation uses in-memory storage for simplicity and fast iteration. Redis will be needed when UMS scales to multiple API instances requiring shared configuration state.
+- **Description**: The parameterization system already runs on an in-memory cache abstraction. The remaining debt is to migrate the cache implementation to Redis without changing the business-facing `IConfigurationProvider` or the typed `ConfigurationValues` consumers.
+- **Rationale**: Initial implementation uses in-memory storage for simplicity and fast iteration. Redis will be needed when UMS scales to multiple API instances requiring shared configuration state and shared cache invalidation.
 - **Impact**:
   - Current in-memory implementation may show stale data if multiple API instances have different cache states.
-  - No distributed cache invalidation.
-  - Parameter changes require API restart (until hot-reload is implemented).
+  - No distributed cache invalidation across pods.
+  - Parameter changes still depend on the current reload path rather than a distributed cache event.
 - **Mitigation**:
   - Introduce `IConfigurationCache` abstraction from day one.
   - Implement `InMemoryConfigurationCache` as the initial concrete implementation.
   - Design `ConfigurationProvider` to depend on `IConfigurationCache`, not on concrete implementation.
+  - Use `ConfigurationValues` for strongly-typed consumers so the migration does not leak cache concerns into handlers or validators.
   - Document the abstraction interface and future migration steps.
 - **Target Resolution**: Phase 2 (when scaling to multiple API instances or when Redis infrastructure is available).
 - **Related Documents**:

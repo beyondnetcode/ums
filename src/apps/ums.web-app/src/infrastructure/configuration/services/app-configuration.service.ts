@@ -2,9 +2,8 @@
  * app-configuration.service.ts
  *
  * Infrastructure service for the Configuration / AppConfiguration bounded context.
- * Transport mode is controlled by FRONTEND_CONFIG_TRANSPORT flag (graphql | rest).
- * Default: rest (REST is priority per architectural decision)
- * Commands always use REST.
+ * This service is REST-only; query transport negotiation is handled elsewhere
+ * for bounded contexts that still support GraphQL reads.
  */
 import { httpClient } from '@infra/http/httpClient';
 import { logger } from '@app/utils/logger';

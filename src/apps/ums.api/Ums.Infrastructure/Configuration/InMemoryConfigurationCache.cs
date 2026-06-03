@@ -7,10 +7,8 @@ using AppConfigurationAggregate = Ums.Domain.Configuration.AppConfiguration.AppC
 /// <summary>
 /// In-process, thread-safe implementation of <see cref="IConfigurationCache"/>.
 ///
-/// TD-003: This is the Phase-1 implementation. When Redis infrastructure is available,
-/// replace this registration with a RedisConfigurationCache that wraps IDistributedCache
-/// (already used for token revocation). No other code changes are required because all
-/// consumers depend on IConfigurationCache, not on this concrete class.
+/// TODO(TD-003): Replace this phase-1 in-memory cache with a Redis-backed implementation
+/// that wraps IDistributedCache when distributed cache infrastructure is available.
 ///
 /// The three dictionaries mirror the three access patterns:
 ///   _global    → fast O(1) lookup by code for global parameters

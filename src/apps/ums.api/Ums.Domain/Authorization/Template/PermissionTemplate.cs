@@ -67,6 +67,11 @@ public sealed class PermissionTemplate : AggregateRoot<PermissionTemplate, Permi
             BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.Authorization.TemplateNotDraft));
         }
 
+        if (!Items.Any())
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Items), DomainErrors.Authorization.TemplateItemsRequired));
+        }
+
         if (!IsValid())
         {
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
@@ -95,6 +100,28 @@ public sealed class PermissionTemplate : AggregateRoot<PermissionTemplate, Permi
         DomainEvents.RaiseEvent(new PermissionTemplateDeprecatedEvent(Props.Id.GetValue(), Props.Version.GetValue()));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(updatedBy.GetValue());
+        return Result.Success();
+    }
+
+    public Result Delete(ActorId deletedBy, int activeProfileCount = 0)
+    {
+        if (Status != TemplateStatus.Draft && Status != TemplateStatus.Deprecated)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.Authorization.TemplateNotDeletable));
+        }
+
+        if (activeProfileCount > 0)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Items), DomainErrors.Authorization.TemplateHasActiveProfiles));
+        }
+
+        if (!IsValid())
+        {
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+        }
+
+        DomainEvents.RaiseEvent(new PermissionTemplateDeletedEvent(Props.Id.GetValue(), Props.Version.GetValue()));
+        Props.Audit.Update(deletedBy.GetValue());
         return Result.Success();
     }
 
@@ -215,4 +242,5 @@ public sealed class PermissionTemplate : AggregateRoot<PermissionTemplate, Permi
             ? Result<PermissionTemplateItemEntity>.Failure(DomainErrors.Common.NotFound)
             : Result<PermissionTemplateItemEntity>.Success(item);
     }
+
 }

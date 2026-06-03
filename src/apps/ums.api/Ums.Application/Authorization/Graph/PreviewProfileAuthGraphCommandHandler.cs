@@ -65,9 +65,12 @@ public sealed class PreviewProfileAuthGraphCommandHandler(
             AuthAccessScope.ExternalApi,   // same scope as external clients
             cancellationToken);
 
-        var authMethod = methodResult.IsSuccess
-            ? methodResult.Value
-            : AuthMethod.Local();           // safe fallback if resolution fails
+        if (methodResult.IsFailure)
+        {
+            return Result<PreviewProfileAuthGraphResult>.Failure(methodResult.Error);
+        }
+
+        var authMethod = methodResult.Value;
 
         // ── 5. Build graph — same service as POST /client/authenticate ─────────
         var graphResult = await graphBuilder.BuildAsync(

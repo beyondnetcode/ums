@@ -158,12 +158,12 @@ erDiagram
 ---
 
 ## 7. Capa de Aplicación
-- El agregado de dominio existe, pero la implementación de API/aplicación sigue pendiente en la base de código actual.
+- El agregado de dominio se expone mediante comandos de aplicación y endpoints REST para los flujos de creación, actualización, activación, desactivación y resolución.
 
 ---
 
 ## 8. Infraestructura / Persistencia
-- La persistencia y exposición por API siguen pendientes para este agregado.
+- La persistencia ya está implementada en SQL Server, y la capa de presentación expone los endpoints REST de este contexto.
 
 ---
 

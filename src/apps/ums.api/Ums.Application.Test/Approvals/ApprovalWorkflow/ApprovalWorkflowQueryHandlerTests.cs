@@ -27,7 +27,8 @@ public class ApprovalWorkflowQueryHandlerTests
             UserCategory.Internal,
             requiresApproval: true,
             systemSuiteId: SystemSuiteId.Load(Guid.NewGuid()),
-            createdBy: ActorId.Create("user-001")).Value;
+            createdBy: ActorId.Create("user-001"),
+            requiredDocumentCount: 1).Value;
     }
 
     // =========================================================================

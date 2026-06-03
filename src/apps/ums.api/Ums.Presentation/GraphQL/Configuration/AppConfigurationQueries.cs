@@ -26,6 +26,8 @@ public sealed class AppConfigurationQueries
         [Service] IMediator mediator,
         CancellationToken cancellationToken)
     {
+        // TODO(TD-002): Investigate why this resolver returns empty AppConfiguration pages
+        // while the REST-backed query path returns the expected data.
         var result = await mediator.Send(new GetAllAppConfigurationsQuery(
             NormalizePage(page),
             NormalizePageSize(pageSize),
@@ -39,10 +41,11 @@ public sealed class AppConfigurationQueries
             systemSuiteId,
             moduleId), cancellationToken);
         if (result.IsFailure)
-{
-    throw new Exception(result.Error);
-}
-return result.Value;
+        {
+            throw new Exception(result.Error);
+        }
+
+        return result.Value;
     }
 
     public async Task<AppConfigurationDto?> GetAppConfigurationByIdAsync(Guid id, [Service] IMediator mediator, CancellationToken cancellationToken)

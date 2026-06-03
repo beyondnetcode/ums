@@ -543,7 +543,7 @@ public sealed class Tenant : AggregateRoot<Tenant, TenantProps>
             : Result<TenantParameterEntity>.Success(parameter);
     }
 
-    public Result Suspend(ActorId updatedBy)
+    public Result Suspend(ActorId updatedBy, int activeUserCount = 0, int activeBranchCount = 0)
     {
         if (Props.Status == TenantStatus.Archived)
         {
@@ -553,6 +553,16 @@ public sealed class Tenant : AggregateRoot<Tenant, TenantProps>
         if (Props.Status == TenantStatus.Suspended)
         {
             BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.Tenant.AlreadySuspended));
+        }
+
+        if (activeUserCount > 0)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.Tenant.HasActiveUsers));
+        }
+
+        if (activeBranchCount > 0)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.Tenant.HasActiveBranches));
         }
 
         if (!IsValid())
@@ -594,6 +604,30 @@ public sealed class Tenant : AggregateRoot<Tenant, TenantProps>
 
         SetProps(Props.WithStatus(TenantStatus.Active));
         DomainEvents.RaiseEvent(new TenantActivatedEvent(Props.Id.GetValue()));
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy.GetValue());
+        return Result.Success();
+    }
+
+    public Result Archive(ActorId updatedBy, int activeIdpCount = 0)
+    {
+        if (Props.Status == TenantStatus.Archived)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.Tenant.ArchivedCannotArchive));
+        }
+
+        if (activeIdpCount > 0)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.Tenant.HasActiveIdpConfig));
+        }
+
+        if (!IsValid())
+        {
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+        }
+
+        SetProps(Props.WithStatus(TenantStatus.Archived));
+        DomainEvents.RaiseEvent(new TenantArchivedEvent(Props.Id.GetValue()));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(updatedBy.GetValue());
         return Result.Success();

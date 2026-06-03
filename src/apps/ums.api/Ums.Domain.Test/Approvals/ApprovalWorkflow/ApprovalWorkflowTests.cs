@@ -18,7 +18,7 @@ public class ApprovalWorkflowTests
     public void Create_WithValidData_ReturnsSuccess()
     {
         var result = ApprovalWorkflow.Create(
-            ValidTenantId, ValidCode, ValidName, ValidDescription, ValidUserCategory, true, ValidSystemSuiteId, ValidActor);
+            ValidTenantId, ValidCode, ValidName, ValidDescription, ValidUserCategory, true, ValidSystemSuiteId, ValidActor, 1);
 
         Assert.True(result.IsSuccess);
         Assert.Equal(ValidTenantId, result.Value.TenantId);
@@ -42,6 +42,16 @@ public class ApprovalWorkflowTests
         Assert.False(result.Value.RequiresApproval);
     }
 
+    [Fact]
+    public void Create_WhenRequiresApprovalAndNoRequiredDocuments_ReturnsFailure()
+    {
+        var result = ApprovalWorkflow.Create(
+            ValidTenantId, ValidCode, ValidName, ValidDescription, ValidUserCategory, true, ValidSystemSuiteId, ValidActor);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains(DomainErrors.Approvals.RequiresDocumentsIfApprovalRequired, result.Error);
+    }
+
     #endregion
 
     #region AddRequiredDocument
@@ -50,7 +60,7 @@ public class ApprovalWorkflowTests
     public void AddRequiredDocument_WithValidData_ReturnsSuccess()
     {
         var workflow = ApprovalWorkflow.Create(
-            ValidTenantId, ValidCode, ValidName, ValidDescription, ValidUserCategory, true, ValidSystemSuiteId, ValidActor).Value;
+            ValidTenantId, ValidCode, ValidName, ValidDescription, ValidUserCategory, true, ValidSystemSuiteId, ValidActor, 1).Value;
         var documentTypeId = DocumentTypeId.Load(Guid.NewGuid().ToString());
 
         var result = workflow.AddRequiredDocument(documentTypeId, true, ValidActor);
@@ -64,7 +74,7 @@ public class ApprovalWorkflowTests
     public void AddRequiredDocument_WithOptionalDocument_ReturnsSuccess()
     {
         var workflow = ApprovalWorkflow.Create(
-            ValidTenantId, ValidCode, ValidName, ValidDescription, ValidUserCategory, true, ValidSystemSuiteId, ValidActor).Value;
+            ValidTenantId, ValidCode, ValidName, ValidDescription, ValidUserCategory, true, ValidSystemSuiteId, ValidActor, 1).Value;
         var documentTypeId = DocumentTypeId.Load(Guid.NewGuid().ToString());
 
         var result = workflow.AddRequiredDocument(documentTypeId, false, ValidActor);
@@ -77,7 +87,7 @@ public class ApprovalWorkflowTests
     public void AddRequiredDocument_WithDuplicateDocumentType_ReturnsFailure()
     {
         var workflow = ApprovalWorkflow.Create(
-            ValidTenantId, ValidCode, ValidName, ValidDescription, ValidUserCategory, true, ValidSystemSuiteId, ValidActor).Value;
+            ValidTenantId, ValidCode, ValidName, ValidDescription, ValidUserCategory, true, ValidSystemSuiteId, ValidActor, 1).Value;
         var documentTypeId = DocumentTypeId.Load(Guid.NewGuid().ToString());
         workflow.AddRequiredDocument(documentTypeId, true, ValidActor);
 
@@ -95,22 +105,39 @@ public class ApprovalWorkflowTests
     public void RemoveRequiredDocument_WhenDocumentExists_ReturnsSuccess()
     {
         var workflow = ApprovalWorkflow.Create(
-            ValidTenantId, ValidCode, ValidName, ValidDescription, ValidUserCategory, true, ValidSystemSuiteId, ValidActor).Value;
+            ValidTenantId, ValidCode, ValidName, ValidDescription, ValidUserCategory, true, ValidSystemSuiteId, ValidActor, 1).Value;
+        var documentTypeId1 = DocumentTypeId.Load(Guid.NewGuid().ToString());
+        var documentTypeId2 = DocumentTypeId.Load(Guid.NewGuid().ToString());
+        workflow.AddRequiredDocument(documentTypeId1, true, ValidActor);
+        workflow.AddRequiredDocument(documentTypeId2, false, ValidActor);
+        var documentId = workflow.RequiredDocuments.First().Id;
+
+        var result = workflow.RemoveRequiredDocument(documentId, ValidActor);
+
+        Assert.True(result.IsSuccess);
+        Assert.Single(workflow.RequiredDocuments);
+    }
+
+    [Fact]
+    public void RemoveRequiredDocument_WhenLastDocumentAndRequiresApproval_ReturnsFailure()
+    {
+        var workflow = ApprovalWorkflow.Create(
+            ValidTenantId, ValidCode, ValidName, ValidDescription, ValidUserCategory, true, ValidSystemSuiteId, ValidActor, 1).Value;
         var documentTypeId = DocumentTypeId.Load(Guid.NewGuid().ToString());
         workflow.AddRequiredDocument(documentTypeId, true, ValidActor);
         var documentId = workflow.RequiredDocuments.First().Id;
 
         var result = workflow.RemoveRequiredDocument(documentId, ValidActor);
 
-        Assert.True(result.IsSuccess);
-        Assert.Empty(workflow.RequiredDocuments);
+        Assert.True(result.IsFailure);
+        Assert.Contains(DomainErrors.Approvals.RequiresDocumentsIfApprovalRequired, result.Error);
     }
 
     [Fact]
     public void RemoveRequiredDocument_WhenDocumentNotFound_ReturnsFailure()
     {
         var workflow = ApprovalWorkflow.Create(
-            ValidTenantId, ValidCode, ValidName, ValidDescription, ValidUserCategory, true, ValidSystemSuiteId, ValidActor).Value;
+            ValidTenantId, ValidCode, ValidName, ValidDescription, ValidUserCategory, true, ValidSystemSuiteId, ValidActor, 1).Value;
         var fakeId = IdValueObject.Create();
 
         var result = workflow.RemoveRequiredDocument(fakeId, ValidActor);

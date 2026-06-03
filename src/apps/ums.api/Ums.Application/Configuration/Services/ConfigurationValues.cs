@@ -1,6 +1,7 @@
 namespace Ums.Application.Configuration.Services;
 
 using Microsoft.Extensions.DependencyInjection;
+using Ums.Domain.Configuration.AppConfiguration;
 
 public sealed class ConfigurationValues
 {
@@ -13,31 +14,31 @@ public sealed class ConfigurationValues
         _tenantId = tenantId;
     }
 
-    public int SessionTimeoutMinutes => _provider.GetValueAs<int>("SESSION_TIMEOUT_MINUTES", _tenantId, 30);
+    public int SessionTimeoutMinutes => _provider.GetValueAs<int>(AppConfigurationCodes.SessionTimeoutMinutes, _tenantId, AppConfigurationDefaults.SessionTimeoutMinutes);
 
-    public int MaxLoginAttempts => _provider.GetValueAs<int>("MAX_LOGIN_ATTEMPTS", _tenantId, 5);
+    public int MaxLoginAttempts => _provider.GetValueAs<int>(AppConfigurationCodes.MaxLoginAttempts, _tenantId, AppConfigurationDefaults.MaxLoginAttempts);
 
-    public int AccessTokenDurationMs => _provider.GetValueAs<int>("ACCESS_TOKEN_DURATION_MS", _tenantId, 3600000);
+    public int AccessTokenDurationMs => _provider.GetValueAs<int>(AppConfigurationCodes.AccessTokenDurationMs, _tenantId, AppConfigurationDefaults.AccessTokenDurationMs);
 
-    public int RefreshTokenDurationMs => _provider.GetValueAs<int>("REFRESH_TOKEN_DURATION_MS", _tenantId, 604800000);
+    public int RefreshTokenDurationMs => _provider.GetValueAs<int>(AppConfigurationCodes.RefreshTokenDurationMs, _tenantId, AppConfigurationDefaults.RefreshTokenDurationMs);
 
-    public int MinPasswordLength => _provider.GetValueAs<int>("MIN_PASSWORD_LENGTH", _tenantId, 12);
+    public int MinPasswordLength => _provider.GetValueAs<int>(AppConfigurationCodes.MinPasswordLength, _tenantId, AppConfigurationDefaults.MinPasswordLength);
 
-    public int MaxValidityPeriodDays => _provider.GetValueAs<int>("MAX_VALIDITY_PERIOD_DAYS", _tenantId, 365);
+    public int MaxValidityPeriodDays => _provider.GetValueAs<int>(AppConfigurationCodes.MaxValidityPeriodDays, _tenantId, AppConfigurationDefaults.MaxValidityPeriodDays);
 
-    public bool MfaRequiredForAdmin => _provider.GetValueAs<bool>("MFA_REQUIRED_FOR_ADMIN", _tenantId, false);
+    public bool MfaRequiredForAdmin => _provider.GetValueAs<bool>(AppConfigurationCodes.MfaRequiredForAdmin, _tenantId, AppConfigurationDefaults.MfaRequiredForAdmin);
 
-    public bool CustomBrandingEnabled => _provider.GetValueAs<bool>("UI_CUSTOM_BRANDING_ENABLED", _tenantId, false);
+    public bool CustomBrandingEnabled => _provider.GetValueAs<bool>(AppConfigurationCodes.UiCustomBrandingEnabled, _tenantId, AppConfigurationDefaults.UiCustomBrandingEnabled);
 
-    public string DefaultLanguage => _provider.GetValue("UI_LANGUAGE_DEFAULT", _tenantId, "es");
+    public string DefaultLanguage => _provider.GetValue(AppConfigurationCodes.UiLanguageDefault, _tenantId, AppConfigurationDefaults.UiLanguageDefault);
 
-    public string DefaultTimezone => _provider.GetValue("UI_TIMEZONE_DEFAULT", _tenantId, "America/Lima");
+    public string DefaultTimezone => _provider.GetValue(AppConfigurationCodes.UiTimezoneDefault, _tenantId, AppConfigurationDefaults.UiTimezoneDefault);
 }
 
 public static class ConfigurationValuesExtensions
 {
-    public static IConfigurationProvider GetConfigurationValues(this IServiceProvider services)
-        => services.GetRequiredService<IConfigurationProvider>();
+    public static ConfigurationValues GetConfigurationValues(this IServiceProvider services)
+        => services.GetRequiredService<IConfigurationProvider>().Global();
 
     public static ConfigurationValues ForTenant(this IConfigurationProvider provider, Guid tenantId)
         => new ConfigurationValues(provider, tenantId);

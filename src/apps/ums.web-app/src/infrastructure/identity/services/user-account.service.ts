@@ -2,12 +2,10 @@
  * user-account.service.ts
  *
  * Infrastructure service for the Identity / UserAccount bounded context.
- * Queries use GraphQL via graphqlClient.
- * Commands/transactions use REST via httpClient.
+ * Queries and commands currently use REST via httpClient.
  * All responses are validated at runtime with Zod before returning.
  */
 import { httpClient } from '@infra/http/httpClient';
-import { graphqlQueries } from '@infra/identity/queries/user-account.graphql';
 import { logger } from '@app/utils/logger';
 import {
   UserAccountPageSchema,
@@ -36,7 +34,6 @@ export interface UserAccountQueryParams {
 
 export const userAccountService = {
   // ── Queries (REST) ────────────────────────────────────────────────────────
-  // TODO: Changed from GraphQL to REST due to planned GraphQL migration/issues. Revisit GraphQL implementation later.
 
   getAll: async (params?: UserAccountQueryParams): Promise<UserAccountPage> => {
     const { data } = await httpClient.get('/user-accounts', {

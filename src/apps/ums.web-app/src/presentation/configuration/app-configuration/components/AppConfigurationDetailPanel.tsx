@@ -18,6 +18,7 @@ import {
   useArchiveAppConfiguration,
 } from '@app/configuration/hooks/use-app-configuration';
 import { useNotificationStore } from '@app/stores/notification.store';
+import { AppConfigurationAuditTrailPanel } from './AppConfigurationAuditTrailPanel';
 
 interface AppConfigurationDetailPanelProps {
   config?: AppConfiguration;
@@ -246,6 +247,8 @@ export function AppConfigurationDetailPanel({
             }
           />
         )}
+
+        <AppConfigurationAuditTrailPanel config={config} />
 
         {/* Actions */}
         <div className="flex gap-2 pt-2 border-t border-m3-outline/10">
