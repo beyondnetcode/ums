@@ -282,8 +282,7 @@ public static class ApprovalsDevDataSeeder
             Description.Create(description),
             category,
             requiresApproval,
-            actor,
-            requiredDocumentCount);
+            actor);
 
         // ApprovalWorkflow constructor is private — use reflection to instantiate
         var ctor = typeof(ApprovalWorkflowAggregate)

@@ -3,10 +3,12 @@ using Ums.Domain.Authorization.Profile;
 using Ums.Domain.Authorization.SystemSuite;
 using Ums.Domain.Authorization.Template;
 using Ums.Domain.Authorization.Role;
+using Ums.Domain.Authorization.AssignmentRule;
 using ProfileAggregate = Ums.Domain.Authorization.Profile.Profile;
 using SystemSuiteAggregate = Ums.Domain.Authorization.SystemSuite.SystemSuite;
 using PermissionTemplateAggregate = Ums.Domain.Authorization.Template.PermissionTemplate;
 using RoleAggregate = Ums.Domain.Authorization.Role.Role;
+using AssignmentRuleAggregate = Ums.Domain.Authorization.AssignmentRule.TemplateAssignmentRule;
 
 public interface IProfileRepository : IAggregateRepository<ProfileAggregate>
 {
@@ -56,4 +58,16 @@ public interface IRoleRepository : IAggregateRepository<RoleAggregate>
     // ── Dependency guard queries ────────────────────────────────────────────
     /// <summary>Returns the number of active child roles for a given parent role.</summary>
     Task<int> CountActiveChildRolesAsync(Guid parentRoleId, CancellationToken cancellationToken = default);
+}
+
+public interface ITemplateAssignmentRuleRepository : IAggregateRepository<AssignmentRuleAggregate>
+{
+    Task<AssignmentRuleAggregate?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<AssignmentRuleAggregate>> GetByTenantIdAsync(Guid tenantId, CancellationToken cancellationToken = default);
+
+    /// <summary>Returns active rules for the given tenant and role, ordered by Priority descending (highest first).</summary>
+    Task<IReadOnlyList<AssignmentRuleAggregate>> GetActiveByTenantAndRoleAsync(Guid tenantId, Guid roleId, CancellationToken cancellationToken = default);
+
+    /// <summary>Returns whether any active rule for the given tenant already uses the given priority value.</summary>
+    Task<bool> ExistsActiveWithPriorityAsync(Guid tenantId, int priority, CancellationToken cancellationToken = default);
 }

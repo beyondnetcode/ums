@@ -10,6 +10,7 @@ using Ums.Domain.Authorization.SystemSuite.Action;
 using Ums.Domain.Authorization.SystemSuite.DomainResource;
 using Ums.Domain.Authorization.Template;
 using Ums.Domain.Authorization.Role;
+using Ums.Domain.Authorization.AssignmentRule;
 using Ums.Domain.Authorization.Template.PermissionTemplateItem;
 using Ums.Domain.Enums;
 using Ums.Domain.Kernel.ValueObjects;
@@ -23,6 +24,7 @@ using ProfileAggregate = Ums.Domain.Authorization.Profile.Profile;
 using PermissionTemplateAggregate = Ums.Domain.Authorization.Template.PermissionTemplate;
 using RoleAggregate = Ums.Domain.Authorization.Role.Role;
 using SystemSuiteAggregate = Ums.Domain.Authorization.SystemSuite.SystemSuite;
+using AssignmentRuleAggregate = Ums.Domain.Authorization.AssignmentRule.TemplateAssignmentRule;
 using ModuleEntity = Ums.Domain.Authorization.SystemSuite.Module.Module;
 using MenuEntity = Ums.Domain.Authorization.SystemSuite.Menu.Menu;
 using SubMenuEntity = Ums.Domain.Authorization.SystemSuite.SubMenu.SubMenu;
@@ -143,6 +145,32 @@ internal static class AuthorizationAggregateFactory
         aggregate.DomainEvents.MarkChangesAsCommitted();
         aggregate.BrokenRules.Clear();
 
+        return aggregate;
+    }
+
+    public static AssignmentRuleAggregate RehydrateAssignmentRule(TemplateAssignmentRuleRecord record)
+    {
+        var audit = AuditValueObject.Load(new AuditProps
+        {
+            CreatedBy = record.CreatedBy,
+            CreatedAt = record.CreatedAtUtc,
+            UpdatedBy = record.UpdatedBy,
+            UpdatedAt = record.UpdatedAtUtc,
+            TimeSpan = record.AuditTimeSpan
+        });
+
+        var props = new TemplateAssignmentRuleProps(
+            IdValueObject.Load(record.Id),
+            TenantId.Load(record.TenantId),
+            TemplateId.Load(record.TemplateId),
+            RoleId.Load(record.RoleId),
+            record.Priority,
+            (TemplateAssignmentRuleStatus)record.StatusId,
+            audit);
+
+        var aggregate = Construct<AssignmentRuleAggregate, TemplateAssignmentRuleProps>(props);
+        aggregate.DomainEvents.MarkChangesAsCommitted();
+        aggregate.BrokenRules.Clear();
         return aggregate;
     }
 

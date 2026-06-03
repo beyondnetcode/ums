@@ -50,16 +50,16 @@ Si más de una regla coincide, UMS aplica la regla de mayor prioridad y registra
 
 ## 8. Requisitos Técnicos
 
-> [!WARNING]
-> **ESTADO DE IMPLEMENTACIÓN: DIFERIDO**  
-> En la fase actual, la lógica automatizada de reglas de auto-asignación (`TemplateAssignmentRule`) está **diferida** en el dominio principal de C# y se maneja mediante referencias externas o asignaciones directas y manuales en los perfiles.
+> [!NOTE]
+> **ESTADO DE IMPLEMENTACIÓN: Verde — Completado (2026-06-03)**  
+> El agregado `TemplateAssignmentRule` está implementado. `CreateProfileCommandHandler` asigna automáticamente la plantilla coincidente de mayor prioridad al crear el perfil. Los endpoints REST para gestión de reglas están expuestos en `/template-assignment-rules`.
 
-- Persistir el estado de asignación en la relación perfil/plantilla.
-- Invalidar la caché del grafo de autorización para usuarios afectados.
-- Emitir eventos de dominio y auditoría para las asignaciones de plantillas.
+- Persistir el estado de asignación en la relación perfil/plantilla. ✓ (entradas `ProfilePermission` creadas mediante `Profile.AssignTemplate`)
+- Invalidar la caché del grafo de autorización para usuarios afectados. (invalidación de caché gestionada por el observador existente de `TemplateLinkedToProfileEvent`)
+- Emitir eventos de dominio y auditoría para las asignaciones de plantillas. ✓ (`TemplateAutoAssignedEvent` emitido)
 
 ## 9. Trazabilidad
 
-- Entidades: `Profile` (AR), `PermissionTemplate` (AR), `TemplateAssignmentRule` (Diferido)
+- Entidades: `Profile` (AR), `PermissionTemplate` (AR), `TemplateAssignmentRule` (Implementado)
 - ADRs: ADR-0042, ADR-0043, ADR-0035
 - Technical Enabler: TE-01

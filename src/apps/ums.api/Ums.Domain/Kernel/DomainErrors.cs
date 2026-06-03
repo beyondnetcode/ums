@@ -131,6 +131,10 @@ public static class DomainErrors
         public const string DomainResourceHasTemplateItems = "DOMAIN_RESOURCE_HAS_TEMPLATE_ITEMS";
         public const string ModuleHasActiveMenus         = "MODULE_HAS_ACTIVE_MENUS";
         public const string TemplateItemsRequired        = "authorization.template_items_required";
+        public const string AssignmentRulePriorityMustBePositive = "authorization.assignment_rule_priority_must_be_positive";
+        public const string AssignmentRuleAlreadyActive   = "authorization.assignment_rule_already_active";
+        public const string AssignmentRuleAlreadyInactive = "authorization.assignment_rule_already_inactive";
+        public const string AssignmentRuleDuplicatePriority = "authorization.assignment_rule_duplicate_priority";
     }
 
     public static class Approvals

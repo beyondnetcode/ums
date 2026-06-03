@@ -274,6 +274,7 @@ public static class DependencyInjection
             services.AddScoped<ISystemSuiteRepository, SqlServerSystemSuiteRepository>();
             services.AddScoped<IPermissionTemplateRepository, SqlServerPermissionTemplateRepository>();
             services.AddScoped<IRoleRepository, SqlServerRoleRepository>();
+            services.AddScoped<ITemplateAssignmentRuleRepository, SqlServerTemplateAssignmentRuleRepository>();
         }
         else
         {
@@ -288,6 +289,9 @@ public static class DependencyInjection
 
             services.AddSingleton<InMemoryRoleRepository>();
             services.AddSingleton<IRoleRepository>(sp => sp.GetRequiredService<InMemoryRoleRepository>());
+
+            services.AddSingleton<InMemoryTemplateAssignmentRuleRepository>();
+            services.AddSingleton<ITemplateAssignmentRuleRepository>(sp => sp.GetRequiredService<InMemoryTemplateAssignmentRuleRepository>());
         }
 
         if ((persistence.Provider == PersistenceProvider.SqlServer && persistence.UseSqlServerConfigurationStores) ||

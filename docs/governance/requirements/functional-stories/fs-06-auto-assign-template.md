@@ -50,13 +50,13 @@ If more than one rule matches, UMS applies the highest-priority rule and records
 
 ## 8. Technical Requirements
 
-> [!WARNING]
-> **ESTADO DE IMPLEMENTACIÓN: DIFERIDO**  
-> En la fase actual, la lógica automatizada de reglas de auto-asignación (`TemplateAssignmentRule`) está **diferida** en el dominio principal de C# y se maneja mediante referencias externas o asignaciones directas y manuales en los perfiles.
+> [!NOTE]
+> **IMPLEMENTATION STATUS: Green — Done (2026-06-03)**  
+> `TemplateAssignmentRule` aggregate is implemented. `CreateProfileCommandHandler` auto-assigns the highest-priority matching template on profile creation. REST endpoints for rule management are exposed at `/template-assignment-rules`.
 
-- Persist assignment state on the profile/template relationship.
-- Invalidate authorization graph cache for affected users.
-- Emit domain and audit events for template assignments.
+- Persist assignment state on the profile/template relationship. ✓ (`ProfilePermission` entries created via `Profile.AssignTemplate`)
+- Invalidate authorization graph cache for affected users. (cache invalidation handled by existing `TemplateLinkedToProfileEvent` observer)
+- Emit domain and audit events for template assignments. ✓ (`TemplateAutoAssignedEvent` emitted)
 
 ## 9. Traceability
 

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Ums.Infrastructure.Persistence;
 
@@ -10,9 +11,11 @@ using Ums.Infrastructure.Persistence;
 namespace Ums.Infrastructure.Migrations
 {
     [DbContext(typeof(UmsPlatformDbContext))]
-    partial class UmsPlatformDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260603212458_Fs06TemplateAssignmentRules")]
+    partial class Fs06TemplateAssignmentRules
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

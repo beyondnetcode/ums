@@ -63,6 +63,11 @@ public sealed record PermissionStatusChangedEvent(Guid ProfileId, Guid Permissio
 public sealed record ProfileDeactivatedEvent(Guid ProfileId) : AuthorizationDomainEvent;
 public sealed record ProfileActivatedEvent(Guid ProfileId) : AuthorizationDomainEvent;
 
+public sealed record AssignmentRuleCreatedEvent(Guid RuleId, Guid TenantId, Guid TemplateId, Guid RoleId, int Priority) : AuthorizationDomainEvent;
+public sealed record AssignmentRuleDeactivatedEvent(Guid RuleId) : AuthorizationDomainEvent;
+public sealed record AssignmentRuleReactivatedEvent(Guid RuleId) : AuthorizationDomainEvent;
+public sealed record TemplateAutoAssignedEvent(Guid ProfileId, Guid TemplateId, Guid RuleId) : AuthorizationDomainEvent;
+
 public sealed record RoleCreatedEvent(Guid RoleId, Guid TenantId, Guid SystemSuiteId, string Code, Guid? ParentRoleId) : AuthorizationDomainEvent;
 public sealed record RoleUpdatedEvent(Guid RoleId) : AuthorizationDomainEvent;
 public sealed record RoleActivatedEvent(Guid RoleId) : AuthorizationDomainEvent;

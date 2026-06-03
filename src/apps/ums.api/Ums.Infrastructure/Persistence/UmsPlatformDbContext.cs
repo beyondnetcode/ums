@@ -64,6 +64,7 @@ public sealed class UmsPlatformDbContext(
     public DbSet<SystemSuiteDomainResourceRecord> SystemSuiteDomainResources => Set<SystemSuiteDomainResourceRecord>();
     public DbSet<PermissionTemplateRecord> PermissionTemplates => Set<PermissionTemplateRecord>();
     public DbSet<PermissionTemplateItemRecord> PermissionTemplateItems => Set<PermissionTemplateItemRecord>();
+    public DbSet<TemplateAssignmentRuleRecord> TemplateAssignmentRules => Set<TemplateAssignmentRuleRecord>();
     public DbSet<RoleRecord> Roles => Set<RoleRecord>();
     public DbSet<UserManagementDelegationRecord> UserManagementDelegations => Set<UserManagementDelegationRecord>();
     public DbSet<AppConfigurationRecord> AppConfigurations => Set<AppConfigurationRecord>();

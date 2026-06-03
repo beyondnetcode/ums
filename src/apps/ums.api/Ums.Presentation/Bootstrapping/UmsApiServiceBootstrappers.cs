@@ -38,6 +38,7 @@ using Ums.Presentation.Extensions;
 using Ums.Presentation.Endpoints.Authorization.SystemSuite.Queries;
 using Ums.Presentation.Endpoints.Authorization.Template;
 using Ums.Presentation.Endpoints.Authorization.Template.Queries;
+using Ums.Presentation.Endpoints.Authorization.AssignmentRule;
 using Ums.Presentation.Endpoints.Authorization.Role;
 using Ums.Presentation.Endpoints.Configuration.AppConfiguration;
 using Ums.Presentation.Endpoints.Configuration.AppConfiguration.Queries;
@@ -474,6 +475,7 @@ public static class UmsApiApplicationBuilderExtensions
         versionedGroup.MapSystemSuiteEndpoints();
         versionedGroup.MapPermissionTemplateEndpoints();
         versionedGroup.MapRoleEndpoints();
+        versionedGroup.MapTemplateAssignmentRuleEndpoints();
 
         return versionedGroup;
     }

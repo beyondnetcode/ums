@@ -20,9 +20,9 @@ Este documento mantiene una vista dinamica de lo que ya esta implementado, lo qu
 
 | Estado | Cantidad | IDs de historia |
 |---|---:|---|
-| Implementado / utilizable | 14 | FS-01, FS-02, FS-03, FS-04, FS-05, FS-07, FS-08, FS-10, FS-11, FS-18, FS-21, FS-22, FS-26, FS-27 |
+| Implementado / utilizable | 15 | FS-01, FS-02, FS-03, FS-04, FS-05, FS-06, FS-07, FS-08, FS-10, FS-11, FS-18, FS-21, FS-22, FS-26, FS-27 |
 | Parcial | 12 | FS-09, FS-12, FS-13, FS-14, FS-15, FS-16, FS-17, FS-19, FS-20, FS-23, FS-24, FS-25 |
-| Diferido | 1 | FS-06 |
+| Diferido | 0 | — |
 
 ## Leyenda de Seguimiento
 
@@ -42,12 +42,12 @@ Este documento mantiene una vista dinamica de lo que ya esta implementado, lo qu
 | FS-10 | B2B External Access Request and Approval Flow | Green — Listo | 2026-06-03 | Guard `PROFILE_INTERNAL_ONLY` en `CreateApprovalRequestCommandHandler` (bloquea usuarios externos/B2B de workflows solo para internos con error de escalacion de privilegios). Notificaciones de aprobacion y rechazo en `ApproveRequestCommandHandler` y `RejectRequestCommandHandler`. Nueva constante de error `WorkflowNotAllowedForUserCategory`. 6 tests nuevos. 571 tests pasan. |
 | FS-11 | Upload and Validate User Document | Green — Listo | 2026-06-03 | Templates `UserDocumentRejected` y `UserDocumentValidated`. Notificaciones en `RejectUserDocumentCommandHandler` y `ValidateUserDocumentCommandHandler`. `RecordEnforcementExecutedCommand` + handler + endpoint `POST /user-documents/{id}/enforcement`. 8 tests nuevos: notificaciones, guardas de FSM (`WhenNotPendingReview`, `WhenAlreadyExpired`, `WhenDocumentIsValid`), enforcement. 579 tests pasan. |
 | FS-22 | Solicitud y Aprobacion de Alta de Usuario | Green — Listo | 2026-06-03 | Se agrego `SignupUserCommandHandlerTests.cs` (8 tests) cubriendo el flujo publico del solicitante: caso feliz, email duplicado, tenant invalido y sin admin activo. Documentacion actualizada con badge de estado, referencia de trazabilidad corregida y seccion 10 con evidencia de pruebas de aceptacion. |
+| FS-06 | Auto-Assign Template on Profile Creation | Green — Listo | 2026-06-03 | Implementado agregado `TemplateAssignmentRule` (maquina de estado Active/Inactive, guarda de prioridad unica, eventos `AssignmentRuleCreated/Deactivated/Reactivated`). Comandos `CreateAssignmentRuleCommand`, `DeactivateAssignmentRuleCommand`, `ReactivateAssignmentRuleCommand` con guarda de template publicado y chequeo de prioridad duplicada. `CreateProfileCommandHandler` actualizado con `TryAutoAssignTemplateAsync` — toma la regla activa de mayor prioridad que coincide con `(TenantId, RoleId)` y llama a `Profile.AssignTemplate`. Evento `TemplateAutoAssignedEvent` para trazabilidad. Endpoints REST: `GET /template-assignment-rules?tenantId`, `POST`, `/deactivate`, `/reactivate`. Migracion EF `Fs06TemplateAssignmentRules`. 15 tests nuevos (8 dominio + 7 aplicacion). 1,344 tests pasan. |
 
 ## Registro de Brechas Abiertas
 
 | FS | Historia | Senal | Prioridad | Criticidad | Complejidad | Responsable | Objetivo | Estado | Brecha principal | Siguiente accion |
 |---|---|---|---|---|---|---|---|---|---|---|
-| FS-06 | Auto-Assign Template on Profile Creation | Red | P3 | Media | Alta | Authorization | TBD | Diferido | `TemplateAssignmentRule` esta diferida de forma intencional y el motor de automatizacion no forma parte del alcance actual. | Revisar el motor de reglas solo cuando la autoasignacion sea un compromiso formal de producto. |
 | FS-09 | Adaptive MFA and Passwordless Authentication | Amber | P1 | Alta | Alta | Identity / Security | TBD | Abierto | MFA tiene soporte de dominio, pero passwordless, decisiones adaptativas de riesgo y exposicion activa de endpoints siguen incompletos. | Reactivar las rutas de API y completar el flujo adaptativo/passwordless. |
 | FS-12 | Execute Role Promotion Process | Amber | P1 | Alta | Alta | IGA | TBD | Abierto | El flujo de promocion aun necesita la revision completa de manager/seguridad, ejecucion, verificacion y cierre del analisis de impacto. | Terminar la maquina de estados de promocion y alinear los pasos de aprobacion con el contrato de dominio. |
 | FS-13 | Configure Hierarchical System Parameters | Amber | P1 | Alta | Alta | Plataforma / Configuracion | TBD | Abierto | La parametrizacion existe, pero el contexto formal de Configuration sigue sin su superficie API completa. | Implementar de punta a punta las APIs de `AppConfiguration`, `FeatureFlag` e `IdpConfiguration`. |
