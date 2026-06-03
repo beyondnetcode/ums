@@ -18,6 +18,7 @@ import { EntityRow } from '@shared/components/EntityRow';
 import { EntityCard } from '@shared/components/EntityCard';
 import { ApiErrorBanner } from '@shared/components/ApiErrorBanner';
 import { STATUS_COLORS, getStatusLabel } from '@shared/utils/status-utils';
+import { CodeBadge } from '@shared/components/CodeBadge';
 
 const STATUS_COLOR_MAP = {
   active: STATUS_COLORS.Active,
@@ -128,26 +129,28 @@ export const ProfileListPanel: React.FC<Props> = ({
           <div className="flex items-center gap-2">
             <span className="text-[12px] font-medium text-m3-on-surface">{prof.userEmail}</span>
             <span className="text-[9px] text-m3-secondary/30">·</span>
-            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-m3-primary bg-m3-primary/10 px-1.5 py-0.5 rounded">
-              {prof.systemSuiteCode}
-            </span>
+            <CodeBadge code={prof.systemSuiteCode} size="xs" />
           </div>
-          <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-            <span className="inline-flex items-center gap-1 text-[10px] text-m3-secondary/70">
-              <Shield className="w-3 h-3 text-m3-secondary/50" />
-              <span className="font-medium">{prof.roleCode}</span>
-              <span className="text-m3-secondary/50">— {prof.roleName}</span>
-            </span>
-            <span className="text-[9px] text-m3-secondary/30">·</span>
-            <span className="inline-flex items-center gap-1 text-[10px] text-m3-secondary/70">
-              <Building2 className="w-3 h-3 text-m3-secondary/50" />
-              <span>{prof.tenantCode}</span>
-            </span>
-            <span className="text-[9px] text-m3-secondary/30">·</span>
-            <span className="inline-flex items-center gap-1 text-[10px] text-m3-secondary/70">
-              <Key className="w-3 h-3 text-m3-secondary/50" />
-              <span>{prof.scope}</span>
-            </span>
+          <div className="flex items-center gap-x-3 gap-y-1 mt-1 flex-wrap">
+            <div className="flex items-center gap-1">
+              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-m3-primary/10 text-m3-primary flex items-center gap-1">
+                <Shield className="w-3 h-3" />
+                {prof.roleName}
+              </span>
+              <CodeBadge code={prof.roleCode} size="xs" />
+            </div>
+            
+            <div className="flex items-center gap-1">
+              <span className="text-[9px] text-m3-secondary/30 mr-1">·</span>
+              <Building2 className="w-3.5 h-3.5 text-m3-secondary/50" />
+              <CodeBadge code={prof.tenantCode} size="xs" />
+            </div>
+            
+            <div className="flex items-center gap-1">
+              <span className="text-[9px] text-m3-secondary/30 mr-1">·</span>
+              <Key className="w-3.5 h-3.5 text-m3-secondary/50" />
+              <span className="text-[10px] font-medium text-m3-secondary/70">{prof.scope}</span>
+            </div>
           </div>
         </EntityRow>
       );

@@ -4,12 +4,16 @@ import { M3Dialog, M3Tabs, FieldSelect, FormButton } from '@shared/components';
 import { useEffectiveTenant } from '@app/shared/hooks/use-effective-tenant';
 import { useAuthStore } from '@app/stores/auth.store';
 import { useGetAllUserAccounts } from '@app/identity/hooks/use-user-account';
-import { useGetAllSystemSuites } from '@app/authorization/hooks/use-system-suite';
+import { useGetAllSystemSuites, useGetSystemSuite } from '@app/authorization/hooks/use-system-suite';
 import { useRolesBySystemSuite } from '@app/authorization/hooks/use-role';
 import { useGetAllPermissionTemplates, useGetPermissionTemplate } from '@app/authorization/hooks/use-permission-template';
 import { useCreateProfile, useAssignProfileTemplate, useOverrideProfilePermission, useActivateProfilePermission, useDeactivateProfilePermission } from '@app/authorization/hooks/use-profile';
 import { getHttpErrorMessage, getSupportReferenceId } from '@app/errors/http-error';
 import profileService from '@infra/authorization/services/profile.service';
+import { ProfileModulePermissionsPanel, type ModulePermNode } from './tree/ProfileModulePermissionsPanel';
+import { getAscendantIds, getSiblingViewOptions } from '../../../../application/authorization/utils/permission-cascade';
+import { useNotificationStore } from '@app/stores/notification.store';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface Props {
   isOpen: boolean;
@@ -32,6 +36,8 @@ interface LocalPermission {
 export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenantId }) => {
   const effectiveTenantId = useEffectiveTenant(tenantId);
   const sessionTenantName = useAuthStore((state) => state.user?.tenantName);
+  const addNotification = useNotificationStore(s => s.addNotification);
+  const queryClient = useQueryClient();
 
   const [userId, setUserId] = useState('');
   const [systemSuiteId, setSystemSuiteId] = useState('');
@@ -43,6 +49,7 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenan
 
   const { data: userPage, isLoading: loadingUsers } = useGetAllUserAccounts({ page: 1, pageSize: 100, tenantId: effectiveTenantId || undefined });
   const { data: suitesPage, isLoading: loadingSuites } = useGetAllSystemSuites({ page: 1, pageSize: 100 });
+  const { data: suite } = useGetSystemSuite(systemSuiteId || null);
   const { data: roles = [], isLoading: loadingRoles } = useRolesBySystemSuite(systemSuiteId);
   const { data: templatesPage, isLoading: loadingTemplates } = useGetAllPermissionTemplates({
     page: 1,
@@ -93,16 +100,51 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenan
   };
 
   const handleChangeEffect = (index: number, effect: 'Allow' | 'Deny' | 'Neutral') => {
-    setLocalPermissions(prev => prev.map((p, idx) => {
-      if (idx === index) {
-        return {
-          ...p,
-          isAllowed: effect === 'Allow',
-          isDenied: effect === 'Deny'
-        };
+    setLocalPermissions(prev => {
+      const next = [...prev];
+      const target = next[index];
+      let changedParents = false;
+
+      let ascendantIds: string[] = [];
+      let siblingViews: string[] = [];
+      if (effect === 'Allow' && suite) {
+        ascendantIds = getAscendantIds(suite, target.targetId);
+        const siblings = getSiblingViewOptions(suite, target.targetId);
+        siblingViews = siblings.map(s => s.id);
       }
-      return p;
-    }));
+
+      const updated = next.map((p, idx) => {
+        if (idx === index) {
+          return {
+            ...p,
+            isAllowed: effect === 'Allow',
+            isDenied: effect === 'Deny'
+          };
+        }
+        
+        if (effect === 'Allow' && (ascendantIds.includes(p.targetId) || siblingViews.includes(p.targetId))) {
+          if (!p.isAllowed) {
+            changedParents = true;
+            return {
+              ...p,
+              isAllowed: true,
+              isDenied: false
+            };
+          }
+        }
+        return p;
+      });
+
+      if (changedParents) {
+        addNotification({
+          title: 'Jerarquía actualizada',
+          message: 'Se habilitaron automáticamente los niveles superiores por consistencia jerárquica.',
+          type: 'info',
+        });
+      }
+
+      return updated;
+    });
   };
 
   const handleSave = async () => {
@@ -167,6 +209,63 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenan
     } finally {
       setSaving(false);
     }
+  };
+
+  const renderModuleActions = (node: ModulePermNode) => {
+    // Find if the node exists in local permissions
+    const localIdx = localPermissions.findIndex(p => p.targetId === node.id);
+    if (localIdx === -1) return null;
+    
+    const p = localPermissions[localIdx];
+    return (
+      <div className="flex items-center gap-4">
+        {/* Allowed/Denied Toggle */}
+        <div className="flex items-center bg-m3-surface-container/60 rounded-lg p-0.5 border border-m3-outline/20">
+          <button
+            type="button"
+            onClick={() => handleChangeEffect(localIdx, 'Allow')}
+            className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${p.isAllowed ? 'bg-emerald-500 text-white shadow-sm' : 'text-m3-on-surface/60 hover:text-m3-on-surface'}`}
+          >
+            <ShieldCheck className="w-3.5 h-3.5 inline mr-1" />
+            Allow
+          </button>
+          <button
+            type="button"
+            onClick={() => handleChangeEffect(localIdx, 'Neutral')}
+            className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${!p.isAllowed && !p.isDenied ? 'bg-m3-outline/30 text-m3-on-surface' : 'text-m3-on-surface/60 hover:text-m3-on-surface'}`}
+          >
+            <Shield className="w-3.5 h-3.5 inline mr-1" />
+            Neutral
+          </button>
+          <button
+            type="button"
+            onClick={() => handleChangeEffect(localIdx, 'Deny')}
+            className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${p.isDenied ? 'bg-rose-500 text-white shadow-sm' : 'text-m3-on-surface/60 hover:text-m3-on-surface'}`}
+          >
+            <ShieldAlert className="w-3.5 h-3.5 inline mr-1" />
+            Deny
+          </button>
+        </div>
+
+        {/* Active/Inactive Switch */}
+        <div className="flex items-center gap-1.5">
+          <span className={`text-[10px] font-medium ${p.isActive ? 'text-emerald-500' : 'text-m3-on-surface/40'}`}>
+            {p.isActive ? 'Activo' : 'Inactivo'}
+          </span>
+          <button
+            type="button"
+            onClick={() => handleToggleActive(localIdx)}
+            className="text-m3-primary hover:opacity-80 transition-opacity focus:outline-none"
+          >
+            {p.isActive ? (
+              <ToggleRight className="w-6 h-6 text-emerald-500 fill-emerald-500/25" />
+            ) : (
+              <ToggleLeft className="w-6 h-6 text-m3-outline" />
+            )}
+          </button>
+        </div>
+      </div>
+    );
   };
 
   const renderPermissionList = (items: { p: LocalPermissionState; idx: number }[]) => (
@@ -333,7 +432,15 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenan
                       id: 'modules',
                       label: 'Navegación',
                       icon: <LayoutGrid className="w-4 h-4" />,
-                      content: renderPermissionList(localPermissions.map((p, i) => ({ p, idx: i })).filter(x => ['Module', 'SubModule', 'Page'].includes(x.p.targetType)))
+                      content: (
+                        <ProfileModulePermissionsPanel
+                          suite={suite}
+                          items={localPermissions}
+                          renderActions={renderModuleActions}
+                          onNodeSelect={() => {}}
+                          selectedNodeId={null}
+                        />
+                      )
                     },
                     {
                       id: 'domain',

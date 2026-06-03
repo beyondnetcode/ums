@@ -36,6 +36,8 @@ import type { PermissionTemplateItem } from '@domain/authorization/models/permis
 import { ModulePermissionsPanel, type ModulePermNode } from './tree/ModulePermissionsPanel';
 import { DomainResourcesPanel, type DomainResourceNode } from './tree/DomainResourcesPanel';
 import { SystemActionsPanel } from './tree/SystemActionsPanel';
+import { getAscendantsWithTypes, getSiblingViewOptions } from '../../../../application/authorization/utils/permission-cascade';
+import { useNotificationStore } from '@app/stores/notification.store';
 import { STATUS_COLORS, getStatusLabel } from '@shared/utils/status-utils';
 
 type TemplateTab = 'overview' | 'modules' | 'domain-resources' | 'actions';
@@ -209,8 +211,9 @@ export const PermissionTemplateDetailPanel: React.FC<Props> = ({ template, isLoa
           <ModuleNodeDetailPanel
             node={selectedModuleNode}
             suite={suite}
-            templateId={template.templateId}
+            templateId={template?.templateId ?? ''}
             isDraft={isDraft}
+            allItems={template?.items ?? []}
           />
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-m3-secondary/50 p-6 text-center">
@@ -298,21 +301,23 @@ interface ModuleNodeDetailPanelProps {
   suite: SystemSuite | undefined | null;
   templateId: string;
   isDraft: boolean;
+  allItems: PermissionTemplateItem[];
 }
 
-const ModuleNodeDetailPanel: React.FC<ModuleNodeDetailPanelProps> = ({ node, suite, templateId, isDraft }) => {
+const ModuleNodeDetailPanel: React.FC<ModuleNodeDetailPanelProps> = ({ node, suite, templateId, isDraft, allItems }) => {
   const setEffect = useSetTemplateItemEffect(templateId);
   const removeItem = useRemoveTemplateItem(templateId);
   const addItem = useAddTemplateItem(templateId);
+  const addNotification = useNotificationStore(s => s.addNotification);
 
   const selfItem = node.items[0];
 
-  const computeNodeEffectiveState = (): 'Allow' | 'Deny' | 'Partial' | 'Neutral' => {
+  const computeNodeEffectiveState = (): 'Allow' | 'Deny' | 'Neutral' => {
     const selfEffects = node.items.map(itemEffect);
     const hasAllow = selfEffects.includes('Allow');
     const hasDeny = selfEffects.includes('Deny');
-    if (hasAllow && !hasDeny) return 'Allow';
-    if (hasDeny && !hasAllow) return 'Deny';
+    if (hasAllow) return 'Allow';
+    if (hasDeny) return 'Deny';
     return 'Neutral';
   };
   const effectiveState = computeNodeEffectiveState();
@@ -320,19 +325,16 @@ const ModuleNodeDetailPanel: React.FC<ModuleNodeDetailPanelProps> = ({ node, sui
   const StateIcon =
     effectiveState === 'Allow' ? CheckCircle2 :
     effectiveState === 'Deny' ? XCircle :
-    effectiveState === 'Partial' ? CheckCircle2 :
     MinusCircle;
 
   const stateColor =
     effectiveState === 'Allow' ? 'text-emerald-500 bg-emerald-500/10' :
     effectiveState === 'Deny' ? 'text-rose-500 bg-rose-500/10' :
-    effectiveState === 'Partial' ? 'text-amber-500 bg-amber-500/10' :
     'text-m3-secondary bg-m3-surface-variant';
 
   const stateLabel =
     effectiveState === 'Allow' ? 'Permitido' :
     effectiveState === 'Deny' ? 'Denegado' :
-    effectiveState === 'Partial' ? 'Permitido parcialmente' :
     'No configurado (Heredado)';
 
   const mapTypeToTarget = (type: string): ExclusiveArcTarget => {
@@ -365,6 +367,34 @@ const ModuleNodeDetailPanel: React.FC<ModuleNodeDetailPanelProps> = ({ node, sui
         isAllowed: effect === 'Allow',
         isDenied: effect === 'Deny',
       });
+    }
+
+    if (effect === 'Allow' && suite) {
+      const ascendants = getAscendantsWithTypes(suite, node.id);
+      const siblingViews = getSiblingViewOptions(suite, node.id);
+      let changedParents = false;
+      const elementsToProcess = [...ascendants, ...siblingViews];
+      for (const asc of elementsToProcess) {
+        const parentItem = allItems.find(i => i.targetId === asc.id);
+        if (parentItem) {
+          if (itemEffect(parentItem) !== 'Allow') {
+            await setEffect.mutateAsync({ itemId: parentItem.itemId, effect: 'Allow' });
+            changedParents = true;
+          }
+        } else {
+          await addItem.mutateAsync({
+            targetType: asc.type,
+            targetId: asc.id,
+            actionId: '00000000-0000-0000-0000-000000000000',
+            isAllowed: true,
+            isDenied: false,
+          });
+          changedParents = true;
+        }
+      }
+      if (changedParents) {
+        addNotification({ title: 'Jerarquía actualizada', message: 'Se habilitaron automáticamente las lecturas y niveles superiores.', type: 'info' });
+      }
     }
   };
 

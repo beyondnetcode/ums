@@ -143,6 +143,8 @@ public sealed class GetProfileByIdQueryHandler : IQueryHandler<GetProfileByIdQue
         var lookup = new Dictionary<Guid, string>();
         if (suite is null) return lookup;
 
+        lookup[suite.GetId().GetValue()] = suite.Props.Name.GetValue();
+
         foreach (var module in suite.Modules)
         {
             lookup[module.Props.Id.GetValue()] = module.Name.GetValue();
@@ -161,6 +163,14 @@ public sealed class GetProfileByIdQueryHandler : IQueryHandler<GetProfileByIdQue
                     }
                 }
             }
+        }
+
+        foreach (var resource in suite.DomainResources)
+        {
+            lookup[resource.Id.GetValue()] = resource.Name.GetValue();
+            
+            // Note: If you have CRUD operations stored with specific IDs, they would need to be added here too.
+            // But usually DomainResources are just the root Entity/Aggregate.
         }
 
         return lookup;

@@ -28,6 +28,12 @@ import {
   useActivateProfile,
   useDeactivateProfile,
 } from '@app/authorization/hooks/use-profile';
+import { useGetSystemSuite } from '@app/authorization/hooks/use-system-suite';
+import { ProfileModulePermissionsPanel } from './tree/ProfileModulePermissionsPanel';
+import { ProfileDomainResourcesPanel } from './tree/ProfileDomainResourcesPanel';
+import { ProfileSystemActionsPanel } from './tree/ProfileSystemActionsPanel';
+import { getAscendantIds, getSiblingViewOptions } from '../../../../application/authorization/utils/permission-cascade';
+import { useNotificationStore } from '@app/stores/notification.store';
 
 interface Props {
   profile: Profile | null;
@@ -57,6 +63,67 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
   const deactivatePermMutation = useDeactivateProfilePermission();
   const activateProfileMutation = useActivateProfile();
   const deactivateProfileMutation = useDeactivateProfile();
+  const { data: suite, isLoading: loadingSuite } = useGetSystemSuite(profile?.systemSuiteId ?? null);
+  const addNotification = useNotificationStore(s => s.addNotification);
+
+  const renderInlineActions = (node: { id: string }) => {
+    if (!profile) return null;
+    const p = profile.permissions.find(perm => perm.targetId === node.id);
+    if (!p) return null;
+    return renderPermissionActions(p);
+  };
+
+  const renderPermissionActions = (p: ProfilePermissionType | undefined) => {
+    if (!p) return null;
+    return (
+      <div className="flex items-center gap-4 ml-4">
+        <div className="flex items-center bg-m3-surface-container/60 rounded-lg p-0.5 border border-m3-outline/20">
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); handleChangePermissionEffect(p.permissionId, 'allow'); }}
+            disabled={overrideMutation.isPending}
+            className={`px-2 py-1 rounded-md text-[10px] font-semibold transition-all ${p.isAllowed && !p.isDenied ? 'bg-emerald-500 text-white shadow-sm' : 'text-m3-on-surface/60 hover:text-m3-on-surface hover:bg-m3-surface/50'}`}
+          >
+            <ShieldCheck className="w-3 h-3 inline mr-0.5" />
+            Allow
+          </button>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); handleChangePermissionEffect(p.permissionId, 'neutral'); }}
+            disabled={overrideMutation.isPending}
+            className={`px-2 py-1 rounded-md text-[10px] font-semibold transition-all ${!p.isAllowed && !p.isDenied ? 'bg-m3-outline/30 text-m3-on-surface shadow-sm' : 'text-m3-on-surface/60 hover:text-m3-on-surface hover:bg-m3-surface/50'}`}
+          >
+            <Shield className="w-3 h-3 inline mr-0.5" />
+            Neutral
+          </button>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); handleChangePermissionEffect(p.permissionId, 'deny'); }}
+            disabled={overrideMutation.isPending}
+            className={`px-2 py-1 rounded-md text-[10px] font-semibold transition-all ${!p.isAllowed && p.isDenied ? 'bg-rose-500 text-white shadow-sm' : 'text-m3-on-surface/60 hover:text-m3-on-surface hover:bg-m3-surface/50'}`}
+          >
+            <ShieldAlert className="w-3 h-3 inline mr-0.5" />
+            Deny
+          </button>
+        </div>
+
+        <div className="flex items-center gap-1.5 border-l border-m3-outline/20 pl-4">
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); handleTogglePermissionActive(p.permissionId, p.isActive); }}
+            disabled={activatePermMutation.isPending || deactivatePermMutation.isPending}
+            className="text-m3-primary hover:opacity-85 transition-opacity focus:outline-none"
+          >
+            {p.isActive ? (
+              <ToggleRight className="w-6 h-6 text-emerald-500 fill-emerald-500/20" />
+            ) : (
+              <ToggleLeft className="w-6 h-6 text-m3-outline" />
+            )}
+          </button>
+        </div>
+      </div>
+    );
+  };
 
   if (isLoading) {
     return (
@@ -109,11 +176,31 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
     permissionId: string,
     newEffect: 'allow' | 'deny' | 'neutral'
   ) => {
+    if (!profile) return;
+    const targetPerm = profile.permissions.find(p => p.permissionId === permissionId);
+
     await overrideMutation.mutateAsync({
       profileId: profile.profileId,
       permissionId,
       effect: newEffect,
     });
+
+    if (newEffect === 'allow' && targetPerm && suite) {
+      const ascendantIds = getAscendantIds(suite, targetPerm.targetId);
+      const siblingViews = getSiblingViewOptions(suite, targetPerm.targetId);
+      let changedParents = false;
+      const idsToProcess = [...ascendantIds, ...siblingViews.map(s => s.id)];
+      for (const ascendantId of idsToProcess) {
+        const parentPerm = profile.permissions.find(p => p.targetId === ascendantId);
+        if (parentPerm && !parentPerm.isAllowed) {
+          await overrideMutation.mutateAsync({ profileId: profile.profileId, permissionId: parentPerm.permissionId, effect: 'allow' });
+          changedParents = true;
+        }
+      }
+      if (changedParents) {
+        addNotification({ title: 'Jerarquía actualizada', message: 'Se habilitaron automáticamente los niveles superiores por consistencia jerárquica.', type: 'info' });
+      }
+    }
   };
 
   const toggleExpanded = (permissionId: string) => {
@@ -164,7 +251,7 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
             )}
             <div className="space-y-0.5">
               <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="font-bold text-m3-on-surface">{p.targetName}</span>
+                <span className="font-bold text-m3-on-surface">{p.targetName && p.targetName !== '-' && p.targetName !== '—' ? p.targetName : (p.targetType === 'SystemSuite' ? suite?.name : `(No definido)`)}</span>
                 <span className="text-[10px] uppercase font-semibold text-m3-primary bg-m3-primary/10 px-2 py-0.5 rounded-full border border-m3-primary/20">
                   {p.targetType}
                 </span>
@@ -180,60 +267,14 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                   </span>
                 )}
               </div>
-              <div className="text-[11px] text-m3-on-surface/60">
-                Acción: <span className="font-medium text-m3-secondary">{p.actionName}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4 self-end md:self-auto">
-            <div className="flex items-center bg-m3-surface-container/60 rounded-lg p-0.5 border border-m3-outline/20">
-              <button
-                type="button"
-                onClick={() => handleChangePermissionEffect(p.permissionId, 'allow')}
-                disabled={overrideMutation.isPending}
-                className={`px-2 py-1 rounded-md text-[10px] font-semibold transition-all ${p.isAllowed ? 'bg-emerald-500 text-white' : 'text-m3-on-surface/60 hover:text-m3-on-surface'}`}
-              >
-                <ShieldCheck className="w-3 h-3 inline mr-0.5" />
-                Allow
-              </button>
-              <button
-                type="button"
-                onClick={() => handleChangePermissionEffect(p.permissionId, 'neutral')}
-                disabled={overrideMutation.isPending}
-                className={`px-2 py-1 rounded-md text-[10px] font-semibold transition-all ${!p.isAllowed && !p.isDenied ? 'bg-m3-outline/30 text-m3-on-surface' : 'text-m3-on-surface/60 hover:text-m3-on-surface'}`}
-              >
-                <Shield className="w-3 h-3 inline mr-0.5" />
-                Neutral
-              </button>
-              <button
-                type="button"
-                onClick={() => handleChangePermissionEffect(p.permissionId, 'deny')}
-                disabled={overrideMutation.isPending}
-                className={`px-2 py-1 rounded-md text-[10px] font-semibold transition-all ${p.isDenied ? 'bg-rose-500 text-white' : 'text-m3-on-surface/60 hover:text-m3-on-surface'}`}
-              >
-                <ShieldAlert className="w-3 h-3 inline mr-0.5" />
-                Deny
-              </button>
-            </div>
-
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => handleTogglePermissionActive(p.permissionId, p.isActive)}
-                disabled={activatePermMutation.isPending || deactivatePermMutation.isPending}
-                className="text-m3-primary hover:opacity-85 transition-opacity focus:outline-none"
-              >
-                {p.isActive ? (
-                  <ToggleRight className="w-6 h-6 text-emerald-500 fill-emerald-500/20" />
-                ) : (
-                  <ToggleLeft className="w-6 h-6 text-m3-outline" />
-                )}
-              </button>
+              {p.actionName && p.actionName !== '—' && p.actionName !== '-' && (
+                <div className="text-[11px] text-m3-on-surface/60">
+                  Acción: <span className="font-medium text-m3-secondary">{p.actionName}</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
-
         {isExpanded && p.originalFromTemplate && (
           <div className="bg-m3-surface-container/5 p-3 pl-8 space-y-2">
             <div className="text-[10px] uppercase font-bold text-m3-secondary/60 mb-2">
@@ -425,18 +466,19 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                         label: 'Navegación',
                         icon: <LayoutGrid className="w-4 h-4" />,
                         content: (
-                          <div className="rounded-xl border border-m3-outline/10 bg-m3-surface-container/10 overflow-hidden divide-y divide-m3-outline/5">
-                            {profile.permissions.filter(p =>
-                              ['Module', 'Submodule', 'Option'].includes(p.targetType)
-                            ).length === 0 && (
-                              <div className="py-6 text-center text-[12px] text-m3-on-surface/50">
-                                No hay permisos de este tipo.
-                              </div>
-                            )}
-                            {profile.permissions
-                              .filter(p => ['Module', 'Submodule', 'Option'].includes(p.targetType))
-                              .map(p => renderPermissionRow(p))}
-                          </div>
+                          <ProfileModulePermissionsPanel
+                            suite={suite}
+                            items={profile.permissions}
+                            renderActions={renderInlineActions}
+                            renderExpandedContent={(node) => {
+                              const perm = profile.permissions.find(p => p.targetId === node.id);
+                              // Solo renderizar el row expandido si hay diferencias (originalFromTemplate) o es override
+                              if (perm && (perm.originalFromTemplate || perm.isOverride)) {
+                                return <div className="pl-6 border-l-2 border-m3-primary/20 ml-5 my-1">{renderPermissionRow(perm)}</div>;
+                              }
+                              return null;
+                            }}
+                          />
                         ),
                       },
                       {
@@ -444,16 +486,12 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                         label: 'Recursos',
                         icon: <Database className="w-4 h-4" />,
                         content: (
-                          <div className="rounded-xl border border-m3-outline/10 bg-m3-surface-container/10 overflow-hidden divide-y divide-m3-outline/5">
-                            {profile.permissions.filter(p => ['Aggregate', 'Entity'].includes(p.targetType))
-                              .length === 0 && (
-                              <div className="py-6 text-center text-[12px] text-m3-on-surface/50">
-                                No hay permisos de este tipo.
-                              </div>
-                            )}
-                            {profile.permissions
-                              .filter(p => ['Aggregate', 'Entity'].includes(p.targetType))
-                              .map(p => renderPermissionRow(p))}
+                          <div className="h-[400px]">
+                            <ProfileDomainResourcesPanel
+                              suite={suite}
+                              permissions={profile.permissions}
+                              renderInlineActions={(node) => renderPermissionActions(node.permissions[0])}
+                            />
                           </div>
                         ),
                       },
@@ -462,16 +500,12 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                         label: 'Acciones del Sistema',
                         icon: <Zap className="w-4 h-4" />,
                         content: (
-                          <div className="rounded-xl border border-m3-outline/10 bg-m3-surface-container/10 overflow-hidden divide-y divide-m3-outline/5">
-                            {profile.permissions.filter(p => p.targetType === 'SystemSuite')
-                              .length === 0 && (
-                              <div className="py-6 text-center text-[12px] text-m3-on-surface/50">
-                                No hay acceso global al sistema configurado.
-                              </div>
-                            )}
-                            {profile.permissions
-                              .filter(p => p.targetType === 'SystemSuite')
-                              .map(p => renderPermissionRow(p))}
+                          <div className="h-[400px]">
+                            <ProfileSystemActionsPanel
+                              suite={suite}
+                              permissions={profile.permissions}
+                              renderInlineActions={(p) => renderPermissionActions(p)}
+                            />
                           </div>
                         ),
                       },

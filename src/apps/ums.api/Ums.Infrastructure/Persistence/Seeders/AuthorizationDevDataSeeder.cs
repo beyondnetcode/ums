@@ -418,6 +418,22 @@ public static class AuthorizationDevDataSeeder
             adminV2.Props.Version = TemplateVersion.Create(2, 0, 0);
             // Navigation: full suite
             adminV2.AddItem(ExclusiveArcTarget.SystemSuite, coreSuite.GetId(), ActionId.Create(), true, false, actor);
+            foreach (var mod in coreSuite.Modules)
+            {
+                adminV2.AddItem(ExclusiveArcTarget.Module, mod.Props.Id, ActionId.Create(), true, false, actor);
+                foreach (var menu in mod.Menus)
+                {
+                    adminV2.AddItem(ExclusiveArcTarget.Submodule, menu.Props.Id, ActionId.Create(), true, false, actor);
+                    foreach (var subMenu in menu.SubMenus)
+                    {
+                        adminV2.AddItem(ExclusiveArcTarget.Option, subMenu.Props.Id, ActionId.Create(), true, false, actor);
+                        foreach (var opt in subMenu.Options)
+                        {
+                            adminV2.AddItem(ExclusiveArcTarget.Option, opt.Props.Id, ActionId.Create(), true, false, actor);
+                        }
+                    }
+                }
+            }
             // Domain resources: full access
             if (usersResource != null)
             {
@@ -550,6 +566,22 @@ public static class AuthorizationDevDataSeeder
         {
             var managerTpl = PermissionTemplateAggregate.Create(tenantId, managerRole.GetId(), wmsSuite.GetId(), actor).Value;
             managerTpl.AddItem(ExclusiveArcTarget.SystemSuite, wmsSuite.GetId(), ActionId.Create(), true, false, actor);
+            foreach (var mod in wmsSuite.Modules)
+            {
+                managerTpl.AddItem(ExclusiveArcTarget.Module, mod.Props.Id, ActionId.Create(), true, false, actor);
+                foreach (var menu in mod.Menus)
+                {
+                    managerTpl.AddItem(ExclusiveArcTarget.Submodule, menu.Props.Id, ActionId.Create(), true, false, actor);
+                    foreach (var subMenu in menu.SubMenus)
+                    {
+                        managerTpl.AddItem(ExclusiveArcTarget.Option, subMenu.Props.Id, ActionId.Create(), true, false, actor);
+                        foreach (var opt in subMenu.Options)
+                        {
+                            managerTpl.AddItem(ExclusiveArcTarget.Option, opt.Props.Id, ActionId.Create(), true, false, actor);
+                        }
+                    }
+                }
+            }
             managerTpl.Publish(actor);
             templates.Add(managerTpl);
         }
