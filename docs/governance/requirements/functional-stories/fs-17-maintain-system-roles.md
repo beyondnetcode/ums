@@ -1,5 +1,7 @@
 # Functional Story 17: Maintain Roles for a System Suite
 
+> **Status:** Implemented
+
 ## 1. Business Purpose
 
 UMS must let security administrators maintain the role catalog owned by each system suite, so profiles and permission templates reference understandable, governed responsibilities.
@@ -67,3 +69,10 @@ If a selected parent belongs to another suite or creates a cycle, UMS rejects th
 - Entities: `SystemSuite`, `Role`, `PermissionTemplate`, `Profile`
 - Related stories: FS-02, FS-04, FS-05, FS-12
 - Standards: catalog `code/value/description`, user-safe error response standard, tenant isolation rule
+
+## 10. Acceptance Test Evidence
+
+- [`RoleE2ETests.cs`](../../../../src/apps/ums.api/Ums.Presentation.IntegrationTest/E2E/RoleE2ETests.cs) covers role creation, GraphQL visibility, update, deactivate, reactivate, and duplicate-code protection.
+- [`RoleCommandHandlerTests.cs`](../../../../src/apps/ums.api/Ums.Application.Test/Authorization/Role/RoleCommandHandlerTests.cs) covers creation, duplicate-code rejection, tenant scope validation, cycle rejection, and lifecycle status changes.
+- [`RoleQueries.cs`](../../../../src/apps/ums.api/Ums.Presentation/GraphQL/Authorization/RoleQueries.cs) and [`RoleEndpoints.cs`](../../../../src/apps/ums.api/Ums.Presentation/Endpoints/Authorization/Role/RoleEndpoints.cs) expose the `rolesBySystemSuite` query contract and the role command routes used by the UI.
+- [`SystemSuiteRolesPanel.tsx`](../../../../src/apps/ums.web-app/src/presentation/authorization/system-suite/components/SystemSuiteRolesPanel.tsx) provides the localized UI for maintaining roles in the selected system suite.

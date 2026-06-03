@@ -1,5 +1,7 @@
 # Functional Story 17: Mantener Roles de una Suite del Sistema
 
+> **Estado:** Implementado
+
 ## 1. Proposito de Negocio
 
 UMS debe permitir que los administradores de seguridad mantengan el catalogo de roles perteneciente a cada suite del sistema, para que perfiles y plantillas de permisos referencien responsabilidades comprensibles y gobernadas.
@@ -67,3 +69,10 @@ Si el padre seleccionado pertenece a otra suite o genera un ciclo, UMS rechaza e
 - Entidades: `SystemSuite`, `Role`, `PermissionTemplate`, `Profile`
 - Historias relacionadas: FS-02, FS-04, FS-05, FS-12
 - Estandares: catalogo `code/value/description`, respuesta de errores segura para usuario, regla de aislamiento por tenant
+
+## 10. Evidencia de Pruebas de Aceptacion
+
+- [`RoleE2ETests.cs`](../../../../src/apps/ums.api/Ums.Presentation.IntegrationTest/E2E/RoleE2ETests.cs) cubre creacion de roles, visibilidad via GraphQL, actualizacion, desactivacion, reactivacion y proteccion por codigo duplicado.
+- [`RoleCommandHandlerTests.cs`](../../../../src/apps/ums.api/Ums.Application.Test/Authorization/Role/RoleCommandHandlerTests.cs) cubre creacion, rechazo por codigo duplicado, validacion de alcance por tenant, rechazo de ciclos y cambios de estado.
+- [`RoleQueries.cs`](../../../../src/apps/ums.api/Ums.Presentation/GraphQL/Authorization/RoleQueries.cs) y [`RoleEndpoints.cs`](../../../../src/apps/ums.api/Ums.Presentation/Endpoints/Authorization/Role/RoleEndpoints.cs) exponen el contrato de consulta `rolesBySystemSuite` y las rutas de comando usadas por la UI.
+- [`SystemSuiteRolesPanel.tsx`](../../../../src/apps/ums.web-app/src/presentation/authorization/system-suite/components/SystemSuiteRolesPanel.tsx) proporciona la interfaz localizada para mantener roles en la suite del sistema seleccionada.

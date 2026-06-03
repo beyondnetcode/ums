@@ -1,0 +1,252 @@
+using System.Net;
+using System.Net.Http.Json;
+using System.Text.Json;
+using Ums.Presentation.IntegrationTest.Infrastructure;
+
+namespace Ums.Presentation.IntegrationTest.E2E;
+
+/// <summary>
+/// E2E tests for the Role bounded context (Authorization).
+/// Covers creation, update, lifecycle status, and GraphQL list exposure against
+/// a real SQL Server Testcontainer.
+///
+/// Each test creates its own Tenant + SystemSuite to guarantee isolation.
+/// </summary>
+[Collection("SqlServer")]
+public sealed class RoleE2ETests
+{
+    private readonly SqlServerContainerFixture _fixture;
+    private readonly HttpClient _client;
+
+    public RoleE2ETests(SqlServerContainerFixture fixture)
+    {
+        _fixture = fixture;
+
+        if (fixture.IsAvailable)
+        {
+            var factory = new SqlServerWebApplicationFactory(fixture.ConnectionString);
+            _client = factory.CreateClient(new WebApplicationFactoryClientOptions
+            {
+                BaseAddress = new Uri("https://localhost"),
+                AllowAutoRedirect = false,
+            });
+            _client.DefaultRequestHeaders.Add("X-User-Id", "00000000-0000-0000-0000-000000000001");
+            _client.DefaultRequestHeaders.Add("X-User-Name", "e2e-test");
+        }
+        else
+        {
+            _client = new HttpClient();
+        }
+    }
+
+    [Fact]
+    public async Task CreateRole_ValidPayload_Returns201AndAppearsInGraphQl()
+    {
+        if (!_fixture.IsAvailable) Assert.Skip("Docker required.");
+        var ct = TestContext.Current.CancellationToken;
+
+        var suiteId = await CreateSuiteId(ct);
+        var code = UniqueCode("ROLE");
+
+        var createResponse = await _client.PostAsJsonAsync($"/api/v1/system-suites/{suiteId}/roles", new
+        {
+            systemSuiteId = suiteId,
+            code,
+            value = "Security Administrator",
+            description = "Maintains access roles",
+            parentRoleId = (Guid?)null,
+            hierarchyLevel = 0,
+            promotionOrder = 0,
+        }, ct);
+
+        createResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+
+        var roleId = await ReadGuid(createResponse, "roleId", ct);
+
+        using var doc = await GqlRolesBySystemSuiteAsync(suiteId, ct);
+        var roles = doc.RootElement.GetProperty("data").GetProperty("rolesBySystemSuite");
+
+        roles.EnumerateArray().Any(role => role.GetProperty("roleId").GetGuid() == roleId).Should().BeTrue(
+            because: "the created role should be visible in the system suite graph");
+    }
+
+    [Fact]
+    public async Task UpdateRole_ValidPayload_Returns204AndPersistsChanges()
+    {
+        if (!_fixture.IsAvailable) Assert.Skip("Docker required.");
+        var ct = TestContext.Current.CancellationToken;
+
+        var suiteId = await CreateSuiteId(ct);
+        var roleId = await CreateRoleId(suiteId, ct);
+
+        var updateResponse = await _client.PutAsJsonAsync($"/api/v1/system-suites/{suiteId}/roles/{roleId}", new
+        {
+            roleId,
+            value = "Security Lead",
+            description = "Updated description",
+            parentRoleId = (Guid?)null,
+            hierarchyLevel = 0,
+            promotionOrder = 1,
+        }, ct);
+
+        updateResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        using var doc = await GqlRolesBySystemSuiteAsync(suiteId, ct);
+        var role = doc.RootElement.GetProperty("data").GetProperty("rolesBySystemSuite")
+            .EnumerateArray()
+            .First(candidate => candidate.GetProperty("roleId").GetGuid() == roleId);
+
+        role.GetProperty("value").GetString().Should().Be("Security Lead");
+        role.GetProperty("description").GetString().Should().Be("Updated description");
+        role.GetProperty("promotionOrder").GetInt32().Should().Be(1);
+    }
+
+    [Fact]
+    public async Task SetRoleStatus_DeactivateAndReactivate_Returns204AndPersistsStatus()
+    {
+        if (!_fixture.IsAvailable) Assert.Skip("Docker required.");
+        var ct = TestContext.Current.CancellationToken;
+
+        var suiteId = await CreateSuiteId(ct);
+        var roleId = await CreateRoleId(suiteId, ct);
+
+        var deactivateResponse = await _client.PostAsync($"/api/v1/system-suites/{suiteId}/roles/{roleId}/deactivate", null, ct);
+        deactivateResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        using (var afterDeactivate = await GqlRolesBySystemSuiteAsync(suiteId, ct))
+        {
+            afterDeactivate.RootElement.GetProperty("data").GetProperty("rolesBySystemSuite")
+                .EnumerateArray()
+                .First(candidate => candidate.GetProperty("roleId").GetGuid() == roleId)
+                .GetProperty("isActive").GetBoolean().Should().BeFalse();
+        }
+
+        var activateResponse = await _client.PostAsync($"/api/v1/system-suites/{suiteId}/roles/{roleId}/activate", null, ct);
+        activateResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        using var afterActivate = await GqlRolesBySystemSuiteAsync(suiteId, ct);
+        afterActivate.RootElement.GetProperty("data").GetProperty("rolesBySystemSuite")
+            .EnumerateArray()
+            .First(candidate => candidate.GetProperty("roleId").GetGuid() == roleId)
+            .GetProperty("isActive").GetBoolean().Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task CreateRole_DuplicateCode_Returns409()
+    {
+        if (!_fixture.IsAvailable) Assert.Skip("Docker required.");
+        var ct = TestContext.Current.CancellationToken;
+
+        var suiteId = await CreateSuiteId(ct);
+        var code = UniqueCode("DUPROLE");
+
+        var payload = new
+        {
+            systemSuiteId = suiteId,
+            code,
+            value = "Role 1",
+            description = "Dup test",
+            parentRoleId = (Guid?)null,
+            hierarchyLevel = 0,
+            promotionOrder = 0,
+        };
+
+        (await _client.PostAsJsonAsync($"/api/v1/system-suites/{suiteId}/roles", payload, ct))
+            .StatusCode.Should().Be(HttpStatusCode.Created);
+
+        var duplicate = await _client.PostAsJsonAsync($"/api/v1/system-suites/{suiteId}/roles", payload, ct);
+        duplicate.StatusCode.Should().BeOneOf(HttpStatusCode.Conflict, HttpStatusCode.UnprocessableEntity);
+    }
+
+    private async Task<JsonDocument> GqlRolesBySystemSuiteAsync(Guid suiteId, CancellationToken ct)
+    {
+        var query = $$"""
+        query RolesBySystemSuite($systemSuiteId: UUID!) {
+          rolesBySystemSuite(systemSuiteId: $systemSuiteId) {
+            roleId
+            tenantId
+            systemSuiteId
+            parentRoleId
+            code
+            value
+            description
+            hierarchyLevel
+            promotionOrder
+            isActive
+          }
+        }
+        """;
+
+        var response = await _client.PostAsJsonAsync("/graphql", new
+        {
+            query,
+            variables = new { systemSuiteId = suiteId },
+        }, ct);
+
+        response.EnsureSuccessStatusCode();
+
+        var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
+        doc.RootElement.TryGetProperty("errors", out _).Should().BeFalse(
+            because: "the GraphQL query should not return errors");
+        return doc;
+    }
+
+    private async Task<Guid> CreateRoleId(Guid suiteId, CancellationToken ct)
+    {
+        var code = UniqueCode("ROLE");
+        var response = await _client.PostAsJsonAsync($"/api/v1/system-suites/{suiteId}/roles", new
+        {
+            systemSuiteId = suiteId,
+            code,
+            value = $"Role {code}",
+            description = "Created by Role E2E test",
+            parentRoleId = (Guid?)null,
+            hierarchyLevel = 0,
+            promotionOrder = 0,
+        }, ct);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
+        return await ReadGuid(response, "roleId", ct);
+    }
+
+    private async Task<Guid> CreateSuiteId(CancellationToken ct)
+    {
+        var tenantId = await CreateTenantId(ct);
+        var uid = Guid.NewGuid().ToString("N")[..8].ToUpper();
+        var response = await _client.PostAsJsonAsync("/api/v1/system-suites", new
+        {
+            tenantId,
+            code = $"SS{uid}",
+            name = $"E2E Suite {uid}",
+            description = "Created by Role E2E test",
+        }, ct);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
+        return await ReadGuid(response, "systemSuiteId", ct);
+    }
+
+    private async Task<Guid> CreateTenantId(CancellationToken ct)
+    {
+        var uid = Guid.NewGuid().ToString("N")[..10].ToUpper();
+        var response = await _client.PostAsJsonAsync("/api/v1/tenants", new
+        {
+            code = $"T{uid}",
+            name = $"E2E Role Tenant {uid}",
+            type = "Customer",
+            idpStrategy = (string?)null,
+            companyReference = (string?)null,
+        }, ct);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
+        return await ReadGuid(response, "tenantId", ct);
+    }
+
+    private static string UniqueCode(string prefix)
+        => $"{prefix}{Guid.NewGuid():N}"[..Math.Min(20, prefix.Length + 32)];
+
+    private static async Task<Guid> ReadGuid(HttpResponseMessage response, string property, CancellationToken ct)
+    {
+        using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
+        return doc.RootElement.GetProperty(property).GetGuid();
+    }
+}

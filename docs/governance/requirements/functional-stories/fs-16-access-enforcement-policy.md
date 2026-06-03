@@ -1,5 +1,7 @@
 # Functional Story 16: Define Access Policy on Expiration
 
+> **Status:** Implemented
+
 ## 1. Business Purpose
 
 Security and compliance teams need to define what should happen when a critical user document expires. UMS must apply predictable access consequences while keeping the reason visible and auditable.
@@ -12,7 +14,7 @@ Security and compliance teams need to define what should happen when a critical 
 | :--- | :--- |
 | **Security Architect** | Defines access impact for expired critical documents. |
 | **Global Administrator** | Publishes or updates enforcement policies. |
-| **Affected User** | Receives access restrictions or warnings based on policy.
+| **Affected User** | Receives access restrictions or warnings based on policy. |
 ## 3. Business Preconditions
 
 - Document compliance validation is enabled.
@@ -50,7 +52,7 @@ If the selected document type is not access-critical, the system prevents public
 1. Critical document expiration may block access, restrict profiles, or only generate an audit warning.
 2. Policies must include `code`, `value`, and `description`.
 3. The user must be able to understand why access was restricted.
-4. Renewal must allow access restáoration when the policy conditions are satisfied.
+4. Renewal must allow access restoration when the policy conditions are satisfied.
 
 ---
 
@@ -72,6 +74,8 @@ If the selected document type is not access-critical, the system prevents public
 - Mandatory fields: `Code`, `Value` (JSON containing policy timing/action), `Description`.
 - Enforce uniqueness by `Code`, tenant scope, and `DocumentTypeId`.
 - Supported actions include `BLOCK_USER`, `RESTRICT_PROFILE`, and `LOG_ONLY`.
+- Allow policy action updates through `PUT /access-enforcement-policies/{policyId}/action`.
+- Record enforcement execution through the user document workflow so the applied outcome remains traceable.
 - Emit domain and audit events when restrictions are applied or reverted.
 
 ---
@@ -81,3 +85,10 @@ If the selected document type is not access-critical, the system prevents public
 - Entities: `DocumentType` (AR), `AccessEnforcementPolicy` (Child Entity), `UserAccount` (AR), `Profile` (AR)
 - ADRs: ADR-0045, ADR-0035
 - Related Stories: FS-11, FS-15
+
+## 10. Acceptance Test Evidence
+
+- [`AccessEnforcementPolicyE2ETests.cs`](../../../../src/apps/ums.api/Ums.Presentation.IntegrationTest/E2E/AccessEnforcementPolicyE2ETests.cs) covers policy creation, GET by ID, action updates, deactivation, and validation when neither `ProfileId` nor `RoleId` is supplied.
+- [`UpdateAccessEnforcementActionCommandValidatorTests.cs`](../../../../src/apps/ums.api/Ums.Application.Test/Approvals/AccessEnforcementPolicy/Commands/UpdateAccessEnforcementActionCommandValidatorTests.cs) verifies that the command accepts the domain action names `BlockUser`, `RestrictProfile`, and `LogOnly`.
+- [`AccessEnforcementPolicyCommandHandlerTests.cs`](../../../../src/apps/ums.api/Ums.Application.Test/Approvals/AccessEnforcementPolicy/AccessEnforcementPolicyCommandHandlerTests.cs) covers the create, deactivate, and update command handlers.
+- [`UserDocumentEndpoints.cs`](../../../../src/apps/ums.api/Ums.Presentation/Endpoints/Approvals/UserDocument/UserDocumentEndpoints.cs) exposes the enforcement execution route used to preserve traceability when the policy is applied.

@@ -20,8 +20,8 @@ This document keeps a dynamic view of what is already implemented, what is parti
 
 | Status | Count | Story IDs |
 |---|---:|---|
-| Implemented / usable | 16 | FS-01, FS-02, FS-03, FS-04, FS-05, FS-06, FS-07, FS-08, FS-10, FS-11, FS-15, FS-18, FS-21, FS-22, FS-26, FS-27 |
-| Partial | 11 | FS-09, FS-12, FS-13, FS-14, FS-16, FS-17, FS-19, FS-20, FS-23, FS-24, FS-25 |
+| Implemented / usable | 18 | FS-01, FS-02, FS-03, FS-04, FS-05, FS-06, FS-07, FS-08, FS-10, FS-11, FS-15, FS-16, FS-17, FS-18, FS-21, FS-22, FS-26, FS-27 |
+| Partial | 9 | FS-09, FS-12, FS-13, FS-14, FS-19, FS-20, FS-23, FS-24, FS-25 |
 | Deferred | 0 | — |
 
 ## Tracking Legend
@@ -39,6 +39,8 @@ This document keeps a dynamic view of what is already implemented, what is parti
 
 | FS | Story | Status | Completed | What was done |
 |---|---|---|---|---|
+| FS-17 | Maintain Roles for a System Suite | Green — Done | 2026-06-03 | Added `RoleE2ETests.cs` to cover creation, GraphQL visibility, update, deactivate, reactivate, and duplicate-code protection. Added `Role` story evidence in English and Spanish, and synchronized the role API traceability references. The targeted application test run passed, and the new integration tests compile with the SQL Server fixture scaffolded. |
+| FS-16 | Define Access Policy on Expiration | Green — Done | 2026-06-03 | Fixed the `UpdateAccessEnforcementActionCommandValidator` domain-action mismatch so the API accepts `BlockUser`, `RestrictProfile`, and `LogOnly`. Added `AccessEnforcementPolicyE2ETests.cs` plus validator tests, and synchronized the story docs with update-action and enforcement-execution evidence in English and Spanish. The targeted application test run passed, and the new integration tests compile with the SQL Server fixture scaffolded. |
 | FS-10 | B2B External Access Request and Approval Flow | Green — Done | 2026-06-03 | Added `PROFILE_INTERNAL_ONLY` guard in `CreateApprovalRequestCommandHandler` (blocks external/B2B users from internal-only workflows with privilege escalation error). Added approval and rejection notifications in `ApproveRequestCommandHandler` and `RejectRequestCommandHandler`. Added domain error constant `WorkflowNotAllowedForUserCategory`. 6 new tests: guard for External and B2B categories, cross-workflow category pass, approval/rejection notification assertions. 571 tests pass. |
 | FS-11 | Upload and Validate User Document | Green — Done | 2026-06-03 | Added `UserDocumentRejected` and `UserDocumentValidated` notification templates. Updated `RejectUserDocumentCommandHandler` and `ValidateUserDocumentCommandHandler` with `IUserAccountRepository` + `INotificationService` to notify the document owner. Created `RecordEnforcementExecutedCommand` + handler + `POST /user-documents/{id}/enforcement` endpoint. 8 new tests: notification assertions for reject/validate, `WhenNotPendingReview`, `WhenAlreadyExpired`, `WhenDocumentIsValid` (re-upload guard), and enforcement recording happy/failure paths. 579 tests pass. |
 | FS-22 | User Signup Request and Approval | Green — Done | 2026-06-03 | Added `SignupUserCommandHandlerTests.cs` (8 tests) covering the public applicant signup flow: happy path, duplicate email, invalid tenant, and no-admin guard. Documentation updated with Status badge, corrected traceability reference, and Section 10 acceptance test evidence. |
@@ -53,8 +55,6 @@ This document keeps a dynamic view of what is already implemented, what is parti
 | FS-12 | Execute Role Promotion Process | Amber | P1 | H | H | IGA | TBD | Open | The promotion flow still needs the full manager/security review, execution, verification, and impact analysis closure. | Finish the promotion state machine and align the approval steps with the domain contract. |
 | FS-13 | Configure Hierarchical System Parameters | Amber | P1 | H | H | Platform / Configuration | TBD | Open | Parameterization exists, but the formal Configuration context is still missing its complete API surface. | Implement the `AppConfiguration`, `FeatureFlag`, and `IdpConfiguration` APIs end to end. |
 | FS-14 | Delegate User Management Between Administrators | Amber | P2 | M | M | Identity | TBD | Open | Delegation exists as a model, but the end-to-end scope and audit flow still need final validation. | Close the delegated action coverage and verify the acceptance path. |
-| FS-16 | Define Access Policy on Expiration | Amber | P2 | M | M | Compliance | TBD | Open | The enforcement policy still lacks complete update and execution-record coverage. | Implement the update action and the traceable enforcement events. |
-| FS-17 | Maintain Roles for a System Suite | Amber | P2 | M | M | Authorization | TBD | Open | Role lifecycle coverage is not yet documented or verified as end-to-end complete. | Close the role maintenance workflow and refresh traceability. |
 | FS-19 | Manage Admin Password Reset Validity | Amber | P2 | M | L | Identity | TBD | Open | The admin reset validity lifecycle is not yet formalized as a complete feature. | Define the workflow and align it with the configuration model. |
 | FS-20 | Manage System Parameters | Amber | P1 | H | H | Platform / Configuration | TBD | Open | The tracker still marks the configuration aggregate trio as missing as a full API context. | Build repositories, commands, REST, GraphQL, and persistence for the configuration context. |
 | FS-23 | Profile Access Request from Lobby User | Amber | P1 | H | H | Approvals | TBD | Open | The request model still needs the requested role and audit fidelity expected by the design. | Extend the request contract and lifecycle tracking. |
