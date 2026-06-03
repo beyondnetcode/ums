@@ -148,6 +148,40 @@ public static class NotificationTemplates
             RecipientName: recipientName
         );
 
+    public static UmsNotification UserDocumentRejected(string recipientEmail, string recipientName, string documentType, string reason) =>
+        new(
+            Recipient: recipientEmail,
+            Subject: $"Documento rechazado — {documentType}",
+            Body: $"""
+                Hola {recipientName},
+
+                Su documento de tipo "{documentType}" fue rechazado por el revisor.
+
+                Motivo: {reason}
+
+                Por favor, cargue un nuevo documento válido para continuar con el proceso.
+
+                — Equipo UMS
+                """,
+            RecipientName: recipientName
+        );
+
+    public static UmsNotification UserDocumentValidated(string recipientEmail, string recipientName, string documentType) =>
+        new(
+            Recipient: recipientEmail,
+            Subject: $"Documento validado — {documentType}",
+            Body: $"""
+                Hola {recipientName},
+
+                Su documento de tipo "{documentType}" fue validado correctamente.
+
+                Ya puede continuar con los siguientes pasos del proceso.
+
+                — Equipo UMS
+                """,
+            RecipientName: recipientName
+        );
+
     public static UmsNotification TenantSignupApproved(string contactEmail, string companyName, string adminEmail, string temporaryPassword) =>
         new(
             Recipient: contactEmail,

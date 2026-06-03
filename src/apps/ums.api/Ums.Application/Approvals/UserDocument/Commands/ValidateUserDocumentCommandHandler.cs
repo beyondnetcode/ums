@@ -2,17 +2,27 @@ using Ums.Application.Approvals.UserDocument.DTOs;
 
 namespace Ums.Application.Approvals.UserDocument.Commands;
 
+using Ums.Application.Common.Notifications;
 using Ums.Domain.Approvals;
+using Ums.Domain.Identity;
 
 public sealed class ValidateUserDocumentCommandHandler : ICommandHandler<ValidateUserDocumentCommand>
 {
     private readonly IUserDocumentRepository _repository;
-    private readonly IUserContext _userContext;
+    private readonly IUserAccountRepository  _userAccountRepository;
+    private readonly INotificationService    _notificationService;
+    private readonly IUserContext            _userContext;
 
-    public ValidateUserDocumentCommandHandler(IUserDocumentRepository repository, IUserContext userContext)
+    public ValidateUserDocumentCommandHandler(
+        IUserDocumentRepository repository,
+        IUserAccountRepository userAccountRepository,
+        INotificationService notificationService,
+        IUserContext userContext)
     {
-        _repository = repository;
-        _userContext = userContext;
+        _repository            = repository;
+        _userAccountRepository = userAccountRepository;
+        _notificationService   = notificationService;
+        _userContext           = userContext;
     }
 
     [AuditTrail]
@@ -30,6 +40,18 @@ public sealed class ValidateUserDocumentCommandHandler : ICommandHandler<Validat
 
         await _repository.UpdateAsync(entity, cancellationToken);
         await _repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+
+        var owner = await _userAccountRepository.GetByIdAsync(entity.UserId.GetValue(), cancellationToken);
+        if (owner is not null)
+        {
+            await _notificationService.SendAsync(
+                NotificationTemplates.UserDocumentValidated(
+                    owner.Email.GetValue(),
+                    owner.DisplayName?.GetValue() ?? owner.Email.GetValue(),
+                    entity.DocumentTypeId.GetValue().ToString()),
+                cancellationToken);
+        }
+
         return Result.Success();
     }
 }

@@ -70,6 +70,24 @@ public static class UserDocumentEndpoints
           .ProducesProblem(StatusCodes.Status404NotFound)
           .ProducesProblem(StatusCodes.Status409Conflict);
 
+        group.MapPost("/{userDocumentId:guid}/enforcement", async (
+            Guid userDocumentId,
+            RecordEnforcementExecutedRequest body,
+            IMediator mediator,
+            HttpContext context,
+            CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new RecordEnforcementExecutedCommand(userDocumentId, body.Action), ct);
+            return result.ToNoContent(context);
+        }).WithName("RecordEnforcementExecuted")
+          .WithSummary("Record a compliance enforcement action executed against a user document (system use)")
+          .RequireAuthorization()
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status400BadRequest)
+          .ProducesProblem(StatusCodes.Status404NotFound);
+
         return app;
     }
 }
+
+public sealed record RecordEnforcementExecutedRequest(string Action);

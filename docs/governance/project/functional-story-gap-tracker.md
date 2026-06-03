@@ -20,8 +20,8 @@ This document keeps a dynamic view of what is already implemented, what is parti
 
 | Status | Count | Story IDs |
 |---|---:|---|
-| Implemented / usable | 13 | FS-01, FS-02, FS-03, FS-04, FS-05, FS-07, FS-08, FS-10, FS-18, FS-21, FS-22, FS-26, FS-27 |
-| Partial | 13 | FS-09, FS-11, FS-12, FS-13, FS-14, FS-15, FS-16, FS-17, FS-19, FS-20, FS-23, FS-24, FS-25 |
+| Implemented / usable | 14 | FS-01, FS-02, FS-03, FS-04, FS-05, FS-07, FS-08, FS-10, FS-11, FS-18, FS-21, FS-22, FS-26, FS-27 |
+| Partial | 12 | FS-09, FS-12, FS-13, FS-14, FS-15, FS-16, FS-17, FS-19, FS-20, FS-23, FS-24, FS-25 |
 | Deferred | 1 | FS-06 |
 
 ## Tracking Legend
@@ -41,13 +41,14 @@ This document keeps a dynamic view of what is already implemented, what is parti
 |---|---|---|---|---|
 | FS-22 | User Signup Request and Approval | Green — Done | 2026-06-03 | Added `SignupUserCommandHandlerTests.cs` (8 tests) covering the public applicant signup flow: happy path, duplicate email, invalid tenant, and no-admin guard. Documentation updated with Status badge, corrected traceability reference, and Section 10 acceptance test evidence. |
 | FS-10 | B2B External Access Request and Approval Flow | Green — Done | 2026-06-03 | Added `PROFILE_INTERNAL_ONLY` guard in `CreateApprovalRequestCommandHandler` (blocks external/B2B users from internal-only workflows with privilege escalation error). Added approval and rejection notifications in `ApproveRequestCommandHandler` and `RejectRequestCommandHandler`. Added domain error constant `WorkflowNotAllowedForUserCategory`. 6 new tests: guard for External and B2B categories, cross-workflow category pass, approval/rejection notification assertions. 571 tests pass. |
+| FS-11 | Upload and Validate User Document | Green — Done | 2026-06-03 | Added `UserDocumentRejected` and `UserDocumentValidated` notification templates. Updated `RejectUserDocumentCommandHandler` and `ValidateUserDocumentCommandHandler` with `IUserAccountRepository` + `INotificationService` to notify the document owner. Created `RecordEnforcementExecutedCommand` + handler + `POST /user-documents/{id}/enforcement` endpoint. 8 new tests: notification assertions for reject/validate, `WhenNotPendingReview`, `WhenAlreadyExpired`, `WhenDocumentIsValid` (re-upload guard), and enforcement recording happy/failure paths. 579 tests pass. |
 
 ## Open Gap Register
 
 | FS | Story | Signal | Priority | Criticality | Complexity | Owner | Target | Status | Main gap | Next action |
 |---|---|---|---|---|---|---|---|---|---|---|
 | FS-10 | B2B External Access Request and Approval Flow | Green | P1 | H | H | Approvals | 2026-06-03 | Done | Guard and lifecycle notifications implemented. | — |
-| FS-11 | Upload and Validate User Document | Amber | P1 | H | H | Compliance | TBD | Open | The document lifecycle still lacks reject, expire, re-upload, notification, and enforcement recording behavior. | Complete the document lifecycle commands and the related audit trail. |
+| FS-11 | Upload and Validate User Document | Green | P1 | H | H | Compliance | 2026-06-03 | Done | Notifications, enforcement recording, and lifecycle edge-case tests implemented. | — |
 | FS-13 | Configure Hierarchical System Parameters | Amber | P1 | H | H | Platform / Configuration | TBD | Open | Parameterization exists, but the formal Configuration context is still missing its complete API surface. | Implement the `AppConfiguration`, `FeatureFlag`, and `IdpConfiguration` APIs end to end. |
 | FS-20 | Manage System Parameters | Amber | P1 | H | H | Platform / Configuration | TBD | Open | The tracker still marks the configuration aggregate trio as missing as a full API context. | Build repositories, commands, REST, GraphQL, and persistence for the configuration context. |
 | FS-23 | Profile Access Request from Lobby User | Amber | P1 | H | H | Approvals | TBD | Open | The request model still needs the requested role and audit fidelity expected by the design. | Extend the request contract and lifecycle tracking. |
