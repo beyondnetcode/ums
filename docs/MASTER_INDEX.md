@@ -26,6 +26,7 @@ Product Lifecycle and Engineering Specifications for the User Management System 
 
 - [Project Backlog](./governance/project/index.md)
 - [MVP Product Backlog](./governance/project/mvp-product-backlog.md)
+- [Functional Story Gap Tracker](./governance/project/functional-story-gap-tracker.md)
 - [Epic 06: Approvals](./governance/project/ep-06-approvals-detailed-design.md)
 - [Epic 07: Compliance](./governance/project/ep-07-compliance-detailed-design.md)
 - [Epic 08: IGA](./governance/project/ep-08-iga-detailed-design.md)

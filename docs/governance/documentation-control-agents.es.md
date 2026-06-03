@@ -104,9 +104,17 @@ UMS tiene los siguientes puntos de entrada primarios que DEBEN mantenerse sincro
    - No hay emojis ni caracteres decorativos no estandar (segun BMAD R-03 y R-14)
    - Ejecutar limpieza si es necesario: `python ../.bmad-core/scripts/cleanup_markdown_encoding.py`
 
-### Uso de Playbooks
+### Por Donde Empezar
 
-Usar el [Documentation Audit Playbook](../.harness/playbooks/documentation-audit-playbook.md) para:
+Si estas revisando cobertura documental o una brecha en una historia, empieza con:
+
+1. [Seguimiento de Brechas de Historias Funcionales](./project-es/functional-story-gap-tracker.md)
+2. [Seguimiento de Implementacion de Agregados en la API](./project-es/api-aggregate-implementation-tracker.md)
+3. [Portal DDD](./construction/ddd-design/index.md)
+
+### Uso de la Guia
+
+Usa esta [guia local de Agentes de Control de Documentacion](./documentation-control-agents.es.md) junto con el [Seguimiento de Brechas de Historias Funcionales](./project-es/functional-story-gap-tracker.md) para:
 - Verificacion de legibilidad de historias funcionales
 - Validacion de sincronizacion bilingue
 - Verificacion de ADR y coherencia de stack

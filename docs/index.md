@@ -6,6 +6,8 @@ Welcome to the official UMS Documentation Portal. Please select your preferred l
 
 > **[ 🇪🇸 Español: Abrir Índice Maestro ](./MASTER_INDEX.es.md)**
 
+> **[ Quick Navigation / Navegacion Rapida ](./governance/quick-navigation.md)**
+
 ---
 
 *Powered by [BMAD-METHOD](https://github.com/beyondnet) & GitHub Pages.*

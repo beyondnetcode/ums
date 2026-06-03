@@ -25,6 +25,7 @@ Especificaciones de Ingenieria y Ciclo de Vida del Producto para el User Managem
 
 - [Backlog del Proyecto](./governance/project-es/index.md)
 - [Backlog del Producto MVP](./governance/project-es/mvp-product-backlog.md)
+- [Seguimiento de Brechas de Historias Funcionales](./governance/project-es/functional-story-gap-tracker.md)
 - [Epica 06: Aprobaciones](./governance/project-es/ep-06-approvals-detailed-design.md)
 - [Epica 07: Cumplimiento](./governance/project-es/ep-07-compliance-detailed-design.md)
 - [Epica 08: IGA](./governance/project-es/ep-08-iga-detailed-design.md)

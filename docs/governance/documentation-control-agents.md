@@ -104,9 +104,17 @@ UMS has the following primary entry points that MUST remain synchronized:
    - No emojis or non-standard decorative characters (per BMAD Rule R-03 and R-14)
    - Run cleanup if needed: `python ../.bmad-core/scripts/cleanup_markdown_encoding.py`
 
-### Playbook Usage
+### Where to Start
 
-Use the [Documentation Audit Playbook](../.harness/playbooks/documentation-audit-playbook.md) for:
+If you are checking documentation coverage or a gap in a story, start with:
+
+1. [Functional Story Gap Tracker](./project/functional-story-gap-tracker.md)
+2. [API Aggregate Implementation Tracker](./project/api-aggregate-implementation-tracker.md)
+3. [DDD Design Portal](./construction/ddd-design/index.md)
+
+### Guide Usage
+
+Use this local [Documentation Control Agents guide](./documentation-control-agents.md) together with the [Functional Story Gap Tracker](./project/functional-story-gap-tracker.md) for:
 - Functional story readability verification
 - Bilingual synchronization validation
 - ADR and stack coherence checks
