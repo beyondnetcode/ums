@@ -125,6 +125,24 @@ public sealed class SqlServerProfileRepository(UmsPlatformDbContext dbContext) :
 
     public void Dispose() => dbContext.Dispose();
 
+    // ── Dependency guard queries ────────────────────────────────────────────
+
+    public Task<int> CountActiveByRoleAsync(Guid roleId, CancellationToken cancellationToken = default)
+        => dbContext.Profiles.CountAsync(p => p.RoleId == roleId && p.IsActive, cancellationToken);
+
+    public Task<int> CountActiveByTemplateAsync(Guid templateId, CancellationToken cancellationToken = default)
+        => dbContext.ProfilePermissions
+            .Where(pp => pp.TemplateId == templateId)
+            .Select(pp => pp.ProfileId)
+            .Distinct()
+            .Join(dbContext.Profiles.Where(p => p.IsActive),
+                  ppId => ppId, p => p.Id,
+                  (_, p) => p.Id)
+            .CountAsync(cancellationToken);
+
+    public Task<int> CountActiveByUserAsync(Guid userId, CancellationToken cancellationToken = default)
+        => dbContext.Profiles.CountAsync(p => p.UserId == userId && p.IsActive, cancellationToken);
+
     private static ProfileAggregate Rehydrate(ProfileRecord record)
         => AuthorizationAggregateFactory.RehydrateProfile(record, record.Permissions);
 

@@ -120,4 +120,11 @@ public sealed class InMemoryUserAccountRepository : IUserAccountRepository, IUni
     }
 
     public void Dispose() { }
+
+    // ── Dependency guard queries ────────────────────────────────────────────
+
+    public Task<int> CountActiveByTenantAsync(Guid tenantId, CancellationToken cancellationToken = default)
+        => Task.FromResult(_store.Values.Count(u =>
+            u.Props.TenantId.GetValue() == tenantId &&
+            u.Props.Status == Ums.Domain.Enums.UserStatus.Active));
 }

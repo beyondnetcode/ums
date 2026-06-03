@@ -81,4 +81,15 @@ public sealed class InMemoryProfileRepository : IProfileRepository, IUnitOfWork
     }
 
     public void Dispose() { }
+
+    // ── Dependency guard queries ────────────────────────────────────────────
+
+    public Task<int> CountActiveByRoleAsync(Guid roleId, CancellationToken cancellationToken = default)
+        => Task.FromResult(_store.Values.Count(p => p.Props.RoleId.GetValue() == roleId && p.IsActive));
+
+    public Task<int> CountActiveByTemplateAsync(Guid templateId, CancellationToken cancellationToken = default)
+        => Task.FromResult(0); // InMemory: permissions are not stored separately
+
+    public Task<int> CountActiveByUserAsync(Guid userId, CancellationToken cancellationToken = default)
+        => Task.FromResult(_store.Values.Count(p => p.Props.UserId.GetValue() == userId && p.IsActive));
 }

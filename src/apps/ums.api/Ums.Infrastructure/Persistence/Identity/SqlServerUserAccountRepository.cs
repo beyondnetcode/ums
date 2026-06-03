@@ -209,6 +209,13 @@ public sealed class SqlServerUserAccountRepository(UmsPlatformDbContext dbContex
 
     public void Dispose() => dbContext.Dispose();
 
+    // ── Dependency guard queries ────────────────────────────────────────────
+
+    public Task<int> CountActiveByTenantAsync(Guid tenantId, CancellationToken cancellationToken = default)
+        => dbContext.UserAccounts.CountAsync(
+            u => u.TenantId == tenantId && u.StatusId == 2 /* Active */,
+            cancellationToken);
+
     private static UserAccountAggregate Rehydrate(UserAccountRecord record)
         => IdentityAggregateFactory.RehydrateUserAccount(record, record.MfaEnrollments, record.PasswordCredentials);
 

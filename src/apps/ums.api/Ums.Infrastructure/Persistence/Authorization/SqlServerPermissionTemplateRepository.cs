@@ -122,6 +122,18 @@ public sealed class SqlServerPermissionTemplateRepository(UmsPlatformDbContext d
         return true;
     }
 
+    // ── Dependency guard queries ────────────────────────────────────────────
+
+    public Task<int> CountPublishedByRoleAsync(Guid roleId, CancellationToken cancellationToken = default)
+        => dbContext.PermissionTemplates.CountAsync(
+            t => t.RoleId == roleId && t.StatusId == 2 /* Published */,
+            cancellationToken);
+
+    public Task<int> CountItemsByTargetAsync(Guid targetId, CancellationToken cancellationToken = default)
+        => dbContext.PermissionTemplateItems.CountAsync(
+            i => i.TargetId == targetId && i.IsActive,
+            cancellationToken);
+
     public void Dispose() => dbContext.Dispose();
 
     private static PermissionTemplateAggregate Rehydrate(PermissionTemplateRecord record)

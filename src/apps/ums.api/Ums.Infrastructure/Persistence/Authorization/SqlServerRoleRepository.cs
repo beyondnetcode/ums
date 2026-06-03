@@ -97,6 +97,11 @@ public sealed class SqlServerRoleRepository(UmsPlatformDbContext dbContext) : IR
 
     public void Dispose() => dbContext.Dispose();
 
+    // ── Dependency guard queries ────────────────────────────────────────────
+
+    public Task<int> CountActiveChildRolesAsync(Guid parentRoleId, CancellationToken cancellationToken = default)
+        => dbContext.Roles.CountAsync(r => r.ParentRoleId == parentRoleId && r.IsActive, cancellationToken);
+
     private static RoleRecord ToRecord(RoleAggregate aggregate)
     {
         var props = aggregate.Props;

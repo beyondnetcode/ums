@@ -13,10 +13,29 @@ internal static class ResultExtensions
             : ToProblem(result.Error, context);
 
     public static IResult ToNoContent(this Result result, HttpContext? context = null)
-        => result.IsSuccess ? Results.NoContent() : ToProblem(result.Error, context);
+        => result.IsSuccess ? Results.NoContent() : ToBlockedOrProblem(result.Error, context);
 
     public static IResult ToOk<T>(this Result<T> result, HttpContext? context = null)
         => result.IsSuccess ? Results.Ok(result.Value) : ToProblem(result.Error, context);
+
+    /// <summary>
+    /// Detects structured blocking-dependency errors and returns a rich 409 response.
+    /// Falls back to ToProblem for all other errors.
+    /// </summary>
+    private static IResult ToBlockedOrProblem(string error, HttpContext? context = null)
+    {
+        if (BlockedOperationError.TryDecode(error, out var errorCode, out var deps) && deps.Count > 0)
+        {
+            return Results.Json(new BlockedOperationResponse(
+                ErrorCode:   errorCode,
+                Message:     BlockedOperationMessages.GetMessage(errorCode),
+                BrokenRule:  BlockedOperationMessages.GetRule(errorCode),
+                BlockingDependencies: deps),
+                statusCode: StatusCodes.Status409Conflict);
+        }
+
+        return ToProblem(error, context);
+    }
 
     private static IResult ToProblem(string error, HttpContext? context = null)
     {

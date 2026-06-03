@@ -24,6 +24,10 @@ public static class DomainErrors
         public const string ArchivedCannotActivate = "tenant.archived_cannot_activate";
         public const string AlreadyActive = "tenant.already_active";
         public const string AlreadySuspended = "tenant.already_suspended";
+        // ── Dependency guard errors ──────────────────────────────────────────
+        public const string HasActiveUsers      = "TENANT_HAS_ACTIVE_USERS";
+        public const string HasActiveBranches   = "TENANT_HAS_ACTIVE_BRANCHES";
+        public const string HasActiveIdpConfig  = "TENANT_HAS_ACTIVE_IDP";
         public const string IdpCodeNotUnique = "tenant.idp_code_not_unique";
         public const string IdpNotFound = "tenant.idp_not_found";
         public const string IdpAlreadyActive = "tenant.idp_already_active";
@@ -64,6 +68,8 @@ public static class DomainErrors
         public const string AlreadyDeleted = "user_account.already_deleted";
         // EP-09: explicit denial of pending signup request
         public const string CannotDeny = "user_account.cannot_deny";
+        // ── Dependency guard errors ──────────────────────────────────────────
+        public const string HasActiveProfiles   = "USER_HAS_ACTIVE_PROFILES";
     }
 
     public static class SystemSuite
@@ -116,6 +122,12 @@ public static class DomainErrors
         public const string ParentResourceNotFound       = "authorization.parent_resource_not_found";
         public const string DomainMethodCannotBeParent   = "authorization.domain_method_cannot_be_parent";
         public const string AggregateRequiresChildEntity = "authorization.aggregate_requires_child_entity";
+        // ── Dependency guard errors ──────────────────────────────────────────
+        public const string RoleHasActiveProfiles        = "ROLE_HAS_ACTIVE_PROFILES";
+        public const string RoleHasActiveChildRoles      = "ROLE_HAS_ACTIVE_CHILD_ROLES";
+        public const string TemplateHasActiveProfiles    = "TEMPLATE_HAS_ACTIVE_PROFILES";
+        public const string DomainResourceHasTemplateItems = "DOMAIN_RESOURCE_HAS_TEMPLATE_ITEMS";
+        public const string ModuleHasActiveMenus         = "MODULE_HAS_ACTIVE_MENUS";
     }
 
     public static class Approvals

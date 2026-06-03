@@ -1,10 +1,14 @@
 
+using Ums.Domain.Authorization;
+using Ums.Domain.Kernel;
+
 namespace Ums.Application.Identity.UserAccount.Commands;
 
 /// <summary>
 /// REC-16: Handles DeleteUserAccountCommand.
 ///
 /// Execution order (important for EF change-tracking correctness):
+/// 0. Guard: ensure user has no active profiles before deletion.
 /// 1. Load aggregate — validates it exists and is not already deleted.
 /// 2. aggregate.Delete() — transitions status to Deleted, raises UserDeletedEvent.
 /// 3. UpdateAsync — registers the aggregate in _trackedAggregates (needed for outbox) and
@@ -17,13 +21,16 @@ namespace Ums.Application.Identity.UserAccount.Commands;
 public sealed class DeleteUserAccountCommandHandler : ICommandHandler<DeleteUserAccountCommand>
 {
     private readonly IUserAccountRepository _userAccountRepository;
+    private readonly IProfileRepository _profileRepository;
     private readonly IUserContext _userContext;
 
     public DeleteUserAccountCommandHandler(
         IUserAccountRepository userAccountRepository,
+        IProfileRepository profileRepository,
         IUserContext userContext)
     {
         _userAccountRepository = userAccountRepository;
+        _profileRepository = profileRepository;
         _userContext = userContext;
     }
 
@@ -40,6 +47,19 @@ public sealed class DeleteUserAccountCommandHandler : ICommandHandler<DeleteUser
         if (userAccount is null)
         {
             return Result.Failure("User account was not found.");
+        }
+
+        // ── Dependency guard: active profiles ─────────────────────────────────
+        var activeProfileCount = await _profileRepository.CountActiveByUserAsync(
+            request.UserAccountId, cancellationToken);
+
+        if (activeProfileCount > 0)
+        {
+            var deps = new List<BlockingDependency>
+            {
+                new("Profile", "Active", activeProfileCount),
+            };
+            return Result.Failure(BlockedOperationError.Encode(DomainErrors.UserAccount.HasActiveProfiles, deps));
         }
 
         // Domain validation: transition to Deleted state and raise UserDeletedEvent.

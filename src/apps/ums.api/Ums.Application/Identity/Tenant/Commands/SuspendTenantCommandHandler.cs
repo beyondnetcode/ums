@@ -1,17 +1,21 @@
 using Ums.Application.Identity.Tenant.DTOs;
+using Ums.Domain.Kernel;
 
 namespace Ums.Application.Identity.Tenant.Commands;
 
 public sealed class SuspendTenantCommandHandler : ICommandHandler<SuspendTenantCommand>
 {
     private readonly ITenantRepository _tenantRepository;
+    private readonly IUserAccountRepository _userAccountRepository;
     private readonly IUserContext _userContext;
 
     public SuspendTenantCommandHandler(
         ITenantRepository tenantRepository,
+        IUserAccountRepository userAccountRepository,
         IUserContext userContext)
     {
         _tenantRepository = tenantRepository;
+        _userAccountRepository = userAccountRepository;
         _userContext = userContext;
     }
 
@@ -28,6 +32,19 @@ public sealed class SuspendTenantCommandHandler : ICommandHandler<SuspendTenantC
         if (tenant is null)
         {
             return Result.Failure("Tenant was not found.");
+        }
+
+        // ── Dependency guard: active users ────────────────────────────────────
+        var activeUserCount = await _userAccountRepository.CountActiveByTenantAsync(
+            request.TenantId, cancellationToken);
+
+        if (activeUserCount > 0)
+        {
+            var deps = new List<BlockingDependency>
+            {
+                new("UserAccount", "Active", activeUserCount),
+            };
+            return Result.Failure(BlockedOperationError.Encode(DomainErrors.Tenant.HasActiveUsers, deps));
         }
 
         var result = tenant.Suspend(ActorId.Create(_userContext.UserId));

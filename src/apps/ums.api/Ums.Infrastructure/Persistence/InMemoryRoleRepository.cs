@@ -86,4 +86,9 @@ public sealed class InMemoryRoleRepository : IRoleRepository, IUnitOfWork
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) => Task.FromResult(1);
     public Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default) => Task.FromResult(true);
     public void Dispose() { }
+
+    // ── Dependency guard queries ────────────────────────────────────────────
+
+    public Task<int> CountActiveChildRolesAsync(Guid parentRoleId, CancellationToken cancellationToken = default)
+        => Task.FromResult(_store.Values.Count(r => r.Props.ParentRoleId?.GetValue() == parentRoleId && r.IsActive));
 }

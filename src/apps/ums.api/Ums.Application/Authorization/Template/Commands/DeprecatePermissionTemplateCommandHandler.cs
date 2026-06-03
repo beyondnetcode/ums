@@ -1,18 +1,22 @@
 namespace Ums.Application.Authorization.Template.Commands;
 
 using Ums.Domain.Authorization;
+using Ums.Domain.Kernel;
 
 public sealed class DeprecatePermissionTemplateCommandHandler
     : ICommandHandler<DeprecatePermissionTemplateCommand>
 {
     private readonly IPermissionTemplateRepository _repository;
+    private readonly IProfileRepository _profileRepository;
     private readonly IUserContext _userContext;
 
     public DeprecatePermissionTemplateCommandHandler(
         IPermissionTemplateRepository repository,
+        IProfileRepository profileRepository,
         IUserContext userContext)
     {
         _repository = repository;
+        _profileRepository = profileRepository;
         _userContext = userContext;
     }
 
@@ -27,6 +31,20 @@ public sealed class DeprecatePermissionTemplateCommandHandler
 
         var template = await _repository.GetByIdAsync(request.TemplateId, cancellationToken);
         if (template is null) return Result.Failure("Template not found.");
+
+        // ── Dependency guard: active profiles using this template ──────────────
+        var activeProfileCount = await _profileRepository.CountActiveByTemplateAsync(
+            request.TemplateId, cancellationToken);
+
+        if (activeProfileCount > 0)
+        {
+            var deps = new List<BlockingDependency>
+            {
+                new("Profile", "Active", activeProfileCount),
+            };
+            return Result.Failure(BlockedOperationError.Encode(
+                DomainErrors.Authorization.TemplateHasActiveProfiles, deps));
+        }
 
         var result = template.Deprecate(ActorId.Create(_userContext.UserId));
         if (result.IsFailure) return result;

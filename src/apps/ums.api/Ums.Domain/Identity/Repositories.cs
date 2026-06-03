@@ -35,6 +35,10 @@ public interface IUserAccountRepository : IAggregateRepository<UserAccountAggreg
     Task<UserAccountAggregate?> GetByEmailAsync(Email email, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<UserAccountAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<UserAccountAggregate>> GetByTenantIdAsync(Guid tenantId, CancellationToken cancellationToken = default);
+
+    // ── Dependency guard queries ────────────────────────────────────────────
+    /// <summary>Returns the number of non-deleted users in the given tenant.</summary>
+    Task<int> CountActiveByTenantAsync(Guid tenantId, CancellationToken cancellationToken = default);
     /// <summary>
     /// REC-12: Server-side paginated query. SQL implementations use Skip/Take at the DB level.
     /// </summary>

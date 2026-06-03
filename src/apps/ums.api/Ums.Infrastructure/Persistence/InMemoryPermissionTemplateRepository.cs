@@ -64,4 +64,15 @@ public sealed class InMemoryPermissionTemplateRepository : IPermissionTemplateRe
         _store[aggregate.Props.Id.GetValue()] = aggregate;
     }
     public void Dispose() { }
+
+    // ── Dependency guard queries ────────────────────────────────────────────
+
+    public Task<int> CountPublishedByRoleAsync(Guid roleId, CancellationToken cancellationToken = default)
+        => Task.FromResult(_store.Values.Count(t =>
+            t.Props.RoleId.GetValue() == roleId &&
+            t.Status == Ums.Domain.Enums.TemplateStatus.Published));
+
+    public Task<int> CountItemsByTargetAsync(Guid targetId, CancellationToken cancellationToken = default)
+        => Task.FromResult(_store.Values.SelectMany(t => t.Items)
+            .Count(i => i.TargetId.GetValue() == targetId && i.IsActive));
 }
