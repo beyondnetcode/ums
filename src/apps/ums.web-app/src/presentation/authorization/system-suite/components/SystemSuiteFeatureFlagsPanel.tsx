@@ -46,6 +46,12 @@ const STATUS_COLOR_MAP = {
   Archived: STATUS_COLORS.Archived,
 };
 
+const TYPE_COLOR: Record<string, string> = {
+  Boolean: 'bg-blue-500/10 text-blue-500',
+  Variant: 'bg-purple-500/10 text-purple-500',
+  Percentage: 'bg-emerald-500/10 text-emerald-500',
+};
+
 const CriteriaRow: React.FC<{
   criteriaType: string;
   operator: string;
@@ -125,14 +131,7 @@ const FlagRow: React.FC<{
           <Flag className="w-3.5 h-3.5" />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="text-[12px] font-medium text-m3-on-surface">{flag.flagCode}</span>
-            <span
-              className={`text-[10px] font-semibold uppercase px-2.5 py-0.5 rounded-full ${TYPE_COLOR[flag.flagType]}`}
-            >
-              {FLAG_TYPE_LABELS[flag.flagType]}
-            </span>
-          </div>
+          <p className="text-[12px] font-medium text-m3-on-surface truncate">{flag.flagCode}</p>
           <div className="flex items-center gap-2 mt-0.5">
             <span className="text-[10px] text-m3-secondary">Target: {flag.flagTargets}</span>
             {flag.rolloutPercentage != null && (
@@ -153,6 +152,11 @@ const FlagRow: React.FC<{
             )}
           </div>
         </div>
+        <span
+          className={`text-[10px] font-semibold uppercase px-2.5 py-0.5 rounded-full flex-shrink-0 ${TYPE_COLOR[flag.flagType]}`}
+        >
+          {FLAG_TYPE_LABELS[flag.flagType]}
+        </span>
         <StatusBadge
           status={flag.status}
           label={getStatusLabel(flag.status)}

@@ -1,98 +1,83 @@
 namespace Ums.Infrastructure.Persistence.Seeders;
 
-using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 using BeyondNetCode.Shell.Ddd;
+using Microsoft.Extensions.DependencyInjection;
+using Ums.Domain.Authorization;
 using Ums.Domain.Configuration;
 using Ums.Domain.Configuration.AppConfiguration;
 using Ums.Domain.Configuration.FeatureFlag;
 using Ums.Domain.Configuration.IdpConfiguration;
+using Ums.Domain.Identity.Repositories.TenantParameter;
+using Ums.Domain.Identity.Tenant.TenantParameter;
 using Ums.Domain.Kernel.ValueObjects;
-using Ums.Domain.Authorization;
 using AppConfigurationAggregate = Ums.Domain.Configuration.AppConfiguration.AppConfiguration;
 using FeatureFlagAggregate = Ums.Domain.Configuration.FeatureFlag.FeatureFlag;
 using IdpConfigurationAggregate = Ums.Domain.Configuration.IdpConfiguration.IdpConfiguration;
+using TenantParameterAggregate = Ums.Domain.Identity.Tenant.TenantParameter.TenantParameter;
 
 public static class ConfigurationDevDataSeeder
 {
+    private const string TestIdpSystemSuiteId = "11111111-1111-1111-1111-111111111111";
+    private static readonly BindingFlags PrivateInstanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
+    private static readonly Guid DemoSystemSuiteGuid = Guid.Parse(CoreDevDataSeeder.DemoSystemSuiteId);
+    private static readonly Guid RansaTenantGuid = Guid.Parse(CoreDevDataSeeder.RansaTenantId);
+    private static readonly Guid InternalAdminTenantGuid = Guid.Parse(CoreDevDataSeeder.InternalAdminTenantId);
+    private static readonly Guid ApmTenantGuid = Guid.Parse("A3F5B9D2-7C3D-4C8E-A9B0-123456789ABC");
+    private static readonly Guid NeptuniaTenantGuid = Guid.Parse("C9B736B4-6A84-48F8-B34D-176BC5A6D542");
+    private static readonly Guid UnimarTenantGuid = Guid.Parse("5F4E3D2C-1B0A-9F8E-7D6C-543210987654");
+    private static readonly Guid PaitaTenantGuid = Guid.Parse("9E8D7C6B-5A4F-3E2D-1C0B-9876543210FE");
+    private static readonly Guid IntradevcoTenantGuid = Guid.Parse("F3E2D1C0-B9A8-7F6E-5D4C-321098765432");
+
     public static async Task SeedAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
     {
         var appConfigRepository = serviceProvider.GetService<IAppConfigurationRepository>();
-        var inMemoryAppConfigRepository = serviceProvider.GetService<InMemoryAppConfigurationRepository>();
-
         var featureFlagRepository = serviceProvider.GetService<IFeatureFlagRepository>();
-        var inMemoryFeatureFlagRepository = serviceProvider.GetService<InMemoryFeatureFlagRepository>();
-
         var idpConfigRepository = serviceProvider.GetService<IIdpConfigurationRepository>();
-        var inMemoryIdpConfigRepository = serviceProvider.GetService<InMemoryIdpConfigurationRepository>();
+        var tenantParameterRepository = serviceProvider.GetService<ITenantParameterRepository>();
+        var suiteRepository = serviceProvider.GetService<ISystemSuiteRepository>();
 
         var actor = ActorId.Create(CoreDevDataSeeder.SystemActorId);
 
-        // AppConfiguration
-        var configs = BuildSeedAppConfigurations(actor);
-        var tenantConfigs = BuildTenantSpecificConfigurations(actor);
-        if (inMemoryAppConfigRepository is not null)
+        await SeedAppConfigurationsAsync(appConfigRepository, BuildSeedAppConfigurations(actor).Concat(BuildTenantSpecificConfigurations(actor)).ToList(), cancellationToken);
+        await SeedFeatureFlagsAsync(featureFlagRepository, suiteRepository, actor, cancellationToken);
+        await SeedIdpConfigsAsync(idpConfigRepository, suiteRepository, actor, cancellationToken);
+        await SeedTenantParametersAsync(tenantParameterRepository, actor, cancellationToken);
+    }
+
+    private static async Task SeedAppConfigurationsAsync(
+        IAppConfigurationRepository? repository,
+        IReadOnlyList<AppConfigurationAggregate> desiredConfigs,
+        CancellationToken cancellationToken)
+    {
+        if (repository is null)
         {
-            foreach (var cfg in configs) inMemoryAppConfigRepository.Seed(cfg);
-            foreach (var cfg in tenantConfigs) inMemoryAppConfigRepository.Seed(cfg);
-        }
-        else if (appConfigRepository is not null)
-        {
-            var allExisting = await appConfigRepository.GetAllAsync(null, cancellationToken);
-
-            var existingGlobalCodes = allExisting
-                .Where(c => c.Props.TenantId is null)
-                .Select(c => c.Code.GetValue())
-                .ToHashSet();
-
-            foreach (var cfg in configs.Where(c => !existingGlobalCodes.Contains(c.Code.GetValue())))
-            {
-                await appConfigRepository.AddAsync(cfg, cancellationToken);
-            }
-
-            var tenantIds = tenantConfigs.Select(c => c.Props.TenantId!.GetValue()).Distinct();
-            foreach (var tenantId in tenantIds)
-            {
-                var existingTenantCodes = allExisting
-                    .Where(c => c.Props.TenantId?.GetValue() == tenantId)
-                    .Select(c => c.Code.GetValue())
-                    .ToHashSet();
-                var configsForTenant = tenantConfigs.Where(c => c.Props.TenantId?.GetValue() == tenantId);
-
-                foreach (var cfg in configsForTenant.Where(c => !existingTenantCodes.Contains(c.Code.GetValue())))
-                {
-                    await appConfigRepository.AddAsync(cfg, cancellationToken);
-                }
-            }
-
-            await appConfigRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+            return;
         }
 
-        // FeatureFlag
-        var flags = await BuildSeedFeatureFlagsAsync(serviceProvider, actor, cancellationToken);
-        if (inMemoryFeatureFlagRepository is not null)
-            foreach (var flag in flags) inMemoryFeatureFlagRepository.Seed(flag);
-        else if (featureFlagRepository is not null)
+        var needsSave = false;
+
+        foreach (var config in desiredConfigs)
         {
-            var existing = await featureFlagRepository.GetAllAsync(null, cancellationToken);
-            if (existing.Count == 0)
+            var existing = await repository.GetByScopeAndCodeAsync(
+                config.Props.TenantId?.GetValue(),
+                config.Props.SystemSuiteId?.GetValue(),
+                config.Props.ModuleId?.GetValue(),
+                config.Code.GetValue(),
+                cancellationToken);
+
+            if (existing is not null)
             {
-                foreach (var flag in flags) await featureFlagRepository.AddAsync(flag, cancellationToken);
-                await featureFlagRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+                continue;
             }
+
+            await repository.AddAsync(config, cancellationToken);
+            needsSave = true;
         }
 
-        // IdpConfig
-        var idpConfigs = BuildSeedIdpConfigs(actor);
-        if (inMemoryIdpConfigRepository is not null)
-            foreach (var idp in idpConfigs) inMemoryIdpConfigRepository.Seed(idp);
-        else if (idpConfigRepository is not null)
+        if (needsSave)
         {
-            var existing = await idpConfigRepository.GetAllAsync(null, cancellationToken);
-            if (existing.Count == 0)
-            {
-                foreach (var idp in idpConfigs) await idpConfigRepository.AddAsync(idp, cancellationToken);
-                await idpConfigRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
-            }
+            await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
         }
     }
 
@@ -102,69 +87,75 @@ public static class ConfigurationDevDataSeeder
         var results = new List<AppConfigurationAggregate>();
 
         // SESSION_TIMEOUT_MINUTES must come first — ConfigurationRestEndpointTests checks items[0].code
-        var sessionTimeout = AppConfigurationAggregate.Create(
-            null, null, null,
+        AddPublishedConfiguration(results,
+            null,
             Code.Create("SESSION_TIMEOUT_MINUTES"),
             ConfigurationValue.Create("30"),
             Description.Create("Idle session timeout in minutes"),
-            true, false, actor);
-        if (sessionTimeout.IsSuccess) results.Add(sessionTimeout.Value);
+            actor);
 
-        var maxAttempts = AppConfigurationAggregate.Create(
-            null, null, null,
+        AddPublishedConfiguration(results,
+            null,
             Code.Create("MAX_LOGIN_ATTEMPTS"),
             ConfigurationValue.Create("5"),
-            Description.Create("Maximum login attempts before locking out the user"),
-            true, false, actor);
-        if (maxAttempts.IsSuccess) results.Add(maxAttempts.Value);
+            Description.Create("Maximum login attempts before lockout"),
+            actor);
 
-        var accessTokenDuration = AppConfigurationAggregate.Create(
-            null, null, null,
+        AddPublishedConfiguration(results,
+            null,
             Code.Create("ACCESS_TOKEN_DURATION_MS"),
             ConfigurationValue.Create("3600000"),
             Description.Create("Access token lifetime in milliseconds (default: 1 hour)"),
-            true, false, actor);
-        if (accessTokenDuration.IsSuccess) results.Add(accessTokenDuration.Value);
+            actor);
 
-        var refreshTokenDuration = AppConfigurationAggregate.Create(
-            null, null, null,
+        AddPublishedConfiguration(results,
+            null,
             Code.Create("REFRESH_TOKEN_DURATION_MS"),
             ConfigurationValue.Create("604800000"),
             Description.Create("Refresh token lifetime in milliseconds (default: 7 days)"),
-            true, false, actor);
-        if (refreshTokenDuration.IsSuccess) results.Add(refreshTokenDuration.Value);
+            actor);
 
-        var minPasswordLength = AppConfigurationAggregate.Create(
-            null, null, null,
+        AddPublishedConfiguration(results,
+            null,
             Code.Create("MIN_PASSWORD_LENGTH"),
             ConfigurationValue.Create("12"),
             Description.Create("Minimum required password length"),
-            true, false, actor);
-        if (minPasswordLength.IsSuccess) results.Add(minPasswordLength.Value);
+            actor);
 
-        var maxValidityPeriod = AppConfigurationAggregate.Create(
-            null, null, null,
+        AddPublishedConfiguration(results,
+            null,
             Code.Create("MAX_VALIDITY_PERIOD_DAYS"),
             ConfigurationValue.Create("365"),
             Description.Create("Maximum user account validity period in days"),
-            true, false, actor);
-        if (maxValidityPeriod.IsSuccess) results.Add(maxValidityPeriod.Value);
+            actor);
 
-        var configTransport = AppConfigurationAggregate.Create(
-            null, null, null,
+        AddPublishedConfiguration(results,
+            null,
             Code.Create("FRONTEND_CONFIG_TRANSPORT"),
             ConfigurationValue.Create("rest"),
             Description.Create("Transport mode for frontend config queries: 'graphql' or 'rest'"),
-            true, false, actor);
-        if (configTransport.IsSuccess) results.Add(configTransport.Value);
+            actor);
 
-        var useExternalIdp = AppConfigurationAggregate.Create(
-            null, null, null,
+        AddPublishedConfiguration(results,
+            null,
             Code.Create("AUTH_USE_EXTERNAL_IDP"),
             ConfigurationValue.Create("false"),
             Description.Create("Whether the tenant uses external Identity Providers instead of local password credentials"),
-            true, false, actor);
-        if (useExternalIdp.IsSuccess) results.Add(useExternalIdp.Value);
+            actor);
+
+        AddPublishedConfiguration(results,
+            null,
+            Code.Create("UI_LANGUAGE_DEFAULT"),
+            ConfigurationValue.Create("es"),
+            Description.Create("Default UI language for the platform"),
+            actor);
+
+        AddPublishedConfiguration(results,
+            null,
+            Code.Create("UI_TIMEZONE_DEFAULT"),
+            ConfigurationValue.Create("America/Lima"),
+            Description.Create("Default UI timezone for the platform"),
+            actor);
 
         return results;
     }
@@ -173,227 +164,726 @@ public static class ConfigurationDevDataSeeder
     {
         var results = new List<AppConfigurationAggregate>();
 
-        // All tenant IDs from the database
-        var tenantConfigs = new (Guid TenantId, string Code, string Value, string Description)[]
+        foreach (var profile in GetTenantSeedProfiles())
         {
-            // RANSA_PERU (3fa85f64-5717-4562-b3fc-2c963f66afa6)
-            (Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"), "SESSION_TIMEOUT_MINUTES", "45", "Session timeout for Ransa logistics operations"),
-            (Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"), "MFA_REQUIRED_FOR_ADMIN", "true", "Require MFA for Ransa admin users"),
-            (Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"), "UI_CUSTOM_BRANDING_ENABLED", "true", "Enable custom branding for Ransa"),
-            (Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"), "AUTH_USE_EXTERNAL_IDP", "true", "Ransa uses external identity providers"),
+            var tenantId = TenantId.Load(profile.TenantId);
 
-            // APM_CALLAO (A3F5B9D2-7C3D-4C8E-A9B0-123456789ABC)
-            (Guid.Parse("A3F5B9D2-7C3D-4C8E-A9B0-123456789ABC"), "SESSION_TIMEOUT_MINUTES", "20", "Short session timeout for APM port security"),
-            (Guid.Parse("A3F5B9D2-7C3D-4C8E-A9B0-123456789ABC"), "MAX_LOGIN_ATTEMPTS", "3", "Strict login attempt limit for APM terminals"),
-            (Guid.Parse("A3F5B9D2-7C3D-4C8E-A9B0-123456789ABC"), "MFA_REQUIRED_FOR_ADMIN", "true", "Require MFA for all APM users"),
-            (Guid.Parse("A3F5B9D2-7C3D-4C8E-A9B0-123456789ABC"), "AUTH_USE_EXTERNAL_IDP", "false", "APM Callao forces local authentication"),
+            AddPublishedConfiguration(results,
+                tenantId,
+                Code.Create("SESSION_TIMEOUT_MINUTES"),
+                ConfigurationValue.Create(profile.SessionTimeoutMinutes),
+                Description.Create($"Session timeout for {profile.Name}"),
+                actor);
 
-            // NEPTUNIA (C9B736B4-6A84-48F8-B34D-176BC5A6D542)
-            (Guid.Parse("C9B736B4-6A84-48F8-B34D-176BC5A6D542"), "SESSION_TIMEOUT_MINUTES", "60", "Extended session timeout for Neptunia industrial operations"),
-            (Guid.Parse("C9B736B4-6A84-48F8-B34D-176BC5A6D542"), "MIN_PASSWORD_LENGTH", "14", "Extended password requirement for Neptunia"),
-            (Guid.Parse("C9B736B4-6A84-48F8-B34D-176BC5A6D542"), "AUTH_USE_EXTERNAL_IDP", "true", "Neptunia uses external identity providers"),
+            AddPublishedConfiguration(results,
+                tenantId,
+                Code.Create("MAX_LOGIN_ATTEMPTS"),
+                ConfigurationValue.Create(profile.MaxLoginAttempts),
+                Description.Create($"Login attempt limit for {profile.Name}"),
+                actor);
 
-            // UNIMAR (5F4E3D2C-1B0A-9F8E-7D6C-543210987654) - Maritime university
-            (Guid.Parse("5F4E3D2C-1B0A-9F8E-7D6C-543210987654"), "SESSION_TIMEOUT_MINUTES", "30", "Standard session timeout for university users"),
-            (Guid.Parse("5F4E3D2C-1B0A-9F8E-7D6C-543210987654"), "MAX_LOGIN_ATTEMPTS", "5", "Standard login attempt limit"),
-            (Guid.Parse("5F4E3D2C-1B0A-9F8E-7D6C-543210987654"), "MFA_REQUIRED_FOR_ADMIN", "false", "MFA optional for UNIMAR"),
-            (Guid.Parse("5F4E3D2C-1B0A-9F8E-7D6C-543210987654"), "AUTH_USE_EXTERNAL_IDP", "false", "Unimar forces local authentication"),
+            AddPublishedConfiguration(results,
+                tenantId,
+                Code.Create("MIN_PASSWORD_LENGTH"),
+                ConfigurationValue.Create(profile.MinPasswordLength),
+                Description.Create($"Minimum password length for {profile.Name}"),
+                actor);
 
-            // PAITA_PORT (9E8D7C6B-5A4F-3E2D-1C0B-9876543210FE) - Port authority
-            (Guid.Parse("9E8D7C6B-5A4F-3E2D-1C0B-9876543210FE"), "SESSION_TIMEOUT_MINUTES", "15", "Short session for port security"),
-            (Guid.Parse("9E8D7C6B-5A4F-3E2D-1C0B-9876543210FE"), "MAX_LOGIN_ATTEMPTS", "3", "Strict login attempts for port"),
-            (Guid.Parse("9E8D7C6B-5A4F-3E2D-1C0B-9876543210FE"), "MFA_REQUIRED_FOR_ADMIN", "true", "Require MFA for port admins"),
-            (Guid.Parse("9E8D7C6B-5A4F-3E2D-1C0B-9876543210FE"), "AUTH_USE_EXTERNAL_IDP", "true", "Paita uses external identity providers"),
+            AddPublishedConfiguration(results,
+                tenantId,
+                Code.Create("MAX_VALIDITY_PERIOD_DAYS"),
+                ConfigurationValue.Create(profile.MaxValidityPeriodDays),
+                Description.Create($"Maximum user validity period for {profile.Name}"),
+                actor);
 
-            // INTRADEVCO (F3E2D1C0-B9A8-7F6E-5D4C-321098765432) - Trading company
-            (Guid.Parse("F3E2D1C0-B9A8-7F6E-5D4C-321098765432"), "SESSION_TIMEOUT_MINUTES", "40", "Extended session for trading operations"),
-            (Guid.Parse("F3E2D1C0-B9A8-7F6E-5D4C-321098765432"), "MAX_LOGIN_ATTEMPTS", "5", "Standard login attempt limit"),
-            (Guid.Parse("F3E2D1C0-B9A8-7F6E-5D4C-321098765432"), "MIN_PASSWORD_LENGTH", "10", "Standard password length"),
-            (Guid.Parse("F3E2D1C0-B9A8-7F6E-5D4C-321098765432"), "AUTH_USE_EXTERNAL_IDP", "true", "Intradevco uses external identity providers"),
-        };
+            AddPublishedConfiguration(results,
+                tenantId,
+                Code.Create("MFA_REQUIRED_FOR_ADMIN"),
+                ConfigurationValue.Create(profile.MfaRequiredForAdmin),
+                Description.Create($"Whether MFA is required for {profile.Name} administrators"),
+                actor);
 
-        foreach (var (tenantId, code, value, description) in tenantConfigs)
-        {
-            var config = AppConfigurationAggregate.Create(
-                TenantId.Load(tenantId), null, null,
-                Code.Create(code),
-                ConfigurationValue.Create(value),
-                Description.Create(description),
-                true, false, actor);
-            if (config.IsSuccess) results.Add(config.Value);
+            AddPublishedConfiguration(results,
+                tenantId,
+                Code.Create("UI_CUSTOM_BRANDING_ENABLED"),
+                ConfigurationValue.Create(profile.CustomBrandingEnabled),
+                Description.Create($"Whether custom branding is enabled for {profile.Name}"),
+                actor);
+
+            AddPublishedConfiguration(results,
+                tenantId,
+                Code.Create("AUTH_USE_EXTERNAL_IDP"),
+                ConfigurationValue.Create(profile.AuthUseExternalIdp),
+                Description.Create($"Whether {profile.Name} uses an external Identity Provider"),
+                actor);
+
+            AddPublishedConfiguration(results,
+                tenantId,
+                Code.Create("UI_LANGUAGE_DEFAULT"),
+                ConfigurationValue.Create(profile.DefaultLanguage),
+                Description.Create($"Default UI language for {profile.Name}"),
+                actor);
+
+            AddPublishedConfiguration(results,
+                tenantId,
+                Code.Create("UI_TIMEZONE_DEFAULT"),
+                ConfigurationValue.Create(profile.DefaultTimezone),
+                Description.Create($"Default UI timezone for {profile.Name}"),
+                actor);
         }
 
         return results;
     }
 
-    // FeatureFlag.Create(IdValueObject systemSuiteId, IdValueObject? tenantId, string flagCode, FlagType, string flagTargets, LinkedResourceType?, IdValueObject?, int? rolloutPercentage, ActorId)
-    private static async Task<IReadOnlyList<FeatureFlagAggregate>> BuildSeedFeatureFlagsAsync(IServiceProvider serviceProvider, ActorId actor, CancellationToken cancellationToken)
+    private static void AddPublishedConfiguration(
+        ICollection<AppConfigurationAggregate> results,
+        TenantId? tenantId,
+        Code code,
+        ConfigurationValue value,
+        Description description,
+        ActorId actor)
     {
-        var results = new List<FeatureFlagAggregate>();
-        var suiteRepository = serviceProvider.GetService<ISystemSuiteRepository>();
+        var configResult = AppConfigurationAggregate.Create(
+            tenantId,
+            null,
+            null,
+            code,
+            value,
+            description,
+            true,
+            false,
+            actor);
 
-        // If we have the real suite repository, create flags for actual seeded suites
-        if (suiteRepository is not null)
+        if (configResult.IsFailure)
         {
-            var suites = await suiteRepository.GetAllAsync(null, cancellationToken);
-            foreach (var suite in suites)
+            return;
+        }
+
+        var config = configResult.Value;
+        var publishResult = config.Publish(actor);
+        if (publishResult.IsSuccess)
+        {
+            config.DomainEvents.MarkChangesAsCommitted();
+        }
+
+        results.Add(config);
+    }
+
+    private static async Task SeedFeatureFlagsAsync(
+        IFeatureFlagRepository? repository,
+        ISystemSuiteRepository? suiteRepository,
+        ActorId actor,
+        CancellationToken cancellationToken)
+    {
+        if (repository is null || suiteRepository is null)
+        {
+            return;
+        }
+
+        var suites = await suiteRepository.GetAllAsync(null, cancellationToken);
+        if (suites.Count == 0)
+        {
+            return;
+        }
+
+        var existingFlags = await repository.GetAllAsync(null, cancellationToken);
+        var existingByKey = existingFlags
+            .GroupBy(flag => (flag.SystemSuiteId, flag.FlagCode))
+            .ToDictionary(group => group.Key, group => group.First());
+
+        var needsSave = false;
+
+        foreach (var suite in suites)
+        {
+            var suiteId = suite.GetId().GetValue();
+            var tenantId = suite.TenantId.GetValue();
+
+            foreach (var definition in GetFeatureFlagDefinitions(suite.Code.GetValue()))
             {
-                var suiteId = IdValueObject.Load(suite.GetId().GetValue());
-                var suiteCode = suite.Code.GetValue();
-
-                // Create 2-3 flags per suite based on suite code
-                var flagsForSuite = suiteCode switch
+                if (existingByKey.TryGetValue((suiteId, definition.Code), out var existing))
                 {
-                    "UMS" => new (string Code, FlagType Type, string Targets, string Description, int? Rollout)[]
+                    if (existing.Props.TenantId?.GetValue() != tenantId)
                     {
-                        ("ENABLE_MFA",                        FlagType.Boolean,     "*",                      "Multi-factor authentication for logistics users",      null),
-                        ("DARK_MODE",                         FlagType.Boolean,     "*",                      "Dark mode UI toggle",                                  null),
-                        ("ADVANCED_REPORTING",                FlagType.Boolean,     "role:ADMIN,role:SUPERVISOR", "Advanced analytics dashboard",                    null),
-                        ("ALLOW_PASSWORD_RESET_BY_ADMIN",     FlagType.Boolean,     "*",                      "Allow admin to reset user passwords",                  null),
-                        ("ALLOW_VALIDITY_PERIOD_MODIFICATION",FlagType.Boolean,     "*",                      "Allow admin to modify user validity periods",          null),
-                        ("NEW_AUDIT_DASHBOARD",               FlagType.Boolean,     "*",                      "New audit trail visualization (2026 rollout)",         null),
-                        ("PREMIUM_REPORTS",                   FlagType.Boolean,     "*",                      "Premium analytics reports — Ransa admins only",        null),
-                    },
-                    "WMS" => new (string Code, FlagType Type, string Targets, string Description, int? Rollout)[]
-                    {
-                        ("BULK_PICKING", FlagType.Boolean, "*", "Bulk picking workflow", null),
-                        ("VOICE_PICKING", FlagType.Boolean, "role:OPERATOR", "Voice-directed picking", null),
-                        ("AUTO_REORDER", FlagType.Percentage, "*", "Automatic reorder point calculation", 50),
-                    },
-                    _ => Array.Empty<(string Code, FlagType Type, string Targets, string Description, int? Rollout)>()
-                };
-
-                foreach (var flagDef in flagsForSuite)
-                {
-                    var flag = FeatureFlagAggregate.Create(
-                        suiteId,
-                        null,
-                        flagDef.Code,
-                        flagDef.Type,
-                        flagDef.Targets,
-                        null,
-                        null,
-                        flagDef.Type == FlagType.Percentage ? flagDef.Rollout : null,
-                        actor);
-
-                    if (flag.IsSuccess)
-                    {
-                        // Activate some flags for demo purposes
-                        if (flagDef.Code == "DARK_MODE" || flagDef.Code == "BULK_PICKING")
-                        {
-                            flag.Value.Activate(actor);
-                            flag.Value.DomainEvents.MarkChangesAsCommitted();
-                        }
-
-                        // Add criteria for role-targeted flags (single role code from "role:CODE" targets)
-                        if (flagDef.Targets.Contains("role:"))
-                        {
-                            var roleCode = flagDef.Targets.Split(':')[1].Split(',')[0];
-                            flag.Value.AddCriteria("RoleCode", "Equals", roleCode, actor);
-                            flag.Value.DomainEvents.MarkChangesAsCommitted();
-                        }
-
-                        // ── Criteria showcase flags ──────────────────────────────────────
-
-                        // ENABLE_MFA — TenantId criteria (tenant-scoped MFA rollout)
-                        if (flagDef.Code == "ENABLE_MFA")
-                        {
-                            flag.Value.AddCriteria("TenantId", "Equals", CoreDevDataSeeder.RansaTenantId, actor);
-                            flag.Value.DomainEvents.MarkChangesAsCommitted();
-                            flag.Value.Activate(actor);
-                            flag.Value.DomainEvents.MarkChangesAsCommitted();
-                        }
-
-                        // NEW_AUDIT_DASHBOARD — DateRange criteria (time-boxed rollout)
-                        if (flagDef.Code == "NEW_AUDIT_DASHBOARD")
-                        {
-                            flag.Value.AddCriteria("DateRange", "Between",
-                                "{\"from\":\"2026-01-01T00:00:00Z\",\"to\":\"2026-12-31T23:59:59Z\"}", actor);
-                            flag.Value.DomainEvents.MarkChangesAsCommitted();
-                            flag.Value.Activate(actor);
-                            flag.Value.DomainEvents.MarkChangesAsCommitted();
-                        }
-
-                        // PREMIUM_REPORTS — Multi-type AND: TenantId + RoleCode (demonstrates OR-within / AND-across)
-                        if (flagDef.Code == "PREMIUM_REPORTS")
-                        {
-                            flag.Value.AddCriteria("TenantId", "Equals", CoreDevDataSeeder.RansaTenantId, actor);
-                            flag.Value.AddCriteria("RoleCode", "In", "[\"ADMIN\",\"SUPERVISOR\"]", actor);
-                            flag.Value.DomainEvents.MarkChangesAsCommitted();
-                            flag.Value.Activate(actor);
-                            flag.Value.DomainEvents.MarkChangesAsCommitted();
-                        }
-
-                        results.Add(flag.Value);
+                        SetFeatureFlagTenantId(existing, tenantId);
+                        await repository.UpdateAsync(existing, cancellationToken);
+                        needsSave = true;
                     }
+                    continue;
                 }
+
+                var flagResult = FeatureFlagAggregate.Create(
+                    IdValueObject.Load(suiteId),
+                    IdValueObject.Load(tenantId),
+                    definition.Code,
+                    definition.Type,
+                    definition.Targets,
+                    null,
+                    null,
+                    definition.RolloutPercentage,
+                    actor);
+
+                if (flagResult.IsFailure)
+                {
+                    continue;
+                }
+
+                ApplyFeatureFlagDemoRules(flagResult.Value, definition, actor);
+                await repository.AddAsync(flagResult.Value, cancellationToken);
+                existingByKey[(suiteId, definition.Code)] = flagResult.Value;
+                needsSave = true;
             }
         }
-        else
+
+        if (needsSave)
         {
-            // Fallback: create a single flag with the demo system suite ID for tests
-            var flag = FeatureFlagAggregate.Create(
-                IdValueObject.Load(Guid.Parse(CoreDevDataSeeder.DemoSystemSuiteId)),
-                null,
-                "ENABLE_MFA",
-                FlagType.Boolean,
-                "*",
-                null,
-                null,
+            await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+        }
+    }
+
+    private static void ApplyFeatureFlagDemoRules(
+        FeatureFlagAggregate flag,
+        FeatureFlagSeedDefinition definition,
+        ActorId actor)
+    {
+        if (definition.Code is "DARK_MODE" or "BULK_PICKING")
+        {
+            flag.Activate(actor);
+            flag.DomainEvents.MarkChangesAsCommitted();
+        }
+
+        if (definition.Targets.Contains("role:", StringComparison.OrdinalIgnoreCase))
+        {
+            var roleCode = definition.Targets.Split(':')[1].Split(',')[0];
+            flag.AddCriteria("RoleCode", "Equals", roleCode, actor);
+            flag.DomainEvents.MarkChangesAsCommitted();
+        }
+
+        if (definition.Code == "ENABLE_MFA")
+        {
+            flag.AddCriteria("TenantId", "Equals", CoreDevDataSeeder.RansaTenantId, actor);
+            flag.DomainEvents.MarkChangesAsCommitted();
+            flag.Activate(actor);
+            flag.DomainEvents.MarkChangesAsCommitted();
+        }
+
+        if (definition.Code == "NEW_AUDIT_DASHBOARD")
+        {
+            flag.AddCriteria("DateRange", "Between",
+                "{\"from\":\"2026-01-01T00:00:00Z\",\"to\":\"2026-12-31T23:59:59Z\"}", actor);
+            flag.DomainEvents.MarkChangesAsCommitted();
+            flag.Activate(actor);
+            flag.DomainEvents.MarkChangesAsCommitted();
+        }
+
+        if (definition.Code == "PREMIUM_REPORTS")
+        {
+            flag.AddCriteria("TenantId", "Equals", CoreDevDataSeeder.RansaTenantId, actor);
+            flag.AddCriteria("RoleCode", "In", "[\"ADMIN\",\"SUPERVISOR\"]", actor);
+            flag.DomainEvents.MarkChangesAsCommitted();
+            flag.Activate(actor);
+            flag.DomainEvents.MarkChangesAsCommitted();
+        }
+    }
+
+    private static IReadOnlyList<FeatureFlagSeedDefinition> GetFeatureFlagDefinitions(string suiteCode)
+    {
+        return suiteCode switch
+        {
+            "UMS" => new[]
+            {
+                new FeatureFlagSeedDefinition("ENABLE_MFA", FlagType.Boolean, "*", "Multi-factor authentication for logistics users", null),
+                new FeatureFlagSeedDefinition("DARK_MODE", FlagType.Boolean, "*", "Dark mode UI toggle", null),
+                new FeatureFlagSeedDefinition("ADVANCED_REPORTING", FlagType.Boolean, "role:ADMIN,role:SUPERVISOR", "Advanced analytics dashboard", null),
+                new FeatureFlagSeedDefinition("ALLOW_PASSWORD_RESET_BY_ADMIN", FlagType.Boolean, "*", "Allow admin to reset user passwords", null),
+                new FeatureFlagSeedDefinition("ALLOW_VALIDITY_PERIOD_MODIFICATION", FlagType.Boolean, "*", "Allow admin to modify user validity periods", null),
+                new FeatureFlagSeedDefinition("NEW_AUDIT_DASHBOARD", FlagType.Boolean, "*", "New audit trail visualization (2026 rollout)", null),
+                new FeatureFlagSeedDefinition("PREMIUM_REPORTS", FlagType.Boolean, "*", "Premium analytics reports — Ransa admins only", null),
+            },
+            "WMS" => new[]
+            {
+                new FeatureFlagSeedDefinition("BULK_PICKING", FlagType.Boolean, "*", "Bulk picking workflow", null),
+                new FeatureFlagSeedDefinition("VOICE_PICKING", FlagType.Boolean, "role:OPERATOR", "Voice-directed picking", null),
+                new FeatureFlagSeedDefinition("AUTO_REORDER", FlagType.Percentage, "*", "Automatic reorder point calculation", 50),
+            },
+            _ => Array.Empty<FeatureFlagSeedDefinition>()
+        };
+    }
+
+    private static void SetFeatureFlagTenantId(FeatureFlagAggregate featureFlag, Guid tenantId)
+    {
+        var propsField = typeof(FeatureFlagAggregate).GetField("_props", PrivateInstanceFlags);
+        var props = propsField?.GetValue(featureFlag);
+        var tenantIdProperty = props?.GetType().GetProperty("TenantId", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        tenantIdProperty?.SetValue(props, IdValueObject.Load(tenantId));
+    }
+
+    private static async Task SeedIdpConfigsAsync(
+        IIdpConfigurationRepository? repository,
+        ISystemSuiteRepository? suiteRepository,
+        ActorId actor,
+        CancellationToken cancellationToken)
+    {
+        if (repository is null)
+        {
+            return;
+        }
+
+        var needsSave = false;
+
+        foreach (var profile in GetTenantSeedProfiles().Where(profile => profile.SeedExternalIdp))
+        {
+            var tenantId = profile.TenantId;
+            var existing = await repository.GetByTenantIdAsync(tenantId, cancellationToken);
+            var desiredDefinitions = await BuildIdpSeedDefinitions(profile, suiteRepository, actor, cancellationToken);
+
+            foreach (var definition in desiredDefinitions)
+            {
+                var found = existing.FirstOrDefault(item =>
+                    item.SystemSuiteId.GetValue() == definition.SystemSuiteId &&
+                    item.ProviderType == definition.ProviderType &&
+                    item.Props.DomainHints.SequenceEqual(definition.DomainHints));
+
+                if (found is not null)
+                {
+                    continue;
+                }
+
+                await repository.AddAsync(definition.Configuration, cancellationToken);
+                needsSave = true;
+            }
+        }
+
+        if (needsSave)
+        {
+            await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+        }
+    }
+
+    private static async Task<IReadOnlyList<IdpSeedDefinition>> BuildIdpSeedDefinitions(
+        TenantSeedProfile profile,
+        ISystemSuiteRepository? suiteRepository,
+        ActorId actor,
+        CancellationToken cancellationToken)
+    {
+        var results = new List<IdpSeedDefinition>();
+        var suiteId = await ResolvePrimarySuiteIdAsync(profile.TenantId, suiteRepository, cancellationToken);
+
+        if (profile.TenantId == RansaTenantGuid)
+        {
+            AddIdpSeedDefinition(
+                results,
+                profile.TenantId,
+                suiteId,
+                ProviderType.AzureAd,
+                new[] { "ransa.pe", "ransa.com.pe" },
+                "{\"clientId\":\"1234\",\"tenantId\":\"abcd-azure-tenant\"}",
+                "keyvault://ums/ransa-entra-secret",
+                1,
                 null,
                 actor);
 
-            if (flag.IsSuccess) results.Add(flag.Value);
+            AddIdpSeedDefinition(
+                results,
+                profile.TenantId,
+                Guid.Parse(TestIdpSystemSuiteId),
+                ProviderType.AzureAd,
+                new[] { "beyondnet.com" },
+                "{\"authority\":\"https://login.microsoftonline.com/common\",\"clientId\":\"test-client-id\"}",
+                "keyvault://ums/beyondnet-entra-secret",
+                1,
+                null,
+                actor);
+
+            return results;
         }
+
+        AddIdpSeedDefinition(
+            results,
+            profile.TenantId,
+            suiteId,
+            ProviderType.AzureAd,
+            profile.ExternalIdpDomainHints,
+            profile.ExternalIdpPayload,
+            profile.ExternalIdpSecretRef,
+            profile.ExternalIdpResolutionPriority,
+            null,
+            actor);
 
         return results;
     }
 
-    // Fixed system-suite ID used by IdpConfigurationRestEndpointTests and ConfigurationGraphQlTests
-    // to resolve IDP by domain "beyondnet.com".
-    private const string TestIdpSystemSuiteId = "11111111-1111-1111-1111-111111111111";
-
-    // IdpConfiguration.Create(TenantId, SystemSuiteId, ProviderType, string[], string configPayload, string secretRef, int resolutionPriority, Guid? fallbackToId, ActorId)
-    private static IReadOnlyList<IdpConfigurationAggregate> BuildSeedIdpConfigs(ActorId actor)
+    private static async Task<Guid> ResolvePrimarySuiteIdAsync(
+        Guid tenantId,
+        ISystemSuiteRepository? suiteRepository,
+        CancellationToken cancellationToken)
     {
-        var ransaTenantId = TenantId.Load(Guid.Parse(CoreDevDataSeeder.RansaTenantId));
-        var results = new List<IdpConfigurationAggregate>();
-
-        // Primary IDP for Ransa internal domain (Draft — standard dev seed)
-        var ransaIdp = IdpConfigurationAggregate.Create(
-            ransaTenantId,
-            SystemSuiteId.Load(Guid.Parse(CoreDevDataSeeder.DemoSystemSuiteId)),
-            ProviderType.AzureAd,
-            new[] { "ransa.pe", "ransa.com.pe" },
-            "{\"clientId\":\"1234\",\"tenantId\":\"abcd-azure-tenant\"}",
-            "keyvault://ums/ransa-entra-secret",
-            1,
-            null,
-            actor);
-        if (ransaIdp.IsSuccess) results.Add(ransaIdp.Value);
-
-        // Active IDP required by IdpConfigurationRestEndpointTests.ResolveIdpConfiguration_*
-        // and ConfigurationGraphQlTests.GraphQlResolveIdpConfigurationQuery_*
-        // Uses fixed systemSuiteId and beyondnet.com domain to match test assertions.
-        var testIdp = IdpConfigurationAggregate.Create(
-            ransaTenantId,
-            SystemSuiteId.Load(Guid.Parse(TestIdpSystemSuiteId)),
-            ProviderType.AzureAd,
-            new[] { "beyondnet.com" },
-            "{\"authority\":\"https://login.microsoftonline.com/common\",\"clientId\":\"test-client-id\"}",
-            "keyvault://ums/beyondnet-entra-secret",
-            1,
-            null,
-            actor);
-
-        if (testIdp.IsSuccess)
+        if (suiteRepository is null)
         {
-            // Activate so the resolver can select it (requires Active status)
-            testIdp.Value.Activate(actor);
-            testIdp.Value.DomainEvents.MarkChangesAsCommitted();
-            results.Add(testIdp.Value);
+            return DemoSystemSuiteGuid;
+        }
+
+        var suites = await suiteRepository.GetByTenantIdAsync(tenantId, cancellationToken);
+        return suites.FirstOrDefault()?.GetId().GetValue() ?? DemoSystemSuiteGuid;
+    }
+
+    private static void AddIdpSeedDefinition(
+        ICollection<IdpSeedDefinition> results,
+        Guid tenantId,
+        Guid systemSuiteId,
+        ProviderType providerType,
+        string[] domainHints,
+        string configPayload,
+        string secretRef,
+        int resolutionPriority,
+        Guid? fallbackToId,
+        ActorId actor)
+    {
+        var idpResult = IdpConfigurationAggregate.Create(
+            TenantId.Load(tenantId),
+            SystemSuiteId.Load(systemSuiteId),
+            providerType,
+            domainHints,
+            configPayload,
+            secretRef,
+            resolutionPriority,
+            fallbackToId,
+            actor);
+
+        if (idpResult.IsFailure)
+        {
+            return;
+        }
+
+        idpResult.Value.Activate(actor);
+        idpResult.Value.DomainEvents.MarkChangesAsCommitted();
+        results.Add(new IdpSeedDefinition(idpResult.Value, systemSuiteId, providerType, domainHints));
+    }
+
+    private static async Task SeedTenantParametersAsync(
+        ITenantParameterRepository? repository,
+        ActorId actor,
+        CancellationToken cancellationToken)
+    {
+        if (repository is null)
+        {
+            return;
+        }
+
+        var needsSave = false;
+        var desired = BuildSeedTenantParameters(actor);
+
+        foreach (var tenantGroup in desired.GroupBy(parameter => parameter.TenantId.GetValue()))
+        {
+            var existing = await repository.GetByTenantIdAsync(tenantGroup.Key, cancellationToken);
+            var existingCodes = existing.Select(parameter => parameter.Code.GetValue()).ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var parameter in tenantGroup.Where(parameter => !existingCodes.Contains(parameter.Code.GetValue())))
+            {
+                await repository.AddAsync(parameter, cancellationToken);
+                needsSave = true;
+            }
+        }
+
+        if (needsSave)
+        {
+            await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+        }
+    }
+
+    private static IReadOnlyList<TenantParameterAggregate> BuildSeedTenantParameters(ActorId actor)
+    {
+        var results = new List<TenantParameterAggregate>();
+
+        foreach (var profile in GetTenantSeedProfiles())
+        {
+            var tenantId = TenantId.Load(profile.TenantId);
+
+            foreach (var definition in GetTenantParameterDefinitions())
+            {
+                var parameterResult = TenantParameterAggregate.Create(
+                    tenantId,
+                    definition.Code,
+                    definition.Description,
+                    definition.Value,
+                    definition.ValueType,
+                    definition.Category,
+                    definition.IsSensitive,
+                    definition.DefaultValue,
+                    definition.AllowedValues,
+                    actor);
+
+                if (parameterResult.IsSuccess)
+                {
+                    results.Add(parameterResult.Value);
+                }
+            }
         }
 
         return results;
     }
+
+    private static IReadOnlyList<TenantParameterSeedDefinition> GetTenantParameterDefinitions()
+    {
+        return
+        [
+            new TenantParameterSeedDefinition(
+                TenantParameterCodes.ExportProfilePermissionGraphAllowedFormats,
+                "Allowed formats for permission graph exports",
+                "JSON,XML,YAML,CSV",
+                TenantParameterValueType.StringList,
+                TenantParameterCategory.Export,
+                false,
+                "JSON,XML,YAML,CSV",
+                "JSON,XML,YAML,CSV"),
+            new TenantParameterSeedDefinition(
+                TenantParameterCodes.ExportProfilePermissionGraphDefaultFormat,
+                "Default format for permission graph exports",
+                "JSON",
+                TenantParameterValueType.String,
+                TenantParameterCategory.Export,
+                false,
+                "JSON",
+                "JSON,XML,YAML,CSV"),
+            new TenantParameterSeedDefinition(
+                TenantParameterCodes.ExportProfilePermissionGraphIncludeTechnicalMetadata,
+                "Include technical metadata in permission graph exports",
+                "true",
+                TenantParameterValueType.Boolean,
+                TenantParameterCategory.Export,
+                false,
+                "true",
+                null),
+            new TenantParameterSeedDefinition(
+                TenantParameterCodes.ExportProfilePermissionGraphMaskGuids,
+                "Mask GUIDs in permission graph exports",
+                "false",
+                TenantParameterValueType.Boolean,
+                TenantParameterCategory.Export,
+                false,
+                "false",
+                null),
+            new TenantParameterSeedDefinition(
+                TenantParameterCodes.ExportProfilePermissionGraphIncludeFeatureFlags,
+                "Include feature flags in permission graph exports",
+                "true",
+                TenantParameterValueType.Boolean,
+                TenantParameterCategory.Export,
+                false,
+                "true",
+                null),
+            new TenantParameterSeedDefinition(
+                TenantParameterCodes.ExportProfilePermissionGraphIncludeEffectivePermissionsSummary,
+                "Include effective permissions summary in permission graph exports",
+                "true",
+                TenantParameterValueType.Boolean,
+                TenantParameterCategory.Export,
+                false,
+                "true",
+                null),
+            new TenantParameterSeedDefinition(
+                TenantParameterCodes.ExportProfilePermissionGraphMaxItems,
+                "Maximum permission graph export items",
+                "10000",
+                TenantParameterValueType.Integer,
+                TenantParameterCategory.Export,
+                false,
+                "10000",
+                null),
+            new TenantParameterSeedDefinition(
+                TenantParameterCodes.AuthGraphDefaultFormat,
+                "Default serialization format for the authorization graph",
+                "JSON",
+                TenantParameterValueType.String,
+                TenantParameterCategory.Security,
+                false,
+                "JSON",
+                "JSON,XML,YAML,CSV"),
+            new TenantParameterSeedDefinition(
+                TenantParameterCodes.AuthGraphAllowedFormats,
+                "Allowed formats for the authorization graph",
+                "JSON,XML,YAML,CSV",
+                TenantParameterValueType.StringList,
+                TenantParameterCategory.Security,
+                false,
+                "JSON,XML,YAML,CSV",
+                "JSON,XML,YAML,CSV"),
+            new TenantParameterSeedDefinition(
+                TenantParameterCodes.AuthGraphIncludeTechnicalMetadata,
+                "Include technical metadata in the authorization graph",
+                "true",
+                TenantParameterValueType.Boolean,
+                TenantParameterCategory.Security,
+                false,
+                "true",
+                null),
+        ];
+    }
+
+    private static IReadOnlyList<TenantSeedProfile> GetTenantSeedProfiles()
+    {
+        return
+        [
+            new TenantSeedProfile(
+                InternalAdminTenantGuid,
+                "INTERNAL_ADMIN",
+                "30",
+                "5",
+                "12",
+                "365",
+                "false",
+                "false",
+                "false",
+                "es",
+                "America/Lima",
+                false,
+                [],
+                string.Empty,
+                string.Empty,
+                1),
+            new TenantSeedProfile(
+                RansaTenantGuid,
+                "RANSA_PERU",
+                "45",
+                "5",
+                "12",
+                "365",
+                "true",
+                "true",
+                "true",
+                "es",
+                "America/Lima",
+                true,
+                ["ransa.pe", "ransa.com.pe"],
+                "{\"authority\":\"https://login.microsoftonline.com/common\",\"clientId\":\"1234\",\"tenantId\":\"abcd-azure-tenant\"}",
+                "keyvault://ums/ransa-entra-secret",
+                1),
+            new TenantSeedProfile(
+                ApmTenantGuid,
+                "APM_CALLAO",
+                "20",
+                "3",
+                "12",
+                "365",
+                "true",
+                "false",
+                "false",
+                "es",
+                "America/Lima",
+                false,
+                [],
+                string.Empty,
+                string.Empty,
+                1),
+            new TenantSeedProfile(
+                NeptuniaTenantGuid,
+                "NEPTUNIA",
+                "60",
+                "5",
+                "14",
+                "365",
+                "true",
+                "false",
+                "true",
+                "es",
+                "America/Lima",
+                true,
+                ["neptunia.com.pe", "neptunia.pe"],
+                "{\"authority\":\"https://login.microsoftonline.com/neptunia\",\"clientId\":\"neptunia-client\"}",
+                "keyvault://ums/neptunia-entra-secret",
+                1),
+            new TenantSeedProfile(
+                UnimarTenantGuid,
+                "UNIMAR",
+                "30",
+                "5",
+                "12",
+                "365",
+                "false",
+                "false",
+                "false",
+                "es",
+                "America/Lima",
+                false,
+                [],
+                string.Empty,
+                string.Empty,
+                1),
+            new TenantSeedProfile(
+                PaitaTenantGuid,
+                "PAITA_PORT",
+                "15",
+                "3",
+                "12",
+                "365",
+                "true",
+                "false",
+                "true",
+                "es",
+                "America/Lima",
+                true,
+                ["paita.gob.pe", "paita-port.pe"],
+                "{\"authority\":\"https://login.microsoftonline.com/paita\",\"clientId\":\"paita-client\"}",
+                "keyvault://ums/paita-entra-secret",
+                1),
+            new TenantSeedProfile(
+                IntradevcoTenantGuid,
+                "INTRADEVCO",
+                "40",
+                "5",
+                "10",
+                "365",
+                "true",
+                "false",
+                "true",
+                "es",
+                "America/Lima",
+                true,
+                ["intradevco.com", "intradevco.pe"],
+                "{\"authority\":\"https://login.microsoftonline.com/intradevco\",\"clientId\":\"intradevco-client\"}",
+                "keyvault://ums/intradevco-entra-secret",
+                1),
+        ];
+    }
+
+    private sealed record TenantSeedProfile(
+        Guid TenantId,
+        string Name,
+        string SessionTimeoutMinutes,
+        string MaxLoginAttempts,
+        string MinPasswordLength,
+        string MaxValidityPeriodDays,
+        string MfaRequiredForAdmin,
+        string CustomBrandingEnabled,
+        string AuthUseExternalIdp,
+        string DefaultLanguage,
+        string DefaultTimezone,
+        bool SeedExternalIdp,
+        string[] ExternalIdpDomainHints,
+        string ExternalIdpPayload,
+        string ExternalIdpSecretRef,
+        int ExternalIdpResolutionPriority);
+
+    private sealed record FeatureFlagSeedDefinition(
+        string Code,
+        FlagType Type,
+        string Targets,
+        string Description,
+        int? RolloutPercentage);
+
+    private sealed record TenantParameterSeedDefinition(
+        string Code,
+        string Description,
+        string Value,
+        TenantParameterValueType ValueType,
+        TenantParameterCategory Category,
+        bool IsSensitive,
+        string? DefaultValue,
+        string? AllowedValues);
+
+    private sealed record IdpSeedDefinition(
+        IdpConfigurationAggregate Configuration,
+        Guid SystemSuiteId,
+        ProviderType ProviderType,
+        string[] DomainHints);
+
 }

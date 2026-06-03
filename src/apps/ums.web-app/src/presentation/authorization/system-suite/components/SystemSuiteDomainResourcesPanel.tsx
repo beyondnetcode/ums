@@ -14,6 +14,7 @@ import {
   useUpdateDomainResource,
 } from '@app/authorization/hooks/use-system-suite';
 import { ListToolbar } from '@shared/components/ListToolbar';
+import { EntityRow } from '@shared/components/EntityRow';
 
 interface SystemSuiteDomainResourcesPanelProps {
   systemSuite: SystemSuite;
@@ -271,67 +272,55 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
             }
 
             return (
-              <div
+              <EntityRow
                 key={res.id}
-                className="group/res flex items-start justify-between p-2.5 rounded-lg border border-m3-outline/10 bg-m3-surface-container/5 hover:bg-m3-surface-container/10 hover:border-m3-outline/25 transition-all duration-150"
-              >
-                <div className="flex items-start gap-3 flex-1 min-w-0">
-                  <div
-                    className={`p-1.5 rounded mt-0.5 ${res.type === 'Aggregate' ? 'bg-indigo-500/10 text-indigo-500' : 'bg-emerald-500/10 text-emerald-500'}`}
-                  >
+                leading={
+                  <div className={`p-1.5 rounded ${res.type === 'Aggregate' ? 'bg-indigo-500/10 text-indigo-500' : 'bg-emerald-500/10 text-emerald-500'}`}>
                     <Icon className="w-4 h-4" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <p
-                        className="text-xs font-semibold text-m3-on-surface truncate"
-                        title={res.name}
-                      >
-                        {res.name}
-                      </p>
-                      <CodeBadge code={res.code} size="xs" />
-                      {res.moduleId && systemSuite.modules?.some(m => m.id === res.moduleId) && (
-                        <span
-                          className="text-[9px] font-medium text-m3-secondary bg-m3-surface-variant/50 px-1.5 py-0.5 rounded"
-                          title="Módulo Asignado"
-                        >
-                          {systemSuite.modules.find(m => m.id === res.moduleId)?.code}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-[10px] text-m3-secondary mt-1">
-                      {res.type === 'Aggregate' ? 'Agregado Root' : 'Entidad de Dominio'}
-                    </p>
-                    {res.description && (
-                      <p
-                        className="text-[10px] text-m3-secondary/80 mt-1 line-clamp-2"
-                        title={res.description}
-                      >
-                        {res.description}
-                      </p>
-                    )}
+                }
+                trailingColumns={[
+                  {
+                    content: res.moduleId && systemSuite.modules?.some(m => m.id === res.moduleId) ? (
+                      <span className="text-[9px] font-medium text-m3-secondary bg-m3-surface-variant/50 px-1.5 py-0.5 rounded" title="Módulo Asignado">
+                        {systemSuite.modules.find(m => m.id === res.moduleId)?.code}
+                      </span>
+                    ) : null,
+                    width: 'w-20',
+                    align: 'end',
+                  },
+                  {
+                    content: <CodeBadge code={res.code} size="xs" />,
+                    width: 'w-28',
+                    align: 'end',
+                  },
+                ]}
+                trailing={
+                  <div className="flex items-center gap-0.5 opacity-0 group-hover/row:opacity-100 transition-opacity">
+                    <IconButton
+                      tooltip="Editar Recurso"
+                      onClick={() => edit.openEdit(res.id, { name: res.name, description: res.description })}
+                      className="hover:text-m3-primary hover:bg-m3-primary/10"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </IconButton>
+                    <IconButton
+                      tooltip="Remover Recurso"
+                      onClick={() => removeDomainResourceMutation.mutate(res.id)}
+                      disabled={removeDomainResourceMutation.isPending}
+                      className="hover:text-m3-error hover:bg-m3-error/10"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </IconButton>
                   </div>
-                </div>
-                <div className="flex flex-col gap-1 items-end opacity-0 group-hover/res:opacity-100 transition-opacity pl-2">
-                  <IconButton
-                    tooltip="Editar Recurso"
-                    onClick={() => {
-                      edit.openEdit(res.id, { name: res.name, description: res.description });
-                    }}
-                    className="hover:text-m3-primary hover:bg-m3-primary/10"
-                  >
-                    <Pencil className="w-3.5 h-3.5" />
-                  </IconButton>
-                  <IconButton
-                    tooltip="Remover Recurso"
-                    onClick={() => removeDomainResourceMutation.mutate(res.id)}
-                    disabled={removeDomainResourceMutation.isPending}
-                    className="hover:text-m3-error hover:bg-m3-error/10"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </IconButton>
-                </div>
-              </div>
+                }
+              >
+                <p className="text-xs font-semibold text-m3-on-surface truncate" title={res.name}>{res.name}</p>
+                <p className="text-[10px] text-m3-secondary">{res.type === 'Aggregate' ? 'Agregado Root' : 'Entidad de Dominio'}</p>
+                {res.description && (
+                  <p className="text-[10px] text-m3-secondary/80 line-clamp-1" title={res.description}>{res.description}</p>
+                )}
+              </EntityRow>
             );
           })}
         </div>
@@ -399,22 +388,24 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
                     <Icon className="w-4 h-4" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5 flex-wrap">
+                    <div className="flex items-center gap-2">
                       <p
-                        className="text-xs font-semibold text-m3-on-surface truncate"
+                        className="text-xs font-semibold text-m3-on-surface truncate flex-1 min-w-0"
                         title={res.name}
                       >
                         {res.name}
                       </p>
-                      <CodeBadge code={res.code} size="xs" />
-                      {res.moduleId && systemSuite.modules?.some(m => m.id === res.moduleId) && (
-                        <span
-                          className="text-[9px] font-medium text-m3-secondary bg-m3-surface-variant/50 px-1.5 py-0.5 rounded"
-                          title="Módulo Asignado"
-                        >
-                          {systemSuite.modules.find(m => m.id === res.moduleId)?.code}
-                        </span>
-                      )}
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                        <CodeBadge code={res.code} size="xs" />
+                        {res.moduleId && systemSuite.modules?.some(m => m.id === res.moduleId) && (
+                          <span
+                            className="text-[9px] font-medium text-m3-secondary bg-m3-surface-variant/50 px-1.5 py-0.5 rounded"
+                            title="Módulo Asignado"
+                          >
+                            {systemSuite.modules.find(m => m.id === res.moduleId)?.code}
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <p className="text-[10px] text-m3-secondary mt-1">
                       {res.type === 'Aggregate' ? 'Agregado Root' : 'Entidad de Dominio'}

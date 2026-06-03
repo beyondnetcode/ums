@@ -130,14 +130,14 @@ export const M3AuthorizationGraphPanel: React.FC<Props> = ({ isOpen, onClose, pr
 
         <div className="flex justify-center">
           <M3SegmentedButton
-            segments={[
-              { id: 'JSON', label: 'JSON' },
-              { id: 'XML', label: 'XML' },
-              { id: 'YAML', label: 'YAML' },
-              { id: 'CSV', label: 'CSV' },
+            options={[
+              { value: 'JSON', label: 'JSON' },
+              { value: 'XML', label: 'XML' },
+              { value: 'YAML', label: 'YAML' },
+              { value: 'CSV', label: 'CSV' },
             ]}
-            activeId={format}
-            onChange={(id) => setFormat(id as ExportFormat)}
+            value={format}
+            onChange={(v) => setFormat(v as ExportFormat)}
           />
         </div>
 

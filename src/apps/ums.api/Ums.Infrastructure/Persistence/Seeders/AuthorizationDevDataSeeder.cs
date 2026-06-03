@@ -405,12 +405,36 @@ public static class AuthorizationDevDataSeeder
         var coreSuite = suites[0];
         var wmsSuite = suites.Count > 1 ? suites[1] : null;
 
+        // Helper to find a domain resource by code from the core suite
+        var usersResource    = coreSuite.DomainResources.FirstOrDefault(r => r.Code.GetValue() == "USERS");
+        var inventoryResource= coreSuite.DomainResources.FirstOrDefault(r => r.Code.GetValue() == "INVENTORY");
+        var auditLogResource = coreSuite.DomainResources.FirstOrDefault(r => r.Code.GetValue() == "AUDIT_LOG");
+        var stockLevelResource=coreSuite.DomainResources.FirstOrDefault(r => r.Code.GetValue() == "STOCK_LEVEL");
+
         // ── 1. ADMIN V2 — Published, full suite access ────────────────────
         if (adminRole != null)
         {
             var adminV2 = PermissionTemplateAggregate.Create(tenantId, adminRole.GetId(), coreSuite.GetId(), actor).Value;
             adminV2.Props.Version = TemplateVersion.Create(2, 0, 0);
+            // Navigation: full suite
             adminV2.AddItem(ExclusiveArcTarget.SystemSuite, coreSuite.GetId(), ActionId.Create(), true, false, actor);
+            // Domain resources: full access
+            if (usersResource != null)
+            {
+                adminV2.AddItem(ExclusiveArcTarget.Aggregate, usersResource.Id, ActionId.Create(), true, false, actor);
+            }
+            if (inventoryResource != null)
+            {
+                adminV2.AddItem(ExclusiveArcTarget.Aggregate, inventoryResource.Id, ActionId.Create(), true, false, actor);
+            }
+            if (auditLogResource != null)
+            {
+                adminV2.AddItem(ExclusiveArcTarget.Entity, auditLogResource.Id, ActionId.Create(), true, false, actor);
+            }
+            if (stockLevelResource != null)
+            {
+                adminV2.AddItem(ExclusiveArcTarget.Entity, stockLevelResource.Id, ActionId.Create(), true, false, actor);
+            }
             adminV2.Publish(actor);
             templates.Add(adminV2);
         }
@@ -420,7 +444,13 @@ public static class AuthorizationDevDataSeeder
         {
             var supervisorTpl = PermissionTemplateAggregate.Create(tenantId, supervisorRole.GetId(), coreSuite.GetId(), actor).Value;
             var secMod = coreSuite.Modules.First(m => m.Code.GetValue() == "SEC");
+            // Navigation: security module
             supervisorTpl.AddItem(ExclusiveArcTarget.Module, secMod.Props.Id, ActionId.Create(), true, false, actor);
+            // Domain resources: read users + audit
+            if (usersResource != null)
+                supervisorTpl.AddItem(ExclusiveArcTarget.Aggregate, usersResource.Id, ActionId.Create(), true, false, actor);
+            if (auditLogResource != null)
+                supervisorTpl.AddItem(ExclusiveArcTarget.Entity, auditLogResource.Id, ActionId.Create(), true, false, actor);
             supervisorTpl.Publish(actor);
             templates.Add(supervisorTpl);
         }
@@ -433,10 +463,13 @@ public static class AuthorizationDevDataSeeder
             var auditMenu = secMod.Menus.First(m => m.Code.GetValue() == "AUDIT");
             var logsSubMenu = auditMenu.SubMenus.First(sm => sm.Code.GetValue() == "LOGS");
             var viewLogsOpt = logsSubMenu.Options.First(o => o.Code.GetValue() == "VIEW_LOGS");
-
+            // Navigation: audit trail options only
             auditorTpl.AddItem(ExclusiveArcTarget.Submodule, auditMenu.Props.Id, ActionId.Create(), true, false, actor);
             auditorTpl.AddItem(ExclusiveArcTarget.Option, logsSubMenu.Props.Id, ActionId.Create(), true, false, actor);
             auditorTpl.AddItem(ExclusiveArcTarget.Option, viewLogsOpt.Props.Id, ActionId.Create(), true, false, actor);
+            // Domain resources: read-only audit log entity
+            if (auditLogResource != null)
+                auditorTpl.AddItem(ExclusiveArcTarget.Entity, auditLogResource.Id, ActionId.Create(), true, false, actor);
             auditorTpl.Publish(actor);
             templates.Add(auditorTpl);
         }
@@ -449,8 +482,11 @@ public static class AuthorizationDevDataSeeder
             var usersMenu = secMod.Menus.First(m => m.Code.GetValue() == "USERS");
             var listSubMenu = usersMenu.SubMenus.First(sm => sm.Code.GetValue() == "LIST");
             var viewUsersOpt = listSubMenu.Options.First(o => o.Code.GetValue() == "VIEW_USERS");
-
+            // Navigation: view users option only
             readonlyTpl.AddItem(ExclusiveArcTarget.Option, viewUsersOpt.Props.Id, ActionId.Create(), true, false, actor);
+            // Domain resources: read-only users aggregate
+            if (usersResource != null)
+                readonlyTpl.AddItem(ExclusiveArcTarget.Aggregate, usersResource.Id, ActionId.Create(), true, false, actor);
             readonlyTpl.Publish(actor);
             templates.Add(readonlyTpl);
         }
@@ -463,9 +499,12 @@ public static class AuthorizationDevDataSeeder
             var usersMenu = secMod.Menus.First(m => m.Code.GetValue() == "USERS");
             var listSubMenu = usersMenu.SubMenus.First(sm => sm.Code.GetValue() == "LIST");
             var editUsersOpt = listSubMenu.Options.First(o => o.Code.GetValue() == "EDIT_USERS");
-
+            // Navigation: edit users options
             dataEntryTpl.AddItem(ExclusiveArcTarget.Option, listSubMenu.Props.Id, ActionId.Create(), true, false, actor);
             dataEntryTpl.AddItem(ExclusiveArcTarget.Option, editUsersOpt.Props.Id, ActionId.Create(), true, false, actor);
+            // Domain resources: create + update users aggregate
+            if (usersResource != null)
+                dataEntryTpl.AddItem(ExclusiveArcTarget.Aggregate, usersResource.Id, ActionId.Create(), true, false, actor);
             dataEntryTpl.Publish(actor);
             templates.Add(dataEntryTpl);
         }

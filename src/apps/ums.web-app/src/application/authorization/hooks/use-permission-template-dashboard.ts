@@ -14,9 +14,9 @@ export function usePermissionTemplateDashboard(tenantId?: string) {
   const [viewMode, setViewMode]             = useState<'list' | 'thumbnail'>('list');
 
   const queryState = useQueryState({
-    criteria: 'version',
+    criteria: 'role',
     filter: 'all',
-    sortBy: 'version',
+    sortBy: 'suite',
   });
 
   const paginationState = usePaginationState({
@@ -32,6 +32,7 @@ export function usePermissionTemplateDashboard(tenantId?: string) {
             page: paginationState.page,
             pageSize: paginationState.pageSize,
             search: queryState.appliedQuery.term || undefined,
+            criteria: queryState.appliedQuery.criteria || 'version',
             status: queryState.activeFilter !== 'all' ? queryState.activeFilter : undefined,
             sortBy: queryState.sortBy,
             sortOrder: queryState.sortOrder,

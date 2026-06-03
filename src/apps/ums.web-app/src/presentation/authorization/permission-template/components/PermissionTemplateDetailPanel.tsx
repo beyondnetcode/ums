@@ -180,7 +180,7 @@ export const PermissionTemplateDetailPanel: React.FC<Props> = ({ template, isLoa
 
   const overviewContent = template ? (
     <dl className="space-y-0.5">
-      <KeyValueRow label="Estado"   value={STATUS_LABEL[template.status] ?? template.status} />
+      <KeyValueRow label="Estado"   value={getStatusLabel(template.status)} />
       <KeyValueRow label="Versión"  value={`v${template.version}`} />
       <KeyValueRow label="Ítems"    value={String(template.items.length)} />
       <KeyValueRow label="Rol"      value={template.roleName} />

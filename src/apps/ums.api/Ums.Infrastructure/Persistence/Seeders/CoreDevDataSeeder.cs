@@ -38,10 +38,10 @@ public static class CoreDevDataSeeder
 
     public static async Task SeedAllAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
     {
-        await RunSeederAsync(serviceProvider, "Configuration", ConfigurationDevDataSeeder.SeedAsync, cancellationToken);
-        await RunSeederAsync(serviceProvider, "Parameter catalog", ParameterCatalogSeeder.SeedAsync, cancellationToken);
         await RunSeederAsync(serviceProvider, "Identity", IdentityDevDataSeeder.SeedAsync, cancellationToken);
         await RunSeederAsync(serviceProvider, "Authorization", AuthorizationDevDataSeeder.SeedAsync, cancellationToken);
+        await RunSeederAsync(serviceProvider, "Configuration", ConfigurationDevDataSeeder.SeedAsync, cancellationToken);
+        await RunSeederAsync(serviceProvider, "Parameter catalog", ParameterCatalogSeeder.SeedAsync, cancellationToken);
         await RunSeederAsync(serviceProvider, "Approvals", ApprovalsDevDataSeeder.SeedAsync, cancellationToken);
         await RunSeederAsync(serviceProvider, "IGA", IgaDevDataSeeder.SeedAsync, cancellationToken);
         await RunSeederAsync(serviceProvider, "Audit", AuditDevDataSeeder.SeedAsync, cancellationToken);

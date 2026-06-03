@@ -127,7 +127,7 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
           isOpen={isAddingMenu}
           onToggle={(open) => { setIsAddingMenu(open); if (!open) setMenu(emptyMenu()); }}
           onSubmit={handleAddMenu}
-          addLabel="Menú"
+          addLabel="+"
           title="Nuevo Menú"
           cancelLabel="Cancelar"
           submitLabel="Guardar Menú"

@@ -2,11 +2,23 @@ namespace Ums.Infrastructure.Persistence.Seeders;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Ums.Domain.Identity.Tenant.TenantParameter;
 using Ums.Infrastructure.Persistence;
 using Ums.Infrastructure.Persistence.Configuration.Entities;
 
 public static class ParameterCatalogSeeder
 {
+    private static readonly Guid[] TenantIds =
+    [
+        Guid.Parse(CoreDevDataSeeder.InternalAdminTenantId),
+        Guid.Parse(CoreDevDataSeeder.RansaTenantId),
+        Guid.Parse("A3F5B9D2-7C3D-4C8E-A9B0-123456789ABC"),
+        Guid.Parse("C9B736B4-6A84-48F8-B34D-176BC5A6D542"),
+        Guid.Parse("5F4E3D2C-1B0A-9F8E-7D6C-543210987654"),
+        Guid.Parse("9E8D7C6B-5A4F-3E2D-1C0B-9876543210FE"),
+        Guid.Parse("F3E2D1C0-B9A8-7F6E-5D4C-321098765432"),
+    ];
+
     public static async Task SeedAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
     {
         var dbContext = serviceProvider.GetRequiredService<UmsPlatformDbContext>();
@@ -17,15 +29,111 @@ public static class ParameterCatalogSeeder
 
     private static async Task SeedDefinitionsAsync(UmsPlatformDbContext dbContext, CancellationToken cancellationToken = default)
     {
-        var existingCount = await dbContext.ParameterDefinitions.CountAsync(cancellationToken);
-        if (existingCount > 0)
-            return;
+        var existingCodes = (await dbContext.ParameterDefinitions
+                .Select(definition => definition.Code)
+                .ToListAsync(cancellationToken))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
+        var definitions = BuildDefinitions()
+            .Where(definition => !existingCodes.Contains(definition.Code))
+            .ToList();
+
+        if (definitions.Count == 0)
+        {
+            return;
+        }
+
+        await dbContext.ParameterDefinitions.AddRangeAsync(definitions, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public static async Task SeedGlobalValuesAsync(UmsPlatformDbContext dbContext, CancellationToken cancellationToken = default)
+    {
+        var existingDefinitionIds = await dbContext.ParameterGlobalValues
+            .Select(value => value.ParameterDefinitionId)
+            .ToHashSetAsync(cancellationToken);
+
+        var now = DateTime.UtcNow;
+        var systemActorId = "SYSTEM";
+        var globalValues = new List<ParameterGlobalValueRecord>();
+
+        AddGlobalValue(globalValues, existingDefinitionIds, "11111111-1111-1111-1111-111111111103", "3600000", systemActorId, now);
+        AddGlobalValue(globalValues, existingDefinitionIds, "11111111-1111-1111-1111-111111111104", "604800000", systemActorId, now);
+        AddGlobalValue(globalValues, existingDefinitionIds, "11111111-1111-1111-1111-111111111108", "rest", systemActorId, now);
+
+        if (globalValues.Count == 0)
+        {
+            return;
+        }
+
+        await dbContext.ParameterGlobalValues.AddRangeAsync(globalValues, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public static async Task SeedTenantValuesAsync(UmsPlatformDbContext dbContext, CancellationToken cancellationToken = default)
+    {
+        var definitionsByCode = (await dbContext.ParameterDefinitions.ToListAsync(cancellationToken))
+            .ToDictionary(definition => definition.Code, StringComparer.OrdinalIgnoreCase);
+
+        var existingKeys = await dbContext.ParameterTenantValues
+            .Select(value => new { value.TenantId, value.ParameterDefinitionId })
+            .ToListAsync(cancellationToken);
+
+        var existingKeySet = existingKeys
+            .Select(value => (value.TenantId, value.ParameterDefinitionId))
+            .ToHashSet();
+
+        var now = DateTime.UtcNow;
+        var systemActorId = "SYSTEM";
+        var tenantValues = new List<ParameterTenantValueRecord>();
+
+        foreach (var tenantId in TenantIds)
+        {
+            foreach (var seedValue in BuildTenantValues())
+            {
+                if (!definitionsByCode.TryGetValue(seedValue.Code, out var definition))
+                {
+                    continue;
+                }
+
+                var key = (tenantId, definition.Id);
+                if (existingKeySet.Contains(key))
+                {
+                    continue;
+                }
+
+                tenantValues.Add(new ParameterTenantValueRecord
+                {
+                    Id = Guid.NewGuid(),
+                    TenantId = tenantId,
+                    ParameterDefinitionId = definition.Id,
+                    OverrideValue = seedValue.Value,
+                    StatusId = 2,
+                    Version = "1.0.0",
+                    CreatedBy = systemActorId,
+                    CreatedAtUtc = now,
+                    AuditTimeSpan = now.ToString("O")
+                });
+            }
+        }
+
+        if (tenantValues.Count == 0)
+        {
+            return;
+        }
+
+        await dbContext.ParameterTenantValues.AddRangeAsync(tenantValues, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    private static IReadOnlyList<ParameterDefinitionRecord> BuildDefinitions()
+    {
+        var now = DateTime.UtcNow;
         var systemActorId = "SYSTEM";
 
-        var definitions = new List<ParameterDefinitionRecord>
-        {
-            new()
+        return
+        [
+            new ParameterDefinitionRecord
             {
                 Id = Guid.Parse("11111111-1111-1111-1111-111111111101"),
                 Code = "SESSION_TIMEOUT_MINUTES",
@@ -39,10 +147,10 @@ public static class ParameterCatalogSeeder
                 DisplayOrder = 1,
                 Version = "1.0.0",
                 CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
+                CreatedAtUtc = now,
+                AuditTimeSpan = now.ToString("O")
             },
-            new()
+            new ParameterDefinitionRecord
             {
                 Id = Guid.Parse("11111111-1111-1111-1111-111111111102"),
                 Code = "MAX_LOGIN_ATTEMPTS",
@@ -56,10 +164,10 @@ public static class ParameterCatalogSeeder
                 DisplayOrder = 2,
                 Version = "1.0.0",
                 CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
+                CreatedAtUtc = now,
+                AuditTimeSpan = now.ToString("O")
             },
-            new()
+            new ParameterDefinitionRecord
             {
                 Id = Guid.Parse("11111111-1111-1111-1111-111111111103"),
                 Code = "ACCESS_TOKEN_DURATION_MS",
@@ -73,10 +181,10 @@ public static class ParameterCatalogSeeder
                 DisplayOrder = 3,
                 Version = "1.0.0",
                 CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
+                CreatedAtUtc = now,
+                AuditTimeSpan = now.ToString("O")
             },
-            new()
+            new ParameterDefinitionRecord
             {
                 Id = Guid.Parse("11111111-1111-1111-1111-111111111104"),
                 Code = "REFRESH_TOKEN_DURATION_MS",
@@ -90,10 +198,10 @@ public static class ParameterCatalogSeeder
                 DisplayOrder = 4,
                 Version = "1.0.0",
                 CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
+                CreatedAtUtc = now,
+                AuditTimeSpan = now.ToString("O")
             },
-            new()
+            new ParameterDefinitionRecord
             {
                 Id = Guid.Parse("11111111-1111-1111-1111-111111111105"),
                 Code = "MIN_PASSWORD_LENGTH",
@@ -107,10 +215,10 @@ public static class ParameterCatalogSeeder
                 DisplayOrder = 5,
                 Version = "1.0.0",
                 CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
+                CreatedAtUtc = now,
+                AuditTimeSpan = now.ToString("O")
             },
-            new()
+            new ParameterDefinitionRecord
             {
                 Id = Guid.Parse("11111111-1111-1111-1111-111111111106"),
                 Code = "MFA_REQUIRED_FOR_ADMIN",
@@ -124,10 +232,10 @@ public static class ParameterCatalogSeeder
                 DisplayOrder = 6,
                 Version = "1.0.0",
                 CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
+                CreatedAtUtc = now,
+                AuditTimeSpan = now.ToString("O")
             },
-            new()
+            new ParameterDefinitionRecord
             {
                 Id = Guid.Parse("11111111-1111-1111-1111-111111111107"),
                 Code = "UI_CUSTOM_BRANDING_ENABLED",
@@ -141,10 +249,10 @@ public static class ParameterCatalogSeeder
                 DisplayOrder = 7,
                 Version = "1.0.0",
                 CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
+                CreatedAtUtc = now,
+                AuditTimeSpan = now.ToString("O")
             },
-            new()
+            new ParameterDefinitionRecord
             {
                 Id = Guid.Parse("11111111-1111-1111-1111-111111111108"),
                 Code = "FRONTEND_CONFIG_TRANSPORT",
@@ -158,10 +266,10 @@ public static class ParameterCatalogSeeder
                 DisplayOrder = 8,
                 Version = "1.0.0",
                 CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
+                CreatedAtUtc = now,
+                AuditTimeSpan = now.ToString("O")
             },
-            new()
+            new ParameterDefinitionRecord
             {
                 Id = Guid.Parse("11111111-1111-1111-1111-111111111109"),
                 Code = "MAX_VALIDITY_PERIOD_DAYS",
@@ -175,10 +283,10 @@ public static class ParameterCatalogSeeder
                 DisplayOrder = 9,
                 Version = "1.0.0",
                 CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
+                CreatedAtUtc = now,
+                AuditTimeSpan = now.ToString("O")
             },
-            new()
+            new ParameterDefinitionRecord
             {
                 Id = Guid.Parse("11111111-1111-1111-1111-111111111110"),
                 Code = "AUTH_USE_EXTERNAL_IDP",
@@ -192,305 +300,53 @@ public static class ParameterCatalogSeeder
                 DisplayOrder = 10,
                 Version = "1.0.0",
                 CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
+                CreatedAtUtc = now,
+                AuditTimeSpan = now.ToString("O")
             }
-        };
-
-        await dbContext.ParameterDefinitions.AddRangeAsync(definitions, cancellationToken);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        ];
     }
 
-    public static async Task SeedGlobalValuesAsync(UmsPlatformDbContext dbContext, CancellationToken cancellationToken = default)
+    private static IReadOnlyList<(string Code, string Value)> BuildTenantValues()
     {
-        var existingCount = await dbContext.ParameterGlobalValues.CountAsync(cancellationToken);
-        if (existingCount > 0)
-            return;
-
-        var systemActorId = "SYSTEM";
-
-        var globalValues = new List<ParameterGlobalValueRecord>
-        {
-            new()
-            {
-                Id = Guid.NewGuid(),
-                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111103"),
-                EffectiveValue = "3600000",
-                StatusId = 2,
-                Version = "1.0.0",
-                CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111104"),
-                EffectiveValue = "604800000",
-                StatusId = 2,
-                Version = "1.0.0",
-                CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111108"),
-                EffectiveValue = "rest",
-                StatusId = 2,
-                Version = "1.0.0",
-                CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
-            }
-        };
-
-        await dbContext.ParameterGlobalValues.AddRangeAsync(globalValues, cancellationToken);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        return
+        [
+            (TenantParameterCodes.ExportProfilePermissionGraphAllowedFormats, "JSON,XML,YAML,CSV"),
+            (TenantParameterCodes.ExportProfilePermissionGraphDefaultFormat, "JSON"),
+            (TenantParameterCodes.ExportProfilePermissionGraphIncludeTechnicalMetadata, "true"),
+            (TenantParameterCodes.ExportProfilePermissionGraphMaskGuids, "false"),
+            (TenantParameterCodes.ExportProfilePermissionGraphIncludeFeatureFlags, "true"),
+            (TenantParameterCodes.ExportProfilePermissionGraphIncludeEffectivePermissionsSummary, "true"),
+            (TenantParameterCodes.ExportProfilePermissionGraphMaxItems, "10000"),
+            (TenantParameterCodes.AuthGraphDefaultFormat, "JSON"),
+            (TenantParameterCodes.AuthGraphAllowedFormats, "JSON,XML,YAML,CSV"),
+            (TenantParameterCodes.AuthGraphIncludeTechnicalMetadata, "true"),
+        ];
     }
 
-    public static async Task SeedTenantValuesAsync(UmsPlatformDbContext dbContext, CancellationToken cancellationToken = default)
+    private static void AddGlobalValue(
+        ICollection<ParameterGlobalValueRecord> values,
+        ISet<Guid> existingDefinitionIds,
+        string definitionId,
+        string effectiveValue,
+        string createdBy,
+        DateTime now)
     {
-        var existingCount = await dbContext.ParameterTenantValues.CountAsync(cancellationToken);
-        if (existingCount > 0)
-            return;
-
-        var systemActorId = "SYSTEM";
-
-        var ransaId = Guid.Parse("3FA85F64-5717-4562-B3FC-2C963F66AFA6");
-        var apmId = Guid.Parse("A3F5B9D2-7C3D-4C8E-A9B0-123456789ABC");
-        var neptuniaId = Guid.Parse("C9B736B4-6A84-48F8-B34D-176BC5A6D542");
-        var unimarId = Guid.Parse("5F4E3D2C-1B0A-9F8E-7D6C-543210987654");
-        var paitaId = Guid.Parse("9E8D7C6B-5A4F-3E2D-1C0B-9876543210FE");
-        var intradevcoId = Guid.Parse("F3E2D1C0-B9A8-7F6E-5D4C-321098765432");
-
-        var tenantValues = new List<ParameterTenantValueRecord>
+        var parsedDefinitionId = Guid.Parse(definitionId);
+        if (existingDefinitionIds.Contains(parsedDefinitionId))
         {
-            new()
-            {
-                Id = Guid.NewGuid(),
-                TenantId = ransaId,
-                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111101"),
-                OverrideValue = "45",
-                StatusId = 2,
-                Version = "1.0.0",
-                CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                TenantId = ransaId,
-                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111106"),
-                OverrideValue = "true",
-                StatusId = 2,
-                Version = "1.0.0",
-                CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                TenantId = ransaId,
-                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111107"),
-                OverrideValue = "true",
-                StatusId = 2,
-                Version = "1.0.0",
-                CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                TenantId = apmId,
-                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111101"),
-                OverrideValue = "20",
-                StatusId = 2,
-                Version = "1.0.0",
-                CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                TenantId = apmId,
-                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111102"),
-                OverrideValue = "3",
-                StatusId = 2,
-                Version = "1.0.0",
-                CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                TenantId = apmId,
-                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111106"),
-                OverrideValue = "true",
-                StatusId = 2,
-                Version = "1.0.0",
-                CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                TenantId = neptuniaId,
-                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111101"),
-                OverrideValue = "60",
-                StatusId = 2,
-                Version = "1.0.0",
-                CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                TenantId = neptuniaId,
-                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111105"),
-                OverrideValue = "14",
-                StatusId = 2,
-                Version = "1.0.0",
-                CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                TenantId = ransaId,
-                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111102"),
-                OverrideValue = "5",
-                StatusId = 2,
-                Version = "1.0.0",
-                CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                TenantId = ransaId,
-                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111110"),
-                OverrideValue = "true",
-                StatusId = 2,
-                Version = "1.0.0",
-                CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                TenantId = apmId,
-                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111110"),
-                OverrideValue = "false",
-                StatusId = 2,
-                Version = "1.0.0",
-                CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                TenantId = neptuniaId,
-                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111101"),
-                OverrideValue = "60",
-                StatusId = 2,
-                Version = "1.0.0",
-                CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                TenantId = neptuniaId,
-                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111105"),
-                OverrideValue = "14",
-                StatusId = 2,
-                Version = "1.0.0",
-                CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                TenantId = neptuniaId,
-                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111110"),
-                OverrideValue = "true",
-                StatusId = 2,
-                Version = "1.0.0",
-                CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                TenantId = unimarId,
-                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111102"),
-                OverrideValue = "5",
-                StatusId = 2,
-                Version = "1.0.0",
-                CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                TenantId = unimarId,
-                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111110"),
-                OverrideValue = "false",
-                StatusId = 2,
-                Version = "1.0.0",
-                CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                TenantId = paitaId,
-                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111110"),
-                OverrideValue = "true",
-                StatusId = 2,
-                Version = "1.0.0",
-                CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                TenantId = intradevcoId,
-                ParameterDefinitionId = Guid.Parse("11111111-1111-1111-1111-111111111110"),
-                OverrideValue = "true",
-                StatusId = 2,
-                Version = "1.0.0",
-                CreatedBy = systemActorId,
-                CreatedAtUtc = DateTime.UtcNow,
-                AuditTimeSpan = DateTime.UtcNow.ToString("O")
-            }
-        };
+            return;
+        }
 
-        var uniqueTenantValues = tenantValues
-            .GroupBy(value => new { value.TenantId, value.ParameterDefinitionId })
-            .Select(group => group.First())
-            .ToList();
-
-        await dbContext.ParameterTenantValues.AddRangeAsync(uniqueTenantValues, cancellationToken);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        values.Add(new ParameterGlobalValueRecord
+        {
+            Id = Guid.NewGuid(),
+            ParameterDefinitionId = parsedDefinitionId,
+            EffectiveValue = effectiveValue,
+            StatusId = 2,
+            Version = "1.0.0",
+            CreatedBy = createdBy,
+            CreatedAtUtc = now,
+            AuditTimeSpan = now.ToString("O")
+        });
     }
 }

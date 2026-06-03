@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { ShieldCheck, Info } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import { type PermissionTemplate } from '@domain/authorization/models/permission-template.model';
 import { StatusBadge } from '@shared/components/StatusBadge';
 import {
@@ -59,7 +59,12 @@ export const PermissionTemplateListPanel: React.FC<Props> = ({
   onSelectTemplate,
   requiresFilter = false,
 }) => {
-  const criteriaOptions: AtomicQueryCriteriaOption[] = [{ label: 'Versión', value: 'version' }];
+  const totalItems = paginationState.totalItems;
+  const criteriaOptions: AtomicQueryCriteriaOption[] = [
+    { label: 'Versión', value: 'version' },
+    { label: 'Rol', value: 'role' },
+    { label: 'Suite', value: 'suite' },
+  ];
 
   const filterOptions: AtomicFilterOption[] = [
     { label: 'Todos', value: 'all' },
@@ -69,6 +74,8 @@ export const PermissionTemplateListPanel: React.FC<Props> = ({
   ];
 
   const sortOptions: AtomicSortOption[] = [
+    { label: 'Suite', value: 'suite' },
+    { label: 'Rol', value: 'role' },
     { label: 'Versión', value: 'version' },
     { label: 'Estado', value: 'status' },
   ];
@@ -93,6 +100,14 @@ export const PermissionTemplateListPanel: React.FC<Props> = ({
           trailingColumns={[
             {
               content: (
+                <span className="text-[10px] font-mono font-medium text-m3-secondary/60">
+                  v{tpl.version}
+                </span>
+              ),
+              width: 'w-14',
+            },
+            {
+              content: (
                 <StatusBadge
                   status={tpl.status}
                   label={getStatusLabel(tpl.status)}
@@ -103,22 +118,10 @@ export const PermissionTemplateListPanel: React.FC<Props> = ({
             },
           ]}
         >
-          <span className="text-sm font-bold text-m3-on-surface">v{tpl.version}</span>
-          <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-            <span className="inline-flex items-center gap-1 text-[10px] text-m3-secondary/70">
-              <span className="text-[9px] font-semibold uppercase tracking-wide text-m3-secondary/50">
-                Rol
-              </span>
-              <span>{tpl.roleName}</span>
-            </span>
-            <span className="text-[9px] text-m3-secondary/30">·</span>
-            <span className="inline-flex items-center gap-1 text-[10px] text-m3-secondary/70">
-              <span className="text-[9px] font-semibold uppercase tracking-wide text-m3-secondary/50">
-                Suite
-              </span>
-              <span>{tpl.systemSuiteName}</span>
-            </span>
-          </div>
+          <span className="text-sm font-semibold text-m3-on-surface truncate">{tpl.roleName}</span>
+          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-m3-primary/10 text-m3-primary font-mono mt-0.5 self-start">
+            {tpl.systemSuiteName}
+          </span>
         </EntityRow>
       );
     },
@@ -134,11 +137,14 @@ export const PermissionTemplateListPanel: React.FC<Props> = ({
           selected={isSelected}
           onClick={() => onSelectTemplate(tpl.templateId)}
           icon={<ShieldCheck className="w-5 h-5" />}
-          title={`v${tpl.version}`}
+          title={tpl.roleName}
           subtitle={
-            <span className="text-[10px] text-m3-secondary/60">
-              {tpl.roleName} · {tpl.systemSuiteName}
-            </span>
+            <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-m3-primary/10 text-m3-primary font-mono">
+                {tpl.systemSuiteName}
+              </span>
+              <span className="text-[10px] font-mono text-m3-secondary/60">v{tpl.version}</span>
+            </div>
           }
           badges={
             <StatusBadge

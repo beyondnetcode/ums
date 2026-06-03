@@ -446,18 +446,20 @@ export const TenantConfigurationsPanel: React.FC<TenantConfigurationsPanelProps>
                     : 'border-transparent hover:bg-m3-surface-container/40'
                 }`}
               >
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-1.5 min-w-0">
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 flex-1 min-w-0">
                     {scopeIcons[config.scope] ?? (
                       <Building2 className="w-3.5 h-3.5 text-green-500" />
                     )}
                     <span className="text-[12px] font-medium text-m3-on-surface truncate">
                       {config.code}
                     </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
                     <CodeBadge code={config.scope} size="xs" />
                     <StatusBadge status={config.status} label={config.status} size="xs" />
                   </div>
-                  <div className="flex items-center gap-0.5">
+                  <div className="flex items-center gap-0.5 flex-shrink-0">
                     <IconButton
                       tooltip={t.editBtn ?? 'Edit'}
                       onClick={e => {

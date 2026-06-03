@@ -261,6 +261,16 @@ public static class SystemSuiteEndpoints
           .ProducesProblem(StatusCodes.Status404NotFound)
           .ProducesProblem(StatusCodes.Status409Conflict);
 
+        group.MapPut("/{systemSuiteId:guid}/actions/{code}", async (Guid systemSuiteId, string code, RenameActionCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command with { SystemSuiteId = systemSuiteId, Code = code }, ct);
+            return result.ToNoContent(context);
+        }).WithName("RenameAction")
+          .WithSummary("Rename an action in the system suite")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status400BadRequest)
+          .ProducesProblem(StatusCodes.Status404NotFound);
+
         group.MapDelete("/{systemSuiteId:guid}/actions/{code}", async (Guid systemSuiteId, string code, IMediator mediator, HttpContext context, CancellationToken ct) =>
         {
             var result = await mediator.Send(new RemoveActionCommand(systemSuiteId, code), ct);

@@ -104,16 +104,23 @@ public sealed class GetAllPermissionTemplatesQueryHandler : IQueryHandler<GetAll
         {
             query = criteria switch
             {
-                "id" => query.Where(t => t.TemplateId.ToString().Contains(search, StringComparison.OrdinalIgnoreCase)),
-                _ => query.Where(t => t.Version.Contains(search, StringComparison.OrdinalIgnoreCase)),
+                "id"    => query.Where(t => t.TemplateId.ToString().Contains(search, StringComparison.OrdinalIgnoreCase)),
+                "role"  => query.Where(t => t.RoleName.Contains(search, StringComparison.OrdinalIgnoreCase)),
+                "suite" => query.Where(t => t.SystemSuiteName.Contains(search, StringComparison.OrdinalIgnoreCase)),
+                _       => query.Where(t => t.Version.Contains(search, StringComparison.OrdinalIgnoreCase)),
             };
         }
 
         query = (sortBy, sortOrder) switch
         {
-            ("status", "desc") => query.OrderByDescending(t => t.Status),
-            ("status", _) => query.OrderBy(t => t.Status),
-            _ => query.OrderBy(t => t.Version),
+            ("status",  "desc") => query.OrderByDescending(t => t.Status),
+            ("status",  _)      => query.OrderBy(t => t.Status),
+            ("role",    "desc") => query.OrderByDescending(t => t.RoleName),
+            ("role",    _)      => query.OrderBy(t => t.RoleName),
+            ("suite",   "desc") => query.OrderByDescending(t => t.SystemSuiteName),
+            ("suite",   _)      => query.OrderBy(t => t.SystemSuiteName),
+            (_,         "desc") => query.OrderByDescending(t => t.Version),
+            _                   => query.OrderBy(t => t.SystemSuiteName).ThenBy(t => t.RoleName).ThenBy(t => t.Version),
         };
 
         var totalItems = query.Count();

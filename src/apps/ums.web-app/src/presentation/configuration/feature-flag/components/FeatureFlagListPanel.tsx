@@ -27,6 +27,12 @@ const STATUS_COLOR_MAP = {
   Archived: STATUS_COLORS.Archived,
 };
 
+const TYPE_COLOR: Record<string, string> = {
+  Boolean: 'bg-blue-500/10 text-blue-500',
+  Variant: 'bg-purple-500/10 text-purple-500',
+  Percentage: 'bg-emerald-500/10 text-emerald-500',
+};
+
 interface Props {
   flags: FeatureFlag[];
   selectedId: string;

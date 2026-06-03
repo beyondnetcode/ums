@@ -264,6 +264,23 @@ export const useRegisterAction = (systemSuiteId: string) => {
   });
 };
 
+export const useRenameAction = (systemSuiteId: string) => {
+  const t = useI18n();
+  return useNotifiedMutation({
+    mutationFn: ({ code, name }: { code: string; name: string }) =>
+      systemSuiteService.renameAction(systemSuiteId, code, name),
+    invalidateKeys: [['system-suites', systemSuiteId], ['system-suites']],
+    successNotif: () => ({
+      title: t.notifActionRenamed ?? 'Acción Renombrada',
+      message: t.notifActionRenamedMsg ?? 'El nombre de la acción fue actualizado.',
+    }),
+    errorNotif: () => ({
+      title: t.notifActionRenameFailed ?? 'Error al Renombrar',
+      message: t.notifActionRenameFailedMsg ?? 'No se pudo actualizar el nombre de la acción.',
+    }),
+  });
+};
+
 export const useRemoveAction = (systemSuiteId: string) => {
   const t = useI18n();
   return useNotifiedMutation({

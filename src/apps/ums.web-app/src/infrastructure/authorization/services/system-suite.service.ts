@@ -225,6 +225,10 @@ export const systemSuiteService = {
     await httpClient.post(`/system-suites/${systemSuiteId}/actions`, payload);
   },
 
+  renameAction: async (systemSuiteId: string, code: string, name: string): Promise<void> => {
+    await httpClient.put(`/system-suites/${systemSuiteId}/actions/${code}`, { name });
+  },
+
   removeAction: async (systemSuiteId: string, code: string): Promise<void> => {
     await httpClient.delete(`/system-suites/${systemSuiteId}/actions/${code}`);
   },

@@ -94,11 +94,11 @@ export const InlineAddForm: React.FC<InlineAddFormProps> = ({
         <button
           type="button"
           onClick={() => onToggle(true)}
-          className={`inline-flex items-center justify-center rounded-full w-8 h-8
+          className={`inline-flex items-center justify-center rounded-full h-8
             bg-m3-primary/10 border border-m3-primary/30 text-m3-primary
             hover:bg-m3-primary/20 hover:border-m3-primary/50 hover:shadow-sm
             transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-primary
-            active:scale-[0.97] ${iconOnly ? '' : 'px-3 gap-1.5'}`}
+            active:scale-[0.97] ${iconOnly ? 'w-8' : 'px-3 gap-1.5'}`}
           title={title}
         >
           <Plus className="w-4 h-4" />

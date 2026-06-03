@@ -535,12 +535,14 @@ export const IdpPanel: React.FC<IdpPanelProps> = ({ tenantId }) => {
                       </>
                     }
                   >
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="font-medium text-sm text-m3-on-surface">{p.name}</span>
-                      {p.code && <CodeBadge code={p.code} size="xs" />}
-                      <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-m3-primary/10 text-m3-primary font-mono">
-                        {p.strategy}
-                      </span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm text-m3-on-surface flex-1 min-w-0 truncate">{p.name}</span>
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                        {p.code && <CodeBadge code={p.code} size="xs" />}
+                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-m3-primary/10 text-m3-primary font-mono">
+                          {p.strategy}
+                        </span>
+                      </div>
                     </div>
                     {p.description && (
                       <p className="text-xs font-mono text-m3-secondary truncate">{p.description}</p>

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Box, Shield, Key, Users, Trash2, Flag, Database, Plus } from 'lucide-react';
+import { Box, Shield, Key, Users, Trash2, Flag, Database, Plus, ChevronsUpDown, ChevronsDownUp, Pencil, Check, X } from 'lucide-react';
 import { SystemSuite } from '@domain/authorization/models/system-suite.model';
 import { SystemSuiteProfileCard } from './SystemSuiteProfileCard';
 import { DetailPanelShell, DetailTab } from '@shared/components/DetailPanelShell';
@@ -10,6 +10,7 @@ import {
   useActivateModule,
   useDeactivateModule,
   useRegisterAction,
+  useRenameAction,
   useRemoveAction,
 } from '@app/authorization/hooks/use-system-suite';
 import { M3TextField } from '@shared/components/M3TextField';
@@ -60,6 +61,8 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
   const [actionsFilter, setActionsFilter] = useState('all');
   const [actionsSortBy, setActionsSortBy] = useState('name');
   const [actionsSortOrder, setActionsSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [editingActionCode, setEditingActionCode] = useState<string | null>(null);
+  const [editingActionName, setEditingActionName] = useState('');
 
   const toggleNode = (nodeId: string) => {
     setExpandedNodes(prev => ({ ...prev, [nodeId]: !prev[nodeId] }));
@@ -120,6 +123,7 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
   const activateModuleMutation = useActivateModule(suiteId);
   const deactivateModuleMutation = useDeactivateModule(suiteId);
   const registerActionMutation = useRegisterAction(suiteId);
+  const renameActionMutation = useRenameAction(suiteId);
   const removeActionMutation = useRemoveAction(suiteId);
 
   // Module add form state
@@ -527,29 +531,68 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
                         className="group/action flex items-center justify-between p-2.5 rounded-lg border border-m3-outline/10 bg-m3-surface-container/5 hover:bg-m3-surface-container/10 hover:border-m3-outline/25 transition-all duration-150"
                       >
                         <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <div className="p-1.5 rounded bg-m3-primary/10 text-m3-primary">
+                          <div className="p-1.5 rounded bg-m3-primary/10 text-m3-primary flex-shrink-0">
                             <Key className="w-3.5 h-3.5" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p
-                              className="text-[12px] font-medium text-m3-on-surface truncate"
-                              title={action.name}
-                            >
-                              {action.name}
-                            </p>
-                            <p className="text-[10px] font-mono text-m3-secondary truncate">
-                              {action.code}
-                            </p>
+                            {editingActionCode === action.code ? (
+                              <input
+                                autoFocus
+                                value={editingActionName}
+                                onChange={e => setEditingActionName(e.target.value)}
+                                onKeyDown={e => {
+                                  if (e.key === 'Enter') {
+                                    renameActionMutation.mutate({ code: action.code, name: editingActionName });
+                                    setEditingActionCode(null);
+                                  }
+                                  if (e.key === 'Escape') setEditingActionCode(null);
+                                }}
+                                className="w-full text-[12px] font-medium bg-m3-surface border border-m3-primary/40 rounded px-2 py-0.5 focus:outline-none focus:border-m3-primary"
+                              />
+                            ) : (
+                              <p className="text-[12px] font-medium text-m3-on-surface truncate" title={action.name}>
+                                {action.name}
+                              </p>
+                            )}
+                            <p className="text-[10px] font-mono text-m3-secondary truncate">{action.code}</p>
                           </div>
                         </div>
-                        <IconButton
-                          tooltip="Remover Acción"
-                          onClick={() => removeActionMutation.mutate(action.code)}
-                          disabled={removeActionMutation.isPending}
-                          className="opacity-0 group-hover/action:opacity-100 transition-opacity hover:text-m3-error hover:bg-m3-error/10"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </IconButton>
+                        <div className="flex items-center gap-0.5 opacity-0 group-hover/action:opacity-100 transition-opacity">
+                          {editingActionCode === action.code ? (
+                            <>
+                              <IconButton
+                                tooltip="Guardar"
+                                onClick={() => {
+                                  renameActionMutation.mutate({ code: action.code, name: editingActionName });
+                                  setEditingActionCode(null);
+                                }}
+                                disabled={renameActionMutation.isPending}
+                                className="hover:text-emerald-500 hover:bg-emerald-500/10"
+                              >
+                                <Check className="w-3.5 h-3.5" />
+                              </IconButton>
+                              <IconButton tooltip="Cancelar" onClick={() => setEditingActionCode(null)}>
+                                <X className="w-3.5 h-3.5" />
+                              </IconButton>
+                            </>
+                          ) : (
+                            <IconButton
+                              tooltip="Editar nombre"
+                              onClick={() => { setEditingActionCode(action.code); setEditingActionName(action.name); }}
+                              className="hover:text-m3-primary hover:bg-m3-primary/10"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                            </IconButton>
+                          )}
+                          <IconButton
+                            tooltip="Remover Acción"
+                            onClick={() => removeActionMutation.mutate(action.code)}
+                            disabled={removeActionMutation.isPending}
+                            className="hover:text-m3-error hover:bg-m3-error/10"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </IconButton>
+                        </div>
                       </div>
                     ))}
                   </div>

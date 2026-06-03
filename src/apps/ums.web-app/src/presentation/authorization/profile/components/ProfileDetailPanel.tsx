@@ -401,11 +401,11 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                 </div>
               </div>
 
-              <div className="rounded-xl border border-amber-500/10 bg-amber-500/5 p-4">
-                <p className="text-[11px] font-medium text-amber-600">Nota del Auditor</p>
-                Los permisos listados en la siguiente pestaña representan el conjunto materializado
-                definitivo de privilegios del usuario, fusionando las reglas de la plantilla por
-                defecto con cualquier anulación manual (Override) grabada en caliente.
+              <div className="rounded-lg border border-amber-500/10 bg-amber-500/5 px-3 py-2 flex items-start gap-2">
+                <span className="text-[10px] font-semibold text-amber-600 uppercase tracking-wide shrink-0 mt-0.5">Auditor</span>
+                <p className="text-[10px] text-amber-700/80 leading-relaxed">
+                  Permisos materializados definitivos — fusión de plantilla base con overrides manuales.
+                </p>
               </div>
             </div>
           )}
@@ -427,14 +427,14 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                         content: (
                           <div className="rounded-xl border border-m3-outline/10 bg-m3-surface-container/10 overflow-hidden divide-y divide-m3-outline/5">
                             {profile.permissions.filter(p =>
-                              ['Module', 'SubModule', 'Page'].includes(p.targetType)
+                              ['Module', 'Submodule', 'Option'].includes(p.targetType)
                             ).length === 0 && (
                               <div className="py-6 text-center text-[12px] text-m3-on-surface/50">
                                 No hay permisos de este tipo.
                               </div>
                             )}
                             {profile.permissions
-                              .filter(p => ['Module', 'SubModule', 'Page'].includes(p.targetType))
+                              .filter(p => ['Module', 'Submodule', 'Option'].includes(p.targetType))
                               .map(p => renderPermissionRow(p))}
                           </div>
                         ),
@@ -445,14 +445,14 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                         icon: <Database className="w-4 h-4" />,
                         content: (
                           <div className="rounded-xl border border-m3-outline/10 bg-m3-surface-container/10 overflow-hidden divide-y divide-m3-outline/5">
-                            {profile.permissions.filter(p => p.targetType === 'DomainResource')
+                            {profile.permissions.filter(p => ['Aggregate', 'Entity'].includes(p.targetType))
                               .length === 0 && (
                               <div className="py-6 text-center text-[12px] text-m3-on-surface/50">
                                 No hay permisos de este tipo.
                               </div>
                             )}
                             {profile.permissions
-                              .filter(p => p.targetType === 'DomainResource')
+                              .filter(p => ['Aggregate', 'Entity'].includes(p.targetType))
                               .map(p => renderPermissionRow(p))}
                           </div>
                         ),
@@ -463,14 +463,14 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                         icon: <Zap className="w-4 h-4" />,
                         content: (
                           <div className="rounded-xl border border-m3-outline/10 bg-m3-surface-container/10 overflow-hidden divide-y divide-m3-outline/5">
-                            {profile.permissions.filter(p => p.targetType === 'SystemAction')
+                            {profile.permissions.filter(p => p.targetType === 'SystemSuite')
                               .length === 0 && (
                               <div className="py-6 text-center text-[12px] text-m3-on-surface/50">
-                                No hay permisos de este tipo.
+                                No hay acceso global al sistema configurado.
                               </div>
                             )}
                             {profile.permissions
-                              .filter(p => p.targetType === 'SystemAction')
+                              .filter(p => p.targetType === 'SystemSuite')
                               .map(p => renderPermissionRow(p))}
                           </div>
                         ),

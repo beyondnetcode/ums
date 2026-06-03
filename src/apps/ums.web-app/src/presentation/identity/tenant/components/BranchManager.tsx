@@ -321,14 +321,16 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ tenantId }) => {
                     </>
                   }
                 >
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="font-semibold text-[11px] text-m3-on-surface">{b.name}</span>
-                    <CodeBadge code={b.code} size="xs" />
-                    <StatusBadge
-                      status={b.isActive ? 'Active' : 'Suspended'}
-                      label={b.isActive ? t.active : t.suspended}
-                      className="text-[8px]"
-                    />
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-[11px] text-m3-on-surface flex-1 min-w-0 truncate">{b.name}</span>
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <CodeBadge code={b.code} size="xs" />
+                      <StatusBadge
+                        status={b.isActive ? 'Active' : 'Suspended'}
+                        label={b.isActive ? t.active : t.suspended}
+                        className="text-[8px]"
+                      />
+                    </div>
                   </div>
                   {b.geofencingMetadata && (
                     <p

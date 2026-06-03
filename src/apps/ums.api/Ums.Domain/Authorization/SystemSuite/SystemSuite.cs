@@ -478,6 +478,25 @@ public sealed class SystemSuite : AggregateRoot<SystemSuite, SystemSuiteProps>
         return Result.Success();
     }
 
+    public Result RenameAction(ActionCode code, Name newName, ActorId updatedBy)
+    {
+        var action = FindAction(code);
+        if (action.IsFailure)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Actions), DomainErrors.Common.NotFound));
+        }
+
+        if (!IsValid())
+        {
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+        }
+
+        action.Value.Props.Name = newName;
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy.GetValue());
+        return Result.Success();
+    }
+
     // ── Domain Resource lifecycle ─────────────────────────────────────────────
 
     public Result AddDomainResource(ModuleId? moduleId, DomainResourceType type, Code code, Name name, Description description, ActorId createdBy)
