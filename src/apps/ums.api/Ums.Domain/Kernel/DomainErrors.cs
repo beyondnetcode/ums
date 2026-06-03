@@ -142,6 +142,7 @@ public static class DomainErrors
         public const string PolicyAlreadyInactive = "approvals.policy_already_inactive";
         public const string RuleAlreadyInactive = "approvals.rule_already_inactive";
         public const string RequiresDocumentsIfApprovalRequired = "approvals.requires_documents_if_approval_required";
+        public const string WorkflowNotAllowedForUserCategory   = "approvals.workflow_not_allowed_for_user_category";
     }
 
     public static class Configuration

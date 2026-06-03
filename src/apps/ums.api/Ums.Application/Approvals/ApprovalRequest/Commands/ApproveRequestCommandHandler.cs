@@ -2,17 +2,30 @@ using Ums.Application.Approvals.ApprovalRequest.DTOs;
 
 namespace Ums.Application.Approvals.ApprovalRequest.Commands;
 
+using Ums.Application.Common.Notifications;
 using Ums.Domain.Approvals;
+using Ums.Domain.Identity;
 using Ums.Domain.Kernel.ValueObjects;
 
 public sealed class ApproveRequestCommandHandler : ICommandHandler<ApproveRequestCommand>
 {
     private readonly IApprovalRequestRepository _repository;
+    private readonly IUserAccountRepository _userAccountRepository;
+    private readonly ITenantRepository _tenantRepository;
+    private readonly INotificationService _notificationService;
     private readonly IUserContext _userContext;
 
-    public ApproveRequestCommandHandler(IApprovalRequestRepository repository, IUserContext userContext)
+    public ApproveRequestCommandHandler(
+        IApprovalRequestRepository repository,
+        IUserAccountRepository userAccountRepository,
+        ITenantRepository tenantRepository,
+        INotificationService notificationService,
+        IUserContext userContext)
     {
         _repository = repository;
+        _userAccountRepository = userAccountRepository;
+        _tenantRepository = tenantRepository;
+        _notificationService = notificationService;
         _userContext = userContext;
     }
 
@@ -31,6 +44,21 @@ public sealed class ApproveRequestCommandHandler : ICommandHandler<ApproveReques
 
         await _repository.UpdateAsync(entity, cancellationToken);
         await _repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+
+        var targetUser = await _userAccountRepository.GetByIdAsync(entity.TargetUserId.GetValue(), cancellationToken);
+        if (targetUser is not null)
+        {
+            var tenant = await _tenantRepository.GetByIdAsync(targetUser.TenantId.GetValue(), cancellationToken);
+            await _notificationService.SendAsync(
+                NotificationTemplates.ProfileRequestApproved(
+                    targetUser.Email.GetValue(),
+                    targetUser.DisplayName?.GetValue() ?? targetUser.Email.GetValue(),
+                    tenant?.Name.GetValue() ?? "your organization",
+                    entity.RequestedSystemId.GetValue().ToString(),
+                    entity.GrantedRoleId!.GetValue().ToString()),
+                cancellationToken);
+        }
+
         return Result.Success();
     }
 }

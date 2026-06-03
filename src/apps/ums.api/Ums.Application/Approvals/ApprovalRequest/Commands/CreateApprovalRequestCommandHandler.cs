@@ -4,6 +4,8 @@ namespace Ums.Application.Approvals.ApprovalRequest.Commands;
 
 using Ums.Domain.Approvals;
 using Ums.Domain.Approvals.ApprovalRequest;
+using Ums.Domain.Enums;
+using Ums.Domain.Identity;
 using Ums.Domain.Kernel.ValueObjects;
 using Ums.Application.Approvals.ApprovalRequest.Services;
 
@@ -12,17 +14,20 @@ public sealed class CreateApprovalRequestCommandHandler : ICommandHandler<Create
     private readonly IApprovalRequestRepository _repository;
     private readonly IApprovalWorkflowRepository _workflowRepository;
     private readonly IApprovalRequestCreationPolicyResolver _creationPolicyResolver;
+    private readonly IUserAccountRepository _userAccountRepository;
     private readonly IUserContext _userContext;
 
     public CreateApprovalRequestCommandHandler(
         IApprovalRequestRepository repository,
         IApprovalWorkflowRepository workflowRepository,
         IApprovalRequestCreationPolicyResolver creationPolicyResolver,
+        IUserAccountRepository userAccountRepository,
         IUserContext userContext)
     {
         _repository = repository;
         _workflowRepository = workflowRepository;
         _creationPolicyResolver = creationPolicyResolver;
+        _userAccountRepository = userAccountRepository;
         _userContext = userContext;
     }
 
@@ -36,6 +41,13 @@ public sealed class CreateApprovalRequestCommandHandler : ICommandHandler<Create
         var workflow = await _workflowRepository.GetByIdAsync(request.WorkflowId, cancellationToken);
         if (workflow is null)
             return Result<CreateApprovalRequestResponse>.Failure("Approval workflow not found.");
+
+        var targetUser = await _userAccountRepository.GetByIdAsync(request.TargetUserId, cancellationToken);
+        if (targetUser is null)
+            return Result<CreateApprovalRequestResponse>.Failure("Target user not found.");
+
+        if (workflow.TargetUserCategory == UserCategory.Internal && targetUser.Category != UserCategory.Internal)
+            return Result<CreateApprovalRequestResponse>.Failure(DomainErrors.Approvals.WorkflowNotAllowedForUserCategory);
 
         var duplicatePending = await _repository.ExistsPendingForScopeAsync(
             request.TargetUserId, request.RequestedSystemId, request.RequestedBranchId, cancellationToken);

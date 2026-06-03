@@ -20,8 +20,8 @@ Este documento mantiene una vista dinamica de lo que ya esta implementado, lo qu
 
 | Estado | Cantidad | IDs de historia |
 |---|---:|---|
-| Implementado / utilizable | 12 | FS-01, FS-02, FS-03, FS-04, FS-05, FS-07, FS-08, FS-18, FS-21, FS-22, FS-26, FS-27 |
-| Parcial | 14 | FS-09, FS-10, FS-11, FS-12, FS-13, FS-14, FS-15, FS-16, FS-17, FS-19, FS-20, FS-23, FS-24, FS-25 |
+| Implementado / utilizable | 13 | FS-01, FS-02, FS-03, FS-04, FS-05, FS-07, FS-08, FS-10, FS-18, FS-21, FS-22, FS-26, FS-27 |
+| Parcial | 13 | FS-09, FS-11, FS-12, FS-13, FS-14, FS-15, FS-16, FS-17, FS-19, FS-20, FS-23, FS-24, FS-25 |
 | Diferido | 1 | FS-06 |
 
 ## Leyenda de Seguimiento
@@ -40,12 +40,13 @@ Este documento mantiene una vista dinamica de lo que ya esta implementado, lo qu
 | FS | Historia | Estado | Fecha | Que se hizo |
 |---|---|---|---|---|
 | FS-22 | Solicitud y Aprobacion de Alta de Usuario | Green — Listo | 2026-06-03 | Se agrego `SignupUserCommandHandlerTests.cs` (8 tests) cubriendo el flujo publico del solicitante: caso feliz, email duplicado, tenant invalido y sin admin activo. Documentacion actualizada con badge de estado, referencia de trazabilidad corregida y seccion 10 con evidencia de pruebas de aceptacion. |
+| FS-10 | B2B External Access Request and Approval Flow | Green — Listo | 2026-06-03 | Guard `PROFILE_INTERNAL_ONLY` en `CreateApprovalRequestCommandHandler` (bloquea usuarios externos/B2B de workflows solo para internos con error de escalacion de privilegios). Notificaciones de aprobacion y rechazo en `ApproveRequestCommandHandler` y `RejectRequestCommandHandler`. Nueva constante de error `WorkflowNotAllowedForUserCategory`. 6 tests nuevos. 571 tests pasan. |
 
 ## Registro de Brechas Abiertas
 
 | FS | Historia | Senal | Prioridad | Criticidad | Complejidad | Responsable | Objetivo | Estado | Brecha principal | Siguiente accion |
 |---|---|---|---|---|---|---|---|---|---|---|
-| FS-10 | B2B External Access Request and Approval Flow | Amber | P1 | Alta | Alta | Approvals | TBD | Abierto | El flujo de acceso externo aun necesita el guard `PROFILE_INTERNAL_ONLY` y un ciclo completo de solicitud a aprobacion. | Completar las reglas de validacion y la trazabilidad del onboarding externo. |
+| FS-10 | B2B External Access Request and Approval Flow | Green | P1 | Alta | Alta | Approvals | 2026-06-03 | Listo | Guard y notificaciones de ciclo de vida implementados. | — |
 | FS-11 | Upload and Validate User Document | Amber | P1 | Alta | Alta | Compliance | TBD | Abierto | Al ciclo de vida del documento aun le faltan rechazar, expirar, recargar, notificar y registrar enforcement. | Completar los comandos del ciclo de vida y la traza de auditoria asociada. |
 | FS-13 | Configure Hierarchical System Parameters | Amber | P1 | Alta | Alta | Plataforma / Configuracion | TBD | Abierto | La parametrizacion existe, pero el contexto formal de Configuration sigue sin su superficie API completa. | Implementar de punta a punta las APIs de `AppConfiguration`, `FeatureFlag` e `IdpConfiguration`. |
 | FS-20 | Manage System Parameters | Amber | P1 | Alta | Alta | Plataforma / Configuracion | TBD | Abierto | El tracker aun marca al trinomio de configuracion como faltante como contexto completo de API. | Construir repositorios, comandos, REST, GraphQL y persistencia para el contexto de configuracion. |
