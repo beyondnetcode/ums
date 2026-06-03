@@ -10,12 +10,12 @@
 ## 1. Aggregate Overview
 
 ### Purpose
-The `SystemSuite` aggregate represents a tenant-owned application surface registered in UMS. It defines the functional topology used by downstream authorization models and stores suite-level operational settings. In the current implementation, it owns `Module`, menu topology, `DomainResource` (Aggregates and Entities), `AppSetting`, and `Action` children. The independent `Role` aggregate is maintained in the selected suite context and references it through `SystemSuiteId`. During bootstrap, `UMS` is the canonical base suite for the tenant-management surface.
+The `SystemSuite` aggregate represents a tenant-owned application surface registered in UMS. It defines the functional topology used by downstream authorization models and stores suite-level operational settings. In the current implementation, it owns `Module`, menu topology, `DomainResource` (Aggregates, Entities, and DomainMethods), `AppSetting`, and `Action` children. The independent `Role` aggregate is maintained in the selected suite context and references it through `SystemSuiteId`. During bootstrap, `UMS` is the canonical base suite for the tenant-management surface.
 
 ### Business Responsibility
 - Register a tenant-scoped software suite.
 - Maintain the suite identity: `Code`, `Name`, `Description`, `Status`.
-- Own functional modules, domain resources (Entities/Aggregates), and suite-level application settings.
+- Own functional modules, domain resources (Aggregates, Entities, and DomainMethods), and suite-level application settings.
 - Expose the action surface consumed by `PermissionTemplate` and effective authorization flows.
 - Define the ownership boundary for the role catalog maintained by Authorization.
 - Control activation state through `SystemStatus`.
@@ -101,7 +101,7 @@ classDiagram
         +ActivateModule(moduleId, actor)
         +DeactivateModule(moduleId, actor)
         +RemoveModule(moduleId, actor)
-        +AddDomainResource(moduleId, type, code, name, description, actor)
+        +AddDomainResource(moduleId, parentResourceId, type, code, name, description, actor)
         +UpdateDomainResource(resourceId, moduleId, type, code, name, description, actor)
         +RemoveDomainResource(resourceId, actor)
         +AddAppSetting(key, value, scope, actor)
@@ -118,6 +118,7 @@ classDiagram
     class DomainResource {
         +Guid Id
         +Guid? ModuleId
+        +Guid? ParentResourceId
         +DomainResourceType Type
         +Code Code
         +Name Name
@@ -187,7 +188,7 @@ erDiagram
         uniqueidentifier ResourceId PK
         uniqueidentifier SuiteId FK
         uniqueidentifier ModuleId FK "Nullable"
-        int Type "Aggregate(1) | Entity(2)"
+        int Type "Aggregate(1) | Entity(2) | DomainMethod(3)"
         nvarchar Code "Unique within Suite"
         nvarchar Name
         nvarchar Description

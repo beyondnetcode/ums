@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Database, Layers, Component, Trash2, Pencil } from 'lucide-react';
+import { Database, Layers, Component, FunctionSquare, Trash2, Pencil } from 'lucide-react';
 import { useI18n } from '@app/i18n/use-i18n';
 import { SystemSuite } from '@domain/authorization/models/system-suite.model';
 import { M3TextField } from '@shared/components/M3TextField';
@@ -36,8 +36,9 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
   const updateDomainResourceMutation = useUpdateDomainResource(suiteId);
 
   const [isAddingResource, setIsAddingResource] = useState(false);
-  const [resType, setResType] = useState<'Aggregate' | 'Entity'>('Aggregate');
+  const [resType, setResType] = useState<'Aggregate' | 'Entity' | 'DomainMethod'>('Aggregate');
   const [resModuleId, setResModuleId] = useState<string>('');
+  const [resParentId, setResParentId] = useState<string>('');
   const [resCode, setResCode] = useState('');
   const [resName, setResName] = useState('');
   const [resDesc, setResDesc] = useState('');
@@ -65,6 +66,7 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
     try {
       await addDomainResourceMutation.mutateAsync({
         moduleId: resModuleId || null,
+        parentResourceId: resParentId || null,
         type: resType,
         code: formatSystemCode(resCode),
         name: resName.trim(),
@@ -74,6 +76,7 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
       setResName('');
       setResDesc('');
       setResModuleId('');
+      setResParentId('');
       setIsAddingResource(false);
     } catch {
       /* handled by hook */
@@ -121,6 +124,7 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
           { label: 'Todos', value: 'all' },
           { label: 'Agregados', value: 'Aggregate' },
           { label: 'Entidades', value: 'Entity' },
+          { label: 'Métodos', value: 'DomainMethod' },
         ]}
         activeFilter={activeFilter}
         onFilterChange={setActiveFilter}
@@ -145,7 +149,7 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
         }}
         onSubmit={handleAddResource}
         addLabel="+"
-        title="Nuevo Recurso de Dominio (Entidad/Agregado)"
+        title="Nuevo Recurso de Dominio"
         cancelLabel={t.cancelEdit}
         submitLabel="Guardar Recurso"
         isLoading={addDomainResourceMutation.isPending}
@@ -157,11 +161,15 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
             <label className="text-[11px] font-medium text-m3-on-surface">Tipo de Recurso</label>
             <select
               value={resType}
-              onChange={e => setResType(e.target.value as 'Aggregate' | 'Entity')}
+              onChange={e => {
+                setResType(e.target.value as 'Aggregate' | 'Entity' | 'DomainMethod');
+                setResParentId('');
+              }}
               className="w-full h-10 px-3 rounded-lg bg-m3-surface border border-m3-outline/20 text-sm focus:border-m3-primary focus:ring-1 focus:ring-m3-primary outline-none"
             >
               <option value="Aggregate">Agregado (Aggregate Root)</option>
               <option value="Entity">Entidad (Entity)</option>
+              <option value="DomainMethod">Método de Dominio (DomainMethod)</option>
             </select>
           </div>
           <div className="space-y-1">
@@ -180,6 +188,28 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
             </select>
           </div>
         </div>
+        {(resType === 'DomainMethod' || resType === 'Entity') && (
+          <div className="space-y-1">
+            <label className="text-[11px] font-medium text-m3-on-surface">
+              Recurso Padre{resType === 'DomainMethod' ? ' *' : ' (Opcional)'}
+            </label>
+            <select
+              value={resParentId}
+              onChange={e => setResParentId(e.target.value)}
+              required={resType === 'DomainMethod'}
+              className="w-full h-10 px-3 rounded-lg bg-m3-surface border border-m3-outline/20 text-sm focus:border-m3-primary focus:ring-1 focus:ring-m3-primary outline-none"
+            >
+              <option value="">[Sin Recurso Padre]</option>
+              {domainResources
+                .filter(r => r.type === 'Aggregate' || r.type === 'Entity')
+                .map(r => (
+                  <option key={r.id} value={r.id}>
+                    {r.name} ({r.type === 'Aggregate' ? 'Agregado' : 'Entidad'})
+                  </option>
+                ))}
+            </select>
+          </div>
+        )}
         <M3TextField
           label="Código"
           required
@@ -223,7 +253,8 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
         <div className="flex flex-col gap-1 animate-fadeIn">
           {filteredResources.map(res => {
             const isEditing = edit.isEditing(res.id);
-            const Icon = res.type === 'Aggregate' ? Layers : Component;
+            const Icon = res.type === 'Aggregate' ? Layers : res.type === 'Entity' ? Component : FunctionSquare;
+            const typeLabel = res.type === 'Aggregate' ? 'Agregado' : res.type === 'Entity' ? 'Entidad' : 'Método de Dominio';
 
             if (isEditing) {
               return (
@@ -235,7 +266,7 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
                   <div className="flex items-center gap-2 mb-2">
                     <Icon className="w-4 h-4 text-m3-primary" />
                     <span className="text-[11px] font-bold text-m3-on-surface">
-                      Editando {res.type === 'Aggregate' ? 'Agregado' : 'Entidad'}: {res.code}
+                      Editando {typeLabel}: {res.code}
                     </span>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -275,7 +306,7 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
               <EntityRow
                 key={res.id}
                 leading={
-                  <div className={`p-1.5 rounded ${res.type === 'Aggregate' ? 'bg-indigo-500/10 text-indigo-500' : 'bg-emerald-500/10 text-emerald-500'}`}>
+                  <div className={`p-1.5 rounded ${res.type === 'Aggregate' ? 'bg-indigo-500/10 text-indigo-500' : res.type === 'Entity' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-orange-500/10 text-orange-500'}`}>
                     <Icon className="w-4 h-4" />
                   </div>
                 }
@@ -316,7 +347,7 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
                 }
               >
                 <p className="text-xs font-semibold text-m3-on-surface truncate" title={res.name}>{res.name}</p>
-                <p className="text-[10px] text-m3-secondary">{res.type === 'Aggregate' ? 'Agregado Root' : 'Entidad de Dominio'}</p>
+                <p className="text-[10px] text-m3-secondary">{typeLabel}</p>
                 {res.description && (
                   <p className="text-[10px] text-m3-secondary/80 line-clamp-1" title={res.description}>{res.description}</p>
                 )}
@@ -328,7 +359,8 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 animate-fadeIn">
           {filteredResources.map(res => {
             const isEditing = edit.isEditing(res.id);
-            const Icon = res.type === 'Aggregate' ? Layers : Component;
+            const Icon = res.type === 'Aggregate' ? Layers : res.type === 'Entity' ? Component : FunctionSquare;
+            const typeLabel = res.type === 'Aggregate' ? 'Agregado Root' : res.type === 'Entity' ? 'Entidad de Dominio' : 'Método de Dominio';
 
             if (isEditing) {
               return (
@@ -340,7 +372,7 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
                   <div className="flex items-center gap-2 mb-2">
                     <Icon className="w-4 h-4 text-m3-primary" />
                     <span className="text-[11px] font-bold text-m3-on-surface">
-                      Editando {res.type === 'Aggregate' ? 'Agregado' : 'Entidad'}: {res.code}
+                      Editando {typeLabel}: {res.code}
                     </span>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -383,7 +415,7 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
               >
                 <div className="flex items-start gap-3 flex-1 min-w-0">
                   <div
-                    className={`p-2 rounded mt-0.5 ${res.type === 'Aggregate' ? 'bg-indigo-500/10 text-indigo-500' : 'bg-emerald-500/10 text-emerald-500'}`}
+                    className={`p-2 rounded mt-0.5 ${res.type === 'Aggregate' ? 'bg-indigo-500/10 text-indigo-500' : res.type === 'Entity' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-orange-500/10 text-orange-500'}`}
                   >
                     <Icon className="w-4 h-4" />
                   </div>
@@ -407,9 +439,7 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
                         )}
                       </div>
                     </div>
-                    <p className="text-[10px] text-m3-secondary mt-1">
-                      {res.type === 'Aggregate' ? 'Agregado Root' : 'Entidad de Dominio'}
-                    </p>
+                    <p className="text-[10px] text-m3-secondary mt-1">{typeLabel}</p>
                     {res.description && (
                       <p
                         className="text-[10px] text-m3-secondary/80 mt-1 line-clamp-2"

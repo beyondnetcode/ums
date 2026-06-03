@@ -294,6 +294,11 @@ public static class AuthorizationDevDataSeeder
             suite.AddDomainResource(secMod.GetId(), null, DomainResourceType.Entity, Code.Create("AUDIT_LOG"), Name.Create("Audit Log Entity"), Description.Create("Audit log entity for tracking operations"), actor);
             suite.AddDomainResource(configMod.GetId(), null, DomainResourceType.Entity, Code.Create("STOCK_LEVEL"), Name.Create("Stock Level Entity"), Description.Create("Stock level entity linked to config module"), actor);
 
+            // DomainMethods as children of the USERS aggregate (DDD hierarchy example)
+            var usersAggregate = suite.DomainResources.First(r => r.Code.GetValue() == "USERS");
+            suite.AddDomainResource(secMod.GetId(), usersAggregate.Props.Id, DomainResourceType.DomainMethod, Code.Create("RESET_PASSWORD"), Name.Create("ResetPassword()"), Description.Create("Resets user password through the aggregate"), actor);
+            suite.AddDomainResource(secMod.GetId(), usersAggregate.Props.Id, DomainResourceType.DomainMethod, Code.Create("BLOCK_USER"), Name.Create("BlockUser()"), Description.Create("Blocks a user account through the aggregate"), actor);
+
             suites.Add(suite);
         }
 

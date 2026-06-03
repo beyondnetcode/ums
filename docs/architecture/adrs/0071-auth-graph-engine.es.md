@@ -114,6 +114,19 @@ Los claims JWT tienen un límite de tamaño y son estáticos después de su emis
 | `AuthGraphFormatProvider` | `Ums.Application/Authorization/Graph/AuthGraphFormatProvider.cs` |
 | `POST /api/v1/auth/login` | `Ums.Presentation/Endpoints/Identity/Auth/AuthEndpoints.cs` |
 | `POST /api/v1/client/authenticate` | `Ums.Presentation/Endpoints/Identity/Auth/ClientAuthEndpoints.cs` |
+| `GET /api/v1/profiles/{id}/auth-graph/preview` | `Ums.Presentation/Endpoints/Authorization/Profile/ProfileEndpoints.cs` |
+
+## Endpoint de Preview Interno
+
+El endpoint `GET /api/v1/profiles/{profileId}/auth-graph/preview` usa el **mismo pipeline `IAuthorizationGraphBuilder`** que el flujo externo `POST /client/authenticate`. La validación de credenciales es el único paso omitido — el perfil se resuelve directamente por ID.
+
+Este diseño garantiza que los administradores vean exactamente el grafo que se produciría para una solicitud de autenticación real. Ver [ADR-0080: Previsualización del Auth Graph — Pipeline Interno vs Externo](./0080-auth-graph-preview-internal-pipeline.es.md) para la justificación completa.
+
+Diferencias clave de comportamiento respecto al flujo externo:
+- Requiere sesión de portal autenticada (`IUserContext.IsAuthenticated`).
+- Emite evento de auditoría `Graph.Preview.Internal` en lugar de `Auth.Success`.
+- Devuelve cabeceras de respuesta `X-Preview-Mode: internal-preview` y `X-Request-Id`.
+- Soporta el mismo parámetro de consulta `?format=` para override.
 
 ---
 

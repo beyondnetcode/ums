@@ -10,12 +10,12 @@
 ## 1. Visión General del Agregado
 
 ### Propósito
-El agregado `SystemSuite` representa una superficie de aplicacion perteneciente a un tenant y registrada en UMS. Define la topologia funcional consumida por los modelos de autorizacion aguas abajo y almacena configuraciones operativas a nivel de suite. En la implementacion actual, posee `Module`, topologia de menus, `DomainResource` (Agregados y Entidades), `AppSetting` y `Action`. El agregado independiente `Role` se mantiene en el contexto de la suite seleccionada y la referencia mediante `SystemSuiteId`. Durante el bootstrap, `UMS` es la suite base canonica para la superficie de gestion del tenant.
+El agregado `SystemSuite` representa una superficie de aplicacion perteneciente a un tenant y registrada en UMS. Define la topologia funcional consumida por los modelos de autorizacion aguas abajo y almacena configuraciones operativas a nivel de suite. En la implementacion actual, posee `Module`, topologia de menus, `DomainResource` (Agregados, Entidades y Métodos de Dominio), `AppSetting` y `Action`. El agregado independiente `Role` se mantiene en el contexto de la suite seleccionada y la referencia mediante `SystemSuiteId`. Durante el bootstrap, `UMS` es la suite base canonica para la superficie de gestion del tenant.
 
 ### Responsabilidad de Negocio
 - Registrar una suite de software asociada a un tenant.
 - Mantener la identidad de la suite: `Code`, `Name`, `Description`, `Status`.
-- Poseer módulos funcionales, recursos de dominio (Entidades/Agregados) y configuraciones operativas de la suite.
+- Poseer módulos funcionales, recursos de dominio (Agregados, Entidades y Métodos de Dominio) y configuraciones operativas de la suite.
 - Exponer la superficie de acciones consumida por `PermissionTemplate` y por los flujos de autorización efectiva.
 - Definir el limite propietario del catalogo de roles mantenido por Autorizacion.
 - Controlar el estado de activación mediante `SystemStatus`.
@@ -100,7 +100,7 @@ classDiagram
         +ActivateModule(moduleId, actor)
         +DeactivateModule(moduleId, actor)
         +RemoveModule(moduleId, actor)
-        +AddDomainResource(moduleId, type, code, name, description, actor)
+        +AddDomainResource(moduleId, parentResourceId, type, code, name, description, actor)
         +UpdateDomainResource(resourceId, moduleId, type, code, name, description, actor)
         +RemoveDomainResource(resourceId, actor)
         +AddAppSetting(key, value, scope, actor)
@@ -117,6 +117,7 @@ classDiagram
     class DomainResource {
         +Guid Id
         +Guid? ModuleId
+        +Guid? ParentResourceId
         +DomainResourceType Type
         +Code Code
         +Name Name

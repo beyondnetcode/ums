@@ -114,6 +114,19 @@ JWT claims have a size limit and are static after issuance. The graph is rich (h
 | `AuthGraphFormatProvider` | `Ums.Application/Authorization/Graph/AuthGraphFormatProvider.cs` |
 | `POST /api/v1/auth/login` | `Ums.Presentation/Endpoints/Identity/Auth/AuthEndpoints.cs` |
 | `POST /api/v1/client/authenticate` | `Ums.Presentation/Endpoints/Identity/Auth/ClientAuthEndpoints.cs` |
+| `GET /api/v1/profiles/{id}/auth-graph/preview` | `Ums.Presentation/Endpoints/Authorization/Profile/ProfileEndpoints.cs` |
+
+## Internal Preview Endpoint
+
+The endpoint `GET /api/v1/profiles/{profileId}/auth-graph/preview` uses the **same `IAuthorizationGraphBuilder` pipeline** as the external `POST /client/authenticate` flow. Credential validation is the only step omitted — the profile is resolved directly by ID.
+
+This design guarantees that administrators see exactly the graph that would be produced for a real authentication request. See [ADR-0080: Auth Graph Preview — Internal vs External Pipeline](./0080-auth-graph-preview-internal-pipeline.md) for full rationale.
+
+Key behavioural differences from the external flow:
+- Requires an authenticated portal session (`IUserContext.IsAuthenticated`).
+- Emits audit event `Graph.Preview.Internal` instead of `Auth.Success`.
+- Returns `X-Preview-Mode: internal-preview` and `X-Request-Id` response headers.
+- Supports the same `?format=` override query parameter.
 
 ---
 

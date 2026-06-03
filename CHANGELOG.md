@@ -1,3 +1,16 @@
+## Unreleased (2026-06-03)
+
+### Features
+
+- **authorization:** DDD domain resource hierarchy — adds `DomainMethod` as a third `DomainResourceType` variant (`DomainMethod = 3`) with `ParentResourceId` nullable column; hierarchy invariants enforced in `SystemSuite.AddDomainResource`; auth graph builder includes DomainMethod nodes as addressable permission targets ([b4294be](https://github.com/beyondnetcode/ums/commit/b4294be))
+- **authorization:** consistent state-change and deletion dependency guard policy — application command handlers check active dependencies before executing guarded operations and return HTTP 409 with structured `BlockedOperationResponse` payload including `errorCode`, `message`, `brokenRule`, and `blockingDependencies[]` ([e22629c](https://github.com/beyondnetcode/ums/commit/e22629c))
+
+### Thank You
+
+- Alberto Arroyo Raygada @nestjslatam
+
+---
+
 ## 0.0.9 (2026-05-10)
 
 ### Features

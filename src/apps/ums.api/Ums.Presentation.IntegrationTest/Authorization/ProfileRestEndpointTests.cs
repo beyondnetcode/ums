@@ -71,6 +71,60 @@ public sealed class ProfileRestEndpointTests : IClassFixture<UmsApiWebApplicatio
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
+    [Fact]
+    public async Task GetAuthGraphPreview_WithValidProfile_ShouldReturn200WithPreviewPayload()
+    {
+        var tenantId = Guid.Parse(CoreDevDataSeeder.InternalAdminTenantId);
+        var systemSuiteId = await GetManagementSystemSuiteIdAsync(tenantId, TestContext.Current.CancellationToken);
+        var roleId = await CreateRoleAsync(systemSuiteId, TestContext.Current.CancellationToken);
+        var branchId = await CreateBranchAsync(tenantId, TestContext.Current.CancellationToken);
+
+        var createResponse = await _client.PostAsJsonAsync("/api/v1/profiles", new
+        {
+            tenantId,
+            userId = Guid.NewGuid(),
+            roleId,
+            branchId,
+        }, TestContext.Current.CancellationToken);
+
+        createResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+
+        using var createdPayload = JsonDocument.Parse(await createResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
+        var profileId = createdPayload.RootElement.GetProperty("profileId").GetGuid();
+
+        var previewResponse = await _client.GetAsync(
+            $"/api/v1/profiles/{profileId}/auth-graph/preview",
+            TestContext.Current.CancellationToken);
+
+        previewResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        previewResponse.Headers.Should().ContainKey("X-Preview-Mode");
+        previewResponse.Headers.GetValues("X-Preview-Mode").Should().ContainSingle("internal-preview");
+        previewResponse.Headers.Should().ContainKey("X-Request-Id");
+
+        using var payload = JsonDocument.Parse(await previewResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
+        payload.RootElement.GetProperty("previewMode").GetString().Should().Be("internal-preview");
+        payload.RootElement.GetProperty("profileId").GetGuid().Should().Be(profileId);
+        payload.RootElement.GetProperty("tenantId").GetGuid().Should().Be(tenantId);
+        payload.RootElement.GetProperty("requestId").GetString().Should().NotBeNullOrWhiteSpace();
+        payload.RootElement.GetProperty("format").GetString().Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
+    public async Task GetAuthGraphPreview_WithoutAuthentication_ShouldReturn401()
+    {
+        var unauthClient = new HttpClient
+        {
+            BaseAddress = new Uri("https://localhost"),
+        };
+
+        var response = await unauthClient.GetAsync(
+            $"/api/v1/profiles/{Guid.NewGuid()}/auth-graph/preview",
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
     private async Task<Guid> GetManagementSystemSuiteIdAsync(Guid tenantId, CancellationToken ct)
     {
         var response = await _client.GetAsync($"/api/v1/system-suites?page=1&pageSize=20&tenantId={tenantId}", ct);

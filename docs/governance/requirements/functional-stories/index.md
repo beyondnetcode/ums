@@ -34,6 +34,9 @@ Welcome to the master **Functional Stories** index for the User Management Syste
 *   **[FS-22: User Signup Request and Approval](./fs-22-user-signup-request-approval.md)**
 *   **[FS-23: Profile Access Request from Lobby User](./fs-23-profile-access-request.md)**
 *   **[FS-24: Profile Request Approval and Manual Assignment](./fs-24-profile-request-approval.md)**
+*   **[FS-25: Manage Domain Resources with DDD Hierarchy](./fs-25-ddd-domain-resource-hierarchy.md)**
+*   **[FS-26: Preview Auth Graph from Profile Maintenance](./fs-26-auth-graph-preview-from-profile.md)**
+*   **[FS-27: State-Change Consistency — Broken Rules on Active Dependencies](./fs-27-state-change-consistency-broken-rules.md)**
 
 ---
 

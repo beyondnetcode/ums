@@ -518,6 +518,7 @@ public class SystemSuiteTests
 
         var result = suite.AddDomainResource(
             null,
+            null,
             DomainResourceType.Aggregate,
             Code.Create("INVOICE"),
             Name.Create("Invoice Aggregate"),
@@ -532,13 +533,99 @@ public class SystemSuiteTests
     public void RemoveDomainResource_WhenResourceExists_ReturnsSuccess()
     {
         var suite = SystemSuite.Create(TenantId.Create(), Code.Create("TEST"), Name.Create("Suite"), Description.Create("Desc"), ValidActor).Value;
-        suite.AddDomainResource(null, DomainResourceType.Aggregate, Code.Create("INV"), Name.Create("Invoice"), Description.Create("Desc"), ValidActor);
+        suite.AddDomainResource(null, null, DomainResourceType.Aggregate, Code.Create("INV"), Name.Create("Invoice"), Description.Create("Desc"), ValidActor);
         var resource = suite.DomainResources.First();
 
         var result = suite.RemoveDomainResource(resource.GetId(), ValidActor);
 
         Assert.True(result.IsSuccess);
         Assert.Empty(suite.DomainResources);
+    }
+
+    [Fact]
+    public void AddDomainResource_DomainMethodWithoutParent_ReturnsBrokenRule()
+    {
+        var suite = SystemSuite.Create(TenantId.Create(), Code.Create("TEST"), Name.Create("Suite"), Description.Create("Desc"), ValidActor).Value;
+
+        var result = suite.AddDomainResource(
+            null,
+            null,
+            DomainResourceType.DomainMethod,
+            Code.Create("RESET_PWD"),
+            Name.Create("ResetPassword()"),
+            Description.Create("Resets user password"),
+            ValidActor);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains(DomainErrors.Authorization.DomainMethodRequiresParent, result.Error);
+    }
+
+    [Fact]
+    public void AddDomainResource_DomainMethodWithDomainMethodParent_ReturnsBrokenRule()
+    {
+        var suite = SystemSuite.Create(TenantId.Create(), Code.Create("TEST"), Name.Create("Suite"), Description.Create("Desc"), ValidActor).Value;
+
+        // Add an Aggregate first, then add a DomainMethod as child
+        suite.AddDomainResource(null, null, DomainResourceType.Aggregate, Code.Create("USERS"), Name.Create("Users"), Description.Create("Desc"), ValidActor);
+        var aggregate = suite.DomainResources.First();
+
+        suite.AddDomainResource(null, aggregate.Props.Id, DomainResourceType.DomainMethod, Code.Create("RESET_PWD"), Name.Create("ResetPassword()"), Description.Create("Desc"), ValidActor);
+        var domainMethod = suite.DomainResources.Last();
+
+        // Now try to add a DomainMethod with another DomainMethod as parent
+        var result = suite.AddDomainResource(
+            null,
+            domainMethod.Props.Id,
+            DomainResourceType.DomainMethod,
+            Code.Create("NESTED_METHOD"),
+            Name.Create("Nested Method"),
+            Description.Create("Invalid nesting"),
+            ValidActor);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains(DomainErrors.Authorization.DomainMethodCannotBeParent, result.Error);
+    }
+
+    [Fact]
+    public void AddDomainResource_DomainMethodWithValidParent_Succeeds()
+    {
+        var suite = SystemSuite.Create(TenantId.Create(), Code.Create("TEST"), Name.Create("Suite"), Description.Create("Desc"), ValidActor).Value;
+        suite.AddDomainResource(null, null, DomainResourceType.Aggregate, Code.Create("USERS"), Name.Create("Users"), Description.Create("Desc"), ValidActor);
+        var aggregate = suite.DomainResources.First();
+
+        var result = suite.AddDomainResource(
+            null,
+            aggregate.Props.Id,
+            DomainResourceType.DomainMethod,
+            Code.Create("RESET_PWD"),
+            Name.Create("ResetPassword()"),
+            Description.Create("Resets user password through the aggregate"),
+            ValidActor);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(2, suite.DomainResources.Count);
+        Assert.Equal(aggregate.Props.Id.GetValue(), suite.DomainResources.Last().Props.ParentResourceId?.GetValue());
+    }
+
+    [Fact]
+    public void AddDomainResource_EntityWithValidAggregateParent_Succeeds()
+    {
+        var suite = SystemSuite.Create(TenantId.Create(), Code.Create("TEST"), Name.Create("Suite"), Description.Create("Desc"), ValidActor).Value;
+        suite.AddDomainResource(null, null, DomainResourceType.Aggregate, Code.Create("ORDERS"), Name.Create("Orders"), Description.Create("Desc"), ValidActor);
+        var aggregate = suite.DomainResources.First();
+
+        var result = suite.AddDomainResource(
+            null,
+            aggregate.Props.Id,
+            DomainResourceType.Entity,
+            Code.Create("ORDER_LINE"),
+            Name.Create("OrderLine"),
+            Description.Create("Line item within an order"),
+            ValidActor);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(2, suite.DomainResources.Count);
+        Assert.Equal(aggregate.Props.Id.GetValue(), suite.DomainResources.Last().Props.ParentResourceId?.GetValue());
     }
     #endregion
 

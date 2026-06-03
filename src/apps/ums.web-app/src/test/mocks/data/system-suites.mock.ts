@@ -131,10 +131,10 @@ const logisticsCoreActions = [
 ];
 
 const logisticsCoreDomainResources: SystemSuiteDomainResource[] = [
-  { id: 'users-agg-id', type: 'Aggregate', code: 'USERS', name: 'Users Aggregate', description: 'User Management', moduleId: null },
-  { id: 'inventory-agg-id', type: 'Aggregate', code: 'INVENTORY', name: 'Inventory Aggregate', description: 'Inventory Management', moduleId: null },
-  { id: 'audit-log-ent-id', type: 'Entity', code: 'AUDIT_LOG', name: 'Audit Log Entity', description: 'Audit Logs', moduleId: null },
-  { id: 'stock-level-ent-id', type: 'Entity', code: 'STOCK_LEVEL', name: 'Stock Level Entity', description: 'Stock Levels', moduleId: null },
+  { id: 'users-agg-id', type: 'Aggregate', code: 'USERS', name: 'Users Aggregate', description: 'User Management', moduleId: null, parentResourceId: null },
+  { id: 'inventory-agg-id', type: 'Aggregate', code: 'INVENTORY', name: 'Inventory Aggregate', description: 'Inventory Management', moduleId: null, parentResourceId: null },
+  { id: 'audit-log-ent-id', type: 'Entity', code: 'AUDIT_LOG', name: 'Audit Log Entity', description: 'Audit Logs', moduleId: null, parentResourceId: null },
+  { id: 'stock-level-ent-id', type: 'Entity', code: 'STOCK_LEVEL', name: 'Stock Level Entity', description: 'Stock Levels', moduleId: null, parentResourceId: null },
 ];
 
 // ── Suite 2: WMS ────────────────────────────────────────────────────────────
