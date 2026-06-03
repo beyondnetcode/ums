@@ -58,6 +58,9 @@ UMS is a satellite repository of `evolith_arch32`. The parent repository defines
 | [ADR-0075](./0075-onboarding-approval-inbox-and-scope-based-authorization.md) | Onboarding Approval Inbox and Scope-Based Authorization | Accepted |
 | [ADR-0076](./0076-utc-dates-timezone-language-resolution.md) | UTC Dates, Timezone and Language Resolution | Accepted |
 | [ADR-0077](./0077-tenant-portal-management-authorization-boundary.md) | Tenant Portal Management Authorization Boundary and Scope Policy | Accepted |
+| [ADR-0078](./0078-ddd-domain-resource-hierarchy.md) | DDD Domain Resource Hierarchy — Aggregate, Entity, DomainMethod | Accepted |
+| [ADR-0079](./0079-dependency-guard-policy.md) | Dependency Guard Policy — Blocking Operations on Active Dependencies | Accepted |
+| [ADR-0080](./0080-auth-graph-preview-internal-pipeline.md) | Auth Graph Preview — Internal vs External Pipeline | Accepted |
 
 > **Evolith candidate** - ADR has zero UMS-specific dependencies and is proposed for extraction to the Evolith parent architecture baseline.
 
@@ -65,7 +68,7 @@ UMS is a satellite repository of `evolith_arch32`. The parent repository defines
 
 ## Bilingual Coverage (R-01 Compliance)
 
-All ADRs (0050-0077) now have Spanish translations:
+All ADRs (0050-0080) now have Spanish translations:
 
 | ADR | Spanish | ADR | Spanish |
 |-----|---------|-----|---------|
