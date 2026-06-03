@@ -61,5 +61,5 @@ If the profile ID does not exist, the system returns HTTP 400 with an error mess
 ## 9. Traceability
 
 - Entities: `PROFILE`, `AUTH_GRAPH`
-- ADRs: [ADR-0071](../../architecture/adrs/0071-auth-graph-engine.md), [ADR-0080](../../architecture/adrs/0080-auth-graph-preview-internal-pipeline.md)
+- ADRs: [ADR-0071](../../../architecture/adrs/0071-auth-graph-engine.md), [ADR-0080](../../../architecture/adrs/0080-auth-graph-preview-internal-pipeline.md)
 - Related stories: FS-07

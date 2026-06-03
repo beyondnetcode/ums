@@ -66,4 +66,4 @@ If the resource is referenced in one or more active permission templates, the sy
 ## 9. Traceability
 
 - Entities: `DOMAIN_RESOURCE`, `SYSTEM_SUITE`
-- ADRs: [ADR-0078](../../architecture/adrs/0078-ddd-domain-resource-hierarchy.md), [ADR-0079](../../architecture/adrs/0079-dependency-guard-policy.md)
+- ADRs: [ADR-0078](../../../architecture/adrs/0078-ddd-domain-resource-hierarchy.md), [ADR-0079](../../../architecture/adrs/0079-dependency-guard-policy.md)

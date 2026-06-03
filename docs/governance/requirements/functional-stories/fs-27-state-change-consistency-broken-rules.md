@@ -62,4 +62,4 @@ The response lists all blocking dependency groups, each with its own `entityType
 ## 9. Traceability
 
 - Entities: `TENANT`, `USER_ACCOUNT`, `PROFILE`, `ROLE`, `PERMISSION_TEMPLATE`, `DOMAIN_RESOURCE`, `MODULE`
-- ADRs: [ADR-0079](../../architecture/adrs/0079-dependency-guard-policy.md)
+- ADRs: [ADR-0079](../../../architecture/adrs/0079-dependency-guard-policy.md)

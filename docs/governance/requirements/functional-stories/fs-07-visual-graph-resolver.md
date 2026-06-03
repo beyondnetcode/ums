@@ -63,5 +63,5 @@ If both allow and deny rules apply, the system explains that explicit deny takes
 ## 9. Traceability
 
 - Entities: `PROFILE`, `PROFILE_PERMISSION`, `PERMISSION_TEMPLATE`, `ACTION`
-- ADRs: ADR-0021, ADR-0039, [ADR-0080](../../architecture/adrs/0080-auth-graph-preview-internal-pipeline.md)
+- ADRs: ADR-0021, ADR-0039, [ADR-0080](../../../architecture/adrs/0080-auth-graph-preview-internal-pipeline.md)
 - Technical Enabler: TE-01
