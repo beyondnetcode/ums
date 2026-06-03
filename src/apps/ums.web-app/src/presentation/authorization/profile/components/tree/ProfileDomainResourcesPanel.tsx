@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import {
   Layers, Component, CheckCircle2, XCircle, MinusCircle, Database,
   ChevronRight, ChevronDown, Plus, Eye, ListFilter, Pencil, Trash2, Zap,
+  FunctionSquare,
 } from 'lucide-react';
 import type { SystemSuite } from '@domain/authorization/models/system-suite.model';
 import type { ProfilePermission } from '@domain/authorization/models/profile.model';
@@ -10,12 +11,12 @@ import { CodeBadge } from '@shared/components/CodeBadge';
 
 export type DomainResourceNode = {
   id: string;
-  type: 'Aggregate' | 'Entity' | 'CrudOperation' | 'CustomAction';
+  type: 'Aggregate' | 'Entity' | 'DomainMethod' | 'CrudOperation' | 'CustomAction';
   label: string;
   code: string;
   description: string;
   parentId?: string;
-  parentType?: 'Aggregate' | 'Entity';
+  parentType?: 'Aggregate' | 'Entity' | 'DomainMethod';
   children: DomainResourceNode[];
   permissions: ProfilePermission[];
   level: number;
@@ -65,44 +66,67 @@ function buildDomainResourceTree(
 
   const resources = suite.domainResources ?? [];
 
-  return resources.map(resource => {
-    const crudOperations: DomainResourceNode[] = CRUD_OPERATIONS.map(op => ({
-      id: `${resource.id}:crud:${op.code}`,
+  const buildLeafChildren = (resourceId: string, resourceCode: string, resourceType: 'Aggregate' | 'Entity' | 'DomainMethod', baseLevel: number): DomainResourceNode[] => {
+    const crudOps: DomainResourceNode[] = CRUD_OPERATIONS.map(op => ({
+      id: `${resourceId}:crud:${op.code}`,
       type: 'CrudOperation' as const,
       label: op.name,
-      code: `${resource.code}.${op.code}`,
+      code: `${resourceCode}.${op.code}`,
       description: op.description,
-      parentId: resource.id,
-      parentType: resource.type,
-      level: 1,
-      permissions: permissionsByTargetId[`${resource.id}:crud:${op.code}`] || [],
+      parentId: resourceId,
+      parentType: resourceType,
+      level: baseLevel,
+      permissions: permissionsByTargetId[`${resourceId}:crud:${op.code}`] || [],
       children: [],
     }));
 
-    const customActions: DomainResourceNode[] = (resource.customActions ?? []).map(action => ({
-      id: `${resource.id}:action:${action.id}`,
-      type: 'CustomAction' as const,
-      label: action.name,
-      code: `${resource.code}.${action.code}`,
-      description: action.description,
-      parentId: resource.id,
-      parentType: resource.type,
-      level: 1,
-      permissions: permissionsByTargetId[`${resource.id}:action:${action.id}`] || [],
-      children: [],
-    }));
+    const domainMethods: DomainResourceNode[] = resources
+      .filter(r => r.type === 'DomainMethod' && r.parentResourceId === resourceId)
+      .map(r => ({
+        id: r.id,
+        type: 'DomainMethod' as const,
+        label: r.name,
+        code: r.code,
+        description: r.description,
+        parentId: resourceId,
+        parentType: resourceType,
+        level: baseLevel,
+        permissions: permissionsByTargetId[r.id] || [],
+        children: [],
+      }));
 
-    const resourcePerms = permissionsByTargetId[resource.id] || [];
+    return [...crudOps, ...domainMethods];
+  };
+
+  const rootResources = resources.filter(r => !r.parentResourceId && r.type !== 'DomainMethod');
+
+  return rootResources.map(resource => {
+    const childEntities: DomainResourceNode[] = resources
+      .filter(r => r.parentResourceId === resource.id && r.type === 'Entity')
+      .map(child => ({
+        id: child.id,
+        type: 'Entity' as const,
+        label: child.name,
+        code: child.code,
+        description: child.description,
+        parentId: resource.id,
+        parentType: resource.type as 'Aggregate' | 'Entity' | 'DomainMethod',
+        level: 1,
+        permissions: permissionsByTargetId[child.id] || [],
+        children: buildLeafChildren(child.id, child.code, 'Entity', 2),
+      }));
+
+    const ownLeaves = buildLeafChildren(resource.id, resource.code, resource.type as 'Aggregate' | 'Entity' | 'DomainMethod', 1);
 
     return {
       id: resource.id,
-      type: resource.type,
+      type: resource.type as 'Aggregate' | 'Entity' | 'DomainMethod',
       label: resource.name,
       code: resource.code,
       description: resource.description,
       level: 0,
-      permissions: resourcePerms,
-      children: [...crudOperations, ...customActions],
+      permissions: permissionsByTargetId[resource.id] || [],
+      children: [...childEntities, ...ownLeaves],
     };
   });
 }
@@ -156,6 +180,7 @@ function computeNodeState(node: DomainResourceNode): 'Allow' | 'Deny' | 'Partial
 const TYPE_ICON: Record<string, React.ReactNode> = {
   Aggregate: <Layers className="w-3 h-3" />,
   Entity: <Component className="w-3 h-3" />,
+  DomainMethod: <FunctionSquare className="w-3 h-3" />,
   CrudOperation: <Zap className="w-3 h-3" />,
   CustomAction: <Zap className="w-3 h-3" />,
 };
@@ -163,6 +188,7 @@ const TYPE_ICON: Record<string, React.ReactNode> = {
 const TYPE_COLOR: Record<string, string> = {
   Aggregate: 'bg-purple-500/10 text-purple-500',
   Entity: 'bg-emerald-500/10 text-emerald-500',
+  DomainMethod: 'bg-orange-500/10 text-orange-500',
   CrudOperation: 'bg-blue-500/10 text-blue-500',
   CustomAction: 'bg-amber-500/10 text-amber-500',
 };
@@ -224,7 +250,7 @@ const DomainResourceRow: React.FC<{
       )}
 
       <span className={`text-[8px] font-bold uppercase px-1 py-0.5 rounded border border-current ${color}`}>
-        {node.type === 'CrudOperation' ? node.code.split('.').pop() : node.type}
+        {node.type === 'CrudOperation' ? node.code.split('.').pop() : node.type === 'DomainMethod' ? 'METHOD' : node.type}
       </span>
 
       <div className={`shrink-0 ${stateInfo.color} mr-2`} title={`Estado Efectivo: ${state}`}>
@@ -323,6 +349,7 @@ export const ProfileDomainResourcesPanel: React.FC<ProfileDomainResourcesPanelPr
           { label: 'Todos', value: 'all' },
           { label: 'Agregados', value: 'Aggregate' },
           { label: 'Entidades', value: 'Entity' },
+          { label: 'Métodos', value: 'DomainMethod' },
         ]}
         activeFilter={activeFilter}
         onFilterChange={setActiveFilter}

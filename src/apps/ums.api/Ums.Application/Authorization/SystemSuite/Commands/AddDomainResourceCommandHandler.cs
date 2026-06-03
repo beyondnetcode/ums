@@ -25,9 +25,11 @@ public sealed class AddDomainResourceCommandHandler(ISystemSuiteRepository repos
         if (type is null) return Result.Failure($"Invalid DomainResourceType: {request.Type}");
 
         var moduleId = request.ModuleId.HasValue ? ModuleId.Load(request.ModuleId.Value) : null;
+        var parentId = request.ParentResourceId.HasValue ? IdValueObject.Load(request.ParentResourceId.Value) : null;
 
         var result = suite.AddDomainResource(
             moduleId,
+            parentId,
             type,
             Code.Create(request.Code),
             Name.Create(request.Name),

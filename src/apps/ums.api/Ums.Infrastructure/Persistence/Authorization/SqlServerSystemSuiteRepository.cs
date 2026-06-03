@@ -205,6 +205,7 @@ public sealed class SqlServerSystemSuiteRepository(UmsPlatformDbContext dbContex
                     Id = x.Props.Id.GetValue(),
                     SystemSuiteId = x.Props.SystemSuiteId.GetValue(),
                     ModuleId = x.Props.ModuleId?.GetValue(),
+                    ParentResourceId = x.Props.ParentResourceId?.GetValue(),
                     Type = x.Props.Type.Name,
                     Code = x.Props.Code.GetValue(),
                     Name = x.Props.Name.GetValue(),

@@ -112,6 +112,10 @@ public static class DomainErrors
         public const string RolePromotionOrderInvalid = "authorization.role_promotion_order_invalid";
         public const string ActionAlreadyGranted = "authorization.action_already_granted";
         public const string ActionNotGranted = "authorization.action_not_granted";
+        public const string DomainMethodRequiresParent   = "authorization.domain_method_requires_parent";
+        public const string ParentResourceNotFound       = "authorization.parent_resource_not_found";
+        public const string DomainMethodCannotBeParent   = "authorization.domain_method_cannot_be_parent";
+        public const string AggregateRequiresChildEntity = "authorization.aggregate_requires_child_entity";
     }
 
     public static class Approvals

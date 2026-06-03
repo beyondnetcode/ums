@@ -8,6 +8,8 @@ public sealed class DomainResource : Entity<DomainResource, DomainResourceProps>
 
     public SystemSuiteId SystemSuiteId => Props.SystemSuiteId;
     public ModuleId? ModuleId => Props.ModuleId;
+    /// <summary>Non-null when this Entity or DomainMethod belongs to a parent Aggregate.</summary>
+    public IdValueObject? ParentResourceId => Props.ParentResourceId;
     public DomainResourceType Type => Props.Type;
     public Code Code => Props.Code;
     public Name Name => Props.Name;
@@ -18,13 +20,14 @@ public sealed class DomainResource : Entity<DomainResource, DomainResourceProps>
     public static Result<DomainResource> Create(
         SystemSuiteId systemSuiteId,
         ModuleId? moduleId,
+        IdValueObject? parentResourceId,
         DomainResourceType type,
         Code code,
         Name name,
         Description description,
         ActorId createdBy)
     {
-        var props = new DomainResourceProps(IdValueObject.Create(), systemSuiteId, moduleId, type, code, name, description, createdBy);
+        var props = new DomainResourceProps(IdValueObject.Create(), systemSuiteId, moduleId, parentResourceId, type, code, name, description, createdBy);
         var domainResource = new DomainResource(props);
 
         if (!domainResource.IsValid())

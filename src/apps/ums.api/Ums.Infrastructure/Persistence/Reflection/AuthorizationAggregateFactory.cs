@@ -275,6 +275,7 @@ internal static class AuthorizationAggregateFactory
             IdValueObject.Load(record.Id),
             SystemSuiteId.Load(record.SystemSuiteId),
             record.ModuleId.HasValue ? ModuleId.Load(record.ModuleId.Value) : null,
+            record.ParentResourceId.HasValue ? IdValueObject.Load(record.ParentResourceId.Value) : null,
             DomainEnumerationMapper.FromName<DomainResourceType>(record.Type),
             Code.Create(record.Code),
             Name.Create(record.Name),

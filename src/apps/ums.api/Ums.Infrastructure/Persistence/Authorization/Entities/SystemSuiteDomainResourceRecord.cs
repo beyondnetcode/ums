@@ -7,7 +7,8 @@ public sealed class SystemSuiteDomainResourceRecord : IAuditableRecord
     public Guid Id { get; set; }
     public Guid SystemSuiteId { get; set; }
     public Guid? ModuleId { get; set; }
-    public string Type { get; set; } = null!; // Aggregate or Entity
+    public Guid? ParentResourceId { get; set; }
+    public string Type { get; set; } = null!; // Aggregate | Entity | DomainMethod
     public string Code { get; set; } = null!;
     public string Name { get; set; } = null!;
     public string Description { get; set; } = null!;

@@ -5,6 +5,8 @@ public class DomainResourceProps : IProps
     public IdValueObject Id { get; private set; }
     public SystemSuiteId SystemSuiteId { get; private set; }
     public ModuleId? ModuleId { get; private set; }
+    /// <summary>Id of the parent Aggregate when this resource is a child Entity or DomainMethod.</summary>
+    public IdValueObject? ParentResourceId { get; private set; }
     public DomainResourceType Type { get; private set; }
     public Code Code { get; private set; }
     public Name Name { get; private set; }
@@ -15,6 +17,7 @@ public class DomainResourceProps : IProps
         IdValueObject id,
         SystemSuiteId systemSuiteId,
         ModuleId? moduleId,
+        IdValueObject? parentResourceId,
         DomainResourceType type,
         Code code,
         Name name,
@@ -24,6 +27,7 @@ public class DomainResourceProps : IProps
         Id = id;
         SystemSuiteId = systemSuiteId;
         ModuleId = moduleId;
+        ParentResourceId = parentResourceId;
         Type = type;
         Code = code;
         Name = name;

@@ -75,7 +75,8 @@ export const SystemSuiteCustomActionSchema = z.object({
 export const SystemSuiteDomainResourceSchema = z.object({
   id: z.string().uuid(),
   moduleId: z.string().uuid().nullable().optional(),
-  type: z.enum(['Aggregate', 'Entity']),
+  parentResourceId: z.string().uuid().nullable().optional(),
+  type: z.enum(['Aggregate', 'Entity', 'DomainMethod']),
   code: z.string(),
   name: z.string(),
   description: z.string(),

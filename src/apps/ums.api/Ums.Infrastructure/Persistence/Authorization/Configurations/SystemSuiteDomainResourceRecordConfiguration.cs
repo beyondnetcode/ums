@@ -11,6 +11,7 @@ public sealed class SystemSuiteDomainResourceRecordConfiguration : IEntityTypeCo
         builder.ToTable("SystemSuiteDomainResources", AuthorizationPersistenceConstants.Schema);
         builder.HasKey(x => x.Id);
 
+        builder.Property(x => x.ParentResourceId).IsRequired(false);
         builder.Property(x => x.Type).HasMaxLength(50).IsRequired();
         builder.Property(x => x.Code).HasMaxLength(100).IsRequired();
         builder.Property(x => x.Name).HasMaxLength(200).IsRequired();

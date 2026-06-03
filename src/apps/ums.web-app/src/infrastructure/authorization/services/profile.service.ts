@@ -11,6 +11,19 @@ import {
   type CreateProfileResponse,
 } from '@domain/authorization/schemas/profile.schema';
 
+/** Response from GET /profiles/{id}/auth-graph/preview */
+export interface PreviewAuthGraphResponse {
+  format: string;
+  graph: string;
+  requestId: string;
+  previewMode: string;
+  profileId: string;
+  userId: string;
+  tenantId: string;
+  tenantCode: string;
+  authMethodUsed: string;
+}
+
 export const profileService = {
   // ── Queries (GraphQL) ────────────────────────────────────────────────────────
 
@@ -102,6 +115,19 @@ export const profileService = {
       responseType: 'text',
     });
     return data as string;
+  },
+
+  /**
+   * Calls the same auth-graph pipeline as POST /client/authenticate.
+   * Returns the exact graph a client system would receive, without credential validation.
+   * Requires an authenticated UMS admin session.
+   */
+  previewAuthGraph: async (profileId: string, format?: string): Promise<PreviewAuthGraphResponse> => {
+    const { data } = await httpClient.get<PreviewAuthGraphResponse>(
+      `/profiles/${profileId}/auth-graph/preview`,
+      { params: format ? { format } : undefined },
+    );
+    return data;
   },
 };
 

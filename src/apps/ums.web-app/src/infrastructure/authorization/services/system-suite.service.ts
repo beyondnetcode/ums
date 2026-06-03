@@ -237,7 +237,7 @@ export const systemSuiteService = {
 
   addDomainResource: async (
     systemSuiteId: string,
-    payload: { moduleId?: string | null; type: 'Aggregate' | 'Entity'; code: string; name: string; description: string; },
+    payload: { moduleId?: string | null; parentResourceId?: string | null; type: 'Aggregate' | 'Entity' | 'DomainMethod'; code: string; name: string; description: string; },
   ): Promise<void> => {
     await httpClient.post(`/system-suites/${systemSuiteId}/domain-resources`, payload);
   },

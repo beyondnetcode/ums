@@ -56,7 +56,8 @@ export const RegisterActionCommandSchema = z.object({
 
 export const AddDomainResourceCommandSchema = z.object({
   moduleId: z.string().uuid().nullable().optional(),
-  type: z.enum(['Aggregate', 'Entity']),
+  parentResourceId: z.string().uuid().nullable().optional(),
+  type: z.enum(['Aggregate', 'Entity', 'DomainMethod']),
   code: z
     .string()
     .min(1, 'Código requerido')
@@ -64,7 +65,10 @@ export const AddDomainResourceCommandSchema = z.object({
     .regex(codeRegex, 'Solo letras, dígitos y guiones bajos'),
   name: z.string().min(1, 'Nombre requerido').max(150, 'Máximo 150 caracteres'),
   description: z.string().min(1, 'Descripción requerida').max(500, 'Máximo 500 caracteres'),
-});
+}).refine(
+  data => data.type !== 'DomainMethod' || !!data.parentResourceId,
+  { message: 'Un método de dominio debe pertenecer a un recurso padre.', path: ['parentResourceId'] },
+);
 
 export const UpdateDomainResourceCommandSchema = z.object({
   name: z.string().min(1, 'Nombre requerido').max(150, 'Máximo 150 caracteres'),
@@ -79,4 +83,5 @@ export type AddModuleCommand = z.infer<typeof AddModuleCommandSchema>;
 export type UpdateModuleCommand = z.infer<typeof UpdateModuleCommandSchema>;
 export type RegisterActionCommand = z.infer<typeof RegisterActionCommandSchema>;
 export type AddDomainResourceCommand = z.infer<typeof AddDomainResourceCommandSchema>;
+export type DomainResourceKind = 'Aggregate' | 'Entity' | 'DomainMethod';
 export type UpdateDomainResourceCommand = z.infer<typeof UpdateDomainResourceCommandSchema>;

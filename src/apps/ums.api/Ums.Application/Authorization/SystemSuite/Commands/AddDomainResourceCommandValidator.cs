@@ -23,7 +23,11 @@ public sealed class AddDomainResourceCommandValidator : AbstractValidator<AddDom
 
         RuleFor(x => x.Type)
             .NotEmpty().WithMessage("Type is required.")
-            .Must(t => t == "Aggregate" || t == "Entity")
-            .WithMessage("Type must be 'Aggregate' or 'Entity'.");
+            .Must(t => t == "Aggregate" || t == "Entity" || t == "DomainMethod")
+            .WithMessage("Type must be 'Aggregate', 'Entity', or 'DomainMethod'.");
+
+        RuleFor(x => x.ParentResourceId)
+            .NotEmpty().WithMessage("ParentResourceId is required for DomainMethod resources.")
+            .When(x => x.Type == "DomainMethod");
     }
 }

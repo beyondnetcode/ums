@@ -76,6 +76,7 @@ const GET_SYSTEM_SUITES = `
           name
           description
           moduleId
+          parentResourceId
         }
       }
       page
@@ -137,6 +138,7 @@ const GET_SYSTEM_SUITE_BY_ID = `
         name
         description
         moduleId
+        parentResourceId
       }
     }
   }
@@ -150,11 +152,12 @@ export interface GraphqlSystemSuiteActionDto {
 
 export interface GraphqlDomainResourceDto {
   id: string;
-  type: 'Aggregate' | 'Entity';
+  type: 'Aggregate' | 'Entity' | 'DomainMethod';
   code: string;
   name: string;
   description: string;
   moduleId: string | null;
+  parentResourceId: string | null;
 }
 
 export interface GraphqlSystemSuiteOptionDto {

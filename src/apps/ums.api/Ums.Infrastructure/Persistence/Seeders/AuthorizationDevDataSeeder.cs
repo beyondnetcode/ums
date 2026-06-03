@@ -289,10 +289,10 @@ public static class AuthorizationDevDataSeeder
             // GAP-4: Add domain resources linked to modules
             var secMod = suite.Modules.First(m => m.Code.GetValue() == "SEC");
             var configMod = suite.Modules.First(m => m.Code.GetValue() == "CONFIG");
-            suite.AddDomainResource(secMod.GetId(), DomainResourceType.Aggregate, Code.Create("USERS"), Name.Create("Users Aggregate"), Description.Create("User Management aggregate root"), actor);
-            suite.AddDomainResource(secMod.GetId(), DomainResourceType.Aggregate, Code.Create("INVENTORY"), Name.Create("Inventory Aggregate"), Description.Create("Inventory Management aggregate root"), actor);
-            suite.AddDomainResource(secMod.GetId(), DomainResourceType.Entity, Code.Create("AUDIT_LOG"), Name.Create("Audit Log Entity"), Description.Create("Audit log entity for tracking operations"), actor);
-            suite.AddDomainResource(configMod.GetId(), DomainResourceType.Entity, Code.Create("STOCK_LEVEL"), Name.Create("Stock Level Entity"), Description.Create("Stock level entity linked to config module"), actor);
+            suite.AddDomainResource(secMod.GetId(), null, DomainResourceType.Aggregate, Code.Create("USERS"), Name.Create("Users Aggregate"), Description.Create("User Management aggregate root"), actor);
+            suite.AddDomainResource(secMod.GetId(), null, DomainResourceType.Aggregate, Code.Create("INVENTORY"), Name.Create("Inventory Aggregate"), Description.Create("Inventory Management aggregate root"), actor);
+            suite.AddDomainResource(secMod.GetId(), null, DomainResourceType.Entity, Code.Create("AUDIT_LOG"), Name.Create("Audit Log Entity"), Description.Create("Audit log entity for tracking operations"), actor);
+            suite.AddDomainResource(configMod.GetId(), null, DomainResourceType.Entity, Code.Create("STOCK_LEVEL"), Name.Create("Stock Level Entity"), Description.Create("Stock level entity linked to config module"), actor);
 
             suites.Add(suite);
         }
@@ -376,9 +376,9 @@ public static class AuthorizationDevDataSeeder
 
             // Add domain resources for WMS
             var invMod = suite.Modules.First(m => m.Code.GetValue() == "INV");
-            suite.AddDomainResource(invMod.GetId(), DomainResourceType.Aggregate, Code.Create("INVENTORY_WMS"), Name.Create("WMS Inventory Aggregate"), Description.Create("Warehouse Inventory Management"), actor);
-            suite.AddDomainResource(invMod.GetId(), DomainResourceType.Entity, Code.Create("STOCK_MOVEMENT"), Name.Create("Stock Movement Entity"), Description.Create("Stock Movement Tracking"), actor);
-            suite.AddDomainResource(invMod.GetId(), DomainResourceType.Entity, Code.Create("TRANSFER_ORDER"), Name.Create("Transfer Order Entity"), Description.Create("Warehouse Transfer Orders"), actor);
+            suite.AddDomainResource(invMod.GetId(), null, DomainResourceType.Aggregate, Code.Create("INVENTORY_WMS"), Name.Create("WMS Inventory Aggregate"), Description.Create("Warehouse Inventory Management"), actor);
+            suite.AddDomainResource(invMod.GetId(), null, DomainResourceType.Entity, Code.Create("STOCK_MOVEMENT"), Name.Create("Stock Movement Entity"), Description.Create("Stock Movement Tracking"), actor);
+            suite.AddDomainResource(invMod.GetId(), null, DomainResourceType.Entity, Code.Create("TRANSFER_ORDER"), Name.Create("Transfer Order Entity"), Description.Create("Warehouse Transfer Orders"), actor);
 
             suites.Add(suite);
         }
@@ -727,6 +727,7 @@ public static class AuthorizationDevDataSeeder
                 if (!existingResources.Any(dr => dr.Code.GetValue() == codeToAdd.Code))
                 {
                     suite.AddDomainResource(
+                        null,
                         null,
                         codeToAdd.Type,
                         Code.Create(codeToAdd.Code),

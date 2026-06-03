@@ -62,6 +62,7 @@ public sealed record SystemSuiteDto(
             suite.DomainResources.Select(dr => new SystemSuiteDomainResourceDto(
                 dr.Props.Id.GetValue(),
                 dr.ModuleId?.GetValue(),
+                dr.ParentResourceId?.GetValue(),
                 dr.Type.Name,
                 dr.Code.GetValue(),
                 dr.Name.GetValue(),
@@ -112,6 +113,7 @@ public sealed record SystemSuiteActionDto(
 public sealed record SystemSuiteDomainResourceDto(
     Guid Id,
     Guid? ModuleId,
+    Guid? ParentResourceId,
     string Type,
     string Code,
     string Name,

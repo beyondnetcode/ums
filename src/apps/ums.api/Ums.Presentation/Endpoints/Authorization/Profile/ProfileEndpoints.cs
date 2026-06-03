@@ -1,6 +1,10 @@
 namespace Ums.Presentation.Endpoints.Authorization.Profile;
 
 using Ums.Application.Common;
+using Ums.Application.Authorization.Graph;
+using Ums.Application.Authorization.Graph.Serializers;
+using Ums.Application.Common.Interfaces;
+using BeyondNetCode.Shell.Factory.Interfaces;
 using Ums.Application.Authorization.Profile.Commands;
 using Ums.Application.Authorization.Profile.DTOs;
 using Ums.Application.Authorization.Profile.Exporters;
@@ -124,6 +128,85 @@ public static class ProfileEndpoints
         .ProducesProblem(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status409Conflict);
 
+        // ── Auth Graph Preview (same pipeline as POST /client/authenticate) ──────
+        group.MapGet("/{profileId:guid}/auth-graph/preview", async (
+            Guid          profileId,
+            [FromQuery]   string? format,
+            IMediator     mediator,
+            IUserContext  userContext,
+            IAuthGraphFormatProvider formatProvider,
+            IFactory      factory,
+            HttpContext   context,
+            CancellationToken ct) =>
+        {
+            if (!userContext.IsAuthenticated)
+                return Results.Unauthorized();
+
+            var clientIp = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+            var command = new PreviewProfileAuthGraphCommand(
+                ProfileId:   profileId,
+                AdminUserId: userContext.UserId ?? string.Empty,
+                ClientIp:    clientIp);
+
+            var result = await mediator.Send(command, ct);
+
+            if (result.IsFailure)
+                return Results.BadRequest(new { error = result.Error, errorId = Guid.NewGuid() });
+
+            var preview = result.Value;
+            var graph   = preview.Graph;
+
+            // Allow format override — same logic as ClientAuthEndpoints
+            var requestedFormat = format?.ToUpperInvariant();
+            var resolvedFormat  = preview.GraphFormat;
+            var serialized      = preview.SerializedGraph;
+
+            if (!string.IsNullOrWhiteSpace(requestedFormat) && requestedFormat != resolvedFormat)
+            {
+                var overrideFormat = await formatProvider.ResolveFormatAsync(
+                    preview.TenantId, requestedFormat, ct);
+
+                if (overrideFormat != resolvedFormat)
+                {
+                    var criteria   = new GraphSerializationCriteria(overrideFormat);
+                    var serializer = factory
+                        .Create<GraphSerializationCriteria, IAuthorizationGraphSerializer>(criteria)
+                        .SingleOrDefault();
+
+                    if (serializer is not null)
+                    {
+                        serialized     = serializer.Serialize(graph);
+                        resolvedFormat = overrideFormat;
+                    }
+                }
+            }
+
+            context.Response.Headers["X-Graph-Format"] = resolvedFormat;
+            context.Response.Headers["X-Preview-Mode"] = "internal-preview";
+            context.Response.Headers["X-Request-Id"]   = preview.RequestId;
+
+            return Results.Ok(new
+            {
+                format         = resolvedFormat,
+                graph          = serialized,
+                requestId      = preview.RequestId,
+                previewMode    = "internal-preview",
+                profileId      = preview.ProfileId,
+                userId         = preview.UserId,
+                tenantId       = preview.TenantId,
+                tenantCode     = preview.TenantCode,
+                authMethodUsed = preview.AuthMethodUsed,
+            });
+        })
+        .WithName("PreviewProfileAuthGraph")
+        .WithSummary("Preview the exact auth graph a client system receives from POST /client/authenticate — same pipeline, no credential validation")
+        .Produces(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status404NotFound);
+
+        // ── Legacy profile permission-graph (profile-exporter pipeline) ────────
         group.MapGet("/{profileId:guid}/permission-graph", async (
             Guid profileId,
             IMediator mediator,

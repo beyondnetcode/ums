@@ -499,11 +499,33 @@ public sealed class SystemSuite : AggregateRoot<SystemSuite, SystemSuiteProps>
 
     // ── Domain Resource lifecycle ─────────────────────────────────────────────
 
-    public Result AddDomainResource(ModuleId? moduleId, DomainResourceType type, Code code, Name name, Description description, ActorId createdBy)
+    public Result AddDomainResource(ModuleId? moduleId, IdValueObject? parentResourceId, DomainResourceType type, Code code, Name name, Description description, ActorId createdBy)
     {
+        BrokenRules.Clear();
+
         if (_domainResources.Any(dr => dr.Code == code))
         {
-            BrokenRules.Add(new BrokenRule(nameof(DomainResources), DomainErrors.Common.Duplicate)); // Alternatively, a specific error
+            BrokenRules.Add(new BrokenRule(nameof(DomainResources), DomainErrors.Common.Duplicate));
+        }
+
+        // DDD rule: DomainMethod must belong to a parent resource
+        if (type == DomainResourceType.DomainMethod && parentResourceId is null)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(DomainResources), DomainErrors.Authorization.DomainMethodRequiresParent));
+        }
+
+        // DDD rule: parent, when provided, must exist and must be an Aggregate or Entity
+        if (parentResourceId is not null)
+        {
+            var parent = _domainResources.FirstOrDefault(r => r.Props.Id.GetValue() == parentResourceId.GetValue());
+            if (parent is null)
+            {
+                BrokenRules.Add(new BrokenRule(nameof(DomainResources), DomainErrors.Authorization.ParentResourceNotFound));
+            }
+            else if (parent.Type == DomainResourceType.DomainMethod)
+            {
+                BrokenRules.Add(new BrokenRule(nameof(DomainResources), DomainErrors.Authorization.DomainMethodCannotBeParent));
+            }
         }
 
         if (!IsValid())
@@ -511,7 +533,7 @@ public sealed class SystemSuite : AggregateRoot<SystemSuite, SystemSuiteProps>
             return Result.Failure(BrokenRules.GetBrokenRulesAsString());
         }
 
-        var drResult = DomainResourceEntity.Create(GetId(), moduleId, type, code, name, description, createdBy);
+        var drResult = DomainResourceEntity.Create(GetId(), moduleId, parentResourceId, type, code, name, description, createdBy);
         if (drResult.IsFailure)
         {
             return Result.Failure(drResult.Error);
