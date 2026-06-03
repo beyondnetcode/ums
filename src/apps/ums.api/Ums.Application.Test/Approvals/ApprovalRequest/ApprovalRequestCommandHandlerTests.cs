@@ -54,7 +54,8 @@ public class ApprovalRequestCommandHandlerTests
             UserCategory.Internal,
             requiresApproval,
             null,
-            ActorId.Create("user-001")).Value;
+            ActorId.Create("user-001"),
+            requiredDocumentCount: requiresApproval ? 1 : 0).Value;
     }
 
     // =========================================================================

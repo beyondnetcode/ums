@@ -6,6 +6,7 @@ using Ums.Domain.Authorization.Template;
 using Ums.Domain.Authorization;
 using Ums.Domain.Authorization.Role;
 using Ums.Domain.Authorization.SystemSuite;
+using Ums.Domain.Enums;
 using Ums.Domain.Kernel;
 using Ums.Application.Common.Interfaces;
 using Moq;
@@ -30,14 +31,39 @@ public class TemplateQueryHandlerTests
             SystemSuiteId.Load(Guid.NewGuid()),
             ActorId.Create("user-001")).Value;
 
+        var itemResult = template.AddItem(
+            ExclusiveArcTarget.SystemSuite,
+            IdValueObject.Create(),
+            ActionId.Load(Guid.NewGuid()),
+            isAllowed: true,
+            isDenied: false,
+            ActorId.Create("user-001"));
+        if (itemResult.IsFailure)
+        {
+            throw new InvalidOperationException(itemResult.Error);
+        }
+
         if (status == TemplateStatus.Published)
         {
-            template.Publish(ActorId.Create("user-001"));
+            var publishResult = template.Publish(ActorId.Create("user-001"));
+            if (publishResult.IsFailure)
+            {
+                throw new InvalidOperationException(publishResult.Error);
+            }
         }
         else if (status == TemplateStatus.Deprecated)
         {
-            template.Publish(ActorId.Create("user-001"));
-            template.Deprecate(ActorId.Create("user-001"));
+            var publishResult = template.Publish(ActorId.Create("user-001"));
+            if (publishResult.IsFailure)
+            {
+                throw new InvalidOperationException(publishResult.Error);
+            }
+
+            var deprecateResult = template.Deprecate(ActorId.Create("user-001"));
+            if (deprecateResult.IsFailure)
+            {
+                throw new InvalidOperationException(deprecateResult.Error);
+            }
         }
 
         return template;

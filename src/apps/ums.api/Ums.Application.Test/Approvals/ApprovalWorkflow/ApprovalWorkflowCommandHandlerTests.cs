@@ -149,10 +149,11 @@ public class ApprovalWorkflowCommandHandlerTests
     {
         _ctx.Setup(u => u.UserId).Returns("user-001");
         var workflow = MakeWorkflow("WF-002", "Test Workflow 2");
-        var docTypeId = Guid.NewGuid();
-        workflow.AddRequiredDocument(DocumentTypeId.Load(docTypeId), true, ActorId.Create("user-001"));
-        var addedDoc = workflow.RequiredDocuments.First();
-        var docId = addedDoc.Id.GetValue();
+        var firstDocTypeId = Guid.NewGuid();
+        var secondDocTypeId = Guid.NewGuid();
+        workflow.AddRequiredDocument(DocumentTypeId.Load(firstDocTypeId), true, ActorId.Create("user-001"));
+        workflow.AddRequiredDocument(DocumentTypeId.Load(secondDocTypeId), true, ActorId.Create("user-001"));
+        var docId = workflow.RequiredDocuments.First().Id.GetValue();
 
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(workflow);

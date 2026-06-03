@@ -6,6 +6,7 @@ using Ums.Application.Authorization.Template.DTOs;
 using Ums.Domain.Authorization.Template;
 using Ums.Domain.Kernel;
 using Ums.Domain.Authorization;
+using Ums.Domain.Enums;
 using Moq;
 using Xunit;
 using System;
@@ -30,11 +31,26 @@ public class TemplateCommandHandlerTests
 
     private static PermissionTemplate MakeTemplate()
     {
-        return PermissionTemplate.Create(
+        var template = PermissionTemplate.Create(
             TenantId.Load(Guid.NewGuid()),
             RoleId.Load(Guid.NewGuid()),
             SystemSuiteId.Load(Guid.NewGuid()),
             ActorId.Create("user-001")).Value;
+
+        var itemResult = template.AddItem(
+            ExclusiveArcTarget.SystemSuite,
+            IdValueObject.Create(),
+            ActionId.Load(Guid.NewGuid()),
+            isAllowed: true,
+            isDenied: false,
+            ActorId.Create("user-001"));
+
+        if (itemResult.IsFailure)
+        {
+            throw new InvalidOperationException(itemResult.Error);
+        }
+
+        return template;
     }
 
     // =========================================================================

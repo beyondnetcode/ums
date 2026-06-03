@@ -3,6 +3,7 @@ namespace Ums.Application.Test.Identity.UserAccount;
 using Ums.Application.Common.Interfaces;
 using Ums.Application.Common.Notifications;
 using Ums.Application.Identity.UserAccount.Commands;
+using Ums.Domain.Authorization;
 using Ums.Domain.Identity;
 using Ums.Domain.Identity.UserAccount;
 using Ums.Domain.Kernel;
@@ -18,6 +19,7 @@ public class UserAccountCommandHandlerTests
     private readonly Mock<IUserAccountRepository> _repo = new();
     private readonly Mock<IUnitOfWork>            _uow  = new();
     private readonly Mock<IUserContext>            _ctx  = new();
+    private readonly Mock<IProfileRepository>      _profileRepo = new();
     private readonly Mock<ITenantScopePolicy>      _scopePolicy = new();
     private readonly Mock<ITenantRepository>       _tenantRepo = new();
     private readonly Mock<INotificationService>    _notifications = new();
@@ -31,6 +33,8 @@ public class UserAccountCommandHandlerTests
         _passwordHashing.Setup(s => s.Hash(It.IsAny<string>())).Returns("$2a$12$server-generated-hash");
         _scopePolicy.Setup(s => s.EnsureManagementOwnerScopeAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success());
+        _profileRepo.Setup(r => r.CountActiveByUserAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(0);
         _tenantRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .Returns(Task.FromResult<Ums.Domain.Identity.Tenant.Tenant?>(null));
     }
@@ -225,7 +229,7 @@ public class UserAccountCommandHandlerTests
              .ReturnsAsync(user);
 
         var cmd = new BlockUserAccountCommand(Guid.NewGuid(), "Security risk");
-        var handler = new BlockUserAccountCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new BlockUserAccountCommandHandler(_repo.Object, _profileRepo.Object, _ctx.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -242,7 +246,7 @@ public class UserAccountCommandHandlerTests
              .ReturnsAsync((UserAccount?)null);
 
         var cmd = new BlockUserAccountCommand(Guid.NewGuid(), "Reason");
-        var handler = new BlockUserAccountCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new BlockUserAccountCommandHandler(_repo.Object, _profileRepo.Object, _ctx.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -255,7 +259,7 @@ public class UserAccountCommandHandlerTests
         _ctx.Setup(u => u.UserId).Returns("");
 
         var cmd = new BlockUserAccountCommand(Guid.NewGuid(), "Reason");
-        var handler = new BlockUserAccountCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new BlockUserAccountCommandHandler(_repo.Object, _profileRepo.Object, _ctx.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -273,7 +277,7 @@ public class UserAccountCommandHandlerTests
              .ReturnsAsync(user);
 
         var cmd = new BlockUserAccountCommand(Guid.NewGuid(), "Reason");
-        var handler = new BlockUserAccountCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new BlockUserAccountCommandHandler(_repo.Object, _profileRepo.Object, _ctx.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -410,7 +414,7 @@ public class UserAccountCommandHandlerTests
              .ReturnsAsync(true);
 
         var cmd = new DeleteUserAccountCommand(Guid.NewGuid());
-        var handler = new DeleteUserAccountCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new DeleteUserAccountCommandHandler(_repo.Object, _profileRepo.Object, _ctx.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -426,7 +430,7 @@ public class UserAccountCommandHandlerTests
              .ReturnsAsync((UserAccount?)null);
 
         var cmd = new DeleteUserAccountCommand(Guid.NewGuid());
-        var handler = new DeleteUserAccountCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new DeleteUserAccountCommandHandler(_repo.Object, _profileRepo.Object, _ctx.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -444,7 +448,7 @@ public class UserAccountCommandHandlerTests
              .ReturnsAsync(user);
 
         var cmd = new DeleteUserAccountCommand(Guid.NewGuid());
-        var handler = new DeleteUserAccountCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new DeleteUserAccountCommandHandler(_repo.Object, _profileRepo.Object, _ctx.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -456,7 +460,7 @@ public class UserAccountCommandHandlerTests
         _ctx.Setup(u => u.UserId).Returns("");
 
         var cmd = new DeleteUserAccountCommand(Guid.NewGuid());
-        var handler = new DeleteUserAccountCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new DeleteUserAccountCommandHandler(_repo.Object, _profileRepo.Object, _ctx.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
