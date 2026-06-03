@@ -13,7 +13,7 @@ Alcance MVP, priorización y diseños funcionales detallados.
 
 ## Inicio Rapido
 
-- [Navegacion Rapida](../quick-navigation.md)
+- [Navegacion Rapida](../quick-navigation.es.md)
 
 ---
 **[Volver al Portal de Gobernanza](../index.es.md)** | **[Volver al Índice Maestro](../../MASTER_INDEX.es.md)**

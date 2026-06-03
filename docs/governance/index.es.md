@@ -16,7 +16,7 @@ Bienvenido al **Portal de Gobernanza** del User Management System (UMS). Esta se
 
 Si quieres ver lo que falta, abre:
 
-- [Navegacion Rapida](./quick-navigation.md)
+- [Navegacion Rapida](./quick-navigation.es.md)
 
 ---
 
