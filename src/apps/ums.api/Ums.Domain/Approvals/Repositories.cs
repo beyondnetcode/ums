@@ -53,4 +53,7 @@ public interface INotificationRuleRepository : IAggregateRepository<Notification
     Task<NotificationRuleAggregate?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<NotificationRuleAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<NotificationRuleAggregate>> GetByTenantIdAsync(Guid tenantId, CancellationToken cancellationToken = default);
+
+    /// <summary>Returns true when an active rule with the same tenant, channel, and recipient already exists.</summary>
+    Task<bool> ExistsDuplicateAsync(Guid tenantId, string channel, string recipient, CancellationToken cancellationToken = default);
 }

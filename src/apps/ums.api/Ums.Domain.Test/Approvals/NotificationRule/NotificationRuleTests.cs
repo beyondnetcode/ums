@@ -89,5 +89,57 @@ public class NotificationRuleTests
         Assert.Equal(newRecipient, rule.Recipient);
     }
 
+    [Fact]
+    public void UpdateRecipient_WithEmptyRecipient_ReturnsFailure()
+    {
+        var rule = NotificationRule.Create(ValidTenantId, ValidChannel, ValidRecipient, ValidActor).Value;
+
+        var result = rule.UpdateRecipient(TextValueObject.Create(""), ValidActor);
+
+        Assert.True(result.IsFailure);
+    }
+
+    #endregion
+
+    #region Reactivate
+
+    [Fact]
+    public void Reactivate_WhenInactive_SetsActiveTrue()
+    {
+        var rule = NotificationRule.Create(ValidTenantId, ValidChannel, ValidRecipient, ValidActor).Value;
+        rule.Deactivate(ValidActor);
+
+        var result = rule.Reactivate(ValidActor);
+
+        Assert.True(result.IsSuccess);
+        Assert.True(rule.IsActive);
+    }
+
+    [Fact]
+    public void Reactivate_WhenAlreadyActive_ReturnsFailure()
+    {
+        var rule = NotificationRule.Create(ValidTenantId, ValidChannel, ValidRecipient, ValidActor).Value;
+
+        var result = rule.Reactivate(ValidActor);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains(DomainErrors.Approvals.RuleAlreadyActive, result.Error);
+    }
+
+    #endregion
+
+    #region UpdateChannel
+
+    [Fact]
+    public void UpdateChannel_WithValidChannel_ReturnsSuccess()
+    {
+        var rule = NotificationRule.Create(ValidTenantId, NotificationChannel.Email, ValidRecipient, ValidActor).Value;
+
+        var result = rule.UpdateChannel(NotificationChannel.InApp, ValidActor);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(NotificationChannel.InApp, rule.Channel);
+    }
+
     #endregion
 }

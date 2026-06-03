@@ -53,8 +53,40 @@ public sealed class NotificationRule : AggregateRoot<NotificationRule, Notificat
         return Result.Success();
     }
 
+    public Result Reactivate(ActorId updatedBy)
+    {
+        if (IsActive)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(IsActive), DomainErrors.Approvals.RuleAlreadyActive));
+        }
+
+        if (!IsValid())
+        {
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+        }
+
+        Props.IsActive = true;
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy.GetValue());
+        return Result.Success();
+    }
+
+    public Result UpdateChannel(NotificationChannel newChannel, ActorId updatedBy)
+    {
+        Props.Channel = newChannel;
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy.GetValue());
+        return Result.Success();
+    }
+
     public Result UpdateRecipient(TextValueObject newRecipient, ActorId updatedBy)
     {
+        if (string.IsNullOrWhiteSpace(newRecipient?.GetValue()))
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Recipient), DomainErrors.ValueObject.PropertyRequired));
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+        }
+
         Props.Recipient = newRecipient;
         TrackingState.MarkAsDirty();
         Props.Audit.Update(updatedBy.GetValue());

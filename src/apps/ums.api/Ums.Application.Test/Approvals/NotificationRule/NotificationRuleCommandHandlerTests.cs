@@ -204,4 +204,135 @@ public class NotificationRuleCommandHandlerTests
     }
 
     #endregion
+
+    // =========================================================================
+    #region ReactivateNotificationRuleCommandHandler
+    // =========================================================================
+
+    [Fact]
+    public async Task Reactivate_WhenRuleIsInactive_ReturnsSuccess()
+    {
+        var rule = MakeNotificationRule();
+        rule.Deactivate(ActorId.Create("user-001"));
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync(rule);
+
+        var handler = new ReactivateNotificationRuleCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(new ReactivateNotificationRuleCommand(rule.Props.Id.GetValue()), CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        Assert.True(rule.IsActive);
+        _repo.Verify(r => r.UpdateAsync(rule, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Reactivate_WhenNotFound_ReturnsFailure()
+    {
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync((NotificationRule?)null);
+
+        var handler = new ReactivateNotificationRuleCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(new ReactivateNotificationRuleCommand(Guid.NewGuid()), CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("not found", result.Error, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task Reactivate_WhenAlreadyActive_ReturnsFailure()
+    {
+        var rule = MakeNotificationRule();
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync(rule);
+
+        var handler = new ReactivateNotificationRuleCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(new ReactivateNotificationRuleCommand(rule.Props.Id.GetValue()), CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains(DomainErrors.Approvals.RuleAlreadyActive, result.Error);
+    }
+
+    #endregion
+
+    // =========================================================================
+    #region UpdateNotificationRuleChannelCommandHandler
+    // =========================================================================
+
+    [Fact]
+    public async Task UpdateChannel_WithValidChannel_ReturnsSuccess()
+    {
+        var rule = MakeNotificationRule();
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync(rule);
+
+        var cmd = new UpdateNotificationRuleChannelCommand(rule.Props.Id.GetValue(), "InApp");
+        var handler = new UpdateNotificationRuleChannelCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(NotificationChannel.InApp, rule.Channel);
+        _repo.Verify(r => r.UpdateAsync(rule, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateChannel_WithInvalidChannel_ReturnsFailure()
+    {
+        var cmd = new UpdateNotificationRuleChannelCommand(Guid.NewGuid(), "FaxMachine");
+        var handler = new UpdateNotificationRuleChannelCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("FaxMachine", result.Error);
+    }
+
+    [Fact]
+    public async Task UpdateChannel_WhenNotFound_ReturnsFailure()
+    {
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync((NotificationRule?)null);
+
+        var cmd = new UpdateNotificationRuleChannelCommand(Guid.NewGuid(), "Email");
+        var handler = new UpdateNotificationRuleChannelCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("not found", result.Error, StringComparison.OrdinalIgnoreCase);
+    }
+
+    #endregion
+
+    // =========================================================================
+    #region CreateNotificationRuleCommandHandler — duplicate check (FS-15)
+    // =========================================================================
+
+    [Fact]
+    public async Task Create_WhenDuplicateRuleExists_ReturnsFailure()
+    {
+        _repo.Setup(r => r.ExistsDuplicateAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync(true);
+
+        var cmd = new CreateNotificationRuleCommand(Guid.NewGuid(), "Email", "recipient@test.com");
+        var handler = new CreateNotificationRuleCommandHandler(_repo.Object, _ctx.Object, _resolver.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains(DomainErrors.Approvals.DuplicateNotificationRule, result.Error);
+        _repo.Verify(r => r.AddAsync(It.IsAny<NotificationRule>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Create_WhenNoDuplicate_PersistsRule()
+    {
+        _repo.Setup(r => r.ExistsDuplicateAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync(false);
+
+        var cmd = new CreateNotificationRuleCommand(Guid.NewGuid(), "Email", "recipient@test.com");
+        var handler = new CreateNotificationRuleCommandHandler(_repo.Object, _ctx.Object, _resolver.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        _repo.Verify(r => r.AddAsync(It.IsAny<NotificationRule>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    #endregion
 }

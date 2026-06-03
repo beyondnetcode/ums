@@ -145,6 +145,8 @@ public static class DomainErrors
         public const string PolicyRequiresProfileOrRole = "approvals.policy_requires_profile_or_role";
         public const string PolicyAlreadyInactive = "approvals.policy_already_inactive";
         public const string RuleAlreadyInactive = "approvals.rule_already_inactive";
+        public const string RuleAlreadyActive = "approvals.rule_already_active";
+        public const string DuplicateNotificationRule = "approvals.duplicate_notification_rule";
         public const string RequiresDocumentsIfApprovalRequired = "approvals.requires_documents_if_approval_required";
         public const string WorkflowNotAllowedForUserCategory   = "approvals.workflow_not_allowed_for_user_category";
     }

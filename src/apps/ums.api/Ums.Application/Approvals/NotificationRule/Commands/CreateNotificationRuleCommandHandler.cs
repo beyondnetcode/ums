@@ -39,6 +39,11 @@ public sealed class CreateNotificationRuleCommandHandler : ICommandHandler<Creat
         if (normalizedRecipient.IsFailure)
             return Result<CreateNotificationRuleResponse>.Failure(normalizedRecipient.Error);
 
+        var isDuplicate = await _repository.ExistsDuplicateAsync(
+            request.TenantId, channel.Name, normalizedRecipient.Value, cancellationToken);
+        if (isDuplicate)
+            return Result<CreateNotificationRuleResponse>.Failure(DomainErrors.Approvals.DuplicateNotificationRule);
+
         var result = NotificationRule.Create(
             TenantId.Load(request.TenantId),
             channel,

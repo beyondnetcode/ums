@@ -22,6 +22,16 @@ public sealed class InMemoryNotificationRuleRepository : INotificationRuleReposi
     public Task<IReadOnlyList<NotificationRuleAggregate>> GetByTenantIdAsync(Guid tenantId, CancellationToken cancellationToken = default)
     { var f = _store.Values.Where(e => e.Props.TenantId.GetValue() == tenantId).ToList(); f.ForEach(e => e.BrokenRules.Clear()); return Task.FromResult<IReadOnlyList<NotificationRuleAggregate>>(f); }
 
+    public Task<bool> ExistsDuplicateAsync(Guid tenantId, string channel, string recipient, CancellationToken cancellationToken = default)
+    {
+        var exists = _store.Values.Any(r =>
+            r.Props.TenantId.GetValue() == tenantId &&
+            r.Channel.Name.Equals(channel, StringComparison.OrdinalIgnoreCase) &&
+            r.Recipient.GetValue().Equals(recipient, StringComparison.OrdinalIgnoreCase) &&
+            r.IsActive);
+        return Task.FromResult(exists);
+    }
+
     public Task AddAsync(NotificationRuleAggregate a, CancellationToken c = default) { _store[a.Props.Id.GetValue()] = a; return Task.CompletedTask; }
     public Task UpdateAsync(NotificationRuleAggregate a, CancellationToken c = default) { _store[a.Props.Id.GetValue()] = a; return Task.CompletedTask; }
     public Task<int> SaveChangesAsync(CancellationToken c = default) => Task.FromResult(1);

@@ -38,12 +38,32 @@ public static class NotificationRuleEndpoints
             return result.ToNoContent(context);
         }).WithName("DeactivateNotificationRule").Produces(StatusCodes.Status204NoContent).ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status409Conflict);
 
+        group.MapPost("/{id:guid}/reactivate", async (Guid id, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new ReactivateNotificationRuleCommand(id), ct);
+            return result.ToNoContent(context);
+        }).WithName("ReactivateNotificationRule")
+          .WithSummary("Reactivate a previously deactivated notification rule")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status404NotFound)
+          .ProducesProblem(StatusCodes.Status409Conflict);
+
         group.MapPut("/{notificationRuleId:guid}/recipient", async (Guid notificationRuleId, UpdateNotificationRuleRecipientCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
         {
             var result = await mediator.Send(command with { NotificationRuleId = notificationRuleId }, ct);
             return result.ToNoContent(context);
         }).WithName("UpdateNotificationRuleRecipient")
           .WithSummary("Update the recipient address of a notification rule")
+          .Produces(StatusCodes.Status204NoContent)
+          .ProducesProblem(StatusCodes.Status400BadRequest)
+          .ProducesProblem(StatusCodes.Status404NotFound);
+
+        group.MapPut("/{notificationRuleId:guid}/channel", async (Guid notificationRuleId, UpdateNotificationRuleChannelCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command with { NotificationRuleId = notificationRuleId }, ct);
+            return result.ToNoContent(context);
+        }).WithName("UpdateNotificationRuleChannel")
+          .WithSummary("Update the delivery channel of a notification rule")
           .Produces(StatusCodes.Status204NoContent)
           .ProducesProblem(StatusCodes.Status400BadRequest)
           .ProducesProblem(StatusCodes.Status404NotFound);

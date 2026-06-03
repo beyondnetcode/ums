@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Ums.Domain.Approvals;
+using Ums.Domain.Enums;
 using Ums.Domain.Kernel;
 using Ums.Infrastructure.Persistence.Approvals.Entities;
 using Ums.Infrastructure.Persistence.Outbox;
@@ -53,6 +54,20 @@ public sealed class SqlServerNotificationRuleRepository : INotificationRuleRepos
             .ToListAsync(cancellationToken);
 
         return records.Select(Rehydrate).ToList();
+    }
+
+    public Task<bool> ExistsDuplicateAsync(Guid tenantId, string channel, string recipient, CancellationToken cancellationToken = default)
+    {
+        NotificationChannel? channelEnum;
+        try { channelEnum = DomainEnumerationMapper.FromName<NotificationChannel>(channel); }
+        catch { return Task.FromResult(false); }
+
+        return _dbContext.Set<NotificationRuleRecord>()
+            .AnyAsync(x => x.TenantId == tenantId
+                        && x.ChannelId == channelEnum.Id
+                        && x.Recipient == recipient
+                        && x.IsActive,
+                cancellationToken);
     }
 
     public Task AddAsync(NotificationRuleAggregate aggregate, CancellationToken cancellationToken = default)
