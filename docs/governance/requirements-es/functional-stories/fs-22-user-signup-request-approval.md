@@ -1,5 +1,7 @@
 # FS-22: Solicitud y Aprobacion de Alta de Usuario
 
+> **Estado:** Implementado
+
 ## 1. Proposito de Negocio
 
 Los usuarios que desean unirse a un tenant existente necesitan una ruta controlada de solicitud en lugar de una creacion directa de cuentas. UMS debe permitir que el solicitante elija el tenant, envie la solicitud, la mantenga pendiente y obligar al responsable del tenant a cerrarla con una aprobacion o denegacion explicita desde una bandeja dedicada.
@@ -89,7 +91,13 @@ Si el Tenant Admin deniega la solicitud, el requerimiento llega a un estado term
 
 | Tipo | Referencias |
 |---|---|
-| Historias Funcionales | FS-21 |
+| Historias Funcionales | FS-22 |
 | Entidades de Dominio | `UserAccount`, `Tenant` |
 | Notificaciones | `UserSignupRequestReceived`, `UserSignupApproved`, `UserSignupDenied` |
 | ADRs | ADR-0075 |
+
+## 10. Evidencia de Pruebas de Aceptacion
+
+- [`UserAccountOnboardingCommandHandlerTests.cs`](../../../../src/apps/ums.api/Ums.Application.Test/Identity/UserAccount/UserAccountOnboardingCommandHandlerTests.cs) cubre visibilidad de solicitudes pendientes, denegacion, alcance por tenant y manejo de estados finales.
+- [`UserAccountCommandHandlerTests.cs`](../../../../src/apps/ums.api/Ums.Application.Test/Identity/UserAccount/UserAccountCommandHandlerTests.cs) cubre la activacion de una cuenta pendiente y la transicion al estado aprobado usada por el flujo de onboarding.
+- [`UserAccountEndpoints.cs`](../../../../src/apps/ums.api/Ums.Presentation/Endpoints/Identity/UserAccount/UserAccountEndpoints.cs) y [`OnboardingInboxEndpoints.cs`](../../../../src/apps/ums.api/Ums.Presentation/Endpoints/Identity/Onboarding/OnboardingInboxEndpoints.cs) exponen la bandeja y las rutas de accion terminal usadas por la historia.

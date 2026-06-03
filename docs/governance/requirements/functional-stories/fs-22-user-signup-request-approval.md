@@ -1,5 +1,7 @@
 # FS-22: User Signup Request and Approval
 
+> **Status:** Implemented
+
 ## 1. Business Purpose
 
 Users who want to join an existing tenant need a controlled request path instead of direct account creation. UMS must let the applicant choose the tenant, submit the request, keep it pending, and force the tenant owner to close it with an explicit approval or denial from a dedicated inbox.
@@ -89,7 +91,13 @@ If the Tenant Admin denies the request, the request reaches a terminal denied st
 
 | Type | References |
 |---|---|
-| Functional Stories | FS-21 |
+| Functional Stories | FS-22 |
 | Domain Entities | `UserAccount`, `Tenant` |
 | Notifications | `UserSignupRequestReceived`, `UserSignupApproved`, `UserSignupDenied` |
 | ADRs | ADR-0075 |
+
+## 10. Acceptance Test Evidence
+
+- [`UserAccountOnboardingCommandHandlerTests.cs`](../../../../src/apps/ums.api/Ums.Application.Test/Identity/UserAccount/UserAccountOnboardingCommandHandlerTests.cs) covers pending signup visibility, denial, tenant scoping, and final-state handling.
+- [`UserAccountCommandHandlerTests.cs`](../../../../src/apps/ums.api/Ums.Application.Test/Identity/UserAccount/UserAccountCommandHandlerTests.cs) covers activation of a pending account and the approved state transition used by the onboarding flow.
+- [`UserAccountEndpoints.cs`](../../../../src/apps/ums.api/Ums.Presentation/Endpoints/Identity/UserAccount/UserAccountEndpoints.cs) and [`OnboardingInboxEndpoints.cs`](../../../../src/apps/ums.api/Ums.Presentation/Endpoints/Identity/Onboarding/OnboardingInboxEndpoints.cs) expose the inbox and terminal action paths used by the story.
