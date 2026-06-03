@@ -1,10 +1,10 @@
 # BeyondNetCode.Shell.Aop — Developer Guide
 
-> **Part of:** [Shell Libraries](README.md)  
-> **Projects:** `BeyondNetCode.Shell.Aop` · `BeyondNetCode.Shell.DispatchProxy` · `BeyondNetCode.Shell.Aspects` · `BeyondNetCode.Shell.Logger.Serilog` · `BeyondNetCode.Shell.DI`  
+> **Part of:** [Shell Libraries](README.md)
+> **Projects:** `BeyondNetCode.Shell.Aop` · `BeyondNetCode.Shell.DispatchProxy` · `BeyondNetCode.Shell.Aspects` · `BeyondNetCode.Shell.Logger.Serilog` · `BeyondNetCode.Shell.DI`
 > **Dependencies:** `Microsoft.Extensions.DependencyInjection` · `Serilog` (optional) · `System.Linq.Dynamic.Core`
 
-`BeyondNetCode.Shell.Aop` provides **non-invasive aspect-oriented programming** via `System.Reflection.DispatchProxy`. Cross-cutting concerns (logging, retry, advice) are applied as an ordered chain of `IAspect` objects around any interface-backed service — with no modification to the service implementation.
+`BeyondNetCode.Shell.Aop` provides**non-invasive aspect-oriented programming**via `System.Reflection.DispatchProxy`. Cross-cutting concerns (logging, retry, advice) are applied as an ordered chain of `IAspect` objects around any interface-backed service — with no modification to the service implementation.
 
 ---
 
@@ -29,21 +29,21 @@
 
 ```
 Caller
-  │
-  ▼
-AopProxy<TService, TImpl>          ← DispatchProxy subclass
-  │ Invoke(MethodInfo, args[])
-  ▼
+ │
+ ▼
+AopProxy<TService, TImpl> ← DispatchProxy subclass
+ │ Invoke(MethodInfo, args[])
+ ▼
 AspectExecutor
-  │ for each matching aspect (ordered by GetOrder)
-  ▼
-IAspect chain  →  OnMethodBoundaryAspect<TAttribute>
-  │                 OnEntry()
-  │                 Proceed()  ──────────────────────────► real TImpl.Method()
-  │                 OnSuccess() (after Task completes)
-  │                 OnExit()
-  │                 OnException() (if throws)
-  ▼
+ │ for each matching aspect (ordered by GetOrder)
+ ▼
+IAspect chain → OnMethodBoundaryAspect<TAttribute>
+ │ OnEntry()
+ │ Proceed() ──────────────────────────► real TImpl.Method()
+ │ OnSuccess() (after Task completes)
+ │ OnExit()
+ │ OnException() (if throws)
+ ▼
 return value (Task or sync)
 ```
 
@@ -59,45 +59,45 @@ Key design decisions:
 ```
 BeyondNetCode.Shell.Aop/
 ├── Interface/
-│   ├── IAspect.cs           ← void Apply(IJoinPoint), SetNext/GetNext, GetOrder
-│   ├── IAspectExecutor.cs   ← void Execute(IJoinPoint)
-│   ├── IJoinPoint.cs        ← MethodInfo, Arguments, Return, TargetType, Proceed()
-│   └── IPointCut.cs         ← bool CanApply(IJoinPoint, Type aspectType)
+│ ├── IAspect.cs ← void Apply(IJoinPoint), SetNext/GetNext, GetOrder
+│ ├── IAspectExecutor.cs ← void Execute(IJoinPoint)
+│ ├── IJoinPoint.cs ← MethodInfo, Arguments, Return, TargetType, Proceed()
+│ └── IPointCut.cs ← bool CanApply(IJoinPoint, Type aspectType)
 └── Impl/
-    ├── AbstractAspect.cs              ← chain linkage + GetAttribute<TAttr>()
-    ├── AbstractAspectAttribute.cs     ← marker base for aspect attributes
-    ├── AspectExecutor.cs              ← filter + order + chain execution
-    ├── OnMethodBoundaryAspect.cs      ← template: OnEntry/OnSuccess/OnExit/OnException + async support
-    ├── OnRetryAspect.cs               ← retry-aware boundary
-    ├── JoinPoint.cs                   ← IJoinPoint implementation
-    └── PointCut.cs                    ← attribute-based CanApply with cache
+ ├── AbstractAspect.cs ← chain linkage + GetAttribute<TAttr>()
+ ├── AbstractAspectAttribute.cs ← marker base for aspect attributes
+ ├── AspectExecutor.cs ← filter + order + chain execution
+ ├── OnMethodBoundaryAspect.cs ← template: OnEntry/OnSuccess/OnExit/OnException + async support
+ ├── OnRetryAspect.cs ← retry-aware boundary
+ ├── JoinPoint.cs ← IJoinPoint implementation
+ └── PointCut.cs ← attribute-based CanApply with cache
 
 BeyondNetCode.Shell.DispatchProxy/
-├── AopProxy.cs              ← System.Reflection.DispatchProxy subclass
-└── AopProxyCreator.cs       ← static Create<TService,TImpl>(target, executor)
+├── AopProxy.cs ← System.Reflection.DispatchProxy subclass
+└── AopProxyCreator.cs ← static Create<TService,TImpl>(target, executor)
 
 BeyondNetCode.Shell.Aspects/
 ├── Impl/
-│   ├── LoggerAspect.cs          ← OnMethodBoundaryAspect<LoggerAspectAttribute>
-│   ├── LoggerAspectAttribute.cs ← Type, LogArguments[], LogReturn, LogDuration, LogException, Expression
-│   ├── AdviceAspect.cs          ← OnMethodBoundaryAspect<AdviceAspectAttribute>
-│   ├── AdviceAspectAttribute.cs ← Type (IAdvice implementation)
-│   ├── RetryAspect.cs           ← OnRetryAspect<RetryAspectAttribute>
-│   ├── RetryAspectAttribute.cs  ← MaxRetries, ExceptionType
-│   ├── Advice.cs                ← IAdvice; called by AdviceAspect
-│   ├── Evaluator.cs             ← System.Linq.Dynamic expression evaluator
-│   └── Factory.cs               ← IFactory<T> wrapping Func<Type,T>
+│ ├── LoggerAspect.cs ← OnMethodBoundaryAspect<LoggerAspectAttribute>
+│ ├── LoggerAspectAttribute.cs ← Type, LogArguments[], LogReturn, LogDuration, LogException, Expression
+│ ├── AdviceAspect.cs ← OnMethodBoundaryAspect<AdviceAspectAttribute>
+│ ├── AdviceAspectAttribute.cs ← Type (IAdvice implementation)
+│ ├── RetryAspect.cs ← OnRetryAspect<RetryAspectAttribute>
+│ ├── RetryAspectAttribute.cs ← MaxRetries, ExceptionType
+│ ├── Advice.cs ← IAdvice; called by AdviceAspect
+│ ├── Evaluator.cs ← System.Linq.Dynamic expression evaluator
+│ └── Factory.cs ← IFactory<T> wrapping Func<Type,T>
 └── Interface/
-    ├── IAdvice.cs               ← void OnEntry/OnSuccess/OnException/OnExit(IJoinPoint)
-    ├── IEvaluator.cs            ← string Evaluate(IJoinPoint, expression, default)
-    ├── IFactory.cs              ← T Create(Type)
-    └── ILogger.cs               ← AOP logger contract (not MEL ILogger)
+ ├── IAdvice.cs ← void OnEntry/OnSuccess/OnException/OnExit(IJoinPoint)
+ ├── IEvaluator.cs ← string Evaluate(IJoinPoint, expression, default)
+ ├── IFactory.cs ← T Create(Type)
+ └── ILogger.cs ← AOP logger contract (not MEL ILogger)
 
 BeyondNetCode.Shell.Logger.Serilog/
-└── SerilogLogger.cs         ← ILogger (AOP) backed by Serilog static Log.*
+└── SerilogLogger.cs ← ILogger (AOP) backed by Serilog static Log.*
 
 BeyondNetCode.Shell.DI/
-├── AopAspectsBuilder.cs         ← AddAspect<T>(), AddAdvice<T>(), AddLogger<T>()
+├── AopAspectsBuilder.cs ← AddAspect<T>(), AddAdvice<T>(), AddLogger<T>()
 └── ServiceCollectionExtension.cs ← AddAop(configure?), AddAopProxy<TService,TImpl>()
 ```
 
@@ -118,7 +118,7 @@ public interface ICalculator { int Add(int a, int b); }
 
 public class Calculator : ICalculator
 {
-    public int Add(int a, int b) => a + b;
+ public int Add(int a, int b) => a + b;
 }
 
 // ──── 2. Write a custom aspect (extend OnMethodBoundaryAspect)
@@ -126,37 +126,36 @@ public class TimingAttribute : AbstractAspectAttribute { }
 
 public class TimingAspect : OnMethodBoundaryAspect<TimingAttribute>
 {
-    private readonly Stopwatch _sw = new();
+ private readonly Stopwatch _sw = new();
 
-    protected override void OnEntry(IJoinPoint jp)
-        => _sw.Restart();
+ protected override void OnEntry(IJoinPoint jp)
+ => _sw.Restart();
 
-    protected override void OnExit(IJoinPoint jp)
-        => Console.WriteLine($"{jp.MethodInfo.Name} took {_sw.ElapsedMilliseconds}ms");
+ protected override void OnExit(IJoinPoint jp)
+ => Console.WriteLine($"{jp.MethodInfo.Name} took {_sw.ElapsedMilliseconds}ms");
 }
 
 // ──── 3. Decorate the target method
 public class TimedCalculator : ICalculator
 {
-    [Timing]
-    public int Add(int a, int b) => a + b;
+ [Timing]
+ public int Add(int a, int b) => a + b;
 }
 
 // ──── 4. Build the proxy manually
 var target = new TimedCalculator();
 
 var pointCut = new PointCut();
-var executor = new AspectExecutor(
-    types: [typeof(TimingAspect)],
-    aspectFactory: type => type == typeof(TimingAspect)
-        ? new TimingAspect()
-        : throw new InvalidOperationException(),
-    pointCut: pointCut);
+var executor = new AspectExecutor(types: [typeof(TimingAspect)],
+ aspectFactory: type => type == typeof(TimingAspect)
+ ? new TimingAspect()
+ : throw new InvalidOperationException(),
+ pointCut: pointCut);
 
 ICalculator proxy = AopProxyCreator.Create<ICalculator, TimedCalculator>(target, executor);
 
 // ──── 5. Call through the proxy
-int result = proxy.Add(3, 4);  // Console: "Add took 0ms"
+int result = proxy.Add(3, 4); // Console: "Add took 0ms"
 // result == 7
 ```
 
@@ -176,12 +175,12 @@ Because DI returns the last registration, MediatR (or any caller) transparently 
 // In Ums.Infrastructure/DependencyInjection.cs
 services.AddAop(builder =>
 {
-    // Register additional loggers beyond the defaults
-    builder.AddLogger<SerilogLogger>();    // key = typeof(SerilogLogger)
-    builder.AddLogger<MelLogger>();        // key = typeof(MelLogger) / typeof(IMelLogger)
+ // Register additional loggers beyond the defaults
+ builder.AddLogger<SerilogLogger>(); // key = typeof(SerilogLogger)
+ builder.AddLogger<MelLogger>(); // key = typeof(MelLogger) / typeof(IMelLogger)
 
-    // Register additional advice implementations
-    builder.AddAdvice<AuditAdvice>();
+ // Register additional advice implementations
+ builder.AddAdvice<AuditAdvice>();
 });
 
 // Register the keyed MelLogger under the IMelLogger key so handlers can use it
@@ -189,8 +188,8 @@ services.AddKeyedTransient<ILogger, MelLogger>(typeof(IMelLogger));
 
 // Wrap a MediatR handler
 services.AddAopProxy<
-    IRequestHandler<CreateTenantCommand, Result<CreateTenantResponse>>,
-    CreateTenantCommandHandler>();
+ IRequestHandler<CreateTenantCommand, Result<CreateTenantResponse>>,
+ CreateTenantCommandHandler>();
 ```
 
 ### Decorating the handler
@@ -198,19 +197,17 @@ services.AddAopProxy<
 ```csharp
 // In Ums.Application (references BeyondNetCode.Shell.Aspects only — no Infrastructure dep)
 public sealed class CreateTenantCommandHandler
-    : ICommandHandler<CreateTenantCommand, CreateTenantResponse>
+ : ICommandHandler<CreateTenantCommand, CreateTenantResponse>
 {
-    [LoggerAspect(
-        Type         = typeof(IMelLogger),  // resolved from DI as keyed service
-        LogDuration  = true,
-        LogException = true,
-        LogArguments = [])]                 // PII-safe: no arg values
-    public async Task<Result<CreateTenantResponse>> Handle(
-        CreateTenantCommand request,
-        CancellationToken cancellationToken)
-    {
-        // ... handler logic
-    }
+ [LoggerAspect(Type = typeof(IMelLogger), // resolved from DI as keyed service
+ LogDuration = true,
+ LogException = true,
+ LogArguments = [])] // PII-safe: no arg values
+ public async Task<Result<CreateTenantResponse>> Handle(CreateTenantCommand request,
+ CancellationToken cancellationToken)
+ {
+ // ... handler logic
+ }
 }
 ```
 
@@ -231,15 +228,12 @@ public sealed class CreateTenantCommandHandler
 | `LogReturn` | `bool` | Include the return value in the exit log |
 | `LogDuration` | `bool` | Include elapsed milliseconds in the exit log |
 | `LogException` | `bool` | Catch exceptions, log them, then re-throw |
-| `Expression` | `string` | Dynamic expression (System.Linq.Dynamic) to extract a request-ID from the JoinPoint arguments |
-
-```csharp
+| `Expression` | `string` | Dynamic expression (System.Linq.Dynamic) to extract a request-ID from the JoinPoint arguments | ```csharp
 // Log entry, exit with duration, and exceptions; use request.TenantId as request-ID
-[LoggerAspect(
-    Type         = typeof(SerilogLogger),
-    LogDuration  = true,
-    LogException = true,
-    Expression   = "request.TenantId")]
+[LoggerAspect(Type = typeof(SerilogLogger),
+ LogDuration = true,
+ LogException = true,
+ Expression = "request.TenantId")]
 public async Task<Result> Handle(ActivateTenantCommand request, CancellationToken ct) { ... }
 ```
 
@@ -250,10 +244,10 @@ public async Task<Result> Handle(ActivateTenantCommand request, CancellationToke
 ```csharp
 public class AuditAdvice : IAdvice
 {
-    public void OnEntry(IJoinPoint jp)   => /* pre-call action */ ;
-    public void OnSuccess(IJoinPoint jp) => /* post-success action */;
-    public void OnException(IJoinPoint jp, Exception ex) => /* error handling */;
-    public void OnExit(IJoinPoint jp)    => /* always-runs action */;
+ public void OnEntry(IJoinPoint jp) => /* pre-call action */ ;
+ public void OnSuccess(IJoinPoint jp) => /* post-success action */;
+ public void OnException(IJoinPoint jp, Exception ex) => /* error handling */;
+ public void OnExit(IJoinPoint jp) => /* always-runs action */;
 }
 
 // Register
@@ -281,30 +275,30 @@ public async Task<Result> CallExternalServiceAsync(Request req, CancellationToke
 // 1. Define the attribute
 public class MetricsAttribute : AbstractAspectAttribute
 {
-    public string MetricName { get; set; } = string.Empty;
+ public string MetricName { get; set; } = string.Empty;
 }
 
 // 2. Implement the aspect
 public class MetricsAspect(IMeterFactory meterFactory)
-    : OnMethodBoundaryAspect<MetricsAttribute>
+ : OnMethodBoundaryAspect<MetricsAttribute>
 {
-    private readonly Histogram<long> _duration =
-        meterFactory.Create("ums").CreateHistogram<long>("handler.duration.ms");
+ private readonly Histogram<long> _duration =
+ meterFactory.Create("ums").CreateHistogram<long>("handler.duration.ms");
 
-    private Stopwatch _sw = new();
+ private Stopwatch _sw = new();
 
-    protected override void OnEntry(IJoinPoint jp)
-        => _sw.Restart();
+ protected override void OnEntry(IJoinPoint jp)
+ => _sw.Restart();
 
-    protected override void OnSuccess(IJoinPoint jp)
-    {
-        _sw.Stop();
-        _duration.Record(_sw.ElapsedMilliseconds,
-            new TagList { { "method", jp.MethodInfo.Name } });
-    }
+ protected override void OnSuccess(IJoinPoint jp)
+ {
+ _sw.Stop();
+ _duration.Record(_sw.ElapsedMilliseconds,
+ new TagList { { "method", jp.MethodInfo.Name } });
+ }
 
-    // Return custom order so this aspect runs after Logging (50) but before Transaction (70)
-    public override int GetOrder(IJoinPoint jp) => 60;
+ // Return custom order so this aspect runs after Logging (50) but before Transaction (70)
+ public override int GetOrder(IJoinPoint jp) => 60;
 }
 
 // 3. Register
@@ -332,10 +326,10 @@ For `Task<TResult>` methods, the result value is preserved through the `WrapAsyn
 
 ```
 Caller awaits proxy.Handle(cmd, ct)
-  → AopProxy.Invoke returns Task<Result<...>> (wrapper)
-       → wrapper awaits real Handle() task
-            → OnSuccess fires
-            → return result to caller
+ → AopProxy.Invoke returns Task<Result<...>> (wrapper)
+ → wrapper awaits real Handle() task
+ → OnSuccess fires
+ → return result to caller
 ```
 
 ---
@@ -354,10 +348,8 @@ For richer structured logging with value capture (after PII review), use `Serilo
 
 | Logger | Arg values | Category | Structured |
 |---|---|---|---|
-| `MelLogger` | ❌ Never | `jp.TargetType` | ✅ via MEL templates |
-| `SerilogLogger` | ✅ Destructured | `[ClassName, MethodName]` | ✅ Serilog |
-
----
+| `MelLogger` | Never | `jp.TargetType` | via MEL templates |
+| `SerilogLogger` | Destructured | `[ClassName, MethodName]` | Serilog | ---
 
 ## 9. API Reference
 
@@ -377,17 +369,13 @@ Registers into DI:
 |---|---|
 | Singleton not supported | Aspects may depend on scoped services; `Singleton` throws `ArgumentException` |
 | `TImpl` must implement `TService` | Compile-time constraint |
-| Last-wins registration | Call after `AddMediatR` / any other registration of `TService` |
-
-### `IAopAspectsBuilder`
+| Last-wins registration | Call after `AddMediatR` / any other registration of `TService` | ### `IAopAspectsBuilder`
 
 | Method | Registers |
 |---|---|
 | `AddAspect<T>()` | Keyed `IAspect` with key `typeof(T)` + adds `T` to the aspect type list |
 | `AddAdvice<T>()` | Keyed `IAdvice` with key `typeof(T)` |
-| `AddLogger<T>()` | Keyed `ILogger` (AOP) with key `typeof(T)` |
-
-### `OnMethodBoundaryAspect<TAttribute>`
+| `AddLogger<T>()` | Keyed `ILogger` (AOP) with key `typeof(T)` | ### `OnMethodBoundaryAspect<TAttribute>`
 
 | Virtual method | When called |
 |---|---|
@@ -395,9 +383,7 @@ Registers into DI:
 | `OnSuccess(IJoinPoint)` | After method succeeds (after Task completes for async) |
 | `OnExit(IJoinPoint)` | Always, after success or exception (after Task for async) |
 | `OnException(IJoinPoint, Exception)` | When an exception is thrown; only if `HandleException = true` |
-| `Continue(IJoinPoint) → bool` | If `false`, skips method invocation entirely |
-
----
+| `Continue(IJoinPoint) → bool` | If `false`, skips method invocation entirely | ---
 
 ## 10. UMS Integration
 
@@ -405,20 +391,18 @@ Registers into DI:
 
 | Handler | Aspect | Config |
 |---|---|---|
-| `CreateTenantCommandHandler.Handle` | `LoggerAspect` via `MelLogger` | `LogDuration=true, LogException=true` |
-
-### Expanding to other handlers
+| `CreateTenantCommandHandler.Handle` | `LoggerAspect` via `MelLogger` | `LogDuration=true, LogException=true` | ### Expanding to other handlers
 
 ```csharp
 // In Ums.Infrastructure/DependencyInjection.cs — add more AddAopProxy calls
 
 services.AddAopProxy<
-    IRequestHandler<CreateUserAccountCommand, Result<Guid>>,
-    CreateUserAccountCommandHandler>();
+ IRequestHandler<CreateUserAccountCommand, Result<Guid>>,
+ CreateUserAccountCommandHandler>();
 
 services.AddAopProxy<
-    IRequestHandler<ActivateTenantCommand, Result>,
-    ActivateTenantCommandHandler>();
+ IRequestHandler<ActivateTenantCommand, Result>,
+ ActivateTenantCommandHandler>();
 ```
 
 Decorate each handler with `[LoggerAspect(Type = typeof(IMelLogger), LogDuration = true, LogException = true, LogArguments = [])]`.
@@ -430,21 +414,21 @@ public class TracingAttribute : AbstractAspectAttribute { }
 
 public class TracingAspect(ActivitySource source) : OnMethodBoundaryAspect<TracingAttribute>
 {
-    private Activity? _activity;
+ private Activity? _activity;
 
-    protected override void OnEntry(IJoinPoint jp)
-        => _activity = source.StartActivity(jp.MethodInfo.Name);
+ protected override void OnEntry(IJoinPoint jp)
+ => _activity = source.StartActivity(jp.MethodInfo.Name);
 
-    protected override void OnSuccess(IJoinPoint jp)
-        => _activity?.SetStatus(ActivityStatusCode.Ok);
+ protected override void OnSuccess(IJoinPoint jp)
+ => _activity?.SetStatus(ActivityStatusCode.Ok);
 
-    protected override void OnException(IJoinPoint jp, Exception ex)
-        => _activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+ protected override void OnException(IJoinPoint jp, Exception ex)
+ => _activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
 
-    protected override void OnExit(IJoinPoint jp)
-        => _activity?.Dispose();
+ protected override void OnExit(IJoinPoint jp)
+ => _activity?.Dispose();
 
-    public override int GetOrder(IJoinPoint jp) => 10; // first in chain
+ public override int GetOrder(IJoinPoint jp) => 10; // first in chain
 }
 ```
 
@@ -460,9 +444,7 @@ public class TracingAspect(ActivitySource source) : OnMethodBoundaryAspect<Traci
 | 40 | `IdempotencyAspect` | Dedup before any side-effects |
 | 50 | `LoggerAspect` | Observe the real execution window |
 | 60 | `MetricsAspect` | Record duration/throughput |
-| 70 | `RetryAspect` | Outermost retry loop |
-
-Implement `GetOrder(IJoinPoint)` in your aspect class to return the appropriate constant.
+| 70 | `RetryAspect` | Outermost retry loop | Implement `GetOrder(IJoinPoint)` in your aspect class to return the appropriate constant.
 
 ---
 
@@ -475,9 +457,7 @@ Implement `GetOrder(IJoinPoint)` in your aspect class to return the appropriate 
 | `OnSuccess` fires before task completes | Old `OnMethodBoundaryAspect` (pre Phase 0-C) | Update to latest `BeyondNetCode.Shell.Aop` — fix already applied |
 | Keyed service not found | Logger type not registered | Add `builder.AddLogger<MyLogger>()` in `AddAop()` callback |
 | `ArgumentException: Singleton not supported` | Called `AddAopProxy<,>(ServiceLifetime.Singleton)` | Use `Scoped` (default) or `Transient` |
-| `LoggerAspect.Init`: `Type should not be null` | Missing `Type` property on attribute | Always set `Type = typeof(IMyLogger)` in the attribute |
-
----
+| `LoggerAspect.Init`: `Type should not be null` | Missing `Type` property on attribute | Always set `Type = typeof(IMyLogger)` in the attribute | ---
 
 ## 13. StructuredAopLoggerBase — Observability-Aware Logger Base
 
@@ -491,31 +471,29 @@ Implement `GetOrder(IJoinPoint)` in your aspect class to return the appropriate 
 | `IExecutionContextAccessor` | `interface` | Writable port for middleware to set the snapshot; read back by loggers |
 | `ObservabilityHeaders` | `static class` | HTTP header name constants: `X-Correlation-Id`, `X-Session-Tracking-Id` |
 | `ObservabilityKeys` | `static class` | OTel baggage/tag key constants: `correlation.id`, `session.tracking_id` |
-| `StructuredAopLoggerBase` | `abstract class : ILogger` | Base class for satellite-specific AOP loggers; resolves execution context and infers bounded context from type namespace |
-
-### StructuredAopLoggerBase — API
+| `StructuredAopLoggerBase` | `abstract class : ILogger` | Base class for satellite-specific AOP loggers; resolves execution context and infers bounded context from type namespace | ### StructuredAopLoggerBase — API
 
 ```csharp
 public abstract class StructuredAopLoggerBase : ILogger
 {
-    // Inject IExecutionContextAccessor via constructor
-    protected StructuredAopLoggerBase(IExecutionContextAccessor accessor);
+ // Inject IExecutionContextAccessor via constructor
+ protected StructuredAopLoggerBase(IExecutionContextAccessor accessor);
 
-    // Resolve full observability context for current request.
-    // Priority: IExecutionContextAccessor.Current → Activity.Current baggage → requestId → ""
-    protected ExecutionContextSnapshot ResolveExecutionContext(string requestId);
+ // Resolve full observability context for current request.
+ // Priority: IExecutionContextAccessor.Current → Activity.Current baggage → requestId → ""
+ protected ExecutionContextSnapshot ResolveExecutionContext(string requestId);
 
-    // Infer bounded context from type namespace.
-    // "Ums.Application.Identity.Tenant.Commands.*" → "Identity"
-    protected static string InferBoundedContext(Type targetType);
+ // Infer bounded context from type namespace.
+ // "Ums.Application.Identity.Tenant.Commands.*" → "Identity"
+ protected static string InferBoundedContext(Type targetType);
 
-    // Abstract — implement all six ILogger methods in your subclass
-    public abstract void OnEntry(IJoinPoint jp, Argument[] args, string requestId);
-    public abstract void OnExit(IJoinPoint jp, Return ret, string requestId, long duration);
-    public abstract void OnExit(IJoinPoint jp, string requestId, long duration);
-    public abstract void OnExit(IJoinPoint jp, Return ret, string requestId);
-    public abstract void OnExit(IJoinPoint jp, string requestId);
-    public abstract void OnException(IJoinPoint jp, string requestId, Exception ex);
+ // Abstract — implement all six ILogger methods in your subclass
+ public abstract void OnEntry(IJoinPoint jp, Argument[] args, string requestId);
+ public abstract void OnExit(IJoinPoint jp, Return ret, string requestId, long duration);
+ public abstract void OnExit(IJoinPoint jp, string requestId, long duration);
+ public abstract void OnExit(IJoinPoint jp, Return ret, string requestId);
+ public abstract void OnExit(IJoinPoint jp, string requestId);
+ public abstract void OnException(IJoinPoint jp, string requestId, Exception ex);
 }
 ```
 
@@ -526,30 +504,27 @@ public abstract class StructuredAopLoggerBase : ILogger
 public interface IMyServiceLogger : BeyondNetCode.Shell.Aspects.ILogger;
 
 // 2. Infrastructure layer — concrete adapter
-public sealed class MyServiceLogger(
-    ILoggerFactory loggerFactory,
-    IUserContext userContext,
-    IExecutionContextAccessor accessor) : StructuredAopLoggerBase(accessor), IMyServiceLogger
+public sealed class MyServiceLogger(ILoggerFactory loggerFactory,
+ IUserContext userContext,
+ IExecutionContextAccessor accessor) : StructuredAopLoggerBase(accessor), IMyServiceLogger
 {
-    public override void OnEntry(IJoinPoint jp, Argument[] args, string requestId)
-    {
-        var ctx    = ResolveExecutionContext(requestId);
-        var bc     = InferBoundedContext(jp.TargetType);
-        var logger = loggerFactory.CreateLogger(jp.TargetType);
+ public override void OnEntry(IJoinPoint jp, Argument[] args, string requestId)
+ {
+ var ctx = ResolveExecutionContext(requestId);
+ var bc = InferBoundedContext(jp.TargetType);
+ var logger = loggerFactory.CreateLogger(jp.TargetType);
 
-        logger.LogInformation(
-            "→ {BC} {Handler}.{Method} | tenant={Tenant} cid={CorrelationId} sid={SessionId}",
-            bc, jp.TargetType.Name, jp.MethodInfo.Name,
-            userContext.TenantId ?? "system",
-            ctx.CorrelationId, ctx.SessionTrackingId);
-    }
+ logger.LogInformation("→ {BC} {Handler}.{Method} | tenant={Tenant} cid={CorrelationId} sid={SessionId}",
+ bc, jp.TargetType.Name, jp.MethodInfo.Name,
+ userContext.TenantId ?? "system",
+ ctx.CorrelationId, ctx.SessionTrackingId);
+ }
 
-    // ... implement remaining abstract methods
+ // ... implement remaining abstract methods
 }
 
 // 3. DI registration
-services.AddKeyedTransient<BeyondNetCode.Shell.Aspects.ILogger, MyServiceLogger>(
-    typeof(IMyServiceLogger));
+services.AddKeyedTransient<BeyondNetCode.Shell.Aspects.ILogger, MyServiceLogger>(typeof(IMyServiceLogger));
 
 // 4. Handler decoration
 [LoggerAspect(Type = typeof(IMyServiceLogger), LogDuration = true, LogException = true, LogArguments = [])]
@@ -562,17 +537,17 @@ Use these constants instead of string literals in middleware and tests:
 
 ```csharp
 // HTTP header names
-context.Response.Headers[ObservabilityHeaders.CorrelationId]     = correlationId;
+context.Response.Headers[ObservabilityHeaders.CorrelationId] = correlationId;
 context.Response.Headers[ObservabilityHeaders.SessionTrackingId] = sessionId;
 
 // OTel Activity baggage / tag keys
-activity.SetBaggage(ObservabilityKeys.CorrelationId,     correlationId);
+activity.SetBaggage(ObservabilityKeys.CorrelationId, correlationId);
 activity.SetBaggage(ObservabilityKeys.SessionTrackingId, sessionId);
 ```
 
 ### Evolith disposition
 
-All five types have **zero UMS-specific imports** and are proposed for Evolith adoption. See [CP-08: AOP Logging Decorator](../artifacts/canonical-patterns/cp-08-aop-logging-decorator.md).
+All five types have**zero UMS-specific imports**and are proposed for Evolith adoption. See [CP-08: AOP Logging Decorator](../artifacts/canonical-patterns/cp-08-aop-logging-decorator.md).
 
 ---
 

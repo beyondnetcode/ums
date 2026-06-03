@@ -3,7 +3,7 @@
 | Campo | Valor |
 |-------|-------|
 | **ID del Runbook** | RB-04 |
-| **Alcance** | PostgreSQL / SQL Server primary failover — bases de datos de UMS |
+| **Alcance** | SQL Server primary failover — bases de datos de UMS |
 | **Responsable** | DBA / Plataforma On-Call |
 | **Última Revisión** | 2026-05-15 |
 
@@ -20,9 +20,9 @@
 
 ---
 
-## 2. Failover Automático (Patroni / CloudNativePG)
+## 2. Failover Automático
 
-El cluster de base de datos de UMS usa CloudNativePG (o Patroni) para elección automática de primary. El failover automático no requiere intervención manual.
+El cluster de base de datos de UMS usa la topología de alta disponibilidad de SQL Server configurada para el entorno. El failover automático no requiere intervención manual.
 
 ```bash
 # Verificar primary actual
@@ -98,11 +98,11 @@ kubectl rollout restart deployment/ums-outbox-relay -n ums-prod
 
 ```bash
 # Listar WAL archives / snapshots disponibles
-kubectl cnpg backup list ums-db-cluster -n ums-prod
+kubectl get secret ums-db-cluster-app -n ums-prod
 
 # Restaurar a point in time (timestamp UTC)
 kubectl apply -f - <<EOF
-apiVersion: postgresql.cnpg.io/v1
+apiVersion: sqlserver.failover/v1
 kind: Cluster
 metadata:
   name: ums-db-cluster-restored

@@ -98,7 +98,7 @@ This matrix links every **Functional Story (FS)** to its governing **Architectur
 |-----|-------------|-------------------|
 | No FS-level acceptance tests linked | FSes do not expose a standardized acceptance-test pointer | Add an "Acceptance Tests" section to each FS |
 | BC-C / BC-D / BC-I coverage still incomplete | Configuration, Audit, and Compliance contexts still need the same level of completeness as the core bounded contexts | Continue closing the remaining domain and application gaps in those contexts |
-| Design decisions V1, V3–V6 open | See [12-design-decisions.md](../../governance/construction/ddd-design/12-design-decisions.md) | Resolve in technical workshop before each dependent change |
+| Design decisions V1, V3–V6 open | See [12-design-decisions.md](../governance/construction/ddd-design/12-design-decisions.md) | Resolve in technical workshop before each dependent change |
 
 ---
 

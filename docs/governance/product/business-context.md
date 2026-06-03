@@ -19,10 +19,10 @@ graph TD
     %% AUTHENTICATION CORNER (Optional & Pluggable)
     App -->|2. Delegate Auth & Query Config| UMS["UMS Sovereign Authorization Kernel"]
     UMS -.->|IAuthenticationPort_Pluggable| IdP_Providers["Identity Providers (Internal bcrypt / Zitadel / Azure AD / Okta)"]
-    UMS -.->|IFeatureFlagPort_Pluggable| FF_Providers["Feature Flag Engines (Internal PostgreSQL-Redis / LaunchDarkly / Unleash)"]
+    UMS -.->|IFeatureFlagPort_Pluggable| FF_Providers["Feature Flag Engines (Internal SQL Server / Redis / LaunchDarkly / Unleash)"]
     
     %% RESOLUTION & PERSISTENCE CORNER
-    UMS -->|3. Read context-aware overrides| DB["PostgreSQL 16 (RLS Isolated)"]
+    UMS -->|3. Read context-aware overrides| DB["SQL Server 2022 (RLS Isolated)"]
     DB -->|4. Resolve dynamic rules| UMS
     
     %% RESPONSE CORNER
@@ -50,5 +50,4 @@ Standardizing access under UMS provides three massive business benefits:
 To illustrate the real-world operational execution of UMS, our specifications utilize the **Business Analyst** scenario as the primary reference model. This role represents high-concurrency B2B access to the *Route Planner* under the context of specific tenants (e.g., *Logistics Corp*) and localized branches (e.g., *Callao Terminal, Peru*). 
 
 The detailed architectural specs, sequence diagrams, and dynamic API contracts for this reference model are fully detailed in **[enterprise-iam-ums-specification.md](../../architecture/artifacts/enterprise-iam-ums-specification.md)**.
-
 

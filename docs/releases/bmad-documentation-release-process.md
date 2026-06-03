@@ -1,6 +1,4 @@
-# BMAD Documentation Release Process Guide
-
-**Purpose**: Guide for BMAD agents to understand, validate, and manage documentation releases in UMS.
+# BMAD Documentation Release Process Guide**Purpose**: Guide for BMAD agents to understand, validate, and manage documentation releases in UMS.
 **Applies To**: All AI coding agents, internal teams, and external providers working in this repository.
 **BMAD Rules Compliance**: All 14 rules apply, especially R-03 (Encoding) and R-14 (No Emoji/Decoration).
 
@@ -16,9 +14,7 @@ UMS (User Management System) is the applied reference implementation of Evolith 
 |------|------------|---------|---------|
 | Initial Release | docs-vX.Y.Z | First documentation governance | docs-v1.0.0 |
 | Feature Doc | docs-vX.Y.Z | New feature documentation | docs-v1.1.0 |
-| Hotfix | docs-vX.Y.Z-patch | Critical documentation fix | docs-v1.0.1 |
-
----
+| Hotfix | docs-vX.Y.Z-patch | Critical documentation fix | docs-v1.0.1 | ---
 
 ## Section 1: Understanding the Documentation Process
 
@@ -26,19 +22,19 @@ UMS (User Management System) is the applied reference implementation of Evolith 
 
 ```
 Idea/Requirement
-    ↓
+ ↓
 Draft Documentation (feature/docs-* branch)
-    ↓
+ ↓
 Documentation Quality Pipeline (docs-quality.yml)
-    ↓
+ ↓
 PR Review & Approval
-    ↓
+ ↓
 Merge to main/develop
-    ↓
+ ↓
 Documentation Version Log Updated
-    ↓
+ ↓
 Git Tag Created (docs-vX.Y.Z)
-    ↓
+ ↓
 GitHub Release Published
 ```
 
@@ -50,15 +46,13 @@ GitHub Release Published
 | MASTER_INDEX.md | Navigation hub | docs/ |
 | GOVERNANCE.md | Complete governance policy | .github/ |
 | CONTRIBUTING.md | Contributor guide | .github/ |
-| VERSION_LOG.md | Release history | docs/releases/ |
-
-### 1.3 Evolith-UMS Relationship
+| VERSION_LOG.md | Release history | docs/releases/ | ### 1.3 Evolith-UMS Relationship
 
 ```
 Evolith (Reusable Enterprise Standards) ← External reference
-    ↓  Inherited via ADR and documentation
-UMS  (Concrete Applied Implementation)
-    ↓  Proposed patterns that are reusable
+ ↓ Inherited via ADR and documentation
+UMS (Concrete Applied Implementation)
+ ↓ Proposed patterns that are reusable
 Evolith ← Via PR to beyondnetcode/evolith
 ```
 
@@ -88,9 +82,7 @@ Every documentation change must include:
 | Diagram Syntax | Mermaid/PlantUML valid | Automated check |
 | Evolith Alignment | UMS vs Evolith separation clear | Manual review |
 | No Sensitive Data | No passwords/keys/tokens | Automated scan |
-| No Obsolete Refs | No TODO/FIXME/DEMO | Automated check |
-
-### 2.2.1 Complex Change Documentation Gate
+| No Obsolete Refs | No TODO/FIXME/DEMO | Automated check | ### 2.2.1 Complex Change Documentation Gate
 
 When a code or architecture change is complex, cross-cutting, or evolutionary, the change must not be considered complete until the documentation impact has been checked and the affected artifacts are updated in both languages.
 
@@ -139,40 +131,30 @@ python3 .github/scripts/validate-mermaid.py docs/
 | Cross-references | Link checker | Zero broken links |
 | MASTER_INDEX navigation | Manual/Automated | All links functional |
 | ADR references | ADR validator | All references resolve |
-| Diagram links | Mermaid validator | All diagrams valid |
-
-### 3.2 External Documentation Consistency
+| Diagram links | Mermaid validator | All diagrams valid | ### 3.2 External Documentation Consistency
 
 | Check | Method | Pass Criteria |
 |-------|--------|---------------|
 | Evolith references | Manual check | Point to external Evolith GitHub |
 | External URLs | Link checker | All resolve (HTTP 200) |
-| API documentation | Manual check | Matches implementation |
-
-### 3.3 Bilingual Consistency
+| API documentation | Manual check | Matches implementation | ### 3.3 Bilingual Consistency
 
 | Check | Method | Pass Criteria |
 |-------|--------|---------------|
 | File existence | Script check | Both en/es versions exist |
 | Content sync | Manual review | Same technical content |
 | Navigation sync | Manual check | Same links in both |
-| Section headers | Script check | Consistent structure |
-
-### 3.4 Architecture Consistency
+| Section headers | Script check | Consistent structure | ### 3.4 Architecture Consistency
 
 | Check | Method | Pass Criteria |
 |-------|--------|---------------|
 | Evolith inheritance | ADR review | UMS-specific vs Evolith clear |
 | DDD boundaries | Architecture docs | No cross-domain joins |
-| Tenant isolation | Code/docs review | Enforced consistently |
-
----
+| Tenant isolation | Code/docs review | Enforced consistently | ---
 
 ## Section 4: How to Detect and Report Issues
 
-### 4.1 Broken Link Detection
-
-**Automated (Preferred)**:
+### 4.1 Broken Link Detection**Automated (Preferred)**:
 ```bash
 # Use markdown-link-check or docs-quality.yml
 ```
@@ -180,76 +162,44 @@ python3 .github/scripts/validate-mermaid.py docs/
 **Manual**:
 1. Open documentation file
 2. Click each link
-3. Verify resolution
-
-**Report Format**:
+3. Verify resolution**Report Format**:
 ```markdown
-## Broken Link Report
-
-**File**: docs/path/file.md
-**Line**: 42
-**Link**: [Text](./target.md)
-**Issue**: File does not exist
-**Suggested Fix**: Update to correct path
+## Broken Link Report**File**: docs/path/file.md**Line**: 42**Link**: [Text](./target.md)
+**Issue**: File does not exist**Suggested Fix**: Update to correct path
 ```
 
-### 4.2 Broken Diagram Detection
-
-**Mermaid Syntax Check**:
+### 4.2 Broken Diagram Detection**Mermaid Syntax Check**:
 ```bash
 python3 .github/scripts/validate-mermaid.py docs/
 ```
 
 **Common Issues**:
 - Unbalanced braces `{ }`
-- Unbalanced parentheses `( )`
+- Unbalanced parentheses `()`
 - Invalid diagram type
-- Missing node IDs
-
-**Report Format**:
+- Missing node IDs**Report Format**:
 ```markdown
-## Diagram Issue Report
-
-**File**: docs/path/file.md
-**Diagram**: Line 42-58
-**Issue**: Unbalanced braces (3 open, 2 close)
+## Diagram Issue Report**File**: docs/path/file.md**Diagram**: Line 42-58**Issue**: Unbalanced braces (3 open, 2 close)
 **Suggested Fix**: Add closing brace after node B
 ```
 
-### 4.3 ADR Consistency Issues
-
-**Check for**:
+### 4.3 ADR Consistency Issues**Check for**:
 - Duplicate ADR numbers
 - Missing ADR numbers (gaps)
 - Invalid status values
-- Missing required sections
-
-**Report Format**:
+- Missing required sections**Report Format**:
 ```markdown
-## ADR Issue Report
-
-**ADR**: ADR-0066
-**Issue**: Number conflict with ADR-0042
-**Resolution**: Renamed to ADR-0070 (see ADR-0070)
+## ADR Issue Report**ADR**: ADR-0066**Issue**: Number conflict with ADR-0042**Resolution**: Renamed to ADR-0070 (see ADR-0070)
 **Files Affected**: docs/architecture/adrs/
 ```
 
-### 4.4 Bilingual Sync Issues
-
-**Check for**:
+### 4.4 Bilingual Sync Issues**Check for**:
 - Missing Spanish translation
 - Outdated translation
 - Different technical content
-- Broken navigation in Spanish version
-
-**Report Format**:
+- Broken navigation in Spanish version**Report Format**:
 ```markdown
-## Bilingual Sync Issue
-
-**English File**: docs/architecture/overview.md
-**Spanish File**: docs/architecture/overview.es.md
-**Issue**: Missing section on authentication flow
-**Impact**: Incomplete Spanish documentation
+## Bilingual Sync Issue**English File**: docs/architecture/overview.md**Spanish File**: docs/architecture/overview.es.md**Issue**: Missing section on authentication flow**Impact**: Incomplete Spanish documentation
 ```
 
 ### 4.5 Blocking Issues (Must Fix)
@@ -260,18 +210,14 @@ python3 .github/scripts/validate-mermaid.py docs/
 | ADR number conflict | ADR-0066 exists twice | Renumber |
 | Missing required section | ADR without Status | Add |
 | Secret in documentation | `password=secret123` | Remove immediately |
-| Broken Mermaid | Syntax error | Fix syntax |
-
-### 4.6 Warning Issues (Should Fix)
+| Broken Mermaid | Syntax error | Fix syntax | ### 4.6 Warning Issues (Should Fix)
 
 | Issue Type | Example | Action |
 |------------|---------|--------|
 | External link timeout | Link > 5s | Replace or remove |
 | Minor markdown lint | Trailing spaces | Fix |
 | Bilingual wording | Slight variation | Align |
-| Optional diagram | Could be clearer | Improve |
-
----
+| Optional diagram | Could be clearer | Improve | ---
 
 ## Section 5: Release Readiness Decision
 
@@ -286,15 +232,11 @@ Before creating a documentation release, verify:
 - [ ] Bilingual sync complete
 - [ ] No sensitive data
 - [ ] No TODO/FIXME/DEMO
-- [ ] MASTER_INDEX updated
-
-**Architecture Consistency**:
+- [ ] MASTER_INDEX updated**Architecture Consistency**:
 - [ ] Evolith references correct
 - [ ] UMS vs Evolith clear
 - [ ] ADRs consistent
-- [ ] DDD boundaries respected
-
-**Pipeline Validation**:
+- [ ] DDD boundaries respected**Pipeline Validation**:
 - [ ] docs-quality.yml passes
 - [ ] security.yml passes (if source changed)
 - [ ] Release workflow documented
@@ -303,11 +245,9 @@ Before creating a documentation release, verify:
 
 | Condition | Decision | Action |
 |-----------|----------|--------|
-| All blocking checks pass | ✅ Ready for release | Proceed |
-| Any blocking check fails | ❌ NOT Ready | Fix issues first |
-| Only warnings present | ⚠️ Conditionally Ready | Document known issues |
-
-### 5.3 Release Approval Process
+| All blocking checks pass | Ready for release | Proceed |
+| Any blocking check fails | NOT Ready | Fix issues first |
+| Only warnings present | Conditionally Ready | Document known issues | ### 5.3 Release Approval Process
 
 1. **Automated Validation**: All CI checks pass
 2. **Manual Review**: Architecture lead reviews
@@ -336,9 +276,7 @@ Before creating a documentation release, verify:
 | Date | YYYY-MM-DD |
 | Commit SHA | abc1234 |
 | Author | name@company.com |
-| Summary | Brief description of changes |
-
-### Files Changed
+| Summary | Brief description of changes | ### Files Changed
 - `path/to/file1.md`
 - `path/to/file2.md`
 
@@ -365,9 +303,9 @@ Before creating a documentation release, verify:
 
 ```
 docs-vMAJOR.MINOR.PATCH
-        │      │      └── Patch: Hotfix, critical correction
-        │      └───────── Minor: New documentation, feature docs
-        └─────────────── Major: Governance restructure, major refactor
+ │ │ └── Patch: Hotfix, critical correction
+ │ └───────── Minor: New documentation, feature docs
+ └─────────────── Major: Governance restructure, major refactor
 ```
 
 ---
@@ -429,18 +367,16 @@ Initial comprehensive documentation governance for UMS.
 - Add E2E tests
 
 ## Links
-- [Version Log](./docs/releases/documentation-version-log.md)
-- [Governance](./.github/GOVERNANCE.md)
-- [CONTRIBUTING](./.github/CONTRIBUTING.md)
+- [Version Log](./documentation-version-log.md)
+- [Governance](../../.github/GOVERNANCE.md)
+- [CONTRIBUTING](../../.github/CONTRIBUTING.md)
 ```
 
 ---
 
 ## Section 8: Quick Reference for BMAD Agents
 
-### 8.1 Common Tasks
-
-**Check documentation quality**:
+### 8.1 Common Tasks**Check documentation quality**:
 ```bash
 python3 .github/scripts/validate-adrs.py docs/architecture/adrs/
 python3 .github/scripts/validate-mermaid.py docs/
@@ -467,41 +403,37 @@ git checkout -b docs/update-something
 3. **Does this reference Evolith?** → Ensure external GitHub link
 4. **Is it a pattern?** → Evaluate for Evolith proposal
 
-### 8.3 Quality Gate Severity Reference
-
-**BLOCKING (Stop immediately)**:
-- ❌ Build fails
-- ❌ Tests fail
-- ❌ Critical/High vulnerability found
-- ❌ Secrets detected
-- ❌ Broken internal documentation link
-- ❌ ADR numbering conflict
-
-**WARNING (Should fix but can proceed)**:
-- ⚠️ Code coverage < 80%
-- ⚠️ Minor markdown style issue
-- ⚠️ External link timeout
-- ⚠️ Low-risk dependency warning
-- ⚠️ Bilingual wording mismatch
+### 8.3 Quality Gate Severity Reference**BLOCKING (Stop immediately)**:
+- Build fails
+- Tests fail
+- Critical/High vulnerability found
+- Secrets detected
+- Broken internal documentation link
+- ADR numbering conflict**WARNING (Should fix but can proceed)**:
+- Code coverage < 80%
+- Minor markdown style issue
+- External link timeout
+- Low-risk dependency warning
+- Bilingual wording mismatch
 
 ### 8.4 Release Decision Flow
 
 ```
 Start
-  ↓
+ ↓
 Any blocking issues?
-  ↓ Yes → ❌ Fix before release
-  ↓ No
+ ↓ Yes → Fix before release
+ ↓ No
 All warning issues documented?
-  ↓ No → ⚠️ Document known issues
-  ↓ Yes
+ ↓ No → Document known issues
+ ↓ Yes
 Automated CI passes?
-  ↓ No → ❌ Check CI logs
-  ↓ Yes
+ ↓ No → Check CI logs
+ ↓ Yes
 Manual reviews complete?
-  ↓ No → ⚠️ Complete reviews
-  ↓ Yes
-✅ Ready for release
+ ↓ No → Complete reviews
+ ↓ Yes
+ Ready for release
 ```
 
 ---
@@ -517,16 +449,10 @@ Manual reviews complete?
 | Security finding in docs | Security Team |
 | Bilingual sync failure | Documentation Lead |
 | GitHub Actions failure | DevSecOps |
-| Blocking issue unclear | Architecture Lead |
-
-### 9.2 Issue Report Template
+| Blocking issue unclear | Architecture Lead | ### 9.2 Issue Report Template
 
 ```markdown
-## Documentation Issue Report
-
-**Date**: YYYY-MM-DD
-**Reporter**: Name/Agent ID
-**Severity**: Blocking/Warning
+## Documentation Issue Report**Date**: YYYY-MM-DD**Reporter**: Name/Agent ID**Severity**: Blocking/Warning
 
 ### Issue
 Description of the issue.
@@ -551,11 +477,6 @@ Screenshots, logs, or references.
 | CONTRIBUTING.md | .github/ | Contributor guide |
 | Version Log | docs/releases/ | Release history |
 | Release Checklist | docs/releases/ | Pre-release validation |
-| AGENTS.md | root/ | BMAD agent rules |
+| AGENTS.md | root/ | BMAD agent rules | ---
 
----
-
-**Document Version**: 1.0.0
-**Created**: 2026-05-29
-**For**: BMAD agents, internal teams, external providers
-**BMAD Rules**: R-03 (Encoding), R-14 (No Emoji) enforced
+**Document Version**: 1.0.0**Created**: 2026-05-29**For**: BMAD agents, internal teams, external providers**BMAD Rules**: R-03 (Encoding), R-14 (No Emoji) enforced

@@ -15,7 +15,7 @@ Rather than serving as a simple user store, UMS acts as a **Specialized Authoriz
 - For enterprise tenants, authentication can be seamlessly delegated to external Identity Providers (Zitadel, Azure AD, Okta, SAML/OIDC) via OIDC and OAuth 2.0 (Auth Code Flow with PKCE) under a plug-and-play strategy.
 
 ### B. Dynamic B2B Multi-Tenancy
-- High-performance tenant isolation is enforced at the PostgreSQL database level using **Row-Level Security (RLS)**.
+- High-performance tenant isolation is enforced at the SQL Server database level using **Row-Level Security (RLS)**.
 - Organizations (Tenants) have total self-service autonomy to manage their local employees, roles, and profiles, freeing the primary platform operator from daily administrative overhead.
 
 ### C. Dynamic UI Injection & Granular Authorization

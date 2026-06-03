@@ -159,7 +159,7 @@ Support engineers, integration partners, and security reviewers ask "what works 
 | `UnknownFieldsObservedEvent`, `SchemaMinorMismatchEvent`, `DeprecatedFieldUsageEvent` logged | All SDKs | SDK team |
 | CI job: round-trip every fixture through every SDK | `.github/workflows/sdk-contract-validation.yml` | Platform |
 
-Initial release: schema `1.0.0`. The current graph structure documented in [`auth-graph.md` §8](../../domain/identity/auth-graph.md#8-json-response-example) is the canonical 1.0.0 schema.
+Initial release: schema `1.0.0`. The current graph structure documented in [`auth-graph.md` §8](../../domain/identity/auth-graph.md#8-ejemplo-json-de-respuesta) is the canonical 1.0.0 schema.
 
 ---
 

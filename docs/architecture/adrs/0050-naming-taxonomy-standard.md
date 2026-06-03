@@ -12,7 +12,7 @@ Accepted
 
 UMS is a satellite product of the Evolith Architecture Reference. The parent reference defines a binding, automated-enforcement naming standard in [ADR-0056: Enterprise Naming & Design Conventions — Multi-Language, Multi-Platform](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/core/0056-enterprise-naming-design-conventions.md).
 
-UMS is a polyglot system spanning C# / .NET 8, SQL Server 2022, REST/OpenAPI, and CloudEvents. Without a formally adopted naming policy, integration bugs, onboarding friction, and security misconfigurations (field-name leaks) are predictable outcomes.
+UMS is a polyglot system spanning C# / .NET 10, SQL Server 2022, REST/OpenAPI, and CloudEvents. Without a formally adopted naming policy, integration bugs, onboarding friction, and security misconfigurations (field-name leaks) are predictable outcomes.
 
 A conformance audit conducted on 2026-05-15 identified a critical SQL naming violation in the current UMS schema design: all tables use `UPPER_SNAKE_CASE` singular identifiers (e.g., `USER_ACCOUNT`, `SYSTEM_SUITE`) which violates the `snake_case` plural noun mandate of Evolith ADR-0056 §5.5.
 

@@ -45,8 +45,8 @@ Todo artefacto documental que exista en ingles DEBE tener un equivalente en espa
 
 Todos los puntos de entrada documentales DEBEN incluir enlaces de cambio de idioma:
 
-- Paginas en ingles: `[Leer en espanol](./README.es.md)` (o la ruta equivalente)
-- Paginas en espanol: `[Read in English](./README.md)` (o la ruta equivalente)
+- Paginas en ingles: `[Leer en espanol](../README.es.md)` (o la ruta equivalente)
+- Paginas en espanol: `[Read in English](../README.md)` (o la ruta equivalente)
 
 ### Convencion de Nombres de Archivos
 
@@ -189,4 +189,4 @@ Al actualizar documentacion:
 
 ---
 
-**[Volver a AGENTS.md](../../AGENTS.md)** | **[Volver al Indice Maestro](./MASTER_INDEX.es.md)**
+**[Volver a AGENTS.md](../../AGENTS.md)** | **[Volver al Indice Maestro](../MASTER_INDEX.es.md)**

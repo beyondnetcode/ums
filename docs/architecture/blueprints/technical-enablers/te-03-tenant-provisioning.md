@@ -49,7 +49,7 @@ RegisterTenantCommand
 
 ## Closure Table (ADR-0048)
 
-The `TENANT_CLOSURE` table is maintained by an SQL Server trigger on `ums_identity.TENANT`. The domain never writes to it directly — this is intentional per [12-design-decisions.md](../../../../governance/construction/ddd-design/12-design-decisions.md).
+The `TENANT_CLOSURE` table is maintained by an SQL Server trigger on `ums_identity.TENANT`. The domain never writes to it directly — this is intentional per [12-design-decisions.md](../../../governance/construction/ddd-design/12-design-decisions.md).
 
 ```sql
 -- TENANT_CLOSURE schema

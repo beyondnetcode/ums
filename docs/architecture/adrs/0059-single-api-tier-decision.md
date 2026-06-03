@@ -18,7 +18,7 @@ Evolith permits splitting query and command surfaces into separate API tiers whe
 
 ## Decision
 
-UMS will co-locate GraphQL (query) and REST (command) surfaces in a **single `ums.api` deployment unit** using HotChocolate Minimal APIs on .NET 8.
+UMS will co-locate GraphQL (query) and REST (command) surfaces in a **single `ums.api` deployment unit** using HotChocolate Minimal APIs on .NET 10.
 
 CQRS separation is maintained at the **protocol level** (GraphQL for reads, REST for writes) but not at the deployment/infrastructure level.
 

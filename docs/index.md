@@ -1,13 +1,15 @@
-# UMS — Enterprise User Management System
+# UMS Documentation
 
-Welcome to the official UMS Documentation Portal. Please select your preferred language to continue:
+This page is a lightweight language entry point for the documentation set.
 
-> **[ 🇬🇧 English: Open Master Index ](./MASTER_INDEX.md)**
+## Language
 
-> **[ 🇪🇸 Español: Abrir Índice Maestro ](./MASTER_INDEX.es.md)**
+- English: [Master Index](./MASTER_INDEX.md)
+- Espanol: [Indice Maestro](./MASTER_INDEX.es.md)
 
-> **[ Quick Navigation / Navegacion Rapida ](./governance/quick-navigation.md)**
+## Main Portals
 
----
-
-*Powered by [BMAD-METHOD](https://github.com/beyondnet) & GitHub Pages.*
+- [Root README](../README.md)
+- [Governance Portal](./governance/index.md)
+- [Architecture Portal](./architecture/index.md)
+- [Operations Portal](./operations/index.md)

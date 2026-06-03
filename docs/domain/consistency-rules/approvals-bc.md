@@ -1,6 +1,6 @@
 # Approvals BC — Consistency Rules
 
-> **Bounded Context:** `Ums.Domain.Approvals`  
+> **Bounded Context:** `Ums.Domain.Approvals`
 > **Aggregates:** `ApprovalWorkflow`, `ApprovalRequest`, `DocumentType`, `NotificationRule`, `UserDocument`, `AccessEnforcementPolicy`
 
 ---
@@ -19,15 +19,11 @@ No explicit status enum currently. Consistency enforced via `RequiresApproval` f
 |-----------|-------|-------------|
 | `AddRequiredDocument()` | DocumentType must not already be required | `approvals.document_type_already_required` |
 | `Create()` | If `RequiresApproval = true`, at least one `RequiredDocument` must be added | `approvals.requires_documents_if_approval_required` |
-| `RemoveRequiredDocument()` | If `RequiresApproval = true`, must leave ≥ 1 document | `approvals.requires_documents_if_approval_required` |
-
-### Orphan Risks
+| `RemoveRequiredDocument()` | If `RequiresApproval = true`, must leave ≥ 1 document | `approvals.requires_documents_if_approval_required` | ### Orphan Risks
 
 | Risk | Scenario | Mitigation |
 |------|----------|-----------|
-| 🟠 Workflow with 0 required docs but RequiresApproval=true | `RemoveRequiredDocument()` empties the list | Guard: validate min count before remove |
-
----
+| Workflow with 0 required docs but RequiresApproval=true | `RemoveRequiredDocument()` empties the list | Guard: validate min count before remove | ---
 
 ## ApprovalRequest
 
@@ -44,24 +40,18 @@ Pending ──Reject()──► Rejected (terminal)
 
 | Operation | Guard | Broken Rule |
 |-----------|-------|-------------|
-| `Approve()` / `Reject()` | Status must be `Pending` | `approvals.request_not_pending` |
-
-### Cross-Aggregate Dependency Guards (application layer validates before calling)
+| `Approve()` / `Reject()` | Status must be `Pending` | `approvals.request_not_pending` | ### Cross-Aggregate Dependency Guards (application layer validates before calling)
 
 | Operation | Validation | Notes |
 |-----------|------------|-------|
 | `Create()` | `WorkflowId` must exist and be active | Application layer pre-validates |
 | `Create()` | `RequestedRoleId` must exist and be active | Application layer pre-validates |
-| `Approve()` | `GrantedRoleId` must exist and be active | Application layer pre-validates |
-
-### Orphan Risks
+| `Approve()` | `GrantedRoleId` must exist and be active | Application layer pre-validates | ### Orphan Risks
 
 | Risk | Scenario | Mitigation |
 |------|----------|-----------|
-| 🔴 Pending request references deleted Role | Role deleted after request created | Application layer listens to `RoleDeactivatedEvent`, cancels pending requests |
-| 🔴 Pending request never resolved | No timeout mechanism | Planned: background job to expire after N days |
-
----
+| Pending request references deleted Role | Role deleted after request created | Application layer listens to `RoleDeactivatedEvent`, cancels pending requests |
+| Pending request never resolved | No timeout mechanism | Planned: background job to expire after N days | ---
 
 ## DocumentType
 
@@ -74,14 +64,12 @@ Pending ──Reject()──► Rejected (terminal)
 | Operation | Guard | Broken Rule |
 |-----------|-------|-------------|
 | `Create()` | Code must be unique within tenant | `common.duplicate` |
-| Criticity rules | `Critical` document type must have at least one active `AccessEnforcementPolicy` | Validated at query/reporting level |
+| Criticity rules | `Critical` document type must have at least one active `AccessEnforcementPolicy` | Validated at query/reporting level | ### Design Decision: NotificationRule
 
-### Design Decision: NotificationRule
-
-> **Code is the source of truth.**  
-> `NotificationRule` is implemented as an **independent Aggregate Root** in `Ums.Domain.Approvals.NotificationRule`.  
-> It is **not** an owned entity of `DocumentType`.  
-> `DocumentType` may reference `NotificationRule` entities by ID, but does not own their lifecycle.  
+> **Code is the source of truth.**
+> `NotificationRule` is implemented as an**independent Aggregate Root**in `Ums.Domain.Approvals.NotificationRule`.
+> It is**not**an owned entity of `DocumentType`.
+> `DocumentType` may reference `NotificationRule` entities by ID, but does not own their lifecycle.
 > The `document-type.md` documentation has been updated to reflect this.
 
 ---
@@ -90,7 +78,7 @@ Pending ──Reject()──► Rejected (terminal)
 
 ### Aggregate Root: `Ums.Domain.Approvals.NotificationRule`
 
-`NotificationRule` is an **independent Aggregate Root** — not an owned entity of `DocumentType`.
+`NotificationRule` is an**independent Aggregate Root** — not an owned entity of `DocumentType`.
 
 ### State Machine
 
@@ -102,15 +90,11 @@ Active ──Deactivate()──► Inactive
 
 | Operation | Guard | Broken Rule |
 |-----------|-------|-------------|
-| `Deactivate()` | Must not already be inactive | `approvals.rule_already_inactive` |
-
-### Orphan Risks
+| `Deactivate()` | Must not already be inactive | `approvals.rule_already_inactive` | ### Orphan Risks
 
 | Risk | Scenario | Mitigation |
 |------|----------|-----------|
-| 🟢 Deactivated rule referenced by DocumentType | DocumentType references inactive rule | Application layer should filter inactive rules from notifications |
-
----
+| Deactivated rule referenced by DocumentType | DocumentType references inactive rule | Application layer should filter inactive rules from notifications | ---
 
 ## UserDocument
 
@@ -132,15 +116,11 @@ Expired ──ReUpload()──► PendingReview
 | `Validate()` / `Reject()` | Status must be `PendingReview` | `compliance.document_not_pending_review` |
 | `Expire()` | Status must not already be `Expired` | `compliance.document_already_expired` |
 | Any invalid transition | E.g. `Valid → PendingReview` | `compliance.document_cannot_transition` |
-| `Upload()` | `ExpirationDate` must be after `IssueDate` | `compliance.expiration_before_issue_date` |
-
-### Child Entity Cascade Rules
+| `Upload()` | `ExpirationDate` must be after `IssueDate` | `compliance.expiration_before_issue_date` | ### Child Entity Cascade Rules
 
 | Event | Cascade |
 |-------|---------|
-| Any state change | `AccessNotification` entries are append-only audit records. No cascade required. |
-
----
+| Any state change | `AccessNotification` entries are append-only audit records. No cascade required. | ---
 
 ## AccessEnforcementPolicy
 
@@ -155,8 +135,6 @@ Active ──Deactivate()──► Inactive
 | Operation | Guard | Broken Rule |
 |-----------|-------|-------------|
 | `Create()` | Must target at least one Profile or Role | `approvals.policy_requires_profile_or_role` |
-| `Deactivate()` | Must not already be inactive | `approvals.policy_already_inactive` |
-
----
+| `Deactivate()` | Must not already be inactive | `approvals.policy_already_inactive` | ---
 
 *Part of [consistency-rules/index.md](./index.md)*

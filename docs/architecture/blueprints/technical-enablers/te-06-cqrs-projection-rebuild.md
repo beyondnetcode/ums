@@ -25,7 +25,7 @@ Write Side                         Read Side
 Command                            
   │                                ┌──────────────────────────┐
   ▼                                │  Projection Store        │
-Domain Event ──► Event Store ──────► (Redis / PostgreSQL view)│
+Domain Event ──► Event Store ──────► (Redis / SQL Server view)│
                                    │                          │
                      ▲             │  auth_graph_v2 (shadow)  │
                      │             │         │                 │

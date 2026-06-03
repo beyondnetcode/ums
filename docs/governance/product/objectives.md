@@ -18,7 +18,7 @@ Guarantee that centralized permission checks do not degrade the downstream user 
 
 - **KR 2.1**: Keep compiled permission graph retrieval latency **under 50ms** using Read-Aside Redis Caching with TTL < 1 hour.
 - **KR 2.2**: Ensure the monorepo build time is **under 5 minutes** by utilizing Nx high-performance task caching.
-- **KR 2.3**: Achieve a **TypeORM-level RLS overhead of < 5ms** per SQL query execution.
+- **KR 2.3**: Achieve an **EF Core / SQL Server RLS overhead of < 5ms** per SQL query execution.
 
 ---
 
@@ -34,6 +34,6 @@ Offload administrative tasks to clients, reducing support overhead.
 ## Objective 4: Achieve True Plug-and-Play Extensibility (Vendor-Neutral Core)
 Design the system such that all external infrastructures (IdPs and Feature Flag Managers) are completely optional and easily pluggable.
 
-- **KR 4.1**: Deliver a fully functional **Native Fallback Engine** for both Identity (bcrypt/internal DB) and Feature Flags (PostgreSQL targets/evaluator) out of the box, requiring zero external SaaS dependencies.
+- **KR 4.1**: Deliver a fully functional **Native Fallback Engine** for both Identity (bcrypt/internal DB) and Feature Flags (SQL Server-backed targets/evaluator) out of the box, requiring zero external SaaS dependencies.
 - **KR 4.2**: Standardize **100% of external integrations** behind hexagonal ports (`IAuthenticationPort` and `IFeatureFlagPort`), enabling zero-downtime additions/swapping of vendors (Zitadel, Azure AD, Okta, LaunchDarkly, Unleash, ConfigCat) via configuration alone.
 - **KR 4.3**: Enforce **Zero external vendor SDK imports** within the pure `core/` or `application/` layers of the NestJS application.

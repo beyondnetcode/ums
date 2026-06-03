@@ -87,7 +87,7 @@ Notes:
 
 `provider` is `null` when `method = "Local"`. When `method = "IDP"`, `provider` is required and `strategy` matches a value of `IdpStrategyHint` from BC-A (e.g., `AZURE_AD`, `OKTA`, `SAML2`, `GENERIC_OIDC`).
 
-The SDK does NOT receive IDP tokens — see [Security Notes in auth-graph.md §10](../../domain/identity/auth-graph.md#10-security-notes).
+The SDK does NOT receive IDP tokens — see [Security Notes in auth-graph.md §10](../../domain/identity/auth-graph.md#10-notas-de-seguridad).
 
 ### 3.4 `actions` (array, required, may be empty)
 

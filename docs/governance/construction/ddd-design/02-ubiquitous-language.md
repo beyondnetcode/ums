@@ -8,7 +8,7 @@
 
 Términos canónicos que todos los artefactos de código, documentación y conversación deben respetar. Cualquier término fuera de esta tabla debe ser propuesto y aprobado antes de usarse en el código.
 
-> **Ver también:** [Glosario de Requisitos](../../../requirements/glossary.md) — versión orientada a negocio del lenguaje ubicuo, organizada por término con definiciones y ejemplos de uso para stakeholders no técnicos.
+> **Ver también:** [Glosario de Requisitos](../../requirements/glossary.md) — versión orientada a negocio del lenguaje ubicuo, organizada por término con definiciones y ejemplos de uso para stakeholders no técnicos.
 
 ---
 

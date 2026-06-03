@@ -16,7 +16,7 @@ Evolith permite dividir las superficies de query y command en niveles de API sep
 
 ## Decisión
 
-UMS co-localizará las superficies GraphQL (query) y REST (command) en una **única unidad de despliegue `ums.api`** usando HotChocolate Minimal APIs en .NET 8.
+UMS co-localizará las superficies GraphQL (query) y REST (command) en una **única unidad de despliegue `ums.api`** usando HotChocolate Minimal APIs en .NET 10.
 
 La separación CQRS se mantiene a nivel de **protocolo** (GraphQL para lecturas, REST para escrituras) pero no a nivel de despliegue/infraestructura.
 

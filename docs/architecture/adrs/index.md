@@ -6,7 +6,7 @@ All architectural decisions for the User Management System (UMS) are recorded he
 
 UMS is a satellite repository of `evolith_arch32`. The parent repository defines the corporate architecture baseline; UMS ADRs must either adopt it by reference or document an explicit SQL Server / .NET adaptation where the parent example is runtime- or database-specific.
 
-> **Note:** ADRs 0001–0049 are inherited from the Evolith parent architecture baseline. Their governance and canonical text lives in the [Evolith ADR Registry](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/README.md). Only UMS-specific decisions (ADR-0050 onward) are maintained as physical files in this repository.
+> **Note:**ADRs 0001–0049 are inherited from the Evolith parent architecture baseline. Their governance and canonical text lives in the [Evolith ADR Registry](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/README.md). Only UMS-specific decisions (ADR-0050 onward) are maintained as physical files in this repository.
 
 ---
 
@@ -17,17 +17,13 @@ UMS is a satellite repository of `evolith_arch32`. The parent repository defines
 | ADR | Title | Status |
 |-----|-------|--------|
 | ADR-0001 – ADR-0028 | Foundation, infrastructure, runtime, CI/CD | Referenced — files pending |
-| ADR-0029 | C# Native DDD Primitives | Clarified by ADR-0054 |
-
-## DDD & Domain Design (ADR-0030 – ADR-0049)
+| ADR-0029 | C# Native DDD Primitives | Clarified by ADR-0054 | ## DDD & Domain Design (ADR-0030 – ADR-0049)
 
 | ADR | Title | Status |
 |-----|-------|--------|
 | ADR-0030 – ADR-0048 | DDD bounded contexts, multi-tenancy, authorization, compliance | Referenced — files pending |
 | ADR-0048 | Closure Table for Hierarchical Multi-Tenancy | Accepted |
-| ADR-0049 | Table Partitioning Strategy | Accepted |
-
-## Phase 04 — Construction Standards (ADR-0050 – )
+| ADR-0049 | Table Partitioning Strategy | Accepted | ## Phase 04 — Construction Standards (ADR-0050 –)
 
 | ADR | Title | Status |
 |-----|-------|--------|
@@ -60,9 +56,7 @@ UMS is a satellite repository of `evolith_arch32`. The parent repository defines
 | [ADR-0077](./0077-tenant-portal-management-authorization-boundary.md) | Tenant Portal Management Authorization Boundary and Scope Policy | Accepted |
 | [ADR-0078](./0078-ddd-domain-resource-hierarchy.md) | DDD Domain Resource Hierarchy — Aggregate, Entity, DomainMethod | Accepted |
 | [ADR-0079](./0079-dependency-guard-policy.md) | Dependency Guard Policy — Blocking Operations on Active Dependencies | Accepted |
-| [ADR-0080](./0080-auth-graph-preview-internal-pipeline.md) | Auth Graph Preview — Internal vs External Pipeline | Accepted |
-
-> **Evolith candidate** - ADR has zero UMS-specific dependencies and is proposed for extraction to the Evolith parent architecture baseline.
+| [ADR-0080](./0080-auth-graph-preview-internal-pipeline.md) | Auth Graph Preview — Internal vs External Pipeline | Accepted | > **Evolith candidate** - ADR has zero UMS-specific dependencies and is proposed for extraction to the Evolith parent architecture baseline.
 
 ---
 
@@ -72,26 +66,24 @@ All ADRs (0050-0080) now have Spanish translations:
 
 | ADR | Spanish | ADR | Spanish |
 |-----|---------|-----|---------|
-| 0050 | ✅ | 0061 | ✅ |
-| 0051 | ✅ | 0062 | ✅ |
-| 0052 | ✅ | 0063 | ✅ |
-| 0053 | ✅ | 0064 | ✅ |
-| 0054 | ✅ | 0065 | ✅ |
-| 0055 | ✅ | 0066 | ✅ |
-| 0056 | ✅ | 0068 | ✅ |
-| 0057 | ✅ | 0069 | ✅ |
-| 0058 | ✅ | 0070 | ✅ |
-| 0059 | ✅ | 0071 | ✅ |
-| 0060 | ✅ | 0072 | ✅ |
-| —    | — | 0073 | ✅ |
-| —    | — | 0074 | ✅ |
-| —    | — | 0075 | ✅ |
-| —    | — | 0076 | ✅ |
-| —    | — | 0077 | ✅ |
-| —    | — | 0078 | ✅ |
-| —    | — | 0079 | ✅ |
-| —    | — | 0080 | ✅ |
-
----
+| 0050 | | 0061 | |
+| 0051 | | 0062 | |
+| 0052 | | 0063 | |
+| 0053 | | 0064 | |
+| 0054 | | 0065 | |
+| 0055 | | 0066 | |
+| 0056 | | 0068 | |
+| 0057 | | 0069 | |
+| 0058 | | 0070 | |
+| 0059 | | 0071 | |
+| 0060 | | 0072 | |
+| — | — | 0073 | |
+| — | — | 0074 | |
+| — | — | 0075 | |
+| — | — | 0076 | |
+| — | — | 0077 | |
+| — | — | 0078 | |
+| — | — | 0079 | |
+| — | — | 0080 | | ---
 
 **[Architecture Portal](../index.md)** | **[Master Index](../../MASTER_INDEX.md)**

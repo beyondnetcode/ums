@@ -23,7 +23,7 @@ Portal de documentacion tecnica para la fase de construccion del User Management
 |-----------|-------------|
 | Historias Tecnicas y Composicion del Equipo | 89 TS en 8 epicas; perfiles de equipo; estimaciones de esfuerzo |
 | Mapeo FS a TS | Trazabilidad: FS → TS con criterios de aceptacion |
-| Plan de Implementacion de Servicios | Estructura monorepo .NET 8; piramide de tests; CI/CD |
+| Plan de Implementacion de Servicios | Estructura monorepo .NET 10; piramide de tests; CI/CD |
 | Implementacion RLS SQL Server | SESSION_CONTEXT; EF Core interceptors; health checks |
 
 ---

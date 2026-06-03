@@ -1,9 +1,9 @@
 # Especificación del Sistema de Parametrización UMS
 
-> **Versión:** 1.0.0
-> **Estado:** Propuesta
-> **Creado:** 2026-05-30
-> **Última actualización:** 2026-05-30
+> **Versión:**1.0.0
+> **Estado:**Propuesta
+> **Creado:**2026-05-30
+> **Última actualización:**2026-05-30
 
 ---
 
@@ -25,18 +25,18 @@ Todos los comportamientos configurables dentro de UMS deben ser almacenados en l
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Configuración UMS                         │
+│ Configuración UMS │
 ├─────────────────────────┬───────────────────────────────────┤
-│   GLOBAL (Sistema)      │      POR TENANT                   │
-│   ScopeId = 1           │      ScopeId = 2                  │
+│ GLOBAL (Sistema) │ POR TENANT │
+│ ScopeId = 1 │ ScopeId = 2 │
 ├─────────────────────────┼───────────────────────────────────┤
-│ • Visible solo para     │ • Visible para Admin de Tenant    │
-│   Admin Interno         │   (con permisos)                  │
-│ • Aplica a todo el      │ • Aplica solo a su tenant         │
-│   sistema UMS           │ • Admin Interno puede ver todos   │
-│ • Configuración base    │ • Tenant puede sobreescribir si   │
-│   para todos los        │   el global lo permite            │
-│   comportamientos       │                                   │
+│ • Visible solo para │ • Visible para Admin de Tenant │
+│ Admin Interno │ (con permisos) │
+│ • Aplica a todo el │ • Aplica solo a su tenant │
+│ sistema UMS │ • Admin Interno puede ver todos │
+│ • Configuración base │ • Tenant puede sobreescribir si │
+│ para todos los │ el global lo permite │
+│ comportamientos │ │
 └─────────────────────────┴───────────────────────────────────┘
 ```
 
@@ -47,9 +47,7 @@ Todos los comportamientos configurables dentro de UMS deben ser almacenados en l
 | 1 | Global | Parámetros del sistema UMS |
 | 2 | Tenant | Parámetros específicos de tenant |
 | 3 | Suite | Parámetros a nivel de System Suite (futuro) |
-| 4 | Module | Parámetros a nivel de Módulo (futuro) |
-
----
+| 4 | Module | Parámetros a nivel de Módulo (futuro) | ---
 
 ## 3. Loader de Configuración
 
@@ -61,30 +59,30 @@ Cargar todos los parámetros desde la base de datos a memoria al inicio del sist
 
 ```
 Inicio del Sistema
-        │
-        ▼
+ │
+ ▼
 ┌────────────────────┐
 │ ConfigurationLoader│
-│                    │
+│ │
 │ 1. Cargar Globales │ ← ScopeId = 1
-│                    │
-│ 2. Cargar Por      │ ← Para tenants activos
-│    Tenant          │
-│                    │
-│ 3. Construir store  │
-│    en memoria       │
-│                    │
-│ 4. Registrar como   │
-│    singleton        │
+│ │
+│ 2. Cargar Por │ ← Para tenants activos
+│ Tenant │
+│ │
+│ 3. Construir store │
+│ en memoria │
+│ │
+│ 4. Registrar como │
+│ singleton │
 └────────────────────┘
-        │
-        ▼
+ │
+ ▼
 ┌────────────────────┐
 │ConfigurationProvider│ ← Consumido por toda la lógica
-│                    │
-│ get(key)           │
+│ │
+│ get(key) │
 │ get(key, tenantId) │
-│ set(key, value)    │ ← Dispara auditoría
+│ set(key, value) │ ← Dispara auditoría
 └────────────────────┘
 ```
 
@@ -98,8 +96,8 @@ Inicio del Sistema
 
 ```typescript
 interface ParameterStore {
-  global: Map<string, AppConfiguration>;
-  byTenant: Map<Guid, Map<string, AppConfiguration>>;
+ global: Map<string, AppConfiguration>;
+ byTenant: Map<Guid, Map<string, AppConfiguration>>;
 }
 ```
 
@@ -113,9 +111,7 @@ El sistema de configuración se modela como tres Aggregate Roots para que el esq
 |---|---|
 | `ParameterDefinition` | Define el esquema y el significado de negocio de un parámetro configurable |
 | `ParameterGlobalValue` | Almacena el valor por defecto a nivel sistema |
-| `ParameterTenantValue` | Almacena el override específico de tenant cuando la política lo permite |
-
-### Contrato Compartido
+| `ParameterTenantValue` | Almacena el override específico de tenant cuando la política lo permite | ### Contrato Compartido
 
 - `code` identifica el parámetro.
 - `value` almacena el contenido efectivo actual.
@@ -131,23 +127,23 @@ El sistema de configuración se modela como tres Aggregate Roots para que el esq
 
 ```typescript
 interface IConfigurationProvider {
-  // Obtener parámetro global
-  getGlobal(key: string): AppConfiguration | undefined;
+ // Obtener parámetro global
+ getGlobal(key: string): AppConfiguration | undefined;
 
-  // Obtener parámetro de tenant (con revisión de precedencia)
-  getForTenant(tenantId: Guid, key: string): AppConfiguration | undefined;
+ // Obtener parámetro de tenant (con revisión de precedencia)
+ getForTenant(tenantId: Guid, key: string): AppConfiguration | undefined;
 
-  // Obtener valor como tipo específico
-  getValueAs<T>(key: string, tenantId?: Guid, defaultValue?: T): T;
+ // Obtener valor como tipo específico
+ getValueAs<T>(key: string, tenantId?: Guid, defaultValue?: T): T;
 
-  // Establecer parámetro (dispara auditoría)
-  set(key: string, value: string, scope: Scope, tenantId?: Guid): void;
+ // Establecer parámetro (dispara auditoría)
+ set(key: string, value: string, scope: Scope, tenantId?: Guid): void;
 
-  // Recargar desde base de datos
-  reload(): Promise<void>;
+ // Recargar desde base de datos
+ reload(): Promise<void>;
 
-  // Recargar para tenant específico
-  reloadTenant(tenantId: Guid): Promise<void>;
+ // Recargar para tenant específico
+ reloadTenant(tenantId: Guid): Promise<void>;
 }
 ```
 
@@ -155,17 +151,17 @@ interface IConfigurationProvider {
 
 1. **Si existe parámetro de tenant** → Usar valor del tenant
 2. **Si solo existe parámetro global** → Usar valor global
-3. **Los parámetros globales actúan como restricción máxima** cuando aplique
-4. **Tenant no puede sobreescribir** cuando el parámetro global está marcado como no sobreescribible
+3. **Los parámetros globales actúan como restricción máxima**cuando aplique
+4. **Tenant no puede sobreescribir**cuando el parámetro global está marcado como no sobreescribible
 
 ```typescript
 function getWithPrecedence(key: string, tenantId?: Guid): AppConfiguration | undefined {
-  if (tenantId) {
-    const tenantParam = store.byTenant.get(tenantId)?.get(key);
-    if (tenantParam) return tenantParam;
-  }
+ if (tenantId) {
+ const tenantParam = store.byTenant.get(tenantId)?.get(key);
+ if (tenantParam) return tenantParam;
+ }
 
-  return store.global.get(key);
+ return store.global.get(key);
 }
 ```
 
@@ -188,9 +184,7 @@ function getWithPrecedence(key: string, tenantId?: Guid): AppConfiguration | und
 | IsInheritable | bool | Puede ser heredado por scopes hijos |
 | IsEncrypted | bool | El valor está encriptado |
 | Version | string | Versión semántica |
-| StatusId | int | 1=Borrador, 2=Publicado, 3=Archivado |
-
-### 5.2 Parámetros Requeridos (Conjunto Inicial)
+| StatusId | int | 1=Borrador, 2=Publicado, 3=Archivado | ### 5.2 Parámetros Requeridos (Conjunto Inicial)
 
 #### Parámetros Globales (ScopeId = 1)
 
@@ -207,9 +201,7 @@ function getWithPrecedence(key: string, tenantId?: Guid): AppConfiguration | und
 | UI_LANGUAGE_DEFAULT | string | "es" | Idioma por defecto de la UI |
 | UI_TIMEZONE_DEFAULT | string | "America/Lima" | Zona horaria por defecto |
 | EMAIL_FROM_ADDRESS | string | "noreply@ums.local" | Remitente de email |
-| NOTIFICATION_RETRY_ATTEMPTS | int | 3 | Cantidad de reintentos de notificación |
-
-#### Parámetros de Tenant (ScopeId = 2)
+| NOTIFICATION_RETRY_ATTEMPTS | int | 3 | Cantidad de reintentos de notificación | #### Parámetros de Tenant (ScopeId = 2)
 
 | Code | Tipo | Descripción |
 |------|------|-------------|
@@ -217,9 +209,7 @@ function getWithPrecedence(key: string, tenantId?: Guid): AppConfiguration | und
 | PASSWORD_MAX_AGE_DAYS | int | Edad máxima de password (sobreescribe global si está establecido) |
 | ACCOUNT_LOCKOUT_DURATION_MINUTES | int | Duración del bloqueo de cuenta |
 | UI_CUSTOM_BRANDING_ENABLED | bool | Habilitar branding personalizado |
-| SESSION_MAX_CONCURRENT | int | Máximas sesiones concurrentes por usuario |
-
----
+| SESSION_MAX_CONCURRENT | int | Máximas sesiones concurrentes por usuario | ---
 
 ## 7. Registro de Auditoría
 
@@ -235,18 +225,18 @@ function getWithPrecedence(key: string, tenantId?: Guid): AppConfiguration | und
 
 ```typescript
 interface ConfigurationAuditRecord {
-  id: Guid;
-  parameterId: Guid;
-  parameterCode: string;
-  tenantId: Guid | null;        // null para parámetros globales
-  userId: Guid;
-  userType: 'InternalAdmin' | 'TenantAdmin' | 'System';
-  operation: 'Create' | 'Update' | 'Delete' | 'Override';
-  previousValue: string | null;
-  newValue: string | null;
-  timestamp: DateTime;
-  ipAddress: string;
-  userAgent: string;
+ id: Guid;
+ parameterId: Guid;
+ parameterCode: string;
+ tenantId: Guid | null; // null para parámetros globales
+ userId: Guid;
+ userType: 'InternalAdmin' | 'TenantAdmin' | 'System';
+ operation: 'Create' | 'Update' | 'Delete' | 'Override';
+ previousValue: string | null;
+ newValue: string | null;
+ timestamp: DateTime;
+ ipAddress: string;
+ userAgent: string;
 }
 ```
 
@@ -262,9 +252,7 @@ interface ConfigurationAuditRecord {
 | GET | `/api/v1/configurations/global/{code}` | Obtener parámetro global por código |
 | POST | `/api/v1/configurations/global` | Crear parámetro global |
 | PUT | `/api/v1/configurations/global/{code}` | Actualizar parámetro global |
-| DELETE | `/api/v1/configurations/global/{code}` | Archivar parámetro global |
-
-### 7.2 Parámetros de Tenant
+| DELETE | `/api/v1/configurations/global/{code}` | Archivar parámetro global | ### 7.2 Parámetros de Tenant
 
 | Método | Endpoint | Descripción |
 |--------|----------|-------------|
@@ -272,9 +260,7 @@ interface ConfigurationAuditRecord {
 | GET | `/api/v1/tenants/{tenantId}/configurations/{code}` | Obtener parámetro de tenant |
 | POST | `/api/v1/tenants/{tenantId}/configurations` | Crear parámetro de tenant |
 | PUT | `/api/v1/tenants/{tenantId}/configurations/{code}` | Actualizar parámetro de tenant |
-| DELETE | `/api/v1/tenants/{tenantId}/configurations/{code}` | Archivar parámetro de tenant |
-
----
+| DELETE | `/api/v1/tenants/{tenantId}/configurations/{code}` | Archivar parámetro de tenant | ---
 
 ## 8. Integración con Frontend
 
@@ -282,23 +268,23 @@ interface ConfigurationAuditRecord {
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ Parámetros del Sistema                                      │
+│ Parámetros del Sistema │
 ├─────────────────────────┬───────────────────────────────────┤
-│ [Global] [Por Tenant]   │                                   │
-├─────────────────────────┤  ┌─────────────────────────────┐ │
-│ 🔍 Buscar...            │  │ SESSION_TIMEOUT_MINUTES     │ │
-│                         │  │ Valor: 30                   │ │
-│ [Global]                │  │ Descripción: Timeout de     │ │
-│  • SESSION_TIMEOUT...   │  │ sesión inactiva en minutos  │ │
-│  • MAX_LOGIN_ATTEMPTS   │  │ Alcance: Global             │ │
-│  • ACCESS_TOKEN_...     │  │ Estado: Publicado           │ │
-│                         │  │                             │ │
-│ [Por Tenant]            │  │ [Editar] [Archivar]         │ │
-│  ▼ TENANT: Ransa        │  └─────────────────────────────┘ │
-│    • MFA_ALLOWED_...    │                                   │
-│    • PASSWORD_MAX_...   │                                   │
-│  ▼ TENANT: APM          │                                   │
-│    • MFA_ALLOWED_...    │                                   │
+│ [Global] [Por Tenant] │ │
+├─────────────────────────┤ ┌─────────────────────────────┐ │
+│ Buscar... │ │ SESSION_TIMEOUT_MINUTES │ │
+│ │ │ Valor: 30 │ │
+│ [Global] │ │ Descripción: Timeout de │ │
+│ • SESSION_TIMEOUT... │ │ sesión inactiva en minutos │ │
+│ • MAX_LOGIN_ATTEMPTS │ │ Alcance: Global │ │
+│ • ACCESS_TOKEN_... │ │ Estado: Publicado │ │
+│ │ │ │ │
+│ [Por Tenant] │ │ [Editar] [Archivar] │ │
+│ ▼ TENANT: Ransa │ └─────────────────────────────┘ │
+│ • MFA_ALLOWED_... │ │
+│ • PASSWORD_MAX_... │ │
+│ ▼ TENANT: APM │ │
+│ • MFA_ALLOWED_... │ │
 └─────────────────────────┴───────────────────────────────────┘
 ```
 
@@ -306,20 +292,20 @@ interface ConfigurationAuditRecord {
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ Tenant: Ransa S.A.                        [Parámetros]      │
+│ Tenant: Ransa S.A. [Parámetros] │
 ├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  Configuraciones específicas para este tenant               │
-│                                                             │
-│  [+ Agregar Parámetro]                                     │
-│                                                             │
-│  ┌──────────────────────────────────────────────────────┐  │
-│  │ MFA_ALLOWED_METHODS                                  │  │
-│  │ Valor: ["TOTP", "Email"]                             │  │
-│  │ Override del global: No establecido                  │  │
-│  │ [Editar] [Eliminar Override]                         │  │
-│  └──────────────────────────────────────────────────────┘  │
-│                                                             │
+│ │
+│ Configuraciones específicas para este tenant │
+│ │
+│ [+ Agregar Parámetro] │
+│ │
+│ ┌──────────────────────────────────────────────────────┐ │
+│ │ MFA_ALLOWED_METHODS │ │
+│ │ Valor: ["TOTP", "Email"] │ │
+│ │ Override del global: No establecido │ │
+│ │ [Editar] [Eliminar Override] │ │
+│ └──────────────────────────────────────────────────────┘ │
+│ │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -330,46 +316,46 @@ interface ConfigurationAuditRecord {
 ### 9.1 Servicios de Backend
 
 1. **ConfigurationLoader** (Singleton)
-   - Carga parámetros al inicio
-   - Gestiona cache en memoria
-   - Maneja solicitudes de recarga
+- Carga parámetros al inicio
+- Gestiona cache en memoria
+- Maneja solicitudes de recarga
 
 2. **ConfigurationProvider** (Singleton)
-   - Punto de acceso central para todos los valores de configuración
-   - Implementa lógica de precedencia
-   - Notifica al servicio de auditoría ante cambios
+- Punto de acceso central para todos los valores de configuración
+- Implementa lógica de precedencia
+- Notifica al servicio de auditoría ante cambios
 
 3. **ConfigurationAuditService**
-   - Registra todos los cambios de configuración
-   - Consulta registros de auditoría
+- Registra todos los cambios de configuración
+- Consulta registros de auditoría
 
 4. **ConfigurationValues**
-   - Fachada tipada sobre `IConfigurationProvider` para consumidores de login, sesión y contraseña
-   - Mantiene centralizadas las consultas de configuración en handlers y validadores
+- Fachada tipada sobre `IConfigurationProvider` para consumidores de login, sesión y contraseña
+- Mantiene centralizadas las consultas de configuración en handlers y validadores
 
 ### 9.2 TODO: Migración Futura a Redis
 
 ```typescript
 /**
- * TODO: [TD-003] Migrar ConfigurationProvider a Redis
- *
- * La implementación actual almacena parámetros en memoria.
- * La implementación futura debe usar Redis para cache distribuido.
- *
- * Pasos de migración:
- * 1. Introducir abstracción IConfigurationCache
- * 2. Implementar InMemoryConfigurationCache (actual)
- * 3. Implementar RedisConfigurationCache (futuro)
- * 4. Actualizar ConfigurationProvider para usar IConfigurationCache
- * 5. Agregar estrategia de invalidación de cache
- * 6. Implementar cache warming al inicio
- *
- * Beneficios:
- * - Configuración compartida entre instancias de API
- * - Invalidación automática ante actualizaciones
- * - Menor carga en base de datos
- * - Soporte para hot-reload de configuración
- */
+* TODO: [TD-003] Migrar ConfigurationProvider a Redis
+*
+* La implementación actual almacena parámetros en memoria.
+* La implementación futura debe usar Redis para cache distribuido.
+*
+* Pasos de migración:
+* 1. Introducir abstracción IConfigurationCache
+* 2. Implementar InMemoryConfigurationCache (actual)
+* 3. Implementar RedisConfigurationCache (futuro)
+* 4. Actualizar ConfigurationProvider para usar IConfigurationCache
+* 5. Agregar estrategia de invalidación de cache
+* 6. Implementar cache warming al inicio
+*
+* Beneficios:
+* - Configuración compartida entre instancias de API
+* - Invalidación automática ante actualizaciones
+* - Menor carga en base de datos
+* - Soporte para hot-reload de configuración
+*/
 ```
 
 ---
@@ -403,9 +389,9 @@ interface ConfigurationAuditRecord {
 
 ## 11. Documentos Relacionados
 
-- [Historia Funcional: Gestión de Parámetros del Sistema](./requirements/functional-stories/fs-20-system-parameter-management.md)
-- [Registro de Deuda Técnica](./technical-debt.md)
-- [TODO: Implementación del Sistema de Configuración](./project/TODO.md)
+- [Historia Funcional: Gestión de Parámetros del Sistema](../../requirements/functional-stories/fs-20-system-parameter-management.md)
+- [Registro de Deuda Técnica](../../../architecture/technical-debt.md)
+- [TODO: Implementación del Sistema de Configuración](../../project/TODO.md)
 
 ---
 

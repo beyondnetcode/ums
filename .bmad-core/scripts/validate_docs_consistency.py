@@ -142,6 +142,15 @@ def normalize_link(raw: str) -> str:
     return raw
 
 
+def strip_code_blocks(text: str) -> str:
+    def preserve_newlines(match: re.Match[str]) -> str:
+        return "\n" * match.group(0).count("\n")
+
+    text = re.sub(r"```.*?```", preserve_newlines, text, flags=re.DOTALL)
+    text = re.sub(r"<pre\b.*?</pre>", preserve_newlines, text, flags=re.DOTALL | re.IGNORECASE)
+    return text
+
+
 def is_external_or_special(link: str) -> bool:
     parsed = urlparse(link)
     return bool(parsed.scheme in {"http", "https", "mailto", "tel", "data"}) or link.startswith("#")
@@ -149,7 +158,8 @@ def is_external_or_special(link: str) -> bool:
 
 def validate_links(path: Path, text: str, file_cache: dict[Path, str]) -> list[Issue]:
     issues: list[Issue] = []
-    for match in LOCAL_LINK_RE.finditer(text):
+    scan_text = strip_code_blocks(text) if path.suffix.lower() == ".md" else text
+    for match in LOCAL_LINK_RE.finditer(scan_text):
         link = normalize_link(match.group(1) or match.group(2) or "")
         if not link or is_external_or_special(link):
             continue
@@ -254,6 +264,14 @@ def counterpart_candidates(path: Path) -> list[Path]:
     candidates.append(s.replace("/requirements/", "/requirements-es/"))
     candidates.append(s.replace("/blueprints-es/", "/blueprints/"))
     candidates.append(s.replace("/blueprints/", "/blueprints-es/"))
+    candidates.append(s.replace("/domain-es/", "/domain/"))
+    candidates.append(s.replace("/domain/", "/domain-es/"))
+    candidates.append(s.replace("/sdk-es/", "/sdk/"))
+    candidates.append(s.replace("/sdk/", "/sdk-es/"))
+    candidates.append(s.replace("/knowledge/articles/", "/knowledge/articles/").replace("/en.md", "/es.md"))
+    candidates.append(s.replace("/knowledge/articles/", "/knowledge/articles/").replace("/es.md", "/en.md"))
+    candidates.append(re.sub(r"/es-([^/]+)\.md$", r"/\1.md", s))
+    candidates.append(re.sub(r"/([^/]+)\.md$", r"/es-\1.md", s))
     return [Path(c) for c in candidates if c != s]
 
 

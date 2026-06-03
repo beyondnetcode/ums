@@ -413,7 +413,7 @@ This document provides a consolidated view of engineering metrics across all UMS
 - Failure rate < 1%
 - Throughput > 100 RPS
 
-**Documentation:** [Load Tests README](../../tests/load/README.md)
+**Documentation:** [Load Tests README](../../../tests/load/README.md)
 
 </details>
 
@@ -524,7 +524,7 @@ All metrics in this document trace back to the following architecture assets:
 | Traceability Matrix | [traceability-matrix.md](../../architecture/traceability-matrix.md) | FS-to-ADR-to-TE mapping |
 | DDD Design Portal | [ddd-design/index.md](../../governance/construction/ddd-design/index.md) | Domain model metrics |
 | API Implementation Tracker | [api-aggregate-implementation-tracker.md](../../governance/project/api-aggregate-implementation-tracker.md) | Per-aggregate completion |
-| Coverage Strategy | [coverage-strategy.md](../../../apps/ums.api/docs/testing/coverage-strategy.md) | Coverage thresholds |
+| Coverage Strategy | [coverage-strategy.md](../../../src/apps/ums.api/docs/testing/coverage-strategy.md) | Coverage thresholds |
 
 ---
 

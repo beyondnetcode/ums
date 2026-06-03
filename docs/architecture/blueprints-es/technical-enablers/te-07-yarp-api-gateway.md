@@ -235,4 +235,4 @@ ums-gateway:
 
 ---
 
-**[Índice TE](./index.md)** | **[ADR-0058](../../adrs/0058-api-gateway-yarp-evolution.md)** | **[Matriz de Trazabilidad](../../traceability-matrix.md)**
+**[Índice TE](../../blueprints/technical-enablers/index.es.md)** | **[ADR-0058](../../adrs/0058-api-gateway-yarp-evolution.md)** | **[Matriz de Trazabilidad](../../traceability-matrix.md)**

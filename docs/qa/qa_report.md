@@ -1,9 +1,9 @@
 # Reporte de QA - Tenant & User CRUD (BMAD)
 
 ## 1. Resumen Ejecutivo
-Se han ejecutado pruebas automatizadas (vía scripting local y consultas directas a los endpoints de la API) para certificar las operaciones **CRUD** correspondientes a la gestión de **Tenants** y **Usuarios** en la arquitectura de UMS.
+Se han ejecutado pruebas automatizadas (vía scripting local y consultas directas a los endpoints de la API) para certificar las operaciones**CRUD**correspondientes a la gestión de**Tenants**y**Usuarios**en la arquitectura de UMS.
 
-**Resultado Global**: **APROBADO** ✅ (Los endpoints base funcionan y el estado es consistente. Se detectaron algunas validaciones estrictas del modelo de dominio que cumplen perfectamente con las reglas de negocio).
+**Resultado Global**: **APROBADO** (Los endpoints base funcionan y el estado es consistente. Se detectaron algunas validaciones estrictas del modelo de dominio que cumplen perfectamente con las reglas de negocio).
 
 ---
 
@@ -32,7 +32,7 @@ Se verificó que los endpoints transaccionales (Comandos) requieren estrictament
 
 ## 4. Bugs Encontrados / Hallazgos de Dominio
 1. **Validación de Categoría de Usuario**: Al intentar inyectar usuarios con `category: "Employee"` o `identityReferenceType: "EmployeeId"`, la API rechaza la petición con HTTP `422 Unprocessable Entity` y el mensaje `"User category is not supported"`.
-   - *Conclusión*: Esto **NO** es un bug. Es la aplicación correcta de las reglas del dominio (`UserCategory.cs` y `IdentityReferenceType.cs`) que solo aceptan `Internal`, `External`, `B2B`, etc., y tipos `HrId`, `VendorCode`, etc.
+- *Conclusión*: Esto**NO**es un bug. Es la aplicación correcta de las reglas del dominio (`UserCategory.cs` y `IdentityReferenceType.cs`) que solo aceptan `Internal`, `External`, `B2B`, etc., y tipos `HrId`, `VendorCode`, etc.
 2. **GraphQL Pagination**: La query de Tenants retorna el nodo `items` correctamente serializado de acuerdo a la interfaz de React (como lo consume `tenantService.getTenants`).
 
 ---

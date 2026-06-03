@@ -87,4 +87,4 @@ Satellite repositories must:
 
 ---
 
-**[Evolith ADR Registry](./README.md)** | **[Child: UMS ADR-0066](../../../../docs/architecture/adrs/0066-database-schema-per-module.md)**
+**[Evolith ADR Registry](./index.md)** | **[Child: UMS ADR-0070](./0070-database-schema-strategy-decision.md)**

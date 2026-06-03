@@ -48,7 +48,7 @@ JavaScript (without TypeScript) is covered implicitly: every `@ums/sdk-*` packag
 
 ### 2. Contract-first: the AuthorizationGraph JSON Schema is the canonical contract
 
-The contract between server (UMS) and SDKs is **not** any language's interface — it is the JSON Schema of the `AuthorizationGraph` payload defined in [`auth-graph.md` §8](../../domain/identity/auth-graph.md#8-json-response-example).
+The contract between server (UMS) and SDKs is **not** any language's interface — it is the JSON Schema of the `AuthorizationGraph` payload defined in [`auth-graph.md` §8](../../domain/identity/auth-graph.md#8-ejemplo-json-de-respuesta).
 
 The schema, the canonical catalog of `AUTH_xxx` error codes, and a library of golden fixture JSONs are produced as language-neutral artifacts that **all three SDKs and the UMS server consume**. They live at:
 

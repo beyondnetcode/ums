@@ -413,7 +413,7 @@ Este documento proporciona una vista consolidada de las metricas de ingenieria e
 - Tasa de fallos < 1%
 - Rendimiento > 100 RPS
 
-**Documentacion:** [README de Pruebas de Carga](../../tests/load/README.md)
+**Documentacion:** [README de Pruebas de Carga](../../../tests/load/README.md)
 
 </details>
 
@@ -524,7 +524,7 @@ Todas las metricas en este documento se remontan a los siguientes activos de arq
 | Matriz de Trazabilidad | [traceability-matrix.md](../../architecture/traceability-matrix.md) | Mapeo FS-a-ADR-a-TE |
 | Portal de Diseno DDD | [ddd-design/index.es.md](../../governance/construction/ddd-design/index.es.md) | Metricas de modelo de dominio |
 | Rastreador de Implementacion API | [api-aggregate-implementation-tracker.md](../../governance/project/api-aggregate-implementation-tracker.md) | Completitud por agregado |
-| Estrategia de Cobertura | [coverage-strategy.md](../../../apps/ums.api/docs/testing/coverage-strategy.md) | Umbrales de cobertura |
+| Estrategia de Cobertura | [coverage-strategy.md](../../../src/apps/ums.api/docs/testing/coverage-strategy.md) | Umbrales de cobertura |
 
 ---
 

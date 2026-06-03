@@ -38,7 +38,7 @@ Use the REST configuration read path for AppConfigurations in the frontend. Grap
 4. Check if there's a resolver scope mismatch
 
 ### Related Technical Debt
-- [TD-002](./technical-debt.md#td-002-graphql-queries-return-empty-data-for-appconfigurations)
+- [TD-002](../../architecture/technical-debt.md#td-002-graphql-queries-return-empty-data-for-appconfigurations)
 
 ---
 
@@ -86,56 +86,56 @@ See: [Parameterization System Specification](../construction/ddd-design/paramete
 
 ### Implemented Components (Phase 1)
 
-#### Backend ✅
+#### Backend
 1. **ConfigurationBootstrapper** (`Ums.Presentation/Bootstrapping/Bootstrappers/ConfigurationBootstrapper.cs`)
-   - Bootstrapper pattern for synchronous initialization at startup
-   - Loads parameters BEFORE other services resolve IConfigurationProvider
-   - Uses CompositeBootstrapper to ensure proper ordering
+- Bootstrapper pattern for synchronous initialization at startup
+- Loads parameters BEFORE other services resolve IConfigurationProvider
+- Uses CompositeBootstrapper to ensure proper ordering
 
 2. **ConfigurationProvider** (`Ums.Infrastructure/Configuration/ConfigurationProvider.cs`)
-   - Single access point for all configuration values
-   - Implements precedence logic (Tenant > Global when allowed)
-   - In-memory ConcurrentDictionary cache for global and tenant parameters
-   - Provides ReloadAsync and ReloadTenantAsync methods
-   - ConfigurationChanged event for audit integration
+- Single access point for all configuration values
+- Implements precedence logic (Tenant > Global when allowed)
+- In-memory ConcurrentDictionary cache for global and tenant parameters
+- Provides ReloadAsync and ReloadTenantAsync methods
+- ConfigurationChanged event for audit integration
 
 3. **IConfigurationProvider** (`Ums.Application/Configuration/Services/IConfigurationProvider.cs`)
-   - Interface defining GetGlobal, GetForTenant, GetWithPrecedence
-   - GetValueAs<T> for typed parameter retrieval
-   - Event-based change notification
+- Interface defining GetGlobal, GetForTenant, GetWithPrecedence
+- GetValueAs<T> for typed parameter retrieval
+- Event-based change notification
 
 4. **ConfigurationAuditService** (`Ums.Application/Configuration/Services/ConfigurationAuditService.cs`)
-   - Audit trail integration for parameter changes
+- Audit trail integration for parameter changes
 
 5. **ConfigurationLoaderExtensions** (`Ums.Infrastructure/Configuration/ConfigurationLoader.cs`)
-   - Extension method for DI registration of IConfigurationProvider
+- Extension method for DI registration of IConfigurationProvider
 
 6. **ConfigurationValues** (`Ums.Application/Configuration/Services/ConfigurationValues.cs`)
-   - Typed wrapper for common configuration values
-   - Provides strongly-typed access to: SessionTimeout, MaxLoginAttempts, MinPasswordLength, etc.
-   - Supports tenant-specific overrides with precedence logic
+- Typed wrapper for common configuration values
+- Provides strongly-typed access to: SessionTimeout, MaxLoginAttempts, MinPasswordLength, etc.
+- Supports tenant-specific overrides with precedence logic
 
 7. **Configuration consumers already wired**
-   - `AddUserAccountPasswordCommandValidator` reads `MIN_PASSWORD_LENGTH` through `ConfigurationValues`
-   - `AuthEndpoints` resolves login session parameters through the typed wrapper
+- `AddUserAccountPasswordCommandValidator` reads `MIN_PASSWORD_LENGTH` through `ConfigurationValues`
+- `AuthEndpoints` resolves login session parameters through the typed wrapper
 
 8. **Tenant-Specific Parameters Seeded**
-   - RANSA_PERU: SESSION_TIMEOUT=45min, MFA_REQUIRED=true, CUSTOM_BRANDING=true
-   - APM_CALLAO: SESSION_TIMEOUT=20min, MAX_LOGIN_ATTEMPTS=3, MFA_REQUIRED=true
-   - NEPTUNIA: SESSION_TIMEOUT=60min, MIN_PASSWORD_LENGTH=14
+- RANSA_PERU: SESSION_TIMEOUT=45min, MFA_REQUIRED=true, CUSTOM_BRANDING=true
+- APM_CALLAO: SESSION_TIMEOUT=20min, MAX_LOGIN_ATTEMPTS=3, MFA_REQUIRED=true
+- NEPTUNIA: SESSION_TIMEOUT=60min, MIN_PASSWORD_LENGTH=14
 
-#### Frontend ✅
+#### Frontend
 1. **TenantConfigurationsPanel** (`presentation/identity/tenant/components/TenantConfigurationsPanel.tsx`)
-   - Tab in TenantDetailPanel for tenant-specific parameters
-   - View/edit tenant parameters
-   - Add new tenant parameters
-   - Visual indication of override vs global parameters
+- Tab in TenantDetailPanel for tenant-specific parameters
+- View/edit tenant parameters
+- Add new tenant parameters
+- Visual indication of override vs global parameters
 
 2. **Updated TenantDetailPanel**
-   - Integrated TenantConfigurationsPanel in the 'configurations' tab
+- Integrated TenantConfigurationsPanel in the 'configurations' tab
 
 3. **New Translations Added**
-   - Configuration parameter UI strings (EN/ES)
+- Configuration parameter UI strings (EN/ES)
 
 ### Remaining Work
 1. Add Redis migration preparation (TD-003)
@@ -143,7 +143,7 @@ See: [Parameterization System Specification](../construction/ddd-design/paramete
 3. Add parameter-level authorization where future policies require it
 
 ### Related Technical Debt
-- [TD-003](./technical-debt.md#td-003-prepare-configuration-system-for-redis)
+- [TD-003](../../architecture/technical-debt.md#td-003-prepare-configuration-system-for-redis-migration)
 
 ---
 

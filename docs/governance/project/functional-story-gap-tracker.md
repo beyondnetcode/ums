@@ -1,6 +1,6 @@
 # Functional Story Gap Tracker
 
-> **Language:** English | [Leer en espanol](./functional-story-gap-tracker.es.md)
+> **Language:** English | [Leer en espanol](../project-es/functional-story-gap-tracker.md)
 
 Living tracker for the gap between the functional story catalog and the current implementation evidence in UMS.
 

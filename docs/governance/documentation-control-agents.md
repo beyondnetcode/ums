@@ -45,8 +45,8 @@ Every documentation artifact that exists in English MUST have a Spanish equivale
 
 All documentation entry points MUST include language switch links:
 
-- English pages: `[Leer en español](./README.es.md)` (or equivalent path)
-- Spanish pages: `[Read in English](./README.md)` (or equivalent path)
+- English pages: `[Leer en español](../README.es.md)` (or equivalent path)
+- Spanish pages: `[Read in English](../README.md)` (or equivalent path)
 
 ### File Naming Convention
 
@@ -189,4 +189,4 @@ When updating documentation:
 
 ---
 
-**[Back to AGENTS.md](../../AGENTS.md)** | **[Back to Master Index](./MASTER_INDEX.md)**
+**[Back to AGENTS.md](../../AGENTS.md)** | **[Back to Master Index](../MASTER_INDEX.md)**

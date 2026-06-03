@@ -43,7 +43,7 @@ Persist domain events into an **outbox table** in the **same ACID transaction** 
 
 ---
 
-## Outbox Schema (SQL Server / PostgreSQL)
+## Outbox Schema (SQL Server)
 
 ```sql
 CREATE TABLE outbox_events (
