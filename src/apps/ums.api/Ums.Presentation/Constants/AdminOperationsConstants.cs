@@ -1,5 +1,7 @@
 namespace Ums.Presentation.Constants;
 
+using Ums.Domain.Configuration.AppConfiguration;
+
 public static class FeatureFlagKeys
 {
     public const string AllowPasswordResetByAdmin = "ALLOW_PASSWORD_RESET_BY_ADMIN";
@@ -20,7 +22,7 @@ public static class PermissionCodes
 
 public static class AppConfigKeys
 {
-    public const string MaxValidityPeriodDays = "MAX_VALIDITY_PERIOD_DAYS";
-    public const string MinPasswordLength = "MIN_PASSWORD_LENGTH";
+    public const string MaxValidityPeriodDays = AppConfigurationCodes.MaxValidityPeriodDays;
+    public const string MinPasswordLength = AppConfigurationCodes.MinPasswordLength;
     public const string PasswordResetNotificationChannel = "PASSWORD_RESET_NOTIFICATION_CHANNEL";
 }

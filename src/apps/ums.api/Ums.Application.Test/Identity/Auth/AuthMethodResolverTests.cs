@@ -4,8 +4,10 @@ using Moq;
 using Xunit;
 using Ums.Application.Configuration.Services;
 using Ums.Application.Identity.Auth;
+using Ums.Domain.Configuration.AppConfiguration;
 using Ums.Domain.Identity;
 using Ums.Domain.Identity.Auth;
+using AppConfigurationAggregate = Ums.Domain.Configuration.AppConfiguration.AppConfiguration;
 
 /// <summary>
 /// Tests for AuthMethodResolverService.
@@ -21,8 +23,8 @@ public class AuthMethodResolverTests
         => new(_config.Object, _tenantRepo.Object);
 
     private void SetupAuthUseExternalIdp(bool value)
-        => _config.Setup(c => c.GetValueAs<bool>("AUTH_USE_EXTERNAL_IDP", _tenantId, false))
-                  .Returns(value);
+        => _config.Setup(c => c.GetWithPrecedence(AppConfigurationCodes.AuthUseExternalIdp, _tenantId))
+                  .Returns(BuildConfiguration(_tenantId, value));
 
     // ── Local mode ────────────────────────────────────────────────────────────
 
@@ -36,6 +38,18 @@ public class AuthMethodResolverTests
         Assert.True(result.IsSuccess);
         Assert.Equal(AuthMethodType.Local, result.Value.Type);
         Assert.Null(result.Value.Provider);
+    }
+
+    [Fact]
+    public async Task ResolveAsync_WhenAuthUseExternalIdpMissing_ReturnsFailure()
+    {
+        _config.Setup(c => c.GetWithPrecedence(AppConfigurationCodes.AuthUseExternalIdp, _tenantId))
+               .Returns((AppConfigurationAggregate?)null);
+
+        var result = await CreateSut().ResolveAsync(_tenantId, AuthAccessScope.ExternalApi);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("REQUIRED_PARAMETER_NOT_CONFIGURED", result.Error);
     }
 
     [Fact]
@@ -143,5 +157,21 @@ public class AuthMethodResolverTests
             Ums.Domain.Enums.IdpStrategy.AzureAd).Value;
         tenant.DomainEvents.MarkChangesAsCommitted();
         return tenant;
+    }
+
+    private static AppConfigurationAggregate BuildConfiguration(Guid tenantId, bool value)
+    {
+        var actor = ActorId.Create("test");
+        return AppConfigurationAggregate.Create(
+                TenantId.Load(tenantId),
+                null,
+                null,
+                Code.Create(AppConfigurationCodes.AuthUseExternalIdp),
+                ConfigurationValue.Create(value.ToString().ToLowerInvariant()),
+                Description.Create("Use external IDP"),
+                true,
+                false,
+                actor)
+            .Value;
     }
 }
