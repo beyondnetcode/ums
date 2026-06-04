@@ -40,10 +40,29 @@ This document keeps a dynamic view of what is already implemented, what is parti
 | FS | Story | Signal | Priority | Criticality | Complexity | Owner | Target | Status | Main gap | Next action |
 |---|---|---|---|---|---|---|---|---|---|---|
 | [FS-12](../requirements/functional-stories/fs-12-role-promotion-process.md) | Execute Role Promotion Process | Amber | P1 | H | H | IGA | TBD | Open | The promotion flow still needs the full manager/security review, execution, verification, and impact analysis closure. | Finish the promotion state machine and align the approval steps with the domain contract. |
-| [FS-13](../requirements/functional-stories/fs-13-hierarchical-config.md) | Configure Hierarchical System Parameters | Amber | P1 | H | H | Platform / Configuration | TBD | Open | Parameterization exists, but the formal Configuration context is still missing its complete API surface. | Implement the `AppConfiguration`, `FeatureFlag`, and `IdpConfiguration` APIs end to end. |
+| [FS-13](../requirements/functional-stories/fs-13-hierarchical-config.md) | Configure Hierarchical System Parameters | Amber | P1 | H | H | Platform / Configuration | TBD | Open | 8 specific gaps identified (see breakdown below): hierarchy only resolves 2 levels, non-overridable flag is missing, Suite/Module scopes are unresolved, sensitive value protection is incomplete. | Work gaps in priority order as listed in the FS-13 breakdown section. |
 | [FS-14](../requirements/functional-stories/fs-14-delegated-management.md) | Delegate User Management Between Administrators | Amber | P2 | M | M | Identity | TBD | Open | Delegation exists as a model, but the end-to-end scope and audit flow still need final validation. | Close the delegated action coverage and verify the acceptance path. |
 | [FS-23](../requirements/functional-stories/fs-23-profile-access-request.md) | Profile Access Request from Lobby User | Amber | P1 | H | H | Approvals | TBD | Open | The request model still needs the requested role and audit fidelity expected by the design. | Extend the request contract and lifecycle tracking. |
 | [FS-24](../requirements/functional-stories/fs-24-profile-request-approval.md) | Profile Request Approval and Manual Assignment | Amber | P1 | H | H | Approvals | TBD | Open | The decision record still needs requested role, granted role, reason, and notification result coverage. | Extend the approval result payload and persistence model. |
+
+---
+
+## FS-13 Gap Breakdown
+
+> Gaps ordered by priority and criticality. Work them top to bottom. Each gap references the acceptance criterion or business rule it blocks.
+
+| # | Gap | Severity | Blocks | What to implement | Key files |
+|---|---|---|---|---|---|
+| 1 | **Full 4-level hierarchy resolver** — `InMemoryConfigurationCache.GetWithPrecedence()` only cascades Tenant → Global. Suite and Module scopes are ignored. | 🔴 P1 / H | AC-3, BR-1 | Replace the 2-level logic with a full chain: Module → Suite → Tenant → Global. Add `GetWithPrecedence(code, tenantId, suiteId, moduleId)`. | `Ums.Infrastructure/Configuration/InMemoryConfigurationCache.cs` |
+| 2 | **Non-overridable flag** — No `IsNonOverridable` property exists anywhere. Lower scopes can always override, violating BR-2 and AC-2. | 🔴 P1 / H | AC-2, BR-2 | Add `IsNonOverridable` to `AppConfigurationProps` and `ParameterDefinitionProps`. Enforce a guard in `CreateAppConfigurationCommandHandler` that checks parent-scope configs before saving. | `Ums.Domain/Configuration/AppConfiguration/`, `Ums.Application/Configuration/AppConfiguration/Commands/` |
+| 3 | **Suite and Module scopes not processed** — `ConfigurationScope.Suite` and `.Module` are defined but no command handler or resolver processes them. A value saved at Suite scope is effectively invisible. | 🔴 P1 / H | AC-1, AC-3 | Wire Suite and Module scope filtering into `CreateAppConfigurationCommandHandler` and `GetWithPrecedence`. Add scope-aware DB queries in the repository. | `Ums.Application/Configuration/AppConfiguration/Commands/CreateAppConfigurationCommandHandler.cs`, `Ums.Infrastructure/Persistence/Configuration/` |
+| 4 | **Sensitive value protection** — `IsEncrypted` flag is stored but never used. Raw value is always returned in the DTO regardless of the flag or the caller's role. | 🔴 P1 / H | BR-5 | Implement AES encryption on write in the command handler. Redact `Value` in `AppConfigurationDto` when `IsEncrypted=true` and the caller is not a Global Admin. Add an authorization check in the query handler. | `Ums.Application/Configuration/AppConfiguration/DTOs/AppConfigurationDto.cs`, `Ums.Application/Configuration/AppConfiguration/Commands/CreateAppConfigurationCommandHandler.cs` |
+| 5 | **Missing `/resolve` endpoint for AppConfiguration** — Clients have no way to request the effective resolved value for a given scope chain. The equivalent endpoint exists for `IdpConfiguration` but not for `AppConfiguration`. | 🟠 P2 / M | AC-3 | Add `GET /app-configurations/resolve?code=X&tenantId=Y&suiteId=Z&moduleId=W` endpoint. Wire it to the hierarchy resolver from gap #1. | `Ums.Presentation/Endpoints/Configuration/AppConfiguration/AppConfigurationEndpoints.cs` |
+| 6 | **No REST endpoints for Parameters** — `ParameterDefinition`, `ParameterGlobalValue`, and `ParameterTenantValue` have application handlers but no HTTP surface and no frontend UI. | 🟠 P2 / M | AC-1 | Add `POST/PUT/GET/DELETE /parameters` and `/parameters/{id}/values` endpoints. Add a basic management panel in the frontend. | `Ums.Presentation/Endpoints/Configuration/`, `ums.web-app/src/presentation/configuration/` |
+| 7 | **Scope model inconsistency** — `ParameterScope` (3 values: GlobalOnly/TenantOnly/GlobalAndTenant) and `ConfigurationScope` (5 values: Global/Tenant/User/Suite/Module) are incompatible. The hierarchy resolver cannot be unified until these are aligned. | 🟡 P3 / L | BR-1 | Decide on a single scope model. Migrate `ParameterScope` to use `ConfigurationScope` values, or add Suite and Module to `ParameterScope`. Update all usages. | `Ums.Domain/Configuration/Parameter/ValueObjects/ParameterScope.cs`, `Ums.Domain/Enums/ConfigurationScope.cs` |
+| 8 | **`IdpConfiguration` missing Archive lifecycle** — Only Activate/Deactivate exist. There is no Archive command/endpoint to permanently retire an IdP configuration. | 🟡 P3 / L | Lifecycle completeness | Add `ArchiveIdpConfigurationCommand` + handler + `POST /idp-configurations/{id}/archive` endpoint, mirroring the `AppConfiguration` archive pattern. | `Ums.Application/Configuration/IdpConfiguration/Commands/`, `Ums.Presentation/Endpoints/Configuration/IdpConfiguration/` |
+
+---
 
 ## Review Cadence
 
@@ -53,4 +72,4 @@ This document keeps a dynamic view of what is already implemented, what is parti
 
 ## Last Review
 
-2026-06-04 (FS-25)
+2026-06-04 (FS-13 detailed breakdown)
