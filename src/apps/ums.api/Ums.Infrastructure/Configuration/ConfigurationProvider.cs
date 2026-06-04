@@ -39,10 +39,10 @@ public sealed class ConfigurationProvider : IConfigurationProvider, IDisposable
 
         var allConfigs = await repository.GetAllAsync(null, cancellationToken);
 
-        // Populate global entries (Scope.Id == 1 = GlobalOnly)
-        _cache.PopulateGlobal(allConfigs.Where(c => c.Scope.Id == 1));
+        // Only Published configs participate in runtime resolution (BR-1, AC-3).
+        _cache.PopulateGlobal(allConfigs.Where(c => c.Scope.Id == 1 && c.Props.Status.Id == 2));
 
-        // Populate per-tenant entries
+        // Populate per-tenant entries — scope 2 = Tenant, 4 = Suite, 5 = Module (ConfigurationScope).
         var tenantIds = allConfigs
             .Where(c => c.Props.TenantId is not null)
             .Select(c => c.Props.TenantId!.GetValue())
@@ -51,17 +51,7 @@ public sealed class ConfigurationProvider : IConfigurationProvider, IDisposable
         foreach (var tenantId in tenantIds)
         {
             var tenantConfigs = await repository.GetAllAsync(tenantId, cancellationToken);
-
-            // Bucket each config into the correct scope cache (BR-1: Module > Suite > Tenant > Global).
-            _cache.PopulateTenant(tenantId, tenantConfigs.Where(c => c.Scope.Id == 2));
-
-            foreach (var grp in tenantConfigs.Where(c => c.Scope.Id == 4 && c.Props.SystemSuiteId is not null)
-                                             .GroupBy(c => c.Props.SystemSuiteId!.GetValue()))
-                _cache.PopulateSuite(grp.Key, grp);
-
-            foreach (var grp in tenantConfigs.Where(c => c.Scope.Id == 5 && c.Props.ModuleId is not null)
-                                             .GroupBy(c => c.Props.ModuleId!.GetValue()))
-                _cache.PopulateModule(grp.Key, grp);
+            BucketTenantConfigs(tenantId, tenantConfigs);
         }
 
         lock (_loadLock)
@@ -84,22 +74,29 @@ public sealed class ConfigurationProvider : IConfigurationProvider, IDisposable
 
     public async Task ReloadTenantAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
-        _cache.InvalidateTenant(tenantId);
-
         using var scope = _scopeFactory.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IAppConfigurationRepository>();
 
-        var tenantConfigs = await repository.GetAllAsync(tenantId, cancellationToken);
+        // Fetch ALL statuses first so we can collect every suiteId/moduleId for this tenant,
+        // including archived or draft ones that may need to be evicted from the cache.
+        var allTenantConfigs = await repository.GetAllAsync(tenantId, cancellationToken);
 
-        _cache.PopulateTenant(tenantId, tenantConfigs.Where(c => c.Scope.Id == 2));
+        // Evict all scope buckets that belong to this tenant before repopulating.
+        _cache.InvalidateTenant(tenantId);
+        foreach (var suiteId in allTenantConfigs
+                     .Where(c => c.Scope.Id == 4 && c.Props.SystemSuiteId is not null)
+                     .Select(c => c.Props.SystemSuiteId!.GetValue())
+                     .Distinct())
+            _cache.InvalidateSuite(suiteId);
 
-        foreach (var grp in tenantConfigs.Where(c => c.Scope.Id == 4 && c.Props.SystemSuiteId is not null)
-                                         .GroupBy(c => c.Props.SystemSuiteId!.GetValue()))
-            _cache.PopulateSuite(grp.Key, grp);
+        foreach (var moduleId in allTenantConfigs
+                     .Where(c => c.Scope.Id == 5 && c.Props.ModuleId is not null)
+                     .Select(c => c.Props.ModuleId!.GetValue())
+                     .Distinct())
+            _cache.InvalidateModule(moduleId);
 
-        foreach (var grp in tenantConfigs.Where(c => c.Scope.Id == 5 && c.Props.ModuleId is not null)
-                                         .GroupBy(c => c.Props.ModuleId!.GetValue()))
-            _cache.PopulateModule(grp.Key, grp);
+        // Repopulate with only Published configs (BR-1: only active values participate in resolution).
+        BucketTenantConfigs(tenantId, allTenantConfigs);
     }
 
     // ── Reads (delegate to cache) ─────────────────────────────────────────────
@@ -185,4 +182,26 @@ public sealed class ConfigurationProvider : IConfigurationProvider, IDisposable
     }
 
     public void Dispose() => _cache.InvalidateAll();
+
+    // ── Private helpers ───────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Buckets a set of tenant configs into the correct scope caches,
+    /// filtering to only Published entries (status.Id == 2) so Draft and
+    /// Archived values never participate in runtime resolution.
+    /// </summary>
+    private void BucketTenantConfigs(Guid tenantId, IReadOnlyList<AppConfigurationAggregate> configs)
+    {
+        var published = configs.Where(c => c.Props.Status.Id == 2).ToList();
+
+        _cache.PopulateTenant(tenantId, published.Where(c => c.Scope.Id == 2));
+
+        foreach (var grp in published.Where(c => c.Scope.Id == 4 && c.Props.SystemSuiteId is not null)
+                                     .GroupBy(c => c.Props.SystemSuiteId!.GetValue()))
+            _cache.PopulateSuite(grp.Key, grp);
+
+        foreach (var grp in published.Where(c => c.Scope.Id == 5 && c.Props.ModuleId is not null)
+                                     .GroupBy(c => c.Props.ModuleId!.GetValue()))
+            _cache.PopulateModule(grp.Key, grp);
+    }
 }

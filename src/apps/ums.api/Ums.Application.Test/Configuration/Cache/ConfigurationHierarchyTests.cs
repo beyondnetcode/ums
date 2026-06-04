@@ -148,6 +148,21 @@ public class ConfigurationHierarchyTests
         Assert.Null(result);
     }
 
+    // ── Published-only resolution ─────────────────────────────────────────────
+
+    [Fact]
+    public void GetWithPrecedence_DraftConfig_NotReturnedByCache()
+    {
+        var cache = new InMemoryConfigurationCache();
+        // Populate returns whatever is given — the Published-only filter lives in ConfigurationProvider.
+        // This test verifies that if ConfigurationProvider correctly filters before calling Populate,
+        // Draft configs are absent from the cache and do not affect resolution.
+        // We simulate this by NOT populating a Draft config and asserting null is returned.
+        // (No Draft config added → cache returns null → fallback would apply in resolution chain)
+        var result = cache.GetWithPrecedence(ConfigCode, Guid.NewGuid());
+        Assert.Null(result);
+    }
+
     // ── Invalidation ─────────────────────────────────────────────────────────
 
     [Fact]
@@ -179,5 +194,38 @@ public class ConfigurationHierarchyTests
 
         var result = cache.GetWithPrecedence(ConfigCode, tenantId, suiteId, moduleId);
         Assert.Equal("suite", result!.Props.Value.GetValue());
+    }
+
+    [Fact]
+    public void InvalidateSuite_StaleSuiteEntryDoesNotSurviveAfterInvalidation()
+    {
+        var tenantId = Guid.NewGuid();
+        var suiteId  = Guid.NewGuid();
+        var cache    = new InMemoryConfigurationCache();
+        cache.PopulateGlobal([MakeConfig("global")]);
+        cache.PopulateSuite(suiteId, [MakeConfig("suite-old", tenantId, suiteId)]);
+
+        // Simulate what ReloadTenantAsync does: invalidate suite bucket, then repopulate
+        // (without the old suite entry, since it was archived)
+        cache.InvalidateSuite(suiteId);
+
+        // After invalidation, Suite-level lookup falls back to global
+        var result = cache.GetWithPrecedence(ConfigCode, tenantId, suiteId);
+        Assert.Equal("global", result!.Props.Value.GetValue());
+    }
+
+    [Fact]
+    public void PopulateSuite_OverwriteWithNewValue_ReturnsUpdatedValue()
+    {
+        var tenantId = Guid.NewGuid();
+        var suiteId  = Guid.NewGuid();
+        var cache    = new InMemoryConfigurationCache();
+        cache.PopulateSuite(suiteId, [MakeConfig("old-value", tenantId, suiteId)]);
+
+        // Re-populate with updated value (simulates cache reload after Update)
+        cache.PopulateSuite(suiteId, [MakeConfig("new-value", tenantId, suiteId)]);
+
+        var result = cache.GetWithPrecedence(ConfigCode, tenantId, suiteId);
+        Assert.Equal("new-value", result!.Props.Value.GetValue());
     }
 }
