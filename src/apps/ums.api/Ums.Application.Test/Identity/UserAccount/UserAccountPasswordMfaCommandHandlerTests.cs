@@ -19,6 +19,8 @@ public class UserAccountPasswordMfaCommandHandlerTests
     private readonly Mock<IUnitOfWork>            _uow  = new();
     private readonly Mock<IUserContext>            _ctx  = new();
     private readonly Mock<IPasswordHashingService> _passwordHashing = new();
+    private readonly Mock<ITenantScopePolicy> _tenantScopePolicy = new();
+    private readonly Mock<IUserManagementDelegationAccessService> _delegationAccess = new();
 
     public UserAccountPasswordMfaCommandHandlerTests()
     {
@@ -26,6 +28,10 @@ public class UserAccountPasswordMfaCommandHandlerTests
         _uow.Setup(u => u.SaveEntitiesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(true);
         _ctx.Setup(u => u.UserId).Returns("user-001");
         _passwordHashing.Setup(s => s.Hash(It.IsAny<string>())).Returns("$2a$12$server-generated-hash");
+        _tenantScopePolicy.Setup(s => s.EnsureManagementOwnerScopeAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success());
+        _delegationAccess.Setup(s => s.EnsureCanExecuteAsync(It.IsAny<Guid>(), It.IsAny<Ums.Domain.Identity.UserManagementDelegation.DelegatedAction>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Failure("delegated access required"));
     }
 
     private static UserAccount MakeUserAccount()
@@ -604,7 +610,7 @@ public class UserAccountPasswordMfaCommandHandlerTests
              .ReturnsAsync(user);
 
         var cmd = new RevokeUserAccountMfaCommand(user.GetId().GetValue(), enrollment.Id.GetValue());
-        var handler = new RevokeUserAccountMfaCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new RevokeUserAccountMfaCommandHandler(_repo.Object, _ctx.Object, _tenantScopePolicy.Object, _delegationAccess.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -620,7 +626,7 @@ public class UserAccountPasswordMfaCommandHandlerTests
              .ReturnsAsync((UserAccount?)null);
 
         var cmd = new RevokeUserAccountMfaCommand(Guid.NewGuid(), Guid.NewGuid());
-        var handler = new RevokeUserAccountMfaCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new RevokeUserAccountMfaCommandHandler(_repo.Object, _ctx.Object, _tenantScopePolicy.Object, _delegationAccess.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -633,7 +639,7 @@ public class UserAccountPasswordMfaCommandHandlerTests
         _ctx.Setup(u => u.UserId).Returns("");
 
         var cmd = new RevokeUserAccountMfaCommand(Guid.NewGuid(), Guid.NewGuid());
-        var handler = new RevokeUserAccountMfaCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new RevokeUserAccountMfaCommandHandler(_repo.Object, _ctx.Object, _tenantScopePolicy.Object, _delegationAccess.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -648,7 +654,7 @@ public class UserAccountPasswordMfaCommandHandlerTests
              .ReturnsAsync(user);
 
         var cmd = new RevokeUserAccountMfaCommand(user.GetId().GetValue(), Guid.NewGuid());
-        var handler = new RevokeUserAccountMfaCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new RevokeUserAccountMfaCommandHandler(_repo.Object, _ctx.Object, _tenantScopePolicy.Object, _delegationAccess.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);

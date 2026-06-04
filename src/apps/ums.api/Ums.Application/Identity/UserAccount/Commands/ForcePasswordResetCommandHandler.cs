@@ -10,17 +10,23 @@ public sealed class ForcePasswordResetCommandHandler : ICommandHandler<ForcePass
     private readonly IUserContext _userContext;
     private readonly IPasswordHashingService _passwordHashingService;
     private readonly INotificationService _notificationService;
+    private readonly ITenantScopePolicy _tenantScopePolicy;
+    private readonly IUserManagementDelegationAccessService _delegationAccessService;
 
     public ForcePasswordResetCommandHandler(
         IUserAccountRepository userAccountRepository,
         IUserContext userContext,
         IPasswordHashingService passwordHashingService,
-        INotificationService notificationService)
+        INotificationService notificationService,
+        ITenantScopePolicy tenantScopePolicy,
+        IUserManagementDelegationAccessService delegationAccessService)
     {
         _userAccountRepository = userAccountRepository;
         _userContext = userContext;
         _passwordHashingService = passwordHashingService;
         _notificationService = notificationService;
+        _tenantScopePolicy = tenantScopePolicy;
+        _delegationAccessService = delegationAccessService;
     }
 
     [AuditTrail]
@@ -33,6 +39,21 @@ public sealed class ForcePasswordResetCommandHandler : ICommandHandler<ForcePass
         var userAccount = await _userAccountRepository.GetByIdAsync(request.UserAccountId, cancellationToken);
         if (userAccount is null)
             return Result<ForcePasswordResetResponse>.Failure("User account not found.");
+
+        var ownerScopeResult = await _tenantScopePolicy.EnsureManagementOwnerScopeAsync(userAccount.TenantId.GetValue(), cancellationToken);
+        if (ownerScopeResult.IsFailure)
+        {
+            var delegatedAccess = await _delegationAccessService.EnsureCanExecuteAsync(
+                userAccount.TenantId.GetValue(),
+                Ums.Domain.Identity.UserManagementDelegation.DelegatedAction.ResetPassword,
+                null,
+                cancellationToken);
+
+            if (delegatedAccess.IsFailure)
+            {
+                return Result<ForcePasswordResetResponse>.Failure(ownerScopeResult.Error);
+            }
+        }
 
         if (userAccount.IdentityReference is not null)
             return Result<ForcePasswordResetResponse>.Failure(

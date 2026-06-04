@@ -1,18 +1,23 @@
 using Ums.Application.Identity.UserManagementDelegation.DTOs;
+using Ums.Application.Common.Interfaces;
 using Ums.Domain.Identity.UserManagementDelegation;
+using Ums.Domain.Enums;
 
 namespace Ums.Application.Identity.UserManagementDelegation.Commands;
 
 public sealed class CreateDelegationCommandHandler : ICommandHandler<CreateDelegationCommand, CreateDelegationResponse>
 {
     private readonly IUserManagementDelegationRepository _repository;
+    private readonly IUserAccountRepository _userAccountRepository;
     private readonly IUserContext _userContext;
 
     public CreateDelegationCommandHandler(
         IUserManagementDelegationRepository repository,
+        IUserAccountRepository userAccountRepository,
         IUserContext userContext)
     {
         _repository = repository;
+        _userAccountRepository = userAccountRepository;
         _userContext = userContext;
     }
 
@@ -27,10 +32,47 @@ public sealed class CreateDelegationCommandHandler : ICommandHandler<CreateDeleg
             return Result<CreateDelegationResponse>.Failure("Authenticated user is required to create a delegation.");
         }
 
+        if (!Guid.TryParse(_userContext.UserId, out var currentUserId) || currentUserId != request.DelegatingAdminId)
+        {
+            return Result<CreateDelegationResponse>.Failure("Delegation can only be created by the delegating user.");
+        }
+
         var scopeType = DomainEnumerationParser.FromName<DelegationScopeType>(request.ScopeType);
         if (scopeType is null)
         {
             return Result<CreateDelegationResponse>.Failure($"Invalid scope type: {request.ScopeType}.");
+        }
+
+        if (!string.Equals(scopeType.Name, DelegationScopeType.Tenant.Name, StringComparison.OrdinalIgnoreCase))
+        {
+            return Result<CreateDelegationResponse>.Failure("Only tenant-scoped delegations are allowed for UMS delegation management.");
+        }
+
+        var delegatingAdmin = await _userAccountRepository.GetByIdAsync(request.DelegatingAdminId, cancellationToken);
+        if (delegatingAdmin is null)
+        {
+            return Result<CreateDelegationResponse>.Failure("Delegating user account was not found.");
+        }
+
+        if (delegatingAdmin.Status != UserStatus.Active)
+        {
+            return Result<CreateDelegationResponse>.Failure("Delegating user account is not active.");
+        }
+
+        var delegatedAdmin = await _userAccountRepository.GetByIdAsync(request.DelegatedAdminId, cancellationToken);
+        if (delegatedAdmin is null)
+        {
+            return Result<CreateDelegationResponse>.Failure("Delegated user account was not found.");
+        }
+
+        if (delegatedAdmin.Status != UserStatus.Active)
+        {
+            return Result<CreateDelegationResponse>.Failure("Delegated user account is not active.");
+        }
+
+        if (delegatingAdmin.TenantId.GetValue() != request.TenantId || delegatedAdmin.TenantId.GetValue() != request.TenantId)
+        {
+            return Result<CreateDelegationResponse>.Failure("Delegation is only allowed within the same tenant.");
         }
 
         var allowedActions = request.AllowedActions

@@ -1,5 +1,6 @@
 namespace Ums.Application.Authorization.Profile.Commands;
 
+using Ums.Application.Common.Interfaces;
 using Ums.Domain.Authorization;
 
 public sealed class AssignProfileTemplateCommandHandler : ICommandHandler<AssignProfileTemplateCommand>
@@ -7,15 +8,21 @@ public sealed class AssignProfileTemplateCommandHandler : ICommandHandler<Assign
     private readonly IProfileRepository _profileRepository;
     private readonly IPermissionTemplateRepository _permissionTemplateRepository;
     private readonly IUserContext _userContext;
+    private readonly ITenantScopePolicy _tenantScopePolicy;
+    private readonly IUserManagementDelegationAccessService _delegationAccessService;
 
     public AssignProfileTemplateCommandHandler(
         IProfileRepository profileRepository,
         IPermissionTemplateRepository permissionTemplateRepository,
-        IUserContext userContext)
+        IUserContext userContext,
+        ITenantScopePolicy tenantScopePolicy,
+        IUserManagementDelegationAccessService delegationAccessService)
     {
         _profileRepository = profileRepository;
         _permissionTemplateRepository = permissionTemplateRepository;
         _userContext = userContext;
+        _tenantScopePolicy = tenantScopePolicy;
+        _delegationAccessService = delegationAccessService;
     }
 
     [AuditTrail]
@@ -31,6 +38,21 @@ public sealed class AssignProfileTemplateCommandHandler : ICommandHandler<Assign
         if (profile is null)
         {
             return Result.Failure("Profile was not found.");
+        }
+
+        var ownerScopeResult = await _tenantScopePolicy.EnsureManagementOwnerScopeAsync(profile.TenantId.GetValue(), cancellationToken);
+        if (ownerScopeResult.IsFailure)
+        {
+            var delegatedAccess = await _delegationAccessService.EnsureCanExecuteAsync(
+                profile.TenantId.GetValue(),
+                Ums.Domain.Identity.UserManagementDelegation.DelegatedAction.AssignProfile,
+                profile.BranchId?.GetValue(),
+                cancellationToken);
+
+            if (delegatedAccess.IsFailure)
+            {
+                return Result.Failure(ownerScopeResult.Error);
+            }
         }
 
         var template = await _permissionTemplateRepository.GetByIdAsync(request.TemplateId, cancellationToken);

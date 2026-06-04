@@ -21,6 +21,7 @@ public class UserAccountCommandHandlerTests
     private readonly Mock<IUserContext>            _ctx  = new();
     private readonly Mock<IProfileRepository>      _profileRepo = new();
     private readonly Mock<ITenantScopePolicy>      _scopePolicy = new();
+    private readonly Mock<IUserManagementDelegationAccessService> _delegationAccess = new();
     private readonly Mock<ITenantRepository>       _tenantRepo = new();
     private readonly Mock<INotificationService>    _notifications = new();
     private readonly Mock<IPasswordHashingService> _passwordHashing = new();
@@ -33,6 +34,8 @@ public class UserAccountCommandHandlerTests
         _passwordHashing.Setup(s => s.Hash(It.IsAny<string>())).Returns("$2a$12$server-generated-hash");
         _scopePolicy.Setup(s => s.EnsureManagementOwnerScopeAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success());
+        _delegationAccess.Setup(s => s.EnsureCanExecuteAsync(It.IsAny<Guid>(), It.IsAny<Ums.Domain.Identity.UserManagementDelegation.DelegatedAction>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Failure("delegated access required"));
         _profileRepo.Setup(r => r.CountActiveByUserAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(0);
         _tenantRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
@@ -70,7 +73,7 @@ public class UserAccountCommandHandlerTests
             IdentityReference: null,
             IdentityReferenceType: null);
 
-        var handler = new CreateUserAccountCommandHandler(_repo.Object, _ctx.Object, _scopePolicy.Object);
+        var handler = new CreateUserAccountCommandHandler(_repo.Object, _ctx.Object, _scopePolicy.Object, _delegationAccess.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -94,7 +97,7 @@ public class UserAccountCommandHandlerTests
             IdentityReference: null,
             IdentityReferenceType: null);
 
-        var handler = new CreateUserAccountCommandHandler(_repo.Object, _ctx.Object, _scopePolicy.Object);
+        var handler = new CreateUserAccountCommandHandler(_repo.Object, _ctx.Object, _scopePolicy.Object, _delegationAccess.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -114,7 +117,7 @@ public class UserAccountCommandHandlerTests
             IdentityReference: null,
             IdentityReferenceType: null);
 
-        var handler = new CreateUserAccountCommandHandler(_repo.Object, _ctx.Object, _scopePolicy.Object);
+        var handler = new CreateUserAccountCommandHandler(_repo.Object, _ctx.Object, _scopePolicy.Object, _delegationAccess.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -136,12 +139,42 @@ public class UserAccountCommandHandlerTests
             IdentityReference: null,
             IdentityReferenceType: null);
 
-        var handler = new CreateUserAccountCommandHandler(_repo.Object, _ctx.Object, _scopePolicy.Object);
+        var handler = new CreateUserAccountCommandHandler(_repo.Object, _ctx.Object, _scopePolicy.Object, _delegationAccess.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
         Assert.Contains("management owner", result.Error, StringComparison.OrdinalIgnoreCase);
         _repo.Verify(r => r.AddAsync(It.IsAny<UserAccount>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Create_WhenDelegatedAccessIsGranted_ReturnsSuccess()
+    {
+        _ctx.Setup(u => u.UserId).Returns("user-001");
+        _scopePolicy.Setup(s => s.EnsureManagementOwnerScopeAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Failure("AUTH_015: Tenant is not marked as management owner."));
+        _delegationAccess.Setup(s => s.EnsureCanExecuteAsync(
+                It.IsAny<Guid>(),
+                Ums.Domain.Identity.UserManagementDelegation.DelegatedAction.CreateUser,
+                null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success());
+        _repo.Setup(r => r.GetByEmailAsync(It.IsAny<Email>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync((UserAccount?)null);
+
+        var cmd = new CreateUserAccountCommand(
+            TenantId: Guid.NewGuid(),
+            BranchId: null,
+            Email: "delegated@test.com",
+            Category: "Internal",
+            IdentityReference: null,
+            IdentityReferenceType: null);
+
+        var handler = new CreateUserAccountCommandHandler(_repo.Object, _ctx.Object, _scopePolicy.Object, _delegationAccess.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        _repo.Verify(r => r.AddAsync(It.IsAny<UserAccount>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     #endregion
@@ -229,7 +262,7 @@ public class UserAccountCommandHandlerTests
              .ReturnsAsync(user);
 
         var cmd = new BlockUserAccountCommand(Guid.NewGuid(), "Security risk");
-        var handler = new BlockUserAccountCommandHandler(_repo.Object, _profileRepo.Object, _ctx.Object);
+        var handler = new BlockUserAccountCommandHandler(_repo.Object, _profileRepo.Object, _ctx.Object, _scopePolicy.Object, _delegationAccess.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -246,7 +279,7 @@ public class UserAccountCommandHandlerTests
              .ReturnsAsync((UserAccount?)null);
 
         var cmd = new BlockUserAccountCommand(Guid.NewGuid(), "Reason");
-        var handler = new BlockUserAccountCommandHandler(_repo.Object, _profileRepo.Object, _ctx.Object);
+        var handler = new BlockUserAccountCommandHandler(_repo.Object, _profileRepo.Object, _ctx.Object, _scopePolicy.Object, _delegationAccess.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -259,7 +292,7 @@ public class UserAccountCommandHandlerTests
         _ctx.Setup(u => u.UserId).Returns("");
 
         var cmd = new BlockUserAccountCommand(Guid.NewGuid(), "Reason");
-        var handler = new BlockUserAccountCommandHandler(_repo.Object, _profileRepo.Object, _ctx.Object);
+        var handler = new BlockUserAccountCommandHandler(_repo.Object, _profileRepo.Object, _ctx.Object, _scopePolicy.Object, _delegationAccess.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -277,10 +310,35 @@ public class UserAccountCommandHandlerTests
              .ReturnsAsync(user);
 
         var cmd = new BlockUserAccountCommand(Guid.NewGuid(), "Reason");
-        var handler = new BlockUserAccountCommandHandler(_repo.Object, _profileRepo.Object, _ctx.Object);
+        var handler = new BlockUserAccountCommandHandler(_repo.Object, _profileRepo.Object, _ctx.Object, _scopePolicy.Object, _delegationAccess.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
+    }
+
+    [Fact]
+    public async Task Block_WhenDelegatedAccessIsGranted_ReturnsSuccess()
+    {
+        _ctx.Setup(u => u.UserId).Returns("user-001");
+        var user = MakeUserAccount();
+        user.Activate(ActorId.Create("user-001"));
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync(user);
+        _scopePolicy.Setup(s => s.EnsureManagementOwnerScopeAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Failure("AUTH_015: Tenant is not marked as management owner."));
+        _delegationAccess.Setup(s => s.EnsureCanExecuteAsync(
+                It.IsAny<Guid>(),
+                Ums.Domain.Identity.UserManagementDelegation.DelegatedAction.BlockUser,
+                null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success());
+
+        var cmd = new BlockUserAccountCommand(Guid.NewGuid(), "Delegated block");
+        var handler = new BlockUserAccountCommandHandler(_repo.Object, _profileRepo.Object, _ctx.Object, _scopePolicy.Object, _delegationAccess.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(UserStatus.Blocked, user.Status);
     }
 
     #endregion

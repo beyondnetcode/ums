@@ -1,4 +1,5 @@
 using Ums.Application.Identity.UserAccount.DTOs;
+using Ums.Application.Common.Interfaces;
 
 namespace Ums.Application.Identity.UserAccount.Commands;
 
@@ -10,15 +11,18 @@ public sealed class CreateUserAccountCommandHandler : ICommandHandler<CreateUser
     private readonly IUserAccountRepository _userAccountRepository;
     private readonly IUserContext _userContext;
     private readonly ITenantScopePolicy _tenantScopePolicy;
+    private readonly IUserManagementDelegationAccessService _delegationAccessService;
 
     public CreateUserAccountCommandHandler(
         IUserAccountRepository userAccountRepository,
         IUserContext userContext,
-        ITenantScopePolicy tenantScopePolicy)
+        ITenantScopePolicy tenantScopePolicy,
+        IUserManagementDelegationAccessService delegationAccessService)
     {
         _userAccountRepository = userAccountRepository;
         _userContext = userContext;
         _tenantScopePolicy = tenantScopePolicy;
+        _delegationAccessService = delegationAccessService;
     }
 
     [AuditTrail]
@@ -35,7 +39,16 @@ public sealed class CreateUserAccountCommandHandler : ICommandHandler<CreateUser
         var scopeResult = await _tenantScopePolicy.EnsureManagementOwnerScopeAsync(request.TenantId, cancellationToken);
         if (scopeResult.IsFailure)
         {
-            return Result<CreateUserAccountResponse>.Failure(scopeResult.Error);
+            var delegatedAccess = await _delegationAccessService.EnsureCanExecuteAsync(
+                request.TenantId,
+                Ums.Domain.Identity.UserManagementDelegation.DelegatedAction.CreateUser,
+                null,
+                cancellationToken);
+
+            if (delegatedAccess.IsFailure)
+            {
+                return Result<CreateUserAccountResponse>.Failure(scopeResult.Error);
+            }
         }
 
         var email = Email.Create(request.Email);

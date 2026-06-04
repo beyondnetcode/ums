@@ -1,4 +1,5 @@
 using Ums.Application.Identity.UserAccount.DTOs;
+using Ums.Application.Common.Interfaces;
 using Ums.Domain.Authorization;
 using Ums.Domain.Kernel;
 
@@ -9,15 +10,21 @@ public sealed class BlockUserAccountCommandHandler : ICommandHandler<BlockUserAc
     private readonly IUserAccountRepository _userAccountRepository;
     private readonly IProfileRepository _profileRepository;
     private readonly IUserContext _userContext;
+    private readonly ITenantScopePolicy _tenantScopePolicy;
+    private readonly IUserManagementDelegationAccessService _delegationAccessService;
 
     public BlockUserAccountCommandHandler(
         IUserAccountRepository userAccountRepository,
         IProfileRepository profileRepository,
-        IUserContext userContext)
+        IUserContext userContext,
+        ITenantScopePolicy tenantScopePolicy,
+        IUserManagementDelegationAccessService delegationAccessService)
     {
         _userAccountRepository = userAccountRepository;
         _profileRepository = profileRepository;
         _userContext = userContext;
+        _tenantScopePolicy = tenantScopePolicy;
+        _delegationAccessService = delegationAccessService;
     }
 
     [AuditTrail]
@@ -33,6 +40,21 @@ public sealed class BlockUserAccountCommandHandler : ICommandHandler<BlockUserAc
         if (userAccount is null)
         {
             return Result.Failure("User account was not found.");
+        }
+
+        var ownerScopeResult = await _tenantScopePolicy.EnsureManagementOwnerScopeAsync(userAccount.TenantId.GetValue(), cancellationToken);
+        if (ownerScopeResult.IsFailure)
+        {
+            var delegatedAccess = await _delegationAccessService.EnsureCanExecuteAsync(
+                userAccount.TenantId.GetValue(),
+                Ums.Domain.Identity.UserManagementDelegation.DelegatedAction.BlockUser,
+                null,
+                cancellationToken);
+
+            if (delegatedAccess.IsFailure)
+            {
+                return Result.Failure(ownerScopeResult.Error);
+            }
         }
 
         // ── Dependency guard: active profiles ─────────────────────────────────

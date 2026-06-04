@@ -1,16 +1,25 @@
 namespace Ums.Application.Authorization.Profile.Commands;
 
+using Ums.Application.Common.Interfaces;
 using Ums.Domain.Authorization;
 
 public sealed class SetProfilePermissionStatusCommandHandler : ICommandHandler<SetProfilePermissionStatusCommand>
 {
     private readonly IProfileRepository _profileRepository;
     private readonly IUserContext _userContext;
+    private readonly ITenantScopePolicy _tenantScopePolicy;
+    private readonly IUserManagementDelegationAccessService _delegationAccessService;
 
-    public SetProfilePermissionStatusCommandHandler(IProfileRepository profileRepository, IUserContext userContext)
+    public SetProfilePermissionStatusCommandHandler(
+        IProfileRepository profileRepository,
+        IUserContext userContext,
+        ITenantScopePolicy tenantScopePolicy,
+        IUserManagementDelegationAccessService delegationAccessService)
     {
         _profileRepository = profileRepository;
         _userContext = userContext;
+        _tenantScopePolicy = tenantScopePolicy;
+        _delegationAccessService = delegationAccessService;
     }
 
     [AuditTrail]
@@ -26,6 +35,21 @@ public sealed class SetProfilePermissionStatusCommandHandler : ICommandHandler<S
         if (profile is null)
         {
             return Result.Failure("Profile was not found.");
+        }
+
+        var ownerScopeResult = await _tenantScopePolicy.EnsureManagementOwnerScopeAsync(profile.TenantId.GetValue(), cancellationToken);
+        if (ownerScopeResult.IsFailure)
+        {
+            var delegatedAccess = await _delegationAccessService.EnsureCanExecuteAsync(
+                profile.TenantId.GetValue(),
+                Ums.Domain.Identity.UserManagementDelegation.DelegatedAction.ManageProfilePermissions,
+                profile.BranchId?.GetValue(),
+                cancellationToken);
+
+            if (delegatedAccess.IsFailure)
+            {
+                return Result.Failure(ownerScopeResult.Error);
+            }
         }
 
         var actor = ActorId.Create(_userContext.UserId);

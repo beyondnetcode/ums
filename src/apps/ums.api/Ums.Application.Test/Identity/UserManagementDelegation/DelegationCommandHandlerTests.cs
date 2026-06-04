@@ -3,6 +3,7 @@ namespace Ums.Application.Test.Identity.UserManagementDelegation;
 using Ums.Application.Common.Interfaces;
 using Ums.Application.Identity.UserManagementDelegation.Commands;
 using Ums.Domain.Identity;
+using Ums.Domain.Identity.UserAccount;
 using Ums.Domain.Identity.UserManagementDelegation;
 using Ums.Domain.Kernel;
 using Moq;
@@ -15,14 +16,20 @@ using System.Threading.Tasks;
 public class DelegationCommandHandlerTests
 {
     private readonly Mock<IUserManagementDelegationRepository> _repo = new();
+    private readonly Mock<IUserAccountRepository> _userRepo = new();
     private readonly Mock<IUnitOfWork>                           _uow  = new();
     private readonly Mock<IUserContext>                          _ctx  = new();
+    private readonly Guid _currentUserId = Guid.NewGuid();
+    private readonly Guid _tenantId = Guid.NewGuid();
+    private readonly Guid _delegatingAdminId;
+    private readonly Guid _delegatedAdminId = Guid.NewGuid();
 
     public DelegationCommandHandlerTests()
     {
+        _delegatingAdminId = _currentUserId;
         _repo.Setup(r => r.UnitOfWork).Returns(_uow.Object);
         _uow.Setup(u => u.SaveEntitiesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(true);
-        _ctx.Setup(u => u.UserId).Returns("user-001");
+        _ctx.Setup(u => u.UserId).Returns(_currentUserId.ToString());
     }
 
     private static UserManagementDelegation MakeDelegation()
@@ -41,6 +48,21 @@ public class DelegationCommandHandlerTests
             ActorId.Create("user-001")).Value;
     }
 
+    private UserAccount MakeActiveUser(Guid userId)
+    {
+        var user = UserAccount.Create(
+            TenantId.Load(_tenantId),
+            Email.Create($"{userId:N}@test.com"),
+            Ums.Domain.Enums.UserCategory.Internal,
+            null,
+            null,
+            ActorId.Create("user-001"),
+            null,
+            UserAccountId.Load(userId)).Value;
+        user.Activate(ActorId.Create("user-001"));
+        return user;
+    }
+
     // =========================================================================
     #region CreateDelegationCommandHandler
     // =========================================================================
@@ -48,12 +70,16 @@ public class DelegationCommandHandlerTests
     [Fact]
     public async Task Create_WithValidCommand_ReturnsSuccess()
     {
-        _ctx.Setup(u => u.UserId).Returns("user-001");
+        _ctx.Setup(u => u.UserId).Returns(_currentUserId.ToString());
+        _userRepo.Setup(r => r.GetByIdAsync(_delegatingAdminId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(MakeActiveUser(_delegatingAdminId));
+        _userRepo.Setup(r => r.GetByIdAsync(_delegatedAdminId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(MakeActiveUser(_delegatedAdminId));
 
         var cmd = new CreateDelegationCommand(
-            TenantId: Guid.NewGuid(),
-            DelegatingAdminId: Guid.NewGuid(),
-            DelegatedAdminId: Guid.NewGuid(),
+            TenantId: _tenantId,
+            DelegatingAdminId: _delegatingAdminId,
+            DelegatedAdminId: _delegatedAdminId,
             ScopeType: "Tenant",
             ScopeId: null,
             AllowedActions: new[] { "CreateUser" },
@@ -62,7 +88,7 @@ public class DelegationCommandHandlerTests
             MaxDurationDays: 10,
             RequiresApproval: false);
 
-        var handler = new CreateDelegationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new CreateDelegationCommandHandler(_repo.Object, _userRepo.Object, _ctx.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -74,11 +100,15 @@ public class DelegationCommandHandlerTests
     [Fact]
     public async Task Create_WhenInvalidScopeType_ReturnsFailure()
     {
-        _ctx.Setup(u => u.UserId).Returns("user-001");
+        _ctx.Setup(u => u.UserId).Returns(_currentUserId.ToString());
+        _userRepo.Setup(r => r.GetByIdAsync(_delegatingAdminId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(MakeActiveUser(_delegatingAdminId));
+        _userRepo.Setup(r => r.GetByIdAsync(_delegatedAdminId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(MakeActiveUser(_delegatedAdminId));
 
         var cmd = new CreateDelegationCommand(
             TenantId: Guid.NewGuid(),
-            DelegatingAdminId: Guid.NewGuid(),
+            DelegatingAdminId: _delegatingAdminId,
             DelegatedAdminId: Guid.NewGuid(),
             ScopeType: "InvalidScope",
             ScopeId: null,
@@ -88,7 +118,7 @@ public class DelegationCommandHandlerTests
             MaxDurationDays: 10,
             RequiresApproval: false);
 
-        var handler = new CreateDelegationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new CreateDelegationCommandHandler(_repo.Object, _userRepo.Object, _ctx.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -98,12 +128,16 @@ public class DelegationCommandHandlerTests
     [Fact]
     public async Task Create_WhenEmptyAllowedActions_ReturnsFailure()
     {
-        _ctx.Setup(u => u.UserId).Returns("user-001");
+        _ctx.Setup(u => u.UserId).Returns(_currentUserId.ToString());
+        _userRepo.Setup(r => r.GetByIdAsync(_delegatingAdminId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(MakeActiveUser(_delegatingAdminId));
+        _userRepo.Setup(r => r.GetByIdAsync(_delegatedAdminId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(MakeActiveUser(_delegatedAdminId));
 
         var cmd = new CreateDelegationCommand(
-            TenantId: Guid.NewGuid(),
-            DelegatingAdminId: Guid.NewGuid(),
-            DelegatedAdminId: Guid.NewGuid(),
+            TenantId: _tenantId,
+            DelegatingAdminId: _delegatingAdminId,
+            DelegatedAdminId: _delegatedAdminId,
             ScopeType: "Tenant",
             ScopeId: null,
             AllowedActions: new string[] { },
@@ -112,7 +146,7 @@ public class DelegationCommandHandlerTests
             MaxDurationDays: 10,
             RequiresApproval: false);
 
-        var handler = new CreateDelegationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new CreateDelegationCommandHandler(_repo.Object, _userRepo.Object, _ctx.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -136,7 +170,7 @@ public class DelegationCommandHandlerTests
             MaxDurationDays: 10,
             RequiresApproval: false);
 
-        var handler = new CreateDelegationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new CreateDelegationCommandHandler(_repo.Object, _userRepo.Object, _ctx.Object);
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);

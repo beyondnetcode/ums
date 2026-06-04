@@ -513,6 +513,7 @@ public class UserManagementDelegationEntityTests
         Assert.Equal(3, DelegatedAction.AssignProfile.Id);
         Assert.Equal(4, DelegatedAction.ResetPassword.Id);
         Assert.Equal(5, DelegatedAction.RevokeMfa.Id);
+        Assert.Equal(6, DelegatedAction.ManageProfilePermissions.Id);
     }
 
     #endregion
