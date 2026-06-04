@@ -20,8 +20,8 @@ Este documento mantiene una vista dinamica de lo que ya esta implementado, lo qu
 
 | Estado | Cantidad | IDs de historia |
 |---|---:|---|
-| Implementado / utilizable | 20 | FS-01, FS-02, FS-03, FS-04, FS-05, FS-06, FS-07, FS-08, FS-09, FS-10, FS-11, FS-15, FS-16, FS-17, FS-18, FS-19, FS-21, FS-22, FS-26, FS-27 |
-| Parcial | 7 | FS-12, FS-13, FS-14, FS-20, FS-23, FS-24, FS-25 |
+| Implementado / utilizable | 21 | FS-01, FS-02, FS-03, FS-04, FS-05, FS-06, FS-07, FS-08, FS-09, FS-10, FS-11, FS-15, FS-16, FS-17, FS-18, FS-19, FS-20, FS-21, FS-22, FS-26, FS-27 |
+| Parcial | 6 | FS-12, FS-13, FS-14, FS-23, FS-24, FS-25 |
 | Diferido | 0 | — |
 
 ## Leyenda de Seguimiento
@@ -42,7 +42,6 @@ Este documento mantiene una vista dinamica de lo que ya esta implementado, lo qu
 | FS-12 | Execute Role Promotion Process | Amber | P1 | Alta | Alta | IGA | TBD | Abierto | El flujo de promocion aun necesita la revision completa de manager/seguridad, ejecucion, verificacion y cierre del analisis de impacto. | Terminar la maquina de estados de promocion y alinear los pasos de aprobacion con el contrato de dominio. |
 | FS-13 | Configure Hierarchical System Parameters | Amber | P1 | Alta | Alta | Plataforma / Configuracion | TBD | Abierto | La parametrizacion existe, pero el contexto formal de Configuration sigue sin su superficie API completa. | Implementar de punta a punta las APIs de `AppConfiguration`, `FeatureFlag` e `IdpConfiguration`. |
 | FS-14 | Delegate User Management Between Administrators | Amber | P2 | Media | Media | Identity | TBD | Abierto | La delegacion existe como modelo, pero el alcance de punta a punta y el flujo de auditoria aun necesitan validacion final. | Cerrar la cobertura de acciones delegadas y verificar la ruta de aceptacion. |
-| FS-20 | Manage System Parameters | Amber | P2 | Media | Media | Plataforma / Configuracion | TBD | Parcial | La capa REST esta completa: 6 endpoints (GET lista, GET por ID, POST, PUT, POST/publish, POST/archive), guardas de autorizacion por scope, persistencia EF y 12 pruebas de integracion que cubren ciclo de vida, autorizacion y casos de error. La capa GraphQL esta pendiente. | Implementar queries GraphQL para AppConfiguration como espejo de la superficie REST. |
 | FS-23 | Profile Access Request from Lobby User | Amber | P1 | Alta | Alta | Approvals | TBD | Abierto | El modelo de solicitud aun necesita el rol pedido y la fidelidad de auditoria esperada por el diseno. | Extender el contrato de la solicitud y el seguimiento de su ciclo de vida. |
 | FS-24 | Profile Request Approval and Manual Assignment | Amber | P1 | Alta | Alta | Approvals | TBD | Abierto | El registro de decision aun necesita rol solicitado, rol otorgado, razon y resultado de notificacion. | Extender el payload del resultado de aprobacion y el modelo de persistencia. |
 | FS-25 | Manage Domain Resources with DDD Hierarchy | Amber | P2 | Baja | Baja | Arquitectura | TBD | Abierto | Esta historia es mas un objetivo de trazabilidad arquitectura-dominio y el mapeo de implementacion aun no es totalmente explicito. | Agregar un mapa concreto de implementacion o reducir el alcance si la historia sigue siendo solo documental. |
@@ -55,4 +54,4 @@ Este documento mantiene una vista dinamica de lo que ya esta implementado, lo qu
 
 ## Ultima Revision
 
-2026-06-04 (FS-20 REST)
+2026-06-04 (FS-20)
