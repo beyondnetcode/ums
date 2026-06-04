@@ -3,6 +3,7 @@ namespace Ums.Domain.Configuration;
 using Ums.Domain.Configuration.AppConfiguration;
 using Ums.Domain.Configuration.FeatureFlag;
 using Ums.Domain.Configuration.IdpConfiguration;
+using Ums.Domain.Configuration.Parameter;
 using AppConfigurationAggregate = Ums.Domain.Configuration.AppConfiguration.AppConfiguration;
 using FeatureFlagAggregate = Ums.Domain.Configuration.FeatureFlag.FeatureFlag;
 using IdpConfigurationAggregate = Ums.Domain.Configuration.IdpConfiguration.IdpConfiguration;
@@ -28,6 +29,37 @@ public interface IFeatureFlagRepository : IAggregateRepository<FeatureFlagAggreg
     Task<FeatureFlagAggregate?> GetBySystemSuiteAndCodeAsync(Guid systemSuiteId, string flagCode, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<FeatureFlagAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<FeatureFlagAggregate>> GetBySystemSuiteIdAsync(Guid systemSuiteId, CancellationToken cancellationToken = default);
+}
+
+public interface IParameterDefinitionRepository
+{
+    Task<ParameterDefinition?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<ParameterDefinition?> GetByCodeAsync(string code, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<ParameterDefinition>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task AddAsync(ParameterDefinition definition, CancellationToken cancellationToken = default);
+    Task UpdateAsync(ParameterDefinition definition, CancellationToken cancellationToken = default);
+    Task<int> CountByCodeAsync(string code, CancellationToken cancellationToken = default);
+    Task<int> CountGlobalValuesAsync(Guid definitionId, CancellationToken cancellationToken = default);
+    Task<int> CountTenantValuesAsync(Guid definitionId, CancellationToken cancellationToken = default);
+    Task<bool> SaveChangesAsync(CancellationToken cancellationToken = default);
+}
+
+public interface IParameterGlobalValueRepository
+{
+    Task<ParameterGlobalValue?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<ParameterGlobalValue?> GetByDefinitionIdAsync(Guid definitionId, CancellationToken cancellationToken = default);
+    Task AddAsync(ParameterGlobalValue value, CancellationToken cancellationToken = default);
+    Task UpdateAsync(ParameterGlobalValue value, CancellationToken cancellationToken = default);
+    Task<bool> SaveChangesAsync(CancellationToken cancellationToken = default);
+}
+
+public interface IParameterTenantValueRepository
+{
+    Task<ParameterTenantValue?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<ParameterTenantValue?> GetByTenantAndDefinitionAsync(Guid tenantId, Guid definitionId, CancellationToken cancellationToken = default);
+    Task AddAsync(ParameterTenantValue value, CancellationToken cancellationToken = default);
+    Task UpdateAsync(ParameterTenantValue value, CancellationToken cancellationToken = default);
+    Task<bool> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
 
 public interface IIdpConfigurationRepository : IAggregateRepository<IdpConfigurationAggregate>

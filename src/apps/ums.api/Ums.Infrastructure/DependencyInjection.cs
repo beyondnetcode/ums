@@ -21,6 +21,7 @@ using Ums.Infrastructure.Persistence.Approvals;
 using Ums.Infrastructure.Persistence.Authorization;
 using Ums.Infrastructure.Persistence.IGA;
 using Ums.Infrastructure.Persistence.Configuration;
+using Ums.Domain.Configuration;
 using Ums.Infrastructure.Hosting;
 using Ums.Infrastructure.Persistence;
 using Ums.Infrastructure.Persistence.Identity;
@@ -302,6 +303,9 @@ public static class DependencyInjection
             services.AddScoped<IAppConfigurationRepository, SqlServerAppConfigurationRepository>();
             services.AddScoped<IFeatureFlagRepository, SqlServerFeatureFlagRepository>();
             services.AddScoped<IIdpConfigurationRepository, SqlServerIdpConfigurationRepository>();
+            services.AddScoped<IParameterDefinitionRepository, SqlServerParameterDefinitionRepository>();
+            services.AddScoped<IParameterGlobalValueRepository, SqlServerParameterGlobalValueRepository>();
+            services.AddScoped<IParameterTenantValueRepository, SqlServerParameterTenantValueRepository>();
         }
         else
         {
@@ -313,6 +317,11 @@ public static class DependencyInjection
 
             services.AddSingleton<InMemoryIdpConfigurationRepository>();
             services.AddSingleton<IIdpConfigurationRepository>(sp => sp.GetRequiredService<InMemoryIdpConfigurationRepository>());
+
+            services.AddSingleton<InMemoryParameterRepositories>();
+            services.AddSingleton<IParameterDefinitionRepository>(sp => sp.GetRequiredService<InMemoryParameterRepositories>());
+            services.AddSingleton<IParameterGlobalValueRepository>(sp => sp.GetRequiredService<InMemoryParameterRepositories>());
+            services.AddSingleton<IParameterTenantValueRepository>(sp => sp.GetRequiredService<InMemoryParameterRepositories>());
         }
 
         if (persistence.Provider == PersistenceProvider.SqlServer || persistence.Provider == PersistenceProvider.Sqlite)

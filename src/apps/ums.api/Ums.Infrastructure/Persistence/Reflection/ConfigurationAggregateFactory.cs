@@ -4,6 +4,8 @@ using Ums.Domain.Configuration.AppConfiguration;
 using Ums.Domain.Configuration.FeatureFlag;
 using Ums.Domain.Configuration.FeatureFlag.FlagEvaluationLog;
 using Ums.Domain.Configuration.IdpConfiguration;
+using Ums.Domain.Configuration.Parameter;
+using Ums.Domain.Configuration.Parameter.ValueObjects;
 using Ums.Domain.Enums;
 using Ums.Domain.Kernel.ValueObjects;
 using Ums.Infrastructure.Persistence.Configuration.Entities;
@@ -173,5 +175,106 @@ internal static class ConfigurationAggregateFactory
             ?? throw new InvalidOperationException($"Static Load(Guid) method was not found on {idType.Name}.");
 
         return (IdValueObject)method.Invoke(null, [value])!;
+    }
+
+    // ── Parameter domain types ──────────────────────────────────────────────
+
+    public static ParameterDefinition RehydrateParameterDefinition(ParameterDefinitionRecord r)
+    {
+        var audit = AuditValueObject.Load(new AuditProps
+        {
+            CreatedBy = r.CreatedBy, CreatedAt = r.CreatedAtUtc,
+            UpdatedBy = r.UpdatedBy, UpdatedAt = r.UpdatedAtUtc, TimeSpan = r.AuditTimeSpan,
+        });
+
+        // Use the private rehydration constructor via reflection.
+        var propsCtor = typeof(ParameterDefinitionProps)
+            .GetConstructors(InstanceFlags)
+            .Single(c =>
+            {
+                var ps = c.GetParameters();
+                return ps.Length == 12 && ps[10].ParameterType == typeof(string);  // version param
+            });
+
+        var props = (ParameterDefinitionProps)propsCtor.Invoke([
+            IdValueObject.Load(r.Id),
+            Code.Create(r.Code),
+            ParameterName.Create(r.Name),
+            Description.Create(r.Description ?? string.Empty),
+            ParameterDataType.FromValue(r.DataTypeId),
+            DefaultValue.Create(r.DefaultValue),
+            ParameterScope.FromValue(r.ScopeId),
+            r.IsActive, r.IsMandatory, r.DisplayOrder,
+            r.Version,
+            audit,
+        ]);
+
+        var aggregate = Construct<ParameterDefinition, ParameterDefinitionProps>(props);
+        aggregate.DomainEvents.MarkChangesAsCommitted();
+        aggregate.BrokenRules.Clear();
+        return aggregate;
+    }
+
+    public static ParameterGlobalValue RehydrateParameterGlobalValue(ParameterGlobalValueRecord r)
+    {
+        var audit = AuditValueObject.Load(new AuditProps
+        {
+            CreatedBy = r.CreatedBy, CreatedAt = r.CreatedAtUtc,
+            UpdatedBy = r.UpdatedBy, UpdatedAt = r.UpdatedAtUtc, TimeSpan = r.AuditTimeSpan,
+        });
+
+        var propsCtor = typeof(ParameterGlobalValueProps)
+            .GetConstructors(InstanceFlags)
+            .Single(c =>
+            {
+                var ps = c.GetParameters();
+                return ps.Length == 6 && ps[3].ParameterType == typeof(ConfigStatus);
+            });
+
+        var props = (ParameterGlobalValueProps)propsCtor.Invoke([
+            IdValueObject.Load(r.Id),
+            IdValueObject.Load(r.ParameterDefinitionId),
+            EffectiveValue.Create(r.EffectiveValue),
+            DomainEnumerationMapper.FromValue<ConfigStatus>(r.StatusId),
+            r.Version,
+            audit,
+        ]);
+
+        var aggregate = Construct<ParameterGlobalValue, ParameterGlobalValueProps>(props);
+        aggregate.DomainEvents.MarkChangesAsCommitted();
+        aggregate.BrokenRules.Clear();
+        return aggregate;
+    }
+
+    public static ParameterTenantValue RehydrateParameterTenantValue(ParameterTenantValueRecord r)
+    {
+        var audit = AuditValueObject.Load(new AuditProps
+        {
+            CreatedBy = r.CreatedBy, CreatedAt = r.CreatedAtUtc,
+            UpdatedBy = r.UpdatedBy, UpdatedAt = r.UpdatedAtUtc, TimeSpan = r.AuditTimeSpan,
+        });
+
+        var propsCtor = typeof(ParameterTenantValueProps)
+            .GetConstructors(InstanceFlags)
+            .Single(c =>
+            {
+                var ps = c.GetParameters();
+                return ps.Length == 7 && ps[4].ParameterType == typeof(ConfigStatus);
+            });
+
+        var props = (ParameterTenantValueProps)propsCtor.Invoke([
+            IdValueObject.Load(r.Id),
+            TenantId.Load(r.TenantId),
+            IdValueObject.Load(r.ParameterDefinitionId),
+            OverrideValue.Create(r.OverrideValue),
+            DomainEnumerationMapper.FromValue<ConfigStatus>(r.StatusId),
+            r.Version,
+            audit,
+        ]);
+
+        var aggregate = Construct<ParameterTenantValue, ParameterTenantValueProps>(props);
+        aggregate.DomainEvents.MarkChangesAsCommitted();
+        aggregate.BrokenRules.Clear();
+        return aggregate;
     }
 }

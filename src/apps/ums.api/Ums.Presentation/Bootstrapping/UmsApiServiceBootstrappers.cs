@@ -46,6 +46,7 @@ using Ums.Presentation.Endpoints.Configuration.FeatureFlag;
 using Ums.Presentation.Endpoints.Configuration.FeatureFlag.Queries;
 using Ums.Presentation.Endpoints.Configuration.IdpConfiguration;
 using Ums.Presentation.Endpoints.Configuration.IdpConfiguration.Queries;
+using Ums.Presentation.Endpoints.Configuration.Parameter;
 using Ums.Presentation.Endpoints.Configuration.ParameterCatalog.Queries;
 using Ums.Presentation.Endpoints.Identity.Auth;
 using Ums.Presentation.Endpoints.Identity.Tenant;
@@ -530,6 +531,7 @@ public static class UmsApiApplicationBuilderExtensions
         versionedGroup.MapAppConfigurationEndpoints();
         versionedGroup.MapFeatureFlagEndpoints();
         versionedGroup.MapIdpConfigurationEndpoints();
+        versionedGroup.MapParameterEndpoints();
 
         return versionedGroup;
     }
