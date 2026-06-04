@@ -9,15 +9,18 @@ public sealed class UpdateAppConfigurationCommandHandler : ICommandHandler<Updat
     private readonly IAppConfigurationRepository _repository;
     private readonly IUserContext _userContext;
     private readonly IConfigurationProvider _configProvider;
+    private readonly IValueEncryptionService _encryption;
 
     public UpdateAppConfigurationCommandHandler(
         IAppConfigurationRepository repository,
         IUserContext userContext,
-        IConfigurationProvider configProvider)
+        IConfigurationProvider configProvider,
+        IValueEncryptionService encryption)
     {
         _repository = repository;
         _userContext = userContext;
         _configProvider = configProvider;
+        _encryption = encryption;
     }
 
     [AuditTrail]
@@ -35,8 +38,12 @@ public sealed class UpdateAppConfigurationCommandHandler : ICommandHandler<Updat
             return Result.Failure("App configuration was not found.");
         }
 
+        var storedValue = appConfiguration.Props.IsEncrypted
+            ? _encryption.Encrypt(request.Value)
+            : request.Value;
+
         var result = appConfiguration.Update(
-            ConfigurationValue.Create(request.Value),
+            ConfigurationValue.Create(storedValue),
             Description.Create(request.Description),
             ActorId.Create(_userContext.UserId));
 

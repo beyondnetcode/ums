@@ -2,17 +2,23 @@ using Ums.Application.Configuration.AppConfiguration.DTOs;
 
 namespace Ums.Application.Configuration.AppConfiguration.Commands;
 
+using Ums.Application.Configuration.Services;
 using Ums.Domain.Configuration;
 
 public sealed class CreateAppConfigurationCommandHandler : ICommandHandler<CreateAppConfigurationCommand, CreateAppConfigurationResponse>
 {
     private readonly IAppConfigurationRepository _repository;
     private readonly IUserContext _userContext;
+    private readonly IValueEncryptionService _encryption;
 
-    public CreateAppConfigurationCommandHandler(IAppConfigurationRepository repository, IUserContext userContext)
+    public CreateAppConfigurationCommandHandler(
+        IAppConfigurationRepository repository,
+        IUserContext userContext,
+        IValueEncryptionService encryption)
     {
         _repository = repository;
         _userContext = userContext;
+        _encryption = encryption;
     }
 
     [AuditTrail]
@@ -42,12 +48,14 @@ public sealed class CreateAppConfigurationCommandHandler : ICommandHandler<Creat
         if (parentScopeCheck is not null)
             return parentScopeCheck;
 
+        var storedValue = request.IsEncrypted ? _encryption.Encrypt(request.Value) : request.Value;
+
         var result = Ums.Domain.Configuration.AppConfiguration.AppConfiguration.Create(
             request.TenantId.HasValue ? TenantId.Load(request.TenantId.Value) : null,
             request.SystemSuiteId.HasValue ? SystemSuiteId.Load(request.SystemSuiteId.Value) : null,
             request.ModuleId.HasValue ? IdValueObject.Load(request.ModuleId.Value) : null,
             code,
-            ConfigurationValue.Create(request.Value),
+            ConfigurationValue.Create(storedValue),
             Description.Create(request.Description),
             request.IsInheritable,
             request.IsEncrypted,

@@ -1,5 +1,6 @@
 using Ums.Application.Common;
 using Ums.Application.Configuration.AppConfiguration.DTOs;
+using Ums.Application.Configuration.Services;
 using Ums.Domain.Configuration;
 using static Ums.Application.Common.QueryRequestNormalizer;
 
@@ -9,11 +10,16 @@ public sealed class GetAllAppConfigurationsQueryHandler : IQueryHandler<GetAllAp
 {
     private readonly IAppConfigurationRepository _repository;
     private readonly ITenantContext _tenantContext;
+    private readonly IValueEncryptionService _encryption;
 
-    public GetAllAppConfigurationsQueryHandler(IAppConfigurationRepository repository, ITenantContext tenantContext)
+    public GetAllAppConfigurationsQueryHandler(
+        IAppConfigurationRepository repository,
+        ITenantContext tenantContext,
+        IValueEncryptionService encryption)
     {
         _repository = repository;
         _tenantContext = tenantContext;
+        _encryption = encryption;
     }
 
     [LoggerAspect(Type = typeof(IUmsLogger), LogDuration = true, LogException = true, LogArguments = [])]
@@ -57,7 +63,7 @@ public sealed class GetAllAppConfigurationsQueryHandler : IQueryHandler<GetAllAp
                 configuration.Props.SystemSuiteId?.GetValue(),
                 configuration.Props.ModuleId?.GetValue(),
                 configuration.Props.Code.GetValue(),
-                configuration.Props.Value.GetValue(),
+                ResolveValue(configuration.Props.Value.GetValue(), configuration.Props.IsEncrypted),
                 configuration.Props.Description.GetValue(),
                 configuration.Props.Scope.Name,
                 configuration.Props.IsInheritable,
@@ -137,5 +143,12 @@ public sealed class GetAllAppConfigurationsQueryHandler : IQueryHandler<GetAllAp
         var paged = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
 
         return Result<PagedResult<AppConfigurationDto>>.Success(new PagedResult<AppConfigurationDto>(paged, page, pageSize, totalItems, totalPages));
+    }
+
+    private string ResolveValue(string storedValue, bool isEncrypted)
+    {
+        if (!isEncrypted) return storedValue;
+        if (!_tenantContext.IsInternalAdmin) return "***";
+        return _encryption.IsEncryptedValue(storedValue) ? _encryption.Decrypt(storedValue) : storedValue;
     }
 }

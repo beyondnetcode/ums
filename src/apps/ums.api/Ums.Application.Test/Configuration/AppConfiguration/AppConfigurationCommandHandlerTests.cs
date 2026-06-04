@@ -34,12 +34,17 @@ public class AppConfigurationCommandHandlerTests
     private readonly Mock<IUnitOfWork>                 _uow            = new();
     private readonly Mock<IUserContext>                _ctx            = new();
     private readonly Mock<IConfigurationProvider>      _configProvider = new();
+    private readonly Mock<IValueEncryptionService>     _encryption     = new();
 
     public AppConfigurationCommandHandlerTests()
     {
         _repo.Setup(r => r.UnitOfWork).Returns(_uow.Object);
         _uow.Setup(u => u.SaveEntitiesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(true);
         _configProvider.Setup(p => p.ReloadAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        // No-op encryption for most tests — specific tests set up their own behaviour.
+        _encryption.Setup(e => e.Encrypt(It.IsAny<string>())).Returns<string>(v => v);
+        _encryption.Setup(e => e.Decrypt(It.IsAny<string>())).Returns<string>(v => v);
+        _encryption.Setup(e => e.IsEncryptedValue(It.IsAny<string>())).Returns(false);
         _configProvider.Setup(p => p.ReloadTenantAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
     }
 
@@ -91,7 +96,7 @@ public class AppConfigurationCommandHandlerTests
                 It.IsAny<string>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync((AppConfigurationAggregate?)null);
 
-        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _encryption.Object);
         var result  = await handler.Handle(ValidCreateCmd, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -107,7 +112,7 @@ public class AppConfigurationCommandHandlerTests
                 It.IsAny<string>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync((AppConfigurationAggregate?)null);
 
-        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _encryption.Object);
         await handler.Handle(ValidCreateCmd, CancellationToken.None);
 
         _repo.Verify(r => r.AddAsync(It.IsAny<AppConfigurationAggregate>(), It.IsAny<CancellationToken>()), Times.Once);
@@ -123,7 +128,7 @@ public class AppConfigurationCommandHandlerTests
              .ReturnsAsync((AppConfigurationAggregate?)null);
         var cmd = ValidCreateCmd with { TenantId = null, SystemSuiteId = null, ModuleId = null };
 
-        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _encryption.Object);
         var result  = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -138,7 +143,7 @@ public class AppConfigurationCommandHandlerTests
                 It.IsAny<string>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(MakeDraft()); // duplicate found
 
-        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _encryption.Object);
         var result  = await handler.Handle(ValidCreateCmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -150,7 +155,7 @@ public class AppConfigurationCommandHandlerTests
     {
         _ctx.Setup(u => u.UserId).Returns("");
 
-        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _encryption.Object);
         var result  = await handler.Handle(ValidCreateCmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -162,7 +167,7 @@ public class AppConfigurationCommandHandlerTests
     {
         _ctx.Setup(u => u.UserId).Returns((string?)null);
 
-        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _encryption.Object);
         var result  = await handler.Handle(ValidCreateCmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -334,7 +339,7 @@ public class AppConfigurationCommandHandlerTests
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(config);
 
-        var handler = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object);
+        var handler = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object, _encryption.Object);
         var result  = await handler.Handle(
             new UpdateAppConfigurationCommand(Guid.NewGuid(), "newvalue", "Updated description"),
             CancellationToken.None);
@@ -351,7 +356,7 @@ public class AppConfigurationCommandHandlerTests
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync((AppConfigurationAggregate?)null);
 
-        var handler = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object);
+        var handler = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object, _encryption.Object);
         var result  = await handler.Handle(
             new UpdateAppConfigurationCommand(Guid.NewGuid(), "v", "d"),
             CancellationToken.None);
@@ -367,7 +372,7 @@ public class AppConfigurationCommandHandlerTests
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(MakePublished());
 
-        var handler = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object);
+        var handler = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object, _encryption.Object);
         var result  = await handler.Handle(
             new UpdateAppConfigurationCommand(Guid.NewGuid(), "v", "d"),
             CancellationToken.None);
@@ -383,7 +388,7 @@ public class AppConfigurationCommandHandlerTests
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(MakeArchived());
 
-        var handler = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object);
+        var handler = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object, _encryption.Object);
         var result  = await handler.Handle(
             new UpdateAppConfigurationCommand(Guid.NewGuid(), "v", "d"),
             CancellationToken.None);
@@ -397,7 +402,7 @@ public class AppConfigurationCommandHandlerTests
     {
         _ctx.Setup(u => u.UserId).Returns("");
 
-        var handler = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object);
+        var handler = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object, _encryption.Object);
         var result  = await handler.Handle(
             new UpdateAppConfigurationCommand(Guid.NewGuid(), "v", "d"),
             CancellationToken.None);
@@ -436,7 +441,7 @@ public class AppConfigurationCommandHandlerTests
              .ReturnsAsync(MakeNonOverridableGlobal());
 
         var cmd     = ValidCreateCmd with { TenantId = tenantId, SystemSuiteId = null, ModuleId = null };
-        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _encryption.Object);
         var result  = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -461,7 +466,7 @@ public class AppConfigurationCommandHandlerTests
              .ReturnsAsync((AppConfigurationAggregate?)null);
 
         var cmd     = ValidCreateCmd with { TenantId = tenantId, SystemSuiteId = suiteId, ModuleId = null };
-        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _encryption.Object);
         var result  = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -481,7 +486,7 @@ public class AppConfigurationCommandHandlerTests
              .ReturnsAsync(MakeDraft()); // IsNonOverridable defaults to false
 
         var cmd     = ValidCreateCmd with { TenantId = tenantId, SystemSuiteId = null, ModuleId = null };
-        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _encryption.Object);
         var result  = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -495,7 +500,7 @@ public class AppConfigurationCommandHandlerTests
              .ReturnsAsync((AppConfigurationAggregate?)null);
 
         var cmd     = ValidCreateCmd with { TenantId = null, SystemSuiteId = null, ModuleId = null };
-        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _encryption.Object);
         var result  = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsSuccess);

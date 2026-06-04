@@ -31,6 +31,7 @@ public class TransactionalAtomicityTests
     private readonly Mock<IUnitOfWork>                 _uow            = new();
     private readonly Mock<IUserContext>                _ctx            = new();
     private readonly Mock<IConfigurationProvider>      _configProvider = new();
+    private readonly Mock<IValueEncryptionService>     _encryption     = new();
 
     private static readonly TenantId     ValidTenant = TenantId.Load(Guid.NewGuid());
     private static readonly SystemSuiteId ValidSuite  = SystemSuiteId.Load(Guid.NewGuid());
@@ -42,6 +43,9 @@ public class TransactionalAtomicityTests
         _ctx.Setup(u => u.UserId).Returns("user-001");
         _configProvider.Setup(p => p.ReloadAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         _configProvider.Setup(p => p.ReloadTenantAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        _encryption.Setup(e => e.Encrypt(It.IsAny<string>())).Returns<string>(v => v);
+        _encryption.Setup(e => e.Decrypt(It.IsAny<string>())).Returns<string>(v => v);
+        _encryption.Setup(e => e.IsEncryptedValue(It.IsAny<string>())).Returns(false);
     }
 
     private static CreateAppConfigurationCommand ValidCreateCmd => new(
@@ -70,7 +74,7 @@ public class TransactionalAtomicityTests
                 It.IsAny<string>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync((AppConfigurationAggregate?)null);
 
-        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _encryption.Object);
         var result  = await handler.Handle(ValidCreateCmd, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -149,7 +153,7 @@ public class TransactionalAtomicityTests
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(MakePublishedConfig()); // Published → Update is forbidden
 
-        var handler = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object);
+        var handler = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object, _encryption.Object);
         var result  = await handler.Handle(
             new UpdateAppConfigurationCommand(Guid.NewGuid(), "new-value", "new-desc"),
             CancellationToken.None);
@@ -175,7 +179,7 @@ public class TransactionalAtomicityTests
     {
         _ctx.Setup(u => u.UserId).Returns(""); // no authenticated user
 
-        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _encryption.Object);
         var result  = await handler.Handle(ValidCreateCmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -206,7 +210,7 @@ public class TransactionalAtomicityTests
              .ReturnsAsync(existing);
 
         var cmd = ValidCreateCmd with { Code = "CFG-DUP" };
-        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _encryption.Object);
         var result  = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -257,8 +261,8 @@ public class TransactionalAtomicityTests
              .ReturnsAsync(sharedConfig); // both "requests" load same aggregate
         _uow.Setup(u => u.SaveEntitiesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
-        var handlerA = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object);
-        var handlerB = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object);
+        var handlerA = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object, _encryption.Object);
+        var handlerB = new UpdateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _configProvider.Object, _encryption.Object);
         var id = Guid.NewGuid();
 
         // Both requests fire "concurrently" (sequential here but same loaded state)
@@ -296,7 +300,7 @@ public class TransactionalAtomicityTests
              .ReturnsAsync((AppConfigurationAggregate?)null); // neither sees the other yet
         _uow.Setup(u => u.SaveEntitiesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
-        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _encryption.Object);
         var cmd = ValidCreateCmd;
 
         // "Client retries" the same logical operation
@@ -341,7 +345,7 @@ public class TransactionalAtomicityTests
                 It.IsAny<string>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(MakeDraftConfig("EXISTING"));
 
-        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _encryption.Object);
         var result  = await handler.Handle(ValidCreateCmd with { Code = "EXISTING" }, CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -354,7 +358,7 @@ public class TransactionalAtomicityTests
     {
         _ctx.Setup(u => u.UserId).Returns((string?)null);
 
-        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _encryption.Object);
         var result  = await handler.Handle(ValidCreateCmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -382,7 +386,7 @@ public class TransactionalAtomicityTests
         _uow.Setup(u => u.SaveEntitiesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(true);
         _ctx.Setup(u => u.UserId).Returns("audited-actor-007");
 
-        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object, _encryption.Object);
         var result  = await handler.Handle(ValidCreateCmd, CancellationToken.None);
 
         Assert.True(result.IsSuccess);

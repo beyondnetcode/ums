@@ -3,6 +3,7 @@ namespace Ums.Infrastructure.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Ums.Application.Configuration.Services;
 using Ums.Domain.Configuration;
+using Ums.Domain.Kernel.ValueObjects;
 using AppConfigurationAggregate = Ums.Domain.Configuration.AppConfiguration.AppConfiguration;
 
 /// <summary>
@@ -16,15 +17,20 @@ public sealed class ConfigurationProvider : IConfigurationProvider, IDisposable
 {
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IConfigurationCache _cache;
+    private readonly IValueEncryptionService _encryption;
     private bool _isLoaded;
     private readonly object _loadLock = new();
 
     public event EventHandler<ConfigurationChangedEventArgs>? ConfigurationChanged;
 
-    public ConfigurationProvider(IServiceScopeFactory scopeFactory, IConfigurationCache cache)
+    public ConfigurationProvider(
+        IServiceScopeFactory scopeFactory,
+        IConfigurationCache cache,
+        IValueEncryptionService encryption)
     {
         _scopeFactory = scopeFactory;
         _cache = cache;
+        _encryption = encryption;
     }
 
     public async Task LoadAsync(CancellationToken cancellationToken = default)
@@ -40,7 +46,9 @@ public sealed class ConfigurationProvider : IConfigurationProvider, IDisposable
         var allConfigs = await repository.GetAllAsync(null, cancellationToken);
 
         // Only Published configs participate in runtime resolution (BR-1, AC-3).
-        _cache.PopulateGlobal(allConfigs.Where(c => c.Scope.Id == 1 && c.Props.Status.Id == 2));
+        _cache.PopulateGlobal(allConfigs
+            .Where(c => c.Scope.Id == 1 && c.Props.Status.Id == 2)
+            .Select(DecryptIfNeeded));
 
         // Populate per-tenant entries — scope 2 = Tenant, 4 = Suite, 5 = Module (ConfigurationScope).
         var tenantIds = allConfigs
@@ -192,7 +200,11 @@ public sealed class ConfigurationProvider : IConfigurationProvider, IDisposable
     /// </summary>
     private void BucketTenantConfigs(Guid tenantId, IReadOnlyList<AppConfigurationAggregate> configs)
     {
-        var published = configs.Where(c => c.Props.Status.Id == 2).ToList();
+        // Only Published configs; decrypt encrypted values so the runtime resolver gets plaintext.
+        var published = configs
+            .Where(c => c.Props.Status.Id == 2)
+            .Select(DecryptIfNeeded)
+            .ToList();
 
         _cache.PopulateTenant(tenantId, published.Where(c => c.Scope.Id == 2));
 
@@ -203,5 +215,20 @@ public sealed class ConfigurationProvider : IConfigurationProvider, IDisposable
         foreach (var grp in published.Where(c => c.Scope.Id == 5 && c.Props.ModuleId is not null)
                                      .GroupBy(c => c.Props.ModuleId!.GetValue()))
             _cache.PopulateModule(grp.Key, grp);
+    }
+
+    /// <summary>
+    /// Returns a copy of the aggregate with the value decrypted when IsEncrypted=true.
+    /// Used during cache population so the runtime resolver always works with plaintext.
+    /// </summary>
+    private AppConfigurationAggregate DecryptIfNeeded(AppConfigurationAggregate config)
+    {
+        if (!config.Props.IsEncrypted) return config;
+
+        var raw = config.Props.Value.GetValue();
+        if (!_encryption.IsEncryptedValue(raw)) return config;
+
+        config.Props.Value = ConfigurationValue.Create(_encryption.Decrypt(raw));
+        return config;
     }
 }
