@@ -114,6 +114,7 @@ public abstract record ApprovalDomainEvent : DomainEvent;
 
 public sealed record ApprovalRequestApprovedEvent(Guid RequestId, Guid WorkflowId, string ApprovedBy, DateTime ApprovedAt) : ApprovalDomainEvent;
 public sealed record ApprovalRequestRejectedEvent(Guid RequestId, Guid WorkflowId, string RejectedBy, string Reason, DateTime RejectedAt) : ApprovalDomainEvent;
+public sealed record ProfileAssignedToUserEvent(Guid TenantId, Guid RequestId, Guid UserId, Guid ProfileId, Guid GrantedRoleId, Guid? BranchId, string AssignedBy, DateTime AssignedAt) : UmsDomainEvent(TenantId);
 public sealed record ApprovalRequestCancelledEvent(Guid RequestId, Guid WorkflowId, string CancelledBy, string Reason, DateTime CancelledAt) : ApprovalDomainEvent;
 
 public sealed record ApprovalWorkflowCreatedEvent(Guid WorkflowId, Guid TenantId, string Code, string Name, string TargetUserCategory) : ApprovalDomainEvent;

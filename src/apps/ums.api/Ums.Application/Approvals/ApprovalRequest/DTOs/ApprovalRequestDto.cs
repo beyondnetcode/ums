@@ -11,4 +11,6 @@ public sealed record ApprovalRequestDto(
     Guid RequestedRoleId,
     string? Justification,
     Guid? GrantedRoleId,
-    string? DecisionReason);
+    string? DecisionReason,
+    string? DecisionBy,
+    DateTime? DecisionAt);

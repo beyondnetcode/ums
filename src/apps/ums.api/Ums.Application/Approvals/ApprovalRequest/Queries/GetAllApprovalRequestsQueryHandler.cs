@@ -1,6 +1,7 @@
 using Ums.Application.Approvals.ApprovalRequest.DTOs;
 using Ums.Application.Common.Interfaces;
 using Ums.Domain.Approvals;
+using Ums.Domain.Enums;
 using static Ums.Application.Common.QueryRequestNormalizer;
 
 namespace Ums.Application.Approvals.ApprovalRequest.Queries;
@@ -35,14 +36,19 @@ public sealed class GetAllApprovalRequestsQueryHandler : IQueryHandler<GetAllApp
             ? await _repository.GetByTenantIdAsync(effectiveTenantId.Value, cancellationToken)
             : await _repository.GetAllAsync(null, cancellationToken);
 
-        var query = items.Select(r => new ApprovalRequestDto(
-            r.Props.Id.GetValue(), r.Props.WorkflowId.GetValue(), r.Props.TargetUserId.GetValue(),
-            r.Props.TargetProfileId?.GetValue(), r.Props.Status.ToString(),
-            r.RequestedSystemId.GetValue(), r.RequestedBranchId?.GetValue(), r.RequestedRoleId.GetValue(),
-            r.Justification, r.GrantedRoleId?.GetValue(), r.DecisionReason));
+        var query = items.Select(r =>
+        {
+            var audit = r.Props.Audit.GetValue();
+            return new ApprovalRequestDto(
+                r.Props.Id.GetValue(), r.Props.WorkflowId.GetValue(), r.Props.TargetUserId.GetValue(),
+                r.Props.TargetProfileId?.GetValue(), ToBusinessStatus(r.Props.Status),
+                r.RequestedSystemId.GetValue(), r.RequestedBranchId?.GetValue(), r.RequestedRoleId.GetValue(),
+                r.Justification, r.GrantedRoleId?.GetValue(), r.DecisionReason,
+                audit.UpdatedBy, audit.UpdatedAt);
+        });
 
         if (!string.Equals(status, "all", StringComparison.OrdinalIgnoreCase))
-            query = query.Where(r => string.Equals(r.Status, status, StringComparison.OrdinalIgnoreCase));
+            query = query.Where(r => string.Equals(r.Status, NormalizeStatusFilter(status), StringComparison.OrdinalIgnoreCase));
 
         if (!string.IsNullOrWhiteSpace(search))
             query = query.Where(r => r.WorkflowId.ToString().Contains(search, StringComparison.OrdinalIgnoreCase));
@@ -59,4 +65,12 @@ public sealed class GetAllApprovalRequestsQueryHandler : IQueryHandler<GetAllApp
 
         return Result<PagedResult<ApprovalRequestDto>>.Success(new PagedResult<ApprovalRequestDto>(paged, page, pageSize, totalItems, totalPages));
     }
+
+    private static string ToBusinessStatus(ApprovalStatus status)
+        => status == ApprovalStatus.Rejected ? "Denied" : status.ToString();
+
+    private static string NormalizeStatusFilter(string status)
+        => string.Equals(status, ApprovalStatus.Rejected.ToString(), StringComparison.OrdinalIgnoreCase)
+            ? "Denied"
+            : status;
 }

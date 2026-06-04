@@ -6,5 +6,6 @@ public class ApprovalRequestDomainEventsManager : DomainEventsManager
 
     private void Apply(ApprovalRequestApprovedEvent @event) { }
     private void Apply(ApprovalRequestRejectedEvent @event) { }
+    private void Apply(ProfileAssignedToUserEvent @event) { }
     private void Apply(ApprovalRequestCancelledEvent @event) { }
 }

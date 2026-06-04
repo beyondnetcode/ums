@@ -57,6 +57,26 @@ public class ApprovalRequestQueryHandlerTests
         Assert.True(result.IsSuccess);
         Assert.Equal(reqId, result.Value.ApprovalRequestId);
         Assert.Equal("Pending", result.Value.Status);
+        Assert.Null(result.Value.DecisionBy);
+        Assert.Null(result.Value.DecisionAt);
+    }
+
+    [Fact]
+    public async Task GetById_WhenRejected_ReturnsDeniedStatus()
+    {
+        var req = MakeApprovalRequest(ApprovalStatus.Rejected);
+        var reqId = req.Props.Id.GetValue();
+        _repo.Setup(r => r.GetByIdAsync(reqId, It.IsAny<CancellationToken>()))
+             .ReturnsAsync(req);
+
+        var query = new GetApprovalRequestByIdQuery(reqId);
+        var handler = new GetApprovalRequestByIdQueryHandler(_repo.Object);
+        var result = await handler.Handle(query, CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal("Denied", result.Value.Status);
+        Assert.NotNull(result.Value.DecisionBy);
+        Assert.NotNull(result.Value.DecisionAt);
     }
 
     [Fact]
@@ -160,6 +180,32 @@ public class ApprovalRequestQueryHandlerTests
         Assert.True(result.IsSuccess);
         Assert.Equal(1, result.Value.TotalItems);
         Assert.Equal("Approved", result.Value.Items[0].Status);
+    }
+
+    [Fact]
+    public async Task GetAll_WithRejectedStatus_ReturnsDeniedLabel()
+    {
+        var r1 = MakeApprovalRequest(ApprovalStatus.Rejected);
+        var list = new List<ApprovalRequest> { r1 };
+
+        _repo.Setup(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync(list);
+
+        var query = new GetAllApprovalRequestsQuery(
+            TenantId: null,
+            Status: "Denied",
+            Search: null,
+            SortBy: null,
+            SortOrder: null,
+            Page: 1,
+            PageSize: 10);
+
+        var handler = new GetAllApprovalRequestsQueryHandler(_repo.Object);
+        var result = await handler.Handle(query, CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        Assert.Single(result.Value.Items);
+        Assert.Equal("Denied", result.Value.Items[0].Status);
     }
 
     #endregion
