@@ -31,7 +31,6 @@ Este documento registra el estado actual de implementacion de la API UMS por agr
    - `FeatureFlag`
    - `IdpConfiguration`
 2. Terminar la exposicion de comportamientos de dominio en agregados ya presentes en REST y GraphQL:
-   - `UserAccount`
    - `Profile`
    - `SystemSuite`
    - `PermissionTemplate`
@@ -57,17 +56,19 @@ Este documento registra el estado actual de implementacion de la API UMS por agr
   - agregar comandos de actualizacion para tenant, branch e identity provider
 
 #### UserAccount
-- Capacidades API faltantes:
-  - enrolar MFA
-  - verificar challenge MFA
 - Capacidades API implementadas:
   - establecer o rotar password local con hash BCrypt generado en servidor
   - exponer estado de password activa y fecha de ultima rotacion sin retornar hashes
   - registrar intento de autenticacion
+  - enrolar metodo MFA (`POST /user-accounts/{id}/mfa-enrollments`)
+  - verificar enrollment MFA (`POST /user-accounts/{id}/mfa-enrollments/{id}/verify`)
+  - listar enrollments MFA (`GET /user-accounts/{id}/mfa-enrollments`)
+  - revocar enrollment MFA (`DELETE /user-accounts/{id}/mfa-enrollments/{id}`)
+  - politica MFA adaptativa en login (`MfaRequiredForAdmin` config → `AUTH_011` si no hay enrollment verificado)
 - Persistencia:
   - SQL Server implementado
 - Siguiente paso recomendado:
-  - exponer el ciclo de vida MFA; activar o remover passwords historicas permanece inhabilitado por diseno de auditoria
+  - activar o remover passwords historicas permanece inhabilitado por diseno de auditoria; sin brechas adicionales
 
 ### 3.2 Authorization
 
@@ -208,11 +209,11 @@ Este documento registra el estado actual de implementacion de la API UMS por agr
 ## 4. Orden Recomendado de Continuacion
 
 1. Completar el contexto Configuration en la API
-2. Terminar la exposicion de comportamiento de `UserAccount` y `Profile`
+2. Terminar la exposicion de comportamiento de `Profile`
 3. Terminar `SystemSuite` y `PermissionTemplate`
 4. Terminar `PromotionRequest` y `RoleMaturityStatus`
 5. Terminar los comportamientos pendientes de Approvals
 6. Migrar los agregados restantes de in-memory a SQL Server
 
 ---
-**Ultima actualizacion:** 2026-05-21
+**Ultima actualizacion:** 2026-06-04

@@ -344,6 +344,33 @@ public sealed class UserAccount : AggregateRoot<UserAccount, UserAccountProps>
         return Result.Success();
     }
 
+    public Result RevokeEnrollment(IdValueObject enrollmentId, ActorId updatedBy)
+    {
+        var enrollment = FindMfaEnrollment(enrollmentId);
+        if (enrollment.IsFailure)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(MfaEnrollments), DomainErrors.UserAccount.MfaEnrollmentNotFound));
+        }
+
+        if (!IsValid())
+        {
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+        }
+
+        _mfaEnrollments.Remove(enrollment.Value);
+        DomainEvents.RaiseEvent(new MfaEnrollmentRevokedEvent(
+            Props.Id.GetValue(),
+            Props.TenantId.GetValue(),
+            enrollmentId.GetValue(),
+            enrollment.Value.Method.Name));
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy.GetValue());
+        return Result.Success();
+    }
+
+    public bool HasVerifiedMfaEnrollment() =>
+        _mfaEnrollments.Any(e => e.Status == MfaEnrollmentStatus.Verified);
+
     public Result RecordAuthenticationAttempt(bool success, string reason, string ipAddress, ActorId actor)
     {
         DomainEvents.RaiseEvent(new AuthenticationAttemptedEvent(

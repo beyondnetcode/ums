@@ -175,28 +175,39 @@ public static class UserAccountEndpoints
         // .ProducesProblem(StatusCodes.Status404NotFound)
         // .ProducesProblem(StatusCodes.Status409Conflict);
 
-        // group.MapPost("/{userAccountId:guid}/mfa-enrollments", async (Guid userAccountId, EnrollUserAccountMfaCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
-        // {
-        //     var result = await mediator.Send(command with { UserAccountId = userAccountId }, ct);
-        //     return result.ToCreated(r => $"/user-accounts/{userAccountId}/mfa-enrollments/{r.EnrollmentId}", context);
-        // })
-        // .WithName("EnrollUserAccountMfa")
-        // .WithSummary("Enroll an MFA method for the user account")
-        // .Produces<EnrollUserAccountMfaResponse>(StatusCodes.Status201Created)
-        // .ProducesProblem(StatusCodes.Status400BadRequest)
-        // .ProducesProblem(StatusCodes.Status404NotFound)
-        // .ProducesProblem(StatusCodes.Status409Conflict);
+        group.MapPost("/{userAccountId:guid}/mfa-enrollments", async (Guid userAccountId, EnrollUserAccountMfaCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command with { UserAccountId = userAccountId }, ct);
+            return result.ToCreated(r => $"/user-accounts/{userAccountId}/mfa-enrollments/{r.EnrollmentId}", context);
+        })
+        .WithName("EnrollUserAccountMfa")
+        .WithSummary("Enroll an MFA method for the user account")
+        .Produces<EnrollUserAccountMfaResponse>(StatusCodes.Status201Created)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status409Conflict);
 
-        // group.MapPost("/{userAccountId:guid}/mfa-enrollments/{enrollmentId:guid}/verify", async (Guid userAccountId, Guid enrollmentId, IMediator mediator, HttpContext context, CancellationToken ct) =>
-        // {
-        //     var result = await mediator.Send(new VerifyUserAccountMfaCommand(userAccountId, enrollmentId), ct);
-        //     return result.ToNoContent(context);
-        // })
-        // .WithName("VerifyUserAccountMfa")
-        // .WithSummary("Verify a pending MFA enrollment")
-        // .Produces(StatusCodes.Status204NoContent)
-        // .ProducesProblem(StatusCodes.Status404NotFound)
-        // .ProducesProblem(StatusCodes.Status409Conflict);
+        group.MapPost("/{userAccountId:guid}/mfa-enrollments/{enrollmentId:guid}/verify", async (Guid userAccountId, Guid enrollmentId, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new VerifyUserAccountMfaCommand(userAccountId, enrollmentId), ct);
+            return result.ToNoContent(context);
+        })
+        .WithName("VerifyUserAccountMfa")
+        .WithSummary("Verify a pending MFA enrollment")
+        .Produces(StatusCodes.Status204NoContent)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status409Conflict);
+
+        group.MapDelete("/{userAccountId:guid}/mfa-enrollments/{enrollmentId:guid}", async (Guid userAccountId, Guid enrollmentId, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new RevokeUserAccountMfaCommand(userAccountId, enrollmentId), ct);
+            return result.ToNoContent(context);
+        })
+        .WithName("RevokeUserAccountMfaEnrollment")
+        .WithSummary("Revoke an MFA enrollment for the user account")
+        .Produces(StatusCodes.Status204NoContent)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status409Conflict);
 
         group.MapPost("/{userAccountId:guid}/authentication-attempts", async (
             Guid userAccountId,

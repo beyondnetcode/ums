@@ -20,8 +20,8 @@ Este documento mantiene una vista dinamica de lo que ya esta implementado, lo qu
 
 | Estado | Cantidad | IDs de historia |
 |---|---:|---|
-| Implementado / utilizable | 18 | FS-01, FS-02, FS-03, FS-04, FS-05, FS-06, FS-07, FS-08, FS-10, FS-11, FS-15, FS-16, FS-17, FS-18, FS-21, FS-22, FS-26, FS-27 |
-| Parcial | 9 | FS-09, FS-12, FS-13, FS-14, FS-19, FS-20, FS-23, FS-24, FS-25 |
+| Implementado / utilizable | 19 | FS-01, FS-02, FS-03, FS-04, FS-05, FS-06, FS-07, FS-08, FS-09, FS-10, FS-11, FS-15, FS-16, FS-17, FS-18, FS-21, FS-22, FS-26, FS-27 |
+| Parcial | 8 | FS-12, FS-13, FS-14, FS-19, FS-20, FS-23, FS-24, FS-25 |
 | Diferido | 0 | — |
 
 ## Leyenda de Seguimiento
@@ -35,23 +35,10 @@ Este documento mantiene una vista dinamica de lo que ya esta implementado, lo qu
 | Objetivo | Objetivo de revision para el siguiente ciclo; usar `TBD` hasta definir una fecha |
 | Orden | Numero de `FS` ascendente, luego `Prioridad` descendente, luego `Criticidad` descendente, luego `Complejidad` descendente |
 
-## Completados Recientemente
-
-| FS | Historia | Estado | Fecha | Que se hizo |
-|---|---|---|---|---|
-| FS-17 | Maintain Roles for a System Suite | Green — Listo | 2026-06-03 | Se agrego `RoleE2ETests.cs` para cubrir creacion, visibilidad por GraphQL, actualizacion, desactivacion, reactivacion y proteccion por codigo duplicado. Se agrego evidencia de la historia de Roles en ingles y espanol, y se sincronizaron las referencias de trazabilidad de la API de roles. La ejecucion focalizada de pruebas de aplicacion paso, y las nuevas pruebas de integracion compilan con el fixture de SQL Server preparado. |
-| FS-16 | Definir Politica de Acceso por Vencimiento | Green — Listo | 2026-06-03 | Se corrijo el desajuste de acciones de dominio en `UpdateAccessEnforcementActionCommandValidator` para que la API acepte `BlockUser`, `RestrictProfile` y `LogOnly`. Se agrego `AccessEnforcementPolicyE2ETests.cs` mas pruebas del validador, y se sincronizaron las historias con evidencia de actualizacion y ejecucion de enforcement en ingles y espanol. |
-| FS-10 | B2B External Access Request and Approval Flow | Green — Listo | 2026-06-03 | Guard `PROFILE_INTERNAL_ONLY` en `CreateApprovalRequestCommandHandler` (bloquea usuarios externos/B2B de workflows solo para internos con error de escalacion de privilegios). Notificaciones de aprobacion y rechazo en `ApproveRequestCommandHandler` y `RejectRequestCommandHandler`. Nueva constante de error `WorkflowNotAllowedForUserCategory`. 6 tests nuevos. 571 tests pasan. |
-| FS-11 | Upload and Validate User Document | Green — Listo | 2026-06-03 | Templates `UserDocumentRejected` y `UserDocumentValidated`. Notificaciones en `RejectUserDocumentCommandHandler` y `ValidateUserDocumentCommandHandler`. `RecordEnforcementExecutedCommand` + handler + endpoint `POST /user-documents/{id}/enforcement`. 8 tests nuevos: notificaciones, guardas de FSM (`WhenNotPendingReview`, `WhenAlreadyExpired`, `WhenDocumentIsValid`), enforcement. 579 tests pasan. |
-| FS-22 | Solicitud y Aprobacion de Alta de Usuario | Green — Listo | 2026-06-03 | Se agrego `SignupUserCommandHandlerTests.cs` (8 tests) cubriendo el flujo publico del solicitante: caso feliz, email duplicado, tenant invalido y sin admin activo. Documentacion actualizada con badge de estado, referencia de trazabilidad corregida y seccion 10 con evidencia de pruebas de aceptacion. |
-| FS-15 | Configure Expiration Notification Rules | Green — Listo | 2026-06-03 | `Reactivate` y `UpdateChannel` en el agregado `NotificationRule`. `ReactivateNotificationRuleCommand/Handler` y `UpdateNotificationRuleChannelCommand/Handler`. Guarda de duplicado (`ExistsDuplicateAsync`) en `INotificationRuleRepository`; `CreateNotificationRuleCommandHandler` rechaza (mismo tenant+channel+recipient) con error `DuplicateNotificationRule`. Endpoints `POST /{id}/reactivate` y `PUT /{id}/channel`. `UpdateRecipient` valida vacío. 12 tests nuevos. 1,356 tests pasan. |
-| FS-06 | Auto-Assign Template on Profile Creation | Green — Listo | 2026-06-03 | Implementado agregado `TemplateAssignmentRule` (maquina de estado Active/Inactive, guarda de prioridad unica, eventos `AssignmentRuleCreated/Deactivated/Reactivated`). Comandos `CreateAssignmentRuleCommand`, `DeactivateAssignmentRuleCommand`, `ReactivateAssignmentRuleCommand` con guarda de template publicado y chequeo de prioridad duplicada. `CreateProfileCommandHandler` actualizado con `TryAutoAssignTemplateAsync` — toma la regla activa de mayor prioridad que coincide con `(TenantId, RoleId)` y llama a `Profile.AssignTemplate`. Evento `TemplateAutoAssignedEvent` para trazabilidad. Endpoints REST: `GET /template-assignment-rules?tenantId`, `POST`, `/deactivate`, `/reactivate`. Migracion EF `Fs06TemplateAssignmentRules`. 15 tests nuevos (8 dominio + 7 aplicacion). 1,344 tests pasan. |
-
 ## Registro de Brechas Abiertas
 
 | FS | Historia | Senal | Prioridad | Criticidad | Complejidad | Responsable | Objetivo | Estado | Brecha principal | Siguiente accion |
 |---|---|---|---|---|---|---|---|---|---|---|
-| FS-09 | Adaptive MFA and Passwordless Authentication | Amber | P1 | Alta | Alta | Identity / Security | TBD | Abierto | MFA tiene soporte de dominio, pero passwordless, decisiones adaptativas de riesgo y exposicion activa de endpoints siguen incompletos. | Reactivar las rutas de API y completar el flujo adaptativo/passwordless. |
 | FS-12 | Execute Role Promotion Process | Amber | P1 | Alta | Alta | IGA | TBD | Abierto | El flujo de promocion aun necesita la revision completa de manager/seguridad, ejecucion, verificacion y cierre del analisis de impacto. | Terminar la maquina de estados de promocion y alinear los pasos de aprobacion con el contrato de dominio. |
 | FS-13 | Configure Hierarchical System Parameters | Amber | P1 | Alta | Alta | Plataforma / Configuracion | TBD | Abierto | La parametrizacion existe, pero el contexto formal de Configuration sigue sin su superficie API completa. | Implementar de punta a punta las APIs de `AppConfiguration`, `FeatureFlag` e `IdpConfiguration`. |
 | FS-14 | Delegate User Management Between Administrators | Amber | P2 | Media | Media | Identity | TBD | Abierto | La delegacion existe como modelo, pero el alcance de punta a punta y el flujo de auditoria aun necesitan validacion final. | Cerrar la cobertura de acciones delegadas y verificar la ruta de aceptacion. |
@@ -69,4 +56,4 @@ Este documento mantiene una vista dinamica de lo que ya esta implementado, lo qu
 
 ## Ultima Revision
 
-2026-06-03
+2026-06-04

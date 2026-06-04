@@ -31,7 +31,6 @@ This document captures the current implementation status of the UMS API by aggre
    - `FeatureFlag`
    - `IdpConfiguration`
 2. Finish domain behavior exposure for aggregates already present in REST and GraphQL:
-   - `UserAccount`
    - `Profile`
    - `SystemSuite`
    - `PermissionTemplate`
@@ -57,17 +56,19 @@ This document captures the current implementation status of the UMS API by aggre
   - add update commands for tenant, branch, and identity provider maintenance
 
 #### UserAccount
-- Missing API capabilities:
-  - enroll MFA
-  - verify MFA challenge
 - Implemented API capabilities:
   - set or rotate a local password through server-side BCrypt hashing
   - expose active password status and latest rotation date without returning hashes
   - record authentication attempt
+  - enroll MFA method (`POST /user-accounts/{id}/mfa-enrollments`)
+  - verify MFA enrollment (`POST /user-accounts/{id}/mfa-enrollments/{id}/verify`)
+  - list MFA enrollments (`GET /user-accounts/{id}/mfa-enrollments`)
+  - revoke MFA enrollment (`DELETE /user-accounts/{id}/mfa-enrollments/{id}`)
+  - adaptive MFA policy enforcement at login (`MfaRequiredForAdmin` config → `AUTH_011` if no verified enrollment)
 - Persistence:
   - SQL Server implemented
 - Recommended next step:
-  - expose MFA lifecycle commands; historical password activation and deletion remain unavailable by audit design
+  - historical password activation and deletion remain unavailable by audit design; no further gaps
 
 ### 3.2 Authorization
 
@@ -215,4 +216,4 @@ This document captures the current implementation status of the UMS API by aggre
 6. Migrate remaining aggregates from in-memory to SQL Server
 
 ---
-**Last update:** 2026-05-21
+**Last update:** 2026-06-04

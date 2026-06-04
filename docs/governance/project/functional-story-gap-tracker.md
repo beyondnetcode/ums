@@ -20,8 +20,8 @@ This document keeps a dynamic view of what is already implemented, what is parti
 
 | Status | Count | Story IDs |
 |---|---:|---|
-| Implemented / usable | 18 | FS-01, FS-02, FS-03, FS-04, FS-05, FS-06, FS-07, FS-08, FS-10, FS-11, FS-15, FS-16, FS-17, FS-18, FS-21, FS-22, FS-26, FS-27 |
-| Partial | 9 | FS-09, FS-12, FS-13, FS-14, FS-19, FS-20, FS-23, FS-24, FS-25 |
+| Implemented / usable | 19 | FS-01, FS-02, FS-03, FS-04, FS-05, FS-06, FS-07, FS-08, FS-09, FS-10, FS-11, FS-15, FS-16, FS-17, FS-18, FS-21, FS-22, FS-26, FS-27 |
+| Partial | 8 | FS-12, FS-13, FS-14, FS-19, FS-20, FS-23, FS-24, FS-25 |
 | Deferred | 0 | — |
 
 ## Tracking Legend
@@ -35,23 +35,10 @@ This document keeps a dynamic view of what is already implemented, what is parti
 | Target | Review target for the next update cycle; use `TBD` until a date is committed |
 | Sort order | `FS` number asc, then `Priority` desc, then `Criticality` desc, then `Complexity` desc |
 
-## Recently Completed
-
-| FS | Story | Status | Completed | What was done |
-|---|---|---|---|---|
-| FS-17 | Maintain Roles for a System Suite | Green — Done | 2026-06-03 | Added `RoleE2ETests.cs` to cover creation, GraphQL visibility, update, deactivate, reactivate, and duplicate-code protection. Added `Role` story evidence in English and Spanish, and synchronized the role API traceability references. The targeted application test run passed, and the new integration tests compile with the SQL Server fixture scaffolded. |
-| FS-16 | Define Access Policy on Expiration | Green — Done | 2026-06-03 | Fixed the `UpdateAccessEnforcementActionCommandValidator` domain-action mismatch so the API accepts `BlockUser`, `RestrictProfile`, and `LogOnly`. Added `AccessEnforcementPolicyE2ETests.cs` plus validator tests, and synchronized the story docs with update-action and enforcement-execution evidence in English and Spanish. The targeted application test run passed, and the new integration tests compile with the SQL Server fixture scaffolded. |
-| FS-10 | B2B External Access Request and Approval Flow | Green — Done | 2026-06-03 | Added `PROFILE_INTERNAL_ONLY` guard in `CreateApprovalRequestCommandHandler` (blocks external/B2B users from internal-only workflows with privilege escalation error). Added approval and rejection notifications in `ApproveRequestCommandHandler` and `RejectRequestCommandHandler`. Added domain error constant `WorkflowNotAllowedForUserCategory`. 6 new tests: guard for External and B2B categories, cross-workflow category pass, approval/rejection notification assertions. 571 tests pass. |
-| FS-11 | Upload and Validate User Document | Green — Done | 2026-06-03 | Added `UserDocumentRejected` and `UserDocumentValidated` notification templates. Updated `RejectUserDocumentCommandHandler` and `ValidateUserDocumentCommandHandler` with `IUserAccountRepository` + `INotificationService` to notify the document owner. Created `RecordEnforcementExecutedCommand` + handler + `POST /user-documents/{id}/enforcement` endpoint. 8 new tests: notification assertions for reject/validate, `WhenNotPendingReview`, `WhenAlreadyExpired`, `WhenDocumentIsValid` (re-upload guard), and enforcement recording happy/failure paths. 579 tests pass. |
-| FS-22 | User Signup Request and Approval | Green — Done | 2026-06-03 | Added `SignupUserCommandHandlerTests.cs` (8 tests) covering the public applicant signup flow: happy path, duplicate email, invalid tenant, and no-admin guard. Documentation updated with Status badge, corrected traceability reference, and Section 10 acceptance test evidence. |
-| FS-15 | Configure Expiration Notification Rules | Green — Done | 2026-06-03 | Added `Reactivate` and `UpdateChannel` methods to `NotificationRule` domain aggregate. Added `ReactivateNotificationRuleCommand/Handler` and `UpdateNotificationRuleChannelCommand/Handler`. Added duplicate rule guard (`ExistsDuplicateAsync`) to `INotificationRuleRepository` + SQL and in-memory implementations; `CreateNotificationRuleCommandHandler` now rejects duplicate (same tenant+channel+recipient) with `DuplicateNotificationRule` error. Added `POST /{id}/reactivate` and `PUT /{id}/channel` REST endpoints. `UpdateRecipient` now validates empty recipient. 12 new tests (4 domain + 8 application). 1,356 tests pass. |
-| FS-06 | Auto-Assign Template on Profile Creation | Green — Done | 2026-06-03 | Implemented `TemplateAssignmentRule` aggregate (Active/Inactive state machine, priority uniqueness guard, `AssignmentRuleCreated/Deactivated/Reactivated` events). Added `CreateAssignmentRuleCommand`, `DeactivateAssignmentRuleCommand`, `ReactivateAssignmentRuleCommand` handlers with published-template guard and duplicate-priority check. Modified `CreateProfileCommandHandler` to call `TryAutoAssignTemplateAsync` — picks the highest-priority active rule matching `(TenantId, RoleId)` and calls `Profile.AssignTemplate`. Added `TemplateAutoAssignedEvent` for audit trail. REST endpoints: `GET /template-assignment-rules?tenantId`, `POST`, `/deactivate`, `/reactivate`. EF migration `Fs06TemplateAssignmentRules`. `ITemplateAssignmentRuleRepository` + SQL and in-memory implementations registered in DI. 15 new tests (8 domain + 7 application). 1,344 tests pass. |
-
 ## Open Gap Register
 
 | FS | Story | Signal | Priority | Criticality | Complexity | Owner | Target | Status | Main gap | Next action |
 |---|---|---|---|---|---|---|---|---|---|---|
-| FS-09 | Adaptive MFA and Passwordless Authentication | Amber | P1 | H | H | Identity / Security | TBD | Open | MFA has domain support, but passwordless, adaptive risk decisions, and active endpoint exposure are still incomplete. | Re-enable the API routes and complete the adaptive/passwordless flow. |
 | FS-12 | Execute Role Promotion Process | Amber | P1 | H | H | IGA | TBD | Open | The promotion flow still needs the full manager/security review, execution, verification, and impact analysis closure. | Finish the promotion state machine and align the approval steps with the domain contract. |
 | FS-13 | Configure Hierarchical System Parameters | Amber | P1 | H | H | Platform / Configuration | TBD | Open | Parameterization exists, but the formal Configuration context is still missing its complete API surface. | Implement the `AppConfiguration`, `FeatureFlag`, and `IdpConfiguration` APIs end to end. |
 | FS-14 | Delegate User Management Between Administrators | Amber | P2 | M | M | Identity | TBD | Open | Delegation exists as a model, but the end-to-end scope and audit flow still need final validation. | Close the delegated action coverage and verify the acceptance path. |
@@ -69,4 +56,4 @@ This document keeps a dynamic view of what is already implemented, what is parti
 
 ## Last Review
 
-2026-06-03
+2026-06-04

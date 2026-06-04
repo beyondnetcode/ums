@@ -592,4 +592,65 @@ public class UserAccountPasswordMfaCommandHandlerTests
 
         Assert.True(result.IsSuccess);
     }
+
+    [Fact]
+    public async Task RevokeEnrollment_WithValidCommand_ReturnsSuccess()
+    {
+        var user = MakeUserAccount();
+        user.EnrollMfa(MfaMethod.Totp, ActorId.Create("user-001"));
+        var enrollment = user.MfaEnrollments.Single();
+
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync(user);
+
+        var cmd = new RevokeUserAccountMfaCommand(user.GetId().GetValue(), enrollment.Id.GetValue());
+        var handler = new RevokeUserAccountMfaCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        Assert.Empty(user.MfaEnrollments);
+        _repo.Verify(r => r.UpdateAsync(user, It.IsAny<CancellationToken>()), Times.Once);
+        _uow.Verify(u => u.SaveEntitiesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task RevokeEnrollment_WhenNotFound_ReturnsFailure()
+    {
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync((UserAccount?)null);
+
+        var cmd = new RevokeUserAccountMfaCommand(Guid.NewGuid(), Guid.NewGuid());
+        var handler = new RevokeUserAccountMfaCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("not found", result.Error, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task RevokeEnrollment_WhenUnauthenticated_ReturnsFailure()
+    {
+        _ctx.Setup(u => u.UserId).Returns("");
+
+        var cmd = new RevokeUserAccountMfaCommand(Guid.NewGuid(), Guid.NewGuid());
+        var handler = new RevokeUserAccountMfaCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("authenticated user is required", result.Error, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task RevokeEnrollment_WhenEnrollmentNotFound_ReturnsFailure()
+    {
+        var user = MakeUserAccount();
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync(user);
+
+        var cmd = new RevokeUserAccountMfaCommand(user.GetId().GetValue(), Guid.NewGuid());
+        var handler = new RevokeUserAccountMfaCommandHandler(_repo.Object, _ctx.Object);
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+    }
 }

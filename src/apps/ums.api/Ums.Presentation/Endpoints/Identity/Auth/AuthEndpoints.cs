@@ -247,6 +247,8 @@ public static class AuthEndpoints
             ErrorCodes.UserNotActive, "Su cuenta no está activa. Contacte al administrador.", supportReferenceId), statusCode: 401),
         var e when e.StartsWith("AUTH_006") => Results.Json(new LoginErrorResponse(
             ErrorCodes.InvalidCredentials, "No pudimos iniciar sesión. Verifique sus credenciales.", supportReferenceId), statusCode: 401),
+        var e when e.StartsWith("AUTH_011") => Results.Json(new LoginErrorResponse(
+            ErrorCodes.MfaEnrollmentRequired, "Se requiere MFA. Registre y verifique un método MFA para continuar.", supportReferenceId), statusCode: 403),
         _ => Results.Json(new LoginErrorResponse("AUTH_000", "No pudimos iniciar sesión. Intente nuevamente.", supportReferenceId), statusCode: 401),
     };
 
@@ -552,6 +554,7 @@ public static class ErrorCodes
     public const string AccessDenied = "AUTH_008";
     public const string AdminLacksPermission = "AUTH_009";
     public const string TargetUserOutsideScope = "AUTH_010";
+    public const string MfaEnrollmentRequired = "AUTH_011";
 }
 
 public static class UserAccountErrorCodes

@@ -38,6 +38,7 @@ public sealed record UserSignupDeniedEvent(Guid UserId, Guid TenantId, string? R
 public sealed record UserDeletedEvent(Guid UserId, Guid TenantId) : UmsDomainEvent(TenantId);
 public sealed record MfaEnrolledEvent(Guid UserId, Guid TenantId, string Method) : UmsDomainEvent(TenantId);
 public sealed record MfaVerifiedEvent(Guid UserId, Guid TenantId, string Method) : UmsDomainEvent(TenantId);
+public sealed record MfaEnrollmentRevokedEvent(Guid UserId, Guid TenantId, Guid EnrollmentId, string Method) : UmsDomainEvent(TenantId);
 public sealed record AuthenticationAttemptedEvent(Guid? UserId, Guid TenantId, bool Success, string Reason, string IpAddress) : UmsDomainEvent(TenantId);
 
 public abstract record AuthorizationDomainEvent : DomainEvent;

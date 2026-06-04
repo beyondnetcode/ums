@@ -516,6 +516,76 @@ public class UserAccountTests
 
     #endregion
 
+    #region RevokeEnrollment
+
+    [Fact]
+    public void RevokeEnrollment_WithValidId_ReturnsSuccessAndRemovesEnrollment()
+    {
+        var user = UserAccount.Create(ValidTenantId, ValidEmail, ValidCategory, null, null, ValidActor).Value;
+        user.EnrollMfa(MfaMethod.Totp, ValidActor);
+        var enrollmentId = user.MfaEnrollments.First().Id;
+
+        var result = user.RevokeEnrollment(enrollmentId, ValidActor);
+
+        Assert.True(result.IsSuccess);
+        Assert.Empty(user.MfaEnrollments);
+    }
+
+    [Fact]
+    public void RevokeEnrollment_WhenNotFound_ReturnsFailure()
+    {
+        var user = UserAccount.Create(ValidTenantId, ValidEmail, ValidCategory, null, null, ValidActor).Value;
+        var fakeId = IdValueObject.Create();
+
+        var result = user.RevokeEnrollment(fakeId, ValidActor);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains(DomainErrors.UserAccount.MfaEnrollmentNotFound, result.Error);
+    }
+
+    [Fact]
+    public void RevokeEnrollment_RaisesMfaEnrollmentRevokedEvent()
+    {
+        var user = UserAccount.Create(ValidTenantId, ValidEmail, ValidCategory, null, null, ValidActor).Value;
+        user.EnrollMfa(MfaMethod.Totp, ValidActor);
+        var enrollmentId = user.MfaEnrollments.First().Id;
+
+        user.RevokeEnrollment(enrollmentId, ValidActor);
+
+        var events = user.DomainEvents.GetUncommittedChanges().ToList();
+        Assert.Contains(events, e => e is MfaEnrollmentRevokedEvent);
+    }
+
+    [Fact]
+    public void HasVerifiedMfaEnrollment_WhenNoneVerified_ReturnsFalse()
+    {
+        var user = UserAccount.Create(ValidTenantId, ValidEmail, ValidCategory, null, null, ValidActor).Value;
+        user.EnrollMfa(MfaMethod.Totp, ValidActor);
+
+        Assert.False(user.HasVerifiedMfaEnrollment());
+    }
+
+    [Fact]
+    public void HasVerifiedMfaEnrollment_WhenVerified_ReturnsTrue()
+    {
+        var user = UserAccount.Create(ValidTenantId, ValidEmail, ValidCategory, null, null, ValidActor).Value;
+        user.EnrollMfa(MfaMethod.Totp, ValidActor);
+        var enrollmentId = user.MfaEnrollments.First().Id;
+        user.VerifyMfaChallenge(enrollmentId, ValidActor);
+
+        Assert.True(user.HasVerifiedMfaEnrollment());
+    }
+
+    [Fact]
+    public void HasVerifiedMfaEnrollment_WhenNoEnrollments_ReturnsFalse()
+    {
+        var user = UserAccount.Create(ValidTenantId, ValidEmail, ValidCategory, null, null, ValidActor).Value;
+
+        Assert.False(user.HasVerifiedMfaEnrollment());
+    }
+
+    #endregion
+
     #region Delete (REC-16)
 
     [Fact]

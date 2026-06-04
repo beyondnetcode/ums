@@ -1,6 +1,7 @@
 using Ums.Application.Authorization.Graph;
 using Ums.Application.Authorization.Graph.Serializers;
 using Ums.Application.Common.Interfaces;
+using Ums.Application.Configuration.Services;
 using Ums.Domain.Authorization.Graph;
 using Ums.Domain.Identity;
 using Ums.Domain.Identity.Auth;
@@ -29,6 +30,7 @@ public sealed class AuthenticateUserCommandHandler
     private readonly IAuthGraphFormatProvider   _formatProvider;
     private readonly IAuthorizationGraphSerializer _defaultSerializer;
     private readonly IAuthAuditService          _auditService;
+    private readonly IConfigurationProvider     _configProvider;
 
     public AuthenticateUserCommandHandler(
         ITenantRepository          tenantRepo,
@@ -39,7 +41,8 @@ public sealed class AuthenticateUserCommandHandler
         IAuthorizationGraphBuilder graphBuilder,
         IAuthGraphFormatProvider   formatProvider,
         IAuthorizationGraphSerializer defaultSerializer,
-        IAuthAuditService          auditService)
+        IAuthAuditService          auditService,
+        IConfigurationProvider     configProvider)
     {
         _tenantRepo        = tenantRepo;
         _userRepo          = userRepo;
@@ -50,6 +53,7 @@ public sealed class AuthenticateUserCommandHandler
         _formatProvider    = formatProvider;
         _defaultSerializer = defaultSerializer;
         _auditService      = auditService;
+        _configProvider    = configProvider;
     }
 
     public async Task<Result<AuthenticateUserResult>> Handle(
@@ -158,6 +162,14 @@ public sealed class AuthenticateUserCommandHandler
             return Result<AuthenticateUserResult>.Failure("AUTH_006: Invalid username or password.");
         }
 
+        var mfaCheck = CheckMfaPolicy(user, tenantId);
+        if (mfaCheck.IsFailure)
+        {
+            await RecordFailureAsync(tenantId, user.Props.Id.GetValue(), command,
+                mfaCheck.Error, methodName, cancellationToken);
+            return Result<AuthenticateUserResult>.Failure(mfaCheck.Error);
+        }
+
         user.RecordAuthenticationAttempt(true, "Login successful",
             command.ClientIp, ActorId.Create("auth:system"));
         await _userRepo.UpdateAsync(user, cancellationToken);
@@ -206,6 +218,14 @@ public sealed class AuthenticateUserCommandHandler
                 "AUTH_005: User not active", methodName, cancellationToken);
             return Result<AuthenticateUserResult>.Failure(
                 "AUTH_005: User account is not active. Contact your administrator.");
+        }
+
+        var mfaCheck = CheckMfaPolicy(user, tenantId);
+        if (mfaCheck.IsFailure)
+        {
+            await RecordFailureAsync(tenantId, user.Props.Id.GetValue(), command,
+                mfaCheck.Error, methodName, cancellationToken);
+            return Result<AuthenticateUserResult>.Failure(mfaCheck.Error);
         }
 
         user.RecordAuthenticationAttempt(true, "IDP login successful",
@@ -259,6 +279,26 @@ public sealed class AuthenticateUserCommandHandler
             IssuedAt:        graph.GeneratedAt,
             SerializedGraph: serialized,
             GraphFormat:     format));
+    }
+
+    // ── MFA Policy Check ──────────────────────────────────────────────────────
+
+    private Result CheckMfaPolicy(
+        Ums.Domain.Identity.UserAccount.UserAccount user,
+        Guid tenantId)
+    {
+        var cfg = _configProvider.ForTenant(tenantId);
+        if (!cfg.MfaRequiredForAdmin)
+        {
+            return Result.Success();
+        }
+
+        if (!user.HasVerifiedMfaEnrollment())
+        {
+            return Result.Failure("AUTH_011: MFA enrollment required. Please enroll and verify an MFA method before logging in.");
+        }
+
+        return Result.Success();
     }
 
     private async Task RecordFailureAsync(
