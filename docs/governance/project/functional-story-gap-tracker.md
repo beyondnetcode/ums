@@ -42,7 +42,7 @@ This document keeps a dynamic view of what is already implemented, what is parti
 | FS-12 | Execute Role Promotion Process | Amber | P1 | H | H | IGA | TBD | Open | The promotion flow still needs the full manager/security review, execution, verification, and impact analysis closure. | Finish the promotion state machine and align the approval steps with the domain contract. |
 | FS-13 | Configure Hierarchical System Parameters | Amber | P1 | H | H | Platform / Configuration | TBD | Open | Parameterization exists, but the formal Configuration context is still missing its complete API surface. | Implement the `AppConfiguration`, `FeatureFlag`, and `IdpConfiguration` APIs end to end. |
 | FS-14 | Delegate User Management Between Administrators | Amber | P2 | M | M | Identity | TBD | Open | Delegation exists as a model, but the end-to-end scope and audit flow still need final validation. | Close the delegated action coverage and verify the acceptance path. |
-| FS-20 | Manage System Parameters | Amber | P1 | H | H | Platform / Configuration | TBD | Open | The tracker still marks the configuration aggregate trio as missing as a full API context. | Build repositories, commands, REST, GraphQL, and persistence for the configuration context. |
+| FS-20 | Manage System Parameters | Amber | P2 | M | M | Platform / Configuration | TBD | Partial | REST layer is complete: all 6 endpoints (GET list, GET by ID, POST, PUT, POST/publish, POST/archive), scope-based authorization guards, EF persistence, and 12 integration tests covering lifecycle, authorization, and error cases. GraphQL query layer is still pending. | Implement GraphQL queries for AppConfiguration to mirror the REST surface. |
 | FS-23 | Profile Access Request from Lobby User | Amber | P1 | H | H | Approvals | TBD | Open | The request model still needs the requested role and audit fidelity expected by the design. | Extend the request contract and lifecycle tracking. |
 | FS-24 | Profile Request Approval and Manual Assignment | Amber | P1 | H | H | Approvals | TBD | Open | The decision record still needs requested role, granted role, reason, and notification result coverage. | Extend the approval result payload and persistence model. |
 | FS-25 | Manage Domain Resources with DDD Hierarchy | Amber | P2 | L | L | Architecture | TBD | Open | This story is mostly an architecture-to-domain traceability target, and the implementation mapping is still not fully explicit. | Add a concrete implementation map or narrow the scope if the story remains documentation-only. |
@@ -55,4 +55,4 @@ This document keeps a dynamic view of what is already implemented, what is parti
 
 ## Last Review
 
-2026-06-04 (FS-19)
+2026-06-04 (FS-20 REST)
