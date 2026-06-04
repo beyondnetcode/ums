@@ -33,6 +33,9 @@ The `ApprovalRequest` aggregate represents a concrete runtime execution of an ap
 |---|---|---|
 | `ApprovalRequestId` | Value Object | Guid-based aggregate root identifier |
 | `ApprovalStatus` | Enum | Pending · Approved · Rejected |
+| `SystemSuiteId` | Value Object | Requested system scope |
+| `BranchId` | Value Object | Requested branch scope, when applicable |
+| `RoleId` | Value Object | Requested or granted role identifier |
 | `AuditValueObject` | Value Object | Tracks creation and modification metadata |
 
 ### Domain Events
@@ -45,7 +48,7 @@ The `ApprovalRequest` aggregate represents a concrete runtime execution of an ap
 ### Commands / Use Cases
 | Command | Description |
 |---|---|
-| `CreateApprovalRequestCommand` | Instantiate an approval request instance for a user action |
+| `CreateApprovalRequestCommand` | Instantiate a profile access request with requested system, branch, role, and justification |
 | `ApproveRequestCommand` | Approve a pending request with the authorized actor ID |
 | `RejectRequestCommand` | Reject a pending request. User-facing onboarding flows expose this final outcome as Denied |
 
@@ -65,7 +68,13 @@ ApprovalRequest (Aggregate Root)
     ├── WorkflowId: ApprovalWorkflowId
     ├── TargetUserId: UserId
     ├── TargetProfileId?: ProfileId
+    ├── RequestedSystemId: SystemSuiteId
+    ├── RequestedBranchId?: BranchId
+    ├── RequestedRoleId: RoleId
+    ├── Justification?: string
     ├── Status: ApprovalStatus
+    ├── GrantedRoleId?: RoleId
+    ├── DecisionReason?: string
     └── Audit: AuditValueObject
 ```
 
@@ -81,7 +90,13 @@ classDiagram
         +Guid WorkflowId
         +Guid TargetUserId
         +Guid? TargetProfileId
+        +Guid RequestedSystemId
+        +Guid? RequestedBranchId
+        +Guid RequestedRoleId
+        +string? Justification
         +ApprovalStatus Status
+        +Guid? GrantedRoleId
+        +string? DecisionReason
         +Create()
         +Approve()
         +Reject()
@@ -109,8 +124,8 @@ sequenceDiagram
     participant E as EventPublisher
     participant Admin as Approver
 
-    U->>H: CreateApprovalRequestCommand(workflowId, targetUserId, targetProfileId)
-    H->>A: ApprovalRequest.Create(workflowId, targetUserId, targetProfileId, actorId)
+    U->>H: CreateApprovalRequestCommand(workflowId, targetUserId, targetProfileId, requestedSystemId, requestedBranchId, requestedRoleId, justification)
+    H->>A: ApprovalRequest.Create(workflowId, targetUserId, targetProfileId, requestedSystemId, requestedBranchId, requestedRoleId, justification, actorId)
     A->>A: Set Status = Pending
     A->>A: Raise ApprovalRequestCreatedEvent
     H->>R: Save(request)
@@ -140,7 +155,7 @@ sequenceDiagram
     participant Notify as Notification Service
 
     User->>H: Request profile access
-    H->>A: ApprovalRequest.Create(workflowId, userId, targetProfileId)
+    H->>A: ApprovalRequest.Create(workflowId, userId, targetProfileId, requestedSystemId, requestedBranchId, requestedRoleId, justification)
     A->>A: Set Status = Pending
     H->>R: Save(request)
     R-->>Admin: Pending profile request available in scoped inbox
@@ -165,7 +180,13 @@ erDiagram
         uniqueidentifier WorkflowId FK
         uniqueidentifier TargetUserId FK
         uniqueidentifier TargetProfileId FK "Nullable"
+        uniqueidentifier RequestedSystemId FK
+        uniqueidentifier RequestedBranchId FK "Nullable"
+        uniqueidentifier RequestedRoleId FK
+        nvarchar Justification "Nullable"
         int StatusId "1=Pending, 2=Approved, 3=Rejected"
+        uniqueidentifier GrantedRoleId FK "Nullable"
+        nvarchar DecisionReason "Nullable"
         nvarchar CreatedBy
         datetime2 CreatedAtUtc
         nvarchar UpdatedBy "Nullable"
@@ -180,7 +201,7 @@ erDiagram
 - Profile request approval remains tenant-scoped or delegated branch-scoped through application-layer authorization checks.
 
 ### EP-09 Required Extension
-The implemented `ApprovalRequest` record does not yet store requested role, granted role, decision reason, or explicit final notification result. FS-23 and FS-24 require these fields or an equivalent lifecycle/audit extension before profile request approval is complete.
+The implemented `ApprovalRequest` record now stores the requested system, branch, role, justification, granted role, and decision reason. Final notification delivery is handled by the notification pipeline, so the remaining FS-24 follow-up is only needed if a persisted notification-result field becomes a design requirement.
 
 ---
 
@@ -191,7 +212,7 @@ The implemented `ApprovalRequest` record does not yet store requested role, gran
 ---
 
 ## 7. Application Layer
-- `CreateApprovalRequestCommand` -> Inputs: `WorkflowId, TargetUserId, TargetProfileId?` -> Returns: `Guid`
+- `CreateApprovalRequestCommand` -> Inputs: `WorkflowId, TargetUserId, TargetProfileId?, RequestedSystemId, RequestedBranchId?, RequestedRoleId, Justification?` -> Returns: `Guid`
 - `ApproveRequestCommand` -> Inputs: `RequestId` -> Returns: `void`
 - `RejectRequestCommand` -> Inputs: `RequestId` -> Returns: `void`
 

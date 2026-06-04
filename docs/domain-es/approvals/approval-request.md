@@ -33,6 +33,9 @@ El agregado `ApprovalRequest` representa una ejecucion concreta en tiempo de eje
 |---|---|---|
 | `ApprovalRequestId` | Objeto de Valor | Identificador de raíz de agregado basado en Guid |
 | `ApprovalStatus` | Enumerado | Pending · Approved · Rejected |
+| `SystemSuiteId` | Objeto de Valor | Alcance del sistema solicitado |
+| `BranchId` | Objeto de Valor | Alcance de la sucursal solicitada, cuando aplica |
+| `RoleId` | Objeto de Valor | Identificador del rol solicitado u otorgado |
 | `AuditValueObject` | Objeto de Valor | Rastrea metadatos de creación y modificación |
 
 ### Eventos de Dominio
@@ -45,7 +48,7 @@ El agregado `ApprovalRequest` representa una ejecucion concreta en tiempo de eje
 ### Comandos / Casos de Uso
 | Comando | Descripción |
 |---|---|
-| `CreateApprovalRequestCommand` | Instanciar una solicitud de aprobación para una acción del usuario |
+| `CreateApprovalRequestCommand` | Instanciar una solicitud de acceso a perfil con sistema, sucursal, rol y justificación solicitados |
 | `ApproveRequestCommand` | Aprobar una solicitud pendiente con el identificador del actor autorizado |
 | `RejectRequestCommand` | Rechazar una solicitud pendiente. Los flujos de onboarding exponen este resultado final como Denegado |
 
@@ -65,7 +68,13 @@ ApprovalRequest (Raíz de Agregado)
     ├── WorkflowId: ApprovalWorkflowId
     ├── TargetUserId: UserId
     ├── TargetProfileId?: ProfileId
+    ├── RequestedSystemId: SystemSuiteId
+    ├── RequestedBranchId?: BranchId
+    ├── RequestedRoleId: RoleId
+    ├── Justification?: string
     ├── Status: ApprovalStatus
+    ├── GrantedRoleId?: RoleId
+    ├── DecisionReason?: string
     └── Audit: AuditValueObject
 ```
 
@@ -81,7 +90,13 @@ classDiagram
         +Guid WorkflowId
         +Guid TargetUserId
         +Guid? TargetProfileId
+        +Guid RequestedSystemId
+        +Guid? RequestedBranchId
+        +Guid RequestedRoleId
+        +string? Justification
         +ApprovalStatus Status
+        +Guid? GrantedRoleId
+        +string? DecisionReason
         +Create()
         +Approve()
         +Reject()
@@ -109,8 +124,8 @@ sequenceDiagram
     participant E as EventPublisher
     participant Admin as Aprobador
 
-    U->>H: CreateApprovalRequestCommand(workflowId, targetUserId, targetProfileId)
-    H->>A: ApprovalRequest.Create(workflowId, targetUserId, targetProfileId, actorId)
+    U->>H: CreateApprovalRequestCommand(workflowId, targetUserId, targetProfileId, requestedSystemId, requestedBranchId, requestedRoleId, justification)
+    H->>A: ApprovalRequest.Create(workflowId, targetUserId, targetProfileId, requestedSystemId, requestedBranchId, requestedRoleId, justification, actorId)
     A->>A: Establecer Estado = Pendiente
     A->>A: Levantar ApprovalRequestCreatedEvent
     H->>R: Save(request)
@@ -140,7 +155,7 @@ sequenceDiagram
     participant Notify as Servicio de Notificacion
 
     Usuario->>H: Solicitar acceso a perfil
-    H->>A: ApprovalRequest.Create(workflowId, userId, targetProfileId)
+    H->>A: ApprovalRequest.Create(workflowId, userId, targetProfileId, requestedSystemId, requestedBranchId, requestedRoleId, justification)
     A->>A: Asignar Status = Pending
     H->>R: Guardar solicitud
     R-->>Admin: Solicitud pendiente disponible en bandeja con alcance
@@ -165,7 +180,13 @@ erDiagram
         uniqueidentifier WorkflowId FK
         uniqueidentifier TargetUserId FK
         uniqueidentifier TargetProfileId FK "Nullable"
+        uniqueidentifier RequestedSystemId FK
+        uniqueidentifier RequestedBranchId FK "Nullable"
+        uniqueidentifier RequestedRoleId FK
+        nvarchar Justification "Nullable"
         int StatusId "1=Pending, 2=Approved, 3=Rejected"
+        uniqueidentifier GrantedRoleId FK "Nullable"
+        nvarchar DecisionReason "Nullable"
         nvarchar CreatedBy
         datetime2 CreatedAtUtc
         nvarchar UpdatedBy "Nullable"
@@ -180,7 +201,7 @@ erDiagram
 - La aprobacion de solicitudes de perfil permanece limitada al tenant o sucursal delegada mediante verificaciones de autorizacion en capa de aplicacion.
 
 ### Extension Requerida por EP-09
-El record `ApprovalRequest` implementado aun no guarda rol solicitado, rol otorgado, motivo de decision ni resultado explicito de notificacion final. FS-23 y FS-24 requieren estos campos o una extension equivalente de ciclo de vida/auditoria antes de completar la aprobacion de solicitudes de perfil.
+El record `ApprovalRequest` implementado ya guarda el sistema solicitado, la sucursal, el rol solicitado, la justificacion, el rol otorgado y el motivo de decision. La entrega final de notificacion se maneja en la canalizacion de notificaciones, por lo que el seguimiento restante de FS-24 solo sera necesario si el diseno exige un campo persistido de resultado de notificacion.
 
 ---
 
@@ -191,7 +212,7 @@ El record `ApprovalRequest` implementado aun no guarda rol solicitado, rol otorg
 ---
 
 ## 7. Capa de Aplicación
-- `CreateApprovalRequestCommand` -> Entradas: `WorkflowId, TargetUserId, TargetProfileId?` -> Retorna: `Guid`
+- `CreateApprovalRequestCommand` -> Entradas: `WorkflowId, TargetUserId, TargetProfileId?, RequestedSystemId, RequestedBranchId?, RequestedRoleId, Justification?` -> Retorna: `Guid`
 - `ApproveRequestCommand` -> Entradas: `RequestId` -> Retorna: `void`
 - `RejectRequestCommand` -> Entradas: `RequestId` -> Retorna: `void`
 

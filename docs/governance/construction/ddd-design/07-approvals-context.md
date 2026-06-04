@@ -6,8 +6,8 @@
 > [!NOTE]
 > En la implementación real de C# (base de código), los agregados de este contexto están consolidados junto con el contexto de Cumplimiento (Compliance) bajo el espacio de nombres unificado **Ums.Domain.Approvals**.
 
-**Misión:** Orquestar flujos de aprobacion para: acceso B2B externo, validación de documentos y promoción de roles. Punto de control central para decisiones de autorización multi-paso.  
-**FS cubiertos:** FS-10, FS-12, FS-11 (validación documental)  
+**Misión:** Orquestar flujos de aprobacion para: acceso B2B externo, validación de documentos, solicitud de acceso a perfil y promoción de roles. Punto de control central para decisiones de autorización multi-paso.  
+**FS cubiertos:** FS-10, FS-11, FS-12, FS-23, FS-24  
 **Versión:** 2.0 | **Fecha:** 2026-05-15
 
 > **Arquitectura de Agregados:** Modelo completo con diagramas, secuencias, ER y API:
@@ -174,9 +174,9 @@ ApprovalRequestApprovedEvent  { requestId, decision, approvedBy, reason }
 ApprovalRequestRejectedEvent  { requestId, rejectionReason, rejectedBy }
 ```
 
-### Brecha EP-09
+### Estado EP-09
 
-El modelo implementado no persiste aun `RequestedRoleId`, `GrantedRoleId`, `DecisionReason` ni resultado de notificacion final para solicitudes de perfil. FS-23 y FS-24 requieren agregar estos datos o una extension equivalente de auditoria antes de considerar completo el onboarding granular de perfiles.
+El modelo implementado ya persiste `RequestedSystemId`, `RequestedBranchId`, `RequestedRoleId`, `Justification`, `GrantedRoleId` y `DecisionReason` para solicitudes de perfil. FS-23 y FS-24 quedan cubiertas por el contrato del agregado; solo quedaria una extension adicional si el diseno futuro exige persistir un resultado final de notificacion como dato propio.
 
 ---
 

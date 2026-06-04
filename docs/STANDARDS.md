@@ -1,6 +1,8 @@
 # Standards Quick Access
 
-Use this page when you need the shortest route to the UMS applied references and the upstream Evolith standards.
+> Language: [English](./STANDARDS.md) | [Español](./STANDARDS.es.md)
+
+UMS is an applied implementation of Evolith. Reusable enterprise standards live in Evolith; UMS keeps product-specific evidence, local decisions, and approved deviations through ADRs.
 
 ## UMS applied references
 
@@ -28,4 +30,4 @@ Use this page when you need the shortest route to the UMS applied references and
 
 ---
 
-[Back to UMS README](../README.md)
+[Back to UMS README](../README.md) | [Back to Documentation Portal](./README.md) | [Back to Spanish Portal](./README.es.md)

@@ -54,9 +54,9 @@ Si más de una regla coincide, UMS aplica la regla de mayor prioridad y registra
 > **ESTADO DE IMPLEMENTACIÓN: Verde — Completado (2026-06-03)**  
 > El agregado `TemplateAssignmentRule` está implementado. `CreateProfileCommandHandler` asigna automáticamente la plantilla coincidente de mayor prioridad al crear el perfil. Los endpoints REST para gestión de reglas están expuestos en `/template-assignment-rules`.
 
-- Persistir el estado de asignación en la relación perfil/plantilla. ✓ (entradas `ProfilePermission` creadas mediante `Profile.AssignTemplate`)
+- Persistir el estado de asignación en la relación perfil/plantilla. Hecho (entradas `ProfilePermission` creadas mediante `Profile.AssignTemplate`)
 - Invalidar la caché del grafo de autorización para usuarios afectados. (invalidación de caché gestionada por el observador existente de `TemplateLinkedToProfileEvent`)
-- Emitir eventos de dominio y auditoría para las asignaciones de plantillas. ✓ (`TemplateAutoAssignedEvent` emitido)
+- Emitir eventos de dominio y auditoría para las asignaciones de plantillas. Hecho (`TemplateAutoAssignedEvent` emitido)
 
 ## 9. Trazabilidad
 

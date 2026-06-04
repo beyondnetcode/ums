@@ -10,5 +10,6 @@
 
 ## Resumen
 
+- El contexto de aprobaciones cubre FS-10, FS-11, FS-12, FS-23 y FS-24.
 - Ver la version en ingles para el contenido completo.
 - Esta pagina existe para mantener la paridad bilingue del portal documental.

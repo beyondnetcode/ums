@@ -32,8 +32,8 @@ Bienvenido al índice maestro de **Functional Stories** para el Sistema de Gesti
 *   **[FS-20: Gestionar Parámetros del Sistema](./fs-20-system-parameter-management.md)**
 *   **[FS-21: Solicitud y Aprobacion de Alta de Empresa](./fs-21-tenant-signup-request-approval.md)**
 *   **[FS-22: Solicitud y Aprobacion de Alta de Usuario](./fs-22-user-signup-request-approval.md)**
-*   **[FS-23: Solicitud de Perfil desde Usuario en Lobby](./fs-23-profile-access-request.md)**
-*   **[FS-24: Aprobacion de Solicitud de Perfil y Asignacion Manual](./fs-24-profile-request-approval.md)**
+*   **[FS-23: Solicitud de Perfil desde Usuario en Lobby](./fs-23-profile-access-request.es.md)**
+*   **[FS-24: Aprobación de Solicitud de Perfil y Asignación Manual](./fs-24-profile-request-approval.es.md)**
 
 ---
 
