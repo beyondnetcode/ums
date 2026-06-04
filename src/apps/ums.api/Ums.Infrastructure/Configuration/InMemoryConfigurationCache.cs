@@ -10,16 +10,21 @@ using AppConfigurationAggregate = Ums.Domain.Configuration.AppConfiguration.AppC
 /// TODO(TD-003): Replace this phase-1 in-memory cache with a Redis-backed implementation
 /// that wraps IDistributedCache when distributed cache infrastructure is available.
 ///
-/// The three dictionaries mirror the three access patterns:
-///   _global    → fast O(1) lookup by code for global parameters
-///   _tenant    → per-tenant dictionary for tenant-specific overrides
-///   _precedence → merged view (tenant override wins over global) keyed as "tenantId:code"
+/// Resolution order (BR-1): Module → Suite → Tenant → Global (most specific wins).
+/// Each scope has its own dictionary keyed by the scope's natural ID:
+///   _global    → code
+///   _tenant    → tenantId → code
+///   _suite     → systemSuiteId → code
+///   _module    → moduleId → code
 /// </summary>
 public sealed class InMemoryConfigurationCache : IConfigurationCache
 {
-    private readonly ConcurrentDictionary<string, AppConfigurationAggregate> _global = new(StringComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentDictionary<string, AppConfigurationAggregate> _global
+        = new(StringComparer.OrdinalIgnoreCase);
+
     private readonly ConcurrentDictionary<Guid, ConcurrentDictionary<string, AppConfigurationAggregate>> _tenant = new();
-    private readonly ConcurrentDictionary<string, AppConfigurationAggregate> _precedence = new(StringComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentDictionary<Guid, ConcurrentDictionary<string, AppConfigurationAggregate>> _suite  = new();
+    private readonly ConcurrentDictionary<Guid, ConcurrentDictionary<string, AppConfigurationAggregate>> _module = new();
 
     // ── Read ────────────────────────────────────────────────────────────────
 
@@ -30,78 +35,102 @@ public sealed class InMemoryConfigurationCache : IConfigurationCache
     }
 
     public AppConfigurationAggregate? GetForTenant(Guid tenantId, string code)
-    {
-        if (_tenant.TryGetValue(tenantId, out var tenantCache) &&
-            tenantCache.TryGetValue(code, out var config))
-        {
-            return config;
-        }
-        return null;
-    }
+        => TryGet(_tenant, tenantId, code);
 
-    public AppConfigurationAggregate? GetWithPrecedence(string code, Guid? tenantId)
+    public AppConfigurationAggregate? GetForSuite(Guid suiteId, string code)
+        => TryGet(_suite, suiteId, code);
+
+    public AppConfigurationAggregate? GetForModule(Guid moduleId, string code)
+        => TryGet(_module, moduleId, code);
+
+    /// <summary>
+    /// Full 4-level cascade: Module → Suite → Tenant → Global.
+    /// </summary>
+    public AppConfigurationAggregate? GetWithPrecedence(
+        string code,
+        Guid? tenantId,
+        Guid? suiteId  = null,
+        Guid? moduleId = null)
     {
+        if (moduleId.HasValue)
+        {
+            var moduleValue = TryGet(_module, moduleId.Value, code);
+            if (moduleValue is not null) return moduleValue;
+        }
+
+        if (suiteId.HasValue)
+        {
+            var suiteValue = TryGet(_suite, suiteId.Value, code);
+            if (suiteValue is not null) return suiteValue;
+        }
+
         if (tenantId.HasValue)
         {
-            var key = PrecedenceKey(tenantId.Value, code);
-            if (_precedence.TryGetValue(key, out var tenantConfig))
-                return tenantConfig;
+            var tenantValue = TryGet(_tenant, tenantId.Value, code);
+            if (tenantValue is not null) return tenantValue;
         }
 
-        _global.TryGetValue(code, out var globalConfig);
-        return globalConfig;
+        _global.TryGetValue(code, out var global);
+        return global;
     }
 
     public IReadOnlyList<AppConfigurationAggregate> GetAllGlobal()
         => _global.Values.ToList();
 
     public IReadOnlyList<AppConfigurationAggregate> GetAllForTenant(Guid tenantId)
-        => _tenant.TryGetValue(tenantId, out var cache)
-            ? cache.Values.ToList()
-            : [];
+        => _tenant.TryGetValue(tenantId, out var cache) ? cache.Values.ToList() : [];
 
     public bool HasTenantOverride(string code, Guid tenantId)
-        => _precedence.ContainsKey(PrecedenceKey(tenantId, code));
+        => TryGet(_tenant, tenantId, code) is not null;
 
     // ── Write ────────────────────────────────────────────────────────────────
 
     public void PopulateGlobal(IEnumerable<AppConfigurationAggregate> configs)
     {
         foreach (var config in configs)
-        {
-            var code = config.Code.GetValue();
-            _global[code] = config;
-            _precedence.TryAdd(code, config);
-        }
+            _global[config.Code.GetValue()] = config;
     }
 
     public void PopulateTenant(Guid tenantId, IEnumerable<AppConfigurationAggregate> configs)
-    {
-        var cache = _tenant.GetOrAdd(tenantId, _ => new ConcurrentDictionary<string, AppConfigurationAggregate>(StringComparer.OrdinalIgnoreCase));
+        => PopulateScope(_tenant, tenantId, configs);
 
-        foreach (var config in configs)
-        {
-            var code = config.Code.GetValue();
-            cache[code] = config;
-            _precedence[PrecedenceKey(tenantId, code)] = config;
-        }
-    }
+    public void PopulateSuite(Guid suiteId, IEnumerable<AppConfigurationAggregate> configs)
+        => PopulateScope(_suite, suiteId, configs);
 
-    public void InvalidateTenant(Guid tenantId)
-    {
-        if (_tenant.TryRemove(tenantId, out var removed))
-        {
-            foreach (var code in removed.Keys)
-                _precedence.TryRemove(PrecedenceKey(tenantId, code), out _);
-        }
-    }
+    public void PopulateModule(Guid moduleId, IEnumerable<AppConfigurationAggregate> configs)
+        => PopulateScope(_module, moduleId, configs);
+
+    public void InvalidateTenant(Guid tenantId) => _tenant.TryRemove(tenantId, out _);
+
+    public void InvalidateSuite(Guid suiteId) => _suite.TryRemove(suiteId, out _);
+
+    public void InvalidateModule(Guid moduleId) => _module.TryRemove(moduleId, out _);
 
     public void InvalidateAll()
     {
         _global.Clear();
         _tenant.Clear();
-        _precedence.Clear();
+        _suite.Clear();
+        _module.Clear();
     }
 
-    private static string PrecedenceKey(Guid tenantId, string code) => $"{tenantId}:{code}";
+    // ── Helpers ──────────────────────────────────────────────────────────────
+
+    private static AppConfigurationAggregate? TryGet(
+        ConcurrentDictionary<Guid, ConcurrentDictionary<string, AppConfigurationAggregate>> store,
+        Guid key,
+        string code)
+        => store.TryGetValue(key, out var inner) && inner.TryGetValue(code, out var config)
+            ? config
+            : null;
+
+    private static void PopulateScope(
+        ConcurrentDictionary<Guid, ConcurrentDictionary<string, AppConfigurationAggregate>> store,
+        Guid key,
+        IEnumerable<AppConfigurationAggregate> configs)
+    {
+        var bucket = store.GetOrAdd(key, _ => new ConcurrentDictionary<string, AppConfigurationAggregate>(StringComparer.OrdinalIgnoreCase));
+        foreach (var config in configs)
+            bucket[config.Code.GetValue()] = config;
+    }
 }

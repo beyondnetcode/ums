@@ -10,11 +10,16 @@ public interface IConfigurationProvider
 
     AppConfigurationAggregate? GetForTenant(Guid tenantId, string code);
 
-    AppConfigurationAggregate? GetWithPrecedence(string code, Guid? tenantId = null);
+    /// <summary>Full cascade: Module → Suite → Tenant → Global.</summary>
+    AppConfigurationAggregate? GetWithPrecedence(string code, Guid? tenantId = null, Guid? suiteId = null, Guid? moduleId = null);
 
     string GetValue(string code, Guid? tenantId = null, string? defaultValue = null);
 
+    string GetValue(string code, Guid? tenantId, Guid? suiteId, Guid? moduleId, string? defaultValue = null);
+
     T GetValueAs<T>(string code, Guid? tenantId = null, T? defaultValue = default);
+
+    T GetValueAs<T>(string code, Guid? tenantId, Guid? suiteId, Guid? moduleId, T? defaultValue = default);
 
     bool HasOverride(string code, Guid tenantId);
 

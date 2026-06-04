@@ -25,10 +25,14 @@ public interface IConfigurationCache
     AppConfigurationAggregate? GetForTenant(Guid tenantId, string code);
 
     /// <summary>
-    /// Returns the tenant override if it exists, falling back to the global entry.
-    /// Implements the Tenant &gt; Global precedence rule.
+    /// Returns the most specific value for the given scope chain, cascading
+    /// Module → Suite → Tenant → Global (most specific wins, BR-1).
+    /// Pass null for scopes that are not available in the current call context.
     /// </summary>
-    AppConfigurationAggregate? GetWithPrecedence(string code, Guid? tenantId);
+    AppConfigurationAggregate? GetWithPrecedence(string code, Guid? tenantId, Guid? suiteId = null, Guid? moduleId = null);
+
+    AppConfigurationAggregate? GetForSuite(Guid suiteId, string code);
+    AppConfigurationAggregate? GetForModule(Guid moduleId, string code);
 
     IReadOnlyList<AppConfigurationAggregate> GetAllGlobal();
 
@@ -42,8 +46,16 @@ public interface IConfigurationCache
 
     void PopulateTenant(Guid tenantId, IEnumerable<AppConfigurationAggregate> configs);
 
+    void PopulateSuite(Guid suiteId, IEnumerable<AppConfigurationAggregate> configs);
+
+    void PopulateModule(Guid moduleId, IEnumerable<AppConfigurationAggregate> configs);
+
     /// <summary>Hot-reload: evicts all entries for a single tenant.</summary>
     void InvalidateTenant(Guid tenantId);
+
+    void InvalidateSuite(Guid suiteId);
+
+    void InvalidateModule(Guid moduleId);
 
     /// <summary>Full reload: evicts all entries.</summary>
     void InvalidateAll();

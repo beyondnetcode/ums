@@ -19,6 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="../Ums.Application/Ums.Application.csproj" />
     <ProjectReference Include="../Ums.Domain/Ums.Domain.csproj" />
+    <ProjectReference Include="../Ums.Infrastructure/Ums.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

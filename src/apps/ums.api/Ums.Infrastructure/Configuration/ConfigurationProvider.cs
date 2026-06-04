@@ -51,7 +51,17 @@ public sealed class ConfigurationProvider : IConfigurationProvider, IDisposable
         foreach (var tenantId in tenantIds)
         {
             var tenantConfigs = await repository.GetAllAsync(tenantId, cancellationToken);
-            _cache.PopulateTenant(tenantId, tenantConfigs);
+
+            // Bucket each config into the correct scope cache (BR-1: Module > Suite > Tenant > Global).
+            _cache.PopulateTenant(tenantId, tenantConfigs.Where(c => c.Scope.Id == 2));
+
+            foreach (var grp in tenantConfigs.Where(c => c.Scope.Id == 4 && c.Props.SystemSuiteId is not null)
+                                             .GroupBy(c => c.Props.SystemSuiteId!.GetValue()))
+                _cache.PopulateSuite(grp.Key, grp);
+
+            foreach (var grp in tenantConfigs.Where(c => c.Scope.Id == 5 && c.Props.ModuleId is not null)
+                                             .GroupBy(c => c.Props.ModuleId!.GetValue()))
+                _cache.PopulateModule(grp.Key, grp);
         }
 
         lock (_loadLock)
@@ -80,7 +90,16 @@ public sealed class ConfigurationProvider : IConfigurationProvider, IDisposable
         var repository = scope.ServiceProvider.GetRequiredService<IAppConfigurationRepository>();
 
         var tenantConfigs = await repository.GetAllAsync(tenantId, cancellationToken);
-        _cache.PopulateTenant(tenantId, tenantConfigs);
+
+        _cache.PopulateTenant(tenantId, tenantConfigs.Where(c => c.Scope.Id == 2));
+
+        foreach (var grp in tenantConfigs.Where(c => c.Scope.Id == 4 && c.Props.SystemSuiteId is not null)
+                                         .GroupBy(c => c.Props.SystemSuiteId!.GetValue()))
+            _cache.PopulateSuite(grp.Key, grp);
+
+        foreach (var grp in tenantConfigs.Where(c => c.Scope.Id == 5 && c.Props.ModuleId is not null)
+                                         .GroupBy(c => c.Props.ModuleId!.GetValue()))
+            _cache.PopulateModule(grp.Key, grp);
     }
 
     // ── Reads (delegate to cache) ─────────────────────────────────────────────
@@ -91,8 +110,8 @@ public sealed class ConfigurationProvider : IConfigurationProvider, IDisposable
     public AppConfigurationAggregate? GetForTenant(Guid tenantId, string code)
         => _cache.GetForTenant(tenantId, code);
 
-    public AppConfigurationAggregate? GetWithPrecedence(string code, Guid? tenantId = null)
-        => _cache.GetWithPrecedence(code, tenantId);
+    public AppConfigurationAggregate? GetWithPrecedence(string code, Guid? tenantId = null, Guid? suiteId = null, Guid? moduleId = null)
+        => _cache.GetWithPrecedence(code, tenantId, suiteId, moduleId);
 
     public string GetValue(string code, Guid? tenantId = null, string? defaultValue = null)
     {
@@ -100,9 +119,37 @@ public sealed class ConfigurationProvider : IConfigurationProvider, IDisposable
         return config?.Props.Value.GetValue() ?? defaultValue ?? string.Empty;
     }
 
+    public string GetValue(string code, Guid? tenantId, Guid? suiteId, Guid? moduleId, string? defaultValue = null)
+    {
+        var config = GetWithPrecedence(code, tenantId, suiteId, moduleId);
+        return config?.Props.Value.GetValue() ?? defaultValue ?? string.Empty;
+    }
+
     public T GetValueAs<T>(string code, Guid? tenantId = null, T? defaultValue = default)
     {
         var value = GetValue(code, tenantId);
+        if (string.IsNullOrEmpty(value) && defaultValue is not null)
+            return defaultValue;
+
+        try
+        {
+            if (typeof(T) == typeof(int))    return (T)(object)int.Parse(value);
+            if (typeof(T) == typeof(bool))   return (T)(object)bool.Parse(value);
+            if (typeof(T) == typeof(double)) return (T)(object)double.Parse(value);
+            if (typeof(T) == typeof(Guid))   return (T)(object)Guid.Parse(value);
+            if (typeof(T) == typeof(string)) return (T)(object)value;
+            return defaultValue ?? throw new NotSupportedException($"Type {typeof(T)} is not supported");
+        }
+        catch
+        {
+            if (defaultValue is not null) return defaultValue;
+            throw;
+        }
+    }
+
+    public T GetValueAs<T>(string code, Guid? tenantId, Guid? suiteId, Guid? moduleId, T? defaultValue = default)
+    {
+        var value = GetValue(code, tenantId, suiteId, moduleId);
         if (string.IsNullOrEmpty(value) && defaultValue is not null)
             return defaultValue;
 
