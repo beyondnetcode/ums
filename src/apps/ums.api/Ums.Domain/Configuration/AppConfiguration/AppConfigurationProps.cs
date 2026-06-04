@@ -12,6 +12,8 @@ public class AppConfigurationProps : IProps
     public ConfigurationScope Scope { get; set; }
     public bool IsInheritable { get; set; }
     public bool IsEncrypted { get; set; }
+    /// <summary>When true, lower-scope overrides for this code are blocked (BR-2).</summary>
+    public bool IsNonOverridable { get; set; }
     public string Version { get; set; }
     public ConfigStatus Status { get; set; }
     public AuditValueObject Audit { get; private set; }
@@ -26,7 +28,8 @@ public class AppConfigurationProps : IProps
         Description description,
         bool isInheritable,
         bool isEncrypted,
-        ActorId createdBy)
+        ActorId createdBy,
+        bool isNonOverridable = false)
     {
         Id = id;
         TenantId = tenantId;
@@ -37,6 +40,7 @@ public class AppConfigurationProps : IProps
         Description = description;
         IsInheritable = isInheritable;
         IsEncrypted = isEncrypted;
+        IsNonOverridable = isNonOverridable;
         Version = "1.0.0";
         Status = ConfigStatus.Draft;
         Scope = ResolveScope(tenantId, systemSuiteId, moduleId);

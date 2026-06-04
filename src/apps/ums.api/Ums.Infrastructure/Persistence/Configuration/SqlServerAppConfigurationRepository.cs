@@ -143,6 +143,7 @@ public sealed class SqlServerAppConfigurationRepository(UmsPlatformDbContext dbC
             ScopeId = aggregate.Props.Scope.Id,
             IsInheritable = aggregate.Props.IsInheritable,
             IsEncrypted = aggregate.Props.IsEncrypted,
+            IsNonOverridable = aggregate.Props.IsNonOverridable,
             Version = aggregate.Props.Version,
             StatusId = aggregate.Props.Status.Id,
             CreatedBy = audit.CreatedBy,
@@ -166,6 +167,7 @@ public sealed class SqlServerAppConfigurationRepository(UmsPlatformDbContext dbC
         target.ScopeId = replacement.ScopeId;
         target.IsInheritable = replacement.IsInheritable;
         target.IsEncrypted = replacement.IsEncrypted;
+        target.IsNonOverridable = replacement.IsNonOverridable;
         target.Version = replacement.Version;
         target.StatusId = replacement.StatusId;
         target.CreatedBy = replacement.CreatedBy;

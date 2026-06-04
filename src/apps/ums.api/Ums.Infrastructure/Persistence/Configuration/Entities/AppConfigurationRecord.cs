@@ -14,6 +14,7 @@ public sealed class AppConfigurationRecord : IAuditableRecord
     public int ScopeId { get; set; }
     public bool IsInheritable { get; set; }
     public bool IsEncrypted { get; set; }
+    public bool IsNonOverridable { get; set; }
     public string Version { get; set; } = string.Empty;
     public int StatusId { get; set; }
     public string CreatedBy { get; set; } = string.Empty;

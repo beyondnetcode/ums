@@ -31,6 +31,7 @@ public sealed class GetAppConfigurationByIdQueryHandler : IQueryHandler<GetAppCo
             appConfiguration.Props.Scope.Name,
             appConfiguration.Props.IsInheritable,
             appConfiguration.Props.IsEncrypted,
+            appConfiguration.Props.IsNonOverridable,
             appConfiguration.Props.Version,
             appConfiguration.Props.Status.Name));
     }

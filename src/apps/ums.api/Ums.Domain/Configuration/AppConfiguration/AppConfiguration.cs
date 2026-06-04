@@ -34,11 +34,12 @@ public sealed class AppConfiguration : AggregateRoot<AppConfiguration, AppConfig
         Description description,
         bool isInheritable,
         bool isEncrypted,
-        ActorId createdBy)
+        ActorId createdBy,
+        bool isNonOverridable = false)
     {
         var props = new AppConfigurationProps(
             IdValueObject.Create(), tenantId, systemSuiteId, moduleId,
-            code, value, description, isInheritable, isEncrypted, createdBy);
+            code, value, description, isInheritable, isEncrypted, createdBy, isNonOverridable);
 
         var config = new AppConfiguration(props);
 

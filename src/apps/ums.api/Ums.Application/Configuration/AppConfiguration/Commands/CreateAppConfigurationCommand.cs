@@ -10,4 +10,5 @@ public sealed record CreateAppConfigurationCommand(
     string Value,
     string Description,
     bool IsInheritable,
-    bool IsEncrypted) : ICommand<CreateAppConfigurationResponse>;
+    bool IsEncrypted,
+    bool IsNonOverridable = false) : ICommand<CreateAppConfigurationResponse>;

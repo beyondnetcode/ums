@@ -407,4 +407,103 @@ public class AppConfigurationCommandHandlerTests
     }
 
     #endregion
+
+    // =========================================================================
+    #region IsNonOverridable guard (BR-2)
+    // =========================================================================
+
+    private static AppConfigurationAggregate MakeNonOverridableGlobal() =>
+        AppConfigurationAggregate.Create(
+            null, null, null,
+            Code.Create("CFG-001"),
+            ConfigurationValue.Create("global-value"),
+            Description.Create("Global non-overridable config"),
+            true, false,
+            ActorId.Create("admin"),
+            isNonOverridable: true).Value;
+
+    [Fact]
+    public async Task Create_TenantScope_WhenGlobalIsNonOverridable_ReturnsFailure()
+    {
+        var tenantId = Guid.NewGuid();
+        _ctx.Setup(u => u.UserId).Returns("user-001");
+
+        // No duplicate at tenant scope
+        _repo.Setup(r => r.GetByScopeAndCodeAsync(tenantId, null, null, "CFG-001", It.IsAny<CancellationToken>()))
+             .ReturnsAsync((AppConfigurationAggregate?)null);
+        // Global scope has IsNonOverridable = true
+        _repo.Setup(r => r.GetByScopeAndCodeAsync(null, null, null, "CFG-001", It.IsAny<CancellationToken>()))
+             .ReturnsAsync(MakeNonOverridableGlobal());
+
+        var cmd     = ValidCreateCmd with { TenantId = tenantId, SystemSuiteId = null, ModuleId = null };
+        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var result  = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains(DomainErrors.Configuration.AppConfigNonOverridable, result.Error);
+    }
+
+    [Fact]
+    public async Task Create_SuiteScope_WhenTenantIsNonOverridable_ReturnsFailure()
+    {
+        var tenantId = Guid.NewGuid();
+        var suiteId  = Guid.NewGuid();
+        _ctx.Setup(u => u.UserId).Returns("user-001");
+
+        // No duplicate at suite scope
+        _repo.Setup(r => r.GetByScopeAndCodeAsync(tenantId, suiteId, null, "CFG-001", It.IsAny<CancellationToken>()))
+             .ReturnsAsync((AppConfigurationAggregate?)null);
+        // Tenant scope has IsNonOverridable = true
+        _repo.Setup(r => r.GetByScopeAndCodeAsync(tenantId, null, null, "CFG-001", It.IsAny<CancellationToken>()))
+             .ReturnsAsync(MakeNonOverridableGlobal());
+        // Global scope is fine
+        _repo.Setup(r => r.GetByScopeAndCodeAsync(null, null, null, "CFG-001", It.IsAny<CancellationToken>()))
+             .ReturnsAsync((AppConfigurationAggregate?)null);
+
+        var cmd     = ValidCreateCmd with { TenantId = tenantId, SystemSuiteId = suiteId, ModuleId = null };
+        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var result  = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains(DomainErrors.Configuration.AppConfigNonOverridable, result.Error);
+    }
+
+    [Fact]
+    public async Task Create_TenantScope_WhenGlobalIsOverridable_ReturnsSuccess()
+    {
+        var tenantId = Guid.NewGuid();
+        _ctx.Setup(u => u.UserId).Returns("user-001");
+
+        _repo.Setup(r => r.GetByScopeAndCodeAsync(tenantId, null, null, "CFG-001", It.IsAny<CancellationToken>()))
+             .ReturnsAsync((AppConfigurationAggregate?)null);
+        // Global scope exists but IsNonOverridable = false (default)
+        _repo.Setup(r => r.GetByScopeAndCodeAsync(null, null, null, "CFG-001", It.IsAny<CancellationToken>()))
+             .ReturnsAsync(MakeDraft()); // IsNonOverridable defaults to false
+
+        var cmd     = ValidCreateCmd with { TenantId = tenantId, SystemSuiteId = null, ModuleId = null };
+        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var result  = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+    }
+
+    [Fact]
+    public async Task Create_GlobalScope_NeverChecksParents_ReturnsSuccess()
+    {
+        _ctx.Setup(u => u.UserId).Returns("user-001");
+        _repo.Setup(r => r.GetByScopeAndCodeAsync(null, null, null, "CFG-001", It.IsAny<CancellationToken>()))
+             .ReturnsAsync((AppConfigurationAggregate?)null);
+
+        var cmd     = ValidCreateCmd with { TenantId = null, SystemSuiteId = null, ModuleId = null };
+        var handler = new CreateAppConfigurationCommandHandler(_repo.Object, _ctx.Object);
+        var result  = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        // GetByScopeAndCodeAsync called exactly once for the duplicate check, never for a parent check
+        _repo.Verify(r => r.GetByScopeAndCodeAsync(
+            It.IsAny<Guid?>(), It.IsAny<Guid?>(), It.IsAny<Guid?>(),
+            It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    #endregion
 }

@@ -62,6 +62,7 @@ public sealed class GetAllAppConfigurationsQueryHandler : IQueryHandler<GetAllAp
                 configuration.Props.Scope.Name,
                 configuration.Props.IsInheritable,
                 configuration.Props.IsEncrypted,
+                configuration.Props.IsNonOverridable,
                 configuration.Props.Version,
                 configuration.Props.Status.Name))
             .AsEnumerable()  // Client-side filtering after repository query

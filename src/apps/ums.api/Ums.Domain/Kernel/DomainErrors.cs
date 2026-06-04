@@ -164,6 +164,7 @@ public static class DomainErrors
         public const string AppConfigNotDraft           = "configuration.app_config_not_draft";
         public const string AppConfigNotPublished       = "configuration.app_config_not_published";
         public const string AppConfigAlreadyArchived    = "configuration.app_config_already_archived";
+        public const string AppConfigNonOverridable     = "configuration.app_config_non_overridable";
         public const string FlagArchivedCannotChange    = "configuration.flag_archived_cannot_change";
         public const string FlagAlreadyActive           = "configuration.flag_already_active";
         public const string FlagAlreadyInactive         = "configuration.flag_already_inactive";

@@ -38,7 +38,8 @@ internal static class ConfigurationAggregateFactory
             Description.Create(record.Description),
             record.IsInheritable,
             record.IsEncrypted,
-            ActorId.Create(record.CreatedBy));
+            ActorId.Create(record.CreatedBy),
+            record.IsNonOverridable);
 
         props.Scope = DomainEnumerationMapper.FromValue<ConfigurationScope>(record.ScopeId);
         props.Version = record.Version;

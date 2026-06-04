@@ -11,6 +11,7 @@ public sealed record AppConfigurationDto(
     string Scope,
     bool IsInheritable,
     bool IsEncrypted,
+    bool IsNonOverridable,
     string Version,
     string Status,
     /// <summary>
