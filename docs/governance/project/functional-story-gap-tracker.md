@@ -20,8 +20,8 @@ This document keeps a dynamic view of what is already implemented, what is parti
 
 | Status | Count | Story IDs |
 |---|---:|---|
-| Implemented / usable | 19 | FS-01, FS-02, FS-03, FS-04, FS-05, FS-06, FS-07, FS-08, FS-09, FS-10, FS-11, FS-15, FS-16, FS-17, FS-18, FS-21, FS-22, FS-26, FS-27 |
-| Partial | 8 | FS-12, FS-13, FS-14, FS-19, FS-20, FS-23, FS-24, FS-25 |
+| Implemented / usable | 20 | FS-01, FS-02, FS-03, FS-04, FS-05, FS-06, FS-07, FS-08, FS-09, FS-10, FS-11, FS-15, FS-16, FS-17, FS-18, FS-19, FS-21, FS-22, FS-26, FS-27 |
+| Partial | 7 | FS-12, FS-13, FS-14, FS-20, FS-23, FS-24, FS-25 |
 | Deferred | 0 | — |
 
 ## Tracking Legend
@@ -42,7 +42,6 @@ This document keeps a dynamic view of what is already implemented, what is parti
 | FS-12 | Execute Role Promotion Process | Amber | P1 | H | H | IGA | TBD | Open | The promotion flow still needs the full manager/security review, execution, verification, and impact analysis closure. | Finish the promotion state machine and align the approval steps with the domain contract. |
 | FS-13 | Configure Hierarchical System Parameters | Amber | P1 | H | H | Platform / Configuration | TBD | Open | Parameterization exists, but the formal Configuration context is still missing its complete API surface. | Implement the `AppConfiguration`, `FeatureFlag`, and `IdpConfiguration` APIs end to end. |
 | FS-14 | Delegate User Management Between Administrators | Amber | P2 | M | M | Identity | TBD | Open | Delegation exists as a model, but the end-to-end scope and audit flow still need final validation. | Close the delegated action coverage and verify the acceptance path. |
-| FS-19 | Manage Admin Password Reset Validity | Amber | P2 | M | L | Identity | TBD | Open | The admin reset validity lifecycle is not yet formalized as a complete feature. | Define the workflow and align it with the configuration model. |
 | FS-20 | Manage System Parameters | Amber | P1 | H | H | Platform / Configuration | TBD | Open | The tracker still marks the configuration aggregate trio as missing as a full API context. | Build repositories, commands, REST, GraphQL, and persistence for the configuration context. |
 | FS-23 | Profile Access Request from Lobby User | Amber | P1 | H | H | Approvals | TBD | Open | The request model still needs the requested role and audit fidelity expected by the design. | Extend the request contract and lifecycle tracking. |
 | FS-24 | Profile Request Approval and Manual Assignment | Amber | P1 | H | H | Approvals | TBD | Open | The decision record still needs requested role, granted role, reason, and notification result coverage. | Extend the approval result payload and persistence model. |
@@ -56,4 +55,4 @@ This document keeps a dynamic view of what is already implemented, what is parti
 
 ## Last Review
 
-2026-06-04
+2026-06-04 (FS-19)

@@ -67,8 +67,14 @@ Este documento registra el estado actual de implementacion de la API UMS por agr
   - politica MFA adaptativa en login (`MfaRequiredForAdmin` config → `AUTH_011` si no hay enrollment verificado)
 - Persistencia:
   - SQL Server implementado
+- Capacidades API implementadas (adiciones FS-19):
+  - modificar periodo de validez (`PATCH /user-accounts/{id}/validity`) — valida contra `MAX_VALIDITY_PERIOD_DAYS`, scope de tenant aplicado, evento `ValidityPeriodModifiedEvent`
+  - force password reset ahora notifica al usuario afectado
+  - `UserAccountDto` expone `ExpiresAt`
+- Persistencia (FS-19):
+  - columna `ExpiresAtUtc` agregada via migracion `Fs19UserAccountValidityPeriod`
 - Siguiente paso recomendado:
-  - activar o remover passwords historicas permanece inhabilitado por diseno de auditoria; sin brechas adicionales
+  - sin brechas adicionales para este agregado
 
 ### 3.2 Authorization
 
@@ -216,4 +222,4 @@ Este documento registra el estado actual de implementacion de la API UMS por agr
 6. Migrar los agregados restantes de in-memory a SQL Server
 
 ---
-**Ultima actualizacion:** 2026-06-04
+**Ultima actualizacion:** 2026-06-04 (FS-19)

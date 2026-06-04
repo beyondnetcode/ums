@@ -63,6 +63,8 @@ public static class DomainErrors
         public const string MfaAlreadyEnrolled = "user_account.mfa_already_enrolled";
         public const string MfaAlreadyVerified = "user_account.mfa_already_verified";
         public const string MfaEnrollmentNotFound = "user_account.mfa_enrollment_not_found";
+        public const string ValidityPeriodExceedsMaximum = "user_account.validity_period_exceeds_maximum";
+        public const string ValidityPeriodInPast = "user_account.validity_period_in_past";
         public const string InternalRequiresHrId = "user_account.internal_requires_hr_id";
         public const string EmailNotUnique = "user_account.email_not_unique";
         public const string CannotRemoveLastPassword = "user_account.cannot_remove_last_password";

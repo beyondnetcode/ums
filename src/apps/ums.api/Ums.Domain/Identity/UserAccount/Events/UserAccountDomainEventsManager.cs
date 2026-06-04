@@ -13,5 +13,6 @@ public class UserAccountDomainEventsManager : DomainEventsManager
     private void Apply(MfaEnrolledEvent @event) { }
     private void Apply(MfaVerifiedEvent @event) { }
     private void Apply(MfaEnrollmentRevokedEvent @event) { }
+    private void Apply(ValidityPeriodModifiedEvent @event) { }
     private void Apply(AuthenticationAttemptedEvent @event) { }
 }

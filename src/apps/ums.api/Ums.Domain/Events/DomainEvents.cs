@@ -39,6 +39,7 @@ public sealed record UserDeletedEvent(Guid UserId, Guid TenantId) : UmsDomainEve
 public sealed record MfaEnrolledEvent(Guid UserId, Guid TenantId, string Method) : UmsDomainEvent(TenantId);
 public sealed record MfaVerifiedEvent(Guid UserId, Guid TenantId, string Method) : UmsDomainEvent(TenantId);
 public sealed record MfaEnrollmentRevokedEvent(Guid UserId, Guid TenantId, Guid EnrollmentId, string Method) : UmsDomainEvent(TenantId);
+public sealed record ValidityPeriodModifiedEvent(Guid UserId, Guid TenantId, DateTimeOffset? PreviousExpiresAt, DateTimeOffset NewExpiresAt) : UmsDomainEvent(TenantId);
 public sealed record AuthenticationAttemptedEvent(Guid? UserId, Guid TenantId, bool Success, string Reason, string IpAddress) : UmsDomainEvent(TenantId);
 
 public abstract record AuthorizationDomainEvent : DomainEvent;

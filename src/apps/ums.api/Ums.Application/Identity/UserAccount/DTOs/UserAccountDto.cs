@@ -11,4 +11,5 @@ public sealed record UserAccountDto(
     string? IdentityReference,
     string? IdentityReferenceType,
     bool HasActivePassword,
-    DateTime? PasswordUpdatedAtUtc);
+    DateTime? PasswordUpdatedAtUtc,
+    DateTimeOffset? ExpiresAt = null);

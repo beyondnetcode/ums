@@ -489,6 +489,74 @@ public class UserAccountTests
 
     #endregion
 
+    #region SetValidityPeriod
+
+    [Fact]
+    public void SetValidityPeriod_WithFutureDate_ReturnsSuccess()
+    {
+        var user = UserAccount.Create(ValidTenantId, ValidEmail, ValidCategory, null, null, ValidActor).Value;
+        var expiresAt = DateTimeOffset.UtcNow.AddDays(30);
+
+        var result = user.SetValidityPeriod(expiresAt, 365, ValidActor);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(expiresAt, user.ExpiresAt);
+    }
+
+    [Fact]
+    public void SetValidityPeriod_WhenInPast_ReturnsFailure()
+    {
+        var user = UserAccount.Create(ValidTenantId, ValidEmail, ValidCategory, null, null, ValidActor).Value;
+        var expiresAt = DateTimeOffset.UtcNow.AddDays(-1);
+
+        var result = user.SetValidityPeriod(expiresAt, 365, ValidActor);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains(DomainErrors.UserAccount.ValidityPeriodInPast, result.Error);
+    }
+
+    [Fact]
+    public void SetValidityPeriod_WhenExceedsMaxDays_ReturnsFailure()
+    {
+        var user = UserAccount.Create(ValidTenantId, ValidEmail, ValidCategory, null, null, ValidActor).Value;
+        var expiresAt = DateTimeOffset.UtcNow.AddDays(400);
+
+        var result = user.SetValidityPeriod(expiresAt, 365, ValidActor);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains(DomainErrors.UserAccount.ValidityPeriodExceedsMaximum, result.Error);
+    }
+
+    [Fact]
+    public void SetValidityPeriod_RaisesValidityPeriodModifiedEvent()
+    {
+        var user = UserAccount.Create(ValidTenantId, ValidEmail, ValidCategory, null, null, ValidActor).Value;
+        var expiresAt = DateTimeOffset.UtcNow.AddDays(30);
+
+        user.SetValidityPeriod(expiresAt, 365, ValidActor);
+
+        var events = user.DomainEvents.GetUncommittedChanges().ToList();
+        Assert.Contains(events, e => e is ValidityPeriodModifiedEvent);
+    }
+
+    [Fact]
+    public void SetValidityPeriod_UpdatesPreviousExpiresAtInEvent()
+    {
+        var user = UserAccount.Create(ValidTenantId, ValidEmail, ValidCategory, null, null, ValidActor).Value;
+        var first = DateTimeOffset.UtcNow.AddDays(30);
+        var second = DateTimeOffset.UtcNow.AddDays(60);
+        user.SetValidityPeriod(first, 365, ValidActor);
+        user.DomainEvents.MarkChangesAsCommitted();
+
+        user.SetValidityPeriod(second, 365, ValidActor);
+
+        var events = user.DomainEvents.GetUncommittedChanges().OfType<ValidityPeriodModifiedEvent>().Single();
+        Assert.Equal(first, events.PreviousExpiresAt);
+        Assert.Equal(second, events.NewExpiresAt);
+    }
+
+    #endregion
+
     #region RecordAuthenticationAttempt
 
     [Fact]

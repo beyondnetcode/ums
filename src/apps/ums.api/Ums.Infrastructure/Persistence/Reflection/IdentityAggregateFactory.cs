@@ -81,6 +81,10 @@ internal static class IdentityAggregateFactory
             TimeSpan = record.AuditTimeSpan
         });
 
+        var expiresAt = record.ExpiresAtUtc.HasValue
+            ? (DateTimeOffset?)new DateTimeOffset(record.ExpiresAtUtc.Value, TimeSpan.Zero)
+            : null;
+
         var props = new UserAccountProps(
             UserAccountId.Load(record.Id),
             TenantId.Load(record.TenantId),
@@ -91,7 +95,8 @@ internal static class IdentityAggregateFactory
             string.IsNullOrWhiteSpace(record.IdentityReference) ? null : IdentityReference.Create(record.IdentityReference),
             record.IdentityReferenceTypeId.HasValue ? DomainEnumerationMapper.FromValue<IdentityReferenceType>(record.IdentityReferenceTypeId.Value) : null,
             audit,
-            string.IsNullOrWhiteSpace(record.DisplayName) ? null : Name.Create(record.DisplayName));
+            string.IsNullOrWhiteSpace(record.DisplayName) ? null : Name.Create(record.DisplayName),
+            expiresAt);
 
         var account = Construct<UserAccountAggregate, UserAccountProps>(props);
 

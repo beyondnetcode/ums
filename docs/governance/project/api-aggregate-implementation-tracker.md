@@ -67,8 +67,14 @@ This document captures the current implementation status of the UMS API by aggre
   - adaptive MFA policy enforcement at login (`MfaRequiredForAdmin` config → `AUTH_011` if no verified enrollment)
 - Persistence:
   - SQL Server implemented
+- Implemented API capabilities (FS-19 additions):
+  - modify validity period (`PATCH /user-accounts/{id}/validity`) — validates against `MAX_VALIDITY_PERIOD_DAYS`, tenant scope enforced, raises `ValidityPeriodModifiedEvent`
+  - force password reset now sends notification to affected user
+  - `UserAccountDto` exposes `ExpiresAt`
+- Persistence:
+  - `ExpiresAtUtc` column added via migration `Fs19UserAccountValidityPeriod`
 - Recommended next step:
-  - historical password activation and deletion remain unavailable by audit design; no further gaps
+  - no further gaps for this aggregate
 
 ### 3.2 Authorization
 
@@ -216,4 +222,4 @@ This document captures the current implementation status of the UMS API by aggre
 6. Migrate remaining aggregates from in-memory to SQL Server
 
 ---
-**Last update:** 2026-06-04
+**Last update:** 2026-06-04 (FS-19)

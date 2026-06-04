@@ -233,6 +233,7 @@ public sealed class SqlServerUserAccountRepository(UmsPlatformDbContext dbContex
             StatusId = aggregate.Status.Id,
             IdentityReference = aggregate.IdentityReference?.GetValue(),
             IdentityReferenceTypeId = aggregate.IdentityReferenceType?.Id,
+            ExpiresAtUtc = aggregate.ExpiresAt.HasValue ? aggregate.ExpiresAt.Value.UtcDateTime : null,
             CreatedBy = audit.CreatedBy,
             CreatedAtUtc = audit.CreatedAt,
             UpdatedBy = audit.UpdatedBy,
@@ -285,6 +286,7 @@ public sealed class SqlServerUserAccountRepository(UmsPlatformDbContext dbContex
         target.StatusId = replacement.StatusId;
         target.IdentityReference = replacement.IdentityReference;
         target.IdentityReferenceTypeId = replacement.IdentityReferenceTypeId;
+        target.ExpiresAtUtc = replacement.ExpiresAtUtc;
         target.CreatedBy = replacement.CreatedBy;
         target.CreatedAtUtc = replacement.CreatedAtUtc;
         target.UpdatedBy = replacement.UpdatedBy;

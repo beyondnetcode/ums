@@ -20,6 +20,9 @@ public sealed class UserAccountRecord : IAuditableRecord
     public string AuditTimeSpan { get; set; } = string.Empty;
     public byte[] RowVersion { get; set; } = [];
 
+    // FS-19: Validity period management
+    public DateTime? ExpiresAtUtc { get; set; }
+
     // REC-16: Soft-delete + GDPR anonymization
     public bool IsDeleted { get; set; }
     public DateTime? DeletedAtUtc { get; set; }

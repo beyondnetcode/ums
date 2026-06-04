@@ -1,4 +1,6 @@
 using System.Security.Cryptography;
+using Ums.Application.Common.Interfaces;
+using Ums.Application.Common.Notifications;
 
 namespace Ums.Application.Identity.UserAccount.Commands;
 
@@ -7,15 +9,18 @@ public sealed class ForcePasswordResetCommandHandler : ICommandHandler<ForcePass
     private readonly IUserAccountRepository _userAccountRepository;
     private readonly IUserContext _userContext;
     private readonly IPasswordHashingService _passwordHashingService;
+    private readonly INotificationService _notificationService;
 
     public ForcePasswordResetCommandHandler(
         IUserAccountRepository userAccountRepository,
         IUserContext userContext,
-        IPasswordHashingService passwordHashingService)
+        IPasswordHashingService passwordHashingService,
+        INotificationService notificationService)
     {
         _userAccountRepository = userAccountRepository;
         _userContext = userContext;
         _passwordHashingService = passwordHashingService;
+        _notificationService = notificationService;
     }
 
     [AuditTrail]
@@ -31,7 +36,7 @@ public sealed class ForcePasswordResetCommandHandler : ICommandHandler<ForcePass
 
         if (userAccount.IdentityReference is not null)
             return Result<ForcePasswordResetResponse>.Failure(
-                "Force reset is not available for federated accounts. Credentials are managed by the external identity provider.");
+                "USER_015: Force reset is not available for federated accounts. Credentials are managed by the external identity provider.");
 
         var tempPassword = GenerateTemporaryPassword();
         var passwordHash = _passwordHashingService.Hash(tempPassword);
@@ -42,6 +47,10 @@ public sealed class ForcePasswordResetCommandHandler : ICommandHandler<ForcePass
 
         await _userAccountRepository.UpdateAsync(userAccount, cancellationToken);
         await _userAccountRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+
+        var email = userAccount.Email.GetValue();
+        var notification = NotificationTemplates.PasswordReset(email, email, tempPassword);
+        await _notificationService.SendAsync(notification, cancellationToken);
 
         return Result<ForcePasswordResetResponse>.Success(new ForcePasswordResetResponse(tempPassword));
     }
@@ -62,7 +71,6 @@ public sealed class ForcePasswordResetCommandHandler : ICommandHandler<ForcePass
         for (var i = 4; i < chars.Length; i++)
             chars[i] = all[RandomNumberGenerator.GetInt32(all.Length)];
 
-        // Shuffle
         for (var i = chars.Length - 1; i > 0; i--)
         {
             var j = RandomNumberGenerator.GetInt32(i + 1);

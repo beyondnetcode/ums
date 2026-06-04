@@ -36,6 +36,7 @@ public sealed class UserAccount : AggregateRoot<UserAccount, UserAccountProps>
     public UserStatus Status => Props.Status;
     public IdentityReference? IdentityReference => Props.IdentityReference;
     public IdentityReferenceType? IdentityReferenceType => Props.IdentityReferenceType;
+    public DateTimeOffset? ExpiresAt => Props.ExpiresAt;
 
     public IReadOnlyCollection<MfaEnrollmentEntity> MfaEnrollments => _mfaEnrollments.AsReadOnly();
     public IReadOnlyCollection<PasswordCredentialEntity> PasswordCredentials => _passwordCredentials.AsReadOnly();
@@ -339,6 +340,35 @@ public sealed class UserAccount : AggregateRoot<UserAccount, UserAccountProps>
             Props.Id.GetValue(),
             Props.TenantId.GetValue(),
             enrollment.Value.Method.Name));
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy.GetValue());
+        return Result.Success();
+    }
+
+    public Result SetValidityPeriod(DateTimeOffset expiresAt, int maxDays, ActorId updatedBy)
+    {
+        if (expiresAt <= DateTimeOffset.UtcNow)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(ExpiresAt), DomainErrors.UserAccount.ValidityPeriodInPast));
+        }
+
+        if (expiresAt > DateTimeOffset.UtcNow.AddDays(maxDays))
+        {
+            BrokenRules.Add(new BrokenRule(nameof(ExpiresAt), DomainErrors.UserAccount.ValidityPeriodExceedsMaximum));
+        }
+
+        if (!IsValid())
+        {
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+        }
+
+        var previous = Props.ExpiresAt;
+        SetProps(Props.WithExpiresAt(expiresAt));
+        DomainEvents.RaiseEvent(new ValidityPeriodModifiedEvent(
+            Props.Id.GetValue(),
+            Props.TenantId.GetValue(),
+            previous,
+            expiresAt));
         TrackingState.MarkAsDirty();
         Props.Audit.Update(updatedBy.GetValue());
         return Result.Success();

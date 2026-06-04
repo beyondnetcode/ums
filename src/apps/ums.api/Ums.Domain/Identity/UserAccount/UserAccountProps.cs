@@ -11,6 +11,7 @@ public class UserAccountProps : IProps
     public UserStatus Status { get; private set; }
     public IdentityReference? IdentityReference { get; private set; }
     public IdentityReferenceType? IdentityReferenceType { get; private set; }
+    public DateTimeOffset? ExpiresAt { get; private set; }
     public AuditValueObject Audit { get; private set; }
 
     public UserAccountProps(
@@ -46,7 +47,8 @@ public class UserAccountProps : IProps
         IdentityReference? identityReference,
         IdentityReferenceType? identityReferenceType,
         AuditValueObject audit,
-        Name? displayName = null)
+        Name? displayName = null,
+        DateTimeOffset? expiresAt = null)
     {
         Id = id;
         TenantId = tenantId;
@@ -57,6 +59,7 @@ public class UserAccountProps : IProps
         Status = status;
         IdentityReference = identityReference;
         IdentityReferenceType = identityReferenceType;
+        ExpiresAt = expiresAt;
         Audit = audit;
     }
 
@@ -64,6 +67,13 @@ public class UserAccountProps : IProps
     {
         var clone = (UserAccountProps)MemberwiseClone();
         clone.Status = status;
+        return clone;
+    }
+
+    public UserAccountProps WithExpiresAt(DateTimeOffset expiresAt)
+    {
+        var clone = (UserAccountProps)MemberwiseClone();
+        clone.ExpiresAt = expiresAt;
         return clone;
     }
 

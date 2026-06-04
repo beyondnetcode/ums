@@ -209,6 +209,24 @@ public static class UserAccountEndpoints
         .ProducesProblem(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status409Conflict);
 
+        group.MapPatch("/{userAccountId:guid}/validity", async (
+            Guid userAccountId,
+            ModifyValidityPeriodRequest body,
+            IMediator mediator,
+            HttpContext context,
+            CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new ModifyUserValidityPeriodCommand(userAccountId, body.ExpiresAt, body.Reason), ct);
+            return result.ToNoContent(context);
+        })
+        .WithName("ModifyUserValidityPeriod")
+        .WithSummary("Set or extend the validity period for a user account. Validates against MAX_VALIDITY_PERIOD_DAYS.")
+        .Produces(StatusCodes.Status204NoContent)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status409Conflict);
+
         group.MapPost("/{userAccountId:guid}/authentication-attempts", async (
             Guid userAccountId,
             RecordAuthenticationAttemptCommand command,
@@ -228,5 +246,7 @@ public static class UserAccountEndpoints
         return app;
     }
 }
+
+public sealed record ModifyValidityPeriodRequest(DateTimeOffset ExpiresAt, string? Reason = null);
 
 public sealed record DenyUserSignupRequest(string? Reason = null);

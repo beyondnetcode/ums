@@ -38,6 +38,7 @@ public sealed class GetUserAccountByIdQueryHandler : IQueryHandler<GetUserAccoun
             userAccount.Props.IdentityReference?.GetValue(),
             userAccount.Props.IdentityReferenceType?.ToString(),
             activePassword is not null,
-            activePassword?.Props.Audit.GetValue().UpdatedAt ?? activePassword?.Props.Audit.GetValue().CreatedAt));
+            activePassword?.Props.Audit.GetValue().UpdatedAt ?? activePassword?.Props.Audit.GetValue().CreatedAt,
+            userAccount.ExpiresAt));
     }
 }
