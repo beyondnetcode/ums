@@ -69,7 +69,7 @@ public sealed class JsonAuthorizationGraphSerializer : IAuthorizationGraphSerial
             }),
             domainPermissions = g.DomainPermissions.Select(r => new
             {
-                r.ResourceType, r.ResourceCode, r.ResourceName,
+                r.ResourceId, r.ResourceType, r.ResourceCode, r.ResourceName, r.ModuleId, r.ParentResourceId,
                 actions = r.Actions.Select(a => new
                 {
                     a.ActionCode, a.ActionName,

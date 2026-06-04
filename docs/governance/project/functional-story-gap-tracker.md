@@ -20,8 +20,8 @@ This document keeps a dynamic view of what is already implemented, what is parti
 
 | Status | Count | Story IDs |
 |---|---:|---|
-| Implemented / usable | 21 | FS-01, FS-02, FS-03, FS-04, FS-05, FS-06, FS-07, FS-08, FS-09, FS-10, FS-11, FS-15, FS-16, FS-17, FS-18, FS-19, FS-20, FS-21, FS-22, FS-26, FS-27 |
-| Partial | 6 | FS-12, FS-13, FS-14, FS-23, FS-24, FS-25 |
+| Implemented / usable | 22 | FS-01, FS-02, FS-03, FS-04, FS-05, FS-06, FS-07, FS-08, FS-09, FS-10, FS-11, FS-15, FS-16, FS-17, FS-18, FS-19, FS-20, FS-21, FS-22, FS-25, FS-26, FS-27 |
+| Partial | 5 | FS-12, FS-13, FS-14, FS-23, FS-24 |
 | Deferred | 0 | — |
 
 ## Tracking Legend
@@ -44,7 +44,6 @@ This document keeps a dynamic view of what is already implemented, what is parti
 | FS-14 | Delegate User Management Between Administrators | Amber | P2 | M | M | Identity | TBD | Open | Delegation exists as a model, but the end-to-end scope and audit flow still need final validation. | Close the delegated action coverage and verify the acceptance path. |
 | FS-23 | Profile Access Request from Lobby User | Amber | P1 | H | H | Approvals | TBD | Open | The request model still needs the requested role and audit fidelity expected by the design. | Extend the request contract and lifecycle tracking. |
 | FS-24 | Profile Request Approval and Manual Assignment | Amber | P1 | H | H | Approvals | TBD | Open | The decision record still needs requested role, granted role, reason, and notification result coverage. | Extend the approval result payload and persistence model. |
-| FS-25 | Manage Domain Resources with DDD Hierarchy | Amber | P2 | L | L | Architecture | TBD | Open | This story is mostly an architecture-to-domain traceability target, and the implementation mapping is still not fully explicit. | Add a concrete implementation map or narrow the scope if the story remains documentation-only. |
 
 ## Review Cadence
 

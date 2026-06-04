@@ -145,6 +145,27 @@ public class AuthorizationGraphTests
         Assert.All(graph.Scopes, s => Assert.Equal(s, s.ToLowerInvariant()));
     }
 
+    // ── DomainMethod hierarchy ────────────────────────────────────────────────
+
+    [Fact]
+    public void Build_DomainPermissions_PreservesParentResourceId()
+    {
+        var aggregateId = Guid.NewGuid();
+        var methodId    = Guid.NewGuid();
+
+        var permissions = new List<GraphDomainPermission>
+        {
+            new(aggregateId, "Aggregate", "USERS", "Users", null, null, new List<GraphDomainAction>()),
+            new(methodId, "DomainMethod", "RESET_PWD", "ResetPassword()", null, aggregateId, new List<GraphDomainAction>()),
+        };
+
+        var graph = BuildMinimalGraph(domainPerms: permissions);
+
+        var method = graph.DomainPermissions.Single(p => p.ResourceType == "DomainMethod");
+        Assert.Equal(aggregateId, method.ParentResourceId);
+        Assert.Null(graph.DomainPermissions.Single(p => p.ResourceType == "Aggregate").ParentResourceId);
+    }
+
     // ── Context fields ────────────────────────────────────────────────────────
 
     [Fact]

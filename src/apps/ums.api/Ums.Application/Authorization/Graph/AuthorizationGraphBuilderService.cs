@@ -343,6 +343,7 @@ public sealed class AuthorizationGraphBuilderService : IAuthorizationGraphBuilde
                 resource.Props.Code.GetValue(),
                 resource.Props.Name.GetValue(),
                 resource.Props.ModuleId?.GetValue(),
+                resource.Props.ParentResourceId?.GetValue(),
                 domainActions));
         }
 

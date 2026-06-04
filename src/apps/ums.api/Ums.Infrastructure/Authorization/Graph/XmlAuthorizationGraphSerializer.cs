@@ -76,9 +76,11 @@ public sealed class XmlAuthorizationGraphSerializer : IAuthorizationGraphSeriali
 
                 new XElement("domainPermissions",
                     g.DomainPermissions.Select(r => new XElement("resource",
+                        new XAttribute("id",   r.ResourceId),
                         new XAttribute("type", r.ResourceType),
                         new XAttribute("code", r.ResourceCode),
                         new XAttribute("name", r.ResourceName),
+                        r.ParentResourceId.HasValue ? new XAttribute("parentResourceId", r.ParentResourceId.Value) : null,
                         r.Actions.Select(a => new XElement("action",
                             new XAttribute("code",   a.ActionCode),
                             new XAttribute("name",   a.ActionName),

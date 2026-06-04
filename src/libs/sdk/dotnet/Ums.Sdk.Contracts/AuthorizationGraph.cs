@@ -123,7 +123,8 @@ public sealed record DomainResource(
     [property: JsonPropertyName("type")] string Type,
     [property: JsonPropertyName("code")] string Code,
     [property: JsonPropertyName("name")] string Name,
-    [property: JsonPropertyName("moduleId")] Guid? ModuleId);
+    [property: JsonPropertyName("moduleId")] Guid? ModuleId,
+    [property: JsonPropertyName("parentResourceId")] Guid? ParentResourceId);
 
 public sealed record DomainActionResolution(
     [property: JsonPropertyName("actionId")] Guid ActionId,

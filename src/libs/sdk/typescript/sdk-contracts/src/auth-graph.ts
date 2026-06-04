@@ -135,10 +135,11 @@ export interface DomainResourcePermissions {
 
 export interface DomainResource {
   readonly id: string;
-  readonly type: 'Aggregate' | 'Entity' | string;
+  readonly type: 'Aggregate' | 'Entity' | 'DomainMethod' | string;
   readonly code: string;
   readonly name: string;
   readonly moduleId: string | null;
+  readonly parentResourceId: string | null;
 }
 
 export interface DomainActionResolution {

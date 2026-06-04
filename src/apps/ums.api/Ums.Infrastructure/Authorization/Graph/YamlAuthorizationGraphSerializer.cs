@@ -87,7 +87,8 @@ public sealed class YamlAuthorizationGraphSerializer : IAuthorizationGraphSerial
         sb.AppendLine("domainPermissions:");
         foreach (var res in g.DomainPermissions)
         {
-            sb.AppendLine($"  - resource: {res.ResourceCode} type: {res.ResourceType}");
+            sb.AppendLine($"  - resource: {res.ResourceCode} type: {res.ResourceType}" +
+                          (res.ParentResourceId.HasValue ? $" parentResourceId: {res.ParentResourceId.Value}" : string.Empty));
             foreach (var act in res.Actions)
                 sb.AppendLine($"    - action: {act.ActionCode} effect: {act.Effect}");
         }

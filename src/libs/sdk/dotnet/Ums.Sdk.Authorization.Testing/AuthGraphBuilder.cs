@@ -162,7 +162,7 @@ public sealed class AuthGraphBuilder
             .GroupBy(d => d.Resource)
             .Select(grp =>
             {
-                var resource = new DomainResource(Guid.NewGuid(), "Aggregate", grp.Key, grp.Key, null);
+                var resource = new DomainResource(Guid.NewGuid(), "Aggregate", grp.Key, grp.Key, null, null);
                 var resolutions = grp.Select(d =>
                 {
                     var existing = actions.FirstOrDefault(a => a.Code == d.Action);

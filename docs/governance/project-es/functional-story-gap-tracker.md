@@ -20,8 +20,8 @@ Este documento mantiene una vista dinamica de lo que ya esta implementado, lo qu
 
 | Estado | Cantidad | IDs de historia |
 |---|---:|---|
-| Implementado / utilizable | 21 | FS-01, FS-02, FS-03, FS-04, FS-05, FS-06, FS-07, FS-08, FS-09, FS-10, FS-11, FS-15, FS-16, FS-17, FS-18, FS-19, FS-20, FS-21, FS-22, FS-26, FS-27 |
-| Parcial | 6 | FS-12, FS-13, FS-14, FS-23, FS-24, FS-25 |
+| Implementado / utilizable | 22 | FS-01, FS-02, FS-03, FS-04, FS-05, FS-06, FS-07, FS-08, FS-09, FS-10, FS-11, FS-15, FS-16, FS-17, FS-18, FS-19, FS-20, FS-21, FS-22, FS-25, FS-26, FS-27 |
+| Parcial | 5 | FS-12, FS-13, FS-14, FS-23, FS-24 |
 | Diferido | 0 | — |
 
 ## Leyenda de Seguimiento
@@ -44,7 +44,6 @@ Este documento mantiene una vista dinamica de lo que ya esta implementado, lo qu
 | FS-14 | Delegate User Management Between Administrators | Amber | P2 | Media | Media | Identity | TBD | Abierto | La delegacion existe como modelo, pero el alcance de punta a punta y el flujo de auditoria aun necesitan validacion final. | Cerrar la cobertura de acciones delegadas y verificar la ruta de aceptacion. |
 | FS-23 | Profile Access Request from Lobby User | Amber | P1 | Alta | Alta | Approvals | TBD | Abierto | El modelo de solicitud aun necesita el rol pedido y la fidelidad de auditoria esperada por el diseno. | Extender el contrato de la solicitud y el seguimiento de su ciclo de vida. |
 | FS-24 | Profile Request Approval and Manual Assignment | Amber | P1 | Alta | Alta | Approvals | TBD | Abierto | El registro de decision aun necesita rol solicitado, rol otorgado, razon y resultado de notificacion. | Extender el payload del resultado de aprobacion y el modelo de persistencia. |
-| FS-25 | Manage Domain Resources with DDD Hierarchy | Amber | P2 | Baja | Baja | Arquitectura | TBD | Abierto | Esta historia es mas un objetivo de trazabilidad arquitectura-dominio y el mapeo de implementacion aun no es totalmente explicito. | Agregar un mapa concreto de implementacion o reducir el alcance si la historia sigue siendo solo documental. |
 
 ## Cadencia de Revision
 
