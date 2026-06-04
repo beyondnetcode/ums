@@ -160,6 +160,8 @@ public static class DomainErrors
         public const string IdpConfigNotActive          = "configuration.idp_config_not_active";
         public const string IdpConfigAlreadyActive      = "configuration.idp_config_already_active";
         public const string IdpConfigAlreadyInactive    = "configuration.idp_config_already_inactive";
+        public const string IdpConfigAlreadyArchived    = "configuration.idp_config_already_archived";
+        public const string IdpConfigArchivedCannotChange = "configuration.idp_config_archived_cannot_change";
         public const string IdpConfigPayloadInvalid     = "configuration.idp_config_payload_invalid";
         public const string AppConfigNotDraft           = "configuration.app_config_not_draft";
         public const string AppConfigNotPublished       = "configuration.app_config_not_published";

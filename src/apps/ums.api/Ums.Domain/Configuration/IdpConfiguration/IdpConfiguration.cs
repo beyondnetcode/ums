@@ -94,11 +94,37 @@ public sealed class IdpConfiguration : AggregateRoot<IdpConfiguration, IdpConfig
         return Result.Success();
     }
 
+    public Result Archive(ActorId updatedBy)
+    {
+        if (Status == IdpConfigStatus.Archived)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.Configuration.IdpConfigAlreadyArchived));
+        }
+
+        if (Status == IdpConfigStatus.Active)
+        {
+            BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.Configuration.IdpConfigAlreadyActive));
+        }
+
+        if (!IsValid())
+        {
+            return Result.Failure(BrokenRules.GetBrokenRulesAsString());
+        }
+
+        Props.Status = IdpConfigStatus.Archived;
+        TrackingState.MarkAsDirty();
+        Props.Audit.Update(updatedBy.GetValue());
+        return Result.Success();
+    }
+
     public Result Update(string configPayload, string secretRef, string[] domainHints, ActorId updatedBy)
     {
         if (Status != IdpConfigStatus.Draft && Status != IdpConfigStatus.Inactive)
         {
-            BrokenRules.Add(new BrokenRule(nameof(Status), DomainErrors.Configuration.IdpConfigNotDraft));
+            BrokenRules.Add(new BrokenRule(nameof(Status),
+                Status == IdpConfigStatus.Archived
+                    ? DomainErrors.Configuration.IdpConfigArchivedCannotChange
+                    : DomainErrors.Configuration.IdpConfigNotDraft));
         }
 
         if (string.IsNullOrWhiteSpace(configPayload))

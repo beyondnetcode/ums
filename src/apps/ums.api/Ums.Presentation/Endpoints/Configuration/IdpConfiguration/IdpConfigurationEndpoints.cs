@@ -82,6 +82,17 @@ public static class IdpConfigurationEndpoints
         .ProducesProblem(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status409Conflict);
 
+        group.MapPost("/{idpConfigurationId:guid}/archive", async (
+            Guid idpConfigurationId, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new ArchiveIdpConfigurationCommand(idpConfigurationId), ct);
+            return result.ToNoContent(context);
+        })
+        .WithName("ArchiveIdpConfiguration")
+        .Produces(StatusCodes.Status204NoContent)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status404NotFound);
+
         // DEFERRED: test-connection and fallback graph validation are operational endpoints
         // requiring IDP infrastructure access — outside the scope of pure CQRS command surface.
         return app;
