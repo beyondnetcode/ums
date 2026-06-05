@@ -1,10 +1,11 @@
 # Unit Testing Results & Justification
 
 ## 1. Justification & Scope
-Unit tests within the UMS Mono-repo are strictly focused on the core Domain layer and Application Handlers. Infrastructure and Framework dependencies are completely mocked out.
+Unit tests within the UMS Mono-repo are strictly focused on isolated logic. The scope is explicitly divided into:
 
-- **Backend (.NET):** Validates POCO entities, bounded context rules, and MediatR handlers. Focuses on Result-pattern assertions.
-- **Frontend (React/TypeScript):** Validates isolated reducers, hooks, domain schemas (Zod), and standalone components without relying on live APIs.
+- **Web (Frontend / React):** Validates isolated reducers, hooks, domain schemas (Zod), and standalone UI components without relying on live APIs.
+- **API (Backend / .NET):** Validates POCO entities, bounded context rules, and MediatR handlers. Focuses on Result-pattern assertions and business logic isolation.
+- **DB (Database / EF Core):** Validates specific `DbContext` configuration, model mapping, and query expressions (mocked at the DbSet level or via In-Memory DB) without requiring a live SQL Server instance.
 
 ## 2. Executed Cases & Results
 

@@ -1,10 +1,11 @@
 # Resultados y Justificación de Pruebas de Integración (E2E)
 
 ## 1. Justificación y Alcance
-Las pruebas de Integración y E2E validan la funcionalidad integral del monorepositorio UMS, cubriendo la comunicación entre la SPA en React y el backend en .NET Core.
+Las pruebas de Integración y E2E validan la funcionalidad integral del monorepositorio UMS. El alcance cubre exhaustivamente las tres capas arquitectónicas:
 
-- **Framework E2E:** Playwright
-- **Backend API:** GraphQL & REST
+- **Web (Frontend):** Pruebas E2E con Playwright que validan el renderizado de la UI de la SPA en React, el manejo del estado y los flujos de usuario.
+- **API (Backend):** Pruebas de integración invocando endpoints en vivo de GraphQL y REST, validando el análisis de solicitudes, los interceptores de autorización AOP y el mapeo de respuestas.
+- **BD (Base de Datos):** Validación de consultas reales a SQL Server, políticas de Seguridad a Nivel de Fila (RLS) y persistencia de datos desencadenada por la capa API en un contenedor o instancia de base de datos real.
 - **Escenarios Clave:** Flujos de Autenticación, Aislamiento de Inquilinos (Tenant RLS y capa de aplicación), Autorización por Roles, Navegación y Renderizado Dinámico de la UI.
 
 ## 2. Casos Ejecutados y Resultados

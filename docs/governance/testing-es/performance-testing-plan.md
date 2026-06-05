@@ -1,7 +1,11 @@
 # Estrategia de Pruebas de Rendimiento (SaaS de Alta Disponibilidad)
 
 ## 1. Justificación y Alcance
-UMS está diseñado como una plataforma SaaS empresarial de Alta Disponibilidad (HA). Ante la ausencia de un SLA base fijo, debemos anticipar escenarios altamente complejos y de estrés extremo. Como Monolito Modular construido en .NET 10, SQL Server (con RLS) y React, las pruebas de rendimiento deben garantizar que el aislamiento multi-inquilino, la invalidación de caché y los grafos de autorización dinámica no se degraden bajo estrés operativo extremo.
+UMS está diseñado como una plataforma SaaS empresarial de Alta Disponibilidad (HA). Ante la ausencia de un SLA base fijo, debemos anticipar escenarios altamente complejos y de estrés extremo. El alcance de las pruebas de rendimiento cubre integralmente todas las capas:
+
+- **Web (Frontend):** Garantizar que la SPA se mantenga responsiva, maneje correctamente los escenarios `429 Too Many Requests` y gestione sin problemas la validación de caché durante alta concurrencia.
+- **API (Backend):** Estresar el Monolito Modular en .NET 10, evaluando el agotamiento del pool de hilos, la resolución de GraphQL bajo grafos jerárquicos profundos y el procesamiento masivo y concurrente de JWT.
+- **BD (Base de Datos):** Evaluar los límites de SQL Server, apuntando específicamente a la sobrecarga de la Seguridad a Nivel de Fila (RLS), la contención de bloqueos (locks) y la resiliencia en failover.
 
 ## 2. Definición de Escenarios Complejos
 Diseñaremos pruebas dirigidas a los siguientes casos límite de alta complejidad:

@@ -1,7 +1,11 @@
 # Performance Testing Strategy (High-Availability SaaS)
 
 ## 1. Justification & Scope
-UMS is designed as a High-Availability (HA) enterprise SaaS platform. Given the absence of a fixed baseline SLA, we must anticipate highly complex and stressful scenarios. As a Modular Monolith built on .NET 10, SQL Server (with RLS), and React, performance testing must ensure that multi-tenant isolation, cache invalidation, and dynamic authorization graphs do not degrade under extreme operational stress.
+UMS is designed as a High-Availability (HA) enterprise SaaS platform. Given the absence of a fixed baseline SLA, we must anticipate highly complex and stressful scenarios. The performance testing scope comprehensively covers all tiers:
+
+- **Web (Frontend):** Ensuring the SPA remains responsive, correctly handles `429 Too Many Requests` scenarios, and seamlessly manages cache validation during high concurrency.
+- **API (Backend):** Stressing the .NET 10 Modular Monolith, evaluating thread pool exhaustion, GraphQL resolution under deep hierarchical graphs, and massive concurrent JWT processing.
+- **DB (Database):** Evaluating SQL Server limits, specifically targeting Row-Level Security (RLS) overhead, lock contention, and failover resilience.
 
 ## 2. Complex Scenario Definitions
 We will design tests targeting the following complex edge-cases:

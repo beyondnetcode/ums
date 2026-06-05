@@ -1,10 +1,11 @@
 # Resultados y Justificación de Pruebas Unitarias
 
 ## 1. Justificación y Alcance
-Las pruebas unitarias en el monorepositorio UMS se enfocan estrictamente en la capa de Dominio y los Handlers de Aplicación. Las dependencias de Infraestructura y el Framework han sido aisladas mediante mocks.
+Las pruebas unitarias en el monorepositorio UMS se enfocan en la lógica aislada. El alcance se divide explícitamente en:
 
-- **Backend (.NET):** Valida entidades POCO, reglas del contexto delimitado (Bounded Context) y manejadores de MediatR. El foco está en aserciones basadas en el Patrón Result.
-- **Frontend (React/TypeScript):** Valida reducers aislados, hooks, esquemas de dominio (Zod) y componentes independientes sin depender de APIs activas.
+- **Web (Frontend / React):** Valida reducers aislados, hooks, esquemas de dominio (Zod) y componentes UI independientes sin depender de APIs activas.
+- **API (Backend / .NET):** Valida entidades POCO, reglas del contexto delimitado (Bounded Context) y manejadores de MediatR, centrándose en el Patrón Result.
+- **BD (Base de Datos / EF Core):** Valida configuraciones de `DbContext`, mapeo de modelos y expresiones de consultas (mockeadas a nivel de DbSet o mediante In-Memory DB) sin requerir una instancia viva de SQL Server.
 
 ## 2. Casos Ejecutados y Resultados
 

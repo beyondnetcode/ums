@@ -1,10 +1,11 @@
 # Integration and E2E Testing Results
 
 ## 1. Justification & Scope
-Integration and E2E tests validate the end-to-end functionality of the UMS Mono-repo, covering the integration between the React SPA and the .NET Core backend.
+Integration and E2E tests validate the end-to-end functionality of the UMS Mono-repo. The scope comprehensively covers all three architectural tiers:
 
-- **E2E Framework:** Playwright
-- **Backend API:** GraphQL & REST
+- **Web (Frontend):** Playwright E2E tests validating the React SPA UI rendering, state management, and user flows.
+- **API (Backend):** Integration tests invoking live GraphQL and REST endpoints, validating request parsing, AOP authorization interceptors, and response mapping.
+- **DB (Database):** Validation of actual SQL Server queries, Row-Level Security (RLS) policies, and data persistence triggered by the API layer in a real database container/instance.
 - **Key Scenarios:** Authentication Flows, Tenant Isolation (RLS and Application Level), Role Authorization, Navigation, and Dynamic UI Rendering.
 
 ## 2. Executed Cases & Results
