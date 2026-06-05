@@ -14,9 +14,9 @@ Con base en el último ciclo de QA:
 ### Ejecución Backend (xUnit)
 - **Framework:** .NET 10 / xUnit
 - **Total Pruebas Ejecutadas:** 607
-- **Exitosas:** 606
-- **Fallidas:** 1
-- **Estado:** APROBADO (con una excepción menor en revisión).
+- **Exitosas:** 607
+- **Fallidas:** 0
+- **Estado:** APROBADO.
 - **Escenarios Clave Cubiertos:**
   - `AuthMethodResolverTests`: Validación de la lógica de enrutamiento entre IDP e Interno.
   - `AuthorizationGraphBuilderServiceTests`: Verificación de la correcta agregación de permisos anidados y feature flags.

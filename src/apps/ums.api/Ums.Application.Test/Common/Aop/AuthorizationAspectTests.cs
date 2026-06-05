@@ -29,6 +29,11 @@ public class AuthorizationAspectTests
     [Fact]
     public void Apply_WhenNoAttribute_Proceeds()
     {
+        // Arrange
+        var targetType = typeof(UnprotectedCommandHandler);
+        _joinPointMock.Setup(j => j.TargetType).Returns(targetType);
+        _joinPointMock.Setup(j => j.MethodInfo).Returns(targetType.GetMethod(nameof(UnprotectedCommandHandler.Handle))!);
+
         // Act
         _sut.Apply(_joinPointMock.Object);
 
@@ -43,16 +48,22 @@ public class AuthorizationAspectTests
         // Simular que Shell.Aop provee el atributo
         _userContextMock.Setup(u => u.HasPermission("user:create")).Returns(true);
 
-        // Act & Assert
-        // Como no podemos inyectar el Attribute fácilmente sin el proxy real, la lógica principal
-        // de inferencia y validación está testeada en componentes integrados o si refactorizamos 
-        // GetAttribute virtual. Pero podemos testear que no lanza excepción.
+        // Act
+        _sut.Apply(_joinPointMock.Object);
+        
+        // Assert
+        _joinPointMock.Verify(j => j.Proceed(), Times.Once);
     }
 }
 
 // Clases simuladas para el test
 [AuthorizationAspect]
 public class CreateUserCommandHandler 
+{
+    public void Handle() { }
+}
+
+public class UnprotectedCommandHandler 
 {
     public void Handle() { }
 }

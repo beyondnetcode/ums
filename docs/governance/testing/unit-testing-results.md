@@ -14,9 +14,9 @@ Based on the latest QA cycle:
 ### Backend Execution (xUnit)
 - **Framework:** .NET 10 / xUnit
 - **Total Tests Executed:** 607
-- **Passed:** 606
-- **Failed:** 1
-- **Status:** PASSING (with acceptable minor exception under review).
+- **Passed:** 607
+- **Failed:** 0
+- **Status:** PASSING.
 - **Key Covered Scenarios:**
   - `AuthMethodResolverTests`: Validating IDP vs Internal routing logic.
   - `AuthorizationGraphBuilderServiceTests`: Verifying correct aggregation of nested role permissions and feature flags.
