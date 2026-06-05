@@ -23,7 +23,34 @@ Running 10s test @ http://localhost:5293/health
 721k requests in 10.02s, 319 MB read
 ```
 
-## 3. Analysis
+## 3. Explicit Authentication Testing (`/login` Endpoint)
+In order to stress the authentication process and the generation of the **Authorization Graph** (which involves the heaviest permission reconstruction query), a controlled load of 10 concurrent connections for 10 seconds was executed directly targeting the POST `/api/v1/auth/login` endpoint. Both an internal authentication tenant and a simulated external authentication tenant were evaluated in the development environment.
+
+### 3.1. Internal Tenant (`RANSA_PERU` - Local BCrypt)
+```text
+Running 10s test @ http://localhost:5293/api/v1/auth/login
+10 connections
+┌─────────┬────────┬────────┬────────┬────────┬───────────┬──────────┬────────┐
+│ Stat    │ 2.5%   │ 50%    │ 97.5%  │ 99%    │ Avg       │ Stdev    │ Max    │
+├─────────┼────────┼────────┼────────┼────────┼───────────┼──────────┼────────┤
+│ Latency │ 232 ms │ 244 ms │ 485 ms │ 486 ms │ 257.19 ms │ 46.87 ms │ 486 ms │
+└─────────┴────────┴────────┴────────┴────────┴───────────┴──────────┴────────┘
+393 requests in 10.02s, 5.82 MB read (Avg: ~38 req/sec)
+```
+
+### 3.2. External Tenant (`NEPTUNIA` - Federated/Okta)
+```text
+Running 10s test @ http://localhost:5293/api/v1/auth/login
+10 connections
+┌─────────┬────────┬────────┬────────┬────────┬───────────┬──────────┬────────┐
+│ Stat    │ 2.5%   │ 50%    │ 97.5%  │ 99%    │ Avg       │ Stdev    │ Max    │
+├─────────┼────────┼────────┼────────┼────────┼───────────┼──────────┼────────┤
+│ Latency │ 232 ms │ 245 ms │ 292 ms │ 305 ms │ 249.59 ms │ 19.63 ms │ 431 ms │
+└─────────┴────────┴────────┴────────┴────────┴───────────┴──────────┴────────┘
+407 requests in 10.02s, 6.03 MB read (Avg: ~40 req/sec)
+```
+
+## 4. Analysis
 - **Base Performance:** The API successfully processed ~72,000 requests per second on average with a p50 latency of 1ms.
 - **Protection (Rate Limiting and HA):** Out of 721 thousand requests, **1,000** were processed successfully (200 OK) and the remaining **719,911** were gracefully intercepted with non-2xx codes (likely `429 Too Many Requests`). This perfectly validates our strategy to **"Ensure graceful queuing before exhausting the connection pool"**.
 - **Resilience:** The system did not experience any crashes despite the barrage of nearly a million requests in 10 seconds.
