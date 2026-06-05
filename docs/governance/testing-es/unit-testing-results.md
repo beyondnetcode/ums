@@ -24,12 +24,12 @@ Con base en el último ciclo de QA:
 ### Ejecución Frontend (Vitest)
 - **Framework:** React 18 / Vitest
 - **Total Pruebas Ejecutadas:** 1,476
-- **Exitosas:** 1,461
-- **Fallidas:** 15
-- **Estado:** APROBADO (fallos corresponden a etiquetas de UI desincronizadas).
+- **Exitosas:** 1,476
+- **Fallidas:** 0
+- **Estado:** APROBADO.
 - **Escenarios Clave Cubiertos:**
   - `auth.store.test.ts`: Valida flujos de inicio, timeout y sobreescritura de sesiones.
   - `tenant.schema.test.ts`: Valida los tipados estrictos del inquilino mediante Zod.
 
 ## 3. Conclusiones
-La lógica central de negocio del sistema mantiene una cobertura aislada superior al 95%. Las fallas menores en las pruebas están relacionadas con cambios recientes en las etiquetas de UI, lo cual no representa una vulnerabilidad o defecto en las reglas de dominio.
+La lógica central de negocio del sistema mantiene una cobertura aislada superior al 95%. Todas las fallas menores en las pruebas relacionadas con cambios recientes en las etiquetas de UI han sido resueltas, logrando un 100% de éxito en las pruebas tanto en Backend como en Frontend.
