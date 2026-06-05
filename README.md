@@ -1,17 +1,17 @@
 # UMS - Enterprise User Management System
 
-UMS is a modular monolith for identity, authorization, configuration, approvals, compliance, IGA, and audit. The repository follows the Evolith baseline and documents UMS-specific evidence, local decisions, and ADR-backed deviations in `docs/`.
+> Language: [English](./README.md) | [Español](./docs/README.es.md)
 
-## Acceso rápido por idioma
+UMS is a modular monolith for identity, authorization, configuration, approvals, compliance, IGA, and audit. It is an applied implementation based on Evolith: reusable enterprise standards live upstream, while UMS documents product-specific evidence, local decisions, and ADR-backed deviations in `docs/`.
 
-| Entry | Open this |
+## Documentation Entry Points
+
+| Need | Open this |
 |---|---|
-| Read in English | [docs/README.md](./docs/README.md) |
-| Leer en Español | [docs/README.es.md](./docs/README.es.md) |
+| English documentation portal | [docs/README.md](./docs/README.md) |
+| Portal documental en español | [docs/README.es.md](./docs/README.es.md) |
 | Master Index | [docs/MASTER_INDEX.md](./docs/MASTER_INDEX.md) |
 | Índice Maestro | [docs/MASTER_INDEX.es.md](./docs/MASTER_INDEX.es.md) |
-| Documentation Portal | [docs/README.md](./docs/README.md) |
-| Portal Documental | [docs/README.es.md](./docs/README.es.md) |
 | Standards | [docs/STANDARDS.md](./docs/STANDARDS.md) |
 | Estándares | [docs/STANDARDS.es.md](./docs/STANDARDS.es.md) |
 
@@ -19,12 +19,13 @@ UMS is a modular monolith for identity, authorization, configuration, approvals,
 
 | Need | Open this |
 |---|---|
-| Standards | [STANDARDS.md](./docs/STANDARDS.md) / [STANDARDS.es.md](./docs/STANDARDS.es.md) |
-| Full English documentation map | [MASTER_INDEX.md](./docs/MASTER_INDEX.md) |
-| Full Spanish documentation map | [MASTER_INDEX.es.md](./docs/MASTER_INDEX.es.md) |
 | Short navigation by team or goal | [Quick Navigation](./docs/governance/quick-navigation.md) |
 | Architecture portal | [Architecture Portal](./docs/architecture/index.md) |
+| Portal de Arquitectura | [Portal de Arquitectura](./docs/architecture/index.es.md) |
 | Governance portal | [Governance Portal](./docs/governance/index.md) |
+| Portal de Gobernanza | [Portal de Gobernanza](./docs/governance/index.es.md) |
+| Operations portal | [Operations Portal](./docs/operations/index.md) |
+| Portal de Operaciones | [Portal de Operaciones](./docs/operations/index.es.md) |
 
 ## At a Glance
 
@@ -34,7 +35,7 @@ UMS is a modular monolith for identity, authorization, configuration, approvals,
 | Frontend | React 18, Vite, TypeScript |
 | Monorepo | Nx, npm workspaces |
 | Delivery method | BMAD-METHOD, Clean Architecture, DDD |
-| Multi-tenancy | Application-layer tenant filtering first, SQL Server RLS as secondary failsafe |
+| Multi-tenancy | Application-layer tenant filtering first, SQL Server RLS as a secondary failsafe |
 
 ## Local Workflows
 
@@ -63,16 +64,12 @@ cd src
 python ../.bmad-core/scripts/validate_docs_consistency.py README.md docs/
 ```
 
-## Documentation Map
+## What to Expect
 
-| Portal | Purpose |
-|---|---|
-| [Standards Quick Access](./docs/STANDARDS.md) | UMS applied references and Evolith standards |
-| [Master Index](./docs/MASTER_INDEX.md) | English lifecycle map of the documentation tree |
-| [Índice Maestro](./docs/MASTER_INDEX.es.md) | Spanish lifecycle map of the documentation tree |
-| [Governance Portal](./docs/governance/index.md) | Product direction, requirements, backlog, and construction |
-| [Architecture Portal](./docs/architecture/index.md) | Architecture, blueprints, ADRs, and traceability |
-| [Operations Portal](./docs/operations/index.md) | Runbooks, metrics, and operational guidance |
+- The root README stays short and executive.
+- `docs/README.md` and `docs/README.es.md` are the bilingual home pages for documentation.
+- `docs/MASTER_INDEX.md` and `docs/MASTER_INDEX.es.md` are the full lifecycle maps.
+- UMS-specific evidence belongs in `docs/`, while reusable standards remain in Evolith.
 
 ## Governance Notes
 
