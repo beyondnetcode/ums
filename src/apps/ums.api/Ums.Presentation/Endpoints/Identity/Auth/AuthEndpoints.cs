@@ -212,8 +212,8 @@ public static class AuthEndpoints
             .ToArray();
 
         return Results.Ok(new LoginSuccessResponse(
-            SessionId:        Guid.NewGuid().ToString(),
-            SessionTrackingId: Guid.NewGuid().ToString(),
+            SessionId:        supportReferenceId,
+            SessionTrackingId: $"{supportReferenceId}-session",
             UserId:           ctx.User.Id.ToString(),
             Username:         ctx.User.Username,
             Email:            ctx.User.Email,
@@ -291,7 +291,7 @@ public static class AuthEndpoints
             Language: "en"
         ));
 
-        var sessionTrackingId = httpContext.User.FindFirstValue("session_tracking_id") ?? Guid.NewGuid().ToString();
+        var sessionTrackingId = httpContext.User.FindFirstValue("session_tracking_id") ?? httpContext.TraceIdentifier;
 
         return Results.Ok(new RefreshTokenResponse(
             Token: newToken,
@@ -323,11 +323,11 @@ public static class AuthEndpoints
         var role = httpContext.User.FindFirstValue(ClaimTypes.Role);
         var roleName = httpContext.User.FindFirstValue("role_name");
         var profileId = httpContext.User.FindFirstValue("profile_id");
-        var sessionTrackingId = httpContext.User.FindFirstValue("session_tracking_id") ?? Guid.NewGuid().ToString();
+        var sessionTrackingId = httpContext.User.FindFirstValue("session_tracking_id") ?? httpContext.TraceIdentifier;
         var isInternalAdmin = httpContext.User.FindFirstValue("is_internal_admin")?.ToLower() == "true";
 
         return Results.Ok(new LoginSuccessResponse(
-            SessionId: Guid.NewGuid().ToString(),
+            SessionId: httpContext.TraceIdentifier,
             SessionTrackingId: sessionTrackingId,
             UserId: userId ?? "",
             Username: httpContext.User.FindFirstValue("username") ?? email ?? "",
@@ -454,7 +454,7 @@ public static class AuthEndpoints
                 SupportReferenceId: null), statusCode: 403);
         }
 
-        var sessionTrackingId = jwtToken.Claims.FirstOrDefault(c => c.Type == "session_tracking_id")?.Value ?? Guid.NewGuid().ToString();
+        var sessionTrackingId = jwtToken.Claims.FirstOrDefault(c => c.Type == "session_tracking_id")?.Value ?? httpContext.TraceIdentifier;
 
         return Results.Ok(new TenantSwitchResponse(
             PreviousTenantId: tenantContext.OriginalTenantId?.ToString() ?? "",

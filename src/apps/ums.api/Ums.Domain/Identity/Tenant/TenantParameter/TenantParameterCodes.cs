@@ -21,6 +21,6 @@ public static class TenantParameterCodes
     public const string AuthGraphAllowedFormats = "AUTH_GRAPH_ALLOWED_FORMATS";
 
     /// <summary>Whether to include technical metadata (IDs, timestamps) in the serialized graph.
-    /// Defaults to true.</summary>
+    /// Defaults to false.</summary>
     public const string AuthGraphIncludeTechnicalMetadata = "AUTH_GRAPH_INCLUDE_TECHNICAL_METADATA";
 }

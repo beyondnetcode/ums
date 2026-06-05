@@ -37,6 +37,14 @@ Welcome to the master **Functional Stories** index for the User Management Syste
 *   **[FS-25: Manage Domain Resources with DDD Hierarchy](./fs-25-ddd-domain-resource-hierarchy.md)**
 *   **[FS-26: Preview Auth Graph from Profile Maintenance](./fs-26-auth-graph-preview-from-profile.md)**
 *   **[FS-27: State-Change Consistency — Broken Rules on Active Dependencies](./fs-27-state-change-consistency-broken-rules.md)**
+*   **[FS-28: Access Review Campaigns for Role and Permission Recertification](./fs-28-access-review-campaigns.md)**
+*   **[FS-29: Entitlement Packages for Governed Access Bundles](./fs-29-entitlement-packages.md)**
+*   **[FS-30: Provisioning and Deprovisioning Connectors for Downstream Systems](./fs-30-provisioning-deprovisioning-connectors.md)**
+*   **[FS-31: Privileged Access with Time-Bound Elevation](./fs-31-privileged-access-time-bound-elevation.md)**
+*   **[FS-32: Operational Reliability Guardrails for Governance Actions](./fs-32-operational-reliability-guardrails.md)**
+*   **[FS-33: Authorization Graph Explorer with What-If Simulation](./fs-33-authorization-graph-explorer.md)**
+*   **[FS-34: Business-Semantic Access Packages and Policy Composer](./fs-34-business-semantic-access-packages.md)**
+*   **[FS-35: Continuous Access Health and Recommendations](./fs-35-continuous-access-health.md)**
 
 ---
 

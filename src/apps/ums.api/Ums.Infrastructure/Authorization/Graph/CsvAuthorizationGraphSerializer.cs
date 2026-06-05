@@ -16,45 +16,46 @@ public sealed class CsvAuthorizationGraphSerializer : IAuthorizationGraphSeriali
 
     public string Serialize(AuthorizationGraph g, GraphSerializationOptions? options = null)
     {
-        var sb = new StringBuilder();
+        var opts = options ?? GraphSerializationOptions.Default;
+        var sb   = new StringBuilder();
 
-        // Header comments
         sb.AppendLine($"# UMS Authorization Graph — {g.Context.Tenant.Code} / {g.Context.SystemSuite.Code} / {g.Context.Role.Code}");
         sb.AppendLine($"# Generated: {g.GeneratedAt:O}  ValidUntil: {g.ValidUntil:O}");
         sb.AppendLine($"# Auth: {g.Authentication.Method}  MFA: {g.Authentication.MfaRequired}");
         sb.AppendLine();
 
-        // Section 1: Menu Permissions
-        sb.AppendLine("Section,ModuleCode,MenuCode,SubMenuCode,OptionCode,OptionLabel,ActionCode,Effect,Source");
+        sb.AppendLine("Section,ModuleCode,ModuleValue,MenuCode,MenuValue,SubMenuCode,SubMenuValue,OptionCode,OptionValue,ActionCode,Effect,Source");
         foreach (var module in g.MenuAccess)
-        foreach (var menu   in module.Menus)
-        foreach (var sub    in menu.SubMenus)
-        foreach (var opt    in sub.Options)
+        foreach (var menu in module.Menus)
+        foreach (var sub in menu.SubMenus)
+        foreach (var opt in sub.Options)
         {
             sb.AppendLine(string.Join(",",
                 "Menu",
-                Esc(module.Code), Esc(menu.Code), Esc(sub.Code),
-                Esc(opt.Code),    Esc(opt.Label), Esc(opt.ActionCode),
-                opt.Effect.ToString(), opt.Source.ToString()));
+                Esc(module.Code), Esc(module.Name),
+                Esc(menu.Code), Esc(menu.Label),
+                Esc(sub.Code), Esc(sub.Label),
+                Esc(opt.Code), Esc(opt.Label),
+                Esc(opt.ActionCode),
+                opt.Effect.ToString(),
+                opt.Source.ToString()));
         }
 
         sb.AppendLine();
 
-        // Section 2: Domain Resource Permissions
-        sb.AppendLine("Section,ResourceType,ResourceCode,ResourceName,ActionCode,ActionName,Effect,Source");
+        sb.AppendLine("Section,ResourceType,ResourceCode,ResourceValue,ActionCode,ActionValue,Effect,Source");
         foreach (var res in g.DomainPermissions)
         foreach (var act in res.Actions)
         {
             sb.AppendLine(string.Join(",",
                 "Domain",
                 Esc(res.ResourceType), Esc(res.ResourceCode), Esc(res.ResourceName),
-                Esc(act.ActionCode),   Esc(act.ActionName),
+                Esc(act.ActionCode), Esc(act.ActionName),
                 act.Effect.ToString(), act.Source.ToString()));
         }
 
         sb.AppendLine();
 
-        // Section 3: Feature Flags
         sb.AppendLine("Section,FlagCode,IsEnabled,MatchedCriteria");
         foreach (var f in g.FeatureFlags)
         {
@@ -67,10 +68,21 @@ public sealed class CsvAuthorizationGraphSerializer : IAuthorizationGraphSeriali
 
         sb.AppendLine();
 
-        // Section 4: OAuth2 Scopes
         sb.AppendLine("Section,Scope");
         foreach (var s in g.Scopes)
             sb.AppendLine($"Scope,{Esc(s)}");
+
+        if (opts.IncludeTechnicalMetadata)
+        {
+            sb.AppendLine();
+            sb.AppendLine("Section,TechnicalField,Value");
+            sb.AppendLine($"Technical,UserId,{Esc(g.Context.User.Id.ToString())}");
+            sb.AppendLine($"Technical,TenantId,{Esc(g.Context.Tenant.Id.ToString())}");
+            sb.AppendLine($"Technical,SystemSuiteId,{Esc(g.Context.SystemSuite.Id.ToString())}");
+            sb.AppendLine($"Technical,RoleId,{Esc(g.Context.Role.Id.ToString())}");
+            if (g.Context.Branch is not null)
+                sb.AppendLine($"Technical,BranchId,{Esc(g.Context.Branch.Id.ToString())}");
+        }
 
         return sb.ToString();
     }

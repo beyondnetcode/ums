@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Ums.Domain.Authorization.Graph;
 
 /// <summary>
@@ -5,6 +7,6 @@ namespace Ums.Domain.Authorization.Graph;
 /// the system can perform, returned in the graph so clients know what actions exist.
 /// </summary>
 public sealed record GraphAction(
-    Guid   Id,
+    [property: JsonIgnore] Guid Id,
     string Code,
-    string Name);
+    [property: JsonPropertyName("value")] string Name);

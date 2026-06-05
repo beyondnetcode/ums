@@ -26,6 +26,9 @@ The backlog is intended for Product Owner, Business Analyst, Executive, and Deli
 | EP-07 | Compliance Lifecycle | User documents, expiration notifications, expiration-based access policy | Post-MVP |
 | EP-08 | Advanced IGA Automation | Role promotion and governance maturity automation | Later |
 | EP-09 | Onboarding Approval Inbox | Tenant signup requests, user signup requests, scoped approvals, future payment-verification readiness | MVP Launch Readiness |
+| EP-10 | Advanced Access Governance | Access review campaigns, entitlement packages, privileged access elevation | Phase 1 |
+| EP-11 | Integration and Operational Reliability | Provisioning connectors, duplicate-request protection, concurrency safeguards, tenant-safe delivery | Phase 1 |
+| EP-12 | Explainable Governance Intelligence | Authorization graph simulation, business-semantic packages, continuous access health | Phase 1 |
 
 ## Prioritized User Story Backlog
 
@@ -68,6 +71,14 @@ The backlog is intended for Product Owner, Business Analyst, Executive, and Deli
 | 35 | US-034 | EP-09 | FS-22 | MVP Launch Readiness | As a Tenant Admin, I want a tenant-scoped onboarding inbox for user signup requests so that I can approve or deny access for my own tenant. | User onboarding stays local to the tenant and reaches a final outcome. | Request is visible only inside the tenant, the Tenant Admin closes it as approved or denied, and the applicant is notified of the final result. |
 | 36 | US-035 | EP-09 | FS-23 | MVP Launch Readiness | As an authenticated user without a profile, I want to request system, branch, and role access from the lobby so that administrators know what access I need. | Tenant admission stays separate from entitlement assignment. | The user sees a lobby, submits a profile request, receives no operational menus before approval, and can track the request until final closure. |
 | 37 | US-036 | EP-09 | FS-24 | MVP Launch Readiness | As a Tenant or Branch Approver, I want to approve, modify, or deny profile requests so that users receive only appropriate access. | Profile assignment becomes governed, auditable, and closed. | The decision records approver, date, requested role, granted role when approved, final outcome, reason when provided, and notification result. |
+| 38 | US-041 | EP-11 | FS-32 | Phase 1 | As a Platform Administrator, I want operational guardrails for governance actions so that retries, concurrency, and tenant scope do not create inconsistent state. | Administrative operations become more reliable under real production conditions. | Duplicate requests, concurrency conflicts, and tenant mismatches produce clear outcomes and no silent corruption. |
+| 39 | US-037 | EP-10 | FS-28 | Phase 1 | As an Access Governance Administrator, I want recurring access review campaigns so that stale access can be recertified and removed. | Access remains justified over time. | Review scope, reviewers, decisions, and resulting access changes are all auditable. |
+| 40 | US-038 | EP-10 | FS-29 | Phase 1 | As an Entitlement Administrator, I want governed entitlement packages so that common access bundles can be requested and assigned as one unit. | Access is packaged into reusable bundles. | The package contains controlled entitlements, follows approval, and stays auditable by version. |
+| 41 | US-039 | EP-11 | FS-30 | Phase 1 | As an Identity Operations Administrator, I want downstream provisioning connectors so that access changes are reflected in external systems. | UMS stays synchronized with downstream applications. | Provisioning and deprovisioning actions are tracked, retried, and auditable. |
+| 42 | US-040 | EP-10 | FS-31 | Phase 1 | As a Security Administrator, I want time-bound privileged access so that elevated access is temporary and justified. | Privileged access becomes safer and easier to review. | Every elevation has a reason, duration, expiry, and auditable decision. |
+| 43 | US-042 | EP-12 | FS-33 | Phase 1 | As an Authorization Administrator, I want to preview and simulate the authorization graph so that I can approve changes with confidence before they go live. | Access changes become explainable and safer to approve. | Current and proposed graphs are comparable, and the preview does not change live access. |
+| 44 | US-043 | EP-12 | FS-34 | Phase 1 | As an Entitlement Architect, I want business-semantic access packages so that access can be composed and governed in language the business understands. | Access packages map to real business operations. | Packages are versioned, scope-aware, and reusable without losing history. |
+| 45 | US-044 | EP-12 | FS-35 | Phase 1 | As a Security Administrator, I want continuous access health insights so that I can see risky or stale access before it becomes an incident. | Governance becomes proactive instead of only reactive. | Health signals, recommendations, and remediation paths are visible and auditable. |
 
 ## MVP Cut Line
 
@@ -78,3 +89,5 @@ The recommended MVP backlog includes `US-001` through `US-012` as core scope.
 `US-017` onward should be planned after the MVP unless the launch customer requires stronger security, external access, or compliance gating from day one.
 
 `US-033` through `US-036` should be treated as launch readiness for onboarding. If self-service onboarding goes live, these stories become a release gate because they control company admission, tenant-scoped account activation, and entitlement assignment.
+
+`US-037` onward is Phase 1. It is ordered by delivery priority and should focus first on operational guardrails, then access governance depth, downstream provisioning, time-bound privilege management, and explainable governance intelligence.

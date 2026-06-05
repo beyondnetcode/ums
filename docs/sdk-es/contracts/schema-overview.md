@@ -2,9 +2,13 @@
 
 > **Idioma:** [English](../../sdk/contracts/schema-overview.md) | Español
 
-Este documento describe el **JSON Schema canónico** para el payload `AuthorizationGraph`. Es el contrato entre el servidor UMS y todos los runtimes del SDK (.NET, TypeScript, NestJS).
+Este documento se conserva como referencia estructural de la forma original del grafo. El contrato cliente actual es el payload semántico documentado en [Contrato Semantico del Auth Graph](./semantic-client-contract.md).
+
+El contrato canónico entre el servidor UMS y los runtimes del SDK ahora es el contrato semántico.
 
 Para el ejemplo runtime completo y la semántica de autorización, ver [`auth-graph.md`](../../domain-es/identity/auth-graph.md). Esta página se enfoca en la **forma del schema, tipos y garantías de contrato**.
+
+Para el contrato cliente semántico que elimina la dependencia de GUIDs en la superficie por defecto, ver [Contrato Semantico del Auth Graph](./semantic-client-contract.md).
 
 ---
 
@@ -228,6 +232,7 @@ CI lo enforce en cada PR — ver [fixtures.md](./fixtures.md).
 - [ADR-0071: Motor del Grafo de Autorización](../../architecture/adrs/0071-auth-graph-engine.es.md)
 - [ADR-0073: UMS SDK Multi-Runtime](../../architecture/adrs/0073-ums-sdk-multi-runtime.es.md)
 - [ADR-0074: Política de Versionado de Schema](../../architecture/adrs/0074-auth-graph-schema-versioning.es.md)
+- [Contrato Semantico del Auth Graph](./semantic-client-contract.md)
 - [Grafo de Autorización (doc de dominio)](../../domain-es/identity/auth-graph.md)
 - [Catálogo de Códigos de Error](./error-codes.md)
 - [Política de Versionado (resumen developer)](./versioning.md)

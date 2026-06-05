@@ -2,9 +2,13 @@
 
 > **Language:** English | [Español](../../sdk-es/contracts/schema-overview.md)
 
-This document describes the **canonical JSON Schema** for the `AuthorizationGraph` payload. It is the contract between the UMS server and all SDK runtimes (.NET, TypeScript, NestJS).
+This document is retained as a structural reference for the original graph shape. The current client contract is the semantic-first payload documented in [Semantic Auth Graph Client Contract](./semantic-client-contract.md).
+
+The canonical JSON Schema contract between the UMS server and SDK runtimes is now the semantic-first contract.
 
 For the full runtime example and authorization semantics, see [`auth-graph.md`](../../domain/identity/auth-graph.md). This page focuses on the **schema shape, types, and contract guarantees**.
+
+For the semantic-first client contract that removes GUID dependence from the default surface, see [Semantic Auth Graph Client Contract](./semantic-client-contract.md).
 
 ---
 
@@ -228,6 +232,7 @@ CI enforces this on every PR — see [fixtures.md](./fixtures.md).
 - [ADR-0071: Auth Graph Engine](../../architecture/adrs/0071-auth-graph-engine.md)
 - [ADR-0073: UMS SDK Multi-Runtime](../../architecture/adrs/0073-ums-sdk-multi-runtime.md)
 - [ADR-0074: Schema Versioning Policy](../../architecture/adrs/0074-auth-graph-schema-versioning.md)
+- [Semantic Auth Graph Client Contract](./semantic-client-contract.md)
 - [Authorization Graph (domain doc)](../../domain/identity/auth-graph.md)
 - [Error Codes Catalog](./error-codes.md)
 - [Versioning Policy (developer summary)](./versioning.md)

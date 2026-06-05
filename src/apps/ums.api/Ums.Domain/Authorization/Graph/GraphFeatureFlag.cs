@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Ums.Domain.Authorization.Graph;
 
 /// <summary>
@@ -7,6 +9,6 @@ namespace Ums.Domain.Authorization.Graph;
 /// </summary>
 public sealed record GraphFeatureFlag(
     string  FlagCode,
-    Guid    SystemSuiteId,
+    [property: JsonIgnore] Guid SystemSuiteId,
     bool    IsEnabled,
     string? MatchedCriteriaType);   // e.g. "TenantId", "RoleCode", null when no criteria

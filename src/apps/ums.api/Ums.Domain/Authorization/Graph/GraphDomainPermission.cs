@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Ums.Domain.Authorization.Graph;
 
 /// <summary>
@@ -6,17 +8,17 @@ namespace Ums.Domain.Authorization.Graph;
 /// resolved effect, giving clients fine-grained access control at the domain model level.
 /// </summary>
 public sealed record GraphDomainPermission(
-    Guid                              ResourceId,
+    [property: JsonIgnore] Guid ResourceId,
     string                            ResourceType,   // "Aggregate" | "Entity" | "DomainMethod"
     string                            ResourceCode,
-    string                            ResourceName,
-    Guid?                             ModuleId,
-    Guid?                             ParentResourceId,
+    [property: JsonPropertyName("value")] string ResourceName,
+    [property: JsonIgnore] Guid? ModuleId,
+    [property: JsonIgnore] Guid? ParentResourceId,
     IReadOnlyList<GraphDomainAction>  Actions);
 
 public sealed record GraphDomainAction(
-    Guid             ActionId,
+    [property: JsonIgnore] Guid ActionId,
     string           ActionCode,
-    string           ActionName,
+    [property: JsonPropertyName("value")] string ActionName,
     AccessEffect Effect,
     PermissionSource Source);

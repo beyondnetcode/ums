@@ -17,6 +17,12 @@ public interface IJwtTokenService
     /// </summary>
     string GenerateGraphToken(Ums.Domain.Authorization.Graph.AuthorizationGraph graph);
 
+    /// <summary>
+    /// Generates a semantic-only JWT for external client systems.
+    /// The token avoids GUIDs and uses business-facing codes/values instead.
+    /// </summary>
+    string GenerateSemanticGraphToken(Ums.Domain.Authorization.Graph.AuthorizationGraph graph);
+
     string GenerateRefreshToken();
     DateTime GetTokenExpiration(string token);
 }
@@ -162,6 +168,66 @@ public class JwtTokenService : IJwtTokenService
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
+    public string GenerateSemanticGraphToken(Ums.Domain.Authorization.Graph.AuthorizationGraph graph)
+    {
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secret));
+        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+        var ctx = graph.Context;
+        var claims = new List<Claim>
+        {
+            new(JwtRegisteredClaimNames.Sub, ctx.User.Username),
+            new(JwtRegisteredClaimNames.Email, ctx.User.Email),
+            new(JwtRegisteredClaimNames.Name, ctx.User.DisplayName),
+            new("tenant_code", ctx.Tenant.Code),
+            new("tenant_name", ctx.Tenant.Name),
+            new("sys_suite", ctx.SystemSuite.Code),
+            new("sys_suite_name", ctx.SystemSuite.Name),
+            new(ClaimTypes.Role, ctx.Role.Code),
+            new("role_name", ctx.Role.Name),
+            new("profile_scope", ctx.Profile.Scope),
+            new("auth_method", graph.Authentication.Method),
+            new("graph_generated_at", graph.GeneratedAt.ToString("O")),
+            new("graph_valid_until", graph.ValidUntil.ToString("O")),
+            new("session_tracking_id", GenerateOpaqueId()),
+            new(JwtRegisteredClaimNames.Jti, GenerateOpaqueId()),
+        };
+
+        if (!string.IsNullOrWhiteSpace(ctx.Branch?.Code))
+            claims.Add(new Claim("branch_code", ctx.Branch.Code));
+
+        if (graph.Authentication.Provider is not null)
+        {
+            claims.Add(new Claim("idp_provider", graph.Authentication.Provider.Code));
+            claims.Add(new Claim("idp_strategy", graph.Authentication.Provider.Strategy));
+        }
+
+        foreach (var module in graph.MenuAccess)
+        foreach (var menu   in module.Menus)
+        foreach (var sub    in menu.SubMenus)
+        foreach (var opt    in sub.Options)
+            claims.Add(new Claim("perm", $"{opt.Code}:{opt.ActionCode}:{opt.Effect}"));
+
+        foreach (var res in graph.DomainPermissions)
+        foreach (var act in res.Actions)
+            claims.Add(new Claim("domain_perm", $"{res.ResourceCode}:{act.ActionCode}:{act.Effect}"));
+
+        foreach (var scope in graph.Scopes)
+            claims.Add(new Claim("scope", scope));
+
+        foreach (var flag in graph.FeatureFlags.Where(f => f.IsEnabled))
+            claims.Add(new Claim("feature", flag.FlagCode));
+
+        var token = new JwtSecurityToken(
+            issuer: _issuer,
+            audience: _audience,
+            claims: claims,
+            expires: graph.ValidUntil,
+            signingCredentials: credentials);
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
     public string GenerateRefreshToken()
     {
         var randomNumber = new byte[64];
@@ -175,5 +241,12 @@ public class JwtTokenService : IJwtTokenService
         var handler = new JwtSecurityTokenHandler();
         var jwtToken = handler.ReadJwtToken(token);
         return jwtToken.ValidTo;
+    }
+
+    private static string GenerateOpaqueId()
+    {
+        var bytes = new byte[16];
+        System.Security.Cryptography.RandomNumberGenerator.Fill(bytes);
+        return Base64UrlEncoder.Encode(bytes);
     }
 }

@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Ums.Domain.Authorization.Graph;
 
 /// <summary>
@@ -13,38 +15,39 @@ public sealed record GraphContext(
     GraphBranch?     Branch);       // null when Scope == OrgWide
 
 public sealed record GraphUser(
-    Guid   Id,
+    [property: JsonIgnore] Guid Id,
     string Email,
     string Username,
-    string DisplayName,
+    [property: JsonPropertyName("value")] string DisplayName,
     string Status);
 
 public sealed record GraphTenant(
-    Guid   Id,
+    [property: JsonIgnore] Guid Id,
     string Code,
-    string Name,
+    [property: JsonPropertyName("value")] string Name,
     string Status,
     bool   IsManagementOwner);
 
 public sealed record GraphSystemSuite(
-    Guid   Id,
+    [property: JsonIgnore] Guid Id,
     string Code,
-    string Name,
+    [property: JsonPropertyName("value")] string Name,
     string Status);
 
 public sealed record GraphRole(
-    Guid   Id,
+    [property: JsonIgnore] Guid Id,
     string Code,
-    string Name,
+    [property: JsonPropertyName("value")] string Name,
     int    HierarchyLevel,
+    [property: JsonIgnore]
     Guid?  ParentRoleId);
 
 public sealed record GraphProfile(
-    Guid   Id,
+    [property: JsonIgnore] Guid Id,
     string Scope,       // "OrgWide" | "BranchScoped"
     bool   IsActive);
 
 public sealed record GraphBranch(
-    Guid   Id,
+    [property: JsonIgnore] Guid Id,
     string Code,
-    string Name);
+    [property: JsonPropertyName("value")] string Name);

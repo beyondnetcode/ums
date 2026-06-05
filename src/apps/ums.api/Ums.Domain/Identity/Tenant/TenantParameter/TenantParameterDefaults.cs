@@ -12,5 +12,5 @@ public static class TenantParameterDefaults
 
     public const string AuthGraphDefaultFormat = "JSON";
     public static readonly string[] AuthGraphAllowedFormats = ["JSON", "XML", "YAML", "CSV"];
-    public const bool AuthGraphIncludeTechnicalMetadata = true;
+    public const bool AuthGraphIncludeTechnicalMetadata = false;
 }

@@ -34,6 +34,14 @@ Bienvenido al índice maestro de **Functional Stories** para el Sistema de Gesti
 *   **[FS-22: Solicitud y Aprobacion de Alta de Usuario](./fs-22-user-signup-request-approval.md)**
 *   **[FS-23: Solicitud de Perfil desde Usuario en Lobby](./fs-23-profile-access-request.es.md)**
 *   **[FS-24: Aprobación de Solicitud de Perfil y Asignación Manual](./fs-24-profile-request-approval.es.md)**
+*   **[FS-28: Campanas de Revision de Acceso para Recertificacion de Roles y Permisos](./fs-28-access-review-campaigns.md)**
+*   **[FS-29: Paquetes de Entitlements para Bloques de Acceso Gobernados](./fs-29-entitlement-packages.md)**
+*   **[FS-30: Conectores de Provisioning y Deprovisioning para Sistemas Descendentes](./fs-30-provisioning-deprovisioning-connectors.md)**
+*   **[FS-31: Acceso Privilegiado con Elevacion Limitada en el Tiempo](./fs-31-privileged-access-time-bound-elevation.md)**
+*   **[FS-32: Guardrails de Confiabilidad Operativa para Acciones de Gobierno](./fs-32-operational-reliability-guardrails.md)**
+*   **[FS-33: Explorador de Grafo de Autorizacion con Simulacion What-If](./fs-33-authorization-graph-explorer.md)**
+*   **[FS-34: Paquetes de Acceso con Semantica de Negocio y Compositor de Politicas](./fs-34-business-semantic-access-packages.md)**
+*   **[FS-35: Salud Continua de Acceso y Recomendaciones](./fs-35-continuous-access-health.md)**
 
 ---
 

@@ -505,6 +505,7 @@ El grafo está diseñado para ser **seguro de exponer al sistema cliente**, pero
 - [ADR-0072: Resolución Dinámica del Método de Autenticación](../../architecture/adrs/0072-dynamic-auth-method-resolution.es.md)
 - [ADR-0073: UMS SDK Multi-Runtime](../../architecture/adrs/0073-ums-sdk-multi-runtime.es.md) — superficie oficial de consumo client-side
 - [ADR-0074: Política de Versionado del Schema del Grafo](../../architecture/adrs/0074-auth-graph-schema-versioning.es.md)
+- [Contrato Semantico del Auth Graph](../../sdk-es/contracts/semantic-client-contract.md)
 - [Resolución del Método de Autenticación](./auth-method-resolution.md)
 - [Portal UMS SDK](../../sdk-es/index.md) — deserialización tipada, validador, atributos/decorators para .NET, TypeScript y NestJS
 - [Schema Overview](../../sdk-es/contracts/schema-overview.md)

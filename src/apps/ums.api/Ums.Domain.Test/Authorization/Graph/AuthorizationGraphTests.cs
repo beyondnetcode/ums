@@ -1,5 +1,6 @@
 namespace Ums.Domain.Test.Authorization.Graph;
 
+using System.Text.Json;
 using Ums.Domain.Authorization.Graph;
 using Ums.Domain.Identity.Auth;
 using Xunit;
@@ -190,5 +191,16 @@ public class AuthorizationGraphTests
         Assert.NotNull(graph.Context.Branch);
         Assert.Equal("BranchScoped", graph.Context.Profile.Scope);
         Assert.Equal(branchId, graph.Context.Branch!.Id);
+    }
+
+    [Fact]
+    public void Build_SerializesWithoutTechnicalIdsByDefault()
+    {
+        var graph = BuildMinimalGraph();
+
+        var json = JsonSerializer.Serialize(graph);
+
+        Assert.DoesNotContain("\"id\"", json, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("\"value\"", json, StringComparison.OrdinalIgnoreCase);
     }
 }

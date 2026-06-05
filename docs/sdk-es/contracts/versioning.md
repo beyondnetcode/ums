@@ -4,6 +4,8 @@
 
 Este es un **resumen orientado a developers** de la política de versionado del schema. La decisión arquitectural completa está en [ADR-0074](../../architecture/adrs/0074-auth-graph-schema-versioning.es.md).
 
+El contrato cliente semántico está documentado en [Contrato Semantico del Auth Graph](./semantic-client-contract.md). Es la ruta actual para consumidores externos que ya no deberían depender de GUIDs en el payload por defecto.
+
 ---
 
 ## Resumen
@@ -27,6 +29,7 @@ Casi nunca necesitas pensar en la versión. Bumpeas tu SDK en una cadencia norma
 - Narrowing del tipo de un campo
 - Remover un valor enum que puede aparecer en payloads viejos
 - Cambiar semántica de resolución (ej. invertir precedencia Allow/Deny)
+- Remover campos GUID del payload cliente por defecto mientras los clientes externos aún dependen de ellos
 
 ### Bump MINOR (aditivo)
 
@@ -34,6 +37,7 @@ Casi nunca necesitas pensar en la versión. Bumpeas tu SDK en una cadencia norma
 - Agregar un nuevo valor enum a una enumeración abierta
 - Agregar una nueva sección top-level
 - Agregar un nuevo tipo de criteria en `featureFlags[]`
+- Agregar un modo de diagnostico solo para soporte que exponga IDs sin cambiar la superficie por defecto
 
 ### Bump PATCH (cosmético)
 
@@ -93,5 +97,6 @@ Ventana mínima: dos MINORs o seis meses, lo que sea mayor.
 
 - [ADR-0074: Política de Versionado del Schema del Grafo](../../architecture/adrs/0074-auth-graph-schema-versioning.es.md) — decisión completa
 - [Schema Overview](./schema-overview.md) — forma actual del contrato
+- [Contrato Semantico del Auth Graph](./semantic-client-contract.md) — contrato semántico actual
 - [Matriz de Compatibilidad](./compatibility-matrix.md) — qué funciona con qué
 - `src/libs/sdk/contracts/SCHEMA_VERSIONING.md` — resumen operacional dentro del árbol de código

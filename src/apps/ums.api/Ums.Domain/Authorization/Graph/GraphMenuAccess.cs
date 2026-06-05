@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Ums.Domain.Authorization.Graph;
 
 /// <summary>
@@ -7,31 +9,31 @@ namespace Ums.Domain.Authorization.Graph;
 /// and enforce access at the UI level without re-querying UMS.
 /// </summary>
 public sealed record GraphMenuModule(
-    Guid                      Id,
+    [property: JsonIgnore] Guid Id,
     string                    Code,
-    string                    Name,
+    [property: JsonPropertyName("value")] string Name,
     int                       SortOrder,
     string                    Status,
     IReadOnlyList<GraphMenu>  Menus);
 
 public sealed record GraphMenu(
-    Guid                         Id,
+    [property: JsonIgnore] Guid Id,
     string                       Code,
-    string                       Label,
+    [property: JsonPropertyName("value")] string Label,
     int                          SortOrder,
     IReadOnlyList<GraphSubMenu>  SubMenus);
 
 public sealed record GraphSubMenu(
-    Guid                          Id,
+    [property: JsonIgnore] Guid Id,
     string                        Code,
-    string                        Label,
+    [property: JsonPropertyName("value")] string Label,
     int                           SortOrder,
     IReadOnlyList<GraphMenuOption> Options);
 
 public sealed record GraphMenuOption(
-    Guid             Id,
+    [property: JsonIgnore] Guid Id,
     string           Code,
-    string           Label,
+    [property: JsonPropertyName("value")] string Label,
     string           ActionCode,
     AccessEffect Effect,
     PermissionSource Source);

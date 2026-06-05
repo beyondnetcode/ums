@@ -33,34 +33,76 @@ public sealed class JsonAuthorizationGraphSerializer : IAuthorizationGraphSerial
         {
             context = new
             {
-                user        = new { id = includeMeta ? g.Context.User.Id.ToString() : null, g.Context.User.Email, g.Context.User.Username, g.Context.User.Status },
-                tenant      = new { id = includeMeta ? g.Context.Tenant.Id.ToString() : null, g.Context.Tenant.Code, g.Context.Tenant.Name, g.Context.Tenant.Status, g.Context.Tenant.IsManagementOwner },
-                systemSuite = new { id = includeMeta ? g.Context.SystemSuite.Id.ToString() : null, g.Context.SystemSuite.Code, g.Context.SystemSuite.Name },
-                role        = new { id = includeMeta ? g.Context.Role.Id.ToString() : null, g.Context.Role.Code, g.Context.Role.Name, g.Context.Role.HierarchyLevel },
-                profile     = new { id = includeMeta ? g.Context.Profile.Id.ToString() : null, g.Context.Profile.Scope, g.Context.Profile.IsActive },
-                branch      = g.Context.Branch is null ? null : new { id = includeMeta ? g.Context.Branch.Id.ToString() : null, g.Context.Branch.Code, g.Context.Branch.Name },
+                user = new
+                {
+                    id = includeMeta ? g.Context.User.Id.ToString() : null,
+                    g.Context.User.Email,
+                    g.Context.User.Username,
+                    value = g.Context.User.DisplayName,
+                    g.Context.User.Status,
+                },
+                tenant = new
+                {
+                    id = includeMeta ? g.Context.Tenant.Id.ToString() : null,
+                    g.Context.Tenant.Code,
+                    value = g.Context.Tenant.Name,
+                    g.Context.Tenant.Status,
+                    g.Context.Tenant.IsManagementOwner,
+                },
+                systemSuite = new
+                {
+                    id = includeMeta ? g.Context.SystemSuite.Id.ToString() : null,
+                    g.Context.SystemSuite.Code,
+                    value = g.Context.SystemSuite.Name,
+                    g.Context.SystemSuite.Status,
+                },
+                role = new
+                {
+                    id = includeMeta ? g.Context.Role.Id.ToString() : null,
+                    g.Context.Role.Code,
+                    value = g.Context.Role.Name,
+                    g.Context.Role.HierarchyLevel,
+                },
+                profile = new
+                {
+                    id = includeMeta ? g.Context.Profile.Id.ToString() : null,
+                    g.Context.Profile.Scope,
+                    g.Context.Profile.IsActive,
+                },
+                branch = g.Context.Branch is null ? null : new
+                {
+                    id = includeMeta ? g.Context.Branch.Id.ToString() : null,
+                    g.Context.Branch.Code,
+                    value = g.Context.Branch.Name,
+                },
             },
             authentication = new
             {
                 method           = g.Authentication.Method,
-                provider         = g.Authentication.Provider is null ? null : new { g.Authentication.Provider.Name, g.Authentication.Provider.Strategy },
+                provider         = g.Authentication.Provider is null ? null : new
+                {
+                    id = includeMeta ? g.Authentication.Provider.Id.ToString() : null,
+                    g.Authentication.Provider.Name,
+                    g.Authentication.Provider.Code,
+                    value = g.Authentication.Provider.Strategy,
+                },
                 mfaRequired      = g.Authentication.MfaRequired,
                 issuedAt         = g.Authentication.IssuedAt.ToString("O"),
                 sessionExpiresAt = g.Authentication.SessionExpiresAt.ToString("O"),
             },
-            actions  = g.Actions.Select(a => new { a.Code, a.Name }),
+            actions  = g.Actions.Select(a => new { a.Code, value = a.Name }),
             menuAccess = g.MenuAccess.Select(m => new
             {
-                m.Code, m.Name, m.Status,
+                m.Code, value = m.Name, m.Status,
                 menus = m.Menus.Select(menu => new
                 {
-                    menu.Code, menu.Label,
+                    menu.Code, value = menu.Label,
                     subMenus = menu.SubMenus.Select(sub => new
                     {
-                        sub.Code, sub.Label,
+                        sub.Code, value = sub.Label,
                         options = sub.Options.Select(o => new
                         {
-                            o.Code, o.Label, o.ActionCode,
+                            o.Code, value = o.Label, o.ActionCode,
                             effect = o.Effect.ToString(),
                             source = o.Source.ToString(),
                         })
@@ -69,15 +111,21 @@ public sealed class JsonAuthorizationGraphSerializer : IAuthorizationGraphSerial
             }),
             domainPermissions = g.DomainPermissions.Select(r => new
             {
-                r.ResourceId, r.ResourceType, r.ResourceCode, r.ResourceName, r.ModuleId, r.ParentResourceId,
+                resourceId = includeMeta ? r.ResourceId.ToString() : null,
+                r.ResourceType,
+                code = r.ResourceCode,
+                value = r.ResourceName,
+                moduleId = includeMeta && r.ModuleId.HasValue ? r.ModuleId.Value.ToString() : null,
+                parentResourceId = includeMeta && r.ParentResourceId.HasValue ? r.ParentResourceId.Value.ToString() : null,
                 actions = r.Actions.Select(a => new
                 {
-                    a.ActionCode, a.ActionName,
+                    code = a.ActionCode,
+                    value = a.ActionName,
                     effect = a.Effect.ToString(),
                     source = a.Source.ToString(),
                 })
             }),
-            featureFlags = g.FeatureFlags.Select(f => new { f.FlagCode, f.IsEnabled, f.MatchedCriteriaType }),
+            featureFlags = g.FeatureFlags.Select(f => new { code = f.FlagCode, isEnabled = f.IsEnabled, f.MatchedCriteriaType }),
             effectiveConfig = new
             {
                 g.EffectiveConfig.SessionTimeoutMinutes,

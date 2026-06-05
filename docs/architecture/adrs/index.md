@@ -57,6 +57,7 @@ UMS is a satellite repository of `evolith_arch32`. The parent repository defines
 | [ADR-0078](./0078-ddd-domain-resource-hierarchy.md) | DDD Domain Resource Hierarchy — Aggregate, Entity, DomainMethod | Accepted |
 | [ADR-0079](./0079-dependency-guard-policy.md) | Dependency Guard Policy — Blocking Operations on Active Dependencies | Accepted |
 | [ADR-0080](./0080-auth-graph-preview-internal-pipeline.md) | Auth Graph Preview — Internal vs External Pipeline | Accepted | > **Evolith candidate** - ADR has zero UMS-specific dependencies and is proposed for extraction to the Evolith parent architecture baseline.
+| [ADR-0081](./0081-semantic-auth-graph-client-contract.md) | Semantic Auth Graph Client Contract — Code-First, ID-Optional | Proposed |
 
 ---
 

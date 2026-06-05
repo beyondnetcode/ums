@@ -4,6 +4,8 @@
 
 This is a **developer-facing summary** of the schema versioning policy. The full architectural decision is in [ADR-0074](../../architecture/adrs/0074-auth-graph-schema-versioning.md).
 
+The semantic-first client contract is documented in [Semantic Auth Graph Client Contract](./semantic-client-contract.md). It is the current path for external consumers that should no longer depend on GUIDs in the default payload.
+
 ---
 
 ## TL;DR
@@ -27,6 +29,7 @@ You almost never need to think about the version. You bump your SDK on a normal 
 - Narrowing a field's type
 - Removing an enum value that may appear in older payloads
 - Changing resolution semantics (e.g., flipping Allow/Deny precedence)
+- Removing GUID fields from the default client payload while external clients still depend on them
 
 ### MINOR bump (additive)
 
@@ -34,6 +37,7 @@ You almost never need to think about the version. You bump your SDK on a normal 
 - Adding a new enum value to an open enumeration
 - Adding a new top-level section
 - Adding a new `featureFlags[]` criteria type
+- Adding a support-only diagnostic mode that exposes IDs without changing the default surface
 
 ### PATCH bump (cosmetic)
 
@@ -93,5 +97,6 @@ Minimum window: two MINORs or six months, whichever is longer.
 
 - [ADR-0074: Auth Graph Schema Versioning Policy](../../architecture/adrs/0074-auth-graph-schema-versioning.md) — full decision
 - [Schema Overview](./schema-overview.md) — current contract shape
+- [Semantic Auth Graph Client Contract](./semantic-client-contract.md) — current semantic contract
 - [Compatibility Matrix](./compatibility-matrix.md) — what works with what
 - `src/libs/sdk/contracts/SCHEMA_VERSIONING.md` — operational summary inside the source tree

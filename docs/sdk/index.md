@@ -67,6 +67,7 @@ JavaScript consumers (no TypeScript) use the `@ums/*` packages directly — they
 
 - **Start here:** [.NET Quickstart](./dotnet/quickstart.md) · [TypeScript Quickstart](./typescript/quickstart.md) · [NestJS Quickstart](./nestjs/quickstart.md)
 - **Understand the graph:** [Authorization Graph](../domain/identity/auth-graph.md) · [Schema Overview](./contracts/schema-overview.md)
+- **Semantic client contract:** [Auth Graph](./contracts/semantic-client-contract.md)
 - **Error codes:** [`AUTH_xxx` catalog](./contracts/error-codes.md)
 - **Compatibility:** [Compatibility Matrix](./contracts/compatibility-matrix.md)
 
@@ -74,6 +75,7 @@ JavaScript consumers (no TypeScript) use the `@ums/*` packages directly — they
 
 - **Architecture:** [ADR-0073](../architecture/adrs/0073-ums-sdk-multi-runtime.md) · [ADR-0074](../architecture/adrs/0074-auth-graph-schema-versioning.md)
 - **Contract:** [Schema Overview](./contracts/schema-overview.md) · [Versioning Policy](./contracts/versioning.md) · [Fixtures](./contracts/fixtures.md)
+- **Semantic contract:** [Auth Graph](./contracts/semantic-client-contract.md)
 - **Source:** `src/libs/sdk/`
 
 ---

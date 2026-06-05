@@ -107,7 +107,7 @@ public static class ClientAuthEndpoints
         }
 
         // Generate graph JWT
-        var token = jwtService.GenerateGraphToken(graph);
+        var token = jwtService.GenerateSemanticGraphToken(graph);
 
         var response = new ClientAuthResponse(
             Token:       token,
@@ -116,7 +116,7 @@ public static class ClientAuthEndpoints
             IssuedAt:    authResult.IssuedAt,
             Format:      format,
             Graph:       serialized,
-            RequestId:   Guid.NewGuid().ToString());  // correlates with audit record
+            RequestId:   httpContext.TraceIdentifier);  // correlates with audit record
 
         // Set Content-Type to match the graph format
         httpContext.Response.Headers["X-Graph-Format"] = format;

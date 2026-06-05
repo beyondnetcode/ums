@@ -5,7 +5,7 @@ namespace Ums.Application.Authorization.Graph.Serializers;
 /// Defaults are tenant-configured via TenantParameterCodes.AUTH_GRAPH_*.
 /// </summary>
 public sealed record GraphSerializationOptions(
-    bool IncludeTechnicalMetadata = true,    // IDs, timestamps, source fields
+    bool IncludeTechnicalMetadata = false,   // IDs, timestamps, source fields
     bool PrettyPrint              = true)
 {
     public static readonly GraphSerializationOptions Default = new();

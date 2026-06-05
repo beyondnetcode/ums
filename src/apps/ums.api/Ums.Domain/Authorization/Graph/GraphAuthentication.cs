@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Ums.Domain.Authorization.Graph;
 
 /// <summary>
@@ -12,7 +14,7 @@ public sealed record GraphAuthentication(
     DateTime        SessionExpiresAt);
 
 public sealed record GraphIdpProvider(
-    Guid   Id,
+    [property: JsonIgnore] Guid Id,
     string Name,
     string Code,
-    string Strategy);   // "AzureAd" | "Okta" | "GenericOidc" | etc.
+    [property: JsonPropertyName("value")] string Strategy);   // "AzureAd" | "Okta" | "GenericOidc" | etc.
