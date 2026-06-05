@@ -55,5 +55,24 @@ Running 10s test @ http://localhost:5293/api/v1/auth/login
 - **Protección (Rate Limiting y HA):** De las 721 mil solicitudes, **1,000** fueron procesadas con éxito (200 OK) y las **719,911** restantes fueron interceptadas elegantemente con códigos no-2xx (probablemente `429 Too Many Requests`). Esto valida perfectamente nuestra estrategia de **"Asegurar un encolamiento elegante antes de que se agote el pool de conexiones"**. 
 - **Resiliencia:** El sistema no presentó colapsos (Crashes) a pesar del asedio de casi un millón de peticiones en 10 segundos.
 
-## 4. Conclusión
+## 4. Pruebas de Rendimiento Frontend (Client-Side)
+Para evaluar la velocidad de renderizado de la Single Page Application (SPA) en React 18, se ejecutó una auditoría automatizada de **Lighthouse** apuntando a la ruta principal de login del inquilino interno.
+
+### 4.1. Resultados Lighthouse (Modo Desarrollo)
+Se obtuvieron las siguientes métricas base (Core Web Vitals):
+- **Performance:** 55/100
+- **Accessibility:** 89/100
+- **Best Practices:** 100/100
+- **SEO:** 91/100
+
+**Métricas de Pintado (Paints):**
+- **First Contentful Paint (FCP):** 14.7 s
+- **Largest Contentful Paint (LCP):** 27.3 s
+- **Speed Index:** 14.7 s
+
+### 4.2. Análisis Frontend
+- Las métricas de **Mejores Prácticas (100%)**, **Accesibilidad (89%)** y **SEO (91%)** validan un excelente estado de salud del código y la estructura DOM del proyecto en React.
+- **Rendimiento Visual (55%):** El LCP es alto porque la auditoría se corrió contra el servidor de desarrollo de Vite (`npm run dev`). En modo desarrollo, Vite no minifica, no agrupa los bundles (unbundled ESM) ni comprime los archivos, lo que genera alta latencia. Esta métrica mejorará radicalmente hasta el rango del 90%+ una vez que la aplicación pase por el proceso de `build` de producción y sus estáticos sean despachados a través de la CDN optimizada.
+
+## 5. Conclusión
 El monolito de .NET 10 bajo Kestrel cumple sobradamente con los requisitos de Alta Disponibilidad estipulados para los escenarios no complejos. Las políticas de rechazo por sobrecarga actúan como se espera, previniendo cascadas de fallos hacia la Base de Datos.

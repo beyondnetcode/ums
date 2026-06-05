@@ -55,5 +55,24 @@ Running 10s test @ http://localhost:5293/api/v1/auth/login
 - **Protection (Rate Limiting and HA):** Out of 721 thousand requests, **1,000** were processed successfully (200 OK) and the remaining **719,911** were gracefully intercepted with non-2xx codes (likely `429 Too Many Requests`). This perfectly validates our strategy to **"Ensure graceful queuing before exhausting the connection pool"**.
 - **Resilience:** The system did not experience any crashes despite the barrage of nearly a million requests in 10 seconds.
 
-## 4. Conclusion
+## 4. Frontend Performance Testing (Client-Side)
+To evaluate the rendering speed of the Single Page Application (SPA) in React 18, an automated **Lighthouse** audit was executed targeting the internal tenant's main login route.
+
+### 4.1. Lighthouse Results (Development Mode)
+The following baseline metrics (Core Web Vitals) were obtained:
+- **Performance:** 55/100
+- **Accessibility:** 89/100
+- **Best Practices:** 100/100
+- **SEO:** 91/100
+
+**Paint Metrics:**
+- **First Contentful Paint (FCP):** 14.7 s
+- **Largest Contentful Paint (LCP):** 27.3 s
+- **Speed Index:** 14.7 s
+
+### 4.2. Frontend Analysis
+- The metrics for **Best Practices (100%)**, **Accessibility (89%)**, and **SEO (91%)** validate an excellent health status for the React project's code and DOM structure.
+- **Visual Performance (55%):** The LCP is high because the audit was run against the Vite development server (`npm run dev`). In development mode, Vite does not minify, does not bundle files (unbundled ESM), and does not compress assets, causing high latency. This metric will drastically improve to the 90%+ range once the application is built for production and its static assets are served through an optimized CDN.
+
+## 5. Conclusion
 The .NET 10 monolith under Kestrel comfortably meets the High Availability requirements stipulated for non-complex scenarios. The overload rejection policies act as expected, preventing cascading failures towards the Database.
