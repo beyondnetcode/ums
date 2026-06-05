@@ -23,32 +23,36 @@ Running 10s test @ http://localhost:5293/health
 721k requests in 10.02s, 319 MB read
 ```
 
-## 3. Pruebas Explícitas de Autenticación (Endpoint `/login`)
-Con el propósito de estresar el proceso de autenticación y la generación del **Grafo de Autorización** (el cual implica la consulta más pesada de reconstrucción de permisos), se ejecutó una carga controlada de 10 conexiones concurrentes durante 10 segundos apuntando directamente al endpoint POST `/api/v1/auth/login`. Se evaluaron tanto un inquilino de autenticación interna como uno con configuración externa simulada en entorno de desarrollo.
+## 3. Pruebas Explícitas de Autenticación y Carga Web (K6)
+Con el propósito de estresar el proceso de autenticación y la generación del **Grafo de Autorización**, se ejecutó un script automatizado en K6 apuntando a los endpoints de inicio de sesión interno (`/login`), refresco de sesión (`/refresh`), autenticación de cliente externo y el Frontend Web.
 
-### 3.1. Inquilino Interno (`RANSA_PERU` - BCrypt Local)
+### 3.1. Resultados K6 (Login Interno, Cliente Externo, y Web App)
 ```text
-Running 10s test @ http://localhost:5293/api/v1/auth/login
-10 connections
-┌─────────┬────────┬────────┬────────┬────────┬───────────┬──────────┬────────┐
-│ Stat    │ 2.5%   │ 50%    │ 97.5%  │ 99%    │ Avg       │ Stdev    │ Max    │
-├─────────┼────────┼────────┼────────┼────────┼───────────┼──────────┼────────┤
-│ Latency │ 232 ms │ 244 ms │ 485 ms │ 486 ms │ 257.19 ms │ 46.87 ms │ 486 ms │
-└─────────┴────────┴────────┴────────┴────────┴───────────┴──────────┴────────┘
-393 requests in 10.02s, 5.82 MB read (Avg: ~38 req/sec)
-```
+  █ TOTAL RESULTS 
 
-### 3.2. Inquilino Externo (`NEPTUNIA` - Federated/Okta)
-```text
-Running 10s test @ http://localhost:5293/api/v1/auth/login
-10 connections
-┌─────────┬────────┬────────┬────────┬────────┬───────────┬──────────┬────────┐
-│ Stat    │ 2.5%   │ 50%    │ 97.5%  │ 99%    │ Avg       │ Stdev    │ Max    │
-├─────────┼────────┼────────┼────────┼────────┼───────────┼──────────┼────────┤
-│ Latency │ 232 ms │ 245 ms │ 292 ms │ 305 ms │ 249.59 ms │ 19.63 ms │ 431 ms │
-└─────────┴────────┴────────┴────────┴────────┴───────────┴──────────┴────────┘
-407 requests in 10.02s, 6.03 MB read (Avg: ~40 req/sec)
+    checks_total.......: 550     13.56/s
+    checks_succeeded...: 100.00% 550 out of 550
+    checks_failed......: 0.00%   0 out of 550
+
+    ✓ login status is 200
+    ✓ login has session cookie
+    ✓ client auth status is 200
+    ✓ client auth returns graph
+    ✓ refresh status is 200
+    ✓ web app responds
+
+    HTTP
+    http_req_duration..............: avg=149.33ms min=965µs med=221.11ms max=251.71ms p(90)=225.65ms p(95)=228.71ms
+    http_req_failed................: 0.00%  0 out of 330
+    http_reqs......................: 330    8.13/s
+
+    EXECUTION
+    iteration_duration.............: avg=1.44s    min=1.43s med=1.44s    max=1.48s    p(90)=1.45s    p(95)=1.46s   
+    iterations.....................: 110    2.71/s
+    vus............................: 1      min=1        max=5
+    vus_max........................: 5      min=5        max=5
 ```
+El test demuestra que incluso cuando se somete al sistema a carga paralela para la generación del Grafo de Autorización (operación costosa), la latencia P95 se mantiene en **228ms** (muy por debajo del umbral objetivo de 1000ms), con 0 fallos.
 
 ## 4. Análisis
 - **Rendimiento Base:** La API procesó exitosamente ~72,000 peticiones por segundo en promedio con una latencia p50 de 1ms.

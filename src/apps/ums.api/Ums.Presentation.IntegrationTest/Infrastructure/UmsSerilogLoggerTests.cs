@@ -143,5 +143,7 @@ public sealed class UmsSerilogLoggerTests
         public string? TenantId => tenantId;
 
         public bool IsAuthenticated => true;
+        
+        public bool HasPermission(string permission) => true;
     }
 }

@@ -53,11 +53,21 @@ public sealed class GetAllUserAccountsQueryHandler : IQueryHandler<GetAllUserAcc
         }
         else
         {
-            // Regular user is restricted to their own tenant
-            effectiveTenantId = request.TenantId ?? (
-                !string.IsNullOrWhiteSpace(_userContext.TenantId) && Guid.TryParse(_userContext.TenantId, out var ctxTenantId)
-                    ? ctxTenantId
-                    : (Guid?)null);
+            // Regular user is strictly restricted to their own tenant
+            var ctxTenantId = !string.IsNullOrWhiteSpace(_userContext.TenantId) && Guid.TryParse(_userContext.TenantId, out var parsedTenantId)
+                ? parsedTenantId
+                : Guid.Empty;
+
+            if (ctxTenantId == Guid.Empty || (request.TenantId.HasValue && request.TenantId.Value != ctxTenantId))
+            {
+                // Tenant isolation violation: tried to access another tenant's data
+                // Force an empty Guid so no results are returned, preventing data leakage.
+                effectiveTenantId = Guid.Empty;
+            }
+            else
+            {
+                effectiveTenantId = ctxTenantId;
+            }
         }
 
         var (userAccounts, totalItems) = await _userAccountRepository.GetPagedAsync(
