@@ -31,5 +31,15 @@ Con base en el último ciclo de QA:
   - `auth.store.test.ts`: Valida flujos de inicio, timeout y sobreescritura de sesiones.
   - `tenant.schema.test.ts`: Valida los tipados estrictos del inquilino mediante Zod.
 
+### Ejecución Base de Datos (EF Core In-Memory)
+- **Framework:** .NET 10 / xUnit (In-Memory Provider)
+- **Total Pruebas Ejecutadas:** Incluidas en las 607 pruebas del Backend.
+- **Exitosas:** 100%
+- **Fallidas:** 0
+- **Estado:** APROBADO.
+- **Escenarios Clave Cubiertos:**
+  - Validación de esquemas y mapeos `DbContext`.
+  - Simulaciones de repositorios y queries con colecciones locales.
+
 ## 3. Conclusiones
 La lógica central de negocio del sistema mantiene una cobertura aislada superior al 95%. Todas las fallas menores en las pruebas relacionadas con cambios recientes en las etiquetas de UI han sido resueltas, logrando un 100% de éxito en las pruebas tanto en Backend como en Frontend.

@@ -31,5 +31,15 @@ Based on the latest QA cycle:
   - `auth.store.test.ts`: Validates Session start, timeout and overwrite flows.
   - `tenant.schema.test.ts`: Validates strict tenant Zod typings.
 
+### Database Execution (EF Core In-Memory)
+- **Framework:** .NET 10 / xUnit (In-Memory Provider)
+- **Total Tests Executed:** Included in the 607 Backend tests.
+- **Passed:** 100%
+- **Failed:** 0
+- **Status:** PASSING.
+- **Key Covered Scenarios:**
+  - `DbContext` schema validations and mapping.
+  - Repository mock verifications and query simulations.
+
 ## 3. Conclusions
 The system's core business logic maintains over 95% isolated coverage. All minor test failures related to recent UI Label shifts and strict mode violations have been resolved, achieving 100% test success across both Backend and Frontend.
