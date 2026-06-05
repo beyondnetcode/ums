@@ -506,6 +506,16 @@ public static class IdentityDevDataSeeder
             return;
         }
 
+        // Dev snapshots can keep a user with the right email but a stale GUID.
+        // Profiles reference the deterministic seed GUIDs, so we normalize by
+        // replacing the old row when the identifiers do not match.
+        if (existing.GetId().GetValue() != seedUserAccount.GetId().GetValue())
+        {
+            await userAccountRepository.SoftDeleteAsync(existing.GetId().GetValue(), actor.GetValue(), cancellationToken);
+            await userAccountRepository.AddAsync(seedUserAccount, cancellationToken);
+            return;
+        }
+
         await SyncLocalPasswordAsync(existing, seedUserAccount, actor);
         await userAccountRepository.UpdateAsync(existing, cancellationToken);
     }
@@ -520,6 +530,13 @@ public static class IdentityDevDataSeeder
 
         if (existing is null)
         {
+            userAccountRepository.Seed(seedUserAccount);
+            return;
+        }
+
+        if (existing.GetId().GetValue() != seedUserAccount.GetId().GetValue())
+        {
+            await userAccountRepository.SoftDeleteAsync(existing.GetId().GetValue(), actor.GetValue(), cancellationToken);
             userAccountRepository.Seed(seedUserAccount);
             return;
         }
