@@ -152,7 +152,14 @@ public static class ProfileEndpoints
             var result = await mediator.Send(command, ct);
 
             if (result.IsFailure)
-                return Results.BadRequest(new { error = result.Error, errorId = Guid.NewGuid() });
+            {
+                var errorId = Guid.NewGuid();
+                var isNotFound = result.Error.Contains("not found", StringComparison.OrdinalIgnoreCase);
+
+                return isNotFound
+                    ? Results.NotFound(new { error = result.Error, errorId })
+                    : Results.BadRequest(new { error = result.Error, errorId });
+            }
 
             var preview = result.Value;
             var graph   = preview.Graph;

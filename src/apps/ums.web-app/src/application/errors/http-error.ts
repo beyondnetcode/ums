@@ -5,12 +5,13 @@ interface HttpErrorLike {
     headers?: Record<string, unknown>;
     data?: {
       // RFC 7807 Problem Details fields
-      detail?: string;         // RFC 7807 user-safe detail provided by the API
+      detail?: string; // RFC 7807 user-safe detail provided by the API
       title?: string;
+      error?: string;
       // Approved, localized user-facing content
       userMessage?: string;
       // Correlation
-      errorId?: string;        // handle the user gives to support (look up in Loki)
+      errorId?: string; // handle the user gives to support (look up in Loki)
       traceId?: string;
       supportReferenceId?: string;
     };
@@ -40,6 +41,7 @@ export const asHttpError = (error: unknown): HttpErrorLike => {
             ? {
                 detail:             typeof data.detail === 'string' ? data.detail : undefined,
                 title:              typeof data.title === 'string' ? data.title : undefined,
+                error:              typeof data.error === 'string' ? data.error : undefined,
                 errorId:            typeof data.errorId === 'string' ? data.errorId : undefined,
                 traceId:            typeof data.traceId === 'string' ? data.traceId : undefined,
                 supportReferenceId: typeof data.supportReferenceId === 'string' ? data.supportReferenceId : undefined,
@@ -91,5 +93,5 @@ export const getSupportReferenceId = (error: unknown): string | undefined => {
  */
 export const getHttpErrorMessage = (error: unknown, fallback: string): string => {
   const data = asHttpError(error).response?.data;
-  return data?.userMessage ?? data?.detail ?? fallback;
+  return data?.userMessage ?? data?.detail ?? data?.error ?? fallback;
 };

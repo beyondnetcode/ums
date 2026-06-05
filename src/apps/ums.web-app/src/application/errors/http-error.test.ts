@@ -134,4 +134,9 @@ describe('getHttpErrorMessage', () => {
     const error = { response: { data: { detail: 'Internal detail' } } };
     expect(getHttpErrorMessage(error, 'Fallback')).toBe('Internal detail');
   });
+
+  it('returns backend error field when available', () => {
+    const error = { response: { data: { error: 'Profile not found.' } } };
+    expect(getHttpErrorMessage(error, 'Fallback')).toBe('Profile not found.');
+  });
 });

@@ -111,6 +111,20 @@ public sealed class ProfileRestEndpointTests : IClassFixture<UmsApiWebApplicatio
     }
 
     [Fact]
+    public async Task GetAuthGraphPreview_WhenProfileIsMissing_ShouldReturnNotFound()
+    {
+        var response = await _client.GetAsync(
+            $"/api/v1/profiles/{Guid.NewGuid()}/auth-graph/preview?format=JSON",
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+
+        using var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
+        payload.RootElement.GetProperty("error").GetString().Should().Be("Profile not found.");
+        payload.RootElement.GetProperty("errorId").GetGuid().Should().NotBeEmpty();
+    }
+
+    [Fact]
     public async Task GetAuthGraphPreview_WithoutAuthentication_ShouldReturn401()
     {
         var unauthClient = new HttpClient
