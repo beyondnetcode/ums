@@ -51,6 +51,8 @@ export const FeatureFlagCriteriaSchema = z.object({
 export const FeatureFlagSchema = z.object({
   featureFlagId:      guidSchema,
   systemSuiteId:      guidSchema,
+  systemSuiteCode:    z.string(),
+  systemSuiteName:    z.string(),
   flagCode:           z.string().min(1),
   flagType:           FlagTypeSchema,
   flagTargets:        z.string(),

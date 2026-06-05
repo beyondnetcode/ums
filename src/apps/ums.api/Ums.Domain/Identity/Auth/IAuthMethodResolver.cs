@@ -8,7 +8,9 @@ namespace Ums.Domain.Identity.Auth;
 /// Portal management access always resolves to local authentication.
 /// Returns AuthMethod.Local() when AUTH_USE_EXTERNAL_IDP == false.
 /// Returns AuthMethod.Idp(provider) when true and an active IDP exists.
-/// Returns failure when IDP mode is configured but no active provider is found.
+/// Returns failure when IDP mode is configured but no active provider is found,
+/// except for InternalPreview where IDP mode is still returned without a provider
+/// so administrative previews can render the effective graph context.
 /// </summary>
 public interface IAuthMethodResolver
 {

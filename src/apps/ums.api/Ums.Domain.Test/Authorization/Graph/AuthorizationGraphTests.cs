@@ -43,6 +43,7 @@ public class AuthorizationGraphTests
             MaxLoginAttempts:      5,
             MinPasswordLength:     12,
             MfaRequiredForAdmin:   false,
+            MfaAllowedMethods:     new[] { "Totp", "WebAuthn" },
             AccessTokenDurationMs: 3600000,
             AuthUseExternalIdp:    false);
 
@@ -123,7 +124,7 @@ public class AuthorizationGraphTests
 
         var provider = new GraphIdpProvider(Guid.NewGuid(), "Azure AD", "AZURE", "AzureAd");
         var auth = new GraphAuthentication("IDP", provider, false, DateTime.UtcNow, DateTime.UtcNow.AddMinutes(30));
-        var config = new GraphEffectiveConfig(30, 5, 12, false, 3600000, true);
+        var config = new GraphEffectiveConfig(30, 5, 12, false, new[] { "Totp" }, 3600000, true);
 
         var graph = AuthorizationGraph.Build(context, auth,
             new List<GraphAction>(), new List<GraphMenuModule>(),
@@ -182,7 +183,7 @@ public class AuthorizationGraphTests
             Branch:      new GraphBranch(branchId, "BR-01", "Branch 01"));
 
         var auth   = new GraphAuthentication("Local", null, false, DateTime.UtcNow, DateTime.UtcNow.AddMinutes(30));
-        var config = new GraphEffectiveConfig(30, 5, 12, false, 3600000, false);
+        var config = new GraphEffectiveConfig(30, 5, 12, false, new[] { "Totp" }, 3600000, false);
         var graph  = AuthorizationGraph.Build(context, auth,
             new List<GraphAction>(), new List<GraphMenuModule>(),
             new List<GraphDomainPermission>(), new List<GraphFeatureFlag>(),

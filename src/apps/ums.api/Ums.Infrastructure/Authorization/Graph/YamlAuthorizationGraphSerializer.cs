@@ -149,6 +149,7 @@ public sealed class YamlAuthorizationGraphSerializer : IAuthorizationGraphSerial
         sb.AppendLine($"  sessionTimeoutMinutes: {g.EffectiveConfig.SessionTimeoutMinutes}");
         sb.AppendLine($"  maxLoginAttempts: {g.EffectiveConfig.MaxLoginAttempts}");
         sb.AppendLine($"  mfaRequiredForAdmin: {g.EffectiveConfig.MfaRequiredForAdmin.ToString().ToLower()}");
+        sb.AppendLine($"  mfaAllowedMethods: [{string.Join(", ", g.EffectiveConfig.MfaAllowedMethods)}]");
 
         sb.AppendLine();
         sb.AppendLine("scopes:");

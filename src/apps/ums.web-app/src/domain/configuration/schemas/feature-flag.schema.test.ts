@@ -73,6 +73,8 @@ describe('FeatureFlagSchema', () => {
   const validFlag = {
     featureFlagId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
     systemSuiteId: '3fa85f64-5717-4562-b3fc-2c963f66afa7',
+    systemSuiteCode: 'CORE',
+    systemSuiteName: 'Core Suite',
     flagCode: 'DARK_MODE',
     flagType: 'Boolean',
     flagTargets: 'all',

@@ -15,6 +15,7 @@ public sealed class DevAuthMiddleware
     private const string UserNameHeader = "X-User-Name";
     private const string TenantIdHeader = "X-Tenant-Id";
     private const string IsInternalAdminHeader = "X-Is-Internal-Admin";
+    private const string DisableDevAuthHeader = "X-Disable-Dev-Auth";
 
     private readonly RequestDelegate _next;
     private readonly IHostEnvironment _environment;
@@ -37,6 +38,15 @@ public sealed class DevAuthMiddleware
         // Default dev claims would force the internal admin tenant and break tenant-scoped
         // login, signup, forgot-password, and session bootstrap flows.
         if (context.Request.Path.StartsWithSegments("/api/v1/auth"))
+        {
+            await _next(context);
+            return;
+        }
+
+        if (string.Equals(
+                context.Request.Headers[DisableDevAuthHeader].FirstOrDefault(),
+                "true",
+                StringComparison.OrdinalIgnoreCase))
         {
             await _next(context);
             return;

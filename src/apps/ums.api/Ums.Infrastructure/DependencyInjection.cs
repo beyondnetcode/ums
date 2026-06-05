@@ -13,13 +13,11 @@ using Ums.Domain.Audit.AuditRecord;
 using Ums.Domain.Approvals;
 using Ums.Domain.Authorization;
 using Ums.Domain.Configuration;
-using Ums.Domain.IGA;
 using Ums.Domain.Identity;
 using Ums.Domain.Identity.Repositories.TenantParameter;
 using Ums.Infrastructure.Persistence.Audit;
 using Ums.Infrastructure.Persistence.Approvals;
 using Ums.Infrastructure.Persistence.Authorization;
-using Ums.Infrastructure.Persistence.IGA;
 using Ums.Infrastructure.Persistence.Configuration;
 using Ums.Domain.Configuration;
 using Ums.Infrastructure.Hosting;
@@ -363,21 +361,6 @@ public static class DependencyInjection
 
             services.AddSingleton<InMemoryAccessEnforcementPolicyRepository>();
             services.AddSingleton<IAccessEnforcementPolicyRepository>(sp => sp.GetRequiredService<InMemoryAccessEnforcementPolicyRepository>());
-        }
-
-        if ((persistence.Provider == PersistenceProvider.SqlServer && persistence.UseSqlServerIgaStores) ||
-            (persistence.Provider == PersistenceProvider.Sqlite && persistence.UseSqliteIgaStores))
-        {
-            services.AddScoped<IPromotionRequestRepository, SqlServerPromotionRequestRepository>();
-            services.AddScoped<IRoleMaturityStatusRepository, SqlServerRoleMaturityStatusRepository>();
-        }
-        else
-        {
-            services.AddSingleton<InMemoryPromotionRequestRepository>();
-            services.AddSingleton<IPromotionRequestRepository>(sp => sp.GetRequiredService<InMemoryPromotionRequestRepository>());
-
-            services.AddSingleton<InMemoryRoleMaturityStatusRepository>();
-            services.AddSingleton<IRoleMaturityStatusRepository>(sp => sp.GetRequiredService<InMemoryRoleMaturityStatusRepository>());
         }
 
         // ── AOP: DispatchProxy aspect-oriented infrastructure ──────────────────────

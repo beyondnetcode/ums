@@ -286,6 +286,7 @@ public static class IdentityDevDataSeeder
                     throw new InvalidOperationException($"Unable to seed super admin password: {passwordResult.Error}");
                 }
             }
+            SeedVerifiedMfa(superAdmin, actor);
             result.Add(superAdmin);
         }
 
@@ -340,6 +341,7 @@ public static class IdentityDevDataSeeder
             var hash = PasswordHash.Create(passwordHasher.Hash(CoreDevDataSeeder.SuperAdminPassword));
             admin.AddPassword(hash, actor);
         }
+        SeedVerifiedMfa(admin, actor);
 
         var analyst = BuildUserAccount(DeriveGuid(2), tenantId, $"analista.inventario@{domain}", UserCategory.Internal, actor, "EMP-002");
         analyst.Activate(actor);
@@ -517,6 +519,7 @@ public static class IdentityDevDataSeeder
         }
 
         await SyncLocalPasswordAsync(existing, seedUserAccount, actor);
+        await SyncVerifiedMfaAsync(existing, seedUserAccount, actor);
         await userAccountRepository.UpdateAsync(existing, cancellationToken);
     }
 
@@ -542,7 +545,43 @@ public static class IdentityDevDataSeeder
         }
 
         await SyncLocalPasswordAsync(existing, seedUserAccount, actor);
+        await SyncVerifiedMfaAsync(existing, seedUserAccount, actor);
         await userAccountRepository.UpdateAsync(existing, cancellationToken);
+    }
+
+    private static Task SyncVerifiedMfaAsync(
+        UserAccountAggregate existingUserAccount,
+        UserAccountAggregate seedUserAccount,
+        ActorId actor)
+    {
+        foreach (var seedEnrollment in seedUserAccount.MfaEnrollments.Where(e => e.Status == MfaEnrollmentStatus.Verified))
+        {
+            var existingEnrollment = existingUserAccount.MfaEnrollments.FirstOrDefault(e => e.Method == seedEnrollment.Method);
+
+            if (existingEnrollment is null)
+            {
+                var enrollResult = existingUserAccount.EnrollMfa(seedEnrollment.Method, actor);
+                if (enrollResult.IsFailure)
+                {
+                    throw new InvalidOperationException(
+                        $"Unable to sync MFA enrollment for {seedUserAccount.Email.GetValue()}: {enrollResult.Error}");
+                }
+
+                existingEnrollment = existingUserAccount.MfaEnrollments.LastOrDefault(e => e.Method == seedEnrollment.Method);
+            }
+
+            if (existingEnrollment is not null && existingEnrollment.Status != MfaEnrollmentStatus.Verified)
+            {
+                var verifyResult = existingEnrollment.Verify(actor);
+                if (verifyResult.IsFailure)
+                {
+                    throw new InvalidOperationException(
+                        $"Unable to verify MFA enrollment for {seedUserAccount.Email.GetValue()}: {verifyResult.Error}");
+                }
+            }
+        }
+
+        return Task.CompletedTask;
     }
 
     private static Task SyncLocalPasswordAsync(
@@ -583,5 +622,29 @@ public static class IdentityDevDataSeeder
         }
 
         return Task.CompletedTask;
+    }
+
+    private static void SeedVerifiedMfa(UserAccountAggregate userAccount, ActorId actor)
+    {
+        var enrollResult = userAccount.EnrollMfa(MfaMethod.Totp, actor);
+        if (enrollResult.IsFailure)
+        {
+            throw new InvalidOperationException(
+                $"Unable to seed MFA enrollment for {userAccount.Email.GetValue()}: {enrollResult.Error}");
+        }
+
+        var enrollment = userAccount.MfaEnrollments.LastOrDefault(e => e.Method == MfaMethod.Totp);
+        if (enrollment is null)
+        {
+            throw new InvalidOperationException(
+                $"Unable to locate seeded MFA enrollment for {userAccount.Email.GetValue()}.");
+        }
+
+        var verifyResult = enrollment.Verify(actor);
+        if (verifyResult.IsFailure)
+        {
+            throw new InvalidOperationException(
+                $"Unable to verify seeded MFA enrollment for {userAccount.Email.GetValue()}: {verifyResult.Error}");
+        }
     }
 }

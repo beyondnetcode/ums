@@ -46,6 +46,16 @@ const TYPE_COLOR: Record<string, string> = {
   Percentage: 'bg-emerald-500/10 text-emerald-500',
 };
 
+const getSystemSuiteLabel = (flag: FeatureFlag): string => {
+  const suiteName = flag.systemSuiteName?.trim();
+  const suiteCode = flag.systemSuiteCode?.trim();
+
+  if (suiteName && suiteCode) return `${suiteName} (${suiteCode})`;
+  if (suiteName) return suiteName;
+  if (suiteCode) return suiteCode;
+  return 'Sistema desconocido';
+};
+
 const CriteriaRow: React.FC<{
   criteria: FeatureFlagCriteria;
   onRemove: () => void;
@@ -151,9 +161,6 @@ export const FeatureFlagDetailPanel: React.FC<Props> = ({ flag }) => {
             >
               {FLAG_TYPE_LABELS[flag.flagType]}
             </span>
-            <span className="text-[10px] font-mono text-m3-secondary/60 truncate">
-              {flag.featureFlagId}
-            </span>
           </div>
         </div>
       </div>
@@ -177,17 +184,14 @@ export const FeatureFlagDetailPanel: React.FC<Props> = ({ flag }) => {
         title="Información"
         content={
           <div className="space-y-2">
-            <KeyValueRow label="System Suite" value={flag.systemSuiteId.slice(0, 8) + '…'} />
+            <KeyValueRow label="System Suite" value={getSystemSuiteLabel(flag)} />
             <KeyValueRow label="Flag Type" value={FLAG_TYPE_LABELS[flag.flagType]} />
             <KeyValueRow label="Targeting" value={flag.flagTargets} />
             {flag.rolloutPercentage != null && (
               <KeyValueRow label="Rollout %" value={`${flag.rolloutPercentage}%`} />
             )}
             {flag.linkedResourceType && (
-              <KeyValueRow
-                label="Linked Resource"
-                value={`${flag.linkedResourceType} (${flag.linkedResourceId?.slice(0, 8)}…)`}
-              />
+              <KeyValueRow label="Linked Resource" value={flag.linkedResourceType} />
             )}
           </div>
         }

@@ -10,5 +10,6 @@
 
 ## Resumen
 
-- Ver la version en ingles para el contenido completo.
-- Esta pagina existe para mantener la paridad bilingue del portal documental.
+- MFA_REQUIRED_FOR_ADMIN ahora se interpreta como un control por tenant para exigir MFA verificado al iniciar sesion.
+- MFA_ALLOWED_METHODS define, por tenant, que metodos MFA estan habilitados: Totp, WebAuthn, SmsOtp y EmailOtp.
+- Ver la version en ingles para el detalle completo del redisenio.

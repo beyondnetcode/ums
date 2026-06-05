@@ -210,19 +210,6 @@ public static class DomainErrors
         public const string NotActive                        = "delegation.not_active";
     }
 
-    public static class IGA
-    {
-        public const string MaturityLevelUnchanged = "iga.maturity_level_unchanged";
-        public const string InvalidPerformanceScore = "iga.invalid_performance_score";
-        public const string PromotionNotInDraft = "iga.promotion_not_in_draft";
-        public const string PromotionNotPendingManager = "iga.promotion_not_pending_manager";
-        public const string PromotionNotPendingSecurity = "iga.promotion_not_pending_security";
-        public const string PromotionNotApproved = "iga.promotion_not_approved";
-        public const string PromotionAlreadyExecuted = "iga.promotion_already_executed";
-        public const string PromotionAlreadyRejected = "iga.promotion_already_rejected";
-        public const string ImpactAnalysisAlreadyExists = "iga.impact_analysis_already_exists";
-    }
-
     public static class TenantParameter
     {
         public const string CodeNotUnique = "tenant_parameter.code_not_unique";

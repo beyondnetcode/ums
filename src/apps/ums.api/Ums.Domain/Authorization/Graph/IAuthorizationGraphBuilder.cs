@@ -23,4 +23,15 @@ public interface IAuthorizationGraphBuilder
         Guid                 tenantId,
         AuthMethod           authMethod,
         CancellationToken    cancellationToken = default);
+
+    /// <summary>
+    /// Builds the authorization graph for a specific profile of the given user and tenant.
+    /// Used by the admin preview flow to avoid resolving a different active profile.
+    /// </summary>
+    Task<Result<AuthorizationGraph>> BuildForProfileAsync(
+        UserAccountAggregate userAccount,
+        Guid                 tenantId,
+        Guid                 profileId,
+        AuthMethod           authMethod,
+        CancellationToken    cancellationToken = default);
 }

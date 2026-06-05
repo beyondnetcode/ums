@@ -37,6 +37,7 @@ describe('auth.store', () => {
         maxLoginAttempts: 5,
         minPasswordLength: 12,
         mfaRequiredForAdmin: false,
+        mfaAllowedMethods: ['Totp'],
         customBrandingEnabled: false,
         defaultLanguage: 'es',
         defaultTimezone: 'America/Lima',

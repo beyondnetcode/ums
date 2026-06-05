@@ -9,6 +9,7 @@ public static class AppConfigurationCodes
     public const string MinPasswordLength = "MIN_PASSWORD_LENGTH";
     public const string MaxValidityPeriodDays = "MAX_VALIDITY_PERIOD_DAYS";
     public const string MfaRequiredForAdmin = "MFA_REQUIRED_FOR_ADMIN";
+    public const string MfaAllowedMethods = "MFA_ALLOWED_METHODS";
     public const string UiCustomBrandingEnabled = "UI_CUSTOM_BRANDING_ENABLED";
     public const string FrontendConfigTransport = "FRONTEND_CONFIG_TRANSPORT";
     public const string AuthUseExternalIdp = "AUTH_USE_EXTERNAL_IDP";

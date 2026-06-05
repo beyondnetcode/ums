@@ -67,6 +67,22 @@ public sealed class AuthorizationGraphBuilderService : IAuthorizationGraphBuilde
         Guid                 tenantId,
         AuthMethod           authMethod,
         CancellationToken    cancellationToken = default)
+        => await BuildInternalAsync(userAccount, tenantId, authMethod, null, cancellationToken);
+
+    public async Task<Result<AuthorizationGraph>> BuildForProfileAsync(
+        UserAccountAggregate userAccount,
+        Guid                 tenantId,
+        Guid                 profileId,
+        AuthMethod           authMethod,
+        CancellationToken    cancellationToken = default)
+        => await BuildInternalAsync(userAccount, tenantId, authMethod, profileId, cancellationToken);
+
+    private async Task<Result<AuthorizationGraph>> BuildInternalAsync(
+        UserAccountAggregate userAccount,
+        Guid                 tenantId,
+        AuthMethod           authMethod,
+        Guid?                profileIdOverride,
+        CancellationToken    cancellationToken)
     {
         var userId = userAccount.Props.Id.GetValue();
 
@@ -76,13 +92,36 @@ public sealed class AuthorizationGraphBuilderService : IAuthorizationGraphBuilde
             return Result<AuthorizationGraph>.Failure($"Tenant {tenantId} not found.");
 
         // ── 2. Active profile for this user + tenant ───────────────────────────
-        var profiles = await _profileRepo.GetByUserIdAsync(userId, cancellationToken);
-        var profile  = profiles.FirstOrDefault(p =>
-            p.Props.TenantId.GetValue() == tenantId && p.IsActive);
+        ProfileAggregate? profile;
 
-        if (profile is null)
-            return Result<AuthorizationGraph>.Failure(
-                "No active profile found for user in this tenant.");
+        if (profileIdOverride.HasValue)
+        {
+            profile = await _profileRepo.GetByIdAsync(profileIdOverride.Value, cancellationToken);
+            if (profile is null)
+                return Result<AuthorizationGraph>.Failure("Profile not found.");
+
+            if (profile.Props.TenantId.GetValue() != tenantId || profile.Props.UserId.GetValue() != userId)
+            {
+                return Result<AuthorizationGraph>.Failure(
+                    "Profile does not belong to the requested user and tenant.");
+            }
+
+            if (!profile.IsActive)
+            {
+                return Result<AuthorizationGraph>.Failure(
+                    "Profile is inactive and cannot be previewed as an effective auth graph.");
+            }
+        }
+        else
+        {
+            var profiles = await _profileRepo.GetByUserIdAsync(userId, cancellationToken);
+            profile = profiles.FirstOrDefault(p =>
+                p.Props.TenantId.GetValue() == tenantId && p.IsActive);
+
+            if (profile is null)
+                return Result<AuthorizationGraph>.Failure(
+                    "No active profile found for user in this tenant.");
+        }
 
         // ── 3. Role ───────────────────────────────────────────────────────────
         var role = await _roleRepo.GetByIdAsync(profile.Props.RoleId.GetValue(), cancellationToken);
@@ -160,7 +199,6 @@ public sealed class AuthorizationGraphBuilderService : IAuthorizationGraphBuilde
                     branch.Props.Name.GetValue()));
 
         // ── 11. Authentication node ────────────────────────────────────────────
-        var mfaRequired  = _configProvider.GetValueAs<bool>(AppConfigurationCodes.MfaRequiredForAdmin, tenantId, AppConfigurationDefaults.MfaRequiredForAdmin);
         GraphIdpProvider? idpProvider = authMethod.Provider is not null
             ? new GraphIdpProvider(
                 authMethod.Provider.GetId().GetValue(),
@@ -174,7 +212,7 @@ public sealed class AuthorizationGraphBuilderService : IAuthorizationGraphBuilde
         var authentication  = new GraphAuthentication(
             Method:           authMethod.Type.ToString(),
             Provider:         idpProvider,
-            MfaRequired:      mfaRequired,
+            MfaRequired:      effectiveConfig.MfaRequiredForAdmin,
             IssuedAt:         now,
             SessionExpiresAt: now.AddMinutes(sessionMinutes));
 
@@ -387,6 +425,7 @@ public sealed class AuthorizationGraphBuilderService : IAuthorizationGraphBuilde
             MaxLoginAttempts:      _configProvider.GetValueAs<int>(AppConfigurationCodes.MaxLoginAttempts, tenantId, AppConfigurationDefaults.MaxLoginAttempts),
             MinPasswordLength:     _configProvider.GetValueAs<int>(AppConfigurationCodes.MinPasswordLength, tenantId, AppConfigurationDefaults.MinPasswordLength),
             MfaRequiredForAdmin:   _configProvider.GetValueAs<bool>(AppConfigurationCodes.MfaRequiredForAdmin, tenantId, AppConfigurationDefaults.MfaRequiredForAdmin),
+            MfaAllowedMethods:     _configProvider.ForTenant(tenantId).MfaAllowedMethods.Select(method => method.Name).ToArray(),
             AccessTokenDurationMs: _configProvider.GetValueAs<int>(AppConfigurationCodes.AccessTokenDurationMs, tenantId, AppConfigurationDefaults.AccessTokenDurationMs),
             AuthUseExternalIdp:    _configProvider.GetValueAs<bool>(AppConfigurationCodes.AuthUseExternalIdp, tenantId, AppConfigurationDefaults.AuthUseExternalIdp));
 

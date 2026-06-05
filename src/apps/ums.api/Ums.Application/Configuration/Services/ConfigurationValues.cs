@@ -1,7 +1,9 @@
 namespace Ums.Application.Configuration.Services;
 
 using Microsoft.Extensions.DependencyInjection;
+using Ums.Application.Common;
 using Ums.Domain.Configuration.AppConfiguration;
+using Ums.Domain.Enums;
 
 public sealed class ConfigurationValues
 {
@@ -28,11 +30,29 @@ public sealed class ConfigurationValues
 
     public bool MfaRequiredForAdmin => _provider.GetValueAs<bool>(AppConfigurationCodes.MfaRequiredForAdmin, _tenantId, AppConfigurationDefaults.MfaRequiredForAdmin);
 
+    public IReadOnlyCollection<MfaMethod> MfaAllowedMethods
+        => ParseMfaMethods(_provider.GetValue(AppConfigurationCodes.MfaAllowedMethods, _tenantId, AppConfigurationDefaults.MfaAllowedMethods));
+
     public bool CustomBrandingEnabled => _provider.GetValueAs<bool>(AppConfigurationCodes.UiCustomBrandingEnabled, _tenantId, AppConfigurationDefaults.UiCustomBrandingEnabled);
 
     public string DefaultLanguage => _provider.GetValue(AppConfigurationCodes.UiLanguageDefault, _tenantId, AppConfigurationDefaults.UiLanguageDefault);
 
     public string DefaultTimezone => _provider.GetValue(AppConfigurationCodes.UiTimezoneDefault, _tenantId, AppConfigurationDefaults.UiTimezoneDefault);
+
+    private static IReadOnlyCollection<MfaMethod> ParseMfaMethods(string rawValue)
+    {
+        var parsed = rawValue
+            .Split([',', ';', '|'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(DomainEnumerationParser.FromName<MfaMethod>)
+            .Where(method => method is not null)
+            .Select(method => method!)
+            .DistinctBy(method => method.Name, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        return parsed.Length > 0
+            ? parsed
+            : [MfaMethod.Totp, MfaMethod.WebAuthn, MfaMethod.SmsOtp, MfaMethod.EmailOtp];
+    }
 }
 
 public static class ConfigurationValuesExtensions

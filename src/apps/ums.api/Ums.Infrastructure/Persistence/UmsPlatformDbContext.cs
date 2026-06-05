@@ -11,8 +11,6 @@ using Ums.Infrastructure.Persistence.Outbox;
 using Ums.Infrastructure.Persistence.Outbox.Configurations;
 using Ums.Infrastructure.Persistence.Approvals.Configurations;
 using Ums.Infrastructure.Persistence.Approvals.Entities;
-using Ums.Infrastructure.Persistence.IGA.Configurations;
-using Ums.Infrastructure.Persistence.IGA.Entities;
 
 namespace Ums.Infrastructure.Persistence;
 
@@ -84,9 +82,6 @@ public sealed class UmsPlatformDbContext(
     public DbSet<UserDocumentRecord> UserDocuments => Set<UserDocumentRecord>();
     public DbSet<AccessNotificationRecord> UserDocumentNotifications => Set<AccessNotificationRecord>();
     public DbSet<AccessEnforcementPolicyRecord> AccessEnforcementPolicies => Set<AccessEnforcementPolicyRecord>();
-    public DbSet<PromotionRequestRecord> PromotionRequests => Set<PromotionRequestRecord>();
-    public DbSet<PromotionImpactAnalysisRecord> PromotionImpactAnalyses => Set<PromotionImpactAnalysisRecord>();
-    public DbSet<RoleMaturityStatusRecord> RoleMaturityStatuses => Set<RoleMaturityStatusRecord>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -133,10 +128,6 @@ public sealed class UmsPlatformDbContext(
         modelBuilder.ApplyConfiguration(new UserDocumentRecordConfiguration());
         modelBuilder.ApplyConfiguration(new AccessNotificationRecordConfiguration());
         modelBuilder.ApplyConfiguration(new AccessEnforcementPolicyRecordConfiguration());
-        modelBuilder.ApplyConfiguration(new PromotionRequestRecordConfiguration());
-        modelBuilder.ApplyConfiguration(new PromotionImpactAnalysisRecordConfiguration());
-        modelBuilder.ApplyConfiguration(new RoleMaturityStatusRecordConfiguration());
-
         // -------------------------------------------------------------------------
         // FIX-05: Global query filters — primary tenant isolation mechanism.
         //

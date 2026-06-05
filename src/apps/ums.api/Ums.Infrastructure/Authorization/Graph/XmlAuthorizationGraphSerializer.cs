@@ -137,7 +137,8 @@ public sealed class XmlAuthorizationGraphSerializer : IAuthorizationGraphSeriali
                 new XElement("effectiveConfig",
                     new XAttribute("sessionTimeoutMinutes", g.EffectiveConfig.SessionTimeoutMinutes),
                     new XAttribute("maxLoginAttempts", g.EffectiveConfig.MaxLoginAttempts),
-                    new XAttribute("mfaRequiredForAdmin", g.EffectiveConfig.MfaRequiredForAdmin)),
+                    new XAttribute("mfaRequiredForAdmin", g.EffectiveConfig.MfaRequiredForAdmin),
+                    new XAttribute("mfaAllowedMethods", string.Join(",", g.EffectiveConfig.MfaAllowedMethods))),
                 new XElement("scopes",
                     g.Scopes.Select(s => new XElement("scope", s)))));
 

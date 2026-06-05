@@ -196,7 +196,7 @@ function getWithPrecedence(key: string, tenantId?: Guid): AppConfiguration | und
 | REFRESH_TOKEN_DURATION_MS | int | 604800000 | Refresh token lifetime (7 days) |
 | MIN_PASSWORD_LENGTH | int | 12 | Minimum password length |
 | MAX_VALIDITY_PERIOD_DAYS | int | 365 | Account validity period |
-| MFA_REQUIRED_FOR_ADMIN | bool | false | Require MFA for admins |
+| MFA_REQUIRED_FOR_ADMIN | bool | false | Tenant-scoped toggle that requires verified MFA at login when enabled |
 | PASSWORD_HISTORY_COUNT | int | 5 | Password history size |
 | UI_LANGUAGE_DEFAULT | string | "es" | Default UI language |
 | UI_TIMEZONE_DEFAULT | string | "America/Lima" | Default timezone |
@@ -205,11 +205,13 @@ function getWithPrecedence(key: string, tenantId?: Guid): AppConfiguration | und
 
 | Code | Type | Description |
 |------|------|-------------|
-| MFA_ALLOWED_METHODS | string[] | Allowed MFA methods (SMS, TOTP, Email) |
+| MFA_ALLOWED_METHODS | string[] | Allowed MFA methods (SMS, TOTP, Email, WebAuthn) |
 | PASSWORD_MAX_AGE_DAYS | int | Password max age (overrides global if set) |
 | ACCOUNT_LOCKOUT_DURATION_MINUTES | int | Account lockout duration |
 | UI_CUSTOM_BRANDING_ENABLED | bool | Enable custom branding |
-| SESSION_MAX_CONCURRENT | int | Max concurrent sessions per user | ---
+| SESSION_MAX_CONCURRENT | int | Max concurrent sessions per user |
+
+Tenant login responses and the effective auth graph must resolve these values per tenant so the portal can enforce the same MFA policy without assuming it is global.
 
 ## 7. Audit Logging
 

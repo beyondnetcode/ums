@@ -1,6 +1,7 @@
 namespace Ums.Domain.Identity.UserAccount;
 
 using Ums.Domain.Events;
+using Ums.Domain.Enums;
 using Ums.Domain.Identity.UserAccount.MfaEnrollment;
 using Ums.Domain.Identity.UserAccount.PasswordCredential;
 using MfaEnrollmentEntity = Ums.Domain.Identity.UserAccount.MfaEnrollment.MfaEnrollment;
@@ -398,8 +399,21 @@ public sealed class UserAccount : AggregateRoot<UserAccount, UserAccountProps>
         return Result.Success();
     }
 
-    public bool HasVerifiedMfaEnrollment() =>
-        _mfaEnrollments.Any(e => e.Status == MfaEnrollmentStatus.Verified);
+    public bool HasVerifiedMfaEnrollment(IEnumerable<MfaMethod>? allowedMethods = null)
+    {
+        var verifiedEnrollments = _mfaEnrollments.Where(e => e.Status == MfaEnrollmentStatus.Verified);
+
+        if (allowedMethods is null)
+        {
+            return verifiedEnrollments.Any();
+        }
+
+        var allowedMethodNames = new HashSet<string>(
+            allowedMethods.Select(method => method.Name),
+            StringComparer.OrdinalIgnoreCase);
+
+        return verifiedEnrollments.Any(enrollment => allowedMethodNames.Contains(enrollment.Method.Name));
+    }
 
     public Result RecordAuthenticationAttempt(bool success, string reason, string ipAddress, ActorId actor)
     {

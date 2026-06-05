@@ -30,6 +30,8 @@ const GET_FEATURE_FLAGS = `
       items {
         featureFlagId
         systemSuiteId
+        systemSuiteCode
+        systemSuiteName
         flagCode
         flagType
         flagTargets
@@ -56,6 +58,8 @@ const GET_FEATURE_FLAG_BY_ID = `
     featureFlagById(id: $id) {
       featureFlagId
       systemSuiteId
+      systemSuiteCode
+      systemSuiteName
       flagCode
       flagType
       flagTargets
@@ -85,6 +89,8 @@ export interface GraphqlFeatureFlagCriteriaDto {
 export interface GraphqlFeatureFlagDto {
   featureFlagId:      string;
   systemSuiteId:      string;
+  systemSuiteCode:    string;
+  systemSuiteName:    string;
   flagCode:           string;
   flagType:           string;
   flagTargets:        string;

@@ -293,7 +293,7 @@ public sealed class AuthenticateUserCommandHandler
             return Result.Success();
         }
 
-        if (!user.HasVerifiedMfaEnrollment())
+        if (!user.HasVerifiedMfaEnrollment(cfg.MfaAllowedMethods))
         {
             return Result.Failure("AUTH_011: MFA enrollment required. Please enroll and verify an MFA method before logging in.");
         }

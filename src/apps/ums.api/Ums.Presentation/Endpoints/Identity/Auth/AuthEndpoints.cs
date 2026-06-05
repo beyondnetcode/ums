@@ -198,6 +198,7 @@ public static class AuthEndpoints
             MaxLoginAttempts:       cfg.MaxLoginAttempts,
             MinPasswordLength:      cfg.MinPasswordLength,
             MfaRequiredForAdmin:    cfg.MfaRequiredForAdmin,
+            MfaAllowedMethods:      cfg.MfaAllowedMethods.Select(method => method.Name).ToArray(),
             CustomBrandingEnabled:  cfg.CustomBrandingEnabled,
             DefaultLanguage:        cfg.DefaultLanguage,
             DefaultTimezone:        cfg.DefaultTimezone);
@@ -488,6 +489,7 @@ public record SessionParameters(
     int    MaxLoginAttempts,
     int    MinPasswordLength,
     bool   MfaRequiredForAdmin,
+    string[] MfaAllowedMethods,
     bool   CustomBrandingEnabled,
     string DefaultLanguage,
     string DefaultTimezone);

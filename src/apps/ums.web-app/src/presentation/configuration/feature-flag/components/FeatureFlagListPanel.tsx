@@ -33,6 +33,16 @@ const TYPE_COLOR: Record<string, string> = {
   Percentage: 'bg-emerald-500/10 text-emerald-500',
 };
 
+function getSystemSuiteLabel(flag: FeatureFlag): string {
+  const suiteName = flag.systemSuiteName?.trim();
+  const suiteCode = flag.systemSuiteCode?.trim();
+
+  if (suiteName && suiteCode) return `${suiteName} (${suiteCode})`;
+  if (suiteName) return suiteName;
+  if (suiteCode) return suiteCode;
+  return 'Sistema desconocido';
+}
+
 interface Props {
   flags: FeatureFlag[];
   selectedId: string;
@@ -122,7 +132,7 @@ export const FeatureFlagListPanel: React.FC<Props> = ({
               <span className="text-[9px] font-semibold uppercase tracking-wide text-m3-secondary/50">
                 Suite
               </span>
-              <span>{flag.systemSuiteId.slice(0, 8)}…</span>
+              <span>{getSystemSuiteLabel(flag)}</span>
             </span>
             {flag.rolloutPercentage != null && (
               <>
@@ -159,7 +169,7 @@ export const FeatureFlagListPanel: React.FC<Props> = ({
           title={flag.flagCode}
           subtitle={
             <span className="text-[10px] text-m3-secondary/60">
-              {FLAG_TYPE_LABELS[flag.flagType]} · Suite {flag.systemSuiteId.slice(0, 8)}…
+              {FLAG_TYPE_LABELS[flag.flagType]} · Suite {getSystemSuiteLabel(flag)}
             </span>
           }
           badges={

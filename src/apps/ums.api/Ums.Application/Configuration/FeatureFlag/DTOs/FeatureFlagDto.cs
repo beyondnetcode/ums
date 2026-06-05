@@ -3,6 +3,8 @@ namespace Ums.Application.Configuration.FeatureFlag.DTOs;
 public sealed record FeatureFlagDto(
     Guid FeatureFlagId,
     Guid SystemSuiteId,
+    string SystemSuiteCode,
+    string SystemSuiteName,
     string FlagCode,
     string FlagType,
     string FlagTargets,

@@ -10,10 +10,12 @@ namespace Ums.Presentation.IntegrationTest.Identity;
 /// </summary>
 public sealed class DependencyGuardIntegrationTests : IClassFixture<UmsApiWebApplicationFactory>
 {
+    private readonly UmsApiWebApplicationFactory _factory;
     private readonly HttpClient _client;
 
     public DependencyGuardIntegrationTests(UmsApiWebApplicationFactory factory)
     {
+        _factory = factory;
         _client = factory.CreateClient(new WebApplicationFactoryClientOptions
         {
             BaseAddress = new Uri("https://localhost"),
@@ -33,7 +35,8 @@ public sealed class DependencyGuardIntegrationTests : IClassFixture<UmsApiWebApp
         {
             code = tenantCode,
             name = "Dependency Guard Test Tenant",
-            ruc = $"20{new Random().Next(100000000, 999999999)}",
+            type = "CLIENT",
+            isManagementOwner = true,
         }, TestContext.Current.CancellationToken);
 
         createTenantResponse.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -41,14 +44,11 @@ public sealed class DependencyGuardIntegrationTests : IClassFixture<UmsApiWebApp
         using var tenantPayload = JsonDocument.Parse(await createTenantResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
         var newTenantId = tenantPayload.RootElement.GetProperty("tenantId").GetGuid();
 
-        // Activate the tenant
-        var activateTenantResponse = await _client.PostAsync(
-            $"/api/v1/tenants/{newTenantId}/activate", null, TestContext.Current.CancellationToken);
-        activateTenantResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        var tenantClient = CreateTenantClient(newTenantId);
 
-        // Create and activate a user in this tenant
+        // New tenants are created as Active by default. Create and activate a user in this tenant.
         var email = $"guard.user.{Guid.NewGuid():N}@ums.local";
-        var createUserResponse = await _client.PostAsJsonAsync("/api/v1/user-accounts", new
+        var createUserResponse = await tenantClient.PostAsJsonAsync("/api/v1/user-accounts", new
         {
             tenantId = newTenantId,
             branchId = (Guid?)null,
@@ -63,10 +63,10 @@ public sealed class DependencyGuardIntegrationTests : IClassFixture<UmsApiWebApp
         using var userPayload = JsonDocument.Parse(await createUserResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
         var userId = userPayload.RootElement.GetProperty("userAccountId").GetGuid();
 
-        await _client.PostAsync($"/api/v1/user-accounts/{userId}/activate", null, TestContext.Current.CancellationToken);
+        await tenantClient.PostAsync($"/api/v1/user-accounts/{userId}/activate", null, TestContext.Current.CancellationToken);
 
         // Act: attempt to suspend the tenant
-        var suspendResponse = await _client.PostAsync(
+        var suspendResponse = await tenantClient.PostAsync(
             $"/api/v1/tenants/{newTenantId}/suspend", null, TestContext.Current.CancellationToken);
 
         // Assert: 409 Conflict with structured blocking dependencies
@@ -185,5 +185,21 @@ public sealed class DependencyGuardIntegrationTests : IClassFixture<UmsApiWebApp
         response.StatusCode.Should().Be(HttpStatusCode.Created);
         using var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
         return payload.RootElement.GetProperty("branchId").GetGuid();
+    }
+
+    private HttpClient CreateTenantClient(Guid tenantId)
+    {
+        var tenantClient = _factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            BaseAddress = new Uri("https://localhost"),
+            AllowAutoRedirect = false,
+        });
+
+        tenantClient.DefaultRequestHeaders.Add("X-User-Id", "00000000-0000-0000-0000-000000000456");
+        tenantClient.DefaultRequestHeaders.Add("X-User-Name", "Tenant Dependency Guard Tester");
+        tenantClient.DefaultRequestHeaders.Add("X-Tenant-Id", tenantId.ToString());
+        tenantClient.DefaultRequestHeaders.Add("X-Is-Internal-Admin", "false");
+
+        return tenantClient;
     }
 }

@@ -11,6 +11,8 @@ public sealed class CreateProfileCommandHandler : ICommandHandler<CreateProfileC
     private readonly IProfileRepository _profileRepository;
     private readonly IPermissionTemplateRepository _templateRepository;
     private readonly ITemplateAssignmentRuleRepository _assignmentRuleRepository;
+    private readonly IUserAccountRepository _userAccountRepository;
+    private readonly IRoleRepository _roleRepository;
     private readonly IUserContext _userContext;
     private readonly ITenantScopePolicy _tenantScopePolicy;
 
@@ -18,12 +20,16 @@ public sealed class CreateProfileCommandHandler : ICommandHandler<CreateProfileC
         IProfileRepository profileRepository,
         IPermissionTemplateRepository templateRepository,
         ITemplateAssignmentRuleRepository assignmentRuleRepository,
+        IUserAccountRepository userAccountRepository,
+        IRoleRepository roleRepository,
         IUserContext userContext,
         ITenantScopePolicy tenantScopePolicy)
     {
         _profileRepository = profileRepository;
         _templateRepository = templateRepository;
         _assignmentRuleRepository = assignmentRuleRepository;
+        _userAccountRepository = userAccountRepository;
+        _roleRepository = roleRepository;
         _userContext = userContext;
         _tenantScopePolicy = tenantScopePolicy;
     }
@@ -43,6 +49,30 @@ public sealed class CreateProfileCommandHandler : ICommandHandler<CreateProfileC
         if (scopeResult.IsFailure)
         {
             return Result<CreateProfileResponse>.Failure(scopeResult.Error);
+        }
+
+        var userAccount = await _userAccountRepository.GetByIdAsync(request.UserId, cancellationToken);
+        if (userAccount is null)
+        {
+            return Result<CreateProfileResponse>.Failure("User account not found.");
+        }
+
+        if (userAccount.TenantId.GetValue() != request.TenantId)
+        {
+            return Result<CreateProfileResponse>.Failure(
+                "User account does not belong to the requested tenant.");
+        }
+
+        var role = await _roleRepository.GetByIdAsync(request.RoleId, cancellationToken);
+        if (role is null)
+        {
+            return Result<CreateProfileResponse>.Failure("Role not found.");
+        }
+
+        if (role.TenantId.GetValue() != request.TenantId)
+        {
+            return Result<CreateProfileResponse>.Failure(
+                "Role does not belong to the requested tenant.");
         }
 
         var profileResult = Profile.Create(

@@ -11,5 +11,6 @@ public sealed record GraphEffectiveConfig(
     int  MaxLoginAttempts,
     int  MinPasswordLength,
     bool MfaRequiredForAdmin,
+    IReadOnlyCollection<string> MfaAllowedMethods,
     int  AccessTokenDurationMs,
     bool AuthUseExternalIdp);

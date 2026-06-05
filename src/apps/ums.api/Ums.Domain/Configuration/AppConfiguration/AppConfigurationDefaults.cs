@@ -9,6 +9,7 @@ public static class AppConfigurationDefaults
     public const int MinPasswordLength = 12;
     public const int MaxValidityPeriodDays = 365;
     public const bool MfaRequiredForAdmin = false;
+    public const string MfaAllowedMethods = "Totp,WebAuthn,SmsOtp,EmailOtp";
     public const bool UiCustomBrandingEnabled = false;
     public const string FrontendConfigTransport = "rest";
     public const bool AuthUseExternalIdp = false;

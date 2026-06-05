@@ -630,7 +630,7 @@ public class UserAccountTests
         var user = UserAccount.Create(ValidTenantId, ValidEmail, ValidCategory, null, null, ValidActor).Value;
         user.EnrollMfa(MfaMethod.Totp, ValidActor);
 
-        Assert.False(user.HasVerifiedMfaEnrollment());
+        Assert.False(user.HasVerifiedMfaEnrollment([MfaMethod.Totp]));
     }
 
     [Fact]
@@ -641,7 +641,7 @@ public class UserAccountTests
         var enrollmentId = user.MfaEnrollments.First().Id;
         user.VerifyMfaChallenge(enrollmentId, ValidActor);
 
-        Assert.True(user.HasVerifiedMfaEnrollment());
+        Assert.True(user.HasVerifiedMfaEnrollment([MfaMethod.Totp]));
     }
 
     [Fact]
@@ -649,7 +649,18 @@ public class UserAccountTests
     {
         var user = UserAccount.Create(ValidTenantId, ValidEmail, ValidCategory, null, null, ValidActor).Value;
 
-        Assert.False(user.HasVerifiedMfaEnrollment());
+        Assert.False(user.HasVerifiedMfaEnrollment([MfaMethod.Totp]));
+    }
+
+    [Fact]
+    public void HasVerifiedMfaEnrollment_WhenMethodNotAllowed_ReturnsFalse()
+    {
+        var user = UserAccount.Create(ValidTenantId, ValidEmail, ValidCategory, null, null, ValidActor).Value;
+        user.EnrollMfa(MfaMethod.Totp, ValidActor);
+        var enrollmentId = user.MfaEnrollments.First().Id;
+        user.VerifyMfaChallenge(enrollmentId, ValidActor);
+
+        Assert.False(user.HasVerifiedMfaEnrollment([MfaMethod.EmailOtp]));
     }
 
     #endregion

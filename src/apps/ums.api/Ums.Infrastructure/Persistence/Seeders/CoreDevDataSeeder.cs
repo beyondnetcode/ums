@@ -43,7 +43,6 @@ public static class CoreDevDataSeeder
         await RunSeederAsync(serviceProvider, "Configuration", ConfigurationDevDataSeeder.SeedAsync, cancellationToken);
         await RunSeederAsync(serviceProvider, "Parameter catalog", ParameterCatalogSeeder.SeedAsync, cancellationToken);
         await RunSeederAsync(serviceProvider, "Approvals", ApprovalsDevDataSeeder.SeedAsync, cancellationToken);
-        await RunSeederAsync(serviceProvider, "IGA", IgaDevDataSeeder.SeedAsync, cancellationToken);
         await RunSeederAsync(serviceProvider, "Audit", AuditDevDataSeeder.SeedAsync, cancellationToken);
     }
 

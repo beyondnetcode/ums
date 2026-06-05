@@ -13,7 +13,9 @@ namespace Ums.Application.Identity.Auth;
 /// - missing configuration → failure
 /// - false → AuthMethod.Local()
 /// - true + active IDP → AuthMethod.Idp(provider)
-/// - true + no active IDP → Result.Failure("AUTH_011")
+/// - true + no active IDP:
+///   - ExternalApi     → Result.Failure("AUTH_011")
+///   - InternalPreview → AuthMethod(Type = IDP, Provider = null)
 /// </summary>
 public sealed class AuthMethodResolverService : IAuthMethodResolver
 {
@@ -59,9 +61,16 @@ public sealed class AuthMethodResolverService : IAuthMethodResolver
 
         var activeIdp = tenant.IdentityProviders.FirstOrDefault(p => p.IsActive);
         if (activeIdp is null)
+        {
+            if (scope == AuthAccessScope.InternalPreview)
+            {
+                return Result<AuthMethod>.Success(new AuthMethod(AuthMethodType.IDP));
+            }
+
             return Result<AuthMethod>.Failure(
                 "AUTH_011: Tenant is configured for external IDP authentication " +
                 "but has no active Identity Provider. Configure and activate an IDP first.");
+        }
 
         return Result<AuthMethod>.Success(AuthMethod.Idp(activeIdp));
     }

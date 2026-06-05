@@ -1,4 +1,5 @@
 using Ums.Application.Identity.UserAccount.DTOs;
+using Ums.Application.Configuration.Services;
 
 namespace Ums.Application.Identity.UserAccount.Commands;
 
@@ -6,11 +7,16 @@ public sealed class EnrollUserAccountMfaCommandHandler : ICommandHandler<EnrollU
 {
     private readonly IUserAccountRepository _userAccountRepository;
     private readonly IUserContext _userContext;
+    private readonly IConfigurationProvider _configurationProvider;
 
-    public EnrollUserAccountMfaCommandHandler(IUserAccountRepository userAccountRepository, IUserContext userContext)
+    public EnrollUserAccountMfaCommandHandler(
+        IUserAccountRepository userAccountRepository,
+        IUserContext userContext,
+        IConfigurationProvider configurationProvider)
     {
         _userAccountRepository = userAccountRepository;
         _userContext = userContext;
+        _configurationProvider = configurationProvider;
     }
 
     [AuditTrail]
@@ -32,6 +38,13 @@ public sealed class EnrollUserAccountMfaCommandHandler : ICommandHandler<EnrollU
         if (userAccount is null)
         {
             return Result<EnrollUserAccountMfaResponse>.Failure("User account was not found.");
+        }
+
+        var tenantConfig = _configurationProvider.ForTenant(userAccount.TenantId.GetValue());
+        if (!tenantConfig.MfaAllowedMethods.Any(allowed => allowed.Name.Equals(method.Name, StringComparison.OrdinalIgnoreCase)))
+        {
+            return Result<EnrollUserAccountMfaResponse>.Failure(
+                $"MFA method '{method.Name}' is not enabled for this tenant.");
         }
 
         var result = userAccount.EnrollMfa(method, ActorId.Create(_userContext.UserId));

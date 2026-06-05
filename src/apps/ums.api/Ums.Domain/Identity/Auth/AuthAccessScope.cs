@@ -22,4 +22,11 @@ public enum AuthAccessScope
     /// Uses IDP when AUTH_USE_EXTERNAL_IDP = true for the tenant.
     /// </summary>
     ExternalApi,
+
+    /// <summary>
+    /// Internal administrative preview of the effective auth graph.
+    /// Resolves the tenant's configured mode, but does not require an active
+    /// Identity Provider to render the preview payload.
+    /// </summary>
+    InternalPreview,
 }

@@ -153,8 +153,8 @@ Function GetEffectiveValue(tenantId, parameterCode):
 | REFRESH_TOKEN_DURATION_MS | Refresh Token Duration | Number | 604800000 | GlobalOnly | Refresh token lifetime in ms (7 days) |
 | MIN_PASSWORD_LENGTH | Min Password Length | Number | 12 | GlobalAndTenant | Minimum required password length |
 | MAX_PASSWORD_AGE_DAYS | Max Password Age | Number | 90 | GlobalAndTenant | Maximum days before password expires |
-| MFA_REQUIRED_FOR_ADMIN | MFA Required for Admin | Boolean | false | GlobalAndTenant | Require MFA for admin users |
-| MFA_REQUIRED_FOR_ALL | MFA Required for All | Boolean | false | GlobalAndTenant | Require MFA for all users |
+| MFA_REQUIRED_FOR_ADMIN | MFA Required for Admin | Boolean | false | GlobalAndTenant | Tenant-scoped toggle that requires verified MFA at login when enabled |
+| MFA_ALLOWED_METHODS | MFA Allowed Methods | String | Totp,WebAuthn,SmsOtp,EmailOtp | GlobalAndTenant | Comma-separated list of enabled MFA methods for the tenant |
 | UI_CUSTOM_BRANDING_ENABLED | Custom Branding Enabled | Boolean | false | GlobalAndTenant | Enable custom tenant branding |
 | UI_THEME | UI Theme | String | light | GlobalAndTenant | UI theme preference |
 | MAX_VALIDITY_PERIOD_DAYS | Max Validity Period Days | Number | 365 | GlobalAndTenant | Maximum user account validity period |

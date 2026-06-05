@@ -47,6 +47,8 @@ public class AuthorizationGraphBuilderServiceTests
                        .Returns<string, Guid?, int>((_, __, def) => def);
         _configProvider.Setup(c => c.GetValueAs<bool>(It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<bool>()))
                        .Returns<string, Guid?, bool>((_, __, def) => def);
+        _configProvider.Setup(c => c.GetValue(It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string?>()))
+                       .Returns((string _, Guid? __, string? defaultValue) => defaultValue ?? string.Empty);
 
         _flagRepo.Setup(r => r.GetBySystemSuiteIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
                  .ReturnsAsync(new List<FeatureFlagAggregate>());
@@ -186,6 +188,66 @@ public class AuthorizationGraphBuilderServiceTests
     }
 
     [Fact]
+    public async Task BuildForProfileAsync_WhenProfileIsInactive_ReturnsFailure()
+    {
+        SetupValidTenant();
+        var profile = MakeProfile();
+        profile.Deactivate(ActorId.Create("test"));
+        _profileRepo.Setup(r => r.GetByIdAsync(profile.GetId().GetValue(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(profile);
+
+        var result = await CreateSut().BuildForProfileAsync(
+            MakeUser(),
+            TenantGuid,
+            profile.GetId().GetValue(),
+            AuthMethod.Local());
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("inactive", result.Error, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task BuildForProfileAsync_UsesRequestedProfile()
+    {
+        SetupValidTenant();
+
+        var suiteId = Guid.NewGuid();
+        var requestedRoleId = Guid.NewGuid();
+        var requestedProfile = ProfileAggregate.Create(
+            TenantId.Load(TenantGuid), UserId.Load(UserGuid),
+            RoleId.Load(requestedRoleId), null, ActorId.Create("test")).Value;
+        requestedProfile.DomainEvents.MarkChangesAsCommitted();
+
+        _profileRepo.Setup(r => r.GetByIdAsync(requestedProfile.GetId().GetValue(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(requestedProfile);
+
+        var role = RoleAggregate.Create(
+            TenantId.Load(TenantGuid),
+            SystemSuiteId.Load(suiteId),
+            Code.Create("ADMIN"),
+            Name.Create("Administrator"),
+            Description.Create(""),
+            null, 0, 1,
+            ActorId.Create("test")).Value;
+        role.DomainEvents.MarkChangesAsCommitted();
+        _roleRepo.Setup(r => r.GetByIdAsync(requestedRoleId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(role);
+
+        var suite = BuildMinimalSuite(suiteId);
+        _suiteRepo.Setup(r => r.GetByIdAsync(suiteId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(suite);
+
+        var result = await CreateSut().BuildForProfileAsync(
+            MakeUser(),
+            TenantGuid,
+            requestedProfile.GetId().GetValue(),
+            AuthMethod.Local());
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(requestedProfile.GetId().GetValue(), result.Value.Context.Profile.Id);
+    }
+
+    [Fact]
     public async Task BuildAsync_OrgWide_NoBranchInContext()
     {
         SetupFullChain();
@@ -207,7 +269,9 @@ public class AuthorizationGraphBuilderServiceTests
             Email.Create("user@test.com"),
             Ums.Domain.Enums.UserCategory.Internal,
             null, null,
-            actor).Value;
+            actor,
+            null,
+            UserAccountId.Load(UserGuid)).Value;
         user.DomainEvents.MarkChangesAsCommitted();
         return user;
     }

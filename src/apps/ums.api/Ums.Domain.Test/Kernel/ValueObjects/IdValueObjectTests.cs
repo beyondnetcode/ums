@@ -499,35 +499,6 @@ public class IdValueObjectTests
 
     #endregion
 
-    #region RoleMaturityStatusId
-
-    [Fact]
-    public void RoleMaturityStatusId_Create_GeneratesNewGuid()
-    {
-        var id1 = RoleMaturityStatusId.Create();
-        var id2 = RoleMaturityStatusId.Create();
-
-        Assert.NotEqual(id1, id2);
-    }
-
-    [Fact]
-    public void RoleMaturityStatusId_Load_FromGuid_ReturnsSameGuid()
-    {
-        var id = RoleMaturityStatusId.Load(TestGuid);
-
-        Assert.Equal(TestGuid, id.GetValue());
-    }
-
-    [Fact]
-    public void RoleMaturityStatusId_Load_FromString_ReturnsParsedGuid()
-    {
-        var id = RoleMaturityStatusId.Load("12345678-1234-1234-1234-123456789abc");
-
-        Assert.Equal(TestGuid, id.GetValue());
-    }
-
-    #endregion
-
     #region UserDocumentId
 
     [Fact]
@@ -667,35 +638,6 @@ public class IdValueObjectTests
     public void TemplateId_Load_FromString_ReturnsParsedGuid()
     {
         var id = TemplateId.Load("12345678-1234-1234-1234-123456789abc");
-
-        Assert.Equal(TestGuid, id.GetValue());
-    }
-
-    #endregion
-
-    #region PromotionRequestId
-
-    [Fact]
-    public void PromotionRequestId_Create_GeneratesNewGuid()
-    {
-        var id1 = PromotionRequestId.Create();
-        var id2 = PromotionRequestId.Create();
-
-        Assert.NotEqual(id1, id2);
-    }
-
-    [Fact]
-    public void PromotionRequestId_Load_FromGuid_ReturnsSameGuid()
-    {
-        var id = PromotionRequestId.Load(TestGuid);
-
-        Assert.Equal(TestGuid, id.GetValue());
-    }
-
-    [Fact]
-    public void PromotionRequestId_Load_FromString_ReturnsParsedGuid()
-    {
-        var id = PromotionRequestId.Load("12345678-1234-1234-1234-123456789abc");
 
         Assert.Equal(TestGuid, id.GetValue());
     }

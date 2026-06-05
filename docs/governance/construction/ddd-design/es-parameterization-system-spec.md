@@ -196,7 +196,7 @@ function getWithPrecedence(key: string, tenantId?: Guid): AppConfiguration | und
 | REFRESH_TOKEN_DURATION_MS | int | 604800000 | Vida útil del token refresh (7 días) |
 | MIN_PASSWORD_LENGTH | int | 12 | Longitud mínima de password |
 | MAX_VALIDITY_PERIOD_DAYS | int | 365 | Período de validez de cuenta |
-| MFA_REQUIRED_FOR_ADMIN | bool | false | Requerir MFA para admins |
+| MFA_REQUIRED_FOR_ADMIN | bool | false | Interruptor por tenant que exige MFA verificado al iniciar sesion cuando esta habilitado |
 | PASSWORD_HISTORY_COUNT | int | 5 | Tamaño del historial de passwords |
 | UI_LANGUAGE_DEFAULT | string | "es" | Idioma por defecto de la UI |
 | UI_TIMEZONE_DEFAULT | string | "America/Lima" | Zona horaria por defecto |
@@ -205,11 +205,13 @@ function getWithPrecedence(key: string, tenantId?: Guid): AppConfiguration | und
 
 | Code | Tipo | Descripción |
 |------|------|-------------|
-| MFA_ALLOWED_METHODS | string[] | Métodos MFA permitidos (SMS, TOTP, Email) |
+| MFA_ALLOWED_METHODS | string[] | Métodos MFA permitidos (SMS, TOTP, Email, WebAuthn) |
 | PASSWORD_MAX_AGE_DAYS | int | Edad máxima de password (sobreescribe global si está establecido) |
 | ACCOUNT_LOCKOUT_DURATION_MINUTES | int | Duración del bloqueo de cuenta |
 | UI_CUSTOM_BRANDING_ENABLED | bool | Habilitar branding personalizado |
-| SESSION_MAX_CONCURRENT | int | Máximas sesiones concurrentes por usuario | ---
+| SESSION_MAX_CONCURRENT | int | Máximas sesiones concurrentes por usuario |
+
+Las respuestas de login y el grafo efectivo de autenticacion deben resolver estos valores por tenant para que el portal aplique la misma politica MFA sin asumir que es global.
 
 ## 7. Registro de Auditoría
 

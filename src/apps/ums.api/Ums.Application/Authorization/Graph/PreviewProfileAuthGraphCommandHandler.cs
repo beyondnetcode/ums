@@ -58,11 +58,14 @@ public sealed class PreviewProfileAuthGraphCommandHandler(
                 "User account not found for this profile.");
 
         // ── 4. Resolve tenant's configured auth method (for graph context node)
-        // Preview bypasses credential validation but keeps the method context so
-        // the graph's Authentication node reflects the real configuration.
+        // Preview bypasses credential validation but keeps the tenant auth mode
+        // so the graph's Authentication node reflects the real configuration.
+        // Unlike public external auth, internal preview must still render even
+        // when the tenant is configured for IDP but an active provider has not
+        // been activated yet.
         var methodResult = await methodResolver.ResolveAsync(
             tenantId,
-            AuthAccessScope.ExternalApi,   // same scope as external clients
+            AuthAccessScope.InternalPreview,
             cancellationToken);
 
         if (methodResult.IsFailure)
@@ -72,9 +75,9 @@ public sealed class PreviewProfileAuthGraphCommandHandler(
 
         var authMethod = methodResult.Value;
 
-        // ── 5. Build graph — same service as POST /client/authenticate ─────────
-        var graphResult = await graphBuilder.BuildAsync(
-            user, tenantId, authMethod, cancellationToken);
+        // ── 5. Build graph for the exact requested profile ────────────────────
+        var graphResult = await graphBuilder.BuildForProfileAsync(
+            user, tenantId, command.ProfileId, authMethod, cancellationToken);
 
         if (graphResult.IsFailure)
         {

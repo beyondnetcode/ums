@@ -55,7 +55,7 @@ describe('featureFlagService', () => {
     it('passes custom params to REST query', async () => {
       vi.mocked(httpClientModule.httpClient.get).mockResolvedValue({
         data: {
-          items: [{ featureFlagId: '12345678-1234-1234-1234-123456789012', systemSuiteId: '12345678-1234-1234-1234-123456789012', flagCode: 'FLAG_1', flagType: 'Boolean', flagTargets: 'all', status: 'Active', criteria: [] }],
+          items: [{ featureFlagId: '12345678-1234-1234-1234-123456789012', systemSuiteId: '12345678-1234-1234-1234-123456789012', systemSuiteCode: 'SUITE-01', systemSuiteName: 'Suite Alpha', flagCode: 'FLAG_1', flagType: 'Boolean', flagTargets: 'all', status: 'Active', criteria: [] }],
           page: 2,
           pageSize: 10,
           totalItems: 1,
@@ -86,6 +86,8 @@ describe('featureFlagService', () => {
         data: {
           featureFlagId: '12345678-1234-1234-1234-123456789012',
           systemSuiteId: '12345678-1234-1234-1234-123456789012',
+          systemSuiteCode: 'SUITE-01',
+          systemSuiteName: 'Suite Alpha',
           flagCode: 'FLAG_1',
           flagType: 'Boolean',
           flagTargets: 'all',
@@ -110,7 +112,7 @@ describe('featureFlagService', () => {
 
   describe('getFeatureFlagsBySystemSuite', () => {
     it('calls REST endpoint and returns flags', async () => {
-      const mockFlags = [{ featureFlagId: '12345678-1234-1234-1234-123456789012', systemSuiteId: '12345678-1234-1234-1234-123456789012', flagCode: 'FLAG_1', flagType: 'Boolean', flagTargets: 'all', status: 'Active', criteria: [] }];
+      const mockFlags = [{ featureFlagId: '12345678-1234-1234-1234-123456789012', systemSuiteId: '12345678-1234-1234-1234-123456789012', systemSuiteCode: 'SUITE-01', systemSuiteName: 'Suite Alpha', flagCode: 'FLAG_1', flagType: 'Boolean', flagTargets: 'all', status: 'Active', criteria: [] }];
       vi.mocked(httpClientModule.httpClient.get).mockResolvedValue({ data: mockFlags });
 
       const result = await featureFlagService.getFeatureFlagsBySystemSuite('suite-1');

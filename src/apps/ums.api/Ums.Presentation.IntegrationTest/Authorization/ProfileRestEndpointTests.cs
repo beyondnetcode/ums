@@ -5,10 +5,12 @@ namespace Ums.Presentation.IntegrationTest.Authorization;
 
 public sealed class ProfileRestEndpointTests : IClassFixture<UmsApiWebApplicationFactory>
 {
+    private readonly UmsApiWebApplicationFactory _factory;
     private readonly HttpClient _client;
 
     public ProfileRestEndpointTests(UmsApiWebApplicationFactory factory)
     {
+        _factory = factory;
         _client = factory.CreateClient(new WebApplicationFactoryClientOptions
         {
             BaseAddress = new Uri("https://localhost"),
@@ -23,6 +25,7 @@ public sealed class ProfileRestEndpointTests : IClassFixture<UmsApiWebApplicatio
     public async Task CreateProfile_Deactivate_Activate_ShouldSucceed()
     {
         var tenantId = Guid.Parse(CoreDevDataSeeder.InternalAdminTenantId);
+        var userId = await CreateUserAsync(tenantId, TestContext.Current.CancellationToken);
         var systemSuiteId = await GetManagementSystemSuiteIdAsync(tenantId, TestContext.Current.CancellationToken);
         var roleId = await CreateRoleAsync(systemSuiteId, TestContext.Current.CancellationToken);
         var branchId = await CreateBranchAsync(tenantId, TestContext.Current.CancellationToken);
@@ -30,7 +33,7 @@ public sealed class ProfileRestEndpointTests : IClassFixture<UmsApiWebApplicatio
         var createResponse = await _client.PostAsJsonAsync("/api/v1/profiles", new
         {
             tenantId,
-            userId = Guid.NewGuid(),
+            userId,
             roleId,
             branchId,
         }, TestContext.Current.CancellationToken);
@@ -75,6 +78,7 @@ public sealed class ProfileRestEndpointTests : IClassFixture<UmsApiWebApplicatio
     public async Task GetAuthGraphPreview_WithValidProfile_ShouldReturn200WithPreviewPayload()
     {
         var tenantId = Guid.Parse(CoreDevDataSeeder.InternalAdminTenantId);
+        var userId = await CreateUserAsync(tenantId, TestContext.Current.CancellationToken);
         var systemSuiteId = await GetManagementSystemSuiteIdAsync(tenantId, TestContext.Current.CancellationToken);
         var roleId = await CreateRoleAsync(systemSuiteId, TestContext.Current.CancellationToken);
         var branchId = await CreateBranchAsync(tenantId, TestContext.Current.CancellationToken);
@@ -82,7 +86,7 @@ public sealed class ProfileRestEndpointTests : IClassFixture<UmsApiWebApplicatio
         var createResponse = await _client.PostAsJsonAsync("/api/v1/profiles", new
         {
             tenantId,
-            userId = Guid.NewGuid(),
+            userId,
             roleId,
             branchId,
         }, TestContext.Current.CancellationToken);
@@ -100,7 +104,7 @@ public sealed class ProfileRestEndpointTests : IClassFixture<UmsApiWebApplicatio
 
         previewResponse.Headers.Should().ContainKey("X-Preview-Mode");
         previewResponse.Headers.GetValues("X-Preview-Mode").Should().ContainSingle("internal-preview");
-        previewResponse.Headers.Should().ContainKey("X-Request-Id");
+        previewResponse.Headers.Contains("X-Request-Id").Should().BeTrue();
 
         using var payload = JsonDocument.Parse(await previewResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
         payload.RootElement.GetProperty("previewMode").GetString().Should().Be("internal-preview");
@@ -127,10 +131,12 @@ public sealed class ProfileRestEndpointTests : IClassFixture<UmsApiWebApplicatio
     [Fact]
     public async Task GetAuthGraphPreview_WithoutAuthentication_ShouldReturn401()
     {
-        var unauthClient = new HttpClient
+        var unauthClient = _factory.CreateClient(new WebApplicationFactoryClientOptions
         {
             BaseAddress = new Uri("https://localhost"),
-        };
+            AllowAutoRedirect = false,
+        });
+        unauthClient.DefaultRequestHeaders.Add("X-Disable-Dev-Auth", "true");
 
         var response = await unauthClient.GetAsync(
             $"/api/v1/profiles/{Guid.NewGuid()}/auth-graph/preview",
@@ -191,5 +197,29 @@ public sealed class ProfileRestEndpointTests : IClassFixture<UmsApiWebApplicatio
 
         using var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
         return payload.RootElement.GetProperty("branchId").GetGuid();
+    }
+
+    private async Task<Guid> CreateUserAsync(Guid tenantId, CancellationToken ct)
+    {
+        var email = $"preview.user.{Guid.NewGuid():N}@ums.local";
+        var response = await _client.PostAsJsonAsync("/api/v1/user-accounts", new
+        {
+            tenantId,
+            branchId = (Guid?)null,
+            email,
+            category = "Internal",
+            identityReference = $"EMP-{Guid.NewGuid():N}"[..10],
+            identityReferenceType = "HrId",
+        }, ct);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
+
+        using var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
+        var userId = payload.RootElement.GetProperty("userAccountId").GetGuid();
+
+        var activateResponse = await _client.PostAsync($"/api/v1/user-accounts/{userId}/activate", null, ct);
+        activateResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        return userId;
     }
 }

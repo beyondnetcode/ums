@@ -1,5 +1,6 @@
 using Ums.Application.Common.Interfaces;
 using Ums.Application.Configuration.FeatureFlag.DTOs;
+using Ums.Domain.Authorization;
 using Ums.Domain.Configuration;
 using static Ums.Application.Common.QueryRequestNormalizer;
 
@@ -8,11 +9,16 @@ namespace Ums.Application.Configuration.FeatureFlag.Queries;
 public sealed class GetAllFeatureFlagsQueryHandler : IQueryHandler<GetAllFeatureFlagsQuery, PagedResult<FeatureFlagDto>>
 {
     private readonly IFeatureFlagRepository _repository;
+    private readonly ISystemSuiteRepository _systemSuiteRepository;
     private readonly ITenantContext? _tenantContext;
 
-    public GetAllFeatureFlagsQueryHandler(IFeatureFlagRepository repository, ITenantContext? tenantContext = null)
+    public GetAllFeatureFlagsQueryHandler(
+        IFeatureFlagRepository repository,
+        ISystemSuiteRepository systemSuiteRepository,
+        ITenantContext? tenantContext = null)
     {
         _repository = repository;
+        _systemSuiteRepository = systemSuiteRepository;
         _tenantContext = tenantContext;
     }
 
@@ -34,10 +40,25 @@ public sealed class GetAllFeatureFlagsQueryHandler : IQueryHandler<GetAllFeature
             ? (Guid?)null
             : _tenantContext?.OrganizationId;
 
-        var query = (await _repository.GetAllAsync(effectiveTenantId, cancellationToken))
-            .Select(flag => new FeatureFlagDto(
+        var flags = await _repository.GetAllAsync(effectiveTenantId, cancellationToken);
+        var suites = await _systemSuiteRepository.GetAllAsync(effectiveTenantId, cancellationToken);
+        var suiteLookup = suites.ToDictionary(
+            suite => suite.Props.Id.GetValue(),
+            suite => new
+            {
+                Code = suite.Props.Code.GetValue(),
+                Name = suite.Props.Name.GetValue(),
+            });
+
+        var query = flags.Select(flag =>
+        {
+            suiteLookup.TryGetValue(flag.Props.SystemSuiteId.GetValue(), out var suite);
+
+            return new FeatureFlagDto(
                 flag.Props.Id.GetValue(),
                 flag.Props.SystemSuiteId.GetValue(),
+                suite?.Code ?? string.Empty,
+                suite?.Name ?? string.Empty,
                 flag.Props.FlagCode,
                 flag.Props.FlagType.Name,
                 flag.Props.FlagTargets,
@@ -50,7 +71,8 @@ public sealed class GetAllFeatureFlagsQueryHandler : IQueryHandler<GetAllFeature
                     c.CriteriaType,
                     c.Operator,
                     c.Value,
-                    c.CreatedAtUtc)).ToList()));
+                    c.CreatedAtUtc)).ToList());
+        });
 
         if (!string.IsNullOrWhiteSpace(search))
         {

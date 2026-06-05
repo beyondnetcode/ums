@@ -123,6 +123,10 @@ public static class AuthorizationDevDataSeeder
                     foreach (var profile in profiles) await profileRepository.AddAsync(profile, cancellationToken);
                     await profileRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
                 }
+                else if (tenantId.GetValue() == Guid.Parse(CoreDevDataSeeder.InternalAdminTenantId))
+                {
+                    await EnsureInternalAdminProfileAsync(profileRepository, cancellationToken);
+                }
             }
         }
     }
@@ -713,6 +717,33 @@ public static class AuthorizationDevDataSeeder
         AddProfile(UserGuid(3), reporterRole, reporterTpl);
 
         return profiles;
+    }
+
+    private static async Task EnsureInternalAdminProfileAsync(
+        IProfileRepository profileRepository,
+        CancellationToken cancellationToken)
+    {
+        var expectedProfileId = Guid.Parse(CoreDevDataSeeder.GlobalAdminProfileId);
+        var expectedUserId = Guid.Parse(CoreDevDataSeeder.SuperAdminUserId);
+
+        var profile = await profileRepository.GetByIdAsync(expectedProfileId, cancellationToken);
+        if (profile is null)
+        {
+            return;
+        }
+
+        if (profile.UserId.GetValue() == expectedUserId)
+        {
+            return;
+        }
+
+        var propsField = typeof(ProfileAggregate).GetField("_props", PrivateInstanceFlags);
+        var props = propsField?.GetValue(profile) as ProfileProps;
+        var userIdProperty = typeof(ProfileProps).GetProperty("UserId", PrivateInstanceFlags);
+        userIdProperty?.SetValue(props, UserId.Load(expectedUserId));
+
+        await profileRepository.UpdateAsync(profile, cancellationToken);
+        await profileRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
     }
 
     private static async Task EnsureDomainResourcesAsync(

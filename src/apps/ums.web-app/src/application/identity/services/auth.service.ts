@@ -26,6 +26,7 @@ export interface AuthSessionParameters {
   maxLoginAttempts: number;
   minPasswordLength: number;
   mfaRequiredForAdmin: boolean;
+  mfaAllowedMethods: string[];
   customBrandingEnabled: boolean;
   defaultLanguage: string;
   defaultTimezone: string;

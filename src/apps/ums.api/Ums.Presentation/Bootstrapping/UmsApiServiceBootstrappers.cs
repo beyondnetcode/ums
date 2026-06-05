@@ -56,10 +56,6 @@ using Ums.Presentation.Endpoints.Identity.UserAccount.Queries;
 using Ums.Presentation.Endpoints.Identity.UserManagementDelegation;
 using Ums.Presentation.Endpoints.Identity.UserManagementDelegation.Queries;
 using Ums.Presentation.Endpoints.Identity.Onboarding;
-using Ums.Presentation.Endpoints.IGA.PromotionRequest;
-using Ums.Presentation.Endpoints.IGA.PromotionRequest.Queries;
-using Ums.Presentation.Endpoints.IGA.RoleMaturityStatus;
-using Ums.Presentation.Endpoints.IGA.RoleMaturityStatus.Queries;
 using Ums.Presentation.GraphQL;
 using Ums.Presentation.Middleware;
 using Ums.Presentation.Bootstrapping.Bootstrappers;
@@ -426,8 +422,7 @@ public static class UmsApiApplicationBuilderExtensions
             .MapAuthorizationCommandEndpoints()
             .MapAuditCommandEndpoints()
             .MapApprovalsCommandEndpoints()
-            .MapConfigurationCommandEndpoints()
-            .MapIgaCommandEndpoints();
+            .MapConfigurationCommandEndpoints();
 
         return versionedGroup;
     }
@@ -439,8 +434,7 @@ public static class UmsApiApplicationBuilderExtensions
             .MapAuthorizationQueryEndpoints()
             .MapAuditQueryEndpoints()
             .MapApprovalsQueryEndpoints()
-            .MapConfigurationQueryEndpoints()
-            .MapIgaQueryEndpoints();
+            .MapConfigurationQueryEndpoints();
 
         return versionedGroup;
     }
@@ -546,21 +540,6 @@ public static class UmsApiApplicationBuilderExtensions
         return versionedGroup;
     }
 
-    internal static RouteGroupBuilder MapIgaCommandEndpoints(this RouteGroupBuilder versionedGroup)
-    {
-        versionedGroup.MapPromotionRequestEndpoints();
-        versionedGroup.MapRoleMaturityStatusEndpoints();
-
-        return versionedGroup;
-    }
-
-    internal static RouteGroupBuilder MapIgaQueryEndpoints(this RouteGroupBuilder versionedGroup)
-    {
-        versionedGroup.MapPromotionRequestQueryEndpoints();
-        versionedGroup.MapRoleMaturityStatusQueryEndpoints();
-
-        return versionedGroup;
-    }
 }
 
 internal sealed class UmsApiDocumentationBootstrapper : IBootstrapper<IServiceCollection>

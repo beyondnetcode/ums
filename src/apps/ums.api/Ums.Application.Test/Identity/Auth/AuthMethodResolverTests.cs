@@ -93,6 +93,20 @@ public class AuthMethodResolverTests
     }
 
     [Fact]
+    public async Task ResolveAsync_InternalPreview_WhenIdpConfigButNoActiveIdp_ReturnsIdpWithoutProvider()
+    {
+        SetupAuthUseExternalIdp(true);
+        _tenantRepo.Setup(r => r.GetByIdAsync(_tenantId, It.IsAny<CancellationToken>()))
+                   .ReturnsAsync(BuildTenantWithNoActiveIdp());
+
+        var result = await CreateSut().ResolveAsync(_tenantId, AuthAccessScope.InternalPreview);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(AuthMethodType.IDP, result.Value.Type);
+        Assert.Null(result.Value.Provider);
+    }
+
+    [Fact]
     public async Task ResolveAsync_UsesConfigProvider_NotHardcoded()
     {
         // The key invariant: the resolver delegates to config, not hardcoded logic.

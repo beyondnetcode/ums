@@ -1,7 +1,9 @@
 namespace Ums.Application.Test.Identity.UserAccount;
 
 using Ums.Application.Common.Interfaces;
+using Ums.Application.Configuration.Services;
 using Ums.Application.Identity.UserAccount.Commands;
+using Ums.Domain.Configuration.AppConfiguration;
 using Ums.Domain.Identity;
 using Ums.Domain.Identity.UserAccount;
 using Ums.Domain.Kernel;
@@ -21,6 +23,7 @@ public class UserAccountPasswordMfaCommandHandlerTests
     private readonly Mock<IPasswordHashingService> _passwordHashing = new();
     private readonly Mock<ITenantScopePolicy> _tenantScopePolicy = new();
     private readonly Mock<IUserManagementDelegationAccessService> _delegationAccess = new();
+    private readonly Mock<IConfigurationProvider> _configurationProvider = new();
 
     public UserAccountPasswordMfaCommandHandlerTests()
     {
@@ -32,7 +35,12 @@ public class UserAccountPasswordMfaCommandHandlerTests
             .ReturnsAsync(Result.Success());
         _delegationAccess.Setup(s => s.EnsureCanExecuteAsync(It.IsAny<Guid>(), It.IsAny<Ums.Domain.Identity.UserManagementDelegation.DelegatedAction>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Failure("delegated access required"));
+        _configurationProvider.Setup(c => c.GetValue(It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string?>()))
+            .Returns((string _, Guid? __, string? defaultValue) => defaultValue ?? string.Empty);
     }
+
+    private EnrollUserAccountMfaCommandHandler CreateEnrollHandler()
+        => new(_repo.Object, _ctx.Object, _configurationProvider.Object);
 
     private static UserAccount MakeUserAccount()
     {
@@ -390,7 +398,7 @@ public class UserAccountPasswordMfaCommandHandlerTests
              .ReturnsAsync(user);
 
         var cmd = new EnrollUserAccountMfaCommand(user.GetId().GetValue(), "Totp");
-        var handler = new EnrollUserAccountMfaCommandHandler(_repo.Object, _ctx.Object);
+        var handler = CreateEnrollHandler();
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -408,7 +416,7 @@ public class UserAccountPasswordMfaCommandHandlerTests
              .ReturnsAsync((UserAccount?)null);
 
         var cmd = new EnrollUserAccountMfaCommand(Guid.NewGuid(), "Totp");
-        var handler = new EnrollUserAccountMfaCommandHandler(_repo.Object, _ctx.Object);
+        var handler = CreateEnrollHandler();
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -421,7 +429,7 @@ public class UserAccountPasswordMfaCommandHandlerTests
         _ctx.Setup(u => u.UserId).Returns("");
 
         var cmd = new EnrollUserAccountMfaCommand(Guid.NewGuid(), "Totp");
-        var handler = new EnrollUserAccountMfaCommandHandler(_repo.Object, _ctx.Object);
+        var handler = CreateEnrollHandler();
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -436,7 +444,7 @@ public class UserAccountPasswordMfaCommandHandlerTests
              .ReturnsAsync(user);
 
         var cmd = new EnrollUserAccountMfaCommand(user.GetId().GetValue(), "InvalidMethod");
-        var handler = new EnrollUserAccountMfaCommandHandler(_repo.Object, _ctx.Object);
+        var handler = CreateEnrollHandler();
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -453,10 +461,27 @@ public class UserAccountPasswordMfaCommandHandlerTests
              .ReturnsAsync(user);
 
         var cmd = new EnrollUserAccountMfaCommand(user.GetId().GetValue(), "Totp");
-        var handler = new EnrollUserAccountMfaCommandHandler(_repo.Object, _ctx.Object);
+        var handler = CreateEnrollHandler();
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);
+    }
+
+    [Fact]
+    public async Task EnrollMfa_WhenMethodDisabledForTenant_ReturnsFailure()
+    {
+        var user = MakeUserAccount();
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync(user);
+        _configurationProvider.Setup(c => c.GetValue(AppConfigurationCodes.MfaAllowedMethods, It.IsAny<Guid?>(), AppConfigurationDefaults.MfaAllowedMethods))
+            .Returns("Totp");
+
+        var cmd = new EnrollUserAccountMfaCommand(user.GetId().GetValue(), "EmailOtp");
+        var handler = CreateEnrollHandler();
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("not enabled for this tenant", result.Error, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
@@ -468,7 +493,7 @@ public class UserAccountPasswordMfaCommandHandlerTests
              .ReturnsAsync(user);
 
         var cmd = new EnrollUserAccountMfaCommand(user.GetId().GetValue(), "Totp");
-        var handler = new EnrollUserAccountMfaCommandHandler(_repo.Object, _ctx.Object);
+        var handler = CreateEnrollHandler();
         var result = await handler.Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsFailure);

@@ -6,6 +6,7 @@ using Ums.Domain.Authorization.Profile;
 using Ums.Domain.Kernel;
 using Ums.Domain.Authorization;
 using Ums.Domain.Enums;
+using Ums.Domain.Identity;
 using Moq;
 using Xunit;
 using System;
@@ -18,6 +19,8 @@ public class ProfileCommandHandlerTests
     private readonly Mock<IProfileRepository> _repo = new();
     private readonly Mock<IPermissionTemplateRepository> _templateRepo = new();
     private readonly Mock<ITemplateAssignmentRuleRepository> _ruleRepo = new();
+    private readonly Mock<IUserAccountRepository> _userAccountRepo = new();
+    private readonly Mock<IRoleRepository> _roleRepo = new();
     private readonly Mock<IUnitOfWork>         _uow  = new();
     private readonly Mock<IUserContext>        _ctx  = new();
     private readonly Mock<ITenantScopePolicy>  _scopePolicy = new();
@@ -39,7 +42,7 @@ public class ProfileCommandHandlerTests
             .ReturnsAsync(NoRules);
 
     private CreateProfileCommandHandler MakeCreateHandler()
-        => new(_repo.Object, _templateRepo.Object, _ruleRepo.Object, _ctx.Object, _scopePolicy.Object);
+        => new(_repo.Object, _templateRepo.Object, _ruleRepo.Object, _userAccountRepo.Object, _roleRepo.Object, _ctx.Object, _scopePolicy.Object);
 
     private static Profile MakeProfile()
     {
@@ -51,6 +54,41 @@ public class ProfileCommandHandlerTests
             ActorId.Create("user-001")).Value;
     }
 
+    private static Ums.Domain.Identity.UserAccount.UserAccount MakeUser(Guid tenantId, Guid userId)
+    {
+        return Ums.Domain.Identity.UserAccount.UserAccount.Create(
+            TenantId.Load(tenantId),
+            Email.Create($"user.{userId:N}@test.local"),
+            UserCategory.Internal,
+            null,
+            null,
+            ActorId.Create("user-001"),
+            null,
+            UserAccountId.Load(userId)).Value;
+    }
+
+    private static Ums.Domain.Authorization.Role.Role MakeRole(Guid tenantId, Guid roleId)
+    {
+        return Ums.Domain.Authorization.Role.Role.Create(
+            TenantId.Load(tenantId),
+            SystemSuiteId.Load(Guid.NewGuid()),
+            Code.Create($"ROLE_{roleId:N}"[..12]),
+            Name.Create("Role"),
+            Description.Create(""),
+            null,
+            0,
+            1,
+            ActorId.Create("user-001")).Value;
+    }
+
+    private void SetupValidProfileReferences(Guid tenantId, Guid userId, Guid roleId)
+    {
+        _userAccountRepo.Setup(r => r.GetByIdAsync(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(MakeUser(tenantId, userId));
+        _roleRepo.Setup(r => r.GetByIdAsync(roleId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(MakeRole(tenantId, roleId));
+    }
+
     // =========================================================================
     #region CreateProfileCommandHandler
     // =========================================================================
@@ -60,11 +98,19 @@ public class ProfileCommandHandlerTests
     {
         _ctx.Setup(u => u.UserId).Returns("user-001");
         SetupNoMatchingRules();
+        var tenantId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var roleId = Guid.NewGuid();
+
+        _userAccountRepo.Setup(r => r.GetByIdAsync(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(MakeUser(tenantId, userId));
+        _roleRepo.Setup(r => r.GetByIdAsync(roleId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(MakeRole(tenantId, roleId));
 
         var cmd = new CreateProfileCommand(
-            TenantId: Guid.NewGuid(),
-            UserId: Guid.NewGuid(),
-            RoleId: Guid.NewGuid(),
+            TenantId: tenantId,
+            UserId: userId,
+            RoleId: roleId,
             BranchId: null);
 
         var handler = MakeCreateHandler();
@@ -115,6 +161,46 @@ public class ProfileCommandHandlerTests
         Assert.True(result.IsFailure);
         Assert.Contains("management owner", result.Error, StringComparison.OrdinalIgnoreCase);
         _repo.Verify(r => r.AddAsync(It.IsAny<Profile>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Create_WhenUserAccountDoesNotExist_ReturnsFailure()
+    {
+        SetupNoMatchingRules();
+        var tenantId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var roleId = Guid.NewGuid();
+
+        _userAccountRepo.Setup(r => r.GetByIdAsync(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Ums.Domain.Identity.UserAccount.UserAccount?)null);
+
+        var cmd = new CreateProfileCommand(tenantId, userId, roleId, null);
+
+        var result = await MakeCreateHandler().Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("User account not found", result.Error, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task Create_WhenRoleDoesNotExist_ReturnsFailure()
+    {
+        SetupNoMatchingRules();
+        var tenantId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var roleId = Guid.NewGuid();
+
+        _userAccountRepo.Setup(r => r.GetByIdAsync(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(MakeUser(tenantId, userId));
+        _roleRepo.Setup(r => r.GetByIdAsync(roleId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Ums.Domain.Authorization.Role.Role?)null);
+
+        var cmd = new CreateProfileCommand(tenantId, userId, roleId, null);
+
+        var result = await MakeCreateHandler().Handle(cmd, CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("Role not found", result.Error, StringComparison.OrdinalIgnoreCase);
     }
 
     #endregion
@@ -266,9 +352,13 @@ public class ProfileCommandHandlerTests
     [Fact]
     public async Task Create_WhenNoMatchingRule_CreatesProfileWithoutTemplate()
     {
+        var tenantId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var roleId = Guid.NewGuid();
         SetupNoMatchingRules();
+        SetupValidProfileReferences(tenantId, userId, roleId);
 
-        var cmd = new CreateProfileCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), null);
+        var cmd = new CreateProfileCommand(tenantId, userId, roleId, null);
         var result = await MakeCreateHandler().Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -279,7 +369,9 @@ public class ProfileCommandHandlerTests
     public async Task Create_WhenMatchingRuleExists_AutoAssignsTemplate()
     {
         var tenantId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
+        SetupValidProfileReferences(tenantId, userId, roleId);
 
         var rule = Ums.Domain.Authorization.AssignmentRule.TemplateAssignmentRule.Create(
             TenantId.Load(tenantId), TemplateId.Load(Guid.NewGuid()),
@@ -299,7 +391,7 @@ public class ProfileCommandHandlerTests
         _templateRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(template);
 
-        var cmd = new CreateProfileCommand(tenantId, Guid.NewGuid(), roleId, null);
+        var cmd = new CreateProfileCommand(tenantId, userId, roleId, null);
         var result = await MakeCreateHandler().Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -310,7 +402,9 @@ public class ProfileCommandHandlerTests
     public async Task Create_WhenMatchingRuleAndTemplate_ProfileReceivesPermissions()
     {
         var tenantId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
+        SetupValidProfileReferences(tenantId, userId, roleId);
 
         var capturedProfile = (Profile?)null;
         _repo.Setup(r => r.UpdateAsync(It.IsAny<Profile>(), It.IsAny<CancellationToken>()))
@@ -333,7 +427,7 @@ public class ProfileCommandHandlerTests
         _templateRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(template);
 
-        var cmd = new CreateProfileCommand(tenantId, Guid.NewGuid(), roleId, null);
+        var cmd = new CreateProfileCommand(tenantId, userId, roleId, null);
         var result = await MakeCreateHandler().Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -345,7 +439,9 @@ public class ProfileCommandHandlerTests
     public async Task Create_WhenMultipleRulesMatch_OnlyQueriesTemplateOnce()
     {
         var tenantId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
+        SetupValidProfileReferences(tenantId, userId, roleId);
 
         var highPriorityRule = Ums.Domain.Authorization.AssignmentRule.TemplateAssignmentRule.Create(
             TenantId.Load(tenantId), TemplateId.Load(Guid.NewGuid()), RoleId.Load(roleId), 100, ActorId.Create("admin")).Value;
@@ -355,7 +451,7 @@ public class ProfileCommandHandlerTests
         _ruleRepo.Setup(r => r.GetActiveByTenantAndRoleAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Ums.Domain.Authorization.AssignmentRule.TemplateAssignmentRule> { highPriorityRule, lowPriorityRule });
 
-        var cmd = new CreateProfileCommand(tenantId, Guid.NewGuid(), roleId, null);
+        var cmd = new CreateProfileCommand(tenantId, userId, roleId, null);
         var result = await MakeCreateHandler().Handle(cmd, CancellationToken.None);
 
         Assert.True(result.IsSuccess);

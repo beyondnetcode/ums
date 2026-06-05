@@ -132,6 +132,7 @@ public sealed class JsonAuthorizationGraphSerializer : IAuthorizationGraphSerial
                 g.EffectiveConfig.MaxLoginAttempts,
                 g.EffectiveConfig.MinPasswordLength,
                 g.EffectiveConfig.MfaRequiredForAdmin,
+                g.EffectiveConfig.MfaAllowedMethods,
                 g.EffectiveConfig.AuthUseExternalIdp,
             },
             scopes     = g.Scopes,

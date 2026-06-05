@@ -9,6 +9,9 @@ Documentation defining the "Why" and "What" of the User Management System (UMS).
 - [Objectives (OKRs)](./objectives.md)
 - [Stakeholders](./stakeholders.md)
 - [UX/UI Design Proposal](./ux-ui-design-proposal.md)
+- [Competitive Matrix](./competitive-matrix.md)
+- [Positioning](./positioning.md)
+- [Innovation Roadmap](./innovation-roadmap.md)
 
 ---
 **[Back to Governance Portal](../index.md)** | **[Back to Master Index](../../MASTER_INDEX.md)**
