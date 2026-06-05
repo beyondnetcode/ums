@@ -30,16 +30,17 @@ export interface SystemSuiteDashboardActions {
   handleCreateSuccess: () => void;
 }
 
-export function useSystemSuiteDashboard(): SystemSuiteDashboardState & SystemSuiteDashboardActions & {
-  knownSystemSuites: SystemSuite[];
-  isLoadingList: boolean;
-  listError: Error | null;
-  activeSystemSuite: SystemSuite | undefined;
-  totalItems: number;
-  totalPages: number;
-  startIndex: number;
-  requiresFilter: boolean;
-} {
+export function useSystemSuiteDashboard(): SystemSuiteDashboardState &
+  SystemSuiteDashboardActions & {
+    knownSystemSuites: SystemSuite[];
+    isLoadingList: boolean;
+    listError: Error | null;
+    activeSystemSuite: SystemSuite | undefined;
+    totalItems: number;
+    totalPages: number;
+    startIndex: number;
+    requiresFilter: boolean;
+  } {
   const [selectedId, setSelectedId] = useState('');
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
   const [pendingNavigationId, setPendingNavigationId] = useState<string | null>(null);
@@ -60,7 +61,11 @@ export function useSystemSuiteDashboard(): SystemSuiteDashboardState & SystemSui
   // System suites are few in number — load automatically without requiring a filter first
   const shouldFetch = true;
 
-  const { data: systemSuitePage, isLoading: isLoadingList, error: listError } = useGetAllSystemSuites(
+  const {
+    data: systemSuitePage,
+    isLoading: isLoadingList,
+    error: listError,
+  } = useGetAllSystemSuites(
     shouldFetch
       ? {
           page: paginationState.page,
@@ -71,15 +76,13 @@ export function useSystemSuiteDashboard(): SystemSuiteDashboardState & SystemSui
           sortBy: queryState.sortBy,
           sortOrder: queryState.sortOrder,
         }
-      : null,
+      : null
   );
 
-  const { items: knownSystemSuites, patchItem: patchLocalSystemSuite } = useLocalOverrides<SystemSuite>(
-    systemSuitePage?.items,
-    'systemSuiteId',
-  );
+  const { items: knownSystemSuites, patchItem: patchLocalSystemSuite } =
+    useLocalOverrides<SystemSuite>(systemSuitePage?.items, 'systemSuiteId');
 
-  const activeSystemSuite = knownSystemSuites.find((s) => s.systemSuiteId === selectedId);
+  const activeSystemSuite = knownSystemSuites.find(s => s.systemSuiteId === selectedId);
 
   const hasPendingChanges = isEditing;
 
@@ -88,15 +91,18 @@ export function useSystemSuiteDashboard(): SystemSuiteDashboardState & SystemSui
     setSelectedId(id);
   }, []);
 
-  const handleSelectSystemSuite = useCallback((id: string) => {
-    if (id === selectedId) return;
-    if (hasPendingChanges) {
-      setPendingNavigationId(id);
-      setShowDiscardDialog(true);
-      return;
-    }
-    applySystemSuiteSelection(id);
-  }, [selectedId, hasPendingChanges, applySystemSuiteSelection]);
+  const handleSelectSystemSuite = useCallback(
+    (id: string) => {
+      if (id === selectedId) return;
+      if (hasPendingChanges) {
+        setPendingNavigationId(id);
+        setShowDiscardDialog(true);
+        return;
+      }
+      applySystemSuiteSelection(id);
+    },
+    [selectedId, hasPendingChanges, applySystemSuiteSelection]
+  );
 
   const confirmDiscard = useCallback(() => {
     if (pendingNavigationId) applySystemSuiteSelection(pendingNavigationId);
@@ -108,12 +114,15 @@ export function useSystemSuiteDashboard(): SystemSuiteDashboardState & SystemSui
     if (!selectedId && knownSystemSuites.length > 0) {
       applySystemSuiteSelection(knownSystemSuites[0].systemSuiteId);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [knownSystemSuites]);
 
-  const patchSystemSuite = useCallback((id: string, patch: Partial<SystemSuite>) => {
-    patchLocalSystemSuite(id, patch);
-  }, [patchLocalSystemSuite]);
+  const patchSystemSuite = useCallback(
+    (id: string, patch: Partial<SystemSuite>) => {
+      patchLocalSystemSuite(id, patch);
+    },
+    [patchLocalSystemSuite]
+  );
 
   const handleCreateSuccess = useCallback(() => {
     paginationState.setPage(1);
@@ -127,12 +136,18 @@ export function useSystemSuiteDashboard(): SystemSuiteDashboardState & SystemSui
   const startIndex = (paginationState.page - 1) * paginationState.pageSize;
 
   return {
-    selectedId, setSelectedId,
-    showDiscardDialog, setShowDiscardDialog,
-    pendingNavigationId, setPendingNavigationId,
-    isEditing, setIsEditing,
-    isCreateOpen, setIsCreateOpen,
-    viewMode, setViewMode,
+    selectedId,
+    setSelectedId,
+    showDiscardDialog,
+    setShowDiscardDialog,
+    pendingNavigationId,
+    setPendingNavigationId,
+    isEditing,
+    setIsEditing,
+    isCreateOpen,
+    setIsCreateOpen,
+    viewMode,
+    setViewMode,
     queryState,
     paginationState,
     handleSelectSystemSuite,

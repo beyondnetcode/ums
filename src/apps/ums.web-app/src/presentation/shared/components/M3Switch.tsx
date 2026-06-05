@@ -46,7 +46,10 @@ export const M3Switch: React.FC<M3SwitchProps> = ({
         />
       </button>
       {label && (
-        <label htmlFor={switchId} className="text-xs font-bold uppercase tracking-wider text-m3-secondary cursor-pointer">
+        <label
+          htmlFor={switchId}
+          className="text-xs font-bold uppercase tracking-wider text-m3-secondary cursor-pointer"
+        >
           {label}
         </label>
       )}

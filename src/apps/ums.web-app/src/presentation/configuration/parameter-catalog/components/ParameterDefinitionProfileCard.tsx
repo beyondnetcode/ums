@@ -5,7 +5,10 @@
 import React from 'react';
 import { Tag, Edit2 } from 'lucide-react';
 import type { ParameterDefinition } from '@domain/configuration/schemas/parameter-catalog/parameter-definition.schema';
-import { DataTypeLabels, ScopeLabels } from '@domain/configuration/schemas/parameter-catalog/parameter-definition.schema';
+import {
+  DataTypeLabels,
+  ScopeLabels,
+} from '@domain/configuration/schemas/parameter-catalog/parameter-definition.schema';
 import { StatusBadge } from '@shared/components/StatusBadge';
 import { CodeBadge } from '@shared/components/CodeBadge';
 import { M3Card } from '@shared/components/M3Card';
@@ -82,23 +85,37 @@ export const ParameterDefinitionProfileCard: React.FC<ParameterDefinitionProfile
 
       <div className="flex items-center gap-3 mt-4 pt-3 border-t border-m3-outline/20 flex-wrap">
         <div className="flex items-center gap-1.5">
-          <span className="text-[10px] font-semibold uppercase tracking-wide text-m3-secondary/60">Type</span>
-          <span className={`text-[11px] font-bold uppercase px-2 py-0.5 rounded ${DATA_TYPE_COLOR[parameter.dataTypeId]}`}>
+          <span className="text-[10px] font-semibold uppercase tracking-wide text-m3-secondary/60">
+            Type
+          </span>
+          <span
+            className={`text-[11px] font-bold uppercase px-2 py-0.5 rounded ${DATA_TYPE_COLOR[parameter.dataTypeId]}`}
+          >
             {DataTypeLabels[parameter.dataTypeId]}
           </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="text-[10px] font-semibold uppercase tracking-wide text-m3-secondary/60">Scope</span>
-          <span className={`text-[11px] font-bold uppercase px-2 py-0.5 rounded ${SCOPE_COLOR[parameter.scopeId]}`}>
+          <span className="text-[10px] font-semibold uppercase tracking-wide text-m3-secondary/60">
+            Scope
+          </span>
+          <span
+            className={`text-[11px] font-bold uppercase px-2 py-0.5 rounded ${SCOPE_COLOR[parameter.scopeId]}`}
+          >
             {ScopeLabels[parameter.scopeId]}
           </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="text-[10px] font-semibold uppercase tracking-wide text-m3-secondary/60">Order</span>
-          <span className="text-[11px] font-medium text-m3-on-surface">{parameter.displayOrder}</span>
+          <span className="text-[10px] font-semibold uppercase tracking-wide text-m3-secondary/60">
+            Order
+          </span>
+          <span className="text-[11px] font-medium text-m3-on-surface">
+            {parameter.displayOrder}
+          </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="text-[10px] font-semibold uppercase tracking-wide text-m3-secondary/60">Version</span>
+          <span className="text-[10px] font-semibold uppercase tracking-wide text-m3-secondary/60">
+            Version
+          </span>
           <span className="text-[11px] font-mono text-m3-on-surface">{parameter.version}</span>
         </div>
       </div>

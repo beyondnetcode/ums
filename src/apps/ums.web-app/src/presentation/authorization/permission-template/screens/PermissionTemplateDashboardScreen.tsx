@@ -22,7 +22,7 @@ export default function PermissionTemplateDashboardScreen(): React.JSX.Element {
       <PermissionTemplateForm
         isOpen={d.isCreateOpen}
         onClose={() => d.setIsCreateOpen(false)}
-        onSuccess={(templateId) => {
+        onSuccess={templateId => {
           d.handleCreateSuccess();
           d.setSelectedId(templateId);
         }}

@@ -45,7 +45,7 @@ describe('ApiErrorBanner', () => {
           super(message);
           this.name = 'GraphQlUnavailableError';
         }
-      },
+      }
     );
 
     const UnavailableError = vi.mocked(graphqlClientModule.GraphQlUnavailableError);
@@ -58,11 +58,14 @@ describe('ApiErrorBanner', () => {
   it('renders validation error message for GraphQlValidationError', () => {
     vi.mocked(graphqlClientModule.GraphQlValidationError).mockImplementation(
       class GraphQlValidationError extends Error {
-        constructor(message: string, public details: string[]) {
+        constructor(
+          message: string,
+          public details: string[]
+        ) {
           super(message);
           this.name = 'GraphQlValidationError';
         }
-      },
+      }
     );
 
     const ValidationError = vi.mocked(graphqlClientModule.GraphQlValidationError);

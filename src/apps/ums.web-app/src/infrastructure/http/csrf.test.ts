@@ -4,7 +4,7 @@ import { getCsrfToken, refreshCsrfToken, CSRF_HEADER_NAME } from './csrf';
 describe('csrf', () => {
   beforeEach(() => {
     document.cookie = '';
-    document.querySelectorAll('meta').forEach((meta) => meta.remove());
+    document.querySelectorAll('meta').forEach(meta => meta.remove());
     refreshCsrfToken();
   });
 

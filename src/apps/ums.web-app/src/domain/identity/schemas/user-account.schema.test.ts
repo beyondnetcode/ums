@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  UserAccountSchema,
-  CreateUserAccountPayloadSchema,
-} from './user-account.schema';
+import { UserAccountSchema, CreateUserAccountPayloadSchema } from './user-account.schema';
 
 describe('UserAccountSchema', () => {
   it('accepts a valid user account payload', () => {

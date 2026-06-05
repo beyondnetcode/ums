@@ -38,6 +38,7 @@ interface TenantListPanelProps {
     totalPages: number;
   };
   onRegisterNew: () => void;
+  onAddDisabled?: boolean;
   onSelectTenant: (tenantId: string) => void;
   criteriaOptions: AtomicQueryCriteriaOption[];
   filterOptions: AtomicFilterOption[];
@@ -55,6 +56,7 @@ export const TenantListPanel: React.FC<TenantListPanelProps> = ({
   queryState,
   paginationState,
   onRegisterNew,
+  onAddDisabled,
   onSelectTenant,
   criteriaOptions,
   filterOptions,
@@ -162,6 +164,7 @@ export const TenantListPanel: React.FC<TenantListPanelProps> = ({
           sortOrder={queryState.sortOrder}
           onSortOrderToggle={queryState.toggleSortOrder}
           onAdd={onRegisterNew}
+          onAddDisabled={onAddDisabled}
         />
       }
       content={

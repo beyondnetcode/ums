@@ -101,8 +101,11 @@ export const graphqlPermissionTemplateQueries = {
   },
 
   getPermissionTemplateById: async (templateId: string) => {
-    return graphqlClient.request<{ permissionTemplateById: unknown }>(GET_PERMISSION_TEMPLATE_BY_ID, {
-      templateId,
-    });
+    return graphqlClient.request<{ permissionTemplateById: unknown }>(
+      GET_PERMISSION_TEMPLATE_BY_ID,
+      {
+        templateId,
+      }
+    );
   },
 };

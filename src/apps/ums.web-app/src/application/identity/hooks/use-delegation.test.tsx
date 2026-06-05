@@ -85,16 +85,22 @@ describe('use-delegation hooks', () => {
 
   it('useGetDelegationsByDelegatedAdmin returns list', async () => {
     const mockDelegations = [
-      { delegationId: '12345678-1234-1234-1234-123456789012', delegatingAdminId: '12345678-1234-1234-1234-123456789012', delegatedAdminId: '12345678-1234-1234-1234-123456789012', scopeType: 'Tenant', status: 'Active', actions: [] },
+      {
+        delegationId: '12345678-1234-1234-1234-123456789012',
+        delegatingAdminId: '12345678-1234-1234-1234-123456789012',
+        delegatedAdminId: '12345678-1234-1234-1234-123456789012',
+        scopeType: 'Tenant',
+        status: 'Active',
+        actions: [],
+      },
     ];
 
     vi.mocked(delegationService.getDelegationsByDelegatedAdmin).mockResolvedValue(mockDelegations);
 
     const wrapper = createWrapper();
-    const { result } = renderHook(
-      () => useGetDelegationsByDelegatedAdmin('admin2', 't1'),
-      { wrapper }
-    );
+    const { result } = renderHook(() => useGetDelegationsByDelegatedAdmin('admin2', 't1'), {
+      wrapper,
+    });
 
     await waitFor(() => {
       expect(result.current.isSuccess).toBe(true);
@@ -106,16 +112,22 @@ describe('use-delegation hooks', () => {
 
   it('useGetDelegationsByDelegatingAdmin returns list', async () => {
     const mockDelegations = [
-      { delegationId: '12345678-1234-1234-1234-123456789012', delegatingAdminId: '12345678-1234-1234-1234-123456789012', delegatedAdminId: '12345678-1234-1234-1234-123456789012', scopeType: 'Tenant', status: 'Active', actions: [] },
+      {
+        delegationId: '12345678-1234-1234-1234-123456789012',
+        delegatingAdminId: '12345678-1234-1234-1234-123456789012',
+        delegatedAdminId: '12345678-1234-1234-1234-123456789012',
+        scopeType: 'Tenant',
+        status: 'Active',
+        actions: [],
+      },
     ];
 
     vi.mocked(delegationService.getDelegationsByDelegatingAdmin).mockResolvedValue(mockDelegations);
 
     const wrapper = createWrapper();
-    const { result } = renderHook(
-      () => useGetDelegationsByDelegatingAdmin('admin1', 't1'),
-      { wrapper }
-    );
+    const { result } = renderHook(() => useGetDelegationsByDelegatingAdmin('admin1', 't1'), {
+      wrapper,
+    });
 
     await waitFor(() => {
       expect(result.current.isSuccess).toBe(true);
@@ -126,13 +138,20 @@ describe('use-delegation hooks', () => {
   });
 
   it('useCreateDelegation calls service successfully', async () => {
-    vi.mocked(delegationService.createDelegation).mockResolvedValue({ delegationId: 'new-delegation-id' });
+    vi.mocked(delegationService.createDelegation).mockResolvedValue({
+      delegationId: 'new-delegation-id',
+    });
 
     const wrapper = createWrapper();
     const { result } = renderHook(() => useCreateDelegation(), { wrapper });
 
     await act(async () => {
-      result.current.mutate({ delegatingAdminId: 'admin1', delegatedAdminId: 'admin2', scopeType: 'Tenant', actions: [] });
+      result.current.mutate({
+        delegatingAdminId: 'admin1',
+        delegatedAdminId: 'admin2',
+        scopeType: 'Tenant',
+        actions: [],
+      });
     });
 
     await waitFor(() => {

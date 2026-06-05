@@ -1,5 +1,19 @@
 import React, { useState, useMemo } from 'react';
-import { Box, Shield, Key, Users, Trash2, Flag, Database, Plus, ChevronsUpDown, ChevronsDownUp, Pencil, Check, X } from 'lucide-react';
+import {
+  Box,
+  Shield,
+  Key,
+  Users,
+  Trash2,
+  Flag,
+  Database,
+  Plus,
+  ChevronsUpDown,
+  ChevronsDownUp,
+  Pencil,
+  Check,
+  X,
+} from 'lucide-react';
 import { SystemSuite } from '@domain/authorization/models/system-suite.model';
 import { SystemSuiteProfileCard } from './SystemSuiteProfileCard';
 import { DetailPanelShell, DetailTab } from '@shared/components/DetailPanelShell';
@@ -234,7 +248,9 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
         {/* ── Overview ── */}
         {activeTab === 'overview' && (
           <div>
-            <h3 className="text-[12px] font-medium text-m3-on-surface mb-2">{t.systemSuiteDetails}</h3>
+            <h3 className="text-[12px] font-medium text-m3-on-surface mb-2">
+              {t.systemSuiteDetails}
+            </h3>
             <dl className="space-y-2 text-[11px]">
               <div className="flex justify-between">
                 <dt className="text-m3-secondary">{t.code}</dt>
@@ -542,7 +558,10 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
                                 onChange={e => setEditingActionName(e.target.value)}
                                 onKeyDown={e => {
                                   if (e.key === 'Enter') {
-                                    renameActionMutation.mutate({ code: action.code, name: editingActionName });
+                                    renameActionMutation.mutate({
+                                      code: action.code,
+                                      name: editingActionName,
+                                    });
                                     setEditingActionCode(null);
                                   }
                                   if (e.key === 'Escape') setEditingActionCode(null);
@@ -550,11 +569,16 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
                                 className="w-full text-[12px] font-medium bg-m3-surface border border-m3-primary/40 rounded px-2 py-0.5 focus:outline-none focus:border-m3-primary"
                               />
                             ) : (
-                              <p className="text-[12px] font-medium text-m3-on-surface truncate" title={action.name}>
+                              <p
+                                className="text-[12px] font-medium text-m3-on-surface truncate"
+                                title={action.name}
+                              >
                                 {action.name}
                               </p>
                             )}
-                            <p className="text-[10px] font-mono text-m3-secondary truncate">{action.code}</p>
+                            <p className="text-[10px] font-mono text-m3-secondary truncate">
+                              {action.code}
+                            </p>
                           </div>
                         </div>
                         <div className="flex items-center gap-0.5 opacity-0 group-hover/action:opacity-100 transition-opacity">
@@ -563,7 +587,10 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
                               <IconButton
                                 tooltip="Guardar"
                                 onClick={() => {
-                                  renameActionMutation.mutate({ code: action.code, name: editingActionName });
+                                  renameActionMutation.mutate({
+                                    code: action.code,
+                                    name: editingActionName,
+                                  });
                                   setEditingActionCode(null);
                                 }}
                                 disabled={renameActionMutation.isPending}
@@ -571,14 +598,20 @@ export const SystemSuiteDetailPanel: React.FC<SystemSuiteDetailPanelProps> = ({
                               >
                                 <Check className="w-3.5 h-3.5" />
                               </IconButton>
-                              <IconButton tooltip="Cancelar" onClick={() => setEditingActionCode(null)}>
+                              <IconButton
+                                tooltip="Cancelar"
+                                onClick={() => setEditingActionCode(null)}
+                              >
                                 <X className="w-3.5 h-3.5" />
                               </IconButton>
                             </>
                           ) : (
                             <IconButton
                               tooltip="Editar nombre"
-                              onClick={() => { setEditingActionCode(action.code); setEditingActionName(action.name); }}
+                              onClick={() => {
+                                setEditingActionCode(action.code);
+                                setEditingActionName(action.name);
+                              }}
                               className="hover:text-m3-primary hover:bg-m3-primary/10"
                             >
                               <Pencil className="w-3.5 h-3.5" />

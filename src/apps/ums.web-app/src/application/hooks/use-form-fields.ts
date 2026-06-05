@@ -13,7 +13,7 @@ export interface UseFormFieldsReturn<T extends Record<string, unknown>> {
 }
 
 export function useFormFields<T extends Record<string, unknown>>(
-  defaults: T,
+  defaults: T
 ): UseFormFieldsReturn<T> {
   const [fields, setFieldsState] = useState<T>(defaults);
   const defaultsRef = useRef(defaults);
@@ -23,11 +23,11 @@ export function useFormFields<T extends Record<string, unknown>>(
   }, [defaults]);
 
   const setField = useCallback(<K extends keyof T>(key: K, value: T[K]) => {
-    setFieldsState((prev) => ({ ...prev, [key]: value }));
+    setFieldsState(prev => ({ ...prev, [key]: value }));
   }, []);
 
   const setFields = useCallback((patch: Partial<T>) => {
-    setFieldsState((prev) => ({ ...prev, ...patch }));
+    setFieldsState(prev => ({ ...prev, ...patch }));
   }, []);
 
   const resetFields = useCallback((values?: T) => {

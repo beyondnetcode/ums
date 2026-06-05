@@ -322,7 +322,9 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ tenantId }) => {
                   }
                 >
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-[11px] text-m3-on-surface flex-1 min-w-0 truncate">{b.name}</span>
+                    <span className="font-semibold text-[11px] text-m3-on-surface flex-1 min-w-0 truncate">
+                      {b.name}
+                    </span>
                     <div className="flex items-center gap-1.5 flex-shrink-0">
                       <CodeBadge code={b.code} size="xs" />
                       <StatusBadge

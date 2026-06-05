@@ -84,7 +84,13 @@ describe('use-system-suite hooks', () => {
   it('useGetAllSystemSuites returns paged list', async () => {
     const mockPage = {
       items: [
-        { systemSuiteId: 's1', code: 'S1', name: 'Suite 1', status: 'Active', createdAt: '2024-01-01' },
+        {
+          systemSuiteId: 's1',
+          code: 'S1',
+          name: 'Suite 1',
+          status: 'Active',
+          createdAt: '2024-01-01',
+        },
       ],
       page: 1,
       pageSize: 20,
@@ -95,10 +101,9 @@ describe('use-system-suite hooks', () => {
     vi.mocked(systemSuiteService.getAll).mockResolvedValue(mockPage);
 
     const wrapper = createWrapper();
-    const { result } = renderHook(
-      () => useGetAllSystemSuites({ page: 1, pageSize: 20 }),
-      { wrapper }
-    );
+    const { result } = renderHook(() => useGetAllSystemSuites({ page: 1, pageSize: 20 }), {
+      wrapper,
+    });
 
     await waitFor(() => {
       expect(result.current.isSuccess).toBe(true);
@@ -146,7 +151,9 @@ describe('use-system-suite hooks', () => {
   });
 
   it('useCreateSystemSuite calls service successfully', async () => {
-    vi.mocked(systemSuiteService.createSystemSuite).mockResolvedValue({ systemSuiteId: 'new-suite-id' });
+    vi.mocked(systemSuiteService.createSystemSuite).mockResolvedValue({
+      systemSuiteId: 'new-suite-id',
+    });
 
     const wrapper = createWrapper();
     const { result } = renderHook(() => useCreateSystemSuite(), { wrapper });
@@ -159,7 +166,10 @@ describe('use-system-suite hooks', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(systemSuiteService.createSystemSuite).toHaveBeenCalledWith({ code: 'NEW', name: 'New Suite' });
+    expect(systemSuiteService.createSystemSuite).toHaveBeenCalledWith({
+      code: 'NEW',
+      name: 'New Suite',
+    });
   });
 
   it('useSetSystemSuiteStatus calls service successfully', async () => {
@@ -295,7 +305,12 @@ describe('use-system-suite hooks', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(systemSuiteService.addSubMenu).toHaveBeenCalledWith('s1', 'mod1', 'menu1', expect.any(Object));
+    expect(systemSuiteService.addSubMenu).toHaveBeenCalledWith(
+      's1',
+      'mod1',
+      'menu1',
+      expect.any(Object)
+    );
   });
 
   it('useRemoveSubMenu calls service successfully', async () => {
@@ -329,14 +344,22 @@ describe('use-system-suite hooks', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(systemSuiteService.addOption).toHaveBeenCalledWith('s1', 'mod1', 'menu1', 'sub1', expect.any(Object));
+    expect(systemSuiteService.addOption).toHaveBeenCalledWith(
+      's1',
+      'mod1',
+      'menu1',
+      'sub1',
+      expect.any(Object)
+    );
   });
 
   it('useRemoveOption calls service successfully', async () => {
     vi.mocked(systemSuiteService.removeOption).mockResolvedValue();
 
     const wrapper = createWrapper();
-    const { result } = renderHook(() => useRemoveOption('s1', 'mod1', 'menu1', 'sub1'), { wrapper });
+    const { result } = renderHook(() => useRemoveOption('s1', 'mod1', 'menu1', 'sub1'), {
+      wrapper,
+    });
 
     await act(async () => {
       result.current.mutate('opt1');
@@ -346,7 +369,13 @@ describe('use-system-suite hooks', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(systemSuiteService.removeOption).toHaveBeenCalledWith('s1', 'mod1', 'menu1', 'sub1', 'opt1');
+    expect(systemSuiteService.removeOption).toHaveBeenCalledWith(
+      's1',
+      'mod1',
+      'menu1',
+      'sub1',
+      'opt1'
+    );
   });
 
   it('useRegisterAction calls service successfully', async () => {
@@ -363,7 +392,10 @@ describe('use-system-suite hooks', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(systemSuiteService.registerAction).toHaveBeenCalledWith('s1', { code: 'ACT1', name: 'Action 1' });
+    expect(systemSuiteService.registerAction).toHaveBeenCalledWith('s1', {
+      code: 'ACT1',
+      name: 'Action 1',
+    });
   });
 
   it('useRemoveAction calls service successfully', async () => {
@@ -390,7 +422,12 @@ describe('use-system-suite hooks', () => {
     const { result } = renderHook(() => useAddDomainResource('s1'), { wrapper });
 
     await act(async () => {
-      result.current.mutate({ type: 'Aggregate', code: 'DR1', name: 'Resource 1', description: 'Test' });
+      result.current.mutate({
+        type: 'Aggregate',
+        code: 'DR1',
+        name: 'Resource 1',
+        description: 'Test',
+      });
     });
 
     await waitFor(() => {

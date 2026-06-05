@@ -11,9 +11,17 @@
  */
 import { z } from 'zod';
 
-const GuidSchema = z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/);
+const GuidSchema = z
+  .string()
+  .regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/);
 
-export const DelegationScopeTypeSchema = z.enum(['Tenant', 'Organization', 'Department', 'System', 'Team']);
+export const DelegationScopeTypeSchema = z.enum([
+  'Tenant',
+  'Organization',
+  'Department',
+  'System',
+  'Team',
+]);
 
 export const DelegationStatusSchema = z.enum([
   'Draft',
@@ -35,37 +43,57 @@ export const DelegatedActionSchema = z.enum([
 ]);
 
 export const DelegationSchema = z.object({
-  delegationId:      GuidSchema,
-  tenantId:          GuidSchema,
+  delegationId: GuidSchema,
+  tenantId: GuidSchema,
   delegatingAdminId: GuidSchema,
-  delegatedAdminId:  GuidSchema,
-  scopeType:         DelegationScopeTypeSchema,
-  scopeId:           GuidSchema.nullable().optional().transform((v) => v ?? null),
-  allowedActions:    z.array(DelegatedActionSchema),
-  validFrom:         z.string(),
-  validUntil:        z.string(),
-  maxDurationDays:   z.number().int().positive().nullable().optional().transform((v) => v ?? null),
-  requiresApproval:  z.boolean(),
-  approvalRequestId: GuidSchema.nullable().optional().transform((v) => v ?? null),
-  status:            DelegationStatusSchema,
-  revokedAt:         z.string().nullable().optional().transform((v) => v ?? null),
-  revokedBy:         GuidSchema.nullable().optional().transform((v) => v ?? null),
-  revocationReason:  z.string().nullable().optional().transform((v) => v ?? null),
+  delegatedAdminId: GuidSchema,
+  scopeType: DelegationScopeTypeSchema,
+  scopeId: GuidSchema.nullable()
+    .optional()
+    .transform(v => v ?? null),
+  allowedActions: z.array(DelegatedActionSchema),
+  validFrom: z.string(),
+  validUntil: z.string(),
+  maxDurationDays: z
+    .number()
+    .int()
+    .positive()
+    .nullable()
+    .optional()
+    .transform(v => v ?? null),
+  requiresApproval: z.boolean(),
+  approvalRequestId: GuidSchema.nullable()
+    .optional()
+    .transform(v => v ?? null),
+  status: DelegationStatusSchema,
+  revokedAt: z
+    .string()
+    .nullable()
+    .optional()
+    .transform(v => v ?? null),
+  revokedBy: GuidSchema.nullable()
+    .optional()
+    .transform(v => v ?? null),
+  revocationReason: z
+    .string()
+    .nullable()
+    .optional()
+    .transform(v => v ?? null),
 });
 
 export const DelegationListSchema = z.array(DelegationSchema);
 
 export const CreateDelegationPayloadSchema = z.object({
-  tenantId:          z.string().uuid(),
+  tenantId: z.string().uuid(),
   delegatingAdminId: z.string().uuid(),
-  delegatedAdminId:  z.string().uuid(),
-  scopeType:         DelegationScopeTypeSchema,
-  scopeId:           z.string().uuid().nullable().optional(),
-  allowedActions:    z.array(DelegatedActionSchema).min(1),
-  validFrom:         z.string(),
-  validUntil:        z.string(),
-  maxDurationDays:   z.number().int().positive().nullable().optional(),
-  requiresApproval:  z.boolean(),
+  delegatedAdminId: z.string().uuid(),
+  scopeType: DelegationScopeTypeSchema,
+  scopeId: z.string().uuid().nullable().optional(),
+  allowedActions: z.array(DelegatedActionSchema).min(1),
+  validFrom: z.string(),
+  validUntil: z.string(),
+  maxDurationDays: z.number().int().positive().nullable().optional(),
+  requiresApproval: z.boolean(),
 });
 
 export const CreateDelegationResponseSchema = z.object({
@@ -76,10 +104,10 @@ export const RevokeDelegationPayloadSchema = z.object({
   reason: z.string().min(1).max(500),
 });
 
-export type DelegationScopeType       = z.infer<typeof DelegationScopeTypeSchema>;
-export type DelegationStatus          = z.infer<typeof DelegationStatusSchema>;
-export type DelegatedAction           = z.infer<typeof DelegatedActionSchema>;
-export type Delegation                = z.infer<typeof DelegationSchema>;
-export type CreateDelegationPayload   = z.infer<typeof CreateDelegationPayloadSchema>;
-export type CreateDelegationResponse  = z.infer<typeof CreateDelegationResponseSchema>;
-export type RevokeDelegationPayload   = z.infer<typeof RevokeDelegationPayloadSchema>;
+export type DelegationScopeType = z.infer<typeof DelegationScopeTypeSchema>;
+export type DelegationStatus = z.infer<typeof DelegationStatusSchema>;
+export type DelegatedAction = z.infer<typeof DelegatedActionSchema>;
+export type Delegation = z.infer<typeof DelegationSchema>;
+export type CreateDelegationPayload = z.infer<typeof CreateDelegationPayloadSchema>;
+export type CreateDelegationResponse = z.infer<typeof CreateDelegationResponseSchema>;
+export type RevokeDelegationPayload = z.infer<typeof RevokeDelegationPayloadSchema>;

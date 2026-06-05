@@ -7,28 +7,28 @@ describe('dev-profiles.constants', () => {
   });
 
   it('has admin profile', () => {
-    const admin = DEV_PROFILES.find((p) => p.role === 'admin');
+    const admin = DEV_PROFILES.find(p => p.role === 'admin');
     expect(admin).toBeDefined();
     expect(admin?.email).toBe('admin@ransa.pe');
     expect(admin?.username).toBe('admin_root');
   });
 
   it('has moderator profile', () => {
-    const moderator = DEV_PROFILES.find((p) => p.role === 'moderator');
+    const moderator = DEV_PROFILES.find(p => p.role === 'moderator');
     expect(moderator).toBeDefined();
     expect(moderator?.email).toBe('operaciones@ransa.pe');
     expect(moderator?.username).toBe('gerente_ops');
   });
 
   it('has user profile', () => {
-    const user = DEV_PROFILES.find((p) => p.role === 'user');
+    const user = DEV_PROFILES.find(p => p.role === 'user');
     expect(user).toBeDefined();
     expect(user?.email).toBe('auditoria@ransa.pe');
     expect(user?.username).toBe('auditor_est');
   });
 
   it('all profiles have required fields', () => {
-    DEV_PROFILES.forEach((profile) => {
+    DEV_PROFILES.forEach(profile => {
       expect(profile).toHaveProperty('nameKey');
       expect(profile).toHaveProperty('id');
       expect(profile).toHaveProperty('role');

@@ -5,13 +5,7 @@ import { DetailPanelShell } from './DetailPanelShell';
 describe('DetailPanelShell', () => {
   it('renders loading state', () => {
     render(
-      <DetailPanelShell
-        isLoading
-        isEmpty={false}
-        tabs={[]}
-        activeTab="tab1"
-        onTabChange={() => {}}
-      >
+      <DetailPanelShell isLoading isEmpty={false} tabs={[]} activeTab="tab1" onTabChange={() => {}}>
         <div>Content</div>
       </DetailPanelShell>
     );
@@ -36,13 +30,7 @@ describe('DetailPanelShell', () => {
 
   it('renders empty state', () => {
     render(
-      <DetailPanelShell
-        isLoading={false}
-        isEmpty
-        tabs={[]}
-        activeTab="tab1"
-        onTabChange={() => {}}
-      >
+      <DetailPanelShell isLoading={false} isEmpty tabs={[]} activeTab="tab1" onTabChange={() => {}}>
         <div>Content</div>
       </DetailPanelShell>
     );

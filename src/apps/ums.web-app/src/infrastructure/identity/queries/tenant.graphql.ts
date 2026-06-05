@@ -109,15 +109,16 @@ export interface GetTenantBranchesResponse {
   tenantBranches: GraphqlBranchDto[];
 }
 
-function validateGetTenantsParams(params: {
-  page: number;
-  pageSize: number;
-}): void {
+function validateGetTenantsParams(params: { page: number; pageSize: number }): void {
   if (!Number.isInteger(params.page) || params.page < 1) {
-    throw new GraphQlValidationError('Invalid page parameter', [`page must be a positive integer, got: ${params.page}`]);
+    throw new GraphQlValidationError('Invalid page parameter', [
+      `page must be a positive integer, got: ${params.page}`,
+    ]);
   }
   if (!Number.isInteger(params.pageSize) || params.pageSize < 1) {
-    throw new GraphQlValidationError('Invalid pageSize parameter', [`pageSize must be a positive integer, got: ${params.pageSize}`]);
+    throw new GraphQlValidationError('Invalid pageSize parameter', [
+      `pageSize must be a positive integer, got: ${params.pageSize}`,
+    ]);
   }
 }
 
@@ -137,25 +138,29 @@ export const graphqlQueries = {
       page: params.page,
       pageSize: params.pageSize,
     };
-    if (params.search !== undefined)     variables.search = params.search;
-    if (params.criteria !== undefined)   variables.criteria = params.criteria;
-    if (params.status !== undefined)     variables.status = params.status;
-    if (params.sortBy !== undefined)     variables.sortBy = params.sortBy;
-    if (params.sortOrder !== undefined)  variables.sortOrder = params.sortOrder;
+    if (params.search !== undefined) variables.search = params.search;
+    if (params.criteria !== undefined) variables.criteria = params.criteria;
+    if (params.status !== undefined) variables.status = params.status;
+    if (params.sortBy !== undefined) variables.sortBy = params.sortBy;
+    if (params.sortOrder !== undefined) variables.sortOrder = params.sortOrder;
 
     return graphqlClient.request<GetTenantsResponse>(GET_TENANTS, variables);
   },
 
   getTenantById: async (tenantId: string): Promise<GetTenantByIdResponse> => {
     if (!tenantId || tenantId.trim() === '') {
-      throw new GraphQlValidationError('Invalid tenantId parameter', ['tenantId must be a non-empty string']);
+      throw new GraphQlValidationError('Invalid tenantId parameter', [
+        'tenantId must be a non-empty string',
+      ]);
     }
     return graphqlClient.request<GetTenantByIdResponse>(GET_TENANT_BY_ID, { tenantId });
   },
 
   getTenantBranches: async (tenantId: string): Promise<GetTenantBranchesResponse> => {
     if (!tenantId || tenantId.trim() === '') {
-      throw new GraphQlValidationError('Invalid tenantId parameter', ['tenantId must be a non-empty string']);
+      throw new GraphQlValidationError('Invalid tenantId parameter', [
+        'tenantId must be a non-empty string',
+      ]);
     }
     return graphqlClient.request<GetTenantBranchesResponse>(GET_TENANT_BRANCHES, { tenantId });
   },

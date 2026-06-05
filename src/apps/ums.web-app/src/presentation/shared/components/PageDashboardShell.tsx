@@ -13,22 +13,19 @@ export interface PageDashboardShellProps {
   detail: React.ReactNode;
 }
 
-export const PageDashboardShell: React.FC<PageDashboardShellProps> = React.memo(({
-  splitterLabel,
-  overlay,
-  master,
-  detail,
-}) => {
-  return (
-    <PageShell>
-      <MasterDetailLayout
-        splitterLabel={splitterLabel}
-        overlay={overlay}
-        master={master}
-        detail={detail}
-      />
-    </PageShell>
-  );
-});
+export const PageDashboardShell: React.FC<PageDashboardShellProps> = React.memo(
+  ({ splitterLabel, overlay, master, detail }) => {
+    return (
+      <PageShell>
+        <MasterDetailLayout
+          splitterLabel={splitterLabel}
+          overlay={overlay}
+          master={master}
+          detail={detail}
+        />
+      </PageShell>
+    );
+  }
+);
 
 PageDashboardShell.displayName = 'PageDashboardShell';

@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import type { IdpStrategy, AuthProvider, CreateAuthProviderPayload, UpdateAuthProviderPayload } from '@domain/identity/models/idp.model';
+import type {
+  IdpStrategy,
+  AuthProvider,
+  CreateAuthProviderPayload,
+  UpdateAuthProviderPayload,
+} from '@domain/identity/models/idp.model';
 
 describe('idp.model', () => {
   it('defines IdpStrategy type values', () => {

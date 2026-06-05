@@ -14,10 +14,10 @@ interface ThemeState {
 
 export const useThemeStore = create<ThemeState>()(
   persist(
-    (set) => ({
+    set => ({
       isDarkMode: true,
-      toggleDarkMode: () => set((state) => ({ isDarkMode: !state.isDarkMode })),
+      toggleDarkMode: () => set(state => ({ isDarkMode: !state.isDarkMode })),
     }),
-    { name: 'ums-theme' },
-  ),
+    { name: 'ums-theme' }
+  )
 );

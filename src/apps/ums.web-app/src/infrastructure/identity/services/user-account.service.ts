@@ -46,7 +46,7 @@ export const userAccountService = {
         sortBy: params?.sortBy,
         sortOrder: params?.sortOrder,
         tenantId: params?.tenantId,
-      }
+      },
     });
 
     const pageResult = UserAccountPageSchema.safeParse(data);
@@ -64,7 +64,9 @@ export const userAccountService = {
 
   // ── Commands (REST) ───────────────────────────────────────────────────────
 
-  createUserAccount: async (payload: CreateUserAccountPayload): Promise<CreateUserAccountResponse> => {
+  createUserAccount: async (
+    payload: CreateUserAccountPayload
+  ): Promise<CreateUserAccountResponse> => {
     const { data } = await httpClient.post('/user-accounts', payload);
     return CreateUserAccountResponseSchema.parse(data);
   },
@@ -81,9 +83,14 @@ export const userAccountService = {
     await httpClient.post(`/user-accounts/${userAccountId}/restore`);
   },
 
-  setUserAccountPassword: async (payload: SetUserAccountPasswordPayload): Promise<SetUserAccountPasswordResponse> => {
+  setUserAccountPassword: async (
+    payload: SetUserAccountPasswordPayload
+  ): Promise<SetUserAccountPasswordResponse> => {
     const validPayload = SetUserAccountPasswordPayloadSchema.parse(payload);
-    const { data } = await httpClient.post(`/user-accounts/${validPayload.userAccountId}/passwords`, validPayload);
+    const { data } = await httpClient.post(
+      `/user-accounts/${validPayload.userAccountId}/passwords`,
+      validPayload
+    );
     return SetUserAccountPasswordResponseSchema.parse(data);
   },
 

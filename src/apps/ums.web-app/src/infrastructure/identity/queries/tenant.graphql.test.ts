@@ -8,7 +8,10 @@ vi.mock('@infra/http/graphqlClient', () => ({
     request: vi.fn(),
   },
   GraphQlValidationError: class GraphQlValidationError extends Error {
-    constructor(message: string, public details: string[]) {
+    constructor(
+      message: string,
+      public details: string[]
+    ) {
       super(message);
       this.name = 'GraphQlValidationError';
     }
@@ -30,7 +33,7 @@ describe('graphqlQueries', () => {
 
       expect(graphqlClientModule.graphqlClient.request).toHaveBeenCalledWith(
         expect.stringContaining('query Tenants'),
-        expect.objectContaining({ page: 1, pageSize: 10 }),
+        expect.objectContaining({ page: 1, pageSize: 10 })
       );
     });
 
@@ -79,25 +82,37 @@ describe('graphqlQueries', () => {
     });
 
     it('throws on invalid page', async () => {
-      await expect(graphqlQueries.getTenants({ page: 0, pageSize: 10 })).rejects.toThrow(GraphQlValidationError);
+      await expect(graphqlQueries.getTenants({ page: 0, pageSize: 10 })).rejects.toThrow(
+        GraphQlValidationError
+      );
     });
 
     it('throws on invalid pageSize', async () => {
-      await expect(graphqlQueries.getTenants({ page: 1, pageSize: 0 })).rejects.toThrow(GraphQlValidationError);
+      await expect(graphqlQueries.getTenants({ page: 1, pageSize: 0 })).rejects.toThrow(
+        GraphQlValidationError
+      );
     });
   });
 
   describe('getTenantById', () => {
     it('calls graphqlClient with tenantId', async () => {
       vi.mocked(graphqlClientModule.graphqlClient.request).mockResolvedValue({
-        getTenantById: { tenantId: '123', code: 'TEST', name: 'Test', type: 'INTERNAL', status: 'Active', parentTenantId: null, companyReference: null },
+        getTenantById: {
+          tenantId: '123',
+          code: 'TEST',
+          name: 'Test',
+          type: 'INTERNAL',
+          status: 'Active',
+          parentTenantId: null,
+          companyReference: null,
+        },
       });
 
       await graphqlQueries.getTenantById('3fa85f64-5717-4562-b3fc-2c963f66afa6');
 
       expect(graphqlClientModule.graphqlClient.request).toHaveBeenCalledWith(
         expect.stringContaining('query Tenant'),
-        expect.objectContaining({ tenantId: '3fa85f64-5717-4562-b3fc-2c963f66afa6' }),
+        expect.objectContaining({ tenantId: '3fa85f64-5717-4562-b3fc-2c963f66afa6' })
       );
     });
 
@@ -120,7 +135,7 @@ describe('graphqlQueries', () => {
 
       expect(graphqlClientModule.graphqlClient.request).toHaveBeenCalledWith(
         expect.stringContaining('query TenantBranches'),
-        expect.objectContaining({ tenantId: '3fa85f64-5717-4562-b3fc-2c963f66afa6' }),
+        expect.objectContaining({ tenantId: '3fa85f64-5717-4562-b3fc-2c963f66afa6' })
       );
     });
 

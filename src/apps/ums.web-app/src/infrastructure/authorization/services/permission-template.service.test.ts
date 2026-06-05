@@ -32,14 +32,22 @@ describe('permissionTemplateService', () => {
     vi.mocked(httpClientModule.httpClient.post).mockClear();
     vi.mocked(httpClientModule.httpClient.put).mockClear();
     vi.mocked(httpClientModule.httpClient.delete).mockClear();
-    vi.mocked(graphqlPermissionTemplateQueriesModule.graphqlPermissionTemplateQueries.getPermissionTemplates).mockClear();
-    vi.mocked(graphqlPermissionTemplateQueriesModule.graphqlPermissionTemplateQueries.getPermissionTemplateById).mockClear();
+    vi.mocked(
+      graphqlPermissionTemplateQueriesModule.graphqlPermissionTemplateQueries.getPermissionTemplates
+    ).mockClear();
+    vi.mocked(
+      graphqlPermissionTemplateQueriesModule.graphqlPermissionTemplateQueries
+        .getPermissionTemplateById
+    ).mockClear();
     vi.mocked(loggerModule.logger.error).mockClear();
   });
 
   describe('getAll', () => {
     it('calls graphql with default params', async () => {
-      vi.mocked(graphqlPermissionTemplateQueriesModule.graphqlPermissionTemplateQueries.getPermissionTemplates).mockResolvedValue({
+      vi.mocked(
+        graphqlPermissionTemplateQueriesModule.graphqlPermissionTemplateQueries
+          .getPermissionTemplates
+      ).mockResolvedValue({
         permissionTemplates: {
           items: [],
           page: 1,
@@ -55,9 +63,23 @@ describe('permissionTemplateService', () => {
     });
 
     it('passes custom params', async () => {
-      vi.mocked(graphqlPermissionTemplateQueriesModule.graphqlPermissionTemplateQueries.getPermissionTemplates).mockResolvedValue({
+      vi.mocked(
+        graphqlPermissionTemplateQueriesModule.graphqlPermissionTemplateQueries
+          .getPermissionTemplates
+      ).mockResolvedValue({
         permissionTemplates: {
-          items: [{ templateId: '12345678-1234-1234-1234-123456789012', tenantId: '12345678-1234-1234-1234-123456789012', roleId: '12345678-1234-1234-1234-123456789012', roleName: 'Admin', systemSuiteId: '12345678-1234-1234-1234-123456789012', systemSuiteName: 'Suite 1', version: '1.0', status: 'Draft' }],
+          items: [
+            {
+              templateId: '12345678-1234-1234-1234-123456789012',
+              tenantId: '12345678-1234-1234-1234-123456789012',
+              roleId: '12345678-1234-1234-1234-123456789012',
+              roleName: 'Admin',
+              systemSuiteId: '12345678-1234-1234-1234-123456789012',
+              systemSuiteName: 'Suite 1',
+              version: '1.0',
+              status: 'Draft',
+            },
+          ],
           page: 2,
           pageSize: 10,
           totalItems: 1,
@@ -65,14 +87,21 @@ describe('permissionTemplateService', () => {
         },
       });
 
-      const result = await permissionTemplateService.getAll({ page: 2, pageSize: 10, search: 'test' });
+      const result = await permissionTemplateService.getAll({
+        page: 2,
+        pageSize: 10,
+        search: 'test',
+      });
 
       expect(result.items).toHaveLength(1);
       expect(result.page).toBe(2);
     });
 
     it('throws on invalid response', async () => {
-      vi.mocked(graphqlPermissionTemplateQueriesModule.graphqlPermissionTemplateQueries.getPermissionTemplates).mockResolvedValue({
+      vi.mocked(
+        graphqlPermissionTemplateQueriesModule.graphqlPermissionTemplateQueries
+          .getPermissionTemplates
+      ).mockResolvedValue({
         permissionTemplates: { invalid: 'shape' },
       });
 
@@ -83,7 +112,10 @@ describe('permissionTemplateService', () => {
 
   describe('getById', () => {
     it('returns parsed template detail', async () => {
-      vi.mocked(graphqlPermissionTemplateQueriesModule.graphqlPermissionTemplateQueries.getPermissionTemplateById).mockResolvedValue({
+      vi.mocked(
+        graphqlPermissionTemplateQueriesModule.graphqlPermissionTemplateQueries
+          .getPermissionTemplateById
+      ).mockResolvedValue({
         permissionTemplateById: {
           templateId: '12345678-1234-1234-1234-123456789012',
           tenantId: '12345678-1234-1234-1234-123456789012',
@@ -103,11 +135,16 @@ describe('permissionTemplateService', () => {
     });
 
     it('throws when not found', async () => {
-      vi.mocked(graphqlPermissionTemplateQueriesModule.graphqlPermissionTemplateQueries.getPermissionTemplateById).mockResolvedValue({
+      vi.mocked(
+        graphqlPermissionTemplateQueriesModule.graphqlPermissionTemplateQueries
+          .getPermissionTemplateById
+      ).mockResolvedValue({
         permissionTemplateById: null,
       });
 
-      await expect(permissionTemplateService.getById('nonexistent')).rejects.toThrow('Permission template not found');
+      await expect(permissionTemplateService.getById('nonexistent')).rejects.toThrow(
+        'Permission template not found'
+      );
     });
   });
 
@@ -117,7 +154,11 @@ describe('permissionTemplateService', () => {
         data: { templateId: '12345678-1234-1234-1234-123456789012' },
       });
 
-      const result = await permissionTemplateService.create({ tenantId: '12345678-1234-1234-1234-123456789012', roleId: '12345678-1234-1234-1234-123456789012', systemSuiteId: '12345678-1234-1234-1234-123456789012' });
+      const result = await permissionTemplateService.create({
+        tenantId: '12345678-1234-1234-1234-123456789012',
+        roleId: '12345678-1234-1234-1234-123456789012',
+        systemSuiteId: '12345678-1234-1234-1234-123456789012',
+      });
 
       expect(result.templateId).toBe('12345678-1234-1234-1234-123456789012');
     });
@@ -129,7 +170,9 @@ describe('permissionTemplateService', () => {
 
       await permissionTemplateService.publish('t1');
 
-      expect(httpClientModule.httpClient.post).toHaveBeenCalledWith('/permission-templates/t1/publish');
+      expect(httpClientModule.httpClient.post).toHaveBeenCalledWith(
+        '/permission-templates/t1/publish'
+      );
     });
   });
 
@@ -139,7 +182,9 @@ describe('permissionTemplateService', () => {
 
       await permissionTemplateService.deprecate('t1');
 
-      expect(httpClientModule.httpClient.post).toHaveBeenCalledWith('/permission-templates/t1/deprecate');
+      expect(httpClientModule.httpClient.post).toHaveBeenCalledWith(
+        '/permission-templates/t1/deprecate'
+      );
     });
   });
 
@@ -157,9 +202,18 @@ describe('permissionTemplateService', () => {
     it('calls POST items endpoint', async () => {
       vi.mocked(httpClientModule.httpClient.post).mockResolvedValue({});
 
-      await permissionTemplateService.addItem('t1', { targetType: 'SystemSuite', targetId: '12345678-1234-1234-1234-123456789012', actionId: '12345678-1234-1234-1234-123456789012', isAllowed: true, isDenied: false });
+      await permissionTemplateService.addItem('t1', {
+        targetType: 'SystemSuite',
+        targetId: '12345678-1234-1234-1234-123456789012',
+        actionId: '12345678-1234-1234-1234-123456789012',
+        isAllowed: true,
+        isDenied: false,
+      });
 
-      expect(httpClientModule.httpClient.post).toHaveBeenCalledWith('/permission-templates/t1/items', expect.objectContaining({ targetType: 'SystemSuite' }));
+      expect(httpClientModule.httpClient.post).toHaveBeenCalledWith(
+        '/permission-templates/t1/items',
+        expect.objectContaining({ targetType: 'SystemSuite' })
+      );
     });
   });
 
@@ -169,7 +223,9 @@ describe('permissionTemplateService', () => {
 
       await permissionTemplateService.removeItem('t1', 'item1');
 
-      expect(httpClientModule.httpClient.delete).toHaveBeenCalledWith('/permission-templates/t1/items/item1');
+      expect(httpClientModule.httpClient.delete).toHaveBeenCalledWith(
+        '/permission-templates/t1/items/item1'
+      );
     });
   });
 
@@ -179,7 +235,10 @@ describe('permissionTemplateService', () => {
 
       await permissionTemplateService.setItemEffect('t1', 'item1', 'Allow');
 
-      expect(httpClientModule.httpClient.put).toHaveBeenCalledWith('/permission-templates/t1/items/item1/effect', { effect: 'Allow' });
+      expect(httpClientModule.httpClient.put).toHaveBeenCalledWith(
+        '/permission-templates/t1/items/item1/effect',
+        { effect: 'Allow' }
+      );
     });
   });
 
@@ -189,7 +248,9 @@ describe('permissionTemplateService', () => {
 
       await permissionTemplateService.activateItem('t1', 'item1');
 
-      expect(httpClientModule.httpClient.post).toHaveBeenCalledWith('/permission-templates/t1/items/item1/activate');
+      expect(httpClientModule.httpClient.post).toHaveBeenCalledWith(
+        '/permission-templates/t1/items/item1/activate'
+      );
     });
   });
 
@@ -199,7 +260,9 @@ describe('permissionTemplateService', () => {
 
       await permissionTemplateService.deactivateItem('t1', 'item1');
 
-      expect(httpClientModule.httpClient.post).toHaveBeenCalledWith('/permission-templates/t1/items/item1/deactivate');
+      expect(httpClientModule.httpClient.post).toHaveBeenCalledWith(
+        '/permission-templates/t1/items/item1/deactivate'
+      );
     });
   });
 });

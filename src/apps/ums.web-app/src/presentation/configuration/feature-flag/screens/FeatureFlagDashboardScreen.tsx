@@ -22,7 +22,7 @@ export default function FeatureFlagDashboardScreen(): React.JSX.Element {
       <FeatureFlagForm
         isOpen={d.isCreateOpen}
         onClose={() => d.setIsCreateOpen(false)}
-        onSuccess={(featureFlagId) => {
+        onSuccess={featureFlagId => {
           d.handleCreateSuccess();
           d.setSelectedId(featureFlagId);
         }}
@@ -49,11 +49,7 @@ export default function FeatureFlagDashboardScreen(): React.JSX.Element {
             requiresFilter={d.requiresFilter}
           />
         }
-        detail={
-          <FeatureFlagDetailPanel
-            flag={d.activeFlag}
-          />
-        }
+        detail={<FeatureFlagDetailPanel flag={d.activeFlag} />}
       />
     </PageShell>
   );

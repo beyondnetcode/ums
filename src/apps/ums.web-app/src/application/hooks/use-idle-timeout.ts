@@ -40,11 +40,11 @@ export function useIdleTimeout({
     const events = ['mousedown', 'keydown', 'scroll', 'touchstart', 'mousemove'];
     const handler = resetTimer;
 
-    events.forEach((event) => window.addEventListener(event, handler, { passive: true }));
+    events.forEach(event => window.addEventListener(event, handler, { passive: true }));
     resetTimer();
 
     return () => {
-      events.forEach((event) => window.removeEventListener(event, handler));
+      events.forEach(event => window.removeEventListener(event, handler));
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       if (warningRef.current) clearTimeout(warningRef.current);
     };

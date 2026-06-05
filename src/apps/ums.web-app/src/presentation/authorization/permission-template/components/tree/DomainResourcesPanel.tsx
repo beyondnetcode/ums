@@ -1,7 +1,19 @@
 import React, { useState, useMemo } from 'react';
 import {
-  Layers, Component, CheckCircle2, XCircle, MinusCircle, Database,
-  ChevronRight, ChevronDown, Plus, Eye, ListFilter, Pencil, Trash2, Zap,
+  Layers,
+  Component,
+  CheckCircle2,
+  XCircle,
+  MinusCircle,
+  Database,
+  ChevronRight,
+  ChevronDown,
+  Plus,
+  Eye,
+  ListFilter,
+  Pencil,
+  Trash2,
+  Zap,
   FunctionSquare,
 } from 'lucide-react';
 import type { SystemSuite } from '@domain/authorization/models/system-suite.model';
@@ -37,7 +49,12 @@ const CRUD_OPERATIONS: Omit<SystemSuiteCrudOperation, 'id'>[] = [
   { code: 'Read', name: 'Read/Get', description: 'Read single record', sortOrder: 2 },
   { code: 'Search', name: 'Search/List', description: 'Search and list records', sortOrder: 3 },
   { code: 'Update', name: 'Update', description: 'Update existing records', sortOrder: 4 },
-  { code: 'Delete', name: 'Delete/Deactivate', description: 'Delete or deactivate records', sortOrder: 5 },
+  {
+    code: 'Delete',
+    name: 'Delete/Deactivate',
+    description: 'Delete or deactivate records',
+    sortOrder: 5,
+  },
 ];
 
 const CRUD_ICON: Record<string, React.ReactNode> = {
@@ -58,19 +75,27 @@ const CRUD_COLOR: Record<string, string> = {
 
 function buildDomainResourceTree(
   suite: SystemSuite | undefined | null,
-  items: PermissionTemplateItem[],
+  items: PermissionTemplateItem[]
 ): DomainResourceNode[] {
   if (!suite) return [];
 
-  const itemsByTargetId = items.reduce((acc, item) => {
-    if (!acc[item.targetId]) acc[item.targetId] = [];
-    acc[item.targetId].push(item);
-    return acc;
-  }, {} as Record<string, PermissionTemplateItem[]>);
+  const itemsByTargetId = items.reduce(
+    (acc, item) => {
+      if (!acc[item.targetId]) acc[item.targetId] = [];
+      acc[item.targetId].push(item);
+      return acc;
+    },
+    {} as Record<string, PermissionTemplateItem[]>
+  );
 
   const resources = suite.domainResources ?? [];
 
-  const buildLeafChildren = (resourceId: string, resourceCode: string, resourceType: 'Aggregate' | 'Entity' | 'DomainMethod', baseLevel: number): DomainResourceNode[] => {
+  const buildLeafChildren = (
+    resourceId: string,
+    resourceCode: string,
+    resourceType: 'Aggregate' | 'Entity' | 'DomainMethod',
+    baseLevel: number
+  ): DomainResourceNode[] => {
     const crudOps: DomainResourceNode[] = CRUD_OPERATIONS.map(op => ({
       id: `${resourceId}:crud:${op.code}`,
       type: 'CrudOperation' as const,
@@ -84,7 +109,7 @@ function buildDomainResourceTree(
       children: [],
     }));
 
-    const customActs: DomainResourceNode[] = (resources
+    const customActs: DomainResourceNode[] = resources
       .filter(r => r.type === 'DomainMethod' && r.parentResourceId === resourceId)
       .map(r => ({
         id: r.id,
@@ -97,7 +122,7 @@ function buildDomainResourceTree(
         level: baseLevel,
         items: itemsByTargetId[r.id] || [],
         children: [],
-      })));
+      }));
 
     return [...crudOps, ...customActs];
   };
@@ -121,7 +146,12 @@ function buildDomainResourceTree(
         children: buildLeafChildren(child.id, child.code, 'Entity', 2),
       }));
 
-    const ownLeaves = buildLeafChildren(resource.id, resource.code, resource.type as 'Aggregate' | 'Entity' | 'DomainMethod', 1);
+    const ownLeaves = buildLeafChildren(
+      resource.id,
+      resource.code,
+      resource.type as 'Aggregate' | 'Entity' | 'DomainMethod',
+      1
+    );
 
     return {
       id: resource.id,
@@ -218,13 +248,15 @@ const DomainResourceRow: React.FC<{
   const state = computeNodeState(node);
   const stateInfo = STATE_ICON[state];
 
-  const icon = node.type === 'CrudOperation'
-    ? CRUD_ICON[node.code.split('.').pop() ?? ''] ?? TYPE_ICON[node.type]
-    : TYPE_ICON[node.type];
+  const icon =
+    node.type === 'CrudOperation'
+      ? (CRUD_ICON[node.code.split('.').pop() ?? ''] ?? TYPE_ICON[node.type])
+      : TYPE_ICON[node.type];
 
-  const color = node.type === 'CrudOperation'
-    ? CRUD_COLOR[node.code.split('.').pop() ?? ''] ?? TYPE_COLOR[node.type]
-    : TYPE_COLOR[node.type];
+  const color =
+    node.type === 'CrudOperation'
+      ? (CRUD_COLOR[node.code.split('.').pop() ?? ''] ?? TYPE_COLOR[node.type])
+      : TYPE_COLOR[node.type];
 
   return (
     <div
@@ -236,16 +268,24 @@ const DomainResourceRow: React.FC<{
     >
       <div
         className="w-5 h-5 flex items-center justify-center shrink-0 text-m3-secondary/50 hover:text-m3-on-surface"
-        onClick={(e) => { e.stopPropagation(); hasChildren && onToggle(); }}
+        onClick={e => {
+          e.stopPropagation();
+          hasChildren && onToggle();
+        }}
       >
-        {hasChildren && (isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />)}
+        {hasChildren &&
+          (isExpanded ? (
+            <ChevronDown className="w-3.5 h-3.5" />
+          ) : (
+            <ChevronRight className="w-3.5 h-3.5" />
+          ))}
       </div>
 
-      <div className={`p-1 rounded ${color}`}>
-        {icon}
-      </div>
+      <div className={`p-1 rounded ${color}`}>{icon}</div>
 
-      <span className={`text-xs truncate flex-1 ${isSelected ? 'font-semibold text-m3-primary' : 'text-m3-on-surface/80'}`}>
+      <span
+        className={`text-xs truncate flex-1 ${isSelected ? 'font-semibold text-m3-primary' : 'text-m3-on-surface/80'}`}
+      >
         {node.label}
       </span>
 
@@ -257,19 +297,26 @@ const DomainResourceRow: React.FC<{
         </span>
       )}
 
-      <span className={`text-[8px] font-bold uppercase px-1 py-0.5 rounded border border-current ${color}`}>
-        {node.type === 'CrudOperation' ? node.code.split('.').pop() : node.type === 'DomainMethod' ? 'METHOD' : node.type}
+      <span
+        className={`text-[8px] font-bold uppercase px-1 py-0.5 rounded border border-current ${color}`}
+      >
+        {node.type === 'CrudOperation'
+          ? node.code.split('.').pop()
+          : node.type === 'DomainMethod'
+            ? 'METHOD'
+            : node.type}
       </span>
 
-      <div className={`shrink-0 ${stateInfo.color}`}>
-        {stateInfo.icon}
-      </div>
+      <div className={`shrink-0 ${stateInfo.color}`}>{stateInfo.icon}</div>
     </div>
   );
 };
 
 export const DomainResourcesPanel: React.FC<DomainResourcesPanelProps> = ({
-  suite, items, onResourceSelect, selectedNodeId,
+  suite,
+  items,
+  onResourceSelect,
+  selectedNodeId,
 }) => {
   const [viewMode, setViewMode] = useState<'list' | 'thumbnail' | 'tree'>('tree');
   const [activeFilter, setActiveFilter] = useState('all');
@@ -366,7 +413,7 @@ export const DomainResourcesPanel: React.FC<DomainResourcesPanelProps> = ({
         sortBy={sortBy}
         onSortByChange={setSortBy}
         sortOrder={sortOrder}
-        onSortOrderToggle={() => setSortOrder(o => o === 'asc' ? 'desc' : 'asc')}
+        onSortOrderToggle={() => setSortOrder(o => (o === 'asc' ? 'desc' : 'asc'))}
         itemCount={flatList.length}
         itemLabel="recurso"
         showExpandCollapse
@@ -378,7 +425,9 @@ export const DomainResourcesPanel: React.FC<DomainResourcesPanelProps> = ({
         {flatList.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <Database className="w-8 h-8 text-m3-secondary/30 mb-2" />
-            <p className="text-xs text-m3-secondary">No hay recursos de dominio configurados en esta suite.</p>
+            <p className="text-xs text-m3-secondary">
+              No hay recursos de dominio configurados en esta suite.
+            </p>
           </div>
         ) : viewMode === 'tree' ? (
           renderTree(filteredTree)

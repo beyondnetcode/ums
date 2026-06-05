@@ -1,13 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Share2, FileCode, Clipboard, Download, Check, Loader2,
-  ShieldCheck, Info,
+  Share2,
+  FileCode,
+  Clipboard,
+  Download,
+  Check,
+  Loader2,
+  ShieldCheck,
+  Info,
 } from 'lucide-react';
 import { M3Button } from '@shared/components/M3Button';
 import { M3FormDialog } from '@shared/components/M3FormDialog';
 import { M3SegmentedButton } from '@shared/components/M3SegmentedButton';
 import { getHttpErrorMessage, getSupportReferenceId } from '@app/errors/http-error';
-import { profileService, type PreviewAuthGraphResponse } from '@infra/authorization/services/profile.service';
+import {
+  profileService,
+  type PreviewAuthGraphResponse,
+} from '@infra/authorization/services/profile.service';
 
 interface Props {
   isOpen: boolean;
@@ -53,7 +62,9 @@ export const M3AuthorizationGraphPanel: React.FC<Props> = ({ isOpen, onClose, pr
       } catch (err) {
         const errorMessage = getHttpErrorMessage(err, 'Error al generar el grafo en el servidor.');
         const supportReferenceId = getSupportReferenceId(err);
-        setError(supportReferenceId ? `${errorMessage} Referencia: ${supportReferenceId}` : errorMessage);
+        setError(
+          supportReferenceId ? `${errorMessage} Referencia: ${supportReferenceId}` : errorMessage
+        );
       } finally {
         setLoading(false);
       }
@@ -137,11 +148,14 @@ export const M3AuthorizationGraphPanel: React.FC<Props> = ({ isOpen, onClose, pr
         <div className="flex items-start gap-2 rounded-lg border border-m3-primary/20 bg-m3-primary/5 px-3 py-2">
           <ShieldCheck className="w-3.5 h-3.5 text-m3-primary mt-0.5 shrink-0" />
           <p className="text-[11px] text-m3-on-surface/70 leading-relaxed">
-            Este grafo es <span className="font-semibold text-m3-primary">exactamente el mismo</span> que
-            recibirá un sistema cliente al consumir{' '}
-            <code className="bg-m3-surface-variant/50 px-1 rounded text-[10px]">POST /api/v1/client/authenticate</code>.
-            Usa el mismo pipeline de generación, formato y parámetros del tenant.
-            Solo se omite la validación de credenciales externas.
+            Este grafo es{' '}
+            <span className="font-semibold text-m3-primary">exactamente el mismo</span> que recibirá
+            un sistema cliente al consumir{' '}
+            <code className="bg-m3-surface-variant/50 px-1 rounded text-[10px]">
+              POST /api/v1/client/authenticate
+            </code>
+            . Usa el mismo pipeline de generación, formato y parámetros del tenant. Solo se omite la
+            validación de credenciales externas.
           </p>
         </div>
 
@@ -154,7 +168,7 @@ export const M3AuthorizationGraphPanel: React.FC<Props> = ({ isOpen, onClose, pr
               { value: 'CSV', label: 'CSV' },
             ]}
             value={format}
-            onChange={(v) => setFormat(v as ExportFormat)}
+            onChange={v => setFormat(v as ExportFormat)}
           />
         </div>
 
@@ -169,13 +183,22 @@ export const M3AuthorizationGraphPanel: React.FC<Props> = ({ isOpen, onClose, pr
               </span>
             </span>
             <span className="text-m3-outline/30">·</span>
-            <span><span className="font-medium">Tenant:</span> {meta.tenantCode}</span>
+            <span>
+              <span className="font-medium">Tenant:</span> {meta.tenantCode}
+            </span>
             <span className="text-m3-outline/30">·</span>
-            <span><span className="font-medium">Auth:</span> {meta.authMethodUsed}</span>
+            <span>
+              <span className="font-medium">Auth:</span> {meta.authMethodUsed}
+            </span>
             <span className="text-m3-outline/30">·</span>
-            <span><span className="font-medium">Formato:</span> {meta.format}</span>
+            <span>
+              <span className="font-medium">Formato:</span> {meta.format}
+            </span>
             <span className="text-m3-outline/30">·</span>
-            <span className="font-mono text-[9px] text-m3-secondary/60 truncate max-w-[140px]" title={meta.requestId}>
+            <span
+              className="font-mono text-[9px] text-m3-secondary/60 truncate max-w-[140px]"
+              title={meta.requestId}
+            >
               req: {meta.requestId.slice(0, 8)}…
             </span>
           </div>

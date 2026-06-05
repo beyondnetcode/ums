@@ -8,7 +8,10 @@ vi.mock('@infra/http/graphqlClient', () => ({
     request: vi.fn(),
   },
   GraphQlValidationError: class GraphQlValidationError extends Error {
-    constructor(message: string, public details: string[]) {
+    constructor(
+      message: string,
+      public details: string[]
+    ) {
       super(message);
       this.name = 'GraphQlValidationError';
     }
@@ -30,7 +33,7 @@ describe('graphqlQueries (user-account)', () => {
 
       expect(graphqlClientModule.graphqlClient.request).toHaveBeenCalledWith(
         expect.stringContaining('query UserAccounts'),
-        expect.objectContaining({ page: 1, pageSize: 10 }),
+        expect.objectContaining({ page: 1, pageSize: 10 })
       );
     });
 
@@ -90,25 +93,40 @@ describe('graphqlQueries (user-account)', () => {
     });
 
     it('throws on invalid page', async () => {
-      await expect(graphqlQueries.getUserAccounts({ page: 0, pageSize: 10 })).rejects.toThrow(GraphQlValidationError);
+      await expect(graphqlQueries.getUserAccounts({ page: 0, pageSize: 10 })).rejects.toThrow(
+        GraphQlValidationError
+      );
     });
 
     it('throws on invalid pageSize', async () => {
-      await expect(graphqlQueries.getUserAccounts({ page: 1, pageSize: 0 })).rejects.toThrow(GraphQlValidationError);
+      await expect(graphqlQueries.getUserAccounts({ page: 1, pageSize: 0 })).rejects.toThrow(
+        GraphQlValidationError
+      );
     });
   });
 
   describe('getUserAccountById', () => {
     it('calls graphqlClient with userAccountId', async () => {
       vi.mocked(graphqlClientModule.graphqlClient.request).mockResolvedValue({
-        getUserAccountById: { userAccountId: 'u-1', email: 'test@test.com', category: 'Internal', status: 'Active', tenantId: 't-1', branchId: null, identityReference: null, identityReferenceType: null, hasActivePassword: true, passwordUpdatedAtUtc: null },
+        getUserAccountById: {
+          userAccountId: 'u-1',
+          email: 'test@test.com',
+          category: 'Internal',
+          status: 'Active',
+          tenantId: 't-1',
+          branchId: null,
+          identityReference: null,
+          identityReferenceType: null,
+          hasActivePassword: true,
+          passwordUpdatedAtUtc: null,
+        },
       });
 
       await graphqlQueries.getUserAccountById('3fa85f64-5717-4562-b3fc-2c963f66afa6');
 
       expect(graphqlClientModule.graphqlClient.request).toHaveBeenCalledWith(
         expect.stringContaining('query UserAccount'),
-        expect.objectContaining({ userAccountId: '3fa85f64-5717-4562-b3fc-2c963f66afa6' }),
+        expect.objectContaining({ userAccountId: '3fa85f64-5717-4562-b3fc-2c963f66afa6' })
       );
     });
 
@@ -117,7 +135,9 @@ describe('graphqlQueries (user-account)', () => {
     });
 
     it('throws on whitespace userAccountId', async () => {
-      await expect(graphqlQueries.getUserAccountById('   ')).rejects.toThrow(GraphQlValidationError);
+      await expect(graphqlQueries.getUserAccountById('   ')).rejects.toThrow(
+        GraphQlValidationError
+      );
     });
   });
 });

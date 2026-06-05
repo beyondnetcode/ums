@@ -35,8 +35,9 @@ vi.mock('@app/stores/devTools.store', () => ({
 }));
 
 vi.mock('@app/stores/notification.store', () => ({
-  useNotificationStore: (selector: (state: { addNotification: typeof addNotificationMock }) => unknown) =>
-    selector({ addNotification: addNotificationMock }),
+  useNotificationStore: (
+    selector: (state: { addNotification: typeof addNotificationMock }) => unknown
+  ) => selector({ addNotification: addNotificationMock }),
 }));
 
 vi.mock('@app/i18n/use-i18n', () => ({
@@ -52,7 +53,10 @@ vi.mock('@shared/components/M3Card', () => ({
 }));
 
 vi.mock('@shared/components/M3Button', () => ({
-  M3Button: ({ children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement> & { children: React.ReactNode }) => (
+  M3Button: ({
+    children,
+    ...props
+  }: React.ButtonHTMLAttributes<HTMLButtonElement> & { children: React.ReactNode }) => (
     <button {...props}>{children}</button>
   ),
 }));
@@ -77,7 +81,14 @@ vi.mock('@shared/components/M3TextField', () => ({
   }) => (
     <label>
       <span>{label}</span>
-      <input aria-label={label} value={value} onChange={onChange} type={type} placeholder={placeholder} disabled={disabled} />
+      <input
+        aria-label={label}
+        value={value}
+        onChange={onChange}
+        type={type}
+        placeholder={placeholder}
+        disabled={disabled}
+      />
       {error ? <span>{error}</span> : null}
     </label>
   ),

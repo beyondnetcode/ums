@@ -35,8 +35,12 @@ export interface GetIdentityProvidersResponse {
 export const graphqlIdpQueries = {
   getIdentityProviders: async (tenantId: string): Promise<GetIdentityProvidersResponse> => {
     if (!tenantId || tenantId.trim() === '') {
-      throw new GraphQlValidationError('Invalid tenantId parameter', ['tenantId must be a non-empty string']);
+      throw new GraphQlValidationError('Invalid tenantId parameter', [
+        'tenantId must be a non-empty string',
+      ]);
     }
-    return graphqlClient.request<GetIdentityProvidersResponse>(GET_IDENTITY_PROVIDERS, { tenantId });
+    return graphqlClient.request<GetIdentityProvidersResponse>(GET_IDENTITY_PROVIDERS, {
+      tenantId,
+    });
   },
 };

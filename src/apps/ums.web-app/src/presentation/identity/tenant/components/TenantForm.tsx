@@ -36,11 +36,14 @@ export const TenantForm: React.FC<TenantFormProps> = ({ isOpen, onClose, onSucce
     if (!validData) return;
     try {
       const response = await createTenantMutation.mutateAsync(validData);
-      setCode(''); setName(''); setType('INTERNAL'); setCompanyReference('');
+      setCode('');
+      setName('');
+      setType('INTERNAL');
+      setCompanyReference('');
       clearErrors();
       onSuccess(response.tenantId);
       onClose();
-    } catch { }
+    } catch {}
   };
 
   return (
@@ -54,7 +57,12 @@ export const TenantForm: React.FC<TenantFormProps> = ({ isOpen, onClose, onSucce
           <FormButton variant="text" onClick={onClose} type="button">
             {t.cancelBtn}
           </FormButton>
-          <FormButton variant="filled" onClick={handleSubmit} loading={createTenantMutation.isPending} icon={<Check className="w-3.5 h-3.5" />}>
+          <FormButton
+            variant="filled"
+            onClick={handleSubmit}
+            loading={createTenantMutation.isPending}
+            icon={<Check className="w-3.5 h-3.5" />}
+          >
             {t.registerTenantBtn}
           </FormButton>
         </div>
@@ -64,7 +72,7 @@ export const TenantForm: React.FC<TenantFormProps> = ({ isOpen, onClose, onSucce
         <FormField label={t.tenantCode} required error={errors.code}>
           <FormInput
             value={code}
-            onChange={(e) => setCode(e.target.value.toUpperCase())}
+            onChange={e => setCode(e.target.value.toUpperCase())}
             placeholder="TRANS_LIMA"
           />
         </FormField>
@@ -72,7 +80,7 @@ export const TenantForm: React.FC<TenantFormProps> = ({ isOpen, onClose, onSucce
         <FormField label={t.tenantName} required error={errors.name}>
           <FormInput
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={e => setName(e.target.value)}
             placeholder="Transportes Lima S.A.C."
           />
         </FormField>
@@ -81,15 +89,17 @@ export const TenantForm: React.FC<TenantFormProps> = ({ isOpen, onClose, onSucce
           <FormField label={t.companyReference} error={errors.companyReference}>
             <FormInput
               value={companyReference}
-              onChange={(e) => setCompanyReference(e.target.value)}
+              onChange={e => setCompanyReference(e.target.value)}
               placeholder="RUC-20512345678"
             />
           </FormField>
 
           <FormField label={t.tenantType} error={errors.type}>
-            <FormSelect value={type} onChange={(e) => setType(e.target.value)}>
-              {TENANT_TYPES.map((tp) => (
-                <option key={tp} value={tp}>{tp}</option>
+            <FormSelect value={type} onChange={e => setType(e.target.value)}>
+              {TENANT_TYPES.map(tp => (
+                <option key={tp} value={tp}>
+                  {tp}
+                </option>
               ))}
             </FormSelect>
           </FormField>

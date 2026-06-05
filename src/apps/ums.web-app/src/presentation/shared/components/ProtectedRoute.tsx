@@ -65,11 +65,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps): React.JSX.Ele
 
   if (!isAuthenticated || !user) {
     return (
-      <Navigate
-        to="/login"
-        state={{ from: location.pathname, showSessionExpired: true }}
-        replace
-      />
+      <Navigate to="/login" state={{ from: location.pathname, showSessionExpired: true }} replace />
     );
   }
 
@@ -87,7 +83,7 @@ export function useRequireAuth() {
   if (!isAuthenticated) {
     return {
       isAuthorized: false,
-      redirectPath: `/login?redirect=${encodeURIComponent(location.pathname)}`
+      redirectPath: `/login?redirect=${encodeURIComponent(location.pathname)}`,
     };
   }
 

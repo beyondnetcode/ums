@@ -1,7 +1,11 @@
 import { z } from 'zod';
 
 export const ParameterDefinitionSchema = z.object({
-  id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, { message: 'Invalid UUID format' }),
+  id: z
+    .string()
+    .regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, {
+      message: 'Invalid UUID format',
+    }),
   code: z.string().min(1).max(100),
   name: z.string().min(1).max(200),
   description: z.string().max(1000).nullable(),

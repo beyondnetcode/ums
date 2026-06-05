@@ -104,26 +104,30 @@ export function AppConfigurationForm({
       }
     >
       <form id="config-form" onSubmit={handleSubmit} className="space-y-4">
-        <FormField label={t.parameterCode ?? 'Code'} required error={error && !code ? error : undefined}>
+        <FormField
+          label={t.parameterCode ?? 'Code'}
+          required
+          error={error && !code ? error : undefined}
+        >
           <FormInput
             value={code}
-            onChange={(e) => setCode(e.target.value.toUpperCase())}
+            onChange={e => setCode(e.target.value.toUpperCase())}
             placeholder="MAX_VALIDITY_DAYS"
           />
         </FormField>
 
-        <FormField label={t.parameterValue ?? 'Value'} required error={error && !value ? error : undefined}>
-          <FormInput
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            placeholder="365"
-          />
+        <FormField
+          label={t.parameterValue ?? 'Value'}
+          required
+          error={error && !value ? error : undefined}
+        >
+          <FormInput value={value} onChange={e => setValue(e.target.value)} placeholder="365" />
         </FormField>
 
         <FormField label={t.description ?? 'Description'}>
           <FormInput
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={e => setDescription(e.target.value)}
             placeholder="Optional description..."
           />
         </FormField>
@@ -142,9 +146,7 @@ export function AppConfigurationForm({
         </div>
 
         {error && (
-          <div className="text-[11px] text-rose-500 bg-rose-50/50 p-2 rounded-md">
-            {error}
-          </div>
+          <div className="text-[11px] text-rose-500 bg-rose-50/50 p-2 rounded-md">{error}</div>
         )}
       </form>
     </M3FormDialog>

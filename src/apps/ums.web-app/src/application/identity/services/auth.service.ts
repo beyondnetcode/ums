@@ -11,6 +11,7 @@
  * - CSRF protection via SameSite cookies
  * - Proper error messages that don't leak information
  */
+import { AuthorizationGraph } from '@domain/authorization/schemas/authorization-graph.schema';
 
 export interface LoginCredentials {
   tenantCode: string;
@@ -52,6 +53,7 @@ export interface AuthResponse {
   refreshExpiresIn: number;
   isInternalAdmin: boolean;
   sessionParameters: AuthSessionParameters | null;
+  authorizationGraph: AuthorizationGraph | null;
 }
 
 export interface AuthError {
@@ -116,7 +118,7 @@ class AuthService {
   private getAuthHeaders(): HeadersInit {
     return {
       'Content-Type': 'application/json',
-      'Accept': 'application/json',
+      Accept: 'application/json',
       'X-Request-ID': crypto.randomUUID(),
     };
   }
@@ -125,7 +127,7 @@ class AuthService {
     const sanitizedCredentials = {
       tenantCode: this.sanitizeInput(credentials.tenantCode).toUpperCase(),
       username: this.sanitizeInput(credentials.username),
-      password: credentials.password,
+      password: credentials.password.trim(),
       rememberMe: credentials.rememberMe || false,
     };
 
@@ -149,11 +151,11 @@ class AuthService {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => null) as AuthError | null;
+        const errorData = (await response.json().catch(() => null)) as AuthError | null;
         const supportReferenceId =
-          errorData?.supportReferenceId
-          ?? response.headers.get('x-correlation-id')
-          ?? response.headers.get('x-error-id');
+          errorData?.supportReferenceId ??
+          response.headers.get('x-correlation-id') ??
+          response.headers.get('x-error-id');
 
         const fail = (message: string): never => {
           const error = new Error(message) as ErrorWithSupportReference;
@@ -211,6 +213,7 @@ class AuthService {
         refreshExpiresIn: data.refreshExpiresIn || 86400,
         isInternalAdmin: data.isInternalAdmin || false,
         sessionParameters: data.sessionParameters ?? null,
+        authorizationGraph: data.authorizationGraph ?? null,
       };
 
       return authResponse;
@@ -235,8 +238,7 @@ class AuthService {
         headers: this.getAuthHeaders(),
         credentials: 'include',
       });
-    } catch {
-    }
+    } catch {}
   }
 
   async getSession(): Promise<AuthResponse | null> {
@@ -245,7 +247,7 @@ class AuthService {
         method: 'GET',
         headers: {
           ...this.getAuthHeaders(),
-          'Authorization': `Bearer ${this.getStoredToken()}`,
+          Authorization: `Bearer ${this.getStoredToken()}`,
         },
         credentials: 'include',
       });
@@ -267,8 +269,7 @@ class AuthService {
         const parsed = JSON.parse(stored);
         return parsed.state?.user?.token || null;
       }
-    } catch {
-    }
+    } catch {}
     return null;
   }
 

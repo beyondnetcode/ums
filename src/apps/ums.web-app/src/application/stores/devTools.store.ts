@@ -23,11 +23,11 @@ interface DevToolsState {
   setDevLanguage: (lang: 'en' | 'es') => void;
 }
 
-export const useDevToolsStore = create<DevToolsState>((set) => ({
+export const useDevToolsStore = create<DevToolsState>(set => ({
   devUserId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
   devLanguage: 'es',
-  setDevUserId: (id) => set({ devUserId: id }),
-  setDevLanguage: (lang) => {
+  setDevUserId: id => set({ devUserId: id }),
+  setDevLanguage: lang => {
     set({ devLanguage: lang });
     useI18nStore.getState().setLanguage(lang);
   },

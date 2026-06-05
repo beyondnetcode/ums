@@ -39,7 +39,9 @@ describe('idpService', () => {
         tenantIdentityProviders: mockIdps,
       });
 
-      const result = await idpService.getByIdentityProviders('3fa85f64-5717-4562-b3fc-2c963f66afa7');
+      const result = await idpService.getByIdentityProviders(
+        '3fa85f64-5717-4562-b3fc-2c963f66afa7'
+      );
 
       expect(result).toHaveLength(1);
       expect(result[0].name).toBe('Azure AD');
@@ -64,7 +66,7 @@ describe('idpService', () => {
         expect.objectContaining({
           name: 'Azure AD',
           code: 'AZURE',
-        }),
+        })
       );
     });
 
@@ -73,12 +75,15 @@ describe('idpService', () => {
         data: { identityProviderId: '3fa85f64-5717-4562-b3fc-2c963f66afa6' },
       });
 
-      const result = await idpService.registerIdentityProvider('3fa85f64-5717-4562-b3fc-2c963f66afa7', {
-        name: 'Azure AD',
-        code: 'AZURE',
-        strategy: 'OIDC',
-        description: 'Azure Active Directory',
-      });
+      const result = await idpService.registerIdentityProvider(
+        '3fa85f64-5717-4562-b3fc-2c963f66afa7',
+        {
+          name: 'Azure AD',
+          code: 'AZURE',
+          strategy: 'OIDC',
+          description: 'Azure Active Directory',
+        }
+      );
 
       expect(result.identityProviderId).toBe('3fa85f64-5717-4562-b3fc-2c963f66afa6');
     });
@@ -88,10 +93,13 @@ describe('idpService', () => {
     it('calls activate endpoint', async () => {
       vi.mocked(httpClientModule.httpClient.post).mockResolvedValue({});
 
-      await idpService.activateIdentityProvider('3fa85f64-5717-4562-b3fc-2c963f66afa7', '3fa85f64-5717-4562-b3fc-2c963f66afa8');
+      await idpService.activateIdentityProvider(
+        '3fa85f64-5717-4562-b3fc-2c963f66afa7',
+        '3fa85f64-5717-4562-b3fc-2c963f66afa8'
+      );
 
       expect(httpClientModule.httpClient.post).toHaveBeenCalledWith(
-        '/tenants/3fa85f64-5717-4562-b3fc-2c963f66afa7/identity-providers/3fa85f64-5717-4562-b3fc-2c963f66afa8/activate',
+        '/tenants/3fa85f64-5717-4562-b3fc-2c963f66afa7/identity-providers/3fa85f64-5717-4562-b3fc-2c963f66afa8/activate'
       );
     });
   });
@@ -100,10 +108,13 @@ describe('idpService', () => {
     it('calls deactivate endpoint', async () => {
       vi.mocked(httpClientModule.httpClient.post).mockResolvedValue({});
 
-      await idpService.deactivateIdentityProvider('3fa85f64-5717-4562-b3fc-2c963f66afa7', '3fa85f64-5717-4562-b3fc-2c963f66afa8');
+      await idpService.deactivateIdentityProvider(
+        '3fa85f64-5717-4562-b3fc-2c963f66afa7',
+        '3fa85f64-5717-4562-b3fc-2c963f66afa8'
+      );
 
       expect(httpClientModule.httpClient.post).toHaveBeenCalledWith(
-        '/tenants/3fa85f64-5717-4562-b3fc-2c963f66afa7/identity-providers/3fa85f64-5717-4562-b3fc-2c963f66afa8/deactivate',
+        '/tenants/3fa85f64-5717-4562-b3fc-2c963f66afa7/identity-providers/3fa85f64-5717-4562-b3fc-2c963f66afa8/deactivate'
       );
     });
   });
@@ -112,10 +123,13 @@ describe('idpService', () => {
     it('calls delete endpoint', async () => {
       vi.mocked(httpClientModule.httpClient.delete).mockResolvedValue({});
 
-      await idpService.removeIdentityProvider('3fa85f64-5717-4562-b3fc-2c963f66afa7', '3fa85f64-5717-4562-b3fc-2c963f66afa8');
+      await idpService.removeIdentityProvider(
+        '3fa85f64-5717-4562-b3fc-2c963f66afa7',
+        '3fa85f64-5717-4562-b3fc-2c963f66afa8'
+      );
 
       expect(httpClientModule.httpClient.delete).toHaveBeenCalledWith(
-        '/tenants/3fa85f64-5717-4562-b3fc-2c963f66afa7/identity-providers/3fa85f64-5717-4562-b3fc-2c963f66afa8',
+        '/tenants/3fa85f64-5717-4562-b3fc-2c963f66afa7/identity-providers/3fa85f64-5717-4562-b3fc-2c963f66afa8'
       );
     });
   });

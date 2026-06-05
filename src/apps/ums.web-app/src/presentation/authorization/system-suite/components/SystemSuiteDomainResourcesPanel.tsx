@@ -253,8 +253,18 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
         <div className="flex flex-col gap-1 animate-fadeIn">
           {filteredResources.map(res => {
             const isEditing = edit.isEditing(res.id);
-            const Icon = res.type === 'Aggregate' ? Layers : res.type === 'Entity' ? Component : FunctionSquare;
-            const typeLabel = res.type === 'Aggregate' ? 'Agregado' : res.type === 'Entity' ? 'Entidad' : 'Método de Dominio';
+            const Icon =
+              res.type === 'Aggregate'
+                ? Layers
+                : res.type === 'Entity'
+                  ? Component
+                  : FunctionSquare;
+            const typeLabel =
+              res.type === 'Aggregate'
+                ? 'Agregado'
+                : res.type === 'Entity'
+                  ? 'Entidad'
+                  : 'Método de Dominio';
 
             if (isEditing) {
               return (
@@ -306,17 +316,23 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
               <EntityRow
                 key={res.id}
                 leading={
-                  <div className={`p-1.5 rounded ${res.type === 'Aggregate' ? 'bg-indigo-500/10 text-indigo-500' : res.type === 'Entity' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-orange-500/10 text-orange-500'}`}>
+                  <div
+                    className={`p-1.5 rounded ${res.type === 'Aggregate' ? 'bg-indigo-500/10 text-indigo-500' : res.type === 'Entity' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-orange-500/10 text-orange-500'}`}
+                  >
                     <Icon className="w-4 h-4" />
                   </div>
                 }
                 trailingColumns={[
                   {
-                    content: res.moduleId && systemSuite.modules?.some(m => m.id === res.moduleId) ? (
-                      <span className="text-[9px] font-medium text-m3-secondary bg-m3-surface-variant/50 px-1.5 py-0.5 rounded" title="Módulo Asignado">
-                        {systemSuite.modules.find(m => m.id === res.moduleId)?.code}
-                      </span>
-                    ) : null,
+                    content:
+                      res.moduleId && systemSuite.modules?.some(m => m.id === res.moduleId) ? (
+                        <span
+                          className="text-[9px] font-medium text-m3-secondary bg-m3-surface-variant/50 px-1.5 py-0.5 rounded"
+                          title="Módulo Asignado"
+                        >
+                          {systemSuite.modules.find(m => m.id === res.moduleId)?.code}
+                        </span>
+                      ) : null,
                     width: 'w-20',
                     align: 'end',
                   },
@@ -330,7 +346,9 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
                   <div className="flex items-center gap-0.5 opacity-0 group-hover/row:opacity-100 transition-opacity">
                     <IconButton
                       tooltip="Editar Recurso"
-                      onClick={() => edit.openEdit(res.id, { name: res.name, description: res.description })}
+                      onClick={() =>
+                        edit.openEdit(res.id, { name: res.name, description: res.description })
+                      }
                       className="hover:text-m3-primary hover:bg-m3-primary/10"
                     >
                       <Pencil className="w-3.5 h-3.5" />
@@ -346,10 +364,17 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
                   </div>
                 }
               >
-                <p className="text-xs font-semibold text-m3-on-surface truncate" title={res.name}>{res.name}</p>
+                <p className="text-xs font-semibold text-m3-on-surface truncate" title={res.name}>
+                  {res.name}
+                </p>
                 <p className="text-[10px] text-m3-secondary">{typeLabel}</p>
                 {res.description && (
-                  <p className="text-[10px] text-m3-secondary/80 line-clamp-1" title={res.description}>{res.description}</p>
+                  <p
+                    className="text-[10px] text-m3-secondary/80 line-clamp-1"
+                    title={res.description}
+                  >
+                    {res.description}
+                  </p>
                 )}
               </EntityRow>
             );
@@ -359,8 +384,18 @@ export const SystemSuiteDomainResourcesPanel: React.FC<SystemSuiteDomainResource
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 animate-fadeIn">
           {filteredResources.map(res => {
             const isEditing = edit.isEditing(res.id);
-            const Icon = res.type === 'Aggregate' ? Layers : res.type === 'Entity' ? Component : FunctionSquare;
-            const typeLabel = res.type === 'Aggregate' ? 'Agregado Root' : res.type === 'Entity' ? 'Entidad de Dominio' : 'Método de Dominio';
+            const Icon =
+              res.type === 'Aggregate'
+                ? Layers
+                : res.type === 'Entity'
+                  ? Component
+                  : FunctionSquare;
+            const typeLabel =
+              res.type === 'Aggregate'
+                ? 'Agregado Root'
+                : res.type === 'Entity'
+                  ? 'Entidad de Dominio'
+                  : 'Método de Dominio';
 
             if (isEditing) {
               return (

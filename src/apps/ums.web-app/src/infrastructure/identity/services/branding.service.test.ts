@@ -81,7 +81,7 @@ describe('brandingService', () => {
         expect.objectContaining({
           headlineText: 'Welcome',
           primaryColor: '#3b82f6',
-        }),
+        })
       );
     });
   });
@@ -106,7 +106,7 @@ describe('brandingService', () => {
         '/tenants/3fa85f64-5717-4562-b3fc-2c963f66afa6/branding',
         expect.objectContaining({
           headlineText: 'Updated Welcome',
-        }),
+        })
       );
     });
   });
@@ -118,7 +118,7 @@ describe('brandingService', () => {
       await brandingService.removeBranding('3fa85f64-5717-4562-b3fc-2c963f66afa6');
 
       expect(httpClientModule.httpClient.delete).toHaveBeenCalledWith(
-        '/tenants/3fa85f64-5717-4562-b3fc-2c963f66afa6/branding',
+        '/tenants/3fa85f64-5717-4562-b3fc-2c963f66afa6/branding'
       );
     });
   });
@@ -130,7 +130,7 @@ describe('brandingService', () => {
       await brandingService.verifyDns('3fa85f64-5717-4562-b3fc-2c963f66afa6');
 
       expect(httpClientModule.httpClient.post).toHaveBeenCalledWith(
-        '/tenants/3fa85f64-5717-4562-b3fc-2c963f66afa6/branding/dns/verify',
+        '/tenants/3fa85f64-5717-4562-b3fc-2c963f66afa6/branding/dns/verify'
       );
     });
   });
@@ -142,7 +142,7 @@ describe('brandingService', () => {
       await brandingService.failDns('3fa85f64-5717-4562-b3fc-2c963f66afa6');
 
       expect(httpClientModule.httpClient.post).toHaveBeenCalledWith(
-        '/tenants/3fa85f64-5717-4562-b3fc-2c963f66afa6/branding/dns/fail',
+        '/tenants/3fa85f64-5717-4562-b3fc-2c963f66afa6/branding/dns/fail'
       );
     });
   });

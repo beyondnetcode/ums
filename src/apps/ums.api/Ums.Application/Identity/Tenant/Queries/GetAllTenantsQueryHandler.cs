@@ -3,8 +3,11 @@ using Ums.Application.Identity.Tenant.DTOs;
 using Ums.Domain.Identity;
 using static Ums.Application.Common.QueryRequestNormalizer;
 
+using Ums.Application.Common.Aop;
+
 namespace Ums.Application.Identity.Tenant.Queries;
 
+[AuthorizationAspect(ResourceCode = "TENANTS", ActionCode = "VIEW")]
 public sealed class GetAllTenantsQueryHandler : IQueryHandler<GetAllTenantsQuery, PagedResult<TenantDto>>
 {
     private readonly ITenantRepository _tenantRepository;

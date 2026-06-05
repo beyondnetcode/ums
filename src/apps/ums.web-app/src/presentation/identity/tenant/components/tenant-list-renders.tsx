@@ -8,7 +8,10 @@ import { EntityRow } from '@shared/components/EntityRow';
 import type { TreeNode } from '@app/hooks/use-tree-nodes';
 import { useGetAllAppConfigurations } from '@app/configuration/hooks/use-app-configuration';
 
-export const AuthModeBadge: React.FC<{ tenantId: string; tenantCode?: string }> = ({ tenantId, tenantCode }) => {
+export const AuthModeBadge: React.FC<{ tenantId: string; tenantCode?: string }> = ({
+  tenantId,
+  tenantCode,
+}) => {
   const code = tenantCode?.toUpperCase();
   const id = tenantId.toLowerCase();
 
@@ -98,7 +101,9 @@ export const renderTenantParentRow = (
       ]}
     >
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-[12px] font-medium text-m3-on-surface line-clamp-1">{tenant.name}</span>
+        <span className="text-[12px] font-medium text-m3-on-surface line-clamp-1">
+          {tenant.name}
+        </span>
         <AuthModeBadge tenantId={tenant.tenantId} tenantCode={tenant.code} />
       </div>
       {tenant.companyReference && (
@@ -150,7 +155,9 @@ export const renderTenantChildRow = (
       ]}
     >
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-[12px] font-medium text-m3-on-surface line-clamp-1">{child.name}</span>
+        <span className="text-[12px] font-medium text-m3-on-surface line-clamp-1">
+          {child.name}
+        </span>
         <AuthModeBadge tenantId={child.tenantId} tenantCode={child.code} />
       </div>
       {child.companyReference && (
@@ -196,7 +203,9 @@ export const renderTenantParentCard = (
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h4 className="text-[12px] font-medium text-m3-on-surface line-clamp-1">{tenant.name}</h4>
+              <h4 className="text-[12px] font-medium text-m3-on-surface line-clamp-1">
+                {tenant.name}
+              </h4>
               <AuthModeBadge tenantId={tenant.tenantId} tenantCode={tenant.code} />
             </div>
             <p className="font-mono text-[11px] text-m3-secondary/70 mt-0.5">{tenant.code}</p>

@@ -5,8 +5,16 @@ vi.mock('axios', () => ({
   default: {
     create: vi.fn(() => ({
       interceptors: {
-        request: { use: vi.fn(), eject: vi.fn(), handlers: [{ fulfilled: vi.fn(), rejected: vi.fn() }] },
-        response: { use: vi.fn(), eject: vi.fn(), handlers: [{ fulfilled: vi.fn(), rejected: vi.fn() }] },
+        request: {
+          use: vi.fn(),
+          eject: vi.fn(),
+          handlers: [{ fulfilled: vi.fn(), rejected: vi.fn() }],
+        },
+        response: {
+          use: vi.fn(),
+          eject: vi.fn(),
+          handlers: [{ fulfilled: vi.fn(), rejected: vi.fn() }],
+        },
       },
       defaults: { baseURL: '/api' },
       get: vi.fn(),
@@ -54,12 +62,14 @@ describe('httpClient configuration', () => {
 
   it('creates axios instance with correct baseURL', async () => {
     await import('./httpClient');
-    expect(axios.create).toHaveBeenCalledWith(expect.objectContaining({
-      baseURL: '/api/v1',
-      headers: expect.objectContaining({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      }),
-    }));
+    expect(axios.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        baseURL: '/api/v1',
+        headers: expect.objectContaining({
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        }),
+      })
+    );
   });
 });

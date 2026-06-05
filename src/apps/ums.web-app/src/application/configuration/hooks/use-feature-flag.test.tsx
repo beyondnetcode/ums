@@ -57,7 +57,16 @@ describe('use-feature-flag hooks', () => {
   it('useGetAllFeatureFlags returns paged list', async () => {
     const mockPage = {
       items: [
-        { featureFlagId: 'f1', code: 'FLAG_1', name: 'Flag 1', description: '', flagType: 'boolean', status: 'Active', sortOrder: 0, criteria: [] },
+        {
+          featureFlagId: 'f1',
+          code: 'FLAG_1',
+          name: 'Flag 1',
+          description: '',
+          flagType: 'boolean',
+          status: 'Active',
+          sortOrder: 0,
+          criteria: [],
+        },
       ],
       page: 1,
       pageSize: 20,
@@ -68,10 +77,9 @@ describe('use-feature-flag hooks', () => {
     vi.mocked(featureFlagService.getAll).mockResolvedValue(mockPage);
 
     const wrapper = createWrapper();
-    const { result } = renderHook(
-      () => useGetAllFeatureFlags({ page: 1, pageSize: 20 }),
-      { wrapper }
-    );
+    const { result } = renderHook(() => useGetAllFeatureFlags({ page: 1, pageSize: 20 }), {
+      wrapper,
+    });
 
     await waitFor(() => {
       expect(result.current.isSuccess).toBe(true);
@@ -83,7 +91,15 @@ describe('use-feature-flag hooks', () => {
 
   it('useGetFeatureFlagsBySystemSuite returns flags list', async () => {
     const mockFlags = [
-      { featureFlagId: '12345678-1234-1234-1234-123456789012', systemSuiteId: '12345678-1234-1234-1234-123456789012', flagCode: 'FLAG_1', flagType: 'Boolean', flagTargets: 'all', status: 'Active', criteria: [] },
+      {
+        featureFlagId: '12345678-1234-1234-1234-123456789012',
+        systemSuiteId: '12345678-1234-1234-1234-123456789012',
+        flagCode: 'FLAG_1',
+        flagType: 'Boolean',
+        flagTargets: 'all',
+        status: 'Active',
+        criteria: [],
+      },
     ];
 
     vi.mocked(featureFlagService.getFeatureFlagsBySystemSuite).mockResolvedValue(mockFlags);
@@ -139,20 +155,29 @@ describe('use-feature-flag hooks', () => {
   });
 
   it('useCreateFeatureFlag calls service successfully', async () => {
-    vi.mocked(featureFlagService.createFeatureFlag).mockResolvedValue({ featureFlagId: 'new-flag-id' });
+    vi.mocked(featureFlagService.createFeatureFlag).mockResolvedValue({
+      featureFlagId: 'new-flag-id',
+    });
 
     const wrapper = createWrapper();
     const { result } = renderHook(() => useCreateFeatureFlag(), { wrapper });
 
     await act(async () => {
-      result.current.mutate({ code: 'NEW_FLAG', name: 'New Flag', description: '', flagType: 'boolean' });
+      result.current.mutate({
+        code: 'NEW_FLAG',
+        name: 'New Flag',
+        description: '',
+        flagType: 'boolean',
+      });
     });
 
     await waitFor(() => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(featureFlagService.createFeatureFlag).toHaveBeenCalledWith(expect.objectContaining({ code: 'NEW_FLAG' }));
+    expect(featureFlagService.createFeatureFlag).toHaveBeenCalledWith(
+      expect.objectContaining({ code: 'NEW_FLAG' })
+    );
   });
 
   it('useActivateFlag calls service successfully', async () => {

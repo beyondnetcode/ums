@@ -21,7 +21,7 @@ export function formatDate(
   date: Date | string | null | undefined,
   locale: string,
   timeZone?: string,
-  options?: Intl.DateTimeFormatOptions,
+  options?: Intl.DateTimeFormatOptions
 ): string {
   if (!date) return '-';
   const d = typeof date === 'string' ? new Date(date) : date;
@@ -43,7 +43,7 @@ export function formatDateTime(
   date: Date | string | null | undefined,
   locale: string,
   timeZone?: string,
-  options?: Intl.DateTimeFormatOptions,
+  options?: Intl.DateTimeFormatOptions
 ): string {
   if (!date) return '-';
   const d = typeof date === 'string' ? new Date(date) : date;
@@ -63,10 +63,7 @@ export function formatDateTime(
 /**
  * Returns a relative time string ("hace 3 días") for a UTC date.
  */
-export function formatRelativeTime(
-  date: Date | string | null | undefined,
-  locale: string,
-): string {
+export function formatRelativeTime(date: Date | string | null | undefined, locale: string): string {
   if (!date) return '-';
   const d = typeof date === 'string' ? new Date(date) : date;
   if (isNaN(d.getTime())) return '-';

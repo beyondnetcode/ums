@@ -10,8 +10,10 @@ export function inferConfigValueType(value: string): ConfigValueType {
   }
 
   const trimmed = value.trim();
-  if ((trimmed.startsWith('[') && trimmed.endsWith(']')) ||
-      (trimmed.startsWith('{') && trimmed.endsWith('}'))) {
+  if (
+    (trimmed.startsWith('[') && trimmed.endsWith(']')) ||
+    (trimmed.startsWith('{') && trimmed.endsWith('}'))
+  ) {
     return 'json';
   }
 

@@ -63,15 +63,12 @@ export function SearchableSelect<T extends string = string>({
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const selectedOption = useMemo(
-    () => options.find((opt) => opt.value === value),
-    [options, value]
-  );
+  const selectedOption = useMemo(() => options.find(opt => opt.value === value), [options, value]);
 
   const filteredOptions = useMemo(() => {
     if (!search.trim()) return options;
 
-    return options.filter((option) => {
+    return options.filter(option => {
       if (option.disabled) return false;
 
       const labelLower = option.label.toLowerCase();
@@ -98,7 +95,7 @@ export function SearchableSelect<T extends string = string>({
     if (!enableGrouping) return null;
 
     const groups: Record<string, SearchableSelectOption<T>[]> = {};
-    filteredOptions.forEach((opt) => {
+    filteredOptions.forEach(opt => {
       const group = opt.group || 'Sin grupo';
       if (!groups[group]) groups[group] = [];
       groups[group].push(opt);
@@ -149,12 +146,16 @@ export function SearchableSelect<T extends string = string>({
   const borderClass = isOpen
     ? `border-2 ${hasError ? 'border-m3-error' : 'border-m3-primary'}`
     : hasError
-    ? 'border border-m3-error'
-    : 'border border-m3-outline hover:border-m3-on-surface';
+      ? 'border border-m3-error'
+      : 'border border-m3-outline hover:border-m3-on-surface';
 
   const labelColorClass = isOpen
-    ? hasError ? 'text-m3-error' : 'text-m3-primary'
-    : hasError ? 'text-m3-error' : 'text-m3-secondary';
+    ? hasError
+      ? 'text-m3-error'
+      : 'text-m3-primary'
+    : hasError
+      ? 'text-m3-error'
+      : 'text-m3-secondary';
 
   return (
     <div ref={containerRef} className={`relative w-full ${className}`}>
@@ -211,7 +212,9 @@ export function SearchableSelect<T extends string = string>({
             {loading ? (
               <Loader2 className="w-4 h-4 text-m3-secondary animate-spin" />
             ) : (
-              <ChevronDown className={`w-4 h-4 text-m3-secondary transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown
+                className={`w-4 h-4 text-m3-secondary transition-transform ${isOpen ? 'rotate-180' : ''}`}
+              />
             )}
           </div>
         </div>
@@ -237,7 +240,7 @@ export function SearchableSelect<T extends string = string>({
                 ref={inputRef}
                 type="text"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={e => setSearch(e.target.value)}
                 placeholder={searchPlaceholder}
                 className="flex-1 bg-transparent text-sm text-m3-on-surface outline-none placeholder:text-m3-secondary"
               />
@@ -259,10 +262,10 @@ export function SearchableSelect<T extends string = string>({
                 {showAdvanced && (
                   <select
                     value={criteria}
-                    onChange={(e) => setCriteria(e.target.value as SearchCriteria)}
+                    onChange={e => setCriteria(e.target.value as SearchCriteria)}
                     className="text-xs bg-transparent text-m3-secondary outline-none cursor-pointer"
                   >
-                    {(Object.keys(CRITERIA_LABELS) as SearchCriteria[]).map((key) => (
+                    {(Object.keys(CRITERIA_LABELS) as SearchCriteria[]).map(key => (
                       <option key={key} value={key}>
                         {CRITERIA_LABELS[key]}
                       </option>
@@ -290,7 +293,7 @@ export function SearchableSelect<T extends string = string>({
                   <div className="px-4 py-1.5 text-[10px] font-bold text-m3-secondary uppercase tracking-wider bg-m3-surface-container/30">
                     {groupName}
                   </div>
-                  {groupOptions.map((option) => (
+                  {groupOptions.map(option => (
                     <OptionButton
                       key={String(option.value)}
                       option={option}
@@ -301,7 +304,7 @@ export function SearchableSelect<T extends string = string>({
                 </div>
               ))
             ) : (
-              filteredOptions.map((option) => (
+              filteredOptions.map(option => (
                 <OptionButton
                   key={String(option.value)}
                   option={option}

@@ -40,6 +40,7 @@ interface ListToolbarProps {
   itemLabel: string;
   secondaryActions?: React.ReactNode;
   onAdd?: () => void;
+  onAddDisabled?: boolean;
   addLabel?: string;
 }
 
@@ -74,19 +75,24 @@ const SelectField: React.FC<{
   </select>
 );
 
-const AddButton: React.FC<{ onClick: () => void; title?: string }> = ({
+const AddButton: React.FC<{ onClick: () => void; title?: string; disabled?: boolean }> = ({
   onClick,
   title = 'Agregar',
+  disabled = false,
 }) => (
   <button
     type="button"
     onClick={onClick}
+    disabled={disabled}
     title={title}
-    className="inline-flex items-center justify-center w-8 h-8 rounded-full
+    className={`inline-flex items-center justify-center w-8 h-8 rounded-full
       border border-m3-outline/30 text-m3-secondary
-      hover:border-m3-primary/50 hover:text-m3-primary hover:bg-m3-primary/10
       transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-primary
-      active:scale-95"
+      active:scale-95 ${
+        disabled
+          ? 'opacity-50 cursor-not-allowed bg-m3-surface-variant'
+          : 'hover:border-m3-primary/50 hover:text-m3-primary hover:bg-m3-primary/10'
+      }`}
   >
     <Plus className="w-4 h-4" />
   </button>
@@ -114,6 +120,7 @@ export const ListToolbar: React.FC<ListToolbarProps> = ({
   itemLabel,
   secondaryActions,
   onAdd,
+  onAddDisabled,
   addLabel = 'Agregar',
 }) => {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -137,7 +144,7 @@ export const ListToolbar: React.FC<ListToolbarProps> = ({
           </button>
         </div>
         <div className="flex items-center gap-3">
-          {onAdd && <AddButton onClick={onAdd} title={addLabel} />}
+          {onAdd && <AddButton onClick={onAdd} title={addLabel} disabled={onAddDisabled} />}
           {onViewModeChange && (
             <M3SegmentedButton
               options={VIEW_MODE_OPTIONS}

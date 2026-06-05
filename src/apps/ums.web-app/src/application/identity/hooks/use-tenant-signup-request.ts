@@ -24,7 +24,7 @@ export const useApproveTenantSignupRequest = () => {
     mutationFn: (tenantSignupRequestId: string) =>
       tenantSignupRequestService.approve(tenantSignupRequestId),
     invalidateKeys: [['tenant-signup-requests'], ['tenants']],
-    successNotif: (data) => ({
+    successNotif: data => ({
       title: t.notifActivated ?? 'Solicitud aprobada',
       message: data.message,
       type: 'success',

@@ -38,6 +38,7 @@ interface UserAccountListPanelProps {
     totalPages: number;
   };
   onRegisterNew: () => void;
+  onAddDisabled?: boolean;
   onSelectAccount: (accountId: string) => void;
   onApproveAccount?: (accountId: string) => void;
   criteriaOptions: AtomicQueryCriteriaOption[];
@@ -60,6 +61,7 @@ export const UserAccountListPanel: React.FC<UserAccountListPanelProps> = ({
   queryState,
   paginationState,
   onRegisterNew,
+  onAddDisabled,
   onSelectAccount,
   onApproveAccount,
   criteriaOptions,
@@ -100,22 +102,24 @@ export const UserAccountListPanel: React.FC<UserAccountListPanelProps> = ({
               width: 'w-20',
             },
             ...(account.status === 'Pending' && onApproveAccount
-              ? [{
-                  content: (
-                    <M3Button
-                      type="button"
-                      variant="text"
-                      className="px-2 py-1 text-[11px] text-m3-primary"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        onApproveAccount(account.userAccountId);
-                      }}
-                    >
-                      Aprobar
-                    </M3Button>
-                  ),
-                  width: 'w-20',
-                }]
+              ? [
+                  {
+                    content: (
+                      <M3Button
+                        type="button"
+                        variant="text"
+                        className="px-2 py-1 text-[11px] text-m3-primary"
+                        onClick={event => {
+                          event.stopPropagation();
+                          onApproveAccount(account.userAccountId);
+                        }}
+                      >
+                        Aprobar
+                      </M3Button>
+                    ),
+                    width: 'w-20',
+                  },
+                ]
               : []),
             {
               content: (
@@ -180,9 +184,7 @@ export const UserAccountListPanel: React.FC<UserAccountListPanelProps> = ({
   return (
     <div className="flex flex-col h-full gap-4">
       {onTenantChange && tenants && (
-        <div
-          className="flex-shrink-0 rounded-xl p-4 bg-m3-surface-container/20 border border-m3-outline/25 shadow-sm relative overflow-visible transition-all duration-300"
-        >
+        <div className="flex-shrink-0 rounded-xl p-4 bg-m3-surface-container/20 border border-m3-outline/25 shadow-sm relative overflow-visible transition-all duration-300">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <div className="p-1.5 bg-m3-primary/10 rounded-lg text-m3-primary border border-m3-primary/10 flex-shrink-0">
@@ -192,9 +194,7 @@ export const UserAccountListPanel: React.FC<UserAccountListPanelProps> = ({
                 <span className="text-[11px] font-medium text-m3-secondary uppercase tracking-wider block">
                   {t.activeTenant}
                 </span>
-                <span className="text-[11px] text-m3-secondary/70">
-                  {t.filterAccountsByTenant}
-                </span>
+                <span className="text-[11px] text-m3-secondary/70">{t.filterAccountsByTenant}</span>
               </div>
             </div>
             <div className="w-full sm:w-72">
@@ -236,6 +236,7 @@ export const UserAccountListPanel: React.FC<UserAccountListPanelProps> = ({
               sortOrder={queryState.sortOrder}
               onSortOrderToggle={queryState.toggleSortOrder}
               onAdd={onRegisterNew}
+              onAddDisabled={onAddDisabled}
             />
           }
           content={

@@ -48,7 +48,13 @@ describe('use-profile hooks', () => {
   it('useGetAllProfiles returns paged list', async () => {
     const mockPage = {
       items: [
-        { profileId: 'p1', code: 'P1', name: 'Profile 1', status: 'Active', createdAt: '2024-01-01' },
+        {
+          profileId: 'p1',
+          code: 'P1',
+          name: 'Profile 1',
+          status: 'Active',
+          createdAt: '2024-01-01',
+        },
       ],
       page: 1,
       pageSize: 20,
@@ -59,10 +65,7 @@ describe('use-profile hooks', () => {
     vi.mocked(profileService.getAll).mockResolvedValue(mockPage);
 
     const wrapper = createWrapper();
-    const { result } = renderHook(
-      () => useGetAllProfiles({ page: 1, pageSize: 20 }),
-      { wrapper }
-    );
+    const { result } = renderHook(() => useGetAllProfiles({ page: 1, pageSize: 20 }), { wrapper });
 
     await waitFor(() => {
       expect(result.current.isSuccess).toBe(true);

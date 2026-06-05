@@ -54,21 +54,23 @@ export const RegisterActionCommandSchema = z.object({
 
 // ── Domain Resources ──────────────────────────────────────────────────────────
 
-export const AddDomainResourceCommandSchema = z.object({
-  moduleId: z.string().uuid().nullable().optional(),
-  parentResourceId: z.string().uuid().nullable().optional(),
-  type: z.enum(['Aggregate', 'Entity', 'DomainMethod']),
-  code: z
-    .string()
-    .min(1, 'Código requerido')
-    .max(100, 'Máximo 100 caracteres')
-    .regex(codeRegex, 'Solo letras, dígitos y guiones bajos'),
-  name: z.string().min(1, 'Nombre requerido').max(150, 'Máximo 150 caracteres'),
-  description: z.string().min(1, 'Descripción requerida').max(500, 'Máximo 500 caracteres'),
-}).refine(
-  data => data.type !== 'DomainMethod' || !!data.parentResourceId,
-  { message: 'Un método de dominio debe pertenecer a un recurso padre.', path: ['parentResourceId'] },
-);
+export const AddDomainResourceCommandSchema = z
+  .object({
+    moduleId: z.string().uuid().nullable().optional(),
+    parentResourceId: z.string().uuid().nullable().optional(),
+    type: z.enum(['Aggregate', 'Entity', 'DomainMethod']),
+    code: z
+      .string()
+      .min(1, 'Código requerido')
+      .max(100, 'Máximo 100 caracteres')
+      .regex(codeRegex, 'Solo letras, dígitos y guiones bajos'),
+    name: z.string().min(1, 'Nombre requerido').max(150, 'Máximo 150 caracteres'),
+    description: z.string().min(1, 'Descripción requerida').max(500, 'Máximo 500 caracteres'),
+  })
+  .refine(data => data.type !== 'DomainMethod' || !!data.parentResourceId, {
+    message: 'Un método de dominio debe pertenecer a un recurso padre.',
+    path: ['parentResourceId'],
+  });
 
 export const UpdateDomainResourceCommandSchema = z.object({
   name: z.string().min(1, 'Nombre requerido').max(150, 'Máximo 150 caracteres'),

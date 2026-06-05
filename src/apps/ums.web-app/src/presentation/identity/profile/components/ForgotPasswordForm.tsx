@@ -15,7 +15,9 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onBack }
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [result, setResult] = useState<{ message: string; tempPassword: string | null } | null>(null);
+  const [result, setResult] = useState<{ message: string; tempPassword: string | null } | null>(
+    null
+  );
   const [copied, setCopied] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -81,9 +83,11 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onBack }
                   className="p-2 rounded border border-m3-outline/20 hover:bg-m3-surface-variant transition-colors shrink-0"
                   title="Copiar"
                 >
-                  {copied
-                    ? <Check className="w-4 h-4 text-emerald-500" />
-                    : <Copy className="w-4 h-4 text-m3-secondary" />}
+                  {copied ? (
+                    <Check className="w-4 h-4 text-emerald-500" />
+                  ) : (
+                    <Copy className="w-4 h-4 text-m3-secondary" />
+                  )}
                 </button>
               </div>
               <p className="text-[10px] text-m3-secondary/70">
@@ -112,7 +116,8 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onBack }
       </div>
 
       <p className="text-xs text-m3-secondary leading-relaxed">
-        Ingrese su tenant y correo electrónico. Si existe una cuenta asociada, recibirá instrucciones para restablecer su contraseña.
+        Ingrese su tenant y correo electrónico. Si existe una cuenta asociada, recibirá
+        instrucciones para restablecer su contraseña.
       </p>
 
       <TenantSelect
@@ -129,27 +134,42 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onBack }
         type="email"
         required
         value={email}
-        onChange={e => { setEmail(e.target.value); setError(''); }}
+        onChange={e => {
+          setEmail(e.target.value);
+          setError('');
+        }}
         placeholder="usuario@empresa.com"
         autoComplete="email"
         disabled={isLoading}
         icon={<Mail className="w-4 h-4" />}
       />
 
-      {error && (
-        <p className="text-xs text-m3-error px-1">{error}</p>
-      )}
+      {error && <p className="text-xs text-m3-error px-1">{error}</p>}
 
       <M3Button variant="filled" className="w-full" type="submit" disabled={isLoading}>
         {isLoading ? (
           <span className="flex items-center gap-2">
             <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+                fill="none"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+              />
             </svg>
             Procesando...
           </span>
-        ) : 'Enviar instrucciones'}
+        ) : (
+          'Enviar instrucciones'
+        )}
       </M3Button>
 
       <button

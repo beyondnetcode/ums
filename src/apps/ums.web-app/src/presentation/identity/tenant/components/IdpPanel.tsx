@@ -3,7 +3,10 @@ import { useI18n } from '@app/i18n/use-i18n';
 import { useInlineEdit } from '@app/hooks/use-inline-edit';
 import { useResetOnChange } from '@app/hooks/use-reset-on-change';
 import { useNotificationStore } from '@app/stores/notification.store';
-import { useGetAllAppConfigurations, useUpdateAppConfiguration } from '@app/configuration/hooks/use-app-configuration';
+import {
+  useGetAllAppConfigurations,
+  useUpdateAppConfiguration,
+} from '@app/configuration/hooks/use-app-configuration';
 import { formatSystemCode } from '@app/utils/security';
 import { idpService } from '@infra/identity/services/idp.service';
 import type { IdentityProvider } from '@domain/identity/schemas/identity-provider.schema';
@@ -63,7 +66,7 @@ export const IdpPanel: React.FC<IdpPanelProps> = ({ tenantId }) => {
 
   const updateConfigMutation = useUpdateAppConfiguration();
 
-  const configItem = configsPage?.items?.find((c) => c.code === 'AUTH_USE_EXTERNAL_IDP');
+  const configItem = configsPage?.items?.find(c => c.code === 'AUTH_USE_EXTERNAL_IDP');
   const useExternalIdp = configItem?.value?.toLowerCase() === 'true';
 
   useResetOnChange(tenantId, () => {
@@ -115,7 +118,8 @@ export const IdpPanel: React.FC<IdpPanelProps> = ({ tenantId }) => {
       if (!hasActiveIdp) {
         addNotification({
           title: 'Requisito no cumplido',
-          message: 'Debe haber al menos un proveedor de identidad activo antes de cambiar al modo IDPs.',
+          message:
+            'Debe haber al menos un proveedor de identidad activo antes de cambiar al modo IDPs.',
           type: 'error',
         });
         return;
@@ -201,7 +205,9 @@ export const IdpPanel: React.FC<IdpPanelProps> = ({ tenantId }) => {
       } else {
         // Enforce the rule: "pudiendo ser varios pero uno solo activo"
         // Deactivate all other currently active IDPs first
-        const activeProviders = providers.filter(p => p.isActive && p.identityProviderId !== provider.identityProviderId);
+        const activeProviders = providers.filter(
+          p => p.isActive && p.identityProviderId !== provider.identityProviderId
+        );
         for (const activeP of activeProviders) {
           await idpService.deactivateIdentityProvider(tenantId, activeP.identityProviderId);
         }
@@ -307,7 +313,9 @@ export const IdpPanel: React.FC<IdpPanelProps> = ({ tenantId }) => {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <span className={`text-xs font-bold uppercase tracking-wider ${!useExternalIdp ? 'text-m3-primary' : 'text-m3-secondary/60'}`}>
+          <span
+            className={`text-xs font-bold uppercase tracking-wider ${!useExternalIdp ? 'text-m3-primary' : 'text-m3-secondary/60'}`}
+          >
             Local
           </span>
           <M3Switch
@@ -315,7 +323,9 @@ export const IdpPanel: React.FC<IdpPanelProps> = ({ tenantId }) => {
             onChange={handleToggleAuthMode}
             id="auth-mode-toggle"
           />
-          <span className={`text-xs font-bold uppercase tracking-wider ${useExternalIdp ? 'text-m3-primary' : 'text-m3-secondary/60'}`}>
+          <span
+            className={`text-xs font-bold uppercase tracking-wider ${useExternalIdp ? 'text-m3-primary' : 'text-m3-secondary/60'}`}
+          >
             IDPs
           </span>
         </div>
@@ -326,232 +336,239 @@ export const IdpPanel: React.FC<IdpPanelProps> = ({ tenantId }) => {
         <div className="flex items-start gap-3 px-4 py-3 rounded-xl border border-amber-500/20 bg-amber-500/5 text-xs text-amber-700 dark:text-amber-400">
           <Cpu className="w-4 h-4 shrink-0 mt-0.5 text-amber-500" />
           <span>
-            <span className="font-semibold">Modo Local activo.</span> Los IDPs configurados aquí no se usan para autenticación hasta activar el modo IDPs.
-            Puede pre-configurarlos con anticipación.
+            <span className="font-semibold">Modo Local activo.</span> Los IDPs configurados aquí no
+            se usan para autenticación hasta activar el modo IDPs. Puede pre-configurarlos con
+            anticipación.
           </span>
         </div>
       )}
 
       <>
         <ListToolbar
-            viewMode={viewMode}
-            onViewModeChange={setViewMode}
-            filterOptions={[
-              { label: 'Todos', value: 'all' },
-              { label: 'Activos', value: 'active' },
-              { label: 'Inactivos', value: 'inactive' },
-            ]}
-            activeFilter={activeFilter}
-            onFilterChange={setActiveFilter}
-            sortOptions={[
-              { label: 'Nombre', value: 'name' },
-              { label: 'Código', value: 'code' },
-              { label: 'Protocolo', value: 'strategy' },
-            ]}
-            sortBy={sortBy}
-            onSortByChange={setSortBy}
-            sortOrder={sortOrder}
-            onSortOrderToggle={() => setSortOrder(o => (o === 'asc' ? 'desc' : 'asc'))}
-            itemCount={providers.length}
-            itemLabel="proveedor"
-            onAdd={() => setIsAddingProvider(true)}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+          filterOptions={[
+            { label: 'Todos', value: 'all' },
+            { label: 'Activos', value: 'active' },
+            { label: 'Inactivos', value: 'inactive' },
+          ]}
+          activeFilter={activeFilter}
+          onFilterChange={setActiveFilter}
+          sortOptions={[
+            { label: 'Nombre', value: 'name' },
+            { label: 'Código', value: 'code' },
+            { label: 'Protocolo', value: 'strategy' },
+          ]}
+          sortBy={sortBy}
+          onSortByChange={setSortBy}
+          sortOrder={sortOrder}
+          onSortOrderToggle={() => setSortOrder(o => (o === 'asc' ? 'desc' : 'asc'))}
+          itemCount={providers.length}
+          itemLabel="proveedor"
+          onAdd={() => setIsAddingProvider(true)}
+        />
+
+        <InlineAddForm
+          isOpen={isAddingProvider}
+          onToggle={setIsAddingProvider}
+          onSubmit={handleAddProvider}
+          addLabel="+"
+          title={t.newProvider}
+          cancelLabel={t.cancelEdit}
+          submitLabel={t.saveProvider}
+          triggerEmphasis="none"
+        >
+          <M3TextField
+            label={t.providerName}
+            required
+            value={provName}
+            onChange={e => setProvName(e.target.value)}
+            placeholder="e.g. Okta SSO"
           />
-
-          <InlineAddForm
-            isOpen={isAddingProvider}
-            onToggle={setIsAddingProvider}
-            onSubmit={handleAddProvider}
-            addLabel="+"
-            title={t.newProvider}
-            cancelLabel={t.cancelEdit}
-            submitLabel={t.saveProvider}
-            triggerEmphasis="none"
+          <M3TextField
+            label={t.providerCode}
+            value={provCode}
+            onChange={e => setProvCode(e.target.value.toUpperCase())}
+            placeholder="e.g. OKTA_SSO"
+          />
+          <M3Select
+            label={t.protocolType}
+            value={provStrategy}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+              setProvStrategy(e.target.value as IdpStrategy)
+            }
           >
-            <M3TextField
-              label={t.providerName}
-              required
-              value={provName}
-              onChange={e => setProvName(e.target.value)}
-              placeholder="e.g. Okta SSO"
-            />
-            <M3TextField
-              label={t.providerCode}
-              value={provCode}
-              onChange={e => setProvCode(e.target.value.toUpperCase())}
-              placeholder="e.g. OKTA_SSO"
-            />
-            <M3Select
-              label={t.protocolType}
-              value={provStrategy}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                setProvStrategy(e.target.value as IdpStrategy)
-              }
-            >
-              {IDP_STRATEGIES.map(s => (
-                <option key={s} value={s}>
-                  {strategyLabels[s]}
-                </option>
-              ))}
-            </M3Select>
-            <M3TextField
-              label={t.providerDescription}
-              value={provDescription}
-              onChange={e => setProvDescription(e.target.value)}
-              placeholder="e.g. https://login.microsoftonline.com/tenant-id"
-            />
-          </InlineAddForm>
+            {IDP_STRATEGIES.map(s => (
+              <option key={s} value={s}>
+                {strategyLabels[s]}
+              </option>
+            ))}
+          </M3Select>
+          <M3TextField
+            label={t.providerDescription}
+            value={provDescription}
+            onChange={e => setProvDescription(e.target.value)}
+            placeholder="e.g. https://login.microsoftonline.com/tenant-id"
+          />
+        </InlineAddForm>
 
-          <div className="space-y-2.5">
-            {isLoading ? (
-              <div className="py-8 text-center text-sm text-m3-secondary">{t.loading}</div>
-            ) : filteredProviders.length === 0 ? (
-              <EmptyState icon={<Key className="w-5 h-5 text-m3-outline" />} message={t.noIdps} />
-            ) : (
-              filteredProviders.map(p =>
-                edit.isEditing(p.identityProviderId) ? (
-                  <div
-                    key={p.identityProviderId}
-                    className="p-3.5 rounded-xl border border-m3-primary/30 bg-m3-surface-container/50 animate-fadeIn"
-                  >
-                    <div className="flex items-center justify-between mb-2.5 pb-1.5 border-b border-m3-outline/10">
-                      <span className="text-[10px] font-semibold uppercase tracking-wider text-m3-primary flex items-center gap-1">
-                        <Pencil className="w-2.5 h-2.5" /> {t.editProvider}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={edit.cancelEdit}
-                        className="p-0.5 rounded text-m3-secondary/60 hover:text-m3-primary hover:bg-m3-primary/10 transition-colors"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </div>
-
-                    <div className="space-y-3">
-                      <M3TextField
-                        label={t.providerName}
-                        required
-                        value={edit.draft.name ?? ''}
-                        onChange={e => edit.setField('name', e.target.value)}
-                        compact
-                      />
-                      <M3TextField
-                        label={t.providerCode}
-                        value={edit.draft.code ?? ''}
-                        onChange={e => edit.setField('code', e.target.value.toUpperCase())}
-                        compact
-                      />
-                      <M3Select
-                        label={t.protocolType}
-                        value={edit.draft.strategy ?? 'OIDC'}
-                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                          edit.setField('strategy', e.target.value)
-                        }
-                        compact
-                      >
-                        <option value="OIDC">{t.strategyOIDC}</option>
-                        <option value="SAML2">{t.strategySAML2}</option>
-                        <option value="OAuth2">{t.strategyOAuth2}</option>
-                      </M3Select>
-                      <M3TextField
-                        label={t.providerDescription}
-                        value={edit.draft.description ?? ''}
-                        onChange={e => edit.setField('description', e.target.value)}
-                        compact
-                      />
-                    </div>
-
-                    <div className="flex justify-end gap-2 mt-2.5 pt-2 border-t border-m3-outline/10">
-                      <button
-                        type="button"
-                        onClick={saveProviderEdit}
-                        className="h-7 px-4 rounded-full bg-m3-primary text-white text-[10px] font-medium flex items-center justify-center gap-1.5 hover:bg-m3-primary/90 transition-colors"
-                      >
-                        <Save className="w-2.5 h-2.5" /> {t.saveBtn}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={edit.cancelEdit}
-                        className="h-7 px-3 rounded-full border border-m3-outline/30 text-m3-secondary text-[10px] font-medium hover:bg-m3-surface-variant transition-colors"
-                      >
-                        {t.cancelEdit}
-                      </button>
-                    </div>
+        <div className="space-y-2.5">
+          {isLoading ? (
+            <div className="py-8 text-center text-sm text-m3-secondary">{t.loading}</div>
+          ) : filteredProviders.length === 0 ? (
+            <EmptyState icon={<Key className="w-5 h-5 text-m3-outline" />} message={t.noIdps} />
+          ) : (
+            filteredProviders.map(p =>
+              edit.isEditing(p.identityProviderId) ? (
+                <div
+                  key={p.identityProviderId}
+                  className="p-3.5 rounded-xl border border-m3-primary/30 bg-m3-surface-container/50 animate-fadeIn"
+                >
+                  <div className="flex items-center justify-between mb-2.5 pb-1.5 border-b border-m3-outline/10">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-m3-primary flex items-center gap-1">
+                      <Pencil className="w-2.5 h-2.5" /> {t.editProvider}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={edit.cancelEdit}
+                      className="p-0.5 rounded text-m3-secondary/60 hover:text-m3-primary hover:bg-m3-primary/10 transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
                   </div>
-                ) : (
-                  <EntityRow
-                    key={p.identityProviderId}
-                    id={p.identityProviderId}
-                    isActive={p.isActive}
-                    onDoubleClick={() =>
-                      edit.openEdit(p.identityProviderId, {
-                        name: p.name,
-                        code: p.code,
-                        description: p.description,
-                        strategy: p.strategy,
-                      })
-                    }
-                    trailing={
-                      <>
-                        <IconButton
-                          tooltip={t.editProvider}
-                          onClick={() =>
-                            edit.openEdit(p.identityProviderId, {
-                              name: p.name,
-                              code: p.code,
-                              description: p.description,
-                              strategy: p.strategy,
-                            })
-                          }
-                          className="opacity-0 group-hover/row:opacity-100"
-                        >
-                          <Pencil className="w-3.5 h-3.5" />
-                        </IconButton>
-                        <Tooltip content={
+
+                  <div className="space-y-3">
+                    <M3TextField
+                      label={t.providerName}
+                      required
+                      value={edit.draft.name ?? ''}
+                      onChange={e => edit.setField('name', e.target.value)}
+                      compact
+                    />
+                    <M3TextField
+                      label={t.providerCode}
+                      value={edit.draft.code ?? ''}
+                      onChange={e => edit.setField('code', e.target.value.toUpperCase())}
+                      compact
+                    />
+                    <M3Select
+                      label={t.protocolType}
+                      value={edit.draft.strategy ?? 'OIDC'}
+                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                        edit.setField('strategy', e.target.value)
+                      }
+                      compact
+                    >
+                      <option value="OIDC">{t.strategyOIDC}</option>
+                      <option value="SAML2">{t.strategySAML2}</option>
+                      <option value="OAuth2">{t.strategyOAuth2}</option>
+                    </M3Select>
+                    <M3TextField
+                      label={t.providerDescription}
+                      value={edit.draft.description ?? ''}
+                      onChange={e => edit.setField('description', e.target.value)}
+                      compact
+                    />
+                  </div>
+
+                  <div className="flex justify-end gap-2 mt-2.5 pt-2 border-t border-m3-outline/10">
+                    <button
+                      type="button"
+                      onClick={saveProviderEdit}
+                      className="h-7 px-4 rounded-full bg-m3-primary text-white text-[10px] font-medium flex items-center justify-center gap-1.5 hover:bg-m3-primary/90 transition-colors"
+                    >
+                      <Save className="w-2.5 h-2.5" /> {t.saveBtn}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={edit.cancelEdit}
+                      className="h-7 px-3 rounded-full border border-m3-outline/30 text-m3-secondary text-[10px] font-medium hover:bg-m3-surface-variant transition-colors"
+                    >
+                      {t.cancelEdit}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <EntityRow
+                  key={p.identityProviderId}
+                  id={p.identityProviderId}
+                  isActive={p.isActive}
+                  onDoubleClick={() =>
+                    edit.openEdit(p.identityProviderId, {
+                      name: p.name,
+                      code: p.code,
+                      description: p.description,
+                      strategy: p.strategy,
+                    })
+                  }
+                  trailing={
+                    <>
+                      <IconButton
+                        tooltip={t.editProvider}
+                        onClick={() =>
+                          edit.openEdit(p.identityProviderId, {
+                            name: p.name,
+                            code: p.code,
+                            description: p.description,
+                            strategy: p.strategy,
+                          })
+                        }
+                        className="opacity-0 group-hover/row:opacity-100"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                      </IconButton>
+                      <Tooltip
+                        content={
                           !p.isActive && !useExternalIdp
                             ? 'Activación bloqueada en modo Local'
-                            : p.isActive ? t.deactivate : t.reactivate
-                        }>
-                          <button
-                            onClick={() => handleToggleProvider(p)}
-                            disabled={!p.isActive && !useExternalIdp}
-                            className={`p-1.5 rounded-full transition-all border ${
-                              !p.isActive && !useExternalIdp
-                                ? 'bg-m3-surface-variant border-m3-outline/20 text-m3-outline cursor-not-allowed opacity-50'
-                                : p.isActive
-                                  ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/20'
-                                  : 'bg-rose-500/10 border-rose-500/20 text-rose-500 hover:bg-rose-500/20'
-                            }`}
-                          >
-                            <Check className="w-3.5 h-3.5" />
-                          </button>
-                        </Tooltip>
-                        <IconButton
-                          tooltip={t.removeLocation}
-                          onClick={() => handleRemoveProvider(p.identityProviderId)}
-                          className="hover:text-m3-error hover:bg-m3-error/10"
+                            : p.isActive
+                              ? t.deactivate
+                              : t.reactivate
+                        }
+                      >
+                        <button
+                          onClick={() => handleToggleProvider(p)}
+                          disabled={!p.isActive && !useExternalIdp}
+                          className={`p-1.5 rounded-full transition-all border ${
+                            !p.isActive && !useExternalIdp
+                              ? 'bg-m3-surface-variant border-m3-outline/20 text-m3-outline cursor-not-allowed opacity-50'
+                              : p.isActive
+                                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/20'
+                                : 'bg-rose-500/10 border-rose-500/20 text-rose-500 hover:bg-rose-500/20'
+                          }`}
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </IconButton>
-                      </>
-                    }
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-sm text-m3-on-surface flex-1 min-w-0 truncate">{p.name}</span>
-                      <div className="flex items-center gap-1.5 flex-shrink-0">
-                        {p.code && <CodeBadge code={p.code} size="xs" />}
-                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-m3-primary/10 text-m3-primary font-mono">
-                          {p.strategy}
-                        </span>
-                      </div>
+                          <Check className="w-3.5 h-3.5" />
+                        </button>
+                      </Tooltip>
+                      <IconButton
+                        tooltip={t.removeLocation}
+                        onClick={() => handleRemoveProvider(p.identityProviderId)}
+                        className="hover:text-m3-error hover:bg-m3-error/10"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </IconButton>
+                    </>
+                  }
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium text-sm text-m3-on-surface flex-1 min-w-0 truncate">
+                      {p.name}
+                    </span>
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      {p.code && <CodeBadge code={p.code} size="xs" />}
+                      <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-m3-primary/10 text-m3-primary font-mono">
+                        {p.strategy}
+                      </span>
                     </div>
-                    {p.description && (
-                      <p className="text-xs font-mono text-m3-secondary truncate">{p.description}</p>
-                    )}
-                  </EntityRow>
-                )
+                  </div>
+                  {p.description && (
+                    <p className="text-xs font-mono text-m3-secondary truncate">{p.description}</p>
+                  )}
+                </EntityRow>
               )
-            )}
-          </div>
+            )
+          )}
+        </div>
       </>
     </div>
   );

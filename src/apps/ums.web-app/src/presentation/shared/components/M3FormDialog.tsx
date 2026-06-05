@@ -42,7 +42,9 @@ export const M3FormDialog: React.FC<M3FormDialogProps> = ({
       {/* Scrim */}
       <div className="absolute inset-0 bg-black/45 backdrop-blur-sm" onClick={onClose} />
 
-      <div className={`bg-m3-surface border border-m3-outline/25 w-full ${maxWidth} rounded-xl overflow-hidden shadow-2xl z-10`}>
+      <div
+        className={`bg-m3-surface border border-m3-outline/25 w-full ${maxWidth} rounded-xl overflow-hidden shadow-2xl z-10`}
+      >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-m3-outline/20">
           <div className="flex items-center gap-2 text-m3-primary">
@@ -58,9 +60,7 @@ export const M3FormDialog: React.FC<M3FormDialogProps> = ({
         </div>
 
         {/* Body */}
-        <div className="p-6 space-y-0">
-          {children}
-        </div>
+        <div className="p-6 space-y-0">{children}</div>
 
         {/* Footer */}
         <div className="flex justify-end gap-3 px-6 pb-6 pt-0 border-t border-m3-outline/10 mt-0">

@@ -17,13 +17,15 @@ describe('TenantSchema', () => {
   });
 
   it('rejects invalid runtime payloads', () => {
-    expect(() => TenantSchema.parse({
-      tenantId: 'not-a-guid',
-      code: '',
-      name: 'Ransa',
-      type: 'INTERNAL',
-      status: 'Unknown',
-      parentTenantId: null,
-    })).toThrow();
+    expect(() =>
+      TenantSchema.parse({
+        tenantId: 'not-a-guid',
+        code: '',
+        name: 'Ransa',
+        type: 'INTERNAL',
+        status: 'Unknown',
+        parentTenantId: null,
+      })
+    ).toThrow();
   });
 });

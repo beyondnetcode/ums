@@ -28,24 +28,24 @@ export const asHttpError = (error: unknown): HttpErrorLike => {
   if (!isRecord(error)) return {};
   const response = isRecord(error.response) ? error.response : undefined;
   const data = response && isRecord(response.data) ? response.data : undefined;
-  const graphQLErrors = Array.isArray(error.graphQLErrors)
-    ? error.graphQLErrors
-    : undefined;
+  const graphQLErrors = Array.isArray(error.graphQLErrors) ? error.graphQLErrors : undefined;
   return {
-    supportReferenceId: typeof error.supportReferenceId === 'string' ? error.supportReferenceId : undefined,
+    supportReferenceId:
+      typeof error.supportReferenceId === 'string' ? error.supportReferenceId : undefined,
     response: response
       ? {
           status: typeof response.status === 'number' ? response.status : undefined,
           headers: isRecord(response.headers) ? response.headers : undefined,
           data: data
             ? {
-                detail:             typeof data.detail === 'string' ? data.detail : undefined,
-                title:              typeof data.title === 'string' ? data.title : undefined,
-                error:              typeof data.error === 'string' ? data.error : undefined,
-                errorId:            typeof data.errorId === 'string' ? data.errorId : undefined,
-                traceId:            typeof data.traceId === 'string' ? data.traceId : undefined,
-                supportReferenceId: typeof data.supportReferenceId === 'string' ? data.supportReferenceId : undefined,
-                userMessage:        typeof data.userMessage === 'string' ? data.userMessage : undefined,
+                detail: typeof data.detail === 'string' ? data.detail : undefined,
+                title: typeof data.title === 'string' ? data.title : undefined,
+                error: typeof data.error === 'string' ? data.error : undefined,
+                errorId: typeof data.errorId === 'string' ? data.errorId : undefined,
+                traceId: typeof data.traceId === 'string' ? data.traceId : undefined,
+                supportReferenceId:
+                  typeof data.supportReferenceId === 'string' ? data.supportReferenceId : undefined,
+                userMessage: typeof data.userMessage === 'string' ? data.userMessage : undefined,
               }
             : undefined,
         }
@@ -60,24 +60,27 @@ export const getHttpStatus = (error: unknown): number | undefined =>
 export const getSupportReferenceId = (error: unknown): string | undefined => {
   const httpError = asHttpError(error);
   const graphqlErrorId = httpError.graphQLErrors
-    ?.map((item) => item.extensions?.errorId)
+    ?.map(item => item.extensions?.errorId)
     .find((value): value is string => typeof value === 'string');
   const graphqlTraceId = httpError.graphQLErrors
-    ?.map((item) => item.extensions?.traceId)
+    ?.map(item => item.extensions?.traceId)
     .find((value): value is string => typeof value === 'string');
-  const headerErrorId = httpError.response?.headers?.['x-error-id']
-    ?? httpError.response?.headers?.['X-Error-Id'];
-  const headerTraceId = httpError.response?.headers?.['x-correlation-id']
-    ?? httpError.response?.headers?.['X-Correlation-Id'];
+  const headerErrorId =
+    httpError.response?.headers?.['x-error-id'] ?? httpError.response?.headers?.['X-Error-Id'];
+  const headerTraceId =
+    httpError.response?.headers?.['x-correlation-id'] ??
+    httpError.response?.headers?.['X-Correlation-Id'];
 
-  return httpError.supportReferenceId
-    ?? httpError.response?.data?.supportReferenceId
-    ?? httpError.response?.data?.errorId
-    ?? graphqlErrorId
-    ?? (typeof headerErrorId === 'string' ? headerErrorId : undefined)
-    ?? httpError.response?.data?.traceId
-    ?? graphqlTraceId
-    ?? (typeof headerTraceId === 'string' ? headerTraceId : undefined);
+  return (
+    httpError.supportReferenceId ??
+    httpError.response?.data?.supportReferenceId ??
+    httpError.response?.data?.errorId ??
+    graphqlErrorId ??
+    (typeof headerErrorId === 'string' ? headerErrorId : undefined) ??
+    httpError.response?.data?.traceId ??
+    graphqlTraceId ??
+    (typeof headerTraceId === 'string' ? headerTraceId : undefined)
+  );
 };
 
 /**

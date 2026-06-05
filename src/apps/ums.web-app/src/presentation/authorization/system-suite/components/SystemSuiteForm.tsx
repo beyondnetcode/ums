@@ -19,7 +19,12 @@ interface SystemSuiteFormProps {
   tenantId?: string;
 }
 
-export const SystemSuiteForm: React.FC<SystemSuiteFormProps> = ({ isOpen, onClose, onSuccess, tenantId }) => {
+export const SystemSuiteForm: React.FC<SystemSuiteFormProps> = ({
+  isOpen,
+  onClose,
+  onSuccess,
+  tenantId,
+}) => {
   const createSystemSuiteMutation = useCreateSystemSuite();
   const t = useI18n();
 
@@ -35,17 +40,24 @@ export const SystemSuiteForm: React.FC<SystemSuiteFormProps> = ({ isOpen, onClos
     e.preventDefault();
     if (!effectiveTenantId) return;
 
-    const payload = { tenantId: effectiveTenantId, code, name, description: description || undefined };
+    const payload = {
+      tenantId: effectiveTenantId,
+      code,
+      name,
+      description: description || undefined,
+    };
     const validData = validate(payload);
     if (!validData) return;
 
     try {
       await createSystemSuiteMutation.mutateAsync(validData);
-      setCode(''); setName(''); setDescription('');
+      setCode('');
+      setName('');
+      setDescription('');
       clearErrors();
       onSuccess();
       onClose();
-    } catch { }
+    } catch {}
   };
 
   return (
@@ -59,7 +71,12 @@ export const SystemSuiteForm: React.FC<SystemSuiteFormProps> = ({ isOpen, onClos
           <FormButton variant="text" onClick={onClose} type="button">
             {t.cancelBtn}
           </FormButton>
-          <FormButton variant="filled" onClick={handleSubmit} loading={createSystemSuiteMutation.isPending} icon={<Check className="w-3.5 h-3.5" />}>
+          <FormButton
+            variant="filled"
+            onClick={handleSubmit}
+            loading={createSystemSuiteMutation.isPending}
+            icon={<Check className="w-3.5 h-3.5" />}
+          >
             {t.registerSystemSuiteBtn}
           </FormButton>
         </div>
@@ -69,7 +86,7 @@ export const SystemSuiteForm: React.FC<SystemSuiteFormProps> = ({ isOpen, onClos
         <FormField label={t.systemSuiteCode} required error={errors.code}>
           <FormInput
             value={code}
-            onChange={(e) => setCode(e.target.value.toUpperCase())}
+            onChange={e => setCode(e.target.value.toUpperCase())}
             placeholder="SUITE_CRM"
           />
         </FormField>
@@ -77,7 +94,7 @@ export const SystemSuiteForm: React.FC<SystemSuiteFormProps> = ({ isOpen, onClos
         <FormField label={t.systemSuiteName} required error={errors.name}>
           <FormInput
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={e => setName(e.target.value)}
             placeholder="CRM System Suite"
           />
         </FormField>
@@ -85,7 +102,7 @@ export const SystemSuiteForm: React.FC<SystemSuiteFormProps> = ({ isOpen, onClos
         <FormField label={t.description} error={errors.description}>
           <FormInput
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={e => setDescription(e.target.value)}
             placeholder="Customer relationship management module"
           />
         </FormField>

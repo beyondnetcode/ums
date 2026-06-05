@@ -13,6 +13,6 @@ import { useAuthStore } from '@app/stores/auth.store';
  * ```
  */
 export function useEffectiveTenant(overrideTenantId?: string): string | undefined {
-  const sessionTenantId = useAuthStore((state) => state.user?.tenantId);
+  const sessionTenantId = useAuthStore(state => state.user?.tenantId);
   return overrideTenantId || sessionTenantId;
 }

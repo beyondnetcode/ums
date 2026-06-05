@@ -51,7 +51,13 @@ describe('use-permission-template hooks', () => {
   it('useGetAllPermissionTemplates returns paged list', async () => {
     const mockPage = {
       items: [
-        { templateId: 't1', code: 'T1', name: 'Template 1', status: 'Active', createdAt: '2024-01-01' },
+        {
+          templateId: 't1',
+          code: 'T1',
+          name: 'Template 1',
+          status: 'Active',
+          createdAt: '2024-01-01',
+        },
       ],
       page: 1,
       pageSize: 20,
@@ -62,10 +68,9 @@ describe('use-permission-template hooks', () => {
     vi.mocked(permissionTemplateService.getAll).mockResolvedValue(mockPage);
 
     const wrapper = createWrapper();
-    const { result } = renderHook(
-      () => useGetAllPermissionTemplates({ page: 1, pageSize: 20 }),
-      { wrapper }
-    );
+    const { result } = renderHook(() => useGetAllPermissionTemplates({ page: 1, pageSize: 20 }), {
+      wrapper,
+    });
 
     await waitFor(() => {
       expect(result.current.isSuccess).toBe(true);
@@ -114,7 +119,9 @@ describe('use-permission-template hooks', () => {
   });
 
   it('useCreatePermissionTemplate calls service successfully', async () => {
-    vi.mocked(permissionTemplateService.create).mockResolvedValue({ templateId: 'new-template-id' });
+    vi.mocked(permissionTemplateService.create).mockResolvedValue({
+      templateId: 'new-template-id',
+    });
 
     const wrapper = createWrapper();
     const { result } = renderHook(() => useCreatePermissionTemplate(), { wrapper });
@@ -127,7 +134,10 @@ describe('use-permission-template hooks', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(permissionTemplateService.create).toHaveBeenCalledWith({ code: 'NEW', name: 'New Template' });
+    expect(permissionTemplateService.create).toHaveBeenCalledWith({
+      code: 'NEW',
+      name: 'New Template',
+    });
   });
 
   it('usePublishPermissionTemplate calls service successfully', async () => {

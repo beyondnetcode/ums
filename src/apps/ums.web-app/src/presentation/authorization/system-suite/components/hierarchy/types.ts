@@ -23,6 +23,25 @@ export interface AddOptState {
   error: string;
 }
 
-export const emptyMenu = (): AddMenuState => ({ code: '', label: '', desc: '', sort: '1', error: '' });
-export const emptySub = (): AddSubState => ({ code: '', label: '', desc: '', sort: '1', error: '' });
-export const emptyOpt = (): AddOptState => ({ code: '', label: '', desc: '', actionCode: '', sort: '1', error: '' });
+export const emptyMenu = (): AddMenuState => ({
+  code: '',
+  label: '',
+  desc: '',
+  sort: '1',
+  error: '',
+});
+export const emptySub = (): AddSubState => ({
+  code: '',
+  label: '',
+  desc: '',
+  sort: '1',
+  error: '',
+});
+export const emptyOpt = (): AddOptState => ({
+  code: '',
+  label: '',
+  desc: '',
+  actionCode: '',
+  sort: '1',
+  error: '',
+});

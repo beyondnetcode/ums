@@ -3,7 +3,12 @@ import tenantService from '@infra/identity/services/tenant.service';
 import { useNotifiedMutation } from '@app/hooks/use-notified-mutation';
 import { useI18n } from '@app/i18n/use-i18n';
 import { CreateTenantPayload, Tenant, TenantPage } from '@domain/identity/models/tenant.model';
-import { getHttpStatus, isNonRecoverable, isNetworkError, getRetryOptions } from '@app/utils/error-utils';
+import {
+  getHttpStatus,
+  isNonRecoverable,
+  isNetworkError,
+  getRetryOptions,
+} from '@app/utils/error-utils';
 import { CONTEXT_QUERY_CONFIG } from '@app/shared/config/query.config';
 
 // ─── Query params ───────────────────────────────────────────────────────────
@@ -22,7 +27,16 @@ export interface TenantQueryParams {
 
 export const useGetAllTenants = (params: TenantQueryParams | null) => {
   return useQuery<TenantPage>({
-    queryKey: ['tenants', params?.page, params?.pageSize, params?.search, params?.criteria, params?.status, params?.sortBy, params?.sortOrder],
+    queryKey: [
+      'tenants',
+      params?.page,
+      params?.pageSize,
+      params?.search,
+      params?.criteria,
+      params?.status,
+      params?.sortBy,
+      params?.sortOrder,
+    ],
     queryFn: () => tenantService.getAll(params!),
     enabled: !!params,
     ...CONTEXT_QUERY_CONFIG.TENANT,
@@ -55,7 +69,7 @@ export const useCreateTenant = () => {
   return useNotifiedMutation({
     mutationFn: (payload: CreateTenantPayload) => tenantService.createTenant(payload),
     invalidateKeys: [['tenants']],
-    successNotif: (data) => ({
+    successNotif: data => ({
       title: t.notifTenantCreated,
       message: t.notifTenantCreatedMsg(data.name, data.code),
     }),

@@ -27,9 +27,7 @@ export function buildQueryString<T extends Record<string, unknown>>(
 
   const p = new URLSearchParams();
 
-  const entries = Object.entries(params).filter(
-    ([key]) => !excludeKeys.includes(key as keyof T)
-  );
+  const entries = Object.entries(params).filter(([key]) => !excludeKeys.includes(key as keyof T));
 
   for (const [key, value] of entries) {
     if (value !== undefined && value !== null && value !== '') {

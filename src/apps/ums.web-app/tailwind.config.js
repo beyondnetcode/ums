@@ -1,9 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   darkMode: 'class',
   theme: {
     extend: {
@@ -34,41 +31,41 @@ export default {
          */
         m3: {
           // Primary
-          primary:                  'hsl(var(--m3-primary))',
-          'on-primary':             'hsl(var(--m3-on-primary))',
-          'primary-container':      'hsl(var(--m3-primary-container))',
-          'on-primary-container':   'hsl(var(--m3-on-primary-container))',
+          primary: 'hsl(var(--m3-primary))',
+          'on-primary': 'hsl(var(--m3-on-primary))',
+          'primary-container': 'hsl(var(--m3-primary-container))',
+          'on-primary-container': 'hsl(var(--m3-on-primary-container))',
           // Secondary
-          secondary:                'hsl(var(--m3-secondary))',
-          'on-secondary':           'hsl(var(--m3-on-secondary))',
-          'secondary-container':    'hsl(var(--m3-secondary-container))',
+          secondary: 'hsl(var(--m3-secondary))',
+          'on-secondary': 'hsl(var(--m3-on-secondary))',
+          'secondary-container': 'hsl(var(--m3-secondary-container))',
           'on-secondary-container': 'hsl(var(--m3-on-secondary-container))',
           // Tertiary
-          tertiary:                 'hsl(var(--m3-tertiary))',
-          'on-tertiary':            'hsl(var(--m3-on-tertiary))',
-          'tertiary-container':     'hsl(var(--m3-tertiary-container))',
-          'on-tertiary-container':  'hsl(var(--m3-on-tertiary-container))',
+          tertiary: 'hsl(var(--m3-tertiary))',
+          'on-tertiary': 'hsl(var(--m3-on-tertiary))',
+          'tertiary-container': 'hsl(var(--m3-tertiary-container))',
+          'on-tertiary-container': 'hsl(var(--m3-on-tertiary-container))',
           // Error
-          error:                    'hsl(var(--m3-error))',
-          'on-error':               'hsl(var(--m3-on-error))',
-          'error-container':        'hsl(var(--m3-error-container))',
-          'on-error-container':     'hsl(var(--m3-on-error-container))',
+          error: 'hsl(var(--m3-error))',
+          'on-error': 'hsl(var(--m3-on-error))',
+          'error-container': 'hsl(var(--m3-error-container))',
+          'on-error-container': 'hsl(var(--m3-on-error-container))',
           // Surface
-          surface:                  'hsl(var(--m3-surface))',
-          'on-surface':             'hsl(var(--m3-on-surface))',
-          'surface-variant':        'hsl(var(--m3-surface-variant))',
-          'on-surface-variant':     'hsl(var(--m3-on-surface-variant))',
-          'surface-container':      'hsl(var(--m3-surface-container))',
-          'surface-container-low':  'hsl(var(--m3-surface-container-low))',
+          surface: 'hsl(var(--m3-surface))',
+          'on-surface': 'hsl(var(--m3-on-surface))',
+          'surface-variant': 'hsl(var(--m3-surface-variant))',
+          'on-surface-variant': 'hsl(var(--m3-on-surface-variant))',
+          'surface-container': 'hsl(var(--m3-surface-container))',
+          'surface-container-low': 'hsl(var(--m3-surface-container-low))',
           'surface-container-high': 'hsl(var(--m3-surface-container-high))',
           // Outline
-          outline:                  'hsl(var(--m3-outline))',
-          'outline-variant':        'hsl(var(--m3-outline-variant))',
+          outline: 'hsl(var(--m3-outline))',
+          'outline-variant': 'hsl(var(--m3-outline-variant))',
           // Inverse
-          'inverse-surface':        'hsl(var(--m3-inverse-surface))',
-          'inverse-on-surface':     'hsl(var(--m3-inverse-on-surface))',
-          'inverse-primary':        'hsl(var(--m3-inverse-primary))',
-        }
+          'inverse-surface': 'hsl(var(--m3-inverse-surface))',
+          'inverse-on-surface': 'hsl(var(--m3-inverse-on-surface))',
+          'inverse-primary': 'hsl(var(--m3-inverse-primary))',
+        },
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
@@ -95,4 +92,4 @@ export default {
     },
   },
   plugins: [],
-}
+};

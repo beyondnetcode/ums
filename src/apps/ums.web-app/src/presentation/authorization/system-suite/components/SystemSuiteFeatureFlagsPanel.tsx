@@ -337,7 +337,10 @@ export const SystemSuiteFeatureFlagsPanel: React.FC<SystemSuiteFeatureFlagsPanel
   }
 
   if (error) {
-    const errorMessage = getHttpErrorMessage(error, 'No se pudieron cargar los feature flags. Intente nuevamente.');
+    const errorMessage = getHttpErrorMessage(
+      error,
+      'No se pudieron cargar los feature flags. Intente nuevamente.'
+    );
     const supportReferenceId = getSupportReferenceId(error);
 
     return (

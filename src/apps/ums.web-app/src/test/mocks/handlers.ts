@@ -15,7 +15,7 @@ export const handlers = [
       status: 'Active',
     });
   }),
-  
+
   // Example GraphQL interception
   graphql.query('Tenants', () => {
     return HttpResponse.json({
@@ -30,7 +30,7 @@ export const handlers = [
       },
     });
   }),
-  
+
   graphql.query('UserAccounts', () => {
     return HttpResponse.json({
       data: {
@@ -44,7 +44,7 @@ export const handlers = [
       },
     });
   }),
-  
+
   graphql.query('DelegationsByDelegatedAdmin', () => {
     return HttpResponse.json({
       data: {
@@ -60,7 +60,7 @@ export const handlers = [
       },
     });
   }),
-  
+
   graphql.query('Tenant', ({ variables }) => {
     const { tenantId } = variables;
     const tenant = mockTenants.find(t => t.tenantId === tenantId) || mockTenants[0];
@@ -70,7 +70,7 @@ export const handlers = [
       },
     });
   }),
-  
+
   graphql.query('TenantBranches', ({ variables }) => {
     const { tenantId } = variables;
     const tenant = mockTenants.find(t => t.tenantId === tenantId) || mockTenants[0];
@@ -80,27 +80,30 @@ export const handlers = [
       },
     });
   }),
-  
+
   graphql.query('UserAccount', ({ variables }) => {
     const { userAccountId } = variables;
-    const account = mockUserAccounts.items.find(u => u.userAccountId === userAccountId) || mockUserAccounts.items[0];
+    const account =
+      mockUserAccounts.items.find(u => u.userAccountId === userAccountId) ||
+      mockUserAccounts.items[0];
     return HttpResponse.json({
       data: {
         getUserAccountById: account,
       },
     });
   }),
-  
+
   graphql.query('DelegationById', ({ variables }) => {
     const { delegationId } = variables;
-    const delegation = mockDelegations.find(d => d.delegationId === delegationId) || mockDelegations[0];
+    const delegation =
+      mockDelegations.find(d => d.delegationId === delegationId) || mockDelegations[0];
     return HttpResponse.json({
       data: {
         getDelegationById: delegation,
       },
     });
   }),
-  
+
   graphql.query('IdentityProviders', ({ variables }) => {
     const { tenantId } = variables;
     const tenant = mockTenants.find(t => t.tenantId === tenantId) || mockTenants[0];
@@ -110,7 +113,7 @@ export const handlers = [
       },
     });
   }),
-  
+
   graphql.query('Branding', ({ variables }) => {
     const { tenantId } = variables;
     const tenant = mockTenants.find(t => t.tenantId === tenantId) || mockTenants[0];
@@ -146,18 +149,19 @@ export const handlers = [
 
   graphql.query('SystemSuite', ({ variables }) => {
     const { systemSuiteId } = variables;
-    const suite = mockSystemSuites.find(s => s.systemSuiteId === systemSuiteId) || mockSystemSuites[0];
+    const suite =
+      mockSystemSuites.find(s => s.systemSuiteId === systemSuiteId) || mockSystemSuites[0];
     return HttpResponse.json({
       data: {
         getSystemSuiteById: suite,
       },
     });
   }),
-  
+
   // Catch-all for unmocked GraphQL queries to prevent 500 errors in Dev mode
   http.post('*/graphql', () => {
     return HttpResponse.json({
-      data: {}
+      data: {},
     });
   }),
 ];

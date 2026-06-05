@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  BrandingSchema,
-  SetBrandingPayloadSchema,
-} from './branding.schema';
+import { BrandingSchema, SetBrandingPayloadSchema } from './branding.schema';
 
 describe('BrandingSchema', () => {
   it('accepts a valid branding payload', () => {

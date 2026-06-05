@@ -65,7 +65,11 @@ export const appConfigurationService = {
     moduleId?: string;
   }): Promise<AppConfigurationPage> => {
     const qs = buildQueryString(params);
-    const { data } = await httpClient.get<{ items: AppConfiguration[]; totalItems: number; totalPages: number }>(`/app-configurations?${qs}`);
+    const { data } = await httpClient.get<{
+      items: AppConfiguration[];
+      totalItems: number;
+      totalPages: number;
+    }>(`/app-configurations?${qs}`);
     const result = AppConfigurationPageSchema.safeParse(data);
     if (!result.success) {
       logger.error('Invalid REST response shape for app configurations query', result.error);
@@ -75,11 +79,20 @@ export const appConfigurationService = {
   },
 
   getById: async (appConfigurationId: string): Promise<AppConfiguration> => {
-    const { data } = await httpClient.get<{ id: string; code: string; value: string; description: string; status: string; scope: string }>(`/app-configurations/${appConfigurationId}`);
+    const { data } = await httpClient.get<{
+      id: string;
+      code: string;
+      value: string;
+      description: string;
+      status: string;
+      scope: string;
+    }>(`/app-configurations/${appConfigurationId}`);
     return AppConfigurationSchema.parse(data);
   },
 
-  createAppConfiguration: async (payload: CreateAppConfigurationPayload): Promise<CreateAppConfigurationResponse> => {
+  createAppConfiguration: async (
+    payload: CreateAppConfigurationPayload
+  ): Promise<CreateAppConfigurationResponse> => {
     try {
       const { data } = await httpClient.post('/app-configurations', payload);
       logger.info('CreateAppConfiguration success', data);
@@ -90,7 +103,11 @@ export const appConfigurationService = {
     }
   },
 
-  updateAppConfiguration: async (appConfigurationId: string, payload: UpdateAppConfigurationPayload, rowVersion?: string): Promise<void> => {
+  updateAppConfiguration: async (
+    appConfigurationId: string,
+    payload: UpdateAppConfigurationPayload,
+    rowVersion?: string
+  ): Promise<void> => {
     const headers: Record<string, string> = {};
     if (rowVersion) {
       headers['If-Match'] = rowVersion;

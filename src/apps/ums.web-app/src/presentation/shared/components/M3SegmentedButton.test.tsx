@@ -11,26 +11,14 @@ describe('M3SegmentedButton', () => {
   ];
 
   it('renders all options', () => {
-    render(
-      <M3SegmentedButton
-        options={options}
-        value="list"
-        onChange={() => {}}
-      />
-    );
+    render(<M3SegmentedButton options={options} value="list" onChange={() => {}} />);
     expect(screen.getByText('List')).toBeInTheDocument();
     expect(screen.getByText('Grid')).toBeInTheDocument();
     expect(screen.getByText('Table')).toBeInTheDocument();
   });
 
   it('highlights active option', () => {
-    render(
-      <M3SegmentedButton
-        options={options}
-        value="grid"
-        onChange={() => {}}
-      />
-    );
+    render(<M3SegmentedButton options={options} value="grid" onChange={() => {}} />);
     const activeButton = screen.getByText('Grid');
     expect(activeButton).toHaveClass('bg-m3-primary');
   });
@@ -38,39 +26,20 @@ describe('M3SegmentedButton', () => {
   it('calls onChange when option is clicked', async () => {
     const handleChange = vi.fn();
     const user = userEvent.setup();
-    render(
-      <M3SegmentedButton
-        options={options}
-        value="list"
-        onChange={handleChange}
-      />
-    );
+    render(<M3SegmentedButton options={options} value="list" onChange={handleChange} />);
 
     await user.click(screen.getByText('Grid'));
     expect(handleChange).toHaveBeenCalledWith('grid');
   });
 
   it('applies sm size', () => {
-    render(
-      <M3SegmentedButton
-        options={options}
-        value="list"
-        onChange={() => {}}
-        size="sm"
-      />
-    );
+    render(<M3SegmentedButton options={options} value="list" onChange={() => {}} size="sm" />);
     const button = screen.getByText('List');
     expect(button).toHaveClass('text-[10px]');
   });
 
   it('applies md size by default', () => {
-    render(
-      <M3SegmentedButton
-        options={options}
-        value="list"
-        onChange={() => {}}
-      />
-    );
+    render(<M3SegmentedButton options={options} value="list" onChange={() => {}} />);
     const button = screen.getByText('List');
     expect(button).toHaveClass('text-[11px]');
   });

@@ -47,33 +47,18 @@ describe('MasterDetailLayout', () => {
   });
 
   it('has default splitter label', () => {
-    render(
-      <MasterDetailLayout
-        master={<div>Master</div>}
-        detail={<div>Detail</div>}
-      />
-    );
+    render(<MasterDetailLayout master={<div>Master</div>} detail={<div>Detail</div>} />);
     const separator = screen.getByRole('separator');
     expect(separator).toHaveAttribute('aria-label', 'Resize detail panel');
   });
 
   it('has separator role', () => {
-    render(
-      <MasterDetailLayout
-        master={<div>Master</div>}
-        detail={<div>Detail</div>}
-      />
-    );
+    render(<MasterDetailLayout master={<div>Master</div>} detail={<div>Detail</div>} />);
     expect(screen.getByRole('separator')).toHaveAttribute('role', 'separator');
   });
 
   it('has keyboard focus support', () => {
-    render(
-      <MasterDetailLayout
-        master={<div>Master</div>}
-        detail={<div>Detail</div>}
-      />
-    );
+    render(<MasterDetailLayout master={<div>Master</div>} detail={<div>Detail</div>} />);
     const separator = screen.getByRole('separator');
     expect(separator).toHaveAttribute('tabIndex', '0');
   });

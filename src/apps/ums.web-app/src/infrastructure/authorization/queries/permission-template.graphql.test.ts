@@ -26,10 +26,16 @@ describe('graphqlPermissionTemplateQueries', () => {
 
     vi.mocked(graphqlClientModule.graphqlClient.request).mockResolvedValue(mockResponse);
 
-    const result = await graphqlPermissionTemplateQueries.getPermissionTemplates({ page: 1, pageSize: 20 });
+    const result = await graphqlPermissionTemplateQueries.getPermissionTemplates({
+      page: 1,
+      pageSize: 20,
+    });
 
     expect(result.getPermissionTemplates).toEqual(mockResponse.getPermissionTemplates);
-    expect(graphqlClientModule.graphqlClient.request).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ page: 1, pageSize: 20 }));
+    expect(graphqlClientModule.graphqlClient.request).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({ page: 1, pageSize: 20 })
+    );
   });
 
   it('getPermissionTemplateById calls graphqlClient.request', async () => {
@@ -49,9 +55,15 @@ describe('graphqlPermissionTemplateQueries', () => {
 
     vi.mocked(graphqlClientModule.graphqlClient.request).mockResolvedValue(mockResponse);
 
-    const result = await graphqlPermissionTemplateQueries.getPermissionTemplateById('3fa85f64-5717-4562-b3fc-2c963f66afa6');
+    const result = await graphqlPermissionTemplateQueries.getPermissionTemplateById(
+      '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+    );
 
-    expect(result.getPermissionTemplateById?.templateId).toBe('3fa85f64-5717-4562-b3fc-2c963f66afa6');
-    expect(graphqlClientModule.graphqlClient.request).toHaveBeenCalledWith(expect.any(String), { templateId: '3fa85f64-5717-4562-b3fc-2c963f66afa6' });
+    expect(result.getPermissionTemplateById?.templateId).toBe(
+      '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+    );
+    expect(graphqlClientModule.graphqlClient.request).toHaveBeenCalledWith(expect.any(String), {
+      templateId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+    });
   });
 });

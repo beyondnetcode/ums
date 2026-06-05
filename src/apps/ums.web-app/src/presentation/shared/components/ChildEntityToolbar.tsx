@@ -51,7 +51,8 @@ export const ChildEntityToolbar: React.FC<ChildEntityToolbarProps> = ({
     <div className="flex items-center justify-between gap-2 py-2 px-1">
       <div className="flex items-center gap-2">
         <span className="text-[10px] font-medium text-m3-secondary/70">
-          {itemCount} {itemLabel}{itemCount !== 1 ? 's' : ''}
+          {itemCount} {itemLabel}
+          {itemCount !== 1 ? 's' : ''}
         </span>
 
         {filterOptions && onFilterChange && activeFilter !== undefined && (
@@ -59,11 +60,13 @@ export const ChildEntityToolbar: React.FC<ChildEntityToolbarProps> = ({
             <Filter className="w-3 h-3 text-m3-secondary/50" />
             <select
               value={activeFilter}
-              onChange={(e) => onFilterChange(e.target.value)}
+              onChange={e => onFilterChange(e.target.value)}
               className="h-6 px-2 rounded-md border border-m3-outline/20 bg-m3-surface text-[10px] font-medium text-m3-secondary focus:outline-none focus:border-m3-primary/40 transition-colors cursor-pointer"
             >
-              {filterOptions.map((f) => (
-                <option key={f.value} value={f.value}>{f.label}</option>
+              {filterOptions.map(f => (
+                <option key={f.value} value={f.value}>
+                  {f.label}
+                </option>
               ))}
             </select>
           </div>
@@ -74,11 +77,13 @@ export const ChildEntityToolbar: React.FC<ChildEntityToolbarProps> = ({
             <ArrowUpDown className="w-3 h-3 text-m3-secondary/50" />
             <select
               value={sortBy}
-              onChange={(e) => onSortByChange(e.target.value)}
+              onChange={e => onSortByChange(e.target.value)}
               className="h-6 px-2 rounded-md border border-m3-outline/20 bg-m3-surface text-[10px] font-medium text-m3-secondary focus:outline-none focus:border-m3-primary/40 transition-colors cursor-pointer"
             >
-              {sortOptions.map((s) => (
-                <option key={s.value} value={s.value}>{s.label}</option>
+              {sortOptions.map(s => (
+                <option key={s.value} value={s.value}>
+                  {s.label}
+                </option>
               ))}
             </select>
 
@@ -89,7 +94,9 @@ export const ChildEntityToolbar: React.FC<ChildEntityToolbarProps> = ({
                 className="h-6 w-6 flex items-center justify-center rounded-md border border-m3-outline/20 bg-m3-surface hover:bg-m3-primary/10 hover:border-m3-primary/30 transition-all text-m3-secondary"
                 title={sortOrder === 'asc' ? 'Ascending' : 'Descending'}
               >
-                <ArrowUpDown className={`w-3 h-3 transition-transform duration-200 ${sortOrder === 'desc' ? 'rotate-180 text-m3-primary' : ''}`} />
+                <ArrowUpDown
+                  className={`w-3 h-3 transition-transform duration-200 ${sortOrder === 'desc' ? 'rotate-180 text-m3-primary' : ''}`}
+                />
               </button>
             )}
           </div>

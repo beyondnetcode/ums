@@ -8,7 +8,10 @@ vi.mock('@infra/http/graphqlClient', () => ({
     request: vi.fn(),
   },
   GraphQlValidationError: class GraphQlValidationError extends Error {
-    constructor(message: string, public details: string[]) {
+    constructor(
+      message: string,
+      public details: string[]
+    ) {
       super(message);
       this.name = 'GraphQlValidationError';
     }
@@ -30,16 +33,20 @@ describe('graphqlRoleQueries', () => {
 
       expect(graphqlClientModule.graphqlClient.request).toHaveBeenCalledWith(
         expect.stringContaining('query RolesBySystemSuite'),
-        expect.objectContaining({ systemSuiteId: '3fa85f64-5717-4562-b3fc-2c963f66afa6' }),
+        expect.objectContaining({ systemSuiteId: '3fa85f64-5717-4562-b3fc-2c963f66afa6' })
       );
     });
 
     it('throws on empty systemSuiteId', async () => {
-      await expect(graphqlRoleQueries.getRolesBySystemSuite('')).rejects.toThrow(GraphQlValidationError);
+      await expect(graphqlRoleQueries.getRolesBySystemSuite('')).rejects.toThrow(
+        GraphQlValidationError
+      );
     });
 
     it('throws on whitespace systemSuiteId', async () => {
-      await expect(graphqlRoleQueries.getRolesBySystemSuite('   ')).rejects.toThrow(GraphQlValidationError);
+      await expect(graphqlRoleQueries.getRolesBySystemSuite('   ')).rejects.toThrow(
+        GraphQlValidationError
+      );
     });
 
     it('returns roles when successful', async () => {
@@ -61,7 +68,9 @@ describe('graphqlRoleQueries', () => {
         rolesBySystemSuite: mockRoles,
       });
 
-      const result = await graphqlRoleQueries.getRolesBySystemSuite('3fa85f64-5717-4562-b3fc-2c963f66afa6');
+      const result = await graphqlRoleQueries.getRolesBySystemSuite(
+        '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+      );
 
       expect(result.rolesBySystemSuite).toHaveLength(1);
       expect(result.rolesBySystemSuite[0].code).toBe('ADMIN');

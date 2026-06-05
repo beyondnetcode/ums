@@ -71,7 +71,7 @@ describe('notification.store', () => {
     useNotificationStore.getState().markAllAsRead();
 
     const state = useNotificationStore.getState();
-    expect(state.notifications.every((n) => n.read)).toBe(true);
+    expect(state.notifications.every(n => n.read)).toBe(true);
   });
 
   it('clears all notifications', () => {

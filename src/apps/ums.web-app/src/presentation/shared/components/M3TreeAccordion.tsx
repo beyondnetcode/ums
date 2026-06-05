@@ -21,19 +21,14 @@ export const M3TreeAccordion: React.FC<M3TreeAccordionProps> = ({
   items,
   level = 0,
   className = '',
-  indentWidth = 16
+  indentWidth = 16,
 }) => {
   if (!items || items.length === 0) return null;
 
   return (
     <ul className={`flex flex-col ${className}`}>
-      {items.map((item) => (
-        <M3TreeAccordionNode
-          key={item.id}
-          item={item}
-          level={level}
-          indentWidth={indentWidth}
-        />
+      {items.map(item => (
+        <M3TreeAccordionNode key={item.id} item={item} level={level} indentWidth={indentWidth} />
       ))}
     </ul>
   );
@@ -57,15 +52,19 @@ const M3TreeAccordionNode: React.FC<{
         className={[
           'flex items-center w-full min-h-[40px] px-2 py-1.5 transition-colors group',
           hasChildren ? 'cursor-pointer hover:bg-m3-surface-container/50' : '',
-          level > 0 ? 'border-l border-m3-outline/10 ml-2' : ''
+          level > 0 ? 'border-l border-m3-outline/10 ml-2' : '',
         ].join(' ')}
-        style={{ paddingLeft: `${(level * indentWidth) + 8}px` }}
+        style={{ paddingLeft: `${level * indentWidth + 8}px` }}
         onClick={toggleExpand}
       >
         {/* Expand/Collapse Chevron */}
         <div className="w-6 flex items-center justify-center flex-shrink-0 text-m3-secondary">
           {hasChildren ? (
-            isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />
+            isExpanded ? (
+              <ChevronDown className="w-4 h-4" />
+            ) : (
+              <ChevronRight className="w-4 h-4" />
+            )
           ) : (
             <span className="w-4 h-4" /> // Placeholder for alignment
           )}
@@ -79,13 +78,11 @@ const M3TreeAccordionNode: React.FC<{
         )}
 
         {/* Node Label */}
-        <div className="flex-1 text-sm font-medium text-m3-on-surface truncate">
-          {item.label}
-        </div>
+        <div className="flex-1 text-sm font-medium text-m3-on-surface truncate">{item.label}</div>
 
         {/* Trailing actions (toggles, badges) */}
         {item.trailing && (
-          <div className="ml-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+          <div className="ml-2 flex-shrink-0" onClick={e => e.stopPropagation()}>
             {item.trailing}
           </div>
         )}
@@ -94,7 +91,11 @@ const M3TreeAccordionNode: React.FC<{
       {/* Children */}
       {hasChildren && isExpanded && (
         <div className="animate-fadeIn">
-          <M3TreeAccordion items={item.children ?? []} level={level + 1} indentWidth={indentWidth} />
+          <M3TreeAccordion
+            items={item.children ?? []}
+            level={level + 1}
+            indentWidth={indentWidth}
+          />
         </div>
       )}
     </li>

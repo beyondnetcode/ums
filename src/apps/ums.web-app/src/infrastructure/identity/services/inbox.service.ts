@@ -25,11 +25,21 @@ export const inboxService = {
     await httpClient.post(`/users/${userAccountId}/deny-signup`, { reason });
   },
 
-  approveProfileRequest: async (approvalRequestId: string, grantedRoleId: string, decisionReason?: string): Promise<void> => {
-    await httpClient.post(`/approval-requests/${approvalRequestId}/approve`, { grantedRoleId, decisionReason });
+  approveProfileRequest: async (
+    approvalRequestId: string,
+    grantedRoleId: string,
+    decisionReason?: string
+  ): Promise<void> => {
+    await httpClient.post(`/approval-requests/${approvalRequestId}/approve`, {
+      grantedRoleId,
+      decisionReason,
+    });
   },
 
-  rejectProfileRequest: async (approvalRequestId: string, decisionReason?: string): Promise<void> => {
+  rejectProfileRequest: async (
+    approvalRequestId: string,
+    decisionReason?: string
+  ): Promise<void> => {
     await httpClient.post(`/approval-requests/${approvalRequestId}/reject`, { decisionReason });
   },
 };

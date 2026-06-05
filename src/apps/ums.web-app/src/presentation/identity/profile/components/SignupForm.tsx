@@ -18,7 +18,9 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onBack }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [result, setResult] = useState<{ message: string; userAccountId: string | null } | null>(null);
+  const [result, setResult] = useState<{ message: string; userAccountId: string | null } | null>(
+    null
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -117,7 +119,10 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onBack }) => {
         label="Nombre"
         required
         value={displayName}
-        onChange={(e) => { setDisplayName(e.target.value); setError(''); }}
+        onChange={e => {
+          setDisplayName(e.target.value);
+          setError('');
+        }}
         placeholder="Nombre y apellido"
         autoComplete="name"
         disabled={isLoading}
@@ -129,7 +134,10 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onBack }) => {
         type="email"
         required
         value={email}
-        onChange={(e) => { setEmail(e.target.value); setError(''); }}
+        onChange={e => {
+          setEmail(e.target.value);
+          setError('');
+        }}
         placeholder="usuario@empresa.com"
         autoComplete="email"
         disabled={isLoading}
@@ -141,7 +149,10 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onBack }) => {
         type="password"
         required
         value={password}
-        onChange={(e) => { setPassword(e.target.value); setError(''); }}
+        onChange={e => {
+          setPassword(e.target.value);
+          setError('');
+        }}
         placeholder="Mínimo 12 caracteres"
         autoComplete="new-password"
         disabled={isLoading}
@@ -152,15 +163,16 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onBack }) => {
         type="password"
         required
         value={confirmPassword}
-        onChange={(e) => { setConfirmPassword(e.target.value); setError(''); }}
+        onChange={e => {
+          setConfirmPassword(e.target.value);
+          setError('');
+        }}
         placeholder="Repita la contraseña"
         autoComplete="new-password"
         disabled={isLoading}
       />
 
-      {error && (
-        <p className="text-xs text-m3-error px-1">{error}</p>
-      )}
+      {error && <p className="text-xs text-m3-error px-1">{error}</p>}
 
       <M3Button variant="filled" className="w-full" type="submit" disabled={isLoading}>
         {isLoading ? 'Enviando...' : 'Solicitar acceso'}

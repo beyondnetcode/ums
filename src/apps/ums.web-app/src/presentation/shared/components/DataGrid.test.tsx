@@ -69,7 +69,10 @@ describe('DataGrid', () => {
 
   it('renders with cell renderer', () => {
     const customColumns: ColumnDef<TestData>[] = [
-      { header: 'Name', cell: (item) => <span data-testid={`name-${item.id}`}>{item.name.toUpperCase()}</span> },
+      {
+        header: 'Name',
+        cell: item => <span data-testid={`name-${item.id}`}>{item.name.toUpperCase()}</span>,
+      },
     ];
     render(<DataGrid columns={customColumns} data={data} idKey="id" />);
     expect(screen.getByTestId('name-1')).toHaveTextContent('ITEM 1');

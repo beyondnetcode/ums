@@ -35,12 +35,12 @@ export const MasterDetailLayout: React.FC<MasterDetailLayoutProps> = ({
   overlay,
 }) => {
   // ── Splitter state ──────────────────────────────────────────────────────────
-  const [rightPct, setRightPct]                   = useState(initialDetailPct);
-  const [isRightCollapsed, setIsRightCollapsed]   = useState(false);
-  const [isDragging, setIsDragging]               = useState(false);
-  const containerRef  = useRef<HTMLDivElement>(null);
+  const [rightPct, setRightPct] = useState(initialDetailPct);
+  const [isRightCollapsed, setIsRightCollapsed] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
-  const prevRightPct  = useRef(initialDetailPct);
+  const prevRightPct = useRef(initialDetailPct);
   const cleanupDragRef = useRef<(() => void) | null>(null);
 
   // Cleanup drag listeners on unmount
@@ -52,34 +52,37 @@ export const MasterDetailLayout: React.FC<MasterDetailLayoutProps> = ({
 
   // ── Drag ────────────────────────────────────────────────────────────────────
 
-  const handleSplitterMouseDown = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    isDraggingRef.current = true;
-    setIsDragging(true);
+  const handleSplitterMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      isDraggingRef.current = true;
+      setIsDragging(true);
 
-    const onMouseMove = (ev: MouseEvent) => {
-      if (!isDraggingRef.current || !containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      const fromRight = rect.right - ev.clientX;
-      const pct = Math.min(maxDetailPct, Math.max(minDetailPct, (fromRight / rect.width) * 100));
-      setRightPct(pct);
-      prevRightPct.current = pct;
-      setIsRightCollapsed(false);
-    };
+      const onMouseMove = (ev: MouseEvent) => {
+        if (!isDraggingRef.current || !containerRef.current) return;
+        const rect = containerRef.current.getBoundingClientRect();
+        const fromRight = rect.right - ev.clientX;
+        const pct = Math.min(maxDetailPct, Math.max(minDetailPct, (fromRight / rect.width) * 100));
+        setRightPct(pct);
+        prevRightPct.current = pct;
+        setIsRightCollapsed(false);
+      };
 
-    const onMouseUp = () => {
-      isDraggingRef.current = false;
-      setIsDragging(false);
-      cleanupDragRef.current = null;
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('mouseup', onMouseUp);
-    };
+      const onMouseUp = () => {
+        isDraggingRef.current = false;
+        setIsDragging(false);
+        cleanupDragRef.current = null;
+        window.removeEventListener('mousemove', onMouseMove);
+        window.removeEventListener('mouseup', onMouseUp);
+      };
 
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mouseup', onMouseUp);
+      window.addEventListener('mousemove', onMouseMove);
+      window.addEventListener('mouseup', onMouseUp);
 
-    cleanupDragRef.current = onMouseUp;
-  }, [minDetailPct, maxDetailPct]);
+      cleanupDragRef.current = onMouseUp;
+    },
+    [minDetailPct, maxDetailPct]
+  );
 
   // ── Toggle ──────────────────────────────────────────────────────────────────
 
@@ -105,14 +108,14 @@ export const MasterDetailLayout: React.FC<MasterDetailLayoutProps> = ({
       if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
       e.preventDefault();
       const delta = e.key === 'ArrowLeft' ? 4 : -4;
-      setRightPct((current) => {
+      setRightPct(current => {
         const next = Math.min(maxDetailPct, Math.max(minDetailPct, current + delta));
         prevRightPct.current = next;
         return next;
       });
       setIsRightCollapsed(false);
     },
-    [toggleRightPanel, minDetailPct, maxDetailPct],
+    [toggleRightPanel, minDetailPct, maxDetailPct]
   );
 
   // ── Render ──────────────────────────────────────────────────────────────────
@@ -161,8 +164,11 @@ export const MasterDetailLayout: React.FC<MasterDetailLayoutProps> = ({
         <button
           type="button"
           title={isRightCollapsed ? 'Expand detail panel' : 'Collapse detail panel'}
-          onClick={(e) => { e.stopPropagation(); toggleRightPanel(); }}
-          onMouseDown={(e) => e.stopPropagation()}
+          onClick={e => {
+            e.stopPropagation();
+            toggleRightPanel();
+          }}
+          onMouseDown={e => e.stopPropagation()}
           className={[
             'absolute top-1/2 -translate-y-1/2 -translate-x-px',
             'w-4 h-10 rounded-full flex items-center justify-center',
@@ -170,13 +176,15 @@ export const MasterDetailLayout: React.FC<MasterDetailLayoutProps> = ({
             isDragging
               ? 'bg-m3-primary text-white border-m3-primary'
               : 'bg-m3-surface-container border-m3-outline/40 text-m3-secondary',
-            !isDragging && 'hover:bg-m3-primary/10 hover:border-m3-primary/50 hover:text-m3-primary',
+            !isDragging &&
+              'hover:bg-m3-primary/10 hover:border-m3-primary/50 hover:text-m3-primary',
           ].join(' ')}
         >
-          {isRightCollapsed
-            ? <ChevronLeft  className="w-2.5 h-2.5" />
-            : <ChevronRight className="w-2.5 h-2.5" />
-          }
+          {isRightCollapsed ? (
+            <ChevronLeft className="w-2.5 h-2.5" />
+          ) : (
+            <ChevronRight className="w-2.5 h-2.5" />
+          )}
         </button>
       </div>
 

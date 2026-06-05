@@ -12,10 +12,15 @@ interface HierarchicalListProps<T> {
     node: TreeNode<T>,
     isSelected: boolean,
     isExpanded: boolean,
-    onToggle: () => void,
+    onToggle: () => void
   ) => React.ReactNode;
   renderChildRow: (item: T, isSelected: boolean) => React.ReactNode;
-  renderParentCard: (node: TreeNode<T>, isSelected: boolean, isExpanded: boolean, onToggle: () => void) => React.ReactNode;
+  renderParentCard: (
+    node: TreeNode<T>,
+    isSelected: boolean,
+    isExpanded: boolean,
+    onToggle: () => void
+  ) => React.ReactNode;
   renderChildCard: (item: T, isSelected: boolean) => React.ReactNode;
   viewMode: 'list' | 'thumbnail';
 }
@@ -40,7 +45,7 @@ export function HierarchicalList<T extends Record<string, unknown>>({
   if (viewMode === 'list') {
     return (
       <>
-        {treeNodes.map((node) => {
+        {treeNodes.map(node => {
           const id = String(node.item[idKey]);
           const isSelected = selectedId === id;
           const nodeIsExpanded = isExpanded(id);
@@ -49,10 +54,14 @@ export function HierarchicalList<T extends Record<string, unknown>>({
             <React.Fragment key={id}>
               {renderParentRow(node, isSelected, nodeIsExpanded, () => toggleExpand(id))}
               {nodeIsExpanded &&
-                getChildren(id).map((child) => {
+                getChildren(id).map(child => {
                   const childId = String(child[idKey]);
                   const isChildSelected = selectedId === childId;
-                  return <React.Fragment key={childId}>{renderChildRow(child, isChildSelected)}</React.Fragment>;
+                  return (
+                    <React.Fragment key={childId}>
+                      {renderChildRow(child, isChildSelected)}
+                    </React.Fragment>
+                  );
                 })}
             </React.Fragment>
           );
@@ -63,7 +72,7 @@ export function HierarchicalList<T extends Record<string, unknown>>({
 
   return (
     <div className="space-y-3">
-      {treeNodes.map((node) => {
+      {treeNodes.map(node => {
         const id = String(node.item[idKey]);
         const isSelected = selectedId === id;
         const nodeIsExpanded = isExpanded(id);
@@ -74,10 +83,14 @@ export function HierarchicalList<T extends Record<string, unknown>>({
             {renderParentCard(node, isSelected, nodeIsExpanded, () => toggleExpand(id))}
             {nodeHasChildren && nodeIsExpanded && (
               <div className="ml-6 mt-2 pl-4 border-l-2 border-m3-outline/20 space-y-2 animate-fadeIn">
-                {getChildren(id).map((child) => {
+                {getChildren(id).map(child => {
                   const childId = String(child[idKey]);
                   const isChildSelected = selectedId === childId;
-                  return <React.Fragment key={childId}>{renderChildCard(child, isChildSelected)}</React.Fragment>;
+                  return (
+                    <React.Fragment key={childId}>
+                      {renderChildCard(child, isChildSelected)}
+                    </React.Fragment>
+                  );
                 })}
               </div>
             )}

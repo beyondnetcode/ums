@@ -27,13 +27,14 @@ function createLogger(level: LogLevel) {
     if (LEVEL_WEIGHT[level] < LEVEL_WEIGHT[currentMinLevel]) {
       return;
     }
-    const logFn = level === 'error'
-      ? console.error
-      : level === 'warn'
-        ? console.warn
-        : level === 'info'
-          ? console.info
-          : console.debug;
+    const logFn =
+      level === 'error'
+        ? console.error
+        : level === 'warn'
+          ? console.warn
+          : level === 'info'
+            ? console.info
+            : console.debug;
     logFn(`${new Date().toISOString()} ${prefix} ${message}`, ...args);
   };
 }

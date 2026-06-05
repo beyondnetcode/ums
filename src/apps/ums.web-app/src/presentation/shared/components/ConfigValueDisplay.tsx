@@ -13,23 +13,24 @@ interface ConfigValueDisplayProps {
   className?: string;
 }
 
-export function ConfigValueDisplay({ value, className = '' }: ConfigValueDisplayProps): React.JSX.Element {
+export function ConfigValueDisplay({
+  value,
+  className = '',
+}: ConfigValueDisplayProps): React.JSX.Element {
   const type = inferConfigValueType(value);
 
   switch (type) {
     case 'boolean':
-      return (
-        <M3Switch checked={value === 'true'} disabled size="small" />
-      );
+      return <M3Switch checked={value === 'true'} disabled size="small" />;
 
     case 'number':
-      return (
-        <span className={`font-mono text-[10px] ${className}`}>{value}</span>
-      );
+      return <span className={`font-mono text-[10px] ${className}`}>{value}</span>;
 
     case 'json':
       return (
-        <code className={`text-[9px] bg-m3-surface-container-high px-1.5 py-0.5 rounded font-mono ${className}`}>
+        <code
+          className={`text-[9px] bg-m3-surface-container-high px-1.5 py-0.5 rounded font-mono ${className}`}
+        >
           {value.length > 30 ? `${value.substring(0, 30)}...` : value}
         </code>
       );

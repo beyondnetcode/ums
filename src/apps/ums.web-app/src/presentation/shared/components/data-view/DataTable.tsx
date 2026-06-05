@@ -14,10 +14,7 @@ export const DataTable: React.FC<DataTableProps> = ({ columns, viewMode }) => {
           className={`grid gap-4 ${viewMode === 'list' ? `grid-cols-${columns}` : 'grid-cols-2'}`}
         >
           {Array.from({ length: viewMode === 'list' ? columns : 2 }).map((_, j) => (
-            <div
-              key={j}
-              className="h-12 rounded-lg bg-m3-surface-container/40 animate-pulse"
-            />
+            <div key={j} className="h-12 rounded-lg bg-m3-surface-container/40 animate-pulse" />
           ))}
         </div>
       ))}

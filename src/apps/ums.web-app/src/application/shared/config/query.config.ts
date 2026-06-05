@@ -14,44 +14,44 @@
 export const QUERY_CONFIG = {
   // Static reference data - rarely changes
   STATIC: {
-    staleTime: 5 * 60 * 1000,    // 5 minutes
-    gcTime: 10 * 60 * 1000,      // 10 minutes
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
   },
 
   // Semi-static configuration data
   CONFIGURATION: {
-    staleTime: 2 * 60 * 1000,    // 2 minutes
-    gcTime: 5 * 60 * 1000,       // 5 minutes
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes
   },
 
   // Dynamic operational data - changes frequently
   DYNAMIC: {
-    staleTime: 30 * 1000,        // 30 seconds
-    gcTime: 1 * 60 * 1000,       // 1 minute
+    staleTime: 30 * 1000, // 30 seconds
+    gcTime: 1 * 60 * 1000, // 1 minute
   },
 
   // User context data
   USER_CONTEXT: {
-    staleTime: 60 * 1000,        // 1 minute
-    gcTime: 2 * 60 * 1000,       // 2 minutes
+    staleTime: 60 * 1000, // 1 minute
+    gcTime: 2 * 60 * 1000, // 2 minutes
   },
 
   // List views with pagination
   LIST: {
-    staleTime: 30 * 1000,        // 30 seconds
-    gcTime: 5 * 60 * 1000,       // 5 minutes
+    staleTime: 30 * 1000, // 30 seconds
+    gcTime: 5 * 60 * 1000, // 5 minutes
   },
 
   // Detail views (single item)
   DETAIL: {
-    staleTime: 60 * 1000,        // 1 minute
-    gcTime: 5 * 60 * 1000,       // 5 minutes
+    staleTime: 60 * 1000, // 1 minute
+    gcTime: 5 * 60 * 1000, // 5 minutes
   },
 
   // Lookup queries (by ID) - should be fresh
   LOOKUP: {
-    staleTime: 30 * 1000,        // 30 seconds
-    gcTime: 2 * 60 * 1000,       // 2 minutes
+    staleTime: 30 * 1000, // 30 seconds
+    gcTime: 2 * 60 * 1000, // 2 minutes
   },
 } as const;
 

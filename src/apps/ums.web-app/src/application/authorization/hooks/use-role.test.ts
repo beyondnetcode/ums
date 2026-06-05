@@ -52,7 +52,7 @@ describe('use-role hooks', () => {
         expect.objectContaining({
           queryKey: ['system-suite-roles', 'ss-1'],
           enabled: true,
-        }),
+        })
       );
     });
 
@@ -62,7 +62,7 @@ describe('use-role hooks', () => {
       expect(reactQueryModule.useQuery).toHaveBeenCalledWith(
         expect.objectContaining({
           enabled: false,
-        }),
+        })
       );
     });
   });

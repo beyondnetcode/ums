@@ -45,9 +45,7 @@ export function AppConfigurationAuditTrailPanel({
             </p>
           )}
           {isLoading && (
-            <p className="text-[11px] text-m3-secondary">
-              {t.loading ?? 'Loading...'}
-            </p>
+            <p className="text-[11px] text-m3-secondary">{t.loading ?? 'Loading...'}</p>
           )}
           {!isLoading && records.length === 0 && !error && (
             <p className="text-[11px] text-m3-secondary">
@@ -55,7 +53,7 @@ export function AppConfigurationAuditTrailPanel({
             </p>
           )}
           <div className="space-y-2">
-            {records.map((record) => (
+            {records.map(record => (
               <div
                 key={record.auditRecordId}
                 className="rounded-xl border border-m3-outline/15 bg-m3-surface-container/20 p-3 space-y-2"

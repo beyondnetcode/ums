@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useI18n } from '@app/i18n/use-i18n';
 import { useNavigationPrefetch } from '@app/shared/hooks/use-navigation-prefetch';
+import { useAccessResolution } from '@app/authorization/hooks/use-access-resolution';
 import {
   Building2,
   User,
@@ -61,9 +62,39 @@ export const NavRail: React.FC<NavRailProps> = ({ collapsed }) => {
     }));
   };
 
+  const { hasMenuAccess, hasModuleAccess, graph } = useAccessResolution();
+
+  const filteredModules = useMemo(() => {
+    // Si no hay grafo (ej. entorno legacy o modo superadmin interno sin grafo total),
+    // devolvemos todo asumiendo que el router.tsx bloqueará lo necesario,
+    // o aplicamos bypass si es admin.
+    if (!graph) return modules;
+
+    const getMenuCode = (id: string) => {
+      if (id === 'systemSuites') return 'SYSTEM_SUITES';
+      if (id === 'permissionTemplates') return 'PERMISSION_TEMPLATES';
+      if (id === 'featureFlags') return 'FEATURE_FLAGS';
+      if (id === 'appConfigurations') return 'APP_CONFIG';
+      if (id === 'parameterCatalog') return 'PARAM_CATALOG';
+      return id.toUpperCase();
+    };
+
+    return modules
+      .map(mod => ({
+        ...mod,
+        members: mod.members.filter(tab =>
+          hasMenuAccess(mod.key.toUpperCase(), getMenuCode(tab.id))
+        ),
+      }))
+      .filter(mod => mod.members.length > 0);
+  }, [modules, graph, hasMenuAccess]);
+
   if (collapsed) {
     return (
-      <aside data-testid="nav-rail" className="bg-m3-surface border-r border-m3-outline/25 select-none transition-all duration-300 w-20 lg:block hidden">
+      <aside
+        data-testid="nav-rail"
+        className="bg-m3-surface border-r border-m3-outline/25 select-none transition-all duration-300 w-20 lg:block hidden"
+      >
         <div className="flex flex-col h-full py-6 justify-between">
           <nav
             role="navigation"
@@ -71,7 +102,7 @@ export const NavRail: React.FC<NavRailProps> = ({ collapsed }) => {
             className="space-y-4 px-3 select-none"
           >
             <div className="space-y-2.5 flex flex-col items-center">
-              {modules
+              {filteredModules
                 .flatMap(m => m.members)
                 .map(tab => {
                   const isActive = activeTab === tab.id;
@@ -87,9 +118,7 @@ export const NavRail: React.FC<NavRailProps> = ({ collapsed }) => {
                       }`}
                       title={(t as Record<string, string>)[tab.nameKey] ?? tab.nameKey}
                     >
-                      <span className={isActive ? 'text-m3-primary' : ''}>
-                        {tab.icon}
-                      </span>
+                      <span className={isActive ? 'text-m3-primary' : ''}>{tab.icon}</span>
                     </button>
                   );
                 })}
@@ -101,10 +130,13 @@ export const NavRail: React.FC<NavRailProps> = ({ collapsed }) => {
   }
 
   return (
-    <aside data-testid="nav-rail" className="bg-m3-surface border-r border-m3-outline/25 select-none transition-all duration-300 w-64 lg:block hidden">
+    <aside
+      data-testid="nav-rail"
+      className="bg-m3-surface border-r border-m3-outline/25 select-none transition-all duration-300 w-64 lg:block hidden"
+    >
       <div className="flex flex-col h-full py-6 justify-between">
         <nav role="navigation" aria-label="Main navigation" className="space-y-4 px-3 select-none">
-          {modules.map(mod => {
+          {filteredModules.map(mod => {
             const isExpanded = expandedModules[mod.key];
             return (
               <div key={mod.key} className="space-y-1.5">

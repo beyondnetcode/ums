@@ -89,4 +89,3 @@ export default function SystemSuiteDashboardScreen(): React.JSX.Element {
     />
   );
 }
-

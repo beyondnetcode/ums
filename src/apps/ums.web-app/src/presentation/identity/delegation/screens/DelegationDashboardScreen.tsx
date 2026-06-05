@@ -7,7 +7,11 @@ import { DelegationListPanel } from '../components/DelegationListPanel';
 import { PageShell } from '@shared/layouts/PageShell';
 import { MasterDetailLayout } from '@shared/layouts/MasterDetailLayout';
 import { M3Dialog } from '@shared/components/M3Dialog';
-import { AtomicSortOption, AtomicFilterOption, AtomicQueryCriteriaOption } from '@shared/components';
+import {
+  AtomicSortOption,
+  AtomicFilterOption,
+  AtomicQueryCriteriaOption,
+} from '@shared/components';
 
 export default function DelegationDashboardScreen(): React.JSX.Element {
   const t = useI18n();
@@ -38,11 +42,23 @@ export default function DelegationDashboardScreen(): React.JSX.Element {
             <M3Dialog
               open={dashboard.showDiscardDialog}
               title={t.unsavedChanges ?? 'Unsaved Changes'}
-              message={t.unsavedChangesMsg ?? 'You have unsaved changes. Are you sure you want to discard them?'}
+              message={
+                t.unsavedChangesMsg ??
+                'You have unsaved changes. Are you sure you want to discard them?'
+              }
               onScrimClick={() => dashboard.setShowDiscardDialog(false)}
               actions={[
-                { label: t.cancelEdit ?? 'Cancel', variant: 'outlined', onClick: () => dashboard.setShowDiscardDialog(false) },
-                { label: t.discardChanges ?? 'Discard', variant: 'filled', className: 'bg-m3-error hover:bg-m3-error/90 border-0', onClick: dashboard.confirmDiscard },
+                {
+                  label: t.cancelEdit ?? 'Cancel',
+                  variant: 'outlined',
+                  onClick: () => dashboard.setShowDiscardDialog(false),
+                },
+                {
+                  label: t.discardChanges ?? 'Discard',
+                  variant: 'filled',
+                  className: 'bg-m3-error hover:bg-m3-error/90 border-0',
+                  onClick: dashboard.confirmDiscard,
+                },
               ]}
             />
             <DelegationForm

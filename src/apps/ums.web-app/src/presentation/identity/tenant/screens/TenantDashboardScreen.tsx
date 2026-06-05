@@ -11,10 +11,13 @@ import { MasterDetailLayout } from '@shared/layouts/MasterDetailLayout';
 import { M3Dialog } from '@shared/components/M3Dialog';
 import { SortOption, FilterOption, QueryCriteriaOption } from '@shared/components/M3DataView';
 
+import { useAccessResolution } from '@app/authorization/hooks/use-access-resolution';
 export default function TenantDashboardScreen(): React.JSX.Element {
   const t = useI18n();
   const dashboard = useTenantDashboard();
-  const isInternalAdmin = useAuthStore((state) => state.user?.isInternalAdmin);
+  const { hasOptionAccess } = useAccessResolution();
+  const canCreate = hasOptionAccess('TENANTS_LIST', 'MANAGE_TENANTS');
+  const isInternalAdmin = useAuthStore(state => state.user?.isInternalAdmin);
 
   const criteriaOptions: QueryCriteriaOption[] = [
     { label: t.byName, value: 'name' },
@@ -47,11 +50,24 @@ export default function TenantDashboardScreen(): React.JSX.Element {
                 message={t.unsavedChangesMsg}
                 onScrimClick={() => dashboard.setShowDiscardDialog(false)}
                 actions={[
-                  { label: t.cancelEdit, variant: 'outlined', onClick: () => dashboard.setShowDiscardDialog(false) },
-                  { label: t.discardChanges, variant: 'filled', className: 'bg-m3-error hover:bg-m3-error/90 border-0', onClick: dashboard.confirmDiscard },
+                  {
+                    label: t.cancelEdit,
+                    variant: 'outlined',
+                    onClick: () => dashboard.setShowDiscardDialog(false),
+                  },
+                  {
+                    label: t.discardChanges,
+                    variant: 'filled',
+                    className: 'bg-m3-error hover:bg-m3-error/90 border-0',
+                    onClick: dashboard.confirmDiscard,
+                  },
                 ]}
               />
-              <TenantForm isOpen={dashboard.isCreateOpen} onClose={() => dashboard.setIsCreateOpen(false)} onSuccess={dashboard.handleCreateSuccess} />
+              <TenantForm
+                isOpen={dashboard.isCreateOpen}
+                onClose={() => dashboard.setIsCreateOpen(false)}
+                onSuccess={dashboard.handleCreateSuccess}
+              />
             </>
           }
           master={
@@ -69,6 +85,7 @@ export default function TenantDashboardScreen(): React.JSX.Element {
                 totalPages: dashboard.totalPages,
               }}
               onRegisterNew={() => dashboard.setIsCreateOpen(true)}
+              onAddDisabled={!canCreate}
               onSelectTenant={dashboard.handleSelectTenant}
               criteriaOptions={criteriaOptions}
               filterOptions={filterOptions}
@@ -94,4 +111,4 @@ export default function TenantDashboardScreen(): React.JSX.Element {
       </div>
     </PageShell>
   );
-};
+}

@@ -34,39 +34,42 @@ export function useFocusTrap({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const previousActiveElementRef = useRef<Element | null>(null);
 
-  const trapFocus = useCallback((e: KeyboardEvent) => {
-    if (!containerRef.current || !active) return;
+  const trapFocus = useCallback(
+    (e: KeyboardEvent) => {
+      if (!containerRef.current || !active) return;
 
-    if (e.key === 'Escape') {
-      onEscape?.();
-      return;
-    }
-
-    if (e.key !== 'Tab') return;
-
-    const focusable = Array.from(
-      containerRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTORS)
-    ).filter((el) => {
-      return !el.hasAttribute('disabled') && el.offsetParent !== null;
-    });
-
-    if (focusable.length === 0) return;
-
-    const firstFocusable = focusable[0];
-    const lastFocusable = focusable[focusable.length - 1];
-
-    if (e.shiftKey) {
-      if (document.activeElement === firstFocusable) {
-        e.preventDefault();
-        lastFocusable.focus();
+      if (e.key === 'Escape') {
+        onEscape?.();
+        return;
       }
-    } else {
-      if (document.activeElement === lastFocusable) {
-        e.preventDefault();
-        firstFocusable.focus();
+
+      if (e.key !== 'Tab') return;
+
+      const focusable = Array.from(
+        containerRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTORS)
+      ).filter(el => {
+        return !el.hasAttribute('disabled') && el.offsetParent !== null;
+      });
+
+      if (focusable.length === 0) return;
+
+      const firstFocusable = focusable[0];
+      const lastFocusable = focusable[focusable.length - 1];
+
+      if (e.shiftKey) {
+        if (document.activeElement === firstFocusable) {
+          e.preventDefault();
+          lastFocusable.focus();
+        }
+      } else {
+        if (document.activeElement === lastFocusable) {
+          e.preventDefault();
+          firstFocusable.focus();
+        }
       }
-    }
-  }, [active, onEscape]);
+    },
+    [active, onEscape]
+  );
 
   const container = containerRef.current;
 

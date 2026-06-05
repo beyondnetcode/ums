@@ -17,7 +17,12 @@ describe('M3FormDialog', () => {
 
   it('does not render when open is false', () => {
     render(
-      <M3FormDialog open={false} onClose={() => {}} title="Create Item" footer={<button>Save</button>}>
+      <M3FormDialog
+        open={false}
+        onClose={() => {}}
+        title="Create Item"
+        footer={<button>Save</button>}
+      >
         <input data-testid="input" />
       </M3FormDialog>
     );
@@ -71,7 +76,13 @@ describe('M3FormDialog', () => {
 
   it('applies custom maxWidth', () => {
     const { container } = render(
-      <M3FormDialog open onClose={() => {}} title="Dialog" maxWidth="max-w-xl" footer={<button>Save</button>}>
+      <M3FormDialog
+        open
+        onClose={() => {}}
+        title="Dialog"
+        maxWidth="max-w-xl"
+        footer={<button>Save</button>}
+      >
         <p>Content</p>
       </M3FormDialog>
     );

@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  RoleSchema,
-  RoleListSchema,
-  CreateRoleResponseSchema,
-} from './role.schema';
+import { RoleSchema, RoleListSchema, CreateRoleResponseSchema } from './role.schema';
 
 describe('RoleSchema', () => {
   const validRole = {
@@ -40,27 +36,19 @@ describe('RoleSchema', () => {
   });
 
   it('rejects empty code', () => {
-    expect(() =>
-      RoleSchema.parse({ ...validRole, code: '' })
-    ).toThrow();
+    expect(() => RoleSchema.parse({ ...validRole, code: '' })).toThrow();
   });
 
   it('rejects empty value', () => {
-    expect(() =>
-      RoleSchema.parse({ ...validRole, value: '' })
-    ).toThrow();
+    expect(() => RoleSchema.parse({ ...validRole, value: '' })).toThrow();
   });
 
   it('rejects negative hierarchyLevel', () => {
-    expect(() =>
-      RoleSchema.parse({ ...validRole, hierarchyLevel: -1 })
-    ).toThrow();
+    expect(() => RoleSchema.parse({ ...validRole, hierarchyLevel: -1 })).toThrow();
   });
 
   it('rejects invalid GUID', () => {
-    expect(() =>
-      RoleSchema.parse({ ...validRole, roleId: 'not-a-guid' })
-    ).toThrow();
+    expect(() => RoleSchema.parse({ ...validRole, roleId: 'not-a-guid' })).toThrow();
   });
 });
 
@@ -109,8 +97,6 @@ describe('CreateRoleResponseSchema', () => {
   });
 
   it('rejects non-UUID roleId', () => {
-    expect(() =>
-      CreateRoleResponseSchema.parse({ roleId: 'invalid' })
-    ).toThrow();
+    expect(() => CreateRoleResponseSchema.parse({ roleId: 'invalid' })).toThrow();
   });
 });

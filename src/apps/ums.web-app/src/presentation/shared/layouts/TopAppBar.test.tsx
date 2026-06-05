@@ -14,8 +14,12 @@ vi.mock('@app/stores/devTools.store');
 vi.mock('@app/stores/i18n.store');
 vi.mock('@app/stores/notification.store');
 vi.mock('@app/i18n/use-i18n');
-vi.mock('../components/NotificationCenter', () => ({ NotificationCenter: () => <div data-testid="notification-center" /> }));
-vi.mock('../components/ToastQueue', () => ({ ToastQueue: () => <div data-testid="toast-queue" /> }));
+vi.mock('../components/NotificationCenter', () => ({
+  NotificationCenter: () => <div data-testid="notification-center" />,
+}));
+vi.mock('../components/ToastQueue', () => ({
+  ToastQueue: () => <div data-testid="toast-queue" />,
+}));
 vi.mock('../components/Tooltip', () => ({ Tooltip: ({ children }: any) => <>{children}</> }));
 
 describe('TopAppBar', () => {
@@ -145,7 +149,9 @@ describe('TopAppBar', () => {
   it('shows unread notification count when there are unread notifications', () => {
     vi.mocked(notificationStoreModule.useNotificationStore).mockImplementation((selector: any) => {
       const state = {
-        notifications: [{ id: '1', read: false, title: 'Test', message: 'Test', type: 'info' as const }],
+        notifications: [
+          { id: '1', read: false, title: 'Test', message: 'Test', type: 'info' as const },
+        ],
         setIsOpen: vi.fn(),
         isOpen: false,
       };

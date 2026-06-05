@@ -62,16 +62,14 @@ export function useNotifiedMutation<TData = void, TVariables = void>({
   } catch {
     queryClient = null;
   }
-  const addNotification = useNotificationStore((s) => s.addNotification);
+  const addNotification = useNotificationStore(s => s.addNotification);
   const t = useI18n();
 
   return useMutation<TData, unknown, TVariables>({
     mutationFn,
-    onSuccess: (data) => {
+    onSuccess: data => {
       if (invalidateKeys) {
-        invalidateKeys.forEach((key) =>
-          queryClient?.invalidateQueries({ queryKey: key }),
-        );
+        invalidateKeys.forEach(key => queryClient?.invalidateQueries({ queryKey: key }));
       }
       const notif = successNotif(data);
       addNotification({

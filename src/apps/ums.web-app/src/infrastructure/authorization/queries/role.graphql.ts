@@ -25,9 +25,13 @@ interface RolesBySystemSuiteResponse {
 export const graphqlRoleQueries = {
   getRolesBySystemSuite: async (systemSuiteId: string): Promise<RolesBySystemSuiteResponse> => {
     if (!systemSuiteId.trim()) {
-      throw new GraphQlValidationError('Invalid systemSuiteId parameter', ['systemSuiteId must be provided']);
+      throw new GraphQlValidationError('Invalid systemSuiteId parameter', [
+        'systemSuiteId must be provided',
+      ]);
     }
 
-    return graphqlClient.request<RolesBySystemSuiteResponse>(GET_ROLES_BY_SYSTEM_SUITE, { systemSuiteId });
+    return graphqlClient.request<RolesBySystemSuiteResponse>(GET_ROLES_BY_SYSTEM_SUITE, {
+      systemSuiteId,
+    });
   },
 };

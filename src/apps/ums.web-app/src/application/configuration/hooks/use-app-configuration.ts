@@ -19,19 +19,22 @@ import type {
 
 // ── Query Hooks ───────────────────────────────────────────────────────────────
 
-export function useGetAllAppConfigurations(params?: {
-  page?: number;
-  pageSize?: number;
-  search?: string;
-  criteria?: string;
-  status?: string;
-  sortBy?: string;
-  sortOrder?: string;
-  scope?: string;
-  tenantId?: string;
-  systemSuiteId?: string;
-  moduleId?: string;
-}, enabled = true) {
+export function useGetAllAppConfigurations(
+  params?: {
+    page?: number;
+    pageSize?: number;
+    search?: string;
+    criteria?: string;
+    status?: string;
+    sortBy?: string;
+    sortOrder?: string;
+    scope?: string;
+    tenantId?: string;
+    systemSuiteId?: string;
+    moduleId?: string;
+  },
+  enabled = true
+) {
   return useQuery<AppConfigurationPage, Error>({
     queryKey: ['app-configurations', 'list', params],
     queryFn: () => appConfigurationService.getAll(params),

@@ -86,8 +86,11 @@ export function useListPanelState<T>(options: ListPanelOptions<T>) {
       pageSize: paginationState.pageSize,
       totalItems: paginationState.totalItems,
       totalPages: paginationState.totalPages,
-      onPageChange: (paginationState as { handlePageChange?: (p: number) => void }).handlePageChange ?? paginationState.page,
-      onPageSizeChange: (paginationState as { handlePageSizeChange?: (s: number) => void }).handlePageSizeChange,
+      onPageChange:
+        (paginationState as { handlePageChange?: (p: number) => void }).handlePageChange ??
+        paginationState.page,
+      onPageSizeChange: (paginationState as { handlePageSizeChange?: (s: number) => void })
+        .handlePageSizeChange,
     };
   }, [paginationState]);
 

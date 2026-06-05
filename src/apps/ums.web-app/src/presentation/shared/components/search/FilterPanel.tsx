@@ -15,20 +15,28 @@ interface FilterPanelProps {
   filterOptions?: FilterOption[];
   activeFilter?: string;
   onFilterChange?: (val: string) => void;
-  
+
   sortOptions?: SortOption[];
   sortBy?: string;
   onSortByChange?: (val: string) => void;
-  
+
   sortOrder?: 'asc' | 'desc';
   onSortOrderToggle?: () => void;
-  
+
   viewMode?: 'list' | 'thumbnail';
   onViewModeChange?: (mode: 'list' | 'thumbnail') => void;
 }
 
-const SelectBase = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
-  <div className={`flex items-center gap-1.5 rounded-lg border border-m3-outline/20 bg-m3-surface-container/20 px-2 py-1.5 text-xs text-m3-on-surface transition-colors hover:border-m3-outline/40 ${className}`}>
+const SelectBase = ({
+  children,
+  className = '',
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => (
+  <div
+    className={`flex items-center gap-1.5 rounded-lg border border-m3-outline/20 bg-m3-surface-container/20 px-2 py-1.5 text-xs text-m3-on-surface transition-colors hover:border-m3-outline/40 ${className}`}
+  >
     {children}
   </div>
 );
@@ -53,12 +61,14 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           <Filter className="w-3.5 h-3.5 text-m3-secondary/60 shrink-0" />
           <select
             value={activeFilter}
-            onChange={(e) => onFilterChange(e.target.value)}
+            onChange={e => onFilterChange(e.target.value)}
             aria-label="Filter"
             className="bg-transparent border-none outline-none text-xs font-medium text-m3-on-surface cursor-pointer pr-1"
           >
-            {filterOptions.map((f) => (
-              <option key={f.value} value={f.value}>{f.label}</option>
+            {filterOptions.map(f => (
+              <option key={f.value} value={f.value}>
+                {f.label}
+              </option>
             ))}
           </select>
         </SelectBase>
@@ -70,12 +80,14 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           <ArrowUpDown className="w-3.5 h-3.5 text-m3-secondary/60 shrink-0" />
           <select
             value={sortBy}
-            onChange={(e) => onSortByChange(e.target.value)}
+            onChange={e => onSortByChange(e.target.value)}
             aria-label="Sort by"
             className="bg-transparent border-none outline-none text-xs font-medium text-m3-on-surface cursor-pointer pr-1"
           >
-            {sortOptions.map((s) => (
-              <option key={s.value} value={s.value}>{s.label}</option>
+            {sortOptions.map(s => (
+              <option key={s.value} value={s.value}>
+                {s.label}
+              </option>
             ))}
           </select>
           {onSortOrderToggle && sortOrder && (

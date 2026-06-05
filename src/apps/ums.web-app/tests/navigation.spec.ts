@@ -3,10 +3,10 @@ import { test, expect } from '@playwright/test';
 test.describe('Navigation', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/login');
-    await page.getByLabel(/usuario/i).fill('operador_callao');
+    await page.getByLabel(/correo electrónico/i).fill('admin@ums.local');
     await page.getByLabel(/contraseña/i).fill('Admin@123');
     await page.getByRole('button', { name: /ingresar/i }).click();
-    await expect(page).toHaveURL(/\/tenants/);
+    await expect(page).toHaveURL(/.*\/tenants/);
   });
 
   test('should display navigation rail with all sections', async ({ page }) => {

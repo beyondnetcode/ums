@@ -15,13 +15,13 @@ export const TenantSelector: React.FC<TenantSelectorProps> = ({
   selectedTenantId,
   onTenantChange,
   label,
-  className
+  className,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const selectedTenant = tenants.find((t) => t.tenantId === selectedTenantId);
+  const selectedTenant = tenants.find(t => t.tenantId === selectedTenantId);
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -34,9 +34,10 @@ export const TenantSelector: React.FC<TenantSelectorProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const filteredTenants = tenants.filter((tenant) =>
-    tenant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    tenant.code.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredTenants = tenants.filter(
+    tenant =>
+      tenant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      tenant.code.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -56,7 +57,9 @@ export const TenantSelector: React.FC<TenantSelectorProps> = ({
         <span className="font-medium truncate">
           {selectedTenant ? `${selectedTenant.name} (${selectedTenant.code})` : 'Select Tenant'}
         </span>
-        <ChevronDown className={`w-4 h-4 text-m3-secondary transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown
+          className={`w-4 h-4 text-m3-secondary transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+        />
       </button>
 
       {/* Dropdown Menu */}
@@ -69,20 +72,18 @@ export const TenantSelector: React.FC<TenantSelectorProps> = ({
               type="text"
               placeholder="Search tenants..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={e => setSearchQuery(e.target.value)}
               className="w-full pl-8 pr-3 py-1.5 bg-m3-surface-container/40 hover:bg-m3-surface-container/70 border border-m3-outline/20 rounded-lg text-xs text-m3-on-surface focus:outline-none focus:border-m3-primary transition-all"
-              onClick={(e) => e.stopPropagation()}
+              onClick={e => e.stopPropagation()}
             />
           </div>
 
           {/* Tenants List */}
           <div className="flex-1 overflow-y-auto space-y-0.5 custom-scrollbar max-h-[220px]">
             {filteredTenants.length === 0 ? (
-              <div className="text-center py-4 text-xs text-m3-secondary">
-                No tenants found
-              </div>
+              <div className="text-center py-4 text-xs text-m3-secondary">No tenants found</div>
             ) : (
-              filteredTenants.map((tenant) => {
+              filteredTenants.map(tenant => {
                 const isSelected = tenant.tenantId === selectedTenantId;
                 return (
                   <button

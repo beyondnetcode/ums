@@ -1,5 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { configureRequestContext, getRequestContext, BASE_URL, DEFAULT_TENANT_ID } from './request-context';
+import {
+  configureRequestContext,
+  getRequestContext,
+  BASE_URL,
+  DEFAULT_TENANT_ID,
+} from './request-context';
 
 describe('request-context', () => {
   beforeEach(() => {

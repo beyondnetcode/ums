@@ -1,21 +1,21 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import App from './App.tsx'
-import './index.css'
-import { useDevToolsStore } from './application/stores/devTools.store'
-import { useI18nStore } from './application/stores/i18n.store'
-import { useAuthStore } from './application/stores/auth.store'
-import { configureRequestContext } from './infrastructure/http/request-context'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import App from './App.tsx';
+import './index.css';
+import { useDevToolsStore } from './application/stores/devTools.store';
+import { useI18nStore } from './application/stores/i18n.store';
+import { useAuthStore } from './application/stores/auth.store';
+import { configureRequestContext } from './infrastructure/http/request-context';
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
       retry: 1,
-    }
-  }
-})
+    },
+  },
+});
 
 const devContextProvider = () => {
   if (!import.meta.env.DEV) return {};
@@ -28,14 +28,14 @@ const devContextProvider = () => {
 configureRequestContext(devContextProvider);
 
 function LocaleSync() {
-  const lang = useI18nStore((s) => s.language);
+  const lang = useI18nStore(s => s.language);
   React.useEffect(() => {
     document.documentElement.lang = lang;
   }, [lang]);
   return null;
 }
 
-window.addEventListener('unhandledrejection', (event) => {
+window.addEventListener('unhandledrejection', event => {
   if (import.meta.env.DEV) {
     console.error('Unhandled promise rejection:', event.reason);
   }
@@ -55,7 +55,7 @@ const rootEl = document.getElementById('root');
 if (!rootEl) {
   throw new Error(
     '[UMS] Root element #root not found in index.html. ' +
-    'Check that public/index.html contains <div id="root"></div>.'
+      'Check that public/index.html contains <div id="root"></div>.'
   );
 }
 
@@ -66,6 +66,6 @@ enableMocking().then(() => {
         <LocaleSync />
         <App />
       </QueryClientProvider>
-    </React.StrictMode>,
-  )
+    </React.StrictMode>
+  );
 });

@@ -5,7 +5,10 @@
  * Covers all CRUD scenarios: Active/Maintenance/Deprecated states,
  * full module→menu→submenu→option hierarchies, domain resources.
  */
-import type { SystemSuite, SystemSuiteDomainResource } from '@domain/authorization/models/system-suite.model';
+import type {
+  SystemSuite,
+  SystemSuiteDomainResource,
+} from '@domain/authorization/models/system-suite.model';
 
 // ── Constants matching CoreDevDataSeeder ────────────────────────────────────
 const RANSA_TENANT_ID = '3fa85f64-5717-4562-b3fc-2c963f66afa6';
@@ -38,8 +41,22 @@ const logisticsCoreModules = [
             description: 'View and search all user accounts',
             sortOrder: 1,
             options: [
-              { id: 'view-users-opt-id', code: 'VIEW_USERS', label: 'View Users List', description: 'Permission to view the users list', actionCode: 'VIEW', sortOrder: 1 },
-              { id: 'edit-users-opt-id', code: 'EDIT_USERS', label: 'Edit User Profiles', description: 'Permission to edit and modify user profiles', actionCode: 'MANAGE', sortOrder: 2 },
+              {
+                id: 'view-users-opt-id',
+                code: 'VIEW_USERS',
+                label: 'View Users List',
+                description: 'Permission to view the users list',
+                actionCode: 'VIEW',
+                sortOrder: 1,
+              },
+              {
+                id: 'edit-users-opt-id',
+                code: 'EDIT_USERS',
+                label: 'Edit User Profiles',
+                description: 'Permission to edit and modify user profiles',
+                actionCode: 'MANAGE',
+                sortOrder: 2,
+              },
             ],
           },
           {
@@ -49,8 +66,22 @@ const logisticsCoreModules = [
             description: 'Manage access control roles and templates',
             sortOrder: 2,
             options: [
-              { id: 'view-roles-opt-id', code: 'VIEW_ROLES', label: 'View Security Roles', description: 'Permission to view roles in system', actionCode: 'VIEW', sortOrder: 1 },
-              { id: 'manage-roles-opt-id', code: 'MANAGE_ROLES', label: 'Configure Permissions', description: 'Permission to edit access rights', actionCode: 'MANAGE', sortOrder: 2 },
+              {
+                id: 'view-roles-opt-id',
+                code: 'VIEW_ROLES',
+                label: 'View Security Roles',
+                description: 'Permission to view roles in system',
+                actionCode: 'VIEW',
+                sortOrder: 1,
+              },
+              {
+                id: 'manage-roles-opt-id',
+                code: 'MANAGE_ROLES',
+                label: 'Configure Permissions',
+                description: 'Permission to edit access rights',
+                actionCode: 'MANAGE',
+                sortOrder: 2,
+              },
             ],
           },
         ],
@@ -69,8 +100,22 @@ const logisticsCoreModules = [
             description: 'View system telemetry and user transactions',
             sortOrder: 1,
             options: [
-              { id: 'view-logs-opt-id', code: 'VIEW_LOGS', label: 'Search Audit Trail', description: 'Permission to query audit logs', actionCode: 'VIEW', sortOrder: 1 },
-              { id: 'purge-logs-opt-id', code: 'PURGE_LOGS', label: 'Purge Historical Data', description: 'Permission to clear obsolete log records', actionCode: 'APPROVE', sortOrder: 2 },
+              {
+                id: 'view-logs-opt-id',
+                code: 'VIEW_LOGS',
+                label: 'Search Audit Trail',
+                description: 'Permission to query audit logs',
+                actionCode: 'VIEW',
+                sortOrder: 1,
+              },
+              {
+                id: 'purge-logs-opt-id',
+                code: 'PURGE_LOGS',
+                label: 'Purge Historical Data',
+                description: 'Permission to clear obsolete log records',
+                actionCode: 'APPROVE',
+                sortOrder: 2,
+              },
             ],
           },
         ],
@@ -99,8 +144,22 @@ const logisticsCoreModules = [
             description: 'Configure timeouts, thresholds and limits',
             sortOrder: 1,
             options: [
-              { id: 'view-params-opt-id', code: 'VIEW_PARAMS', label: 'View Parameters', description: 'Permission to view system options', actionCode: 'VIEW', sortOrder: 1 },
-              { id: 'edit-params-opt-id', code: 'EDIT_PARAMS', label: 'Update Global Config', description: 'Permission to edit critical global values', actionCode: 'MANAGE', sortOrder: 2 },
+              {
+                id: 'view-params-opt-id',
+                code: 'VIEW_PARAMS',
+                label: 'View Parameters',
+                description: 'Permission to view system options',
+                actionCode: 'VIEW',
+                sortOrder: 1,
+              },
+              {
+                id: 'edit-params-opt-id',
+                code: 'EDIT_PARAMS',
+                label: 'Update Global Config',
+                description: 'Permission to edit critical global values',
+                actionCode: 'MANAGE',
+                sortOrder: 2,
+              },
             ],
           },
           {
@@ -110,7 +169,14 @@ const logisticsCoreModules = [
             description: 'Email gateway and server connection',
             sortOrder: 2,
             options: [
-              { id: 'test-smtp-opt-id', code: 'TEST_SMTP', label: 'Test SMTP Gateway', description: 'Permission to trigger email delivery test', actionCode: 'APPROVE', sortOrder: 1 },
+              {
+                id: 'test-smtp-opt-id',
+                code: 'TEST_SMTP',
+                label: 'Test SMTP Gateway',
+                description: 'Permission to trigger email delivery test',
+                actionCode: 'APPROVE',
+                sortOrder: 1,
+              },
             ],
           },
         ],
@@ -131,10 +197,42 @@ const logisticsCoreActions = [
 ];
 
 const logisticsCoreDomainResources: SystemSuiteDomainResource[] = [
-  { id: 'users-agg-id', type: 'Aggregate', code: 'USERS', name: 'Users Aggregate', description: 'User Management', moduleId: null, parentResourceId: null },
-  { id: 'inventory-agg-id', type: 'Aggregate', code: 'INVENTORY', name: 'Inventory Aggregate', description: 'Inventory Management', moduleId: null, parentResourceId: null },
-  { id: 'audit-log-ent-id', type: 'Entity', code: 'AUDIT_LOG', name: 'Audit Log Entity', description: 'Audit Logs', moduleId: null, parentResourceId: null },
-  { id: 'stock-level-ent-id', type: 'Entity', code: 'STOCK_LEVEL', name: 'Stock Level Entity', description: 'Stock Levels', moduleId: null, parentResourceId: null },
+  {
+    id: 'users-agg-id',
+    type: 'Aggregate',
+    code: 'USERS',
+    name: 'Users Aggregate',
+    description: 'User Management',
+    moduleId: null,
+    parentResourceId: null,
+  },
+  {
+    id: 'inventory-agg-id',
+    type: 'Aggregate',
+    code: 'INVENTORY',
+    name: 'Inventory Aggregate',
+    description: 'Inventory Management',
+    moduleId: null,
+    parentResourceId: null,
+  },
+  {
+    id: 'audit-log-ent-id',
+    type: 'Entity',
+    code: 'AUDIT_LOG',
+    name: 'Audit Log Entity',
+    description: 'Audit Logs',
+    moduleId: null,
+    parentResourceId: null,
+  },
+  {
+    id: 'stock-level-ent-id',
+    type: 'Entity',
+    code: 'STOCK_LEVEL',
+    name: 'Stock Level Entity',
+    description: 'Stock Levels',
+    moduleId: null,
+    parentResourceId: null,
+  },
 ];
 
 // ── Suite 2: WMS ────────────────────────────────────────────────────────────
@@ -161,8 +259,22 @@ const wmsModules = [
             description: 'Current physical stock status',
             sortOrder: 1,
             options: [
-              { id: 'view-stock-opt-id', code: 'VIEW_STOCK', label: 'View Stock Levels', description: 'Permission to view real-time inventory counts', actionCode: 'INVENTORY_VIEW', sortOrder: 1 },
-              { id: 'adjust-stock-opt-id', code: 'ADJUST_STOCK', label: 'Adjust Inventory Counts', description: 'Permission to perform physical inventory adjustments', actionCode: 'INVENTORY_EDIT', sortOrder: 2 },
+              {
+                id: 'view-stock-opt-id',
+                code: 'VIEW_STOCK',
+                label: 'View Stock Levels',
+                description: 'Permission to view real-time inventory counts',
+                actionCode: 'INVENTORY_VIEW',
+                sortOrder: 1,
+              },
+              {
+                id: 'adjust-stock-opt-id',
+                code: 'ADJUST_STOCK',
+                label: 'Adjust Inventory Counts',
+                description: 'Permission to perform physical inventory adjustments',
+                actionCode: 'INVENTORY_EDIT',
+                sortOrder: 2,
+              },
             ],
           },
         ],
@@ -181,8 +293,22 @@ const wmsModules = [
             description: 'Move stock between physical locations',
             sortOrder: 1,
             options: [
-              { id: 'initiate-transfer-opt-id', code: 'INITIATE_TRANSFER', label: 'Initiate Stock Transfer', description: 'Permission to draft and start a transfer request', actionCode: 'INVENTORY_EDIT', sortOrder: 1 },
-              { id: 'approve-transfer-opt-id', code: 'APPROVE_TRANSFER', label: 'Approve Location Transfer', description: 'Permission to authorize inventory relocation', actionCode: 'INVENTORY_EDIT', sortOrder: 2 },
+              {
+                id: 'initiate-transfer-opt-id',
+                code: 'INITIATE_TRANSFER',
+                label: 'Initiate Stock Transfer',
+                description: 'Permission to draft and start a transfer request',
+                actionCode: 'INVENTORY_EDIT',
+                sortOrder: 1,
+              },
+              {
+                id: 'approve-transfer-opt-id',
+                code: 'APPROVE_TRANSFER',
+                label: 'Approve Location Transfer',
+                description: 'Permission to authorize inventory relocation',
+                actionCode: 'INVENTORY_EDIT',
+                sortOrder: 2,
+              },
             ],
           },
         ],

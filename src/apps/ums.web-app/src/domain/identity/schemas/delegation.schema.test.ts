@@ -23,8 +23,17 @@ describe('Delegation enum schemas', () => {
   });
 
   it('accepts valid DelegationStatus values', () => {
-    const statuses = ['Draft', 'PendingApproval', 'Active', 'Revoked', 'Expired', 'Completed', 'Rejected', 'Archived'];
-    statuses.forEach((status) => {
+    const statuses = [
+      'Draft',
+      'PendingApproval',
+      'Active',
+      'Revoked',
+      'Expired',
+      'Completed',
+      'Rejected',
+      'Archived',
+    ];
+    statuses.forEach(status => {
       expect(DelegationStatusSchema.parse(status)).toBe(status);
     });
   });
@@ -35,7 +44,7 @@ describe('Delegation enum schemas', () => {
 
   it('accepts valid DelegatedAction values', () => {
     const actions = ['CreateUser', 'BlockUser', 'AssignProfile', 'ResetPassword', 'RevokeMfa'];
-    actions.forEach((action) => {
+    actions.forEach(action => {
       expect(DelegatedActionSchema.parse(action)).toBe(action);
     });
   });
@@ -85,21 +94,15 @@ describe('DelegationSchema', () => {
   });
 
   it('rejects invalid GUID fields', () => {
-    expect(() =>
-      DelegationSchema.parse({ ...validDelegation, delegationId: 'invalid' })
-    ).toThrow();
+    expect(() => DelegationSchema.parse({ ...validDelegation, delegationId: 'invalid' })).toThrow();
   });
 
   it('rejects empty allowedActions', () => {
-    expect(() =>
-      DelegationSchema.parse({ ...validDelegation, allowedActions: [] })
-    ).not.toThrow();
+    expect(() => DelegationSchema.parse({ ...validDelegation, allowedActions: [] })).not.toThrow();
   });
 
   it('rejects negative maxDurationDays', () => {
-    expect(() =>
-      DelegationSchema.parse({ ...validDelegation, maxDurationDays: -1 })
-    ).toThrow();
+    expect(() => DelegationSchema.parse({ ...validDelegation, maxDurationDays: -1 })).toThrow();
   });
 });
 
@@ -161,8 +164,6 @@ describe('RevokeDelegationPayloadSchema', () => {
   });
 
   it('rejects reason exceeding max length', () => {
-    expect(() =>
-      RevokeDelegationPayloadSchema.parse({ reason: 'A'.repeat(501) })
-    ).toThrow();
+    expect(() => RevokeDelegationPayloadSchema.parse({ reason: 'A'.repeat(501) })).toThrow();
   });
 });

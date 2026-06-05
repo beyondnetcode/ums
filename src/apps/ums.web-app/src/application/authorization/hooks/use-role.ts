@@ -2,7 +2,11 @@ import { useQuery } from '@tanstack/react-query';
 import roleService from '@infra/authorization/services/role.service';
 import { useNotifiedMutation } from '@app/hooks/use-notified-mutation';
 import { useI18n } from '@app/i18n/use-i18n';
-import type { CreateRolePayload, Role, UpdateRolePayload } from '@domain/authorization/schemas/role.schema';
+import type {
+  CreateRolePayload,
+  Role,
+  UpdateRolePayload,
+} from '@domain/authorization/schemas/role.schema';
 
 export const useRolesBySystemSuite = (systemSuiteId: string) =>
   useQuery<Role[]>({

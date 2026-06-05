@@ -11,23 +11,32 @@ interface PermissionTreeProps {
   onSelectNode: (node: UITreeNodeData | null) => void;
 }
 
-function buildTreeData(suite: SystemSuite | undefined | null, items: PermissionTemplateItem[]): UITreeNodeData[] {
+function buildTreeData(
+  suite: SystemSuite | undefined | null,
+  items: PermissionTemplateItem[]
+): UITreeNodeData[] {
   if (!suite) return [];
 
-  const itemsByTargetId = items.reduce((acc, item) => {
-    if (!acc[item.targetId]) acc[item.targetId] = [];
-    acc[item.targetId].push(item);
-    return acc;
-  }, {} as Record<string, PermissionTemplateItem[]>);
+  const itemsByTargetId = items.reduce(
+    (acc, item) => {
+      if (!acc[item.targetId]) acc[item.targetId] = [];
+      acc[item.targetId].push(item);
+      return acc;
+    },
+    {} as Record<string, PermissionTemplateItem[]>
+  );
 
   const globalResources = suite.domainResources?.filter(dr => !dr.moduleId) || [];
-  const moduleResourcesMap = (suite.domainResources || []).reduce((acc, dr) => {
-    if (dr.moduleId) {
-      if (!acc[dr.moduleId]) acc[dr.moduleId] = [];
-      acc[dr.moduleId].push(dr);
-    }
-    return acc;
-  }, {} as Record<string, typeof suite.domainResources>);
+  const moduleResourcesMap = (suite.domainResources || []).reduce(
+    (acc, dr) => {
+      if (dr.moduleId) {
+        if (!acc[dr.moduleId]) acc[dr.moduleId] = [];
+        acc[dr.moduleId].push(dr);
+      }
+      return acc;
+    },
+    {} as Record<string, typeof suite.domainResources>
+  );
 
   const moduleNodes = suite.modules.map(mod => {
     const modResources = moduleResourcesMap[mod.id] || [];
@@ -37,7 +46,7 @@ function buildTreeData(suite: SystemSuite | undefined | null, items: PermissionT
       label: res.name,
       description: res.description || '',
       items: itemsByTargetId[res.id] || [],
-      children: []
+      children: [],
     }));
 
     const modNode: UITreeNodeData = {
@@ -69,15 +78,15 @@ function buildTreeData(suite: SystemSuite | undefined | null, items: PermissionT
                   description: opt.description,
                   actionCode: opt.actionCode,
                   items: itemsByTargetId[opt.id] || [],
-                  children: []
-                }))
+                  children: [],
+                })),
               };
               return smNode;
-            })
+            }),
           };
           return menuNode;
-        })
-      ]
+        }),
+      ],
     };
     return modNode;
   });
@@ -88,7 +97,7 @@ function buildTreeData(suite: SystemSuite | undefined | null, items: PermissionT
     label: res.name,
     description: res.description || '',
     items: itemsByTargetId[res.id] || [],
-    children: []
+    children: [],
   }));
 
   return [...globalResourceNodes, ...moduleNodes];
@@ -98,14 +107,16 @@ function filterTree(nodes: UITreeNodeData[], query: string): UITreeNodeData[] {
   if (!query) return nodes;
   const q = query.toLowerCase();
 
-  return nodes.map(node => {
-    const isMatch = node.label.toLowerCase().includes(q) || node.type.toLowerCase().includes(q);
-    const filteredChildren = filterTree(node.children, query);
-    if (isMatch || filteredChildren.length > 0) {
-      return { ...node, children: filteredChildren };
-    }
-    return null;
-  }).filter(Boolean) as UITreeNodeData[];
+  return nodes
+    .map(node => {
+      const isMatch = node.label.toLowerCase().includes(q) || node.type.toLowerCase().includes(q);
+      const filteredChildren = filterTree(node.children, query);
+      if (isMatch || filteredChildren.length > 0) {
+        return { ...node, children: filteredChildren };
+      }
+      return null;
+    })
+    .filter(Boolean) as UITreeNodeData[];
 }
 
 function getAllNodeIds(nodes: UITreeNodeData[]): string[] {
@@ -113,7 +124,10 @@ function getAllNodeIds(nodes: UITreeNodeData[]): string[] {
 }
 
 export const PermissionTree: React.FC<PermissionTreeProps> = ({
-  suite, items, selectedNodeId, onSelectNode
+  suite,
+  items,
+  selectedNodeId,
+  onSelectNode,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
@@ -155,10 +169,18 @@ export const PermissionTree: React.FC<PermissionTreeProps> = ({
             />
           </div>
           <div className="flex items-center gap-1 shrink-0">
-            <button onClick={expandAll} className="p-1.5 rounded bg-m3-surface-variant/50 text-m3-secondary hover:text-m3-on-surface transition-colors" title="Expandir todo">
+            <button
+              onClick={expandAll}
+              className="p-1.5 rounded bg-m3-surface-variant/50 text-m3-secondary hover:text-m3-on-surface transition-colors"
+              title="Expandir todo"
+            >
               <FolderOpen className="w-3.5 h-3.5" />
             </button>
-            <button onClick={collapseAll} className="p-1.5 rounded bg-m3-surface-variant/50 text-m3-secondary hover:text-m3-on-surface transition-colors" title="Colapsar todo">
+            <button
+              onClick={collapseAll}
+              className="p-1.5 rounded bg-m3-surface-variant/50 text-m3-secondary hover:text-m3-on-surface transition-colors"
+              title="Colapsar todo"
+            >
               <FolderClosed className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -166,7 +188,9 @@ export const PermissionTree: React.FC<PermissionTreeProps> = ({
       </div>
       <div className="flex-1 overflow-y-auto py-2">
         {filteredTree.length === 0 ? (
-          <p className="text-center text-xs text-m3-secondary/50 mt-4">No se encontraron resultados.</p>
+          <p className="text-center text-xs text-m3-secondary/50 mt-4">
+            No se encontraron resultados.
+          </p>
         ) : (
           filteredTree.map(node => (
             <TreeNode

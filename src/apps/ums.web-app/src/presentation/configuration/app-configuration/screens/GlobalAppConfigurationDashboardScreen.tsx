@@ -6,7 +6,10 @@
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAppConfigurationDashboard } from '@app/configuration/hooks/use-app-configuration-dashboard';
-import { useCreateAppConfiguration, useDeleteAppConfiguration } from '@app/configuration/hooks/use-app-configuration';
+import {
+  useCreateAppConfiguration,
+  useDeleteAppConfiguration,
+} from '@app/configuration/hooks/use-app-configuration';
 import { AppConfigurationListPanel } from '../components/AppConfigurationListPanel';
 import { AppConfigurationDetailPanel } from '../components/AppConfigurationDetailPanel';
 import { ParameterDefinitionPickerDialog } from '../components/ParameterDefinitionPickerDialog';
@@ -20,7 +23,7 @@ import type { ParameterDefinition } from '@domain/configuration/schemas/paramete
 
 export default function GlobalAppConfigurationDashboardScreen(): React.JSX.Element {
   const t = useI18n();
-  const isInternalAdmin = useAuthStore((state) => state.user?.isInternalAdmin);
+  const isInternalAdmin = useAuthStore(state => state.user?.isInternalAdmin);
   const d = useAppConfigurationDashboard({
     initialFilter: 'all',
     initialAppliedFilter: true,
@@ -68,7 +71,11 @@ export default function GlobalAppConfigurationDashboardScreen(): React.JSX.Eleme
       }
       setIsPickerOpen(false);
     } catch (err: any) {
-      const errorMsg = err?.normalised?.message || err?.response?.data?.detail || err?.message || t.failedToLinkParameter;
+      const errorMsg =
+        err?.normalised?.message ||
+        err?.response?.data?.detail ||
+        err?.message ||
+        t.failedToLinkParameter;
       addNotification({
         title: t.error ?? 'Error',
         message: errorMsg,
@@ -118,11 +125,23 @@ export default function GlobalAppConfigurationDashboardScreen(): React.JSX.Eleme
       <M3Dialog
         open={isDeleteDialogOpen}
         title={t.deleteConfiguration ?? 'Delete Configuration'}
-        message={t.deleteConfigurationConfirm ?? 'Are you sure you want to delete this configuration? This action cannot be undone.'}
+        message={
+          t.deleteConfigurationConfirm ??
+          'Are you sure you want to delete this configuration? This action cannot be undone.'
+        }
         onScrimClick={() => setIsDeleteDialogOpen(false)}
         actions={[
-          { label: t.cancelBtn ?? 'Cancel', variant: 'outlined', onClick: () => setIsDeleteDialogOpen(false) },
-          { label: t.deleteBtn ?? 'Delete', variant: 'filled', className: 'bg-m3-error hover:bg-m3-error/90 border-0', onClick: handleDeleteConfirm },
+          {
+            label: t.cancelBtn ?? 'Cancel',
+            variant: 'outlined',
+            onClick: () => setIsDeleteDialogOpen(false),
+          },
+          {
+            label: t.deleteBtn ?? 'Delete',
+            variant: 'filled',
+            className: 'bg-m3-error hover:bg-m3-error/90 border-0',
+            onClick: handleDeleteConfirm,
+          },
         ]}
       />
 

@@ -55,11 +55,23 @@ export default function ParameterCatalogScreen(): React.JSX.Element {
             <M3Dialog
               open={d.isDeleteDialogOpen}
               title={t.deleteParameter ?? 'Delete Parameter'}
-              message={t.deleteParameterConfirm ?? 'Are you sure you want to delete this parameter? This action cannot be undone.'}
+              message={
+                t.deleteParameterConfirm ??
+                'Are you sure you want to delete this parameter? This action cannot be undone.'
+              }
               onScrimClick={() => d.setIsDeleteDialogOpen(false)}
               actions={[
-                { label: t.cancelBtn ?? 'Cancel', variant: 'outlined', onClick: () => d.setIsDeleteDialogOpen(false) },
-                { label: t.deleteBtn ?? 'Delete', variant: 'filled', className: 'bg-m3-error hover:bg-m3-error/90 border-0', onClick: d.handleDeleteConfirm },
+                {
+                  label: t.cancelBtn ?? 'Cancel',
+                  variant: 'outlined',
+                  onClick: () => d.setIsDeleteDialogOpen(false),
+                },
+                {
+                  label: t.deleteBtn ?? 'Delete',
+                  variant: 'filled',
+                  className: 'bg-m3-error hover:bg-m3-error/90 border-0',
+                  onClick: d.handleDeleteConfirm,
+                },
               ]}
             />
             <ParameterDefinitionForm

@@ -1,5 +1,15 @@
 import React, { useState, useMemo } from 'react';
-import { Shield, Menu, List, Key, ChevronRight, ChevronDown, CheckCircle2, XCircle, MinusCircle } from 'lucide-react';
+import {
+  Shield,
+  Menu,
+  List,
+  Key,
+  ChevronRight,
+  ChevronDown,
+  CheckCircle2,
+  XCircle,
+  MinusCircle,
+} from 'lucide-react';
 import type { SystemSuite } from '@domain/authorization/models/system-suite.model';
 import type { PermissionTemplateItem } from '@domain/authorization/models/permission-template.model';
 import { itemEffect } from '@domain/authorization/models/permission-template.model';
@@ -29,14 +39,17 @@ interface ModulePermissionsPanelProps {
 
 function buildModuleTree(
   suite: SystemSuite | undefined | null,
-  items: PermissionTemplateItem[],
+  items: PermissionTemplateItem[]
 ): ModulePermNode[] {
   if (!suite) return [];
-  const itemsByTargetId = items.reduce((acc, item) => {
-    if (!acc[item.targetId]) acc[item.targetId] = [];
-    acc[item.targetId].push(item);
-    return acc;
-  }, {} as Record<string, PermissionTemplateItem[]>);
+  const itemsByTargetId = items.reduce(
+    (acc, item) => {
+      if (!acc[item.targetId]) acc[item.targetId] = [];
+      acc[item.targetId].push(item);
+      return acc;
+    },
+    {} as Record<string, PermissionTemplateItem[]>
+  );
 
   return suite.modules.map(mod => {
     const buildMenuTree = (menus: typeof mod.menus, level: number): ModulePermNode[] =>
@@ -172,9 +185,17 @@ const ModuleRow: React.FC<{
     >
       <div
         className="w-5 h-5 flex items-center justify-center shrink-0 text-m3-secondary/50 hover:text-m3-on-surface"
-        onClick={(e) => { e.stopPropagation(); hasChildren && onToggle(); }}
+        onClick={e => {
+          e.stopPropagation();
+          hasChildren && onToggle();
+        }}
       >
-        {hasChildren && (isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />)}
+        {hasChildren &&
+          (isExpanded ? (
+            <ChevronDown className="w-3.5 h-3.5" />
+          ) : (
+            <ChevronRight className="w-3.5 h-3.5" />
+          ))}
       </div>
 
       {node.level > 0 && (
@@ -183,11 +204,11 @@ const ModuleRow: React.FC<{
         </div>
       )}
 
-      <div className={`p-1 rounded ${TYPE_COLOR[node.type]}`}>
-        {TYPE_ICON[node.type]}
-      </div>
+      <div className={`p-1 rounded ${TYPE_COLOR[node.type]}`}>{TYPE_ICON[node.type]}</div>
 
-      <span className={`text-xs truncate flex-1 ${isSelected ? 'font-semibold text-m3-primary' : 'text-m3-on-surface/80'}`}>
+      <span
+        className={`text-xs truncate flex-1 ${isSelected ? 'font-semibold text-m3-primary' : 'text-m3-on-surface/80'}`}
+      >
         {node.label}
       </span>
 
@@ -211,16 +232,17 @@ const ModuleRow: React.FC<{
             (H)
           </span>
         )}
-        <div className={stateInfo.color}>
-          {stateInfo.icon}
-        </div>
+        <div className={stateInfo.color}>{stateInfo.icon}</div>
       </div>
     </div>
   );
 };
 
 export const ModulePermissionsPanel: React.FC<ModulePermissionsPanelProps> = ({
-  suite, items, onNodeSelect, selectedNodeId,
+  suite,
+  items,
+  onNodeSelect,
+  selectedNodeId,
 }) => {
   const [viewMode, setViewMode] = useState<'list' | 'thumbnail' | 'tree'>('tree');
   const [activeFilter, setActiveFilter] = useState('all');
@@ -307,7 +329,7 @@ export const ModulePermissionsPanel: React.FC<ModulePermissionsPanelProps> = ({
         sortBy={sortBy}
         onSortByChange={setSortBy}
         sortOrder={sortOrder}
-        onSortOrderToggle={() => setSortOrder(o => o === 'asc' ? 'desc' : 'asc')}
+        onSortOrderToggle={() => setSortOrder(o => (o === 'asc' ? 'desc' : 'asc'))}
         itemCount={flatList.length}
         itemLabel="elemento"
         showExpandCollapse
@@ -318,13 +340,22 @@ export const ModulePermissionsPanel: React.FC<ModulePermissionsPanelProps> = ({
       <div className="flex items-center gap-2 px-2 py-1 text-[9px] text-m3-secondary/60 border-b border-m3-outline/10">
         <span className="font-medium">Leyenda:</span>
         <span className="flex items-center gap-1">
-          <span className="text-emerald-500"><CheckCircle2 className="w-3 h-3 inline" /></span> Permitido
+          <span className="text-emerald-500">
+            <CheckCircle2 className="w-3 h-3 inline" />
+          </span>{' '}
+          Permitido
         </span>
         <span className="flex items-center gap-1">
-          <span className="text-rose-500"><XCircle className="w-3 h-3 inline" /></span> Denegado
+          <span className="text-rose-500">
+            <XCircle className="w-3 h-3 inline" />
+          </span>{' '}
+          Denegado
         </span>
         <span className="flex items-center gap-1">
-          <span className="text-m3-secondary/30"><MinusCircle className="w-3 h-3 inline" /></span> Heredado
+          <span className="text-m3-secondary/30">
+            <MinusCircle className="w-3 h-3 inline" />
+          </span>{' '}
+          Heredado
         </span>
         <span className="text-m3-secondary/40">(H) = Permiso heredado del padre</span>
       </div>

@@ -385,6 +385,7 @@ public static class DependencyInjection
             builder.AddAspect<AuditTrailAspect>();
             builder.AddAspect<TransactionAspect>();
             builder.AddAspect<TenantValidationAspect>();
+            builder.AddAspect<AuthorizationAspect>();
         });
 
         services.AddKeyedTransient<BeyondNetCode.Shell.Aop.Aspects.ILogger, Ums.Infrastructure.Aop.MelLogger>(

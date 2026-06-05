@@ -11,7 +11,9 @@ import { z } from 'zod';
 
 export const SystemStatusSchema = z.enum(['Active', 'Maintenance', 'Deprecated']);
 
-const GuidSchema = z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/);
+const GuidSchema = z
+  .string()
+  .regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/);
 
 export const SystemSuiteActionSchema = z.object({
   id: z.string().uuid(),
@@ -86,30 +88,30 @@ export const SystemSuiteDomainResourceSchema = z.object({
 
 export const SystemSuiteSchema = z.object({
   systemSuiteId: GuidSchema,
-  tenantId:      GuidSchema,
-  code:          z.string().min(1),
-  name:          z.string().min(1),
-  description:   z.string(),
-  status:        SystemStatusSchema,
-  modules:       z.array(SystemSuiteModuleSchema).optional().default([]),
-  actions:       z.array(SystemSuiteActionSchema).optional().default([]),
+  tenantId: GuidSchema,
+  code: z.string().min(1),
+  name: z.string().min(1),
+  description: z.string(),
+  status: SystemStatusSchema,
+  modules: z.array(SystemSuiteModuleSchema).optional().default([]),
+  actions: z.array(SystemSuiteActionSchema).optional().default([]),
   domainResources: z.array(SystemSuiteDomainResourceSchema).optional().default([]),
 });
 
 export const SystemSuiteListSchema = z.array(SystemSuiteSchema);
 
 export const SystemSuitePageSchema = z.object({
-  items:      SystemSuiteListSchema,
-  page:       z.number().int().min(1),
-  pageSize:   z.number().int().min(1),
+  items: SystemSuiteListSchema,
+  page: z.number().int().min(1),
+  pageSize: z.number().int().min(1),
   totalItems: z.number().int().min(0),
   totalPages: z.number().int().min(0),
 });
 
 export const CreateSystemSuitePayloadSchema = z.object({
-  tenantId:    z.string().uuid(),
-  code:        z.string().min(1).max(50),
-  name:        z.string().min(1).max(120),
+  tenantId: z.string().uuid(),
+  code: z.string().min(1).max(50),
+  name: z.string().min(1).max(120),
   description: z.string().max(500).optional(),
 });
 
@@ -117,11 +119,11 @@ export const CreateSystemSuiteResponseSchema = z.object({
   systemSuiteId: z.string().uuid(),
 });
 
-export type SystemSuite               = z.infer<typeof SystemSuiteSchema>;
-export type SystemSuitePage           = z.infer<typeof SystemSuitePageSchema>;
-export type SystemStatus              = z.infer<typeof SystemStatusSchema>;
-export type CreateSystemSuitePayload  = z.infer<typeof CreateSystemSuitePayloadSchema>;
+export type SystemSuite = z.infer<typeof SystemSuiteSchema>;
+export type SystemSuitePage = z.infer<typeof SystemSuitePageSchema>;
+export type SystemStatus = z.infer<typeof SystemStatusSchema>;
+export type CreateSystemSuitePayload = z.infer<typeof CreateSystemSuitePayloadSchema>;
 export type CreateSystemSuiteResponse = z.infer<typeof CreateSystemSuiteResponseSchema>;
 export type SystemSuiteDomainResource = z.infer<typeof SystemSuiteDomainResourceSchema>;
-export type SystemSuiteCrudOperation  = z.infer<typeof SystemSuiteCrudOperationSchema>;
-export type SystemSuiteCustomAction   = z.infer<typeof SystemSuiteCustomActionSchema>;
+export type SystemSuiteCrudOperation = z.infer<typeof SystemSuiteCrudOperationSchema>;
+export type SystemSuiteCustomAction = z.infer<typeof SystemSuiteCustomActionSchema>;

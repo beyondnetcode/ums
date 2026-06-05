@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useGetDelegationsByDelegatedAdmin, useGetDelegationsByDelegatingAdmin } from './use-delegation';
+import {
+  useGetDelegationsByDelegatedAdmin,
+  useGetDelegationsByDelegatingAdmin,
+} from './use-delegation';
 import { Delegation } from '@domain/identity/models/delegation.model';
 import { useLocalOverrides } from '@app/hooks/use-local-overrides';
 import { useQueryState } from '@app/shared/hooks/use-query-state';
@@ -36,18 +39,19 @@ export interface DelegationDashboardActions {
   handleCreateSuccess: () => void;
 }
 
-export function useDelegationDashboard(): DelegationDashboardState & DelegationDashboardActions & {
-  knownDelegations: Delegation[];
-  isLoadingList: boolean;
-  listError: Error | null;
-  activeDelegation: Delegation | undefined;
-  consoleTabs: Array<'overview' | 'permissions'>;
-  totalItems: number;
-  totalPages: number;
-  startIndex: number;
-  currentUserId: string;
-  currentTenantId: string;
-} {
+export function useDelegationDashboard(): DelegationDashboardState &
+  DelegationDashboardActions & {
+    knownDelegations: Delegation[];
+    isLoadingList: boolean;
+    listError: Error | null;
+    activeDelegation: Delegation | undefined;
+    consoleTabs: Array<'overview' | 'permissions'>;
+    totalItems: number;
+    totalPages: number;
+    startIndex: number;
+    currentUserId: string;
+    currentTenantId: string;
+  } {
   const { user } = useAuthStore();
   const currentUserId = user?.id ?? '';
   const currentTenantId = user?.tenantId ?? '';
@@ -83,8 +87,8 @@ export function useDelegationDashboard(): DelegationDashboardState & DelegationD
 
   if (queryState.appliedQuery.term) {
     const term = queryState.appliedQuery.term.toLowerCase();
-    filteredItems = filteredItems.filter(d =>
-      d.delegationId.toLowerCase().includes(term) || d.scopeType.toLowerCase().includes(term)
+    filteredItems = filteredItems.filter(
+      d => d.delegationId.toLowerCase().includes(term) || d.scopeType.toLowerCase().includes(term)
     );
   }
 
@@ -92,12 +96,10 @@ export function useDelegationDashboard(): DelegationDashboardState & DelegationD
     filteredItems = filteredItems.filter(d => d.status === queryState.activeFilter);
   }
 
-  const { items: knownDelegations, patchItem: patchLocalDelegation } = useLocalOverrides<Delegation>(
-    filteredItems,
-    'delegationId',
-  );
+  const { items: knownDelegations, patchItem: patchLocalDelegation } =
+    useLocalOverrides<Delegation>(filteredItems, 'delegationId');
 
-  const activeDelegation = knownDelegations.find((d) => d.delegationId === selectedId);
+  const activeDelegation = knownDelegations.find(d => d.delegationId === selectedId);
   const consoleTabs: Array<'overview' | 'permissions'> = ['overview', 'permissions'];
   const hasPendingChanges = isEditing;
 
@@ -107,15 +109,18 @@ export function useDelegationDashboard(): DelegationDashboardState & DelegationD
     setSelectedId(id);
   }, []);
 
-  const handleSelectDelegation = useCallback((id: string) => {
-    if (id === selectedId) return;
-    if (hasPendingChanges) {
-      setPendingNavigationId(id);
-      setShowDiscardDialog(true);
-      return;
-    }
-    applyDelegationSelection(id);
-  }, [selectedId, hasPendingChanges, applyDelegationSelection]);
+  const handleSelectDelegation = useCallback(
+    (id: string) => {
+      if (id === selectedId) return;
+      if (hasPendingChanges) {
+        setPendingNavigationId(id);
+        setShowDiscardDialog(true);
+        return;
+      }
+      applyDelegationSelection(id);
+    },
+    [selectedId, hasPendingChanges, applyDelegationSelection]
+  );
 
   const confirmDiscard = useCallback(() => {
     if (pendingNavigationId) applyDelegationSelection(pendingNavigationId);
@@ -127,12 +132,15 @@ export function useDelegationDashboard(): DelegationDashboardState & DelegationD
     if (!selectedId && knownDelegations.length > 0) {
       applyDelegationSelection(knownDelegations[0].delegationId);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [knownDelegations]);
 
-  const patchDelegation = useCallback((id: string, patch: Partial<Delegation>) => {
-    patchLocalDelegation(id, patch);
-  }, [patchLocalDelegation]);
+  const patchDelegation = useCallback(
+    (id: string, patch: Partial<Delegation>) => {
+      patchLocalDelegation(id, patch);
+    },
+    [patchLocalDelegation]
+  );
 
   const handleCreateSuccess = useCallback(() => {
     setIsCreateOpen(false);
@@ -146,19 +154,30 @@ export function useDelegationDashboard(): DelegationDashboardState & DelegationD
   const totalPages = Math.ceil(totalItems / paginationState.pageSize) || 1;
   const startIndex = (paginationState.page - 1) * paginationState.pageSize;
 
-  const paginatedDelegations = knownDelegations.slice(startIndex, startIndex + paginationState.pageSize);
+  const paginatedDelegations = knownDelegations.slice(
+    startIndex,
+    startIndex + paginationState.pageSize
+  );
 
   return {
-    selectedId, setSelectedId,
-    showDiscardDialog, setShowDiscardDialog,
-    pendingNavigationId, setPendingNavigationId,
-    activeConsoleTab, setActiveConsoleTab,
-    isEditing, setIsEditing,
-    isCreateOpen, setIsCreateOpen,
-    viewMode, setViewMode,
+    selectedId,
+    setSelectedId,
+    showDiscardDialog,
+    setShowDiscardDialog,
+    pendingNavigationId,
+    setPendingNavigationId,
+    activeConsoleTab,
+    setActiveConsoleTab,
+    isEditing,
+    setIsEditing,
+    isCreateOpen,
+    setIsCreateOpen,
+    viewMode,
+    setViewMode,
     queryState,
     paginationState,
-    delegationViewType, setDelegationViewType,
+    delegationViewType,
+    setDelegationViewType,
     handleSelectDelegation,
     confirmDiscard,
     patchDelegation,

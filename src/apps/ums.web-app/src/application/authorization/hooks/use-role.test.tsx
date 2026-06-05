@@ -2,12 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
-import {
-  useRolesBySystemSuite,
-  useCreateRole,
-  useUpdateRole,
-  useSetRoleActive,
-} from './use-role';
+import { useRolesBySystemSuite, useCreateRole, useUpdateRole, useSetRoleActive } from './use-role';
 import roleService from '@infra/authorization/services/role.service';
 
 vi.mock('@infra/authorization/services/role.service', () => ({
@@ -73,7 +68,13 @@ describe('use-role hooks', () => {
     const { result } = renderHook(() => useCreateRole('suite-1'), { wrapper });
 
     await act(async () => {
-      result.current.mutate({ code: 'NEW_ROLE', value: 'New Role', description: 'Test', hierarchyLevel: 0, promotionOrder: 1 });
+      result.current.mutate({
+        code: 'NEW_ROLE',
+        value: 'New Role',
+        description: 'Test',
+        hierarchyLevel: 0,
+        promotionOrder: 1,
+      });
     });
 
     await waitFor(() => {
@@ -90,7 +91,13 @@ describe('use-role hooks', () => {
     const { result } = renderHook(() => useUpdateRole('suite-1', 'role-1'), { wrapper });
 
     await act(async () => {
-      result.current.mutate({ code: 'UPDATED', value: 'Updated', description: 'Test', hierarchyLevel: 0, promotionOrder: 1 });
+      result.current.mutate({
+        code: 'UPDATED',
+        value: 'Updated',
+        description: 'Test',
+        hierarchyLevel: 0,
+        promotionOrder: 1,
+      });
     });
 
     await waitFor(() => {

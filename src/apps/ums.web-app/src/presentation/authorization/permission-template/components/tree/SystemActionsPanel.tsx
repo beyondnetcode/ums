@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import type { SystemSuite } from '@domain/authorization/models/system-suite.model';
 import type { PermissionTemplateItem } from '@domain/authorization/models/permission-template.model';
-import { useSetTemplateItemEffect, useRemoveTemplateItem, useAddTemplateItem } from '@app/authorization/hooks/use-permission-template';
+import {
+  useSetTemplateItemEffect,
+  useRemoveTemplateItem,
+  useAddTemplateItem,
+} from '@app/authorization/hooks/use-permission-template';
 import { CheckCircle2, XCircle, MinusCircle, Info, Key } from 'lucide-react';
 import { PermissionSectionToolbar } from '@shared/components/PermissionSectionToolbar';
 import { CodeBadge } from '@shared/components/CodeBadge';
@@ -15,7 +19,12 @@ interface SystemActionsPanelProps {
   isDraft: boolean;
 }
 
-export const SystemActionsPanel: React.FC<SystemActionsPanelProps> = ({ suite, items, templateId, isDraft }) => {
+export const SystemActionsPanel: React.FC<SystemActionsPanelProps> = ({
+  suite,
+  items,
+  templateId,
+  isDraft,
+}) => {
   const setEffect = useSetTemplateItemEffect(templateId);
   const removeItem = useRemoveTemplateItem(templateId);
   const addItem = useAddTemplateItem(templateId);
@@ -33,7 +42,9 @@ export const SystemActionsPanel: React.FC<SystemActionsPanelProps> = ({ suite, i
     );
   }
 
-  const systemItems = items.filter(i => i.targetType === 'SystemSuite' || i.targetId === suite.systemSuiteId);
+  const systemItems = items.filter(
+    i => i.targetType === 'SystemSuite' || i.targetId === suite.systemSuiteId
+  );
 
   const getActionState = (actionId: string) => {
     const item = systemItems.find(i => i.actionId === actionId);
@@ -79,7 +90,12 @@ export const SystemActionsPanel: React.FC<SystemActionsPanelProps> = ({ suite, i
   const renderRow = (action: NonNullable<SystemSuite['actions']>[number]) => {
     const state = getActionState(action.id);
     const StateIcon = state === 'Allow' ? CheckCircle2 : state === 'Deny' ? XCircle : MinusCircle;
-    const stateColor = state === 'Allow' ? 'text-emerald-500' : state === 'Deny' ? 'text-rose-500' : 'text-m3-secondary/30';
+    const stateColor =
+      state === 'Allow'
+        ? 'text-emerald-500'
+        : state === 'Deny'
+          ? 'text-rose-500'
+          : 'text-m3-secondary/30';
 
     return (
       <EntityRow
@@ -189,7 +205,7 @@ export const SystemActionsPanel: React.FC<SystemActionsPanelProps> = ({ suite, i
         sortBy={sortBy}
         onSortByChange={setSortBy}
         sortOrder={sortOrder}
-        onSortOrderToggle={() => setSortOrder(o => o === 'asc' ? 'desc' : 'asc')}
+        onSortOrderToggle={() => setSortOrder(o => (o === 'asc' ? 'desc' : 'asc'))}
         itemCount={suite.actions.length}
         itemLabel="acción"
       />
@@ -203,9 +219,7 @@ export const SystemActionsPanel: React.FC<SystemActionsPanelProps> = ({ suite, i
         )}
 
         {viewMode === 'list' ? (
-          <div className="flex flex-col gap-0.5">
-            {sortedActions.map(renderRow)}
-          </div>
+          <div className="flex flex-col gap-0.5">{sortedActions.map(renderRow)}</div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {sortedActions.map(renderCard)}

@@ -5,7 +5,12 @@
  * UserAccount bounded context.
  */
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useGetAllUserAccounts, useActivateUserAccount, useBlockUserAccount, useRestoreUserAccount } from '@app/identity/hooks/use-user-account';
+import {
+  useGetAllUserAccounts,
+  useActivateUserAccount,
+  useBlockUserAccount,
+  useRestoreUserAccount,
+} from '@app/identity/hooks/use-user-account';
 import { useGetAllTenants } from '@app/identity/hooks/use-tenant';
 import { useLocalOverrides } from '@app/hooks/use-local-overrides';
 import { useNotificationStore } from '@app/stores/notification.store';
@@ -45,17 +50,18 @@ export interface UserAccountDashboardActions {
   patchAccount: (accountId: string, patch: Partial<UserAccount>) => void;
 }
 
-export function useUserAccountDashboard(sessionTenantId?: string): UserAccountDashboardState & UserAccountDashboardActions & {
-  knownAccounts: UserAccount[];
-  isLoadingList: boolean;
-  listError: Error | null;
-  activeAccount: UserAccount | undefined;
-  totalItems: number;
-  totalPages: number;
-  startIndex: number;
-  tenants: Tenant[];
-  requiresFilter: boolean;
-} {
+export function useUserAccountDashboard(sessionTenantId?: string): UserAccountDashboardState &
+  UserAccountDashboardActions & {
+    knownAccounts: UserAccount[];
+    isLoadingList: boolean;
+    listError: Error | null;
+    activeAccount: UserAccount | undefined;
+    totalItems: number;
+    totalPages: number;
+    startIndex: number;
+    tenants: Tenant[];
+    requiresFilter: boolean;
+  } {
   const [selectedId, setSelectedId] = useState('');
   const [selectedTenantId, setSelectedTenantId] = useState(sessionTenantId || '');
   const [showBlockDialog, setShowBlockDialog] = useState(false);
@@ -74,7 +80,7 @@ export function useUserAccountDashboard(sessionTenantId?: string): UserAccountDa
     initialPageSize: 10,
   });
 
-  const addNotification = useNotificationStore((s) => s.addNotification);
+  const addNotification = useNotificationStore(s => s.addNotification);
 
   const { data: tenantPage } = useGetAllTenants({ page: 1, pageSize: 100 });
   const tenants = useMemo(() => tenantPage?.items ?? [], [tenantPage]);
@@ -89,7 +95,11 @@ export function useUserAccountDashboard(sessionTenantId?: string): UserAccountDa
     }
   }, [tenants, selectedTenantId]);
 
-  const { data: accountPage, isLoading: isLoadingList, error: listError } = useGetAllUserAccounts(
+  const {
+    data: accountPage,
+    isLoading: isLoadingList,
+    error: listError,
+  } = useGetAllUserAccounts(
     shouldFetch
       ? {
           page: paginationState.page,
@@ -101,15 +111,15 @@ export function useUserAccountDashboard(sessionTenantId?: string): UserAccountDa
           sortOrder: queryState.sortOrder,
           tenantId: selectedTenantId || undefined,
         }
-      : null,
+      : null
   );
 
   const { items: knownAccounts, patchItem: patchLocalAccount } = useLocalOverrides<UserAccount>(
     accountPage?.items,
-    'userAccountId',
+    'userAccountId'
   );
 
-  const activeAccount = knownAccounts.find((account) => account.userAccountId === selectedId);
+  const activeAccount = knownAccounts.find(account => account.userAccountId === selectedId);
 
   const activateMutation = useActivateUserAccount(selectedId);
   const blockMutation = useBlockUserAccount(selectedId);
@@ -143,9 +153,12 @@ export function useUserAccountDashboard(sessionTenantId?: string): UserAccountDa
     });
   }, [activateMutation, addNotification]);
 
-  const handleApproveAccount = useCallback((userAccountId: string) => {
-    approveMutation.mutate(userAccountId);
-  }, [approveMutation]);
+  const handleApproveAccount = useCallback(
+    (userAccountId: string) => {
+      approveMutation.mutate(userAccountId);
+    },
+    [approveMutation]
+  );
 
   const handleBlockRequest = useCallback((userAccountId: string) => {
     setSelectedId(userAccountId);
@@ -195,26 +208,36 @@ export function useUserAccountDashboard(sessionTenantId?: string): UserAccountDa
     if (!selectedId && knownAccounts.length > 0) {
       setSelectedId(knownAccounts[0].userAccountId);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [knownAccounts]);
 
-  const patchAccount = useCallback((accountId: string, patch: Partial<UserAccount>) => {
-    patchLocalAccount(accountId, patch);
-  }, [patchLocalAccount]);
+  const patchAccount = useCallback(
+    (accountId: string, patch: Partial<UserAccount>) => {
+      patchLocalAccount(accountId, patch);
+    },
+    [patchLocalAccount]
+  );
 
   const totalItems = accountPage?.totalItems ?? 0;
   const totalPages = accountPage?.totalPages ?? 0;
 
   return {
-    selectedId, setSelectedId,
-    selectedTenantId, setSelectedTenantId,
-    showBlockDialog, setShowBlockDialog,
-    showRestoreDialog, setShowRestoreDialog,
-    isCreateOpen, setIsCreateOpen,
-    viewMode, setViewMode,
+    selectedId,
+    setSelectedId,
+    selectedTenantId,
+    setSelectedTenantId,
+    showBlockDialog,
+    setShowBlockDialog,
+    showRestoreDialog,
+    setShowRestoreDialog,
+    isCreateOpen,
+    setIsCreateOpen,
+    viewMode,
+    setViewMode,
     queryState,
     paginationState,
-    blockReason, setBlockReason,
+    blockReason,
+    setBlockReason,
     handleSelectAccount,
     handleActivate,
     handleApproveAccount,

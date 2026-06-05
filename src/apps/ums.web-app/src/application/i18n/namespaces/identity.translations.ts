@@ -6,7 +6,8 @@ export const identityTranslations = {
     tenants: 'Tenants',
     userAccounts: 'Cuentas de Usuario',
     userAccountMaintenance: 'Mantenimiento de Cuentas de Usuario',
-    userAccountMaintenanceSubtitle: 'Gestione las cuentas de usuario, sus identificadores y estado en el sistema.',
+    userAccountMaintenanceSubtitle:
+      'Gestione las cuentas de usuario, sus identificadores y estado en el sistema.',
     registerNewAccount: 'Registrar Nueva Cuenta',
     filterAccountsByTenant: 'Filtrar cuentas de usuario por organización',
     activeTenant: 'Inquilino Activo',
@@ -30,7 +31,8 @@ export const identityTranslations = {
 
     // Dashboard / Tenant maintenance
     tenantMaintenance: 'Mantenimiento de Tenants',
-    tenantMaintenanceSubtitle: 'Explore entornos corporativos registrados, consulte bloques de tenant y administre modelos de sucursal.',
+    tenantMaintenanceSubtitle:
+      'Explore entornos corporativos registrados, consulte bloques de tenant y administre modelos de sucursal.',
 
     // Tenant Form
     createTenantTitle: 'Crear Nuevo Tenant',
@@ -143,7 +145,8 @@ export const identityTranslations = {
 
     // Notifications
     notifTenantCreated: 'Tenant Creado',
-    notifTenantCreatedMsg: (name: string, code: string) => `Tenant '${name}' registrado con código: ${code}.`,
+    notifTenantCreatedMsg: (name: string, code: string) =>
+      `Tenant '${name}' registrado con código: ${code}.`,
     notifTenantCreateFailed: 'Error al Crear Tenant',
     notifActivated: 'Tenant Activado',
     notifActivatedMsg: 'El estado del tenant fue restaurado a Activo.',
@@ -155,7 +158,8 @@ export const identityTranslations = {
     notifSuspendFailedMsg: 'No se pudo suspender el tenant.',
     notifStatusSetTo: (status: string) => `Estado del tenant actualizado a ${status}.`,
     notifProviderAdded: 'Proveedor de Identidad Agregado',
-    notifProviderAddedMsg: (name: string, type: string) => `Esquema de identidad vinculado: '${name}' [${type}].`,
+    notifProviderAddedMsg: (name: string, type: string) =>
+      `Esquema de identidad vinculado: '${name}' [${type}].`,
     notifProviderModified: 'Estado del Proveedor Modificado',
     notifProviderModifiedMsg: 'Estado del protocolo de autenticación actualizado.',
     notifProviderRemoved: 'Proveedor Desconectado',
@@ -183,7 +187,8 @@ export const identityTranslations = {
     notifBranchUpdated: 'Sucursal Actualizada',
     notifBranchUpdatedMsg: (name: string) => `La sucursal '${name}' fue actualizada correctamente.`,
     notifProviderUpdated: 'Proveedor Actualizado',
-    notifProviderUpdatedMsg: (name: string) => `El proveedor '${name}' fue actualizado correctamente.`,
+    notifProviderUpdatedMsg: (name: string) =>
+      `El proveedor '${name}' fue actualizado correctamente.`,
 
     // Configuration Parameters
     notifConfigLoadFailed: 'Error al Cargar Parámetros',
@@ -220,7 +225,8 @@ export const identityTranslations = {
     sortByEmail: 'Ordenar: Correo',
     sortByCategory: 'Ordenar: Categoría',
     blockUserTitle: 'Bloquear Cuenta de Usuario',
-    blockUserMessage: '¿Está seguro de que desea bloquear esta cuenta de usuario? Se suspenderá el acceso inmediatamente.',
+    blockUserMessage:
+      '¿Está seguro de que desea bloquear esta cuenta de usuario? Se suspenderá el acceso inmediatamente.',
     blockReasonLabel: 'Motivo de Bloqueo',
     blockReasonHelper: 'Escriba una justificación para bloquear esta cuenta.',
     restoreUserTitle: 'Restaurar Cuenta de Usuario',
@@ -236,7 +242,8 @@ export const identityTranslations = {
     localPassword: 'Contraseña local',
     notConfigured: 'No configurada',
     lastPasswordRotation: 'Última rotación',
-    federatedPasswordManagedExternally: 'Esta cuenta usa autenticación federada. La contraseña se administra en el proveedor de identidad configurado.',
+    federatedPasswordManagedExternally:
+      'Esta cuenta usa autenticación federada. La contraseña se administra en el proveedor de identidad configurado.',
     setTemporaryPassword: 'Establecer contraseña',
     rotatePassword: 'Rotar contraseña',
     temporaryPassword: 'Contraseña temporal',
@@ -248,7 +255,8 @@ export const identityTranslations = {
     notifPasswordUpdated: 'Contraseña Actualizada',
     notifPasswordUpdatedMsg: 'La contraseña local fue establecida de forma segura.',
     notifPasswordUpdateFailed: 'Error al Actualizar Contraseña',
-    notifPasswordUpdateFailedMsg: 'No se pudo actualizar la contraseña local. Verifique la regla indicada.',
+    notifPasswordUpdateFailedMsg:
+      'No se pudo actualizar la contraseña local. Verifique la regla indicada.',
   },
   en: {
     // Context labels
@@ -257,7 +265,8 @@ export const identityTranslations = {
     tenants: 'Tenants',
     userAccounts: 'User Accounts',
     userAccountMaintenance: 'User Account Maintenance',
-    userAccountMaintenanceSubtitle: 'Manage user accounts, their identifiers, and status in the system.',
+    userAccountMaintenanceSubtitle:
+      'Manage user accounts, their identifiers, and status in the system.',
     registerNewAccount: 'Register New Account',
     filterAccountsByTenant: 'Filter user accounts by organization',
     activeTenant: 'Active Tenant',
@@ -281,7 +290,8 @@ export const identityTranslations = {
 
     // Dashboard / Tenant maintenance
     tenantMaintenance: 'Tenant Maintenance',
-    tenantMaintenanceSubtitle: 'Explore registered corporate environments, query tenant blocks, and manage branch routing models.',
+    tenantMaintenanceSubtitle:
+      'Explore registered corporate environments, query tenant blocks, and manage branch routing models.',
 
     // Tenant Form
     createTenantTitle: 'Create New Tenant',
@@ -314,7 +324,8 @@ export const identityTranslations = {
     stateControls: 'State controls',
     suspendBtn: 'Suspend',
     activateBtn: 'Activate',
-    selectTenant: 'Select a tenant block in the maintenance panel to load details and active branches list.',
+    selectTenant:
+      'Select a tenant block in the maintenance panel to load details and active branches list.',
 
     // Tenant tabs
     tabLocations: 'Locations',
@@ -394,7 +405,8 @@ export const identityTranslations = {
 
     // Notifications
     notifTenantCreated: 'Tenant Created',
-    notifTenantCreatedMsg: (name: string, code: string) => `Successfully registered tenant '${name}' with code: ${code}.`,
+    notifTenantCreatedMsg: (name: string, code: string) =>
+      `Successfully registered tenant '${name}' with code: ${code}.`,
     notifTenantCreateFailed: 'Tenant Creation Failed',
     notifActivated: 'Tenant Activated',
     notifActivatedMsg: 'The selected tenant state was successfully restored to Active.',
@@ -404,9 +416,11 @@ export const identityTranslations = {
     notifSuspendedMsg: 'The selected tenant has been suspended. API access is restricted.',
     notifSuspendFailed: 'Suspension Failed',
     notifSuspendFailedMsg: 'Could not suspend tenant status.',
-    notifStatusSetTo: (status: string) => `The selected tenant status was successfully set to ${status}.`,
+    notifStatusSetTo: (status: string) =>
+      `The selected tenant status was successfully set to ${status}.`,
     notifProviderAdded: 'Auth Provider Added',
-    notifProviderAddedMsg: (name: string, type: string) => `Successfully linked identity scheme: '${name}' [${type}].`,
+    notifProviderAddedMsg: (name: string, type: string) =>
+      `Successfully linked identity scheme: '${name}' [${type}].`,
     notifProviderModified: 'Provider State Modified',
     notifProviderModifiedMsg: 'Client authentication protocol status successfully updated.',
     notifProviderRemoved: 'Auth Provider Disconnected',
@@ -471,7 +485,8 @@ export const identityTranslations = {
     sortByEmail: 'Sort: Email',
     sortByCategory: 'Sort: Category',
     blockUserTitle: 'Block User Account',
-    blockUserMessage: 'Are you sure you want to block this user account? Access will be immediately suspended.',
+    blockUserMessage:
+      'Are you sure you want to block this user account? Access will be immediately suspended.',
     blockReasonLabel: 'Reason for blocking',
     blockReasonHelper: 'Please provide a justification for blocking this account.',
     restoreUserTitle: 'Restore User Account',
@@ -487,7 +502,8 @@ export const identityTranslations = {
     localPassword: 'Local password',
     notConfigured: 'Not configured',
     lastPasswordRotation: 'Last rotation',
-    federatedPasswordManagedExternally: 'This account uses federated authentication. Its password is managed by the configured identity provider.',
+    federatedPasswordManagedExternally:
+      'This account uses federated authentication. Its password is managed by the configured identity provider.',
     setTemporaryPassword: 'Set password',
     rotatePassword: 'Rotate password',
     temporaryPassword: 'Temporary password',
@@ -499,6 +515,7 @@ export const identityTranslations = {
     notifPasswordUpdated: 'Password Updated',
     notifPasswordUpdatedMsg: 'The local password was set securely.',
     notifPasswordUpdateFailed: 'Password Update Failed',
-    notifPasswordUpdateFailedMsg: 'The local password could not be updated. Review the indicated rule.',
+    notifPasswordUpdateFailedMsg:
+      'The local password could not be updated. Review the indicated rule.',
   },
 } as const;

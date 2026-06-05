@@ -8,9 +8,20 @@
  */
 import React, { useState, useCallback } from 'react';
 import {
-  ShieldCheck, SendHorizonal, Ban, Trash2,
-  Info, AlertTriangle, Shield, Database, Blocks,
-  CheckCircle2, XCircle, MinusCircle, Layers, Component,
+  ShieldCheck,
+  SendHorizonal,
+  Ban,
+  Trash2,
+  Info,
+  AlertTriangle,
+  Shield,
+  Database,
+  Blocks,
+  CheckCircle2,
+  XCircle,
+  MinusCircle,
+  Layers,
+  Component,
 } from 'lucide-react';
 import type {
   PermissionTemplateDetail,
@@ -36,43 +47,57 @@ import type { PermissionTemplateItem } from '@domain/authorization/models/permis
 import { ModulePermissionsPanel, type ModulePermNode } from './tree/ModulePermissionsPanel';
 import { DomainResourcesPanel, type DomainResourceNode } from './tree/DomainResourcesPanel';
 import { SystemActionsPanel } from './tree/SystemActionsPanel';
-import { getAscendantsWithTypes, getSiblingViewOptions } from '../../../../application/authorization/utils/permission-cascade';
+import {
+  getAscendantsWithTypes,
+  getSiblingViewOptions,
+} from '../../../../application/authorization/utils/permission-cascade';
 import { useNotificationStore } from '@app/stores/notification.store';
 import { STATUS_COLORS, getStatusLabel } from '@shared/utils/status-utils';
 
 type TemplateTab = 'overview' | 'modules' | 'domain-resources' | 'actions';
 
 interface Props {
-  template:    PermissionTemplateDetail | undefined;
-  isLoading:   boolean;
-  onDeleted?:  () => void;
+  template: PermissionTemplateDetail | undefined;
+  isLoading: boolean;
+  onDeleted?: () => void;
 }
 
 const STATUS_COLOR_MAP = {
-  Published:  STATUS_COLORS.Published,
+  Published: STATUS_COLORS.Published,
   Deprecated: STATUS_COLORS.Deprecated,
-  Draft:      STATUS_COLORS.Draft,
+  Draft: STATUS_COLORS.Draft,
 };
 
-export const PermissionTemplateDetailPanel: React.FC<Props> = ({ template, isLoading, onDeleted }) => {
+export const PermissionTemplateDetailPanel: React.FC<Props> = ({
+  template,
+  isLoading,
+  onDeleted,
+}) => {
   const [activeTab, setActiveTab] = useState<TemplateTab>('overview');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [selectedModuleNode, setSelectedModuleNode] = useState<ModulePermNode | null>(null);
-  const [selectedDomainResourceNode, setSelectedDomainResourceNode] = useState<DomainResourceNode | null>(null);
+  const [selectedDomainResourceNode, setSelectedDomainResourceNode] =
+    useState<DomainResourceNode | null>(null);
 
-  const publish    = usePublishPermissionTemplate(template?.templateId ?? '');
-  const deprecate  = useDeprecatePermissionTemplate(template?.templateId ?? '');
-  const deleteTpl  = useDeletePermissionTemplate();
+  const publish = usePublishPermissionTemplate(template?.templateId ?? '');
+  const deprecate = useDeprecatePermissionTemplate(template?.templateId ?? '');
+  const deleteTpl = useDeletePermissionTemplate();
 
-  const { data: suite, isLoading: loadingSuite } = useGetSystemSuite(template?.systemSuiteId ?? null);
+  const { data: suite, isLoading: loadingSuite } = useGetSystemSuite(
+    template?.systemSuiteId ?? null
+  );
 
-  const isDraft     = template?.status === 'Draft';
+  const isDraft = template?.status === 'Draft';
   const isPublished = template?.status === 'Published';
 
   const tabs: DetailTab<TemplateTab>[] = [
     { key: 'overview', label: 'General', icon: <Info className="w-3.5 h-3.5" /> },
     { key: 'modules', label: 'Módulos', icon: <Shield className="w-3.5 h-3.5" /> },
-    { key: 'domain-resources', label: 'Recursos de Dominio', icon: <Database className="w-3.5 h-3.5" /> },
+    {
+      key: 'domain-resources',
+      label: 'Recursos de Dominio',
+      icon: <Database className="w-3.5 h-3.5" />,
+    },
     { key: 'actions', label: 'Acciones de Sistema', icon: <Blocks className="w-3.5 h-3.5" /> },
   ];
 
@@ -158,7 +183,9 @@ export const PermissionTemplateDetailPanel: React.FC<Props> = ({ template, isLoa
         {isDraft && showDeleteConfirm && (
           <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-rose-500/10 border border-rose-500/25 text-[11px]">
             <AlertTriangle className="w-3.5 h-3.5 text-rose-500 shrink-0" />
-            <span className="text-rose-600 dark:text-rose-400 font-medium">¿Eliminar esta plantilla?</span>
+            <span className="text-rose-600 dark:text-rose-400 font-medium">
+              ¿Eliminar esta plantilla?
+            </span>
             <button
               type="button"
               onClick={() => setShowDeleteConfirm(false)}
@@ -182,11 +209,11 @@ export const PermissionTemplateDetailPanel: React.FC<Props> = ({ template, isLoa
 
   const overviewContent = template ? (
     <dl className="space-y-0.5">
-      <KeyValueRow label="Estado"   value={getStatusLabel(template.status)} />
-      <KeyValueRow label="Versión"  value={`v${template.version}`} />
-      <KeyValueRow label="Ítems"    value={String(template.items.length)} />
-      <KeyValueRow label="Rol"      value={template.roleName} />
-      <KeyValueRow label="Suite"    value={template.systemSuiteName} bordered={false} />
+      <KeyValueRow label="Estado" value={getStatusLabel(template.status)} />
+      <KeyValueRow label="Versión" value={`v${template.version}`} />
+      <KeyValueRow label="Ítems" value={String(template.items.length)} />
+      <KeyValueRow label="Rol" value={template.roleName} />
+      <KeyValueRow label="Suite" value={template.systemSuiteName} bordered={false} />
     </dl>
   ) : null;
 
@@ -194,7 +221,9 @@ export const PermissionTemplateDetailPanel: React.FC<Props> = ({ template, isLoa
     <div className="flex h-[500px] -mx-4 -mb-4 overflow-hidden rounded-b-xl border-t border-m3-outline/20">
       <div className="w-[50%] h-full border-r border-m3-outline/20">
         {loadingSuite ? (
-          <div className="flex items-center justify-center h-full text-m3-secondary/50 text-xs">Cargando estructura...</div>
+          <div className="flex items-center justify-center h-full text-m3-secondary/50 text-xs">
+            Cargando estructura...
+          </div>
         ) : (
           <ModulePermissionsPanel
             suite={suite}
@@ -219,7 +248,9 @@ export const PermissionTemplateDetailPanel: React.FC<Props> = ({ template, isLoa
           <div className="flex flex-col items-center justify-center h-full text-m3-secondary/50 p-6 text-center">
             <Shield className="w-12 h-12 mb-3 opacity-20" />
             <p className="text-sm font-medium">Seleccione un elemento del árbol</p>
-            <p className="text-xs mt-1 max-w-[250px]">Explore la jerarquía de módulos, menús, submenús y opciones para configurar permisos.</p>
+            <p className="text-xs mt-1 max-w-[250px]">
+              Explore la jerarquía de módulos, menús, submenús y opciones para configurar permisos.
+            </p>
           </div>
         )}
       </div>
@@ -230,7 +261,9 @@ export const PermissionTemplateDetailPanel: React.FC<Props> = ({ template, isLoa
     <div className="flex h-[500px] -mx-4 -mb-4 overflow-hidden rounded-b-xl border-t border-m3-outline/20">
       <div className="w-[50%] h-full border-r border-m3-outline/20">
         {loadingSuite ? (
-          <div className="flex items-center justify-center h-full text-m3-secondary/50 text-xs">Cargando recursos...</div>
+          <div className="flex items-center justify-center h-full text-m3-secondary/50 text-xs">
+            Cargando recursos...
+          </div>
         ) : (
           <DomainResourcesPanel
             suite={suite}
@@ -255,7 +288,10 @@ export const PermissionTemplateDetailPanel: React.FC<Props> = ({ template, isLoa
           <div className="flex flex-col items-center justify-center h-full text-m3-secondary/50 p-6 text-center">
             <Database className="w-12 h-12 mb-3 opacity-20" />
             <p className="text-sm font-medium">Seleccione un recurso de dominio</p>
-            <p className="text-xs mt-1 max-w-[250px]">Los recursos de dominio (agregados y entidades) permiten controlar el acceso a nivel de datos con operaciones CRUD y acciones personalizadas.</p>
+            <p className="text-xs mt-1 max-w-[250px]">
+              Los recursos de dominio (agregados y entidades) permiten controlar el acceso a nivel
+              de datos con operaciones CRUD y acciones personalizadas.
+            </p>
           </div>
         )}
       </div>
@@ -283,7 +319,10 @@ export const PermissionTemplateDetailPanel: React.FC<Props> = ({ template, isLoa
       headerCollapsible
       tabs={tabs}
       activeTab={activeTab}
-      onTabChange={(tab) => { setActiveTab(tab); setShowDeleteConfirm(false); }}
+      onTabChange={tab => {
+        setActiveTab(tab);
+        setShowDeleteConfirm(false);
+      }}
       entityKey={template?.templateId}
     >
       {activeTab === 'overview' && overviewContent}
@@ -304,7 +343,13 @@ interface ModuleNodeDetailPanelProps {
   allItems: PermissionTemplateItem[];
 }
 
-const ModuleNodeDetailPanel: React.FC<ModuleNodeDetailPanelProps> = ({ node, suite, templateId, isDraft, allItems }) => {
+const ModuleNodeDetailPanel: React.FC<ModuleNodeDetailPanelProps> = ({
+  node,
+  suite,
+  templateId,
+  isDraft,
+  allItems,
+}) => {
   const setEffect = useSetTemplateItemEffect(templateId);
   const removeItem = useRemoveTemplateItem(templateId);
   const addItem = useAddTemplateItem(templateId);
@@ -323,19 +368,21 @@ const ModuleNodeDetailPanel: React.FC<ModuleNodeDetailPanelProps> = ({ node, sui
   const effectiveState = computeNodeEffectiveState();
 
   const StateIcon =
-    effectiveState === 'Allow' ? CheckCircle2 :
-    effectiveState === 'Deny' ? XCircle :
-    MinusCircle;
+    effectiveState === 'Allow' ? CheckCircle2 : effectiveState === 'Deny' ? XCircle : MinusCircle;
 
   const stateColor =
-    effectiveState === 'Allow' ? 'text-emerald-500 bg-emerald-500/10' :
-    effectiveState === 'Deny' ? 'text-rose-500 bg-rose-500/10' :
-    'text-m3-secondary bg-m3-surface-variant';
+    effectiveState === 'Allow'
+      ? 'text-emerald-500 bg-emerald-500/10'
+      : effectiveState === 'Deny'
+        ? 'text-rose-500 bg-rose-500/10'
+        : 'text-m3-secondary bg-m3-surface-variant';
 
   const stateLabel =
-    effectiveState === 'Allow' ? 'Permitido' :
-    effectiveState === 'Deny' ? 'Denegado' :
-    'No configurado (Heredado)';
+    effectiveState === 'Allow'
+      ? 'Permitido'
+      : effectiveState === 'Deny'
+        ? 'Denegado'
+        : 'No configurado (Heredado)';
 
   const mapTypeToTarget = (type: string): ExclusiveArcTarget => {
     if (type === 'Module') return 'Module';
@@ -393,7 +440,11 @@ const ModuleNodeDetailPanel: React.FC<ModuleNodeDetailPanelProps> = ({ node, sui
         }
       }
       if (changedParents) {
-        addNotification({ title: 'Jerarquía actualizada', message: 'Se habilitaron automáticamente las lecturas y niveles superiores.', type: 'info' });
+        addNotification({
+          title: 'Jerarquía actualizada',
+          message: 'Se habilitaron automáticamente las lecturas y niveles superiores.',
+          type: 'info',
+        });
       }
     }
   };
@@ -403,7 +454,9 @@ const ModuleNodeDetailPanel: React.FC<ModuleNodeDetailPanelProps> = ({ node, sui
       <div className="mb-6">
         <h3 className="text-sm font-bold text-m3-on-surface flex items-center gap-2">
           {node.label}
-          <span className={`text-[10px] font-semibold uppercase px-2.5 py-0.5 rounded-full border border-current ${stateColor}`}>
+          <span
+            className={`text-[10px] font-semibold uppercase px-2.5 py-0.5 rounded-full border border-current ${stateColor}`}
+          >
             {node.type}
           </span>
         </h3>
@@ -419,14 +472,16 @@ const ModuleNodeDetailPanel: React.FC<ModuleNodeDetailPanelProps> = ({ node, sui
             {effectiveState === 'Partial'
               ? 'Algunos elementos secundarios tienen configuraciones diferentes.'
               : effectiveState === 'Neutral'
-              ? 'No hay reglas directas. El acceso depende de contenedores superiores.'
-              : `El acceso está ${effectiveState === 'Allow' ? 'permitido' : 'denegado'}.`}
+                ? 'No hay reglas directas. El acceso depende de contenedores superiores.'
+                : `El acceso está ${effectiveState === 'Allow' ? 'permitido' : 'denegado'}.`}
           </p>
         </div>
       </div>
 
       <div className="space-y-3">
-        <h4 className="text-xs font-bold uppercase tracking-wider text-m3-secondary">Regla Directa</h4>
+        <h4 className="text-xs font-bold uppercase tracking-wider text-m3-secondary">
+          Regla Directa
+        </h4>
 
         {!isDraft && (
           <div className="flex items-center gap-2 text-[11px] text-m3-secondary/70 bg-m3-surface-variant/30 p-2 rounded">
@@ -440,9 +495,11 @@ const ModuleNodeDetailPanel: React.FC<ModuleNodeDetailPanelProps> = ({ node, sui
             onClick={() => handleApplyEffect('Allow')}
             disabled={!isDraft || addItem.isPending || setEffect.isPending}
             className={`flex-1 py-2 px-3 rounded-lg border text-xs font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50
-              ${selfItem?.isAllowed && !selfItem?.isDenied
-                ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-600'
-                : 'bg-transparent border-m3-outline/20 text-m3-secondary hover:border-emerald-500/30 hover:text-emerald-600'}`}
+              ${
+                selfItem?.isAllowed && !selfItem?.isDenied
+                  ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-600'
+                  : 'bg-transparent border-m3-outline/20 text-m3-secondary hover:border-emerald-500/30 hover:text-emerald-600'
+              }`}
           >
             <CheckCircle2 className="w-4 h-4" /> Permitir
           </button>
@@ -450,9 +507,11 @@ const ModuleNodeDetailPanel: React.FC<ModuleNodeDetailPanelProps> = ({ node, sui
             onClick={() => handleApplyEffect('Deny')}
             disabled={!isDraft || addItem.isPending || setEffect.isPending}
             className={`flex-1 py-2 px-3 rounded-lg border text-xs font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50
-              ${!selfItem?.isAllowed && selfItem?.isDenied
-                ? 'bg-rose-500/15 border-rose-500/30 text-rose-600'
-                : 'bg-transparent border-m3-outline/20 text-m3-secondary hover:border-rose-500/30 hover:text-rose-600'}`}
+              ${
+                !selfItem?.isAllowed && selfItem?.isDenied
+                  ? 'bg-rose-500/15 border-rose-500/30 text-rose-600'
+                  : 'bg-transparent border-m3-outline/20 text-m3-secondary hover:border-rose-500/30 hover:text-rose-600'
+              }`}
           >
             <XCircle className="w-4 h-4" /> Denegar
           </button>
@@ -460,9 +519,11 @@ const ModuleNodeDetailPanel: React.FC<ModuleNodeDetailPanelProps> = ({ node, sui
             onClick={() => handleApplyEffect('Neutral')}
             disabled={!isDraft || !selfItem || removeItem.isPending}
             className={`flex-1 py-2 px-3 rounded-lg border text-xs font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50
-              ${!selfItem
-                ? 'bg-m3-surface-variant border-m3-outline/20 text-m3-on-surface/80'
-                : 'bg-transparent border-m3-outline/20 text-m3-secondary hover:border-m3-outline/40 hover:text-m3-on-surface'}`}
+              ${
+                !selfItem
+                  ? 'bg-m3-surface-variant border-m3-outline/20 text-m3-on-surface/80'
+                  : 'bg-transparent border-m3-outline/20 text-m3-secondary hover:border-m3-outline/40 hover:text-m3-on-surface'
+              }`}
           >
             <MinusCircle className="w-4 h-4" /> Heredar
           </button>
@@ -482,22 +543,39 @@ interface DomainResourceDetailPanelProps {
   isDraft: boolean;
 }
 
-const DomainResourceDetailPanel: React.FC<DomainResourceDetailPanelProps> = ({ node, suite, templateId, isDraft }) => {
+const DomainResourceDetailPanel: React.FC<DomainResourceDetailPanelProps> = ({
+  node,
+  suite,
+  templateId,
+  isDraft,
+}) => {
   const setEffect = useSetTemplateItemEffect(templateId);
   const removeItem = useRemoveTemplateItem(templateId);
   const addItem = useAddTemplateItem(templateId);
 
   const selfItem = node.items[0];
   const effects = node.items.map(itemEffect);
-  const effectiveState = effects.includes('Allow') && !effects.includes('Deny') ? 'Allow'
-    : effects.includes('Deny') && !effects.includes('Allow') ? 'Deny'
-    : 'Neutral';
+  const effectiveState =
+    effects.includes('Allow') && !effects.includes('Deny')
+      ? 'Allow'
+      : effects.includes('Deny') && !effects.includes('Allow')
+        ? 'Deny'
+        : 'Neutral';
 
-  const StateIcon = effectiveState === 'Allow' ? CheckCircle2 : effectiveState === 'Deny' ? XCircle : MinusCircle;
-  const stateColor = effectiveState === 'Allow' ? 'text-emerald-500 bg-emerald-500/10'
-    : effectiveState === 'Deny' ? 'text-rose-500 bg-rose-500/10'
-    : 'text-m3-secondary bg-m3-surface-variant';
-  const stateLabel = effectiveState === 'Allow' ? 'Permitido' : effectiveState === 'Deny' ? 'Denegado' : 'No configurado';
+  const StateIcon =
+    effectiveState === 'Allow' ? CheckCircle2 : effectiveState === 'Deny' ? XCircle : MinusCircle;
+  const stateColor =
+    effectiveState === 'Allow'
+      ? 'text-emerald-500 bg-emerald-500/10'
+      : effectiveState === 'Deny'
+        ? 'text-rose-500 bg-rose-500/10'
+        : 'text-m3-secondary bg-m3-surface-variant';
+  const stateLabel =
+    effectiveState === 'Allow'
+      ? 'Permitido'
+      : effectiveState === 'Deny'
+        ? 'Denegado'
+        : 'No configurado';
 
   const getIcon = () => {
     if (node.type === 'Aggregate') return Layers;
@@ -532,18 +610,25 @@ const DomainResourceDetailPanel: React.FC<DomainResourceDetailPanelProps> = ({ n
     }
   };
 
-  const parentResource = node.parentId ? suite.domainResources?.find(r => r.id === node.parentId) : null;
+  const parentResource = node.parentId
+    ? suite.domainResources?.find(r => r.id === node.parentId)
+    : null;
 
   return (
     <div className="p-5">
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-1">
-          <div className={`p-1.5 rounded ${
-            node.type === 'Aggregate' ? 'bg-purple-500/10 text-purple-500' :
-            node.type === 'Entity' ? 'bg-emerald-500/10 text-emerald-500' :
-            node.type === 'CrudOperation' ? 'bg-blue-500/10 text-blue-500' :
-            'bg-amber-500/10 text-amber-500'
-          }`}>
+          <div
+            className={`p-1.5 rounded ${
+              node.type === 'Aggregate'
+                ? 'bg-purple-500/10 text-purple-500'
+                : node.type === 'Entity'
+                  ? 'bg-emerald-500/10 text-emerald-500'
+                  : node.type === 'CrudOperation'
+                    ? 'bg-blue-500/10 text-blue-500'
+                    : 'bg-amber-500/10 text-amber-500'
+            }`}
+          >
             <Icon className="w-4 h-4" />
           </div>
           <h3 className="text-sm font-bold text-m3-on-surface">{node.label}</h3>
@@ -553,9 +638,13 @@ const DomainResourceDetailPanel: React.FC<DomainResourceDetailPanelProps> = ({ n
         {parentResource && (
           <p className="text-[10px] text-m3-secondary mt-1">
             Recurso padre: <span className="font-semibold">{parentResource.name}</span>
-            <span className={`ml-1 text-[8px] font-bold uppercase px-1 py-0.5 rounded ${
-              parentResource.type === 'Aggregate' ? 'bg-purple-500/10 text-purple-500' : 'bg-emerald-500/10 text-emerald-500'
-            }`}>
+            <span
+              className={`ml-1 text-[8px] font-bold uppercase px-1 py-0.5 rounded ${
+                parentResource.type === 'Aggregate'
+                  ? 'bg-purple-500/10 text-purple-500'
+                  : 'bg-emerald-500/10 text-emerald-500'
+              }`}
+            >
               {parentResource.type}
             </span>
           </p>
@@ -575,7 +664,9 @@ const DomainResourceDetailPanel: React.FC<DomainResourceDetailPanelProps> = ({ n
       </div>
 
       <div className="space-y-3">
-        <h4 className="text-xs font-bold uppercase tracking-wider text-m3-secondary">Regla Directa</h4>
+        <h4 className="text-xs font-bold uppercase tracking-wider text-m3-secondary">
+          Regla Directa
+        </h4>
         {!isDraft && (
           <div className="flex items-center gap-2 text-[11px] text-m3-secondary/70 bg-m3-surface-variant/30 p-2 rounded">
             <Info className="w-3.5 h-3.5" />

@@ -10,17 +10,20 @@ import {
   useDeleteParameterDefinition,
 } from '@app/configuration/parameter-catalog/use-parameter-catalog';
 import type { ParameterDefinition } from '@domain/configuration/schemas/parameter-catalog/parameter-definition.schema';
-import type { CreateParameterDefinitionPayload, UpdateParameterDefinitionPayload } from '@domain/configuration/schemas/parameter-catalog/parameter-definition.schema';
+import type {
+  CreateParameterDefinitionPayload,
+  UpdateParameterDefinitionPayload,
+} from '@domain/configuration/schemas/parameter-catalog/parameter-definition.schema';
 import { useQueryState } from '@app/shared/hooks/use-query-state';
 import { usePaginationState } from '@app/shared/hooks/use-pagination-state';
 
 export function useParameterCatalogDashboard() {
-  const [selectedId, setSelectedId]         = useState('');
-  const [isCreateOpen, setIsCreateOpen]     = useState(false);
-  const [isEditOpen, setIsEditOpen]         = useState(false);
+  const [selectedId, setSelectedId] = useState('');
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
-  const [viewMode, setViewMode]             = useState<'list' | 'thumbnail'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('list');
 
   const queryState = useQueryState({
     criteria: 'code',
@@ -34,38 +37,45 @@ export function useParameterCatalogDashboard() {
 
   const shouldFetch = queryState.appliedQuery.filterApplied;
 
-  const { data: pageData, isLoading: isLoadingList, error: listError } =
-    useParameterDefinitions(
-      shouldFetch
-        ? {
-            search: queryState.appliedQuery.term || undefined,
-            scopeId: queryState.activeFilter !== 'all' ? Number(queryState.activeFilter) : undefined,
-          }
-        : undefined,
-    );
+  const {
+    data: pageData,
+    isLoading: isLoadingList,
+    error: listError,
+  } = useParameterDefinitions(
+    shouldFetch
+      ? {
+          search: queryState.appliedQuery.term || undefined,
+          scopeId: queryState.activeFilter !== 'all' ? Number(queryState.activeFilter) : undefined,
+        }
+      : undefined
+  );
 
-  const { data: activeParameter, isLoading: isLoadingDetail } =
-    useParameterDefinitionById(selectedId || '');
+  const { data: activeParameter, isLoading: isLoadingDetail } = useParameterDefinitionById(
+    selectedId || ''
+  );
 
   const createMutation = useCreateParameterDefinition();
   const updateMutation = useUpdateParameterDefinition();
   const deleteMutation = useDeleteParameterDefinition();
 
   const knownParameters: ParameterDefinition[] = pageData?.items ?? [];
-  const totalItems  = pageData?.totalItems ?? 0;
-  const totalPages  = pageData?.totalPages ?? 1;
+  const totalItems = pageData?.totalItems ?? 0;
+  const totalPages = pageData?.totalPages ?? 1;
 
   const handleSelect = useCallback((id: string) => {
     setSelectedId(id);
     setIsEditOpen(false);
   }, []);
 
-  const handleCreateSuccess = useCallback((newId: string) => {
-    setIsCreateOpen(false);
-    setSelectedId(newId);
-    paginationState.setPage(1);
-    queryState.handleResetQuery();
-  }, [paginationState, queryState]);
+  const handleCreateSuccess = useCallback(
+    (newId: string) => {
+      setIsCreateOpen(false);
+      setSelectedId(newId);
+      paginationState.setPage(1);
+      queryState.handleResetQuery();
+    },
+    [paginationState, queryState]
+  );
 
   const handleUpdateSuccess = useCallback((updatedId: string) => {
     setIsEditOpen(false);
@@ -98,17 +108,23 @@ export function useParameterCatalogDashboard() {
     }
   }, [activeParameter]);
 
-  const createParameter = useCallback(async (payload: CreateParameterDefinitionPayload) => {
-    const result = await createMutation.mutateAsync(payload);
-    handleCreateSuccess(result.id);
-    return result;
-  }, [createMutation, handleCreateSuccess]);
+  const createParameter = useCallback(
+    async (payload: CreateParameterDefinitionPayload) => {
+      const result = await createMutation.mutateAsync(payload);
+      handleCreateSuccess(result.id);
+      return result;
+    },
+    [createMutation, handleCreateSuccess]
+  );
 
-  const updateParameter = useCallback(async (id: string, payload: UpdateParameterDefinitionPayload) => {
-    const result = await updateMutation.mutateAsync({ id, payload });
-    handleUpdateSuccess(result.id);
-    return result;
-  }, [updateMutation, handleUpdateSuccess]);
+  const updateParameter = useCallback(
+    async (id: string, payload: UpdateParameterDefinitionPayload) => {
+      const result = await updateMutation.mutateAsync({ id, payload });
+      handleUpdateSuccess(result.id);
+      return result;
+    },
+    [updateMutation, handleUpdateSuccess]
+  );
 
   return {
     selectedId,

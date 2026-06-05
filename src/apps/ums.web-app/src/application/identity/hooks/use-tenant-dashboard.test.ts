@@ -15,8 +15,24 @@ vi.mock('@domain/identity/constants/tenant.constants', () => ({
 }));
 
 const mockTenants = [
-  { tenantId: 't-1', code: 'T1', name: 'Tenant 1', type: 'INTERNAL', status: 'Active', parentTenantId: null, companyReference: null },
-  { tenantId: 't-2', code: 'T2', name: 'Tenant 2', type: 'CLIENT', status: 'Active', parentTenantId: 't-1', companyReference: null },
+  {
+    tenantId: 't-1',
+    code: 'T1',
+    name: 'Tenant 1',
+    type: 'INTERNAL',
+    status: 'Active',
+    parentTenantId: null,
+    companyReference: null,
+  },
+  {
+    tenantId: 't-2',
+    code: 'T2',
+    name: 'Tenant 2',
+    type: 'CLIENT',
+    status: 'Active',
+    parentTenantId: 't-1',
+    companyReference: null,
+  },
 ];
 
 describe('useTenantDashboard', () => {
@@ -41,11 +57,16 @@ describe('useTenantDashboard', () => {
     });
 
     vi.mocked(useQueryStateModule.useQueryState).mockReturnValue({
-      searchCriteria: 'name', setSearchCriteria: vi.fn(),
-      searchValue: '', setSearchValue: vi.fn(),
-      activeFilter: 'all', setActiveFilter: vi.fn(),
-      sortBy: 'name', setSortBy: vi.fn(),
-      sortOrder: 'asc', setSortOrder: vi.fn(),
+      searchCriteria: 'name',
+      setSearchCriteria: vi.fn(),
+      searchValue: '',
+      setSearchValue: vi.fn(),
+      activeFilter: 'all',
+      setActiveFilter: vi.fn(),
+      sortBy: 'name',
+      setSortBy: vi.fn(),
+      sortOrder: 'asc',
+      setSortOrder: vi.fn(),
       toggleSortOrder: vi.fn(),
       appliedQuery: { criteria: 'name', term: '' },
       handleQuerySubmit: vi.fn(),
@@ -53,8 +74,13 @@ describe('useTenantDashboard', () => {
     } as any);
 
     vi.mocked(usePaginationStateModule.usePaginationState).mockReturnValue({
-      page: 1, setPage: vi.fn(), pageSize: 9, setPageSize: vi.fn(),
-      startIndex: 0, handlePageChange: vi.fn(), handlePageSizeChange: vi.fn(),
+      page: 1,
+      setPage: vi.fn(),
+      pageSize: 9,
+      setPageSize: vi.fn(),
+      startIndex: 0,
+      handlePageChange: vi.fn(),
+      handlePageSizeChange: vi.fn(),
     } as any);
   });
 
@@ -194,9 +220,14 @@ describe('useTenantDashboard', () => {
   it('patchTenant calls patchItem from local overrides', () => {
     const patchItem = vi.fn();
     vi.mocked(useLocalOverridesModule.useLocalOverrides).mockReturnValue({
-      items: mockTenants, patchItem, patchItems: vi.fn(),
-      clearOverrides: vi.fn(), rollbackItem: vi.fn(), rollbackAll: vi.fn(),
-      getDiffs: vi.fn(() => []), isDirty: vi.fn(() => false),
+      items: mockTenants,
+      patchItem,
+      patchItems: vi.fn(),
+      clearOverrides: vi.fn(),
+      rollbackItem: vi.fn(),
+      rollbackAll: vi.fn(),
+      getDiffs: vi.fn(() => []),
+      isDirty: vi.fn(() => false),
     });
 
     const { result } = renderHook(() => useTenantDashboard());
@@ -213,19 +244,30 @@ describe('useTenantDashboard', () => {
     const handleResetQuery = vi.fn();
 
     vi.mocked(usePaginationStateModule.usePaginationState).mockReturnValue({
-      page: 1, setPage, pageSize: 9, setPageSize: vi.fn(),
-      startIndex: 0, handlePageChange: vi.fn(), handlePageSizeChange: vi.fn(),
+      page: 1,
+      setPage,
+      pageSize: 9,
+      setPageSize: vi.fn(),
+      startIndex: 0,
+      handlePageChange: vi.fn(),
+      handlePageSizeChange: vi.fn(),
     } as any);
 
     vi.mocked(useQueryStateModule.useQueryState).mockReturnValue({
-      searchCriteria: 'name', setSearchCriteria: vi.fn(),
-      searchValue: '', setSearchValue: vi.fn(),
-      activeFilter: 'all', setActiveFilter: vi.fn(),
-      sortBy: 'name', setSortBy: vi.fn(),
-      sortOrder: 'asc', setSortOrder: vi.fn(),
+      searchCriteria: 'name',
+      setSearchCriteria: vi.fn(),
+      searchValue: '',
+      setSearchValue: vi.fn(),
+      activeFilter: 'all',
+      setActiveFilter: vi.fn(),
+      sortBy: 'name',
+      setSortBy: vi.fn(),
+      sortOrder: 'asc',
+      setSortOrder: vi.fn(),
       toggleSortOrder: vi.fn(),
       appliedQuery: { criteria: 'name', term: '' },
-      handleQuerySubmit: vi.fn(), handleResetQuery,
+      handleQuerySubmit: vi.fn(),
+      handleResetQuery,
     } as any);
 
     const { result } = renderHook(() => useTenantDashboard());
@@ -276,11 +318,16 @@ describe('useTenantDashboard', () => {
   it('triggers handleSelectTenant when query criteria is id', () => {
     const appliedQuery = { criteria: 'id', term: 't-2' };
     vi.mocked(useQueryStateModule.useQueryState).mockReturnValue({
-      searchCriteria: 'id', setSearchCriteria: vi.fn(),
-      searchValue: 't-2', setSearchValue: vi.fn(),
-      activeFilter: 'all', setActiveFilter: vi.fn(),
-      sortBy: 'name', setSortBy: vi.fn(),
-      sortOrder: 'asc', setSortOrder: vi.fn(),
+      searchCriteria: 'id',
+      setSearchCriteria: vi.fn(),
+      searchValue: 't-2',
+      setSearchValue: vi.fn(),
+      activeFilter: 'all',
+      setActiveFilter: vi.fn(),
+      sortBy: 'name',
+      setSortBy: vi.fn(),
+      sortOrder: 'asc',
+      setSortOrder: vi.fn(),
       toggleSortOrder: vi.fn(),
       appliedQuery,
       handleQuerySubmit: vi.fn(),

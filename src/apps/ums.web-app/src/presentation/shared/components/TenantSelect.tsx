@@ -29,10 +29,10 @@ export const TenantSelect: React.FC<TenantSelectProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const selectedTenant = tenants.find((t) => t.id === value);
+  const selectedTenant = tenants.find(t => t.id === value);
 
   const filteredTenants = tenants.filter(
-    (t) =>
+    t =>
       t.code.toLowerCase().includes(search.toLowerCase()) ||
       t.name.toLowerCase().includes(search.toLowerCase())
   );
@@ -84,12 +84,8 @@ export const TenantSelect: React.FC<TenantSelectProps> = ({
           {selectedTenant ? (
             <div className="flex items-center gap-2 min-w-0">
               <Building2 className="w-4 h-4 text-m3-primary flex-shrink-0" />
-              <span className="text-sm text-m3-on-surface truncate">
-                {selectedTenant.code}
-              </span>
-              <span className="text-xs text-m3-secondary truncate">
-                - {selectedTenant.name}
-              </span>
+              <span className="text-sm text-m3-on-surface truncate">{selectedTenant.code}</span>
+              <span className="text-xs text-m3-secondary truncate">- {selectedTenant.name}</span>
             </div>
           ) : (
             <span className="text-sm text-m3-secondary">Seleccionar tenant...</span>
@@ -105,7 +101,9 @@ export const TenantSelect: React.FC<TenantSelectProps> = ({
                 <X className="w-4 h-4" />
               </button>
             )}
-            <ChevronDown className={`w-4 h-4 text-m3-secondary transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+            <ChevronDown
+              className={`w-4 h-4 text-m3-secondary transition-transform ${isOpen ? 'rotate-180' : ''}`}
+            />
           </div>
         </div>
       </div>
@@ -119,7 +117,7 @@ export const TenantSelect: React.FC<TenantSelectProps> = ({
                 ref={inputRef}
                 type="text"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={e => setSearch(e.target.value)}
                 placeholder={placeholder}
                 className="flex-1 bg-transparent text-sm text-m3-on-surface outline-none placeholder:text-m3-secondary"
               />
@@ -132,7 +130,7 @@ export const TenantSelect: React.FC<TenantSelectProps> = ({
                 No se encontraron tenants
               </div>
             ) : (
-              filteredTenants.map((tenant) => (
+              filteredTenants.map(tenant => (
                 <button
                   key={tenant.id}
                   type="button"
@@ -144,7 +142,9 @@ export const TenantSelect: React.FC<TenantSelectProps> = ({
                 >
                   <Building2 className="w-4 h-4 text-m3-primary flex-shrink-0" />
                   <div className="min-w-0 flex-1">
-                    <span className="text-sm font-semibold text-m3-on-surface block">{tenant.code}</span>
+                    <span className="text-sm font-semibold text-m3-on-surface block">
+                      {tenant.code}
+                    </span>
                     <span className="text-xs text-m3-secondary block truncate">{tenant.name}</span>
                   </div>
                   {tenant.id === value && (
@@ -156,14 +156,13 @@ export const TenantSelect: React.FC<TenantSelectProps> = ({
           </div>
 
           <div className="p-2 border-t border-m3-outline/25 text-[10px] text-m3-secondary text-center">
-            {filteredTenants.length} tenant{filteredTenants.length !== 1 ? 's' : ''} encontrado{filteredTenants.length !== 1 ? 's' : ''}
+            {filteredTenants.length} tenant{filteredTenants.length !== 1 ? 's' : ''} encontrado
+            {filteredTenants.length !== 1 ? 's' : ''}
           </div>
         </div>
       )}
 
-      {error && (
-        <span className="block text-xs mt-1 ml-4 text-m3-error">{error}</span>
-      )}
+      {error && <span className="block text-xs mt-1 ml-4 text-m3-error">{error}</span>}
     </div>
   );
 };

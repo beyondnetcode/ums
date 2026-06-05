@@ -52,7 +52,7 @@ export const TenantDetailPanel: React.FC<TenantDetailPanelProps> = ({
     configurations: t.tabConfigurations,
   };
 
-  const tabs: DetailTab<ConsoleTab>[] = consoleTabs.map((tab) => ({
+  const tabs: DetailTab<ConsoleTab>[] = consoleTabs.map(tab => ({
     key: tab,
     label: labels[tab],
     icon: icons[tab],
@@ -112,4 +112,3 @@ export const TenantDetailPanel: React.FC<TenantDetailPanelProps> = ({
     </DetailPanelShell>
   );
 };
-

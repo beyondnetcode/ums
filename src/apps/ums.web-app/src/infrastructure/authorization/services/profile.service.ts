@@ -50,9 +50,7 @@ export const profileService = {
       userId: params?.userId,
     });
 
-    const result = ProfilePageSchema.safeParse(
-      (response as Record<string, unknown>).profiles,
-    );
+    const result = ProfilePageSchema.safeParse((response as Record<string, unknown>).profiles);
     if (!result.success) {
       logger.error('Invalid GraphQL response for profiles', result.error);
       throw new Error('Invalid response shape for profiles');
@@ -81,9 +79,11 @@ export const profileService = {
   overridePermission: async (
     profileId: string,
     permissionId: string,
-    effect: 'allow' | 'deny' | 'neutral',
+    effect: 'allow' | 'deny' | 'neutral'
   ): Promise<void> => {
-    await httpClient.post(`/profiles/${profileId}/permissions/${permissionId}/override?effect=${effect}`);
+    await httpClient.post(
+      `/profiles/${profileId}/permissions/${permissionId}/override?effect=${effect}`
+    );
   },
 
   activatePermission: async (profileId: string, permissionId: string): Promise<void> => {
@@ -102,7 +102,10 @@ export const profileService = {
     await httpClient.post(`/profiles/${profileId}/deactivate`);
   },
 
-  exportGraph: async (profileId: string, format: 'json' | 'xml' | 'yaml' | 'csv'): Promise<string> => {
+  exportGraph: async (
+    profileId: string,
+    format: 'json' | 'xml' | 'yaml' | 'csv'
+  ): Promise<string> => {
     const { data } = await httpClient.get(`/profiles/${profileId}/export`, {
       params: { format },
       responseType: 'text',
@@ -122,10 +125,13 @@ export const profileService = {
    * Returns the exact graph a client system would receive, without credential validation.
    * Requires an authenticated UMS admin session.
    */
-  previewAuthGraph: async (profileId: string, format?: string): Promise<PreviewAuthGraphResponse> => {
+  previewAuthGraph: async (
+    profileId: string,
+    format?: string
+  ): Promise<PreviewAuthGraphResponse> => {
     const { data } = await httpClient.get<PreviewAuthGraphResponse>(
       `/profiles/${profileId}/auth-graph/preview`,
-      { params: format ? { format } : undefined },
+      { params: format ? { format } : undefined }
     );
     return data;
   },

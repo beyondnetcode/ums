@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { KeyRound, ShieldCheck, RefreshCw, Copy, Check, ExternalLink, Info } from 'lucide-react';
-import { useSetUserAccountPassword, useForcePasswordReset } from '@app/identity/hooks/use-user-account';
+import {
+  useSetUserAccountPassword,
+  useForcePasswordReset,
+} from '@app/identity/hooks/use-user-account';
 import { useGetAllAppConfigurations } from '@app/configuration/hooks/use-app-configuration';
 import { useI18n } from '@app/i18n/use-i18n';
 import { UserAccount } from '@domain/identity/models/user-account.model';
@@ -12,16 +15,17 @@ interface UserAccountPasswordPanelProps {
   account: UserAccount;
 }
 
-export function usesExternalIdentityProvider(
-  configsPage?: { items?: Array<{ code: string; value: string }> }
-): boolean {
-  return configsPage?.items?.some(
-    (c) => c.code === 'AUTH_USE_EXTERNAL_IDP' && c.value.toLowerCase() === 'true'
-  ) ?? false;
+export function usesExternalIdentityProvider(configsPage?: {
+  items?: Array<{ code: string; value: string }>;
+}): boolean {
+  return (
+    configsPage?.items?.some(
+      c => c.code === 'AUTH_USE_EXTERNAL_IDP' && c.value.toLowerCase() === 'true'
+    ) ?? false
+  );
 }
 
-const isLocalAdminUser = (account: UserAccount) =>
-  account.category === 'Internal';
+const isLocalAdminUser = (account: UserAccount) => account.category === 'Internal';
 
 const isExternalUser = (account: UserAccount) =>
   account.category === 'External' || account.category === 'Partner' || account.category === 'B2B';
@@ -97,7 +101,9 @@ export const UserAccountPasswordPanel: React.FC<UserAccountPasswordPanelProps> =
         <div className="p-3.5 rounded-xl border border-m3-outline/20 bg-m3-surface-container/5 space-y-3">
           <div className="flex items-center gap-2 border-b border-m3-outline/10 pb-2">
             <ShieldCheck className="w-4 h-4 text-m3-primary" />
-            <span className="text-[12px] font-medium text-m3-on-surface">{t.passwordManagement}</span>
+            <span className="text-[12px] font-medium text-m3-on-surface">
+              {t.passwordManagement}
+            </span>
           </div>
           <p className="text-[12px] text-m3-secondary">{t.federatedPasswordManagedExternally}</p>
         </div>
@@ -112,14 +118,17 @@ export const UserAccountPasswordPanel: React.FC<UserAccountPasswordPanelProps> =
         <div className="p-3.5 rounded-xl border border-amber-500/20 bg-amber-500/5 space-y-3">
           <div className="flex items-center gap-2 border-b border-m3-outline/10 pb-2">
             <Info className="w-4 h-4 text-amber-500" />
-            <span className="text-[12px] font-medium text-m3-on-surface">Gestión de Contraseña</span>
+            <span className="text-[12px] font-medium text-m3-on-surface">
+              Gestión de Contraseña
+            </span>
           </div>
           <div className="flex items-start gap-2 text-[11px] text-amber-700 dark:text-amber-400 leading-relaxed">
             <ExternalLink className="w-3.5 h-3.5 shrink-0 mt-0.5" />
             <span>
               Los usuarios externos ({account.category}) gestionan su contraseña y recuperación
-              directamente desde la <span className="font-semibold">pantalla de inicio de sesión</span>.
-              El administrador no puede modificar sus credenciales desde este módulo.
+              directamente desde la{' '}
+              <span className="font-semibold">pantalla de inicio de sesión</span>. El administrador
+              no puede modificar sus credenciales desde este módulo.
             </span>
           </div>
         </div>
@@ -139,7 +148,11 @@ export const UserAccountPasswordPanel: React.FC<UserAccountPasswordPanelProps> =
         <dl className="space-y-2 text-[11px]">
           <div className="flex items-center justify-between">
             <dt className="text-m3-secondary">{t.localPassword}</dt>
-            <dd className={account.hasActivePassword ? 'text-emerald-500 font-semibold' : 'text-m3-secondary'}>
+            <dd
+              className={
+                account.hasActivePassword ? 'text-emerald-500 font-semibold' : 'text-m3-secondary'
+              }
+            >
               {account.hasActivePassword ? t.active : t.notConfigured}
             </dd>
           </div>
@@ -172,7 +185,8 @@ export const UserAccountPasswordPanel: React.FC<UserAccountPasswordPanelProps> =
             </M3Button>
           </div>
           <p className="text-[10px] text-m3-secondary/70 leading-relaxed">
-            Genera una contraseña temporal e invalida la actual. El usuario deberá usar esta clave para ingresar y luego actualizar su contraseña.
+            Genera una contraseña temporal e invalida la actual. El usuario deberá usar esta clave
+            para ingresar y luego actualizar su contraseña.
           </p>
 
           {/* Temp password result */}
@@ -198,7 +212,8 @@ export const UserAccountPasswordPanel: React.FC<UserAccountPasswordPanelProps> =
                 </button>
               </div>
               <p className="text-[10px] text-amber-600 dark:text-amber-400">
-                Comparta esta clave de forma segura. Solo es válida hasta que el usuario inicie sesión y establezca una nueva.
+                Comparta esta clave de forma segura. Solo es válida hasta que el usuario inicie
+                sesión y establezca una nueva.
               </p>
             </div>
           )}
@@ -209,7 +224,7 @@ export const UserAccountPasswordPanel: React.FC<UserAccountPasswordPanelProps> =
       {isInternal && (
         <InlineAddForm
           isOpen={isChangeOpen}
-          onToggle={(open) => open ? setIsChangeOpen(true) : closeChangeForm()}
+          onToggle={open => (open ? setIsChangeOpen(true) : closeChangeForm())}
           onSubmit={handleChangeSubmit}
           addLabel={account.hasActivePassword ? t.rotatePassword : t.setTemporaryPassword}
           title={account.hasActivePassword ? t.rotatePassword : t.setTemporaryPassword}
@@ -227,7 +242,7 @@ export const UserAccountPasswordPanel: React.FC<UserAccountPasswordPanelProps> =
             required
             compact
             value={password}
-            onChange={(event) => {
+            onChange={event => {
               setPassword(event.target.value);
               setValidationError(undefined);
             }}
@@ -240,7 +255,7 @@ export const UserAccountPasswordPanel: React.FC<UserAccountPasswordPanelProps> =
             required
             compact
             value={confirmation}
-            onChange={(event) => {
+            onChange={event => {
               setConfirmation(event.target.value);
               setValidationError(undefined);
             }}

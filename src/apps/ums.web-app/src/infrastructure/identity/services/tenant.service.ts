@@ -37,7 +37,9 @@ type TenantListParams = {
   sortOrder?: string;
 };
 
-function buildTenantQueryString(params: Required<Pick<TenantListParams, 'page' | 'pageSize'>> & TenantListParams): string {
+function buildTenantQueryString(
+  params: Required<Pick<TenantListParams, 'page' | 'pageSize'>> & TenantListParams
+): string {
   const searchParams = new URLSearchParams();
   searchParams.set('page', String(params.page));
   searchParams.set('pageSize', String(params.pageSize));
@@ -49,7 +51,9 @@ function buildTenantQueryString(params: Required<Pick<TenantListParams, 'page' |
   return searchParams.toString();
 }
 
-async function getTenantsViaRest(params: Required<Pick<TenantListParams, 'page' | 'pageSize'>> & TenantListParams): Promise<TenantPage> {
+async function getTenantsViaRest(
+  params: Required<Pick<TenantListParams, 'page' | 'pageSize'>> & TenantListParams
+): Promise<TenantPage> {
   const { data } = await httpClient.get<TenantPage>(`/tenants?${buildTenantQueryString(params)}`);
   const pageResult = TenantPageSchema.safeParse(data);
   if (!pageResult.success) {
@@ -59,7 +63,9 @@ async function getTenantsViaRest(params: Required<Pick<TenantListParams, 'page' 
   return pageResult.data;
 }
 
-async function getTenantsViaGraphql(params: Required<Pick<TenantListParams, 'page' | 'pageSize'>> & TenantListParams): Promise<TenantPage> {
+async function getTenantsViaGraphql(
+  params: Required<Pick<TenantListParams, 'page' | 'pageSize'>> & TenantListParams
+): Promise<TenantPage> {
   const response = await graphqlQueries.getTenants(params);
   const pageResult = TenantPageSchema.safeParse(response.tenants);
   if (!pageResult.success) {
@@ -69,10 +75,13 @@ async function getTenantsViaGraphql(params: Required<Pick<TenantListParams, 'pag
   return pageResult.data;
 }
 
-export const tenantService = {
+import { RequirePermission } from '@app/authorization/decorators/require-permission.decorator';
+
+export class TenantService {
   // ── Queries (parameterized REST/GraphQL transport) ────────────────────────
 
-  getAll: async (params?: TenantListParams): Promise<TenantPage> => {
+  @RequirePermission('TENANT', 'VIEW')
+  async getAll(params?: TenantListParams): Promise<TenantPage> {
     const normalizedParams = {
       page: params?.page ?? 1,
       pageSize: params?.pageSize ?? 20,
@@ -87,9 +96,10 @@ export const tenantService = {
     return transport === 'graphql'
       ? getTenantsViaGraphql(normalizedParams)
       : getTenantsViaRest(normalizedParams);
-  },
+  }
 
-  getById: async (tenantId: string): Promise<Tenant> => {
+  @RequirePermission('TENANT', 'VIEW')
+  async getById(tenantId: string): Promise<Tenant> {
     const transport = await queryTransportService.getQueryTransport();
     if (transport === 'graphql') {
       const response = await graphqlQueries.getTenantById(tenantId);
@@ -99,9 +109,10 @@ export const tenantService = {
 
     const { data } = await httpClient.get<Tenant>(`/tenants/${tenantId}`);
     return TenantSchema.parse(data);
-  },
+  }
 
-  getBranches: async (tenantId: string): Promise<Branch[]> => {
+  @RequirePermission('TENANT', 'VIEW')
+  async getBranches(tenantId: string): Promise<Branch[]> {
     const transport = await queryTransportService.getQueryTransport();
     if (transport === 'graphql') {
       const response = await graphqlQueries.getTenantBranches(tenantId);
@@ -110,43 +121,52 @@ export const tenantService = {
 
     const { data } = await httpClient.get<Branch[]>(`/tenants/${tenantId}/branches`);
     return BranchListSchema.parse(data);
-  },
+  }
 
   // ── Commands (REST) ───────────────────────────────────────────────────────
 
-  createTenant: async (payload: CreateTenantPayload): Promise<CreateTenantResponse> => {
+  @RequirePermission('TENANT', 'CREATE')
+  async createTenant(payload: CreateTenantPayload): Promise<CreateTenantResponse> {
     const { data } = await httpClient.post('/tenants', payload);
     return CreateTenantResponseSchema.parse(data);
-  },
+  }
 
-  activateTenant: async (tenantId: string): Promise<void> => {
+  @RequirePermission('TENANT', 'MANAGE')
+  async activateTenant(tenantId: string): Promise<void> {
     await httpClient.post(`/tenants/${tenantId}/activate`);
-  },
+  }
 
-  setManagementOwner: async (tenantId: string, value: boolean): Promise<void> => {
+  @RequirePermission('TENANT', 'MANAGE')
+  async setManagementOwner(tenantId: string, value: boolean): Promise<void> {
     await httpClient.post(`/tenants/${tenantId}/set-management-owner`, { value });
-  },
+  }
 
-  suspendTenant: async (tenantId: string): Promise<void> => {
+  @RequirePermission('TENANT', 'MANAGE')
+  async suspendTenant(tenantId: string): Promise<void> {
     await httpClient.post(`/tenants/${tenantId}/suspend`);
-  },
+  }
 
-  addBranch: async (tenantId: string, payload: AddBranchPayload): Promise<AddBranchResponse> => {
+  @RequirePermission('TENANT', 'MANAGE')
+  async addBranch(tenantId: string, payload: AddBranchPayload): Promise<AddBranchResponse> {
     const { data } = await httpClient.post(`/tenants/${tenantId}/branches`, payload);
     return AddBranchResponseSchema.parse(data);
-  },
+  }
 
-  removeBranch: async (tenantId: string, branchId: string): Promise<void> => {
+  @RequirePermission('TENANT', 'MANAGE')
+  async removeBranch(tenantId: string, branchId: string): Promise<void> {
     await httpClient.delete(`/tenants/${tenantId}/branches/${branchId}`);
-  },
+  }
 
-  deactivateBranch: async (tenantId: string, branchId: string): Promise<void> => {
+  @RequirePermission('TENANT', 'MANAGE')
+  async deactivateBranch(tenantId: string, branchId: string): Promise<void> {
     await httpClient.post(`/tenants/${tenantId}/branches/${branchId}/deactivate`);
-  },
+  }
 
-  reactivateBranch: async (tenantId: string, branchId: string): Promise<void> => {
+  @RequirePermission('TENANT', 'MANAGE')
+  async reactivateBranch(tenantId: string, branchId: string): Promise<void> {
     await httpClient.post(`/tenants/${tenantId}/branches/${branchId}/reactivate`);
-  },
-};
+  }
+}
 
+export const tenantService = new TenantService();
 export default tenantService;

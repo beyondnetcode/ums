@@ -12,7 +12,11 @@ import { M3FormDialog } from '@shared/components/M3FormDialog';
 import { M3Button } from '@shared/components/M3Button';
 import { StatusBadge } from '@shared/components/StatusBadge';
 import { CodeBadge } from '@shared/components/CodeBadge';
-import { DataTypeLabels, ScopeLabels, type ParameterDefinition } from '@domain/configuration/schemas/parameter-catalog/parameter-definition.schema';
+import {
+  DataTypeLabels,
+  ScopeLabels,
+  type ParameterDefinition,
+} from '@domain/configuration/schemas/parameter-catalog/parameter-definition.schema';
 import { parameterCatalogService } from '@infra/configuration/services/parameter-catalog/parameter-catalog.service';
 
 interface ParameterDefinitionPickerDialogProps {
@@ -31,7 +35,9 @@ export function ParameterDefinitionPickerDialog({
   existingCodes = [],
 }: ParameterDefinitionPickerDialogProps): React.JSX.Element {
   const t = useI18n();
-  const [parameters, setParameters] = useState<(ParameterDefinition & { isLinked?: boolean })[]>([]);
+  const [parameters, setParameters] = useState<(ParameterDefinition & { isLinked?: boolean })[]>(
+    []
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [dataTypeFilter, setDataTypeFilter] = useState<string>('all');
@@ -92,15 +98,18 @@ export function ParameterDefinitionPickerDialog({
     }
   };
 
-  const selectableParams = parameters.filter(p =>
-    !p.isLinked &&
-    ALLOWED_SCOPES.includes(p.scopeId) &&
-    (p.defaultValue !== null && p.defaultValue.trim() !== '')
+  const selectableParams = parameters.filter(
+    p =>
+      !p.isLinked &&
+      ALLOWED_SCOPES.includes(p.scopeId) &&
+      p.defaultValue !== null &&
+      p.defaultValue.trim() !== ''
   );
-  const paramsWithoutDefault = parameters.filter(p =>
-    !p.isLinked &&
-    ALLOWED_SCOPES.includes(p.scopeId) &&
-    (p.defaultValue === null || p.defaultValue.trim() === '')
+  const paramsWithoutDefault = parameters.filter(
+    p =>
+      !p.isLinked &&
+      ALLOWED_SCOPES.includes(p.scopeId) &&
+      (p.defaultValue === null || p.defaultValue.trim() === '')
   );
   const hasLinkedParams = parameters.some(p => p.isLinked);
   const selectedCount = selectedIds.size;
@@ -172,10 +181,11 @@ export function ParameterDefinitionPickerDialog({
           ) : selectableParams.length === 0 ? (
             <div className="p-8 text-center text-[12px] text-m3-secondary">
               {paramsWithoutDefault.length > 0
-                ? (t.parametersNeedDefaultValue ?? 'Some parameters need a default value defined first')
+                ? (t.parametersNeedDefaultValue ??
+                  'Some parameters need a default value defined first')
                 : hasLinkedParams
-                ? (t.allParametersLinked ?? 'All available parameters are already linked')
-                : (t.noParametersAvailable ?? 'No parameters available')}
+                  ? (t.allParametersLinked ?? 'All available parameters are already linked')
+                  : (t.noParametersAvailable ?? 'No parameters available')}
             </div>
           ) : (
             <div className="divide-y divide-m3-outline/10">
@@ -187,17 +197,15 @@ export function ParameterDefinitionPickerDialog({
                     key={param.id}
                     onClick={() => toggleSelect(param.id)}
                     className={`w-full px-4 py-3 text-left transition-colors flex items-center justify-between gap-3 ${
-                      isSelected
-                        ? 'bg-m3-primary/10'
-                        : 'hover:bg-m3-surface-variant'
+                      isSelected ? 'bg-m3-primary/10' : 'hover:bg-m3-surface-variant'
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
-                        isSelected
-                          ? 'bg-m3-primary border-m3-primary'
-                          : 'border-m3-outline'
-                      }`}>
+                      <div
+                        className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                          isSelected ? 'bg-m3-primary border-m3-primary' : 'border-m3-outline'
+                        }`}
+                      >
                         {isSelected && <Check className="w-3 h-3 text-white" />}
                       </div>
                       <div className="flex-1 min-w-0">

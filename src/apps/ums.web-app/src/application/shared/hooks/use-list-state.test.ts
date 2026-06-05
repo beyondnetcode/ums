@@ -15,12 +15,14 @@ describe('useListState', () => {
   });
 
   it('respects custom initial options', () => {
-    const { result } = renderHook(() => useListState({
-      initialPage: 3,
-      initialPageSize: 25,
-      defaultCriteria: 'name',
-      defaultFilter: 'Active' as unknown as string,
-    }));
+    const { result } = renderHook(() =>
+      useListState({
+        initialPage: 3,
+        initialPageSize: 25,
+        defaultCriteria: 'name',
+        defaultFilter: 'Active' as unknown as string,
+      })
+    );
 
     expect(result.current.paginationState.page).toBe(3);
     expect(result.current.paginationState.pageSize).toBe(25);
@@ -39,9 +41,11 @@ describe('useListState', () => {
   });
 
   it('updates pageSize and resets page to 1', () => {
-    const { result } = renderHook(() => useListState({
-      initialPage: 3,
-    }));
+    const { result } = renderHook(() =>
+      useListState({
+        initialPage: 3,
+      })
+    );
 
     act(() => {
       result.current.paginationState.setPageSize(25);
@@ -124,10 +128,12 @@ describe('useListState', () => {
   });
 
   it('calculates correct startIndex', () => {
-    const { result } = renderHook(() => useListState({
-      initialPage: 3,
-      initialPageSize: 20,
-    }));
+    const { result } = renderHook(() =>
+      useListState({
+        initialPage: 3,
+        initialPageSize: 20,
+      })
+    );
 
     expect(result.current.paginationState.startIndex).toBe(40);
   });

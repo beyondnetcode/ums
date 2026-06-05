@@ -25,7 +25,9 @@ describe('authorizationTranslations', () => {
     });
 
     it('has system suite form labels', () => {
-      expect(authorizationTranslations.es.createSystemSuiteTitle).toBe('Crear Nuevo Suite del Sistema');
+      expect(authorizationTranslations.es.createSystemSuiteTitle).toBe(
+        'Crear Nuevo Suite del Sistema'
+      );
       expect(authorizationTranslations.es.systemSuiteCode).toBe('Código del Suite');
       expect(authorizationTranslations.es.systemSuiteName).toBe('Nombre del Suite');
       expect(authorizationTranslations.es.registerSystemSuiteBtn).toBe('Registrar Suite');
@@ -75,7 +77,9 @@ describe('authorizationTranslations', () => {
 
     it('has notification labels', () => {
       expect(authorizationTranslations.es.notifSystemSuiteCreated).toBe('Suite del Sistema Creado');
-      expect(authorizationTranslations.es.notifSystemSuiteUpdated).toBe('Suite del Sistema Actualizado');
+      expect(authorizationTranslations.es.notifSystemSuiteUpdated).toBe(
+        'Suite del Sistema Actualizado'
+      );
       expect(authorizationTranslations.es.notifStatusChanged).toBe('Estado Cambiado');
     });
 
@@ -97,7 +101,9 @@ describe('authorizationTranslations', () => {
     it('has role notification labels', () => {
       expect(authorizationTranslations.es.notifRoleCreated).toBe('Rol registrado');
       expect(authorizationTranslations.es.notifRoleUpdated).toBe('Rol actualizado');
-      expect(authorizationTranslations.es.notifRoleStatusChanged).toBe('Estado del rol actualizado');
+      expect(authorizationTranslations.es.notifRoleStatusChanged).toBe(
+        'Estado del rol actualizado'
+      );
     });
 
     it('has feature flag labels', () => {

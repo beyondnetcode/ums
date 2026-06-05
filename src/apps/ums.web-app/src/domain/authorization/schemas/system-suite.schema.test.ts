@@ -131,15 +131,11 @@ describe('SystemSuiteSchema', () => {
   });
 
   it('rejects empty code', () => {
-    expect(() =>
-      SystemSuiteSchema.parse({ ...validSuite, code: '' })
-    ).toThrow();
+    expect(() => SystemSuiteSchema.parse({ ...validSuite, code: '' })).toThrow();
   });
 
   it('rejects empty name', () => {
-    expect(() =>
-      SystemSuiteSchema.parse({ ...validSuite, name: '' })
-    ).toThrow();
+    expect(() => SystemSuiteSchema.parse({ ...validSuite, name: '' })).toThrow();
   });
 });
 

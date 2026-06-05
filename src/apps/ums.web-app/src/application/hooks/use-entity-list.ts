@@ -63,11 +63,14 @@ export function useEntityList(options: UseEntityListOptions = {}): UseEntityList
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(initialSortOrder);
   const [page, setPage] = useState(1);
 
-  const handleQuerySubmit = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-    setPage(1);
-    setAppliedQuery({ criteria: searchCriteria, term: searchValue });
-  }, [searchCriteria, searchValue]);
+  const handleQuerySubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      setPage(1);
+      setAppliedQuery({ criteria: searchCriteria, term: searchValue });
+    },
+    [searchCriteria, searchValue]
+  );
 
   const handleResetQuery = useCallback(() => {
     setSearchValue('');
@@ -81,14 +84,22 @@ export function useEntityList(options: UseEntityListOptions = {}): UseEntityList
   }, []);
 
   return {
-    viewMode, setViewMode,
-    searchCriteria, setSearchCriteria,
-    searchValue, setSearchValue,
-    appliedQuery, setAppliedQuery,
-    activeFilter, setActiveFilter,
-    sortBy, setSortBy,
-    sortOrder, setSortOrder,
-    page, setPage,
+    viewMode,
+    setViewMode,
+    searchCriteria,
+    setSearchCriteria,
+    searchValue,
+    setSearchValue,
+    appliedQuery,
+    setAppliedQuery,
+    activeFilter,
+    setActiveFilter,
+    sortBy,
+    setSortBy,
+    sortOrder,
+    setSortOrder,
+    page,
+    setPage,
     pageSize,
     handleQuerySubmit,
     handleResetQuery,

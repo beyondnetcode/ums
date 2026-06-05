@@ -39,7 +39,7 @@ export const SmartConfigInput: React.FC<SmartConfigInputProps> = ({
         <M3TextField
           type="number"
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={e => onChange(e.target.value)}
           disabled={disabled}
           size="small"
           className="!w-24"
@@ -61,7 +61,7 @@ export const SmartConfigInput: React.FC<SmartConfigInputProps> = ({
         <input
           type="text"
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={e => onChange(e.target.value)}
           disabled={disabled}
           className="h-6 px-3 text-[12px] border border-m3-outline/30 rounded bg-m3-surface focus:outline-none focus:ring-1 focus:ring-m3-primary/40 disabled:opacity-60 w-64"
         />

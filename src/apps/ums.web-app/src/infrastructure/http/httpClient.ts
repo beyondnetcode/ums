@@ -24,7 +24,7 @@ function createHttpClient(): AxiosInstance {
     baseURL: BASE_URL,
     headers: {
       'Content-Type': 'application/json',
-      'Accept': 'application/json',
+      Accept: 'application/json',
       'X-Content-Type-Options': 'nosniff',
       'X-Frame-Options': 'DENY',
     },
@@ -54,20 +54,21 @@ function createHttpClient(): AxiosInstance {
       config.headers.set('X-Request-ID', crypto.randomUUID());
 
       const csrfToken = getCsrfToken();
-      const isSafeMethod = config.method && ['get', 'head', 'options', 'trace'].includes(config.method);
+      const isSafeMethod =
+        config.method && ['get', 'head', 'options', 'trace'].includes(config.method);
       if (csrfToken && !isSafeMethod) {
         config.headers.set(CSRF_HEADER_NAME, csrfToken);
       }
 
       return config;
     },
-    (error) => {
+    error => {
       return Promise.reject(error);
     }
   );
 
   client.interceptors.response.use(
-    (response) => response,
+    response => response,
     async (error: AxiosError) => {
       const status: number = error.response?.status ?? 0;
       const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
@@ -128,10 +129,13 @@ function createHttpClient(): AxiosInstance {
           const data = error.response?.data;
           const errorMessage =
             data && typeof data === 'object'
-              ? ('message' in data ? (data as { message: string }).message :
-                 'detail' in data ? (data as { detail: string }).detail :
-                 'title' in data ? (data as { title: string }).title :
-                 JSON.stringify(data).slice(0, 200))
+              ? 'message' in data
+                ? (data as { message: string }).message
+                : 'detail' in data
+                  ? (data as { detail: string }).detail
+                  : 'title' in data
+                    ? (data as { title: string }).title
+                    : JSON.stringify(data).slice(0, 200)
               : 'Error de comunicación';
 
           return Promise.reject(
@@ -164,10 +168,7 @@ export function invalidateAndRetry(
       }
 
       originalConfig._retry = true;
-      client
-        .request(originalConfig)
-        .then(resolve)
-        .catch(reject);
+      client.request(originalConfig).then(resolve).catch(reject);
     }, RETRY_DELAY);
   });
 }

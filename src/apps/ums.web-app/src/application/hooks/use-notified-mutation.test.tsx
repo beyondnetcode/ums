@@ -54,7 +54,7 @@ describe('useNotifiedMutation', () => {
       () =>
         useNotifiedMutation({
           mutationFn,
-          successNotif: (data) => ({ title: 'Created', message: data.name }),
+          successNotif: data => ({ title: 'Created', message: data.name }),
           errorNotif: () => ({ title: 'Error', message: 'Failed' }),
         }),
       { wrapper }
@@ -78,7 +78,7 @@ describe('useNotifiedMutation', () => {
         useNotifiedMutation({
           mutationFn,
           successNotif: () => ({ title: 'OK', message: 'Done' }),
-          errorNotif: (error) => ({
+          errorNotif: error => ({
             title: 'Failed',
             message: error instanceof Error ? error.message : 'Unknown',
           }),
@@ -113,7 +113,10 @@ describe('useNotifiedMutation', () => {
         useNotifiedMutation({
           mutationFn,
           successNotif: () => ({ title: 'OK', message: 'Done' }),
-          errorNotif: () => ({ title: 'Error al Registrar Módulo', message: 'No se pudo registrar el módulo.' }),
+          errorNotif: () => ({
+            title: 'Error al Registrar Módulo',
+            message: 'No se pudo registrar el módulo.',
+          }),
         }),
       { wrapper }
     );
@@ -123,12 +126,11 @@ describe('useNotifiedMutation', () => {
     });
 
     await waitFor(() => {
-      expect(useNotificationStore.getState().notifications[0]?.message)
-        .toBe(
-          'La descripción del módulo no puede exceder 500 caracteres.\n'
-          + 'Si necesitas más detalles, consulta con el administrador e indica este ID de error: '
-          + 'db83c6dd-770d-4d92-b6b8-98e80c790e4a.',
-        );
+      expect(useNotificationStore.getState().notifications[0]?.message).toBe(
+        'La descripción del módulo no puede exceder 500 caracteres.\n' +
+          'Si necesitas más detalles, consulta con el administrador e indica este ID de error: ' +
+          'db83c6dd-770d-4d92-b6b8-98e80c790e4a.'
+      );
     });
   });
 
@@ -162,12 +164,11 @@ describe('useNotifiedMutation', () => {
     });
 
     await waitFor(() => {
-      expect(useNotificationStore.getState().notifications[0]?.message)
-        .toBe(
-          'El código de sucursal debe ser único dentro del inquilino.\n'
-          + 'Si necesitas más detalles, consulta con el administrador e indica este ID de error: '
-          + 'efb21f91-c524-4181-99c0-edda60c3772b.',
-        );
+      expect(useNotificationStore.getState().notifications[0]?.message).toBe(
+        'El código de sucursal debe ser único dentro del inquilino.\n' +
+          'Si necesitas más detalles, consulta con el administrador e indica este ID de error: ' +
+          'efb21f91-c524-4181-99c0-edda60c3772b.'
+      );
     });
   });
 

@@ -19,7 +19,8 @@ export const FormField = ({
 }) => (
   <div className={`flex flex-col gap-1 ${className}`}>
     <label className="text-[10px] font-medium text-m3-on-surface-variant uppercase tracking-wide">
-      {label}{required && <span className="text-rose-500 ml-0.5">*</span>}
+      {label}
+      {required && <span className="text-rose-500 ml-0.5">*</span>}
     </label>
     {children}
     {error && <span className="text-[10px] text-rose-500">{error}</span>}
@@ -77,13 +78,16 @@ export const FieldSelect = ({
   className?: string;
 }) => (
   <FormField label={label} required={required} error={error} className={className}>
-    <FormSelect
-      value={value}
-      onChange={e => onChange(e.target.value)}
-    >
-      {placeholder && <option value="" disabled>{placeholder}</option>}
+    <FormSelect value={value} onChange={e => onChange(e.target.value)}>
+      {placeholder && (
+        <option value="" disabled>
+          {placeholder}
+        </option>
+      )}
       {options.map(opt => (
-        <option key={opt.value} value={opt.value}>{opt.label}</option>
+        <option key={opt.value} value={opt.value}>
+          {opt.label}
+        </option>
       ))}
     </FormSelect>
   </FormField>
@@ -118,7 +122,9 @@ export const Toggle = ({
       onClick={() => !disabled && onChange(!checked)}
       className={`w-8 h-[18px] rounded-full transition-colors relative ${checked ? 'bg-m3-primary' : 'bg-m3-outline'}`}
     >
-      <div className={`absolute top-[2px] w-[14px] h-[14px] rounded-full bg-white shadow-sm transition-transform ${checked ? 'translate-x-[18px]' : 'translate-x-[2px]'}`} />
+      <div
+        className={`absolute top-[2px] w-[14px] h-[14px] rounded-full bg-white shadow-sm transition-transform ${checked ? 'translate-x-[18px]' : 'translate-x-[2px]'}`}
+      />
     </div>
     <span className="text-[11px] text-m3-on-surface">{label}</span>
   </label>
@@ -152,7 +158,8 @@ export const FormButton = ({
   children: React.ReactNode;
   className?: string;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>) => {
-  const baseClasses = 'inline-flex items-center justify-center gap-1.5 font-medium rounded-md transition-colors disabled:opacity-50';
+  const baseClasses =
+    'inline-flex items-center justify-center gap-1.5 font-medium rounded-md transition-colors disabled:opacity-50';
   const sizeClasses = size === 'sm' ? 'h-7 px-3 text-[10px]' : 'h-8 px-4 text-[11px]';
   const variantClasses = {
     filled: 'bg-m3-primary text-white hover:bg-m3-primary/90',

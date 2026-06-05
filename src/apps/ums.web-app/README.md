@@ -6,22 +6,22 @@ UMS Web Console is the React 18 portal for the User Management System administra
 
 ## Quick Links
 
-| Need | Open this |
-|---|---|
-| Root README | [Repository overview](../../../README.md) |
-| English documentation portal | [docs/README.md](../../../docs/README.md) |
-| Spanish documentation portal | [docs/README.es.md](../../../docs/README.es.md) |
-| Architecture portal | [docs/architecture/index.md](../../../docs/architecture/index.md) |
-| Governance portal | [docs/governance/index.md](../../../docs/governance/index.md) |
+| Need                         | Open this                                                         |
+| ---------------------------- | ----------------------------------------------------------------- |
+| Root README                  | [Repository overview](../../../README.md)                         |
+| English documentation portal | [docs/README.md](../../../docs/README.md)                         |
+| Spanish documentation portal | [docs/README.es.md](../../../docs/README.es.md)                   |
+| Architecture portal          | [docs/architecture/index.md](../../../docs/architecture/index.md) |
+| Governance portal            | [docs/governance/index.md](../../../docs/governance/index.md)     |
 
 ## At a Glance
 
-| Area | Choice |
-|---|---|
-| Runtime | React 18 + Vite + TypeScript |
-| State and data | Zustand, TanStack Query |
-| Styling | Tailwind CSS |
-| Purpose | Administrative portal for UMS operators and tenants |
+| Area           | Choice                                              |
+| -------------- | --------------------------------------------------- |
+| Runtime        | React 18 + Vite + TypeScript                        |
+| State and data | Zustand, TanStack Query                             |
+| Styling        | Tailwind CSS                                        |
+| Purpose        | Administrative portal for UMS operators and tenants |
 
 ## Local Workflow
 

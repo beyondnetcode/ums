@@ -61,10 +61,7 @@ describe('use-tenant hooks', () => {
     vi.mocked(tenantService.getAll).mockResolvedValue(mockPage);
 
     const wrapper = createWrapper();
-    const { result } = renderHook(
-      () => useGetAllTenants({ page: 1, pageSize: 20 }),
-      { wrapper }
-    );
+    const { result } = renderHook(() => useGetAllTenants({ page: 1, pageSize: 20 }), { wrapper });
 
     await waitFor(() => {
       expect(result.current.isSuccess).toBe(true);

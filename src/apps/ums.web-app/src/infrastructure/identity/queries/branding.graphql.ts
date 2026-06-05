@@ -45,7 +45,9 @@ export interface GetBrandingResponse {
 export const graphqlBrandingQueries = {
   getBranding: async (tenantId: string): Promise<GetBrandingResponse> => {
     if (!tenantId || tenantId.trim() === '') {
-      throw new GraphQlValidationError('Invalid tenantId parameter', ['tenantId must be a non-empty string']);
+      throw new GraphQlValidationError('Invalid tenantId parameter', [
+        'tenantId must be a non-empty string',
+      ]);
     }
     return graphqlClient.request<GetBrandingResponse>(GET_BRANDING, { tenantId });
   },

@@ -140,7 +140,11 @@ describe('use-inbox hooks', () => {
       result.current.mutate({ id: 'req-1', roleId: 'role-1', reason: 'Approved by manager' });
     });
 
-    expect(inboxService.approveProfileRequest).toHaveBeenCalledWith('req-1', 'role-1', 'Approved by manager');
+    expect(inboxService.approveProfileRequest).toHaveBeenCalledWith(
+      'req-1',
+      'role-1',
+      'Approved by manager'
+    );
   });
 
   it('useRejectProfileRequest forwards reason to inbox service', async () => {

@@ -28,15 +28,24 @@ describe('Feature flag enum schemas', () => {
   });
 
   it('accepts valid CriteriaType values', () => {
-    const types = ['TenantId', 'BranchId', 'UserProfileId', 'RoleCode', 'Environment', 'DateRange', 'PercentageHash', 'CustomRule'];
-    types.forEach((type) => {
+    const types = [
+      'TenantId',
+      'BranchId',
+      'UserProfileId',
+      'RoleCode',
+      'Environment',
+      'DateRange',
+      'PercentageHash',
+      'CustomRule',
+    ];
+    types.forEach(type => {
       expect(CriteriaTypeSchema.parse(type)).toBe(type);
     });
   });
 
   it('accepts valid CriteriaOperator values', () => {
     const operators = ['Equals', 'NotEquals', 'In', 'Between', 'LessThanOrEqual', 'Matches'];
-    operators.forEach((op) => {
+    operators.forEach(op => {
       expect(CriteriaOperatorSchema.parse(op)).toBe(op);
     });
   });
@@ -114,21 +123,15 @@ describe('FeatureFlagSchema', () => {
   });
 
   it('rejects rolloutPercentage over 100', () => {
-    expect(() =>
-      FeatureFlagSchema.parse({ ...validFlag, rolloutPercentage: 101 })
-    ).toThrow();
+    expect(() => FeatureFlagSchema.parse({ ...validFlag, rolloutPercentage: 101 })).toThrow();
   });
 
   it('rejects negative rolloutPercentage', () => {
-    expect(() =>
-      FeatureFlagSchema.parse({ ...validFlag, rolloutPercentage: -1 })
-    ).toThrow();
+    expect(() => FeatureFlagSchema.parse({ ...validFlag, rolloutPercentage: -1 })).toThrow();
   });
 
   it('rejects empty flagCode', () => {
-    expect(() =>
-      FeatureFlagSchema.parse({ ...validFlag, flagCode: '' })
-    ).toThrow();
+    expect(() => FeatureFlagSchema.parse({ ...validFlag, flagCode: '' })).toThrow();
   });
 });
 

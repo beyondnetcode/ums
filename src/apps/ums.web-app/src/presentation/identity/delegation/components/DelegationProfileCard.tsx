@@ -1,18 +1,10 @@
 import React from 'react';
-import {
-  useActivateDelegation,
-  useRevokeDelegation,
-} from '@app/identity/hooks/use-delegation';
+import { useActivateDelegation, useRevokeDelegation } from '@app/identity/hooks/use-delegation';
 import { useI18n } from '@app/i18n/use-i18n';
 import { useStatusLabel } from '@app/hooks/use-status-label';
 import { useNotificationStore } from '@app/stores/notification.store';
 import { Delegation } from '@domain/identity/models/delegation.model';
-import {
-  Shield,
-  Sliders,
-  ShieldAlert,
-  CheckCircle2,
-} from 'lucide-react';
+import { Shield, Sliders, ShieldAlert, CheckCircle2 } from 'lucide-react';
 import { M3Card } from '@shared/components/M3Card';
 import { M3Button } from '@shared/components/M3Button';
 import { StatusBadge } from '@shared/components/StatusBadge';
@@ -36,12 +28,10 @@ const formatUserId = (id: string) => {
   return UNIMAR_USERS[id] || 'Usuario';
 };
 
-export const DelegationProfileCard: React.FC<DelegationProfileCardProps> = ({
-  delegation,
-}) => {
+export const DelegationProfileCard: React.FC<DelegationProfileCardProps> = ({ delegation }) => {
   const t = useI18n();
   const statusLabel = useStatusLabel();
-  const addNotification = useNotificationStore((s) => s.addNotification);
+  const addNotification = useNotificationStore(s => s.addNotification);
 
   const activateMutation = useActivateDelegation(delegation.delegationId);
   const revokeMutation = useRevokeDelegation(delegation.delegationId);
@@ -76,7 +66,8 @@ export const DelegationProfileCard: React.FC<DelegationProfileCardProps> = ({
               <CodeBadge code={delegation.scopeType} />
             </h3>
             <p className="text-xs text-m3-secondary mt-0.5">
-              De: {formatUserId(delegation.delegatingAdminId)} → Para: {formatUserId(delegation.delegatedAdminId)}
+              De: {formatUserId(delegation.delegatingAdminId)} → Para:{' '}
+              {formatUserId(delegation.delegatedAdminId)}
             </p>
           </div>
         </div>

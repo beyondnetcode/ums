@@ -6,22 +6,22 @@ UMS Web Console es el portal React 18 para la experiencia administrativa de User
 
 ## Enlaces Rapidos
 
-| Necesidad | Abrir esto |
-|---|---|
-| README raiz | [Resumen del repositorio](../../../README.md) |
-| Portal documental en ingles | [docs/README.md](../../../docs/README.md) |
-| Portal documental en espanol | [docs/README.es.md](../../../docs/README.es.md) |
-| Portal de arquitectura | [docs/architecture/index.es.md](../../../docs/architecture/index.es.md) |
-| Portal de gobernanza | [docs/governance/index.es.md](../../../docs/governance/index.es.md) |
+| Necesidad                    | Abrir esto                                                              |
+| ---------------------------- | ----------------------------------------------------------------------- |
+| README raiz                  | [Resumen del repositorio](../../../README.md)                           |
+| Portal documental en ingles  | [docs/README.md](../../../docs/README.md)                               |
+| Portal documental en espanol | [docs/README.es.md](../../../docs/README.es.md)                         |
+| Portal de arquitectura       | [docs/architecture/index.es.md](../../../docs/architecture/index.es.md) |
+| Portal de gobernanza         | [docs/governance/index.es.md](../../../docs/governance/index.es.md)     |
 
 ## Vista General
 
-| Area | Decision |
-|---|---|
-| Runtime | React 18 + Vite + TypeScript |
-| Estado y datos | Zustand, TanStack Query |
-| Estilos | Tailwind CSS |
-| Proposito | Portal administrativo para operadores y tenants de UMS |
+| Area           | Decision                                               |
+| -------------- | ------------------------------------------------------ |
+| Runtime        | React 18 + Vite + TypeScript                           |
+| Estado y datos | Zustand, TanStack Query                                |
+| Estilos        | Tailwind CSS                                           |
+| Proposito      | Portal administrativo para operadores y tenants de UMS |
 
 ## Flujo Local
 

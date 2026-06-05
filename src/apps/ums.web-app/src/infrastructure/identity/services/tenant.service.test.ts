@@ -45,7 +45,9 @@ describe('tenantService', () => {
     vi.mocked(graphqlQueriesModule.graphqlQueries.getTenants).mockClear();
     vi.mocked(graphqlQueriesModule.graphqlQueries.getTenantById).mockClear();
     vi.mocked(graphqlQueriesModule.graphqlQueries.getTenantBranches).mockClear();
-    vi.mocked(queryTransportModule.queryTransportService.getQueryTransport).mockResolvedValue('graphql');
+    vi.mocked(queryTransportModule.queryTransportService.getQueryTransport).mockResolvedValue(
+      'graphql'
+    );
     vi.mocked(loggerModule.logger.error).mockClear();
   });
 
@@ -78,7 +80,16 @@ describe('tenantService', () => {
     it('passes custom params', async () => {
       vi.mocked(graphqlQueriesModule.graphqlQueries.getTenants).mockResolvedValue({
         tenants: {
-          items: [{ tenantId: '12345678-1234-1234-1234-123456789012', code: 'T1', name: 'Tenant 1', type: 'Enterprise', status: 'Active', parentTenantId: null }],
+          items: [
+            {
+              tenantId: '12345678-1234-1234-1234-123456789012',
+              code: 'T1',
+              name: 'Tenant 1',
+              type: 'Enterprise',
+              status: 'Active',
+              parentTenantId: null,
+            },
+          ],
           page: 2,
           pageSize: 10,
           totalItems: 1,
@@ -102,7 +113,9 @@ describe('tenantService', () => {
     });
 
     it('uses REST when configured transport is rest', async () => {
-      vi.mocked(queryTransportModule.queryTransportService.getQueryTransport).mockResolvedValue('rest');
+      vi.mocked(queryTransportModule.queryTransportService.getQueryTransport).mockResolvedValue(
+        'rest'
+      );
       vi.mocked(httpClientModule.httpClient.get).mockResolvedValue({
         data: {
           items: [],
@@ -152,7 +165,12 @@ describe('tenantService', () => {
     it('returns parsed branches', async () => {
       vi.mocked(graphqlQueriesModule.graphqlQueries.getTenantBranches).mockResolvedValue({
         tenantBranches: [
-          { branchId: '3fa85f64-5717-4562-b3fc-2c963f66afa6', code: 'B1', name: 'Branch 1', isActive: true },
+          {
+            branchId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+            code: 'B1',
+            name: 'Branch 1',
+            isActive: true,
+          },
         ],
       });
 
@@ -169,7 +187,11 @@ describe('tenantService', () => {
         data: { tenantId: '3fa85f64-5717-4562-b3fc-2c963f66afa6', code: 'NEW', name: 'New Tenant' },
       });
 
-      const result = await tenantService.createTenant({ code: 'NEW', name: 'New Tenant', type: 'Enterprise' });
+      const result = await tenantService.createTenant({
+        code: 'NEW',
+        name: 'New Tenant',
+        type: 'Enterprise',
+      });
 
       expect(result.tenantId).toBe('3fa85f64-5717-4562-b3fc-2c963f66afa6');
       expect(httpClientModule.httpClient.post).toHaveBeenCalledWith('/tenants', expect.any(Object));
@@ -199,13 +221,23 @@ describe('tenantService', () => {
   describe('addBranch', () => {
     it('calls POST branches endpoint', async () => {
       vi.mocked(httpClientModule.httpClient.post).mockResolvedValue({
-        data: { branchId: '3fa85f64-5717-4562-b3fc-2c963f66afa6', tenantId: '3fa85f64-5717-4562-b3fc-2c963f66afa7', code: 'B1' },
+        data: {
+          branchId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+          tenantId: '3fa85f64-5717-4562-b3fc-2c963f66afa7',
+          code: 'B1',
+        },
       });
 
-      const result = await tenantService.addBranch('3fa85f64-5717-4562-b3fc-2c963f66afa7', { code: 'B1', name: 'Branch 1' });
+      const result = await tenantService.addBranch('3fa85f64-5717-4562-b3fc-2c963f66afa7', {
+        code: 'B1',
+        name: 'Branch 1',
+      });
 
       expect(result.branchId).toBe('3fa85f64-5717-4562-b3fc-2c963f66afa6');
-      expect(httpClientModule.httpClient.post).toHaveBeenCalledWith('/tenants/3fa85f64-5717-4562-b3fc-2c963f66afa7/branches', expect.any(Object));
+      expect(httpClientModule.httpClient.post).toHaveBeenCalledWith(
+        '/tenants/3fa85f64-5717-4562-b3fc-2c963f66afa7/branches',
+        expect.any(Object)
+      );
     });
   });
 
@@ -225,7 +257,9 @@ describe('tenantService', () => {
 
       await tenantService.deactivateBranch('t1', 'b1');
 
-      expect(httpClientModule.httpClient.post).toHaveBeenCalledWith('/tenants/t1/branches/b1/deactivate');
+      expect(httpClientModule.httpClient.post).toHaveBeenCalledWith(
+        '/tenants/t1/branches/b1/deactivate'
+      );
     });
   });
 
@@ -235,7 +269,9 @@ describe('tenantService', () => {
 
       await tenantService.reactivateBranch('t1', 'b1');
 
-      expect(httpClientModule.httpClient.post).toHaveBeenCalledWith('/tenants/t1/branches/b1/reactivate');
+      expect(httpClientModule.httpClient.post).toHaveBeenCalledWith(
+        '/tenants/t1/branches/b1/reactivate'
+      );
     });
   });
 });

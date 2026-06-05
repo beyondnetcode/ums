@@ -19,7 +19,9 @@ describe('SectionHeader', () => {
   });
 
   it('renders actions when provided', () => {
-    render(<SectionHeader title="Settings" actions={<button data-testid="action-btn">Edit</button>} />);
+    render(
+      <SectionHeader title="Settings" actions={<button data-testid="action-btn">Edit</button>} />
+    );
     expect(screen.getByTestId('action-btn')).toBeInTheDocument();
   });
 

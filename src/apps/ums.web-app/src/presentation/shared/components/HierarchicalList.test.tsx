@@ -31,7 +31,7 @@ describe('HierarchicalList', () => {
             {String(node.item.name)}
           </div>
         )}
-        renderChildRow={(item) => <div data-testid={`child-${item.id}`}>{item.name}</div>}
+        renderChildRow={item => <div data-testid={`child-${item.id}`}>{item.name}</div>}
         renderParentCard={() => null}
         renderChildCard={() => null}
       />
@@ -56,7 +56,7 @@ describe('HierarchicalList', () => {
             {String(node.item.name)}
           </div>
         )}
-        renderChildRow={(item) => <div data-testid={`child-${item.id}`}>{item.name}</div>}
+        renderChildRow={item => <div data-testid={`child-${item.id}`}>{item.name}</div>}
         renderParentCard={() => null}
         renderChildCard={() => null}
       />
@@ -86,7 +86,7 @@ describe('HierarchicalList', () => {
             {String(node.item.name)}
           </div>
         )}
-        renderChildCard={(item) => <div data-testid={`child-card-${item.id}`}>{item.name}</div>}
+        renderChildCard={item => <div data-testid={`child-card-${item.id}`}>{item.name}</div>}
       />
     );
 
@@ -206,37 +206,19 @@ describe('HierarchicalRow', () => {
 
 describe('HierarchicalExpandButton', () => {
   it('renders chevron when hasChildren is true', () => {
-    render(
-      <HierarchicalExpandButton
-        hasChildren
-        isExpanded={false}
-        onClick={() => {}}
-      />
-    );
+    render(<HierarchicalExpandButton hasChildren isExpanded={false} onClick={() => {}} />);
 
     expect(screen.getByRole('button')).toBeInTheDocument();
   });
 
   it('renders spacer when hasChildren is false', () => {
-    render(
-      <HierarchicalExpandButton
-        hasChildren={false}
-        isExpanded={false}
-        onClick={() => {}}
-      />
-    );
+    render(<HierarchicalExpandButton hasChildren={false} isExpanded={false} onClick={() => {}} />);
 
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
   it('applies rotation when expanded', () => {
-    render(
-      <HierarchicalExpandButton
-        hasChildren
-        isExpanded
-        onClick={() => {}}
-      />
-    );
+    render(<HierarchicalExpandButton hasChildren isExpanded onClick={() => {}} />);
 
     const button = screen.getByRole('button');
     expect(button).toHaveClass('rotate-90');
@@ -245,13 +227,7 @@ describe('HierarchicalExpandButton', () => {
   it('calls onClick when clicked', async () => {
     const handleClick = vi.fn();
     const user = userEvent.setup();
-    render(
-      <HierarchicalExpandButton
-        hasChildren
-        isExpanded={false}
-        onClick={handleClick}
-      />
-    );
+    render(<HierarchicalExpandButton hasChildren isExpanded={false} onClick={handleClick} />);
 
     await user.click(screen.getByRole('button'));
     expect(handleClick).toHaveBeenCalled();

@@ -1,5 +1,9 @@
 import { useMemo } from 'react';
-import { STATUS_COLORS, STATUS_LABELS_ES, type StatusColorConfig } from '@shared/utils/status-utils';
+import {
+  STATUS_COLORS,
+  STATUS_LABELS_ES,
+  type StatusColorConfig,
+} from '@shared/utils/status-utils';
 
 /**
  * Configuration interface for list panel item extraction.
@@ -30,11 +34,14 @@ export interface ListPanelConfig<T> {
 export function useStatusConfig<T>(config: ListPanelConfig<T>) {
   const getStatusColors = useMemo(() => {
     return (status: string): StatusColorConfig => {
-      return config.statusColorMap?.[status] ?? STATUS_COLORS[status as keyof typeof STATUS_COLORS] ?? {
-        bg: 'bg-m3-surface-variant',
-        border: 'border-m3-outline/20',
-        text: 'text-m3-secondary',
-      };
+      return (
+        config.statusColorMap?.[status] ??
+        STATUS_COLORS[status as keyof typeof STATUS_COLORS] ?? {
+          bg: 'bg-m3-surface-variant',
+          border: 'border-m3-outline/20',
+          text: 'text-m3-secondary',
+        }
+      );
     };
   }, [config.statusColorMap]);
 
@@ -57,16 +64,24 @@ export function useStatusConfig<T>(config: ListPanelConfig<T>) {
  * @returns Pagination config for DataViewShell or undefined
  */
 export function createPaginationConfig(
-  paginationState: { page: number; pageSize: number; totalItems: number; totalPages: number; startIndex?: number },
+  paginationState: {
+    page: number;
+    pageSize: number;
+    totalItems: number;
+    totalPages: number;
+    startIndex?: number;
+  },
   setPage: (page: number) => void,
   setPageSize: (size: number) => void
 ) {
-  return paginationState.totalPages > 0 ? {
-    page: paginationState.page,
-    pageSize: paginationState.pageSize,
-    totalItems: paginationState.totalItems,
-    totalPages: paginationState.totalPages,
-    onPageChange: setPage,
-    onPageSizeChange: setPageSize,
-  } : undefined;
+  return paginationState.totalPages > 0
+    ? {
+        page: paginationState.page,
+        pageSize: paginationState.pageSize,
+        totalItems: paginationState.totalItems,
+        totalPages: paginationState.totalPages,
+        onPageChange: setPage,
+        onPageSizeChange: setPageSize,
+      }
+    : undefined;
 }

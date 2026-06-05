@@ -4,8 +4,16 @@ import { EmptyState } from './EmptyState';
 import * as M3CardModule from './M3Card';
 import * as TooltipModule from './Tooltip';
 
-vi.mock('./M3Card', () => ({ M3Card: ({ children, className }: any) => <div data-testid="m3-card" className={className}>{children}</div> }));
-vi.mock('./Tooltip', () => ({ Tooltip: ({ children, content }: any) => <div data-tooltip={content}>{children}</div> }));
+vi.mock('./M3Card', () => ({
+  M3Card: ({ children, className }: any) => (
+    <div data-testid="m3-card" className={className}>
+      {children}
+    </div>
+  ),
+}));
+vi.mock('./Tooltip', () => ({
+  Tooltip: ({ children, content }: any) => <div data-tooltip={content}>{children}</div>,
+}));
 
 describe('EmptyState', () => {
   it('renders message', () => {
@@ -39,7 +47,9 @@ describe('EmptyState', () => {
   });
 
   it('renders tooltip when provided in card variant', () => {
-    const { container } = render(<EmptyState message="No items" variant="card" title="Empty" tooltip="Help info" />);
+    const { container } = render(
+      <EmptyState message="No items" variant="card" title="Empty" tooltip="Help info" />
+    );
     expect(container.querySelector('[data-tooltip="Help info"]')).toBeInTheDocument();
   });
 

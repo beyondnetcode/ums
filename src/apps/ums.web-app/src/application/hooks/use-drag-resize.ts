@@ -57,10 +57,7 @@ export function useDragResize({
           (containerRef.current.firstElementChild as HTMLElement)?.offsetHeight ?? 60;
         const rect = containerRef.current.getBoundingClientRect();
         const fromTop = ev.clientY - rect.top - titleBarH;
-        const clamped = Math.min(
-          rect.height * maxSizeRatio,
-          Math.max(minSize, fromTop),
-        );
+        const clamped = Math.min(rect.height * maxSizeRatio, Math.max(minSize, fromTop));
         setSize(clamped);
         prevSizeRef.current = clamped;
         if (clamped > 4) setIsCollapsed(false);
@@ -79,17 +76,16 @@ export function useDragResize({
 
       cleanupDragRef.current = onMouseUp;
     },
-    [size, minSize, maxSizeRatio],
+    [size, minSize, maxSizeRatio]
   );
 
   const toggleCollapse = useCallback(() => {
     if (isCollapsed) {
-      const restore =
-        prevSizeRef.current ?? size ?? (resizableRef.current?.offsetHeight ?? 200);
+      const restore = prevSizeRef.current ?? size ?? resizableRef.current?.offsetHeight ?? 200;
       setSize(restore);
       setIsCollapsed(false);
     } else {
-      const current = size ?? (resizableRef.current?.offsetHeight ?? 200);
+      const current = size ?? resizableRef.current?.offsetHeight ?? 200;
       prevSizeRef.current = current;
       setSize(0);
       setIsCollapsed(true);
@@ -115,7 +111,7 @@ export function useDragResize({
       prevSizeRef.current = next;
       setIsCollapsed(next <= 4);
     },
-    [toggleCollapse, size, minSize, maxSizeRatio],
+    [toggleCollapse, size, minSize, maxSizeRatio]
   );
 
   return {

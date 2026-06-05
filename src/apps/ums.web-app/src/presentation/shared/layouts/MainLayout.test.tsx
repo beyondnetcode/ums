@@ -39,7 +39,9 @@ describe('MainLayout', () => {
 
     vi.mocked(TopAppBarModule.TopAppBar).mockImplementation(({ onToggleNav }: any) => (
       <div data-testid="top-app-bar">
-        <button onClick={onToggleNav} data-testid="toggle-btn">Toggle</button>
+        <button onClick={onToggleNav} data-testid="toggle-btn">
+          Toggle
+        </button>
       </div>
     ));
     vi.mocked(NavRailModule.NavRail).mockImplementation(({ collapsed }: any) => (
@@ -48,24 +50,40 @@ describe('MainLayout', () => {
   });
 
   it('renders TopAppBar', () => {
-    render(<MainLayout><div>Content</div></MainLayout>);
+    render(
+      <MainLayout>
+        <div>Content</div>
+      </MainLayout>
+    );
     expect(screen.getByTestId('top-app-bar')).toBeInTheDocument();
   });
 
   it('renders NavRail', () => {
-    render(<MainLayout><div>Content</div></MainLayout>);
+    render(
+      <MainLayout>
+        <div>Content</div>
+      </MainLayout>
+    );
     expect(screen.getByTestId('nav-rail')).toBeInTheDocument();
   });
 
   it('renders children', () => {
-    render(<MainLayout><div data-testid="child-content">Hello</div></MainLayout>);
+    render(
+      <MainLayout>
+        <div data-testid="child-content">Hello</div>
+      </MainLayout>
+    );
     expect(screen.getByTestId('child-content')).toBeInTheDocument();
   });
 
   it('passes enabled=true to useIdleTimeout when user exists', () => {
-    render(<MainLayout><div>Content</div></MainLayout>);
+    render(
+      <MainLayout>
+        <div>Content</div>
+      </MainLayout>
+    );
     expect(useIdleTimeoutModule.useIdleTimeout).toHaveBeenCalledWith(
-      expect.objectContaining({ enabled: true }),
+      expect.objectContaining({ enabled: true })
     );
   });
 
@@ -76,14 +94,22 @@ describe('MainLayout', () => {
       isAuthenticated: false,
     } as any);
 
-    render(<MainLayout><div>Content</div></MainLayout>);
+    render(
+      <MainLayout>
+        <div>Content</div>
+      </MainLayout>
+    );
     expect(useIdleTimeoutModule.useIdleTimeout).toHaveBeenCalledWith(
-      expect.objectContaining({ enabled: false }),
+      expect.objectContaining({ enabled: false })
     );
   });
 
   it('toggles navCollapsed when TopAppBar toggle is called', () => {
-    render(<MainLayout><div>Content</div></MainLayout>);
+    render(
+      <MainLayout>
+        <div>Content</div>
+      </MainLayout>
+    );
 
     expect(screen.getByTestId('nav-rail')).toHaveAttribute('data-collapsed', 'false');
 

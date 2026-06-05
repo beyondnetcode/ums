@@ -24,9 +24,7 @@ describe('M3TreeAccordion', () => {
   });
 
   it('renders items with icons', () => {
-    const items = [
-      { id: '1', label: 'Item 1', icon: <span data-testid="icon-1">X</span> },
-    ];
+    const items = [{ id: '1', label: 'Item 1', icon: <span data-testid="icon-1">X</span> }];
     render(<M3TreeAccordion items={items} />);
     expect(screen.getByTestId('icon-1')).toBeInTheDocument();
   });
@@ -37,9 +35,7 @@ describe('M3TreeAccordion', () => {
         id: '1',
         label: 'Parent',
         defaultExpanded: true,
-        children: [
-          { id: '1.1', label: 'Child 1' },
-        ],
+        children: [{ id: '1.1', label: 'Child 1' }],
       },
     ];
     render(<M3TreeAccordion items={items} />);
@@ -53,9 +49,7 @@ describe('M3TreeAccordion', () => {
         id: '1',
         label: 'Parent',
         defaultExpanded: true,
-        children: [
-          { id: '1.1', label: 'Child' },
-        ],
+        children: [{ id: '1.1', label: 'Child' }],
       },
     ];
     render(<M3TreeAccordion items={items} />);
@@ -63,9 +57,7 @@ describe('M3TreeAccordion', () => {
   });
 
   it('renders trailing content', () => {
-    const items = [
-      { id: '1', label: 'Item', trailing: <span data-testid="trailing">End</span> },
-    ];
+    const items = [{ id: '1', label: 'Item', trailing: <span data-testid="trailing">End</span> }];
     render(<M3TreeAccordion items={items} />);
     expect(screen.getByTestId('trailing')).toBeInTheDocument();
   });

@@ -21,7 +21,7 @@ export const TopAppBar: React.FC<{ onToggleNav: () => void }> = ({ onToggleNav }
 
   const [isUserDrawerOpen, setIsUserDrawerOpen] = useState(false);
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const unreadCount = notifications.filter(n => !n.read).length;
 
   const handleLanguageToggle = () => {
     setLanguage(language === 'en' ? 'es' : 'en');
@@ -76,10 +76,14 @@ export const TopAppBar: React.FC<{ onToggleNav: () => void }> = ({ onToggleNav }
           {user && (
             <div className="flex items-center gap-2">
               <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-m3-primary-container/20 rounded-xl border border-m3-primary-container/30 text-[11px] font-medium text-m3-primary">
-                <span>{t.devUser} {user.username}</span>
+                <span>
+                  {t.devUser} {user.username}
+                </span>
               </div>
               <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/30 rounded-xl border border-indigo-200 dark:border-indigo-800 text-[11px] font-semibold text-indigo-600 dark:text-indigo-400">
-                <span>{user.isInternalAdmin ? 'Admin Local' : (user.tenantName || 'Tenant N/A')}</span>
+                <span>
+                  {user.isInternalAdmin ? 'Admin Local' : user.tenantName || 'Tenant N/A'}
+                </span>
               </div>
             </div>
           )}
@@ -113,7 +117,11 @@ export const TopAppBar: React.FC<{ onToggleNav: () => void }> = ({ onToggleNav }
               aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
               className="p-2.5 rounded-full hover:bg-m3-primary/10 text-m3-secondary hover:text-m3-primary transition-all border border-m3-outline/30"
             >
-              {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-500" />}
+              {isDarkMode ? (
+                <Sun className="w-4 h-4 text-amber-400" />
+              ) : (
+                <Moon className="w-4 h-4 text-indigo-500" />
+              )}
             </button>
           </Tooltip>
 
@@ -132,9 +140,7 @@ export const TopAppBar: React.FC<{ onToggleNav: () => void }> = ({ onToggleNav }
             </button>
           </Tooltip>
 
-          {user && (
-            <div className="h-8 w-px bg-m3-outline/30" />
-          )}
+          {user && <div className="h-8 w-px bg-m3-outline/30" />}
 
           {user && (
             <div className="flex items-center gap-2">

@@ -11,9 +11,9 @@ import { useQueryState } from '@app/shared/hooks/use-query-state';
 import { usePaginationState } from '@app/shared/hooks/use-pagination-state';
 
 export function useFeatureFlagDashboard() {
-  const [selectedId, setSelectedId]         = useState('');
-  const [isCreateOpen, setIsCreateOpen]     = useState(false);
-  const [viewMode, setViewMode]             = useState<'list' | 'thumbnail'>('list');
+  const [selectedId, setSelectedId] = useState('');
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('list');
   const queryState = useQueryState({
     criteria: 'flagCode',
     filter: 'all',
@@ -26,26 +26,30 @@ export function useFeatureFlagDashboard() {
 
   const shouldFetch = queryState.appliedQuery.filterApplied;
 
-  const { data: pageData, isLoading: isLoadingList, error: listError } =
-    useGetAllFeatureFlags(
-      shouldFetch
-        ? {
-            page: paginationState.page,
-            pageSize: paginationState.pageSize,
-            search: queryState.appliedQuery.term || undefined,
-            status: queryState.activeFilter !== 'all' ? queryState.activeFilter : undefined,
-            sortBy: queryState.sortBy,
-            sortOrder: queryState.sortOrder,
-          }
-        : null,
-    );
+  const {
+    data: pageData,
+    isLoading: isLoadingList,
+    error: listError,
+  } = useGetAllFeatureFlags(
+    shouldFetch
+      ? {
+          page: paginationState.page,
+          pageSize: paginationState.pageSize,
+          search: queryState.appliedQuery.term || undefined,
+          status: queryState.activeFilter !== 'all' ? queryState.activeFilter : undefined,
+          sortBy: queryState.sortBy,
+          sortOrder: queryState.sortOrder,
+        }
+      : null
+  );
 
-  const { data: activeFlag, isLoading: isLoadingDetail } =
-    useGetFeatureFlagById(selectedId || null);
+  const { data: activeFlag, isLoading: isLoadingDetail } = useGetFeatureFlagById(
+    selectedId || null
+  );
 
   const knownFlags: FeatureFlag[] = pageData?.items ?? [];
-  const totalItems  = pageData?.totalItems ?? 0;
-  const totalPages  = pageData?.totalPages ?? 0;
+  const totalItems = pageData?.totalItems ?? 0;
+  const totalPages = pageData?.totalPages ?? 0;
 
   const handleSelect = useCallback((id: string) => {
     setSelectedId(id);

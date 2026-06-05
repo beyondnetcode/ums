@@ -33,7 +33,11 @@ interface OptionDraft {
 }
 
 export const OptionRow: React.FC<OptionRowProps> = ({
-  suiteId, moduleId, menuId, subMenuId, option,
+  suiteId,
+  moduleId,
+  menuId,
+  subMenuId,
+  option,
 }) => {
   const [editError, setEditError] = useState('');
   const updateOptionMutation = useUpdateOption(suiteId, moduleId, menuId, subMenuId, option.id);
@@ -55,8 +59,14 @@ export const OptionRow: React.FC<OptionRowProps> = ({
     e.preventDefault();
     const label = edit.draft.label?.trim() ?? '';
     const actionCode = edit.draft.actionCode?.trim() ?? '';
-    if (!label) { setEditError('Etiqueta requerida'); return; }
-    if (!actionCode) { setEditError('Código de acción requerido'); return; }
+    if (!label) {
+      setEditError('Etiqueta requerida');
+      return;
+    }
+    if (!actionCode) {
+      setEditError('Código de acción requerido');
+      return;
+    }
     try {
       await updateOptionMutation.mutateAsync({
         label,
@@ -66,22 +76,56 @@ export const OptionRow: React.FC<OptionRowProps> = ({
       });
       edit.cancelEdit();
       setEditError('');
-    } catch { /* handled by hook */ }
+    } catch {
+      /* handled by hook */
+    }
   };
 
   if (edit.isEditing(option.id)) {
     return (
-      <form onSubmit={handleUpdate} className="p-2.5 rounded-lg border border-m3-primary/30 bg-m3-surface-container/20 space-y-2 animate-fadeIn">
+      <form
+        onSubmit={handleUpdate}
+        className="p-2.5 rounded-lg border border-m3-primary/30 bg-m3-surface-container/20 space-y-2 animate-fadeIn"
+      >
         <div className="grid grid-cols-2 gap-1.5">
-          <M3TextField label="Etiqueta" required value={edit.draft.label ?? ''} onChange={(e) => edit.setField('label', e.target.value)} />
-          <M3TextField label="Código de Acción" required value={edit.draft.actionCode ?? ''} onChange={(e) => edit.setField('actionCode', e.target.value)} />
+          <M3TextField
+            label="Etiqueta"
+            required
+            value={edit.draft.label ?? ''}
+            onChange={e => edit.setField('label', e.target.value)}
+          />
+          <M3TextField
+            label="Código de Acción"
+            required
+            value={edit.draft.actionCode ?? ''}
+            onChange={e => edit.setField('actionCode', e.target.value)}
+          />
         </div>
-        <M3TextField label="Descripción" value={edit.draft.description ?? ''} onChange={(e) => edit.setField('description', e.target.value)} />
-        <M3TextField label="Orden" type="number" value={String(edit.draft.sortOrder ?? 1)} onChange={(e) => edit.setField('sortOrder', parseInt(e.target.value) || 1)} />
+        <M3TextField
+          label="Descripción"
+          value={edit.draft.description ?? ''}
+          onChange={e => edit.setField('description', e.target.value)}
+        />
+        <M3TextField
+          label="Orden"
+          type="number"
+          value={String(edit.draft.sortOrder ?? 1)}
+          onChange={e => edit.setField('sortOrder', parseInt(e.target.value) || 1)}
+        />
         <ErrorDisplay error={editError} variant="text" />
         <div className="flex gap-1.5 justify-end">
-          <button type="button" onClick={edit.cancelEdit} className="text-[11px] px-2.5 py-1 rounded-md text-m3-secondary hover:bg-m3-surface-variant/20 transition-colors">Cancelar</button>
-          <button type="submit" disabled={updateOptionMutation.isPending} className="text-[11px] px-2.5 py-1 rounded-md bg-m3-primary text-m3-on-primary hover:bg-m3-primary/80 disabled:opacity-50 transition-colors">
+          <button
+            type="button"
+            onClick={edit.cancelEdit}
+            className="text-[11px] px-2.5 py-1 rounded-md text-m3-secondary hover:bg-m3-surface-variant/20 transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            disabled={updateOptionMutation.isPending}
+            className="text-[11px] px-2.5 py-1 rounded-md bg-m3-primary text-m3-on-primary hover:bg-m3-primary/80 disabled:opacity-50 transition-colors"
+          >
             {updateOptionMutation.isPending ? 'Guardando…' : 'Guardar'}
           </button>
         </div>
@@ -97,7 +141,10 @@ export const OptionRow: React.FC<OptionRowProps> = ({
           <CodeBadge code={option.code} size="xs" />
         </div>
         {option.description && (
-          <p className="text-[9px] text-m3-secondary mt-0.5 truncate max-w-full" title={option.description}>
+          <p
+            className="text-[9px] text-m3-secondary mt-0.5 truncate max-w-full"
+            title={option.description}
+          >
             {option.description}
           </p>
         )}

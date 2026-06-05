@@ -78,9 +78,7 @@ describe('use-branch hooks', () => {
   });
 
   it('useGetBranches returns branches for tenant', async () => {
-    const mockBranches = [
-      { branchId: 'b1', code: 'B1', name: 'Branch 1', isActive: true },
-    ];
+    const mockBranches = [{ branchId: 'b1', code: 'B1', name: 'Branch 1', isActive: true }];
     vi.mocked(tenantService.getBranches).mockResolvedValue(mockBranches);
 
     const wrapper = createWrapper();

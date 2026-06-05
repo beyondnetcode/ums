@@ -59,11 +59,25 @@ export const M3TextField: React.FC<M3TextFieldProps> = ({
   const defaultMb = compact || dense ? 'mb-3' : 'mb-4';
   const fieldHeightClass = dense ? 'h-10' : compact ? 'h-12' : 'h-14';
   const inputPaddingClass = dense ? 'px-3' : 'px-4';
-  const inputSpacingClass = dense ? 'pt-3 pb-1 text-xs' : `${compact ? 'pt-4 pb-1' : 'pt-5 pb-2'} text-sm`;
+  const inputSpacingClass = dense
+    ? 'pt-3 pb-1 text-xs'
+    : `${compact ? 'pt-4 pb-1' : 'pt-5 pb-2'} text-sm`;
   const hasStartIcon = !!icon && iconPosition === 'start';
   const startIconInsetClass = dense ? 'left-2.5' : 'left-3';
-  const labelStartOffsetClass = hasStartIcon ? (dense ? 'left-9' : 'left-10') : dense ? 'left-3' : 'left-4';
-  const hintStartOffsetClass = hasStartIcon ? (dense ? 'left-9 right-3' : 'left-10 right-4') : dense ? 'left-3 right-3' : 'left-4 right-4';
+  const labelStartOffsetClass = hasStartIcon
+    ? dense
+      ? 'left-9'
+      : 'left-10'
+    : dense
+      ? 'left-3'
+      : 'left-4';
+  const hintStartOffsetClass = hasStartIcon
+    ? dense
+      ? 'left-9 right-3'
+      : 'left-10 right-4'
+    : dense
+      ? 'left-3 right-3'
+      : 'left-4 right-4';
 
   const [focused, setFocused] = useState(false);
 
@@ -79,16 +93,16 @@ export const M3TextField: React.FC<M3TextFieldProps> = ({
   const borderClass = focused
     ? `border-2 ${error ? 'border-m3-error' : 'border-m3-primary'}`
     : error
-    ? 'border border-m3-error'
-    : 'border border-m3-outline hover:border-m3-on-surface';
+      ? 'border border-m3-error'
+      : 'border border-m3-outline hover:border-m3-on-surface';
 
   const labelColorClass = focused
     ? error
       ? 'text-m3-error'
       : 'text-m3-primary'
     : error
-    ? 'text-m3-error'
-    : 'text-m3-secondary';
+      ? 'text-m3-error'
+      : 'text-m3-secondary';
 
   return (
     <div className={`relative w-full ${hasMbClass ? '' : defaultMb} ${className}`}>
@@ -117,11 +131,14 @@ export const M3TextField: React.FC<M3TextFieldProps> = ({
             transition: 'max-width 150ms ease-in-out, padding 150ms ease-in-out',
           }}
         >
-          {label}{req && ' *'}
+          {label}
+          {req && ' *'}
         </legend>
 
         {hasStartIcon && (
-          <div className={`absolute ${startIconInsetClass} top-1/2 -translate-y-1/2 text-m3-secondary pointer-events-none z-10`}>
+          <div
+            className={`absolute ${startIconInsetClass} top-1/2 -translate-y-1/2 text-m3-secondary pointer-events-none z-10`}
+          >
             {icon}
           </div>
         )}
@@ -131,8 +148,14 @@ export const M3TextField: React.FC<M3TextFieldProps> = ({
           value={value}
           defaultValue={defaultValue}
           required={req}
-          onFocus={(e) => { setFocused(true); extOnFocus?.(e); }}
-          onBlur={(e)  => { setFocused(false); extOnBlur?.(e); }}
+          onFocus={e => {
+            setFocused(true);
+            extOnFocus?.(e);
+          }}
+          onBlur={e => {
+            setFocused(false);
+            extOnBlur?.(e);
+          }}
           className={[
             'peer absolute inset-0 w-full h-full bg-transparent rounded-[4px]',
             `${inputPaddingClass} ${inputSpacingClass} text-m3-on-surface`,
@@ -140,7 +163,7 @@ export const M3TextField: React.FC<M3TextFieldProps> = ({
             'focus:outline-none',
             'disabled:opacity-50 disabled:cursor-not-allowed',
             hasStartIcon ? 'pl-10' : '',
-            icon && iconPosition === 'end'   ? 'pr-10' : '',
+            icon && iconPosition === 'end' ? 'pr-10' : '',
           ].join(' ')}
           {...inputProps}
         />
@@ -185,9 +208,7 @@ export const M3TextField: React.FC<M3TextFieldProps> = ({
       {/* Supporting text (error | helper) — 16 dp left indent per MD3 */}
       {(error || helperText) && (
         <span
-          className={`block text-xs mt-1 ml-4 ${
-            error ? 'text-m3-error' : 'text-m3-secondary/75'
-          }`}
+          className={`block text-xs mt-1 ml-4 ${error ? 'text-m3-error' : 'text-m3-secondary/75'}`}
         >
           {error || helperText}
         </span>

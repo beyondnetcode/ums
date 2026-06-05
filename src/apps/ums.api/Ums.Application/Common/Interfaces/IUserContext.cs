@@ -10,4 +10,5 @@ public interface IUserContext
     string? UserName { get; }
     string? TenantId { get; }
     bool IsAuthenticated { get; }
+    bool HasPermission(string permission);
 }

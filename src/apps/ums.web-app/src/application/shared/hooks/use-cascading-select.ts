@@ -64,17 +64,20 @@ export function useCascadingSelect<T extends string>(
     setValues(initial);
   }, [initial]);
 
-  const resetFrom = useCallback((fromKey: T) => {
-    const keyIndex = keys.indexOf(fromKey);
-    if (keyIndex === -1) return;
-    setValues(prev => {
-      const next = { ...prev };
-      for (let i = keyIndex; i < keys.length; i++) {
-        next[keys[i]] = '';
-      }
-      return next;
-    });
-  }, [keys]);
+  const resetFrom = useCallback(
+    (fromKey: T) => {
+      const keyIndex = keys.indexOf(fromKey);
+      if (keyIndex === -1) return;
+      setValues(prev => {
+        const next = { ...prev };
+        for (let i = keyIndex; i < keys.length; i++) {
+          next[keys[i]] = '';
+        }
+        return next;
+      });
+    },
+    [keys]
+  );
 
   return { values, handlers: { setValue, reset, resetFrom } };
 }

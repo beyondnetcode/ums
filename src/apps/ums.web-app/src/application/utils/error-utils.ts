@@ -18,7 +18,9 @@ export function getHttpStatus(error: unknown): number {
 
 export function isHttpNonRecoverable(error: unknown): boolean {
   const status = getHttpStatus(error);
-  return HTTP_NON_RECOVERABLE_STATUSES.includes(status as (typeof HTTP_NON_RECOVERABLE_STATUSES)[number]);
+  return HTTP_NON_RECOVERABLE_STATUSES.includes(
+    status as (typeof HTTP_NON_RECOVERABLE_STATUSES)[number]
+  );
 }
 
 export function isGraphQlValidationError(error: unknown): boolean {

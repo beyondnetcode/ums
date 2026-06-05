@@ -40,7 +40,10 @@ describe('CreateFeatureFlagPayloadSchema', () => {
   });
 
   it('accepts null rolloutPercentage', () => {
-    const result = CreateFeatureFlagPayloadSchema.parse({ ...validPayload, rolloutPercentage: null });
+    const result = CreateFeatureFlagPayloadSchema.parse({
+      ...validPayload,
+      rolloutPercentage: null,
+    });
     expect(result.rolloutPercentage).toBeNull();
   });
 
@@ -51,9 +54,7 @@ describe('CreateFeatureFlagPayloadSchema', () => {
   });
 
   it('rejects empty flagCode', () => {
-    expect(() =>
-      CreateFeatureFlagPayloadSchema.parse({ ...validPayload, flagCode: '' })
-    ).toThrow();
+    expect(() => CreateFeatureFlagPayloadSchema.parse({ ...validPayload, flagCode: '' })).toThrow();
   });
 
   it('rejects flagCode with lowercase letters', () => {
@@ -93,14 +94,15 @@ describe('UpdateFeatureFlagPayloadSchema', () => {
   });
 
   it('accepts null rolloutPercentage', () => {
-    const result = UpdateFeatureFlagPayloadSchema.parse({ ...validPayload, rolloutPercentage: null });
+    const result = UpdateFeatureFlagPayloadSchema.parse({
+      ...validPayload,
+      rolloutPercentage: null,
+    });
     expect(result.rolloutPercentage).toBeNull();
   });
 
   it('rejects empty flagTargets', () => {
-    expect(() =>
-      UpdateFeatureFlagPayloadSchema.parse({ flagTargets: '' })
-    ).toThrow();
+    expect(() => UpdateFeatureFlagPayloadSchema.parse({ flagTargets: '' })).toThrow();
   });
 });
 

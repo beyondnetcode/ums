@@ -56,12 +56,16 @@ describe('M3TextField', () => {
   });
 
   it('renders start icon', () => {
-    render(<M3TextField label="Search" icon={<span data-testid="icon">🔍</span>} iconPosition="start" />);
+    render(
+      <M3TextField label="Search" icon={<span data-testid="icon">🔍</span>} iconPosition="start" />
+    );
     expect(screen.getByTestId('icon')).toBeInTheDocument();
   });
 
   it('renders end icon', () => {
-    render(<M3TextField label="Search" icon={<span data-testid="icon">🔍</span>} iconPosition="end" />);
+    render(
+      <M3TextField label="Search" icon={<span data-testid="icon">🔍</span>} iconPosition="end" />
+    );
     expect(screen.getByTestId('icon')).toBeInTheDocument();
   });
 

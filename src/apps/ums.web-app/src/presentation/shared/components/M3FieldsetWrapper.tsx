@@ -39,8 +39,14 @@ export const M3FieldsetWrapper: React.FC<M3FieldsetWrapperProps> = ({
 }) => {
   const [focused, setFocused] = useState(false);
 
-  const handleFocus = () => { setFocused(true); onFocus?.(); };
-  const handleBlur = () => { setFocused(false); onBlur?.(); };
+  const handleFocus = () => {
+    setFocused(true);
+    onFocus?.();
+  };
+  const handleBlur = () => {
+    setFocused(false);
+    onBlur?.();
+  };
 
   const borderClass = focused
     ? `border-2 ${error ? 'border-m3-error' : 'border-m3-primary'}`
@@ -49,15 +55,15 @@ export const M3FieldsetWrapper: React.FC<M3FieldsetWrapperProps> = ({
       : 'border border-m3-outline hover:border-m3-on-surface';
 
   const labelColorClass = focused
-    ? error ? 'text-m3-error' : 'text-m3-primary'
-    : error ? 'text-m3-error' : 'text-m3-secondary';
+    ? error
+      ? 'text-m3-error'
+      : 'text-m3-primary'
+    : error
+      ? 'text-m3-error'
+      : 'text-m3-secondary';
 
   return (
-    <div
-      className={`relative ${className}`}
-      onFocus={handleFocus}
-      onBlur={handleBlur}
-    >
+    <div className={`relative ${className}`} onFocus={handleFocus} onBlur={handleBlur}>
       <fieldset
         className={[
           `relative w-full ${compact ? 'h-12' : 'h-14'} m-0 p-0 min-w-0 rounded-[4px]`,
@@ -85,9 +91,7 @@ export const M3FieldsetWrapper: React.FC<M3FieldsetWrapperProps> = ({
           {label}
         </label>
 
-        <div className="absolute inset-0 px-4 flex items-center">
-          {children}
-        </div>
+        <div className="absolute inset-0 px-4 flex items-center">{children}</div>
       </fieldset>
     </div>
   );

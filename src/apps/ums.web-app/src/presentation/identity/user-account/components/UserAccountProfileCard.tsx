@@ -42,7 +42,7 @@ export const UserAccountProfileCard: React.FC<UserAccountProfileCardProps> = ({
 }) => {
   const t = useI18n();
   const getStatusLabel = useStatusLabel();
-  const addNotification = useNotificationStore((s) => s.addNotification);
+  const addNotification = useNotificationStore(s => s.addNotification);
 
   const edit = useInlineEdit<UserAccountDraft>(['email', 'category']);
   const [showDiscardDialog, setShowDiscardDialog] = React.useState(false);
@@ -108,7 +108,11 @@ export const UserAccountProfileCard: React.FC<UserAccountProfileCardProps> = ({
         );
       case 'Active':
         return (
-          <M3Button variant="outlined" onClick={onBlock} className="text-[10px] h-7 text-m3-error border-m3-error/30">
+          <M3Button
+            variant="outlined"
+            onClick={onBlock}
+            className="text-[10px] h-7 text-m3-error border-m3-error/30"
+          >
             <Lock className="w-3.5 h-3.5 mr-1" /> {t.blockBtn}
           </M3Button>
         );
@@ -132,7 +136,11 @@ export const UserAccountProfileCard: React.FC<UserAccountProfileCardProps> = ({
         message={t.unsavedChangesMsg}
         onScrimClick={() => setShowDiscardDialog(false)}
         actions={[
-          { label: t.cancelEdit || 'Cancel', variant: 'outlined', onClick: () => setShowDiscardDialog(false) },
+          {
+            label: t.cancelEdit || 'Cancel',
+            variant: 'outlined',
+            onClick: () => setShowDiscardDialog(false),
+          },
           {
             label: t.discardChanges || 'Discard',
             variant: 'filled',
@@ -173,7 +181,9 @@ export const UserAccountProfileCard: React.FC<UserAccountProfileCardProps> = ({
               <KeyValueRow
                 icon={<Mail className="w-3.5 h-3.5" />}
                 label={t.userEmail}
-                value={<span className="font-mono text-m3-on-surface text-xs">{account.email}</span>}
+                value={
+                  <span className="font-mono text-m3-on-surface text-xs">{account.email}</span>
+                }
               />
               <KeyValueRow
                 icon={<Shield className="w-3.5 h-3.5" />}
@@ -183,7 +193,9 @@ export const UserAccountProfileCard: React.FC<UserAccountProfileCardProps> = ({
               <KeyValueRow
                 icon={<User className="w-3.5 h-3.5" />}
                 label={t.status}
-                value={<StatusBadge status={account.status} label={getStatusLabel(account.status)} />}
+                value={
+                  <StatusBadge status={account.status} label={getStatusLabel(account.status)} />
+                }
               />
               {account.identityReference && (
                 <KeyValueRow
@@ -214,7 +226,10 @@ export const UserAccountProfileCard: React.FC<UserAccountProfileCardProps> = ({
               <span className="text-sm font-semibold text-m3-primary flex items-center gap-1.5">
                 <Pencil className="w-3.5 h-3.5" /> {t.editUserAccount || 'Edit User Account'}
               </span>
-              <IconButton tooltip={t.cancelEdit || 'Cancel'} onClick={() => setShowDiscardDialog(true)}>
+              <IconButton
+                tooltip={t.cancelEdit || 'Cancel'}
+                onClick={() => setShowDiscardDialog(true)}
+              >
                 <X className="w-3.5 h-3.5" />
               </IconButton>
             </div>
@@ -223,15 +238,15 @@ export const UserAccountProfileCard: React.FC<UserAccountProfileCardProps> = ({
               label={t.userEmail}
               required
               value={edit.draft.email ?? ''}
-              onChange={(e) => edit.setField('email', e.target.value)}
+              onChange={e => edit.setField('email', e.target.value)}
             />
 
             <M3Select
               label={t.userCategory}
               value={edit.draft.category ?? ''}
-              onChange={(e) => edit.setField('category', e.target.value)}
+              onChange={e => edit.setField('category', e.target.value)}
             >
-              {USER_CATEGORIES.map((c) => (
+              {USER_CATEGORIES.map(c => (
                 <option key={c} value={c}>
                   {c}
                 </option>
@@ -246,7 +261,11 @@ export const UserAccountProfileCard: React.FC<UserAccountProfileCardProps> = ({
               >
                 <Save className="w-3.5 h-3.5" /> {t.saveBtn || 'Save'}
               </M3Button>
-              <M3Button variant="outlined" onClick={() => setShowDiscardDialog(true)} className="flex-1">
+              <M3Button
+                variant="outlined"
+                onClick={() => setShowDiscardDialog(true)}
+                className="flex-1"
+              >
                 {t.cancelBtn || 'Cancel'}
               </M3Button>
             </div>
@@ -256,4 +275,3 @@ export const UserAccountProfileCard: React.FC<UserAccountProfileCardProps> = ({
     </>
   );
 };
-

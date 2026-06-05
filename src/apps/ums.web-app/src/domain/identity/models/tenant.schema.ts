@@ -38,7 +38,9 @@ export function validateTenant(data: unknown): z.infer<typeof TenantSchema> {
   return TenantSchema.parse(data);
 }
 
-export function validateCreateTenantResponse(data: unknown): z.infer<typeof CreateTenantResponseSchema> {
+export function validateCreateTenantResponse(
+  data: unknown
+): z.infer<typeof CreateTenantResponseSchema> {
   return CreateTenantResponseSchema.parse(data);
 }
 

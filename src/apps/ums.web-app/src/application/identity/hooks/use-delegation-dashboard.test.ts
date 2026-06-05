@@ -16,8 +16,22 @@ vi.mock('@app/stores/auth.store', () => ({
 }));
 
 const mockDelegations = [
-  { delegationId: 'd-1', scopeType: 'Tenant', status: 'Active', delegatedAdminId: 'u-1', delegatingAdminId: 'u-2', tenantId: 't-1' },
-  { delegationId: 'd-2', scopeType: 'Branch', status: 'Pending', delegatedAdminId: 'u-1', delegatingAdminId: 'u-3', tenantId: 't-1' },
+  {
+    delegationId: 'd-1',
+    scopeType: 'Tenant',
+    status: 'Active',
+    delegatedAdminId: 'u-1',
+    delegatingAdminId: 'u-2',
+    tenantId: 't-1',
+  },
+  {
+    delegationId: 'd-2',
+    scopeType: 'Branch',
+    status: 'Pending',
+    delegatedAdminId: 'u-1',
+    delegatingAdminId: 'u-3',
+    tenantId: 't-1',
+  },
 ];
 
 describe('useDelegationDashboard', () => {
@@ -57,11 +71,16 @@ describe('useDelegationDashboard', () => {
     });
 
     vi.mocked(useQueryStateModule.useQueryState).mockReturnValue({
-      searchCriteria: 'id', setSearchCriteria: vi.fn(),
-      searchValue: '', setSearchValue: vi.fn(),
-      activeFilter: 'all', setActiveFilter: vi.fn(),
-      sortBy: 'status', setSortBy: vi.fn(),
-      sortOrder: 'asc', setSortOrder: vi.fn(),
+      searchCriteria: 'id',
+      setSearchCriteria: vi.fn(),
+      searchValue: '',
+      setSearchValue: vi.fn(),
+      activeFilter: 'all',
+      setActiveFilter: vi.fn(),
+      sortBy: 'status',
+      setSortBy: vi.fn(),
+      sortOrder: 'asc',
+      setSortOrder: vi.fn(),
       toggleSortOrder: vi.fn(),
       appliedQuery: { criteria: 'id', term: '' },
       handleQuerySubmit: vi.fn(),
@@ -69,8 +88,13 @@ describe('useDelegationDashboard', () => {
     } as any);
 
     vi.mocked(usePaginationStateModule.usePaginationState).mockReturnValue({
-      page: 1, setPage: vi.fn(), pageSize: 2, setPageSize: vi.fn(),
-      startIndex: 0, handlePageChange: vi.fn(), handlePageSizeChange: vi.fn(),
+      page: 1,
+      setPage: vi.fn(),
+      pageSize: 2,
+      setPageSize: vi.fn(),
+      startIndex: 0,
+      handlePageChange: vi.fn(),
+      handlePageSizeChange: vi.fn(),
     } as any);
   });
 
@@ -189,9 +213,14 @@ describe('useDelegationDashboard', () => {
   it('patchDelegation calls patchItem from local overrides', () => {
     const patchItem = vi.fn();
     vi.mocked(useLocalOverridesModule.useLocalOverrides).mockReturnValue({
-      items: mockDelegations, patchItem, patchItems: vi.fn(),
-      clearOverrides: vi.fn(), rollbackItem: vi.fn(), rollbackAll: vi.fn(),
-      getDiffs: vi.fn(() => []), isDirty: vi.fn(() => false),
+      items: mockDelegations,
+      patchItem,
+      patchItems: vi.fn(),
+      clearOverrides: vi.fn(),
+      rollbackItem: vi.fn(),
+      rollbackAll: vi.fn(),
+      getDiffs: vi.fn(() => []),
+      isDirty: vi.fn(() => false),
     });
 
     const { result } = renderHook(() => useDelegationDashboard());
@@ -209,19 +238,30 @@ describe('useDelegationDashboard', () => {
     const handleResetQuery = vi.fn();
 
     vi.mocked(usePaginationStateModule.usePaginationState).mockReturnValue({
-      page: 1, setPage, pageSize: 2, setPageSize: vi.fn(),
-      startIndex: 0, handlePageChange: vi.fn(), handlePageSizeChange: vi.fn(),
+      page: 1,
+      setPage,
+      pageSize: 2,
+      setPageSize: vi.fn(),
+      startIndex: 0,
+      handlePageChange: vi.fn(),
+      handlePageSizeChange: vi.fn(),
     } as any);
 
     vi.mocked(useQueryStateModule.useQueryState).mockReturnValue({
-      searchCriteria: 'id', setSearchCriteria: vi.fn(),
-      searchValue: '', setSearchValue,
-      activeFilter: 'all', setActiveFilter: vi.fn(),
-      sortBy: 'status', setSortBy: vi.fn(),
-      sortOrder: 'asc', setSortOrder: vi.fn(),
+      searchCriteria: 'id',
+      setSearchCriteria: vi.fn(),
+      searchValue: '',
+      setSearchValue,
+      activeFilter: 'all',
+      setActiveFilter: vi.fn(),
+      sortBy: 'status',
+      setSortBy: vi.fn(),
+      sortOrder: 'asc',
+      setSortOrder: vi.fn(),
       toggleSortOrder: vi.fn(),
       appliedQuery: { criteria: 'id', term: '' },
-      handleQuerySubmit: vi.fn(), handleResetQuery,
+      handleQuerySubmit: vi.fn(),
+      handleResetQuery,
     } as any);
 
     const { result } = renderHook(() => useDelegationDashboard());
@@ -266,11 +306,16 @@ describe('useDelegationDashboard', () => {
 
   it('filters delegations by search term', () => {
     vi.mocked(useQueryStateModule.useQueryState).mockReturnValue({
-      searchCriteria: 'id', setSearchCriteria: vi.fn(),
-      searchValue: '', setSearchValue: vi.fn(),
-      activeFilter: 'all', setActiveFilter: vi.fn(),
-      sortBy: 'status', setSortBy: vi.fn(),
-      sortOrder: 'asc', setSortOrder: vi.fn(),
+      searchCriteria: 'id',
+      setSearchCriteria: vi.fn(),
+      searchValue: '',
+      setSearchValue: vi.fn(),
+      activeFilter: 'all',
+      setActiveFilter: vi.fn(),
+      sortBy: 'status',
+      setSortBy: vi.fn(),
+      sortOrder: 'asc',
+      setSortOrder: vi.fn(),
       toggleSortOrder: vi.fn(),
       appliedQuery: { criteria: 'id', term: 'd-1' },
       handleQuerySubmit: vi.fn(),
@@ -294,11 +339,16 @@ describe('useDelegationDashboard', () => {
 
   it('filters delegations by status', () => {
     vi.mocked(useQueryStateModule.useQueryState).mockReturnValue({
-      searchCriteria: 'id', setSearchCriteria: vi.fn(),
-      searchValue: '', setSearchValue: vi.fn(),
-      activeFilter: 'Active', setActiveFilter: vi.fn(),
-      sortBy: 'status', setSortBy: vi.fn(),
-      sortOrder: 'asc', setSortOrder: vi.fn(),
+      searchCriteria: 'id',
+      setSearchCriteria: vi.fn(),
+      searchValue: '',
+      setSearchValue: vi.fn(),
+      activeFilter: 'Active',
+      setActiveFilter: vi.fn(),
+      sortBy: 'status',
+      setSortBy: vi.fn(),
+      sortOrder: 'asc',
+      setSortOrder: vi.fn(),
       toggleSortOrder: vi.fn(),
       appliedQuery: { criteria: 'id', term: '' },
       handleQuerySubmit: vi.fn(),

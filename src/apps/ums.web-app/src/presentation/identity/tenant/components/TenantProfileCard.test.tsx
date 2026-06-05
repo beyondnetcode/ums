@@ -53,7 +53,9 @@ vi.mock('@app/hooks/use-inline-edit', () => ({
     },
     openEdit: vi.fn(),
     cancelEdit: vi.fn(),
-    commitEdit: vi.fn(() => ({ draft: { name: 'Tenant 1', code: 'TEN-001', companyReference: '', type: 'INTERNAL' } })),
+    commitEdit: vi.fn(() => ({
+      draft: { name: 'Tenant 1', code: 'TEN-001', companyReference: '', type: 'INTERNAL' },
+    })),
     setField: vi.fn(),
   }),
 }));
@@ -75,11 +77,23 @@ vi.mock('@shared/components/M3Button', () => ({
 }));
 
 vi.mock('@shared/components/M3TextField', () => ({
-  M3TextField: ({ label, value }: any) => <label>{label}<input value={value} readOnly /></label>,
+  M3TextField: ({ label, value }: any) => (
+    <label>
+      {label}
+      <input value={value} readOnly />
+    </label>
+  ),
 }));
 
 vi.mock('@shared/components/M3Select', () => ({
-  M3Select: ({ label, value, children }: any) => <label>{label}<select value={value} readOnly>{children}</select></label>,
+  M3Select: ({ label, value, children }: any) => (
+    <label>
+      {label}
+      <select value={value} readOnly>
+        {children}
+      </select>
+    </label>
+  ),
 }));
 
 vi.mock('@shared/components/M3Dialog', () => ({

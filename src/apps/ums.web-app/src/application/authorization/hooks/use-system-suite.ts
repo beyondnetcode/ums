@@ -2,8 +2,17 @@ import { useQuery } from '@tanstack/react-query';
 import systemSuiteService from '@infra/authorization/services/system-suite.service';
 import { useNotifiedMutation } from '@app/hooks/use-notified-mutation';
 import { useI18n } from '@app/i18n/use-i18n';
-import { CreateSystemSuitePayload, SystemSuite, SystemSuitePage } from '@domain/authorization/models/system-suite.model';
-import { getHttpStatus, isNonRecoverable, isNetworkError, getRetryOptions } from '@app/utils/error-utils';
+import {
+  CreateSystemSuitePayload,
+  SystemSuite,
+  SystemSuitePage,
+} from '@domain/authorization/models/system-suite.model';
+import {
+  getHttpStatus,
+  isNonRecoverable,
+  isNetworkError,
+  getRetryOptions,
+} from '@app/utils/error-utils';
 import { CONTEXT_QUERY_CONFIG } from '@app/shared/config/query.config';
 
 // ─── Query params ───────────────────────────────────────────────────────────
@@ -23,7 +32,17 @@ export interface SystemSuiteQueryParams {
 
 export const useGetAllSystemSuites = (params: SystemSuiteQueryParams | null) => {
   return useQuery<SystemSuitePage>({
-    queryKey: ['system-suites', params?.page, params?.pageSize, params?.search, params?.criteria, params?.status, params?.sortBy, params?.sortOrder, params?.tenantId],
+    queryKey: [
+      'system-suites',
+      params?.page,
+      params?.pageSize,
+      params?.search,
+      params?.criteria,
+      params?.status,
+      params?.sortBy,
+      params?.sortOrder,
+      params?.tenantId,
+    ],
     queryFn: () => systemSuiteService.getAll(params!),
     enabled: !!params,
     ...CONTEXT_QUERY_CONFIG.SYSTEM_SUITE,
@@ -54,9 +73,10 @@ export const useGetSystemSuite = (systemSuiteId: string | null) => {
 export const useCreateSystemSuite = () => {
   const t = useI18n();
   return useNotifiedMutation({
-    mutationFn: (payload: CreateSystemSuitePayload) => systemSuiteService.createSystemSuite(payload),
+    mutationFn: (payload: CreateSystemSuitePayload) =>
+      systemSuiteService.createSystemSuite(payload),
     invalidateKeys: [['system-suites']],
-    successNotif: (data) => ({
+    successNotif: data => ({
       title: t.notifSystemSuiteCreated,
       message: t.notifSystemSuiteCreatedMsg(data.systemSuiteId),
     }),
@@ -88,8 +108,12 @@ export const useSetSystemSuiteStatus = (systemSuiteId: string) => {
 export const useAddModule = (systemSuiteId: string) => {
   const t = useI18n();
   return useNotifiedMutation({
-    mutationFn: (payload: { code: string; name: string; description?: string; sortOrder: number }) =>
-      systemSuiteService.addModule(systemSuiteId, payload),
+    mutationFn: (payload: {
+      code: string;
+      name: string;
+      description?: string;
+      sortOrder: number;
+    }) => systemSuiteService.addModule(systemSuiteId, payload),
     invalidateKeys: [['system-suites', systemSuiteId], ['system-suites']],
     successNotif: () => ({
       title: t.notifModuleAdded ?? 'Módulo Registrado',
@@ -156,11 +180,21 @@ export const useDeactivateModule = (systemSuiteId: string) => {
 
 export const useAddMenu = (systemSuiteId: string, moduleId: string) => {
   return useNotifiedMutation({
-    mutationFn: (payload: { code: string; label: string; description?: string; sortOrder: number }) =>
-      systemSuiteService.addMenu(systemSuiteId, moduleId, payload),
+    mutationFn: (payload: {
+      code: string;
+      label: string;
+      description?: string;
+      sortOrder: number;
+    }) => systemSuiteService.addMenu(systemSuiteId, moduleId, payload),
     invalidateKeys: [['system-suites', systemSuiteId], ['system-suites']],
-    successNotif: () => ({ title: 'Menú Registrado', message: 'El menú fue agregado correctamente.' }),
-    errorNotif: () => ({ title: 'Error al Registrar Menú', message: 'No se pudo agregar el menú.' }),
+    successNotif: () => ({
+      title: 'Menú Registrado',
+      message: 'El menú fue agregado correctamente.',
+    }),
+    errorNotif: () => ({
+      title: 'Error al Registrar Menú',
+      message: 'No se pudo agregar el menú.',
+    }),
   });
 };
 
@@ -169,8 +203,14 @@ export const useUpdateMenu = (systemSuiteId: string, moduleId: string, menuId: s
     mutationFn: (payload: { label: string; description?: string; sortOrder: number }) =>
       systemSuiteService.updateMenu(systemSuiteId, moduleId, menuId, payload),
     invalidateKeys: [['system-suites', systemSuiteId], ['system-suites']],
-    successNotif: () => ({ title: 'Menú Actualizado', message: 'El menú fue actualizado correctamente.' }),
-    errorNotif: () => ({ title: 'Error al Actualizar Menú', message: 'No se pudo actualizar el menú.' }),
+    successNotif: () => ({
+      title: 'Menú Actualizado',
+      message: 'El menú fue actualizado correctamente.',
+    }),
+    errorNotif: () => ({
+      title: 'Error al Actualizar Menú',
+      message: 'No se pudo actualizar el menú.',
+    }),
   });
 };
 
@@ -178,8 +218,15 @@ export const useRemoveMenu = (systemSuiteId: string, moduleId: string) => {
   return useNotifiedMutation({
     mutationFn: (menuId: string) => systemSuiteService.removeMenu(systemSuiteId, moduleId, menuId),
     invalidateKeys: [['system-suites', systemSuiteId], ['system-suites']],
-    successNotif: () => ({ title: 'Menú Eliminado', message: 'El menú fue eliminado.', type: 'warning' as const }),
-    errorNotif: () => ({ title: 'Error al Eliminar Menú', message: 'No se pudo eliminar el menú.' }),
+    successNotif: () => ({
+      title: 'Menú Eliminado',
+      message: 'El menú fue eliminado.',
+      type: 'warning' as const,
+    }),
+    errorNotif: () => ({
+      title: 'Error al Eliminar Menú',
+      message: 'No se pudo eliminar el menú.',
+    }),
   });
 };
 
@@ -187,61 +234,143 @@ export const useRemoveMenu = (systemSuiteId: string, moduleId: string) => {
 
 export const useAddSubMenu = (systemSuiteId: string, moduleId: string, menuId: string) => {
   return useNotifiedMutation({
-    mutationFn: (payload: { code: string; label: string; description?: string; sortOrder: number }) =>
-      systemSuiteService.addSubMenu(systemSuiteId, moduleId, menuId, payload),
+    mutationFn: (payload: {
+      code: string;
+      label: string;
+      description?: string;
+      sortOrder: number;
+    }) => systemSuiteService.addSubMenu(systemSuiteId, moduleId, menuId, payload),
     invalidateKeys: [['system-suites', systemSuiteId], ['system-suites']],
-    successNotif: () => ({ title: 'Submenú Registrado', message: 'El submenú fue agregado correctamente.' }),
-    errorNotif: () => ({ title: 'Error al Registrar Submenú', message: 'No se pudo agregar el submenú.' }),
+    successNotif: () => ({
+      title: 'Submenú Registrado',
+      message: 'El submenú fue agregado correctamente.',
+    }),
+    errorNotif: () => ({
+      title: 'Error al Registrar Submenú',
+      message: 'No se pudo agregar el submenú.',
+    }),
   });
 };
 
-export const useUpdateSubMenu = (systemSuiteId: string, moduleId: string, menuId: string, subMenuId: string) => {
+export const useUpdateSubMenu = (
+  systemSuiteId: string,
+  moduleId: string,
+  menuId: string,
+  subMenuId: string
+) => {
   return useNotifiedMutation({
     mutationFn: (payload: { label: string; description?: string; sortOrder: number }) =>
       systemSuiteService.updateSubMenu(systemSuiteId, moduleId, menuId, subMenuId, payload),
     invalidateKeys: [['system-suites', systemSuiteId], ['system-suites']],
-    successNotif: () => ({ title: 'Submenú Actualizado', message: 'El submenú fue actualizado correctamente.' }),
-    errorNotif: () => ({ title: 'Error al Actualizar Submenú', message: 'No se pudo actualizar el submenú.' }),
+    successNotif: () => ({
+      title: 'Submenú Actualizado',
+      message: 'El submenú fue actualizado correctamente.',
+    }),
+    errorNotif: () => ({
+      title: 'Error al Actualizar Submenú',
+      message: 'No se pudo actualizar el submenú.',
+    }),
   });
 };
 
 export const useRemoveSubMenu = (systemSuiteId: string, moduleId: string, menuId: string) => {
   return useNotifiedMutation({
-    mutationFn: (subMenuId: string) => systemSuiteService.removeSubMenu(systemSuiteId, moduleId, menuId, subMenuId),
+    mutationFn: (subMenuId: string) =>
+      systemSuiteService.removeSubMenu(systemSuiteId, moduleId, menuId, subMenuId),
     invalidateKeys: [['system-suites', systemSuiteId], ['system-suites']],
-    successNotif: () => ({ title: 'Submenú Eliminado', message: 'El submenú fue eliminado.', type: 'warning' as const }),
-    errorNotif: () => ({ title: 'Error al Eliminar Submenú', message: 'No se pudo eliminar el submenú.' }),
+    successNotif: () => ({
+      title: 'Submenú Eliminado',
+      message: 'El submenú fue eliminado.',
+      type: 'warning' as const,
+    }),
+    errorNotif: () => ({
+      title: 'Error al Eliminar Submenú',
+      message: 'No se pudo eliminar el submenú.',
+    }),
   });
 };
 
 // ─── Option Mutations ─────────────────────────────────────────────────────────
 
-export const useAddOption = (systemSuiteId: string, moduleId: string, menuId: string, subMenuId: string) => {
+export const useAddOption = (
+  systemSuiteId: string,
+  moduleId: string,
+  menuId: string,
+  subMenuId: string
+) => {
   return useNotifiedMutation({
-    mutationFn: (payload: { code: string; label: string; description?: string; actionCode: string; sortOrder: number }) =>
-      systemSuiteService.addOption(systemSuiteId, moduleId, menuId, subMenuId, payload),
+    mutationFn: (payload: {
+      code: string;
+      label: string;
+      description?: string;
+      actionCode: string;
+      sortOrder: number;
+    }) => systemSuiteService.addOption(systemSuiteId, moduleId, menuId, subMenuId, payload),
     invalidateKeys: [['system-suites', systemSuiteId], ['system-suites']],
-    successNotif: () => ({ title: 'Opción Registrada', message: 'La opción fue agregada correctamente.' }),
-    errorNotif: () => ({ title: 'Error al Registrar Opción', message: 'No se pudo agregar la opción.' }),
+    successNotif: () => ({
+      title: 'Opción Registrada',
+      message: 'La opción fue agregada correctamente.',
+    }),
+    errorNotif: () => ({
+      title: 'Error al Registrar Opción',
+      message: 'No se pudo agregar la opción.',
+    }),
   });
 };
 
-export const useUpdateOption = (systemSuiteId: string, moduleId: string, menuId: string, subMenuId: string, optionId: string) => {
+export const useUpdateOption = (
+  systemSuiteId: string,
+  moduleId: string,
+  menuId: string,
+  subMenuId: string,
+  optionId: string
+) => {
   return useNotifiedMutation({
-    mutationFn: (payload: { label: string; description?: string; actionCode: string; sortOrder: number }) =>
-      systemSuiteService.updateOption(systemSuiteId, moduleId, menuId, subMenuId, optionId, payload),
+    mutationFn: (payload: {
+      label: string;
+      description?: string;
+      actionCode: string;
+      sortOrder: number;
+    }) =>
+      systemSuiteService.updateOption(
+        systemSuiteId,
+        moduleId,
+        menuId,
+        subMenuId,
+        optionId,
+        payload
+      ),
     invalidateKeys: [['system-suites', systemSuiteId], ['system-suites']],
-    successNotif: () => ({ title: 'Opción Actualizada', message: 'La opción fue actualizada correctamente.' }),
-    errorNotif: () => ({ title: 'Error al Actualizar Opción', message: 'No se pudo actualizar la opción.' }),
+    successNotif: () => ({
+      title: 'Opción Actualizada',
+      message: 'La opción fue actualizada correctamente.',
+    }),
+    errorNotif: () => ({
+      title: 'Error al Actualizar Opción',
+      message: 'No se pudo actualizar la opción.',
+    }),
   });
 };
 
-export const useRemoveOption = (systemSuiteId: string, moduleId: string, menuId: string, subMenuId: string) => {
+export const useRemoveOption = (
+  systemSuiteId: string,
+  moduleId: string,
+  menuId: string,
+  subMenuId: string
+) => {
   return useNotifiedMutation({
-    mutationFn: (optionId: string) => systemSuiteService.removeOption(systemSuiteId, moduleId, menuId, subMenuId, optionId),
+    mutationFn: (optionId: string) =>
+      systemSuiteService.removeOption(systemSuiteId, moduleId, menuId, subMenuId, optionId),
     invalidateKeys: [['system-suites', systemSuiteId], ['system-suites']],
-    successNotif: () => ({ title: 'Opción Eliminada', message: 'La opción fue eliminada.', type: 'warning' as const }),
-    errorNotif: () => ({ title: 'Error al Eliminar Opción', message: 'No se pudo eliminar la opción.' }),
+    successNotif: () => ({
+      title: 'Opción Eliminada',
+      message: 'La opción fue eliminada.',
+      type: 'warning' as const,
+    }),
+    errorNotif: () => ({
+      title: 'Error al Eliminar Opción',
+      message: 'No se pudo eliminar la opción.',
+    }),
   });
 };
 
@@ -302,8 +431,13 @@ export const useRemoveAction = (systemSuiteId: string) => {
 
 export const useAddDomainResource = (systemSuiteId: string) => {
   return useNotifiedMutation({
-    mutationFn: (payload: { moduleId?: string | null; type: 'Aggregate' | 'Entity'; code: string; name: string; description: string; }) =>
-      systemSuiteService.addDomainResource(systemSuiteId, payload),
+    mutationFn: (payload: {
+      moduleId?: string | null;
+      type: 'Aggregate' | 'Entity';
+      code: string;
+      name: string;
+      description: string;
+    }) => systemSuiteService.addDomainResource(systemSuiteId, payload),
     invalidateKeys: [['system-suites', systemSuiteId], ['system-suites']],
     successNotif: () => ({
       title: 'Recurso de Dominio Registrado',
@@ -318,7 +452,7 @@ export const useAddDomainResource = (systemSuiteId: string) => {
 
 export const useUpdateDomainResource = (systemSuiteId: string) => {
   return useNotifiedMutation({
-    mutationFn: (payload: { domainResourceId: string; name: string; description: string; }) =>
+    mutationFn: (payload: { domainResourceId: string; name: string; description: string }) =>
       systemSuiteService.updateDomainResource(systemSuiteId, payload.domainResourceId, payload),
     invalidateKeys: [['system-suites', systemSuiteId], ['system-suites']],
     successNotif: () => ({
@@ -334,7 +468,8 @@ export const useUpdateDomainResource = (systemSuiteId: string) => {
 
 export const useRemoveDomainResource = (systemSuiteId: string) => {
   return useNotifiedMutation({
-    mutationFn: (domainResourceId: string) => systemSuiteService.removeDomainResource(systemSuiteId, domainResourceId),
+    mutationFn: (domainResourceId: string) =>
+      systemSuiteService.removeDomainResource(systemSuiteId, domainResourceId),
     invalidateKeys: [['system-suites', systemSuiteId], ['system-suites']],
     successNotif: () => ({
       title: 'Recurso de Dominio Removido',

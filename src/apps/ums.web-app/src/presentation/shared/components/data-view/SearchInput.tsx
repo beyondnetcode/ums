@@ -20,7 +20,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
       <input
         type="text"
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         className="w-full h-10 pl-10 pr-4 rounded-lg border border-m3-outline-variant bg-m3-surface text-m3-on-surface text-sm placeholder:text-m3-on-surface-variant focus:outline-none focus:border-m3-primary transition-colors"
       />

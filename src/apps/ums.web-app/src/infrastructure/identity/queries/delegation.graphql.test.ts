@@ -7,7 +7,10 @@ vi.mock('@infra/http/graphqlClient', () => ({
     request: vi.fn(),
   },
   GraphQlValidationError: class GraphQlValidationError extends Error {
-    constructor(message: string, public errors: string[]) {
+    constructor(
+      message: string,
+      public errors: string[]
+    ) {
       super(message);
       this.name = 'GraphQlValidationError';
     }
@@ -43,39 +46,65 @@ describe('graphqlDelegationQueries', () => {
 
     vi.mocked(graphqlClientModule.graphqlClient.request).mockResolvedValue(mockResponse);
 
-    const result = await graphqlDelegationQueries.getDelegationById('3fa85f64-5717-4562-b3fc-2c963f66afa6');
+    const result = await graphqlDelegationQueries.getDelegationById(
+      '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+    );
 
     expect(result.getDelegationById?.delegationId).toBe('3fa85f64-5717-4562-b3fc-2c963f66afa6');
-    expect(graphqlClientModule.graphqlClient.request).toHaveBeenCalledWith(expect.any(String), { delegationId: '3fa85f64-5717-4562-b3fc-2c963f66afa6' });
+    expect(graphqlClientModule.graphqlClient.request).toHaveBeenCalledWith(expect.any(String), {
+      delegationId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+    });
   });
 
   it('getDelegationById throws on empty delegationId', async () => {
-    await expect(graphqlDelegationQueries.getDelegationById('')).rejects.toThrow('Invalid delegationId parameter');
+    await expect(graphqlDelegationQueries.getDelegationById('')).rejects.toThrow(
+      'Invalid delegationId parameter'
+    );
   });
 
   it('getDelegationsByDelegatedAdmin calls graphqlClient.request', async () => {
-    vi.mocked(graphqlClientModule.graphqlClient.request).mockResolvedValue({ getDelegationsByDelegatedAdmin: [] });
+    vi.mocked(graphqlClientModule.graphqlClient.request).mockResolvedValue({
+      getDelegationsByDelegatedAdmin: [],
+    });
 
-    const result = await graphqlDelegationQueries.getDelegationsByDelegatedAdmin('admin1', 'tenant1');
+    const result = await graphqlDelegationQueries.getDelegationsByDelegatedAdmin(
+      'admin1',
+      'tenant1'
+    );
 
     expect(result.getDelegationsByDelegatedAdmin).toEqual([]);
-    expect(graphqlClientModule.graphqlClient.request).toHaveBeenCalledWith(expect.any(String), { delegatedAdminId: 'admin1', tenantId: 'tenant1' });
+    expect(graphqlClientModule.graphqlClient.request).toHaveBeenCalledWith(expect.any(String), {
+      delegatedAdminId: 'admin1',
+      tenantId: 'tenant1',
+    });
   });
 
   it('getDelegationsByDelegatedAdmin throws on missing params', async () => {
-    await expect(graphqlDelegationQueries.getDelegationsByDelegatedAdmin('', 'tenant1')).rejects.toThrow('Invalid parameters');
+    await expect(
+      graphqlDelegationQueries.getDelegationsByDelegatedAdmin('', 'tenant1')
+    ).rejects.toThrow('Invalid parameters');
   });
 
   it('getDelegationsByDelegatingAdmin calls graphqlClient.request', async () => {
-    vi.mocked(graphqlClientModule.graphqlClient.request).mockResolvedValue({ getDelegationsByDelegatingAdmin: [] });
+    vi.mocked(graphqlClientModule.graphqlClient.request).mockResolvedValue({
+      getDelegationsByDelegatingAdmin: [],
+    });
 
-    const result = await graphqlDelegationQueries.getDelegationsByDelegatingAdmin('admin1', 'tenant1');
+    const result = await graphqlDelegationQueries.getDelegationsByDelegatingAdmin(
+      'admin1',
+      'tenant1'
+    );
 
     expect(result.getDelegationsByDelegatingAdmin).toEqual([]);
-    expect(graphqlClientModule.graphqlClient.request).toHaveBeenCalledWith(expect.any(String), { delegatingAdminId: 'admin1', tenantId: 'tenant1' });
+    expect(graphqlClientModule.graphqlClient.request).toHaveBeenCalledWith(expect.any(String), {
+      delegatingAdminId: 'admin1',
+      tenantId: 'tenant1',
+    });
   });
 
   it('getDelegationsByDelegatingAdmin throws on missing params', async () => {
-    await expect(graphqlDelegationQueries.getDelegationsByDelegatingAdmin('', 'tenant1')).rejects.toThrow('Invalid parameters');
+    await expect(
+      graphqlDelegationQueries.getDelegationsByDelegatingAdmin('', 'tenant1')
+    ).rejects.toThrow('Invalid parameters');
   });
 });

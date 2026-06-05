@@ -31,11 +31,16 @@ describe('usePermissionTemplateDashboard', () => {
     } as any);
 
     vi.mocked(useQueryStateModule.useQueryState).mockReturnValue({
-      searchCriteria: 'version', setSearchCriteria: vi.fn(),
-      searchValue: '', setSearchValue: vi.fn(),
-      activeFilter: 'all', setActiveFilter: vi.fn(),
-      sortBy: 'version', setSortBy: vi.fn(),
-      sortOrder: 'asc', setSortOrder: vi.fn(),
+      searchCriteria: 'version',
+      setSearchCriteria: vi.fn(),
+      searchValue: '',
+      setSearchValue: vi.fn(),
+      activeFilter: 'all',
+      setActiveFilter: vi.fn(),
+      sortBy: 'version',
+      setSortBy: vi.fn(),
+      sortOrder: 'asc',
+      setSortOrder: vi.fn(),
       toggleSortOrder: vi.fn(),
       appliedQuery: { criteria: 'version', term: '' },
       handleQuerySubmit: vi.fn(),
@@ -43,8 +48,13 @@ describe('usePermissionTemplateDashboard', () => {
     } as any);
 
     vi.mocked(usePaginationStateModule.usePaginationState).mockReturnValue({
-      page: 1, setPage: vi.fn(), pageSize: 20, setPageSize: vi.fn(),
-      startIndex: 0, handlePageChange: vi.fn(), handlePageSizeChange: vi.fn(),
+      page: 1,
+      setPage: vi.fn(),
+      pageSize: 20,
+      setPageSize: vi.fn(),
+      startIndex: 0,
+      handlePageChange: vi.fn(),
+      handlePageSizeChange: vi.fn(),
     } as any);
   });
 

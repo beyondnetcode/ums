@@ -64,7 +64,9 @@ describe('EntityCardGeneric', () => {
   const mockItem = { id: '1', name: 'Test Item', code: 'T001', status: 'Active' };
 
   it('renders title from function', () => {
-    render(<EntityCardGeneric item={mockItem} idKey="id" icon="I" title={(item) => item.name as string} />);
+    render(
+      <EntityCardGeneric item={mockItem} idKey="id" icon="I" title={item => item.name as string} />
+    );
     expect(screen.getByText('Test Item')).toBeInTheDocument();
   });
 
@@ -74,9 +76,9 @@ describe('EntityCardGeneric', () => {
         item={mockItem}
         idKey="id"
         icon="I"
-        title={(item) => item.name as string}
-        subtitle={(item) => item.code as string}
-      />,
+        title={item => item.name as string}
+        subtitle={item => item.code as string}
+      />
     );
     expect(screen.getByText('T001')).toBeInTheDocument();
   });
@@ -87,12 +89,12 @@ describe('EntityCardGeneric', () => {
         item={mockItem}
         idKey="id"
         icon="I"
-        title={(item) => item.name as string}
+        title={item => item.name as string}
         fields={[
           { label: 'Status', accessor: 'status' },
           { label: 'Code', accessor: 'code' },
         ]}
-      />,
+      />
     );
     expect(screen.getByText('Status')).toBeInTheDocument();
     expect(screen.getByText('Active')).toBeInTheDocument();
@@ -104,9 +106,9 @@ describe('EntityCardGeneric', () => {
         item={mockItem}
         idKey="id"
         icon="I"
-        title={(item) => item.name as string}
+        title={item => item.name as string}
         badge={<span data-testid="badge">Badge</span>}
-      />,
+      />
     );
     expect(screen.getByTestId('badge')).toBeInTheDocument();
   });
@@ -117,9 +119,9 @@ describe('EntityCardGeneric', () => {
         item={mockItem}
         idKey="id"
         icon="I"
-        title={(item) => item.name as string}
+        title={item => item.name as string}
         footer={<span data-testid="footer">Footer</span>}
-      />,
+      />
     );
     expect(screen.getByTestId('footer')).toBeInTheDocument();
   });
@@ -131,9 +133,9 @@ describe('EntityCardGeneric', () => {
         item={mockItem}
         idKey="id"
         icon="I"
-        title={(item) => item.name as string}
+        title={item => item.name as string}
         onClick={onClick}
-      />,
+      />
     );
     fireEvent.click(screen.getByTestId('m3-card'));
     expect(onClick).toHaveBeenCalled();
@@ -145,9 +147,9 @@ describe('EntityCardGeneric', () => {
         item={mockItem}
         idKey="id"
         icon="I"
-        title={(item) => item.name as string}
+        title={item => item.name as string}
         isSelected={true}
-      />,
+      />
     );
     expect(screen.getByTestId('m3-card')).toHaveAttribute('data-variant', 'elevated');
   });
@@ -158,9 +160,9 @@ describe('EntityCardGeneric', () => {
         item={mockItem}
         idKey="id"
         icon="I"
-        title={(item) => item.name as string}
-        fields={[{ label: 'Status', accessor: 'status', formatter: (v) => `Status: ${v}` }]}
-      />,
+        title={item => item.name as string}
+        fields={[{ label: 'Status', accessor: 'status', formatter: v => `Status: ${v}` }]}
+      />
     );
     expect(screen.getByText('Status: Active')).toBeInTheDocument();
   });
@@ -172,9 +174,9 @@ describe('EntityCardGeneric', () => {
         item={itemWithNull}
         idKey="id"
         icon="I"
-        title={(item) => item.name as string}
+        title={item => item.name as string}
         fields={[{ label: 'Value', accessor: 'value' }]}
-      />,
+      />
     );
     expect(screen.getByText('-')).toBeInTheDocument();
   });

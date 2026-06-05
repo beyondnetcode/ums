@@ -1,5 +1,15 @@
 import React, { useState, useMemo } from 'react';
-import { Shield, Menu, List, Key, ChevronRight, ChevronDown, CheckCircle2, XCircle, MinusCircle } from 'lucide-react';
+import {
+  Shield,
+  Menu,
+  List,
+  Key,
+  ChevronRight,
+  ChevronDown,
+  CheckCircle2,
+  XCircle,
+  MinusCircle,
+} from 'lucide-react';
 import type { SystemSuite } from '@domain/authorization/models/system-suite.model';
 import { PermissionSectionToolbar } from '@shared/components/PermissionSectionToolbar';
 import { CodeBadge } from '@shared/components/CodeBadge';
@@ -36,7 +46,9 @@ interface ProfileModulePermissionsPanelProps {
   renderActions?: (node: ModulePermNode) => React.ReactNode;
 }
 
-function itemEffect(item: Pick<ProfilePermItem, 'isAllowed' | 'isDenied'>): 'Allow' | 'Deny' | 'Neutral' {
+function itemEffect(
+  item: Pick<ProfilePermItem, 'isAllowed' | 'isDenied'>
+): 'Allow' | 'Deny' | 'Neutral' {
   if (item.isAllowed) return 'Allow';
   if (item.isDenied) return 'Deny';
   return 'Neutral';
@@ -44,14 +56,17 @@ function itemEffect(item: Pick<ProfilePermItem, 'isAllowed' | 'isDenied'>): 'All
 
 function buildModuleTree(
   suite: SystemSuite | undefined | null,
-  items: ProfilePermItem[],
+  items: ProfilePermItem[]
 ): ModulePermNode[] {
   if (!suite) return [];
-  const itemsByTargetId = items.reduce((acc, item) => {
-    if (!acc[item.targetId]) acc[item.targetId] = [];
-    acc[item.targetId].push(item);
-    return acc;
-  }, {} as Record<string, ProfilePermItem[]>);
+  const itemsByTargetId = items.reduce(
+    (acc, item) => {
+      if (!acc[item.targetId]) acc[item.targetId] = [];
+      acc[item.targetId].push(item);
+      return acc;
+    },
+    {} as Record<string, ProfilePermItem[]>
+  );
 
   return suite.modules.map(mod => {
     const buildMenuTree = (menus: typeof mod.menus, level: number): ModulePermNode[] =>
@@ -170,81 +185,87 @@ const ModuleRow: React.FC<{
 
   const hasDirectPermission = node.items.length > 0;
   const isInherited = !hasDirectPermission && state !== 'Neutral';
-  
+
   const hasOverride = node.items.some(i => i.isOverride);
   const hasInactive = node.items.some(i => !i.isActive);
 
   return (
     <div className="flex flex-col">
-    <div
-      className="flex items-center justify-between gap-3 py-1.5 px-2 rounded-md transition-colors hover:bg-m3-surface-container/50 border-b border-m3-outline/5"
-      style={{ paddingLeft: `${node.level * 16 + 4}px` }}
-    >
-      <div className="flex items-center gap-2 flex-1 min-w-0">
-        <div
-          className="w-5 h-5 flex items-center justify-center shrink-0 cursor-pointer text-m3-secondary/50 hover:text-m3-on-surface"
-          onClick={(e) => { e.stopPropagation(); hasChildren && onToggle(); }}
-        >
-          {hasChildren && (isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />)}
-        </div>
-
-        {node.level > 0 && (
-          <div className="w-3 h-3 flex items-center justify-center shrink-0">
-            <div className="w-px h-3 bg-m3-outline/30" />
+      <div
+        className="flex items-center justify-between gap-3 py-1.5 px-2 rounded-md transition-colors hover:bg-m3-surface-container/50 border-b border-m3-outline/5"
+        style={{ paddingLeft: `${node.level * 16 + 4}px` }}
+      >
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          <div
+            className="w-5 h-5 flex items-center justify-center shrink-0 cursor-pointer text-m3-secondary/50 hover:text-m3-on-surface"
+            onClick={e => {
+              e.stopPropagation();
+              hasChildren && onToggle();
+            }}
+          >
+            {hasChildren &&
+              (isExpanded ? (
+                <ChevronDown className="w-3.5 h-3.5" />
+              ) : (
+                <ChevronRight className="w-3.5 h-3.5" />
+              ))}
           </div>
-        )}
 
-        <div className={`p-1 rounded shrink-0 ${TYPE_COLOR[node.type]}`}>
-          {TYPE_ICON[node.type]}
-        </div>
+          {node.level > 0 && (
+            <div className="w-3 h-3 flex items-center justify-center shrink-0">
+              <div className="w-px h-3 bg-m3-outline/30" />
+            </div>
+          )}
 
-        <div className="flex flex-col min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="text-xs truncate font-medium text-m3-on-surface/90">
-              {node.label}
-            </span>
-            {hasOverride && (
-              <span className="text-[8px] font-bold uppercase px-1 py-0.5 rounded bg-amber-500/10 text-amber-500 border border-amber-500/20 shrink-0">
-                Override
+          <div className={`p-1 rounded shrink-0 ${TYPE_COLOR[node.type]}`}>
+            {TYPE_ICON[node.type]}
+          </div>
+
+          <div className="flex flex-col min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="text-xs truncate font-medium text-m3-on-surface/90">
+                {node.label}
               </span>
-            )}
-            {hasInactive && (
-              <span className="text-[8px] font-bold uppercase px-1 py-0.5 rounded bg-rose-500/10 text-rose-500 border border-rose-500/20 shrink-0">
-                Inactivo
-              </span>
-            )}
-            <div className="flex items-center gap-1 shrink-0">
-              {isInherited && (
-                <span className="text-[8px] text-m3-secondary/60 italic" title="Heredado">
-                  (H)
+              {hasOverride && (
+                <span className="text-[8px] font-bold uppercase px-1 py-0.5 rounded bg-amber-500/10 text-amber-500 border border-amber-500/20 shrink-0">
+                  Override
                 </span>
               )}
-              <div className={stateInfo.color}>
-                {stateInfo.icon}
+              {hasInactive && (
+                <span className="text-[8px] font-bold uppercase px-1 py-0.5 rounded bg-rose-500/10 text-rose-500 border border-rose-500/20 shrink-0">
+                  Inactivo
+                </span>
+              )}
+              <div className="flex items-center gap-1 shrink-0">
+                {isInherited && (
+                  <span className="text-[8px] text-m3-secondary/60 italic" title="Heredado">
+                    (H)
+                  </span>
+                )}
+                <div className={stateInfo.color}>{stateInfo.icon}</div>
               </div>
             </div>
-          </div>
-          <div className="flex items-center gap-2 mt-0.5">
-            <CodeBadge code={node.code} size="xs" />
-            <span className="text-[10px] text-m3-secondary/60 truncate">{node.description}</span>
+            <div className="flex items-center gap-2 mt-0.5">
+              <CodeBadge code={node.code} size="xs" />
+              <span className="text-[10px] text-m3-secondary/60 truncate">{node.description}</span>
+            </div>
           </div>
         </div>
-      </div>
 
-      {renderActions && (
-        <div className="shrink-0 flex items-center gap-2 ml-4">
-          {renderActions(node)}
-        </div>
-      )}
-    </div>
-    {renderExpandedContent && renderExpandedContent(node)}
+        {renderActions && (
+          <div className="shrink-0 flex items-center gap-2 ml-4">{renderActions(node)}</div>
+        )}
+      </div>
+      {renderExpandedContent && renderExpandedContent(node)}
     </div>
   );
 };
 
-export const ProfileModulePermissionsPanel: React.FC<ProfileModulePermissionsPanelProps & { renderExpandedContent?: (node: ModulePermNode) => React.ReactNode }> = ({
-  suite, items, renderActions, renderExpandedContent,
-}) => {
+export const ProfileModulePermissionsPanel: React.FC<
+  ProfileModulePermissionsPanelProps & {
+    renderExpandedContent?: (node: ModulePermNode) => React.ReactNode;
+  }
+> = ({ suite, items, renderActions, renderExpandedContent }) => {
   const [viewMode, setViewMode] = useState<'list' | 'tree'>('tree');
   const [activeFilter, setActiveFilter] = useState('all');
   const [sortBy, setSortBy] = useState('order');
@@ -311,7 +332,7 @@ export const ProfileModulePermissionsPanel: React.FC<ProfileModulePermissionsPan
     <div className="flex flex-col h-full w-full">
       <PermissionSectionToolbar
         viewMode={viewMode}
-        onViewModeChange={(m) => setViewMode(m as any)}
+        onViewModeChange={m => setViewMode(m as any)}
         filterOptions={[
           { label: 'Todos', value: 'all' },
           { label: 'Módulos', value: 'Module' },
@@ -329,7 +350,7 @@ export const ProfileModulePermissionsPanel: React.FC<ProfileModulePermissionsPan
         sortBy={sortBy}
         onSortByChange={setSortBy}
         sortOrder={sortOrder}
-        onSortOrderToggle={() => setSortOrder(o => o === 'asc' ? 'desc' : 'asc')}
+        onSortOrderToggle={() => setSortOrder(o => (o === 'asc' ? 'desc' : 'asc'))}
         itemCount={flatList.length}
         itemLabel="elemento"
         showExpandCollapse
@@ -339,10 +360,27 @@ export const ProfileModulePermissionsPanel: React.FC<ProfileModulePermissionsPan
 
       <div className="flex items-center justify-between px-2 py-1.5 bg-m3-surface-container/20 border-b border-m3-outline/10">
         <div className="flex items-center gap-3 text-[10px] text-m3-secondary">
-          <span className="font-semibold uppercase tracking-wider text-m3-on-surface/80">Leyenda:</span>
-          <span className="flex items-center gap-1"><span className="text-emerald-500"><CheckCircle2 className="w-3.5 h-3.5 inline" /></span> Permitido</span>
-          <span className="flex items-center gap-1"><span className="text-rose-500"><XCircle className="w-3.5 h-3.5 inline" /></span> Denegado</span>
-          <span className="flex items-center gap-1"><span className="text-m3-secondary/40"><MinusCircle className="w-3.5 h-3.5 inline" /></span> Neutro/Heredado</span>
+          <span className="font-semibold uppercase tracking-wider text-m3-on-surface/80">
+            Leyenda:
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="text-emerald-500">
+              <CheckCircle2 className="w-3.5 h-3.5 inline" />
+            </span>{' '}
+            Permitido
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="text-rose-500">
+              <XCircle className="w-3.5 h-3.5 inline" />
+            </span>{' '}
+            Denegado
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="text-m3-secondary/40">
+              <MinusCircle className="w-3.5 h-3.5 inline" />
+            </span>{' '}
+            Neutro/Heredado
+          </span>
           <span className="text-m3-secondary/50 italic">(H) = Heredado</span>
         </div>
       </div>
@@ -351,7 +389,9 @@ export const ProfileModulePermissionsPanel: React.FC<ProfileModulePermissionsPan
         {flatList.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <Shield className="w-10 h-10 text-m3-secondary/20 mb-3" />
-            <p className="text-xs text-m3-secondary font-medium">No hay estructura configurada en esta suite.</p>
+            <p className="text-xs text-m3-secondary font-medium">
+              No hay estructura configurada en esta suite.
+            </p>
           </div>
         ) : viewMode === 'tree' ? (
           <div className="space-y-0.5 pb-4">{renderTree(tree)}</div>

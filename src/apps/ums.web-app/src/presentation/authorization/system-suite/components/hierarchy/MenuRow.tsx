@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronRight, Folder, FolderOpen, Pencil, Trash2 } from 'lucide-react';
 import { useInlineEdit } from '@app/hooks/use-inline-edit';
-import { useAddSubMenu, useRemoveSubMenu, useUpdateMenu } from '@app/authorization/hooks/use-system-suite';
+import {
+  useAddSubMenu,
+  useRemoveSubMenu,
+  useUpdateMenu,
+} from '@app/authorization/hooks/use-system-suite';
 import { M3TextField } from '@shared/components/M3TextField';
 import { InlineAddForm } from '@shared/components/InlineAddForm';
 import { IconButton } from '@shared/components/Tooltip';
@@ -53,8 +57,15 @@ interface MenuDraft {
 }
 
 export const MenuRow: React.FC<MenuRowProps> = ({
-  suiteId, moduleId, menu, isExpanded, isSubExpanded,
-  onToggle, onToggleSub, onRemoveMenu, isRemovingMenu,
+  suiteId,
+  moduleId,
+  menu,
+  isExpanded,
+  isSubExpanded,
+  onToggle,
+  onToggleSub,
+  onRemoveMenu,
+  isRemovingMenu,
 }) => {
   const [isAddingSub, setIsAddingSub] = useState(false);
   const [sub, setSub] = useState<AddSubState>(emptySub());
@@ -68,8 +79,14 @@ export const MenuRow: React.FC<MenuRowProps> = ({
 
   const handleAddSubMenu = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!sub.code.trim()) { setSub(s => ({ ...s, error: 'Código requerido' })); return; }
-    if (!sub.label.trim()) { setSub(s => ({ ...s, error: 'Etiqueta requerida' })); return; }
+    if (!sub.code.trim()) {
+      setSub(s => ({ ...s, error: 'Código requerido' }));
+      return;
+    }
+    if (!sub.label.trim()) {
+      setSub(s => ({ ...s, error: 'Etiqueta requerida' }));
+      return;
+    }
     try {
       await addSubMenuMutation.mutateAsync({
         code: formatSystemCode(sub.code),
@@ -79,7 +96,9 @@ export const MenuRow: React.FC<MenuRowProps> = ({
       });
       setSub(emptySub());
       setIsAddingSub(false);
-    } catch { /* handled by hook */ }
+    } catch {
+      /* handled by hook */
+    }
   };
 
   const handleStartEditMenu = () => {
@@ -94,7 +113,10 @@ export const MenuRow: React.FC<MenuRowProps> = ({
   const handleUpdateMenu = async (e: React.FormEvent) => {
     e.preventDefault();
     const label = edit.draft.label?.trim() ?? '';
-    if (!label) { setEditError('Etiqueta requerida'); return; }
+    if (!label) {
+      setEditError('Etiqueta requerida');
+      return;
+    }
     try {
       await updateMenuMutation.mutateAsync({
         label,
@@ -103,7 +125,9 @@ export const MenuRow: React.FC<MenuRowProps> = ({
       });
       edit.cancelEdit();
       setEditError('');
-    } catch { /* handled by hook */ }
+    } catch {
+      /* handled by hook */
+    }
   };
 
   const handleCancelEditMenu = () => {
@@ -114,16 +138,43 @@ export const MenuRow: React.FC<MenuRowProps> = ({
   return (
     <div className="space-y-1.5 animate-fadeIn">
       {edit.isEditing(menu.id) ? (
-        <form onSubmit={handleUpdateMenu} className="p-2.5 rounded-lg border border-m3-primary/30 bg-m3-surface-container/20 space-y-2 animate-fadeIn">
+        <form
+          onSubmit={handleUpdateMenu}
+          className="p-2.5 rounded-lg border border-m3-primary/30 bg-m3-surface-container/20 space-y-2 animate-fadeIn"
+        >
           <div className="grid grid-cols-2 gap-1.5">
-            <M3TextField label="Etiqueta" required value={edit.draft.label ?? ''} onChange={(e) => edit.setField('label', e.target.value)} />
-            <M3TextField label="Orden" type="number" value={String(edit.draft.sortOrder ?? 1)} onChange={(e) => edit.setField('sortOrder', parseInt(e.target.value) || 1)} />
+            <M3TextField
+              label="Etiqueta"
+              required
+              value={edit.draft.label ?? ''}
+              onChange={e => edit.setField('label', e.target.value)}
+            />
+            <M3TextField
+              label="Orden"
+              type="number"
+              value={String(edit.draft.sortOrder ?? 1)}
+              onChange={e => edit.setField('sortOrder', parseInt(e.target.value) || 1)}
+            />
           </div>
-          <M3TextField label="Descripción" value={edit.draft.description ?? ''} onChange={(e) => edit.setField('description', e.target.value)} />
+          <M3TextField
+            label="Descripción"
+            value={edit.draft.description ?? ''}
+            onChange={e => edit.setField('description', e.target.value)}
+          />
           <ErrorDisplay error={editError} variant="text" />
           <div className="flex gap-1.5 justify-end">
-            <button type="button" onClick={handleCancelEditMenu} className="text-[11px] px-2.5 py-1 rounded-md text-m3-secondary hover:bg-m3-surface-variant/20 transition-colors">Cancelar</button>
-            <button type="submit" disabled={updateMenuMutation.isPending} className="text-[11px] px-2.5 py-1 rounded-md bg-m3-primary text-m3-on-primary hover:bg-m3-primary/80 disabled:opacity-50 transition-colors">
+            <button
+              type="button"
+              onClick={handleCancelEditMenu}
+              className="text-[11px] px-2.5 py-1 rounded-md text-m3-secondary hover:bg-m3-surface-variant/20 transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={updateMenuMutation.isPending}
+              className="text-[11px] px-2.5 py-1 rounded-md bg-m3-primary text-m3-on-primary hover:bg-m3-primary/80 disabled:opacity-50 transition-colors"
+            >
               {updateMenuMutation.isPending ? 'Guardando…' : 'Guardar'}
             </button>
           </div>
@@ -134,8 +185,16 @@ export const MenuRow: React.FC<MenuRowProps> = ({
             onClick={onToggle}
             className="flex items-center gap-2 cursor-pointer py-1.5 px-2 rounded hover:bg-m3-surface-variant/20 transition-colors select-none flex-1"
           >
-            {isExpanded ? <ChevronDown className="w-3.5 h-3.5 text-m3-secondary" /> : <ChevronRight className="w-3.5 h-3.5 text-m3-secondary" />}
-            {isExpanded ? <FolderOpen className="w-4 h-4 text-amber-500" /> : <Folder className="w-4 h-4 text-amber-500" />}
+            {isExpanded ? (
+              <ChevronDown className="w-3.5 h-3.5 text-m3-secondary" />
+            ) : (
+              <ChevronRight className="w-3.5 h-3.5 text-m3-secondary" />
+            )}
+            {isExpanded ? (
+              <FolderOpen className="w-4 h-4 text-amber-500" />
+            ) : (
+              <Folder className="w-4 h-4 text-amber-500" />
+            )}
             <div className="flex items-center gap-1.5">
               <span className="text-xs font-semibold text-m3-on-surface">{menu.label}</span>
               <CodeBadge code={menu.code} size="xs" />
@@ -153,7 +212,11 @@ export const MenuRow: React.FC<MenuRowProps> = ({
                 <span className="h-3 w-3">+</span>
               </button>
             )}
-            <IconButton tooltip="Editar Menú" onClick={handleStartEditMenu} className="hover:text-m3-primary hover:bg-m3-primary/10">
+            <IconButton
+              tooltip="Editar Menú"
+              onClick={handleStartEditMenu}
+              className="hover:text-m3-primary hover:bg-m3-primary/10"
+            >
               <Pencil className="w-3 h-3" />
             </IconButton>
             <IconButton
@@ -168,11 +231,16 @@ export const MenuRow: React.FC<MenuRowProps> = ({
         </div>
       )}
 
-      <div className={`pl-5 space-y-3 border-l border-m3-primary/10 ml-3.5 pt-0.5 overflow-x-auto no-scrollbar pb-1 ${isExpanded && !edit.isEditing(menu.id) ? 'block' : 'hidden'}`}>
+      <div
+        className={`pl-5 space-y-3 border-l border-m3-primary/10 ml-3.5 pt-0.5 overflow-x-auto no-scrollbar pb-1 ${isExpanded && !edit.isEditing(menu.id) ? 'block' : 'hidden'}`}
+      >
         {isAddingSub && (
           <InlineAddForm
             isOpen
-            onToggle={(open) => { setIsAddingSub(open); if (!open) setSub(emptySub()); }}
+            onToggle={open => {
+              setIsAddingSub(open);
+              if (!open) setSub(emptySub());
+            }}
             onSubmit={handleAddSubMenu}
             addLabel="Submenú"
             title="Nuevo Submenú"
@@ -181,10 +249,33 @@ export const MenuRow: React.FC<MenuRowProps> = ({
             isLoading={addSubMenuMutation.isPending}
             error={sub.error || undefined}
           >
-            <M3TextField label="Código" required value={sub.code} onChange={(e) => setSub(s => ({ ...s, code: e.target.value }))} placeholder="e.g. USERS" />
-            <M3TextField label="Etiqueta" required value={sub.label} onChange={(e) => setSub(s => ({ ...s, label: e.target.value }))} placeholder="e.g. Gestión de Usuarios" />
-            <M3TextField label="Descripción" value={sub.desc} onChange={(e) => setSub(s => ({ ...s, desc: e.target.value }))} placeholder="Opcional" />
-            <M3TextField label="Orden" type="number" value={sub.sort} onChange={(e) => setSub(s => ({ ...s, sort: e.target.value }))} placeholder="1" />
+            <M3TextField
+              label="Código"
+              required
+              value={sub.code}
+              onChange={e => setSub(s => ({ ...s, code: e.target.value }))}
+              placeholder="e.g. USERS"
+            />
+            <M3TextField
+              label="Etiqueta"
+              required
+              value={sub.label}
+              onChange={e => setSub(s => ({ ...s, label: e.target.value }))}
+              placeholder="e.g. Gestión de Usuarios"
+            />
+            <M3TextField
+              label="Descripción"
+              value={sub.desc}
+              onChange={e => setSub(s => ({ ...s, desc: e.target.value }))}
+              placeholder="Opcional"
+            />
+            <M3TextField
+              label="Orden"
+              type="number"
+              value={sub.sort}
+              onChange={e => setSub(s => ({ ...s, sort: e.target.value }))}
+              placeholder="1"
+            />
           </InlineAddForm>
         )}
 
@@ -192,7 +283,7 @@ export const MenuRow: React.FC<MenuRowProps> = ({
           <p className="text-[9px] text-m3-secondary/40 italic">No hay submenús configurados.</p>
         ) : (
           <div className="space-y-2">
-            {menu.subMenus.map((subMenu) => (
+            {menu.subMenus.map(subMenu => (
               <SubMenuRow
                 key={subMenu.id}
                 suiteId={suiteId}
@@ -201,7 +292,7 @@ export const MenuRow: React.FC<MenuRowProps> = ({
                 subMenu={subMenu}
                 isExpanded={isSubExpanded(subMenu.id)}
                 onToggle={() => onToggleSub(subMenu.id)}
-                onRemoveSubMenu={(id) => removeSubMenuMutation.mutate(id)}
+                onRemoveSubMenu={id => removeSubMenuMutation.mutate(id)}
                 isRemovingSubMenu={removeSubMenuMutation.isPending}
               />
             ))}

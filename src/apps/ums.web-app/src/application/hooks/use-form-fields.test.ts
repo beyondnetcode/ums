@@ -20,9 +20,7 @@ describe('useFormFields', () => {
   });
 
   it('sets a single field value', () => {
-    const { result } = renderHook(() =>
-      useFormFields({ name: 'John', email: 'john@example.com' })
-    );
+    const { result } = renderHook(() => useFormFields({ name: 'John', email: 'john@example.com' }));
 
     act(() => {
       result.current.setField('name', 'Jane');
@@ -47,9 +45,7 @@ describe('useFormFields', () => {
   });
 
   it('resets fields to defaults', () => {
-    const { result } = renderHook(() =>
-      useFormFields({ name: 'John', email: 'john@example.com' })
-    );
+    const { result } = renderHook(() => useFormFields({ name: 'John', email: 'john@example.com' }));
 
     act(() => {
       result.current.setField('name', 'Jane');
@@ -64,9 +60,7 @@ describe('useFormFields', () => {
   });
 
   it('resets fields to custom values', () => {
-    const { result } = renderHook(() =>
-      useFormFields({ name: 'John', email: 'john@example.com' })
-    );
+    const { result } = renderHook(() => useFormFields({ name: 'John', email: 'john@example.com' }));
 
     act(() => {
       result.current.resetFields({ name: 'Custom', email: 'custom@test.com' });
@@ -79,10 +73,9 @@ describe('useFormFields', () => {
   });
 
   it('uses ref to track latest defaults on reset', () => {
-    const { result, rerender } = renderHook(
-      ({ defaults }) => useFormFields(defaults),
-      { initialProps: { defaults: { name: 'Initial' } } }
-    );
+    const { result, rerender } = renderHook(({ defaults }) => useFormFields(defaults), {
+      initialProps: { defaults: { name: 'Initial' } },
+    });
 
     act(() => {
       result.current.setField('name', 'Modified');

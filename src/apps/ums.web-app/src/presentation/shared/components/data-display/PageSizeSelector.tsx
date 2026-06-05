@@ -9,9 +9,11 @@ interface PageSizeSelectorProps {
 export const PageSizeSelector: React.FC<PageSizeSelectorProps> = ({ value, onChange }) => {
   return (
     <div className="flex items-center gap-1.5">
-      <span className="text-[10px] font-medium text-m3-secondary/60 uppercase tracking-wide">Filas</span>
+      <span className="text-[10px] font-medium text-m3-secondary/60 uppercase tracking-wide">
+        Filas
+      </span>
       <div className="flex items-center rounded-lg border border-m3-outline/20 bg-m3-surface-container/20 overflow-hidden">
-        {PAGE_SIZE_OPTIONS.map((size) => (
+        {PAGE_SIZE_OPTIONS.map(size => (
           <button
             key={size}
             type="button"

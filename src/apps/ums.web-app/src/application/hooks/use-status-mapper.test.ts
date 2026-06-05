@@ -12,7 +12,11 @@ describe('useStatusMapper', () => {
     const config = {
       Active: {
         labelKey: 'active',
-        colors: { bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', text: 'text-emerald-700' },
+        colors: {
+          bg: 'bg-emerald-500/10',
+          border: 'border-emerald-500/20',
+          text: 'text-emerald-700',
+        },
       },
     };
 
@@ -28,7 +32,11 @@ describe('useStatusMapper', () => {
     const config = {
       Active: {
         labelKey: 'active',
-        colors: { bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', text: 'text-emerald-700' },
+        colors: {
+          bg: 'bg-emerald-500/10',
+          border: 'border-emerald-500/20',
+          text: 'text-emerald-700',
+        },
       },
     };
 
@@ -60,7 +68,11 @@ describe('useStatusMapper', () => {
     const config = {
       Active: {
         labelKey: 'active',
-        colors: { bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', text: 'text-emerald-700' },
+        colors: {
+          bg: 'bg-emerald-500/10',
+          border: 'border-emerald-500/20',
+          text: 'text-emerald-700',
+        },
       },
     };
 

@@ -21,24 +21,24 @@ import {
 import type { Intl as IntlType } from 'typescript';
 
 export function useDateFormat() {
-  const locale = useI18nStore((s) => s.language);
-  const timezone = useAuthStore((s) => s.user?.sessionParameters?.defaultTimezone);
+  const locale = useI18nStore(s => s.language);
+  const timezone = useAuthStore(s => s.user?.sessionParameters?.defaultTimezone);
 
   const formatDate = useCallback(
     (date: Date | string | null | undefined, options?: Intl.DateTimeFormatOptions) =>
       _formatDate(date, locale, timezone, options),
-    [locale, timezone],
+    [locale, timezone]
   );
 
   const formatDateTime = useCallback(
     (date: Date | string | null | undefined, options?: Intl.DateTimeFormatOptions) =>
       _formatDateTime(date, locale, timezone, options),
-    [locale, timezone],
+    [locale, timezone]
   );
 
   const formatRelativeTime = useCallback(
     (date: Date | string | null | undefined) => _formatRelativeTime(date, locale),
-    [locale],
+    [locale]
   );
 
   return { formatDate, formatDateTime, formatRelativeTime, locale, timezone };

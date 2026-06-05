@@ -30,7 +30,7 @@ const CHAR_MAP: Record<string, string> = {
 };
 
 export function sanitizeInput(input: string): string {
-  return input.replace(DANGEROUS_CHARS, (char) => CHAR_MAP[char] ?? char).trim();
+  return input.replace(DANGEROUS_CHARS, char => CHAR_MAP[char] ?? char).trim();
 }
 
 export function sanitizeCode(input: string): string {
@@ -44,4 +44,3 @@ export function sanitizeCode(input: string): string {
 export function formatSystemCode(input: string): string {
   return input.trim().toUpperCase().replace(/\s+/g, '_');
 }
-

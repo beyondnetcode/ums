@@ -28,12 +28,14 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({
       </div>
       <select
         value={sortBy}
-        onChange={(e) => onSortByChange(e.target.value)}
+        onChange={e => onSortByChange(e.target.value)}
         aria-label="Sort by"
         className="h-8 px-2.5 rounded-lg border border-m3-outline bg-m3-surface text-[12px] font-medium text-m3-secondary focus:outline-none focus:border-m3-primary transition-colors cursor-pointer"
       >
-        {sortOptions.map((s) => (
-          <option key={s.value} value={s.value}>{s.label}</option>
+        {sortOptions.map(s => (
+          <option key={s.value} value={s.value}>
+            {s.label}
+          </option>
         ))}
       </select>
 
@@ -44,7 +46,9 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({
           className="h-8 w-8 flex items-center justify-center rounded-lg border border-m3-outline bg-m3-surface hover:bg-m3-primary/10 hover:border-m3-primary/30 transition-all text-m3-secondary"
           title={sortOrder === 'asc' ? 'Ascending' : 'Descending'}
         >
-          <ArrowUpDown className={`w-3.5 h-3.5 transition-transform duration-200 ${sortOrder === 'desc' ? 'rotate-180 text-m3-primary' : ''}`} />
+          <ArrowUpDown
+            className={`w-3.5 h-3.5 transition-transform duration-200 ${sortOrder === 'desc' ? 'rotate-180 text-m3-primary' : ''}`}
+          />
         </button>
       )}
     </div>

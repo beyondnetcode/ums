@@ -39,7 +39,9 @@ describe('roleService', () => {
           isActive: true,
         },
       ];
-      vi.mocked(graphqlRoleQueriesModule.graphqlRoleQueries.getRolesBySystemSuite).mockResolvedValue({
+      vi.mocked(
+        graphqlRoleQueriesModule.graphqlRoleQueries.getRolesBySystemSuite
+      ).mockResolvedValue({
         rolesBySystemSuite: mockRoles,
       });
 
@@ -69,7 +71,7 @@ describe('roleService', () => {
         expect.objectContaining({
           systemSuiteId: '3fa85f64-5717-4562-b3fc-2c963f66afa8',
           code: 'NEW_ROLE',
-        }),
+        })
       );
     });
 
@@ -94,20 +96,24 @@ describe('roleService', () => {
     it('calls httpClient.put with correct payload', async () => {
       vi.mocked(httpClientModule.httpClient.put).mockResolvedValue({});
 
-      await roleService.update('3fa85f64-5717-4562-b3fc-2c963f66afa8', '3fa85f64-5717-4562-b3fc-2c963f66afa9', {
-        code: 'UPDATED_ROLE',
-        value: 'Updated Role',
-        description: 'Updated description',
-        hierarchyLevel: 0,
-        promotionOrder: 1,
-      });
+      await roleService.update(
+        '3fa85f64-5717-4562-b3fc-2c963f66afa8',
+        '3fa85f64-5717-4562-b3fc-2c963f66afa9',
+        {
+          code: 'UPDATED_ROLE',
+          value: 'Updated Role',
+          description: 'Updated description',
+          hierarchyLevel: 0,
+          promotionOrder: 1,
+        }
+      );
 
       expect(httpClientModule.httpClient.put).toHaveBeenCalledWith(
         '/system-suites/3fa85f64-5717-4562-b3fc-2c963f66afa8/roles/3fa85f64-5717-4562-b3fc-2c963f66afa9',
         expect.objectContaining({
           roleId: '3fa85f64-5717-4562-b3fc-2c963f66afa9',
           code: 'UPDATED_ROLE',
-        }),
+        })
       );
     });
   });
@@ -116,20 +122,28 @@ describe('roleService', () => {
     it('calls activate endpoint when isActive is true', async () => {
       vi.mocked(httpClientModule.httpClient.post).mockResolvedValue({});
 
-      await roleService.setActive('3fa85f64-5717-4562-b3fc-2c963f66afa8', '3fa85f64-5717-4562-b3fc-2c963f66afa9', true);
+      await roleService.setActive(
+        '3fa85f64-5717-4562-b3fc-2c963f66afa8',
+        '3fa85f64-5717-4562-b3fc-2c963f66afa9',
+        true
+      );
 
       expect(httpClientModule.httpClient.post).toHaveBeenCalledWith(
-        '/system-suites/3fa85f64-5717-4562-b3fc-2c963f66afa8/roles/3fa85f64-5717-4562-b3fc-2c963f66afa9/activate',
+        '/system-suites/3fa85f64-5717-4562-b3fc-2c963f66afa8/roles/3fa85f64-5717-4562-b3fc-2c963f66afa9/activate'
       );
     });
 
     it('calls deactivate endpoint when isActive is false', async () => {
       vi.mocked(httpClientModule.httpClient.post).mockResolvedValue({});
 
-      await roleService.setActive('3fa85f64-5717-4562-b3fc-2c963f66afa8', '3fa85f64-5717-4562-b3fc-2c963f66afa9', false);
+      await roleService.setActive(
+        '3fa85f64-5717-4562-b3fc-2c963f66afa8',
+        '3fa85f64-5717-4562-b3fc-2c963f66afa9',
+        false
+      );
 
       expect(httpClientModule.httpClient.post).toHaveBeenCalledWith(
-        '/system-suites/3fa85f64-5717-4562-b3fc-2c963f66afa8/roles/3fa85f64-5717-4562-b3fc-2c963f66afa9/deactivate',
+        '/system-suites/3fa85f64-5717-4562-b3fc-2c963f66afa8/roles/3fa85f64-5717-4562-b3fc-2c963f66afa9/deactivate'
       );
     });
   });

@@ -20,7 +20,7 @@ describe('Permission template enum schemas', () => {
 
   it('accepts valid ExclusiveArcTarget values', () => {
     const targets = ['SystemSuite', 'Module', 'Submodule', 'Option', 'Aggregate', 'Entity'];
-    targets.forEach((target) => {
+    targets.forEach(target => {
       expect(ExclusiveArcTargetSchema.parse(target)).toBe(target);
     });
   });

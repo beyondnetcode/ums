@@ -38,9 +38,14 @@ export const parameterCatalogService = {
     return ParameterDefinitionSchema.parse(data);
   },
 
-  createParameterDefinition: async (payload: CreateParameterDefinitionPayload): Promise<ParameterDefinition> => {
+  createParameterDefinition: async (
+    payload: CreateParameterDefinitionPayload
+  ): Promise<ParameterDefinition> => {
     try {
-      const { data } = await httpClient.post<ParameterDefinition>('/parameter-definitions', payload);
+      const { data } = await httpClient.post<ParameterDefinition>(
+        '/parameter-definitions',
+        payload
+      );
       return ParameterDefinitionSchema.parse(data);
     } catch (error) {
       logger.error('Failed to create parameter definition', error);
@@ -48,9 +53,15 @@ export const parameterCatalogService = {
     }
   },
 
-  updateParameterDefinition: async (id: string, payload: UpdateParameterDefinitionPayload): Promise<ParameterDefinition> => {
+  updateParameterDefinition: async (
+    id: string,
+    payload: UpdateParameterDefinitionPayload
+  ): Promise<ParameterDefinition> => {
     try {
-      const { data } = await httpClient.patch<ParameterDefinition>(`/parameter-definitions/${id}`, payload);
+      const { data } = await httpClient.patch<ParameterDefinition>(
+        `/parameter-definitions/${id}`,
+        payload
+      );
       return ParameterDefinitionSchema.parse(data);
     } catch (error) {
       logger.error('Failed to update parameter definition', error);

@@ -41,12 +41,14 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           </label>
           <select
             value={activeCriteria}
-            onChange={(e) => onCriteriaChange(e.target.value)}
+            onChange={e => onCriteriaChange(e.target.value)}
             aria-label={criteriaLabel}
             className="w-full h-10 px-3 text-xs rounded-lg border border-m3-outline bg-m3-surface-container/30 text-m3-on-surface focus:outline-none focus:border-m3-primary transition-colors cursor-pointer"
           >
-            {criteriaOptions.map((c) => (
-              <option key={c.value} value={c.value}>{c.label}</option>
+            {criteriaOptions.map(c => (
+              <option key={c.value} value={c.value}>
+                {c.label}
+              </option>
             ))}
           </select>
         </div>
@@ -57,7 +59,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           dense
           label={searchTermLabel}
           value={searchValue}
-          onChange={(e) => onSearchValueChange(e.target.value)}
+          onChange={e => onSearchValueChange(e.target.value)}
           placeholder={searchPlaceholder}
           className="mb-0"
         />

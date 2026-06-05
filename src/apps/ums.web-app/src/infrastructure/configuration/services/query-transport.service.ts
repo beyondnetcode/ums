@@ -38,7 +38,7 @@ export const queryTransportService = {
       return cachedTransport.value;
     }
 
-    pendingTransport ??= fetchConfiguredTransport().then((value) => {
+    pendingTransport ??= fetchConfiguredTransport().then(value => {
       cachedTransport = { value, expiresAt: Date.now() + CACHE_TTL_MS };
       pendingTransport = null;
       return value;

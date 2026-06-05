@@ -26,7 +26,9 @@ export interface TenantDashboardActions {
   setSelectedId: React.Dispatch<React.SetStateAction<string>>;
   setShowDiscardDialog: React.Dispatch<React.SetStateAction<boolean>>;
   setPendingNavigationId: React.Dispatch<React.SetStateAction<string | null>>;
-  setActiveConsoleTab: React.Dispatch<React.SetStateAction<'branches' | 'providers' | 'branding' | 'configurations'>>;
+  setActiveConsoleTab: React.Dispatch<
+    React.SetStateAction<'branches' | 'providers' | 'branding' | 'configurations'>
+  >;
   setIsTenantEditing: React.Dispatch<React.SetStateAction<boolean>>;
   setIsCreateOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setViewMode: React.Dispatch<React.SetStateAction<'list' | 'thumbnail'>>;
@@ -36,23 +38,26 @@ export interface TenantDashboardActions {
   handleCreateSuccess: (newTenantId: string) => void;
 }
 
-export function useTenantDashboard(): TenantDashboardState & TenantDashboardActions & {
-  knownTenants: Tenant[];
-  isLoadingList: boolean;
-  listError: Error | null;
-  activeTenant: Tenant | undefined;
-  parentTenant: Tenant | null;
-  isRootTenant: boolean;
-  consoleTabs: Array<'branches' | 'providers' | 'branding' | 'configurations'>;
-  totalItems: number;
-  totalPages: number;
-  startIndex: number;
-  requiresFilter: boolean;
-} {
+export function useTenantDashboard(): TenantDashboardState &
+  TenantDashboardActions & {
+    knownTenants: Tenant[];
+    isLoadingList: boolean;
+    listError: Error | null;
+    activeTenant: Tenant | undefined;
+    parentTenant: Tenant | null;
+    isRootTenant: boolean;
+    consoleTabs: Array<'branches' | 'providers' | 'branding' | 'configurations'>;
+    totalItems: number;
+    totalPages: number;
+    startIndex: number;
+    requiresFilter: boolean;
+  } {
   const [selectedId, setSelectedId] = useState('');
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
   const [pendingNavigationId, setPendingNavigationId] = useState<string | null>(null);
-  const [activeConsoleTab, setActiveConsoleTab] = useState<'branches' | 'providers' | 'branding' | 'configurations'>('branches');
+  const [activeConsoleTab, setActiveConsoleTab] = useState<
+    'branches' | 'providers' | 'branding' | 'configurations'
+  >('branches');
   const [isTenantEditing, setIsTenantEditing] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('list');
@@ -69,7 +74,11 @@ export function useTenantDashboard(): TenantDashboardState & TenantDashboardActi
 
   const shouldFetch = queryState.appliedQuery.filterApplied;
 
-  const { data: tenantPage, isLoading: isLoadingList, error: listError } = useGetAllTenants(
+  const {
+    data: tenantPage,
+    isLoading: isLoadingList,
+    error: listError,
+  } = useGetAllTenants(
     shouldFetch
       ? {
           page: paginationState.page,
@@ -80,23 +89,25 @@ export function useTenantDashboard(): TenantDashboardState & TenantDashboardActi
           sortBy: queryState.sortBy,
           sortOrder: queryState.sortOrder,
         }
-      : null,
+      : null
   );
 
   const { items: knownTenants, patchItem: patchLocalTenant } = useLocalOverrides<Tenant>(
     tenantPage?.items,
-    'tenantId',
+    'tenantId'
   );
 
-  const activeTenant = knownTenants.find((tenant) => tenant.tenantId === selectedId);
+  const activeTenant = knownTenants.find(tenant => tenant.tenantId === selectedId);
   const isRootTenant = activeTenant?.parentTenantId === null;
 
   const consoleTabs = (
-    ['branches', 'providers', 'branding', 'configurations'] as Array<'branches' | 'providers' | 'branding' | 'configurations'>
-  ).filter((tab) => tab !== 'branding' || isRootTenant);
+    ['branches', 'providers', 'branding', 'configurations'] as Array<
+      'branches' | 'providers' | 'branding' | 'configurations'
+    >
+  ).filter(tab => tab !== 'branding' || isRootTenant);
 
   const parentTenant = activeTenant?.parentTenantId
-    ? knownTenants.find((t) => t.tenantId === activeTenant.parentTenantId) ?? null
+    ? (knownTenants.find(t => t.tenantId === activeTenant.parentTenantId) ?? null)
     : null;
 
   const hasPendingChanges = isTenantEditing;
@@ -107,15 +118,18 @@ export function useTenantDashboard(): TenantDashboardState & TenantDashboardActi
     setSelectedId(id);
   }, []);
 
-  const handleSelectTenant = useCallback((id: string) => {
-    if (id === selectedId) return;
-    if (hasPendingChanges) {
-      setPendingNavigationId(id);
-      setShowDiscardDialog(true);
-      return;
-    }
-    applyTenantSelection(id);
-  }, [selectedId, hasPendingChanges, applyTenantSelection]);
+  const handleSelectTenant = useCallback(
+    (id: string) => {
+      if (id === selectedId) return;
+      if (hasPendingChanges) {
+        setPendingNavigationId(id);
+        setShowDiscardDialog(true);
+        return;
+      }
+      applyTenantSelection(id);
+    },
+    [selectedId, hasPendingChanges, applyTenantSelection]
+  );
 
   const confirmDiscard = useCallback(() => {
     if (pendingNavigationId) applyTenantSelection(pendingNavigationId);
@@ -125,21 +139,27 @@ export function useTenantDashboard(): TenantDashboardState & TenantDashboardActi
 
   useEffect(() => {
     if (!selectedId && knownTenants.length > 0) {
-      const first = knownTenants.find((t) => t.parentTenantId === null) ?? knownTenants[0];
+      const first = knownTenants.find(t => t.parentTenantId === null) ?? knownTenants[0];
       applyTenantSelection(first.tenantId);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [knownTenants]);
 
-  const patchTenant = useCallback((tenantId: string, patch: Partial<Tenant>) => {
-    patchLocalTenant(tenantId, patch);
-  }, [patchLocalTenant]);
+  const patchTenant = useCallback(
+    (tenantId: string, patch: Partial<Tenant>) => {
+      patchLocalTenant(tenantId, patch);
+    },
+    [patchLocalTenant]
+  );
 
-  const handleCreateSuccess = useCallback((newTenantId: string) => {
-    paginationState.setPage(1);
-    queryState.handleResetQuery();
-    applyTenantSelection(newTenantId);
-  }, [applyTenantSelection, paginationState, queryState]);
+  const handleCreateSuccess = useCallback(
+    (newTenantId: string) => {
+      paginationState.setPage(1);
+      queryState.handleResetQuery();
+      applyTenantSelection(newTenantId);
+    },
+    [applyTenantSelection, paginationState, queryState]
+  );
 
   // If search criteria is 'id', it triggers handleSelectTenant
   useEffect(() => {
@@ -152,13 +172,20 @@ export function useTenantDashboard(): TenantDashboardState & TenantDashboardActi
   const totalPages = tenantPage?.totalPages ?? 0;
 
   return {
-    selectedId, setSelectedId,
-    showDiscardDialog, setShowDiscardDialog,
-    pendingNavigationId, setPendingNavigationId,
-    activeConsoleTab, setActiveConsoleTab,
-    isTenantEditing, setIsTenantEditing,
-    isCreateOpen, setIsCreateOpen,
-    viewMode, setViewMode,
+    selectedId,
+    setSelectedId,
+    showDiscardDialog,
+    setShowDiscardDialog,
+    pendingNavigationId,
+    setPendingNavigationId,
+    activeConsoleTab,
+    setActiveConsoleTab,
+    isTenantEditing,
+    setIsTenantEditing,
+    isCreateOpen,
+    setIsCreateOpen,
+    viewMode,
+    setViewMode,
     queryState,
     paginationState,
     handleSelectTenant,

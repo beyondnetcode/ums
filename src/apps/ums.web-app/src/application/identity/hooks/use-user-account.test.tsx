@@ -185,7 +185,10 @@ describe('UserAccount hooks', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(userAccountService.blockUserAccount).toHaveBeenCalledWith('user-id', 'Security violation');
+    expect(userAccountService.blockUserAccount).toHaveBeenCalledWith(
+      'user-id',
+      'Security violation'
+    );
   });
 
   it('useRestoreUserAccount restores a blocked account', async () => {

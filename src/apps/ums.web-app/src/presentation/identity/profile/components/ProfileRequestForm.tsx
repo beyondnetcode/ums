@@ -35,9 +35,15 @@ export const ProfileRequestForm: React.FC<ProfileRequestFormProps> = ({
             <div className="space-y-1">
               <p className="text-xs font-semibold text-m3-primary">¿Cómo solicitar un perfil?</p>
               <ol className="text-xs text-m3-secondary space-y-1 list-decimal list-inside">
-                <li>Inicia sesión en tu tenant <strong>{tenant?.code}</strong></li>
-                <li>Ve a <strong>Autorización → Perfiles</strong></li>
-                <li>Haz clic en <strong>"Solicitar acceso"</strong> y elige el sistema y rol deseados</li>
+                <li>
+                  Inicia sesión en tu tenant <strong>{tenant?.code}</strong>
+                </li>
+                <li>
+                  Ve a <strong>Autorización → Perfiles</strong>
+                </li>
+                <li>
+                  Haz clic en <strong>"Solicitar acceso"</strong> y elige el sistema y rol deseados
+                </li>
               </ol>
             </div>
           </div>
@@ -45,14 +51,10 @@ export const ProfileRequestForm: React.FC<ProfileRequestFormProps> = ({
 
         <div className="rounded-xl border border-m3-outline/20 bg-m3-surface-container/30 p-3">
           <p className="text-[11px] text-m3-secondary mb-3">
-            Tu tenant seleccionado: <span className="font-semibold text-m3-on-surface">{tenant?.name}</span>
+            Tu tenant seleccionado:{' '}
+            <span className="font-semibold text-m3-on-surface">{tenant?.name}</span>
           </p>
-          <M3Button
-            variant="filled"
-            className="w-full"
-            type="button"
-            onClick={onGoToLogin}
-          >
+          <M3Button variant="filled" className="w-full" type="button" onClick={onGoToLogin}>
             <LogIn className="w-4 h-4 mr-2" />
             Iniciar sesión para continuar
           </M3Button>
@@ -86,19 +88,14 @@ export const ProfileRequestForm: React.FC<ProfileRequestFormProps> = ({
             <div className="space-y-1">
               <p className="text-xs font-semibold text-amber-600">Necesitas una cuenta primero</p>
               <p className="text-xs text-m3-secondary leading-relaxed">
-                Para solicitar un perfil, primero debes crear una cuenta de usuario en el tenant deseado.
-                Una vez aprobada, podrás solicitar el perfil o rol que necesitas.
+                Para solicitar un perfil, primero debes crear una cuenta de usuario en el tenant
+                deseado. Una vez aprobada, podrás solicitar el perfil o rol que necesitas.
               </p>
             </div>
           </div>
         </div>
 
-        <M3Button
-          variant="filled"
-          className="w-full"
-          type="button"
-          onClick={onGoToSignup}
-        >
+        <M3Button variant="filled" className="w-full" type="button" onClick={onGoToSignup}>
           <UserPlus className="w-4 h-4 mr-2" />
           Crear cuenta de usuario
         </M3Button>
@@ -147,7 +144,9 @@ export const ProfileRequestForm: React.FC<ProfileRequestFormProps> = ({
           <LogIn className="w-5 h-5 text-m3-primary shrink-0" />
           <div>
             <p className="text-xs font-semibold text-m3-on-surface">Ya tengo cuenta de usuario</p>
-            <p className="text-[11px] text-m3-secondary">Quiero solicitar acceso a un perfil o rol</p>
+            <p className="text-[11px] text-m3-secondary">
+              Quiero solicitar acceso a un perfil o rol
+            </p>
           </div>
         </button>
 
@@ -159,7 +158,9 @@ export const ProfileRequestForm: React.FC<ProfileRequestFormProps> = ({
           <UserPlus className="w-5 h-5 text-m3-secondary shrink-0" />
           <div>
             <p className="text-xs font-semibold text-m3-on-surface">No tengo cuenta aún</p>
-            <p className="text-[11px] text-m3-secondary">Primero necesito crear una cuenta de usuario</p>
+            <p className="text-[11px] text-m3-secondary">
+              Primero necesito crear una cuenta de usuario
+            </p>
           </div>
         </button>
       </div>

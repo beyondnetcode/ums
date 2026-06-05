@@ -47,7 +47,7 @@ export const permissionTemplateService = {
     });
 
     const result = PermissionTemplatePageSchema.safeParse(
-      (response as Record<string, unknown>).permissionTemplates,
+      (response as Record<string, unknown>).permissionTemplates
     );
     if (!result.success) {
       logger.error('Invalid GraphQL response for permission templates', result.error);
@@ -65,7 +65,9 @@ export const permissionTemplateService = {
 
   // ── Commands (REST) ──────────────────────────────────────────────────────────
 
-  create: async (payload: CreatePermissionTemplatePayload): Promise<CreatePermissionTemplateResponse> => {
+  create: async (
+    payload: CreatePermissionTemplatePayload
+  ): Promise<CreatePermissionTemplateResponse> => {
     const { data } = await httpClient.post('/permission-templates', payload);
     return CreatePermissionTemplateResponseSchema.parse(data);
   },
@@ -90,7 +92,11 @@ export const permissionTemplateService = {
     await httpClient.delete(`/permission-templates/${templateId}/items/${itemId}`);
   },
 
-  setItemEffect: async (templateId: string, itemId: string, effect: 'Allow' | 'Deny' | 'Neutral'): Promise<void> => {
+  setItemEffect: async (
+    templateId: string,
+    itemId: string,
+    effect: 'Allow' | 'Deny' | 'Neutral'
+  ): Promise<void> => {
     await httpClient.put(`/permission-templates/${templateId}/items/${itemId}/effect`, { effect });
   },
 

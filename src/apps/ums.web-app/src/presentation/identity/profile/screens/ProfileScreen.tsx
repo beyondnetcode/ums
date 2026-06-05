@@ -54,7 +54,17 @@ function CopyButton({ value, label = 'Copy' }: { value: string; label?: string }
   );
 }
 
-function StatCard({ icon, label, value, subValue }: { icon: React.ReactNode; label: string; value: string | number; subValue?: string }) {
+function StatCard({
+  icon,
+  label,
+  value,
+  subValue,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string | number;
+  subValue?: string;
+}) {
   return (
     <div className="p-3 bg-m3-surface-container/60 rounded-xl border border-m3-outline/25 flex items-center gap-3">
       <div className="text-m3-primary">{icon}</div>
@@ -67,7 +77,15 @@ function StatCard({ icon, label, value, subValue }: { icon: React.ReactNode; lab
   );
 }
 
-function ExpandableSection({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) {
+function ExpandableSection({
+  title,
+  icon,
+  children,
+}: {
+  title: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+}) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
@@ -99,7 +117,12 @@ export default function ProfileScreen(): React.JSX.Element {
   const t = useI18n();
 
   const handleTriggerTest = (type: 'success' | 'warning' | 'error' | 'info') => {
-    const titles = { success: t.devTestSuccess, warning: t.devTestWarning, error: t.devTestError, info: t.devTestInfo };
+    const titles = {
+      success: t.devTestSuccess,
+      warning: t.devTestWarning,
+      error: t.devTestError,
+      info: t.devTestInfo,
+    };
     addNotification({
       title: titles[type],
       message: t.devTestMsg(new Date().toLocaleTimeString()),
@@ -107,16 +130,19 @@ export default function ProfileScreen(): React.JSX.Element {
     });
   };
 
-  const activeUser = isAuthenticated && user ? user : {
-    username: 'anonymous_developer',
-    email: 'dev@logistica.pe',
-    role: 'administrator (unauthenticated)',
-    tenantId: '',
-    tenantCode: '',
-    tenantName: '',
-    sessionTrackingId: '',
-    permissions: [],
-  };
+  const activeUser =
+    isAuthenticated && user
+      ? user
+      : {
+          username: 'anonymous_developer',
+          email: 'dev@logistica.pe',
+          role: 'administrator (unauthenticated)',
+          tenantId: '',
+          tenantCode: '',
+          tenantName: '',
+          sessionTrackingId: '',
+          permissions: [],
+        };
 
   const sessionStart = localStorage.getItem('ums_session_start');
   const sessionStartDate = sessionStart ? new Date(parseInt(sessionStart, 10)) : null;
@@ -127,15 +153,15 @@ export default function ProfileScreen(): React.JSX.Element {
         <h2 className="text-xl font-extrabold tracking-tight text-m3-on-surface">
           {t.profileTitle}
         </h2>
-        <p className="text-xs text-m3-secondary">
-          {t.profileSubtitle}
-        </p>
+        <p className="text-xs text-m3-secondary">{t.profileSubtitle}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-
         {/* LEFT CARD: Connected User Session Info */}
-        <M3Card variant="elevated" className="md:col-span-7 p-6 border border-m3-outline/25 bg-m3-surface-container/20">
+        <M3Card
+          variant="elevated"
+          className="md:col-span-7 p-6 border border-m3-outline/25 bg-m3-surface-container/20"
+        >
           <div className="flex items-center gap-4 mb-6">
             <div className="w-14 h-14 rounded-3xl bg-gradient-to-tr from-m3-primary to-indigo-600 flex items-center justify-center font-black text-lg text-white shadow-lg shadow-m3-primary/20">
               {activeUser.username.substring(0, 2).toUpperCase()}
@@ -239,16 +265,32 @@ export default function ProfileScreen(): React.JSX.Element {
               {t.diagnosticTitle}
             </h4>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              <M3Button variant="tonal" onClick={() => handleTriggerTest('success')} className="py-1 px-2 text-[10px] h-8">
+              <M3Button
+                variant="tonal"
+                onClick={() => handleTriggerTest('success')}
+                className="py-1 px-2 text-[10px] h-8"
+              >
                 {t.active}
               </M3Button>
-              <M3Button variant="outlined" onClick={() => handleTriggerTest('info')} className="py-1 px-2 text-[10px] h-8">
+              <M3Button
+                variant="outlined"
+                onClick={() => handleTriggerTest('info')}
+                className="py-1 px-2 text-[10px] h-8"
+              >
                 Info
               </M3Button>
-              <M3Button variant="outlined" onClick={() => handleTriggerTest('warning')} className="py-1 px-2 text-[10px] h-8 text-amber-500 border-amber-500/30 hover:bg-amber-500/10">
+              <M3Button
+                variant="outlined"
+                onClick={() => handleTriggerTest('warning')}
+                className="py-1 px-2 text-[10px] h-8 text-amber-500 border-amber-500/30 hover:bg-amber-500/10"
+              >
                 Warning
               </M3Button>
-              <M3Button variant="outlined" onClick={() => handleTriggerTest('error')} className="py-1 px-2 text-[10px] h-8 text-rose-500 border-rose-500/30 hover:bg-rose-500/10">
+              <M3Button
+                variant="outlined"
+                onClick={() => handleTriggerTest('error')}
+                className="py-1 px-2 text-[10px] h-8 text-rose-500 border-rose-500/30 hover:bg-rose-500/10"
+              >
                 Error
               </M3Button>
             </div>
@@ -323,7 +365,9 @@ export default function ProfileScreen(): React.JSX.Element {
                   <Layers className="w-4 h-4 text-m3-primary" />
                   <span>Architecture</span>
                 </div>
-                <span className="font-extrabold text-m3-on-surface">{SYSTEM_INFO.architecture}</span>
+                <span className="font-extrabold text-m3-on-surface">
+                  {SYSTEM_INFO.architecture}
+                </span>
               </div>
             </div>
           </M3Card>
@@ -338,8 +382,11 @@ export default function ProfileScreen(): React.JSX.Element {
             </div>
 
             <div className="space-y-2.5 max-h-[140px] overflow-y-auto pr-1">
-              {notifications.slice(0, 3).map((n) => (
-                <div key={n.id} className="p-2.5 bg-m3-surface-container/30 rounded-xl border border-m3-outline/20 text-[10px] leading-relaxed flex gap-2">
+              {notifications.slice(0, 3).map(n => (
+                <div
+                  key={n.id}
+                  className="p-2.5 bg-m3-surface-container/30 rounded-xl border border-m3-outline/20 text-[10px] leading-relaxed flex gap-2"
+                >
                   <span className="flex-shrink-0 mt-0.5">
                     {React.createElement(NOTIFICATION_ICONS[n.type as NotificationType], {
                       className: `w-3.5 h-3.5 ${NOTIFICATION_ICON_CLASSES[n.type as NotificationType]}`,
@@ -363,21 +410,27 @@ export default function ProfileScreen(): React.JSX.Element {
               <div className="space-y-3">
                 <div className="p-3 bg-m3-surface-container/40 rounded-xl">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-bold text-m3-secondary uppercase">User Context</span>
+                    <span className="text-[10px] font-bold text-m3-secondary uppercase">
+                      User Context
+                    </span>
                     <CopyButton value={JSON.stringify(activeUser, null, 2)} label="Copy JSON" />
                   </div>
                   <pre className="text-[9px] font-mono text-m3-on-surface/70 bg-m3-surface-container/50 p-2 rounded overflow-x-auto">
-                    {JSON.stringify({
-                      userId: activeUser.id,
-                      username: activeUser.username,
-                      email: activeUser.email,
-                      role: activeUser.role,
-                      tenantId: activeUser.tenantId,
-                      tenantCode: activeUser.tenantCode,
-                      tenantName: activeUser.tenantName,
-                      profileId: activeUser.profileId,
-                      sessionTrackingId: activeUser.sessionTrackingId,
-                    }, null, 2)}
+                    {JSON.stringify(
+                      {
+                        userId: activeUser.id,
+                        username: activeUser.username,
+                        email: activeUser.email,
+                        role: activeUser.role,
+                        tenantId: activeUser.tenantId,
+                        tenantCode: activeUser.tenantCode,
+                        tenantName: activeUser.tenantName,
+                        profileId: activeUser.profileId,
+                        sessionTrackingId: activeUser.sessionTrackingId,
+                      },
+                      null,
+                      2
+                    )}
                   </pre>
                 </div>
 
@@ -388,15 +441,21 @@ export default function ProfileScreen(): React.JSX.Element {
                   </div>
                   <div className="p-2 bg-m3-surface-container/30 rounded">
                     <span className="text-m3-secondary">Tenant ID:</span>
-                    <p className="font-mono text-m3-primary truncate">{activeUser.tenantId || 'N/A'}</p>
+                    <p className="font-mono text-m3-primary truncate">
+                      {activeUser.tenantId || 'N/A'}
+                    </p>
                   </div>
                   <div className="p-2 bg-m3-surface-container/30 rounded">
                     <span className="text-m3-secondary">Profile ID:</span>
-                    <p className="font-mono text-m3-primary truncate">{activeUser.profileId || 'N/A'}</p>
+                    <p className="font-mono text-m3-primary truncate">
+                      {activeUser.profileId || 'N/A'}
+                    </p>
                   </div>
                   <div className="p-2 bg-m3-surface-container/30 rounded">
                     <span className="text-m3-secondary">Session ID:</span>
-                    <p className="font-mono text-m3-primary truncate">{activeUser.sessionTrackingId || 'N/A'}</p>
+                    <p className="font-mono text-m3-primary truncate">
+                      {activeUser.sessionTrackingId || 'N/A'}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -406,4 +465,4 @@ export default function ProfileScreen(): React.JSX.Element {
       </div>
     </div>
   );
-};
+}

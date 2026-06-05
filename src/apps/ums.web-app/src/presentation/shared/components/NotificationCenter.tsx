@@ -7,10 +7,11 @@ import { NOTIFICATION_ICONS, NOTIFICATION_ICON_CLASSES } from '../theme/notifica
 import type { NotificationType } from '../theme/notification-theme';
 
 export const NotificationCenter: React.FC = React.memo(() => {
-  const { notifications, isOpen, setIsOpen, clearAll, markAllAsRead, markAsRead } = useNotificationStore();
+  const { notifications, isOpen, setIsOpen, clearAll, markAllAsRead, markAsRead } =
+    useNotificationStore();
   const t = useI18n();
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const unreadCount = notifications.filter(n => !n.read).length;
   const latestNotification = notifications[0];
 
   return (
@@ -50,7 +51,7 @@ export const NotificationCenter: React.FC = React.memo(() => {
             {t.notifEmpty}
           </div>
         ) : (
-          notifications.map((n) => (
+          notifications.map(n => (
             <div
               key={n.id}
               onClick={() => markAsRead(n.id)}

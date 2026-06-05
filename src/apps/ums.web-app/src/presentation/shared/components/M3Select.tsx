@@ -44,16 +44,16 @@ export const M3Select: React.FC<M3SelectProps> = ({
   const borderClass = focused
     ? `border-2 ${error ? 'border-m3-error' : 'border-m3-primary'}`
     : error
-    ? 'border border-m3-error'
-    : 'border border-m3-outline hover:border-m3-on-surface';
+      ? 'border border-m3-error'
+      : 'border border-m3-outline hover:border-m3-on-surface';
 
   const labelColorClass = focused
     ? error
       ? 'text-m3-error'
       : 'text-m3-primary'
     : error
-    ? 'text-m3-error'
-    : 'text-m3-secondary';
+      ? 'text-m3-error'
+      : 'text-m3-secondary';
 
   return (
     <div className={`relative w-full ${hasMbClass ? '' : defaultMb} ${className}`}>
@@ -80,8 +80,14 @@ export const M3Select: React.FC<M3SelectProps> = ({
 
         <select
           id={selectId}
-          onFocus={(e) => { setFocused(true); extOnFocus?.(e); }}
-          onBlur={(e)  => { setFocused(false); extOnBlur?.(e); }}
+          onFocus={e => {
+            setFocused(true);
+            extOnFocus?.(e);
+          }}
+          onBlur={e => {
+            setFocused(false);
+            extOnBlur?.(e);
+          }}
           className={[
             'absolute inset-0 w-full h-full bg-transparent rounded-[4px]',
             `pl-4 pr-10 ${compact ? 'pt-4 pb-1' : 'pt-5 pb-2'} text-sm text-m3-on-surface`,
@@ -114,9 +120,7 @@ export const M3Select: React.FC<M3SelectProps> = ({
 
       {(error || helperText) && (
         <span
-          className={`block text-xs mt-1 ml-4 ${
-            error ? 'text-m3-error' : 'text-m3-secondary/75'
-          }`}
+          className={`block text-xs mt-1 ml-4 ${error ? 'text-m3-error' : 'text-m3-secondary/75'}`}
         >
           {error || helperText}
         </span>

@@ -42,7 +42,7 @@ describe('Tooltip', () => {
     fireEvent.mouseEnter(trigger!);
 
     await act(async () => {
-      await new Promise((r) => setTimeout(r, 10));
+      await new Promise(r => setTimeout(r, 10));
     });
 
     expect(screen.getByRole('tooltip')).toHaveTextContent('Tooltip text');
@@ -59,7 +59,7 @@ describe('Tooltip', () => {
     fireEvent.mouseEnter(trigger!);
 
     await act(async () => {
-      await new Promise((r) => setTimeout(r, 10));
+      await new Promise(r => setTimeout(r, 10));
     });
 
     expect(screen.getByRole('tooltip')).toBeInTheDocument();
@@ -80,7 +80,7 @@ describe('Tooltip', () => {
     fireEvent.mouseEnter(trigger!);
 
     await act(async () => {
-      await new Promise((r) => setTimeout(r, 10));
+      await new Promise(r => setTimeout(r, 10));
     });
 
     expect(trigger).toHaveAttribute('aria-describedby', 'tooltip-content');

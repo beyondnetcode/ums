@@ -9,9 +9,9 @@ import { useQueryState } from '@app/shared/hooks/use-query-state';
 import { usePaginationState } from '@app/shared/hooks/use-pagination-state';
 
 export function usePermissionTemplateDashboard(tenantId?: string) {
-  const [selectedId, setSelectedId]         = useState('');
-  const [isCreateOpen, setIsCreateOpen]     = useState(false);
-  const [viewMode, setViewMode]             = useState<'list' | 'thumbnail'>('list');
+  const [selectedId, setSelectedId] = useState('');
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('list');
 
   const queryState = useQueryState({
     criteria: 'role',
@@ -25,34 +25,36 @@ export function usePermissionTemplateDashboard(tenantId?: string) {
 
   const shouldFetch = queryState.appliedQuery.filterApplied;
 
-  const { data: pageData, isLoading: isLoadingList, error: listError } =
-    useGetAllPermissionTemplates(
-      shouldFetch
-        ? {
-            page: paginationState.page,
-            pageSize: paginationState.pageSize,
-            search: queryState.appliedQuery.term || undefined,
-            criteria: queryState.appliedQuery.criteria || 'version',
-            status: queryState.activeFilter !== 'all' ? queryState.activeFilter : undefined,
-            sortBy: queryState.sortBy,
-            sortOrder: queryState.sortOrder,
-            tenantId,
-          }
-        : null,
-    );
+  const {
+    data: pageData,
+    isLoading: isLoadingList,
+    error: listError,
+  } = useGetAllPermissionTemplates(
+    shouldFetch
+      ? {
+          page: paginationState.page,
+          pageSize: paginationState.pageSize,
+          search: queryState.appliedQuery.term || undefined,
+          criteria: queryState.appliedQuery.criteria || 'version',
+          status: queryState.activeFilter !== 'all' ? queryState.activeFilter : undefined,
+          sortBy: queryState.sortBy,
+          sortOrder: queryState.sortOrder,
+          tenantId,
+        }
+      : null
+  );
 
-  const { data: activeTemplate, isLoading: isLoadingDetail } =
-    useGetPermissionTemplate(selectedId || null);
+  const { data: activeTemplate, isLoading: isLoadingDetail } = useGetPermissionTemplate(
+    selectedId || null
+  );
 
   const knownTemplates: PermissionTemplate[] = pageData?.items ?? [];
-  const totalItems  = pageData?.totalItems ?? 0;
-  const totalPages  = pageData?.totalPages ?? 0;
+  const totalItems = pageData?.totalItems ?? 0;
+  const totalPages = pageData?.totalPages ?? 0;
 
   const handleSelect = useCallback((id: string) => {
     setSelectedId(id);
   }, []);
-
-
 
   const handleCreateSuccess = useCallback(() => {
     setIsCreateOpen(false);

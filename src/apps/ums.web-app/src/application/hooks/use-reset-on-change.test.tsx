@@ -9,10 +9,9 @@ describe('useResetOnChange', () => {
 
   it('calls resetFn when key changes from initial value', () => {
     const resetFn = vi.fn();
-    const { rerender } = renderHook(
-      ({ key, resetFn }) => useResetOnChange(key, resetFn),
-      { initialProps: { key: 'initial', resetFn } }
-    );
+    const { rerender } = renderHook(({ key, resetFn }) => useResetOnChange(key, resetFn), {
+      initialProps: { key: 'initial', resetFn },
+    });
 
     rerender({ key: 'changed', resetFn });
 
@@ -21,10 +20,9 @@ describe('useResetOnChange', () => {
 
   it('does not call resetFn when key stays the same', () => {
     const resetFn = vi.fn();
-    const { rerender } = renderHook(
-      ({ key, resetFn }) => useResetOnChange(key, resetFn),
-      { initialProps: { key: 'same', resetFn } }
-    );
+    const { rerender } = renderHook(({ key, resetFn }) => useResetOnChange(key, resetFn), {
+      initialProps: { key: 'same', resetFn },
+    });
 
     rerender({ key: 'same', resetFn });
 
@@ -33,10 +31,9 @@ describe('useResetOnChange', () => {
 
   it('calls resetFn when key changes from undefined to a value', () => {
     const resetFn = vi.fn();
-    const { rerender } = renderHook(
-      ({ key, resetFn }) => useResetOnChange(key, resetFn),
-      { initialProps: { key: undefined, resetFn } }
-    );
+    const { rerender } = renderHook(({ key, resetFn }) => useResetOnChange(key, resetFn), {
+      initialProps: { key: undefined, resetFn },
+    });
 
     rerender({ key: 'new-key', resetFn });
 
@@ -47,10 +44,9 @@ describe('useResetOnChange', () => {
     const resetFn1 = vi.fn();
     const resetFn2 = vi.fn();
 
-    const { rerender } = renderHook(
-      ({ key, resetFn }) => useResetOnChange(key, resetFn),
-      { initialProps: { key: 'initial', resetFn: resetFn1 } }
-    );
+    const { rerender } = renderHook(({ key, resetFn }) => useResetOnChange(key, resetFn), {
+      initialProps: { key: 'initial', resetFn: resetFn1 },
+    });
 
     rerender({ key: 'changed', resetFn: resetFn2 });
 

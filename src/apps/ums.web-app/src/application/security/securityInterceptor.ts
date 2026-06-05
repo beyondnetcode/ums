@@ -15,7 +15,8 @@ import { useAuthStore } from '@app/stores/auth.store';
 
 export const CSRF_TOKEN_KEY = 'ums_csrf_token' as const;
 
-const DEFAULT_CSP = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none';";
+const DEFAULT_CSP =
+  "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none';";
 
 const SECURITY_HEADERS = {
   'X-Content-Type-Options': 'nosniff',
@@ -50,7 +51,7 @@ class SecurityInterceptor {
   private generateCsrfToken(): string {
     const array = new Uint8Array(32);
     crypto.getRandomValues(array);
-    return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
+    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
   }
 
   initCsrfToken(): void {
@@ -63,8 +64,7 @@ class SecurityInterceptor {
   private storeCsrfToken(token: string): void {
     try {
       sessionStorage.setItem(CSRF_TOKEN_KEY, token);
-    } catch {
-    }
+    } catch {}
   }
 
   private getStoredCsrfToken(): string | null {
@@ -78,7 +78,7 @@ class SecurityInterceptor {
   getSecureHeaders(customHeaders?: Record<string, string>): HeadersInit {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      'Accept': 'application/json',
+      Accept: 'application/json',
       'X-Request-ID': crypto.randomUUID(),
       ...SECURITY_HEADERS,
       ...customHeaders,
@@ -131,7 +131,7 @@ class SecurityInterceptor {
       }
 
       const allowedOrigins = [this.baseUrl];
-      if (!allowedOrigins.some((origin) => parsed.origin === origin)) {
+      if (!allowedOrigins.some(origin => parsed.origin === origin)) {
         console.warn('Security: Unauthorized origin blocked');
         return false;
       }

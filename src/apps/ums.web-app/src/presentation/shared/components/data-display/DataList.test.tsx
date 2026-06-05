@@ -16,25 +16,13 @@ describe('DataList', () => {
   });
 
   it('renders skeleton rows when loading', () => {
-    render(
-      <DataList
-        isLoading
-        isEmpty={false}
-        renderList={() => <div>Content</div>}
-      />
-    );
+    render(<DataList isLoading isEmpty={false} renderList={() => <div>Content</div>} />);
     const skeletons = document.querySelectorAll('[aria-hidden="true"]');
     expect(skeletons.length).toBeGreaterThan(0);
   });
 
   it('renders empty state when empty', () => {
-    render(
-      <DataList
-        isLoading={false}
-        isEmpty
-        renderList={() => <div>Content</div>}
-      />
-    );
+    render(<DataList isLoading={false} isEmpty renderList={() => <div>Content</div>} />);
     expect(screen.getByText('No results found')).toBeInTheDocument();
     expect(screen.getByText('No matching records found.')).toBeInTheDocument();
   });

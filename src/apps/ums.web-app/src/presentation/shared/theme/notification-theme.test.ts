@@ -30,7 +30,7 @@ describe('notification-theme', () => {
 
   it('has all four notification types', () => {
     const types = ['info', 'success', 'warning', 'error'];
-    types.forEach((type) => {
+    types.forEach(type => {
       expect(NOTIFICATION_ICONS).toHaveProperty(type);
       expect(NOTIFICATION_BORDERS).toHaveProperty(type);
       expect(NOTIFICATION_ICON_CLASSES).toHaveProperty(type);

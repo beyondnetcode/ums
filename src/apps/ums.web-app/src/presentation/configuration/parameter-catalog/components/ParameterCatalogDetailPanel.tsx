@@ -5,7 +5,10 @@
 import React from 'react';
 import { Edit2, Trash2 } from 'lucide-react';
 import type { ParameterDefinition } from '@domain/configuration/schemas/parameter-catalog/parameter-definition.schema';
-import { DataTypeLabels, ScopeLabels } from '@domain/configuration/schemas/parameter-catalog/parameter-definition.schema';
+import {
+  DataTypeLabels,
+  ScopeLabels,
+} from '@domain/configuration/schemas/parameter-catalog/parameter-definition.schema';
 import { M3Card } from '@shared/components/M3Card';
 import { useI18n } from '@app/i18n/use-i18n';
 import { LoadingSpinner } from '@shared/components/LoadingSpinner';
@@ -38,7 +41,9 @@ export const ParameterCatalogDetailPanel: React.FC<ParameterCatalogDetailPanelPr
   if (!activeParameter) {
     return (
       <div className="h-full flex items-center justify-center p-8">
-        <p className="text-[12px] text-m3-secondary">{t.selectParameterToView ?? 'Select a parameter to view details'}</p>
+        <p className="text-[12px] text-m3-secondary">
+          {t.selectParameterToView ?? 'Select a parameter to view details'}
+        </p>
       </div>
     );
   }
@@ -47,10 +52,16 @@ export const ParameterCatalogDetailPanel: React.FC<ParameterCatalogDetailPanelPr
     <div className="h-full flex flex-col">
       <div className="flex items-center justify-between px-4 py-3 border-b border-m3-outline/10">
         <div className="flex items-center gap-3 min-w-0">
-          <span className="text-[12px] font-medium text-m3-on-surface truncate">{activeParameter.name}</span>
-          <span className={`text-[10px] px-1.5 py-0.5 rounded shrink-0 ${
-            activeParameter.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
-          }`}>
+          <span className="text-[12px] font-medium text-m3-on-surface truncate">
+            {activeParameter.name}
+          </span>
+          <span
+            className={`text-[10px] px-1.5 py-0.5 rounded shrink-0 ${
+              activeParameter.isActive
+                ? 'bg-emerald-100 text-emerald-700'
+                : 'bg-amber-100 text-amber-700'
+            }`}
+          >
             {activeParameter.isActive ? (t.active ?? 'Active') : (t.inactive ?? 'Inactive')}
           </span>
         </div>
@@ -77,9 +88,7 @@ export const ParameterCatalogDetailPanel: React.FC<ParameterCatalogDetailPanelPr
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        <div className="text-[11px] text-m3-secondary font-mono">
-          {activeParameter.code}
-        </div>
+        <div className="text-[11px] text-m3-secondary font-mono">{activeParameter.code}</div>
 
         {activeParameter.description && (
           <p className="text-[12px] text-m3-on-surface-variant">{activeParameter.description}</p>
@@ -100,7 +109,9 @@ export const ParameterCatalogDetailPanel: React.FC<ParameterCatalogDetailPanelPr
           </div>
           <div>
             <span className="text-[10px] text-m3-secondary/60 uppercase">Default</span>
-            <p className="text-[12px] font-mono text-m3-on-surface">{activeParameter.defaultValue || '-'}</p>
+            <p className="text-[12px] font-mono text-m3-on-surface">
+              {activeParameter.defaultValue || '-'}
+            </p>
           </div>
         </div>
 

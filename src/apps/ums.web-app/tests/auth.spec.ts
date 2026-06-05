@@ -6,25 +6,25 @@ test.describe('Authentication Flow', () => {
   });
 
   test('should display login page with all elements', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: /ums/i })).toBeVisible();
+    await page.goto('/login');
     await expect(page.getByText(/user management system/i)).toBeVisible();
     await expect(page.getByText(/iniciar sesión/i)).toBeVisible();
-    await expect(page.getByLabel(/tenant/i)).toBeVisible();
-    await expect(page.getByLabel(/usuario/i)).toBeVisible();
+    await expect(page.getByText(/Tenant/i)).toBeVisible();
+    await expect(page.getByLabel(/correo electrónico/i)).toBeVisible();
     await expect(page.getByLabel(/contraseña/i)).toBeVisible();
     await expect(page.getByRole('button', { name: /ingresar/i })).toBeVisible();
   });
 
   test('should show validation errors for empty fields', async ({ page }) => {
     await page.getByRole('button', { name: /ingresar/i }).click();
-    await expect(page.getByText(/ingrese su usuario/i)).toBeVisible();
+    await expect(page.getByText(/ingrese su correo electrónico/i)).toBeVisible();
   });
 
   test('should show error for invalid credentials', async ({ page }) => {
-    await page.getByLabel(/usuario/i).fill('invalid_user');
-    await page.getByLabel(/contraseña/i).fill('wrong_password');
+    await page.getByLabel(/correo electrónico/i).fill('wrong@example.com');
+    await page.getByLabel(/contraseña/i).fill('wrongpass');
     await page.getByRole('button', { name: /ingresar/i }).click();
-    await expect(page.getByText(/usuario o contraseña incorrectos/i)).toBeVisible();
+    await expect(page.getByText(/no pudimos iniciar sesión/i)).toBeVisible();
   });
 
   test('should login successfully with valid credentials', async ({ page }) => {
@@ -36,12 +36,14 @@ test.describe('Authentication Flow', () => {
 
   test('should redirect to login when accessing protected route', async ({ page }) => {
     await page.goto('/tenants');
-    await expect(page).toHaveURL(/\/login/);
+    await expect(page).toHaveURL(/.*\/login\?redirect=%2Ftenants/);
   });
 
-  test('should show session expired message when redirected from protected route', async ({ page }) => {
+  test('should show session expired message when redirected from protected route', async ({
+    page,
+  }) => {
     await page.goto('/tenants');
-    await expect(page.getByText(/sesión expirada/i)).toBeVisible();
+    await expect(page.getByText(/su sesión ha expirado/i)).toBeVisible();
   });
 
   test('should redirect to originally requested page after login', async ({ page }) => {

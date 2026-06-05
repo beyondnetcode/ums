@@ -49,34 +49,40 @@ export interface GetDelegationsByDelegatingAdminResponse {
 export const graphqlDelegationQueries = {
   getDelegationById: async (delegationId: string): Promise<GetDelegationByIdResponse> => {
     if (!delegationId || delegationId.trim() === '') {
-      throw new GraphQlValidationError('Invalid delegationId parameter', ['delegationId must be a non-empty string']);
+      throw new GraphQlValidationError('Invalid delegationId parameter', [
+        'delegationId must be a non-empty string',
+      ]);
     }
     return graphqlClient.request<GetDelegationByIdResponse>(GET_DELEGATION_BY_ID, { delegationId });
   },
 
   getDelegationsByDelegatedAdmin: async (
     delegatedAdminId: string,
-    tenantId: string,
+    tenantId: string
   ): Promise<GetDelegationsByDelegatedAdminResponse> => {
     if (!delegatedAdminId || !tenantId) {
-      throw new GraphQlValidationError('Invalid parameters', ['delegatedAdminId and tenantId are required']);
+      throw new GraphQlValidationError('Invalid parameters', [
+        'delegatedAdminId and tenantId are required',
+      ]);
     }
     return graphqlClient.request<GetDelegationsByDelegatedAdminResponse>(
       GET_DELEGATIONS_BY_DELEGATED_ADMIN,
-      { delegatedAdminId, tenantId },
+      { delegatedAdminId, tenantId }
     );
   },
 
   getDelegationsByDelegatingAdmin: async (
     delegatingAdminId: string,
-    tenantId: string,
+    tenantId: string
   ): Promise<GetDelegationsByDelegatingAdminResponse> => {
     if (!delegatingAdminId || !tenantId) {
-      throw new GraphQlValidationError('Invalid parameters', ['delegatingAdminId and tenantId are required']);
+      throw new GraphQlValidationError('Invalid parameters', [
+        'delegatingAdminId and tenantId are required',
+      ]);
     }
     return graphqlClient.request<GetDelegationsByDelegatingAdminResponse>(
       GET_DELEGATIONS_BY_DELEGATING_ADMIN,
-      { delegatingAdminId, tenantId },
+      { delegatingAdminId, tenantId }
     );
   },
 };

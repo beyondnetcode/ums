@@ -7,7 +7,6 @@
  * All responses are validated at runtime with Zod before returning.
  */
 import { httpClient } from '@infra/http/httpClient';
-import { graphqlSystemSuiteQueries } from '@infra/authorization/queries/system-suite.graphql';
 import { logger } from '@app/utils/logger';
 import {
   SystemSuitePageSchema,
@@ -32,21 +31,22 @@ export const systemSuiteService = {
     sortOrder?: string;
     tenantId?: string;
   }): Promise<SystemSuitePage> => {
-    const response = await graphqlSystemSuiteQueries.getSystemSuites({
-      page: params?.page ?? 1,
-      pageSize: params?.pageSize ?? 20,
-      search: params?.search,
-      criteria: params?.criteria,
-      status: params?.status,
-      sortBy: params?.sortBy,
-      sortOrder: params?.sortOrder,
-      tenantId: params?.tenantId,
-    });
+    const queryParams = new URLSearchParams();
+    if (params?.page !== undefined) queryParams.append('page', params.page.toString());
+    if (params?.pageSize !== undefined) queryParams.append('pageSize', params.pageSize.toString());
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.criteria) queryParams.append('criteria', params.criteria);
+    if (params?.status) queryParams.append('status', params.status);
+    if (params?.sortBy) queryParams.append('sortBy', params.sortBy);
+    if (params?.sortOrder) queryParams.append('sortOrder', params.sortOrder);
+    if (params?.tenantId) queryParams.append('tenantId', params.tenantId);
 
-    const pageResult = SystemSuitePageSchema.safeParse(response.systemSuites);
+    const { data } = await httpClient.get(`/system-suites?${queryParams.toString()}`);
+
+    const pageResult = SystemSuitePageSchema.safeParse(data);
     if (!pageResult.success) {
-      logger.error('Invalid GraphQL response shape for system suites query', pageResult.error);
-      throw new Error('Invalid GraphQL response shape for system suites query');
+      logger.error('Invalid REST response shape for system suites query', pageResult.error);
+      throw new Error('Invalid REST response shape for system suites query');
     }
     return pageResult.data;
   },
@@ -64,33 +64,42 @@ export const systemSuiteService = {
   }): Promise<SystemSuitePage> => systemSuiteService.getAll(params),
 
   getById: async (systemSuiteId: string): Promise<SystemSuite> => {
-    const response = await graphqlSystemSuiteQueries.getSystemSuiteById(systemSuiteId);
-    if (!response.systemSuiteById) throw new Error('SystemSuite not found');
-    return SystemSuiteSchema.parse(response.systemSuiteById);
+    const { data } = await httpClient.get(`/system-suites/${systemSuiteId}`);
+    if (!data) throw new Error('SystemSuite not found');
+    return SystemSuiteSchema.parse(data);
   },
 
-  getSystemSuiteById: async (systemSuiteId: string): Promise<SystemSuite> => systemSuiteService.getById(systemSuiteId),
+  getSystemSuiteById: async (systemSuiteId: string): Promise<SystemSuite> =>
+    systemSuiteService.getById(systemSuiteId),
 
   // ── Commands (REST) ───────────────────────────────────────────────────────
 
-  createSystemSuite: async (payload: CreateSystemSuitePayload): Promise<CreateSystemSuiteResponse> => {
+  createSystemSuite: async (
+    payload: CreateSystemSuitePayload
+  ): Promise<CreateSystemSuiteResponse> => {
     const { data } = await httpClient.post('/system-suites', payload);
     return CreateSystemSuiteResponseSchema.parse(data);
   },
 
-  updateSystemSuite: async (systemSuiteId: string, name: string, description: string): Promise<void> => {
+  updateSystemSuite: async (
+    systemSuiteId: string,
+    name: string,
+    description: string
+  ): Promise<void> => {
     await httpClient.put(`/system-suites/${systemSuiteId}`, { name, description });
   },
 
   setSystemSuiteStatus: async (systemSuiteId: string, status: string): Promise<void> => {
-    await httpClient.post(`/system-suites/${systemSuiteId}/status`, undefined, { params: { status } });
+    await httpClient.post(`/system-suites/${systemSuiteId}/status`, undefined, {
+      params: { status },
+    });
   },
 
   // ── Module Lifecycle REST Commands ─────────────────────────────────────────
 
   addModule: async (
     systemSuiteId: string,
-    payload: { code: string; name: string; description?: string; sortOrder: number },
+    payload: { code: string; name: string; description?: string; sortOrder: number }
   ): Promise<void> => {
     await httpClient.post(`/system-suites/${systemSuiteId}/modules`, {
       ...payload,
@@ -101,7 +110,7 @@ export const systemSuiteService = {
   updateModule: async (
     systemSuiteId: string,
     moduleId: string,
-    payload: { name: string; description?: string; sortOrder: number },
+    payload: { name: string; description?: string; sortOrder: number }
   ): Promise<void> => {
     await httpClient.put(`/system-suites/${systemSuiteId}/modules/${moduleId}`, {
       ...payload,
@@ -126,7 +135,7 @@ export const systemSuiteService = {
   addMenu: async (
     systemSuiteId: string,
     moduleId: string,
-    payload: { code: string; label: string; description?: string; sortOrder: number },
+    payload: { code: string; label: string; description?: string; sortOrder: number }
   ): Promise<void> => {
     await httpClient.post(`/system-suites/${systemSuiteId}/modules/${moduleId}/menus`, {
       ...payload,
@@ -138,7 +147,7 @@ export const systemSuiteService = {
     systemSuiteId: string,
     moduleId: string,
     menuId: string,
-    payload: { label: string; description?: string; sortOrder: number },
+    payload: { label: string; description?: string; sortOrder: number }
   ): Promise<void> => {
     await httpClient.put(`/system-suites/${systemSuiteId}/modules/${moduleId}/menus/${menuId}`, {
       ...payload,
@@ -156,12 +165,15 @@ export const systemSuiteService = {
     systemSuiteId: string,
     moduleId: string,
     menuId: string,
-    payload: { code: string; label: string; description?: string; sortOrder: number },
+    payload: { code: string; label: string; description?: string; sortOrder: number }
   ): Promise<void> => {
-    await httpClient.post(`/system-suites/${systemSuiteId}/modules/${moduleId}/menus/${menuId}/submenus`, {
-      ...payload,
-      description: payload.description?.trim() ?? '',
-    });
+    await httpClient.post(
+      `/system-suites/${systemSuiteId}/modules/${moduleId}/menus/${menuId}/submenus`,
+      {
+        ...payload,
+        description: payload.description?.trim() ?? '',
+      }
+    );
   },
 
   updateSubMenu: async (
@@ -169,16 +181,23 @@ export const systemSuiteService = {
     moduleId: string,
     menuId: string,
     subMenuId: string,
-    payload: { label: string; description?: string; sortOrder: number },
+    payload: { label: string; description?: string; sortOrder: number }
   ): Promise<void> => {
     await httpClient.put(
       `/system-suites/${systemSuiteId}/modules/${moduleId}/menus/${menuId}/submenus/${subMenuId}`,
-      { ...payload, description: payload.description?.trim() ?? '' },
+      { ...payload, description: payload.description?.trim() ?? '' }
     );
   },
 
-  removeSubMenu: async (systemSuiteId: string, moduleId: string, menuId: string, subMenuId: string): Promise<void> => {
-    await httpClient.delete(`/system-suites/${systemSuiteId}/modules/${moduleId}/menus/${menuId}/submenus/${subMenuId}`);
+  removeSubMenu: async (
+    systemSuiteId: string,
+    moduleId: string,
+    menuId: string,
+    subMenuId: string
+  ): Promise<void> => {
+    await httpClient.delete(
+      `/system-suites/${systemSuiteId}/modules/${moduleId}/menus/${menuId}/submenus/${subMenuId}`
+    );
   },
 
   // ── Option Lifecycle REST Commands ────────────────────────────────────────
@@ -188,11 +207,17 @@ export const systemSuiteService = {
     moduleId: string,
     menuId: string,
     subMenuId: string,
-    payload: { code: string; label: string; description?: string; actionCode: string; sortOrder: number },
+    payload: {
+      code: string;
+      label: string;
+      description?: string;
+      actionCode: string;
+      sortOrder: number;
+    }
   ): Promise<void> => {
     await httpClient.post(
       `/system-suites/${systemSuiteId}/modules/${moduleId}/menus/${menuId}/submenus/${subMenuId}/options`,
-      { ...payload, description: payload.description?.trim() ?? '' },
+      { ...payload, description: payload.description?.trim() ?? '' }
     );
   },
 
@@ -202,17 +227,23 @@ export const systemSuiteService = {
     menuId: string,
     subMenuId: string,
     optionId: string,
-    payload: { label: string; description?: string; actionCode: string; sortOrder: number },
+    payload: { label: string; description?: string; actionCode: string; sortOrder: number }
   ): Promise<void> => {
     await httpClient.put(
       `/system-suites/${systemSuiteId}/modules/${moduleId}/menus/${menuId}/submenus/${subMenuId}/options/${optionId}`,
-      { ...payload, description: payload.description?.trim() ?? '' },
+      { ...payload, description: payload.description?.trim() ?? '' }
     );
   },
 
-  removeOption: async (systemSuiteId: string, moduleId: string, menuId: string, subMenuId: string, optionId: string): Promise<void> => {
+  removeOption: async (
+    systemSuiteId: string,
+    moduleId: string,
+    menuId: string,
+    subMenuId: string,
+    optionId: string
+  ): Promise<void> => {
     await httpClient.delete(
-      `/system-suites/${systemSuiteId}/modules/${moduleId}/menus/${menuId}/submenus/${subMenuId}/options/${optionId}`,
+      `/system-suites/${systemSuiteId}/modules/${moduleId}/menus/${menuId}/submenus/${subMenuId}/options/${optionId}`
     );
   },
 
@@ -220,7 +251,7 @@ export const systemSuiteService = {
 
   registerAction: async (
     systemSuiteId: string,
-    payload: { code: string; name: string },
+    payload: { code: string; name: string }
   ): Promise<void> => {
     await httpClient.post(`/system-suites/${systemSuiteId}/actions`, payload);
   },
@@ -237,7 +268,14 @@ export const systemSuiteService = {
 
   addDomainResource: async (
     systemSuiteId: string,
-    payload: { moduleId?: string | null; parentResourceId?: string | null; type: 'Aggregate' | 'Entity' | 'DomainMethod'; code: string; name: string; description: string; },
+    payload: {
+      moduleId?: string | null;
+      parentResourceId?: string | null;
+      type: 'Aggregate' | 'Entity' | 'DomainMethod';
+      code: string;
+      name: string;
+      description: string;
+    }
   ): Promise<void> => {
     await httpClient.post(`/system-suites/${systemSuiteId}/domain-resources`, payload);
   },
@@ -245,9 +283,12 @@ export const systemSuiteService = {
   updateDomainResource: async (
     systemSuiteId: string,
     domainResourceId: string,
-    payload: { name: string; description: string; },
+    payload: { name: string; description: string }
   ): Promise<void> => {
-    await httpClient.put(`/system-suites/${systemSuiteId}/domain-resources/${domainResourceId}`, payload);
+    await httpClient.put(
+      `/system-suites/${systemSuiteId}/domain-resources/${domainResourceId}`,
+      payload
+    );
   },
 
   removeDomainResource: async (systemSuiteId: string, domainResourceId: string): Promise<void> => {

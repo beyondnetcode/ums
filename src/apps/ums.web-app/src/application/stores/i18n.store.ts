@@ -16,9 +16,9 @@ interface I18nState {
   setLanguage: (lang: SupportedLanguage) => void;
 }
 
-export const useI18nStore = create<I18nState>((set) => ({
+export const useI18nStore = create<I18nState>(set => ({
   language: 'es',
-  setLanguage: (lang) => {
+  setLanguage: lang => {
     document.documentElement.lang = lang;
     set({ language: lang });
   },

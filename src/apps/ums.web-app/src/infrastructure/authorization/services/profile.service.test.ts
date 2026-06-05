@@ -57,7 +57,28 @@ describe('profileService', () => {
     it('passes custom params', async () => {
       vi.mocked(graphqlProfileQueriesModule.graphqlProfileQueries.getProfiles).mockResolvedValue({
         profiles: {
-          items: [{ profileId: '12345678-1234-1234-1234-123456789012', tenantId: '12345678-1234-1234-1234-123456789012', tenantCode: 'TENANT', tenantName: 'Tenant', userId: '12345678-1234-1234-1234-123456789012', userEmail: 'user@example.com', roleId: '12345678-1234-1234-1234-123456789012', roleCode: 'ADMIN', roleName: 'Admin', systemSuiteId: '12345678-1234-1234-1234-123456789012', systemSuiteCode: 'CORE', systemSuiteName: 'Core', branchId: null, branchName: null, scope: 'Tenant', isActive: true, permissionCount: 0, permissions: [] }],
+          items: [
+            {
+              profileId: '12345678-1234-1234-1234-123456789012',
+              tenantId: '12345678-1234-1234-1234-123456789012',
+              tenantCode: 'TENANT',
+              tenantName: 'Tenant',
+              userId: '12345678-1234-1234-1234-123456789012',
+              userEmail: 'user@example.com',
+              roleId: '12345678-1234-1234-1234-123456789012',
+              roleCode: 'ADMIN',
+              roleName: 'Admin',
+              systemSuiteId: '12345678-1234-1234-1234-123456789012',
+              systemSuiteCode: 'CORE',
+              systemSuiteName: 'Core',
+              branchId: null,
+              branchName: null,
+              scope: 'Tenant',
+              isActive: true,
+              permissionCount: 0,
+              permissions: [],
+            },
+          ],
           page: 2,
           pageSize: 10,
           totalItems: 1,
@@ -83,26 +104,28 @@ describe('profileService', () => {
 
   describe('getById', () => {
     it('returns parsed profile', async () => {
-      vi.mocked(graphqlProfileQueriesModule.graphqlProfileQueries.getProfileById).mockResolvedValue({
-        profileById: {
-          profileId: '12345678-1234-1234-1234-123456789012',
-          tenantId: '12345678-1234-1234-1234-123456789012',
-          tenantCode: 'TENANT',
-          tenantName: 'Tenant',
-          userId: '12345678-1234-1234-1234-123456789012',
-          userEmail: 'user@example.com',
-          roleId: '12345678-1234-1234-1234-123456789012',
-          roleCode: 'ADMIN',
-          roleName: 'Admin',
-          scope: 'Tenant',
-          isActive: true,
-          permissionCount: 0,
-          permissions: [],
-          systemSuiteId: '12345678-1234-1234-1234-123456789012',
-          systemSuiteCode: 'CORE',
-          systemSuiteName: 'Core',
-        },
-      });
+      vi.mocked(graphqlProfileQueriesModule.graphqlProfileQueries.getProfileById).mockResolvedValue(
+        {
+          profileById: {
+            profileId: '12345678-1234-1234-1234-123456789012',
+            tenantId: '12345678-1234-1234-1234-123456789012',
+            tenantCode: 'TENANT',
+            tenantName: 'Tenant',
+            userId: '12345678-1234-1234-1234-123456789012',
+            userEmail: 'user@example.com',
+            roleId: '12345678-1234-1234-1234-123456789012',
+            roleCode: 'ADMIN',
+            roleName: 'Admin',
+            scope: 'Tenant',
+            isActive: true,
+            permissionCount: 0,
+            permissions: [],
+            systemSuiteId: '12345678-1234-1234-1234-123456789012',
+            systemSuiteCode: 'CORE',
+            systemSuiteName: 'Core',
+          },
+        }
+      );
 
       const result = await profileService.getById('p1');
 
@@ -110,9 +133,11 @@ describe('profileService', () => {
     });
 
     it('throws when not found', async () => {
-      vi.mocked(graphqlProfileQueriesModule.graphqlProfileQueries.getProfileById).mockResolvedValue({
-        profileById: null,
-      });
+      vi.mocked(graphqlProfileQueriesModule.graphqlProfileQueries.getProfileById).mockResolvedValue(
+        {
+          profileById: null,
+        }
+      );
 
       await expect(profileService.getById('nonexistent')).rejects.toThrow('Profile not found');
     });
@@ -124,7 +149,11 @@ describe('profileService', () => {
         data: { profileId: '12345678-1234-1234-1234-123456789012' },
       });
 
-      const result = await profileService.create({ tenantId: '12345678-1234-1234-1234-123456789012', userId: '12345678-1234-1234-1234-123456789012', roleId: '12345678-1234-1234-1234-123456789012' });
+      const result = await profileService.create({
+        tenantId: '12345678-1234-1234-1234-123456789012',
+        userId: '12345678-1234-1234-1234-123456789012',
+        roleId: '12345678-1234-1234-1234-123456789012',
+      });
 
       expect(result.profileId).toBe('12345678-1234-1234-1234-123456789012');
     });
@@ -146,7 +175,9 @@ describe('profileService', () => {
 
       await profileService.overridePermission('p1', 'perm1', 'allow');
 
-      expect(httpClientModule.httpClient.post).toHaveBeenCalledWith('/profiles/p1/permissions/perm1/override?effect=allow');
+      expect(httpClientModule.httpClient.post).toHaveBeenCalledWith(
+        '/profiles/p1/permissions/perm1/override?effect=allow'
+      );
     });
 
     it('calls POST override endpoint with deny effect', async () => {
@@ -154,7 +185,9 @@ describe('profileService', () => {
 
       await profileService.overridePermission('p1', 'perm1', 'deny');
 
-      expect(httpClientModule.httpClient.post).toHaveBeenCalledWith('/profiles/p1/permissions/perm1/override?effect=deny');
+      expect(httpClientModule.httpClient.post).toHaveBeenCalledWith(
+        '/profiles/p1/permissions/perm1/override?effect=deny'
+      );
     });
   });
 
@@ -164,7 +197,9 @@ describe('profileService', () => {
 
       await profileService.activatePermission('p1', 'perm1');
 
-      expect(httpClientModule.httpClient.post).toHaveBeenCalledWith('/profiles/p1/permissions/perm1/activate');
+      expect(httpClientModule.httpClient.post).toHaveBeenCalledWith(
+        '/profiles/p1/permissions/perm1/activate'
+      );
     });
   });
 
@@ -174,7 +209,9 @@ describe('profileService', () => {
 
       await profileService.deactivatePermission('p1', 'perm1');
 
-      expect(httpClientModule.httpClient.post).toHaveBeenCalledWith('/profiles/p1/permissions/perm1/deactivate');
+      expect(httpClientModule.httpClient.post).toHaveBeenCalledWith(
+        '/profiles/p1/permissions/perm1/deactivate'
+      );
     });
   });
 
@@ -205,7 +242,10 @@ describe('profileService', () => {
       const result = await profileService.exportGraph('p1', 'json');
 
       expect(result).toBe('exported data');
-      expect(httpClientModule.httpClient.get).toHaveBeenCalledWith('/profiles/p1/export', { params: { format: 'json' }, responseType: 'text' });
+      expect(httpClientModule.httpClient.get).toHaveBeenCalledWith('/profiles/p1/export', {
+        params: { format: 'json' },
+        responseType: 'text',
+      });
     });
   });
 });

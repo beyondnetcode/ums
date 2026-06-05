@@ -51,7 +51,10 @@ describe('GraphQlUnavailableError', () => {
 
 describe('GraphQlValidationError', () => {
   it('creates error with details', () => {
-    const error = new GraphQlValidationError('Validation failed', ['Field A is required', 'Field B is invalid']);
+    const error = new GraphQlValidationError('Validation failed', [
+      'Field A is required',
+      'Field B is invalid',
+    ]);
     expect(error.message).toBe('Validation failed');
     expect(error.details).toEqual(['Field A is required', 'Field B is invalid']);
     expect(error.name).toBe('GraphQlValidationError');
@@ -98,7 +101,7 @@ describe('graphqlClient', () => {
           'X-Tenant-Id': expect.any(String),
         }),
         body: expect.stringContaining('tenants'),
-      }),
+      })
     );
   });
 
@@ -110,7 +113,9 @@ describe('graphqlClient', () => {
     };
     vi.mocked(global.fetch).mockResolvedValue(mockResponse as unknown as Response);
 
-    await graphqlClient.request('query GetTenant($id: ID!) { tenant(id: $id) { tenantId } }', { id: '123' });
+    await graphqlClient.request('query GetTenant($id: ID!) { tenant(id: $id) { tenantId } }', {
+      id: '123',
+    });
 
     const callArgs = vi.mocked(global.fetch).mock.calls[0];
     const body = JSON.parse(callArgs[1].body as string);
@@ -140,7 +145,10 @@ describe('graphqlClient', () => {
     };
     vi.mocked(global.fetch).mockResolvedValue(mockResponse as unknown as Response);
 
-    await graphqlClient.request('mutation CreateTenant($code: String!) { createTenant(code: $code) { tenantId } }', { code: 'TEST' });
+    await graphqlClient.request(
+      'mutation CreateTenant($code: String!) { createTenant(code: $code) { tenantId } }',
+      { code: 'TEST' }
+    );
 
     const callArgs = vi.mocked(global.fetch).mock.calls[0];
     const body = JSON.parse(callArgs[1].body as string);
@@ -155,7 +163,9 @@ describe('graphqlClient', () => {
     };
     vi.mocked(global.fetch).mockResolvedValue(mockResponse as unknown as Response);
 
-    await expect(graphqlClient.request('{ tenants { tenantId } }')).rejects.toThrow(GraphQlUnavailableError);
+    await expect(graphqlClient.request('{ tenants { tenantId } }')).rejects.toThrow(
+      GraphQlUnavailableError
+    );
   });
 
   it('throws GraphQlUnavailableError on 503', async () => {
@@ -166,7 +176,9 @@ describe('graphqlClient', () => {
     };
     vi.mocked(global.fetch).mockResolvedValue(mockResponse as unknown as Response);
 
-    await expect(graphqlClient.request('{ tenants { tenantId } }')).rejects.toThrow(GraphQlUnavailableError);
+    await expect(graphqlClient.request('{ tenants { tenantId } }')).rejects.toThrow(
+      GraphQlUnavailableError
+    );
   });
 
   it('throws GraphQlValidationError on 400 with errors', async () => {
@@ -181,7 +193,9 @@ describe('graphqlClient', () => {
     };
     vi.mocked(global.fetch).mockResolvedValue(mockResponse as unknown as Response);
 
-    await expect(graphqlClient.request('{ tenants { tenantId } }')).rejects.toThrow(GraphQlValidationError);
+    await expect(graphqlClient.request('{ tenants { tenantId } }')).rejects.toThrow(
+      GraphQlValidationError
+    );
   });
 
   it('throws GraphQlError on non-400 error status', async () => {
@@ -221,7 +235,9 @@ describe('graphqlClient', () => {
     };
     vi.mocked(global.fetch).mockResolvedValue(mockResponse as unknown as Response);
 
-    await expect(graphqlClient.request('{ tenants { tenantId } }')).rejects.toThrow(GraphQlValidationError);
+    await expect(graphqlClient.request('{ tenants { tenantId } }')).rejects.toThrow(
+      GraphQlValidationError
+    );
   });
 
   it('returns data on successful response', async () => {
@@ -243,7 +259,9 @@ describe('graphqlClient', () => {
       ok: false,
       status: 500,
       json: vi.fn().mockResolvedValue({ errors: [{ message: 'Error' }], data: null }),
-      headers: { get: vi.fn().mockImplementation((name) => name === 'X-Error-Id' ? 'ERR-001' : null) },
+      headers: {
+        get: vi.fn().mockImplementation(name => (name === 'X-Error-Id' ? 'ERR-001' : null)),
+      },
     };
     vi.mocked(global.fetch).mockResolvedValue(mockResponse as unknown as Response);
 

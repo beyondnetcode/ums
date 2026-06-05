@@ -1,11 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import {
-  Search,
-  LayoutList,
-  LayoutGrid,
-  Plus,
-  Database,
-} from 'lucide-react';
+import { Search, LayoutList, LayoutGrid, Plus, Database } from 'lucide-react';
 import { M3Card } from './M3Card';
 import { M3TextField } from './M3TextField';
 import { EmptyState } from './EmptyState';
@@ -17,9 +11,18 @@ import { FilterBar } from './data-view/FilterBar';
 import { SortDropdown } from './data-view/SortDropdown';
 import { PaginationFooter } from './data-view/PaginationControls';
 
-export interface SortOption { label: string; value: string; }
-export interface FilterOption { label: string; value: string; }
-export interface QueryCriteriaOption { label: string; value: string; }
+export interface SortOption {
+  label: string;
+  value: string;
+}
+export interface FilterOption {
+  label: string;
+  value: string;
+}
+export interface QueryCriteriaOption {
+  label: string;
+  value: string;
+}
 export interface PaginationData {
   page: number;
   pageSize: number;
@@ -124,14 +127,11 @@ export const M3DataView: React.FC<M3DataViewProps> = ({
     toggleCollapse: toggleHeader,
   } = useDragResize();
 
-  
-
   return (
     <div
       ref={dvContainerRef}
       className={`flex flex-col h-full${isDraggingH ? ' select-none cursor-row-resize' : ''}`}
     >
-
       {/*
         ══════════════════════════════════════════════════════════════
         ZONE A — Title bar   (ALWAYS VISIBLE — never collapses)
@@ -152,9 +152,7 @@ export const M3DataView: React.FC<M3DataViewProps> = ({
               <span className="truncate">{title}</span>
             </h2>
             {subtitle && (
-              <p className="text-xs text-m3-secondary font-normal pl-7 truncate">
-                {subtitle}
-              </p>
+              <p className="text-xs text-m3-secondary font-normal pl-7 truncate">{subtitle}</p>
             )}
           </div>
 
@@ -182,10 +180,11 @@ export const M3DataView: React.FC<M3DataViewProps> = ({
                   : 'bg-m3-surface-container/60 border-m3-outline/40 text-m3-secondary hover:bg-m3-primary/10 hover:border-m3-primary/40 hover:text-m3-primary',
               ].join(' ')}
             >
-              {isHeaderCollapsed
-                ? <ChevronsDown className="w-3.5 h-3.5" />
-                : <ChevronsUp   className="w-3.5 h-3.5" />
-              }
+              {isHeaderCollapsed ? (
+                <ChevronsDown className="w-3.5 h-3.5" />
+              ) : (
+                <ChevronsUp className="w-3.5 h-3.5" />
+              )}
             </button>
           </div>
         </div>
@@ -220,12 +219,14 @@ export const M3DataView: React.FC<M3DataViewProps> = ({
                 </label>
                 <select
                   value={activeCriteria}
-                  onChange={(e) => onCriteriaChange(e.target.value)}
+                  onChange={e => onCriteriaChange(e.target.value)}
                   aria-label={criteriaLabel}
                   className="w-full h-10 px-3 text-xs rounded-lg border border-m3-outline bg-m3-surface-container/30 dark:bg-m3-surface-container/20 text-m3-on-surface focus:outline-none focus:border-m3-primary transition-colors cursor-pointer"
                 >
-                  {searchCriteria.map((c) => (
-                    <option key={c.value} value={c.value}>{c.label}</option>
+                  {searchCriteria.map(c => (
+                    <option key={c.value} value={c.value}>
+                      {c.label}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -236,7 +237,7 @@ export const M3DataView: React.FC<M3DataViewProps> = ({
                 dense
                 label={searchTermLabel}
                 value={searchValue}
-                onChange={(e) => onSearchValueChange(e.target.value)}
+                onChange={e => onSearchValueChange(e.target.value)}
                 placeholder={searchPlaceholder}
                 className="mb-0"
               />
@@ -280,7 +281,8 @@ export const M3DataView: React.FC<M3DataViewProps> = ({
             className="self-end sm:self-auto"
           />
         </div>
-      </div>{/* end search zone */}
+      </div>
+      {/* end search zone */}
 
       {/*
         ══════════════════════════════════════════════════════════════
@@ -299,7 +301,9 @@ export const M3DataView: React.FC<M3DataViewProps> = ({
         aria-valuenow={topPx ?? undefined}
         className={[
           'relative flex-shrink-0 h-1.5 w-full flex items-center justify-center group cursor-row-resize z-10 mt-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-m3-primary',
-          isDraggingH ? 'bg-m3-primary/20' : 'hover:bg-m3-primary/10 transition-colors duration-150',
+          isDraggingH
+            ? 'bg-m3-primary/20'
+            : 'hover:bg-m3-primary/10 transition-colors duration-150',
         ].join(' ')}
       >
         <div
@@ -312,8 +316,11 @@ export const M3DataView: React.FC<M3DataViewProps> = ({
         <button
           type="button"
           title={isHeaderCollapsed ? 'Expand search panel' : 'Collapse search panel'}
-          onClick={(e) => { e.stopPropagation(); toggleHeader(); }}
-          onMouseDown={(e) => e.stopPropagation()}
+          onClick={e => {
+            e.stopPropagation();
+            toggleHeader();
+          }}
+          onMouseDown={e => e.stopPropagation()}
           className={[
             'absolute left-1/2 -translate-x-1/2 -translate-y-px',
             'h-4 w-12 rounded-full flex items-center justify-center gap-0.5',
@@ -325,10 +332,11 @@ export const M3DataView: React.FC<M3DataViewProps> = ({
                 : 'bg-m3-surface-container border-m3-outline/50 text-m3-secondary hover:bg-m3-primary/10 hover:border-m3-primary/40 hover:text-m3-primary',
           ].join(' ')}
         >
-          {isHeaderCollapsed
-            ? <ChevronsDown className="w-3 h-3" />
-            : <ChevronsUp   className="w-3 h-3" />
-          }
+          {isHeaderCollapsed ? (
+            <ChevronsDown className="w-3 h-3" />
+          ) : (
+            <ChevronsUp className="w-3 h-3" />
+          )}
         </button>
       </div>
 
@@ -338,7 +346,6 @@ export const M3DataView: React.FC<M3DataViewProps> = ({
         ══════════════════════════════════════════════════════════════
       */}
       <div className="flex-1 flex flex-col gap-3 min-h-0 overflow-hidden pt-1">
-
         {/* List content */}
         <div className="flex-1 relative overflow-auto">
           {isLoading ? (
@@ -350,7 +357,12 @@ export const M3DataView: React.FC<M3DataViewProps> = ({
               <M3SkeletonRow columns={viewMode === 'list' ? 4 : 2} />
             </div>
           ) : isEmpty ? (
-            <EmptyState variant="card" title={emptyTitle} message={emptyLabel} tooltip={emptyTooltip} />
+            <EmptyState
+              variant="card"
+              title={emptyTitle}
+              message={emptyLabel}
+              tooltip={emptyTooltip}
+            />
           ) : (
             <div className="animate-fadeIn">
               {viewMode === 'list' ? renderList() : renderThumbnail()}
@@ -368,8 +380,8 @@ export const M3DataView: React.FC<M3DataViewProps> = ({
             telemetryInfo={telemetryInfo}
           />
         )}
-
-      </div>{/* end bottom zone */}
+      </div>
+      {/* end bottom zone */}
     </div>
   );
 };

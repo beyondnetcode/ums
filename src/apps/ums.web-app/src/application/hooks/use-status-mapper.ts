@@ -35,7 +35,11 @@ export function useStatusMapper(config: StatusMapperConfig) {
     if (!entry) {
       return {
         label: status,
-        colors: { bg: 'bg-m3-outline/10', border: 'border-m3-outline/20', text: 'text-m3-secondary' },
+        colors: {
+          bg: 'bg-m3-outline/10',
+          border: 'border-m3-outline/20',
+          text: 'text-m3-secondary',
+        },
       };
     }
     return {

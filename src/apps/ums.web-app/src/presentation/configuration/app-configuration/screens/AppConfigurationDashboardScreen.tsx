@@ -8,7 +8,10 @@
  */
 import React, { useState } from 'react';
 import { useAppConfigurationDashboard } from '@app/configuration/hooks/use-app-configuration-dashboard';
-import { useCreateAppConfiguration, useDeleteAppConfiguration } from '@app/configuration/hooks/use-app-configuration';
+import {
+  useCreateAppConfiguration,
+  useDeleteAppConfiguration,
+} from '@app/configuration/hooks/use-app-configuration';
 import { AppConfigurationListPanel } from '../components/AppConfigurationListPanel';
 import { AppConfigurationDetailPanel } from '../components/AppConfigurationDetailPanel';
 import { ParameterDefinitionPickerDialog } from '../components/ParameterDefinitionPickerDialog';
@@ -59,7 +62,11 @@ export default function AppConfigurationDashboardScreen(): React.JSX.Element {
       }
       setIsPickerOpen(false);
     } catch (err: any) {
-      const errorMsg = err?.normalised?.message || err?.response?.data?.detail || err?.message || t.failedToLinkParameter;
+      const errorMsg =
+        err?.normalised?.message ||
+        err?.response?.data?.detail ||
+        err?.message ||
+        t.failedToLinkParameter;
       console.error('Create config error:', err?.response?.data);
       addNotification({
         title: t.error ?? 'Error',
@@ -110,11 +117,23 @@ export default function AppConfigurationDashboardScreen(): React.JSX.Element {
       <M3Dialog
         open={isDeleteDialogOpen}
         title={t.deleteConfiguration ?? 'Delete Configuration'}
-        message={t.deleteConfigurationConfirm ?? 'Are you sure you want to delete this configuration? This action cannot be undone.'}
+        message={
+          t.deleteConfigurationConfirm ??
+          'Are you sure you want to delete this configuration? This action cannot be undone.'
+        }
         onScrimClick={() => setIsDeleteDialogOpen(false)}
         actions={[
-          { label: t.cancelBtn ?? 'Cancel', variant: 'outlined', onClick: () => setIsDeleteDialogOpen(false) },
-          { label: t.deleteBtn ?? 'Delete', variant: 'filled', className: 'bg-m3-error hover:bg-m3-error/90 border-0', onClick: handleDeleteConfirm },
+          {
+            label: t.cancelBtn ?? 'Cancel',
+            variant: 'outlined',
+            onClick: () => setIsDeleteDialogOpen(false),
+          },
+          {
+            label: t.deleteBtn ?? 'Delete',
+            variant: 'filled',
+            className: 'bg-m3-error hover:bg-m3-error/90 border-0',
+            onClick: handleDeleteConfirm,
+          },
         ]}
       />
 
@@ -143,7 +162,10 @@ export default function AppConfigurationDashboardScreen(): React.JSX.Element {
           d.activeConfig ? (
             <AppConfigurationDetailPanel
               config={d.activeConfig}
-              onEdit={() => { setTriggerEditValue(true); setTimeout(() => setTriggerEditValue(false), 100); }}
+              onEdit={() => {
+                setTriggerEditValue(true);
+                setTimeout(() => setTriggerEditValue(false), 100);
+              }}
               onDelete={() => handleDeleteRequest(d.activeConfig?.appConfigurationId || '')}
               triggerEditValue={triggerEditValue}
             />

@@ -12,7 +12,9 @@ export const RequiresFilterPrompt: React.FC<RequiresFilterPromptProps> = ({
   message = 'Selecciona un estado o ingresa un término de búsqueda para visualizar los elementos.',
   className = '',
 }) => (
-  <div className={`flex flex-col items-center justify-center h-full text-center py-16 ${className}`}>
+  <div
+    className={`flex flex-col items-center justify-center h-full text-center py-16 ${className}`}
+  >
     <div className="p-4 rounded-2xl bg-m3-primary/5 border border-m3-primary/10 mb-4">
       <Info className="w-8 h-8 text-m3-primary/60" />
     </div>

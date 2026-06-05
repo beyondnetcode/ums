@@ -47,7 +47,7 @@ describe('authService routing', () => {
       expect.objectContaining({
         method: 'POST',
         credentials: 'include',
-      }),
+      })
     );
 
     const [requestUrl, requestInit] = vi.mocked(fetch).mock.calls[0];

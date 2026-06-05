@@ -32,7 +32,10 @@ import { useGetSystemSuite } from '@app/authorization/hooks/use-system-suite';
 import { ProfileModulePermissionsPanel } from './tree/ProfileModulePermissionsPanel';
 import { ProfileDomainResourcesPanel } from './tree/ProfileDomainResourcesPanel';
 import { ProfileSystemActionsPanel } from './tree/ProfileSystemActionsPanel';
-import { getAscendantIds, getSiblingViewOptions } from '../../../../application/authorization/utils/permission-cascade';
+import {
+  getAscendantIds,
+  getSiblingViewOptions,
+} from '../../../../application/authorization/utils/permission-cascade';
 import { useNotificationStore } from '@app/stores/notification.store';
 
 interface Props {
@@ -63,7 +66,9 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
   const deactivatePermMutation = useDeactivateProfilePermission();
   const activateProfileMutation = useActivateProfile();
   const deactivateProfileMutation = useDeactivateProfile();
-  const { data: suite, isLoading: loadingSuite } = useGetSystemSuite(profile?.systemSuiteId ?? null);
+  const { data: suite, isLoading: loadingSuite } = useGetSystemSuite(
+    profile?.systemSuiteId ?? null
+  );
   const addNotification = useNotificationStore(s => s.addNotification);
 
   const renderInlineActions = (node: { id: string }) => {
@@ -80,7 +85,10 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
         <div className="flex items-center bg-m3-surface-container/60 rounded-lg p-0.5 border border-m3-outline/20">
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); handleChangePermissionEffect(p.permissionId, 'allow'); }}
+            onClick={e => {
+              e.stopPropagation();
+              handleChangePermissionEffect(p.permissionId, 'allow');
+            }}
             disabled={overrideMutation.isPending}
             className={`px-2 py-1 rounded-md text-[10px] font-semibold transition-all ${p.isAllowed && !p.isDenied ? 'bg-emerald-500 text-white shadow-sm' : 'text-m3-on-surface/60 hover:text-m3-on-surface hover:bg-m3-surface/50'}`}
           >
@@ -89,7 +97,10 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
           </button>
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); handleChangePermissionEffect(p.permissionId, 'neutral'); }}
+            onClick={e => {
+              e.stopPropagation();
+              handleChangePermissionEffect(p.permissionId, 'neutral');
+            }}
             disabled={overrideMutation.isPending}
             className={`px-2 py-1 rounded-md text-[10px] font-semibold transition-all ${!p.isAllowed && !p.isDenied ? 'bg-m3-outline/30 text-m3-on-surface shadow-sm' : 'text-m3-on-surface/60 hover:text-m3-on-surface hover:bg-m3-surface/50'}`}
           >
@@ -98,7 +109,10 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
           </button>
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); handleChangePermissionEffect(p.permissionId, 'deny'); }}
+            onClick={e => {
+              e.stopPropagation();
+              handleChangePermissionEffect(p.permissionId, 'deny');
+            }}
             disabled={overrideMutation.isPending}
             className={`px-2 py-1 rounded-md text-[10px] font-semibold transition-all ${!p.isAllowed && p.isDenied ? 'bg-rose-500 text-white shadow-sm' : 'text-m3-on-surface/60 hover:text-m3-on-surface hover:bg-m3-surface/50'}`}
           >
@@ -110,7 +124,10 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
         <div className="flex items-center gap-1.5 border-l border-m3-outline/20 pl-4">
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); handleTogglePermissionActive(p.permissionId, p.isActive); }}
+            onClick={e => {
+              e.stopPropagation();
+              handleTogglePermissionActive(p.permissionId, p.isActive);
+            }}
             disabled={activatePermMutation.isPending || deactivatePermMutation.isPending}
             className="text-m3-primary hover:opacity-85 transition-opacity focus:outline-none"
           >
@@ -147,7 +164,9 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
     return (
       <div className="h-full flex flex-col items-center justify-center p-6 text-center text-m3-on-surface/40">
         <User className="w-12 h-12 mb-3 stroke-[1.5] text-m3-primary/30" />
-        <h3 className="text-[12px] font-medium text-m3-on-surface/70">Ningún perfil seleccionado</h3>
+        <h3 className="text-[12px] font-medium text-m3-on-surface/70">
+          Ningún perfil seleccionado
+        </h3>
         <p className="text-[12px] max-w-xs mt-1">
           Seleccione un perfil del panel izquierdo para visualizar su configuración y grafo de
           autorización.
@@ -193,12 +212,21 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
       for (const ascendantId of idsToProcess) {
         const parentPerm = profile.permissions.find(p => p.targetId === ascendantId);
         if (parentPerm && !parentPerm.isAllowed) {
-          await overrideMutation.mutateAsync({ profileId: profile.profileId, permissionId: parentPerm.permissionId, effect: 'allow' });
+          await overrideMutation.mutateAsync({
+            profileId: profile.profileId,
+            permissionId: parentPerm.permissionId,
+            effect: 'allow',
+          });
           changedParents = true;
         }
       }
       if (changedParents) {
-        addNotification({ title: 'Jerarquía actualizada', message: 'Se habilitaron automáticamente los niveles superiores por consistencia jerárquica.', type: 'info' });
+        addNotification({
+          title: 'Jerarquía actualizada',
+          message:
+            'Se habilitaron automáticamente los niveles superiores por consistencia jerárquica.',
+          type: 'info',
+        });
       }
     }
   };
@@ -251,7 +279,13 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
             )}
             <div className="space-y-0.5">
               <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="font-bold text-m3-on-surface">{p.targetName && p.targetName !== '-' && p.targetName !== '—' ? p.targetName : (p.targetType === 'SystemSuite' ? suite?.name : `(No definido)`)}</span>
+                <span className="font-bold text-m3-on-surface">
+                  {p.targetName && p.targetName !== '-' && p.targetName !== '—'
+                    ? p.targetName
+                    : p.targetType === 'SystemSuite'
+                      ? suite?.name
+                      : `(No definido)`}
+                </span>
                 <span className="text-[10px] uppercase font-semibold text-m3-primary bg-m3-primary/10 px-2 py-0.5 rounded-full border border-m3-primary/20">
                   {p.targetType}
                 </span>
@@ -366,7 +400,9 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                     <span className="text-[11px] uppercase tracking-wider font-medium text-m3-secondary/50">
                       Usuario
                     </span>
-                    <p className="text-[12px] font-medium text-m3-on-surface">{profile.userEmail}</p>
+                    <p className="text-[12px] font-medium text-m3-on-surface">
+                      {profile.userEmail}
+                    </p>
                   </div>
                 </div>
 
@@ -443,9 +479,12 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
               </div>
 
               <div className="rounded-lg border border-amber-500/10 bg-amber-500/5 px-3 py-2 flex items-start gap-2">
-                <span className="text-[10px] font-semibold text-amber-600 uppercase tracking-wide shrink-0 mt-0.5">Auditor</span>
+                <span className="text-[10px] font-semibold text-amber-600 uppercase tracking-wide shrink-0 mt-0.5">
+                  Auditor
+                </span>
                 <p className="text-[10px] text-amber-700/80 leading-relaxed">
-                  Permisos materializados definitivos — fusión de plantilla base con overrides manuales.
+                  Permisos materializados definitivos — fusión de plantilla base con overrides
+                  manuales.
                 </p>
               </div>
             </div>
@@ -470,11 +509,15 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                             suite={suite}
                             items={profile.permissions}
                             renderActions={renderInlineActions}
-                            renderExpandedContent={(node) => {
+                            renderExpandedContent={node => {
                               const perm = profile.permissions.find(p => p.targetId === node.id);
                               // Solo renderizar el row expandido si hay diferencias (originalFromTemplate) o es override
                               if (perm && (perm.originalFromTemplate || perm.isOverride)) {
-                                return <div className="pl-6 border-l-2 border-m3-primary/20 ml-5 my-1">{renderPermissionRow(perm)}</div>;
+                                return (
+                                  <div className="pl-6 border-l-2 border-m3-primary/20 ml-5 my-1">
+                                    {renderPermissionRow(perm)}
+                                  </div>
+                                );
                               }
                               return null;
                             }}
@@ -490,7 +533,9 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                             <ProfileDomainResourcesPanel
                               suite={suite}
                               permissions={profile.permissions}
-                              renderInlineActions={(node) => renderPermissionActions(node.permissions[0])}
+                              renderInlineActions={node =>
+                                renderPermissionActions(node.permissions[0])
+                              }
                             />
                           </div>
                         ),
@@ -504,7 +549,7 @@ export const ProfileDetailPanel: React.FC<Props> = ({ profile, isLoading }) => {
                             <ProfileSystemActionsPanel
                               suite={suite}
                               permissions={profile.permissions}
-                              renderInlineActions={(p) => renderPermissionActions(p)}
+                              renderInlineActions={p => renderPermissionActions(p)}
                             />
                           </div>
                         ),

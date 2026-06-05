@@ -5,37 +5,19 @@ import { SearchBar } from './SearchBar';
 
 describe('SearchBar', () => {
   it('renders search input', () => {
-    render(
-      <SearchBar
-        searchValue=""
-        onSearchValueChange={() => {}}
-        onSubmit={() => {}}
-      />
-    );
+    render(<SearchBar searchValue="" onSearchValueChange={() => {}} onSubmit={() => {}} />);
     expect(screen.getByLabelText('Término de búsqueda')).toBeInTheDocument();
   });
 
   it('renders search button', () => {
-    render(
-      <SearchBar
-        searchValue=""
-        onSearchValueChange={() => {}}
-        onSubmit={() => {}}
-      />
-    );
+    render(<SearchBar searchValue="" onSearchValueChange={() => {}} onSubmit={() => {}} />);
     expect(screen.getByText('Buscar')).toBeInTheDocument();
   });
 
   it('calls onSearchValueChange when input changes', async () => {
     const handleChange = vi.fn();
     const user = userEvent.setup();
-    render(
-      <SearchBar
-        searchValue=""
-        onSearchValueChange={handleChange}
-        onSubmit={() => {}}
-      />
-    );
+    render(<SearchBar searchValue="" onSearchValueChange={handleChange} onSubmit={() => {}} />);
 
     const input = screen.getByLabelText('Término de búsqueda');
     await user.type(input, 'test');
@@ -46,13 +28,7 @@ describe('SearchBar', () => {
   it('calls onSubmit when form is submitted', async () => {
     const handleSubmit = vi.fn();
     const user = userEvent.setup();
-    render(
-      <SearchBar
-        searchValue=""
-        onSearchValueChange={() => {}}
-        onSubmit={handleSubmit}
-      />
-    );
+    render(<SearchBar searchValue="" onSearchValueChange={() => {}} onSubmit={handleSubmit} />);
 
     const button = screen.getByText('Buscar');
     await user.click(button);

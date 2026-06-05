@@ -58,7 +58,11 @@ export const featureFlagService = {
     flagType?: string;
   }): Promise<FeatureFlagPage> => {
     const qs = buildQueryString(params);
-    const { data } = await httpClient.get<{ items: FeatureFlag[]; totalItems: number; totalPages: number }>(`/feature-flags?${qs}`);
+    const { data } = await httpClient.get<{
+      items: FeatureFlag[];
+      totalItems: number;
+      totalPages: number;
+    }>(`/feature-flags?${qs}`);
     const result = FeatureFlagPageSchema.safeParse(data);
     if (!result.success) {
       logger.error('Invalid REST response shape for feature flags query', result.error);
@@ -85,7 +89,8 @@ export const featureFlagService = {
     return FeatureFlagSchema.parse(data);
   },
 
-  getFeatureFlagById: async (featureFlagId: string): Promise<FeatureFlag> => featureFlagService.getById(featureFlagId),
+  getFeatureFlagById: async (featureFlagId: string): Promise<FeatureFlag> =>
+    featureFlagService.getById(featureFlagId),
 
   /** REST: returns all flags scoped to a given SystemSuite (no pagination). */
   getFeatureFlagsBySystemSuite: async (systemSuiteId: string): Promise<FeatureFlag[]> => {
@@ -98,12 +103,17 @@ export const featureFlagService = {
     return result.data;
   },
 
-  createFeatureFlag: async (payload: CreateFeatureFlagPayload): Promise<CreateFeatureFlagResponse> => {
+  createFeatureFlag: async (
+    payload: CreateFeatureFlagPayload
+  ): Promise<CreateFeatureFlagResponse> => {
     const { data } = await httpClient.post('/feature-flags', payload);
     return CreateFeatureFlagResponseSchema.parse(data);
   },
 
-  updateFeatureFlag: async (featureFlagId: string, payload: UpdateFeatureFlagPayload): Promise<void> => {
+  updateFeatureFlag: async (
+    featureFlagId: string,
+    payload: UpdateFeatureFlagPayload
+  ): Promise<void> => {
     await httpClient.put(`/feature-flags/${featureFlagId}`, payload);
   },
 
@@ -121,7 +131,7 @@ export const featureFlagService = {
 
   addCriteria: async (
     featureFlagId: string,
-    payload: AddFeatureFlagCriteriaPayload,
+    payload: AddFeatureFlagCriteriaPayload
   ): Promise<AddFeatureFlagCriteriaResponse> => {
     const { data } = await httpClient.post(`/feature-flags/${featureFlagId}/criteria`, payload);
     return AddFeatureFlagCriteriaResponseSchema.parse(data);

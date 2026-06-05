@@ -139,13 +139,13 @@ export const ProfileListPanel: React.FC<Props> = ({
               </span>
               <CodeBadge code={prof.roleCode} size="xs" />
             </div>
-            
+
             <div className="flex items-center gap-1">
               <span className="text-[9px] text-m3-secondary/30 mr-1">·</span>
               <Building2 className="w-3.5 h-3.5 text-m3-secondary/50" />
               <CodeBadge code={prof.tenantCode} size="xs" />
             </div>
-            
+
             <div className="flex items-center gap-1">
               <span className="text-[9px] text-m3-secondary/30 mr-1">·</span>
               <Key className="w-3.5 h-3.5 text-m3-secondary/50" />

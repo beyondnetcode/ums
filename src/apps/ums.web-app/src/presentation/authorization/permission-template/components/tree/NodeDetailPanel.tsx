@@ -1,7 +1,11 @@
 import React from 'react';
 import { UITreeNodeData, computeEffectiveState } from './TreeNode';
 import { Shield, CheckCircle2, XCircle, MinusCircle, Info } from 'lucide-react';
-import { useSetTemplateItemEffect, useRemoveTemplateItem, useAddTemplateItem } from '@app/authorization/hooks/use-permission-template';
+import {
+  useSetTemplateItemEffect,
+  useRemoveTemplateItem,
+  useAddTemplateItem,
+} from '@app/authorization/hooks/use-permission-template';
 import type { SystemSuite } from '@domain/authorization/models/system-suite.model';
 import type { ExclusiveArcTarget } from '@domain/authorization/models/permission-template.model';
 
@@ -12,7 +16,12 @@ interface NodeDetailPanelProps {
   isDraft: boolean;
 }
 
-export const NodeDetailPanel: React.FC<NodeDetailPanelProps> = ({ node, suite, templateId, isDraft }) => {
+export const NodeDetailPanel: React.FC<NodeDetailPanelProps> = ({
+  node,
+  suite,
+  templateId,
+  isDraft,
+}) => {
   const setEffect = useSetTemplateItemEffect(templateId);
   const removeItem = useRemoveTemplateItem(templateId);
   const addItem = useAddTemplateItem(templateId);
@@ -22,7 +31,9 @@ export const NodeDetailPanel: React.FC<NodeDetailPanelProps> = ({ node, suite, t
       <div className="flex flex-col items-center justify-center h-full text-m3-secondary/50 p-6 text-center">
         <Shield className="w-12 h-12 mb-3 opacity-20" />
         <p className="text-sm font-medium">Seleccione un elemento del árbol</p>
-        <p className="text-xs mt-1 max-w-[250px]">Explore la jerarquía a la izquierda para visualizar o configurar permisos específicos.</p>
+        <p className="text-xs mt-1 max-w-[250px]">
+          Explore la jerarquía a la izquierda para visualizar o configurar permisos específicos.
+        </p>
       </div>
     );
   }
@@ -30,23 +41,32 @@ export const NodeDetailPanel: React.FC<NodeDetailPanelProps> = ({ node, suite, t
   const effectiveState = computeEffectiveState(node);
   const selfItem = node.items[0]; // If there are multiple for some reason, we take the first.
 
-  const StateIcon = 
-    effectiveState === 'Allow' ? CheckCircle2 :
-    effectiveState === 'Deny' ? XCircle :
-    effectiveState === 'Partial' ? CheckCircle2 :
-    MinusCircle;
+  const StateIcon =
+    effectiveState === 'Allow'
+      ? CheckCircle2
+      : effectiveState === 'Deny'
+        ? XCircle
+        : effectiveState === 'Partial'
+          ? CheckCircle2
+          : MinusCircle;
 
-  const stateColor = 
-    effectiveState === 'Allow' ? 'text-emerald-500 bg-emerald-500/10' :
-    effectiveState === 'Deny' ? 'text-rose-500 bg-rose-500/10' :
-    effectiveState === 'Partial' ? 'text-amber-500 bg-amber-500/10' :
-    'text-m3-secondary bg-m3-surface-variant';
+  const stateColor =
+    effectiveState === 'Allow'
+      ? 'text-emerald-500 bg-emerald-500/10'
+      : effectiveState === 'Deny'
+        ? 'text-rose-500 bg-rose-500/10'
+        : effectiveState === 'Partial'
+          ? 'text-amber-500 bg-amber-500/10'
+          : 'text-m3-secondary bg-m3-surface-variant';
 
-  const stateLabel = 
-    effectiveState === 'Allow' ? 'Permitido' :
-    effectiveState === 'Deny' ? 'Denegado' :
-    effectiveState === 'Partial' ? 'Permitido parcialmente' :
-    'No configurado (Heredado)';
+  const stateLabel =
+    effectiveState === 'Allow'
+      ? 'Permitido'
+      : effectiveState === 'Deny'
+        ? 'Denegado'
+        : effectiveState === 'Partial'
+          ? 'Permitido parcialmente'
+          : 'No configurado (Heredado)';
 
   const mapTypeToExclusiveArcTarget = (type: string): ExclusiveArcTarget => {
     if (type === 'Module') return 'Module';
@@ -75,7 +95,7 @@ export const NodeDetailPanel: React.FC<NodeDetailPanelProps> = ({ node, suite, t
         const action = suite.actions.find(a => a.code === node.actionCode);
         if (action) actionId = action.id;
       }
-      
+
       // Fallback to first available action if not found (required by backend)
       if (!actionId && suite.actions.length > 0) {
         actionId = suite.actions[0].id;
@@ -86,7 +106,7 @@ export const NodeDetailPanel: React.FC<NodeDetailPanelProps> = ({ node, suite, t
         targetId: node.id,
         actionId: actionId || '00000000-0000-0000-0000-000000000000',
         isAllowed: effect === 'Allow',
-        isDenied: effect === 'Deny'
+        isDenied: effect === 'Deny',
       });
     }
   };
@@ -96,7 +116,9 @@ export const NodeDetailPanel: React.FC<NodeDetailPanelProps> = ({ node, suite, t
       <div className="mb-6">
         <h3 className="text-sm font-bold text-m3-on-surface flex items-center gap-2">
           {node.label}
-          <span className={`text-[10px] font-semibold uppercase px-2.5 py-0.5 rounded-full border border-current ${stateColor}`}>
+          <span
+            className={`text-[10px] font-semibold uppercase px-2.5 py-0.5 rounded-full border border-current ${stateColor}`}
+          >
             {node.type}
           </span>
         </h3>
@@ -108,18 +130,20 @@ export const NodeDetailPanel: React.FC<NodeDetailPanelProps> = ({ node, suite, t
         <div>
           <p className="text-xs font-bold text-m3-on-surface">Estado efectivo: {stateLabel}</p>
           <p className="text-[11px] text-m3-secondary mt-1 leading-relaxed">
-            {effectiveState === 'Partial' 
-              ? 'Algunos elementos secundarios de este nodo tienen configuraciones de permisos diferentes.' 
+            {effectiveState === 'Partial'
+              ? 'Algunos elementos secundarios de este nodo tienen configuraciones de permisos diferentes.'
               : effectiveState === 'Neutral'
-              ? 'No hay reglas directas asignadas a este nodo. Su acceso dependerá de las reglas aplicadas en sus contenedores superiores.'
-              : `El acceso a esta entidad y sus elementos dependientes está ${effectiveState === 'Allow' ? 'permitido' : 'denegado'}.`}
+                ? 'No hay reglas directas asignadas a este nodo. Su acceso dependerá de las reglas aplicadas en sus contenedores superiores.'
+                : `El acceso a esta entidad y sus elementos dependientes está ${effectiveState === 'Allow' ? 'permitido' : 'denegado'}.`}
           </p>
         </div>
       </div>
 
       <div className="space-y-3">
-        <h4 className="text-xs font-bold uppercase tracking-wider text-m3-secondary">Regla Directa</h4>
-        
+        <h4 className="text-xs font-bold uppercase tracking-wider text-m3-secondary">
+          Regla Directa
+        </h4>
+
         {!isDraft && (
           <div className="flex items-center gap-2 text-[11px] text-m3-secondary/70 bg-m3-surface-variant/30 p-2 rounded">
             <Info className="w-3.5 h-3.5" />
@@ -132,40 +156,45 @@ export const NodeDetailPanel: React.FC<NodeDetailPanelProps> = ({ node, suite, t
             onClick={() => handleApplyEffect('Allow')}
             disabled={!isDraft || addItem.isPending || setEffect.isPending}
             className={`flex-1 py-2 px-3 rounded-lg border text-xs font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50
-              ${selfItem?.isAllowed && !selfItem?.isDenied 
-                ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-600' 
-                : 'bg-transparent border-m3-outline/20 text-m3-secondary hover:border-emerald-500/30 hover:text-emerald-600'}`}
+              ${
+                selfItem?.isAllowed && !selfItem?.isDenied
+                  ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-600'
+                  : 'bg-transparent border-m3-outline/20 text-m3-secondary hover:border-emerald-500/30 hover:text-emerald-600'
+              }`}
           >
             <CheckCircle2 className="w-4 h-4" />
             Permitir explícitamente
           </button>
-          
+
           <button
             onClick={() => handleApplyEffect('Deny')}
             disabled={!isDraft || addItem.isPending || setEffect.isPending}
             className={`flex-1 py-2 px-3 rounded-lg border text-xs font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50
-              ${!selfItem?.isAllowed && selfItem?.isDenied 
-                ? 'bg-rose-500/15 border-rose-500/30 text-rose-600' 
-                : 'bg-transparent border-m3-outline/20 text-m3-secondary hover:border-rose-500/30 hover:text-rose-600'}`}
+              ${
+                !selfItem?.isAllowed && selfItem?.isDenied
+                  ? 'bg-rose-500/15 border-rose-500/30 text-rose-600'
+                  : 'bg-transparent border-m3-outline/20 text-m3-secondary hover:border-rose-500/30 hover:text-rose-600'
+              }`}
           >
             <XCircle className="w-4 h-4" />
             Denegar explícitamente
           </button>
-          
+
           <button
             onClick={() => handleApplyEffect('Neutral')}
             disabled={!isDraft || !selfItem || removeItem.isPending}
             className={`flex-1 py-2 px-3 rounded-lg border text-xs font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50
-              ${!selfItem 
-                ? 'bg-m3-surface-variant border-m3-outline/20 text-m3-on-surface/80' 
-                : 'bg-transparent border-m3-outline/20 text-m3-secondary hover:border-m3-outline/40 hover:text-m3-on-surface'}`}
+              ${
+                !selfItem
+                  ? 'bg-m3-surface-variant border-m3-outline/20 text-m3-on-surface/80'
+                  : 'bg-transparent border-m3-outline/20 text-m3-secondary hover:border-m3-outline/40 hover:text-m3-on-surface'
+              }`}
           >
             <MinusCircle className="w-4 h-4" />
             Heredar
           </button>
         </div>
       </div>
-
     </div>
   );
 };

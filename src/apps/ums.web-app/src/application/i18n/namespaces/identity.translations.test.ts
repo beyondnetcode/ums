@@ -129,7 +129,9 @@ describe('identityTranslations', () => {
 
     it('has notifPasswordUpdated labels', () => {
       expect(identityTranslations.es.notifPasswordUpdated).toBe('Contraseña Actualizada');
-      expect(identityTranslations.es.notifPasswordUpdateFailed).toBe('Error al Actualizar Contraseña');
+      expect(identityTranslations.es.notifPasswordUpdateFailed).toBe(
+        'Error al Actualizar Contraseña'
+      );
     });
   });
 

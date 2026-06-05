@@ -46,9 +46,24 @@ function DataGrid<T extends Record<string, unknown>>({
   if (isLoading) {
     return (
       <div className="py-12 text-center text-sm text-m3-secondary">
-        <svg className="animate-spin h-6 w-6 text-m3-primary mx-auto mb-2" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+        <svg
+          className="animate-spin h-6 w-6 text-m3-primary mx-auto mb-2"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          />
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          />
         </svg>
         Loading...
       </div>
@@ -64,7 +79,8 @@ function DataGrid<T extends Record<string, unknown>>({
   const renderRow = (item: T, isChild = false) => {
     const id = String(item[idKey]);
     const isSelected = selectedId === id;
-    const hasChildren = hasHierarchy && parentIdKey && data.some((d) => String(d[parentIdKey]) === id);
+    const hasChildren =
+      hasHierarchy && parentIdKey && data.some(d => String(d[parentIdKey]) === id);
     const isExpanded = expandedIds.has(id);
 
     return (
@@ -80,28 +96,38 @@ function DataGrid<T extends Record<string, unknown>>({
           {columns.map((col, idx) => (
             <td
               key={idx}
-              className={`py-3.5 ${isChild && idx === 0 ? 'pl-10' : col.className ?? (idx === 0 ? 'px-5' : 'px-4')}`}
+              className={`py-3.5 ${isChild && idx === 0 ? 'pl-10' : (col.className ?? (idx === 0 ? 'px-5' : 'px-4'))}`}
             >
               {idx === 0 ? (
                 <div className="flex items-center gap-3">
-                  {hasHierarchy && (
-                    hasChildren ? (
+                  {hasHierarchy &&
+                    (hasChildren ? (
                       <button
-                        onClick={(e) => { e.stopPropagation(); onToggleExpand?.(id); }}
+                        onClick={e => {
+                          e.stopPropagation();
+                          onToggleExpand?.(id);
+                        }}
                         className={`p-0.5 rounded transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}
                       >
                         <ChevronRight className="w-3.5 h-3.5 text-m3-secondary" />
                       </button>
                     ) : (
                       <span className="w-4" />
-                    )
-                  )}
-                  {col.cell ? col.cell(item) : (
-                    <span className="font-medium text-m3-on-surface">{col.accessor ? String(item[col.accessor] ?? '') : ''}</span>
+                    ))}
+                  {col.cell ? (
+                    col.cell(item)
+                  ) : (
+                    <span className="font-medium text-m3-on-surface">
+                      {col.accessor ? String(item[col.accessor] ?? '') : ''}
+                    </span>
                   )}
                 </div>
-              ) : col.cell ? col.cell(item) : (
-                <span className={isChild ? 'opacity-70' : ''}>{col.accessor ? String(item[col.accessor] ?? '') : ''}</span>
+              ) : col.cell ? (
+                col.cell(item)
+              ) : (
+                <span className={isChild ? 'opacity-70' : ''}>
+                  {col.accessor ? String(item[col.accessor] ?? '') : ''}
+                </span>
               )}
             </td>
           ))}
@@ -117,17 +143,18 @@ function DataGrid<T extends Record<string, unknown>>({
             </td>
           )}
         </tr>
-        {isExpanded && hasHierarchy && parentIdKey && (
-          data
-            .filter((d) => String(d[parentIdKey]) === id)
-            .map((child) => renderRow(child, true))
-        )}
+        {isExpanded &&
+          hasHierarchy &&
+          parentIdKey &&
+          data.filter(d => String(d[parentIdKey]) === id).map(child => renderRow(child, true))}
       </React.Fragment>
     );
   };
 
   return (
-    <div className={`overflow-x-auto border border-m3-outline/25 rounded-xl bg-m3-surface-container/20 ${className}`}>
+    <div
+      className={`overflow-x-auto border border-m3-outline/25 rounded-xl bg-m3-surface-container/20 ${className}`}
+    >
       <table className="w-full text-left border-collapse">
         <thead>
           <tr className="border-b border-m3-outline/20 text-xs font-medium text-m3-secondary bg-m3-surface-container/40">
@@ -143,9 +170,7 @@ function DataGrid<T extends Record<string, unknown>>({
           </tr>
         </thead>
         <tbody className="divide-y divide-m3-outline/10 text-sm">
-          {data
-            .filter((item) => !parentIdKey || !item[parentIdKey])
-            .map((item) => renderRow(item))}
+          {data.filter(item => !parentIdKey || !item[parentIdKey]).map(item => renderRow(item))}
         </tbody>
       </table>
     </div>

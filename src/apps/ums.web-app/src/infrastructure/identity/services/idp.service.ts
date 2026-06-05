@@ -26,11 +26,11 @@ export const idpService = {
 
   registerIdentityProvider: async (
     tenantId: string,
-    payload: RegisterIdentityProviderPayload,
+    payload: RegisterIdentityProviderPayload
   ): Promise<{ identityProviderId: string }> => {
     const { data } = await httpClient.post<{ identityProviderId: string }>(
       `/tenants/${tenantId}/identity-providers`,
-      payload,
+      payload
     );
     return data;
   },

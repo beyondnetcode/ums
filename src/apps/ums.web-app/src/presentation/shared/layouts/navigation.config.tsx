@@ -7,7 +7,18 @@
  */
 import React from 'react';
 
-export type NavItemId = 'tenants' | 'users' | 'delegations' | 'systemSuites' | 'permissionTemplates' | 'featureFlags' | 'appConfigurations' | 'parameterCatalog' | 'profiles' | 'profile' | 'login';
+export type NavItemId =
+  | 'tenants'
+  | 'users'
+  | 'delegations'
+  | 'systemSuites'
+  | 'permissionTemplates'
+  | 'featureFlags'
+  | 'appConfigurations'
+  | 'parameterCatalog'
+  | 'profiles'
+  | 'profile'
+  | 'login';
 
 export type UserRole = 'admin' | 'moderator' | 'user' | 'super_admin';
 
@@ -70,32 +81,44 @@ interface NavModulesFactoryDeps {
 
 export const NAV_MODULES = (deps: NavModulesFactoryDeps): NavModule[] => [
   {
-    key: 'identity',
+    key: 'idm',
     nameKey: 'identityContext',
     icon: <deps.ShieldCheck className={`w-5 h-5 ${deps.primaryColorClass}`} />,
     members: [
-      { id: 'tenants',     nameKey: 'tenant',              icon: <deps.Building2 className="w-4 h-4" /> },
-      { id: 'users',       nameKey: 'userAccounts',        icon: <deps.Users className="w-4 h-4" /> },
+      { id: 'tenants', nameKey: 'tenant', icon: <deps.Building2 className="w-4 h-4" /> },
+      { id: 'users', nameKey: 'userAccounts', icon: <deps.Users className="w-4 h-4" /> },
     ],
   },
   {
-    key: 'authorization',
+    key: 'auth',
     nameKey: 'authorizationContext',
     icon: <deps.ShieldCheck className={`w-5 h-5 ${deps.primaryColorClass}`} />,
     members: [
-      { id: 'systemSuites',         nameKey: 'systemSuites',         icon: <deps.Cpu         className="w-4 h-4" /> },
-      { id: 'permissionTemplates',  nameKey: 'permissionTemplates',  icon: <deps.ShieldCheck className="w-4 h-4" /> },
-      { id: 'profiles',             nameKey: 'profilesHeader',       icon: <deps.ShieldCheck className="w-4 h-4" /> },
-      { id: 'featureFlags',         nameKey: 'featureFlags',         icon: <deps.Flag        className="w-4 h-4" /> },
+      { id: 'systemSuites', nameKey: 'systemSuites', icon: <deps.Cpu className="w-4 h-4" /> },
+      {
+        id: 'permissionTemplates',
+        nameKey: 'permissionTemplates',
+        icon: <deps.ShieldCheck className="w-4 h-4" />,
+      },
+      { id: 'profiles', nameKey: 'profilesHeader', icon: <deps.ShieldCheck className="w-4 h-4" /> },
+      { id: 'featureFlags', nameKey: 'featureFlags', icon: <deps.Flag className="w-4 h-4" /> },
     ],
   },
   {
-    key: 'system',
+    key: 'sys',
     nameKey: 'systemDiagnostics',
     icon: <deps.Cpu className={`w-5 h-5 ${deps.indigoColorClass}`} />,
     members: [
-      { id: 'appConfigurations', nameKey: 'systemParameters', icon: <deps.Settings className="w-4 h-4" /> },
-      { id: 'parameterCatalog', nameKey: 'parameterCatalog', icon: <deps.Settings className="w-4 h-4" /> },
+      {
+        id: 'appConfigurations',
+        nameKey: 'systemParameters',
+        icon: <deps.Settings className="w-4 h-4" />,
+      },
+      {
+        id: 'parameterCatalog',
+        nameKey: 'parameterCatalog',
+        icon: <deps.Settings className="w-4 h-4" />,
+      },
       { id: 'profile', nameKey: 'profileStats', icon: <deps.User className="w-4 h-4" /> },
     ],
   },

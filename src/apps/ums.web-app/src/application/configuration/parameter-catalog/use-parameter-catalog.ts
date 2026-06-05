@@ -38,7 +38,7 @@ export function useUpdateParameterDefinition() {
   return useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: UpdateParameterDefinitionPayload }) =>
       parameterCatalogService.updateParameterDefinition(id, payload),
-    onSuccess: (data) => {
+    onSuccess: data => {
       queryClient.invalidateQueries({ queryKey: ['parameter-definitions'] });
       queryClient.setQueryData(['parameter-definition', data.id], data);
     },

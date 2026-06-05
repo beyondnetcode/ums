@@ -40,7 +40,7 @@ export interface UseInlineEditReturn<T> {
  *                 If omitted, all enumerable keys are copied.
  */
 export function useInlineEdit<T extends Record<string, unknown>>(
-  fields?: (keyof T)[],
+  fields?: (keyof T)[]
 ): UseInlineEditReturn<T> {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Partial<T>>({});
@@ -50,18 +50,15 @@ export function useInlineEdit<T extends Record<string, unknown>>(
     fieldsRef.current = fields;
   }, [fields]);
 
-  const openEdit = useCallback(
-    (id: string, entity: T) => {
-      const picked: Partial<T> = {};
-      const keys = (fieldsRef.current ?? Object.keys(entity)) as (keyof T)[];
-      for (const k of keys) {
-        picked[k] = entity[k];
-      }
-      setEditingId(id);
-      setDraft(picked);
-    },
-    [],
-  );
+  const openEdit = useCallback((id: string, entity: T) => {
+    const picked: Partial<T> = {};
+    const keys = (fieldsRef.current ?? Object.keys(entity)) as (keyof T)[];
+    for (const k of keys) {
+      picked[k] = entity[k];
+    }
+    setEditingId(id);
+    setDraft(picked);
+  }, []);
 
   const cancelEdit = useCallback(() => {
     setEditingId(null);
@@ -69,7 +66,7 @@ export function useInlineEdit<T extends Record<string, unknown>>(
   }, []);
 
   const setField = useCallback(<K extends keyof T>(key: K, value: T[K]) => {
-    setDraft((prev) => ({ ...prev, [key]: value }));
+    setDraft(prev => ({ ...prev, [key]: value }));
   }, []);
 
   const commitEdit = useCallback(() => {
@@ -80,10 +77,7 @@ export function useInlineEdit<T extends Record<string, unknown>>(
     return result;
   }, [editingId, draft]);
 
-  const isEditing = useCallback(
-    (id: string) => editingId === id,
-    [editingId],
-  );
+  const isEditing = useCallback((id: string) => editingId === id, [editingId]);
 
   return {
     editingId,

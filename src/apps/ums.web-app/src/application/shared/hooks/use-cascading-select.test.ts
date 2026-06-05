@@ -70,9 +70,7 @@ describe('useCascadingSelect', () => {
   });
 
   it('handles non-existent key in resetFrom gracefully', () => {
-    const { result } = renderHook(() =>
-      useCascadingSelect(['parent', 'child'] as const)
-    );
+    const { result } = renderHook(() => useCascadingSelect(['parent', 'child'] as const));
 
     act(() => {
       result.current.handlers.setValue('parent', 'test');

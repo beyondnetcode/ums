@@ -7,7 +7,13 @@ import { CreateDelegationPayloadSchema } from '@domain/identity/schemas/delegati
 import { Shield } from 'lucide-react';
 
 const SCOPE_TYPES = ['Tenant', 'Organization', 'Department', 'System', 'Team'] as const;
-const DELEGATED_ACTIONS = ['CreateUser', 'BlockUser', 'AssignProfile', 'ResetPassword', 'RevokeMfa'] as const;
+const DELEGATED_ACTIONS = [
+  'CreateUser',
+  'BlockUser',
+  'AssignProfile',
+  'ResetPassword',
+  'RevokeMfa',
+] as const;
 
 const UNIMAR_USERS: Record<string, string> = {
   '5f4e3d01-1b0a-9f8e-7d6c-543210987654': 'Gerente UNIMAR',
@@ -44,8 +50,8 @@ export const DelegationForm: React.FC<DelegationFormProps> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const toggleAction = (action: string) => {
-    setSelectedActions((prev) =>
-      prev.includes(action) ? prev.filter((a) => a !== action) : [...prev, action],
+    setSelectedActions(prev =>
+      prev.includes(action) ? prev.filter(a => a !== action) : [...prev, action]
     );
   };
 
@@ -58,7 +64,9 @@ export const DelegationForm: React.FC<DelegationFormProps> = ({
       delegatingAdminId,
       delegatedAdminId,
       scopeType: scopeType as (typeof SCOPE_TYPES)[number],
-      allowedActions: selectedActions as Array<'CreateUser' | 'BlockUser' | 'AssignProfile' | 'ResetPassword' | 'RevokeMfa'>,
+      allowedActions: selectedActions as Array<
+        'CreateUser' | 'BlockUser' | 'AssignProfile' | 'ResetPassword' | 'RevokeMfa'
+      >,
       validFrom,
       validUntil,
       requiresApproval,
@@ -89,7 +97,10 @@ export const DelegationForm: React.FC<DelegationFormProps> = ({
     }
   };
 
-  const userOptions = Object.entries(UNIMAR_USERS).map(([id, name]) => ({ value: id, label: name }));
+  const userOptions = Object.entries(UNIMAR_USERS).map(([id, name]) => ({
+    value: id,
+    label: name,
+  }));
   const scopeOptions = SCOPE_TYPES.map(s => ({ value: s, label: s }));
 
   return (
@@ -99,7 +110,12 @@ export const DelegationForm: React.FC<DelegationFormProps> = ({
       title={t.createDelegation ?? 'Crear Delegación'}
       actions={[
         { label: t.cancelBtn ?? 'Cancelar', variant: 'outlined', onClick: onClose },
-        { label: t.createBtn ?? 'Crear', variant: 'filled', onClick: handleSubmit, loading: createDelegationMutation.isPending },
+        {
+          label: t.createBtn ?? 'Crear',
+          variant: 'filled',
+          onClick: handleSubmit,
+          loading: createDelegationMutation.isPending,
+        },
       ]}
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4 pt-2">
@@ -115,7 +131,7 @@ export const DelegationForm: React.FC<DelegationFormProps> = ({
           label={t.scopeType ?? 'Alcance (Scope)'}
           options={scopeOptions}
           value={scopeType}
-          onChange={(v) => setScopeType(v as typeof scopeType)}
+          onChange={v => setScopeType(v as typeof scopeType)}
         />
 
         <div className="grid grid-cols-2 gap-3">
@@ -123,14 +139,14 @@ export const DelegationForm: React.FC<DelegationFormProps> = ({
             <FormInput
               type="datetime-local"
               value={validFrom}
-              onChange={(e) => setValidFrom(e.target.value)}
+              onChange={e => setValidFrom(e.target.value)}
             />
           </FormField>
           <FormField label={t.validUntil ?? 'Válido hasta'} required error={errors.validUntil}>
             <FormInput
               type="datetime-local"
               value={validUntil}
-              onChange={(e) => setValidUntil(e.target.value)}
+              onChange={e => setValidUntil(e.target.value)}
             />
           </FormField>
         </div>
@@ -140,7 +156,7 @@ export const DelegationForm: React.FC<DelegationFormProps> = ({
             {t.allowedActions ?? 'Acciones Permitidas'}
           </p>
           <div className="flex flex-wrap gap-1.5">
-            {DELEGATED_ACTIONS.map((action) => (
+            {DELEGATED_ACTIONS.map(action => (
               <button
                 key={action}
                 type="button"
@@ -165,10 +181,13 @@ export const DelegationForm: React.FC<DelegationFormProps> = ({
             id="requiresApproval"
             type="checkbox"
             checked={requiresApproval}
-            onChange={(e) => setRequiresApproval(e.target.checked)}
+            onChange={e => setRequiresApproval(e.target.checked)}
             className="w-3.5 h-3.5 text-m3-primary border-m3-outline/30 rounded focus:ring-m3-primary/40"
           />
-          <label htmlFor="requiresApproval" className="text-[11px] font-medium text-m3-on-surface cursor-pointer select-none">
+          <label
+            htmlFor="requiresApproval"
+            className="text-[11px] font-medium text-m3-on-surface cursor-pointer select-none"
+          >
             {t.requiresApproval ?? 'Requiere Aprobación'}
           </label>
         </div>

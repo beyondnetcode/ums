@@ -22,7 +22,7 @@ export interface UseLocalOverridesReturn<T> {
 
 export function useLocalOverrides<T extends Record<string, unknown>>(
   serverItems: T[] | undefined,
-  idKey: keyof T & string,
+  idKey: keyof T & string
 ): UseLocalOverridesReturn<T> {
   const [overrides, setOverrides] = useState<Record<string, Partial<T>>>({});
   const snapshotRef = useRef<Record<string, T>>({});
@@ -30,7 +30,7 @@ export function useLocalOverrides<T extends Record<string, unknown>>(
   const items = useMemo(() => {
     const base = serverItems ?? [];
     if (Object.keys(overrides).length === 0) return base;
-    return base.map((item) => {
+    return base.map(item => {
       const id = String(item[idKey]);
       const patch = overrides[id];
       if (!patch) return item;
@@ -42,9 +42,9 @@ export function useLocalOverrides<T extends Record<string, unknown>>(
   }, [serverItems, overrides, idKey]);
 
   const patchItem = (id: string, patch: Partial<T>) => {
-    setOverrides((prev) => {
+    setOverrides(prev => {
       if (!snapshotRef.current[id] && serverItems) {
-        const original = serverItems.find((item) => String(item[idKey]) === id);
+        const original = serverItems.find(item => String(item[idKey]) === id);
         if (original) snapshotRef.current[id] = { ...original };
       }
       return { ...prev, [id]: { ...(prev[id] ?? {}), ...patch } };
@@ -54,15 +54,15 @@ export function useLocalOverrides<T extends Record<string, unknown>>(
   const patchItems = (updater: (current: T[]) => T[]) => {
     const next = updater(items);
     const newOverrides: Record<string, Partial<T>> = {};
-    next.forEach((item) => {
+    next.forEach(item => {
       const id = String(item[idKey]);
       if (!snapshotRef.current[id] && serverItems) {
-        const original = serverItems.find((i) => String(i[idKey]) === id);
+        const original = serverItems.find(i => String(i[idKey]) === id);
         if (original) snapshotRef.current[id] = { ...original };
       }
       newOverrides[id] = item;
     });
-    setOverrides((prev) => ({ ...prev, ...newOverrides }));
+    setOverrides(prev => ({ ...prev, ...newOverrides }));
   };
 
   const clearOverrides = () => {
@@ -71,7 +71,7 @@ export function useLocalOverrides<T extends Record<string, unknown>>(
   };
 
   const rollbackItem = (id: string) => {
-    setOverrides((prev) => {
+    setOverrides(prev => {
       const next = { ...prev };
       delete next[id];
       return next;
@@ -95,5 +95,14 @@ export function useLocalOverrides<T extends Record<string, unknown>>(
 
   const isDirty = (id: string) => id in overrides;
 
-  return { items, patchItem, patchItems, clearOverrides, rollbackItem, rollbackAll, getDiffs, isDirty };
+  return {
+    items,
+    patchItem,
+    patchItems,
+    clearOverrides,
+    rollbackItem,
+    rollbackAll,
+    getDiffs,
+    isDirty,
+  };
 }

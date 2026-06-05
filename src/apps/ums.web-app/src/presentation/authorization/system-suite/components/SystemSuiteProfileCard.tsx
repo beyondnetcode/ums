@@ -1,23 +1,12 @@
 import React from 'react';
-import {
-  useSetSystemSuiteStatus,
-} from '@app/authorization/hooks/use-system-suite';
+import { useSetSystemSuiteStatus } from '@app/authorization/hooks/use-system-suite';
 import { useI18n } from '@app/i18n/use-i18n';
 import { useStatusLabel } from '@app/hooks/use-status-label';
 import { useInlineEdit } from '@app/hooks/use-inline-edit';
 import { useResetOnChange } from '@app/hooks/use-reset-on-change';
 import { useNotificationStore } from '@app/stores/notification.store';
 import { SystemSuite } from '@domain/authorization/models/system-suite.model';
-import {
-  Box,
-  Sliders,
-  ShieldAlert,
-  CheckCircle2,
-  Pencil,
-  Save,
-  X,
-  Wrench,
-} from 'lucide-react';
+import { Box, Sliders, ShieldAlert, CheckCircle2, Pencil, Save, X, Wrench } from 'lucide-react';
 import { M3Card } from '@shared/components/M3Card';
 import { M3Button } from '@shared/components/M3Button';
 import { M3TextField } from '@shared/components/M3TextField';
@@ -46,7 +35,7 @@ export const SystemSuiteProfileCard: React.FC<SystemSuiteProfileCardProps> = ({
 }) => {
   const t = useI18n();
   const statusLabel = useStatusLabel();
-  const addNotification = useNotificationStore((s) => s.addNotification);
+  const addNotification = useNotificationStore(s => s.addNotification);
 
   const setStatusMutation = useSetSystemSuiteStatus(systemSuite.systemSuiteId);
   const isPendingMutation = setStatusMutation.isPending;
@@ -83,7 +72,11 @@ export const SystemSuiteProfileCard: React.FC<SystemSuiteProfileCardProps> = ({
       name,
       description: (result.draft.description ?? '').trim(),
     });
-    addNotification({ title: t.notifSystemSuiteUpdated, message: t.notifSystemSuiteUpdatedMsg(name), type: 'success' });
+    addNotification({
+      title: t.notifSystemSuiteUpdated,
+      message: t.notifSystemSuiteUpdatedMsg(name),
+      type: 'success',
+    });
     onEditingChange?.(false);
   };
 
@@ -172,7 +165,11 @@ export const SystemSuiteProfileCard: React.FC<SystemSuiteProfileCardProps> = ({
               actions={
                 <div className="flex items-center gap-2">
                   {renderActions()}
-                  <IconButton tooltip={t.editBtn} onClick={openEdit} className="opacity-0 group-hover:opacity-100">
+                  <IconButton
+                    tooltip={t.editBtn}
+                    onClick={openEdit}
+                    className="opacity-0 group-hover:opacity-100"
+                  >
                     <Pencil className="w-3.5 h-3.5" />
                   </IconButton>
                 </div>
@@ -183,18 +180,27 @@ export const SystemSuiteProfileCard: React.FC<SystemSuiteProfileCardProps> = ({
               <KeyValueRow
                 icon={<Box className="w-3.5 h-3.5" />}
                 label={t.systemSuiteCode}
-                value={<span className="font-mono text-m3-on-surface text-xs">{systemSuite.code}</span>}
+                value={
+                  <span className="font-mono text-m3-on-surface text-xs">{systemSuite.code}</span>
+                }
               />
               <KeyValueRow
                 icon={<Sliders className="w-3.5 h-3.5" />}
                 label={t.status}
-                value={<StatusBadge status={systemSuite.status} label={statusLabel(systemSuite.status)} />}
+                value={
+                  <StatusBadge
+                    status={systemSuite.status}
+                    label={statusLabel(systemSuite.status)}
+                  />
+                }
               />
               {systemSuite.description && (
                 <KeyValueRow
                   icon={<Wrench className="w-3.5 h-3.5" />}
                   label={t.description}
-                  value={<span className="text-m3-on-surface text-xs">{systemSuite.description}</span>}
+                  value={
+                    <span className="text-m3-on-surface text-xs">{systemSuite.description}</span>
+                  }
                 />
               )}
             </div>
@@ -231,11 +237,24 @@ export const SystemSuiteProfileCard: React.FC<SystemSuiteProfileCardProps> = ({
               </IconButton>
             </div>
 
-            <M3TextField label={t.systemSuiteName} required value={edit.draft.name ?? ''} onChange={(e) => edit.setField('name', e.target.value)} />
-            <M3TextField label={t.description} value={edit.draft.description ?? ''} onChange={(e) => edit.setField('description', e.target.value)} />
+            <M3TextField
+              label={t.systemSuiteName}
+              required
+              value={edit.draft.name ?? ''}
+              onChange={e => edit.setField('name', e.target.value)}
+            />
+            <M3TextField
+              label={t.description}
+              value={edit.draft.description ?? ''}
+              onChange={e => edit.setField('description', e.target.value)}
+            />
 
             <div className="flex gap-2 pt-1">
-              <M3Button variant="filled" onClick={saveEdit} className="flex-1 flex items-center justify-center gap-1.5">
+              <M3Button
+                variant="filled"
+                onClick={saveEdit}
+                className="flex-1 flex items-center justify-center gap-1.5"
+              >
                 <Save className="w-3.5 h-3.5" /> {t.saveBtn}
               </M3Button>
               <M3Button variant="outlined" onClick={cancelEdit} className="flex-1">

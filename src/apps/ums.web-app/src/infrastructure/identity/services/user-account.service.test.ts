@@ -60,7 +60,7 @@ describe('userAccountService', () => {
         '/user-accounts',
         expect.objectContaining({
           params: expect.objectContaining({ page: 1, pageSize: 20 }),
-        }),
+        })
       );
     });
 
@@ -81,7 +81,7 @@ describe('userAccountService', () => {
         '/user-accounts',
         expect.objectContaining({
           params: expect.objectContaining({ page: 2, pageSize: 10 }),
-        }),
+        })
       );
     });
   });
@@ -132,7 +132,7 @@ describe('userAccountService', () => {
       await userAccountService.activateUserAccount('3fa85f64-5717-4562-b3fc-2c963f66afa6');
 
       expect(httpClientModule.httpClient.post).toHaveBeenCalledWith(
-        '/user-accounts/3fa85f64-5717-4562-b3fc-2c963f66afa6/activate',
+        '/user-accounts/3fa85f64-5717-4562-b3fc-2c963f66afa6/activate'
       );
     });
   });
@@ -141,12 +141,15 @@ describe('userAccountService', () => {
     it('calls block endpoint with reason', async () => {
       vi.mocked(httpClientModule.httpClient.post).mockResolvedValue({});
 
-      await userAccountService.blockUserAccount('3fa85f64-5717-4562-b3fc-2c963f66afa6', 'Security violation');
+      await userAccountService.blockUserAccount(
+        '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+        'Security violation'
+      );
 
       expect(httpClientModule.httpClient.post).toHaveBeenCalledWith(
         '/user-accounts/3fa85f64-5717-4562-b3fc-2c963f66afa6/block',
         null,
-        { params: { reason: 'Security violation' } },
+        { params: { reason: 'Security violation' } }
       );
     });
   });
@@ -158,7 +161,7 @@ describe('userAccountService', () => {
       await userAccountService.restoreUserAccount('3fa85f64-5717-4562-b3fc-2c963f66afa6');
 
       expect(httpClientModule.httpClient.post).toHaveBeenCalledWith(
-        '/user-accounts/3fa85f64-5717-4562-b3fc-2c963f66afa6/restore',
+        '/user-accounts/3fa85f64-5717-4562-b3fc-2c963f66afa6/restore'
       );
     });
   });
@@ -179,7 +182,7 @@ describe('userAccountService', () => {
         expect.objectContaining({
           userAccountId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
           password: 'SecureP@ssw0rd123',
-        }),
+        })
       );
       expect(result.credentialId).toBe('3fa85f64-5717-4562-b3fc-2c963f66afa6');
     });

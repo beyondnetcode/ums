@@ -15,7 +15,7 @@ export default function ProfileDashboardScreen(): React.JSX.Element {
   const [selectedId, setSelectedId] = useState('');
   const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('list');
 
-  const sessionTenantId = useAuthStore((state) => state.user?.tenantId);
+  const sessionTenantId = useAuthStore(state => state.user?.tenantId);
 
   const queryState = useQueryState({
     criteria: 'user',
@@ -33,7 +33,11 @@ export default function ProfileDashboardScreen(): React.JSX.Element {
 
   const shouldFetch = queryState.appliedQuery.filterApplied;
 
-  const { data: pageData, isLoading: loadingList, error: listError } = useGetAllProfiles(
+  const {
+    data: pageData,
+    isLoading: loadingList,
+    error: listError,
+  } = useGetAllProfiles(
     shouldFetch
       ? {
           page: paginationState.page,
@@ -45,7 +49,7 @@ export default function ProfileDashboardScreen(): React.JSX.Element {
           sortOrder: queryState.sortOrder,
           tenantId: sessionTenantId,
         }
-      : null,
+      : null
   );
 
   // Fetch detail for selected profile
@@ -61,7 +65,7 @@ export default function ProfileDashboardScreen(): React.JSX.Element {
       <ProfileForm
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
-        onSuccess={(profileId) => {
+        onSuccess={profileId => {
           setIsCreateOpen(false);
           setSelectedId(profileId);
         }}
@@ -79,33 +83,28 @@ export default function ProfileDashboardScreen(): React.JSX.Element {
       <div className="flex h-full min-h-0 flex-col gap-4">
         <ProfileRequestsInboxPanel />
         <MasterDetailLayout
-        splitterLabel="Resize profile detail panel"
-        master={
-          <ProfileListPanel
-            profiles={pageData?.items ?? []}
-            selectedId={selectedId}
-            isLoading={loadingList}
-            error={listError}
-            viewMode={viewMode}
-            onViewModeChange={setViewMode}
-            queryState={queryState}
-            paginationState={{
-              ...paginationState,
-              totalItems: pageData?.totalItems ?? 0,
-              totalPages: pageData?.totalPages ?? 0,
-            }}
-            onRegisterNew={() => setIsCreateOpen(true)}
-            onSelectProfile={setSelectedId}
-            onOpenGraph={handleOpenGraph}
-            requiresFilter={!shouldFetch}
-          />
-        }
-        detail={
-          <ProfileDetailPanel
-            profile={activeProfile}
-            isLoading={loadingDetail}
-          />
-        }
+          splitterLabel="Resize profile detail panel"
+          master={
+            <ProfileListPanel
+              profiles={pageData?.items ?? []}
+              selectedId={selectedId}
+              isLoading={loadingList}
+              error={listError}
+              viewMode={viewMode}
+              onViewModeChange={setViewMode}
+              queryState={queryState}
+              paginationState={{
+                ...paginationState,
+                totalItems: pageData?.totalItems ?? 0,
+                totalPages: pageData?.totalPages ?? 0,
+              }}
+              onRegisterNew={() => setIsCreateOpen(true)}
+              onSelectProfile={setSelectedId}
+              onOpenGraph={handleOpenGraph}
+              requiresFilter={!shouldFetch}
+            />
+          }
+          detail={<ProfileDetailPanel profile={activeProfile} isLoading={loadingDetail} />}
         />
       </div>
     </PageShell>

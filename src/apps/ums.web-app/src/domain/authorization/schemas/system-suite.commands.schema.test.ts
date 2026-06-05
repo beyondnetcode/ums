@@ -29,9 +29,7 @@ describe('CreateSystemSuiteCommandSchema', () => {
   });
 
   it('rejects empty code', () => {
-    expect(() =>
-      CreateSystemSuiteCommandSchema.parse({ ...validCommand, code: '' })
-    ).toThrow();
+    expect(() => CreateSystemSuiteCommandSchema.parse({ ...validCommand, code: '' })).toThrow();
   });
 
   it('rejects code with special characters', () => {
@@ -47,9 +45,7 @@ describe('CreateSystemSuiteCommandSchema', () => {
   });
 
   it('rejects empty name', () => {
-    expect(() =>
-      CreateSystemSuiteCommandSchema.parse({ ...validCommand, name: '' })
-    ).toThrow();
+    expect(() => CreateSystemSuiteCommandSchema.parse({ ...validCommand, name: '' })).toThrow();
   });
 
   it('rejects name exceeding max length', () => {
@@ -88,9 +84,7 @@ describe('UpdateSystemSuiteCommandSchema', () => {
   });
 
   it('rejects empty name', () => {
-    expect(() =>
-      UpdateSystemSuiteCommandSchema.parse({ name: '' })
-    ).toThrow();
+    expect(() => UpdateSystemSuiteCommandSchema.parse({ name: '' })).toThrow();
   });
 });
 
@@ -108,21 +102,15 @@ describe('AddModuleCommandSchema', () => {
   });
 
   it('rejects negative sortOrder', () => {
-    expect(() =>
-      AddModuleCommandSchema.parse({ ...validCommand, sortOrder: -1 })
-    ).toThrow();
+    expect(() => AddModuleCommandSchema.parse({ ...validCommand, sortOrder: -1 })).toThrow();
   });
 
   it('rejects zero sortOrder', () => {
-    expect(() =>
-      AddModuleCommandSchema.parse({ ...validCommand, sortOrder: 0 })
-    ).toThrow();
+    expect(() => AddModuleCommandSchema.parse({ ...validCommand, sortOrder: 0 })).toThrow();
   });
 
   it('rejects empty code', () => {
-    expect(() =>
-      AddModuleCommandSchema.parse({ ...validCommand, code: '' })
-    ).toThrow();
+    expect(() => AddModuleCommandSchema.parse({ ...validCommand, code: '' })).toThrow();
   });
 });
 
@@ -144,15 +132,11 @@ describe('RegisterActionCommandSchema', () => {
   });
 
   it('rejects empty code', () => {
-    expect(() =>
-      RegisterActionCommandSchema.parse({ ...validCommand, code: '' })
-    ).toThrow();
+    expect(() => RegisterActionCommandSchema.parse({ ...validCommand, code: '' })).toThrow();
   });
 
   it('rejects empty name', () => {
-    expect(() =>
-      RegisterActionCommandSchema.parse({ ...validCommand, name: '' })
-    ).toThrow();
+    expect(() => RegisterActionCommandSchema.parse({ ...validCommand, name: '' })).toThrow();
   });
 });
 
@@ -192,9 +176,7 @@ describe('AddDomainResourceCommandSchema', () => {
   });
 
   it('rejects empty code', () => {
-    expect(() =>
-      AddDomainResourceCommandSchema.parse({ ...validCommand, code: '' })
-    ).toThrow();
+    expect(() => AddDomainResourceCommandSchema.parse({ ...validCommand, code: '' })).toThrow();
   });
 });
 
@@ -210,9 +192,7 @@ describe('UpdateDomainResourceCommandSchema', () => {
   });
 
   it('rejects empty name', () => {
-    expect(() =>
-      UpdateDomainResourceCommandSchema.parse({ name: '' })
-    ).toThrow();
+    expect(() => UpdateDomainResourceCommandSchema.parse({ name: '' })).toThrow();
   });
 
   it('rejects empty description', () => {

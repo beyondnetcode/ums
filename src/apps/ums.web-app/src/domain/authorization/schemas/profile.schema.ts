@@ -1,9 +1,11 @@
 import { z } from 'zod';
 
-const guidSchema = z.string().regex(
-  /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/,
-  'Invalid GUID format',
-);
+const guidSchema = z
+  .string()
+  .regex(
+    /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/,
+    'Invalid GUID format'
+  );
 
 export const TemplateItemOriginalSchema = z.object({
   itemId: guidSchema,

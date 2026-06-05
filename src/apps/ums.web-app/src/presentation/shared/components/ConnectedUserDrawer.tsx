@@ -85,7 +85,13 @@ function CopyButton({ value, label = 'Copy' }: { value: string; label?: string }
   );
 }
 
-function UserInitialsAvatar({ username, size = 'large' }: { username: string; size?: 'large' | 'small' }) {
+function UserInitialsAvatar({
+  username,
+  size = 'large',
+}: {
+  username: string;
+  size?: 'large' | 'small';
+}) {
   const initials = (username || '??').substring(0, 2).toUpperCase();
   const sizeClasses = size === 'large' ? 'w-16 h-16 text-xl' : 'w-8 h-8 text-xs';
 
@@ -100,8 +106,8 @@ function UserInitialsAvatar({ username, size = 'large' }: { username: string; si
 
 export function ConnectedUserDrawer({ isOpen, onClose, onLogout }: ConnectedUserDrawerProps) {
   const t = useI18n();
-  const user = useAuthStore((state) => state.user);
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const user = useAuthStore(state => state.user);
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
 
   if (!user || !isAuthenticated) {
     return null;
@@ -128,7 +134,9 @@ export function ConnectedUserDrawer({ isOpen, onClose, onLogout }: ConnectedUser
         <div className="flex items-center gap-4 p-4 bg-m3-surface-container/30 rounded-2xl border border-m3-outline/25">
           <UserInitialsAvatar username={user.username} />
           <div className="flex-1 min-w-0">
-            <h3 className="text-base font-extrabold text-m3-on-surface truncate">{user.username}</h3>
+            <h3 className="text-base font-extrabold text-m3-on-surface truncate">
+              {user.username}
+            </h3>
             <p className="text-[11px] text-m3-secondary truncate">{user.email}</p>
             <div className="flex items-center gap-2 mt-1">
               <CodeBadge code={(user.role || 'N/A').toUpperCase()} />
@@ -151,7 +159,9 @@ export function ConnectedUserDrawer({ isOpen, onClose, onLogout }: ConnectedUser
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-m3-secondary">Email</span>
-                <span className="font-medium text-m3-on-surface text-[10px] truncate max-w-[200px]">{user.email}</span>
+                <span className="font-medium text-m3-on-surface text-[10px] truncate max-w-[200px]">
+                  {user.email}
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-m3-secondary">User ID</span>
@@ -230,9 +240,13 @@ export function ConnectedUserDrawer({ isOpen, onClose, onLogout }: ConnectedUser
                 <span className="text-m3-secondary">Session Tracking ID</span>
                 <div className="flex items-center gap-1">
                   <span className="font-mono text-m3-primary text-[10px]">
-                    {user.sessionTrackingId ? `${user.sessionTrackingId.substring(0, 8)}...` : 'N/A'}
+                    {user.sessionTrackingId
+                      ? `${user.sessionTrackingId.substring(0, 8)}...`
+                      : 'N/A'}
                   </span>
-                  {user.sessionTrackingId && <CopyButton value={user.sessionTrackingId} label="Session" />}
+                  {user.sessionTrackingId && (
+                    <CopyButton value={user.sessionTrackingId} label="Session" />
+                  )}
                 </div>
               </div>
               <div className="flex items-center justify-between">
@@ -256,7 +270,11 @@ export function ConnectedUserDrawer({ isOpen, onClose, onLogout }: ConnectedUser
         </DrawerSection>
 
         {/* Access Summary */}
-        <DrawerSection title="Access Summary" icon={<FileText className="w-4 h-4" />} defaultExpanded={false}>
+        <DrawerSection
+          title="Access Summary"
+          icon={<FileText className="w-4 h-4" />}
+          defaultExpanded={false}
+        >
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="p-3 bg-m3-surface-container/20 rounded-xl flex items-center gap-2">
               <Layers className="w-4 h-4 text-m3-primary" />
@@ -290,21 +308,29 @@ export function ConnectedUserDrawer({ isOpen, onClose, onLogout }: ConnectedUser
         </DrawerSection>
 
         {/* Technical Details */}
-        <DrawerSection title="Technical Details" icon={<Activity className="w-4 h-4" />} defaultExpanded={false}>
+        <DrawerSection
+          title="Technical Details"
+          icon={<Activity className="w-4 h-4" />}
+          defaultExpanded={false}
+        >
           <div className="p-3 bg-m3-surface-container/20 rounded-xl space-y-3 text-xs">
             <div>
               <p className="text-[10px] font-bold text-m3-secondary uppercase mb-1">User Context</p>
               <pre className="text-[9px] font-mono text-m3-on-surface/70 bg-m3-surface-container/50 p-2 rounded overflow-x-auto">
-                {JSON.stringify({
-                  userId: user.id,
-                  username: user.username,
-                  email: user.email,
-                  role: user.role || null,
-                  tenantId: user.tenantId,
-                  tenantCode: user.tenantCode,
-                  profileId: user.profileId,
-                  sessionTrackingId: user.sessionTrackingId,
-                }, null, 2)}
+                {JSON.stringify(
+                  {
+                    userId: user.id,
+                    username: user.username,
+                    email: user.email,
+                    role: user.role || null,
+                    tenantId: user.tenantId,
+                    tenantCode: user.tenantCode,
+                    profileId: user.profileId,
+                    sessionTrackingId: user.sessionTrackingId,
+                  },
+                  null,
+                  2
+                )}
               </pre>
             </div>
             <div className="flex justify-end">

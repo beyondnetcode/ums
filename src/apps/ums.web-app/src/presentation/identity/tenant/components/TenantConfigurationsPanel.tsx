@@ -128,7 +128,9 @@ export const TenantConfigurationsPanel: React.FC<TenantConfigurationsPanelProps>
         'No se pudieron cargar las configuraciones del tenant. Intente nuevamente.'
       );
       const supportReferenceId = getSupportReferenceId(err);
-      setError(supportReferenceId ? `${errorMessage} Referencia: ${supportReferenceId}` : errorMessage);
+      setError(
+        supportReferenceId ? `${errorMessage} Referencia: ${supportReferenceId}` : errorMessage
+      );
       addNotification({ title: t.error, message: t.notifConfigLoadFailed, type: 'error' });
     } finally {
       setIsLoading(false);

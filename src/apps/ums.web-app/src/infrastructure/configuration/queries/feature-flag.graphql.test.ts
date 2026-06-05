@@ -7,7 +7,10 @@ vi.mock('@infra/http/graphqlClient', () => ({
     request: vi.fn(),
   },
   GraphQlValidationError: class GraphQlValidationError extends Error {
-    constructor(message: string, public errors: string[]) {
+    constructor(
+      message: string,
+      public errors: string[]
+    ) {
       super(message);
       this.name = 'GraphQlValidationError';
     }
@@ -35,23 +38,40 @@ describe('graphqlFeatureFlagQueries', () => {
     const result = await graphqlFeatureFlagQueries.getFeatureFlags({ page: 1, pageSize: 20 });
 
     expect(result.getFeatureFlags.items).toHaveLength(0);
-    expect(graphqlClientModule.graphqlClient.request).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ page: 1, pageSize: 20 }));
+    expect(graphqlClientModule.graphqlClient.request).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({ page: 1, pageSize: 20 })
+    );
   });
 
   it('getFeatureFlags passes optional params', async () => {
-    vi.mocked(graphqlClientModule.graphqlClient.request).mockResolvedValue({ getFeatureFlags: { items: [], page: 1, pageSize: 20, totalItems: 0, totalPages: 0 } });
+    vi.mocked(graphqlClientModule.graphqlClient.request).mockResolvedValue({
+      getFeatureFlags: { items: [], page: 1, pageSize: 20, totalItems: 0, totalPages: 0 },
+    });
 
-    await graphqlFeatureFlagQueries.getFeatureFlags({ page: 1, pageSize: 20, search: 'test', status: 'Active' });
+    await graphqlFeatureFlagQueries.getFeatureFlags({
+      page: 1,
+      pageSize: 20,
+      search: 'test',
+      status: 'Active',
+    });
 
-    expect(graphqlClientModule.graphqlClient.request).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ search: 'test', status: 'Active' }));
+    expect(graphqlClientModule.graphqlClient.request).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({ search: 'test', status: 'Active' })
+    );
   });
 
   it('getFeatureFlags throws on invalid page', async () => {
-    await expect(graphqlFeatureFlagQueries.getFeatureFlags({ page: 0, pageSize: 20 })).rejects.toThrow('Invalid page parameter');
+    await expect(
+      graphqlFeatureFlagQueries.getFeatureFlags({ page: 0, pageSize: 20 })
+    ).rejects.toThrow('Invalid page parameter');
   });
 
   it('getFeatureFlags throws on invalid pageSize', async () => {
-    await expect(graphqlFeatureFlagQueries.getFeatureFlags({ page: 1, pageSize: 0 })).rejects.toThrow('Invalid pageSize parameter');
+    await expect(
+      graphqlFeatureFlagQueries.getFeatureFlags({ page: 1, pageSize: 0 })
+    ).rejects.toThrow('Invalid pageSize parameter');
   });
 
   it('getFeatureFlagById calls graphqlClient.request', async () => {
@@ -72,13 +92,19 @@ describe('graphqlFeatureFlagQueries', () => {
 
     vi.mocked(graphqlClientModule.graphqlClient.request).mockResolvedValue(mockResponse);
 
-    const result = await graphqlFeatureFlagQueries.getFeatureFlagById('3fa85f64-5717-4562-b3fc-2c963f66afa6');
+    const result = await graphqlFeatureFlagQueries.getFeatureFlagById(
+      '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+    );
 
     expect(result.getFeatureFlagById?.flagCode).toBe('FLAG_1');
-    expect(graphqlClientModule.graphqlClient.request).toHaveBeenCalledWith(expect.any(String), { id: '3fa85f64-5717-4562-b3fc-2c963f66afa6' });
+    expect(graphqlClientModule.graphqlClient.request).toHaveBeenCalledWith(expect.any(String), {
+      id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+    });
   });
 
   it('getFeatureFlagById throws on empty id', async () => {
-    await expect(graphqlFeatureFlagQueries.getFeatureFlagById('')).rejects.toThrow('Invalid id parameter');
+    await expect(graphqlFeatureFlagQueries.getFeatureFlagById('')).rejects.toThrow(
+      'Invalid id parameter'
+    );
   });
 });

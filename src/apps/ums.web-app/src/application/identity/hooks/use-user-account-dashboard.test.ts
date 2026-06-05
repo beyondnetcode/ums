@@ -22,12 +22,44 @@ vi.mock('@domain/identity/constants/user-account.constants', () => ({
 }));
 
 const mockAccounts = [
-  { userAccountId: 'u-1', displayName: 'Admin One', email: 'user1@test.com', category: 'Internal', status: 'Active', tenantId: 't-1', branchId: null, identityReference: null, identityReferenceType: null, hasActivePassword: true, passwordUpdatedAtUtc: null },
-  { userAccountId: 'u-2', displayName: 'Pending User', email: 'user2@test.com', category: 'External', status: 'Pending', tenantId: 't-1', branchId: null, identityReference: null, identityReferenceType: null, hasActivePassword: false, passwordUpdatedAtUtc: null },
+  {
+    userAccountId: 'u-1',
+    displayName: 'Admin One',
+    email: 'user1@test.com',
+    category: 'Internal',
+    status: 'Active',
+    tenantId: 't-1',
+    branchId: null,
+    identityReference: null,
+    identityReferenceType: null,
+    hasActivePassword: true,
+    passwordUpdatedAtUtc: null,
+  },
+  {
+    userAccountId: 'u-2',
+    displayName: 'Pending User',
+    email: 'user2@test.com',
+    category: 'External',
+    status: 'Pending',
+    tenantId: 't-1',
+    branchId: null,
+    identityReference: null,
+    identityReferenceType: null,
+    hasActivePassword: false,
+    passwordUpdatedAtUtc: null,
+  },
 ];
 
 const mockTenants = [
-  { tenantId: 't-1', code: 'T1', name: 'Tenant 1', type: 'INTERNAL', status: 'Active', parentTenantId: null, companyReference: null },
+  {
+    tenantId: 't-1',
+    code: 'T1',
+    name: 'Tenant 1',
+    type: 'INTERNAL',
+    status: 'Active',
+    parentTenantId: null,
+    companyReference: null,
+  },
 ];
 
 function createWrapper() {
@@ -71,11 +103,16 @@ describe('useUserAccountDashboard', () => {
     });
 
     vi.mocked(useQueryStateModule.useQueryState).mockReturnValue({
-      searchCriteria: 'email', setSearchCriteria: vi.fn(),
-      searchValue: '', setSearchValue: vi.fn(),
-      activeFilter: 'all', setActiveFilter: vi.fn(),
-      sortBy: 'email', setSortBy: vi.fn(),
-      sortOrder: 'asc', setSortOrder: vi.fn(),
+      searchCriteria: 'email',
+      setSearchCriteria: vi.fn(),
+      searchValue: '',
+      setSearchValue: vi.fn(),
+      activeFilter: 'all',
+      setActiveFilter: vi.fn(),
+      sortBy: 'email',
+      setSortBy: vi.fn(),
+      sortOrder: 'asc',
+      setSortOrder: vi.fn(),
       toggleSortOrder: vi.fn(),
       appliedQuery: { criteria: 'email', term: '' },
       handleQuerySubmit: vi.fn(),
@@ -83,8 +120,13 @@ describe('useUserAccountDashboard', () => {
     } as any);
 
     vi.mocked(usePaginationStateModule.usePaginationState).mockReturnValue({
-      page: 1, setPage: vi.fn(), pageSize: 20, setPageSize: vi.fn(),
-      startIndex: 0, handlePageChange: vi.fn(), handlePageSizeChange: vi.fn(),
+      page: 1,
+      setPage: vi.fn(),
+      pageSize: 20,
+      setPageSize: vi.fn(),
+      startIndex: 0,
+      handlePageChange: vi.fn(),
+      handlePageSizeChange: vi.fn(),
     } as any);
 
     vi.mocked(notificationStoreModule.useNotificationStore).mockReturnValue({
@@ -250,19 +292,30 @@ describe('useUserAccountDashboard', () => {
     const handleResetQuery = vi.fn();
 
     vi.mocked(usePaginationStateModule.usePaginationState).mockReturnValue({
-      page: 1, setPage, pageSize: 20, setPageSize: vi.fn(),
-      startIndex: 0, handlePageChange: vi.fn(), handlePageSizeChange: vi.fn(),
+      page: 1,
+      setPage,
+      pageSize: 20,
+      setPageSize: vi.fn(),
+      startIndex: 0,
+      handlePageChange: vi.fn(),
+      handlePageSizeChange: vi.fn(),
     } as any);
 
     vi.mocked(useQueryStateModule.useQueryState).mockReturnValue({
-      searchCriteria: 'email', setSearchCriteria: vi.fn(),
-      searchValue: '', setSearchValue: vi.fn(),
-      activeFilter: 'all', setActiveFilter: vi.fn(),
-      sortBy: 'email', setSortBy: vi.fn(),
-      sortOrder: 'asc', setSortOrder: vi.fn(),
+      searchCriteria: 'email',
+      setSearchCriteria: vi.fn(),
+      searchValue: '',
+      setSearchValue: vi.fn(),
+      activeFilter: 'all',
+      setActiveFilter: vi.fn(),
+      sortBy: 'email',
+      setSortBy: vi.fn(),
+      sortOrder: 'asc',
+      setSortOrder: vi.fn(),
       toggleSortOrder: vi.fn(),
       appliedQuery: { criteria: 'email', term: '' },
-      handleQuerySubmit: vi.fn(), handleResetQuery,
+      handleQuerySubmit: vi.fn(),
+      handleResetQuery,
     } as any);
 
     const { result } = renderHook(() => useUserAccountDashboard(), { wrapper: createWrapper() });
@@ -278,9 +331,14 @@ describe('useUserAccountDashboard', () => {
   it('patchAccount calls patchItem from local overrides', () => {
     const patchItem = vi.fn();
     vi.mocked(useLocalOverridesModule.useLocalOverrides).mockReturnValue({
-      items: mockAccounts, patchItem, patchItems: vi.fn(),
-      clearOverrides: vi.fn(), rollbackItem: vi.fn(), rollbackAll: vi.fn(),
-      getDiffs: vi.fn(() => []), isDirty: vi.fn(() => false),
+      items: mockAccounts,
+      patchItem,
+      patchItems: vi.fn(),
+      clearOverrides: vi.fn(),
+      rollbackItem: vi.fn(),
+      rollbackAll: vi.fn(),
+      getDiffs: vi.fn(() => []),
+      isDirty: vi.fn(() => false),
     });
 
     const { result } = renderHook(() => useUserAccountDashboard(), { wrapper: createWrapper() });

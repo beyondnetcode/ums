@@ -38,9 +38,7 @@ describe('M3Drawer', () => {
   });
 
   it('renders actions when provided', () => {
-    render(
-      <M3Drawer {...defaultProps} actions={<button>Action</button>} />
-    );
+    render(<M3Drawer {...defaultProps} actions={<button>Action</button>} />);
     expect(screen.getByText('Action')).toBeInTheDocument();
   });
 

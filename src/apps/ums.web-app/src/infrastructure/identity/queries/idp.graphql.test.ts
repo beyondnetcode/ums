@@ -7,7 +7,10 @@ vi.mock('@infra/http/graphqlClient', () => ({
     request: vi.fn(),
   },
   GraphQlValidationError: class GraphQlValidationError extends Error {
-    constructor(message: string, public errors: string[]) {
+    constructor(
+      message: string,
+      public errors: string[]
+    ) {
       super(message);
       this.name = 'GraphQlValidationError';
     }
@@ -35,18 +38,26 @@ describe('graphqlIdpQueries', () => {
 
     vi.mocked(graphqlClientModule.graphqlClient.request).mockResolvedValue(mockResponse);
 
-    const result = await graphqlIdpQueries.getIdentityProviders('3fa85f64-5717-4562-b3fc-2c963f66afa7');
+    const result = await graphqlIdpQueries.getIdentityProviders(
+      '3fa85f64-5717-4562-b3fc-2c963f66afa7'
+    );
 
     expect(result.getTenantIdentityProviders).toHaveLength(1);
     expect(result.getTenantIdentityProviders[0].name).toBe('Azure AD');
-    expect(graphqlClientModule.graphqlClient.request).toHaveBeenCalledWith(expect.any(String), { tenantId: '3fa85f64-5717-4562-b3fc-2c963f66afa7' });
+    expect(graphqlClientModule.graphqlClient.request).toHaveBeenCalledWith(expect.any(String), {
+      tenantId: '3fa85f64-5717-4562-b3fc-2c963f66afa7',
+    });
   });
 
   it('getIdentityProviders throws on empty tenantId', async () => {
-    await expect(graphqlIdpQueries.getIdentityProviders('')).rejects.toThrow('Invalid tenantId parameter');
+    await expect(graphqlIdpQueries.getIdentityProviders('')).rejects.toThrow(
+      'Invalid tenantId parameter'
+    );
   });
 
   it('getIdentityProviders throws on whitespace-only tenantId', async () => {
-    await expect(graphqlIdpQueries.getIdentityProviders('   ')).rejects.toThrow('Invalid tenantId parameter');
+    await expect(graphqlIdpQueries.getIdentityProviders('   ')).rejects.toThrow(
+      'Invalid tenantId parameter'
+    );
   });
 });

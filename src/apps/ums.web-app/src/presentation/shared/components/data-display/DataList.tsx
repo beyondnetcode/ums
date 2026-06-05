@@ -40,7 +40,7 @@ export const DataList: React.FC<DataListProps> = ({
   telemetryInfo,
 }) => {
   const [isFooterCollapsed, setIsFooterCollapsed] = useState(false);
-  const toggleFooter = useCallback(() => setIsFooterCollapsed((v) => !v), []);
+  const toggleFooter = useCallback(() => setIsFooterCollapsed(v => !v), []);
 
   return (
     <>
@@ -54,10 +54,19 @@ export const DataList: React.FC<DataListProps> = ({
             <M3SkeletonRow columns={viewMode === 'list' ? 4 : 2} />
           </div>
         ) : isEmpty ? (
-          <EmptyState variant="card" title={emptyTitle} message={emptyLabel} tooltip={emptyTooltip} />
+          <EmptyState
+            variant="card"
+            title={emptyTitle}
+            message={emptyLabel}
+            tooltip={emptyTooltip}
+          />
         ) : (
           <div className="animate-fadeIn">
-            {viewMode === 'list' ? renderList() : (renderThumbnail ? renderThumbnail() : renderList())}
+            {viewMode === 'list'
+              ? renderList()
+              : renderThumbnail
+                ? renderThumbnail()
+                : renderList()}
           </div>
         )}
       </div>
@@ -66,16 +75,15 @@ export const DataList: React.FC<DataListProps> = ({
         <div className="flex-shrink-0 bg-m3-surface-container/20 border border-m3-outline/20 rounded-xl overflow-hidden mt-3">
           <div className="flex items-center justify-between px-3 h-9 gap-3">
             <div className="flex items-center gap-2 min-w-0 flex-1 text-xs font-medium text-m3-secondary">
-              {telemetryInfo ?? (
-                pagination && (
+              {telemetryInfo ??
+                (pagination && (
                   <div className="flex items-center gap-1.5">
                     <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
                     <span className="text-xs text-m3-secondary/70 truncate">
                       {pagination.totalItems} records · {pagination.pageSize} per page
                     </span>
                   </div>
-                )
-              )}
+                ))}
             </div>
 
             {pagination && pagination.totalPages > 1 && (
@@ -90,7 +98,11 @@ export const DataList: React.FC<DataListProps> = ({
                     : 'bg-m3-surface-container/60 border-m3-outline/40 text-m3-secondary hover:bg-m3-primary/10 hover:border-m3-primary/40 hover:text-m3-primary',
                 ].join(' ')}
               >
-                {isFooterCollapsed ? <ChevronsUp className="w-3.5 h-3.5" /> : <ChevronsDown className="w-3.5 h-3.5" />}
+                {isFooterCollapsed ? (
+                  <ChevronsUp className="w-3.5 h-3.5" />
+                ) : (
+                  <ChevronsDown className="w-3.5 h-3.5" />
+                )}
               </button>
             )}
           </div>
@@ -102,7 +114,10 @@ export const DataList: React.FC<DataListProps> = ({
             >
               <div className="flex justify-between items-center gap-2 px-3 pb-2.5">
                 {pagination.onPageSizeChange && (
-                  <PageSizeSelector value={pagination.pageSize} onChange={pagination.onPageSizeChange} />
+                  <PageSizeSelector
+                    value={pagination.pageSize}
+                    onChange={pagination.onPageSizeChange}
+                  />
                 )}
 
                 <div className="flex items-center gap-2 ml-auto">
@@ -116,7 +131,7 @@ export const DataList: React.FC<DataListProps> = ({
                   </button>
 
                   <div className="flex items-center gap-1 select-none">
-                    {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((p) => {
+                    {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(p => {
                       const isActive = p === pagination.page;
                       return (
                         <button
@@ -137,7 +152,9 @@ export const DataList: React.FC<DataListProps> = ({
 
                   <button
                     type="button"
-                    onClick={() => pagination.onPageChange(Math.min(pagination.totalPages, pagination.page + 1))}
+                    onClick={() =>
+                      pagination.onPageChange(Math.min(pagination.totalPages, pagination.page + 1))
+                    }
                     disabled={pagination.page === pagination.totalPages}
                     className="p-1.5 rounded-lg border border-m3-outline bg-m3-surface text-m3-secondary disabled:opacity-40 disabled:cursor-not-allowed hover:bg-m3-primary/10 hover:text-m3-primary transition-all"
                   >

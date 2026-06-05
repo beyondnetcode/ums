@@ -35,7 +35,7 @@ export function useTreeNodes<T extends Record<string, unknown>>({
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
   const toggleExpand = useCallback((id: string) => {
-    setExpandedIds((prev) => {
+    setExpandedIds(prev => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
@@ -49,7 +49,7 @@ export function useTreeNodes<T extends Record<string, unknown>>({
     const childMap = new Map<string, T[]>();
     const roots: T[] = [];
 
-    items.forEach((item) => {
+    items.forEach(item => {
       const parentId = item[parentIdKey] as string | null | undefined;
       if (parentId) {
         if (!childMap.has(parentId)) childMap.set(parentId, []);
@@ -60,7 +60,7 @@ export function useTreeNodes<T extends Record<string, unknown>>({
       }
     });
 
-    return roots.map((root) => {
+    return roots.map(root => {
       const id = String(root[idKey]);
       return {
         item: root,
@@ -72,18 +72,18 @@ export function useTreeNodes<T extends Record<string, unknown>>({
 
   const hasChildren = useCallback(
     (id: string) => {
-      const node = treeNodes.find((n) => String(n.item[idKey]) === id);
+      const node = treeNodes.find(n => String(n.item[idKey]) === id);
       return node ? node.children.length > 0 : false;
     },
-    [treeNodes, idKey],
+    [treeNodes, idKey]
   );
 
   const getChildren = useCallback(
     (id: string) => {
-      const node = treeNodes.find((n) => String(n.item[idKey]) === id);
+      const node = treeNodes.find(n => String(n.item[idKey]) === id);
       return node?.children ?? [];
     },
-    [treeNodes, idKey],
+    [treeNodes, idKey]
   );
 
   return { treeNodes, expandedIds, toggleExpand, isExpanded, hasChildren, getChildren };

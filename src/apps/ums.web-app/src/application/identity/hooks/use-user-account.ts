@@ -14,7 +14,12 @@ import {
   UserAccountPage,
 } from '@domain/identity/models/user-account.model';
 import { CONTEXT_QUERY_CONFIG } from '@app/shared/config/query.config';
-import { getHttpStatus, isNonRecoverable, isNetworkError, getRetryOptions } from '@app/utils/error-utils';
+import {
+  getHttpStatus,
+  isNonRecoverable,
+  isNetworkError,
+  getRetryOptions,
+} from '@app/utils/error-utils';
 
 export interface UserAccountQueryParams {
   page: number;
@@ -31,7 +36,17 @@ export interface UserAccountQueryParams {
 
 export const useGetAllUserAccounts = (params: UserAccountQueryParams | null) => {
   return useQuery<UserAccountPage>({
-    queryKey: ['user-accounts', params?.page, params?.pageSize, params?.search, params?.criteria, params?.status, params?.sortBy, params?.sortOrder, params?.tenantId],
+    queryKey: [
+      'user-accounts',
+      params?.page,
+      params?.pageSize,
+      params?.search,
+      params?.criteria,
+      params?.status,
+      params?.sortBy,
+      params?.sortOrder,
+      params?.tenantId,
+    ],
     queryFn: () => userAccountService.getAll(params!),
     enabled: !!params,
     ...CONTEXT_QUERY_CONFIG.USER_ACCOUNT,
@@ -62,7 +77,8 @@ export const useGetUserAccount = (userAccountId: string | null) => {
 export const useCreateUserAccount = () => {
   const t = useI18n();
   return useNotifiedMutation({
-    mutationFn: (payload: CreateUserAccountPayload) => userAccountService.createUserAccount(payload),
+    mutationFn: (payload: CreateUserAccountPayload) =>
+      userAccountService.createUserAccount(payload),
     invalidateKeys: [['user-accounts']],
     successNotif: () => ({
       title: t.notifUserCreated,
@@ -127,10 +143,11 @@ export const useRestoreUserAccount = (userAccountId: string) => {
 export const useSetUserAccountPassword = (userAccountId: string) => {
   const t = useI18n();
   return useNotifiedMutation({
-    mutationFn: (password: string) => userAccountService.setUserAccountPassword({
-      userAccountId,
-      password,
-    }),
+    mutationFn: (password: string) =>
+      userAccountService.setUserAccountPassword({
+        userAccountId,
+        password,
+      }),
     invalidateKeys: [['user-accounts'], ['user-accounts', userAccountId]],
     successNotif: () => ({
       title: t.notifPasswordUpdated,

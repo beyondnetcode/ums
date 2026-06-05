@@ -93,9 +93,13 @@ export const M3Button: React.FC<M3ButtonProps> = ({
       {...props}
     >
       {loading && spinner}
-      {!loading && icon && iconPosition === 'left'  && <span className="mr-2 flex items-center">{icon}</span>}
+      {!loading && icon && iconPosition === 'left' && (
+        <span className="mr-2 flex items-center">{icon}</span>
+      )}
       {children}
-      {!loading && icon && iconPosition === 'right' && <span className="ml-2 flex items-center">{icon}</span>}
+      {!loading && icon && iconPosition === 'right' && (
+        <span className="ml-2 flex items-center">{icon}</span>
+      )}
     </button>
   );
 };

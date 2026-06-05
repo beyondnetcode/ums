@@ -10,7 +10,10 @@ interface UserAccountAccessViewProps {
   tenantId: string;
 }
 
-export const UserAccountAccessView: React.FC<UserAccountAccessViewProps> = ({ userId, tenantId }) => {
+export const UserAccountAccessView: React.FC<UserAccountAccessViewProps> = ({
+  userId,
+  tenantId,
+}) => {
   const { data: profilePage, isLoading } = useGetAllProfiles({
     page: 1,
     pageSize: 50,
@@ -38,7 +41,8 @@ export const UserAccountAccessView: React.FC<UserAccountAccessViewProps> = ({ us
       <div className="flex items-start gap-2 px-1 pb-1">
         <Info className="w-3.5 h-3.5 text-m3-secondary/60 shrink-0 mt-0.5" />
         <span className="text-[11px] text-m3-secondary/70 leading-relaxed">
-          Vista de consulta. Los permisos se administran desde el perfil de autorización correspondiente.
+          Vista de consulta. Los permisos se administran desde el perfil de autorización
+          correspondiente.
         </span>
       </div>
 
@@ -51,7 +55,9 @@ export const UserAccountAccessView: React.FC<UserAccountAccessViewProps> = ({ us
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 flex-wrap">
               <Shield className="w-3.5 h-3.5 text-m3-primary shrink-0" />
-              <span className="text-[12px] font-semibold text-m3-on-surface">{profile.roleName}</span>
+              <span className="text-[12px] font-semibold text-m3-on-surface">
+                {profile.roleName}
+              </span>
               <CodeBadge code={profile.roleCode} size="xs" />
             </div>
             <StatusBadge status={profile.isActive ? 'Active' : 'Inactive'} />
@@ -61,7 +67,9 @@ export const UserAccountAccessView: React.FC<UserAccountAccessViewProps> = ({ us
           <div className="flex items-center gap-2 flex-wrap">
             <LayoutGrid className="w-3 h-3 text-m3-secondary shrink-0" />
             <span className="text-[11px] text-m3-secondary">Sistema:</span>
-            <span className="text-[11px] font-medium text-m3-on-surface">{profile.systemSuiteName}</span>
+            <span className="text-[11px] font-medium text-m3-on-surface">
+              {profile.systemSuiteName}
+            </span>
             <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-m3-primary/10 text-m3-primary">
               {profile.systemSuiteCode}
             </span>
@@ -81,7 +89,8 @@ export const UserAccountAccessView: React.FC<UserAccountAccessViewProps> = ({ us
           {profile.permissionCount > 0 && (
             <div className="pt-1 border-t border-m3-outline/10">
               <span className="text-[10px] text-m3-secondary/60">
-                {profile.permissionCount} permiso{profile.permissionCount !== 1 ? 's' : ''} configurados
+                {profile.permissionCount} permiso{profile.permissionCount !== 1 ? 's' : ''}{' '}
+                configurados
               </span>
             </div>
           )}

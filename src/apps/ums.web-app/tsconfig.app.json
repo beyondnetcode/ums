@@ -7,6 +7,8 @@
     "module": "ESNext",
     "skipLibCheck": true,
     "types": [],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
 
     /* Bundler mode */
     "moduleResolution": "Bundler",
@@ -26,11 +28,11 @@
     /* Path aliases — use @app/, @domain/, @infra/, @presentation/ */
     "baseUrl": ".",
     "paths": {
-      "@app/*":          ["src/application/*"],
-      "@domain/*":       ["src/domain/*"],
-      "@infra/*":        ["src/infrastructure/*"],
+      "@app/*": ["src/application/*"],
+      "@domain/*": ["src/domain/*"],
+      "@infra/*": ["src/infrastructure/*"],
       "@presentation/*": ["src/presentation/*"],
-      "@shared/*":       ["src/presentation/shared/*"]
+      "@shared/*": ["src/presentation/shared/*"]
     }
   },
   "include": ["src"]

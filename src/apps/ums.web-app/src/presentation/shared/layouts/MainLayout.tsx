@@ -33,9 +33,7 @@ export const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }
         <div className="m3-glow top-0 left-1/4 w-[450px] h-[450px] bg-m3-primary/10 dark:bg-m3-primary/5" />
         <div className="m3-glow bottom-10 right-10 w-[350px] h-[350px] bg-indigo-500/10 dark:bg-indigo-500/5" />
         <main className="flex-1 flex flex-col relative">
-          <div className="flex-1 flex flex-col p-5 min-h-0">
-            {children}
-          </div>
+          <div className="flex-1 flex flex-col p-5 min-h-0">{children}</div>
         </main>
       </div>
     );
@@ -52,9 +50,7 @@ export const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }
         <NavRail collapsed={navCollapsed} />
 
         <main className="flex-1 overflow-y-auto flex flex-col relative">
-          <div className="flex-1 flex flex-col p-5 min-h-0">
-            {children}
-          </div>
+          <div className="flex-1 flex flex-col p-5 min-h-0">{children}</div>
         </main>
       </div>
     </div>

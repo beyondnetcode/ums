@@ -6,7 +6,8 @@ export const authorizationTranslations = {
     permissionTemplates: 'Plantillas de Permisos',
     profilesHeader: 'Perfiles de Autorización',
     permissionTemplateMaintenance: 'Plantillas de Permisos',
-    permissionTemplateMaintenanceSubtitle: 'Configure plantillas de permisos por rol y suite. Asigne efectos (Permitir/Denegar/Neutro) a cada recurso.',
+    permissionTemplateMaintenanceSubtitle:
+      'Configure plantillas de permisos por rol y suite. Asigne efectos (Permitir/Denegar/Neutro) a cada recurso.',
 
     // Template list
     templateDraft: 'Borrador',
@@ -18,7 +19,8 @@ export const authorizationTranslations = {
 
     // Template form
     createTemplateTitle: 'Nueva Plantilla de Permisos',
-    createTemplateDraftNote: 'La plantilla se crea en estado Borrador. Agrega los ítems de permiso antes de publicarla.',
+    createTemplateDraftNote:
+      'La plantilla se crea en estado Borrador. Agrega los ítems de permiso antes de publicarla.',
 
     // Template detail
     templateGeneral: 'General',
@@ -33,7 +35,8 @@ export const authorizationTranslations = {
     effectDeny: 'Denegar',
     effectNeutral: 'Neutro',
     systemSuiteMaintenance: 'Mantenimiento de Suites del Sistema',
-    systemSuiteMaintenanceSubtitle: 'Explore y gestione los suites del sistema, sus módulos y catálogos de acciones.',
+    systemSuiteMaintenanceSubtitle:
+      'Explore y gestione los suites del sistema, sus módulos y catálogos de acciones.',
 
     // System Suite Form
     createSystemSuiteTitle: 'Crear Nuevo Suite del Sistema',
@@ -47,7 +50,8 @@ export const authorizationTranslations = {
     bySystemSuiteId: 'Por ID del Suite (GUID)',
     noSystemSuitesFound: 'No se encontraron suites del sistema con el criterio seleccionado.',
     noSystemSuitesTitle: 'Sin suites del sistema',
-    selectSystemSuiteToView: 'Seleccione un suite del sistema en el panel para cargar sus detalles.',
+    selectSystemSuiteToView:
+      'Seleccione un suite del sistema en el panel para cargar sus detalles.',
     systemSuiteDetails: 'Detalles del Suite',
 
     // Tabs
@@ -57,7 +61,8 @@ export const authorizationTranslations = {
     actions: 'Acciones',
     roles: 'Roles',
     noModulesConfigured: 'No hay módulos configurados para este suite del sistema.',
-    noDomainResourcesConfigured: 'No hay recursos de dominio configurados para este suite del sistema.',
+    noDomainResourcesConfigured:
+      'No hay recursos de dominio configurados para este suite del sistema.',
     noActionsConfigured: 'No hay acciones configuradas para este suite del sistema.',
     noRolesConfigured: 'No hay roles configurados para este suite del sistema.',
 
@@ -109,7 +114,8 @@ export const authorizationTranslations = {
     notifSystemSuiteCreatedMsg: (id: string) => `Suite del sistema registrado con ID: ${id}.`,
     notifSystemSuiteCreateFailed: 'Error al Crear Suite del Sistema',
     notifSystemSuiteUpdated: 'Suite del Sistema Actualizado',
-    notifSystemSuiteUpdatedMsg: (name: string) => `Los datos del suite '${name}' fueron actualizados.`,
+    notifSystemSuiteUpdatedMsg: (name: string) =>
+      `Los datos del suite '${name}' fueron actualizados.`,
     notifStatusChanged: 'Estado Cambiado',
     notifStatusChangedMsg: 'El estado del suite del sistema fue actualizado.',
     notifStatusChangeFailed: 'Error al Cambiar Estado',
@@ -118,7 +124,8 @@ export const authorizationTranslations = {
     notifRoleCreated: 'Rol registrado',
     notifRoleCreatedMsg: 'El rol fue registrado correctamente.',
     notifRoleCreateFailed: 'Error al registrar rol',
-    notifRoleCreateFailedMsg: 'No se pudo registrar el rol. Revise el código y la jerarquía seleccionada.',
+    notifRoleCreateFailedMsg:
+      'No se pudo registrar el rol. Revise el código y la jerarquía seleccionada.',
     notifRoleUpdated: 'Rol actualizado',
     notifRoleUpdatedMsg: 'Los datos del rol fueron actualizados.',
     notifRoleUpdateFailed: 'Error al actualizar rol',
@@ -131,7 +138,8 @@ export const authorizationTranslations = {
     // Feature Flags
     featureFlags: 'Feature Flags',
     featureFlagMaintenance: 'Feature Flags',
-    featureFlagMaintenanceSubtitle: 'Gestione feature flags para controlar funcionalidades por tenant, rol, ambiente y más.',
+    featureFlagMaintenanceSubtitle:
+      'Gestione feature flags para controlar funcionalidades por tenant, rol, ambiente y más.',
     flagCode: 'Código del Flag',
     flagType: 'Tipo de Flag',
     flagStatus: 'Estado',
@@ -152,7 +160,8 @@ export const authorizationTranslations = {
     flagActive: 'Activo',
     flagArchived: 'Archivado',
     createFlagTitle: 'Nuevo Feature Flag',
-    createFlagDraftNote: 'El flag se crea en estado Inactivo. Active después de configurar targeting y criterios.',
+    createFlagDraftNote:
+      'El flag se crea en estado Inactivo. Active después de configurar targeting y criterios.',
   },
   en: {
     // Context labels
@@ -161,7 +170,8 @@ export const authorizationTranslations = {
     permissionTemplates: 'Permission Templates',
     profilesHeader: 'Authorization Profiles',
     permissionTemplateMaintenance: 'Permission Templates',
-    permissionTemplateMaintenanceSubtitle: 'Configure permission templates by role and system suite. Assign Allow/Deny/Neutral effects per resource.',
+    permissionTemplateMaintenanceSubtitle:
+      'Configure permission templates by role and system suite. Assign Allow/Deny/Neutral effects per resource.',
 
     // Template list
     templateDraft: 'Draft',
@@ -173,7 +183,8 @@ export const authorizationTranslations = {
 
     // Template form
     createTemplateTitle: 'New Permission Template',
-    createTemplateDraftNote: 'The template is created in Draft state. Add permission items before publishing.',
+    createTemplateDraftNote:
+      'The template is created in Draft state. Add permission items before publishing.',
 
     // Template detail
     templateGeneral: 'General',
@@ -188,7 +199,8 @@ export const authorizationTranslations = {
     effectDeny: 'Deny',
     effectNeutral: 'Neutral',
     systemSuiteMaintenance: 'System Suite Maintenance',
-    systemSuiteMaintenanceSubtitle: 'Explore and manage system suites, their modules, and action catalogs.',
+    systemSuiteMaintenanceSubtitle:
+      'Explore and manage system suites, their modules, and action catalogs.',
 
     // System Suite Form
     createSystemSuiteTitle: 'Create New System Suite',
@@ -264,16 +276,19 @@ export const authorizationTranslations = {
     notifSystemSuiteCreatedMsg: (id: string) => `System suite registered with ID: ${id}.`,
     notifSystemSuiteCreateFailed: 'System Suite Creation Failed',
     notifSystemSuiteUpdated: 'System Suite Updated',
-    notifSystemSuiteUpdatedMsg: (name: string) => `System suite '${name}' data was updated successfully.`,
+    notifSystemSuiteUpdatedMsg: (name: string) =>
+      `System suite '${name}' data was updated successfully.`,
     notifStatusChanged: 'Status Changed',
     notifStatusChangedMsg: 'The system suite status was successfully updated.',
     notifStatusChangeFailed: 'Status Change Failed',
     notifStatusChangeFailedMsg: 'Could not update the system suite status.',
-    notifStatusSetTo: (status: string) => `The system suite status was successfully set to ${status}.`,
+    notifStatusSetTo: (status: string) =>
+      `The system suite status was successfully set to ${status}.`,
     notifRoleCreated: 'Role registered',
     notifRoleCreatedMsg: 'The role was registered successfully.',
     notifRoleCreateFailed: 'Could not register role',
-    notifRoleCreateFailedMsg: 'The role could not be registered. Check its code and selected hierarchy.',
+    notifRoleCreateFailedMsg:
+      'The role could not be registered. Check its code and selected hierarchy.',
     notifRoleUpdated: 'Role updated',
     notifRoleUpdatedMsg: 'The role details were updated.',
     notifRoleUpdateFailed: 'Could not update role',
@@ -286,7 +301,8 @@ export const authorizationTranslations = {
     // Feature Flags
     featureFlags: 'Feature Flags',
     featureFlagMaintenance: 'Feature Flags',
-    featureFlagMaintenanceSubtitle: 'Manage feature flags to control functionality by tenant, role, environment and more.',
+    featureFlagMaintenanceSubtitle:
+      'Manage feature flags to control functionality by tenant, role, environment and more.',
     flagCode: 'Flag Code',
     flagType: 'Flag Type',
     flagStatus: 'Status',
@@ -307,6 +323,7 @@ export const authorizationTranslations = {
     flagActive: 'Active',
     flagArchived: 'Archived',
     createFlagTitle: 'New Feature Flag',
-    createFlagDraftNote: 'The flag is created in Inactive state. Activate after configuring targeting and criteria.',
+    createFlagDraftNote:
+      'The flag is created in Inactive state. Activate after configuring targeting and criteria.',
   },
 } as const;

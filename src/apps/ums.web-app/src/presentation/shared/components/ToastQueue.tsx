@@ -22,9 +22,9 @@ import {
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const DISMISS_DELAY_MS: Record<NotificationType, number> = {
-  error:   6_000,
+  error: 6_000,
   warning: 5_000,
-  info:    4_000,
+  info: 4_000,
   success: 3_500,
 };
 
@@ -56,17 +56,13 @@ const ToastItem: React.FC<ToastItemProps> = React.memo(({ toast, onDismiss }) =>
         'shadow-xl backdrop-blur-md bg-m3-surface/95',
         'transition-all duration-300 ease-in-out will-change-transform',
         borderClass,
-        toast.leaving
-          ? 'opacity-0 translate-x-4 scale-95'
-          : 'opacity-100 translate-x-0 scale-100',
+        toast.leaving ? 'opacity-0 translate-x-4 scale-95' : 'opacity-100 translate-x-0 scale-100',
       ].join(' ')}
     >
       <Icon className={`w-4 h-4 mt-0.5 flex-shrink-0 ${iconClass}`} />
 
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-bold text-m3-on-surface leading-snug">
-          {toast.title}
-        </p>
+        <p className="text-xs font-bold text-m3-on-surface leading-snug">{toast.title}</p>
         {toast.message && (
           <p className="text-[11px] text-m3-secondary mt-1 leading-relaxed break-words whitespace-pre-wrap">
             {toast.message}
@@ -91,8 +87,8 @@ ToastItem.displayName = 'ToastItem';
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export const ToastQueue: React.FC = React.memo(() => {
-  const notifications = useNotificationStore((s) => s.notifications);
-  const removeNotification = useNotificationStore((s) => s.removeNotification);
+  const notifications = useNotificationStore(s => s.notifications);
+  const removeNotification = useNotificationStore(s => s.removeNotification);
   const [toasts, setToasts] = useState<ToastEntry[]>([]);
 
   // Track which notification IDs have already been shown so re-renders
@@ -105,7 +101,7 @@ export const ToastQueue: React.FC = React.memo(() => {
   useEffect(() => {
     const timers = timersRef.current;
     return () => {
-      timers.forEach((t) => clearTimeout(t));
+      timers.forEach(t => clearTimeout(t));
     };
   }, []);
 
@@ -115,7 +111,7 @@ export const ToastQueue: React.FC = React.memo(() => {
       if (seenRef.current.has(n.id)) continue;
       seenRef.current.add(n.id);
 
-      setToasts((prev) => {
+      setToasts(prev => {
         // Cap visible toasts — oldest entries are removed first (they are at
         // the tail of the array because we prepend).
         const next = [{ ...n, leaving: false }, ...prev];
@@ -126,12 +122,10 @@ export const ToastQueue: React.FC = React.memo(() => {
 
       const leavingTimer = setTimeout(() => {
         // Trigger slide-out animation.
-        setToasts((prev) =>
-          prev.map((t) => (t.id === n.id ? { ...t, leaving: true } : t)),
-        );
+        setToasts(prev => prev.map(t => (t.id === n.id ? { ...t, leaving: true } : t)));
         // Remove from DOM after animation completes.
         const removeTimer = setTimeout(() => {
-          setToasts((prev) => prev.filter((t) => t.id !== n.id));
+          setToasts(prev => prev.filter(t => t.id !== n.id));
           timersRef.current.delete(n.id + '_remove');
         }, LEAVE_ANIMATION_MS);
 
@@ -143,24 +137,25 @@ export const ToastQueue: React.FC = React.memo(() => {
     }
   }, [notifications]);
 
-  const dismiss = useCallback((id: string) => {
-    // Cancel the auto-dismiss timer so it doesn't double-fire.
-    const timer = timersRef.current.get(id);
-    if (timer !== undefined) {
-      clearTimeout(timer);
-      timersRef.current.delete(id);
-    }
+  const dismiss = useCallback(
+    (id: string) => {
+      // Cancel the auto-dismiss timer so it doesn't double-fire.
+      const timer = timersRef.current.get(id);
+      if (timer !== undefined) {
+        clearTimeout(timer);
+        timersRef.current.delete(id);
+      }
 
-    removeNotification(id);
-    setToasts((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, leaving: true } : t)),
-    );
-    const removeTimer = setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-      timersRef.current.delete(id + '_remove');
-    }, LEAVE_ANIMATION_MS);
-    timersRef.current.set(id + '_remove', removeTimer);
-  }, [removeNotification]);
+      removeNotification(id);
+      setToasts(prev => prev.map(t => (t.id === id ? { ...t, leaving: true } : t)));
+      const removeTimer = setTimeout(() => {
+        setToasts(prev => prev.filter(t => t.id !== id));
+        timersRef.current.delete(id + '_remove');
+      }, LEAVE_ANIMATION_MS);
+      timersRef.current.set(id + '_remove', removeTimer);
+    },
+    [removeNotification]
+  );
 
   if (toasts.length === 0) return null;
 
@@ -169,7 +164,7 @@ export const ToastQueue: React.FC = React.memo(() => {
       aria-label="Notificaciones"
       className="fixed bottom-6 right-6 z-[100] flex flex-col-reverse gap-2.5 w-80 pointer-events-none"
     >
-      {toasts.map((toast) => (
+      {toasts.map(toast => (
         <ToastItem key={toast.id} toast={toast} onDismiss={dismiss} />
       ))}
     </div>

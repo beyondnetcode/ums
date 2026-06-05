@@ -9,7 +9,12 @@ import delegationService from '@infra/identity/services/delegation.service';
 import { useNotifiedMutation } from '@app/hooks/use-notified-mutation';
 import { useI18n } from '@app/i18n/use-i18n';
 import type { CreateDelegationPayload, Delegation } from '@domain/identity/models/delegation.model';
-import { getHttpStatus, isNonRecoverable, isNetworkError, getRetryOptions } from '@app/utils/error-utils';
+import {
+  getHttpStatus,
+  isNonRecoverable,
+  isNetworkError,
+  getRetryOptions,
+} from '@app/utils/error-utils';
 import { CONTEXT_QUERY_CONFIG } from '@app/shared/config/query.config';
 
 // ─── Queries ────────────────────────────────────────────────────────────────
@@ -32,20 +37,34 @@ export const useGetDelegation = (delegationId: string | null) => {
   });
 };
 
-export const useGetDelegationsByDelegatedAdmin = (delegatedAdminId: string | null, tenantId: string | null) => {
+export const useGetDelegationsByDelegatedAdmin = (
+  delegatedAdminId: string | null,
+  tenantId: string | null
+) => {
   return useQuery<Delegation[]>({
     queryKey: ['delegations', 'by-delegated-admin', delegatedAdminId, tenantId],
-    queryFn: () => delegationService.getDelegationsByDelegatedAdmin(delegatedAdminId as string, tenantId as string),
+    queryFn: () =>
+      delegationService.getDelegationsByDelegatedAdmin(
+        delegatedAdminId as string,
+        tenantId as string
+      ),
     enabled: !!delegatedAdminId && !!tenantId,
     ...CONTEXT_QUERY_CONFIG.DELEGATION,
     ...getRetryOptions({ maxRetries: 1, networkErrorMaxRetries: 2 }),
   });
 };
 
-export const useGetDelegationsByDelegatingAdmin = (delegatingAdminId: string | null, tenantId: string | null) => {
+export const useGetDelegationsByDelegatingAdmin = (
+  delegatingAdminId: string | null,
+  tenantId: string | null
+) => {
   return useQuery<Delegation[]>({
     queryKey: ['delegations', 'by-delegating-admin', delegatingAdminId, tenantId],
-    queryFn: () => delegationService.getDelegationsByDelegatingAdmin(delegatingAdminId as string, tenantId as string),
+    queryFn: () =>
+      delegationService.getDelegationsByDelegatingAdmin(
+        delegatingAdminId as string,
+        tenantId as string
+      ),
     enabled: !!delegatingAdminId && !!tenantId,
     ...CONTEXT_QUERY_CONFIG.DELEGATION,
     ...getRetryOptions({ maxRetries: 1, networkErrorMaxRetries: 2 }),

@@ -26,7 +26,7 @@ export const ApiErrorBanner: React.FC<ApiErrorBannerProps> = ({ error }) => {
     ? t.errorBackendUnavailableTitle || 'Backend API Unavailable'
     : isValidation
       ? t.errorInvalidRequestTitle || 'Invalid Request'
-      : (t.errorGenericTitle || 'Error');
+      : t.errorGenericTitle || 'Error';
 
   const hint = isUnavailable
     ? t.errorBackendUnavailableHint || 'Start the backend API and refresh.'

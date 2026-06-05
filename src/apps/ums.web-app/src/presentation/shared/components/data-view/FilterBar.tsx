@@ -28,7 +28,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   onViewModeChange,
 }) => {
   const hasFilters = filterOptions && onFilterChange && activeFilter !== undefined;
-  const hasSort = sortOptions && onSortChange && activeSort !== undefined && sortOrder !== undefined;
+  const hasSort =
+    sortOptions && onSortChange && activeSort !== undefined && sortOrder !== undefined;
 
   if (!hasFilters && !hasSort && !onViewModeChange) {
     return null;
@@ -44,12 +45,14 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           </div>
           <select
             value={activeFilter}
-            onChange={(e) => onFilterChange(e.target.value)}
+            onChange={e => onFilterChange(e.target.value)}
             aria-label="Filter"
             className="h-7 px-2 rounded border border-m3-outline/20 bg-m3-surface text-[12px] text-m3-on-surface focus:outline-none focus:border-m3-primary/40 cursor-pointer"
           >
-            {filterOptions?.map((f) => (
-              <option key={f.value} value={f.value}>{f.label}</option>
+            {filterOptions?.map(f => (
+              <option key={f.value} value={f.value}>
+                {f.label}
+              </option>
             ))}
           </select>
         </div>
@@ -71,12 +74,14 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           </button>
           <select
             value={activeSort}
-            onChange={(e) => onSortChange(e.target.value)}
+            onChange={e => onSortChange(e.target.value)}
             aria-label="Sort by"
             className="h-7 px-2 rounded border border-m3-outline/20 bg-m3-surface text-[12px] text-m3-on-surface focus:outline-none focus:border-m3-primary/40 cursor-pointer"
           >
-            {sortOptions?.map((s) => (
-              <option key={s.value} value={s.value}>{s.label}</option>
+            {sortOptions?.map(s => (
+              <option key={s.value} value={s.value}>
+                {s.label}
+              </option>
             ))}
           </select>
         </div>

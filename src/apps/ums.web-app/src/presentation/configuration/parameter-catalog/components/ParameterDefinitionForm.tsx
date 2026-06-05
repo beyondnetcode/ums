@@ -11,7 +11,10 @@ import {
   CreateParameterDefinitionSchema,
   type ParameterDefinition,
 } from '@domain/configuration/schemas/parameter-catalog/parameter-definition.schema';
-import { DataTypeLabels, ScopeLabels } from '@domain/configuration/schemas/parameter-catalog/parameter-definition.schema';
+import {
+  DataTypeLabels,
+  ScopeLabels,
+} from '@domain/configuration/schemas/parameter-catalog/parameter-definition.schema';
 import { z } from 'zod';
 
 interface ParameterDefinitionFormProps {
@@ -70,7 +73,17 @@ export const ParameterDefinitionForm: React.FC<ParameterDefinitionFormProps> = (
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const payload = { code, name, description: description || null, dataTypeId, defaultValue, scopeId, isActive, isMandatory, displayOrder };
+    const payload = {
+      code,
+      name,
+      description: description || null,
+      dataTypeId,
+      defaultValue,
+      scopeId,
+      isActive,
+      isMandatory,
+      displayOrder,
+    };
     const result = CreateParameterDefinitionSchema.safeParse(payload);
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
@@ -84,14 +97,18 @@ export const ParameterDefinitionForm: React.FC<ParameterDefinitionFormProps> = (
     try {
       await onSubmit(result.data);
       onClose();
-    } catch { }
+    } catch {}
   };
 
   return (
     <M3FormDialog
       open={isOpen}
       onClose={onClose}
-      title={isEditing ? (t.editParameter ?? 'Edit Parameter') : (t.createParameter ?? 'Create Parameter')}
+      title={
+        isEditing
+          ? (t.editParameter ?? 'Edit Parameter')
+          : (t.createParameter ?? 'Create Parameter')
+      }
       icon={<Tag className="w-4 h-4 text-m3-primary" />}
       footer={
         <div className="flex items-center gap-2">
@@ -115,7 +132,7 @@ export const ParameterDefinitionForm: React.FC<ParameterDefinitionFormProps> = (
           <FormField label={t.parameterCode ?? 'Code'} required error={errors.code}>
             <FormInput
               value={code}
-              onChange={(e) => setCode(e.target.value.toUpperCase())}
+              onChange={e => setCode(e.target.value.toUpperCase())}
               placeholder="SESSION_TIMEOUT"
               disabled={isEditing}
             />
@@ -124,7 +141,7 @@ export const ParameterDefinitionForm: React.FC<ParameterDefinitionFormProps> = (
           <FormField label={t.parameterName ?? 'Name'} required error={errors.name}>
             <FormInput
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={e => setName(e.target.value)}
               placeholder="Session Timeout"
             />
           </FormField>
@@ -133,24 +150,31 @@ export const ParameterDefinitionForm: React.FC<ParameterDefinitionFormProps> = (
         <FormField label={t.description ?? 'Description'} error={errors.description}>
           <FormInput
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={e => setDescription(e.target.value)}
             placeholder="Optional description..."
           />
         </FormField>
 
         <div className="grid grid-cols-2 gap-3">
           <FormField label={t.dataType ?? 'Type'} error={errors.dataTypeId}>
-            <FormSelect value={String(dataTypeId)} onChange={(e) => setDataTypeId(Number(e.target.value))}>
+            <FormSelect
+              value={String(dataTypeId)}
+              onChange={e => setDataTypeId(Number(e.target.value))}
+            >
               {Object.entries(DataTypeLabels).map(([id, label]) => (
-                <option key={id} value={id}>{label}</option>
+                <option key={id} value={id}>
+                  {label}
+                </option>
               ))}
             </FormSelect>
           </FormField>
 
           <FormField label={t.scope ?? 'Scope'} error={errors.scopeId}>
-            <FormSelect value={String(scopeId)} onChange={(e) => setScopeId(Number(e.target.value))}>
+            <FormSelect value={String(scopeId)} onChange={e => setScopeId(Number(e.target.value))}>
               {Object.entries(ScopeLabels).map(([id, label]) => (
-                <option key={id} value={id}>{label}</option>
+                <option key={id} value={id}>
+                  {label}
+                </option>
               ))}
             </FormSelect>
           </FormField>
@@ -159,7 +183,7 @@ export const ParameterDefinitionForm: React.FC<ParameterDefinitionFormProps> = (
         <FormField label={t.defaultValue ?? 'Default Value'} required error={errors.defaultValue}>
           <FormInput
             value={defaultValue}
-            onChange={(e) => setDefaultValue(e.target.value)}
+            onChange={e => setDefaultValue(e.target.value)}
             placeholder="Enter default value"
           />
         </FormField>
@@ -169,7 +193,7 @@ export const ParameterDefinitionForm: React.FC<ParameterDefinitionFormProps> = (
             <FormInput
               type="number"
               value={String(displayOrder)}
-              onChange={(e) => setDisplayOrder(Number(e.target.value) || 0)}
+              onChange={e => setDisplayOrder(Number(e.target.value) || 0)}
               className="w-16 text-center"
               min={0}
             />
@@ -177,7 +201,11 @@ export const ParameterDefinitionForm: React.FC<ParameterDefinitionFormProps> = (
 
           <div className="flex items-center gap-4 pb-1">
             <Toggle checked={isActive} onChange={setIsActive} label={t.active ?? 'Active'} />
-            <Toggle checked={isMandatory} onChange={setIsMandatory} label={t.mandatory ?? 'Required'} />
+            <Toggle
+              checked={isMandatory}
+              onChange={setIsMandatory}
+              label={t.mandatory ?? 'Required'}
+            />
           </div>
         </div>
       </form>

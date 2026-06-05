@@ -72,22 +72,20 @@ export const EntityCard: React.FC<EntityCardSimpleProps> = ({
       <div className="flex justify-between items-start gap-4">
         <div className="flex gap-3 flex-1 min-w-0">
           {icon && (
-            <div className={`p-2.5 rounded-lg border shrink-0 ${
-              selected
-                ? 'bg-m3-primary text-white border-m3-primary'
-                : 'bg-m3-primary/10 text-m3-primary border-m3-primary/10'
-            }`}>
+            <div
+              className={`p-2.5 rounded-lg border shrink-0 ${
+                selected
+                  ? 'bg-m3-primary text-white border-m3-primary'
+                  : 'bg-m3-primary/10 text-m3-primary border-m3-primary/10'
+              }`}
+            >
               {icon}
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <h4 className="text-sm font-medium text-m3-on-surface line-clamp-1">
-              {title}
-            </h4>
+            <h4 className="text-sm font-medium text-m3-on-surface line-clamp-1">{title}</h4>
             {subtitle && (
-              <div className="text-xs text-m3-secondary/70 mt-0.5 line-clamp-1">
-                {subtitle}
-              </div>
+              <div className="text-xs text-m3-secondary/70 mt-0.5 line-clamp-1">{subtitle}</div>
             )}
           </div>
         </div>
@@ -129,11 +127,13 @@ export function EntityCardGeneric<T extends Record<string, unknown>>({
     >
       <div className="flex justify-between items-start gap-4">
         <div className="flex gap-3 flex-1">
-          <div className={`p-2.5 rounded-lg border ${
-            isSelected
-              ? 'bg-m3-primary text-white border-m3-primary'
-              : 'bg-m3-primary/10 text-m3-primary border-m3-primary/10'
-          }`}>
+          <div
+            className={`p-2.5 rounded-lg border ${
+              isSelected
+                ? 'bg-m3-primary text-white border-m3-primary'
+                : 'bg-m3-primary/10 text-m3-primary border-m3-primary/10'
+            }`}
+          >
             {icon}
           </div>
           <div className="flex-1 min-w-0">

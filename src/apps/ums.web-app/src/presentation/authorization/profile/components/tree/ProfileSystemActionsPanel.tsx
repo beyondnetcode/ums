@@ -13,8 +13,11 @@ interface ProfileSystemActionsPanelProps {
   renderInlineActions: (permission: ProfilePermission) => React.ReactNode;
 }
 
-export const ProfileSystemActionsPanel: React.FC<ProfileSystemActionsPanelProps> = ({ suite, permissions, renderInlineActions }) => {
-
+export const ProfileSystemActionsPanel: React.FC<ProfileSystemActionsPanelProps> = ({
+  suite,
+  permissions,
+  renderInlineActions,
+}) => {
   const [viewMode, setViewMode] = useState<'list' | 'thumbnail' | 'tree'>('list');
   const [sortBy, setSortBy] = useState('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -28,7 +31,9 @@ export const ProfileSystemActionsPanel: React.FC<ProfileSystemActionsPanelProps>
     );
   }
 
-  const systemItems = permissions.filter(i => i.targetType === 'SystemSuite' || i.targetId === suite.systemSuiteId);
+  const systemItems = permissions.filter(
+    i => i.targetType === 'SystemSuite' || i.targetId === suite.systemSuiteId
+  );
 
   const getActionState = (actionId: string) => {
     const item = systemItems.find(i => i.actionId === actionId);
@@ -54,7 +59,12 @@ export const ProfileSystemActionsPanel: React.FC<ProfileSystemActionsPanelProps>
   const renderRow = (action: NonNullable<SystemSuite['actions']>[number]) => {
     const state = getActionState(action.id);
     const StateIcon = state === 'Allow' ? CheckCircle2 : state === 'Deny' ? XCircle : MinusCircle;
-    const stateColor = state === 'Allow' ? 'text-emerald-500' : state === 'Deny' ? 'text-rose-500' : 'text-m3-secondary/30';
+    const stateColor =
+      state === 'Allow'
+        ? 'text-emerald-500'
+        : state === 'Deny'
+          ? 'text-rose-500'
+          : 'text-m3-secondary/30';
 
     return (
       <EntityRow
@@ -70,7 +80,9 @@ export const ProfileSystemActionsPanel: React.FC<ProfileSystemActionsPanelProps>
           {
             content: (
               <div className="flex gap-2 min-w-[200px] justify-end">
-                {renderInlineActions(systemItems.find(i => i.actionId === action.id) as ProfilePermission)}
+                {renderInlineActions(
+                  systemItems.find(i => i.actionId === action.id) as ProfilePermission
+                )}
               </div>
             ),
             width: 'w-auto flex-1 justify-end',
@@ -99,7 +111,9 @@ export const ProfileSystemActionsPanel: React.FC<ProfileSystemActionsPanelProps>
         subtitle={<CodeBadge code={action.code} size="xs" />}
         badges={
           <div className="flex justify-end min-w-full mt-2">
-            {renderInlineActions(systemItems.find(i => i.actionId === action.id) as ProfilePermission)}
+            {renderInlineActions(
+              systemItems.find(i => i.actionId === action.id) as ProfilePermission
+            )}
           </div>
         }
       />
@@ -118,7 +132,7 @@ export const ProfileSystemActionsPanel: React.FC<ProfileSystemActionsPanelProps>
         sortBy={sortBy}
         onSortByChange={setSortBy}
         sortOrder={sortOrder}
-        onSortOrderToggle={() => setSortOrder(o => o === 'asc' ? 'desc' : 'asc')}
+        onSortOrderToggle={() => setSortOrder(o => (o === 'asc' ? 'desc' : 'asc'))}
         itemCount={suite.actions.length}
         itemLabel="acción"
       />
@@ -130,9 +144,7 @@ export const ProfileSystemActionsPanel: React.FC<ProfileSystemActionsPanelProps>
         </div>
 
         {viewMode === 'list' ? (
-          <div className="flex flex-col gap-0.5">
-            {sortedActions.map(renderRow)}
-          </div>
+          <div className="flex flex-col gap-0.5">{sortedActions.map(renderRow)}</div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {sortedActions.map(renderCard)}

@@ -20,22 +20,34 @@ vi.mock('@infra/identity/queries/delegation.graphql', () => ({
 describe('delegationService', () => {
   beforeEach(() => {
     vi.mocked(httpClientModule.httpClient.post).mockClear();
-    vi.mocked(graphqlDelegationQueriesModule.graphqlDelegationQueries.getDelegationById).mockClear();
-    vi.mocked(graphqlDelegationQueriesModule.graphqlDelegationQueries.getDelegationsByDelegatedAdmin).mockClear();
-    vi.mocked(graphqlDelegationQueriesModule.graphqlDelegationQueries.getDelegationsByDelegatingAdmin).mockClear();
+    vi.mocked(
+      graphqlDelegationQueriesModule.graphqlDelegationQueries.getDelegationById
+    ).mockClear();
+    vi.mocked(
+      graphqlDelegationQueriesModule.graphqlDelegationQueries.getDelegationsByDelegatedAdmin
+    ).mockClear();
+    vi.mocked(
+      graphqlDelegationQueriesModule.graphqlDelegationQueries.getDelegationsByDelegatingAdmin
+    ).mockClear();
   });
 
   describe('getDelegationById', () => {
     it('throws when delegation not found', async () => {
-      vi.mocked(graphqlDelegationQueriesModule.graphqlDelegationQueries.getDelegationById).mockResolvedValue({
+      vi.mocked(
+        graphqlDelegationQueriesModule.graphqlDelegationQueries.getDelegationById
+      ).mockResolvedValue({
         delegationById: null,
       });
 
-      await expect(delegationService.getDelegationById('3fa85f64-5717-4562-b3fc-2c963f66afa6')).rejects.toThrow('Delegation not found');
+      await expect(
+        delegationService.getDelegationById('3fa85f64-5717-4562-b3fc-2c963f66afa6')
+      ).rejects.toThrow('Delegation not found');
     });
 
     it('returns parsed delegation when found', async () => {
-      vi.mocked(graphqlDelegationQueriesModule.graphqlDelegationQueries.getDelegationById).mockResolvedValue({
+      vi.mocked(
+        graphqlDelegationQueriesModule.graphqlDelegationQueries.getDelegationById
+      ).mockResolvedValue({
         delegationById: {
           delegationId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
           tenantId: '3fa85f64-5717-4562-b3fc-2c963f66afa7',
@@ -56,7 +68,9 @@ describe('delegationService', () => {
         },
       });
 
-      const result = await delegationService.getDelegationById('3fa85f64-5717-4562-b3fc-2c963f66afa6');
+      const result = await delegationService.getDelegationById(
+        '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+      );
 
       expect(result.delegationId).toBe('3fa85f64-5717-4562-b3fc-2c963f66afa6');
       expect(result.status).toBe('Active');
@@ -65,11 +79,16 @@ describe('delegationService', () => {
 
   describe('getDelegationsByDelegatedAdmin', () => {
     it('returns parsed delegations', async () => {
-      vi.mocked(graphqlDelegationQueriesModule.graphqlDelegationQueries.getDelegationsByDelegatedAdmin).mockResolvedValue({
+      vi.mocked(
+        graphqlDelegationQueriesModule.graphqlDelegationQueries.getDelegationsByDelegatedAdmin
+      ).mockResolvedValue({
         delegationsByDelegatedAdmin: [],
       });
 
-      const result = await delegationService.getDelegationsByDelegatedAdmin('3fa85f64-5717-4562-b3fc-2c963f66afa6', '3fa85f64-5717-4562-b3fc-2c963f66afa7');
+      const result = await delegationService.getDelegationsByDelegatedAdmin(
+        '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+        '3fa85f64-5717-4562-b3fc-2c963f66afa7'
+      );
 
       expect(result).toEqual([]);
     });
@@ -77,11 +96,16 @@ describe('delegationService', () => {
 
   describe('getDelegationsByDelegatingAdmin', () => {
     it('returns parsed delegations', async () => {
-      vi.mocked(graphqlDelegationQueriesModule.graphqlDelegationQueries.getDelegationsByDelegatingAdmin).mockResolvedValue({
+      vi.mocked(
+        graphqlDelegationQueriesModule.graphqlDelegationQueries.getDelegationsByDelegatingAdmin
+      ).mockResolvedValue({
         delegationsByDelegatingAdmin: [],
       });
 
-      const result = await delegationService.getDelegationsByDelegatingAdmin('3fa85f64-5717-4562-b3fc-2c963f66afa6', '3fa85f64-5717-4562-b3fc-2c963f66afa7');
+      const result = await delegationService.getDelegationsByDelegatingAdmin(
+        '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+        '3fa85f64-5717-4562-b3fc-2c963f66afa7'
+      );
 
       expect(result).toEqual([]);
     });
@@ -115,7 +139,7 @@ describe('delegationService', () => {
       await delegationService.activateDelegation('3fa85f64-5717-4562-b3fc-2c963f66afa6');
 
       expect(httpClientModule.httpClient.post).toHaveBeenCalledWith(
-        '/delegations/3fa85f64-5717-4562-b3fc-2c963f66afa6/activate',
+        '/delegations/3fa85f64-5717-4562-b3fc-2c963f66afa6/activate'
       );
     });
   });
@@ -124,12 +148,15 @@ describe('delegationService', () => {
     it('calls revoke endpoint with reason', async () => {
       vi.mocked(httpClientModule.httpClient.post).mockResolvedValue({});
 
-      await delegationService.revokeDelegation('3fa85f64-5717-4562-b3fc-2c963f66afa6', 'No longer needed');
+      await delegationService.revokeDelegation(
+        '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+        'No longer needed'
+      );
 
       expect(httpClientModule.httpClient.post).toHaveBeenCalledWith(
         '/delegations/3fa85f64-5717-4562-b3fc-2c963f66afa6/revoke',
         null,
-        { params: { reason: 'No longer needed' } },
+        { params: { reason: 'No longer needed' } }
       );
     });
   });
@@ -141,7 +168,7 @@ describe('delegationService', () => {
       await delegationService.expireDelegation('3fa85f64-5717-4562-b3fc-2c963f66afa6');
 
       expect(httpClientModule.httpClient.post).toHaveBeenCalledWith(
-        '/delegations/3fa85f64-5717-4562-b3fc-2c963f66afa6/expire',
+        '/delegations/3fa85f64-5717-4562-b3fc-2c963f66afa6/expire'
       );
     });
   });

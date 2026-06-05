@@ -15,7 +15,10 @@ export const roleService = {
     return RoleListSchema.parse(response.rolesBySystemSuite);
   },
 
-  create: async (systemSuiteId: string, payload: CreateRolePayload): Promise<CreateRoleResponse> => {
+  create: async (
+    systemSuiteId: string,
+    payload: CreateRolePayload
+  ): Promise<CreateRoleResponse> => {
     const { data } = await httpClient.post(`/system-suites/${systemSuiteId}/roles`, {
       systemSuiteId,
       ...payload,
@@ -23,7 +26,11 @@ export const roleService = {
     return CreateRoleResponseSchema.parse(data);
   },
 
-  update: async (systemSuiteId: string, roleId: string, payload: UpdateRolePayload): Promise<void> => {
+  update: async (
+    systemSuiteId: string,
+    roleId: string,
+    payload: UpdateRolePayload
+  ): Promise<void> => {
     await httpClient.put(`/system-suites/${systemSuiteId}/roles/${roleId}`, { roleId, ...payload });
   },
 

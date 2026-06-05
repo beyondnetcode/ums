@@ -18,13 +18,16 @@ import {
 import { PageShell } from '@shared/layouts/PageShell';
 import { MasterDetailLayout } from '@shared/layouts/MasterDetailLayout';
 import { Lock } from 'lucide-react';
+import { useAccessResolution } from '@app/authorization/hooks/use-access-resolution';
 
 export default function UserAccountDashboardScreen(): React.JSX.Element {
   const t = useI18n();
-  const sessionTenantId = useAuthStore((state) => state.user?.tenantId);
-  const sessionTenantName = useAuthStore((state) => state.user?.tenantName);
-  const isInternalAdmin = useAuthStore((state) => state.user?.isInternalAdmin);
+  const sessionTenantId = useAuthStore(state => state.user?.tenantId);
+  const sessionTenantName = useAuthStore(state => state.user?.tenantName);
+  const isInternalAdmin = useAuthStore(state => state.user?.isInternalAdmin);
   const dashboard = useUserAccountDashboard(sessionTenantId);
+  const { hasOptionAccess } = useAccessResolution();
+  const canCreate = hasOptionAccess('USERS_LIST', 'MANAGE_USERS');
 
   const criteriaOptions: QueryCriteriaOption[] = [
     { label: t.byEmail, value: 'email' },
@@ -51,7 +54,11 @@ export default function UserAccountDashboardScreen(): React.JSX.Element {
         icon={<Lock className="w-5 h-5 text-m3-error" />}
         footer={
           <>
-            <M3Button variant="text" onClick={() => dashboard.setShowBlockDialog(false)} type="button">
+            <M3Button
+              variant="text"
+              onClick={() => dashboard.setShowBlockDialog(false)}
+              type="button"
+            >
               {t.cancelBtn}
             </M3Button>
             <M3Button
@@ -66,16 +73,16 @@ export default function UserAccountDashboardScreen(): React.JSX.Element {
         }
       >
         <div className="space-y-3 pt-2">
-<p className="text-[12px] text-m3-secondary">
-             {t.blockUserMessage}
-           </p>
+          <p className="text-[12px] text-m3-secondary">{t.blockUserMessage}</p>
           <M3TextField
             label={t.blockReasonLabel || 'Reason for blocking'}
             required
             value={dashboard.blockReason}
-            onChange={(e) => dashboard.setBlockReason(e.target.value)}
+            onChange={e => dashboard.setBlockReason(e.target.value)}
             placeholder="e.g. Security policy violation"
-            helperText={t.blockReasonHelper || 'Please provide a justification for blocking this account'}
+            helperText={
+              t.blockReasonHelper || 'Please provide a justification for blocking this account'
+            }
           />
         </div>
       </M3FormDialog>
@@ -107,32 +114,33 @@ export default function UserAccountDashboardScreen(): React.JSX.Element {
         <MasterDetailLayout
           splitterLabel="Resize user account detail panel"
           master={
-        <UserAccountListPanel
-          accounts={dashboard.knownAccounts}
-          selectedId={dashboard.selectedId}
-          isLoading={dashboard.isLoadingList}
-          error={dashboard.listError}
-          viewMode={dashboard.viewMode}
-          onViewModeChange={dashboard.setViewMode}
-          queryState={dashboard.queryState}
-          paginationState={{
-            ...dashboard.paginationState,
-            totalItems: dashboard.totalItems,
-            totalPages: dashboard.totalPages,
-          }}
-          onRegisterNew={() => dashboard.setIsCreateOpen(true)}
-          onSelectAccount={dashboard.handleSelectAccount}
-          criteriaOptions={criteriaOptions}
-          filterOptions={filterOptions}
-          sortOptions={sortOptions}
-          tenants={isInternalAdmin ? dashboard.tenants : undefined}
-          selectedTenantId={dashboard.selectedTenantId}
-          onTenantChange={isInternalAdmin ? dashboard.setSelectedTenantId : undefined}
-          sessionTenantName={sessionTenantName}
-          requiresFilter={dashboard.requiresFilter}
-          onApproveAccount={dashboard.handleApproveAccount}
-        />
-      }
+            <UserAccountListPanel
+              accounts={dashboard.knownAccounts}
+              selectedId={dashboard.selectedId}
+              isLoading={dashboard.isLoadingList}
+              error={dashboard.listError}
+              viewMode={dashboard.viewMode}
+              onViewModeChange={dashboard.setViewMode}
+              queryState={dashboard.queryState}
+              paginationState={{
+                ...dashboard.paginationState,
+                totalItems: dashboard.totalItems,
+                totalPages: dashboard.totalPages,
+              }}
+              onRegisterNew={() => dashboard.setIsCreateOpen(true)}
+              onAddDisabled={!canCreate}
+              onSelectAccount={dashboard.handleSelectAccount}
+              criteriaOptions={criteriaOptions}
+              filterOptions={filterOptions}
+              sortOptions={sortOptions}
+              tenants={isInternalAdmin ? dashboard.tenants : undefined}
+              selectedTenantId={dashboard.selectedTenantId}
+              onTenantChange={isInternalAdmin ? dashboard.setSelectedTenantId : undefined}
+              sessionTenantName={sessionTenantName}
+              requiresFilter={dashboard.requiresFilter}
+              onApproveAccount={dashboard.handleApproveAccount}
+            />
+          }
           detail={
             <UserAccountDetailPanel
               activeAccount={dashboard.activeAccount}

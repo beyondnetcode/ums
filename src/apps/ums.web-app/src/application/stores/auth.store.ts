@@ -17,6 +17,7 @@
  */
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { AuthorizationGraph } from '@domain/authorization/schemas/authorization-graph.schema';
 
 /**
  * Tenant-specific configuration values resolved at login from the backend's in-memory
@@ -68,6 +69,8 @@ export interface AuthUser {
   crossTenantAccessEnabled: boolean;
   /** Tenant-effective parameters loaded at login. Null only for legacy sessions. */
   sessionParameters: SessionParameters | null;
+  /** El grafo efectivo de autorización que rige a este usuario */
+  authorizationGraph: AuthorizationGraph | null;
 }
 
 export interface AuthState {
@@ -235,7 +238,11 @@ export const useAuthStore = create<AuthState>()(
 
         const timeUntilExpiry = getSessionExpiration(state.sessionExpiresAt);
         if (timeUntilExpiry > 0 && timeUntilExpiry < SESSION_WARNING_THRESHOLD) {
-          console.warn('[Auth] Session expiring soon:', timeUntilExpiry / 1000, 'seconds remaining');
+          console.warn(
+            '[Auth] Session expiring soon:',
+            timeUntilExpiry / 1000,
+            'seconds remaining'
+          );
         }
 
         set({ isLoading: false });
@@ -273,7 +280,7 @@ export const useAuthStore = create<AuthState>()(
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${state.user.token}`,
+              Authorization: `Bearer ${state.user.token}`,
             },
             credentials: 'include',
             body: JSON.stringify({
@@ -313,14 +320,14 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      setAvailableTenants: (tenants) => {
+      setAvailableTenants: tenants => {
         set({ availableTenants: tenants });
       },
     }),
     {
       name: 'ums-auth-storage',
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({
+      partialize: state => ({
         user: state.user,
         isAuthenticated: state.isAuthenticated,
         sessionExpiresAt: state.sessionExpiresAt,
@@ -328,7 +335,7 @@ export const useAuthStore = create<AuthState>()(
         lastActivityAt: state.lastActivityAt,
         availableTenants: state.availableTenants,
       }),
-      onRehydrateStorage: () => (state) => {
+      onRehydrateStorage: () => state => {
         if (state) {
           state.isLoading = true;
 
@@ -423,7 +430,11 @@ export async function refreshAccessToken(): Promise<boolean> {
     }
 
     const data = await response.json();
-    state.refreshSession(data.token, data.expiresIn * 1000, (data.refreshExpiresIn || 7 * 24 * 60 * 60) * 1000);
+    state.refreshSession(
+      data.token,
+      data.expiresIn * 1000,
+      (data.refreshExpiresIn || 7 * 24 * 60 * 60) * 1000
+    );
 
     return true;
   } catch (error) {

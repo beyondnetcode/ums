@@ -129,9 +129,7 @@ describe('useLocalOverrides', () => {
     const { result } = renderHook(() => useLocalOverrides(serverItems, 'id'));
 
     act(() => {
-      result.current.patchItems((items) =>
-        items.map((item) => ({ ...item, value: item.value * 2 }))
-      );
+      result.current.patchItems(items => items.map(item => ({ ...item, value: item.value * 2 })));
     });
 
     expect(result.current.items[0].value).toBe(200);

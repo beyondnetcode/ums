@@ -59,12 +59,13 @@ export const TenantProfileCard: React.FC<TenantProfileCardProps> = ({
 }) => {
   const t = useI18n();
   const statusLabel = useStatusLabel();
-  const addNotification = useNotificationStore((s) => s.addNotification);
+  const addNotification = useNotificationStore(s => s.addNotification);
 
   const activateMutation = useActivateTenant(tenant.tenantId);
   const suspendMutation = useSuspendTenant(tenant.tenantId);
   const managementOwnerMutation = useSetManagementOwner(tenant.tenantId);
-  const isPendingMutation = activateMutation.isPending || suspendMutation.isPending || managementOwnerMutation.isPending;
+  const isPendingMutation =
+    activateMutation.isPending || suspendMutation.isPending || managementOwnerMutation.isPending;
 
   const edit = useInlineEdit<TenantDraft>(['name', 'code', 'companyReference', 'type']);
   const [showDiscardDialog, setShowDiscardDialog] = React.useState(false);
@@ -104,7 +105,11 @@ export const TenantProfileCard: React.FC<TenantProfileCardProps> = ({
       companyReference: (result.draft.companyReference ?? '').trim(),
       type: result.draft.type,
     });
-    addNotification({ title: t.notifTenantUpdated, message: t.notifTenantUpdatedMsg(name), type: 'success' });
+    addNotification({
+      title: t.notifTenantUpdated,
+      message: t.notifTenantUpdatedMsg(name),
+      type: 'success',
+    });
     onEditingChange?.(false);
   };
 
@@ -177,7 +182,11 @@ export const TenantProfileCard: React.FC<TenantProfileCardProps> = ({
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
                 <StatusBadge status={tenant.status} label={statusLabel(tenant.status)} />
-                <IconButton tooltip={t.editTenant} onClick={openTenantEdit} className="opacity-0 group-hover:opacity-100">
+                <IconButton
+                  tooltip={t.editTenant}
+                  onClick={openTenantEdit}
+                  className="opacity-0 group-hover:opacity-100"
+                >
                   <Pencil className="w-3.5 h-3.5" />
                 </IconButton>
               </div>
@@ -249,11 +258,37 @@ export const TenantProfileCard: React.FC<TenantProfileCardProps> = ({
             </div>
 
             <div className="space-y-3">
-              <M3TextField label={t.tenantName} required value={edit.draft.name ?? ''} onChange={(e) => edit.setField('name', e.target.value)} compact />
-              <M3TextField label={t.tenantCode} required value={edit.draft.code ?? ''} onChange={(e) => edit.setField('code', e.target.value.toUpperCase())} compact />
-              <M3TextField label={t.companyReference} value={edit.draft.companyReference ?? ''} onChange={(e) => edit.setField('companyReference', e.target.value)} compact />
-              <M3Select label={t.tenantType} value={edit.draft.type ?? ''} onChange={(e) => edit.setField('type', e.target.value)} compact>
-                {TENANT_TYPES.map((tp) => <option key={tp} value={tp}>{tp}</option>)}
+              <M3TextField
+                label={t.tenantName}
+                required
+                value={edit.draft.name ?? ''}
+                onChange={e => edit.setField('name', e.target.value)}
+                compact
+              />
+              <M3TextField
+                label={t.tenantCode}
+                required
+                value={edit.draft.code ?? ''}
+                onChange={e => edit.setField('code', e.target.value.toUpperCase())}
+                compact
+              />
+              <M3TextField
+                label={t.companyReference}
+                value={edit.draft.companyReference ?? ''}
+                onChange={e => edit.setField('companyReference', e.target.value)}
+                compact
+              />
+              <M3Select
+                label={t.tenantType}
+                value={edit.draft.type ?? ''}
+                onChange={e => edit.setField('type', e.target.value)}
+                compact
+              >
+                {TENANT_TYPES.map(tp => (
+                  <option key={tp} value={tp}>
+                    {tp}
+                  </option>
+                ))}
               </M3Select>
             </div>
 
@@ -279,4 +314,3 @@ export const TenantProfileCard: React.FC<TenantProfileCardProps> = ({
     </>
   );
 };
-

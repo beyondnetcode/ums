@@ -10,8 +10,22 @@ vi.mock('@app/shared/hooks/use-query-state');
 vi.mock('@app/shared/hooks/use-pagination-state');
 
 const mockFlags = [
-  { flagId: 'f-1', flagCode: 'FLAG_1', name: 'Flag 1', flagType: 'Boolean', status: 'Active', tenantId: 't-1' },
-  { flagId: 'f-2', flagCode: 'FLAG_2', name: 'Flag 2', flagType: 'Variant', status: 'Inactive', tenantId: 't-1' },
+  {
+    flagId: 'f-1',
+    flagCode: 'FLAG_1',
+    name: 'Flag 1',
+    flagType: 'Boolean',
+    status: 'Active',
+    tenantId: 't-1',
+  },
+  {
+    flagId: 'f-2',
+    flagCode: 'FLAG_2',
+    name: 'Flag 2',
+    flagType: 'Variant',
+    status: 'Inactive',
+    tenantId: 't-1',
+  },
 ];
 
 describe('useFeatureFlagDashboard', () => {
@@ -31,11 +45,16 @@ describe('useFeatureFlagDashboard', () => {
     } as any);
 
     vi.mocked(useQueryStateModule.useQueryState).mockReturnValue({
-      searchCriteria: 'flagCode', setSearchCriteria: vi.fn(),
-      searchValue: '', setSearchValue: vi.fn(),
-      activeFilter: 'all', setActiveFilter: vi.fn(),
-      sortBy: 'flagCode', setSortBy: vi.fn(),
-      sortOrder: 'asc', setSortOrder: vi.fn(),
+      searchCriteria: 'flagCode',
+      setSearchCriteria: vi.fn(),
+      searchValue: '',
+      setSearchValue: vi.fn(),
+      activeFilter: 'all',
+      setActiveFilter: vi.fn(),
+      sortBy: 'flagCode',
+      setSortBy: vi.fn(),
+      sortOrder: 'asc',
+      setSortOrder: vi.fn(),
       toggleSortOrder: vi.fn(),
       appliedQuery: { criteria: 'flagCode', term: '' },
       handleQuerySubmit: vi.fn(),
@@ -43,8 +62,13 @@ describe('useFeatureFlagDashboard', () => {
     } as any);
 
     vi.mocked(usePaginationStateModule.usePaginationState).mockReturnValue({
-      page: 1, setPage: vi.fn(), pageSize: 20, setPageSize: vi.fn(),
-      startIndex: 0, handlePageChange: vi.fn(), handlePageSizeChange: vi.fn(),
+      page: 1,
+      setPage: vi.fn(),
+      pageSize: 20,
+      setPageSize: vi.fn(),
+      startIndex: 0,
+      handlePageChange: vi.fn(),
+      handlePageSizeChange: vi.fn(),
     } as any);
   });
 

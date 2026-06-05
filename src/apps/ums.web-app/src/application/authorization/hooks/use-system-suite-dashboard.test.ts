@@ -126,8 +126,13 @@ describe('useSystemSuiteDashboard', () => {
   it('auto-selects first suite when data loads and no selection exists', () => {
     const setSelectedId = vi.fn();
     vi.mocked(usePaginationStateModule.usePaginationState).mockReturnValue({
-      page: 1, setPage: setSelectedId, pageSize: 20, setPageSize: vi.fn(),
-      startIndex: 0, handlePageChange: vi.fn(), handlePageSizeChange: vi.fn(),
+      page: 1,
+      setPage: setSelectedId,
+      pageSize: 20,
+      setPageSize: vi.fn(),
+      startIndex: 0,
+      handlePageChange: vi.fn(),
+      handlePageSizeChange: vi.fn(),
     } as any);
 
     renderHook(() => useSystemSuiteDashboard());
@@ -219,19 +224,30 @@ describe('useSystemSuiteDashboard', () => {
     const handleResetQuery = vi.fn();
 
     vi.mocked(usePaginationStateModule.usePaginationState).mockReturnValue({
-      page: 1, setPage, pageSize: 20, setPageSize: vi.fn(),
-      startIndex: 0, handlePageChange: vi.fn(), handlePageSizeChange: vi.fn(),
+      page: 1,
+      setPage,
+      pageSize: 20,
+      setPageSize: vi.fn(),
+      startIndex: 0,
+      handlePageChange: vi.fn(),
+      handlePageSizeChange: vi.fn(),
     } as any);
 
     vi.mocked(useQueryStateModule.useQueryState).mockReturnValue({
-      searchCriteria: 'name', setSearchCriteria: vi.fn(),
-      searchValue: '', setSearchValue,
-      activeFilter: 'all', setActiveFilter: vi.fn(),
-      sortBy: 'name', setSortBy: vi.fn(),
-      sortOrder: 'asc', setSortOrder: vi.fn(),
+      searchCriteria: 'name',
+      setSearchCriteria: vi.fn(),
+      searchValue: '',
+      setSearchValue,
+      activeFilter: 'all',
+      setActiveFilter: vi.fn(),
+      sortBy: 'name',
+      setSortBy: vi.fn(),
+      sortOrder: 'asc',
+      setSortOrder: vi.fn(),
       toggleSortOrder: vi.fn(),
       appliedQuery: { criteria: 'name', term: '' },
-      handleQuerySubmit: vi.fn(), handleResetQuery,
+      handleQuerySubmit: vi.fn(),
+      handleResetQuery,
     } as any);
 
     const { result } = renderHook(() => useSystemSuiteDashboard());

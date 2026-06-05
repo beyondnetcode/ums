@@ -38,12 +38,7 @@ export function useFormValidation<T extends z.ZodTypeAny>(
   schema: T,
   options?: UseFormValidationOptions<z.infer<T>>
 ): UseFormValidationReturn<z.infer<T>> {
-  const {
-    onSubmit,
-    onError,
-    validateOnChange = false,
-    validateOnBlur = true,
-  } = options || {};
+  const { onSubmit, onError, validateOnChange = false, validateOnBlur = true } = options || {};
 
   const [errors, setErrors] = useState<FieldErrors>({});
   const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set());
@@ -86,14 +81,14 @@ export function useFormValidation<T extends z.ZodTypeAny>(
         const result = fieldSchema.safeParse(value);
 
         if (!result.success) {
-          setErrors((prev) => ({
+          setErrors(prev => ({
             ...prev,
             [fieldName]: result.error.errors[0]?.message || 'Invalid value',
           }));
           return false;
         }
 
-        setErrors((prev) => {
+        setErrors(prev => {
           const newErrors = { ...prev };
           delete newErrors[fieldName];
           return newErrors;
@@ -111,7 +106,7 @@ export function useFormValidation<T extends z.ZodTypeAny>(
   }, []);
 
   const clearFieldError = useCallback((fieldName: string) => {
-    setErrors((prev) => {
+    setErrors(prev => {
       const newErrors = { ...prev };
       delete newErrors[fieldName];
       return newErrors;
@@ -119,7 +114,7 @@ export function useFormValidation<T extends z.ZodTypeAny>(
   }, []);
 
   const setFieldTouched = useCallback((fieldName: string) => {
-    setTouchedFields((prev) => new Set(prev).add(fieldName));
+    setTouchedFields(prev => new Set(prev).add(fieldName));
   }, []);
 
   const resetForm = useCallback((newInitialValues?: Partial<z.infer<T>>) => {
@@ -221,9 +216,7 @@ export function useFormDirty<T extends Record<string, unknown>>(
   currentValues: T
 ): boolean {
   return useMemo(() => {
-    return Object.keys(initialValues).some(
-      (key) => initialValues[key] !== currentValues[key]
-    );
+    return Object.keys(initialValues).some(key => initialValues[key] !== currentValues[key]);
   }, [initialValues, currentValues]);
 }
 

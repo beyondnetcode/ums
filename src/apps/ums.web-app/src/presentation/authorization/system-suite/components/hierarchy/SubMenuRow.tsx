@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronRight, FolderOpen, Pencil, Trash2 } from 'lucide-react';
 import { useInlineEdit } from '@app/hooks/use-inline-edit';
-import { useAddOption, useRemoveOption, useUpdateSubMenu } from '@app/authorization/hooks/use-system-suite';
+import {
+  useAddOption,
+  useRemoveOption,
+  useUpdateSubMenu,
+} from '@app/authorization/hooks/use-system-suite';
 import { M3TextField } from '@shared/components/M3TextField';
 import { InlineAddForm } from '@shared/components/InlineAddForm';
 import { IconButton } from '@shared/components/Tooltip';
@@ -45,8 +49,14 @@ interface SubMenuDraft {
 }
 
 export const SubMenuRow: React.FC<SubMenuRowProps> = ({
-  suiteId, moduleId, menuId, subMenu, isExpanded, onToggle,
-  onRemoveSubMenu, isRemovingSubMenu,
+  suiteId,
+  moduleId,
+  menuId,
+  subMenu,
+  isExpanded,
+  onToggle,
+  onRemoveSubMenu,
+  isRemovingSubMenu,
 }) => {
   const [isAddingOpt, setIsAddingOpt] = useState(false);
   const [opt, setOpt] = useState<AddOptState>(emptyOpt());
@@ -60,9 +70,18 @@ export const SubMenuRow: React.FC<SubMenuRowProps> = ({
 
   const handleAddOption = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!opt.code.trim()) { setOpt(s => ({ ...s, error: 'Código requerido' })); return; }
-    if (!opt.label.trim()) { setOpt(s => ({ ...s, error: 'Etiqueta requerida' })); return; }
-    if (!opt.actionCode.trim()) { setOpt(s => ({ ...s, error: 'Código de acción requerido' })); return; }
+    if (!opt.code.trim()) {
+      setOpt(s => ({ ...s, error: 'Código requerido' }));
+      return;
+    }
+    if (!opt.label.trim()) {
+      setOpt(s => ({ ...s, error: 'Etiqueta requerida' }));
+      return;
+    }
+    if (!opt.actionCode.trim()) {
+      setOpt(s => ({ ...s, error: 'Código de acción requerido' }));
+      return;
+    }
     try {
       await addOptionMutation.mutateAsync({
         code: formatSystemCode(opt.code),
@@ -73,7 +92,9 @@ export const SubMenuRow: React.FC<SubMenuRowProps> = ({
       });
       setOpt(emptyOpt());
       setIsAddingOpt(false);
-    } catch { /* handled by hook */ }
+    } catch {
+      /* handled by hook */
+    }
   };
 
   const handleStartEditSub = () => {
@@ -88,7 +109,10 @@ export const SubMenuRow: React.FC<SubMenuRowProps> = ({
   const handleUpdateSubMenu = async (e: React.FormEvent) => {
     e.preventDefault();
     const label = edit.draft.label?.trim() ?? '';
-    if (!label) { setEditError('Etiqueta requerida'); return; }
+    if (!label) {
+      setEditError('Etiqueta requerida');
+      return;
+    }
     try {
       await updateSubMenuMutation.mutateAsync({
         label,
@@ -97,7 +121,9 @@ export const SubMenuRow: React.FC<SubMenuRowProps> = ({
       });
       edit.cancelEdit();
       setEditError('');
-    } catch { /* handled by hook */ }
+    } catch {
+      /* handled by hook */
+    }
   };
 
   const handleCancelEditSub = () => {
@@ -108,16 +134,43 @@ export const SubMenuRow: React.FC<SubMenuRowProps> = ({
   return (
     <div className="space-y-1.5 animate-fadeIn">
       {edit.isEditing(subMenu.id) ? (
-        <form onSubmit={handleUpdateSubMenu} className="p-2.5 rounded-lg border border-m3-primary/30 bg-m3-surface-container/20 space-y-2 animate-fadeIn">
+        <form
+          onSubmit={handleUpdateSubMenu}
+          className="p-2.5 rounded-lg border border-m3-primary/30 bg-m3-surface-container/20 space-y-2 animate-fadeIn"
+        >
           <div className="grid grid-cols-2 gap-1.5">
-            <M3TextField label="Etiqueta" required value={edit.draft.label ?? ''} onChange={(e) => edit.setField('label', e.target.value)} />
-            <M3TextField label="Orden" type="number" value={String(edit.draft.sortOrder ?? 1)} onChange={(e) => edit.setField('sortOrder', parseInt(e.target.value) || 1)} />
+            <M3TextField
+              label="Etiqueta"
+              required
+              value={edit.draft.label ?? ''}
+              onChange={e => edit.setField('label', e.target.value)}
+            />
+            <M3TextField
+              label="Orden"
+              type="number"
+              value={String(edit.draft.sortOrder ?? 1)}
+              onChange={e => edit.setField('sortOrder', parseInt(e.target.value) || 1)}
+            />
           </div>
-          <M3TextField label="Descripción" value={edit.draft.description ?? ''} onChange={(e) => edit.setField('description', e.target.value)} />
+          <M3TextField
+            label="Descripción"
+            value={edit.draft.description ?? ''}
+            onChange={e => edit.setField('description', e.target.value)}
+          />
           <ErrorDisplay error={editError} variant="text" />
           <div className="flex gap-1.5 justify-end">
-            <button type="button" onClick={handleCancelEditSub} className="text-[11px] px-2.5 py-1 rounded-md text-m3-secondary hover:bg-m3-surface-variant/20 transition-colors">Cancelar</button>
-            <button type="submit" disabled={updateSubMenuMutation.isPending} className="text-[11px] px-2.5 py-1 rounded-md bg-m3-primary text-m3-on-primary hover:bg-m3-primary/80 disabled:opacity-50 transition-colors">
+            <button
+              type="button"
+              onClick={handleCancelEditSub}
+              className="text-[11px] px-2.5 py-1 rounded-md text-m3-secondary hover:bg-m3-surface-variant/20 transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={updateSubMenuMutation.isPending}
+              className="text-[11px] px-2.5 py-1 rounded-md bg-m3-primary text-m3-on-primary hover:bg-m3-primary/80 disabled:opacity-50 transition-colors"
+            >
               {updateSubMenuMutation.isPending ? 'Guardando…' : 'Guardar'}
             </button>
           </div>
@@ -128,10 +181,16 @@ export const SubMenuRow: React.FC<SubMenuRowProps> = ({
             onClick={onToggle}
             className="flex items-center gap-2 cursor-pointer py-1 px-1.5 rounded hover:bg-m3-surface-variant/15 transition-colors select-none flex-1"
           >
-            {isExpanded ? <ChevronDown className="w-3 h-3 text-m3-secondary/70" /> : <ChevronRight className="w-3 h-3 text-m3-secondary/70" />}
+            {isExpanded ? (
+              <ChevronDown className="w-3 h-3 text-m3-secondary/70" />
+            ) : (
+              <ChevronRight className="w-3 h-3 text-m3-secondary/70" />
+            )}
             <FolderOpen className="w-3.5 h-3.5 text-amber-400/80" />
             <div className="flex items-center gap-1.5">
-              <span className="text-[11px] font-semibold text-m3-on-surface/90">{subMenu.label}</span>
+              <span className="text-[11px] font-semibold text-m3-on-surface/90">
+                {subMenu.label}
+              </span>
               <CodeBadge code={subMenu.code} size="xs" />
             </div>
           </div>
@@ -147,7 +206,11 @@ export const SubMenuRow: React.FC<SubMenuRowProps> = ({
                 <span className="h-3 w-3">+</span>
               </button>
             )}
-            <IconButton tooltip="Editar Submenú" onClick={handleStartEditSub} className="hover:text-m3-primary hover:bg-m3-primary/10">
+            <IconButton
+              tooltip="Editar Submenú"
+              onClick={handleStartEditSub}
+              className="hover:text-m3-primary hover:bg-m3-primary/10"
+            >
               <Pencil className="w-3 h-3" />
             </IconButton>
             <IconButton
@@ -162,11 +225,16 @@ export const SubMenuRow: React.FC<SubMenuRowProps> = ({
         </div>
       )}
 
-      <div className={`pl-4 space-y-2 border-l border-m3-primary/10 ml-3 pt-0.5 overflow-x-auto no-scrollbar pb-1 ${isExpanded && !edit.isEditing(subMenu.id) ? 'block' : 'hidden'}`}>
+      <div
+        className={`pl-4 space-y-2 border-l border-m3-primary/10 ml-3 pt-0.5 overflow-x-auto no-scrollbar pb-1 ${isExpanded && !edit.isEditing(subMenu.id) ? 'block' : 'hidden'}`}
+      >
         {isAddingOpt && (
           <InlineAddForm
             isOpen
-            onToggle={(open) => { setIsAddingOpt(open); if (!open) setOpt(emptyOpt()); }}
+            onToggle={open => {
+              setIsAddingOpt(open);
+              if (!open) setOpt(emptyOpt());
+            }}
             onSubmit={handleAddOption}
             addLabel="Opción"
             title="Nueva Opción"
@@ -175,11 +243,40 @@ export const SubMenuRow: React.FC<SubMenuRowProps> = ({
             isLoading={addOptionMutation.isPending}
             error={opt.error || undefined}
           >
-            <M3TextField label="Código" required value={opt.code} onChange={(e) => setOpt(s => ({ ...s, code: e.target.value }))} placeholder="e.g. VIEW" />
-            <M3TextField label="Etiqueta" required value={opt.label} onChange={(e) => setOpt(s => ({ ...s, label: e.target.value }))} placeholder="e.g. Ver Usuarios" />
-            <M3TextField label="Descripción" value={opt.desc} onChange={(e) => setOpt(s => ({ ...s, desc: e.target.value }))} placeholder="Opcional" />
-            <M3TextField label="Código de Acción" required value={opt.actionCode} onChange={(e) => setOpt(s => ({ ...s, actionCode: e.target.value }))} placeholder="e.g. USER_VIEW" />
-            <M3TextField label="Orden" type="number" value={opt.sort} onChange={(e) => setOpt(s => ({ ...s, sort: e.target.value }))} placeholder="1" />
+            <M3TextField
+              label="Código"
+              required
+              value={opt.code}
+              onChange={e => setOpt(s => ({ ...s, code: e.target.value }))}
+              placeholder="e.g. VIEW"
+            />
+            <M3TextField
+              label="Etiqueta"
+              required
+              value={opt.label}
+              onChange={e => setOpt(s => ({ ...s, label: e.target.value }))}
+              placeholder="e.g. Ver Usuarios"
+            />
+            <M3TextField
+              label="Descripción"
+              value={opt.desc}
+              onChange={e => setOpt(s => ({ ...s, desc: e.target.value }))}
+              placeholder="Opcional"
+            />
+            <M3TextField
+              label="Código de Acción"
+              required
+              value={opt.actionCode}
+              onChange={e => setOpt(s => ({ ...s, actionCode: e.target.value }))}
+              placeholder="e.g. USER_VIEW"
+            />
+            <M3TextField
+              label="Orden"
+              type="number"
+              value={opt.sort}
+              onChange={e => setOpt(s => ({ ...s, sort: e.target.value }))}
+              placeholder="1"
+            />
           </InlineAddForm>
         )}
 
@@ -187,7 +284,7 @@ export const SubMenuRow: React.FC<SubMenuRowProps> = ({
           <p className="text-[9px] text-m3-secondary/40 italic">No hay opciones configuradas.</p>
         ) : (
           <div className="grid grid-cols-1 gap-1.5">
-            {subMenu.options.map((option) => (
+            {subMenu.options.map(option => (
               <OptionRow
                 key={option.id}
                 suiteId={suiteId}

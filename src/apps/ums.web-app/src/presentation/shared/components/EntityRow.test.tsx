@@ -10,11 +10,7 @@ describe('EntityRow', () => {
   });
 
   it('renders leading content', () => {
-    render(
-      <EntityRow leading={<span data-testid="leading">★</span>}>
-        Entity Name
-      </EntityRow>
-    );
+    render(<EntityRow leading={<span data-testid="leading">★</span>}>Entity Name</EntityRow>);
     expect(screen.getByTestId('leading')).toBeInTheDocument();
   });
 
@@ -35,48 +31,30 @@ describe('EntityRow', () => {
 
   it('renders trailing content', () => {
     render(
-      <EntityRow trailing={<span data-testid="trailing">Action</span>}>
-        Entity Name
-      </EntityRow>
+      <EntityRow trailing={<span data-testid="trailing">Action</span>}>Entity Name</EntityRow>
     );
     expect(screen.getByTestId('trailing')).toBeInTheDocument();
   });
 
   it('renders actions (legacy alias)', () => {
-    render(
-      <EntityRow actions={<span data-testid="actions">Legacy</span>}>
-        Entity Name
-      </EntityRow>
-    );
+    render(<EntityRow actions={<span data-testid="actions">Legacy</span>}>Entity Name</EntityRow>);
     expect(screen.getByTestId('actions')).toBeInTheDocument();
   });
 
   it('applies selected styling', () => {
-    const { container } = render(
-      <EntityRow selected>
-        Selected Entity
-      </EntityRow>
-    );
+    const { container } = render(<EntityRow selected>Selected Entity</EntityRow>);
     expect(container.innerHTML).toContain('bg-m3-primary/10');
   });
 
   it('applies inactive styling', () => {
-    const { container } = render(
-      <EntityRow isActive={false}>
-        Inactive Entity
-      </EntityRow>
-    );
+    const { container } = render(<EntityRow isActive={false}>Inactive Entity</EntityRow>);
     expect(container.innerHTML).toContain('opacity-65');
   });
 
   it('handles click', async () => {
     const handleClick = vi.fn();
     const user = userEvent.setup();
-    render(
-      <EntityRow onClick={handleClick}>
-        Clickable Entity
-      </EntityRow>
-    );
+    render(<EntityRow onClick={handleClick}>Clickable Entity</EntityRow>);
 
     await user.click(screen.getByText('Clickable Entity'));
     expect(handleClick).toHaveBeenCalled();
@@ -85,32 +63,20 @@ describe('EntityRow', () => {
   it('handles double click', async () => {
     const handleDoubleClick = vi.fn();
     const user = userEvent.setup();
-    render(
-      <EntityRow onDoubleClick={handleDoubleClick}>
-        Double Click Entity
-      </EntityRow>
-    );
+    render(<EntityRow onDoubleClick={handleDoubleClick}>Double Click Entity</EntityRow>);
 
     await user.dblClick(screen.getByText('Double Click Entity'));
     expect(handleDoubleClick).toHaveBeenCalled();
   });
 
   it('applies custom className', () => {
-    const { container } = render(
-      <EntityRow className="custom-class">
-        Custom Entity
-      </EntityRow>
-    );
+    const { container } = render(<EntityRow className="custom-class">Custom Entity</EntityRow>);
     expect(container.innerHTML).toContain('custom-class');
   });
 
   it('aligns trailing column to start', () => {
     render(
-      <EntityRow
-        trailingColumns={[
-          { content: <span>Start</span>, align: 'start' },
-        ]}
-      >
+      <EntityRow trailingColumns={[{ content: <span>Start</span>, align: 'start' }]}>
         Entity
       </EntityRow>
     );
@@ -120,11 +86,7 @@ describe('EntityRow', () => {
 
   it('aligns trailing column to center', () => {
     render(
-      <EntityRow
-        trailingColumns={[
-          { content: <span>Center</span>, align: 'center' },
-        ]}
-      >
+      <EntityRow trailingColumns={[{ content: <span>Center</span>, align: 'center' }]}>
         Entity
       </EntityRow>
     );

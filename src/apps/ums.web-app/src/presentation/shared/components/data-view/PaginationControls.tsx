@@ -16,7 +16,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
   onPageChange,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const toggle = useCallback(() => setIsCollapsed((v) => !v), []);
+  const toggle = useCallback(() => setIsCollapsed(v => !v), []);
 
   return (
     <div className="flex justify-end items-center gap-2 px-3 pb-2.5">
@@ -30,7 +30,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
       </button>
 
       <div className="flex items-center gap-1 select-none">
-        {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => {
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => {
           const isActive = p === page;
           return (
             <button
@@ -74,7 +74,7 @@ export const PaginationFooter: React.FC<PaginationFooterProps> = ({
   telemetryInfo,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const toggle = useCallback(() => setIsCollapsed((v) => !v), []);
+  const toggle = useCallback(() => setIsCollapsed(v => !v), []);
 
   return (
     <div className="flex-shrink-0 bg-m3-surface-container/20 border border-m3-outline/20 rounded-xl overflow-hidden">
@@ -102,10 +102,11 @@ export const PaginationFooter: React.FC<PaginationFooterProps> = ({
                 : 'bg-m3-surface-container/60 border-m3-outline/40 text-m3-secondary hover:bg-m3-primary/10 hover:border-m3-primary/40 hover:text-m3-primary',
             ].join(' ')}
           >
-            {isCollapsed
-              ? <ChevronsUp className="w-3.5 h-3.5" />
-              : <ChevronsDown className="w-3.5 h-3.5" />
-            }
+            {isCollapsed ? (
+              <ChevronsUp className="w-3.5 h-3.5" />
+            ) : (
+              <ChevronsDown className="w-3.5 h-3.5" />
+            )}
           </button>
         )}
       </div>

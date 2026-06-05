@@ -104,8 +104,12 @@ describe('queryTransportService', () => {
 
     it('re-fetches after resetCache', async () => {
       vi.mocked(httpClientModule.httpClient.get)
-        .mockResolvedValueOnce({ data: { code: 'FRONTEND_CONFIG_TRANSPORT', effectiveValue: 'graphql' } })
-        .mockResolvedValueOnce({ data: { code: 'FRONTEND_CONFIG_TRANSPORT', effectiveValue: 'rest' } });
+        .mockResolvedValueOnce({
+          data: { code: 'FRONTEND_CONFIG_TRANSPORT', effectiveValue: 'graphql' },
+        })
+        .mockResolvedValueOnce({
+          data: { code: 'FRONTEND_CONFIG_TRANSPORT', effectiveValue: 'rest' },
+        });
 
       const first = await queryTransportService.getQueryTransport();
       queryTransportService.resetCache();

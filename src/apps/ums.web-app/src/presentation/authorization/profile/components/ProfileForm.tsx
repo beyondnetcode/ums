@@ -1,17 +1,47 @@
 import React, { useState, useEffect } from 'react';
-import { UserCheck, ShieldAlert, Shield, ShieldCheck, ToggleLeft, ToggleRight, Loader2, LayoutGrid, Database, Zap, Building2 } from 'lucide-react';
+import {
+  UserCheck,
+  ShieldAlert,
+  Shield,
+  ShieldCheck,
+  ToggleLeft,
+  ToggleRight,
+  Loader2,
+  LayoutGrid,
+  Database,
+  Zap,
+  Building2,
+} from 'lucide-react';
 import { M3Dialog, M3Tabs, FieldSelect, FormButton } from '@shared/components';
 import { useEffectiveTenant } from '@app/shared/hooks/use-effective-tenant';
 import { useAuthStore } from '@app/stores/auth.store';
 import { useGetAllUserAccounts } from '@app/identity/hooks/use-user-account';
-import { useGetAllSystemSuites, useGetSystemSuite } from '@app/authorization/hooks/use-system-suite';
+import {
+  useGetAllSystemSuites,
+  useGetSystemSuite,
+} from '@app/authorization/hooks/use-system-suite';
 import { useRolesBySystemSuite } from '@app/authorization/hooks/use-role';
-import { useGetAllPermissionTemplates, useGetPermissionTemplate } from '@app/authorization/hooks/use-permission-template';
-import { useCreateProfile, useAssignProfileTemplate, useOverrideProfilePermission, useActivateProfilePermission, useDeactivateProfilePermission } from '@app/authorization/hooks/use-profile';
+import {
+  useGetAllPermissionTemplates,
+  useGetPermissionTemplate,
+} from '@app/authorization/hooks/use-permission-template';
+import {
+  useCreateProfile,
+  useAssignProfileTemplate,
+  useOverrideProfilePermission,
+  useActivateProfilePermission,
+  useDeactivateProfilePermission,
+} from '@app/authorization/hooks/use-profile';
 import { getHttpErrorMessage, getSupportReferenceId } from '@app/errors/http-error';
 import profileService from '@infra/authorization/services/profile.service';
-import { ProfileModulePermissionsPanel, type ModulePermNode } from './tree/ProfileModulePermissionsPanel';
-import { getAscendantIds, getSiblingViewOptions } from '../../../../application/authorization/utils/permission-cascade';
+import {
+  ProfileModulePermissionsPanel,
+  type ModulePermNode,
+} from './tree/ProfileModulePermissionsPanel';
+import {
+  getAscendantIds,
+  getSiblingViewOptions,
+} from '../../../../application/authorization/utils/permission-cascade';
 import { useNotificationStore } from '@app/stores/notification.store';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -35,7 +65,7 @@ interface LocalPermission {
 
 export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenantId }) => {
   const effectiveTenantId = useEffectiveTenant(tenantId);
-  const sessionTenantName = useAuthStore((state) => state.user?.tenantName);
+  const sessionTenantName = useAuthStore(state => state.user?.tenantName);
   const addNotification = useNotificationStore(s => s.addNotification);
   const queryClient = useQueryClient();
 
@@ -47,8 +77,15 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenan
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
-  const { data: userPage, isLoading: loadingUsers } = useGetAllUserAccounts({ page: 1, pageSize: 100, tenantId: effectiveTenantId || undefined });
-  const { data: suitesPage, isLoading: loadingSuites } = useGetAllSystemSuites({ page: 1, pageSize: 100 });
+  const { data: userPage, isLoading: loadingUsers } = useGetAllUserAccounts({
+    page: 1,
+    pageSize: 100,
+    tenantId: effectiveTenantId || undefined,
+  });
+  const { data: suitesPage, isLoading: loadingSuites } = useGetAllSystemSuites({
+    page: 1,
+    pageSize: 100,
+  });
   const { data: suite } = useGetSystemSuite(systemSuiteId || null);
   const { data: roles = [], isLoading: loadingRoles } = useRolesBySystemSuite(systemSuiteId);
   const { data: templatesPage, isLoading: loadingTemplates } = useGetAllPermissionTemplates({
@@ -57,10 +94,12 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenan
     tenantId: effectiveTenantId || undefined,
     systemSuiteId: systemSuiteId || undefined,
     roleId: roleId || undefined,
-    status: 'Published'
+    status: 'Published',
   });
 
-  const { data: activeTemplate, isLoading: loadingTemplateDetail } = useGetPermissionTemplate(templateId || null);
+  const { data: activeTemplate, isLoading: loadingTemplateDetail } = useGetPermissionTemplate(
+    templateId || null
+  );
 
   const createMutation = useCreateProfile();
   const assignTemplateMutation = useAssignProfileTemplate();
@@ -68,12 +107,18 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenan
   const activatePermMutation = useActivateProfilePermission();
   const deactivatePermMutation = useDeactivateProfilePermission();
 
-  const userOptions = (userPage?.items ?? []).map(u => ({ value: u.userId, label: `${u.userName} (${u.email})` }));
-  const suiteOptions = (suitesPage?.items ?? []).map(s => ({ value: s.systemSuiteId, label: s.name }));
+  const userOptions = (userPage?.items ?? []).map(u => ({
+    value: u.userId,
+    label: `${u.userName} (${u.email})`,
+  }));
+  const suiteOptions = (suitesPage?.items ?? []).map(s => ({
+    value: s.systemSuiteId,
+    label: s.name,
+  }));
   const roleOptions = roles.map(r => ({ value: r.roleId, label: r.value }));
   const templateOptions = (templatesPage?.items ?? []).map(t => ({
     value: t.templateId,
-    label: `Versión ${t.version} (${t.status})`
+    label: `Versión ${t.version} (${t.status})`,
   }));
 
   // Load template items into memory when a template is selected
@@ -96,7 +141,9 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenan
   }, [activeTemplate]);
 
   const handleToggleActive = (index: number) => {
-    setLocalPermissions(prev => prev.map((p, idx) => idx === index ? { ...p, isActive: !p.isActive } : p));
+    setLocalPermissions(prev =>
+      prev.map((p, idx) => (idx === index ? { ...p, isActive: !p.isActive } : p))
+    );
   };
 
   const handleChangeEffect = (index: number, effect: 'Allow' | 'Deny' | 'Neutral') => {
@@ -118,17 +165,20 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenan
           return {
             ...p,
             isAllowed: effect === 'Allow',
-            isDenied: effect === 'Deny'
+            isDenied: effect === 'Deny',
           };
         }
-        
-        if (effect === 'Allow' && (ascendantIds.includes(p.targetId) || siblingViews.includes(p.targetId))) {
+
+        if (
+          effect === 'Allow' &&
+          (ascendantIds.includes(p.targetId) || siblingViews.includes(p.targetId))
+        ) {
           if (!p.isAllowed) {
             changedParents = true;
             return {
               ...p,
               isAllowed: true,
-              isDenied: false
+              isDenied: false,
             };
           }
         }
@@ -138,7 +188,8 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenan
       if (changedParents) {
         addNotification({
           title: 'Jerarquía actualizada',
-          message: 'Se habilitaron automáticamente los niveles superiores por consistencia jerárquica.',
+          message:
+            'Se habilitaron automáticamente los niveles superiores por consistencia jerárquica.',
           type: 'info',
         });
       }
@@ -150,11 +201,26 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenan
   const handleSave = async () => {
     setError('');
 
-    if (!effectiveTenantId) { setError('Tenant context no disponible'); return; }
-    if (!userId) { setError('Usuario es requerido'); return; }
-    if (!systemSuiteId) { setError('Sistema es requerido'); return; }
-    if (!roleId) { setError('Rol es requerido'); return; }
-    if (!templateId) { setError('Plantilla es requerida'); return; }
+    if (!effectiveTenantId) {
+      setError('Tenant context no disponible');
+      return;
+    }
+    if (!userId) {
+      setError('Usuario es requerido');
+      return;
+    }
+    if (!systemSuiteId) {
+      setError('Sistema es requerido');
+      return;
+    }
+    if (!roleId) {
+      setError('Rol es requerido');
+      return;
+    }
+    if (!templateId) {
+      setError('Plantilla es requerida');
+      return;
+    }
 
     setSaving(true);
     try {
@@ -162,7 +228,7 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenan
         tenantId: effectiveTenantId,
         userId,
         roleId,
-        branchId: null
+        branchId: null,
       });
 
       const profileId = createRes.profileId;
@@ -176,26 +242,41 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenan
       // 4. Compare customized UI state and apply manual overrides
       for (const local of localPermissions) {
         // Find matching persisted record
-        const dbPerm = savedProfile.permissions.find(p => p.targetId === local.targetId && p.actionId === local.actionId);
+        const dbPerm = savedProfile.permissions.find(
+          p => p.targetId === local.targetId && p.actionId === local.actionId
+        );
         if (!dbPerm) continue;
 
-        const original = activeTemplate?.items.find(i => i.targetId === local.targetId && i.actionId === local.actionId);
+        const original = activeTemplate?.items.find(
+          i => i.targetId === local.targetId && i.actionId === local.actionId
+        );
         if (!original) continue;
 
         // Check if effect changed
-        const effectChanged = local.isAllowed !== original.isAllowed || local.isDenied !== original.isDenied;
+        const effectChanged =
+          local.isAllowed !== original.isAllowed || local.isDenied !== original.isDenied;
         if (effectChanged) {
           const newEffect = local.isAllowed ? 'allow' : local.isDenied ? 'deny' : 'neutral';
-          await overrideMutation.mutateAsync({ profileId, permissionId: dbPerm.permissionId, effect: newEffect });
+          await overrideMutation.mutateAsync({
+            profileId,
+            permissionId: dbPerm.permissionId,
+            effect: newEffect,
+          });
         }
 
         // Check if active status changed
         const activeChanged = local.isActive !== original.isActive;
         if (activeChanged) {
           if (local.isActive) {
-            await activatePermMutation.mutateAsync({ profileId, permissionId: dbPerm.permissionId });
+            await activatePermMutation.mutateAsync({
+              profileId,
+              permissionId: dbPerm.permissionId,
+            });
           } else {
-            await deactivatePermMutation.mutateAsync({ profileId, permissionId: dbPerm.permissionId });
+            await deactivatePermMutation.mutateAsync({
+              profileId,
+              permissionId: dbPerm.permissionId,
+            });
           }
         }
       }
@@ -215,7 +296,7 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenan
     // Find if the node exists in local permissions
     const localIdx = localPermissions.findIndex(p => p.targetId === node.id);
     if (localIdx === -1) return null;
-    
+
     const p = localPermissions[localIdx];
     return (
       <div className="flex items-center gap-4">
@@ -249,7 +330,9 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenan
 
         {/* Active/Inactive Switch */}
         <div className="flex items-center gap-1.5">
-          <span className={`text-[10px] font-medium ${p.isActive ? 'text-emerald-500' : 'text-m3-on-surface/40'}`}>
+          <span
+            className={`text-[10px] font-medium ${p.isActive ? 'text-emerald-500' : 'text-m3-on-surface/40'}`}
+          >
             {p.isActive ? 'Activo' : 'Inactivo'}
           </span>
           <button
@@ -271,10 +354,15 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenan
   const renderPermissionList = (items: { p: LocalPermissionState; idx: number }[]) => (
     <div className="divide-y divide-m3-outline/5 h-full overflow-y-auto px-1">
       {items.length === 0 && (
-        <div className="py-6 text-center text-[12px] text-m3-on-surface/50">No hay permisos de este tipo.</div>
+        <div className="py-6 text-center text-[12px] text-m3-on-surface/50">
+          No hay permisos de este tipo.
+        </div>
       )}
       {items.map(({ p, idx }) => (
-        <div key={idx} className="flex flex-col md:flex-row md:items-center justify-between gap-3 px-3 py-2 text-[11px] hover:bg-m3-surface-container/30 transition-colors">
+        <div
+          key={idx}
+          className="flex flex-col md:flex-row md:items-center justify-between gap-3 px-3 py-2 text-[11px] hover:bg-m3-surface-container/30 transition-colors"
+        >
           <div className="flex flex-col gap-0.5">
             <div className="flex items-center gap-1.5">
               <span className="font-semibold text-m3-on-surface">{p.targetName}</span>
@@ -318,7 +406,9 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenan
 
             {/* Active/Inactive Switch */}
             <div className="flex items-center gap-1.5">
-              <span className={`text-[10px] font-medium ${p.isActive ? 'text-emerald-500' : 'text-m3-on-surface/40'}`}>
+              <span
+                className={`text-[10px] font-medium ${p.isActive ? 'text-emerald-500' : 'text-m3-on-surface/40'}`}
+              >
                 {p.isActive ? 'Activo' : 'Inactivo'}
               </span>
               <button
@@ -346,10 +436,22 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenan
       title="Nuevo Perfil de Autorización"
       actions={[
         { label: 'Cancelar', variant: 'outlined', onClick: onClose, disabled: saving },
-        { label: saving ? 'Persistiendo...' : 'Crear & Persistir', variant: 'filled', onClick: handleSave, loading: saving, disabled: saving || loadingTemplateDetail },
+        {
+          label: saving ? 'Persistiendo...' : 'Crear & Persistir',
+          variant: 'filled',
+          onClick: handleSave,
+          loading: saving,
+          disabled: saving || loadingTemplateDetail,
+        },
       ]}
     >
-      <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-4">
+      <form
+        onSubmit={e => {
+          e.preventDefault();
+          handleSave();
+        }}
+        className="space-y-4"
+      >
         {error && (
           <div className="flex items-center gap-2 rounded-lg bg-m3-error-container/30 p-3 text-[12px] text-m3-error border border-m3-error/20">
             <ShieldAlert className="w-4 h-4 flex-shrink-0" />
@@ -359,19 +461,37 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenan
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex flex-col gap-1">
-            <label className="text-[11px] font-medium text-m3-on-surface/70 ml-1">Inquilino (Tenant)</label>
+            <label className="text-[11px] font-medium text-m3-on-surface/70 ml-1">
+              Inquilino (Tenant)
+            </label>
             <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-m3-outline/30 bg-m3-surface-container/30 text-[12px]">
               <Building2 className="w-4 h-4 text-m3-primary" />
-              <span className="font-medium text-m3-on-surface">{sessionTenantName || 'No disponible'}</span>
-              <span className="text-[10px] text-m3-secondary/60 font-mono ml-auto">{effectiveTenantId?.substring(0, 8)}...</span>
+              <span className="font-medium text-m3-on-surface">
+                {sessionTenantName || 'No disponible'}
+              </span>
+              <span className="text-[10px] text-m3-secondary/60 font-mono ml-auto">
+                {effectiveTenantId?.substring(0, 8)}...
+              </span>
             </div>
-            <span className="text-[10px] text-m3-secondary/60 ml-1">Contexto de sesión (solo lectura)</span>
+            <span className="text-[10px] text-m3-secondary/60 ml-1">
+              Contexto de sesión (solo lectura)
+            </span>
           </div>
 
           <FieldSelect
-            label={!effectiveTenantId ? 'Usuario (sin contexto de tenant)' : loadingUsers ? 'Cargando usuarios…' : 'Usuario'}
+            label={
+              !effectiveTenantId
+                ? 'Usuario (sin contexto de tenant)'
+                : loadingUsers
+                  ? 'Cargando usuarios…'
+                  : 'Usuario'
+            }
             value={userId}
-            onChange={(v) => { setUserId(v); setRoleId(''); setTemplateId(''); }}
+            onChange={v => {
+              setUserId(v);
+              setRoleId('');
+              setTemplateId('');
+            }}
             options={userOptions}
             disabled={!effectiveTenantId || loadingUsers || saving}
             required
@@ -380,16 +500,29 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenan
           <FieldSelect
             label={loadingSuites ? 'Cargando sistemas…' : 'Suite de Sistema (System)'}
             value={systemSuiteId}
-            onChange={(v) => { setSystemSuiteId(v); setRoleId(''); setTemplateId(''); }}
+            onChange={v => {
+              setSystemSuiteId(v);
+              setRoleId('');
+              setTemplateId('');
+            }}
             options={suiteOptions}
             disabled={loadingSuites || saving}
             required
           />
 
           <FieldSelect
-            label={!systemSuiteId ? 'Rol (seleccione un Sistema primero)' : loadingRoles ? 'Cargando roles…' : 'Rol'}
+            label={
+              !systemSuiteId
+                ? 'Rol (seleccione un Sistema primero)'
+                : loadingRoles
+                  ? 'Cargando roles…'
+                  : 'Rol'
+            }
             value={roleId}
-            onChange={(v) => { setRoleId(v); setTemplateId(''); }}
+            onChange={v => {
+              setRoleId(v);
+              setTemplateId('');
+            }}
             options={roleOptions}
             disabled={!systemSuiteId || loadingRoles || saving}
             required
@@ -399,7 +532,9 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenan
         {effectiveTenantId && systemSuiteId && roleId && (
           <div className="pt-2">
             <FieldSelect
-              label={loadingTemplates ? 'Cargando plantillas…' : 'Seleccionar Plantilla de Permisos'}
+              label={
+                loadingTemplates ? 'Cargando plantillas…' : 'Seleccionar Plantilla de Permisos'
+              }
               value={templateId}
               onChange={setTemplateId}
               options={templateOptions}
@@ -413,17 +548,25 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenan
         {templateId && (
           <div className="mt-4 rounded-xl border border-m3-outline/20 bg-m3-surface-container/20 overflow-hidden">
             <div className="border-b border-m3-outline/10 bg-m3-surface-container/40 px-4 py-2.5 flex items-center justify-between">
-              <span className="text-[12px] font-medium text-m3-on-surface">Vista Previa Local de Permisos (Sin Persistir)</span>
-              <span className="text-[10px] text-amber-500 font-bold bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">Edición en Caliente</span>
+              <span className="text-[12px] font-medium text-m3-on-surface">
+                Vista Previa Local de Permisos (Sin Persistir)
+              </span>
+              <span className="text-[10px] text-amber-500 font-bold bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+                Edición en Caliente
+              </span>
             </div>
 
             {loadingTemplateDetail ? (
               <div className="flex flex-col items-center justify-center py-10 gap-2">
                 <Loader2 className="w-6 h-6 animate-spin text-m3-primary" />
-                <span className="text-[12px] text-m3-on-surface/60">Cargando árbol de permisos...</span>
+                <span className="text-[12px] text-m3-on-surface/60">
+                  Cargando árbol de permisos...
+                </span>
               </div>
             ) : localPermissions.length === 0 ? (
-              <div className="py-6 text-center text-[12px] text-m3-on-surface/50">La plantilla seleccionada no posee permisos asociados.</div>
+              <div className="py-6 text-center text-[12px] text-m3-on-surface/50">
+                La plantilla seleccionada no posee permisos asociados.
+              </div>
             ) : (
               <div className="flex flex-col h-[350px]">
                 <M3Tabs
@@ -440,20 +583,28 @@ export const ProfileForm: React.FC<Props> = ({ isOpen, onClose, onSuccess, tenan
                           onNodeSelect={() => {}}
                           selectedNodeId={null}
                         />
-                      )
+                      ),
                     },
                     {
                       id: 'domain',
                       label: 'Recursos',
                       icon: <Database className="w-4 h-4" />,
-                      content: renderPermissionList(localPermissions.map((p, i) => ({ p, idx: i })).filter(x => x.p.targetType === 'DomainResource'))
+                      content: renderPermissionList(
+                        localPermissions
+                          .map((p, i) => ({ p, idx: i }))
+                          .filter(x => x.p.targetType === 'DomainResource')
+                      ),
                     },
                     {
                       id: 'system',
                       label: 'Acciones del Sistema',
                       icon: <Zap className="w-4 h-4" />,
-                      content: renderPermissionList(localPermissions.map((p, i) => ({ p, idx: i })).filter(x => x.p.targetType === 'SystemAction'))
-                    }
+                      content: renderPermissionList(
+                        localPermissions
+                          .map((p, i) => ({ p, idx: i }))
+                          .filter(x => x.p.targetType === 'SystemAction')
+                      ),
+                    },
                   ]}
                 />
               </div>

@@ -235,73 +235,109 @@ public static class AuthorizationDevDataSeeder
                 ConfigurationScope.Global,
                 actor);
 
-            // Add security module
-            var modSec = suite.AddModule(Code.Create("SEC"), Name.Create("Security & Auditing"), Description.Create("Security, user management, and audit trailing modules"), 1, actor);
-            if (modSec.IsSuccess)
+            // Add IDM module
+            var modIdm = suite.AddModule(Code.Create("IDM"), Name.Create("Identity & Access"), Description.Create("Tenants, users, and delegations management"), 1, actor);
+            if (modIdm.IsSuccess)
             {
-                var module = suite.Modules.First(m => m.Code.GetValue() == "SEC");
+                var module = suite.Modules.First(m => m.Code.GetValue() == "IDM");
                 suite.ActivateModule(module.Props.Id, actor);
 
-                // Menu 1: Users
-                module.AddMenu(Code.Create("USERS"), Name.Create("Users Administration"), Description.Create("Manage user accounts and details"), 1, actor);
+                module.AddMenu(Code.Create("TENANTS"), Name.Create("Tenants"), Description.Create("Manage tenants"), 1, actor);
+                var menuTenants = module.Menus.First(m => m.Code.GetValue() == "TENANTS");
+                menuTenants.AddSubMenu(Code.Create("TENANTS_LIST"), Name.Create("Tenants List"), Description.Create("Tenants List"), 1, actor);
+                var subMenuTenants = menuTenants.SubMenus.First();
+                subMenuTenants.AddOption(Code.Create("VIEW_TENANTS"), Name.Create("View Tenants"), Description.Create("View Tenants"), ActionCode.Create("VIEW"), 1, actor);
+                subMenuTenants.AddOption(Code.Create("MANAGE_TENANTS"), Name.Create("Manage Tenants"), Description.Create("Manage Tenants"), ActionCode.Create("MANAGE"), 2, actor);
+
+                module.AddMenu(Code.Create("USERS"), Name.Create("Users"), Description.Create("Manage users"), 2, actor);
                 var menuUsers = module.Menus.First(m => m.Code.GetValue() == "USERS");
+                menuUsers.AddSubMenu(Code.Create("USERS_LIST"), Name.Create("Users List"), Description.Create("Users List"), 1, actor);
+                var subMenuUsers = menuUsers.SubMenus.First();
+                subMenuUsers.AddOption(Code.Create("VIEW_USERS"), Name.Create("View Users"), Description.Create("View Users"), ActionCode.Create("VIEW"), 1, actor);
+                subMenuUsers.AddOption(Code.Create("MANAGE_USERS"), Name.Create("Manage Users"), Description.Create("Manage Users"), ActionCode.Create("MANAGE"), 2, actor);
 
-                menuUsers.AddSubMenu(Code.Create("LIST"), Name.Create("User Directory"), Description.Create("View and search all user accounts"), 1, actor);
-                var subMenuList = menuUsers.SubMenus.First(sm => sm.Code.GetValue() == "LIST");
-                subMenuList.AddOption(Code.Create("VIEW_USERS"), Name.Create("View Users List"), Description.Create("Permission to view the users list"), ActionCode.Create("VIEW"), 1, actor);
-                subMenuList.AddOption(Code.Create("EDIT_USERS"), Name.Create("Edit User Profiles"), Description.Create("Permission to edit and modify user profiles"), ActionCode.Create("MANAGE"), 2, actor);
-
-                menuUsers.AddSubMenu(Code.Create("ROLES"), Name.Create("Roles & Permissions"), Description.Create("Manage access control roles and templates"), 2, actor);
-                var subMenuRoles = menuUsers.SubMenus.First(sm => sm.Code.GetValue() == "ROLES");
-                subMenuRoles.AddOption(Code.Create("VIEW_ROLES"), Name.Create("View Security Roles"), Description.Create("Permission to view roles in system"), ActionCode.Create("VIEW"), 1, actor);
-                subMenuRoles.AddOption(Code.Create("MANAGE_ROLES"), Name.Create("Configure Permissions"), Description.Create("Permission to edit access rights"), ActionCode.Create("MANAGE"), 2, actor);
-
-                // Menu 2: Audit Logs
-                module.AddMenu(Code.Create("AUDIT"), Name.Create("Audit Trails"), Description.Create("System operations logging and analysis"), 2, actor);
-                var menuAudit = module.Menus.First(m => m.Code.GetValue() == "AUDIT");
-
-                menuAudit.AddSubMenu(Code.Create("LOGS"), Name.Create("System Logs"), Description.Create("View system telemetry and user transactions"), 1, actor);
-                var subMenuLogs = menuAudit.SubMenus.First(sm => sm.Code.GetValue() == "LOGS");
-                subMenuLogs.AddOption(Code.Create("VIEW_LOGS"), Name.Create("Search Audit Trail"), Description.Create("Permission to query audit logs"), ActionCode.Create("VIEW"), 1, actor);
-                subMenuLogs.AddOption(Code.Create("PURGE_LOGS"), Name.Create("Purge Historical Data"), Description.Create("Permission to clear obsolete log records"), ActionCode.Create("APPROVE"), 2, actor);
+                module.AddMenu(Code.Create("DELEGATIONS"), Name.Create("Delegations"), Description.Create("Manage delegations"), 3, actor);
+                var menuDelegations = module.Menus.First(m => m.Code.GetValue() == "DELEGATIONS");
+                menuDelegations.AddSubMenu(Code.Create("DELEGATIONS_LIST"), Name.Create("Delegations List"), Description.Create("Delegations List"), 1, actor);
+                var subMenuDelegations = menuDelegations.SubMenus.First();
+                subMenuDelegations.AddOption(Code.Create("VIEW_DELEGATIONS"), Name.Create("View Delegations"), Description.Create("View Delegations"), ActionCode.Create("VIEW"), 1, actor);
+                subMenuDelegations.AddOption(Code.Create("MANAGE_DELEGATIONS"), Name.Create("Manage Delegations"), Description.Create("Manage Delegations"), ActionCode.Create("MANAGE"), 2, actor);
             }
 
-            // Add config module
-            var modConfig = suite.AddModule(Code.Create("CONFIG"), Name.Create("System Configuration"), Description.Create("Global properties, settings and email setup"), 2, actor);
-            if (modConfig.IsSuccess)
+            // Add AUTH module
+            var modAuth = suite.AddModule(Code.Create("AUTH"), Name.Create("Authorization"), Description.Create("Profiles, templates and suites"), 2, actor);
+            if (modAuth.IsSuccess)
             {
-                var module = suite.Modules.First(m => m.Code.GetValue() == "CONFIG");
+                var module = suite.Modules.First(m => m.Code.GetValue() == "AUTH");
                 suite.ActivateModule(module.Props.Id, actor);
 
-                // Menu 1: System Settings
-                module.AddMenu(Code.Create("SETTINGS"), Name.Create("Global Setup"), Description.Create("Configure global system variables"), 1, actor);
-                var menuSettings = module.Menus.First(m => m.Code.GetValue() == "SETTINGS");
+                module.AddMenu(Code.Create("SYSTEM_SUITES"), Name.Create("System Suites"), Description.Create("Manage System Suites"), 1, actor);
+                var menuSuites = module.Menus.First(m => m.Code.GetValue() == "SYSTEM_SUITES");
+                menuSuites.AddSubMenu(Code.Create("SUITES_LIST"), Name.Create("Suites List"), Description.Create("Suites List"), 1, actor);
+                var subMenuSuites = menuSuites.SubMenus.First();
+                subMenuSuites.AddOption(Code.Create("VIEW_SUITES"), Name.Create("View Suites"), Description.Create("View Suites"), ActionCode.Create("VIEW"), 1, actor);
+                subMenuSuites.AddOption(Code.Create("MANAGE_SUITES"), Name.Create("Manage Suites"), Description.Create("Manage Suites"), ActionCode.Create("MANAGE"), 2, actor);
 
-                menuSettings.AddSubMenu(Code.Create("PARAMS"), Name.Create("App Parameters"), Description.Create("Configure timeouts, thresholds and limits"), 1, actor);
-                var subMenuParams = menuSettings.SubMenus.First(sm => sm.Code.GetValue() == "PARAMS");
-                subMenuParams.AddOption(Code.Create("VIEW_PARAMS"), Name.Create("View Parameters"), Description.Create("Permission to view system options"), ActionCode.Create("VIEW"), 1, actor);
-                subMenuParams.AddOption(Code.Create("EDIT_PARAMS"), Name.Create("Update Global Config"), Description.Create("Permission to edit critical global values"), ActionCode.Create("MANAGE"), 2, actor);
+                module.AddMenu(Code.Create("PERMISSION_TEMPLATES"), Name.Create("Permission Templates"), Description.Create("Manage Templates"), 2, actor);
+                var menuTemplates = module.Menus.First(m => m.Code.GetValue() == "PERMISSION_TEMPLATES");
+                menuTemplates.AddSubMenu(Code.Create("TEMPLATES_LIST"), Name.Create("Templates List"), Description.Create("Templates List"), 1, actor);
+                var subMenuTemplates = menuTemplates.SubMenus.First();
+                subMenuTemplates.AddOption(Code.Create("VIEW_TEMPLATES"), Name.Create("View Templates"), Description.Create("View Templates"), ActionCode.Create("VIEW"), 1, actor);
+                subMenuTemplates.AddOption(Code.Create("MANAGE_TEMPLATES"), Name.Create("Manage Templates"), Description.Create("Manage Templates"), ActionCode.Create("MANAGE"), 2, actor);
 
-                menuSettings.AddSubMenu(Code.Create("SMTP"), Name.Create("SMTP Server Setup"), Description.Create("Email gateway and server connection"), 2, actor);
-                var subMenuSmtp = menuSettings.SubMenus.First(sm => sm.Code.GetValue() == "SMTP");
-                subMenuSmtp.AddOption(Code.Create("TEST_SMTP"), Name.Create("Test SMTP Gateway"), Description.Create("Permission to trigger email delivery test"), ActionCode.Create("APPROVE"), 1, actor);
-
-                // GAP-3: Deactivate CONFIG module to test inactive module filter
-                suite.DeactivateModule(module.Props.Id, actor);
+                module.AddMenu(Code.Create("PROFILES"), Name.Create("Profiles"), Description.Create("Manage Profiles"), 3, actor);
+                var menuProfiles = module.Menus.First(m => m.Code.GetValue() == "PROFILES");
+                menuProfiles.AddSubMenu(Code.Create("PROFILES_LIST"), Name.Create("Profiles List"), Description.Create("Profiles List"), 1, actor);
+                var subMenuProfiles = menuProfiles.SubMenus.First();
+                subMenuProfiles.AddOption(Code.Create("VIEW_PROFILES"), Name.Create("View Profiles"), Description.Create("View Profiles"), ActionCode.Create("VIEW"), 1, actor);
+                subMenuProfiles.AddOption(Code.Create("MANAGE_PROFILES"), Name.Create("Manage Profiles"), Description.Create("Manage Profiles"), ActionCode.Create("MANAGE"), 2, actor);
             }
 
-            // GAP-4: Add domain resources linked to modules
-            var secMod = suite.Modules.First(m => m.Code.GetValue() == "SEC");
-            var configMod = suite.Modules.First(m => m.Code.GetValue() == "CONFIG");
-            suite.AddDomainResource(secMod.GetId(), null, DomainResourceType.Aggregate, Code.Create("USERS"), Name.Create("Users Aggregate"), Description.Create("User Management aggregate root"), actor);
-            suite.AddDomainResource(secMod.GetId(), null, DomainResourceType.Aggregate, Code.Create("INVENTORY"), Name.Create("Inventory Aggregate"), Description.Create("Inventory Management aggregate root"), actor);
-            suite.AddDomainResource(secMod.GetId(), null, DomainResourceType.Entity, Code.Create("AUDIT_LOG"), Name.Create("Audit Log Entity"), Description.Create("Audit log entity for tracking operations"), actor);
-            suite.AddDomainResource(configMod.GetId(), null, DomainResourceType.Entity, Code.Create("STOCK_LEVEL"), Name.Create("Stock Level Entity"), Description.Create("Stock level entity linked to config module"), actor);
+            // Add SYS module
+            var modSys = suite.AddModule(Code.Create("SYS"), Name.Create("System Configuration"), Description.Create("Global properties, settings and flags"), 3, actor);
+            if (modSys.IsSuccess)
+            {
+                var module = suite.Modules.First(m => m.Code.GetValue() == "SYS");
+                suite.ActivateModule(module.Props.Id, actor);
 
-            // DomainMethods as children of the USERS aggregate (DDD hierarchy example)
-            var usersAggregate = suite.DomainResources.First(r => r.Code.GetValue() == "USERS");
-            suite.AddDomainResource(secMod.GetId(), usersAggregate.Props.Id, DomainResourceType.DomainMethod, Code.Create("RESET_PASSWORD"), Name.Create("ResetPassword()"), Description.Create("Resets user password through the aggregate"), actor);
-            suite.AddDomainResource(secMod.GetId(), usersAggregate.Props.Id, DomainResourceType.DomainMethod, Code.Create("BLOCK_USER"), Name.Create("BlockUser()"), Description.Create("Blocks a user account through the aggregate"), actor);
+                module.AddMenu(Code.Create("FEATURE_FLAGS"), Name.Create("Feature Flags"), Description.Create("Manage Flags"), 1, actor);
+                var menuFlags = module.Menus.First(m => m.Code.GetValue() == "FEATURE_FLAGS");
+                menuFlags.AddSubMenu(Code.Create("FLAGS_LIST"), Name.Create("Flags List"), Description.Create("Flags List"), 1, actor);
+                var subMenuFlags = menuFlags.SubMenus.First();
+                subMenuFlags.AddOption(Code.Create("VIEW_FLAGS"), Name.Create("View Flags"), Description.Create("View Flags"), ActionCode.Create("VIEW"), 1, actor);
+                subMenuFlags.AddOption(Code.Create("MANAGE_FLAGS"), Name.Create("Manage Flags"), Description.Create("Manage Flags"), ActionCode.Create("MANAGE"), 2, actor);
+
+                module.AddMenu(Code.Create("APP_CONFIG"), Name.Create("App Configurations"), Description.Create("Manage App Configs"), 2, actor);
+                var menuConfig = module.Menus.First(m => m.Code.GetValue() == "APP_CONFIG");
+                menuConfig.AddSubMenu(Code.Create("CONFIG_LIST"), Name.Create("Config List"), Description.Create("Config List"), 1, actor);
+                var subMenuConfig = menuConfig.SubMenus.First();
+                subMenuConfig.AddOption(Code.Create("VIEW_CONFIG"), Name.Create("View Configs"), Description.Create("View Configs"), ActionCode.Create("VIEW"), 1, actor);
+                subMenuConfig.AddOption(Code.Create("MANAGE_CONFIG"), Name.Create("Manage Configs"), Description.Create("Manage Configs"), ActionCode.Create("MANAGE"), 2, actor);
+
+                module.AddMenu(Code.Create("PARAM_CATALOG"), Name.Create("Parameter Catalog"), Description.Create("Manage Parameters"), 3, actor);
+                var menuParam = module.Menus.First(m => m.Code.GetValue() == "PARAM_CATALOG");
+                menuParam.AddSubMenu(Code.Create("PARAM_LIST"), Name.Create("Param List"), Description.Create("Param List"), 1, actor);
+                var subMenuParam = menuParam.SubMenus.First();
+                subMenuParam.AddOption(Code.Create("VIEW_PARAMS"), Name.Create("View Params"), Description.Create("View Params"), ActionCode.Create("VIEW"), 1, actor);
+                subMenuParam.AddOption(Code.Create("MANAGE_PARAMS"), Name.Create("Manage Params"), Description.Create("Manage Params"), ActionCode.Create("MANAGE"), 2, actor);
+            }
+
+            // Add domain resources linked to modules
+            var idmMod = suite.Modules.First(m => m.Code.GetValue() == "IDM");
+            var authMod = suite.Modules.First(m => m.Code.GetValue() == "AUTH");
+            var sysMod = suite.Modules.First(m => m.Code.GetValue() == "SYS");
+
+            suite.AddDomainResource(idmMod.GetId(), null, DomainResourceType.Aggregate, Code.Create("TENANT"), Name.Create("Tenant Aggregate"), Description.Create("Tenant aggregate root"), actor);
+            suite.AddDomainResource(idmMod.GetId(), null, DomainResourceType.Aggregate, Code.Create("USER"), Name.Create("User Aggregate"), Description.Create("User aggregate root"), actor);
+            suite.AddDomainResource(idmMod.GetId(), null, DomainResourceType.Aggregate, Code.Create("DELEGATION"), Name.Create("Delegation Aggregate"), Description.Create("Delegation aggregate root"), actor);
+
+            suite.AddDomainResource(authMod.GetId(), null, DomainResourceType.Aggregate, Code.Create("SYSTEM_SUITE"), Name.Create("System Suite Aggregate"), Description.Create("System Suite aggregate root"), actor);
+            suite.AddDomainResource(authMod.GetId(), null, DomainResourceType.Aggregate, Code.Create("PERMISSION_TEMPLATE"), Name.Create("Template Aggregate"), Description.Create("Template aggregate root"), actor);
+            suite.AddDomainResource(authMod.GetId(), null, DomainResourceType.Aggregate, Code.Create("PROFILE"), Name.Create("Profile Aggregate"), Description.Create("Profile aggregate root"), actor);
+
+            suite.AddDomainResource(sysMod.GetId(), null, DomainResourceType.Aggregate, Code.Create("FEATURE_FLAG"), Name.Create("Feature Flag Aggregate"), Description.Create("Feature Flag aggregate root"), actor);
+            suite.AddDomainResource(sysMod.GetId(), null, DomainResourceType.Aggregate, Code.Create("APP_CONFIG"), Name.Create("App Config Aggregate"), Description.Create("App Config aggregate root"), actor);
+            suite.AddDomainResource(sysMod.GetId(), null, DomainResourceType.Aggregate, Code.Create("PARAMETER"), Name.Create("Parameter Aggregate"), Description.Create("Parameter aggregate root"), actor);
 
             suites.Add(suite);
         }
@@ -415,10 +451,10 @@ public static class AuthorizationDevDataSeeder
         var wmsSuite = suites.Count > 1 ? suites[1] : null;
 
         // Helper to find a domain resource by code from the core suite
-        var usersResource    = coreSuite.DomainResources.FirstOrDefault(r => r.Code.GetValue() == "USERS");
-        var inventoryResource= coreSuite.DomainResources.FirstOrDefault(r => r.Code.GetValue() == "INVENTORY");
-        var auditLogResource = coreSuite.DomainResources.FirstOrDefault(r => r.Code.GetValue() == "AUDIT_LOG");
-        var stockLevelResource=coreSuite.DomainResources.FirstOrDefault(r => r.Code.GetValue() == "STOCK_LEVEL");
+        // Helper to find a domain resource by code from the core suite
+        var tenantResource = coreSuite.DomainResources.FirstOrDefault(r => r.Code.GetValue() == "TENANT");
+        var userResource = coreSuite.DomainResources.FirstOrDefault(r => r.Code.GetValue() == "USER");
+        var auditLogResource = coreSuite.DomainResources.FirstOrDefault(r => r.Code.GetValue() == "AUDIT_LOG"); // if still relevant, though we removed it, so we'll ignore it
 
         // ── 1. ADMIN V2 — Published, full suite access ────────────────────
         if (adminRole != null)
@@ -444,21 +480,10 @@ public static class AuthorizationDevDataSeeder
                 }
             }
             // Domain resources: full access
-            if (usersResource != null)
+            foreach (var res in coreSuite.DomainResources)
             {
-                adminV2.AddItem(ExclusiveArcTarget.Aggregate, usersResource.Id, ActionId.Create(), true, false, actor);
-            }
-            if (inventoryResource != null)
-            {
-                adminV2.AddItem(ExclusiveArcTarget.Aggregate, inventoryResource.Id, ActionId.Create(), true, false, actor);
-            }
-            if (auditLogResource != null)
-            {
-                adminV2.AddItem(ExclusiveArcTarget.Entity, auditLogResource.Id, ActionId.Create(), true, false, actor);
-            }
-            if (stockLevelResource != null)
-            {
-                adminV2.AddItem(ExclusiveArcTarget.Entity, stockLevelResource.Id, ActionId.Create(), true, false, actor);
+                var targetType = res.Type == DomainResourceType.Aggregate ? ExclusiveArcTarget.Aggregate : ExclusiveArcTarget.Entity;
+                adminV2.AddItem(targetType, res.Id, ActionId.Create(), true, false, actor);
             }
             adminV2.Publish(actor);
             templates.Add(adminV2);
@@ -468,33 +493,46 @@ public static class AuthorizationDevDataSeeder
         if (supervisorRole != null)
         {
             var supervisorTpl = PermissionTemplateAggregate.Create(tenantId, supervisorRole.GetId(), coreSuite.GetId(), actor).Value;
-            var secMod = coreSuite.Modules.First(m => m.Code.GetValue() == "SEC");
-            // Navigation: security module
-            supervisorTpl.AddItem(ExclusiveArcTarget.Module, secMod.Props.Id, ActionId.Create(), true, false, actor);
-            // Domain resources: read users + audit
-            if (usersResource != null)
-                supervisorTpl.AddItem(ExclusiveArcTarget.Aggregate, usersResource.Id, ActionId.Create(), true, false, actor);
-            if (auditLogResource != null)
-                supervisorTpl.AddItem(ExclusiveArcTarget.Entity, auditLogResource.Id, ActionId.Create(), true, false, actor);
+            var idmMod = coreSuite.Modules.FirstOrDefault(m => m.Code.GetValue() == "IDM");
+            if (idmMod != null)
+            {
+                // Navigation: IDM module
+                supervisorTpl.AddItem(ExclusiveArcTarget.Module, idmMod.Props.Id, ActionId.Create(), true, false, actor);
+            }
+            // Domain resources: read tenants, users
+            if (tenantResource != null)
+                supervisorTpl.AddItem(ExclusiveArcTarget.Aggregate, tenantResource.Id, ActionId.Create(), true, false, actor);
+            if (userResource != null)
+                supervisorTpl.AddItem(ExclusiveArcTarget.Aggregate, userResource.Id, ActionId.Create(), true, false, actor);
+            
             supervisorTpl.Publish(actor);
             templates.Add(supervisorTpl);
         }
 
-        // ── 3. AUDITOR — Published, read-only on audit logs ───────────────
+        // ── 3. AUDITOR — Published, read-only on users ───────────────
         if (auditorRole != null)
         {
             var auditorTpl = PermissionTemplateAggregate.Create(tenantId, auditorRole.GetId(), coreSuite.GetId(), actor).Value;
-            var secMod = coreSuite.Modules.First(m => m.Code.GetValue() == "SEC");
-            var auditMenu = secMod.Menus.First(m => m.Code.GetValue() == "AUDIT");
-            var logsSubMenu = auditMenu.SubMenus.First(sm => sm.Code.GetValue() == "LOGS");
-            var viewLogsOpt = logsSubMenu.Options.First(o => o.Code.GetValue() == "VIEW_LOGS");
-            // Navigation: audit trail options only
-            auditorTpl.AddItem(ExclusiveArcTarget.Submodule, auditMenu.Props.Id, ActionId.Create(), true, false, actor);
-            auditorTpl.AddItem(ExclusiveArcTarget.Option, logsSubMenu.Props.Id, ActionId.Create(), true, false, actor);
-            auditorTpl.AddItem(ExclusiveArcTarget.Option, viewLogsOpt.Props.Id, ActionId.Create(), true, false, actor);
-            // Domain resources: read-only audit log entity
-            if (auditLogResource != null)
-                auditorTpl.AddItem(ExclusiveArcTarget.Entity, auditLogResource.Id, ActionId.Create(), true, false, actor);
+            var idmMod = coreSuite.Modules.FirstOrDefault(m => m.Code.GetValue() == "IDM");
+            if (idmMod != null)
+            {
+                var usersMenu = idmMod.Menus.FirstOrDefault(m => m.Code.GetValue() == "USERS");
+                if (usersMenu != null)
+                {
+                    var listSubMenu = usersMenu.SubMenus.FirstOrDefault(sm => sm.Code.GetValue() == "USERS_LIST");
+                    if (listSubMenu != null)
+                    {
+                        var viewUsersOpt = listSubMenu.Options.FirstOrDefault(o => o.Code.GetValue() == "VIEW_USERS");
+                        // Navigation: view users options only
+                        auditorTpl.AddItem(ExclusiveArcTarget.Submodule, usersMenu.Props.Id, ActionId.Create(), true, false, actor);
+                        auditorTpl.AddItem(ExclusiveArcTarget.Option, listSubMenu.Props.Id, ActionId.Create(), true, false, actor);
+                        if (viewUsersOpt != null) auditorTpl.AddItem(ExclusiveArcTarget.Option, viewUsersOpt.Props.Id, ActionId.Create(), true, false, actor);
+                    }
+                }
+            }
+            // Domain resources: read-only users aggregate
+            if (userResource != null)
+                auditorTpl.AddItem(ExclusiveArcTarget.Aggregate, userResource.Id, ActionId.Create(), true, false, actor);
             auditorTpl.Publish(actor);
             templates.Add(auditorTpl);
         }
@@ -503,15 +541,22 @@ public static class AuthorizationDevDataSeeder
         if (readonlyRole != null)
         {
             var readonlyTpl = PermissionTemplateAggregate.Create(tenantId, readonlyRole.GetId(), coreSuite.GetId(), actor).Value;
-            var secMod = coreSuite.Modules.First(m => m.Code.GetValue() == "SEC");
-            var usersMenu = secMod.Menus.First(m => m.Code.GetValue() == "USERS");
-            var listSubMenu = usersMenu.SubMenus.First(sm => sm.Code.GetValue() == "LIST");
-            var viewUsersOpt = listSubMenu.Options.First(o => o.Code.GetValue() == "VIEW_USERS");
-            // Navigation: view users option only
-            readonlyTpl.AddItem(ExclusiveArcTarget.Option, viewUsersOpt.Props.Id, ActionId.Create(), true, false, actor);
-            // Domain resources: read-only users aggregate
-            if (usersResource != null)
-                readonlyTpl.AddItem(ExclusiveArcTarget.Aggregate, usersResource.Id, ActionId.Create(), true, false, actor);
+            var idmMod = coreSuite.Modules.FirstOrDefault(m => m.Code.GetValue() == "IDM");
+            if (idmMod != null)
+            {
+                var usersMenu = idmMod.Menus.FirstOrDefault(m => m.Code.GetValue() == "USERS");
+                if (usersMenu != null)
+                {
+                    var listSubMenu = usersMenu.SubMenus.FirstOrDefault(sm => sm.Code.GetValue() == "USERS_LIST");
+                    if (listSubMenu != null)
+                    {
+                        var viewUsersOpt = listSubMenu.Options.FirstOrDefault(o => o.Code.GetValue() == "VIEW_USERS");
+                        if (viewUsersOpt != null) readonlyTpl.AddItem(ExclusiveArcTarget.Option, viewUsersOpt.Props.Id, ActionId.Create(), true, false, actor);
+                    }
+                }
+            }
+            if (userResource != null)
+                readonlyTpl.AddItem(ExclusiveArcTarget.Aggregate, userResource.Id, ActionId.Create(), true, false, actor);
             readonlyTpl.Publish(actor);
             templates.Add(readonlyTpl);
         }
@@ -520,16 +565,23 @@ public static class AuthorizationDevDataSeeder
         if (dataEntryRole != null)
         {
             var dataEntryTpl = PermissionTemplateAggregate.Create(tenantId, dataEntryRole.GetId(), coreSuite.GetId(), actor).Value;
-            var secMod = coreSuite.Modules.First(m => m.Code.GetValue() == "SEC");
-            var usersMenu = secMod.Menus.First(m => m.Code.GetValue() == "USERS");
-            var listSubMenu = usersMenu.SubMenus.First(sm => sm.Code.GetValue() == "LIST");
-            var editUsersOpt = listSubMenu.Options.First(o => o.Code.GetValue() == "EDIT_USERS");
-            // Navigation: edit users options
-            dataEntryTpl.AddItem(ExclusiveArcTarget.Option, listSubMenu.Props.Id, ActionId.Create(), true, false, actor);
-            dataEntryTpl.AddItem(ExclusiveArcTarget.Option, editUsersOpt.Props.Id, ActionId.Create(), true, false, actor);
-            // Domain resources: create + update users aggregate
-            if (usersResource != null)
-                dataEntryTpl.AddItem(ExclusiveArcTarget.Aggregate, usersResource.Id, ActionId.Create(), true, false, actor);
+            var idmMod = coreSuite.Modules.FirstOrDefault(m => m.Code.GetValue() == "IDM");
+            if (idmMod != null)
+            {
+                var usersMenu = idmMod.Menus.FirstOrDefault(m => m.Code.GetValue() == "USERS");
+                if (usersMenu != null)
+                {
+                    var listSubMenu = usersMenu.SubMenus.FirstOrDefault(sm => sm.Code.GetValue() == "USERS_LIST");
+                    if (listSubMenu != null)
+                    {
+                        var editUsersOpt = listSubMenu.Options.FirstOrDefault(o => o.Code.GetValue() == "MANAGE_USERS");
+                        dataEntryTpl.AddItem(ExclusiveArcTarget.Option, listSubMenu.Props.Id, ActionId.Create(), true, false, actor);
+                        if (editUsersOpt != null) dataEntryTpl.AddItem(ExclusiveArcTarget.Option, editUsersOpt.Props.Id, ActionId.Create(), true, false, actor);
+                    }
+                }
+            }
+            if (userResource != null)
+                dataEntryTpl.AddItem(ExclusiveArcTarget.Aggregate, userResource.Id, ActionId.Create(), true, false, actor);
             dataEntryTpl.Publish(actor);
             templates.Add(dataEntryTpl);
         }

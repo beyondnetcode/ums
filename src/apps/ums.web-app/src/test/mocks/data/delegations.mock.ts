@@ -15,7 +15,7 @@ export const mockDelegations = [
     status: 'Active',
     revokedAt: null,
     revokedBy: null,
-    revocationReason: null
+    revocationReason: null,
   },
   {
     delegationId: 'd2000000-0000-0000-0000-000000000002',
@@ -33,7 +33,7 @@ export const mockDelegations = [
     status: 'Expired',
     revokedAt: null,
     revokedBy: null,
-    revocationReason: null
+    revocationReason: null,
   },
   {
     delegationId: 'd3000000-0000-0000-0000-000000000003',
@@ -51,7 +51,7 @@ export const mockDelegations = [
     status: 'Revoked',
     revokedAt: new Date().toISOString(),
     revokedBy: '5f4e3d01-1b0a-9f8e-7d6c-543210987654',
-    revocationReason: 'Cambio de rol'
+    revocationReason: 'Cambio de rol',
   },
   {
     delegationId: 'd4000000-0000-0000-0000-000000000004',
@@ -69,6 +69,6 @@ export const mockDelegations = [
     status: 'PendingApproval',
     revokedAt: null,
     revokedBy: null,
-    revocationReason: null
-  }
+    revocationReason: null,
+  },
 ];

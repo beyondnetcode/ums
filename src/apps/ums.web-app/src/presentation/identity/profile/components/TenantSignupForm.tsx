@@ -15,7 +15,10 @@ export const TenantSignupForm: React.FC<TenantSignupFormProps> = ({ onBack }) =>
   const [contactEmail, setContactEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [result, setResult] = useState<{ message: string; tenantSignupRequestId: string | null } | null>(null);
+  const [result, setResult] = useState<{
+    message: string;
+    tenantSignupRequestId: string | null;
+  } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,7 +73,8 @@ export const TenantSignupForm: React.FC<TenantSignupFormProps> = ({ onBack }) =>
           </div>
           <p className="text-xs text-m3-secondary leading-relaxed">{result.message}</p>
           <p className="text-[10px] text-m3-secondary/70">
-            El equipo de BeyondNet Code revisará la solicitud y le enviará las credenciales de administración cuando sea aprobada.
+            El equipo de BeyondNet Code revisará la solicitud y le enviará las credenciales de
+            administración cuando sea aprobada.
           </p>
         </div>
 
@@ -99,7 +103,10 @@ export const TenantSignupForm: React.FC<TenantSignupFormProps> = ({ onBack }) =>
         label="Nombre de la empresa"
         required
         value={companyName}
-        onChange={(e) => { setCompanyName(e.target.value); setError(''); }}
+        onChange={e => {
+          setCompanyName(e.target.value);
+          setError('');
+        }}
         placeholder="Empresa S.A.C."
         autoComplete="organization"
         disabled={isLoading}
@@ -110,7 +117,10 @@ export const TenantSignupForm: React.FC<TenantSignupFormProps> = ({ onBack }) =>
         label="RUC / Código"
         required
         value={companyReference}
-        onChange={(e) => { setCompanyReference(e.target.value); setError(''); }}
+        onChange={e => {
+          setCompanyReference(e.target.value);
+          setError('');
+        }}
         placeholder="RUC o código único"
         disabled={isLoading}
       />
@@ -119,7 +129,10 @@ export const TenantSignupForm: React.FC<TenantSignupFormProps> = ({ onBack }) =>
         label="Nombre de contacto"
         required
         value={contactName}
-        onChange={(e) => { setContactName(e.target.value); setError(''); }}
+        onChange={e => {
+          setContactName(e.target.value);
+          setError('');
+        }}
         placeholder="Nombre y apellido"
         autoComplete="name"
         disabled={isLoading}
@@ -130,16 +143,17 @@ export const TenantSignupForm: React.FC<TenantSignupFormProps> = ({ onBack }) =>
         type="email"
         required
         value={contactEmail}
-        onChange={(e) => { setContactEmail(e.target.value); setError(''); }}
+        onChange={e => {
+          setContactEmail(e.target.value);
+          setError('');
+        }}
         placeholder="contacto@empresa.com"
         autoComplete="email"
         disabled={isLoading}
         icon={<Mail className="w-4 h-4" />}
       />
 
-      {error && (
-        <p className="text-xs text-m3-error px-1">{error}</p>
-      )}
+      {error && <p className="text-xs text-m3-error px-1">{error}</p>}
 
       <M3Button variant="filled" className="w-full" type="submit" disabled={isLoading}>
         {isLoading ? 'Enviando...' : 'Registrar empresa'}

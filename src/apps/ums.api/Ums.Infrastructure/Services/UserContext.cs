@@ -24,4 +24,16 @@ public class UserContext : IUserContext
     public string? TenantId => _httpContextAccessor.HttpContext?.User?.FindFirstValue("tenant_id");
 
     public bool IsAuthenticated => _httpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated ?? false;
+
+    public bool HasPermission(string permission)
+    {
+        // JWT uses 'scope' claim and format 'resource.action' (lowercase)
+        var normalizedPerm = permission.Replace(":", ".").ToLowerInvariant();
+        var scopeClaims = _httpContextAccessor.HttpContext?.User?.FindAll("scope") ?? Enumerable.Empty<Claim>();
+        
+        // Split space-separated scopes if they are returned as a single string
+        var scopes = scopeClaims.SelectMany(c => c.Value.Split(' '));
+        
+        return scopes.Any(s => s.Equals(normalizedPerm, StringComparison.OrdinalIgnoreCase));
+    }
 }
