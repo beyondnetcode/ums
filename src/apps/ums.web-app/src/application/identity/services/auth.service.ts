@@ -80,6 +80,8 @@ class AuthService {
   private requestTimeout: number;
 
   constructor() {
+    // Visual portal authentication must stay on the session-oriented API.
+    // External systems use /api/v1/client/authenticate and receive the graph.
     this.baseUrl = `${API_BASE_URL}/api/v1/auth`;
     this.requestTimeout = 30000;
   }
