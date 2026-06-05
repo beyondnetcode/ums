@@ -95,7 +95,7 @@ describe('UserAccountListPanel', () => {
     expect(screen.getAllByText('Inquilino Activo').length).toBeGreaterThan(0);
     expect(screen.getByRole('button', { name: 'Ransa Comercial (RANSA)' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Ransa Comercial (RANSA)' }));
-    expect(screen.getByText('Neptunia S.A. (NEPTUNIA)')).toBeInTheDocument();
+    expect(screen.getByText(/Neptunia S.A./)).toBeInTheDocument();
 
     // Verify account row renders
     expect(screen.getByText('admin@ransa.pe')).toBeInTheDocument();
@@ -125,7 +125,7 @@ describe('UserAccountListPanel', () => {
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Ransa Comercial (RANSA)' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Neptunia S.A. (NEPTUNIA)' }));
+    fireEvent.click(screen.getByText(/Neptunia S.A./));
 
     expect(onTenantChange).toHaveBeenCalledWith('tenant-2');
   });

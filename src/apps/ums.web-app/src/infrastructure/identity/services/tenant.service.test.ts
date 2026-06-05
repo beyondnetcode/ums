@@ -4,6 +4,7 @@ import * as httpClientModule from '@infra/http/httpClient';
 import * as queryTransportModule from '@infra/configuration/services/query-transport.service';
 import * as graphqlQueriesModule from '@infra/identity/queries/tenant.graphql';
 import * as loggerModule from '@app/utils/logger';
+import { useAuthStore } from '@app/stores/auth.store';
 
 vi.mock('@infra/http/httpClient', () => ({
   httpClient: {
@@ -36,6 +37,12 @@ vi.mock('@app/utils/logger', () => ({
   },
 }));
 
+vi.mock('@app/stores/auth.store', () => ({
+  useAuthStore: {
+    getState: vi.fn(),
+  },
+}));
+
 describe('tenantService', () => {
   beforeEach(() => {
     vi.mocked(httpClientModule.httpClient.get).mockClear();
@@ -49,6 +56,11 @@ describe('tenantService', () => {
       'graphql'
     );
     vi.mocked(loggerModule.logger.error).mockClear();
+
+    vi.mocked(useAuthStore.getState).mockReturnValue({
+      isAuthenticated: true,
+      user: { isInternalAdmin: true },
+    } as any);
   });
 
   describe('getAll', () => {
