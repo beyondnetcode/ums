@@ -81,6 +81,7 @@ internal static class ResultExtensions
 
     private static string GetUserMessage(string error, int status)
     {
+        const string validationPrefix = "Validation.Failed:";
         // Updated: Validation failures now map to 422 Unprocessable Entity.
         if (status == StatusCodes.Status422UnprocessableEntity && error.StartsWith(validationPrefix, StringComparison.OrdinalIgnoreCase))
         {
