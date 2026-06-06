@@ -29,9 +29,9 @@ export const NavRail: React.FC<NavRailProps> = ({ collapsed }) => {
   const location = useLocation();
   const { prefetchById } = useNavigationPrefetch();
   const [expandedModules, setExpandedModules] = useState<{ [key: string]: boolean }>({
-    identity: true,
-    authorization: true,
-    system: true,
+    idm: true,
+    auth: true,
+    sys: true,
   });
 
   const activeTab = pathToTab(location.pathname);

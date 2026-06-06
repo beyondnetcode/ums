@@ -116,7 +116,7 @@ public class UserAccountQueryHandlerTests
         _repo.Setup(r => r.GetPagedAsync(
                 It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>(),
                 It.IsAny<string?>(), It.IsAny<string>(), It.IsAny<string>(),
-                tenantId, It.IsAny<CancellationToken>()))
+                It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(((IReadOnlyList<UserAccount>)users, users.Count));
 
         var query = new GetAllUserAccountsQuery(

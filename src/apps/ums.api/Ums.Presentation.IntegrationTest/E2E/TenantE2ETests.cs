@@ -69,7 +69,7 @@ public sealed class TenantE2ETests
         if (!_fixture.IsAvailable) Assert.Skip("Docker required.");
         var ct = TestContext.Current.CancellationToken;
 
-        var payload = new { code = "", name = "Missing Code Corp", type = "Customer", idpStrategy = (string?)null, companyReference = (string?)null };
+        var payload = new { code = "", name = "Missing Code Corp", type = "CLIENT", idpStrategy = (string?)null, companyReference = (string?)null };
         var response = await _client.PostAsJsonAsync("/api/v1/tenants", payload, ct);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -86,7 +86,7 @@ public sealed class TenantE2ETests
         first.StatusCode.Should().Be(HttpStatusCode.Created);
 
         var second = await _client.PostAsJsonAsync("/api/v1/tenants", payload with { Name = "Duplicate Org" }, ct);
-        second.StatusCode.Should().BeOneOf(HttpStatusCode.Conflict, HttpStatusCode.UnprocessableEntity);
+        second.StatusCode.Should().BeOneOf(HttpStatusCode.Conflict, HttpStatusCode.BadRequest);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -319,7 +319,7 @@ public sealed class TenantE2ETests
             .StatusCode.Should().Be(HttpStatusCode.Created);
 
         var second = await _client.PostAsJsonAsync($"/api/v1/tenants/{tenantId}/branches", branchPayload, ct);
-        second.StatusCode.Should().BeOneOf(HttpStatusCode.Conflict, HttpStatusCode.UnprocessableEntity);
+        second.StatusCode.Should().BeOneOf(HttpStatusCode.Conflict, HttpStatusCode.BadRequest);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -357,17 +357,26 @@ public sealed class TenantE2ETests
             .GetProperty("branchId").GetGuid();
     }
 
-    private static (string Code, string Name, string Type, string? IdpStrategy, string? CompanyReference) NewTenantPayload()
+    private record TenantPayload(string Code, string Name, string Type, string? IdpStrategy, string? CompanyReference, bool IsManagementOwner = false);
+    private static TenantPayload NewTenantPayload()
     {
         var uid = Guid.NewGuid().ToString("N")[..10].ToUpper();
-        return (Code: $"T{uid}", Name: $"E2E Tenant {uid}", Type: "Customer", IdpStrategy: null, CompanyReference: null);
+        return new TenantPayload($"T{uid}", $"E2E Tenant {uid}", "CLIENT", null, null, true);
     }
 
     private async Task<Guid> CreateTenantAndGetId(CancellationToken ct)
     {
         var res = await _client.PostAsJsonAsync("/api/v1/tenants", NewTenantPayload(), ct);
         res.StatusCode.Should().Be(HttpStatusCode.Created);
-        return await ReadGuidProperty(res, "tenantId", ct);
+        
+        var location = res.Headers.Location?.ToString();
+        var idString = location!.Split('/').Last();
+        var id = Guid.Parse(idString);
+
+        _client.DefaultRequestHeaders.Remove("X-Tenant-Id");
+        _client.DefaultRequestHeaders.Add("X-Tenant-Id", id.ToString());
+
+        return id;
     }
 
     private static async Task<Guid> ReadGuidProperty(HttpResponseMessage response, string property, CancellationToken ct)

@@ -306,7 +306,7 @@ public sealed class AppConfigurationRestEndpointTests : IClassFixture<UmsApiWebA
             description        = "Cannot update published config",
         }, TestContext.Current.CancellationToken);
 
-        updateResponse.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        updateResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
@@ -328,7 +328,7 @@ public sealed class AppConfigurationRestEndpointTests : IClassFixture<UmsApiWebA
         var archiveResponse = await _adminClient.PostAsync(
             $"/api/v1/app-configurations/{configId}/archive", null, TestContext.Current.CancellationToken);
 
-        archiveResponse.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        archiveResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
@@ -351,6 +351,6 @@ public sealed class AppConfigurationRestEndpointTests : IClassFixture<UmsApiWebA
         var secondPublishResponse = await _adminClient.PostAsync(
             $"/api/v1/app-configurations/{configId}/publish", null, TestContext.Current.CancellationToken);
 
-        secondPublishResponse.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        secondPublishResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 }

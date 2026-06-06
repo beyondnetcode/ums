@@ -86,7 +86,7 @@ BEGIN
         [SystemSuiteId] uniqueidentifier NOT NULL,
         [ProviderTypeId] int NOT NULL,
         [DomainHintsJson] nvarchar(4000) NOT NULL,
-        [ConfigPayload] nvarchar(20000) NOT NULL,
+        [ConfigPayload] nvarchar(max) NOT NULL,
         [SecretRef] nvarchar(500) NOT NULL,
         [StatusId] int NOT NULL,
         [ResolutionPriority] int NOT NULL,

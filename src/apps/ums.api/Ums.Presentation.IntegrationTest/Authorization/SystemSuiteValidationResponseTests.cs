@@ -32,7 +32,7 @@ public sealed class SystemSuiteValidationResponseTests : IClassFixture<UmsApiWeb
             },
             TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
         using var document = JsonDocument.Parse(
             await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
@@ -60,7 +60,7 @@ public sealed class SystemSuiteValidationResponseTests : IClassFixture<UmsApiWeb
             },
             TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
         using var document = JsonDocument.Parse(
             await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));

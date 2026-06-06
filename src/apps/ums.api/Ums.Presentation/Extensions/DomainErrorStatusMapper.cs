@@ -17,7 +17,7 @@ internal static class DomainErrorStatusMapper
         // that could misclassify them based on property-path content.
         if (error.StartsWith("Validation.Failed:", StringComparison.OrdinalIgnoreCase))
         {
-            return (StatusCodes.Status422UnprocessableEntity, "Validation Error");
+            return (StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity");
         }
 
         if (ContainsAny(error, DomainErrors.Common.NotFound, DomainErrors.Tenant.NotFound, DomainErrors.Tenant.BranchNotFound, DomainErrors.Tenant.IdpNotFound, DomainErrors.Tenant.BrandingNotFound, DomainErrors.SystemSuite.ConfigurationKeyNotFound, DomainErrors.Authorization.PermissionNotFound))
@@ -42,12 +42,12 @@ internal static class DomainErrorStatusMapper
 
         if (ContainsAny(error, DomainErrors.Common.Required, DomainErrors.Tenant.Required, DomainErrors.ValueObject.PropertyRequired, DomainErrors.ValueObject.EmailRequired, DomainErrors.UserAccount.PasswordHashRequired, DomainErrors.Audit.WhatChangedRequired, DomainErrors.Audit.AffectedEntityRequired))
         {
-            return (StatusCodes.Status422UnprocessableEntity, "Validation Error");
+            return (StatusCodes.Status400BadRequest, "Validation Error");
         }
 
         if (ContainsAny(error, DomainErrors.Common.Invalid, DomainErrors.UserAccount.InvalidEmail, DomainErrors.Tenant.SignupRequestNotPending, DomainErrors.Tenant.SignupRequestAlreadyProcessed, DomainErrors.Branding.InvalidHexColor, DomainErrors.Branding.InvalidCustomDomain, DomainErrors.Branding.InvalidCnameTarget, DomainErrors.Branding.InvalidLogoFormat, DomainErrors.Configuration.IdpConfigPayloadInvalid, DomainErrors.Configuration.FlagPercentageOutOfRange, DomainErrors.Configuration.AppConfigNotDraft, DomainErrors.Configuration.AppConfigNotPublished, DomainErrors.Configuration.FlagArchivedCannotChange, DomainErrors.Configuration.AppConfigAlreadyArchived, DomainErrors.Compliance.ExpirationBeforeIssueDate, DomainErrors.Compliance.DocumentCannotTransition, DomainErrors.Compliance.DocumentNotPendingReview, DomainErrors.ValueObject.DateRangeInvalid))
         {
-            return (StatusCodes.Status422UnprocessableEntity, "Validation Error");
+            return (StatusCodes.Status400BadRequest, "Validation Error");
         }
 
         if (error.Contains("unauthorized", StringComparison.OrdinalIgnoreCase) || error.Contains("forbidden", StringComparison.OrdinalIgnoreCase))

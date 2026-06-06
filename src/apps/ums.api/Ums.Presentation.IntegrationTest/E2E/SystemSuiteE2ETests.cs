@@ -59,7 +59,7 @@ public sealed class SystemSuiteE2ETests
 
         var tenantId = await CreateTenantId(ct);
         var response = await _client.PostAsJsonAsync("/api/v1/system-suites", NewSuitePayload(tenantId), ct);
-
+        
         response.StatusCode.Should().Be(HttpStatusCode.Created);
         response.Headers.Location.Should().NotBeNull();
         using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
@@ -91,7 +91,7 @@ public sealed class SystemSuiteE2ETests
             .StatusCode.Should().Be(HttpStatusCode.Created);
 
         var dup = await _client.PostAsJsonAsync("/api/v1/system-suites", payload with { Name = "Duplicate Suite" }, ct);
-        dup.StatusCode.Should().BeOneOf(HttpStatusCode.Conflict, HttpStatusCode.UnprocessableEntity);
+        dup.StatusCode.Should().BeOneOf(HttpStatusCode.Conflict, HttpStatusCode.BadRequest);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -364,7 +364,7 @@ public sealed class SystemSuiteE2ETests
             .StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         var dup = await _client.PostAsJsonAsync($"/api/v1/system-suites/{suiteId}/modules", payload, ct);
-        dup.StatusCode.Should().BeOneOf(HttpStatusCode.Conflict, HttpStatusCode.UnprocessableEntity);
+        dup.StatusCode.Should().BeOneOf(HttpStatusCode.Conflict, HttpStatusCode.BadRequest);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -453,7 +453,7 @@ public sealed class SystemSuiteE2ETests
             .StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         var dup = await _client.PostAsJsonAsync($"/api/v1/system-suites/{suiteId}/app-settings", payload, ct);
-        dup.StatusCode.Should().BeOneOf(HttpStatusCode.Conflict, HttpStatusCode.UnprocessableEntity);
+        dup.StatusCode.Should().BeOneOf(HttpStatusCode.Conflict, HttpStatusCode.BadRequest);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -514,7 +514,7 @@ public sealed class SystemSuiteE2ETests
             .StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         var dup = await _client.PostAsJsonAsync($"/api/v1/system-suites/{suiteId}/actions", payload, ct);
-        dup.StatusCode.Should().BeOneOf(HttpStatusCode.Conflict, HttpStatusCode.UnprocessableEntity);
+        dup.StatusCode.Should().BeOneOf(HttpStatusCode.Conflict, HttpStatusCode.BadRequest);
     }
 
     [Fact]
@@ -554,19 +554,28 @@ public sealed class SystemSuiteE2ETests
     private static string UniqueCode(string prefix)
         => $"{prefix}{Guid.NewGuid():N}"[..Math.Min(20, prefix.Length + 32)];
 
-    private static (Guid TenantId, string Code, string Name, string Description) NewSuitePayload(Guid tenantId)
+    private record SuitePayload(Guid TenantId, string Code, string Name, string Description);
+    private static SuitePayload NewSuitePayload(Guid tenantId)
     {
         var uid = Guid.NewGuid().ToString("N")[..8].ToUpper();
-        return (TenantId: tenantId, Code: $"SS{uid}", Name: $"E2E Suite {uid}", Description: "Created by E2E test suite");
+        return new SuitePayload(tenantId, $"SS{uid}", $"E2E Suite {uid}", "Created by E2E test suite");
     }
 
     private async Task<Guid> CreateTenantId(CancellationToken ct)
     {
         var uid = Guid.NewGuid().ToString("N")[..10].ToUpper();
-        var payload = new { code = $"T{uid}", name = $"E2E SS Tenant {uid}", type = "Customer", idpStrategy = (string?)null, companyReference = (string?)null };
-        var res = await _client.PostAsJsonAsync("/api/v1/tenants", payload, ct);
-        res.StatusCode.Should().Be(HttpStatusCode.Created);
-        return await ReadGuid(res, "tenantId", ct);
+        var payload = new { code = $"T{uid}", name = $"E2E SS Tenant {uid}", type = "CLIENT", idpStrategy = (string?)null, companyReference = (string?)null, isManagementOwner = true };
+        var response = await _client.PostAsJsonAsync("/api/v1/tenants", payload, ct);
+        response.EnsureSuccessStatusCode();
+
+        var location = response.Headers.Location?.ToString();
+        var idString = location!.Split('/').Last();
+        var id = Guid.Parse(idString);
+
+        _client.DefaultRequestHeaders.Remove("X-Tenant-Id");
+        _client.DefaultRequestHeaders.Add("X-Tenant-Id", id.ToString());
+
+        return id;
     }
 
     private async Task<Guid> CreateSuiteId(CancellationToken ct)

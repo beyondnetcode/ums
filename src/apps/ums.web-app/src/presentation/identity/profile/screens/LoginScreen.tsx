@@ -54,8 +54,9 @@ export default function LoginScreen(): React.JSX.Element {
   >('login');
 
   const showSessionExpired =
-    new URLSearchParams(location.search).get('showSessionExpired') === 'true';
-  const redirectTo = new URLSearchParams(location.search).get('redirect');
+    new URLSearchParams(location.search).get('showSessionExpired') === 'true' ||
+    location.state?.showSessionExpired === true;
+  const redirectTo = new URLSearchParams(location.search).get('redirect') || location.state?.from;
 
   useEffect(() => {
     if (isAuthenticated) {

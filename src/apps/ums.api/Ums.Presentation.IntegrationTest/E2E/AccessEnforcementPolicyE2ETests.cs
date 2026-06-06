@@ -198,13 +198,21 @@ public sealed class AccessEnforcementPolicyE2ETests
         {
             code = $"T{uid}",
             name = $"E2E Policy Tenant {uid}",
-            type = "Customer",
+            type = "CLIENT",
             idpStrategy = (string?)null,
             companyReference = (string?)null,
+            isManagementOwner = true
         }, ct);
+        response.EnsureSuccessStatusCode();
 
-        response.StatusCode.Should().Be(HttpStatusCode.Created);
-        return await ReadGuid(response, "tenantId", ct);
+        var location = response.Headers.Location?.ToString();
+        var idString = location!.Split('/').Last();
+        var id = Guid.Parse(idString);
+
+        _client.DefaultRequestHeaders.Remove("X-Tenant-Id");
+        _client.DefaultRequestHeaders.Add("X-Tenant-Id", id.ToString());
+
+        return id;
     }
 
     private static async Task<Guid> ReadGuid(HttpResponseMessage response, string property, CancellationToken ct)

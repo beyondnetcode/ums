@@ -1,0 +1,12 @@
+  Determinando los proyectos que se van a restaurar...
+  Todos los proyectos están actualizados para la restauración.
+  Ums.Sdk.Contracts -> /Users/beyondnet/Source/ums/src/libs/sdk/dotnet/Ums.Sdk.Contracts/bin/Debug/net10.0/Ums.Sdk.Contracts.dll
+  Ums.Globalization -> /Users/beyondnet/Source/ums/src/apps/ums.api/Ums.Globalization/bin/Debug/net10.0/Ums.Globalization.dll
+  Ums.Domain -> /Users/beyondnet/Source/ums/src/apps/ums.api/Ums.Domain/bin/Debug/net10.0/Ums.Domain.dll
+  Ums.Application -> /Users/beyondnet/Source/ums/src/apps/ums.api/Ums.Application/bin/Debug/net10.0/Ums.Application.dll
+  Ums.Infrastructure -> /Users/beyondnet/Source/ums/src/apps/ums.api/Ums.Infrastructure/bin/Debug/net10.0/Ums.Infrastructure.dll
+  Ums.Presentation -> /Users/beyondnet/Source/ums/src/apps/ums.api/Ums.Presentation/bin/Debug/net10.0/Ums.Presentation.dll
+  Ums.ContractTest -> /Users/beyondnet/Source/ums/src/apps/ums.api/Ums.ContractTest/bin/Debug/net10.0/Ums.ContractTest.dll
+  Ejecutar pruebas: '/Users/beyondnet/Source/ums/src/apps/ums.api/Ums.ContractTest/bin/Debug/net10.0/Ums.ContractTest.dll' [net10.0|arm64]
+  Error. Error: 3, Correcto: 14, Omitido: 0, Total: 17, Duración: 6s 559ms
+/Users/beyondnet/Source/ums/src/apps/ums.api/Ums.ContractTest/bin/Debug/net10.0/Ums.ContractTest.dll : error run failed: Error en las pruebas: '/Users/beyondnet/Source/ums/src/apps/ums.api/Ums.ContractTest/bin/Debug/net10.0/TestResults/Ums.ContractTest_net10.0_arm64.log' [net10.0|arm64] [/Users/beyondnet/Source/ums/src/apps/ums.api/Ums.ContractTest/Ums.ContractTest.csproj]

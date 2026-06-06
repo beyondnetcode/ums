@@ -50,12 +50,13 @@ public sealed class SqlServerContainerFixture : IAsyncLifetime
                 .Options;
 
             await using var ctx = new UmsPlatformDbContext(options, new SystemTenantContext());
-            await SqlServerSchemaBootstrapper.InitializeAsync(ctx);
+            await SqlServerSchemaBootstrapper.InitializeAsync(ctx, new SqlServerDistributedLockProvider());
 
             IsAvailable = true;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            System.IO.File.WriteAllText("testcontainers-error.log", "Testcontainers failed: " + ex.ToString());
             // Docker not available or container failed to start — tests will be skipped.
             IsAvailable = false;
         }

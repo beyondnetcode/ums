@@ -1,24 +1,23 @@
-using PactNet.Matchers;
+using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
+using PactNet;
+using PactNet.Matchers;
+using Ums.ContractTest.Infrastructure;
 
 namespace Ums.ContractTest.Consumers;
 
 /// <summary>
-/// OPS-02: Consumer contract tests for the User Accounts API.
-///
-/// Covers:
-///  - Listing user accounts (paginated)
-///  - Fetching a single user account
-///  - Deleting (soft-delete + GDPR anonymization) — REC-16
+/// OPS-02: Consumer contract tests for the Profiles API.
 /// </summary>
-public sealed class UserAccountsConsumerTests : IDisposable
+public sealed class ProfilesConsumerTests : IDisposable
 {
     private readonly IPactBuilderV4 _pactBuilder;
 
     private static readonly string PactsDir =
         Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "pacts");
 
-    public UserAccountsConsumerTests(ITestOutputHelper output)
+    public ProfilesConsumerTests(ITestOutputHelper output)
     {
         var config = new PactConfig
         {
@@ -30,18 +29,14 @@ public sealed class UserAccountsConsumerTests : IDisposable
         _pactBuilder = Pact.V4("ums-web-app", "ums-api", config).WithHttpInteractions();
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // GET /api/v1/user-accounts
-    // ─────────────────────────────────────────────────────────────
-
     [Fact]
     [Trait("pact", "consumer")]
-    public async Task GetUserAccounts_ReturnsPagedList()
+    public async Task GetProfiles_ReturnsPagedList()
     {
         _pactBuilder
-            .UponReceiving("a paginated list request for user accounts")
-            .Given("at least one user account exists")
-            .WithRequest(HttpMethod.Get, "/api/v1/user-accounts")
+            .UponReceiving("a paginated list request for profiles")
+            .Given("at least one profile exists")
+            .WithRequest(HttpMethod.Get, "/api/v1/profiles")
             .WithQuery("page",     Match.Equality("1"))
             .WithQuery("pageSize", Match.Equality("10"))
             .WithHeader("X-User-Id", Match.Type("dev-user"))
@@ -52,9 +47,22 @@ public sealed class UserAccountsConsumerTests : IDisposable
             {
                 items = Match.MinType(new
                 {
-                    userAccountId = Match.Type("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
-                    email         = Match.Type("user@example.com"),
-                    status        = Match.Type("Active"),
+                    profileId = Match.Type("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+                    tenantId = Match.Type("11111111-1111-1111-1111-111111111111"),
+                    tenantCode = Match.Type("ACME"),
+                    tenantName = Match.Type("Acme Corp"),
+                    userId = Match.Type("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+                    userEmail = Match.Type("user@example.com"),
+                    roleId = Match.Type("a5367133-fe90-46c0-ab7e-fb2a961022be"),
+                    roleCode = Match.Type("ADMIN"),
+                    roleName = Match.Type("Administrator"),
+                    systemSuiteId = Match.Type("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+                    systemSuiteCode = Match.Type("UMS-CORE"),
+                    systemSuiteName = Match.Type("User Management System"),
+                    scope = Match.Type("OrgWide"),
+                    isActive = Match.Type(true),
+                    permissionCount = Match.Type(0),
+                    permissions = new object[0]
                 }, 1),
                 totalItems = Match.Type(1),
                 page       = Match.Type(1),
@@ -66,7 +74,7 @@ public sealed class UserAccountsConsumerTests : IDisposable
             using var client = new HttpClient { BaseAddress = ctx.MockServerUri };
             client.DefaultRequestHeaders.Add("X-User-Id", "dev-user");
 
-            var response = await client.GetAsync("/api/v1/user-accounts?page=1&pageSize=10");
+            var response = await client.GetAsync("/api/v1/profiles?page=1&pageSize=10");
             response.EnsureSuccessStatusCode();
 
             var json = await response.Content.ReadFromJsonAsync<JsonElement>();
@@ -76,19 +84,19 @@ public sealed class UserAccountsConsumerTests : IDisposable
     }
 
     // ─────────────────────────────────────────────────────────────
-    // DELETE /api/v1/user-accounts/{id} — success
+    // POST /api/v1/profiles/{id}/deactivate
     // ─────────────────────────────────────────────────────────────
 
     [Fact]
     [Trait("pact", "consumer")]
-    public async Task DeleteUserAccount_WhenFound_Returns204()
+    public async Task DeactivateProfile_WhenFound_Returns200()
     {
-        const string userId = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
+        const string profileId = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
 
         _pactBuilder
-            .UponReceiving("a delete request for an inactive user account")
-            .Given($"a user account with id {userId} is inactive")
-            .WithRequest(HttpMethod.Delete, $"/api/v1/user-accounts/{userId}")
+            .UponReceiving("a deactivate request for an active profile")
+            .Given($"a profile with id {profileId} exists")
+            .WithRequest(HttpMethod.Post, $"/api/v1/profiles/{profileId}/deactivate")
             .WithHeader("X-User-Id", Match.Type("dev-user"))
             .WillRespond()
             .WithStatus(HttpStatusCode.NoContent);
@@ -98,25 +106,25 @@ public sealed class UserAccountsConsumerTests : IDisposable
             using var client = new HttpClient { BaseAddress = ctx.MockServerUri };
             client.DefaultRequestHeaders.Add("X-User-Id", "dev-user");
 
-            var response = await client.DeleteAsync($"/api/v1/user-accounts/{userId}");
+            var response = await client.PostAsync($"/api/v1/profiles/{profileId}/deactivate", null);
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         });
     }
 
     // ─────────────────────────────────────────────────────────────
-    // DELETE /api/v1/user-accounts/{id} — not found
+    // POST /api/v1/profiles/{id}/deactivate — not found
     // ─────────────────────────────────────────────────────────────
 
     [Fact]
     [Trait("pact", "consumer")]
-    public async Task DeleteUserAccount_WhenNotFound_Returns404()
+    public async Task DeactivateProfile_WhenNotFound_Returns404()
     {
         const string missingId = "00000000-0000-0000-0000-000000000001";
 
         _pactBuilder
-            .UponReceiving("a delete request for a user account that does not exist")
-            .Given($"no user account with id {missingId} exists")
-            .WithRequest(HttpMethod.Delete, $"/api/v1/user-accounts/{missingId}")
+            .UponReceiving("a deactivate request for a profile that does not exist")
+            .Given($"no profile with id {missingId} exists")
+            .WithRequest(HttpMethod.Post, $"/api/v1/profiles/{missingId}/deactivate")
             .WithHeader("X-User-Id", Match.Type("dev-user"))
             .WillRespond()
             .WithStatus(HttpStatusCode.NotFound)
@@ -132,7 +140,7 @@ public sealed class UserAccountsConsumerTests : IDisposable
             using var client = new HttpClient { BaseAddress = ctx.MockServerUri };
             client.DefaultRequestHeaders.Add("X-User-Id", "dev-user");
 
-            var response = await client.DeleteAsync($"/api/v1/user-accounts/{missingId}");
+            var response = await client.PostAsync($"/api/v1/profiles/{missingId}/deactivate", null);
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         });
     }

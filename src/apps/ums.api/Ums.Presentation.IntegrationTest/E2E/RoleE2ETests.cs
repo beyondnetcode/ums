@@ -155,7 +155,7 @@ public sealed class RoleE2ETests
             .StatusCode.Should().Be(HttpStatusCode.Created);
 
         var duplicate = await _client.PostAsJsonAsync($"/api/v1/system-suites/{suiteId}/roles", payload, ct);
-        duplicate.StatusCode.Should().BeOneOf(HttpStatusCode.Conflict, HttpStatusCode.UnprocessableEntity);
+        duplicate.StatusCode.Should().BeOneOf(HttpStatusCode.Conflict, HttpStatusCode.BadRequest);
     }
 
     private async Task<JsonDocument> GqlRolesBySystemSuiteAsync(Guid suiteId, CancellationToken ct)
@@ -232,13 +232,21 @@ public sealed class RoleE2ETests
         {
             code = $"T{uid}",
             name = $"E2E Role Tenant {uid}",
-            type = "Customer",
+            type = "CLIENT",
             idpStrategy = (string?)null,
             companyReference = (string?)null,
+            isManagementOwner = true
         }, ct);
+        response.EnsureSuccessStatusCode();
 
-        response.StatusCode.Should().Be(HttpStatusCode.Created);
-        return await ReadGuid(response, "tenantId", ct);
+        var location = response.Headers.Location?.ToString();
+        var idString = location!.Split('/').Last();
+        var id = Guid.Parse(idString);
+
+        _client.DefaultRequestHeaders.Remove("X-Tenant-Id");
+        _client.DefaultRequestHeaders.Add("X-Tenant-Id", id.ToString());
+
+        return id;
     }
 
     private static string UniqueCode(string prefix)

@@ -32,18 +32,23 @@ public static partial class SqlServerSchemaBootstrapper
     /// - All migration SQL scripts are idempotent (IF NOT EXISTS guards) so a second pod that
     ///   acquires the lock after the first finishes will simply execute no-ops.
     /// </summary>
-    public static async Task InitializeAsync(UmsPlatformDbContext dbContext, CancellationToken cancellationToken = default)
+    public static async Task InitializeAsync(
+        UmsPlatformDbContext dbContext, 
+        IDistributedLockProvider lockProvider, 
+        CancellationToken cancellationToken = default)
     {
         await dbContext.Database.EnsureCreatedAsync(cancellationToken);
 
-        // Acquire distributed lock before running migrations.
-        await dbContext.Database.ExecuteSqlRawAsync(
-            "EXEC sp_getapplock @Resource = N'ums_schema_migrations', @LockMode = N'Exclusive', " +
-            "@LockOwner = N'Session', @LockTimeout = 60000;",
-            cancellationToken);
-
+        // Open connection explicitly so the session spans the lock acquisition and release
+        await dbContext.Database.OpenConnectionAsync(cancellationToken);
         try
         {
+            await using var lockScope = await lockProvider.AcquireLockAsync(
+                dbContext, 
+                "ums_schema_migrations", 
+                TimeSpan.FromSeconds(60), 
+                cancellationToken);
+
             var assembly = typeof(SqlServerSchemaBootstrapper).Assembly;
 
             foreach (var scriptName in ScriptOrder)
@@ -68,10 +73,7 @@ public static partial class SqlServerSchemaBootstrapper
         }
         finally
         {
-            // Release the lock regardless of success or failure so other pods are not blocked.
-            await dbContext.Database.ExecuteSqlRawAsync(
-                "EXEC sp_releaseapplock @Resource = N'ums_schema_migrations', @LockOwner = N'Session';",
-                cancellationToken);
+            await dbContext.Database.CloseConnectionAsync();
         }
     }
 

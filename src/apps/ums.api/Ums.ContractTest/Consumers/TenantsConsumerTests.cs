@@ -163,7 +163,7 @@ public sealed class TenantsConsumerTests : IDisposable
             .UponReceiving("a create tenant request with valid data")
             .WithRequest(HttpMethod.Post, "/api/v1/tenants")
             .WithHeader("X-User-Id",        Match.Type("dev-user"))
-            .WithHeader("Content-Type",     Match.Regex("application/json.*", "application/json"))
+            .WithHeader("Content-Type",     Match.Regex("application/json.*", "application/json; charset=utf-8"))
             .WithHeader("Idempotency-Key",  Match.Regex("[0-9a-fA-F-]{36}", "a1b2c3d4-e5f6-7890-abcd-ef1234567890"))
             .WithJsonBody(new
             {
@@ -187,6 +187,8 @@ public sealed class TenantsConsumerTests : IDisposable
             using var client = new HttpClient { BaseAddress = ctx.MockServerUri };
             client.DefaultRequestHeaders.Add("X-User-Id", "dev-user");
 
+            client.DefaultRequestHeaders.Add("Idempotency-Key", "a1b2c3d4-e5f6-7890-abcd-ef1234567890");
+
             using var content = JsonContent.Create(new
             {
                 code               = "NEWCO",
@@ -194,7 +196,6 @@ public sealed class TenantsConsumerTests : IDisposable
                 organizationTypeId = 1,
                 idpStrategyId      = 1,
             });
-            content.Headers.Add("Idempotency-Key", "a1b2c3d4-e5f6-7890-abcd-ef1234567890");
 
             var response = await client.PostAsync("/api/v1/tenants", content);
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);

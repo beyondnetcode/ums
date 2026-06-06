@@ -1,41 +1,23 @@
+using System.Net;
+using System.Net.Http.Json;
+using System.Text.Json;
+using FluentAssertions;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Ums.Presentation.IntegrationTest.Infrastructure;
 
 namespace Ums.Presentation.IntegrationTest.Infrastructure;
 
 [Collection("SqlServer")]
-public sealed class SqlServerAuthorizationPersistenceTests
+public sealed class SqlServerAuthorizationPersistenceTests : IntegrationTestBase
 {
     private static readonly Guid TenantId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6");
 
-    private readonly SqlServerContainerFixture _fixture;
-    private readonly HttpClient _client;
-
-    public SqlServerAuthorizationPersistenceTests(SqlServerContainerFixture fixture)
-    {
-        _fixture = fixture;
-
-        if (fixture.IsAvailable)
-        {
-            var factory = new SqlServerWebApplicationFactory(fixture.ConnectionString);
-            _client = factory.CreateClient(new WebApplicationFactoryClientOptions
-            {
-                BaseAddress = new Uri("https://localhost"),
-                AllowAutoRedirect = false,
-            });
-
-            _client.DefaultRequestHeaders.Add("X-User-Id", "00000000-0000-0000-0000-000000000001");
-            _client.DefaultRequestHeaders.Add("X-User-Name", "integration-test");
-        }
-        else
-        {
-            _client = new HttpClient();
-        }
-    }
+    public SqlServerAuthorizationPersistenceTests(SqlServerContainerFixture fixture) : base(fixture) { }
 
     [Fact]
     public async Task CreateAndGetSystemSuite_UsesSqlServerAuthorizationStore()
     {
-        if (!_fixture.IsAvailable) Assert.Skip("Docker is required for SQL Server integration tests.");
+        if (!Fixture.IsAvailable) Assert.Skip("Docker is required for SQL Server integration tests.");
 
         var code = $"SS{Guid.NewGuid():N}"[..10];
         var createBody = new
@@ -46,13 +28,13 @@ public sealed class SqlServerAuthorizationPersistenceTests
             description = "SQL-backed authorization system suite."
         };
 
-        var createResponse = await _client.PostAsJsonAsync("/api/v1/system-suites", createBody, TestContext.Current.CancellationToken);
+        var createResponse = await Client.PostAsJsonAsync("/api/v1/system-suites", createBody, TestContext.Current.CancellationToken);
         createResponse.StatusCode.Should().Be(HttpStatusCode.Created);
 
         using var createPayload = JsonDocument.Parse(await createResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
         var systemSuiteId = createPayload.RootElement.GetProperty("systemSuiteId").GetGuid();
 
-        var getResponse = await _client.GetAsync($"/api/v1/system-suites/{systemSuiteId}", TestContext.Current.CancellationToken);
+        var getResponse = await Client.GetAsync($"/api/v1/system-suites/{systemSuiteId}", TestContext.Current.CancellationToken);
         getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         using var getPayload = JsonDocument.Parse(await getResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
@@ -64,10 +46,10 @@ public sealed class SqlServerAuthorizationPersistenceTests
     [Fact]
     public async Task CreatePublishAndGetPermissionTemplate_UsesSqlServerAuthorizationStore()
     {
-        if (!_fixture.IsAvailable) Assert.Skip("Docker is required for SQL Server integration tests.");
+        if (!Fixture.IsAvailable) Assert.Skip("Docker is required for SQL Server integration tests.");
 
         var suiteCode = $"PT{Guid.NewGuid():N}"[..10];
-        var createSuite = await _client.PostAsJsonAsync("/api/v1/system-suites", new
+        var createSuite = await Client.PostAsJsonAsync("/api/v1/system-suites", new
         {
             tenantId = TenantId,
             code = suiteCode,
@@ -80,7 +62,7 @@ public sealed class SqlServerAuthorizationPersistenceTests
         var systemSuiteId = suitePayload.RootElement.GetProperty("systemSuiteId").GetGuid();
         var roleId = Guid.NewGuid();
 
-        var createTemplate = await _client.PostAsJsonAsync("/api/v1/permission-templates", new
+        var createTemplate = await Client.PostAsJsonAsync("/api/v1/permission-templates", new
         {
             tenantId = TenantId,
             roleId,
@@ -91,10 +73,10 @@ public sealed class SqlServerAuthorizationPersistenceTests
         using var templatePayload = JsonDocument.Parse(await createTemplate.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
         var templateId = templatePayload.RootElement.GetProperty("templateId").GetGuid();
 
-        var publishResponse = await _client.PostAsync($"/api/v1/permission-templates/{templateId}/publish", content: null, TestContext.Current.CancellationToken);
+        var publishResponse = await Client.PostAsync($"/api/v1/permission-templates/{templateId}/publish", content: null, TestContext.Current.CancellationToken);
         publishResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-        var getResponse = await _client.GetAsync($"/api/v1/permission-templates/{templateId}", TestContext.Current.CancellationToken);
+        var getResponse = await Client.GetAsync($"/api/v1/permission-templates/{templateId}", TestContext.Current.CancellationToken);
         getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         using var getPayload = JsonDocument.Parse(await getResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));

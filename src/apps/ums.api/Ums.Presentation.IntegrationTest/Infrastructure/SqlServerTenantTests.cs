@@ -10,35 +10,9 @@ namespace Ums.Presentation.IntegrationTest.Infrastructure;
 /// when Docker is unavailable so CI pipelines without Docker don't break.
 /// </summary>
 [Collection("SqlServer")]
-public sealed class SqlServerTenantTests
+public sealed class SqlServerTenantTests : IntegrationTestBase
 {
-    private readonly SqlServerContainerFixture _fixture;
-    private readonly HttpClient _client;
-
-    public SqlServerTenantTests(SqlServerContainerFixture fixture)
-    {
-        _fixture = fixture;
-
-        if (fixture.IsAvailable)
-        {
-            var factory = new SqlServerWebApplicationFactory(fixture.ConnectionString);
-            _client = factory.CreateClient(new WebApplicationFactoryClientOptions
-            {
-                BaseAddress = new Uri("https://localhost"),
-                AllowAutoRedirect = false,
-            });
-
-            // DevAuth middleware — provides actor identity without a real IdP
-            _client.DefaultRequestHeaders.Add("X-User-Id", "00000000-0000-0000-0000-000000000001");
-            _client.DefaultRequestHeaders.Add("X-User-Name", "integration-test");
-        }
-        else
-        {
-            // Provide a non-null client so the field is always assigned; tests will
-            // skip before any HTTP call is issued via Skip.If() checks.
-            _client = new HttpClient();
-        }
-    }
+    public SqlServerTenantTests(SqlServerContainerFixture fixture) : base(fixture) { }
 
     // ─────────────────────────────────────────────────────────────────────────
     // Tenant creation & retrieval
@@ -47,58 +21,62 @@ public sealed class SqlServerTenantTests
     [Fact]
     public async Task CreateTenant_WithValidData_Returns201AndPersistsTenant()
     {
-        if (!_fixture.IsAvailable) Assert.Skip("Docker is required for SQL Server integration tests.");
+        if (!Fixture.IsAvailable) Assert.Skip("Docker is required for SQL Server integration tests.");
 
         var body = new
         {
             code = $"TC-{Guid.NewGuid():N}"[..12],
             name = "Integration Test Corp",
-            type = "Customer",
+            type = "CLIENT",
             idpStrategy = (string?)null,
             companyReference = (string?)null,
         };
 
-        var response = await _client.PostAsJsonAsync("/api/v1/tenants", body, TestContext.Current.CancellationToken);
+        var createResponse = await Client.PostAsJsonAsync("/api/v1/tenants", body, TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Created);
-        response.Headers.Location.Should().NotBeNull();
+        createResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+        createResponse.Headers.Location.Should().NotBeNull();
 
         using var payload = JsonDocument.Parse(
-            await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
+            await createResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
         payload.RootElement.GetProperty("tenantId").GetGuid().Should().NotBeEmpty();
     }
 
     [Fact]
     public async Task GetTenants_AfterCreate_ReturnsCreatedTenant()
     {
-        if (!_fixture.IsAvailable) Assert.Skip("Docker is required for SQL Server integration tests.");
+        if (!Fixture.IsAvailable) Assert.Skip("Docker is required for SQL Server integration tests.");
 
         // Arrange — create a uniquely identifiable tenant first
         var uniqueCode = $"QT-{Guid.NewGuid():N}"[..12];
-        var createBody = new
+        var body = new
         {
             code = uniqueCode,
             name = "Query Test Org",
-            type = "Customer",
+            type = "CLIENT",
             idpStrategy = (string?)null,
             companyReference = (string?)null,
         };
 
-        var createResponse = await _client.PostAsJsonAsync(
-            "/api/v1/tenants", createBody, TestContext.Current.CancellationToken);
+        var createResponse = await Client.PostAsJsonAsync("/api/v1/tenants", body, TestContext.Current.CancellationToken);
+
         createResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+        createResponse.Headers.Location.Should().NotBeNull();
+
+        using var payload = JsonDocument.Parse(
+            await createResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
 
         // Act — query the list
-        var listResponse = await _client.GetAsync(
+        var listResponse = await Client.GetAsync(
             $"/api/v1/tenants?page=1&pageSize=50&search={uniqueCode}&criteria=name",
             TestContext.Current.CancellationToken);
 
         listResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        using var payload = JsonDocument.Parse(
+        using var payloadList = JsonDocument.Parse(
             await listResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
 
-        var items = payload.RootElement.GetProperty("items");
+        var items = payloadList.RootElement.GetProperty("items");
         items.GetArrayLength().Should().BeGreaterThan(0,
             because: "the newly created tenant should appear in the list");
 
@@ -114,36 +92,36 @@ public sealed class SqlServerTenantTests
     [Fact]
     public async Task CreateTenant_WithDuplicateCode_Returns409()
     {
-        if (!_fixture.IsAvailable) Assert.Skip("Docker is required for SQL Server integration tests.");
+        if (!Fixture.IsAvailable) Assert.Skip("Docker is required for SQL Server integration tests.");
 
         var duplicateCode = $"DC-{Guid.NewGuid():N}"[..12];
         var body = new
         {
             code = duplicateCode,
             name = "First Org",
-            type = "Customer",
+            type = "CLIENT",
             idpStrategy = (string?)null,
             companyReference = (string?)null,
         };
 
         // First creation should succeed
-        var first = await _client.PostAsJsonAsync(
+        var first = await Client.PostAsJsonAsync(
             "/api/v1/tenants", body, TestContext.Current.CancellationToken);
         first.StatusCode.Should().Be(HttpStatusCode.Created);
 
         // Second creation with same code should fail
-        var second = await _client.PostAsJsonAsync(
-            "/api/v1/tenants", body with { name = "Duplicate Org" },
+        var second = await Client.PostAsJsonAsync(
+            "/api/v1/tenants", new { code = duplicateCode, name = "Duplicate Org", type = "CLIENT", idpStrategy = (string?)null, companyReference = (string?)null },
             TestContext.Current.CancellationToken);
-        second.StatusCode.Should().BeOneOf(HttpStatusCode.Conflict, HttpStatusCode.UnprocessableEntity);
+        second.StatusCode.Should().BeOneOf(HttpStatusCode.Conflict, HttpStatusCode.BadRequest);
     }
 
     [Fact]
     public async Task GetTenants_Pagination_ReturnsCorrectPageMetadata()
     {
-        if (!_fixture.IsAvailable) Assert.Skip("Docker is required for SQL Server integration tests.");
+        if (!Fixture.IsAvailable) Assert.Skip("Docker is required for SQL Server integration tests.");
 
-        var listResponse = await _client.GetAsync(
+        var listResponse = await Client.GetAsync(
             "/api/v1/tenants?page=1&pageSize=5",
             TestContext.Current.CancellationToken);
 

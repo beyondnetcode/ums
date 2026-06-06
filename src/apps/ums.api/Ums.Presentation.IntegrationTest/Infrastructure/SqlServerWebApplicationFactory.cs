@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Ums.Infrastructure.Persistence.Options;
 using Ums.Presentation;
@@ -47,6 +50,16 @@ public sealed class SqlServerWebApplicationFactory(string connectionString)
                 ["Secrets:Source"] = "AppSettings",
                 ["AllowedOrigins"] = "https://localhost",
             });
+        });
+
+        builder.ConfigureTestServices(services =>
+        {
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = "Test";
+                options.DefaultChallengeScheme = "Test";
+            })
+            .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Test", options => { });
         });
     }
 }

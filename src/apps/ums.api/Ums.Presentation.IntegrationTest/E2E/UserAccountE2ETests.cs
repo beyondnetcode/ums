@@ -58,7 +58,9 @@ public sealed class UserAccountE2ETests
         var tenantId = await CreateTenantId(ct);
         var response = await _client.PostAsJsonAsync("/api/v1/user-accounts", NewUserPayload(tenantId), ct);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Created);
+        var content = await response.Content.ReadAsStringAsync(ct);
+        System.IO.File.WriteAllText("e2e_error.txt", content);
+        response.StatusCode.Should().Be(HttpStatusCode.Created, content);
         response.Headers.Location.Should().NotBeNull();
 
         using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
@@ -91,7 +93,7 @@ public sealed class UserAccountE2ETests
             .StatusCode.Should().Be(HttpStatusCode.Created);
 
         var dup = await _client.PostAsJsonAsync("/api/v1/user-accounts", payload, ct);
-        dup.StatusCode.Should().BeOneOf(HttpStatusCode.Conflict, HttpStatusCode.UnprocessableEntity);
+        dup.StatusCode.Should().BeOneOf(HttpStatusCode.Conflict, HttpStatusCode.BadRequest);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -409,19 +411,33 @@ public sealed class UserAccountE2ETests
             $"{{ userAccountById(userAccountId: \"{userId}\") {{ userAccountId tenantId email category status }} }}",
             ct);
 
-    private static (Guid TenantId, Guid? BranchId, string Email, string Category, string? IdentityReference, string? IdentityReferenceType) NewUserPayload(Guid tenantId)
+    private record UserPayload(Guid TenantId, Guid? BranchId, string Email, string Category, string? IdentityReference, string? IdentityReferenceType);
+    private static UserPayload NewUserPayload(Guid tenantId)
     {
         var uid = Guid.NewGuid().ToString("N")[..8];
-        return (TenantId: tenantId, BranchId: null, Email: $"user.{uid}@e2e-test.local", Category: "Internal", IdentityReference: null, IdentityReferenceType: null);
+        return new UserPayload(tenantId, null, $"user.{uid}@e2e-test.local", "Internal", null, null);
     }
 
     private async Task<Guid> CreateTenantId(CancellationToken ct)
     {
         var uid = Guid.NewGuid().ToString("N")[..10].ToUpper();
-        var payload = new { code = $"T{uid}", name = $"E2E UA Tenant {uid}", type = "Customer", idpStrategy = (string?)null, companyReference = (string?)null };
-        var res = await _client.PostAsJsonAsync("/api/v1/tenants", payload, ct);
-        res.StatusCode.Should().Be(HttpStatusCode.Created);
-        return await ReadGuid(res, "tenantId", ct);
+        var payload = new { code = $"T{uid}", name = $"E2E UA Tenant {uid}", type = "CLIENT", idpStrategy = (string?)null, companyReference = (string?)null, isManagementOwner = true };
+        var response = await _client.PostAsJsonAsync("/api/v1/tenants", payload, ct);
+        if (response.StatusCode != HttpStatusCode.Created)
+        {
+            var err = await response.Content.ReadAsStringAsync(ct);
+            System.IO.File.WriteAllText("e2e_tenant_error.txt", err);
+        }
+        response.EnsureSuccessStatusCode();
+
+        var location = response.Headers.Location?.ToString();
+        var idString = location!.Split('/').Last();
+        var id = Guid.Parse(idString);
+
+        _client.DefaultRequestHeaders.Remove("X-Tenant-Id");
+        _client.DefaultRequestHeaders.Add("X-Tenant-Id", id.ToString());
+
+        return id;
     }
 
     private async Task<Guid> CreateUserAndGetId(CancellationToken ct)
