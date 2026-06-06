@@ -9,32 +9,7 @@ This plan details how to deploy the **Ums** solution in production, covering the
 
 ![Architecture diagram](docs/diagrams/infrastructure_diagram.png)
 
-<!-- Mermaid source for reference:
-```mermaid
-flowchart LR
-    subgraph Client
-        Browser["Web Browser (React Vite)"]
-    end
-    subgraph CDN
-        Edge["Edge CDN (Static assets)"]
-    end
-    subgraph API
-        LoadBal["Load Balancer (Azure Front Door)"]
-        APIGW["API Gateway (Azure API Management)"]
-        API["Ums API (Docker, .NET 10)"]
-    end
-    subgraph DB
-        PG["PostgreSQL (Azure Flexible Server)"]
-    end
-    subgraph Monitoring
-        Log["Log Analytics"]
-        Metrics["Azure Monitor"]
-    end
-    Browser -->|HTTPS| Edge -->|HTTPS| LoadBal --> APIGW --> API --> PG
-    API --> Log
-    API --> Metrics
-```
--->
+<!-- Diagram rendered above (AWS architecture). -->
 
 ---
 
@@ -47,16 +22,16 @@ flowchart LR
 Both images are pushed to **GitHub Container Registry** (`ghcr.io/beyondnetcode/ums‑web` / `…/ums‑api`).
 ---
 
-## 3. Managed Services (Azure example)
+## 3. Managed Services (AWS example)
 | Service | Purpose | Suggested SKU |
 |--------|---------|----------------|
-| **Azure Front Door** | Global HTTPS termination, WAF, caching static assets | Standard/Premium |
-| **Azure API Management** | Throttling, API keys, versioning, developer portal | Consumption |
-| **Azure Kubernetes Service (AKS)** | Orchestrates the API containers (high‑availability) | Standard B2s nodes, autoscale 2‑6 replicas |
-| **Azure PostgreSQL Flexible Server** | Relational DB with built‑in HA & backups | General‑Purpose, 2 vCores, 32 GB RAM |
-| **Azure Key Vault** | Store connection strings, JWT signing keys, client secrets |
-| **Azure Monitor + Log Analytics** | Centralised logs, metrics, alerts |
-| **Azure Application Insights** | Distributed tracing for the .NET API |
+| **Amazon CloudFront** | Global HTTPS termination, WAF, caching static assets | Standard |
+| **Amazon API Gateway** | Throttling, API keys, versioning, developer portal | Regional/Edge |
+| **Amazon Elastic Kubernetes Service (EKS)** | Orchestrates the API containers (high‑availability) | t3.medium nodes, autoscale 2‑6 replicas |
+| **Amazon RDS for PostgreSQL** | Relational DB with built‑in HA & backups | db.t3.medium, Multi‑AZ |
+| **AWS Secrets Manager** | Store connection strings, JWT signing keys, client secrets |
+| **Amazon CloudWatch** | Centralised logs, metrics, alerts |
+| **AWS X-Ray** | Distributed tracing for the .NET API |
 ---
 
 ## 4. Deployment Pipeline (GitHub Actions)
