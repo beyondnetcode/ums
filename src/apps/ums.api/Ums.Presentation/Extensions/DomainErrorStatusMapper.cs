@@ -17,7 +17,7 @@ internal static class DomainErrorStatusMapper
         // that could misclassify them based on property-path content.
         if (error.StartsWith("Validation.Failed:", StringComparison.OrdinalIgnoreCase))
         {
-            return (StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity");
+            return (StatusCodes.Status400BadRequest, "Bad Request");
         }
 
         if (ContainsAny(error, DomainErrors.Common.NotFound, DomainErrors.Tenant.NotFound, DomainErrors.Tenant.BranchNotFound, DomainErrors.Tenant.IdpNotFound, DomainErrors.Tenant.BrandingNotFound, DomainErrors.SystemSuite.ConfigurationKeyNotFound, DomainErrors.Authorization.PermissionNotFound))
