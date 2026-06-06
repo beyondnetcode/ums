@@ -77,10 +77,12 @@ public static class SystemSuiteEndpoints
         group.MapPost("/{systemSuiteId:guid}/modules", async (Guid systemSuiteId, AddModuleCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
         {
             var result = await mediator.Send(command with { SystemSuiteId = systemSuiteId }, ct);
-            return result.ToNoContent(context);
+            if (result.IsSuccess)
+                return Results.Created($"/system-suites/{systemSuiteId}/modules", result);
+            return result.ToProblem(context);
         }).WithName("AddModule")
           .WithSummary("Add a module to the system suite")
-          .Produces(StatusCodes.Status204NoContent)
+          .Produces(StatusCodes.Status201Created)
           .ProducesProblem(StatusCodes.Status400BadRequest)
           .ProducesProblem(StatusCodes.Status404NotFound)
           .ProducesProblem(StatusCodes.Status409Conflict);
@@ -129,10 +131,12 @@ public static class SystemSuiteEndpoints
         group.MapPost("/{systemSuiteId:guid}/modules/{moduleId:guid}/menus", async (Guid systemSuiteId, Guid moduleId, AddMenuCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
         {
             var result = await mediator.Send(command with { SystemSuiteId = systemSuiteId, ModuleId = moduleId }, ct);
-            return result.ToNoContent(context);
+            if (result.IsSuccess)
+                return Results.Created($"/system-suites/{systemSuiteId}/modules/{moduleId}/menus", result);
+            return result.ToProblem(context);
         }).WithName("AddMenu")
           .WithSummary("Add a menu to a module")
-          .Produces(StatusCodes.Status204NoContent)
+          .Produces(StatusCodes.Status201Created)
           .ProducesProblem(StatusCodes.Status400BadRequest)
           .ProducesProblem(StatusCodes.Status404NotFound)
           .ProducesProblem(StatusCodes.Status409Conflict);
@@ -160,10 +164,12 @@ public static class SystemSuiteEndpoints
         group.MapPost("/{systemSuiteId:guid}/modules/{moduleId:guid}/menus/{menuId:guid}/submenus", async (Guid systemSuiteId, Guid moduleId, Guid menuId, AddSubMenuCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
         {
             var result = await mediator.Send(command with { SystemSuiteId = systemSuiteId, ModuleId = moduleId, MenuId = menuId }, ct);
-            return result.ToNoContent(context);
+            if (result.IsSuccess)
+                return Results.Created($"/system-suites/{systemSuiteId}/modules/{moduleId}/menus/{menuId}/submenus", result);
+            return result.ToProblem(context);
         }).WithName("AddSubMenu")
           .WithSummary("Add a submenu to a menu")
-          .Produces(StatusCodes.Status204NoContent)
+          .Produces(StatusCodes.Status201Created)
           .ProducesProblem(StatusCodes.Status400BadRequest)
           .ProducesProblem(StatusCodes.Status404NotFound)
           .ProducesProblem(StatusCodes.Status409Conflict);
@@ -191,10 +197,12 @@ public static class SystemSuiteEndpoints
         group.MapPost("/{systemSuiteId:guid}/modules/{moduleId:guid}/menus/{menuId:guid}/submenus/{subMenuId:guid}/options", async (Guid systemSuiteId, Guid moduleId, Guid menuId, Guid subMenuId, AddOptionCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
         {
             var result = await mediator.Send(command with { SystemSuiteId = systemSuiteId, ModuleId = moduleId, MenuId = menuId, SubMenuId = subMenuId }, ct);
-            return result.ToNoContent(context);
+            if (result.IsSuccess)
+                return Results.Created($"/system-suites/{systemSuiteId}/modules/{moduleId}/menus/{menuId}/submenus/{subMenuId}/options", result);
+            return result.ToProblem(context);
         }).WithName("AddOption")
           .WithSummary("Add an option to a submenu")
-          .Produces(StatusCodes.Status204NoContent)
+          .Produces(StatusCodes.Status201Created)
           .ProducesProblem(StatusCodes.Status400BadRequest)
           .ProducesProblem(StatusCodes.Status404NotFound)
           .ProducesProblem(StatusCodes.Status409Conflict);
@@ -222,10 +230,12 @@ public static class SystemSuiteEndpoints
         group.MapPost("/{systemSuiteId:guid}/app-settings", async (Guid systemSuiteId, AddAppSettingCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
         {
             var result = await mediator.Send(command with { SystemSuiteId = systemSuiteId }, ct);
-            return result.ToNoContent(context);
+            if (result.IsSuccess)
+                return Results.Created($"/system-suites/{systemSuiteId}/app-settings", result);
+            return result.ToProblem(context);
         }).WithName("AddAppSetting")
           .WithSummary("Add a configuration key-value pair to the system suite")
-          .Produces(StatusCodes.Status204NoContent)
+          .Produces(StatusCodes.Status201Created)
           .ProducesProblem(StatusCodes.Status400BadRequest)
           .ProducesProblem(StatusCodes.Status404NotFound)
           .ProducesProblem(StatusCodes.Status409Conflict);
@@ -253,10 +263,12 @@ public static class SystemSuiteEndpoints
         group.MapPost("/{systemSuiteId:guid}/actions", async (Guid systemSuiteId, RegisterActionCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
         {
             var result = await mediator.Send(command with { SystemSuiteId = systemSuiteId }, ct);
-            return result.ToNoContent(context);
+            if (result.IsSuccess)
+                return Results.Created($"/system-suites/{systemSuiteId}/actions", result);
+            return result.ToProblem(context);
         }).WithName("RegisterAction")
           .WithSummary("Register a new action code that can be used in permission templates")
-          .Produces(StatusCodes.Status204NoContent)
+          .Produces(StatusCodes.Status201Created)
           .ProducesProblem(StatusCodes.Status400BadRequest)
           .ProducesProblem(StatusCodes.Status404NotFound)
           .ProducesProblem(StatusCodes.Status409Conflict);
@@ -286,10 +298,12 @@ public static class SystemSuiteEndpoints
         group.MapPost("/{systemSuiteId:guid}/domain-resources", async (Guid systemSuiteId, AddDomainResourceCommand command, IMediator mediator, HttpContext context, CancellationToken ct) =>
         {
             var result = await mediator.Send(command with { SystemSuiteId = systemSuiteId }, ct);
-            return result.ToNoContent(context);
+            if (result.IsSuccess)
+                return Results.Created($"/system-suites/{systemSuiteId}/domain-resources", result);
+            return result.ToProblem(context);
         }).WithName("AddDomainResource")
           .WithSummary("Add a domain resource (Aggregate or Entity) to the system suite")
-          .Produces(StatusCodes.Status204NoContent)
+          .Produces(StatusCodes.Status201Created)
           .ProducesProblem(StatusCodes.Status400BadRequest)
           .ProducesProblem(StatusCodes.Status404NotFound)
           .ProducesProblem(StatusCodes.Status409Conflict);
