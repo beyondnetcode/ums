@@ -79,7 +79,17 @@ public static class SystemSuiteEndpoints
             var result = await mediator.Send(command with { SystemSuiteId = systemSuiteId }, ct);
             if (result.IsSuccess)
                 return Results.Created($"/system-suites/{systemSuiteId}/modules", result);
-            return result.ToProblem(context);
+            // Map domain error to proper problem response
+            var (status, title) = DomainErrorStatusMapper.Map(result.Error);
+            var problem = new ProblemDetails
+            {
+                Title = title,
+                Status = status,
+                Detail = result.Error,
+                Instance = context?.Request?.Path,
+                Extensions = { ["timestamp"] = DateTimeOffset.UtcNow }
+            };
+            return Results.Problem(problem);
         }).WithName("AddModule")
           .WithSummary("Add a module to the system suite")
           .Produces(StatusCodes.Status201Created)
@@ -133,7 +143,16 @@ public static class SystemSuiteEndpoints
             var result = await mediator.Send(command with { SystemSuiteId = systemSuiteId, ModuleId = moduleId }, ct);
             if (result.IsSuccess)
                 return Results.Created($"/system-suites/{systemSuiteId}/modules/{moduleId}/menus", result);
-            return result.ToProblem(context);
+            var (status, title) = DomainErrorStatusMapper.Map(result.Error);
+            var problem = new ProblemDetails
+            {
+                Title = title,
+                Status = status,
+                Detail = result.Error,
+                Instance = context?.Request?.Path,
+                Extensions = { ["timestamp"] = DateTimeOffset.UtcNow }
+            };
+            return Results.Problem(problem);
         }).WithName("AddMenu")
           .WithSummary("Add a menu to a module")
           .Produces(StatusCodes.Status201Created)
@@ -166,7 +185,16 @@ public static class SystemSuiteEndpoints
             var result = await mediator.Send(command with { SystemSuiteId = systemSuiteId, ModuleId = moduleId, MenuId = menuId }, ct);
             if (result.IsSuccess)
                 return Results.Created($"/system-suites/{systemSuiteId}/modules/{moduleId}/menus/{menuId}/submenus", result);
-            return result.ToProblem(context);
+            var (status, title) = DomainErrorStatusMapper.Map(result.Error);
+            var problem = new ProblemDetails
+            {
+                Title = title,
+                Status = status,
+                Detail = result.Error,
+                Instance = context?.Request?.Path,
+                Extensions = { ["timestamp"] = DateTimeOffset.UtcNow }
+            };
+            return Results.Problem(problem);
         }).WithName("AddSubMenu")
           .WithSummary("Add a submenu to a menu")
           .Produces(StatusCodes.Status201Created)
@@ -199,7 +227,16 @@ public static class SystemSuiteEndpoints
             var result = await mediator.Send(command with { SystemSuiteId = systemSuiteId, ModuleId = moduleId, MenuId = menuId, SubMenuId = subMenuId }, ct);
             if (result.IsSuccess)
                 return Results.Created($"/system-suites/{systemSuiteId}/modules/{moduleId}/menus/{menuId}/submenus/{subMenuId}/options", result);
-            return result.ToProblem(context);
+            var (status, title) = DomainErrorStatusMapper.Map(result.Error);
+            var problem = new ProblemDetails
+            {
+                Title = title,
+                Status = status,
+                Detail = result.Error,
+                Instance = context?.Request?.Path,
+                Extensions = { ["timestamp"] = DateTimeOffset.UtcNow }
+            };
+            return Results.Problem(problem);
         }).WithName("AddOption")
           .WithSummary("Add an option to a submenu")
           .Produces(StatusCodes.Status201Created)
@@ -232,7 +269,16 @@ public static class SystemSuiteEndpoints
             var result = await mediator.Send(command with { SystemSuiteId = systemSuiteId }, ct);
             if (result.IsSuccess)
                 return Results.Created($"/system-suites/{systemSuiteId}/app-settings", result);
-            return result.ToProblem(context);
+            var (status, title) = DomainErrorStatusMapper.Map(result.Error);
+            var problem = new ProblemDetails
+            {
+                Title = title,
+                Status = status,
+                Detail = result.Error,
+                Instance = context?.Request?.Path,
+                Extensions = { ["timestamp"] = DateTimeOffset.UtcNow }
+            };
+            return Results.Problem(problem);
         }).WithName("AddAppSetting")
           .WithSummary("Add a configuration key-value pair to the system suite")
           .Produces(StatusCodes.Status201Created)
@@ -265,7 +311,16 @@ public static class SystemSuiteEndpoints
             var result = await mediator.Send(command with { SystemSuiteId = systemSuiteId }, ct);
             if (result.IsSuccess)
                 return Results.Created($"/system-suites/{systemSuiteId}/actions", result);
-            return result.ToProblem(context);
+            var (status, title) = DomainErrorStatusMapper.Map(result.Error);
+            var problem = new ProblemDetails
+            {
+                Title = title,
+                Status = status,
+                Detail = result.Error,
+                Instance = context?.Request?.Path,
+                Extensions = { ["timestamp"] = DateTimeOffset.UtcNow }
+            };
+            return Results.Problem(problem);
         }).WithName("RegisterAction")
           .WithSummary("Register a new action code that can be used in permission templates")
           .Produces(StatusCodes.Status201Created)
@@ -300,7 +355,16 @@ public static class SystemSuiteEndpoints
             var result = await mediator.Send(command with { SystemSuiteId = systemSuiteId }, ct);
             if (result.IsSuccess)
                 return Results.Created($"/system-suites/{systemSuiteId}/domain-resources", result);
-            return result.ToProblem(context);
+            var (status, title) = DomainErrorStatusMapper.Map(result.Error);
+            var problem = new ProblemDetails
+            {
+                Title = title,
+                Status = status,
+                Detail = result.Error,
+                Instance = context?.Request?.Path,
+                Extensions = { ["timestamp"] = DateTimeOffset.UtcNow }
+            };
+            return Results.Problem(problem);
         }).WithName("AddDomainResource")
           .WithSummary("Add a domain resource (Aggregate or Entity) to the system suite")
           .Produces(StatusCodes.Status201Created)
