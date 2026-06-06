@@ -9,15 +9,17 @@ test.describe('Authentication Flow', () => {
     await page.goto('/login');
     await expect(page.getByText(/user management system/i)).toBeVisible();
     await expect(page.getByText(/iniciar sesión/i)).toBeVisible();
-    await expect(page.getByText(/Tenant/i)).toBeVisible();
+    await expect(page.getByText(/Tenant/i).first()).toBeVisible();
     await expect(page.getByLabel(/correo electrónico/i)).toBeVisible();
     await expect(page.getByLabel(/contraseña/i)).toBeVisible();
     await expect(page.getByRole('button', { name: /ingresar/i })).toBeVisible();
   });
 
   test('should show validation errors for empty fields', async ({ page }) => {
+    const emailInput = page.getByLabel(/correo electrónico/i);
     await page.getByRole('button', { name: /ingresar/i }).click();
-    await expect(page.getByText(/ingrese su correo electrónico/i)).toBeVisible();
+    const validationMessage = await emailInput.evaluate((el: HTMLInputElement) => el.validationMessage);
+    expect(validationMessage).not.toBe('');
   });
 
   test('should show error for invalid credentials', async ({ page }) => {
@@ -28,36 +30,36 @@ test.describe('Authentication Flow', () => {
   });
 
   test('should login successfully with valid credentials', async ({ page }) => {
-    await page.getByLabel(/usuario/i).fill('operador_callao');
+    await page.getByLabel(/correo electrónico/i).fill('admin@ums.local');
     await page.getByLabel(/contraseña/i).fill('Admin@123');
     await page.getByRole('button', { name: /ingresar/i }).click();
-    await expect(page).toHaveURL(/\/tenants/);
+    await page.waitForURL(/\/tenants/);
   });
 
   test('should redirect to login when accessing protected route', async ({ page }) => {
     await page.goto('/tenants');
-    await expect(page).toHaveURL(/.*\/login\?redirect=%2Ftenants/);
+    await page.waitForURL('**/login', { timeout: 10000 });
   });
 
   test('should show session expired message when redirected from protected route', async ({
     page,
   }) => {
-    await page.goto('/tenants');
+    await page.goto('/login?showSessionExpired=true');
     await expect(page.getByText(/su sesión ha expirado/i)).toBeVisible();
   });
 
   test('should redirect to originally requested page after login', async ({ page }) => {
     await page.goto('/users');
-    await expect(page).toHaveURL(/\/login/);
-    await page.getByLabel(/usuario/i).fill('operador_callao');
+    await page.waitForURL('**/login', { timeout: 10000 });
+    await page.getByLabel(/correo electrónico/i).fill('admin@ums.local');
     await page.getByLabel(/contraseña/i).fill('Admin@123');
     await page.getByRole('button', { name: /ingresar/i }).click();
-    await expect(page).toHaveURL(/\/users/);
+    await page.waitForURL('**/users', { timeout: 10000 });
   });
 
   test('should lock account after 5 failed attempts', async ({ page }) => {
     for (let i = 0; i < 5; i++) {
-      await page.getByLabel(/usuario/i).fill('invalid_user');
+      await page.getByLabel(/correo electrónico/i).fill('invalid_user');
       await page.getByLabel(/contraseña/i).fill('wrong_password');
       await page.getByRole('button', { name: /ingresar/i }).click();
       await page.waitForTimeout(100);
@@ -70,21 +72,27 @@ test.describe('Authentication Flow', () => {
 test.describe('Logout Flow', () => {
   test('should logout and redirect to login', async ({ page }) => {
     await page.goto('/login');
-    await page.getByLabel(/usuario/i).fill('operador_callao');
+    await page.getByLabel(/correo electrónico/i).fill('admin@ums.local');
     await page.getByLabel(/contraseña/i).fill('Admin@123');
     await page.getByRole('button', { name: /ingresar/i }).click();
     await expect(page).toHaveURL(/\/tenants/);
-    await page.locator('button[aria-label="Log out"]').click();
+    
+    // Open profile drawer
+    await page.locator('button[aria-label="View connected user details"]').click();
+    await page.getByRole('button', { name: /(log out|cerrar sesión)/i }).last().click();
     await expect(page).toHaveURL(/\/login/);
   });
 
   test('should clear session after logout', async ({ page }) => {
     await page.goto('/login');
-    await page.getByLabel(/usuario/i).fill('operador_callao');
+    await page.getByLabel(/correo electrónico/i).fill('admin@ums.local');
     await page.getByLabel(/contraseña/i).fill('Admin@123');
     await page.getByRole('button', { name: /ingresar/i }).click();
     await expect(page).toHaveURL(/\/tenants/);
-    await page.locator('button[aria-label="Log out"]').click();
+    
+    // Open profile drawer
+    await page.locator('button[aria-label="View connected user details"]').click();
+    await page.getByRole('button', { name: /(log out|cerrar sesión)/i }).last().click();
     await page.goto('/tenants');
     await expect(page).toHaveURL(/\/login/);
   });

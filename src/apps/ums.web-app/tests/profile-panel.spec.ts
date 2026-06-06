@@ -20,14 +20,14 @@ test.describe('Profile Panel (Connected User Drawer)', () => {
   test('should show tooltip on avatar hover', async ({ page }) => {
     const avatar = page.locator('button[aria-label="View connected user details"]');
     await avatar.hover();
-    await expect(page.getByText(/operador_callao/i)).toBeVisible();
+    await expect(page.getByText(/admin/i).first()).toBeVisible();
     await expect(page.getByText(/tenant:/i)).toBeVisible();
   });
 
   test('should open drawer when clicking avatar', async ({ page }) => {
     const avatar = page.locator('button[aria-label="View connected user details"]');
     await avatar.click();
-    await expect(page.getByRole('heading', { name: /connected user/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /(connected user|estadísticas de perfil|profile stats)/i })).toBeVisible();
   });
 
   test('should display user section with correct info', async ({ page }) => {
@@ -35,7 +35,7 @@ test.describe('Profile Panel (Connected User Drawer)', () => {
     await avatar.click();
     await expect(page.getByText(/username/i)).toBeVisible();
     await expect(page.getByText(/email/i)).toBeVisible();
-    await expect(page.getByText(/operador_callao/i)).toBeVisible();
+    await expect(page.getByText(/admin/i).first()).toBeVisible();
   });
 
   test('should display tenant section', async ({ page }) => {
@@ -64,11 +64,11 @@ test.describe('Profile Panel (Connected User Drawer)', () => {
   test('should display access summary section', async ({ page }) => {
     const avatar = page.locator('button[aria-label="View connected user details"]');
     await avatar.click();
-    await expect(page.getByText(/access summary/i)).toBeVisible();
+    await page.getByRole('button', { name: /access summary/i }).click();
     await expect(page.getByText(/modules/i)).toBeVisible();
     await expect(page.getByText(/resources/i)).toBeVisible();
     await expect(page.getByText(/actions/i)).toBeVisible();
-    await expect(page.getByText(/flags/i)).toBeVisible();
+    await expect(page.getByText(/flags/i).first()).toBeVisible();
   });
 
   test('should expand technical details section', async ({ page }) => {
@@ -81,7 +81,7 @@ test.describe('Profile Panel (Connected User Drawer)', () => {
   test('should have copy buttons for IDs', async ({ page }) => {
     const avatar = page.locator('button[aria-label="View connected user details"]');
     await avatar.click();
-    const copyButtons = page.getByRole('button', { name: /copy/i });
+    const copyButtons = page.locator('button[title^="Copy"]');
     await expect(copyButtons.first()).toBeVisible();
   });
 
@@ -89,13 +89,13 @@ test.describe('Profile Panel (Connected User Drawer)', () => {
     const avatar = page.locator('button[aria-label="View connected user details"]');
     await avatar.click();
     await page.locator('[aria-label="Close drawer"]').click();
-    await expect(page.getByRole('heading', { name: /connected user/i })).not.toBeVisible();
+    await expect(page.getByRole('heading', { name: /(connected user|estadísticas de perfil|profile stats)/i })).not.toBeVisible();
   });
 
   test('should logout from drawer', async ({ page }) => {
     const avatar = page.locator('button[aria-label="View connected user details"]');
     await avatar.click();
-    await page.getByRole('button', { name: /logout/i }).click();
+    await page.getByRole('button', { name: /(logout|cerrar sesión)/i }).last().click();
     await expect(page).toHaveURL(/\/login/);
   });
 });

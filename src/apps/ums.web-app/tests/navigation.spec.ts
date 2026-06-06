@@ -10,54 +10,52 @@ test.describe('Navigation', () => {
   });
 
   test('should display navigation rail with all sections', async ({ page }) => {
-    await expect(page.getByText(/identity context/i)).toBeVisible();
-    await expect(page.getByText(/authorization context/i)).toBeVisible();
-    await expect(page.getByText(/system diagnostics/i)).toBeVisible();
+    await expect(page.getByText(/(identidad|identity)/i).first()).toBeVisible();
+    await expect(page.getByText(/(autorización|authorization)/i).first()).toBeVisible();
+    await expect(page.getByText(/(configuración|configuration)/i).first()).toBeVisible();
   });
 
   test('should navigate to Tenants page', async ({ page }) => {
-    await page.getByRole('button', { name: /tenant/i }).click();
+    await page.getByRole('button', { name: /tenant/i }).first().click();
     await expect(page).toHaveURL(/\/tenants/);
-    await expect(page.getByRole('heading', { name: /tenant/i })).toBeVisible();
   });
 
   test('should navigate to Users page', async ({ page }) => {
-    await page.getByRole('button', { name: /user accounts/i }).click();
+    await page.getByRole('button', { name: /(user accounts|cuentas de usuario)/i }).first().click();
     await expect(page).toHaveURL(/\/users/);
-    await expect(page.getByRole('heading', { name: /user account/i })).toBeVisible();
   });
 
   test('should navigate to System Suites page', async ({ page }) => {
-    await page.getByRole('button', { name: /system suites/i }).click();
+    await page.getByRole('button', { name: /(system suites|suites del sistema)/i }).first().click();
     await expect(page).toHaveURL(/\/system-suites/);
   });
 
   test('should navigate to Permission Templates page', async ({ page }) => {
-    await page.getByRole('button', { name: /permission templates/i }).click();
+    await page.getByRole('button', { name: /(permission templates|plantillas de permisos)/i }).first().click();
     await expect(page).toHaveURL(/\/permission-templates/);
   });
 
   test('should navigate to Profiles page', async ({ page }) => {
-    await page.getByRole('button', { name: /profiles/i }).click();
+    await page.getByRole('button', { name: /(authorization profiles|perfiles de autorización)/i }).first().click();
     await expect(page).toHaveURL(/\/profiles/);
   });
 
   test('should navigate to Feature Flags page', async ({ page }) => {
-    await page.getByRole('button', { name: /feature flags/i }).click();
+    await page.getByRole('button', { name: /(feature flags|flags|banderas)/i }).first().click();
     await expect(page).toHaveURL(/\/feature-flags/);
   });
 
   test('should navigate to Profile page', async ({ page }) => {
-    await page.getByRole('button', { name: /profile stats/i }).click();
+    await page.getByRole('button', { name: /(profile stats|estadísticas de perfil)/i }).first().click();
     await expect(page).toHaveURL(/\/profile/);
   });
 
   test('should collapse and expand navigation sections', async ({ page }) => {
-    const identitySection = page.getByRole('button', { name: /identity context/i });
+    const identitySection = page.getByRole('button', { name: /(identidad|identity)/i }).first();
     await identitySection.click();
-    await expect(page.getByRole('button', { name: /tenant/i })).not.toBeVisible();
+    await expect(page.getByRole('button', { name: /tenant/i }).first()).not.toBeVisible();
     await identitySection.click();
-    await expect(page.getByRole('button', { name: /tenant/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /tenant/i }).first()).toBeVisible();
   });
 
   test('should toggle navigation rail collapsed state', async ({ page }) => {

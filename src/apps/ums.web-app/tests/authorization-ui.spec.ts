@@ -16,8 +16,10 @@ test.describe('Dynamic Authorization UI Tests', () => {
     await expect(addButton).not.toBeDisabled();
   });
 
-  test('Tenant Supervisor should have Agregar button disabled', async ({ page }) => {
+  test('Tenant Supervisor should see Access Denied on Tenants page', async ({ page }) => {
     await page.goto('/login');
+    await page.getByText(/INTERNAL_ADMIN/i).first().click();
+    await page.getByText(/Ransa Comercial S.A./i).click();
     await page.getByLabel(/correo electrónico/i).fill('gerente.operaciones@ransa.pe');
     await page.getByLabel(/contraseña/i).fill('Admin@123');
     await page.click('button[type="submit"]');
@@ -25,8 +27,7 @@ test.describe('Dynamic Authorization UI Tests', () => {
     // Wait for tenants
     await page.waitForURL('**/tenants', { timeout: 10000 });
 
-    const addButton = page.locator('button[title="Agregar"]');
-    await expect(addButton).toBeVisible();
-    await expect(addButton).toBeDisabled();
+    // Should show access denied
+    await expect(page.getByText(/Acceso Denegado/i)).toBeVisible();
   });
 });
