@@ -500,7 +500,12 @@ public static class IdentityDevDataSeeder
         ActorId actor,
         CancellationToken cancellationToken)
     {
-        var existing = await userAccountRepository.GetByEmailAsync(seedUserAccount.Email, cancellationToken);
+        var tenantId = seedUserAccount.Props.TenantId.GetValue();
+        var existing = await userAccountRepository.GetByTenantAndEmailAsync(
+            tenantId,
+            seedUserAccount.Email,
+            includeDeleted: true,
+            cancellationToken);
 
         if (existing is null)
         {

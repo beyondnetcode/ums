@@ -54,9 +54,9 @@ public sealed class UserAccountsConsumerTests : IDisposable
                 {
                     userAccountId = Match.Type("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
                     email         = Match.Type("user@example.com"),
-                    statusId      = Match.Type(1),
+                    status        = Match.Type("Active"),
                 }, 1),
-                totalCount = Match.Type(1),
+                totalItems = Match.Type(1),
                 page       = Match.Type(1),
                 pageSize   = Match.Type(10),
             });
@@ -71,7 +71,7 @@ public sealed class UserAccountsConsumerTests : IDisposable
 
             var json = await response.Content.ReadFromJsonAsync<JsonElement>();
             Assert.True(json.TryGetProperty("items", out _),     "response should have 'items'");
-            Assert.True(json.TryGetProperty("totalCount", out _), "response should have 'totalCount'");
+            Assert.True(json.TryGetProperty("totalItems", out _), "response should have 'totalItems'");
         });
     }
 
@@ -120,7 +120,7 @@ public sealed class UserAccountsConsumerTests : IDisposable
             .WithHeader("X-User-Id", Match.Type("dev-user"))
             .WillRespond()
             .WithStatus(HttpStatusCode.NotFound)
-            .WithHeader("Content-Type", Match.Regex("application/problem\\+json.*", "application/problem+json; charset=utf-8"))
+            .WithHeader("Content-Type", Match.Type("application/problem+json"))
             .WithJsonBody(new
             {
                 status = Match.Type(404),

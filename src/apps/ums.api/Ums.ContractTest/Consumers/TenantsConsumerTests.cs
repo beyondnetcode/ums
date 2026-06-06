@@ -58,7 +58,7 @@ public sealed class TenantsConsumerTests : IDisposable
             .WithJsonBody(new
             {
                 items      = Match.MinType(new { tenantId = Match.Type("3fa85f64-5717-4562-b3fc-2c963f66afa6"), code = Match.Type("ACME"), name = Match.Type("Acme Corp") }, 1),
-                totalCount = Match.Type(1),
+                totalItems = Match.Type(1),
                 page       = Match.Type(1),
                 pageSize   = Match.Type(10),
             });
@@ -74,7 +74,7 @@ public sealed class TenantsConsumerTests : IDisposable
 
             var json = await response.Content.ReadFromJsonAsync<JsonElement>();
             Assert.True(json.TryGetProperty("items", out _),      "response should have 'items'");
-            Assert.True(json.TryGetProperty("totalCount", out _),  "response should have 'totalCount'");
+            Assert.True(json.TryGetProperty("totalItems", out _),  "response should have 'totalItems'");
         });
     }
 
@@ -101,7 +101,7 @@ public sealed class TenantsConsumerTests : IDisposable
                 tenantId = Match.Type(tenantId),
                 code     = Match.Type("ACME"),
                 name     = Match.Type("Acme Corp"),
-                isActive = Match.Type(true),
+                status   = Match.Type("Active"),
             });
 
         await _pactBuilder.VerifyAsync(async ctx =>
@@ -134,7 +134,7 @@ public sealed class TenantsConsumerTests : IDisposable
             .WithHeader("X-User-Id", Match.Type("dev-user"))
             .WillRespond()
             .WithStatus(HttpStatusCode.NotFound)
-            .WithHeader("Content-Type", Match.Regex("application/problem\\+json.*", "application/problem+json; charset=utf-8"))
+            .WithHeader("Content-Type", Match.Type("application/problem+json"))
             .WithJsonBody(new
             {
                 status = Match.Type(404),

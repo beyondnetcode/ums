@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Mvc.Testing;
 using PactNet.Verifier;
 using Ums.ContractTest.Infrastructure;
 
@@ -39,27 +38,35 @@ public sealed class UmsApiProviderTests : IClassFixture<ContractTestWebApplicati
     [Trait("pact", "provider")]
     public void VerifyAllPacts_ForUmsWebApp()
     {
-        // Spin up the real API on a random port inside WebApplicationFactory.
-        using var server = _factory.Server;
-        var baseUri     = server.BaseAddress;
-
-        var config = new PactVerifierConfig
-        {
-            Outputters = [new PactNet.Output.Xunit.XunitOutput(_output)],
-            LogLevel   = PactLogLevel.Warn,
-        };
-
         // Load every pact where the consumer is "ums-web-app".
-        var pactFiles = Directory.EnumerateFiles(PactsDir, "ums-web-app-ums-api.json");
-        if (!pactFiles.Any())
+        var pactDir = new DirectoryInfo(PactsDir);
+        if (!pactDir.Exists || !pactDir.EnumerateFiles("ums-web-app-ums-api.json").Any())
         {
             _output.WriteLine("No pact files found. Run consumer tests first.");
             return;
         }
 
+        // Use a fixed local port for the real Kestrel host used by the native PactNet verifier.
+        const int port    = 9321;
+        var       baseUri = new Uri($"http://127.0.0.1:{port}");
+
+        // Start the API on a real Kestrel port using the factory's HttpMessageHandler.
+        using var httpClient = _factory.CreateDefaultClient(new Uri($"http://localhost"));
+
+        // Create a delegating WebApplication on real Kestrel using the factory's pipeline.
+        using var pactServer = PactKestrelServer.Start(_factory, port);
+
+        _output.WriteLine($"[Provider] Verifying against: {baseUri}");
+
+        var config = new PactVerifierConfig
+        {
+            Outputters = [new XunitOutput(_output)],
+            LogLevel   = PactLogLevel.Warn,
+        };
+
         new PactVerifier("ums-api", config)
             .WithHttpEndpoint(baseUri)
-            .WithFileSource(new DirectoryInfo(PactsDir))
+            .WithDirectorySource(pactDir)
             .WithProviderStateUrl(new Uri(baseUri, "/_pact/provider-states"))
             .Verify();
     }

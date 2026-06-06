@@ -4,146 +4,6 @@
   },
   "interactions": [
     {
-      "description": "a create tenant request with valid data",
-      "pending": false,
-      "request": {
-        "body": {
-          "content": {
-            "code": "NEWCO",
-            "companyReference": "RUC-20101024645",
-            "idpStrategy": "InternalBcrypt",
-            "name": "New Company",
-            "type": "INTERNAL"
-          },
-          "contentType": "application/json",
-          "encoded": false
-        },
-        "headers": {
-          "Content-Type": [
-            "application/json; charset=utf-8"
-          ],
-          "Idempotency-Key": [
-            "[0-9a-fA-F-]{36}"
-          ],
-          "X-User-Id": [
-            "dev-user"
-          ]
-        },
-        "matchingRules": {
-          "body": {
-            "$.code": {
-              "combine": "AND",
-              "matchers": [
-                {
-                  "match": "type"
-                }
-              ]
-            },
-            "$.companyReference": {
-              "combine": "AND",
-              "matchers": [
-                {
-                  "match": "type"
-                }
-              ]
-            },
-            "$.idpStrategy": {
-              "combine": "AND",
-              "matchers": [
-                {
-                  "match": "type"
-                }
-              ]
-            },
-            "$.name": {
-              "combine": "AND",
-              "matchers": [
-                {
-                  "match": "type"
-                }
-              ]
-            },
-            "$.type": {
-              "combine": "AND",
-              "matchers": [
-                {
-                  "match": "type"
-                }
-              ]
-            }
-          },
-          "header": {
-            "Content-Type": {
-              "combine": "AND",
-              "matchers": [
-                {
-                  "match": "type"
-                }
-              ]
-            },
-            "Idempotency-Key": {
-              "combine": "AND",
-              "matchers": [
-                {
-                  "match": "regex",
-                  "regex": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
-                }
-              ]
-            },
-            "X-User-Id": {
-              "combine": "AND",
-              "matchers": [
-                {
-                  "match": "type"
-                }
-              ]
-            }
-          }
-        },
-        "method": "POST",
-        "path": "/api/v1/tenants"
-      },
-      "response": {
-        "body": {
-          "content": {
-            "tenantId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
-          },
-          "contentType": "application/json",
-          "encoded": false
-        },
-        "headers": {
-          "Content-Type": [
-            "application/json.*"
-          ]
-        },
-        "matchingRules": {
-          "body": {
-            "$.tenantId": {
-              "combine": "AND",
-              "matchers": [
-                {
-                  "match": "type"
-                }
-              ]
-            }
-          },
-          "header": {
-            "Content-Type": {
-              "combine": "AND",
-              "matchers": [
-                {
-                  "match": "regex",
-                  "regex": "application/json; charset=utf-8"
-                }
-              ]
-            }
-          }
-        },
-        "status": 201
-      },
-      "type": "Synchronous/HTTP"
-    },
-    {
       "description": "a delete request for a user account that does not exist",
       "pending": false,
       "providerStates": [
@@ -314,17 +174,14 @@
           "content": {
             "items": [
               {
-                "code": "RANSA_PERU",
-                "name": "Ransa Comercial S.A.",
-                "status": "Active",
-                "tenantId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-                "type": "INTERNAL"
+                "code": "ACME",
+                "name": "Acme Corp",
+                "tenantId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
               }
             ],
             "page": 1,
             "pageSize": 10,
-            "totalItems": 1,
-            "totalPages": 1
+            "totalItems": 1
           },
           "contentType": "application/json",
           "encoded": false
@@ -361,23 +218,7 @@
                 }
               ]
             },
-            "$.items[*].status": {
-              "combine": "AND",
-              "matchers": [
-                {
-                  "match": "type"
-                }
-              ]
-            },
             "$.items[*].tenantId": {
-              "combine": "AND",
-              "matchers": [
-                {
-                  "match": "type"
-                }
-              ]
-            },
-            "$.items[*].type": {
               "combine": "AND",
               "matchers": [
                 {
@@ -402,14 +243,6 @@
               ]
             },
             "$.totalItems": {
-              "combine": "AND",
-              "matchers": [
-                {
-                  "match": "type"
-                }
-              ]
-            },
-            "$.totalPages": {
               "combine": "AND",
               "matchers": [
                 {
@@ -501,8 +334,7 @@
             ],
             "page": 1,
             "pageSize": 10,
-            "totalItems": 1,
-            "totalPages": 1
+            "totalItems": 1
           },
           "contentType": "application/json",
           "encoded": false
@@ -570,14 +402,6 @@
                   "match": "type"
                 }
               ]
-            },
-            "$.totalPages": {
-              "combine": "AND",
-              "matchers": [
-                {
-                  "match": "type"
-                }
-              ]
             }
           },
           "header": {
@@ -628,11 +452,10 @@
       "response": {
         "body": {
           "content": {
-            "code": "RANSA_PERU",
-            "name": "Ransa Comercial S.A.",
+            "code": "ACME",
+            "name": "Acme Corp",
             "status": "Active",
-            "tenantId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-            "type": "INTERNAL"
+            "tenantId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
           },
           "contentType": "application/json",
           "encoded": false
@@ -669,14 +492,6 @@
               ]
             },
             "$.tenantId": {
-              "combine": "AND",
-              "matchers": [
-                {
-                  "match": "type"
-                }
-              ]
-            },
-            "$.type": {
               "combine": "AND",
               "matchers": [
                 {

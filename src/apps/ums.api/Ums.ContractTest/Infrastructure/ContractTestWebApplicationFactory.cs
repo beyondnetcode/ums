@@ -9,18 +9,26 @@ using Ums.Infrastructure.Persistence;
 using Ums.Infrastructure.Persistence.Audit;
 using Ums.Infrastructure.Persistence.Options;
 using Ums.Presentation;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
+using Ums.Domain.Identity;
+using Ums.Domain.Authorization;
+using Ums.Domain.Audit;
+using Ums.Domain.Configuration;
+using Microsoft.Extensions.Hosting;
 
 namespace Ums.ContractTest.Infrastructure;
 
 /// <summary>
 /// WebApplicationFactory for provider verification tests.
-/// Mirrors <c>UmsApiWebApplicationFactory</c> from IntegrationTest but lives in
-/// the contract test project so there is no cross-project dependency at test time.
+/// Starts the UMS API with InMemory stores so PactNet consumer tests can verify 
+/// contracts against a live server.
 /// </summary>
 public sealed class ContractTestWebApplicationFactory : WebApplicationFactory<Program>
 {
     static ContractTestWebApplicationFactory()
     {
+        Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT",              "Development");
         Environment.SetEnvironmentVariable("Persistence__Provider",               "InMemory");
         Environment.SetEnvironmentVariable("Persistence__UseSqlServerIdentityStores",      "false");
         Environment.SetEnvironmentVariable("Persistence__UseSqlServerAuthorizationStores", "false");

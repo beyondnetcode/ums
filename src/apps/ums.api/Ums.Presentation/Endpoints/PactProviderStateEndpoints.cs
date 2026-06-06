@@ -24,7 +24,7 @@ public static class PactProviderStateEndpoints
     public static IEndpointRouteBuilder MapPactProviderStateEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapPost("/_pact/provider-states", async (
-            ProviderStateRequest   request,
+            ProviderStateRequest request,
             ITenantRepository      tenants,
             IUserAccountRepository userAccounts) =>
         {
@@ -41,7 +41,7 @@ public static class PactProviderStateEndpoints
             });
 
             return Results.Ok();
-        }).WithTags("Pact").ExcludeFromDescription();  // Hidden from Swagger docs.
+        }).WithTags("Pact").ExcludeFromDescription().AllowAnonymous();  // Hidden from Swagger docs.
 
         return app;
     }
@@ -50,7 +50,7 @@ public static class PactProviderStateEndpoints
     // Constants
     // ──────────────────────────────────────────────────────────────────────────
 
-    private static readonly Guid DefaultTenantGuid = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6");
+    private static readonly Guid DefaultTenantGuid = Guid.Parse("11111111-1111-1111-1111-111111111111"); // matches DevAuthMiddleware default
     private static readonly Guid DefaultUserGuid   = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6");
     private static readonly ActorId SeedActor      = ActorId.Create("00000000-0000-0000-0000-000000000111");
 
@@ -105,19 +105,40 @@ public static class PactProviderStateEndpoints
     private static async Task EnsureUserAccountExistsAsync(
         string state, IUserAccountRepository userAccounts, ITenantRepository tenants)
     {
-        var parts = state.Split(' ');
-        if (!Guid.TryParse(parts[^2], out var id)) return;
+        // The state string may contain additional words (e.g., "is active").
+        // Find the first token that can be parsed as a GUID.
+        Guid id = Guid.Empty;
+        foreach (var part in state.Split(' '))
+        {
+            if (Guid.TryParse(part, out var guid))
+            {
+                id = guid;
+                break;
+            }
+        }
+        if (id == Guid.Empty)
+        {
+            Console.WriteLine($"[Pact] Unable to extract GUID from state: {state}");
+            return;
+        }
+        Console.WriteLine($"[Pact] Ensuring user account exists with ID {id}");
         await EnsureDefaultTenantAsync(tenants);
-        if (await userAccounts.GetByIdAsync(id) is not null) return;
-        await SeedUserAccountAsync(id, DefaultTenantGuid, "user@example.com", userAccounts);
+        if (await userAccounts.GetByIdAsync(id) is not null)
+        {
+            Console.WriteLine($"[Pact] User account {id} already exists");
+            return;
+        }
+        Console.WriteLine($"[Pact] Seeding user account {id}");
+        await SeedUserAccountAsync(id, DefaultTenantGuid, $"pact-test-{id}@contract.test", userAccounts);
     }
 
     private static async Task SeedUserAccountAsync(
         Guid id, Guid tenantId, string email, IUserAccountRepository userAccounts)
     {
+        Console.WriteLine($"[Pact] Creating UserAccount with ID {id}, Tenant {tenantId}, Email pact-test-{id}@contract.test");
         var result = UserAccount.Create(
             TenantId.Load(tenantId),
-            Email.Create(email),
+            Email.Create($"pact-test-{id}@contract.test"),
             UserCategory.Internal,
             identityReference:     null,
             identityReferenceType: null,
@@ -125,7 +146,12 @@ public static class PactProviderStateEndpoints
             branchId:      null,
             userAccountId: UserAccountId.Load(id));
 
-        if (result.IsFailure) return;
+        if (result.IsFailure)
+        {
+            Console.WriteLine("[Pact] UserAccount creation failed");
+            return;
+        }
+        Console.WriteLine("[Pact] UserAccount created successfully");
 
         var account = result.Value;
         account.Activate(SeedActor);

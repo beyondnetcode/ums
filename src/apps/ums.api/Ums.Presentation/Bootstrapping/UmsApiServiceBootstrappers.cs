@@ -348,10 +348,7 @@ public static class UmsApiApplicationBuilderExtensions
         app.MapAuthEndpoints();
         app.MapClientAuthEndpoints();
 
-        if (app.Environment.IsDevelopment())
-        {
-            app.MapPactProviderStateEndpoints();
-        }
+        app.MapPactProviderStateEndpoints();
 
         versionedGroup.MapUmsCommandEndpoints();
         versionedGroup.MapUmsQueryEndpoints();

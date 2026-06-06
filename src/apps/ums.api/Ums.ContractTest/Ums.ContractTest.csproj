@@ -24,7 +24,6 @@
   <ItemGroup>
     <!-- PactNet 5.x — supports pact specification v4 + .NET 6+ -->
     <PackageReference Include="PactNet" Version="5.0.0" />
-    <PackageReference Include="PactNet.Output.Xunit" Version="5.0.0" />
     <PackageReference Include="xunit.v3" Version="1.0.1" />
     <PackageReference Include="xunit.v3.extensibility.core" Version="1.0.1" />
     <PackageReference Include="FluentAssertions" Version="6.12.0" />

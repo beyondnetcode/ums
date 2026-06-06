@@ -52,6 +52,20 @@ public sealed class InMemoryUserAccountRepository : IUserAccountRepository, IUni
         return Task.FromResult<UserAccountAggregate?>(userAccount);
     }
 
+    public Task<UserAccountAggregate?> GetByTenantAndEmailAsync(
+        Guid tenantId,
+        Email email,
+        bool includeDeleted = false,
+        CancellationToken cancellationToken = default)
+    {
+        var userAccount = _store.Values.FirstOrDefault(u =>
+            u.Props.TenantId.GetValue() == tenantId &&
+            string.Equals(u.Props.Email.GetValue(), email.GetValue(), StringComparison.Ordinal));
+
+        userAccount?.BrokenRules.Clear();
+        return Task.FromResult<UserAccountAggregate?>(userAccount);
+    }
+
     public Task<IReadOnlyList<UserAccountAggregate>> GetByTenantIdAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
         var filtered = _store.Values.Where(u => u.Props.TenantId.GetValue() == tenantId).ToList();

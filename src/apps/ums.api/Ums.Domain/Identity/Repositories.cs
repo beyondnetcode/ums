@@ -33,6 +33,7 @@ public interface IUserAccountRepository : IAggregateRepository<UserAccountAggreg
 {
     Task<UserAccountAggregate?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<UserAccountAggregate?> GetByEmailAsync(Email email, CancellationToken cancellationToken = default);
+    Task<UserAccountAggregate?> GetByTenantAndEmailAsync(Guid tenantId, Email email, bool includeDeleted = false, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<UserAccountAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<UserAccountAggregate>> GetByTenantIdAsync(Guid tenantId, CancellationToken cancellationToken = default);
 
