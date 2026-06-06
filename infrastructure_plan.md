@@ -6,21 +6,25 @@ This plan details how to deploy the **Ums** solution in production, covering the
 ---
 
 ## 1. Architecture Diagram
+
+![Architecture diagram](docs/diagrams/infrastructure_diagram.png)
+
+<!-- Mermaid source for reference:
 ```mermaid
 flowchart LR
     subgraph Client
-        Browser["Web Browser (React Vite)" ]
+        Browser["Web Browser (React Vite)"]
     end
     subgraph CDN
-        Edge["Edge CDN (Static assets)" ]
+        Edge["Edge CDN (Static assets)"]
     end
     subgraph API
-        LoadBal["Load Balancer (Azure Front Door)" ]
-        APIGW["API Gateway (Azure API Management)" ]
-        API["Ums API (Docker, .NET 10)" ]
+        LoadBal["Load Balancer (Azure Front Door)"]
+        APIGW["API Gateway (Azure API Management)"]
+        API["Ums API (Docker, .NET 10)"]
     end
     subgraph DB
-        PG["PostgreSQL (Azure Flexible Server)" ]
+        PG["PostgreSQL (Azure Flexible Server)"]
     end
     subgraph Monitoring
         Log["Log Analytics"]
@@ -30,6 +34,8 @@ flowchart LR
     API --> Log
     API --> Metrics
 ```
+-->
+
 ---
 
 ## 2. Containerisation & Images
