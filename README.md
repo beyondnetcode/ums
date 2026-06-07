@@ -31,29 +31,29 @@ Applied satellite of the [Evolith](https://github.com/beyondnetcode/evolith_arch
 
 ---
 
-## 📑 Quick Navigation Menu
+## Quick Navigation Menu
 
 | Category | Entry Point | Description |
 |---|---|---|
-| 📐 **Architecture** | [Architecture Portal](./docs/architecture/index.md) | Blueprints, ADRs, TEs, canonical patterns |
-| 🏛️ **ADRs** | [ADR Registry](./docs/architecture/adrs/) | 32 architecture decisions |
-| 🧩 **Domain Model** | [Aggregate Index](./docs/domain/index.md) | Bounded contexts · aggregates · entities |
-| 📦 **SDK** | [SDK Portal](./docs/sdk/index.md) | .NET · TypeScript · NestJS |
-| 📋 **Requirements** | [Functional Stories](./docs/governance/requirements/functional-stories/index.md) | Full product backlog |
-| 🚦 **Planning** | [Project Backlog](./docs/governance/project/index.md) | Epics · MVP · gap tracker |
-| ⚙️ **Operations** | [Operations Portal](./docs/operations/index.md) | Runbooks · metrics |
-| 🧪 **QA** | [QA Report](./docs/qa/qa_report.md) | Test results · coverage · evidences |
-| 🏗️ **Infrastructure** | [K8s Plan](./infra/UMS_K8s_Deployment_Plan.md) | Kubernetes deployment guide |
-| 📖 **Full Index** | [Master Index](./docs/MASTER_INDEX.md) | Complete lifecycle navigation |
-| 🔺 **Evolith Upstream** | [Evolith Framework](https://github.com/beyondnetcode/evolith_arch32) | Architecture reference base |
+| **Architecture** | [Architecture Portal](./docs/architecture/index.md) | Blueprints, ADRs, TEs, canonical patterns |
+| **ADRs** | [ADR Registry](./docs/architecture/adrs/) | 32 architecture decisions |
+| **Domain Model** | [Aggregate Index](./docs/domain/index.md) | Bounded contexts · aggregates · entities |
+| **SDK** | [SDK Portal](./docs/sdk/index.md) | .NET · TypeScript · NestJS |
+| **Requirements** | [Functional Stories](./docs/governance/requirements/functional-stories/index.md) | Full product backlog |
+| **Planning** | [Project Backlog](./docs/governance/project/index.md) | Epics · MVP · gap tracker |
+| **Operations** | [Operations Portal](./docs/operations/index.md) | Runbooks · metrics |
+| **QA** | [QA Report](./docs/qa/qa_report.md) | Test results · coverage · evidences |
+| **Infrastructure** | [K8s Plan](./infra/UMS_K8s_Deployment_Plan.md) | Kubernetes deployment guide |
+| **Full Index** | [Master Index](./docs/MASTER_INDEX.md) | Complete lifecycle navigation |
+| **Evolith Upstream** | [Evolith Framework](https://github.com/beyondnetcode/evolith_arch32) | Architecture reference base |
 
 ---
 
-## 🎯 Start Here — Choose Your Path
+## Start Here — Choose Your Path
 
 ### Path 1 — 5-Minute Overview
 
-📄 [Product Vision](./docs/governance/product/product-vision.md) · [Architecture Overview](./docs/architecture/overview.md) · [Traceability Matrix](./docs/architecture/traceability-matrix.md)
+ [Product Vision](./docs/governance/product/product-vision.md) · [Architecture Overview](./docs/architecture/overview.md) · [Traceability Matrix](./docs/architecture/traceability-matrix.md)
 
 *What is UMS? What problem does it solve? How does it fit Evolith?*
 
@@ -61,12 +61,12 @@ Applied satellite of the [Evolith](https://github.com/beyondnetcode/evolith_arch
 
 | Role | Start Here | Then Read |
 |---|---|---|
-| 🏛️ **Architect** | [Architecture Portal](./docs/architecture/index.md) | [ADR Registry](./docs/architecture/adrs/) · [Traceability Matrix](./docs/architecture/traceability-matrix.md) |
-| 👨‍💻 **Backend Dev** | [Canonical Patterns](./docs/architecture/artifacts/canonical-patterns/index.md) | [Domain Aggregates](./docs/domain/index.md) · [.NET SDK](./docs/sdk/dotnet/README.md) |
-| 🖥️ **Frontend Dev** | [ADR-0056: Clean Architecture](./docs/architecture/adrs/0056-clean-architecture-frontend.md) | [TypeScript SDK](./docs/sdk/typescript/README.md) · [ADR-0057: State Mgmt](./docs/architecture/adrs/0057-zustand-tanstack-query-state.md) |
-| 🛠️ **DevOps / SRE** | [Infrastructure Plan](./infra/infrastructure_plan.md) | [Runbooks](./docs/operations/runbooks/) · [Metrics](./docs/operations/metrics/index.md) |
-| 📦 **Product / PM** | [Product Vision](./docs/governance/product/product-vision.md) | [Gap Tracker](./docs/governance/project/functional-story-gap-tracker.md) · [OKRs](./docs/governance/product/objectives.md) |
-| 🤖 **AI Contributor** | [AGENTS.md](./AGENTS.md) | [ADR Template](./docs/governance/sdlc/adr-template.md) |
+| **Architect** | [Architecture Portal](./docs/architecture/index.md) | [ADR Registry](./docs/architecture/adrs/) · [Traceability Matrix](./docs/architecture/traceability-matrix.md) |
+| **Backend Dev** | [Canonical Patterns](./docs/architecture/artifacts/canonical-patterns/index.md) | [Domain Aggregates](./docs/domain/index.md) · [.NET SDK](./docs/sdk/dotnet/README.md) |
+| **Frontend Dev** | [ADR-0056: Clean Architecture](./docs/architecture/adrs/0056-clean-architecture-frontend.md) | [TypeScript SDK](./docs/sdk/typescript/README.md) · [ADR-0057: State Mgmt](./docs/architecture/adrs/0057-zustand-tanstack-query-state.md) |
+| **DevOps / SRE** | [Infrastructure Plan](./infra/infrastructure_plan.md) | [Runbooks](./docs/operations/runbooks/) · [Metrics](./docs/operations/metrics/index.md) |
+| **Product / PM** | [Product Vision](./docs/governance/product/product-vision.md) | [Gap Tracker](./docs/governance/project/functional-story-gap-tracker.md) · [OKRs](./docs/governance/product/objectives.md) |
+| **AI Contributor** | [AGENTS.md](./AGENTS.md) | [ADR Template](./docs/governance/sdlc/adr-template.md) |
 
 ### Path 3 — Make an Architectural Decision
 
@@ -76,9 +76,9 @@ Applied satellite of the [Evolith](https://github.com/beyondnetcode/evolith_arch
 
 ---
 
-## 📂 Repository Structure (Deep Dive)
+## Repository Structure (Deep Dive)
 
-### 📐 Architecture & Patterns
+### Architecture & Patterns
 
 | Artifact | Purpose |
 |---|---|
@@ -90,7 +90,7 @@ Applied satellite of the [Evolith](https://github.com/beyondnetcode/evolith_arch
 | [Canonical Patterns](./docs/architecture/artifacts/canonical-patterns/index.md) | CP-01 through CP-08 |
 | [API Reference (.NET)](./docs/architecture/api-dotnet/) | HTTP contract reference |
 
-### 🏛️ Architecture Decision Records
+### Architecture Decision Records
 
 | ADR | Title | Evolith |
 |---|---|---|
@@ -127,7 +127,7 @@ Applied satellite of the [Evolith](https://github.com/beyondnetcode/evolith_arch
 | [0080](./docs/architecture/adrs/0080-auth-graph-preview-internal-pipeline.md) | Auth Graph Preview Pipeline | UMS-specific |
 | [0081](./docs/architecture/adrs/0081-semantic-auth-graph-client-contract.md) | Semantic Auth Graph Contract | UMS-specific |
 
-### 🧩 Domain Model
+### Domain Model
 
 | Bounded Context | Aggregates |
 |---|---|
@@ -140,7 +140,7 @@ Applied satellite of the [Evolith](https://github.com/beyondnetcode/evolith_arch
 
 Also: [Bounded Context Map](./docs/governance/construction/ddd-design/01-bounded-context-map.md) · [Cross-Context Flows](./docs/governance/construction/ddd-design/10-cross-context-flows.md) · [DDD Primitives](./docs/governance/construction/ddd-design/11-ddd-primitives.md)
 
-### 📦 SDK
+### SDK
 
 | Runtime | README | Quickstart |
 |---|---|---|
@@ -150,7 +150,7 @@ Also: [Bounded Context Map](./docs/governance/construction/ddd-design/01-bounded
 
 Contracts: [Schema Overview](./docs/sdk/contracts/schema-overview.md) · [Error Codes](./docs/sdk/contracts/error-codes.md) · [Compatibility Matrix](./docs/sdk/contracts/compatibility-matrix.md) · [Semantic Client Contract](./docs/sdk/contracts/semantic-client-contract.md)
 
-### 📋 Product & Requirements
+### Product & Requirements
 
 | Artifact | Purpose |
 |---|---|
@@ -164,7 +164,7 @@ Contracts: [Schema Overview](./docs/sdk/contracts/schema-overview.md) · [Error 
 | [Conceptual Data Model](./docs/governance/requirements/conceptual-data-model.md) | High-level domain model |
 | [Permission Matrix](./docs/governance/requirements/permission-matrix-example.md) | Role/permission reference |
 
-### 🚦 Planning & Backlog
+### Planning & Backlog
 
 | Artifact | Purpose |
 |---|---|
@@ -175,7 +175,7 @@ Contracts: [Schema Overview](./docs/sdk/contracts/schema-overview.md) · [Error 
 | [Epic 07: Compliance](./docs/governance/project/ep-07-compliance-detailed-design.md) | Compliance module design |
 | [Epic 08: IGA](./docs/governance/project/ep-08-iga-detailed-design.md) | Identity Governance design |
 
-### ⚙️ Operations
+### Operations
 
 | Artifact | Purpose |
 |---|---|
@@ -187,7 +187,7 @@ Contracts: [Schema Overview](./docs/sdk/contracts/schema-overview.md) · [Error 
 | [Dev DB Anonymization](./docs/operations/runbooks/dev-db-anonymization.md) | PII anonymization for dev environments |
 | [GDPR Backup Retention](./docs/operations/runbooks/gdpr-backup-retention-policy.md) | Backup retention compliance |
 
-### 🧪 QA & Testing
+### QA & Testing
 
 | Artifact | Purpose |
 |---|---|
@@ -198,7 +198,7 @@ Contracts: [Schema Overview](./docs/sdk/contracts/schema-overview.md) · [Error 
 | [Performance Testing Results](./docs/governance/testing/performance-testing-results.md) | Load test outcomes |
 | [QA Evidences](./docs/qa/evidences/) | US-001 through US-008 screenshots |
 
-### 🏗️ Infrastructure
+### Infrastructure
 
 | Artifact | Purpose |
 |---|---|
@@ -209,7 +209,7 @@ Contracts: [Schema Overview](./docs/sdk/contracts/schema-overview.md) · [Error 
 
 ---
 
-## 🔧 Local Development
+## Local Development
 
 ```bash
 # Install all dependencies
@@ -232,7 +232,7 @@ python .bmad-core/scripts/validate_docs_consistency.py README.md docs/
 
 ---
 
-## 🔺 UMS vs Evolith — What Goes Where
+## UMS vs Evolith — What Goes Where
 
 | Question | Evolith (Upstream) | UMS (Satellite Product) |
 |---|---|---|
@@ -244,7 +244,7 @@ python .bmad-core/scripts/validate_docs_consistency.py README.md docs/
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Before contributing, read:
 
@@ -255,7 +255,7 @@ Before contributing, read:
 
 ---
 
-## 📋 All Navigation Indexes
+## All Navigation Indexes
 
 | Index | Purpose |
 |---|---|
