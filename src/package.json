@@ -17,15 +17,18 @@
     "docs:audit": "python ../.bmad-core/scripts/validate_docs_consistency.py"
   },
   "devDependencies": {
-    "@commitlint/cli": "20.5.3",
-    "@commitlint/config-conventional": "20.5.3",
-    "@nx/js": "22.7.1",
-    "ctx7": "0.4.2",
+    "@commitlint/cli": "21.0.2",
+    "@commitlint/config-conventional": "21.0.2",
+    "@nx/js": "22.7.5",
+    "ctx7": "0.5.1",
     "eslint-plugin-sonarjs": "4.0.3",
-    "nx": "22.7.1",
-    "typescript": "5.4.5"
+    "nx": "22.7.5",
+    "typescript": "5.9.3"
   },
   "dependencies": {
-    "@vitejs/plugin-react": "4.3.3"
+    "@vitejs/plugin-react": "5.2.0"
+  },
+  "overrides": {
+    "@eslint/plugin-kit": "0.3.4"
   }
 }
