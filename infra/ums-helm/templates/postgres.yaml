@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ums-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ums-postgres
+  template:
+    metadata:
+      labels:
+        app: ums-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15-alpine
+          env:
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ums-db-secret
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              value: ums
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: pgdata
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: pgdata
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ums-postgres
+spec:
+  type: ClusterIP
+  selector:
+    app: ums-postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432

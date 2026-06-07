@@ -17,6 +17,7 @@ spec:
       containers:
         - name: ums-backend
           image: ums/backend:latest
+          imagePullPolicy: IfNotPresent
           env:
             - name: ASPNETCORE_ENVIRONMENT
               value: Production

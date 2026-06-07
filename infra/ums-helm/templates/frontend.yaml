@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ums-frontend
+  labels:
+    app: ums-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ums-frontend
+  template:
+    metadata:
+      labels:
+        app: ums-frontend
+    spec:
+      containers:
+        - name: ums-frontend
+          image: ums/frontend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          resources:
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ums-frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: ums-frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80

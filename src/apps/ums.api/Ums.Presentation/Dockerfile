@@ -9,17 +9,20 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy main application projects
-COPY src/apps/ums.api/Ums.Presentation/Ums.Presentation.csproj src/apps/ums.api/Ums.Presentation/
-COPY src/apps/ums.api/Ums.Application/Ums.Application.csproj src/apps/ums.api/Ums.Application/
-COPY src/apps/ums.api/Ums.Infrastructure/Ums.Infrastructure.csproj src/apps/ums.api/Ums.Infrastructure/
-COPY src/apps/ums.api/Ums.Domain/Ums.Domain.csproj src/apps/ums.api/Ums.Domain/
-COPY src/apps/ums.api/Ums.Globalization/Ums.Globalization.csproj src/apps/ums.api/Ums.Globalization/
+COPY src/apps/ums.api/Ums.Presentation/Ums.Presentation.csproj apps/ums.api/Ums.Presentation/
+COPY src/apps/ums.api/Ums.Application/Ums.Application.csproj apps/ums.api/Ums.Application/
+COPY src/apps/ums.api/Ums.Infrastructure/Ums.Infrastructure.csproj apps/ums.api/Ums.Infrastructure/
+COPY src/apps/ums.api/Ums.Domain/Ums.Domain.csproj apps/ums.api/Ums.Domain/
+COPY src/apps/ums.api/Ums.Globalization/Ums.Globalization.csproj apps/ums.api/Ums.Globalization/
+COPY src/Ums.ReadModels/Ums.ReadModels.csproj Ums.ReadModels/
+COPY src/libs/ libs/
 
 # Restore dependencies
-RUN dotnet restore src/apps/ums.api/Ums.Presentation/Ums.Presentation.csproj
+RUN dotnet restore apps/ums.api/Ums.Presentation/Ums.Presentation.csproj
 
 # Copy everything else
-COPY . .
+COPY src/apps/ums.api/ apps/ums.api/
+COPY src/Ums.ReadModels/ Ums.ReadModels/
 
 # Build and publish
 WORKDIR /src/apps/ums.api/Ums.Presentation
