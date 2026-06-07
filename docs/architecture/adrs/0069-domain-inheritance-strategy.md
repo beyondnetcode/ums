@@ -1,4 +1,6 @@
-# ADR-0069: Domain Layer Inheritance Strategy - AggregateRoot Base Class**Status:**Accepted**Date:**2026-05-29**Deciders:**Architecture Team**Supersedes:**ADR-0054 (Shell Library Isolation)
+# ADR-0069: Domain Layer Inheritance Strategy - AggregateRoot Base Class
+
+> **Promoted to Evolith:** This ADR has been elevated to [Evolith ADR-0071 — Domain Layer Base Class and Inheritance Strategy](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/core/0071-domain-layer-base-class-inheritance-strategy.md). UMS retains this document as implementation reference.**Status:**Accepted**Date:**2026-05-29**Deciders:**Architecture Team**Supersedes:**ADR-0054 (Shell Library Isolation)
 
 ---
 

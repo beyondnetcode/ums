@@ -1,5 +1,7 @@
 # ADR-0060: AOP Cross-Cutting Concern Strategy — DispatchProxy over MediatR Behaviors
 
+> **Promoted to Evolith:** This ADR has been elevated to [Evolith ADR-0072 — .NET AOP Cross-Cutting Concern Strategy](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/dotnet/0072-dotnet-aop-cross-cutting-concern-strategy.md). UMS retains this document as implementation reference.
+
 ## Status
 
 Accepted

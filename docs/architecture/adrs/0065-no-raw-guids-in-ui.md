@@ -1,5 +1,7 @@
 # ADR 0065: Prohibition of Raw GUIDs in User Interfaces
 
+> **Promoted to Evolith:** This ADR has been elevated to [Evolith ADR-0046 — Prohibition of Raw Technical Identifiers in UI](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/nodejs/0046-no-raw-identifiers-in-ui.md). UMS retains this document as implementation reference.
+
 ## Context and Problem Statement
 In distributed architectures, GUIDs (Globally Unique Identifiers) are used extensively for technical identity, foreign keys, and database references (e.g., Tenant IDs, User IDs, Delegation IDs). Often, developers inadvertently expose these raw technical identifiers to end-users on UI views, tables, and detail panels.
 

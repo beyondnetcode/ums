@@ -1,5 +1,7 @@
 # ADR-0066: Actionable User Error Contract and Correlated Diagnostics
 
+> **Promoted to Evolith:** This ADR has been elevated to [Evolith ADR-0047 — Actionable User Error Contract and Correlated Diagnostics](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/nodejs/0047-actionable-user-error-contract.md). UMS retains this document as implementation reference.
+
 **Status:** Accepted  
 **Date:** 2026-05-26  
 **Decision Owner:** Architecture  

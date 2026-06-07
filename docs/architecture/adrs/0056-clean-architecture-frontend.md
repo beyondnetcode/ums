@@ -1,5 +1,7 @@
 # ADR-0056: Clean Architecture Layer Boundaries (Frontend)
 
+> **Promoted to Evolith:** This ADR has been elevated to [Evolith ADR-0044 — Frontend Clean Architecture Layer Boundaries](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/nodejs/0044-frontend-clean-architecture-layer-boundaries.md). UMS retains this document as implementation reference.
+
 | Field | Value |
 |---|---|
 | **Status** | Accepted |

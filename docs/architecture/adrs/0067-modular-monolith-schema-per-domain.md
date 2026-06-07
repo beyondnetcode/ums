@@ -1,5 +1,7 @@
 # ADR-0067: Modular Monolith Schema Per Domain
 
+> **Promoted to Evolith:** This ADR has been elevated to [Evolith ADR-0067 — Modular Monolith Persistence Boundaries](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/core/0067-modular-monolith-schema-per-domain.md). UMS retains this document as implementation reference.
+
 **Status:** Accepted  
 **Date:** 2026-05-27  
 **Decision Owner:** Evolith Architecture Board  

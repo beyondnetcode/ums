@@ -1,5 +1,7 @@
 # ADR-0068: Feature Flag System Scope — SystemSuite Ownership and Dynamic Criteria Model
 
+> **Promoted to Evolith:** This ADR has been elevated to [Evolith ADR-0048 — Feature Flag System Scope and Structured Criteria Model](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/nodejs/0048-feature-flag-system-scope-criteria-model.md). UMS retains this document as implementation reference.
+
 **Status:** Accepted
 **Date:** 2026-05-27
 **Decision Owner:** Architecture

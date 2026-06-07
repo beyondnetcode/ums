@@ -1,5 +1,7 @@
 # ADR-0076: UTC Date Storage, Browser Timezone Detection, and Language Resolution
 
+> **Promoted to Evolith:** This ADR has been elevated to [Evolith ADR-0072 — UTC Date Storage, Browser Timezone Detection, and Language Resolution](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/core/0072-utc-dates-timezone-language-resolution.md). UMS retains this document as implementation reference.
+
 **Status:** Accepted  
 **Date:** 2026-06-02  
 **Context:** Evolith Platform — Root Standard (applies to all child systems: UMS, and future products)  

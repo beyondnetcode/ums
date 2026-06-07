@@ -1,5 +1,7 @@
 # ADR-0064: Lean Root Repository Taxonomy
 
+> **Promoted to Evolith:** This ADR has been elevated to [Evolith ADR-0070 — Lean Root Repository Taxonomy](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/core/0070-lean-root-repository-taxonomy.md). UMS retains this document as implementation reference.
+
 **Status:** Accepted  
 **Date:** 2026-05-24  
 **Decision Owner:** Architecture  

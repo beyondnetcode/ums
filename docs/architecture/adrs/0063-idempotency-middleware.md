@@ -1,5 +1,7 @@
 # ADR-0063: Idempotency Key Middleware (FIX-06 / RISK-05)
 
+> **Promoted to Evolith:** This ADR has been elevated to [Evolith ADR-0066 — .NET Lightweight HTTP Idempotency via IMemoryCache / IDistributedCache](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/dotnet/0066-dotnet-lightweight-http-idempotency.md). UMS retains this document as implementation reference.
+
 **Status:** Accepted  
 **Date:** 2026-05-24  
 **Decision Owner:** Architecture  

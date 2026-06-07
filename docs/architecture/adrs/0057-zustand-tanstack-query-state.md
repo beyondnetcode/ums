@@ -1,5 +1,7 @@
 # ADR-0057: Zustand + TanStack Query State Management
 
+> **Promoted to Evolith:** This ADR has been elevated to [Evolith ADR-0045 — Zustand + TanStack Query State Management](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/nodejs/0045-zustand-tanstack-query-state-management.md). UMS retains this document as implementation reference.
+
 | Field | Value |
 |---|---|
 | **Status** | Accepted |

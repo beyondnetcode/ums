@@ -1,5 +1,7 @@
 # ADR-0062: PII-Safe Serilog Configuration (HARDENING-04)
 
+> **Promoted to Evolith:** This ADR has been elevated to [Evolith ADR-0065 — .NET PII-Safe Structured Logging Pipeline (Serilog)](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/dotnet/0065-dotnet-pii-safe-serilog-pipeline.md). UMS retains this document as implementation reference.
+
 **Status:** Accepted  
 **Date:** 2026-05-24  
 **Decision Owner:** Architecture  

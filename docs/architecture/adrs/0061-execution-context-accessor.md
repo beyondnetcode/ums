@@ -1,5 +1,7 @@
 # ADR-0061: Execution Context Accessor Pattern
 
+> **Promoted to Evolith:** This ADR has been elevated to [Evolith ADR-0064 — .NET Request-Scope Observability Context Propagation](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/dotnet/0064-dotnet-request-scope-observability-context.md). UMS retains this document as implementation reference.
+
 **Status:** Accepted  
 **Date:** 2026-05-24  
 **Decision Owner:** Architecture  
