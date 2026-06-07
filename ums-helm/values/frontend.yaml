@@ -1,0 +1,26 @@
+image:
+  repository: ums/frontend
+  tag: latest
+env:
+  - name: NODE_ENV
+    value: production
+service:
+  type: ClusterIP
+ingress:
+  enabled: true
+  hosts:
+    - host: ums.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - hosts:
+        - ums.local
+      secretName: ums-tls
+resources:
+  limits:
+    cpu: "200m"
+    memory: "256Mi"
+  requests:
+    cpu: "100m"
+    memory: "128Mi"

@@ -14,7 +14,7 @@ public static class CoreDevDataSeeder
     // ── SuperAdmin User (global admin) ─────────────────────────────────────────
     public const string SuperAdminUserId = "22222222-2222-2222-2222-222222222222";
     public const string SuperAdminUsername = "admin";
-    public const string SuperAdminPassword = "Admin@123"; // Change in production!
+    public const string SuperAdminPassword = "root"; // Default password for INTERNAL admin (change in production)
     public const string InternalAdminPendingUserId = "11111103-1111-1111-1111-111111111111";
 
     // ── GlobalAdmin Role & Profile ─────────────────────────────────────────────

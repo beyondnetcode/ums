@@ -125,7 +125,7 @@ public static class AuthorizationDevDataSeeder
                 }
                 else if (tenantId.GetValue() == Guid.Parse(CoreDevDataSeeder.InternalAdminTenantId))
                 {
-                    await EnsureInternalAdminProfileAsync(profileRepository, cancellationToken);
+                    await EnsureInternalAdminProfileAsync(profileRepository, roleRepository, templateRepository, cancellationToken);
                 }
             }
         }
@@ -773,14 +773,35 @@ public static class AuthorizationDevDataSeeder
 
     private static async Task EnsureInternalAdminProfileAsync(
         IProfileRepository profileRepository,
+        IRoleRepository roleRepository,
+        IPermissionTemplateRepository templateRepository,
         CancellationToken cancellationToken)
     {
         var expectedProfileId = Guid.Parse(CoreDevDataSeeder.GlobalAdminProfileId);
         var expectedUserId = Guid.Parse(CoreDevDataSeeder.SuperAdminUserId);
+        var internalAdminTenantId = Guid.Parse(CoreDevDataSeeder.InternalAdminTenantId);
+        var tenantId = TenantId.Load(internalAdminTenantId);
+        var actor = ActorId.Create(CoreDevDataSeeder.SystemActorId);
 
         var profile = await profileRepository.GetByIdAsync(expectedProfileId, cancellationToken);
         if (profile is null)
         {
+            // Create missing profile with admin role and template
+            var roles = await roleRepository.GetByTenantIdAsync(internalAdminTenantId, cancellationToken);
+            var adminRole = roles.FirstOrDefault(r => r.Code.GetValue() == "ADMIN");
+            var templates = await templateRepository.GetByTenantIdAsync(internalAdminTenantId, cancellationToken);
+            var adminTpl = templates.FirstOrDefault(t => t.RoleId.Equals(adminRole?.GetId()) && t.Status == TemplateStatus.Published && t.Props.Version.GetValue() == "2.0.0");
+            var newProfileResult = ProfileAggregate.Create(tenantId, UserId.Load(expectedUserId), adminRole?.GetId(), null, actor);
+            if (newProfileResult.IsSuccess)
+            {
+                var newProfile = newProfileResult.Value;
+                if (adminTpl != null)
+                {
+                    newProfile.AssignTemplate(adminTpl, actor);
+                }
+                await profileRepository.AddAsync(newProfile, cancellationToken);
+                await profileRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+            }
             return;
         }
 

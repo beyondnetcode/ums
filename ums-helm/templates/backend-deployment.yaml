@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ums-backend
+  labels:
+    app: ums-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ums-backend
+  template:
+    metadata:
+      labels:
+        app: ums-backend
+    spec:
+      containers:
+        - name: ums-backend
+          image: ums/backend:latest
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            - name: ConnectionStrings__Default
+              valueFrom:
+                secretKeyRef:
+                  name: ums-db-secret
+                  key: CONNECTION_STRING
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ums-admin-secret
+                  key: ADMIN_PASSWORD
+            - name: REDIS_CONNECTION
+              value: redis://ums-redis:6379
+            - name: OTEL_EXPORTER_JAEGER_ENDPOINT
+              value: http://ums-jaeger:14268/api/traces
+            - name: OTEL_METRICS_EXPORTER
+              value: prometheus
+          ports:
+            - containerPort: 80
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5
