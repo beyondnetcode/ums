@@ -1,5 +1,8 @@
 # ADR-0081: Semantic Auth Graph Client Contract — Code-First, ID-Optional
 
+> **UMS-specific:** No Evolith upstream. The semantic client contract (code-first, ID-optional) is specific to UMS's Authorization Graph SDK surface. Related to [ADR-0073](./0073-ums-sdk-multi-runtime.md) and [ADR-0074](./0074-auth-graph-schema-versioning.md).
+
+
 **Status:** Accepted  
 **Date:** 2026-06-04  
 **Decision Owner:** Architecture  

@@ -1,5 +1,7 @@
 # ADR-0058: API Gateway Evolution — YARP for Multi-Client SaaS
 
+> **Implements Evolith:** [Evolith ADR-0008 — Progressive Multimodule Evolution & Gateway BFF](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/nodejs/0008-progressive-multimodule-evolution-gateway-bff.md). UMS retains this document as its YARP reverse-proxy gateway evolution record.
+
 ## Status
 
 Proposed

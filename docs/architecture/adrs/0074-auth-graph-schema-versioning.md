@@ -1,5 +1,8 @@
 # ADR-0074: Auth Graph Schema Versioning Policy
 
+> **UMS-specific:** No Evolith upstream. Schema versioning policy is intrinsic to the UMS Authorization Graph contract. Related to [ADR-0073](./0073-ums-sdk-multi-runtime.md).
+
+
 **Status:** Accepted
 **Date:** 2026-05-31
 **Decision Owner:** Architecture

@@ -1,5 +1,7 @@
 # ADR-0053: OpenTelemetry Observability Strategy
 
+> **Adopts Evolith:** [Evolith ADR-0007 — Observability, Telemetry, Loki & OpenTelemetry](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/nodejs/0007-observability-telemetry-loki-opentelemetry.md). UMS retains this document as the multi-tenant, multi-bounded-context observability implementation record.
+
 ## Status
 
 Accepted

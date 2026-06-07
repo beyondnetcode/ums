@@ -1,5 +1,7 @@
 # ADR-0050: Naming & Taxonomy Standard — Adoption of Evolith ADR-0056
 
+> **Adopts Evolith:** [Evolith ADR-0056 — Enterprise Naming & Design Conventions](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/core/0056-enterprise-naming-design-conventions.md). UMS retains this document as its satellite-specific binding and conformance record.
+
 ## Status
 
 Accepted

@@ -1,5 +1,7 @@
 # ADR-0070: Database Schema Per Module Strategy
 
+> **Adopts Evolith:** [Evolith ADR-0067 — Modular Monolith Persistence Boundaries (Schema-Per-Domain)](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/core/0067-modular-monolith-schema-per-domain.md). UMS retains this document as its SQL Server schema-per-module implementation record.
+
 **Status:** Accepted  
 **Date:** 2026-05-27  
 **Decision Owner:** Architecture  

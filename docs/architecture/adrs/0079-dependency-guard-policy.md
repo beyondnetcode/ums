@@ -1,5 +1,8 @@
 # ADR-0079: Dependency Guard Policy — Blocking Operations on Active Dependencies
 
+> **UMS-specific:** No Evolith upstream. The dependency guard pattern as applied here (tenant → user → profile dependency chain) is specific to UMS's domain model. The generic application-layer guard pattern may be considered for future Evolith promotion.
+
+
 **Status:** Accepted  
 **Date:** 2026-06-03  
 **Decision Owner:** Architecture  

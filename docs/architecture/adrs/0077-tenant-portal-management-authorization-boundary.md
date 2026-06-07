@@ -1,5 +1,8 @@
 # ADR-0077: Tenant Portal Management Authorization Boundary and Scope Policy
 
+> **UMS-specific:** No Evolith upstream. Tenant portal authorization boundaries and scope policies are intrinsic to UMS's multi-tenant SaaS architecture and not generalizable to other satellite products.
+
+
 **Status:** Accepted  
 **Date:** 2026-06-02  
 **Decision Owner:** Architecture  

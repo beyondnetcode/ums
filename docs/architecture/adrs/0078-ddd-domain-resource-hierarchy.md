@@ -1,5 +1,8 @@
 # ADR-0078: DDD Domain Resource Hierarchy — Aggregate, Entity, DomainMethod
 
+> **UMS-specific:** No Evolith upstream. The `ParentResourceId` + `DomainMethod` resource hierarchy is specific to UMS's authorization domain model. The generic DDD base class pattern is covered by [Evolith ADR-0071](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/core/0071-domain-layer-base-class-inheritance-strategy.md).
+
+
 **Status:** Accepted  
 **Date:** 2026-06-03  
 **Decision Owner:** Architecture  

@@ -1,5 +1,8 @@
 # ADR-0069: Authorization Graph Engine — Motor Central de Autenticación y Autorización
 
+> **UMS-specific:** No Evolith upstream. The Authorization Graph Engine is the core differentiator of UMS as a centralized auth platform. This decision is product-domain-exclusive and not intended for framework promotion.
+
+
 **Status:** Accepted
 **Date:** 2026-05-31
 **Decision Owner:** Architecture

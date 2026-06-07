@@ -1,5 +1,7 @@
 # ADR-0052: Immutable Audit Trail — SQL Server Enforcement Strategy
 
+> **Adopts Evolith:** [Evolith ADR-0016 — Immutable Business Audit Trail](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/core/0016-immutable-business-audit-trail.md). UMS retains this document as the SQL Server DDL enforcement implementation record.
+
 ## Status
 
 Accepted

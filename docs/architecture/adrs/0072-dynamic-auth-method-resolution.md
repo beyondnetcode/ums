@@ -1,5 +1,8 @@
 # ADR-0072: Dynamic Auth Method Resolution — From Configuration, Not Code
 
+> **UMS-specific:** No Evolith upstream. Dynamic auth method resolution is part of UMS's authorization graph engine — a product-domain decision not applicable to generic satellite architecture.
+
+
 **Status:** Accepted
 **Date:** 2026-05-31
 **Decision Owner:** Architecture

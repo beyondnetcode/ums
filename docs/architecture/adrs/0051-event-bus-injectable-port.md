@@ -1,5 +1,7 @@
 # ADR-0051: Event Bus — Injectable Port Strategy (.NET / MassTransit)
 
+> **Adopts Evolith:** [Evolith ADR-0015 — Event-Driven Architecture Intra-Domain](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/core/0015-event-driven-architecture-intra-domain.md). UMS retains this document as the .NET / MassTransit / RabbitMQ implementation record.
+
 ## Status
 
 Accepted

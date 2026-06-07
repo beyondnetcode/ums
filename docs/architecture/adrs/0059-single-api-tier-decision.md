@@ -1,5 +1,7 @@
 # ADR-0059 — Single API Tier Decision
 
+> **Override of Evolith baseline:** UMS explicitly diverges from the Evolith multi-tier API baseline ([Evolith ADR-0008](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/nodejs/0008-progressive-multimodule-evolution-gateway-bff.md)). A single consolidated API tier was chosen for current UMS maturity; this decision is revisable as scale requirements grow.
+
 > **Language:** English | *Español no disponible*
 
 | Field | Value |

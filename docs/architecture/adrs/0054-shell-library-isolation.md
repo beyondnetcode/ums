@@ -1,5 +1,7 @@
 # ADR-0054: Shell Library Isolation for DDD, Factory, AOP, and Bootstrapper Patterns
 
+> **UMS-specific:** No direct Evolith upstream. This ADR governs UMS's internal `BeyondNetCode.Shell.*` library boundary — a product-level Anti-Corruption Layer over external DDD, AOP, and Bootstrapper primitives.
+
 **Status:** Accepted  
 **Date:** 2026-05-15  
 **Amended:** 2026-05-24 — dependency graph corrected; scope extended to include `BeyondNetCode.Shell.Aop` and `BeyondNetCode.Shell.Bootstrapper`  

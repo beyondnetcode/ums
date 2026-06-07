@@ -1,5 +1,8 @@
 # ADR-0073: UMS SDK — Multi-Runtime Client Integration Surface (.NET / TypeScript / NestJS)
 
+> **UMS-specific:** No Evolith upstream. This ADR governs the UMS-published SDK surface for consuming the Authorization Graph. The SDK contracts, schema versioning, and runtime distributions are exclusive to the UMS product.
+
+
 **Status:** Accepted
 **Date:** 2026-05-31
 **Decision Owner:** Architecture

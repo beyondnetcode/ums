@@ -1,5 +1,8 @@
 # ADR-0080: Auth Graph Preview — Internal vs External Pipeline
 
+> **UMS-specific:** No Evolith upstream. The auth graph preview pipeline reuses the same `IAuthorizationGraphBuilder` as production authentication — a design decision exclusive to UMS's internal architecture.
+
+
 **Status:** Accepted  
 **Date:** 2026-06-03  
 **Decision Owner:** Architecture  

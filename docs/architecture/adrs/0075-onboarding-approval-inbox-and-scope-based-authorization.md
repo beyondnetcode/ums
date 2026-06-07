@@ -1,5 +1,8 @@
 # ADR-0075: Onboarding Approval Inbox and Scope-Based Authorization
 
+> **UMS-specific:** No Evolith upstream. This ADR governs the UMS onboarding workflow and approval inbox — business-domain logic exclusive to the User Management System.
+
+
 **Status:** Accepted  
 **Date:** 2026-06-01  
 **Context:** UMS Identity, Tenant Onboarding, User Onboarding
