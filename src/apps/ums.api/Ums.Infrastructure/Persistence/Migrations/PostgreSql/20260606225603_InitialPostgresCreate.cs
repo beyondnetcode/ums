@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -11,6 +11,9 @@ namespace Ums.Infrastructure.Persistence.Migrations.PostgreSql
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AlterDatabase()
+                .Annotation("Npgsql:PostgresExtension:pgcrypto", ",,");
+
             migrationBuilder.EnsureSchema(
                 name: "approvals");
 

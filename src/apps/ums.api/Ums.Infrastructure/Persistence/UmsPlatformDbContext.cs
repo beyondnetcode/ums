@@ -91,9 +91,22 @@ public sealed class UmsPlatformDbContext(
     public DbSet<AccessNotificationRecord> UserDocumentNotifications => Set<AccessNotificationRecord>();
     public DbSet<AccessEnforcementPolicyRecord> AccessEnforcementPolicies => Set<AccessEnforcementPolicyRecord>();
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.ConfigureWarnings(warnings =>
+            warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+        base.OnConfiguring(optionsBuilder);
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(DefaultSchema);
+        
+        if (Database.IsNpgsql())
+        {
+            modelBuilder.HasPostgresExtension("pgcrypto");
+        }
+
         modelBuilder.ApplyConfiguration(new TenantRecordConfiguration());
         modelBuilder.ApplyConfiguration(new TenantBranchRecordConfiguration());
         modelBuilder.ApplyConfiguration(new TenantIdentityProviderRecordConfiguration());

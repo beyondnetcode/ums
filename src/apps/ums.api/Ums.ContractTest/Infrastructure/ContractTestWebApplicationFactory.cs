@@ -8,6 +8,7 @@ using Ums.Domain.Audit.AuditRecord;
 using Ums.Infrastructure.Persistence;
 using Ums.Infrastructure.Persistence.Audit;
 using Ums.Infrastructure.Persistence.Options;
+using Ums.ReadModels;
 using Ums.Presentation;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -64,6 +65,11 @@ public sealed class ContractTestWebApplicationFactory : WebApplicationFactory<Pr
             services.RemoveAll<UmsPlatformDbContext>();
             services.AddDbContext<UmsPlatformDbContext>((_, options) =>
                 options.UseInMemoryDatabase("ContractTestDb"));
+
+            // Register ReadModelDbContext with InMemory so projection handlers can be resolved.
+            services.RemoveAll<ReadModelDbContext>();
+            services.AddDbContext<ReadModelDbContext>((_, options) =>
+                options.UseInMemoryDatabase("ContractTestReadModelDb"));
 
             // Swap all SQL Server stores for their InMemory equivalents.
             foreach (var t in new[]

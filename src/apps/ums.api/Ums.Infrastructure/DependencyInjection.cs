@@ -81,48 +81,8 @@ public static class DependencyInjection
         }));
         services.AddSingleton<IAuditTrailSink, AuditTrailChannelSink>();
 
-        services.AddFactory(builder => builder
-            .AddTransient<EmailNotificationRecipientStrategy, EmailNotificationRecipientStrategy>()
-            .AddTransient<SmsNotificationRecipientStrategy, SmsNotificationRecipientStrategy>()
-            .AddTransient<InAppNotificationRecipientStrategy, InAppNotificationRecipientStrategy>()
-            .AddTransient<ManualApprovalRequestCreationStrategy, ManualApprovalRequestCreationStrategy>()
-            .AddTransient<AutoApproveApprovalRequestCreationStrategy, AutoApproveApprovalRequestCreationStrategy>()
-            .AddTransient<InternalBcryptIdpResolutionStrategy, InternalBcryptIdpResolutionStrategy>()
-            .AddTransient<ZitadelIdpResolutionStrategy, ZitadelIdpResolutionStrategy>()
-            .AddTransient<AzureAdIdpResolutionStrategy, AzureAdIdpResolutionStrategy>()
-            .AddTransient<OktaIdpResolutionStrategy, OktaIdpResolutionStrategy>()
-            .AddTransient<KeycloakIdpResolutionStrategy, KeycloakIdpResolutionStrategy>()
-            .AddTransient<Auth0IdpResolutionStrategy, Auth0IdpResolutionStrategy>()
-            .AddTransient<GoogleIdpResolutionStrategy, GoogleIdpResolutionStrategy>()
-            .AddTransient<LdapIdpResolutionStrategy, LdapIdpResolutionStrategy>()
-            .AddTransient<Saml2IdpResolutionStrategy, Saml2IdpResolutionStrategy>()
-            .AddTransient<GenericOidcIdpResolutionStrategy, GenericOidcIdpResolutionStrategy>()
-            .AddTransient<ProfileJsonExporter, ProfileJsonExporter>()
-            .AddTransient<ProfileXmlExporter, ProfileXmlExporter>()
-            .AddTransient<ProfileYamlExporter, ProfileYamlExporter>()
-            .AddTransient<ProfileCsvExporter, ProfileCsvExporter>()
-            // Auth Graph serializers (JSON/XML/YAML/CSV)
-            .AddTransient<Authorization.Graph.JsonAuthorizationGraphSerializer, Authorization.Graph.JsonAuthorizationGraphSerializer>()
-            .AddTransient<Authorization.Graph.XmlAuthorizationGraphSerializer,  Authorization.Graph.XmlAuthorizationGraphSerializer>()
-            .AddTransient<Authorization.Graph.YamlAuthorizationGraphSerializer, Authorization.Graph.YamlAuthorizationGraphSerializer>()
-            .AddTransient<Authorization.Graph.CsvAuthorizationGraphSerializer,  Authorization.Graph.CsvAuthorizationGraphSerializer>()
-            .AddSource<NotificationRecipientStrategyFactorySetup>()
-            .AddSource<ApprovalRequestCreationStrategyFactorySetup>()
-            .AddSource<IdpResolutionStrategyFactorySetup>()
-            .AddSource<ProfileExportFactorySetup>()
-            .AddSource<Authorization.Graph.AuthorizationGraphSerializerFactorySetup>()
-            // Production IDP adapters (empty until real adapters are implemented)
-            .AddSource<Identity.Auth.IdpAuthAdapterFactorySetup>());
-
-        // Stub IDP adapters — registered per-strategy for non-Production only.
-        // In Production, real adapters are registered in IdpAuthAdapterFactorySetup.
         var isNotProduction = environment is null || !environment.IsProduction();
-        if (isNotProduction)
-        {
-            services.AddFactory(b => b
-                .AddTransient<Identity.Auth.StubIdpAuthAdapter, Identity.Auth.StubIdpAuthAdapter>()
-                .AddSource<Identity.Auth.IdpAuthAdapterStubFactorySetup>());
-        }
+        services.AddUmsFactories(isNotProduction);
 
         services.AddScoped<ITenantParameterProvider, TenantParameterProvider>();
         services.AddScoped<ITenantExportConfigurationProvider, TenantExportConfigurationProvider>();
@@ -291,6 +251,9 @@ public static class DependencyInjection
                 options.AddInterceptors(
                     serviceProvider.GetRequiredService<OrganizationDbContextInterceptor>(),
                     serviceProvider.GetRequiredService<AuditSaveChangesInterceptor>());
+                    
+                options.ConfigureWarnings(warnings =>
+                    warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
             });
         }
 

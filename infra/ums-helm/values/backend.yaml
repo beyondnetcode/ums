@@ -4,7 +4,7 @@ image:
 env:
   - name: ASPNETCORE_ENVIRONMENT
     value: Production
-  - name: ConnectionStrings__Default
+  - name: ConnectionStrings__DefaultConnection
     valueFrom:
       secretKeyRef:
         name: ums-db-secret
@@ -14,6 +14,20 @@ env:
       secretKeyRef:
         name: ums-admin-secret
         key: ADMIN_PASSWORD
+  - name: Persistence__Provider
+    value: PostgreSql
+  - name: Persistence__UsePostgreSqlIdentityStores
+    value: "true"
+  - name: Persistence__UsePostgreSqlAuthorizationStores
+    value: "true"
+  - name: Persistence__UsePostgreSqlConfigurationStores
+    value: "true"
+  - name: Persistence__UsePostgreSqlApprovalsStores
+    value: "true"
+  - name: Persistence__InitializePlatformStoreOnStartup
+    value: "true"
+  - name: Persistence__SeedDevData
+    value: "true"
   - name: REDIS_CONNECTION
     value: redis://ums-redis:6379
   - name: OTEL_EXPORTER_JAEGER_ENDPOINT
