@@ -12,14 +12,14 @@
 
 <br/>
 
-<a href="./docs/diagrams/infrastructure_diagram.png" title="UMS Infrastructure Diagram — click to enlarge">
-  <img src="./docs/diagrams/infrastructure_diagram.png"
-       alt="UMS Infrastructure Diagram"
+<a href="https://raw.githubusercontent.com/beyondnetcode/evolith_arch32/main/reference/governance/sdlc/assets/master-view.png" title="Evolith E2E Architecture — UMS is a satellite product · click to enlarge">
+  <img src="https://raw.githubusercontent.com/beyondnetcode/evolith_arch32/main/reference/governance/sdlc/assets/master-view.png"
+       alt="Evolith E2E Architecture — UMS is a satellite product"
        width="780"
        style="border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);" />
 </a>
 
-<sub>↑ UMS Infrastructure Architecture · <i>click to enlarge</i></sub>
+<sub>↑ <a href="https://github.com/beyondnetcode/evolith_arch32">Evolith</a> E2E Architecture Framework · <strong>UMS is an official satellite product</strong> · <i>click to enlarge</i></sub>
 
 <br/>
 
