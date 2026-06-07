@@ -12,14 +12,14 @@
 
 <br/>
 
-<a href="https://raw.githubusercontent.com/beyondnetcode/evolith_arch32/main/reference/governance/sdlc/assets/master-view.png" title="Evolith E2E Architecture — UMS is a satellite product · click to enlarge">
-  <img src="https://raw.githubusercontent.com/beyondnetcode/evolith_arch32/main/reference/governance/sdlc/assets/master-view.png"
-       alt="Evolith E2E Architecture — UMS is a satellite product"
+<a href="./docs/diagrams/evolith-ums-satellite.png" title="Evolith E2E Architecture — UMS Official Satellite Product · click to enlarge">
+  <img src="./docs/diagrams/evolith-ums-satellite.png"
+       alt="Evolith E2E Architecture — UMS Official Satellite Product"
        width="780"
        style="border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);" />
 </a>
 
-<sub>↑ <a href="https://github.com/beyondnetcode/evolith_arch32">Evolith</a> E2E Architecture Framework · <strong>UMS is an official satellite product</strong> · <i>click to enlarge</i></sub>
+<sub>↑ <a href="https://github.com/beyondnetcode/evolith_arch32">Evolith</a> E2E Architecture Framework · <strong>UMS — Official Satellite Product</strong> · <i>click to enlarge</i></sub>
 
 <br/>
 
