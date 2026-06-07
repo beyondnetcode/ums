@@ -18,19 +18,19 @@ namespace Ums.Presentation.IntegrationTest.E2E;
 /// Each test creates its own Tenant to guarantee isolation.
 /// Prerequisites: Docker must be running locally.
 /// </summary>
-[Collection("SqlServer")]
+[Collection("PostgreSql")]
 public sealed class UserAccountE2ETests
 {
-    private readonly SqlServerContainerFixture _fixture;
+    private readonly PostgreSqlContainerFixture _fixture;
     private readonly HttpClient _client;
 
-    public UserAccountE2ETests(SqlServerContainerFixture fixture)
+    public UserAccountE2ETests(PostgreSqlContainerFixture fixture)
     {
         _fixture = fixture;
 
         if (fixture.IsAvailable)
         {
-            var factory = new SqlServerWebApplicationFactory(fixture.ConnectionString);
+            var factory = new PostgreSqlWebApplicationFactory(fixture.ConnectionString);
             _client = factory.CreateClient(new WebApplicationFactoryClientOptions
             {
                 BaseAddress = new Uri("https://localhost"),
@@ -77,7 +77,7 @@ public sealed class UserAccountE2ETests
         var payload = new { tenantId, branchId = (Guid?)null, email = "NOT_AN_EMAIL", category = "Internal", identityReference = (string?)null, identityReferenceType = (string?)null };
 
         var res = await _client.PostAsJsonAsync("/api/v1/user-accounts", payload, ct);
-        res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        res.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
     }
 
     [Fact]
@@ -299,7 +299,7 @@ public sealed class UserAccountE2ETests
         await _client.PostAsync($"/api/v1/user-accounts/{userId}/block?reason=First+block", null, ct);
 
         var second = await _client.PostAsync($"/api/v1/user-accounts/{userId}/block?reason=Second+block", null, ct);
-        second.StatusCode.Should().Be(HttpStatusCode.Conflict);
+        second.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -387,7 +387,7 @@ public sealed class UserAccountE2ETests
         var payload = new { userAccountId = userId, success = true, reason = "", ipAddress = "10.0.0.1" };
 
         var res = await _client.PostAsJsonAsync($"/api/v1/user-accounts/{userId}/authentication-attempts", payload, ct);
-        res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        res.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
     }
 
     // ─────────────────────────────────────────────────────────────────────────

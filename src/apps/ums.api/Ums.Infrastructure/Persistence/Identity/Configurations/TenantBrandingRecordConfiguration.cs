@@ -24,6 +24,6 @@ public sealed class TenantBrandingRecordConfiguration : IEntityTypeConfiguration
         builder.Property(x => x.AuditTimeSpan).HasMaxLength(100).IsRequired();
 
         builder.HasIndex(x => x.TenantId).IsUnique();
-        builder.HasIndex(x => x.CustomDomain).IsUnique().HasFilter("[CustomDomain] IS NOT NULL");
+        builder.HasIndex(x => x.CustomDomain).IsUnique().HasFilter("\"CustomDomain\" IS NOT NULL");
     }
 }

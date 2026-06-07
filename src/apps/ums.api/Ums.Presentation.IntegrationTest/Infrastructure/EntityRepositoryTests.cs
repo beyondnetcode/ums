@@ -76,7 +76,7 @@ public class TenantRepositoryBasicTests
     private UmsPlatformDbContext CreateContext(DbContextOptions<UmsPlatformDbContext> options)
     {
         var tenantContext = new TestTenantContext(_testTenantId);
-        return new UmsPlatformDbContext(options, tenantContext);
+        return new UmsPlatformDbContext(options, tenantContext, new Moq.Mock<MassTransit.IPublishEndpoint>().Object);
     }
 
     private class TestTenantContext(Guid tenantId) : ITenantContext
@@ -203,7 +203,7 @@ public class UserAccountRepositoryBasicTests
     private UmsPlatformDbContext CreateContext(DbContextOptions<UmsPlatformDbContext> options)
     {
         var tenantContext = new TestTenantContext(_testTenantId);
-        return new UmsPlatformDbContext(options, tenantContext);
+        return new UmsPlatformDbContext(options, tenantContext, new Moq.Mock<MassTransit.IPublishEndpoint>().Object);
     }
 
     private class TestTenantContext(Guid tenantId) : ITenantContext

@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}-sqlserver
+spec:
+  serviceName: "sqlserver"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sqlserver
+  template:
+    metadata:
+      labels:
+        app: sqlserver
+    spec:
+      containers:
+      - name: sqlserver
+        image: {{ .Values.sqlserver.image }}
+        ports:
+        - containerPort: {{ .Values.sqlserver.port }}
+        env:
+        - name: ACCEPT_EULA
+          value: "Y"
+        - name: MSSQL_SA_PASSWORD
+          value: {{ .Values.sqlserver.password | quote }}
+        - name: MSSQL_PID
+          value: "Developer"
+        volumeMounts:
+        - name: sqlserver-data
+          mountPath: /var/opt/mssql
+  volumeClaimTemplates:
+  - metadata:
+      name: sqlserver-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sqlserver-lite
+spec:
+  ports:
+  - port: 1433
+    targetPort: 1433
+  selector:
+    app: sqlserver

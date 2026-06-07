@@ -37,7 +37,7 @@ public sealed class SqliteSchemaBootstrapperTests
             .UseSqlite(connection)
             .Options;
 
-        await using var context = new UmsPlatformDbContext(options, new SystemTenantContext());
+        await using var context = new UmsPlatformDbContext(options, new SystemTenantContext(), new Moq.Mock<MassTransit.IPublishEndpoint>().Object);
 
         var bootstrapper = typeof(SqliteSchemaBootstrapper)
             .GetMethod("EnsureTenantManagementOwnerColumnAsync", BindingFlags.NonPublic | BindingFlags.Static)
@@ -62,7 +62,7 @@ public sealed class SqliteSchemaBootstrapperTests
             .UseSqlite(connection)
             .Options;
 
-        await using var context = new UmsPlatformDbContext(options, new SystemTenantContext());
+        await using var context = new UmsPlatformDbContext(options, new SystemTenantContext(), new Moq.Mock<MassTransit.IPublishEndpoint>().Object);
 
         await SqliteSchemaBootstrapper.InitializeAsync(context, ct);
 
@@ -113,7 +113,7 @@ public sealed class SqliteSchemaBootstrapperTests
             .UseSqlite(connection)
             .Options;
 
-        await using var context = new UmsPlatformDbContext(options, new SystemTenantContext());
+        await using var context = new UmsPlatformDbContext(options, new SystemTenantContext(), new Moq.Mock<MassTransit.IPublishEndpoint>().Object);
 
         await SqliteSchemaBootstrapper.InitializeAsync(context, ct);
 

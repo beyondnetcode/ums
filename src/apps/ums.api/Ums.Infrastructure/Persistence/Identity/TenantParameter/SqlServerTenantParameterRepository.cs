@@ -4,7 +4,6 @@ using Ums.Domain.Identity.Tenant.TenantParameter;
 using Ums.Domain.Kernel;
 using Ums.Infrastructure.Persistence;
 using Ums.Infrastructure.Persistence.Identity.Entities;
-using Ums.Infrastructure.Persistence.Outbox;
 using Ums.Infrastructure.Persistence.Reflection;
 
 namespace Ums.Infrastructure.Persistence.Identity.TenantParameter;
@@ -32,7 +31,7 @@ public sealed class SqlServerTenantParameterRepository : ITenantParameterReposit
     {
         foreach (var aggregate in _trackedAggregates)
         {
-            dbContext.OutboxMessages.AddRange(OutboxMessageFactory.CreateFromAggregate(aggregate));
+            await dbContext.PublishDomainEventsAsync(aggregate.DomainEvents.GetUncommittedChanges(), cancellationToken);
         }
 
         try

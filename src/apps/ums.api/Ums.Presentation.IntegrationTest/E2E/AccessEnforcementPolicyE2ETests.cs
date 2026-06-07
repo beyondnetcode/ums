@@ -17,19 +17,19 @@ namespace Ums.Presentation.IntegrationTest.E2E;
 /// Each test creates its own Tenant + SystemSuite + Role to keep the target scope
 /// isolated and traceable.
 /// </summary>
-[Collection("SqlServer")]
+[Collection("PostgreSql")]
 public sealed class AccessEnforcementPolicyE2ETests
 {
-    private readonly SqlServerContainerFixture _fixture;
+    private readonly PostgreSqlContainerFixture _fixture;
     private readonly HttpClient _client;
 
-    public AccessEnforcementPolicyE2ETests(SqlServerContainerFixture fixture)
+    public AccessEnforcementPolicyE2ETests(PostgreSqlContainerFixture fixture)
     {
         _fixture = fixture;
 
         if (fixture.IsAvailable)
         {
-            var factory = new SqlServerWebApplicationFactory(fixture.ConnectionString);
+            var factory = new PostgreSqlWebApplicationFactory(fixture.ConnectionString);
             _client = factory.CreateClient(new WebApplicationFactoryClientOptions
             {
                 BaseAddress = new Uri("https://localhost"),

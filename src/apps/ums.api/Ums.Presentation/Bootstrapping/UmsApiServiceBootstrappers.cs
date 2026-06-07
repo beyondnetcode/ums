@@ -2,6 +2,7 @@ using Asp.Versioning;
 using Asp.Versioning.Builder;
 using System.Diagnostics;
 using System.Threading.RateLimiting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -11,7 +12,6 @@ using Ums.Domain.Identity;
 using Ums.Globalization;
 using Ums.Globalization.Access;
 using Ums.Infrastructure;
-using Ums.Infrastructure.HealthChecks;
 using Ums.Infrastructure.Persistence;
 using Ums.Infrastructure.Persistence.Options;
 using Ums.Infrastructure.Persistence.Seeders;
@@ -257,22 +257,29 @@ public static class UmsApiApplicationBuilderExtensions
 {
     public static async Task<WebApplication> InitializeUmsPlatformAsync(this WebApplication app)
     {
-        var persistenceOptions = app.Services.GetRequiredService<IOptions<PersistenceOptions>>().Value;
+        var persistence = app.Services.GetRequiredService<IOptions<PersistenceOptions>>().Value;
 
-        if (persistenceOptions.Provider == PersistenceProvider.SqlServer && persistenceOptions.InitializePlatformStoreOnStartup)
+        if (persistence.InitializePlatformStoreOnStartup)
         {
             using var scope = app.Services.CreateScope();
             var platformDbContext = scope.ServiceProvider.GetRequiredService<UmsPlatformDbContext>();
-            await SqlServerSchemaBootstrapper.InitializeAsync(platformDbContext, new SqlServerDistributedLockProvider());
-        }
-        else if (persistenceOptions.Provider == PersistenceProvider.Sqlite)
-        {
-            using var scope = app.Services.CreateScope();
-            var platformDbContext = scope.ServiceProvider.GetRequiredService<UmsPlatformDbContext>();
-            await SqliteSchemaBootstrapper.InitializeAsync(platformDbContext);
+
+            if (persistence.Provider == PersistenceProvider.SqlServer)
+            {
+                await SqlServerSchemaBootstrapper.InitializeAsync(platformDbContext, new SqlServerDistributedLockProvider());
+            }
+            else if (persistence.Provider == PersistenceProvider.Sqlite)
+            {
+                await SqliteSchemaBootstrapper.InitializeAsync(platformDbContext);
+            }
+            else if (persistence.Provider == PersistenceProvider.PostgreSql)
+            {
+                // Usamos EF Core Migrations nativas para PostgreSQL
+                await platformDbContext.Database.MigrateAsync();
+            }
         }
 
-        if (app.Environment.IsDevelopment() && persistenceOptions.SeedDevData)
+        if (app.Environment.IsDevelopment() && persistence.SeedDevData)
         {
             await app.SeedDevelopmentDataAsync();
         }

@@ -16,5 +16,5 @@ public sealed class PermissionTemplateItemRecord : IAuditableRecord
     public DateTime? UpdatedAtUtc { get; set; }
     public string AuditTimeSpan { get; set; } = string.Empty;
 
-    public PermissionTemplateRecord Template { get; set; } = null!;
+    public PermissionTemplateRecord? Template { get; set; }
 }

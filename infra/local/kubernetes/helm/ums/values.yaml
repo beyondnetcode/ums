@@ -1,0 +1,26 @@
+api:
+  image: "ums-api:latest"
+  port: 8080
+web:
+  image: "ums-web:latest"
+  port: 80
+sqlserver:
+  image: "mcr.microsoft.com/azure-sql-edge:latest"
+  password: "Your_password123"
+  port: 1433
+redis:
+  image: "redis:7.4-alpine"
+  port: 6379
+observability:
+  tempo:
+    image: "grafana/tempo:2.5.0"
+  loki:
+    image: "grafana/loki:3.0.0"
+  otelCollector:
+    image: "otel/opentelemetry-collector-contrib:0.101.0"
+  promtail:
+    image: "grafana/promtail:3.0.0"
+  prometheus:
+    image: "prom/prometheus:v2.52.0"
+  grafana:
+    image: "grafana/grafana:11.0.0"

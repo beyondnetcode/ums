@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ums-web
+  template:
+    metadata:
+      labels:
+        app: ums-web
+    spec:
+      containers:
+      - name: ums-web
+        image: {{ .Values.web.image }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: {{ .Values.web.port }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ums-web
+spec:
+  ports:
+  - port: 5173
+    targetPort: 80
+  selector:
+    app: ums-web

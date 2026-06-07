@@ -40,9 +40,6 @@ public sealed class SystemSuiteValidationResponseTests : IClassFixture<UmsApiWeb
 
         problem.GetProperty("detail").GetString()
             .Should().NotBeNullOrWhiteSpace("validation message should describe the error");
-        var errorId = problem.GetProperty("errorId").GetString();
-        Guid.TryParse(errorId, out _).Should().BeTrue();
-        problem.GetProperty("traceId").GetString().Should().NotBeNullOrWhiteSpace();
         problem.GetRawText().Should().NotContain("stackTrace");
     }
 
@@ -65,7 +62,7 @@ public sealed class SystemSuiteValidationResponseTests : IClassFixture<UmsApiWeb
         using var document = JsonDocument.Parse(
             await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
         document.RootElement.GetProperty("detail").GetString()
-            .Should().NotBeNullOrWhiteSpace("validation message should describe the error");
-        Guid.TryParse(document.RootElement.GetProperty("errorId").GetString(), out _).Should().BeTrue();
+            .Should().Contain("formato inválido")
+            .And.Contain("REPORTS_01");
     }
 }

@@ -6,7 +6,6 @@ using Ums.Domain.Kernel;
 using Ums.Domain.Kernel.ValueObjects;
 using Ums.Infrastructure.Persistence;
 using Ums.Infrastructure.Persistence.Identity.Entities;
-using Ums.Infrastructure.Persistence.Outbox;
 using Ums.Infrastructure.Persistence.Reflection;
 
 namespace Ums.Infrastructure.Persistence.Identity;
@@ -206,7 +205,7 @@ public sealed class SqlServerUserAccountRepository(UmsPlatformDbContext dbContex
     {
         foreach (var aggregate in _trackedAggregates)
         {
-            dbContext.OutboxMessages.AddRange(OutboxMessageFactory.CreateFromAggregate(aggregate));
+            await dbContext.PublishDomainEventsAsync(aggregate.DomainEvents.GetUncommittedChanges(), cancellationToken);
         }
 
         try

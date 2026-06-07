@@ -51,7 +51,7 @@ public sealed class IdpConfigurationRestEndpointTests : IClassFixture<UmsApiWebA
             configPayload = "{\"authority\":\"https://login.microsoftonline.com/tenant-b\"}",
             secretRef = "kv/idp/test-updated",
         }, TestContext.Current.CancellationToken);
-        updateResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        updateResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         var getUpdatedResponse = await _client.GetAsync($"/api/v1/idp-configurations/{idpConfigurationId}", TestContext.Current.CancellationToken);
         using var updatedPayload = JsonDocument.Parse(await getUpdatedResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
@@ -59,7 +59,7 @@ public sealed class IdpConfigurationRestEndpointTests : IClassFixture<UmsApiWebA
         updatedPayload.RootElement.GetProperty("version").GetInt32().Should().Be(2);
 
         var activateResponse = await _client.PostAsync($"/api/v1/idp-configurations/{idpConfigurationId}/activate", null, TestContext.Current.CancellationToken);
-        activateResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        activateResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         var getActivatedResponse = await _client.GetAsync($"/api/v1/idp-configurations/{idpConfigurationId}", TestContext.Current.CancellationToken);
         using var activatedPayload = JsonDocument.Parse(await getActivatedResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));

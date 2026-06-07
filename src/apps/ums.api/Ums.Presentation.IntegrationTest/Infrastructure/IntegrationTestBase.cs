@@ -11,15 +11,15 @@ namespace Ums.Presentation.IntegrationTest.Infrastructure;
 /// </summary>
 public abstract class IntegrationTestBase : IDisposable
 {
-    protected readonly SqlServerContainerFixture Fixture;
+    protected readonly PostgreSqlContainerFixture Fixture;
     protected readonly HttpClient Client;
 
-    protected IntegrationTestBase(SqlServerContainerFixture fixture)
+    protected IntegrationTestBase(PostgreSqlContainerFixture fixture)
     {
         Fixture = fixture;
         if (fixture.IsAvailable)
         {
-            var factory = new SqlServerWebApplicationFactory(fixture.ConnectionString);
+            var factory = new PostgreSqlWebApplicationFactory(fixture.ConnectionString);
             Client = factory.CreateClient(new WebApplicationFactoryClientOptions
             {
                 BaseAddress = new Uri("https://localhost"),

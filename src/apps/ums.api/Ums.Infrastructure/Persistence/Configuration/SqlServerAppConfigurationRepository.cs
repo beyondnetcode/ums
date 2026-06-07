@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Ums.Domain.Configuration;
 using Ums.Domain.Kernel;
 using Ums.Infrastructure.Persistence.Configuration.Entities;
-using Ums.Infrastructure.Persistence.Outbox;
 using Ums.Infrastructure.Persistence.Reflection;
 
 namespace Ums.Infrastructure.Persistence.Configuration;
@@ -99,7 +98,7 @@ public sealed class SqlServerAppConfigurationRepository(UmsPlatformDbContext dbC
     {
         foreach (var aggregate in _trackedAggregates)
         {
-            dbContext.OutboxMessages.AddRange(OutboxMessageFactory.CreateFromAggregate(aggregate));
+            await dbContext.PublishDomainEventsAsync(aggregate.DomainEvents.GetUncommittedChanges(), cancellationToken);
         }
 
         try

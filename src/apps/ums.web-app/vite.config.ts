@@ -54,8 +54,7 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks: id => {
             if (id.includes('node_modules')) {
-              if (id.includes('react-dom')) return 'react-dom';
-              if (id.includes('react') && !id.includes('react-dom')) return 'react';
+              if (id.includes('react') || id.includes('react-dom') || id.includes('scheduler')) return 'vendor-react';
               if (id.includes('@tanstack')) return 'tanstack-query';
               if (id.includes('lucide-react')) return 'lucide-icons';
               if (id.includes('zustand')) return 'zustand';

@@ -17,19 +17,19 @@ namespace Ums.Presentation.IntegrationTest.E2E;
 /// Prerequisites: Docker must be running locally.
 /// Tests are automatically skipped when Docker is unavailable.
 /// </summary>
-[Collection("SqlServer")]
+[Collection("PostgreSql")]
 public sealed class TenantE2ETests
 {
-    private readonly SqlServerContainerFixture _fixture;
+    private readonly PostgreSqlContainerFixture _fixture;
     private readonly HttpClient _client;
 
-    public TenantE2ETests(SqlServerContainerFixture fixture)
+    public TenantE2ETests(PostgreSqlContainerFixture fixture)
     {
         _fixture = fixture;
 
         if (fixture.IsAvailable)
         {
-            var factory = new SqlServerWebApplicationFactory(fixture.ConnectionString);
+            var factory = new PostgreSqlWebApplicationFactory(fixture.ConnectionString);
             _client = factory.CreateClient(new WebApplicationFactoryClientOptions
             {
                 BaseAddress = new Uri("https://localhost"),

@@ -4,7 +4,6 @@ using Ums.Domain.Identity;
 using Ums.Domain.Kernel;
 using Ums.Infrastructure.Persistence;
 using Ums.Infrastructure.Persistence.Identity.Entities;
-using Ums.Infrastructure.Persistence.Outbox;
 using Ums.Infrastructure.Persistence.Reflection;
 
 namespace Ums.Infrastructure.Persistence.Identity;
@@ -184,7 +183,7 @@ public sealed class SqlServerTenantRepository(UmsPlatformDbContext dbContext) : 
         // MarkChangesAsCommitted() is called AFTER SaveChangesAsync succeeds (FIX-01).
         foreach (var aggregate in _trackedAggregates)
         {
-            dbContext.OutboxMessages.AddRange(OutboxMessageFactory.CreateFromAggregate(aggregate));
+            await dbContext.PublishDomainEventsAsync(aggregate.DomainEvents.GetUncommittedChanges(), cancellationToken);
         }
 
         try

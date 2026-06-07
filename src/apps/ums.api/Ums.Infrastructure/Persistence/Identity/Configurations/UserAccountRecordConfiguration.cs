@@ -22,7 +22,7 @@ public sealed class UserAccountRecordConfiguration : IEntityTypeConfiguration<Us
         // REC-16: Soft-delete + GDPR
         builder.Property(x => x.IsDeleted).HasDefaultValue(false).IsRequired();
         builder.Property(x => x.DeletedBy).HasMaxLength(100);
-        builder.HasIndex(x => x.IsDeleted).HasFilter("[IsDeleted] = 0");
+        builder.HasIndex(x => x.IsDeleted).HasFilter("\"IsDeleted\" = false");
 
         builder.HasIndex(x => x.Email);
         builder.HasIndex(x => new { x.TenantId, x.Email }).IsUnique();

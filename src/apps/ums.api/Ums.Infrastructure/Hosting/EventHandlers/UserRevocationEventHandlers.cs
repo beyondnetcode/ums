@@ -1,4 +1,4 @@
-using MediatR;
+using MassTransit;
 using Microsoft.Extensions.Logging;
 using Ums.Domain.Events;
 using BeyondNetCode.Shell.Ddd.Interfaces;
@@ -14,16 +14,16 @@ namespace Ums.Infrastructure.Hosting.EventHandlers;
 public sealed class UserDeletedTokenRevocationHandler(
     ITokenRevocationStore revocationStore,
     ILogger<UserDeletedTokenRevocationHandler> logger)
-    : INotificationHandler<UserDeletedEvent>
+    : IConsumer<UserDeletedEvent>
 {
     private static readonly TimeSpan RevocationWindow = TimeSpan.FromHours(24);
 
-    public async Task Handle(UserDeletedEvent notification, CancellationToken cancellationToken)
+    public async Task Consume(ConsumeContext<UserDeletedEvent> context)
     {
-        var userId    = notification.UserId.ToString();
+        var userId    = context.Message.UserId.ToString();
         var revokeUntil = DateTime.UtcNow.Add(RevocationWindow);
 
-        await revocationStore.RevokeAsync(userId, revokeUntil, cancellationToken);
+        await revocationStore.RevokeAsync(userId, revokeUntil, context.CancellationToken);
 
         logger.LogInformation(
             "HARDENING-03: Revoked tokens for deleted user {UserId} until {RevokeUntil:O}.",
@@ -40,19 +40,19 @@ public sealed class UserDeletedTokenRevocationHandler(
 public sealed class UserBlockedTokenRevocationHandler(
     ITokenRevocationStore revocationStore,
     ILogger<UserBlockedTokenRevocationHandler> logger)
-    : INotificationHandler<UserBlockedEvent>
+    : IConsumer<UserBlockedEvent>
 {
     private static readonly TimeSpan RevocationWindow = TimeSpan.FromHours(4);
 
-    public async Task Handle(UserBlockedEvent notification, CancellationToken cancellationToken)
+    public async Task Consume(ConsumeContext<UserBlockedEvent> context)
     {
-        var userId    = notification.UserId.ToString();
+        var userId    = context.Message.UserId.ToString();
         var revokeUntil = DateTime.UtcNow.Add(RevocationWindow);
 
-        await revocationStore.RevokeAsync(userId, revokeUntil, cancellationToken);
+        await revocationStore.RevokeAsync(userId, revokeUntil, context.CancellationToken);
 
         logger.LogInformation(
             "HARDENING-03: Revoked tokens for blocked user {UserId} until {RevokeUntil:O}. Reason: {Reason}",
-            userId, revokeUntil, notification.Reason);
+            userId, revokeUntil, context.Message.Reason);
     }
 }

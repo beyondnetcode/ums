@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Ums.Domain.Approvals;
 using Ums.Domain.Kernel;
 using Ums.Infrastructure.Persistence.Approvals.Entities;
-using Ums.Infrastructure.Persistence.Outbox;
 using Ums.Infrastructure.Persistence.Reflection;
 
 namespace Ums.Infrastructure.Persistence.Approvals;
@@ -79,7 +78,7 @@ public sealed class SqlServerDocumentTypeRepository : IDocumentTypeRepository, I
     {
         foreach (var aggregate in _trackedAggregates)
         {
-            _dbContext.OutboxMessages.AddRange(OutboxMessageFactory.CreateFromAggregate(aggregate));
+            await _dbContext.PublishDomainEventsAsync(aggregate.DomainEvents.GetUncommittedChanges(), cancellationToken);
         }
 
         try

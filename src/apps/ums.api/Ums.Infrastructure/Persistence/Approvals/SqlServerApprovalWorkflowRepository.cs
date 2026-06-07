@@ -3,7 +3,6 @@ using Ums.Domain.Approvals;
 using Ums.Domain.Kernel;
 using Ums.Infrastructure.Persistence;
 using Ums.Infrastructure.Persistence.Approvals.Entities;
-using Ums.Infrastructure.Persistence.Outbox;
 using Ums.Infrastructure.Persistence.Reflection;
 
 namespace Ums.Infrastructure.Persistence.Approvals;
@@ -83,7 +82,7 @@ public sealed class SqlServerApprovalWorkflowRepository : IApprovalWorkflowRepos
     {
         foreach (var aggregate in _trackedAggregates)
         {
-            _dbContext.OutboxMessages.AddRange(OutboxMessageFactory.CreateFromAggregate(aggregate));
+            await _dbContext.PublishDomainEventsAsync(aggregate.DomainEvents.GetUncommittedChanges(), cancellationToken);
         }
 
         try

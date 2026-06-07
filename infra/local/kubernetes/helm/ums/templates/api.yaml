@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ums-api
+  template:
+    metadata:
+      labels:
+        app: ums-api
+    spec:
+      containers:
+      - name: ums-api
+        image: {{ .Values.api.image }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: {{ .Values.api.port }}
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Development"
+        - name: ASPNETCORE_URLS
+          value: "http://+:8080"
+        - name: AllowedOrigins
+          value: "http://localhost:5173,http://localhost:3000,http://ums.local"
+        - name: ConnectionStrings__DefaultConnection
+          value: "Server=sqlserver-lite,1433;Database=UmsDev;User Id=sa;Password={{ .Values.sqlserver.password }};TrustServerCertificate=True;Encrypt=False;"
+        - name: Persistence__Provider
+          value: "SqlServer"
+        - name: Persistence__AggregateStoreMode
+          value: "SqlServer"
+        - name: Persistence__UseSqlServerIdentityStores
+          value: "true"
+        - name: Persistence__UseSqlServerAuthorizationStores
+          value: "true"
+        - name: Persistence__UseSqlServerConfigurationStores
+          value: "true"
+        - name: Persistence__SeedDevData
+          value: "true"
+        - name: Persistence__EnableOutbox
+          value: "true"
+        - name: Persistence__InitializePlatformStoreOnStartup
+          value: "true"
+        - name: Observability__Tracing__OtlpEndpoint
+          value: "http://otel-collector:4317"
+        - name: Observability__Tracing__ServiceVersion
+          value: "1.0.0-dev-k8s"
+        - name: Observability__Logging__MinimumLevel
+          value: "Debug"
+        - name: Observability__Logging__ConsoleFormat
+          value: "Text"
+        - name: Redis__Connection
+          value: "redis:6379,abortConnect=false"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ums-api
+spec:
+  ports:
+  - port: 5293
+    targetPort: 8080
+  selector:
+    app: ums-api

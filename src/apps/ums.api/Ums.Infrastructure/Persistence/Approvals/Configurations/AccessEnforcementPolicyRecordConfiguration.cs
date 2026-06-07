@@ -19,7 +19,7 @@ public sealed class AccessEnforcementPolicyRecordConfiguration : IEntityTypeConf
         builder.Property(x => x.RowVersion).IsRowVersion();
 
         builder.HasIndex(x => x.TenantId);
-        builder.HasIndex(x => new { x.TenantId, x.ProfileId }).HasFilter("[ProfileId] IS NOT NULL");
-        builder.HasIndex(x => new { x.TenantId, x.RoleId }).HasFilter("[RoleId] IS NOT NULL");
+        builder.HasIndex(x => new { x.TenantId, x.ProfileId }).HasFilter("\"ProfileId\" IS NOT NULL");
+        builder.HasIndex(x => new { x.TenantId, x.RoleId }).HasFilter("\"RoleId\" IS NOT NULL");
     }
 }

@@ -1,13 +1,13 @@
 namespace Ums.Infrastructure;
 
 using MediatR;
+using MassTransit;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Http.Resilience;
 using Polly;
-using Ums.Infrastructure.HealthChecks;
 using BeyondNetCode.Shell.Aop.Microsoft.Extensions.DependencyInjection.Aspects.Installer;
 using Ums.Domain.Audit.AuditRecord;
 using Ums.Domain.Approvals;
@@ -56,7 +56,7 @@ public static class DependencyInjection
             .Validate(
                 options => options.Provider == PersistenceProvider.InMemory
                     || !string.IsNullOrWhiteSpace(configuration.GetConnectionString("DefaultConnection")),
-                "ConnectionStrings:DefaultConnection is required when Persistence.Provider is SqlServer or Sqlite.")
+                "ConnectionStrings:DefaultConnection is required when Persistence.Provider is SqlServer, Sqlite or PostgreSql.")
             .ValidateOnStart();
 
         services.AddHttpContextAccessor();
@@ -165,15 +165,28 @@ public static class DependencyInjection
         // HARDENING-03: Register Infrastructure MediatR notification handlers (UserDeleted, UserBlocked → revoke tokens).
         // MediatR.AddApplication() only scans Ums.Application; Infrastructure handlers must be registered here.
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly));
+        // Register read‑model projection handlers (in‑process MediatR for Phase 1)
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Ums.ReadModels.Projections.PermissionTemplateProjectionHandler).Assembly));
 
         services.AddHostedService<PersistenceRuntimeReporter>();
         services.AddHostedService<AuditTrailPersistenceBackgroundService>();
-        services.AddHostedService<OutboxDispatcherBackgroundService>(); // FIX-02: dispatch domain events from outbox
 
         var persistence = configuration.GetSection(PersistenceOptions.SectionName).Get<PersistenceOptions>() ?? new();
 
+        services.AddMassTransit(x =>
+        {
+            x.SetKebabCaseEndpointNameFormatter();
+
+            x.AddConsumers(Assembly.GetExecutingAssembly());
+
+            x.UsingInMemory((context, cfg) =>
+            {
+                cfg.ConfigureEndpoints(context);
+            });
+        });
+
         // REC-04: Cross-aggregate transaction scope
-        if (persistence.Provider == PersistenceProvider.SqlServer || persistence.Provider == PersistenceProvider.Sqlite)
+        if (persistence.Provider == PersistenceProvider.SqlServer || persistence.Provider == PersistenceProvider.Sqlite || persistence.Provider == PersistenceProvider.PostgreSql)
             services.AddScoped<IUnitOfWorkScope, UnitOfWorkScope>();
         else
             services.AddSingleton<IUnitOfWorkScope, NoOpUnitOfWorkScope>();
@@ -241,8 +254,49 @@ public static class DependencyInjection
             });
         }
 
+        else if (persistence.Provider == PersistenceProvider.PostgreSql)
+        {
+            var connectionString = configuration.GetConnectionString("DefaultConnection")
+                ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection must be configured for PostgreSQL persistence.");
+
+            services.AddScoped<OrganizationDbContextInterceptor>();
+            services.AddScoped<AuditSaveChangesInterceptor>();
+
+            services.AddResiliencePipeline("ums-postgres", pipelineBuilder =>
+            {
+                pipelineBuilder
+                    .AddRetry(new Polly.Retry.RetryStrategyOptions
+                    {
+                        MaxRetryAttempts = 3,
+                        Delay = TimeSpan.FromMilliseconds(200),
+                        BackoffType = Polly.DelayBackoffType.Exponential,
+                    })
+                    .AddCircuitBreaker(new Polly.CircuitBreaker.CircuitBreakerStrategyOptions
+                    {
+                        FailureRatio    = 0.5,
+                        SamplingDuration = TimeSpan.FromSeconds(30),
+                        MinimumThroughput = 10,
+                        BreakDuration    = TimeSpan.FromSeconds(60),
+                    });
+            });
+
+            services.AddDbContext<UmsPlatformDbContext>((serviceProvider, options) =>
+            {
+                options.UseNpgsql(connectionString, pgOptions =>
+                {
+                    pgOptions.MigrationsHistoryTable("__EFMigrationsHistory", UmsPlatformDbContext.DefaultSchema);
+                    pgOptions.EnableRetryOnFailure(3);
+                });
+
+                options.AddInterceptors(
+                    serviceProvider.GetRequiredService<OrganizationDbContextInterceptor>(),
+                    serviceProvider.GetRequiredService<AuditSaveChangesInterceptor>());
+            });
+        }
+
         if ((persistence.Provider == PersistenceProvider.SqlServer && persistence.UseSqlServerIdentityStores) ||
-            (persistence.Provider == PersistenceProvider.Sqlite && persistence.UseSqliteIdentityStores))
+            (persistence.Provider == PersistenceProvider.Sqlite && persistence.UseSqliteIdentityStores) ||
+            (persistence.Provider == PersistenceProvider.PostgreSql && persistence.UsePostgreSqlIdentityStores))
         {
             services.AddScoped<ITenantRepository, SqlServerTenantRepository>();
             services.AddScoped<ITenantParameterRepository, SqlServerTenantParameterRepository>();
@@ -269,7 +323,8 @@ public static class DependencyInjection
         }
 
         if ((persistence.Provider == PersistenceProvider.SqlServer && persistence.UseSqlServerAuthorizationStores) ||
-            (persistence.Provider == PersistenceProvider.Sqlite && persistence.UseSqliteAuthorizationStores))
+            (persistence.Provider == PersistenceProvider.Sqlite && persistence.UseSqliteAuthorizationStores) ||
+            (persistence.Provider == PersistenceProvider.PostgreSql && persistence.UsePostgreSqlAuthorizationStores))
         {
             services.AddScoped<IProfileRepository, SqlServerProfileRepository>();
             services.AddScoped<ISystemSuiteRepository, SqlServerSystemSuiteRepository>();
@@ -296,7 +351,8 @@ public static class DependencyInjection
         }
 
         if ((persistence.Provider == PersistenceProvider.SqlServer && persistence.UseSqlServerConfigurationStores) ||
-            (persistence.Provider == PersistenceProvider.Sqlite && persistence.UseSqliteConfigurationStores))
+            (persistence.Provider == PersistenceProvider.Sqlite && persistence.UseSqliteConfigurationStores) ||
+            (persistence.Provider == PersistenceProvider.PostgreSql && persistence.UsePostgreSqlConfigurationStores))
         {
             services.AddScoped<IAppConfigurationRepository, SqlServerAppConfigurationRepository>();
             services.AddScoped<IFeatureFlagRepository, SqlServerFeatureFlagRepository>();
@@ -322,7 +378,7 @@ public static class DependencyInjection
             services.AddSingleton<IParameterTenantValueRepository>(sp => sp.GetRequiredService<InMemoryParameterRepositories>());
         }
 
-        if (persistence.Provider == PersistenceProvider.SqlServer || persistence.Provider == PersistenceProvider.Sqlite)
+        if (persistence.Provider == PersistenceProvider.SqlServer || persistence.Provider == PersistenceProvider.Sqlite || persistence.Provider == PersistenceProvider.PostgreSql)
         {
             services.AddScoped<IAuditRecordRepository, SqlServerAuditRecordRepository>();
         }
@@ -333,7 +389,8 @@ public static class DependencyInjection
         }
 
         if ((persistence.Provider == PersistenceProvider.SqlServer && persistence.UseSqlServerApprovalsStores) ||
-            (persistence.Provider == PersistenceProvider.Sqlite && persistence.UseSqliteApprovalsStores))
+            (persistence.Provider == PersistenceProvider.Sqlite && persistence.UseSqliteApprovalsStores) ||
+            (persistence.Provider == PersistenceProvider.PostgreSql && persistence.UsePostgreSqlApprovalsStores))
         {
             services.AddScoped<IApprovalWorkflowRepository, SqlServerApprovalWorkflowRepository>();
             services.AddScoped<IApprovalRequestRepository, SqlServerApprovalRequestRepository>();
@@ -443,7 +500,7 @@ public static class DependencyInjection
 
         var builder = services.AddHealthChecks();
 
-        if (persistence.Provider == PersistenceProvider.SqlServer || persistence.Provider == PersistenceProvider.Sqlite)
+        if (persistence.Provider == PersistenceProvider.SqlServer || persistence.Provider == PersistenceProvider.Sqlite || persistence.Provider == PersistenceProvider.PostgreSql)
         {
             if (persistence.Provider == PersistenceProvider.SqlServer)
             {
@@ -457,10 +514,19 @@ public static class DependencyInjection
                 }
             }
 
-            // Outbox backlog monitor — uses the scoped UmsPlatformDbContext
-            builder.AddCheck<HealthChecks.OutboxBacklogHealthCheck>(
-                "outbox_backlog",
-                tags: ["ready", "outbox"]);
+                        if (persistence.Provider == PersistenceProvider.PostgreSql)
+            {
+                var connectionString = configuration.GetConnectionString("DefaultConnection");
+                if (!string.IsNullOrWhiteSpace(connectionString))
+                {
+                    builder.AddNpgSql(
+                        connectionString,
+                        name: "postgresql",
+                        tags: ["ready", "db"]);
+                }
+            }
+
+
         }
 
         return services;

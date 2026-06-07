@@ -1,3 +1,4 @@
+using MassTransit;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -17,11 +18,12 @@ public sealed class UmsApiWebApplicationFactory : WebApplicationFactory<Program>
 {
     static UmsApiWebApplicationFactory()
     {
+// InMemory overrides removed; test will use configuration from appsettings (e.g., PostgreSQL)
         Environment.SetEnvironmentVariable("Persistence__Provider", "InMemory");
         Environment.SetEnvironmentVariable("Persistence__AggregateStoreMode", "InMemory");
-        Environment.SetEnvironmentVariable("Persistence__UseSqlServerIdentityStores", "false");
-        Environment.SetEnvironmentVariable("Persistence__UseSqlServerAuthorizationStores", "false");
-        Environment.SetEnvironmentVariable("Persistence__UseSqlServerConfigurationStores", "false");
+        Environment.SetEnvironmentVariable("Persistence__UsePostgreSqlIdentityStores", "false");
+        Environment.SetEnvironmentVariable("Persistence__UsePostgreSqlAuthorizationStores", "false");
+        Environment.SetEnvironmentVariable("Persistence__UsePostgreSqlConfigurationStores", "false");
         Environment.SetEnvironmentVariable("Persistence__SeedDevData", "true");
         Environment.SetEnvironmentVariable("Persistence__EnableOutbox", "false");
         Environment.SetEnvironmentVariable("Persistence__InitializePlatformStoreOnStartup", "false");
@@ -38,9 +40,9 @@ public sealed class UmsApiWebApplicationFactory : WebApplicationFactory<Program>
             {
                 ["Persistence:Provider"] = PersistenceProvider.InMemory.ToString(),
                 ["Persistence:AggregateStoreMode"] = AggregateStoreMode.InMemory.ToString(),
-                ["Persistence:UseSqlServerIdentityStores"] = bool.FalseString,
-                ["Persistence:UseSqlServerAuthorizationStores"] = bool.FalseString,
-                ["Persistence:UseSqlServerConfigurationStores"] = bool.FalseString,
+                ["Persistence:UsePostgreSqlIdentityStores"] = bool.FalseString,
+                ["Persistence:UsePostgreSqlAuthorizationStores"] = bool.FalseString,
+                ["Persistence:UsePostgreSqlConfigurationStores"] = bool.FalseString,
                 ["Persistence:SeedDevData"] = bool.TrueString,
                 ["Persistence:EnableOutbox"] = bool.FalseString,
                 ["Persistence:InitializePlatformStoreOnStartup"] = bool.FalseString,
@@ -57,11 +59,21 @@ public sealed class UmsApiWebApplicationFactory : WebApplicationFactory<Program>
         builder.ConfigureServices(services =>
         {
             services.RemoveAll<UmsPlatformDbContext>();
+            services.AddMassTransitTestHarness();
             services.AddDbContext<UmsPlatformDbContext>((serviceProvider, options) =>
             {
-                options.UseInMemoryDatabase("IntegrationTestDb");
+                var cfg = serviceProvider.GetRequiredService<IConfiguration>();
+                var provider = cfg["Persistence:Provider"];
+                if (provider == PersistenceProvider.InMemory.ToString())
+                {
+                    options.UseInMemoryDatabase("TestDb");
+                }
+                else
+                {
+                    var connStr = cfg.GetConnectionString("DefaultConnection") ?? cfg["ConnectionStrings:DefaultConnection"];
+                    options.UseNpgsql(connStr, sql => sql.EnableRetryOnFailure(3));
+                }
             });
-
             services.RemoveAll<ITenantRepository>();
             services.RemoveAll<IUserAccountRepository>();
             services.RemoveAll<IUserManagementDelegationRepository>();

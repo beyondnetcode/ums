@@ -4,7 +4,7 @@ using Ums.Application.Common;
 using Ums.Application.Authorization.SystemSuite.Commands;
 using Ums.Application.Authorization.SystemSuite.DTOs;
 using Ums.Application.Authorization.SystemSuite.Queries;
-
+using Ums.Presentation.Endpoints.Authorization.SystemSuite.DTOs;
 public static class SystemSuiteEndpoints
 {
     public static IEndpointRouteBuilder MapSystemSuiteEndpoints(this IEndpointRouteBuilder app)
@@ -61,9 +61,10 @@ public static class SystemSuiteEndpoints
         .Produces(StatusCodes.Status204NoContent)
         .ProducesProblem(StatusCodes.Status404NotFound);
 
-        group.MapPost("/{systemSuiteId:guid}/status", async (Guid systemSuiteId, string status, IMediator mediator, HttpContext context, CancellationToken ct) =>
+        // Updated to use PUT and accept JSON payload containing status
+        group.MapPut("/{systemSuiteId:guid}/status", async (Guid systemSuiteId, SetSystemSuiteStatusPayload payload, IMediator mediator, HttpContext context, CancellationToken ct) =>
         {
-            var result = await mediator.Send(new SetSystemSuiteStatusCommand(systemSuiteId, status), ct);
+            var result = await mediator.Send(new SetSystemSuiteStatusCommand(systemSuiteId, payload.Status), ct);
             return result.ToNoContent(context);
         })
         .WithName("SetSystemSuiteStatus")

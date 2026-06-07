@@ -6,17 +6,21 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
+    <ItemGroup>
     <ProjectReference Include="../Ums.Domain/Ums.Domain.csproj" />
     <ProjectReference Include="../Ums.Application/Ums.Application.csproj" />
     <ProjectReference Include="../Ums.Globalization/Ums.Globalization.csproj" />
+    <ProjectReference Include="../../../Ums.ReadModels/Ums.ReadModels.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <!-- AOP: DispatchProxy-based aspect-oriented infrastructure -->
+    <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="9.0.0" />
     <PackageReference Include="BeyondNetCode.Shell.Aop.DI" Version="1.0.0" />
     <PackageReference Include="BeyondNetCode.Shell.Aop.Aspects.Logger.Serilog" Version="1.0.0" />
     <PackageReference Include="BeyondNetCode.Shell.Factory.Installer" Version="1.0.0" />
+    <PackageReference Include="MassTransit" Version="8.3.1" />
+    <PackageReference Include="MassTransit.EntityFrameworkCore" Version="8.3.1" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.2" />
   </ItemGroup>
 
   <ItemGroup>

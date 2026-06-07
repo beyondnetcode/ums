@@ -20,19 +20,19 @@ namespace Ums.Presentation.IntegrationTest.E2E;
 /// Each test creates its own Tenant + SystemSuite to guarantee isolation.
 /// Prerequisites: Docker must be running locally.
 /// </summary>
-[Collection("SqlServer")]
+[Collection("PostgreSql")]
 public sealed class SystemSuiteE2ETests
 {
-    private readonly SqlServerContainerFixture _fixture;
+    private readonly PostgreSqlContainerFixture _fixture;
     private readonly HttpClient _client;
 
-    public SystemSuiteE2ETests(SqlServerContainerFixture fixture)
+    public SystemSuiteE2ETests(PostgreSqlContainerFixture fixture)
     {
         _fixture = fixture;
 
         if (fixture.IsAvailable)
         {
-            var factory = new SqlServerWebApplicationFactory(fixture.ConnectionString);
+            var factory = new PostgreSqlWebApplicationFactory(fixture.ConnectionString);
             _client = factory.CreateClient(new WebApplicationFactoryClientOptions
             {
                 BaseAddress = new Uri("https://localhost"),
@@ -67,16 +67,15 @@ public sealed class SystemSuiteE2ETests
     }
 
     [Fact]
-    public async Task CreateSystemSuite_MissingName_Returns400()
+    public async Task CreateSystemSuite_MissingName_Returns422()
     {
         if (!_fixture.IsAvailable) Assert.Skip("Docker required.");
         var ct = TestContext.Current.CancellationToken;
 
-        var tenantId = await CreateTenantId(ct);
-        var payload = new { tenantId, code = UniqueCode("SS"), name = "", description = "No name" };
-
+        var payload = new { code = UniqueCode("INV"), description = "No Name" }; // Missing Name
         var res = await _client.PostAsJsonAsync("/api/v1/system-suites", payload, ct);
-        res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        res.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
     }
 
     [Fact]
@@ -91,7 +90,7 @@ public sealed class SystemSuiteE2ETests
             .StatusCode.Should().Be(HttpStatusCode.Created);
 
         var dup = await _client.PostAsJsonAsync("/api/v1/system-suites", payload with { Name = "Duplicate Suite" }, ct);
-        dup.StatusCode.Should().BeOneOf(HttpStatusCode.Conflict, HttpStatusCode.BadRequest);
+        dup.StatusCode.Should().BeOneOf(HttpStatusCode.Conflict, HttpStatusCode.UnprocessableEntity);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -220,8 +219,9 @@ public sealed class SystemSuiteE2ETests
         var ct = TestContext.Current.CancellationToken;
 
         var suiteId = await CreateSuiteId(ct);
-
-        var res = await _client.PostAsync($"/api/v1/system-suites/{suiteId}/status?status=Inactive", null, ct);
+        var payload = new { systemSuiteId = suiteId, status = "Inactive" };
+        var res = await _client.PutAsJsonAsync($"/api/v1/system-suites/{suiteId}/status", payload, ct);
+        
         res.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         using var doc = await GqlSuiteByIdAsync(suiteId, ct);
@@ -261,7 +261,7 @@ public sealed class SystemSuiteE2ETests
         var payload = new { systemSuiteId = suiteId, code = moduleCode, name = "Users Module", description = "Manages user data", sortOrder = 1 };
 
         var res = await _client.PostAsJsonAsync($"/api/v1/system-suites/{suiteId}/modules", payload, ct);
-        res.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        res.StatusCode.Should().Be(HttpStatusCode.Created);
 
         using var doc = await GqlSuiteByIdAsync(suiteId, ct);
         var modules = doc.RootElement.GetProperty("data").GetProperty("systemSuiteById").GetProperty("modules");
@@ -361,7 +361,7 @@ public sealed class SystemSuiteE2ETests
         var payload = new { systemSuiteId = suiteId, code, name = "Module 1", description = "Dup test", sortOrder = 1 };
 
         (await _client.PostAsJsonAsync($"/api/v1/system-suites/{suiteId}/modules", payload, ct))
-            .StatusCode.Should().Be(HttpStatusCode.NoContent);
+            .StatusCode.Should().Be(HttpStatusCode.Created);
 
         var dup = await _client.PostAsJsonAsync($"/api/v1/system-suites/{suiteId}/modules", payload, ct);
         dup.StatusCode.Should().BeOneOf(HttpStatusCode.Conflict, HttpStatusCode.BadRequest);
@@ -381,7 +381,7 @@ public sealed class SystemSuiteE2ETests
         var payload = new { systemSuiteId = suiteId, key = $"feature.{UniqueCode("k")}", value = "true", scope = "Tenant" };
 
         var res = await _client.PostAsJsonAsync($"/api/v1/system-suites/{suiteId}/app-settings", payload, ct);
-        res.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        res.StatusCode.Should().Be(HttpStatusCode.Created);
     }
 
     [Fact]
@@ -395,7 +395,7 @@ public sealed class SystemSuiteE2ETests
         await _client.PostAsJsonAsync($"/api/v1/system-suites/{suiteId}/app-settings",
             new { systemSuiteId = suiteId, key, value = "initial", scope = "Tenant" }, ct);
 
-        var payload = new { systemSuiteId = suiteId, key, value = "updated" };
+        var payload = new { systemSuiteId = suiteId, key, newValue = "updated" };
         var res = await _client.PutAsJsonAsync($"/api/v1/system-suites/{suiteId}/app-settings/{key}", payload, ct);
         res.StatusCode.Should().Be(HttpStatusCode.NoContent);
     }
@@ -427,11 +427,11 @@ public sealed class SystemSuiteE2ETests
         // Add
         (await _client.PostAsJsonAsync($"/api/v1/system-suites/{suiteId}/app-settings",
             new { systemSuiteId = suiteId, key, value = "v1", scope = "Module" }, ct))
-            .StatusCode.Should().Be(HttpStatusCode.NoContent);
+            .StatusCode.Should().Be(HttpStatusCode.Created);
 
         // Update
         (await _client.PutAsJsonAsync($"/api/v1/system-suites/{suiteId}/app-settings/{key}",
-            new { systemSuiteId = suiteId, key, value = "v2" }, ct))
+            new { systemSuiteId = suiteId, key, newValue = "v2" }, ct))
             .StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         // Remove
@@ -450,7 +450,7 @@ public sealed class SystemSuiteE2ETests
         var payload = new { systemSuiteId = suiteId, key, value = "v1", scope = "Tenant" };
 
         (await _client.PostAsJsonAsync($"/api/v1/system-suites/{suiteId}/app-settings", payload, ct))
-            .StatusCode.Should().Be(HttpStatusCode.NoContent);
+            .StatusCode.Should().Be(HttpStatusCode.Created);
 
         var dup = await _client.PostAsJsonAsync($"/api/v1/system-suites/{suiteId}/app-settings", payload, ct);
         dup.StatusCode.Should().BeOneOf(HttpStatusCode.Conflict, HttpStatusCode.BadRequest);
@@ -471,7 +471,7 @@ public sealed class SystemSuiteE2ETests
         var payload = new { systemSuiteId = suiteId, code, name = "Can Export Reports" };
 
         var res = await _client.PostAsJsonAsync($"/api/v1/system-suites/{suiteId}/actions", payload, ct);
-        res.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        res.StatusCode.Should().Be(HttpStatusCode.Created);
 
         using var doc = await GqlSuiteByIdAsync(suiteId, ct);
         var actions = doc.RootElement.GetProperty("data").GetProperty("systemSuiteById").GetProperty("actions");
@@ -511,7 +511,7 @@ public sealed class SystemSuiteE2ETests
         var payload = new { systemSuiteId = suiteId, code, name = "Duplicate Action" };
 
         (await _client.PostAsJsonAsync($"/api/v1/system-suites/{suiteId}/actions", payload, ct))
-            .StatusCode.Should().Be(HttpStatusCode.NoContent);
+            .StatusCode.Should().Be(HttpStatusCode.Created);
 
         var dup = await _client.PostAsJsonAsync($"/api/v1/system-suites/{suiteId}/actions", payload, ct);
         dup.StatusCode.Should().BeOneOf(HttpStatusCode.Conflict, HttpStatusCode.BadRequest);

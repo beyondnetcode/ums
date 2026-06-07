@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: ums_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root   # password set to 'root'
+      POSTGRES_DB: UmsReadModel
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  admin:
+    image: dpage/pgadmin4:8
+    container_name: ums_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@ums.local
+      PGADMIN_DEFAULT_PASSWORD: root   # same password for convenience
+    ports:
+      - "5051:80"
+    depends_on:
+      db:
+        condition: service_healthy

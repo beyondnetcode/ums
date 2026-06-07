@@ -25,7 +25,7 @@ public sealed class TenantParameterRecordConfiguration : IEntityTypeConfiguratio
         builder.Property(x => x.AuditTimeSpan).HasMaxLength(100).IsRequired();
 
         builder.HasIndex(x => new { x.TenantId, x.Code, x.IsActive })
-            .HasFilter("[IsActive] = 1")
+            .HasFilter("\"IsActive\" = true")
             .IsUnique()
             .HasDatabaseName("IX_TenantParameters_TenantId_Code_IsActive");
     }

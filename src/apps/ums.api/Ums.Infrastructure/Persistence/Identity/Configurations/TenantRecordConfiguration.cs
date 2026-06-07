@@ -17,13 +17,13 @@ public sealed class TenantRecordConfiguration : IEntityTypeConfiguration<TenantR
         builder.Property(x => x.CreatedBy).HasMaxLength(100).IsRequired();
         builder.Property(x => x.UpdatedBy).HasMaxLength(100);
         builder.Property(x => x.AuditTimeSpan).HasMaxLength(100).IsRequired();
-        builder.Property(x => x.RowVersion).IsRowVersion(); // FIX-03: optimistic concurrency
+        builder.Property(x => x.RowVersion).IsRowVersion().HasDefaultValueSql("gen_random_bytes(8)"); // FIX-04: default for concurrency token
         builder.Property(x => x.IsManagementOwner).HasDefaultValue(false).IsRequired();
 
         // REC-16: Soft-delete
         builder.Property(x => x.IsDeleted).HasDefaultValue(false).IsRequired();
         builder.Property(x => x.DeletedBy).HasMaxLength(100);
-        builder.HasIndex(x => x.IsDeleted).HasFilter("[IsDeleted] = 0");
+        builder.HasIndex(x => x.IsDeleted).HasFilter("\"IsDeleted\" = false");
 
         builder.HasIndex(x => x.Code).IsUnique();
         builder.HasIndex(x => x.ParentTenantId);

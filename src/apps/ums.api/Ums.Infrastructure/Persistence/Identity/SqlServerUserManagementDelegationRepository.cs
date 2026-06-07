@@ -4,7 +4,6 @@ using Ums.Domain.Identity;
 using Ums.Domain.Identity.UserManagementDelegation;
 using Ums.Domain.Kernel;
 using Ums.Infrastructure.Persistence.Identity.Entities;
-using Ums.Infrastructure.Persistence.Outbox;
 using Ums.Infrastructure.Persistence.Reflection;
 
 namespace Ums.Infrastructure.Persistence.Identity;
@@ -108,7 +107,7 @@ public sealed class SqlServerUserManagementDelegationRepository(UmsPlatformDbCon
     {
         foreach (var aggregate in _trackedAggregates)
         {
-            dbContext.OutboxMessages.AddRange(OutboxMessageFactory.CreateFromAggregate(aggregate));
+            await dbContext.PublishDomainEventsAsync(aggregate.DomainEvents.GetUncommittedChanges(), cancellationToken);
         }
 
         try

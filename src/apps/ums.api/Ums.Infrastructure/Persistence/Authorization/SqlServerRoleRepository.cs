@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Ums.Domain.Authorization;
 using Ums.Domain.Kernel;
 using Ums.Infrastructure.Persistence.Authorization.Entities;
-using Ums.Infrastructure.Persistence.Outbox;
 using Ums.Infrastructure.Persistence.Reflection;
 
 namespace Ums.Infrastructure.Persistence.Authorization;
@@ -81,7 +80,7 @@ public sealed class SqlServerRoleRepository(UmsPlatformDbContext dbContext) : IR
     {
         foreach (var aggregate in _trackedAggregates)
         {
-            dbContext.OutboxMessages.AddRange(OutboxMessageFactory.CreateFromAggregate(aggregate));
+            await dbContext.PublishDomainEventsAsync(aggregate.DomainEvents.GetUncommittedChanges(), cancellationToken);
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);

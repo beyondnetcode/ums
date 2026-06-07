@@ -6,7 +6,6 @@ using Ums.Domain.Kernel;
 using Ums.Domain.Kernel.ValueObjects;
 using Ums.Infrastructure.Persistence;
 using Ums.Infrastructure.Persistence.Identity.Entities;
-using Ums.Infrastructure.Persistence.Outbox;
 using Ums.Infrastructure.Persistence.Reflection;
 using BeyondNetCode.Shell.Ddd.ValueObjects.Audit;
 using TenantSignupRequestAggregate = Ums.Domain.Identity.TenantSignupRequest.TenantSignupRequest;
@@ -70,7 +69,7 @@ public sealed class SqlServerTenantSignupRequestRepository(UmsPlatformDbContext 
     {
         foreach (var aggregate in _trackedAggregates)
         {
-            dbContext.OutboxMessages.AddRange(OutboxMessageFactory.CreateFromAggregate(aggregate));
+            await dbContext.PublishDomainEventsAsync(aggregate.DomainEvents.GetUncommittedChanges(), cancellationToken);
         }
 
         try

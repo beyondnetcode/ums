@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using MassTransit;
 using Ums.Infrastructure.Persistence.Audit.Configurations;
 using Ums.Infrastructure.Persistence.Audit.Entities;
 using Ums.Infrastructure.Persistence.Authorization.Configurations;
@@ -7,8 +8,7 @@ using Ums.Infrastructure.Persistence.Configuration.Configurations;
 using Ums.Infrastructure.Persistence.Configuration.Entities;
 using Ums.Infrastructure.Persistence.Identity.Configurations;
 using Ums.Infrastructure.Persistence.Identity.Entities;
-using Ums.Infrastructure.Persistence.Outbox;
-using Ums.Infrastructure.Persistence.Outbox.Configurations;
+
 using Ums.Infrastructure.Persistence.Approvals.Configurations;
 using Ums.Infrastructure.Persistence.Approvals.Entities;
 
@@ -34,13 +34,21 @@ namespace Ums.Infrastructure.Persistence;
 /// </summary>
 public sealed class UmsPlatformDbContext(
     DbContextOptions<UmsPlatformDbContext> options,
-    ITenantContext tenantContext) : DbContext(options)
+    ITenantContext tenantContext,
+    IPublishEndpoint publishEndpoint) : DbContext(options)
 {
     public const string DefaultSchema = "ums_platform";
 
-    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
-    // REC-13: Dead-letter store for outbox messages that exhausted all retries
-    public DbSet<DeadLetterMessage> OutboxDeadLetters => Set<DeadLetterMessage>();
+    public IPublishEndpoint PublishEndpoint { get; } = publishEndpoint;
+
+    public async Task PublishDomainEventsAsync(IEnumerable<BeyondNetCode.Shell.Ddd.Interfaces.IDomainEvent> domainEvents, CancellationToken cancellationToken = default)
+    {
+        foreach (var domainEvent in domainEvents)
+        {
+            await PublishEndpoint.Publish(domainEvent, domainEvent.GetType(), cancellationToken);
+        }
+    }
+
     public DbSet<TenantRecord> Tenants => Set<TenantRecord>();
     public DbSet<TenantBranchRecord> TenantBranches => Set<TenantBranchRecord>();
     public DbSet<TenantIdentityProviderRecord> TenantIdentityProviders => Set<TenantIdentityProviderRecord>();
@@ -86,8 +94,6 @@ public sealed class UmsPlatformDbContext(
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(DefaultSchema);
-        modelBuilder.ApplyConfiguration(new OutboxMessageConfiguration());
-        modelBuilder.ApplyConfiguration(new DeadLetterMessageConfiguration());
         modelBuilder.ApplyConfiguration(new TenantRecordConfiguration());
         modelBuilder.ApplyConfiguration(new TenantBranchRecordConfiguration());
         modelBuilder.ApplyConfiguration(new TenantIdentityProviderRecordConfiguration());
