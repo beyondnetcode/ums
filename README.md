@@ -24,7 +24,7 @@
 <br/>
 
 **UMS is a modular monolith for identity, authorization, configuration, approvals, compliance, IGA, and audit.**<br/>
-Built on **.NET 10 · SQL Server 2022 · React 18 · TypeScript · Nx**.<br/>
+Built on **.NET 10 · SQL Server (prod) · PostgreSQL (dev/test) · React 18 · TypeScript · Nx**.<br/>
 Applied satellite of the [Evolith](https://github.com/beyondnetcode/evolith_arch32) corporate architecture framework.
 
 </div>
