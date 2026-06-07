@@ -5,7 +5,7 @@
 > **Navegación Bilingüe:** [English](../README.md)
 
 [![Status](https://img.shields.io/badge/Status-Activo-brightgreen?style=for-the-badge)]()
-[![Platform](https://img.shields.io/badge/.NET_10_%7C_React_18-informational?style=for-the-badge)]()
+[![Platform](https://img.shields.io/badge/.NET_10_%7C_PostgreSQL_%7C_React_18-informational?style=for-the-badge)]()
 [![Architecture](https://img.shields.io/badge/Evolith-Producto_Satélite-blueviolet?style=for-the-badge)](https://github.com/beyondnetcode/evolith_arch32)
 [![ADRs](https://img.shields.io/badge/ADRs-32_decisiones-orange?style=for-the-badge)](./architecture/adrs/)
 [![License](https://img.shields.io/badge/Licencia-Propietaria-red?style=for-the-badge)]()
@@ -24,7 +24,7 @@
 <br/>
 
 **UMS es un monolito modular para identidad, autorización, configuración, aprobaciones, cumplimiento, IGA y auditoría.**<br/>
-Construido sobre **.NET 10 · SQL Server (prod) · PostgreSQL (dev/test) · React 18 · TypeScript · Nx**.<br/>
+Construido sobre **.NET 10 · PostgreSQL · React 18 · TypeScript · Nx**. Agnóstico al proveedor de base de datos por diseño.<br/>
 Satélite aplicado del framework de arquitectura corporativa [Evolith](https://github.com/beyondnetcode/evolith_arch32).
 
 </div>
