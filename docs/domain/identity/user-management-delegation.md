@@ -486,7 +486,7 @@ CREATE TABLE [delegation].[user_management_delegations] (
 
 ### RLS
 
-`root_tenant_id` is set in `SESSION_CONTEXT` by `DbConnectionInterceptor`. The SQL Server RLS predicate on `[delegation].[user_management_delegations]` filters by `root_tenant_id` as secondary failsafe (Two-Layer RLS — ADR-TBD).
+`root_tenant_id` is set by the request-scoped persistence context. PostgreSQL row-level security policies filter by `root_tenant_id` as a secondary failsafe (Two-Layer RLS — ADR-0082).
 
 ---
 

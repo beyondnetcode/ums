@@ -33,14 +33,14 @@ UMS actúa como una pasarela de autorización e identidad que puede funcionar de
                     │                               ▼
        ┌────────────┴────────────────────────────────────────────┐
        │                 Capa de Infraestructura                 │
-       │      SQL Server (EF Core) / Dapr / Outbox / Outbound    │
+       │      PostgreSQL (EF Core/Npgsql) / Dapr / Outbox / Outbound    │
        └─────────────────────────────────────────────────────────┘
 ```
 
 ### Principios Arquitectónicos Compartidos
 1. **Pureza del Dominio**: La capa de dominio (`{BoundedContext}.Domain`) consta de objetos C# puros (POCOs) con cero referencias a bibliotecas externas, asegurando que la lógica de negocio permanezca incontaminada.
 2. **Límites Explícitos**: Las interacciones entre contextos están estrictamente desacopladas utilizando comunicación basada en eventos (Transactional Outbox) o Capas Anticorrupción (ACL) explícitas en la capa de Aplicación. Las uniones de bases de datos directas entre contextos están estrictamente prohibidas.
-3. **Aislamiento de Inquilinos (Tenancy)**: El aislamiento de inquilinos de alta seguridad se aplica de forma nativa en la capa de Aplicación, utilizando la Seguridad a Nivel de Fila (RLS) de SQL Server como un mecanismo secundario a nivel de infraestructura (R-10).
+3. **Aislamiento de Inquilinos (Tenancy)**: El aislamiento de inquilinos de alta seguridad se aplica de forma nativa en la capa de Aplicacion, utilizando PostgreSQL row-level security y politicas de base de datos como mecanismos secundarios a nivel de infraestructura (R-10).
 4. **Segregación de Responsabilidades de Consulta y Comando (CQRS)**: Los modelos de lectura están altamente optimizados y separados de los modelos de escritura. Las escrituras son estrictamente transaccionales, mientras que las lecturas aprovechan proyecciones planas eficientes o la ejecución directa de GraphQL.
 
 ---
@@ -66,11 +66,11 @@ graph TD
     Core -->|Sincronización de Referencia de Inquilino| CRM
     
     subgraph Persistencia e Infraestructura
-        DB[("SQL Server (Inquilinos Aislados)")]
+        DB[("PostgreSQL (Inquilinos Aislados)")]
         Dapr["Sidecar Dapr (Sagas/PubSub)"]
     end
     
-    Core -->|EF Core / RLS de Inquilino| DB
+    Core -->|EF Core/Npgsql / RLS de Inquilino| DB
     Core -->|Bus de Eventos / Flujos de Trabajo| Dapr
 ```
 

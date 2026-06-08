@@ -1,5 +1,5 @@
 ## Project
-Enterprise Monorepo for User Management System (UMS). An authorization block prototype capable of working with third-party Identity Providers or operating standalone, using .NET 10, React 18, SQL Server, and BMAD-METHOD.
+Enterprise Monorepo for User Management System (UMS). An authorization block prototype capable of working with third-party Identity Providers or operating standalone, using .NET 10, React 18, PostgreSQL, and BMAD-METHOD.
 
 ## Build & Run
 > [!IMPORTANT]
@@ -9,7 +9,7 @@ Commands for Frontend (run from `src/`):
 - Frontend Install: `npm install`
 - Frontend Start: `npx nx run app-web:dev`
 - Setup Docs Context (Context7): `npx ctx7 setup`
-- Markdown Encoding Sanitation: `python ../.bmad-core/scripts/cleanup_markdown_encoding.py`
+- Markdown Encoding Sanitation: `python3 ../.bmad-core/scripts/cleanup_markdown_encoding.py`
 
 Commands for Backend (run from `./src/apps/ums.api/` or the root solution directory):
 - Backend Build: `dotnet build`
@@ -19,7 +19,7 @@ Commands for Backend (run from `./src/apps/ums.api/` or the root solution direct
 ## Architecture
 - Runtime: **.NET 10** (Backend) and React v18 + Vite (Frontend).
 - Monorepo: Managed via Nx, npm Workspaces (Frontend) and standard .NET SLN.
-- DB: SQL Server + Entity Framework Core (EF Core).
+- DB: PostgreSQL + Entity Framework Core (EF Core through Npgsql).
 - Key Modules: `src/apps/ums.api` (.NET Backend), `src/apps/ums.web-app` (Frontend React Portal).
 - Pattern: Modular Monolith, Clean Architecture, Explicit Bounded Contexts, CQRS-oriented reads, REST + GraphQL queries.
 
@@ -42,7 +42,7 @@ Commands for Backend (run from `./src/apps/ums.api/` or the root solution direct
 - **Multi-language Synchronization & Diagram Validation:** Whenever documentation is updated, the agent MUST ensure that both English and Spanish versions are synchronized in content, technical precision, and clarity. Additionally, all Mermaid diagrams MUST be validated for syntax and structural correctness before any commit. See [Documentation Control Agents](./docs/governance/documentation-control-agents.md) for detailed bilingual consistency rules.
 - **Context Retrieval:** Always use **Context7** (`npx ctx7`) to fetch updated, version-specific documentation for third-party libraries before implementing complex external integrations.
 - **Corporate Standards Alignment:** Any agent making architectural design decisions MUST query the **Corporate Reference** via Context7 (`use context7 for beyondnetcode/evolith_arch32`) to ensure absolute compliance with baseline polyglot standards and authoritative patterns.
-- **Tenancy Enforcement:** Application-layer tenant filtering is the primary isolation mechanism. SQL Server RLS is a secondary infrastructure failsafe and must never replace application-layer filtering in requirements, ADRs, code, or documentation.
+- **Tenancy Enforcement:** Application-layer tenant filtering is the primary isolation mechanism. PostgreSQL row-level security, schema ownership, constraints, and database policies are secondary infrastructure failsafes and must never replace application-layer filtering in requirements, ADRs, code, or documentation.
 - **Functional Story Standard:** Functional stories must keep business narrative readable for Product Owners and Business Analysts, and place technical detail in a dedicated `Technical Requirements` section per `docs/governance/requirements/functional-stories/functional-story-standard.md`.
 - **Configuration Catalog Standard:** Any parameter, configuration, policy, feature flag, workflow, or master catalog entity must follow the mandatory `code`, `value`, `description` standard and update model, ORM, migrations, and documentation together.
 

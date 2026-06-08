@@ -202,7 +202,7 @@ public class AccessEnforcementPolicyConfiguration : IEntityTypeConfiguration<Acc
 
 ## 9. Security & Compliance
 
-- **Tenant Isolation:** Tenancy enforcement operates as the primary safeguard; SQL Server RLS acts as a secondary failsafe.
+- **Tenant Isolation:** Application-layer tenancy enforcement operates as the primary safeguard; PostgreSQL row-level security and database policies act as secondary failsafes.
 - **Privilege Separation:** Modifying access policies is strictly restricted to platform or tenant security administrators.
 
 ---

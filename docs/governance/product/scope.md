@@ -10,7 +10,7 @@ The UMS manages the following key functional capabilities:
 
 ### A. Organization & Multi-Tenancy Governance
 - Definition of **Organizations (Tenants)** and their hierarchical structures.
-- Strict database isolation using **SQL Server Row-Level Security (RLS)**.
+- Strict database isolation using **PostgreSQL row-level security and database policies** as infrastructure safeguards.
 - Delegated administration: allows tenant admins to manage their own local users and assignments.
 
 ### B. Granular Authorization & Profile Engine

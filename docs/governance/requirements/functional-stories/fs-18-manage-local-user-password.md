@@ -62,7 +62,7 @@ If the operation cannot be completed, UMS shows a clear reason when available an
 - Commands are REST-first through `POST /user-accounts/{userAccountId}/passwords`; the request carries a plaintext temporary password over the secured transport and the API hashes it using BCrypt before persistence.
 - Queries may expose `hasActivePassword` and `passwordUpdatedAtUtc`; `PasswordHash` and historical credential identifiers must not be exposed to the web client.
 - SQL Server with EF Core persists credentials within the `UserAccount` transaction boundary.
-- Application-layer tenant filtering remains primary; SQL Server RLS remains a secondary safeguard.
+- Application-layer tenant filtering remains primary; PostgreSQL row-level security and database policies remain secondary safeguards.
 - Operation errors follow the safe error response standard and correlate Serilog/Loki diagnostics by `ErrorId`.
 - The React view is localized in Spanish and English and validates the minimum password rule before issuing the command.
 

@@ -796,7 +796,7 @@ erDiagram
 ---
 
 ## 4. Reglas de Negocio y Restricciones Técnicas
-1.  **Aislamiento de Tenant en Dos Capas**: `TenantId` está desnormalizado en todas las entidades funcionales (Module, Option, Template, Action, Role) para permitir filtrado O(1) a nivel de aplicación como mecanismo primario. SQL Server RLS permanece como capa de resguardo de infraestructura, no como control primario.
+1.  **Aislamiento de Tenant en Dos Capas**: `TenantId` esta desnormalizado en todas las entidades funcionales (Module, Option, Template, Action, Role) para permitir filtrado O(1) a nivel de aplicacion como mecanismo primario. PostgreSQL row-level security y politicas de base de datos permanecen como capa de resguardo de infraestructura, no como control primario.
 2.  **Arco Exclusivo (Integridad de Template)**: `PermissionTemplateItem` usa un discriminador `TargetType` y una columna `TargetId` única en lugar de 5 FKs anulables. Una restricción `CHECK` garantiza que `TargetType` siempre esté poblado, aplicando integridad referencial estricta en base de datos sobre el polimorfismo.
 3.  **XOR Estricto de Propiedad de Acción**: Una Acción debe pertenecer a un Sistema O a un Módulo, pero nunca a ambos: `CHECK ((SystemSuiteId IS NOT NULL AND ModuleId IS NULL) OR (SystemSuiteId IS NULL AND ModuleId IS NOT NULL))`.
 4.  **Integridad de Jerarquía**: El acceso debe trazarse a través de `System > Module > Menu > SubMenu > Option` (esquema: `SYSTEM_SUITE → FUNCTIONAL_MODULE → FUNCTIONAL_MENU → FUNCTIONAL_SUBMENU → FUNCTIONAL_OPTION`).

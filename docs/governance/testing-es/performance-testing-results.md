@@ -34,12 +34,12 @@ Con el propósito de estresar el proceso de autenticación y la generación del 
     checks_succeeded...: 100.00% 550 out of 550
     checks_failed......: 0.00%   0 out of 550
 
-    ✓ login status is 200
-    ✓ login has session cookie
-    ✓ client auth status is 200
-    ✓ client auth returns graph
-    ✓ refresh status is 200
-    ✓ web app responds
+     login status is 200
+     login has session cookie
+     client auth status is 200
+     client auth returns graph
+     refresh status is 200
+     web app responds
 
     HTTP
     http_req_duration..............: avg=149.33ms min=965µs med=221.11ms max=251.71ms p(90)=225.65ms p(95)=228.71ms

@@ -33,7 +33,7 @@ UMS serves as an authorization and identity gateway that can either function as 
                     │                               ▼
        ┌────────────┴────────────────────────────────────────────┐
        │                   Infrastructure Layer                  │
-       │      SQL Server (EF Core) / Dapr / Outbox / Outbound    │
+       │      PostgreSQL (EF Core/Npgsql) / Dapr / Outbox / Outbound    │
        └─────────────────────────────────────────────────────────┘
 ```
 
@@ -41,7 +41,7 @@ UMS serves as an authorization and identity gateway that can either function as 
 
 1. **Domain Purity**: The Domain layer (`{BoundedContext}.Domain`) contains the pure DDD model — Aggregate Roots, Entities, Value Objects, Domain Events, invariants, and domain services — with zero external framework references.
 2. **Explicit Boundaries**: Cross-context interactions are strictly decoupled using event-driven communication (Transactional Outbox) or explicit Application-layer Anti-Corruption Layers (ACLs). Direct cross-context database joins are strictly prohibited.
-3. **Tenant Isolation**: High-security multi-tenancy is enforced natively in the Application layer, with SQL Server Row-Level Security (RLS) serving as an infrastructure-level secondary failsafe (R-10).
+3. **Tenant Isolation**: High-security multi-tenancy is enforced natively in the Application layer, with PostgreSQL row-level security and database policies serving as infrastructure-level secondary failsafes (R-10).
 4. **Command-Query Responsibility Segregation (CQRS)**: Read models are highly optimized and separated from write models. Writes are strictly transaction-safe, while reads leverage efficient flat projections or direct GraphQL execution.
 
 ---
@@ -67,11 +67,11 @@ graph TD
     Core -->|Tenant Reference Sync| CRM
     
     subgraph Persistence & Infrastructure
-        DB[("SQL Server (Isolated Tenants)")]
+        DB[("PostgreSQL (Isolated Tenants)")]
         Dapr["Dapr Sidecar (Sagas/PubSub)"]
     end
     
-    Core -->|EF Core / Tenant RLS| DB
+    Core -->|EF Core/Npgsql / Tenant RLS| DB
     Core -->|Event Bus / Workflows| Dapr
 ```
 
@@ -184,7 +184,7 @@ UMS has three complementary data-model views:
 |---|---|---|
 | Conceptual | [Conceptual Data Model](../governance/requirements/conceptual-data-model.md) | Business-readable language and early requirements validation. |
 | Domain | [Domain Aggregate Index](../domain/index.md) | DDD Aggregate Roots, owned entities, invariants, and behavioral model. |
-| Physical | [Database Design ER](./blueprints/database-design-er.md) | Authoritative SQL Server / EF Core-aligned physical entity-relationship model. |
+| Physical | [Database Design ER](./blueprints/database-design-er.md) | Authoritative PostgreSQL / EF Core Npgsql-aligned physical entity-relationship model. |
 
 Use [Data Model Consistency Review](./blueprints/data-model-consistency-review.md) when validating alignment across conceptual names, DDD aggregates, ER diagrams, and EF Core persistence records.
 

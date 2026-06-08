@@ -7,7 +7,7 @@
 [![Status](https://img.shields.io/badge/Status-Activo-brightgreen?style=for-the-badge)]()
 [![Platform](https://img.shields.io/badge/.NET_10_%7C_PostgreSQL_%7C_React_18-informational?style=for-the-badge)]()
 [![Architecture](https://img.shields.io/badge/Evolith-Producto_Satélite-blueviolet?style=for-the-badge)](https://github.com/beyondnetcode/evolith_arch32)
-[![ADRs](https://img.shields.io/badge/ADRs-32_decisiones-orange?style=for-the-badge)](./architecture/adrs/)
+[![ADRs](https://img.shields.io/badge/ADRs-33_decisiones-orange?style=for-the-badge)](./architecture/adrs/)
 [![License](https://img.shields.io/badge/Licencia-Propietaria-red?style=for-the-badge)]()
 
 <br/>
@@ -31,29 +31,29 @@ Satélite aplicado del framework de arquitectura corporativa [Evolith](https://g
 
 ---
 
-## 📑 Menú de Navegación Rápida
+## Menú de Navegación Rápida
 
 | Categoría | Punto de Entrada | Descripción |
 |---|---|---|
-| 📐 **Arquitectura** | [Portal de Arquitectura](./architecture/index.md) | Blueprints, ADRs, TEs, patrones canónicos |
-| 🏛️ **ADRs** | [Registro de ADRs](./architecture/adrs/) | 32 decisiones arquitectónicas |
-| 🧩 **Modelo de Dominio** | [Índice de Agregados](./domain/index.md) | Contextos acotados · agregados · entidades |
-| 📦 **SDK** | [Portal SDK](./sdk/index.md) | .NET · TypeScript · NestJS |
-| 📋 **Requisitos** | [Historias Funcionales](./governance/requirements/functional-stories/index.md) | Backlog completo del producto |
-| 🚦 **Planificación** | [Backlog del Proyecto](./governance/project/index.md) | Épicas · MVP · gap tracker |
-| ⚙️ **Operaciones** | [Portal de Operaciones](./operations/index.md) | Runbooks · métricas |
-| 🧪 **QA** | [Reporte QA](./qa/qa_report.md) | Resultados de pruebas · cobertura · evidencias |
-| 🏗️ **Infraestructura** | [Plan K8s](../infra/UMS_K8s_Deployment_Plan.md) | Guía de despliegue en Kubernetes |
-| 📖 **Índice Completo** | [Índice Maestro](./MASTER_INDEX.md) | Navegación completa del ciclo de vida |
-| 🔺 **Evolith Upstream** | [Framework Evolith](https://github.com/beyondnetcode/evolith_arch32) | Base de referencia arquitectónica |
+| **Arquitectura** | [Portal de Arquitectura](./architecture/index.md) | Blueprints, ADRs, TEs, patrones canónicos |
+| **ADRs** | [Registro de ADRs](./architecture/adrs/) | 33 decisiones arquitectónicas |
+| **Modelo de Dominio** | [Índice de Agregados](./domain/index.md) | Contextos acotados · agregados · entidades |
+| **SDK** | [Portal SDK](./sdk/index.md) | .NET · TypeScript · NestJS |
+| **Requisitos** | [Historias Funcionales](./governance/requirements/functional-stories/index.md) | Backlog completo del producto |
+| **Planificación** | [Backlog del Proyecto](./governance/project/index.md) | Épicas · MVP · gap tracker |
+| **Operaciones** | [Portal de Operaciones](./operations/index.md) | Runbooks · métricas |
+| **QA** | [Reporte QA](./qa/qa_report.md) | Resultados de pruebas · cobertura · evidencias |
+| **Infraestructura** | [Plan K8s](../infra/UMS_K8s_Deployment_Plan.md) | Guía de despliegue en Kubernetes |
+| **Índice Completo** | [Índice Maestro](./MASTER_INDEX.md) | Navegación completa del ciclo de vida |
+| **Evolith Upstream** | [Framework Evolith](https://github.com/beyondnetcode/evolith_arch32) | Base de referencia arquitectónica |
 
 ---
 
-## 🎯 Comienza Aquí — Elige Tu Camino
+## Comienza Aquí — Elige Tu Camino
 
 ### Camino 1 — Vista General en 5 Minutos
 
-📄 [Visión del Producto](./governance/product/product-vision.md) · [Vista General de Arquitectura](./architecture/overview.md) · [Matriz de Trazabilidad](./architecture/traceability-matrix.md)
+[Visión del Producto](./governance/product/product-vision.md) · [Vista General de Arquitectura](./architecture/overview.md) · [Matriz de Trazabilidad](./architecture/traceability-matrix.md)
 
 *¿Qué es UMS? ¿Qué problema resuelve? ¿Cómo encaja con Evolith?*
 
@@ -61,12 +61,12 @@ Satélite aplicado del framework de arquitectura corporativa [Evolith](https://g
 
 | Rol | Comienza Aquí | Luego Lee |
 |---|---|---|
-| 🏛️ **Arquitecto** | [Portal de Arquitectura](./architecture/index.md) | [Registro ADR](./architecture/adrs/) · [Matriz de Trazabilidad](./architecture/traceability-matrix.md) |
-| 👨‍💻 **Dev Backend** | [Patrones Canónicos](./architecture/artifacts/canonical-patterns/index.md) | [Agregados de Dominio](./domain/index.md) · [SDK .NET](./sdk/dotnet/README.md) |
-| 🖥️ **Dev Frontend** | [ADR-0056: Arquitectura Limpia](./architecture/adrs/0056-clean-architecture-frontend.md) | [SDK TypeScript](./sdk/typescript/README.md) · [ADR-0057: Estado](./architecture/adrs/0057-zustand-tanstack-query-state.md) |
-| 🛠️ **DevOps / SRE** | [Plan de Infraestructura](../infra/infrastructure_plan.md) | [Runbooks](./operations/runbooks/) · [Métricas](./operations/metrics/index.md) |
-| 📦 **Producto / PM** | [Visión del Producto](./governance/product/product-vision.md) | [Gap Tracker](./governance/project/functional-story-gap-tracker.md) · [OKRs](./governance/product/objectives.md) |
-| 🤖 **Contribuidor IA** | [AGENTS.md](../AGENTS.md) | [Plantilla ADR](./governance/sdlc/adr-template.md) |
+| **Arquitecto** | [Portal de Arquitectura](./architecture/index.md) | [Registro ADR](./architecture/adrs/) · [Matriz de Trazabilidad](./architecture/traceability-matrix.md) |
+| **Dev Backend** | [Patrones Canónicos](./architecture/artifacts/canonical-patterns/index.md) | [Agregados de Dominio](./domain/index.md) · [SDK .NET](./sdk/dotnet/README.md) |
+| **Dev Frontend** | [ADR-0056: Arquitectura Limpia](./architecture/adrs/0056-clean-architecture-frontend.md) | [SDK TypeScript](./sdk/typescript/README.md) · [ADR-0057: Estado](./architecture/adrs/0057-zustand-tanstack-query-state.md) |
+| **DevOps / SRE** | [Plan de Infraestructura](../infra/infrastructure_plan.md) | [Runbooks](./operations/runbooks/) · [Métricas](./operations/metrics/index.md) |
+| **Producto / PM** | [Visión del Producto](./governance/product/product-vision.md) | [Gap Tracker](./governance/project/functional-story-gap-tracker.md) · [OKRs](./governance/product/objectives.md) |
+| **Contribuidor IA** | [AGENTS.md](../AGENTS.md) | [Plantilla ADR](./governance/sdlc/adr-template.md) |
 
 ### Camino 3 — Tomar una Decisión Arquitectónica
 
@@ -76,9 +76,9 @@ Satélite aplicado del framework de arquitectura corporativa [Evolith](https://g
 
 ---
 
-## 📂 Estructura del Repositorio (Exploración Profunda)
+## Estructura del Repositorio (Exploración Profunda)
 
-### 📐 Arquitectura y Patrones
+### Arquitectura y Patrones
 
 | Artefacto | Propósito |
 |---|---|
@@ -90,7 +90,7 @@ Satélite aplicado del framework de arquitectura corporativa [Evolith](https://g
 | [Patrones Canónicos](./architecture/artifacts/canonical-patterns/index.md) | CP-01 hasta CP-08 |
 | [Referencia API (.NET)](./architecture/api-dotnet/) | Referencia del contrato HTTP |
 
-### 🏛️ Registros de Decisiones Arquitectónicas
+### Registros de Decisiones Arquitectónicas
 
 | ADR | Título | Evolith |
 |---|---|---|
@@ -126,8 +126,9 @@ Satélite aplicado del framework de arquitectura corporativa [Evolith](https://g
 | [0079](./architecture/adrs/0079-dependency-guard-policy.md) | Política de Guardia de Dependencias | Específico UMS |
 | [0080](./architecture/adrs/0080-auth-graph-preview-internal-pipeline.md) | Pipeline de Preview del Grafo Auth | Específico UMS |
 | [0081](./architecture/adrs/0081-semantic-auth-graph-client-contract.md) | Contrato Semántico del Grafo Auth | Específico UMS |
+| [0082](./architecture/adrs/0082-postgresql-authoritative-persistence-baseline.md) | Linea Base de Persistencia PostgreSQL | Especifico UMS |
 
-### 🧩 Modelo de Dominio
+### Modelo de Dominio
 
 | Contexto Acotado | Agregados |
 |---|---|
@@ -140,7 +141,7 @@ Satélite aplicado del framework de arquitectura corporativa [Evolith](https://g
 
 También: [Mapa de Contextos](./governance/construction/ddd-design/01-bounded-context-map.md) · [Flujos Cross-Context](./governance/construction/ddd-design/10-cross-context-flows.md) · [Primitivos DDD](./governance/construction/ddd-design/11-ddd-primitives.md)
 
-### 📦 SDK
+### SDK
 
 | Runtime | README | Inicio Rápido |
 |---|---|---|
@@ -150,7 +151,7 @@ También: [Mapa de Contextos](./governance/construction/ddd-design/01-bounded-co
 
 Contratos: [Vista General del Schema](./sdk/contracts/schema-overview.md) · [Códigos de Error](./sdk/contracts/error-codes.md) · [Matriz de Compatibilidad](./sdk/contracts/compatibility-matrix.md) · [Contrato Semántico](./sdk/contracts/semantic-client-contract.md)
 
-### 📋 Producto y Requisitos
+### Producto y Requisitos
 
 | Artefacto | Propósito |
 |---|---|
@@ -164,7 +165,7 @@ Contratos: [Vista General del Schema](./sdk/contracts/schema-overview.md) · [C�
 | [Modelo de Datos Conceptual](./governance/requirements/conceptual-data-model.md) | Modelo de dominio de alto nivel |
 | [Matriz de Permisos](./governance/requirements/permission-matrix-example.md) | Referencia de roles y permisos |
 
-### 🚦 Planificación y Backlog
+### Planificación y Backlog
 
 | Artefacto | Propósito |
 |---|---|
@@ -175,7 +176,7 @@ Contratos: [Vista General del Schema](./sdk/contracts/schema-overview.md) · [C�
 | [Épica 07: Cumplimiento](./governance/project/ep-07-compliance-detailed-design.md) | Diseño del módulo de cumplimiento |
 | [Épica 08: IGA](./governance/project/ep-08-iga-detailed-design.md) | Diseño de Identity Governance |
 
-### ⚙️ Operaciones
+### Operaciones
 
 | Artefacto | Propósito |
 |---|---|
@@ -183,11 +184,11 @@ Contratos: [Vista General del Schema](./sdk/contracts/schema-overview.md) · [C�
 | [RB-01: Respuesta a Incidentes](./operations/runbooks/rb-01-incident-response.md) | Playbook de guardia para incidentes |
 | [RB-02: Procedimiento de Rollback](./operations/runbooks/rb-02-rollback-procedure.md) | Pasos seguros de rollback |
 | [RB-03: Recuperación de Caché](./operations/runbooks/rb-03-cache-failure-recovery.md) | Recuperación de fallos en Redis |
-| [RB-04: Failover de Base de Datos](./operations/runbooks/rb-04-database-failover.md) | Procedimiento de failover SQL Server |
+| [RB-04: Failover de Base de Datos](./operations/runbooks/rb-04-database-failover.md) | Procedimiento de failover PostgreSQL |
 | [Anonimización DB de Dev](./operations/runbooks/dev-db-anonymization.md) | Anonimización de PII para entornos dev |
 | [Retención de Backups GDPR](./operations/runbooks/gdpr-backup-retention-policy.md) | Cumplimiento de retención de backups |
 
-### 🧪 QA y Pruebas
+### QA y Pruebas
 
 | Artefacto | Propósito |
 |---|---|
@@ -198,7 +199,7 @@ Contratos: [Vista General del Schema](./sdk/contracts/schema-overview.md) · [C�
 | [Resultados de Pruebas de Rendimiento](./governance/testing/performance-testing-results.md) | Resultados de pruebas de carga |
 | [Evidencias QA](./qa/evidences/) | Capturas US-001 hasta US-008 |
 
-### 🏗️ Infraestructura
+### Infraestructura
 
 | Artefacto | Propósito |
 |---|---|
@@ -209,7 +210,7 @@ Contratos: [Vista General del Schema](./sdk/contracts/schema-overview.md) · [C�
 
 ---
 
-## 🔧 Desarrollo Local
+## Desarrollo Local
 
 ```bash
 # Instalar todas las dependencias
@@ -225,14 +226,14 @@ cd src/apps/ums.api && dotnet build && dotnet run
 cd src && npx nx run-many --target=test --all
 
 # Validar consistencia de documentación
-python .bmad-core/scripts/validate_docs_consistency.py README.md docs/
+python3 .bmad-core/scripts/validate_docs_consistency.py README.md docs/
 ```
 
 > **Nota:** Después de cualquier cambio que requiera recarga del servidor, detén el backend (:7114) y el frontend (:5173) y reinicia ambos.
 
 ---
 
-## 🔺 UMS vs Evolith — Qué Va Dónde
+## UMS vs Evolith — Qué Va Dónde
 
 | Pregunta | Evolith (Upstream) | UMS (Producto Satélite) |
 |---|---|---|
@@ -244,7 +245,7 @@ python .bmad-core/scripts/validate_docs_consistency.py README.md docs/
 
 ---
 
-## 🤝 Contribución
+## Contribución
 
 Antes de contribuir, lee:
 
@@ -255,7 +256,7 @@ Antes de contribuir, lee:
 
 ---
 
-## 📋 Todos los Índices de Navegación
+## Todos los Índices de Navegación
 
 | Índice | Propósito |
 |---|---|

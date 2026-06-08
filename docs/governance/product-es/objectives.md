@@ -18,7 +18,7 @@ Garantizar que las verificaciones de permisos centralizadas no degraden la exper
 
 - **KR 2.1**: Mantener la latencia de recuperación del grafo de permisos compilado **por debajo de 50ms** usando Caché Redis con TTL < 1 hora.
 - **KR 2.2**: Asegurar que el tiempo de construcción del monorepo sea **menor a 5 minutos** utilizando el almacenamiento en caché de tareas de alto rendimiento de Nx.
-- **KR 2.3**: Lograr una **sobrecarga de RLS con EF Core / SQL Server de < 5ms** por ejecución de consulta SQL.
+- **KR 2.3**: Lograr una **sobrecarga de RLS con EF Core / PostgreSQL de < 5ms** por ejecución de consulta SQL.
 
 ---
 
@@ -34,6 +34,6 @@ Delegar tareas administrativas a los clientes, reduciendo la sobrecarga de sopor
 ## Objetivo 4: Lograr una Extensibilidad Plug-and-Play Real (Núcleo Neutral)
 Diseñar el sistema para que todas las infraestructuras externas (IdPs y Gestores de Feature Flags) sean completamente opcionales y conectables.
 
-- **KR 4.1**: Entregar un **Motor de Respaldo Nativo** funcional tanto para Identidad (bcrypt/DB interna) como para Feature Flags (SQL Server como base de targets/evaluador) de fábrica, sin requerir dependencias SaaS externas.
+- **KR 4.1**: Entregar un **Motor de Respaldo Nativo** funcional tanto para Identidad (bcrypt/DB interna) como para Feature Flags (PostgreSQL como base de targets/evaluador) de fábrica, sin requerir dependencias SaaS externas.
 - **KR 4.2**: Estandarizar el **100% de las integraciones externas** detrás de puertos hexagonales (`IAuthenticationPort` e `IFeatureFlagPort`), permitiendo la adición o cambio de proveedores (Zitadel, Azure AD, Okta, LaunchDarkly, Unleash) solo mediante configuración.
 - **KR 4.3**: Hacer cumplir el uso de **Cero importaciones de SDK de proveedores externos** dentro de las capas puras de `core/` o `application/` de la aplicación.

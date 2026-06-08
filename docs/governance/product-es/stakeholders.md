@@ -12,7 +12,7 @@ Para asegurar el éxito del UMS, se han mapeado los siguientes **Interesados (St
 | **Product Owner / Analista de Negocio** | Recolección de requisitos, definición de alcance, priorización de características e historias de usuario. | Onboarding de clientes (tenants) autoservicio, inyección dinámica de menús y lógica de asignación RBAC/ABAC intuitiva. |
 | **Líder de Desarrollo** | Implementación de código en .NET 10/React 18 y pruebas unitarias. | Interfaces claras, seguridad de tipos, excelente soporte de Nx y endpoints de API bien documentados. |
 | **Analista de QA / Seguridad** | Pruebas de contrato, pruebas de penetración locales, verificación de cobertura y quality gates. | Alta testabilidad del código, cumplimiento de contratos y registros de auditoría de negocio inmutables. |
-| **Ingeniero de DevOps / SRE** | Topología de infraestructura, orquestación con Docker y pipelines de telemetría con Grafana Loki. | Builds de CI/CD rápidos (< 5m), alta observabilidad (OpenTelemetry) y aislamiento de datos fiable mediante RLS en SQL Server.
+| **Ingeniero de DevOps / SRE** | Topología de infraestructura, orquestación con Docker y pipelines de telemetría con Grafana Loki. | Builds de CI/CD rápidos (< 5m), alta observabilidad (OpenTelemetry) y aislamiento de datos fiable mediante PostgreSQL row-level security.
 ## 2. Usuarios Externos
 
 | Persona de Usuario | Contexto | Beneficio Clave del UMS |

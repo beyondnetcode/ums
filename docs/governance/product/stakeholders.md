@@ -12,7 +12,7 @@ To ensure the success of UMS, the following internal and external **Stakeholders
 | **Product Owner / Business Analyst** | Requirements collection, scope definition, feature prioritizing, and user stories. | Self-service tenant onboarding, dynamic UI menu injection, and intuitive RBAC/ABAC assignment logic. |
 | **Lead Developer** | Code implementation in .NET 10, React 18, and unit testing. | Clear interfaces, Type Safety, excellent Nx task runner support, and well-documented API endpoints. |
 | **QA / Security Analyst** | Contract testing, local penetration testing, coverage verification, and quality gates. | High code testability, Pact contract compliance, and immutable business audit logs. |
-| **DevOps / SRE Engineer** | Infrastructure topology, Docker orchestration, and Grafana Loki telemetry pipelines. | Smooth CI/CD builds (< 5m), high observability (OpenTelemetry), and reliable SQL Server RLS isolation.
+| **DevOps / SRE Engineer** | Infrastructure topology, Docker orchestration, and Grafana Loki telemetry pipelines. | Smooth CI/CD builds (< 5m), high observability (OpenTelemetry), and reliable PostgreSQL row-level security isolation.
 ## 2. External Users
 
 | User Persona | Context | Key Benefit from UMS |

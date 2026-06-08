@@ -4,7 +4,7 @@
 
 All architectural decisions for the User Management System (UMS) are recorded here. Decisions inherit the mandatory baseline from the Evolith reference architecture and extend or specialize it for the UMS product context.
 
-UMS is a satellite repository of `evolith_arch32`. The parent repository defines the corporate architecture baseline; UMS ADRs must either adopt it by reference or document an explicit SQL Server / .NET adaptation where the parent example is runtime- or database-specific.
+UMS is a satellite repository of `evolith_arch32`. The parent repository defines the corporate architecture baseline; UMS ADRs must either adopt it by reference or document an explicit PostgreSQL / .NET adaptation where the parent example is runtime- or database-specific.
 
 > **Note:**ADRs 0001–0049 are inherited from the Evolith parent architecture baseline. Their governance and canonical text lives in the [Evolith ADR Registry](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/README.md). Only UMS-specific decisions (ADR-0050 onward) are maintained as physical files in this repository.
 
@@ -58,12 +58,13 @@ UMS is a satellite repository of `evolith_arch32`. The parent repository defines
 | [ADR-0079](./0079-dependency-guard-policy.md) | Dependency Guard Policy — Blocking Operations on Active Dependencies | Accepted |
 | [ADR-0080](./0080-auth-graph-preview-internal-pipeline.md) | Auth Graph Preview — Internal vs External Pipeline | Accepted | > **Evolith candidate** - ADR has zero UMS-specific dependencies and is proposed for extraction to the Evolith parent architecture baseline.
 | [ADR-0081](./0081-semantic-auth-graph-client-contract.md) | Semantic Auth Graph Client Contract — Code-First, ID-Optional | Proposed |
+| [ADR-0082](./0082-postgresql-authoritative-persistence-baseline.md) | PostgreSQL Authoritative Persistence Baseline | Accepted |
 
 ---
 
 ## Bilingual Coverage (R-01 Compliance)
 
-All ADRs (0050-0080) now have Spanish translations:
+All ADRs (0050-0082) now have Spanish translations:
 
 | ADR | Spanish | ADR | Spanish |
 |-----|---------|-----|---------|
@@ -85,6 +86,8 @@ All ADRs (0050-0080) now have Spanish translations:
 | — | — | 0077 | |
 | — | — | 0078 | |
 | — | — | 0079 | |
-| — | — | 0080 | | ---
+| — | — | 0080 | |
+| — | — | 0081 | |
+| — | — | 0082 | | ---
 
 **[Architecture Portal](../index.md)** | **[Master Index](../../MASTER_INDEX.md)**

@@ -96,7 +96,7 @@ public class UpdateSystemSuiteCommandHandler : IRequestHandler<UpdateSystemSuite
 To enforce multi-tenancy boundaries at the outermost edges of the Application layer before domain logic is executed.
 
 ### Rationale
-Relying solely on SQL Server RLS (Row-Level Security) is insufficient as a primary defense (Rule 7). The application must proactively validate that the incoming payload's `TenantId` matches the authenticated session's `TenantId` (from `IUserContext`), blocking malicious cross-tenant data requests instantly.
+Relying solely on PostgreSQL row-level security is insufficient as a primary defense (Rule 7). The application must proactively validate that the incoming payload's `TenantId` matches the authenticated session's `TenantId` (from `IUserContext`), blocking malicious cross-tenant data requests instantly.
 
 ### How to Implement
 Apply the `[TenantValidationAspect]` attribute to handlers processing tenant-scoped data. The aspect intercepts the payload, extracts the `TenantId` using reflection, and verifies it against `IUserContext`.

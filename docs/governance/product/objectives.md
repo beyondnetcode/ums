@@ -18,7 +18,7 @@ Guarantee that centralized permission checks do not degrade the downstream user 
 
 - **KR 2.1**: Keep compiled permission graph retrieval latency **under 50ms** using Read-Aside Redis Caching with TTL < 1 hour.
 - **KR 2.2**: Ensure the monorepo build time is **under 5 minutes** by utilizing Nx high-performance task caching.
-- **KR 2.3**: Achieve an **EF Core / SQL Server RLS overhead of < 5ms** per SQL query execution.
+- **KR 2.3**: Achieve an **EF Core / PostgreSQL row-level security overhead of < 5ms** per SQL query execution.
 
 ---
 

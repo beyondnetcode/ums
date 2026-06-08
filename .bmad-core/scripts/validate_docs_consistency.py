@@ -54,9 +54,8 @@ MOJIBAKE_TOKENS = (
 )
 
 FORBIDDEN_STACK_PATTERNS = [
-    (re.compile(r"\bPostgreSQL\b", re.IGNORECASE), "PostgreSQL reference found. UMS authoritative database is SQL Server unless explicitly marked as external comparison."),
     (re.compile(r"\.NET\s+8\b", re.IGNORECASE), ".NET 8 reference found. UMS authoritative backend stack is .NET 10."),
-    (re.compile(r"SQL\s+Server\s+2019\b", re.IGNORECASE), "SQL Server 2019 reference found. Current project baseline is SQL Server 2022."),
+    (re.compile(r"SQL\s+Server\s+2019\b", re.IGNORECASE), "SQL Server 2019 reference found. Current UMS persistence baseline is PostgreSQL."),
 ]
 
 EMOJI_RANGES = [
@@ -244,7 +243,7 @@ def validate_stack(path: Path, text: str) -> list[Issue]:
                 line_number(text, match.start()),
                 "stack-consistency",
                 message,
-                "Align the document with .NET 10 + SQL Server 2022 + EF Core, or mark the reference as an explicit external comparison.",
+                "Align the document with .NET 10 + PostgreSQL + EF Core through Npgsql, or mark the reference as legacy context or an explicit external comparison.",
             ))
     return issues
 
@@ -262,6 +261,10 @@ def counterpart_candidates(path: Path) -> list[Path]:
     candidates.append(s.replace("/project/", "/project-es/"))
     candidates.append(s.replace("/requirements-es/", "/requirements/"))
     candidates.append(s.replace("/requirements/", "/requirements-es/"))
+    candidates.append(s.replace("/testing-es/", "/testing/"))
+    candidates.append(s.replace("/testing/", "/testing-es/"))
+    candidates.append(s.replace("/architecture-es/", "/architecture/"))
+    candidates.append(s.replace("/architecture/", "/architecture-es/"))
     candidates.append(s.replace("/blueprints-es/", "/blueprints/"))
     candidates.append(s.replace("/blueprints/", "/blueprints-es/"))
     candidates.append(s.replace("/domain-es/", "/domain/"))

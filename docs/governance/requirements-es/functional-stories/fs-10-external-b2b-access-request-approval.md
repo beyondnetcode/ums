@@ -76,7 +76,7 @@ Si la organización ya existe, el sistema vincula el nuevo usuario a la organiza
 - Persistir la solicitud como `EXTERNAL_ACCESS_REQUEST` / `APPROVAL_REQUEST` con estados pendiente, aprobado y rechazado.
 - Registrar auditoría inmutable con patrocinador, aprobador, justificación, estado y timestaamps.
 - Validar perfiles en el límite del servicio/API.
-- Usar filtrado por tenant en capa de aplicación como control primario y SQL Server 2022 RLS como endurecimiento de infraestructura.
+- Usar filtrado por tenant en capa de aplicación como control primario y PostgreSQL row-level security y politicas de base de datos como endurecimiento de infraestructura.
 - Emitir eventos de aprovisionamiento y auditoría después de aprobar.
 - Retornar fallo de autorización ante intentos de escalamiento de privilegios.
 

@@ -202,7 +202,7 @@ public class AccessEnforcementPolicyConfiguration : IEntityTypeConfiguration<Acc
 
 ## 9. Seguridad y Cumplimiento
 
-- **Aislamiento de Inquilinos:** La aplicación del inquilino opera como la salvaguarda principal; SQL Server RLS actúa como una medida secundaria de respaldo.
+- **Aislamiento de Inquilinos:** El enforcement de tenancy en capa de aplicacion opera como salvaguarda principal; PostgreSQL row-level security y politicas de base de datos actuan como resguardos secundarios.
 - **Separación de Privilegios:** La modificación de las políticas de acceso está estrictamente restringida a los administradores de seguridad de la plataforma o del inquilino.
 
 ---

@@ -123,7 +123,7 @@ This document establishes the mandatory rule configuration for the AI agent harn
 ### R-16: Authoritative Stack and Multi-Tenancy Compliance
 *   **Scope**: `architect`, `dev`, `qa`
 *   **Trigger Condition**: Any task involving persistence, tenancy, ORM mapping, architectural documentation, ADRs, or technical stack references.
-*   **Instruction**: The authoritative backend stack for UMS is `.NET 10 + SQL Server + EF Core`. PostgreSQL references, syntax, migration examples, or assumptions are not allowed unless explicitly marked as external comparison. Multi-tenancy must be documented and implemented with two layers: application-layer tenant filtering as the primary mechanism and SQL Server RLS as a secondary failsafe only.
+*   **Instruction**: The authoritative backend stack for UMS is `.NET 10 + PostgreSQL + EF Core through Npgsql`. SQL Server references, syntax, migration examples, or assumptions are allowed only when explicitly marked as legacy context, migration notes, or external comparison. Multi-tenancy must be documented and implemented with application-layer tenant filtering as the primary mechanism; PostgreSQL row-level security, schema ownership, constraints, and database policies are secondary infrastructure failsafes only.
 
 ---
 

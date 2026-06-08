@@ -10,7 +10,7 @@ Use this playbook when making architectural decisions that affect bounded contex
 2. Shared code belongs in shell or common infrastructure only when it is truly cross-context.
 3. Domain code stays pure and framework-agnostic.
 4. Cross-context collaboration prefers contracts, events, ACLs, and outbox over direct internal shortcuts.
-5. SQL Server remains the authoritative persistence target.
+5. PostgreSQL remains the authoritative persistence target.
 6. Outbox and integration events are favored when preparing extraction paths.
 7. Shared frontend logic is separated from domain features to support future extraction.
 

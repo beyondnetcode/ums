@@ -7,7 +7,7 @@
 [![Status](https://img.shields.io/badge/Status-Active-brightgreen?style=for-the-badge)]()
 [![Platform](https://img.shields.io/badge/.NET_10_%7C_PostgreSQL_%7C_React_18-informational?style=for-the-badge)]()
 [![Architecture](https://img.shields.io/badge/Evolith-Satellite_Product-blueviolet?style=for-the-badge)](https://github.com/beyondnetcode/evolith_arch32)
-[![ADRs](https://img.shields.io/badge/ADRs-32_decisions-orange?style=for-the-badge)](./docs/architecture/adrs/)
+[![ADRs](https://img.shields.io/badge/ADRs-33_decisions-orange?style=for-the-badge)](./docs/architecture/adrs/)
 [![License](https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge)]()
 
 <br/>
@@ -36,7 +36,7 @@ Applied satellite of the [Evolith](https://github.com/beyondnetcode/evolith_arch
 | Category | Entry Point | Description |
 |---|---|---|
 | **Architecture** | [Architecture Portal](./docs/architecture/index.md) | Blueprints, ADRs, TEs, canonical patterns |
-| **ADRs** | [ADR Registry](./docs/architecture/adrs/) | 32 architecture decisions |
+| **ADRs** | [ADR Registry](./docs/architecture/adrs/) | 33 architecture decisions |
 | **Domain Model** | [Aggregate Index](./docs/domain/index.md) | Bounded contexts · aggregates · entities |
 | **SDK** | [SDK Portal](./docs/sdk/index.md) | .NET · TypeScript · NestJS |
 | **Requirements** | [Functional Stories](./docs/governance/requirements/functional-stories/index.md) | Full product backlog |
@@ -53,7 +53,7 @@ Applied satellite of the [Evolith](https://github.com/beyondnetcode/evolith_arch
 
 ### Path 1 — 5-Minute Overview
 
- [Product Vision](./docs/governance/product/product-vision.md) · [Architecture Overview](./docs/architecture/overview.md) · [Traceability Matrix](./docs/architecture/traceability-matrix.md)
+[Product Vision](./docs/governance/product/product-vision.md) · [Architecture Overview](./docs/architecture/overview.md) · [Traceability Matrix](./docs/architecture/traceability-matrix.md)
 
 *What is UMS? What problem does it solve? How does it fit Evolith?*
 
@@ -126,6 +126,7 @@ Applied satellite of the [Evolith](https://github.com/beyondnetcode/evolith_arch
 | [0079](./docs/architecture/adrs/0079-dependency-guard-policy.md) | Dependency Guard Policy | UMS-specific |
 | [0080](./docs/architecture/adrs/0080-auth-graph-preview-internal-pipeline.md) | Auth Graph Preview Pipeline | UMS-specific |
 | [0081](./docs/architecture/adrs/0081-semantic-auth-graph-client-contract.md) | Semantic Auth Graph Contract | UMS-specific |
+| [0082](./docs/architecture/adrs/0082-postgresql-authoritative-persistence-baseline.md) | PostgreSQL Persistence Baseline | UMS-specific |
 
 ### Domain Model
 
@@ -183,7 +184,7 @@ Contracts: [Schema Overview](./docs/sdk/contracts/schema-overview.md) · [Error 
 | [RB-01: Incident Response](./docs/operations/runbooks/rb-01-incident-response.md) | On-call incident playbook |
 | [RB-02: Rollback Procedure](./docs/operations/runbooks/rb-02-rollback-procedure.md) | Safe rollback steps |
 | [RB-03: Cache Failure Recovery](./docs/operations/runbooks/rb-03-cache-failure-recovery.md) | Redis failure recovery |
-| [RB-04: Database Failover](./docs/operations/runbooks/rb-04-database-failover.md) | SQL Server failover procedure |
+| [RB-04: Database Failover](./docs/operations/runbooks/rb-04-database-failover.md) | PostgreSQL failover procedure |
 | [Dev DB Anonymization](./docs/operations/runbooks/dev-db-anonymization.md) | PII anonymization for dev environments |
 | [GDPR Backup Retention](./docs/operations/runbooks/gdpr-backup-retention-policy.md) | Backup retention compliance |
 
@@ -225,7 +226,7 @@ cd src/apps/ums.api && dotnet build && dotnet run
 cd src && npx nx run-many --target=test --all
 
 # Validate documentation consistency
-python .bmad-core/scripts/validate_docs_consistency.py README.md docs/
+python3 .bmad-core/scripts/validate_docs_consistency.py README.md docs/
 ```
 
 > **Note:** After any change requiring a server reload, kill backend (:7114) and frontend (:5173) and restart both.

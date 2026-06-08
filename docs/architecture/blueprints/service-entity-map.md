@@ -68,4 +68,4 @@ For all parameter/configuration/catalog entities (including `APP_CONFIGURATION`,
 
 ## 4. References
 *   For the complete E/R diagram and relationship cardinality, refer to **[er-export-formats.md](er-export-formats.md)**.
-*   For technical implementation of **Progressive Isolation** (Application-level + SQL Server RLS hardening), refer to the Identity Context documentation and ADR-0041.
+*   For technical implementation of **Progressive Isolation** (application-level filtering plus PostgreSQL row-level security and database-policy hardening), refer to the Identity Context documentation and ADR-0082.

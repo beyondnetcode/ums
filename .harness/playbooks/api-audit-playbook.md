@@ -11,8 +11,8 @@ Use this playbook when reviewing or implementing backend queries, commands, cont
 3. Pagination, filtering, sorting, and status/search normalization are centralized.
 4. Error mapping is typed and consistent across REST and GraphQL.
 5. Runtime validation exists at the boundary when contracts are untrusted.
-6. Persistence is aligned to SQL Server and avoids PostgreSQL drift.
-7. Tenant filtering is enforced at application level first, with SQL Server RLS as secondary failsafe.
+6. Persistence is aligned to PostgreSQL through Npgsql and avoids SQL Server drift unless explicitly marked as legacy context or external comparison.
+7. Tenant filtering is enforced at application level first, with PostgreSQL row-level security, schema ownership, constraints, and database policies as secondary failsafes.
 8. Query handlers avoid unnecessary in-memory filtering when repository-level execution is feasible.
 
 ## Audit Focus Areas

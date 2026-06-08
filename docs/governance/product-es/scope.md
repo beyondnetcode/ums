@@ -9,7 +9,7 @@ El UMS gestiona las siguientes capacidades funcionales clave:
 
 ### A. Gobernanza de Organización y Multi-Tenancy
 - Definición de **Organizaciones (Tenants)** y sus estructuras jerárquicas.
-- Aislamiento estricto de base de datos mediante **Seguridad a Nivel de Fila (RLS) en SQL Server**.
+- Aislamiento estricto de base de datos mediante **PostgreSQL row-level security y politicas de base de datos** como resguardos de infraestructura.
 - Administración delegada: permite a los administradores de tenant gestionar sus propios usuarios y asignaciones locales.
 
 ### B. Autorización Granular y Motor de Perfiles

@@ -5,7 +5,7 @@ Integration and E2E tests validate the end-to-end functionality of the UMS Mono-
 
 - **Web (Frontend):** Playwright E2E tests validating the React SPA UI rendering, state management, and user flows.
 - **API (Backend):** Integration tests invoking live GraphQL and REST endpoints, validating request parsing, AOP authorization interceptors, and response mapping.
-- **DB (Database):** Validation of actual SQL Server queries, Row-Level Security (RLS) policies, and data persistence triggered by the API layer in a real database container/instance.
+- **DB (Database):** Validation of actual PostgreSQL queries, row-level security policies, and data persistence triggered by the API layer in a real database container/instance.
 - **Key Scenarios:** Authentication Flows, Tenant Isolation (RLS and Application Level), Role Authorization, Navigation, and Dynamic UI Rendering.
 
 ## 2. Executed Cases & Results

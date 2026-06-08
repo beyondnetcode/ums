@@ -76,7 +76,7 @@ If the organization already exists, the system links the new user to the existin
 - Persist the request as `EXTERNAL_ACCESS_REQUEST` / `APPROVAL_REQUEST` with pending, approved, and rejected states.
 - Record immutable audit data including sponsor, approver, justification, status, and timestaamps.
 - Enforce profile validation at the service/API boundary.
-- Use application-layer tenant filtering as the primary isolation control and SQL Server 2022 RLS as infrastructure hardening.
+- Use application-layer tenant filtering as the primary isolation control and PostgreSQL row-level security and database policies as infrastructure hardening.
 - Emit provisioning and audit events after approval.
 - Return an authorization failure for privilege escalation attempts.
 

@@ -796,7 +796,7 @@ erDiagram
 ---
 
 ## 4. Business Rules & Technical Constraints
-1.  **Dual-Layer Tenant Isolation**: `TenantId` is denormalized across all functional entities (Module, Option, Template, Action, Role) to allow O(1) application-layer filtering as the primary isolation mechanism. SQL Server RLS remains the infrastructure failsafe layer, not the primary control.
+1.  **Dual-Layer Tenant Isolation**: `TenantId` is denormalized across all functional entities (Module, Option, Template, Action, Role) to allow O(1) application-layer filtering as the primary isolation mechanism. PostgreSQL row-level security and database policies remain the infrastructure failsafe layer, not the primary control.
 2.  **Exclusive Arc (Template Integrity)**: `PermissionTemplateItem` uses a `TargetType` discriminator and a single `TargetId` column instead of 5 nullable FKs. A `CHECK` constraint guarantees `TargetType` is always populated, enforcing strict database referential integrity over polymorphism.
 3.  **Strict XOR Action Ownership**: An Action must belong to a System OR a Module, but never both: `CHECK ((SystemSuiteId IS NOT NULL AND ModuleId IS NULL) OR (SystemSuiteId IS NULL AND ModuleId IS NOT NULL))`.
 4.  **Hierarchy Integrity**: Access must be traced through `System > Module > Menu > SubMenu > Option` (schema: `SYSTEM_SUITE → FUNCTIONAL_MODULE → FUNCTIONAL_MENU → FUNCTIONAL_SUBMENU → FUNCTIONAL_OPTION`).

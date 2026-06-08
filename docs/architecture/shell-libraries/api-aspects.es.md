@@ -96,7 +96,7 @@ public class UpdateSystemSuiteCommandHandler : IRequestHandler<UpdateSystemSuite
 Hacer cumplir los límites de multi-tenencia en los bordes más externos de la capa de Aplicación antes de que se ejecute la lógica de dominio.
 
 ### Razón de Ser
-Depender únicamente de SQL Server RLS (Seguridad a Nivel de Fila) es insuficiente como defensa primaria (Regla 7). La aplicación debe validar proactivamente que el `TenantId` del payload entrante coincide con el `TenantId` de la sesión autenticada (desde `IUserContext`), bloqueando las solicitudes maliciosas entre inquilinos instantáneamente.
+Depender unicamente de PostgreSQL row-level security es insuficiente como defensa primaria (Regla 7). La aplicacion debe validar proactivamente que el `TenantId` del payload entrante coincide con el `TenantId` de la sesion autenticada (desde `IUserContext`), bloqueando las solicitudes maliciosas entre inquilinos instantaneamente.
 
 ### Cómo Implementarlo
 Aplica el atributo `[TenantValidationAspect]` a los manejadores que procesan datos limitados al contexto del inquilino (tenant-scoped). El aspecto intercepta el payload, extrae el `TenantId` usando reflexión, y lo verifica contra `IUserContext`.
