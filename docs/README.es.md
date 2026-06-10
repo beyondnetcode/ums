@@ -66,76 +66,88 @@ Abre el área del ciclo de vida en la que estás trabajando. Cada sección agrup
 <details>
 <summary><strong>Fase 00 - Producto y Gobernanza</strong></summary>
 
-- [Hub de Gobernanza](./governance/index.md)
-- [Visión del Producto](./governance/product/product-vision.md)
-- [Contexto de Negocio](./governance/product/business-context.md)
-- [Alcance y Límites](./governance/product/scope.md)
-- [Stakeholders](./governance/product/stakeholders.md)
-- [Objetivos](./governance/product/objectives.md)
+| Documento | Tipo |
+| :--- | :--- |
+| [Visión del Producto](./governance/product/product-vision.md) | Guía |
+| [Contexto de Negocio](./governance/product/business-context.md) | Guía |
+| [Alcance y Límites](./governance/product/scope.md) | Guía |
+| [Objetivos](./governance/product/objectives.md) | Guía |
+| [Hub de Gobernanza](./governance/index.md) | Índice |
+| [Stakeholders](./governance/product/stakeholders.md) | Registro |
 
 </details>
 
 <details>
 <summary><strong>Fase 01 - Requisitos</strong></summary>
 
-- [Hub de Requisitos](./governance/requirements/index.md)
-- [Historias Funcionales](./governance/requirements/functional-stories/index.md)
-- [Estándar de Historia Funcional](./governance/requirements/functional-stories/functional-story-standard.md)
-- [Modelo de Datos Conceptual](./governance/requirements/conceptual-data-model.md)
-- [Ejemplo de Matriz de Permisos](./governance/requirements/permission-matrix-example.md)
-- [Glosario](./governance/requirements/glossary.md)
+| Documento | Tipo |
+| :--- | :--- |
+| [Estándar de Historia Funcional](./governance/requirements/functional-stories/functional-story-standard.md) | Estándar |
+| [Hub de Requisitos](./governance/requirements/index.md) | Índice |
+| [Historias Funcionales](./governance/requirements/functional-stories/index.md) | Índice |
+| [Ejemplo de Matriz de Permisos](./governance/requirements/permission-matrix-example.md) | Matriz |
+| [Modelo de Datos Conceptual](./governance/requirements/conceptual-data-model.md) | Referencia |
+| [Glosario](./governance/requirements/glossary.md) | Referencia |
 
 </details>
 
 <details>
 <summary><strong>Fase 02 - Diseño y Arquitectura</strong></summary>
 
-- [Portal de Arquitectura](./architecture/index.md)
-- [Vista General de Arquitectura](./architecture/overview.md)
-- [Registro ADR](./architecture/adrs/)
-- [Matriz de Trazabilidad](./architecture/traceability-matrix.md)
-- [Blueprints](./architecture/blueprints/)
-- [Patrones Canónicos](./architecture/artifacts/canonical-patterns/index.md)
-- [Hub de Diseño DDD](./governance/construction/ddd-design/index.md)
-- [Matriz ADR de Evolith](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/adr-matrix.md)
+| Documento | Tipo |
+| :--- | :--- |
+| [Patrones Canónicos](./architecture/artifacts/canonical-patterns/index.md) | Guía |
+| [Portal de Arquitectura](./architecture/index.md) | Índice |
+| [Registro ADR](./architecture/adrs/) | Índice |
+| [Hub de Diseño DDD](./governance/construction/ddd-design/index.md) | Índice |
+| [Matriz de Trazabilidad](./architecture/traceability-matrix.md) | Matriz |
+| [Matriz ADR de Evolith](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/adr-matrix.md) | Matriz |
+| [Vista General de Arquitectura](./architecture/overview.md) | Referencia |
+| [Blueprints](./architecture/blueprints/) | Referencia |
 
 </details>
 
 <details>
 <summary><strong>Fase 03 - Construcción</strong></summary>
 
-- [Hub de Construcción](./governance/construction/index.md)
-- [Mapa de Contextos Acotados](./governance/construction/ddd-design/01-bounded-context-map.md)
-- [Flujos Cross-Context](./governance/construction/ddd-design/10-cross-context-flows.md)
-- [Primitivos DDD](./governance/construction/ddd-design/11-ddd-primitives.md)
-- [Referencia Aplicada API .NET](./architecture/api-dotnet/ums-api-dotnet-applied-reference.md)
-- [Portal SDK](./sdk/index.md)
-- [Backlog del Proyecto](./governance/project/index.md)
+| Documento | Tipo |
+| :--- | :--- |
+| [Hub de Construcción](./governance/construction/index.md) | Índice |
+| [Portal SDK](./sdk/index.md) | Índice |
+| [Mapa de Contextos Acotados](./governance/construction/ddd-design/01-bounded-context-map.md) | Referencia |
+| [Flujos Cross-Context](./governance/construction/ddd-design/10-cross-context-flows.md) | Referencia |
+| [Primitivos DDD](./governance/construction/ddd-design/11-ddd-primitives.md) | Referencia |
+| [Referencia Aplicada API .NET](./architecture/api-dotnet/ums-api-dotnet-applied-reference.md) | Referencia |
+| [Backlog del Proyecto](./governance/project/index.md) | Registro |
 
 </details>
 
 <details>
 <summary><strong>Fase 04 - Validación y QA</strong></summary>
 
-- [Reporte QA](./qa/qa_report.md)
-- [Resultados de Pruebas Unitarias](./governance/testing/unit-testing-results.md)
-- [Resultados de Pruebas de Integración](./governance/testing/integration-testing-results.md)
-- [Plan de Pruebas de Rendimiento](./governance/testing/performance-testing-plan.md)
-- [Resultados de Pruebas de Rendimiento](./governance/testing/performance-testing-results.md)
-- [Evidencias QA](./qa/evidences/)
+| Documento | Tipo |
+| :--- | :--- |
+| [Plan de Pruebas de Rendimiento](./governance/testing/performance-testing-plan.md) | Guía |
+| [Reporte QA](./qa/qa_report.md) | Registro |
+| [Resultados de Pruebas Unitarias](./governance/testing/unit-testing-results.md) | Registro |
+| [Resultados de Pruebas de Integración](./governance/testing/integration-testing-results.md) | Registro |
+| [Resultados de Pruebas de Rendimiento](./governance/testing/performance-testing-results.md) | Registro |
+| [Evidencias QA](./qa/evidences/) | Registro |
 
 </details>
 
 <details>
 <summary><strong>Fase 05 - Entrega y Operaciones</strong></summary>
 
-- [Portal de Operaciones](./operations/index.md)
-- [Runbooks](./operations/runbooks/index.md)
-- [Métricas](./operations/metrics/index.md)
-- [Plan de Despliegue Kubernetes](../infra/UMS_K8s_Deployment_Plan.md)
-- [Plan de Infraestructura](../infra/infrastructure_plan.md)
-- [Plan de Implementación](../infra/implementation_plan.md)
-- [Proceso de Release Documental](./releases/bmad-documentation-release-process.md)
+| Documento | Tipo |
+| :--- | :--- |
+| [Runbooks](./operations/runbooks/index.md) | Guía |
+| [Plan de Despliegue Kubernetes](../infra/UMS_K8s_Deployment_Plan.md) | Guía |
+| [Plan de Infraestructura](../infra/infrastructure_plan.md) | Guía |
+| [Plan de Implementación](../infra/implementation_plan.md) | Guía |
+| [Proceso de Release Documental](./releases/bmad-documentation-release-process.md) | Guía |
+| [Portal de Operaciones](./operations/index.md) | Índice |
+| [Métricas](./operations/metrics/index.md) | Referencia |
 
 </details>
 

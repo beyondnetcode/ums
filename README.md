@@ -66,76 +66,88 @@ Open the lifecycle area you are working in. Each section groups the documents an
 <details>
 <summary><strong>Phase 00 - Product and Governance</strong></summary>
 
-- [Governance Hub](./docs/governance/index.md)
-- [Product Vision](./docs/governance/product/product-vision.md)
-- [Business Context](./docs/governance/product/business-context.md)
-- [Scope and Boundaries](./docs/governance/product/scope.md)
-- [Stakeholders](./docs/governance/product/stakeholders.md)
-- [Objectives](./docs/governance/product/objectives.md)
+| Documento | Tipo |
+| :--- | :--- |
+| [Product Vision](./docs/governance/product/product-vision.md) | Guía |
+| [Business Context](./docs/governance/product/business-context.md) | Guía |
+| [Scope and Boundaries](./docs/governance/product/scope.md) | Guía |
+| [Objectives](./docs/governance/product/objectives.md) | Guía |
+| [Governance Hub](./docs/governance/index.md) | Índice |
+| [Stakeholders](./docs/governance/product/stakeholders.md) | Registro |
 
 </details>
 
 <details>
 <summary><strong>Phase 01 - Requirements</strong></summary>
 
-- [Requirements Hub](./docs/governance/requirements/index.md)
-- [Functional Stories](./docs/governance/requirements/functional-stories/index.md)
-- [Functional Story Standard](./docs/governance/requirements/functional-stories/functional-story-standard.md)
-- [Conceptual Data Model](./docs/governance/requirements/conceptual-data-model.md)
-- [Permission Matrix Example](./docs/governance/requirements/permission-matrix-example.md)
-- [Glossary](./docs/governance/requirements/glossary.md)
+| Documento | Tipo |
+| :--- | :--- |
+| [Functional Story Standard](./docs/governance/requirements/functional-stories/functional-story-standard.md) | Estándar |
+| [Requirements Hub](./docs/governance/requirements/index.md) | Índice |
+| [Functional Stories](./docs/governance/requirements/functional-stories/index.md) | Índice |
+| [Permission Matrix Example](./docs/governance/requirements/permission-matrix-example.md) | Matriz |
+| [Conceptual Data Model](./docs/governance/requirements/conceptual-data-model.md) | Referencia |
+| [Glossary](./docs/governance/requirements/glossary.md) | Referencia |
 
 </details>
 
 <details>
 <summary><strong>Phase 02 - Design and Architecture</strong></summary>
 
-- [Architecture Portal](./docs/architecture/index.md)
-- [Architecture Overview](./docs/architecture/overview.md)
-- [ADR Registry](./docs/architecture/adrs/)
-- [Traceability Matrix](./docs/architecture/traceability-matrix.md)
-- [Blueprints](./docs/architecture/blueprints/)
-- [Canonical Patterns](./docs/architecture/artifacts/canonical-patterns/index.md)
-- [DDD Design Hub](./docs/governance/construction/ddd-design/index.md)
-- [Evolith ADR Matrix](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/adr-matrix.md)
+| Documento | Tipo |
+| :--- | :--- |
+| [Canonical Patterns](./docs/architecture/artifacts/canonical-patterns/index.md) | Guía |
+| [Architecture Portal](./docs/architecture/index.md) | Índice |
+| [ADR Registry](./docs/architecture/adrs/) | Índice |
+| [DDD Design Hub](./docs/governance/construction/ddd-design/index.md) | Índice |
+| [Traceability Matrix](./docs/architecture/traceability-matrix.md) | Matriz |
+| [Evolith ADR Matrix](https://github.com/beyondnetcode/evolith_arch32/blob/main/reference/architecture/adrs/adr-matrix.md) | Matriz |
+| [Architecture Overview](./docs/architecture/overview.md) | Referencia |
+| [Blueprints](./docs/architecture/blueprints/) | Referencia |
 
 </details>
 
 <details>
 <summary><strong>Phase 03 - Construction</strong></summary>
 
-- [Construction Hub](./docs/governance/construction/index.md)
-- [Bounded Context Map](./docs/governance/construction/ddd-design/01-bounded-context-map.md)
-- [Cross-Context Flows](./docs/governance/construction/ddd-design/10-cross-context-flows.md)
-- [DDD Primitives](./docs/governance/construction/ddd-design/11-ddd-primitives.md)
-- [API .NET Applied Reference](./docs/architecture/api-dotnet/ums-api-dotnet-applied-reference.md)
-- [SDK Portal](./docs/sdk/index.md)
-- [Project Backlog](./docs/governance/project/index.md)
+| Documento | Tipo |
+| :--- | :--- |
+| [Construction Hub](./docs/governance/construction/index.md) | Índice |
+| [SDK Portal](./docs/sdk/index.md) | Índice |
+| [Bounded Context Map](./docs/governance/construction/ddd-design/01-bounded-context-map.md) | Referencia |
+| [Cross-Context Flows](./docs/governance/construction/ddd-design/10-cross-context-flows.md) | Referencia |
+| [DDD Primitives](./docs/governance/construction/ddd-design/11-ddd-primitives.md) | Referencia |
+| [API .NET Applied Reference](./docs/architecture/api-dotnet/ums-api-dotnet-applied-reference.md) | Referencia |
+| [Project Backlog](./docs/governance/project/index.md) | Registro |
 
 </details>
 
 <details>
 <summary><strong>Phase 04 - Validation and QA</strong></summary>
 
-- [QA Report](./docs/qa/qa_report.md)
-- [Unit Testing Results](./docs/governance/testing/unit-testing-results.md)
-- [Integration Testing Results](./docs/governance/testing/integration-testing-results.md)
-- [Performance Testing Plan](./docs/governance/testing/performance-testing-plan.md)
-- [Performance Testing Results](./docs/governance/testing/performance-testing-results.md)
-- [QA Evidences](./docs/qa/evidences/)
+| Documento | Tipo |
+| :--- | :--- |
+| [Performance Testing Plan](./docs/governance/testing/performance-testing-plan.md) | Guía |
+| [QA Report](./docs/qa/qa_report.md) | Registro |
+| [Unit Testing Results](./docs/governance/testing/unit-testing-results.md) | Registro |
+| [Integration Testing Results](./docs/governance/testing/integration-testing-results.md) | Registro |
+| [Performance Testing Results](./docs/governance/testing/performance-testing-results.md) | Registro |
+| [QA Evidences](./docs/qa/evidences/) | Registro |
 
 </details>
 
 <details>
 <summary><strong>Phase 05 - Delivery and Operations</strong></summary>
 
-- [Operations Portal](./docs/operations/index.md)
-- [Runbooks](./docs/operations/runbooks/index.md)
-- [Metrics](./docs/operations/metrics/index.md)
-- [Kubernetes Deployment Plan](./infra/UMS_K8s_Deployment_Plan.md)
-- [Infrastructure Plan](./infra/infrastructure_plan.md)
-- [Implementation Plan](./infra/implementation_plan.md)
-- [Documentation Release Process](./docs/releases/bmad-documentation-release-process.md)
+| Documento | Tipo |
+| :--- | :--- |
+| [Runbooks](./docs/operations/runbooks/index.md) | Guía |
+| [Kubernetes Deployment Plan](./infra/UMS_K8s_Deployment_Plan.md) | Guía |
+| [Infrastructure Plan](./infra/infrastructure_plan.md) | Guía |
+| [Implementation Plan](./infra/implementation_plan.md) | Guía |
+| [Documentation Release Process](./docs/releases/bmad-documentation-release-process.md) | Guía |
+| [Operations Portal](./docs/operations/index.md) | Índice |
+| [Metrics](./docs/operations/metrics/index.md) | Referencia |
 
 </details>
 
