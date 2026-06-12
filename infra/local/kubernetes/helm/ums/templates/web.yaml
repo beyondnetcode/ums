@@ -16,6 +16,9 @@ spec:
       - name: ums-web
         image: {{ .Values.web.image }}
         imagePullPolicy: IfNotPresent
+        env:
+        - name: API_UPSTREAM
+          value: http://ums-api:5293
         ports:
         - containerPort: {{ .Values.web.port }}
 ---

@@ -22,8 +22,10 @@ FROM nginx:1.25-alpine AS runner
 # Copy Vite-compiled static assets to Nginx html directory
 COPY --from=builder /usr/src/app/apps/ums.web-app/dist /usr/share/nginx/html
 
-# Copy Nginx configuration
-COPY apps/ums.web-app/nginx.conf /etc/nginx/conf.d/default.conf
+# Nginx configuration as template: the official entrypoint runs envsubst over
+# /etc/nginx/templates/*.template so API_UPSTREAM can be set per deployment.
+COPY apps/ums.web-app/nginx.conf.template /etc/nginx/templates/default.conf.template
+ENV API_UPSTREAM=http://ums-backend:80
 
 EXPOSE 80
 

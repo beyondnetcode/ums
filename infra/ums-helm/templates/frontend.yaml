@@ -18,6 +18,9 @@ spec:
         - name: ums-frontend
           image: ums/frontend:latest
           imagePullPolicy: IfNotPresent
+          env:
+            - name: API_UPSTREAM
+              value: http://ums-backend:80
           ports:
             - containerPort: 80
           resources:
