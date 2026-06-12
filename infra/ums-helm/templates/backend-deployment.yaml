@@ -18,10 +18,10 @@ spec:
         - name: ums-backend
           image: ums/backend:latest
           imagePullPolicy: Never
-          command: ["sleep", "3600"]
           env:
             - name: ASPNETCORE_ENVIRONMENT
-              value: Production
+              # Development: dev-data seeding (IdentityDevDataSeeder) and swagger only run in this environment
+              value: Development
             - name: ConnectionStrings__DefaultConnection
               valueFrom:
                 secretKeyRef:
@@ -53,16 +53,16 @@ spec:
             - name: OTEL_METRICS_EXPORTER
               value: prometheus
           ports:
-            - containerPort: 80
+            - containerPort: 8080
           livenessProbe:
             httpGet:
-              path: /healthz
-              port: 80
+              path: /health/live
+              port: 8080
             initialDelaySeconds: 10
             periodSeconds: 10
           readinessProbe:
             httpGet:
-              path: /ready
-              port: 80
+              path: /health/ready
+              port: 8080
             initialDelaySeconds: 5
             periodSeconds: 5
