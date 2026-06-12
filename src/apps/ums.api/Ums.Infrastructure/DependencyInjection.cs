@@ -3,6 +3,7 @@ namespace Ums.Infrastructure;
 using MediatR;
 using MassTransit;
 using System.Reflection;
+using System.Text.Json.Serialization.Metadata;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -125,13 +126,18 @@ public static class DependencyInjection
         // HARDENING-03: Register Infrastructure MediatR notification handlers (UserDeleted, UserBlocked → revoke tokens).
         // MediatR.AddApplication() only scans Ums.Application; Infrastructure handlers must be registered here.
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly));
-        // Register read‑model projection handlers (in‑process MediatR for Phase 1)
-        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Ums.ReadModels.Projections.PermissionTemplateProjectionHandler).Assembly));
-
         services.AddHostedService<PersistenceRuntimeReporter>();
         services.AddHostedService<AuditTrailPersistenceBackgroundService>();
 
         var persistence = configuration.GetSection(PersistenceOptions.SectionName).Get<PersistenceOptions>() ?? new();
+
+        // Read-model projection handlers (in-process MediatR for Phase 1) are PostgreSQL-only:
+        // ReadModelDbContext ships Npgsql migrations, so the handlers (which depend on it)
+        // must not be registered under other persistence providers.
+        if (persistence.Provider == PersistenceProvider.PostgreSql)
+        {
+            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Ums.ReadModels.Projections.PermissionTemplateProjectionHandler).Assembly));
+        }
 
         services.AddMassTransit(x =>
         {
@@ -141,6 +147,26 @@ public static class DependencyInjection
 
             x.UsingInMemory((context, cfg) =>
             {
+                // IMetadata (BeyondNetCode.Shell.Ddd) declares a SetMetadata method, which MassTransit's
+                // dynamic interface proxy cannot implement — serializing any domain event would throw
+                // SerializationException. Metadata is transport-irrelevant, so strip it from payloads.
+                cfg.ConfigureJsonSerializerOptions(options =>
+                {
+                    options.TypeInfoResolver = (options.TypeInfoResolver
+                            ?? new System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver())
+                        .WithAddedModifier(typeInfo =>
+                        {
+                            for (var i = typeInfo.Properties.Count - 1; i >= 0; i--)
+                            {
+                                if (typeInfo.Properties[i].PropertyType == typeof(BeyondNetCode.Shell.Ddd.Interfaces.IMetadata))
+                                {
+                                    typeInfo.Properties.RemoveAt(i);
+                                }
+                            }
+                        });
+                    return options;
+                });
+
                 cfg.ConfigureEndpoints(context);
             });
         });
@@ -255,6 +281,10 @@ public static class DependencyInjection
                 options.ConfigureWarnings(warnings =>
                     warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
             });
+
+            // Read models (Phase 1 projections) live in the same PostgreSQL database.
+            services.AddDbContext<Ums.ReadModels.ReadModelDbContext>(options =>
+                options.UseNpgsql(connectionString, pgOptions => pgOptions.EnableRetryOnFailure(3)));
         }
 
         if ((persistence.Provider == PersistenceProvider.SqlServer && persistence.UseSqlServerIdentityStores) ||
