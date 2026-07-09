@@ -27,25 +27,31 @@ public sealed class TenantProjectionConsumer : IConsumer<TenantEvent>
         var e = context.Message;
         var ct = context.CancellationToken;
 
-        var existing = await _db.Tenants.FirstOrDefaultAsync(x => x.TenantId == e.Subject, ct);
+        // DS-05: single atomic, monotonic upsert. The previous read-check-write had no concurrency
+        // token: two in-flight events for the same tenant could both pass the version check and the
+        // lower sequence commit last, permanently regressing the projection. The set-based
+        // `ON CONFLICT ... WHERE Version < EXCLUDED.Version` applies only strictly-newer sequences
+        // (stale / out-of-order discarded), atomically, and saves a round-trip. It runs inside the
+        // MassTransit inbox transaction (see TenantProjectionConsumerDefinition, DS-04).
+        var applied = await _db.Database.ExecuteSqlInterpolatedAsync($"""
+            INSERT INTO masterdata.tenant_projection ("TenantId", "Code", "Name", "Status", "Version", "UpdatedAt")
+            VALUES ({e.Subject}, {e.Data.Code}, {e.Data.Name}, {e.Data.Status}, {e.Sequence}, {e.Time})
+            ON CONFLICT ("TenantId") DO UPDATE SET
+                "Code" = EXCLUDED."Code",
+                "Name" = EXCLUDED."Name",
+                "Status" = EXCLUDED."Status",
+                "Version" = EXCLUDED."Version",
+                "UpdatedAt" = EXCLUDED."UpdatedAt"
+            WHERE masterdata.tenant_projection."Version" < EXCLUDED."Version"
+            """, ct);
 
-        if (existing is not null && e.Sequence <= existing.Version)
+        if (applied == 0)
         {
             _logger.LogInformation(
-                "Tenant projection: discarding stale/out-of-order {Type} seq={Seq} (stored={Stored}) tenant={Tenant} corr={Corr}",
-                e.Type, e.Sequence, existing.Version, e.Subject, e.CorrelationId);
+                "Tenant projection: discarded stale/out-of-order {Type} seq={Seq} tenant={Tenant} corr={Corr}",
+                e.Type, e.Sequence, e.Subject, e.CorrelationId);
             return;
         }
-
-        var record = existing ?? new TenantProjectionRecord { TenantId = e.Subject };
-        record.Code = e.Data.Code;
-        record.Name = e.Data.Name;
-        record.Status = e.Data.Status;
-        record.Version = e.Sequence;
-        record.UpdatedAt = e.Time;
-
-        if (existing is null) await _db.Tenants.AddAsync(record, ct);
-        await _db.SaveChangesAsync(ct);
 
         _logger.LogInformation(
             "Tenant projection applied {Type} seq={Seq} tenant={Tenant} status={Status} corr={Corr}",
