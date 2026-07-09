@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Ums.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using Ums.Infrastructure.Persistence;
 namespace Ums.Infrastructure.Persistence.Migrations.PostgreSql
 {
     [DbContext(typeof(UmsPlatformDbContext))]
-    partial class UmsPlatformDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260612204741_WidenApprovalWorkflowCode")]
+    partial class WidenApprovalWorkflowCode
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -58,9 +61,8 @@ namespace Ums.Infrastructure.Persistence.Migrations.PostgreSql
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bytea")
-                        .HasDefaultValueSql("gen_random_bytes(8)");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
@@ -158,9 +160,8 @@ namespace Ums.Infrastructure.Persistence.Migrations.PostgreSql
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bytea")
-                        .HasDefaultValueSql("gen_random_bytes(8)");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<int>("StatusId")
                         .HasColumnType("integer");
@@ -281,9 +282,8 @@ namespace Ums.Infrastructure.Persistence.Migrations.PostgreSql
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bytea")
-                        .HasDefaultValueSql("gen_random_bytes(8)");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("SystemSuiteId")
                         .HasColumnType("uuid");
@@ -353,9 +353,8 @@ namespace Ums.Infrastructure.Persistence.Migrations.PostgreSql
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bytea")
-                        .HasDefaultValueSql("gen_random_bytes(8)");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
@@ -410,9 +409,8 @@ namespace Ums.Infrastructure.Persistence.Migrations.PostgreSql
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bytea")
-                        .HasDefaultValueSql("gen_random_bytes(8)");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
@@ -478,9 +476,8 @@ namespace Ums.Infrastructure.Persistence.Migrations.PostgreSql
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bytea")
-                        .HasDefaultValueSql("gen_random_bytes(8)");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<int>("StatusId")
                         .HasColumnType("integer");
@@ -666,9 +663,8 @@ namespace Ums.Infrastructure.Persistence.Migrations.PostgreSql
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bytea")
-                        .HasDefaultValueSql("gen_random_bytes(8)");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<int>("StatusId")
                         .HasColumnType("integer");
@@ -798,9 +794,8 @@ namespace Ums.Infrastructure.Persistence.Migrations.PostgreSql
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bytea")
-                        .HasDefaultValueSql("gen_random_bytes(8)");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<int>("ScopeId")
                         .HasColumnType("integer");
@@ -873,9 +868,8 @@ namespace Ums.Infrastructure.Persistence.Migrations.PostgreSql
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bytea")
-                        .HasDefaultValueSql("gen_random_bytes(8)");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid>("SystemSuiteId")
                         .HasColumnType("uuid");
@@ -1265,9 +1259,8 @@ namespace Ums.Infrastructure.Persistence.Migrations.PostgreSql
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bytea")
-                        .HasDefaultValueSql("gen_random_bytes(8)");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<int>("StatusId")
                         .HasColumnType("integer");
@@ -1434,9 +1427,8 @@ namespace Ums.Infrastructure.Persistence.Migrations.PostgreSql
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bytea")
-                        .HasDefaultValueSql("gen_random_bytes(8)");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<int>("ScopeId")
                         .HasColumnType("integer");
@@ -1589,9 +1581,8 @@ namespace Ums.Infrastructure.Persistence.Migrations.PostgreSql
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bytea")
-                        .HasDefaultValueSql("gen_random_bytes(8)");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<int>("StatusId")
                         .HasColumnType("integer");
@@ -1664,9 +1655,8 @@ namespace Ums.Infrastructure.Persistence.Migrations.PostgreSql
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bytea")
-                        .HasDefaultValueSql("gen_random_bytes(8)");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("SecretRef")
                         .IsRequired()
@@ -2144,9 +2134,7 @@ namespace Ums.Infrastructure.Persistence.Migrations.PostgreSql
 
                     b.Property<byte[]>("RowVersion")
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bytea")
-                        .HasDefaultValueSql("gen_random_bytes(8)");
+                        .HasColumnType("bytea");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
@@ -2238,9 +2226,8 @@ namespace Ums.Infrastructure.Persistence.Migrations.PostgreSql
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bytea")
-                        .HasDefaultValueSql("gen_random_bytes(8)");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<int>("StatusId")
                         .HasColumnType("integer");
@@ -2310,9 +2297,8 @@ namespace Ums.Infrastructure.Persistence.Migrations.PostgreSql
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bytea")
-                        .HasDefaultValueSql("gen_random_bytes(8)");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<int>("StatusId")
                         .HasColumnType("integer");
@@ -2484,9 +2470,8 @@ namespace Ums.Infrastructure.Persistence.Migrations.PostgreSql
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bytea")
-                        .HasDefaultValueSql("gen_random_bytes(8)");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<int>("StatusId")
                         .HasColumnType("integer");
@@ -2568,9 +2553,8 @@ namespace Ums.Infrastructure.Persistence.Migrations.PostgreSql
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bytea")
-                        .HasDefaultValueSql("gen_random_bytes(8)");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("ScopeId")
                         .HasColumnType("uuid");

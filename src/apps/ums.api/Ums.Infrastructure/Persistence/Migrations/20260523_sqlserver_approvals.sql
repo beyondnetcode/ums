@@ -18,7 +18,7 @@ BEGIN
         Id UNIQUEIDENTIFIER NOT NULL,
         TenantId UNIQUEIDENTIFIER NOT NULL,
         SystemSuiteId UNIQUEIDENTIFIER NULL,
-        Code NVARCHAR(12) NOT NULL,
+        Code NVARCHAR(50) NOT NULL,
         Name NVARCHAR(100) NOT NULL,
         Description NVARCHAR(255) NOT NULL,
         TargetUserCategoryId INT NOT NULL,

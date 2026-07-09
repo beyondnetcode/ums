@@ -269,6 +269,26 @@ public sealed class UmsPlatformDbContext(
             }
         }
 
+        if (Database.IsNpgsql())
+        {
+            // PostgreSQL has no rowversion type: bytea columns are never store-updated, so
+            // IsRowVersion()'s ValueGeneratedOnAddOrUpdate leaves the column NOT NULL with no
+            // value on INSERT (PostgresException 23502). Instead: pgcrypto default generates
+            // the token on INSERT, and PostgresRowVersionSaveChangesInterceptor rotates it on
+            // UPDATE so optimistic concurrency / If-Match (REC-10) keeps detecting conflicts.
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                var rowVersionProperty = entityType.FindProperty("RowVersion");
+                if (rowVersionProperty != null && rowVersionProperty.ClrType == typeof(byte[]))
+                {
+                    rowVersionProperty.ValueGenerated = Microsoft.EntityFrameworkCore.Metadata.ValueGenerated.OnAdd;
+                    rowVersionProperty.SetDefaultValueSql("gen_random_bytes(8)");
+                    rowVersionProperty.SetBeforeSaveBehavior(Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior.Ignore);
+                    rowVersionProperty.SetAfterSaveBehavior(Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior.Save);
+                }
+            }
+        }
+
         // ADR-0076 D1: Force DateTimeKind.Utc on all DateTime properties read from the
         // database. EF Core / SQLite does not preserve timezone info, so values are stored
         // as ISO-8601 strings. Without this converter, DateTime.Kind == Unspecified after

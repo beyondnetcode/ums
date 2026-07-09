@@ -13,7 +13,7 @@ public sealed class ApprovalWorkflowRecordConfiguration : IEntityTypeConfigurati
         builder.ToTable("ApprovalWorkflows", ApprovalsPersistenceConstants.Schema);
         builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.Code).HasMaxLength(12).IsRequired();
+        builder.Property(x => x.Code).HasMaxLength(50).IsRequired();
         builder.Property(x => x.Name).HasMaxLength(100).IsRequired();
         builder.Property(x => x.Description).HasMaxLength(255).IsRequired();
         builder.Property(x => x.CreatedBy).HasMaxLength(100).IsRequired();

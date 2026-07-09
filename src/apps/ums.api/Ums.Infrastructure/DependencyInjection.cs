@@ -294,6 +294,7 @@ public static class DependencyInjection
 
             services.AddScoped<OrganizationDbContextInterceptor>();
             services.AddScoped<AuditSaveChangesInterceptor>();
+            services.AddScoped<PostgresRowVersionSaveChangesInterceptor>(); // rotate bytea RowVersion on UPDATE (no rowversion type in PostgreSQL)
 
             services.AddResiliencePipeline("ums-postgres", pipelineBuilder =>
             {
@@ -323,8 +324,9 @@ public static class DependencyInjection
 
                 options.AddInterceptors(
                     serviceProvider.GetRequiredService<OrganizationDbContextInterceptor>(),
-                    serviceProvider.GetRequiredService<AuditSaveChangesInterceptor>());
-                    
+                    serviceProvider.GetRequiredService<AuditSaveChangesInterceptor>(),
+                    serviceProvider.GetRequiredService<PostgresRowVersionSaveChangesInterceptor>());
+
                 options.ConfigureWarnings(warnings =>
                     warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
             });
