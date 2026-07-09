@@ -1,0 +1,139 @@
+{
+  "schemaVersion": "1.0.0",
+  "scope": "evolith-ums",
+  "asOf": "2026-07-09",
+  "designOrigin": "mirrors evolith-tracker docs/audit/tracker-maturity-reconciliation.json (which mirrors evolith-core reference/governance/standards/vision/maturity-reconciliation.json)",
+  "upstream": {
+    "name": "Evolith Core",
+    "repo": "evolith_arch32",
+    "role": "root-authority",
+    "maturityIndependence": "UMS maturity is tracked independently from Core (Core lists Evolith UMS as maturityIncluded:false). Tenant mastership is held by MMS (writer-of-record, ADR-0106); UMS is a projection consumer.",
+    "masterData": {
+      "authority": "Evolith MMS",
+      "role": "tenant writer-of-record (ADR-0106)",
+      "umsRole": "projection consumer of masterdata.tenant_projection"
+    }
+  },
+  "gaps": {
+    "total": 7,
+    "done": 0,
+    "pending": 7,
+    "inProgress": 0,
+    "blocked": 0,
+    "deferred": 0
+  },
+  "evidence": {
+    "closureRecords": 0,
+    "grandfatheredDone": 0,
+    "registry": "ums-gap-closure-evidence.json",
+    "board": "ums-gap-tracking.md",
+    "catalog": "ums-gap-reference-catalog.md"
+  },
+  "waves": [
+    {
+      "id": "deployment-strategy-hardening",
+      "date": "2026-07-09",
+      "ids": "DS-01..DS-15",
+      "count": 7,
+      "origin": "evolith/product/suite/architecture/evolith-suite-deployment-strategy.md §15 consolidated risk register",
+      "summary": "UMS-owned items from the Evolith suite deployment strategy: two-writer tenant ownership (§12 M0-M4), verified consumer-correctness defects in the tenant-projection path (§5.5: inbox not wired, versioned-upsert race, Default/MasterDataDb fallback, startup-migration race), shared event-contract packaging (§11), and consumer observability (§14). Each DS-* maps 1:1 to a §15 risk row (DS-01/#1, DS-04/#4, DS-05/#5, DS-07/#7, DS-08/#8, DS-12/#12, DS-15/#15)."
+    }
+  ],
+  "readiness": [
+    {
+      "id": "gap-tracking-design-import",
+      "status": "PASS",
+      "observedAt": "2026-07-09",
+      "summary": "UMS gap register created on the Evolith canonical gap-tracking design (UP-001): Board + Reference Catalog + Closure Evidence Standard (EN/ES) + closure-evidence registry + this maturity reconciliation, adopting the P0-P3 / XS-XL / backtick-status vocabularies, templated from the Evolith Tracker pilot."
+    },
+    {
+      "id": "tenant-ownership-migration",
+      "status": "FAIL",
+      "observedAt": "2026-07-09",
+      "summary": "Two-writer state: UMS still authors tenants locally (CreateTenantCommand + TenantEndpoints + PostgreSqlTenantRepository) against MMS mastership. The M0-M4 ownership migration ladder is not started; UMS does not yet read tenant identity from masterdata.tenant_projection.",
+      "gap": "DS-01"
+    },
+    {
+      "id": "projection-consumer-correctness",
+      "status": "FAIL",
+      "observedAt": "2026-07-09",
+      "summary": "Verified §5.5 defects in the tenant-projection consumer: the EF inbox is wired at bus level (DependencyInjection.cs:182) but not on the consumer endpoint (TenantProjectionConsumerDefinition never calls UseEntityFrameworkOutbox), so InboxState is never consulted; the versioned upsert is read-check-write without a concurrency token (permanent-regression race).",
+      "gap": "DS-04"
+    },
+    {
+      "id": "connection-config-safety",
+      "status": "FAIL",
+      "observedAt": "2026-07-09",
+      "summary": "The projection DbContext resolves ConnectionStrings:MasterDataDb (DependencyInjection.cs:168) with a silent localhost fallback when unset; MasterDataDb is not set explicitly in the UMS chart. Startup migrations also run at boot and race at replicas>1 (no migrate-Job hook).",
+      "gap": "DS-07"
+    },
+    {
+      "id": "contract-packaging",
+      "status": "FAIL",
+      "observedAt": "2026-07-09",
+      "summary": "UMS keeps a verbatim local copy of the TenantEvent envelope (Ums.Infrastructure/MasterData/Contracts/TenantEvent.cs) instead of consuming the shared Evolith.Messaging.Contracts package (namespace Evolith.Contracts.MasterData); no producer-fixture contract test.",
+      "gap": "DS-12"
+    },
+    {
+      "id": "consumer-observability",
+      "status": "FAIL",
+      "observedAt": "2026-07-09",
+      "summary": "UMS ObservabilityExtensions misses AddSource(\"MassTransit\") so consumer spans are invisible; standard projection meters (masterdata_projection_applied/discarded_total, consumer lag, _error queue depth) are not exposed.",
+      "gap": "DS-15"
+    }
+  ],
+  "maturityScores": {
+    "tenantOwnership": {
+      "score": 20,
+      "maxScore": 100,
+      "status": "Two-writer",
+      "detail": "UMS still authors tenants locally against MMS mastership; M0-M4 migration not started."
+    },
+    "projectionConsumer": {
+      "score": 40,
+      "maxScore": 100,
+      "status": "Partial",
+      "detail": "TenantProjectionConsumer + versioned upsert exist, but inbox is not wired on the endpoint and the upsert is read-check-write (race)."
+    },
+    "connectionConfig": {
+      "score": 30,
+      "maxScore": 100,
+      "status": "Unsafe-fallback",
+      "detail": "MasterDataDb resolved with silent localhost fallback; not set explicitly in the chart; migrations run at startup (replicas>1 race)."
+    },
+    "contractPackaging": {
+      "score": 25,
+      "maxScore": 100,
+      "status": "Local-copy",
+      "detail": "Verbatim local TenantEvent copy instead of the shared Evolith.Messaging.Contracts package; no contract test against producer fixtures."
+    },
+    "observability": {
+      "score": 15,
+      "maxScore": 100,
+      "status": "Missing",
+      "detail": "No AddSource(\"MassTransit\"); consumer spans invisible; standard projection meters not exposed."
+    },
+    "overall": {
+      "score": 26,
+      "maxScore": 100,
+      "status": "Hardening-required",
+      "detail": "Projection seam and tenant-ownership path require the DS-* hardening wave before staging promotion of projection features (§13 hard rule)."
+    }
+  },
+  "sources": [
+    "docs/audit/ums-gap-tracking.md",
+    "docs/audit/ums-gap-reference-catalog.md",
+    "docs/audit/ums-gap-closure-evidence.json",
+    "../../evolith/product/suite/architecture/evolith-suite-deployment-strategy.md",
+    "src/apps/ums.api/Ums.Infrastructure/MasterData/TenantProjectionConsumer.cs",
+    "src/apps/ums.api/Ums.Infrastructure/MasterData/TenantProjectionConsumerDefinition.cs",
+    "src/apps/ums.api/Ums.Infrastructure/DependencyInjection.cs"
+  ],
+  "validationCommands": [
+    "grep -cE '^\\| \\[`' docs/audit/ums-gap-tracking.md",
+    "grep -n 'UseEntityFrameworkOutbox' src/apps/ums.api/Ums.Infrastructure/MasterData/TenantProjectionConsumerDefinition.cs",
+    "grep -n 'AddEntityFrameworkOutbox\\|MasterDataDb' src/apps/ums.api/Ums.Infrastructure/DependencyInjection.cs",
+    "dotnet build src/apps/ums.api/Ums.sln",
+    "dotnet test src/apps/ums.api/Ums.Application.Test/Ums.Application.Test.csproj"
+  ]
+}

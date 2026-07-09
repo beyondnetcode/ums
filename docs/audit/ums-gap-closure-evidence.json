@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "1.0.0",
+  "scope": "evolith-ums",
+  "standard": "ums-gap-closure-evidence-standard.md",
+  "note": "Closure records for gaps marked DONE. The Deployment Strategy Hardening wave (DS-*) was seeded 2026-07-09 with every item PENDING; no gaps are closed yet, so this registry is empty. New closures must carry a full closure record per the standard (id, closedAt, closureCommit, evidence, validationCommands, dependencyDisposition).",
+  "records": []
+}
