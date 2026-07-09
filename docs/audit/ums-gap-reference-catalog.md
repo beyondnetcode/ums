@@ -142,6 +142,31 @@ This catalog explains each gap: problem, purpose, evidence, closure criteria, an
 
 ---
 
+## 2. Newly-Discovered Implementation Findings (GAP-001…)
+
+> Findings discovered while implementing the `DS-*` wave that are **not** §15 risk-register rows. Tracked as `GAP-*` (not `DS-*`) because the `DS-*` series maps 1:1 to the deployment strategy §15 risk register; these are new implementation defects found against the real UMS `src/` tree. Mirrors the Evolith Tracker board's `GAP-*` convention (e.g. Tracker `GAP-026`).
+
+#### GAP-001
+
+**Title:** The MMS tenant-projection context is never migrated at startup (consumer fails on first message on a fresh deploy).
+
+- **Purpose:** UMS runs two `DbContext`s: the platform context (`UmsPlatformDbContext`) and the isolated MMS tenant-projection context (`TenantProjectionDbContext`, ADR-0083 — read model + MassTransit inbox). Both need their schema applied before use. The projection context ships EF migrations (`Ums.Infrastructure/MasterData/Migrations/20260709133604_InitTenantProjection`) but nothing applies them: `InitializeUmsPlatformAsync` (`Ums.Presentation/Bootstrapping/UmsApiServiceBootstrappers.cs`, ~line 278) only calls `MigrateAsync()` on `UmsPlatformDbContext`.
+- **Evidence:** `Ums.Infrastructure/DependencyInjection.cs` registers `AddDbContext<TenantProjectionDbContext>` and (when a broker is set) the consumer + `AddEntityFrameworkOutbox<TenantProjectionDbContext>`, but there was no migrator for that context; the only startup migration is the platform one in `UmsApiServiceBootstrappers.InitializeUmsPlatformAsync`. Tracker solved the identical two-context gap with a hosted `TenantProjectionMigrator` (`Tracker.Infrastructure/MasterData/TenantProjectionMigrator.cs`).
+- **Impact:** On a fresh deploy `masterdata.tenant_projection` and the MassTransit `InboxState`/`OutboxState` tables do not exist, so the first delivered `TenantEvent` throws (missing relation) and the projection consumer never makes progress — the read model stays empty with no schema to write to.
+- **Risk:** Consumer CrashLoop / poison-message churn on first rollout of the projection path; blocks the G1 gate assertions (InboxState row on consume — see [DS-04](#ds-04)) because the inbox table itself is absent.
+- **Affected files:** `src/apps/ums.api/Ums.Infrastructure/MasterData/TenantProjectionMigrator.cs` (new); `src/apps/ums.api/Ums.Infrastructure/DependencyInjection.cs` (hosted-service registration, broker-gated); `src/apps/ums.api/Ums.Infrastructure/MasterData/TenantProjectionDbContext.cs` (context migrated); `src/apps/ums.api/Ums.Presentation/Bootstrapping/UmsApiServiceBootstrappers.cs` (platform-only startup migration).
+- **Component:** `Infra` · **Phase:** Release · **Type:** arquitectura
+- **Criticality:** P1 · **Complexity:** XS
+- **Proposed fix:** Mirror Tracker's interim hosted `TenantProjectionMigrator` (`IHostedService` that runs `TenantProjectionDbContext.Database.MigrateAsync()` in `StartAsync`). Register it **only when a broker is configured** — dev/tests use the in-memory bus (no real projection) and must not contact the localhost Npgsql fallback at startup (UMS integration tests run provider `InMemory`). This is the interim; [DS-08](#ds-08) supersedes it with the migrate-Job Helm hook once `replicas>1`, at which point the startup migrator is delegated to the Job.
+- **Acceptance criteria:**
+  - [x] A migrator applies `TenantProjectionDbContext` migrations at startup when a broker is configured.
+  - [x] Registration is gated so the InMemory/no-broker path (dev/tests) does not migrate against localhost.
+  - [ ] Live verification: on a fresh broker-backed deploy, `masterdata.tenant_projection` + `InboxState`/`OutboxState` exist before the first consume (folds into the DS-08 migrate-Job hardening).
+- **Dependencies:** [DS-08](#ds-08) (startup migrations race at `replicas>1` — the migrate-Job that replaces this interim migrator); [DS-07](#ds-07) (`MasterDataDb` must be set so the migrator targets the real projection store, not localhost).
+- **Status:** `IN-PROGRESS` — interim migrator implemented (mirrors Tracker); the migrate-Job hardening is tracked under [DS-08](#ds-08). Newly discovered during the `DS-*` wave; registered as a `GAP-*` finding (not a §15 row).
+
+---
+
 ## References
 
 Evolith suite deployment strategy: `evolith/product/suite/architecture/evolith-suite-deployment-strategy.md` (§5.5 consumer-correctness fixes · §11 contract & event versioning · §12 tenant-ownership migration M0–M4 · §14 observability · §15 consolidated risk register). ADR-0106 (MMS tenant mastership) · ADR-0107 · UMS ADR-0083 · MMS `docs/architecture/tenant-master-data-projection.md` (canonical flow).
