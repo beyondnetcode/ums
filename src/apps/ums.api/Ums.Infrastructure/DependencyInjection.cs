@@ -139,36 +139,83 @@ public static class DependencyInjection
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Ums.ReadModels.Projections.PermissionTemplateProjectionHandler).Assembly));
         }
 
+        // IMetadata (BeyondNetCode.Shell.Ddd) declares a SetMetadata method, which MassTransit's
+        // dynamic interface proxy cannot implement — serializing any domain event would throw
+        // SerializationException. Metadata is transport-irrelevant, so strip it from payloads.
+        void ConfigurePayload(IBusFactoryConfigurator cfg) =>
+            cfg.ConfigureJsonSerializerOptions(options =>
+            {
+                options.TypeInfoResolver = (options.TypeInfoResolver
+                        ?? new System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver())
+                    .WithAddedModifier(typeInfo =>
+                    {
+                        for (var i = typeInfo.Properties.Count - 1; i >= 0; i--)
+                        {
+                            if (typeInfo.Properties[i].PropertyType == typeof(BeyondNetCode.Shell.Ddd.Interfaces.IMetadata))
+                            {
+                                typeInfo.Properties.RemoveAt(i);
+                            }
+                        }
+                    });
+                return options;
+            });
+
+        // ADR-0083/ADR-0107: consume the MMS master-Tenant projection when a broker is configured.
+        // The projection read model + the MassTransit inbox (idempotency) live in an isolated context.
+        var rabbitMqConnection = configuration.GetConnectionString("RabbitMq");
+
+        // DS-07: the projection context must never silently fall back to the platform DB
+        // ("Default") or to localhost. When a broker is configured (kind/prod), MasterDataDb is
+        // required — fail loud rather than project the master-Tenant read model into the wrong
+        // database. A localhost default is kept ONLY for the broker-less dev/in-memory path.
+        var masterDataDb = configuration.GetConnectionString("MasterDataDb");
+        if (!string.IsNullOrWhiteSpace(rabbitMqConnection) && string.IsNullOrWhiteSpace(masterDataDb))
+            throw new InvalidOperationException(
+                "ConnectionStrings:MasterDataDb is required when ConnectionStrings:RabbitMq is configured — " +
+                "the MMS tenant projection must not fall back to the platform DB or localhost.");
+
+        services.AddDbContext<MasterData.TenantProjectionDbContext>(options =>
+            options.UseNpgsql(
+                masterDataDb ?? "Host=localhost;Port=5432;Database=ums;Username=postgres;Password=postgres"));
+
+        // GAP-001 / DS-08: migrate the projection store at startup. The platform context is
+        // migrated in InitializeUmsPlatformAsync, but the isolated projection context had no
+        // migrator — on a fresh deploy masterdata.tenant_projection + the MassTransit
+        // InboxState/OutboxState tables would not exist and the consumer would fail on its first
+        // message. Mirror Tracker's interim hosted migrator. Registered only when a broker is
+        // configured: dev/tests use the in-memory bus (no real projection) and must not contact
+        // the localhost Npgsql fallback at startup. DS-08 replaces this startup migrator with a
+        // migrate-Job Helm hook once replicas>1 (concurrent startup migrations race).
+        if (!string.IsNullOrWhiteSpace(rabbitMqConnection))
+            services.AddHostedService<MasterData.TenantProjectionMigrator>();
+
         services.AddMassTransit(x =>
         {
             x.SetKebabCaseEndpointNameFormatter();
 
             x.AddConsumers(Assembly.GetExecutingAssembly());
 
-            x.UsingInMemory((context, cfg) =>
+            if (!string.IsNullOrWhiteSpace(rabbitMqConnection))
             {
-                // IMetadata (BeyondNetCode.Shell.Ddd) declares a SetMetadata method, which MassTransit's
-                // dynamic interface proxy cannot implement — serializing any domain event would throw
-                // SerializationException. Metadata is transport-irrelevant, so strip it from payloads.
-                cfg.ConfigureJsonSerializerOptions(options =>
+                // Cross-service broker (kind/prod): receive MMS tenant events over RabbitMQ,
+                // with the EF inbox for exactly-once-effective consumption (ADR-0033/ADR-0063).
+                x.AddEntityFrameworkOutbox<MasterData.TenantProjectionDbContext>(o => o.UsePostgres());
+                x.UsingRabbitMq((context, cfg) =>
                 {
-                    options.TypeInfoResolver = (options.TypeInfoResolver
-                            ?? new System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver())
-                        .WithAddedModifier(typeInfo =>
-                        {
-                            for (var i = typeInfo.Properties.Count - 1; i >= 0; i--)
-                            {
-                                if (typeInfo.Properties[i].PropertyType == typeof(BeyondNetCode.Shell.Ddd.Interfaces.IMetadata))
-                                {
-                                    typeInfo.Properties.RemoveAt(i);
-                                }
-                            }
-                        });
-                    return options;
+                    cfg.Host(rabbitMqConnection);
+                    ConfigurePayload(cfg);
+                    cfg.ConfigureEndpoints(context);
                 });
-
-                cfg.ConfigureEndpoints(context);
-            });
+            }
+            else
+            {
+                // Dev/tests (no broker): keep the in-process bus (existing behavior).
+                x.UsingInMemory((context, cfg) =>
+                {
+                    ConfigurePayload(cfg);
+                    cfg.ConfigureEndpoints(context);
+                });
+            }
         });
 
         // REC-04: Cross-aggregate transaction scope
