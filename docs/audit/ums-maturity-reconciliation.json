@@ -16,9 +16,9 @@
   },
   "gaps": {
     "total": 7,
-    "done": 0,
+    "done": 2,
     "pending": 4,
-    "inProgress": 3,
+    "inProgress": 1,
     "blocked": 0,
     "deferred": 0
   },

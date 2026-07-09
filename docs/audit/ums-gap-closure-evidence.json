@@ -2,6 +2,36 @@
   "schemaVersion": "1.0.0",
   "scope": "evolith-ums",
   "standard": "ums-gap-closure-evidence-standard.md",
-  "note": "Closure records for gaps marked DONE. The Deployment Strategy Hardening wave (DS-*) was seeded 2026-07-09 with every item PENDING; no gaps are closed yet, so this registry is empty. New closures must carry a full closure record per the standard (id, closedAt, closureCommit, evidence, validationCommands, dependencyDisposition).",
-  "records": []
+  "note": "Closure records for gaps marked DONE. The Deployment Strategy Hardening wave (DS-*) was seeded 2026-07-09; DS-04 and DS-05 were closed 2026-07-09 with live G1 verification. New closures must carry a full closure record per the standard (id, closedAt, closureCommit, evidence, validationCommands, dependencyDisposition).",
+  "records": [
+    {
+      "id": "DS-04",
+      "closedAt": "2026-07-09",
+      "closureCommit": "73f6b1e5",
+      "evidence": "Dedup inbox wired on the tenant-projection consumer endpoint. Verified live in the G1 fan-out harness: the REAL TenantProjectionConsumer ran against a live RabbitMQ + PostgreSQL; one published TenantEvent fanned out to both the UMS (ums.tenant-projection) and Tracker (tracker.tenant-projection) endpoints. A redelivered message (same MessageId) was NOT re-applied — InboxState held 3 rows, not 4.",
+      "affectedFiles": [
+        "src/apps/ums.api/Ums.Infrastructure/MasterData/TenantProjectionConsumerDefinition.cs",
+        "src/apps/ums.api/Ums.Infrastructure/MasterData/TenantProjectionConsumer.cs",
+        "src/apps/ums.api/Ums.Infrastructure/DependencyInjection.cs"
+      ],
+      "validationCommands": [
+        "G1 live fan-out harness: publish one TenantEvent to the MMS exchange with a live RabbitMQ + PostgreSQL; assert an InboxState row is written on consume, then redeliver the same MessageId and assert InboxState stays at 3 rows (duplicate not re-applied)."
+      ],
+      "dependencyDisposition": "none"
+    },
+    {
+      "id": "DS-05",
+      "closedAt": "2026-07-09",
+      "closureCommit": "73f6b1e5",
+      "evidence": "Read-check-write upsert replaced by a single set-based version-conditional statement (ON CONFLICT (tenant_id) DO UPDATE ... WHERE version < EXCLUDED.version). Verified live in the G1 fan-out harness against a real PostgreSQL: an out-of-order seq=2 was discarded while seq=1->seq=3 applied; the UMS projection DB ended at Version=3 'ACME v3' (matching Tracker's).",
+      "affectedFiles": [
+        "src/apps/ums.api/Ums.Infrastructure/MasterData/TenantProjectionConsumer.cs",
+        "src/apps/ums.api/Ums.Infrastructure/MasterData/TenantProjectionDbContext.cs"
+      ],
+      "validationCommands": [
+        "G1 live fan-out harness: apply seq=1, then out-of-order seq=2 (older) and seq=3 against a live PostgreSQL; assert seq=2 is discarded and masterdata.tenant_projection ends at Version=3 'ACME v3'."
+      ],
+      "dependencyDisposition": "none"
+    }
+  ]
 }

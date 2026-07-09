@@ -46,9 +46,10 @@ This catalog explains each gap: problem, purpose, evidence, closure criteria, an
 - **Criticality:** P1 · **Complexity:** S
 - **Proposed fix:** In `TenantProjectionConsumerDefinition.ConfigureConsumer`, call `endpointConfigurator.UseEntityFrameworkOutbox<TenantProjectionDbContext>(context)` so the inbox is consulted on every consume.
 - **Acceptance criteria:**
-  - [ ] Inbox is consulted on consume (an `InboxState` row is written when a message is consumed).
+  - [x] Inbox is consulted on consume (an `InboxState` row is written when a message is consumed).
+- **Resolution:** ✅ Inbox wired on the consumer endpoint (commit 73f6b1e5). Verified live in the G1 fan-out harness against a real RabbitMQ + PostgreSQL: a redelivered message (same `MessageId`) was **not** re-applied — `InboxState` held 3 rows, not 4.
 - **Dependencies:** none.
-- **Status:** `PENDING` — deployment strategy §15 risk #4.
+- **Status:** `DONE` — deployment strategy §15 risk #4; closed 2026-07-09 (see `ums-gap-closure-evidence.json`).
 
 #### DS-05
 
@@ -63,10 +64,11 @@ This catalog explains each gap: problem, purpose, evidence, closure criteria, an
 - **Criticality:** P1 · **Complexity:** S
 - **Proposed fix:** Replace the read-check-write with a set-based conditional write: `INSERT … ON CONFLICT (tenant_id) DO UPDATE SET … WHERE tenant_projection.version < EXCLUDED.version` (cheapest; also removes a round-trip).
 - **Acceptance criteria:**
-  - [ ] Upsert is a single version-conditional statement.
-  - [ ] A reordering test (older event after newer) does not regress the stored projection.
+  - [x] Upsert is a single version-conditional statement.
+  - [x] A reordering test (older event after newer) does not regress the stored projection.
+- **Resolution:** ✅ Set-based conditional upsert (`ON CONFLICT … DO UPDATE … WHERE version < EXCLUDED.version`, commit 73f6b1e5). Verified live in the G1 fan-out harness against a real PostgreSQL: an out-of-order `seq=2` was discarded while `seq=1`→`seq=3` applied — the projection ended at `Version=3` ('ACME v3').
 - **Dependencies:** none.
-- **Status:** `PENDING` — deployment strategy §15 risk #5.
+- **Status:** `DONE` — deployment strategy §15 risk #5; closed 2026-07-09 (see `ums-gap-closure-evidence.json`).
 
 #### DS-07
 
