@@ -167,6 +167,26 @@ This catalog explains each gap: problem, purpose, evidence, closure criteria, an
 - **Dependencies:** [DS-08](#ds-08) (startup migrations race at `replicas>1` — the migrate-Job that replaces this interim migrator); [DS-07](#ds-07) (`MasterDataDb` must be set so the migrator targets the real projection store, not localhost).
 - **Status:** `IN-PROGRESS` — interim migrator implemented (mirrors Tracker); the migrate-Job hardening is tracked under [DS-08](#ds-08). Newly discovered during the `DS-*` wave; registered as a `GAP-*` finding (not a §15 row).
 
+#### GAP-002
+
+**Title:** UMS has no `evolith.yaml` — it is not a governed satellite (blocks the ADR-0109 `SatelliteWorkspace`).
+
+- **Purpose:** Every Evolith satellite declares its federated governance contract in an `evolith.yaml` at its project root: which Core/ruleset version it inherits, its progressive-axis phase, runtime, SDLC phase, bounded contexts and adopted ADRs. MMS (`evolith-mms`) and Evolith Tracker (`evolith-tracker`) both ship one; **UMS did not**. Until it does, UMS is invisible to Core governance and cannot be a `spec.projects[]` entry in the ADR-0109 `evolith.workspace.yaml`.
+- **Evidence:** `ls ums/evolith.yaml` → absent, while `mms/evolith.yaml` and `evolith_tracker/evolith.yaml` exist. Running the Core CLI against the UMS tree pre-fix: `evolith validate --satellite <ums> --core <core>` → `status: failed` with **`GOV-000` (`Missing evolith.yaml`, `blocking: true`)**. Discovered by the **ADR-0109 Phase-0b spike** (monorepo consolidation), alongside Core `GT-474` — the CLI bug that had been masking satellite validation entirely by checking 0 rules.
+- **Impact:** UMS inherits no Core rulesets, is excluded from federated drift/compliance checks, and **cannot be enrolled as a project in the ADR-0109 `SatelliteWorkspace`** — Core GT-466's SVC-01 (project-scoped manifest) and SVC-06 (workspace integrity: every declared `spec.projects[].path` maps 1:1 to a discovered `evolith.yaml`) both fail for the UMS path. This is a hard gate on the MMS+UMS+Tracker monorepo cutover.
+- **Risk:** The monorepo cutover (ADR-0109) cannot pass its Phase-0 gate with an ungoverned project in the workspace; UMS ships architecture/ADR drift undetected in the meantime.
+- **Affected files:** `evolith.yaml` (new, repo root).
+- **Component:** `Governance` · **Phase:** Cross · **Type:** gobernanza
+- **Criticality:** P0 · **Complexity:** XS
+- **Fix / Resolution (DONE):** authored `evolith.yaml` at the UMS repo root, modeled on `mms/evolith.yaml`: `apiVersion: evolith.dev/v1`, `kind: Satellite`, `metadata.name: evolith-ums` (phase `F1`, `architectureVersion 0.1.0`), and `spec.{coreRef,runtime,sdlc,design,boundedContexts,compliance,governance}`. Declares the two real bounded contexts — `Identity` (owned, `ums_platform` schema) and `MasterData` (the **read-only** downstream projection of the MMS-owned Master Tenant, `masterdata` schema; UMS is not the writer-of-record — the two-writer migration remains [DS-01](#ds-01)) — and adopts `core/ADR-0047` (progressive architecture, required for F1 by SVC-03), `core/ADR-0106` (MMS tenant mastership) and `core/ADR-0033` (transactional outbox). `spec.sdlc.currentPhase: 3` (Construction). `governance.nextReviewDate` is **quoted** because an unquoted YAML date parses as a timestamp and fails the schema's `type: string` (MMS's manifest carries the same latent defect).
+- **Acceptance criteria:**
+  - [x] `evolith.yaml` exists at the UMS project root.
+  - [x] It validates against Core's `rulesets/schema/evolith-yaml.schema.json` (ajv, `apiVersion evolith.dev/v1`).
+  - [x] `evolith validate --satellite <ums> --core <core>` no longer raises the blocking `GOV-000`, and checks **105 rules** (before: `GOV-000` blocking, and — pre-GT-474 — a silent 0-rule run).
+  - [ ] UMS is enrolled as a `spec.projects[]` entry once `evolith.workspace.yaml` is authored (ADR-0109 Phase-1).
+- **Dependencies:** Core `GT-474` (the CLI reported `warning` with `rulesChecked: 0` under `--core`, so satellite validation proved nothing until it was fixed); Core `GT-466`/`GT-467` (SVC-01/SVC-06 + `evolith.workspace.yaml` schema); ADR-0109 (monorepo consolidation).
+- **Status:** `DONE` — manifest authored and schema-validated; UMS is a governed satellite. Workspace enrolment lands with ADR-0109 Phase-1.
+
 ---
 
 ## References

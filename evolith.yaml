@@ -1,0 +1,66 @@
+# Evolith Satellite Contract — federated governance manifest.
+# Validated by the Core against schema/evolith-yaml.schema.json (apiVersion evolith.dev/v1).
+# UMS (User Management System) is a governed satellite of Evolith Core. Per ADR-0106 it is a
+# CONSUMER of the Master Tenant identity owned by MMS: it projects the TenantProjection it
+# receives over RabbitMQ (transactional inbox/outbox, ADR-0033) into the `masterdata` schema,
+# and owns only its own `ums_platform` schema. Core stays stateless.
+apiVersion: evolith.dev/v1
+kind: Satellite
+
+metadata:
+  name: evolith-ums
+  # Progressive-axis compatibility phase. The UMS API is a modular monolith → F1.
+  phase: F1
+  # The satellite's own architectural semantic version (independent of package versions).
+  architectureVersion: 0.1.0
+
+spec:
+  coreRef:
+    version: 1.0.0
+    rulesetVersion: 1.0.0
+
+  runtime:
+    language: CSharp
+    framework: ASP.NET Core
+    runtimeVersion: ".NET 10"
+
+  sdlc:
+    # 1=Conception 2=Design 3=Construction 4=Validation 5=Delivery
+    currentPhase: 3
+    gates: {}
+
+  design:
+    topology:
+      # Advisory (Discovery). UMS is a modular monolith owning the Identity context.
+      recommended:
+        - modular-monolith
+
+  boundedContexts:
+    - name: Identity
+      phase: F1
+      persistence: PostgreSQL
+    # Read-only downstream projection of the MMS-owned Master Tenant (ADR-0106).
+    # UMS is NOT the writer-of-record; the two-writer migration is tracked as DS-01.
+    - name: MasterData
+      phase: F1
+      persistence: PostgreSQL
+
+  compliance:
+    # Adopted Core ADRs (no local tag needed) + local UMS ADRs (INH-04). Local ADR files
+    # carry `EvolithSatellite` in their frontmatter tags.
+    # core/ADR-0047 (progressive architecture / modular-monolith) is required for F1 (SVC-03).
+    adrRegistry:
+      - core/ADR-0047
+      - core/ADR-0106
+      - core/ADR-0033
+    # Start as `documented` while local ADRs are being authored; promote to `enforced`
+    # once U-* ADR files exist with the EvolithSatellite tag.
+    localAdrTagEnforcement: documented
+    coverageTarget: 80
+
+  governance:
+    executiveSponsor:
+      name: Alberto Arroyo Raygada
+      role: Product Owner / Founder
+    # Quoted: an unquoted YAML date parses as a timestamp, not the string the schema requires.
+    nextReviewDate: "2026-10-09"
