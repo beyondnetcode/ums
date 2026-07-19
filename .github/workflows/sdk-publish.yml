@@ -1,0 +1,110 @@
+name: Publish UMS SDK
+
+# Publishes the .NET SDK (Ums.Sdk.*) to GitHub Packages so satellites can consume the
+# identity/authorization contract instead of hand-rolling a parallel model.
+#
+# Why this workflow exists: the SDK projects already carried <PackageId> and <Version>, but
+# nothing ever packed or pushed them — they existed as source with package metadata, not as
+# artifacts. Evolith Tracker's ADR T-040 adopts this contract and was blocked on distribution
+# alone (see that ADR for the consumer side).
+#
+# Destination is GitHub Packages rather than nuget.org deliberately: a product SDK is not a
+# general-purpose library, and a version pushed here can be DELETED if it is wrong, whereas a
+# version on nuget.org can only be unlisted, never removed.
+#
+# NOTE for consumers: GitHub Packages requires authentication to restore, even for packages
+# belonging to a public repository. A consuming satellite needs a nuget.config with this feed
+# plus a token in CI.
+
+on:
+  push:
+    tags:
+      - 'sdk-v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to pack and push (overrides the csproj <Version>). Leave empty to use the csproj value.'
+        required: false
+        type: string
+      dry_run:
+        description: 'Pack only — do not push. Use this to verify before publishing.'
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  SDK_SOLUTION: src/libs/sdk/dotnet/Ums.Sdk.sln
+  PACKAGE_OUTPUT: ${{ github.workspace }}/artifacts/packages
+  FEED: https://nuget.pkg.github.com/beyondnetcode/index.json
+
+jobs:
+  publish:
+    name: Pack & Publish (.NET 10)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Restore
+        run: dotnet restore "$SDK_SOLUTION"
+
+      - name: Build (Release)
+        run: dotnet build "$SDK_SOLUTION" -c Release --no-restore
+
+      - name: Test
+        run: dotnet test "$SDK_SOLUTION" -c Release --no-build --verbosity quiet
+
+      - name: Pack
+        run: |
+          set -e
+          if [ -n "${{ inputs.version }}" ]; then
+            echo "Packing at explicit version ${{ inputs.version }}"
+            dotnet pack "$SDK_SOLUTION" -c Release --no-build \
+              -o "$PACKAGE_OUTPUT" -p:Version="${{ inputs.version }}"
+          else
+            echo "Packing at the version declared in each csproj"
+            dotnet pack "$SDK_SOLUTION" -c Release --no-build -o "$PACKAGE_OUTPUT"
+          fi
+          echo "Packed:"
+          ls -1 "$PACKAGE_OUTPUT"/*.nupkg
+
+      - name: Verify something was produced
+        run: |
+          set -e
+          count=$(ls -1 "$PACKAGE_OUTPUT"/*.nupkg 2>/dev/null | wc -l)
+          if [ "$count" -eq 0 ]; then
+            echo "::error::Pack produced no packages — nothing to publish."
+            exit 1
+          fi
+          echo "$count package(s) ready."
+
+      - name: Push to GitHub Packages
+        if: ${{ github.event_name == 'push' || inputs.dry_run == false }}
+        run: |
+          set -e
+          # --skip-duplicate: re-running a tag must not fail the job when a version already exists.
+          dotnet nuget push "$PACKAGE_OUTPUT"/*.nupkg \
+            --source "$FEED" \
+            --api-key "${{ secrets.GITHUB_TOKEN }}" \
+            --skip-duplicate
+
+      - name: Dry run notice
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run == true }}
+        run: echo "::notice::Dry run — packages were built but NOT pushed. Re-run with dry_run=false to publish."
+
+      - name: Upload packages as build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ums-sdk-packages
+          path: ${{ env.PACKAGE_OUTPUT }}/*.nupkg
+          if-no-files-found: error

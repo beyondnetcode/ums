@@ -6,7 +6,14 @@
     <Nullable>enable</Nullable>
     <IsPackable>true</IsPackable>
     <PackageId>Ums.Sdk.Authorization.Testing</PackageId>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
+
+    <!-- Trazabilidad: sin RepositoryUrl el paquete queda "sin vincular" en el registro — no
+         hereda permisos del repositorio y nadie puede volver al codigo desde el artefacto.
+         La 1.0.0 se publico sin esto; 1.0.1 lo corrige. -->
+    <RepositoryUrl>https://github.com/beyondnetcode/ums</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <Description>UMS SDK — Fluent AuthGraphBuilder and TestAuthGraphAccessor for unit-testing consumer code without spinning up UMS. See ADR-0073.</Description>
     <Authors>BeyondNetCode</Authors>
     <PackageProjectUrl>https://github.com/beyondnetcode/ums</PackageProjectUrl>
