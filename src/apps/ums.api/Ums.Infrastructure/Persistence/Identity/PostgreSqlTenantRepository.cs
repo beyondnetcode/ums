@@ -36,6 +36,16 @@ public sealed class PostgreSqlTenantRepository(UmsPlatformDbContext dbContext) :
     public Task<TenantAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
         => GetByIdAsync(id, cancellationToken);
 
+    // G-161: verificación de unicidad autoritativa que IGNORA el filtro global por inquilino. Necesaria
+    // en la vía de escritura porque el filtro acota la colección `Branches` del agregado al inquilino
+    // del CONTEXTO; un admin interno que provisiona sobre otro inquilino cargaría una colección vacía y
+    // la guarda en memoria no vería el duplicado. La lectura sigue aislada (esta consulta no expone
+    // datos: solo devuelve un booleano y se usa dentro de un handler ya acotado a management-owner).
+    public Task<bool> BranchCodeExistsAsync(Guid tenantId, string code, CancellationToken cancellationToken = default)
+        => dbContext.TenantBranches
+            .IgnoreQueryFilters()
+            .AnyAsync(b => b.TenantId == tenantId && b.Code == code, cancellationToken);
+
     public async Task<TenantAggregate?> GetByCodeAsync(string code, CancellationToken cancellationToken = default)
     {
         var record = await dbContext.Tenants

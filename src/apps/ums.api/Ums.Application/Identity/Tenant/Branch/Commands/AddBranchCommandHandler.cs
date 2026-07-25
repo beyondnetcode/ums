@@ -41,6 +41,17 @@ public sealed class AddBranchCommandHandler : ICommandHandler<AddBranchCommand, 
             return Result<AddBranchResponse>.Failure(scopeResult.Error);
         }
 
+        // G-161: verificación de unicidad AUTORITATIVA (ignora el filtro global por inquilino) ANTES de
+        // materializar. La guarda en memoria de `Tenant.AddBranch` es correcta cuando el actor opera en
+        // su propio inquilino, pero cuando un admin interno provisiona sobre OTRO inquilino el filtro
+        // global vacía `tenant.Branches` y no vería el duplicado → antes devolvía 201 (no-op engañoso)
+        // en vez de 409. La BD garantiza la integridad (índice único TenantId+Code), pero el contrato
+        // debe ser consistente: se rechaza aquí con el mismo error de dominio.
+        if (await _tenantRepository.BranchCodeExistsAsync(request.TenantId, request.Code, cancellationToken))
+        {
+            return Result<AddBranchResponse>.Failure(DomainErrors.Tenant.BranchCodeNotUnique);
+        }
+
         var result = tenant.AddBranch(
             Code.Create(request.Code),
             Name.Create(request.Name),

@@ -50,6 +50,27 @@ public class AddBranchCommandHandlerTests
         Assert.Equal(tenantId, result.Value.TenantId);
     }
 
+    // G-161: cuando la verificación autoritativa de unicidad (que ignora el filtro global por inquilino)
+    // detecta el código ya existente —incluso si la colección en memoria del agregado está vacía por el
+    // filtro cross-tenant— la creación se rechaza con 409 (BranchCodeNotUnique), no un 201 engañoso.
+    [Fact]
+    public async Task Handle_WhenBranchCodeExistsCrossTenant_ReturnsFailure()
+    {
+        var tenantId = Guid.NewGuid();
+        _userContextMock.Setup(u => u.UserId).Returns("user-001");
+        var tenant = CreateTenant();
+        _tenantRepositoryMock.Setup(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(tenant);
+        _tenantRepositoryMock.Setup(r => r.BranchCodeExistsAsync(tenantId, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        var command = ValidCommand with { TenantId = tenantId };
+
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Equal(DomainErrors.Tenant.BranchCodeNotUnique, result.Error);
+    }
+
     [Fact]
     public async Task Handle_WithGeofencingMetadata_ReturnsSuccess()
     {
