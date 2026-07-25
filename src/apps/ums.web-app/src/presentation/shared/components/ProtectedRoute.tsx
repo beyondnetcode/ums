@@ -13,7 +13,6 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router';
 import { useAuthStore } from '@app/stores/auth.store';
-import { authService } from '@app/identity/services/auth.service';
 import { Spinner } from '@shared/components/Spinner';
 
 interface ProtectedRouteProps {

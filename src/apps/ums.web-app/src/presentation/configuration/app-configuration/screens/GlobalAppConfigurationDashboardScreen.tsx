@@ -70,11 +70,16 @@ export default function GlobalAppConfigurationDashboardScreen(): React.JSX.Eleme
         d.setSelectedId(results[0].appConfigurationId);
       }
       setIsPickerOpen(false);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const e = err as {
+        normalised?: { message?: string };
+        response?: { data?: { detail?: string } };
+        message?: string;
+      };
       const errorMsg =
-        err?.normalised?.message ||
-        err?.response?.data?.detail ||
-        err?.message ||
+        e?.normalised?.message ||
+        e?.response?.data?.detail ||
+        e?.message ||
         t.failedToLinkParameter;
       addNotification({
         title: t.error ?? 'Error',
@@ -103,8 +108,12 @@ export default function GlobalAppConfigurationDashboardScreen(): React.JSX.Eleme
       if (d.selectedId === pendingDeleteId) {
         d.setSelectedId('');
       }
-    } catch (err: any) {
-      const errorMsg = err?.normalised?.message || err?.response?.data?.detail || t.deleteFailed;
+    } catch (err: unknown) {
+      const e = err as {
+        normalised?: { message?: string };
+        response?: { data?: { detail?: string } };
+      };
+      const errorMsg = e?.normalised?.message || e?.response?.data?.detail || t.deleteFailed;
       addNotification({
         title: t.error ?? 'Error',
         message: errorMsg,

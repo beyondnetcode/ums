@@ -17,7 +17,6 @@ import { useAuthStore, detectBrowserTimezone } from '@app/stores/auth.store';
 import { useI18nStore } from '@app/stores/i18n.store';
 import type { SupportedLanguage } from '@app/stores/i18n.store';
 import { useDevToolsStore } from '@app/stores/devTools.store';
-import { useI18n } from '@app/i18n/use-i18n';
 import { M3Card } from '@shared/components/M3Card';
 import { M3Button } from '@shared/components/M3Button';
 import { M3TextField } from '@shared/components/M3TextField';
@@ -39,7 +38,6 @@ export default function LoginScreen(): React.JSX.Element {
   const { setLanguage } = useI18nStore();
   const { setDevUserId } = useDevToolsStore();
   const addNotification = useNotificationStore(state => state.addNotification);
-  const t = useI18n();
 
   const [tenantId, setTenantId] = useState(DEV_TENANTS[0].id);
   const [username, setUsername] = useState('');
@@ -66,6 +64,10 @@ export default function LoginScreen(): React.JSX.Element {
   }, [isAuthenticated, navigate, redirectTo]);
 
   useEffect(() => {
+    // El mensaje de lockout se deriva de `lockoutUntil` (estado): al fijarse el bloqueo se
+    // muestra la cuenta atrás; al vencer se limpia. Es una sincronización de estado externo
+    // legítima; el setState va guardado por la condición, no en bucle.
+    /* eslint-disable react-hooks/set-state-in-effect */
     if (lockoutUntil && Date.now() < lockoutUntil) {
       const remaining = Math.ceil((lockoutUntil - Date.now()) / 1000);
       setError(`Demasiados intentos. Espere ${remaining} segundos`);
@@ -73,6 +75,7 @@ export default function LoginScreen(): React.JSX.Element {
       setLockoutUntil(null);
       setError('');
     }
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [lockoutUntil]);
 
   const handleLogin = useCallback(
@@ -204,6 +207,10 @@ export default function LoginScreen(): React.JSX.Element {
     return null;
   }
 
+  // Comparación con la hora actual para deshabilitar el formulario durante el lockout. `Date.now()`
+  // es impura por definición; aquí es intencional (estado de tiempo real) y no afecta la idempotencia
+  // del render más allá del bloqueo temporal esperado.
+  // eslint-disable-next-line react-hooks/purity
   const isLocked = lockoutUntil !== null && Date.now() < lockoutUntil;
 
   // ── Registration options shown on the right panel ──────────────────────────

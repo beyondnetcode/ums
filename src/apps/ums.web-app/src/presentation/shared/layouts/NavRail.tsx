@@ -62,7 +62,7 @@ export const NavRail: React.FC<NavRailProps> = ({ collapsed }) => {
     }));
   };
 
-  const { hasMenuAccess, hasModuleAccess, graph } = useAccessResolution();
+  const { hasMenuAccess, graph } = useAccessResolution();
 
   const filteredModules = useMemo(() => {
     // Si no hay grafo (ej. entorno legacy o modo superadmin interno sin grafo total),
