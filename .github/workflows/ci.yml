@@ -11,17 +11,22 @@ jobs:
   ci:
     name: Build, Lint and Test (CI)
     runs-on: ubuntu-latest
+    # El workspace npm/nx del monorepo vive bajo src/, no en la raíz del repo.
+    defaults:
+      run:
+        working-directory: src
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Required for SonarCloud analysis
 
-      - name: Setup Node.js v18
+      - name: Setup Node.js v22
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22 # React Router v8 exige node >= 22
           cache: 'npm'
+          cache-dependency-path: src/package-lock.json
 
       - name: Install Dependencies
         run: npm ci
