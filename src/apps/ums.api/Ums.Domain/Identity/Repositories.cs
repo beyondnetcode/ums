@@ -10,6 +10,14 @@ public interface ITenantRepository : IAggregateRepository<TenantAggregate>
 {
     Task<TenantAggregate?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<TenantAggregate?> GetByCodeAsync(string code, CancellationToken cancellationToken = default);
+    /// <summary>
+    /// G-161: ¿existe ya una sucursal con este código bajo el inquilino? Consulta autoritativa que
+    /// IGNORA el filtro global por inquilino, para que la verificación de unicidad sea correcta aun
+    /// cuando el actor (admin interno) opera sobre OTRO inquilino distinto a su contexto — donde el
+    /// filtro global vaciaría la colección `Branches` del agregado y la guarda en memoria de
+    /// `Tenant.AddBranch` no vería el duplicado. Es de solo lectura y se usa en la vía de escritura.
+    /// </summary>
+    Task<bool> BranchCodeExistsAsync(Guid tenantId, string code, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<TenantAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default);
     /// <summary>
     /// REC-12: Server-side paginated query. SQL implementations use Skip/Take at the DB level.

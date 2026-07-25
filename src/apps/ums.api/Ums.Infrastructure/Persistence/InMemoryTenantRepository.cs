@@ -34,6 +34,15 @@ public sealed class InMemoryTenantRepository : ITenantRepository, IUnitOfWork
     public Task<TenantAggregate?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
         => GetByIdAsync(id, cancellationToken);
 
+    // G-161: en memoria no hay filtro global, así que la colección del agregado está siempre completa.
+    public Task<bool> BranchCodeExistsAsync(Guid tenantId, string code, CancellationToken cancellationToken = default)
+    {
+        _store.TryGetValue(tenantId, out var tenant);
+        var exists = tenant is not null
+            && tenant.Branches.Any(b => b.Code.GetValue() == code);
+        return Task.FromResult(exists);
+    }
+
     public Task<IReadOnlyList<TenantAggregate>> GetAllAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
         var all = _store.Values.ToList();

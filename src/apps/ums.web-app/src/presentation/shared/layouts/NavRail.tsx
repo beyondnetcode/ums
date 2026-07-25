@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router';
 import { useI18n } from '@app/i18n/use-i18n';
 import { useNavigationPrefetch } from '@app/shared/hooks/use-navigation-prefetch';
 import { useAccessResolution } from '@app/authorization/hooks/use-access-resolution';
@@ -62,7 +62,7 @@ export const NavRail: React.FC<NavRailProps> = ({ collapsed }) => {
     }));
   };
 
-  const { hasMenuAccess, hasModuleAccess, graph } = useAccessResolution();
+  const { hasMenuAccess, graph } = useAccessResolution();
 
   const filteredModules = useMemo(() => {
     // Si no hay grafo (ej. entorno legacy o modo superadmin interno sin grafo total),

@@ -53,6 +53,12 @@ public sealed class GetAllApprovalRequestsQueryHandler : IQueryHandler<GetAllApp
         if (!string.IsNullOrWhiteSpace(search))
             query = query.Where(r => r.WorkflowId.ToString().Contains(search, StringComparison.OrdinalIgnoreCase));
 
+        // G-159: el parámetro userId de la query se ignoraba (contrato expuesto, filtro no cableado).
+        // Se filtra por el usuario objetivo de la solicitud (TargetUserId), la semántica útil:
+        // «solicitudes de aprobación que conciernen a este usuario».
+        if (request.UserId.HasValue)
+            query = query.Where(r => r.TargetUserId == request.UserId.Value);
+
         query = (sortBy, sortOrder) switch
         {
             ("status", "desc") => query.OrderByDescending(r => r.Status),

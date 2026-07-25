@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { NavRail } from './NavRail';
 import * as useI18nModule from '@app/i18n/use-i18n';
 
-vi.mock('react-router-dom', () => ({
+vi.mock('react-router', () => ({
   useNavigate: () => vi.fn(),
   useLocation: () => ({ pathname: '/tenants' }),
 }));
@@ -35,7 +35,7 @@ describe('NavRail', () => {
       users: 'Users',
       portalFooter: 'UMS Portal',
       archVersion: 'v1.0.0',
-    } as any);
+    } as unknown as ReturnType<typeof useI18nModule.useI18n>);
   });
 
   it('renders navigation element', () => {
@@ -70,7 +70,7 @@ describe('NavRail', () => {
   });
 
   it('toggles module expansion when clicked', () => {
-    const { container, getByText } = render(<NavRail collapsed={false} />);
+    const { container } = render(<NavRail collapsed={false} />);
 
     const moduleButton = container.querySelector('button[aria-expanded="true"]');
     expect(moduleButton).toBeInTheDocument();

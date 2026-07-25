@@ -6,6 +6,7 @@ using Ums.Application.Approvals.ApprovalRequest.Commands;
 using Ums.Application.Approvals.ApprovalRequest.DTOs;
 using Ums.Application.Approvals.ApprovalRequest.Services;
 using Ums.Domain.Authorization;
+using RoleAggregate = Ums.Domain.Authorization.Role.Role;
 using Ums.Domain.Approvals.ApprovalRequest;
 using Ums.Domain.Approvals;
 using Ums.Domain.Authorization.Profile;
@@ -35,6 +36,7 @@ public class ApprovalRequestCommandHandlerTests
     private readonly Mock<IUnitOfWorkScope>                       _unitOfWorkScope        = new();
     private readonly Mock<ITransactionScope>                      _transactionScope       = new();
     private readonly Mock<INotificationService>                   _notifications          = new();
+    private readonly Mock<IRoleRepository>                        _roleRepo               = new();
     private readonly Mock<IUnitOfWork>                            _approvalUow            = new();
     private readonly Mock<IUnitOfWork>                            _profileUow             = new();
     private readonly Mock<IUserContext>                           _ctx                    = new();
@@ -47,6 +49,8 @@ public class ApprovalRequestCommandHandlerTests
     {
         _repo.Setup(r => r.UnitOfWork).Returns(_approvalUow.Object);
         _profileRepo.Setup(r => r.UnitOfWork).Returns(_profileUow.Object);
+        _roleRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(MakeRole());
         _approvalUow.Setup(u => u.SaveEntitiesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(true);
         _profileUow.Setup(u => u.SaveEntitiesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(true);
         _tenantScopePolicy.Setup(p => p.EnsureManagementOwnerScopeAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
@@ -111,7 +115,16 @@ public class ApprovalRequestCommandHandlerTests
         new(_repo.Object, _workflowRepo.Object, _creationPolicyResolver.Object, _userAccountRepo.Object, _ctx.Object);
 
     private ApproveRequestCommandHandler CreateApproveHandler() =>
-        new(_repo.Object, _profileRepo.Object, _userAccountRepo.Object, _tenantRepo.Object, _delegationRepo.Object, _tenantScopePolicy.Object, _unitOfWorkScope.Object, _notifications.Object, _ctx.Object);
+        new(_repo.Object, _profileRepo.Object, _userAccountRepo.Object, _tenantRepo.Object, _delegationRepo.Object, _tenantScopePolicy.Object, _unitOfWorkScope.Object, _notifications.Object, _roleRepo.Object, _ctx.Object);
+
+    // G-160: por defecto el repo de roles resuelve un rol válido, para que las aprobaciones happy-path
+    // no fallen por la nueva guarda de existencia del rol concedido.
+    private static RoleAggregate MakeRole() =>
+        RoleAggregate.Create(
+            Domain.Kernel.ValueObjects.TenantId.Load(TenantId),
+            SystemSuiteId.Load(Guid.NewGuid()),
+            Code.Create("ROLE_TEST"), Name.Create("Rol de Prueba"), Description.Create("rol"),
+            null, 0, 0, ActorId.Create("sys")).Value;
 
     private RejectRequestCommandHandler CreateRejectHandler() =>
         new(_repo.Object, _userAccountRepo.Object, _tenantRepo.Object, _notifications.Object, _ctx.Object);

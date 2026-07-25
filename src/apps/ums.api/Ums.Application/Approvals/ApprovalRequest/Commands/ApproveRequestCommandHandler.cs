@@ -24,6 +24,7 @@ public sealed class ApproveRequestCommandHandler : ICommandHandler<ApproveReques
     private readonly ITenantScopePolicy _tenantScopePolicy;
     private readonly IUnitOfWorkScope _unitOfWorkScope;
     private readonly INotificationService _notificationService;
+    private readonly IRoleRepository _roleRepository;
     private readonly IUserContext _userContext;
 
     public ApproveRequestCommandHandler(
@@ -35,6 +36,7 @@ public sealed class ApproveRequestCommandHandler : ICommandHandler<ApproveReques
         ITenantScopePolicy tenantScopePolicy,
         IUnitOfWorkScope unitOfWorkScope,
         INotificationService notificationService,
+        IRoleRepository roleRepository,
         IUserContext userContext)
     {
         _repository = repository;
@@ -45,6 +47,7 @@ public sealed class ApproveRequestCommandHandler : ICommandHandler<ApproveReques
         _tenantScopePolicy = tenantScopePolicy;
         _unitOfWorkScope = unitOfWorkScope;
         _notificationService = notificationService;
+        _roleRepository = roleRepository;
         _userContext = userContext;
     }
 
@@ -141,6 +144,16 @@ public sealed class ApproveRequestCommandHandler : ICommandHandler<ApproveReques
         if (existingProfile is not null)
         {
             return Result<(Profile Profile, bool IsNew)>.Success((existingProfile, false));
+        }
+
+        // G-160: validar que el rol concedido EXISTE antes de materializar el perfil. Sin esta guarda,
+        // aprobar con un `grantedRoleId` arbitrario dejaba un Profile con rol FANTASMA que luego rompía
+        // la construcción del grafo de autorización del usuario objetivo en el login (401 AUTH_000).
+        var grantedRole = await _roleRepository.GetByIdAsync(grantedRoleId.GetValue(), cancellationToken);
+        if (grantedRole is null)
+        {
+            return Result<(Profile Profile, bool IsNew)>.Failure(
+                "El rol concedido no existe.");
         }
 
         var profileResult = Profile.Create(
