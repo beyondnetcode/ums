@@ -29,23 +29,10 @@ jobs:
           dotnet-version: '10.x'
 
       # ── Shell libraries ────────────────────────────────────────────────
-      - name: Restore – Shell DDD lib
-        run: dotnet restore src/libs/shell/ddd/src/Ums.Shell.Ddd/Ums.Shell.Ddd.sln
-
-      - name: Build – Shell DDD lib
-        run: dotnet build src/libs/shell/ddd/src/Ums.Shell.Ddd/Ums.Shell.Ddd.sln --no-restore --configuration Release
-
-      - name: Test – Shell DDD lib
-        run: dotnet test src/libs/shell/ddd/src/Ums.Shell.Ddd/Ums.Shell.Ddd.sln --no-build --configuration Release --logger "console;verbosity=minimal"
-
-      - name: Restore – Shell Factory lib
-        run: dotnet restore src/libs/shell/factory/src/Ums.Shell.Factory.sln
-
-      - name: Build – Shell Factory lib
-        run: dotnet build src/libs/shell/factory/src/Ums.Shell.Factory.sln --no-restore --configuration Release
-
-      - name: Test – Shell Factory lib
-        run: dotnet test src/libs/shell/factory/src/Ums.Shell.Factory.sln --no-build --configuration Release --logger "console;verbosity=minimal"
+      # Los shells cross (BeyondNetCode.Shell.*) se consumen como paquetes NuGet
+      # publicados en nuget.org (repos beyondnetcode/Shell.*), NO como código
+      # vendorizado. El `Restore – UMS API` de abajo los resuelve vía PackageReference,
+      # así que aquí no se restauran/compilan soluciones locales (que no existen).
 
       # ── Main API ───────────────────────────────────────────────────────
       - name: Restore – UMS API
