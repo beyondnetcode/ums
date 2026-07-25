@@ -9,7 +9,7 @@ const setLanguageMock = vi.fn();
 const setDevUserIdMock = vi.fn();
 const addNotificationMock = vi.fn();
 
-vi.mock('react-router-dom', () => ({
+vi.mock('react-router', () => ({
   useNavigate: () => navigateMock,
   useLocation: () => ({ search: '' }),
 }));

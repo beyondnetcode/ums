@@ -1,7 +1,7 @@
 # =========================================================
 # Phase 1: Dependency Resolution
 # =========================================================
-FROM node:20-alpine AS base
+FROM node:24-alpine AS base
 WORKDIR /usr/src/app
 COPY package*.json ./
 COPY apps/ums.web-app/package*.json ./apps/ums.web-app/

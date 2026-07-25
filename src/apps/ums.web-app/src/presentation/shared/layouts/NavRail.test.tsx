@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { NavRail } from './NavRail';
 import * as useI18nModule from '@app/i18n/use-i18n';
 
-vi.mock('react-router-dom', () => ({
+vi.mock('react-router', () => ({
   useNavigate: () => vi.fn(),
   useLocation: () => ({ pathname: '/tenants' }),
 }));

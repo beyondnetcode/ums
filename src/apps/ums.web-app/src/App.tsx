@@ -1,5 +1,5 @@
 import { useEffect, lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router';
 import { MainLayout } from './presentation/shared/layouts/MainLayout';
 import { AppErrorBoundary } from './presentation/shared/components/ErrorBoundary';
 import { RouteLoader } from './presentation/shared/components/RouteLoader';

@@ -12,7 +12,7 @@
  * - Accessible design with proper labels
  */
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router';
 import { useAuthStore, detectBrowserTimezone } from '@app/stores/auth.store';
 import { useI18nStore } from '@app/stores/i18n.store';
 import type { SupportedLanguage } from '@app/stores/i18n.store';
