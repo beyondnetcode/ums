@@ -26,16 +26,20 @@ spec:
         - name: AllowedOrigins
           value: "http://localhost:5173,http://localhost:3000,http://ums.local"
         - name: ConnectionStrings__DefaultConnection
-          value: "Server=sqlserver-lite,1433;Database=UmsDev;User Id=sa;Password={{ .Values.sqlserver.password }};TrustServerCertificate=True;Encrypt=False;"
+          value: "Host=postgres;Port={{ .Values.postgres.port }};Database=UmsDev;Username=postgres;Password={{ .Values.postgres.password }};"
         - name: Persistence__Provider
-          value: "SqlServer"
+          value: "PostgreSql"
         - name: Persistence__AggregateStoreMode
-          value: "SqlServer"
-        - name: Persistence__UseSqlServerIdentityStores
+          value: "PostgreSql"
+        - name: Persistence__UsePostgreSqlIdentityStores
           value: "true"
-        - name: Persistence__UseSqlServerAuthorizationStores
+        - name: Persistence__UsePostgreSqlAuthorizationStores
           value: "true"
-        - name: Persistence__UseSqlServerConfigurationStores
+        - name: Persistence__UsePostgreSqlConfigurationStores
+          value: "true"
+        - name: Persistence__UsePostgreSqlApprovalsStores
+          value: "true"
+        - name: Persistence__UsePostgreSqlIgaStores
           value: "true"
         - name: Persistence__SeedDevData
           value: "true"

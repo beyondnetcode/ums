@@ -35,11 +35,11 @@ Estos servicios están expuestos automáticamente en los puertos 80/443 de tu m�
 
 Los componentes de infraestructura pesada como bases de datos o colectores de métricas corren aislados dentro del clúster (tipo `ClusterIP`). Para conectar clientes externos (como Azure Data Studio, SSMS, o Redis Insight), debes crear un puente o "Port-Forward" abriendo una terminal dedicada.
 
-### SQL Server (Base de Datos)
-* **Comando:** `kubectl port-forward svc/sqlserver-lite 1433:1433`
-* **Conexión:** `localhost,1433` o `127.0.0.1,1433`
-* **Usuario:** `sa`
-* **Contraseña:** `Your_password123`
+### PostgreSQL (Base de Datos)
+* **Comando:** `kubectl port-forward svc/postgres 5432:5432`
+* **Conexión:** `localhost:5432` / `127.0.0.1:5432` (base `UmsDev`)
+* **Usuario:** `postgres`
+* **Contraseña:** `root`
 
 ### Redis (Caché)
 * **Comando:** `kubectl port-forward svc/redis 6379:6379`

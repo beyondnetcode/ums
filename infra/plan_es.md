@@ -239,7 +239,7 @@ flowchart TB
   - Base de datos: PostgreSQL (o SQL Server) en contenedor `ums‑db`.
   - Service Bus in‑memory (integrado en API/Worker).
 - **Persistencia**: Volúmenes Docker montados en `/var/lib/ums-data` dentro del VPS.
-- **Networking**: Puertos expuestos 80/443 (NGINX reverse proxy) y 5432/1433 para DB interno (no expuesto a internet).
+- **Networking**: Puertos expuestos 80/443 (NGINX reverse proxy) y 5432 para DB interno PostgreSQL (no expuesto a internet).
 - **Seguridad**: Secrets gestionados vía Docker secrets o archivos `.env` fuera del repo; firewall `ufw` permite solo puertos necesarios.
 - **Observabilidad**: OpenTelemetry Collector en contenedor, métricas a Grafana vía port‑forward.
 
