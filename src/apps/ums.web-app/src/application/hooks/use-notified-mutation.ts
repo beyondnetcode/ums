@@ -58,6 +58,9 @@ export function useNotifiedMutation<TData = void, TVariables = void>({
 }: UseNotifiedMutationOptions<TData, TVariables>) {
   let queryClient: ReturnType<typeof useQueryClient> | null = null;
   try {
+    // Degradación intencional: sin QueryClientProvider (p.ej. tests aislados) useQueryClient
+    // lanza y caemos a null. El hook se invoca siempre en el mismo punto del render.
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     queryClient = useQueryClient();
   } catch {
     queryClient = null;

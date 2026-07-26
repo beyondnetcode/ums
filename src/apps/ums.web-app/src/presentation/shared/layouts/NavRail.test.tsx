@@ -14,7 +14,9 @@ vi.mock('./navigation.config', () => ({
   pathToTab: (path: string) => path.replace('/', ''),
   NAV_MODULES: () => [
     {
-      key: 'identity',
+      // La key debe coincidir con las que NavRail expande por defecto ({ idm, auth, sys }),
+      // si no el módulo arranca colapsado y sus items no se renderizan.
+      key: 'idm',
       nameKey: 'identity',
       icon: 'I',
       members: [

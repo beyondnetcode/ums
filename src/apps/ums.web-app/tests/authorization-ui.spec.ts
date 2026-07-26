@@ -18,7 +18,10 @@ test.describe('Dynamic Authorization UI Tests', () => {
 
   test('Tenant Supervisor should see Access Denied on Tenants page', async ({ page }) => {
     await page.goto('/login');
-    await page.getByText(/INTERNAL_ADMIN/i).first().click();
+    await page
+      .getByText(/INTERNAL_ADMIN/i)
+      .first()
+      .click();
     await page.getByText(/Ransa Comercial S.A./i).click();
     await page.getByLabel(/correo electrónico/i).fill('gerente.operaciones@ransa.pe');
     await page.getByLabel(/contraseña/i).fill('Admin@123');

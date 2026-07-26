@@ -98,7 +98,7 @@ function createHttpClient(): AxiosInstance {
             })
           );
 
-        case 429:
+        case 429: {
           const retryAfter = error.response?.headers?.['retry-after'];
           const delay = retryAfter ? parseInt(retryAfter, 10) * 1000 : RETRY_DELAY * 5;
 
@@ -111,6 +111,7 @@ function createHttpClient(): AxiosInstance {
               },
             })
           );
+        }
 
         case 500:
         case 502:
@@ -125,7 +126,7 @@ function createHttpClient(): AxiosInstance {
             })
           );
 
-        default:
+        default: {
           const data = error.response?.data;
           const errorMessage =
             data && typeof data === 'object'
@@ -147,6 +148,7 @@ function createHttpClient(): AxiosInstance {
               },
             })
           );
+        }
       }
     }
   );

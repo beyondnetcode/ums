@@ -27,7 +27,9 @@ test.describe('Profile Panel (Connected User Drawer)', () => {
   test('should open drawer when clicking avatar', async ({ page }) => {
     const avatar = page.locator('button[aria-label="View connected user details"]');
     await avatar.click();
-    await expect(page.getByRole('heading', { name: /(connected user|estadísticas de perfil|profile stats)/i })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /(connected user|estadísticas de perfil|profile stats)/i })
+    ).toBeVisible();
   });
 
   test('should display user section with correct info', async ({ page }) => {
@@ -89,13 +91,18 @@ test.describe('Profile Panel (Connected User Drawer)', () => {
     const avatar = page.locator('button[aria-label="View connected user details"]');
     await avatar.click();
     await page.locator('[aria-label="Close drawer"]').click();
-    await expect(page.getByRole('heading', { name: /(connected user|estadísticas de perfil|profile stats)/i })).not.toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /(connected user|estadísticas de perfil|profile stats)/i })
+    ).not.toBeVisible();
   });
 
   test('should logout from drawer', async ({ page }) => {
     const avatar = page.locator('button[aria-label="View connected user details"]');
     await avatar.click();
-    await page.getByRole('button', { name: /(logout|cerrar sesión)/i }).last().click();
+    await page
+      .getByRole('button', { name: /(logout|cerrar sesión)/i })
+      .last()
+      .click();
     await expect(page).toHaveURL(/\/login/);
   });
 });

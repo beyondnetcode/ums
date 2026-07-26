@@ -18,7 +18,9 @@ test.describe('Authentication Flow', () => {
   test('should show validation errors for empty fields', async ({ page }) => {
     const emailInput = page.getByLabel(/correo electrónico/i);
     await page.getByRole('button', { name: /ingresar/i }).click();
-    const validationMessage = await emailInput.evaluate((el: HTMLInputElement) => el.validationMessage);
+    const validationMessage = await emailInput.evaluate(
+      (el: HTMLInputElement) => el.validationMessage
+    );
     expect(validationMessage).not.toBe('');
   });
 
@@ -76,10 +78,13 @@ test.describe('Logout Flow', () => {
     await page.getByLabel(/contraseña/i).fill('Admin@123');
     await page.getByRole('button', { name: /ingresar/i }).click();
     await expect(page).toHaveURL(/\/tenants/);
-    
+
     // Open profile drawer
     await page.locator('button[aria-label="View connected user details"]').click();
-    await page.getByRole('button', { name: /(log out|cerrar sesión)/i }).last().click();
+    await page
+      .getByRole('button', { name: /(log out|cerrar sesión)/i })
+      .last()
+      .click();
     await expect(page).toHaveURL(/\/login/);
   });
 
@@ -89,10 +94,13 @@ test.describe('Logout Flow', () => {
     await page.getByLabel(/contraseña/i).fill('Admin@123');
     await page.getByRole('button', { name: /ingresar/i }).click();
     await expect(page).toHaveURL(/\/tenants/);
-    
+
     // Open profile drawer
     await page.locator('button[aria-label="View connected user details"]').click();
-    await page.getByRole('button', { name: /(log out|cerrar sesión)/i }).last().click();
+    await page
+      .getByRole('button', { name: /(log out|cerrar sesión)/i })
+      .last()
+      .click();
     await page.goto('/tenants');
     await expect(page).toHaveURL(/\/login/);
   });

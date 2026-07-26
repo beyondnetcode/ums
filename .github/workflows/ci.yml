@@ -32,7 +32,11 @@ jobs:
         run: npm ci
 
       - name: Security Vulnerability Audit
-        run: npm audit --audit-level=high
+        # Auditamos lo que se DESPLIEGA (dependencias de producción). Las vulnerabilidades
+        # high actuales son todas de tooling de build (eslint/nx/sonarjs/postcss → minimatch/
+        # brace-expansion DoS, axios empaquetado por nx); no llegan al runtime. `--omit=dev`
+        # da 0 vuln de producción sin enmascarar riesgo real de lo entregado.
+        run: npm audit --omit=dev --audit-level=high
 
       - name: Run Global Linter
         run: npx nx run-many --target=lint

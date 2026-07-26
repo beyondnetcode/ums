@@ -164,19 +164,21 @@ class AuthService {
         };
 
         if (errorData) {
+          // `fail` lanza (retorna `never`); usamos `return fail(...)` para que cada rama
+          // termine explícitamente el flujo (evita no-fallthrough) sin código inalcanzable.
           switch (errorData.code) {
             case AUTH_ERROR_CODES.INVALID_CREDENTIALS:
-              fail('No pudimos iniciar sesión. Verifique su usuario y contraseña.');
+              return fail('No pudimos iniciar sesión. Verifique su usuario y contraseña.');
             case AUTH_ERROR_CODES.TENANT_NOT_FOUND:
-              fail('No pudimos iniciar sesión. Verifique el código del tenant.');
+              return fail('No pudimos iniciar sesión. Verifique el código del tenant.');
             case AUTH_ERROR_CODES.TENANT_INACTIVE:
-              fail('El tenant no está activo. Contacte al administrador.');
+              return fail('El tenant no está activo. Contacte al administrador.');
             case AUTH_ERROR_CODES.USER_NOT_ACTIVE:
-              fail('Su cuenta no está activa. Contacte al administrador.');
+              return fail('Su cuenta no está activa. Contacte al administrador.');
             case AUTH_ERROR_CODES.SESSION_EXPIRED:
-              fail('La sesión expiró. Vuelva a iniciar sesión.');
+              return fail('La sesión expiró. Vuelva a iniciar sesión.');
             default:
-              fail(errorData.message || 'No pudimos iniciar sesión. Intente nuevamente.');
+              return fail(errorData.message || 'No pudimos iniciar sesión. Intente nuevamente.');
           }
         }
 
