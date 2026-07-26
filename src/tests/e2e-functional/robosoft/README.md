@@ -50,8 +50,8 @@ Cada módulo de contexto expone tres símbolos:
 ### 1) Backend vivo en kind
 
 ```bash
-# Port-forward al backend desplegado en el clúster local beyondnet-cluster-ums:
-kubectl --context kind-beyondnet-cluster-ums -n ums \
+# Port-forward al backend desplegado en el clúster local evolith-ums-cluster:
+kubectl --context kind-evolith-ums-cluster -n ums \
     port-forward svc/ums-backend 18080:80 &
 # Verifica salud:
 curl -s -o /dev/null -w "%{http_code}\n" http://localhost:18080/health   # -> 200

@@ -6,7 +6,7 @@
 // API REST y aseverar reglas de negocio, auto-aprovisionando su propia data.
 //
 // `E2E_BASE_URL` apunta al despliegue ya levantado (Ingress del clúster kind
-// `beyondnet-cluster-ums`, por defecto http://localhost:8080). Este arnés NO levanta servidores.
+// `evolith-ums-cluster`, por defecto http://localhost:8080). Este arnés NO levanta servidores.
 import { defineConfig } from '@playwright/test';
 
 const baseURL = process.env.E2E_BASE_URL ?? 'http://localhost:8080';
