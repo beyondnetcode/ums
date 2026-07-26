@@ -41,7 +41,7 @@ En `Development` el backend expone dos caminos, ambos usados por este arnés:
 
 ## Cómo correrlo
 
-Requiere el backend vivo (health 200). El clúster local es `beyondnet-cluster-ums`.
+Requiere el backend vivo (health 200). El clúster local es `evolith-ums-cluster`.
 
 ```bash
 # Directo (solo carril B):

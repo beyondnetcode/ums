@@ -8,7 +8,7 @@ UMS vivo y reporta PASS/FAIL/SKIP/BLOCK/PENDING por invariante con evidencia
 
 Uso:
     # 1) Port-forward al backend en kind (en otra terminal o en background):
-    kubectl --context kind-beyondnet-cluster-ums -n ums \\
+    kubectl --context kind-evolith-ums-cluster -n ums \\
         port-forward svc/ums-backend 18080:80 &
 
     # 2) Correr los 3 contextos implementados:
