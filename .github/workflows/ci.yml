@@ -38,14 +38,19 @@ jobs:
         # da 0 vuln de producción sin enmascarar riesgo real de lo entregado.
         run: npm audit --omit=dev --audit-level=high
 
+      # Este job es la pipeline JS/frontend del monorepo. El backend .NET tiene su propia
+      # CI dedicada (.github/workflows/build.yml, con setup-dotnet), así que aquí se scopea a
+      # `app-web` — este runner no instala el SDK .NET 10 y `dotnet test/build` fallaría.
       - name: Run Global Linter
-        run: npx nx run-many --target=lint
+        run: npx nx run-many --target=lint --projects=app-web
 
-      - name: Run Unit Tests with Coverage
-        run: npx nx run-many --target=test --code-coverage
+      - name: Run Unit Tests
+        # `--code-coverage` no es un flag válido de vitest/dotnet (vitest usa `--coverage`).
+        # Se corre el target `test` (vitest run); la cobertura se gestiona con test:coverage.
+        run: npx nx run-many --target=test --projects=app-web
 
-      - name: Build Applications (Vite & NestJS)
-        run: npx nx run-many --target=build
+      - name: Build Application (Vite)
+        run: npx nx run-many --target=build --projects=app-web
 
   # 2. Advanced Security Analysis (CodeQL)
   codeql:
