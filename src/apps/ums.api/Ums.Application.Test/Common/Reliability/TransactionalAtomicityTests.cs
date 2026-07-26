@@ -116,7 +116,7 @@ public class TransactionalAtomicityTests
         var eventsBeforeSave = config.DomainEvents.GetUncommittedChanges().Count;
         Assert.Equal(1, eventsBeforeSave); // one AppConfigCreatedEvent
 
-        // Simulate the SaveEntitiesAsync logic from SqlServerAppConfigurationRepository
+        // Simulate the SaveEntitiesAsync logic from PostgreSqlAppConfigurationRepository
         // (reproduced here because we cannot call the SQL repository without DB)
         var outboxMessages = config.DomainEvents.GetUncommittedChanges().ToList();
         Assert.Single(outboxMessages); // outbox materialized

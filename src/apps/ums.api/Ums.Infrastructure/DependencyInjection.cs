@@ -57,7 +57,7 @@ public static class DependencyInjection
             .Validate(
                 options => options.Provider == PersistenceProvider.InMemory
                     || !string.IsNullOrWhiteSpace(configuration.GetConnectionString("DefaultConnection")),
-                "ConnectionStrings:DefaultConnection is required when Persistence.Provider is SqlServer, Sqlite or PostgreSql.")
+                "ConnectionStrings:DefaultConnection is required when Persistence.Provider is Sqlite or PostgreSql.")
             .ValidateOnStart();
 
         services.AddHttpContextAccessor();
@@ -219,52 +219,12 @@ public static class DependencyInjection
         });
 
         // REC-04: Cross-aggregate transaction scope
-        if (persistence.Provider == PersistenceProvider.SqlServer || persistence.Provider == PersistenceProvider.Sqlite || persistence.Provider == PersistenceProvider.PostgreSql)
+        if (persistence.Provider == PersistenceProvider.Sqlite || persistence.Provider == PersistenceProvider.PostgreSql)
             services.AddScoped<IUnitOfWorkScope, UnitOfWorkScope>();
         else
             services.AddSingleton<IUnitOfWorkScope, NoOpUnitOfWorkScope>();
 
-        if (persistence.Provider == PersistenceProvider.SqlServer)
-        {
-            var connectionString = configuration.GetConnectionString("DefaultConnection")
-                ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection must be configured for SQL Server persistence.");
-
-            services.AddScoped<OrganizationDbContextInterceptor>();
-            services.AddScoped<AuditSaveChangesInterceptor>(); // FIX-08: auto-stamp audit columns
-
-            // REC-08: Polly resilience pipeline — circuit breaker on top of EF Core's transient retry
-            services.AddResiliencePipeline("ums-sql", pipelineBuilder =>
-            {
-                pipelineBuilder
-                    .AddRetry(new Polly.Retry.RetryStrategyOptions
-                    {
-                        MaxRetryAttempts = 3,
-                        Delay = TimeSpan.FromMilliseconds(200),
-                        BackoffType = Polly.DelayBackoffType.Exponential,
-                    })
-                    .AddCircuitBreaker(new Polly.CircuitBreaker.CircuitBreakerStrategyOptions
-                    {
-                        FailureRatio    = 0.5,
-                        SamplingDuration = TimeSpan.FromSeconds(30),
-                        MinimumThroughput = 10,
-                        BreakDuration    = TimeSpan.FromSeconds(60),
-                    });
-            });
-
-            services.AddDbContext<UmsPlatformDbContext>((serviceProvider, options) =>
-            {
-                options.UseSqlServer(connectionString, sqlServer =>
-                {
-                    sqlServer.MigrationsHistoryTable("__EFMigrationsHistory", UmsPlatformDbContext.DefaultSchema);
-                    sqlServer.EnableRetryOnFailure(3); // REC-08: reduced; circuit breaker handles sustained failures
-                });
-
-                options.AddInterceptors(
-                    serviceProvider.GetRequiredService<OrganizationDbContextInterceptor>(),
-                    serviceProvider.GetRequiredService<AuditSaveChangesInterceptor>());
-            });
-        }
-        else if (persistence.Provider == PersistenceProvider.Sqlite)
+        if (persistence.Provider == PersistenceProvider.Sqlite)
         {
             var connectionString = configuration.GetConnectionString("DefaultConnection")
                 ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection must be configured for SQLite persistence.");
@@ -336,15 +296,14 @@ public static class DependencyInjection
                 options.UseNpgsql(connectionString, pgOptions => pgOptions.EnableRetryOnFailure(3)));
         }
 
-        if ((persistence.Provider == PersistenceProvider.SqlServer && persistence.UseSqlServerIdentityStores) ||
-            (persistence.Provider == PersistenceProvider.Sqlite && persistence.UseSqliteIdentityStores) ||
+        if ((persistence.Provider == PersistenceProvider.Sqlite && persistence.UseSqliteIdentityStores) ||
             (persistence.Provider == PersistenceProvider.PostgreSql && persistence.UsePostgreSqlIdentityStores))
         {
-            services.AddScoped<ITenantRepository, SqlServerTenantRepository>();
-            services.AddScoped<ITenantParameterRepository, SqlServerTenantParameterRepository>();
-            services.AddScoped<ITenantSignupRequestRepository, SqlServerTenantSignupRequestRepository>();
-            services.AddScoped<IUserAccountRepository, SqlServerUserAccountRepository>();
-            services.AddScoped<IUserManagementDelegationRepository, SqlServerUserManagementDelegationRepository>();
+            services.AddScoped<ITenantRepository, PostgreSqlTenantRepository>();
+            services.AddScoped<ITenantParameterRepository, PostgreSqlTenantParameterRepository>();
+            services.AddScoped<ITenantSignupRequestRepository, PostgreSqlTenantSignupRequestRepository>();
+            services.AddScoped<IUserAccountRepository, PostgreSqlUserAccountRepository>();
+            services.AddScoped<IUserManagementDelegationRepository, PostgreSqlUserManagementDelegationRepository>();
         }
         else
         {
@@ -364,15 +323,14 @@ public static class DependencyInjection
             services.AddSingleton<IUserManagementDelegationRepository>(sp => sp.GetRequiredService<InMemoryUserManagementDelegationRepository>());
         }
 
-        if ((persistence.Provider == PersistenceProvider.SqlServer && persistence.UseSqlServerAuthorizationStores) ||
-            (persistence.Provider == PersistenceProvider.Sqlite && persistence.UseSqliteAuthorizationStores) ||
+        if ((persistence.Provider == PersistenceProvider.Sqlite && persistence.UseSqliteAuthorizationStores) ||
             (persistence.Provider == PersistenceProvider.PostgreSql && persistence.UsePostgreSqlAuthorizationStores))
         {
-            services.AddScoped<IProfileRepository, SqlServerProfileRepository>();
-            services.AddScoped<ISystemSuiteRepository, SqlServerSystemSuiteRepository>();
-            services.AddScoped<IPermissionTemplateRepository, SqlServerPermissionTemplateRepository>();
-            services.AddScoped<IRoleRepository, SqlServerRoleRepository>();
-            services.AddScoped<ITemplateAssignmentRuleRepository, SqlServerTemplateAssignmentRuleRepository>();
+            services.AddScoped<IProfileRepository, PostgreSqlProfileRepository>();
+            services.AddScoped<ISystemSuiteRepository, PostgreSqlSystemSuiteRepository>();
+            services.AddScoped<IPermissionTemplateRepository, PostgreSqlPermissionTemplateRepository>();
+            services.AddScoped<IRoleRepository, PostgreSqlRoleRepository>();
+            services.AddScoped<ITemplateAssignmentRuleRepository, PostgreSqlTemplateAssignmentRuleRepository>();
         }
         else
         {
@@ -392,16 +350,15 @@ public static class DependencyInjection
             services.AddSingleton<ITemplateAssignmentRuleRepository>(sp => sp.GetRequiredService<InMemoryTemplateAssignmentRuleRepository>());
         }
 
-        if ((persistence.Provider == PersistenceProvider.SqlServer && persistence.UseSqlServerConfigurationStores) ||
-            (persistence.Provider == PersistenceProvider.Sqlite && persistence.UseSqliteConfigurationStores) ||
+        if ((persistence.Provider == PersistenceProvider.Sqlite && persistence.UseSqliteConfigurationStores) ||
             (persistence.Provider == PersistenceProvider.PostgreSql && persistence.UsePostgreSqlConfigurationStores))
         {
-            services.AddScoped<IAppConfigurationRepository, SqlServerAppConfigurationRepository>();
-            services.AddScoped<IFeatureFlagRepository, SqlServerFeatureFlagRepository>();
-            services.AddScoped<IIdpConfigurationRepository, SqlServerIdpConfigurationRepository>();
-            services.AddScoped<IParameterDefinitionRepository, SqlServerParameterDefinitionRepository>();
-            services.AddScoped<IParameterGlobalValueRepository, SqlServerParameterGlobalValueRepository>();
-            services.AddScoped<IParameterTenantValueRepository, SqlServerParameterTenantValueRepository>();
+            services.AddScoped<IAppConfigurationRepository, PostgreSqlAppConfigurationRepository>();
+            services.AddScoped<IFeatureFlagRepository, PostgreSqlFeatureFlagRepository>();
+            services.AddScoped<IIdpConfigurationRepository, PostgreSqlIdpConfigurationRepository>();
+            services.AddScoped<IParameterDefinitionRepository, PostgreSqlParameterDefinitionRepository>();
+            services.AddScoped<IParameterGlobalValueRepository, PostgreSqlParameterGlobalValueRepository>();
+            services.AddScoped<IParameterTenantValueRepository, PostgreSqlParameterTenantValueRepository>();
         }
         else
         {
@@ -420,9 +377,9 @@ public static class DependencyInjection
             services.AddSingleton<IParameterTenantValueRepository>(sp => sp.GetRequiredService<InMemoryParameterRepositories>());
         }
 
-        if (persistence.Provider == PersistenceProvider.SqlServer || persistence.Provider == PersistenceProvider.Sqlite || persistence.Provider == PersistenceProvider.PostgreSql)
+        if (persistence.Provider == PersistenceProvider.Sqlite || persistence.Provider == PersistenceProvider.PostgreSql)
         {
-            services.AddScoped<IAuditRecordRepository, SqlServerAuditRecordRepository>();
+            services.AddScoped<IAuditRecordRepository, PostgreSqlAuditRecordRepository>();
         }
         else
         {
@@ -430,16 +387,15 @@ public static class DependencyInjection
             services.AddSingleton<IAuditRecordRepository>(sp => sp.GetRequiredService<InMemoryAuditRecordRepository>());
         }
 
-        if ((persistence.Provider == PersistenceProvider.SqlServer && persistence.UseSqlServerApprovalsStores) ||
-            (persistence.Provider == PersistenceProvider.Sqlite && persistence.UseSqliteApprovalsStores) ||
+        if ((persistence.Provider == PersistenceProvider.Sqlite && persistence.UseSqliteApprovalsStores) ||
             (persistence.Provider == PersistenceProvider.PostgreSql && persistence.UsePostgreSqlApprovalsStores))
         {
-            services.AddScoped<IApprovalWorkflowRepository, SqlServerApprovalWorkflowRepository>();
-            services.AddScoped<IApprovalRequestRepository, SqlServerApprovalRequestRepository>();
-            services.AddScoped<INotificationRuleRepository, SqlServerNotificationRuleRepository>();
-            services.AddScoped<IDocumentTypeRepository, SqlServerDocumentTypeRepository>();
-            services.AddScoped<IUserDocumentRepository, SqlServerUserDocumentRepository>();
-            services.AddScoped<IAccessEnforcementPolicyRepository, SqlServerAccessEnforcementPolicyRepository>();
+            services.AddScoped<IApprovalWorkflowRepository, PostgreSqlApprovalWorkflowRepository>();
+            services.AddScoped<IApprovalRequestRepository, PostgreSqlApprovalRequestRepository>();
+            services.AddScoped<INotificationRuleRepository, PostgreSqlNotificationRuleRepository>();
+            services.AddScoped<IDocumentTypeRepository, PostgreSqlDocumentTypeRepository>();
+            services.AddScoped<IUserDocumentRepository, PostgreSqlUserDocumentRepository>();
+            services.AddScoped<IAccessEnforcementPolicyRepository, PostgreSqlAccessEnforcementPolicyRepository>();
         }
         else
         {
@@ -542,21 +498,9 @@ public static class DependencyInjection
 
         var builder = services.AddHealthChecks();
 
-        if (persistence.Provider == PersistenceProvider.SqlServer || persistence.Provider == PersistenceProvider.Sqlite || persistence.Provider == PersistenceProvider.PostgreSql)
+        if (persistence.Provider == PersistenceProvider.Sqlite || persistence.Provider == PersistenceProvider.PostgreSql)
         {
-            if (persistence.Provider == PersistenceProvider.SqlServer)
-            {
-                var connectionString = configuration.GetConnectionString("DefaultConnection");
-                if (!string.IsNullOrWhiteSpace(connectionString))
-                {
-                    builder.AddSqlServer(
-                        connectionString,
-                        name: "sql_server",
-                        tags: ["ready", "db"]);
-                }
-            }
-
-                        if (persistence.Provider == PersistenceProvider.PostgreSql)
+            if (persistence.Provider == PersistenceProvider.PostgreSql)
             {
                 var connectionString = configuration.GetConnectionString("DefaultConnection");
                 if (!string.IsNullOrWhiteSpace(connectionString))

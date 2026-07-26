@@ -264,11 +264,7 @@ public static class UmsApiApplicationBuilderExtensions
             using var scope = app.Services.CreateScope();
             var platformDbContext = scope.ServiceProvider.GetRequiredService<UmsPlatformDbContext>();
 
-            if (persistence.Provider == PersistenceProvider.SqlServer)
-            {
-                await SqlServerSchemaBootstrapper.InitializeAsync(platformDbContext, new SqlServerDistributedLockProvider());
-            }
-            else if (persistence.Provider == PersistenceProvider.Sqlite)
+            if (persistence.Provider == PersistenceProvider.Sqlite)
             {
                 await SqliteSchemaBootstrapper.InitializeAsync(platformDbContext);
             }

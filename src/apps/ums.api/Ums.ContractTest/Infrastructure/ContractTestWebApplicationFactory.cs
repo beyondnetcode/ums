@@ -31,9 +31,6 @@ public sealed class ContractTestWebApplicationFactory : WebApplicationFactory<Pr
     {
         Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT",              "Development");
         Environment.SetEnvironmentVariable("Persistence__Provider",               "InMemory");
-        Environment.SetEnvironmentVariable("Persistence__UseSqlServerIdentityStores",      "false");
-        Environment.SetEnvironmentVariable("Persistence__UseSqlServerAuthorizationStores", "false");
-        Environment.SetEnvironmentVariable("Persistence__UseSqlServerConfigurationStores", "false");
         Environment.SetEnvironmentVariable("Persistence__SeedDevData",                     "true");
         Environment.SetEnvironmentVariable("Persistence__EnableOutbox",                    "false");
         Environment.SetEnvironmentVariable("Persistence__InitializePlatformStoreOnStartup","false");
@@ -49,9 +46,6 @@ public sealed class ContractTestWebApplicationFactory : WebApplicationFactory<Pr
             cfg.AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["Persistence:Provider"]                        = PersistenceProvider.InMemory.ToString(),
-                ["Persistence:UseSqlServerIdentityStores"]      = bool.FalseString,
-                ["Persistence:UseSqlServerAuthorizationStores"] = bool.FalseString,
-                ["Persistence:UseSqlServerConfigurationStores"] = bool.FalseString,
                 ["Persistence:SeedDevData"]                     = bool.TrueString,
                 ["Persistence:EnableOutbox"]                    = bool.FalseString,
                 ["Persistence:InitializePlatformStoreOnStartup"]= bool.FalseString,
