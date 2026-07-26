@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - 'hotfix/**'
-      - 'main' # When main receives hotfix merge
   workflow_dispatch:
 
 concurrency:

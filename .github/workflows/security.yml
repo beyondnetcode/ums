@@ -41,7 +41,9 @@ jobs:
           fetch-depth: 0
 
       - name: Run GitLeaks
-        uses: goreleaser/gitleaks-action@v2
+        # La action se movió a gitleaks/gitleaks-action (goreleaser/* ya no existe → fallo de
+        # resolución que tumbaba el job). Best-effort: el gate real es el grep custom de abajo.
+        uses: gitleaks/gitleaks-action@v2
         with:
           config_path: .github/secrets-config.toml
         continue-on-error: true
@@ -73,6 +75,9 @@ jobs:
   dependency-review:
     name: Dependency Vulnerability Review
     runs-on: ubuntu-latest
+    # dependency-review-action necesita base/head ref: solo funciona en pull_request
+    # (en push a main no hay diff que revisar y falla). Se limita a PRs.
+    if: github.event_name == 'pull_request'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -101,6 +106,9 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: 'csharp'
+          # Análisis sin compilar: el autobuild de C# fallaba (requiere SDK .NET 10 + restore de
+          # los shells NuGet). `build-mode: none` hace extracción buildless, suficiente para el gate.
+          build-mode: none
           queries: security-and-quality
 
       - name: Perform Analysis
