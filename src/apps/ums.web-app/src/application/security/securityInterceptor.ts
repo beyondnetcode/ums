@@ -107,11 +107,12 @@ class SecurityInterceptor {
         this.onUnauthorized();
         break;
 
-      case 429:
+      case 429: {
         const retryAfter = headers?.get('Retry-After');
         const retryMs = retryAfter ? parseInt(retryAfter, 10) * 1000 : 60000;
         this.onRateLimited(retryMs);
         break;
+      }
 
       case 500:
       case 502:

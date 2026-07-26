@@ -16,37 +16,58 @@ test.describe('Navigation', () => {
   });
 
   test('should navigate to Tenants page', async ({ page }) => {
-    await page.getByRole('button', { name: /tenant/i }).first().click();
+    await page
+      .getByRole('button', { name: /tenant/i })
+      .first()
+      .click();
     await expect(page).toHaveURL(/\/tenants/);
   });
 
   test('should navigate to Users page', async ({ page }) => {
-    await page.getByRole('button', { name: /(user accounts|cuentas de usuario)/i }).first().click();
+    await page
+      .getByRole('button', { name: /(user accounts|cuentas de usuario)/i })
+      .first()
+      .click();
     await expect(page).toHaveURL(/\/users/);
   });
 
   test('should navigate to System Suites page', async ({ page }) => {
-    await page.getByRole('button', { name: /(system suites|suites del sistema)/i }).first().click();
+    await page
+      .getByRole('button', { name: /(system suites|suites del sistema)/i })
+      .first()
+      .click();
     await expect(page).toHaveURL(/\/system-suites/);
   });
 
   test('should navigate to Permission Templates page', async ({ page }) => {
-    await page.getByRole('button', { name: /(permission templates|plantillas de permisos)/i }).first().click();
+    await page
+      .getByRole('button', { name: /(permission templates|plantillas de permisos)/i })
+      .first()
+      .click();
     await expect(page).toHaveURL(/\/permission-templates/);
   });
 
   test('should navigate to Profiles page', async ({ page }) => {
-    await page.getByRole('button', { name: /(authorization profiles|perfiles de autorización)/i }).first().click();
+    await page
+      .getByRole('button', { name: /(authorization profiles|perfiles de autorización)/i })
+      .first()
+      .click();
     await expect(page).toHaveURL(/\/profiles/);
   });
 
   test('should navigate to Feature Flags page', async ({ page }) => {
-    await page.getByRole('button', { name: /(feature flags|flags|banderas)/i }).first().click();
+    await page
+      .getByRole('button', { name: /(feature flags|flags|banderas)/i })
+      .first()
+      .click();
     await expect(page).toHaveURL(/\/feature-flags/);
   });
 
   test('should navigate to Profile page', async ({ page }) => {
-    await page.getByRole('button', { name: /(profile stats|estadísticas de perfil)/i }).first().click();
+    await page
+      .getByRole('button', { name: /(profile stats|estadísticas de perfil)/i })
+      .first()
+      .click();
     await expect(page).toHaveURL(/\/profile/);
   });
 
