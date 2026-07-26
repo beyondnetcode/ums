@@ -14,29 +14,29 @@ public sealed class PersistenceRuntimeReporter(
         var options = persistenceOptions.Value;
 
         logger.LogInformation(
-            "UMS persistence configured with provider {Provider}, aggregate store mode {AggregateStoreMode}, identity SQL stores {UseSqlServerIdentityStores}, authorization SQL stores {UseSqlServerAuthorizationStores}, outbox enabled {EnableOutbox}.",
+            "UMS persistence configured with provider {Provider}, aggregate store mode {AggregateStoreMode}, identity PostgreSQL stores {UsePostgreSqlIdentityStores}, authorization PostgreSQL stores {UsePostgreSqlAuthorizationStores}, outbox enabled {EnableOutbox}.",
             options.Provider,
             options.AggregateStoreMode,
-            options.UseSqlServerIdentityStores,
-            options.UseSqlServerAuthorizationStores,
+            options.UsePostgreSqlIdentityStores,
+            options.UsePostgreSqlAuthorizationStores,
             options.EnableOutbox);
 
-        if (options.Provider == PersistenceProvider.SqlServer
+        if (options.Provider == PersistenceProvider.PostgreSql
             && options.AggregateStoreMode == AggregateStoreMode.InMemory
-            && !options.UseSqlServerIdentityStores)
+            && !options.UsePostgreSqlIdentityStores)
         {
             logger.LogWarning(
-                "SQL Server is configured as the platform provider, but aggregate repositories still run in-memory. This is a valid transitional modular-monolith mode, not the final production persistence model.");
+                "PostgreSQL is configured as the platform provider, but aggregate repositories still run in-memory. This is a valid transitional modular-monolith mode, not the final production persistence model.");
         }
 
-        if (options.Provider == PersistenceProvider.SqlServer && options.UseSqlServerIdentityStores)
+        if (options.Provider == PersistenceProvider.PostgreSql && options.UsePostgreSqlIdentityStores)
         {
-            logger.LogInformation("Identity aggregates are configured to run on SQL Server repositories while the remaining contexts stay in transitional mode.");
+            logger.LogInformation("Identity aggregates are configured to run on PostgreSQL repositories while the remaining contexts stay in transitional mode.");
         }
 
-        if (options.Provider == PersistenceProvider.SqlServer && options.UseSqlServerAuthorizationStores)
+        if (options.Provider == PersistenceProvider.PostgreSql && options.UsePostgreSqlAuthorizationStores)
         {
-            logger.LogInformation("Authorization profile aggregates are configured to run on SQL Server repositories.");
+            logger.LogInformation("Authorization profile aggregates are configured to run on PostgreSQL repositories.");
         }
 
         return Task.CompletedTask;
