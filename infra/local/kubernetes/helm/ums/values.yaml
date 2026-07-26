@@ -4,10 +4,10 @@ api:
 web:
   image: "ums-web:latest"
   port: 80
-sqlserver:
-  image: "mcr.microsoft.com/azure-sql-edge:latest"
-  password: "Your_password123"
-  port: 1433
+postgres:
+  image: "postgres:15-alpine"
+  password: "root"
+  port: 5432
 redis:
   image: "redis:7.4-alpine"
   port: 6379

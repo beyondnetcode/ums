@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ums-postgres
+  template:
+    metadata:
+      labels:
+        app: ums-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: {{ .Values.postgres.image }}
+          env:
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.postgres.password | quote }}
+            - name: POSTGRES_DB
+              value: UmsDev
+          ports:
+            - containerPort: {{ .Values.postgres.port }}
+          volumeMounts:
+            - name: pgdata
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: pgdata
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+spec:
+  type: ClusterIP
+  selector:
+    app: ums-postgres
+  ports:
+    - protocol: TCP
+      port: {{ .Values.postgres.port }}
+      targetPort: {{ .Values.postgres.port }}
